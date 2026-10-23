@@ -1,0 +1,33 @@
+{
+  "response": {
+    "chapterId": "62adb34c-5cf5-461f-b3da-1c2d24e61ac7",
+    "novelId": "d3f9f716-fa81-4849-a3e1-4bde774f42e4",
+    "title": "Contract chapter",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 16,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "DRAFT",
+    "publicationSchedule": null,
+    "updatedAt": "2026-10-23T09:30:34.667Z",
+    "draft": {
+      "title": "Contract chapter",
+      "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+      "wordCount": 16,
+      "version": 10,
+      "autosave": true,
+      "updatedAt": "2026-10-23T09:30:34.665Z"
+    },
+    "analysisRevisionId": "6510f0f9-2d77-4e5e-a274-797765cb89af",
+    "draftVersion": 10
+  },
+  "durable_draft": {
+    "title": "Contract chapter",
+    "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+    "wordCount": 16,
+    "version": 10,
+    "autosave": true,
+    "updatedAt": "2026-10-23T09:30:34.665Z"
+  }
+}

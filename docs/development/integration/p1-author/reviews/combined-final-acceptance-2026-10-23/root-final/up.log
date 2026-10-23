@@ -1,0 +1,235 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.88kB done
+#1 DONE 0.0s
+
+#2 [ai-service internal] load build definition from Dockerfile
+#2 transferring dockerfile: 457B 0.0s done
+#2 DONE 0.0s
+
+#3 [backend internal] load build definition from Dockerfile
+#3 transferring dockerfile: 324B done
+#3 DONE 0.0s
+
+#4 [web internal] load build definition from Dockerfile
+#4 transferring dockerfile: 378B done
+#4 DONE 0.0s
+
+#5 [web internal] load metadata for docker.io/library/node:22-bookworm-slim
+#5 ...
+
+#6 [auth] library/python:pull token for registry-1.docker.io
+#6 DONE 0.0s
+
+#7 [auth] library/nginx:pull token for registry-1.docker.io
+#7 DONE 0.0s
+
+#8 [auth] library/node:pull token for registry-1.docker.io
+#8 DONE 0.0s
+
+#9 [web internal] load metadata for docker.io/library/nginx:1.27-alpine
+#9 ...
+
+#10 [ai-service internal] load metadata for docker.io/library/python:3.12.10-slim-bookworm
+#10 DONE 1.9s
+
+#9 [web internal] load metadata for docker.io/library/nginx:1.27-alpine
+#9 DONE 1.9s
+
+#11 [ai-service internal] load .dockerignore
+#11 transferring context: 219B done
+#11 DONE 0.0s
+
+#12 [ai-service 1/6] FROM docker.io/library/python:3.12.10-slim-bookworm@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db
+#12 resolve docker.io/library/python:3.12.10-slim-bookworm@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db 0.0s done
+#12 DONE 0.0s
+
+#13 [ai-service internal] load build context
+#13 transferring context: 19.08kB 0.0s done
+#13 DONE 0.0s
+
+#14 [ai-service 5/6] RUN pip install --no-cache-dir -r requirements.txt pytest httpx
+#14 CACHED
+
+#15 [ai-service 3/6] RUN apt-get update && apt-get install -y --no-install-recommends     curl     && rm -rf /var/lib/apt/lists/*
+#15 CACHED
+
+#16 [ai-service 4/6] COPY requirements.txt .
+#16 CACHED
+
+#17 [ai-service 2/6] WORKDIR /app
+#17 CACHED
+
+#18 [ai-service 6/6] COPY . .
+#18 CACHED
+
+#19 [ai-service] exporting to image
+#19 exporting layers done
+#19 exporting manifest sha256:8e9a971c5aec111aaebe23a3a5fe33b61742e202525aed4af5e89d791d8b27a4 0.0s done
+#19 exporting config sha256:2280bfab09870797384a0fb0bf3ca168b9b97661ee4ab1e19eeddd0322db6cdc 0.0s done
+#19 exporting attestation manifest sha256:bc2e03aa134bca0d2a78ffb90e4659da7744742485b994c11d2d254afae1668f 0.0s done
+#19 exporting manifest list sha256:48142b6ec0b17b0274d48b16d7c7192421044c929fb1f35c31affa67044ed84c 0.0s done
+#19 naming to docker.io/library/pr60-smoke-6286404249-ai-service:latest
+#19 naming to docker.io/library/pr60-smoke-6286404249-ai-service:latest done
+#19 unpacking to docker.io/library/pr60-smoke-6286404249-ai-service:latest 0.0s done
+#19 DONE 0.2s
+
+#5 [web internal] load metadata for docker.io/library/node:22-bookworm-slim
+#5 DONE 2.4s
+
+#20 [backend internal] load .dockerignore
+#20 transferring context: 201B done
+#20 DONE 0.0s
+
+#21 [web internal] load build context
+#21 DONE 0.0s
+
+#22 [backend internal] load build context
+#22 DONE 0.0s
+
+#23 [backend build 1/6] FROM docker.io/library/node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d
+#23 resolve docker.io/library/node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d
+#23 resolve docker.io/library/node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d 0.2s done
+#23 DONE 0.2s
+
+#24 [web stage-1 1/3] FROM docker.io/library/nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+#24 resolve docker.io/library/nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10 0.1s done
+#24 DONE 0.1s
+
+#22 [backend internal] load build context
+#22 ...
+
+#25 [ai-service] resolving provenance for metadata file
+#25 DONE 0.1s
+
+#22 [backend internal] load build context
+#22 ...
+
+#21 [web internal] load build context
+#21 transferring context: 1.49MB 0.6s done
+#21 DONE 0.6s
+
+#26 [web build 5/6] COPY web ./
+#26 CACHED
+
+#27 [web build 6/6] RUN npm run build
+#27 CACHED
+
+#28 [web stage-1 2/3] COPY web/nginx.conf /etc/nginx/conf.d/default.conf
+#28 CACHED
+
+#29 [web build 3/6] COPY web/package*.json ./
+#29 CACHED
+
+#30 [web build 4/6] RUN npm ci
+#30 CACHED
+
+#31 [web build 2/6] WORKDIR /app/web
+#31 CACHED
+
+#22 [backend internal] load build context
+#22 ...
+
+#32 [web stage-1 3/3] COPY --from=build /app/web/dist /usr/share/nginx/html
+#32 CACHED
+
+#22 [backend internal] load build context
+#22 transferring context: 1.16MB 0.9s done
+#22 DONE 0.9s
+
+#33 [backend 4/8] RUN npm ci
+#33 CACHED
+
+#34 [backend 5/8] COPY backend ./
+#34 DONE 0.3s
+
+#35 [backend 6/8] COPY docs/Assets /app/docs/Assets
+#35 DONE 0.1s
+
+#36 [web] exporting to image
+#36 exporting layers 0.0s done
+#36 exporting manifest sha256:be95c4397e43d934280ff6a40e87e3cca35c42a62e49b5b46bafb931574d229c 0.0s done
+#36 exporting config sha256:07eed890b98f0262825e9faa39cb2388b25fe14f4b0a6debccc819251186e421 0.1s done
+#36 exporting attestation manifest sha256:f0bee47e61e3cdc7ab856b244f936ee3cffd61761e3f8925ffcba4690a8fd89a 0.0s done
+#36 exporting manifest list sha256:ea6fc6b8598f194fad0e62b2df094db428b247d115e1e1c535aaf2549e912809 0.0s done
+#36 naming to docker.io/library/pr60-smoke-6286404249-web:latest done
+#36 unpacking to docker.io/library/pr60-smoke-6286404249-web:latest 0.1s done
+#36 DONE 0.4s
+
+#37 [backend 7/8] RUN sed -i 's/\r$//' ./docker-entrypoint.sh && chmod +x ./docker-entrypoint.sh
+#37 DONE 0.5s
+
+#38 [web] resolving provenance for metadata file
+#38 DONE 0.0s
+
+#39 [backend 8/8] RUN npm run build
+#39 0.465 
+#39 0.465 > ephurin-backend@0.1.0 build
+#39 0.465 > tsc -p tsconfig.json
+#39 0.465 
+#39 DONE 8.1s
+
+#40 [backend] exporting to image
+#40 exporting layers
+#40 exporting layers 0.2s done
+#40 exporting manifest sha256:784e53c35ec06ff884c5671f01d10dd7259bab392bb5f6f0fe5b1565ae835384 0.0s done
+#40 exporting config sha256:5221739392e974bb8dc2208705900c1e6b708ab45de2b5cc96f9de9411d0eb29 0.0s done
+#40 exporting attestation manifest sha256:967c0dc66b99eac2918980c6795d31a5933eafbd843d590db486e87480234e93 0.1s done
+#40 exporting manifest list sha256:855034471899ec66b4a26f821815796cf1e44a0edf29bda6a62c306590f9dffb
+#40 exporting manifest list sha256:855034471899ec66b4a26f821815796cf1e44a0edf29bda6a62c306590f9dffb 0.0s done
+#40 naming to docker.io/library/pr60-smoke-6286404249-backend:latest done
+#40 unpacking to docker.io/library/pr60-smoke-6286404249-backend:latest
+#40 unpacking to docker.io/library/pr60-smoke-6286404249-backend:latest 0.2s done
+#40 DONE 0.6s
+
+#41 [backend] resolving provenance for metadata file
+#41 DONE 0.1s
+ Image pr60-smoke-6286404249-backend Building 
+ Image pr60-smoke-6286404249-web Building 
+ Image pr60-smoke-6286404249-ai-service Building 
+ Image pr60-smoke-6286404249-ai-service Built 
+ Image pr60-smoke-6286404249-backend Built 
+ Image pr60-smoke-6286404249-web Built 
+ Volume pr60-smoke-6286404249_media_data Creating 
+ Network pr60-smoke-6286404249_default Creating 
+ Volume pr60-smoke-6286404249_mongodb_data Creating 
+ Volume pr60-smoke-6286404249_postgres_data Creating 
+ Volume pr60-smoke-6286404249_postgres_data Creating 
+ Network pr60-smoke-6286404249_default Creating 
+ Volume pr60-smoke-6286404249_media_data Creating 
+ Volume pr60-smoke-6286404249_mongodb_data Creating 
+ Volume pr60-smoke-6286404249_media_data Created 
+ Volume pr60-smoke-6286404249_media_data Created 
+ Volume pr60-smoke-6286404249_postgres_data Created 
+ Volume pr60-smoke-6286404249_postgres_data Created 
+ Volume pr60-smoke-6286404249_mongodb_data Created 
+ Volume pr60-smoke-6286404249_mongodb_data Created 
+ Network pr60-smoke-6286404249_default Created 
+ Network pr60-smoke-6286404249_default Created 
+ Container pr60-smoke-6286404249-postgres-1 Creating 
+ Container pr60-smoke-6286404249-mongodb-1 Creating 
+ Container pr60-smoke-6286404249-postgres-1 Created 
+ Container pr60-smoke-6286404249-ai-service-1 Creating 
+ Container pr60-smoke-6286404249-mongodb-1 Created 
+ Container pr60-smoke-6286404249-ai-service-1 Created 
+ Container pr60-smoke-6286404249-backend-1 Creating 
+ Container pr60-smoke-6286404249-backend-1 Created 
+ Container pr60-smoke-6286404249-web-1 Creating 
+ Container pr60-smoke-6286404249-web-1 Created 
+ Container pr60-smoke-6286404249-mongodb-1 Starting 
+ Container pr60-smoke-6286404249-postgres-1 Starting 
+ Container pr60-smoke-6286404249-mongodb-1 Started 
+ Container pr60-smoke-6286404249-postgres-1 Started 
+ Container pr60-smoke-6286404249-postgres-1 Waiting 
+ Container pr60-smoke-6286404249-postgres-1 Healthy 
+ Container pr60-smoke-6286404249-ai-service-1 Starting 
+ Container pr60-smoke-6286404249-ai-service-1 Started 
+ Container pr60-smoke-6286404249-ai-service-1 Waiting 
+ Container pr60-smoke-6286404249-postgres-1 Waiting 
+ Container pr60-smoke-6286404249-mongodb-1 Waiting 
+ Container pr60-smoke-6286404249-postgres-1 Healthy 
+ Container pr60-smoke-6286404249-mongodb-1 Healthy 
+ Container pr60-smoke-6286404249-ai-service-1 Healthy 
+ Container pr60-smoke-6286404249-backend-1 Starting 
+ Container pr60-smoke-6286404249-backend-1 Started 
+ Container pr60-smoke-6286404249-web-1 Starting 
+ Container pr60-smoke-6286404249-web-1 Started 

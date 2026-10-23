@@ -1,0 +1,1869 @@
+{
+  "verdict": "COMBINED_READY_FOR_GPT6_REVIEW",
+  "initial_merge_sha": "66c1052a8cb63e411a83e330207feb97c13210d4",
+  "final_tested_source_sha": "2313a15a5da0415539c1f999df2628674944469e",
+  "tracked_source_clean": true,
+  "primary_disjoint_test_partitions": [
+    {
+      "suite": "Backend deterministic partition",
+      "PASS": 128,
+      "FAIL": 0,
+      "SKIP": 3
+    },
+    {
+      "suite": "Fixture resilience G01/G02",
+      "PASS": 25,
+      "FAIL": 0,
+      "SKIP": 0
+    },
+    {
+      "suite": "Native provenance",
+      "PASS": 7,
+      "FAIL": 0,
+      "SKIP": 0
+    },
+    {
+      "suite": "Legacy reconciliation plus cleanup regression",
+      "PASS": 4,
+      "FAIL": 0,
+      "SKIP": 0
+    },
+    {
+      "suite": "Accept Draft trust",
+      "PASS": 14,
+      "FAIL": 0,
+      "SKIP": 0
+    },
+    {
+      "suite": "Native outbox",
+      "PASS": 2,
+      "FAIL": 0,
+      "SKIP": 0
+    },
+    {
+      "suite": "Native accepted persistence",
+      "PASS": 5,
+      "FAIL": 0,
+      "SKIP": 0
+    },
+    {
+      "suite": "Full AI non-PG partition",
+      "PASS": 251,
+      "FAIL": 0,
+      "SKIP": 2
+    },
+    {
+      "suite": "Full AI PG partition",
+      "PASS": 42,
+      "FAIL": 0,
+      "SKIP": 0
+    }
+  ],
+  "primary_counts": {
+    "PASS": 478,
+    "FAIL": 0,
+    "SKIP": 5
+  },
+  "counting": "Primary file/marker partitions only; do not add subset, repeated or earlier-source executions. Six extra pytest subtests pass separately. HTTP rows and root checkpoints are separate proof units, not unique unit-test counts.",
+  "additional_repeated_checks": [
+    "selected backend81",
+    "selected AI61",
+    "P7 selected64",
+    "native guard-lifecycle6",
+    "root authorized native5"
+  ],
+  "http": [
+    {
+      "probe": "persistence",
+      "PASS": 19,
+      "FAIL": 0,
+      "BLOCKED": 0,
+      "rows": [
+        {
+          "test": "01_absent_draft_version_0",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO",
+          "details": [
+            null,
+            {
+              "chapterId": "62adb34c-5cf5-461f-b3da-1c2d24e61ac7",
+              "novelId": "d3f9f716-fa81-4849-a3e1-4bde774f42e4",
+              "title": "Contract chapter",
+              "chapterNumber": 1,
+              "content": null,
+              "wordCount": 9,
+              "isVip": false,
+              "priceCoins": 0,
+              "status": "DRAFT",
+              "publicationSchedule": null,
+              "updatedAt": "2026-10-23T09:29:58.749Z",
+              "draft": {
+                "title": "Contract chapter",
+                "content": "Mai Linh và Duy đứng tại Cồn Vân. B",
+                "wordCount": 9,
+                "version": 1,
+                "autosave": true,
+                "updatedAt": "2026-10-23T09:29:58.746Z"
+              },
+              "analysisRevisionId": null,
+              "draftVersion": 1
+            },
+            null
+          ]
+        },
+        {
+          "test": "02_valid_version_save",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO",
+          "details": [
+            {
+              "chapterId": "62adb34c-5cf5-461f-b3da-1c2d24e61ac7",
+              "novelId": "d3f9f716-fa81-4849-a3e1-4bde774f42e4",
+              "title": "Contract chapter",
+              "chapterNumber": 1,
+              "content": null,
+              "wordCount": 10,
+              "isVip": false,
+              "priceCoins": 0,
+              "status": "DRAFT",
+              "publicationSchedule": null,
+              "updatedAt": "2026-10-23T09:29:58.800Z",
+              "draft": {
+                "title": "Contract chapter",
+                "content": "Mai Linh và Duy đứng tại Cồn Vân. B valid",
+                "wordCount": 10,
+                "version": 2,
+                "autosave": true,
+                "updatedAt": "2026-10-23T09:29:58.799Z"
+              },
+              "analysisRevisionId": null,
+              "draftVersion": 2
+            },
+            null
+          ]
+        },
+        {
+          "test": "03_missing_version_integration_428",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO",
+          "details": null
+        },
+        {
+          "test": "04_stale_different_body_409",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO",
+          "details": [
+            null,
+            null
+          ]
+        },
+        {
+          "test": "05_same_body_lost_response_retry",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO",
+          "details": [
+            {
+              "chapterId": "62adb34c-5cf5-461f-b3da-1c2d24e61ac7",
+              "novelId": "d3f9f716-fa81-4849-a3e1-4bde774f42e4",
+              "title": "Contract chapter",
+              "chapterNumber": 1,
+              "content": null,
+              "wordCount": 11,
+              "isVip": false,
+              "priceCoins": 0,
+              "status": "DRAFT",
+              "publicationSchedule": null,
+              "updatedAt": "2026-10-23T09:30:03.819Z",
+              "draft": {
+                "title": "Contract chapter",
+                "content": "Mai Linh và Duy đứng tại Cồn Vân. B response unread",
+                "wordCount": 11,
+                "version": 3,
+                "autosave": true,
+                "updatedAt": "2026-10-23T09:30:03.816Z"
+              },
+              "analysisRevisionId": null,
+              "draftVersion": 3
+            },
+            null
+          ]
+        },
+        {
+          "test": "06_different_body_stale_retry",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO",
+          "details": [
+            null,
+            null
+          ]
+        },
+        {
+          "test": "06b_different_metadata_stale_payload_409",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO",
+          "details": null
+        },
+        {
+          "test": "06c_fresh_metadata_and_identical_semantic_replay",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO",
+          "details": null
+        },
+        {
+          "test": "06d_published_pricing_only_compatibility",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO",
+          "details": null
+        },
+        {
+          "test": "07_concurrent_writers_CAS",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO",
+          "details": null
+        },
+        {
+          "test": "08_API_consumer_inflight_A_then_B",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO",
+          "details": {
+            "model": "API consumer retains B while A response is pending, then serializes using returned version; NOT a mounted hook or editor test",
+            "A_version": 8,
+            "B_version": 9
+          }
+        },
+        {
+          "test": "09_API_chapter_account_isolation",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO",
+          "details": {
+            "browser_lifecycle": "NOT_RUN",
+            "foreign_write": 403,
+            "other_chapter": "819eecb5-57c4-4480-bc2b-2b6d895e8c3b"
+          }
+        },
+        {
+          "test": "10a_active_save_returns_authoritative_version",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO",
+          "details": null
+        },
+        {
+          "test": "10d_save_requires_explicit_canon_review",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO",
+          "details": null
+        },
+        {
+          "test": "10b_active_replay_preserves_version",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO",
+          "details": null
+        },
+        {
+          "test": "10c_next_save_using_returned_version",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO",
+          "details": null
+        },
+        {
+          "test": "10e_accept_requires_explicit_canon_review",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO",
+          "details": null
+        },
+        {
+          "test": "10_active_checkpoint_accept_outbox_StoryBrain",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+          "details": {
+            "automatic_saved_revision": "6510f0f9-2d77-4e5e-a274-797765cb89af",
+            "accepted_revision": "1887b922-62ef-433c-af16-fc68b42a7ab8",
+            "accepted_source_generation": "57b33abf-67cc-5012-8d8d-66180099ec94",
+            "active_baseline": true,
+            "explicit_author_review": true,
+            "review_mode": "combined_explicit_author_review",
+            "pipeline_entity_gate": "NOT_AVAILABLE_IN_INTEGRATION",
+            "M_FIRST_from_accepted_source": true,
+            "stale_generation_rejected": 409,
+            "future_plan_not_canon": true
+          }
+        },
+        {
+          "test": "11_snapshot_failure_is_explicit_and_retry_recovers",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO",
+          "details": null
+        }
+      ]
+    },
+    {
+      "probe": "canon",
+      "PASS": 14,
+      "FAIL": 0,
+      "BLOCKED": 2,
+      "rows": [
+        {
+          "test": "01_save_revision_outbox_hash",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+          "details": null
+        },
+        {
+          "test": "02_save_pending_proposals",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+          "details": [
+            {
+              "id": "114beeac-cc75-571a-b90c-c08024610c57",
+              "analysis_run_id": "31a890f1-3487-4785-add9-deae848fcca8",
+              "story_brain_id": "85ea0281-faf2-44ff-921c-a66780bd8acd",
+              "tenant_id": "00000000-0000-0000-0000-000000000001",
+              "novel_id": "59187cd1-24e5-45f8-9ab2-860b6ddf43fb",
+              "dependency_group_id": "f7f61839-7a36-5a52-83ba-ffbc024f4163",
+              "materialization_order": 0,
+              "proposal_type": "entity",
+              "payload": {
+                "entity_type": "PER",
+                "canonical_name": "Mai Linh",
+                "normalized_name": "mai linh"
+              },
+              "evidence": [
+                {
+                  "end": 8,
+                  "start": 0,
+                  "text_hash": "66925182d2caf99e0e79346978d725ccae7527bfc5dcd6e458d4dd58ef8b2ef1",
+                  "revision_id": "17659a47-4cc6-429b-b838-e6b4254e7ce3"
+                }
+              ],
+              "confidence": 9.0,
+              "status": "pending",
+              "expected_brain_version": 2,
+              "decision_reason": null,
+              "created_at": "2026-10-23T09:28:04.374428+00:00",
+              "updated_at": "2026-10-23T09:28:04.374428+00:00"
+            },
+            {
+              "id": "095ae473-f8a1-586e-b390-e4f06b412d77",
+              "analysis_run_id": "31a890f1-3487-4785-add9-deae848fcca8",
+              "story_brain_id": "85ea0281-faf2-44ff-921c-a66780bd8acd",
+              "tenant_id": "00000000-0000-0000-0000-000000000001",
+              "novel_id": "59187cd1-24e5-45f8-9ab2-860b6ddf43fb",
+              "dependency_group_id": "f7f61839-7a36-5a52-83ba-ffbc024f4163",
+              "materialization_order": 1,
+              "proposal_type": "entity",
+              "payload": {
+                "entity_type": "PER",
+                "canonical_name": "Duy",
+                "normalized_name": "duy"
+              },
+              "evidence": [
+                {
+                  "end": 39,
+                  "start": 36,
+                  "text_hash": "66925182d2caf99e0e79346978d725ccae7527bfc5dcd6e458d4dd58ef8b2ef1",
+                  "revision_id": "17659a47-4cc6-429b-b838-e6b4254e7ce3"
+                }
+              ],
+              "confidence": 9.0,
+              "status": "pending",
+              "expected_brain_version": 2,
+              "decision_reason": null,
+              "created_at": "2026-10-23T09:28:04.374428+00:00",
+              "updated_at": "2026-10-23T09:28:04.374428+00:00"
+            },
+            {
+              "id": "f5e5e4ff-3853-5004-84b1-f93564a5c52a",
+              "analysis_run_id": "31a890f1-3487-4785-add9-deae848fcca8",
+              "story_brain_id": "85ea0281-faf2-44ff-921c-a66780bd8acd",
+              "tenant_id": "00000000-0000-0000-0000-000000000001",
+              "novel_id": "59187cd1-24e5-45f8-9ab2-860b6ddf43fb",
+              "dependency_group_id": "f7f61839-7a36-5a52-83ba-ffbc024f4163",
+              "materialization_order": 2,
+              "proposal_type": "entity",
+              "payload": {
+                "entity_type": "LOC",
+                "canonical_name": "Cồn Vân",
+                "normalized_name": "cồn vân"
+              },
+              "evidence": [
+                {
+                  "end": 56,
+                  "start": 49,
+                  "text_hash": "66925182d2caf99e0e79346978d725ccae7527bfc5dcd6e458d4dd58ef8b2ef1",
+                  "revision_id": "17659a47-4cc6-429b-b838-e6b4254e7ce3"
+                }
+              ],
+              "confidence": 9.0,
+              "status": "pending",
+              "expected_brain_version": 2,
+              "decision_reason": null,
+              "created_at": "2026-10-23T09:28:04.374428+00:00",
+              "updated_at": "2026-10-23T09:28:04.374428+00:00"
+            },
+            {
+              "id": "81769a86-4355-5e29-8faf-fdf0e85d3c3a",
+              "analysis_run_id": "31a890f1-3487-4785-add9-deae848fcca8",
+              "story_brain_id": "85ea0281-faf2-44ff-921c-a66780bd8acd",
+              "tenant_id": "00000000-0000-0000-0000-000000000001",
+              "novel_id": "59187cd1-24e5-45f8-9ab2-860b6ddf43fb",
+              "dependency_group_id": "f7f61839-7a36-5a52-83ba-ffbc024f4163",
+              "materialization_order": 3,
+              "proposal_type": "event",
+              "payload": {
+                "chapter": 1,
+                "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng tại Cồn Vân.",
+                "locations": [
+                  "Cồn Vân"
+                ],
+                "event_type": "observation",
+                "consequences": [],
+                "participants": [
+                  "Mai Linh",
+                  "Duy"
+                ],
+                "chapter_number": 1
+              },
+              "evidence": [
+                {
+                  "end": 57,
+                  "start": 0,
+                  "text_hash": "66925182d2caf99e0e79346978d725ccae7527bfc5dcd6e458d4dd58ef8b2ef1",
+                  "chapter_id": "d9c6901f-6195-4a0f-9993-cbaf39437ba3",
+                  "revision_id": "17659a47-4cc6-429b-b838-e6b4254e7ce3",
+                  "chapter_number": 1
+                }
+              ],
+              "confidence": 0.5,
+              "status": "pending",
+              "expected_brain_version": 2,
+              "decision_reason": null,
+              "created_at": "2026-10-23T09:28:04.374428+00:00",
+              "updated_at": "2026-10-23T09:28:04.374428+00:00"
+            }
+          ]
+        },
+        {
+          "test": "03_save_canon_unchanged",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+          "details": {
+            "before": 2,
+            "after": 2
+          }
+        },
+        {
+          "test": "07_duplicate_outbox_no_proposals_or_approval",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+          "details": null
+        },
+        {
+          "test": "09_wrong_owner_denied",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+          "details": null
+        },
+        {
+          "test": "10_stale_brain_version_conflict",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+          "details": null
+        },
+        {
+          "test": "04_author_accept_exactly_once",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+          "details": {
+            "proposal_ids": [
+              "114beeac-cc75-571a-b90c-c08024610c57",
+              "095ae473-f8a1-586e-b390-e4f06b412d77",
+              "f5e5e4ff-3853-5004-84b1-f93564a5c52a",
+              "81769a86-4355-5e29-8faf-fdf0e85d3c3a"
+            ],
+            "canonical_artifact_ids": [
+              "02c6216d-b4a0-405c-ad89-71e38bd9871c",
+              "4faf8b20-6f80-4e8d-a9f7-e8d84bd19fbf",
+              "cb97367e-1ae0-4c08-8a72-e323750fc564",
+              "81769a86-4355-5e29-8faf-fdf0e85d3c3a"
+            ],
+            "brain_version": 3,
+            "status": "accepted"
+          }
+        },
+        {
+          "test": "02b_accept_pending_proposals",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+          "details": [
+            {
+              "id": "a3e3f252-6744-5be6-b2e9-0a3f27b1f536",
+              "analysis_run_id": "91d1cd7f-99ce-443c-b52d-bff6c5fa3a72",
+              "story_brain_id": "85ea0281-faf2-44ff-921c-a66780bd8acd",
+              "tenant_id": "00000000-0000-0000-0000-000000000001",
+              "novel_id": "59187cd1-24e5-45f8-9ab2-860b6ddf43fb",
+              "dependency_group_id": "ff1b77f3-9d7b-531e-8d83-09d0acd5cb8c",
+              "materialization_order": 0,
+              "proposal_type": "entity",
+              "payload": {
+                "entity_type": "PER",
+                "canonical_name": "Mai Linh",
+                "normalized_name": "mai linh"
+              },
+              "evidence": [
+                {
+                  "end": 8,
+                  "start": 0,
+                  "text_hash": "011b399773afc1ac9f4e2e894faae8ee9fd52d32cab2a7e683eee9bae84f42a3",
+                  "revision_id": "98d5faa8-1a63-489c-8b4a-12c213c4362d"
+                }
+              ],
+              "confidence": 9.0,
+              "status": "pending",
+              "expected_brain_version": 3,
+              "decision_reason": null,
+              "created_at": "2026-10-23T09:28:46.440169+00:00",
+              "updated_at": "2026-10-23T09:28:46.440169+00:00"
+            },
+            {
+              "id": "5a9c87ba-8a14-5882-a82d-521b277ae07c",
+              "analysis_run_id": "91d1cd7f-99ce-443c-b52d-bff6c5fa3a72",
+              "story_brain_id": "85ea0281-faf2-44ff-921c-a66780bd8acd",
+              "tenant_id": "00000000-0000-0000-0000-000000000001",
+              "novel_id": "59187cd1-24e5-45f8-9ab2-860b6ddf43fb",
+              "dependency_group_id": "ff1b77f3-9d7b-531e-8d83-09d0acd5cb8c",
+              "materialization_order": 1,
+              "proposal_type": "entity",
+              "payload": {
+                "entity_type": "PER",
+                "canonical_name": "Duy",
+                "normalized_name": "duy"
+              },
+              "evidence": [
+                {
+                  "end": 65,
+                  "start": 62,
+                  "text_hash": "011b399773afc1ac9f4e2e894faae8ee9fd52d32cab2a7e683eee9bae84f42a3",
+                  "revision_id": "98d5faa8-1a63-489c-8b4a-12c213c4362d"
+                }
+              ],
+              "confidence": 9.0,
+              "status": "pending",
+              "expected_brain_version": 3,
+              "decision_reason": null,
+              "created_at": "2026-10-23T09:28:46.440169+00:00",
+              "updated_at": "2026-10-23T09:28:46.440169+00:00"
+            },
+            {
+              "id": "99ee5dce-43fd-5330-bb2f-af7e47f02c88",
+              "analysis_run_id": "91d1cd7f-99ce-443c-b52d-bff6c5fa3a72",
+              "story_brain_id": "85ea0281-faf2-44ff-921c-a66780bd8acd",
+              "tenant_id": "00000000-0000-0000-0000-000000000001",
+              "novel_id": "59187cd1-24e5-45f8-9ab2-860b6ddf43fb",
+              "dependency_group_id": "ff1b77f3-9d7b-531e-8d83-09d0acd5cb8c",
+              "materialization_order": 2,
+              "proposal_type": "entity",
+              "payload": {
+                "entity_type": "LOC",
+                "canonical_name": "Cồn Vân",
+                "normalized_name": "cồn vân"
+              },
+              "evidence": [
+                {
+                  "end": 95,
+                  "start": 88,
+                  "text_hash": "011b399773afc1ac9f4e2e894faae8ee9fd52d32cab2a7e683eee9bae84f42a3",
+                  "revision_id": "98d5faa8-1a63-489c-8b4a-12c213c4362d"
+                }
+              ],
+              "confidence": 9.0,
+              "status": "pending",
+              "expected_brain_version": 3,
+              "decision_reason": null,
+              "created_at": "2026-10-23T09:28:46.440169+00:00",
+              "updated_at": "2026-10-23T09:28:46.440169+00:00"
+            },
+            {
+              "id": "104c18b9-497e-58ce-845b-f94c6c5f62de",
+              "analysis_run_id": "91d1cd7f-99ce-443c-b52d-bff6c5fa3a72",
+              "story_brain_id": "85ea0281-faf2-44ff-921c-a66780bd8acd",
+              "tenant_id": "00000000-0000-0000-0000-000000000001",
+              "novel_id": "59187cd1-24e5-45f8-9ab2-860b6ddf43fb",
+              "dependency_group_id": "ff1b77f3-9d7b-531e-8d83-09d0acd5cb8c",
+              "materialization_order": 3,
+              "proposal_type": "event",
+              "payload": {
+                "chapter": 1,
+                "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+                "locations": [
+                  "Cồn Vân"
+                ],
+                "event_type": "observation",
+                "consequences": [],
+                "participants": [
+                  "Mai Linh",
+                  "Duy"
+                ],
+                "chapter_number": 1
+              },
+              "evidence": [
+                {
+                  "end": 153,
+                  "start": 0,
+                  "text_hash": "011b399773afc1ac9f4e2e894faae8ee9fd52d32cab2a7e683eee9bae84f42a3",
+                  "chapter_id": "d9c6901f-6195-4a0f-9993-cbaf39437ba3",
+                  "revision_id": "98d5faa8-1a63-489c-8b4a-12c213c4362d",
+                  "chapter_number": 1
+                }
+              ],
+              "confidence": 0.5,
+              "status": "pending",
+              "expected_brain_version": 3,
+              "decision_reason": null,
+              "created_at": "2026-10-23T09:28:46.440169+00:00",
+              "updated_at": "2026-10-23T09:28:46.440169+00:00"
+            }
+          ]
+        },
+        {
+          "test": "03b_accept_canon_unchanged",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+          "details": {
+            "before": 3,
+            "after": 3
+          }
+        },
+        {
+          "test": "13_accepted_generation_replay",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+          "details": null
+        },
+        {
+          "test": "05_reject_no_canon",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+          "details": null
+        },
+        {
+          "test": "06_edit_accept_reviewed_content",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+          "details": null
+        },
+        {
+          "test": "08_interrupted_extraction_retry_review_preserved",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+          "details": null
+        },
+        {
+          "test": "14_internal_authorization_real_http",
+          "status": "PASS",
+          "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+          "details": null
+        },
+        {
+          "test": "11_P3_HITL_waiting_for_entity_review",
+          "status": "BLOCKED",
+          "proof": "SOURCE_AND_HTTP_ROUTE_AUDIT",
+          "details": "Integration lacks AI entity-review routes, flag and waiting status. No broad route/state-machine port authorized."
+        },
+        {
+          "test": "12_controller_continue_after_human_checkpoint",
+          "status": "BLOCKED",
+          "proof": "SOURCE_AND_HTTP_ROUTE_AUDIT",
+          "details": "Integration lacks AI entity-review routes, flag and waiting status. No broad route/state-machine port authorized."
+        }
+      ]
+    }
+  ],
+  "root_checkpoints": [
+    {
+      "gate": "01a",
+      "PASS": 15,
+      "FAIL": 0
+    },
+    {
+      "gate": "02a",
+      "PASS": 13,
+      "FAIL": 0
+    },
+    {
+      "gate": "02b",
+      "PASS": 16,
+      "FAIL": 0
+    },
+    {
+      "gate": "03a",
+      "PASS": 18,
+      "FAIL": 0
+    }
+  ],
+  "root_expected_guard_denial": "exit1 required and matched to explicit mutation-opt-in error; wrapper final exit0 after source harness repair",
+  "commands": {
+    "full_backend": {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/core/database/test-db-guard-lifecycle.test.ts",
+        "src/core/database/test-db-guard.test.ts",
+        "src/jobs/outbox-processor.test.ts",
+        "src/modules/ai-copilot/llm-provider.test.ts",
+        "src/modules/ai/ai-gateway.test.ts",
+        "src/modules/ai/ai-pipe-01b-ide-e2e.test.ts",
+        "src/modules/ai/autonomous-controller.test.ts",
+        "src/modules/ai/manuscript-import-contract.test.ts",
+        "src/modules/ai/p1-closed-loop-gateway.test.ts",
+        "src/modules/interactions/author-launch.integration.test.ts",
+        "src/modules/interactions/author-workflow.integration.test.ts",
+        "src/modules/interactions/comments.integration.test.ts",
+        "src/modules/media/media.test.ts",
+        "src/modules/novels/chapter-revisions.test.ts",
+        "src/modules/novels/controller-intent.test.ts",
+        "src/modules/novels/draft-read-authorization.test.ts",
+        "src/modules/novels/internal-revision-authorization.test.ts",
+        "src/modules/novels/outbox.test.ts",
+        "src/scripts/seed-data/author-workspace.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "2313a15a5da0415539c1f999df2628674944469e",
+      "files": [
+        "src/core/database/test-db-guard-lifecycle.test.ts",
+        "src/core/database/test-db-guard.test.ts",
+        "src/jobs/outbox-processor.test.ts",
+        "src/modules/ai-copilot/llm-provider.test.ts",
+        "src/modules/ai/ai-gateway.test.ts",
+        "src/modules/ai/ai-pipe-01b-ide-e2e.test.ts",
+        "src/modules/ai/autonomous-controller.test.ts",
+        "src/modules/ai/manuscript-import-contract.test.ts",
+        "src/modules/ai/p1-closed-loop-gateway.test.ts",
+        "src/modules/interactions/author-launch.integration.test.ts",
+        "src/modules/interactions/author-workflow.integration.test.ts",
+        "src/modules/interactions/comments.integration.test.ts",
+        "src/modules/media/media.test.ts",
+        "src/modules/novels/chapter-revisions.test.ts",
+        "src/modules/novels/controller-intent.test.ts",
+        "src/modules/novels/draft-read-authorization.test.ts",
+        "src/modules/novels/internal-revision-authorization.test.ts",
+        "src/modules/novels/outbox.test.ts",
+        "src/scripts/seed-data/author-workspace.test.ts"
+      ]
+    },
+    "targeted": [
+      {
+        "name": "backend-unit",
+        "command": [
+          "node",
+          "--import",
+          "tsx",
+          "--test",
+          "src/modules/novels/chapter-revisions.test.ts",
+          "src/modules/novels/outbox.test.ts",
+          "src/modules/novels/controller-intent.test.ts",
+          "src/modules/novels/internal-revision-authorization.test.ts",
+          "src/modules/novels/draft-read-authorization.test.ts",
+          "src/jobs/outbox-processor.test.ts",
+          "src/modules/ai/ai-gateway.test.ts",
+          "src/modules/ai/autonomous-controller.test.ts",
+          "src/core/database/test-db-guard.test.ts"
+        ],
+        "cwd": "backend",
+        "exit_code": 0,
+        "tested_sha": "2313a15a5da0415539c1f999df2628674944469e",
+        "tracked_source_clean": true
+      },
+      {
+        "name": "typecheck",
+        "command": [
+          "node",
+          "node_modules/typescript/bin/tsc",
+          "--noEmit",
+          "-p",
+          "tsconfig.json"
+        ],
+        "cwd": "backend",
+        "exit_code": 0,
+        "tested_sha": "2313a15a5da0415539c1f999df2628674944469e",
+        "tracked_source_clean": true
+      },
+      {
+        "name": "build",
+        "command": [
+          "node",
+          "node_modules/typescript/bin/tsc",
+          "-p",
+          "tsconfig.json"
+        ],
+        "cwd": "backend",
+        "exit_code": 0,
+        "tested_sha": "2313a15a5da0415539c1f999df2628674944469e",
+        "tracked_source_clean": true
+      },
+      {
+        "name": "AI-unit",
+        "command": [
+          "python",
+          "-m",
+          "pytest",
+          "-q",
+          "--basetemp",
+          "C:\\Users\\thaib\\AppData\\Local\\Temp\\d1d2-pytest-cb2c8454860b498ca237bdb96bf6a74c",
+          "tests/test_revision_content_provider.py",
+          "tests/test_revision_analysis_workflow.py",
+          "tests/test_revision_analysis_routes.py",
+          "tests/test_manuscript_bootstrap.py",
+          "tests/test_manuscript_bootstrap_routes.py",
+          "tests/test_writing_validation_golden.py",
+          "tests/test_narrative_application_service.py",
+          "tests/test_narrative_repository_contract.py",
+          "tests/test_narrative_route_compatibility.py",
+          "tests/test_autonomous_routes.py"
+        ],
+        "cwd": "ai-service",
+        "exit_code": 0,
+        "tested_sha": "2313a15a5da0415539c1f999df2628674944469e",
+        "tracked_source_clean": true
+      },
+      {
+        "name": "P7-unit",
+        "command": [
+          "python",
+          "-m",
+          "pytest",
+          "-q",
+          "--basetemp",
+          "C:\\Users\\thaib\\AppData\\Local\\Temp\\combined-p7-aa7a1982a2c74d4faf54e79cee86cc04",
+          "tests/test_semantic_memory_service.py",
+          "tests/test_semantic_retriever.py",
+          "tests/test_hybrid_ranker.py",
+          "tests/test_context_budget.py",
+          "tests/test_context_scope.py",
+          "tests/test_context_routing.py",
+          "tests/test_settings.py",
+          "tests/test_ctx_rd_staging_harness.py"
+        ],
+        "cwd": "ai-service",
+        "exit_code": 0,
+        "tested_sha": "2313a15a5da0415539c1f999df2628674944469e",
+        "tracked_source_clean": true
+      },
+      {
+        "name": "P8-full-AI-unit",
+        "command": [
+          "python",
+          "-m",
+          "pytest",
+          "-q",
+          "-rs",
+          "--basetemp",
+          "C:\\Users\\thaib\\AppData\\Local\\Temp\\combined-ai-65f984684a42475fa225af0fb4a2b8ab"
+        ],
+        "cwd": "ai-service",
+        "exit_code": 0,
+        "tested_sha": "2313a15a5da0415539c1f999df2628674944469e",
+        "tracked_source_clean": true
+      },
+      {
+        "name": "P8-boundary",
+        "command": [
+          "python",
+          "scripts/check_p8_frontend_api_cutover.py"
+        ],
+        "cwd": ".",
+        "exit_code": 0,
+        "tested_sha": "2313a15a5da0415539c1f999df2628674944469e",
+        "tracked_source_clean": true
+      }
+    ],
+    "native": {
+      "resources": [
+        {
+          "container": "p1-final-acceptance-c1b2b4350af1-pg",
+          "volume": "p1-final-acceptance-c1b2b4350af1-pg-data",
+          "image": "pgvector/pgvector:pg16"
+        },
+        {
+          "container": "p1-final-acceptance-c1b2b4350af1-mongo",
+          "volume": "p1-final-acceptance-c1b2b4350af1-mongo-data",
+          "image": "mongo:7"
+        }
+      ],
+      "database": "ephurin_test_d1d2_c1b2b4350af1",
+      "commands": [
+        {
+          "command": [
+            "node",
+            "--import",
+            "tsx",
+            "src/core/database/migrate.ts"
+          ],
+          "cwd": "backend",
+          "exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "command": [
+            "python",
+            "-m",
+            "alembic",
+            "upgrade",
+            "head"
+          ],
+          "cwd": "ai-service",
+          "exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "command": [
+            "node",
+            "--import",
+            "tsx",
+            "src/core/database/migrate.ts"
+          ],
+          "cwd": "backend",
+          "exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "command": [
+            "python",
+            "-m",
+            "alembic",
+            "downgrade",
+            "-1"
+          ],
+          "cwd": "ai-service",
+          "exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "command": [
+            "python",
+            "-m",
+            "alembic",
+            "upgrade",
+            "head"
+          ],
+          "cwd": "ai-service",
+          "exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "command": [
+            "node",
+            "--import",
+            "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/combined-final-acceptance-2026-10-23/observe-durable.mjs",
+            "--import",
+            "tsx",
+            "--test",
+            "src/core/database/test-db-guard-lifecycle.test.ts"
+          ],
+          "cwd": "backend",
+          "exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "command": [
+            "node",
+            "--import",
+            "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/combined-final-acceptance-2026-10-23/observe-durable.mjs",
+            "--import",
+            "tsx",
+            "--test",
+            "src/modules/novels/fixture-lifecycle-resilience.postgres.test.ts"
+          ],
+          "cwd": "backend",
+          "exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "command": [
+            "node",
+            "--import",
+            "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/combined-final-acceptance-2026-10-23/observe-durable.mjs",
+            "--import",
+            "tsx",
+            "--test",
+            "src/modules/novels/core-reconciliation.live.test.ts"
+          ],
+          "cwd": "backend",
+          "exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "command": [
+            "node",
+            "--import",
+            "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/combined-final-acceptance-2026-10-23/observe-durable.mjs",
+            "--import",
+            "tsx",
+            "--test",
+            "src/modules/novels/mongo-reconciliation.live.test.ts"
+          ],
+          "cwd": "backend",
+          "exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "command": [
+            "node",
+            "--import",
+            "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/combined-final-acceptance-2026-10-23/observe-durable.mjs",
+            "--import",
+            "tsx",
+            "--test",
+            "src/modules/novels/accept-draft-contract.test.ts"
+          ],
+          "cwd": "backend",
+          "exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "command": [
+            "node",
+            "--import",
+            "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/combined-final-acceptance-2026-10-23/observe-durable.mjs",
+            "--import",
+            "tsx",
+            "--test",
+            "src/modules/novels/outbox.postgres.test.ts"
+          ],
+          "cwd": "backend",
+          "exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "command": [
+            "node",
+            "--import",
+            "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/combined-final-acceptance-2026-10-23/observe-durable.mjs",
+            "--import",
+            "tsx",
+            "--test",
+            "src/modules/novels/p1-production-persistence.postgres.test.ts"
+          ],
+          "cwd": "backend",
+          "exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "command": [
+            "python",
+            "-m",
+            "pytest",
+            "-o",
+            "addopts=",
+            "-q",
+            "-m",
+            "postgres_integration",
+            "--basetemp",
+            "C:\\Users\\thaib\\AppData\\Local\\Temp\\combined-pg-b134d30d51bd434fa06d710799b4aab1",
+            "tests"
+          ],
+          "cwd": "ai-service",
+          "exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        }
+      ],
+      "retained": true
+    },
+    "persistence": [
+      {
+        "command": [
+          "python",
+          "Pipeline_test/tools/prepare_fe_core_contract.py",
+          "--manifest",
+          "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\p2\\persistence-manifest.json",
+          "--allow-new-test-resources"
+        ],
+        "exit_code": 0,
+        "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+      },
+      {
+        "command": [
+          "docker",
+          "compose",
+          "--env-file",
+          "Pipeline_test\\tools\\.env.p123-core-0926623597",
+          "-f",
+          "Pipeline_test/tools/compose.p123-p3.yml",
+          "--profile",
+          "initialize",
+          "run",
+          "--rm",
+          "budget-init"
+        ],
+        "exit_code": 0,
+        "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+      },
+      {
+        "command": [
+          "docker",
+          "compose",
+          "--env-file",
+          "Pipeline_test\\tools\\.env.p123-core-0926623597",
+          "-f",
+          "Pipeline_test/tools/compose.p123-p3.yml",
+          "up",
+          "-d",
+          "--build"
+        ],
+        "exit_code": 0,
+        "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+      },
+      {
+        "command": [
+          "python",
+          "Pipeline_test/tools/fe_core_contract_probe.py",
+          "--env-file",
+          "Pipeline_test\\tools\\.env.p123-core-0926623597",
+          "--output",
+          "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\p2\\persistence-runtime",
+          "--allow-test-mutations"
+        ],
+        "exit_code": 0,
+        "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+      },
+      {
+        "command": [
+          "docker",
+          "compose",
+          "--env-file",
+          "Pipeline_test\\tools\\.env.p123-core-0926623597",
+          "-f",
+          "Pipeline_test/tools/compose.p123-p3.yml",
+          "stop",
+          "-t",
+          "2"
+        ],
+        "exit_code": 0,
+        "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+      }
+    ],
+    "canon": [
+      {
+        "command": [
+          "python",
+          "Pipeline_test/tools/prepare_fe_core_contract.py",
+          "--manifest",
+          "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\canon-final\\canon-manifest.json",
+          "--allow-new-test-resources"
+        ],
+        "exit_code": 0,
+        "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+      },
+      {
+        "command": [
+          "docker",
+          "compose",
+          "--env-file",
+          "Pipeline_test\\tools\\.env.p123-core-de545afb38",
+          "-f",
+          "Pipeline_test/tools/compose.p123-p3.yml",
+          "--profile",
+          "initialize",
+          "run",
+          "--rm",
+          "budget-init"
+        ],
+        "exit_code": 0,
+        "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+      },
+      {
+        "command": [
+          "docker",
+          "compose",
+          "--env-file",
+          "Pipeline_test\\tools\\.env.p123-core-de545afb38",
+          "-f",
+          "Pipeline_test/tools/compose.p123-p3.yml",
+          "up",
+          "-d",
+          "--build"
+        ],
+        "exit_code": 0,
+        "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+      },
+      {
+        "command": [
+          "python",
+          "Pipeline_test/tools/canon_hitl_probe.py",
+          "--env-file",
+          "Pipeline_test\\tools\\.env.p123-core-de545afb38",
+          "--output",
+          "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\canon-final\\canon-runtime",
+          "--allow-test-mutations"
+        ],
+        "exit_code": 0,
+        "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+      },
+      {
+        "command": [
+          "docker",
+          "compose",
+          "--env-file",
+          "Pipeline_test\\tools\\.env.p123-core-de545afb38",
+          "-f",
+          "Pipeline_test/tools/compose.p123-p3.yml",
+          "stop",
+          "-t",
+          "2"
+        ],
+        "exit_code": 0,
+        "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+      }
+    ],
+    "root": {
+      "tested_sha": "2313a15a5da0415539c1f999df2628674944469e",
+      "project": "pr60-smoke-6286404249",
+      "commands": [
+        {
+          "label": "up",
+          "command": [
+            "docker",
+            "compose",
+            "-p",
+            "pr60-smoke-6286404249",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docker-compose.yml",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\compose.isolated.yml",
+            "up",
+            "-d",
+            "--build",
+            "postgres",
+            "mongodb",
+            "ai-service",
+            "backend",
+            "web"
+          ],
+          "exit_code": 0,
+          "expected_exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "label": "copy-scripts",
+          "command": [
+            "docker",
+            "compose",
+            "-p",
+            "pr60-smoke-6286404249",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docker-compose.yml",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\compose.isolated.yml",
+            "cp",
+            "scripts/.",
+            "ai-service:/tmp/p8-scripts"
+          ],
+          "exit_code": 0,
+          "expected_exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "label": "01a",
+          "command": [
+            "docker",
+            "compose",
+            "-p",
+            "pr60-smoke-6286404249",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docker-compose.yml",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\compose.isolated.yml",
+            "exec",
+            "-T",
+            "-e",
+            "GITHUB_SHA=2313a15a5da0415539c1f999df2628674944469e",
+            "-e",
+            "GITHUB_HEAD_REF=codex/p1-core-canon-combined",
+            "ai-service",
+            "python",
+            "/tmp/p8-scripts/run_ai_pipe_01a_production_persistence.py",
+            "--backend-url",
+            "http://backend:4000/api/v1",
+            "--ai-service-url",
+            "http://localhost:8000",
+            "--db-url",
+            "postgresql://postgres:postgres@postgres:5432/ephurin_test_pr60_6286404249",
+            "--output",
+            "/tmp/01a-evidence.json"
+          ],
+          "exit_code": 0,
+          "expected_exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "label": "01a-copy-evidence",
+          "command": [
+            "docker",
+            "compose",
+            "-p",
+            "pr60-smoke-6286404249",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docker-compose.yml",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\compose.isolated.yml",
+            "cp",
+            "ai-service:/tmp/01a-evidence.json",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\01a-evidence.json"
+          ],
+          "exit_code": 0,
+          "expected_exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "label": "01a-verify",
+          "command": [
+            "docker",
+            "compose",
+            "-p",
+            "pr60-smoke-6286404249",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docker-compose.yml",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\compose.isolated.yml",
+            "exec",
+            "-T",
+            "ai-service",
+            "python",
+            "/tmp/p8-scripts/verify_ai_pipe_01_p1_closed_loop_evidence.py",
+            "--evidence",
+            "/tmp/01a-evidence.json"
+          ],
+          "exit_code": 0,
+          "expected_exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "label": "02a",
+          "command": [
+            "docker",
+            "compose",
+            "-p",
+            "pr60-smoke-6286404249",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docker-compose.yml",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\compose.isolated.yml",
+            "exec",
+            "-T",
+            "-e",
+            "GITHUB_SHA=2313a15a5da0415539c1f999df2628674944469e",
+            "-e",
+            "GITHUB_HEAD_REF=codex/p1-core-canon-combined",
+            "ai-service",
+            "python",
+            "/tmp/p8-scripts/run_ai_pipe_02a_idea_bootstrap.py",
+            "--backend-url",
+            "http://backend:4000/api/v1",
+            "--ai-service-url",
+            "http://localhost:8000",
+            "--db-url",
+            "postgresql://postgres:postgres@postgres:5432/ephurin_test_pr60_6286404249",
+            "--output",
+            "/tmp/02a-evidence.json"
+          ],
+          "exit_code": 0,
+          "expected_exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "label": "02a-copy-evidence",
+          "command": [
+            "docker",
+            "compose",
+            "-p",
+            "pr60-smoke-6286404249",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docker-compose.yml",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\compose.isolated.yml",
+            "cp",
+            "ai-service:/tmp/02a-evidence.json",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\02a-evidence.json"
+          ],
+          "exit_code": 0,
+          "expected_exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "label": "02a-verify",
+          "command": [
+            "docker",
+            "compose",
+            "-p",
+            "pr60-smoke-6286404249",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docker-compose.yml",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\compose.isolated.yml",
+            "exec",
+            "-T",
+            "ai-service",
+            "python",
+            "/tmp/p8-scripts/verify_ai_pipe_02a_idea_bootstrap_evidence.py",
+            "--evidence-file",
+            "/tmp/02a-evidence.json"
+          ],
+          "exit_code": 0,
+          "expected_exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "label": "02b",
+          "command": [
+            "docker",
+            "compose",
+            "-p",
+            "pr60-smoke-6286404249",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docker-compose.yml",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\compose.isolated.yml",
+            "exec",
+            "-T",
+            "-e",
+            "GITHUB_SHA=2313a15a5da0415539c1f999df2628674944469e",
+            "-e",
+            "GITHUB_HEAD_REF=codex/p1-core-canon-combined",
+            "ai-service",
+            "python",
+            "/tmp/p8-scripts/run_ai_pipe_02b_outline_planning.py",
+            "--backend-url",
+            "http://backend:4000/api/v1",
+            "--ai-service-url",
+            "http://localhost:8000",
+            "--db-url",
+            "postgresql://postgres:postgres@postgres:5432/ephurin_test_pr60_6286404249",
+            "--output",
+            "/tmp/02b-evidence.json"
+          ],
+          "exit_code": 0,
+          "expected_exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "label": "02b-copy-evidence",
+          "command": [
+            "docker",
+            "compose",
+            "-p",
+            "pr60-smoke-6286404249",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docker-compose.yml",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\compose.isolated.yml",
+            "cp",
+            "ai-service:/tmp/02b-evidence.json",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\02b-evidence.json"
+          ],
+          "exit_code": 0,
+          "expected_exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "label": "02b-verify",
+          "command": [
+            "docker",
+            "compose",
+            "-p",
+            "pr60-smoke-6286404249",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docker-compose.yml",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\compose.isolated.yml",
+            "exec",
+            "-T",
+            "ai-service",
+            "python",
+            "/tmp/p8-scripts/verify_ai_pipe_02b_outline_planning_evidence.py",
+            "--evidence-file",
+            "/tmp/02b-evidence.json"
+          ],
+          "exit_code": 0,
+          "expected_exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "label": "03a",
+          "command": [
+            "docker",
+            "compose",
+            "-p",
+            "pr60-smoke-6286404249",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docker-compose.yml",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\compose.isolated.yml",
+            "exec",
+            "-T",
+            "-e",
+            "GITHUB_SHA=2313a15a5da0415539c1f999df2628674944469e",
+            "-e",
+            "GITHUB_HEAD_REF=codex/p1-core-canon-combined",
+            "ai-service",
+            "python",
+            "/tmp/p8-scripts/run_ai_pipe_03a_autonomous_controller.py",
+            "--backend-url",
+            "http://backend:4000/api/v1",
+            "--ai-service-url",
+            "http://localhost:8000",
+            "--db-url",
+            "postgresql://postgres:postgres@postgres:5432/ephurin_test_pr60_6286404249",
+            "--output",
+            "/tmp/03a-evidence.json"
+          ],
+          "exit_code": 0,
+          "expected_exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "label": "03a-copy-evidence",
+          "command": [
+            "docker",
+            "compose",
+            "-p",
+            "pr60-smoke-6286404249",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docker-compose.yml",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\compose.isolated.yml",
+            "cp",
+            "ai-service:/tmp/03a-evidence.json",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\03a-evidence.json"
+          ],
+          "exit_code": 0,
+          "expected_exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "label": "03a-verify",
+          "command": [
+            "docker",
+            "compose",
+            "-p",
+            "pr60-smoke-6286404249",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docker-compose.yml",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\compose.isolated.yml",
+            "exec",
+            "-T",
+            "ai-service",
+            "python",
+            "/tmp/p8-scripts/verify_ai_pipe_03a_autonomous_controller_evidence.py",
+            "--evidence",
+            "/tmp/03a-evidence.json"
+          ],
+          "exit_code": 0,
+          "expected_exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "label": "CI-native-without-optin",
+          "command": [
+            "docker",
+            "compose",
+            "-p",
+            "pr60-smoke-6286404249",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docker-compose.yml",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\compose.isolated.yml",
+            "exec",
+            "-T",
+            "backend",
+            "npx",
+            "tsx",
+            "--test",
+            "--test-force-exit",
+            "src/modules/novels/p1-production-persistence.postgres.test.ts"
+          ],
+          "exit_code": 1,
+          "expected_exit_code": 1,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "label": "native-owned-optin",
+          "command": [
+            "docker",
+            "compose",
+            "-p",
+            "pr60-smoke-6286404249",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docker-compose.yml",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\compose.isolated.yml",
+            "exec",
+            "-T",
+            "-e",
+            "EPHURIN_ALLOW_TEST_DB_MUTATIONS=1",
+            "backend",
+            "npx",
+            "tsx",
+            "--test",
+            "--test-force-exit",
+            "src/modules/novels/p1-production-persistence.postgres.test.ts"
+          ],
+          "exit_code": 0,
+          "expected_exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "label": "service-logs",
+          "command": [
+            "docker",
+            "compose",
+            "-p",
+            "pr60-smoke-6286404249",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docker-compose.yml",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\compose.isolated.yml",
+            "logs",
+            "--no-color",
+            "ai-service",
+            "backend"
+          ],
+          "exit_code": 0,
+          "expected_exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        },
+        {
+          "label": "stop",
+          "command": [
+            "docker",
+            "compose",
+            "-p",
+            "pr60-smoke-6286404249",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docker-compose.yml",
+            "-f",
+            "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\root-final\\compose.isolated.yml",
+            "stop",
+            "-t",
+            "2"
+          ],
+          "exit_code": 0,
+          "expected_exit_code": 0,
+          "tested_sha": "2313a15a5da0415539c1f999df2628674944469e"
+        }
+      ],
+      "retained": true,
+      "live_provider_calls": 0
+    }
+  },
+  "source_changes": [
+    "44e79238: legacy test ownership tracks recovery fixture, teardown verifies absence and regression preserves foreign sentinel",
+    "2313a15a: root smoke expected no-optin denial asserted as negative guard outcome"
+  ],
+  "ci_initial": {
+    "source_sha": "66c1052a8cb63e411a83e330207feb97c13210d4",
+    "runs": {
+      "workflow_runs": [
+        {
+          "id": 39929091555,
+          "name": "P7 Semantic Memory Foundation",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 146,
+          "jobs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/39929091555/jobs",
+          "logs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/39929091555/logs",
+          "workflow_id": 364834893
+        },
+        {
+          "id": 39929091566,
+          "name": "P8 Cutover and Migration",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 161,
+          "jobs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/39929091566/jobs",
+          "logs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/39929091566/logs",
+          "workflow_id": 364977903
+        }
+      ]
+    },
+    "jobs": [
+      [
+        {
+          "id": 120332619844,
+          "name": "pgvector-integration",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 39929091555
+        },
+        {
+          "id": 120332620073,
+          "name": "root-compose-smoke",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 39929091555
+        },
+        {
+          "id": 120332620082,
+          "name": "unit",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 39929091555
+        }
+      ],
+      [
+        {
+          "id": 120332620142,
+          "name": "rollback-rehearsal",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 39929091566
+        },
+        {
+          "id": 120332620471,
+          "name": "root-compose-cutover-smoke",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 39929091566
+        },
+        {
+          "id": 120332620562,
+          "name": "unit",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 39929091566
+        },
+        {
+          "id": 120332620596,
+          "name": "frontend-api-cutover",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 39929091566
+        },
+        {
+          "id": 120332620599,
+          "name": "backend-integration",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 39929091566
+        },
+        {
+          "id": 120332620627,
+          "name": "postgres-integration",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 39929091566
+        },
+        {
+          "id": 120332620675,
+          "name": "final-cleanup-gate",
+          "status": "completed",
+          "conclusion": "success",
+          "run_id": 39929091566
+        }
+      ]
+    ],
+    "urls": [
+      "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39929091555",
+      "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39929091566"
+    ],
+    "previous_source_local_results_inherited": false
+  },
+  "ci_final": {
+    "final_tested_sha": "2313a15a5da0415539c1f999df2628674944469e",
+    "runs": {
+      "workflow_runs": [
+        {
+          "id": 39931879468,
+          "name": "P7 Semantic Memory Foundation",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 147,
+          "jobs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/39931879468/jobs",
+          "logs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/39931879468/logs",
+          "workflow_id": 364834893
+        },
+        {
+          "id": 39931879364,
+          "name": "P8 Cutover and Migration",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 162,
+          "jobs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/39931879364/jobs",
+          "logs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/39931879364/logs",
+          "workflow_id": 364977903
+        }
+      ]
+    },
+    "p8_jobs": [
+      {
+        "id": 120341884158,
+        "name": "root-compose-cutover-smoke",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 120341884408,
+        "name": "postgres-integration",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 120341884438,
+        "name": "backend-integration",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 120341884510,
+        "name": "rollback-rehearsal",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 120341884538,
+        "name": "unit",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 120341884642,
+        "name": "frontend-api-cutover",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 120341884679,
+        "name": "final-cleanup-gate",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "urls": [
+      "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39931879468",
+      "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39931879364"
+    ],
+    "evidence_head_CI_inherited": false
+  },
+  "blockers": [
+    "AI memory404",
+    "Entity candidate audit/list/review/continue404",
+    "P3 waiting/checkpoint continuation missing"
+  ],
+  "not_run": [
+    "Full mounted Author IDE S09",
+    "Full mounted Author IDE S10",
+    "Full mounted Author IDE S11",
+    "Real Gemini/embedding quality",
+    "P3 100k",
+    "Populated PostgreSQL migration upgrade/rollback"
+  ],
+  "live_llm_calls": 0,
+  "live_embedding_calls": 0,
+  "earlier_attempts": {
+    "native_first": "Observer Windows ESM import used a path instead of URI; tests did not load. Accepted native reruns use URI and fresh DBs.",
+    "source66": "Independent durable readback found Mongo recovery fixture leak after legacy suite; preserved as RED. Not inherited as final PASS.",
+    "persistence_final": "Windows path length prevented writing retrieval metadata at longer output path;16 cases passed then harness error. Reran at shorter p2 output with new resources, all19 PASS."
+  }
+}

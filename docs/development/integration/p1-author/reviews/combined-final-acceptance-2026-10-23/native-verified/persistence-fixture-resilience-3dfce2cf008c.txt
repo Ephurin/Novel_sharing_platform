@@ -1,0 +1,37 @@
+▶ F-07 Fault Injection Matrix: Fixture Lifecycle & Teardown Resilience
+  ✔ Matrix 1: Guard fails before setup -> Zero mutations executed (5.1947ms)
+  ✔ Matrix 2: Failure after first PostgreSQL fixture INSERT -> Owned user cleaned (24.1358ms)
+  ✔ Matrix 3: Failure during PostgreSQL fixture setup -> Partial records cleaned (18.7651ms)
+  ✔ Matrix 4: Failure before Mongo fixture creation -> Safe cleanup of all PG records (70.1657ms)
+  ✔ Matrix 5: Failure immediately after Mongo insertion -> Mongo record cleaned (29.7386ms)
+  ✔ Matrix 6: Failure midway through sentinel creation -> Existing sentinels cleaned, no false corruption (18.9879ms)
+  ✔ Matrix 7: Failure during ordinary test execution -> Fixture cleanup still attempted and sentinels preserved (29.1799ms)
+  ✔ Matrix 8: First cleanup operation fails -> Independent cleanup continues; suite surfaces failure (47.3756ms)
+  ✔ Matrix 9: Successful complete run -> Zero residual records across PG and MongoDB (97.4644ms)
+  ✔ Matrix 10: Repeated cleanup with sentinels -> Safe, idempotent, zero residual mutations (P2-A) (60.0997ms)
+  ✔ Matrix 11: Per-ID cleanup fault tolerance across multiple IDs in the same group (P2-B) (24.4539ms)
+  ✔ Matrix 12: Sentinel-group per-ID deletion fault tolerance (P2-B) (17.6905ms)
+  ✔ Matrix 13: Recoverable retry following CLEANUP_FAILED restores clean state (9.3431ms)
+  ✔ Matrix 14: F-09 Mongo draft cleaned when only PostgreSQL chapter registered (33.0526ms)
+  ✔ Matrix 15: F-09 Mongo draft registered independently of PostgreSQL chapter (9.6019ms)
+  ✔ Matrix 16: F-10 PostgreSQL DELETE acknowledged but matching row remains -> Durable readback fails closed (11.0547ms)
+  ✔ Matrix 17: F-10 MongoDB delete acknowledged but matching document remains -> Durable readback fails closed (13.1401ms)
+  ✔ Matrix 18: F-11 Malformed PostgreSQL readback must fail closed and report affected resource (10.1821ms)
+  ✔ Matrix 19: F-12 Outbox registration fails closed when novel and chapter are unowned (38.2551ms)
+  ✔ Matrix 20: F-12 Persisted outbox fixture cleaned and independently verified with fail-closed readback (91.5388ms)
+  ✔ Matrix 21: G-01 Foreign outbox event registered under owned pair survives; cleanup reports ownership mismatch (133.9812ms)
+  ✔ Matrix 22: G-01 Owned novel/chapter pair that is not a real parent relationship fails closed (88.3418ms)
+  ✔ Matrix 23: G-01 Exact event DELETE is scoped by event_id + novel_id + chapter_id; failure retries to CLEANED (74.3522ms)
+{"level":30,"time":1792746982992,"pid":16980,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+  ✔ Matrix 24: G-02 Non-decimal / coercible count mutants fail closed on fixture and sentinel readbacks, then recover (593.2345ms)
+  ✔ Matrix 25: G-02 parseStrictRowCount accepts only safe non-negative integers / canonical decimal strings (1.6581ms)
+✔ F-07 Fault Injection Matrix: Fixture Lifecycle & Teardown Resilience (1583.4794ms)
+{"level":30,"time":1792746982995,"pid":16980,"hostname":"Ephurin","msg":"MongoDB connection closed"}
+ℹ tests 25
+ℹ suites 1
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2323.7576
