@@ -85,7 +85,7 @@ The downstream inventory is keyed by identity ID. Names/aliases index sets of ID
 | Projection | Exact IDs take precedence; ambiguous name fallback still raises. State/provenance and relationship metadata retain IDs despite shared display labels. |
 | Memory | Distinct entity rows, event participants, fact subjects and state/provenance retain IDs. Approved-only filtering remains intact. |
 
-Completed checkpoint retries keep their saved proposals. A pre-schema-2 frozen checkpoint must reconfirm the same human review once before continuation (409 prompts this); no LLM or Canon approval replaces that confirmation. No SQL migration is required. Real-provider quality and mounted FE refresh UX remain separate acceptance.
+Completed checkpoint retries keep their saved proposals. Continue upgrades a pre-schema-2 frozen checkpoint by CAS using its already-saved human choices, without requiring another human decision or calling the entity LLM. The versioned format upgrade preserves the original reviewed choices and all source/Canon/guidance fences; no Canon approval is implied. Unknown future inventory versions fail closed. No SQL migration is required. Real-provider quality and mounted FE refresh UX remain separate acceptance.
 
 ### H-03: truthful completion outcome
 

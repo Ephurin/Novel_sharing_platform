@@ -59,12 +59,13 @@ def review(service, novel_id, run_id, tenant_id, decisions, expected_version, fi
             return audit
     if audit['status'] in {'entities_reviewed', 'completed'}:
         if finalize and audit.get('review_submitted_decisions', audit.get('reviewed_decisions')) == normalized and audit.get('review_input_version') == expected_version:
-            if audit['status'] == 'entities_reviewed' and audit.get('identity_inventory_version') != 2:
+            if audit['status'] == 'entities_reviewed' and audit.get('identity_inventory_version') is None:
                 from copy import deepcopy
                 from application.entity_review_service import freeze_inventory
                 value = deepcopy(audit)
                 value['entities'], value['aliases'] = freeze_inventory(audit, value['entities'], value['aliases'], revision.content)
-                value.update(identity_inventory_version=2, review_version=audit['review_version'] + 1)
+                value.update(identity_inventory_version=2, review_version=audit['review_version'] + 1,
+                    identity_inventory_upgraded_from_version=audit['review_version'])
                 service._repository.save_entity_candidate_audit(novel_id, run_id, value, expected_version=audit['review_version'])
                 return value
             return audit
@@ -146,6 +147,16 @@ def continue_review(service, novel_id, run_id, tenant_id):
         return RevisionAnalysisResult(run, tuple(repo.list_proposals(novel_id, analysis_run_id=run_id)), True)
     if audit['status'] != 'entities_reviewed':
         raise OptimisticLockError('Complete entity review before continuing')
+    if audit.get('identity_inventory_version') is None:
+        # Existing human approval remains authoritative; upgrade only its storage format.
+        try:
+            audit = review(service, novel_id, run_id, tenant_id, audit['reviewed_decisions'], audit['review_input_version'])
+        except OptimisticLockError:
+            audit, revision = checkpoint(service, novel_id, run_id, tenant_id)
+            if audit['status'] == 'completed':
+                return RevisionAnalysisResult(run, tuple(repo.list_proposals(novel_id, analysis_run_id=run_id)), True)
+            if audit['status'] != 'entities_reviewed' or audit.get('identity_inventory_version') != 2:
+                raise
     group_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f'proposal-group:{run_id}'))
     proposals = []
     def add(kind, payload, quote, confidence=1.0, span=None):

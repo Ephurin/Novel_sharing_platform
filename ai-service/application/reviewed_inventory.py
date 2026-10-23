@@ -7,7 +7,7 @@ from domain.errors import OptimisticLockError
 class ReviewedInventory:
     def __init__(self, audit):
         if audit.get('identity_inventory_version') != 2:
-            raise OptimisticLockError('Reconfirm the entity review to upgrade its identity inventory')
+            raise OptimisticLockError('Unsupported frozen identity inventory version')
         self.entities = {}
         self.labels = defaultdict(set)
         for entity in audit['entities']:

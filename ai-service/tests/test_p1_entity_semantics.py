@@ -345,7 +345,7 @@ def test_changed_machine_identity_cannot_reuse_a_previous_author_choice(flow):
     assert fresh['status']=='waiting_entity_review' and f.repo.list_proposals(f.revision.novel_id)==[]
 
 
-def test_old_frozen_inventory_requires_human_reconfirmation_without_entity_llm(flow):
+def test_old_frozen_inventory_upgrades_saved_human_choices_without_entity_llm(flow):
     f=prepare(flow)
     run,audit=discover(f)
     old=freeze(f,run,audit).json()['data']
@@ -356,14 +356,19 @@ def test_old_frozen_inventory_requires_human_reconfirmation_without_entity_llm(f
         e.pop('occurrences',None)
     f.repo.save_entity_candidate_audit(f.revision.novel_id,run,old,expected_version=old['review_version'])
     f.service._entity_pipeline.run_verified=lambda *a,**k:pytest.fail('Legacy upgrade called the entity LLM')
-    assert f.client.post(f'{f.base}/entity-reviews/{run}/continue',headers=f.headers).status_code==409
+    assert f.client.post(f'{f.base}/entity-reviews/{run}/continue',headers=f.headers).status_code==200
+    upgraded=f.repo.get_entity_candidate_audit(f.revision.novel_id,run)
+    assert upgraded['identity_inventory_version']==2 and upgraded['reviewed_decisions']==old['reviewed_decisions']
+    assert upgraded['identity_inventory_upgraded_from_version']==old['review_version']
+    assert upgraded['status']=='completed'
+    assert int(f.repo.get_story_brain(f.revision.novel_id).metadata['brain_version'])==1
     body={'expected_version':old['review_input_version'],'decisions':old['reviewed_decisions']}
     confirmed=f.client.post(f'{f.base}/entity-reviews/{run}/review',headers=f.headers,json=body)
     assert confirmed.status_code==200,confirmed.text
     assert confirmed.json()['data']['identity_inventory_version']==2
     assert f.client.post(f'{f.base}/entity-reviews/{run}/review',headers=f.headers,json=body).json()==confirmed.json()
-    assert f.repo.list_proposals(f.revision.novel_id)==[]
-    assert f.client.post(f'{f.base}/entity-reviews/{run}/continue',headers=f.headers).status_code==200
+    assert f.repo.list_proposals(f.revision.novel_id)
+    assert f.client.post(f'{f.base}/entity-reviews/{run}/continue',headers=f.headers).json()['data']['deduplicated']
 
 
 def test_canon_edit_preserves_reserved_identity_and_rejects_identity_replacement(flow):
