@@ -289,3 +289,21 @@ def test_parallel_continue_commits_one_proposal_set(flow):
     saved = f.repo.list_proposals(f.revision.novel_id, analysis_run_id=run)
     assert len(saved) == len(results[0].proposals)
     assert f.repo.get_entity_candidate_audit(f.revision.novel_id, run)['status'] == 'completed'
+
+
+def test_memory_and_registry_exclude_unconfirmed_materialized_rows(flow):
+    if not flow.engine:
+        pytest.skip('Confirmation status is a PostgreSQL persistence field')
+    f = flow
+    run, audit = discover(f)
+    freeze(f, run, audit)
+    assert f.client.post(f'{f.base}/entity-reviews/{run}/continue', headers=f.headers).status_code == 200
+    proposals = f.repo.list_proposals(f.revision.novel_id, analysis_run_id=run)
+    f.repo.accept_proposal_group(f.revision.novel_id, [p.proposal_id for p in proposals], 1)
+    from sqlalchemy import text
+    with f.engine.begin() as conn:
+        for table in ('entities', 'events', 'facts'):
+            conn.execute(text(f"UPDATE narrative.{table} SET confirmation_status='proposed' WHERE novel_id=:n"), {'n':f.revision.novel_id})
+    memory = f.client.get(f'{f.base}/memory', headers=f.headers).json()['data']
+    assert memory['entities'] == [] and memory['events'] == [] and memory['facts'] == []
+    assert f.repo.get_entity_registry(f.revision.novel_id) == {'entities': [], 'aliases': []}

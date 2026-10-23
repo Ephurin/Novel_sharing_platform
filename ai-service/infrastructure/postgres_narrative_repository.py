@@ -136,6 +136,15 @@ class PostgresNarrativeRepository:
             proposals = session.scalars(
                 select(ProposalRecord).where(*self._scope(ProposalRecord, novel_id))
             ).all()
+            if read_only:
+                entities = [e for e in entities if e.confirmation_status == 'confirmed']
+                entity_ids = {e.id for e in entities}
+                entity_names = {e.canonical_name for e in entities}
+                aliases = [a for a in aliases if a.confirmation_status == 'confirmed' and a.entity_id in entity_ids]
+                mentions = [m for m in mentions if m.entity_id in entity_ids]
+                events = [e for e in events if e.confirmation_status == 'confirmed']
+                facts = [f for f in facts if f.confirmation_status == 'confirmed']
+                relations = [r for r in relations if r.subject_name in entity_names and r.object_name in entity_names]
             return StoryBrain(
                 story_id=story_id,
                 entities=tuple(self._to_entity(item) for item in entities),
@@ -2410,10 +2419,12 @@ class PostgresNarrativeRepository:
         novel_id = self._novel_id(story_id)
         with session_scope(self._session_factory) as session:
             entities = session.execute(select(EntityRecord.id, EntityRecord.canonical_name,
-                EntityRecord.entity_type).where(*self._scope(EntityRecord, novel_id))).all()
+                EntityRecord.entity_type).where(*self._scope(EntityRecord, novel_id),
+                    EntityRecord.confirmation_status == 'confirmed')).all()
             aliases = session.execute(select(EntityAliasRecord.alias, EntityAliasRecord.entity_id)
                 .join(EntityRecord, EntityRecord.id == EntityAliasRecord.entity_id)
-                .where(*self._scope(EntityRecord, novel_id))).all()
+                .where(*self._scope(EntityRecord, novel_id), EntityRecord.confirmation_status == 'confirmed',
+                    EntityAliasRecord.confirmation_status == 'confirmed')).all()
             return {'entities': [{'entity_id': str(e.id), 'name': e.canonical_name,
                                   'entity_type': e.entity_type} for e in entities],
                     'aliases': [{'alias': a.alias, 'entity_id': str(a.entity_id)} for a in aliases]}

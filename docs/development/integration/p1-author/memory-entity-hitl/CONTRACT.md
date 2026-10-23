@@ -23,7 +23,7 @@ The existing revision analyses POST returns `waiting_entity_review` when the fla
 
 ## Authority and persistence
 
-`ENTITY_CANDIDATE_VERIFICATION_ENABLED` defaults OFF. Existing legacy analysis remains the default. Explicit ON requires the PostgreSQL repository at Alembic head (0012 at this base); JSON mode returns 503 for these new APIs. In-memory implementation exists for unit tests only. No additional repository or Story Brain is introduced.
+`ENTITY_CANDIDATE_VERIFICATION_ENABLED` defaults OFF. Existing legacy analysis remains the default. Explicit ON requires the PostgreSQL repository at Alembic head (0013_objective_intent at this base; HITL columns come from 0011/0012); JSON mode returns 503 for these new APIs. In-memory implementation exists for unit tests only. No additional repository or Story Brain is introduced.
 
 The Gateway requires an active AUTHOR/ADMIN JWT and checks novel ownership before forwarding. It sends its configured tenant plus authenticated author identity, ignoring browser tenant headers. Python requires the configured service token and author/tenant UUID headers on the new routes, and rejects a tenant different from its repository scope. This deployment has one configured repository tenant; dynamic per-request tenant repository selection is not introduced. Service-token possession is a trusted internal boundary, not an author credential. Keep AI service internal.
 

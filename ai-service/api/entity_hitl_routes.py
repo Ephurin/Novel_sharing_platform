@@ -84,7 +84,9 @@ def memory(novel_id: UUID, service=Depends(get_revision_analysis_service)):
              and f.get('confirmation_status', 'confirmed') == 'confirmed']
     fact_ids = {f['fact_id'] for f in facts}
     event_ids = {e.event_id for e in active_events}
-    transitions = [t for t in brain.transitions if t.get('fact_id') in fact_ids or t.get('event_id') in event_ids]
+    entity_ids = {e.entity_id for e in brain.entities}
+    transitions = [t for t in brain.transitions if t['entity_id'] in entity_ids
+        and (t.get('fact_id') in fact_ids or t.get('event_id') in event_ids)]
     from domain.projection import project, project_relations
     state = invoke(project, brain.entities, facts, active_events, transitions)
     relations = invoke(project_relations, brain.entities, brain.relations, state)
