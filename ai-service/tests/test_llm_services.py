@@ -16,6 +16,16 @@ class StubLLMService(LLMService):
         return self.response
 
 
+class GeminiModelSelectionTests(unittest.TestCase):
+    def test_default_gemini_model_does_not_use_legacy_versions(self) -> None:
+        service = LLMService(provider="gemini", model=None, api_key="test-key")
+        self.assertEqual(service._gemini_model_candidates(), ["models/gemini-3.5-flash-lite"])
+
+    def test_explicit_3_1_fallback_model(self) -> None:
+        service = LLMService(provider="gemini", model="gemini-3.1-flash-lite", api_key="test-key")
+        self.assertEqual(service._gemini_model_candidates(), ["models/gemini-3.1-flash-lite"])
+
+
 class LLMClientTests(unittest.TestCase):
     def test_disabled_provider_is_an_explicit_error(self) -> None:
         client = LLMClient(provider="none", model="disabled")

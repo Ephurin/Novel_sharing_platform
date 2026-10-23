@@ -7,6 +7,12 @@ Created from PR #54 head: 3100c46f46cd071467d762dff4ffa1fc4efe07f2 (already incl
 Source P1 branch at bootstrap: codex/ai-copilot-pipeline-test @ 2279b41d2dcd90fb47a2c4886379510c6564fee5.
 Unchanged main at bootstrap: 390b09fd043ec29db84519a9d195b59b76eec003.
 
+## Model selection policy (owner confirmation, 2026-10-23)
+- Real text model for future approved acceptance: primary `gemini-3.5-flash-lite`; explicitly selectable fallback `gemini-3.1-flash-lite`; no Gemini 2.5 or silent legacy/cross-provider fallbacks.
+- Text LLM provider and embedding provider are separate; real embedding remains `gemini-embedding-2` only if separately authorized.
+- This PR remains OFFLINE ONLY with ZERO real provider calls. No new budget approval or API spend is implied by this model policy.
+- The demo Compose override `docker-compose.flash-lite-demo.yml` already pins 3.5; always verify resolved `LLM_MODEL` and backend `AI_LLM_MODEL` prior to any eventual live run. Base Compose has a legacy `qwen3:8b` fallback and is not evidence of selected Gemini model.
+
 ## Intent
 Use a disposable integration branch for the minimal compatible P1 Core ↔ FE implementation and tests. Do NOT merge either full source branch into the other, nor promote this integration branch directly to main. Main, feat/author-workspace, feat/ui-ephurin-theme, and codex/ai-copilot-pipeline-test remain unchanged.
 

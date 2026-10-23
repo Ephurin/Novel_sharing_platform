@@ -20,6 +20,16 @@ class SettingsTests(unittest.TestCase):
         self.assertEqual(settings.json_repository_mode, "read-write")
         self.assertEqual(settings.context_routing_policy, "legacy-v1")
 
+    def test_gemini_defaults_to_3_5_flash_lite(self) -> None:
+        with patch.dict(os.environ, {"LLM_PROVIDER": "gemini"}, clear=True):
+            settings = Settings.from_env()
+        self.assertEqual(settings.llm_model, "gemini-3.5-flash-lite")
+
+    def test_gemini_3_1_fallback_is_explicitly_selectable(self) -> None:
+        with patch.dict(os.environ, {"LLM_PROVIDER": "gemini", "LLM_MODEL": "gemini-3.1-flash-lite"}, clear=True):
+            settings = Settings.from_env()
+        self.assertEqual(settings.llm_model, "gemini-3.1-flash-lite")
+
     def test_environment_values_are_parsed(self) -> None:
         environment = {
             "LLM_PROVIDER": "openai",

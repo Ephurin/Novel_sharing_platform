@@ -12,6 +12,12 @@ Hướng dẫn gate: docs/development/integration/p1-author/INTEGRATION_GATE.md
 
 QUAN TRỌNG: nhánh integration mới chưa có Core pipeline composite; chính bạn phải hòa giải contract, chỉ port phần tương thích và thực thi kiểm thử. Không nói đã merge P1 chỉ vì nhánh đã tồn tại.
 
+## Model policy — OWNER CONFIRMED 2026-10-23
+- **Text output, extraction, suggestion, consistency and writing:** Google Gemini 3.5 Flash-Lite (`gemini-3.5-flash-lite`) is the PRIMARY for any separately authorized real-model acceptance. Gemini 3.1 Flash-Lite (`gemini-3.1-flash-lite`) is an OPTIONAL *explicit operator-selected* fallback; capture real model ID in trace/evidence. Never use Gemini 2.5 models for this project/demo. Do not resurrect 1.5/2.0 aliases or silently switch to OpenAI.
+- The repository's flash-lite demo override already uses `DEMO_LLM_MODEL=gemini-3.5-flash-lite` for both AI service and backend; `ai-service/core/settings.py` now defaults Gemini to 3.5. Check `docker compose config` + effective `LLM_MODEL` and backend `AI_LLM_MODEL` to avoid root Compose's unrelated legacy `qwen3:8b` default. For 3.1 manual fallback, change `DEMO_LLM_MODEL` to `gemini-3.1-flash-lite` in an **approved future** real-model run, not offline integration.
+- **NO AUTHORIZATION FOR REAL CALLS IN PR #57.** G0–G4 remain offline fake LLM/fake embedding or disabled semantic lane only. Configuration verification does not entail sending provider requests. Separate owner approval, budget, quota and egress gate required before any real call.
+- Embedding is an independent provider: use fake or disabled during #57; `gemini-embedding-2` in a future approved quality run only. Do not confuse Gemini 3.5 text outputs with embedding vectors.
+
 ## 1. Bảo vệ Git và evidence
 - Lấy git fetch origin trước, chụp git status --short và git rev-parse HEAD của main, feat/author-workspace, integration/p1-author và codex/ai-copilot-pipeline-test. Nếu refs khác số đã pin, ghi delta mới rồi đánh giá lại; đừng âm thầm dựa tài liệu cũ.
 - Làm trong một git worktree riêng checkout tracking origin/integration/p1-author. Nếu máy có working tree đang dirty, không reset --hard, stash, clean, checkout đè, force push hoặc xóa file; tạo worktree mới an toàn hoặc báo BLOCKED.
