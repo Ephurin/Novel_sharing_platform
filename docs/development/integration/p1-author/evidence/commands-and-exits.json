@@ -115,6 +115,48 @@
       "cwd": ".worktrees/integration_p1_author/web",
       "exitCode": 0,
       "status": "PASS"
+    },
+    {
+      "step": "P1_REVIEW_P8_POSTGRES_CUTOVER_SUITE",
+      "command": "python -m pytest tests/test_p8_json_postgres_cutover_integration.py tests/test_p8_legacy_json_readonly.py -m \"postgres_integration or not postgres_integration\" -v",
+      "cwd": ".worktrees/integration_p1_author/ai-service",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "P1_REVIEW_AI_PIPE_01A_POSTGRES",
+      "command": "npx tsx --env-file=.env.integration src/modules/novels/p1-production-persistence.postgres.test.ts",
+      "cwd": ".worktrees/integration_p1_author/backend",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "P1_REVIEW_AI_PIPE_01A_AI_SERVICE",
+      "command": "python -m pytest tests/test_ai_pipe_01_p1_closed_loop.py",
+      "cwd": ".worktrees/integration_p1_author/ai-service",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "P1_REVIEW_AI_PIPE_01A_GATEWAY",
+      "command": "npx tsx --env-file=.env.integration src/modules/ai/p1-closed-loop-gateway.test.ts",
+      "cwd": ".worktrees/integration_p1_author/backend",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "P1_REVIEW_REAL_AUTHOR_IDE_BROWSER_S10_S11",
+      "command": "node --test tests/author-ide.browser.test.mjs",
+      "cwd": ".worktrees/integration_p1_author/web",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "P1_REVIEW_DRAFT_PERSISTENCE_BROWSER_REGRESSION",
+      "command": "npm run test:draft-browser",
+      "cwd": ".worktrees/integration_p1_author/web",
+      "exitCode": 0,
+      "status": "PASS"
     }
   ]
 }

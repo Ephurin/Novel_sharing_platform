@@ -1,10 +1,10 @@
 {
-  "testedAt": "2026-10-23T03:08:19.016Z",
-  "baseCommit": "157b71f5608558fdb2763c65b1254e3dffc77fb8",
+  "testedAt": "2026-10-23T03:52:13.022Z",
+  "baseCommit": "f82f6e58da93a43f0ee6fe74e0150df991f9454d",
   "sourceState": "working tree; hashes identify tested frontend source",
   "sourceHashes": {
     "src/features/author-ide/useDraftPersistence.ts": "88da92c9ee49f64c168b3b05564240d29564a3c5e11db19b32ca241a68c049f9",
-    "src/features/author-ide/AuthorWritingIde.tsx": "dcd58aca14eb014b0edc399878ecc639384932db1ebdc0da6347d7641ae09c63"
+    "src/features/author-ide/AuthorWritingIde.tsx": "b9f2ef62e63d606000250802a8fcdce4f64e62855a97e5fc5d9cacc31dfd3633"
   },
   "rapidUndo": {
     "writes": 0,

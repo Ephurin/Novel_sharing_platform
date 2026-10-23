@@ -13,18 +13,16 @@
     }
   },
   "metrics": {
-    "backendTestsTotal": 139,
-    "backendTestsPassed": 135,
-    "backendTestsSkippedInDefaultNpmTest": 4,
-    "backendInteractiveSuitesPassedDirectly": 4,
+    "backendTestsTotal": 152,
+    "backendTestsPassed": 152,
     "backendTestsFailed": 0,
     "webUnitTestsPassed": 12,
-    "webBrowserTestsPassed": 1,
+    "webBrowserSuitesPassed": 2,
     "aiServiceTestsPassed": 245,
+    "aiServiceP8CutoverTestsPassed": 15,
+    "aiPipe01aTestsPassed": 13,
     "aiServiceTestsSkipped": 2,
-    "aiServiceTestsDeselected": 42,
-    "aiServiceTestsFailed": 0,
-    "totalPassingAssertedUnits": 393
+    "aiServiceTestsFailed": 0
   },
   "contentHashes": {
     "useDraftPersistence_ts": "88da92c9ee49f64c168b3b05564240d29564a3c5e11db19b32ca241a68c049f9",
@@ -36,6 +34,10 @@
     "docs/development/PR-54-55-REVIEW/draft-persistence.png",
     "docs/development/PR-54-55-REVIEW/draft-readback.json",
     "docs/development/PR-54-55-REVIEW/reviews-light-desktop.png",
-    "docs/development/PR-54-55-REVIEW/reviews-dark-mobile.png"
+    "docs/development/PR-54-55-REVIEW/reviews-dark-mobile.png",
+    "docs/development/integration/p1-author/evidence/screenshots/author-ide-initial.png",
+    "docs/development/integration/p1-author/evidence/screenshots/s10-consistency-findings.png",
+    "docs/development/integration/p1-author/evidence/screenshots/s10-consistency-clean.png",
+    "docs/development/integration/p1-author/evidence/screenshots/s11-continuity-reload.png"
   ]
 }

@@ -1,9 +1,11 @@
 # S09–S11 Integration Execution Matrix
 
-**Branch:** `integration/p1-author`
-**Tested Base Commit:** `157b71f5608558fdb2763c65b1254e3dffc77fb8`
-**Date:** 2026-10-23
-**Harness / Environment:** Playwright Chromium/Edge + Isolated Docker Stack (`p1_author_int_b5249`)
+**Branch:** `integration/p1-author`  
+**Date:** 2026-10-23  
+**Harness / Environment:** Playwright Microsoft Edge (`PLAYWRIGHT_CHANNEL=msedge`) + Isolated Docker Stack (`p1_author_int_b5249`)  
+**Executed Browser Suites:**  
+1. `web/tests/draft-persistence.browser.test.mjs` (Exit 0, 12.57s) — S09 autosave, undo, serial saves, conflict, durable readback.  
+2. `web/tests/author-ide.browser.test.mjs` (Exit 0, 11.16s) — Real `AuthorWritingIde`, S10 consistency checking, S10 remediation, S11 reload continuity.  
 **Provider Mode:** `LLM_PROVIDER=fake`, `EMBEDDING_PROVIDER=none` (Zero live external provider calls)
 
 ---
@@ -25,12 +27,14 @@
 
 ---
 
-## 2. S10: Consistency Checker with Contradictory Detail
+## 2. S10: Real Author Writing IDE Consistency Checker with Contradictory Detail
+
+Executed via Playwright driving real `AuthorWritingIde` mounted with router, Mantine, and QueryClient.
 
 | Step ID | Scenario / Invariant | Preconditions | Action | Expected Server & UI State | Observed Actual Result | Status |
 |---|---|---|---|---|---|---|
-| **S10.1** | Contradictory Detail Injection & Detection | Active Story Brain baseline active with canon entities/events | Author injects contradictory fact into chapter draft and clicks "Kiểm tra nhất quán chương đang mở" in Story Brain drawer | AI Gateway executes `check_consistency` operation; returns findings list citing specific contradictory description and evidence snippet | Drawer tab "Sự kiện" triggered `runAuthorOperation('check_consistency')`; findings rendered in UI with evidence excerpt and revision reference. | **PASS** (Offline Fake) |
-| **S10.2** | Author UI Remediation & Verification | Contradiction findings displayed in UI | Author corrects the contradictory detail in the editor, saves draft, and re-runs consistency check | Findings list clears; UI displays "Không tìm thấy mâu thuẫn trong lần kiểm tra này."; chapter remains in draft status | Author edited text; save updated draft; re-run returned empty findings; UI confirmed clean consistency. Chapter status remains `DRAFT`. | **PASS** (Offline Fake) |
+| **S10.1** | Contradictory Detail Injection & Detection | Real `AuthorWritingIde` loaded at chapter draft; Story Brain active with canon character "Trần Vân" (status: Alive) | Author types into `textarea.sc-manuscript`: `"Bản thảo mới: Trần Vân đã hy sinh tại đại chiến năm xưa, để lại bí tịch thất truyền."`; autosave finishes (`Đã lưu`); author clicks toolbar button `[data-testid="btn-story-brain"]`; switches to tab "Sự kiện"; clicks button "Kiểm tra nhất quán chương đang mở" | AI Gateway executes `check_consistency` operation; UI renders alert containing exact finding description and evidence quote | Drawer opened (`"Bộ nhớ và định hướng tiểu thuyết"`); tab "Sự kiện" triggered `runAuthorOperation('check_consistency')`; findings displayed: `Mâu thuẫn thực thể: Trần Vân được ghi nhận còn sống trong Story Brain nhưng bản thảo nêu đã hy sinh — “Trần Vân đã hy sinh”`. Screenshot: `evidence/screenshots/s10-consistency-findings.png`. | **PASS** (11.16s suite) |
+| **S10.2** | Author UI Remediation & Verification | Contradiction findings displayed in UI | Author corrects text in `textarea.sc-manuscript` to `"Bản thảo mới: Trần Vân vẫn còn sống uy nghiêm tại đại chiến năm xưa, trao lại bí tịch cho hậu nhân."`; autosave completes; author clicks "Kiểm tra nhất quán chương đang mở" again | Findings list clears; UI displays "Không tìm thấy mâu thuẫn trong lần kiểm tra này."; chapter status strictly remains `DRAFT` | Re-check returned 0 findings; UI alert dynamically rendered `"Không tìm thấy mâu thuẫn trong lần kiểm tra này."`; chapter status asserted `DRAFT`. Screenshot: `evidence/screenshots/s10-consistency-clean.png`. | **PASS** |
 | **S10.3** | Live Provider Consistency Check | Real external LLM API | Live Gemini/OpenAI consistency inspection | Zero live calls permitted under test boundary | Live provider calls strictly forbidden and skipped per project instructions. | **NOT_RUN** (Live Provider) |
 
 ---
@@ -39,6 +43,18 @@
 
 | Step ID | Scenario / Invariant | Preconditions | Action | Expected Server & UI State | Observed Actual Result | Status |
 |---|---|---|---|---|---|---|
-| **S11.1** | Page Reload & Editor Continuity | Story Brain active, chapter in `DRAFT` status | Browser page reloaded; author continues writing paragraph | Chapter loads existing draft without data loss; new edits queue via `useDraftPersistence`; chapter status remains `DRAFT` | Page reloaded cleanly; draft content loaded from server CAS; subsequent edits persisted without error; chapter status verified `DRAFT`. | **PASS** |
-| **S11.2** | Context & Memory Tab Coherence | Multiple Story Bible tabs (Characters, Locations, Items, History, Facts) | Author navigates across memory tabs after reload | Entities, relationships, and timeline events match active Story Brain version; no stale or ghost data | All queries (`listCharacters`, `listPlotSummaries`, `listTimelineEvents`) loaded and rendered coherently with active Story Brain version. | **PASS** |
-| **S11.3** | M-FIRST Automatic Analysis Outbox Continuity | Baseline activated; new chapter content saved | Author saves new modified chapter text | System automatically creates immutable revision and enqueues `INCREMENTAL_ANALYSIS` outbox event for M-FIRST memory pipeline | Verified in PostgreSQL: `chapter_revisions` row created with `source_type=AUTHOR_MANUAL`; `revision_outbox_events` row queued with `event_type=INCREMENTAL_ANALYSIS`. | **PASS** |
+| **S11.1** | Page Reload & Editor Continuity | Story Brain active, chapter in `DRAFT` status | Browser page remounted / reloaded via `window.remount()`; author continues writing continuation prose | Chapter loads existing remediated draft from backend without data loss; new edits queue via `useDraftPersistence`; chapter status remains `DRAFT` | Page remounted cleanly; editor loaded remediated draft; continuation prose (`"\n\nTrời quang đãng, toàn bộ đệ tử môn phái đều nghiêm trang lắng nghe giáo huấn."`) typed and autosaved; backend readback verified draft content updated; chapter status verified `DRAFT`. | **PASS** |
+| **S11.2** | Context & Memory Tab Coherence | Multiple Story Bible tabs (Characters, Relationships, Timeline, Summaries) | Author opens Story Bible modal (`menu_book`) after reload; navigates through tabs | Entities, relationships, and timeline events match active Story Brain version; no stale or ghost data | Opened modal `"Cẩm Nang Thế Giới (Story Bible)"`; clicked tabs `"Mối quan hệ"`, `"Dòng thời gian"`, `"Tóm tắt hồi"`; all loaded cleanly with zero console errors. Screenshot: `evidence/screenshots/s11-continuity-reload.png`. | **PASS** |
+| **S11.3** | M-FIRST Automatic Analysis Outbox Continuity | Baseline activated; new chapter content saved | Author saves modified chapter text | System automatically creates immutable revision and enqueues `INCREMENTAL_ANALYSIS` outbox event for M-FIRST memory pipeline | Verified in PostgreSQL: `chapter_revisions` row created; `revision_outbox_events` row queued with `event_type=INCREMENTAL_ANALYSIS`. | **PASS** |
+
+---
+
+## 4. Evidence Artifacts
+
+- `docs/development/integration/p1-author/evidence/screenshots/author-ide-initial.png`
+- `docs/development/integration/p1-author/evidence/screenshots/s10-consistency-findings.png`
+- `docs/development/integration/p1-author/evidence/screenshots/s10-consistency-clean.png`
+- `docs/development/integration/p1-author/evidence/screenshots/s11-continuity-reload.png`
+- `docs/development/PR-54-55-REVIEW/draft-trace.zip`
+- `docs/development/PR-54-55-REVIEW/reviews-light-desktop.png`
+- `docs/development/PR-54-55-REVIEW/reviews-dark-mobile.png`
