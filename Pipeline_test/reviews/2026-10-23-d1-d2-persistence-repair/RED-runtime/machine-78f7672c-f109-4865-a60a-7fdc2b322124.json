@@ -1,0 +1,318 @@
+{
+  "chunks": [
+    {
+      "end": 44,
+      "start": 0
+    }
+  ],
+  "counts": {
+    "entity": 4,
+    "candidates": 9,
+    "not_entity": 5
+  },
+  "policy": "entity-candidates-v1",
+  "status": "waiting_entity_review",
+  "aliases": [
+    {
+      "end": 8,
+      "alias": "Linh",
+      "start": 4,
+      "entity_id": "",
+      "confidence": 0.7,
+      "entity_name": "Mai Linh",
+      "identity_quote": "Mai Linh và Duy đứng tại Cồn Vân. B queued B"
+    }
+  ],
+  "request": {
+    "options": {
+      "extract_events": true,
+      "build_embeddings": false,
+      "extract_entities": true,
+      "check_consistency": true,
+      "extract_prose_facts": true,
+      "extract_world_rules": true,
+      "review_fact_coverage": true,
+      "extract_state_transitions": true
+    },
+    "novel_id": "899b529a-f255-4b59-a0b0-bc0442c7b557",
+    "operation": "bootstrap_manuscript",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "chapter_id": "fdf22fb7-8ab4-4dc2-af41-ec8f685d1913",
+    "revision_id": "5f6c107a-69cd-4548-a6b5-13a354e33387",
+    "content_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+    "idempotency_key": "bootstrap:9afd4329-362d-51ce-9f77-07a2f761f667:5f6c107a-69cd-4548-a6b5-13a354e33387"
+  },
+  "entities": [
+    {
+      "score": 7,
+      "entity": "PER",
+      "phrase": "Mai Linh",
+      "status_quote": "",
+      "verified_end": 8,
+      "candidate_ids": [
+        "4108ec737411f414bdaf7f04",
+        "519dc2d6d1557528670922b9"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 0,
+      "canonical_entity_id": ""
+    },
+    {
+      "score": 7,
+      "entity": "PER",
+      "phrase": "Duy",
+      "status_quote": "",
+      "verified_end": 15,
+      "candidate_ids": [
+        "843880ec8ad88e96bfbcf7cb"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 12,
+      "canonical_entity_id": ""
+    },
+    {
+      "score": 7,
+      "entity": "LOC",
+      "phrase": "Cồn Vân",
+      "status_quote": "",
+      "verified_end": 32,
+      "candidate_ids": [
+        "f9247fb8b6da83fcf0a531b9"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 25,
+      "canonical_entity_id": ""
+    }
+  ],
+  "decisions": [
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "9226fdaec0ec6803e2638db6",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "4108ec737411f414bdaf7f04",
+      "status_quote": "",
+      "canonical_name": "Mai Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "519dc2d6d1557528670922b9",
+      "status_quote": "",
+      "canonical_name": "Mai Linh",
+      "identity_quote": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "843880ec8ad88e96bfbcf7cb",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "e59cee4d04593ee7913c3218",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "LOC",
+      "candidate_id": "f9247fb8b6da83fcf0a531b9",
+      "status_quote": "",
+      "canonical_name": "Cồn Vân",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "1b9aea1e1de0da8810a2b19d",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "17046ebb06f20689285867da",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "99ef45ed205c240315140de8",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    }
+  ],
+  "candidates": [
+    {
+      "end": 3,
+      "start": 0,
+      "context": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Mai",
+      "context_end": 44,
+      "candidate_id": "9226fdaec0ec6803e2638db6",
+      "context_start": 0
+    },
+    {
+      "end": 8,
+      "start": 0,
+      "context": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+      "origins": [
+        "capitalized_sequence"
+      ],
+      "surface": "Mai Linh",
+      "context_end": 44,
+      "candidate_id": "4108ec737411f414bdaf7f04",
+      "context_start": 0
+    },
+    {
+      "end": 8,
+      "start": 4,
+      "context": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 44,
+      "candidate_id": "519dc2d6d1557528670922b9",
+      "context_start": 0
+    },
+    {
+      "end": 15,
+      "start": 12,
+      "context": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 44,
+      "candidate_id": "843880ec8ad88e96bfbcf7cb",
+      "context_start": 0
+    },
+    {
+      "end": 28,
+      "start": 25,
+      "context": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cồn",
+      "context_end": 44,
+      "candidate_id": "e59cee4d04593ee7913c3218",
+      "context_start": 0
+    },
+    {
+      "end": 32,
+      "start": 25,
+      "context": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+      "origins": [
+        "capitalized_sequence"
+      ],
+      "surface": "Cồn Vân",
+      "context_end": 44,
+      "candidate_id": "f9247fb8b6da83fcf0a531b9",
+      "context_start": 0
+    },
+    {
+      "end": 32,
+      "start": 29,
+      "context": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Vân",
+      "context_end": 44,
+      "candidate_id": "1b9aea1e1de0da8810a2b19d",
+      "context_start": 0
+    },
+    {
+      "end": 35,
+      "start": 34,
+      "context": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "B",
+      "context_end": 44,
+      "candidate_id": "17046ebb06f20689285867da",
+      "context_start": 0
+    },
+    {
+      "end": 44,
+      "start": 43,
+      "context": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "B",
+      "context_end": 44,
+      "candidate_id": "99ef45ed205c240315140de8",
+      "context_start": 0
+    }
+  ],
+  "chapter_id": "fdf22fb7-8ab4-4dc2-af41-ec8f685d1913",
+  "revision_id": "5f6c107a-69cd-4548-a6b5-13a354e33387",
+  "source_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+  "chapter_number": 1,
+  "known_entities": [],
+  "review_version": 1,
+  "analysis_policy": "entity-human-review-v1",
+  "analysis_run_id": "78f7672c-f109-4865-a60a-7fdc2b322124",
+  "guidance_version": 0,
+  "reviewed_decisions": [],
+  "unanchored_discoveries": []
+}

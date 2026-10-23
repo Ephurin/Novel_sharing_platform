@@ -1,0 +1,837 @@
+{
+  "verdict": "D1_D2_PERSISTENCE_REPAIR_READY_FOR_GPT6_REVIEW",
+  "initial_sha": "1394bf66f802bc9b0c4a1bba50cdc1140940353b",
+  "final_tested_source_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+  "tracked_source_clean": true,
+  "evidence_directory_only_untracked_at_test": true,
+  "historical_regressions_closed": 3,
+  "original_PASS_preserved": 10,
+  "tests": {
+    "PASS": 184,
+    "FAIL": 0,
+    "SKIP": 0,
+    "NOT_RUN_out_of_scope_gates": 5,
+    "breakdown": {
+      "backend_unit": 110,
+      "AI_unit": 44,
+      "live_reconciliation": 6,
+      "postgres_outbox": 2,
+      "accepted_generation_persistence": 5,
+      "HTTP_PG_Mongo_contract": 17
+    }
+  },
+  "additional_static_checks": {
+    "typecheck": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "build": {
+      "status": "PASS",
+      "exit_code": 0
+    },
+    "diff_check": {
+      "status": "PASS",
+      "exit_code": 0
+    }
+  },
+  "matrix": [
+    {
+      "test": "01_absent_draft_version_0",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        null,
+        {
+          "chapterId": "fdf22fb7-8ab4-4dc2-af41-ec8f685d1913",
+          "novelId": "899b529a-f255-4b59-a0b0-bc0442c7b557",
+          "title": "Contract chapter",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 9,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "analysisRevisionId": null,
+          "draftVersion": 1
+        },
+        null
+      ],
+      "phase": "RED",
+      "tested_sha": "1394bf66f802bc9b0c4a1bba50cdc1140940353b",
+      "source_clean": true,
+      "command_and_exit_reference": "RED-commands.json",
+      "readbacks": "RED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "02_valid_version_save",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        {
+          "chapterId": "fdf22fb7-8ab4-4dc2-af41-ec8f685d1913",
+          "novelId": "899b529a-f255-4b59-a0b0-bc0442c7b557",
+          "title": "Contract chapter",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 10,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "analysisRevisionId": null,
+          "draftVersion": 2
+        },
+        null
+      ],
+      "phase": "RED",
+      "tested_sha": "1394bf66f802bc9b0c4a1bba50cdc1140940353b",
+      "source_clean": true,
+      "command_and_exit_reference": "RED-commands.json",
+      "readbacks": "RED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "03_missing_version_legacy_Core_observation",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": {
+        "chapterId": "fdf22fb7-8ab4-4dc2-af41-ec8f685d1913",
+        "novelId": "899b529a-f255-4b59-a0b0-bc0442c7b557",
+        "title": "Contract chapter",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 10,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "analysisRevisionId": null,
+        "draftVersion": 3
+      },
+      "phase": "RED",
+      "tested_sha": "1394bf66f802bc9b0c4a1bba50cdc1140940353b",
+      "source_clean": true,
+      "command_and_exit_reference": "RED-commands.json",
+      "readbacks": "RED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "04_stale_different_body_409",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        null,
+        null
+      ],
+      "phase": "RED",
+      "tested_sha": "1394bf66f802bc9b0c4a1bba50cdc1140940353b",
+      "source_clean": true,
+      "command_and_exit_reference": "RED-commands.json",
+      "readbacks": "RED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "05_same_body_lost_response_retry",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        {
+          "chapterId": "fdf22fb7-8ab4-4dc2-af41-ec8f685d1913",
+          "novelId": "899b529a-f255-4b59-a0b0-bc0442c7b557",
+          "title": "Contract chapter",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 11,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "analysisRevisionId": null,
+          "draftVersion": 4
+        },
+        null
+      ],
+      "phase": "RED",
+      "tested_sha": "1394bf66f802bc9b0c4a1bba50cdc1140940353b",
+      "source_clean": true,
+      "command_and_exit_reference": "RED-commands.json",
+      "readbacks": "RED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "06_different_body_stale_retry",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        null,
+        null
+      ],
+      "phase": "RED",
+      "tested_sha": "1394bf66f802bc9b0c4a1bba50cdc1140940353b",
+      "source_clean": true,
+      "command_and_exit_reference": "RED-commands.json",
+      "readbacks": "RED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "06b_different_metadata_stale_payload_409",
+      "status": "FAIL",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "error": "Same body/title but different stale pricing payload was accepted; whole-payload replay contract is not implemented",
+      "phase": "RED",
+      "tested_sha": "1394bf66f802bc9b0c4a1bba50cdc1140940353b",
+      "source_clean": true,
+      "command_and_exit_reference": "RED-commands.json",
+      "readbacks": "RED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "07_concurrent_writers_CAS",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null,
+      "phase": "RED",
+      "tested_sha": "1394bf66f802bc9b0c4a1bba50cdc1140940353b",
+      "source_clean": true,
+      "command_and_exit_reference": "RED-commands.json",
+      "readbacks": "RED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "08_API_consumer_inflight_A_then_B",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": {
+        "model": "API consumer retains B while A response is pending, then serializes using returned version; NOT a mounted hook or editor test",
+        "A_version": 6,
+        "B_version": 7
+      },
+      "phase": "RED",
+      "tested_sha": "1394bf66f802bc9b0c4a1bba50cdc1140940353b",
+      "source_clean": true,
+      "command_and_exit_reference": "RED-commands.json",
+      "readbacks": "RED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "09_API_chapter_account_isolation",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": {
+        "browser_lifecycle": "NOT_RUN",
+        "foreign_write": 403,
+        "other_chapter": "b648010a-2ac6-4d66-9a91-9066c5906e18"
+      },
+      "phase": "RED",
+      "tested_sha": "1394bf66f802bc9b0c4a1bba50cdc1140940353b",
+      "source_clean": true,
+      "command_and_exit_reference": "RED-commands.json",
+      "readbacks": "RED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "10a_active_save_returns_authoritative_version",
+      "status": "FAIL",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "error": "Auto-snapshot changed Mongo version after PATCH captured draftVersion",
+      "phase": "RED",
+      "tested_sha": "1394bf66f802bc9b0c4a1bba50cdc1140940353b",
+      "source_clean": true,
+      "command_and_exit_reference": "RED-commands.json",
+      "readbacks": "RED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "10b_active_replay_preserves_version",
+      "status": "FAIL",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "error": "Same-body active-baseline replay changes Mongo version despite stable revision/outbox",
+      "phase": "RED",
+      "tested_sha": "1394bf66f802bc9b0c4a1bba50cdc1140940353b",
+      "source_clean": true,
+      "command_and_exit_reference": "RED-commands.json",
+      "readbacks": "RED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "10_active_checkpoint_accept_outbox_StoryBrain",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+      "details": {
+        "automatic_saved_revision": "9b2eaf0c-6a99-4127-9b49-7615df7f856c",
+        "accepted_revision": "d8f9e2d2-f0e7-44f1-a5b0-ba931ea0f8c6",
+        "accepted_source_generation": "82229b08-0e8e-426c-aeda-7935786455c6",
+        "active_baseline": true,
+        "explicit_author_review": true,
+        "M_FIRST_from_accepted_source": true,
+        "stale_generation_rejected": 409,
+        "future_plan_not_canon": true
+      },
+      "phase": "RED",
+      "tested_sha": "1394bf66f802bc9b0c4a1bba50cdc1140940353b",
+      "source_clean": true,
+      "command_and_exit_reference": "RED-commands.json",
+      "readbacks": "RED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "01_absent_draft_version_0",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        null,
+        {
+          "chapterId": "6842394c-df27-4b31-acef-f3b6acf201eb",
+          "novelId": "a04e6353-d79f-44b0-8457-13620bc1d631",
+          "title": "Contract chapter",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 9,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "analysisRevisionId": null,
+          "draftVersion": 1
+        },
+        null
+      ],
+      "phase": "SEALED",
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "source_clean": true,
+      "command_and_exit_reference": "SEALED-commands.json",
+      "readbacks": "SEALED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "02_valid_version_save",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        {
+          "chapterId": "6842394c-df27-4b31-acef-f3b6acf201eb",
+          "novelId": "a04e6353-d79f-44b0-8457-13620bc1d631",
+          "title": "Contract chapter",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 10,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "analysisRevisionId": null,
+          "draftVersion": 2
+        },
+        null
+      ],
+      "phase": "SEALED",
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "source_clean": true,
+      "command_and_exit_reference": "SEALED-commands.json",
+      "readbacks": "SEALED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "03_missing_version_legacy_Core_observation",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": {
+        "chapterId": "6842394c-df27-4b31-acef-f3b6acf201eb",
+        "novelId": "a04e6353-d79f-44b0-8457-13620bc1d631",
+        "title": "Contract chapter",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 10,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "analysisRevisionId": null,
+        "draftVersion": 3
+      },
+      "phase": "SEALED",
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "source_clean": true,
+      "command_and_exit_reference": "SEALED-commands.json",
+      "readbacks": "SEALED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "04_stale_different_body_409",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        null,
+        null
+      ],
+      "phase": "SEALED",
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "source_clean": true,
+      "command_and_exit_reference": "SEALED-commands.json",
+      "readbacks": "SEALED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "05_same_body_lost_response_retry",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        {
+          "chapterId": "6842394c-df27-4b31-acef-f3b6acf201eb",
+          "novelId": "a04e6353-d79f-44b0-8457-13620bc1d631",
+          "title": "Contract chapter",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 11,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "analysisRevisionId": null,
+          "draftVersion": 4
+        },
+        null
+      ],
+      "phase": "SEALED",
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "source_clean": true,
+      "command_and_exit_reference": "SEALED-commands.json",
+      "readbacks": "SEALED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "06_different_body_stale_retry",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        null,
+        null
+      ],
+      "phase": "SEALED",
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "source_clean": true,
+      "command_and_exit_reference": "SEALED-commands.json",
+      "readbacks": "SEALED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "06b_different_metadata_stale_payload_409",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null,
+      "phase": "SEALED",
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "source_clean": true,
+      "command_and_exit_reference": "SEALED-commands.json",
+      "readbacks": "SEALED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "06c_fresh_metadata_and_identical_semantic_replay",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null,
+      "phase": "SEALED",
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "source_clean": true,
+      "command_and_exit_reference": "SEALED-commands.json",
+      "readbacks": "SEALED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "06d_published_pricing_only_compatibility",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null,
+      "phase": "SEALED",
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "source_clean": true,
+      "command_and_exit_reference": "SEALED-commands.json",
+      "readbacks": "SEALED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "07_concurrent_writers_CAS",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null,
+      "phase": "SEALED",
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "source_clean": true,
+      "command_and_exit_reference": "SEALED-commands.json",
+      "readbacks": "SEALED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "08_API_consumer_inflight_A_then_B",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": {
+        "model": "API consumer retains B while A response is pending, then serializes using returned version; NOT a mounted hook or editor test",
+        "A_version": 9,
+        "B_version": 10
+      },
+      "phase": "SEALED",
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "source_clean": true,
+      "command_and_exit_reference": "SEALED-commands.json",
+      "readbacks": "SEALED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "09_API_chapter_account_isolation",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": {
+        "browser_lifecycle": "NOT_RUN",
+        "foreign_write": 403,
+        "other_chapter": "f414fc82-8eeb-4830-8eca-68661524045f"
+      },
+      "phase": "SEALED",
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "source_clean": true,
+      "command_and_exit_reference": "SEALED-commands.json",
+      "readbacks": "SEALED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "10a_active_save_returns_authoritative_version",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null,
+      "phase": "SEALED",
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "source_clean": true,
+      "command_and_exit_reference": "SEALED-commands.json",
+      "readbacks": "SEALED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "10b_active_replay_preserves_version",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null,
+      "phase": "SEALED",
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "source_clean": true,
+      "command_and_exit_reference": "SEALED-commands.json",
+      "readbacks": "SEALED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "10c_next_save_using_returned_version",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null,
+      "phase": "SEALED",
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "source_clean": true,
+      "command_and_exit_reference": "SEALED-commands.json",
+      "readbacks": "SEALED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "10_active_checkpoint_accept_outbox_StoryBrain",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+      "details": {
+        "automatic_saved_revision": "57784d58-9b04-473b-96b2-dacb17fc3551",
+        "accepted_revision": "b070ee9b-c746-4fc9-959b-f8e959517f02",
+        "accepted_source_generation": "a96b913e-5f72-49f9-9d0a-c7652d328cab",
+        "active_baseline": true,
+        "explicit_author_review": true,
+        "M_FIRST_from_accepted_source": true,
+        "stale_generation_rejected": 409,
+        "future_plan_not_canon": true
+      },
+      "phase": "SEALED",
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "source_clean": true,
+      "command_and_exit_reference": "SEALED-commands.json",
+      "readbacks": "SEALED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    },
+    {
+      "test": "11_snapshot_failure_is_explicit_and_retry_recovers",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null,
+      "phase": "SEALED",
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "source_clean": true,
+      "command_and_exit_reference": "SEALED-commands.json",
+      "readbacks": "SEALED-runtime/",
+      "independently_executed": true,
+      "inherited": false
+    }
+  ],
+  "targeted_commands": [
+    {
+      "name": "backend-unit",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/chapter-revisions.test.ts",
+        "src/modules/novels/outbox.test.ts",
+        "src/modules/novels/controller-intent.test.ts",
+        "src/modules/novels/internal-revision-authorization.test.ts",
+        "src/modules/novels/draft-read-authorization.test.ts",
+        "src/modules/ai/p1-closed-loop-gateway.test.ts",
+        "src/modules/ai/autonomous-controller.test.ts",
+        "src/modules/ai/job-resume-authorization.test.ts",
+        "src/jobs/outbox-processor.test.ts",
+        "src/core/database/test-db-guard.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "tracked_source_clean": true
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "-p",
+        "tsconfig.json"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "tracked_source_clean": true
+    },
+    {
+      "name": "build",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.json"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "tracked_source_clean": true
+    },
+    {
+      "name": "AI-unit",
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "--basetemp",
+        "C:\\Users\\thaib\\AppData\\Local\\Temp\\d1d2-pytest-c2821c3a7f4f42b3906678b488a90792",
+        "tests/test_revision_content_provider.py",
+        "tests/test_revision_analysis_workflow.py",
+        "tests/test_revision_analysis_routes.py",
+        "tests/test_manuscript_bootstrap.py",
+        "tests/test_manuscript_bootstrap_routes.py",
+        "tests/test_internal_generation_contract.py",
+        "tests/test_canon_revision_reconciliation.py"
+      ],
+      "cwd": "ai-service",
+      "exit_code": 0,
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+      "tracked_source_clean": true
+    }
+  ],
+  "real_persistence_commands": [
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "src/core/database/migrate.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/mongo-reconciliation.live.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/outbox.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/p1-production-persistence.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df"
+    }
+  ],
+  "stack_commands": [
+    {
+      "command": [
+        "python",
+        "Pipeline_test/tools/prepare_fe_core_contract.py",
+        "--manifest",
+        "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\Pipeline_test\\reviews\\2026-10-23-d1-d2-persistence-repair\\SEALED-manifest.json",
+        "--allow-new-test-resources"
+      ],
+      "exit_code": 0,
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "--env-file",
+        "Pipeline_test\\tools\\.env.p123-core-f9df62536a",
+        "-f",
+        "Pipeline_test/tools/compose.p123-p3.yml",
+        "--profile",
+        "initialize",
+        "run",
+        "--rm",
+        "budget-init"
+      ],
+      "exit_code": 0,
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "--env-file",
+        "Pipeline_test\\tools\\.env.p123-core-f9df62536a",
+        "-f",
+        "Pipeline_test/tools/compose.p123-p3.yml",
+        "up",
+        "-d",
+        "--build"
+      ],
+      "exit_code": 0,
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df"
+    },
+    {
+      "command": [
+        "python",
+        "Pipeline_test/tools/fe_core_contract_probe.py",
+        "--env-file",
+        "Pipeline_test\\tools\\.env.p123-core-f9df62536a",
+        "--output",
+        "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\Pipeline_test\\reviews\\2026-10-23-d1-d2-persistence-repair\\SEALED-runtime",
+        "--allow-test-mutations"
+      ],
+      "exit_code": 0,
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "--env-file",
+        "Pipeline_test\\tools\\.env.p123-core-f9df62536a",
+        "-f",
+        "Pipeline_test/tools/compose.p123-p3.yml",
+        "stop",
+        "-t",
+        "2"
+      ],
+      "exit_code": 0,
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df"
+    }
+  ],
+  "not_run": [
+    {
+      "gate": "Full AuthorWritingIde S09-S11",
+      "status": "NOT_RUN",
+      "reason": "Outside authorized bounded Core repair; separately gated"
+    },
+    {
+      "gate": "Real provider/embedding quality",
+      "status": "NOT_RUN",
+      "reason": "Outside authorized bounded Core repair; separately gated"
+    },
+    {
+      "gate": "Populated/shared database upgrade",
+      "status": "NOT_RUN",
+      "reason": "Outside authorized bounded Core repair; separately gated"
+    },
+    {
+      "gate": "P3 100k experiment",
+      "status": "NOT_RUN",
+      "reason": "Outside authorized bounded Core repair; separately gated"
+    },
+    {
+      "gate": "Production deployment",
+      "status": "NOT_RUN",
+      "reason": "Outside authorized bounded Core repair; separately gated"
+    }
+  ],
+  "real_provider_calls": 0,
+  "supported_baseline_path": "manuscript bootstrap -> simulated human entity review -> proposal approval -> baseline activation; no SQL Story Brain seed",
+  "production_files": [
+    "backend/src/modules/novels/chapters.service.ts",
+    "backend/src/modules/novels/draft-chapters.repository.ts",
+    "backend/src/modules/novels/chapter-revisions.service.ts"
+  ],
+  "internal_token_authorization_diff": "NONE",
+  "public_API_policy": "expectedVersion remains optional; no global428; unversioned callers keep compatibility and lack stale-writer detection",
+  "durable_transitions": "DURABLE_TRANSITIONS.json",
+  "resources": "RESOURCE_AUDIT.json",
+  "unresolved": [
+    "Independent GPT-6 acceptance pending",
+    "Gemini PR57 generation lookup/DTO remediation and full FE S09-S11 remain separate",
+    "Global version-required cutover requires separate owner approval",
+    "Cross-store atomicity not introduced: snapshot transaction failure can leave saved editable draft/metadata; HTTP500 is explicit and retry recovers canonical revision/outbox"
+  ],
+  "intermediate_runs": {
+    "GREEN": "17 PASS at 7b7cd978; original fixture literals had Windows locale mojibake; corrected before sealed proof",
+    "FINAL": "17 PASS at 50e0b20a; source_dirty_at_start true from pytest deleting tracked temp files, so not used as clean final acceptance; exact deleted fixtures restored from HEAD without reset/stash/clean",
+    "recorded_command_sha": "Intermediate runner records git HEAD at command completion, while probe validation records source at startup; use each validation.json for intermediate tested SHA",
+    "RED_path": "New untracked evidence folder renamed to user-required directory after baseline run; recorded argv retains original invocation path"
+  }
+}

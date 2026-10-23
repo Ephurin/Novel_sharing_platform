@@ -1,0 +1,68 @@
+{
+  "fixture_sql": "update chapters set status='PUBLISHED',content='Published canonical pricing fixture' where chapter_id='d1ba061c-e7e1-49cb-ad52-fc8eac791919'",
+  "before": {
+    "chapterId": "d1ba061c-e7e1-49cb-ad52-fc8eac791919",
+    "novelId": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+    "title": "Pricing fixture",
+    "chapterNumber": 2,
+    "content": "Published canonical pricing fixture",
+    "wordCount": 4,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "PUBLISHED",
+    "draft": {
+      "title": "Pricing fixture",
+      "content": "Published canonical pricing fixture",
+      "wordCount": 4,
+      "version": 1,
+      "autosave": false,
+      "updatedAt": "2026-10-23T04:19:44.660Z"
+    }
+  },
+  "legacy": {
+    "chapterId": "d1ba061c-e7e1-49cb-ad52-fc8eac791919",
+    "novelId": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+    "title": "Pricing fixture",
+    "chapterNumber": 2,
+    "content": "Published canonical pricing fixture",
+    "wordCount": 4,
+    "isVip": true,
+    "priceCoins": 2,
+    "status": "PUBLISHED",
+    "analysisRevisionId": null,
+    "draftVersion": 1
+  },
+  "versioned": {
+    "chapterId": "d1ba061c-e7e1-49cb-ad52-fc8eac791919",
+    "novelId": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+    "title": "Pricing fixture",
+    "chapterNumber": 2,
+    "content": "Published canonical pricing fixture",
+    "wordCount": 4,
+    "isVip": true,
+    "priceCoins": 3,
+    "status": "PUBLISHED",
+    "analysisRevisionId": null,
+    "draftVersion": 2
+  },
+  "after": {
+    "chapterId": "d1ba061c-e7e1-49cb-ad52-fc8eac791919",
+    "novelId": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+    "title": "Pricing fixture",
+    "chapterNumber": 2,
+    "content": "Published canonical pricing fixture",
+    "wordCount": 4,
+    "isVip": true,
+    "priceCoins": 3,
+    "status": "PUBLISHED",
+    "draft": {
+      "title": "Pricing fixture",
+      "content": "Published canonical pricing fixture",
+      "wordCount": 4,
+      "version": 2,
+      "autosave": false,
+      "updatedAt": "2026-10-23T04:19:45.170Z"
+    }
+  },
+  "wallet_or_payment_calls": 0
+}

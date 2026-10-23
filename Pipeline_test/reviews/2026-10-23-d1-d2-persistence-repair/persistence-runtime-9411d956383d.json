@@ -1,0 +1,65 @@
+{
+  "resources": [
+    {
+      "container": "d1d2-repair-9411d956383d-pg",
+      "volume": "d1d2-repair-9411d956383d-pg-data",
+      "image": "pgvector/pgvector:pg16"
+    },
+    {
+      "container": "d1d2-repair-9411d956383d-mongo",
+      "volume": "d1d2-repair-9411d956383d-mongo-data",
+      "image": "mongo:7"
+    }
+  ],
+  "database": "ephurin_test_d1d2_9411d956383d",
+  "commands": [
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "src/core/database/migrate.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/mongo-reconciliation.live.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/outbox.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/p1-production-persistence.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df"
+    }
+  ],
+  "retained": true
+}

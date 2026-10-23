@@ -1,0 +1,317 @@
+{
+  "response": {
+    "chapterId": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+    "novelId": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+    "title": "Contract chapter",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 18,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "DRAFT",
+    "analysisRevisionId": "0e9bda6b-5a77-4cfe-82be-ec14c40c0f4b",
+    "draftVersion": 20
+  },
+  "HTTP": {
+    "chapterId": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+    "novelId": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+    "title": "Contract chapter",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 18,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "DRAFT",
+    "draft": {
+      "title": "Contract chapter",
+      "content": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n. fault checkpoint",
+      "wordCount": 18,
+      "version": 20,
+      "autosave": false,
+      "updatedAt": "2026-10-23T04:20:22.736Z"
+    }
+  },
+  "PG_Mongo": {
+    "chapters": [
+      {
+        "chapter_id": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+        "novel_id": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "title": "Contract chapter",
+        "chapter_number": 1,
+        "content": null,
+        "word_count": 18,
+        "is_vip": false,
+        "price_coins": 0,
+        "status": "DRAFT",
+        "published_at": null,
+        "created_at": "2026-10-23T04:19:16.874132+00:00",
+        "updated_at": "2026-10-23T04:20:22.733341+00:00",
+        "deleted_at": null,
+        "latest_revision_id": "0e9bda6b-5a77-4cfe-82be-ec14c40c0f4b"
+      },
+      {
+        "chapter_id": "d1ba061c-e7e1-49cb-ad52-fc8eac791919",
+        "novel_id": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "title": "Pricing fixture",
+        "chapter_number": 2,
+        "content": "Published canonical pricing fixture",
+        "word_count": 4,
+        "is_vip": true,
+        "price_coins": 3,
+        "status": "PUBLISHED",
+        "published_at": null,
+        "created_at": "2026-10-23T04:19:44.657202+00:00",
+        "updated_at": "2026-10-23T04:19:45.17175+00:00",
+        "deleted_at": null,
+        "latest_revision_id": null
+      },
+      {
+        "chapter_id": "dd4771ad-9b71-47ac-b310-28927c6541c1",
+        "novel_id": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "title": "Other chapter",
+        "chapter_number": 3,
+        "content": null,
+        "word_count": 3,
+        "is_vip": false,
+        "price_coins": 0,
+        "status": "DRAFT",
+        "published_at": null,
+        "created_at": "2026-10-23T04:19:45.337862+00:00",
+        "updated_at": "2026-10-23T04:19:45.337862+00:00",
+        "deleted_at": null,
+        "latest_revision_id": null
+      }
+    ],
+    "chapter_revisions": [
+      {
+        "revision_id": "07df930b-908e-4a89-af4f-1a02d4e47622",
+        "novel_id": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "chapter_id": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+        "parent_revision_id": null,
+        "content_hash": "bcb0d83aba90b1f44361806f22ba5d82e4a530be3b9696af8bd88f9a4a27a8ea",
+        "content": "Mai Linh vÃ  Duy Ä‘á»©ng táº¡i Cá»“n VÃ¢n. B queued B",
+        "word_count": 11,
+        "source_type": "BOOTSTRAP",
+        "source_generation_id": null,
+        "created_by": "250a2b6b-d41d-4b07-acdd-68f8c4236d44",
+        "created_at": "2026-10-23T04:19:47.570261+00:00"
+      },
+      {
+        "revision_id": "ff0e8172-7856-4bd0-a9d0-6200af912bc7",
+        "novel_id": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "chapter_id": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+        "parent_revision_id": "07df930b-908e-4a89-af4f-1a02d4e47622",
+        "content_hash": "09ad8ab5dd2deb83b34e4c21fac5dfa7a2285166eee5296c668dd2757b336cdd",
+        "content": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+        "word_count": 16,
+        "source_type": "AUTHOR_MANUAL",
+        "source_generation_id": null,
+        "created_by": "250a2b6b-d41d-4b07-acdd-68f8c4236d44",
+        "created_at": "2026-10-23T04:19:49.954274+00:00"
+      },
+      {
+        "revision_id": "6812768b-5407-4981-a743-b05362e94006",
+        "novel_id": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "chapter_id": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+        "parent_revision_id": "ff0e8172-7856-4bd0-a9d0-6200af912bc7",
+        "content_hash": "dc48d259e9234dd05e76394ddeec1fd1e477d80cf3229caae915a84e4b8130e5",
+        "content": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n. Mai Linh tiếp tục nhìn máy thu.",
+        "word_count": 23,
+        "source_type": "AUTHOR_MANUAL",
+        "source_generation_id": null,
+        "created_by": "250a2b6b-d41d-4b07-acdd-68f8c4236d44",
+        "created_at": "2026-10-23T04:20:02.196928+00:00"
+      },
+      {
+        "revision_id": "a41bdfd2-9207-4b0e-8f85-9235816f9cfb",
+        "novel_id": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "chapter_id": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+        "parent_revision_id": "6812768b-5407-4981-a743-b05362e94006",
+        "content_hash": "c0d9c9870d55cdc987d046a3b9c758200f038d115eeec389e251f1c427756141",
+        "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n. Mai Linh tiếp tục nhìn máy thu.",
+        "word_count": 43,
+        "source_type": "AI_DRAFT_ACCEPT",
+        "source_generation_id": "a165ceda-534b-4d32-9e06-ef56ff75771b",
+        "created_by": "250a2b6b-d41d-4b07-acdd-68f8c4236d44",
+        "created_at": "2026-10-23T04:20:06.324965+00:00"
+      },
+      {
+        "revision_id": "fe3b99d4-b524-47ad-8e92-c0799da7f5c5",
+        "novel_id": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "chapter_id": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+        "parent_revision_id": "a41bdfd2-9207-4b0e-8f85-9235816f9cfb",
+        "content_hash": "4d8b165e60c99c9035944d424ab40b7cba60895b41b09c27119885507524016e",
+        "content": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n. newer author checkpoint",
+        "word_count": 19,
+        "source_type": "AUTHOR_MANUAL",
+        "source_generation_id": null,
+        "created_by": "250a2b6b-d41d-4b07-acdd-68f8c4236d44",
+        "created_at": "2026-10-23T04:20:14.889197+00:00"
+      },
+      {
+        "revision_id": "0e9bda6b-5a77-4cfe-82be-ec14c40c0f4b",
+        "novel_id": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "chapter_id": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+        "parent_revision_id": "fe3b99d4-b524-47ad-8e92-c0799da7f5c5",
+        "content_hash": "9ebb73237d71d1d3a522bbd5779138defb392f5ad4958c0b90cc3a235487ab14",
+        "content": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n. fault checkpoint",
+        "word_count": 18,
+        "source_type": "AUTHOR_MANUAL",
+        "source_generation_id": null,
+        "created_by": "250a2b6b-d41d-4b07-acdd-68f8c4236d44",
+        "created_at": "2026-10-23T04:20:22.733341+00:00"
+      }
+    ],
+    "revision_outbox_events": [
+      {
+        "event_id": "cdaa08c9-24df-48b2-8519-4648505ddb31",
+        "event_type": "INCREMENTAL_ANALYSIS",
+        "novel_id": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "chapter_id": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+        "revision_id": "ff0e8172-7856-4bd0-a9d0-6200af912bc7",
+        "content_hash": "09ad8ab5dd2deb83b34e4c21fac5dfa7a2285166eee5296c668dd2757b336cdd",
+        "created_by": "250a2b6b-d41d-4b07-acdd-68f8c4236d44",
+        "payload": {
+          "operation": "incremental_story_analysis"
+        },
+        "status": "COMPLETED",
+        "retry_count": 0,
+        "max_retries": 5,
+        "next_retry_at": "2026-10-23T04:19:49.954274+00:00",
+        "last_error": null,
+        "created_at": "2026-10-23T04:19:49.954274+00:00",
+        "updated_at": "2026-10-23T04:19:50.165399+00:00",
+        "claim_token": "[REDACTED]"
+      },
+      {
+        "event_id": "742944e3-e4dc-4bfc-8002-f10236412c4c",
+        "event_type": "INCREMENTAL_ANALYSIS",
+        "novel_id": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "chapter_id": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+        "revision_id": "6812768b-5407-4981-a743-b05362e94006",
+        "content_hash": "dc48d259e9234dd05e76394ddeec1fd1e477d80cf3229caae915a84e4b8130e5",
+        "created_by": "250a2b6b-d41d-4b07-acdd-68f8c4236d44",
+        "payload": {
+          "operation": "incremental_story_analysis"
+        },
+        "status": "COMPLETED",
+        "retry_count": 0,
+        "max_retries": 5,
+        "next_retry_at": "2026-10-23T04:20:02.196928+00:00",
+        "last_error": null,
+        "created_at": "2026-10-23T04:20:02.196928+00:00",
+        "updated_at": "2026-10-23T04:20:02.428242+00:00",
+        "claim_token": "[REDACTED]"
+      },
+      {
+        "event_id": "28889c94-e6c4-4c8e-953a-735897925861",
+        "event_type": "INCREMENTAL_ANALYSIS",
+        "novel_id": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "chapter_id": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+        "revision_id": "a41bdfd2-9207-4b0e-8f85-9235816f9cfb",
+        "content_hash": "c0d9c9870d55cdc987d046a3b9c758200f038d115eeec389e251f1c427756141",
+        "created_by": "250a2b6b-d41d-4b07-acdd-68f8c4236d44",
+        "payload": {
+          "operation": "incremental_story_analysis"
+        },
+        "status": "COMPLETED",
+        "retry_count": 0,
+        "max_retries": 5,
+        "next_retry_at": "2026-10-23T04:20:06.324965+00:00",
+        "last_error": null,
+        "created_at": "2026-10-23T04:20:06.324965+00:00",
+        "updated_at": "2026-10-23T04:20:06.677718+00:00",
+        "claim_token": "[REDACTED]"
+      },
+      {
+        "event_id": "44861818-47ba-49be-b3a0-10eefe0cc809",
+        "event_type": "INCREMENTAL_ANALYSIS",
+        "novel_id": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "chapter_id": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+        "revision_id": "fe3b99d4-b524-47ad-8e92-c0799da7f5c5",
+        "content_hash": "4d8b165e60c99c9035944d424ab40b7cba60895b41b09c27119885507524016e",
+        "created_by": "250a2b6b-d41d-4b07-acdd-68f8c4236d44",
+        "payload": {
+          "operation": "incremental_story_analysis"
+        },
+        "status": "COMPLETED",
+        "retry_count": 0,
+        "max_retries": 5,
+        "next_retry_at": "2026-10-23T04:20:14.889197+00:00",
+        "last_error": null,
+        "created_at": "2026-10-23T04:20:14.889197+00:00",
+        "updated_at": "2026-10-23T04:20:15.091755+00:00",
+        "claim_token": "[REDACTED]"
+      },
+      {
+        "event_id": "4969d2cd-4cbc-4d0b-941c-21d7abaf75d7",
+        "event_type": "INCREMENTAL_ANALYSIS",
+        "novel_id": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "chapter_id": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+        "revision_id": "0e9bda6b-5a77-4cfe-82be-ec14c40c0f4b",
+        "content_hash": "9ebb73237d71d1d3a522bbd5779138defb392f5ad4958c0b90cc3a235487ab14",
+        "created_by": "250a2b6b-d41d-4b07-acdd-68f8c4236d44",
+        "payload": {
+          "operation": "incremental_story_analysis"
+        },
+        "status": "COMPLETED",
+        "retry_count": 0,
+        "max_retries": 5,
+        "next_retry_at": "2026-10-23T04:20:22.733341+00:00",
+        "last_error": null,
+        "created_at": "2026-10-23T04:20:22.733341+00:00",
+        "updated_at": "2026-10-23T04:20:22.936665+00:00",
+        "claim_token": "[REDACTED]"
+      }
+    ],
+    "Mongo_drafts": [
+      {
+        "_id": "6adae060d3702b19b57e2d59",
+        "chapterId": "d1ba061c-e7e1-49cb-ad52-fc8eac791919",
+        "authorId": "250a2b6b-d41d-4b07-acdd-68f8c4236d44",
+        "autosave": false,
+        "content": "Published canonical pricing fixture",
+        "createdAt": "2026-10-23T04:19:44.660Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "title": "Pricing fixture",
+        "updatedAt": "2026-10-23T04:19:45.170Z",
+        "version": 2,
+        "wordCount": 4
+      },
+      {
+        "_id": "6adae061d3702b19b57e2d72",
+        "chapterId": "dd4771ad-9b71-47ac-b310-28927c6541c1",
+        "authorId": "250a2b6b-d41d-4b07-acdd-68f8c4236d44",
+        "autosave": false,
+        "content": "Other chapter B",
+        "createdAt": "2026-10-23T04:19:45.340Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "title": "Other chapter",
+        "updatedAt": "2026-10-23T04:19:45.361Z",
+        "version": 2,
+        "wordCount": 3
+      },
+      {
+        "_id": "6adae045d3702b19b57e2c4c",
+        "chapterId": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+        "version": 20,
+        "authorId": "250a2b6b-d41d-4b07-acdd-68f8c4236d44",
+        "autosave": false,
+        "content": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n. fault checkpoint",
+        "createdAt": "2026-10-23T04:19:17.141Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "title": "Contract chapter",
+        "updatedAt": "2026-10-23T04:20:22.736Z",
+        "wordCount": 18,
+        "lastAcceptedAt": "2026-10-23T04:20:22.736Z",
+        "lastAcceptedRevisionId": "0e9bda6b-5a77-4cfe-82be-ec14c40c0f4b"
+      }
+    ]
+  }
+}

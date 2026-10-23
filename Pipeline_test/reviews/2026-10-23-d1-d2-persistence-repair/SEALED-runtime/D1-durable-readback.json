@@ -1,0 +1,123 @@
+{
+  "HTTP": {
+    "chapterId": "6842394c-df27-4b31-acef-f3b6acf201eb",
+    "novelId": "a04e6353-d79f-44b0-8457-13620bc1d631",
+    "title": "Contract chapter",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 11,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "DRAFT",
+    "draft": {
+      "title": "Contract chapter",
+      "content": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+      "wordCount": 11,
+      "version": 10,
+      "autosave": true,
+      "updatedAt": "2026-10-23T04:24:48.797Z"
+    }
+  },
+  "PG": {
+    "chapters": [
+      {
+        "chapter_id": "6842394c-df27-4b31-acef-f3b6acf201eb",
+        "novel_id": "a04e6353-d79f-44b0-8457-13620bc1d631",
+        "title": "Contract chapter",
+        "chapter_number": 1,
+        "content": null,
+        "word_count": 11,
+        "is_vip": false,
+        "price_coins": 0,
+        "status": "DRAFT",
+        "published_at": null,
+        "created_at": "2026-10-23T04:24:18.937191+00:00",
+        "updated_at": "2026-10-23T04:24:48.800472+00:00",
+        "deleted_at": null,
+        "latest_revision_id": null
+      },
+      {
+        "chapter_id": "4b9430ad-1022-46de-a31d-12e5dcc627cf",
+        "novel_id": "a04e6353-d79f-44b0-8457-13620bc1d631",
+        "title": "Pricing fixture",
+        "chapter_number": 2,
+        "content": "Published canonical pricing fixture",
+        "word_count": 4,
+        "is_vip": true,
+        "price_coins": 3,
+        "status": "PUBLISHED",
+        "published_at": null,
+        "created_at": "2026-10-23T04:24:48.072786+00:00",
+        "updated_at": "2026-10-23T04:24:48.623606+00:00",
+        "deleted_at": null,
+        "latest_revision_id": null
+      },
+      {
+        "chapter_id": "f414fc82-8eeb-4830-8eca-68661524045f",
+        "novel_id": "a04e6353-d79f-44b0-8457-13620bc1d631",
+        "title": "Other chapter",
+        "chapter_number": 3,
+        "content": null,
+        "word_count": 3,
+        "is_vip": false,
+        "price_coins": 0,
+        "status": "DRAFT",
+        "published_at": null,
+        "created_at": "2026-10-23T04:24:48.846081+00:00",
+        "updated_at": "2026-10-23T04:24:48.846081+00:00",
+        "deleted_at": null,
+        "latest_revision_id": null
+      }
+    ],
+    "chapter_revisions": [],
+    "revision_outbox_events": [],
+    "Mongo_drafts": [
+      {
+        "_id": "6adae190470ad207e5d5627f",
+        "chapterId": "4b9430ad-1022-46de-a31d-12e5dcc627cf",
+        "authorId": "0d77f486-be73-4674-a204-b74cbf804567",
+        "autosave": false,
+        "content": "Published canonical pricing fixture",
+        "createdAt": "2026-10-23T04:24:48.076Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "a04e6353-d79f-44b0-8457-13620bc1d631",
+        "title": "Pricing fixture",
+        "updatedAt": "2026-10-23T04:24:48.621Z",
+        "version": 2,
+        "wordCount": 4
+      },
+      {
+        "_id": "6adae173470ad207e5d56167",
+        "chapterId": "6842394c-df27-4b31-acef-f3b6acf201eb",
+        "version": 10,
+        "authorId": "0d77f486-be73-4674-a204-b74cbf804567",
+        "autosave": true,
+        "content": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+        "createdAt": "2026-10-23T04:24:19.207Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "a04e6353-d79f-44b0-8457-13620bc1d631",
+        "title": "Contract chapter",
+        "updatedAt": "2026-10-23T04:24:48.797Z",
+        "wordCount": 11
+      },
+      {
+        "_id": "6adae190470ad207e5d56298",
+        "chapterId": "f414fc82-8eeb-4830-8eca-68661524045f",
+        "authorId": "0d77f486-be73-4674-a204-b74cbf804567",
+        "autosave": false,
+        "content": "Other chapter B",
+        "createdAt": "2026-10-23T04:24:48.849Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "a04e6353-d79f-44b0-8457-13620bc1d631",
+        "title": "Other chapter",
+        "updatedAt": "2026-10-23T04:24:48.862Z",
+        "version": 2,
+        "wordCount": 3
+      }
+    ]
+  },
+  "local_conflict_buffer": "LOCAL_UNSAVED_DIFFERENT"
+}

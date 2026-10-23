@@ -1,0 +1,382 @@
+{
+  "previous_response": {
+    "chapterId": "57654a9f-8b55-4ea5-affd-03e303e2a9b7",
+    "novelId": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+    "title": "Contract chapter",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 16,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "DRAFT",
+    "analysisRevisionId": "469f13fa-2b1b-4e1e-90d6-bfb681c5119e",
+    "draftVersion": 13
+  },
+  "response": {
+    "chapterId": "57654a9f-8b55-4ea5-affd-03e303e2a9b7",
+    "novelId": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+    "title": "Contract chapter",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 23,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "DRAFT",
+    "analysisRevisionId": "1e10c1b8-9908-4f32-b643-359dd7638340",
+    "draftVersion": 15
+  },
+  "before": {
+    "chapters": [
+      {
+        "chapter_id": "57654a9f-8b55-4ea5-affd-03e303e2a9b7",
+        "novel_id": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "title": "Contract chapter",
+        "chapter_number": 1,
+        "content": null,
+        "word_count": 16,
+        "is_vip": false,
+        "price_coins": 0,
+        "status": "DRAFT",
+        "published_at": null,
+        "created_at": "2026-10-23T04:21:48.856402+00:00",
+        "updated_at": "2026-10-23T04:22:23.492784+00:00",
+        "deleted_at": null,
+        "latest_revision_id": "469f13fa-2b1b-4e1e-90d6-bfb681c5119e"
+      },
+      {
+        "chapter_id": "fc85f5a7-1ec3-4984-9beb-06ec5958a2bd",
+        "novel_id": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "title": "Pricing fixture",
+        "chapter_number": 2,
+        "content": "Published canonical pricing fixture",
+        "word_count": 4,
+        "is_vip": true,
+        "price_coins": 3,
+        "status": "PUBLISHED",
+        "published_at": null,
+        "created_at": "2026-10-23T04:22:18.41923+00:00",
+        "updated_at": "2026-10-23T04:22:18.984785+00:00",
+        "deleted_at": null,
+        "latest_revision_id": null
+      },
+      {
+        "chapter_id": "411fd17e-19a7-4091-8835-2f7e1f246044",
+        "novel_id": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "title": "Other chapter",
+        "chapter_number": 3,
+        "content": null,
+        "word_count": 3,
+        "is_vip": false,
+        "price_coins": 0,
+        "status": "DRAFT",
+        "published_at": null,
+        "created_at": "2026-10-23T04:22:19.138528+00:00",
+        "updated_at": "2026-10-23T04:22:19.138528+00:00",
+        "deleted_at": null,
+        "latest_revision_id": null
+      }
+    ],
+    "chapter_revisions": [
+      {
+        "revision_id": "3991fdd2-d026-4887-8d7b-fcb3aabf2613",
+        "novel_id": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "chapter_id": "57654a9f-8b55-4ea5-affd-03e303e2a9b7",
+        "parent_revision_id": null,
+        "content_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+        "content": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+        "word_count": 11,
+        "source_type": "BOOTSTRAP",
+        "source_generation_id": null,
+        "created_by": "475f3901-668d-4813-a1c2-d88ebb52b346",
+        "created_at": "2026-10-23T04:22:21.49983+00:00"
+      },
+      {
+        "revision_id": "469f13fa-2b1b-4e1e-90d6-bfb681c5119e",
+        "novel_id": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "chapter_id": "57654a9f-8b55-4ea5-affd-03e303e2a9b7",
+        "parent_revision_id": "3991fdd2-d026-4887-8d7b-fcb3aabf2613",
+        "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+        "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+        "word_count": 16,
+        "source_type": "AUTHOR_MANUAL",
+        "source_generation_id": null,
+        "created_by": "475f3901-668d-4813-a1c2-d88ebb52b346",
+        "created_at": "2026-10-23T04:22:23.492784+00:00"
+      }
+    ],
+    "revision_outbox_events": [
+      {
+        "event_id": "33d69483-1f66-41e6-8915-d0728b081b5b",
+        "event_type": "INCREMENTAL_ANALYSIS",
+        "novel_id": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "chapter_id": "57654a9f-8b55-4ea5-affd-03e303e2a9b7",
+        "revision_id": "469f13fa-2b1b-4e1e-90d6-bfb681c5119e",
+        "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+        "created_by": "475f3901-668d-4813-a1c2-d88ebb52b346",
+        "payload": {
+          "operation": "incremental_story_analysis"
+        },
+        "status": "COMPLETED",
+        "retry_count": 0,
+        "max_retries": 5,
+        "next_retry_at": "2026-10-23T04:22:23.492784+00:00",
+        "last_error": null,
+        "created_at": "2026-10-23T04:22:23.492784+00:00",
+        "updated_at": "2026-10-23T04:22:23.714823+00:00",
+        "claim_token": "[REDACTED]"
+      }
+    ],
+    "Mongo_drafts": [
+      {
+        "_id": "6adae0fba284dd45f996c1ac",
+        "chapterId": "411fd17e-19a7-4091-8835-2f7e1f246044",
+        "authorId": "475f3901-668d-4813-a1c2-d88ebb52b346",
+        "autosave": false,
+        "content": "Other chapter B",
+        "createdAt": "2026-10-23T04:22:19.141Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "title": "Other chapter",
+        "updatedAt": "2026-10-23T04:22:19.150Z",
+        "version": 2,
+        "wordCount": 3
+      },
+      {
+        "_id": "6adae0dda284dd45f996c07b",
+        "version": 13,
+        "chapterId": "57654a9f-8b55-4ea5-affd-03e303e2a9b7",
+        "authorId": "475f3901-668d-4813-a1c2-d88ebb52b346",
+        "autosave": true,
+        "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+        "createdAt": "2026-10-23T04:21:49.128Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "title": "Contract chapter",
+        "updatedAt": "2026-10-23T04:22:23.497Z",
+        "wordCount": 16,
+        "lastAcceptedAt": "2026-10-23T04:22:23.497Z",
+        "lastAcceptedRevisionId": "469f13fa-2b1b-4e1e-90d6-bfb681c5119e"
+      },
+      {
+        "_id": "6adae0faa284dd45f996c193",
+        "chapterId": "fc85f5a7-1ec3-4984-9beb-06ec5958a2bd",
+        "authorId": "475f3901-668d-4813-a1c2-d88ebb52b346",
+        "autosave": false,
+        "content": "Published canonical pricing fixture",
+        "createdAt": "2026-10-23T04:22:18.422Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "title": "Pricing fixture",
+        "updatedAt": "2026-10-23T04:22:18.983Z",
+        "version": 2,
+        "wordCount": 4
+      }
+    ]
+  },
+  "after": {
+    "chapters": [
+      {
+        "chapter_id": "57654a9f-8b55-4ea5-affd-03e303e2a9b7",
+        "novel_id": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "title": "Contract chapter",
+        "chapter_number": 1,
+        "content": null,
+        "word_count": 23,
+        "is_vip": false,
+        "price_coins": 0,
+        "status": "DRAFT",
+        "published_at": null,
+        "created_at": "2026-10-23T04:21:48.856402+00:00",
+        "updated_at": "2026-10-23T04:22:35.79852+00:00",
+        "deleted_at": null,
+        "latest_revision_id": "1e10c1b8-9908-4f32-b643-359dd7638340"
+      },
+      {
+        "chapter_id": "fc85f5a7-1ec3-4984-9beb-06ec5958a2bd",
+        "novel_id": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "title": "Pricing fixture",
+        "chapter_number": 2,
+        "content": "Published canonical pricing fixture",
+        "word_count": 4,
+        "is_vip": true,
+        "price_coins": 3,
+        "status": "PUBLISHED",
+        "published_at": null,
+        "created_at": "2026-10-23T04:22:18.41923+00:00",
+        "updated_at": "2026-10-23T04:22:18.984785+00:00",
+        "deleted_at": null,
+        "latest_revision_id": null
+      },
+      {
+        "chapter_id": "411fd17e-19a7-4091-8835-2f7e1f246044",
+        "novel_id": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "title": "Other chapter",
+        "chapter_number": 3,
+        "content": null,
+        "word_count": 3,
+        "is_vip": false,
+        "price_coins": 0,
+        "status": "DRAFT",
+        "published_at": null,
+        "created_at": "2026-10-23T04:22:19.138528+00:00",
+        "updated_at": "2026-10-23T04:22:19.138528+00:00",
+        "deleted_at": null,
+        "latest_revision_id": null
+      }
+    ],
+    "chapter_revisions": [
+      {
+        "revision_id": "3991fdd2-d026-4887-8d7b-fcb3aabf2613",
+        "novel_id": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "chapter_id": "57654a9f-8b55-4ea5-affd-03e303e2a9b7",
+        "parent_revision_id": null,
+        "content_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+        "content": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+        "word_count": 11,
+        "source_type": "BOOTSTRAP",
+        "source_generation_id": null,
+        "created_by": "475f3901-668d-4813-a1c2-d88ebb52b346",
+        "created_at": "2026-10-23T04:22:21.49983+00:00"
+      },
+      {
+        "revision_id": "469f13fa-2b1b-4e1e-90d6-bfb681c5119e",
+        "novel_id": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "chapter_id": "57654a9f-8b55-4ea5-affd-03e303e2a9b7",
+        "parent_revision_id": "3991fdd2-d026-4887-8d7b-fcb3aabf2613",
+        "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+        "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+        "word_count": 16,
+        "source_type": "AUTHOR_MANUAL",
+        "source_generation_id": null,
+        "created_by": "475f3901-668d-4813-a1c2-d88ebb52b346",
+        "created_at": "2026-10-23T04:22:23.492784+00:00"
+      },
+      {
+        "revision_id": "1e10c1b8-9908-4f32-b643-359dd7638340",
+        "novel_id": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "chapter_id": "57654a9f-8b55-4ea5-affd-03e303e2a9b7",
+        "parent_revision_id": "469f13fa-2b1b-4e1e-90d6-bfb681c5119e",
+        "content_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+        "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+        "word_count": 23,
+        "source_type": "AUTHOR_MANUAL",
+        "source_generation_id": null,
+        "created_by": "475f3901-668d-4813-a1c2-d88ebb52b346",
+        "created_at": "2026-10-23T04:22:35.79852+00:00"
+      }
+    ],
+    "revision_outbox_events": [
+      {
+        "event_id": "33d69483-1f66-41e6-8915-d0728b081b5b",
+        "event_type": "INCREMENTAL_ANALYSIS",
+        "novel_id": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "chapter_id": "57654a9f-8b55-4ea5-affd-03e303e2a9b7",
+        "revision_id": "469f13fa-2b1b-4e1e-90d6-bfb681c5119e",
+        "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+        "created_by": "475f3901-668d-4813-a1c2-d88ebb52b346",
+        "payload": {
+          "operation": "incremental_story_analysis"
+        },
+        "status": "COMPLETED",
+        "retry_count": 0,
+        "max_retries": 5,
+        "next_retry_at": "2026-10-23T04:22:23.492784+00:00",
+        "last_error": null,
+        "created_at": "2026-10-23T04:22:23.492784+00:00",
+        "updated_at": "2026-10-23T04:22:23.714823+00:00",
+        "claim_token": "[REDACTED]"
+      },
+      {
+        "event_id": "dd07920a-7d39-47c0-8a53-8c3035b9f52e",
+        "event_type": "INCREMENTAL_ANALYSIS",
+        "novel_id": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "chapter_id": "57654a9f-8b55-4ea5-affd-03e303e2a9b7",
+        "revision_id": "1e10c1b8-9908-4f32-b643-359dd7638340",
+        "content_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+        "created_by": "475f3901-668d-4813-a1c2-d88ebb52b346",
+        "payload": {
+          "operation": "incremental_story_analysis"
+        },
+        "status": "COMPLETED",
+        "retry_count": 0,
+        "max_retries": 5,
+        "next_retry_at": "2026-10-23T04:22:35.79852+00:00",
+        "last_error": null,
+        "created_at": "2026-10-23T04:22:35.79852+00:00",
+        "updated_at": "2026-10-23T04:22:36.128836+00:00",
+        "claim_token": "[REDACTED]"
+      }
+    ],
+    "Mongo_drafts": [
+      {
+        "_id": "6adae0fba284dd45f996c1ac",
+        "chapterId": "411fd17e-19a7-4091-8835-2f7e1f246044",
+        "authorId": "475f3901-668d-4813-a1c2-d88ebb52b346",
+        "autosave": false,
+        "content": "Other chapter B",
+        "createdAt": "2026-10-23T04:22:19.141Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "title": "Other chapter",
+        "updatedAt": "2026-10-23T04:22:19.150Z",
+        "version": 2,
+        "wordCount": 3
+      },
+      {
+        "_id": "6adae0dda284dd45f996c07b",
+        "version": 15,
+        "chapterId": "57654a9f-8b55-4ea5-affd-03e303e2a9b7",
+        "authorId": "475f3901-668d-4813-a1c2-d88ebb52b346",
+        "autosave": true,
+        "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+        "createdAt": "2026-10-23T04:21:49.128Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "title": "Contract chapter",
+        "updatedAt": "2026-10-23T04:22:35.805Z",
+        "wordCount": 23,
+        "lastAcceptedAt": "2026-10-23T04:22:35.804Z",
+        "lastAcceptedRevisionId": "1e10c1b8-9908-4f32-b643-359dd7638340"
+      },
+      {
+        "_id": "6adae0faa284dd45f996c193",
+        "chapterId": "fc85f5a7-1ec3-4984-9beb-06ec5958a2bd",
+        "authorId": "475f3901-668d-4813-a1c2-d88ebb52b346",
+        "autosave": false,
+        "content": "Published canonical pricing fixture",
+        "createdAt": "2026-10-23T04:22:18.422Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "title": "Pricing fixture",
+        "updatedAt": "2026-10-23T04:22:18.983Z",
+        "version": 2,
+        "wordCount": 4
+      }
+    ]
+  },
+  "HTTP": {
+    "chapterId": "57654a9f-8b55-4ea5-affd-03e303e2a9b7",
+    "novelId": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+    "title": "Contract chapter",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 23,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "DRAFT",
+    "draft": {
+      "title": "Contract chapter",
+      "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+      "wordCount": 23,
+      "version": 15,
+      "autosave": true,
+      "updatedAt": "2026-10-23T04:22:35.805Z"
+    }
+  }
+}

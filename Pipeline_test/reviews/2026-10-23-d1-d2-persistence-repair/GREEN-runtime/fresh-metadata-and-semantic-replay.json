@@ -1,0 +1,120 @@
+{
+  "version_before": 4,
+  "fresh": {
+    "chapterId": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+    "novelId": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+    "title": "Contract chapter",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 11,
+    "isVip": true,
+    "priceCoins": 2,
+    "status": "DRAFT",
+    "analysisRevisionId": null,
+    "draftVersion": 5
+  },
+  "replay": {
+    "chapterId": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+    "novelId": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+    "title": "Contract chapter",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 11,
+    "isVip": true,
+    "priceCoins": 2,
+    "status": "DRAFT",
+    "analysisRevisionId": null,
+    "draftVersion": 5
+  },
+  "pricing_only": {
+    "chapterId": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+    "novelId": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+    "title": "Contract chapter",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 11,
+    "isVip": true,
+    "priceCoins": 3,
+    "status": "DRAFT",
+    "analysisRevisionId": null,
+    "draftVersion": 6
+  },
+  "before_replay": {
+    "chapters": [
+      {
+        "chapter_id": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+        "novel_id": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "title": "Contract chapter",
+        "chapter_number": 1,
+        "content": null,
+        "word_count": 11,
+        "is_vip": true,
+        "price_coins": 2,
+        "status": "DRAFT",
+        "published_at": null,
+        "created_at": "2026-10-23T04:19:16.874132+00:00",
+        "updated_at": "2026-10-23T04:19:33.100636+00:00",
+        "deleted_at": null,
+        "latest_revision_id": null
+      }
+    ],
+    "chapter_revisions": [],
+    "revision_outbox_events": [],
+    "Mongo_drafts": [
+      {
+        "_id": "6adae045d3702b19b57e2c4c",
+        "chapterId": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+        "version": 5,
+        "authorId": "250a2b6b-d41d-4b07-acdd-68f8c4236d44",
+        "autosave": true,
+        "content": "Mai Linh vÃ  Duy Ä‘á»©ng táº¡i Cá»“n VÃ¢n. B response unread",
+        "createdAt": "2026-10-23T04:19:17.141Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "title": "Contract chapter",
+        "updatedAt": "2026-10-23T04:19:33.098Z",
+        "wordCount": 11
+      }
+    ]
+  },
+  "after": {
+    "chapters": [
+      {
+        "chapter_id": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+        "novel_id": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "title": "Contract chapter",
+        "chapter_number": 1,
+        "content": null,
+        "word_count": 11,
+        "is_vip": false,
+        "price_coins": 0,
+        "status": "DRAFT",
+        "published_at": null,
+        "created_at": "2026-10-23T04:19:16.874132+00:00",
+        "updated_at": "2026-10-23T04:19:42.296808+00:00",
+        "deleted_at": null,
+        "latest_revision_id": null
+      }
+    ],
+    "chapter_revisions": [],
+    "revision_outbox_events": [],
+    "Mongo_drafts": [
+      {
+        "_id": "6adae045d3702b19b57e2c4c",
+        "chapterId": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+        "version": 7,
+        "authorId": "250a2b6b-d41d-4b07-acdd-68f8c4236d44",
+        "autosave": true,
+        "content": "Mai Linh vÃ  Duy Ä‘á»©ng táº¡i Cá»“n VÃ¢n. B response unread",
+        "createdAt": "2026-10-23T04:19:17.141Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "title": "Contract chapter",
+        "updatedAt": "2026-10-23T04:19:42.295Z",
+        "wordCount": 11
+      }
+    ]
+  }
+}

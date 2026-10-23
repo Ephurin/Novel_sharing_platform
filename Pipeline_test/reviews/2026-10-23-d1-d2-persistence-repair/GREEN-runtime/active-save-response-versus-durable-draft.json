@@ -1,0 +1,23 @@
+{
+  "response": {
+    "chapterId": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+    "novelId": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+    "title": "Contract chapter",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 16,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "DRAFT",
+    "analysisRevisionId": "ff0e8172-7856-4bd0-a9d0-6200af912bc7",
+    "draftVersion": 13
+  },
+  "durable_draft": {
+    "title": "Contract chapter",
+    "content": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+    "wordCount": 16,
+    "version": 13,
+    "autosave": true,
+    "updatedAt": "2026-10-23T04:19:49.960Z"
+  }
+}

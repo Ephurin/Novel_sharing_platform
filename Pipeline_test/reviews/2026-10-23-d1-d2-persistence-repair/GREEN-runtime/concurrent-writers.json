@@ -1,0 +1,37 @@
+[
+  {
+    "body": "Mai Linh vÃ  Duy Ä‘á»©ng táº¡i Cá»“n VÃ¢n. B writer A",
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": {
+        "chapterId": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+        "novelId": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+        "title": "Contract chapter",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 11,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "analysisRevisionId": null,
+        "draftVersion": 8
+      },
+      "error": null,
+      "meta": {}
+    }
+  },
+  {
+    "body": "Mai Linh vÃ  Duy Ä‘á»©ng táº¡i Cá»“n VÃ¢n. B writer B",
+    "status": 409,
+    "response": {
+      "success": false,
+      "data": null,
+      "error": {
+        "code": "DRAFT_CONFLICT",
+        "message": "Draft changed or another save is in progress; reload before retrying"
+      },
+      "meta": {}
+    }
+  }
+]

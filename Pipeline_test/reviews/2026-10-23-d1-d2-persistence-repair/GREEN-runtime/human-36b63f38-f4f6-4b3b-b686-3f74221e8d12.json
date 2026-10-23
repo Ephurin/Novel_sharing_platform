@@ -1,0 +1,615 @@
+{
+  "channel": "SIMULATED_HUMAN_VIA_API",
+  "frozen": {
+    "chunks": [
+      {
+        "end": 89,
+        "start": 0
+      }
+    ],
+    "counts": {
+      "entity": 5,
+      "candidates": 14,
+      "not_entity": 9
+    },
+    "policy": "entity-candidates-v1",
+    "status": "entities_reviewed",
+    "aliases": [
+      {
+        "alias": "Linh",
+        "entity_name": "Mai Linh",
+        "entity_id": "a5e21328-9c49-41a6-885b-118600eb539c",
+        "start": 4,
+        "end": 8,
+        "confidence": 0.7,
+        "identity_quote": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n."
+      }
+    ],
+    "request": {
+      "options": {
+        "extract_events": true,
+        "build_embeddings": false,
+        "extract_entities": true,
+        "check_consistency": true,
+        "extract_prose_facts": true,
+        "extract_world_rules": false,
+        "review_fact_coverage": true,
+        "extract_state_transitions": false
+      },
+      "novel_id": "8bbaa4ed-2d5a-49f6-ac23-ff2abfb5462d",
+      "operation": "incremental_story_analysis",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "chapter_id": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+      "revision_id": "ff0e8172-7856-4bd0-a9d0-6200af912bc7",
+      "content_hash": "09ad8ab5dd2deb83b34e4c21fac5dfa7a2285166eee5296c668dd2757b336cdd",
+      "idempotency_key": "analysis-ff0e8172-7856-4bd0-a9d0-6200af912bc7"
+    },
+    "entities": [
+      {
+        "phrase": "Mai Linh",
+        "entity": "PER",
+        "score": 7,
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "verified_start": 0,
+        "verified_end": 8,
+        "canonical_entity_id": "a5e21328-9c49-41a6-885b-118600eb539c",
+        "candidate_ids": [
+          "ae644e6df0f72bbf0c2faf8c",
+          "45525e433118efa349a9d707",
+          "6f576f1983db68eae9eb0bbd",
+          "b823641a8f8d180d22dd560b"
+        ]
+      },
+      {
+        "phrase": "Duy",
+        "entity": "PER",
+        "score": 7,
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "verified_start": 46,
+        "verified_end": 49,
+        "canonical_entity_id": "9d91496c-441c-4570-9c3b-f22f3d9dc3ae",
+        "candidate_ids": [
+          "64f8e2051ed04bd01dc38a0b"
+        ]
+      }
+    ],
+    "decisions": [
+      {
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+        "verdict": "not_entity",
+        "confidence": 0.7,
+        "entity_type": null,
+        "candidate_id": "938653954b72175ed63e4134",
+        "status_quote": "",
+        "canonical_name": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": ""
+      },
+      {
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+        "verdict": "entity",
+        "confidence": 0.7,
+        "entity_type": "PER",
+        "candidate_id": "ae644e6df0f72bbf0c2faf8c",
+        "status_quote": "",
+        "canonical_name": "Mai Linh",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": "a5e21328-9c49-41a6-885b-118600eb539c"
+      },
+      {
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+        "verdict": "not_entity",
+        "confidence": 0.7,
+        "entity_type": null,
+        "candidate_id": "86781878cacbe8e128d30d85",
+        "status_quote": "",
+        "canonical_name": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": ""
+      },
+      {
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+        "verdict": "entity",
+        "confidence": 0.7,
+        "entity_type": "PER",
+        "candidate_id": "45525e433118efa349a9d707",
+        "status_quote": "",
+        "canonical_name": "Mai Linh",
+        "identity_quote": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+        "initial_status": "Unknown",
+        "canonical_entity_id": "a5e21328-9c49-41a6-885b-118600eb539c"
+      },
+      {
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+        "verdict": "not_entity",
+        "confidence": 0.7,
+        "entity_type": null,
+        "candidate_id": "c6f26ea25049aa67ef1f6df2",
+        "status_quote": "",
+        "canonical_name": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": ""
+      },
+      {
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+        "verdict": "not_entity",
+        "confidence": 0.7,
+        "entity_type": null,
+        "candidate_id": "bf5ae7fa5e1bd87aedf137ff",
+        "status_quote": "",
+        "canonical_name": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": ""
+      },
+      {
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+        "verdict": "entity",
+        "confidence": 0.7,
+        "entity_type": "PER",
+        "candidate_id": "64f8e2051ed04bd01dc38a0b",
+        "status_quote": "",
+        "canonical_name": "Duy",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": "9d91496c-441c-4570-9c3b-f22f3d9dc3ae"
+      },
+      {
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+        "verdict": "not_entity",
+        "confidence": 0.7,
+        "entity_type": null,
+        "candidate_id": "dcd1cb44cce2b43067d07e4f",
+        "status_quote": "",
+        "canonical_name": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": ""
+      },
+      {
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+        "verdict": "not_entity",
+        "confidence": 0.7,
+        "entity_type": null,
+        "candidate_id": "7e27df1abdbbd19eeed1b20c",
+        "status_quote": "",
+        "canonical_name": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": ""
+      },
+      {
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+        "verdict": "not_entity",
+        "confidence": 0.7,
+        "entity_type": null,
+        "candidate_id": "d070d63bca64a037aa7f376b",
+        "status_quote": "",
+        "canonical_name": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": ""
+      },
+      {
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+        "verdict": "entity",
+        "confidence": 0.7,
+        "entity_type": "PER",
+        "candidate_id": "6f576f1983db68eae9eb0bbd",
+        "status_quote": "",
+        "canonical_name": "Mai Linh",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": "a5e21328-9c49-41a6-885b-118600eb539c"
+      },
+      {
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+        "verdict": "entity",
+        "confidence": 0.7,
+        "entity_type": "PER",
+        "candidate_id": "b823641a8f8d180d22dd560b",
+        "status_quote": "",
+        "canonical_name": "Mai Linh",
+        "identity_quote": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+        "initial_status": "Unknown",
+        "canonical_entity_id": "a5e21328-9c49-41a6-885b-118600eb539c"
+      },
+      {
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+        "verdict": "not_entity",
+        "confidence": 0.7,
+        "entity_type": null,
+        "candidate_id": "d654d94cfab8d575b046c818",
+        "status_quote": "",
+        "canonical_name": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": ""
+      },
+      {
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+        "verdict": "not_entity",
+        "confidence": 0.7,
+        "entity_type": null,
+        "candidate_id": "b573b474b88592ffb68b6d00",
+        "status_quote": "",
+        "canonical_name": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": ""
+      }
+    ],
+    "candidates": [
+      {
+        "end": 3,
+        "start": 0,
+        "context": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+        "origins": [
+          "capitalized_token"
+        ],
+        "surface": "Mai",
+        "context_end": 89,
+        "candidate_id": "938653954b72175ed63e4134",
+        "context_start": 0
+      },
+      {
+        "end": 8,
+        "start": 0,
+        "context": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+        "origins": [
+          "approved_name_or_alias",
+          "capitalized_sequence"
+        ],
+        "surface": "Mai Linh",
+        "context_end": 89,
+        "candidate_id": "ae644e6df0f72bbf0c2faf8c",
+        "context_start": 0
+      },
+      {
+        "end": 10,
+        "start": 0,
+        "context": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+        "origins": [
+          "capitalized_sequence"
+        ],
+        "surface": "Mai Linh Ä",
+        "context_end": 89,
+        "candidate_id": "86781878cacbe8e128d30d85",
+        "context_start": 0
+      },
+      {
+        "end": 8,
+        "start": 4,
+        "context": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+        "origins": [
+          "approved_name_or_alias",
+          "capitalized_token"
+        ],
+        "surface": "Linh",
+        "context_end": 89,
+        "candidate_id": "45525e433118efa349a9d707",
+        "context_start": 0
+      },
+      {
+        "end": 10,
+        "start": 4,
+        "context": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+        "origins": [
+          "capitalized_sequence"
+        ],
+        "surface": "Linh Ä",
+        "context_end": 89,
+        "candidate_id": "c6f26ea25049aa67ef1f6df2",
+        "context_start": 0
+      },
+      {
+        "end": 10,
+        "start": 9,
+        "context": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+        "origins": [
+          "capitalized_token"
+        ],
+        "surface": "Ä",
+        "context_end": 89,
+        "candidate_id": "bf5ae7fa5e1bd87aedf137ff",
+        "context_start": 0
+      },
+      {
+        "end": 49,
+        "start": 46,
+        "context": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+        "origins": [
+          "approved_name_or_alias",
+          "capitalized_token"
+        ],
+        "surface": "Duy",
+        "context_end": 89,
+        "candidate_id": "64f8e2051ed04bd01dc38a0b",
+        "context_start": 0
+      },
+      {
+        "end": 51,
+        "start": 46,
+        "context": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+        "origins": [
+          "capitalized_sequence"
+        ],
+        "surface": "Duy Ä",
+        "context_end": 89,
+        "candidate_id": "dcd1cb44cce2b43067d07e4f",
+        "context_start": 0
+      },
+      {
+        "end": 51,
+        "start": 50,
+        "context": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+        "origins": [
+          "capitalized_token"
+        ],
+        "surface": "Ä",
+        "context_end": 89,
+        "candidate_id": "7e27df1abdbbd19eeed1b20c",
+        "context_start": 0
+      },
+      {
+        "end": 66,
+        "start": 63,
+        "context": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+        "origins": [
+          "capitalized_token"
+        ],
+        "surface": "Mai",
+        "context_end": 89,
+        "candidate_id": "d070d63bca64a037aa7f376b",
+        "context_start": 0
+      },
+      {
+        "end": 71,
+        "start": 63,
+        "context": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+        "origins": [
+          "approved_name_or_alias",
+          "capitalized_sequence"
+        ],
+        "surface": "Mai Linh",
+        "context_end": 89,
+        "candidate_id": "6f576f1983db68eae9eb0bbd",
+        "context_start": 0
+      },
+      {
+        "end": 71,
+        "start": 67,
+        "context": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+        "origins": [
+          "approved_name_or_alias",
+          "capitalized_token"
+        ],
+        "surface": "Linh",
+        "context_end": 89,
+        "candidate_id": "b823641a8f8d180d22dd560b",
+        "context_start": 0
+      },
+      {
+        "end": 80,
+        "start": 78,
+        "context": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+        "origins": [
+          "capitalized_token"
+        ],
+        "surface": "Cá",
+        "context_end": 89,
+        "candidate_id": "d654d94cfab8d575b046c818",
+        "context_start": 0
+      },
+      {
+        "end": 86,
+        "start": 84,
+        "context": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+        "origins": [
+          "capitalized_token"
+        ],
+        "surface": "VÃ",
+        "context_end": 89,
+        "candidate_id": "b573b474b88592ffb68b6d00",
+        "context_start": 0
+      }
+    ],
+    "chapter_id": "ed1f94ea-be59-4427-b9e8-fdb18672f738",
+    "revision_id": "ff0e8172-7856-4bd0-a9d0-6200af912bc7",
+    "source_hash": "09ad8ab5dd2deb83b34e4c21fac5dfa7a2285166eee5296c668dd2757b336cdd",
+    "chapter_number": 1,
+    "known_entities": [
+      {
+        "name": "Mai Linh",
+        "entity_id": "a5e21328-9c49-41a6-885b-118600eb539c",
+        "entity_type": "PER"
+      },
+      {
+        "name": "Duy",
+        "entity_id": "9d91496c-441c-4570-9c3b-f22f3d9dc3ae",
+        "entity_type": "PER"
+      }
+    ],
+    "review_version": 2,
+    "analysis_policy": "entity-human-review-v1",
+    "analysis_run_id": "36b63f38-f4f6-4b3b-b686-3f74221e8d12",
+    "guidance_version": 0,
+    "reviewed_decisions": [
+      {
+        "candidate_id": "938653954b72175ed63e4134",
+        "verdict": "not_entity",
+        "entity_type": null,
+        "canonical_name": "",
+        "canonical_entity_id": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.7,
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict"
+      },
+      {
+        "candidate_id": "ae644e6df0f72bbf0c2faf8c",
+        "verdict": "entity",
+        "entity_type": "PER",
+        "canonical_name": "Mai Linh",
+        "canonical_entity_id": "a5e21328-9c49-41a6-885b-118600eb539c",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.7,
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict"
+      },
+      {
+        "candidate_id": "86781878cacbe8e128d30d85",
+        "verdict": "not_entity",
+        "entity_type": null,
+        "canonical_name": "",
+        "canonical_entity_id": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.7,
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict"
+      },
+      {
+        "candidate_id": "45525e433118efa349a9d707",
+        "verdict": "entity",
+        "entity_type": "PER",
+        "canonical_name": "Mai Linh",
+        "canonical_entity_id": "a5e21328-9c49-41a6-885b-118600eb539c",
+        "identity_quote": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.7,
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict"
+      },
+      {
+        "candidate_id": "c6f26ea25049aa67ef1f6df2",
+        "verdict": "not_entity",
+        "entity_type": null,
+        "canonical_name": "",
+        "canonical_entity_id": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.7,
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict"
+      },
+      {
+        "candidate_id": "bf5ae7fa5e1bd87aedf137ff",
+        "verdict": "not_entity",
+        "entity_type": null,
+        "canonical_name": "",
+        "canonical_entity_id": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.7,
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict"
+      },
+      {
+        "candidate_id": "64f8e2051ed04bd01dc38a0b",
+        "verdict": "entity",
+        "entity_type": "PER",
+        "canonical_name": "Duy",
+        "canonical_entity_id": "9d91496c-441c-4570-9c3b-f22f3d9dc3ae",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.7,
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict"
+      },
+      {
+        "candidate_id": "dcd1cb44cce2b43067d07e4f",
+        "verdict": "not_entity",
+        "entity_type": null,
+        "canonical_name": "",
+        "canonical_entity_id": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.7,
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict"
+      },
+      {
+        "candidate_id": "7e27df1abdbbd19eeed1b20c",
+        "verdict": "not_entity",
+        "entity_type": null,
+        "canonical_name": "",
+        "canonical_entity_id": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.7,
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict"
+      },
+      {
+        "candidate_id": "d070d63bca64a037aa7f376b",
+        "verdict": "not_entity",
+        "entity_type": null,
+        "canonical_name": "",
+        "canonical_entity_id": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.7,
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict"
+      },
+      {
+        "candidate_id": "6f576f1983db68eae9eb0bbd",
+        "verdict": "entity",
+        "entity_type": "PER",
+        "canonical_name": "Mai Linh",
+        "canonical_entity_id": "a5e21328-9c49-41a6-885b-118600eb539c",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.7,
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict"
+      },
+      {
+        "candidate_id": "b823641a8f8d180d22dd560b",
+        "verdict": "entity",
+        "entity_type": "PER",
+        "canonical_name": "Mai Linh",
+        "canonical_entity_id": "a5e21328-9c49-41a6-885b-118600eb539c",
+        "identity_quote": "Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.7,
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict"
+      },
+      {
+        "candidate_id": "d654d94cfab8d575b046c818",
+        "verdict": "not_entity",
+        "entity_type": null,
+        "canonical_name": "",
+        "canonical_entity_id": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.7,
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict"
+      },
+      {
+        "candidate_id": "b573b474b88592ffb68b6d00",
+        "verdict": "not_entity",
+        "entity_type": null,
+        "canonical_name": "",
+        "canonical_entity_id": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.7,
+        "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict"
+      }
+    ],
+    "unanchored_discoveries": []
+  }
+}

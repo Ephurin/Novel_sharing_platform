@@ -1,0 +1,18 @@
+{
+  "secret_scan": "PASS; no generated compose credentials found in new evidence",
+  "source_diff_check_exit": 0,
+  "new_evidence_files_before_audit": 174,
+  "tracked_source_clean": true,
+  "source_sha": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+  "original_RED_counts": {
+    "PASS": 10,
+    "FAIL": 3
+  },
+  "SEALED_matrix_counts": {
+    "PASS": 17,
+    "FAIL": 0,
+    "SKIP": 0
+  },
+  "original_PASS_preserved": 10,
+  "historical_regressions_closed": 3
+}

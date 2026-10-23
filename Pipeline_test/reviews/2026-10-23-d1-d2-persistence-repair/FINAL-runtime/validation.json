@@ -1,0 +1,195 @@
+{
+  "tested_sha": "50e0b20aed5126cd207fc6d5e826907d0cbf3867",
+  "source_dirty_at_start": true,
+  "project": "p123-core-1ddf58d8f9",
+  "novel_id": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+  "rows": [
+    {
+      "test": "01_absent_draft_version_0",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        null,
+        {
+          "chapterId": "57654a9f-8b55-4ea5-affd-03e303e2a9b7",
+          "novelId": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+          "title": "Contract chapter",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 9,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "analysisRevisionId": null,
+          "draftVersion": 1
+        },
+        null
+      ]
+    },
+    {
+      "test": "02_valid_version_save",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        {
+          "chapterId": "57654a9f-8b55-4ea5-affd-03e303e2a9b7",
+          "novelId": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+          "title": "Contract chapter",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 10,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "analysisRevisionId": null,
+          "draftVersion": 2
+        },
+        null
+      ]
+    },
+    {
+      "test": "03_missing_version_legacy_Core_observation",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": {
+        "chapterId": "57654a9f-8b55-4ea5-affd-03e303e2a9b7",
+        "novelId": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+        "title": "Contract chapter",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 10,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "analysisRevisionId": null,
+        "draftVersion": 3
+      }
+    },
+    {
+      "test": "04_stale_different_body_409",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        null,
+        null
+      ]
+    },
+    {
+      "test": "05_same_body_lost_response_retry",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        {
+          "chapterId": "57654a9f-8b55-4ea5-affd-03e303e2a9b7",
+          "novelId": "70d24c48-b66a-4aa3-9dc5-ad7975fb18ac",
+          "title": "Contract chapter",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 11,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "analysisRevisionId": null,
+          "draftVersion": 4
+        },
+        null
+      ]
+    },
+    {
+      "test": "06_different_body_stale_retry",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        null,
+        null
+      ]
+    },
+    {
+      "test": "06b_different_metadata_stale_payload_409",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "06c_fresh_metadata_and_identical_semantic_replay",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "06d_published_pricing_only_compatibility",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "07_concurrent_writers_CAS",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "08_API_consumer_inflight_A_then_B",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": {
+        "model": "API consumer retains B while A response is pending, then serializes using returned version; NOT a mounted hook or editor test",
+        "A_version": 9,
+        "B_version": 10
+      }
+    },
+    {
+      "test": "09_API_chapter_account_isolation",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": {
+        "browser_lifecycle": "NOT_RUN",
+        "foreign_write": 403,
+        "other_chapter": "411fd17e-19a7-4091-8835-2f7e1f246044"
+      }
+    },
+    {
+      "test": "10a_active_save_returns_authoritative_version",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "10b_active_replay_preserves_version",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "10c_next_save_using_returned_version",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "10_active_checkpoint_accept_outbox_StoryBrain",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+      "details": {
+        "automatic_saved_revision": "469f13fa-2b1b-4e1e-90d6-bfb681c5119e",
+        "accepted_revision": "93089959-41e9-4d62-94e5-9b36eae5e856",
+        "accepted_source_generation": "bfeb5422-b898-4daa-a766-4a26073d615a",
+        "active_baseline": true,
+        "explicit_author_review": true,
+        "M_FIRST_from_accepted_source": true,
+        "stale_generation_rejected": 409,
+        "future_plan_not_canon": true
+      }
+    },
+    {
+      "test": "11_snapshot_failure_is_explicit_and_retry_recovers",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    }
+  ],
+  "failure": null,
+  "verdict": "PASS",
+  "real_provider_calls": 0,
+  "full_AuthorWritingIde_S09": "NOT_RUN"
+}

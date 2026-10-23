@@ -1,0 +1,563 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.26kB done
+#1 DONE 0.0s
+
+#2 [ai-service internal] load build definition from Dockerfile
+#2 transferring dockerfile: 475B 0.0s done
+#2 DONE 0.1s
+
+#3 [backend internal] load build definition from Dockerfile
+#3 transferring dockerfile: 340B 0.0s done
+#3 DONE 0.1s
+
+#4 [ai-service internal] load metadata for docker.io/library/python:3.12.10-slim-bookworm
+#4 ...
+
+#5 [auth] library/node:pull token for registry-1.docker.io
+#5 DONE 0.0s
+
+#6 [auth] library/python:pull token for registry-1.docker.io
+#6 DONE 0.0s
+
+#7 [backend internal] load metadata for docker.io/library/node:22-bookworm-slim
+#7 ...
+
+#4 [ai-service internal] load metadata for docker.io/library/python:3.12.10-slim-bookworm
+#4 DONE 3.4s
+
+#7 [backend internal] load metadata for docker.io/library/node:22-bookworm-slim
+#7 DONE 3.4s
+
+#8 [ai-service internal] load .dockerignore
+#8 transferring context: 237B done
+#8 DONE 0.0s
+
+#9 [backend internal] load .dockerignore
+#9 transferring context: 195B done
+#9 DONE 0.0s
+
+#10 [ai-service 1/6] FROM docker.io/library/python:3.12.10-slim-bookworm@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db
+#10 resolve docker.io/library/python:3.12.10-slim-bookworm@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db 0.0s done
+#10 DONE 0.3s
+
+#11 [backend 1/8] FROM docker.io/library/node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d
+#11 resolve docker.io/library/node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d 0.0s done
+#11 ...
+
+#12 [ai-service 2/6] WORKDIR /app
+#12 DONE 0.1s
+
+#11 [backend 1/8] FROM docker.io/library/node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d
+#11 sha256:9d58805976c12f11013d188c510c3520e3f061c1b311d4905afe5865aa496e63 0B / 449B 0.2s
+#11 sha256:696628b66b50a8ea2d374542f47107bc19fb3fd29825211da5c68b74a1b01555 0B / 1.71MB 0.2s
+#11 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 0B / 49.89MB 0.2s
+#11 sha256:b43ad0aedb87ae13912d52799d0d5552c146dced05197a7fa83b117cb3308906 0B / 3.31kB 0.2s
+#11 sha256:9d58805976c12f11013d188c510c3520e3f061c1b311d4905afe5865aa496e63 449B / 449B 0.3s done
+#11 ...
+
+#13 [backend internal] load build context
+#13 transferring context: 920.70kB 0.7s done
+#13 DONE 0.8s
+
+#11 [backend 1/8] FROM docker.io/library/node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d
+#11 sha256:11422d7ca1a44390a32bd8d8d9dc5946b4d053b3bbd9507d682e35584ba84a26 0B / 28.25MB 0.2s
+#11 ...
+
+#14 [ai-service internal] load build context
+#14 transferring context: 4.37MB 1.1s done
+#14 DONE 1.1s
+
+#11 [backend 1/8] FROM docker.io/library/node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d
+#11 sha256:696628b66b50a8ea2d374542f47107bc19fb3fd29825211da5c68b74a1b01555 1.71MB / 1.71MB 1.0s done
+#11 sha256:b43ad0aedb87ae13912d52799d0d5552c146dced05197a7fa83b117cb3308906 3.31kB / 3.31kB 1.3s done
+#11 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 3.15MB / 49.89MB 1.5s
+#11 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 6.29MB / 49.89MB 2.3s
+#11 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 9.44MB / 49.89MB 3.0s
+#11 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 12.58MB / 49.89MB 3.9s
+#11 sha256:11422d7ca1a44390a32bd8d8d9dc5946b4d053b3bbd9507d682e35584ba84a26 2.10MB / 28.25MB 4.5s
+#11 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 15.73MB / 49.89MB 5.1s
+#11 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 18.87MB / 49.89MB 6.9s
+#11 sha256:11422d7ca1a44390a32bd8d8d9dc5946b4d053b3bbd9507d682e35584ba84a26 4.19MB / 28.25MB 7.8s
+#11 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 22.02MB / 49.89MB 8.4s
+#11 ...
+
+#15 [ai-service 3/6] RUN apt-get update && apt-get install -y --no-install-recommends     curl     && rm -rf /var/lib/apt/lists/*
+#15 1.808 Get:1 http://deb.debian.org/debian bookworm InRelease [151 kB]
+#15 3.708 Get:2 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
+#15 4.932 Get:3 http://deb.debian.org/debian-security bookworm-security InRelease [34.8 kB]
+#15 6.296 Get:4 http://deb.debian.org/debian bookworm/main amd64 Packages [8790 kB]
+#15 ...
+
+#11 [backend 1/8] FROM docker.io/library/node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d
+#11 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 25.17MB / 49.89MB 10.2s
+#11 sha256:11422d7ca1a44390a32bd8d8d9dc5946b4d053b3bbd9507d682e35584ba84a26 6.29MB / 28.25MB 10.2s
+#11 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 28.31MB / 49.89MB 11.5s
+#11 sha256:11422d7ca1a44390a32bd8d8d9dc5946b4d053b3bbd9507d682e35584ba84a26 8.39MB / 28.25MB 11.7s
+#11 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 31.46MB / 49.89MB 12.6s
+#11 sha256:11422d7ca1a44390a32bd8d8d9dc5946b4d053b3bbd9507d682e35584ba84a26 10.49MB / 28.25MB 13.0s
+#11 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 34.60MB / 49.89MB 13.3s
+#11 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 37.75MB / 49.89MB 14.2s
+#11 sha256:11422d7ca1a44390a32bd8d8d9dc5946b4d053b3bbd9507d682e35584ba84a26 12.58MB / 28.25MB 14.1s
+#11 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 40.89MB / 49.89MB 15.0s
+#11 sha256:11422d7ca1a44390a32bd8d8d9dc5946b4d053b3bbd9507d682e35584ba84a26 14.68MB / 28.25MB 15.1s
+#11 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 44.04MB / 49.89MB 15.9s
+#11 sha256:11422d7ca1a44390a32bd8d8d9dc5946b4d053b3bbd9507d682e35584ba84a26 16.78MB / 28.25MB 16.5s
+#11 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 47.19MB / 49.89MB 16.8s
+#11 sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 49.89MB / 49.89MB 17.7s done
+#11 sha256:11422d7ca1a44390a32bd8d8d9dc5946b4d053b3bbd9507d682e35584ba84a26 18.87MB / 28.25MB 17.5s
+#11 sha256:11422d7ca1a44390a32bd8d8d9dc5946b4d053b3bbd9507d682e35584ba84a26 20.97MB / 28.25MB 18.3s
+#11 sha256:11422d7ca1a44390a32bd8d8d9dc5946b4d053b3bbd9507d682e35584ba84a26 23.07MB / 28.25MB 18.7s
+#11 sha256:11422d7ca1a44390a32bd8d8d9dc5946b4d053b3bbd9507d682e35584ba84a26 25.17MB / 28.25MB 19.3s
+#11 sha256:11422d7ca1a44390a32bd8d8d9dc5946b4d053b3bbd9507d682e35584ba84a26 27.26MB / 28.25MB 19.6s
+#11 sha256:11422d7ca1a44390a32bd8d8d9dc5946b4d053b3bbd9507d682e35584ba84a26 28.25MB / 28.25MB 19.9s done
+#11 extracting sha256:11422d7ca1a44390a32bd8d8d9dc5946b4d053b3bbd9507d682e35584ba84a26
+#11 extracting sha256:11422d7ca1a44390a32bd8d8d9dc5946b4d053b3bbd9507d682e35584ba84a26 0.9s done
+#11 DONE 21.4s
+
+#15 [ai-service 3/6] RUN apt-get update && apt-get install -y --no-install-recommends     curl     && rm -rf /var/lib/apt/lists/*
+#15 ...
+
+#11 [backend 1/8] FROM docker.io/library/node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d
+#11 extracting sha256:b43ad0aedb87ae13912d52799d0d5552c146dced05197a7fa83b117cb3308906 0.0s done
+#11 extracting sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba
+#11 extracting sha256:ba8be34911c2eabcd63c9da67f2e8887ddf912df62c1223ca377ef9e9655cfba 1.2s done
+#11 DONE 22.6s
+
+#15 [ai-service 3/6] RUN apt-get update && apt-get install -y --no-install-recommends     curl     && rm -rf /var/lib/apt/lists/*
+#15 ...
+
+#11 [backend 1/8] FROM docker.io/library/node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d
+#11 extracting sha256:696628b66b50a8ea2d374542f47107bc19fb3fd29825211da5c68b74a1b01555 0.1s done
+#11 extracting sha256:9d58805976c12f11013d188c510c3520e3f061c1b311d4905afe5865aa496e63 0.0s done
+#11 DONE 22.7s
+
+#16 [backend 2/8] WORKDIR /app/backend
+#16 DONE 1.0s
+
+#15 [ai-service 3/6] RUN apt-get update && apt-get install -y --no-install-recommends     curl     && rm -rf /var/lib/apt/lists/*
+#15 ...
+
+#17 [backend 3/8] COPY backend/package*.json ./
+#17 DONE 0.0s
+
+#18 [backend 4/8] RUN npm ci
+#18 5.969 
+#18 5.969 added 148 packages, and audited 149 packages in 6s
+#18 5.970 
+#18 5.970 20 packages are looking for funding
+#18 5.970   run `npm fund` for details
+#18 5.976 
+#18 5.976 4 vulnerabilities (3 moderate, 1 critical)
+#18 5.976 
+#18 5.976 To address all issues, run:
+#18 5.976   npm audit fix
+#18 5.976 
+#18 5.976 Run `npm audit` for details.
+#18 5.978 npm notice
+#18 5.978 npm notice New major version of npm available! 10.9.9 -> 12.2.1
+#18 5.978 npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.1
+#18 5.978 npm notice To update run: npm install -g npm@12.2.1
+#18 5.978 npm notice
+#18 DONE 6.3s
+
+#15 [ai-service 3/6] RUN apt-get update && apt-get install -y --no-install-recommends     curl     && rm -rf /var/lib/apt/lists/*
+#15 ...
+
+#19 [backend 5/8] COPY backend ./
+#19 DONE 0.2s
+
+#15 [ai-service 3/6] RUN apt-get update && apt-get install -y --no-install-recommends     curl     && rm -rf /var/lib/apt/lists/*
+#15 ...
+
+#20 [backend 6/8] COPY docs/Assets /app/docs/Assets
+#20 DONE 0.0s
+
+#21 [backend 7/8] RUN sed -i 's/\r$//' ./docker-entrypoint.sh && chmod +x ./docker-entrypoint.sh
+#21 DONE 0.2s
+
+#15 [ai-service 3/6] RUN apt-get update && apt-get install -y --no-install-recommends     curl     && rm -rf /var/lib/apt/lists/*
+#15 ...
+
+#22 [backend 8/8] RUN npm run build
+#22 0.351 
+#22 0.351 > ephurin-backend@0.1.0 build
+#22 0.351 > tsc -p tsconfig.json
+#22 0.351 
+#22 DONE 4.1s
+
+#15 [ai-service 3/6] RUN apt-get update && apt-get install -y --no-install-recommends     curl     && rm -rf /var/lib/apt/lists/*
+#15 ...
+
+#23 [backend] exporting to image
+#23 exporting layers
+#23 exporting layers 2.5s done
+#23 exporting manifest sha256:d4439e9bfa57ae20bb0a851dadacbd5601375123c3cc880abfd9cc7b7ea2e1ef 0.0s done
+#23 exporting config sha256:43f045c15ea56c2cc0c156dccc04f26a5898be820ceaaf7d5601adbb8f979167 0.0s done
+#23 exporting attestation manifest sha256:aea1e9c256a1028705f1fa00173759cbde89d000a9182e85170f7c8afa3d9831 0.0s done
+#23 exporting manifest list sha256:bd673ed4e8beb1c3caef78ace54f41addacb8f253cd4ba8bbe24723e6c44a56c 0.0s done
+#23 naming to docker.io/library/p123-core-47fec7646a-backend:latest done
+#23 unpacking to docker.io/library/p123-core-47fec7646a-backend:latest
+#23 unpacking to docker.io/library/p123-core-47fec7646a-backend:latest 1.2s done
+#23 DONE 3.8s
+
+#15 [ai-service 3/6] RUN apt-get update && apt-get install -y --no-install-recommends     curl     && rm -rf /var/lib/apt/lists/*
+#15 34.66 Get:5 http://deb.debian.org/debian bookworm-updates/main amd64 Packages [6924 B]
+#15 35.29 Get:6 http://deb.debian.org/debian-security bookworm-security/main amd64 Packages [355 kB]
+#15 35.73 Fetched 9394 kB in 35s (268 kB/s)
+#15 35.73 Reading package lists...
+#15 36.20 Reading package lists...
+#15 36.69 Building dependency tree...
+#15 36.81 Reading state information...
+#15 36.95 The following additional packages will be installed:
+#15 36.95   libbrotli1 libcurl4 libldap-2.5-0 libnghttp2-14 libpsl5 librtmp1 libsasl2-2
+#15 36.95   libsasl2-modules-db libssh2-1
+#15 36.95 Recommended packages:
+#15 36.95   libldap-common publicsuffix libsasl2-modules
+#15 37.01 The following NEW packages will be installed:
+#15 37.01   curl libbrotli1 libcurl4 libldap-2.5-0 libnghttp2-14 libpsl5 librtmp1
+#15 37.01   libsasl2-2 libsasl2-modules-db libssh2-1
+#15 37.43 0 upgraded, 10 newly installed, 0 to remove and 36 not upgraded.
+#15 37.43 Need to get 1614 kB of archives.
+#15 37.43 After this operation, 3813 kB of additional disk space will be used.
+#15 37.43 Get:1 http://deb.debian.org/debian bookworm/main amd64 libbrotli1 amd64 1.0.9-2+b6 [275 kB]
+#15 37.75 Get:2 http://deb.debian.org/debian bookworm/main amd64 libsasl2-modules-db amd64 2.1.28+dfsg-10 [20.3 kB]
+#15 37.75 Get:3 http://deb.debian.org/debian bookworm/main amd64 libsasl2-2 amd64 2.1.28+dfsg-10 [59.7 kB]
+#15 37.75 Get:4 http://deb.debian.org/debian bookworm/main amd64 libldap-2.5-0 amd64 2.5.13+dfsg-5 [183 kB]
+#15 37.80 Get:5 http://deb.debian.org/debian bookworm/main amd64 libnghttp2-14 amd64 1.52.0-1+deb12u3 [72.4 kB]
+#15 37.82 Get:6 http://deb.debian.org/debian bookworm/main amd64 libpsl5 amd64 0.21.2-1 [58.7 kB]
+#15 37.83 Get:7 http://deb.debian.org/debian bookworm/main amd64 librtmp1 amd64 2.4+20151223.gitfa8646d.1-2+b2 [60.8 kB]
+#15 37.83 Get:8 http://deb.debian.org/debian-security bookworm-security/main amd64 libssh2-1 amd64 1.10.0-3+deb12u1 [176 kB]
+#15 37.86 Get:9 http://deb.debian.org/debian bookworm/main amd64 libcurl4 amd64 7.88.1-10+deb12u15 [392 kB]
+#15 37.98 Get:10 http://deb.debian.org/debian bookworm/main amd64 curl amd64 7.88.1-10+deb12u15 [316 kB]
+
+#15 ...
+
+#24 [backend] resolving provenance for metadata file
+#24 DONE 0.0s
+
+#15 [ai-service 3/6] RUN apt-get update && apt-get install -y --no-install-recommends     curl     && rm -rf /var/lib/apt/lists/*
+#15 38.26 debconf: delaying package configuration, since apt-utils is not installed
+#15 38.29 Fetched 1614 kB in 1s (1592 kB/s)
+#15 38.32 Selecting previously unselected package libbrotli1:amd64.
+#15 38.32 (Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 6686 files and directories currently installed.)
+#15 38.35 Preparing to unpack .../0-libbrotli1_1.0.9-2+b6_amd64.deb ...
+#15 38.36 Unpacking libbrotli1:amd64 (1.0.9-2+b6) ...
+#15 38.40 Selecting previously unselected package libsasl2-modules-db:amd64.
+#15 38.40 Preparing to unpack .../1-libsasl2-modules-db_2.1.28+dfsg-10_amd64.deb ...
+#15 38.41 Unpacking libsasl2-modules-db:amd64 (2.1.28+dfsg-10) ...
+#15 38.44 Selecting previously unselected package libsasl2-2:amd64.
+#15 38.44 Preparing to unpack .../2-libsasl2-2_2.1.28+dfsg-10_amd64.deb ...
+#15 38.44 Unpacking libsasl2-2:amd64 (2.1.28+dfsg-10) ...
+#15 38.48 Selecting previously unselected package libldap-2.5-0:amd64.
+#15 38.48 Preparing to unpack .../3-libldap-2.5-0_2.5.13+dfsg-5_amd64.deb ...
+#15 38.52 Unpacking libldap-2.5-0:amd64 (2.5.13+dfsg-5) ...
+#15 38.59 Selecting previously unselected package libnghttp2-14:amd64.
+#15 38.59 Preparing to unpack .../4-libnghttp2-14_1.52.0-1+deb12u3_amd64.deb ...
+#15 38.60 Unpacking libnghttp2-14:amd64 (1.52.0-1+deb12u3) ...
+#15 38.63 Selecting previously unselected package libpsl5:amd64.
+#15 38.64 Preparing to unpack .../5-libpsl5_0.21.2-1_amd64.deb ...
+#15 38.64 Unpacking libpsl5:amd64 (0.21.2-1) ...
+#15 38.67 Selecting previously unselected package librtmp1:amd64.
+#15 38.67 Preparing to unpack .../6-librtmp1_2.4+20151223.gitfa8646d.1-2+b2_amd64.deb ...
+#15 38.67 Unpacking librtmp1:amd64 (2.4+20151223.gitfa8646d.1-2+b2) ...
+#15 38.71 Selecting previously unselected package libssh2-1:amd64.
+#15 38.71 Preparing to unpack .../7-libssh2-1_1.10.0-3+deb12u1_amd64.deb ...
+#15 38.71 Unpacking libssh2-1:amd64 (1.10.0-3+deb12u1) ...
+#15 38.75 Selecting previously unselected package libcurl4:amd64.
+#15 38.75 Preparing to unpack .../8-libcurl4_7.88.1-10+deb12u15_amd64.deb ...
+#15 38.76 Unpacking libcurl4:amd64 (7.88.1-10+deb12u15) ...
+#15 38.80 Selecting previously unselected package curl.
+#15 38.80 Preparing to unpack .../9-curl_7.88.1-10+deb12u15_amd64.deb ...
+#15 38.81 Unpacking curl (7.88.1-10+deb12u15) ...
+#15 38.86 Setting up libpsl5:amd64 (0.21.2-1) ...
+#15 38.87 Setting up libbrotli1:amd64 (1.0.9-2+b6) ...
+#15 38.88 Setting up libnghttp2-14:amd64 (1.52.0-1+deb12u3) ...
+#15 38.89 Setting up libsasl2-modules-db:amd64 (2.1.28+dfsg-10) ...
+#15 38.90 Setting up librtmp1:amd64 (2.4+20151223.gitfa8646d.1-2+b2) ...
+#15 38.91 Setting up libsasl2-2:amd64 (2.1.28+dfsg-10) ...
+#15 38.92 Setting up libssh2-1:amd64 (1.10.0-3+deb12u1) ...
+#15 38.93 Setting up libldap-2.5-0:amd64 (2.5.13+dfsg-5) ...
+#15 38.95 Setting up libcurl4:amd64 (7.88.1-10+deb12u15) ...
+#15 38.96 Setting up curl (7.88.1-10+deb12u15) ...
+#15 38.98 Processing triggers for libc-bin (2.36-9+deb12u10) ...
+#15 DONE 39.5s
+
+#25 [ai-service 4/6] COPY requirements.txt .
+#25 DONE 0.0s
+
+#26 [ai-service 5/6] RUN pip install --no-cache-dir -r requirements.txt pytest httpx
+#26 1.998 Collecting pytest
+#26 2.417   Downloading pytest-9.1.1-py3-none-any.whl.metadata (7.6 kB)
+#26 2.533 Collecting httpx
+#26 2.637   Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+#26 2.835 Collecting fastapi>=0.115.0 (from -r requirements.txt (line 1))
+#26 2.939   Downloading fastapi-0.161.1-py3-none-any.whl.metadata (26 kB)
+#26 3.101 Collecting uvicorn>=0.30.0 (from uvicorn[standard]>=0.30.0->-r requirements.txt (line 2))
+#26 3.199   Downloading uvicorn-0.54.0-py3-none-any.whl.metadata (6.6 kB)
+#26 3.677 Collecting pydantic>=2.8.0 (from -r requirements.txt (line 3))
+#26 3.786   Downloading pydantic-2.14.1-py3-none-any.whl.metadata (133 kB)
+#26 4.064 Collecting python-dotenv>=1.0.1 (from -r requirements.txt (line 4))
+#26 4.172   Downloading python_dotenv-1.2.4-py3-none-any.whl.metadata (29 kB)
+#26 4.279 Collecting google-genai>=0.3.0 (from -r requirements.txt (line 5))
+#26 4.385   Downloading google_genai-2.33.0-py3-none-any.whl.metadata (59 kB)
+#26 4.588 Collecting openai>=1.40.0 (from -r requirements.txt (line 6))
+#26 4.692   Downloading openai-3.37.0-py3-none-any.whl.metadata (44 kB)
+#26 5.256 Collecting SQLAlchemy>=2.0.36 (from -r requirements.txt (line 7))
+#26 5.360   Downloading sqlalchemy-2.1.6-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (9.7 kB)
+#26 5.496 Collecting alembic>=1.14.0 (from -r requirements.txt (line 8))
+#26 5.595   Downloading alembic-1.20.1-py3-none-any.whl.metadata (7.3 kB)
+#26 5.691 Collecting psycopg>=3.2.0 (from psycopg[binary]>=3.2.0->-r requirements.txt (line 9))
+#26 5.804   Downloading psycopg-3.3.6-py3-none-any.whl.metadata (4.4 kB)
+#26 5.938 Collecting pgvector<1.0,>=0.3.6 (from -r requirements.txt (line 10))
+#26 6.075   Downloading pgvector-0.5.1-py3-none-any.whl.metadata (19 kB)
+#26 6.139 Collecting iniconfig>=1.0.1 (from pytest)
+#26 6.240   Downloading iniconfig-2.3.1-py3-none-any.whl.metadata (2.8 kB)
+#26 6.312 Collecting packaging>=22 (from pytest)
+#26 6.423   Downloading packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+#26 6.497 Collecting pluggy<2,>=1.5 (from pytest)
+#26 6.599   Downloading pluggy-1.7.0-py3-none-any.whl.metadata (5.0 kB)
+#26 6.686 Collecting pygments>=2.7.2 (from pytest)
+#26 6.786   Downloading pygments-2.21.0-py3-none-any.whl.metadata (2.5 kB)
+#26 6.857 Collecting anyio (from httpx)
+#26 6.959   Downloading anyio-4.15.1-py3-none-any.whl.metadata (4.7 kB)
+#26 7.089 Collecting certifi (from httpx)
+#26 7.207   Downloading certifi-2026.10.19-py3-none-any.whl.metadata (2.5 kB)
+#26 7.312 Collecting httpcore==1.* (from httpx)
+#26 7.417   Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+#26 7.495 Collecting idna (from httpx)
+#26 7.623   Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+#26 7.692 Collecting h11>=0.16 (from httpcore==1.*->httpx)
+#26 7.812   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+#26 7.982 Collecting starlette>=0.46.0 (from fastapi>=0.115.0->-r requirements.txt (line 1))
+#26 8.123   Downloading starlette-1.9.0-py3-none-any.whl.metadata (6.6 kB)
+#26 8.266 Collecting typing-extensions>=4.8.0 (from fastapi>=0.115.0->-r requirements.txt (line 1))
+#26 8.363   Downloading typing_extensions-4.16.0-py3-none-any.whl.metadata (3.3 kB)
+#26 8.433 Collecting typing-inspection>=0.4.2 (from fastapi>=0.115.0->-r requirements.txt (line 1))
+#26 8.530   Downloading typing_inspection-0.4.4-py3-none-any.whl.metadata (2.6 kB)
+#26 8.587 Collecting annotated-doc>=0.0.2 (from fastapi>=0.115.0->-r requirements.txt (line 1))
+#26 8.686   Downloading annotated_doc-0.0.5-py3-none-any.whl.metadata (6.5 kB)
+#26 8.768 Collecting opentelemetry-api>=1.44.0 (from fastapi>=0.115.0->-r requirements.txt (line 1))
+#26 8.869   Downloading opentelemetry_api-1.45.1-py3-none-any.whl.metadata (1.4 kB)
+#26 8.944 Collecting click>=7.0 (from uvicorn>=0.30.0->uvicorn[standard]>=0.30.0->-r requirements.txt (line 2))
+#26 9.047   Downloading click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+#26 9.110 Collecting annotated-types>=0.6.0 (from pydantic>=2.8.0->-r requirements.txt (line 3))
+#26 9.214   Downloading annotated_types-0.8.0-py3-none-any.whl.metadata (15 kB)
+#26 10.41 Collecting pydantic-core==2.50.1 (from pydantic>=2.8.0->-r requirements.txt (line 3))
+#26 10.51   Downloading pydantic_core-2.50.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.5 kB)
+#26 10.69 Collecting google-auth<3.0.0,>=2.56.0 (from google-auth[requests]<3.0.0,>=2.56.0->google-genai>=0.3.0->-r requirements.txt (line 5))
+#26 10.81   Downloading google_auth-2.62.0-py3-none-any.whl.metadata (6.0 kB)
+#26 10.96 Collecting requests<3.0.0,>=2.28.1 (from google-genai>=0.3.0->-r requirements.txt (line 5))
+#26 11.06   Downloading requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)
+#26 11.17 Collecting tenacity<9.2.0,>=8.2.3 (from google-genai>=0.3.0->-r requirements.txt (line 5))
+#26 11.27   Downloading tenacity-9.1.4-py3-none-any.whl.metadata (1.2 kB)
+#26 11.58 Collecting websockets<18.0,>=13.0.0 (from google-genai>=0.3.0->-r requirements.txt (line 5))
+#26 11.68   Downloading websockets-17.3-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (6.3 kB)
+#26 11.78 Collecting distro<2,>=1.7.0 (from google-genai>=0.3.0->-r requirements.txt (line 5))
+#26 11.89   Downloading distro-1.9.0-py3-none-any.whl.metadata (6.8 kB)
+#26 11.95 Collecting sniffio (from google-genai>=0.3.0->-r requirements.txt (line 5))
+#26 12.05   Downloading sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)
+#26 12.13 Collecting httpx2<3,>=2.12.0 (from openai>=1.40.0->-r requirements.txt (line 6))
+#26 12.24   Downloading httpx2-2.16.0-py3-none-any.whl.metadata (10 kB)
+#26 12.48 Collecting jiter<1,>=0.16.0 (from openai>=1.40.0->-r requirements.txt (line 6))
+#26 12.59   Downloading jiter-0.17.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.2 kB)
+#26 12.71 Collecting Mako (from alembic>=1.14.0->-r requirements.txt (line 8))
+#26 12.84   Downloading mako-1.4.3-py3-none-any.whl.metadata (2.9 kB)
+#26 13.08 Collecting psycopg-binary==3.3.6 (from psycopg[binary]>=3.2.0->-r requirements.txt (line 9))
+#26 13.18   Downloading psycopg_binary-3.3.6-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.7 kB)
+#26 13.28 Collecting httptools>=0.8.0 (from uvicorn[standard]>=0.30.0->-r requirements.txt (line 2))
+#26 13.38   Downloading httptools-0.9.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (3.5 kB)
+#26 13.51 Collecting pyyaml>=5.1 (from uvicorn[standard]>=0.30.0->-r requirements.txt (line 2))
+#26 13.61   Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+#26 13.72 Collecting uvloop>=0.15.1 (from uvicorn[standard]>=0.30.0->-r requirements.txt (line 2))
+#26 13.82   Downloading uvloop-0.23.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (5.1 kB)
+#26 13.99 Collecting watchfiles>=0.20 (from uvicorn[standard]>=0.30.0->-r requirements.txt (line 2))
+#26 14.11   Downloading watchfiles-1.3.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.9 kB)
+#26 14.19 Collecting pyasn1-modules>=0.2.1 (from google-auth<3.0.0,>=2.56.0->google-auth[requests]<3.0.0,>=2.56.0->google-genai>=0.3.0->-r requirements.txt (line 5))
+#26 14.29   Downloading pyasn1_modules-0.4.2-py3-none-any.whl.metadata (3.5 kB)
+#26 14.62 Collecting cryptography>=38.0.3 (from google-auth<3.0.0,>=2.56.0->google-auth[requests]<3.0.0,>=2.56.0->google-genai>=0.3.0->-r requirements.txt (line 5))
+#26 14.72   Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl.metadata (4.4 kB)
+#26 14.83 Collecting httpcore2==2.16.0 (from httpx2<3,>=2.12.0->openai>=1.40.0->-r requirements.txt (line 6))
+#26 14.94   Downloading httpcore2-2.16.0-py3-none-any.whl.metadata (27 kB)
+#26 15.10 Collecting truststore>=0.10 (from httpx2<3,>=2.12.0->openai>=1.40.0->-r requirements.txt (line 6))
+#26 15.21   Downloading truststore-0.10.5-py3-none-any.whl.metadata (4.5 kB)
+#26 15.51 Collecting charset_normalizer<4,>=2 (from requests<3.0.0,>=2.28.1->google-genai>=0.3.0->-r requirements.txt (line 5))
+#26 15.62   Downloading charset_normalizer-3.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (46 kB)
+#26 15.75 Collecting urllib3<3,>=1.26 (from requests<3.0.0,>=2.28.1->google-genai>=0.3.0->-r requirements.txt (line 5))
+#26 15.85   Downloading urllib3-2.8.0-py3-none-any.whl.metadata (7.4 kB)
+#26 16.05 Collecting MarkupSafe>=2.0 (from Mako->alembic>=1.14.0->-r requirements.txt (line 8))
+#26 16.15   Downloading markupsafe-3.0.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+#26 16.46 Collecting cffi>=2.0.0 (from cryptography>=38.0.3->google-auth<3.0.0,>=2.56.0->google-auth[requests]<3.0.0,>=2.56.0->google-genai>=0.3.0->-r requirements.txt (line 5))
+#26 16.57   Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.5 kB)
+#26 16.69 Collecting pyasn1<0.7.0,>=0.6.1 (from pyasn1-modules>=0.2.1->google-auth<3.0.0,>=2.56.0->google-auth[requests]<3.0.0,>=2.56.0->google-genai>=0.3.0->-r requirements.txt (line 5))
+#26 16.80   Downloading pyasn1-0.6.4-py3-none-any.whl.metadata (8.4 kB)
+#26 16.91 Collecting pycparser (from cffi>=2.0.0->cryptography>=38.0.3->google-auth<3.0.0,>=2.56.0->google-auth[requests]<3.0.0,>=2.56.0->google-genai>=0.3.0->-r requirements.txt (line 5))
+#26 17.02   Downloading pycparser-3.12-py3-none-any.whl.metadata (9.7 kB)
+#26 17.19 Downloading pytest-9.1.1-py3-none-any.whl (386 kB)
+#26 17.66 Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+#26 17.81 Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+#26 17.96 Downloading fastapi-0.161.1-py3-none-any.whl (149 kB)
+#26 18.12 Downloading uvicorn-0.54.0-py3-none-any.whl (87 kB)
+#26 18.24 Downloading pydantic-2.14.1-py3-none-any.whl (488 kB)
+#26 18.58 Downloading pydantic_core-2.50.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.2 MB)
+#26 19.45    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.2/2.2 MB 2.5 MB/s eta 0:00:00
+#26 19.55 Downloading python_dotenv-1.2.4-py3-none-any.whl (23 kB)
+#26 19.69 Downloading google_genai-2.33.0-py3-none-any.whl (1.2 MB)
+#26 20.24    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 2.1 MB/s eta 0:00:00
+#26 20.35 Downloading openai-3.37.0-py3-none-any.whl (2.3 MB)
+#26 21.44    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 2.2 MB/s eta 0:00:00
+#26 21.56 Downloading sqlalchemy-2.1.6-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (4.7 MB)
+#26 24.22    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.7/4.7 MB 1.8 MB/s eta 0:00:00
+#26 24.46 Downloading alembic-1.20.1-py3-none-any.whl (270 kB)
+#26 24.67 Downloading psycopg-3.3.6-py3-none-any.whl (215 kB)
+#26 24.95 Downloading pgvector-0.5.1-py3-none-any.whl (31 kB)
+#26 25.09 Downloading psycopg_binary-3.3.6-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (5.2 MB)
+#26 29.47    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.2/5.2 MB 1.2 MB/s eta 0:00:00
+#26 29.58 Downloading annotated_doc-0.0.5-py3-none-any.whl (5.3 kB)
+#26 29.69 Downloading annotated_types-0.8.0-py3-none-any.whl (13 kB)
+#26 29.80 Downloading anyio-4.15.1-py3-none-any.whl (132 kB)
+#26 29.99 Downloading click-8.5.0-py3-none-any.whl (125 kB)
+#26 30.16 Downloading distro-1.9.0-py3-none-any.whl (20 kB)
+#26 30.29 Downloading google_auth-2.62.0-py3-none-any.whl (267 kB)
+#26 30.61 Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+#26 30.80 Downloading httptools-0.9.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (552 kB)
+#26 31.22    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 552.8/552.8 kB 1.3 MB/s eta 0:00:00
+#26 31.33 Downloading httpx2-2.16.0-py3-none-any.whl (97 kB)
+#26 31.50 Downloading httpcore2-2.16.0-py3-none-any.whl (85 kB)
+#26 31.70 Downloading idna-3.20-py3-none-any.whl (69 kB)
+#26 32.01 Downloading iniconfig-2.3.1-py3-none-any.whl (7.6 kB)
+#26 32.11 Downloading jiter-0.17.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (345 kB)
+#26 32.53 Downloading opentelemetry_api-1.45.1-py3-none-any.whl (60 kB)
+#26 32.66 Downloading packaging-26.3-py3-none-any.whl (129 kB)
+#26 32.84 Downloading pluggy-1.7.0-py3-none-any.whl (27 kB)
+#26 32.96 Downloading pygments-2.21.0-py3-none-any.whl (1.3 MB)
+#26 33.89    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 1.5 MB/s eta 0:00:00
+#26 33.99 Downloading pyyaml-6.0.3-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (807 kB)
+#26 34.70    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 807.9/807.9 kB 1.4 MB/s eta 0:00:00
+#26 34.81 Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+#26 34.95 Downloading certifi-2026.10.19-py3-none-any.whl (136 kB)
+#26 35.15 Downloading starlette-1.9.0-py3-none-any.whl (80 kB)
+#26 35.29 Downloading tenacity-9.1.4-py3-none-any.whl (28 kB)
+#26 35.42 Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+#26 35.54 Downloading typing_inspection-0.4.4-py3-none-any.whl (14 kB)
+#26 35.68 Downloading uvloop-0.23.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (4.5 MB)
+#26 38.70    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 1.5 MB/s eta 0:00:00
+#26 38.80 Downloading watchfiles-1.3.0-cp310-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (458 kB)
+#26 39.26 Downloading websockets-17.3-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (225 kB)
+#26 39.52 Downloading mako-1.4.3-py3-none-any.whl (80 kB)
+#26 39.70 Downloading sniffio-1.3.1-py3-none-any.whl (10 kB)
+#26 39.81 Downloading charset_normalizer-3.5.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (257 kB)
+#26 40.13 Downloading cryptography-50.0.2-cp311-abi3-manylinux_2_34_x86_64.whl (4.8 MB)
+#26 50.84    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.8/4.8 MB 431.7 kB/s eta 0:00:00
+#26 50.95 Downloading markupsafe-3.0.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+#26 51.27 Downloading pyasn1_modules-0.4.2-py3-none-any.whl (181 kB)
+#26 52.26 Downloading truststore-0.10.5-py3-none-any.whl (19 kB)
+#26 52.53 Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+#26 53.16 Downloading cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+#26 53.96 Downloading pyasn1-0.6.4-py3-none-any.whl (84 kB)
+#26 54.35 Downloading pycparser-3.12-py3-none-any.whl (62 kB)
+#26 54.79 Installing collected packages: websockets, uvloop, urllib3, typing-extensions, truststore, tenacity, sniffio, pyyaml, python-dotenv, pygments, pycparser, pyasn1, psycopg-binary, pluggy, pgvector, packaging, MarkupSafe, jiter, iniconfig, idna, httptools, h11, distro, click, charset_normalizer, certifi, annotated-types, annotated-doc, uvicorn, typing-inspection, SQLAlchemy, requests, pytest, pydantic-core, pyasn1-modules, psycopg, opentelemetry-api, Mako, httpcore2, httpcore, cffi, anyio, watchfiles, starlette, pydantic, httpx2, httpx, cryptography, alembic, openai, google-auth, fastapi, google-genai
+#26 62.85 Successfully installed Mako-1.4.3 MarkupSafe-3.0.4 SQLAlchemy-2.1.6 alembic-1.20.1 annotated-doc-0.0.5 annotated-types-0.8.0 anyio-4.15.1 certifi-2026.10.19 cffi-2.1.1 charset_normalizer-3.5.2 click-8.5.0 cryptography-50.0.2 distro-1.9.0 fastapi-0.161.1 google-auth-2.62.0 google-genai-2.33.0 h11-0.16.0 httpcore-1.0.9 httpcore2-2.16.0 httptools-0.9.0 httpx-0.28.1 httpx2-2.16.0 idna-3.20 iniconfig-2.3.1 jiter-0.17.0 openai-3.37.0 opentelemetry-api-1.45.1 packaging-26.3 pgvector-0.5.1 pluggy-1.7.0 psycopg-3.3.6 psycopg-binary-3.3.6 pyasn1-0.6.4 pyasn1-modules-0.4.2 pycparser-3.12 pydantic-2.14.1 pydantic-core-2.50.1 pygments-2.21.0 pytest-9.1.1 python-dotenv-1.2.4 pyyaml-6.0.3 requests-2.34.2 sniffio-1.3.1 starlette-1.9.0 tenacity-9.1.4 truststore-0.10.5 typing-extensions-4.16.0 typing-inspection-0.4.4 urllib3-2.8.0 uvicorn-0.54.0 uvloop-0.23.0 watchfiles-1.3.0 websockets-17.3
+#26 62.86 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#26 63.17 
+#26 63.17 [notice] A new release of pip is available: 25.0.1 -> 26.2.2
+#26 63.17 [notice] To update, run: pip install --upgrade pip
+#26 DONE 63.8s
+
+#27 [ai-service 6/6] COPY . .
+#27 DONE 0.1s
+
+#28 [ai-service] exporting to image
+#28 exporting layers
+#28 exporting layers 5.6s done
+#28 exporting manifest sha256:341e85d41fa5e2123d9e5e88601c3cdebdf3d763297e9121696789d46f4903ec 0.0s done
+#28 exporting config sha256:7bab96ee6b27d8a6b5239cc05d1042e36e928b6f113f06d83607648f59bb9faa 0.0s done
+#28 exporting attestation manifest sha256:cd4f62f7a4dc1b3895ebc5ea9e89bc442d8efd56cf4357aae4113bfa053123c0 0.0s done
+#28 exporting manifest list sha256:09309ff52eb8b65896e32251a360a75da728fed91e0e86fc6177f25d83f9a2b4 0.0s done
+#28 naming to docker.io/library/p123-core-47fec7646a-ai-service:latest done
+#28 unpacking to docker.io/library/p123-core-47fec7646a-ai-service:latest
+#28 unpacking to docker.io/library/p123-core-47fec7646a-ai-service:latest 2.5s done
+#28 DONE 8.3s
+
+#29 [ai-service] resolving provenance for metadata file
+#29 DONE 0.0s
+ Image p123-core-47fec7646a-ai-service Building 
+ Image p123-core-47fec7646a-backend Building 
+ Image p123-core-47fec7646a-ai-service Built 
+ Image p123-core-47fec7646a-backend Built 
+ Network p123-core-47fec7646a_upstream Creating 
+ Volume p123-core-47fec7646a_fake_state Creating 
+ Volume p123-core-47fec7646a_pg_state Creating 
+ Network p123-core-47fec7646a_headless-edge Creating 
+ Network p123-core-47fec7646a_upstream Creating 
+ Network p123-core-47fec7646a_headless-edge Creating 
+ Volume p123-core-47fec7646a_pg_state Creating 
+ Volume p123-core-47fec7646a_fake_state Creating 
+ Volume p123-core-47fec7646a_mongo_state Creating 
+ Volume p123-core-47fec7646a_mongo_state Creating 
+ Volume p123-core-47fec7646a_mongo_state Created 
+ Volume p123-core-47fec7646a_mongo_state Created 
+ Container p123-core-47fec7646a-mongodb-1 Creating 
+ Volume p123-core-47fec7646a_pg_state Created 
+ Volume p123-core-47fec7646a_pg_state Created 
+ Container p123-core-47fec7646a-postgres-1 Creating 
+ Volume p123-core-47fec7646a_fake_state Created 
+ Volume p123-core-47fec7646a_fake_state Created 
+ Network p123-core-47fec7646a_upstream Created 
+ Network p123-core-47fec7646a_upstream Created 
+ Container p123-core-47fec7646a-fake-upstream-1 Creating 
+ Network p123-core-47fec7646a_headless-edge Created 
+ Network p123-core-47fec7646a_headless-edge Created 
+ Container p123-core-47fec7646a-fake-upstream-1 Created 
+ Container p123-core-47fec7646a-budget-gateway-1 Creating 
+ Container p123-core-47fec7646a-postgres-1 Created 
+ Container p123-core-47fec7646a-mongodb-1 Created 
+ Container p123-core-47fec7646a-budget-gateway-1 Created 
+ Container p123-core-47fec7646a-ai-service-1 Creating 
+ Container p123-core-47fec7646a-ai-service-1 Created 
+ Container p123-core-47fec7646a-backend-1 Creating 
+ Container p123-core-47fec7646a-backend-1 Created 
+ Container p123-core-47fec7646a-api-ingress-1 Creating 
+ Container p123-core-47fec7646a-api-ingress-1 Created 
+ Container p123-core-47fec7646a-postgres-1 Starting 
+ Container p123-core-47fec7646a-mongodb-1 Starting 
+ Container p123-core-47fec7646a-fake-upstream-1 Starting 
+ Container p123-core-47fec7646a-postgres-1 Started 
+ Container p123-core-47fec7646a-mongodb-1 Started 
+ Container p123-core-47fec7646a-fake-upstream-1 Started 
+ Container p123-core-47fec7646a-budget-gateway-1 Starting 
+ Container p123-core-47fec7646a-budget-gateway-1 Started 
+ Container p123-core-47fec7646a-postgres-1 Waiting 
+ Container p123-core-47fec7646a-budget-gateway-1 Waiting 
+ Container p123-core-47fec7646a-postgres-1 Healthy 
+ Container p123-core-47fec7646a-budget-gateway-1 Healthy 
+ Container p123-core-47fec7646a-ai-service-1 Starting 
+ Container p123-core-47fec7646a-ai-service-1 Started 
+ Container p123-core-47fec7646a-mongodb-1 Waiting 
+ Container p123-core-47fec7646a-postgres-1 Waiting 
+ Container p123-core-47fec7646a-postgres-1 Healthy 
+ Container p123-core-47fec7646a-mongodb-1 Healthy 
+ Container p123-core-47fec7646a-backend-1 Starting 
+ Container p123-core-47fec7646a-backend-1 Started 
+ Container p123-core-47fec7646a-api-ingress-1 Starting 
+ Container p123-core-47fec7646a-api-ingress-1 Started 

@@ -1,0 +1,73 @@
+[
+  {
+    "command": [
+      "python",
+      "Pipeline_test/tools/prepare_fe_core_contract.py",
+      "--manifest",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\Pipeline_test\\reviews\\2026-10-23-p123-d1-d2-persistence-repair\\RED-manifest.json",
+      "--allow-new-test-resources"
+    ],
+    "exit_code": 0,
+    "tested_sha": "1394bf66f802bc9b0c4a1bba50cdc1140940353b"
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-47fec7646a",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "--profile",
+      "initialize",
+      "run",
+      "--rm",
+      "budget-init"
+    ],
+    "exit_code": 0,
+    "tested_sha": "1394bf66f802bc9b0c4a1bba50cdc1140940353b"
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-47fec7646a",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "up",
+      "-d",
+      "--build"
+    ],
+    "exit_code": 0,
+    "tested_sha": "1394bf66f802bc9b0c4a1bba50cdc1140940353b"
+  },
+  {
+    "command": [
+      "python",
+      "Pipeline_test/tools/fe_core_contract_probe.py",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-47fec7646a",
+      "--output",
+      "C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\Pipeline_test\\reviews\\2026-10-23-p123-d1-d2-persistence-repair\\RED-runtime",
+      "--allow-test-mutations"
+    ],
+    "exit_code": 1,
+    "tested_sha": "1394bf66f802bc9b0c4a1bba50cdc1140940353b"
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-47fec7646a",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "stop",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0,
+    "tested_sha": "1394bf66f802bc9b0c4a1bba50cdc1140940353b"
+  }
+]
