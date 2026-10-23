@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "test:wallet": "node --experimental-strip-types --test tests/wallet-earnings.test.mjs",
-    "test:draft-browser": "node --test tests/draft-persistence.browser.test.mjs"
+    "test:draft-browser": "node --test tests/draft-persistence.browser.test.mjs",
+    "test:author-ide-browser": "node --test tests/author-ide.browser.test.mjs"
   },
   "dependencies": {
     "@mantine/core": "^7.15.2",

@@ -445,12 +445,31 @@ export async function listRevisions(
   return listRevisionsByChapterId(undefined, chapterId, limit);
 }
 
-export async function getInternalRevision(revisionId: string): Promise<ChapterRevisionRecord> {
+export interface InternalRevisionDto {
+  revision_id: string;
+  novel_id: string;
+  chapter_id: string;
+  chapter_number: number | undefined;
+  content: string;
+  content_hash: string;
+}
+
+// Service-to-service contract consumed by ai-service PlatformRevisionClient
+// (infrastructure/revision_content_provider.py). Keys MUST stay snake_case.
+export async function getInternalRevision(revisionId: string): Promise<InternalRevisionDto> {
   const revision = await findRevisionById(undefined, revisionId);
   if (!revision) {
-    throw new AppError(404, 'REVISION_NOT_FOUND', 'Revision not found');
+    throw new AppError(404, 'REVISION_NOT_FOUND', 'Chapter revision not found');
   }
-  return revision;
+  const chapter = await findChapterById(revision.chapterId);
+  return {
+    revision_id: revision.revisionId,
+    novel_id: revision.novelId,
+    chapter_id: revision.chapterId,
+    chapter_number: chapter ? chapter.chapterNumber : undefined,
+    content: revision.content,
+    content_hash: revision.contentHash
+  };
 }
 
 export async function getRevision(

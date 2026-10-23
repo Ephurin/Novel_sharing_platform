@@ -5,6 +5,7 @@ import { useDraftPersistence } from './useDraftPersistence';
 import { Alert, Button, Group, Text } from '@mantine/core';
 import { ThemeControl } from '../../shared/components/ThemeControl';
 import { AuthorDialog } from '../../shared/components/AuthorTheme';
+import { AuthorMemoryPanel } from '../ai-copilot/AuthorMemoryPanel';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -148,6 +149,7 @@ export function AuthorWritingIde() {
     setAiDrawerOpen(open => !open);
   };
   const [storyBibleOpen, setStoryBibleOpen] = useState(false);
+  const [memoryPanelOpen, setMemoryPanelOpen] = useState(false);
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [chapterToDelete, setChapterToDelete] = useState<Chapter | null>(null);
@@ -766,6 +768,17 @@ export function AuthorWritingIde() {
             >
               <span className="material-symbols-outlined text-stone-500 text-[15px]">menu_book</span>
               <span className="hidden xl:inline text-meta">Cẩm nang</span>
+            </button>
+            <button
+              onClick={() => setMemoryPanelOpen(true)}
+              data-testid="btn-story-brain"
+              aria-label="Story Brain & Kiểm tra nhất quán"
+              className="inline-flex items-center gap-1 px-2 py-1 text-meta font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest transition-all"
+              title="Bộ nhớ cốt truyện & Kiểm tra nhất quán (Story Brain)"
+              type="button"
+            >
+              <span className="material-symbols-outlined text-stone-500 text-[15px]">psychology</span>
+              <span className="hidden xl:inline text-meta">Story Brain</span>
             </button>
             <button
               onClick={() => setFocusMode((prev: boolean) => !prev)}
@@ -1928,6 +1941,18 @@ export function AuthorWritingIde() {
           </div>
         </div>
       )}
+
+      {/* ──────────────────────────────────────────
+          BEGIN: Author Memory & Consistency Drawer
+         ────────────────────────────────────────── */}
+      <AuthorMemoryPanel
+        novelId={activeNovelId}
+        chapterId={activeChapterId}
+        content={content}
+        opened={memoryPanelOpen}
+        onClose={() => setMemoryPanelOpen(false)}
+        saved={autosaveStatus === 'saved'}
+      />
     </div>
   );
 }

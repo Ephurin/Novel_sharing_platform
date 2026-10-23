@@ -4,7 +4,7 @@ import { Alert, Badge, Button, Card, Checkbox, Drawer, Group, NumberInput, Stack
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getApiErrorMessage, ApiClientError } from '../../shared/api/api-client';
 import { getChapter, listChapters } from '../novels/novel-api';
-import { listChapterRevisions } from './ai-copilot-api';
+import { createChapterSnapshot, listChapterRevisions } from './ai-copilot-api';
 import { AuthorMemoryRepair } from './AuthorMemoryRepair';
 import { acceptProposalGroup, activateBaseline, getBootstrapJob, getReviewQueue, getStoryBrainSummary,
   rejectProposal, resumeBootstrapJob, startManuscriptBootstrap } from '../manuscript-import/manuscript-import-api';
@@ -74,8 +74,10 @@ export function AuthorMemoryPanel({ novelId, chapterId, content, opened, onClose
   const check = async () => {
     if (!saved) throw new Error('Hãy lưu nội dung trước khi kiểm tra.');
     const revisions = await listChapterRevisions(chapterId);
-    const revision = revisions[0];
-    if (!revision || revision.content !== content) throw new Error('Nội dung chưa có phiên bản đã lưu tương ứng.');
+    let revision = revisions[0];
+    if (!revision || revision.content !== content) {
+      revision = await createChapterSnapshot(chapterId, content);
+    }
     const result = await runAuthorOperation<{ findings: ConsistencyFinding[] }>(novelId,
       { operation: 'check_consistency', content, revision_id: revision.revisionId });
     setFindings(result.findings);
