@@ -10,6 +10,7 @@ Verdict: **P1_MEMORY_ENTITY_READY_FOR_GPT6_REVIEW**. This is a P1 executor resul
 - Pinned selective reference: `7e1e8e96d80f3d4a2602f5c53dcd5303bbea3be3`.
 - Draft PR: https://github.com/Ephurin/Novel_sharing_platform/pull/63 → `integration/p1-author`.
 - This directory is committed separately after source/testing. The evidence commit SHA is supplied in the final handoff and PR description; it cannot be embedded in its own contents.
+- `SHA256SUMS.json` hashes committed Git blob bytes (LF); use git show when verifying from a Windows checkout with automatic CRLF conversion. The manifest excludes itself.
 - Five `test-accept-*-source.json` records and `final-source-seal.json` prove clean source before acceptance and before evidence generation. `source-blobs.json` pins every changed source/test/contract blob.
 
 ## Root cause and final behavior
