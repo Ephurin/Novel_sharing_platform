@@ -18,7 +18,7 @@ test('internal revision HTTP authorization fails closed before repository access
   let reads=0;
   pool.query=(async (sql: string, values: unknown[]) => {
     reads++;
-    if (sql.toLowerCase().includes('from chapter_revisions')) return {rows:values[0]===revisionId ? [{revision_id:revisionId,novel_id:novelId,chapter_id:chapterId,content,content_hash:hash,source_type:'BOOTSTRAP',word_count:6,created_by:randomUUID(),created_at:new Date()}] : []};
+    if (sql.toLowerCase().includes('from chapter_revisions')) return {rowCount:values[0]===revisionId ? 1 : 0,rows:values[0]===revisionId ? [{revision_id:revisionId,novel_id:novelId,chapter_id:chapterId,content,content_hash:hash,source_type:'BOOTSTRAP',word_count:6,created_by:randomUUID(),created_at:new Date()}] : []};
     if (sql.toLowerCase().includes('from chapters')) return {rows:[{chapter_id:chapterId,novel_id:novelId,chapter_number:1}]};
     throw new Error('Unexpected repository access');
   }) as typeof pool.query;
