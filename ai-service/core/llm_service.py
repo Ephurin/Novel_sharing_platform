@@ -40,7 +40,7 @@ class LLMService:
             self.api_key = self._normalize_api_key(
                 api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or ""
             )
-            self.fallback_provider = self.fallback_provider or "openai"
+            # No implicit cross-provider fallback. Any OpenAI fallback must be explicitly opted in.
             if self.fallback_provider == "openai":
                 self.fallback_model = self._normalize_model(
                     fallback_model or os.getenv("OPENAI_MODEL") or os.getenv("LLM_FALLBACK_MODEL") or "gpt-4o-mini",
