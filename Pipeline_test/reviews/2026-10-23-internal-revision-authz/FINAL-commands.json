@@ -1,0 +1,66 @@
+[
+  {
+    "name": "GREEN-unit",
+    "cwd": "backend",
+    "command": [
+      "node",
+      "--import",
+      "tsx",
+      "--test",
+      "src/modules/novels/internal-revision-authorization.test.ts"
+    ],
+    "exit_code": 0,
+    "tested_sha": "117337539da666172cf7b173c3a78730a2aa7ea1",
+    "tracked_source_clean": true
+  },
+  {
+    "name": "backend-typecheck",
+    "cwd": "backend",
+    "command": [
+      "node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json",
+      "--noEmit"
+    ],
+    "exit_code": 0,
+    "tested_sha": "117337539da666172cf7b173c3a78730a2aa7ea1",
+    "tracked_source_clean": true
+  },
+  {
+    "name": "backend-regression",
+    "cwd": "backend",
+    "command": [
+      "node",
+      "--import",
+      "tsx",
+      "--test",
+      "src/modules/novels/chapter-revisions.test.ts",
+      "src/modules/novels/outbox.test.ts",
+      "src/modules/ai/p1-closed-loop-gateway.test.ts",
+      "src/modules/ai/autonomous-controller.test.ts",
+      "src/modules/ai/job-resume-authorization.test.ts",
+      "src/modules/novels/draft-read-authorization.test.ts"
+    ],
+    "exit_code": 0,
+    "tested_sha": "117337539da666172cf7b173c3a78730a2aa7ea1",
+    "tracked_source_clean": true
+  },
+  {
+    "name": "ai-regression",
+    "cwd": "ai-service",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/test_revision_content_provider.py",
+      "tests/test_revision_analysis_workflow.py",
+      "tests/test_manuscript_bootstrap.py",
+      "tests/test_internal_generation_contract.py"
+    ],
+    "exit_code": 0,
+    "tested_sha": "117337539da666172cf7b173c3a78730a2aa7ea1",
+    "tracked_source_clean": true
+  }
+]

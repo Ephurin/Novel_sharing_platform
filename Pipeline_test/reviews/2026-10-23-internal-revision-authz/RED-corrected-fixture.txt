@@ -1,0 +1,475 @@
+▶ internal revision HTTP authorization fails closed before repository access
+  ✖ missing/anonymous (34.4653ms)
+  ✖ missing/arbitrary_Bearer (12.1702ms)
+  ✖ missing/empty_Bearer (3.1237ms)
+  ✖ missing/wrong_service_token (2.5878ms)
+  ✖ missing/empty_service_token (2.7933ms)
+  ✖ missing/correct_Bearer (2.4889ms)
+  ✖ missing/correct_service_header (2.3479ms)
+  ✖ missing/correct_legacy_header (2.1379ms)
+  ✖ empty/anonymous (1.9813ms)
+  ✖ empty/arbitrary_Bearer (2.1128ms)
+  ✖ empty/empty_Bearer (1.8567ms)
+  ✖ empty/wrong_service_token (2.0094ms)
+  ✖ empty/empty_service_token (1.771ms)
+  ✖ empty/correct_Bearer (1.5275ms)
+  ✖ empty/correct_service_header (1.6001ms)
+  ✖ empty/correct_legacy_header (1.3142ms)
+  ✖ whitespace/anonymous (1.3092ms)
+  ✖ whitespace/arbitrary_Bearer (1.2054ms)
+  ✖ whitespace/empty_Bearer (1.2571ms)
+  ✖ whitespace/wrong_service_token (1.4678ms)
+  ✖ whitespace/empty_service_token (1.7878ms)
+  ✖ whitespace/correct_Bearer (7.5888ms)
+  ✖ whitespace/correct_service_header (1.9004ms)
+  ✖ whitespace/correct_legacy_header (1.4704ms)
+  ✖ configured/anonymous (1.3099ms)
+  ✖ configured/arbitrary_Bearer (1.7911ms)
+  ✖ configured/empty_Bearer (1.6421ms)
+  ✖ configured/wrong_service_token (6.5723ms)
+  ✖ configured/empty_service_token (1.3654ms)
+  ✖ configured/correct_Bearer (1.2257ms)
+  ✖ configured/correct_service_header (0.9307ms)
+  ✖ configured/correct_legacy_header (1.0205ms)
+{"level":30,"time":1792727754891,"pid":5688,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+  ✖ valid token missing revision is 404; invalid token missing revision is 401 (1.4269ms)
+✖ internal revision HTTP authorization fails closed before repository access (193.8888ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 0
+ℹ fail 34
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2010.0536
+
+✖ failing tests:
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ missing/anonymous (34.4653ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ missing/arbitrary_Bearer (12.1702ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ missing/empty_Bearer (3.1237ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ missing/wrong_service_token (2.5878ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ missing/empty_service_token (2.7933ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ missing/correct_Bearer (2.4889ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ missing/correct_service_header (2.3479ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ missing/correct_legacy_header (2.1379ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ empty/anonymous (1.9813ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ empty/arbitrary_Bearer (2.1128ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ empty/empty_Bearer (1.8567ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ empty/wrong_service_token (2.0094ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ empty/empty_service_token (1.771ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ empty/correct_Bearer (1.5275ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ empty/correct_service_header (1.6001ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ empty/correct_legacy_header (1.3142ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ whitespace/anonymous (1.3092ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ whitespace/arbitrary_Bearer (1.2054ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ whitespace/empty_Bearer (1.2571ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ whitespace/wrong_service_token (1.4678ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ whitespace/empty_service_token (1.7878ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ whitespace/correct_Bearer (7.5888ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ whitespace/correct_service_header (1.9004ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ whitespace/correct_legacy_header (1.4704ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ configured/anonymous (1.3099ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ configured/arbitrary_Bearer (1.7911ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ configured/empty_Bearer (1.6421ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ configured/wrong_service_token (6.5723ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ configured/empty_service_token (1.3654ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ configured/correct_Bearer (1.2257ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ configured/correct_service_header (0.9307ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2355
+✖ configured/correct_legacy_header (1.0205ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:3095
+✖ valid token missing revision is 404; invalid token missing revision is 401 (1.4269ms)
+  [TypeError: fetch failed] {
+    [cause]: Error: connect EACCES 127.0.0.1:57694
+        at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1864:16) {
+      errno: -4092,
+      code: 'EACCES',
+      syscall: 'connect',
+      address: '127.0.0.1',
+      port: 57694
+    }
+  }

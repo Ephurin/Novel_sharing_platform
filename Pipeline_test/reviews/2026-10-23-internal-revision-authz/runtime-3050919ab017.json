@@ -1,0 +1,40 @@
+{
+  "resources": [
+    {
+      "container": "internal-authz-3050919ab017-pg",
+      "volume": "internal-authz-3050919ab017-pg-data",
+      "image": "pgvector/pgvector:pg16"
+    },
+    {
+      "container": "internal-authz-3050919ab017-mongo",
+      "volume": "internal-authz-3050919ab017-mongo-data",
+      "image": "mongo:7"
+    }
+  ],
+  "database": "ephurin_test_internal_authz_3050919ab017",
+  "commands": [
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "src/core/database/migrate.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "8640ba92bf43442be1b4f5748d9f009508b2ac22"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "src/scripts/verify-internal-revision-authz.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "8640ba92bf43442be1b4f5748d9f009508b2ac22"
+    }
+  ],
+  "retained": true
+}

@@ -1,0 +1,3 @@
+{"level":30,"time":1792727935855,"pid":25876,"hostname":"Ephurin","msg":"MongoDB connection ready"}
+{"level":30,"time":1792727938140,"pid":25876,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+{"level":30,"time":1792727938142,"pid":25876,"hostname":"Ephurin","msg":"MongoDB connection closed"}

@@ -1,0 +1,15 @@
+# Internal revision authorization RED/GREEN
+
+Baseline production: `2279b41d2dcd90fb47a2c4886379510c6564fee5`. Regression source before fix: `7ef0e5d7783527015a4dd56ea69d9f01064106a7`. GREEN source: `8640ba92bf43442be1b4f5748d9f009508b2ac22`. Branch: `codex/ai-copilot-pipeline-test`. Tracked source committed; new evidence directory untracked during execution. Tests independently executed here, not inherited.
+
+RED command exit 1: `RED-command.json`, `RED-unit.txt`, `RED-unit/http-matrix.json`. Ten requests with missing/empty PLATFORM_SERVICE_TOKEN returned unauthorized HTTP 200 and revision content. This is the demonstrated fail-open. Initial missing-revision case also failed because the SQL unit fixture omitted rowCount (500); that fixture defect was corrected in `ebe018fe`, not in production. Initial 34 test counts: 22 pass, 12 fail, including failing parent test and fixture failure.
+
+Corrected RED attempt at ebe018fe was blocked by sandbox loopback EACCES; preserved in `RED-corrected-fixture.txt`. Initial GREEN attempt likewise blocked by EACCES (`GREEN-unit.txt`), not a functional regression. Authorized GREEN rerun exit 0: 34/34 PASS, `GREEN-unit-authorized.txt` and command JSON. No unsuccessful logs were overwritten. The original RED wrapper encountered console cp1252 Unicode output failure after writing the actual test output and exit code; saved test evidence remains intact.
+
+Minimal production fix requires a configured nonblank expected token, a supplied token, and exact equality. Existing Bearer / X-Service-Token / X-Internal-Service-Key precedence and response DTO stay unchanged. Missing/empty/whitespace configuration now returns 401 AUTH_002 before any repository read.
+
+Fresh real database integration exit 0: 32 configuration/header combinations plus valid-token missing revision 404 and wrong-token missing revision 401. Actual Python PlatformRevisionClient also successfully reads revision identity, body, SHA256 and chapter number over HTTP. Durable before/after PostgreSQL revision/chapter/outbox and Mongo readbacks compare equal. BOOTSTRAP fixture has one immutable revision, one Mongo draft, latest_revision_id matches, and zero incremental outbox events as expected for bootstrap-owned pre-baseline source. This is not proof of a processed nonempty outbox or an AI-generated accept E2E.
+
+No provider client was invoked. Databases/volumes were newly created with explicit mutation opt-in; both containers stopped, resources retained. No historical resources were reused or deleted.
+
+Final source seal: `117337539da666172cf7b173c3a78730a2aa7ea1` normalizes only LF in the two new test files relative to the earlier GREEN SHA. All 34 HTTP unit / 60 backend / 10 AI tests and typecheck independently reran PASS at this final SHA (`FINAL-commands.json`). A second newly provisioned database pair also passed migration + live proof (`runtime-4e6d112b93f6.json`, `live-4e6d112b93f6/`). Tracked source clean; evidence only untracked. Both pairs stopped, new volumes retained. `git diff --check 2279b41 HEAD` exit 0. Earlier artifacts remain unchanged.

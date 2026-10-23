@@ -1,0 +1,222 @@
+{
+  "passed": true,
+  "identity": {
+    "postgresDb": "ephurin_test_internal_authz_3050919ab017",
+    "postgresServerAddr": "172.17.0.2",
+    "postgresServerPort": 5432,
+    "mongoDb": "ephurin_test_internal_authz_3050919ab017",
+    "isIsolated": true,
+    "optInVerified": true
+  },
+  "matrix": [
+    {
+      "configuration": "missing",
+      "scenario": "anonymous",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "missing",
+      "scenario": "arbitrary_Bearer",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "missing",
+      "scenario": "empty_Bearer",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "missing",
+      "scenario": "wrong_token",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "missing",
+      "scenario": "empty_token",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "missing",
+      "scenario": "correct_Bearer",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "missing",
+      "scenario": "correct_service_header",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "missing",
+      "scenario": "correct_legacy_header",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "empty",
+      "scenario": "anonymous",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "empty",
+      "scenario": "arbitrary_Bearer",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "empty",
+      "scenario": "empty_Bearer",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "empty",
+      "scenario": "wrong_token",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "empty",
+      "scenario": "empty_token",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "empty",
+      "scenario": "correct_Bearer",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "empty",
+      "scenario": "correct_service_header",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "empty",
+      "scenario": "correct_legacy_header",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "whitespace",
+      "scenario": "anonymous",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "whitespace",
+      "scenario": "arbitrary_Bearer",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "whitespace",
+      "scenario": "empty_Bearer",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "whitespace",
+      "scenario": "wrong_token",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "whitespace",
+      "scenario": "empty_token",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "whitespace",
+      "scenario": "correct_Bearer",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "whitespace",
+      "scenario": "correct_service_header",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "whitespace",
+      "scenario": "correct_legacy_header",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "configured",
+      "scenario": "anonymous",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "configured",
+      "scenario": "arbitrary_Bearer",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "configured",
+      "scenario": "empty_Bearer",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "configured",
+      "scenario": "wrong_token",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "configured",
+      "scenario": "empty_token",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "configuration": "configured",
+      "scenario": "correct_Bearer",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "configuration": "configured",
+      "scenario": "correct_service_header",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "configuration": "configured",
+      "scenario": "correct_legacy_header",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "scenario": "missing_revision_valid",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "scenario": "missing_revision_invalid",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "adapter": "PlatformRevisionClient",
+      "passed": true,
+      "revision_id": "227b4fd2-919b-4330-89c2-05698c197bf8",
+      "content_hash": "44393e26c4fd9a6732afc88bc46c708e3d34e20e4683fcd279934e061cae8643"
+    }
+  ],
+  "proof": "Real HTTP + fresh PostgreSQL/MongoDB + actual Python AI revision adapter; no provider"
+}

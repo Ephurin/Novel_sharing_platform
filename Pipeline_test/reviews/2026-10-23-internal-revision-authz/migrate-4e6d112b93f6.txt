@@ -1,0 +1,13 @@
+{"level":30,"time":1792728091739,"pid":18504,"hostname":"Ephurin","msg":"Applied migration 001_auth_user_wallet.sql"}
+{"level":30,"time":1792728091783,"pid":18504,"hostname":"Ephurin","msg":"Applied migration 002_novels.sql"}
+{"level":30,"time":1792728091800,"pid":18504,"hostname":"Ephurin","msg":"Applied migration 003_chapters.sql"}
+{"level":30,"time":1792728091839,"pid":18504,"hostname":"Ephurin","msg":"Applied migration 004_content_control.sql"}
+{"level":30,"time":1792728091844,"pid":18504,"hostname":"Ephurin","msg":"Applied migration 005_reports_description.sql"}
+{"level":30,"time":1792728091884,"pid":18504,"hostname":"Ephurin","msg":"Applied migration 006_reading_interactions.sql"}
+{"level":30,"time":1792728091933,"pid":18504,"hostname":"Ephurin","msg":"Applied migration 007_wallet_transactions.sql"}
+{"level":30,"time":1792728091994,"pid":18504,"hostname":"Ephurin","msg":"Applied migration 008_authoring_context.sql"}
+{"level":30,"time":1792728092017,"pid":18504,"hostname":"Ephurin","msg":"Applied migration 009_chapter_revisions.sql"}
+{"level":30,"time":1792728092035,"pid":18504,"hostname":"Ephurin","msg":"Applied migration 010_analysis_outbox.sql"}
+{"level":30,"time":1792728092043,"pid":18504,"hostname":"Ephurin","msg":"Applied migration 011_outbox_claim_token.sql"}
+{"level":30,"time":1792728092053,"pid":18504,"hostname":"Ephurin","msg":"Applied migration 012_reports_unique_open.sql"}
+{"level":30,"time":1792728092054,"pid":18504,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}

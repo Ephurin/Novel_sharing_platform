@@ -1,0 +1,113 @@
+{
+  "before": {
+    "revision": [
+      {
+        "revision_id": "227b4fd2-919b-4330-89c2-05698c197bf8",
+        "novel_id": "58393e11-677c-489b-bd5f-300b53d50f9b",
+        "chapter_id": "f3d5ea1f-0ce9-4fef-9bf8-de70d44a4187",
+        "parent_revision_id": null,
+        "content_hash": "44393e26c4fd9a6732afc88bc46c708e3d34e20e4683fcd279934e061cae8643",
+        "content": "Immutable bootstrap revision for isolated service authorization",
+        "word_count": 7,
+        "source_type": "BOOTSTRAP",
+        "source_generation_id": null,
+        "created_by": "3f851d53-8a32-438c-9a65-ea02fc7e51eb",
+        "created_at": "2026-10-23T03:58:56.605Z"
+      }
+    ],
+    "chapter": [
+      {
+        "chapter_id": "f3d5ea1f-0ce9-4fef-9bf8-de70d44a4187",
+        "novel_id": "58393e11-677c-489b-bd5f-300b53d50f9b",
+        "title": "Chapter 1",
+        "chapter_number": 1,
+        "content": null,
+        "word_count": 7,
+        "is_vip": false,
+        "price_coins": 0,
+        "status": "DRAFT",
+        "published_at": null,
+        "created_at": "2026-10-23T03:58:56.548Z",
+        "updated_at": "2026-10-23T03:58:56.605Z",
+        "deleted_at": null,
+        "latest_revision_id": "227b4fd2-919b-4330-89c2-05698c197bf8"
+      }
+    ],
+    "outbox": [],
+    "mongo": [
+      {
+        "_id": "6adadb80dc604f18ea6c2f72",
+        "chapterId": "f3d5ea1f-0ce9-4fef-9bf8-de70d44a4187",
+        "authorId": "3f851d53-8a32-438c-9a65-ea02fc7e51eb",
+        "autosave": false,
+        "content": "Immutable bootstrap revision for isolated service authorization",
+        "createdAt": "2026-10-23T03:58:56.553Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "58393e11-677c-489b-bd5f-300b53d50f9b",
+        "title": "Chapter 1",
+        "updatedAt": "2026-10-23T03:58:56.613Z",
+        "version": 2,
+        "wordCount": 7,
+        "lastAcceptedAt": "2026-10-23T03:58:56.612Z",
+        "lastAcceptedRevisionId": "227b4fd2-919b-4330-89c2-05698c197bf8"
+      }
+    ]
+  },
+  "after": {
+    "revision": [
+      {
+        "revision_id": "227b4fd2-919b-4330-89c2-05698c197bf8",
+        "novel_id": "58393e11-677c-489b-bd5f-300b53d50f9b",
+        "chapter_id": "f3d5ea1f-0ce9-4fef-9bf8-de70d44a4187",
+        "parent_revision_id": null,
+        "content_hash": "44393e26c4fd9a6732afc88bc46c708e3d34e20e4683fcd279934e061cae8643",
+        "content": "Immutable bootstrap revision for isolated service authorization",
+        "word_count": 7,
+        "source_type": "BOOTSTRAP",
+        "source_generation_id": null,
+        "created_by": "3f851d53-8a32-438c-9a65-ea02fc7e51eb",
+        "created_at": "2026-10-23T03:58:56.605Z"
+      }
+    ],
+    "chapter": [
+      {
+        "chapter_id": "f3d5ea1f-0ce9-4fef-9bf8-de70d44a4187",
+        "novel_id": "58393e11-677c-489b-bd5f-300b53d50f9b",
+        "title": "Chapter 1",
+        "chapter_number": 1,
+        "content": null,
+        "word_count": 7,
+        "is_vip": false,
+        "price_coins": 0,
+        "status": "DRAFT",
+        "published_at": null,
+        "created_at": "2026-10-23T03:58:56.548Z",
+        "updated_at": "2026-10-23T03:58:56.605Z",
+        "deleted_at": null,
+        "latest_revision_id": "227b4fd2-919b-4330-89c2-05698c197bf8"
+      }
+    ],
+    "outbox": [],
+    "mongo": [
+      {
+        "_id": "6adadb80dc604f18ea6c2f72",
+        "chapterId": "f3d5ea1f-0ce9-4fef-9bf8-de70d44a4187",
+        "authorId": "3f851d53-8a32-438c-9a65-ea02fc7e51eb",
+        "autosave": false,
+        "content": "Immutable bootstrap revision for isolated service authorization",
+        "createdAt": "2026-10-23T03:58:56.553Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "58393e11-677c-489b-bd5f-300b53d50f9b",
+        "title": "Chapter 1",
+        "updatedAt": "2026-10-23T03:58:56.613Z",
+        "version": 2,
+        "wordCount": 7,
+        "lastAcceptedAt": "2026-10-23T03:58:56.612Z",
+        "lastAcceptedRevisionId": "227b4fd2-919b-4330-89c2-05698c197bf8"
+      }
+    ]
+  },
+  "unchanged": true
+}

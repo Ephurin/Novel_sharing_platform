@@ -1,0 +1,5 @@
+{
+  "tested_sha": "8640ba92bf43442be1b4f5748d9f009508b2ac22",
+  "proof": "HTTP unit: real router/controller/service, stubbed SQL, no database/model network",
+  "matrix": []
+}

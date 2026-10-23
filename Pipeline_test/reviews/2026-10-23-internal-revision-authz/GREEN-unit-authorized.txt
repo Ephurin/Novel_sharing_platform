@@ -1,0 +1,44 @@
+▶ internal revision HTTP authorization fails closed before repository access
+  ✔ missing/anonymous (53.9639ms)
+  ✔ missing/arbitrary_Bearer (6.7788ms)
+  ✔ missing/empty_Bearer (4.3616ms)
+  ✔ missing/wrong_service_token (4.4572ms)
+  ✔ missing/empty_service_token (3.2336ms)
+  ✔ missing/correct_Bearer (2.1826ms)
+  ✔ missing/correct_service_header (7.6259ms)
+  ✔ missing/correct_legacy_header (3.4791ms)
+  ✔ empty/anonymous (12.0349ms)
+  ✔ empty/arbitrary_Bearer (3.9509ms)
+  ✔ empty/empty_Bearer (2.4386ms)
+  ✔ empty/wrong_service_token (4.3246ms)
+  ✔ empty/empty_service_token (1.7493ms)
+  ✔ empty/correct_Bearer (2.0178ms)
+  ✔ empty/correct_service_header (2.7312ms)
+  ✔ empty/correct_legacy_header (1.7764ms)
+  ✔ whitespace/anonymous (2.4285ms)
+  ✔ whitespace/arbitrary_Bearer (10.071ms)
+  ✔ whitespace/empty_Bearer (2.5428ms)
+  ✔ whitespace/wrong_service_token (12.1323ms)
+  ✔ whitespace/empty_service_token (3.5049ms)
+  ✔ whitespace/correct_Bearer (13.5169ms)
+  ✔ whitespace/correct_service_header (18.2765ms)
+  ✔ whitespace/correct_legacy_header (2.9331ms)
+  ✔ configured/anonymous (13.0538ms)
+  ✔ configured/arbitrary_Bearer (16.0079ms)
+  ✔ configured/empty_Bearer (2.9425ms)
+  ✔ configured/wrong_service_token (3.414ms)
+  ✔ configured/empty_service_token (2.264ms)
+  ✔ configured/correct_Bearer (10.1221ms)
+  ✔ configured/correct_service_header (2.4279ms)
+  ✔ configured/correct_legacy_header (12.2433ms)
+{"level":30,"time":1792727957448,"pid":3724,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+  ✔ valid token missing revision is 404; invalid token missing revision is 401 (14.9929ms)
+✔ internal revision HTTP authorization fails closed before repository access (348.9305ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1623.3426

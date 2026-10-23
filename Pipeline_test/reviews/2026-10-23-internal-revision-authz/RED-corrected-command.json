@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "--import",
+    "tsx",
+    "--test",
+    "src/modules/novels/internal-revision-authorization.test.ts"
+  ],
+  "exit_code": 1,
+  "tested_sha": "ebe018fe20a810d81c2a0571e3e191bcefb28b35"
+}

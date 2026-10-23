@@ -1,0 +1,113 @@
+{
+  "before": {
+    "revision": [
+      {
+        "revision_id": "bb752fc4-3824-4496-8da9-7dc4f01b4507",
+        "novel_id": "109dea8d-17ae-4950-9192-f0460651d6d7",
+        "chapter_id": "f904c9dd-4c17-40b4-851e-27d343f61953",
+        "parent_revision_id": null,
+        "content_hash": "44393e26c4fd9a6732afc88bc46c708e3d34e20e4683fcd279934e061cae8643",
+        "content": "Immutable bootstrap revision for isolated service authorization",
+        "word_count": 7,
+        "source_type": "BOOTSTRAP",
+        "source_generation_id": null,
+        "created_by": "4348c708-e8d2-41eb-b47e-cafca4e6be23",
+        "created_at": "2026-10-23T04:01:34.113Z"
+      }
+    ],
+    "chapter": [
+      {
+        "chapter_id": "f904c9dd-4c17-40b4-851e-27d343f61953",
+        "novel_id": "109dea8d-17ae-4950-9192-f0460651d6d7",
+        "title": "Chapter 1",
+        "chapter_number": 1,
+        "content": null,
+        "word_count": 7,
+        "is_vip": false,
+        "price_coins": 0,
+        "status": "DRAFT",
+        "published_at": null,
+        "created_at": "2026-10-23T04:01:34.056Z",
+        "updated_at": "2026-10-23T04:01:34.113Z",
+        "deleted_at": null,
+        "latest_revision_id": "bb752fc4-3824-4496-8da9-7dc4f01b4507"
+      }
+    ],
+    "outbox": [],
+    "mongo": [
+      {
+        "_id": "6adadc1e25fe8cefe87e3d8b",
+        "chapterId": "f904c9dd-4c17-40b4-851e-27d343f61953",
+        "authorId": "4348c708-e8d2-41eb-b47e-cafca4e6be23",
+        "autosave": false,
+        "content": "Immutable bootstrap revision for isolated service authorization",
+        "createdAt": "2026-10-23T04:01:34.062Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "109dea8d-17ae-4950-9192-f0460651d6d7",
+        "title": "Chapter 1",
+        "updatedAt": "2026-10-23T04:01:34.123Z",
+        "version": 2,
+        "wordCount": 7,
+        "lastAcceptedAt": "2026-10-23T04:01:34.121Z",
+        "lastAcceptedRevisionId": "bb752fc4-3824-4496-8da9-7dc4f01b4507"
+      }
+    ]
+  },
+  "after": {
+    "revision": [
+      {
+        "revision_id": "bb752fc4-3824-4496-8da9-7dc4f01b4507",
+        "novel_id": "109dea8d-17ae-4950-9192-f0460651d6d7",
+        "chapter_id": "f904c9dd-4c17-40b4-851e-27d343f61953",
+        "parent_revision_id": null,
+        "content_hash": "44393e26c4fd9a6732afc88bc46c708e3d34e20e4683fcd279934e061cae8643",
+        "content": "Immutable bootstrap revision for isolated service authorization",
+        "word_count": 7,
+        "source_type": "BOOTSTRAP",
+        "source_generation_id": null,
+        "created_by": "4348c708-e8d2-41eb-b47e-cafca4e6be23",
+        "created_at": "2026-10-23T04:01:34.113Z"
+      }
+    ],
+    "chapter": [
+      {
+        "chapter_id": "f904c9dd-4c17-40b4-851e-27d343f61953",
+        "novel_id": "109dea8d-17ae-4950-9192-f0460651d6d7",
+        "title": "Chapter 1",
+        "chapter_number": 1,
+        "content": null,
+        "word_count": 7,
+        "is_vip": false,
+        "price_coins": 0,
+        "status": "DRAFT",
+        "published_at": null,
+        "created_at": "2026-10-23T04:01:34.056Z",
+        "updated_at": "2026-10-23T04:01:34.113Z",
+        "deleted_at": null,
+        "latest_revision_id": "bb752fc4-3824-4496-8da9-7dc4f01b4507"
+      }
+    ],
+    "outbox": [],
+    "mongo": [
+      {
+        "_id": "6adadc1e25fe8cefe87e3d8b",
+        "chapterId": "f904c9dd-4c17-40b4-851e-27d343f61953",
+        "authorId": "4348c708-e8d2-41eb-b47e-cafca4e6be23",
+        "autosave": false,
+        "content": "Immutable bootstrap revision for isolated service authorization",
+        "createdAt": "2026-10-23T04:01:34.062Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "109dea8d-17ae-4950-9192-f0460651d6d7",
+        "title": "Chapter 1",
+        "updatedAt": "2026-10-23T04:01:34.123Z",
+        "version": 2,
+        "wordCount": 7,
+        "lastAcceptedAt": "2026-10-23T04:01:34.121Z",
+        "lastAcceptedRevisionId": "bb752fc4-3824-4496-8da9-7dc4f01b4507"
+      }
+    ]
+  },
+  "unchanged": true
+}

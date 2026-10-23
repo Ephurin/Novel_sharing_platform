@@ -1,0 +1,13 @@
+{
+  "command": [
+    "node",
+    "--import",
+    "tsx",
+    "--test",
+    "src/modules/novels/internal-revision-authorization.test.ts"
+  ],
+  "cwd": "backend",
+  "exit_code": 0,
+  "tested_sha": "8640ba92bf43442be1b4f5748d9f009508b2ac22",
+  "tracked_source_clean": true
+}

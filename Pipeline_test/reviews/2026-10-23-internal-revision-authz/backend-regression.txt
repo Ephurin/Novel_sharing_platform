@@ -1,0 +1,80 @@
+▶ Autonomous Controller Gateway & Contract Tests
+  ✔ Cross-author autonomous run access enforces 403 FORBIDDEN (32.5842ms)
+  ✔ Single-writer conflict returns 409 ACTIVE_RUN_CONFLICT (0.9997ms)
+  ✔ Deterministic quality gate: strict fail-closed on brain freshness and non-empty patch (0.3591ms)
+  ✔ Scoped proposal acceptance: ignores unrelated pending proposals in review queue (0.2222ms)
+  ✔ Crash recovery: detects already-accepted revision and avoids duplicate acceptDraft (0.128ms)
+  ✔ Intentional completion gate terminates on terminal objective or all objectives done (0.2213ms)
+✔ Autonomous Controller Gateway & Contract Tests (36.4418ms)
+{"level":30,"time":1792727889361,"pid":19224,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+▶ job authorization: trusted scope gates both status and mutable resume
+  ✔ resume: wrong author (1.8248ms)
+  ✔ resume: invalid scope undefined (0.2443ms)
+  ✔ resume: invalid scope null (0.164ms)
+  ✔ resume: invalid scope "" (0.2273ms)
+  ✔ resume: invalid scope "bad-uuid" (0.1555ms)
+  ✔ resume: invalid scope 123 (0.1433ms)
+  ✔ resume: invalid scope [] (0.1311ms)
+  ✔ resume: invalid scope {} (0.1967ms)
+  ✔ resume: invalid scope true (0.2192ms)
+  ✔ resume: invalid scope " 11111111-1111-4111-8111-111111111111" (0.2054ms)
+  ✔ resume: null metadata (0.1149ms)
+  ✔ resume: array metadata (0.1165ms)
+  ✔ resume: missing job (0.1302ms)
+  ✔ resume: deleted novel (0.1948ms)
+  ✔ resume: owner bootstrap (0.2548ms)
+  ✔ resume: owner writing job (0.1268ms)
+  ✔ resume: authorized admin (0.1462ms)
+  ✔ GET: wrong author (0.165ms)
+  ✔ GET: invalid scope undefined (0.0735ms)
+  ✔ GET: invalid scope null (0.0694ms)
+  ✔ GET: invalid scope "" (0.0688ms)
+  ✔ GET: invalid scope "bad-uuid" (0.0746ms)
+  ✔ GET: invalid scope 123 (0.0675ms)
+  ✔ GET: invalid scope [] (0.0796ms)
+  ✔ GET: invalid scope {} (0.0771ms)
+  ✔ GET: invalid scope true (0.0782ms)
+  ✔ GET: invalid scope " 11111111-1111-4111-8111-111111111111" (0.0783ms)
+  ✔ GET: null metadata (0.0643ms)
+  ✔ GET: array metadata (0.0721ms)
+  ✔ GET: missing job (0.1088ms)
+  ✔ GET: deleted novel (0.0902ms)
+  ✔ GET: owner bootstrap (0.0923ms)
+  ✔ GET: owner writing job (0.1007ms)
+  ✔ GET: authorized admin (0.1201ms)
+✔ job authorization: trusted scope gates both status and mutable resume (10.9147ms)
+▶ AI-PIPE-01 P1 Node Gateway & Acceptance Flow
+  ✔ P1-Gateway: Forward manuscript bootstrap with tenant & service authentication (19.1677ms)
+  ✔ P1-Gateway: Context preview derives canonical cutoff and returns Story Brain package (0.8535ms)
+  ✔ P1-Gateway: AI Writing generation creates queued job with pinned brain version (0.4688ms)
+  ✔ P1-Accept: Patch application and content hash update contract (0.1771ms)
+  ✔ P2-Gateway: Forward bootstrap from idea with tenant & service authentication (0.4778ms)
+  ✔ P2B-Gateway: Forward Story Plan creation, activation, and objective update (0.752ms)
+  ✔ P2B-Gateway: Non-owner cannot read another novel plan by UUID (403 FORBIDDEN) (0.5122ms)
+✔ AI-PIPE-01 P1 Node Gateway & Acceptance Flow (23.9553ms)
+▶ Chapter Revisions & Patch Application
+  ✔ applyPatchToContent correctly applies insertion at cursor (0.9163ms)
+  ✔ applyPatchToContent correctly replaces selection range (0.2121ms)
+  ✔ applyPatchToContent handles unicode code points without splitting multi-byte characters (0.1517ms)
+  ✔ applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping) (0.5801ms)
+  ✔ applyPatchToContent allows valid boundary edge cases (0 to length) (0.1447ms)
+✔ Chapter Revisions & Patch Application (3.365ms)
+{"level":30,"time":1792727889839,"pid":19356,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+✔ private read boundaries deny before Mongo; controllers require trusted actor (13.8375ms)
+{"level":30,"time":1792727889840,"pid":19356,"hostname":"Ephurin","msg":"MongoDB connection closed"}
+▶ Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+  ✔ Exponential backoff for outbox retries is bounded by 300s (1.2616ms)
+  ✔ Conditional MongoDB draft reconciliation preserves newer manual draft edits (0.4569ms)
+  ✔ Conditional MongoDB draft reconciliation creates new draft if not found (0.2737ms)
+  ✔ Accept-time brain version conflict rejects stale generation (0.2441ms)
+  ✔ Outbox lease concurrency: active PROCESSING event cannot be claimed by concurrent worker (0.4238ms)
+  ✔ Outbox expired lease recovery: crashed worker event is reclaimed after timeout (0.4054ms)
+✔ Transactional Outbox & Dual-Write Resilience (P6.5 Hardening) (5.0063ms)
+ℹ tests 60
+ℹ suites 4
+ℹ pass 60
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1142.8166

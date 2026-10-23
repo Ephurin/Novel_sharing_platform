@@ -1,0 +1,268 @@
+▶ internal revision HTTP authorization fails closed before repository access
+  ✔ missing/anonymous (52.4713ms)
+  ✖ missing/arbitrary_Bearer (10.544ms)
+  ✔ missing/empty_Bearer (4.2685ms)
+  ✖ missing/wrong_service_token (4.3713ms)
+  ✔ missing/empty_service_token (4.4666ms)
+  ✖ missing/correct_Bearer (4.0352ms)
+  ✖ missing/correct_service_header (2.793ms)
+  ✖ missing/correct_legacy_header (3.235ms)
+  ✔ empty/anonymous (2.4357ms)
+  ✖ empty/arbitrary_Bearer (4.5906ms)
+  ✔ empty/empty_Bearer (2.9113ms)
+  ✖ empty/wrong_service_token (11.1466ms)
+  ✔ empty/empty_service_token (4.3072ms)
+  ✖ empty/correct_Bearer (2.8589ms)
+  ✖ empty/correct_service_header (5.944ms)
+  ✖ empty/correct_legacy_header (4.4604ms)
+  ✔ whitespace/anonymous (2.5198ms)
+  ✔ whitespace/arbitrary_Bearer (2.2162ms)
+  ✔ whitespace/empty_Bearer (6.364ms)
+  ✔ whitespace/wrong_service_token (2.869ms)
+  ✔ whitespace/empty_service_token (8.3009ms)
+  ✔ whitespace/correct_Bearer (4.0984ms)
+  ✔ whitespace/correct_service_header (2.1697ms)
+  ✔ whitespace/correct_legacy_header (13.9033ms)
+  ✔ configured/anonymous (1.8925ms)
+  ✔ configured/arbitrary_Bearer (1.6633ms)
+  ✔ configured/empty_Bearer (10.8604ms)
+  ✔ configured/wrong_service_token (16.6907ms)
+  ✔ configured/empty_service_token (3.9756ms)
+  ✔ configured/correct_Bearer (5.6321ms)
+  ✔ configured/correct_service_header (4.0352ms)
+  ✔ configured/correct_legacy_header (3.6723ms)
+{"level":50,"time":1792727590397,"pid":28476,"hostname":"Ephurin","err":{"type":"TypeError","message":"Cannot read properties of undefined (reading 'revision_id')","stack":"TypeError: Cannot read properties of undefined (reading 'revision_id')\n    at mapRevision (C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\backend\\src\\modules\\novels\\chapter-revisions.repository.ts:24:21)\n    at findRevisionById (C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\backend\\src\\modules\\novels\\chapter-revisions.repository.ts:98:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async getInternalRevision (C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\backend\\src\\modules\\novels\\chapter-revisions.service.ts:498:20)\n    at async internalGetRevisionController (C:\\Users\\thaib\\Documents\\Projects\\Novel_sharing_platform\\Novel_sharing_platform\\backend\\src\\modules\\novels\\chapter-revisions.controller.ts:81:22)"},"msg":"Cannot read properties of undefined (reading 'revision_id')"}
+{"level":30,"time":1792727590401,"pid":28476,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+  ✖ valid token missing revision is 404; invalid token missing revision is 401 (5.1277ms)
+✖ internal revision HTTP authorization fails closed before repository access (301.8606ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 22
+ℹ fail 12
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1522.5715
+
+✖ failing tests:
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2319
+✖ missing/arbitrary_Bearer (10.544ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  200 !== 401
+  
+      at TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:48:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:42:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 401,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2319
+✖ missing/wrong_service_token (4.3713ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  200 !== 401
+  
+      at TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:48:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:42:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 401,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2319
+✖ missing/correct_Bearer (4.0352ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  200 !== 401
+  
+      at TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:48:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:42:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 401,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2319
+✖ missing/correct_service_header (2.793ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  200 !== 401
+  
+      at TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:48:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:42:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 401,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2319
+✖ missing/correct_legacy_header (3.235ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  200 !== 401
+  
+      at TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:48:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:42:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 401,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2319
+✖ empty/arbitrary_Bearer (4.5906ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  200 !== 401
+  
+      at TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:48:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:42:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 401,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2319
+✖ empty/wrong_service_token (11.1466ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  200 !== 401
+  
+      at TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:48:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:42:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 401,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2319
+✖ empty/correct_Bearer (2.8589ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  200 !== 401
+  
+      at TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:48:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:42:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 401,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2319
+✖ empty/correct_service_header (5.944ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  200 !== 401
+  
+      at TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:48:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:42:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 401,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:2319
+✖ empty/correct_legacy_header (4.4604ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  200 !== 401
+  
+      at TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:48:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:42:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 401,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\modules\novels\internal-revision-authorization.test.ts:1:3059
+✖ valid token missing revision is 404; invalid token missing revision is 401 (5.1277ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  500 !== 404
+  
+      at TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:59:16)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async TestContext.<anonymous> (C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\src\modules\novels\internal-revision-authorization.test.ts:53:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 500,
+    expected: 404,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+

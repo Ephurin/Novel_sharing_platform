@@ -1,0 +1,308 @@
+{
+  "tested_sha": "117337539da666172cf7b173c3a78730a2aa7ea1",
+  "proof": "HTTP unit: real router/controller/service, stubbed SQL, no database/model network",
+  "matrix": [
+    {
+      "configuration": "missing",
+      "scenario": "anonymous",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "missing",
+      "scenario": "arbitrary_Bearer",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "missing",
+      "scenario": "empty_Bearer",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "missing",
+      "scenario": "wrong_service_token",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "missing",
+      "scenario": "empty_service_token",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "missing",
+      "scenario": "correct_Bearer",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "missing",
+      "scenario": "correct_service_header",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "missing",
+      "scenario": "correct_legacy_header",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "empty",
+      "scenario": "anonymous",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "empty",
+      "scenario": "arbitrary_Bearer",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "empty",
+      "scenario": "empty_Bearer",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "empty",
+      "scenario": "wrong_service_token",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "empty",
+      "scenario": "empty_service_token",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "empty",
+      "scenario": "correct_Bearer",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "empty",
+      "scenario": "correct_service_header",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "empty",
+      "scenario": "correct_legacy_header",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "whitespace",
+      "scenario": "anonymous",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "whitespace",
+      "scenario": "arbitrary_Bearer",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "whitespace",
+      "scenario": "empty_Bearer",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "whitespace",
+      "scenario": "wrong_service_token",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "whitespace",
+      "scenario": "empty_service_token",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "whitespace",
+      "scenario": "correct_Bearer",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "whitespace",
+      "scenario": "correct_service_header",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "whitespace",
+      "scenario": "correct_legacy_header",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "configured",
+      "scenario": "anonymous",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "configured",
+      "scenario": "arbitrary_Bearer",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "configured",
+      "scenario": "empty_Bearer",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "configured",
+      "scenario": "wrong_service_token",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "configured",
+      "scenario": "empty_service_token",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0,
+      "error_code": "AUTH_002",
+      "content_returned": false
+    },
+    {
+      "configuration": "configured",
+      "scenario": "correct_Bearer",
+      "expected": 200,
+      "status": 200,
+      "repository_reads": 2,
+      "error_code": null,
+      "content_returned": true
+    },
+    {
+      "configuration": "configured",
+      "scenario": "correct_service_header",
+      "expected": 200,
+      "status": 200,
+      "repository_reads": 2,
+      "error_code": null,
+      "content_returned": true
+    },
+    {
+      "configuration": "configured",
+      "scenario": "correct_legacy_header",
+      "expected": 200,
+      "status": 200,
+      "repository_reads": 2,
+      "error_code": null,
+      "content_returned": true
+    },
+    {
+      "configuration": "configured",
+      "scenario": "missing_revision_valid",
+      "expected": 404,
+      "status": 404,
+      "repository_reads": 1
+    },
+    {
+      "configuration": "configured",
+      "scenario": "missing_revision_invalid",
+      "expected": 401,
+      "status": 401,
+      "repository_reads": 0
+    }
+  ]
+}
