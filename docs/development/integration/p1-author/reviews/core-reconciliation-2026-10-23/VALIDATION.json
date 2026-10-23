@@ -1,0 +1,642 @@
+{
+  "verdict": "PARTIAL_REPAIR_WITH_BLOCKERS",
+  "branch": "codex/p1-core-reconciliation",
+  "target_base": "integration/p1-author",
+  "base_sha": "4c8bd3e36f7a8b01f7f98aee1e77b07779687fc5",
+  "final_tested_source_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09",
+  "pipeline_read_only_reference": "7e1e8e96d80f3d4a2602f5c53dcd5303bbea3be3",
+  "verified_pipeline_source": "dace9f9bc92f6b4209b8e6692985cfa8e3f805df",
+  "tracked_source_clean": true,
+  "new_evidence_only_untracked": true,
+  "production_files": [
+    "backend/src/modules/novels/chapters.service.ts",
+    "backend/src/modules/novels/draft-chapters.repository.ts"
+  ],
+  "selected_contracts": {
+    "content_title_expectedVersion": "required 428, preserved",
+    "stale_different_semantics": "409",
+    "pricing_only": "missing-version exemption preserved; supplied versions fence semantic changes",
+    "draft_DTO": "unchanged unified draft + draftVersion + analysisRevisionId",
+    "snapshot": "integration checkpoint does not overwrite active Mongo; kept unchanged"
+  },
+  "counts": {
+    "PASS": 137,
+    "FAIL": 3,
+    "SKIP": 0,
+    "NOT_RUN_out_of_scope_groups": 6,
+    "backend": {
+      "tests": 65,
+      "pass": 65,
+      "fail": 0,
+      "skipped": 0
+    },
+    "AI": {
+      "PASS": 25,
+      "FAIL": 0,
+      "SKIP": 0
+    },
+    "native": {
+      "reconciliation": {
+        "tests": 7,
+        "pass": 7,
+        "fail": 0,
+        "skipped": 0
+      },
+      "integration-reconciliation": {
+        "tests": 3,
+        "pass": 3,
+        "fail": 0,
+        "skipped": 0
+      },
+      "accept-contract": {
+        "tests": 14,
+        "pass": 14,
+        "fail": 0,
+        "skipped": 0
+      },
+      "outbox-postgres": {
+        "tests": 2,
+        "pass": 2,
+        "fail": 0,
+        "skipped": 0
+      },
+      "accepted-persistence": {
+        "tests": 5,
+        "pass": 5,
+        "fail": 0,
+        "skipped": 0
+      }
+    },
+    "HTTP_matrix": {
+      "PASS": 16,
+      "FAIL": 3
+    },
+    "note": "Final-source executed counts only; known diagnostic failures (memory404/empty generation key) and intermediate failures are separately retained, not turned into PASS"
+  },
+  "required_cases": [
+    {
+      "case": 1,
+      "name": "Stale semantic pricing mutation",
+      "status": "PASS",
+      "proof": "06b; PG/Mongo unchanged"
+    },
+    {
+      "case": 2,
+      "name": "Exact semantic retry",
+      "status": "PASS",
+      "proof": "05 and 06c; no duplicate mutation"
+    },
+    {
+      "case": 3,
+      "name": "Changed-body authoritative version",
+      "status": "PASS",
+      "proof": "10a; unified draft DTO version equals Mongo"
+    },
+    {
+      "case": 4,
+      "name": "Next returned-version save",
+      "status": "PASS",
+      "proof": "10c"
+    },
+    {
+      "case": 5,
+      "name": "Same revision replay",
+      "status": "PASS",
+      "proof": "10b and native probe4"
+    },
+    {
+      "case": 6,
+      "name": "Same prose different revision provenance",
+      "status": "PASS",
+      "proof": "Native probe5: proper fresh revision increments CAS/provenance"
+    },
+    {
+      "case": 7,
+      "name": "Older reconciliation/newer manual draft",
+      "status": "PASS",
+      "proof": "Native probes2/7 and snapshot probe6"
+    },
+    {
+      "case": 8,
+      "name": "Snapshot transaction failure and retry",
+      "status": "PASS",
+      "proof": "11; HTTP500, no committed partial revision/outbox; supported retry recovers"
+    },
+    {
+      "case": 9,
+      "name": "Concurrent writers",
+      "status": "PASS",
+      "proof": "07; one200 one409"
+    },
+    {
+      "case": 10,
+      "name": "Accepted-generation replay",
+      "status": "PASS",
+      "proof": "accepted-replay-durable plus native5 tests; real PG/Mongo identities unchanged"
+    },
+    {
+      "case": 11,
+      "name": "Author/account/tenant isolation",
+      "status": "PASS",
+      "proof": "09, auth34, unchanged accept-contract14"
+    },
+    {
+      "case": 12,
+      "name": "Active baseline/M-FIRST complete contract",
+      "status": "FAIL",
+      "proof": "Hash/source/outbox/context readback consistent, but unchanged worker bypasses explicit canon review"
+    }
+  ],
+  "matrix": [
+    {
+      "test": "01_absent_draft_version_0",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        null,
+        {
+          "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 9,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "publicationSchedule": null,
+          "updatedAt": "2026-10-23T05:28:39.948Z",
+          "draft": {
+            "title": "Contract chapter",
+            "content": "Mai Linh và Duy đứng tại Cồn Vân. B",
+            "wordCount": 9,
+            "version": 1,
+            "autosave": true,
+            "updatedAt": "2026-10-23T05:28:39.945Z"
+          },
+          "analysisRevisionId": null,
+          "draftVersion": 1
+        },
+        null
+      ]
+    },
+    {
+      "test": "02_valid_version_save",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        {
+          "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 10,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "publicationSchedule": null,
+          "updatedAt": "2026-10-23T05:28:40.024Z",
+          "draft": {
+            "title": "Contract chapter",
+            "content": "Mai Linh và Duy đứng tại Cồn Vân. B valid",
+            "wordCount": 10,
+            "version": 2,
+            "autosave": true,
+            "updatedAt": "2026-10-23T05:28:40.022Z"
+          },
+          "analysisRevisionId": null,
+          "draftVersion": 2
+        },
+        null
+      ]
+    },
+    {
+      "test": "03_missing_version_integration_428",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "04_stale_different_body_409",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        null,
+        null
+      ]
+    },
+    {
+      "test": "05_same_body_lost_response_retry",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        {
+          "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 11,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "publicationSchedule": null,
+          "updatedAt": "2026-10-23T05:28:44.905Z",
+          "draft": {
+            "title": "Contract chapter",
+            "content": "Mai Linh và Duy đứng tại Cồn Vân. B response unread",
+            "wordCount": 11,
+            "version": 3,
+            "autosave": true,
+            "updatedAt": "2026-10-23T05:28:44.902Z"
+          },
+          "analysisRevisionId": null,
+          "draftVersion": 3
+        },
+        null
+      ]
+    },
+    {
+      "test": "06_different_body_stale_retry",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        null,
+        null
+      ]
+    },
+    {
+      "test": "06b_different_metadata_stale_payload_409",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "06c_fresh_metadata_and_identical_semantic_replay",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "06d_published_pricing_only_compatibility",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "07_concurrent_writers_CAS",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "08_API_consumer_inflight_A_then_B",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": {
+        "model": "API consumer retains B while A response is pending, then serializes using returned version; NOT a mounted hook or editor test",
+        "A_version": 8,
+        "B_version": 9
+      }
+    },
+    {
+      "test": "09_API_chapter_account_isolation",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": {
+        "browser_lifecycle": "NOT_RUN",
+        "foreign_write": 403,
+        "other_chapter": "c133f839-ab0f-42db-bd9d-7b9c114bdfc5"
+      }
+    },
+    {
+      "test": "10a_active_save_returns_authoritative_version",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "10d_save_requires_explicit_canon_review",
+      "status": "FAIL",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "error": "Integration worker auto-approved canon; production worker/policy left unchanged outside this repair"
+    },
+    {
+      "test": "10b_active_replay_preserves_version",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "10c_next_save_using_returned_version",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "10e_accept_requires_explicit_canon_review",
+      "status": "FAIL",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "error": "Integration worker auto-approved accepted source; preserved as a genuine contract blocker"
+    },
+    {
+      "test": "10_active_checkpoint_accept_outbox_StoryBrain",
+      "status": "FAIL",
+      "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+      "details": {
+        "automatic_saved_revision": "1e7e7606-34e7-4a47-9762-622f37d040af",
+        "accepted_revision": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+        "accepted_source_generation": "cce4293a-5fe8-5b21-b578-bb9a4f5688f1",
+        "active_baseline": true,
+        "explicit_author_review": false,
+        "review_mode": "integration_worker_auto_materialize",
+        "pipeline_entity_gate": "NOT_AVAILABLE_IN_INTEGRATION",
+        "M_FIRST_from_accepted_source": true,
+        "stale_generation_rejected": 409,
+        "future_plan_not_canon": true
+      }
+    },
+    {
+      "test": "11_snapshot_failure_is_explicit_and_retry_recovers",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    }
+  ],
+  "HTTP_probe_exit": 1,
+  "HTTP_failure": null,
+  "targeted_commands": [
+    {
+      "name": "backend-unit",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/chapter-revisions.test.ts",
+        "src/modules/novels/outbox.test.ts",
+        "src/modules/novels/controller-intent.test.ts",
+        "src/modules/novels/internal-revision-authorization.test.ts",
+        "src/modules/novels/draft-read-authorization.test.ts",
+        "src/jobs/outbox-processor.test.ts",
+        "src/core/database/test-db-guard.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09",
+      "tracked_source_clean": true
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "-p",
+        "tsconfig.json"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09",
+      "tracked_source_clean": true
+    },
+    {
+      "name": "build",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.json"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09",
+      "tracked_source_clean": true
+    },
+    {
+      "name": "AI-unit",
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "--basetemp",
+        "C:\\Users\\thaib\\AppData\\Local\\Temp\\d1d2-pytest-83205dcf34284bc3967fca41626f9fd9",
+        "tests/test_revision_content_provider.py",
+        "tests/test_revision_analysis_workflow.py",
+        "tests/test_revision_analysis_routes.py",
+        "tests/test_manuscript_bootstrap.py",
+        "tests/test_manuscript_bootstrap_routes.py",
+        "tests/test_writing_validation_golden.py"
+      ],
+      "cwd": "ai-service",
+      "exit_code": 0,
+      "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09",
+      "tracked_source_clean": true
+    }
+  ],
+  "native_manifest": "persistence-runtime-9fac973ed5cb.json",
+  "native_commands": [
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "src/core/database/migrate.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "alembic",
+        "upgrade",
+        "head"
+      ],
+      "cwd": "ai-service",
+      "exit_code": 0,
+      "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/core-reconciliation.live.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/mongo-reconciliation.live.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/accept-draft-contract.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/outbox.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/p1-production-persistence.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09"
+    }
+  ],
+  "stack_commands": [
+    {
+      "command": [
+        "python",
+        "Pipeline_test/tools/prepare_fe_core_contract.py",
+        "--manifest",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-reconciliation\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\core-reconciliation-2026-10-23\\HANDOFF-manifest.json",
+        "--allow-new-test-resources"
+      ],
+      "exit_code": 0,
+      "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "--env-file",
+        "Pipeline_test\\tools\\.env.p123-core-eea7ad4fa1",
+        "-f",
+        "Pipeline_test/tools/compose.p123-p3.yml",
+        "--profile",
+        "initialize",
+        "run",
+        "--rm",
+        "budget-init"
+      ],
+      "exit_code": 0,
+      "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "--env-file",
+        "Pipeline_test\\tools\\.env.p123-core-eea7ad4fa1",
+        "-f",
+        "Pipeline_test/tools/compose.p123-p3.yml",
+        "up",
+        "-d",
+        "--build"
+      ],
+      "exit_code": 0,
+      "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09"
+    },
+    {
+      "command": [
+        "python",
+        "Pipeline_test/tools/fe_core_contract_probe.py",
+        "--env-file",
+        "Pipeline_test\\tools\\.env.p123-core-eea7ad4fa1",
+        "--output",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-reconciliation\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\core-reconciliation-2026-10-23\\HANDOFF-runtime",
+        "--allow-test-mutations"
+      ],
+      "exit_code": 1,
+      "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "--env-file",
+        "Pipeline_test\\tools\\.env.p123-core-eea7ad4fa1",
+        "-f",
+        "Pipeline_test/tools/compose.p123-p3.yml",
+        "stop",
+        "-t",
+        "2"
+      ],
+      "exit_code": 0,
+      "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09"
+    }
+  ],
+  "unresolved": [
+    {
+      "id": "canon-auto-approval",
+      "status": "FAIL",
+      "details": "Unchanged integration outbox processor automatically accepts proposal groups with reason incremental_outbox_auto_materialize. Save and accept canon-review assertions fail, and combined Story Brain contract is FAIL. Explicit review policy/worker repair is not silently selected here."
+    },
+    {
+      "id": "memory-api",
+      "status": "FAIL",
+      "details": "Gateway /ai/story-brains/:id/memory forwards to absent AI /v1/story-brains/:id/memory and returns AI_SERVICE_404. Actual SQL projection and supported context-preview prove only bounded data/source consistency."
+    },
+    {
+      "id": "entity-review-api",
+      "status": "NOT_AVAILABLE",
+      "details": "Integration AI has no entity-reviews routes despite gateway routes. Bootstrap used the actual proposal-review/activate API path, not pipeline entity-gated flow."
+    },
+    {
+      "id": "empty-generation-key",
+      "status": "FAIL_OBSERVED_OUTSIDE_REPAIR",
+      "details": "CLOSEOUT run reproduced unique violation on second generation with omitted idempotency key. HANDOFF supplies distinct supported keys. No AI schema/service or public policy changed."
+    }
+  ],
+  "NOT_RUN": [
+    "Full FE S09-S11/browser acceptance",
+    "S10 consistency architecture repair",
+    "Entire Gemini P8 CI job",
+    "Populated/shared database migration",
+    "Real LLM/embedding quality",
+    "P3 100k / production deployment"
+  ],
+  "real_provider_calls": 0,
+  "embedding_provider": "none; semantic retrieval disabled in inspected containers; optional status DTO absent and recorded",
+  "typecheck_exit": 0,
+  "build_exit": 0,
+  "diff_check_exit": 0,
+  "ownership_audit": "OWNERSHIP_BOUNDARY_AUDIT.json",
+  "resource_audit": "RESOURCE_AUDIT.json",
+  "evidence_notes": [
+    "RED has 5/7 native PASS,2 FAIL against unchanged integration production at test-only f8be0b30. Native GREEN 7/7 at final SHA.",
+    "Initial protected test failure was missing AI Alembic tables; rerun with full existing migration lineage passes without test edits.",
+    "Intermediate runtime adapter/JSON/state schemas and missing optional retrieval metadata errors are preserved. No historical reports edited.",
+    "No source branch merge/cherry-pick, no integration/main direct writes, no CI/accept-draft-contract.test.ts/S10 changes.",
+    "All baseline activation and initial author proposal acceptance use supported API actions; no SQL Story Brain baseline fabricated."
+  ]
+}

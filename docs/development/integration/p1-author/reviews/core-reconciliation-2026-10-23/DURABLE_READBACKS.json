@@ -1,0 +1,4436 @@
+{
+  "initial_integration_sha": "4c8bd3e36f7a8b01f7f98aee1e77b07779687fc5",
+  "RED_test_sha": "f8be0b3050f1020aba04671a78fb37783af14c8d",
+  "final_source_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09",
+  "source_clean": true,
+  "RED_native_probes": [
+    {
+      "stage": "fixture_setup",
+      "identity": {
+        "postgresDb": "ephurin_test_d1d2_fcebc719fd4e",
+        "postgresServerAddr": "172.17.0.2",
+        "postgresServerPort": 5432,
+        "mongoDb": "ephurin_test_d1d2_fcebc719fd4e",
+        "isIsolated": true,
+        "optInVerified": true
+      },
+      "beforeSetup": {
+        "users": [],
+        "novels": [],
+        "chapters": [],
+        "revisions": [],
+        "drafts": []
+      },
+      "afterSetup": {
+        "users": [
+          {
+            "user_id": "bef4c91c-54d4-4ba5-88ef-12bc534157f2"
+          }
+        ],
+        "novels": [
+          {
+            "novel_id": "7718607a-8f82-48e6-908b-82a9becffe42"
+          }
+        ],
+        "chapters": [
+          {
+            "chapter_id": "00aa4240-cac3-459d-a41f-bafe4c1e6515",
+            "latest_revision_id": "e9a61fed-3a89-49ba-81e0-ac044fee2441"
+          },
+          {
+            "chapter_id": "7d84c40e-3652-4a56-9020-685f7ea12967",
+            "latest_revision_id": "0601ed2b-7591-4f21-96fa-07d9cabbcbc8"
+          },
+          {
+            "chapter_id": "fbe548e1-9d14-460e-8b07-8c7733152e29",
+            "latest_revision_id": "e541ea9f-476a-4f3f-badc-e46d969f31a7"
+          }
+        ],
+        "revisions": [
+          {
+            "revision_id": "0601ed2b-7591-4f21-96fa-07d9cabbcbc8",
+            "parent_revision_id": "c1723b72-da71-4e31-863a-e83446e03d10",
+            "content_hash": "d8d1fe76d9f54ef511a1267e5b8b183858cf27bac3ce4c1c311eb37c60a6ea27"
+          },
+          {
+            "revision_id": "3b412438-e984-45f5-a546-87871fb1c2ae",
+            "parent_revision_id": null,
+            "content_hash": "d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"
+          },
+          {
+            "revision_id": "bcbbe337-163b-4fa0-8aa6-f6453298b0fe",
+            "parent_revision_id": null,
+            "content_hash": "d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"
+          },
+          {
+            "revision_id": "c1723b72-da71-4e31-863a-e83446e03d10",
+            "parent_revision_id": null,
+            "content_hash": "d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"
+          },
+          {
+            "revision_id": "e541ea9f-476a-4f3f-badc-e46d969f31a7",
+            "parent_revision_id": "3b412438-e984-45f5-a546-87871fb1c2ae",
+            "content_hash": "f182eaac0fa749273a67cf1913daa07fd2d636825873832b967b197ea6113bc2"
+          },
+          {
+            "revision_id": "e9a61fed-3a89-49ba-81e0-ac044fee2441",
+            "parent_revision_id": "bcbbe337-163b-4fa0-8aa6-f6453298b0fe",
+            "content_hash": "9f826323bd9d02d623ffbc551c8adb5289b986ea20f521620ea2cf02530bbca6"
+          }
+        ],
+        "drafts": []
+      }
+    },
+    {
+      "probe": 1,
+      "latestRevision": "e541ea9f-476a-4f3f-badc-e46d969f31a7",
+      "parentRevision": "3b412438-e984-45f5-a546-87871fb1c2ae",
+      "draft": {
+        "_id": "6adaea2553efdef29ce005f8",
+        "chapterId": "fbe548e1-9d14-460e-8b07-8c7733152e29",
+        "authorId": "bef4c91c-54d4-4ba5-88ef-12bc534157f2",
+        "autosave": false,
+        "content": "Accepted canonical body 1",
+        "createdAt": "2026-10-23T05:01:25.115Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "7718607a-8f82-48e6-908b-82a9becffe42",
+        "title": "Reconciliation fixture 1",
+        "updatedAt": "2026-10-23T05:01:25.147Z",
+        "version": 2,
+        "wordCount": 4,
+        "lastAcceptedAt": "2026-10-23T05:01:14.805Z",
+        "lastAcceptedRevisionId": "e541ea9f-476a-4f3f-badc-e46d969f31a7"
+      }
+    },
+    {
+      "probe": 2,
+      "latestRevision": "0601ed2b-7591-4f21-96fa-07d9cabbcbc8",
+      "before": {
+        "_id": "6adaea2553efdef29ce005ff",
+        "chapterId": "7d84c40e-3652-4a56-9020-685f7ea12967",
+        "authorId": "bef4c91c-54d4-4ba5-88ef-12bc534157f2",
+        "autosave": false,
+        "content": "Newer manual edit must survive",
+        "createdAt": "2026-10-23T05:01:25.184Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "7718607a-8f82-48e6-908b-82a9becffe42",
+        "title": "Reconciliation fixture 2",
+        "updatedAt": "2026-10-23T05:01:25.184Z",
+        "version": 1,
+        "wordCount": 4
+      },
+      "after": {
+        "_id": "6adaea2553efdef29ce005ff",
+        "chapterId": "7d84c40e-3652-4a56-9020-685f7ea12967",
+        "authorId": "bef4c91c-54d4-4ba5-88ef-12bc534157f2",
+        "autosave": false,
+        "content": "Newer manual edit must survive",
+        "createdAt": "2026-10-23T05:01:25.184Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "7718607a-8f82-48e6-908b-82a9becffe42",
+        "title": "Reconciliation fixture 2",
+        "updatedAt": "2026-10-23T05:01:25.184Z",
+        "version": 1,
+        "wordCount": 4
+      },
+      "supersededStatus": "skipped_newer_draft"
+    },
+    {
+      "probe": 3,
+      "before": null,
+      "latestRevision": "e9a61fed-3a89-49ba-81e0-ac044fee2441",
+      "draft": {
+        "_id": "6adaea25974e08c7bee7462c",
+        "novelId": "7718607a-8f82-48e6-908b-82a9becffe42",
+        "chapterId": "00aa4240-cac3-459d-a41f-bafe4c1e6515",
+        "authorId": "bef4c91c-54d4-4ba5-88ef-12bc534157f2",
+        "title": "Reconciliation fixture 3",
+        "content": "Accepted canonical body 3",
+        "wordCount": 4,
+        "version": 1,
+        "autosave": false,
+        "lastAcceptedRevisionId": "e9a61fed-3a89-49ba-81e0-ac044fee2441",
+        "lastAcceptedAt": "2026-10-23T05:01:14.805Z",
+        "createdAt": "2026-10-23T05:01:25.212Z",
+        "updatedAt": "2026-10-23T05:01:25.212Z",
+        "deletedAt": null
+      }
+    },
+    {
+      "probe": 4,
+      "before": {
+        "_id": "6adaea2553efdef29ce005f8",
+        "chapterId": "fbe548e1-9d14-460e-8b07-8c7733152e29",
+        "authorId": "bef4c91c-54d4-4ba5-88ef-12bc534157f2",
+        "autosave": false,
+        "content": "Accepted canonical body 1",
+        "createdAt": "2026-10-23T05:01:25.115Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "7718607a-8f82-48e6-908b-82a9becffe42",
+        "title": "Reconciliation fixture 1",
+        "updatedAt": "2026-10-23T05:01:25.147Z",
+        "version": 2,
+        "wordCount": 4,
+        "lastAcceptedAt": "2026-10-23T05:01:14.805Z",
+        "lastAcceptedRevisionId": "e541ea9f-476a-4f3f-badc-e46d969f31a7"
+      },
+      "after": {
+        "_id": "6adaea2553efdef29ce005f8",
+        "chapterId": "fbe548e1-9d14-460e-8b07-8c7733152e29",
+        "authorId": "bef4c91c-54d4-4ba5-88ef-12bc534157f2",
+        "autosave": false,
+        "content": "Accepted canonical body 1",
+        "createdAt": "2026-10-23T05:01:25.115Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "7718607a-8f82-48e6-908b-82a9becffe42",
+        "title": "Reconciliation fixture 1",
+        "updatedAt": "2026-10-23T05:01:25.147Z",
+        "version": 2,
+        "wordCount": 4,
+        "lastAcceptedAt": "2026-10-23T05:01:14.805Z",
+        "lastAcceptedRevisionId": "e541ea9f-476a-4f3f-badc-e46d969f31a7"
+      }
+    },
+    {
+      "probe": 6,
+      "revision": "0601ed2b-7591-4f21-96fa-07d9cabbcbc8",
+      "revisionCreatedAt": "2026-10-23T05:01:14.805Z",
+      "before": {
+        "_id": "6adaea2553efdef29ce005ff",
+        "chapterId": "7d84c40e-3652-4a56-9020-685f7ea12967",
+        "authorId": "bef4c91c-54d4-4ba5-88ef-12bc534157f2",
+        "autosave": false,
+        "content": "Newer manual edit must survive",
+        "createdAt": "2026-10-23T05:01:25.184Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "7718607a-8f82-48e6-908b-82a9becffe42",
+        "title": "Reconciliation fixture 2",
+        "updatedAt": "2026-10-23T05:01:25.184Z",
+        "version": 1,
+        "wordCount": 4
+      },
+      "after": {
+        "_id": "6adaea2553efdef29ce005ff",
+        "chapterId": "7d84c40e-3652-4a56-9020-685f7ea12967",
+        "authorId": "bef4c91c-54d4-4ba5-88ef-12bc534157f2",
+        "autosave": false,
+        "content": "Newer manual edit must survive",
+        "createdAt": "2026-10-23T05:01:25.184Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "7718607a-8f82-48e6-908b-82a9becffe42",
+        "title": "Reconciliation fixture 2",
+        "updatedAt": "2026-10-23T05:01:25.184Z",
+        "version": 1,
+        "wordCount": 4
+      }
+    },
+    {
+      "probe": 7,
+      "incoming": {
+        "chapterId": "7d84c40e-3652-4a56-9020-685f7ea12967",
+        "novelId": "7718607a-8f82-48e6-908b-82a9becffe42",
+        "authorId": "bef4c91c-54d4-4ba5-88ef-12bc534157f2",
+        "revisionId": "0601ed2b-7591-4f21-96fa-07d9cabbcbc8",
+        "title": "Reconciliation fixture 2",
+        "content": "Accepted canonical body 2",
+        "wordCount": 4,
+        "acceptTimestamp": "2026-10-23T05:01:14.805Z"
+      },
+      "before": {
+        "_id": "6adaea2553efdef29ce005ff",
+        "chapterId": "7d84c40e-3652-4a56-9020-685f7ea12967",
+        "authorId": "bef4c91c-54d4-4ba5-88ef-12bc534157f2",
+        "autosave": false,
+        "content": "Accepted canonical body 2",
+        "createdAt": "2026-10-23T05:01:25.184Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "7718607a-8f82-48e6-908b-82a9becffe42",
+        "title": "Reconciliation fixture 2",
+        "updatedAt": "2026-10-23T05:01:15.805Z",
+        "version": 1,
+        "wordCount": 4,
+        "lastAcceptedAt": "2026-10-23T05:01:04.805Z",
+        "lastAcceptedRevisionId": "c1723b72-da71-4e31-863a-e83446e03d10"
+      },
+      "after": {
+        "_id": "6adaea2553efdef29ce005ff",
+        "chapterId": "7d84c40e-3652-4a56-9020-685f7ea12967",
+        "authorId": "bef4c91c-54d4-4ba5-88ef-12bc534157f2",
+        "autosave": false,
+        "content": "Accepted canonical body 2",
+        "createdAt": "2026-10-23T05:01:25.184Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "7718607a-8f82-48e6-908b-82a9becffe42",
+        "title": "Reconciliation fixture 2",
+        "updatedAt": "2026-10-23T05:01:25.324Z",
+        "version": 1,
+        "wordCount": 4,
+        "lastAcceptedAt": "2026-10-23T05:01:14.805Z",
+        "lastAcceptedRevisionId": "0601ed2b-7591-4f21-96fa-07d9cabbcbc8"
+      },
+      "status": "synced"
+    },
+    {
+      "stage": "fixture_cleanup",
+      "beforeCleanup": {
+        "users": [
+          {
+            "user_id": "bef4c91c-54d4-4ba5-88ef-12bc534157f2"
+          }
+        ],
+        "novels": [
+          {
+            "novel_id": "7718607a-8f82-48e6-908b-82a9becffe42"
+          }
+        ],
+        "chapters": [
+          {
+            "chapter_id": "00aa4240-cac3-459d-a41f-bafe4c1e6515",
+            "latest_revision_id": "e9a61fed-3a89-49ba-81e0-ac044fee2441"
+          },
+          {
+            "chapter_id": "7d84c40e-3652-4a56-9020-685f7ea12967",
+            "latest_revision_id": "0601ed2b-7591-4f21-96fa-07d9cabbcbc8"
+          },
+          {
+            "chapter_id": "fbe548e1-9d14-460e-8b07-8c7733152e29",
+            "latest_revision_id": "e541ea9f-476a-4f3f-badc-e46d969f31a7"
+          }
+        ],
+        "revisions": [
+          {
+            "revision_id": "0601ed2b-7591-4f21-96fa-07d9cabbcbc8",
+            "parent_revision_id": "c1723b72-da71-4e31-863a-e83446e03d10",
+            "content_hash": "d8d1fe76d9f54ef511a1267e5b8b183858cf27bac3ce4c1c311eb37c60a6ea27"
+          },
+          {
+            "revision_id": "3b412438-e984-45f5-a546-87871fb1c2ae",
+            "parent_revision_id": null,
+            "content_hash": "d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"
+          },
+          {
+            "revision_id": "bcbbe337-163b-4fa0-8aa6-f6453298b0fe",
+            "parent_revision_id": null,
+            "content_hash": "d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"
+          },
+          {
+            "revision_id": "c1723b72-da71-4e31-863a-e83446e03d10",
+            "parent_revision_id": null,
+            "content_hash": "d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"
+          },
+          {
+            "revision_id": "e541ea9f-476a-4f3f-badc-e46d969f31a7",
+            "parent_revision_id": "3b412438-e984-45f5-a546-87871fb1c2ae",
+            "content_hash": "f182eaac0fa749273a67cf1913daa07fd2d636825873832b967b197ea6113bc2"
+          },
+          {
+            "revision_id": "e9a61fed-3a89-49ba-81e0-ac044fee2441",
+            "parent_revision_id": "bcbbe337-163b-4fa0-8aa6-f6453298b0fe",
+            "content_hash": "9f826323bd9d02d623ffbc551c8adb5289b986ea20f521620ea2cf02530bbca6"
+          }
+        ],
+        "drafts": [
+          {
+            "_id": "6adaea25974e08c7bee7462c",
+            "novelId": "7718607a-8f82-48e6-908b-82a9becffe42",
+            "chapterId": "00aa4240-cac3-459d-a41f-bafe4c1e6515",
+            "authorId": "bef4c91c-54d4-4ba5-88ef-12bc534157f2",
+            "title": "Reconciliation fixture 3",
+            "content": "Accepted canonical body 3",
+            "wordCount": 4,
+            "version": 1,
+            "autosave": false,
+            "lastAcceptedRevisionId": "e9a61fed-3a89-49ba-81e0-ac044fee2441",
+            "lastAcceptedAt": "2026-10-23T05:01:14.805Z",
+            "createdAt": "2026-10-23T05:01:25.212Z",
+            "updatedAt": "2026-10-23T05:01:25.212Z",
+            "deletedAt": null
+          },
+          {
+            "_id": "6adaea2553efdef29ce005ff",
+            "chapterId": "7d84c40e-3652-4a56-9020-685f7ea12967",
+            "authorId": "bef4c91c-54d4-4ba5-88ef-12bc534157f2",
+            "autosave": false,
+            "content": "Accepted canonical body 2",
+            "createdAt": "2026-10-23T05:01:25.184Z",
+            "deletedAt": null,
+            "deletionReason": null,
+            "novelId": "7718607a-8f82-48e6-908b-82a9becffe42",
+            "title": "Reconciliation fixture 2",
+            "updatedAt": "2026-10-23T05:01:25.324Z",
+            "version": 1,
+            "wordCount": 4,
+            "lastAcceptedAt": "2026-10-23T05:01:14.805Z",
+            "lastAcceptedRevisionId": "0601ed2b-7591-4f21-96fa-07d9cabbcbc8"
+          },
+          {
+            "_id": "6adaea2553efdef29ce005f8",
+            "chapterId": "fbe548e1-9d14-460e-8b07-8c7733152e29",
+            "authorId": "bef4c91c-54d4-4ba5-88ef-12bc534157f2",
+            "autosave": false,
+            "content": "Accepted canonical body 1",
+            "createdAt": "2026-10-23T05:01:25.115Z",
+            "deletedAt": null,
+            "deletionReason": null,
+            "novelId": "7718607a-8f82-48e6-908b-82a9becffe42",
+            "title": "Reconciliation fixture 1",
+            "updatedAt": "2026-10-23T05:01:25.259Z",
+            "version": 2,
+            "wordCount": 4,
+            "lastAcceptedAt": "2026-10-23T05:01:14.805Z",
+            "lastAcceptedRevisionId": "e541ea9f-476a-4f3f-badc-e46d969f31a7"
+          }
+        ]
+      },
+      "afterCleanup": {
+        "users": [],
+        "novels": [],
+        "chapters": [],
+        "revisions": [],
+        "drafts": []
+      },
+      "sentinelsPreserved": true
+    }
+  ],
+  "GREEN_native_probes": [
+    {
+      "stage": "fixture_setup",
+      "identity": {
+        "postgresDb": "ephurin_test_d1d2_9fac973ed5cb",
+        "postgresServerAddr": "172.17.0.2",
+        "postgresServerPort": 5432,
+        "mongoDb": "ephurin_test_d1d2_9fac973ed5cb",
+        "isIsolated": true,
+        "optInVerified": true
+      },
+      "beforeSetup": {
+        "users": [],
+        "novels": [],
+        "chapters": [],
+        "revisions": [],
+        "drafts": []
+      },
+      "afterSetup": {
+        "users": [
+          {
+            "user_id": "2bb54224-c37c-405f-9356-f16f5607ff40"
+          }
+        ],
+        "novels": [
+          {
+            "novel_id": "9c17ece8-2626-4a5c-8272-f0bd844ed60d"
+          }
+        ],
+        "chapters": [
+          {
+            "chapter_id": "164054da-fa55-4d7c-9841-c07dcb3b5bb9",
+            "latest_revision_id": "e90613f6-a15c-4318-9d4c-aeda199fa671"
+          },
+          {
+            "chapter_id": "47624337-a71a-4853-b9b7-394e7a16da34",
+            "latest_revision_id": "1d9fb7b8-cc0c-4582-8690-8c543dd3db9b"
+          },
+          {
+            "chapter_id": "efeeedf6-adad-41a2-8ccf-c790f234e48c",
+            "latest_revision_id": "f2fbbb86-a7c5-4852-8da9-02a7d5cad707"
+          }
+        ],
+        "revisions": [
+          {
+            "revision_id": "1d9fb7b8-cc0c-4582-8690-8c543dd3db9b",
+            "parent_revision_id": "99ba922f-19e9-462a-b5d2-b9fe27a51ddf",
+            "content_hash": "f182eaac0fa749273a67cf1913daa07fd2d636825873832b967b197ea6113bc2"
+          },
+          {
+            "revision_id": "2ac33421-fb85-484d-b95f-dcd234972631",
+            "parent_revision_id": null,
+            "content_hash": "d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"
+          },
+          {
+            "revision_id": "99ba922f-19e9-462a-b5d2-b9fe27a51ddf",
+            "parent_revision_id": null,
+            "content_hash": "d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"
+          },
+          {
+            "revision_id": "e90613f6-a15c-4318-9d4c-aeda199fa671",
+            "parent_revision_id": "fb1b11e1-7cdd-43ec-b0f8-a2158ccb3ea2",
+            "content_hash": "d8d1fe76d9f54ef511a1267e5b8b183858cf27bac3ce4c1c311eb37c60a6ea27"
+          },
+          {
+            "revision_id": "f2fbbb86-a7c5-4852-8da9-02a7d5cad707",
+            "parent_revision_id": "2ac33421-fb85-484d-b95f-dcd234972631",
+            "content_hash": "9f826323bd9d02d623ffbc551c8adb5289b986ea20f521620ea2cf02530bbca6"
+          },
+          {
+            "revision_id": "fb1b11e1-7cdd-43ec-b0f8-a2158ccb3ea2",
+            "parent_revision_id": null,
+            "content_hash": "d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"
+          }
+        ],
+        "drafts": []
+      }
+    },
+    {
+      "probe": 1,
+      "latestRevision": "1d9fb7b8-cc0c-4582-8690-8c543dd3db9b",
+      "parentRevision": "99ba922f-19e9-462a-b5d2-b9fe27a51ddf",
+      "draft": {
+        "_id": "6adaf07b723e7bc4a94d12f4",
+        "chapterId": "47624337-a71a-4853-b9b7-394e7a16da34",
+        "authorId": "2bb54224-c37c-405f-9356-f16f5607ff40",
+        "autosave": false,
+        "content": "Accepted canonical body 1",
+        "createdAt": "2026-10-23T05:28:27.015Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "9c17ece8-2626-4a5c-8272-f0bd844ed60d",
+        "title": "Reconciliation fixture 1",
+        "updatedAt": "2026-10-23T05:28:27.030Z",
+        "version": 2,
+        "wordCount": 4,
+        "lastAcceptedAt": "2026-10-23T05:28:16.785Z",
+        "lastAcceptedRevisionId": "1d9fb7b8-cc0c-4582-8690-8c543dd3db9b"
+      }
+    },
+    {
+      "probe": 2,
+      "latestRevision": "e90613f6-a15c-4318-9d4c-aeda199fa671",
+      "before": {
+        "_id": "6adaf07b723e7bc4a94d12fb",
+        "chapterId": "164054da-fa55-4d7c-9841-c07dcb3b5bb9",
+        "authorId": "2bb54224-c37c-405f-9356-f16f5607ff40",
+        "autosave": false,
+        "content": "Newer manual edit must survive",
+        "createdAt": "2026-10-23T05:28:27.042Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "9c17ece8-2626-4a5c-8272-f0bd844ed60d",
+        "title": "Reconciliation fixture 2",
+        "updatedAt": "2026-10-23T05:28:27.042Z",
+        "version": 1,
+        "wordCount": 4
+      },
+      "after": {
+        "_id": "6adaf07b723e7bc4a94d12fb",
+        "chapterId": "164054da-fa55-4d7c-9841-c07dcb3b5bb9",
+        "authorId": "2bb54224-c37c-405f-9356-f16f5607ff40",
+        "autosave": false,
+        "content": "Newer manual edit must survive",
+        "createdAt": "2026-10-23T05:28:27.042Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "9c17ece8-2626-4a5c-8272-f0bd844ed60d",
+        "title": "Reconciliation fixture 2",
+        "updatedAt": "2026-10-23T05:28:27.042Z",
+        "version": 1,
+        "wordCount": 4
+      },
+      "supersededStatus": "skipped_newer_draft"
+    },
+    {
+      "probe": 3,
+      "before": null,
+      "latestRevision": "f2fbbb86-a7c5-4852-8da9-02a7d5cad707",
+      "draft": {
+        "_id": "6adaf07be615b57b9d929fc5",
+        "novelId": "9c17ece8-2626-4a5c-8272-f0bd844ed60d",
+        "chapterId": "efeeedf6-adad-41a2-8ccf-c790f234e48c",
+        "authorId": "2bb54224-c37c-405f-9356-f16f5607ff40",
+        "title": "Reconciliation fixture 3",
+        "content": "Accepted canonical body 3",
+        "wordCount": 4,
+        "version": 1,
+        "autosave": false,
+        "lastAcceptedRevisionId": "f2fbbb86-a7c5-4852-8da9-02a7d5cad707",
+        "lastAcceptedAt": "2026-10-23T05:28:16.785Z",
+        "createdAt": "2026-10-23T05:28:27.062Z",
+        "updatedAt": "2026-10-23T05:28:27.062Z",
+        "deletedAt": null
+      }
+    },
+    {
+      "probe": 4,
+      "before": {
+        "_id": "6adaf07b723e7bc4a94d12f4",
+        "chapterId": "47624337-a71a-4853-b9b7-394e7a16da34",
+        "authorId": "2bb54224-c37c-405f-9356-f16f5607ff40",
+        "autosave": false,
+        "content": "Accepted canonical body 1",
+        "createdAt": "2026-10-23T05:28:27.015Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "9c17ece8-2626-4a5c-8272-f0bd844ed60d",
+        "title": "Reconciliation fixture 1",
+        "updatedAt": "2026-10-23T05:28:27.030Z",
+        "version": 2,
+        "wordCount": 4,
+        "lastAcceptedAt": "2026-10-23T05:28:16.785Z",
+        "lastAcceptedRevisionId": "1d9fb7b8-cc0c-4582-8690-8c543dd3db9b"
+      },
+      "after": {
+        "_id": "6adaf07b723e7bc4a94d12f4",
+        "chapterId": "47624337-a71a-4853-b9b7-394e7a16da34",
+        "authorId": "2bb54224-c37c-405f-9356-f16f5607ff40",
+        "autosave": false,
+        "content": "Accepted canonical body 1",
+        "createdAt": "2026-10-23T05:28:27.015Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "9c17ece8-2626-4a5c-8272-f0bd844ed60d",
+        "title": "Reconciliation fixture 1",
+        "updatedAt": "2026-10-23T05:28:27.030Z",
+        "version": 2,
+        "wordCount": 4,
+        "lastAcceptedAt": "2026-10-23T05:28:16.785Z",
+        "lastAcceptedRevisionId": "1d9fb7b8-cc0c-4582-8690-8c543dd3db9b"
+      }
+    },
+    {
+      "probe": 5,
+      "before": {
+        "_id": "6adaf07b723e7bc4a94d12f4",
+        "chapterId": "47624337-a71a-4853-b9b7-394e7a16da34",
+        "authorId": "2bb54224-c37c-405f-9356-f16f5607ff40",
+        "autosave": false,
+        "content": "Accepted canonical body 1",
+        "createdAt": "2026-10-23T05:28:27.015Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "9c17ece8-2626-4a5c-8272-f0bd844ed60d",
+        "title": "Reconciliation fixture 1",
+        "updatedAt": "2026-10-23T05:28:15.785Z",
+        "version": 2,
+        "wordCount": 4,
+        "lastAcceptedAt": "2026-10-23T05:28:16.785Z",
+        "lastAcceptedRevisionId": "99ba922f-19e9-462a-b5d2-b9fe27a51ddf"
+      },
+      "after": {
+        "_id": "6adaf07b723e7bc4a94d12f4",
+        "chapterId": "47624337-a71a-4853-b9b7-394e7a16da34",
+        "authorId": "2bb54224-c37c-405f-9356-f16f5607ff40",
+        "autosave": false,
+        "content": "Accepted canonical body 1",
+        "createdAt": "2026-10-23T05:28:27.015Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "9c17ece8-2626-4a5c-8272-f0bd844ed60d",
+        "title": "Reconciliation fixture 1",
+        "updatedAt": "2026-10-23T05:28:27.084Z",
+        "version": 3,
+        "wordCount": 4,
+        "lastAcceptedAt": "2026-10-23T05:28:16.785Z",
+        "lastAcceptedRevisionId": "1d9fb7b8-cc0c-4582-8690-8c543dd3db9b"
+      }
+    },
+    {
+      "probe": 6,
+      "revision": "e90613f6-a15c-4318-9d4c-aeda199fa671",
+      "revisionCreatedAt": "2026-10-23T05:28:16.785Z",
+      "before": {
+        "_id": "6adaf07b723e7bc4a94d12fb",
+        "chapterId": "164054da-fa55-4d7c-9841-c07dcb3b5bb9",
+        "authorId": "2bb54224-c37c-405f-9356-f16f5607ff40",
+        "autosave": false,
+        "content": "Newer manual edit must survive",
+        "createdAt": "2026-10-23T05:28:27.042Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "9c17ece8-2626-4a5c-8272-f0bd844ed60d",
+        "title": "Reconciliation fixture 2",
+        "updatedAt": "2026-10-23T05:28:27.042Z",
+        "version": 1,
+        "wordCount": 4
+      },
+      "after": {
+        "_id": "6adaf07b723e7bc4a94d12fb",
+        "chapterId": "164054da-fa55-4d7c-9841-c07dcb3b5bb9",
+        "authorId": "2bb54224-c37c-405f-9356-f16f5607ff40",
+        "autosave": false,
+        "content": "Newer manual edit must survive",
+        "createdAt": "2026-10-23T05:28:27.042Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "9c17ece8-2626-4a5c-8272-f0bd844ed60d",
+        "title": "Reconciliation fixture 2",
+        "updatedAt": "2026-10-23T05:28:27.042Z",
+        "version": 1,
+        "wordCount": 4
+      }
+    },
+    {
+      "probe": 7,
+      "incoming": {
+        "chapterId": "164054da-fa55-4d7c-9841-c07dcb3b5bb9",
+        "novelId": "9c17ece8-2626-4a5c-8272-f0bd844ed60d",
+        "authorId": "2bb54224-c37c-405f-9356-f16f5607ff40",
+        "revisionId": "e90613f6-a15c-4318-9d4c-aeda199fa671",
+        "title": "Reconciliation fixture 2",
+        "content": "Accepted canonical body 2",
+        "wordCount": 4,
+        "acceptTimestamp": "2026-10-23T05:28:16.785Z"
+      },
+      "before": {
+        "_id": "6adaf07b723e7bc4a94d12fb",
+        "chapterId": "164054da-fa55-4d7c-9841-c07dcb3b5bb9",
+        "authorId": "2bb54224-c37c-405f-9356-f16f5607ff40",
+        "autosave": false,
+        "content": "Accepted canonical body 2",
+        "createdAt": "2026-10-23T05:28:27.042Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "9c17ece8-2626-4a5c-8272-f0bd844ed60d",
+        "title": "Reconciliation fixture 2",
+        "updatedAt": "2026-10-23T05:28:17.785Z",
+        "version": 1,
+        "wordCount": 4,
+        "lastAcceptedAt": "2026-10-23T05:28:06.785Z",
+        "lastAcceptedRevisionId": "fb1b11e1-7cdd-43ec-b0f8-a2158ccb3ea2"
+      },
+      "after": {
+        "_id": "6adaf07b723e7bc4a94d12fb",
+        "chapterId": "164054da-fa55-4d7c-9841-c07dcb3b5bb9",
+        "authorId": "2bb54224-c37c-405f-9356-f16f5607ff40",
+        "autosave": false,
+        "content": "Accepted canonical body 2",
+        "createdAt": "2026-10-23T05:28:27.042Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "9c17ece8-2626-4a5c-8272-f0bd844ed60d",
+        "title": "Reconciliation fixture 2",
+        "updatedAt": "2026-10-23T05:28:17.785Z",
+        "version": 1,
+        "wordCount": 4,
+        "lastAcceptedAt": "2026-10-23T05:28:06.785Z",
+        "lastAcceptedRevisionId": "fb1b11e1-7cdd-43ec-b0f8-a2158ccb3ea2"
+      },
+      "status": "skipped_newer_draft"
+    },
+    {
+      "stage": "fixture_cleanup",
+      "beforeCleanup": {
+        "users": [
+          {
+            "user_id": "2bb54224-c37c-405f-9356-f16f5607ff40"
+          }
+        ],
+        "novels": [
+          {
+            "novel_id": "9c17ece8-2626-4a5c-8272-f0bd844ed60d"
+          }
+        ],
+        "chapters": [
+          {
+            "chapter_id": "164054da-fa55-4d7c-9841-c07dcb3b5bb9",
+            "latest_revision_id": "e90613f6-a15c-4318-9d4c-aeda199fa671"
+          },
+          {
+            "chapter_id": "47624337-a71a-4853-b9b7-394e7a16da34",
+            "latest_revision_id": "1d9fb7b8-cc0c-4582-8690-8c543dd3db9b"
+          },
+          {
+            "chapter_id": "efeeedf6-adad-41a2-8ccf-c790f234e48c",
+            "latest_revision_id": "f2fbbb86-a7c5-4852-8da9-02a7d5cad707"
+          }
+        ],
+        "revisions": [
+          {
+            "revision_id": "1d9fb7b8-cc0c-4582-8690-8c543dd3db9b",
+            "parent_revision_id": "99ba922f-19e9-462a-b5d2-b9fe27a51ddf",
+            "content_hash": "f182eaac0fa749273a67cf1913daa07fd2d636825873832b967b197ea6113bc2"
+          },
+          {
+            "revision_id": "2ac33421-fb85-484d-b95f-dcd234972631",
+            "parent_revision_id": null,
+            "content_hash": "d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"
+          },
+          {
+            "revision_id": "99ba922f-19e9-462a-b5d2-b9fe27a51ddf",
+            "parent_revision_id": null,
+            "content_hash": "d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"
+          },
+          {
+            "revision_id": "e90613f6-a15c-4318-9d4c-aeda199fa671",
+            "parent_revision_id": "fb1b11e1-7cdd-43ec-b0f8-a2158ccb3ea2",
+            "content_hash": "d8d1fe76d9f54ef511a1267e5b8b183858cf27bac3ce4c1c311eb37c60a6ea27"
+          },
+          {
+            "revision_id": "f2fbbb86-a7c5-4852-8da9-02a7d5cad707",
+            "parent_revision_id": "2ac33421-fb85-484d-b95f-dcd234972631",
+            "content_hash": "9f826323bd9d02d623ffbc551c8adb5289b986ea20f521620ea2cf02530bbca6"
+          },
+          {
+            "revision_id": "fb1b11e1-7cdd-43ec-b0f8-a2158ccb3ea2",
+            "parent_revision_id": null,
+            "content_hash": "d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"
+          }
+        ],
+        "drafts": [
+          {
+            "_id": "6adaf07b723e7bc4a94d12fb",
+            "chapterId": "164054da-fa55-4d7c-9841-c07dcb3b5bb9",
+            "authorId": "2bb54224-c37c-405f-9356-f16f5607ff40",
+            "autosave": false,
+            "content": "Accepted canonical body 2",
+            "createdAt": "2026-10-23T05:28:27.042Z",
+            "deletedAt": null,
+            "deletionReason": null,
+            "novelId": "9c17ece8-2626-4a5c-8272-f0bd844ed60d",
+            "title": "Reconciliation fixture 2",
+            "updatedAt": "2026-10-23T05:28:17.785Z",
+            "version": 1,
+            "wordCount": 4,
+            "lastAcceptedAt": "2026-10-23T05:28:06.785Z",
+            "lastAcceptedRevisionId": "fb1b11e1-7cdd-43ec-b0f8-a2158ccb3ea2"
+          },
+          {
+            "_id": "6adaf07b723e7bc4a94d12f4",
+            "chapterId": "47624337-a71a-4853-b9b7-394e7a16da34",
+            "authorId": "2bb54224-c37c-405f-9356-f16f5607ff40",
+            "autosave": false,
+            "content": "Accepted canonical body 1",
+            "createdAt": "2026-10-23T05:28:27.015Z",
+            "deletedAt": null,
+            "deletionReason": null,
+            "novelId": "9c17ece8-2626-4a5c-8272-f0bd844ed60d",
+            "title": "Reconciliation fixture 1",
+            "updatedAt": "2026-10-23T05:28:27.084Z",
+            "version": 3,
+            "wordCount": 4,
+            "lastAcceptedAt": "2026-10-23T05:28:16.785Z",
+            "lastAcceptedRevisionId": "1d9fb7b8-cc0c-4582-8690-8c543dd3db9b"
+          },
+          {
+            "_id": "6adaf07be615b57b9d929fc5",
+            "novelId": "9c17ece8-2626-4a5c-8272-f0bd844ed60d",
+            "chapterId": "efeeedf6-adad-41a2-8ccf-c790f234e48c",
+            "authorId": "2bb54224-c37c-405f-9356-f16f5607ff40",
+            "title": "Reconciliation fixture 3",
+            "content": "Accepted canonical body 3",
+            "wordCount": 4,
+            "version": 1,
+            "autosave": false,
+            "lastAcceptedRevisionId": "f2fbbb86-a7c5-4852-8da9-02a7d5cad707",
+            "lastAcceptedAt": "2026-10-23T05:28:16.785Z",
+            "createdAt": "2026-10-23T05:28:27.062Z",
+            "updatedAt": "2026-10-23T05:28:27.062Z",
+            "deletedAt": null
+          }
+        ]
+      },
+      "afterCleanup": {
+        "users": [],
+        "novels": [],
+        "chapters": [],
+        "revisions": [],
+        "drafts": []
+      },
+      "sentinelsPreserved": true
+    }
+  ],
+  "stale_metadata": {
+    "status": 409,
+    "response": {
+      "success": false,
+      "data": null,
+      "error": {
+        "code": "DRAFT_CONFLICT",
+        "message": "Stale retry changes draft or metadata; reload before retrying"
+      },
+      "meta": {}
+    },
+    "after": {
+      "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+      "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+      "title": "Contract chapter",
+      "chapterNumber": 1,
+      "content": null,
+      "wordCount": 11,
+      "isVip": false,
+      "priceCoins": 0,
+      "status": "DRAFT",
+      "publicationSchedule": null,
+      "updatedAt": "2026-10-23T05:28:44.905Z",
+      "draft": {
+        "title": "Contract chapter",
+        "content": "Mai Linh và Duy đứng tại Cồn Vân. B response unread",
+        "wordCount": 11,
+        "version": 3,
+        "autosave": true,
+        "updatedAt": "2026-10-23T05:28:44.902Z"
+      }
+    },
+    "PG": {
+      "chapters": [
+        {
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "chapter_number": 1,
+          "content": null,
+          "word_count": 11,
+          "is_vip": false,
+          "price_coins": 0,
+          "status": "DRAFT",
+          "published_at": null,
+          "created_at": "2026-10-23T05:28:39.66604+00:00",
+          "updated_at": "2026-10-23T05:28:44.905344+00:00",
+          "deleted_at": null,
+          "latest_revision_id": null,
+          "import_key": null,
+          "import_hash": null
+        }
+      ],
+      "chapter_revisions": [],
+      "revision_outbox_events": [],
+      "Mongo_drafts": [
+        {
+          "_id": "6adaf087b6bfd09bb8659790",
+          "version": 3,
+          "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": true,
+          "content": "Mai Linh và Duy đứng tại Cồn Vân. B response unread",
+          "createdAt": "2026-10-23T05:28:39.945Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "updatedAt": "2026-10-23T05:28:44.902Z",
+          "wordCount": 11
+        }
+      ]
+    },
+    "wallet_or_payment_calls": 0
+  },
+  "active_save": {
+    "response": {
+      "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+      "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+      "title": "Contract chapter",
+      "chapterNumber": 1,
+      "content": null,
+      "wordCount": 16,
+      "isVip": false,
+      "priceCoins": 0,
+      "status": "DRAFT",
+      "publicationSchedule": null,
+      "updatedAt": "2026-10-23T05:29:13.312Z",
+      "draft": {
+        "title": "Contract chapter",
+        "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+        "wordCount": 16,
+        "version": 10,
+        "autosave": true,
+        "updatedAt": "2026-10-23T05:29:13.311Z"
+      },
+      "analysisRevisionId": "1e7e7606-34e7-4a47-9762-622f37d040af",
+      "draftVersion": 10
+    },
+    "durable_draft": {
+      "title": "Contract chapter",
+      "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+      "wordCount": 16,
+      "version": 10,
+      "autosave": true,
+      "updatedAt": "2026-10-23T05:29:13.311Z"
+    }
+  },
+  "active_replay": {
+    "before": {
+      "title": "Contract chapter",
+      "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+      "wordCount": 16,
+      "version": 10,
+      "autosave": true,
+      "updatedAt": "2026-10-23T05:29:13.311Z"
+    },
+    "response": {
+      "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+      "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+      "title": "Contract chapter",
+      "chapterNumber": 1,
+      "content": null,
+      "wordCount": 16,
+      "isVip": false,
+      "priceCoins": 0,
+      "status": "DRAFT",
+      "publicationSchedule": null,
+      "updatedAt": "2026-10-23T05:29:13.323Z",
+      "draft": {
+        "title": "Contract chapter",
+        "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+        "wordCount": 16,
+        "version": 10,
+        "autosave": true,
+        "updatedAt": "2026-10-23T05:29:13.311Z"
+      },
+      "analysisRevisionId": "1e7e7606-34e7-4a47-9762-622f37d040af",
+      "draftVersion": 10
+    },
+    "after": {
+      "title": "Contract chapter",
+      "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+      "wordCount": 16,
+      "version": 10,
+      "autosave": true,
+      "updatedAt": "2026-10-23T05:29:13.311Z"
+    },
+    "PG_before": {
+      "chapters": [
+        {
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "chapter_number": 1,
+          "content": null,
+          "word_count": 16,
+          "is_vip": false,
+          "price_coins": 0,
+          "status": "DRAFT",
+          "published_at": null,
+          "created_at": "2026-10-23T05:28:39.66604+00:00",
+          "updated_at": "2026-10-23T05:29:13.323519+00:00",
+          "deleted_at": null,
+          "latest_revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "import_key": null,
+          "import_hash": null
+        },
+        {
+          "chapter_id": "778237eb-0407-47ad-b902-7dee8cf31cb1",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Pricing fixture",
+          "chapter_number": 2,
+          "content": "Published canonical pricing fixture",
+          "word_count": 4,
+          "is_vip": true,
+          "price_coins": 3,
+          "status": "PUBLISHED",
+          "published_at": null,
+          "created_at": "2026-10-23T05:29:07.667425+00:00",
+          "updated_at": "2026-10-23T05:29:08.206745+00:00",
+          "deleted_at": null,
+          "latest_revision_id": null,
+          "import_key": null,
+          "import_hash": "8fe94a81310e3b577e2b1259923b72fb8df12aa9d476ed2c62c15993824ffd5a"
+        },
+        {
+          "chapter_id": "c133f839-ab0f-42db-bd9d-7b9c114bdfc5",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Other chapter",
+          "chapter_number": 3,
+          "content": null,
+          "word_count": 3,
+          "is_vip": false,
+          "price_coins": 0,
+          "status": "DRAFT",
+          "published_at": null,
+          "created_at": "2026-10-23T05:29:08.333749+00:00",
+          "updated_at": "2026-10-23T05:29:08.348104+00:00",
+          "deleted_at": null,
+          "latest_revision_id": null,
+          "import_key": null,
+          "import_hash": "d0772b38b0d37a289c6f4871b33c36eb166a4bb7b5823321839b6fa404d2bfe7"
+        }
+      ],
+      "chapter_revisions": [
+        {
+          "revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": null,
+          "content_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+          "content": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+          "word_count": 11,
+          "source_type": "BOOTSTRAP",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:10.515649+00:00"
+        },
+        {
+          "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+          "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+          "word_count": 16,
+          "source_type": "AUTHOR_MANUAL",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:13.323519+00:00"
+        }
+      ],
+      "revision_outbox_events": [
+        {
+          "event_id": "d0e5e230-3465-44c1-8c1a-4be6c019fb50",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:13.323519+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:13.323519+00:00",
+          "updated_at": "2026-10-23T05:29:13.535495+00:00",
+          "claim_token": "[REDACTED]"
+        }
+      ],
+      "Mongo_drafts": [
+        {
+          "_id": "6adaf0a3b6bfd09bb86598a1",
+          "version": 2,
+          "chapterId": "778237eb-0407-47ad-b902-7dee8cf31cb1",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Published canonical pricing fixture",
+          "createdAt": "2026-10-23T05:29:07.672Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Pricing fixture",
+          "updatedAt": "2026-10-23T05:29:08.205Z",
+          "wordCount": 4
+        },
+        {
+          "_id": "6adaf0a4b6bfd09bb86598c6",
+          "version": 2,
+          "chapterId": "c133f839-ab0f-42db-bd9d-7b9c114bdfc5",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Other chapter B",
+          "createdAt": "2026-10-23T05:29:08.337Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Other chapter",
+          "updatedAt": "2026-10-23T05:29:08.347Z",
+          "wordCount": 3
+        },
+        {
+          "_id": "6adaf087b6bfd09bb8659790",
+          "version": 10,
+          "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": true,
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+          "createdAt": "2026-10-23T05:28:39.945Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "updatedAt": "2026-10-23T05:29:13.311Z",
+          "wordCount": 16
+        }
+      ]
+    },
+    "PG_after": {
+      "chapters": [
+        {
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "chapter_number": 1,
+          "content": null,
+          "word_count": 16,
+          "is_vip": false,
+          "price_coins": 0,
+          "status": "DRAFT",
+          "published_at": null,
+          "created_at": "2026-10-23T05:28:39.66604+00:00",
+          "updated_at": "2026-10-23T05:29:13.323519+00:00",
+          "deleted_at": null,
+          "latest_revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "import_key": null,
+          "import_hash": null
+        },
+        {
+          "chapter_id": "778237eb-0407-47ad-b902-7dee8cf31cb1",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Pricing fixture",
+          "chapter_number": 2,
+          "content": "Published canonical pricing fixture",
+          "word_count": 4,
+          "is_vip": true,
+          "price_coins": 3,
+          "status": "PUBLISHED",
+          "published_at": null,
+          "created_at": "2026-10-23T05:29:07.667425+00:00",
+          "updated_at": "2026-10-23T05:29:08.206745+00:00",
+          "deleted_at": null,
+          "latest_revision_id": null,
+          "import_key": null,
+          "import_hash": "8fe94a81310e3b577e2b1259923b72fb8df12aa9d476ed2c62c15993824ffd5a"
+        },
+        {
+          "chapter_id": "c133f839-ab0f-42db-bd9d-7b9c114bdfc5",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Other chapter",
+          "chapter_number": 3,
+          "content": null,
+          "word_count": 3,
+          "is_vip": false,
+          "price_coins": 0,
+          "status": "DRAFT",
+          "published_at": null,
+          "created_at": "2026-10-23T05:29:08.333749+00:00",
+          "updated_at": "2026-10-23T05:29:08.348104+00:00",
+          "deleted_at": null,
+          "latest_revision_id": null,
+          "import_key": null,
+          "import_hash": "d0772b38b0d37a289c6f4871b33c36eb166a4bb7b5823321839b6fa404d2bfe7"
+        }
+      ],
+      "chapter_revisions": [
+        {
+          "revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": null,
+          "content_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+          "content": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+          "word_count": 11,
+          "source_type": "BOOTSTRAP",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:10.515649+00:00"
+        },
+        {
+          "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+          "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+          "word_count": 16,
+          "source_type": "AUTHOR_MANUAL",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:13.323519+00:00"
+        }
+      ],
+      "revision_outbox_events": [
+        {
+          "event_id": "d0e5e230-3465-44c1-8c1a-4be6c019fb50",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:13.323519+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:13.323519+00:00",
+          "updated_at": "2026-10-23T05:29:13.535495+00:00",
+          "claim_token": "[REDACTED]"
+        }
+      ],
+      "Mongo_drafts": [
+        {
+          "_id": "6adaf0a3b6bfd09bb86598a1",
+          "version": 2,
+          "chapterId": "778237eb-0407-47ad-b902-7dee8cf31cb1",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Published canonical pricing fixture",
+          "createdAt": "2026-10-23T05:29:07.672Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Pricing fixture",
+          "updatedAt": "2026-10-23T05:29:08.205Z",
+          "wordCount": 4
+        },
+        {
+          "_id": "6adaf0a4b6bfd09bb86598c6",
+          "version": 2,
+          "chapterId": "c133f839-ab0f-42db-bd9d-7b9c114bdfc5",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Other chapter B",
+          "createdAt": "2026-10-23T05:29:08.337Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Other chapter",
+          "updatedAt": "2026-10-23T05:29:08.347Z",
+          "wordCount": 3
+        },
+        {
+          "_id": "6adaf087b6bfd09bb8659790",
+          "version": 10,
+          "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": true,
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+          "createdAt": "2026-10-23T05:28:39.945Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "updatedAt": "2026-10-23T05:29:13.311Z",
+          "wordCount": 16
+        }
+      ]
+    }
+  },
+  "next_save": {
+    "previous_response": {
+      "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+      "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+      "title": "Contract chapter",
+      "chapterNumber": 1,
+      "content": null,
+      "wordCount": 16,
+      "isVip": false,
+      "priceCoins": 0,
+      "status": "DRAFT",
+      "publicationSchedule": null,
+      "updatedAt": "2026-10-23T05:29:13.312Z",
+      "draft": {
+        "title": "Contract chapter",
+        "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+        "wordCount": 16,
+        "version": 10,
+        "autosave": true,
+        "updatedAt": "2026-10-23T05:29:13.311Z"
+      },
+      "analysisRevisionId": "1e7e7606-34e7-4a47-9762-622f37d040af",
+      "draftVersion": 10
+    },
+    "response": {
+      "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+      "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+      "title": "Contract chapter",
+      "chapterNumber": 1,
+      "content": null,
+      "wordCount": 23,
+      "isVip": false,
+      "priceCoins": 0,
+      "status": "DRAFT",
+      "publicationSchedule": null,
+      "updatedAt": "2026-10-23T05:29:27.860Z",
+      "draft": {
+        "title": "Contract chapter",
+        "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+        "wordCount": 23,
+        "version": 11,
+        "autosave": true,
+        "updatedAt": "2026-10-23T05:29:27.858Z"
+      },
+      "analysisRevisionId": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+      "draftVersion": 11
+    },
+    "before": {
+      "chapters": [
+        {
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "chapter_number": 1,
+          "content": null,
+          "word_count": 16,
+          "is_vip": false,
+          "price_coins": 0,
+          "status": "DRAFT",
+          "published_at": null,
+          "created_at": "2026-10-23T05:28:39.66604+00:00",
+          "updated_at": "2026-10-23T05:29:13.323519+00:00",
+          "deleted_at": null,
+          "latest_revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "import_key": null,
+          "import_hash": null
+        },
+        {
+          "chapter_id": "778237eb-0407-47ad-b902-7dee8cf31cb1",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Pricing fixture",
+          "chapter_number": 2,
+          "content": "Published canonical pricing fixture",
+          "word_count": 4,
+          "is_vip": true,
+          "price_coins": 3,
+          "status": "PUBLISHED",
+          "published_at": null,
+          "created_at": "2026-10-23T05:29:07.667425+00:00",
+          "updated_at": "2026-10-23T05:29:08.206745+00:00",
+          "deleted_at": null,
+          "latest_revision_id": null,
+          "import_key": null,
+          "import_hash": "8fe94a81310e3b577e2b1259923b72fb8df12aa9d476ed2c62c15993824ffd5a"
+        },
+        {
+          "chapter_id": "c133f839-ab0f-42db-bd9d-7b9c114bdfc5",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Other chapter",
+          "chapter_number": 3,
+          "content": null,
+          "word_count": 3,
+          "is_vip": false,
+          "price_coins": 0,
+          "status": "DRAFT",
+          "published_at": null,
+          "created_at": "2026-10-23T05:29:08.333749+00:00",
+          "updated_at": "2026-10-23T05:29:08.348104+00:00",
+          "deleted_at": null,
+          "latest_revision_id": null,
+          "import_key": null,
+          "import_hash": "d0772b38b0d37a289c6f4871b33c36eb166a4bb7b5823321839b6fa404d2bfe7"
+        }
+      ],
+      "chapter_revisions": [
+        {
+          "revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": null,
+          "content_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+          "content": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+          "word_count": 11,
+          "source_type": "BOOTSTRAP",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:10.515649+00:00"
+        },
+        {
+          "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+          "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+          "word_count": 16,
+          "source_type": "AUTHOR_MANUAL",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:13.323519+00:00"
+        }
+      ],
+      "revision_outbox_events": [
+        {
+          "event_id": "d0e5e230-3465-44c1-8c1a-4be6c019fb50",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:13.323519+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:13.323519+00:00",
+          "updated_at": "2026-10-23T05:29:13.535495+00:00",
+          "claim_token": "[REDACTED]"
+        }
+      ],
+      "Mongo_drafts": [
+        {
+          "_id": "6adaf0a3b6bfd09bb86598a1",
+          "version": 2,
+          "chapterId": "778237eb-0407-47ad-b902-7dee8cf31cb1",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Published canonical pricing fixture",
+          "createdAt": "2026-10-23T05:29:07.672Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Pricing fixture",
+          "updatedAt": "2026-10-23T05:29:08.205Z",
+          "wordCount": 4
+        },
+        {
+          "_id": "6adaf0a4b6bfd09bb86598c6",
+          "version": 2,
+          "chapterId": "c133f839-ab0f-42db-bd9d-7b9c114bdfc5",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Other chapter B",
+          "createdAt": "2026-10-23T05:29:08.337Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Other chapter",
+          "updatedAt": "2026-10-23T05:29:08.347Z",
+          "wordCount": 3
+        },
+        {
+          "_id": "6adaf087b6bfd09bb8659790",
+          "version": 10,
+          "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": true,
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+          "createdAt": "2026-10-23T05:28:39.945Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "updatedAt": "2026-10-23T05:29:13.311Z",
+          "wordCount": 16
+        }
+      ]
+    },
+    "after": {
+      "chapters": [
+        {
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "chapter_number": 1,
+          "content": null,
+          "word_count": 23,
+          "is_vip": false,
+          "price_coins": 0,
+          "status": "DRAFT",
+          "published_at": null,
+          "created_at": "2026-10-23T05:28:39.66604+00:00",
+          "updated_at": "2026-10-23T05:29:27.866818+00:00",
+          "deleted_at": null,
+          "latest_revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+          "import_key": null,
+          "import_hash": null
+        },
+        {
+          "chapter_id": "778237eb-0407-47ad-b902-7dee8cf31cb1",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Pricing fixture",
+          "chapter_number": 2,
+          "content": "Published canonical pricing fixture",
+          "word_count": 4,
+          "is_vip": true,
+          "price_coins": 3,
+          "status": "PUBLISHED",
+          "published_at": null,
+          "created_at": "2026-10-23T05:29:07.667425+00:00",
+          "updated_at": "2026-10-23T05:29:08.206745+00:00",
+          "deleted_at": null,
+          "latest_revision_id": null,
+          "import_key": null,
+          "import_hash": "8fe94a81310e3b577e2b1259923b72fb8df12aa9d476ed2c62c15993824ffd5a"
+        },
+        {
+          "chapter_id": "c133f839-ab0f-42db-bd9d-7b9c114bdfc5",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Other chapter",
+          "chapter_number": 3,
+          "content": null,
+          "word_count": 3,
+          "is_vip": false,
+          "price_coins": 0,
+          "status": "DRAFT",
+          "published_at": null,
+          "created_at": "2026-10-23T05:29:08.333749+00:00",
+          "updated_at": "2026-10-23T05:29:08.348104+00:00",
+          "deleted_at": null,
+          "latest_revision_id": null,
+          "import_key": null,
+          "import_hash": "d0772b38b0d37a289c6f4871b33c36eb166a4bb7b5823321839b6fa404d2bfe7"
+        }
+      ],
+      "chapter_revisions": [
+        {
+          "revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": null,
+          "content_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+          "content": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+          "word_count": 11,
+          "source_type": "BOOTSTRAP",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:10.515649+00:00"
+        },
+        {
+          "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+          "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+          "word_count": 16,
+          "source_type": "AUTHOR_MANUAL",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:13.323519+00:00"
+        },
+        {
+          "revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "content_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+          "word_count": 23,
+          "source_type": "AUTHOR_MANUAL",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:27.866818+00:00"
+        }
+      ],
+      "revision_outbox_events": [
+        {
+          "event_id": "d0e5e230-3465-44c1-8c1a-4be6c019fb50",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:13.323519+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:13.323519+00:00",
+          "updated_at": "2026-10-23T05:29:13.535495+00:00",
+          "claim_token": "[REDACTED]"
+        },
+        {
+          "event_id": "9eafbb56-b15b-424e-8f2c-cd4729a5e689",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+          "content_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:27.866818+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:27.866818+00:00",
+          "updated_at": "2026-10-23T05:29:28.097769+00:00",
+          "claim_token": "[REDACTED]"
+        }
+      ],
+      "Mongo_drafts": [
+        {
+          "_id": "6adaf0a3b6bfd09bb86598a1",
+          "version": 2,
+          "chapterId": "778237eb-0407-47ad-b902-7dee8cf31cb1",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Published canonical pricing fixture",
+          "createdAt": "2026-10-23T05:29:07.672Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Pricing fixture",
+          "updatedAt": "2026-10-23T05:29:08.205Z",
+          "wordCount": 4
+        },
+        {
+          "_id": "6adaf0a4b6bfd09bb86598c6",
+          "version": 2,
+          "chapterId": "c133f839-ab0f-42db-bd9d-7b9c114bdfc5",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Other chapter B",
+          "createdAt": "2026-10-23T05:29:08.337Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Other chapter",
+          "updatedAt": "2026-10-23T05:29:08.347Z",
+          "wordCount": 3
+        },
+        {
+          "_id": "6adaf087b6bfd09bb8659790",
+          "version": 11,
+          "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": true,
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+          "createdAt": "2026-10-23T05:28:39.945Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "updatedAt": "2026-10-23T05:29:27.858Z",
+          "wordCount": 23
+        }
+      ]
+    },
+    "HTTP": {
+      "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+      "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+      "title": "Contract chapter",
+      "chapterNumber": 1,
+      "content": null,
+      "wordCount": 23,
+      "isVip": false,
+      "priceCoins": 0,
+      "status": "DRAFT",
+      "publicationSchedule": null,
+      "updatedAt": "2026-10-23T05:29:27.866Z",
+      "draft": {
+        "title": "Contract chapter",
+        "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+        "wordCount": 23,
+        "version": 11,
+        "autosave": true,
+        "updatedAt": "2026-10-23T05:29:27.858Z"
+      }
+    }
+  },
+  "accepted_source_consistency": {
+    "revision": {
+      "revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+      "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+      "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+      "parent_revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+      "content_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+      "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+      "word_count": 43,
+      "source_type": "AI_DRAFT_ACCEPT",
+      "source_generation_id": "cce4293a-5fe8-5b21-b578-bb9a4f5688f1",
+      "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+      "created_at": "2026-10-23T05:29:34.578416+00:00"
+    },
+    "outbox": [
+      {
+        "event_id": "24b76467-c8cb-4b5f-8c56-91c9d7d42265",
+        "event_type": "INCREMENTAL_ANALYSIS",
+        "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+        "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+        "revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+        "content_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+        "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+        "payload": {
+          "operation": "incremental_story_analysis"
+        },
+        "status": "COMPLETED",
+        "retry_count": 0,
+        "max_retries": 5,
+        "next_retry_at": "2026-10-23T05:29:34.578416+00:00",
+        "last_error": null,
+        "created_at": "2026-10-23T05:29:34.578416+00:00",
+        "updated_at": "2026-10-23T05:29:34.811618+00:00",
+        "claim_token": "[REDACTED]"
+      }
+    ],
+    "approved_proposals": [
+      {
+        "id": "3c5c68a0-e2bb-5c52-b2bd-e5a18e3ade35",
+        "analysis_run_id": "2577393e-a8e3-4240-8aeb-739945ff2a4b",
+        "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+        "dependency_group_id": "bd5f6352-71c2-5d7c-a340-195d5e8b1cfd",
+        "materialization_order": 0,
+        "proposal_type": "entity",
+        "payload": {
+          "entity_type": "PER",
+          "canonical_name": "Mai Linh",
+          "normalized_name": "mai linh"
+        },
+        "evidence": [
+          {
+            "end": 8,
+            "start": 0,
+            "text_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+            "revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40"
+          }
+        ],
+        "confidence": 9.0,
+        "status": "accepted",
+        "expected_brain_version": 4,
+        "decision_reason": "incremental_outbox_auto_materialize",
+        "created_at": "2026-10-23T05:29:34.729893+00:00",
+        "updated_at": "2026-10-23T05:29:34.783004+00:00"
+      },
+      {
+        "id": "cc355040-5445-5411-90c7-12e674ca7bf9",
+        "analysis_run_id": "2577393e-a8e3-4240-8aeb-739945ff2a4b",
+        "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+        "dependency_group_id": "bd5f6352-71c2-5d7c-a340-195d5e8b1cfd",
+        "materialization_order": 1,
+        "proposal_type": "entity",
+        "payload": {
+          "entity_type": "PER",
+          "canonical_name": "Duy",
+          "normalized_name": "duy"
+        },
+        "evidence": [
+          {
+            "end": 65,
+            "start": 62,
+            "text_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+            "revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40"
+          }
+        ],
+        "confidence": 9.0,
+        "status": "accepted",
+        "expected_brain_version": 4,
+        "decision_reason": "incremental_outbox_auto_materialize",
+        "created_at": "2026-10-23T05:29:34.729893+00:00",
+        "updated_at": "2026-10-23T05:29:34.783004+00:00"
+      },
+      {
+        "id": "7526c818-3b15-5082-ae4d-310e02dbb274",
+        "analysis_run_id": "2577393e-a8e3-4240-8aeb-739945ff2a4b",
+        "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+        "dependency_group_id": "bd5f6352-71c2-5d7c-a340-195d5e8b1cfd",
+        "materialization_order": 2,
+        "proposal_type": "entity",
+        "payload": {
+          "entity_type": "LOC",
+          "canonical_name": "Cồn Vân",
+          "normalized_name": "cồn vân"
+        },
+        "evidence": [
+          {
+            "end": 95,
+            "start": 88,
+            "text_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+            "revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40"
+          }
+        ],
+        "confidence": 9.0,
+        "status": "accepted",
+        "expected_brain_version": 4,
+        "decision_reason": "incremental_outbox_auto_materialize",
+        "created_at": "2026-10-23T05:29:34.729893+00:00",
+        "updated_at": "2026-10-23T05:29:34.783004+00:00"
+      },
+      {
+        "id": "f4835fa1-d327-5a99-bbe1-acfcbd73a3fc",
+        "analysis_run_id": "2577393e-a8e3-4240-8aeb-739945ff2a4b",
+        "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+        "dependency_group_id": "bd5f6352-71c2-5d7c-a340-195d5e8b1cfd",
+        "materialization_order": 3,
+        "proposal_type": "event",
+        "payload": {
+          "chapter": 1,
+          "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+          "locations": [
+            "Cồn Vân"
+          ],
+          "event_type": "observation",
+          "consequences": [],
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "chapter_number": 1
+        },
+        "evidence": [
+          {
+            "end": 198,
+            "start": 0,
+            "text_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+            "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+            "revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+            "chapter_number": 1
+          }
+        ],
+        "confidence": 0.5,
+        "status": "accepted",
+        "expected_brain_version": 4,
+        "decision_reason": "incremental_outbox_auto_materialize",
+        "created_at": "2026-10-23T05:29:34.729893+00:00",
+        "updated_at": "2026-10-23T05:29:34.783004+00:00"
+      }
+    ],
+    "canonical_projection": {
+      "entities": [
+        {
+          "id": "1fd72136-4b85-4ede-80ad-cac80c5f0e36",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "entity_type": "LOC",
+          "canonical_name": "Cồn Vân",
+          "normalized_name": "cồn vân",
+          "description": null,
+          "static_attributes": {
+            "status": "Alive",
+            "location": "Unknown",
+            "mentions": 1
+          },
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "confidence": 9.0,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23T05:29:11.819018+00:00",
+          "updated_at": "2026-10-23T05:29:11.819018+00:00"
+        },
+        {
+          "id": "cb572d7a-c779-4916-a7de-43d95c01f222",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "entity_type": "PER",
+          "canonical_name": "Duy",
+          "normalized_name": "duy",
+          "description": null,
+          "static_attributes": {
+            "status": "Alive",
+            "location": "Unknown",
+            "mentions": 1
+          },
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "confidence": 9.0,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23T05:29:11.819018+00:00",
+          "updated_at": "2026-10-23T05:29:11.819018+00:00"
+        },
+        {
+          "id": "b1251692-3bb6-42fd-a479-b45e92463192",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "entity_type": "PER",
+          "canonical_name": "Mai Linh",
+          "normalized_name": "mai linh",
+          "description": null,
+          "static_attributes": {
+            "status": "Alive",
+            "location": "Unknown",
+            "mentions": 1
+          },
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "confidence": 9.0,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23T05:29:11.819018+00:00",
+          "updated_at": "2026-10-23T05:29:11.819018+00:00"
+        }
+      ],
+      "events": [
+        {
+          "id": "84373a23-ec4b-59bb-a550-1fa6812f7d58",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "narrative_order": 1024,
+          "event_type": "observation",
+          "summary": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "event_metadata": {
+            "chapter": 1,
+            "summary": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+            "evidence": [
+              {
+                "end": 44,
+                "start": 0,
+                "text_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+                "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+                "revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+                "chapter_number": 1
+              }
+            ],
+            "locations": [
+              "Cồn Vân"
+            ],
+            "event_type": "observation",
+            "consequences": [],
+            "participants": [
+              "Mai Linh",
+              "Duy"
+            ],
+            "chapter_number": 1
+          },
+          "chapter_number": 1,
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "created_at": "2026-10-23T05:29:11.819018+00:00"
+        },
+        {
+          "id": "979c5c0a-26ba-5456-b916-e0936c95cfb2",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "narrative_order": 2048,
+          "event_type": "observation",
+          "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "event_metadata": {
+            "chapter": 1,
+            "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+            "evidence": [
+              {
+                "end": 70,
+                "start": 0,
+                "text_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+                "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+                "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+                "chapter_number": 1
+              }
+            ],
+            "locations": [
+              "Cồn Vân"
+            ],
+            "event_type": "observation",
+            "consequences": [],
+            "participants": [
+              "Mai Linh",
+              "Duy"
+            ],
+            "chapter_number": 1
+          },
+          "chapter_number": 1,
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "created_at": "2026-10-23T05:29:13.510132+00:00"
+        },
+        {
+          "id": "67132ae4-e386-5ab2-930f-1ec9fa1bb217",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "narrative_order": 3072,
+          "event_type": "observation",
+          "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "event_metadata": {
+            "chapter": 1,
+            "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+            "evidence": [
+              {
+                "end": 102,
+                "start": 0,
+                "text_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+                "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+                "revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+                "chapter_number": 1
+              }
+            ],
+            "locations": [
+              "Cồn Vân"
+            ],
+            "event_type": "observation",
+            "consequences": [],
+            "participants": [
+              "Mai Linh",
+              "Duy"
+            ],
+            "chapter_number": 1
+          },
+          "chapter_number": 1,
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "created_at": "2026-10-23T05:29:28.073991+00:00"
+        },
+        {
+          "id": "f4835fa1-d327-5a99-bbe1-acfcbd73a3fc",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "narrative_order": 4096,
+          "event_type": "observation",
+          "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "event_metadata": {
+            "chapter": 1,
+            "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+            "evidence": [
+              {
+                "end": 198,
+                "start": 0,
+                "text_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+                "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+                "revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+                "chapter_number": 1
+              }
+            ],
+            "locations": [
+              "Cồn Vân"
+            ],
+            "event_type": "observation",
+            "consequences": [],
+            "participants": [
+              "Mai Linh",
+              "Duy"
+            ],
+            "chapter_number": 1
+          },
+          "chapter_number": 1,
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "created_at": "2026-10-23T05:29:34.783004+00:00"
+        }
+      ],
+      "facts": []
+    },
+    "supported_context_preview": {
+      "brain_version": 5,
+      "entities": [
+        {
+          "entity_id": "1fd72136-4b85-4ede-80ad-cac80c5f0e36",
+          "name": "Cồn Vân",
+          "entity_type": "LOC",
+          "status": "Alive",
+          "location": "Unknown",
+          "is_locked": false
+        },
+        {
+          "entity_id": "cb572d7a-c779-4916-a7de-43d95c01f222",
+          "name": "Duy",
+          "entity_type": "PER",
+          "status": "Alive",
+          "location": "Unknown",
+          "is_locked": false
+        },
+        {
+          "entity_id": "b1251692-3bb6-42fd-a479-b45e92463192",
+          "name": "Mai Linh",
+          "entity_type": "PER",
+          "status": "Alive",
+          "location": "Unknown",
+          "is_locked": false
+        }
+      ],
+      "current_states": [
+        {
+          "entity_id": "1fd72136-4b85-4ede-80ad-cac80c5f0e36",
+          "name": "Cồn Vân",
+          "status": "Alive",
+          "location": "Unknown",
+          "state": {}
+        },
+        {
+          "entity_id": "cb572d7a-c779-4916-a7de-43d95c01f222",
+          "name": "Duy",
+          "status": "Alive",
+          "location": "Unknown",
+          "state": {}
+        },
+        {
+          "entity_id": "b1251692-3bb6-42fd-a479-b45e92463192",
+          "name": "Mai Linh",
+          "status": "Alive",
+          "location": "Unknown",
+          "state": {}
+        }
+      ],
+      "recent_events": [
+        {
+          "event_id": "84373a23-ec4b-59bb-a550-1fa6812f7d58",
+          "narrative_order": 1024,
+          "chapter_number": 1,
+          "event_type": "observation",
+          "summary": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "metadata": {
+            "chapter": 1,
+            "summary": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+            "evidence": [
+              {
+                "end": 44,
+                "start": 0,
+                "text_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+                "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+                "revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+                "chapter_number": 1
+              }
+            ],
+            "locations": [
+              "Cồn Vân"
+            ],
+            "event_type": "observation",
+            "consequences": [],
+            "participants": [
+              "Mai Linh",
+              "Duy"
+            ],
+            "chapter_number": 1
+          }
+        },
+        {
+          "event_id": "979c5c0a-26ba-5456-b916-e0936c95cfb2",
+          "narrative_order": 2048,
+          "chapter_number": 1,
+          "event_type": "observation",
+          "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "metadata": {
+            "chapter": 1,
+            "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+            "evidence": [
+              {
+                "end": 70,
+                "start": 0,
+                "text_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+                "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+                "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+                "chapter_number": 1
+              }
+            ],
+            "locations": [
+              "Cồn Vân"
+            ],
+            "event_type": "observation",
+            "consequences": [],
+            "participants": [
+              "Mai Linh",
+              "Duy"
+            ],
+            "chapter_number": 1
+          }
+        },
+        {
+          "event_id": "67132ae4-e386-5ab2-930f-1ec9fa1bb217",
+          "narrative_order": 3072,
+          "chapter_number": 1,
+          "event_type": "observation",
+          "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "metadata": {
+            "chapter": 1,
+            "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+            "evidence": [
+              {
+                "end": 102,
+                "start": 0,
+                "text_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+                "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+                "revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+                "chapter_number": 1
+              }
+            ],
+            "locations": [
+              "Cồn Vân"
+            ],
+            "event_type": "observation",
+            "consequences": [],
+            "participants": [
+              "Mai Linh",
+              "Duy"
+            ],
+            "chapter_number": 1
+          }
+        },
+        {
+          "event_id": "f4835fa1-d327-5a99-bbe1-acfcbd73a3fc",
+          "narrative_order": 4096,
+          "chapter_number": 1,
+          "event_type": "observation",
+          "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "metadata": {
+            "chapter": 1,
+            "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+            "evidence": [
+              {
+                "end": 198,
+                "start": 0,
+                "text_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+                "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+                "revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+                "chapter_number": 1
+              }
+            ],
+            "locations": [
+              "Cồn Vân"
+            ],
+            "event_type": "observation",
+            "consequences": [],
+            "participants": [
+              "Mai Linh",
+              "Duy"
+            ],
+            "chapter_number": 1
+          }
+        }
+      ],
+      "semantic_memories": [],
+      "world_rules": [],
+      "author_constraints": [],
+      "token_budget": "[REDACTED]",
+      "context_summary": {
+        "entity_ids": [
+          "1fd72136-4b85-4ede-80ad-cac80c5f0e36",
+          "cb572d7a-c779-4916-a7de-43d95c01f222",
+          "b1251692-3bb6-42fd-a479-b45e92463192"
+        ],
+        "event_ids": [
+          "84373a23-ec4b-59bb-a550-1fa6812f7d58",
+          "979c5c0a-26ba-5456-b916-e0936c95cfb2",
+          "67132ae4-e386-5ab2-930f-1ec9fa1bb217",
+          "f4835fa1-d327-5a99-bbe1-acfcbd73a3fc"
+        ],
+        "fact_ids": [],
+        "cutoff_chapter": 1,
+        "recent_scope_participant_entity_ids": [
+          "b1251692-3bb6-42fd-a479-b45e92463192",
+          "cb572d7a-c779-4916-a7de-43d95c01f222"
+        ],
+        "recent_scope_participant_identity": [
+          "normalized-event-participants-v1"
+        ],
+        "plan_id": [
+          "c949729e-8c50-47a3-805e-e5a6724abdc4"
+        ],
+        "plan_version": [
+          "1"
+        ],
+        "active_objective_id": [
+          "517d0a4b-9cd0-416a-afdd-fc187df656ef"
+        ],
+        "active_objective_title": [
+          "FUTURE_ONLY_CONTRACT_MARKER"
+        ],
+        "semantic_memory_ids": [],
+        "context_packing_version": [
+          "context-budget-v1"
+        ],
+        "context_token_estimator_version": "[REDACTED]",
+        "dropped_entity_ids": [],
+        "dropped_event_ids": [],
+        "dropped_fact_ids": [],
+        "dropped_semantic_memory_ids": [],
+        "deduplicated_semantic_memory_ids": []
+      },
+      "planning_context": {
+        "plan_id": "c949729e-8c50-47a3-805e-e5a6724abdc4",
+        "plan_version": 1,
+        "status": "active",
+        "source_outline_hash": "",
+        "total_objectives": 1,
+        "active_objective_id": "517d0a4b-9cd0-416a-afdd-fc187df656ef"
+      },
+      "current_objective": {
+        "objective_id": "517d0a4b-9cd0-416a-afdd-fc187df656ef",
+        "order_index": 1,
+        "target_chapter": 3,
+        "objective_type": "chapter_goal",
+        "title": "FUTURE_ONLY_CONTRACT_MARKER",
+        "description": "Unperformed future intent",
+        "status": "pending"
+      }
+    },
+    "memory_HTTP_route": "404; NOT_FIXED"
+  },
+  "accepted_replay": {
+    "accepted": {
+      "revision": {
+        "revisionId": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+        "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+        "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+        "parentRevisionId": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+        "contentHash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+        "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+        "wordCount": 43,
+        "sourceType": "AI_DRAFT_ACCEPT",
+        "sourceGenerationId": "cce4293a-5fe8-5b21-b578-bb9a4f5688f1",
+        "createdBy": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+        "createdAt": "2026-10-23T05:29:34.578Z"
+      },
+      "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d"
+    },
+    "replay": {
+      "revision": {
+        "revisionId": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+        "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+        "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+        "parentRevisionId": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+        "contentHash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+        "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+        "wordCount": 43,
+        "sourceType": "AI_DRAFT_ACCEPT",
+        "sourceGenerationId": "cce4293a-5fe8-5b21-b578-bb9a4f5688f1",
+        "createdBy": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+        "createdAt": "2026-10-23T05:29:34.578Z"
+      },
+      "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d"
+    },
+    "PG_Mongo_before": {
+      "chapters": [
+        {
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "chapter_number": 1,
+          "content": null,
+          "word_count": 43,
+          "is_vip": false,
+          "price_coins": 0,
+          "status": "DRAFT",
+          "published_at": null,
+          "created_at": "2026-10-23T05:28:39.66604+00:00",
+          "updated_at": "2026-10-23T05:29:34.578416+00:00",
+          "deleted_at": null,
+          "latest_revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+          "import_key": null,
+          "import_hash": null
+        },
+        {
+          "chapter_id": "778237eb-0407-47ad-b902-7dee8cf31cb1",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Pricing fixture",
+          "chapter_number": 2,
+          "content": "Published canonical pricing fixture",
+          "word_count": 4,
+          "is_vip": true,
+          "price_coins": 3,
+          "status": "PUBLISHED",
+          "published_at": null,
+          "created_at": "2026-10-23T05:29:07.667425+00:00",
+          "updated_at": "2026-10-23T05:29:08.206745+00:00",
+          "deleted_at": null,
+          "latest_revision_id": null,
+          "import_key": null,
+          "import_hash": "8fe94a81310e3b577e2b1259923b72fb8df12aa9d476ed2c62c15993824ffd5a"
+        },
+        {
+          "chapter_id": "c133f839-ab0f-42db-bd9d-7b9c114bdfc5",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Other chapter",
+          "chapter_number": 3,
+          "content": null,
+          "word_count": 3,
+          "is_vip": false,
+          "price_coins": 0,
+          "status": "DRAFT",
+          "published_at": null,
+          "created_at": "2026-10-23T05:29:08.333749+00:00",
+          "updated_at": "2026-10-23T05:29:08.348104+00:00",
+          "deleted_at": null,
+          "latest_revision_id": null,
+          "import_key": null,
+          "import_hash": "d0772b38b0d37a289c6f4871b33c36eb166a4bb7b5823321839b6fa404d2bfe7"
+        }
+      ],
+      "chapter_revisions": [
+        {
+          "revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": null,
+          "content_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+          "content": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+          "word_count": 11,
+          "source_type": "BOOTSTRAP",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:10.515649+00:00"
+        },
+        {
+          "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+          "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+          "word_count": 16,
+          "source_type": "AUTHOR_MANUAL",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:13.323519+00:00"
+        },
+        {
+          "revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "content_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+          "word_count": 23,
+          "source_type": "AUTHOR_MANUAL",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:27.866818+00:00"
+        },
+        {
+          "revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+          "content_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+          "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+          "word_count": 43,
+          "source_type": "AI_DRAFT_ACCEPT",
+          "source_generation_id": "cce4293a-5fe8-5b21-b578-bb9a4f5688f1",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:34.578416+00:00"
+        }
+      ],
+      "revision_outbox_events": [
+        {
+          "event_id": "d0e5e230-3465-44c1-8c1a-4be6c019fb50",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:13.323519+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:13.323519+00:00",
+          "updated_at": "2026-10-23T05:29:13.535495+00:00",
+          "claim_token": "[REDACTED]"
+        },
+        {
+          "event_id": "9eafbb56-b15b-424e-8f2c-cd4729a5e689",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+          "content_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:27.866818+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:27.866818+00:00",
+          "updated_at": "2026-10-23T05:29:28.097769+00:00",
+          "claim_token": "[REDACTED]"
+        },
+        {
+          "event_id": "24b76467-c8cb-4b5f-8c56-91c9d7d42265",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+          "content_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:34.578416+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:34.578416+00:00",
+          "updated_at": "2026-10-23T05:29:34.811618+00:00",
+          "claim_token": "[REDACTED]"
+        }
+      ],
+      "Mongo_drafts": [
+        {
+          "_id": "6adaf0a3b6bfd09bb86598a1",
+          "version": 2,
+          "chapterId": "778237eb-0407-47ad-b902-7dee8cf31cb1",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Published canonical pricing fixture",
+          "createdAt": "2026-10-23T05:29:07.672Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Pricing fixture",
+          "updatedAt": "2026-10-23T05:29:08.205Z",
+          "wordCount": 4
+        },
+        {
+          "_id": "6adaf0a4b6bfd09bb86598c6",
+          "version": 2,
+          "chapterId": "c133f839-ab0f-42db-bd9d-7b9c114bdfc5",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Other chapter B",
+          "createdAt": "2026-10-23T05:29:08.337Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Other chapter",
+          "updatedAt": "2026-10-23T05:29:08.347Z",
+          "wordCount": 3
+        },
+        {
+          "_id": "6adaf087b6bfd09bb8659790",
+          "version": 12,
+          "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": true,
+          "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+          "createdAt": "2026-10-23T05:28:39.945Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "updatedAt": "2026-10-23T05:29:34.584Z",
+          "wordCount": 43,
+          "lastAcceptedAt": "2026-10-23T05:29:34.583Z",
+          "lastAcceptedRevisionId": "99e5de66-e170-4871-8ee4-2bc551c83a40"
+        }
+      ]
+    },
+    "PG_Mongo_after": {
+      "chapters": [
+        {
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "chapter_number": 1,
+          "content": null,
+          "word_count": 43,
+          "is_vip": false,
+          "price_coins": 0,
+          "status": "DRAFT",
+          "published_at": null,
+          "created_at": "2026-10-23T05:28:39.66604+00:00",
+          "updated_at": "2026-10-23T05:29:34.578416+00:00",
+          "deleted_at": null,
+          "latest_revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+          "import_key": null,
+          "import_hash": null
+        },
+        {
+          "chapter_id": "778237eb-0407-47ad-b902-7dee8cf31cb1",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Pricing fixture",
+          "chapter_number": 2,
+          "content": "Published canonical pricing fixture",
+          "word_count": 4,
+          "is_vip": true,
+          "price_coins": 3,
+          "status": "PUBLISHED",
+          "published_at": null,
+          "created_at": "2026-10-23T05:29:07.667425+00:00",
+          "updated_at": "2026-10-23T05:29:08.206745+00:00",
+          "deleted_at": null,
+          "latest_revision_id": null,
+          "import_key": null,
+          "import_hash": "8fe94a81310e3b577e2b1259923b72fb8df12aa9d476ed2c62c15993824ffd5a"
+        },
+        {
+          "chapter_id": "c133f839-ab0f-42db-bd9d-7b9c114bdfc5",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Other chapter",
+          "chapter_number": 3,
+          "content": null,
+          "word_count": 3,
+          "is_vip": false,
+          "price_coins": 0,
+          "status": "DRAFT",
+          "published_at": null,
+          "created_at": "2026-10-23T05:29:08.333749+00:00",
+          "updated_at": "2026-10-23T05:29:08.348104+00:00",
+          "deleted_at": null,
+          "latest_revision_id": null,
+          "import_key": null,
+          "import_hash": "d0772b38b0d37a289c6f4871b33c36eb166a4bb7b5823321839b6fa404d2bfe7"
+        }
+      ],
+      "chapter_revisions": [
+        {
+          "revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": null,
+          "content_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+          "content": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+          "word_count": 11,
+          "source_type": "BOOTSTRAP",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:10.515649+00:00"
+        },
+        {
+          "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+          "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+          "word_count": 16,
+          "source_type": "AUTHOR_MANUAL",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:13.323519+00:00"
+        },
+        {
+          "revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "content_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+          "word_count": 23,
+          "source_type": "AUTHOR_MANUAL",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:27.866818+00:00"
+        },
+        {
+          "revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+          "content_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+          "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+          "word_count": 43,
+          "source_type": "AI_DRAFT_ACCEPT",
+          "source_generation_id": "cce4293a-5fe8-5b21-b578-bb9a4f5688f1",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:34.578416+00:00"
+        }
+      ],
+      "revision_outbox_events": [
+        {
+          "event_id": "d0e5e230-3465-44c1-8c1a-4be6c019fb50",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:13.323519+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:13.323519+00:00",
+          "updated_at": "2026-10-23T05:29:13.535495+00:00",
+          "claim_token": "[REDACTED]"
+        },
+        {
+          "event_id": "9eafbb56-b15b-424e-8f2c-cd4729a5e689",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+          "content_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:27.866818+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:27.866818+00:00",
+          "updated_at": "2026-10-23T05:29:28.097769+00:00",
+          "claim_token": "[REDACTED]"
+        },
+        {
+          "event_id": "24b76467-c8cb-4b5f-8c56-91c9d7d42265",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+          "content_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:34.578416+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:34.578416+00:00",
+          "updated_at": "2026-10-23T05:29:34.811618+00:00",
+          "claim_token": "[REDACTED]"
+        }
+      ],
+      "Mongo_drafts": [
+        {
+          "_id": "6adaf0a3b6bfd09bb86598a1",
+          "version": 2,
+          "chapterId": "778237eb-0407-47ad-b902-7dee8cf31cb1",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Published canonical pricing fixture",
+          "createdAt": "2026-10-23T05:29:07.672Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Pricing fixture",
+          "updatedAt": "2026-10-23T05:29:08.205Z",
+          "wordCount": 4
+        },
+        {
+          "_id": "6adaf0a4b6bfd09bb86598c6",
+          "version": 2,
+          "chapterId": "c133f839-ab0f-42db-bd9d-7b9c114bdfc5",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Other chapter B",
+          "createdAt": "2026-10-23T05:29:08.337Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Other chapter",
+          "updatedAt": "2026-10-23T05:29:08.347Z",
+          "wordCount": 3
+        },
+        {
+          "_id": "6adaf087b6bfd09bb8659790",
+          "version": 12,
+          "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": true,
+          "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+          "createdAt": "2026-10-23T05:28:39.945Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "updatedAt": "2026-10-23T05:29:34.584Z",
+          "wordCount": 43,
+          "lastAcceptedAt": "2026-10-23T05:29:34.583Z",
+          "lastAcceptedRevisionId": "99e5de66-e170-4871-8ee4-2bc551c83a40"
+        }
+      ]
+    }
+  },
+  "snapshot_failure": {
+    "fixture_ddl": "create function repair_fault_ffc44b21c2ef450bb7d5572dcb3e513d() returns trigger language plpgsql as $$ begin raise exception 'OWNED_PERSISTENCE_REPAIR_OUTBOX_FAULT'; end $$; create trigger repair_fault_ffc44b21c2ef450bb7d5572dcb3e513d before insert on revision_outbox_events for each row when (NEW.chapter_id='ffc44b21-c2ef-450b-b7d5-572dcb3e513d'::uuid) execute function repair_fault_ffc44b21c2ef450bb7d5572dcb3e513d();",
+    "HTTP_error": null,
+    "before": {
+      "chapters": [
+        {
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "chapter_number": 1,
+          "content": null,
+          "word_count": 19,
+          "is_vip": false,
+          "price_coins": 0,
+          "status": "DRAFT",
+          "published_at": null,
+          "created_at": "2026-10-23T05:28:39.66604+00:00",
+          "updated_at": "2026-10-23T05:29:49.32299+00:00",
+          "deleted_at": null,
+          "latest_revision_id": "22418b1b-00da-4f2c-8d94-70ae85aa3fde",
+          "import_key": null,
+          "import_hash": null
+        },
+        {
+          "chapter_id": "778237eb-0407-47ad-b902-7dee8cf31cb1",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Pricing fixture",
+          "chapter_number": 2,
+          "content": "Published canonical pricing fixture",
+          "word_count": 4,
+          "is_vip": true,
+          "price_coins": 3,
+          "status": "PUBLISHED",
+          "published_at": null,
+          "created_at": "2026-10-23T05:29:07.667425+00:00",
+          "updated_at": "2026-10-23T05:29:08.206745+00:00",
+          "deleted_at": null,
+          "latest_revision_id": null,
+          "import_key": null,
+          "import_hash": "8fe94a81310e3b577e2b1259923b72fb8df12aa9d476ed2c62c15993824ffd5a"
+        },
+        {
+          "chapter_id": "c133f839-ab0f-42db-bd9d-7b9c114bdfc5",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Other chapter",
+          "chapter_number": 3,
+          "content": null,
+          "word_count": 3,
+          "is_vip": false,
+          "price_coins": 0,
+          "status": "DRAFT",
+          "published_at": null,
+          "created_at": "2026-10-23T05:29:08.333749+00:00",
+          "updated_at": "2026-10-23T05:29:08.348104+00:00",
+          "deleted_at": null,
+          "latest_revision_id": null,
+          "import_key": null,
+          "import_hash": "d0772b38b0d37a289c6f4871b33c36eb166a4bb7b5823321839b6fa404d2bfe7"
+        }
+      ],
+      "chapter_revisions": [
+        {
+          "revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": null,
+          "content_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+          "content": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+          "word_count": 11,
+          "source_type": "BOOTSTRAP",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:10.515649+00:00"
+        },
+        {
+          "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+          "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+          "word_count": 16,
+          "source_type": "AUTHOR_MANUAL",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:13.323519+00:00"
+        },
+        {
+          "revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "content_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+          "word_count": 23,
+          "source_type": "AUTHOR_MANUAL",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:27.866818+00:00"
+        },
+        {
+          "revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+          "content_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+          "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+          "word_count": 43,
+          "source_type": "AI_DRAFT_ACCEPT",
+          "source_generation_id": "cce4293a-5fe8-5b21-b578-bb9a4f5688f1",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:34.578416+00:00"
+        },
+        {
+          "revision_id": "22418b1b-00da-4f2c-8d94-70ae85aa3fde",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+          "content_hash": "6cfb14640cfbb97f99b18438f4790a9ad8e51e4d62b68f542c7e97920907db3b",
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. newer author checkpoint",
+          "word_count": 19,
+          "source_type": "AUTHOR_MANUAL",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:49.32299+00:00"
+        }
+      ],
+      "revision_outbox_events": [
+        {
+          "event_id": "d0e5e230-3465-44c1-8c1a-4be6c019fb50",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:13.323519+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:13.323519+00:00",
+          "updated_at": "2026-10-23T05:29:13.535495+00:00",
+          "claim_token": "[REDACTED]"
+        },
+        {
+          "event_id": "9eafbb56-b15b-424e-8f2c-cd4729a5e689",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+          "content_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:27.866818+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:27.866818+00:00",
+          "updated_at": "2026-10-23T05:29:28.097769+00:00",
+          "claim_token": "[REDACTED]"
+        },
+        {
+          "event_id": "24b76467-c8cb-4b5f-8c56-91c9d7d42265",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+          "content_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:34.578416+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:34.578416+00:00",
+          "updated_at": "2026-10-23T05:29:34.811618+00:00",
+          "claim_token": "[REDACTED]"
+        },
+        {
+          "event_id": "ac67e994-35d0-4a89-a579-8d32bf232292",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "22418b1b-00da-4f2c-8d94-70ae85aa3fde",
+          "content_hash": "6cfb14640cfbb97f99b18438f4790a9ad8e51e4d62b68f542c7e97920907db3b",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:49.32299+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:49.32299+00:00",
+          "updated_at": "2026-10-23T05:29:49.560773+00:00",
+          "claim_token": "[REDACTED]"
+        }
+      ],
+      "Mongo_drafts": [
+        {
+          "_id": "6adaf0a3b6bfd09bb86598a1",
+          "version": 2,
+          "chapterId": "778237eb-0407-47ad-b902-7dee8cf31cb1",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Published canonical pricing fixture",
+          "createdAt": "2026-10-23T05:29:07.672Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Pricing fixture",
+          "updatedAt": "2026-10-23T05:29:08.205Z",
+          "wordCount": 4
+        },
+        {
+          "_id": "6adaf0a4b6bfd09bb86598c6",
+          "version": 2,
+          "chapterId": "c133f839-ab0f-42db-bd9d-7b9c114bdfc5",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Other chapter B",
+          "createdAt": "2026-10-23T05:29:08.337Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Other chapter",
+          "updatedAt": "2026-10-23T05:29:08.347Z",
+          "wordCount": 3
+        },
+        {
+          "_id": "6adaf087b6bfd09bb8659790",
+          "version": 13,
+          "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": true,
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. newer author checkpoint",
+          "createdAt": "2026-10-23T05:28:39.945Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "updatedAt": "2026-10-23T05:29:49.316Z",
+          "wordCount": 19,
+          "lastAcceptedAt": "2026-10-23T05:29:34.583Z",
+          "lastAcceptedRevisionId": "99e5de66-e170-4871-8ee4-2bc551c83a40"
+        }
+      ]
+    },
+    "after_failure": {
+      "chapters": [
+        {
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "chapter_number": 1,
+          "content": null,
+          "word_count": 18,
+          "is_vip": false,
+          "price_coins": 0,
+          "status": "DRAFT",
+          "published_at": null,
+          "created_at": "2026-10-23T05:28:39.66604+00:00",
+          "updated_at": "2026-10-23T05:29:55.905827+00:00",
+          "deleted_at": null,
+          "latest_revision_id": "22418b1b-00da-4f2c-8d94-70ae85aa3fde",
+          "import_key": null,
+          "import_hash": null
+        },
+        {
+          "chapter_id": "778237eb-0407-47ad-b902-7dee8cf31cb1",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Pricing fixture",
+          "chapter_number": 2,
+          "content": "Published canonical pricing fixture",
+          "word_count": 4,
+          "is_vip": true,
+          "price_coins": 3,
+          "status": "PUBLISHED",
+          "published_at": null,
+          "created_at": "2026-10-23T05:29:07.667425+00:00",
+          "updated_at": "2026-10-23T05:29:08.206745+00:00",
+          "deleted_at": null,
+          "latest_revision_id": null,
+          "import_key": null,
+          "import_hash": "8fe94a81310e3b577e2b1259923b72fb8df12aa9d476ed2c62c15993824ffd5a"
+        },
+        {
+          "chapter_id": "c133f839-ab0f-42db-bd9d-7b9c114bdfc5",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Other chapter",
+          "chapter_number": 3,
+          "content": null,
+          "word_count": 3,
+          "is_vip": false,
+          "price_coins": 0,
+          "status": "DRAFT",
+          "published_at": null,
+          "created_at": "2026-10-23T05:29:08.333749+00:00",
+          "updated_at": "2026-10-23T05:29:08.348104+00:00",
+          "deleted_at": null,
+          "latest_revision_id": null,
+          "import_key": null,
+          "import_hash": "d0772b38b0d37a289c6f4871b33c36eb166a4bb7b5823321839b6fa404d2bfe7"
+        }
+      ],
+      "chapter_revisions": [
+        {
+          "revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": null,
+          "content_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+          "content": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+          "word_count": 11,
+          "source_type": "BOOTSTRAP",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:10.515649+00:00"
+        },
+        {
+          "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+          "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+          "word_count": 16,
+          "source_type": "AUTHOR_MANUAL",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:13.323519+00:00"
+        },
+        {
+          "revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "content_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+          "word_count": 23,
+          "source_type": "AUTHOR_MANUAL",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:27.866818+00:00"
+        },
+        {
+          "revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+          "content_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+          "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+          "word_count": 43,
+          "source_type": "AI_DRAFT_ACCEPT",
+          "source_generation_id": "cce4293a-5fe8-5b21-b578-bb9a4f5688f1",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:34.578416+00:00"
+        },
+        {
+          "revision_id": "22418b1b-00da-4f2c-8d94-70ae85aa3fde",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+          "content_hash": "6cfb14640cfbb97f99b18438f4790a9ad8e51e4d62b68f542c7e97920907db3b",
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. newer author checkpoint",
+          "word_count": 19,
+          "source_type": "AUTHOR_MANUAL",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:49.32299+00:00"
+        }
+      ],
+      "revision_outbox_events": [
+        {
+          "event_id": "d0e5e230-3465-44c1-8c1a-4be6c019fb50",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:13.323519+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:13.323519+00:00",
+          "updated_at": "2026-10-23T05:29:13.535495+00:00",
+          "claim_token": "[REDACTED]"
+        },
+        {
+          "event_id": "9eafbb56-b15b-424e-8f2c-cd4729a5e689",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+          "content_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:27.866818+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:27.866818+00:00",
+          "updated_at": "2026-10-23T05:29:28.097769+00:00",
+          "claim_token": "[REDACTED]"
+        },
+        {
+          "event_id": "24b76467-c8cb-4b5f-8c56-91c9d7d42265",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+          "content_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:34.578416+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:34.578416+00:00",
+          "updated_at": "2026-10-23T05:29:34.811618+00:00",
+          "claim_token": "[REDACTED]"
+        },
+        {
+          "event_id": "ac67e994-35d0-4a89-a579-8d32bf232292",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "22418b1b-00da-4f2c-8d94-70ae85aa3fde",
+          "content_hash": "6cfb14640cfbb97f99b18438f4790a9ad8e51e4d62b68f542c7e97920907db3b",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:49.32299+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:49.32299+00:00",
+          "updated_at": "2026-10-23T05:29:49.560773+00:00",
+          "claim_token": "[REDACTED]"
+        }
+      ],
+      "Mongo_drafts": [
+        {
+          "_id": "6adaf0a3b6bfd09bb86598a1",
+          "version": 2,
+          "chapterId": "778237eb-0407-47ad-b902-7dee8cf31cb1",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Published canonical pricing fixture",
+          "createdAt": "2026-10-23T05:29:07.672Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Pricing fixture",
+          "updatedAt": "2026-10-23T05:29:08.205Z",
+          "wordCount": 4
+        },
+        {
+          "_id": "6adaf0a4b6bfd09bb86598c6",
+          "version": 2,
+          "chapterId": "c133f839-ab0f-42db-bd9d-7b9c114bdfc5",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Other chapter B",
+          "createdAt": "2026-10-23T05:29:08.337Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Other chapter",
+          "updatedAt": "2026-10-23T05:29:08.347Z",
+          "wordCount": 3
+        },
+        {
+          "_id": "6adaf087b6bfd09bb8659790",
+          "version": 14,
+          "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. fault checkpoint",
+          "createdAt": "2026-10-23T05:28:39.945Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "updatedAt": "2026-10-23T05:29:55.904Z",
+          "wordCount": 18,
+          "lastAcceptedAt": "2026-10-23T05:29:34.583Z",
+          "lastAcceptedRevisionId": "99e5de66-e170-4871-8ee4-2bc551c83a40"
+        }
+      ]
+    },
+    "draft_after_failure": {
+      "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+      "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+      "title": "Contract chapter",
+      "chapterNumber": 1,
+      "content": null,
+      "wordCount": 18,
+      "isVip": false,
+      "priceCoins": 0,
+      "status": "DRAFT",
+      "publicationSchedule": null,
+      "updatedAt": "2026-10-23T05:29:55.905Z",
+      "draft": {
+        "title": "Contract chapter",
+        "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. fault checkpoint",
+        "wordCount": 18,
+        "version": 14,
+        "autosave": false,
+        "updatedAt": "2026-10-23T05:29:55.904Z"
+      }
+    },
+    "boundary": "Mongo draft/SQL metadata can precede snapshot transaction; HTTP error is explicit, retry must complete canonical work"
+  },
+  "snapshot_retry": {
+    "response": {
+      "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+      "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+      "title": "Contract chapter",
+      "chapterNumber": 1,
+      "content": null,
+      "wordCount": 18,
+      "isVip": false,
+      "priceCoins": 0,
+      "status": "DRAFT",
+      "publicationSchedule": null,
+      "updatedAt": "2026-10-23T05:29:55.905Z",
+      "draft": {
+        "title": "Contract chapter",
+        "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. fault checkpoint",
+        "wordCount": 18,
+        "version": 14,
+        "autosave": false,
+        "updatedAt": "2026-10-23T05:29:55.904Z"
+      },
+      "analysisRevisionId": "dfc4f843-fbd5-4d35-9fdd-544b93ff9843",
+      "draftVersion": 14
+    },
+    "HTTP": {
+      "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+      "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+      "title": "Contract chapter",
+      "chapterNumber": 1,
+      "content": null,
+      "wordCount": 18,
+      "isVip": false,
+      "priceCoins": 0,
+      "status": "DRAFT",
+      "publicationSchedule": null,
+      "updatedAt": "2026-10-23T05:29:58.675Z",
+      "draft": {
+        "title": "Contract chapter",
+        "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. fault checkpoint",
+        "wordCount": 18,
+        "version": 14,
+        "autosave": false,
+        "updatedAt": "2026-10-23T05:29:55.904Z"
+      }
+    },
+    "PG_Mongo": {
+      "chapters": [
+        {
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "chapter_number": 1,
+          "content": null,
+          "word_count": 18,
+          "is_vip": false,
+          "price_coins": 0,
+          "status": "DRAFT",
+          "published_at": null,
+          "created_at": "2026-10-23T05:28:39.66604+00:00",
+          "updated_at": "2026-10-23T05:29:58.67543+00:00",
+          "deleted_at": null,
+          "latest_revision_id": "dfc4f843-fbd5-4d35-9fdd-544b93ff9843",
+          "import_key": null,
+          "import_hash": null
+        },
+        {
+          "chapter_id": "778237eb-0407-47ad-b902-7dee8cf31cb1",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Pricing fixture",
+          "chapter_number": 2,
+          "content": "Published canonical pricing fixture",
+          "word_count": 4,
+          "is_vip": true,
+          "price_coins": 3,
+          "status": "PUBLISHED",
+          "published_at": null,
+          "created_at": "2026-10-23T05:29:07.667425+00:00",
+          "updated_at": "2026-10-23T05:29:08.206745+00:00",
+          "deleted_at": null,
+          "latest_revision_id": null,
+          "import_key": null,
+          "import_hash": "8fe94a81310e3b577e2b1259923b72fb8df12aa9d476ed2c62c15993824ffd5a"
+        },
+        {
+          "chapter_id": "c133f839-ab0f-42db-bd9d-7b9c114bdfc5",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Other chapter",
+          "chapter_number": 3,
+          "content": null,
+          "word_count": 3,
+          "is_vip": false,
+          "price_coins": 0,
+          "status": "DRAFT",
+          "published_at": null,
+          "created_at": "2026-10-23T05:29:08.333749+00:00",
+          "updated_at": "2026-10-23T05:29:08.348104+00:00",
+          "deleted_at": null,
+          "latest_revision_id": null,
+          "import_key": null,
+          "import_hash": "d0772b38b0d37a289c6f4871b33c36eb166a4bb7b5823321839b6fa404d2bfe7"
+        }
+      ],
+      "chapter_revisions": [
+        {
+          "revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": null,
+          "content_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+          "content": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+          "word_count": 11,
+          "source_type": "BOOTSTRAP",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:10.515649+00:00"
+        },
+        {
+          "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+          "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+          "word_count": 16,
+          "source_type": "AUTHOR_MANUAL",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:13.323519+00:00"
+        },
+        {
+          "revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "content_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+          "word_count": 23,
+          "source_type": "AUTHOR_MANUAL",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:27.866818+00:00"
+        },
+        {
+          "revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+          "content_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+          "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+          "word_count": 43,
+          "source_type": "AI_DRAFT_ACCEPT",
+          "source_generation_id": "cce4293a-5fe8-5b21-b578-bb9a4f5688f1",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:34.578416+00:00"
+        },
+        {
+          "revision_id": "22418b1b-00da-4f2c-8d94-70ae85aa3fde",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+          "content_hash": "6cfb14640cfbb97f99b18438f4790a9ad8e51e4d62b68f542c7e97920907db3b",
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. newer author checkpoint",
+          "word_count": 19,
+          "source_type": "AUTHOR_MANUAL",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:49.32299+00:00"
+        },
+        {
+          "revision_id": "dfc4f843-fbd5-4d35-9fdd-544b93ff9843",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "parent_revision_id": "22418b1b-00da-4f2c-8d94-70ae85aa3fde",
+          "content_hash": "d17aa05add02841b6d947024fcdaa1641bdac667d536a7670f99a1dece8d4527",
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. fault checkpoint",
+          "word_count": 18,
+          "source_type": "AUTHOR_MANUAL",
+          "source_generation_id": null,
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "created_at": "2026-10-23T05:29:58.67543+00:00"
+        }
+      ],
+      "revision_outbox_events": [
+        {
+          "event_id": "d0e5e230-3465-44c1-8c1a-4be6c019fb50",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+          "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:13.323519+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:13.323519+00:00",
+          "updated_at": "2026-10-23T05:29:13.535495+00:00",
+          "claim_token": "[REDACTED]"
+        },
+        {
+          "event_id": "9eafbb56-b15b-424e-8f2c-cd4729a5e689",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+          "content_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:27.866818+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:27.866818+00:00",
+          "updated_at": "2026-10-23T05:29:28.097769+00:00",
+          "claim_token": "[REDACTED]"
+        },
+        {
+          "event_id": "24b76467-c8cb-4b5f-8c56-91c9d7d42265",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+          "content_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:34.578416+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:34.578416+00:00",
+          "updated_at": "2026-10-23T05:29:34.811618+00:00",
+          "claim_token": "[REDACTED]"
+        },
+        {
+          "event_id": "ac67e994-35d0-4a89-a579-8d32bf232292",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "22418b1b-00da-4f2c-8d94-70ae85aa3fde",
+          "content_hash": "6cfb14640cfbb97f99b18438f4790a9ad8e51e4d62b68f542c7e97920907db3b",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:49.32299+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:49.32299+00:00",
+          "updated_at": "2026-10-23T05:29:49.560773+00:00",
+          "claim_token": "[REDACTED]"
+        },
+        {
+          "event_id": "ac7587b0-c0b2-4667-a30f-a1253dee270a",
+          "event_type": "INCREMENTAL_ANALYSIS",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "revision_id": "dfc4f843-fbd5-4d35-9fdd-544b93ff9843",
+          "content_hash": "d17aa05add02841b6d947024fcdaa1641bdac667d536a7670f99a1dece8d4527",
+          "created_by": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "payload": {
+            "operation": "incremental_story_analysis"
+          },
+          "status": "COMPLETED",
+          "retry_count": 0,
+          "max_retries": 5,
+          "next_retry_at": "2026-10-23T05:29:58.67543+00:00",
+          "last_error": null,
+          "created_at": "2026-10-23T05:29:58.67543+00:00",
+          "updated_at": "2026-10-23T05:29:58.922843+00:00",
+          "claim_token": "[REDACTED]"
+        }
+      ],
+      "Mongo_drafts": [
+        {
+          "_id": "6adaf0a3b6bfd09bb86598a1",
+          "version": 2,
+          "chapterId": "778237eb-0407-47ad-b902-7dee8cf31cb1",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Published canonical pricing fixture",
+          "createdAt": "2026-10-23T05:29:07.672Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Pricing fixture",
+          "updatedAt": "2026-10-23T05:29:08.205Z",
+          "wordCount": 4
+        },
+        {
+          "_id": "6adaf0a4b6bfd09bb86598c6",
+          "version": 2,
+          "chapterId": "c133f839-ab0f-42db-bd9d-7b9c114bdfc5",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Other chapter B",
+          "createdAt": "2026-10-23T05:29:08.337Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Other chapter",
+          "updatedAt": "2026-10-23T05:29:08.347Z",
+          "wordCount": 3
+        },
+        {
+          "_id": "6adaf087b6bfd09bb8659790",
+          "version": 14,
+          "chapterId": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+          "authorId": "c01b0efa-da42-42bb-8246-8df3aeda3920",
+          "autosave": false,
+          "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. fault checkpoint",
+          "createdAt": "2026-10-23T05:28:39.945Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "838bc104-5add-4f16-9969-87db97392ef5",
+          "title": "Contract chapter",
+          "updatedAt": "2026-10-23T05:29:55.904Z",
+          "wordCount": 18,
+          "lastAcceptedAt": "2026-10-23T05:29:34.583Z",
+          "lastAcceptedRevisionId": "99e5de66-e170-4871-8ee4-2bc551c83a40"
+        }
+      ]
+    }
+  },
+  "save_canon_failure": {
+    "before": {
+      "entities": [
+        {
+          "id": "1fd72136-4b85-4ede-80ad-cac80c5f0e36",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "entity_type": "LOC",
+          "canonical_name": "Cồn Vân",
+          "normalized_name": "cồn vân",
+          "description": null,
+          "static_attributes": {
+            "status": "Alive",
+            "location": "Unknown",
+            "mentions": 1
+          },
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "confidence": 9.0,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23T05:29:11.819018+00:00",
+          "updated_at": "2026-10-23T05:29:11.819018+00:00"
+        },
+        {
+          "id": "cb572d7a-c779-4916-a7de-43d95c01f222",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "entity_type": "PER",
+          "canonical_name": "Duy",
+          "normalized_name": "duy",
+          "description": null,
+          "static_attributes": {
+            "status": "Alive",
+            "location": "Unknown",
+            "mentions": 1
+          },
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "confidence": 9.0,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23T05:29:11.819018+00:00",
+          "updated_at": "2026-10-23T05:29:11.819018+00:00"
+        },
+        {
+          "id": "b1251692-3bb6-42fd-a479-b45e92463192",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "entity_type": "PER",
+          "canonical_name": "Mai Linh",
+          "normalized_name": "mai linh",
+          "description": null,
+          "static_attributes": {
+            "status": "Alive",
+            "location": "Unknown",
+            "mentions": 1
+          },
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "confidence": 9.0,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23T05:29:11.819018+00:00",
+          "updated_at": "2026-10-23T05:29:11.819018+00:00"
+        }
+      ],
+      "events": [
+        {
+          "id": "84373a23-ec4b-59bb-a550-1fa6812f7d58",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "narrative_order": 1024,
+          "event_type": "observation",
+          "summary": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "event_metadata": {
+            "chapter": 1,
+            "summary": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+            "evidence": [
+              {
+                "end": 44,
+                "start": 0,
+                "text_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+                "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+                "revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+                "chapter_number": 1
+              }
+            ],
+            "locations": [
+              "Cồn Vân"
+            ],
+            "event_type": "observation",
+            "consequences": [],
+            "participants": [
+              "Mai Linh",
+              "Duy"
+            ],
+            "chapter_number": 1
+          },
+          "chapter_number": 1,
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "created_at": "2026-10-23T05:29:11.819018+00:00"
+        }
+      ],
+      "facts": []
+    },
+    "after": {
+      "entities": [
+        {
+          "id": "1fd72136-4b85-4ede-80ad-cac80c5f0e36",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "entity_type": "LOC",
+          "canonical_name": "Cồn Vân",
+          "normalized_name": "cồn vân",
+          "description": null,
+          "static_attributes": {
+            "status": "Alive",
+            "location": "Unknown",
+            "mentions": 1
+          },
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "confidence": 9.0,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23T05:29:11.819018+00:00",
+          "updated_at": "2026-10-23T05:29:11.819018+00:00"
+        },
+        {
+          "id": "cb572d7a-c779-4916-a7de-43d95c01f222",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "entity_type": "PER",
+          "canonical_name": "Duy",
+          "normalized_name": "duy",
+          "description": null,
+          "static_attributes": {
+            "status": "Alive",
+            "location": "Unknown",
+            "mentions": 1
+          },
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "confidence": 9.0,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23T05:29:11.819018+00:00",
+          "updated_at": "2026-10-23T05:29:11.819018+00:00"
+        },
+        {
+          "id": "b1251692-3bb6-42fd-a479-b45e92463192",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "entity_type": "PER",
+          "canonical_name": "Mai Linh",
+          "normalized_name": "mai linh",
+          "description": null,
+          "static_attributes": {
+            "status": "Alive",
+            "location": "Unknown",
+            "mentions": 1
+          },
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "confidence": 9.0,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23T05:29:11.819018+00:00",
+          "updated_at": "2026-10-23T05:29:11.819018+00:00"
+        }
+      ],
+      "events": [
+        {
+          "id": "84373a23-ec4b-59bb-a550-1fa6812f7d58",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "narrative_order": 1024,
+          "event_type": "observation",
+          "summary": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "event_metadata": {
+            "chapter": 1,
+            "summary": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+            "evidence": [
+              {
+                "end": 44,
+                "start": 0,
+                "text_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+                "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+                "revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+                "chapter_number": 1
+              }
+            ],
+            "locations": [
+              "Cồn Vân"
+            ],
+            "event_type": "observation",
+            "consequences": [],
+            "participants": [
+              "Mai Linh",
+              "Duy"
+            ],
+            "chapter_number": 1
+          },
+          "chapter_number": 1,
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "created_at": "2026-10-23T05:29:11.819018+00:00"
+        },
+        {
+          "id": "979c5c0a-26ba-5456-b916-e0936c95cfb2",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "narrative_order": 2048,
+          "event_type": "observation",
+          "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "event_metadata": {
+            "chapter": 1,
+            "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+            "evidence": [
+              {
+                "end": 70,
+                "start": 0,
+                "text_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+                "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+                "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+                "chapter_number": 1
+              }
+            ],
+            "locations": [
+              "Cồn Vân"
+            ],
+            "event_type": "observation",
+            "consequences": [],
+            "participants": [
+              "Mai Linh",
+              "Duy"
+            ],
+            "chapter_number": 1
+          },
+          "chapter_number": 1,
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "created_at": "2026-10-23T05:29:13.510132+00:00"
+        }
+      ],
+      "facts": []
+    },
+    "author_review_performed": false
+  },
+  "accept_canon_failure": {
+    "before": {
+      "entities": [
+        {
+          "id": "1fd72136-4b85-4ede-80ad-cac80c5f0e36",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "entity_type": "LOC",
+          "canonical_name": "Cồn Vân",
+          "normalized_name": "cồn vân",
+          "description": null,
+          "static_attributes": {
+            "status": "Alive",
+            "location": "Unknown",
+            "mentions": 1
+          },
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "confidence": 9.0,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23T05:29:11.819018+00:00",
+          "updated_at": "2026-10-23T05:29:11.819018+00:00"
+        },
+        {
+          "id": "cb572d7a-c779-4916-a7de-43d95c01f222",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "entity_type": "PER",
+          "canonical_name": "Duy",
+          "normalized_name": "duy",
+          "description": null,
+          "static_attributes": {
+            "status": "Alive",
+            "location": "Unknown",
+            "mentions": 1
+          },
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "confidence": 9.0,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23T05:29:11.819018+00:00",
+          "updated_at": "2026-10-23T05:29:11.819018+00:00"
+        },
+        {
+          "id": "b1251692-3bb6-42fd-a479-b45e92463192",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "entity_type": "PER",
+          "canonical_name": "Mai Linh",
+          "normalized_name": "mai linh",
+          "description": null,
+          "static_attributes": {
+            "status": "Alive",
+            "location": "Unknown",
+            "mentions": 1
+          },
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "confidence": 9.0,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23T05:29:11.819018+00:00",
+          "updated_at": "2026-10-23T05:29:11.819018+00:00"
+        }
+      ],
+      "events": [
+        {
+          "id": "84373a23-ec4b-59bb-a550-1fa6812f7d58",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "narrative_order": 1024,
+          "event_type": "observation",
+          "summary": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "event_metadata": {
+            "chapter": 1,
+            "summary": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+            "evidence": [
+              {
+                "end": 44,
+                "start": 0,
+                "text_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+                "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+                "revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+                "chapter_number": 1
+              }
+            ],
+            "locations": [
+              "Cồn Vân"
+            ],
+            "event_type": "observation",
+            "consequences": [],
+            "participants": [
+              "Mai Linh",
+              "Duy"
+            ],
+            "chapter_number": 1
+          },
+          "chapter_number": 1,
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "created_at": "2026-10-23T05:29:11.819018+00:00"
+        },
+        {
+          "id": "979c5c0a-26ba-5456-b916-e0936c95cfb2",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "narrative_order": 2048,
+          "event_type": "observation",
+          "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "event_metadata": {
+            "chapter": 1,
+            "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+            "evidence": [
+              {
+                "end": 70,
+                "start": 0,
+                "text_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+                "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+                "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+                "chapter_number": 1
+              }
+            ],
+            "locations": [
+              "Cồn Vân"
+            ],
+            "event_type": "observation",
+            "consequences": [],
+            "participants": [
+              "Mai Linh",
+              "Duy"
+            ],
+            "chapter_number": 1
+          },
+          "chapter_number": 1,
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "created_at": "2026-10-23T05:29:13.510132+00:00"
+        },
+        {
+          "id": "67132ae4-e386-5ab2-930f-1ec9fa1bb217",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "narrative_order": 3072,
+          "event_type": "observation",
+          "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "event_metadata": {
+            "chapter": 1,
+            "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+            "evidence": [
+              {
+                "end": 102,
+                "start": 0,
+                "text_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+                "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+                "revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+                "chapter_number": 1
+              }
+            ],
+            "locations": [
+              "Cồn Vân"
+            ],
+            "event_type": "observation",
+            "consequences": [],
+            "participants": [
+              "Mai Linh",
+              "Duy"
+            ],
+            "chapter_number": 1
+          },
+          "chapter_number": 1,
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "created_at": "2026-10-23T05:29:28.073991+00:00"
+        }
+      ],
+      "facts": []
+    },
+    "after": {
+      "entities": [
+        {
+          "id": "1fd72136-4b85-4ede-80ad-cac80c5f0e36",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "entity_type": "LOC",
+          "canonical_name": "Cồn Vân",
+          "normalized_name": "cồn vân",
+          "description": null,
+          "static_attributes": {
+            "status": "Alive",
+            "location": "Unknown",
+            "mentions": 1
+          },
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "confidence": 9.0,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23T05:29:11.819018+00:00",
+          "updated_at": "2026-10-23T05:29:11.819018+00:00"
+        },
+        {
+          "id": "cb572d7a-c779-4916-a7de-43d95c01f222",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "entity_type": "PER",
+          "canonical_name": "Duy",
+          "normalized_name": "duy",
+          "description": null,
+          "static_attributes": {
+            "status": "Alive",
+            "location": "Unknown",
+            "mentions": 1
+          },
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "confidence": 9.0,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23T05:29:11.819018+00:00",
+          "updated_at": "2026-10-23T05:29:11.819018+00:00"
+        },
+        {
+          "id": "b1251692-3bb6-42fd-a479-b45e92463192",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "entity_type": "PER",
+          "canonical_name": "Mai Linh",
+          "normalized_name": "mai linh",
+          "description": null,
+          "static_attributes": {
+            "status": "Alive",
+            "location": "Unknown",
+            "mentions": 1
+          },
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "confidence": 9.0,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23T05:29:11.819018+00:00",
+          "updated_at": "2026-10-23T05:29:11.819018+00:00"
+        }
+      ],
+      "events": [
+        {
+          "id": "84373a23-ec4b-59bb-a550-1fa6812f7d58",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "narrative_order": 1024,
+          "event_type": "observation",
+          "summary": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "event_metadata": {
+            "chapter": 1,
+            "summary": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+            "evidence": [
+              {
+                "end": 44,
+                "start": 0,
+                "text_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+                "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+                "revision_id": "03923277-88b3-4b50-a93f-c027a19854c6",
+                "chapter_number": 1
+              }
+            ],
+            "locations": [
+              "Cồn Vân"
+            ],
+            "event_type": "observation",
+            "consequences": [],
+            "participants": [
+              "Mai Linh",
+              "Duy"
+            ],
+            "chapter_number": 1
+          },
+          "chapter_number": 1,
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "created_at": "2026-10-23T05:29:11.819018+00:00"
+        },
+        {
+          "id": "979c5c0a-26ba-5456-b916-e0936c95cfb2",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "narrative_order": 2048,
+          "event_type": "observation",
+          "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "event_metadata": {
+            "chapter": 1,
+            "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+            "evidence": [
+              {
+                "end": 70,
+                "start": 0,
+                "text_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+                "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+                "revision_id": "1e7e7606-34e7-4a47-9762-622f37d040af",
+                "chapter_number": 1
+              }
+            ],
+            "locations": [
+              "Cồn Vân"
+            ],
+            "event_type": "observation",
+            "consequences": [],
+            "participants": [
+              "Mai Linh",
+              "Duy"
+            ],
+            "chapter_number": 1
+          },
+          "chapter_number": 1,
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "created_at": "2026-10-23T05:29:13.510132+00:00"
+        },
+        {
+          "id": "67132ae4-e386-5ab2-930f-1ec9fa1bb217",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "narrative_order": 3072,
+          "event_type": "observation",
+          "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "event_metadata": {
+            "chapter": 1,
+            "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+            "evidence": [
+              {
+                "end": 102,
+                "start": 0,
+                "text_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+                "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+                "revision_id": "5ee003f2-56eb-4c3a-831e-dbe3dea26a48",
+                "chapter_number": 1
+              }
+            ],
+            "locations": [
+              "Cồn Vân"
+            ],
+            "event_type": "observation",
+            "consequences": [],
+            "participants": [
+              "Mai Linh",
+              "Duy"
+            ],
+            "chapter_number": 1
+          },
+          "chapter_number": 1,
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "created_at": "2026-10-23T05:29:28.073991+00:00"
+        },
+        {
+          "id": "f4835fa1-d327-5a99-bbe1-acfcbd73a3fc",
+          "story_brain_id": "05bea217-e684-44ba-be25-aee785374f1d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "838bc104-5add-4f16-9969-87db97392ef5",
+          "narrative_order": 4096,
+          "event_type": "observation",
+          "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "event_metadata": {
+            "chapter": 1,
+            "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+            "evidence": [
+              {
+                "end": 198,
+                "start": 0,
+                "text_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f",
+                "chapter_id": "ffc44b21-c2ef-450b-b7d5-572dcb3e513d",
+                "revision_id": "99e5de66-e170-4871-8ee4-2bc551c83a40",
+                "chapter_number": 1
+              }
+            ],
+            "locations": [
+              "Cồn Vân"
+            ],
+            "event_type": "observation",
+            "consequences": [],
+            "participants": [
+              "Mai Linh",
+              "Duy"
+            ],
+            "chapter_number": 1
+          },
+          "chapter_number": 1,
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "created_at": "2026-10-23T05:29:34.783004+00:00"
+        }
+      ],
+      "facts": []
+    },
+    "author_review_performed": false
+  },
+  "projection_oracle": "Real PostgreSQL canonical tables; /memory API is missing and NOT repaired",
+  "source_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef"
+}

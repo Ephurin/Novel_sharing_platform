@@ -1,0 +1,27 @@
+▶ Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)
+  ✔ calls authenticated /internal/v1/writing/generations/{id} route with service token and headers (74.4878ms)
+  ✔ rejects with 400 NOVEL_MISMATCH if generation novel does not match chapter novel (7.207ms)
+  ✔ rejects with 400 CHAPTER_MISMATCH if generation chapter does not match target chapter (8.9964ms)
+  ✔ rejects with 403 FORBIDDEN if generation belongs to another tenant or actor (12.0016ms)
+[OutboxProcessor] Event 12b95eff-ecf1-40ad-aa92-df65594a3206 (INCREMENTAL_ANALYSIS) failed (attempt 1): res.text is not a function
+  ✔ rejects with 409 GENERATION_NOT_COMPLETED if generation status is not completed (7.2012ms)
+  ✔ rejects with 422 GENERATION_VALIDATION_FAILED if validation_status is not passed (5.4352ms)
+  ✔ rejects with 422 INVALID_PATCH if patch structure is missing or malformed (6.6084ms)
+  ✔ rejects with 409 BRAIN_VERSION_CONFLICT if current Story Brain has advanced beyond generation brain_version_used (6.3405ms)
+  ✔ rejects with 404 STORY_BRAIN_NOT_FOUND if Story Brain route returns 404 when brain is required (5.6285ms)
+  ✔ rejects with 409 OBJECTIVE_INTENT_REQUIRED if P3 controller idempotency_key is malformed (8.3027ms)
+  ✔ rejects with 409 OBJECTIVE_INTENT_SUPERSEDED if P3 controller intent changed or plan missing (7.2728ms)
+  ✔ rejects with 404 BASE_REVISION_NOT_FOUND if base revision does not belong to chapter (8.0226ms)
+  ✔ rejects with 409 STALE_BASE_REVISION if base revision is no longer current latest revision (9.7751ms)
+{"level":30,"time":1792732276476,"pid":16392,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+  ✔ rejects with 409 CONTENT_HASH_MISMATCH if base revision content hash does not match generation (10.74ms)
+✔ Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening) (222.6009ms)
+{"level":30,"time":1792732276478,"pid":16392,"hostname":"Ephurin","msg":"MongoDB connection closed"}
+ℹ tests 14
+ℹ suites 1
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 960.8447

@@ -1,0 +1,89 @@
+▶ Test Database Isolation Guard Rules (Negative and Positive Contract)
+  ✔ Rule 1: Missing external opt-in (EPHURIN_ALLOW_TEST_DB_MUTATIONS != "1") fails closed (1.5527ms)
+  ✔ Rule 2: Ambient CI=true does NOT authorize mutations without opt-in (0.2914ms)
+  ✔ Rule 3: Ambient NODE_ENV=test does NOT authorize mutations without opt-in (0.2233ms)
+  ✔ Rule 4: Ambient npm lifecycle script does NOT authorize mutations without opt-in (0.2214ms)
+  ✔ Rule 5: Default PostgreSQL database "ephurin" is REJECTED even with opt-in (0.2587ms)
+  ✔ Rule 6: Production/system PostgreSQL databases (postgres, template0) are REJECTED even with opt-in (0.3058ms)
+  ✔ Rule 7: Default MongoDB database "ephurin" is REJECTED even with opt-in (0.2516ms)
+  ✔ Rule 8: System MongoDB databases (admin, config, local) are REJECTED even with opt-in (0.3951ms)
+  ✔ Rule 9: Expected test DB name mismatch is REJECTED (0.3246ms)
+  ✔ Rule 10: Approved isolated test database with opt-in PASSES (0.505ms)
+  ✔ Rule 11: isAllowedTestDbName helper enforces positive pattern and rejects forbidden names (0.2138ms)
+✔ Test Database Isolation Guard Rules (Negative and Positive Contract) (6.4713ms)
+[OutboxProcessor] No pending proposals scoped to revision rev-target-123 (legitimate no-op analysis or already materialized).
+[OutboxProcessor] No pending proposals scoped to revision rev-target-123 (legitimate no-op analysis or already materialized).
+[OutboxProcessor] No pending proposals scoped to revision rev-target-123 (legitimate no-op analysis or already materialized).
+[OutboxProcessor] Event evt-retry-001 (INCREMENTAL_ANALYSIS) failed (attempt 1): Failed to auto-materialize proposal group grp-B for revision rev-retry-101 (HTTP 503): Transient AI service 503 error on group B
+▶ AI-PIPE-01B Outbox Processor Fail-Closed Auto-Materialization
+  ✔ 1. Analysis success + scoped proposal materialization success -> Brain advances (21.5016ms)
+  ✔ 2. Proposal-group accept transient failure -> throws Error so event fails closed and is retryable (4.5897ms)
+  ✔ 3. Retry after partial attempt -> proposal already accepted does not re-accept; finishes cleanly (1.3788ms)
+  ✔ 4. Unrelated pending proposal groups are NOT auto-accepted (0.7369ms)
+  ✔ 5. No relevant proposals / legitimate no-op analysis -> does not throw, does not claim Brain advance (0.565ms)
+  ✔ 6. processOutboxOnce multi-attempt sequence: Attempt 1 partial failure leaves event retryable (FAILED), Attempt 2 idempotent retry marks COMPLETED (1.9663ms)
+✔ AI-PIPE-01B Outbox Processor Fail-Closed Auto-Materialization (32.2824ms)
+▶ Chapter Revisions & Patch Application
+  ✔ applyPatchToContent correctly applies insertion at cursor (0.9146ms)
+  ✔ applyPatchToContent correctly replaces selection range (0.1667ms)
+  ✔ applyPatchToContent handles unicode code points without splitting multi-byte characters (0.1727ms)
+  ✔ applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping) (0.5632ms)
+  ✔ applyPatchToContent allows valid boundary edge cases (0 to length) (0.1626ms)
+✔ Chapter Revisions & Patch Application (3.3743ms)
+✔ controller identity parses full pinned intent and rejects legacy attempts (3.3489ms)
+✔ intent checks run, plan and objective under row locks and rejects ABA epoch (0.9037ms)
+{"level":30,"time":1792733312224,"pid":8900,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+✔ private read boundaries deny before Mongo; controllers require trusted actor (12.6945ms)
+{"level":30,"time":1792733312225,"pid":8900,"hostname":"Ephurin","msg":"MongoDB connection closed"}
+▶ internal revision HTTP authorization fails closed before repository access
+  ✔ missing/anonymous (47.1681ms)
+  ✔ missing/arbitrary_Bearer (7.3857ms)
+  ✔ missing/empty_Bearer (4.6493ms)
+  ✔ missing/wrong_service_token (5.5346ms)
+  ✔ missing/empty_service_token (4.7587ms)
+  ✔ missing/correct_Bearer (3.9823ms)
+  ✔ missing/correct_service_header (4.2452ms)
+  ✔ missing/correct_legacy_header (4.1838ms)
+  ✔ empty/anonymous (11.7286ms)
+  ✔ empty/arbitrary_Bearer (18.3742ms)
+  ✔ empty/empty_Bearer (2.7059ms)
+  ✔ empty/wrong_service_token (7.3391ms)
+  ✔ empty/empty_service_token (1.8597ms)
+  ✔ empty/correct_Bearer (15.9867ms)
+  ✔ empty/correct_service_header (15.7458ms)
+  ✔ empty/correct_legacy_header (15.189ms)
+  ✔ whitespace/anonymous (15.5889ms)
+  ✔ whitespace/arbitrary_Bearer (14.9912ms)
+  ✔ whitespace/empty_Bearer (15.7077ms)
+  ✔ whitespace/wrong_service_token (15.9169ms)
+  ✔ whitespace/empty_service_token (20.6407ms)
+  ✔ whitespace/correct_Bearer (10.2527ms)
+  ✔ whitespace/correct_service_header (14.6317ms)
+  ✔ whitespace/correct_legacy_header (15.3851ms)
+  ✔ configured/anonymous (1.4069ms)
+  ✔ configured/arbitrary_Bearer (14.7194ms)
+  ✔ configured/empty_Bearer (21.2042ms)
+  ✔ configured/wrong_service_token (16.052ms)
+  ✔ configured/empty_service_token (2.2578ms)
+  ✔ configured/correct_Bearer (13.451ms)
+  ✔ configured/correct_service_header (1.6387ms)
+  ✔ configured/correct_legacy_header (12.2049ms)
+{"level":30,"time":1792733313027,"pid":4292,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+  ✔ valid token missing revision is 404; invalid token missing revision is 401 (16.4697ms)
+✔ internal revision HTTP authorization fails closed before repository access (411.9177ms)
+▶ Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+  ✔ Exponential backoff for outbox retries is bounded by 300s (1.1939ms)
+  ✔ Conditional MongoDB draft reconciliation preserves newer manual draft edits (0.2913ms)
+  ✔ Conditional MongoDB draft reconciliation creates new draft if not found (0.2497ms)
+  ✔ Accept-time brain version conflict rejects stale generation (0.1616ms)
+  ✔ Outbox lease concurrency: active PROCESSING event cannot be claimed by concurrent worker (0.2641ms)
+  ✔ Outbox expired lease recovery: crashed worker event is reclaimed after timeout (0.2657ms)
+✔ Transactional Outbox & Dual-Write Resilience (P6.5 Hardening) (4.0314ms)
+ℹ tests 65
+ℹ suites 4
+ℹ pass 65
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1688.0653

@@ -1,0 +1,272 @@
+{
+  "before": {
+    "entities": [
+      {
+        "id": "2e83958c-001c-4a15-a838-31752ed64ae6",
+        "story_brain_id": "8a9af24f-b4f9-4963-8f31-dbb3039d004c",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "9b6cee42-1a0f-41ca-a6ec-98690baa1f9d",
+        "entity_type": "LOC",
+        "canonical_name": "Cồn Vân",
+        "normalized_name": "cồn vân",
+        "description": null,
+        "static_attributes": {
+          "status": "Alive",
+          "location": "Unknown",
+          "mentions": 1
+        },
+        "source_type": "AI",
+        "confirmation_status": "confirmed",
+        "confidence": 9.0,
+        "is_locked": false,
+        "created_by": null,
+        "created_at": "2026-10-23T05:23:16.242963+00:00",
+        "updated_at": "2026-10-23T05:23:16.242963+00:00"
+      },
+      {
+        "id": "8380c772-05fd-44e0-906c-ba593e155da5",
+        "story_brain_id": "8a9af24f-b4f9-4963-8f31-dbb3039d004c",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "9b6cee42-1a0f-41ca-a6ec-98690baa1f9d",
+        "entity_type": "PER",
+        "canonical_name": "Duy",
+        "normalized_name": "duy",
+        "description": null,
+        "static_attributes": {
+          "status": "Alive",
+          "location": "Unknown",
+          "mentions": 1
+        },
+        "source_type": "AI",
+        "confirmation_status": "confirmed",
+        "confidence": 9.0,
+        "is_locked": false,
+        "created_by": null,
+        "created_at": "2026-10-23T05:23:16.242963+00:00",
+        "updated_at": "2026-10-23T05:23:16.242963+00:00"
+      },
+      {
+        "id": "3b70025b-936f-4b74-80b8-990712222436",
+        "story_brain_id": "8a9af24f-b4f9-4963-8f31-dbb3039d004c",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "9b6cee42-1a0f-41ca-a6ec-98690baa1f9d",
+        "entity_type": "PER",
+        "canonical_name": "Mai Linh",
+        "normalized_name": "mai linh",
+        "description": null,
+        "static_attributes": {
+          "status": "Alive",
+          "location": "Unknown",
+          "mentions": 1
+        },
+        "source_type": "AI",
+        "confirmation_status": "confirmed",
+        "confidence": 9.0,
+        "is_locked": false,
+        "created_by": null,
+        "created_at": "2026-10-23T05:23:16.242963+00:00",
+        "updated_at": "2026-10-23T05:23:16.242963+00:00"
+      }
+    ],
+    "events": [
+      {
+        "id": "7bc26c94-07cf-57b7-811a-9b877097099a",
+        "story_brain_id": "8a9af24f-b4f9-4963-8f31-dbb3039d004c",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "9b6cee42-1a0f-41ca-a6ec-98690baa1f9d",
+        "narrative_order": 1024,
+        "event_type": "observation",
+        "summary": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+        "participants": [
+          "Mai Linh",
+          "Duy"
+        ],
+        "event_metadata": {
+          "chapter": 1,
+          "summary": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+          "evidence": [
+            {
+              "end": 44,
+              "start": 0,
+              "text_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+              "chapter_id": "924d3269-a0f0-4513-bdc4-c2dbb24aa463",
+              "revision_id": "4e484444-a0ab-43df-a407-84f7024d1368",
+              "chapter_number": 1
+            }
+          ],
+          "locations": [
+            "Cồn Vân"
+          ],
+          "event_type": "observation",
+          "consequences": [],
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "chapter_number": 1
+        },
+        "chapter_number": 1,
+        "source_type": "AI",
+        "confirmation_status": "confirmed",
+        "created_at": "2026-10-23T05:23:16.242963+00:00"
+      }
+    ],
+    "facts": []
+  },
+  "after": {
+    "entities": [
+      {
+        "id": "2e83958c-001c-4a15-a838-31752ed64ae6",
+        "story_brain_id": "8a9af24f-b4f9-4963-8f31-dbb3039d004c",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "9b6cee42-1a0f-41ca-a6ec-98690baa1f9d",
+        "entity_type": "LOC",
+        "canonical_name": "Cồn Vân",
+        "normalized_name": "cồn vân",
+        "description": null,
+        "static_attributes": {
+          "status": "Alive",
+          "location": "Unknown",
+          "mentions": 1
+        },
+        "source_type": "AI",
+        "confirmation_status": "confirmed",
+        "confidence": 9.0,
+        "is_locked": false,
+        "created_by": null,
+        "created_at": "2026-10-23T05:23:16.242963+00:00",
+        "updated_at": "2026-10-23T05:23:16.242963+00:00"
+      },
+      {
+        "id": "8380c772-05fd-44e0-906c-ba593e155da5",
+        "story_brain_id": "8a9af24f-b4f9-4963-8f31-dbb3039d004c",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "9b6cee42-1a0f-41ca-a6ec-98690baa1f9d",
+        "entity_type": "PER",
+        "canonical_name": "Duy",
+        "normalized_name": "duy",
+        "description": null,
+        "static_attributes": {
+          "status": "Alive",
+          "location": "Unknown",
+          "mentions": 1
+        },
+        "source_type": "AI",
+        "confirmation_status": "confirmed",
+        "confidence": 9.0,
+        "is_locked": false,
+        "created_by": null,
+        "created_at": "2026-10-23T05:23:16.242963+00:00",
+        "updated_at": "2026-10-23T05:23:16.242963+00:00"
+      },
+      {
+        "id": "3b70025b-936f-4b74-80b8-990712222436",
+        "story_brain_id": "8a9af24f-b4f9-4963-8f31-dbb3039d004c",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "9b6cee42-1a0f-41ca-a6ec-98690baa1f9d",
+        "entity_type": "PER",
+        "canonical_name": "Mai Linh",
+        "normalized_name": "mai linh",
+        "description": null,
+        "static_attributes": {
+          "status": "Alive",
+          "location": "Unknown",
+          "mentions": 1
+        },
+        "source_type": "AI",
+        "confirmation_status": "confirmed",
+        "confidence": 9.0,
+        "is_locked": false,
+        "created_by": null,
+        "created_at": "2026-10-23T05:23:16.242963+00:00",
+        "updated_at": "2026-10-23T05:23:16.242963+00:00"
+      }
+    ],
+    "events": [
+      {
+        "id": "7bc26c94-07cf-57b7-811a-9b877097099a",
+        "story_brain_id": "8a9af24f-b4f9-4963-8f31-dbb3039d004c",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "9b6cee42-1a0f-41ca-a6ec-98690baa1f9d",
+        "narrative_order": 1024,
+        "event_type": "observation",
+        "summary": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+        "participants": [
+          "Mai Linh",
+          "Duy"
+        ],
+        "event_metadata": {
+          "chapter": 1,
+          "summary": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+          "evidence": [
+            {
+              "end": 44,
+              "start": 0,
+              "text_hash": "7c22f873b20e2a825dc31479ef372a3eac561ea135dd5a06b7f597233d8e6980",
+              "chapter_id": "924d3269-a0f0-4513-bdc4-c2dbb24aa463",
+              "revision_id": "4e484444-a0ab-43df-a407-84f7024d1368",
+              "chapter_number": 1
+            }
+          ],
+          "locations": [
+            "Cồn Vân"
+          ],
+          "event_type": "observation",
+          "consequences": [],
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "chapter_number": 1
+        },
+        "chapter_number": 1,
+        "source_type": "AI",
+        "confirmation_status": "confirmed",
+        "created_at": "2026-10-23T05:23:16.242963+00:00"
+      },
+      {
+        "id": "d8b75f5f-7db4-5058-b4f8-06e319093313",
+        "story_brain_id": "8a9af24f-b4f9-4963-8f31-dbb3039d004c",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "9b6cee42-1a0f-41ca-a6ec-98690baa1f9d",
+        "narrative_order": 2048,
+        "event_type": "observation",
+        "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+        "participants": [
+          "Mai Linh",
+          "Duy"
+        ],
+        "event_metadata": {
+          "chapter": 1,
+          "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+          "evidence": [
+            {
+              "end": 70,
+              "start": 0,
+              "text_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+              "chapter_id": "924d3269-a0f0-4513-bdc4-c2dbb24aa463",
+              "revision_id": "ad6cfb9b-848b-4977-8d2d-cb95bd581a06",
+              "chapter_number": 1
+            }
+          ],
+          "locations": [
+            "Cồn Vân"
+          ],
+          "event_type": "observation",
+          "consequences": [],
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "chapter_number": 1
+        },
+        "chapter_number": 1,
+        "source_type": "AI",
+        "confirmation_status": "confirmed",
+        "created_at": "2026-10-23T05:23:18.234883+00:00"
+      }
+    ],
+    "facts": []
+  },
+  "author_review_performed": false
+}

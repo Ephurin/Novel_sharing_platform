@@ -1,0 +1,27 @@
+▶ Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)
+  ✔ calls authenticated /internal/v1/writing/generations/{id} route with service token and headers (72.3499ms)
+  ✔ rejects with 400 NOVEL_MISMATCH if generation novel does not match chapter novel (8.631ms)
+[OutboxProcessor] Event afc84854-a1ea-4018-b4b1-32635a3924a2 (INCREMENTAL_ANALYSIS) failed (attempt 1): res.text is not a function
+  ✔ rejects with 400 CHAPTER_MISMATCH if generation chapter does not match target chapter (18.2105ms)
+  ✔ rejects with 403 FORBIDDEN if generation belongs to another tenant or actor (7.3333ms)
+  ✔ rejects with 409 GENERATION_NOT_COMPLETED if generation status is not completed (6.213ms)
+  ✔ rejects with 422 GENERATION_VALIDATION_FAILED if validation_status is not passed (6.3011ms)
+  ✔ rejects with 422 INVALID_PATCH if patch structure is missing or malformed (8.9997ms)
+  ✔ rejects with 409 BRAIN_VERSION_CONFLICT if current Story Brain has advanced beyond generation brain_version_used (6.1152ms)
+  ✔ rejects with 404 STORY_BRAIN_NOT_FOUND if Story Brain route returns 404 when brain is required (7.9922ms)
+  ✔ rejects with 409 OBJECTIVE_INTENT_REQUIRED if P3 controller idempotency_key is malformed (9.924ms)
+  ✔ rejects with 409 OBJECTIVE_INTENT_SUPERSEDED if P3 controller intent changed or plan missing (9.0225ms)
+  ✔ rejects with 404 BASE_REVISION_NOT_FOUND if base revision does not belong to chapter (8.3205ms)
+  ✔ rejects with 409 STALE_BASE_REVISION if base revision is no longer current latest revision (11.459ms)
+{"level":30,"time":1792733097802,"pid":12260,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+  ✔ rejects with 409 CONTENT_HASH_MISMATCH if base revision content hash does not match generation (11.4725ms)
+✔ Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening) (233.47ms)
+{"level":30,"time":1792733097804,"pid":12260,"hostname":"Ephurin","msg":"MongoDB connection closed"}
+ℹ tests 14
+ℹ suites 1
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 920.0141

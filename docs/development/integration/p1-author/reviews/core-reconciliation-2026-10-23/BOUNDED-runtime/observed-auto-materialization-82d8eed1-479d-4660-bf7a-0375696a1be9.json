@@ -1,0 +1,134 @@
+{
+  "revision_id": "82d8eed1-479d-4660-bf7a-0375696a1be9",
+  "explicit_author_review": false,
+  "mode": "integration_worker_auto_materialize",
+  "proposals": [
+    {
+      "id": "ca91cf2f-46b8-5a91-b772-60a2452c4f60",
+      "analysis_run_id": "52a7dc58-656c-4029-9848-5d36776f0517",
+      "story_brain_id": "8a9af24f-b4f9-4963-8f31-dbb3039d004c",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "9b6cee42-1a0f-41ca-a6ec-98690baa1f9d",
+      "dependency_group_id": "fb1371b9-4474-59d6-a09a-bab1a5601457",
+      "materialization_order": 0,
+      "proposal_type": "entity",
+      "payload": {
+        "entity_type": "PER",
+        "canonical_name": "Mai Linh",
+        "normalized_name": "mai linh"
+      },
+      "evidence": [
+        {
+          "end": 8,
+          "start": 0,
+          "text_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+          "revision_id": "82d8eed1-479d-4660-bf7a-0375696a1be9"
+        }
+      ],
+      "confidence": 9.0,
+      "status": "accepted",
+      "expected_brain_version": 3,
+      "decision_reason": "incremental_outbox_auto_materialize",
+      "created_at": "2026-10-23T05:23:33.465316+00:00",
+      "updated_at": "2026-10-23T05:23:33.524837+00:00"
+    },
+    {
+      "id": "2e2860a8-f9bd-55f8-85fe-5e18d98c1b98",
+      "analysis_run_id": "52a7dc58-656c-4029-9848-5d36776f0517",
+      "story_brain_id": "8a9af24f-b4f9-4963-8f31-dbb3039d004c",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "9b6cee42-1a0f-41ca-a6ec-98690baa1f9d",
+      "dependency_group_id": "fb1371b9-4474-59d6-a09a-bab1a5601457",
+      "materialization_order": 1,
+      "proposal_type": "entity",
+      "payload": {
+        "entity_type": "PER",
+        "canonical_name": "Duy",
+        "normalized_name": "duy"
+      },
+      "evidence": [
+        {
+          "end": 39,
+          "start": 36,
+          "text_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+          "revision_id": "82d8eed1-479d-4660-bf7a-0375696a1be9"
+        }
+      ],
+      "confidence": 9.0,
+      "status": "accepted",
+      "expected_brain_version": 3,
+      "decision_reason": "incremental_outbox_auto_materialize",
+      "created_at": "2026-10-23T05:23:33.465316+00:00",
+      "updated_at": "2026-10-23T05:23:33.524837+00:00"
+    },
+    {
+      "id": "4fbf7fc2-3091-51d9-97c0-3041a5a7a9a6",
+      "analysis_run_id": "52a7dc58-656c-4029-9848-5d36776f0517",
+      "story_brain_id": "8a9af24f-b4f9-4963-8f31-dbb3039d004c",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "9b6cee42-1a0f-41ca-a6ec-98690baa1f9d",
+      "dependency_group_id": "fb1371b9-4474-59d6-a09a-bab1a5601457",
+      "materialization_order": 2,
+      "proposal_type": "entity",
+      "payload": {
+        "entity_type": "LOC",
+        "canonical_name": "Cồn Vân",
+        "normalized_name": "cồn vân"
+      },
+      "evidence": [
+        {
+          "end": 69,
+          "start": 62,
+          "text_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+          "revision_id": "82d8eed1-479d-4660-bf7a-0375696a1be9"
+        }
+      ],
+      "confidence": 9.0,
+      "status": "accepted",
+      "expected_brain_version": 3,
+      "decision_reason": "incremental_outbox_auto_materialize",
+      "created_at": "2026-10-23T05:23:33.465316+00:00",
+      "updated_at": "2026-10-23T05:23:33.524837+00:00"
+    },
+    {
+      "id": "92d2ac63-4ec1-5843-b020-ba16408914f8",
+      "analysis_run_id": "52a7dc58-656c-4029-9848-5d36776f0517",
+      "story_brain_id": "8a9af24f-b4f9-4963-8f31-dbb3039d004c",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "9b6cee42-1a0f-41ca-a6ec-98690baa1f9d",
+      "dependency_group_id": "fb1371b9-4474-59d6-a09a-bab1a5601457",
+      "materialization_order": 3,
+      "proposal_type": "event",
+      "payload": {
+        "chapter": 1,
+        "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân. Mai Linh tiếp tục nhìn máy thu.",
+        "locations": [
+          "Cồn Vân"
+        ],
+        "event_type": "observation",
+        "consequences": [],
+        "participants": [
+          "Mai Linh",
+          "Duy"
+        ],
+        "chapter_number": 1
+      },
+      "evidence": [
+        {
+          "end": 102,
+          "start": 0,
+          "text_hash": "a95c710fb652cda520c66da17f2274ef4ea7fc01ea0610a1c9e8f85b5f3207c4",
+          "chapter_id": "924d3269-a0f0-4513-bdc4-c2dbb24aa463",
+          "revision_id": "82d8eed1-479d-4660-bf7a-0375696a1be9",
+          "chapter_number": 1
+        }
+      ],
+      "confidence": 0.5,
+      "status": "accepted",
+      "expected_brain_version": 3,
+      "decision_reason": "incremental_outbox_auto_materialize",
+      "created_at": "2026-10-23T05:23:33.465316+00:00",
+      "updated_at": "2026-10-23T05:23:33.524837+00:00"
+    }
+  ]
+}

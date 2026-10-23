@@ -1,0 +1,57 @@
+▶ Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)
+  ✔ calls authenticated /internal/v1/writing/generations/{id} route with service token and headers (82.2147ms)
+  ✔ rejects with 400 NOVEL_MISMATCH if generation novel does not match chapter novel (6.5568ms)
+  ✔ rejects with 400 CHAPTER_MISMATCH if generation chapter does not match target chapter (8.5596ms)
+  ✔ rejects with 403 FORBIDDEN if generation belongs to another tenant or actor (6.1106ms)
+[OutboxProcessor] Event c95372a6-d39e-4d1b-89b2-61c6397485c3 (INCREMENTAL_ANALYSIS) failed (attempt 1): res.text is not a function
+  ✔ rejects with 409 GENERATION_NOT_COMPLETED if generation status is not completed (11.9663ms)
+  ✔ rejects with 422 GENERATION_VALIDATION_FAILED if validation_status is not passed (8.7917ms)
+  ✔ rejects with 422 INVALID_PATCH if patch structure is missing or malformed (8.6792ms)
+  ✔ rejects with 409 BRAIN_VERSION_CONFLICT if current Story Brain has advanced beyond generation brain_version_used (10.0199ms)
+  ✔ rejects with 404 STORY_BRAIN_NOT_FOUND if Story Brain route returns 404 when brain is required (6.5891ms)
+  ✔ rejects with 409 OBJECTIVE_INTENT_REQUIRED if P3 controller idempotency_key is malformed (7.4451ms)
+  ✖ rejects with 409 OBJECTIVE_INTENT_SUPERSEDED if P3 controller intent changed or plan missing (17.2125ms)
+  ✔ rejects with 404 BASE_REVISION_NOT_FOUND if base revision does not belong to chapter (18.2795ms)
+  ✔ rejects with 409 STALE_BASE_REVISION if base revision is no longer current latest revision (12.8957ms)
+{"level":30,"time":1792731981401,"pid":13348,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+  ✔ rejects with 409 CONTENT_HASH_MISMATCH if base revision content hash does not match generation (21.8539ms)
+✖ Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening) (284.6928ms)
+{"level":30,"time":1792731981403,"pid":13348,"hostname":"Ephurin","msg":"MongoDB connection closed"}
+ℹ tests 14
+ℹ suites 1
+ℹ pass 13
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1430.2528
+
+✖ failing tests:
+
+test at src\modules\novels\accept-draft-contract.test.ts:5:5737
+✖ rejects with 409 OBJECTIVE_INTENT_SUPERSEDED if P3 controller intent changed or plan missing (17.2125ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+  
+  Caught error:
+  
+  error: relation "narrative.autonomous_runs" does not exist
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (C:\Users\thaib\.codex\worktrees\p1-core-reconciliation\Novel_sharing_platform\backend\src\modules\novels\accept-draft-contract.test.ts:275:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: error: relation "narrative.autonomous_runs" does not exist
+        at C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\backend\node_modules\pg\lib\client.js:652:17
+        at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+        at async assertControllerIntent (C:\Users\thaib\.codex\worktrees\p1-core-reconciliation\Novel_sharing_platform\backend\src\modules\novels\controller-intent.ts:26:16)
+        at async <anonymous> (C:\Users\thaib\.codex\worktrees\p1-core-reconciliation\Novel_sharing_platform\backend\src\modules\novels\chapter-revisions.service.ts:365:5)
+        at async withPostgresTransaction (C:\Users\thaib\.codex\worktrees\p1-core-reconciliation\Novel_sharing_platform\backend\src\core\database\transaction.ts:11:20)
+        at async acceptDraftUnderLease (C:\Users\thaib\.codex\worktrees\p1-core-reconciliation\Novel_sharing_platform\backend\src\modules\novels\chapter-revisions.service.ts:364:23)
+        at async withChapterWriter (C:\Users\thaib\.codex\worktrees\p1-core-reconciliation\Novel_sharing_platform\backend\src\modules\novels\chapter-writer.ts:24:12)
+        at async waitForActual (node:assert:646:5)
+        at async strict.rejects (node:assert:769:25)
+        at async TestContext.<anonymous> (C:\Users\thaib\.codex\worktrees\p1-core-reconciliation\Novel_sharing_platform\backend\src\modules\novels\accept-draft-contract.test.ts:275:5),
+    operator: 'rejects',
+    diff: 'simple'
+  }

@@ -1,0 +1,13 @@
+▶ PostgreSQL Outbox Multi-Worker Lease Fencing Integration
+  ✔ Two concurrent PostgreSQL workers claim queue: exactly one worker claims active token (22.6501ms)
+  ✔ Lease expiry and reclaim: stale worker token affects 0 rows, new active worker completes (23.9318ms)
+{"level":30,"time":1792732735696,"pid":20476,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+✔ PostgreSQL Outbox Multi-Worker Lease Fencing Integration (95.8984ms)
+ℹ tests 2
+ℹ suites 1
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 429.812

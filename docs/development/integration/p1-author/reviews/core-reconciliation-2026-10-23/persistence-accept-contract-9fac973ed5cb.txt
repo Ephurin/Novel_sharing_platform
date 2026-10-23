@@ -1,0 +1,27 @@
+▶ Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)
+  ✔ calls authenticated /internal/v1/writing/generations/{id} route with service token and headers (66.0919ms)
+  ✔ rejects with 400 NOVEL_MISMATCH if generation novel does not match chapter novel (6.3171ms)
+  ✔ rejects with 400 CHAPTER_MISMATCH if generation chapter does not match target chapter (6.198ms)
+  ✔ rejects with 403 FORBIDDEN if generation belongs to another tenant or actor (6.1249ms)
+[OutboxProcessor] Event 6bf9b937-25b5-4925-b77b-81f63ef1d81d (INCREMENTAL_ANALYSIS) failed (attempt 1): res.text is not a function
+  ✔ rejects with 409 GENERATION_NOT_COMPLETED if generation status is not completed (6.4594ms)
+  ✔ rejects with 422 GENERATION_VALIDATION_FAILED if validation_status is not passed (5.7139ms)
+  ✔ rejects with 422 INVALID_PATCH if patch structure is missing or malformed (8.9894ms)
+  ✔ rejects with 409 BRAIN_VERSION_CONFLICT if current Story Brain has advanced beyond generation brain_version_used (5.7502ms)
+  ✔ rejects with 404 STORY_BRAIN_NOT_FOUND if Story Brain route returns 404 when brain is required (6.1423ms)
+  ✔ rejects with 409 OBJECTIVE_INTENT_REQUIRED if P3 controller idempotency_key is malformed (7.3214ms)
+  ✔ rejects with 409 OBJECTIVE_INTENT_SUPERSEDED if P3 controller intent changed or plan missing (7.9608ms)
+  ✔ rejects with 404 BASE_REVISION_NOT_FOUND if base revision does not belong to chapter (8.9076ms)
+  ✔ rejects with 409 STALE_BASE_REVISION if base revision is no longer current latest revision (10.5824ms)
+{"level":30,"time":1792733308708,"pid":16376,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+  ✔ rejects with 409 CONTENT_HASH_MISMATCH if base revision content hash does not match generation (11.6145ms)
+✔ Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening) (195.5577ms)
+{"level":30,"time":1792733308711,"pid":16376,"hostname":"Ephurin","msg":"MongoDB connection closed"}
+ℹ tests 14
+ℹ suites 1
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 763.5185

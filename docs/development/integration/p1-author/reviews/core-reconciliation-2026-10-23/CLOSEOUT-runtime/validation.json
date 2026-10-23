@@ -1,0 +1,207 @@
+{
+  "tested_sha": "509b70f0ddf337a6cb0b7e49a27acee840985b69",
+  "source_dirty_at_start": false,
+  "project": "p123-core-66db0a75a6",
+  "novel_id": "c3b84d65-26c2-4d5e-8b91-e80d63dd1921",
+  "rows": [
+    {
+      "test": "01_absent_draft_version_0",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        null,
+        {
+          "chapterId": "23dec0f0-a022-4dcf-a2b1-59cd207df608",
+          "novelId": "c3b84d65-26c2-4d5e-8b91-e80d63dd1921",
+          "title": "Contract chapter",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 9,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "publicationSchedule": null,
+          "updatedAt": "2026-10-23T05:25:06.384Z",
+          "draft": {
+            "title": "Contract chapter",
+            "content": "Mai Linh và Duy đứng tại Cồn Vân. B",
+            "wordCount": 9,
+            "version": 1,
+            "autosave": true,
+            "updatedAt": "2026-10-23T05:25:06.381Z"
+          },
+          "analysisRevisionId": null,
+          "draftVersion": 1
+        },
+        null
+      ]
+    },
+    {
+      "test": "02_valid_version_save",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        {
+          "chapterId": "23dec0f0-a022-4dcf-a2b1-59cd207df608",
+          "novelId": "c3b84d65-26c2-4d5e-8b91-e80d63dd1921",
+          "title": "Contract chapter",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 10,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "publicationSchedule": null,
+          "updatedAt": "2026-10-23T05:25:06.459Z",
+          "draft": {
+            "title": "Contract chapter",
+            "content": "Mai Linh và Duy đứng tại Cồn Vân. B valid",
+            "wordCount": 10,
+            "version": 2,
+            "autosave": true,
+            "updatedAt": "2026-10-23T05:25:06.458Z"
+          },
+          "analysisRevisionId": null,
+          "draftVersion": 2
+        },
+        null
+      ]
+    },
+    {
+      "test": "03_missing_version_integration_428",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "04_stale_different_body_409",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        null,
+        null
+      ]
+    },
+    {
+      "test": "05_same_body_lost_response_retry",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        {
+          "chapterId": "23dec0f0-a022-4dcf-a2b1-59cd207df608",
+          "novelId": "c3b84d65-26c2-4d5e-8b91-e80d63dd1921",
+          "title": "Contract chapter",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 11,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "publicationSchedule": null,
+          "updatedAt": "2026-10-23T05:25:11.818Z",
+          "draft": {
+            "title": "Contract chapter",
+            "content": "Mai Linh và Duy đứng tại Cồn Vân. B response unread",
+            "wordCount": 11,
+            "version": 3,
+            "autosave": true,
+            "updatedAt": "2026-10-23T05:25:11.817Z"
+          },
+          "analysisRevisionId": null,
+          "draftVersion": 3
+        },
+        null
+      ]
+    },
+    {
+      "test": "06_different_body_stale_retry",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        null,
+        null
+      ]
+    },
+    {
+      "test": "06b_different_metadata_stale_payload_409",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "06c_fresh_metadata_and_identical_semantic_replay",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "06d_published_pricing_only_compatibility",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "07_concurrent_writers_CAS",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "08_API_consumer_inflight_A_then_B",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": {
+        "model": "API consumer retains B while A response is pending, then serializes using returned version; NOT a mounted hook or editor test",
+        "A_version": 8,
+        "B_version": 9
+      }
+    },
+    {
+      "test": "09_API_chapter_account_isolation",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": {
+        "browser_lifecycle": "NOT_RUN",
+        "foreign_write": 403,
+        "other_chapter": "4969759f-e57d-40ae-90c0-783cc24718de"
+      }
+    },
+    {
+      "test": "10a_active_save_returns_authoritative_version",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "10d_save_requires_explicit_canon_review",
+      "status": "FAIL",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "error": "Integration worker auto-approved canon; production worker/policy left unchanged outside this repair"
+    },
+    {
+      "test": "10b_active_replay_preserves_version",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "10c_next_save_using_returned_version",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "10e_accept_requires_explicit_canon_review",
+      "status": "FAIL",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "error": "Integration worker auto-approved accepted source; preserved as a genuine contract blocker"
+    }
+  ],
+  "failure": {
+    "type": "AssertionError",
+    "message": "HTTP_400:POST:/ai/writing/generations:{'success': False, 'data': None, 'error': {'code': 'GENERATION_REQUEST_FAILED', 'message': '(psycopg.errors.UniqueViolation) duplicate key value violates unique constraint \"uq_writing_gen_tenant_idempotency\"\\nDETAIL:  Key (tenant_id, novel_id, idempotency_key)=(00000000-0000-0000-0000-000000000001, c3b84d65-26c2-4d5e-8b91-e80d63dd1921, ) already exists.\\n[SQL: INSERT INTO narrative.writing_generations (id, job_id, tenant_id, novel_id, chapter_id, revision_id, base_content_hash, brain_version, operation, selection_start, selection_end, instruction, constraints, style, actor_id, idempotency_key, input_hash, status, stage, draft, patch, validation_status, validations, context_summary, model_name, prompt_version, error) VALUES (%(id)s::UUID, %(job_id)s::UUID, %(tenant_id)s::UUID, %(novel_id)s::UUID, %(chapter_id)s::UUID, %(revision_id)s::UUID, %(base_content_hash)s::VARCHAR, %(brain_version)s::BIGINT, %(operation)s::VARCHAR, %(selection_start)s::INTEGER, %(selection_end)s::INTEGER, %(instruction)s::VARCHAR, %(constraints)s::JSONB, %(style)s::JSONB, %(actor_id)s::UUID, %(idempotency_key)s::VARCHAR, %(input_hash)s::VARCHAR, %(status)s::VARCHAR, %(stage)s::VARCHAR, %(draft)s::VARCHAR, %(patch)s::JSONB, %(validation_status)s::VARCHAR, %(validations)s::JSONB, %(context_summary)s::JSONB, %(model_name)s::VARCHAR, %(prompt_version)s::VARCHAR, %(error)s::JSONB) RETURNING narrative.writing_generations.created_at, narrative.writing_generations.updated_at]\\n[parameters: {\\'id\\': UUID(\\'6f4a522a-8c5a-4c29-b4a7-7ea98c51d5ab\\'), \\'job_id\\': UUID(\\'fa654900-73c3-4c10-9b2d-9de2b14afd8a\\'), \\'tenant_id\\': UUID(\\'00000000-0000-0000-0000-000000000001\\'), \\'novel_id\\': UUID(\\'c3b84d65-26c2-4d5e-8b91-e80d63dd1921\\'), \\'chapter_id\\': UUID(\\'23dec0f0-a022-4dcf-a2b1-59cd207df608\\'), \\'revision_id\\': UUID(\\'ec3ff049-e10f-48ea-b17b-3de2eb6f12b2\\'), \\'base_content_hash\\': \\'314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f\\', \\'brain_version\\': 5, \\'operation\\': \\'continue\\', \\'selection_start\\': 0, \\'selection_end\\': 0, \\'instruction\\': \\'next-ee9990e22e2b4d50b535e4e44093b713 Continue current scene.\\', \\'constraints\\': Jsonb([]), \\'style\\': Jsonb({}), \\'actor_id\\': UUID(\\'7ee4db3e-2b54-4a04-bb8a-9b2b2ec31e46\\'), \\'idempotency_key\\': \\'\\', \\'input_hash\\': \\'9aaaf2661d4203259258ab59744496ea34fe31e0a289d7a210067039bd606f6c\\', \\'status\\': \\'queued\\', \\'stage\\': \\'queued\\', \\'draft\\': None, \\'patch\\': Jsonb(None), \\'validation_status\\': \\'pending\\', \\'validations\\': Jsonb([]), \\'context_summary\\': Jsonb({\\'chapter_number\\': 1}), \\'model_name\\': None, \\'prompt_version\\': None, \\'error\\': Jsonb(None)}]\\n(Background on this error at: https://sqlalche.me/e/21/gkpj)', 'details': {'code': 'GENERATION_REQUEST_FAILED', 'message': '(psycopg.errors.UniqueViolation) duplicate key value violates unique constraint \"uq_writing_gen_tenant_idempotency\"\\nDETAIL:  Key (tenant_id, novel_id, idempotency_key)=(00000000-0000-0000-0000-000000000001, c3b84d65-26c2-4d5e-8b91-e80d63dd1921, ) already exists.\\n[SQL: INSERT INTO narrative.writing_generations (id, job_id, tenant_id, novel_id, chapter_id, revision_id, base_content_hash, brain_version, operation, selection_start, selection_end, instruction, constraints, style, actor_id, idempotency_key, input_hash, status, stage, draft, patch, validation_status, validations, context_summary, model_name, prompt_version, error) VALUES (%(id)s::UUID, %(job_id)s::UUID, %(tenant_id)s::UUID, %(novel_id)s::UUID, %(chapter_id)s::UUID, %(revision_id)s::UUID, %(base_content_hash)s::VARCHAR, %(brain_version)s::BIGINT, %(operation)s::VARCHAR, %(selection_start)s::INTEGER, %(selection_end)s::INTEGER, %(instruction)s::VARCHAR, %(constraints)s::JSONB, %(style)s::JSONB, %(actor_id)s::UUID, %(idempotency_key)s::VARCHAR, %(input_hash)s::VARCHAR, %(status)s::VARCHAR, %(stage)s::VARCHAR, %(draft)s::VARCHAR, %(patch)s::JSONB, %(validation_status)s::VARCHAR, %(validations)s::JSONB, %(context_summary)s::JSONB, %(model_name)s::VARCHAR, %(prompt_version)s::VARCHAR, %(error)s::JSONB) RETURNING narrative.writing_generations.created_at, narrative.writing_generations.updated_at]\\n[parameters: {\\'id\\': UUID(\\'6f4a522a-8c5a-4c29-b4a7-7ea98c51d5ab\\'), \\'job_id\\': UUID(\\'fa654900-73c3-4c10-9b2d-9de2b14afd8a\\'), \\'tenant_id\\': UUID(\\'00000000-0000-0000-0000-000000000001\\'), \\'novel_id\\': UUID(\\'c3b84d65-26c2-4d5e-8b91-e80d63dd1921\\'), \\'chapter_id\\': UUID(\\'23dec0f0-a022-4dcf-a2b1-59cd207df608\\'), \\'revision_id\\': UUID(\\'ec3ff049-e10f-48ea-b17b-3de2eb6f12b2\\'), \\'base_content_hash\\': \\'314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f\\', \\'brain_version\\': 5, \\'operation\\': \\'continue\\', \\'selection_start\\': 0, \\'selection_end\\': 0, \\'instruction\\': \\'next-ee9990e22e2b4d50b535e4e44093b713 Continue current scene.\\', \\'constraints\\': Jsonb([]), \\'style\\': Jsonb({}), \\'actor_id\\': UUID(\\'7ee4db3e-2b54-4a04-bb8a-9b2b2ec31e46\\'), \\'idempotency_key\\': \\'\\', \\'input_hash\\': \\'9aaaf2661d4203259258ab59744496ea34fe31e0a289d7a210067039bd606f6c\\', \\'status\\': \\'queued\\', \\'stage\\': \\'queued\\', \\'draft\\': None, \\'patch\\': Jsonb(None), \\'validation_status\\': \\'pending\\', \\'validations\\': Jsonb([]), \\'context_summary\\': Jsonb({\\'chapter_number\\': 1}), \\'model_name\\': None, \\'prompt_version\\': None, \\'error\\': Jsonb(None)}]\\n(Background on this error at: https://sqlalche.me/e/21/gkpj)'}}, 'meta': {}}"
+  },
+  "verdict": "FAIL",
+  "real_provider_calls": 0,
+  "full_AuthorWritingIde_S09": "NOT_RUN"
+}

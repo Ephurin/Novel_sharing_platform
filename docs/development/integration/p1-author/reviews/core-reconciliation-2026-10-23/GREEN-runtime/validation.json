@@ -1,0 +1,177 @@
+{
+  "tested_sha": "cef568aa81dfbf4a216b40747d78b1f734bdd95f",
+  "source_dirty_at_start": false,
+  "project": "p123-core-8bc396a21a",
+  "novel_id": "fe7adf64-f4fe-44ef-a479-4abebfa9ea38",
+  "rows": [
+    {
+      "test": "01_absent_draft_version_0",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        null,
+        {
+          "chapterId": "10643854-f9fe-4bae-ad39-e216dc10f288",
+          "novelId": "fe7adf64-f4fe-44ef-a479-4abebfa9ea38",
+          "title": "Contract chapter",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 9,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "publicationSchedule": null,
+          "updatedAt": "2026-10-23T05:07:10.765Z",
+          "draft": {
+            "title": "Contract chapter",
+            "content": "Mai Linh và Duy đứng tại Cồn Vân. B",
+            "wordCount": 9,
+            "version": 1,
+            "autosave": true,
+            "updatedAt": "2026-10-23T05:07:10.750Z"
+          },
+          "analysisRevisionId": null,
+          "draftVersion": 1
+        },
+        null
+      ]
+    },
+    {
+      "test": "02_valid_version_save",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        {
+          "chapterId": "10643854-f9fe-4bae-ad39-e216dc10f288",
+          "novelId": "fe7adf64-f4fe-44ef-a479-4abebfa9ea38",
+          "title": "Contract chapter",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 10,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "publicationSchedule": null,
+          "updatedAt": "2026-10-23T05:07:10.880Z",
+          "draft": {
+            "title": "Contract chapter",
+            "content": "Mai Linh và Duy đứng tại Cồn Vân. B valid",
+            "wordCount": 10,
+            "version": 2,
+            "autosave": true,
+            "updatedAt": "2026-10-23T05:07:10.878Z"
+          },
+          "analysisRevisionId": null,
+          "draftVersion": 2
+        },
+        null
+      ]
+    },
+    {
+      "test": "03_missing_version_integration_428",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "04_stale_different_body_409",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        null,
+        null
+      ]
+    },
+    {
+      "test": "05_same_body_lost_response_retry",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        {
+          "chapterId": "10643854-f9fe-4bae-ad39-e216dc10f288",
+          "novelId": "fe7adf64-f4fe-44ef-a479-4abebfa9ea38",
+          "title": "Contract chapter",
+          "chapterNumber": 1,
+          "content": null,
+          "wordCount": 11,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "publicationSchedule": null,
+          "updatedAt": "2026-10-23T05:07:16.119Z",
+          "draft": {
+            "title": "Contract chapter",
+            "content": "Mai Linh và Duy đứng tại Cồn Vân. B response unread",
+            "wordCount": 11,
+            "version": 3,
+            "autosave": true,
+            "updatedAt": "2026-10-23T05:07:16.119Z"
+          },
+          "analysisRevisionId": null,
+          "draftVersion": 3
+        },
+        null
+      ]
+    },
+    {
+      "test": "06_different_body_stale_retry",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": [
+        null,
+        null
+      ]
+    },
+    {
+      "test": "06b_different_metadata_stale_payload_409",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "06c_fresh_metadata_and_identical_semantic_replay",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "06d_published_pricing_only_compatibility",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "07_concurrent_writers_CAS",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": null
+    },
+    {
+      "test": "08_API_consumer_inflight_A_then_B",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": {
+        "model": "API consumer retains B while A response is pending, then serializes using returned version; NOT a mounted hook or editor test",
+        "A_version": 8,
+        "B_version": 9
+      }
+    },
+    {
+      "test": "09_API_chapter_account_isolation",
+      "status": "PASS",
+      "proof": "REAL_HTTP_PG_MONGO",
+      "details": {
+        "browser_lifecycle": "NOT_RUN",
+        "foreign_write": 403,
+        "other_chapter": "68f8f838-72ac-4b3d-918b-d129f5a741a9"
+      }
+    }
+  ],
+  "failure": {
+    "type": "AssertionError",
+    "message": "JOB_FAILED:{'message': 'Entity extraction error: model output is not valid JSON'}"
+  },
+  "verdict": "FAIL",
+  "real_provider_calls": 0,
+  "full_AuthorWritingIde_S09": "NOT_RUN"
+}

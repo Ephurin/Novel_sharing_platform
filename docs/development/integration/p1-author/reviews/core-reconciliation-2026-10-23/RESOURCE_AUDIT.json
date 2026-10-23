@@ -1,0 +1,1582 @@
+{
+  "all_stopped": true,
+  "containers": [
+    {
+      "name": "/p123-core-7d0b172315-api-ingress-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-7d0b172315_headless-edge",
+        "p123-core-7d0b172315_upstream",
+        "p123-core-7d0b172315_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-7d0b172315-backend-1",
+      "image_id": "sha256:b0fad67d6136f0ce82b6b96becac24afbb69221065c5432660950ddaa3120910",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-7d0b172315_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-7d0b172315-ai-service-1",
+      "image_id": "sha256:ea5f4d4009e224e9f48d9e3be38d09777c74e25bcc25a22327bf40914a6635f9",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-7d0b172315_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-7d0b172315-budget-gateway-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-7d0b172315_budget_state",
+          "destination": "/state"
+        }
+      ],
+      "networks": [
+        "p123-core-7d0b172315_upstream",
+        "p123-core-7d0b172315_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-7d0b172315-fake-upstream-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-7d0b172315_fake_state",
+          "destination": "/evidence"
+        }
+      ],
+      "networks": [
+        "p123-core-7d0b172315_upstream"
+      ]
+    },
+    {
+      "name": "/p123-core-7d0b172315-postgres-1",
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-7d0b172315_pg_state",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "networks": [
+        "p123-core-7d0b172315_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-7d0b172315-mongodb-1",
+      "image_id": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-7d0b172315_mongo_state",
+          "destination": "/data/db"
+        },
+        {
+          "volume": "e9352839099b9af8d24f35fc8f70488c3e3675ae3d4c09d876b1c9be7f095f9b",
+          "destination": "/data/configdb"
+        }
+      ],
+      "networks": [
+        "p123-core-7d0b172315_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-66db0a75a6-api-ingress-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-66db0a75a6_headless-edge",
+        "p123-core-66db0a75a6_upstream",
+        "p123-core-66db0a75a6_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-66db0a75a6-backend-1",
+      "image_id": "sha256:6741135b3ceb8d23fc4db707ab581995d1a3811bcb07c484510a0791eb9f66de",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-66db0a75a6_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-66db0a75a6-ai-service-1",
+      "image_id": "sha256:a0f008c6d57feaf37c40f249419504e6f9458c523b4326c62be4c10676f5799c",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-66db0a75a6_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-66db0a75a6-budget-gateway-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-66db0a75a6_budget_state",
+          "destination": "/state"
+        }
+      ],
+      "networks": [
+        "p123-core-66db0a75a6_upstream",
+        "p123-core-66db0a75a6_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-66db0a75a6-fake-upstream-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-66db0a75a6_fake_state",
+          "destination": "/evidence"
+        }
+      ],
+      "networks": [
+        "p123-core-66db0a75a6_upstream"
+      ]
+    },
+    {
+      "name": "/p123-core-66db0a75a6-postgres-1",
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-66db0a75a6_pg_state",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "networks": [
+        "p123-core-66db0a75a6_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-66db0a75a6-mongodb-1",
+      "image_id": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-66db0a75a6_mongo_state",
+          "destination": "/data/db"
+        },
+        {
+          "volume": "b7c32d34e46aa5663cb442457e5a1606e79cf2a1b21686b8606fc12df93b01cd",
+          "destination": "/data/configdb"
+        }
+      ],
+      "networks": [
+        "p123-core-66db0a75a6_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-d84a9a1df9-api-ingress-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-d84a9a1df9_headless-edge",
+        "p123-core-d84a9a1df9_upstream",
+        "p123-core-d84a9a1df9_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-d84a9a1df9-backend-1",
+      "image_id": "sha256:e649d50853d2dc2bd20319d54f150de872a5db40b146e07c4d0bca6ca56ab7de",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-d84a9a1df9_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-d84a9a1df9-ai-service-1",
+      "image_id": "sha256:fe13746f6e5cc5fbe22324fc3a83edeff757eefdae2cc3bfc3afc5a1461f74e8",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-d84a9a1df9_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-d84a9a1df9-budget-gateway-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-d84a9a1df9_budget_state",
+          "destination": "/state"
+        }
+      ],
+      "networks": [
+        "p123-core-d84a9a1df9_upstream",
+        "p123-core-d84a9a1df9_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-d84a9a1df9-fake-upstream-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-d84a9a1df9_fake_state",
+          "destination": "/evidence"
+        }
+      ],
+      "networks": [
+        "p123-core-d84a9a1df9_upstream"
+      ]
+    },
+    {
+      "name": "/p123-core-d84a9a1df9-mongodb-1",
+      "image_id": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-d84a9a1df9_mongo_state",
+          "destination": "/data/db"
+        },
+        {
+          "volume": "bdf2774a20294b5829755758ada04b04e66f28fc7f1ba63504eaa9134d075917",
+          "destination": "/data/configdb"
+        }
+      ],
+      "networks": [
+        "p123-core-d84a9a1df9_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-d84a9a1df9-postgres-1",
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-d84a9a1df9_pg_state",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "networks": [
+        "p123-core-d84a9a1df9_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-8bc396a21a-api-ingress-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-8bc396a21a_headless-edge",
+        "p123-core-8bc396a21a_upstream",
+        "p123-core-8bc396a21a_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-8bc396a21a-backend-1",
+      "image_id": "sha256:a92b478ae3d818d0dd4d29966fe4fcb0ce74dbb6962d41e239ccc111abcb4590",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-8bc396a21a_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-8bc396a21a-ai-service-1",
+      "image_id": "sha256:9b059c07556a095c431ed5ba1631a630c0c9482002f26afd3a751c352a0929b5",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-8bc396a21a_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-8bc396a21a-budget-gateway-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-8bc396a21a_budget_state",
+          "destination": "/state"
+        }
+      ],
+      "networks": [
+        "p123-core-8bc396a21a_upstream",
+        "p123-core-8bc396a21a_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-8bc396a21a-fake-upstream-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-8bc396a21a_fake_state",
+          "destination": "/evidence"
+        }
+      ],
+      "networks": [
+        "p123-core-8bc396a21a_upstream"
+      ]
+    },
+    {
+      "name": "/p123-core-8bc396a21a-postgres-1",
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-8bc396a21a_pg_state",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "networks": [
+        "p123-core-8bc396a21a_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-8bc396a21a-mongodb-1",
+      "image_id": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-8bc396a21a_mongo_state",
+          "destination": "/data/db"
+        },
+        {
+          "volume": "626a725243b7f6371e45170790a0a4690fbef9deb2352f7d361654431cc487bc",
+          "destination": "/data/configdb"
+        }
+      ],
+      "networks": [
+        "p123-core-8bc396a21a_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-eea7ad4fa1-api-ingress-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-eea7ad4fa1_headless-edge",
+        "p123-core-eea7ad4fa1_upstream",
+        "p123-core-eea7ad4fa1_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-eea7ad4fa1-backend-1",
+      "image_id": "sha256:5a7f9d4264bdd6c370f57563e004dde99955709397f8e21539eecf4ce516f374",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-eea7ad4fa1_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-eea7ad4fa1-ai-service-1",
+      "image_id": "sha256:23f02187e5a6f829d02680632c34aefb7a3f7d0e938adf727e8aad05f8791d65",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-eea7ad4fa1_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-eea7ad4fa1-budget-gateway-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-eea7ad4fa1_budget_state",
+          "destination": "/state"
+        }
+      ],
+      "networks": [
+        "p123-core-eea7ad4fa1_upstream",
+        "p123-core-eea7ad4fa1_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-eea7ad4fa1-fake-upstream-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-eea7ad4fa1_fake_state",
+          "destination": "/evidence"
+        }
+      ],
+      "networks": [
+        "p123-core-eea7ad4fa1_upstream"
+      ]
+    },
+    {
+      "name": "/p123-core-eea7ad4fa1-postgres-1",
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-eea7ad4fa1_pg_state",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "networks": [
+        "p123-core-eea7ad4fa1_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-eea7ad4fa1-mongodb-1",
+      "image_id": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-eea7ad4fa1_mongo_state",
+          "destination": "/data/db"
+        },
+        {
+          "volume": "79911ce3c0d342df4905d70ef6559f554795e0f4c53c2f3b291e278f21eabbd3",
+          "destination": "/data/configdb"
+        }
+      ],
+      "networks": [
+        "p123-core-eea7ad4fa1_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-3eb3e88e26-api-ingress-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-3eb3e88e26_headless-edge",
+        "p123-core-3eb3e88e26_upstream",
+        "p123-core-3eb3e88e26_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-3eb3e88e26-backend-1",
+      "image_id": "sha256:3351464d785944f059668024f8aeb382635481c0d5e71e241ef77f7d659e4a50",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-3eb3e88e26_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-3eb3e88e26-ai-service-1",
+      "image_id": "sha256:2323aaa1db92e40ee51f82c08108cdd350fb0fff524035824c3f414e8dced1e4",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-3eb3e88e26_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-3eb3e88e26-budget-gateway-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-3eb3e88e26_budget_state",
+          "destination": "/state"
+        }
+      ],
+      "networks": [
+        "p123-core-3eb3e88e26_upstream",
+        "p123-core-3eb3e88e26_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-3eb3e88e26-fake-upstream-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-3eb3e88e26_fake_state",
+          "destination": "/evidence"
+        }
+      ],
+      "networks": [
+        "p123-core-3eb3e88e26_upstream"
+      ]
+    },
+    {
+      "name": "/p123-core-3eb3e88e26-postgres-1",
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-3eb3e88e26_pg_state",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "networks": [
+        "p123-core-3eb3e88e26_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-3eb3e88e26-mongodb-1",
+      "image_id": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-3eb3e88e26_mongo_state",
+          "destination": "/data/db"
+        },
+        {
+          "volume": "e53bd101973434a01edbde2906c1ec43d133869b688ec064be1e566e8f4dfa62",
+          "destination": "/data/configdb"
+        }
+      ],
+      "networks": [
+        "p123-core-3eb3e88e26_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-b9a40f90d5-api-ingress-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-b9a40f90d5_headless-edge",
+        "p123-core-b9a40f90d5_upstream",
+        "p123-core-b9a40f90d5_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-b9a40f90d5-backend-1",
+      "image_id": "sha256:5df8f29209b6bfa69c7b542dbaf70844e2bb4dca54f0ca0c74485cead3bc18fe",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-b9a40f90d5_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-b9a40f90d5-ai-service-1",
+      "image_id": "sha256:23c665a5f65fe60b37ff5cfd88427a5bd31480ed7948197c2f455479533ae30e",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-b9a40f90d5_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-b9a40f90d5-budget-gateway-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-b9a40f90d5_budget_state",
+          "destination": "/state"
+        }
+      ],
+      "networks": [
+        "p123-core-b9a40f90d5_upstream",
+        "p123-core-b9a40f90d5_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-b9a40f90d5-fake-upstream-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-b9a40f90d5_fake_state",
+          "destination": "/evidence"
+        }
+      ],
+      "networks": [
+        "p123-core-b9a40f90d5_upstream"
+      ]
+    },
+    {
+      "name": "/p123-core-b9a40f90d5-postgres-1",
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-b9a40f90d5_pg_state",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "networks": [
+        "p123-core-b9a40f90d5_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-b9a40f90d5-mongodb-1",
+      "image_id": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-b9a40f90d5_mongo_state",
+          "destination": "/data/db"
+        },
+        {
+          "volume": "b172b9a00797e2d612a4de3044fca36c7673cae14efdffde62391edc955e6a86",
+          "destination": "/data/configdb"
+        }
+      ],
+      "networks": [
+        "p123-core-b9a40f90d5_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-25a269dc8f-api-ingress-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-25a269dc8f_headless-edge",
+        "p123-core-25a269dc8f_upstream",
+        "p123-core-25a269dc8f_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-25a269dc8f-backend-1",
+      "image_id": "sha256:33a67e6af268d36962b5da535c6d484d208be6e3c47a6c303e98c99767ec095b",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-25a269dc8f_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-25a269dc8f-ai-service-1",
+      "image_id": "sha256:e07ffdbd7f682fe3266d0c31e312b1095f42aa56053f119dba1b4e3d28ce719b",
+      "state": "exited",
+      "mounts": [],
+      "networks": [
+        "p123-core-25a269dc8f_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-25a269dc8f-budget-gateway-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-25a269dc8f_budget_state",
+          "destination": "/state"
+        }
+      ],
+      "networks": [
+        "p123-core-25a269dc8f_upstream",
+        "p123-core-25a269dc8f_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-25a269dc8f-fake-upstream-1",
+      "image_id": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-25a269dc8f_fake_state",
+          "destination": "/evidence"
+        }
+      ],
+      "networks": [
+        "p123-core-25a269dc8f_upstream"
+      ]
+    },
+    {
+      "name": "/p123-core-25a269dc8f-postgres-1",
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-25a269dc8f_pg_state",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "networks": [
+        "p123-core-25a269dc8f_workers"
+      ]
+    },
+    {
+      "name": "/p123-core-25a269dc8f-mongodb-1",
+      "image_id": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "p123-core-25a269dc8f_mongo_state",
+          "destination": "/data/db"
+        },
+        {
+          "volume": "1466aa0277e208eba40f4891f3f765e5e4b8bc68d893e2ad970a8d6acdc0e246",
+          "destination": "/data/configdb"
+        }
+      ],
+      "networks": [
+        "p123-core-25a269dc8f_workers"
+      ]
+    },
+    {
+      "name": "/d1d2-repair-4df73811978d-pg",
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "d1d2-repair-4df73811978d-pg-data",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "networks": [
+        "bridge"
+      ]
+    },
+    {
+      "name": "/d1d2-repair-4df73811978d-mongo",
+      "image_id": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "d1d2-repair-4df73811978d-mongo-data",
+          "destination": "/data/db"
+        },
+        {
+          "volume": "bee3a1f170c603de15f8ecc2a3505c326e90c2bc2ebcecc1cad5b03b7e61ad69",
+          "destination": "/data/configdb"
+        }
+      ],
+      "networks": [
+        "bridge"
+      ]
+    },
+    {
+      "name": "/d1d2-repair-96262e23e3c3-pg",
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "d1d2-repair-96262e23e3c3-pg-data",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "networks": [
+        "bridge"
+      ]
+    },
+    {
+      "name": "/d1d2-repair-96262e23e3c3-mongo",
+      "image_id": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "d1d2-repair-96262e23e3c3-mongo-data",
+          "destination": "/data/db"
+        },
+        {
+          "volume": "f4fdd0e3871be28ffa1a713d9a6382909fdf8a580725f9a5e70afd4247772de0",
+          "destination": "/data/configdb"
+        }
+      ],
+      "networks": [
+        "bridge"
+      ]
+    },
+    {
+      "name": "/d1d2-repair-9fac973ed5cb-pg",
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "d1d2-repair-9fac973ed5cb-pg-data",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "networks": [
+        "bridge"
+      ]
+    },
+    {
+      "name": "/d1d2-repair-9fac973ed5cb-mongo",
+      "image_id": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "d1d2-repair-9fac973ed5cb-mongo-data",
+          "destination": "/data/db"
+        },
+        {
+          "volume": "f1ad51b572cee13ebc8b341ec0de8aecac10a8057b0588495d4bc358df7f3388",
+          "destination": "/data/configdb"
+        }
+      ],
+      "networks": [
+        "bridge"
+      ]
+    },
+    {
+      "name": "/d1d2-repair-9fe063a605ea-pg",
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "d1d2-repair-9fe063a605ea-pg-data",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "networks": [
+        "bridge"
+      ]
+    },
+    {
+      "name": "/d1d2-repair-9fe063a605ea-mongo",
+      "image_id": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "d1d2-repair-9fe063a605ea-mongo-data",
+          "destination": "/data/db"
+        },
+        {
+          "volume": "077f3b79e4fd952fa746109cdbc288c9785dcd9382c2c804facb57c8f22b5b08",
+          "destination": "/data/configdb"
+        }
+      ],
+      "networks": [
+        "bridge"
+      ]
+    },
+    {
+      "name": "/d1d2-repair-adc00c8956da-pg",
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "d1d2-repair-adc00c8956da-pg-data",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "networks": [
+        "bridge"
+      ]
+    },
+    {
+      "name": "/d1d2-repair-adc00c8956da-mongo",
+      "image_id": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "d1d2-repair-adc00c8956da-mongo-data",
+          "destination": "/data/db"
+        },
+        {
+          "volume": "7eafdc15f38958ebd500dfe10ce52ca2d463298cb1bfd087599b14a5e27f0be9",
+          "destination": "/data/configdb"
+        }
+      ],
+      "networks": [
+        "bridge"
+      ]
+    },
+    {
+      "name": "/d1d2-repair-bfaa4dde68eb-pg",
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "d1d2-repair-bfaa4dde68eb-pg-data",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "networks": [
+        "bridge"
+      ]
+    },
+    {
+      "name": "/d1d2-repair-bfaa4dde68eb-mongo",
+      "image_id": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "d1d2-repair-bfaa4dde68eb-mongo-data",
+          "destination": "/data/db"
+        },
+        {
+          "volume": "9ff665d036e02a2318c1207cbcd770389ea3453900416d18a9d8a49a034fc117",
+          "destination": "/data/configdb"
+        }
+      ],
+      "networks": [
+        "bridge"
+      ]
+    },
+    {
+      "name": "/d1d2-repair-c7b3df9f9e19-pg",
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "d1d2-repair-c7b3df9f9e19-pg-data",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "networks": [
+        "bridge"
+      ]
+    },
+    {
+      "name": "/d1d2-repair-c7b3df9f9e19-mongo",
+      "image_id": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "d1d2-repair-c7b3df9f9e19-mongo-data",
+          "destination": "/data/db"
+        },
+        {
+          "volume": "0771b0ac24b0e4000f9e2ab2e1d9399fac431f4052b23cff54df6237295c157a",
+          "destination": "/data/configdb"
+        }
+      ],
+      "networks": [
+        "bridge"
+      ]
+    },
+    {
+      "name": "/d1d2-repair-de024ec54145-pg",
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "d1d2-repair-de024ec54145-pg-data",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "networks": [
+        "bridge"
+      ]
+    },
+    {
+      "name": "/d1d2-repair-de024ec54145-mongo",
+      "image_id": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "d1d2-repair-de024ec54145-mongo-data",
+          "destination": "/data/db"
+        },
+        {
+          "volume": "774d42c6a9bb50399b2b4729369c5adff50ce8c30b8a174ddd5d28bdc8f6558b",
+          "destination": "/data/configdb"
+        }
+      ],
+      "networks": [
+        "bridge"
+      ]
+    },
+    {
+      "name": "/d1d2-repair-fcebc719fd4e-pg",
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "d1d2-repair-fcebc719fd4e-pg-data",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ],
+      "networks": [
+        "bridge"
+      ]
+    },
+    {
+      "name": "/d1d2-repair-fcebc719fd4e-mongo",
+      "image_id": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "state": "exited",
+      "mounts": [
+        {
+          "volume": "d1d2-repair-fcebc719fd4e-mongo-data",
+          "destination": "/data/db"
+        },
+        {
+          "volume": "31a12c3b0289887ad5a56f8e4a516386c1400f69aacf942d7bd74f7be3dc4158",
+          "destination": "/data/configdb"
+        }
+      ],
+      "networks": [
+        "bridge"
+      ]
+    }
+  ],
+  "volumes": [
+    {
+      "name": "0771b0ac24b0e4000f9e2ab2e1d9399fac431f4052b23cff54df6237295c157a",
+      "created_at": "2026-10-23T05:14:45Z",
+      "labels": {
+        "com.docker.volume.anonymous": ""
+      }
+    },
+    {
+      "name": "077f3b79e4fd952fa746109cdbc288c9785dcd9382c2c804facb57c8f22b5b08",
+      "created_at": "2026-10-23T05:24:48Z",
+      "labels": {
+        "com.docker.volume.anonymous": ""
+      }
+    },
+    {
+      "name": "1466aa0277e208eba40f4891f3f765e5e4b8bc68d893e2ad970a8d6acdc0e246",
+      "created_at": "2026-10-23T05:18:40Z",
+      "labels": {
+        "com.docker.volume.anonymous": ""
+      }
+    },
+    {
+      "name": "31a12c3b0289887ad5a56f8e4a516386c1400f69aacf942d7bd74f7be3dc4158",
+      "created_at": "2026-10-23T05:01:21Z",
+      "labels": {
+        "com.docker.volume.anonymous": ""
+      }
+    },
+    {
+      "name": "626a725243b7f6371e45170790a0a4690fbef9deb2352f7d361654431cc487bc",
+      "created_at": "2026-10-23T05:06:43Z",
+      "labels": {
+        "com.docker.volume.anonymous": ""
+      }
+    },
+    {
+      "name": "774d42c6a9bb50399b2b4729369c5adff50ce8c30b8a174ddd5d28bdc8f6558b",
+      "created_at": "2026-10-23T05:22:21Z",
+      "labels": {
+        "com.docker.volume.anonymous": ""
+      }
+    },
+    {
+      "name": "79911ce3c0d342df4905d70ef6559f554795e0f4c53c2f3b291e278f21eabbd3",
+      "created_at": "2026-10-23T05:28:14Z",
+      "labels": {
+        "com.docker.volume.anonymous": ""
+      }
+    },
+    {
+      "name": "7eafdc15f38958ebd500dfe10ce52ca2d463298cb1bfd087599b14a5e27f0be9",
+      "created_at": "2026-10-23T05:08:02Z",
+      "labels": {
+        "com.docker.volume.anonymous": ""
+      }
+    },
+    {
+      "name": "9ff665d036e02a2318c1207cbcd770389ea3453900416d18a9d8a49a034fc117",
+      "created_at": "2026-10-23T05:18:47Z",
+      "labels": {
+        "com.docker.volume.anonymous": ""
+      }
+    },
+    {
+      "name": "b172b9a00797e2d612a4de3044fca36c7673cae14efdffde62391edc955e6a86",
+      "created_at": "2026-10-23T05:10:57Z",
+      "labels": {
+        "com.docker.volume.anonymous": ""
+      }
+    },
+    {
+      "name": "b7c32d34e46aa5663cb442457e5a1606e79cf2a1b21686b8606fc12df93b01cd",
+      "created_at": "2026-10-23T05:24:39Z",
+      "labels": {
+        "com.docker.volume.anonymous": ""
+      }
+    },
+    {
+      "name": "bdf2774a20294b5829755758ada04b04e66f28fc7f1ba63504eaa9134d075917",
+      "created_at": "2026-10-23T05:14:38Z",
+      "labels": {
+        "com.docker.volume.anonymous": ""
+      }
+    },
+    {
+      "name": "bee3a1f170c603de15f8ecc2a3505c326e90c2bc2ebcecc1cad5b03b7e61ad69",
+      "created_at": "2026-10-23T05:06:14Z",
+      "labels": {
+        "com.docker.volume.anonymous": ""
+      }
+    },
+    {
+      "name": "d1d2-repair-4df73811978d-mongo-data",
+      "created_at": "2026-10-23T05:06:14Z",
+      "labels": {
+        "purpose": "d1d2-persistence-repair-test"
+      }
+    },
+    {
+      "name": "d1d2-repair-4df73811978d-pg-data",
+      "created_at": "2026-10-23T05:06:13Z",
+      "labels": {
+        "purpose": "d1d2-persistence-repair-test"
+      }
+    },
+    {
+      "name": "d1d2-repair-96262e23e3c3-mongo-data",
+      "created_at": "2026-10-23T05:11:05Z",
+      "labels": {
+        "purpose": "d1d2-persistence-repair-test"
+      }
+    },
+    {
+      "name": "d1d2-repair-96262e23e3c3-pg-data",
+      "created_at": "2026-10-23T05:11:04Z",
+      "labels": {
+        "purpose": "d1d2-persistence-repair-test"
+      }
+    },
+    {
+      "name": "d1d2-repair-9fac973ed5cb-mongo-data",
+      "created_at": "2026-10-23T05:28:21Z",
+      "labels": {
+        "purpose": "d1d2-persistence-repair-test"
+      }
+    },
+    {
+      "name": "d1d2-repair-9fac973ed5cb-pg-data",
+      "created_at": "2026-10-23T05:28:20Z",
+      "labels": {
+        "purpose": "d1d2-persistence-repair-test"
+      }
+    },
+    {
+      "name": "d1d2-repair-9fe063a605ea-mongo-data",
+      "created_at": "2026-10-23T05:24:47Z",
+      "labels": {
+        "purpose": "d1d2-persistence-repair-test"
+      }
+    },
+    {
+      "name": "d1d2-repair-9fe063a605ea-pg-data",
+      "created_at": "2026-10-23T05:24:47Z",
+      "labels": {
+        "purpose": "d1d2-persistence-repair-test"
+      }
+    },
+    {
+      "name": "d1d2-repair-adc00c8956da-mongo-data",
+      "created_at": "2026-10-23T05:08:01Z",
+      "labels": {
+        "purpose": "d1d2-persistence-repair-test"
+      }
+    },
+    {
+      "name": "d1d2-repair-adc00c8956da-pg-data",
+      "created_at": "2026-10-23T05:08:01Z",
+      "labels": {
+        "purpose": "d1d2-persistence-repair-test"
+      }
+    },
+    {
+      "name": "d1d2-repair-bfaa4dde68eb-mongo-data",
+      "created_at": "2026-10-23T05:18:47Z",
+      "labels": {
+        "purpose": "d1d2-persistence-repair-test"
+      }
+    },
+    {
+      "name": "d1d2-repair-bfaa4dde68eb-pg-data",
+      "created_at": "2026-10-23T05:18:46Z",
+      "labels": {
+        "purpose": "d1d2-persistence-repair-test"
+      }
+    },
+    {
+      "name": "d1d2-repair-c7b3df9f9e19-mongo-data",
+      "created_at": "2026-10-23T05:14:45Z",
+      "labels": {
+        "purpose": "d1d2-persistence-repair-test"
+      }
+    },
+    {
+      "name": "d1d2-repair-c7b3df9f9e19-pg-data",
+      "created_at": "2026-10-23T05:14:44Z",
+      "labels": {
+        "purpose": "d1d2-persistence-repair-test"
+      }
+    },
+    {
+      "name": "d1d2-repair-de024ec54145-mongo-data",
+      "created_at": "2026-10-23T05:22:20Z",
+      "labels": {
+        "purpose": "d1d2-persistence-repair-test"
+      }
+    },
+    {
+      "name": "d1d2-repair-de024ec54145-pg-data",
+      "created_at": "2026-10-23T05:22:20Z",
+      "labels": {
+        "purpose": "d1d2-persistence-repair-test"
+      }
+    },
+    {
+      "name": "d1d2-repair-fcebc719fd4e-mongo-data",
+      "created_at": "2026-10-23T05:01:21Z",
+      "labels": {
+        "purpose": "d1d2-persistence-repair-test"
+      }
+    },
+    {
+      "name": "d1d2-repair-fcebc719fd4e-pg-data",
+      "created_at": "2026-10-23T05:01:20Z",
+      "labels": {
+        "purpose": "d1d2-persistence-repair-test"
+      }
+    },
+    {
+      "name": "e53bd101973434a01edbde2906c1ec43d133869b688ec064be1e566e8f4dfa62",
+      "created_at": "2026-10-23T05:01:44Z",
+      "labels": {
+        "com.docker.volume.anonymous": ""
+      }
+    },
+    {
+      "name": "e9352839099b9af8d24f35fc8f70488c3e3675ae3d4c09d876b1c9be7f095f9b",
+      "created_at": "2026-10-23T05:22:13Z",
+      "labels": {
+        "com.docker.volume.anonymous": ""
+      }
+    },
+    {
+      "name": "f1ad51b572cee13ebc8b341ec0de8aecac10a8057b0588495d4bc358df7f3388",
+      "created_at": "2026-10-23T05:28:21Z",
+      "labels": {
+        "com.docker.volume.anonymous": ""
+      }
+    },
+    {
+      "name": "f4fdd0e3871be28ffa1a713d9a6382909fdf8a580725f9a5e70afd4247772de0",
+      "created_at": "2026-10-23T05:11:05Z",
+      "labels": {
+        "com.docker.volume.anonymous": ""
+      }
+    },
+    {
+      "name": "p123-core-25a269dc8f_budget_state",
+      "created_at": "2026-10-23T05:18:34Z",
+      "labels": {
+        "com.docker.compose.config-hash": "2d51d312e2852b3f436fa7cb38ff1d9045e630ab360a831766a28c81899cca1a",
+        "com.docker.compose.project": "p123-core-25a269dc8f",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "budget_state"
+      }
+    },
+    {
+      "name": "p123-core-25a269dc8f_fake_state",
+      "created_at": "2026-10-23T05:18:40Z",
+      "labels": {
+        "com.docker.compose.config-hash": "2f26a457cd25f1da4fd85c74c4b4c503713dfd77b8a656ca93e9180f6ee3ec1f",
+        "com.docker.compose.project": "p123-core-25a269dc8f",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "fake_state"
+      }
+    },
+    {
+      "name": "p123-core-25a269dc8f_mongo_state",
+      "created_at": "2026-10-23T05:18:40Z",
+      "labels": {
+        "com.docker.compose.config-hash": "886883e304887aa5c71725792efd21a7af7c6820162132522fc922d56b10f330",
+        "com.docker.compose.project": "p123-core-25a269dc8f",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "mongo_state"
+      }
+    },
+    {
+      "name": "p123-core-25a269dc8f_pg_state",
+      "created_at": "2026-10-23T05:18:40Z",
+      "labels": {
+        "com.docker.compose.config-hash": "7fb3c3a38e65672f521b98a871e7b42814318283590aedd2277d536e5a634737",
+        "com.docker.compose.project": "p123-core-25a269dc8f",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "pg_state"
+      }
+    },
+    {
+      "name": "p123-core-3eb3e88e26_budget_state",
+      "created_at": "2026-10-23T05:01:28Z",
+      "labels": {
+        "com.docker.compose.config-hash": "03b118c02795f4b45cb190eacd5660faca278a860ef03c49fd979e92a30fab8d",
+        "com.docker.compose.project": "p123-core-3eb3e88e26",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "budget_state"
+      }
+    },
+    {
+      "name": "p123-core-3eb3e88e26_fake_state",
+      "created_at": "2026-10-23T05:01:44Z",
+      "labels": {
+        "com.docker.compose.config-hash": "6c6359905375d4bfce6391314e4a8ab130d2c7c6994597fc13252d06a2275940",
+        "com.docker.compose.project": "p123-core-3eb3e88e26",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "fake_state"
+      }
+    },
+    {
+      "name": "p123-core-3eb3e88e26_mongo_state",
+      "created_at": "2026-10-23T05:01:44Z",
+      "labels": {
+        "com.docker.compose.config-hash": "3ac08e7877e95fdaed09721770294fe38892fcb5d47cddbd5123321ba629bf6c",
+        "com.docker.compose.project": "p123-core-3eb3e88e26",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "mongo_state"
+      }
+    },
+    {
+      "name": "p123-core-3eb3e88e26_pg_state",
+      "created_at": "2026-10-23T05:01:44Z",
+      "labels": {
+        "com.docker.compose.config-hash": "726f0fb2d6320f656204734c308cacfec186df719f38970e0f693941f4690231",
+        "com.docker.compose.project": "p123-core-3eb3e88e26",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "pg_state"
+      }
+    },
+    {
+      "name": "p123-core-66db0a75a6_budget_state",
+      "created_at": "2026-10-23T05:24:35Z",
+      "labels": {
+        "com.docker.compose.config-hash": "48b93b80dc06774fa93dee964f22c574f88f04b7b15b7865f4fa0694a1f538b2",
+        "com.docker.compose.project": "p123-core-66db0a75a6",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "budget_state"
+      }
+    },
+    {
+      "name": "p123-core-66db0a75a6_fake_state",
+      "created_at": "2026-10-23T05:24:39Z",
+      "labels": {
+        "com.docker.compose.config-hash": "13e3cb815854c457149f27cde6e14c22a763c402b1d1990d078c4c31f87d6ed7",
+        "com.docker.compose.project": "p123-core-66db0a75a6",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "fake_state"
+      }
+    },
+    {
+      "name": "p123-core-66db0a75a6_mongo_state",
+      "created_at": "2026-10-23T05:24:39Z",
+      "labels": {
+        "com.docker.compose.config-hash": "3b4ed3f2bfe1718ed8d1eb347483ac09c97829fd436c9d17cf312ec6e3e5f307",
+        "com.docker.compose.project": "p123-core-66db0a75a6",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "mongo_state"
+      }
+    },
+    {
+      "name": "p123-core-66db0a75a6_pg_state",
+      "created_at": "2026-10-23T05:24:39Z",
+      "labels": {
+        "com.docker.compose.config-hash": "cedc515fe4a72fea291a003dfc8e4e764873fc3eebe24c4f8c92def70ddec89d",
+        "com.docker.compose.project": "p123-core-66db0a75a6",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "pg_state"
+      }
+    },
+    {
+      "name": "p123-core-7d0b172315_budget_state",
+      "created_at": "2026-10-23T05:22:08Z",
+      "labels": {
+        "com.docker.compose.config-hash": "78a5871e80657d7cd1b89581891ba7975ef13db3783d259f2e500afa12056d01",
+        "com.docker.compose.project": "p123-core-7d0b172315",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "budget_state"
+      }
+    },
+    {
+      "name": "p123-core-7d0b172315_fake_state",
+      "created_at": "2026-10-23T05:22:13Z",
+      "labels": {
+        "com.docker.compose.config-hash": "ff0f11596e8cccd99126c1fd768661257f1bd16e5d2e1e00c613735242a9f5b2",
+        "com.docker.compose.project": "p123-core-7d0b172315",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "fake_state"
+      }
+    },
+    {
+      "name": "p123-core-7d0b172315_mongo_state",
+      "created_at": "2026-10-23T05:22:13Z",
+      "labels": {
+        "com.docker.compose.config-hash": "272b25f90162c7ee71d24b55e265e056ef87802235e088ebf628472e366d1492",
+        "com.docker.compose.project": "p123-core-7d0b172315",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "mongo_state"
+      }
+    },
+    {
+      "name": "p123-core-7d0b172315_pg_state",
+      "created_at": "2026-10-23T05:22:13Z",
+      "labels": {
+        "com.docker.compose.config-hash": "d202141a6dba2dddb8daece7d68c0b8dd2d00be73d41b1945d8ef9e7279f42ae",
+        "com.docker.compose.project": "p123-core-7d0b172315",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "pg_state"
+      }
+    },
+    {
+      "name": "p123-core-8bc396a21a_budget_state",
+      "created_at": "2026-10-23T05:06:27Z",
+      "labels": {
+        "com.docker.compose.config-hash": "c84c0492fee7b67bbe875ffdaef24284d2155f7ad23bae6648384ecdb03c87dc",
+        "com.docker.compose.project": "p123-core-8bc396a21a",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "budget_state"
+      }
+    },
+    {
+      "name": "p123-core-8bc396a21a_fake_state",
+      "created_at": "2026-10-23T05:06:43Z",
+      "labels": {
+        "com.docker.compose.config-hash": "3d5cd7ef96566909cf0030de9ab50c38b3436c786301c62ae5ce8a7b90a2f11f",
+        "com.docker.compose.project": "p123-core-8bc396a21a",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "fake_state"
+      }
+    },
+    {
+      "name": "p123-core-8bc396a21a_mongo_state",
+      "created_at": "2026-10-23T05:06:43Z",
+      "labels": {
+        "com.docker.compose.config-hash": "ccda01eb171d880c12d027fd6bfe18eda854e896335b1a76d74d36b800c718ff",
+        "com.docker.compose.project": "p123-core-8bc396a21a",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "mongo_state"
+      }
+    },
+    {
+      "name": "p123-core-8bc396a21a_pg_state",
+      "created_at": "2026-10-23T05:06:43Z",
+      "labels": {
+        "com.docker.compose.config-hash": "9421efef563f04823ac93361aa20dcddef284207a6f84427c7d7dbc8e6260b29",
+        "com.docker.compose.project": "p123-core-8bc396a21a",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "pg_state"
+      }
+    },
+    {
+      "name": "p123-core-b9a40f90d5_budget_state",
+      "created_at": "2026-10-23T05:10:52Z",
+      "labels": {
+        "com.docker.compose.config-hash": "06c235682db775195f16181d4b54d19ae80e6b957a9af164d223846238c6cfdb",
+        "com.docker.compose.project": "p123-core-b9a40f90d5",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "budget_state"
+      }
+    },
+    {
+      "name": "p123-core-b9a40f90d5_fake_state",
+      "created_at": "2026-10-23T05:10:57Z",
+      "labels": {
+        "com.docker.compose.config-hash": "70f5015645cfe7033759f6c5173a4217c0480b4d090a114193b21d7693b6a8f3",
+        "com.docker.compose.project": "p123-core-b9a40f90d5",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "fake_state"
+      }
+    },
+    {
+      "name": "p123-core-b9a40f90d5_mongo_state",
+      "created_at": "2026-10-23T05:10:57Z",
+      "labels": {
+        "com.docker.compose.config-hash": "ea7190f53c15f323b5a246a36cf0a99fe482ce005be3d8c7b8d07413dfb005f5",
+        "com.docker.compose.project": "p123-core-b9a40f90d5",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "mongo_state"
+      }
+    },
+    {
+      "name": "p123-core-b9a40f90d5_pg_state",
+      "created_at": "2026-10-23T05:10:57Z",
+      "labels": {
+        "com.docker.compose.config-hash": "1c4fedc236435555d2c2636d6b17a42e1fcc875ffc762d37a37be1c40f5992c5",
+        "com.docker.compose.project": "p123-core-b9a40f90d5",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "pg_state"
+      }
+    },
+    {
+      "name": "p123-core-d84a9a1df9_budget_state",
+      "created_at": "2026-10-23T05:14:33Z",
+      "labels": {
+        "com.docker.compose.config-hash": "f4e2e48ae0cbd677533972f65cf4b3ee25e98a29be09454f1a3c55b0048e6454",
+        "com.docker.compose.project": "p123-core-d84a9a1df9",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "budget_state"
+      }
+    },
+    {
+      "name": "p123-core-d84a9a1df9_fake_state",
+      "created_at": "2026-10-23T05:14:38Z",
+      "labels": {
+        "com.docker.compose.config-hash": "7dc6a0a0ffd1b9fcbc2ffcd79be0c9058dea5d2789a72d3bfdbb09d5fb04d8be",
+        "com.docker.compose.project": "p123-core-d84a9a1df9",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "fake_state"
+      }
+    },
+    {
+      "name": "p123-core-d84a9a1df9_mongo_state",
+      "created_at": "2026-10-23T05:14:38Z",
+      "labels": {
+        "com.docker.compose.config-hash": "8a4dc6f2ca47b9cefde34d9a9bb483837eb148d869a574dfcbc0f6ba1f7c983b",
+        "com.docker.compose.project": "p123-core-d84a9a1df9",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "mongo_state"
+      }
+    },
+    {
+      "name": "p123-core-d84a9a1df9_pg_state",
+      "created_at": "2026-10-23T05:14:38Z",
+      "labels": {
+        "com.docker.compose.config-hash": "720156b91ba7a3544bbf308922e5b8eb2696e66a515cd99e3f904e4b03c1832c",
+        "com.docker.compose.project": "p123-core-d84a9a1df9",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "pg_state"
+      }
+    },
+    {
+      "name": "p123-core-eea7ad4fa1_budget_state",
+      "created_at": "2026-10-23T05:28:09Z",
+      "labels": {
+        "com.docker.compose.config-hash": "78e1d4ebebbae0927ff7fa1a0d6cbac493b85eb508e51d5f1fd4e8f02c0cd5ab",
+        "com.docker.compose.project": "p123-core-eea7ad4fa1",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "budget_state"
+      }
+    },
+    {
+      "name": "p123-core-eea7ad4fa1_fake_state",
+      "created_at": "2026-10-23T05:28:13Z",
+      "labels": {
+        "com.docker.compose.config-hash": "ba0e50e5e3706027b893e535f2f52745ee2f6770afc73ab8d3ab43eb28733622",
+        "com.docker.compose.project": "p123-core-eea7ad4fa1",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "fake_state"
+      }
+    },
+    {
+      "name": "p123-core-eea7ad4fa1_mongo_state",
+      "created_at": "2026-10-23T05:28:13Z",
+      "labels": {
+        "com.docker.compose.config-hash": "0102069d88b06cdd040320aa406794f5de372342c8284ad46167f02a545e21d2",
+        "com.docker.compose.project": "p123-core-eea7ad4fa1",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "mongo_state"
+      }
+    },
+    {
+      "name": "p123-core-eea7ad4fa1_pg_state",
+      "created_at": "2026-10-23T05:28:13Z",
+      "labels": {
+        "com.docker.compose.config-hash": "09c926cf79c317b279adf25bc9933ecbc8490a69596d51cdc7da5255cda294e9",
+        "com.docker.compose.project": "p123-core-eea7ad4fa1",
+        "com.docker.compose.version": "5.5.1",
+        "com.docker.compose.volume": "pg_state"
+      }
+    }
+  ],
+  "historical_or_shared_resources_reused": false,
+  "historical_resources_deleted": false
+}

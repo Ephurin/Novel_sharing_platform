@@ -1,0 +1,47 @@
+[
+  {
+    "body": "Mai Linh và Duy đứng tại Cồn Vân. B writer A",
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": {
+        "chapterId": "23dec0f0-a022-4dcf-a2b1-59cd207df608",
+        "novelId": "c3b84d65-26c2-4d5e-8b91-e80d63dd1921",
+        "title": "Contract chapter",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 11,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "publicationSchedule": null,
+        "updatedAt": "2026-10-23T05:25:36.673Z",
+        "draft": {
+          "title": "Contract chapter",
+          "content": "Mai Linh và Duy đứng tại Cồn Vân. B writer A",
+          "wordCount": 11,
+          "version": 7,
+          "autosave": false,
+          "updatedAt": "2026-10-23T05:25:36.671Z"
+        },
+        "analysisRevisionId": null,
+        "draftVersion": 7
+      },
+      "error": null,
+      "meta": {}
+    }
+  },
+  {
+    "body": "Mai Linh và Duy đứng tại Cồn Vân. B writer B",
+    "status": 409,
+    "response": {
+      "success": false,
+      "data": null,
+      "error": {
+        "code": "DRAFT_CONFLICT",
+        "message": "Chapter save in progress; reload before retrying"
+      },
+      "meta": {}
+    }
+  }
+]

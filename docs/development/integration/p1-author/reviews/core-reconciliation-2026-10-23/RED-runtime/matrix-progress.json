@@ -1,0 +1,164 @@
+[
+  {
+    "test": "01_absent_draft_version_0",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": [
+      null,
+      {
+        "chapterId": "f0a5eae8-5b59-40ab-9951-5eb256932cd3",
+        "novelId": "0cd8aff5-2f1c-4d88-a758-d95e5f22bdb1",
+        "title": "Contract chapter",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 9,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "publicationSchedule": null,
+        "updatedAt": "2026-10-23T05:02:12.541Z",
+        "draft": {
+          "title": "Contract chapter",
+          "content": "Mai Linh và Duy đứng tại Cồn Vân. B",
+          "wordCount": 9,
+          "version": 1,
+          "autosave": true,
+          "updatedAt": "2026-10-23T05:02:12.537Z"
+        },
+        "analysisRevisionId": null,
+        "draftVersion": 1
+      },
+      null
+    ]
+  },
+  {
+    "test": "02_valid_version_save",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": [
+      {
+        "chapterId": "f0a5eae8-5b59-40ab-9951-5eb256932cd3",
+        "novelId": "0cd8aff5-2f1c-4d88-a758-d95e5f22bdb1",
+        "title": "Contract chapter",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 10,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "publicationSchedule": null,
+        "updatedAt": "2026-10-23T05:02:12.597Z",
+        "draft": {
+          "title": "Contract chapter",
+          "content": "Mai Linh và Duy đứng tại Cồn Vân. B valid",
+          "wordCount": 10,
+          "version": 2,
+          "autosave": true,
+          "updatedAt": "2026-10-23T05:02:12.595Z"
+        },
+        "analysisRevisionId": null,
+        "draftVersion": 2
+      },
+      null
+    ]
+  },
+  {
+    "test": "03_missing_version_integration_428",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": null
+  },
+  {
+    "test": "04_stale_different_body_409",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": [
+      null,
+      null
+    ]
+  },
+  {
+    "test": "05_same_body_lost_response_retry",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": [
+      {
+        "chapterId": "f0a5eae8-5b59-40ab-9951-5eb256932cd3",
+        "novelId": "0cd8aff5-2f1c-4d88-a758-d95e5f22bdb1",
+        "title": "Contract chapter",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 11,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "publicationSchedule": null,
+        "updatedAt": "2026-10-23T05:02:20.926Z",
+        "draft": {
+          "title": "Contract chapter",
+          "content": "Mai Linh và Duy đứng tại Cồn Vân. B response unread",
+          "wordCount": 11,
+          "version": 3,
+          "autosave": true,
+          "updatedAt": "2026-10-23T05:02:18.196Z"
+        },
+        "analysisRevisionId": null,
+        "draftVersion": 3
+      },
+      null
+    ]
+  },
+  {
+    "test": "06_different_body_stale_retry",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": [
+      null,
+      null
+    ]
+  },
+  {
+    "test": "06b_different_metadata_stale_payload_409",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": null
+  },
+  {
+    "test": "06c_fresh_metadata_and_identical_semantic_replay",
+    "status": "FAIL",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "error": "Identical semantic pricing replay mutated durable state"
+  },
+  {
+    "test": "06d_published_pricing_only_compatibility",
+    "status": "FAIL",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "error": "Versioned published pricing did not CAS"
+  },
+  {
+    "test": "07_concurrent_writers_CAS",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": null
+  },
+  {
+    "test": "08_API_consumer_inflight_A_then_B",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": {
+      "model": "API consumer retains B while A response is pending, then serializes using returned version; NOT a mounted hook or editor test",
+      "A_version": 6,
+      "B_version": 7
+    }
+  },
+  {
+    "test": "09_API_chapter_account_isolation",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": {
+      "browser_lifecycle": "NOT_RUN",
+      "foreign_write": 403,
+      "other_chapter": "5d16811b-e2fb-4760-be96-243313f25629"
+    }
+  }
+]

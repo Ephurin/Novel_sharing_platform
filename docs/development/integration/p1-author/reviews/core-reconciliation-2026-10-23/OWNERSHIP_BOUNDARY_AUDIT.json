@@ -1,0 +1,23 @@
+{
+  "files": {
+    "backend/src/modules/novels/accept-draft-contract.test.ts": {
+      "unchanged": true,
+      "sha256": "99ec06ad6a30eff82c70d2871c0134f2e0be86f716a4640d8352b2e08ba2108f"
+    },
+    "backend/src/jobs/outbox-processor.ts": {
+      "unchanged": true,
+      "sha256": "f5ed697732c3bfadd4e351c677c21912eae67bee6a9e6591f21c022068b6cfc2"
+    },
+    "backend/src/modules/novels/chapter-revisions.service.ts": {
+      "unchanged": true,
+      "sha256": "8698a85868da6f47dac4190ec5241f6e51e5ef86892b94caf756cfef1a34e0a0"
+    },
+    "backend/src/modules/novels/chapter-revisions.controller.ts": {
+      "unchanged": true,
+      "sha256": "ba227f113a871207d5d96e92536b44a2d54a374d358bb6e9cb3970cd405b8c0e"
+    }
+  },
+  "no_CI_FE_AI_source_changes": true,
+  "pipeline_reference_head": "7e1e8e96d80f3d4a2602f5c53dcd5303bbea3be3",
+  "integration_base": "4c8bd3e36f7a8b01f7f98aee1e77b07779687fc5"
+}

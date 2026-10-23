@@ -1,0 +1,18 @@
+{
+  "url": "https://github.com/Ephurin/Novel_sharing_platform/pull/57",
+  "state": "open",
+  "draft": true,
+  "head": "integration/p1-author",
+  "head_sha": "4c8bd3e36f7a8b01f7f98aee1e77b07779687fc5",
+  "base": "feat/author-workspace",
+  "base_sha": "3100c46f46cd071467d762dff4ffa1fc4efe07f2",
+  "inspected_latest_commits": [
+    "13eb5017",
+    "4c8bd3e3"
+  ],
+  "remediation_preserved": [
+    "internal generation route/tenant/actor/hash/intent DTO",
+    "fail-closed service auth",
+    "full Author IDE changes untouched"
+  ]
+}

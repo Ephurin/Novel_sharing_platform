@@ -1,0 +1,164 @@
+[
+  {
+    "test": "01_absent_draft_version_0",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": [
+      null,
+      {
+        "chapterId": "f25fcdfd-73a6-44cc-94d5-1f71151f6335",
+        "novelId": "bc55ed2b-87c0-4f6c-bc9f-e2de07f43e5e",
+        "title": "Contract chapter",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 9,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "publicationSchedule": null,
+        "updatedAt": "2026-10-23T05:11:26.279Z",
+        "draft": {
+          "title": "Contract chapter",
+          "content": "Mai Linh và Duy đứng tại Cồn Vân. B",
+          "wordCount": 9,
+          "version": 1,
+          "autosave": true,
+          "updatedAt": "2026-10-23T05:11:26.274Z"
+        },
+        "analysisRevisionId": null,
+        "draftVersion": 1
+      },
+      null
+    ]
+  },
+  {
+    "test": "02_valid_version_save",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": [
+      {
+        "chapterId": "f25fcdfd-73a6-44cc-94d5-1f71151f6335",
+        "novelId": "bc55ed2b-87c0-4f6c-bc9f-e2de07f43e5e",
+        "title": "Contract chapter",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 10,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "publicationSchedule": null,
+        "updatedAt": "2026-10-23T05:11:26.355Z",
+        "draft": {
+          "title": "Contract chapter",
+          "content": "Mai Linh và Duy đứng tại Cồn Vân. B valid",
+          "wordCount": 10,
+          "version": 2,
+          "autosave": true,
+          "updatedAt": "2026-10-23T05:11:26.354Z"
+        },
+        "analysisRevisionId": null,
+        "draftVersion": 2
+      },
+      null
+    ]
+  },
+  {
+    "test": "03_missing_version_integration_428",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": null
+  },
+  {
+    "test": "04_stale_different_body_409",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": [
+      null,
+      null
+    ]
+  },
+  {
+    "test": "05_same_body_lost_response_retry",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": [
+      {
+        "chapterId": "f25fcdfd-73a6-44cc-94d5-1f71151f6335",
+        "novelId": "bc55ed2b-87c0-4f6c-bc9f-e2de07f43e5e",
+        "title": "Contract chapter",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 11,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "publicationSchedule": null,
+        "updatedAt": "2026-10-23T05:11:33.751Z",
+        "draft": {
+          "title": "Contract chapter",
+          "content": "Mai Linh và Duy đứng tại Cồn Vân. B response unread",
+          "wordCount": 11,
+          "version": 3,
+          "autosave": true,
+          "updatedAt": "2026-10-23T05:11:33.750Z"
+        },
+        "analysisRevisionId": null,
+        "draftVersion": 3
+      },
+      null
+    ]
+  },
+  {
+    "test": "06_different_body_stale_retry",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": [
+      null,
+      null
+    ]
+  },
+  {
+    "test": "06b_different_metadata_stale_payload_409",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": null
+  },
+  {
+    "test": "06c_fresh_metadata_and_identical_semantic_replay",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": null
+  },
+  {
+    "test": "06d_published_pricing_only_compatibility",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": null
+  },
+  {
+    "test": "07_concurrent_writers_CAS",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": null
+  },
+  {
+    "test": "08_API_consumer_inflight_A_then_B",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": {
+      "model": "API consumer retains B while A response is pending, then serializes using returned version; NOT a mounted hook or editor test",
+      "A_version": 8,
+      "B_version": 9
+    }
+  },
+  {
+    "test": "09_API_chapter_account_isolation",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": {
+      "browser_lifecycle": "NOT_RUN",
+      "foreign_write": 403,
+      "other_chapter": "97b72753-2dce-45b0-bc10-2565b8c5ce98"
+    }
+  }
+]

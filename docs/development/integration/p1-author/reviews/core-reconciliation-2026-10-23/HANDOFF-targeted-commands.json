@@ -1,0 +1,70 @@
+[
+  {
+    "name": "backend-unit",
+    "command": [
+      "node",
+      "--import",
+      "tsx",
+      "--test",
+      "src/modules/novels/chapter-revisions.test.ts",
+      "src/modules/novels/outbox.test.ts",
+      "src/modules/novels/controller-intent.test.ts",
+      "src/modules/novels/internal-revision-authorization.test.ts",
+      "src/modules/novels/draft-read-authorization.test.ts",
+      "src/jobs/outbox-processor.test.ts",
+      "src/core/database/test-db-guard.test.ts"
+    ],
+    "cwd": "backend",
+    "exit_code": 0,
+    "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09",
+    "tracked_source_clean": true
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "node",
+      "node_modules/typescript/bin/tsc",
+      "--noEmit",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "backend",
+    "exit_code": 0,
+    "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09",
+    "tracked_source_clean": true
+  },
+  {
+    "name": "build",
+    "command": [
+      "node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "backend",
+    "exit_code": 0,
+    "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09",
+    "tracked_source_clean": true
+  },
+  {
+    "name": "AI-unit",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "--basetemp",
+      "C:\\Users\\thaib\\AppData\\Local\\Temp\\d1d2-pytest-83205dcf34284bc3967fca41626f9fd9",
+      "tests/test_revision_content_provider.py",
+      "tests/test_revision_analysis_workflow.py",
+      "tests/test_revision_analysis_routes.py",
+      "tests/test_manuscript_bootstrap.py",
+      "tests/test_manuscript_bootstrap_routes.py",
+      "tests/test_writing_validation_golden.py"
+    ],
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "tested_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09",
+    "tracked_source_clean": true
+  }
+]

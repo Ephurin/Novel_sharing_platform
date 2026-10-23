@@ -1,0 +1,101 @@
+{
+  "resources": [
+    {
+      "container": "d1d2-repair-bfaa4dde68eb-pg",
+      "volume": "d1d2-repair-bfaa4dde68eb-pg-data",
+      "image": "pgvector/pgvector:pg16"
+    },
+    {
+      "container": "d1d2-repair-bfaa4dde68eb-mongo",
+      "volume": "d1d2-repair-bfaa4dde68eb-mongo-data",
+      "image": "mongo:7"
+    }
+  ],
+  "database": "ephurin_test_d1d2_bfaa4dde68eb",
+  "commands": [
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "src/core/database/migrate.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "8e459c464e72cb74e5f4d217edb7a004bd04e3b9"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "alembic",
+        "upgrade",
+        "head"
+      ],
+      "cwd": "ai-service",
+      "exit_code": 0,
+      "tested_sha": "8e459c464e72cb74e5f4d217edb7a004bd04e3b9"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/core-reconciliation.live.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "8e459c464e72cb74e5f4d217edb7a004bd04e3b9"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/mongo-reconciliation.live.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "8e459c464e72cb74e5f4d217edb7a004bd04e3b9"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/accept-draft-contract.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "8e459c464e72cb74e5f4d217edb7a004bd04e3b9"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/outbox.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "8e459c464e72cb74e5f4d217edb7a004bd04e3b9"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/p1-production-persistence.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "8e459c464e72cb74e5f4d217edb7a004bd04e3b9"
+    }
+  ],
+  "retained": true
+}

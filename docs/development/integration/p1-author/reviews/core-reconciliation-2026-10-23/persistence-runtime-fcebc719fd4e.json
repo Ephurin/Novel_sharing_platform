@@ -1,0 +1,41 @@
+{
+  "resources": [
+    {
+      "container": "d1d2-repair-fcebc719fd4e-pg",
+      "volume": "d1d2-repair-fcebc719fd4e-pg-data",
+      "image": "pgvector/pgvector:pg16"
+    },
+    {
+      "container": "d1d2-repair-fcebc719fd4e-mongo",
+      "volume": "d1d2-repair-fcebc719fd4e-mongo-data",
+      "image": "mongo:7"
+    }
+  ],
+  "database": "ephurin_test_d1d2_fcebc719fd4e",
+  "commands": [
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "src/core/database/migrate.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "f8be0b3050f1020aba04671a78fb37783af14c8d"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/core-reconciliation.live.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 1,
+      "tested_sha": "f8be0b3050f1020aba04671a78fb37783af14c8d"
+    }
+  ],
+  "retained": true
+}

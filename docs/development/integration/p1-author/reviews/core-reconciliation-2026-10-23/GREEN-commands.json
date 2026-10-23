@@ -1,0 +1,73 @@
+[
+  {
+    "command": [
+      "python",
+      "Pipeline_test/tools/prepare_fe_core_contract.py",
+      "--manifest",
+      "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-reconciliation\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\core-reconciliation-2026-10-23\\GREEN-manifest.json",
+      "--allow-new-test-resources"
+    ],
+    "exit_code": 0,
+    "tested_sha": "cef568aa81dfbf4a216b40747d78b1f734bdd95f"
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-8bc396a21a",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "--profile",
+      "initialize",
+      "run",
+      "--rm",
+      "budget-init"
+    ],
+    "exit_code": 0,
+    "tested_sha": "cef568aa81dfbf4a216b40747d78b1f734bdd95f"
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-8bc396a21a",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "up",
+      "-d",
+      "--build"
+    ],
+    "exit_code": 0,
+    "tested_sha": "cef568aa81dfbf4a216b40747d78b1f734bdd95f"
+  },
+  {
+    "command": [
+      "python",
+      "Pipeline_test/tools/fe_core_contract_probe.py",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-8bc396a21a",
+      "--output",
+      "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-reconciliation\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\core-reconciliation-2026-10-23\\GREEN-runtime",
+      "--allow-test-mutations"
+    ],
+    "exit_code": 1,
+    "tested_sha": "cef568aa81dfbf4a216b40747d78b1f734bdd95f"
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-8bc396a21a",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "stop",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0,
+    "tested_sha": "cef568aa81dfbf4a216b40747d78b1f734bdd95f"
+  }
+]

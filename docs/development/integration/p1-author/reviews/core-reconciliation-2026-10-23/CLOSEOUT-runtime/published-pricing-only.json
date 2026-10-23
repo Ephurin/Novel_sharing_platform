@@ -1,0 +1,92 @@
+{
+  "fixture_sql": "update chapters set status='PUBLISHED',content='Published canonical pricing fixture' where chapter_id='950a51bb-8004-45fa-8077-91082c01cb7d'",
+  "before": {
+    "chapterId": "950a51bb-8004-45fa-8077-91082c01cb7d",
+    "novelId": "c3b84d65-26c2-4d5e-8b91-e80d63dd1921",
+    "title": "Pricing fixture",
+    "chapterNumber": 2,
+    "content": "Published canonical pricing fixture",
+    "wordCount": 4,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "PUBLISHED",
+    "publicationSchedule": null,
+    "updatedAt": "2026-10-23T05:25:36.099Z",
+    "draft": {
+      "title": "Pricing fixture",
+      "content": "Published canonical pricing fixture",
+      "wordCount": 4,
+      "version": 1,
+      "autosave": false,
+      "updatedAt": "2026-10-23T05:25:36.102Z"
+    }
+  },
+  "legacy": {
+    "chapterId": "950a51bb-8004-45fa-8077-91082c01cb7d",
+    "novelId": "c3b84d65-26c2-4d5e-8b91-e80d63dd1921",
+    "title": "Pricing fixture",
+    "chapterNumber": 2,
+    "content": "Published canonical pricing fixture",
+    "wordCount": 4,
+    "isVip": true,
+    "priceCoins": 2,
+    "status": "PUBLISHED",
+    "publicationSchedule": null,
+    "updatedAt": "2026-10-23T05:25:36.595Z",
+    "draft": {
+      "title": "Pricing fixture",
+      "content": "Published canonical pricing fixture",
+      "wordCount": 4,
+      "version": 1,
+      "autosave": false,
+      "updatedAt": "2026-10-23T05:25:36.102Z"
+    },
+    "analysisRevisionId": null,
+    "draftVersion": 1
+  },
+  "versioned": {
+    "chapterId": "950a51bb-8004-45fa-8077-91082c01cb7d",
+    "novelId": "c3b84d65-26c2-4d5e-8b91-e80d63dd1921",
+    "title": "Pricing fixture",
+    "chapterNumber": 2,
+    "content": "Published canonical pricing fixture",
+    "wordCount": 4,
+    "isVip": true,
+    "priceCoins": 3,
+    "status": "PUBLISHED",
+    "publicationSchedule": null,
+    "updatedAt": "2026-10-23T05:25:36.609Z",
+    "draft": {
+      "title": "Pricing fixture",
+      "content": "Published canonical pricing fixture",
+      "wordCount": 4,
+      "version": 2,
+      "autosave": false,
+      "updatedAt": "2026-10-23T05:25:36.608Z"
+    },
+    "analysisRevisionId": null,
+    "draftVersion": 2
+  },
+  "after": {
+    "chapterId": "950a51bb-8004-45fa-8077-91082c01cb7d",
+    "novelId": "c3b84d65-26c2-4d5e-8b91-e80d63dd1921",
+    "title": "Pricing fixture",
+    "chapterNumber": 2,
+    "content": "Published canonical pricing fixture",
+    "wordCount": 4,
+    "isVip": true,
+    "priceCoins": 3,
+    "status": "PUBLISHED",
+    "publicationSchedule": null,
+    "updatedAt": "2026-10-23T05:25:36.609Z",
+    "draft": {
+      "title": "Pricing fixture",
+      "content": "Published canonical pricing fixture",
+      "wordCount": 4,
+      "version": 2,
+      "autosave": false,
+      "updatedAt": "2026-10-23T05:25:36.608Z"
+    }
+  },
+  "wallet_or_payment_calls": 0
+}

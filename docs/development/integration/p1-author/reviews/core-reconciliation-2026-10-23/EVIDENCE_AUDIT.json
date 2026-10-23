@@ -1,0 +1,8 @@
+{
+  "generated_credential_scan": "PASS",
+  "hits": [],
+  "files_before_audit": 315,
+  "bytes": 1796960,
+  "tested_source_sha": "990107caa9a915f7ba590d37dce912e7cccf1b09",
+  "source_diff_check_exit": 0
+}
