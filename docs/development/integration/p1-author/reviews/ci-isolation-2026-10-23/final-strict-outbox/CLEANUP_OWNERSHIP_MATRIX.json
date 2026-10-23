@@ -1,0 +1,101 @@
+{
+  "matrix_version": "1.3.0",
+  "review_target": "PR58_FINAL_SAFETY_CLOSEOUT",
+  "entities": {
+    "pgUsers": {
+      "table": "users",
+      "key": "user_id",
+      "cleanup_step": "STEP 6",
+      "readback_step": "STEP 8",
+      "strict_count_verified": true,
+      "resilience_matrix_index": [2, 11, 16, 18]
+    },
+    "pgNovels": {
+      "table": "novels",
+      "key": "novel_id",
+      "cleanup_step": "STEP 5",
+      "readback_step": "STEP 8",
+      "strict_count_verified": true,
+      "resilience_matrix_index": [3, 9, 14, 20]
+    },
+    "pgChapters": {
+      "table": "chapters",
+      "key": "chapter_id",
+      "cleanup_step": "STEP 4",
+      "readback_step": "STEP 8",
+      "strict_count_verified": true,
+      "dual_write_mongo_draft": true,
+      "resilience_matrix_index": [3, 9, 14, 20]
+    },
+    "pgRevisions": {
+      "table": "chapter_revisions",
+      "key": "revision_id",
+      "cleanup_step": "STEP 3",
+      "readback_step": "STEP 8",
+      "strict_count_verified": true,
+      "resilience_matrix_index": [4, 9, 20]
+    },
+    "pgOutboxEvents": {
+      "table": "revision_outbox_events",
+      "key": "event_id",
+      "cleanup_step": "STEP 1a",
+      "readback_step": "STEP 8",
+      "strict_count_verified": true,
+      "ownership_rule": "Requires owned parent novel or chapter; outbox-only unsupported",
+      "resilience_matrix_index": [19, 20]
+    },
+    "pgOutbox": {
+      "table": "revision_outbox_events",
+      "key": "novel_id:chapter_id",
+      "cleanup_step": "STEP 1b",
+      "readback_step": "STEP 8",
+      "strict_count_verified": true,
+      "ownership_rule": "Requires owned parent novel or chapter; outbox-only unsupported",
+      "resilience_matrix_index": [19, 20]
+    },
+    "mongoDrafts": {
+      "collection": "draft_chapters",
+      "key": "chapterId",
+      "cleanup_step": "STEP 7",
+      "readback_step": "STEP 8",
+      "strict_count_verified": true,
+      "resilience_matrix_index": [5, 14, 15, 17]
+    },
+    "sentinelPgUsers": {
+      "table": "users",
+      "key": "user_id",
+      "preservation_step": "STEP 9",
+      "cleanup_step": "STEP 10",
+      "readback_step": "STEP 11",
+      "strict_count_verified": true,
+      "resilience_matrix_index": [6, 7, 10, 12]
+    },
+    "sentinelPgNovels": {
+      "table": "novels",
+      "key": "novel_id",
+      "preservation_step": "STEP 9",
+      "cleanup_step": "STEP 10",
+      "readback_step": "STEP 11",
+      "strict_count_verified": true,
+      "resilience_matrix_index": [6, 7, 10]
+    },
+    "sentinelPgChapters": {
+      "table": "chapters",
+      "key": "chapter_id",
+      "preservation_step": "STEP 9",
+      "cleanup_step": "STEP 10",
+      "readback_step": "STEP 11",
+      "strict_count_verified": true,
+      "resilience_matrix_index": [6, 7, 10]
+    },
+    "sentinelMongoDrafts": {
+      "collection": "draft_chapters",
+      "key": "chapterId",
+      "preservation_step": "STEP 9",
+      "cleanup_step": "STEP 10",
+      "readback_step": "STEP 11",
+      "strict_count_verified": true,
+      "resilience_matrix_index": [6, 7, 10]
+    }
+  }
+}
