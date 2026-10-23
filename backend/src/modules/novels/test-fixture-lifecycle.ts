@@ -50,8 +50,8 @@ export interface CleanupResult {
  * Guarantees:
  * 1. Zero mutations if isolation authorization fails or has not occurred (F-06).
  * 2. Scoped, idempotent teardown of test-owned records even after partial setup failures (F-07).
- * 3. Independent cleanup execution across resources (errors in one do not abort others).
- * 4. Sentinel preservation verification restricted to actually confirmed sentinels.
+ * 3. Safe, idempotent double cleanup causing zero additional mutations once CLEANED (P2-A).
+ * 4. Fault-tolerant per-ID independent deletion preserving referential ordering (P2-B).
  * 5. Structured aggregation of cleanup and readback failures via AggregateError.
  */
 export class TestFixtureLifecycle {
@@ -185,8 +185,9 @@ export class TestFixtureLifecycle {
 
   /**
    * Safe, lifecycle-aware cleanup.
-   * If authorization was rejected, executes ZERO database mutations.
-   * If authorized, tears down only test-owned identities, independent of step failure.
+   * If authorization was rejected, executes ZERO database mutations (F-06).
+   * If already CLEANED, executes ZERO mutations as an idempotent no-op (P2-A).
+   * If authorized, tears down test-owned identities with per-ID error isolation (P2-B).
    */
   public async cleanup(
     pool: Pool,
@@ -204,188 +205,235 @@ export class TestFixtureLifecycle {
       };
     }
 
+    // P2-A: IDEMPOTENT NO-OP IF ALREADY SUCCESSFULLY CLEANED
+    if (this.stage === 'CLEANED') {
+      return {
+        cleaned: true,
+        mutationsAttempted: 0,
+        stageAtCleanup: 'CLEANED',
+        errors: [],
+      };
+    }
+
     this.stage = 'CLEANUP_IN_PROGRESS';
     const errors: Error[] = [];
     let mutationsAttempted = 0;
 
-    // STEP 1: Delete derived revision outbox events
-    if (this.tracked.pgOutbox.size > 0 || this.tracked.pgNovels.size > 0 || this.tracked.pgChapters.size > 0) {
+    // STEP 1: Delete derived revision outbox events per tracked novel and chapter (P2-B per-ID)
+    for (const novelId of Array.from(this.tracked.pgNovels)) {
       try {
         mutationsAttempted++;
-        for (const novelId of this.tracked.pgNovels) {
-          await pool.query('DELETE FROM revision_outbox_events WHERE novel_id = $1', [novelId]);
-        }
-        for (const chapterId of this.tracked.pgChapters) {
-          await pool.query('DELETE FROM revision_outbox_events WHERE chapter_id = $1', [chapterId]);
-        }
+        await pool.query('DELETE FROM revision_outbox_events WHERE novel_id = $1', [novelId]);
       } catch (err: any) {
-        errors.push(new Error(`Failed to delete revision_outbox_events: ${err?.message || String(err)}`));
+        errors.push(new Error(`Failed to delete revision_outbox_events for novel ${novelId}: ${err?.message || String(err)}`));
+      }
+    }
+    for (const chapterId of Array.from(this.tracked.pgChapters)) {
+      try {
+        mutationsAttempted++;
+        await pool.query('DELETE FROM revision_outbox_events WHERE chapter_id = $1', [chapterId]);
+      } catch (err: any) {
+        errors.push(new Error(`Failed to delete revision_outbox_events for chapter ${chapterId}: ${err?.message || String(err)}`));
       }
     }
 
-    // STEP 2: Nullify latest_revision_id FK on chapters before deleting revisions
-    if (this.tracked.pgChapters.size > 0) {
+    // STEP 2: Nullify latest_revision_id FK on chapters before deleting revisions (P2-B per-ID)
+    for (const chapterId of Array.from(this.tracked.pgChapters)) {
       try {
         mutationsAttempted++;
-        for (const chapterId of this.tracked.pgChapters) {
-          await pool.query('UPDATE chapters SET latest_revision_id = NULL WHERE chapter_id = $1', [chapterId]);
-        }
+        await pool.query('UPDATE chapters SET latest_revision_id = NULL WHERE chapter_id = $1', [chapterId]);
       } catch (err: any) {
-        errors.push(new Error(`Failed to clear chapters latest_revision_id FK: ${err?.message || String(err)}`));
+        errors.push(new Error(`Failed to clear chapters latest_revision_id FK for chapter ${chapterId}: ${err?.message || String(err)}`));
       }
     }
 
-    // STEP 3: Delete chapter revisions
-    if (this.tracked.pgRevisions.size > 0 || this.tracked.pgNovels.size > 0 || this.tracked.pgChapters.size > 0) {
+    // STEP 3: Delete chapter revisions per tracked entity (P2-B per-ID)
+    for (const novelId of Array.from(this.tracked.pgNovels)) {
       try {
         mutationsAttempted++;
-        for (const novelId of this.tracked.pgNovels) {
-          await pool.query('DELETE FROM chapter_revisions WHERE novel_id = $1', [novelId]);
-        }
-        for (const chapterId of this.tracked.pgChapters) {
-          await pool.query('DELETE FROM chapter_revisions WHERE chapter_id = $1', [chapterId]);
-        }
-        for (const revId of this.tracked.pgRevisions) {
-          await pool.query('DELETE FROM chapter_revisions WHERE revision_id = $1', [revId]);
-        }
+        await pool.query('DELETE FROM chapter_revisions WHERE novel_id = $1', [novelId]);
       } catch (err: any) {
-        errors.push(new Error(`Failed to delete chapter_revisions: ${err?.message || String(err)}`));
+        errors.push(new Error(`Failed to delete chapter_revisions for novel ${novelId}: ${err?.message || String(err)}`));
+      }
+    }
+    for (const chapterId of Array.from(this.tracked.pgChapters)) {
+      try {
+        mutationsAttempted++;
+        await pool.query('DELETE FROM chapter_revisions WHERE chapter_id = $1', [chapterId]);
+      } catch (err: any) {
+        errors.push(new Error(`Failed to delete chapter_revisions for chapter ${chapterId}: ${err?.message || String(err)}`));
+      }
+    }
+    for (const revId of Array.from(this.tracked.pgRevisions)) {
+      try {
+        mutationsAttempted++;
+        await pool.query('DELETE FROM chapter_revisions WHERE revision_id = $1', [revId]);
+        this.tracked.pgRevisions.delete(revId);
+      } catch (err: any) {
+        errors.push(new Error(`Failed to delete chapter_revisions for revision ${revId}: ${err?.message || String(err)}`));
       }
     }
 
-    // STEP 4: Delete chapters
-    if (this.tracked.pgChapters.size > 0) {
+    // STEP 4: Delete chapters per ID (P2-B per-ID)
+    for (const chapterId of Array.from(this.tracked.pgChapters)) {
       try {
         mutationsAttempted++;
-        for (const chapterId of this.tracked.pgChapters) {
-          await pool.query('DELETE FROM chapters WHERE chapter_id = $1', [chapterId]);
-        }
+        await pool.query('DELETE FROM chapters WHERE chapter_id = $1', [chapterId]);
+        this.tracked.pgChapters.delete(chapterId);
       } catch (err: any) {
-        errors.push(new Error(`Failed to delete chapters: ${err?.message || String(err)}`));
+        errors.push(new Error(`Failed to delete chapter ${chapterId}: ${err?.message || String(err)}`));
       }
     }
 
-    // STEP 5: Delete novels
-    if (this.tracked.pgNovels.size > 0) {
+    // STEP 5: Delete novels per ID (P2-B per-ID)
+    for (const novelId of Array.from(this.tracked.pgNovels)) {
       try {
         mutationsAttempted++;
-        for (const novelId of this.tracked.pgNovels) {
-          await pool.query('DELETE FROM novels WHERE novel_id = $1', [novelId]);
-        }
+        await pool.query('DELETE FROM novels WHERE novel_id = $1', [novelId]);
+        this.tracked.pgNovels.delete(novelId);
       } catch (err: any) {
-        errors.push(new Error(`Failed to delete novels: ${err?.message || String(err)}`));
+        errors.push(new Error(`Failed to delete novel ${novelId}: ${err?.message || String(err)}`));
       }
     }
 
-    // STEP 6: Delete author users
-    if (this.tracked.pgUsers.size > 0) {
+    // STEP 6: Delete author users per ID (P2-B per-ID)
+    for (const userId of Array.from(this.tracked.pgUsers)) {
       try {
         mutationsAttempted++;
-        for (const userId of this.tracked.pgUsers) {
-          await pool.query('DELETE FROM users WHERE user_id = $1', [userId]);
-        }
+        await pool.query('DELETE FROM users WHERE user_id = $1', [userId]);
+        this.tracked.pgUsers.delete(userId);
       } catch (err: any) {
-        errors.push(new Error(`Failed to delete users: ${err?.message || String(err)}`));
+        errors.push(new Error(`Failed to delete user ${userId}: ${err?.message || String(err)}`));
       }
     }
 
-    // STEP 7: Delete Mongo draft_chapters
-    if (this.tracked.mongoDrafts.size > 0 || this.tracked.pgChapters.size > 0) {
+    // STEP 7: Delete Mongo draft_chapters per ID (P2-B per-ID)
+    const targetChapterIds = Array.from(new Set([...this.tracked.mongoDrafts, ...this.tracked.pgChapters]));
+    for (const chapterId of targetChapterIds) {
       try {
         mutationsAttempted++;
-        const targetChapterIds = Array.from(new Set([...this.tracked.mongoDrafts, ...this.tracked.pgChapters]));
-        await mongoDb.collection('draft_chapters').deleteMany({
-          chapterId: { $in: targetChapterIds }
-        });
+        await mongoDb.collection('draft_chapters').deleteMany({ chapterId });
+        this.tracked.mongoDrafts.delete(chapterId);
       } catch (err: any) {
-        errors.push(new Error(`Failed to delete MongoDB draft_chapters: ${err?.message || String(err)}`));
+        errors.push(new Error(`Failed to delete MongoDB draft_chapters for chapter ${chapterId}: ${err?.message || String(err)}`));
       }
     }
 
     // STEP 8: Post-cleanup readback assertions (verify 0 residual records for tracked IDs)
-    try {
-      for (const chapterId of this.tracked.pgChapters) {
+    for (const chapterId of Array.from(this.tracked.pgChapters)) {
+      try {
         const cRes = await pool.query('SELECT count(*) FROM chapters WHERE chapter_id = $1', [chapterId]);
         assert.equal(Number(cRes.rows[0].count), 0, `Residual chapter detected for ${chapterId}`);
+      } catch (err: any) {
+        errors.push(new Error(`Post-cleanup readback failed for chapter ${chapterId}: ${err?.message || String(err)}`));
       }
-      for (const novelId of this.tracked.pgNovels) {
+    }
+    for (const novelId of Array.from(this.tracked.pgNovels)) {
+      try {
         const nRes = await pool.query('SELECT count(*) FROM novels WHERE novel_id = $1', [novelId]);
         assert.equal(Number(nRes.rows[0].count), 0, `Residual novel detected for ${novelId}`);
+      } catch (err: any) {
+        errors.push(new Error(`Post-cleanup readback failed for novel ${novelId}: ${err?.message || String(err)}`));
       }
-      for (const userId of this.tracked.pgUsers) {
+    }
+    for (const userId of Array.from(this.tracked.pgUsers)) {
+      try {
         const uRes = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [userId]);
         assert.equal(Number(uRes.rows[0].count), 0, `Residual user detected for ${userId}`);
+      } catch (err: any) {
+        errors.push(new Error(`Post-cleanup readback failed for user ${userId}: ${err?.message || String(err)}`));
       }
-      for (const revId of this.tracked.pgRevisions) {
+    }
+    for (const revId of Array.from(this.tracked.pgRevisions)) {
+      try {
         const rRes = await pool.query('SELECT count(*) FROM chapter_revisions WHERE revision_id = $1', [revId]);
         assert.equal(Number(rRes.rows[0].count), 0, `Residual chapter revision detected for ${revId}`);
+      } catch (err: any) {
+        errors.push(new Error(`Post-cleanup readback failed for revision ${revId}: ${err?.message || String(err)}`));
       }
-      const mongoIds = Array.from(new Set([...this.tracked.mongoDrafts, ...this.tracked.pgChapters]));
-      if (mongoIds.length > 0) {
-        const mCount = await mongoDb.collection('draft_chapters').countDocuments({
-          chapterId: { $in: mongoIds }
-        });
-        assert.equal(mCount, 0, `Residual MongoDB draft_chapters detected for IDs: ${mongoIds.join(', ')}`);
+    }
+    for (const mongoId of Array.from(this.tracked.mongoDrafts)) {
+      try {
+        const mCount = await mongoDb.collection('draft_chapters').countDocuments({ chapterId: mongoId });
+        assert.equal(mCount, 0, `Residual MongoDB draft_chapters detected for chapter ${mongoId}`);
+      } catch (err: any) {
+        errors.push(new Error(`Post-cleanup readback failed for MongoDB draft ${mongoId}: ${err?.message || String(err)}`));
       }
-    } catch (err: any) {
-      errors.push(new Error(`Post-cleanup readback assertion failed: ${err?.message || String(err)}`));
     }
 
-    // STEP 9: Sentinel preservation check (verify sentinels that were actually confirmed survived)
-    try {
-      for (const sUserId of this.tracked.confirmedSentinelPgUsers) {
+    // STEP 9: Sentinel preservation check (verify confirmed sentinels that are still tracked survived)
+    for (const sUserId of Array.from(this.tracked.confirmedSentinelPgUsers)) {
+      try {
         const uRes = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [sUserId]);
         assert.equal(Number(uRes.rows[0].count), 1, `Sentinel user ${sUserId} was unexpectedly corrupted or deleted`);
+      } catch (err: any) {
+        errors.push(new Error(`Sentinel preservation assertion failed: ${err?.message || String(err)}`));
       }
-      for (const sNovelId of this.tracked.confirmedSentinelPgNovels) {
+    }
+    for (const sNovelId of Array.from(this.tracked.confirmedSentinelPgNovels)) {
+      try {
         const nRes = await pool.query('SELECT count(*) FROM novels WHERE novel_id = $1', [sNovelId]);
         assert.equal(Number(nRes.rows[0].count), 1, `Sentinel novel ${sNovelId} was unexpectedly corrupted or deleted`);
+      } catch (err: any) {
+        errors.push(new Error(`Sentinel preservation assertion failed: ${err?.message || String(err)}`));
       }
-      for (const sChapId of this.tracked.confirmedSentinelPgChapters) {
+    }
+    for (const sChapId of Array.from(this.tracked.confirmedSentinelPgChapters)) {
+      try {
         const cRes = await pool.query('SELECT count(*) FROM chapters WHERE chapter_id = $1', [sChapId]);
         assert.equal(Number(cRes.rows[0].count), 1, `Sentinel chapter ${sChapId} was unexpectedly corrupted or deleted`);
+      } catch (err: any) {
+        errors.push(new Error(`Sentinel preservation assertion failed: ${err?.message || String(err)}`));
       }
-      for (const sDraftId of this.tracked.confirmedSentinelMongoDrafts) {
+    }
+    for (const sDraftId of Array.from(this.tracked.confirmedSentinelMongoDrafts)) {
+      try {
         const mCount = await mongoDb.collection('draft_chapters').countDocuments({ chapterId: sDraftId });
         assert.equal(mCount, 1, `Sentinel MongoDB draft ${sDraftId} was unexpectedly corrupted or deleted`);
+      } catch (err: any) {
+        errors.push(new Error(`Sentinel preservation assertion failed: ${err?.message || String(err)}`));
       }
-    } catch (err: any) {
-      errors.push(new Error(`Sentinel preservation assertion failed: ${err?.message || String(err)}`));
     }
 
-    // STEP 10: Teardown sentinels (independent execution per resource)
-    for (const sChapId of this.tracked.sentinelPgChapters) {
+    // STEP 10: Teardown sentinels (independent execution per resource ID)
+    for (const sChapId of Array.from(this.tracked.sentinelPgChapters)) {
       try {
         mutationsAttempted++;
         await pool.query('DELETE FROM chapters WHERE chapter_id = $1', [sChapId]);
+        this.tracked.sentinelPgChapters.delete(sChapId);
+        this.tracked.confirmedSentinelPgChapters.delete(sChapId);
       } catch (err: any) {
         errors.push(new Error(`Failed to teardown sentinel chapter ${sChapId}: ${err?.message || String(err)}`));
       }
     }
-    for (const sNovelId of this.tracked.sentinelPgNovels) {
+    for (const sNovelId of Array.from(this.tracked.sentinelPgNovels)) {
       try {
         mutationsAttempted++;
         await pool.query('DELETE FROM novels WHERE novel_id = $1', [sNovelId]);
+        this.tracked.sentinelPgNovels.delete(sNovelId);
+        this.tracked.confirmedSentinelPgNovels.delete(sNovelId);
       } catch (err: any) {
         errors.push(new Error(`Failed to teardown sentinel novel ${sNovelId}: ${err?.message || String(err)}`));
       }
     }
-    for (const sUserId of this.tracked.sentinelPgUsers) {
+    for (const sUserId of Array.from(this.tracked.sentinelPgUsers)) {
       try {
         mutationsAttempted++;
         await pool.query('DELETE FROM users WHERE user_id = $1', [sUserId]);
+        this.tracked.sentinelPgUsers.delete(sUserId);
+        this.tracked.confirmedSentinelPgUsers.delete(sUserId);
       } catch (err: any) {
         errors.push(new Error(`Failed to teardown sentinel user ${sUserId}: ${err?.message || String(err)}`));
       }
     }
-    if (this.tracked.sentinelMongoDrafts.size > 0) {
+    for (const sDraftId of Array.from(this.tracked.sentinelMongoDrafts)) {
       try {
         mutationsAttempted++;
-        await mongoDb.collection('draft_chapters').deleteMany({
-          chapterId: { $in: Array.from(this.tracked.sentinelMongoDrafts) }
-        });
+        await mongoDb.collection('draft_chapters').deleteMany({ chapterId: sDraftId });
+        this.tracked.sentinelMongoDrafts.delete(sDraftId);
+        this.tracked.confirmedSentinelMongoDrafts.delete(sDraftId);
       } catch (err: any) {
-        errors.push(new Error(`Failed to teardown sentinel Mongo drafts: ${err?.message || String(err)}`));
+        errors.push(new Error(`Failed to teardown sentinel Mongo draft ${sDraftId}: ${err?.message || String(err)}`));
       }
     }
 
@@ -402,7 +450,8 @@ export class TestFixtureLifecycle {
     if (errors.length === 1) {
       throw errors[0];
     } else if (errors.length > 1) {
-      throw new AggregateError(errors, `Fixture cleanup encountered ${errors.length} failures during teardown.`);
+      const details = errors.map((e, idx) => `[${idx + 1}] ${e.message}`).join('; ');
+      throw new AggregateError(errors, `Fixture cleanup encountered ${errors.length} failures during teardown: ${details}`);
     }
 
     return result;

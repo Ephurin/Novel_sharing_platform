@@ -442,26 +442,238 @@ describe('F-07 Fault Injection Matrix: Fixture Lifecycle & Teardown Resilience',
     assert.equal(sMongo, 0);
   });
 
-  test('Matrix 10: Repeated cleanup -> Safe, idempotent, zero residual mutations', async () => {
+  test('Matrix 10: Repeated cleanup with sentinels -> Safe, idempotent, zero residual mutations (P2-A)', async () => {
     const lifecycle = new TestFixtureLifecycle();
     await lifecycle.authorize(pool, mongoDb);
 
+    // Unrelated sentinel in background to verify it remains untouched
+    const externalSentinelId = crypto.randomUUID();
+    await pool.query(
+      `INSERT INTO users (user_id, username, email, password_hash, role) VALUES ($1, $2, $3, 'hash', 'AUTHOR')`,
+      [externalSentinelId, `ext_sentinel_${Date.now()}`, `ext_${Date.now()}@ephurin.com`]
+    );
+
+    // Sentinel fixtures owned by this lifecycle
+    const sUId = crypto.randomUUID();
+    const sNId = crypto.randomUUID();
+    const sCId = crypto.randomUUID();
+    const sMId = crypto.randomUUID();
+
+    lifecycle.registerSentinelUser(sUId);
+    await pool.query(
+      `INSERT INTO users (user_id, username, email, password_hash, role) VALUES ($1, $2, $3, 'hash', 'AUTHOR')`,
+      [sUId, `sentinel_m10_${Date.now()}`, `sm10_${Date.now()}@ephurin.com`]
+    );
+    lifecycle.confirmSentinelUser(sUId);
+
+    lifecycle.registerSentinelNovel(sNId);
+    await pool.query(
+      `INSERT INTO novels (novel_id, title, slug, synopsis, author_id, status) VALUES ($1, 'Sentinel 10', $2, 'Synopsis', $3, 'PUBLISHED')`,
+      [sNId, `s10-slug-${Date.now()}`, sUId]
+    );
+    lifecycle.confirmSentinelNovel(sNId);
+
+    lifecycle.registerSentinelChapter(sCId);
+    await pool.query(
+      `INSERT INTO chapters (chapter_id, novel_id, title, chapter_number, status) VALUES ($1, $2, 'Sentinel 10 Chapter', 999, 'DRAFT')`,
+      [sCId, sNId]
+    );
+    lifecycle.confirmSentinelChapter(sCId);
+
+    lifecycle.registerSentinelMongoDraft(sMId);
+    await mongoDb.collection('draft_chapters').insertOne({
+      chapterId: sMId,
+      novelId: sNId,
+      title: 'Sentinel 10 Mongo',
+      content: 'Prose',
+    });
+    lifecycle.confirmSentinelMongoDraft(sMId);
+
+    // Regular test fixtures
     const uId = crypto.randomUUID();
     lifecycle.registerUser(uId);
     await pool.query(
-      `INSERT INTO users (user_id, username, email, password_hash, role)
-       VALUES ($1, $2, $3, 'hash', 'AUTHOR')`,
+      `INSERT INTO users (user_id, username, email, password_hash, role) VALUES ($1, $2, $3, 'hash', 'AUTHOR')`,
       [uId, `matrix10_${Date.now()}`, `m10_${Date.now()}@ephurin.com`]
     );
 
     // First cleanup
     const res1 = await lifecycle.cleanup(pool, mongoDb);
     assert.equal(res1.cleaned, true);
+    assert.ok(res1.mutationsAttempted > 0, 'First cleanup must execute teardown mutations');
 
-    // Second repeated cleanup on same lifecycle instance
+    // Verify zero residual records
+    const uCheck1 = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [uId]);
+    const suCheck1 = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [sUId]);
+    const snCheck1 = await pool.query('SELECT count(*) FROM novels WHERE novel_id = $1', [sNId]);
+    const scCheck1 = await pool.query('SELECT count(*) FROM chapters WHERE chapter_id = $1', [sCId]);
+    const smCheck1 = await mongoDb.collection('draft_chapters').countDocuments({ chapterId: sMId });
+
+    assert.equal(Number(uCheck1.rows[0].count), 0);
+    assert.equal(Number(suCheck1.rows[0].count), 0);
+    assert.equal(Number(snCheck1.rows[0].count), 0);
+    assert.equal(Number(scCheck1.rows[0].count), 0);
+    assert.equal(smCheck1, 0);
+
+    // Second repeated cleanup on same lifecycle instance (P2-A invariant)
     const res2 = await lifecycle.cleanup(pool, mongoDb);
     assert.equal(res2.cleaned, true);
+    assert.equal(res2.mutationsAttempted, 0, 'Second cleanup must cause ZERO additional database mutations');
     assert.equal(res2.errors.length, 0);
+    assert.equal(res2.stageAtCleanup, 'CLEANED');
+
+    // External sentinel was untouched
+    const extCheck = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [externalSentinelId]);
+    assert.equal(Number(extCheck.rows[0].count), 1, 'External sentinel must remain untouched');
+    await pool.query('DELETE FROM users WHERE user_id = $1', [externalSentinelId]);
+  });
+
+  test('Matrix 11: Per-ID cleanup fault tolerance across multiple IDs in the same group (P2-B)', async () => {
+    const lifecycle = new TestFixtureLifecycle();
+    await lifecycle.authorize(pool, mongoDb);
+
+    const uId1 = crypto.randomUUID();
+    const uId2 = crypto.randomUUID();
+    const uId3 = crypto.randomUUID();
+
+    lifecycle.registerUser(uId1);
+    await pool.query(
+      `INSERT INTO users (user_id, username, email, password_hash, role) VALUES ($1, $2, $3, 'hash', 'AUTHOR')`,
+      [uId1, `m11_u1_${Date.now()}`, `m11_u1_${Date.now()}@ephurin.com`]
+    );
+
+    lifecycle.registerUser(uId2);
+    await pool.query(
+      `INSERT INTO users (user_id, username, email, password_hash, role) VALUES ($1, $2, $3, 'hash', 'AUTHOR')`,
+      [uId2, `m11_u2_${Date.now()}`, `m11_u2_${Date.now()}@ephurin.com`]
+    );
+
+    lifecycle.registerUser(uId3);
+    await pool.query(
+      `INSERT INTO users (user_id, username, email, password_hash, role) VALUES ($1, $2, $3, 'hash', 'AUTHOR')`,
+      [uId3, `m11_u3_${Date.now()}`, `m11_u3_${Date.now()}@ephurin.com`]
+    );
+
+    // Proxy pool that specifically fails when deleting uId1, but allows uId2 and uId3
+    const spiedPool = {
+      query: async (text: string, params?: any[]) => {
+        if (text.includes('DELETE FROM users WHERE user_id = $1') && params?.[0] === uId1) {
+          throw new Error(`Injected failure deleting user ${uId1}`);
+        }
+        return pool.query(text, params);
+      },
+    } as unknown as Pool;
+
+    let cleanupError: any = null;
+    try {
+      await lifecycle.cleanup(spiedPool, mongoDb);
+    } catch (err: any) {
+      cleanupError = err;
+    }
+
+    assert.ok(cleanupError, 'Cleanup must fail and report the failure');
+    assert.match(cleanupError.message, new RegExp(uId1), 'Error message must identify failed user ID');
+    assert.equal(lifecycle.stage, 'CLEANUP_FAILED');
+
+    // uId2 and uId3 MUST still have been deleted
+    const check2 = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [uId2]);
+    const check3 = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [uId3]);
+    assert.equal(Number(check2.rows[0].count), 0, 'uId2 must be deleted despite uId1 failure');
+    assert.equal(Number(check3.rows[0].count), 0, 'uId3 must be deleted despite uId1 failure');
+
+    // uId1 remains residual in DB
+    const check1 = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [uId1]);
+    assert.equal(Number(check1.rows[0].count), 1, 'uId1 should remain in DB pending recovery');
+
+    // Manual cleanup of uId1
+    await pool.query('DELETE FROM users WHERE user_id = $1', [uId1]);
+  });
+
+  test('Matrix 12: Sentinel-group per-ID deletion fault tolerance (P2-B)', async () => {
+    const lifecycle = new TestFixtureLifecycle();
+    await lifecycle.authorize(pool, mongoDb);
+
+    const sU1 = crypto.randomUUID();
+    const sU2 = crypto.randomUUID();
+
+    lifecycle.registerSentinelUser(sU1);
+    await pool.query(
+      `INSERT INTO users (user_id, username, email, password_hash, role) VALUES ($1, $2, $3, 'hash', 'AUTHOR')`,
+      [sU1, `sentinel_m12_1_${Date.now()}`, `sm12_1_${Date.now()}@ephurin.com`]
+    );
+    lifecycle.confirmSentinelUser(sU1);
+
+    lifecycle.registerSentinelUser(sU2);
+    await pool.query(
+      `INSERT INTO users (user_id, username, email, password_hash, role) VALUES ($1, $2, $3, 'hash', 'AUTHOR')`,
+      [sU2, `sentinel_m12_2_${Date.now()}`, `sm12_2_${Date.now()}@ephurin.com`]
+    );
+    lifecycle.confirmSentinelUser(sU2);
+
+    // Fail deletion specifically on sentinel sU1
+    const spiedPool = {
+      query: async (text: string, params?: any[]) => {
+        if (text.includes('DELETE FROM users WHERE user_id = $1') && params?.[0] === sU1) {
+          throw new Error(`Injected failure deleting sentinel user ${sU1}`);
+        }
+        return pool.query(text, params);
+      },
+    } as unknown as Pool;
+
+    let cleanupError: any = null;
+    try {
+      await lifecycle.cleanup(spiedPool, mongoDb);
+    } catch (err: any) {
+      cleanupError = err;
+    }
+
+    assert.ok(cleanupError, 'Cleanup must report failure when sentinel deletion fails');
+    assert.match(cleanupError.message, new RegExp(sU1));
+
+    // Sentinel sU2 must still have been deleted
+    const check2 = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [sU2]);
+    assert.equal(Number(check2.rows[0].count), 0, 'sU2 must be deleted despite sU1 failure');
+
+    // Manual cleanup of sU1
+    await pool.query('DELETE FROM users WHERE user_id = $1', [sU1]);
+  });
+
+  test('Matrix 13: Recoverable retry following CLEANUP_FAILED restores clean state', async () => {
+    const lifecycle = new TestFixtureLifecycle();
+    await lifecycle.authorize(pool, mongoDb);
+
+    const uId = crypto.randomUUID();
+    lifecycle.registerUser(uId);
+    await pool.query(
+      `INSERT INTO users (user_id, username, email, password_hash, role) VALUES ($1, $2, $3, 'hash', 'AUTHOR')`,
+      [uId, `m13_u_${Date.now()}`, `m13_${Date.now()}@ephurin.com`]
+    );
+
+    let failOnce = true;
+    const transientPool = {
+      query: async (text: string, params?: any[]) => {
+        if (text.includes('DELETE FROM users') && failOnce) {
+          failOnce = false;
+          throw new Error('Transient database lock failure');
+        }
+        return pool.query(text, params);
+      },
+    } as unknown as Pool;
+
+    // First cleanup fails due to transient error
+    let err1: any = null;
+    try {
+      await lifecycle.cleanup(transientPool, mongoDb);
+    } catch (err: any) {
+      err1 = err;
+    }
+    assert.ok(err1, 'First cleanup must fail and report error');
+    assert.equal(lifecycle.stage, 'CLEANUP_FAILED');
+
+    // Retry cleanup on same lifecycle: recovers and deletes remaining user
+    const res2 = await lifecycle.cleanup(pool, mongoDb);
+    assert.equal(res2.cleaned, true);
+    assert.equal(lifecycle.stage, 'CLEANED');
 
     const uCheck = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [uId]);
     assert.equal(Number(uCheck.rows[0].count), 0);
