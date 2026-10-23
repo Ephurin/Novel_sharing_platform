@@ -109,6 +109,7 @@ class Probe:
             ("backend", "ai-service", "postgres", "mongodb", "budget-gateway", "fake-upstream")]]))
         networks = set()
         safe = []
+        def service_name(c):return c['Config']['Labels']['com.docker.compose.service']
         for c in containers:
             assert c["Config"]["Labels"]["com.docker.compose.project"] == self.project
             assert c["State"]["Running"]
@@ -117,7 +118,9 @@ class Probe:
                          "networks": list(c["NetworkSettings"]["Networks"])})
             env = dict(v.split("=", 1) for v in c["Config"]["Env"] if "=" in v)
             for key in ("GEMINI_API_KEY", "GOOGLE_API_KEY", "OPENAI_API_KEY", "LLM_API_KEY", "AI_LLM_API_KEY"):
-                assert not env.get(key), "REAL_KEY_PRESENT"
+                value=env.get(key)
+                fake_key=(service_name(c)=='ai-service' and key=='OPENAI_API_KEY' and value==self.env['AI_WORKER_TOKEN'] and env.get('LLM_PROVIDER')=='openai' and env.get('LLM_BASE_URL')=='http://budget-gateway:18090/v1')
+                assert not value or fake_key, "REAL_KEY_PRESENT"
             service = c["Config"]["Labels"]["com.docker.compose.service"]
             if service in {"backend", "ai-service"}:
                 assert env["BUDGET_GUARD_MODE"] == "proxy"
@@ -133,7 +136,7 @@ class Probe:
         identity = self.sql("select current_database()")
         assert identity == self.env["POSTGRES_DB"]
         self.save("containment", {"containers": safe, "internal_networks": sorted(networks),
-            "database": identity, "real_keys_empty": True, "external_provider_calls": 0,
+            "database": identity, "real_provider_keys_absent": True, "fake_transport_key_only": True, "external_provider_calls": 0,
             "provider_route": "ai/backend -> budget-gateway -> fake-upstream on internal networks"})
         self.check("isolated_real_databases_fake_only", True)
 
