@@ -2,7 +2,8 @@ import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { getPostgresPool, disconnectPostgres } from '../../core/database/postgres.js';
-import { disconnectMongo } from '../../core/database/mongo.js';
+import { getMongoDatabase, disconnectMongo } from '../../core/database/mongo.js';
+import { validateTestDatabaseIsolation } from '../../core/database/test-db-guard.js';
 import { disconnectChapterWriter } from './chapter-writer.js';
 import { acceptDraft } from './chapter-revisions.service.js';
 import { env } from '../../core/config/env.js';
@@ -22,11 +23,51 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
   const testGenId = `gen-${Date.now()}-${crypto.randomUUID()}`;
   const mockReplacement = ' Tiêu Viêm chậm rãi thu hồi Dị Hỏa.';
 
+  // Unrelated sentinel fixtures to verify non-destructive isolation
+  const sentinelUserId = crypto.randomUUID();
+  const sentinelNovelId = crypto.randomUUID();
+  const sentinelChapterId = crypto.randomUUID();
+  const sentinelMongoChapterId = crypto.randomUUID();
+
   // Mock global.fetch to intercept AI service calls during acceptDraft
   const originalFetch = global.fetch;
 
   before(async () => {
-    // Setup author and novel fixture in PostgreSQL
+    const mongoDb = getMongoDatabase();
+
+    // STEP 1: Enforce fail-closed database isolation guard before ANY mutation
+    await validateTestDatabaseIsolation(pool, mongoDb);
+
+    // STEP 2: Seed sentinel records to verify cleanup specificity
+    await pool.query(
+      `INSERT INTO users (user_id, username, email, password_hash, role)
+       VALUES ($1, $2, $3, 'dummy-hash', 'AUTHOR') ON CONFLICT DO NOTHING`,
+      [sentinelUserId, `sentinel_p1_${Date.now()}`, `sentinel_p1_${Date.now()}@ephurin.com`]
+    );
+    await pool.query(
+      `INSERT INTO novels (novel_id, author_id, title, slug, synopsis)
+       VALUES ($1, $2, 'Sentinel Persistence Novel', $3, 'Sentinel Synopsis') ON CONFLICT DO NOTHING`,
+      [sentinelNovelId, sentinelUserId, `sentinel-p1-slug-${Date.now()}`]
+    );
+    await pool.query(
+      `INSERT INTO chapters (chapter_id, novel_id, chapter_number, title, content, word_count)
+       VALUES ($1, $2, 999, 'Sentinel Persistence Chapter', 'Sentinel Content', 2) ON CONFLICT DO NOTHING`,
+      [sentinelChapterId, sentinelNovelId]
+    );
+    await mongoDb.collection('draft_chapters').insertOne({
+      chapterId: sentinelMongoChapterId,
+      novelId: sentinelNovelId,
+      authorId: sentinelUserId,
+      title: 'Sentinel Persistence Draft',
+      content: 'Sentinel draft content',
+      wordCount: 3,
+      version: 1,
+      autosave: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
+    // STEP 3: Setup author and novel fixture in PostgreSQL
     const userRes = await pool.query(
       `insert into users (email, username, password_hash, role)
        values ($1, $2, 'dummy-hash', 'AUTHOR')
@@ -122,18 +163,110 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
   });
 
   after(async () => {
-    // Teardown fixture data from PostgreSQL
-    if (novelId) {
-      await pool.query('delete from novels where novel_id = $1', [novelId]);
-    }
-    if (userId) {
-      await pool.query('delete from users where user_id = $1', [userId]);
-    }
-
-    await disconnectPostgres();
-    await disconnectMongo();
-    await disconnectChapterWriter();
     global.fetch = originalFetch;
+    try {
+      const mongoDb = getMongoDatabase();
+
+      // 1. Delete derived revision outbox events
+      if (novelId || chapterId) {
+        await pool.query(
+          'DELETE FROM revision_outbox_events WHERE novel_id = $1 OR chapter_id = $2',
+          [novelId, chapterId]
+        );
+      }
+
+      // 2. Clear latest_revision_id FK pointer on chapter
+      if (chapterId) {
+        await pool.query(
+          'UPDATE chapters SET latest_revision_id = NULL WHERE chapter_id = $1',
+          [chapterId]
+        );
+      }
+
+      // 3. Delete all chapter revisions
+      if (novelId || chapterId) {
+        await pool.query(
+          'DELETE FROM chapter_revisions WHERE novel_id = $1 OR chapter_id = $2',
+          [novelId, chapterId]
+        );
+      }
+
+      // 4. Delete chapter
+      if (chapterId) {
+        await pool.query('DELETE FROM chapters WHERE chapter_id = $1', [chapterId]);
+      }
+
+      // 5. Delete novel
+      if (novelId) {
+        await pool.query('DELETE FROM novels WHERE novel_id = $1', [novelId]);
+      }
+
+      // 6. Delete author user
+      if (userId) {
+        await pool.query('DELETE FROM users WHERE user_id = $1', [userId]);
+      }
+
+      // 7. Delete Mongo draft_chapters for chapterId
+      if (chapterId) {
+        await mongoDb.collection('draft_chapters').deleteMany({ chapterId });
+      }
+
+      // 8. Post-cleanup readbacks: verify 0 test-owned records remain
+      if (novelId || chapterId) {
+        const outboxCheck = await pool.query(
+          'SELECT count(*) FROM revision_outbox_events WHERE novel_id = $1 OR chapter_id = $2',
+          [novelId, chapterId]
+        );
+        assert.equal(Number(outboxCheck.rows[0].count), 0, 'Cleanup readback: revision_outbox_events row leftover');
+
+        const revCheck = await pool.query(
+          'SELECT count(*) FROM chapter_revisions WHERE novel_id = $1 OR chapter_id = $2',
+          [novelId, chapterId]
+        );
+        assert.equal(Number(revCheck.rows[0].count), 0, 'Cleanup readback: chapter_revisions row leftover');
+      }
+
+      if (chapterId) {
+        const chapCheck = await pool.query('SELECT count(*) FROM chapters WHERE chapter_id = $1', [chapterId]);
+        assert.equal(Number(chapCheck.rows[0].count), 0, 'Cleanup readback: chapters row leftover');
+
+        const mongoCheck = await mongoDb.collection('draft_chapters').countDocuments({ chapterId });
+        assert.equal(mongoCheck, 0, 'Cleanup readback: MongoDB draft_chapters document leftover');
+      }
+
+      if (novelId) {
+        const novelCheck = await pool.query('SELECT count(*) FROM novels WHERE novel_id = $1', [novelId]);
+        assert.equal(Number(novelCheck.rows[0].count), 0, 'Cleanup readback: novels row leftover');
+      }
+
+      if (userId) {
+        const userCheck = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [userId]);
+        assert.equal(Number(userCheck.rows[0].count), 0, 'Cleanup readback: users row leftover');
+      }
+
+      // 9. Sentinel record survival check: verify non-destructive cleanup
+      const sentinelUserCheck = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [sentinelUserId]);
+      assert.equal(Number(sentinelUserCheck.rows[0].count), 1, 'Sentinel user was unexpectedly deleted');
+
+      const sentinelNovelCheck = await pool.query('SELECT count(*) FROM novels WHERE novel_id = $1', [sentinelNovelId]);
+      assert.equal(Number(sentinelNovelCheck.rows[0].count), 1, 'Sentinel novel was unexpectedly deleted');
+
+      const sentinelChapCheck = await pool.query('SELECT count(*) FROM chapters WHERE chapter_id = $1', [sentinelChapterId]);
+      assert.equal(Number(sentinelChapCheck.rows[0].count), 1, 'Sentinel chapter was unexpectedly deleted');
+
+      const sentinelMongoCheck = await mongoDb.collection('draft_chapters').countDocuments({ chapterId: sentinelMongoChapterId });
+      assert.equal(sentinelMongoCheck, 1, 'Sentinel MongoDB draft was unexpectedly deleted');
+
+      // 10. Clean up sentinel records
+      await pool.query('DELETE FROM chapters WHERE chapter_id = $1', [sentinelChapterId]);
+      await pool.query('DELETE FROM novels WHERE novel_id = $1', [sentinelNovelId]);
+      await pool.query('DELETE FROM users WHERE user_id = $1', [sentinelUserId]);
+      await mongoDb.collection('draft_chapters').deleteMany({ chapterId: sentinelMongoChapterId });
+    } finally {
+      await disconnectPostgres();
+      await disconnectMongo();
+      await disconnectChapterWriter();
+    }
   });
 
   test('Checkpoint 08: acceptDraft persists chapter_revisions with source_type=AI_DRAFT_ACCEPT in PostgreSQL', async () => {

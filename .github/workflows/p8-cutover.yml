@@ -127,13 +127,13 @@ jobs:
       postgres:
         image: pgvector/pgvector:pg16
         env:
-          POSTGRES_DB: ephurin_backend_integration
+          POSTGRES_DB: ephurin_test_integration
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U postgres -d ephurin_backend_integration"
+          --health-cmd "pg_isready -U postgres -d ephurin_test_integration"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 20
@@ -151,8 +151,10 @@ jobs:
         working-directory: backend
     env:
       NODE_ENV: test
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ephurin_backend_integration
-      MONGODB_URI: mongodb://localhost:27017/ephurin_backend_integration
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ephurin_test_integration
+      MONGODB_URI: mongodb://localhost:27017/ephurin_test_integration
+      EXPECTED_TEST_DB_NAME: ephurin_test_integration
+      EPHURIN_ALLOW_TEST_DB_MUTATIONS: "1"
       JWT_ACCESS_SECRET: p8-ci-access-secret
       JWT_REFRESH_SECRET: p8-ci-refresh-secret
       PLATFORM_SERVICE_TOKEN: p8-ci-service-token
@@ -166,6 +168,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
+          cache-dependency-path: ai-service/requirements.txt
       - name: Verify PostgreSQL and MongoDB readiness
         run: |
           set -euo pipefail
@@ -189,6 +193,16 @@ jobs:
         run: npm ci
       - name: Apply backend database migrations
         run: npx tsx src/core/database/migrate.ts
+      - name: Install AI-service dependencies for Alembic migrations
+        working-directory: ai-service
+        run: pip install -r requirements.txt
+      - name: Apply AI-service Alembic migrations (Tier B Real Schema)
+        working-directory: ai-service
+        env:
+          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/ephurin_test_integration
+        run: python -m alembic upgrade head
+      - name: Run test database isolation guard negative/positive rules suite
+        run: npx tsx --test src/core/database/test-db-guard.test.ts
       - name: Run Accept Draft trust-contract integration suite
         run: npx tsx --test src/modules/novels/accept-draft-contract.test.ts
       - name: Run PostgreSQL production persistence integration suite
@@ -341,10 +355,6 @@ jobs:
         run: python scripts/run_ai_pipe_01a_production_persistence.py
       - name: Verify Gate AI-PIPE-01 & AI-PIPE-01A Evidence Schema and Invariants
         run: python scripts/verify_ai_pipe_01_p1_closed_loop_evidence.py
-      - name: Run Backend PostgreSQL Production Persistence Integration Suite
-        run: docker compose exec -T backend npx tsx --test --test-force-exit src/modules/novels/p1-production-persistence.postgres.test.ts
-      - name: Run Backend Accept Draft Contract Integration Suite
-        run: docker compose exec -T backend npx tsx --test --test-force-exit src/modules/novels/accept-draft-contract.test.ts
 
       - name: Run Gate AI-PIPE-02A Idea Bootstrap Validation
         run: python scripts/run_ai_pipe_02a_idea_bootstrap.py

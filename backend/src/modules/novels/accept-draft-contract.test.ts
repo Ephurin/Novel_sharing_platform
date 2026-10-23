@@ -2,7 +2,8 @@ import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { getPostgresPool, disconnectPostgres } from '../../core/database/postgres.js';
-import { disconnectMongo } from '../../core/database/mongo.js';
+import { getMongoDatabase, disconnectMongo } from '../../core/database/mongo.js';
+import { validateTestDatabaseIsolation } from '../../core/database/test-db-guard.js';
 import { disconnectChapterWriter } from './chapter-writer.js';
 import { acceptDraft } from './chapter-revisions.service.js';
 import { env } from '../../core/config/env.js';
@@ -17,42 +18,102 @@ describe('Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)', () =>
   const baseContent = 'Base chapter prose for contract testing.';
   const baseContentHash = crypto.createHash('sha256').update(baseContent).digest('hex');
 
+  // Unrelated sentinel fixtures to prove cleanup specificity and non-destructive isolation
+  const sentinelUserId = crypto.randomUUID();
+  const sentinelNovelId = crypto.randomUUID();
+  const sentinelChapterId = crypto.randomUUID();
+  const sentinelMongoChapterId = crypto.randomUUID();
+
   let fetchCalls: Array<{ url: string; headers: Record<string, string> }> = [];
 
   before(async () => {
     const pool = getPostgresPool();
-    await pool.query(`
-      CREATE SCHEMA IF NOT EXISTS narrative;
-      CREATE TABLE IF NOT EXISTS narrative.autonomous_runs (
-        id UUID PRIMARY KEY,
-        novel_id UUID NOT NULL,
-        tenant_id UUID,
-        created_by UUID,
-        plan_id UUID,
-        plan_version INT,
-        current_objective_id UUID,
-        current_chapter_id UUID,
-        last_generation_id VARCHAR,
-        current_iteration INT,
-        current_retries INT,
-        status VARCHAR(32)
-      );
-      CREATE TABLE IF NOT EXISTS narrative.story_plans (
-        id UUID PRIMARY KEY,
-        novel_id UUID NOT NULL,
-        tenant_id UUID,
-        plan_version INT,
-        status VARCHAR(32)
-      );
-      CREATE TABLE IF NOT EXISTS narrative.story_plan_objectives (
-        id UUID PRIMARY KEY,
-        plan_id UUID NOT NULL,
-        novel_id UUID NOT NULL,
-        tenant_id UUID,
-        intent_version INT,
-        status VARCHAR(32)
-      );
+    const mongoDb = getMongoDatabase();
+
+    // STEP 1: Enforce fail-closed database isolation guard before ANY mutation
+    await validateTestDatabaseIsolation(pool, mongoDb);
+
+    // STEP 2: Schema verification tiering
+    // Detect if running under Tier B (real Alembic schema) or Tier A (narrow contract fixture)
+    const schemaProbe = await pool.query(`
+      SELECT EXISTS (
+        SELECT 1 FROM information_schema.tables
+        WHERE table_name = 'alembic_version'
+      ) AS has_alembic,
+      EXISTS (
+        SELECT 1 FROM information_schema.tables
+        WHERE table_schema = 'narrative' AND table_name = 'autonomous_runs'
+      ) AS has_real_runs
     `);
+    const isRealAlembicSchema = Boolean(schemaProbe.rows[0]?.has_alembic && schemaProbe.rows[0]?.has_real_runs);
+
+    if (!isRealAlembicSchema) {
+      // TIER A (Narrow Contract Fixture): Alembic migrations not present.
+      // Bootstrap minimal stub schema for the REST controller-intent contract tests.
+      await pool.query(`
+        CREATE SCHEMA IF NOT EXISTS narrative;
+        CREATE TABLE IF NOT EXISTS narrative.autonomous_runs (
+          id UUID PRIMARY KEY,
+          novel_id UUID NOT NULL,
+          tenant_id UUID,
+          created_by UUID,
+          plan_id UUID,
+          plan_version INT,
+          current_objective_id UUID,
+          current_chapter_id UUID,
+          last_generation_id VARCHAR,
+          current_iteration INT,
+          current_retries INT,
+          status VARCHAR(32)
+        );
+        CREATE TABLE IF NOT EXISTS narrative.story_plans (
+          id UUID PRIMARY KEY,
+          novel_id UUID NOT NULL,
+          tenant_id UUID,
+          plan_version INT,
+          status VARCHAR(32)
+        );
+        CREATE TABLE IF NOT EXISTS narrative.story_plan_objectives (
+          id UUID PRIMARY KEY,
+          plan_id UUID NOT NULL,
+          novel_id UUID NOT NULL,
+          tenant_id UUID,
+          intent_version INT,
+          status VARCHAR(32)
+        );
+      `);
+    }
+
+    // STEP 3: Seed sentinel records in PostgreSQL and MongoDB
+    await pool.query(
+      `INSERT INTO users (user_id, username, email, password_hash, role)
+       VALUES ($1, $2, $3, 'hash', 'AUTHOR') ON CONFLICT DO NOTHING`,
+      [sentinelUserId, `sentinel_${Date.now()}`, `sentinel_${Date.now()}@example.com`]
+    );
+    await pool.query(
+      `INSERT INTO novels (novel_id, title, slug, synopsis, author_id, status)
+       VALUES ($1, 'Sentinel Novel', $2, 'Sentinel Synopsis', $3, 'PUBLISHED') ON CONFLICT DO NOTHING`,
+      [sentinelNovelId, `sentinel-slug-${Date.now()}`, sentinelUserId]
+    );
+    await pool.query(
+      `INSERT INTO chapters (chapter_id, novel_id, title, chapter_number, status)
+       VALUES ($1, $2, 'Sentinel Chapter', 999, 'DRAFT') ON CONFLICT DO NOTHING`,
+      [sentinelChapterId, sentinelNovelId]
+    );
+    await mongoDb.collection('draft_chapters').insertOne({
+      chapterId: sentinelMongoChapterId,
+      novelId: sentinelNovelId,
+      authorId: sentinelUserId,
+      title: 'Sentinel Draft',
+      content: 'Sentinel draft content for isolation check',
+      wordCount: 7,
+      version: 1,
+      autosave: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+
+    // STEP 4: Seed test-owned fixture records
     await pool.query(
       `INSERT INTO users (user_id, username, email, password_hash, role)
        VALUES ($1, $2, $3, 'hash', 'AUTHOR') ON CONFLICT DO NOTHING`,
@@ -83,16 +144,108 @@ describe('Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)', () =>
     global.fetch = originalFetch;
     try {
       const pool = getPostgresPool();
-      await pool.query('DELETE FROM chapter_revisions WHERE chapter_id = $1', [chapterId]);
-      await pool.query('DELETE FROM chapters WHERE chapter_id = $1', [chapterId]);
-      await pool.query('DELETE FROM novels WHERE novel_id = $1', [novelId]);
-      await pool.query('DELETE FROM users WHERE user_id = $1', [authorId]);
-    } catch {
-      // Best-effort fixture cleanup
+      const mongoDb = getMongoDatabase();
+
+      // 1. Delete derived revision outbox events
+      await pool.query(
+        'DELETE FROM revision_outbox_events WHERE novel_id = $1 OR chapter_id = $2',
+        [novelId, chapterId]
+      );
+
+      // 2. Clear latest_revision_id FK pointer on chapter
+      await pool.query(
+        'UPDATE chapters SET latest_revision_id = NULL WHERE chapter_id = $1',
+        [chapterId]
+      );
+
+      // 3. Delete all chapter revisions
+      await pool.query(
+        'DELETE FROM chapter_revisions WHERE novel_id = $1 OR chapter_id = $2',
+        [novelId, chapterId]
+      );
+
+      // 4. Delete chapter
+      await pool.query(
+        'DELETE FROM chapters WHERE chapter_id = $1',
+        [chapterId]
+      );
+
+      // 5. Delete novel
+      await pool.query(
+        'DELETE FROM novels WHERE novel_id = $1',
+        [novelId]
+      );
+
+      // 6. Delete author user
+      await pool.query(
+        'DELETE FROM users WHERE user_id = $1',
+        [authorId]
+      );
+
+      // 7. Delete Mongo draft_chapters for this chapter
+      await mongoDb.collection('draft_chapters').deleteMany({
+        chapterId: chapterId
+      });
+
+      // 8. Post-cleanup readbacks: verify 0 test-owned records remain
+      const outboxCheck = await pool.query(
+        'SELECT count(*) FROM revision_outbox_events WHERE novel_id = $1 OR chapter_id = $2',
+        [novelId, chapterId]
+      );
+      assert.equal(Number(outboxCheck.rows[0].count), 0, 'Cleanup readback: revision_outbox_events row leftover');
+
+      const revCheck = await pool.query(
+        'SELECT count(*) FROM chapter_revisions WHERE novel_id = $1 OR chapter_id = $2',
+        [novelId, chapterId]
+      );
+      assert.equal(Number(revCheck.rows[0].count), 0, 'Cleanup readback: chapter_revisions row leftover');
+
+      const chapCheck = await pool.query(
+        'SELECT count(*) FROM chapters WHERE chapter_id = $1',
+        [chapterId]
+      );
+      assert.equal(Number(chapCheck.rows[0].count), 0, 'Cleanup readback: chapters row leftover');
+
+      const novelCheck = await pool.query(
+        'SELECT count(*) FROM novels WHERE novel_id = $1',
+        [novelId]
+      );
+      assert.equal(Number(novelCheck.rows[0].count), 0, 'Cleanup readback: novels row leftover');
+
+      const userCheck = await pool.query(
+        'SELECT count(*) FROM users WHERE user_id = $1',
+        [authorId]
+      );
+      assert.equal(Number(userCheck.rows[0].count), 0, 'Cleanup readback: users row leftover');
+
+      const mongoCheck = await mongoDb.collection('draft_chapters').countDocuments({
+        chapterId: chapterId
+      });
+      assert.equal(mongoCheck, 0, 'Cleanup readback: MongoDB draft_chapters document leftover');
+
+      // 9. Sentinel record survival check: verify non-destructive cleanup
+      const sentinelUserCheck = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [sentinelUserId]);
+      assert.equal(Number(sentinelUserCheck.rows[0].count), 1, 'Sentinel user was unexpectedly deleted');
+
+      const sentinelNovelCheck = await pool.query('SELECT count(*) FROM novels WHERE novel_id = $1', [sentinelNovelId]);
+      assert.equal(Number(sentinelNovelCheck.rows[0].count), 1, 'Sentinel novel was unexpectedly deleted');
+
+      const sentinelChapCheck = await pool.query('SELECT count(*) FROM chapters WHERE chapter_id = $1', [sentinelChapterId]);
+      assert.equal(Number(sentinelChapCheck.rows[0].count), 1, 'Sentinel chapter was unexpectedly deleted');
+
+      const sentinelMongoCheck = await mongoDb.collection('draft_chapters').countDocuments({ chapterId: sentinelMongoChapterId });
+      assert.equal(sentinelMongoCheck, 1, 'Sentinel MongoDB draft was unexpectedly deleted');
+
+      // 10. Clean up sentinel records
+      await pool.query('DELETE FROM chapters WHERE chapter_id = $1', [sentinelChapterId]);
+      await pool.query('DELETE FROM novels WHERE novel_id = $1', [sentinelNovelId]);
+      await pool.query('DELETE FROM users WHERE user_id = $1', [sentinelUserId]);
+      await mongoDb.collection('draft_chapters').deleteMany({ chapterId: sentinelMongoChapterId });
+    } finally {
+      await disconnectPostgres();
+      await disconnectMongo();
+      await disconnectChapterWriter();
     }
-    await disconnectPostgres();
-    await disconnectMongo();
-    await disconnectChapterWriter();
   });
 
   function setupMockAi(customJob: Record<string, unknown> = {}, brainVersion: number | null = 1) {
