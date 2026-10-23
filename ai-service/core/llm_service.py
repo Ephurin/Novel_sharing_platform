@@ -36,7 +36,7 @@ class LLMService:
         self.fallback_api_key = ""
 
         if self.provider == "gemini":
-            self.model = self._normalize_model(model, "models/gemini-1.5-flash", is_gemini=True)
+            self.model = self._normalize_model(model, "models/gemini-3.5-flash-lite", is_gemini=True)
             self.api_key = self._normalize_api_key(
                 api_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or ""
             )
@@ -249,13 +249,9 @@ class LLMService:
         raise LLMServiceError(f"Gemini request failed: {last_error}")
 
     def _gemini_model_candidates(self) -> list[str]:
-        candidates = [
-            self.model,
-            "models/gemini-1.5-flash",
-            "models/gemini-1.5-flash-latest",
-            "models/gemini-1.5-pro",
-            "models/gemini-2.0-flash",
-        ]
+        # Do not silently switch to retired or unapproved models. Operators may
+        # explicitly select gemini-3.1-flash-lite via LLM_MODEL if needed.
+        candidates = [self.model]
         seen: set[str] = set()
         result: list[str] = []
         for item in candidates:
