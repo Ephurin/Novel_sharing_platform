@@ -1,0 +1,120 @@
+{
+  "project": "Ephurin/Novel_sharing_platform",
+  "branch": "integration/p1-author",
+  "testedCommitSha": "157b71f5608558fdb2763c65b1254e3dffc77fb8",
+  "executionTimestamp": "2026-10-23T03:10:00Z",
+  "commands": [
+    {
+      "step": "G0_WORKTREE_BOOTSTRAP",
+      "command": "git worktree add ../.worktrees/integration_p1_author origin/integration/p1-author",
+      "cwd": ".",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "G1_DOCKER_ISOLATED_UP",
+      "command": "docker compose -f docker-compose.integration.yml -p p1_author_int_b5249 up -d",
+      "cwd": ".worktrees/integration_p1_author",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "G1_BACKEND_MIGRATIONS",
+      "command": "npx tsx --env-file=.env.integration src/core/database/migrate.ts",
+      "cwd": ".worktrees/integration_p1_author/backend",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "G1_AI_ALEMBIC_MIGRATIONS",
+      "command": "python -m alembic upgrade head",
+      "cwd": ".worktrees/integration_p1_author/ai-service",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "G0_BACKEND_TYPECHECK",
+      "command": "npm run typecheck",
+      "cwd": ".worktrees/integration_p1_author/backend",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "G0_WEB_TYPECHECK",
+      "command": "npm run typecheck",
+      "cwd": ".worktrees/integration_p1_author/web",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "G0_WEB_BUILD",
+      "command": "npm run build",
+      "cwd": ".worktrees/integration_p1_author/web",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "G0_AI_SERVICE_PYTEST",
+      "command": "python -m pytest tests/",
+      "cwd": ".worktrees/integration_p1_author/ai-service",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "G1_BACKEND_UNIT_AND_INTEGRATION_TESTS",
+      "command": "npm test",
+      "cwd": ".worktrees/integration_p1_author/backend",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "G2_BROWSER_S09_E2E",
+      "command": "$env:RUN_DRAFT_BROWSER_TESTS='1'; $env:PLAYWRIGHT_CHANNEL='msedge'; node --test tests/draft-persistence.browser.test.mjs",
+      "cwd": ".worktrees/integration_p1_author/web",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "G4_AUTHOR_DATA_WALLET_TEST",
+      "command": "$env:RUN_AUTHOR_DATA_TESTS='1'; npx tsx --env-file=.env src/modules/wallet/author-data.postgres.test.ts",
+      "cwd": ".worktrees/integration_p1_author/backend",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "G4_COMMENTS_INTEGRATION_TEST",
+      "command": "$env:RUN_COMMENT_TESTS='1'; npx tsx --env-file=.env src/modules/interactions/comments.integration.test.ts",
+      "cwd": ".worktrees/integration_p1_author/backend",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "G4_AUTHOR_WORKFLOW_INTEGRATION_TEST",
+      "command": "$env:RUN_AUTHOR_WORKFLOW_TESTS='1'; npx tsx --env-file=.env src/modules/interactions/author-workflow.integration.test.ts",
+      "cwd": ".worktrees/integration_p1_author/backend",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "G4_AUTHOR_LAUNCH_INTEGRATION_TEST",
+      "command": "$env:RUN_AUTHOR_WORKFLOW_TESTS='1'; npx tsx --env-file=.env src/modules/interactions/author-launch.integration.test.ts",
+      "cwd": ".worktrees/integration_p1_author/backend",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "G4_WEB_COLOR_SCHEME_TEST",
+      "command": "node --test tests/color-scheme.test.mjs",
+      "cwd": ".worktrees/integration_p1_author/web",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "step": "G4_WEB_WALLET_AND_PROJECT_TESTS",
+      "command": "node --test tests/wallet-earnings.test.mjs tests/project-sorting.test.mjs",
+      "cwd": ".worktrees/integration_p1_author/web",
+      "exitCode": 0,
+      "status": "PASS"
+    }
+  ]
+}

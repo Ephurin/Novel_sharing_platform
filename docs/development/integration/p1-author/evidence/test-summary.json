@@ -1,0 +1,41 @@
+{
+  "summary": {
+    "branch": "integration/p1-author",
+    "baseCommitSha": "157b71f5608558fdb2763c65b1254e3dffc77fb8",
+    "overallStatus": "READY_FOR_GPT6_REVIEW",
+    "gates": {
+      "G0_SOURCE_BUILD": "PASS",
+      "G1_ISOLATED_MIGRATIONS_CONTRACTS": "PASS",
+      "G2_MOUNTED_IDE_BROWSER_S09": "PASS",
+      "G3_S10_S11_PIPELINE": "PASS (Offline Fake Provider) / NOT_RUN (Live Provider)",
+      "G4_READER_AUTHOR_ADMIN_SMOKE": "PASS",
+      "G5_INDEPENDENT_REVIEW_HANDOFF": "READY_FOR_GPT6_REVIEW"
+    }
+  },
+  "metrics": {
+    "backendTestsTotal": 139,
+    "backendTestsPassed": 135,
+    "backendTestsSkippedInDefaultNpmTest": 4,
+    "backendInteractiveSuitesPassedDirectly": 4,
+    "backendTestsFailed": 0,
+    "webUnitTestsPassed": 12,
+    "webBrowserTestsPassed": 1,
+    "aiServiceTestsPassed": 245,
+    "aiServiceTestsSkipped": 2,
+    "aiServiceTestsDeselected": 42,
+    "aiServiceTestsFailed": 0,
+    "totalPassingAssertedUnits": 393
+  },
+  "contentHashes": {
+    "useDraftPersistence_ts": "88da92c9ee49f64c168b3b05564240d29564a3c5e11db19b32ca241a68c049f9",
+    "AuthorWritingIde_tsx": "dcd58aca14eb014b0edc399878ecc639384932db1ebdc0da6347d7641ae09c63",
+    "finalSnapshotContentHash": "1c31f508e23011aa9e87458d772c78d68aff6012b218b0fcb7b157a66423d861"
+  },
+  "traceArtifacts": [
+    "docs/development/PR-54-55-REVIEW/draft-trace.zip",
+    "docs/development/PR-54-55-REVIEW/draft-persistence.png",
+    "docs/development/PR-54-55-REVIEW/draft-readback.json",
+    "docs/development/PR-54-55-REVIEW/reviews-light-desktop.png",
+    "docs/development/PR-54-55-REVIEW/reviews-dark-mobile.png"
+  ]
+}
