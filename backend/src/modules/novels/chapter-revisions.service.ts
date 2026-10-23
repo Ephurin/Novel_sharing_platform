@@ -173,46 +173,7 @@ async function createSnapshotUnderLease(
     return record;
   });
 
-  // Dual-write to Mongo draft storage with conditional reconciliation
-  const snapshotTime = new Date();
-  try {
-    await syncDraftFromRevisionConditional({
-      chapterId,
-      revisionId: revision.revisionId,
-      title: chapter.title,
-      content,
-      wordCount,
-      acceptTimestamp: snapshotTime,
-      novelId: chapter.novelId
-    }, lease);
-  } catch (mongoErr: any) {
-    console.error(
-      `[DUAL_WRITE_RECONCILIATION_REQUIRED] MongoDB sync failed in snapshot for revision ${revision.revisionId}:`,
-      mongoErr?.message || mongoErr
-    );
-    try {
-      await insertOutboxEvent(undefined, {
-        eventType: 'MONGO_DRAFT_SYNC',
-        novelId: chapter.novelId,
-        chapterId,
-        revisionId: revision.revisionId,
-        contentHash,
-        createdBy: auth.userId,
-        payload: {
-          novelId: chapter.novelId,
-          authorId: auth.userId,
-          title: chapter.title,
-          chapterNumber: chapter.chapterNumber,
-          content,
-          wordCount,
-          acceptTimestamp: snapshotTime.toISOString()
-        }
-      });
-    } catch (outboxErr) {
-      console.error('[Outbox] Failed to queue MONGO_DRAFT_SYNC fallback:', outboxErr);
-    }
-  }
-
+  // A checkpoint must not overwrite an actively edited MongoDB draft.
   if (purpose === 'AUTHOR_SNAPSHOT') {
     triggerImmediateProcessing();
   }
