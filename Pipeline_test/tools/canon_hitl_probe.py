@@ -42,7 +42,7 @@ def run(env,output,optin):
   # Re-deliver through the real production worker, against the same real persistence.
   duplicate(rid);dup=durable();check('07_duplicate_outbox_no_proposals_or_approval',dup['canon']==after['canon'] and dup['narrative.proposals']==after['narrative.proposals']);p.save('duplicate-readback',dup)
   if pending:
-   p.stage='explicit_author_decisions';g=q[0]['dependency_group_id'];group=[x for x in q if x['dependency_group_id']==g];payload={'proposal_ids':[x['proposal_id'] for x in group],'expected_brain_version':version(),'reason':'EXPLICIT_AUTHOR_REVIEW_CANON_GATE'};route='/ai/proposal-groups/'+g+'/accept'
+   p.stage='explicit_author_decisions';g=q[0]['dependency_group_id'];group=[x for x in q if x['dependency_group_id']==g];payload={'proposal_ids':[x['id'] for x in group],'expected_brain_version':version(),'reason':'EXPLICIT_AUTHOR_REVIEW_CANON_GATE'};route='/ai/proposal-groups/'+g+'/accept'
    frozen=durable();p.api('POST',route,payload,headers={'Authorization':'Bearer '+p.foreign},expected=(403,));check('09_wrong_owner_denied',durable()==frozen)
    bad={**payload,'expected_brain_version':max(1,version()-1)}
    if bad['expected_brain_version']==version():bad['expected_brain_version']=version()+1
@@ -56,13 +56,17 @@ def run(env,output,optin):
   frozen=durable();replay=p.api('POST',path+'/revisions/accept-draft',{'generationId':job['job_id']});check('13_accepted_generation_replay',replay['revision']['revisionId']==arid and durable()==frozen)
   if apending:
    # Reject one candidate, prove no official projection mutation.
-   target=aq[0];canon=p.read_memory();bv=version();p.api('POST','/ai/proposals/'+target['proposal_id']+'/reject',{'reason':'EXPLICIT_AUTHOR_REJECT'});check('05_reject_no_canon',canon==p.read_memory() and bv==version());p.save('reject-readback',durable())
+   target=aq[0];canon=p.read_memory();bv=version();p.api('POST','/ai/proposals/'+target['id']+'/reject',{'reason':'EXPLICIT_AUTHOR_REJECT'});check('05_reject_no_canon',canon==p.read_memory() and bv==version());p.save('reject-readback',durable())
    remaining=[x for x in proposals(arid) if x['status']=='pending'];event=next((x for x in remaining if 'summary' in x['payload']),None)
    if event is None:
     # A new source gets an independently extracted event; never manufacture a proposal through SQL.
     current=p.api('GET',path)['draft']['version'];r=p.api('PATCH',path,{'content':'Mai Linh nhìn máy thu. Duy đứng tại Cồn Vân.','expectedVersion':current});eq,_=settle(r['analysisRevisionId']);event=next(x for x in eq if 'summary' in x['payload'])
    original=event['payload'];edited={**original,'summary':'Mai Linh nhìn máy thu (tác giả đã duyệt).'}
-   er=p.api('POST','/ai/proposals/'+event['proposal_id']+'/edit-and-accept',{'edited_payload':edited,'expected_brain_version':version(),'reason':'EXPLICIT_AUTHOR_EDIT'});memory=p.read_memory();check('06_edit_accept_reviewed_content',any(e['summary']==edited['summary'] for e in memory['events']));p.save('edit-readback',dict(original=original,edited=edited,response=er,durable=durable()))
+   er=p.api('POST','/ai/proposals/'+event['id']+'/edit-and-accept',{'edited_payload':edited,'expected_brain_version':version(),'reason':'EXPLICIT_AUTHOR_EDIT'});memory=p.read_memory();check('06_edit_accept_reviewed_content',any(e['summary']==edited['summary'] for e in memory['events']));p.save('edit-readback',dict(original=original,edited=edited,response=er,durable=durable()))
+  # Lose the response after real extraction completes; retry the same persisted event.
+  frozen=durable()
+  script="""import {handleOutboxEvent} from './dist/jobs/outbox-processor.js';import {getPostgresPool,disconnectPostgres} from './dist/core/database/postgres.js';const r=(await getPostgresPool().query('select * from revision_outbox_events where revision_id=$1',[process.argv[1]])).rows[0];const e={eventType:r.event_type,revisionId:r.revision_id,novelId:r.novel_id,chapterId:r.chapter_id,contentHash:r.content_hash,createdBy:r.created_by};const f=globalThis.fetch;globalThis.fetch=async(...args)=>{await f(...args);throw new Error('OWNED_LOST_EXTRACTION_RESPONSE');};let failed=false;try{await handleOutboxEvent(e);}catch(err){failed=String(err).includes('OWNED_LOST_EXTRACTION_RESPONSE');}finally{globalThis.fetch=f;}if(!failed)throw new Error('fault did not execute');await handleOutboxEvent(e);console.log('EXPLICIT_FAILURE_SAFE_RETRY');await disconnectPostgres();"""
+  result=p.command(p.compose+['exec','-T','backend','node','--input-type=module','-e',script,arid]);check('08_interrupted_extraction_retry_review_preserved',durable()==frozen and 'EXPLICIT_FAILURE_SAFE_RETRY' in result);p.save('retry-readback',dict(before=frozen,after=durable(),result=result))
   p.save('final-durable',durable());p.save('gateway-ledger',p.ledger())
   # Source lacks the entity checkpoint architecture. Never label legacy autonomous as HITL.
   for name in ['11_P3_HITL_waiting_for_entity_review','12_controller_continue_after_human_checkpoint']:
