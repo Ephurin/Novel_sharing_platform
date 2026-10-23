@@ -1,3 +1,4 @@
+"""Use this name to avoid shadowing Python stdlib http.client. Provision one HTTP runtime at a time."""
 """Run from root: fresh project per invocation, preserve output and stopped resources."""
 import subprocess,json,sys,time
 from pathlib import Path
