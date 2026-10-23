@@ -84,6 +84,8 @@ class PostgresNarrativeRepository:
                 return [self._to_proposal(row) for row in rows]
             if current != audit or current.get('status') != 'entities_reviewed':
                 raise OptimisticLockError('Entity checkpoint changed during extraction')
+            self.record_revision_provenance(story_id, audit['chapter_id'], audit['revision_id'],
+                audit['chapter_number'], _session=session)
             self.save_proposals(story_id, proposals, _session=session)
             record.entity_candidate_audit = {**deepcopy(audit), 'status': 'completed'}
             return proposals
@@ -1157,11 +1159,12 @@ class PostgresNarrativeRepository:
         chapter_id: str,
         revision_id: str,
         chapter_number: int,
+        *, _session=None,
     ) -> None:
         novel_id = self._novel_id(story_id)
         rev_uuid = self._stable_uuid("revision", revision_id)
         chap_uuid = self._stable_uuid("chapter", chapter_id)
-        with session_scope(self._session_factory) as session:
+        with (nullcontext(_session) if _session is not None else session_scope(self._session_factory)) as session:
             brain = self._get_or_create_brain(session, novel_id)
             existing = session.scalar(
                 select(RevisionProvenanceRecord).where(

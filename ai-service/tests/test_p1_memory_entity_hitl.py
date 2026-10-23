@@ -282,7 +282,15 @@ def test_parallel_continue_commits_one_proposal_set(flow):
     run, audit = discover(f)
     freeze(f, run, audit)
     from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
     from application.entity_hitl import continue_review
+    barrier = Barrier(2)
+    original = f.llm._call_structured
+    def synchronized(**kwargs):
+        if kwargs['operation'] == 'hitl_event_extraction':
+            barrier.wait(timeout=10)
+        return original(**kwargs)
+    f.llm._call_structured = synchronized
     with ThreadPoolExecutor(max_workers=2) as pool:
         results = list(pool.map(lambda _: continue_review(f.service, f.revision.novel_id, run, TENANT), range(2)))
     assert {p.proposal_id for p in results[0].proposals} == {p.proposal_id for p in results[1].proposals}

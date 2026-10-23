@@ -35,6 +35,7 @@ class InMemoryNarrativeRepository:
             raise OptimisticLockError('Entity checkpoint changed')
         if int(self.get_story_brain(story_id).metadata.get('brain_version', 1)) != audit['brain_version'] or self.get_entity_guidance(story_id)['version'] != audit['guidance_version']:
             raise OptimisticLockError('Canon or guidance changed')
+        self.record_revision_provenance(story_id, audit['chapter_id'], audit['revision_id'], audit['chapter_number'])
         self.save_proposals(story_id, proposals)
         self._entity_candidate_audits[(story_id, run_id)] = {**deepcopy(audit), 'status': 'completed'}
         return proposals

@@ -177,8 +177,6 @@ def continue_review(service, novel_id, run_id, tenant_id):
                             identity(target)
                 expanded.extend(changes)
         proposals = [replace(p, materialization_order=i) for i, p in enumerate(expanded)]
-    repo.record_revision_provenance(story_id=novel_id, chapter_id=revision.chapter_id,
-        revision_id=revision.revision_id, chapter_number=revision.chapter_number)
     # Recheck source/scope before the atomic checkpoint+proposal transaction.
     checkpoint(service, novel_id, run_id, tenant_id)
     proposals = repo.complete_entity_review(novel_id, run_id, audit, proposals)
