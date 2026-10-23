@@ -4,7 +4,7 @@ from dataclasses import asdict, replace
 from typing import Any
 import uuid
 
-from domain.projection import ProjectionError, validate_payload, project, project_relations, resolve_entity, transition_from_payload
+from domain.projection import author_relationship, ProjectionError, validate_payload, project, project_relations, resolve_entity, transition_from_payload
 from domain.errors import ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError, ProposalAlreadyDecidedError
 from domain.models import (
     EntityReviewCompletion,
@@ -488,20 +488,7 @@ class InMemoryNarrativeRepository:
         self, story_id: str, subject: str, relation_type: str, object_name: str
     ) -> dict[str, Any]:
         brain = self.get_story_brain(story_id)
-        relations = tuple(
-            relation
-            for relation in brain.relations
-            if not (relation.subject == subject and relation.object == object_name)
-        )
-        relations += (
-            NarrativeRelation(
-                subject=subject,
-                relation=relation_type,
-                object=object_name,
-                source="author",
-                locked=True,
-            ),
-        )
+        relations = author_relationship(brain.entities, brain.relations, subject, relation_type, object_name)
         self._brains[story_id] = replace(brain, relations=relations)
         return {"status": "success", "relation": relation_type, "locked": True}
 

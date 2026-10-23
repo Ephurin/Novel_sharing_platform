@@ -110,7 +110,7 @@ jobs:
       - name: Relevance-scope PostgreSQL cutoff and supersede integration
         run: pytest -o addopts= -q -m postgres_integration tests/test_postgres_integration.py::test_chapter_25_event_and_state_isolation_from_chapter_5 tests/test_postgres_integration.py::test_recent_scope_participants_exclude_superseded_event_entities
       - name: P1 approved memory and entity HITL PostgreSQL contracts
-        run: pytest -o addopts= -q -m postgres_integration tests/test_p1_memory_entity_hitl.py tests/test_p1_entity_semantics.py
+        run: pytest -o addopts= -q -m postgres_integration tests/test_p1_memory_entity_hitl.py tests/test_p1_entity_semantics.py tests/test_p1_identity_final.py
       - name: Unadapted narrative PostgreSQL cutoff, supersession, and isolation integration
         run: pytest -o addopts= -q -m postgres_integration tests/test_unadapted_narrative_postgres_integration.py
 

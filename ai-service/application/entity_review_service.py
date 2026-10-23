@@ -2,6 +2,9 @@
 from copy import deepcopy
 from types import SimpleNamespace
 import uuid
+import hashlib
+import json
+import re
 
 from domain.errors import OptimisticLockError
 from services.entity_pipeline.candidates import same_name
@@ -10,6 +13,28 @@ from services.entity_pipeline.verification import EntityDecision, _validate, _ma
 
 TYPE_MAP = {'character': 'PER', 'person': 'PER', 'location': 'LOC', 'place': 'LOC',
             'item': 'ITEM', 'object': 'ITEM', 'organization': 'ORG', 'skill': 'SKILL'}
+
+
+def provisional_scope(audit):
+    request = audit['request']
+    return hashlib.sha256(json.dumps([request['tenant_id'], request['novel_id'], audit['revision_id'],
+        audit['source_hash'], audit['analysis_run_id']], separators=(',', ':')).encode()).hexdigest()
+
+
+def validate_provisional_scope(audit, decisions):
+    prefix = provisional_scope(audit) + '/'
+    groups = {}
+    for d in decisions:
+        key = d.provisional_identity_key
+        if key and (not key.startswith(prefix) or not re.fullmatch(r'[A-Za-z0-9_-]{1,64}', key[len(prefix):])):
+            raise ValueError('Provisional identity belongs to another checkpoint/source scope or has invalid label')
+        if key:
+            identity = (d.canonical_name, d.entity_type)
+            if key in groups and groups[key] != identity:
+                raise ValueError('Provisional group has conflicting name/type')
+            groups[key] = identity
+        if d.verdict == 'entity' and not d.canonical_entity_id and not key:
+            raise ValueError('New identities require an explicit author provisional group')
 
 
 def registry(repository, story_id):
@@ -67,6 +92,7 @@ def review_entities(repository, story_id, run_id, decisions, expected_version, t
     parsed = [EntityDecision.model_validate(d) for d in merged.values()]
     if any(d.verdict == 'unresolved' for d in parsed):
         raise ValueError('Resolve or reject every candidate before continuing')
+    validate_provisional_scope(audit, parsed)
     current = registry(repository, story_id)
     known = {e['entity_id']: e for e in current['entities']}
     allowed = [e['name'] for e in current['entities']] + [c.surface for c in candidates]
@@ -74,16 +100,16 @@ def review_entities(repository, story_id, run_id, decisions, expected_version, t
         by_id = {c.candidate_id:c for c in candidates}
         if set(merged) - set(by_id):
             raise ValueError('Unknown author decision candidate')
-        _validate(parsed, [by_id[cid] for cid in merged], text, known, allowed)
+        _validate(parsed, [by_id[cid] for cid in merged], text, known, allowed, human=True)
         value = {**deepcopy(audit), 'review_version':expected_version+1, 'review_input_version':expected_version,
             'review_finalize':False, 'review_submitted_decisions':submitted,
             'reviewed_decisions':[d.model_dump() for d in parsed],
             'pending_candidate_ids':[c.candidate_id for c in candidates if c.candidate_id not in merged]}
         repository.save_entity_candidate_audit(story_id, run_id, value, expected_version=expected_version)
         return value
-    _validate(parsed, candidates, text, known, allowed)
+    _validate(parsed, candidates, text, known, allowed, human=True)
     # Author decisions can reject false occurrences without declaring the name absent everywhere.
-    entities, aliases = _materializable(candidates, [d.model_dump() for d in parsed], known, text)
+    entities, aliases = _materializable(candidates, [d.model_dump() for d in parsed], known, text, human=True)
     entities, aliases = freeze_inventory(audit, entities, aliases, text)
     value = {**deepcopy(audit), 'status': 'entities_reviewed', 'review_version': expected_version + 1,
              'pending_candidate_ids': [],
@@ -102,6 +128,7 @@ def freeze_inventory(audit, entities, aliases, text):
         identity = entity['canonical_entity_id']
         if not identity:
             matching = [e for e in previous if e.get('entity_id') and not e.get('canonical_entity_id')
+                and e.get('provisional_identity_key') == entity.get('provisional_identity_key')
                 and e['phrase'] == entity['phrase'] and e['entity'] == entity['entity']
                 and set(e['candidate_ids']) & set(entity['candidate_ids']) & preserved]
             identity = matching[0]['entity_id'] if len(matching) == 1 else str(uuid.uuid4())
@@ -110,8 +137,12 @@ def freeze_inventory(audit, entities, aliases, text):
             quote=text[c['start']:c['end']], revision_id=audit['revision_id'], text_hash=audit['source_hash'])
             for c in (candidates[cid] for cid in entity['candidate_ids'])]
     for alias in aliases:
-        targets = [e for e in entities if (e['canonical_entity_id'] == alias['entity_id'] if alias['entity_id']
-            else e['phrase'] == alias['entity_name'])]
+        if alias['entity_id']:
+            targets = [e for e in entities if e['canonical_entity_id'] == alias['entity_id']]
+        elif alias.get('provisional_identity_key'):
+            targets = [e for e in entities if e.get('provisional_identity_key') == alias['provisional_identity_key']]
+        else:
+            targets = [e for e in entities if e['phrase'] == alias['entity_name']]
         if len(targets) != 1:
             raise ValueError('Alias must identify exactly one reviewed identity')
         alias['entity_id'] = targets[0]['entity_id']
@@ -142,7 +173,8 @@ def carry_decisions(previous, refreshed, repository, story_id, text):
         if text[new['start']:new['end']] != new['surface'] or text[new['context_start']:new['context_end']] != new['context']:
             continue
         try:
-            _validate([EntityDecision.model_validate(decision)], [SimpleNamespace(**new)], text, known, allowed)
+            validate_provisional_scope(previous, [EntityDecision.model_validate(decision)])
+            _validate([EntityDecision.model_validate(decision)], [SimpleNamespace(**new)], text, known, allowed, human=True)
         except ValueError:
             continue
         kept.append(deepcopy(decision))

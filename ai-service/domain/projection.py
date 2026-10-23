@@ -130,16 +130,69 @@ def project(entities, facts, events, transitions) -> dict[str, Any]:
             "projection_version": 1}
 
 
+def relationship_identity(relation, entities):
+    """Authoritative complete ID pair, or provably unique legacy names. Never pick a homonym."""
+    subject = relation.metadata.get('subject_entity_id')
+    target = relation.metadata.get('object_entity_id')
+    if bool(subject) != bool(target):
+        raise ProjectionError('Relationship has an incomplete identity pair')
+    if subject:
+        ids = {str(e.entity_id) for e in entities}
+        if subject not in ids or target not in ids:
+            raise ProjectionError('Relationship references an unknown identity')
+        return subject, target
+    return resolve_entity(relation.subject, entities), resolve_entity(relation.object, entities)
+
+
+def author_relationship(entities, relations, subject, relation_type, target):
+    def endpoint(reference):
+        import uuid
+        matches = [e for e in entities if str(e.entity_id) == reference or e.name.casefold() == reference.casefold()]
+        if not matches:
+            try:
+                uuid.UUID(reference)
+            except ValueError:
+                return None  # Historical author API permits an unresolved name, never an invented ID.
+        return resolve_entity(reference, entities)
+    pair = endpoint(subject), endpoint(target)
+    if None in pair:
+        retained = tuple(r for r in relations if r.subject != subject or r.object != target
+            or r.metadata.get('subject_entity_id') or r.metadata.get('object_entity_id'))
+        return retained + (NarrativeRelation(subject=subject, object=target, relation=relation_type,
+            source='author', locked=True, metadata={'identity_resolution':'unresolved'}),)
+    # Validate every affected legacy row before replacing anything.
+    retained = tuple(r for r in relations if (r.source == 'system' and r.relation == 'MENTIONED_IN' and not r.locked)
+        or relationship_identity(r, entities) != pair)
+    names = {str(e.entity_id): e.name for e in entities}
+    previous = next((r.metadata for r in relations if r not in retained), {})
+    return retained + (NarrativeRelation(subject=names[pair[0]], object=names[pair[1]],
+        relation=relation_type, source='author', locked=True,
+        metadata={**previous, 'subject_entity_id':pair[0], 'object_entity_id':pair[1]}),)
+
+
 def project_relations(entities, relations, state):
     names = {str(e.entity_id): e.name for e in entities}
-    result = [r for r in relations if r.source != "projection" or r.locked]
-    for relation in state["relationships"]:
-        subject, target = names[relation["subject_entity_id"]], names[relation["object_entity_id"]]
-        locked = next((r for r in result if r.subject == subject and r.object == target and r.locked), None)
-        if locked:
-            if locked.relation != relation["relation"]:
-                raise OptimisticLockError("Projection conflicts with an author-locked relationship")
+    result, locks = [], {}
+    for r in relations:
+        if r.source == 'projection' and not r.locked:
             continue
-        result.append(NarrativeRelation(subject=subject, object=target,
-            relation=relation["relation"], source="projection", metadata=relation))
+        if r.source == 'system' and r.relation == 'MENTIONED_IN' and not r.locked:
+            result.append(r)
+            continue
+        pair = relationship_identity(r, entities)
+        if r.locked:
+            if pair in locks and locks[pair] != r.relation:
+                raise OptimisticLockError('Conflicting author locks for the same identity pair')
+            locks[pair] = r.relation
+        result.append(NarrativeRelation(subject=r.subject, object=r.object, relation=r.relation,
+            source=r.source, locked=r.locked, metadata={**r.metadata,
+                'subject_entity_id':pair[0], 'object_entity_id':pair[1]}))
+    for relation in state['relationships']:
+        pair = relation['subject_entity_id'], relation['object_entity_id']
+        if pair in locks:
+            if locks[pair] != relation['relation']:
+                raise OptimisticLockError('Projection conflicts with an author-locked relationship')
+            continue
+        result.append(NarrativeRelation(subject=names[pair[0]], object=names[pair[1]],
+            relation=relation['relation'], source='projection', metadata=deepcopy(relation)))
     return tuple(result)

@@ -90,3 +90,38 @@ Completed checkpoint retries keep their saved proposals. Continue upgrades a pre
 ### H-03: truthful completion outcome
 
 Completion returns `EntityReviewCompletion(proposals, deduplicated)`: first commit false, a transaction observing saved completion true, serial retry true. Provenance/proposals/checkpoint remain atomic. A barrier-forced overlap test asserts DB cardinality and exactly one false/one true response.
+
+
+## H-04 / H-05 final identity contract
+
+Starting reviewed HEAD: `0de3fcf63fc6afdd2e1875af06dadddf844ed33f`. This addendum supersedes name grouping for new human-reviewed identities. Existing Canon IDs remain authoritative; display names are labels.
+
+### Provisional identity lifecycle
+
+A positive human decision must select exactly one of `canonical_entity_id` (a matching approved registry identity) or `provisional_identity_key` (a new identity). Rejected/unresolved decisions cannot carry either. Unresolved review cannot freeze. Machine verification cannot assign a provisional key. All new identities, including unique names, now require explicit author grouping; copying raw machine decisions is insufficient.
+
+New audits expose `provisional_identity_scope`. A key is `<scope>/<author-label>`, where the label is 1–64 ASCII letters, digits, underscores or hyphens. Scope is SHA-256 of compact UTF-8 JSON `[tenant_id, novel_id, revision_id, source_hash, analysis_run_id]`. It is a namespace, not a secret or approval token. The authenticated author chooses labels and occurrence membership. Reusing the same local label under another scope creates a separate group; submitting a foreign full key returns 422 without mutation. Source identity/hash, Canon/guidance versions and ownership are checked separately as before.
+
+Different keys may share a display name. Same key requires consistent name/type and nonconflicting evidenced initial status. A new alias group needs its own canonical source occurrence and aliases bind to its provisional key, never the display name alone. Known-ID and provisional choices are mutually exclusive; a client cannot reserve an arbitrary UUID as approved Canon.
+
+Review JSON durably stores group membership under existing checkpoint CAS. Full freeze reserves opaque UUIDs, and retries/concurrent losers return the persisted winner. Speculative computation does not authorize extra Canon rows. Compatible refresh retains exact occurrence decisions, group keys and reserved IDs only while compatible preserved occurrences anchor the group. New/changed occurrences need human review; refresh never runs downstream extraction. Legacy frozen unknown groups with multiple occurrences and no explicit grouping return 409 on continue and require a new analysis/review; they are not silently upgraded into an identity decision. Legacy completed batches retain their saved replay results. Unique legacy frozen identities and known IDs retain existing format compatibility.
+
+Reserved UUIDs pass through pending entity/event/fact/state proposals and explicit Canon acceptance unchanged. Pending identity review, continuation and relationship correction do not grant extraction/outbox Canon authority.
+
+### Relationship identity and compatibility
+
+No migration is added: existing `relationship_metadata` JSON already stores complete `subject_entity_id` / `object_entity_id` pairs plus transition/event/fact provenance. Both projection and author correction use one shared identity resolver. PostgreSQL correction locks the brain against concurrent acceptance/rebuild; projection validates all retained relationships before replacing materialized state. Canon errors roll back events, facts, states, proposal decisions and brain version in the existing transaction.
+
+| Stored relationship | Behavior |
+| --- | --- |
+| Complete valid canonical ID pair | Exact pair controls lock/conflict; shared display labels cannot substitute identities. |
+| Same exact locked pair, same relation | Preserve author record, lock and provenance. |
+| Same exact locked pair, conflicting relation | 409 optimistic conflict; Canon transaction rolls back. |
+| Different subject or target ID, same name | Independent relationship; original lock preserved. |
+| Legacy names, each provably unique | Resolve both endpoints and preserve lock; persistence records ID pair on successful rebuild. |
+| Legacy ambiguous or missing endpoint | Explicit unresolved projection error (422); preserve original record/lock and Canon. Never choose the first name match. |
+| Incomplete pair or foreign/unknown ID metadata | 422; never fall back to names to repair authoritative metadata. |
+| Legacy author override with an unknown non-UUID name | Historical API still stores an explicitly unresolved name lock; it cannot participate in Canon projection until both endpoints resolve uniquely. Unknown UUID references are rejected. |
+| Unlocked system `MENTIONED_IN` to a story | Structural legacy edge, not an entity-pair lock; retained without identity substitution. |
+
+The existing trusted-service `/v1/enhanced/relation/override` accepts exact IDs in its string subject/object fields; ambiguous names return `UNRESOLVED_RELATIONSHIP_IDENTITY` 422. This task does not add a public Gateway relationship correction endpoint. Public Canon acceptance retains active-owner authorization. Mounted FE grouping/locking UX, real-provider quality and production rollout remain outside this fake-only acceptance.

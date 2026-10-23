@@ -38,6 +38,7 @@ from domain.models import (
     WritingGenerationJob,
     WritingPatch,
 )
+from domain.projection import project_relations, author_relationship
 from infrastructure.database import session_scope
 from infrastructure.orm_models import (
     CurrentEntityStateRecord,
@@ -833,29 +834,26 @@ class PostgresNarrativeRepository:
         return entities, facts, events, transitions
 
     def _persist_projection(self, session, brain, novel_id):
-        state = project(*self._projection_inputs(session, novel_id))
+        inputs = self._projection_inputs(session, novel_id)
+        state = project(*inputs)
+        records = session.scalars(select(RelationshipRecord).where(*self._scope(RelationshipRecord, novel_id))).all()
+        originals = [NarrativeRelation(subject=r.subject_name, object=r.object_name, relation=r.relation_type,
+            metadata=r.relation_metadata or {}, source=r.source_type, locked=r.is_locked) for r in records]
+        projected = project_relations(inputs[0], originals, state)  # Validate before any projection mutation.
         session.execute(delete(CurrentEntityStateRecord).where(*self._scope(CurrentEntityStateRecord, novel_id)))
-        for entity_id, attributes in state["entities"].items():
-            session.add(CurrentEntityStateRecord(
-                story_brain_id=brain.id, entity_id=uuid.UUID(entity_id), tenant_id=self._tenant_id,
-                novel_id=novel_id, state=attributes, provenance=state["provenance"][entity_id]))
-        session.execute(delete(RelationshipRecord).where(
-            *self._scope(RelationshipRecord, novel_id), RelationshipRecord.source_type == "projection",
-            RelationshipRecord.is_locked.is_(False)))
-        entities = {str(e.id): e.canonical_name for e in session.scalars(
-            select(EntityRecord).where(*self._scope(EntityRecord, novel_id))).all()}
-        for relation in state["relationships"]:
-            subject, target = entities[relation["subject_entity_id"]], entities[relation["object_entity_id"]]
-            locked = session.scalar(select(RelationshipRecord).where(
-                *self._scope(RelationshipRecord, novel_id), RelationshipRecord.subject_name == subject,
-                RelationshipRecord.object_name == target, RelationshipRecord.is_locked.is_(True)))
-            if locked:
-                if locked.relation_type != relation["relation"]:
-                    raise OptimisticLockError("Projection conflicts with an author-locked relationship")
-                continue
+        for entity_id, attributes in state['entities'].items():
+            session.add(CurrentEntityStateRecord(story_brain_id=brain.id, entity_id=uuid.UUID(entity_id),
+                tenant_id=self._tenant_id, novel_id=novel_id, state=attributes,
+                provenance=state['provenance'][entity_id]))
+        retained = [r for r in records if r.source_type != 'projection' or r.is_locked]
+        for row, relation in zip(retained, projected[:len(retained)]):
+            row.relation_metadata = relation.metadata
+        session.execute(delete(RelationshipRecord).where(*self._scope(RelationshipRecord, novel_id),
+            RelationshipRecord.source_type == 'projection', RelationshipRecord.is_locked.is_(False)))
+        for r in projected[len(retained):]:
             session.add(RelationshipRecord(story_brain_id=brain.id, tenant_id=self._tenant_id, novel_id=novel_id,
-                subject_name=subject, object_name=target, relation_type=relation["relation"],
-                source_type="projection", relation_metadata=relation))
+                subject_name=r.subject, object_name=r.object, relation_type=r.relation,
+                source_type='projection', relation_metadata=r.metadata))
         session.flush()
         return state
 
@@ -967,25 +965,22 @@ class PostgresNarrativeRepository:
         novel_id = self._novel_id(story_id)
         with session_scope(self._session_factory) as session:
             brain = self._get_or_create_brain(session, novel_id)
-            session.execute(
-                delete(RelationshipRecord).where(
-                    *self._scope(RelationshipRecord, novel_id),
-                    RelationshipRecord.subject_name == subject,
-                    RelationshipRecord.object_name == object_name,
-                )
-            )
-            session.add(
-                RelationshipRecord(
-                    story_brain_id=brain.id,
-                    tenant_id=self._tenant_id,
-                    novel_id=novel_id,
-                    subject_name=subject,
-                    relation_type=relation_type,
-                    object_name=object_name,
-                    source_type="author",
-                    is_locked=True,
-                )
-            )
+            # Serialize corrections against Canon acceptance/rebuild on this brain.
+            session.refresh(brain, with_for_update=True)
+            entities = [self._to_entity(e) for e in session.scalars(select(EntityRecord).where(
+                *self._scope(EntityRecord, novel_id))).all()]
+            rows = session.scalars(select(RelationshipRecord).where(*self._scope(RelationshipRecord, novel_id))).all()
+            relations = [NarrativeRelation(subject=r.subject_name, object=r.object_name, relation=r.relation_type,
+                metadata=r.relation_metadata or {}, source=r.source_type, locked=r.is_locked) for r in rows]
+            updated = author_relationship(entities, relations, subject, relation_type, object_name)
+            retained_ids = {id(r) for r in updated[:-1]}
+            for row, relation in zip(rows, relations):
+                if id(relation) not in retained_ids:
+                    session.delete(row)
+            r = updated[-1]
+            session.add(RelationshipRecord(story_brain_id=brain.id, tenant_id=self._tenant_id, novel_id=novel_id,
+                subject_name=r.subject, relation_type=r.relation, object_name=r.object,
+                source_type='author', is_locked=True, relation_metadata=r.metadata))
         return {"status": "success", "relation": relation_type, "locked": True}
 
     def export_snapshot(self, story_id: str) -> dict[str, Any]:

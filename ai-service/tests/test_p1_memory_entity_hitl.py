@@ -85,9 +85,21 @@ def discover(f):
     return run, audit.json()['data']
 
 
+def author_choices(audit):
+    """Explicit scripted human choice: repeated occurrences in these fixtures are one person."""
+    from application.entity_review_service import provisional_scope
+    from copy import deepcopy
+    decisions = deepcopy(audit['decisions'])
+    for d in decisions:
+        if d['verdict'] == 'entity' and not d['canonical_entity_id']:
+            label = hashlib.sha256(d['canonical_name'].encode()).hexdigest()[:16]
+            d['provisional_identity_key'] = provisional_scope(audit) + '/' + label
+    return decisions
+
+
 def freeze(f, run, audit):
     response = f.client.post(f'{f.base}/entity-reviews/{run}/review', headers=f.headers,
-        json={'expected_version': audit['review_version'], 'decisions': audit['decisions']})
+        json={'expected_version': audit['review_version'], 'decisions': author_choices(audit)})
     assert response.status_code == 200, response.text
     assert response.json()['data']['status'] == 'entities_reviewed'
     return response

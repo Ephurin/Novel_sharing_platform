@@ -16,6 +16,7 @@ import logging
 
 from fastapi import APIRouter, Depends, HTTPException
 
+from domain.projection import ProjectionError
 from application.narrative_service import NarrativeApplicationService
 from api.schemas import ProcessInteractionsRequest, RelationOverrideRequest
 from api.deps import (
@@ -158,6 +159,8 @@ def override_relation(
             object_name=payload.object,
         )
         return result
+    except ProjectionError as exc:
+        raise HTTPException(status_code=422, detail={"code":"UNRESOLVED_RELATIONSHIP_IDENTITY", "message":str(exc)}) from exc
     except Exception as exc:
         logger.error("Failed to override relation: %s", exc)
         raise HTTPException(status_code=500, detail=str(exc))

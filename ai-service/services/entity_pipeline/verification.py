@@ -31,6 +31,7 @@ class EntityDecision(BaseModel):
         default='',
         description="Known entity ID if matching known entities for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'."
     )
+    provisional_identity_key: str = Field(default='', max_length=130, description='Human review only: checkpoint scope / author group label. Never assign in machine verification.')
     identity_quote: str = Field(
         default='',
         description="Verbatim source quote proving alias identity for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'."
@@ -200,12 +201,14 @@ def verify_entities(text, llm, discover, *, known_entities=(), known_aliases=(),
         raise
 
 
-def _validate(decisions, batch, text, known, allowed):
+def _validate(decisions, batch, text, known, allowed, *, human=False):
     by_id = {c.candidate_id: c for c in batch}
     if len(decisions) != len(batch) or {d.candidate_id for d in decisions} != set(by_id):
         raise ValueError('Every candidate must have exactly one decision')
     for d in decisions:
         c = by_id[d.candidate_id]
+        if d.provisional_identity_key and (not human or d.canonical_entity_id or d.verdict != 'entity'):
+            raise ValueError('Provisional identity is human-only and mutually exclusive with canonical identity')
         if d.verdict != 'entity':
             invalid_fields = []
             if d.canonical_name:
@@ -234,7 +237,7 @@ def _validate(decisions, batch, text, known, allowed):
             target = known.get(d.canonical_entity_id)
             if not target or target['name'] != d.canonical_name or target['entity_type'] != d.entity_type:
                 raise ValueError('Unknown or mismatched canonical identity')
-        elif any(same_name(e['name'], d.canonical_name) for e in known.values()):
+        elif not d.provisional_identity_key and any(same_name(e['name'], d.canonical_name) for e in known.values()):
             raise ValueError('Use explicit canonical ID for a known entity')
         if not same_name(d.canonical_name, c.surface):
             if not d.identity_quote:
@@ -254,12 +257,15 @@ def _validate(decisions, batch, text, known, allowed):
                 raise ValueError('Status evidence must anchor this occurrence')
 
 
-def _materializable(candidates, decisions, known, text):
+def _materializable(candidates, decisions, known, text, *, human=False):
     by_id = {c.candidate_id: c for c in candidates}
     groups = {}
     for d in decisions:
         if d['verdict'] == 'entity':
-            key = d['canonical_entity_id'] or d['canonical_name'].casefold()
+            if human and not d['canonical_entity_id'] and not d.get('provisional_identity_key'):
+                raise ValueError('New identities require an explicit author provisional group')
+            key = ('canonical', d['canonical_entity_id']) if d['canonical_entity_id'] else (
+                'provisional', d.get('provisional_identity_key') or d['canonical_name'].casefold())
             groups.setdefault(key, []).append(d)
     entities, aliases = [], []
     for group in groups.values():
@@ -274,6 +280,8 @@ def _materializable(candidates, decisions, known, text):
                                      'A new canonical name needs its own verified source occurrence.', attempts=0)
         c = by_id[chosen['candidate_id']]
         statuses = {d['initial_status'] for d in group if d['initial_status'] != 'Unknown'}
+        if human and len(statuses) > 1:
+            raise ValueError('Provisional group has conflicting identity status')
         status = next(iter(statuses)) if len(statuses) == 1 else 'Unknown'
         status_decision = next((d for d in group if d['initial_status'] == status), chosen)
         entities.append({'phrase': chosen['canonical_name'], 'entity': chosen['entity_type'],
@@ -281,6 +289,7 @@ def _materializable(candidates, decisions, known, text):
                          'status_quote': status_decision['status_quote'] if status != 'Unknown' else '',
                          'verified_start': c.start, 'verified_end': c.end,
                          'canonical_entity_id': chosen['canonical_entity_id'],
+                         'provisional_identity_key': chosen.get('provisional_identity_key', ''),
                          'candidate_ids': [d['candidate_id'] for d in group]})
         seen = set()
         for d in group:
@@ -290,7 +299,7 @@ def _materializable(candidates, decisions, known, text):
             seen.add((mention.surface.casefold(), mention.start, mention.end))
             # No direct identity mutation: these mappings still require the normal proposal review.
             aliases.append({'alias': mention.surface, 'entity_name': d['canonical_name'],
-                            'entity_id': d['canonical_entity_id'], 'start': mention.start, 'end': mention.end,
+                            'entity_id': d['canonical_entity_id'], 'provisional_identity_key': d.get('provisional_identity_key', ''), 'start': mention.start, 'end': mention.end,
                             'confidence': d['confidence'], 'identity_quote': d['identity_quote']})
     # Shared aliases retain occurrence-level IDs; downstream rejects ambiguous labels.
     return entities, aliases

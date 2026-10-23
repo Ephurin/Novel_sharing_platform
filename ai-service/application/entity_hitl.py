@@ -53,13 +53,17 @@ def checkpoint(service, novel_id, run_id, tenant_id, *, check_guidance=True):
 def review(service, novel_id, run_id, tenant_id, decisions, expected_version, finalize=True):
     audit, revision = checkpoint(service, novel_id, run_id, tenant_id)
     from services.entity_pipeline.verification import EntityDecision
-    normalized = [EntityDecision.model_validate(d).model_dump() for d in decisions]
+    normalize = lambda values: [EntityDecision.model_validate(d).model_dump() for d in values]
+    normalized = normalize(decisions)
     if audit['status'] == 'waiting_entity_review' and not finalize and audit.get('review_finalize') is False:
-        if audit.get('review_submitted_decisions') == normalized and audit.get('review_input_version') == expected_version:
+        if normalize(audit.get('review_submitted_decisions', [])) == normalized and audit.get('review_input_version') == expected_version:
             return audit
     if audit['status'] in {'entities_reviewed', 'completed'}:
-        if finalize and audit.get('review_submitted_decisions', audit.get('reviewed_decisions')) == normalized and audit.get('review_input_version') == expected_version:
+        if finalize and normalize(audit.get('review_submitted_decisions', audit.get('reviewed_decisions', []))) == normalized and audit.get('review_input_version') == expected_version:
             if audit['status'] == 'entities_reviewed' and audit.get('identity_inventory_version') is None:
+                if any(not e.get('canonical_entity_id') and not e.get('provisional_identity_key')
+                        and len(e.get('candidate_ids', [])) > 1 for e in audit['entities']):
+                    raise OptimisticLockError('Legacy new identity grouping is ambiguous; start a new author review')
                 from copy import deepcopy
                 from application.entity_review_service import freeze_inventory
                 value = deepcopy(audit)
@@ -70,7 +74,15 @@ def review(service, novel_id, run_id, tenant_id, decisions, expected_version, fi
                 return value
             return audit
         raise OptimisticLockError('Frozen review cannot be replaced')
-    return review_entities(service._repository, novel_id, run_id, normalized, expected_version, revision.content, finalize=finalize)
+    try:
+        return review_entities(service._repository, novel_id, run_id, normalized, expected_version, revision.content, finalize=finalize)
+    except OptimisticLockError:
+        current, _ = checkpoint(service, novel_id, run_id, tenant_id)
+        if (current.get('review_input_version') == expected_version
+                and current.get('review_finalize') == finalize
+                and current.get('review_submitted_decisions') == normalized):
+            return current
+        raise
 
 
 def refresh(service, novel_id, run_id, tenant_id, expected_version):
@@ -98,6 +110,8 @@ def refresh(service, novel_id, run_id, tenant_id, expected_version):
         'preserved_decisions': preserved, 'reviewed_decisions': preserved,
         'pending_candidate_ids': [c['candidate_id'] for c in verified.audit['candidates'] if c['candidate_id'] not in kept_ids],
         'preserved_entities': audit.get('entities') or audit.get('preserved_entities', []), 'entities': [], 'aliases': []}
+    from application.entity_review_service import provisional_scope
+    value['provisional_identity_scope'] = provisional_scope(value)
     value = json.loads(json.dumps(value))  # Match the durable JSON shape on either CAS path.
     try:
         repo.save_entity_candidate_audit(novel_id, run_id, value, expected_version=expected_version)
@@ -135,6 +149,8 @@ def analyze(service, **request):
         'chapter_number': revision.chapter_number, 'brain_version': int(brain.metadata.get('brain_version', 1)),
         'guidance_version': guidance['version'], 'review_version': 1,
         'status': 'waiting_entity_review', 'entities': [], 'aliases': []}
+    from application.entity_review_service import provisional_scope
+    audit['provisional_identity_scope'] = provisional_scope(audit)
     repository.save_entity_candidate_audit(novel, run.run_id, audit, expected_version=0)
     return RevisionAnalysisResult(run, (), False, 'waiting_entity_review')
 
@@ -147,6 +163,9 @@ def continue_review(service, novel_id, run_id, tenant_id):
         return RevisionAnalysisResult(run, tuple(repo.list_proposals(novel_id, analysis_run_id=run_id)), True)
     if audit['status'] != 'entities_reviewed':
         raise OptimisticLockError('Complete entity review before continuing')
+    if any(not e.get('canonical_entity_id') and not e.get('provisional_identity_key')
+            and len(e.get('candidate_ids', [])) > 1 for e in audit['entities']):
+        raise OptimisticLockError('Legacy new identity grouping is ambiguous; start a new author review')
     if audit.get('identity_inventory_version') is None:
         # Existing human approval remains authoritative; upgrade only its storage format.
         try:

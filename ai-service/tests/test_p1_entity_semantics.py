@@ -6,7 +6,7 @@ from dataclasses import replace
 
 import pytest
 
-from tests.test_p1_memory_entity_hitl import flow, discover, freeze, TENANT
+from tests.test_p1_memory_entity_hitl import flow, discover, freeze, TENANT, author_choices
 from core.fake_llm import FakeDeterministicLLMService
 from domain.models import NarrativeEntity
 
@@ -117,7 +117,7 @@ def test_refresh_preserves_human_occurrences_and_only_reviews_new_candidates(flo
     assert f.client.post(f'{f.base}/entity-reviews/{run}/continue', headers=f.headers).status_code == 409
     calls = list(f.llm.calls)
     assert refresh(f, run, old['review_version']) == fresh and f.llm.calls == calls
-    pending = [d for d in fresh['decisions'] if d['candidate_id'] in fresh['pending_candidate_ids']]
+    pending = [d for d in author_choices(fresh) if d['candidate_id'] in fresh['pending_candidate_ids']]
     reviewed = f.client.post(f'{f.base}/entity-reviews/{run}/review', headers=f.headers,
         json={'expected_version':fresh['review_version'], 'decisions':pending})
     assert reviewed.status_code == 200, reviewed.text
@@ -249,7 +249,7 @@ def test_new_identity_id_survives_inventory_growth_and_materialization(flow):
     uuid.UUID(original_id)
     add_hint(f)
     new=refresh(f,run,old['review_version'])
-    pending=[d for d in new['decisions'] if d['candidate_id'] in new['pending_candidate_ids']]
+    pending=[d for d in author_choices(new) if d['candidate_id'] in new['pending_candidate_ids']]
     response=f.client.post(f'{f.base}/entity-reviews/{run}/review',headers=f.headers,
         json={'expected_version':new['review_version'],'decisions':pending})
     assert response.status_code==200,response.text
@@ -272,7 +272,7 @@ def test_new_ambiguous_alias_is_pending_without_losing_previous_identity_choices
     assert all(candidates[cid]['surface']=='m' for cid in fresh['pending_candidate_ids'])
     assert len(fresh['pending_candidate_ids'])==2
     assert f.client.post(f'{f.base}/entity-reviews/{run}/continue',headers=f.headers).status_code==409
-    pending=[d for d in fresh['decisions'] if d['candidate_id'] in fresh['pending_candidate_ids']]
+    pending=[d for d in author_choices(fresh) if d['candidate_id'] in fresh['pending_candidate_ids']]
     for i,d in enumerate(pending):d['canonical_entity_id']=f.llm.ids[i]
     response=f.client.post(f'{f.base}/entity-reviews/{run}/review',headers=f.headers,
         json={'expected_version':fresh['review_version'],'decisions':pending})
@@ -299,7 +299,7 @@ def test_parallel_refresh_and_replayed_review_do_not_duplicate_transitions(flow)
         values=list(pool.map(lambda _:service_refresh(f.service,f.revision.novel_id,run,TENANT,old['review_version']),range(2)))
     assert values[0]==values[1] and values[0]['review_version']==old['review_version']+1
     fresh=values[0]
-    decisions=[d for d in fresh['decisions'] if d['candidate_id'] in fresh['pending_candidate_ids']]
+    decisions=[d for d in author_choices(fresh) if d['candidate_id'] in fresh['pending_candidate_ids']]
     body={'expected_version':fresh['review_version'],'decisions':decisions}
     one=f.client.post(f'{f.base}/entity-reviews/{run}/review',headers=f.headers,json=body)
     two=f.client.post(f'{f.base}/entity-reviews/{run}/review',headers=f.headers,json=body)
@@ -311,7 +311,7 @@ def test_parallel_refresh_and_replayed_review_do_not_duplicate_transitions(flow)
 def test_partial_saved_author_decisions_survive_refresh_without_implicit_freeze(flow):
     f=prepare(flow)
     run,audit=discover(f)
-    body={'expected_version':1,'decisions':audit['decisions'][:1],'finalize':False}
+    body={'expected_version':1,'decisions':author_choices(audit)[:1],'finalize':False}
     one=f.client.post(f'{f.base}/entity-reviews/{run}/review',headers=f.headers,json=body)
     assert one.status_code==200,one.text
     partial=one.json()['data']
@@ -322,7 +322,7 @@ def test_partial_saved_author_decisions_survive_refresh_without_implicit_freeze(
     assert fresh['preserved_decisions']==partial['reviewed_decisions']
     assert len(fresh['pending_candidate_ids'])==3
     assert f.client.post(f'{f.base}/entity-reviews/{run}/continue',headers=f.headers).status_code==409
-    pending=[d for d in fresh['decisions'] if d['candidate_id'] in fresh['pending_candidate_ids']]
+    pending=[d for d in author_choices(fresh) if d['candidate_id'] in fresh['pending_candidate_ids']]
     result=f.client.post(f'{f.base}/entity-reviews/{run}/review',headers=f.headers,
         json={'expected_version':fresh['review_version'],'decisions':pending})
     assert result.status_code==200,result.text
