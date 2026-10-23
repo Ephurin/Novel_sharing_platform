@@ -19,7 +19,7 @@ All Python paths below start with `/v1/story-brains/{novel_id}`. The public path
 | POST `/entity-reviews/{run_id}/continue` | Requires entities_reviewed checkpoint. Valid retry never reruns discovery/verifier. Persists pending proposals and completed checkpoint atomically; duplicate requests return the saved set, including an empty set. |
 | POST `/author-proposals` | Exact unique source quote, immutable revision/chapter/hash, expected Canon version. Produces a pending proposal; invalid evidence 422. |
 
-The existing revision analyses POST returns `waiting_entity_review` when the flag is ON. Its request/idempotency key pins tenant, novel, chapter, revision, hash, operation, options. After Canon/guidance changes use a new analysis request key; obsolete checkpoints fail with 409. Gateway reanalyse enables world-rule/fact extraction alongside events and state transitions. In the verified path, `extract_world_rules` invokes grounded atomic prose facts; only confirmed facts become pending Canon proposals. Reported/hypothesis/proposed statements are omitted.
+The existing revision analyses POST returns `waiting_entity_review` when the flag is ON. Its request/idempotency key pins tenant, novel, chapter, revision, hash, operation, options. After Canon changes use a new analysis request key. For changed guidance, save author choices and refresh the existing checkpoint with CAS as described below; obsolete checkpoints still fail with 409. Gateway reanalyse enables world-rule/fact extraction alongside events and state transitions. In the verified path, `extract_world_rules` invokes grounded atomic prose facts; only confirmed facts become pending Canon proposals. Reported/hypothesis/proposed statements are omitted.
 
 ## Authority and persistence
 
@@ -54,3 +54,39 @@ Memory excludes pending/rejected proposals, audit/guidance, plans and objectives
 Source/tests are committed before acceptance; the evidence commit records exact clean source SHA, commands/exits, runtime HTTP bodies, authoritative PostgreSQL checkpoints/Canon versions, fake-only configuration and Actions P7/P8 URLs. Historical pipeline evidence and fixtures are preserved. Tests use fresh test-owned PostgreSQL/pgvector and MongoDB and scoped fixture cleanup; pytest temporary output is directed outside tracked historical fixtures.
 
 No provider quality claim, FE mounted IDE acceptance, P3 waiting_for_entity_review support, merge permission or production release is granted here. GPT-6 reviews this delta; FE owner handles mounted Author IDE integration, Core owner retains revision/writer/outbox authority, schema owner owns migration rollout, and product owner retains Canon semantics decisions.
+
+## Semantic hardening after GPT-6 review H-01/H-02/H-03
+
+Reviewed starting HEAD: `07007f2aeae496f70516345614d309675a2daa57`. Historical acceptance evidence remains immutable. This delta does not change the default OFF path or P3 controller behavior.
+
+### H-01: versioned entity-only refresh
+
+POST `/entity-reviews/{run_id}/refresh` takes `{expected_version}`. Gateway applies the same active-owner and latest-revision checks as review/continue. Python retains tenant/novel/chapter/revision/hash and Canon fences; this operation alone permits changed guidance. It reruns discovery/verification, never event/fact/state extraction. Existing JSON audit storage holds the state; no migration is added.
+
+Authors may save resolved partial choices with review `{expected_version, decisions, finalize:false}`. This remains `waiting_entity_review` and creates no proposals. Default `finalize:true` still requires full coverage, preserving the prior missing-decision 422 contract. Save choices before changing guidance. Refresh stores `preserved_decisions` separately from machine decisions and exposes `pending_candidate_ids`; review may submit just pending choices. Explicitly resubmitted author choices may replace earlier choices.
+
+Carry-forward requires the same verified immutable source, Canon version and collector policy; identical candidate ID/surface/absolute offsets/context bounds/verbatim context; compatible machine verdict/type/canonical ID/name/identity quote/status evidence. Confidence and free-text reason are diagnostics rather than identity authority. Retained human choices are revalidated against registry and source. Origins may gain `author_guidance` without changing an occurrence. Changed context or machine identity returns to pending. Missing hints never create occurrences.
+
+Refresh increments review_version once and always returns to `waiting_entity_review`, even when all choices survive. Prior opaque identity IDs survive only when compatible human occurrences still anchor that identity. Newly changed/missing occurrences require review and an explicit final freeze. Identical refresh retries reuse the saved checkpoint; concurrent CAS losers reuse the winner only for the same input version/current guidance. Canon/guidance/source changes during the operation fail closed. Completed downstream batches cannot refresh; start a new analysis to avoid reusing a pending proposal group.
+
+### H-02: frozen identity schema 2 and Canon compatibility
+
+Each frozen entity has `entity_id`, `canonical_entity_id`, type, display phrase, candidate IDs and immutable occurrence evidence (quote, offsets, source hash, revision ID). Known identities retain exact Canon IDs, including homonyms. New identities receive opaque random UUIDs at human freeze, never positional/name-derived IDs. Compatible refreshed identities retain IDs as inventory grows; CAS/replay retains the winning IDs.
+
+The downstream inventory is keyed by identity ID. Names/aliases index sets of IDs. Structured outputs should use exact IDs; unique legacy labels remain compatible and normalize to IDs. Ambiguous labels return 409; unknown references return 422. Shared aliases retain occurrence-specific targets and never globally merge identities.
+
+| Consumer | Compatibility contract |
+| --- | --- |
+| Event extraction | known_entities is an array of ID/name/type/occurrence records. Participants/locations normalize to IDs; existing list-of-string proposal fields remain. |
+| Fact extraction | Subject uses a reviewed ID; proposals use existing subject_entity_id, not an ambiguous subject_entity_name. General facts may have no subject. |
+| State generation | Optional inventory/resolver is HITL-only; legacy calls remain valid. Subjects must participate in their event; relationship targets resolve to reviewed IDs. |
+| Canon validation | Existing event/fact/state fields support IDs. Optional UUID entity_id on a new entity proposal reserves the frozen identity; malformed UUIDs and existing-ID collisions fail closed. |
+| Canon materialization | Explicit-ID roots insert that ID without name upsert. Legacy entity proposals retain behavior. Aliases/events/facts/state use the same frozen IDs. Approval remains explicit. |
+| Projection | Exact IDs take precedence; ambiguous name fallback still raises. State/provenance and relationship metadata retain IDs despite shared display labels. |
+| Memory | Distinct entity rows, event participants, fact subjects and state/provenance retain IDs. Approved-only filtering remains intact. |
+
+Completed checkpoint retries keep their saved proposals. A pre-schema-2 frozen checkpoint must reconfirm the same human review once before continuation (409 prompts this); no LLM or Canon approval replaces that confirmation. No SQL migration is required. Real-provider quality and mounted FE refresh UX remain separate acceptance.
+
+### H-03: truthful completion outcome
+
+Completion returns `EntityReviewCompletion(proposals, deduplicated)`: first commit false, a transaction observing saved completion true, serial retry true. Provenance/proposals/checkpoint remain atomic. A barrier-forced overlap test asserts DB cardinality and exactly one false/one true response.

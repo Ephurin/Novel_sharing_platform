@@ -89,6 +89,12 @@ class AnalysisRun:
 
 
 @dataclass(frozen=True, slots=True)
+class EntityReviewCompletion:
+    proposals: tuple[NarrativeProposal, ...]
+    deduplicated: bool
+
+
+@dataclass(frozen=True, slots=True)
 class BootstrapRevision:
     chapter_id: str
     revision_id: str

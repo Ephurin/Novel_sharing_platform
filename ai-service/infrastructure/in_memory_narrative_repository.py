@@ -7,6 +7,7 @@ import uuid
 from domain.projection import ProjectionError, validate_payload, project, project_relations, resolve_entity, transition_from_payload
 from domain.errors import ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError, ProposalAlreadyDecidedError
 from domain.models import (
+    EntityReviewCompletion,
     AnalysisRun,
     BootstrapJob,
     NarrativeAlias,
@@ -30,7 +31,7 @@ class InMemoryNarrativeRepository:
         from copy import deepcopy
         current = self.get_entity_candidate_audit(story_id, run_id)
         if current.get('status') == 'completed':
-            return self.list_proposals(story_id, analysis_run_id=run_id)
+            return EntityReviewCompletion(tuple(self.list_proposals(story_id, analysis_run_id=run_id)), True)
         if current != audit or current.get('status') != 'entities_reviewed':
             raise OptimisticLockError('Entity checkpoint changed')
         if int(self.get_story_brain(story_id).metadata.get('brain_version', 1)) != audit['brain_version'] or self.get_entity_guidance(story_id)['version'] != audit['guidance_version']:
@@ -38,7 +39,7 @@ class InMemoryNarrativeRepository:
         self.record_revision_provenance(story_id, audit['chapter_id'], audit['revision_id'], audit['chapter_number'])
         self.save_proposals(story_id, proposals)
         self._entity_candidate_audits[(story_id, run_id)] = {**deepcopy(audit), 'status': 'completed'}
-        return proposals
+        return EntityReviewCompletion(tuple(proposals), False)
 
     def __init__(self) -> None:
         self._brains: dict[str, StoryBrain] = {}
@@ -248,18 +249,26 @@ class InMemoryNarrativeRepository:
         edited_payloads = edited_payloads or {}
         for proposal in sorted(selected, key=lambda item: item.materialization_order):
             payload = edited_payloads.get(proposal.proposal_id, proposal.payload)
+            reserved = proposal.payload.get('entity_id') if proposal.proposal_type == 'entity' else None
+            if reserved:
+                if payload.get('entity_id', reserved) != reserved:
+                    raise ProjectionError('Reviewed entity identity ID is immutable')
+                payload = {**payload, 'entity_id': reserved}
+                if proposal.proposal_id in edited_payloads:
+                    edited_payloads = {**edited_payloads, proposal.proposal_id: payload}
             validate_payload(proposal.proposal_type, payload)
             if proposal.proposal_type == "entity":
                 normalized = str(payload["normalized_name"]).casefold()
-                existing = next(
-                    (item for item in entities if item.name.casefold() == normalized), None
-                )
+                assigned_id = payload.get('entity_id')
+                if assigned_id and any(item.entity_id == assigned_id for item in entities):
+                    raise ProjectionError('New reviewed identity ID is already in use')
+                existing = None if assigned_id else next((item for item in entities if item.name.casefold() == normalized), None)
                 if existing and existing.is_locked and existing.entity_type != payload["entity_type"]:
                     raise OptimisticLockError("Author-locked entity conflicts with proposal")
                 if existing is None:
                     existing = NarrativeEntity(
                         name=str(payload["canonical_name"]),
-                        entity_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"{story_id}:{normalized}")),
+                        entity_id=assigned_id or str(uuid.uuid5(uuid.NAMESPACE_URL, f"{story_id}:{normalized}")),
                         entity_type=str(payload["entity_type"]),
                         status=str(payload.get("initial_status", "Alive")),
                         mentions=0 if payload.get("source_type") == "author_declaration" else 1,

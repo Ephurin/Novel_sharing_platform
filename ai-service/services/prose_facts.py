@@ -33,8 +33,9 @@ def extract_prose_facts(text, llm, subjects=(), *, review_coverage=False, verifi
         "Do not invent missing facts. "
         "Use an exact contiguous source quote for each fact. Preserve uncertainty: reported speech, "
         "hypotheses and proposed limits are not confirmed world rules. subject is an exact named "
-        "entity from supplied known_entities or empty for general facts. If no subject can be resolved, "
-        "make fact_value self-contained including the subject's name. fact_key is a short attribute name; "
+        "entity from supplied known_entities or empty for general facts. When inventory items contain entity_id, "
+        "subject must use that exact ID; names/aliases may be ambiguous. Never convert an unresolved entity fact "
+        "to a general fact to bypass identity review. fact_key is a short attribute name; "
         "use status with value Dead/Alive only for explicit confirmed life status. "
         "fact_value is an atomic string, number or boolean. Return JSON matching: "
         + json.dumps(ProseFacts.model_json_schema(), ensure_ascii=False)),

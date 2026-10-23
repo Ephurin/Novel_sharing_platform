@@ -11,13 +11,20 @@ class ProjectionError(ValueError):
 
 
 def resolve_entity(reference: str, entities: list[NarrativeEntity]) -> str:
-    matches = [e for e in entities if e.entity_id == reference or e.name.casefold() == reference.casefold()]
+    exact = [e for e in entities if e.entity_id == reference]
+    matches = exact or [e for e in entities if e.name.casefold() == reference.casefold()]
     if len(matches) != 1:
         raise ProjectionError(f"Unknown or ambiguous entity: {reference}")
     return str(matches[0].entity_id)
 
 
 def validate_payload(kind, payload):
+    if kind == 'entity' and payload.get('entity_id') is not None:
+        import uuid
+        try:
+            uuid.UUID(payload['entity_id'])
+        except (ValueError, TypeError, AttributeError) as exc:
+            raise ProjectionError('Entity identity must be a UUID') from exc
     required = {"event": ("event_type", "summary"),
                 "state_transition": ("entity_id", "attribute_key"),
                 "fact": ("fact_key",)}.get(kind, ())

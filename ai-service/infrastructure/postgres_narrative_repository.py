@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 from domain.projection import ProjectionError, validate_payload, project, resolve_entity, transition_from_payload
 from domain.errors import ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError
 from domain.models import (
+    EntityReviewCompletion,
     AnalysisRun,
     BootstrapJob,
     BootstrapRevision,
@@ -81,14 +82,14 @@ class PostgresNarrativeRepository:
                 rows = session.scalars(select(ProposalRecord).where(
                     *self._scope(ProposalRecord, novel_id), ProposalRecord.analysis_run_id == record.id)
                     .order_by(ProposalRecord.materialization_order)).all()
-                return [self._to_proposal(row) for row in rows]
+                return EntityReviewCompletion(tuple(self._to_proposal(row) for row in rows), True)
             if current != audit or current.get('status') != 'entities_reviewed':
                 raise OptimisticLockError('Entity checkpoint changed during extraction')
             self.record_revision_provenance(story_id, audit['chapter_id'], audit['revision_id'],
                 audit['chapter_number'], _session=session)
             self.save_proposals(story_id, proposals, _session=session)
             record.entity_candidate_audit = {**deepcopy(audit), 'status': 'completed'}
-            return proposals
+            return EntityReviewCompletion(tuple(proposals), False)
 
     def __init__(
         self,
@@ -560,19 +561,27 @@ class PostgresNarrativeRepository:
                     item for item in proposal_ids if self._stable_uuid("proposal", item) == proposal.id
                 )
                 payload = edited_payloads.get(external_id, proposal.payload)
+                reserved = proposal.payload.get('entity_id') if proposal.proposal_type == 'entity' else None
+                if reserved:
+                    if payload.get('entity_id', reserved) != reserved:
+                        raise ProjectionError('Reviewed entity identity ID is immutable')
+                    payload = {**payload, 'entity_id': reserved}
                 validate_payload(proposal.proposal_type, payload)
                 if proposal.proposal_type == "entity":
                     normalized = str(payload["normalized_name"]).casefold()
-                    entity = session.scalar(
-                        select(EntityRecord).where(
-                            *self._scope(EntityRecord, novel_id),
-                            EntityRecord.normalized_name == normalized,
-                        )
-                    )
+                    assigned_id = uuid.UUID(payload['entity_id']) if payload.get('entity_id') else None
+                    if assigned_id:
+                        if session.get(EntityRecord, assigned_id) is not None:
+                            raise ProjectionError('New reviewed identity ID is already in use')
+                        entity = None
+                    else:
+                        entity = session.scalar(select(EntityRecord).where(
+                            *self._scope(EntityRecord, novel_id), EntityRecord.normalized_name == normalized))
                     if entity and entity.is_locked and entity.entity_type != payload["entity_type"]:
                         raise OptimisticLockError("Author-locked entity conflicts with proposal")
                     if entity is None:
                         entity = EntityRecord(
+                            **({"id": assigned_id} if assigned_id else {}),
                             story_brain_id=brain.id,
                             tenant_id=self._tenant_id,
                             novel_id=novel_id,

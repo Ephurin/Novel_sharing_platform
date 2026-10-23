@@ -117,6 +117,12 @@ class Review(BaseModel):
     model_config = ConfigDict(extra='forbid')
     expected_version: int = Field(ge=1)
     decisions: list[dict] = Field(max_length=1024)
+    finalize: bool = True
+
+
+class Refresh(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    expected_version: int = Field(ge=1)
 
 
 class AuthorEntity(BaseModel):
@@ -174,6 +180,11 @@ def continue_review(novel_id: UUID, run_id: UUID, tenant=Depends(author_scope), 
     result = invoke(entity_hitl.continue_review, service, str(novel_id), str(run_id), tenant)
     return {'data': {'analysis_run_id': str(run_id), 'status': result.status,
         'proposal_count': len(result.proposals), 'deduplicated': result.deduplicated}}
+
+
+@router.post('/{novel_id}/entity-reviews/{run_id}/refresh')
+def refresh(novel_id: UUID, run_id: UUID, payload: Refresh, tenant=Depends(author_scope), service=Depends(get_revision_analysis_service)):
+    return {'data': invoke(entity_hitl.refresh, service, str(novel_id), str(run_id), tenant, payload.expected_version)}
 
 
 @router.post('/{novel_id}/author-proposals', status_code=201)

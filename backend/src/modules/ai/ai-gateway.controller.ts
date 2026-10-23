@@ -53,7 +53,7 @@ export async function entityReviewController(req: Request, res: Response, next: 
         head?.revisionId !== revision.revisionId) {
       throw new AppError(409, 'STALE_PROPOSAL_EVIDENCE', 'Chapter changed; extract the latest saved revision');
     }
-    const action = req.path.endsWith('/review') ? 'review' : 'continue';
+    const action = req.path.endsWith('/review') ? 'review' : req.path.endsWith('/refresh') ? 'refresh' : 'continue';
     const data = await aiGatewayService.forwardRequest({ method: 'POST', path: `${base}/${runId}/${action}`,
       body: req.body, userId: req.auth!.userId });
     res.json(successResponse(data));

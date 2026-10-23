@@ -285,18 +285,12 @@ def _materializable(candidates, decisions, known, text):
         seen = set()
         for d in group:
             mention = by_id[d['candidate_id']]
-            if same_name(mention.surface, d['canonical_name']) or mention.surface.casefold() in seen:
+            if same_name(mention.surface, d['canonical_name']) or (mention.surface.casefold(), mention.start, mention.end) in seen:
                 continue
-            seen.add(mention.surface.casefold())
+            seen.add((mention.surface.casefold(), mention.start, mention.end))
             # No direct identity mutation: these mappings still require the normal proposal review.
             aliases.append({'alias': mention.surface, 'entity_name': d['canonical_name'],
                             'entity_id': d['canonical_entity_id'], 'start': mention.start, 'end': mention.end,
                             'confidence': d['confidence'], 'identity_quote': d['identity_quote']})
-    alias_targets = {}
-    for alias in aliases:
-        alias_targets.setdefault(alias['alias'].casefold(), set()).add(
-            alias['entity_id'] or alias['entity_name'].casefold())
-    if any(len(targets) > 1 for targets in alias_targets.values()):
-        raise AnalysisOutputError('ENTITY_IDENTITY_CONFLICT',
-            'A short alias refers to multiple entities; resolve its occurrences before downstream extraction.', attempts=0)
+    # Shared aliases retain occurrence-level IDs; downstream rejects ambiguous labels.
     return entities, aliases

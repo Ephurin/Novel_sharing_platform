@@ -294,9 +294,17 @@ def test_parallel_continue_commits_one_proposal_set(flow):
     with ThreadPoolExecutor(max_workers=2) as pool:
         results = list(pool.map(lambda _: continue_review(f.service, f.revision.novel_id, run, TENANT), range(2)))
     assert {p.proposal_id for p in results[0].proposals} == {p.proposal_id for p in results[1].proposals}
+    assert sorted(r.deduplicated for r in results) == [False, True]
     saved = f.repo.list_proposals(f.revision.novel_id, analysis_run_id=run)
     assert len(saved) == len(results[0].proposals)
     assert f.repo.get_entity_candidate_audit(f.revision.novel_id, run)['status'] == 'completed'
+    from sqlalchemy import text
+    with f.engine.connect() as connection:
+        count=connection.scalar(text('SELECT count(*) FROM narrative.proposals WHERE novel_id=:n AND analysis_run_id=:r'),
+            {'n':f.revision.novel_id,'r':run})
+    assert count==len(saved)
+    print('H03_PG_READBACK '+json.dumps({'run_id':run,'proposal_count':count,
+        'deduplicated':sorted(r.deduplicated for r in results),'proposal_ids':[p.proposal_id for p in saved]}))
 
 
 def test_memory_and_registry_exclude_unconfirmed_materialized_rows(flow):

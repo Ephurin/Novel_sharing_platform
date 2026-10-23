@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Protocol, runtime_checkable
 
 from domain.models import (
+    EntityReviewCompletion,
     AnalysisRun,
     BootstrapJob,
     EventMemorySource,
@@ -294,4 +295,4 @@ class EntityReviewRepository(NarrativeRepository, Protocol):
 
     def save_entity_candidate_audit(self, story_id: str, run_id: str, audit: dict, *, expected_version: int | None = None) -> None: ...
 
-    def complete_entity_review(self, story_id: str, run_id: str, audit: dict, proposals: list[NarrativeProposal]) -> list[NarrativeProposal]: ...
+    def complete_entity_review(self, story_id: str, run_id: str, audit: dict, proposals: list[NarrativeProposal]) -> EntityReviewCompletion: ...

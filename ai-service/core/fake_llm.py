@@ -23,9 +23,18 @@ class FakeDeterministicLLMService:
                 reason='Deterministic fake occurrence for human review') for c in data['candidates']]})
         if operation == 'hitl_event_extraction':
             data = json.loads(user_prompt)
+            refs = [e['entity_id'] if isinstance(e, dict) else e for e in data['known_entities']]
             return json.dumps({'events': [{'event_type': 'observation',
-                'summary': data['source_text'], 'participants': data['known_entities'],
+                'summary': data['source_text'], 'participants': refs,
                 'locations': [], 'consequences': [], 'quote': data['source_text']}]})
+        if operation == 'hitl_state_extraction':
+            data = json.loads(user_prompt)
+            participants = data['participants']
+            transitions = [{'entity':participants[0], 'attribute_key':'health', 'new_value':60, 'confidence':1}] if participants else []
+            if len(participants) > 1:
+                transitions.append({'entity':participants[0], 'attribute_key':'active_relationships',
+                    'new_value':{participants[1]:'knows'}, 'confidence':1})
+            return json.dumps({'transitions':transitions})
         if operation == 'prose_fact_extraction':
             data = json.loads(user_prompt)
             return json.dumps({'facts': [{'fact_key': 'source_observation',

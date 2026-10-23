@@ -49,6 +49,7 @@ aiGatewayRoutes.post('/story-brains/:novelId/author-entities', authorEntityContr
 aiGatewayRoutes.get('/story-brains/:novelId/entity-candidate-audits/:runId', entityReviewController);
 aiGatewayRoutes.get('/story-brains/:novelId/entity-reviews', entityReviewController);
 aiGatewayRoutes.post('/story-brains/:novelId/entity-reviews/:runId/review', entityReviewController);
+aiGatewayRoutes.post('/story-brains/:novelId/entity-reviews/:runId/refresh', entityReviewController);
 aiGatewayRoutes.post('/story-brains/:novelId/entity-reviews/:runId/continue', entityReviewController);
 aiGatewayRoutes.post('/story-brains/:novelId/author-proposals', authorMemoryProposalController);
 aiGatewayRoutes.post('/story-brains/:novelId/reanalyse', reanalyseSavedChapterController);
