@@ -49,4 +49,5 @@ def main():
  finally:
   command('service-logs',compose+['logs','--no-color','ai-service','backend']);command('stop',compose+['stop','-t','2'])
   (out/'validation.json').write_text(json.dumps(dict(tested_sha=sha,project=project,commands=rows,retained=True,live_provider_calls=0),indent=2),encoding='utf-8')
+ raise SystemExit(int(any(row['exit_code'] != 0 for row in rows)))
 if __name__=='__main__':main()

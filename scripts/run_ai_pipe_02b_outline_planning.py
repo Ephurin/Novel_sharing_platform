@@ -190,9 +190,9 @@ def run_pipeline(
         base_rev_hash = sha256(chap1_content)
 
         # A manual canonical snapshot emits INCREMENTAL_ANALYSIS. Under the
-        # extraction-only outbox contract it leaves pending proposals and
-        # advance Story Brain before later writing requests. Stabilize that
-        # background work and capture the actual current version.
+        # extraction-only outbox contract it leaves proposals pending without
+        # advancing Canon. Stabilize extraction before later writing requests
+        # and capture the unchanged approved version.
         base_snapshot_outbox_status = None
         for _ in range(30):
             cur.execute(
