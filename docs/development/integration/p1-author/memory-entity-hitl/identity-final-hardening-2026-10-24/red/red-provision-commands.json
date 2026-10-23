@@ -1,0 +1,66 @@
+[
+  {
+    "command": [
+      "docker",
+      "run",
+      "-d",
+      "--name",
+      "astra-p1-identity-0d96bb94-pg",
+      "--label",
+      "astra.task=p1-identity-final",
+      "-p",
+      "127.0.0.1::5432",
+      "-e",
+      "POSTGRES_HOST_AUTH_METHOD=trust",
+      "-e",
+      "POSTGRES_DB=ephurin_test_astra_p1_identity_0d96bb94",
+      "pgvector/pgvector:pg16"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-23T16:38:51.998125+00:00"
+  },
+  {
+    "command": [
+      "docker",
+      "port",
+      "astra-p1-identity-0d96bb94-pg",
+      "5432"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-23T16:38:52.168243+00:00"
+  },
+  {
+    "command": [
+      "docker",
+      "run",
+      "-d",
+      "--name",
+      "astra-p1-identity-0d96bb94-mongo",
+      "--label",
+      "astra.task=p1-identity-final",
+      "-p",
+      "127.0.0.1::27017",
+      "mongo:7"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-23T16:38:54.717696+00:00"
+  },
+  {
+    "command": [
+      "docker",
+      "port",
+      "astra-p1-identity-0d96bb94-mongo",
+      "27017"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-23T16:38:54.874239+00:00"
+  }
+]

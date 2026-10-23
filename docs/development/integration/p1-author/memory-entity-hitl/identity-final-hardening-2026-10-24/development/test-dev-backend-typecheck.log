@@ -1,0 +1,6 @@
+
+> ephurin-backend@0.1.0 typecheck
+> tsc -p tsconfig.json --noEmit
+
+src/modules/ai/p1-memory-entity.live.test.ts(147,7): error TS2322: Type '{ 'Content-Type': string; 'X-Service-Token': string | undefined; }' is not assignable to type 'HeadersInit | undefined'.
+  Type '{ 'Content-Type': string; 'X-Service-Token': string | undefined; }' is not assignable to type 'undefined'.
