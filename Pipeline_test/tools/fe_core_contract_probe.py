@@ -30,7 +30,7 @@ const c=await createChapter(getPostgresPool(),{novelId:process.argv[1],title:'Co
   def signature(state):
    return {'chapters':[{k:v for k,v in c.items() if k!='updated_at'} for c in state['chapters']],
     'revisions':state['chapter_revisions'],'outbox':[{k:e[k] for k in ['event_id','revision_id','content_hash']} for e in state['revision_outbox_events']]}
-  body='Mai Linh vÃ  Duy Ä‘á»©ng táº¡i Cá»“n VÃ¢n. B'
+  body='Mai Linh và Duy đứng tại Cồn Vân. B'
   row('01_absent_draft_version_0',lambda:(require(view()['draft'] is None,'Fixture must have no Mongo draft'),save(body,0),require(view()['draft']['version']==1,'v0 initialization must yield version 1')))
   row('02_valid_version_save',lambda:(save(body+' valid',view()['draft']['version']),require(view()['draft']['content']==body+' valid','durable save missing')))
   row('03_missing_version_legacy_Core_observation',lambda:save(body+' legacy'))
@@ -101,7 +101,7 @@ const c=await createChapter(getPostgresPool(),{novelId:process.argv[1],title:'Co
   p.api('POST','/ai/jobs/'+j['job_id']+'/resume',{});p.wait_job(j['job_id'],{'waiting_review'})
   p.approve();activated=p.api('POST',p.brain+'/baseline/activate',{'job_id':j['job_id']})
   require(bool(activated['baseline_revision_id']),'Automatic snapshot requires a revision-anchored active baseline')
-  initial_memory=p.read_memory();canon_body='Mai Linh Ä‘áº·t tháº» giáº¥y cáº¡nh mÃ¡y thu. Duy Ä‘á»©ng bÃªn Mai Linh táº¡i Cá»“n VÃ¢n.'
+  initial_memory=p.read_memory();canon_body='Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.'
   canonical=save(canon_body,view()['draft']['version']);rid=canonical['analysisRevisionId'];require(bool(rid),'Anchored active baseline save did not produce automatic revision')
   active_draft=view()['draft']
   p.save('active-save-response-versus-durable-draft',{'response':canonical,'durable_draft':active_draft})

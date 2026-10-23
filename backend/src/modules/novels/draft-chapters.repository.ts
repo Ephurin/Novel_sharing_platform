@@ -127,7 +127,7 @@ async function syncDraftUnderLease(input: Parameters<typeof syncDraftFromRevisio
       novelId: input.novelId ?? '',
       chapterId: input.chapterId,
       authorId: input.authorId ?? '',
-      title: input.title ?? 'ChÆ°Æ¡ng má»›i',
+      title: input.title ?? 'Chương mới',
       content: input.content,
       wordCount: input.wordCount,
       version: 1,
