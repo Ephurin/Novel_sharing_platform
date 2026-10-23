@@ -12,6 +12,10 @@ def integration_response(text):
     """Scripted source-grounded responses for integration's legacy prompt framing.
     Not model quality or real-provider evidence. Unknown prompts fail explicitly.
     """
+    if 'Extract only state changes explicitly supported by this event' in text:
+        return json.dumps({'transitions':[]})
+    if 'narrative state extractor' in text:
+        return json.dumps({'states':[]})
     if 'expert fantasy novel analyst' in text:
         source=text.split('Text to analyze:\n\n',1)[1]
         names=[('Mai Linh','PER'),('Duy','PER'),('Cồn Vân','LOC')]
