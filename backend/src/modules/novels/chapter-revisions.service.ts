@@ -224,20 +224,26 @@ async function acceptDraftUnderLease(
 
   // 1. Server-Side Trust Contract: fetch validated generation job from AI service
   let generation: {
-    generation_id: string;
     job_id: string;
+    novel_id: string;
+    chapter_id: string;
     revision_id: string;
     content_hash: string;
-    patch: { start: number; end: number; replacement: string };
+    tenant_id?: string;
+    actor_id?: string | null;
+    status: string;
+    validation_status: string;
+    patch: { start: number; end: number; replacement: string } | null;
     brain_version_used?: number | null;
     idempotency_key?: string | null;
   };
 
   try {
     const aiRes = await fetch(
-      `${env.AI_SERVICE_URL}/v1/writing-generations/${input.generationId}`,
+      `${env.AI_SERVICE_URL}/internal/v1/writing/generations/${input.generationId}`,
       {
         headers: {
+          'Authorization': `Bearer ${env.PLATFORM_SERVICE_TOKEN ?? ''}`,
           'x-service-token': env.PLATFORM_SERVICE_TOKEN ?? '',
           'x-user-id': auth.userId,
           'x-tenant-id': auth.userId
@@ -267,29 +273,82 @@ async function acceptDraftUnderLease(
     );
   }
 
+  // 1a. Contract validation: verify ownership, tenant/actor bounds, completion and patch integrity
+  if (generation.job_id !== input.generationId) {
+    throw new AppError(400, 'GENERATION_MISMATCH', 'Generation ID mismatch between response and request');
+  }
+  if (generation.novel_id !== chapter.novelId) {
+    throw new AppError(400, 'NOVEL_MISMATCH', 'Generation belongs to a different novel');
+  }
+  if (generation.chapter_id !== chapterId) {
+    throw new AppError(400, 'CHAPTER_MISMATCH', 'Generation belongs to a different chapter');
+  }
+  const SYSTEM_TENANT_ID = '00000000-0000-0000-0000-000000000001';
+  if (
+    generation.tenant_id &&
+    generation.tenant_id !== auth.userId &&
+    generation.tenant_id !== SYSTEM_TENANT_ID
+  ) {
+    throw new AppError(403, 'FORBIDDEN', 'Generation tenant does not match authenticated user or platform tenant');
+  }
+  if (generation.actor_id && generation.actor_id !== auth.userId) {
+    throw new AppError(403, 'FORBIDDEN', 'Generation actor does not match authenticated user');
+  }
+  if (generation.status !== 'completed') {
+    throw new AppError(409, 'GENERATION_NOT_COMPLETED', `AI generation is not completed (status: ${generation.status})`);
+  }
+  if (generation.validation_status !== 'passed') {
+    throw new AppError(
+      422,
+      'GENERATION_VALIDATION_FAILED',
+      `AI generation validation status is '${generation.validation_status}', cannot accept unvalidated draft`
+    );
+  }
+  if (
+    !generation.patch ||
+    typeof generation.patch.start !== 'number' ||
+    typeof generation.patch.end !== 'number' ||
+    typeof generation.patch.replacement !== 'string' ||
+    generation.patch.start < 0 ||
+    generation.patch.end < generation.patch.start
+  ) {
+    throw new AppError(422, 'INVALID_PATCH', 'AI generation contains an invalid or missing patch');
+  }
+  const patch = generation.patch;
+
   // Guard: Story Brain version drift
   if (generation.brain_version_used !== undefined && generation.brain_version_used !== null) {
     try {
       const brainRes = await fetch(
-        `${env.AI_SERVICE_URL}/v1/story-brains/${chapter.novelId}`,
+        `${env.AI_SERVICE_URL}/v1/story-brains/by-novel/${chapter.novelId}`,
         {
           headers: {
+            'Authorization': `Bearer ${env.PLATFORM_SERVICE_TOKEN ?? ''}`,
             'x-service-token': env.PLATFORM_SERVICE_TOKEN ?? '',
             'x-user-id': auth.userId,
             'x-tenant-id': auth.userId
           }
         }
       );
-      if (brainRes.ok) {
-        const brainData: any = await brainRes.json();
-        const currentVersion = brainData.data?.current_version ?? brainData.current_version;
-        if (currentVersion !== undefined && currentVersion > generation.brain_version_used) {
-          throw new AppError(
-            409,
-            'BRAIN_VERSION_CONFLICT',
-            `Story Brain has advanced to version ${currentVersion} since draft was generated (version ${generation.brain_version_used}). Please review or regenerate.`
-          );
-        }
+      if (brainRes.status === 404) {
+        throw new AppError(404, 'STORY_BRAIN_NOT_FOUND', `Story Brain not found for novel ${chapter.novelId}`);
+      }
+      if (!brainRes.ok) {
+        throw new AppError(
+          502,
+          'AI_SERVICE_ERROR',
+          `AI service returned status ${brainRes.status} while fetching story brain summary`
+        );
+      }
+      const brainPayload: any = await brainRes.json();
+      const brainData = brainPayload.data ?? brainPayload;
+      const currentVersion = Number(brainData.brain_version ?? brainData.current_version ?? 1);
+      if (currentVersion > generation.brain_version_used) {
+        throw new AppError(
+          409,
+          'BRAIN_VERSION_CONFLICT',
+          `Story Brain has advanced to version ${currentVersion} since draft was generated (version ${generation.brain_version_used}). Please review or regenerate.`
+        );
       }
     } catch (err: any) {
       if (err instanceof AppError) throw err;
@@ -323,8 +382,8 @@ async function acceptDraftUnderLease(
       ? await findRevisionById(client, generation.revision_id)
       : await findLatestRevisionByChapterId(client, chapterId);
 
-    if (!baseRevision) {
-      throw new AppError(404, 'BASE_REVISION_NOT_FOUND', 'Base revision for generation not found');
+    if (!baseRevision || baseRevision.chapterId !== chapterId) {
+      throw new AppError(404, 'BASE_REVISION_NOT_FOUND', 'Base revision for generation not found or does not belong to chapter');
     }
 
     // 2c. Stale base revision check: Ensure the base revision is still the current latest revision
@@ -345,7 +404,7 @@ async function acceptDraftUnderLease(
       );
     }
 
-    const newContent = applyPatchToContent(baseRevision.content, generation.patch);
+    const newContent = applyPatchToContent(baseRevision.content, patch);
     const newContentHash = sha256(newContent);
     const newWordCount = countWords(newContent);
 

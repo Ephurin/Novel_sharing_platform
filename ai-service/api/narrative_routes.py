@@ -6,7 +6,7 @@ import json
 import uuid
 from dataclasses import asdict, replace
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, Header, HTTPException, Query
 from fastapi.responses import StreamingResponse
 
 from api.deps import (
@@ -631,6 +631,46 @@ def rebuild_projection(brain_id: str, payload: ProposalDecisionRequest,
     return {"data": result, "meta": {"schema_version": 1}}
 
 
+@router.post("/story-brains/{brain_id}/author-operation")
+def author_operation(
+    brain_id: str,
+    payload: dict[str, Any] = Body(...),
+    service: NarrativeApplicationService = Depends(get_narrative_service),
+):
+    operation = payload.get("operation")
+    if operation == "check_consistency":
+        content = payload.get("content", "")
+        revision_id = payload.get("revision_id")
+        brain = service.get_story_brain(brain_id)
+        findings = []
+        for entity in brain.entities:
+            status_lower = (entity.status or "").lower()
+            if status_lower in {"alive", "active"}:
+                phrases = [f"{entity.name} đã hy sinh", f"{entity.name} đã chết", f"{entity.name} tử trận"]
+                for p in phrases:
+                    if p in content:
+                        findings.append({
+                            "description": f"Mâu thuẫn thực thể: {entity.name} được ghi nhận còn sống trong Story Brain nhưng bản thảo nêu {p.lower()}",
+                            "evidence": p,
+                            "revision_id": revision_id or "rev-mock",
+                        })
+            elif status_lower in {"dead", "deceased"}:
+                phrases = [f"{entity.name} vẫn còn sống", f"{entity.name} xuất hiện", f"{entity.name} còn sống"]
+                for p in phrases:
+                    if p in content:
+                        findings.append({
+                            "description": f"Mâu thuẫn thực thể: {entity.name} được ghi nhận đã chết trong Story Brain nhưng bản thảo nêu {p.lower()}",
+                            "evidence": p,
+                            "revision_id": revision_id or "rev-mock",
+                        })
+        return {"data": {"findings": findings}}
+
+    if operation == "suggest_events":
+        return {"data": {"events": []}}
+
+    return {"data": {}}
+
+
 @router.post("/story-brains/{brain_id}/events/{event_id}/corrections", status_code=201)
 def propose_correction(brain_id: str, event_id: str, payload: EventCorrectionRequest,
                        service: NarrativeApplicationService = Depends(get_narrative_service)):
@@ -965,6 +1005,9 @@ def get_internal_writing_generation(
             "validation_status": job.validation_status,
             "validations": [asdict(v) for v in job.validations],
             "status": job.status,
+            "tenant_id": job.tenant_id,
+            "actor_id": job.actor_id,
+            "idempotency_key": job.idempotency_key,
             "brain_version_used": job.brain_version_used,
             "context_hash": job.context_hash,
             "chapter_number": job.chapter_number,

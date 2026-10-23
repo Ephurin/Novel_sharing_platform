@@ -190,6 +190,8 @@ test('Real AuthorWritingIde: editor typing, autosave, S10 consistency checking &
     const origin = 'http://127.0.0.1:' + server.address().port;
     await page.goto(origin);
 
+    const chapterId = config.accounts[0].chapterIds[0];
+
     // 1. Verify Real AuthorWritingIde Initial State
     const textarea = page.locator('textarea.sc-manuscript');
     await textarea.waitFor({ timeout: 15000 });
@@ -206,7 +208,25 @@ test('Real AuthorWritingIde: editor typing, autosave, S10 consistency checking &
     // Capture initial IDE screenshot
     await page.screenshot({ path: fileURLToPath(new URL('author-ide-initial.png', evidenceDir)) });
 
-    // 2. S10: Contradictory Detail Injection & Detection
+    // 1b. Rapid Undo B -> A -> B before debounce: zero unintended PATCH (<1200ms)
+    let patchCount = 0;
+    const patchListener = req => {
+      if (req.method() === 'PATCH') patchCount++;
+    };
+    page.on('request', patchListener);
+
+    await textarea.focus();
+    await textarea.press('ControlOrMeta+A');
+    await textarea.press('A');
+    await textarea.press('ControlOrMeta+Z');
+    assert.equal(await textarea.inputValue(), 'B');
+    await page.waitForTimeout(1400);
+    assert.equal(patchCount, 0, 'Zero PATCH requests dispatched for rapid Undo B->A->B');
+    page.off('request', patchListener);
+    const rbInitial = await readback(chapterId);
+    assert.equal(rbInitial.draft.content, 'B');
+
+    // 2. S10: Contradictory Detail Injection & Detection (MOCKED_UI_PASS)
     const contradictionText = 'Bản thảo mới: Trần Vân đã hy sinh tại đại chiến năm xưa, để lại bí tịch thất truyền.';
     await textarea.focus();
     await textarea.fill(contradictionText);
@@ -257,9 +277,7 @@ test('Real AuthorWritingIde: editor typing, autosave, S10 consistency checking &
     // Capture S10 clean remediation screenshot
     await page.screenshot({ path: fileURLToPath(new URL('s10-consistency-clean.png', evidenceDir)) });
 
-    // 4. S11: Reload, Continue Writing & Memory Continuity
-    const chapterId = config.accounts[0].chapterIds[0];
-
+    // 4. S11: Real Browser Reload, Remount & Writing Continuity
     // Verify chapter remains in DRAFT status on backend
     const chapterRes = await fetch(config.base + '/chapters/' + chapterId, {
       headers: { Authorization: 'Bearer ' + config.accounts[0].token }
@@ -267,19 +285,24 @@ test('Real AuthorWritingIde: editor typing, autosave, S10 consistency checking &
     const chapterData = (await chapterRes.json()).data;
     assert.equal(chapterData.status, 'DRAFT', 'Chapter status must remain DRAFT');
 
-    // Trigger page remount / reload
+    // S11a: Real browser reload (page.reload())
+    await page.reload();
+    const reloadedAfterRealReload = page.locator('textarea.sc-manuscript');
+    await reloadedAfterRealReload.waitFor({ timeout: 15000 });
+    await page.waitForFunction(
+      expected => document.querySelector('textarea.sc-manuscript')?.value === expected,
+      remediatedText,
+      { timeout: 10000 }
+    );
+
+    // S11b: Route remount (window.remount())
     await page.evaluate(() => window.remount());
 
     // Wait for reloaded IDE editor
     const reloadedTextarea = page.locator('textarea.sc-manuscript');
     await reloadedTextarea.waitFor({ timeout: 15000 });
 
-    // Log actual value and backend readback
-    const actualVal = await page.evaluate(() => document.querySelector('textarea.sc-manuscript')?.value);
-    const rbPre = await readback(chapterId);
-    console.log('REMOUNT CHECK:', { actualVal, rbDraftContent: rbPre.draft?.content });
-
-    // Verify remediated content persisted across reload
+    // Verify remediated content persisted across reload and remount
     await page.waitForFunction(
       expected => document.querySelector('textarea.sc-manuscript')?.value === expected,
       remediatedText,
@@ -304,7 +327,78 @@ test('Real AuthorWritingIde: editor typing, autosave, S10 consistency checking &
     });
     assert.equal((await chapterResAfter.json()).data.status, 'DRAFT', 'Chapter status must strictly stay DRAFT');
 
-    // Test Story Bible modal continuity
+    // 5. In-flight A -> B Serialization Check
+    let releaseFlight, flightStarted;
+    const startedPromise = new Promise(resolve => flightStarted = resolve);
+    const holdPromise = new Promise(resolve => releaseFlight = resolve);
+    await page.route(config.base + '/chapters/' + chapterId, async route => {
+      if (route.request().method() === 'PATCH') {
+        const postData = route.request().postDataJSON();
+        if (postData?.content === 'in-flight A prose') {
+          flightStarted();
+          await holdPromise;
+        }
+      }
+      return route.fallback();
+    });
+
+    await reloadedTextarea.focus();
+    await reloadedTextarea.fill('in-flight A prose');
+    await startedPromise;
+    await reloadedTextarea.fill('in-flight B prose final');
+    releaseFlight();
+    await page.waitForTimeout(1500);
+    await page.getByText(/Đã lưu/i).first().waitFor({ timeout: 10000 });
+    const rbFlight = await readback(chapterId);
+    assert.equal(rbFlight.draft.content, 'in-flight B prose final', 'In-flight B must win over in-flight A');
+
+    // 6. Two-tab 409 Conflict Recovery & Authoritative Readback
+    const currentVersion = rbFlight.draft.version;
+    const remoteWinner = await fetch(config.base + '/chapters/' + chapterId, {
+      method: 'PATCH',
+      headers: {
+        Authorization: 'Bearer ' + config.accounts[0].token,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        content: 'Remote second-tab winner prose',
+        expectedVersion: currentVersion
+      })
+    });
+    assert.equal(remoteWinner.status, 200);
+
+    // Local tab types conflict edit
+    await reloadedTextarea.focus();
+    await reloadedTextarea.fill('Local conflict edit prose');
+    await page.waitForTimeout(1500);
+
+    // Server authoritative readback confirms remote winner is intact in DB
+    const rbAuthoritative = await readback(chapterId);
+    assert.equal(rbAuthoritative.draft.content, 'Remote second-tab winner prose');
+
+    // Local recovery copy is preserved in localStorage
+    const localSaved = await page.evaluate(
+      ([userId, chId]) => localStorage.getItem(`storycraft-draft:${userId}:${chId}`),
+      [config.accounts[0].userId, chapterId]
+    );
+    assert.ok(localSaved, 'Local conflict buffer retained in localStorage');
+
+    // 7. Active Story Brain Snapshot & Revision/Outbox Readback
+    const snapshotRes = await fetch(config.base + '/chapters/' + chapterId + '/revisions/snapshot', {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer ' + config.accounts[0].token,
+        'Content-Type': 'application/json'
+      },
+      body: '{}'
+    });
+    assert.equal(snapshotRes.status, 201);
+    const snapData = (await snapshotRes.json()).data;
+    const finalRb = await readback(chapterId);
+    assert.equal(finalRb.revisions.at(-1).content_hash, snapData.contentHash);
+    assert.ok(finalRb.outbox.length > 0, 'Outbox event created for snapshot revision');
+
+    // 8. Test Story Bible modal continuity
     const bibleBtn = page.getByTitle('Cẩm nang thế giới truyện (Story Bible)');
     await bibleBtn.click();
     await page.getByText('Cẩm Nang Thế Giới (Story Bible)').waitFor({ timeout: 10000 });

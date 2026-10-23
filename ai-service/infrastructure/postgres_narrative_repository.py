@@ -1977,6 +1977,7 @@ class PostgresNarrativeRepository:
                 objective_type=o.objective_type,
                 status=o.status,
                 metadata=dict(o.objective_metadata or {}),
+                intent_version=getattr(o, "intent_version", 0) or 0,
             )
             for o in sorted_objs
         )
@@ -2184,6 +2185,7 @@ class PostgresNarrativeRepository:
                 objective_type=obj.objective_type,
                 status=obj.status,
                 metadata=dict(obj.objective_metadata or {}),
+                intent_version=getattr(obj, "intent_version", 0) or 0,
             )
 
     @staticmethod
