@@ -1,0 +1,363 @@
+[
+  {
+    "test": "01_save_revision_outbox_hash",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+    "details": null
+  },
+  {
+    "test": "02_save_pending_proposals",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+    "details": [
+      {
+        "id": "ac14a792-82b4-5cb2-88d1-509f2ea62cde",
+        "analysis_run_id": "a925e433-f315-497c-bdd4-48a48c7c8b9e",
+        "story_brain_id": "223ce4e5-fbc7-4633-a5b7-f04182421823",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "fced8936-6789-4aa9-be93-2e3dbe6d9673",
+        "dependency_group_id": "216e2fbc-b55e-552a-8b42-d301a73e5082",
+        "materialization_order": 0,
+        "proposal_type": "entity",
+        "payload": {
+          "entity_type": "PER",
+          "canonical_name": "Mai Linh",
+          "normalized_name": "mai linh"
+        },
+        "evidence": [
+          {
+            "end": 8,
+            "start": 0,
+            "text_hash": "66925182d2caf99e0e79346978d725ccae7527bfc5dcd6e458d4dd58ef8b2ef1",
+            "revision_id": "ccd89432-05fc-456b-9e74-99e0479d5524"
+          }
+        ],
+        "confidence": 9.0,
+        "status": "pending",
+        "expected_brain_version": 2,
+        "decision_reason": null,
+        "created_at": "2026-10-23T06:28:36.80467+00:00",
+        "updated_at": "2026-10-23T06:28:36.80467+00:00"
+      },
+      {
+        "id": "135bc9ec-6043-57ec-b394-83c75d1f9603",
+        "analysis_run_id": "a925e433-f315-497c-bdd4-48a48c7c8b9e",
+        "story_brain_id": "223ce4e5-fbc7-4633-a5b7-f04182421823",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "fced8936-6789-4aa9-be93-2e3dbe6d9673",
+        "dependency_group_id": "216e2fbc-b55e-552a-8b42-d301a73e5082",
+        "materialization_order": 1,
+        "proposal_type": "entity",
+        "payload": {
+          "entity_type": "PER",
+          "canonical_name": "Duy",
+          "normalized_name": "duy"
+        },
+        "evidence": [
+          {
+            "end": 39,
+            "start": 36,
+            "text_hash": "66925182d2caf99e0e79346978d725ccae7527bfc5dcd6e458d4dd58ef8b2ef1",
+            "revision_id": "ccd89432-05fc-456b-9e74-99e0479d5524"
+          }
+        ],
+        "confidence": 9.0,
+        "status": "pending",
+        "expected_brain_version": 2,
+        "decision_reason": null,
+        "created_at": "2026-10-23T06:28:36.80467+00:00",
+        "updated_at": "2026-10-23T06:28:36.80467+00:00"
+      },
+      {
+        "id": "7553bffa-532a-59b1-a8fe-503b960a12f8",
+        "analysis_run_id": "a925e433-f315-497c-bdd4-48a48c7c8b9e",
+        "story_brain_id": "223ce4e5-fbc7-4633-a5b7-f04182421823",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "fced8936-6789-4aa9-be93-2e3dbe6d9673",
+        "dependency_group_id": "216e2fbc-b55e-552a-8b42-d301a73e5082",
+        "materialization_order": 2,
+        "proposal_type": "entity",
+        "payload": {
+          "entity_type": "LOC",
+          "canonical_name": "Cồn Vân",
+          "normalized_name": "cồn vân"
+        },
+        "evidence": [
+          {
+            "end": 56,
+            "start": 49,
+            "text_hash": "66925182d2caf99e0e79346978d725ccae7527bfc5dcd6e458d4dd58ef8b2ef1",
+            "revision_id": "ccd89432-05fc-456b-9e74-99e0479d5524"
+          }
+        ],
+        "confidence": 9.0,
+        "status": "pending",
+        "expected_brain_version": 2,
+        "decision_reason": null,
+        "created_at": "2026-10-23T06:28:36.80467+00:00",
+        "updated_at": "2026-10-23T06:28:36.80467+00:00"
+      },
+      {
+        "id": "2b3d2cf5-0b7e-5fda-935c-8a1de20bf71b",
+        "analysis_run_id": "a925e433-f315-497c-bdd4-48a48c7c8b9e",
+        "story_brain_id": "223ce4e5-fbc7-4633-a5b7-f04182421823",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "fced8936-6789-4aa9-be93-2e3dbe6d9673",
+        "dependency_group_id": "216e2fbc-b55e-552a-8b42-d301a73e5082",
+        "materialization_order": 3,
+        "proposal_type": "event",
+        "payload": {
+          "chapter": 1,
+          "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng tại Cồn Vân.",
+          "locations": [
+            "Cồn Vân"
+          ],
+          "event_type": "observation",
+          "consequences": [],
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "chapter_number": 1
+        },
+        "evidence": [
+          {
+            "end": 57,
+            "start": 0,
+            "text_hash": "66925182d2caf99e0e79346978d725ccae7527bfc5dcd6e458d4dd58ef8b2ef1",
+            "chapter_id": "cf47672e-6750-4ccd-b10a-3c710255bb35",
+            "revision_id": "ccd89432-05fc-456b-9e74-99e0479d5524",
+            "chapter_number": 1
+          }
+        ],
+        "confidence": 0.5,
+        "status": "pending",
+        "expected_brain_version": 2,
+        "decision_reason": null,
+        "created_at": "2026-10-23T06:28:36.80467+00:00",
+        "updated_at": "2026-10-23T06:28:36.80467+00:00"
+      }
+    ]
+  },
+  {
+    "test": "03_save_canon_unchanged",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+    "details": {
+      "before": 2,
+      "after": 2
+    }
+  },
+  {
+    "test": "07_duplicate_outbox_no_proposals_or_approval",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+    "details": null
+  },
+  {
+    "test": "09_wrong_owner_denied",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+    "details": null
+  },
+  {
+    "test": "10_stale_brain_version_conflict",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+    "details": null
+  },
+  {
+    "test": "04_author_accept_exactly_once",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+    "details": {
+      "proposal_ids": [
+        "ac14a792-82b4-5cb2-88d1-509f2ea62cde",
+        "135bc9ec-6043-57ec-b394-83c75d1f9603",
+        "7553bffa-532a-59b1-a8fe-503b960a12f8",
+        "2b3d2cf5-0b7e-5fda-935c-8a1de20bf71b"
+      ],
+      "canonical_artifact_ids": [
+        "4922b1b6-9444-4156-a77a-5cc79d6d6c74",
+        "0fbfdcca-a0c7-485e-aabf-cf46f13fed39",
+        "b48e8fe4-4259-4055-a3cb-72427ca16b69",
+        "2b3d2cf5-0b7e-5fda-935c-8a1de20bf71b"
+      ],
+      "brain_version": 3,
+      "status": "accepted"
+    }
+  },
+  {
+    "test": "02b_accept_pending_proposals",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+    "details": [
+      {
+        "id": "199c4612-f1ca-5567-a49d-29ecea56d3a2",
+        "analysis_run_id": "902ea0c1-48c1-4060-b58e-40985be9f7f0",
+        "story_brain_id": "223ce4e5-fbc7-4633-a5b7-f04182421823",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "fced8936-6789-4aa9-be93-2e3dbe6d9673",
+        "dependency_group_id": "248b4224-d680-5711-84de-cd107f58adb0",
+        "materialization_order": 0,
+        "proposal_type": "entity",
+        "payload": {
+          "entity_type": "PER",
+          "canonical_name": "Mai Linh",
+          "normalized_name": "mai linh"
+        },
+        "evidence": [
+          {
+            "end": 8,
+            "start": 0,
+            "text_hash": "011b399773afc1ac9f4e2e894faae8ee9fd52d32cab2a7e683eee9bae84f42a3",
+            "revision_id": "b666d3b9-c813-4d0d-b9ec-9719a1aac010"
+          }
+        ],
+        "confidence": 9.0,
+        "status": "pending",
+        "expected_brain_version": 3,
+        "decision_reason": null,
+        "created_at": "2026-10-23T06:29:19.381443+00:00",
+        "updated_at": "2026-10-23T06:29:19.381443+00:00"
+      },
+      {
+        "id": "1d6820bd-2e1d-52dd-ba17-5d9b4a4d58a3",
+        "analysis_run_id": "902ea0c1-48c1-4060-b58e-40985be9f7f0",
+        "story_brain_id": "223ce4e5-fbc7-4633-a5b7-f04182421823",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "fced8936-6789-4aa9-be93-2e3dbe6d9673",
+        "dependency_group_id": "248b4224-d680-5711-84de-cd107f58adb0",
+        "materialization_order": 1,
+        "proposal_type": "entity",
+        "payload": {
+          "entity_type": "PER",
+          "canonical_name": "Duy",
+          "normalized_name": "duy"
+        },
+        "evidence": [
+          {
+            "end": 65,
+            "start": 62,
+            "text_hash": "011b399773afc1ac9f4e2e894faae8ee9fd52d32cab2a7e683eee9bae84f42a3",
+            "revision_id": "b666d3b9-c813-4d0d-b9ec-9719a1aac010"
+          }
+        ],
+        "confidence": 9.0,
+        "status": "pending",
+        "expected_brain_version": 3,
+        "decision_reason": null,
+        "created_at": "2026-10-23T06:29:19.381443+00:00",
+        "updated_at": "2026-10-23T06:29:19.381443+00:00"
+      },
+      {
+        "id": "9a16b329-ca70-54dc-9343-e9192f878a63",
+        "analysis_run_id": "902ea0c1-48c1-4060-b58e-40985be9f7f0",
+        "story_brain_id": "223ce4e5-fbc7-4633-a5b7-f04182421823",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "fced8936-6789-4aa9-be93-2e3dbe6d9673",
+        "dependency_group_id": "248b4224-d680-5711-84de-cd107f58adb0",
+        "materialization_order": 2,
+        "proposal_type": "entity",
+        "payload": {
+          "entity_type": "LOC",
+          "canonical_name": "Cồn Vân",
+          "normalized_name": "cồn vân"
+        },
+        "evidence": [
+          {
+            "end": 95,
+            "start": 88,
+            "text_hash": "011b399773afc1ac9f4e2e894faae8ee9fd52d32cab2a7e683eee9bae84f42a3",
+            "revision_id": "b666d3b9-c813-4d0d-b9ec-9719a1aac010"
+          }
+        ],
+        "confidence": 9.0,
+        "status": "pending",
+        "expected_brain_version": 3,
+        "decision_reason": null,
+        "created_at": "2026-10-23T06:29:19.381443+00:00",
+        "updated_at": "2026-10-23T06:29:19.381443+00:00"
+      },
+      {
+        "id": "e9e54b82-ba82-5e4e-a715-0e418ec34af5",
+        "analysis_run_id": "902ea0c1-48c1-4060-b58e-40985be9f7f0",
+        "story_brain_id": "223ce4e5-fbc7-4633-a5b7-f04182421823",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "fced8936-6789-4aa9-be93-2e3dbe6d9673",
+        "dependency_group_id": "248b4224-d680-5711-84de-cd107f58adb0",
+        "materialization_order": 3,
+        "proposal_type": "event",
+        "payload": {
+          "chapter": 1,
+          "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+          "locations": [
+            "Cồn Vân"
+          ],
+          "event_type": "observation",
+          "consequences": [],
+          "participants": [
+            "Mai Linh",
+            "Duy"
+          ],
+          "chapter_number": 1
+        },
+        "evidence": [
+          {
+            "end": 153,
+            "start": 0,
+            "text_hash": "011b399773afc1ac9f4e2e894faae8ee9fd52d32cab2a7e683eee9bae84f42a3",
+            "chapter_id": "cf47672e-6750-4ccd-b10a-3c710255bb35",
+            "revision_id": "b666d3b9-c813-4d0d-b9ec-9719a1aac010",
+            "chapter_number": 1
+          }
+        ],
+        "confidence": 0.5,
+        "status": "pending",
+        "expected_brain_version": 3,
+        "decision_reason": null,
+        "created_at": "2026-10-23T06:29:19.381443+00:00",
+        "updated_at": "2026-10-23T06:29:19.381443+00:00"
+      }
+    ]
+  },
+  {
+    "test": "03b_accept_canon_unchanged",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+    "details": {
+      "before": 3,
+      "after": 3
+    }
+  },
+  {
+    "test": "13_accepted_generation_replay",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+    "details": null
+  },
+  {
+    "test": "05_reject_no_canon",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+    "details": null
+  },
+  {
+    "test": "06_edit_accept_reviewed_content",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+    "details": null
+  },
+  {
+    "test": "08_interrupted_extraction_retry_review_preserved",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+    "details": null
+  },
+  {
+    "test": "14_internal_authorization_real_http",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+    "details": null
+  }
+]

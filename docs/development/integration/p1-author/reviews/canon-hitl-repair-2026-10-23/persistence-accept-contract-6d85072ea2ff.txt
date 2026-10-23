@@ -1,0 +1,27 @@
+▶ Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)
+  ✔ calls authenticated /internal/v1/writing/generations/{id} route with service token and headers (93.5849ms)
+[OutboxProcessor] Event 54b4fbb7-ecb9-41f9-a01d-16589b9779a8 (INCREMENTAL_ANALYSIS) failed (attempt 1): res.text is not a function
+  ✔ rejects with 400 NOVEL_MISMATCH if generation novel does not match chapter novel (20.262ms)
+  ✔ rejects with 400 CHAPTER_MISMATCH if generation chapter does not match target chapter (8.5381ms)
+  ✔ rejects with 403 FORBIDDEN if generation belongs to another tenant or actor (5.2806ms)
+  ✔ rejects with 409 GENERATION_NOT_COMPLETED if generation status is not completed (5.8952ms)
+  ✔ rejects with 422 GENERATION_VALIDATION_FAILED if validation_status is not passed (5.66ms)
+  ✔ rejects with 422 INVALID_PATCH if patch structure is missing or malformed (6.4156ms)
+  ✔ rejects with 409 BRAIN_VERSION_CONFLICT if current Story Brain has advanced beyond generation brain_version_used (10.7621ms)
+  ✔ rejects with 404 STORY_BRAIN_NOT_FOUND if Story Brain route returns 404 when brain is required (6.8768ms)
+  ✔ rejects with 409 OBJECTIVE_INTENT_REQUIRED if P3 controller idempotency_key is malformed (9.5638ms)
+  ✔ rejects with 409 OBJECTIVE_INTENT_SUPERSEDED if P3 controller intent changed or plan missing (11.5542ms)
+  ✔ rejects with 404 BASE_REVISION_NOT_FOUND if base revision does not belong to chapter (8.8251ms)
+  ✔ rejects with 409 STALE_BASE_REVISION if base revision is no longer current latest revision (9.7027ms)
+{"level":30,"time":1792736694944,"pid":12396,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+  ✔ rejects with 409 CONTENT_HASH_MISMATCH if base revision content hash does not match generation (9.6327ms)
+✔ Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening) (305.6483ms)
+{"level":30,"time":1792736694947,"pid":12396,"hostname":"Ephurin","msg":"MongoDB connection closed"}
+ℹ tests 14
+ℹ suites 1
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1608.8803

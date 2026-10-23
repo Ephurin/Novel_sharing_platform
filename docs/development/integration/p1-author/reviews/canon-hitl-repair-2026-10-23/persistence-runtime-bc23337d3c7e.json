@@ -1,0 +1,89 @@
+{
+  "resources": [
+    {
+      "container": "canon-gate-bc23337d3c7e-pg",
+      "volume": "canon-gate-bc23337d3c7e-pg-data",
+      "image": "pgvector/pgvector:pg16"
+    },
+    {
+      "container": "canon-gate-bc23337d3c7e-mongo",
+      "volume": "canon-gate-bc23337d3c7e-mongo-data",
+      "image": "mongo:7"
+    }
+  ],
+  "database": "ephurin_test_d1d2_bc23337d3c7e",
+  "commands": [
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "src/core/database/migrate.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "alembic",
+        "upgrade",
+        "head"
+      ],
+      "cwd": "ai-service",
+      "exit_code": 0,
+      "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/mongo-reconciliation.live.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/accept-draft-contract.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/outbox.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/p1-production-persistence.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441"
+    }
+  ],
+  "retained": true
+}

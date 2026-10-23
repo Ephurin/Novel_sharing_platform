@@ -1,0 +1,76 @@
+[
+  {
+    "name": "backend-unit",
+    "command": [
+      "node",
+      "--import",
+      "tsx",
+      "--test",
+      "src/modules/novels/chapter-revisions.test.ts",
+      "src/modules/novels/outbox.test.ts",
+      "src/modules/novels/controller-intent.test.ts",
+      "src/modules/novels/internal-revision-authorization.test.ts",
+      "src/modules/novels/draft-read-authorization.test.ts",
+      "src/jobs/outbox-processor.test.ts",
+      "src/modules/ai/ai-gateway.test.ts",
+      "src/modules/ai/autonomous-controller.test.ts",
+      "src/core/database/test-db-guard.test.ts"
+    ],
+    "cwd": "backend",
+    "exit_code": 0,
+    "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441",
+    "tracked_source_clean": true
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "node",
+      "node_modules/typescript/bin/tsc",
+      "--noEmit",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "backend",
+    "exit_code": 0,
+    "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441",
+    "tracked_source_clean": true
+  },
+  {
+    "name": "build",
+    "command": [
+      "node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "backend",
+    "exit_code": 0,
+    "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441",
+    "tracked_source_clean": true
+  },
+  {
+    "name": "AI-unit",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "--basetemp",
+      "C:\\Users\\thaib\\AppData\\Local\\Temp\\d1d2-pytest-2892c9c187284601a48523932449b0e8",
+      "tests/test_revision_content_provider.py",
+      "tests/test_revision_analysis_workflow.py",
+      "tests/test_revision_analysis_routes.py",
+      "tests/test_manuscript_bootstrap.py",
+      "tests/test_manuscript_bootstrap_routes.py",
+      "tests/test_writing_validation_golden.py",
+      "tests/test_narrative_application_service.py",
+      "tests/test_narrative_repository_contract.py",
+      "tests/test_narrative_route_compatibility.py",
+      "tests/test_autonomous_routes.py"
+    ],
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441",
+    "tracked_source_clean": true
+  }
+]

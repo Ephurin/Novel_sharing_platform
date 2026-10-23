@@ -1,0 +1,70 @@
+▶ Test Database Isolation Guard Rules (Negative and Positive Contract)
+  ✔ Rule 1: Missing external opt-in (EPHURIN_ALLOW_TEST_DB_MUTATIONS != "1") fails closed (2.3102ms)
+  ✔ Rule 2: Ambient CI=true does NOT authorize mutations without opt-in (0.4433ms)
+  ✔ Rule 3: Ambient NODE_ENV=test does NOT authorize mutations without opt-in (0.3418ms)
+  ✔ Rule 4: Ambient npm lifecycle script does NOT authorize mutations without opt-in (0.4698ms)
+  ✔ Rule 5: Default PostgreSQL database "ephurin" is REJECTED even with opt-in (0.4508ms)
+  ✔ Rule 6: Production/system PostgreSQL databases (postgres, template0) are REJECTED even with opt-in (1.1026ms)
+  ✔ Rule 7: Default MongoDB database "ephurin" is REJECTED even with opt-in (0.4068ms)
+  ✔ Rule 8: System MongoDB databases (admin, config, local) are REJECTED even with opt-in (0.4746ms)
+  ✔ Rule 9: Expected test DB name mismatch is REJECTED (0.3535ms)
+  ✔ Rule 10: Approved isolated test database with opt-in PASSES (0.4561ms)
+  ✔ Rule 11: isAllowedTestDbName helper enforces positive pattern and rejects forbidden names (0.2929ms)
+✔ Test Database Isolation Guard Rules (Negative and Positive Contract) (10.1718ms)
+[OutboxProcessor] Event evt-1 (INCREMENTAL_ANALYSIS) failed (attempt 1): AI service returned HTTP 503: {}
+▶ P1 extraction-only outbox authorization boundary
+  ✔ successful extraction issues exactly one source-scoped request and no canon decision (19.9051ms)
+  ✔ duplicate delivery preserves extraction idempotency key and never invokes accept (0.714ms)
+  ✔ interrupted extraction fails explicitly, retry remains extraction-only (0.9072ms)
+  ✔ HTTP extraction failure is retryable without accessing pending canon (1.4587ms)
+  ✔ outbox COMPLETED means extraction delivered, not canon accepted (0.691ms)
+  ✔ failed extraction marks FAILED then successful retry completes using claim fences (1.3292ms)
+✔ P1 extraction-only outbox authorization boundary (26.4822ms)
+▶ Node.js AI Gateway Service (P6.5 Hardening)
+  ✔ AIGatewayService forwards headers with tenant, user, and service token (47.3759ms)
+  ✔ AIGatewayService builds query parameters correctly for context-preview (1.7693ms)
+  ✔ AIGatewayService propagates remote AI errors as AppError with correct status code (1.42ms)
+  ✔ AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE (0.6542ms)
+  ✔ assertNovelOwnership enforces author access control with 403 FORBIDDEN (0.7706ms)
+  ✔ Canonical chapter cutoff derivation from DB record overrides client cutoff (1.0769ms)
+  ✔ Cross-author proposal group resolution enforces 403 FORBIDDEN when novel belongs to another author (1.6486ms)
+  ✔ Cross-author single proposal resolution enforces 403 FORBIDDEN for reject and edit-and-accept (1.5253ms)
+  ✔ Cross-author story plan read enforces 403 FORBIDDEN when novel belongs to another author (1.0874ms)
+  ✔ Story Brain freshness check fails closed with 503 when AI service is unavailable (0.7034ms)
+✔ Node.js AI Gateway Service (P6.5 Hardening) (61.2228ms)
+▶ Autonomous Controller Gateway & Contract Tests
+  ✔ Cross-author autonomous run access enforces 403 FORBIDDEN (47.1604ms)
+  ✔ Single-writer conflict returns 409 ACTIVE_RUN_CONFLICT (1.1699ms)
+  ✔ Deterministic quality gate: strict fail-closed on brain freshness and non-empty patch (0.6015ms)
+  ✔ Scoped proposal acceptance: ignores unrelated pending proposals in review queue (0.3454ms)
+  ✔ Crash recovery: detects already-accepted revision and avoids duplicate acceptDraft (0.2165ms)
+  ✔ Intentional completion gate terminates on terminal objective or all objectives done (0.3141ms)
+✔ Autonomous Controller Gateway & Contract Tests (52.3361ms)
+▶ Chapter Revisions & Patch Application
+  ✔ applyPatchToContent correctly applies insertion at cursor (0.885ms)
+  ✔ applyPatchToContent correctly replaces selection range (0.1458ms)
+  ✔ applyPatchToContent handles unicode code points without splitting multi-byte characters (0.1241ms)
+  ✔ applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping) (0.7588ms)
+  ✔ applyPatchToContent allows valid boundary edge cases (0 to length) (0.138ms)
+✔ Chapter Revisions & Patch Application (3.3064ms)
+✔ controller identity parses full pinned intent and rejects legacy attempts (4.2729ms)
+✔ intent checks run, plan and objective under row locks and rejects ABA epoch (1.0549ms)
+{"level":30,"time":1792736658782,"pid":7640,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+✔ private read boundaries deny before Mongo; controllers require trusted actor (14.5941ms)
+{"level":30,"time":1792736658783,"pid":7640,"hostname":"Ephurin","msg":"MongoDB connection closed"}
+▶ Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+  ✔ Exponential backoff for outbox retries is bounded by 300s (1.2961ms)
+  ✔ Conditional MongoDB draft reconciliation preserves newer manual draft edits (0.4769ms)
+  ✔ Conditional MongoDB draft reconciliation creates new draft if not found (0.359ms)
+  ✔ Accept-time brain version conflict rejects stale generation (0.2652ms)
+  ✔ Outbox lease concurrency: active PROCESSING event cannot be claimed by concurrent worker (0.4094ms)
+  ✔ Outbox expired lease recovery: crashed worker event is reclaimed after timeout (0.4354ms)
+✔ Transactional Outbox & Dual-Write Resilience (P6.5 Hardening) (5.217ms)
+ℹ tests 47
+ℹ suites 6
+ℹ pass 47
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1293.3275

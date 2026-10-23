@@ -1,0 +1,141 @@
+INFO:     10.246.43.6:43782 - "POST /v1/story-brains/bootstrap/from-manuscript HTTP/1.1" 202 Accepted
+INFO:     10.246.43.6:43782 - "GET /v1/jobs/2da07567-b226-5355-b770-6d75c7a694e7 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:43782 - "GET /v1/jobs/2da07567-b226-5355-b770-6d75c7a694e7 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:43782 - "GET /v1/jobs/2da07567-b226-5355-b770-6d75c7a694e7 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:43782 - "GET /v1/jobs/2da07567-b226-5355-b770-6d75c7a694e7 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:58824 - "GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/review-queue HTTP/1.1" 200 OK
+INFO:     10.246.43.6:58824 - "GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:58824 - "GET /internal/v1/proposal-groups/19dc02f1-f7ac-521d-8770-ef366cb3ba20/novel HTTP/1.1" 200 OK
+INFO:     10.246.43.6:58824 - "GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/review-queue HTTP/1.1" 200 OK
+INFO:     10.246.43.6:58824 - "POST /v1/proposal-groups/19dc02f1-f7ac-521d-8770-ef366cb3ba20/accept HTTP/1.1" 200 OK
+INFO:     10.246.43.6:58824 - "GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/review-queue HTTP/1.1" 200 OK
+INFO:     10.246.43.6:58824 - "POST /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/baseline/activate HTTP/1.1" 200 OK
+INFO:     10.246.43.6:58838 - "GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/memory HTTP/1.1" 404 Not Found
+INFO:     10.246.43.6:58838 - "GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/entity-reviews HTTP/1.1" 404 Not Found
+INFO:     10.246.43.6:58838 - "GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/entity-candidate-audits/62ae3908-c528-4082-bf46-f66a4fa36c5a HTTP/1.1" 404 Not Found
+INFO:     10.246.43.6:58838 - "GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/entity-candidate-audits/3e9dc0ed-9d1e-4967-928e-713796b1c8f0 HTTP/1.1" 404 Not Found
+INFO:     10.246.43.6:58838 - "GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/context-preview?chapter_number=1 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:42442 - "GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:42442 - "POST /v1/revisions/ccd89432-05fc-456b-9e74-99e0479d5524/analyses HTTP/1.1" 202 Accepted
+INFO:     10.246.43.6:38654 - "GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:38658 - "POST /v1/revisions/ccd89432-05fc-456b-9e74-99e0479d5524/analyses HTTP/1.1" 202 Accepted
+INFO:     10.246.43.6:38662 - "GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:54628 - "GET /internal/v1/proposal-groups/216e2fbc-b55e-552a-8b42-d301a73e5082/novel HTTP/1.1" 200 OK
+INFO:     10.246.43.6:54634 - "GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:54634 - "GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:54634 - "GET /internal/v1/proposal-groups/216e2fbc-b55e-552a-8b42-d301a73e5082/novel HTTP/1.1" 200 OK
+INFO:     10.246.43.6:54634 - "GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/review-queue HTTP/1.1" 200 OK
+INFO:     10.246.43.6:54634 - "POST /v1/proposal-groups/216e2fbc-b55e-552a-8b42-d301a73e5082/accept HTTP/1.1" 409 Conflict
+INFO:     10.246.43.6:34656 - "GET /internal/v1/proposal-groups/216e2fbc-b55e-552a-8b42-d301a73e5082/novel HTTP/1.1" 200 OK
+INFO:     10.246.43.6:34656 - "GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/review-queue HTTP/1.1" 200 OK
+INFO:     10.246.43.6:34656 - "POST /v1/proposal-groups/216e2fbc-b55e-552a-8b42-d301a73e5082/accept HTTP/1.1" 200 OK
+INFO:     10.246.43.6:34656 - "GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:34656 - "GET /internal/v1/proposal-groups/216e2fbc-b55e-552a-8b42-d301a73e5082/novel HTTP/1.1" 200 OK
+INFO:     10.246.43.6:34656 - "GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/review-queue HTTP/1.1" 200 OK
+INFO:     10.246.43.6:34656 - "GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:54080 - "GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/review-queue HTTP/1.1" 200 OK
+INFO:     10.246.43.6:54082 - "GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:54082 - "GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:54082 - "POST /v1/writing/generations HTTP/1.1" 202 Accepted
+INFO:     10.246.43.6:54082 - "GET /v1/jobs/9f97c558-a5e2-5c47-b94c-d0787de755ff HTTP/1.1" 200 OK
+INFO:     10.246.43.6:54082 - "GET /v1/jobs/9f97c558-a5e2-5c47-b94c-d0787de755ff HTTP/1.1" 200 OK
+INFO:     10.246.43.6:54082 - "GET /internal/v1/writing/generations/9f97c558-a5e2-5c47-b94c-d0787de755ff HTTP/1.1" 200 OK
+INFO:     10.246.43.6:54092 - "GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:54082 - "POST /v1/revisions/b666d3b9-c813-4d0d-b9ec-9719a1aac010/analyses HTTP/1.1" 202 Accepted
+INFO:     10.246.43.6:43080 - "GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:45458 - "GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:45458 - "GET /internal/v1/proposals/199c4612-f1ca-5567-a49d-29ecea56d3a2/novel HTTP/1.1" 200 OK
+INFO:     10.246.43.6:45458 - "POST /v1/proposals/199c4612-f1ca-5567-a49d-29ecea56d3a2/reject HTTP/1.1" 200 OK
+INFO:     10.246.43.6:45458 - "GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:34028 - "GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 HTTP/1.1" 200 OK
+INFO:     10.246.43.6:34028 - "GET /internal/v1/proposals/e9e54b82-ba82-5e4e-a715-0e418ec34af5/novel HTTP/1.1" 200 OK
+INFO:     10.246.43.6:34028 - "GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/review-queue HTTP/1.1" 200 OK
+INFO:     10.246.43.6:34028 - "POST /v1/proposals/e9e54b82-ba82-5e4e-a715-0e418ec34af5/edit-and-accept HTTP/1.1" 200 OK
+INFO:     10.246.43.6:58780 - "POST /v1/revisions/b666d3b9-c813-4d0d-b9ec-9719a1aac010/analyses HTTP/1.1" 202 Accepted
+INFO:     10.246.43.6:58786 - "POST /v1/revisions/b666d3b9-c813-4d0d-b9ec-9719a1aac010/analyses HTTP/1.1" 202 Accepted
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001_narrative_foundation, Create Narrative Memory foundation tables.
+INFO  [alembic.runtime.migration] Running upgrade 0001_narrative_foundation -> 0002_state_projection, Add confirmed transitions, participants and rebuildable state projections.
+INFO  [alembic.runtime.migration] Running upgrade 0002_state_projection -> 0003_manuscript_bootstrap, Add durable manuscript bootstrap jobs.
+INFO  [alembic.runtime.migration] Running upgrade 0003_manuscript_bootstrap -> 0004_writing_generations, Add durable writing generations.
+INFO  [alembic.runtime.migration] Running upgrade 0004_writing_generations -> 0005_revision_provenance, Add revision provenance and fact chapter number.
+INFO  [alembic.runtime.migration] Running upgrade 0005_revision_provenance -> 0006_fix_revision_provenance, Fix revision provenance schema with revision_id and unique constraint.
+INFO  [alembic.runtime.migration] Running upgrade 0006_fix_revision_provenance -> 0007_semantic_memory_foundation, Add semantic-memory chunk and embedding storage.
+INFO  [alembic.runtime.migration] Running upgrade 0007_semantic_memory_foundation -> 0008_story_plans, Add story_plans and story_plan_objectives storage.
+INFO  [alembic.runtime.migration] Running upgrade 0008_story_plans -> 0009_autonomous_runs
+INFO  [alembic.runtime.migration] Running upgrade 0009_autonomous_runs -> 0010_fact_supersession, Keep fact revision history while projecting only the current source occurrence.
+INFO  [alembic.runtime.migration] Running upgrade 0010_fact_supersession -> 0011_entity_candidate_audit, Persist candidate decisions separately from approved narrative memory.
+INFO  [alembic.runtime.migration] Running upgrade 0011_entity_candidate_audit -> 0012_entity_guidance, Author extraction guidance, kept outside approved narrative memory.
+INFO  [alembic.runtime.migration] Running upgrade 0012_entity_guidance -> 0013_objective_intent, Monotone objective intent epoch for accept-commit fencing.
+INFO:     Started server process [8]
+INFO:     Waiting for application startup.
+2026-10-23 06:28:07,528 | INFO | ai-service | Starting AI service with pure-LLM entity pipeline.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2026-10-23 06:28:19,257 | INFO | ai-service | POST /v1/story-brains/bootstrap/from-manuscript -> 202 (205.97 ms)
+2026-10-23 06:28:19,283 | INFO | ai-service | GET /v1/jobs/2da07567-b226-5355-b770-6d75c7a694e7 -> 200 (8.25 ms)
+2026-10-23 06:28:19,725 | INFO | ai-service | GET /v1/jobs/2da07567-b226-5355-b770-6d75c7a694e7 -> 200 (16.89 ms)
+2026-10-23 06:28:20,074 | INFO | httpx2 | HTTP Request: POST http://budget-gateway:18090/v1/chat/completions "HTTP/1.0 200 OK"
+2026-10-23 06:28:20,138 | INFO | httpx2 | HTTP Request: POST http://budget-gateway:18090/v1/chat/completions "HTTP/1.0 200 OK"
+2026-10-23 06:28:20,139 | INFO | services.event_summarizer | Event summarizer: extracted 1 events from text
+2026-10-23 06:28:20,152 | INFO | ai-service | GET /v1/jobs/2da07567-b226-5355-b770-6d75c7a694e7 -> 200 (3.96 ms)
+2026-10-23 06:28:20,192 | INFO | httpx2 | HTTP Request: POST http://budget-gateway:18090/v1/chat/completions "HTTP/1.0 200 OK"
+2026-10-23 06:28:20,571 | INFO | ai-service | GET /v1/jobs/2da07567-b226-5355-b770-6d75c7a694e7 -> 200 (5.49 ms)
+2026-10-23 06:28:26,002 | INFO | ai-service | GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/review-queue -> 200 (8.79 ms)
+2026-10-23 06:28:26,047 | INFO | ai-service | GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 -> 200 (12.41 ms)
+2026-10-23 06:28:26,074 | INFO | ai-service | GET /internal/v1/proposal-groups/19dc02f1-f7ac-521d-8770-ef366cb3ba20/novel -> 200 (11.46 ms)
+2026-10-23 06:28:26,085 | INFO | ai-service | GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/review-queue -> 200 (7.42 ms)
+2026-10-23 06:28:26,149 | INFO | ai-service | POST /v1/proposal-groups/19dc02f1-f7ac-521d-8770-ef366cb3ba20/accept -> 200 (58.21 ms)
+2026-10-23 06:28:26,178 | INFO | ai-service | GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/review-queue -> 200 (3.51 ms)
+2026-10-23 06:28:26,226 | INFO | ai-service | POST /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/baseline/activate -> 200 (19.43 ms)
+2026-10-23 06:28:31,292 | INFO | ai-service | GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/memory -> 404 (0.60 ms)
+2026-10-23 06:28:31,302 | INFO | ai-service | GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/entity-reviews -> 404 (0.57 ms)
+2026-10-23 06:28:31,325 | INFO | ai-service | GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/entity-candidate-audits/62ae3908-c528-4082-bf46-f66a4fa36c5a -> 404 (0.49 ms)
+2026-10-23 06:28:31,335 | INFO | ai-service | GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/entity-candidate-audits/3e9dc0ed-9d1e-4967-928e-713796b1c8f0 -> 404 (0.43 ms)
+2026-10-23 06:28:31,375 | INFO | ai-service | GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/context-preview -> 200 (30.93 ms)
+2026-10-23 06:28:36,548 | INFO | ai-service | GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 -> 200 (14.93 ms)
+2026-10-23 06:28:36,736 | INFO | httpx2 | HTTP Request: POST http://budget-gateway:18090/v1/chat/completions "HTTP/1.0 200 OK"
+2026-10-23 06:28:36,802 | INFO | httpx2 | HTTP Request: POST http://budget-gateway:18090/v1/chat/completions "HTTP/1.0 200 OK"
+2026-10-23 06:28:36,803 | INFO | services.event_summarizer | Event summarizer: extracted 1 events from text
+2026-10-23 06:28:36,818 | INFO | ai-service | POST /v1/revisions/ccd89432-05fc-456b-9e74-99e0479d5524/analyses -> 202 (198.10 ms)
+2026-10-23 06:28:42,647 | INFO | ai-service | GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 -> 200 (20.17 ms)
+2026-10-23 06:28:43,178 | INFO | ai-service | POST /v1/revisions/ccd89432-05fc-456b-9e74-99e0479d5524/analyses -> 202 (14.14 ms)
+2026-10-23 06:28:48,502 | INFO | ai-service | GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 -> 200 (11.18 ms)
+2026-10-23 06:28:53,330 | INFO | ai-service | GET /internal/v1/proposal-groups/216e2fbc-b55e-552a-8b42-d301a73e5082/novel -> 200 (5.67 ms)
+2026-10-23 06:28:59,042 | INFO | ai-service | GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 -> 200 (16.90 ms)
+2026-10-23 06:28:59,070 | INFO | ai-service | GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 -> 200 (15.54 ms)
+2026-10-23 06:28:59,084 | INFO | ai-service | GET /internal/v1/proposal-groups/216e2fbc-b55e-552a-8b42-d301a73e5082/novel -> 200 (4.87 ms)
+2026-10-23 06:28:59,092 | INFO | ai-service | GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/review-queue -> 200 (4.56 ms)
+2026-10-23 06:28:59,110 | INFO | ai-service | POST /v1/proposal-groups/216e2fbc-b55e-552a-8b42-d301a73e5082/accept -> 409 (14.73 ms)
+2026-10-23 06:29:04,261 | INFO | ai-service | GET /internal/v1/proposal-groups/216e2fbc-b55e-552a-8b42-d301a73e5082/novel -> 200 (12.22 ms)
+2026-10-23 06:29:04,275 | INFO | ai-service | GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/review-queue -> 200 (8.80 ms)
+2026-10-23 06:29:04,349 | INFO | ai-service | POST /v1/proposal-groups/216e2fbc-b55e-552a-8b42-d301a73e5082/accept -> 200 (70.11 ms)
+2026-10-23 06:29:06,065 | INFO | ai-service | GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 -> 200 (19.59 ms)
+2026-10-23 06:29:06,099 | INFO | ai-service | GET /internal/v1/proposal-groups/216e2fbc-b55e-552a-8b42-d301a73e5082/novel -> 200 (5.98 ms)
+2026-10-23 06:29:06,108 | INFO | ai-service | GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/review-queue -> 200 (5.21 ms)
+2026-10-23 06:29:07,676 | INFO | ai-service | GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 -> 200 (21.49 ms)
+2026-10-23 06:29:12,713 | INFO | ai-service | GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/review-queue -> 200 (5.90 ms)
+2026-10-23 06:29:18,004 | INFO | ai-service | GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 -> 200 (18.30 ms)
+2026-10-23 06:29:18,058 | INFO | ai-service | GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 -> 200 (16.59 ms)
+2026-10-23 06:29:18,124 | INFO | ai-service | POST /v1/writing/generations -> 202 (51.21 ms)
+2026-10-23 06:29:18,150 | INFO | ai-service | GET /v1/jobs/9f97c558-a5e2-5c47-b94c-d0787de755ff -> 200 (14.41 ms)
+2026-10-23 06:29:18,256 | INFO | httpx2 | HTTP Request: POST http://budget-gateway:18090/v1/chat/completions "HTTP/1.0 200 OK"
+2026-10-23 06:29:18,584 | INFO | ai-service | GET /v1/jobs/9f97c558-a5e2-5c47-b94c-d0787de755ff -> 200 (5.83 ms)
+2026-10-23 06:29:19,145 | INFO | ai-service | GET /internal/v1/writing/generations/9f97c558-a5e2-5c47-b94c-d0787de755ff -> 200 (7.05 ms)
+2026-10-23 06:29:19,167 | INFO | ai-service | GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 -> 200 (18.16 ms)
+2026-10-23 06:29:19,319 | INFO | httpx2 | HTTP Request: POST http://budget-gateway:18090/v1/chat/completions "HTTP/1.0 200 OK"
+2026-10-23 06:29:19,379 | INFO | httpx2 | HTTP Request: POST http://budget-gateway:18090/v1/chat/completions "HTTP/1.0 200 OK"
+2026-10-23 06:29:19,380 | INFO | services.event_summarizer | Event summarizer: extracted 1 events from text
+2026-10-23 06:29:19,395 | INFO | ai-service | POST /v1/revisions/b666d3b9-c813-4d0d-b9ec-9719a1aac010/analyses -> 202 (187.39 ms)
+2026-10-23 06:29:25,290 | INFO | ai-service | GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 -> 200 (25.82 ms)
+2026-10-23 06:29:36,751 | INFO | ai-service | GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 -> 200 (26.17 ms)
+2026-10-23 06:29:36,777 | INFO | ai-service | GET /internal/v1/proposals/199c4612-f1ca-5567-a49d-29ecea56d3a2/novel -> 200 (6.90 ms)
+2026-10-23 06:29:36,805 | INFO | ai-service | POST /v1/proposals/199c4612-f1ca-5567-a49d-29ecea56d3a2/reject -> 200 (21.61 ms)
+2026-10-23 06:29:38,348 | INFO | ai-service | GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 -> 200 (31.98 ms)
+2026-10-23 06:29:43,559 | INFO | ai-service | GET /v1/story-brains/by-novel/fced8936-6789-4aa9-be93-2e3dbe6d9673 -> 200 (12.32 ms)
+2026-10-23 06:29:43,572 | INFO | ai-service | GET /internal/v1/proposals/e9e54b82-ba82-5e4e-a715-0e418ec34af5/novel -> 200 (3.55 ms)
+2026-10-23 06:29:43,578 | INFO | ai-service | GET /v1/story-brains/fced8936-6789-4aa9-be93-2e3dbe6d9673/review-queue -> 200 (3.67 ms)
+2026-10-23 06:29:43,612 | INFO | ai-service | POST /v1/proposals/e9e54b82-ba82-5e4e-a715-0e418ec34af5/edit-and-accept -> 200 (30.02 ms)
+2026-10-23 06:29:55,717 | INFO | ai-service | POST /v1/revisions/b666d3b9-c813-4d0d-b9ec-9719a1aac010/analyses -> 202 (11.66 ms)
+2026-10-23 06:29:55,732 | INFO | ai-service | POST /v1/revisions/b666d3b9-c813-4d0d-b9ec-9719a1aac010/analyses -> 202 (8.42 ms)

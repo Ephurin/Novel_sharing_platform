@@ -1,0 +1,680 @@
+{
+  "verdict": "PARTIAL_REPAIR_WITH_POLICY_BLOCKERS",
+  "initial_sha": "4c8bd3e36f7a8b01f7f98aee1e77b07779687fc5",
+  "red_source_sha": "82579b54b12902589a9690bb686ce55a6eccf72c",
+  "final_tested_source_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441",
+  "tracked_source_clean": true,
+  "final_counts": {
+    "PASS": 180,
+    "FAIL": 0,
+    "SKIP": 0,
+    "BLOCKED": 2,
+    "NOT_RUN": 6
+  },
+  "counting": "81 Node tests (includes parent auth test and 33 subtests), 61 Python tests, 24 native real PG/Mongo tests, 14 durable HTTP matrix cases. Earlier runs excluded.",
+  "targeted_commands": [
+    {
+      "name": "backend-unit",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/chapter-revisions.test.ts",
+        "src/modules/novels/outbox.test.ts",
+        "src/modules/novels/controller-intent.test.ts",
+        "src/modules/novels/internal-revision-authorization.test.ts",
+        "src/modules/novels/draft-read-authorization.test.ts",
+        "src/jobs/outbox-processor.test.ts",
+        "src/modules/ai/ai-gateway.test.ts",
+        "src/modules/ai/autonomous-controller.test.ts",
+        "src/core/database/test-db-guard.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441",
+      "tracked_source_clean": true
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "-p",
+        "tsconfig.json"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441",
+      "tracked_source_clean": true
+    },
+    {
+      "name": "build",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.json"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441",
+      "tracked_source_clean": true
+    },
+    {
+      "name": "AI-unit",
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-q",
+        "--basetemp",
+        "C:\\Users\\thaib\\AppData\\Local\\Temp\\d1d2-pytest-2892c9c187284601a48523932449b0e8",
+        "tests/test_revision_content_provider.py",
+        "tests/test_revision_analysis_workflow.py",
+        "tests/test_revision_analysis_routes.py",
+        "tests/test_manuscript_bootstrap.py",
+        "tests/test_manuscript_bootstrap_routes.py",
+        "tests/test_writing_validation_golden.py",
+        "tests/test_narrative_application_service.py",
+        "tests/test_narrative_repository_contract.py",
+        "tests/test_narrative_route_compatibility.py",
+        "tests/test_autonomous_routes.py"
+      ],
+      "cwd": "ai-service",
+      "exit_code": 0,
+      "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441",
+      "tracked_source_clean": true
+    }
+  ],
+  "native": {
+    "resources": [
+      {
+        "container": "canon-gate-bc23337d3c7e-pg",
+        "volume": "canon-gate-bc23337d3c7e-pg-data",
+        "image": "pgvector/pgvector:pg16"
+      },
+      {
+        "container": "canon-gate-bc23337d3c7e-mongo",
+        "volume": "canon-gate-bc23337d3c7e-mongo-data",
+        "image": "mongo:7"
+      }
+    ],
+    "database": "ephurin_test_d1d2_bc23337d3c7e",
+    "commands": [
+      {
+        "command": [
+          "node",
+          "--import",
+          "tsx",
+          "src/core/database/migrate.ts"
+        ],
+        "cwd": "backend",
+        "exit_code": 0,
+        "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441"
+      },
+      {
+        "command": [
+          "python",
+          "-m",
+          "alembic",
+          "upgrade",
+          "head"
+        ],
+        "cwd": "ai-service",
+        "exit_code": 0,
+        "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441"
+      },
+      {
+        "command": [
+          "node",
+          "--import",
+          "tsx",
+          "--test",
+          "src/modules/novels/mongo-reconciliation.live.test.ts"
+        ],
+        "cwd": "backend",
+        "exit_code": 0,
+        "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441"
+      },
+      {
+        "command": [
+          "node",
+          "--import",
+          "tsx",
+          "--test",
+          "src/modules/novels/accept-draft-contract.test.ts"
+        ],
+        "cwd": "backend",
+        "exit_code": 0,
+        "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441"
+      },
+      {
+        "command": [
+          "node",
+          "--import",
+          "tsx",
+          "--test",
+          "src/modules/novels/outbox.postgres.test.ts"
+        ],
+        "cwd": "backend",
+        "exit_code": 0,
+        "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441"
+      },
+      {
+        "command": [
+          "node",
+          "--import",
+          "tsx",
+          "--test",
+          "src/modules/novels/p1-production-persistence.postgres.test.ts"
+        ],
+        "cwd": "backend",
+        "exit_code": 0,
+        "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441"
+      }
+    ],
+    "retained": true
+  },
+  "real_http": {
+    "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441",
+    "source_dirty_at_start": false,
+    "rows": [
+      {
+        "test": "01_save_revision_outbox_hash",
+        "status": "PASS",
+        "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+        "details": null
+      },
+      {
+        "test": "02_save_pending_proposals",
+        "status": "PASS",
+        "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+        "details": [
+          {
+            "id": "ac14a792-82b4-5cb2-88d1-509f2ea62cde",
+            "analysis_run_id": "a925e433-f315-497c-bdd4-48a48c7c8b9e",
+            "story_brain_id": "223ce4e5-fbc7-4633-a5b7-f04182421823",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "fced8936-6789-4aa9-be93-2e3dbe6d9673",
+            "dependency_group_id": "216e2fbc-b55e-552a-8b42-d301a73e5082",
+            "materialization_order": 0,
+            "proposal_type": "entity",
+            "payload": {
+              "entity_type": "PER",
+              "canonical_name": "Mai Linh",
+              "normalized_name": "mai linh"
+            },
+            "evidence": [
+              {
+                "end": 8,
+                "start": 0,
+                "text_hash": "66925182d2caf99e0e79346978d725ccae7527bfc5dcd6e458d4dd58ef8b2ef1",
+                "revision_id": "ccd89432-05fc-456b-9e74-99e0479d5524"
+              }
+            ],
+            "confidence": 9.0,
+            "status": "pending",
+            "expected_brain_version": 2,
+            "decision_reason": null,
+            "created_at": "2026-10-23T06:28:36.80467+00:00",
+            "updated_at": "2026-10-23T06:28:36.80467+00:00"
+          },
+          {
+            "id": "135bc9ec-6043-57ec-b394-83c75d1f9603",
+            "analysis_run_id": "a925e433-f315-497c-bdd4-48a48c7c8b9e",
+            "story_brain_id": "223ce4e5-fbc7-4633-a5b7-f04182421823",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "fced8936-6789-4aa9-be93-2e3dbe6d9673",
+            "dependency_group_id": "216e2fbc-b55e-552a-8b42-d301a73e5082",
+            "materialization_order": 1,
+            "proposal_type": "entity",
+            "payload": {
+              "entity_type": "PER",
+              "canonical_name": "Duy",
+              "normalized_name": "duy"
+            },
+            "evidence": [
+              {
+                "end": 39,
+                "start": 36,
+                "text_hash": "66925182d2caf99e0e79346978d725ccae7527bfc5dcd6e458d4dd58ef8b2ef1",
+                "revision_id": "ccd89432-05fc-456b-9e74-99e0479d5524"
+              }
+            ],
+            "confidence": 9.0,
+            "status": "pending",
+            "expected_brain_version": 2,
+            "decision_reason": null,
+            "created_at": "2026-10-23T06:28:36.80467+00:00",
+            "updated_at": "2026-10-23T06:28:36.80467+00:00"
+          },
+          {
+            "id": "7553bffa-532a-59b1-a8fe-503b960a12f8",
+            "analysis_run_id": "a925e433-f315-497c-bdd4-48a48c7c8b9e",
+            "story_brain_id": "223ce4e5-fbc7-4633-a5b7-f04182421823",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "fced8936-6789-4aa9-be93-2e3dbe6d9673",
+            "dependency_group_id": "216e2fbc-b55e-552a-8b42-d301a73e5082",
+            "materialization_order": 2,
+            "proposal_type": "entity",
+            "payload": {
+              "entity_type": "LOC",
+              "canonical_name": "Cồn Vân",
+              "normalized_name": "cồn vân"
+            },
+            "evidence": [
+              {
+                "end": 56,
+                "start": 49,
+                "text_hash": "66925182d2caf99e0e79346978d725ccae7527bfc5dcd6e458d4dd58ef8b2ef1",
+                "revision_id": "ccd89432-05fc-456b-9e74-99e0479d5524"
+              }
+            ],
+            "confidence": 9.0,
+            "status": "pending",
+            "expected_brain_version": 2,
+            "decision_reason": null,
+            "created_at": "2026-10-23T06:28:36.80467+00:00",
+            "updated_at": "2026-10-23T06:28:36.80467+00:00"
+          },
+          {
+            "id": "2b3d2cf5-0b7e-5fda-935c-8a1de20bf71b",
+            "analysis_run_id": "a925e433-f315-497c-bdd4-48a48c7c8b9e",
+            "story_brain_id": "223ce4e5-fbc7-4633-a5b7-f04182421823",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "fced8936-6789-4aa9-be93-2e3dbe6d9673",
+            "dependency_group_id": "216e2fbc-b55e-552a-8b42-d301a73e5082",
+            "materialization_order": 3,
+            "proposal_type": "event",
+            "payload": {
+              "chapter": 1,
+              "summary": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng tại Cồn Vân.",
+              "locations": [
+                "Cồn Vân"
+              ],
+              "event_type": "observation",
+              "consequences": [],
+              "participants": [
+                "Mai Linh",
+                "Duy"
+              ],
+              "chapter_number": 1
+            },
+            "evidence": [
+              {
+                "end": 57,
+                "start": 0,
+                "text_hash": "66925182d2caf99e0e79346978d725ccae7527bfc5dcd6e458d4dd58ef8b2ef1",
+                "chapter_id": "cf47672e-6750-4ccd-b10a-3c710255bb35",
+                "revision_id": "ccd89432-05fc-456b-9e74-99e0479d5524",
+                "chapter_number": 1
+              }
+            ],
+            "confidence": 0.5,
+            "status": "pending",
+            "expected_brain_version": 2,
+            "decision_reason": null,
+            "created_at": "2026-10-23T06:28:36.80467+00:00",
+            "updated_at": "2026-10-23T06:28:36.80467+00:00"
+          }
+        ]
+      },
+      {
+        "test": "03_save_canon_unchanged",
+        "status": "PASS",
+        "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+        "details": {
+          "before": 2,
+          "after": 2
+        }
+      },
+      {
+        "test": "07_duplicate_outbox_no_proposals_or_approval",
+        "status": "PASS",
+        "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+        "details": null
+      },
+      {
+        "test": "09_wrong_owner_denied",
+        "status": "PASS",
+        "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+        "details": null
+      },
+      {
+        "test": "10_stale_brain_version_conflict",
+        "status": "PASS",
+        "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+        "details": null
+      },
+      {
+        "test": "04_author_accept_exactly_once",
+        "status": "PASS",
+        "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+        "details": {
+          "proposal_ids": [
+            "ac14a792-82b4-5cb2-88d1-509f2ea62cde",
+            "135bc9ec-6043-57ec-b394-83c75d1f9603",
+            "7553bffa-532a-59b1-a8fe-503b960a12f8",
+            "2b3d2cf5-0b7e-5fda-935c-8a1de20bf71b"
+          ],
+          "canonical_artifact_ids": [
+            "4922b1b6-9444-4156-a77a-5cc79d6d6c74",
+            "0fbfdcca-a0c7-485e-aabf-cf46f13fed39",
+            "b48e8fe4-4259-4055-a3cb-72427ca16b69",
+            "2b3d2cf5-0b7e-5fda-935c-8a1de20bf71b"
+          ],
+          "brain_version": 3,
+          "status": "accepted"
+        }
+      },
+      {
+        "test": "02b_accept_pending_proposals",
+        "status": "PASS",
+        "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+        "details": [
+          {
+            "id": "199c4612-f1ca-5567-a49d-29ecea56d3a2",
+            "analysis_run_id": "902ea0c1-48c1-4060-b58e-40985be9f7f0",
+            "story_brain_id": "223ce4e5-fbc7-4633-a5b7-f04182421823",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "fced8936-6789-4aa9-be93-2e3dbe6d9673",
+            "dependency_group_id": "248b4224-d680-5711-84de-cd107f58adb0",
+            "materialization_order": 0,
+            "proposal_type": "entity",
+            "payload": {
+              "entity_type": "PER",
+              "canonical_name": "Mai Linh",
+              "normalized_name": "mai linh"
+            },
+            "evidence": [
+              {
+                "end": 8,
+                "start": 0,
+                "text_hash": "011b399773afc1ac9f4e2e894faae8ee9fd52d32cab2a7e683eee9bae84f42a3",
+                "revision_id": "b666d3b9-c813-4d0d-b9ec-9719a1aac010"
+              }
+            ],
+            "confidence": 9.0,
+            "status": "pending",
+            "expected_brain_version": 3,
+            "decision_reason": null,
+            "created_at": "2026-10-23T06:29:19.381443+00:00",
+            "updated_at": "2026-10-23T06:29:19.381443+00:00"
+          },
+          {
+            "id": "1d6820bd-2e1d-52dd-ba17-5d9b4a4d58a3",
+            "analysis_run_id": "902ea0c1-48c1-4060-b58e-40985be9f7f0",
+            "story_brain_id": "223ce4e5-fbc7-4633-a5b7-f04182421823",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "fced8936-6789-4aa9-be93-2e3dbe6d9673",
+            "dependency_group_id": "248b4224-d680-5711-84de-cd107f58adb0",
+            "materialization_order": 1,
+            "proposal_type": "entity",
+            "payload": {
+              "entity_type": "PER",
+              "canonical_name": "Duy",
+              "normalized_name": "duy"
+            },
+            "evidence": [
+              {
+                "end": 65,
+                "start": 62,
+                "text_hash": "011b399773afc1ac9f4e2e894faae8ee9fd52d32cab2a7e683eee9bae84f42a3",
+                "revision_id": "b666d3b9-c813-4d0d-b9ec-9719a1aac010"
+              }
+            ],
+            "confidence": 9.0,
+            "status": "pending",
+            "expected_brain_version": 3,
+            "decision_reason": null,
+            "created_at": "2026-10-23T06:29:19.381443+00:00",
+            "updated_at": "2026-10-23T06:29:19.381443+00:00"
+          },
+          {
+            "id": "9a16b329-ca70-54dc-9343-e9192f878a63",
+            "analysis_run_id": "902ea0c1-48c1-4060-b58e-40985be9f7f0",
+            "story_brain_id": "223ce4e5-fbc7-4633-a5b7-f04182421823",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "fced8936-6789-4aa9-be93-2e3dbe6d9673",
+            "dependency_group_id": "248b4224-d680-5711-84de-cd107f58adb0",
+            "materialization_order": 2,
+            "proposal_type": "entity",
+            "payload": {
+              "entity_type": "LOC",
+              "canonical_name": "Cồn Vân",
+              "normalized_name": "cồn vân"
+            },
+            "evidence": [
+              {
+                "end": 95,
+                "start": 88,
+                "text_hash": "011b399773afc1ac9f4e2e894faae8ee9fd52d32cab2a7e683eee9bae84f42a3",
+                "revision_id": "b666d3b9-c813-4d0d-b9ec-9719a1aac010"
+              }
+            ],
+            "confidence": 9.0,
+            "status": "pending",
+            "expected_brain_version": 3,
+            "decision_reason": null,
+            "created_at": "2026-10-23T06:29:19.381443+00:00",
+            "updated_at": "2026-10-23T06:29:19.381443+00:00"
+          },
+          {
+            "id": "e9e54b82-ba82-5e4e-a715-0e418ec34af5",
+            "analysis_run_id": "902ea0c1-48c1-4060-b58e-40985be9f7f0",
+            "story_brain_id": "223ce4e5-fbc7-4633-a5b7-f04182421823",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "fced8936-6789-4aa9-be93-2e3dbe6d9673",
+            "dependency_group_id": "248b4224-d680-5711-84de-cd107f58adb0",
+            "materialization_order": 3,
+            "proposal_type": "event",
+            "payload": {
+              "chapter": 1,
+              "summary": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.",
+              "locations": [
+                "Cồn Vân"
+              ],
+              "event_type": "observation",
+              "consequences": [],
+              "participants": [
+                "Mai Linh",
+                "Duy"
+              ],
+              "chapter_number": 1
+            },
+            "evidence": [
+              {
+                "end": 153,
+                "start": 0,
+                "text_hash": "011b399773afc1ac9f4e2e894faae8ee9fd52d32cab2a7e683eee9bae84f42a3",
+                "chapter_id": "cf47672e-6750-4ccd-b10a-3c710255bb35",
+                "revision_id": "b666d3b9-c813-4d0d-b9ec-9719a1aac010",
+                "chapter_number": 1
+              }
+            ],
+            "confidence": 0.5,
+            "status": "pending",
+            "expected_brain_version": 3,
+            "decision_reason": null,
+            "created_at": "2026-10-23T06:29:19.381443+00:00",
+            "updated_at": "2026-10-23T06:29:19.381443+00:00"
+          }
+        ]
+      },
+      {
+        "test": "03b_accept_canon_unchanged",
+        "status": "PASS",
+        "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+        "details": {
+          "before": 3,
+          "after": 3
+        }
+      },
+      {
+        "test": "13_accepted_generation_replay",
+        "status": "PASS",
+        "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+        "details": null
+      },
+      {
+        "test": "05_reject_no_canon",
+        "status": "PASS",
+        "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+        "details": null
+      },
+      {
+        "test": "06_edit_accept_reviewed_content",
+        "status": "PASS",
+        "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+        "details": null
+      },
+      {
+        "test": "08_interrupted_extraction_retry_review_preserved",
+        "status": "PASS",
+        "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+        "details": null
+      },
+      {
+        "test": "14_internal_authorization_real_http",
+        "status": "PASS",
+        "proof": "REAL_HTTP_PG_MONGO_FAKE_PROVIDER",
+        "details": null
+      },
+      {
+        "test": "11_P3_HITL_waiting_for_entity_review",
+        "status": "BLOCKED",
+        "proof": "SOURCE_AND_HTTP_ROUTE_AUDIT",
+        "details": "Integration lacks AI entity-review routes, flag and waiting status. No broad route/state-machine port authorized."
+      },
+      {
+        "test": "12_controller_continue_after_human_checkpoint",
+        "status": "BLOCKED",
+        "proof": "SOURCE_AND_HTTP_ROUTE_AUDIT",
+        "details": "Integration lacks AI entity-review routes, flag and waiting status. No broad route/state-machine port authorized."
+      }
+    ],
+    "failure": null,
+    "project": "p123-core-c67830a7e9",
+    "real_provider_calls": 0
+  },
+  "runtime_commands": [
+    {
+      "command": [
+        "python",
+        "Pipeline_test/tools/prepare_fe_core_contract.py",
+        "--manifest",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\canon-hitl-repair-2026-10-23\\green-02-manifest.json",
+        "--allow-new-test-resources"
+      ],
+      "exit_code": 0,
+      "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "--env-file",
+        "Pipeline_test\\tools\\.env.p123-core-c67830a7e9",
+        "-f",
+        "Pipeline_test/tools/compose.p123-p3.yml",
+        "--profile",
+        "initialize",
+        "run",
+        "--rm",
+        "budget-init"
+      ],
+      "exit_code": 0,
+      "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "--env-file",
+        "Pipeline_test\\tools\\.env.p123-core-c67830a7e9",
+        "-f",
+        "Pipeline_test/tools/compose.p123-p3.yml",
+        "up",
+        "-d",
+        "--build"
+      ],
+      "exit_code": 0,
+      "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441"
+    },
+    {
+      "command": [
+        "python",
+        "Pipeline_test/tools/canon_hitl_probe.py",
+        "--env-file",
+        "Pipeline_test\\tools\\.env.p123-core-c67830a7e9",
+        "--output",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\canon-hitl-repair-2026-10-23\\green-02-runtime",
+        "--allow-test-mutations"
+      ],
+      "exit_code": 0,
+      "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441"
+    },
+    {
+      "command": [
+        "docker",
+        "compose",
+        "--env-file",
+        "Pipeline_test\\tools\\.env.p123-core-c67830a7e9",
+        "-f",
+        "Pipeline_test/tools/compose.p123-p3.yml",
+        "stop",
+        "-t",
+        "2"
+      ],
+      "exit_code": 0,
+      "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441"
+    }
+  ],
+  "not_run": [
+    {
+      "test": "Combined PR59 D1/D2 plus this repair",
+      "status": "NOT_RUN",
+      "reason": "Read-only PR59 was not integrated; existing 24 native baseline persistence tests executed, not its expanded matrix."
+    },
+    {
+      "test": "Independent cross-tenant AI proposal approval",
+      "status": "NOT_RUN",
+      "reason": "Gateway uses fixed platform tenant; foreign owner denied. No cross-tenant service-credential certification."
+    },
+    {
+      "test": "Pending-only context retrieval counterfactual",
+      "status": "NOT_RUN",
+      "reason": "Canonical projections unchanged; context reviewed in source only."
+    },
+    {
+      "test": "Future-plan leakage counterfactual",
+      "status": "NOT_RUN",
+      "reason": "No planning changes; no new future-only plan test executed."
+    },
+    {
+      "test": "Legacy controller real HTTP step",
+      "status": "NOT_RUN",
+      "reason": "Controller unchanged; unit suite executed, no complete runtime step."
+    },
+    {
+      "test": "Full editor/live provider/100k",
+      "status": "NOT_RUN",
+      "reason": "Outside bounded offline scope."
+    }
+  ],
+  "real_provider_calls": 0,
+  "embedding_calls": 0,
+  "production_modified": [
+    "backend/src/jobs/outbox-processor.ts"
+  ],
+  "independent_acceptance": false,
+  "prior_attempts": {
+    "red_http": "3 PASS,4 FAIL,2 BLOCKED; exit1; production unchanged",
+    "green01": "13 PASS,2 BLOCKED; exit0; superseded source a2e3511d",
+    "unit_setup_attempts": "red-unit failed module resolution; red-unit-executed failed missing JWT fixture env. Neither is behavioral RED.",
+    "missing_security_test": "green-01 declared a nonexistent internal auth file which Node silently omitted: 47 actual PASS. Final runner asserts source exists; copied pipeline regression now executed in 81 PASS.",
+    "extra_http_attempt": "green-01-internal-auth-http exit1: runtime already stopped. Final green-02 successful HTTP check runs before stop."
+  }
+}

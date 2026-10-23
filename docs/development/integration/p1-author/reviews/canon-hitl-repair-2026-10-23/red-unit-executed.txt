@@ -1,0 +1,66 @@
+file:///C:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/backend/node_modules/zod/v3/types.js:39
+                const error = new ZodError(ctx.common.issues);
+                              ^
+
+ZodError: [
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "JWT_ACCESS_SECRET"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "JWT_REFRESH_SECRET"
+    ],
+    "message": "Required"
+  }
+]
+    at get error (file:///C:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/backend/node_modules/zod/v3/types.js:39:31)
+    at ZodObject.parse (file:///C:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/backend/node_modules/zod/v3/types.js:114:22)
+    at <anonymous> (C:\Users\thaib\.codex\worktrees\p1-canon-hitl-gate\Novel_sharing_platform\backend\src\core\config\env.ts:59:30)
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  issues: [
+    {
+      code: 'invalid_type',
+      expected: 'string',
+      received: 'undefined',
+      path: [ 'JWT_ACCESS_SECRET' ],
+      message: 'Required'
+    },
+    {
+      code: 'invalid_type',
+      expected: 'string',
+      received: 'undefined',
+      path: [ 'JWT_REFRESH_SECRET' ],
+      message: 'Required'
+    }
+  ],
+  addIssue: [Function (anonymous)],
+  addIssues: [Function (anonymous)]
+}
+
+Node.js v24.19.0
+✖ src\jobs\outbox-processor.test.ts (313.7616ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 323.2493
+
+✖ failing tests:
+
+test at src\jobs\outbox-processor.test.ts:1:1
+✖ src\jobs\outbox-processor.test.ts (313.7616ms)
+  'test failed'

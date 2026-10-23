@@ -1,0 +1,73 @@
+[
+  {
+    "command": [
+      "python",
+      "Pipeline_test/tools/prepare_fe_core_contract.py",
+      "--manifest",
+      "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\canon-hitl-repair-2026-10-23\\red-01-manifest.json",
+      "--allow-new-test-resources"
+    ],
+    "exit_code": 0,
+    "tested_sha": "82579b54b12902589a9690bb686ce55a6eccf72c"
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-b3f6595fb1",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "--profile",
+      "initialize",
+      "run",
+      "--rm",
+      "budget-init"
+    ],
+    "exit_code": 0,
+    "tested_sha": "82579b54b12902589a9690bb686ce55a6eccf72c"
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-b3f6595fb1",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "up",
+      "-d",
+      "--build"
+    ],
+    "exit_code": 0,
+    "tested_sha": "82579b54b12902589a9690bb686ce55a6eccf72c"
+  },
+  {
+    "command": [
+      "python",
+      "Pipeline_test/tools/canon_hitl_probe.py",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-b3f6595fb1",
+      "--output",
+      "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\canon-hitl-repair-2026-10-23\\red-01-runtime",
+      "--allow-test-mutations"
+    ],
+    "exit_code": 1,
+    "tested_sha": "82579b54b12902589a9690bb686ce55a6eccf72c"
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-b3f6595fb1",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "stop",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0,
+    "tested_sha": "82579b54b12902589a9690bb686ce55a6eccf72c"
+  }
+]

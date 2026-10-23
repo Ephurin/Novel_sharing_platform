@@ -1,0 +1,332 @@
+{
+  "tested_sha": "d55e9a0332df3511b088b3518b40330f7f3ce441",
+  "resources": [
+    {
+      "name": "/p123-core-af4d59984b-api-ingress-1",
+      "id": "121909cd728a86b6993abdb8f138d80f91fc4dc34d74141c3cccc836e5ae96a8",
+      "running": false,
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "destination": "/tools"
+        }
+      ]
+    },
+    {
+      "name": "/p123-core-af4d59984b-backend-1",
+      "id": "4936ebc74a14245e1254c68a74864f4eea5df0b984b3d5924304700cde4c47c5",
+      "running": false,
+      "image": "sha256:5be0451537f455e6a114a4c2cfa3307ef61a92267e9b6283851eb00aaa14893f",
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "destination": "/wave-tools"
+        }
+      ]
+    },
+    {
+      "name": "/p123-core-af4d59984b-ai-service-1",
+      "id": "584b8b27b9d67bdf131ac15d333f796c64c3731faf1ec7391550303efdf38a45",
+      "running": false,
+      "image": "sha256:d81eac606c23377bdd39055543b6985f5adae2060aa729f903df9362abc2027e",
+      "mounts": []
+    },
+    {
+      "name": "/p123-core-af4d59984b-budget-gateway-1",
+      "id": "df3f2f27f31597d9472231f8067987adaeb87e2f2e15a2b857fde5e3d049d68c",
+      "running": false,
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "destination": "/tools"
+        },
+        {
+          "type": "volume",
+          "name": "p123-core-af4d59984b_budget_state",
+          "destination": "/state"
+        }
+      ]
+    },
+    {
+      "name": "/p123-core-af4d59984b-fake-upstream-1",
+      "id": "06f93eba3f2c626a8bb95ea16a44fa01c82fe2dd7df2ec98c68476afc3a95a16",
+      "running": false,
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "destination": "/tools"
+        },
+        {
+          "type": "volume",
+          "name": "p123-core-af4d59984b_fake_state",
+          "destination": "/evidence"
+        }
+      ]
+    },
+    {
+      "name": "/p123-core-af4d59984b-postgres-1",
+      "id": "0e75462805ba848085d1f7de07093ac493cce8878d3113401d1baf41f6834680",
+      "running": false,
+      "image": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "p123-core-af4d59984b_pg_state",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ]
+    },
+    {
+      "name": "/p123-core-af4d59984b-mongodb-1",
+      "id": "5d2b46c58ac5f0b7d8d69ff53c3511b8c44994f234ed734418b4f138fb03eb62",
+      "running": false,
+      "image": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "p123-core-af4d59984b_mongo_state",
+          "destination": "/data/db"
+        },
+        {
+          "type": "volume",
+          "name": "23d0e97cb3f139e920ed95b90a77ad3140499f2b62e13c336dfa4aa0f9b4320b",
+          "destination": "/data/configdb"
+        }
+      ]
+    },
+    {
+      "name": "/p123-core-c67830a7e9-api-ingress-1",
+      "id": "b10ffeadf0286087bd447dbf86a7af30ba4cf35ba55007afbc4b33265a679482",
+      "running": false,
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "destination": "/tools"
+        }
+      ]
+    },
+    {
+      "name": "/p123-core-c67830a7e9-backend-1",
+      "id": "260f8db19772c4f68a6cff5451d3237eda38f40d58dc82a9be3face45cf5d7a4",
+      "running": false,
+      "image": "sha256:c717cfdba9c24ccbcc406a04371727fa44b2ba4dd5ad383c3e2d82277bc79e86",
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "destination": "/wave-tools"
+        }
+      ]
+    },
+    {
+      "name": "/p123-core-c67830a7e9-ai-service-1",
+      "id": "3ddac513e679ddf8054e5a0f05e0f29938b962caced47af543ca68009709a384",
+      "running": false,
+      "image": "sha256:0c4d5f83d84da39652972b1322be644ad1b7d69306167fa411cf772a793f9248",
+      "mounts": []
+    },
+    {
+      "name": "/p123-core-c67830a7e9-budget-gateway-1",
+      "id": "b5641e0c595ab6fa8d907acfa2ff454e3393f68de7651b5a3cd7fb55b2540689",
+      "running": false,
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "destination": "/tools"
+        },
+        {
+          "type": "volume",
+          "name": "p123-core-c67830a7e9_budget_state",
+          "destination": "/state"
+        }
+      ]
+    },
+    {
+      "name": "/p123-core-c67830a7e9-fake-upstream-1",
+      "id": "916dd55723508e7f75917c682b700b62279f728456bb1f60f1ef1bf5e46a1030",
+      "running": false,
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "destination": "/tools"
+        },
+        {
+          "type": "volume",
+          "name": "p123-core-c67830a7e9_fake_state",
+          "destination": "/evidence"
+        }
+      ]
+    },
+    {
+      "name": "/p123-core-c67830a7e9-postgres-1",
+      "id": "db071f750847af29da583d11a16716a676e7aafe3b1a9cda938b96d30d7a0876",
+      "running": false,
+      "image": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "p123-core-c67830a7e9_pg_state",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ]
+    },
+    {
+      "name": "/p123-core-c67830a7e9-mongodb-1",
+      "id": "90c80dbd9edc39e1a5e7d8df6efd0f18ef467f5a56bacc80b5559d7c46159c6c",
+      "running": false,
+      "image": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "fab3545cb0167e69cae27bf8878662bcbd67e3854b52830c824d9e8611e8cc67",
+          "destination": "/data/configdb"
+        },
+        {
+          "type": "volume",
+          "name": "p123-core-c67830a7e9_mongo_state",
+          "destination": "/data/db"
+        }
+      ]
+    },
+    {
+      "name": "/p123-core-b3f6595fb1-api-ingress-1",
+      "id": "5d0512dd70c7cb025fffca4f9b84247c002e70ad58af41b02a6a920f51ad9aad",
+      "running": false,
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "destination": "/tools"
+        }
+      ]
+    },
+    {
+      "name": "/p123-core-b3f6595fb1-backend-1",
+      "id": "e446c2a81d18f91d45953e2fcdd52178b428faa78f1ff401ff50e6e012bb5305",
+      "running": false,
+      "image": "sha256:30fe79e1d7d0ebdb4b89da96ba2034763e7d9e272b4a2ff1ce1366b366c09b61",
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "destination": "/wave-tools"
+        }
+      ]
+    },
+    {
+      "name": "/p123-core-b3f6595fb1-ai-service-1",
+      "id": "acbad6eff95d4cf10d54fc11bfb877580f67337bf44b1ac85aa952778108c99c",
+      "running": false,
+      "image": "sha256:7d5aa4a33a5a6ea184bfcb8b797c9a0e96ab0ab8ca73e04e278b5f696c6197d0",
+      "mounts": []
+    },
+    {
+      "name": "/p123-core-b3f6595fb1-budget-gateway-1",
+      "id": "9e5af2da0c48bb85fdafb1988a2d6b3d68c742b65d0d2985bd08ef77effc932f",
+      "running": false,
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "destination": "/tools"
+        },
+        {
+          "type": "volume",
+          "name": "p123-core-b3f6595fb1_budget_state",
+          "destination": "/state"
+        }
+      ]
+    },
+    {
+      "name": "/p123-core-b3f6595fb1-fake-upstream-1",
+      "id": "7c9a4f080f1a400d026a67d7c2780d839b112375c7a8959082fe228e54f6d7b7",
+      "running": false,
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2",
+      "mounts": [
+        {
+          "type": "bind",
+          "name": null,
+          "destination": "/tools"
+        },
+        {
+          "type": "volume",
+          "name": "p123-core-b3f6595fb1_fake_state",
+          "destination": "/evidence"
+        }
+      ]
+    },
+    {
+      "name": "/p123-core-b3f6595fb1-postgres-1",
+      "id": "41e273f6923c613db86f4e53bb8769baadbbd56654ceb3b13eb3f2e7a634ede3",
+      "running": false,
+      "image": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "p123-core-b3f6595fb1_pg_state",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ]
+    },
+    {
+      "name": "/p123-core-b3f6595fb1-mongodb-1",
+      "id": "05ef74250c383f87f3d04691bbe7467e463d62500dc672d2d710aa9b5acb62e8",
+      "running": false,
+      "image": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "mounts": [
+        {
+          "type": "volume",
+          "name": "p123-core-b3f6595fb1_mongo_state",
+          "destination": "/data/db"
+        },
+        {
+          "type": "volume",
+          "name": "d39fd705831f7a024bc0908c7de65ddde32d586bc1b4317720814ce4986e392b",
+          "destination": "/data/configdb"
+        }
+      ]
+    },
+    {
+      "name": "/canon-gate-6d85072ea2ff-pg",
+      "id": "f5b3132103392c99fc4fd21d967b424bb96cad95d3a11c90a55dd29880a6f5f9",
+      "running": false,
+      "volume": "canon-gate-6d85072ea2ff-pg-data"
+    },
+    {
+      "name": "/canon-gate-6d85072ea2ff-mongo",
+      "id": "53894474fe1d32513ad3f3f3c79cfc4a145733d83e7078008fe3ce8e7dc6d58f",
+      "running": false,
+      "volume": "canon-gate-6d85072ea2ff-mongo-data"
+    },
+    {
+      "name": "/canon-gate-bc23337d3c7e-pg",
+      "id": "065aafd2cc2f935ff9c8c49b759184c4c88918a848db30e1ac3e8e86a4af367b",
+      "running": false,
+      "volume": "canon-gate-bc23337d3c7e-pg-data"
+    },
+    {
+      "name": "/canon-gate-bc23337d3c7e-mongo",
+      "id": "6d35cbb86d07ed0e35cb78a824422972b4a3b387ac4829510ca397be878563fd",
+      "running": false,
+      "volume": "canon-gate-bc23337d3c7e-mongo-data"
+    }
+  ],
+  "all_stopped": true,
+  "retained": true,
+  "historical_resources_mutated": false
+}

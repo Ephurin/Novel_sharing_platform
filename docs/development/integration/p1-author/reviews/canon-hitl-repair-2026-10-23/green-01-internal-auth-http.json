@@ -1,0 +1,12 @@
+{
+  "command": [
+    "docker",
+    "exec",
+    "-i",
+    "OWNED_AI",
+    "python",
+    "-"
+  ],
+  "exit_code": 1,
+  "result": "Error response from daemon: container 584b8b27b9d67bdf131ac15d333f796c64c3731faf1ec7391550303efdf38a45 is not running\n"
+}

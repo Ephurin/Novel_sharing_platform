@@ -1,0 +1,17 @@
+▶ Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Integration
+  ✔ Checkpoint 08: acceptDraft persists chapter_revisions with source_type=AI_DRAFT_ACCEPT in PostgreSQL (68.6374ms)
+  ✔ Checkpoint 09: chapters.latest_revision_id is updated in PostgreSQL (8.8751ms)
+  ✔ Checkpoint 10: revision_outbox_events row exists with event_type=INCREMENTAL_ANALYSIS (5.4667ms)
+  ✔ Checkpoint 14: acceptDraft is idempotent and returns existing revision without duplicate insertion (9.1293ms)
+  ✔ Checkpoint 15: Author-control semantics - unaccepted draft does not alter canonical chapter revision (3.2292ms)
+{"level":30,"time":1792736901516,"pid":21948,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+✔ Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Integration (149.685ms)
+{"level":30,"time":1792736901518,"pid":21948,"hostname":"Ephurin","msg":"MongoDB connection closed"}
+ℹ tests 5
+ℹ suites 1
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1003.7074

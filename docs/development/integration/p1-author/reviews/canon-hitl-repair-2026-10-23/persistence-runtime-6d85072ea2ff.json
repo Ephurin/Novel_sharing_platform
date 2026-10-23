@@ -1,0 +1,89 @@
+{
+  "resources": [
+    {
+      "container": "canon-gate-6d85072ea2ff-pg",
+      "volume": "canon-gate-6d85072ea2ff-pg-data",
+      "image": "pgvector/pgvector:pg16"
+    },
+    {
+      "container": "canon-gate-6d85072ea2ff-mongo",
+      "volume": "canon-gate-6d85072ea2ff-mongo-data",
+      "image": "mongo:7"
+    }
+  ],
+  "database": "ephurin_test_d1d2_6d85072ea2ff",
+  "commands": [
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "src/core/database/migrate.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "a2e3511d03b348b79041639a41b4a01d67e5f44e"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "alembic",
+        "upgrade",
+        "head"
+      ],
+      "cwd": "ai-service",
+      "exit_code": 0,
+      "tested_sha": "a2e3511d03b348b79041639a41b4a01d67e5f44e"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/mongo-reconciliation.live.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "a2e3511d03b348b79041639a41b4a01d67e5f44e"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/accept-draft-contract.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "a2e3511d03b348b79041639a41b4a01d67e5f44e"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/outbox.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "a2e3511d03b348b79041639a41b4a01d67e5f44e"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/p1-production-persistence.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "a2e3511d03b348b79041639a41b4a01d67e5f44e"
+    }
+  ],
+  "retained": true
+}
