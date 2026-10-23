@@ -678,4 +678,204 @@ describe('F-07 Fault Injection Matrix: Fixture Lifecycle & Teardown Resilience',
     const uCheck = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [uId]);
     assert.equal(Number(uCheck.rows[0].count), 0);
   });
+
+  test('Matrix 14: F-09 Mongo draft cleaned when only PostgreSQL chapter registered', async () => {
+    const lifecycle = new TestFixtureLifecycle();
+    await lifecycle.authorize(pool, mongoDb);
+
+    const uId = crypto.randomUUID();
+    const nId = crypto.randomUUID();
+    const cId = crypto.randomUUID();
+
+    lifecycle.registerUser(uId);
+    await pool.query(
+      `INSERT INTO users (user_id, username, email, password_hash, role)
+       VALUES ($1, $2, $3, 'hash', 'AUTHOR')`,
+      [uId, `m14_u_${Date.now()}`, `m14_${Date.now()}@ephurin.com`]
+    );
+
+    lifecycle.registerNovel(nId);
+    await pool.query(
+      `INSERT INTO novels (novel_id, title, slug, synopsis, author_id, status)
+       VALUES ($1, 'Matrix 14 Novel', $2, 'Synopsis', $3, 'PUBLISHED')`,
+      [nId, `m14-slug-${Date.now()}`, uId]
+    );
+
+    // Register chapter ONLY (intentionally NOT calling registerMongoDraft)
+    lifecycle.registerChapter(cId);
+    await pool.query(
+      `INSERT INTO chapters (chapter_id, novel_id, title, chapter_number, status)
+       VALUES ($1, $2, 'Matrix 14 Chapter', 1, 'DRAFT')`,
+      [cId, nId]
+    );
+
+    // Insert draft document in MongoDB simulating Core reconciliation / dual-write
+    await mongoDb.collection('draft_chapters').insertOne({
+      chapterId: cId,
+      novelId: nId,
+      title: 'Matrix 14 Reconciliation Draft',
+      content: 'Auto-reconciled prose',
+      createdAt: new Date(),
+    });
+
+    const mBefore = await mongoDb.collection('draft_chapters').countDocuments({ chapterId: cId });
+    assert.equal(mBefore, 1);
+
+    // Cleanup executes
+    const result = await lifecycle.cleanup(pool, mongoDb);
+    assert.equal(result.cleaned, true);
+    assert.equal(lifecycle.stage, 'CLEANED');
+
+    // Authoritative readback across both stores
+    const cCheck = await pool.query('SELECT count(*) FROM chapters WHERE chapter_id = $1', [cId]);
+    const nCheck = await pool.query('SELECT count(*) FROM novels WHERE novel_id = $1', [nId]);
+    const uCheck = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [uId]);
+    const mCheck = await mongoDb.collection('draft_chapters').countDocuments({ chapterId: cId });
+
+    assert.equal(Number(cCheck.rows[0].count), 0, 'PG chapter must be deleted');
+    assert.equal(Number(nCheck.rows[0].count), 0, 'PG novel must be deleted');
+    assert.equal(Number(uCheck.rows[0].count), 0, 'PG user must be deleted');
+    assert.equal(mCheck, 0, 'MongoDB draft document must NOT be orphaned even without registerMongoDraft');
+  });
+
+  test('Matrix 15: F-09 Mongo draft registered independently of PostgreSQL chapter', async () => {
+    const lifecycle = new TestFixtureLifecycle();
+    await lifecycle.authorize(pool, mongoDb);
+
+    const independentChapterId = crypto.randomUUID();
+    const mockNovelId = crypto.randomUUID();
+
+    // Register Mongo draft independently (no PG chapter registration)
+    lifecycle.registerMongoDraft(independentChapterId);
+    await mongoDb.collection('draft_chapters').insertOne({
+      chapterId: independentChapterId,
+      novelId: mockNovelId,
+      title: 'Matrix 15 Independent Draft',
+      content: 'Independent draft content',
+      createdAt: new Date(),
+    });
+
+    const mBefore = await mongoDb.collection('draft_chapters').countDocuments({ chapterId: independentChapterId });
+    assert.equal(mBefore, 1);
+
+    const result = await lifecycle.cleanup(pool, mongoDb);
+    assert.equal(result.cleaned, true);
+    assert.equal(lifecycle.stage, 'CLEANED');
+
+    const mAfter = await mongoDb.collection('draft_chapters').countDocuments({ chapterId: independentChapterId });
+    assert.equal(mAfter, 0, 'Independently registered Mongo draft must be cleanly deleted');
+  });
+
+  test('Matrix 16: F-10 PostgreSQL DELETE acknowledged but matching row remains -> Durable readback fails closed', async () => {
+    const lifecycle = new TestFixtureLifecycle();
+    await lifecycle.authorize(pool, mongoDb);
+
+    const uId = crypto.randomUUID();
+    lifecycle.registerUser(uId);
+    await pool.query(
+      `INSERT INTO users (user_id, username, email, password_hash, role)
+       VALUES ($1, $2, $3, 'hash', 'AUTHOR')`,
+      [uId, `m16_u_${Date.now()}`, `m16_${Date.now()}@ephurin.com`]
+    );
+
+    // Mock pool where DELETE acknowledged by driver (rowCount=1) but leaves row intact in database
+    const fakeAcknowledgedPool = {
+      query: async (text: string, params?: any[]) => {
+        if (text.includes('DELETE FROM users WHERE user_id = $1') && params?.[0] === uId) {
+          // Acknowledge driver success without actually deleting the record
+          return { rowCount: 1, rows: [] };
+        }
+        return pool.query(text, params);
+      },
+    } as unknown as Pool;
+
+    let cleanupError: any = null;
+    try {
+      await lifecycle.cleanup(fakeAcknowledgedPool, mongoDb);
+    } catch (err: any) {
+      cleanupError = err;
+    }
+
+    // Must NOT return cleaned: true; must fail with CLEANUP_FAILED
+    assert.ok(cleanupError, 'Cleanup must throw error when record persists despite acknowledged DELETE');
+    assert.match(cleanupError.message, new RegExp(uId), 'Error message must identify the residual user ID');
+    assert.match(cleanupError.message, /Authoritative readback failed: residual user/i);
+    assert.equal(lifecycle.stage, 'CLEANUP_FAILED');
+
+    // Authoritative check: record genuinely still exists
+    const rowCheckBefore = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [uId]);
+    assert.equal(Number(rowCheckBefore.rows[0].count), 1);
+
+    // Identity was retained in pending registry for safe retry:
+    assert.ok(lifecycle.pending.pgUsers.has(uId), 'Residual user ID must be retained in pending deletion registry');
+
+    // Retry with real pool: recovers to true zero-residual state
+    const retryResult = await lifecycle.cleanup(pool, mongoDb);
+    assert.equal(retryResult.cleaned, true);
+    assert.equal(lifecycle.stage, 'CLEANED');
+
+    const rowCheckAfter = await pool.query('SELECT count(*) FROM users WHERE user_id = $1', [uId]);
+    assert.equal(Number(rowCheckAfter.rows[0].count), 0, 'User must be absent after retry');
+  });
+
+  test('Matrix 17: F-10 MongoDB delete acknowledged but matching document remains -> Durable readback fails closed', async () => {
+    const lifecycle = new TestFixtureLifecycle();
+    await lifecycle.authorize(pool, mongoDb);
+
+    const cId = crypto.randomUUID();
+    lifecycle.registerMongoDraft(cId);
+
+    await mongoDb.collection('draft_chapters').insertOne({
+      chapterId: cId,
+      novelId: crypto.randomUUID(),
+      title: 'Matrix 17 Fake Delete Draft',
+      content: 'Prose',
+      createdAt: new Date(),
+    });
+
+    const mBefore = await mongoDb.collection('draft_chapters').countDocuments({ chapterId: cId });
+    assert.equal(mBefore, 1);
+
+    // Mock mongoDb where deleteMany acknowledges driver success but does NOT delete document
+    const fakeMongoDb = {
+      collection: (name: string) => {
+        const realCol = mongoDb.collection(name);
+        if (name === 'draft_chapters') {
+          return {
+            ...realCol,
+            deleteMany: async (_filter: any) => {
+              // Return driver acknowledgement without deleting
+              return { acknowledged: true, deletedCount: 1 };
+            },
+            countDocuments: (query: any) => realCol.countDocuments(query),
+          };
+        }
+        return realCol;
+      },
+    } as unknown as typeof mongoDb;
+
+    let cleanupError: any = null;
+    try {
+      await lifecycle.cleanup(pool, fakeMongoDb);
+    } catch (err: any) {
+      cleanupError = err;
+    }
+
+    assert.ok(cleanupError, 'Cleanup must throw error when MongoDB document persists despite delete acknowledgement');
+    assert.match(cleanupError.message, new RegExp(cId), 'Error message must identify the residual chapter ID');
+    assert.match(cleanupError.message, /Authoritative readback failed: residual MongoDB draft_chapters/i);
+    assert.equal(lifecycle.stage, 'CLEANUP_FAILED');
+
+    // Document genuinely still exists
+    const mCheckBefore = await mongoDb.collection('draft_chapters').countDocuments({ chapterId: cId });
+    assert.equal(mCheckBefore, 1);
+
+    // Retry with real MongoDB: recovers to zero-residual state
+    const retryResult = await lifecycle.cleanup(pool, mongoDb);
+    assert.equal(retryResult.cleaned, true);
+    assert.equal(lifecycle.stage, 'CLEANED');
+
+    const mCheckAfter = await mongoDb.collection('draft_chapters').countDocuments({ chapterId: cId });
+    assert.equal(mCheckAfter, 0, 'Document must be absent after recovery retry');
+  });
 });
