@@ -1,0 +1,36 @@
+{
+  "PG_exit": 0,
+  "PG": {
+    "database": "ephurin_test_d1d2_4a1e723ced25",
+    "users": 0,
+    "novels": 0,
+    "chapters": 0,
+    "revisions": 0,
+    "outbox": 0,
+    "migrations": [
+      "001_auth_user_wallet.sql",
+      "002_novels.sql",
+      "003_chapters.sql",
+      "004_content_control.sql",
+      "005_reports_description.sql",
+      "006_reading_interactions.sql",
+      "007_wallet_transactions.sql",
+      "008_authoring_context.sql",
+      "009_chapter_revisions.sql",
+      "010_analysis_outbox.sql",
+      "011_outbox_claim_token.sql",
+      "012_novel_engagement.sql",
+      "012_reports_unique_open.sql",
+      "013_novel_review_text.sql",
+      "014_novel_editorial_metadata.sql",
+      "015_author_workflow.sql",
+      "016_author_launch_checklist.sql",
+      "017_transactional_moderation_evidence.sql"
+    ]
+  },
+  "Mongo_exit": 0,
+  "Mongo": {
+    "database": "ephurin_test_d1d2_4a1e723ced25",
+    "drafts": 0
+  }
+}

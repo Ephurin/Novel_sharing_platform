@@ -1,0 +1,43 @@
+{
+  "new_resources_only": true,
+  "containers": [
+    {
+      "container": "p1-final-acceptance-4a1e723ced25-pg",
+      "volume": "p1-final-acceptance-4a1e723ced25-pg-data",
+      "image": "pgvector/pgvector:pg16",
+      "database": "ephurin_test_d1d2_4a1e723ced25",
+      "running": false,
+      "status": "exited",
+      "volume_retained": true
+    },
+    {
+      "container": "p1-final-acceptance-4a1e723ced25-mongo",
+      "volume": "p1-final-acceptance-4a1e723ced25-mongo-data",
+      "image": "mongo:7",
+      "database": "ephurin_test_d1d2_4a1e723ced25",
+      "running": false,
+      "status": "exited",
+      "volume_retained": true
+    },
+    {
+      "container": "p1-final-acceptance-1135b1e3f84e-pg",
+      "volume": "p1-final-acceptance-1135b1e3f84e-pg-data",
+      "image": "pgvector/pgvector:pg16",
+      "database": "ephurin_test_d1d2_1135b1e3f84e",
+      "running": false,
+      "status": "exited",
+      "volume_retained": true
+    },
+    {
+      "container": "p1-final-acceptance-1135b1e3f84e-mongo",
+      "volume": "p1-final-acceptance-1135b1e3f84e-mongo-data",
+      "image": "mongo:7",
+      "database": "ephurin_test_d1d2_1135b1e3f84e",
+      "running": false,
+      "status": "exited",
+      "volume_retained": true
+    }
+  ],
+  "deleted_volumes": [],
+  "shared_databases_touched": false
+}

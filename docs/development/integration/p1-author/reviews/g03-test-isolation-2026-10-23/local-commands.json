@@ -1,0 +1,42 @@
+{
+  "sha": "bc8c4b17735a013917b51e209dc81dfb229e8179",
+  "tracked_status": "",
+  "commands": [
+    {
+      "label": "green",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/mongo-reconciliation-authorization.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0
+    },
+    {
+      "label": "typecheck",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.json",
+        "--noEmit"
+      ],
+      "cwd": "backend",
+      "exit_code": 0
+    },
+    {
+      "label": "guard",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/core/database/test-db-guard.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0
+    }
+  ]
+}

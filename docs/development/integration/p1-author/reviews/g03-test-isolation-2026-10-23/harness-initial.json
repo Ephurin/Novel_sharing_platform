@@ -1,0 +1,17 @@
+{
+  "source_sha": "3df13ed51476de3b0e97f7aa5aef63ce8a18e061",
+  "command": [
+    "node",
+    "--import",
+    "tsx",
+    "--test",
+    "src/modules/novels/mongo-reconciliation-authorization.test.ts"
+  ],
+  "cwd": "backend",
+  "exit_code": 1,
+  "test_files": {
+    "backend\\src\\modules\\novels\\mongo-reconciliation-authorization.test.ts": "b3407c3a8a1cc5e8b7105b8df080d1968d3510b2a375d08a3ff3cdc160425c3c",
+    "backend\\src\\modules\\novels\\mongo-reconciliation-denial.preload.mjs": "a47e85ab39fec21e307fc8b81119d45144d8217fe51aa99c5217076f645af78d",
+    "backend\\src\\modules\\novels\\mongo-reconciliation.live.test.ts": "068541f087fe14eafda8026037f23968eadc67cdc64995e36d53a249ed6364e9"
+  }
+}
