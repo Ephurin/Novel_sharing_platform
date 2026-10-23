@@ -5,6 +5,7 @@ import { connectMongo, disconnectMongo, getMongoDatabase } from '../../core/data
 import { getPostgresPool, disconnectPostgres } from '../../core/database/postgres.js';
 import { validateTestDatabaseIsolation } from '../../core/database/test-db-guard.js';
 import { findLatestRevisionByChapterId } from './chapter-revisions.repository.js';
+import { createSnapshot } from './chapter-revisions.service.js';
 import { syncDraftFromRevisionConditional, findDraftChapterByChapterId, upsertDraftChapter } from './draft-chapters.repository.js';
 
 describe('Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)', () => {
@@ -191,6 +192,18 @@ describe('Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)', () => {
     assert.equal(result.draft?.version,before.version+1);
     assert.equal(result.draft?.content,before.content);
     t.diagnostic(JSON.stringify({probe:5,before,after:result.draft}));
+  });
+
+  test('Targeted Probe 6: Reusing an old immutable snapshot cannot acquire a new timestamp over a manual draft', async (t) => {
+    const input = await acceptedInput(1);
+    const before = await findDraftChapterByChapterId(input.chapterId);
+    assert.ok(before && before.updatedAt > input.acceptTimestamp);
+    const revision = await createSnapshot({userId:authorId,role:'AUTHOR'},input.chapterId,
+      {content:input.content,purpose:'AUTHOR_SNAPSHOT'});
+    const after = await findDraftChapterByChapterId(input.chapterId);
+    assert.equal(revision.revisionId,input.revisionId);
+    assert.deepEqual(after,before);
+    t.diagnostic(JSON.stringify({probe:6,revision:revision.revisionId,revisionCreatedAt:revision.createdAt,before,after}));
   });
 
 });
