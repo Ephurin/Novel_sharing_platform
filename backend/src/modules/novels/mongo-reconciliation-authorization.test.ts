@@ -7,9 +7,11 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 for (const scenario of [
-  { name: 'missing opt-in', optIn: '', pg: 'ephurin_test_g03', mongo: 'ephurin_test_g03', reason: 'missing required external opt-in' },
-  { name: 'forbidden PostgreSQL', optIn: '1', pg: 'ephurin', mongo: 'ephurin_test_g03', reason: 'PostgreSQL target' },
-  { name: 'forbidden MongoDB', optIn: '1', pg: 'ephurin_test_g03', mongo: 'ephurin', reason: 'MongoDB target' },
+  { name: 'missing opt-in', expected: '', optIn: '', pg: 'ephurin_test_g03', mongo: 'ephurin_test_g03', reason: 'missing required external opt-in' },
+  { name: 'forbidden PostgreSQL', expected: '', optIn: '1', pg: 'ephurin', mongo: 'ephurin_test_g03', reason: 'PostgreSQL target' },
+  { name: 'forbidden MongoDB', expected: '', optIn: '1', pg: 'ephurin_test_g03', mongo: 'ephurin', reason: 'MongoDB target' },
+  { name: 'PostgreSQL identity mismatch', expected: 'ephurin_test_g03', optIn: '1', pg: 'ephurin_test_other', mongo: 'ephurin_test_g03', reason: 'does not match expected isolated test DB' },
+  { name: 'MongoDB identity mismatch', expected: 'ephurin_test_g03', optIn: '1', pg: 'ephurin_test_g03', mongo: 'ephurin_test_other', reason: 'does not match expected isolated test DB' },
 ]) {
   test(`Denied live reconciliation teardown: ${scenario.name}`, () => {
     const dir = mkdtempSync(join(tmpdir(), 'g03-denial-'));
@@ -23,7 +25,7 @@ for (const scenario of [
       ], {
         encoding: 'utf8', timeout: 30000,
         env: { ...childEnv, NODE_ENV: 'test', CI: 'true',
-          EPHURIN_ALLOW_TEST_DB_MUTATIONS: scenario.optIn, EXPECTED_TEST_DB_NAME: '',
+          EPHURIN_ALLOW_TEST_DB_MUTATIONS: scenario.optIn, EXPECTED_TEST_DB_NAME: scenario.expected,
           DATABASE_URL: 'postgresql://test:test@127.0.0.1:9/ephurin_test_g03',
           MONGODB_URI: `mongodb://127.0.0.1:9/${scenario.mongo}`,
           JWT_ACCESS_SECRET: 'g03-isolated-access-secret', JWT_REFRESH_SECRET: 'g03-isolated-refresh-secret',
