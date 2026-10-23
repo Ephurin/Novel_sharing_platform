@@ -1,0 +1,552 @@
+ai-service-1  | INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+ai-service-1  | INFO  [alembic.runtime.migration] Will assume transactional DDL.
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade  -> 0001_narrative_foundation, Create Narrative Memory foundation tables.
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0001_narrative_foundation -> 0002_state_projection, Add confirmed transitions, participants and rebuildable state projections.
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0002_state_projection -> 0003_manuscript_bootstrap, Add durable manuscript bootstrap jobs.
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0003_manuscript_bootstrap -> 0004_writing_generations, Add durable writing generations.
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0004_writing_generations -> 0005_revision_provenance, Add revision provenance and fact chapter number.
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0005_revision_provenance -> 0006_fix_revision_provenance, Fix revision provenance schema with revision_id and unique constraint.
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0006_fix_revision_provenance -> 0007_semantic_memory_foundation, Add semantic-memory chunk and embedding storage.
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0007_semantic_memory_foundation -> 0008_story_plans, Add story_plans and story_plan_objectives storage.
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0008_story_plans -> 0009_autonomous_runs
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0009_autonomous_runs -> 0010_fact_supersession, Keep fact revision history while projecting only the current source occurrence.
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0010_fact_supersession -> 0011_entity_candidate_audit, Persist candidate decisions separately from approved narrative memory.
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0011_entity_candidate_audit -> 0012_entity_guidance, Author extraction guidance, kept outside approved narrative memory.
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0012_entity_guidance -> 0013_objective_intent, Monotone objective intent epoch for accept-commit fencing.
+ai-service-1  | INFO:     Started server process [8]
+ai-service-1  | INFO:     Waiting for application startup.
+ai-service-1  | 2026-10-23 08:18:36,016 | INFO | ai-service | Starting AI service with pure-LLM entity pipeline.
+ai-service-1  | INFO:     Application startup complete.
+ai-service-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+ai-service-1  | 2026-10-23 08:18:39,417 | INFO | ai-service | GET /health -> 200 (2.33 ms)
+backend-1     | 
+backend-1     | > ephurin-backend@0.1.0 db:migrate
+backend-1     | > tsx src/core/database/migrate.ts
+backend-1     | 
+ai-service-1  | INFO:     127.0.0.1:35960 - "GET /health HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:18:49,126 | INFO | ai-service | GET /health -> 200 (0.92 ms)
+ai-service-1  | INFO:     127.0.0.1:54398 - "GET /health HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:18:49,478 | INFO | ai-service | GET /health -> 200 (1.24 ms)
+ai-service-1  | INFO:     127.0.0.1:54404 - "GET /health HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:18:59,532 | INFO | ai-service | GET /health -> 200 (0.87 ms)
+ai-service-1  | INFO:     127.0.0.1:45034 - "GET /health HTTP/1.1" 200 OK
+backend-1     | {"level":30,"time":1792743525829,"pid":31,"hostname":"47a55b8eb85f","msg":"Applied migration 001_auth_user_wallet.sql"}
+backend-1     | {"level":30,"time":1792743525897,"pid":31,"hostname":"47a55b8eb85f","msg":"Applied migration 002_novels.sql"}
+ai-service-1  | 2026-10-23 08:19:09,587 | INFO | ai-service | GET /health -> 200 (0.89 ms)
+ai-service-1  | INFO:     127.0.0.1:54136 - "GET /health HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:50186 - "POST /v1/story-brains/bootstrap/from-manuscript HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:19:10,511 | INFO | ai-service | POST /v1/story-brains/bootstrap/from-manuscript -> 202 (168.03 ms)
+backend-1     | {"level":30,"time":1792743525927,"pid":31,"hostname":"47a55b8eb85f","msg":"Applied migration 003_chapters.sql"}
+backend-1     | {"level":30,"time":1792743525986,"pid":31,"hostname":"47a55b8eb85f","msg":"Applied migration 004_content_control.sql"}
+backend-1     | {"level":30,"time":1792743525990,"pid":31,"hostname":"47a55b8eb85f","msg":"Applied migration 005_reports_description.sql"}
+ai-service-1  | 2026-10-23 08:19:10,565 | INFO | ai-service | GET /v1/jobs/1c1fe6cd-8d5b-540c-9322-ae66de193328 -> 200 (21.41 ms)
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /v1/jobs/1c1fe6cd-8d5b-540c-9322-ae66de193328 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:10,566 | INFO | fake-llm | Fake LLM returning deterministic entities
+ai-service-1  | 2026-10-23 08:19:10,567 | INFO | fake-llm | Fake LLM returning deterministic narrative events
+ai-service-1  | 2026-10-23 08:19:10,567 | INFO | services.event_summarizer | Event summarizer: extracted 1 events from text
+backend-1     | {"level":30,"time":1792743526034,"pid":31,"hostname":"47a55b8eb85f","msg":"Applied migration 006_reading_interactions.sql"}
+backend-1     | {"level":30,"time":1792743526098,"pid":31,"hostname":"47a55b8eb85f","msg":"Applied migration 007_wallet_transactions.sql"}
+ai-service-1  | 2026-10-23 08:19:10,567 | INFO | fake-llm | Fake LLM returning deterministic state transitions
+backend-1     | {"level":30,"time":1792743526193,"pid":31,"hostname":"47a55b8eb85f","msg":"Applied migration 008_authoring_context.sql"}
+backend-1     | {"level":30,"time":1792743526231,"pid":31,"hostname":"47a55b8eb85f","msg":"Applied migration 009_chapter_revisions.sql"}
+backend-1     | {"level":30,"time":1792743526258,"pid":31,"hostname":"47a55b8eb85f","msg":"Applied migration 010_analysis_outbox.sql"}
+ai-service-1  | 2026-10-23 08:19:11,646 | INFO | ai-service | GET /v1/jobs/1c1fe6cd-8d5b-540c-9322-ae66de193328 -> 200 (4.55 ms)
+backend-1     | {"level":30,"time":1792743526265,"pid":31,"hostname":"47a55b8eb85f","msg":"Applied migration 011_outbox_claim_token.sql"}
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /v1/jobs/1c1fe6cd-8d5b-540c-9322-ae66de193328 HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /v1/story-brains/acaa7229-ad13-4493-b115-df986eb598c6/review-queue HTTP/1.1" 200 OK
+backend-1     | {"level":30,"time":1792743526277,"pid":31,"hostname":"47a55b8eb85f","msg":"Applied migration 012_novel_engagement.sql"}
+ai-service-1  | 2026-10-23 08:19:11,678 | INFO | ai-service | GET /v1/story-brains/acaa7229-ad13-4493-b115-df986eb598c6/review-queue -> 200 (4.18 ms)
+backend-1     | {"level":30,"time":1792743526292,"pid":31,"hostname":"47a55b8eb85f","msg":"Applied migration 012_reports_unique_open.sql"}
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /internal/v1/proposal-groups/fa612632-1642-560f-840e-7b080ca3ca34/novel HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:11,714 | INFO | ai-service | GET /internal/v1/proposal-groups/fa612632-1642-560f-840e-7b080ca3ca34/novel -> 200 (8.74 ms)
+ai-service-1  | 2026-10-23 08:19:11,720 | INFO | ai-service | GET /v1/story-brains/acaa7229-ad13-4493-b115-df986eb598c6/review-queue -> 200 (3.24 ms)
+backend-1     | {"level":30,"time":1792743526315,"pid":31,"hostname":"47a55b8eb85f","msg":"Applied migration 013_novel_review_text.sql"}
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /v1/story-brains/acaa7229-ad13-4493-b115-df986eb598c6/review-queue HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:50186 - "POST /v1/proposal-groups/fa612632-1642-560f-840e-7b080ca3ca34/accept HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:11,764 | INFO | ai-service | POST /v1/proposal-groups/fa612632-1642-560f-840e-7b080ca3ca34/accept -> 200 (41.04 ms)
+ai-service-1  | 2026-10-23 08:19:11,816 | INFO | ai-service | POST /v1/story-brains/acaa7229-ad13-4493-b115-df986eb598c6/baseline/activate -> 200 (23.32 ms)
+ai-service-1  | INFO:     172.28.0.5:50186 - "POST /v1/story-brains/acaa7229-ad13-4493-b115-df986eb598c6/baseline/activate HTTP/1.1" 200 OK
+backend-1     | {"level":30,"time":1792743526323,"pid":31,"hostname":"47a55b8eb85f","msg":"Applied migration 014_novel_editorial_metadata.sql"}
+backend-1     | {"level":30,"time":1792743526329,"pid":31,"hostname":"47a55b8eb85f","msg":"Applied migration 015_author_workflow.sql"}
+ai-service-1  | 2026-10-23 08:19:11,871 | INFO | ai-service | GET /v1/story-brains/acaa7229-ad13-4493-b115-df986eb598c6/context-preview -> 200 (21.77 ms)
+backend-1     | {"level":30,"time":1792743526349,"pid":31,"hostname":"47a55b8eb85f","msg":"Applied migration 016_author_launch_checklist.sql"}
+backend-1     | {"level":30,"time":1792743526357,"pid":31,"hostname":"47a55b8eb85f","msg":"Applied migration 017_transactional_moderation_evidence.sql"}
+backend-1     | {"level":30,"time":1792743526358,"pid":31,"hostname":"47a55b8eb85f","msg":"PostgreSQL connection closed"}
+backend-1     | 
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /v1/story-brains/acaa7229-ad13-4493-b115-df986eb598c6/context-preview?chapter_number=2 HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:50186 - "POST /v1/writing/generations HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:19:11,933 | INFO | ai-service | POST /v1/writing/generations -> 202 (29.43 ms)
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /v1/jobs/269ca86e-6b57-577e-9e4c-e8bc3cbf9a8e HTTP/1.1" 200 OK
+backend-1     | > ephurin-backend@0.1.0 db:seed:demo
+backend-1     | > tsx src/scripts/seed-sample-stories.ts
+backend-1     | 
+ai-service-1  | 2026-10-23 08:19:11,969 | INFO | ai-service | GET /v1/jobs/269ca86e-6b57-577e-9e4c-e8bc3cbf9a8e -> 200 (8.03 ms)
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /v1/jobs/269ca86e-6b57-577e-9e4c-e8bc3cbf9a8e HTTP/1.1" 200 OK
+backend-1     | ┌─────────┬───────────────────────────────────────┬────────────────────────────────────────┬───────────────┐
+backend-1     | │ (index) │ title                                 │ novelId                                │ chaptersCount │
+backend-1     | ├─────────┼───────────────────────────────────────┼────────────────────────────────────────┼───────────────┤
+backend-1     | │ 0       │ 'Ashenhold - Sample Story'            │ '81b923d7-5507-48ea-9a84-5303fd1de5f4' │ 10            │
+backend-1     | │ 1       │ 'Thanh Van Sword Path - Sample Story' │ '451e1280-214c-4500-980b-34b9af0989eb' │ 3             │
+backend-1     | └─────────┴───────────────────────────────────────┴────────────────────────────────────────┴───────────────┘
+backend-1     | Seed author: be08958e-9bc5-4992-af9b-a49842a4ea71
+backend-1     | {"level":30,"time":1792743527247,"pid":76,"hostname":"47a55b8eb85f","msg":"PostgreSQL connection closed"}
+ai-service-1  | 2026-10-23 08:19:13,003 | INFO | ai-service | GET /v1/jobs/269ca86e-6b57-577e-9e4c-e8bc3cbf9a8e -> 200 (7.09 ms)
+ai-service-1  | 2026-10-23 08:19:13,053 | INFO | ai-service | GET /internal/v1/writing/generations/269ca86e-6b57-577e-9e4c-e8bc3cbf9a8e -> 200 (6.82 ms)
+backend-1     | 
+backend-1     | > ephurin-backend@0.1.0 start
+backend-1     | > node dist/main.js
+backend-1     | 
+backend-1     | {"level":30,"time":1792743527789,"pid":106,"hostname":"47a55b8eb85f","msg":"PostgreSQL connection ready"}
+backend-1     | {"level":30,"time":1792743527907,"pid":106,"hostname":"47a55b8eb85f","msg":"MongoDB connection ready"}
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /internal/v1/writing/generations/269ca86e-6b57-577e-9e4c-e8bc3cbf9a8e HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:60260 - "GET /v1/story-brains/by-novel/acaa7229-ad13-4493-b115-df986eb598c6 HTTP/1.1" 200 OK
+backend-1     | {"level":30,"time":1792743527912,"pid":106,"hostname":"47a55b8eb85f","msg":"Ephurin API listening on port 4000"}
+ai-service-1  | 2026-10-23 08:19:13,073 | INFO | ai-service | GET /v1/story-brains/by-novel/acaa7229-ad13-4493-b115-df986eb598c6 -> 200 (16.18 ms)
+ai-service-1  | 2026-10-23 08:19:13,138 | INFO | fake-llm | Fake LLM returning deterministic entities
+ai-service-1  | 2026-10-23 08:19:13,138 | INFO | fake-llm | Fake LLM returning deterministic narrative events
+ai-service-1  | 2026-10-23 08:19:13,138 | INFO | services.event_summarizer | Event summarizer: extracted 1 events from text
+ai-service-1  | 2026-10-23 08:19:13,147 | INFO | ai-service | POST /v1/revisions/f5c1e11f-c099-4122-9a4e-725dc75eb0ae/analyses -> 202 (42.46 ms)
+ai-service-1  | INFO:     172.28.0.5:50186 - "POST /v1/revisions/f5c1e11f-c099-4122-9a4e-725dc75eb0ae/analyses HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:19:14,146 | INFO | ai-service | GET /v1/story-brains/acaa7229-ad13-4493-b115-df986eb598c6/review-queue -> 200 (5.33 ms)
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /v1/story-brains/acaa7229-ad13-4493-b115-df986eb598c6/review-queue HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:14,187 | INFO | ai-service | GET /internal/v1/proposal-groups/b9b6ec71-7b55-5e4f-9c5f-c66cd9d9ba44/novel -> 200 (4.14 ms)
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /internal/v1/proposal-groups/b9b6ec71-7b55-5e4f-9c5f-c66cd9d9ba44/novel HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:14,194 | INFO | ai-service | GET /v1/story-brains/acaa7229-ad13-4493-b115-df986eb598c6/review-queue -> 200 (4.82 ms)
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /v1/story-brains/acaa7229-ad13-4493-b115-df986eb598c6/review-queue HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:50186 - "POST /v1/proposal-groups/b9b6ec71-7b55-5e4f-9c5f-c66cd9d9ba44/accept HTTP/1.1" 409 Conflict
+ai-service-1  | 2026-10-23 08:19:14,210 | INFO | ai-service | POST /v1/proposal-groups/b9b6ec71-7b55-5e4f-9c5f-c66cd9d9ba44/accept -> 409 (11.28 ms)
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /internal/v1/proposal-groups/b9b6ec71-7b55-5e4f-9c5f-c66cd9d9ba44/novel HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:14,243 | INFO | ai-service | GET /internal/v1/proposal-groups/b9b6ec71-7b55-5e4f-9c5f-c66cd9d9ba44/novel -> 200 (3.47 ms)
+ai-service-1  | 2026-10-23 08:19:14,249 | INFO | ai-service | GET /v1/story-brains/acaa7229-ad13-4493-b115-df986eb598c6/review-queue -> 200 (3.76 ms)
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /v1/story-brains/acaa7229-ad13-4493-b115-df986eb598c6/review-queue HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:14,283 | INFO | ai-service | POST /v1/proposal-groups/b9b6ec71-7b55-5e4f-9c5f-c66cd9d9ba44/accept -> 200 (31.34 ms)
+ai-service-1  | INFO:     172.28.0.5:50186 - "POST /v1/proposal-groups/b9b6ec71-7b55-5e4f-9c5f-c66cd9d9ba44/accept HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:14,323 | INFO | ai-service | GET /internal/v1/proposal-groups/b9b6ec71-7b55-5e4f-9c5f-c66cd9d9ba44/novel -> 200 (7.99 ms)
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /internal/v1/proposal-groups/b9b6ec71-7b55-5e4f-9c5f-c66cd9d9ba44/novel HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:14,330 | INFO | ai-service | GET /v1/story-brains/acaa7229-ad13-4493-b115-df986eb598c6/review-queue -> 200 (3.68 ms)
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /v1/story-brains/acaa7229-ad13-4493-b115-df986eb598c6/review-queue HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:14,389 | INFO | ai-service | GET /v1/story-brains/acaa7229-ad13-4493-b115-df986eb598c6/context-preview -> 200 (14.55 ms)
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /v1/story-brains/acaa7229-ad13-4493-b115-df986eb598c6/context-preview?chapter_number=2 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:14,442 | INFO | ai-service | POST /v1/writing/generations -> 202 (22.79 ms)
+ai-service-1  | INFO:     172.28.0.5:50186 - "POST /v1/writing/generations HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:19:14,481 | INFO | ai-service | GET /v1/jobs/3df86de5-074b-5458-977d-9f400f20f476 -> 200 (10.47 ms)
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /v1/jobs/3df86de5-074b-5458-977d-9f400f20f476 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:15,523 | INFO | ai-service | GET /v1/jobs/3df86de5-074b-5458-977d-9f400f20f476 -> 200 (5.16 ms)
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /v1/jobs/3df86de5-074b-5458-977d-9f400f20f476 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:15,605 | INFO | ai-service | POST /v1/writing/generations -> 202 (20.58 ms)
+ai-service-1  | INFO:     172.28.0.5:50186 - "POST /v1/writing/generations HTTP/1.1" 202 Accepted
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /v1/jobs/91907abb-a57c-514b-ae84-60c535f5398e HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:15,639 | INFO | ai-service | GET /v1/jobs/91907abb-a57c-514b-ae84-60c535f5398e -> 200 (10.26 ms)
+ai-service-1  | 2026-10-23 08:19:16,672 | INFO | ai-service | GET /v1/jobs/91907abb-a57c-514b-ae84-60c535f5398e -> 200 (7.18 ms)
+ai-service-1  | INFO:     172.28.0.5:50186 - "GET /v1/jobs/91907abb-a57c-514b-ae84-60c535f5398e HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:19,637 | INFO | ai-service | GET /health -> 200 (0.98 ms)
+ai-service-1  | INFO:     127.0.0.1:51958 - "GET /health HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:25,151 | INFO | ai-service | POST /v1/story-brains/bootstrap/from-idea -> 202 (42.58 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "POST /v1/story-brains/bootstrap/from-idea HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:19:25,183 | INFO | ai-service | POST /v1/story-brains/bootstrap/from-idea -> 202 (3.07 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "POST /v1/story-brains/bootstrap/from-idea HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:19:25,215 | INFO | ai-service | GET /v1/story-brains/8f953333-344d-481e-9069-1429b09784df/review-queue -> 200 (4.80 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "GET /v1/story-brains/8f953333-344d-481e-9069-1429b09784df/review-queue HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:38296 - "GET /internal/v1/proposal-groups/7e6cfab3-5598-5af8-a527-e35ccb8015b3/novel HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:25,245 | INFO | ai-service | GET /internal/v1/proposal-groups/7e6cfab3-5598-5af8-a527-e35ccb8015b3/novel -> 200 (3.22 ms)
+ai-service-1  | 2026-10-23 08:19:25,251 | INFO | ai-service | GET /v1/story-brains/8f953333-344d-481e-9069-1429b09784df/review-queue -> 200 (3.21 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "GET /v1/story-brains/8f953333-344d-481e-9069-1429b09784df/review-queue HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:25,291 | INFO | ai-service | POST /v1/proposal-groups/7e6cfab3-5598-5af8-a527-e35ccb8015b3/accept -> 200 (38.16 ms)
+ai-service-1  | INFO:     172.28.0.5:38298 - "POST /v1/proposal-groups/7e6cfab3-5598-5af8-a527-e35ccb8015b3/accept HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:25,331 | INFO | ai-service | POST /v1/story-brains/8f953333-344d-481e-9069-1429b09784df/baseline/activate -> 200 (14.89 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "POST /v1/story-brains/8f953333-344d-481e-9069-1429b09784df/baseline/activate HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:25,441 | INFO | fake-llm | Fake LLM returning deterministic entities
+ai-service-1  | 2026-10-23 08:19:25,441 | INFO | fake-llm | Fake LLM returning deterministic narrative events
+ai-service-1  | 2026-10-23 08:19:25,441 | INFO | services.event_summarizer | Event summarizer: extracted 1 events from text
+ai-service-1  | INFO:     172.28.0.5:38296 - "POST /v1/revisions/6a296f37-a276-47f6-8414-d84378d77fdc/analyses HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:19:25,447 | INFO | ai-service | POST /v1/revisions/6a296f37-a276-47f6-8414-d84378d77fdc/analyses -> 202 (30.69 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "GET /v1/story-brains/8f953333-344d-481e-9069-1429b09784df/context-preview?chapter_number=1 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:26,484 | INFO | ai-service | GET /v1/story-brains/8f953333-344d-481e-9069-1429b09784df/context-preview -> 200 (10.45 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "POST /v1/writing/generations HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:19:26,530 | INFO | ai-service | POST /v1/writing/generations -> 202 (20.66 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "GET /v1/jobs/2defc56c-4bc7-5769-a168-e7f94aa0edf9 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:26,565 | INFO | ai-service | GET /v1/jobs/2defc56c-4bc7-5769-a168-e7f94aa0edf9 -> 200 (9.88 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "GET /v1/jobs/2defc56c-4bc7-5769-a168-e7f94aa0edf9 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:27,598 | INFO | ai-service | GET /v1/jobs/2defc56c-4bc7-5769-a168-e7f94aa0edf9 -> 200 (8.19 ms)
+ai-service-1  | 2026-10-23 08:19:27,646 | INFO | ai-service | GET /internal/v1/writing/generations/2defc56c-4bc7-5769-a168-e7f94aa0edf9 -> 200 (6.37 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "GET /internal/v1/writing/generations/2defc56c-4bc7-5769-a168-e7f94aa0edf9 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:27,661 | INFO | ai-service | GET /v1/story-brains/by-novel/8f953333-344d-481e-9069-1429b09784df -> 200 (13.49 ms)
+ai-service-1  | INFO:     172.28.0.5:38298 - "GET /v1/story-brains/by-novel/8f953333-344d-481e-9069-1429b09784df HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:27,714 | INFO | fake-llm | Fake LLM returning deterministic entities
+ai-service-1  | 2026-10-23 08:19:27,714 | INFO | fake-llm | Fake LLM returning deterministic narrative events
+ai-service-1  | 2026-10-23 08:19:27,714 | INFO | services.event_summarizer | Event summarizer: extracted 1 events from text
+ai-service-1  | INFO:     172.28.0.5:38296 - "POST /v1/revisions/2dcf07af-783d-49dd-97ed-4f8e60ba64e6/analyses HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:19:27,722 | INFO | ai-service | POST /v1/revisions/2dcf07af-783d-49dd-97ed-4f8e60ba64e6/analyses -> 202 (35.56 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "GET /v1/story-brains/8f953333-344d-481e-9069-1429b09784df/review-queue HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:28,719 | INFO | ai-service | GET /v1/story-brains/8f953333-344d-481e-9069-1429b09784df/review-queue -> 200 (3.47 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "GET /internal/v1/proposal-groups/3dee5c70-7065-56bb-9aa7-ff9b61d35c28/novel HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:28,747 | INFO | ai-service | GET /internal/v1/proposal-groups/3dee5c70-7065-56bb-9aa7-ff9b61d35c28/novel -> 200 (3.12 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "GET /v1/story-brains/8f953333-344d-481e-9069-1429b09784df/review-queue HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:28,752 | INFO | ai-service | GET /v1/story-brains/8f953333-344d-481e-9069-1429b09784df/review-queue -> 200 (3.12 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "POST /v1/proposal-groups/3dee5c70-7065-56bb-9aa7-ff9b61d35c28/accept HTTP/1.1" 409 Conflict
+ai-service-1  | 2026-10-23 08:19:28,764 | INFO | ai-service | POST /v1/proposal-groups/3dee5c70-7065-56bb-9aa7-ff9b61d35c28/accept -> 409 (9.33 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "GET /internal/v1/proposal-groups/3dee5c70-7065-56bb-9aa7-ff9b61d35c28/novel HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:28,793 | INFO | ai-service | GET /internal/v1/proposal-groups/3dee5c70-7065-56bb-9aa7-ff9b61d35c28/novel -> 200 (3.71 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "GET /v1/story-brains/8f953333-344d-481e-9069-1429b09784df/review-queue HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:28,799 | INFO | ai-service | GET /v1/story-brains/8f953333-344d-481e-9069-1429b09784df/review-queue -> 200 (3.38 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "POST /v1/proposal-groups/3dee5c70-7065-56bb-9aa7-ff9b61d35c28/accept HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:28,831 | INFO | ai-service | POST /v1/proposal-groups/3dee5c70-7065-56bb-9aa7-ff9b61d35c28/accept -> 200 (29.32 ms)
+ai-service-1  | 2026-10-23 08:19:28,860 | INFO | ai-service | GET /internal/v1/proposal-groups/3dee5c70-7065-56bb-9aa7-ff9b61d35c28/novel -> 200 (3.56 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "GET /internal/v1/proposal-groups/3dee5c70-7065-56bb-9aa7-ff9b61d35c28/novel HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:28,865 | INFO | ai-service | GET /v1/story-brains/8f953333-344d-481e-9069-1429b09784df/review-queue -> 200 (3.08 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "GET /v1/story-brains/8f953333-344d-481e-9069-1429b09784df/review-queue HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:28,907 | INFO | ai-service | GET /v1/story-brains/8f953333-344d-481e-9069-1429b09784df/context-preview -> 200 (10.24 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "GET /v1/story-brains/8f953333-344d-481e-9069-1429b09784df/context-preview?chapter_number=1 HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:38296 - "POST /v1/writing/generations HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:19:28,989 | INFO | ai-service | POST /v1/writing/generations -> 202 (21.74 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "GET /v1/jobs/9990c675-c7f9-5a29-abd7-79f63f5a5e9b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:29,020 | INFO | ai-service | GET /v1/jobs/9990c675-c7f9-5a29-abd7-79f63f5a5e9b -> 200 (4.52 ms)
+ai-service-1  | 2026-10-23 08:19:29,692 | INFO | ai-service | GET /health -> 200 (1.07 ms)
+ai-service-1  | INFO:     127.0.0.1:38132 - "GET /health HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:30,059 | INFO | ai-service | GET /v1/jobs/9990c675-c7f9-5a29-abd7-79f63f5a5e9b -> 200 (7.02 ms)
+ai-service-1  | INFO:     172.28.0.5:38296 - "GET /v1/jobs/9990c675-c7f9-5a29-abd7-79f63f5a5e9b HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:58150 - "POST /v1/story-brains/bootstrap/from-idea HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:19:38,600 | INFO | ai-service | POST /v1/story-brains/bootstrap/from-idea -> 202 (34.45 ms)
+ai-service-1  | 2026-10-23 08:19:38,629 | INFO | ai-service | GET /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/review-queue -> 200 (3.55 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/review-queue HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /internal/v1/proposal-groups/43d7b87f-15f6-5f72-a331-146932f9b6ed/novel HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:38,658 | INFO | ai-service | GET /internal/v1/proposal-groups/43d7b87f-15f6-5f72-a331-146932f9b6ed/novel -> 200 (3.48 ms)
+ai-service-1  | 2026-10-23 08:19:38,663 | INFO | ai-service | GET /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/review-queue -> 200 (3.04 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/review-queue HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:58156 - "POST /v1/proposal-groups/43d7b87f-15f6-5f72-a331-146932f9b6ed/accept HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:38,699 | INFO | ai-service | POST /v1/proposal-groups/43d7b87f-15f6-5f72-a331-146932f9b6ed/accept -> 200 (33.80 ms)
+ai-service-1  | 2026-10-23 08:19:38,736 | INFO | ai-service | POST /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/baseline/activate -> 200 (11.54 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "POST /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/baseline/activate HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:38,842 | INFO | fake-llm | Fake LLM returning deterministic entities
+ai-service-1  | 2026-10-23 08:19:38,842 | INFO | fake-llm | Fake LLM returning deterministic narrative events
+ai-service-1  | 2026-10-23 08:19:38,842 | INFO | services.event_summarizer | Event summarizer: extracted 1 events from text
+ai-service-1  | INFO:     172.28.0.5:58150 - "POST /v1/revisions/431deeb6-0786-4c05-a58f-abc8288e7ebb/analyses HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:19:38,848 | INFO | ai-service | POST /v1/revisions/431deeb6-0786-4c05-a58f-abc8288e7ebb/analyses -> 202 (29.64 ms)
+ai-service-1  | 2026-10-23 08:19:39,745 | INFO | ai-service | GET /health -> 200 (1.29 ms)
+ai-service-1  | INFO:     127.0.0.1:51362 - "GET /health HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:39,862 | INFO | ai-service | POST /v1/story-plans -> 201 (18.48 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "POST /v1/story-plans HTTP/1.1" 201 Created
+ai-service-1  | 2026-10-23 08:19:39,906 | INFO | ai-service | POST /v1/story-plans -> 201 (9.20 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "POST /v1/story-plans HTTP/1.1" 201 Created
+ai-service-1  | 2026-10-23 08:19:39,948 | INFO | ai-service | POST /v1/story-plans -> 409 (6.07 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "POST /v1/story-plans HTTP/1.1" 409 Conflict
+ai-service-1  | 2026-10-23 08:19:39,997 | INFO | ai-service | GET /v1/story-plans/e561ffd5-6797-4ab5-9b0f-8f0f459203c8 -> 200 (11.51 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /v1/story-plans/e561ffd5-6797-4ab5-9b0f-8f0f459203c8 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:40,819 | INFO | ai-service | GET /v1/story-plans/e561ffd5-6797-4ab5-9b0f-8f0f459203c8 -> 200 (3.89 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /v1/story-plans/e561ffd5-6797-4ab5-9b0f-8f0f459203c8 HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:58150 - "POST /v1/story-plans/e561ffd5-6797-4ab5-9b0f-8f0f459203c8/activate?novel_id=3492b43b-1ccf-4c48-8932-ef229b711d6e HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:40,862 | INFO | ai-service | POST /v1/story-plans/e561ffd5-6797-4ab5-9b0f-8f0f459203c8/activate -> 200 (10.29 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/context-preview?chapter_number=1 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:40,899 | INFO | ai-service | GET /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/context-preview -> 200 (10.97 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "POST /v1/writing/generations HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:19:40,956 | INFO | ai-service | POST /v1/writing/generations -> 202 (26.45 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /v1/jobs/744a398a-e082-5243-a2fd-046cc6ec1390 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:40,995 | INFO | ai-service | GET /v1/jobs/744a398a-e082-5243-a2fd-046cc6ec1390 -> 200 (12.85 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /v1/jobs/744a398a-e082-5243-a2fd-046cc6ec1390 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:41,541 | INFO | ai-service | GET /v1/jobs/744a398a-e082-5243-a2fd-046cc6ec1390 -> 200 (7.87 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "POST /v1/writing/generations HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:19:41,591 | INFO | ai-service | POST /v1/writing/generations -> 202 (20.59 ms)
+ai-service-1  | 2026-10-23 08:19:41,628 | INFO | ai-service | GET /v1/jobs/d2c7f551-e1e6-5162-8508-0b97cb4b0d4a -> 200 (10.78 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /v1/jobs/d2c7f551-e1e6-5162-8508-0b97cb4b0d4a HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:42,169 | INFO | ai-service | GET /v1/jobs/d2c7f551-e1e6-5162-8508-0b97cb4b0d4a -> 200 (7.47 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /v1/jobs/d2c7f551-e1e6-5162-8508-0b97cb4b0d4a HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:42,214 | INFO | ai-service | GET /internal/v1/writing/generations/744a398a-e082-5243-a2fd-046cc6ec1390 -> 200 (3.22 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /internal/v1/writing/generations/744a398a-e082-5243-a2fd-046cc6ec1390 HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:58156 - "GET /v1/story-brains/by-novel/3492b43b-1ccf-4c48-8932-ef229b711d6e HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:42,228 | INFO | ai-service | GET /v1/story-brains/by-novel/3492b43b-1ccf-4c48-8932-ef229b711d6e -> 200 (12.34 ms)
+ai-service-1  | 2026-10-23 08:19:42,278 | INFO | fake-llm | Fake LLM returning deterministic entities
+ai-service-1  | 2026-10-23 08:19:42,278 | INFO | fake-llm | Fake LLM returning deterministic narrative events
+ai-service-1  | 2026-10-23 08:19:42,278 | INFO | services.event_summarizer | Event summarizer: extracted 1 events from text
+ai-service-1  | INFO:     172.28.0.5:58150 - "POST /v1/revisions/589f7e9a-5d98-4572-8ebe-a881fcfaa2ce/analyses HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:19:42,286 | INFO | ai-service | POST /v1/revisions/589f7e9a-5d98-4572-8ebe-a881fcfaa2ce/analyses -> 202 (32.28 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/review-queue HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:43,274 | INFO | ai-service | GET /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/review-queue -> 200 (4.54 ms)
+ai-service-1  | 2026-10-23 08:19:43,306 | INFO | ai-service | GET /internal/v1/proposal-groups/dc265035-9b02-5f7d-a54c-46f5cea5e2a4/novel -> 200 (4.05 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /internal/v1/proposal-groups/dc265035-9b02-5f7d-a54c-46f5cea5e2a4/novel HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/review-queue HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:43,313 | INFO | ai-service | GET /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/review-queue -> 200 (4.82 ms)
+ai-service-1  | 2026-10-23 08:19:43,326 | INFO | ai-service | POST /v1/proposal-groups/dc265035-9b02-5f7d-a54c-46f5cea5e2a4/accept -> 409 (9.51 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "POST /v1/proposal-groups/dc265035-9b02-5f7d-a54c-46f5cea5e2a4/accept HTTP/1.1" 409 Conflict
+ai-service-1  | 2026-10-23 08:19:43,356 | INFO | ai-service | GET /internal/v1/proposal-groups/dc265035-9b02-5f7d-a54c-46f5cea5e2a4/novel -> 200 (3.61 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /internal/v1/proposal-groups/dc265035-9b02-5f7d-a54c-46f5cea5e2a4/novel HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:43,362 | INFO | ai-service | GET /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/review-queue -> 200 (3.90 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/review-queue HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:43,391 | INFO | ai-service | POST /v1/proposal-groups/dc265035-9b02-5f7d-a54c-46f5cea5e2a4/accept -> 200 (26.71 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "POST /v1/proposal-groups/dc265035-9b02-5f7d-a54c-46f5cea5e2a4/accept HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:43,421 | INFO | ai-service | GET /internal/v1/proposal-groups/dc265035-9b02-5f7d-a54c-46f5cea5e2a4/novel -> 200 (3.12 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /internal/v1/proposal-groups/dc265035-9b02-5f7d-a54c-46f5cea5e2a4/novel HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:43,428 | INFO | ai-service | GET /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/review-queue -> 200 (3.52 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/review-queue HTTP/1.1" 200 OK
+ai-service-1  | INFO:     127.0.0.1:33138 - "PATCH /v1/story-plans/e561ffd5-6797-4ab5-9b0f-8f0f459203c8/objectives/986ab7c9-1a83-4ea5-b3e1-b285922d532b?novel_id=df850e35-c12f-4160-ba6f-8451a9b0d9ee HTTP/1.1" 404 Not Found
+ai-service-1  | 2026-10-23 08:19:43,461 | INFO | ai-service | PATCH /v1/story-plans/e561ffd5-6797-4ab5-9b0f-8f0f459203c8/objectives/986ab7c9-1a83-4ea5-b3e1-b285922d532b -> 404 (4.00 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "PATCH /v1/story-plans/e561ffd5-6797-4ab5-9b0f-8f0f459203c8/objectives/986ab7c9-1a83-4ea5-b3e1-b285922d532b?novel_id=3492b43b-1ccf-4c48-8932-ef229b711d6e HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:43,496 | INFO | ai-service | PATCH /v1/story-plans/e561ffd5-6797-4ab5-9b0f-8f0f459203c8/objectives/986ab7c9-1a83-4ea5-b3e1-b285922d532b -> 200 (9.84 ms)
+ai-service-1  | 2026-10-23 08:19:43,538 | INFO | ai-service | GET /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/context-preview -> 200 (13.35 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/context-preview?chapter_number=2 HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:58150 - "POST /v1/story-plans HTTP/1.1" 201 Created
+ai-service-1  | 2026-10-23 08:19:43,570 | INFO | ai-service | POST /v1/story-plans -> 201 (7.15 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "POST /v1/story-plans/819bcc68-aa44-4fb7-91c0-6fb7c663243a/activate?novel_id=3492b43b-1ccf-4c48-8932-ef229b711d6e HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:43,602 | INFO | ai-service | POST /v1/story-plans/819bcc68-aa44-4fb7-91c0-6fb7c663243a/activate -> 200 (6.31 ms)
+ai-service-1  | 2026-10-23 08:19:43,640 | INFO | ai-service | GET /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/context-preview -> 200 (11.72 ms)
+ai-service-1  | INFO:     172.28.0.5:58150 - "GET /v1/story-brains/3492b43b-1ccf-4c48-8932-ef229b711d6e/context-preview?chapter_number=2 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:49,794 | INFO | ai-service | GET /health -> 200 (0.93 ms)
+ai-service-1  | INFO:     127.0.0.1:33154 - "GET /health HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/story-brains/bootstrap/from-idea HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:19:52,690 | INFO | ai-service | POST /v1/story-brains/bootstrap/from-idea -> 202 (37.86 ms)
+ai-service-1  | 2026-10-23 08:19:52,719 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (3.36 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:53,262 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (3.76 ms)
+ai-service-1  | 2026-10-23 08:19:53,791 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (3.28 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:54,321 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (3.28 ms)
+ai-service-1  | 2026-10-23 08:19:54,850 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (3.52 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:55,379 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (3.34 ms)
+ai-service-1  | 2026-10-23 08:19:55,911 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (3.01 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:56,480 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (4.11 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:57,013 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (4.19 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:57,546 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (3.41 ms)
+ai-service-1  | 2026-10-23 08:19:58,077 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (3.36 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:58,619 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (4.29 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:59,163 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (3.19 ms)
+ai-service-1  | 2026-10-23 08:19:59,706 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (4.57 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:19:59,849 | INFO | ai-service | GET /health -> 200 (1.15 ms)
+ai-service-1  | INFO:     127.0.0.1:42092 - "GET /health HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:00,276 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (11.75 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:00,812 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (3.48 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:01,342 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (4.13 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:01,874 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (3.52 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:02,415 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (4.76 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:02,944 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (3.19 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:03,481 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (3.15 ms)
+ai-service-1  | 2026-10-23 08:20:04,011 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (3.56 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:04,541 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (4.26 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:05,080 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (3.34 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:05,612 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (3.34 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:06,142 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (4.16 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:06,683 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (4.73 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:07,236 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (3.95 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:07,773 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (4.73 ms)
+ai-service-1  | 2026-10-23 08:20:08,320 | INFO | ai-service | GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 -> 200 (4.24 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/jobs/76f73fd9-693b-5c69-940e-3e01e5dbda56 HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/story-plans HTTP/1.1" 201 Created
+ai-service-1  | 2026-10-23 08:20:08,866 | INFO | ai-service | POST /v1/story-plans -> 201 (7.89 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8/activate?novel_id=c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:08,899 | INFO | ai-service | POST /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8/activate -> 200 (7.64 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/autonomous/runs HTTP/1.1" 201 Created
+ai-service-1  | 2026-10-23 08:20:08,962 | INFO | ai-service | POST /v1/autonomous/runs -> 201 (25.26 ms)
+ai-service-1  | 2026-10-23 08:20:09,021 | INFO | ai-service | GET /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b -> 200 (6.29 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:09,078 | INFO | ai-service | POST /v1/autonomous/runs -> 409 (25.51 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/autonomous/runs HTTP/1.1" 409 Conflict
+ai-service-1  | 2026-10-23 08:20:09,131 | INFO | ai-service | POST /v1/autonomous/runs -> 201 (18.33 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/autonomous/runs HTTP/1.1" 201 Created
+ai-service-1  | 2026-10-23 08:20:09,177 | INFO | ai-service | POST /v1/autonomous/runs -> 409 (16.13 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/autonomous/runs HTTP/1.1" 409 Conflict
+ai-service-1  | 2026-10-23 08:20:09,214 | INFO | ai-service | POST /v1/story-plans -> 201 (7.70 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/story-plans HTTP/1.1" 201 Created
+ai-service-1  | 2026-10-23 08:20:09,250 | INFO | ai-service | POST /v1/story-plans/7c55a2c0-95bb-4143-8e12-33cbefc9cccd/activate -> 200 (6.37 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/story-plans/7c55a2c0-95bb-4143-8e12-33cbefc9cccd/activate?novel_id=9aedb40a-cc3e-4f0c-a353-e7043c1768e4 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:09,354 | INFO | ai-service | POST /v1/autonomous/runs -> 201 (47.93 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/autonomous/runs HTTP/1.1" 201 Created
+ai-service-1  | 2026-10-23 08:20:09,372 | INFO | ai-service | POST /v1/autonomous/runs -> 409 (65.00 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "POST /v1/autonomous/runs HTTP/1.1" 409 Conflict
+ai-service-1  | 2026-10-23 08:20:09,424 | INFO | ai-service | GET /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b -> 200 (4.35 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:09,436 | INFO | ai-service | GET /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8 -> 200 (6.43 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:09,448 | INFO | ai-service | PATCH /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8/objectives/a720ab34-f2b8-4eca-bd9b-55bd49099a2b -> 200 (9.12 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "PATCH /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8/objectives/a720ab34-f2b8-4eca-bd9b-55bd49099a2b?novel_id=c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/writing/generations HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:20:09,497 | INFO | ai-service | POST /v1/writing/generations -> 202 (45.72 ms)
+ai-service-1  | 2026-10-23 08:20:09,508 | INFO | ai-service | GET /internal/v1/writing/generations/82baf779-12b5-5cc9-b775-eab0c1ee1af7 -> 200 (8.12 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "GET /internal/v1/writing/generations/82baf779-12b5-5cc9-b775-eab0c1ee1af7 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:09,717 | INFO | ai-service | GET /internal/v1/writing/generations/82baf779-12b5-5cc9-b775-eab0c1ee1af7 -> 200 (5.40 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /internal/v1/writing/generations/82baf779-12b5-5cc9-b775-eab0c1ee1af7 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:09,734 | INFO | ai-service | PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b -> 200 (14.04 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:09,769 | INFO | ai-service | GET /internal/v1/writing/generations/82baf779-12b5-5cc9-b775-eab0c1ee1af7 -> 200 (6.48 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /internal/v1/writing/generations/82baf779-12b5-5cc9-b775-eab0c1ee1af7 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:09,793 | INFO | ai-service | GET /v1/story-brains/by-novel/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 -> 200 (21.75 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "GET /v1/story-brains/by-novel/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:09,860 | INFO | fake-llm | Fake LLM returning deterministic entities
+ai-service-1  | 2026-10-23 08:20:09,861 | INFO | fake-llm | Fake LLM returning deterministic narrative events
+ai-service-1  | 2026-10-23 08:20:09,861 | INFO | services.event_summarizer | Event summarizer: extracted 1 events from text
+ai-service-1  | 2026-10-23 08:20:09,880 | INFO | ai-service | POST /v1/revisions/48f11f96-7e4a-4d22-aacd-4964f080d6c2/analyses -> 202 (65.30 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/revisions/48f11f96-7e4a-4d22-aacd-4964f080d6c2/analyses HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:20:09,892 | INFO | ai-service | GET /v1/story-brains/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1/review-queue -> 200 (7.35 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/story-brains/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1/review-queue HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:09,919 | INFO | ai-service | GET /health -> 200 (2.72 ms)
+ai-service-1  | INFO:     127.0.0.1:40144 - "GET /health HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:09,978 | INFO | ai-service | POST /v1/proposal-groups/6b97a31a-b153-585a-ae52-491a1fb90300/accept -> 200 (78.79 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "POST /v1/proposal-groups/6b97a31a-b153-585a-ae52-491a1fb90300/accept HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,007 | INFO | ai-service | GET /v1/story-brains/by-novel/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 -> 200 (26.68 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/story-brains/by-novel/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,025 | INFO | ai-service | PATCH /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8/objectives/a720ab34-f2b8-4eca-bd9b-55bd49099a2b -> 200 (13.38 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "PATCH /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8/objectives/a720ab34-f2b8-4eca-bd9b-55bd49099a2b?novel_id=c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,040 | INFO | ai-service | PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b -> 200 (11.55 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,089 | INFO | ai-service | GET /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b -> 200 (4.87 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,145 | INFO | ai-service | GET /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b -> 200 (7.42 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,155 | INFO | ai-service | GET /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8 -> 200 (5.84 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,168 | INFO | ai-service | GET /internal/v1/writing/generations/82baf779-12b5-5cc9-b775-eab0c1ee1af7 -> 200 (6.31 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /internal/v1/writing/generations/82baf779-12b5-5cc9-b775-eab0c1ee1af7 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,183 | INFO | ai-service | PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b -> 200 (12.79 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,200 | INFO | ai-service | GET /v1/story-brains/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1/review-queue -> 200 (5.79 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/story-brains/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1/review-queue HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,221 | INFO | ai-service | GET /v1/story-brains/by-novel/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 -> 200 (18.60 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "GET /v1/story-brains/by-novel/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.28.0.5:56406 - "PATCH /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8/objectives/a720ab34-f2b8-4eca-bd9b-55bd49099a2b?novel_id=c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,234 | INFO | ai-service | PATCH /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8/objectives/a720ab34-f2b8-4eca-bd9b-55bd49099a2b -> 200 (10.41 ms)
+ai-service-1  | 2026-10-23 08:20:10,248 | INFO | ai-service | PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b -> 200 (11.51 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,302 | INFO | ai-service | GET /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b -> 200 (6.19 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,319 | INFO | ai-service | GET /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8 -> 200 (8.49 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,334 | INFO | ai-service | PATCH /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8/objectives/ca6b7f62-4a8e-4ef3-949f-3e33f0cca731 -> 200 (10.16 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "PATCH /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8/objectives/ca6b7f62-4a8e-4ef3-949f-3e33f0cca731?novel_id=c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,375 | INFO | ai-service | POST /v1/writing/generations -> 202 (36.87 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/writing/generations HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:20:10,385 | INFO | ai-service | GET /internal/v1/writing/generations/425c7d6f-507a-5993-b242-4b1cc61d2b8c -> 200 (7.98 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "GET /internal/v1/writing/generations/425c7d6f-507a-5993-b242-4b1cc61d2b8c HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,593 | INFO | ai-service | GET /internal/v1/writing/generations/425c7d6f-507a-5993-b242-4b1cc61d2b8c -> 200 (5.15 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /internal/v1/writing/generations/425c7d6f-507a-5993-b242-4b1cc61d2b8c HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,606 | INFO | ai-service | PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b -> 200 (9.64 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,622 | INFO | ai-service | PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b -> 200 (14.57 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,668 | INFO | ai-service | GET /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b -> 200 (5.27 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,682 | INFO | ai-service | GET /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8 -> 200 (9.08 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,730 | INFO | ai-service | POST /v1/writing/generations -> 202 (42.84 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/writing/generations HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:20:10,742 | INFO | ai-service | GET /internal/v1/writing/generations/3534b7c5-7a43-589f-8aea-3fe290ef3322 -> 200 (8.88 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "GET /internal/v1/writing/generations/3534b7c5-7a43-589f-8aea-3fe290ef3322 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,955 | INFO | ai-service | GET /internal/v1/writing/generations/3534b7c5-7a43-589f-8aea-3fe290ef3322 -> 200 (8.02 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /internal/v1/writing/generations/3534b7c5-7a43-589f-8aea-3fe290ef3322 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:10,980 | INFO | ai-service | PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b -> 200 (21.50 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:11,020 | INFO | ai-service | GET /internal/v1/writing/generations/3534b7c5-7a43-589f-8aea-3fe290ef3322 -> 200 (15.05 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /internal/v1/writing/generations/3534b7c5-7a43-589f-8aea-3fe290ef3322 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:11,066 | INFO | ai-service | GET /v1/story-brains/by-novel/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 -> 200 (38.00 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "GET /v1/story-brains/by-novel/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:11,222 | INFO | fake-llm | Fake LLM returning deterministic entities
+ai-service-1  | 2026-10-23 08:20:11,222 | INFO | fake-llm | Fake LLM returning deterministic narrative events
+ai-service-1  | 2026-10-23 08:20:11,223 | INFO | services.event_summarizer | Event summarizer: extracted 1 events from text
+ai-service-1  | 2026-10-23 08:20:11,243 | INFO | ai-service | POST /v1/revisions/757498ec-850d-4b26-91e9-f3f3ae664f03/analyses -> 202 (89.57 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/revisions/757498ec-850d-4b26-91e9-f3f3ae664f03/analyses HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:20:11,257 | INFO | ai-service | GET /v1/story-brains/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1/review-queue -> 200 (7.87 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/story-brains/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1/review-queue HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:11,322 | INFO | ai-service | POST /v1/proposal-groups/e0f8f794-8835-5e0d-8ae3-359ae636a63f/accept -> 200 (62.64 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "POST /v1/proposal-groups/e0f8f794-8835-5e0d-8ae3-359ae636a63f/accept HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:11,356 | INFO | ai-service | GET /v1/story-brains/by-novel/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 -> 200 (31.40 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/story-brains/by-novel/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:11,373 | INFO | ai-service | PATCH /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8/objectives/ca6b7f62-4a8e-4ef3-949f-3e33f0cca731 -> 200 (12.28 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "PATCH /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8/objectives/ca6b7f62-4a8e-4ef3-949f-3e33f0cca731?novel_id=c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:11,403 | INFO | ai-service | PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b -> 200 (26.39 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:11,445 | INFO | ai-service | GET /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b -> 200 (5.50 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:11,506 | INFO | ai-service | POST /v1/story-plans -> 201 (8.68 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/story-plans HTTP/1.1" 201 Created
+ai-service-1  | 2026-10-23 08:20:11,564 | INFO | ai-service | POST /v1/story-plans/31ac9593-cae5-4d75-a63d-ea4099a44d68/activate -> 200 (12.09 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/story-plans/31ac9593-cae5-4d75-a63d-ea4099a44d68/activate?novel_id=1390e85e-a6ba-4ec9-a6b2-2119ddc45261 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:11,645 | INFO | ai-service | POST /v1/autonomous/runs -> 201 (31.57 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/autonomous/runs HTTP/1.1" 201 Created
+ai-service-1  | 2026-10-23 08:20:11,687 | INFO | ai-service | GET /v1/autonomous/runs/40ebc452-d597-4962-96f6-b01465061393 -> 200 (5.29 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/autonomous/runs/40ebc452-d597-4962-96f6-b01465061393 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:11,697 | INFO | ai-service | GET /v1/story-plans/31ac9593-cae5-4d75-a63d-ea4099a44d68 -> 200 (6.05 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/story-plans/31ac9593-cae5-4d75-a63d-ea4099a44d68 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:11,711 | INFO | ai-service | PATCH /v1/story-plans/31ac9593-cae5-4d75-a63d-ea4099a44d68/objectives/db40af08-952e-424c-a71d-e1b66ecb58cc -> 200 (10.37 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "PATCH /v1/story-plans/31ac9593-cae5-4d75-a63d-ea4099a44d68/objectives/db40af08-952e-424c-a71d-e1b66ecb58cc?novel_id=1390e85e-a6ba-4ec9-a6b2-2119ddc45261 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:11,758 | INFO | ai-service | POST /v1/writing/generations -> 202 (37.26 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/writing/generations HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:20:11,771 | INFO | ai-service | GET /internal/v1/writing/generations/2a9b5d6c-650b-537c-9a41-da254283d7fd -> 200 (9.88 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "GET /internal/v1/writing/generations/2a9b5d6c-650b-537c-9a41-da254283d7fd HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:11,979 | INFO | ai-service | GET /internal/v1/writing/generations/2a9b5d6c-650b-537c-9a41-da254283d7fd -> 200 (4.91 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /internal/v1/writing/generations/2a9b5d6c-650b-537c-9a41-da254283d7fd HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:11,997 | INFO | ai-service | PATCH /v1/autonomous/runs/40ebc452-d597-4962-96f6-b01465061393 -> 200 (12.62 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "PATCH /v1/autonomous/runs/40ebc452-d597-4962-96f6-b01465061393 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:12,011 | INFO | ai-service | PATCH /v1/autonomous/runs/40ebc452-d597-4962-96f6-b01465061393 -> 200 (10.56 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "PATCH /v1/autonomous/runs/40ebc452-d597-4962-96f6-b01465061393 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:12,068 | INFO | ai-service | POST /v1/story-plans -> 201 (9.06 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/story-plans HTTP/1.1" 201 Created
+ai-service-1  | 2026-10-23 08:20:12,126 | INFO | ai-service | POST /v1/story-plans/99302505-a397-4b51-98b7-f2ffadeb9330/activate -> 200 (9.44 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/story-plans/99302505-a397-4b51-98b7-f2ffadeb9330/activate?novel_id=7ebe0ac7-4cf0-4cd1-9759-f1865078a054 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:12,212 | INFO | ai-service | POST /v1/autonomous/runs -> 201 (41.32 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/autonomous/runs HTTP/1.1" 201 Created
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/autonomous/runs/ef1d4eb7-8ffb-4279-9b83-fc9119062a74 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:12,271 | INFO | ai-service | GET /v1/autonomous/runs/ef1d4eb7-8ffb-4279-9b83-fc9119062a74 -> 200 (8.38 ms)
+ai-service-1  | 2026-10-23 08:20:12,311 | INFO | ai-service | POST /v1/autonomous/runs/ef1d4eb7-8ffb-4279-9b83-fc9119062a74/stop -> 200 (33.13 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/autonomous/runs/ef1d4eb7-8ffb-4279-9b83-fc9119062a74/stop HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:12,358 | INFO | ai-service | GET /v1/autonomous/runs/ef1d4eb7-8ffb-4279-9b83-fc9119062a74 -> 200 (4.48 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/autonomous/runs/ef1d4eb7-8ffb-4279-9b83-fc9119062a74 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:12,406 | INFO | ai-service | GET /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b -> 200 (5.64 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:12,418 | INFO | ai-service | GET /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8 -> 200 (6.54 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:12,431 | INFO | ai-service | PATCH /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8/objectives/455645b0-2350-4b21-9d27-09f12c27d85f -> 200 (10.41 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "PATCH /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8/objectives/455645b0-2350-4b21-9d27-09f12c27d85f?novel_id=c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:12,477 | INFO | ai-service | POST /v1/writing/generations -> 202 (40.82 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/writing/generations HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:20:12,487 | INFO | ai-service | GET /internal/v1/writing/generations/216f02d2-259a-56a3-ac96-c9df4157bafc -> 200 (8.34 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "GET /internal/v1/writing/generations/216f02d2-259a-56a3-ac96-c9df4157bafc HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:12,694 | INFO | ai-service | GET /internal/v1/writing/generations/216f02d2-259a-56a3-ac96-c9df4157bafc -> 200 (4.19 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /internal/v1/writing/generations/216f02d2-259a-56a3-ac96-c9df4157bafc HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:12,707 | INFO | ai-service | PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b -> 200 (10.61 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:12,729 | INFO | ai-service | GET /internal/v1/writing/generations/216f02d2-259a-56a3-ac96-c9df4157bafc -> 200 (5.27 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /internal/v1/writing/generations/216f02d2-259a-56a3-ac96-c9df4157bafc HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:12,757 | INFO | ai-service | GET /v1/story-brains/by-novel/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 -> 200 (25.65 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "GET /v1/story-brains/by-novel/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:12,809 | INFO | fake-llm | Fake LLM returning deterministic entities
+ai-service-1  | 2026-10-23 08:20:12,809 | INFO | fake-llm | Fake LLM returning deterministic narrative events
+ai-service-1  | 2026-10-23 08:20:12,809 | INFO | services.event_summarizer | Event summarizer: extracted 1 events from text
+ai-service-1  | 2026-10-23 08:20:12,820 | INFO | ai-service | POST /v1/revisions/93896fd1-3cc7-45bd-a5f5-f08e5834906c/analyses -> 202 (43.72 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "POST /v1/revisions/93896fd1-3cc7-45bd-a5f5-f08e5834906c/analyses HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 08:20:12,828 | INFO | ai-service | GET /v1/story-brains/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1/review-queue -> 200 (5.72 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/story-brains/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1/review-queue HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:12,914 | INFO | ai-service | POST /v1/proposal-groups/2907fc30-70fe-5626-923d-d89cb461d24f/accept -> 200 (81.99 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "POST /v1/proposal-groups/2907fc30-70fe-5626-923d-d89cb461d24f/accept HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:12,954 | INFO | ai-service | GET /v1/story-brains/by-novel/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 -> 200 (37.05 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/story-brains/by-novel/c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:12,975 | INFO | ai-service | PATCH /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8/objectives/455645b0-2350-4b21-9d27-09f12c27d85f -> 200 (17.81 ms)
+ai-service-1  | INFO:     172.28.0.5:41630 - "PATCH /v1/story-plans/4b642414-b70b-4248-8d1f-d63f50147ca8/objectives/455645b0-2350-4b21-9d27-09f12c27d85f?novel_id=c177c4dd-91ea-4b0a-80e4-0c80d41e28e1 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:13,007 | INFO | ai-service | PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b -> 200 (27.44 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "PATCH /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:13,043 | INFO | ai-service | GET /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b -> 200 (3.36 ms)
+ai-service-1  | INFO:     172.28.0.5:56406 - "GET /v1/autonomous/runs/a55124ab-6eb6-4fee-b460-896ddc386f8b HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 08:20:20,001 | INFO | ai-service | GET /health -> 200 (2.18 ms)
+ai-service-1  | INFO:     127.0.0.1:46430 - "GET /health HTTP/1.1" 200 OK

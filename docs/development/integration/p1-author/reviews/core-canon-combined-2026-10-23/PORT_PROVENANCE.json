@@ -1,0 +1,32 @@
+[
+  {
+    "path": "backend/src/modules/novels/chapters.service.ts",
+    "reference": "origin/codex/p1-core-reconciliation",
+    "git_blob": "ec04381ed1351d7ab38d22ba500c5415274dd31d",
+    "exact_port": true
+  },
+  {
+    "path": "backend/src/modules/novels/draft-chapters.repository.ts",
+    "reference": "origin/codex/p1-core-reconciliation",
+    "git_blob": "81ad2e06dfcb87c5f5f524f9ef1ed474706eb318",
+    "exact_port": true
+  },
+  {
+    "path": "backend/src/jobs/outbox-processor.ts",
+    "reference": "origin/codex/p1-canon-hitl-gate",
+    "git_blob": "f17c59ca24255099d6d73f6c1f110fe4e950ccf5",
+    "exact_port": true
+  },
+  {
+    "path": "backend/src/jobs/outbox-processor.test.ts",
+    "reference": "origin/codex/p1-canon-hitl-gate",
+    "git_blob": "917f3883568dc65459d0c60a7cb920a16b67776e",
+    "exact_port": true
+  },
+  {
+    "path": "backend/src/modules/novels/internal-revision-authorization.test.ts",
+    "reference": "origin/codex/p1-canon-hitl-gate",
+    "git_blob": "719846535bd9abe71ea3e4390974935d07a6be96",
+    "exact_port": true
+  }
+]

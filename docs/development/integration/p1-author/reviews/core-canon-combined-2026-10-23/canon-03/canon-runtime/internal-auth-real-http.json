@@ -1,0 +1,71 @@
+[
+  {
+    "case": "anonymous",
+    "status": 401,
+    "body": {
+      "success": false,
+      "data": null,
+      "error": {
+        "code": "AUTH_002",
+        "message": "Valid service authorization token required"
+      },
+      "meta": {}
+    }
+  },
+  {
+    "case": "empty",
+    "status": 401,
+    "body": {
+      "success": false,
+      "data": null,
+      "error": {
+        "code": "AUTH_002",
+        "message": "Valid service authorization token required"
+      },
+      "meta": {}
+    }
+  },
+  {
+    "case": "arbitrary",
+    "status": 401,
+    "body": {
+      "success": false,
+      "data": null,
+      "error": {
+        "code": "AUTH_002",
+        "message": "Valid service authorization token required"
+      },
+      "meta": {}
+    }
+  },
+  {
+    "case": "valid",
+    "status": 200,
+    "body": {
+      "success": true,
+      "data": {
+        "revision_id": "e84c6b55-49fb-4b01-a27b-e62d5886c6dc",
+        "novel_id": "51ccf52e-c791-4bd1-a034-ca027e8db9a2",
+        "chapter_id": "69a613fa-7692-48ac-81d7-350219a9731f",
+        "chapter_number": 1,
+        "content": "Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng tại Cồn Vân.",
+        "content_hash": "011b399773afc1ac9f4e2e894faae8ee9fd52d32cab2a7e683eee9bae84f42a3"
+      },
+      "error": null,
+      "meta": {}
+    }
+  },
+  {
+    "case": "not_found_valid",
+    "status": 404,
+    "body": {
+      "success": false,
+      "data": null,
+      "error": {
+        "code": "REVISION_NOT_FOUND",
+        "message": "Chapter revision not found"
+      },
+      "meta": {}
+    }
+  }
+]

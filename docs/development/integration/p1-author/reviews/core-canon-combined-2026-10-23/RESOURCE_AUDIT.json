@@ -1,0 +1,325 @@
+{
+  "resources": [
+    {
+      "name": "/p123-core-0df041c7b5-api-ingress-1",
+      "id": "bfba7e0d9662976190546124cfbeec6e74d6cd8193537b327fc640335aa35fe2",
+      "running": false,
+      "project": "p123-core-0df041c7b5",
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2"
+    },
+    {
+      "name": "/p123-core-0df041c7b5-backend-1",
+      "id": "14b0bda968a60080dc0eefb8cab3272232402cb4dffa6e9e953a2f3701377f56",
+      "running": false,
+      "project": "p123-core-0df041c7b5",
+      "image": "sha256:67d392c3c30366c8ee55fc5bcd021ed530328667dcdcdc2451096de03a951d50"
+    },
+    {
+      "name": "/p123-core-0df041c7b5-ai-service-1",
+      "id": "04302cc8c76ed9cf8298255d46a99cb854653b432349de535809ddca2095091d",
+      "running": false,
+      "project": "p123-core-0df041c7b5",
+      "image": "sha256:9e54ba425e67a68e72dfef4f0d717f6a42cb36c73723b39420e5aa9d2a3e1919"
+    },
+    {
+      "name": "/p123-core-0df041c7b5-budget-gateway-1",
+      "id": "829f34bec64bea687fa7eeb144eb7a526ee4dd19157fd5e64b708c84fea9c760",
+      "running": false,
+      "project": "p123-core-0df041c7b5",
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2"
+    },
+    {
+      "name": "/p123-core-0df041c7b5-fake-upstream-1",
+      "id": "1bd8f2212e8eb17b0d2ca6cd15f57af0d60c7a59f5184054eecf0c7a190788bc",
+      "running": false,
+      "project": "p123-core-0df041c7b5",
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2"
+    },
+    {
+      "name": "/p123-core-0df041c7b5-postgres-1",
+      "id": "a3a1c17031ef31bf46f63defe3fa624475aea3b9faa97d15da085b24ba8c8c5f",
+      "running": false,
+      "project": "p123-core-0df041c7b5",
+      "image": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b"
+    },
+    {
+      "name": "/p123-core-0df041c7b5-mongodb-1",
+      "id": "a03841705f648c407981b74d28aa92bea8dbd2a6fc04fb5225f01445d047f289",
+      "running": false,
+      "project": "p123-core-0df041c7b5",
+      "image": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca"
+    },
+    {
+      "name": "/pr60-smoke-0ab66965c8-web-1",
+      "id": "f29fd75f749a6f48f29982c9dccc9c17b98e96d0b5cf8782be68d369621bdd90",
+      "running": false,
+      "project": "pr60-smoke-0ab66965c8",
+      "image": "sha256:21b7f6bd896993ad7d8dbff37f8ebec83f04fa5d3bb9acbd287b8eaa70deea81"
+    },
+    {
+      "name": "/pr60-smoke-0ab66965c8-backend-1",
+      "id": "a37286a831ff84f1d6f0f9acada6b29ecf9807184c5cd897029d17ff00855aef",
+      "running": false,
+      "project": "pr60-smoke-0ab66965c8",
+      "image": "sha256:ee40595077b5389be4a581d4642e5a8be3255a2d2fe90bcfa5530d9212acdc77"
+    },
+    {
+      "name": "/pr60-smoke-0ab66965c8-ai-service-1",
+      "id": "15ed6b1a755d264d64acfe6f50cca2d997748bb58d136b1ebb2ed3aeded6a55d",
+      "running": false,
+      "project": "pr60-smoke-0ab66965c8",
+      "image": "sha256:b04d5fdc744ecfc09583ec9055f2b5a7b3cc89f54d80d79806f68733db22f2ef"
+    },
+    {
+      "name": "/pr60-smoke-0ab66965c8-postgres-1",
+      "id": "b66ea2db0e55963055e2fd8bded17db96b6e5b4e489f1385999df032919b55b2",
+      "running": false,
+      "project": "pr60-smoke-0ab66965c8",
+      "image": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b"
+    },
+    {
+      "name": "/pr60-smoke-0ab66965c8-mongodb-1",
+      "id": "c4504ca98ab8bf8049e4c4532d8b43b6e0a34a7514414e677d1d0e6a566daeca",
+      "running": false,
+      "project": "pr60-smoke-0ab66965c8",
+      "image": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca"
+    },
+    {
+      "name": "/p123-core-e31bc6c305-api-ingress-1",
+      "id": "aa0050061114b1ddb590830f45d5578a984ade0de8a63fab9b31082b2430ddf9",
+      "running": false,
+      "project": "p123-core-e31bc6c305",
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2"
+    },
+    {
+      "name": "/p123-core-e31bc6c305-backend-1",
+      "id": "1a2d50fcc09b82783d310610ecb9a4443182081ff5b462fe96f732103b0a3d82",
+      "running": false,
+      "project": "p123-core-e31bc6c305",
+      "image": "sha256:e859dfdeef5b5c12e650941ce16c63280a92131d07c281ddfd00bf9823d1e9e7"
+    },
+    {
+      "name": "/p123-core-e31bc6c305-ai-service-1",
+      "id": "9b79faa746205e30b9e9c0e7dab0cb8503d784606af263e80c586780bb636855",
+      "running": false,
+      "project": "p123-core-e31bc6c305",
+      "image": "sha256:5b21d8383cf3b701b95f52177d8678f56ee693a604b1556ff3fd1edc4547eb1e"
+    },
+    {
+      "name": "/p123-core-e31bc6c305-budget-gateway-1",
+      "id": "53c4a6d0cfa6a3159241ce550ae2087ce5edb82daeb30e4edb849aa6b1a9f24f",
+      "running": false,
+      "project": "p123-core-e31bc6c305",
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2"
+    },
+    {
+      "name": "/p123-core-e31bc6c305-fake-upstream-1",
+      "id": "d6e75d3bb6f23ca96274394332d699f55c5ea927c47f704dadfa59e85afa987f",
+      "running": false,
+      "project": "p123-core-e31bc6c305",
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2"
+    },
+    {
+      "name": "/p123-core-e31bc6c305-postgres-1",
+      "id": "24e33bdeb4137a5a11529267f6ec0a186b909a31dddeb8a019dd25e25620952f",
+      "running": false,
+      "project": "p123-core-e31bc6c305",
+      "image": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b"
+    },
+    {
+      "name": "/p123-core-e31bc6c305-mongodb-1",
+      "id": "eb3e080400e6e7c4b6c94e1fbd681a8fbf68f9dfac3c4c0ac98fe5c066a73646",
+      "running": false,
+      "project": "p123-core-e31bc6c305",
+      "image": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca"
+    },
+    {
+      "name": "/pr60-smoke-fb87face6e-web-1",
+      "id": "335012e8186ee6858630c491be3dd3df132788df18f53e8c5f6b21fa4135c97d",
+      "running": false,
+      "project": "pr60-smoke-fb87face6e",
+      "image": "sha256:0c41d6bf7cc612739d90b9d5828b0565011196db38c5120e122d6a92e3a104d4"
+    },
+    {
+      "name": "/pr60-smoke-fb87face6e-backend-1",
+      "id": "47a55b8eb85f9f70ec27b0df5d026f10a383a03e7859aae1e4afb5eb50be466e",
+      "running": false,
+      "project": "pr60-smoke-fb87face6e",
+      "image": "sha256:77ec3cd753daf70fb3a5cf3fab2040f7b167f6e67d390fa53f02471f50b8c844"
+    },
+    {
+      "name": "/pr60-smoke-fb87face6e-ai-service-1",
+      "id": "72fbaf954e46887b2273ff50f9cbd5f7b19cd2a405353445a2fe5a314d075442",
+      "running": false,
+      "project": "pr60-smoke-fb87face6e",
+      "image": "sha256:9a27121cb1283e4f548fe322417f2f69c806f06aaefda4f0c9ea4d364ed8f654"
+    },
+    {
+      "name": "/pr60-smoke-fb87face6e-postgres-1",
+      "id": "5b8161ba7b829925678d2dfdbf90184e5b1ad8e5cccbe07220d90136e8e08bd3",
+      "running": false,
+      "project": "pr60-smoke-fb87face6e",
+      "image": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b"
+    },
+    {
+      "name": "/pr60-smoke-fb87face6e-mongodb-1",
+      "id": "0025dae6b98f1f9e0cf78d8d6c7154922fd9e1c32b268bee02e29c756079a8b8",
+      "running": false,
+      "project": "pr60-smoke-fb87face6e",
+      "image": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca"
+    },
+    {
+      "name": "/p123-core-3cefd4fdbc-api-ingress-1",
+      "id": "77029854ff850bfe57d192ca19b3a067d17aff7668313bf3d9a6fd7cc83c3267",
+      "running": false,
+      "project": "p123-core-3cefd4fdbc",
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2"
+    },
+    {
+      "name": "/p123-core-3cefd4fdbc-backend-1",
+      "id": "539410dbac8dc937bffd13f6b93384d0053e1aa1d4daffd9cca25ccfec018bff",
+      "running": false,
+      "project": "p123-core-3cefd4fdbc",
+      "image": "sha256:0a4e57a5afe8fb129f9663ca3759a6fc1098da3246c0e3983fe28d9374db8c67"
+    },
+    {
+      "name": "/p123-core-3cefd4fdbc-ai-service-1",
+      "id": "af350a514f2d6c6f344e3907f0d061a2afa984512352f7d9080665fb09fd018e",
+      "running": false,
+      "project": "p123-core-3cefd4fdbc",
+      "image": "sha256:37cf4ac57815e6d27e2b8551656e39eaef9906237cd9fbced5e5864bae292b84"
+    },
+    {
+      "name": "/p123-core-3cefd4fdbc-budget-gateway-1",
+      "id": "cab1caa93deebbb971b18858d4d990712a9b4c79d128e9237cb42a394b7e50ad",
+      "running": false,
+      "project": "p123-core-3cefd4fdbc",
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2"
+    },
+    {
+      "name": "/p123-core-3cefd4fdbc-fake-upstream-1",
+      "id": "3da3ca3f13e4fe0b928e4da3372b9c9c8c4bb4f0a70fa6e968aff2c4d998735d",
+      "running": false,
+      "project": "p123-core-3cefd4fdbc",
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2"
+    },
+    {
+      "name": "/p123-core-3cefd4fdbc-postgres-1",
+      "id": "5b6434253fb5568b8f57abda1bfd68604b0b908e60cbe74819bc199fed315d38",
+      "running": false,
+      "project": "p123-core-3cefd4fdbc",
+      "image": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b"
+    },
+    {
+      "name": "/p123-core-3cefd4fdbc-mongodb-1",
+      "id": "5981efed9c4576894b210b153cb3264d4b6bd8e32bed02ddad48852a85eed1d2",
+      "running": false,
+      "project": "p123-core-3cefd4fdbc",
+      "image": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca"
+    },
+    {
+      "name": "/p123-core-570e1155e1-api-ingress-1",
+      "id": "25e97a29f44f3827cca24b107da040c00e5c80a50b94d1b139aaba24392f92da",
+      "running": false,
+      "project": "p123-core-570e1155e1",
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2"
+    },
+    {
+      "name": "/p123-core-570e1155e1-backend-1",
+      "id": "01dbedc72240c883e3e124910260a8fcf08fdbd27b92a031e405ec8318e7133a",
+      "running": false,
+      "project": "p123-core-570e1155e1",
+      "image": "sha256:a6dcd90198cf52d69480b0ef91ceee6b8bb86ee8be7a5cf18c46c685cf6b8b7b"
+    },
+    {
+      "name": "/p123-core-570e1155e1-ai-service-1",
+      "id": "fcc7e723806bb52b9ffb60008472442f2ab2f57e7e485df0348beea8a17d6165",
+      "running": false,
+      "project": "p123-core-570e1155e1",
+      "image": "sha256:e4f055e460a1a53b7b75d0aa0d15f78e39bb1e98f9c4b5ae02dec236ef006089"
+    },
+    {
+      "name": "/p123-core-570e1155e1-budget-gateway-1",
+      "id": "bad329026bc399868823f50ede467dffa4430343946ddcba735cae8056ae3350",
+      "running": false,
+      "project": "p123-core-570e1155e1",
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2"
+    },
+    {
+      "name": "/p123-core-570e1155e1-fake-upstream-1",
+      "id": "a5fb868124eb58cbacaf448449452e8dffd7c7b8c21e52aba071fe721042bf33",
+      "running": false,
+      "project": "p123-core-570e1155e1",
+      "image": "sha256:cb33f7f771ecec2ef1225cf39b159591a040391bd73e4c01f00fdfc4c47611d2"
+    },
+    {
+      "name": "/p123-core-570e1155e1-postgres-1",
+      "id": "7c27fa1480cbea8b4610b1ce25b1dccbb1ede45b21e639f6cb66d8317e61c73d",
+      "running": false,
+      "project": "p123-core-570e1155e1",
+      "image": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b"
+    },
+    {
+      "name": "/p123-core-570e1155e1-mongodb-1",
+      "id": "d3d4ad6651b80045138d666f65baa644c665103c839df49cdf41f65879e7bb48",
+      "running": false,
+      "project": "p123-core-570e1155e1",
+      "image": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca"
+    },
+    {
+      "name": "/combined-native-1d9e27413e4d-pg",
+      "id": "726c7bcd5fe265eb80faf9cac9de8b24bdc629452a8bc78b6ceb4648c8936bb7",
+      "running": false,
+      "volume": "combined-native-1d9e27413e4d-pg-data"
+    },
+    {
+      "name": "/combined-native-1d9e27413e4d-mongo",
+      "id": "f8ef1091c21055eb3b0794ba6b5bd62839645962e9925e9697f8d1fd38a295d3",
+      "running": false,
+      "volume": "combined-native-1d9e27413e4d-mongo-data"
+    },
+    {
+      "name": "/combined-native-118ed0f871ce-pg",
+      "id": "ddab846de472151e50c3aeeee77bcfee603bb1c18f8e009c61693e8da9668b2b",
+      "running": false,
+      "volume": "combined-native-118ed0f871ce-pg-data"
+    },
+    {
+      "name": "/combined-native-118ed0f871ce-mongo",
+      "id": "5815935fb8ee48099dd4c784b1742292148b9330f63fcd67e71826dbb30ed305",
+      "running": false,
+      "volume": "combined-native-118ed0f871ce-mongo-data"
+    }
+  ],
+  "volumes_retained": [
+    "combined-native-118ed0f871ce-mongo-data",
+    "combined-native-118ed0f871ce-pg-data",
+    "combined-native-1d9e27413e4d-mongo-data",
+    "combined-native-1d9e27413e4d-pg-data",
+    "p123-core-0df041c7b5_budget_state",
+    "p123-core-0df041c7b5_fake_state",
+    "p123-core-0df041c7b5_mongo_state",
+    "p123-core-0df041c7b5_pg_state",
+    "p123-core-3cefd4fdbc_budget_state",
+    "p123-core-3cefd4fdbc_fake_state",
+    "p123-core-3cefd4fdbc_mongo_state",
+    "p123-core-3cefd4fdbc_pg_state",
+    "p123-core-570e1155e1_budget_state",
+    "p123-core-570e1155e1_fake_state",
+    "p123-core-570e1155e1_mongo_state",
+    "p123-core-570e1155e1_pg_state",
+    "p123-core-e31bc6c305_budget_state",
+    "p123-core-e31bc6c305_fake_state",
+    "p123-core-e31bc6c305_mongo_state",
+    "p123-core-e31bc6c305_pg_state",
+    "p123-core-f87d68676b_budget_state",
+    "pr60-smoke-0ab66965c8_media_data",
+    "pr60-smoke-0ab66965c8_mongodb_data",
+    "pr60-smoke-0ab66965c8_postgres_data",
+    "pr60-smoke-fb87face6e_media_data",
+    "pr60-smoke-fb87face6e_mongodb_data",
+    "pr60-smoke-fb87face6e_postgres_data"
+  ],
+  "all_created_containers_stopped": true,
+  "historical_resources_mutated": false
+}

@@ -1,0 +1,75 @@
+{
+  "status": 409,
+  "response": {
+    "success": false,
+    "data": null,
+    "error": {
+      "code": "DRAFT_CONFLICT",
+      "message": "Stale retry changes draft or metadata; reload before retrying"
+    },
+    "meta": {}
+  },
+  "after": {
+    "chapterId": "9f9e123c-5dd2-49d9-b7c5-5256edcacc97",
+    "novelId": "6b6b54aa-ccab-46a4-8722-b9ab2321d9ac",
+    "title": "Contract chapter",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 11,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "DRAFT",
+    "publicationSchedule": null,
+    "updatedAt": "2026-10-23T08:20:46.152Z",
+    "draft": {
+      "title": "Contract chapter",
+      "content": "Mai Linh và Duy đứng tại Cồn Vân. B response unread",
+      "wordCount": 11,
+      "version": 3,
+      "autosave": true,
+      "updatedAt": "2026-10-23T08:20:46.148Z"
+    }
+  },
+  "PG": {
+    "chapters": [
+      {
+        "chapter_id": "9f9e123c-5dd2-49d9-b7c5-5256edcacc97",
+        "novel_id": "6b6b54aa-ccab-46a4-8722-b9ab2321d9ac",
+        "title": "Contract chapter",
+        "chapter_number": 1,
+        "content": null,
+        "word_count": 11,
+        "is_vip": false,
+        "price_coins": 0,
+        "status": "DRAFT",
+        "published_at": null,
+        "created_at": "2026-10-23T08:20:36.819889+00:00",
+        "updated_at": "2026-10-23T08:20:46.15207+00:00",
+        "deleted_at": null,
+        "latest_revision_id": null,
+        "import_key": null,
+        "import_hash": null
+      }
+    ],
+    "chapter_revisions": [],
+    "revision_outbox_events": [],
+    "Mongo_drafts": [
+      {
+        "_id": "6adb18d523656d1ae2fa6f39",
+        "chapterId": "9f9e123c-5dd2-49d9-b7c5-5256edcacc97",
+        "version": 3,
+        "authorId": "e734fa75-eb5f-41ff-914d-1a99bf828bd7",
+        "autosave": true,
+        "content": "Mai Linh và Duy đứng tại Cồn Vân. B response unread",
+        "createdAt": "2026-10-23T08:20:37.137Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "6b6b54aa-ccab-46a4-8722-b9ab2321d9ac",
+        "title": "Contract chapter",
+        "updatedAt": "2026-10-23T08:20:46.148Z",
+        "wordCount": 11
+      }
+    ]
+  },
+  "wallet_or_payment_calls": 0
+}

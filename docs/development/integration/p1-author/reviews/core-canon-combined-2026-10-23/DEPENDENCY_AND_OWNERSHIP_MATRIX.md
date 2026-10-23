@@ -1,0 +1,17 @@
+# Full P1 dependencies — not silently implemented
+
+| Dependency | Actual candidate evidence | Status / responsible owner | Required next decision or proof |
+|---|---|---|---|
+| CI backend deterministic/DB partition | P8 frontend job120317241794 cancels14 accept-draft-contract tests; same14 PASS with fresh real candidate PG/Mongo | BLOCKED CI INTEGRATION; Gemini PR58 | Review/accept PR58 separately; explicit decision to update candidate to new integration base, then retest. Do not merge/port it here |
+| AI memory export | Node ai-gateway.controller.ts forwards /v1/story-brains/:novel/memory; fresh real HTTP404 | BLOCKED API IMPLEMENTATION; AI/Core integration owner to be assigned | Define/approve export DTO and implement approved canonical projection endpoint. context-preview200 is separate and not a replacement |
+| Entity candidate audits | Node review/continue first calls /entity-candidate-audits/:run; AI lacks route; observed404 at prerequisite | BLOCKED AI INTEGRATION; AI/Core owner, separate from FE | Reconcile existing supported pipeline audit/source/hash/checkpoint implementation and version contracts |
+| Entity list/review/continue | Node routes exist; AI list404; review/continue blocked by audit404 | BLOCKED AI INTEGRATION; AI/Core plus Gemini FE coordination | Port bounded server state machine/routes with revision/latest/guidance/owner/tenant fences, then real runtime test |
+| P3 HITL waiting/checkpoint | Controller DTO/service and AI AutonomousRun only support queued/running/completed/stopped/failed; no waiting_for_entity_review or verification flag implementation | BLOCKED ARCHITECTURE; designated controller/AI integration owner | Existing v1.4 is policy: no bypass. Add supported HITL state/continuation and intent fences under separately authorized implementation. No generic worker authority |
+| Legacy P3 | Controller explicit revision-scoped auto_advance remains unchanged; real03A18/18 and unit suite pass | PASS legacy bounded behavior only; controller owner | Does not prove HITL/unattended/100k. Keep mode claims separate |
+| FE S09 | No mounted AuthorWritingIde on this candidate; no FE changes | NOT_RUN; Gemini/FE | Full editor/auth/router, autosave undo/in-flight/switch/recovery/concurrent409 with finalized Core and fresh DB |
+| FE S10/S11 | Consistency and reload/resume journey not executed | NOT_RUN / separately gated; Gemini/FE | Accept S09 first, then independently exercise S10/S11 and M-FIRST provenance |
+| Cross-database atomicity | Real injected outbox insert fault rolls back revision/outbox; draft/metadata can precede that transaction; explicit500 and retry recover | DOCUMENTED BOUNDARY; Core | No distributed atomicity claim. Keep retry recovery in acceptance |
+
+Source of truth remains WORKFLOW_CONTRACT v1.4. Hints/checkpoints are not official canon; future plan is not historical fact. No HITL flag was disabled and no missing /memory alias was invented. Missing route/status implementation is not made PASS by root smoke.
+
+Recommended follow-up order: (1) independent review of this bounded candidate; (2) Gemini PR58 acceptance and explicit new-base integration decision, followed by full combined retest; (3) approved memory export and AI entity audit/review/continue integration with immutable source/version fences; (4) P3 HITL waiting/authorized continuation tests; (5) full FE S09 then S10/S11 and narrative memory/context readbacks. Full P1 acceptance/deployment remains a separate reviewer decision.

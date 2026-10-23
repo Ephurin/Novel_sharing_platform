@@ -1,0 +1,196 @@
+[
+  {
+    "method": "GET",
+    "path": "/ai/story-brains/51ccf52e-c791-4bd1-a034-ca027e8db9a2/memory",
+    "status": 404,
+    "response": {
+      "success": false,
+      "data": null,
+      "error": {
+        "code": "AI_SERVICE_404",
+        "message": "Not Found",
+        "details": "Not Found"
+      },
+      "meta": {}
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/ai/story-brains/51ccf52e-c791-4bd1-a034-ca027e8db9a2/entity-reviews",
+    "status": 404,
+    "response": {
+      "success": false,
+      "data": null,
+      "error": {
+        "code": "AI_SERVICE_404",
+        "message": "Not Found",
+        "details": "Not Found"
+      },
+      "meta": {}
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/ai/story-brains/51ccf52e-c791-4bd1-a034-ca027e8db9a2/entity-reviews/1327e0bd-77c5-4ae5-8bdc-c2dfd2aabc57/review",
+    "status": 404,
+    "response": {
+      "success": false,
+      "data": null,
+      "error": {
+        "code": "AI_SERVICE_404",
+        "message": "Not Found",
+        "details": "Not Found"
+      },
+      "meta": {}
+    }
+  },
+  {
+    "method": "POST",
+    "path": "/ai/story-brains/51ccf52e-c791-4bd1-a034-ca027e8db9a2/entity-reviews/eec5594c-f27d-47ce-b7d0-72841b4a2b08/continue",
+    "status": 404,
+    "response": {
+      "success": false,
+      "data": null,
+      "error": {
+        "code": "AI_SERVICE_404",
+        "message": "Not Found",
+        "details": "Not Found"
+      },
+      "meta": {}
+    }
+  },
+  {
+    "method": "GET",
+    "path": "/ai/story-brains/51ccf52e-c791-4bd1-a034-ca027e8db9a2/context-preview?chapter_id=69a613fa-7692-48ac-81d7-350219a9731f",
+    "status": 200,
+    "response": {
+      "success": true,
+      "data": {
+        "brain_version": 2,
+        "entities": [
+          {
+            "entity_id": "c7dae226-c8e9-41ea-aca7-7ea169be1a6e",
+            "name": "Cồn Vân",
+            "entity_type": "LOC",
+            "status": "Alive",
+            "location": "Unknown",
+            "is_locked": false
+          },
+          {
+            "entity_id": "54d5f5a8-8940-4343-a19e-6b7159edbb38",
+            "name": "Duy",
+            "entity_type": "PER",
+            "status": "Alive",
+            "location": "Unknown",
+            "is_locked": false
+          },
+          {
+            "entity_id": "74650d58-00dc-4459-b32e-96728154dc82",
+            "name": "Mai Linh",
+            "entity_type": "PER",
+            "status": "Alive",
+            "location": "Unknown",
+            "is_locked": false
+          }
+        ],
+        "current_states": [
+          {
+            "entity_id": "c7dae226-c8e9-41ea-aca7-7ea169be1a6e",
+            "name": "Cồn Vân",
+            "status": "Alive",
+            "location": "Unknown",
+            "state": {}
+          },
+          {
+            "entity_id": "54d5f5a8-8940-4343-a19e-6b7159edbb38",
+            "name": "Duy",
+            "status": "Alive",
+            "location": "Unknown",
+            "state": {}
+          },
+          {
+            "entity_id": "74650d58-00dc-4459-b32e-96728154dc82",
+            "name": "Mai Linh",
+            "status": "Alive",
+            "location": "Unknown",
+            "state": {}
+          }
+        ],
+        "recent_events": [
+          {
+            "event_id": "ef3db653-d92e-5269-abab-e0754ef1b098",
+            "narrative_order": 1024,
+            "chapter_number": 1,
+            "event_type": "observation",
+            "summary": "Mai Linh và Duy đứng tại Cồn Vân.",
+            "participants": [
+              "Mai Linh",
+              "Duy"
+            ],
+            "metadata": {
+              "chapter": 1,
+              "summary": "Mai Linh và Duy đứng tại Cồn Vân.",
+              "evidence": [
+                {
+                  "end": 33,
+                  "start": 0,
+                  "text_hash": "38366e825a436856d1e566550ce9960a5fb35df8d637c7a39663505a24d98b91",
+                  "chapter_id": "69a613fa-7692-48ac-81d7-350219a9731f",
+                  "revision_id": "45e44dfc-5bd6-4bf9-a6b4-f81f89376160",
+                  "chapter_number": 1
+                }
+              ],
+              "locations": [
+                "Cồn Vân"
+              ],
+              "event_type": "observation",
+              "consequences": [],
+              "participants": [
+                "Mai Linh",
+                "Duy"
+              ],
+              "chapter_number": 1
+            }
+          }
+        ],
+        "semantic_memories": [],
+        "world_rules": [],
+        "author_constraints": [],
+        "token_budget": "[REDACTED]",
+        "context_summary": {
+          "entity_ids": [
+            "c7dae226-c8e9-41ea-aca7-7ea169be1a6e",
+            "54d5f5a8-8940-4343-a19e-6b7159edbb38",
+            "74650d58-00dc-4459-b32e-96728154dc82"
+          ],
+          "event_ids": [
+            "ef3db653-d92e-5269-abab-e0754ef1b098"
+          ],
+          "fact_ids": [],
+          "cutoff_chapter": 1,
+          "recent_scope_participant_entity_ids": [
+            "54d5f5a8-8940-4343-a19e-6b7159edbb38",
+            "74650d58-00dc-4459-b32e-96728154dc82"
+          ],
+          "recent_scope_participant_identity": [
+            "normalized-event-participants-v1"
+          ],
+          "semantic_memory_ids": [],
+          "context_packing_version": [
+            "context-budget-v1"
+          ],
+          "context_token_estimator_version": "[REDACTED]",
+          "dropped_entity_ids": [],
+          "dropped_event_ids": [],
+          "dropped_fact_ids": [],
+          "dropped_semantic_memory_ids": [],
+          "deduplicated_semantic_memory_ids": []
+        },
+        "planning_context": null,
+        "current_objective": null
+      },
+      "error": null,
+      "meta": {}
+    }
+  }
+]

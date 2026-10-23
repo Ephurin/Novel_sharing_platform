@@ -1,0 +1,8 @@
+ Volume p123-core-f87d68676b_budget_state Creating 
+ Volume p123-core-f87d68676b_budget_state Creating 
+ Network p123-core-f87d68676b_workers Creating 
+ Network p123-core-f87d68676b_workers Creating 
+ Network p123-core-f87d68676b_workers Error Error response from daemon: invalid pool request: Pool overlaps with other one on this address space
+ network:workers failed to create network p123-core-f87d68676b_workers: Error response from daemon: invalid pool request: Pool overlaps with other one on this address space 
+ Volume p123-core-f87d68676b_budget_state Error error during connect: Post "http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.55/volumes/create": failed to create network p123-core-f87d68676b_workers: Error response from daemon: invalid pool request: Pool overlaps with other one on this address space
+failed to create network p123-core-f87d68676b_workers: Error response from daemon: invalid pool request: Pool overlaps with other one on this address space
