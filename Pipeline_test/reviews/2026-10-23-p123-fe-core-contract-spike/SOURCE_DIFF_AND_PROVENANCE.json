@@ -1,0 +1,36 @@
+{
+  "initial_local_head": "f296f8b",
+  "verified_remote_checkpoint": "3cf18c93b74d62f1f2a3b13f8f034d9d107c6049",
+  "synchronization": "clean worktree fast-forward only; no reset/clean/stash/FE merge",
+  "test_source_commits": [
+    "b39e47f0c3d7044f5358cfb4896aafc35d2f67c3",
+    "4c6e25a8beb64b56999a62ef61599508ce1c836b",
+    "a2ec488035728e4135d65e664838044f0ec41646"
+  ],
+  "production_trees": {
+    "backend": {
+      "base": "ac8e050c31ce1c9e431b93812e0ca6640b1c856c",
+      "tested": "ac8e050c31ce1c9e431b93812e0ca6640b1c856c"
+    },
+    "ai-service": {
+      "base": "be543607ef5dd502274e4010171a584951b2190d",
+      "tested": "be543607ef5dd502274e4010171a584951b2190d"
+    },
+    "web": {
+      "base": "6e4f7f4b82fba38676783528639ba77271c1e0ef",
+      "tested": "6e4f7f4b82fba38676783528639ba77271c1e0ef"
+    }
+  },
+  "changed_paths": [
+    "Pipeline_test/tools/fe_core_contract_probe.py",
+    "Pipeline_test/tools/prepare_fe_core_contract.py"
+  ],
+  "worktrees": "One existing pipeline worktree reused; no FE checkout/composite created",
+  "PR54": "18759ae65f33f935c7243b53f435630a7c53f4cb",
+  "PR55": "7b15c078c1ffe2fca96c4e66c96577e3ff007c3c",
+  "PR_metadata": "github-pr54.json and github-pr55.json fetched read-only",
+  "source_snapshots": "pr55-pinned-sources.json contains exact GitHub blob IDs/content",
+  "runtime_01": "Idea baseline active/null anchor, D2 fixture predicate not satisfied; retained, no production repair",
+  "runtime_02": "Anchored checkpoint proves canonical path; actual trace motivates new two version assertions",
+  "runtime_03": "Final 13-row probe; 10 PASS/3 FAIL; process exit 1 retained"
+}

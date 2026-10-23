@@ -1,0 +1,32 @@
+[
+  {
+    "_id": "6adabdf9ec574132ddc27593",
+    "chapterId": "0d79d0c6-ce4b-45de-8ded-644ed96bfde7",
+    "version": 8,
+    "authorId": "22c12d58-8010-4baa-8bfa-808eeac0fe3e",
+    "autosave": true,
+    "content": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+    "createdAt": "2026-10-23T01:52:57.083Z",
+    "deletedAt": null,
+    "deletionReason": null,
+    "novelId": "7bb16c83-30ab-4b7c-b282-3a9e4af3057a",
+    "title": "Contract chapter",
+    "updatedAt": "2026-10-23T01:53:10.115Z",
+    "wordCount": 16
+  },
+  {
+    "_id": "6adabe02ec574132ddc275d4",
+    "chapterId": "14626fdb-edae-4138-bf25-b92dccbd846d",
+    "authorId": "22c12d58-8010-4baa-8bfa-808eeac0fe3e",
+    "autosave": false,
+    "content": "Other chapter B",
+    "createdAt": "2026-10-23T01:53:06.361Z",
+    "deletedAt": null,
+    "deletionReason": null,
+    "novelId": "7bb16c83-30ab-4b7c-b282-3a9e4af3057a",
+    "title": "Other chapter",
+    "updatedAt": "2026-10-23T01:53:06.385Z",
+    "version": 2,
+    "wordCount": 3
+  }
+]

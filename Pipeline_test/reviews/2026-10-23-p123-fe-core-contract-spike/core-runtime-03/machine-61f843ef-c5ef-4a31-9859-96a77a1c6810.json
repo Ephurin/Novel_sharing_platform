@@ -1,0 +1,366 @@
+{
+  "chunks": [
+    {
+      "end": 70,
+      "start": 0
+    }
+  ],
+  "counts": {
+    "entity": 6,
+    "candidates": 10,
+    "not_entity": 4
+  },
+  "policy": "entity-candidates-v1",
+  "status": "waiting_entity_review",
+  "aliases": [
+    {
+      "end": 8,
+      "alias": "Linh",
+      "start": 4,
+      "entity_id": "6c61fcfc-8631-460e-89d6-0e7fadf6c639",
+      "confidence": 0.7,
+      "entity_name": "Mai Linh",
+      "identity_quote": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân."
+    }
+  ],
+  "request": {
+    "options": {
+      "extract_events": true,
+      "build_embeddings": false,
+      "extract_entities": true,
+      "check_consistency": true,
+      "extract_prose_facts": true,
+      "extract_world_rules": false,
+      "review_fact_coverage": true,
+      "extract_state_transitions": false
+    },
+    "novel_id": "98952831-dbe8-4d6b-add9-40f117f1326e",
+    "operation": "incremental_story_analysis",
+    "tenant_id": "00000000-0000-0000-0000-000000000001",
+    "chapter_id": "9ece85b5-84b6-42b8-8991-f9edc13e7e72",
+    "revision_id": "22c2e297-7028-4069-804d-e559b8ca1eba",
+    "content_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+    "idempotency_key": "analysis-22c2e297-7028-4069-804d-e559b8ca1eba"
+  },
+  "entities": [
+    {
+      "score": 7,
+      "entity": "PER",
+      "phrase": "Mai Linh",
+      "status_quote": "",
+      "verified_end": 8,
+      "candidate_ids": [
+        "adaf15c5d0f030b0cd67a60b",
+        "da35be6be5c278e0f14128c4",
+        "a1df9081cacb43de6876b1ca",
+        "a5aa2330bf1818d9b5128539"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 0,
+      "canonical_entity_id": "6c61fcfc-8631-460e-89d6-0e7fadf6c639"
+    },
+    {
+      "score": 7,
+      "entity": "PER",
+      "phrase": "Duy",
+      "status_quote": "",
+      "verified_end": 39,
+      "candidate_ids": [
+        "5f9523568078e925dcada0ff"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 36,
+      "canonical_entity_id": "9119ff29-f6bf-4975-8307-e1db816a8963"
+    },
+    {
+      "score": 7,
+      "entity": "LOC",
+      "phrase": "Cồn Vân",
+      "status_quote": "",
+      "verified_end": 69,
+      "candidate_ids": [
+        "b39d5bbb002bdd5a76a09d40"
+      ],
+      "initial_status": "Unknown",
+      "verified_start": 62,
+      "canonical_entity_id": "6a9a981a-f6c6-47ab-94be-3a9f6ef36514"
+    }
+  ],
+  "decisions": [
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "2829490f83faea22e9fb3734",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "adaf15c5d0f030b0cd67a60b",
+      "status_quote": "",
+      "canonical_name": "Mai Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": "6c61fcfc-8631-460e-89d6-0e7fadf6c639"
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "da35be6be5c278e0f14128c4",
+      "status_quote": "",
+      "canonical_name": "Mai Linh",
+      "identity_quote": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+      "initial_status": "Unknown",
+      "canonical_entity_id": "6c61fcfc-8631-460e-89d6-0e7fadf6c639"
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "5f9523568078e925dcada0ff",
+      "status_quote": "",
+      "canonical_name": "Duy",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": "9119ff29-f6bf-4975-8307-e1db816a8963"
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "2a0d7cc0b4a4153233af8418",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "a1df9081cacb43de6876b1ca",
+      "status_quote": "",
+      "canonical_name": "Mai Linh",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": "6c61fcfc-8631-460e-89d6-0e7fadf6c639"
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "PER",
+      "candidate_id": "a5aa2330bf1818d9b5128539",
+      "status_quote": "",
+      "canonical_name": "Mai Linh",
+      "identity_quote": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+      "initial_status": "Unknown",
+      "canonical_entity_id": "6c61fcfc-8631-460e-89d6-0e7fadf6c639"
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "dc41ae5081624c8104615b19",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "entity",
+      "confidence": 0.7,
+      "entity_type": "LOC",
+      "candidate_id": "b39d5bbb002bdd5a76a09d40",
+      "status_quote": "",
+      "canonical_name": "Cồn Vân",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": "6a9a981a-f6c6-47ab-94be-3a9f6ef36514"
+    },
+    {
+      "reason": "FAKE_PROVIDER_OUTPUT scripted source-context verdict",
+      "verdict": "not_entity",
+      "confidence": 0.7,
+      "entity_type": null,
+      "candidate_id": "4efcac371cef64d7fdbe920b",
+      "status_quote": "",
+      "canonical_name": "",
+      "identity_quote": "",
+      "initial_status": "Unknown",
+      "canonical_entity_id": ""
+    }
+  ],
+  "candidates": [
+    {
+      "end": 3,
+      "start": 0,
+      "context": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Mai",
+      "context_end": 70,
+      "candidate_id": "2829490f83faea22e9fb3734",
+      "context_start": 0
+    },
+    {
+      "end": 8,
+      "start": 0,
+      "context": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "approved_name_or_alias",
+        "capitalized_sequence"
+      ],
+      "surface": "Mai Linh",
+      "context_end": 70,
+      "candidate_id": "adaf15c5d0f030b0cd67a60b",
+      "context_start": 0
+    },
+    {
+      "end": 8,
+      "start": 4,
+      "context": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "approved_name_or_alias",
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 70,
+      "candidate_id": "da35be6be5c278e0f14128c4",
+      "context_start": 0
+    },
+    {
+      "end": 39,
+      "start": 36,
+      "context": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "approved_name_or_alias",
+        "capitalized_token"
+      ],
+      "surface": "Duy",
+      "context_end": 70,
+      "candidate_id": "5f9523568078e925dcada0ff",
+      "context_start": 0
+    },
+    {
+      "end": 52,
+      "start": 49,
+      "context": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Mai",
+      "context_end": 70,
+      "candidate_id": "2a0d7cc0b4a4153233af8418",
+      "context_start": 0
+    },
+    {
+      "end": 57,
+      "start": 49,
+      "context": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "approved_name_or_alias",
+        "capitalized_sequence"
+      ],
+      "surface": "Mai Linh",
+      "context_end": 70,
+      "candidate_id": "a1df9081cacb43de6876b1ca",
+      "context_start": 0
+    },
+    {
+      "end": 57,
+      "start": 53,
+      "context": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "approved_name_or_alias",
+        "capitalized_token"
+      ],
+      "surface": "Linh",
+      "context_end": 70,
+      "candidate_id": "a5aa2330bf1818d9b5128539",
+      "context_start": 0
+    },
+    {
+      "end": 65,
+      "start": 62,
+      "context": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Cồn",
+      "context_end": 70,
+      "candidate_id": "dc41ae5081624c8104615b19",
+      "context_start": 0
+    },
+    {
+      "end": 69,
+      "start": 62,
+      "context": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "approved_name_or_alias",
+        "capitalized_sequence"
+      ],
+      "surface": "Cồn Vân",
+      "context_end": 70,
+      "candidate_id": "b39d5bbb002bdd5a76a09d40",
+      "context_start": 0
+    },
+    {
+      "end": 69,
+      "start": 66,
+      "context": "Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.",
+      "origins": [
+        "capitalized_token"
+      ],
+      "surface": "Vân",
+      "context_end": 70,
+      "candidate_id": "4efcac371cef64d7fdbe920b",
+      "context_start": 0
+    }
+  ],
+  "chapter_id": "9ece85b5-84b6-42b8-8991-f9edc13e7e72",
+  "revision_id": "22c2e297-7028-4069-804d-e559b8ca1eba",
+  "source_hash": "28d6d5eec39da830bc5a80c692d48af1eafdc38963ffe6447ef44c72cd37d4ef",
+  "chapter_number": 1,
+  "known_entities": [
+    {
+      "name": "Mai Linh",
+      "entity_id": "6c61fcfc-8631-460e-89d6-0e7fadf6c639",
+      "entity_type": "PER"
+    },
+    {
+      "name": "Duy",
+      "entity_id": "9119ff29-f6bf-4975-8307-e1db816a8963",
+      "entity_type": "PER"
+    },
+    {
+      "name": "Cồn Vân",
+      "entity_id": "6a9a981a-f6c6-47ab-94be-3a9f6ef36514",
+      "entity_type": "LOC"
+    }
+  ],
+  "review_version": 1,
+  "analysis_policy": "entity-human-review-v1",
+  "analysis_run_id": "61f843ef-c5ef-4a31-9859-96a77a1c6810",
+  "guidance_version": 0,
+  "reviewed_decisions": [],
+  "unanchored_discoveries": []
+}

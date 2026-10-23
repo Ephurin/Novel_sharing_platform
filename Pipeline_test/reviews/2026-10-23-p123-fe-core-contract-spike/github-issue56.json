@@ -1,0 +1,30 @@
+{
+  "issue": {
+    "url": "https://github.com/Ephurin/Novel_sharing_platform/issues/56",
+    "title": "P0 Author IDE autosave: stale revision after rapid undo (P1 S09, WF1F-S09-001)",
+    "issue_number": 56,
+    "body": "## Summary / impact\n\n**Confirmed in real Playwright, not just unit tests.** P1 S09 on `codex/ai-copilot-pipeline-test` (tested source `34fff042c3272e9661f7bf7163f290b4b5483568`) showed **editor body B** while server draft and latest immutable revision incorrectly held **temporary body A** after a fast Undo. This can make narrative analysis extract a source different from the author's visible text; P1 S10/S11 are blocked pending repair.\n\n**Saved evidence**\n- [Wave 1F report](https://github.com/Ephurin/Novel_sharing_platform/blob/codex/ai-copilot-pipeline-test/Pipeline_test/reviews/2026-10-21-p1-wave-1f/EXECUTOR_WAVE_1F_REPORT.md)\n- [Deterministic defect metadata](https://github.com/Ephurin/Novel_sharing_platform/blob/codex/ai-copilot-pipeline-test/Pipeline_test/reviews/2026-10-21-p1-wave-1f/S09_DEFECT_PROOF.json)\n- [Minimal old-code patch concept](https://github.com/Ephurin/Novel_sharing_platform/blob/codex/ai-copilot-pipeline-test/Pipeline_test/reviews/2026-10-21-p1-wave-1f/S09_PATCH_PROPOSAL.md)\n- [S09 persisted readback](https://github.com/Ephurin/Novel_sharing_platform/blob/codex/ai-copilot-pipeline-test/Pipeline_test/runs/2026-10-21-p1-wave1f-workflow-01/browser-incremental-resume-01/S09-debounce-readback.json)\n\n**Reproduction on test branch:** Saved B → edit A → Undo to B after ~264 ms (less than 1200-ms debounce). Editor B; server persisted A (bad revision `737c2025-d940-44b7-b3d5-7ea31b112123`). `web/src/features/author-ide/AuthorWritingIde.tsx:452–477` returns on `!hasChanged` *before* clearing the earlier timer, allowing stale A to dispatch.\n\n## IMPORTANT: FE implementation is different on PR #55\n\nThe open FE PR **#55** (`feat/author-workflow-hardening` → `feat/author-workspace`) no longer uses this exact inline autosave logic. Its `AuthorWritingIde.tsx` calls `useDraftPersistence.ts::queue()` with `slot.pending`, `slot.running`, `slot.saved` and `expectedVersion`. This is an architectural improvement **but does NOT establish S09 PASS without equivalent browser/in-flight test**. In the hook `queue()`, the `same(value,slot.saved) && !slot.running` branch clears pending without clearing timer, which may be harmless given `drain()` checks `pending`; test state transitions and callback races, not just pattern-match source. When `slot.running`, the hook queues the new value, so an intermediate older revision may still be saved; verify eventual consistency and no stale downstream analysis is falsely approved.\n\n**Request to FE owner:** fix/test in your FE source branch against the actual `useDraftPersistence` implementation; avoid cherry-picking the old inline fix into the new hook blindly. Do **not** modify the P1 evidence branch or merge it into FE as a quick workaround.\n\n## Required acceptance tests (including real browser)\n\n- [ ] **B → A → B within 1.2s:** final server draft/revision remains B; zero stale-A revisions/outbox when request has not dispatched; UI shows saved.\n- [ ] **A → C within 1.2s:** only latest C is sent after debounce; content title/VIP/price consistent.\n- [ ] **A in-flight → B restore:** explicit durable consistency contract; final canonical B after all requests settle; preserve source/revision ordering; no silent stale overwrite or misleading saved indicator.\n- [ ] **Rapid chapter switch / account switch / route navigation:** never persist chapter X content to chapter Y; active drafts are recovered or user is clearly blocked from leaving.\n- [ ] **Two concurrent tabs / 409 expectedVersion:** no silent lost updates; local draft recovery preserved and conflict visible.\n- [ ] **Provider/outbox effects:** duplicate/stale immutable revision or outbox must not cause stale canon to be treated as latest; no cross-chapter/owner writes.\n- [ ] Include focused frontend hook tests plus real Playwright S09 retry on a **fresh isolated fake-provider stack**. Record SHA, screenshots/trace and read-only revision hashes, not just \"unit tests passed.\"\n\n**Cross-branch coordination:** Report actual FE patch commit and minimal diff, then let Codex safely bring the **reviewed fix only** into `codex/ai-copilot-pipeline-test` with a clear provenance commit. Do not merge the entire FE PR into the isolated P1 test branch without explicit compatibility review. Retest S09 and then S10/S11 separately. Protect all historical Wave 1F evidence.\n\n**No new real Gemini/paid calls required.** The P1 test branch is OFFLINE ONLY; the user deferred exact paid-tier USD budget math, not source integrity or operational isolation.\n",
+    "state": "open",
+    "user": {
+      "login": "Ephurin",
+      "name": "Ephurin",
+      "email": null,
+      "avatar_url": "https://avatars.githubusercontent.com/u/163795797?v=4",
+      "id": 163795797
+    },
+    "assignees": null,
+    "labels": null,
+    "milestone": null,
+    "state_reason": null,
+    "comments": 1,
+    "created_at": "2026-10-21T22:18:10Z",
+    "updated_at": "2026-10-22T08:05:49Z",
+    "closed_at": null,
+    "display_url": "https://github.com/Ephurin/Novel_sharing_platform/issues/56",
+    "display_title": "P0 Author IDE autosave: stale revision after rapid undo (P1 S09, WF1F-S09-001)"
+  },
+  "url": "https://github.com/Ephurin/Novel_sharing_platform/issues/56",
+  "title": "P0 Author IDE autosave: stale revision after rapid undo (P1 S09, WF1F-S09-001)",
+  "display_url": "https://github.com/Ephurin/Novel_sharing_platform/issues/56",
+  "display_title": "P0 Author IDE autosave: stale revision after rapid undo (P1 S09, WF1F-S09-001)"
+}

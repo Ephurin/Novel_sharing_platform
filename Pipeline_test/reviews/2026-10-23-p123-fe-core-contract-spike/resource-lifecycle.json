@@ -1,0 +1,122 @@
+[
+  {
+    "project": "p123-core-b6afab40ee",
+    "all_stopped": true,
+    "containers": [
+      {
+        "name": "p123-core-b6afab40ee-api-ingress-1",
+        "state": "exited"
+      },
+      {
+        "name": "p123-core-b6afab40ee-backend-1",
+        "state": "exited"
+      },
+      {
+        "name": "p123-core-b6afab40ee-ai-service-1",
+        "state": "exited"
+      },
+      {
+        "name": "p123-core-b6afab40ee-budget-gateway-1",
+        "state": "exited"
+      },
+      {
+        "name": "p123-core-b6afab40ee-fake-upstream-1",
+        "state": "exited"
+      },
+      {
+        "name": "p123-core-b6afab40ee-postgres-1",
+        "state": "exited"
+      },
+      {
+        "name": "p123-core-b6afab40ee-mongodb-1",
+        "state": "exited"
+      }
+    ],
+    "retained_volumes": [
+      "p123-core-b6afab40ee_budget_state",
+      "p123-core-b6afab40ee_fake_state",
+      "p123-core-b6afab40ee_mongo_state",
+      "p123-core-b6afab40ee_pg_state"
+    ]
+  },
+  {
+    "project": "p123-core-dd1a715329",
+    "all_stopped": true,
+    "containers": [
+      {
+        "name": "p123-core-dd1a715329-api-ingress-1",
+        "state": "exited"
+      },
+      {
+        "name": "p123-core-dd1a715329-backend-1",
+        "state": "exited"
+      },
+      {
+        "name": "p123-core-dd1a715329-ai-service-1",
+        "state": "exited"
+      },
+      {
+        "name": "p123-core-dd1a715329-budget-gateway-1",
+        "state": "exited"
+      },
+      {
+        "name": "p123-core-dd1a715329-fake-upstream-1",
+        "state": "exited"
+      },
+      {
+        "name": "p123-core-dd1a715329-postgres-1",
+        "state": "exited"
+      },
+      {
+        "name": "p123-core-dd1a715329-mongodb-1",
+        "state": "exited"
+      }
+    ],
+    "retained_volumes": [
+      "p123-core-dd1a715329_budget_state",
+      "p123-core-dd1a715329_fake_state",
+      "p123-core-dd1a715329_mongo_state",
+      "p123-core-dd1a715329_pg_state"
+    ]
+  },
+  {
+    "project": "p123-core-b218b7b77c",
+    "all_stopped": true,
+    "containers": [
+      {
+        "name": "p123-core-b218b7b77c-api-ingress-1",
+        "state": "exited"
+      },
+      {
+        "name": "p123-core-b218b7b77c-backend-1",
+        "state": "exited"
+      },
+      {
+        "name": "p123-core-b218b7b77c-ai-service-1",
+        "state": "exited"
+      },
+      {
+        "name": "p123-core-b218b7b77c-budget-gateway-1",
+        "state": "exited"
+      },
+      {
+        "name": "p123-core-b218b7b77c-fake-upstream-1",
+        "state": "exited"
+      },
+      {
+        "name": "p123-core-b218b7b77c-postgres-1",
+        "state": "exited"
+      },
+      {
+        "name": "p123-core-b218b7b77c-mongodb-1",
+        "state": "exited"
+      }
+    ],
+    "retained_volumes": [
+      "p123-core-b218b7b77c_budget_state",
+      "p123-core-b218b7b77c_fake_state",
+      "p123-core-b218b7b77c_mongo_state",
+      "p123-core-b218b7b77c_pg_state"
+    ]
+  }
+]

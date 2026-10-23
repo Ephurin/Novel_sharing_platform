@@ -1,0 +1,146 @@
+[
+  {
+    "test": "01_absent_draft_version_0",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": [
+      null,
+      {
+        "chapterId": "9ece85b5-84b6-42b8-8991-f9edc13e7e72",
+        "novelId": "98952831-dbe8-4d6b-add9-40f117f1326e",
+        "title": "Contract chapter",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 9,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "analysisRevisionId": null,
+        "draftVersion": 1
+      },
+      null
+    ]
+  },
+  {
+    "test": "02_valid_version_save",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": [
+      {
+        "chapterId": "9ece85b5-84b6-42b8-8991-f9edc13e7e72",
+        "novelId": "98952831-dbe8-4d6b-add9-40f117f1326e",
+        "title": "Contract chapter",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 10,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "analysisRevisionId": null,
+        "draftVersion": 2
+      },
+      null
+    ]
+  },
+  {
+    "test": "03_missing_version_legacy_Core_observation",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": {
+      "chapterId": "9ece85b5-84b6-42b8-8991-f9edc13e7e72",
+      "novelId": "98952831-dbe8-4d6b-add9-40f117f1326e",
+      "title": "Contract chapter",
+      "chapterNumber": 1,
+      "content": null,
+      "wordCount": 10,
+      "isVip": false,
+      "priceCoins": 0,
+      "status": "DRAFT",
+      "analysisRevisionId": null,
+      "draftVersion": 3
+    }
+  },
+  {
+    "test": "04_stale_different_body_409",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": [
+      null,
+      null
+    ]
+  },
+  {
+    "test": "05_same_body_lost_response_retry",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": [
+      {
+        "chapterId": "9ece85b5-84b6-42b8-8991-f9edc13e7e72",
+        "novelId": "98952831-dbe8-4d6b-add9-40f117f1326e",
+        "title": "Contract chapter",
+        "chapterNumber": 1,
+        "content": null,
+        "wordCount": 11,
+        "isVip": false,
+        "priceCoins": 0,
+        "status": "DRAFT",
+        "analysisRevisionId": null,
+        "draftVersion": 4
+      },
+      null
+    ]
+  },
+  {
+    "test": "06_different_body_stale_retry",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": [
+      null,
+      null
+    ]
+  },
+  {
+    "test": "06b_different_metadata_stale_payload_409",
+    "status": "FAIL",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "error": "Same body/title but different stale pricing payload was accepted; whole-payload replay contract is not implemented"
+  },
+  {
+    "test": "07_concurrent_writers_CAS",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": null
+  },
+  {
+    "test": "08_API_consumer_inflight_A_then_B",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": {
+      "model": "API consumer retains B while A response is pending, then serializes using returned version; NOT a mounted hook or editor test",
+      "A_version": 6,
+      "B_version": 7
+    }
+  },
+  {
+    "test": "09_API_chapter_account_isolation",
+    "status": "PASS",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "details": {
+      "browser_lifecycle": "NOT_RUN",
+      "foreign_write": 403,
+      "other_chapter": "92f4939f-c493-4a2b-9df6-b1fe11ce3bec"
+    }
+  },
+  {
+    "test": "10a_active_save_returns_authoritative_version",
+    "status": "FAIL",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "error": "Auto-snapshot changed Mongo version after PATCH captured draftVersion"
+  },
+  {
+    "test": "10b_active_replay_preserves_version",
+    "status": "FAIL",
+    "proof": "REAL_HTTP_PG_MONGO",
+    "error": "Same-body active-baseline replay changes Mongo version despite stable revision/outbox"
+  }
+]
