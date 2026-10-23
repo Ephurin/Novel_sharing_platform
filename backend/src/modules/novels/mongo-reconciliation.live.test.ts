@@ -17,6 +17,7 @@ describe('Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)', () => {
   const testAuthorId = randomUUID();
   const recoveryChapterId = randomUUID();
   const ownedChapterIds = new Set([testChapterId]);
+  let cleanupAuthorized = false;
 
   async function cleanupOwnedDrafts() {
     const db = getMongoDatabase();
@@ -26,15 +27,18 @@ describe('Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)', () => {
   before(async () => {
     // Authorize actual targets before indexes, fixture writes or cleanup.
     await validateTestDatabaseIsolation(getPostgresPool(), getMongoDatabase());
+    cleanupAuthorized = true; // Admission precedes connection/index creation, which may partially fail.
     await connectMongo();
   });
 
   after(async () => {
     try {
-      await cleanupOwnedDrafts();
-      assert.equal(await getMongoDatabase().collection('draft_chapters').countDocuments({
-        chapterId: { $in: [testChapterId, recoveryChapterId] }
-      }), 0, 'All run-created drafts must be absent after teardown');
+      if (cleanupAuthorized) {
+        await cleanupOwnedDrafts();
+        assert.equal(await getMongoDatabase().collection('draft_chapters').countDocuments({
+          chapterId: { $in: [testChapterId, recoveryChapterId] }
+        }), 0, 'All run-created drafts must be absent after teardown');
+      }
     } finally {
       await disconnectMongo();
       await disconnectPostgres();
