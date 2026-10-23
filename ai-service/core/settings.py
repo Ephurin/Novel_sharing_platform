@@ -64,7 +64,7 @@ class Settings:
             raise ValueError("LLM_PROVIDER must be one of: none, gemini, openai, groq, fake")
 
         default_model = {
-            "gemini": "gemini-2.5-flash-lite",
+            "gemini": "gemini-3.5-flash-lite",
             "openai": "gpt-4o-mini",
             "groq": "llama-3.3-70b-versatile",
             "none": "disabled",
