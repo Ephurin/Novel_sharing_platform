@@ -1,0 +1,427 @@
+TAP version 13
+# [OutboxProcessor] Event evt-1 (INCREMENTAL_ANALYSIS) failed (attempt 1): AI service returned HTTP 503: {}
+# Subtest: P1 extraction-only outbox authorization boundary
+    # Subtest: successful extraction issues exactly one source-scoped request and no canon decision
+    ok 1 - successful extraction issues exactly one source-scoped request and no canon decision
+      ---
+      duration_ms: 23.5855
+      ...
+    # Subtest: duplicate delivery preserves extraction idempotency key and never invokes accept
+    ok 2 - duplicate delivery preserves extraction idempotency key and never invokes accept
+      ---
+      duration_ms: 0.6005
+      ...
+    # Subtest: interrupted extraction fails explicitly, retry remains extraction-only
+    ok 3 - interrupted extraction fails explicitly, retry remains extraction-only
+      ---
+      duration_ms: 0.6754
+      ...
+    # Subtest: HTTP extraction failure is retryable without accessing pending canon
+    ok 4 - HTTP extraction failure is retryable without accessing pending canon
+      ---
+      duration_ms: 1.8563
+      ...
+    # Subtest: outbox COMPLETED means extraction delivered, not canon accepted
+    ok 5 - outbox COMPLETED means extraction delivered, not canon accepted
+      ---
+      duration_ms: 0.7839
+      ...
+    # Subtest: failed extraction marks FAILED then successful retry completes using claim fences
+    ok 6 - failed extraction marks FAILED then successful retry completes using claim fences
+      ---
+      duration_ms: 1.9217
+      ...
+    1..6
+ok 1 - P1 extraction-only outbox authorization boundary
+  ---
+  duration_ms: 30.5908
+  type: 'suite'
+  ...
+# Subtest: Node.js AI Gateway Service (P6.5 Hardening)
+    # Subtest: AIGatewayService forwards headers with tenant, user, and service token
+    ok 1 - AIGatewayService forwards headers with tenant, user, and service token
+      ---
+      duration_ms: 55.1224
+      ...
+    # Subtest: AIGatewayService builds query parameters correctly for context-preview
+    ok 2 - AIGatewayService builds query parameters correctly for context-preview
+      ---
+      duration_ms: 2.7199
+      ...
+    # Subtest: AIGatewayService propagates remote AI errors as AppError with correct status code
+    ok 3 - AIGatewayService propagates remote AI errors as AppError with correct status code
+      ---
+      duration_ms: 1.3562
+      ...
+    # Subtest: AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE
+    ok 4 - AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE
+      ---
+      duration_ms: 0.5531
+      ...
+    # Subtest: assertNovelOwnership enforces author access control with 403 FORBIDDEN
+    ok 5 - assertNovelOwnership enforces author access control with 403 FORBIDDEN
+      ---
+      duration_ms: 0.4382
+      ...
+    # Subtest: Canonical chapter cutoff derivation from DB record overrides client cutoff
+    ok 6 - Canonical chapter cutoff derivation from DB record overrides client cutoff
+      ---
+      duration_ms: 0.2168
+      ...
+    # Subtest: Cross-author proposal group resolution enforces 403 FORBIDDEN when novel belongs to another author
+    ok 7 - Cross-author proposal group resolution enforces 403 FORBIDDEN when novel belongs to another author
+      ---
+      duration_ms: 0.9859
+      ...
+    # Subtest: Cross-author single proposal resolution enforces 403 FORBIDDEN for reject and edit-and-accept
+    ok 8 - Cross-author single proposal resolution enforces 403 FORBIDDEN for reject and edit-and-accept
+      ---
+      duration_ms: 0.8777
+      ...
+    # Subtest: Cross-author story plan read enforces 403 FORBIDDEN when novel belongs to another author
+    ok 9 - Cross-author story plan read enforces 403 FORBIDDEN when novel belongs to another author
+      ---
+      duration_ms: 0.7545
+      ...
+    # Subtest: Story Brain freshness check fails closed with 503 when AI service is unavailable
+    ok 10 - Story Brain freshness check fails closed with 503 when AI service is unavailable
+      ---
+      duration_ms: 0.5731
+      ...
+    1..10
+ok 2 - Node.js AI Gateway Service (P6.5 Hardening)
+  ---
+  duration_ms: 66.5272
+  type: 'suite'
+  ...
+# Subtest: AI-PIPE-01 P1 Node Gateway & Acceptance Flow
+    # Subtest: P1-Gateway: Forward manuscript bootstrap with tenant & service authentication
+    ok 1 - P1-Gateway: Forward manuscript bootstrap with tenant & service authentication
+      ---
+      duration_ms: 18.3563
+      ...
+    # Subtest: P1-Gateway: Context preview derives canonical cutoff and returns Story Brain package
+    ok 2 - P1-Gateway: Context preview derives canonical cutoff and returns Story Brain package
+      ---
+      duration_ms: 0.781
+      ...
+    # Subtest: P1-Gateway: AI Writing generation creates queued job with pinned brain version
+    ok 3 - P1-Gateway: AI Writing generation creates queued job with pinned brain version
+      ---
+      duration_ms: 0.6866
+      ...
+    # Subtest: P1-Accept: Patch application and content hash update contract
+    ok 4 - P1-Accept: Patch application and content hash update contract
+      ---
+      duration_ms: 0.1731
+      ...
+    # Subtest: P2-Gateway: Forward bootstrap from idea with tenant & service authentication
+    ok 5 - P2-Gateway: Forward bootstrap from idea with tenant & service authentication
+      ---
+      duration_ms: 0.5765
+      ...
+    # Subtest: P2B-Gateway: Forward Story Plan creation, activation, and objective update
+    ok 6 - P2B-Gateway: Forward Story Plan creation, activation, and objective update
+      ---
+      duration_ms: 0.8297
+      ...
+    # Subtest: P2B-Gateway: Non-owner cannot read another novel plan by UUID (403 FORBIDDEN)
+    ok 7 - P2B-Gateway: Non-owner cannot read another novel plan by UUID (403 FORBIDDEN)
+      ---
+      duration_ms: 0.4467
+      ...
+    # Subtest: P1-Gateway: Author operation consistency check forwards with actor/tenant and returns findings
+    ok 8 - P1-Gateway: Author operation consistency check forwards with actor/tenant and returns findings
+      ---
+      duration_ms: 0.5399
+      ...
+    1..8
+ok 3 - AI-PIPE-01 P1 Node Gateway & Acceptance Flow
+  ---
+  duration_ms: 23.4456
+  type: 'suite'
+  ...
+# Subtest: Chapter Revisions & Patch Application
+    # Subtest: applyPatchToContent correctly applies insertion at cursor
+    ok 1 - applyPatchToContent correctly applies insertion at cursor
+      ---
+      duration_ms: 0.7441
+      ...
+    # Subtest: applyPatchToContent correctly replaces selection range
+    ok 2 - applyPatchToContent correctly replaces selection range
+      ---
+      duration_ms: 0.1395
+      ...
+    # Subtest: applyPatchToContent handles unicode code points without splitting multi-byte characters
+    ok 3 - applyPatchToContent handles unicode code points without splitting multi-byte characters
+      ---
+      duration_ms: 0.0999
+      ...
+    # Subtest: applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping)
+    ok 4 - applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping)
+      ---
+      duration_ms: 0.4741
+      ...
+    # Subtest: applyPatchToContent allows valid boundary edge cases (0 to length)
+    ok 5 - applyPatchToContent allows valid boundary edge cases (0 to length)
+      ---
+      duration_ms: 0.1053
+      ...
+    1..5
+ok 4 - Chapter Revisions & Patch Application
+  ---
+  duration_ms: 2.5578
+  type: 'suite'
+  ...
+# Subtest: internal revision HTTP authorization fails closed before repository access
+    # Subtest: missing/anonymous
+    ok 1 - missing/anonymous
+      ---
+      duration_ms: 33.5979
+      ...
+    # Subtest: missing/arbitrary_Bearer
+    ok 2 - missing/arbitrary_Bearer
+      ---
+      duration_ms: 5.0777
+      ...
+    # Subtest: missing/empty_Bearer
+    ok 3 - missing/empty_Bearer
+      ---
+      duration_ms: 4.1535
+      ...
+    # Subtest: missing/wrong_service_token
+    ok 4 - missing/wrong_service_token
+      ---
+      duration_ms: 2.6164
+      ...
+    # Subtest: missing/empty_service_token
+    ok 5 - missing/empty_service_token
+      ---
+      duration_ms: 2.0376
+      ...
+    # Subtest: missing/correct_Bearer
+    ok 6 - missing/correct_Bearer
+      ---
+      duration_ms: 2.1162
+      ...
+    # Subtest: missing/correct_service_header
+    ok 7 - missing/correct_service_header
+      ---
+      duration_ms: 2.0815
+      ...
+    # Subtest: missing/correct_legacy_header
+    ok 8 - missing/correct_legacy_header
+      ---
+      duration_ms: 2.164
+      ...
+    # Subtest: empty/anonymous
+    ok 9 - empty/anonymous
+      ---
+      duration_ms: 3.3719
+      ...
+    # Subtest: empty/arbitrary_Bearer
+    ok 10 - empty/arbitrary_Bearer
+      ---
+      duration_ms: 2.2615
+      ...
+    # Subtest: empty/empty_Bearer
+    ok 11 - empty/empty_Bearer
+      ---
+      duration_ms: 1.8694
+      ...
+    # Subtest: empty/wrong_service_token
+    ok 12 - empty/wrong_service_token
+      ---
+      duration_ms: 1.4881
+      ...
+    # Subtest: empty/empty_service_token
+    ok 13 - empty/empty_service_token
+      ---
+      duration_ms: 1.5773
+      ...
+    # Subtest: empty/correct_Bearer
+    ok 14 - empty/correct_Bearer
+      ---
+      duration_ms: 1.6306
+      ...
+    # Subtest: empty/correct_service_header
+    ok 15 - empty/correct_service_header
+      ---
+      duration_ms: 1.9034
+      ...
+    # Subtest: empty/correct_legacy_header
+    ok 16 - empty/correct_legacy_header
+      ---
+      duration_ms: 1.5439
+      ...
+    # Subtest: whitespace/anonymous
+    ok 17 - whitespace/anonymous
+      ---
+      duration_ms: 1.3724
+      ...
+    # Subtest: whitespace/arbitrary_Bearer
+    ok 18 - whitespace/arbitrary_Bearer
+      ---
+      duration_ms: 1.2448
+      ...
+    # Subtest: whitespace/empty_Bearer
+    ok 19 - whitespace/empty_Bearer
+      ---
+      duration_ms: 1.2816
+      ...
+    # Subtest: whitespace/wrong_service_token
+    ok 20 - whitespace/wrong_service_token
+      ---
+      duration_ms: 1.2201
+      ...
+    # Subtest: whitespace/empty_service_token
+    ok 21 - whitespace/empty_service_token
+      ---
+      duration_ms: 1.195
+      ...
+    # Subtest: whitespace/correct_Bearer
+    ok 22 - whitespace/correct_Bearer
+      ---
+      duration_ms: 1.2511
+      ...
+    # Subtest: whitespace/correct_service_header
+    ok 23 - whitespace/correct_service_header
+      ---
+      duration_ms: 1.8304
+      ...
+    # Subtest: whitespace/correct_legacy_header
+    ok 24 - whitespace/correct_legacy_header
+      ---
+      duration_ms: 1.9627
+      ...
+    # Subtest: configured/anonymous
+    ok 25 - configured/anonymous
+      ---
+      duration_ms: 1.9954
+      ...
+    # Subtest: configured/arbitrary_Bearer
+    ok 26 - configured/arbitrary_Bearer
+      ---
+      duration_ms: 2.4236
+      ...
+    # Subtest: configured/empty_Bearer
+    ok 27 - configured/empty_Bearer
+      ---
+      duration_ms: 1.4858
+      ...
+    # Subtest: configured/wrong_service_token
+    ok 28 - configured/wrong_service_token
+      ---
+      duration_ms: 1.4057
+      ...
+    # Subtest: configured/empty_service_token
+    ok 29 - configured/empty_service_token
+      ---
+      duration_ms: 1.2154
+      ...
+    # Subtest: configured/correct_Bearer
+    ok 30 - configured/correct_Bearer
+      ---
+      duration_ms: 2.3687
+      ...
+    # Subtest: configured/correct_service_header
+    ok 31 - configured/correct_service_header
+      ---
+      duration_ms: 1.2712
+      ...
+    # Subtest: configured/correct_legacy_header
+    ok 32 - configured/correct_legacy_header
+      ---
+      duration_ms: 1.2897
+      ...
+# {"level":30,"time":1792766069643,"pid":17680,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+    # Subtest: valid token missing revision is 404; invalid token missing revision is 401
+    ok 33 - valid token missing revision is 404; invalid token missing revision is 401
+      ---
+      duration_ms: 2.3855
+      ...
+    1..33
+ok 5 - internal revision HTTP authorization fails closed before repository access
+  ---
+  duration_ms: 110.8568
+  ...
+# Subtest: Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+    # Subtest: Exponential backoff for outbox retries is bounded by 300s
+    ok 1 - Exponential backoff for outbox retries is bounded by 300s
+      ---
+      duration_ms: 1.8558
+      ...
+    # Subtest: Conditional MongoDB draft reconciliation preserves newer manual draft edits
+    ok 2 - Conditional MongoDB draft reconciliation preserves newer manual draft edits
+      ---
+      duration_ms: 1.4263
+      ...
+    # Subtest: Conditional MongoDB draft reconciliation creates new draft if not found
+    ok 3 - Conditional MongoDB draft reconciliation creates new draft if not found
+      ---
+      duration_ms: 0.3972
+      ...
+    # Subtest: Accept-time brain version conflict rejects stale generation
+    ok 4 - Accept-time brain version conflict rejects stale generation
+      ---
+      duration_ms: 0.4452
+      ...
+    # Subtest: Outbox lease concurrency: active PROCESSING event cannot be claimed by concurrent worker
+    ok 5 - Outbox lease concurrency: active PROCESSING event cannot be claimed by concurrent worker
+      ---
+      duration_ms: 0.4806
+      ...
+    # Subtest: Outbox expired lease recovery: crashed worker event is reclaimed after timeout
+    ok 6 - Outbox expired lease recovery: crashed worker event is reclaimed after timeout
+      ---
+      duration_ms: 0.4512
+      ...
+    1..6
+ok 6 - Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+  ---
+  duration_ms: 6.5768
+  type: 'suite'
+  ...
+# Subtest: Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Integration
+    # Subtest: Checkpoint 08: acceptDraft persists chapter_revisions with source_type=AI_DRAFT_ACCEPT in PostgreSQL
+    ok 1 - Checkpoint 08: acceptDraft persists chapter_revisions with source_type=AI_DRAFT_ACCEPT in PostgreSQL
+      ---
+      duration_ms: 67.039
+      ...
+    # Subtest: Checkpoint 09: chapters.latest_revision_id is updated in PostgreSQL
+    ok 2 - Checkpoint 09: chapters.latest_revision_id is updated in PostgreSQL
+      ---
+      duration_ms: 3.4416
+      ...
+    # Subtest: Checkpoint 10: revision_outbox_events row exists with event_type=INCREMENTAL_ANALYSIS
+    ok 3 - Checkpoint 10: revision_outbox_events row exists with event_type=INCREMENTAL_ANALYSIS
+      ---
+      duration_ms: 3.596
+      ...
+    # Subtest: Checkpoint 14: acceptDraft is idempotent and returns existing revision without duplicate insertion
+    ok 4 - Checkpoint 14: acceptDraft is idempotent and returns existing revision without duplicate insertion
+      ---
+      duration_ms: 13.7331
+      ...
+    # Subtest: Checkpoint 15: Author-control semantics - unaccepted draft does not alter canonical chapter revision
+    ok 5 - Checkpoint 15: Author-control semantics - unaccepted draft does not alter canonical chapter revision
+      ---
+      duration_ms: 5.0785
+      ...
+# {"level":30,"time":1792766069422,"pid":17968,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+    1..5
+ok 7 - Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Integration
+  ---
+  duration_ms: 337.934
+  type: 'suite'
+  ...
+# {"level":30,"time":1792766069426,"pid":17968,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}
+1..7
+# tests 74
+# suites 6
+# pass 74
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1503.848

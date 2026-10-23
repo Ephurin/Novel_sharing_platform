@@ -1,0 +1,2337 @@
+[
+  {
+    "stage": "missing-read-no-mutation",
+    "brain": [],
+    "runs": [],
+    "proposals": [],
+    "facts": [],
+    "revisions": [
+      {
+        "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+        "content_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+        "content": "Tiêu Viêm gặp Hải Ba Đông."
+      }
+    ],
+    "mongo": []
+  },
+  {
+    "stage": "waiting-review",
+    "brain": [
+      {
+        "id": "bd357447-0faf-4732-acb9-2e9e332f08c8",
+        "novel_id": "14006b57-e23a-4527-b2f4-3e09ba92f788",
+        "brain_version": "1",
+        "entity_guidance": {
+          "entries": [
+            {
+              "kind": "hint",
+              "name": "Absent Hint",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            }
+          ],
+          "version": 1
+        }
+      }
+    ],
+    "runs": [
+      {
+        "id": "e495df17-42e4-431d-8268-5bcabe624594",
+        "status": "pending",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 26,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 9,
+            "candidates": 9
+          },
+          "policy": "entity-candidates-v1",
+          "status": "waiting_entity_review",
+          "aliases": [],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": true
+            },
+            "novel_id": "14006b57-e23a-4527-b2f4-3e09ba92f788",
+            "operation": "author_reanalysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "content_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "idempotency_key": "author-reanalysis:8b234e19ee084375337605e40900fdabe2929fcfd09c7b4b6125c9cba5e73f01"
+          },
+          "entities": [],
+          "decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "788f12d1e4ed48ded3cddd59",
+              "status_quote": "",
+              "canonical_name": "Tiêu",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "2f61caa2702b95687d9e19ed",
+              "status_quote": "",
+              "canonical_name": "Tiêu Viêm",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "a8bca9c847c2e34f66d335d0",
+              "status_quote": "",
+              "canonical_name": "Viêm",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e51a9b99c70db941fc6572f4",
+              "status_quote": "",
+              "canonical_name": "Hải",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "03b89e29a7a436f850c71442",
+              "status_quote": "",
+              "canonical_name": "Hải Ba",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "7865e179f81e3aa08d60589b",
+              "status_quote": "",
+              "canonical_name": "Hải Ba Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4ada9fb24aaada74243766fa",
+              "status_quote": "",
+              "canonical_name": "Ba",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "324cc514cd74463c06c286dc",
+              "status_quote": "",
+              "canonical_name": "Ba Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "11ee7bfb21d36b29ae0ef591",
+              "status_quote": "",
+              "canonical_name": "Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Tiêu",
+              "context_end": 26,
+              "candidate_id": "788f12d1e4ed48ded3cddd59",
+              "context_start": 0
+            },
+            {
+              "end": 9,
+              "start": 0,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_sequence",
+                "llm_discovery"
+              ],
+              "surface": "Tiêu Viêm",
+              "context_end": 26,
+              "candidate_id": "2f61caa2702b95687d9e19ed",
+              "context_start": 0
+            },
+            {
+              "end": 9,
+              "start": 5,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Viêm",
+              "context_end": 26,
+              "candidate_id": "a8bca9c847c2e34f66d335d0",
+              "context_start": 0
+            },
+            {
+              "end": 17,
+              "start": 14,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Hải",
+              "context_end": 26,
+              "candidate_id": "e51a9b99c70db941fc6572f4",
+              "context_start": 0
+            },
+            {
+              "end": 20,
+              "start": 14,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_sequence"
+              ],
+              "surface": "Hải Ba",
+              "context_end": 26,
+              "candidate_id": "03b89e29a7a436f850c71442",
+              "context_start": 0
+            },
+            {
+              "end": 25,
+              "start": 14,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_sequence",
+                "llm_discovery"
+              ],
+              "surface": "Hải Ba Đông",
+              "context_end": 26,
+              "candidate_id": "7865e179f81e3aa08d60589b",
+              "context_start": 0
+            },
+            {
+              "end": 20,
+              "start": 18,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Ba",
+              "context_end": 26,
+              "candidate_id": "4ada9fb24aaada74243766fa",
+              "context_start": 0
+            },
+            {
+              "end": 25,
+              "start": 18,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_sequence"
+              ],
+              "surface": "Ba Đông",
+              "context_end": 26,
+              "candidate_id": "324cc514cd74463c06c286dc",
+              "context_start": 0
+            },
+            {
+              "end": 25,
+              "start": 21,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Đông",
+              "context_end": 26,
+              "candidate_id": "11ee7bfb21d36b29ae0ef591",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+          "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+          "source_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 1,
+          "analysis_run_id": "e495df17-42e4-431d-8268-5bcabe624594",
+          "guidance_version": 1,
+          "unanchored_discoveries": []
+        }
+      }
+    ],
+    "proposals": [],
+    "facts": [],
+    "revisions": [
+      {
+        "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+        "content_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+        "content": "Tiêu Viêm gặp Hải Ba Đông."
+      }
+    ],
+    "mongo": []
+  },
+  {
+    "stage": "frozen-review",
+    "brain": [
+      {
+        "id": "bd357447-0faf-4732-acb9-2e9e332f08c8",
+        "novel_id": "14006b57-e23a-4527-b2f4-3e09ba92f788",
+        "brain_version": "1",
+        "entity_guidance": {
+          "entries": [
+            {
+              "kind": "hint",
+              "name": "Absent Hint",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            }
+          ],
+          "version": 1
+        }
+      }
+    ],
+    "runs": [
+      {
+        "id": "e495df17-42e4-431d-8268-5bcabe624594",
+        "status": "pending",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 26,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 9,
+            "candidates": 9
+          },
+          "policy": "entity-candidates-v1",
+          "status": "entities_reviewed",
+          "aliases": [],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": true
+            },
+            "novel_id": "14006b57-e23a-4527-b2f4-3e09ba92f788",
+            "operation": "author_reanalysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "content_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "idempotency_key": "author-reanalysis:8b234e19ee084375337605e40900fdabe2929fcfd09c7b4b6125c9cba5e73f01"
+          },
+          "entities": [
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Tiêu",
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "788f12d1e4ed48ded3cddd59"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Tiêu Viêm",
+              "status_quote": "",
+              "verified_end": 9,
+              "candidate_ids": [
+                "2f61caa2702b95687d9e19ed"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Viêm",
+              "status_quote": "",
+              "verified_end": 9,
+              "candidate_ids": [
+                "a8bca9c847c2e34f66d335d0"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 5,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Hải",
+              "status_quote": "",
+              "verified_end": 17,
+              "candidate_ids": [
+                "e51a9b99c70db941fc6572f4"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 14,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Hải Ba",
+              "status_quote": "",
+              "verified_end": 20,
+              "candidate_ids": [
+                "03b89e29a7a436f850c71442"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 14,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Hải Ba Đông",
+              "status_quote": "",
+              "verified_end": 25,
+              "candidate_ids": [
+                "7865e179f81e3aa08d60589b"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 14,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Ba",
+              "status_quote": "",
+              "verified_end": 20,
+              "candidate_ids": [
+                "4ada9fb24aaada74243766fa"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 18,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Ba Đông",
+              "status_quote": "",
+              "verified_end": 25,
+              "candidate_ids": [
+                "324cc514cd74463c06c286dc"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 18,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Đông",
+              "status_quote": "",
+              "verified_end": 25,
+              "candidate_ids": [
+                "11ee7bfb21d36b29ae0ef591"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 21,
+              "canonical_entity_id": ""
+            }
+          ],
+          "decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "788f12d1e4ed48ded3cddd59",
+              "status_quote": "",
+              "canonical_name": "Tiêu",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "2f61caa2702b95687d9e19ed",
+              "status_quote": "",
+              "canonical_name": "Tiêu Viêm",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "a8bca9c847c2e34f66d335d0",
+              "status_quote": "",
+              "canonical_name": "Viêm",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e51a9b99c70db941fc6572f4",
+              "status_quote": "",
+              "canonical_name": "Hải",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "03b89e29a7a436f850c71442",
+              "status_quote": "",
+              "canonical_name": "Hải Ba",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "7865e179f81e3aa08d60589b",
+              "status_quote": "",
+              "canonical_name": "Hải Ba Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4ada9fb24aaada74243766fa",
+              "status_quote": "",
+              "canonical_name": "Ba",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "324cc514cd74463c06c286dc",
+              "status_quote": "",
+              "canonical_name": "Ba Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "11ee7bfb21d36b29ae0ef591",
+              "status_quote": "",
+              "canonical_name": "Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Tiêu",
+              "context_end": 26,
+              "candidate_id": "788f12d1e4ed48ded3cddd59",
+              "context_start": 0
+            },
+            {
+              "end": 9,
+              "start": 0,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_sequence",
+                "llm_discovery"
+              ],
+              "surface": "Tiêu Viêm",
+              "context_end": 26,
+              "candidate_id": "2f61caa2702b95687d9e19ed",
+              "context_start": 0
+            },
+            {
+              "end": 9,
+              "start": 5,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Viêm",
+              "context_end": 26,
+              "candidate_id": "a8bca9c847c2e34f66d335d0",
+              "context_start": 0
+            },
+            {
+              "end": 17,
+              "start": 14,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Hải",
+              "context_end": 26,
+              "candidate_id": "e51a9b99c70db941fc6572f4",
+              "context_start": 0
+            },
+            {
+              "end": 20,
+              "start": 14,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_sequence"
+              ],
+              "surface": "Hải Ba",
+              "context_end": 26,
+              "candidate_id": "03b89e29a7a436f850c71442",
+              "context_start": 0
+            },
+            {
+              "end": 25,
+              "start": 14,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_sequence",
+                "llm_discovery"
+              ],
+              "surface": "Hải Ba Đông",
+              "context_end": 26,
+              "candidate_id": "7865e179f81e3aa08d60589b",
+              "context_start": 0
+            },
+            {
+              "end": 20,
+              "start": 18,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Ba",
+              "context_end": 26,
+              "candidate_id": "4ada9fb24aaada74243766fa",
+              "context_start": 0
+            },
+            {
+              "end": 25,
+              "start": 18,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_sequence"
+              ],
+              "surface": "Ba Đông",
+              "context_end": 26,
+              "candidate_id": "324cc514cd74463c06c286dc",
+              "context_start": 0
+            },
+            {
+              "end": 25,
+              "start": 21,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Đông",
+              "context_end": 26,
+              "candidate_id": "11ee7bfb21d36b29ae0ef591",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+          "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+          "source_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 2,
+          "analysis_run_id": "e495df17-42e4-431d-8268-5bcabe624594",
+          "guidance_version": 1,
+          "reviewed_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "788f12d1e4ed48ded3cddd59",
+              "status_quote": "",
+              "canonical_name": "Tiêu",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "2f61caa2702b95687d9e19ed",
+              "status_quote": "",
+              "canonical_name": "Tiêu Viêm",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "a8bca9c847c2e34f66d335d0",
+              "status_quote": "",
+              "canonical_name": "Viêm",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e51a9b99c70db941fc6572f4",
+              "status_quote": "",
+              "canonical_name": "Hải",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "03b89e29a7a436f850c71442",
+              "status_quote": "",
+              "canonical_name": "Hải Ba",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "7865e179f81e3aa08d60589b",
+              "status_quote": "",
+              "canonical_name": "Hải Ba Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4ada9fb24aaada74243766fa",
+              "status_quote": "",
+              "canonical_name": "Ba",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "324cc514cd74463c06c286dc",
+              "status_quote": "",
+              "canonical_name": "Ba Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "11ee7bfb21d36b29ae0ef591",
+              "status_quote": "",
+              "canonical_name": "Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            }
+          ],
+          "review_input_version": 1,
+          "unanchored_discoveries": []
+        }
+      }
+    ],
+    "proposals": [],
+    "facts": [],
+    "revisions": [
+      {
+        "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+        "content_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+        "content": "Tiêu Viêm gặp Hải Ba Đông."
+      }
+    ],
+    "mongo": []
+  },
+  {
+    "stage": "completed-pending-canon",
+    "brain": [
+      {
+        "id": "bd357447-0faf-4732-acb9-2e9e332f08c8",
+        "novel_id": "14006b57-e23a-4527-b2f4-3e09ba92f788",
+        "brain_version": "1",
+        "entity_guidance": {
+          "entries": [
+            {
+              "kind": "hint",
+              "name": "Absent Hint",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            }
+          ],
+          "version": 1
+        }
+      }
+    ],
+    "runs": [
+      {
+        "id": "e495df17-42e4-431d-8268-5bcabe624594",
+        "status": "pending",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 26,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 9,
+            "candidates": 9
+          },
+          "policy": "entity-candidates-v1",
+          "status": "completed",
+          "aliases": [],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": true
+            },
+            "novel_id": "14006b57-e23a-4527-b2f4-3e09ba92f788",
+            "operation": "author_reanalysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "content_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "idempotency_key": "author-reanalysis:8b234e19ee084375337605e40900fdabe2929fcfd09c7b4b6125c9cba5e73f01"
+          },
+          "entities": [
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Tiêu",
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "788f12d1e4ed48ded3cddd59"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Tiêu Viêm",
+              "status_quote": "",
+              "verified_end": 9,
+              "candidate_ids": [
+                "2f61caa2702b95687d9e19ed"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Viêm",
+              "status_quote": "",
+              "verified_end": 9,
+              "candidate_ids": [
+                "a8bca9c847c2e34f66d335d0"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 5,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Hải",
+              "status_quote": "",
+              "verified_end": 17,
+              "candidate_ids": [
+                "e51a9b99c70db941fc6572f4"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 14,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Hải Ba",
+              "status_quote": "",
+              "verified_end": 20,
+              "candidate_ids": [
+                "03b89e29a7a436f850c71442"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 14,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Hải Ba Đông",
+              "status_quote": "",
+              "verified_end": 25,
+              "candidate_ids": [
+                "7865e179f81e3aa08d60589b"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 14,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Ba",
+              "status_quote": "",
+              "verified_end": 20,
+              "candidate_ids": [
+                "4ada9fb24aaada74243766fa"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 18,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Ba Đông",
+              "status_quote": "",
+              "verified_end": 25,
+              "candidate_ids": [
+                "324cc514cd74463c06c286dc"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 18,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Đông",
+              "status_quote": "",
+              "verified_end": 25,
+              "candidate_ids": [
+                "11ee7bfb21d36b29ae0ef591"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 21,
+              "canonical_entity_id": ""
+            }
+          ],
+          "decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "788f12d1e4ed48ded3cddd59",
+              "status_quote": "",
+              "canonical_name": "Tiêu",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "2f61caa2702b95687d9e19ed",
+              "status_quote": "",
+              "canonical_name": "Tiêu Viêm",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "a8bca9c847c2e34f66d335d0",
+              "status_quote": "",
+              "canonical_name": "Viêm",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e51a9b99c70db941fc6572f4",
+              "status_quote": "",
+              "canonical_name": "Hải",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "03b89e29a7a436f850c71442",
+              "status_quote": "",
+              "canonical_name": "Hải Ba",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "7865e179f81e3aa08d60589b",
+              "status_quote": "",
+              "canonical_name": "Hải Ba Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4ada9fb24aaada74243766fa",
+              "status_quote": "",
+              "canonical_name": "Ba",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "324cc514cd74463c06c286dc",
+              "status_quote": "",
+              "canonical_name": "Ba Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "11ee7bfb21d36b29ae0ef591",
+              "status_quote": "",
+              "canonical_name": "Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Tiêu",
+              "context_end": 26,
+              "candidate_id": "788f12d1e4ed48ded3cddd59",
+              "context_start": 0
+            },
+            {
+              "end": 9,
+              "start": 0,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_sequence",
+                "llm_discovery"
+              ],
+              "surface": "Tiêu Viêm",
+              "context_end": 26,
+              "candidate_id": "2f61caa2702b95687d9e19ed",
+              "context_start": 0
+            },
+            {
+              "end": 9,
+              "start": 5,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Viêm",
+              "context_end": 26,
+              "candidate_id": "a8bca9c847c2e34f66d335d0",
+              "context_start": 0
+            },
+            {
+              "end": 17,
+              "start": 14,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Hải",
+              "context_end": 26,
+              "candidate_id": "e51a9b99c70db941fc6572f4",
+              "context_start": 0
+            },
+            {
+              "end": 20,
+              "start": 14,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_sequence"
+              ],
+              "surface": "Hải Ba",
+              "context_end": 26,
+              "candidate_id": "03b89e29a7a436f850c71442",
+              "context_start": 0
+            },
+            {
+              "end": 25,
+              "start": 14,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_sequence",
+                "llm_discovery"
+              ],
+              "surface": "Hải Ba Đông",
+              "context_end": 26,
+              "candidate_id": "7865e179f81e3aa08d60589b",
+              "context_start": 0
+            },
+            {
+              "end": 20,
+              "start": 18,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Ba",
+              "context_end": 26,
+              "candidate_id": "4ada9fb24aaada74243766fa",
+              "context_start": 0
+            },
+            {
+              "end": 25,
+              "start": 18,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_sequence"
+              ],
+              "surface": "Ba Đông",
+              "context_end": 26,
+              "candidate_id": "324cc514cd74463c06c286dc",
+              "context_start": 0
+            },
+            {
+              "end": 25,
+              "start": 21,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Đông",
+              "context_end": 26,
+              "candidate_id": "11ee7bfb21d36b29ae0ef591",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+          "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+          "source_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 2,
+          "analysis_run_id": "e495df17-42e4-431d-8268-5bcabe624594",
+          "guidance_version": 1,
+          "reviewed_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "788f12d1e4ed48ded3cddd59",
+              "status_quote": "",
+              "canonical_name": "Tiêu",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "2f61caa2702b95687d9e19ed",
+              "status_quote": "",
+              "canonical_name": "Tiêu Viêm",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "a8bca9c847c2e34f66d335d0",
+              "status_quote": "",
+              "canonical_name": "Viêm",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e51a9b99c70db941fc6572f4",
+              "status_quote": "",
+              "canonical_name": "Hải",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "03b89e29a7a436f850c71442",
+              "status_quote": "",
+              "canonical_name": "Hải Ba",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "7865e179f81e3aa08d60589b",
+              "status_quote": "",
+              "canonical_name": "Hải Ba Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4ada9fb24aaada74243766fa",
+              "status_quote": "",
+              "canonical_name": "Ba",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "324cc514cd74463c06c286dc",
+              "status_quote": "",
+              "canonical_name": "Ba Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "11ee7bfb21d36b29ae0ef591",
+              "status_quote": "",
+              "canonical_name": "Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            }
+          ],
+          "review_input_version": 1,
+          "unanchored_discoveries": []
+        }
+      }
+    ],
+    "proposals": [
+      {
+        "id": "ff947bb5-a9d7-5a60-9114-e45ce74aec5c",
+        "proposal_type": "entity",
+        "status": "pending",
+        "evidence": [
+          {
+            "end": 4,
+            "quote": "Tiêu",
+            "start": 0,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "7576ace4-0526-5f16-8c7e-e5119676e079",
+        "proposal_type": "entity",
+        "status": "pending",
+        "evidence": [
+          {
+            "end": 9,
+            "quote": "Tiêu Viêm",
+            "start": 0,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "68bbd0ae-e98d-5fa9-aee2-1afe8c59179d",
+        "proposal_type": "entity",
+        "status": "pending",
+        "evidence": [
+          {
+            "end": 9,
+            "quote": "Viêm",
+            "start": 5,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "23e88fc9-729b-588e-8dbb-da40cbbdd603",
+        "proposal_type": "entity",
+        "status": "pending",
+        "evidence": [
+          {
+            "end": 17,
+            "quote": "Hải",
+            "start": 14,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "7aade7ec-8623-5a7c-a04b-98ee25dd3da1",
+        "proposal_type": "entity",
+        "status": "pending",
+        "evidence": [
+          {
+            "end": 20,
+            "quote": "Hải Ba",
+            "start": 14,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "3555c216-22f0-5084-bb60-c09148560254",
+        "proposal_type": "entity",
+        "status": "pending",
+        "evidence": [
+          {
+            "end": 25,
+            "quote": "Hải Ba Đông",
+            "start": 14,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "fe65a998-bb6a-51d2-b57d-c4dfba530b48",
+        "proposal_type": "entity",
+        "status": "pending",
+        "evidence": [
+          {
+            "end": 20,
+            "quote": "Ba",
+            "start": 18,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "5391f180-2c94-50dc-8a03-097058fcee83",
+        "proposal_type": "entity",
+        "status": "pending",
+        "evidence": [
+          {
+            "end": 25,
+            "quote": "Ba Đông",
+            "start": 18,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "7956bfd7-9778-5e00-856c-3efb4a152e36",
+        "proposal_type": "entity",
+        "status": "pending",
+        "evidence": [
+          {
+            "end": 25,
+            "quote": "Đông",
+            "start": 21,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "05ae376c-6887-5c3a-bb6d-c599fdf13806",
+        "proposal_type": "event",
+        "status": "pending",
+        "evidence": [
+          {
+            "end": 26,
+            "quote": "Tiêu Viêm gặp Hải Ba Đông.",
+            "start": 0,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "b43a74c6-d0b2-56d3-bd4a-0a2485fa9eb1",
+        "proposal_type": "state_transition",
+        "status": "pending",
+        "evidence": [
+          {
+            "end": 26,
+            "quote": "Tiêu Viêm gặp Hải Ba Đông.",
+            "start": 0,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "89f02f1c-ba95-5ef2-be75-58457287d6d0",
+        "proposal_type": "state_transition",
+        "status": "pending",
+        "evidence": [
+          {
+            "end": 26,
+            "quote": "Tiêu Viêm gặp Hải Ba Đông.",
+            "start": 0,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "96b4fd14-9e6c-509e-bbc3-2c44797554ab",
+        "proposal_type": "fact",
+        "status": "pending",
+        "evidence": [
+          {
+            "end": 26,
+            "quote": "Tiêu Viêm gặp Hải Ba Đông.",
+            "start": 0,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      }
+    ],
+    "facts": [],
+    "revisions": [
+      {
+        "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+        "content_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+        "content": "Tiêu Viêm gặp Hải Ba Đông."
+      }
+    ],
+    "mongo": []
+  },
+  {
+    "stage": "approved-memory",
+    "brain": [
+      {
+        "id": "bd357447-0faf-4732-acb9-2e9e332f08c8",
+        "novel_id": "14006b57-e23a-4527-b2f4-3e09ba92f788",
+        "brain_version": "2",
+        "entity_guidance": {
+          "entries": [
+            {
+              "kind": "hint",
+              "name": "Absent Hint",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            }
+          ],
+          "version": 1
+        }
+      }
+    ],
+    "runs": [
+      {
+        "id": "e495df17-42e4-431d-8268-5bcabe624594",
+        "status": "pending",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 26,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 9,
+            "candidates": 9
+          },
+          "policy": "entity-candidates-v1",
+          "status": "completed",
+          "aliases": [],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": true
+            },
+            "novel_id": "14006b57-e23a-4527-b2f4-3e09ba92f788",
+            "operation": "author_reanalysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "content_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "idempotency_key": "author-reanalysis:8b234e19ee084375337605e40900fdabe2929fcfd09c7b4b6125c9cba5e73f01"
+          },
+          "entities": [
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Tiêu",
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "788f12d1e4ed48ded3cddd59"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Tiêu Viêm",
+              "status_quote": "",
+              "verified_end": 9,
+              "candidate_ids": [
+                "2f61caa2702b95687d9e19ed"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Viêm",
+              "status_quote": "",
+              "verified_end": 9,
+              "candidate_ids": [
+                "a8bca9c847c2e34f66d335d0"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 5,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Hải",
+              "status_quote": "",
+              "verified_end": 17,
+              "candidate_ids": [
+                "e51a9b99c70db941fc6572f4"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 14,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Hải Ba",
+              "status_quote": "",
+              "verified_end": 20,
+              "candidate_ids": [
+                "03b89e29a7a436f850c71442"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 14,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Hải Ba Đông",
+              "status_quote": "",
+              "verified_end": 25,
+              "candidate_ids": [
+                "7865e179f81e3aa08d60589b"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 14,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Ba",
+              "status_quote": "",
+              "verified_end": 20,
+              "candidate_ids": [
+                "4ada9fb24aaada74243766fa"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 18,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Ba Đông",
+              "status_quote": "",
+              "verified_end": 25,
+              "candidate_ids": [
+                "324cc514cd74463c06c286dc"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 18,
+              "canonical_entity_id": ""
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Đông",
+              "status_quote": "",
+              "verified_end": 25,
+              "candidate_ids": [
+                "11ee7bfb21d36b29ae0ef591"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 21,
+              "canonical_entity_id": ""
+            }
+          ],
+          "decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "788f12d1e4ed48ded3cddd59",
+              "status_quote": "",
+              "canonical_name": "Tiêu",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "2f61caa2702b95687d9e19ed",
+              "status_quote": "",
+              "canonical_name": "Tiêu Viêm",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "a8bca9c847c2e34f66d335d0",
+              "status_quote": "",
+              "canonical_name": "Viêm",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e51a9b99c70db941fc6572f4",
+              "status_quote": "",
+              "canonical_name": "Hải",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "03b89e29a7a436f850c71442",
+              "status_quote": "",
+              "canonical_name": "Hải Ba",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "7865e179f81e3aa08d60589b",
+              "status_quote": "",
+              "canonical_name": "Hải Ba Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4ada9fb24aaada74243766fa",
+              "status_quote": "",
+              "canonical_name": "Ba",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "324cc514cd74463c06c286dc",
+              "status_quote": "",
+              "canonical_name": "Ba Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "11ee7bfb21d36b29ae0ef591",
+              "status_quote": "",
+              "canonical_name": "Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Tiêu",
+              "context_end": 26,
+              "candidate_id": "788f12d1e4ed48ded3cddd59",
+              "context_start": 0
+            },
+            {
+              "end": 9,
+              "start": 0,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_sequence",
+                "llm_discovery"
+              ],
+              "surface": "Tiêu Viêm",
+              "context_end": 26,
+              "candidate_id": "2f61caa2702b95687d9e19ed",
+              "context_start": 0
+            },
+            {
+              "end": 9,
+              "start": 5,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Viêm",
+              "context_end": 26,
+              "candidate_id": "a8bca9c847c2e34f66d335d0",
+              "context_start": 0
+            },
+            {
+              "end": 17,
+              "start": 14,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Hải",
+              "context_end": 26,
+              "candidate_id": "e51a9b99c70db941fc6572f4",
+              "context_start": 0
+            },
+            {
+              "end": 20,
+              "start": 14,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_sequence"
+              ],
+              "surface": "Hải Ba",
+              "context_end": 26,
+              "candidate_id": "03b89e29a7a436f850c71442",
+              "context_start": 0
+            },
+            {
+              "end": 25,
+              "start": 14,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_sequence",
+                "llm_discovery"
+              ],
+              "surface": "Hải Ba Đông",
+              "context_end": 26,
+              "candidate_id": "7865e179f81e3aa08d60589b",
+              "context_start": 0
+            },
+            {
+              "end": 20,
+              "start": 18,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Ba",
+              "context_end": 26,
+              "candidate_id": "4ada9fb24aaada74243766fa",
+              "context_start": 0
+            },
+            {
+              "end": 25,
+              "start": 18,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_sequence"
+              ],
+              "surface": "Ba Đông",
+              "context_end": 26,
+              "candidate_id": "324cc514cd74463c06c286dc",
+              "context_start": 0
+            },
+            {
+              "end": 25,
+              "start": 21,
+              "context": "Tiêu Viêm gặp Hải Ba Đông.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Đông",
+              "context_end": 26,
+              "candidate_id": "11ee7bfb21d36b29ae0ef591",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+          "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+          "source_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 2,
+          "analysis_run_id": "e495df17-42e4-431d-8268-5bcabe624594",
+          "guidance_version": 1,
+          "reviewed_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "788f12d1e4ed48ded3cddd59",
+              "status_quote": "",
+              "canonical_name": "Tiêu",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "2f61caa2702b95687d9e19ed",
+              "status_quote": "",
+              "canonical_name": "Tiêu Viêm",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "a8bca9c847c2e34f66d335d0",
+              "status_quote": "",
+              "canonical_name": "Viêm",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e51a9b99c70db941fc6572f4",
+              "status_quote": "",
+              "canonical_name": "Hải",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "03b89e29a7a436f850c71442",
+              "status_quote": "",
+              "canonical_name": "Hải Ba",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "7865e179f81e3aa08d60589b",
+              "status_quote": "",
+              "canonical_name": "Hải Ba Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4ada9fb24aaada74243766fa",
+              "status_quote": "",
+              "canonical_name": "Ba",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "324cc514cd74463c06c286dc",
+              "status_quote": "",
+              "canonical_name": "Ba Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "11ee7bfb21d36b29ae0ef591",
+              "status_quote": "",
+              "canonical_name": "Đông",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": ""
+            }
+          ],
+          "review_input_version": 1,
+          "unanchored_discoveries": []
+        }
+      }
+    ],
+    "proposals": [
+      {
+        "id": "ff947bb5-a9d7-5a60-9114-e45ce74aec5c",
+        "proposal_type": "entity",
+        "status": "accepted",
+        "evidence": [
+          {
+            "end": 4,
+            "quote": "Tiêu",
+            "start": 0,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "7576ace4-0526-5f16-8c7e-e5119676e079",
+        "proposal_type": "entity",
+        "status": "accepted",
+        "evidence": [
+          {
+            "end": 9,
+            "quote": "Tiêu Viêm",
+            "start": 0,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "68bbd0ae-e98d-5fa9-aee2-1afe8c59179d",
+        "proposal_type": "entity",
+        "status": "accepted",
+        "evidence": [
+          {
+            "end": 9,
+            "quote": "Viêm",
+            "start": 5,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "23e88fc9-729b-588e-8dbb-da40cbbdd603",
+        "proposal_type": "entity",
+        "status": "accepted",
+        "evidence": [
+          {
+            "end": 17,
+            "quote": "Hải",
+            "start": 14,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "7aade7ec-8623-5a7c-a04b-98ee25dd3da1",
+        "proposal_type": "entity",
+        "status": "accepted",
+        "evidence": [
+          {
+            "end": 20,
+            "quote": "Hải Ba",
+            "start": 14,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "3555c216-22f0-5084-bb60-c09148560254",
+        "proposal_type": "entity",
+        "status": "accepted",
+        "evidence": [
+          {
+            "end": 25,
+            "quote": "Hải Ba Đông",
+            "start": 14,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "fe65a998-bb6a-51d2-b57d-c4dfba530b48",
+        "proposal_type": "entity",
+        "status": "accepted",
+        "evidence": [
+          {
+            "end": 20,
+            "quote": "Ba",
+            "start": 18,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "5391f180-2c94-50dc-8a03-097058fcee83",
+        "proposal_type": "entity",
+        "status": "accepted",
+        "evidence": [
+          {
+            "end": 25,
+            "quote": "Ba Đông",
+            "start": 18,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "7956bfd7-9778-5e00-856c-3efb4a152e36",
+        "proposal_type": "entity",
+        "status": "accepted",
+        "evidence": [
+          {
+            "end": 25,
+            "quote": "Đông",
+            "start": 21,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "05ae376c-6887-5c3a-bb6d-c599fdf13806",
+        "proposal_type": "event",
+        "status": "accepted",
+        "evidence": [
+          {
+            "end": 26,
+            "quote": "Tiêu Viêm gặp Hải Ba Đông.",
+            "start": 0,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "b43a74c6-d0b2-56d3-bd4a-0a2485fa9eb1",
+        "proposal_type": "state_transition",
+        "status": "accepted",
+        "evidence": [
+          {
+            "end": 26,
+            "quote": "Tiêu Viêm gặp Hải Ba Đông.",
+            "start": 0,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "89f02f1c-ba95-5ef2-be75-58457287d6d0",
+        "proposal_type": "state_transition",
+        "status": "accepted",
+        "evidence": [
+          {
+            "end": 26,
+            "quote": "Tiêu Viêm gặp Hải Ba Đông.",
+            "start": 0,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "96b4fd14-9e6c-509e-bbc3-2c44797554ab",
+        "proposal_type": "fact",
+        "status": "accepted",
+        "evidence": [
+          {
+            "end": 26,
+            "quote": "Tiêu Viêm gặp Hải Ba Đông.",
+            "start": 0,
+            "text_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+            "chapter_id": "9b3348f6-7c97-437f-b06e-f1c49248c7bd",
+            "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+            "chapter_number": 1
+          }
+        ]
+      }
+    ],
+    "facts": [
+      {
+        "id": "0655c709-0b6a-4f2e-b81f-2dd70beea16e",
+        "fact_key": "source_observation",
+        "source_revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+        "chapter_number": 1
+      }
+    ],
+    "revisions": [
+      {
+        "revision_id": "e1777889-1e35-4621-9377-481ec14850ca",
+        "content_hash": "b54188746977d480cb80a1b41e4d751345a61ec89128c95aedcde078ff09c394",
+        "content": "Tiêu Viêm gặp Hải Ba Đông."
+      }
+    ],
+    "mongo": []
+  }
+]
