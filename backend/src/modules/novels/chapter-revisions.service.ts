@@ -123,6 +123,7 @@ async function createSnapshotUnderLease(auth: AuthContext, chapterId: string,
   const wordCount = countWords(content);
   const sourceType = purpose === 'MANUSCRIPT_BOOTSTRAP' ? 'BOOTSTRAP' : 'AUTHOR_MANUAL';
 
+  let reusedRevision = false;
   const revision = await withPostgresTransaction(async (client) => {
     await lockChapterForUpdate(client, chapterId);
 
@@ -130,6 +131,7 @@ async function createSnapshotUnderLease(auth: AuthContext, chapterId: string,
 
     // Repeated saves of the same body must not create duplicate analysis work.
     if (latest?.contentHash === contentHash && latest.sourceType === sourceType) {
+      reusedRevision = true;
       return latest;
     }
 
@@ -163,7 +165,9 @@ async function createSnapshotUnderLease(auth: AuthContext, chapterId: string,
   });
 
   // Dual-write to Mongo draft storage with conditional reconciliation
-  const snapshotTime = new Date();
+  // Replaying an old snapshot must not give it a fresh timestamp that can
+  // overwrite an author edit made after that immutable revision was created.
+  const snapshotTime = reusedRevision ? revision.createdAt : new Date();
   try {
     await syncDraftFromRevisionConditional({
       chapterId,

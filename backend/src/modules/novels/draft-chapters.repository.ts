@@ -112,13 +112,22 @@ async function syncDraftUnderLease(input: Parameters<typeof syncDraftFromRevisio
     if (existing.updatedAt && existing.updatedAt > input.acceptTimestamp) {
       return { status: 'skipped_newer_draft', draft: existing };
     }
+    // Content equality alone is insufficient: a different revision must still
+    // advance provenance. An already-applied revision is a durable no-op.
+    if (existing.lastAcceptedRevisionId === input.revisionId && existing.lastAcceptedAt &&
+        existing.content === input.content && existing.wordCount === input.wordCount &&
+        (input.title === undefined || existing.title === input.title) &&
+        (input.novelId === undefined || existing.novelId === input.novelId) &&
+        (input.authorId === undefined || existing.authorId === input.authorId)) {
+      return { status: 'synced', draft: existing };
+    }
   } else {
     // If draft does not exist yet, atomically create it with trusted ownership
     const newDraft: DraftChapterDocument = {
       novelId: input.novelId ?? '',
       chapterId: input.chapterId,
       authorId: input.authorId ?? '',
-      title: input.title ?? 'Chương mới',
+      title: input.title ?? 'ChÆ°Æ¡ng má»›i',
       content: input.content,
       wordCount: input.wordCount,
       version: 1,

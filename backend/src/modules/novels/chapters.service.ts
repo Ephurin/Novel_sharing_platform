@@ -151,12 +151,22 @@ async function updateChapterUnderLease(auth: AuthContext, chapterId: string, inp
     throw new AppError(409, 'CONTENT_004', 'Invalid content state');
   }
 
-  const nextTitle = input.title ?? chapter.title;
   const existingDraft = await findDraftChapterByChapterId(chapterId);
+  const nextTitle = input.title ?? existingDraft?.title ?? chapter.title;
   const nextContent = input.content ?? existingDraft?.content ?? chapter.content ?? '';
   const wordCount = nextContent ? countWords(nextContent) : chapter.wordCount;
   const nextIsVip = input.isVip ?? chapter.isVip;
   const nextPriceCoins = input.priceCoins ?? (nextIsVip ? chapter.priceCoins : 0);
+  const sameDraft = existingDraft?.title === nextTitle && existingDraft.content === nextContent &&
+    existingDraft.wordCount === wordCount;
+  const samePricing = nextIsVip === chapter.isVip && nextPriceCoins === chapter.priceCoins;
+  const currentVersion = existingDraft?.version ?? 0;
+  // A lost-response replay may reuse an older version only for the complete
+  // current semantic payload. Check pricing before Mongo CAS or SQL mutations.
+  if (input.expectedVersion !== undefined && input.expectedVersion !== currentVersion &&
+      !(input.expectedVersion < currentVersion && sameDraft && samePricing)) {
+    throw new AppError(409, 'DRAFT_CONFLICT', 'Draft changed or another save is in progress; reload before retrying');
+  }
   assertPremiumPricing({ isVip: nextIsVip, priceCoins: nextPriceCoins });
 
   const isPublishedDraftUpdate =
@@ -164,7 +174,9 @@ async function updateChapterUnderLease(auth: AuthContext, chapterId: string, inp
 
   let draft = existingDraft;
   // Compare-and-swap happens before PostgreSQL metadata/revision/outbox writes.
-  if (input.title !== undefined || input.content !== undefined) {
+  if ((input.title !== undefined || input.content !== undefined ||
+       (input.expectedVersion !== undefined && existingDraft && !samePricing)) &&
+      !(sameDraft && samePricing)) {
     if (!nextContent) throw new AppError(409, 'CONTENT_004', 'Invalid content state');
     draft = await upsertDraftChapter({ chapterId, novelId: chapter.novelId, authorId: auth.userId,
       title: nextTitle, content: nextContent, wordCount, autosave: input.autosave,
@@ -173,7 +185,10 @@ async function updateChapterUnderLease(auth: AuthContext, chapterId: string, inp
 
   let updatedChapter;
 
-  if (isPublishedDraftUpdate) {
+  if (samePricing && (isPublishedDraftUpdate ||
+      ((input.title === undefined || input.title === chapter.title) && wordCount === chapter.wordCount))) {
+    updatedChapter = chapter;
+  } else if (isPublishedDraftUpdate) {
     updatedChapter =
       input.isVip !== undefined || input.priceCoins !== undefined
         ? await updateChapterPricing(chapterId, {
@@ -202,6 +217,10 @@ async function updateChapterUnderLease(auth: AuthContext, chapterId: string, inp
   const revision = input.content !== undefined
     ? await snapshotSavedChapter(auth, chapterId, input.content, lease)
     : null;
+
+  // Reconciliation can advance Mongo after the editor CAS. Read while the same
+  // writer lease is still held so the next queued save receives its durable version.
+  draft = await findDraftChapterByChapterId(chapterId);
 
   return {
     ...updatedChapter,

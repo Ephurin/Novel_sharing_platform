@@ -168,4 +168,27 @@ describe('Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)', () => {
     assert.equal(stored?.lastAcceptedAt?.getTime(),input.acceptTimestamp.getTime());
     t.diagnostic(JSON.stringify({probe:3,before:null,latestRevision:input.revisionId,draft:stored}));
   });
+  test('Targeted Probe 4: Same applied revision is a no-op, including timestamps', async () => {
+    const input = await acceptedInput(0);
+    const before = await findDraftChapterByChapterId(input.chapterId);
+    assert.ok(before?.lastAcceptedAt);
+    // A later delivery timestamp does not turn the same revision into a new write.
+    const result = await syncDraftFromRevisionConditional({...input,acceptTimestamp:new Date(before.updatedAt.getTime()+1000)});
+    assert.equal(result.status,'synced');
+    assert.deepEqual(result.draft,before);
+    assert.deepEqual(await findDraftChapterByChapterId(input.chapterId),before);
+  });
+
+  test('Targeted Probe 5: Identical prose from a different accepted revision still advances provenance', async () => {
+    const input = await acceptedInput(0);
+    await db.collection('draft_chapters').updateOne({chapterId:input.chapterId},{$set:{lastAcceptedRevisionId:fixtures[0].parentId,updatedAt:new Date(input.acceptTimestamp.getTime()-1000)}});
+    const before = await findDraftChapterByChapterId(input.chapterId);
+    assert.ok(before);
+    const result = await syncDraftFromRevisionConditional(input);
+    assert.equal(result.status,'synced');
+    assert.equal(result.draft?.lastAcceptedRevisionId,input.revisionId);
+    assert.equal(result.draft?.version,before.version+1);
+    assert.equal(result.draft?.content,before.content);
+  });
+
 });
