@@ -67,6 +67,15 @@ def run(env,output,optin):
   frozen=durable()
   script="""import {handleOutboxEvent} from './dist/jobs/outbox-processor.js';import {getPostgresPool,disconnectPostgres} from './dist/core/database/postgres.js';const r=(await getPostgresPool().query('select * from revision_outbox_events where revision_id=$1',[process.argv[1]])).rows[0];const e={eventType:r.event_type,revisionId:r.revision_id,novelId:r.novel_id,chapterId:r.chapter_id,contentHash:r.content_hash,createdBy:r.created_by};const f=globalThis.fetch;globalThis.fetch=async(...args)=>{await f(...args);throw new Error('OWNED_LOST_EXTRACTION_RESPONSE');};let failed=false;try{await handleOutboxEvent(e);}catch(err){failed=String(err).includes('OWNED_LOST_EXTRACTION_RESPONSE');}finally{globalThis.fetch=f;}if(!failed)throw new Error('fault did not execute');await handleOutboxEvent(e);console.log('EXPLICIT_FAILURE_SAFE_RETRY');await disconnectPostgres();"""
   result=p.command(p.compose+['exec','-T','backend','node','--input-type=module','-e',script,arid]);check('08_interrupted_extraction_retry_review_preserved',durable()==frozen and 'EXPLICIT_FAILURE_SAFE_RETRY' in result);p.save('retry-readback',dict(before=frozen,after=durable(),result=result))
+  script="""import os,json,urllib.request,urllib.error,uuid
+rows=[]
+for name,token,target in [('anonymous',None,'RID'),('empty','','RID'),('arbitrary','arbitrary','RID'),('valid',os.environ['PLATFORM_SERVICE_TOKEN'],'RID'),('not_found_valid',os.environ['PLATFORM_SERVICE_TOKEN'],str(uuid.uuid4()))]:
+ req=urllib.request.Request('http://backend:4000/internal/v1/revisions/'+target,headers={} if token is None else {'Authorization':'Bearer '+token})
+ try:r=urllib.request.urlopen(req)
+ except urllib.error.HTTPError as err:r=err
+ rows.append(dict(case=name,status=r.status,body=json.loads(r.read())))
+print(json.dumps(rows))""".replace('RID',arid)
+  auth=json.loads(p.command(p.compose+['exec','-T','ai-service','python','-'],stdin=script));p.save('internal-auth-real-http',auth);check('14_internal_authorization_real_http',[r['status'] for r in auth]==[401,401,401,200,404] and auth[3]['body']['data']['content_hash']==accepted['revision']['contentHash'])
   p.save('final-durable',durable());p.save('gateway-ledger',p.ledger())
   # Source lacks the entity checkpoint architecture. Never label legacy autonomous as HITL.
   for name in ['11_P3_HITL_waiting_for_entity_review','12_controller_continue_after_human_checkpoint']:
