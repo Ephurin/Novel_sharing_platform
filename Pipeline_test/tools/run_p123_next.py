@@ -22,7 +22,7 @@ class NextProbe(Probe):
         r=self.latest(cid)
         version=self.api('GET','/ai/story-brains/by-novel/'+self.novel)['brain_version']
         instruction='next-'+uuid.uuid4().hex+(' fault:500' if fault else ' Continue current scene.')
-        job=self.api('POST','/ai/writing/generations',{'novel_id':self.novel,'chapter_id':cid,'revision_id':r['revisionId'],'content_hash':r['contentHash'],'operation':'continue','selection':{'start':0,'end':0,'cursor':len(r['content'])},'instruction':instruction,'expected_brain_version':version})
+        job=self.api('POST','/ai/writing/generations',{'novel_id':self.novel,'chapter_id':cid,'revision_id':r['revisionId'],'content_hash':r['contentHash'],'operation':'continue','selection':{'start':0,'end':0,'cursor':len(r['content'])},'instruction':instruction,'idempotency_key':'core-reconciliation-'+uuid.uuid4().hex,'expected_brain_version':version})
         done=self.wait_job(job['job_id'],{'failed'} if fault or overflow else {'completed'})
         captures=self.http.get(self.base.removesuffix('/api/v1')+'/received',timeout=5).json()
         matching=[c for c in captures if instruction in c.get('prompt_text','')]
