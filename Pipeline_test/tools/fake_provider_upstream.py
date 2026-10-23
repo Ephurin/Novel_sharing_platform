@@ -8,6 +8,25 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 
+def integration_response(text):
+    """Scripted source-grounded responses for integration's legacy prompt framing.
+    Not model quality or real-provider evidence. Unknown prompts fail explicitly.
+    """
+    if 'expert fantasy novel analyst' in text:
+        source=text.split('Text to analyze:\n\n',1)[1]
+        names=[('Mai Linh','PER'),('Duy','PER'),('Cồn Vân','LOC')]
+        return json.dumps([{'phrase':n,'entity':t,'score':9} for n,t in names if n in source],ensure_ascii=False)
+    if 'narrative event extractor' in text:
+        source=text.split('Text passage: ',1)[1].split('\nKnown entities:',1)[0]
+        return json.dumps({'events':[{'event_type':'observation','participants':[n for n in ['Mai Linh','Duy'] if n in source],
+          'locations':['Cồn Vân'] if 'Cồn Vân' in source else [],'summary':source.split('\n\n',1)[0],
+          'emotion_tags':[],'importance_score':0.5,'consequences':[]}]},ensure_ascii=False)
+    if 'Story Brain' in text or 'Author AI Copilot' in text:
+        return json.dumps({'draft_text':'Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.',
+          'explanation':'FAKE_PROVIDER_OUTPUT scripted continuation for persistence only'},ensure_ascii=False)
+    raise ValueError('Unsupported integration fake prompt')
+
+
 class FakeHandler(BaseHTTPRequestHandler):
     received = []
     lock = threading.Lock()
@@ -106,11 +125,12 @@ class FakeHandler(BaseHTTPRequestHandler):
                       'modelVersion': 'gemini-3.5-flash-lite', 'responseId': self.headers['X-Gateway-Dispatch-Id']}
         else:
             assert self.path == '/v1/chat/completions' and body['max_tokens'] > 0
-            text = json.dumps(body['messages'])
+            text = '\n\n'.join(str(m.get('content','')) for m in body['messages'])
+            content = integration_response(text)
             config = {'max_tokens': body['max_tokens']}
             result = {'id': self.headers['X-Gateway-Dispatch-Id'], 'object': 'chat.completion',
                       'created': int(time.time()), 'model': body['model'],
-                      'choices': [{'index': 0, 'message': {'role': 'assistant', 'content': 'Separate fake upstream response.'}, 'finish_reason': 'stop'}],
+                      'choices': [{'index': 0, 'message': {'role': 'assistant', 'content': content}, 'finish_reason': 'stop'}],
                       'usage': {'prompt_tokens': 10, 'completion_tokens': 10, 'total_tokens': 20}}
         entry = {'path': self.path, 'request_sha256': hashlib.sha256(json.dumps(body, sort_keys=True).encode()).hexdigest(),
                  'dispatch_id': self.headers['X-Gateway-Dispatch-Id'], 'client': self.headers['X-Gateway-Client'],

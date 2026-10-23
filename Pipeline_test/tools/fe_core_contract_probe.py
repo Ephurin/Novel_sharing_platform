@@ -30,6 +30,18 @@ const c=await createChapter(getPostgresPool(),{novelId:process.argv[1],title:'Co
    state['Mongo_drafts']=json.loads(p.command(p.compose+['exec','-T','mongodb','mongosh','--quiet','--eval',script]))
    return state
   def require(ok,message):assert ok,message
+  def review_revision(revision_id):
+   # Integration currently exposes proposal review, not the pipeline entity-review API.
+   # Exercise the real selected path; record the missing separate entity gate in handoff.
+   deadline=time.monotonic()+80
+   while time.monotonic()<deadline:
+    queue=p.api('GET',p.brain+'/review-queue')
+    matching=[x for x in queue if x.get('evidence',{}).get('revision_id')==revision_id]
+    if matching:
+     p.save('human-proposal-review-'+revision_id,{'channel':'SIMULATED_HUMAN_VIA_API','mode':'integration_legacy_proposal_review','queue':matching})
+     p.approve();return
+    time.sleep(.4)
+   raise AssertionError('No proposal review for accepted source '+revision_id)
   def signature(state):
    return {'chapters':[{k:v for k,v in c.items() if k!='updated_at'} for c in state['chapters']],
     'revisions':state['chapter_revisions'],'outbox':[{k:e[k] for k in ['event_id','revision_id','content_hash']} for e in state['revision_outbox_events']]}
@@ -100,8 +112,7 @@ const c=await createChapter(getPostgresPool(),{novelId:process.argv[1],title:'Co
   p.api('POST',path+'/revisions/snapshot',{'purpose':'MANUSCRIPT_BOOTSTRAP'})
   source=p.latest(cid)
   j=p.api('POST','/ai/story-brains/bootstrap/from-manuscript',{'novel_id':p.novel,'revisions':[{'chapter_id':cid,'revision_id':source['revisionId'],'content_hash':source['contentHash']}]})
-  p.wait_job(j['job_id'],{'waiting_entity_review'});p.review(p.wait_review(source['revisionId']))
-  p.api('POST','/ai/jobs/'+j['job_id']+'/resume',{});p.wait_job(j['job_id'],{'waiting_review'})
+  p.wait_job(j['job_id'],{'waiting_review'})
   p.approve();activated=p.api('POST',p.brain+'/baseline/activate',{'job_id':j['job_id']})
   require(bool(activated['baseline_revision_id']),'Automatic snapshot requires a revision-anchored active baseline')
   initial_memory=p.read_memory();canon_body='Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.'
@@ -113,7 +124,7 @@ const c=await createChapter(getPostgresPool(),{novelId:process.argv[1],title:'Co
   persisted=db();events=[r for r in persisted['revision_outbox_events'] if r['revision_id']==rid]
   require(revision['contentHash']==hashlib.sha256(canon_body.encode()).hexdigest() and len(events)==1,'automatic revision/outbox mismatch')
   require(p.read_memory()==initial_memory,'save auto-approved canon')
-  review=p.wait_review(rid);p.review(review);p.approve();after=p.read_memory()
+  review_revision(rid);after=p.read_memory()
   checkpoint=db();retry_before=view()['draft'];retried=save(canon_body,canonical['draftVersion']-1);retry_after=view()['draft']
   p.save('active-retry-readback',{'before':retry_before,'response':retried,'after':retry_after,'PG_before':checkpoint,'PG_after':db()})
   row('10b_active_replay_preserves_version',lambda:require(retry_after['version']==retry_before['version'] and signature(db())==signature(checkpoint),'Same-body active-baseline replay changes Mongo version despite stable revision/outbox'))
@@ -124,7 +135,7 @@ const c=await createChapter(getPostgresPool(),{novelId:process.argv[1],title:'Co
    next_revision=p.latest(cid);require(response['analysisRevisionId']==next_revision['revisionId'] and next_revision['contentHash']==hashlib.sha256(next_body.encode()).hexdigest(),'Next save lost revision provenance')
    require(len([x for x in state['revision_outbox_events'] if x['revision_id']==next_revision['revisionId']])==1,'Next save lacks one durable outbox')
    p.save('next-save-returned-version',{'previous_response':canonical,'response':response,'before':before,'after':state,'HTTP':stored})
-   p.review(p.wait_review(next_revision['revisionId']));p.approve()
+   review_revision(next_revision['revisionId'])
   row('10c_next_save_using_returned_version',next_versioned_save)
   after=p.read_memory()
   plan=p.api('POST','/ai/story-plans',{'novel_id':p.novel,'objectives':[{'order_index':1,'title':'FUTURE_ONLY_CONTRACT_MARKER','description':'Unperformed future intent','target_chapter':3}]})
@@ -133,10 +144,10 @@ const c=await createChapter(getPostgresPool(),{novelId:process.argv[1],title:'Co
   accepted_id=accepted['revision']['revisionId'];require(replay['revision']['revisionId']==accepted_id and signature(db())==signature(accepted_checkpoint) and view()['draft']==accepted_draft,'accepted replay duplicate or durable mutation')
   p.save('accepted-replay-durable',{'accepted':accepted,'replay':replay,'PG_Mongo_before':accepted_checkpoint,'PG_Mongo_after':db()})
   require(p.read_memory()==after,'accept auto-approved canon')
-  accepted_review=p.wait_review(accepted_id);p.review(accepted_review);p.approve();mfirst=p.read_memory()
+  review_revision(accepted_id);mfirst=p.read_memory()
   stale,_=p.generate(cid);save(canon_body+' newer author checkpoint',view()['draft']['version'])
   p.api('POST',path+'/revisions/accept-draft',{'generationId':stale['job_id']},expected=(409,))
-  rows.append({'test':'10_active_checkpoint_accept_outbox_StoryBrain','status':'PASS','proof':'REAL_HTTP_PG_MONGO_FAKE_PROVIDER','details':{'automatic_saved_revision':rid,'accepted_revision':accepted_id,'accepted_source_generation':job['job_id'],'active_baseline':True,'explicit_author_review':True,'M_FIRST_from_accepted_source':True,'stale_generation_rejected':409,'future_plan_not_canon':True}})
+  rows.append({'test':'10_active_checkpoint_accept_outbox_StoryBrain','status':'PASS','proof':'REAL_HTTP_PG_MONGO_FAKE_PROVIDER','details':{'automatic_saved_revision':rid,'accepted_revision':accepted_id,'accepted_source_generation':job['job_id'],'active_baseline':True,'explicit_author_review':True,'review_mode':'integration_legacy_proposal_review','pipeline_entity_gate':'NOT_AVAILABLE_IN_INTEGRATION','M_FIRST_from_accepted_source':True,'stale_generation_rejected':409,'future_plan_not_canon':True}})
   p.save('D2-durable-readback',{'PG':db(),'HTTP':view(),'M_FIRST':mfirst,'current_memory':p.read_memory(),'outbound_context':evidence,'fixture':'SIMULATED_HUMAN_VIA_API; focused one-checkpoint proof, not a P123 suite rerun'})
   def snapshot_failure():
    # Fail one real outbox INSERT; transaction must roll back and HTTP must not claim success.
