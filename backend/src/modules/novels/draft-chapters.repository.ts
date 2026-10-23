@@ -114,12 +114,25 @@ async function syncDraftUnderLease(input: Parameters<typeof syncDraftFromRevisio
   const now = new Date();
   const existing = await collection().findOne({ chapterId: input.chapterId, deletedAt: null });
   if (existing) {
-    // Propose no-op for an already reconciled identical source under lease to prevent unneeded draft version bumping
-    if (existing.lastAcceptedRevisionId === input.revisionId &&
-        existing.content === input.content && existing.wordCount === input.wordCount &&
+    // No-op for an already reconciled identical source under lease to prevent unneeded draft version bumping
+    if (existing.content === input.content && existing.wordCount === input.wordCount &&
         (input.title === undefined || existing.title === input.title) &&
         (input.novelId === undefined || existing.novelId === input.novelId) &&
         (input.authorId === undefined || existing.authorId === input.authorId)) {
+      if (existing.lastAcceptedRevisionId !== input.revisionId) {
+        await collection().updateOne(
+          { chapterId: input.chapterId },
+          {
+            $set: {
+              lastAcceptedRevisionId: input.revisionId,
+              lastAcceptedAt: input.acceptTimestamp,
+              updatedAt: now
+            }
+          }
+        );
+        existing.lastAcceptedRevisionId = input.revisionId;
+        existing.lastAcceptedAt = input.acceptTimestamp;
+      }
       return { status: 'synced', draft: existing };
     }
     if (existing.updatedAt && existing.updatedAt > input.acceptTimestamp) {
