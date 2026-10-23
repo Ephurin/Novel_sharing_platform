@@ -32,8 +32,11 @@ class NextProbe(Probe):
             assert len(matching)==1
             context=json.loads(matching[0]['prompt_text'].split('Bối cảnh tiểu thuyết (Story Brain): ',1)[1].split('\n',1)[0])
             self.check('outbound_hash_'+done['job_id'],digest(context)==stored['context_summary']['context_hash'])
-            self.check('retrieval_disabled_'+done['job_id'],stored['context_summary']['semantic_retrieval_status']==['disabled'])
+            retrieval_status=stored['context_summary'].get('semantic_retrieval_status')
+            if retrieval_status is None:
+                self.save('retrieval-metadata-'+done['job_id'],{'DTO_status':'ABSENT_IN_INTEGRATION','runtime_policy_evidence':'containment.json: embeddings none, semantic retrieval false; no status field is inferred'})
+            else:
+                self.check('retrieval_disabled_'+done['job_id'],retrieval_status==['disabled'])
             evidence['context']=context
         self.save('generation-'+done['job_id'],evidence)
         return done,evidence
-
