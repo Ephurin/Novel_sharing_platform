@@ -1,0 +1,208 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.85kB done
+#1 DONE 0.0s
+
+#2 [ai-service internal] load build definition from Dockerfile
+#2 transferring dockerfile: 457B done
+#2 DONE 0.1s
+
+#3 [backend internal] load build definition from Dockerfile
+#3 transferring dockerfile: 324B done
+#3 DONE 0.1s
+
+#4 [web internal] load build definition from Dockerfile
+#4 transferring dockerfile: 378B done
+#4 DONE 0.1s
+
+#5 [web internal] load metadata for docker.io/library/node:22-bookworm-slim
+#5 DONE 1.2s
+
+#6 [web internal] load .dockerignore
+#6 transferring context: 201B done
+#6 DONE 0.0s
+
+#7 [ai-service internal] load metadata for docker.io/library/python:3.12.10-slim-bookworm
+#7 DONE 1.2s
+
+#8 [web internal] load metadata for docker.io/library/nginx:1.27-alpine
+#8 DONE 1.2s
+
+#9 [ai-service internal] load .dockerignore
+#9 transferring context: 219B done
+#9 DONE 0.0s
+
+#10 [backend 1/8] FROM docker.io/library/node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d
+#10 resolve docker.io/library/node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d 0.0s done
+#10 DONE 0.1s
+
+#11 [ai-service internal] load build context
+#11 transferring context: 15.60kB 0.0s done
+#11 DONE 0.0s
+
+#12 [web internal] load build context
+#12 transferring context: 7.53kB 0.0s done
+#12 DONE 0.0s
+
+#13 [backend internal] load build context
+#13 transferring context: 14.91kB 0.0s done
+#13 DONE 0.0s
+
+#14 [web stage-1 1/3] FROM docker.io/library/nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+#14 resolve docker.io/library/nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10 0.1s done
+#14 DONE 0.1s
+
+#15 [ai-service 1/6] FROM docker.io/library/python:3.12.10-slim-bookworm@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db
+#15 resolve docker.io/library/python:3.12.10-slim-bookworm@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db 0.0s done
+#15 DONE 0.0s
+
+#16 [backend 2/8] WORKDIR /app/backend
+#16 CACHED
+
+#17 [backend 5/8] COPY backend ./
+#17 CACHED
+
+#18 [backend 3/8] COPY backend/package*.json ./
+#18 CACHED
+
+#19 [backend 6/8] COPY docs/Assets /app/docs/Assets
+#19 CACHED
+
+#20 [backend 4/8] RUN npm ci
+#20 CACHED
+
+#21 [backend 7/8] RUN sed -i 's/\r$//' ./docker-entrypoint.sh && chmod +x ./docker-entrypoint.sh
+#21 CACHED
+
+#22 [backend 8/8] RUN npm run build
+#22 CACHED
+
+#23 [web build 2/6] WORKDIR /app/web
+#23 CACHED
+
+#24 [web build 3/6] COPY web/package*.json ./
+#24 CACHED
+
+#25 [web build 5/6] COPY web ./
+#25 CACHED
+
+#26 [web build 6/6] RUN npm run build
+#26 CACHED
+
+#27 [web stage-1 2/3] COPY web/nginx.conf /etc/nginx/conf.d/default.conf
+#27 CACHED
+
+#28 [web build 4/6] RUN npm ci
+#28 CACHED
+
+#29 [web stage-1 3/3] COPY --from=build /app/web/dist /usr/share/nginx/html
+#29 CACHED
+
+#30 [backend] exporting to image
+#30 exporting layers
+#30 ...
+
+#31 [ai-service 5/6] RUN pip install --no-cache-dir -r requirements.txt pytest httpx
+#31 CACHED
+
+#32 [ai-service 3/6] RUN apt-get update && apt-get install -y --no-install-recommends     curl     && rm -rf /var/lib/apt/lists/*
+#32 CACHED
+
+#33 [ai-service 4/6] COPY requirements.txt .
+#33 CACHED
+
+#34 [ai-service 2/6] WORKDIR /app
+#34 CACHED
+
+#35 [ai-service 6/6] COPY . .
+#35 CACHED
+
+#30 [backend] exporting to image
+#30 exporting layers 0.0s done
+#30 exporting manifest sha256:e645b4fbd7c29b1b6886d05f31953c059a3ffbecd603a5ec5978bfcfefc0b9b9 0.1s done
+#30 exporting config sha256:adac9793231c9ab5bda7d364b026a5c9cc8657900495479f62050a49f1e41c3d
+#30 exporting config sha256:adac9793231c9ab5bda7d364b026a5c9cc8657900495479f62050a49f1e41c3d 0.1s done
+#30 exporting attestation manifest sha256:2c32a716d92cb258706271633d9843b3ba363ba902c89b0ce5143a11d96dc325 0.1s done
+#30 exporting manifest list sha256:ac76898fa32d6b1ea683337a42f0ad75fea3ad5195eb90e5a1dd29e9a39cd5e0
+#30 exporting manifest list sha256:ac76898fa32d6b1ea683337a42f0ad75fea3ad5195eb90e5a1dd29e9a39cd5e0 0.0s done
+#30 naming to docker.io/library/pr60-smoke-92ad101607-backend:latest 0.0s done
+#30 unpacking to docker.io/library/pr60-smoke-92ad101607-backend:latest 0.0s done
+#30 DONE 0.4s
+
+#36 [ai-service] exporting to image
+#36 exporting layers 0.0s done
+#36 exporting manifest sha256:2cd123515ccda25ce223bead9cccf362a2d78daf669944b052200013fa315a86 0.1s done
+#36 exporting config sha256:35272ee8401ef793ca5c0ef87b47a30f09dca81e5f3e21c36799f778b42f77a7 0.1s done
+#36 exporting attestation manifest sha256:a1ffd67f377f6d65cdf7428ca21f6fd68e33b5fc3cd4fb94476e757a28871132 0.1s done
+#36 exporting manifest list sha256:ad98359689e7636a21e3f0e4a847346a538b293fe75687b88222581eca397ab5 0.0s done
+#36 naming to docker.io/library/pr60-smoke-92ad101607-ai-service:latest done
+#36 unpacking to docker.io/library/pr60-smoke-92ad101607-ai-service:latest 0.0s done
+#36 DONE 0.4s
+
+#37 [web] exporting to image
+#37 exporting layers 0.0s done
+#37 exporting manifest sha256:fdfc5c86bdc6e847449ccb0a10ed5d7e887759755c3ad8dde76d4583e0c81620 0.1s done
+#37 exporting config sha256:2012bd36a39374a03f7feb4e64657f269c2946093f3dc5f295818f6f6050c8fd 0.1s done
+#37 exporting attestation manifest sha256:26ed97d454bbf58aa236c3669e67f69a638394ea00a3bb4271822690f38301c3 0.1s done
+#37 exporting manifest list sha256:68afde6c5e0cbfd0b9efe49a14a4f1e130100c8e2ca2f091b0d910076386eff3 0.0s done
+#37 naming to docker.io/library/pr60-smoke-92ad101607-web:latest done
+#37 unpacking to docker.io/library/pr60-smoke-92ad101607-web:latest 0.0s done
+#37 DONE 0.5s
+
+#38 [backend] resolving provenance for metadata file
+#38 DONE 0.1s
+
+#39 [ai-service] resolving provenance for metadata file
+#39 DONE 0.1s
+
+#40 [web] resolving provenance for metadata file
+#40 DONE 0.0s
+ Image pr60-smoke-92ad101607-backend Building 
+ Image pr60-smoke-92ad101607-web Building 
+ Image pr60-smoke-92ad101607-ai-service Building 
+ Image pr60-smoke-92ad101607-ai-service Built 
+ Image pr60-smoke-92ad101607-backend Built 
+ Image pr60-smoke-92ad101607-web Built 
+ Network pr60-smoke-92ad101607_default Creating 
+ Volume pr60-smoke-92ad101607_postgres_data Creating 
+ Volume pr60-smoke-92ad101607_media_data Creating 
+ Volume pr60-smoke-92ad101607_media_data Creating 
+ Network pr60-smoke-92ad101607_default Creating 
+ Volume pr60-smoke-92ad101607_postgres_data Creating 
+ Volume pr60-smoke-92ad101607_mongodb_data Creating 
+ Volume pr60-smoke-92ad101607_mongodb_data Creating 
+ Volume pr60-smoke-92ad101607_postgres_data Created 
+ Volume pr60-smoke-92ad101607_postgres_data Created 
+ Volume pr60-smoke-92ad101607_media_data Created 
+ Volume pr60-smoke-92ad101607_media_data Created 
+ Volume pr60-smoke-92ad101607_mongodb_data Created 
+ Volume pr60-smoke-92ad101607_mongodb_data Created 
+ Network pr60-smoke-92ad101607_default Created 
+ Network pr60-smoke-92ad101607_default Created 
+ Container pr60-smoke-92ad101607-mongodb-1 Creating 
+ Container pr60-smoke-92ad101607-postgres-1 Creating 
+ Container pr60-smoke-92ad101607-postgres-1 Created 
+ Container pr60-smoke-92ad101607-ai-service-1 Creating 
+ Container pr60-smoke-92ad101607-mongodb-1 Created 
+ Container pr60-smoke-92ad101607-ai-service-1 Created 
+ Container pr60-smoke-92ad101607-backend-1 Creating 
+ Container pr60-smoke-92ad101607-backend-1 Created 
+ Container pr60-smoke-92ad101607-web-1 Creating 
+ Container pr60-smoke-92ad101607-web-1 Created 
+ Container pr60-smoke-92ad101607-mongodb-1 Starting 
+ Container pr60-smoke-92ad101607-postgres-1 Starting 
+ Container pr60-smoke-92ad101607-mongodb-1 Started 
+ Container pr60-smoke-92ad101607-postgres-1 Started 
+ Container pr60-smoke-92ad101607-postgres-1 Waiting 
+ Container pr60-smoke-92ad101607-postgres-1 Healthy 
+ Container pr60-smoke-92ad101607-ai-service-1 Starting 
+ Container pr60-smoke-92ad101607-ai-service-1 Started 
+ Container pr60-smoke-92ad101607-postgres-1 Waiting 
+ Container pr60-smoke-92ad101607-mongodb-1 Waiting 
+ Container pr60-smoke-92ad101607-ai-service-1 Waiting 
+ Container pr60-smoke-92ad101607-postgres-1 Healthy 
+ Container pr60-smoke-92ad101607-mongodb-1 Healthy 
+ Container pr60-smoke-92ad101607-ai-service-1 Healthy 
+ Container pr60-smoke-92ad101607-backend-1 Starting 
+ Container pr60-smoke-92ad101607-backend-1 Started 
+ Container pr60-smoke-92ad101607-web-1 Starting 
+ Container pr60-smoke-92ad101607-web-1 Started 

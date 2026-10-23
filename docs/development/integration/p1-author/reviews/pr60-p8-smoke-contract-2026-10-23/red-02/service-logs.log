@@ -1,0 +1,108 @@
+ai-service-1  | INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+ai-service-1  | INFO  [alembic.runtime.migration] Will assume transactional DDL.
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade  -> 0001_narrative_foundation, Create Narrative Memory foundation tables.
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0001_narrative_foundation -> 0002_state_projection, Add confirmed transitions, participants and rebuildable state projections.
+backend-1     | 
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0002_state_projection -> 0003_manuscript_bootstrap, Add durable manuscript bootstrap jobs.
+backend-1     | > ephurin-backend@0.1.0 db:migrate
+backend-1     | > tsx src/core/database/migrate.ts
+backend-1     | 
+backend-1     | {"level":30,"time":1792739749696,"pid":31,"hostname":"1efca435bfab","msg":"Applied migration 001_auth_user_wallet.sql"}
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0003_manuscript_bootstrap -> 0004_writing_generations, Add durable writing generations.
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0004_writing_generations -> 0005_revision_provenance, Add revision provenance and fact chapter number.
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0005_revision_provenance -> 0006_fix_revision_provenance, Fix revision provenance schema with revision_id and unique constraint.
+backend-1     | {"level":30,"time":1792739749742,"pid":31,"hostname":"1efca435bfab","msg":"Applied migration 002_novels.sql"}
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0006_fix_revision_provenance -> 0007_semantic_memory_foundation, Add semantic-memory chunk and embedding storage.
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0007_semantic_memory_foundation -> 0008_story_plans, Add story_plans and story_plan_objectives storage.
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0008_story_plans -> 0009_autonomous_runs
+backend-1     | {"level":30,"time":1792739749762,"pid":31,"hostname":"1efca435bfab","msg":"Applied migration 003_chapters.sql"}
+backend-1     | {"level":30,"time":1792739749808,"pid":31,"hostname":"1efca435bfab","msg":"Applied migration 004_content_control.sql"}
+backend-1     | {"level":30,"time":1792739749813,"pid":31,"hostname":"1efca435bfab","msg":"Applied migration 005_reports_description.sql"}
+backend-1     | {"level":30,"time":1792739749850,"pid":31,"hostname":"1efca435bfab","msg":"Applied migration 006_reading_interactions.sql"}
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0009_autonomous_runs -> 0010_fact_supersession, Keep fact revision history while projecting only the current source occurrence.
+backend-1     | {"level":30,"time":1792739749893,"pid":31,"hostname":"1efca435bfab","msg":"Applied migration 007_wallet_transactions.sql"}
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0010_fact_supersession -> 0011_entity_candidate_audit, Persist candidate decisions separately from approved narrative memory.
+backend-1     | {"level":30,"time":1792739749979,"pid":31,"hostname":"1efca435bfab","msg":"Applied migration 008_authoring_context.sql"}
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0011_entity_candidate_audit -> 0012_entity_guidance, Author extraction guidance, kept outside approved narrative memory.
+ai-service-1  | INFO  [alembic.runtime.migration] Running upgrade 0012_entity_guidance -> 0013_objective_intent, Monotone objective intent epoch for accept-commit fencing.
+ai-service-1  | INFO:     Started server process [8]
+backend-1     | {"level":30,"time":1792739750002,"pid":31,"hostname":"1efca435bfab","msg":"Applied migration 009_chapter_revisions.sql"}
+backend-1     | {"level":30,"time":1792739750019,"pid":31,"hostname":"1efca435bfab","msg":"Applied migration 010_analysis_outbox.sql"}
+backend-1     | {"level":30,"time":1792739750028,"pid":31,"hostname":"1efca435bfab","msg":"Applied migration 011_outbox_claim_token.sql"}
+backend-1     | {"level":30,"time":1792739750042,"pid":31,"hostname":"1efca435bfab","msg":"Applied migration 012_novel_engagement.sql"}
+ai-service-1  | INFO:     Waiting for application startup.
+ai-service-1  | 2026-10-23 07:15:38,135 | INFO | ai-service | Starting AI service with pure-LLM entity pipeline.
+ai-service-1  | INFO:     Application startup complete.
+backend-1     | {"level":30,"time":1792739750051,"pid":31,"hostname":"1efca435bfab","msg":"Applied migration 012_reports_unique_open.sql"}
+backend-1     | {"level":30,"time":1792739750062,"pid":31,"hostname":"1efca435bfab","msg":"Applied migration 013_novel_review_text.sql"}
+backend-1     | {"level":30,"time":1792739750067,"pid":31,"hostname":"1efca435bfab","msg":"Applied migration 014_novel_editorial_metadata.sql"}
+backend-1     | {"level":30,"time":1792739750074,"pid":31,"hostname":"1efca435bfab","msg":"Applied migration 015_author_workflow.sql"}
+backend-1     | {"level":30,"time":1792739750098,"pid":31,"hostname":"1efca435bfab","msg":"Applied migration 016_author_launch_checklist.sql"}
+backend-1     | {"level":30,"time":1792739750111,"pid":31,"hostname":"1efca435bfab","msg":"Applied migration 017_transactional_moderation_evidence.sql"}
+backend-1     | {"level":30,"time":1792739750111,"pid":31,"hostname":"1efca435bfab","msg":"PostgreSQL connection closed"}
+backend-1     | 
+backend-1     | > ephurin-backend@0.1.0 db:seed:demo
+backend-1     | > tsx src/scripts/seed-sample-stories.ts
+backend-1     | 
+ai-service-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+ai-service-1  | 2026-10-23 07:15:43,212 | INFO | ai-service | GET /health -> 200 (2.74 ms)
+backend-1     | ┌─────────┬───────────────────────────────────────┬────────────────────────────────────────┬───────────────┐
+backend-1     | │ (index) │ title                                 │ novelId                                │ chaptersCount │
+ai-service-1  | INFO:     127.0.0.1:52508 - "GET /health HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 07:15:53,043 | INFO | ai-service | GET /health -> 200 (1.44 ms)
+ai-service-1  | INFO:     127.0.0.1:47026 - "GET /health HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 07:15:53,261 | INFO | ai-service | GET /health -> 200 (0.64 ms)
+backend-1     | ├─────────┼───────────────────────────────────────┼────────────────────────────────────────┼───────────────┤
+ai-service-1  | INFO:     127.0.0.1:47036 - "GET /health HTTP/1.1" 200 OK
+ai-service-1  | INFO:     127.0.0.1:39152 - "GET /health HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 07:16:03,313 | INFO | ai-service | GET /health -> 200 (0.77 ms)
+backend-1     | │ 0       │ 'Ashenhold - Sample Story'            │ '81b923d7-5507-48ea-9a84-5303fd1de5f4' │ 10            │
+backend-1     | │ 1       │ 'Thanh Van Sword Path - Sample Story' │ '451e1280-214c-4500-980b-34b9af0989eb' │ 3             │
+backend-1     | └─────────┴───────────────────────────────────────┴────────────────────────────────────────┴───────────────┘
+ai-service-1  | INFO:     127.0.0.1:53226 - "GET /health HTTP/1.1" 200 OK
+backend-1     | Seed author: ab954724-7150-46c6-92db-730861c72f41
+backend-1     | {"level":30,"time":1792739751222,"pid":75,"hostname":"1efca435bfab","msg":"PostgreSQL connection closed"}
+ai-service-1  | 2026-10-23 07:16:13,370 | INFO | ai-service | GET /health -> 200 (0.63 ms)
+ai-service-1  | INFO:     172.24.0.5:57852 - "POST /v1/story-brains/bootstrap/from-idea HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 07:16:14,442 | INFO | ai-service | POST /v1/story-brains/bootstrap/from-idea -> 202 (205.90 ms)
+ai-service-1  | 2026-10-23 07:16:14,482 | INFO | ai-service | POST /v1/story-brains/bootstrap/from-idea -> 202 (4.84 ms)
+backend-1     | 
+backend-1     | > ephurin-backend@0.1.0 start
+backend-1     | > node dist/main.js
+backend-1     | 
+backend-1     | {"level":30,"time":1792739751796,"pid":105,"hostname":"1efca435bfab","msg":"PostgreSQL connection ready"}
+backend-1     | {"level":30,"time":1792739751912,"pid":105,"hostname":"1efca435bfab","msg":"MongoDB connection ready"}
+backend-1     | {"level":30,"time":1792739751916,"pid":105,"hostname":"1efca435bfab","msg":"Ephurin API listening on port 4000"}
+ai-service-1  | INFO:     172.24.0.5:57852 - "POST /v1/story-brains/bootstrap/from-idea HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 07:16:14,522 | INFO | ai-service | GET /v1/story-brains/29b1f7e0-aa37-4911-85a7-e2aa1bf3a759/review-queue -> 200 (5.33 ms)
+ai-service-1  | INFO:     172.24.0.5:57852 - "GET /v1/story-brains/29b1f7e0-aa37-4911-85a7-e2aa1bf3a759/review-queue HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.24.0.5:57852 - "GET /internal/v1/proposal-groups/6ff7d9cf-0358-5b81-b0b9-8ac53e9e52f8/novel HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 07:16:14,559 | INFO | ai-service | GET /internal/v1/proposal-groups/6ff7d9cf-0358-5b81-b0b9-8ac53e9e52f8/novel -> 200 (8.85 ms)
+ai-service-1  | 2026-10-23 07:16:14,571 | INFO | ai-service | GET /v1/story-brains/29b1f7e0-aa37-4911-85a7-e2aa1bf3a759/review-queue -> 200 (3.76 ms)
+ai-service-1  | INFO:     172.24.0.5:57852 - "GET /v1/story-brains/29b1f7e0-aa37-4911-85a7-e2aa1bf3a759/review-queue HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.24.0.5:57868 - "POST /v1/proposal-groups/6ff7d9cf-0358-5b81-b0b9-8ac53e9e52f8/accept HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 07:16:14,638 | INFO | ai-service | POST /v1/proposal-groups/6ff7d9cf-0358-5b81-b0b9-8ac53e9e52f8/accept -> 200 (64.35 ms)
+ai-service-1  | INFO:     172.24.0.5:57852 - "POST /v1/story-brains/29b1f7e0-aa37-4911-85a7-e2aa1bf3a759/baseline/activate HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 07:16:14,690 | INFO | ai-service | POST /v1/story-brains/29b1f7e0-aa37-4911-85a7-e2aa1bf3a759/baseline/activate -> 200 (15.90 ms)
+ai-service-1  | 2026-10-23 07:16:14,855 | INFO | fake-llm | Fake LLM returning deterministic entities
+ai-service-1  | 2026-10-23 07:16:14,856 | INFO | fake-llm | Fake LLM returning deterministic narrative events
+ai-service-1  | 2026-10-23 07:16:14,856 | INFO | services.event_summarizer | Event summarizer: extracted 1 events from text
+ai-service-1  | 2026-10-23 07:16:14,862 | INFO | ai-service | POST /v1/revisions/e0878bde-ea75-401f-88da-cd8acb62d91f/analyses -> 202 (71.59 ms)
+ai-service-1  | INFO:     172.24.0.5:57852 - "POST /v1/revisions/e0878bde-ea75-401f-88da-cd8acb62d91f/analyses HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 07:16:15,856 | INFO | ai-service | GET /v1/story-brains/29b1f7e0-aa37-4911-85a7-e2aa1bf3a759/context-preview -> 200 (32.98 ms)
+ai-service-1  | INFO:     172.24.0.5:57852 - "GET /v1/story-brains/29b1f7e0-aa37-4911-85a7-e2aa1bf3a759/context-preview?chapter_number=1 HTTP/1.1" 200 OK
+ai-service-1  | INFO:     172.24.0.5:57852 - "POST /v1/writing/generations HTTP/1.1" 202 Accepted
+ai-service-1  | 2026-10-23 07:16:15,926 | INFO | ai-service | POST /v1/writing/generations -> 202 (36.93 ms)
+ai-service-1  | 2026-10-23 07:16:15,979 | INFO | ai-service | GET /v1/jobs/567c97bb-81f8-5725-82e3-331c1e10a7a8 -> 200 (11.39 ms)
+ai-service-1  | INFO:     172.24.0.5:57852 - "GET /v1/jobs/567c97bb-81f8-5725-82e3-331c1e10a7a8 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 07:16:17,035 | INFO | ai-service | GET /v1/jobs/567c97bb-81f8-5725-82e3-331c1e10a7a8 -> 200 (8.80 ms)
+ai-service-1  | INFO:     172.24.0.5:57852 - "GET /v1/jobs/567c97bb-81f8-5725-82e3-331c1e10a7a8 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 07:16:17,100 | INFO | ai-service | GET /internal/v1/writing/generations/567c97bb-81f8-5725-82e3-331c1e10a7a8 -> 200 (7.25 ms)
+ai-service-1  | INFO:     172.24.0.5:57852 - "GET /internal/v1/writing/generations/567c97bb-81f8-5725-82e3-331c1e10a7a8 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 07:16:17,123 | INFO | ai-service | GET /v1/story-brains/by-novel/29b1f7e0-aa37-4911-85a7-e2aa1bf3a759 -> 200 (20.82 ms)
+ai-service-1  | INFO:     172.24.0.5:57868 - "GET /v1/story-brains/by-novel/29b1f7e0-aa37-4911-85a7-e2aa1bf3a759 HTTP/1.1" 200 OK
+ai-service-1  | 2026-10-23 07:16:17,225 | INFO | fake-llm | Fake LLM returning deterministic entities
+ai-service-1  | 2026-10-23 07:16:17,226 | INFO | fake-llm | Fake LLM returning deterministic narrative events
+ai-service-1  | 2026-10-23 07:16:17,226 | INFO | services.event_summarizer | Event summarizer: extracted 1 events from text
+ai-service-1  | 2026-10-23 07:16:17,273 | INFO | ai-service | POST /v1/revisions/823885ce-fd71-4019-8e4d-4ba8994b3769/analyses -> 202 (112.48 ms)
+ai-service-1  | INFO:     172.24.0.5:57852 - "POST /v1/revisions/823885ce-fd71-4019-8e4d-4ba8994b3769/analyses HTTP/1.1" 202 Accepted

@@ -1,0 +1,5 @@
+[PASS] Evidence /tmp/03a-evidence.json is valid and meets all AI-PIPE-03A contracts.
+[MUTANT TEST] Running 10 negative fail-closed self-test mutants...
+[MUTANT TEST] 13/13 negative fail-closed mutants rejected cleanly.
+
+Gate AI-PIPE-03A Verification PASS.

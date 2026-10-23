@@ -1,0 +1,30 @@
+======================================================================
+GATE AI-PIPE-01A: PRODUCTION PERSISTENCE INTEGRATION RUNNER
+Backend URL:    http://backend:4000/api/v1
+AI Service URL: http://localhost:8000
+Database URL:   postgres:5432/ephurin_test_pr60_3c22da3521
+======================================================================
+[AUTH] Author authenticated: ee9d9a64-0155-4944-b248-7c1486663652 (reader03)
+[PASS] Checkpoint 01: Manuscript Fixture Persistence - Created disposable novel and two chapters with initial revisions in PostgreSQL
+[PASS] Checkpoint 02: Manuscript Bootstrap Processing - Bootstrap job executed through Node gateway and completed to waiting_review
+[PASS] Checkpoint 03: Proposal Review Resolution - Resolved 4 proposals across 1 groups via Node gateway
+[PASS] Checkpoint 04: Story Brain Activation & Persistence - Story Brain active in PostgreSQL narrative.story_brains with brain_version=2
+[PASS] Checkpoint 05: Context Preview Retrieval - Context preview packed for Chapter 2 with brain_version=2
+[PASS] Checkpoint 06: AI Writing Generation Completion - Writing generation completed with passed validation and valid patch
+[PASS] Checkpoint 07: Draft Acceptance Gateway Call - Node acceptDraft route executed successfully, returned revisionId=887499e8-7853-4f02-a430-5350f830bce5
+[PASS] Checkpoint 08: PostgreSQL chapter_revisions Persistence - Verified chapter_revisions has source_type=AI_DRAFT_ACCEPT, matching generation ID and parent
+[PASS] Checkpoint 09: PostgreSQL chapters Pointer Update - Verified chapters.latest_revision_id points to 887499e8-7853-4f02-a430-5350f830bce5
+[PASS] Checkpoint 10: PostgreSQL Transactional Outbox Event - Verified revision_outbox_events row exists for revision 887499e8-7853-4f02-a430-5350f830bce5
+[PASS] Checkpoint 11: Outbox Processor Dispatch & Completion - Observed real outbox processor dispatching event to AI Service (status=COMPLETED)
+[PASS] Checkpoint 12: Incremental Proposals & Explicit Author Canon Review - Author reviewed pending proposals; Story Brain advanced to 3
+[PASS] Checkpoint 13: Second Generation Feedback Observation - Second preview and generation observe brain_version=3 and altered context hash
+[PASS] Checkpoint 14: Accept-Draft Idempotency Invariant - Re-accepting the same generation returned existing revision without duplicate row insertion
+[PASS] Checkpoint 15: Author-Control Semantics - Verified unaccepted draft left canonical chapter revision, DB rows, and Story Brain unchanged
+
+[CLEANUP] Removing disposable novel fixture: 90d9bd61-a03a-4326-88c9-9d2f8db9c708
+
+======================================================================
+VERDICT: 15/15 CHECKPOINTS PASSED (0 FAILED)
+GATE AI-PIPE-01A: PASS
+======================================================================
+[EVIDENCE] Written to: /tmp/01a-evidence.json

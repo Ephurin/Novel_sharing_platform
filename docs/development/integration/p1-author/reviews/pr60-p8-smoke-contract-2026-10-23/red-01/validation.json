@@ -1,0 +1,68 @@
+{
+  "tested_sha": "043b21e2d37dd0c3a5429250804d9b0bbc8c9dab",
+  "project": "pr60-smoke-a4ddc964ec",
+  "commands": [
+    {
+      "label": "up",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-a4ddc964ec",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\red-01\\compose.isolated.yml",
+        "up",
+        "-d",
+        "--build",
+        "postgres",
+        "mongodb",
+        "ai-service",
+        "backend",
+        "web"
+      ],
+      "exit_code": 0,
+      "tested_sha": "043b21e2d37dd0c3a5429250804d9b0bbc8c9dab"
+    },
+    {
+      "label": "service-logs",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-a4ddc964ec",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\red-01\\compose.isolated.yml",
+        "logs",
+        "--no-color",
+        "ai-service",
+        "backend"
+      ],
+      "exit_code": 0,
+      "tested_sha": "043b21e2d37dd0c3a5429250804d9b0bbc8c9dab"
+    },
+    {
+      "label": "stop",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-a4ddc964ec",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\red-01\\compose.isolated.yml",
+        "stop",
+        "-t",
+        "2"
+      ],
+      "exit_code": 0,
+      "tested_sha": "043b21e2d37dd0c3a5429250804d9b0bbc8c9dab"
+    }
+  ],
+  "retained": true,
+  "live_provider_calls": 0
+}

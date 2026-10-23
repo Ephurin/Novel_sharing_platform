@@ -1,0 +1,5 @@
+[SELF-TEST] Running negative mutant verification suite...
+[SELF-TEST] All 12 mutants successfully rejected (Fail-closed verified).
+[PASS] Successfully validated evidence artifact: /tmp/02a-evidence.json
+       Verdict: P2_IDEA_BOOTSTRAP_PASS
+       Checkpoints: 13/13 passed

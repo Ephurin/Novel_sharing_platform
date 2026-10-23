@@ -1,0 +1,17 @@
+{
+  "source_sha": "043b21e2d37dd0c3a5429250804d9b0bbc8c9dab",
+  "run_id": 39912466481,
+  "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39912466481",
+  "root_smoke": {
+    "job_id": 120278355053,
+    "failed_step": "Run Gate AI-PIPE-02A Idea Bootstrap Validation",
+    "excerpt": "AssertionError: Accepted draft did not advance Story Brain after COMPLETED outbox: 2 -> 2\\n2026-10-23T06:38:22.8473617Z ##[error]Process completed with exit code 1.\\n2026-10-23T06:38:22.8649816Z ##[group]Run do"
+  },
+  "separate_frontend_job": {
+    "job_id": 120278354796,
+    "failed_step": "Backend typecheck and deterministic tests",
+    "excerpt": " 'test'\\n2026-10-23T06:36:41.5918251Z       location: '/home/runner/work/Novel_sharing_platform/Novel_sharing_platform/backend/src/modules/novels/accept-draft-contract.test.ts:5:1871'\\n2026-10-23T06:36:41.5988045Z       failureType: 'cancelledByParent'\\n2026-10-23T06:36:41.6005602Z       error: 'test did not finish before its parent and was cancelled'\\n2026-10-23T06:36:41.6006198Z       code: 'ERR_TEST_FAILURE'\\n2026-10-23T06:",
+    "summary": "139 tests;122 pass;0 fail;14 cancelled;3 skipped;exit1. accept-draft-contract test parent cancellation; not addressed in this smoke contract task.",
+    "ownership": "CI isolation remains PR58/Gemini-owned; no claim its cancellation is fixed by this patch."
+  }
+}

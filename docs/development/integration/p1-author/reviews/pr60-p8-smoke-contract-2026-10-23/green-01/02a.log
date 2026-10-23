@@ -1,0 +1,26 @@
+======================================================================
+GATE AI-PIPE-02A: IDEA/OUTLINE -> STORY BRAIN INTEGRATION RUNNER
+Backend URL:    http://backend:4000/api/v1
+AI Service URL: http://localhost:8000
+Database URL:   postgres:5432/ephurin_test_pr60_3c22da3521
+======================================================================
+[AUTH] Author authenticated: ee9d9a64-0155-4944-b248-7c1486663652 (reader03)
+[FIXTURE] Created novel: 4cc7fa1e-fd53-4928-a9cb-bf3038fe9c23
+[PASS] Checkpoint 01: Idea Bootstrap Request via Node API -> Successfully queued idea bootstrap job 74ebdef8-2e84-5222-b980-47dc106fafd6
+[PASS] Checkpoint 02: Repeatable Bootstrap Idempotency -> Repeated bootstrap request returned same job_id 74ebdef8-2e84-5222-b980-47dc106fafd6
+[PASS] Checkpoint 03: Structured Initial Proposals / Blueprint Populated -> Found 7 proposals in review queue covering ['fact', 'entity']
+[PASS] Checkpoint 04: Author Review & Proposal Acceptance -> Accepted 7 proposals; Story Brain advanced to version 2
+[PASS] Checkpoint 05: Baseline Activation via Node API -> Story Brain status activated successfully (status=active)
+[PASS] Checkpoint 06: First Canonical Chapter & Revision Association -> Created chapter c326f28b-9add-4103-b3c3-193212cde37c with canonical base revision 2fe07bb9-e14c-4a54-a176-7b1ef1c36077
+[PASS] Checkpoint 07: Direct PostgreSQL Schema Verification -> Verified narrative schema: 3 entities, 4 facts, brain_version=2
+[PASS] Checkpoint 08: Context Preview from Active Initial Story Brain -> Context preview returned brain_version=2 with 3 entities
+[PASS] Checkpoint 09: Assisted AI Generation via Standard P1 Route -> Generated patch draft b6ee1a19-6e6e-5960-a271-fe52cea77331 with status=completed, validation=passed
+[PASS] Checkpoint 10: Canonical Draft Acceptance & PostgreSQL Persistence -> Persisted revision 74b00175-f28e-46e8-995a-87bddb5478ca with source_type=AI_DRAFT_ACCEPT in PostgreSQL
+[PASS] Checkpoint 11: Transactional Outbox Dispatch & Incremental Story Brain Update -> Outbox event fe83b6d1-73b2-47f6-a085-5c3dce681782 dispatched; Story Brain reached version 3
+[PASS] Checkpoint 12: Second Context Preview Observes Updated Brain State -> Context preview successfully observed updated brain_version=3
+[PASS] Checkpoint 13: Acceptance Idempotency & Author-Control Semantics -> Retry acceptDraft returned existing revision with count=1; real unaccepted generation left canon and Story Brain untouched
+[TEARDOWN] Deleted disposable novel 4cc7fa1e-fd53-4928-a9cb-bf3038fe9c23
+
+[EVIDENCE] Saved evidence artifact to /tmp/02a-evidence.json
+
+Result: 13/13 CHECKPOINTS PASSED (0 FAILED)

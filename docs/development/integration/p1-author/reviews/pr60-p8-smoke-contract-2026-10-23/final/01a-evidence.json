@@ -1,0 +1,677 @@
+{
+  "test_gate": "AI-PIPE-01A",
+  "pipeline": "P1",
+  "gate_verdict": "P1_PRODUCTION_PERSISTENCE_PASS",
+  "timestamp_utc": "2026-10-23T07:20:38.730203+00:00",
+  "tested_code_commit": "f641c49ff9181b3e5400c9fcabfcfd032843402a",
+  "branch": "codex/p1-canon-hitl-gate",
+  "database_backend": "PostgreSQL 16 + pgvector",
+  "services": {
+    "backend": "http://backend:4000/api/v1",
+    "ai_service": "http://localhost:8000",
+    "database": "PostgreSQL 16 (ephurin)"
+  },
+  "llm_provider": "fake (deterministic)",
+  "routing_policy": "legacy-v1",
+  "total_checkpoints": 15,
+  "checkpoints_passed": 15,
+  "checkpoints_failed": 0,
+  "checkpoints": [
+    {
+      "checkpoint": 1,
+      "name": "Manuscript Fixture Persistence",
+      "status": "PASS",
+      "summary": "Created disposable novel and two chapters with initial revisions in PostgreSQL",
+      "details": {
+        "novel_id": "8a516eaa-45c1-401d-8acc-17056ca3acc7",
+        "author_id": "b3089733-6b71-430c-ba9d-fcd7f4bde385",
+        "chapter_1": {
+          "chapter_id": "7bf6868d-3165-4b26-bde7-4396559a97b3",
+          "revision_id": "2811b7d9-f568-4ef9-b33a-037ada1d0a3f",
+          "content_hash": "7514dd01cd06644be386dc4759220d4a27bee50eb5499f9745d6b7c9eb45554f"
+        },
+        "chapter_2": {
+          "chapter_id": "3a5f6a98-c92e-46d5-ac6f-e8a5a42fd110",
+          "revision_id": "b1a8ff4a-5a4a-45a7-bf03-fc7ca43c225e",
+          "content_hash": "1e8a0ba99538a707bc5ccef6e0105e610c094a0ffa472ba6171cd6cd16c2e3ab"
+        },
+        "db_backend": "PostgreSQL"
+      }
+    },
+    {
+      "checkpoint": 2,
+      "name": "Manuscript Bootstrap Processing",
+      "status": "PASS",
+      "summary": "Bootstrap job executed through Node gateway and completed to waiting_review",
+      "details": {
+        "bootstrap_job_id": "c892c178-45b7-5abf-8116-c82cae59d99d",
+        "terminal_status": "waiting_review",
+        "stage": "review"
+      }
+    },
+    {
+      "checkpoint": 3,
+      "name": "Proposal Review Resolution",
+      "status": "PASS",
+      "summary": "Resolved 4 proposals across 1 groups via Node gateway",
+      "details": {
+        "total_proposals": 4,
+        "groups_accepted": 1,
+        "result_brain_version": 2
+      }
+    },
+    {
+      "checkpoint": 4,
+      "name": "Story Brain Activation & Persistence",
+      "status": "PASS",
+      "summary": "Story Brain active in PostgreSQL narrative.story_brains with brain_version=2",
+      "details": {
+        "status": "active",
+        "brain_version": 2,
+        "baseline_revision_id": "2811b7d9-f568-4ef9-b33a-037ada1d0a3f"
+      }
+    },
+    {
+      "checkpoint": 5,
+      "name": "Context Preview Retrieval",
+      "status": "PASS",
+      "summary": "Context preview packed for Chapter 2 with brain_version=2",
+      "details": {
+        "brain_version": 2,
+        "entities_count": 2,
+        "entities": [
+          "Tháp Qua Nhĩ",
+          "Tiêu Viêm"
+        ],
+        "preview_hash": "7456a146625d8b9fb8fb92202681ccecac213e33a6125163fd7b3906436f5d77"
+      }
+    },
+    {
+      "checkpoint": 6,
+      "name": "AI Writing Generation Completion",
+      "status": "PASS",
+      "summary": "Writing generation completed with passed validation and valid patch",
+      "details": {
+        "generation_job_id": "28a331bf-94a8-5f5c-ba6e-d0ed858044f4",
+        "status": "completed",
+        "validation_status": "passed",
+        "patch_start": 0,
+        "patch_end": 0,
+        "replacement_length": 90
+      }
+    },
+    {
+      "checkpoint": 7,
+      "name": "Draft Acceptance Gateway Call",
+      "status": "PASS",
+      "summary": "Node acceptDraft route executed successfully, returned revisionId=7a25e4c3-185f-4d31-95d0-780aa5696cdc",
+      "details": {
+        "generation_id": "28a331bf-94a8-5f5c-ba6e-d0ed858044f4",
+        "accepted_revision_id": "7a25e4c3-185f-4d31-95d0-780aa5696cdc"
+      }
+    },
+    {
+      "checkpoint": 8,
+      "name": "PostgreSQL chapter_revisions Persistence",
+      "status": "PASS",
+      "summary": "Verified chapter_revisions has source_type=AI_DRAFT_ACCEPT, matching generation ID and parent",
+      "details": {
+        "revision_id": "7a25e4c3-185f-4d31-95d0-780aa5696cdc",
+        "source_type": "AI_DRAFT_ACCEPT",
+        "source_generation_id": "28a331bf-94a8-5f5c-ba6e-d0ed858044f4",
+        "parent_revision_id": "b1a8ff4a-5a4a-45a7-bf03-fc7ca43c225e",
+        "content_hash": "eb5000d15630e467163d32ad2f21d972ff467ea4ab2d1b57798c4da431bac77d",
+        "content_length": 257
+      }
+    },
+    {
+      "checkpoint": 9,
+      "name": "PostgreSQL chapters Pointer Update",
+      "status": "PASS",
+      "summary": "Verified chapters.latest_revision_id points to 7a25e4c3-185f-4d31-95d0-780aa5696cdc",
+      "details": {
+        "chapter_id": "3a5f6a98-c92e-46d5-ac6f-e8a5a42fd110",
+        "latest_revision_id": "7a25e4c3-185f-4d31-95d0-780aa5696cdc"
+      }
+    },
+    {
+      "checkpoint": 10,
+      "name": "PostgreSQL Transactional Outbox Event",
+      "status": "PASS",
+      "summary": "Verified revision_outbox_events row exists for revision 7a25e4c3-185f-4d31-95d0-780aa5696cdc",
+      "details": {
+        "event_id": "f090876a-c90a-4a65-8344-608924f00acc",
+        "event_type": "INCREMENTAL_ANALYSIS",
+        "initial_status": "PENDING"
+      }
+    },
+    {
+      "checkpoint": 11,
+      "name": "Outbox Processor Dispatch & Completion",
+      "status": "PASS",
+      "summary": "Observed real outbox processor dispatching event to AI Service (status=COMPLETED)",
+      "details": {
+        "event_id": "f090876a-c90a-4a65-8344-608924f00acc",
+        "status": "COMPLETED"
+      }
+    },
+    {
+      "checkpoint": 12,
+      "name": "Incremental Proposals & Explicit Author Canon Review",
+      "status": "PASS",
+      "summary": "Author reviewed pending proposals; Story Brain advanced to 3",
+      "details": {
+        "proposals_count": 3,
+        "proposal_statuses": [
+          "pending"
+        ],
+        "accepted_before_runner": 0,
+        "accepted_by_runner": 3,
+        "materialization_mode": "explicit_author_review",
+        "brain_version_before": 2,
+        "brain_version_after": 3,
+        "author_review": {
+          "revision_id": "7a25e4c3-185f-4d31-95d0-780aa5696cdc",
+          "content_hash": "eb5000d15630e467163d32ad2f21d972ff467ea4ab2d1b57798c4da431bac77d",
+          "outbox_event_id": "f090876a-c90a-4a65-8344-608924f00acc",
+          "pending_proposal_ids": [
+            "e5e3325e-e450-54bf-acff-c39c4a9fc8cb",
+            "b040ac05-4fde-58e2-980e-4f66149893dd",
+            "04d769f8-15fa-52f6-8565-c4d70bb1e45c"
+          ],
+          "canon_before": {
+            "brain_version": 2,
+            "projections": {
+              "entities": [
+                {
+                  "id": "0e6677d5-37cd-4d39-8153-460f26ab72ee",
+                  "story_brain_id": "d6e6fb7f-9068-4443-bb9a-a123d8c862af",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8a516eaa-45c1-401d-8acc-17056ca3acc7",
+                  "entity_type": "LOC",
+                  "canonical_name": "Tháp Qua Nhĩ",
+                  "normalized_name": "tháp qua nhĩ",
+                  "description": null,
+                  "static_attributes": {
+                    "status": "Alive",
+                    "location": "Unknown",
+                    "mentions": 1
+                  },
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 8.5,
+                  "is_locked": false,
+                  "created_by": null,
+                  "created_at": "2026-10-23T07:20:33.167383+00:00",
+                  "updated_at": "2026-10-23T07:20:33.167383+00:00"
+                },
+                {
+                  "id": "0cd762ad-adfd-4dc8-9dd2-ff3b22d202d5",
+                  "story_brain_id": "d6e6fb7f-9068-4443-bb9a-a123d8c862af",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8a516eaa-45c1-401d-8acc-17056ca3acc7",
+                  "entity_type": "PER",
+                  "canonical_name": "Tiêu Viêm",
+                  "normalized_name": "tiêu viêm",
+                  "description": null,
+                  "static_attributes": {
+                    "status": "Alive",
+                    "location": "Unknown",
+                    "mentions": 1
+                  },
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 9.5,
+                  "is_locked": false,
+                  "created_by": null,
+                  "created_at": "2026-10-23T07:20:33.167383+00:00",
+                  "updated_at": "2026-10-23T07:20:33.167383+00:00"
+                }
+              ],
+              "events": [
+                {
+                  "id": "3aa75fe1-724d-56ad-861d-37badb3697b3",
+                  "story_brain_id": "d6e6fb7f-9068-4443-bb9a-a123d8c862af",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8a516eaa-45c1-401d-8acc-17056ca3acc7",
+                  "narrative_order": 1024,
+                  "event_type": "battle",
+                  "summary": "Tiêu Viêm kịch chiến Hải Ba Đông tại sa mạc Tháp Qua Nhĩ",
+                  "participants": [
+                    "Tiêu Viêm"
+                  ],
+                  "event_metadata": {
+                    "chapter": 1,
+                    "summary": "Tiêu Viêm kịch chiến Hải Ba Đông tại sa mạc Tháp Qua Nhĩ",
+                    "evidence": [
+                      {
+                        "end": 239,
+                        "start": 0,
+                        "text_hash": "7514dd01cd06644be386dc4759220d4a27bee50eb5499f9745d6b7c9eb45554f",
+                        "chapter_id": "7bf6868d-3165-4b26-bde7-4396559a97b3",
+                        "revision_id": "2811b7d9-f568-4ef9-b33a-037ada1d0a3f",
+                        "chapter_number": 1
+                      }
+                    ],
+                    "locations": [
+                      "Sa mạc Tháp Qua Nhĩ"
+                    ],
+                    "event_type": "battle",
+                    "consequences": [
+                      "Hải Ba Đông bị thương nặng"
+                    ],
+                    "participants": [
+                      "Tiêu Viêm"
+                    ],
+                    "chapter_number": 1
+                  },
+                  "chapter_number": 1,
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "created_at": "2026-10-23T07:20:33.167383+00:00"
+                }
+              ],
+              "facts": [
+                {
+                  "id": "7680627f-42c2-4906-9286-177fd961410c",
+                  "story_brain_id": "d6e6fb7f-9068-4443-bb9a-a123d8c862af",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8a516eaa-45c1-401d-8acc-17056ca3acc7",
+                  "subject_entity_id": null,
+                  "fact_type": "world_rule",
+                  "fact_key": "world_rule_cddefe77031f8028",
+                  "fact_value": "Dị Hỏa bài trừ hàn khí tuyệt đối trong phạm vi mười trượng.",
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 1.0,
+                  "priority": 100,
+                  "is_locked": false,
+                  "source_revision_id": "2811b7d9-f568-4ef9-b33a-037ada1d0a3f",
+                  "chapter_number": 1,
+                  "source_start": 105,
+                  "source_end": 164,
+                  "created_by": "00000000-0000-0000-0000-000000000001",
+                  "created_at": "2026-10-23T07:20:33.167383+00:00",
+                  "supersedes_id": null,
+                  "is_retired": false
+                }
+              ]
+            }
+          },
+          "canon_before_review": {
+            "brain_version": 2,
+            "projections": {
+              "entities": [
+                {
+                  "id": "0e6677d5-37cd-4d39-8153-460f26ab72ee",
+                  "story_brain_id": "d6e6fb7f-9068-4443-bb9a-a123d8c862af",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8a516eaa-45c1-401d-8acc-17056ca3acc7",
+                  "entity_type": "LOC",
+                  "canonical_name": "Tháp Qua Nhĩ",
+                  "normalized_name": "tháp qua nhĩ",
+                  "description": null,
+                  "static_attributes": {
+                    "status": "Alive",
+                    "location": "Unknown",
+                    "mentions": 1
+                  },
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 8.5,
+                  "is_locked": false,
+                  "created_by": null,
+                  "created_at": "2026-10-23T07:20:33.167383+00:00",
+                  "updated_at": "2026-10-23T07:20:33.167383+00:00"
+                },
+                {
+                  "id": "0cd762ad-adfd-4dc8-9dd2-ff3b22d202d5",
+                  "story_brain_id": "d6e6fb7f-9068-4443-bb9a-a123d8c862af",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8a516eaa-45c1-401d-8acc-17056ca3acc7",
+                  "entity_type": "PER",
+                  "canonical_name": "Tiêu Viêm",
+                  "normalized_name": "tiêu viêm",
+                  "description": null,
+                  "static_attributes": {
+                    "status": "Alive",
+                    "location": "Unknown",
+                    "mentions": 1
+                  },
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 9.5,
+                  "is_locked": false,
+                  "created_by": null,
+                  "created_at": "2026-10-23T07:20:33.167383+00:00",
+                  "updated_at": "2026-10-23T07:20:33.167383+00:00"
+                }
+              ],
+              "events": [
+                {
+                  "id": "3aa75fe1-724d-56ad-861d-37badb3697b3",
+                  "story_brain_id": "d6e6fb7f-9068-4443-bb9a-a123d8c862af",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8a516eaa-45c1-401d-8acc-17056ca3acc7",
+                  "narrative_order": 1024,
+                  "event_type": "battle",
+                  "summary": "Tiêu Viêm kịch chiến Hải Ba Đông tại sa mạc Tháp Qua Nhĩ",
+                  "participants": [
+                    "Tiêu Viêm"
+                  ],
+                  "event_metadata": {
+                    "chapter": 1,
+                    "summary": "Tiêu Viêm kịch chiến Hải Ba Đông tại sa mạc Tháp Qua Nhĩ",
+                    "evidence": [
+                      {
+                        "end": 239,
+                        "start": 0,
+                        "text_hash": "7514dd01cd06644be386dc4759220d4a27bee50eb5499f9745d6b7c9eb45554f",
+                        "chapter_id": "7bf6868d-3165-4b26-bde7-4396559a97b3",
+                        "revision_id": "2811b7d9-f568-4ef9-b33a-037ada1d0a3f",
+                        "chapter_number": 1
+                      }
+                    ],
+                    "locations": [
+                      "Sa mạc Tháp Qua Nhĩ"
+                    ],
+                    "event_type": "battle",
+                    "consequences": [
+                      "Hải Ba Đông bị thương nặng"
+                    ],
+                    "participants": [
+                      "Tiêu Viêm"
+                    ],
+                    "chapter_number": 1
+                  },
+                  "chapter_number": 1,
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "created_at": "2026-10-23T07:20:33.167383+00:00"
+                }
+              ],
+              "facts": [
+                {
+                  "id": "7680627f-42c2-4906-9286-177fd961410c",
+                  "story_brain_id": "d6e6fb7f-9068-4443-bb9a-a123d8c862af",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8a516eaa-45c1-401d-8acc-17056ca3acc7",
+                  "subject_entity_id": null,
+                  "fact_type": "world_rule",
+                  "fact_key": "world_rule_cddefe77031f8028",
+                  "fact_value": "Dị Hỏa bài trừ hàn khí tuyệt đối trong phạm vi mười trượng.",
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 1.0,
+                  "priority": 100,
+                  "is_locked": false,
+                  "source_revision_id": "2811b7d9-f568-4ef9-b33a-037ada1d0a3f",
+                  "chapter_number": 1,
+                  "source_start": 105,
+                  "source_end": 164,
+                  "created_by": "00000000-0000-0000-0000-000000000001",
+                  "created_at": "2026-10-23T07:20:33.167383+00:00",
+                  "supersedes_id": null,
+                  "is_retired": false
+                }
+              ]
+            }
+          },
+          "canon_after": {
+            "brain_version": 3,
+            "projections": {
+              "entities": [
+                {
+                  "id": "b11397cf-a066-4443-bc38-40e196334795",
+                  "story_brain_id": "d6e6fb7f-9068-4443-bb9a-a123d8c862af",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8a516eaa-45c1-401d-8acc-17056ca3acc7",
+                  "entity_type": "PER",
+                  "canonical_name": "Hải Ba Đông",
+                  "normalized_name": "hải ba đông",
+                  "description": null,
+                  "static_attributes": {
+                    "status": "Alive",
+                    "location": "Unknown",
+                    "mentions": 1
+                  },
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 9.0,
+                  "is_locked": false,
+                  "created_by": null,
+                  "created_at": "2026-10-23T07:20:35.809252+00:00",
+                  "updated_at": "2026-10-23T07:20:35.809252+00:00"
+                },
+                {
+                  "id": "0e6677d5-37cd-4d39-8153-460f26ab72ee",
+                  "story_brain_id": "d6e6fb7f-9068-4443-bb9a-a123d8c862af",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8a516eaa-45c1-401d-8acc-17056ca3acc7",
+                  "entity_type": "LOC",
+                  "canonical_name": "Tháp Qua Nhĩ",
+                  "normalized_name": "tháp qua nhĩ",
+                  "description": null,
+                  "static_attributes": {
+                    "status": "Alive",
+                    "location": "Unknown",
+                    "mentions": 1
+                  },
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 8.5,
+                  "is_locked": false,
+                  "created_by": null,
+                  "created_at": "2026-10-23T07:20:33.167383+00:00",
+                  "updated_at": "2026-10-23T07:20:33.167383+00:00"
+                },
+                {
+                  "id": "0cd762ad-adfd-4dc8-9dd2-ff3b22d202d5",
+                  "story_brain_id": "d6e6fb7f-9068-4443-bb9a-a123d8c862af",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8a516eaa-45c1-401d-8acc-17056ca3acc7",
+                  "entity_type": "PER",
+                  "canonical_name": "Tiêu Viêm",
+                  "normalized_name": "tiêu viêm",
+                  "description": null,
+                  "static_attributes": {
+                    "status": "Alive",
+                    "location": "Unknown",
+                    "mentions": 1
+                  },
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 9.5,
+                  "is_locked": false,
+                  "created_by": null,
+                  "created_at": "2026-10-23T07:20:33.167383+00:00",
+                  "updated_at": "2026-10-23T07:20:33.167383+00:00"
+                }
+              ],
+              "events": [
+                {
+                  "id": "3aa75fe1-724d-56ad-861d-37badb3697b3",
+                  "story_brain_id": "d6e6fb7f-9068-4443-bb9a-a123d8c862af",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8a516eaa-45c1-401d-8acc-17056ca3acc7",
+                  "narrative_order": 1024,
+                  "event_type": "battle",
+                  "summary": "Tiêu Viêm kịch chiến Hải Ba Đông tại sa mạc Tháp Qua Nhĩ",
+                  "participants": [
+                    "Tiêu Viêm"
+                  ],
+                  "event_metadata": {
+                    "chapter": 1,
+                    "summary": "Tiêu Viêm kịch chiến Hải Ba Đông tại sa mạc Tháp Qua Nhĩ",
+                    "evidence": [
+                      {
+                        "end": 239,
+                        "start": 0,
+                        "text_hash": "7514dd01cd06644be386dc4759220d4a27bee50eb5499f9745d6b7c9eb45554f",
+                        "chapter_id": "7bf6868d-3165-4b26-bde7-4396559a97b3",
+                        "revision_id": "2811b7d9-f568-4ef9-b33a-037ada1d0a3f",
+                        "chapter_number": 1
+                      }
+                    ],
+                    "locations": [
+                      "Sa mạc Tháp Qua Nhĩ"
+                    ],
+                    "event_type": "battle",
+                    "consequences": [
+                      "Hải Ba Đông bị thương nặng"
+                    ],
+                    "participants": [
+                      "Tiêu Viêm"
+                    ],
+                    "chapter_number": 1
+                  },
+                  "chapter_number": 1,
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "created_at": "2026-10-23T07:20:33.167383+00:00"
+                },
+                {
+                  "id": "04d769f8-15fa-52f6-8565-c4d70bb1e45c",
+                  "story_brain_id": "d6e6fb7f-9068-4443-bb9a-a123d8c862af",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8a516eaa-45c1-401d-8acc-17056ca3acc7",
+                  "narrative_order": 2048,
+                  "event_type": "battle",
+                  "summary": "Tiêu Viêm kịch chiến Hải Ba Đông tại sa mạc Tháp Qua Nhĩ",
+                  "participants": [
+                    "Tiêu Viêm",
+                    "Hải Ba Đông"
+                  ],
+                  "event_metadata": {
+                    "chapter": 2,
+                    "summary": "Tiêu Viêm kịch chiến Hải Ba Đông tại sa mạc Tháp Qua Nhĩ",
+                    "evidence": [
+                      {
+                        "end": 257,
+                        "start": 0,
+                        "text_hash": "eb5000d15630e467163d32ad2f21d972ff467ea4ab2d1b57798c4da431bac77d",
+                        "chapter_id": "3a5f6a98-c92e-46d5-ac6f-e8a5a42fd110",
+                        "revision_id": "7a25e4c3-185f-4d31-95d0-780aa5696cdc",
+                        "chapter_number": 2
+                      }
+                    ],
+                    "locations": [
+                      "Sa mạc Tháp Qua Nhĩ"
+                    ],
+                    "event_type": "battle",
+                    "consequences": [
+                      "Hải Ba Đông bị thương nặng"
+                    ],
+                    "participants": [
+                      "Tiêu Viêm",
+                      "Hải Ba Đông"
+                    ],
+                    "chapter_number": 2
+                  },
+                  "chapter_number": 2,
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "created_at": "2026-10-23T07:20:35.809252+00:00"
+                }
+              ],
+              "facts": [
+                {
+                  "id": "7680627f-42c2-4906-9286-177fd961410c",
+                  "story_brain_id": "d6e6fb7f-9068-4443-bb9a-a123d8c862af",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8a516eaa-45c1-401d-8acc-17056ca3acc7",
+                  "subject_entity_id": null,
+                  "fact_type": "world_rule",
+                  "fact_key": "world_rule_cddefe77031f8028",
+                  "fact_value": "Dị Hỏa bài trừ hàn khí tuyệt đối trong phạm vi mười trượng.",
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 1.0,
+                  "priority": 100,
+                  "is_locked": false,
+                  "source_revision_id": "2811b7d9-f568-4ef9-b33a-037ada1d0a3f",
+                  "chapter_number": 1,
+                  "source_start": 105,
+                  "source_end": 164,
+                  "created_by": "00000000-0000-0000-0000-000000000001",
+                  "created_at": "2026-10-23T07:20:33.167383+00:00",
+                  "supersedes_id": null,
+                  "is_retired": false
+                }
+              ]
+            }
+          },
+          "author_decisions": [
+            {
+              "group_id": "b5611457-abbc-5c08-be54-3505a96890ae",
+              "proposal_ids": [
+                "e5e3325e-e450-54bf-acff-c39c4a9fc8cb",
+                "b040ac05-4fde-58e2-980e-4f66149893dd",
+                "04d769f8-15fa-52f6-8565-c4d70bb1e45c"
+              ],
+              "request": {
+                "proposal_ids": [
+                  "e5e3325e-e450-54bf-acff-c39c4a9fc8cb",
+                  "b040ac05-4fde-58e2-980e-4f66149893dd",
+                  "04d769f8-15fa-52f6-8565-c4d70bb1e45c"
+                ],
+                "expected_brain_version": 2,
+                "reason": "P8_EXPLICIT_AUTHORIZED_AUTHOR_REVIEW"
+              },
+              "accept_status": 200,
+              "stale_status": 409,
+              "replay_status": 409,
+              "brain_version_before": 2,
+              "brain_version_after": 3
+            }
+          ],
+          "decision_origin": "AUTHORIZED_AUTHOR_HTTP_GATEWAY",
+          "approved_once": true
+        }
+      }
+    },
+    {
+      "checkpoint": 13,
+      "name": "Second Generation Feedback Observation",
+      "status": "PASS",
+      "summary": "Second preview and generation observe brain_version=3 and altered context hash",
+      "details": {
+        "brain_version_used": 3,
+        "preview_hashes_differ": true,
+        "preview_1_hash": "7456a146625d8b9fb8fb92202681ccecac213e33a6125163fd7b3906436f5d77",
+        "preview_2_hash": "361bf9d5152853848a73035e3091f17d3298b78b2aea99f0ce926565806fa0fe",
+        "second_generation_job_id": "8d717f07-2635-594a-a9de-cf11a785a418"
+      }
+    },
+    {
+      "checkpoint": 14,
+      "name": "Accept-Draft Idempotency Invariant",
+      "status": "PASS",
+      "summary": "Re-accepting the same generation returned existing revision without duplicate row insertion",
+      "details": {
+        "generation_id": "28a331bf-94a8-5f5c-ba6e-d0ed858044f4",
+        "revision_id": "7a25e4c3-185f-4d31-95d0-780aa5696cdc",
+        "row_count_in_db": 1
+      }
+    },
+    {
+      "checkpoint": 15,
+      "name": "Author-Control Semantics",
+      "status": "PASS",
+      "summary": "Verified unaccepted draft left canonical chapter revision, DB rows, and Story Brain unchanged",
+      "details": {
+        "unaccepted_generation_id": "532c23c5-bc3e-5e9a-8542-16b8b06891bb",
+        "canonical_revision_remains": "7a25e4c3-185f-4d31-95d0-780aa5696cdc",
+        "story_brain_version_remains": 3
+      }
+    }
+  ],
+  "summary": {
+    "two_service_boundary_verified": true,
+    "postgresql_persistence_verified": true,
+    "transactional_outbox_verified": true,
+    "story_brain_feedback_loop_verified": true,
+    "idempotency_verified": true,
+    "author_control_semantics_verified": true
+  }
+}

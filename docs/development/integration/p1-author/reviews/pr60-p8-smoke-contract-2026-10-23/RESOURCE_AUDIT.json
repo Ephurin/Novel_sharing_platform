@@ -1,0 +1,217 @@
+{
+  "all_stopped": true,
+  "resources": [
+    {
+      "project": "pr60-smoke-92ad101607",
+      "name": "/pr60-smoke-92ad101607-web-1",
+      "id": "215c6ba5a183b65eba4dbf238efaee1c269434d0e75aa00b4a1fa0d815bd7aba",
+      "running": false,
+      "volumes": []
+    },
+    {
+      "project": "pr60-smoke-92ad101607",
+      "name": "/pr60-smoke-92ad101607-backend-1",
+      "id": "9ff1c91103f739b76eb3887a29ac6cdfd124c01aa1cde26d773cefa12b0cbcc4",
+      "running": false,
+      "volumes": [
+        "pr60-smoke-92ad101607_media_data"
+      ]
+    },
+    {
+      "project": "pr60-smoke-92ad101607",
+      "name": "/pr60-smoke-92ad101607-ai-service-1",
+      "id": "be31f1f533c71128f1d5479be97e87b076a48db754ccb4579e8eff767b68876c",
+      "running": false,
+      "volumes": []
+    },
+    {
+      "project": "pr60-smoke-92ad101607",
+      "name": "/pr60-smoke-92ad101607-postgres-1",
+      "id": "8c3a3f527fd1ecfc3be6389a7cb635ae59e5fd3c66b70b8a157e26a7cfa5b52c",
+      "running": false,
+      "volumes": [
+        "pr60-smoke-92ad101607_postgres_data"
+      ]
+    },
+    {
+      "project": "pr60-smoke-92ad101607",
+      "name": "/pr60-smoke-92ad101607-mongodb-1",
+      "id": "f49fca7cf33ed14d1d7702a17c5f1b82686e068225da97a5716d30a7c965162c",
+      "running": false,
+      "volumes": [
+        "pr60-smoke-92ad101607_mongodb_data",
+        "e4f2f46c6d35bcba512d2a77a5a7c5f11549ba3d4bbcf74429d342d1a193e7bd"
+      ]
+    },
+    {
+      "project": "pr60-smoke-3c22da3521",
+      "name": "/pr60-smoke-3c22da3521-web-1",
+      "id": "225cb54ad44aedfd221ca2cd963be426e38953708d8dab54d126c6ccdade9bfa",
+      "running": false,
+      "volumes": []
+    },
+    {
+      "project": "pr60-smoke-3c22da3521",
+      "name": "/pr60-smoke-3c22da3521-backend-1",
+      "id": "a9ff668a2be0128bdb95c0d58ed61b2bd53c3c205cf1efd82d439e9ade0958d2",
+      "running": false,
+      "volumes": [
+        "pr60-smoke-3c22da3521_media_data"
+      ]
+    },
+    {
+      "project": "pr60-smoke-3c22da3521",
+      "name": "/pr60-smoke-3c22da3521-ai-service-1",
+      "id": "b7b41ea069253df712f8299505cff11cb8f15c281e9c269ea2b9e3605cb528ff",
+      "running": false,
+      "volumes": []
+    },
+    {
+      "project": "pr60-smoke-3c22da3521",
+      "name": "/pr60-smoke-3c22da3521-postgres-1",
+      "id": "8bb50872b3e5f31295f1db0bb9e005249ba2a9d15418c8a65cb8a34700a440cb",
+      "running": false,
+      "volumes": [
+        "pr60-smoke-3c22da3521_postgres_data"
+      ]
+    },
+    {
+      "project": "pr60-smoke-3c22da3521",
+      "name": "/pr60-smoke-3c22da3521-mongodb-1",
+      "id": "6beeced02980edf6470b38e3ded2d92d11d048eb3ae9c6dab43e5c4ba01fca81",
+      "running": false,
+      "volumes": [
+        "pr60-smoke-3c22da3521_mongodb_data",
+        "0aa0ed76110ec2d5ff881a2e5426fc855205b98ae7a4f42ba12e22cd3ba24863"
+      ]
+    },
+    {
+      "project": "pr60-smoke-a4ddc964ec",
+      "name": "/pr60-smoke-a4ddc964ec-web-1",
+      "id": "3f7da06cd1e50fe3475ce81c5f7f038a4ac0818af7da71585aa3d07a30de53b7",
+      "running": false,
+      "volumes": []
+    },
+    {
+      "project": "pr60-smoke-a4ddc964ec",
+      "name": "/pr60-smoke-a4ddc964ec-backend-1",
+      "id": "23219be3216444bac7ace68b2296f128d6373f530a634b9f9908962e537e8eb3",
+      "running": false,
+      "volumes": [
+        "pr60-smoke-a4ddc964ec_media_data"
+      ]
+    },
+    {
+      "project": "pr60-smoke-a4ddc964ec",
+      "name": "/pr60-smoke-a4ddc964ec-ai-service-1",
+      "id": "df5ea32dace2ceebbc99a0849d036149eca5a51d8a5126dec9349a980fe62084",
+      "running": false,
+      "volumes": []
+    },
+    {
+      "project": "pr60-smoke-a4ddc964ec",
+      "name": "/pr60-smoke-a4ddc964ec-postgres-1",
+      "id": "eeb0474b1c6c73d6e2074dfa7fe44805dd4069e13bd1babf321c3ca4dff013ae",
+      "running": false,
+      "volumes": [
+        "pr60-smoke-a4ddc964ec_postgres_data"
+      ]
+    },
+    {
+      "project": "pr60-smoke-a4ddc964ec",
+      "name": "/pr60-smoke-a4ddc964ec-mongodb-1",
+      "id": "e2f440be27b4510411fcbb33d15f7cdea55cf35185f4c39a815823bd6dab59b8",
+      "running": false,
+      "volumes": [
+        "pr60-smoke-a4ddc964ec_mongodb_data",
+        "6a79a5da17a612366a21c5042498b8f673c1f95219ea1c30aa1994e67d1c2edd"
+      ]
+    },
+    {
+      "project": "pr60-smoke-579475f934",
+      "name": "/pr60-smoke-579475f934-web-1",
+      "id": "ef65739a8d2cfad7a3232a0179c0cc01da64237b111d1585ed080c00236d6d36",
+      "running": false,
+      "volumes": []
+    },
+    {
+      "project": "pr60-smoke-579475f934",
+      "name": "/pr60-smoke-579475f934-backend-1",
+      "id": "1efca435bfaba19b7b0feccf9d0e90b675376df0ba7884ea8c2dbe5e890f6764",
+      "running": false,
+      "volumes": [
+        "pr60-smoke-579475f934_media_data"
+      ]
+    },
+    {
+      "project": "pr60-smoke-579475f934",
+      "name": "/pr60-smoke-579475f934-ai-service-1",
+      "id": "096619efca12a1bed69338129217ab39f8c19a1c88e3dee3751655ac2b1deeab",
+      "running": false,
+      "volumes": []
+    },
+    {
+      "project": "pr60-smoke-579475f934",
+      "name": "/pr60-smoke-579475f934-postgres-1",
+      "id": "51f560b65d9acf66dc601d8e6574022cd0d058d5664df0231405504bbd23f9aa",
+      "running": false,
+      "volumes": [
+        "pr60-smoke-579475f934_postgres_data"
+      ]
+    },
+    {
+      "project": "pr60-smoke-579475f934",
+      "name": "/pr60-smoke-579475f934-mongodb-1",
+      "id": "5f0395c708fe3e336772c9666c6600262d001f63a7e7373ffa8ffbf67c784a5c",
+      "running": false,
+      "volumes": [
+        "2c56d2b9f316ac243b6c0ad2b6a3a8830185a36da32afe235ab80908c4a676a2",
+        "pr60-smoke-579475f934_mongodb_data"
+      ]
+    },
+    {
+      "project": "pr60-smoke-1b2c0d6f1b",
+      "name": "/pr60-smoke-1b2c0d6f1b-web-1",
+      "id": "4408e5bcd0d7d0acd61cfee1c263489e07b92afba56dd0d42df55295a58a7b26",
+      "running": false,
+      "volumes": []
+    },
+    {
+      "project": "pr60-smoke-1b2c0d6f1b",
+      "name": "/pr60-smoke-1b2c0d6f1b-backend-1",
+      "id": "8e831d78e040a4bcd23bc8c7aef85b10cfeadb6083a305d73b32d190ea142dcc",
+      "running": false,
+      "volumes": [
+        "pr60-smoke-1b2c0d6f1b_media_data"
+      ]
+    },
+    {
+      "project": "pr60-smoke-1b2c0d6f1b",
+      "name": "/pr60-smoke-1b2c0d6f1b-ai-service-1",
+      "id": "47528c820bdee762381fa4e6dc14b2c7a435debeea7df1baa9c3619e9d167d0c",
+      "running": false,
+      "volumes": []
+    },
+    {
+      "project": "pr60-smoke-1b2c0d6f1b",
+      "name": "/pr60-smoke-1b2c0d6f1b-postgres-1",
+      "id": "dd307c6b84d57310d40d5eeb0030435d00bd22f812cd827dcffab64d528160db",
+      "running": false,
+      "volumes": [
+        "pr60-smoke-1b2c0d6f1b_postgres_data"
+      ]
+    },
+    {
+      "project": "pr60-smoke-1b2c0d6f1b",
+      "name": "/pr60-smoke-1b2c0d6f1b-mongodb-1",
+      "id": "877ac8a421beecc6487bcce3ce6b66108461d2a424c549d54b8bec5ddb09ef74",
+      "running": false,
+      "volumes": [
+        "pr60-smoke-1b2c0d6f1b_mongodb_data",
+        "5119e0bfd01f8778d0c6757eb7f22322d2093d1c7a7057ec3cfea77b3862a3f6"
+      ]
+    }
+  ],
+  "volumes_retained": true,
+  "historical_resources_mutated": false
+}

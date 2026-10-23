@@ -1,0 +1,16 @@
+{
+  "command": [
+    "python",
+    "-m",
+    "py_compile",
+    "scripts/canon_review_smoke.py",
+    "scripts/run_pr60_root_smoke.py",
+    "scripts/run_ai_pipe_01a_production_persistence.py",
+    "scripts/run_ai_pipe_02a_idea_bootstrap.py",
+    "scripts/run_ai_pipe_02b_outline_planning.py",
+    "scripts/verify_ai_pipe_02a_idea_bootstrap_evidence.py"
+  ],
+  "exit_code": 0,
+  "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521",
+  "tracked_source_clean": true
+}

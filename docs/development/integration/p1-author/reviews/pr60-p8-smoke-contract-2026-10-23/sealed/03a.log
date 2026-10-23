@@ -1,0 +1,37 @@
+======================================================================
+GATE AI-PIPE-03A: BOUNDED AUTONOMOUS CONTROLLER INTEGRATION RUNNER
+Backend URL:    http://backend:4000/api/v1
+AI Service URL: http://localhost:8000
+Database URL:   postgres:5432/ephurin_test_pr60_1b2c0d6f1b
+======================================================================
+[AUTH] Author authenticated: eda51b18-e3e8-4418-91a1-39567b36602a (reader03)
+[FIXTURE] Created novel: 5dce0610-83dd-4f78-8f8e-4804f5e994c1
+[FIXTURE] Setup complete with 3 chapters, revisions, and active Story Plan.
+[FIXTURE] Seeded unrelated proposal 376e22aa-0500-4b16-b536-04948984cfec with foreign revision provenance.
+[PASS] Checkpoint 01: Autonomous Run Creation via Node Boundary -> Autonomous run 3703c99a-dfb5-4202-ac95-d922c1c5d42c created successfully via Node API boundary
+[PASS] Checkpoint 02: Caller Ownership & Role Enforcement -> Ownership enforced: non-owner blocked with 403 FORBIDDEN, admin allowed
+[PASS] Checkpoint 03: Durable PostgreSQL Persistence -> Run 3703c99a-dfb5-4202-ac95-d922c1c5d42c durably persisted in narrative.autonomous_runs with schema and invariants intact
+[PASS] Checkpoint 04: Serialized Single-Writer Invariant -> Single-writer enforced: concurrent race resolved to [201, 409], idempotency conflict returns 409
+[PASS] Checkpoint 05: Active Story Plan & Version Pinned -> Story Plan bf5059f5-4bed-476e-b031-67661794cf73 pinned at version 1
+[PASS] Checkpoint 06: Deterministic Current Objective Selection -> Step 1 selected Objective #1 ('Thức tỉnh tại Tháp Qua Nhĩ') deterministically
+[PASS] Checkpoint 07: Standard P1 Generation Path Reused -> P1 WritingService generation 4ff00df1-0260-554b-bd57-bf7a48d59e43 completed successfully
+[PASS] Checkpoint 08: Deterministic Quality Gate Acceptance -> Deterministic quality gate passed: generation status=completed, validation passed, brain fresh
+[PASS] Checkpoint 10: Accepted Generation Persists via acceptDraft() -> Revision a5371801-db9d-4695-a7f2-6f59944f4485 persisted with source_type='AI_DRAFT_ACCEPT' and source_generation_id=4ff00df1-0260-554b-bd57-bf7a48d59e43
+[PASS] Checkpoint 11: Transactional Outbox Completes & Story Brain Advances -> Transactional outbox processed, Story Brain advanced to version 2, unrelated proposal preserved pending
+[PASS] Checkpoint 12: Explicit Objective Progress Update -> Objective #1 status explicitly updated to 'completed' following accepted draft
+[PROBE] Executing crash/resume probe: reload run state by run_id
+[PROBE] Reloaded run 3703c99a-dfb5-4202-ac95-d922c1c5d42c at iteration 1 cleanly from PostgreSQL.
+[PROBE] Simulating intermediate process crash before run-state PATCH...
+[PROBE] Crash recovery verified: 0 duplicate revisions, run cleanly advanced to iteration 1.
+[PASS] Checkpoint 09: Failed Generation Safety (Zero Canon & Plan Progress Mutation) -> Rejected generation mutated neither canon (0 new revisions) nor plan progress (objective incomplete)
+[PASS] Checkpoint 13: Next Iteration Observes Updated Brain & Next Objective -> Step 2 completed Objective #2 observing updated brain_version 3
+[PASS] Checkpoint 14: Idempotent Retry / Resume Semantics -> Reloading run state produced zero duplicate revisions and preserved iteration progress
+[PASS] Checkpoint 15: Maximum Retry Guard Fails Closed -> Max retries guard failed closed: run transitioned to 'failed' with stop_reason='max_retries_exceeded'
+[PASS] Checkpoint 16: Stop / Cancel Prevents Further Generation -> Stop command transitioned run to 'stopped'; subsequent step was no-op preserving canon
+[PASS] Checkpoint 17: Terminal Objective Intentional Completion -> Terminal objective completion intentionally transitioned run status to 'completed'
+[PASS] Checkpoint 18: Completed Run Performs Zero Post-Terminal Generations -> Subsequent step calls on completed run perform zero extra generations (count unchanged)
+
+======================================================================
+GATE AI-PIPE-03A COMPLETE: 18/18 PASSED
+Evidence artifact saved to: /tmp/03a-evidence.json
+======================================================================

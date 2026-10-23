@@ -1,0 +1,55 @@
+{
+  "project": "pr60-smoke-1b2c0d6f1b",
+  "database": "ephurin_test_pr60_1b2c0d6f1b",
+  "ports": {
+    "postgres": 51879,
+    "mongodb": 51880,
+    "ai-service": 51881,
+    "backend": 51882,
+    "web": 51883
+  },
+  "containers": [
+    {
+      "service": "postgres",
+      "id": "dd307c6b84d57310d40d5eeb0030435d00bd22f812cd827dcffab64d528160db",
+      "image": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "networks": [
+        "pr60-smoke-1b2c0d6f1b_default"
+      ]
+    },
+    {
+      "service": "mongodb",
+      "id": "877ac8a421beecc6487bcce3ce6b66108461d2a424c549d54b8bec5ddb09ef74",
+      "image": "sha256:9854f7139445d766a9523571d6f047530c45547460ffcf8259eb2bf4264632ca",
+      "networks": [
+        "pr60-smoke-1b2c0d6f1b_default"
+      ]
+    },
+    {
+      "service": "ai-service",
+      "id": "47528c820bdee762381fa4e6dc14b2c7a435debeea7df1baa9c3619e9d167d0c",
+      "image": "sha256:4d60f08cb164811566468e7498ca64bee16599f562940f5a7b7244fb1e407ef1",
+      "networks": [
+        "pr60-smoke-1b2c0d6f1b_default"
+      ]
+    },
+    {
+      "service": "backend",
+      "id": "8e831d78e040a4bcd23bc8c7aef85b10cfeadb6083a305d73b32d190ea142dcc",
+      "image": "sha256:b83856ff3cfb07d8f2188ee1999aa0c9b2b12ef16776580acf23f1c74c31ca75",
+      "networks": [
+        "pr60-smoke-1b2c0d6f1b_default"
+      ]
+    },
+    {
+      "service": "web",
+      "id": "4408e5bcd0d7d0acd61cfee1c263489e07b92afba56dd0d42df55295a58a7b26",
+      "image": "sha256:c82a11295148a6636789b13520e98d5fdbc717a8195b9da0a37b92f44fb65531",
+      "networks": [
+        "pr60-smoke-1b2c0d6f1b_default"
+      ]
+    }
+  ],
+  "internal_networks": true,
+  "live_provider_calls": 0
+}

@@ -1,0 +1,29 @@
+======================================================================
+GATE AI-PIPE-02A: IDEA/OUTLINE -> STORY BRAIN INTEGRATION RUNNER
+Backend URL:    http://backend:4000/api/v1
+AI Service URL: http://localhost:8000
+Database URL:   postgres:5432/ephurin_test_pr60_579475f934
+======================================================================
+[AUTH] Author authenticated: ab954724-7150-46c6-92db-730861c72f41 (reader03)
+[FIXTURE] Created novel: 29b1f7e0-aa37-4911-85a7-e2aa1bf3a759
+[PASS] Checkpoint 01: Idea Bootstrap Request via Node API -> Successfully queued idea bootstrap job d20b6345-6c30-5e87-aa47-d9a0314a3d06
+[PASS] Checkpoint 02: Repeatable Bootstrap Idempotency -> Repeated bootstrap request returned same job_id d20b6345-6c30-5e87-aa47-d9a0314a3d06
+[PASS] Checkpoint 03: Structured Initial Proposals / Blueprint Populated -> Found 7 proposals in review queue covering ['entity', 'fact']
+[PASS] Checkpoint 04: Author Review & Proposal Acceptance -> Accepted 7 proposals; Story Brain advanced to version 2
+[PASS] Checkpoint 05: Baseline Activation via Node API -> Story Brain status activated successfully (status=active)
+[PASS] Checkpoint 06: First Canonical Chapter & Revision Association -> Created chapter b8e57b20-af7b-47a0-9a8c-4790869a8c65 with canonical base revision e0878bde-ea75-401f-88da-cd8acb62d91f
+[PASS] Checkpoint 07: Direct PostgreSQL Schema Verification -> Verified narrative schema: 3 entities, 4 facts, brain_version=2
+[PASS] Checkpoint 08: Context Preview from Active Initial Story Brain -> Context preview returned brain_version=2 with 3 entities
+[PASS] Checkpoint 09: Assisted AI Generation via Standard P1 Route -> Generated patch draft 567c97bb-81f8-5725-82e3-331c1e10a7a8 with status=completed, validation=passed
+[PASS] Checkpoint 10: Canonical Draft Acceptance & PostgreSQL Persistence -> Persisted revision 823885ce-fd71-4019-8e4d-4ba8994b3769 with source_type=AI_DRAFT_ACCEPT in PostgreSQL
+[TEARDOWN] Deleted disposable novel 29b1f7e0-aa37-4911-85a7-e2aa1bf3a759
+Traceback (most recent call last):
+  File "/tmp/p8-scripts/run_ai_pipe_02a_idea_bootstrap.py", line 752, in <module>
+    main()
+  File "/tmp/p8-scripts/run_ai_pipe_02a_idea_bootstrap.py", line 736, in main
+    evidence = run_pipeline(
+               ^^^^^^^^^^^^^
+  File "/tmp/p8-scripts/run_ai_pipe_02a_idea_bootstrap.py", line 547, in run_pipeline
+    assert updated_brain_ver > writing_brain_version, (
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Accepted draft did not advance Story Brain after COMPLETED outbox: 2 -> 2

@@ -1,0 +1,511 @@
+{
+  "verdict": "PR60_SMOKE_CONTRACT_READY_FOR_GPT6_REVIEW",
+  "initial_sha": "043b21e2d37dd0c3a5429250804d9b0bbc8c9dab",
+  "tested_source_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521",
+  "tracked_source_clean": true,
+  "root_compose": "docker-compose.yml + test-only isolated overlay; same five production services/images, internal network, fresh PG/Mongo/volumes, fake LLM+fake embeddings",
+  "checkpoints": [
+    {
+      "gate": "01a",
+      "PASS": 15,
+      "FAIL": 0,
+      "SKIP": 0
+    },
+    {
+      "gate": "02a",
+      "PASS": 13,
+      "FAIL": 0,
+      "SKIP": 0
+    },
+    {
+      "gate": "02b",
+      "PASS": 16,
+      "FAIL": 0,
+      "SKIP": 0
+    },
+    {
+      "gate": "03a",
+      "PASS": 18,
+      "FAIL": 0,
+      "SKIP": 0
+    }
+  ],
+  "total_checkpoint_counts": {
+    "PASS": 62,
+    "FAIL": 0,
+    "SKIP": 0
+  },
+  "native_test_executions": {
+    "PASS": 10,
+    "FAIL": 0,
+    "SKIP": 0,
+    "unique_cases": 5,
+    "runs": 2
+  },
+  "evidence_verifiers": {
+    "PASS": 4,
+    "FAIL": 0,
+    "negative_mutants_02a": 12
+  },
+  "commands": [
+    {
+      "label": "up",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-1b2c0d6f1b",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\compose.isolated.yml",
+        "up",
+        "-d",
+        "--build",
+        "postgres",
+        "mongodb",
+        "ai-service",
+        "backend",
+        "web"
+      ],
+      "exit_code": 0,
+      "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521"
+    },
+    {
+      "label": "copy-scripts",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-1b2c0d6f1b",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\compose.isolated.yml",
+        "cp",
+        "scripts/.",
+        "ai-service:/tmp/p8-scripts"
+      ],
+      "exit_code": 0,
+      "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521"
+    },
+    {
+      "label": "01a",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-1b2c0d6f1b",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\compose.isolated.yml",
+        "exec",
+        "-T",
+        "-e",
+        "GITHUB_SHA=fbbed59de869bbcd9fcd816c9635aaecbdb0e521",
+        "-e",
+        "GITHUB_HEAD_REF=codex/p1-canon-hitl-gate",
+        "ai-service",
+        "python",
+        "/tmp/p8-scripts/run_ai_pipe_01a_production_persistence.py",
+        "--backend-url",
+        "http://backend:4000/api/v1",
+        "--ai-service-url",
+        "http://localhost:8000",
+        "--db-url",
+        "postgresql://postgres:postgres@postgres:5432/ephurin_test_pr60_1b2c0d6f1b",
+        "--output",
+        "/tmp/01a-evidence.json"
+      ],
+      "exit_code": 0,
+      "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521"
+    },
+    {
+      "label": "01a-copy-evidence",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-1b2c0d6f1b",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\compose.isolated.yml",
+        "cp",
+        "ai-service:/tmp/01a-evidence.json",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\01a-evidence.json"
+      ],
+      "exit_code": 0,
+      "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521"
+    },
+    {
+      "label": "01a-verify",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-1b2c0d6f1b",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\compose.isolated.yml",
+        "exec",
+        "-T",
+        "ai-service",
+        "python",
+        "/tmp/p8-scripts/verify_ai_pipe_01_p1_closed_loop_evidence.py",
+        "--evidence",
+        "/tmp/01a-evidence.json"
+      ],
+      "exit_code": 0,
+      "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521"
+    },
+    {
+      "label": "02a",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-1b2c0d6f1b",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\compose.isolated.yml",
+        "exec",
+        "-T",
+        "-e",
+        "GITHUB_SHA=fbbed59de869bbcd9fcd816c9635aaecbdb0e521",
+        "-e",
+        "GITHUB_HEAD_REF=codex/p1-canon-hitl-gate",
+        "ai-service",
+        "python",
+        "/tmp/p8-scripts/run_ai_pipe_02a_idea_bootstrap.py",
+        "--backend-url",
+        "http://backend:4000/api/v1",
+        "--ai-service-url",
+        "http://localhost:8000",
+        "--db-url",
+        "postgresql://postgres:postgres@postgres:5432/ephurin_test_pr60_1b2c0d6f1b",
+        "--output",
+        "/tmp/02a-evidence.json"
+      ],
+      "exit_code": 0,
+      "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521"
+    },
+    {
+      "label": "02a-copy-evidence",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-1b2c0d6f1b",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\compose.isolated.yml",
+        "cp",
+        "ai-service:/tmp/02a-evidence.json",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\02a-evidence.json"
+      ],
+      "exit_code": 0,
+      "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521"
+    },
+    {
+      "label": "02a-verify",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-1b2c0d6f1b",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\compose.isolated.yml",
+        "exec",
+        "-T",
+        "ai-service",
+        "python",
+        "/tmp/p8-scripts/verify_ai_pipe_02a_idea_bootstrap_evidence.py",
+        "--evidence-file",
+        "/tmp/02a-evidence.json"
+      ],
+      "exit_code": 0,
+      "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521"
+    },
+    {
+      "label": "02b",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-1b2c0d6f1b",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\compose.isolated.yml",
+        "exec",
+        "-T",
+        "-e",
+        "GITHUB_SHA=fbbed59de869bbcd9fcd816c9635aaecbdb0e521",
+        "-e",
+        "GITHUB_HEAD_REF=codex/p1-canon-hitl-gate",
+        "ai-service",
+        "python",
+        "/tmp/p8-scripts/run_ai_pipe_02b_outline_planning.py",
+        "--backend-url",
+        "http://backend:4000/api/v1",
+        "--ai-service-url",
+        "http://localhost:8000",
+        "--db-url",
+        "postgresql://postgres:postgres@postgres:5432/ephurin_test_pr60_1b2c0d6f1b",
+        "--output",
+        "/tmp/02b-evidence.json"
+      ],
+      "exit_code": 0,
+      "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521"
+    },
+    {
+      "label": "02b-copy-evidence",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-1b2c0d6f1b",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\compose.isolated.yml",
+        "cp",
+        "ai-service:/tmp/02b-evidence.json",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\02b-evidence.json"
+      ],
+      "exit_code": 0,
+      "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521"
+    },
+    {
+      "label": "02b-verify",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-1b2c0d6f1b",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\compose.isolated.yml",
+        "exec",
+        "-T",
+        "ai-service",
+        "python",
+        "/tmp/p8-scripts/verify_ai_pipe_02b_outline_planning_evidence.py",
+        "--evidence-file",
+        "/tmp/02b-evidence.json"
+      ],
+      "exit_code": 0,
+      "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521"
+    },
+    {
+      "label": "03a",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-1b2c0d6f1b",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\compose.isolated.yml",
+        "exec",
+        "-T",
+        "-e",
+        "GITHUB_SHA=fbbed59de869bbcd9fcd816c9635aaecbdb0e521",
+        "-e",
+        "GITHUB_HEAD_REF=codex/p1-canon-hitl-gate",
+        "ai-service",
+        "python",
+        "/tmp/p8-scripts/run_ai_pipe_03a_autonomous_controller.py",
+        "--backend-url",
+        "http://backend:4000/api/v1",
+        "--ai-service-url",
+        "http://localhost:8000",
+        "--db-url",
+        "postgresql://postgres:postgres@postgres:5432/ephurin_test_pr60_1b2c0d6f1b",
+        "--output",
+        "/tmp/03a-evidence.json"
+      ],
+      "exit_code": 0,
+      "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521"
+    },
+    {
+      "label": "03a-copy-evidence",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-1b2c0d6f1b",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\compose.isolated.yml",
+        "cp",
+        "ai-service:/tmp/03a-evidence.json",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\03a-evidence.json"
+      ],
+      "exit_code": 0,
+      "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521"
+    },
+    {
+      "label": "03a-verify",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-1b2c0d6f1b",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\compose.isolated.yml",
+        "exec",
+        "-T",
+        "ai-service",
+        "python",
+        "/tmp/p8-scripts/verify_ai_pipe_03a_autonomous_controller_evidence.py",
+        "--evidence",
+        "/tmp/03a-evidence.json"
+      ],
+      "exit_code": 0,
+      "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521"
+    },
+    {
+      "label": "CI-native-without-optin",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-1b2c0d6f1b",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\compose.isolated.yml",
+        "exec",
+        "-T",
+        "backend",
+        "npx",
+        "tsx",
+        "--test",
+        "--test-force-exit",
+        "src/modules/novels/p1-production-persistence.postgres.test.ts"
+      ],
+      "exit_code": 0,
+      "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521"
+    },
+    {
+      "label": "native-owned-optin",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-1b2c0d6f1b",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\compose.isolated.yml",
+        "exec",
+        "-T",
+        "-e",
+        "EPHURIN_ALLOW_TEST_DB_MUTATIONS=1",
+        "backend",
+        "npx",
+        "tsx",
+        "--test",
+        "--test-force-exit",
+        "src/modules/novels/p1-production-persistence.postgres.test.ts"
+      ],
+      "exit_code": 0,
+      "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521"
+    },
+    {
+      "label": "service-logs",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-1b2c0d6f1b",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\compose.isolated.yml",
+        "logs",
+        "--no-color",
+        "ai-service",
+        "backend"
+      ],
+      "exit_code": 0,
+      "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521"
+    },
+    {
+      "label": "stop",
+      "command": [
+        "docker",
+        "compose",
+        "-p",
+        "pr60-smoke-1b2c0d6f1b",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docker-compose.yml",
+        "-f",
+        "C:\\Users\\thaib\\.codex\\worktrees\\p1-canon-hitl-gate\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\pr60-p8-smoke-contract-2026-10-23\\sealed\\compose.isolated.yml",
+        "stop",
+        "-t",
+        "2"
+      ],
+      "exit_code": 0,
+      "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521"
+    }
+  ],
+  "compile": {
+    "command": [
+      "python",
+      "-m",
+      "py_compile",
+      "scripts/canon_review_smoke.py",
+      "scripts/run_pr60_root_smoke.py",
+      "scripts/run_ai_pipe_01a_production_persistence.py",
+      "scripts/run_ai_pipe_02a_idea_bootstrap.py",
+      "scripts/run_ai_pipe_02b_outline_planning.py",
+      "scripts/verify_ai_pipe_02a_idea_bootstrap_evidence.py"
+    ],
+    "exit_code": 0,
+    "tested_sha": "fbbed59de869bbcd9fcd816c9635aaecbdb0e521",
+    "tracked_source_clean": true
+  },
+  "baseline": {
+    "source_sha": "043b21e2d37dd0c3a5429250804d9b0bbc8c9dab",
+    "local_log": "red-02/02a.log",
+    "exit_code": 1,
+    "checkpoint": 11,
+    "observed": "Outbox COMPLETED; brain2->2; incorrect automatic advancement assertion fails",
+    "note": "Local RED production smoke source unchanged; new untracked orchestration/helper only. Source identities in commands; old driver returned0 despite failed nested command; per-command exit1 is authoritative. Sealed driver now propagates nonzero."
+  },
+  "prior_attempts": {
+    "red01": "Host port health timeout on intentionally internal Docker network; no checkpoint executed. Services stopped/retained.",
+    "green01": "All four gates pass; preliminary source5e10; not counted again.",
+    "final": "All four gates/verifiers/native pass; sourcef641; not counted again."
+  },
+  "remote_ci": {
+    "old_run": 39912466481,
+    "old_root_failure": "Reproduced and repaired",
+    "separate_frontend_failure": "accept-draft-contract parent cancellation:14 cancelled; CI isolation PR58 open/unmerged at66ee899deb8da71f0b6a8c2a0c4fbeca44448a30. Not changed.",
+    "new_head_ci": "NOT_RUN_AT_EVIDENCE_SEAL; no GitHub green claim"
+  },
+  "not_run": [
+    "Complete CI frontend job/isolation partition",
+    "Cutover CLI backup/migration parity steps and all route unit jobs in GitHub workflow",
+    "HITL/entity checkpoint integration, full editor, real providers and 100k"
+  ],
+  "live_llm_calls": 0,
+  "live_embedding_calls": 0,
+  "production_files_changed_in_resume": [],
+  "ci_files_changed": [],
+  "worker_unchanged": true
+}

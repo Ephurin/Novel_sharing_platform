@@ -1,0 +1,2 @@
+ pr60-smoke-579475f934-ai-service-1 Copying pr60-smoke-579475f934-ai-service-1:/tmp/02a-evidence.json to C:\Users\thaib\.codex\worktrees\p1-canon-hitl-gate\Novel_sharing_platform\docs\development\integration\p1-author\reviews\pr60-p8-smoke-contract-2026-10-23\red-02\02a-evidence.json
+Error response from daemon: Could not find the file /tmp/02a-evidence.json in container 096619efca12a1bed69338129217ab39f8c19a1c88e3dee3751655ac2b1deeab
