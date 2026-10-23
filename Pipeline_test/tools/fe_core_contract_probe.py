@@ -76,12 +76,17 @@ const c=await createChapter(getPostgresPool(),{novelId:process.argv[1],title:'Co
   require(bool(activated['baseline_revision_id']),'Automatic snapshot requires a revision-anchored active baseline')
   initial_memory=p.read_memory();canon_body='Mai Linh đặt thẻ giấy cạnh máy thu. Duy đứng bên Mai Linh tại Cồn Vân.'
   canonical=save(canon_body,view()['draft']['version']);rid=canonical['analysisRevisionId'];require(bool(rid),'Anchored active baseline save did not produce automatic revision')
+  active_draft=view()['draft']
+  p.save('active-save-response-versus-durable-draft',{'response':canonical,'durable_draft':active_draft})
+  row('10a_active_save_returns_authoritative_version',lambda:require(canonical['draftVersion']==active_draft['version'],'Auto-snapshot changed Mongo version after PATCH captured draftVersion'))
   revision=p.latest(cid);assert revision['revisionId']==rid
   persisted=db();events=[r for r in persisted['revision_outbox_events'] if r['revision_id']==rid]
   require(revision['contentHash']==hashlib.sha256(canon_body.encode()).hexdigest() and len(events)==1,'automatic revision/outbox mismatch')
   require(p.read_memory()==initial_memory,'save auto-approved canon')
   review=p.wait_review(rid);p.review(review);p.approve();after=p.read_memory()
-  checkpoint=db();save(canon_body,canonical['draftVersion']-1);require(signature(db())==signature(checkpoint),'idempotent active-baseline retry duplicated revision/outbox')
+  checkpoint=db();retry_before=view()['draft'];retried=save(canon_body,canonical['draftVersion']-1);retry_after=view()['draft']
+  p.save('active-retry-readback',{'before':retry_before,'response':retried,'after':retry_after,'PG_before':checkpoint,'PG_after':db()})
+  row('10b_active_replay_preserves_version',lambda:require(retry_after['version']==retry_before['version'] and signature(db())==signature(checkpoint),'Same-body active-baseline replay changes Mongo version despite stable revision/outbox'))
   plan=p.api('POST','/ai/story-plans',{'novel_id':p.novel,'objectives':[{'order_index':1,'title':'FUTURE_ONLY_CONTRACT_MARKER','description':'Unperformed future intent','target_chapter':3}]})
   p.api('POST','/ai/story-plans/'+plan['plan_id']+'/activate',{'novel_id':p.novel});require(p.read_memory()==after,'future plan became official history')
   job,evidence=p.generate(cid);accepted=p.api('POST',path+'/revisions/accept-draft',{'generationId':job['job_id']});replay=p.api('POST',path+'/revisions/accept-draft',{'generationId':job['job_id']})
