@@ -1,0 +1,18 @@
+{
+  "source_sha": "3df13ed51476de3b0e97f7aa5aef63ce8a18e061",
+  "tree": "existing live suite unchanged; regression files added",
+  "command": [
+    "node",
+    "--import",
+    "tsx",
+    "--test",
+    "src/modules/novels/mongo-reconciliation-authorization.test.ts"
+  ],
+  "cwd": "backend",
+  "exit_code": 1,
+  "hashes": {
+    "backend\\src\\modules\\novels\\mongo-reconciliation-authorization.test.ts": "5b1797f84cc6aacb6173162404e73cd0497e00fa27daf01e49f6db37ba9ae7da",
+    "backend\\src\\modules\\novels\\mongo-reconciliation-denial.preload.mjs": "a47e85ab39fec21e307fc8b81119d45144d8217fe51aa99c5217076f645af78d",
+    "backend\\src\\modules\\novels\\mongo-reconciliation.live.test.ts": "068541f087fe14eafda8026037f23968eadc67cdc64995e36d53a249ed6364e9"
+  }
+}

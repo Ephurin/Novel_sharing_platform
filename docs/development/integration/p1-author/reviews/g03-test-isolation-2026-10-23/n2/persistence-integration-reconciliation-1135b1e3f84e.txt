@@ -1,0 +1,17 @@
+{"level":30,"time":1792750139638,"pid":15328,"hostname":"Ephurin","msg":"MongoDB connection ready"}
+▶ Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)
+  ✔ Targeted Probe 1: Older draft is cleanly updated by accepted revision (31.4127ms)
+  ✔ Targeted Probe 2: Newer manual draft edit is NOT overwritten by delayed revision sync (9.4468ms)
+  ✔ Targeted Probe 3: No-draft recovery creates document with non-empty novelId and authorId (8.311ms)
+  ✔ Targeted Probe 4: Cleanup removes the recovery fixture and preserves an unrelated draft (12.3605ms)
+{"level":30,"time":1792750139707,"pid":15328,"hostname":"Ephurin","msg":"MongoDB connection closed"}
+✔ Live MongoDB Draft Reconciliation Probe (P6.5 Hardening) (140.6976ms)
+{"level":30,"time":1792750139708,"pid":15328,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+ℹ tests 4
+ℹ suites 1
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 608.74

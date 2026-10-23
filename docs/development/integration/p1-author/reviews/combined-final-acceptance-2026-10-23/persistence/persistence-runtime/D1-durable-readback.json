@@ -1,0 +1,131 @@
+{
+  "HTTP": {
+    "chapterId": "28066b93-5ec8-4dc1-b624-583ddf0e04e4",
+    "novelId": "14aa4954-db3b-4c7b-bdca-59fb0e0531ec",
+    "title": "Contract chapter",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 11,
+    "isVip": false,
+    "priceCoins": 0,
+    "status": "DRAFT",
+    "publicationSchedule": null,
+    "updatedAt": "2026-10-23T09:14:46.247Z",
+    "draft": {
+      "title": "Contract chapter",
+      "content": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+      "wordCount": 11,
+      "version": 9,
+      "autosave": true,
+      "updatedAt": "2026-10-23T09:14:46.245Z"
+    }
+  },
+  "PG": {
+    "chapters": [
+      {
+        "chapter_id": "28066b93-5ec8-4dc1-b624-583ddf0e04e4",
+        "novel_id": "14aa4954-db3b-4c7b-bdca-59fb0e0531ec",
+        "title": "Contract chapter",
+        "chapter_number": 1,
+        "content": null,
+        "word_count": 11,
+        "is_vip": false,
+        "price_coins": 0,
+        "status": "DRAFT",
+        "published_at": null,
+        "created_at": "2026-10-23T09:14:12.51475+00:00",
+        "updated_at": "2026-10-23T09:14:46.247093+00:00",
+        "deleted_at": null,
+        "latest_revision_id": null,
+        "import_key": null,
+        "import_hash": null
+      },
+      {
+        "chapter_id": "d9cb31bb-7fca-4338-bb80-fabd0a805f0d",
+        "novel_id": "14aa4954-db3b-4c7b-bdca-59fb0e0531ec",
+        "title": "Pricing fixture",
+        "chapter_number": 2,
+        "content": "Published canonical pricing fixture",
+        "word_count": 4,
+        "is_vip": true,
+        "price_coins": 3,
+        "status": "PUBLISHED",
+        "published_at": null,
+        "created_at": "2026-10-23T09:14:45.604957+00:00",
+        "updated_at": "2026-10-23T09:14:46.114005+00:00",
+        "deleted_at": null,
+        "latest_revision_id": null,
+        "import_key": null,
+        "import_hash": "8fe94a81310e3b577e2b1259923b72fb8df12aa9d476ed2c62c15993824ffd5a"
+      },
+      {
+        "chapter_id": "c74b84fa-d6d7-428b-9009-2bb6c8d03d76",
+        "novel_id": "14aa4954-db3b-4c7b-bdca-59fb0e0531ec",
+        "title": "Other chapter",
+        "chapter_number": 3,
+        "content": null,
+        "word_count": 3,
+        "is_vip": false,
+        "price_coins": 0,
+        "status": "DRAFT",
+        "published_at": null,
+        "created_at": "2026-10-23T09:14:46.295885+00:00",
+        "updated_at": "2026-10-23T09:14:46.314583+00:00",
+        "deleted_at": null,
+        "latest_revision_id": null,
+        "import_key": null,
+        "import_hash": "d0772b38b0d37a289c6f4871b33c36eb166a4bb7b5823321839b6fa404d2bfe7"
+      }
+    ],
+    "chapter_revisions": [],
+    "revision_outbox_events": [],
+    "Mongo_drafts": [
+      {
+        "_id": "6adb2564c2a0ef7b1cfe1661",
+        "version": 9,
+        "chapterId": "28066b93-5ec8-4dc1-b624-583ddf0e04e4",
+        "authorId": "0f240503-6d47-48de-b95f-f8fd966658d2",
+        "autosave": true,
+        "content": "Mai Linh và Duy đứng tại Cồn Vân. B queued B",
+        "createdAt": "2026-10-23T09:14:12.812Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "14aa4954-db3b-4c7b-bdca-59fb0e0531ec",
+        "title": "Contract chapter",
+        "updatedAt": "2026-10-23T09:14:46.245Z",
+        "wordCount": 11
+      },
+      {
+        "_id": "6adb2586c2a0ef7b1cfe1799",
+        "version": 2,
+        "chapterId": "c74b84fa-d6d7-428b-9009-2bb6c8d03d76",
+        "authorId": "0f240503-6d47-48de-b95f-f8fd966658d2",
+        "autosave": false,
+        "content": "Other chapter B",
+        "createdAt": "2026-10-23T09:14:46.298Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "14aa4954-db3b-4c7b-bdca-59fb0e0531ec",
+        "title": "Other chapter",
+        "updatedAt": "2026-10-23T09:14:46.312Z",
+        "wordCount": 3
+      },
+      {
+        "_id": "6adb2585c2a0ef7b1cfe177d",
+        "version": 2,
+        "chapterId": "d9cb31bb-7fca-4338-bb80-fabd0a805f0d",
+        "authorId": "0f240503-6d47-48de-b95f-f8fd966658d2",
+        "autosave": false,
+        "content": "Published canonical pricing fixture",
+        "createdAt": "2026-10-23T09:14:45.610Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "14aa4954-db3b-4c7b-bdca-59fb0e0531ec",
+        "title": "Pricing fixture",
+        "updatedAt": "2026-10-23T09:14:46.112Z",
+        "wordCount": 4
+      }
+    ]
+  },
+  "local_conflict_buffer": "LOCAL_UNSAVED_DIFFERENT"
+}

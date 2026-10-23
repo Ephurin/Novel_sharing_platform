@@ -1,0 +1,27 @@
+▶ Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)
+  ✔ calls authenticated /internal/v1/writing/generations/{id} route with service token and headers (137.7628ms)
+  ✔ rejects with 400 NOVEL_MISMATCH if generation novel does not match chapter novel (12.7786ms)
+  ✔ rejects with 400 CHAPTER_MISMATCH if generation chapter does not match target chapter (11.6426ms)
+[OutboxProcessor] Event 47e7b087-d625-4cd2-bc44-06db5901b3a5 (INCREMENTAL_ANALYSIS) failed (attempt 1): res.text is not a function
+  ✔ rejects with 403 FORBIDDEN if generation belongs to another tenant or actor (11.496ms)
+  ✔ rejects with 409 GENERATION_NOT_COMPLETED if generation status is not completed (14.8103ms)
+  ✔ rejects with 422 GENERATION_VALIDATION_FAILED if validation_status is not passed (11.9742ms)
+  ✔ rejects with 422 INVALID_PATCH if patch structure is missing or malformed (17.1004ms)
+  ✔ rejects with 409 BRAIN_VERSION_CONFLICT if current Story Brain has advanced beyond generation brain_version_used (12.0099ms)
+  ✔ rejects with 404 STORY_BRAIN_NOT_FOUND if Story Brain route returns 404 when brain is required (12.9421ms)
+  ✔ rejects with 409 OBJECTIVE_INTENT_REQUIRED if P3 controller idempotency_key is malformed (14.4621ms)
+  ✔ rejects with 409 OBJECTIVE_INTENT_SUPERSEDED if P3 controller intent changed or plan missing (19.5866ms)
+  ✔ rejects with 404 BASE_REVISION_NOT_FOUND if base revision does not belong to chapter (19.1053ms)
+  ✔ rejects with 409 STALE_BASE_REVISION if base revision is no longer current latest revision (18.6949ms)
+{"level":30,"time":1792743655118,"pid":6680,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+  ✔ rejects with 409 CONTENT_HASH_MISMATCH if base revision content hash does not match generation (20.0187ms)
+✔ Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening) (411.6499ms)
+{"level":30,"time":1792743655122,"pid":6680,"hostname":"Ephurin","msg":"MongoDB connection closed"}
+ℹ tests 14
+ℹ suites 1
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1410.5257

@@ -1,0 +1,13 @@
+# Exact-source integrity and minimal test repairs
+
+Started at merge66c1052a8cb63e411a83e330207feb97c13210d4. Parents verified:10d33efe4be068f7ca2b54b40d953843a3a5485b and f4ab06cc67a3d8f058d5a03b376ccbde0dd58d6c. All44 Gemini integration blobs exactly reconstructed; no collisions/deletions. PR59 two production blobs and PR60 extraction-only worker remain exact. SOURCE_INTEGRITY.json and SOURCE_INTEGRITY_FINAL.json contain path/blob proof. Latest GPT6 handoff comment6361397171 was read before execution.
+
+A genuine fixture regression was independently reproduced on66c1052: legacy mongo-reconciliation.live.test.ts reports3 PASS but leaves1 recovery draft in Mongo after teardown. PG counts remain0. Cause is original integration test: probe3 creates a fresh chapter ID, after hook only deletes the first ID. PR58 lifecycle and production59/60 files are not the cause. CLEANUP_REGRESSION_RED.json plus native-verified readbacks preserve RED, including the remaining document count in stopped owned volumes.
+
+Minimal test repair44e79238: track recovery ID before writes; authorize actual PG/Mongo before indexes/mutation; cleanup exact run-owned IDs; verify both expected identities are absent; add a fourth test which preserves an unrelated draft and checks its owner/content while removing recovery fixtures. Connections close in finally. No bulk historical/shared cleanup. New native-final readbacks independently confirm0 Mongo/PG fixtures after every suite.
+
+Harness repair2313a15a: the root wrapper inherited pre-PR58 expectation that no-optin native invocation succeeds. It now requires exit1 plus the precise external opt-in guard error, and records expected exits explicitly. Authorized run must still exit0. Guard/policy/CI files unchanged. Original root attempt exit1 is retained; successful four product smoke flows were never relabeled failures.
+
+Final clean tested source `2313a15a5da0415539c1f999df2628674944469e`. Only two paths differ from66c1052: legacy live test and scripts/run_pr60_root_smoke.py. All44 Gemini paths and all3 production correctness files remain exact. No production code or architecture change. Source commits precede final fresh acceptance and evidence commit.
+
+Acceptance instrumentation is new evidence-only code: observe-durable.mjs transparently records real SELECT/count results without replacing values. run-native-acceptance.py adds strict whole-owned-database readbacks after each suite. First Windows preload path failed before test loading; rerun uses file URI. One longer HTTP artifact path hit Windows path limit; fresh short-output p2 run passes19/19. These infrastructure attempts remain disclosed, not PASS or hidden product regressions.

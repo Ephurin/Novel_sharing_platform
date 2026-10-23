@@ -1,0 +1,45 @@
+[
+  {
+    "command": [
+      "python",
+      "Pipeline_test/tools/prepare_fe_core_contract.py",
+      "--manifest",
+      "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\core-canon-combined-2026-10-23\\canon-01\\canon-manifest.json",
+      "--allow-new-test-resources"
+    ],
+    "exit_code": 0,
+    "tested_sha": "fc2a56705a2118a74b99150d50a38aac59b4365b"
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-f87d68676b",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "--profile",
+      "initialize",
+      "run",
+      "--rm",
+      "budget-init"
+    ],
+    "exit_code": 1,
+    "tested_sha": "fc2a56705a2118a74b99150d50a38aac59b4365b"
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-f87d68676b",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "stop",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0,
+    "tested_sha": "fc2a56705a2118a74b99150d50a38aac59b4365b"
+  }
+]

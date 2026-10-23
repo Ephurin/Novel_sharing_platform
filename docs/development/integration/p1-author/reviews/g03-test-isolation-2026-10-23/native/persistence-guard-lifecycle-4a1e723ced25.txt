@@ -1,0 +1,16 @@
+▶ F-06 Regression: Fail-Closed Teardown Mutation Guard
+  ✔ F-06.1: Missing opt-in rejects guard and executes ZERO teardown mutations (2.2978ms)
+  ✔ F-06.2: Forbidden PostgreSQL database name rejects guard and executes ZERO teardown mutations (0.6547ms)
+  ✔ F-06.3: Forbidden MongoDB database name rejects guard and executes ZERO teardown mutations (0.5947ms)
+  ✔ F-06.4: Expected DB identity mismatch rejects guard and executes ZERO teardown mutations (0.2718ms)
+  ✔ F-06.5: Guard query/connection failure rejects guard and executes ZERO teardown mutations (0.2532ms)
+  ✔ F-06.6: Positive authorization enables valid lifecycle progression (0.211ms)
+✔ F-06 Regression: Fail-Closed Teardown Mutation Guard (5.5928ms)
+ℹ tests 6
+ℹ suites 1
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 354.7149

@@ -1,0 +1,18 @@
+{"scenario":"missing opt-in","childExit":1,"calls":{"identity":1,"mongoConnect":0,"mongoClose":1,"pgEnd":2,"writes":[],"reads":[]}}
+{"scenario":"forbidden PostgreSQL","childExit":1,"calls":{"identity":1,"mongoConnect":0,"mongoClose":1,"pgEnd":2,"writes":[],"reads":[]}}
+{"scenario":"forbidden MongoDB","childExit":1,"calls":{"identity":1,"mongoConnect":0,"mongoClose":1,"pgEnd":2,"writes":[],"reads":[]}}
+{"scenario":"PostgreSQL identity mismatch","childExit":1,"calls":{"identity":1,"mongoConnect":0,"mongoClose":1,"pgEnd":2,"writes":[],"reads":[]}}
+{"scenario":"MongoDB identity mismatch","childExit":1,"calls":{"identity":1,"mongoConnect":0,"mongoClose":1,"pgEnd":2,"writes":[],"reads":[]}}
+✔ Denied live reconciliation teardown: missing opt-in (669.3984ms)
+✔ Denied live reconciliation teardown: forbidden PostgreSQL (748.3033ms)
+✔ Denied live reconciliation teardown: forbidden MongoDB (621.4225ms)
+✔ Denied live reconciliation teardown: PostgreSQL identity mismatch (604.3402ms)
+✔ Denied live reconciliation teardown: MongoDB identity mismatch (770.7457ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3663.5763

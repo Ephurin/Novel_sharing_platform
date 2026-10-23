@@ -1,0 +1,203 @@
+{
+  "chapters": [
+    {
+      "chapter_id": "d9c6901f-6195-4a0f-9993-cbaf39437ba3",
+      "novel_id": "59187cd1-24e5-45f8-9ab2-860b6ddf43fb",
+      "title": "Canon gate",
+      "chapter_number": 1,
+      "content": null,
+      "word_count": 8,
+      "is_vip": false,
+      "price_coins": 0,
+      "status": "DRAFT",
+      "published_at": null,
+      "created_at": "2026-10-23T09:27:46.478583+00:00",
+      "updated_at": "2026-10-23T09:27:46.526627+00:00",
+      "deleted_at": null,
+      "latest_revision_id": "9a81db3f-f4b2-4c06-b29e-408d141d5a61",
+      "import_key": null,
+      "import_hash": "c9966bb83b528aef3f9ebc33bca09ac1d848b53fe78497a5db9361733b042964"
+    }
+  ],
+  "chapter_revisions": [
+    {
+      "revision_id": "9a81db3f-f4b2-4c06-b29e-408d141d5a61",
+      "novel_id": "59187cd1-24e5-45f8-9ab2-860b6ddf43fb",
+      "chapter_id": "d9c6901f-6195-4a0f-9993-cbaf39437ba3",
+      "parent_revision_id": null,
+      "content_hash": "38366e825a436856d1e566550ce9960a5fb35df8d637c7a39663505a24d98b91",
+      "content": "Mai Linh và Duy đứng tại Cồn Vân.",
+      "word_count": 8,
+      "source_type": "BOOTSTRAP",
+      "source_generation_id": null,
+      "created_by": "5432baa3-9c30-45b3-ae39-5697cbfb544c",
+      "created_at": "2026-10-23T09:27:46.526627+00:00"
+    }
+  ],
+  "revision_outbox_events": [],
+  "narrative.proposals": [
+    {
+      "id": "a671f824-db8c-532a-a5dc-8c1007880122",
+      "analysis_run_id": "9009f4b4-412e-406c-a02b-06289976e98f",
+      "story_brain_id": "85ea0281-faf2-44ff-921c-a66780bd8acd",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "59187cd1-24e5-45f8-9ab2-860b6ddf43fb",
+      "dependency_group_id": "6e4dd802-99b8-5606-8cbc-86796047a60f",
+      "materialization_order": 0,
+      "proposal_type": "entity",
+      "payload": {
+        "entity_type": "PER",
+        "canonical_name": "Mai Linh",
+        "normalized_name": "mai linh"
+      },
+      "evidence": [
+        {
+          "end": 8,
+          "start": 0,
+          "text_hash": "38366e825a436856d1e566550ce9960a5fb35df8d637c7a39663505a24d98b91",
+          "revision_id": "9a81db3f-f4b2-4c06-b29e-408d141d5a61"
+        }
+      ],
+      "confidence": 9.0,
+      "status": "pending",
+      "expected_brain_version": 1,
+      "decision_reason": null,
+      "created_at": "2026-10-23T09:27:47.716316+00:00",
+      "updated_at": "2026-10-23T09:27:47.716316+00:00"
+    },
+    {
+      "id": "ba93d463-c430-513f-8019-869317e93833",
+      "analysis_run_id": "9009f4b4-412e-406c-a02b-06289976e98f",
+      "story_brain_id": "85ea0281-faf2-44ff-921c-a66780bd8acd",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "59187cd1-24e5-45f8-9ab2-860b6ddf43fb",
+      "dependency_group_id": "6e4dd802-99b8-5606-8cbc-86796047a60f",
+      "materialization_order": 1,
+      "proposal_type": "entity",
+      "payload": {
+        "entity_type": "PER",
+        "canonical_name": "Duy",
+        "normalized_name": "duy"
+      },
+      "evidence": [
+        {
+          "end": 15,
+          "start": 12,
+          "text_hash": "38366e825a436856d1e566550ce9960a5fb35df8d637c7a39663505a24d98b91",
+          "revision_id": "9a81db3f-f4b2-4c06-b29e-408d141d5a61"
+        }
+      ],
+      "confidence": 9.0,
+      "status": "pending",
+      "expected_brain_version": 1,
+      "decision_reason": null,
+      "created_at": "2026-10-23T09:27:47.716316+00:00",
+      "updated_at": "2026-10-23T09:27:47.716316+00:00"
+    },
+    {
+      "id": "8c9a25a2-85f3-5f6a-83db-1fa04a14b7b7",
+      "analysis_run_id": "9009f4b4-412e-406c-a02b-06289976e98f",
+      "story_brain_id": "85ea0281-faf2-44ff-921c-a66780bd8acd",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "59187cd1-24e5-45f8-9ab2-860b6ddf43fb",
+      "dependency_group_id": "6e4dd802-99b8-5606-8cbc-86796047a60f",
+      "materialization_order": 2,
+      "proposal_type": "entity",
+      "payload": {
+        "entity_type": "LOC",
+        "canonical_name": "Cồn Vân",
+        "normalized_name": "cồn vân"
+      },
+      "evidence": [
+        {
+          "end": 32,
+          "start": 25,
+          "text_hash": "38366e825a436856d1e566550ce9960a5fb35df8d637c7a39663505a24d98b91",
+          "revision_id": "9a81db3f-f4b2-4c06-b29e-408d141d5a61"
+        }
+      ],
+      "confidence": 9.0,
+      "status": "pending",
+      "expected_brain_version": 1,
+      "decision_reason": null,
+      "created_at": "2026-10-23T09:27:47.716316+00:00",
+      "updated_at": "2026-10-23T09:27:47.716316+00:00"
+    },
+    {
+      "id": "42542a76-5c37-5929-b8aa-17ab7e9295da",
+      "analysis_run_id": "9009f4b4-412e-406c-a02b-06289976e98f",
+      "story_brain_id": "85ea0281-faf2-44ff-921c-a66780bd8acd",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "59187cd1-24e5-45f8-9ab2-860b6ddf43fb",
+      "dependency_group_id": "6e4dd802-99b8-5606-8cbc-86796047a60f",
+      "materialization_order": 3,
+      "proposal_type": "event",
+      "payload": {
+        "chapter": 1,
+        "summary": "Mai Linh và Duy đứng tại Cồn Vân.",
+        "locations": [
+          "Cồn Vân"
+        ],
+        "event_type": "observation",
+        "consequences": [],
+        "participants": [
+          "Mai Linh",
+          "Duy"
+        ],
+        "chapter_number": 1
+      },
+      "evidence": [
+        {
+          "end": 33,
+          "start": 0,
+          "text_hash": "38366e825a436856d1e566550ce9960a5fb35df8d637c7a39663505a24d98b91",
+          "chapter_id": "d9c6901f-6195-4a0f-9993-cbaf39437ba3",
+          "revision_id": "9a81db3f-f4b2-4c06-b29e-408d141d5a61",
+          "chapter_number": 1
+        }
+      ],
+      "confidence": 0.5,
+      "status": "pending",
+      "expected_brain_version": 1,
+      "decision_reason": null,
+      "created_at": "2026-10-23T09:27:47.716316+00:00",
+      "updated_at": "2026-10-23T09:27:47.716316+00:00"
+    }
+  ],
+  "narrative.story_brains": [
+    {
+      "id": "85ea0281-faf2-44ff-921c-a66780bd8acd",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "novel_id": "59187cd1-24e5-45f8-9ab2-860b6ddf43fb",
+      "status": "importing",
+      "baseline_revision_id": null,
+      "brain_version": 1,
+      "schema_version": 1,
+      "created_at": "2026-10-23T09:27:46.779052+00:00",
+      "updated_at": "2026-10-23T09:27:46.779052+00:00",
+      "entity_guidance": null
+    }
+  ],
+  "Mongo": [
+    {
+      "_id": "6adb28924f57aacde4153384",
+      "chapterId": "d9c6901f-6195-4a0f-9993-cbaf39437ba3",
+      "version": 1,
+      "authorId": "5432baa3-9c30-45b3-ae39-5697cbfb544c",
+      "autosave": false,
+      "content": "Mai Linh và Duy đứng tại Cồn Vân.",
+      "createdAt": "2026-10-23T09:27:46.488Z",
+      "deletedAt": null,
+      "deletionReason": null,
+      "novelId": "59187cd1-24e5-45f8-9ab2-860b6ddf43fb",
+      "title": "Canon gate",
+      "updatedAt": "2026-10-23T09:27:46.488Z",
+      "wordCount": 8
+    }
+  ],
+  "canon": {
+    "entities": [],
+    "events": [],
+    "facts": []
+  }
+}

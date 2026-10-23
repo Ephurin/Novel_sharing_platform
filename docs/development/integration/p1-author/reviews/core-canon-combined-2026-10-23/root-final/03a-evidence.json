@@ -1,0 +1,226 @@
+{
+  "gate": "AI-PIPE-03A",
+  "pipeline": "P3",
+  "verdict": "P3_AUTONOMOUS_CONTROLLER_PASS",
+  "timestamp": "2026-10-23T08:22:41.227237+00:00",
+  "git_commit": "c4d29c6b4039ea4060d0f91313bba62f88b7896a",
+  "git_branch": "codex/p1-core-canon-combined",
+  "environment": {
+    "backend_url": "http://backend:4000/api/v1",
+    "ai_service_url": "http://localhost:8000",
+    "database_backend": "postgresql-16+pgvector",
+    "llm_provider": "fake-deterministic"
+  },
+  "summary": {
+    "total_checkpoints": 18,
+    "passed": 18,
+    "failed": 0
+  },
+  "checkpoints": [
+    {
+      "checkpoint": 1,
+      "name": "Autonomous Run Creation via Node Boundary",
+      "status": "PASS",
+      "summary": "Autonomous run ae48483d-bf42-494a-823f-e66bb59e1561 created successfully via Node API boundary",
+      "details": {
+        "run_id": "ae48483d-bf42-494a-823f-e66bb59e1561",
+        "novel_id": "a265f365-1e8d-4eaa-8f44-b59460f57431",
+        "plan_id": "488d6f30-5e2a-409b-a28b-afb09cdbdb7c",
+        "plan_version": 1,
+        "status": "running"
+      }
+    },
+    {
+      "checkpoint": 2,
+      "name": "Caller Ownership & Role Enforcement",
+      "status": "PASS",
+      "summary": "Ownership enforced: non-owner blocked with 403 FORBIDDEN, admin allowed",
+      "details": {
+        "non_owner_status": 403,
+        "admin_status": 200
+      }
+    },
+    {
+      "checkpoint": 3,
+      "name": "Durable PostgreSQL Persistence",
+      "status": "PASS",
+      "summary": "Run ae48483d-bf42-494a-823f-e66bb59e1561 durably persisted in narrative.autonomous_runs with schema and invariants intact",
+      "details": {
+        "run_id": "ae48483d-bf42-494a-823f-e66bb59e1561",
+        "table": "narrative.autonomous_runs",
+        "persisted_status": "running",
+        "persisted_plan_version": 1
+      }
+    },
+    {
+      "checkpoint": 4,
+      "name": "Serialized Single-Writer Invariant",
+      "status": "PASS",
+      "summary": "Single-writer enforced: concurrent race resolved to [201, 409], idempotency conflict returns 409",
+      "details": {
+        "status_code": 409,
+        "conflict_detected": true,
+        "concurrency_conflict_detected": true,
+        "idempotency_conflict_detected": true,
+        "idempotent_replay_success": true
+      }
+    },
+    {
+      "checkpoint": 5,
+      "name": "Active Story Plan & Version Pinned",
+      "status": "PASS",
+      "summary": "Story Plan 488d6f30-5e2a-409b-a28b-afb09cdbdb7c pinned at version 1",
+      "details": {
+        "pinned_plan_id": "488d6f30-5e2a-409b-a28b-afb09cdbdb7c",
+        "pinned_plan_version": 1
+      }
+    },
+    {
+      "checkpoint": 6,
+      "name": "Deterministic Current Objective Selection",
+      "status": "PASS",
+      "summary": "Step 1 selected Objective #1 ('Thức tỉnh tại Tháp Qua Nhĩ') deterministically",
+      "details": {
+        "selected_objective_id": "c8266b3b-a4a2-44b6-8e95-467a5b71ea74",
+        "title": "Thức tỉnh tại Tháp Qua Nhĩ",
+        "order_index": 1
+      }
+    },
+    {
+      "checkpoint": 7,
+      "name": "Standard P1 Generation Path Reused",
+      "status": "PASS",
+      "summary": "P1 WritingService generation cc392d08-00a1-5b2b-9874-74469295d1c0 completed successfully",
+      "details": {
+        "generation_id": "cc392d08-00a1-5b2b-9874-74469295d1c0",
+        "status": "completed",
+        "validation_status": "passed"
+      }
+    },
+    {
+      "checkpoint": 8,
+      "name": "Deterministic Quality Gate Acceptance",
+      "status": "PASS",
+      "summary": "Deterministic quality gate passed: generation status=completed, validation passed, brain fresh",
+      "details": {
+        "quality_gate_result": "PASS",
+        "accepted_revision_id": "74ccdaf9-4814-4019-8de1-f4a3712ac8f7"
+      }
+    },
+    {
+      "checkpoint": 9,
+      "name": "Failed Generation Safety (Zero Canon & Plan Progress Mutation)",
+      "status": "PASS",
+      "summary": "Rejected generation mutated neither canon (0 new revisions) nor plan progress (objective incomplete)",
+      "details": {
+        "current_retries": 1,
+        "stop_reason": "quality_gate_failed_retry_scheduled",
+        "revisions_count_unmutated": true,
+        "objective_incomplete": true
+      }
+    },
+    {
+      "checkpoint": 10,
+      "name": "Accepted Generation Persists via acceptDraft()",
+      "status": "PASS",
+      "summary": "Revision 74ccdaf9-4814-4019-8de1-f4a3712ac8f7 persisted with source_type='AI_DRAFT_ACCEPT' and source_generation_id=cc392d08-00a1-5b2b-9874-74469295d1c0",
+      "details": {
+        "revision_id": "74ccdaf9-4814-4019-8de1-f4a3712ac8f7",
+        "source_type": "AI_DRAFT_ACCEPT",
+        "source_generation_id": "cc392d08-00a1-5b2b-9874-74469295d1c0"
+      }
+    },
+    {
+      "checkpoint": 11,
+      "name": "Transactional Outbox Completes & Story Brain Advances",
+      "status": "PASS",
+      "summary": "Transactional outbox processed, Story Brain advanced to version 2, unrelated proposal preserved pending",
+      "details": {
+        "brain_version": 2,
+        "novel_id": "a265f365-1e8d-4eaa-8f44-b59460f57431",
+        "unrelated_proposal_isolated": true
+      }
+    },
+    {
+      "checkpoint": 12,
+      "name": "Explicit Objective Progress Update",
+      "status": "PASS",
+      "summary": "Objective #1 status explicitly updated to 'completed' following accepted draft",
+      "details": {
+        "objective_id": "c8266b3b-a4a2-44b6-8e95-467a5b71ea74",
+        "status": "completed"
+      }
+    },
+    {
+      "checkpoint": 13,
+      "name": "Next Iteration Observes Updated Brain & Next Objective",
+      "status": "PASS",
+      "summary": "Step 2 completed Objective #2 observing updated brain_version 3",
+      "details": {
+        "objective_id": "7e99f98a-6b74-4a5a-aaa6-db7a376f2265",
+        "status": "completed",
+        "iteration": 2,
+        "observed_brain_version": 3
+      }
+    },
+    {
+      "checkpoint": 14,
+      "name": "Idempotent Retry / Resume Semantics",
+      "status": "PASS",
+      "summary": "Reloading run state produced zero duplicate revisions and preserved iteration progress",
+      "details": {
+        "iteration": 2,
+        "revisions_count_unchanged": true,
+        "crash_recovery_zero_duplicate_revisions": true
+      }
+    },
+    {
+      "checkpoint": 15,
+      "name": "Maximum Retry Guard Fails Closed",
+      "status": "PASS",
+      "summary": "Max retries guard failed closed: run transitioned to 'failed' with stop_reason='max_retries_exceeded'",
+      "details": {
+        "run_id": "343a0c43-8c8c-4378-9d46-f94a4fbf93de",
+        "status": "failed",
+        "stop_reason": "max_retries_exceeded"
+      }
+    },
+    {
+      "checkpoint": 16,
+      "name": "Stop / Cancel Prevents Further Generation",
+      "status": "PASS",
+      "summary": "Stop command transitioned run to 'stopped'; subsequent step was no-op preserving canon",
+      "details": {
+        "run_id": "c8e93507-3927-418a-b112-a2d57b27e92e",
+        "status": "stopped",
+        "stop_reason": "author_manual_stop"
+      }
+    },
+    {
+      "checkpoint": 17,
+      "name": "Terminal Objective Intentional Completion",
+      "status": "PASS",
+      "summary": "Terminal objective completion intentionally transitioned run status to 'completed'",
+      "details": {
+        "run_id": "ae48483d-bf42-494a-823f-e66bb59e1561",
+        "status": "completed",
+        "stop_reason": "terminal_objective_completed",
+        "terminal_objective_id": "d8aa03a4-191f-4539-b0fb-a4166382e563",
+        "iteration": 3
+      }
+    },
+    {
+      "checkpoint": 18,
+      "name": "Completed Run Performs Zero Post-Terminal Generations",
+      "status": "PASS",
+      "summary": "Subsequent step calls on completed run perform zero extra generations (count unchanged)",
+      "details": {
+        "run_id": "ae48483d-bf42-494a-823f-e66bb59e1561",
+        "status": "completed",
+        "generation_count_before": 4,
+        "generation_count_after": 4,
+        "zero_extra_generation": true
+      }
+    }
+  ]
+}

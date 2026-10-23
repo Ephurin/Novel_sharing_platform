@@ -1,0 +1,10 @@
+{
+  "matches": [
+    {
+      "file": "run-native-acceptance.py",
+      "pattern": "postgres(?:ql)?://[^\\s\\x22]+",
+      "note": "inspect; may be test-only runner template"
+    }
+  ],
+  "note": "Runner source contains literal templated isolated URLs; command/runtime manifests do not contain random PG password. No production keys read or used."
+}

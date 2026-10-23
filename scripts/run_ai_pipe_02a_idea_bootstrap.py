@@ -14,7 +14,7 @@ Validates the Idea/Outline to Canonical Story Brain P2 adapter loop:
 9. Context preview retrieved via Node API: GET /api/v1/ai/story-brains/:novelId/context-preview.
 10. Assisted AI generation via standard P1 route: POST /api/v1/ai/novels/:novelId/generate.
 11. Canonical draft acceptance via Node API: POST /api/v1/chapters/:chapterId/revisions/accept-draft.
-12. PostgreSQL persistence & Transactional Outbox: chapter_revisions, latest_revision_id, outbox COMPLETED -> brain advances version 2 -> 3.
+12. PostgreSQL persistence & Transactional Outbox: chapter_revisions, latest_revision_id, outbox COMPLETED -> pending proposals -> explicit author review -> Canon advances.
 13. Second context preview observes updated brain version (3), acceptance idempotency & author-control semantics hold.
 14. Emits sanitized evidence to docs/development/AI-CORE-PIPELINE-VALIDATION-02/ai-pipe-02a-idea-bootstrap.json.
 """
@@ -35,6 +35,8 @@ from typing import Any
 
 import httpx
 import psycopg
+
+from canon_review_smoke import capture_canon, review_revision
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
@@ -315,8 +317,8 @@ def run_pipeline(
         )
 
         # Stabilize the canonical snapshot's transactional outbox before
-        # starting assisted generation. With fail-closed auto-materialization,
-        # a manual snapshot may legitimately advance Story Brain asynchronously.
+        # starting assisted generation. COMPLETED confirms extraction delivery;
+        # pending proposals still require an explicit author decision.
         base_snapshot_outbox_status = None
         for _ in range(30):
             cur.execute(
@@ -461,6 +463,7 @@ def run_pipeline(
         # Checkpoint 10: Canonical Draft Acceptance & PostgreSQL Persistence
         # ─────────────────────────────────────────────────────────────────
         accept_draft_url = f"{backend_url}/chapters/{first_chapter_id}/revisions/accept-draft"
+        canon_before_accept = capture_canon(cur, novel_id)
         accept_draft_res = httpx.post(
             accept_draft_url,
             json={"generationId": gen_id},
@@ -533,21 +536,9 @@ def run_pipeline(
         assert outbox_event_id is not None, "INCREMENTAL_ANALYSIS outbox event not found"
         assert outbox_terminal_status == "COMPLETED", f"Outbox event did not complete: {outbox_row[1] if outbox_row else None}"
 
-        # Fail-closed outbox semantics materialize all revision-scoped
-        # proposals before the event can reach COMPLETED. Observe the resulting
-        # canonical Story Brain directly instead of manually accepting pending
-        # proposals in the validation runner.
-        cur.execute(
-            """
-            SELECT brain_version FROM narrative.story_brains WHERE novel_id = %s
-            """,
-            (novel_id,),
-        )
-        updated_brain_ver = int(cur.fetchone()[0])
-        assert updated_brain_ver > writing_brain_version, (
-            "Accepted draft did not advance Story Brain after COMPLETED outbox: "
-            f"{writing_brain_version} -> {updated_brain_ver}"
-        )
+        author_review = review_revision(cur, backend_url, headers, novel_id,
+                                        accepted_rev_id, canon_before_accept)
+        updated_brain_ver = author_review['canon_after']['brain_version']
 
         record_cp(
             11,
@@ -559,6 +550,7 @@ def run_pipeline(
                 "outbox_status": "COMPLETED",
                 "brain_version_before": writing_brain_version,
                 "story_brain_version": updated_brain_ver,
+                "author_review": author_review,
             },
         )
 

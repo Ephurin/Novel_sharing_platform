@@ -1,0 +1,37 @@
+services:
+  postgres:
+    ports: !override
+      - "127.0.0.1:53222:5432"
+    environment:
+      POSTGRES_DB: ephurin_test_pr60_2f7cd3d5c3
+  mongodb:
+    ports: !override
+      - "127.0.0.1:53223:27017"
+  ai-service:
+    ports: !override
+      - "127.0.0.1:53224:8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/ephurin_test_pr60_2f7cd3d5c3
+      LLM_PROVIDER: fake
+      LLM_BASE_URL: http://127.0.0.1:9/v1
+      LLM_API_KEY: ""
+      GEMINI_API_KEY: ""
+      GOOGLE_API_KEY: ""
+      OPENAI_API_KEY: ""
+      EMBEDDING_PROVIDER: fake
+      SEMANTIC_RETRIEVAL_ENABLED: "true"
+      ACTIVE_EMBEDDING_VERSION: fake-embedding-768-v1
+  backend:
+    ports: !override
+      - "127.0.0.1:53225:4000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ephurin_test_pr60_2f7cd3d5c3
+      MONGODB_URI: mongodb://mongodb:27017/ephurin_test_pr60_2f7cd3d5c3
+      AI_LLM_BASE_URL: http://127.0.0.1:9/v1
+      AI_LLM_API_KEY: ""
+  web:
+    ports: !override
+      - "127.0.0.1:53226:80"
+networks:
+  default:
+    internal: true

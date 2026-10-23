@@ -3,350 +3,93 @@ import assert from 'node:assert/strict';
 import { handleOutboxEvent, processOutboxOnce } from './outbox-processor.js';
 import type { RevisionOutboxEvent } from '../modules/novels/outbox.repository.js';
 
-describe('AI-PIPE-01B Outbox Processor Fail-Closed Auto-Materialization', () => {
-  const baseEvent: RevisionOutboxEvent = {
-    eventId: 'evt-001',
-    eventType: 'INCREMENTAL_ANALYSIS',
-    revisionId: 'rev-target-123',
-    novelId: 'novel-001',
-    chapterId: 'chap-001',
-    contentHash: 'hash-abc',
-    createdBy: null,
-    payload: {},
-    status: 'PROCESSING',
-    retryCount: 0,
-    maxRetries: 5,
-    nextRetryAt: new Date(),
-    lastError: null,
-    claimToken: 'tok-123',
-    createdAt: new Date(),
-    updatedAt: new Date()
-  };
-
-  test('1. Analysis success + scoped proposal materialization success -> Brain advances', async () => {
-    const originalFetch = globalThis.fetch;
-    const acceptedGroups: string[] = [];
-
-    globalThis.fetch = (async (url: any, init: any) => {
-      const urlStr = String(url);
-      if (urlStr.includes('/analyses')) {
-        return new Response(JSON.stringify({ success: true, data: { analysis_id: 'ana-1' } }), { status: 200 });
-      }
-      if (urlStr.includes('/story-brains/by-novel/')) {
-        return new Response(JSON.stringify({ success: true, data: { brain_version: 5 } }), { status: 200 });
-      }
-      if (urlStr.includes('/proposals?status=pending')) {
-        return new Response(
-          JSON.stringify({
-            success: true,
-            data: [
-              {
-                proposal_id: 'prop-1',
-                dependency_group_id: 'grp-1',
-                evidence: [{ revision_id: 'rev-target-123' }]
-              }
-            ]
-          }),
-          { status: 200 }
-        );
-      }
-      if (urlStr.includes('/proposal-groups/grp-1/accept')) {
-        const body = JSON.parse(init?.body || '{}');
-        assert.equal(body.expected_brain_version, 5);
-        acceptedGroups.push('grp-1');
-        return new Response(JSON.stringify({ success: true, data: { brain_version: 6 } }), { status: 200 });
-      }
-      return new Response('Not found', { status: 404 });
-    }) as any;
-
-    try {
-      await handleOutboxEvent(baseEvent);
-      assert.deepEqual(acceptedGroups, ['grp-1'], 'Proposal group for target revision must be accepted');
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
+// WORKFLOW_CONTRACT v1.4: P1 extraction is not an authorized canon decision.
+// These replace obsolete integration tests requiring generic worker auto-approval.
+const event: RevisionOutboxEvent = {
+ eventId: 'evt-1', eventType: 'INCREMENTAL_ANALYSIS', revisionId: 'rev-1',
+ novelId: 'novel-1', chapterId: 'chapter-1', contentHash: 'hash-1', createdBy: 'author-1',
+ payload: {}, status: 'PROCESSING', retryCount: 0, maxRetries: 5,
+ nextRetryAt: new Date(), lastError: null, claimToken: 'lease-1', createdAt: new Date(), updatedAt: new Date()
+};
+async function usingFetch(fn: typeof fetch, action: () => Promise<void>) {
+ const original = globalThis.fetch;
+ globalThis.fetch = fn;
+ try { await action(); } finally { globalThis.fetch = original; }
+}
+describe('P1 extraction-only outbox authorization boundary', () => {
+ test('successful extraction issues exactly one source-scoped request and no canon decision', async () => {
+  const calls: Array<{url: string; init?: RequestInit}> = [];
+  await usingFetch(async (url, init) => {
+   calls.push({url: String(url), init});
+   return new Response(JSON.stringify({data: {status: 'waiting_review'}}));
+  }, async () => { await handleOutboxEvent(event); });
+  assert.equal(calls.length, 1, 'Generic worker must not query/accept proposal groups');
+  assert.ok(calls[0].url.endsWith('/v1/revisions/rev-1/analyses'));
+  assert.equal(calls[0].init?.method, 'POST');
+  assert.deepEqual(JSON.parse(String(calls[0].init?.body)), {
+   novel_id: event.novelId, chapter_id: event.chapterId, revision_id: event.revisionId,
+   content_hash: event.contentHash, operation: 'incremental_story_analysis'
   });
-
-  test('2. Proposal-group accept transient failure -> throws Error so event fails closed and is retryable', async () => {
-    const originalFetch = globalThis.fetch;
-
-    globalThis.fetch = (async (url: any) => {
-      const urlStr = String(url);
-      if (urlStr.includes('/analyses')) {
-        return new Response(JSON.stringify({ success: true }), { status: 200 });
-      }
-      if (urlStr.includes('/story-brains/by-novel/')) {
-        return new Response(JSON.stringify({ success: true, data: { brain_version: 5 } }), { status: 200 });
-      }
-      if (urlStr.includes('/proposals?status=pending')) {
-        return new Response(
-          JSON.stringify({
-            success: true,
-            data: [
-              {
-                proposal_id: 'prop-fail',
-                dependency_group_id: 'grp-fail',
-                evidence: [{ revision_id: 'rev-target-123' }]
-              }
-            ]
-          }),
-          { status: 200 }
-        );
-      }
-      if (urlStr.includes('/proposal-groups/grp-fail/accept')) {
-        return new Response('Internal error during merge', { status: 500 });
-      }
-      return new Response('Not found', { status: 404 });
-    }) as any;
-
-    try {
-      await assert.rejects(
-        async () => {
-          await handleOutboxEvent(baseEvent);
-        },
-        (err: Error) => {
-          assert.match(err.message, /Failed to auto-materialize proposal group grp-fail/);
-          return true;
-        },
-        'Must fail closed when proposal-group accept fails'
-      );
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
+  const h = calls[0].init?.headers as Record<string,string>;
+  assert.equal(h['X-Actor-Id'], event.createdBy);
+  assert.equal(h['Idempotency-Key'], 'analysis-rev-1');
+ });
+ test('duplicate delivery preserves extraction idempotency key and never invokes accept', async () => {
+  const keys: string[] = [];
+  await usingFetch(async (url, init) => {
+   assert.ok(String(url).endsWith('/analyses'));
+   keys.push((init?.headers as Record<string,string>)['Idempotency-Key']);
+   return new Response('{}');
+  }, async () => { await handleOutboxEvent(event); await handleOutboxEvent(event); });
+  assert.deepEqual(keys, ['analysis-rev-1','analysis-rev-1']);
+ });
+ test('interrupted extraction fails explicitly, retry remains extraction-only', async () => {
+  let attempt = 0;
+  await usingFetch(async (url) => {
+   assert.ok(String(url).endsWith('/analyses'));
+   if (++attempt === 1) throw new Error('interrupted extraction');
+   return new Response('{}');
+  }, async () => {
+   await assert.rejects(handleOutboxEvent(event), /interrupted extraction/);
+   await handleOutboxEvent(event);
   });
-
-  test('3. Retry after partial attempt -> proposal already accepted does not re-accept; finishes cleanly', async () => {
-    const originalFetch = globalThis.fetch;
-    let acceptCallCount = 0;
-
-    globalThis.fetch = (async (url: any) => {
-      const urlStr = String(url);
-      if (urlStr.includes('/analyses')) {
-        return new Response(JSON.stringify({ success: true }), { status: 200 });
-      }
-      if (urlStr.includes('/story-brains/by-novel/')) {
-        return new Response(JSON.stringify({ success: true, data: { brain_version: 6 } }), { status: 200 });
-      }
-      if (urlStr.includes('/proposals?status=pending')) {
-        // Upon retry, if proposals are already accepted/cleared, list returns empty
-        return new Response(JSON.stringify({ success: true, data: [] }), { status: 200 });
-      }
-      if (urlStr.includes('/accept')) {
-        acceptCallCount++;
-        return new Response(JSON.stringify({ success: true }), { status: 200 });
-      }
-      return new Response('Not found', { status: 404 });
-    }) as any;
-
-    try {
-      await handleOutboxEvent(baseEvent);
-      assert.equal(acceptCallCount, 0, 'No proposals pending means no duplicate accept calls');
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
+  assert.equal(attempt, 2);
+ });
+ test('HTTP extraction failure is retryable without accessing pending canon', async () => {
+  await usingFetch(async (url) => {
+   assert.ok(String(url).endsWith('/analyses'));
+   return new Response('owned extraction fault', {status:503});
+  }, async () => { await assert.rejects(handleOutboxEvent(event), /HTTP 503: owned extraction fault/); });
+ });
+ test('outbox COMPLETED means extraction delivered, not canon accepted', async () => {
+  const completed: string[] = [];
+  await usingFetch(async (url) => {
+   assert.ok(String(url).endsWith('/analyses'));
+   return new Response(JSON.stringify({data: {status:'waiting_entity_review'}}));
+  }, async () => {
+   const result = await processOutboxOnce(1, {
+    claimEvents: async () => [event],
+    markCompleted: async (id, token) => { assert.equal(token, event.claimToken); completed.push(id); return true; },
+    markFailed: async () => { assert.fail('successful extraction must not depend on canon approval'); }
+   });
+   assert.deepEqual(result, {processed:1,succeeded:1,failed:0});
   });
-
-  test('4. Unrelated pending proposal groups are NOT auto-accepted', async () => {
-    const originalFetch = globalThis.fetch;
-    const acceptedGroups: string[] = [];
-
-    globalThis.fetch = (async (url: any) => {
-      const urlStr = String(url);
-      if (urlStr.includes('/analyses')) {
-        return new Response(JSON.stringify({ success: true }), { status: 200 });
-      }
-      if (urlStr.includes('/story-brains/by-novel/')) {
-        return new Response(JSON.stringify({ success: true, data: { brain_version: 5 } }), { status: 200 });
-      }
-      if (urlStr.includes('/proposals?status=pending')) {
-        return new Response(
-          JSON.stringify({
-            success: true,
-            data: [
-              {
-                proposal_id: 'prop-other',
-                dependency_group_id: 'grp-other',
-                evidence: [{ revision_id: 'rev-different-456' }] // Unrelated revision!
-              }
-            ]
-          }),
-          { status: 200 }
-        );
-      }
-      if (urlStr.includes('/accept')) {
-        acceptedGroups.push('unrelated-group');
-        return new Response(JSON.stringify({ success: true }), { status: 200 });
-      }
-      return new Response('Not found', { status: 404 });
-    }) as any;
-
-    try {
-      await handleOutboxEvent(baseEvent);
-      assert.equal(acceptedGroups.length, 0, 'Unrelated pending proposal group must NOT be auto-accepted');
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
+  assert.deepEqual(completed, [event.eventId]);
+ });
+ test('failed extraction marks FAILED then successful retry completes using claim fences', async () => {
+  let attempt=0; const failed: string[]=[]; const completed: string[]=[];
+  await usingFetch(async (url) => {
+   assert.ok(String(url).endsWith('/analyses'));
+   return new Response('{}', {status: ++attempt===1 ? 503 : 200});
+  }, async () => {
+   const deps={claimEvents:async()=>[event],markCompleted:async(id:string,token:string)=>{
+    assert.equal(token,event.claimToken);completed.push(id);return true;
+   },markFailed:async(id:string,error:string,backoff:number,token:string)=>{
+    assert.equal(token,event.claimToken);assert.match(error,/503/);assert.equal(backoff,10);failed.push(id);return true;
+   }};
+   assert.deepEqual(await processOutboxOnce(1,deps),{processed:1,succeeded:0,failed:1});
+   assert.deepEqual(await processOutboxOnce(1,deps),{processed:1,succeeded:1,failed:0});
   });
-
-  test('5. No relevant proposals / legitimate no-op analysis -> does not throw, does not claim Brain advance', async () => {
-    const originalFetch = globalThis.fetch;
-
-    globalThis.fetch = (async (url: any) => {
-      const urlStr = String(url);
-      if (urlStr.includes('/analyses')) {
-        return new Response(JSON.stringify({ success: true }), { status: 200 });
-      }
-      if (urlStr.includes('/story-brains/by-novel/')) {
-        return new Response(JSON.stringify({ success: true, data: { brain_version: 5 } }), { status: 200 });
-      }
-      if (urlStr.includes('/proposals?status=pending')) {
-        return new Response(JSON.stringify({ success: true, data: [] }), { status: 200 });
-      }
-      return new Response('Not found', { status: 404 });
-    }) as any;
-
-    try {
-      // Must complete without error
-      await handleOutboxEvent(baseEvent);
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
-  });
-
-  test('6. processOutboxOnce multi-attempt sequence: Attempt 1 partial failure leaves event retryable (FAILED), Attempt 2 idempotent retry marks COMPLETED', async () => {
-    interface StoredEvent extends RevisionOutboxEvent {
-      dbStatus: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
-    }
-
-    const storedEvents: Record<string, StoredEvent> = {
-      'evt-retry-001': {
-        eventId: 'evt-retry-001',
-        eventType: 'INCREMENTAL_ANALYSIS',
-        revisionId: 'rev-retry-101',
-        novelId: 'novel-retry-001',
-        chapterId: 'chap-retry-001',
-        contentHash: 'hash-retry-101',
-        createdBy: 'user-001',
-        payload: {},
-        status: 'PENDING',
-        dbStatus: 'PENDING',
-        retryCount: 0,
-        maxRetries: 5,
-        nextRetryAt: new Date(),
-        lastError: null,
-        claimToken: null,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    };
-
-    const completedCalls: { eventId: string; claimToken: string }[] = [];
-    const failedCalls: { eventId: string; error: string; backoffSeconds: number; claimToken: string }[] = [];
-    const materializedGroups: string[] = [];
-
-    const originalFetch = globalThis.fetch;
-    let brainVersion = 10;
-
-    globalThis.fetch = (async (url: any) => {
-      const urlStr = String(url);
-      if (urlStr.includes('/analyses')) {
-        return new Response(JSON.stringify({ success: true, data: { analysis_id: 'ana-retry' } }), { status: 200 });
-      }
-      if (urlStr.includes('/story-brains/by-novel/')) {
-        return new Response(JSON.stringify({ success: true, data: { brain_version: brainVersion } }), { status: 200 });
-      }
-      if (urlStr.includes('/proposals?status=pending')) {
-        const pending: any[] = [];
-        if (!materializedGroups.includes('grp-A')) {
-          pending.push({
-            proposal_id: 'prop-A',
-            dependency_group_id: 'grp-A',
-            evidence: [{ revision_id: 'rev-retry-101' }]
-          });
-        }
-        if (!materializedGroups.includes('grp-B')) {
-          pending.push({
-            proposal_id: 'prop-B',
-            dependency_group_id: 'grp-B',
-            evidence: [{ revision_id: 'rev-retry-101' }]
-          });
-        }
-        return new Response(JSON.stringify({ success: true, data: pending }), { status: 200 });
-      }
-      if (urlStr.includes('/proposal-groups/grp-A/accept')) {
-        materializedGroups.push('grp-A');
-        brainVersion++;
-        return new Response(JSON.stringify({ success: true, data: { brain_version: brainVersion } }), { status: 200 });
-      }
-      if (urlStr.includes('/proposal-groups/grp-B/accept')) {
-        // Attempt 1: fail transiently
-        if (storedEvents['evt-retry-001'].retryCount === 0) {
-          return new Response('Transient AI service 503 error on group B', { status: 503 });
-        }
-        materializedGroups.push('grp-B');
-        brainVersion++;
-        return new Response(JSON.stringify({ success: true, data: { brain_version: brainVersion } }), { status: 200 });
-      }
-      return new Response('Not found', { status: 404 });
-    }) as any;
-
-    const deps = {
-      claimEvents: async (limit: number) => {
-        const eligible = Object.values(storedEvents).filter(
-          (e) => e.dbStatus === 'PENDING' || e.dbStatus === 'FAILED'
-        ).slice(0, limit);
-        return eligible.map((e) => {
-          e.dbStatus = 'PROCESSING';
-          e.status = 'PROCESSING';
-          e.claimToken = `token-attempt-${e.retryCount + 1}`;
-          return { ...e };
-        });
-      },
-      markCompleted: async (eventId: string, claimToken: string) => {
-        const e = storedEvents[eventId];
-        assert.equal(e.claimToken, claimToken, 'Claim token must match active processing lease');
-        e.dbStatus = 'COMPLETED';
-        e.status = 'COMPLETED';
-        completedCalls.push({ eventId, claimToken });
-        return true;
-      },
-      markFailed: async (eventId: string, error: string, backoffSeconds: number, claimToken: string) => {
-        const e = storedEvents[eventId];
-        assert.equal(e.claimToken, claimToken, 'Claim token must match active processing lease');
-        e.dbStatus = 'FAILED';
-        e.status = 'FAILED';
-        e.retryCount += 1;
-        e.lastError = error;
-        failedCalls.push({ eventId, error, backoffSeconds, claimToken });
-        return true;
-      }
-    };
-
-    try {
-      // === ATTEMPT 1 ===
-      const attempt1 = await processOutboxOnce(10, deps);
-      assert.equal(attempt1.processed, 1, 'Attempt 1 processed 1 event');
-      assert.equal(attempt1.succeeded, 0, 'Attempt 1 had 0 succeeded');
-      assert.equal(attempt1.failed, 1, 'Attempt 1 failed on group B');
-      assert.deepEqual(materializedGroups, ['grp-A'], 'Group A materialized before Group B failed');
-      assert.equal(completedCalls.length, 0, 'markCompleted must NOT be called on partial failure');
-      assert.equal(failedCalls.length, 1, 'markFailed must be called on partial failure');
-      assert.match(failedCalls[0].error, /503/);
-      assert.equal(storedEvents['evt-retry-001'].dbStatus, 'FAILED', 'Event remains retryable (FAILED)');
-      assert.equal(storedEvents['evt-retry-001'].retryCount, 1);
-
-      // === ATTEMPT 2 (Retry) ===
-      const attempt2 = await processOutboxOnce(10, deps);
-      assert.equal(attempt2.processed, 1, 'Attempt 2 processed reclaimed event');
-      assert.equal(attempt2.succeeded, 1, 'Attempt 2 succeeded');
-      assert.equal(attempt2.failed, 0, 'Attempt 2 had 0 failed');
-      assert.deepEqual(materializedGroups, ['grp-A', 'grp-B'], 'Group A not duplicated; Group B succeeded');
-      assert.equal(completedCalls.length, 1, 'markCompleted MUST be called on successful retry');
-      assert.equal(completedCalls[0].eventId, 'evt-retry-001');
-      assert.equal(completedCalls[0].claimToken, 'token-attempt-2');
-      assert.equal(storedEvents['evt-retry-001'].dbStatus, 'COMPLETED', 'Event transitioned to COMPLETED');
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
-  });
+  assert.deepEqual(failed,[event.eventId]);assert.deepEqual(completed,[event.eventId]);
+ });
 });
