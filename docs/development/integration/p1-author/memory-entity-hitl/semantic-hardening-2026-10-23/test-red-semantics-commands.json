@@ -1,0 +1,19 @@
+[
+  {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "--basetemp=C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\p1-semantic-runtime\\pytest-test-red-semantics",
+      "-q",
+      "-m",
+      "postgres_integration",
+      "tests/test_p1_entity_semantics.py",
+      "tests/test_p1_memory_entity_hitl.py::test_parallel_continue_commits_one_proposal_set"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\ai-service",
+    "exit_code": 1,
+    "expected_exit": 1,
+    "at_utc": "2026-10-23T15:47:28.330584+00:00"
+  }
+]

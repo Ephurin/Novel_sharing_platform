@@ -1,0 +1,395 @@
+FFFFFFFFFFF                                                              [100%]
+================================== FAILURES ===================================
+_ test_refresh_preserves_human_occurrences_and_only_reviews_new_candidates[postgres] _
+
+flow = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F761069C0>...00026F7651F0B0>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+
+    def test_refresh_preserves_human_occurrences_and_only_reviews_new_candidates(flow):
+        f = prepare(flow)
+        run, audit = discover(f)
+        # Human rejection must survive even though the unchanged machine says entity.
+        for d in audit['decisions']:
+            d.update(verdict='not_entity', entity_type=None, canonical_name='', canonical_entity_id='', reason='author rejects false positive')
+        old = freeze(f, run, audit).json()['data']
+        add_hint(f)
+>       fresh = refresh(f, run, old['review_version'])
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_p1_entity_semantics.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+f = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F761069C0>...00026F7651F0B0>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+run = '3bfb5fa8-6198-4b52-85ca-12766d33c9a0', version = 2, expected = 200
+
+    def refresh(f, run, version, expected=200):
+        result = f.client.post(f'{f.base}/entity-reviews/{run}/refresh', headers=f.headers, json={'expected_version':version})
+>       assert result.status_code == expected, result.text
+E       AssertionError: {"detail":"Not Found"}
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+tests\test_p1_entity_semantics.py:75: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+______ test_refresh_changed_candidate_requires_review[postgres-machine] _______
+
+flow = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F76A61C70>...00026F72921850>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+change = 'machine'
+
+    @pytest.mark.parametrize('change', ['machine', 'context'])
+    def test_refresh_changed_candidate_requires_review(flow, change):
+        f = prepare(flow)
+        run, audit = discover(f)
+        old = freeze(f, run, audit).json()['data']
+        add_hint(f)
+        if change == 'machine': f.llm.changed_machine = True
+        else:
+            original = f.service._entity_pipeline.run_verified
+            def changed_context(*args, **kwargs):
+                value = original(*args, **kwargs)
+                c = value.audit['candidates'][0]
+                c['context_end'] -= 1
+                c['context'] = f.revision.content[c['context_start']:c['context_end']]
+                return value
+            f.service._entity_pipeline.run_verified = changed_context
+>       fresh = refresh(f, run, old['review_version'])
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_p1_entity_semantics.py:125: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+f = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F76A61C70>...00026F72921850>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+run = 'fa1b9e8d-46ae-4c8a-8794-ec6bea19270b', version = 2, expected = 200
+
+    def refresh(f, run, version, expected=200):
+        result = f.client.post(f'{f.base}/entity-reviews/{run}/refresh', headers=f.headers, json={'expected_version':version})
+>       assert result.status_code == expected, result.text
+E       AssertionError: {"detail":"Not Found"}
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+tests\test_p1_entity_semantics.py:75: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+______ test_refresh_changed_candidate_requires_review[postgres-context] _______
+
+flow = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F76ADE930>...00026F76ADDF40>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+change = 'context'
+
+    @pytest.mark.parametrize('change', ['machine', 'context'])
+    def test_refresh_changed_candidate_requires_review(flow, change):
+        f = prepare(flow)
+        run, audit = discover(f)
+        old = freeze(f, run, audit).json()['data']
+        add_hint(f)
+        if change == 'machine': f.llm.changed_machine = True
+        else:
+            original = f.service._entity_pipeline.run_verified
+            def changed_context(*args, **kwargs):
+                value = original(*args, **kwargs)
+                c = value.audit['candidates'][0]
+                c['context_end'] -= 1
+                c['context'] = f.revision.content[c['context_start']:c['context_end']]
+                return value
+            f.service._entity_pipeline.run_verified = changed_context
+>       fresh = refresh(f, run, old['review_version'])
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_p1_entity_semantics.py:125: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+f = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F76ADE930>...00026F76ADDF40>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+run = '5d32a693-8e8a-4184-9571-8cdf958f0520', version = 2, expected = 200
+
+    def refresh(f, run, version, expected=200):
+        result = f.client.post(f'{f.base}/entity-reviews/{run}/refresh', headers=f.headers, json={'expected_version':version})
+>       assert result.status_code == expected, result.text
+E       AssertionError: {"detail":"Not Found"}
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+tests\test_p1_entity_semantics.py:75: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+__ test_refresh_does_not_weaken_source_canon_or_scope_fences[postgres-hash] ___
+
+flow = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F77CBA6F0>...00026F77D24B00>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+change = 'hash'
+
+    @pytest.mark.parametrize('change', ['hash', 'canon', 'tenant'])
+    def test_refresh_does_not_weaken_source_canon_or_scope_fences(flow, change):
+        f = prepare(flow)
+        run, audit = discover(f)
+        old = freeze(f, run, audit).json()['data']
+        add_hint(f)
+        if change == 'hash':
+            f.provider._revisions[(f.revision.novel_id,f.revision.chapter_id,f.revision.revision_id)] = replace(f.revision, content='changed')
+        if change == 'canon':
+            p = f.service.create_author_entity(f.revision.novel_id, 'Other', 'PER')
+            f.repo.accept_proposal_group(f.revision.novel_id, [p.proposal_id], 1)
+        if change == 'tenant':
+            f.headers = {**f.headers, 'X-Tenant-Id':str(uuid.uuid4())}
+>       refresh(f, run, old['review_version'], {'hash':422,'canon':409,'tenant':403}[change])
+
+tests\test_p1_entity_semantics.py:144: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+f = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F77CBA6F0>...00026F77D24B00>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+run = 'e245ea44-28db-4da8-a50c-235bb00ed0b2', version = 2, expected = 422
+
+    def refresh(f, run, version, expected=200):
+        result = f.client.post(f'{f.base}/entity-reviews/{run}/refresh', headers=f.headers, json={'expected_version':version})
+>       assert result.status_code == expected, result.text
+E       AssertionError: {"detail":"Not Found"}
+E       assert 404 == 422
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+tests\test_p1_entity_semantics.py:75: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+__ test_refresh_does_not_weaken_source_canon_or_scope_fences[postgres-canon] __
+
+flow = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F77E0C530>...00026F77DE2780>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+change = 'canon'
+
+    @pytest.mark.parametrize('change', ['hash', 'canon', 'tenant'])
+    def test_refresh_does_not_weaken_source_canon_or_scope_fences(flow, change):
+        f = prepare(flow)
+        run, audit = discover(f)
+        old = freeze(f, run, audit).json()['data']
+        add_hint(f)
+        if change == 'hash':
+            f.provider._revisions[(f.revision.novel_id,f.revision.chapter_id,f.revision.revision_id)] = replace(f.revision, content='changed')
+        if change == 'canon':
+            p = f.service.create_author_entity(f.revision.novel_id, 'Other', 'PER')
+            f.repo.accept_proposal_group(f.revision.novel_id, [p.proposal_id], 1)
+        if change == 'tenant':
+            f.headers = {**f.headers, 'X-Tenant-Id':str(uuid.uuid4())}
+>       refresh(f, run, old['review_version'], {'hash':422,'canon':409,'tenant':403}[change])
+
+tests\test_p1_entity_semantics.py:144: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+f = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F77E0C530>...00026F77DE2780>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+run = '20d336ee-d90d-4d17-9804-0824f099519c', version = 2, expected = 409
+
+    def refresh(f, run, version, expected=200):
+        result = f.client.post(f'{f.base}/entity-reviews/{run}/refresh', headers=f.headers, json={'expected_version':version})
+>       assert result.status_code == expected, result.text
+E       AssertionError: {"detail":"Not Found"}
+E       assert 404 == 409
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+tests\test_p1_entity_semantics.py:75: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+_ test_refresh_does_not_weaken_source_canon_or_scope_fences[postgres-tenant] __
+
+flow = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F77F6BC80>...00026F77F6B320>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+change = 'tenant'
+
+    @pytest.mark.parametrize('change', ['hash', 'canon', 'tenant'])
+    def test_refresh_does_not_weaken_source_canon_or_scope_fences(flow, change):
+        f = prepare(flow)
+        run, audit = discover(f)
+        old = freeze(f, run, audit).json()['data']
+        add_hint(f)
+        if change == 'hash':
+            f.provider._revisions[(f.revision.novel_id,f.revision.chapter_id,f.revision.revision_id)] = replace(f.revision, content='changed')
+        if change == 'canon':
+            p = f.service.create_author_entity(f.revision.novel_id, 'Other', 'PER')
+            f.repo.accept_proposal_group(f.revision.novel_id, [p.proposal_id], 1)
+        if change == 'tenant':
+            f.headers = {**f.headers, 'X-Tenant-Id':str(uuid.uuid4())}
+>       refresh(f, run, old['review_version'], {'hash':422,'canon':409,'tenant':403}[change])
+
+tests\test_p1_entity_semantics.py:144: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+f = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F77F6BC80>...00026F77F6B320>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+run = '28011efd-3ab2-46e9-ace1-cc9351a25fad', version = 2, expected = 403
+
+    def refresh(f, run, version, expected=200):
+        result = f.client.post(f'{f.base}/entity-reviews/{run}/refresh', headers=f.headers, json={'expected_version':version})
+>       assert result.status_code == expected, result.text
+E       AssertionError: {"detail":"Not Found"}
+E       assert 404 == 403
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+tests\test_p1_entity_semantics.py:75: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+_ test_exact_identity_ids_survive_events_facts_states_and_canon[postgres-False] _
+
+flow = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F780F9370>...00026F78050410>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+alias = False
+
+    @pytest.mark.parametrize('alias', [False, True])
+    def test_exact_identity_ids_survive_events_facts_states_and_canon(flow, alias):
+        f = flow
+        run, reviewed = homonyms(f, alias)
+        assert {e['canonical_entity_id'] for e in reviewed['entities']} == set(f.llm.ids)
+        response=f.client.post(f'{f.base}/entity-reviews/{run}/continue', headers=f.headers)
+>       assert response.status_code == 200, response.text
+E       AssertionError: {"detail":{"code":"INVALID_EVIDENCE","message":"Downstream identity is outside the reviewed inventory"}}
+E       assert 422 == 200
+E        +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+
+tests\test_p1_entity_semantics.py:180: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+_ test_exact_identity_ids_survive_events_facts_states_and_canon[postgres-True] _
+
+flow = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F7821EC90>...00026F780FB710>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+alias = True
+
+    @pytest.mark.parametrize('alias', [False, True])
+    def test_exact_identity_ids_survive_events_facts_states_and_canon(flow, alias):
+        f = flow
+>       run, reviewed = homonyms(f, alias)
+                        ^^^^^^^^^^^^^^^^^^
+
+tests\test_p1_entity_semantics.py:177: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_p1_entity_semantics.py:170: in homonyms
+    reviewed = freeze(f, run, audit).json()['data']
+               ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+f = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F7821EC90>...00026F780FB710>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+run = '0da5a3ef-35d7-4a2e-96b9-1136f4b35974'
+audit = {'aliases': [], 'analysis_run_id': '0da5a3ef-35d7-4a2e-96b9-1136f4b35974', 'brain_version': 1, 'candidates': [{'candid...Minh b\xean tr\xe1i g\u1eb7p Minh b\xean ph\u1ea3i. Minh tr\xe1i g\u1ecdi M; Minh ph\u1ea3i g\u1ecdi M.', 'context_end': 66, 'context_start': 0, ...}], ...}
+
+    def freeze(f, run, audit):
+        response = f.client.post(f'{f.base}/entity-reviews/{run}/review', headers=f.headers,
+            json={'expected_version': audit['review_version'], 'decisions': audit['decisions']})
+>       assert response.status_code == 200, response.text
+E       AssertionError: {"detail":{"code":"INVALID_EVIDENCE","message":"A short alias refers to multiple entities; resolve its occurrences before downstream extraction."}}
+E       assert 422 == 200
+E        +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+
+tests\test_p1_memory_entity_hitl.py:91: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+_____ test_ambiguous_downstream_name_or_alias_fails_closed[postgres-Minh] _____
+
+flow = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F78396B70>...00026F78395970>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+ambiguous = 'Minh'
+
+    @pytest.mark.parametrize('ambiguous', ['Minh','M'])
+    def test_ambiguous_downstream_name_or_alias_fails_closed(flow, ambiguous):
+        f=flow
+>       run,_=homonyms(f, aliases=True)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_p1_entity_semantics.py:200: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_p1_entity_semantics.py:170: in homonyms
+    reviewed = freeze(f, run, audit).json()['data']
+               ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+f = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F78396B70>...00026F78395970>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+run = 'd31cf891-0b34-4b32-a71d-06956aeac942'
+audit = {'aliases': [], 'analysis_run_id': 'd31cf891-0b34-4b32-a71d-06956aeac942', 'brain_version': 1, 'candidates': [{'candid...Minh b\xean tr\xe1i g\u1eb7p Minh b\xean ph\u1ea3i. Minh tr\xe1i g\u1ecdi M; Minh ph\u1ea3i g\u1ecdi M.', 'context_end': 66, 'context_start': 0, ...}], ...}
+
+    def freeze(f, run, audit):
+        response = f.client.post(f'{f.base}/entity-reviews/{run}/review', headers=f.headers,
+            json={'expected_version': audit['review_version'], 'decisions': audit['decisions']})
+>       assert response.status_code == 200, response.text
+E       AssertionError: {"detail":{"code":"INVALID_EVIDENCE","message":"A short alias refers to multiple entities; resolve its occurrences before downstream extraction."}}
+E       assert 422 == 200
+E        +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+
+tests\test_p1_memory_entity_hitl.py:91: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+______ test_ambiguous_downstream_name_or_alias_fails_closed[postgres-M] _______
+
+flow = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F781C2120>...00026F7836F170>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+ambiguous = 'M'
+
+    @pytest.mark.parametrize('ambiguous', ['Minh','M'])
+    def test_ambiguous_downstream_name_or_alias_fails_closed(flow, ambiguous):
+        f=flow
+>       run,_=homonyms(f, aliases=True)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_p1_entity_semantics.py:200: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_p1_entity_semantics.py:170: in homonyms
+    reviewed = freeze(f, run, audit).json()['data']
+               ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+f = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F781C2120>...00026F7836F170>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+run = '5beac0c5-847d-4c29-b567-856137eb37ae'
+audit = {'aliases': [], 'analysis_run_id': '5beac0c5-847d-4c29-b567-856137eb37ae', 'brain_version': 1, 'candidates': [{'candid...Minh b\xean tr\xe1i g\u1eb7p Minh b\xean ph\u1ea3i. Minh tr\xe1i g\u1ecdi M; Minh ph\u1ea3i g\u1ecdi M.', 'context_end': 66, 'context_start': 0, ...}], ...}
+
+    def freeze(f, run, audit):
+        response = f.client.post(f'{f.base}/entity-reviews/{run}/review', headers=f.headers,
+            json={'expected_version': audit['review_version'], 'decisions': audit['decisions']})
+>       assert response.status_code == 200, response.text
+E       AssertionError: {"detail":{"code":"INVALID_EVIDENCE","message":"A short alias refers to multiple entities; resolve its occurrences before downstream extraction."}}
+E       assert 422 == 200
+E        +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+
+tests\test_p1_memory_entity_hitl.py:91: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+__________ test_parallel_continue_commits_one_proposal_set[postgres] __________
+
+flow = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000026F77FAF200>...00026F77FDA870>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:20700/ephurin_test_astra_p1_semantics_35be1a69))
+
+    def test_parallel_continue_commits_one_proposal_set(flow):
+        if not flow.engine:
+            pytest.skip('Row-lock concurrency requires PostgreSQL')
+        f = flow
+        run, audit = discover(f)
+        freeze(f, run, audit)
+        from concurrent.futures import ThreadPoolExecutor
+        from threading import Barrier
+        from application.entity_hitl import continue_review
+        barrier = Barrier(2)
+        original = f.llm._call_structured
+        def synchronized(**kwargs):
+            if kwargs['operation'] == 'hitl_event_extraction':
+                barrier.wait(timeout=10)
+            return original(**kwargs)
+        f.llm._call_structured = synchronized
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            results = list(pool.map(lambda _: continue_review(f.service, f.revision.novel_id, run, TENANT), range(2)))
+        assert {p.proposal_id for p in results[0].proposals} == {p.proposal_id for p in results[1].proposals}
+>       assert sorted(r.deduplicated for r in results) == [False, True]
+E       assert [False, False] == [False, True]
+E         
+E         At index 1 diff: False != True
+E         Use -v to get more diff
+
+tests\test_p1_memory_entity_hitl.py:297: AssertionError
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+=========================== short test summary info ===========================
+FAILED tests/test_p1_entity_semantics.py::test_refresh_preserves_human_occurrences_and_only_reviews_new_candidates[postgres]
+FAILED tests/test_p1_entity_semantics.py::test_refresh_changed_candidate_requires_review[postgres-machine]
+FAILED tests/test_p1_entity_semantics.py::test_refresh_changed_candidate_requires_review[postgres-context]
+FAILED tests/test_p1_entity_semantics.py::test_refresh_does_not_weaken_source_canon_or_scope_fences[postgres-hash]
+FAILED tests/test_p1_entity_semantics.py::test_refresh_does_not_weaken_source_canon_or_scope_fences[postgres-canon]
+FAILED tests/test_p1_entity_semantics.py::test_refresh_does_not_weaken_source_canon_or_scope_fences[postgres-tenant]
+FAILED tests/test_p1_entity_semantics.py::test_exact_identity_ids_survive_events_facts_states_and_canon[postgres-False]
+FAILED tests/test_p1_entity_semantics.py::test_exact_identity_ids_survive_events_facts_states_and_canon[postgres-True]
+FAILED tests/test_p1_entity_semantics.py::test_ambiguous_downstream_name_or_alias_fails_closed[postgres-Minh]
+FAILED tests/test_p1_entity_semantics.py::test_ambiguous_downstream_name_or_alias_fails_closed[postgres-M]
+FAILED tests/test_p1_memory_entity_hitl.py::test_parallel_continue_commits_one_proposal_set[postgres]
+11 failed, 11 deselected in 6.77s

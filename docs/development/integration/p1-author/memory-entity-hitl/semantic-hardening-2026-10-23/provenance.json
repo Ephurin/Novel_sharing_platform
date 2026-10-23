@@ -1,0 +1,22 @@
+{
+  "reviewed_head": "07007f2aeae496f70516345614d309675a2daa57",
+  "previous_tested_source": "8a1dab633e3eb47cc1b7e565b46d39187218b6d8",
+  "tested_source": "f3f40d9bcbeb247a79f3de6ea1a60a0d91181e21",
+  "integration_base": "7fd6f71b388320e00408b7ea47c0998708c70a2c",
+  "workflow_reference_sha": "7e1e8e96d80f3d4a2602f5c53dcd5303bbea3be3",
+  "branch": "codex/p1-memory-entity-hitl",
+  "pr": "https://github.com/Ephurin/Novel_sharing_platform/pull/63",
+  "fresh_resources": {
+    "database": "ephurin_test_astra_p1_semantics_f836768d",
+    "containers": [
+      "astra-p1-semantics-f836768d-pg",
+      "astra-p1-semantics-f836768d-mongo"
+    ],
+    "pg_port": "46848",
+    "mongo_port": "46856"
+  },
+  "text_provider": "fake",
+  "embedding_provider": "fake",
+  "real_provider_calls": false,
+  "at_utc": "2026-10-23T16:15:55.552354+00:00"
+}

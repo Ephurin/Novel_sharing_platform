@@ -1,0 +1,15 @@
+{
+  "head": "07007f2aeae496f70516345614d309675a2daa57",
+  "production_source_unchanged": true,
+  "tests_only_worktree_delta": [
+    "ai-service/tests/test_p1_entity_semantics.py",
+    "ai-service/tests/test_p1_memory_entity_hitl.py"
+  ],
+  "test_sha256": {
+    "ai-service/tests/test_p1_entity_semantics.py": "76800353a7becf5040775101fca9329acde529cdd197d7e2a06ce03c0794553d",
+    "ai-service/tests/test_p1_memory_entity_hitl.py": "704c299ca2e467002ef14da666954869e56518e644fcb5e0ed09a237419cb8bc"
+  },
+  "observed_exit": 1,
+  "result": "11 failed, 11 deselected",
+  "at_utc": "2026-10-23T15:47:48.000595+00:00"
+}

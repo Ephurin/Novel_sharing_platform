@@ -1,0 +1,134 @@
+[
+  {
+    "id": "6df49041b869870294b58ec04483ee477820c8b87a700c328e06a9148648fd6f",
+    "name": "/astra-p1-semantics-35be1a69-pg",
+    "state": "exited",
+    "mounts": [
+      {
+        "Type": "volume",
+        "Name": "4830a16587113529a87ef8f0a93161a459f02c6792a5adb7c6daab61f33ec33f",
+        "Source": "/var/lib/docker/volumes/4830a16587113529a87ef8f0a93161a459f02c6792a5adb7c6daab61f33ec33f/_data",
+        "Destination": "/var/lib/postgresql/data",
+        "Driver": "local",
+        "Mode": "",
+        "RW": true,
+        "Propagation": ""
+      }
+    ]
+  },
+  {
+    "id": "90a643594266b7ae6e6189e8331f0b1e76b5d8a983611e84840c67ff7901fd43",
+    "name": "/astra-p1-semantics-35be1a69-mongo",
+    "state": "exited",
+    "mounts": [
+      {
+        "Type": "volume",
+        "Name": "4c9fa41d7271cefd380a2d85ef884dcd8afd76304974dd368d7a0e15593fb981",
+        "Source": "/var/lib/docker/volumes/4c9fa41d7271cefd380a2d85ef884dcd8afd76304974dd368d7a0e15593fb981/_data",
+        "Destination": "/data/configdb",
+        "Driver": "local",
+        "Mode": "",
+        "RW": true,
+        "Propagation": ""
+      },
+      {
+        "Type": "volume",
+        "Name": "322ac3be97faac6fdb37989aaa544031829c7d3cd36f58765f0846a7507db57c",
+        "Source": "/var/lib/docker/volumes/322ac3be97faac6fdb37989aaa544031829c7d3cd36f58765f0846a7507db57c/_data",
+        "Destination": "/data/db",
+        "Driver": "local",
+        "Mode": "",
+        "RW": true,
+        "Propagation": ""
+      }
+    ]
+  },
+  {
+    "id": "8e09eec945732a99b5eace6851477596cc513e8de95ca29545305462a84a1b61",
+    "name": "/astra-p1-semantics-c7329d5a-pg",
+    "state": "exited",
+    "mounts": [
+      {
+        "Type": "volume",
+        "Name": "0f6efaf5789012d4dc1e469593b90fb57ecca09f12475cdb10aad8b7c55b1e7c",
+        "Source": "/var/lib/docker/volumes/0f6efaf5789012d4dc1e469593b90fb57ecca09f12475cdb10aad8b7c55b1e7c/_data",
+        "Destination": "/var/lib/postgresql/data",
+        "Driver": "local",
+        "Mode": "",
+        "RW": true,
+        "Propagation": ""
+      }
+    ]
+  },
+  {
+    "id": "345f899314e498bde275cbcc1f0398957399f9ae910a851fa9c4eb7f5d22c90f",
+    "name": "/astra-p1-semantics-c7329d5a-mongo",
+    "state": "exited",
+    "mounts": [
+      {
+        "Type": "volume",
+        "Name": "516320f4b1be3f92eb0cc47a39be7304ec4e30132e39bec046b23bf7fcc481a8",
+        "Source": "/var/lib/docker/volumes/516320f4b1be3f92eb0cc47a39be7304ec4e30132e39bec046b23bf7fcc481a8/_data",
+        "Destination": "/data/configdb",
+        "Driver": "local",
+        "Mode": "",
+        "RW": true,
+        "Propagation": ""
+      },
+      {
+        "Type": "volume",
+        "Name": "83c43ac29764d39a9c37a80d23d72dd6ea797430766b7b69dce47d793d015eb5",
+        "Source": "/var/lib/docker/volumes/83c43ac29764d39a9c37a80d23d72dd6ea797430766b7b69dce47d793d015eb5/_data",
+        "Destination": "/data/db",
+        "Driver": "local",
+        "Mode": "",
+        "RW": true,
+        "Propagation": ""
+      }
+    ]
+  },
+  {
+    "id": "8b24f3fc9e0781dbbb41da5a8f14d22531014ad482796f4e22e493f64f77be13",
+    "name": "/astra-p1-semantics-f836768d-pg",
+    "state": "exited",
+    "mounts": [
+      {
+        "Type": "volume",
+        "Name": "04b26dddfd562992f46762583267de5740073cda1b7201bb4119b2f1f3066ebb",
+        "Source": "/var/lib/docker/volumes/04b26dddfd562992f46762583267de5740073cda1b7201bb4119b2f1f3066ebb/_data",
+        "Destination": "/var/lib/postgresql/data",
+        "Driver": "local",
+        "Mode": "",
+        "RW": true,
+        "Propagation": ""
+      }
+    ]
+  },
+  {
+    "id": "1092d167682d64369facd744505f6ba0412bb6c63454c20e2c715ae5f1e54dc5",
+    "name": "/astra-p1-semantics-f836768d-mongo",
+    "state": "exited",
+    "mounts": [
+      {
+        "Type": "volume",
+        "Name": "ef1eb2b2c55b060e983d0dcd58693467582ad8c623eabaa3cae98ffa11426d7a",
+        "Source": "/var/lib/docker/volumes/ef1eb2b2c55b060e983d0dcd58693467582ad8c623eabaa3cae98ffa11426d7a/_data",
+        "Destination": "/data/configdb",
+        "Driver": "local",
+        "Mode": "",
+        "RW": true,
+        "Propagation": ""
+      },
+      {
+        "Type": "volume",
+        "Name": "09929656aeccc8cd66a58691a90327cd827c4818005dc3edaeb162b3fbfa1899",
+        "Source": "/var/lib/docker/volumes/09929656aeccc8cd66a58691a90327cd827c4818005dc3edaeb162b3fbfa1899/_data",
+        "Destination": "/data/db",
+        "Driver": "local",
+        "Mode": "",
+        "RW": true,
+        "Propagation": ""
+      }
+    ]
+  }
+]
