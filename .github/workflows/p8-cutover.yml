@@ -62,7 +62,7 @@ jobs:
           set -euo pipefail
           npm ci
           npm run typecheck
-          mapfile -t tests < <(find src -name '*.test.ts' ! -name '*.live.test.ts' ! -name '*.postgres.test.ts' -print | sort)
+          mapfile -t tests < <(find src -name '*.test.ts' ! -name '*.live.test.ts' ! -name '*.postgres.test.ts' ! -name 'accept-draft-contract.test.ts' -print | sort)
           test "${#tests[@]}" -gt 0
           npx tsx --test "${tests[@]}"
           test -f src/modules/ai/ai-gateway.test.ts
@@ -120,6 +120,79 @@ jobs:
       - run: pip install -r requirements.txt pytest httpx
       - name: Live PostgreSQL integration suite
         run: pytest -o addopts= -q -m postgres_integration
+
+  backend-integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_DB: ephurin_backend_integration
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d ephurin_backend_integration"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+      mongodb:
+        image: mongo:7
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ephurin_backend_integration
+      MONGODB_URI: mongodb://localhost:27017/ephurin_backend_integration
+      JWT_ACCESS_SECRET: p8-ci-access-secret
+      JWT_REFRESH_SECRET: p8-ci-refresh-secret
+      PLATFORM_SERVICE_TOKEN: p8-ci-service-token
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify PostgreSQL and MongoDB readiness
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import socket, time, sys
+          for name, port in [('PostgreSQL', 5432), ('MongoDB', 27017)]:
+              ready = False
+              for _ in range(30):
+                  try:
+                      with socket.create_connection(('127.0.0.1', port), timeout=2):
+                          ready = True
+                          print(f"{name} is ready on port {port}")
+                          break
+                  except OSError:
+                      time.sleep(1)
+              if not ready:
+                  print(f"Timed out waiting for {name} on port {port}", file=sys.stderr)
+                  sys.exit(1)
+          PY
+      - name: Install backend dependencies
+        run: npm ci
+      - name: Apply backend database migrations
+        run: npx tsx src/core/database/migrate.ts
+      - name: Run Accept Draft trust-contract integration suite
+        run: npx tsx --test src/modules/novels/accept-draft-contract.test.ts
+      - name: Run PostgreSQL production persistence integration suite
+        run: npx tsx --test --test-force-exit src/modules/novels/p1-production-persistence.postgres.test.ts
 
   root-compose-cutover-smoke:
     runs-on: ubuntu-latest
@@ -270,6 +343,8 @@ jobs:
         run: python scripts/verify_ai_pipe_01_p1_closed_loop_evidence.py
       - name: Run Backend PostgreSQL Production Persistence Integration Suite
         run: docker compose exec -T backend npx tsx --test --test-force-exit src/modules/novels/p1-production-persistence.postgres.test.ts
+      - name: Run Backend Accept Draft Contract Integration Suite
+        run: docker compose exec -T backend npx tsx --test --test-force-exit src/modules/novels/accept-draft-contract.test.ts
 
       - name: Run Gate AI-PIPE-02A Idea Bootstrap Validation
         run: python scripts/run_ai_pipe_02a_idea_bootstrap.py

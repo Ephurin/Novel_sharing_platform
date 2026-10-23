@@ -21,6 +21,38 @@ describe('Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)', () =>
 
   before(async () => {
     const pool = getPostgresPool();
+    await pool.query(`
+      CREATE SCHEMA IF NOT EXISTS narrative;
+      CREATE TABLE IF NOT EXISTS narrative.autonomous_runs (
+        id UUID PRIMARY KEY,
+        novel_id UUID NOT NULL,
+        tenant_id UUID,
+        created_by UUID,
+        plan_id UUID,
+        plan_version INT,
+        current_objective_id UUID,
+        current_chapter_id UUID,
+        last_generation_id VARCHAR,
+        current_iteration INT,
+        current_retries INT,
+        status VARCHAR(32)
+      );
+      CREATE TABLE IF NOT EXISTS narrative.story_plans (
+        id UUID PRIMARY KEY,
+        novel_id UUID NOT NULL,
+        tenant_id UUID,
+        plan_version INT,
+        status VARCHAR(32)
+      );
+      CREATE TABLE IF NOT EXISTS narrative.story_plan_objectives (
+        id UUID PRIMARY KEY,
+        plan_id UUID NOT NULL,
+        novel_id UUID NOT NULL,
+        tenant_id UUID,
+        intent_version INT,
+        status VARCHAR(32)
+      );
+    `);
     await pool.query(
       `INSERT INTO users (user_id, username, email, password_hash, role)
        VALUES ($1, $2, $3, 'hash', 'AUTHOR') ON CONFLICT DO NOTHING`,
@@ -49,6 +81,15 @@ describe('Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)', () =>
 
   after(async () => {
     global.fetch = originalFetch;
+    try {
+      const pool = getPostgresPool();
+      await pool.query('DELETE FROM chapter_revisions WHERE chapter_id = $1', [chapterId]);
+      await pool.query('DELETE FROM chapters WHERE chapter_id = $1', [chapterId]);
+      await pool.query('DELETE FROM novels WHERE novel_id = $1', [novelId]);
+      await pool.query('DELETE FROM users WHERE user_id = $1', [authorId]);
+    } catch {
+      // Best-effort fixture cleanup
+    }
     await disconnectPostgres();
     await disconnectMongo();
     await disconnectChapterWriter();
