@@ -1,0 +1,80 @@
+{
+  "timestamp": "2026-10-23T07:12:30Z",
+  "sourceCommitSha": "0d4b524ec6f0dc7f22dcf3b0a55e31c9220930aa",
+  "ciRunId": "39916092855",
+  "ciRunUrl": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39916092855",
+  "verdict": "PR58_P2_CLOSEOUT_READY_FOR_GPT6_REVIEW",
+  "findingsResolution": {
+    "P2-A": {
+      "finding": "Double cleanup with sentinels rechecks deleted records and fails",
+      "status": "RESOLVED",
+      "rootCause": "Sentinel IDs were retained in confirmed sets after Step 10 deletion, causing Step 9 of a second cleanup to throw on 0 count",
+      "implementation": "Evict confirmed sentinels upon successful Step 10 deletion; short-circuit CLEANED stage with 0 mutations",
+      "regressionProof": "Matrix 10 in fixture-lifecycle-resilience.postgres.test.ts",
+      "secondCleanupMutations": 0,
+      "unrelatedDataChanged": false
+    },
+    "P2-B": {
+      "finding": "Individual-ID cleanup fault tolerance aborted entire loops on first ID failure",
+      "status": "RESOLVED",
+      "rootCause": "Loops over multiple IDs were wrapped in a single coarse-grained try/catch block",
+      "implementation": "Per-ID try/catch blocks across outbox, chapters, novels, users, mongo drafts, and sentinels; itemized AggregateError",
+      "regressionProof": "Matrix 11 and Matrix 12 in fixture-lifecycle-resilience.postgres.test.ts",
+      "independentPerIdCleanupVerified": true,
+      "referentialOrderingMaintained": true
+    }
+  },
+  "regressionBaseline": {
+    "test-db-guard-lifecycle.test.ts": {
+      "total": 6,
+      "pass": 6,
+      "fail": 0,
+      "exitCode": 0
+    },
+    "test-db-guard.test.ts": {
+      "total": 11,
+      "pass": 11,
+      "fail": 0,
+      "exitCode": 0
+    },
+    "fixture-lifecycle-resilience.postgres.test.ts": {
+      "total": 13,
+      "pass": 13,
+      "fail": 0,
+      "exitCode": 0
+    },
+    "accept-draft-contract.test.ts": {
+      "total": 14,
+      "pass": 14,
+      "fail": 0,
+      "exitCode": 0
+    },
+    "p1-production-persistence.postgres.test.ts": {
+      "total": 5,
+      "pass": 5,
+      "fail": 0,
+      "exitCode": 0
+    },
+    "deterministicBackendTests": {
+      "totalSuites": 12,
+      "totalFiles": 18,
+      "passed": 94,
+      "failed": 0,
+      "skipped": 3,
+      "exitCode": 0
+    },
+    "backendTypecheck": {
+      "result": "PASS",
+      "exitCode": 0
+    },
+    "mobileTypecheck": {
+      "result": "PASS",
+      "exitCode": 0
+    },
+    "externalProviderCalls": {
+      "llmProvider": "fake",
+      "embeddingProvider": "fake",
+      "egressCalls": 0
+    }
+  }
+}
