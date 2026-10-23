@@ -38,7 +38,7 @@ def main():
   names={'01a':'run_ai_pipe_01a_production_persistence.py','02a':'run_ai_pipe_02a_idea_bootstrap.py','02b':'run_ai_pipe_02b_outline_planning.py','03a':'run_ai_pipe_03a_autonomous_controller.py'}
   assert command('copy-scripts',compose+['cp','scripts/.','ai-service:/tmp/p8-scripts'])==0
   for key in v.scripts:
-   command(key,compose+['exec','-T','-e','GITHUB_SHA='+sha,'-e','GITHUB_HEAD_REF=codex/p1-canon-hitl-gate','ai-service','python','/tmp/p8-scripts/'+names[key],'--backend-url','http://backend:4000/api/v1','--ai-service-url','http://localhost:8000','--db-url','postgresql://postgres:postgres@postgres:5432/'+db,'--output','/tmp/'+key+'-evidence.json'])
+   command(key,compose+['exec','-T','-e','GITHUB_SHA='+sha,'-e','GITHUB_HEAD_REF='+subprocess.check_output(['git','branch','--show-current'],text=True).strip(),'ai-service','python','/tmp/p8-scripts/'+names[key],'--backend-url','http://backend:4000/api/v1','--ai-service-url','http://localhost:8000','--db-url','postgresql://postgres:postgres@postgres:5432/'+db,'--output','/tmp/'+key+'-evidence.json'])
    command(key+'-copy-evidence',compose+['cp','ai-service:/tmp/'+key+'-evidence.json',str(out/(key+'-evidence.json'))])
    verifier={'01a':('verify_ai_pipe_01_p1_closed_loop_evidence.py','--evidence'),'02a':('verify_ai_pipe_02a_idea_bootstrap_evidence.py','--evidence-file'),'02b':('verify_ai_pipe_02b_outline_planning_evidence.py','--evidence-file'),'03a':('verify_ai_pipe_03a_autonomous_controller_evidence.py','--evidence')}[key]
    command(key+'-verify',compose+['exec','-T','ai-service','python','/tmp/p8-scripts/'+verifier[0],verifier[1],'/tmp/'+key+'-evidence.json'])
