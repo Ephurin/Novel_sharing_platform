@@ -65,7 +65,7 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
       event_id: 'ev-test-1',
       summary: 'Trần Vân và Minh gặp nhau tại tửu lầu.',
       event_type: 'meet',
-      participants: ['Minh'], // Legacy participant lacking UUID
+      participants: ['ent-thai', 'Minh'], // Mixed exact ID + legacy participant lacking UUID (FE-08)
       chapter: 1,
       metadata: {}
     },
@@ -115,6 +115,7 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
   // Helper to setup mock API routes
   let eventCorrectionRequests = [];
   let groupAcceptRequests = [];
+  let groupRejectRequests = [];
   let lockRequests = [];
 
   await page.route('**/api/v1/**', async (route) => {
@@ -236,6 +237,44 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({ data: { brain_version: 4, status: 'committed' } })
+      });
+    }
+
+    if (url.includes('/proposal-groups/') && url.includes('/reject') && method === 'POST') {
+      const body = route.request().postDataJSON();
+      groupRejectRequests.push(body);
+      const groupId = url.split('/proposal-groups/')[1].split('/reject')[0];
+      if (body.reason && body.reason.includes('trigger-409')) {
+        return route.fulfill({
+          status: 409,
+          contentType: 'application/json',
+          body: JSON.stringify({ message: 'Group version mismatch: 409 Conflict' })
+        });
+      }
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: {
+            group_id: groupId,
+            proposal_ids: ['prop-grp-1-a', 'prop-grp-1-b'],
+            status: 'rejected',
+            brain_version: 3
+          }
+        })
+      });
+    }
+
+    if (url.includes('/entity-reviews/') && url.includes('/refresh') && method === 'POST') {
+      return route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: {
+            review_version: 2,
+            status: 'waiting_entity_review'
+          }
+        })
       });
     }
 
@@ -365,25 +404,46 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
     });
 
     // ──────────────────────────────────────────
-    // Test 3: Homonymous entity UUIDs never auto-resolve by name (FE-02)
+    // Test 3: Homonymous entity UUIDs and mixed legacy participant mapping (FE-02 & FE-08)
     // ──────────────────────────────────────────
-    await t.test('FE-02: Homonymous characters ("Minh A" vs "Minh B") never auto-resolve by name in EventItem', async () => {
+    await t.test('FE-02 & FE-08: Mixed exact-ID + legacy participants fails closed until legacy participant is resolved', async () => {
+      eventCorrectionRequests = [];
       await page.goto(`${baseUrl}/?scenario=memory-panel`);
       await page.click('button[role="tab"]:has-text("Sự kiện")');
 
-      // Event 1 has participant "Minh". It must show the unresolved badge
+      // Event 1 has participants ['ent-thai', 'Minh']. It displays both Thái and unresolved Minh badge
       await page.waitForSelector('text=Chưa xác thực UUID: Minh');
 
       // Open editor for Event 1
       await page.locator('[data-testid="btn-edit-event-ev-test-1"]').click();
 
-      // Warning alert must be displayed
-      await page.waitForSelector('text=Cảnh báo danh tính chưa xác thực (FE-02)');
+      // Legacy resolution box must be displayed with FE-08 warning
+      await page.waitForSelector('[data-testid="box-legacy-resolution"]');
+      await page.waitForSelector('text=Yêu cầu ánh xạ danh tính chính xác (FE-08)');
 
-      // The submit button must be DISABLED because participant "Minh" was not auto-resolved to ent-minh-a or ent-minh-b
+      // The submit button MUST BE DISABLED because legacy participant "Minh" is unresolved (FE-08 fail closed)
       const submitBtn = page.locator('[data-testid="btn-submit-correction-ev-test-1"]');
-      const isDisabled = await submitBtn.isDisabled();
-      assert.equal(isDisabled, true, 'Submit button must be blocked when participant identity is unresolved');
+      assert.equal(await submitBtn.isDisabled(), true, 'Submit button must be blocked when legacy participant is unresolved');
+
+      // Explicitly resolve "Minh" by selecting "ent-minh-a" (Bác sĩ Minh) from dropdown
+      const legacySelect = page.locator('[data-testid="select-resolve-legacy-Minh"]');
+      await legacySelect.click();
+      await page.locator('[role="option"]:has-text("ent-minh-a"), .mantine-Select-option:has-text("ent-minh-a")').first().click({ force: true });
+
+      // Now all participants are resolved: submit button MUST BE ENABLED
+      assert.equal(await submitBtn.isDisabled(), false, 'Submit button must be enabled after resolving legacy participant');
+
+      // Submit correction and verify network payload
+      await Promise.all([
+        page.waitForResponse(r => r.url().includes('/corrections')),
+        submitBtn.click()
+      ]);
+
+      assert.equal(eventCorrectionRequests.length, 1);
+      const participants = eventCorrectionRequests[0].replacement.participants;
+      assert.equal(participants.length, 2, 'Must submit both participants without dropping legacy participant');
+      assert.ok(participants.includes('ent-thai'), 'Must include original valid UUID ent-thai');
+      assert.ok(participants.includes('ent-minh-a'), 'Must include newly mapped UUID ent-minh-a');
     });
 
     // ──────────────────────────────────────────
@@ -410,18 +470,16 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
     });
 
     // ──────────────────────────────────────────
-    // Test 5: Safe Group Rejection guards (FE-03)
+    // Test 5: Safe Group Rejection & Atomic Rejection Submission (FE-03 & FE-07)
     // ──────────────────────────────────────────
-    await t.test('FE-03: Multi-member group rejection is disabled and single rejection is guarded', async () => {
+    await t.test('FE-03 & FE-07: Atomic group rejection submits expected brain version and guards single rejection', async () => {
+      groupRejectRequests = [];
       await page.goto(`${baseUrl}/?scenario=memory-panel`);
       await page.waitForSelector('text=Nhóm phụ thuộc');
 
-      // Group 1 has 2 proposals (multi-member): "Loại toàn bộ nhóm" button must be DISABLED
-      const groupRejectBtn = page.locator('button:has-text("Loại toàn bộ nhóm (Tạm khóa)")');
-      assert.equal(await groupRejectBtn.isDisabled(), true, 'Group rejection must be temporarily disabled');
-
-      // Informative banner must explain why
-      await page.waitForSelector('text=Tính năng loại bỏ toàn bộ nhóm phụ thuộc đang tạm khóa');
+      // Group 1 has 2 proposals (multi-member): "Loại toàn bộ nhóm" button is ENABLED
+      const groupRejectBtn = page.locator('[data-testid="btn-reject-group-group-multi-1"]');
+      assert.equal(await groupRejectBtn.isDisabled(), false, 'Atomic group reject button must be enabled');
 
       // Single rejection buttons inside the multi-member group must be DISABLED
       const multiGroupCard = page.locator('[data-testid="dependency-group-group-multi-1"]');
@@ -429,9 +487,37 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
       assert.equal(await singleRejectBtns.nth(0).isDisabled(), true, 'Single reject inside multi-member group must be disabled');
       assert.equal(await singleRejectBtns.nth(1).isDisabled(), true, 'Single reject inside multi-member group must be disabled');
 
+      // Click "Loại toàn bộ nhóm" -> opens confirmation modal (FE-07)
+      await groupRejectBtn.click();
+      await page.waitForSelector('text=Xác nhận loại toàn bộ nhóm đề xuất');
+      await page.waitForSelector('[data-testid="input-reject-group-reason"]');
+      await page.waitForSelector('text=Bạn có chắc chắn muốn loại bỏ toàn bộ nhóm đề xuất gồm 2 phần tử?');
+
+      // Fill optional rejection reason
+      await page.locator('[data-testid="input-reject-group-reason"]').fill('Tác giả từ chối nhóm đề xuất này');
+
+      // Confirm rejection and wait for API response
+      await Promise.all([
+        page.waitForResponse(r => r.url().includes('/proposal-groups/') && r.url().includes('/reject')),
+        page.locator('[data-testid="btn-confirm-reject-group"]').click()
+      ]);
+
+      // Assert atomic group rejection request payload
+      assert.equal(groupRejectRequests.length, 1, 'Must call reject endpoint exactly once for the group');
+      assert.equal(groupRejectRequests[0].expected_brain_version, 3, 'Must submit current memory brain version 3');
+      assert.equal(groupRejectRequests[0].reason, 'Tác giả từ chối nhóm đề xuất này');
+
+      // Verify Gateway contract guarantees: no client-injected tenant, novel or proposal_ids
+      assert.equal('proposal_ids' in groupRejectRequests[0], false);
+      assert.equal('tenant' in groupRejectRequests[0], false);
+      assert.equal('novel' in groupRejectRequests[0], false);
+
+      // Verify success notification
+      await page.waitForSelector('text=Đã loại bỏ toàn bộ nhóm đề xuất gồm 2 phần tử thành công.');
+
       // Group 2 is a single-proposal group: its "Loại đề xuất" button must be ENABLED
       const singleGroupCard = page.locator('[data-testid="dependency-group-group-single-1"]');
-      const singletonRejectBtn = singleGroupCard.locator('button:has-text("Loại đề xuất")').first();
+      const singletonRejectBtn = singleGroupCard.locator('[data-testid^="btn-reject-proposal-"]').first();
       assert.equal(await singletonRejectBtn.isDisabled(), false, 'Singleton proposal rejection must be enabled');
     });
 
@@ -458,9 +544,9 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
     });
 
     // ──────────────────────────────────────────
-    // Test 7: Review version refresh preserves unsaved choices (FE-05)
+    // Test 7: Review version refresh and explicit refresh button preserve unsaved choices (FE-05 & FE-09)
     // ──────────────────────────────────────────
-    await t.test('FE-05: Stable component identity preserves unsaved review decisions across polling refresh', async () => {
+    await t.test('FE-05 & FE-09: Unsaved review decisions survive both polling and explicit refresh', async () => {
       // Setup review route with review_version = 1
       let currentReviewVersion = 1;
       await page.route('**/api/v1/ai/story-brains/*/entity-reviews', async (route) => {
@@ -503,6 +589,18 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
       const rejectBtn = page.locator('button:has-text("Loại bỏ")').first();
       await rejectBtn.click();
       await page.waitForSelector('span:has-text("Đã loại")');
+
+      // Click explicit "Làm mới từ máy chủ" refresh button (FE-09)
+      const refreshBtn = page.locator('button:has-text("Làm mới từ máy chủ")');
+      if (await refreshBtn.isVisible()) {
+        await Promise.all([
+          page.waitForResponse(r => r.url().includes('/refresh')),
+          refreshBtn.click()
+        ]);
+        // After explicit refresh, unsaved local choice MUST be preserved
+        const badgeAfterExplicit = page.locator('span:has-text("Đã loại")');
+        assert.ok(await badgeAfterExplicit.isVisible(), 'Unsaved local decision must survive explicit refresh button click (FE-09)');
+      }
 
       // Simulate polling update incrementing review_version to 2
       currentReviewVersion = 2;

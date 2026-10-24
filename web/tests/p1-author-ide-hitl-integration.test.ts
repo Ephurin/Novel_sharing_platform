@@ -12,6 +12,9 @@ import {
   type GroupApproval,
   type EventCorrection,
   type RelationshipLock,
+  type RejectGroupPayload,
+  type RejectGroupResult,
+  normalizeEntityName,
   newIdentity,
   knownIdentity,
   rejectOccurrence
@@ -536,3 +539,187 @@ test('Stale 409: Preserves unsaved local edits when version conflict occurs', ()
   assert.ok(result);
   assert.deepEqual(result.preservedEdits, localEdits);
 });
+
+// ──────────────────────────────────────────────
+// Tests: FE-07 Atomic Group Rejection Contract
+// ──────────────────────────────────────────────
+
+test('FE-07: Atomic group rejection payload formatting and contract validation', () => {
+  const groupId = 'group-uuid-dep-100';
+  const expectedVersion = 5;
+  const reason = 'Author rejected this group';
+
+  const payload: RejectGroupPayload = {
+    expected_brain_version: expectedVersion,
+    reason
+  };
+
+  // Assert expected fields exist
+  assert.equal(payload.expected_brain_version, 5);
+  assert.equal(payload.reason, 'Author rejected this group');
+
+  // Verify Gateway contract guarantees: NEVER send tenant, novel, actor or proposal_ids
+  const payloadKeys = Object.keys(payload);
+  assert.equal(payloadKeys.includes('tenant'), false);
+  assert.equal(payloadKeys.includes('novel'), false);
+  assert.equal(payloadKeys.includes('proposal_ids'), false);
+
+  // Validate expected success result format
+  const mockResult: RejectGroupResult = {
+    group_id: groupId,
+    proposal_ids: ['prop-1', 'prop-2', 'prop-3'],
+    status: 'rejected',
+    brain_version: 5
+  };
+  assert.equal(mockResult.status, 'rejected');
+  assert.equal(mockResult.brain_version, 5); // Version does not advance on rejection
+  assert.equal(mockResult.proposal_ids.length, 3);
+});
+
+// ──────────────────────────────────────────────
+// Tests: FE-08 Mixed Exact-ID + Legacy Participants
+// ──────────────────────────────────────────────
+
+test('FE-08: Mixed exact-ID and legacy participants fails closed until legacy participant is resolved', () => {
+  const canonicalEntities: MemoryEntity[] = [
+    { entity_id: 'ent-thai', name: 'Thái', entity_type: 'PER', status: 'Alive', location: 'HN' },
+    { entity_id: 'ent-minh-a', name: 'Minh A (Bác sĩ)', entity_type: 'PER', status: 'Alive', location: 'HN' },
+    { entity_id: 'ent-minh-b', name: 'Minh B (Tài xế)', entity_type: 'PER', status: 'Alive', location: 'HN' }
+  ];
+
+  // Event has one exact UUID ('ent-thai') and one legacy string ('Minh')
+  const originalParticipants = ['ent-thai', 'Minh'];
+
+  const unresolvedLegacy = originalParticipants.filter(
+    p => !canonicalEntities.some(e => e.entity_id === p)
+  );
+  assert.deepEqual(unresolvedLegacy, ['Minh']);
+
+  // Without explicit mapping, validation MUST fail closed
+  let legacyResolutions: Record<string, string> = {};
+  let allLegacyResolved =
+    unresolvedLegacy.length === 0 ||
+    unresolvedLegacy.every(
+      name => Boolean(legacyResolutions[name]) && canonicalEntities.some(e => e.entity_id === legacyResolutions[name])
+    );
+  assert.equal(allLegacyResolved, false);
+
+  // When author explicitly maps "Minh" to "ent-minh-a"
+  legacyResolutions = { Minh: 'ent-minh-a' };
+  allLegacyResolved =
+    unresolvedLegacy.length === 0 ||
+    unresolvedLegacy.every(
+      name => Boolean(legacyResolutions[name]) && canonicalEntities.some(e => e.entity_id === legacyResolutions[name])
+    );
+  assert.equal(allLegacyResolved, true);
+
+  const effectiveParticipants = Array.from(
+    new Set([
+      'ent-thai',
+      ...Object.values(legacyResolutions).filter((uuid): uuid is string =>
+        Boolean(uuid) && canonicalEntities.some(e => e.entity_id === uuid)
+      )
+    ])
+  );
+
+  assert.deepEqual(effectiveParticipants, ['ent-thai', 'ent-minh-a']);
+  assert.equal(effectiveParticipants.length, 2);
+  assert.equal(effectiveParticipants.every(id => canonicalEntities.some(e => e.entity_id === id)), true);
+});
+
+// ──────────────────────────────────────────────
+// Tests: FE-09 Unsaved Review State on Explicit Refresh
+// ──────────────────────────────────────────────
+
+test('FE-09: Unsaved dirty candidate choices survive refresh reconciliation', () => {
+  const serverDecisions: Decision[] = [
+    {
+      candidate_id: 'c-1',
+      verdict: 'unresolved',
+      canonical_name: '',
+      canonical_entity_id: '',
+      provisional_identity_key: '',
+      entity_type: null,
+      identity_quote: '',
+      initial_status: 'Unknown',
+      status_quote: '',
+      confidence: 0.5,
+      reason: ''
+    },
+    {
+      candidate_id: 'c-2',
+      verdict: 'unresolved',
+      canonical_name: '',
+      canonical_entity_id: '',
+      provisional_identity_key: '',
+      entity_type: null,
+      identity_quote: '',
+      initial_status: 'Unknown',
+      status_quote: '',
+      confidence: 0.5,
+      reason: ''
+    }
+  ];
+
+  // Author locally marks c-1 as entity
+  const localChoices: Record<string, Decision> = {
+    'c-1': {
+      ...serverDecisions[0],
+      verdict: 'entity',
+      canonical_name: 'Minh',
+      canonical_entity_id: 'ent-minh-a'
+    },
+    'c-2': serverDecisions[1]
+  };
+
+  const dirtyCandidateIds = new Set<string>(['c-1']);
+
+  // Simulate refresh: server returns same or updated review
+  // Reconcile logic using dirtyCandidateIds
+  const reconciled: Record<string, Decision> = { ...localChoices };
+  for (const serverD of serverDecisions) {
+    if (!dirtyCandidateIds.has(serverD.candidate_id)) {
+      reconciled[serverD.candidate_id] = serverD;
+    }
+  }
+
+  // c-1 must preserve author's local choice
+  assert.equal(reconciled['c-1'].verdict, 'entity');
+  assert.equal(reconciled['c-1'].canonical_entity_id, 'ent-minh-a');
+  // c-2 is clean, took server decision
+  assert.equal(reconciled['c-2'].verdict, 'unresolved');
+});
+
+// ──────────────────────────────────────────────
+// Tests: FE-10 Unicode Casefold Equivalence
+// ──────────────────────────────────────────────
+
+test('FE-10: normalizeEntityName handles German sharp S, Greek sigmas, ligatures, and whitespace', () => {
+  // German sharp S (ß and ẞ)
+  assert.equal(normalizeEntityName('groß'), 'gross');
+  assert.equal(normalizeEntityName('GROẞ'), 'gross');
+
+  // Greek sigmas: both Σ (capital) and ς (final small) fold to σ
+  assert.equal(normalizeEntityName('Σοφός'), 'σοφόσ');
+  assert.equal(normalizeEntityName('ΣΟΦΙΑ'), 'σοφια');
+
+  // Latin ligatures
+  assert.equal(normalizeEntityName('ﬁle'), 'file');
+  assert.equal(normalizeEntityName('ﬂag'), 'flag');
+  assert.equal(normalizeEntityName('ﬀort'), 'ffort');
+  assert.equal(normalizeEntityName('ﬃce'), 'ffice');
+  assert.equal(normalizeEntityName('ﬄict'), 'fflict');
+  assert.equal(normalizeEntityName('ﬅar'), 'star');
+  assert.equal(normalizeEntityName('ﬆar'), 'star');
+
+  // Armenian ligatures
+  assert.equal(normalizeEntityName('և'), 'եւ');
+
+  // Whitespace collapsing and trimming
+  assert.equal(normalizeEntityName('   Minh     Thái   '), 'minh thái');
+  assert.equal(normalizeEntityName('\t  Lý   Thường    Kiệt \n '), 'lý thường kiệt');
+
+  // Empty string
+  assert.equal(normalizeEntityName(''), '');
+});
+

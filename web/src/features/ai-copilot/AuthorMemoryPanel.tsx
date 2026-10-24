@@ -11,6 +11,7 @@ import {
   Divider,
   Drawer,
   Group,
+  Modal,
   MultiSelect,
   NumberInput,
   Paper,
@@ -46,6 +47,8 @@ import {
   runAuthorOperation,
   saveFuturePlan,
   acceptProposalGroupAtomic,
+  rejectProposalGroupAtomic,
+  type RejectGroupPayload,
   correctMemoryEvent,
   normalizeEntityName,
   type AutoRun,
@@ -87,6 +90,10 @@ export function AuthorMemoryPanel({
   // Track explicit author edits to proposals in review queue: { [proposal_id]: replacement_payload }
   const [edits, setEdits] = useState<Record<string, Record<string, unknown>>>({});
 
+  // Group rejection confirmation state (FE-07)
+  const [confirmRejectGroup, setConfirmRejectGroup] = useState<{ groupId: string; count: number } | null>(null);
+  const [rejectReason, setRejectReason] = useState('');
+
   const storageKey = `ephurin-bootstrap-${novelId}`;
   const [jobId, setJobId] = useState<string | null>(() => localStorage.getItem(storageKey));
 
@@ -97,6 +104,8 @@ export function AuthorMemoryPanel({
     setFindings(null);
     setEdits({});
     setMessage('');
+    setConfirmRejectGroup(null);
+    setRejectReason('');
   }, [novelId, storageKey]);
 
   const enabled = opened && Boolean(novelId);
@@ -310,6 +319,43 @@ export function AuthorMemoryPanel({
     });
   };
 
+  // Group rejection submission (FE-07: transactional group rejection)
+  const handleRejectGroup = (groupId: string, proposals: ReviewProposal[], reason?: string) => {
+    perform(async () => {
+      const expectedVersion = memory.data?.brain_version ?? brain.data?.brain_version ?? 1;
+
+      try {
+        await rejectProposalGroupAtomic(groupId, {
+          expected_brain_version: expectedVersion,
+          reason: reason?.trim() || undefined
+        });
+
+        // On successful 200, clear saved edits for this group
+        setEdits(previous =>
+          Object.fromEntries(
+            Object.entries(previous).filter(([pId]) => !proposals.some(p => p.proposal_id === pId))
+          )
+        );
+        setConfirmRejectGroup(null);
+        setRejectReason('');
+        setMessageType('success');
+        setMessage(`Đã loại bỏ toàn bộ nhóm đề xuất gồm ${proposals.length} phần tử thành công.`);
+        await refresh();
+      } catch (err) {
+        setConfirmRejectGroup(null);
+        setMessageType('error');
+        if (err instanceof ApiClientError && err.status === 409) {
+          setMessage(
+            'Xung đột phiên bản bộ nhớ (409 Conflict): Phiên bản máy chủ đã thay đổi; các chỉnh sửa cục bộ của bạn được bảo lưu. Vui lòng làm mới.'
+          );
+        } else {
+          setMessage(getApiErrorMessage(err));
+        }
+        throw err;
+      }
+    });
+  };
+
   const pending = action.isPending;
 
   // Group review queue proposals by dependency_group_id
@@ -467,11 +513,12 @@ export function AuthorMemoryPanel({
                             <Button
                               size="xs"
                               variant="subtle"
-                              color="gray"
-                              disabled
-                              title="Loại toàn bộ nhóm tạm thời không khả dụng: Đang chờ hợp đồng giao dịch an toàn từ máy chủ (FE-03)."
+                              color="red"
+                              disabled={pending}
+                              data-testid={`btn-reject-group-${groupId}`}
+                              onClick={() => setConfirmRejectGroup({ groupId, count: proposals.length })}
                             >
-                              Loại toàn bộ nhóm (Tạm khóa)
+                              Loại toàn bộ nhóm
                             </Button>
                           ) : (
                             <Button
@@ -479,6 +526,7 @@ export function AuthorMemoryPanel({
                               variant="subtle"
                               color="red"
                               disabled={pending}
+                              data-testid={`btn-reject-proposal-${proposals[0].proposal_id}`}
                               onClick={() => perform(() => rejectProposal(proposals[0].proposal_id))}
                             >
                               Loại đề xuất
@@ -488,10 +536,9 @@ export function AuthorMemoryPanel({
                       </Group>
 
                       {proposals.length > 1 ? (
-                        <Alert color="gray" icon={<IconAlertTriangle size={14} />} p="xs">
+                        <Alert color="blue" icon={<IconAlertTriangle size={14} />} p="xs">
                           <Text size="xs">
-                            Tính năng loại bỏ toàn bộ nhóm phụ thuộc đang tạm khóa chờ hợp đồng giao dịch an toàn (transactional group rejection) từ máy chủ (FE-03).
-                            Việc loại bỏ đề xuất đơn lẻ trong nhóm bị vô hiệu hóa để tránh làm hỏng cấu trúc phụ thuộc (C-01).
+                            Nhóm phụ thuộc nguyên tử ({proposals.length} phần tử): Việc duyệt hoặc loại bỏ sẽ áp dụng cho toàn bộ nhóm một cách nhất quán (C-01 / FE-07).
                           </Text>
                         </Alert>
                       ) : (
@@ -509,7 +556,7 @@ export function AuthorMemoryPanel({
                           entities={memory.data?.entities ?? []}
                           disabled={pending}
                           canReject={proposals.length === 1}
-                          rejectDisabledReason="Không thể loại bỏ đề xuất đơn lẻ trong nhóm phụ thuộc nhiều phần tử (C-01). Phải duyệt toàn bộ nhóm hoặc chờ cập nhật loại nhóm an toàn."
+                          rejectDisabledReason="Đề xuất này thuộc nhóm phụ thuộc nhiều phần tử. Vui lòng sử dụng 'Loại toàn bộ nhóm' ở đầu nhóm để đảm bảo tính toàn vẹn (C-01 / FE-07)."
                           onEdit={newPayload => setEdits(prev => ({ ...prev, [p.proposal_id]: newPayload }))}
                           onRevertEdit={() =>
                             setEdits(prev => {
@@ -1004,6 +1051,66 @@ export function AuthorMemoryPanel({
           </Tabs.Panel>
         </Tabs>
       </Stack>
+
+      {/* Confirmation Modal for Atomic Group Rejection (FE-07) */}
+      <Modal
+        opened={Boolean(confirmRejectGroup)}
+        onClose={() => {
+          if (!pending) {
+            setConfirmRejectGroup(null);
+            setRejectReason('');
+          }
+        }}
+        title="Xác nhận loại toàn bộ nhóm đề xuất"
+        centered
+        data-testid="modal-confirm-reject-group"
+      >
+        <Stack gap="sm">
+          <Text size="sm">
+            Bạn có chắc chắn muốn loại bỏ toàn bộ nhóm đề xuất gồm{' '}
+            <b>{confirmRejectGroup?.count}</b> phần tử?
+          </Text>
+          <Text size="xs" c="dimmed">
+            Thao tác này sẽ từ chối tất cả các đề xuất phụ thuộc trong nhóm một cách nguyên tử và không thể hoàn tác. Không có thay đổi nào được ghi vào Canon.
+          </Text>
+          <TextInput
+            size="xs"
+            label="Lý do từ chối (tùy chọn)"
+            placeholder="Nhập lý do tác giả từ chối nhóm đề xuất..."
+            value={rejectReason}
+            onChange={e => setRejectReason(e.currentTarget.value)}
+            data-testid="input-reject-group-reason"
+            disabled={pending}
+          />
+          <Group justify="flex-end" mt="md">
+            <Button
+              variant="default"
+              size="xs"
+              onClick={() => {
+                setConfirmRejectGroup(null);
+                setRejectReason('');
+              }}
+              disabled={pending}
+            >
+              Hủy
+            </Button>
+            <Button
+              color="red"
+              size="xs"
+              data-testid="btn-confirm-reject-group"
+              loading={pending}
+              onClick={() => {
+                if (confirmRejectGroup) {
+                  const targetProposals = grouped.get(confirmRejectGroup.groupId) ?? [];
+                  handleRejectGroup(confirmRejectGroup.groupId, targetProposals, rejectReason);
+                }
+              }}
+            >
+              Xác nhận loại toàn bộ nhóm
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
     </Drawer>
   );
 }
@@ -1041,7 +1148,7 @@ function ProposalReview({
   // Build entity options for entity selection
   const entityOptions = entities.map(e => ({
     value: e.entity_id,
-    label: `${e.name} [${e.entity_type}] · ID: ${e.entity_id.slice(0, 8)}...`
+    label: `${e.name} [${e.entity_type}] · ID: ${e.entity_id}`
   }));
 
   if (proposal.proposal_type === 'alias') {
@@ -1358,6 +1465,9 @@ function EventItem({
 
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>(initialParticipantUuids);
 
+  // Track explicit author mapping of legacy participant strings to canonical entity UUIDs (FE-08)
+  const [legacyResolutions, setLegacyResolutions] = useState<Record<string, string>>({});
+
   // Transitions tied to this event
   const eventTransitions = transitions.filter(t => t.event_id === event.event_id);
   const [transitionEdits, setTransitionEdits] = useState<Array<{ entity_id: string; attribute_key: string; new_value: unknown }>>(
@@ -1371,17 +1481,41 @@ function EventItem({
 
   const entityOptions = entities.map(e => ({
     value: e.entity_id,
-    label: `${e.name} [${e.entity_type}] · ID: ${e.entity_id.slice(0, 8)}...`
+    label: `${e.name} [${e.entity_type}] · ID: ${e.entity_id}`
   }));
 
-  // Check if all selected participants are valid UUIDs from canonical entities
+  // Fail closed if any legacy participant remains unresolved (FE-08)
+  const allLegacyResolved =
+    unresolvedLegacyParticipants.length === 0 ||
+    unresolvedLegacyParticipants.every(
+      name => Boolean(legacyResolutions[name]) && entities.some(e => e.entity_id === legacyResolutions[name])
+    );
+
+  // Effective participants to send: selected UUIDs + resolved legacy UUIDs
+  const effectiveParticipants = Array.from(
+    new Set([
+      ...selectedParticipants,
+      ...Object.values(legacyResolutions).filter((uuid): uuid is string =>
+        Boolean(uuid) && entities.some(e => e.entity_id === uuid)
+      )
+    ])
+  );
+
+  // Check if all participants are valid UUIDs from canonical entities and no legacy participant is unmapped
   const allParticipantsValid =
-    selectedParticipants.length > 0 &&
-    selectedParticipants.every(id => entities.some(e => e.entity_id === id));
+    effectiveParticipants.length > 0 &&
+    allLegacyResolved &&
+    effectiveParticipants.every(id => entities.some(e => e.entity_id === id));
 
   const handleSubmitCorrection = async () => {
     if (!summary.trim()) return;
-    if (selectedParticipants.length === 0) {
+    if (unresolvedLegacyParticipants.length > 0 && !allLegacyResolved) {
+      setSubmitError(
+        'Tất cả nhân vật tham gia chưa xác thực phải được gán UUID chính xác từ Canon trước khi gửi đề xuất (FE-08).'
+      );
+      return;
+    }
+    if (effectiveParticipants.length === 0) {
       setSubmitError('Vui lòng chọn ít nhất một nhân vật tham gia bằng UUID chính xác từ Canon.');
       return;
     }
@@ -1398,7 +1532,7 @@ function EventItem({
       replacement: {
         event_type: eventType.trim() || event.event_type,
         summary: summary.trim(),
-        participants: selectedParticipants,
+        participants: effectiveParticipants,
         chapter: event.chapter
       },
       transitions: transitionEdits.filter(t => t.entity_id && t.attribute_key.trim())
@@ -1512,12 +1646,42 @@ function EventItem({
               </Text>
 
               {unresolvedLegacyParticipants.length > 0 && (
-                <Alert color="orange" title="Cảnh báo danh tính chưa xác thực (FE-02)">
-                  <Text size="xs">
-                    Sự kiện gốc có người tham gia chưa có UUID chính xác ({unresolvedLegacyParticipants.join(', ')}).
-                    Để tránh nhầm lẫn giữa hai nhân vật cùng tên (như Minh A và Minh B), bạn phải chọn UUID chính xác từ danh sách Canon bên dưới trước khi gửi.
-                  </Text>
-                </Alert>
+                <Paper p="xs" withBorder bg="var(--mantine-color-orange-0)" radius="sm" data-testid="box-legacy-resolution">
+                  <Stack gap="xs">
+                    <Group gap="xs">
+                      <IconAlertTriangle size={16} color="var(--mantine-color-orange-7)" />
+                      <Text size="xs" fw={600} c="orange.9">
+                        Yêu cầu ánh xạ danh tính chính xác (FE-08):
+                      </Text>
+                    </Group>
+                    <Text size="xs">
+                      Sự kiện gốc chứa {unresolvedLegacyParticipants.length} người tham gia dạng văn bản chưa có UUID ({unresolvedLegacyParticipants.join(', ')}).
+                      Để tránh nhầm lẫn giữa các nhân vật cùng tên (như Minh A và Minh B) và tránh mất người tham gia, bạn phải gán UUID chính xác từ danh sách Canon cho từng người trước khi gửi.
+                    </Text>
+                    {unresolvedLegacyParticipants.map(legacyName => (
+                      <Select
+                        key={legacyName}
+                        size="xs"
+                        label={`Ánh xạ danh tính cho "${legacyName}":`}
+                        placeholder="Chọn nhân vật có ID chính xác từ Canon..."
+                        data={entityOptions}
+                        value={legacyResolutions[legacyName] || null}
+                        onChange={val => {
+                          setLegacyResolutions(prev => ({ ...prev, [legacyName]: val || '' }));
+                          if (val) {
+                            setSelectedParticipants(prev => Array.from(new Set([...prev, val])));
+                          }
+                        }}
+                        data-testid={`select-resolve-legacy-${legacyName}`}
+                        searchable
+                        clearable
+                        required
+                        disabled={disabled || isSubmitting}
+                        comboboxProps={{ withinPortal: false }}
+                      />
+                    ))}
+                  </Stack>
+                </Paper>
               )}
 
               {submitError && (
@@ -1634,7 +1798,14 @@ function EventItem({
                   color="indigo"
                   data-testid={`btn-submit-correction-${event.event_id}`}
                   onClick={handleSubmitCorrection}
-                  disabled={disabled || isSubmitting || !summary.trim() || selectedParticipants.length === 0 || !allParticipantsValid}
+                  disabled={
+                    disabled ||
+                    isSubmitting ||
+                    !summary.trim() ||
+                    !allLegacyResolved ||
+                    effectiveParticipants.length === 0 ||
+                    !allParticipantsValid
+                  }
                   loading={isSubmitting}
                 >
                   Gửi đề xuất chỉnh sửa (Tạo proposal chờ duyệt)

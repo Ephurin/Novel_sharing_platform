@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Badge,
@@ -282,6 +282,10 @@ function EntityCheckpoint({
 
   // Track candidate IDs that the author has locally modified
   const [dirtyCandidateIds, setDirtyCandidateIds] = useState<Set<string>>(() => new Set());
+  const dirtyCandidateIdsRef = useRef<Set<string>>(dirtyCandidateIds);
+  useEffect(() => {
+    dirtyCandidateIdsRef.current = dirtyCandidateIds;
+  }, [dirtyCandidateIds]);
 
   // Local human choices state: preserved across version updates
   const [choices, setChoices] = useState<Record<string, Decision>>(() => {
@@ -299,16 +303,17 @@ function EntityCheckpoint({
   // Stale guidance check
   const staleGuidance = guidanceVersion !== undefined && guidanceVersion !== review.guidance_version;
 
-  // Sync incoming reviewed decisions while strictly preserving unsaved local modifications (FE-05)
+  // Sync incoming reviewed decisions while strictly preserving unsaved local modifications (FE-05 / FE-09)
   useEffect(() => {
     setChoices(prev => {
       const serverMap = Object.fromEntries(reviewedDecisions.map(d => [d.candidate_id, d]));
       const next: Record<string, Decision> = { ...prev };
       let hasConflict = false;
+      const currentDirty = dirtyCandidateIdsRef.current;
 
       // Update non-dirty candidates with server reviewed decisions
       for (const [candidateId, serverDecision] of Object.entries(serverMap)) {
-        if (!dirtyCandidateIds.has(candidateId)) {
+        if (!currentDirty.has(candidateId)) {
           next[candidateId] = serverDecision;
         } else {
           // Candidate is dirty locally; check if server decision conflicts
@@ -456,7 +461,7 @@ function EntityCheckpoint({
       setConflictMessage(null);
       try {
         await refreshEntityReview(novelId, review.analysis_run_id, review.review_version);
-        setDirtyCandidateIds(new Set());
+        // Do NOT clear dirtyCandidateIds (FE-09): preserve author's uncommitted draft choices through refresh
         await onContinued();
       } catch (err) {
         if (err instanceof ApiClientError && err.status === 409) {

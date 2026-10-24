@@ -300,17 +300,53 @@ export function rejectOccurrence(machine: Decision): Decision {
 }
 
 // ──────────────────────────────────────────────
-// Entity Name Normalization (Python casefold alignment)
+// Entity Name Normalization (Python Unicode Casefold Alignment)
 // ──────────────────────────────────────────────
 
+const CASEFOLD_MAP: Record<string, string> = {
+  // German sharp S
+  '\u00df': 'ss', // ß
+  '\u1e9e': 'ss', // ẞ
+  // Greek sigmas (fold to non-final lowercase sigma σ U+03C3)
+  '\u03a3': '\u03c3', // Σ
+  '\u03c2': '\u03c3', // ς
+  // Latin ligatures
+  '\ufb00': 'ff', // ﬀ
+  '\ufb01': 'fi', // ﬁ
+  '\ufb02': 'fl', // ﬂ
+  '\ufb03': 'ffi', // ﬃ
+  '\ufb04': 'ffl', // ﬄ
+  '\ufb05': 'st', // ﬅ
+  '\ufb06': 'st', // ﬆ
+  // Armenian ligatures
+  '\u0587': '\u0565\u0582', // և
+  '\ufb13': '\u0574\u0576', // ﬓ
+  '\ufb14': '\u0574\u0565', // ﬔ
+  '\ufb15': '\u0574\u056b', // ﬕ
+  '\ufb16': '\u057e\u0576', // ﬖ
+  '\ufb17': '\u0574\u056d', // ﬗ
+  // Specific case fold expansions
+  '\u0149': '\u02bcn', // ŉ -> ʼn
+  '\u01f0': 'j\u030c', // ǰ -> ǰ
+  '\u0130': 'i\u0307', // İ -> i̇
+  '\u1e9a': 'a\u02be', // ẚ
+  '\u1e9b': '\u1e61', // ẛ
+  '\u1e96': 'h\u0331' // ẖ
+};
+
+const CASEFOLD_REGEX = new RegExp(Object.keys(CASEFOLD_MAP).join('|'), 'g');
+
+/**
+ * Normalizes an entity name by trimming, collapsing runs of whitespace to a single space,
+ * normalizing to Unicode NFC, and applying standard Unicode full casefold expansions
+ * (including German ß/ẞ -> ss, Greek sigmas Σ/ς -> σ, Latin ligatures ﬁ/ﬂ/ﬀ/ﬃ/ﬄ -> fi/fl/ff/ffi/ffl)
+ * followed by lowercase conversion.
+ */
 export function normalizeEntityName(name: string): string {
   if (!name) return '';
-  const trimmed = name.trim().normalize('NFC');
-  // Expand casefold edge cases that simple toLowerCase doesn't expand:
-  // ß (U+00DF) -> ss, ẞ (U+1E9E) -> ss
-  return trimmed
-    .replace(/\u00df/g, 'ss')
-    .replace(/\u1e9e/g, 'ss')
+  const collapsed = name.trim().replace(/\s+/g, ' ').normalize('NFC');
+  return collapsed
+    .replace(CASEFOLD_REGEX, match => CASEFOLD_MAP[match] ?? match)
     .toLowerCase();
 }
 
@@ -367,6 +403,25 @@ export async function lockRelationship(novelId: string, payload: RelationshipLoc
 
 export async function acceptProposalGroupAtomic(groupId: string, payload: GroupApproval): Promise<{ canonical_artifact_ids: UUID[]; brain_version: number; status: string }> {
   return memoryPost(`/ai/proposal-groups/${groupId}/accept`, payload);
+}
+
+export interface RejectGroupPayload {
+  expected_brain_version: number;
+  reason?: string;
+}
+
+export interface RejectGroupResult {
+  group_id: string;
+  proposal_ids: string[];
+  status: 'rejected';
+  brain_version: number;
+}
+
+export async function rejectProposalGroupAtomic(
+  groupId: string,
+  payload: RejectGroupPayload
+): Promise<RejectGroupResult> {
+  return memoryPost<RejectGroupResult>(`/ai/proposal-groups/${groupId}/reject`, payload);
 }
 
 export async function reanalyseSavedChapter(novelId: string, revisionId: string) {
