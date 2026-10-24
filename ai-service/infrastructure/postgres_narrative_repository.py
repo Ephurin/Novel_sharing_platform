@@ -526,6 +526,8 @@ class PostgresNarrativeRepository:
 
         novel_id = self._novel_id(story_id)
         proposal_uuids = [self._stable_uuid("proposal", item) for item in proposal_ids]
+        if not proposal_uuids or len(proposal_uuids) != len(set(proposal_uuids)):
+            raise ProjectionError('Submit the complete dependency group exactly once')
         edited_payloads = edited_payloads or {}
         if not set(edited_payloads) <= set(proposal_ids):
             raise ProjectionError('Edited proposal IDs must belong to the submitted group')
@@ -553,8 +555,17 @@ class PostgresNarrativeRepository:
             if any(item.status != ProposalStatus.PENDING.value for item in proposals):
                 raise ProposalAlreadyDecidedError("Proposal group contains a decided proposal")
             groups = {item.dependency_group_id for item in proposals}
-            if len(proposals) > 1 and len(groups) != 1:
-                raise ValueError("All proposals must belong to the same dependency group")
+            if len(groups) != 1:
+                raise ProjectionError('Submit one complete dependency group')
+            # Authoritative membership, including decided members, under the same
+            # Brain/row locks as Canon materialization and its single version increment.
+            members = session.scalars(select(ProposalRecord).where(
+                *self._scope(ProposalRecord, novel_id),
+                ProposalRecord.dependency_group_id == next(iter(groups)))
+                .order_by(ProposalRecord.materialization_order, ProposalRecord.id)
+                .with_for_update()).all()
+            if {p.id for p in members} != set(proposal_uuids):
+                raise ProjectionError('Submit the complete dependency group exactly once')
             if any(item.expected_brain_version != expected_brain_version for item in proposals):
                 raise OptimisticLockError(story_id)
 
@@ -791,29 +802,29 @@ class PostgresNarrativeRepository:
         self, story_id: str, proposal_id: str, accepted: bool, reason: str | None = None
     ) -> NarrativeProposal:
         novel_id = self._novel_id(story_id)
+        if accepted:
+            # Legacy internal callers must use the same Canon transaction, never a
+            # status-only approval/version update. The transaction rechecks everything.
+            with session_scope(self._session_factory) as session:
+                proposal = session.scalar(select(ProposalRecord).where(
+                    ProposalRecord.id == self._stable_uuid('proposal', proposal_id),
+                    *self._scope(ProposalRecord, novel_id)))
+                if proposal is None:
+                    raise KeyError(proposal_id)
+                expected = proposal.expected_brain_version
+            self.accept_proposal_group(story_id, [proposal_id], expected, reason=reason)
+            return self.locate_proposal(proposal_id)[1]
         with session_scope(self._session_factory) as session:
             proposal = session.scalar(
                 select(ProposalRecord).where(
                     ProposalRecord.id == self._stable_uuid("proposal", proposal_id),
                     *self._scope(ProposalRecord, novel_id),
-                )
+                ).with_for_update()
             )
             if proposal is None:
                 raise KeyError(f"Proposal not found: {proposal_id}")
             if proposal.status != ProposalStatus.PENDING.value:
                 return self._to_proposal(proposal)
-            if accepted:
-                result = session.execute(
-                    update(StoryBrainRecord)
-                    .where(
-                        StoryBrainRecord.id == proposal.story_brain_id,
-                        *self._scope(StoryBrainRecord, novel_id),
-                        StoryBrainRecord.brain_version == proposal.expected_brain_version,
-                    )
-                    .values(brain_version=StoryBrainRecord.brain_version + 1)
-                )
-                if result.rowcount != 1:
-                    raise OptimisticLockError(f"Story Brain version conflict: {story_id}")
             proposal.status = (
                 ProposalStatus.ACCEPTED.value if accepted else ProposalStatus.REJECTED.value
             )
