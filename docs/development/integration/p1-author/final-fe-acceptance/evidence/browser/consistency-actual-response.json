@@ -1,0 +1,10 @@
+{
+  "findings": [
+    {
+      "description": "Mâu thuẫn thực thể: lan được ghi nhận còn sống trong Story Brain nhưng bản thảo nêu lan đã chết",
+      "evidence": "lan đã chết",
+      "revision_id": "4d7b25ea-ffc5-4d16-9fa1-6b5b7854ecc4",
+      "entity_id": "59bf1840-2aee-403a-94b4-3a39f96e7fcb"
+    }
+  ]
+}

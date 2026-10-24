@@ -49,6 +49,24 @@ jobs:
             echo "Built web assets expose a forbidden direct AI-service reference." >&2
             exit 1
           fi
+      - name: Frontend credential routing, account context and Python casefold contracts
+        working-directory: web
+        env:
+          PLAYWRIGHT_CHANNEL: chromium
+          PYTHONUTF8: "1"
+          PYTHONIOENCODING: utf-8
+          P1_EVIDENCE_DIR: ${{ runner.temp }}/p1-web-contracts
+        run: |
+          npx playwright install --with-deps chromium
+          npx tsx --test tests/author-context.test.ts tests/entity-casefold-python.test.ts
+          node --test tests/api-client-security.browser.test.mjs
+      - name: Upload frontend contract evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p1-web-contracts
+          path: ${{ runner.temp }}/p1-web-contracts
+          if-no-files-found: ignore
       - name: Backend typecheck and deterministic tests
         working-directory: backend
         env:

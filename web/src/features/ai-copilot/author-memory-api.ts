@@ -252,6 +252,9 @@ export interface AutoRun {
 }
 
 export interface ConsistencyFinding {
+  code?: 'AMBIGUOUS_ENTITY_REFERENCE';
+  entity_id?: UUID;
+  candidate_entity_ids?: UUID[];
   description: string;
   evidence: string;
   revision_id: string;
@@ -304,6 +307,21 @@ export function rejectOccurrence(machine: Decision): Decision {
 // ──────────────────────────────────────────────
 
 const CASEFOLD_MAP: Record<string, string> = {
+  '\u00b5': '\u03bc',
+  '\u017f': 's',
+  '\u0345': '\u03b9',
+  '\u0390': '\u03b9\u0308\u0301',
+  '\u03b0': '\u03c5\u0308\u0301',
+  '\u03d0': '\u03b2',
+  '\u03d1': '\u03b8',
+  '\u03d5': '\u03c6',
+  '\u03d6': '\u03c0',
+  '\u03f0': '\u03ba',
+  '\u03f1': '\u03c1',
+  '\u03f5': '\u03b5',
+  '\u1e97': 't\u0308',
+  '\u1e98': 'w\u030a',
+  '\u1e99': 'y\u030a',
   // German sharp S
   '\u00df': 'ss', // ß
   '\u1e9e': 'ss', // ẞ
@@ -334,29 +352,27 @@ const CASEFOLD_MAP: Record<string, string> = {
   '\u1e96': 'h\u0331' // ẖ
 };
 
-const CASEFOLD_REGEX = new RegExp(Object.keys(CASEFOLD_MAP).join('|'), 'g');
-
 /**
- * Python-aligned Unicode casefolding for entity names (FE-10, FE-14).
- * Aligns strictly with Python `canonical_name.casefold()` without modifying whitespace independently.
- *
- * Supported subset:
- * - Standard Latin & Vietnamese characters with tonal diacritics (NFC preserved)
- * - German sharp S (ß, ẞ -> ss)
- * - Greek sigmas (Σ, ς -> σ)
- * - Latin ligatures (ﬀ -> ff, ﬁ -> fi, ﬂ -> fl, ﬃ -> ffi, ﬄ -> ffl, ﬅ -> st, ﬆ -> st)
- * - Armenian ligatures (և -> եւ, etc.)
- * - Standard casefold expansions (ŉ -> ʼn, ǰ -> ǰ, İ -> i̇, ẚ -> aʾ, ẛ -> ṡ, ẖ -> ẖ)
- *
- * Note: Python str.casefold() is the authoritative specification for backend validate_author_edit().
- * Characters outside this defined subset rely on standard JavaScript toLowerCase().
+ * Exact submitted spelling, including NFC/NFD and whitespace, is preserved.
+ * Bounded alphabet: printable ASCII, Latin U+00A0–024F/U+1E00–1EFF,
+ * combining/Greek U+0300–03FF, Armenian U+0530–058F and ligatures FB00–FB17.
+ * Format controls and other alphabets fail explicitly. No universal Unicode claim.
+ * Cross-language tests execute Python validate_author_edit for this alphabet.
  */
 export function normalizeEntityName(name: string): string {
   if (!name) return '';
-  return name
-    .normalize('NFC')
-    .replace(CASEFOLD_REGEX, match => CASEFOLD_MAP[match] ?? match)
-    .toLowerCase();
+  if (/[^\t\n\r\u0020-\u007e\u00a0-\u024f\u0300-\u03ff\u0530-\u058f\u1e00-\u1eff\ufb00-\ufb17]/u.test(name)
+      || /\p{Cf}/u.test(name)) {
+    throw new Error('Unsupported entity-name characters: ký tự chưa được hỗ trợ khi đổi tên.');
+  }
+  return Array.from(name, char => CASEFOLD_MAP[char] ?? char.toLowerCase()).join('');
+}
+
+export function entityNameEditError(name: string): string | undefined {
+  if (!name.trim()) return 'Tên thực thể không được để trống hoặc chỉ chứa khoảng trắng';
+  try { normalizeEntityName(name); } catch (error) {
+    return error instanceof Error ? error.message : 'Tên thực thể chưa được hỗ trợ';
+  }
 }
 
 // ──────────────────────────────────────────────

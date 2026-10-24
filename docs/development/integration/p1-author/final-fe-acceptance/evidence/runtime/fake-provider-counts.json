@@ -1,0 +1,587 @@
+{
+  "before": 108,
+  "after": 125,
+  "delta": 17,
+  "requests": [
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "e3bc0572736fa738860b07bd829813f4d71b4d42fcf4604b17bef527216c37fe",
+      "dispatch_id": "8bbe984c-412a-4fc6-83da-0fbdaf75bdf6",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 512,
+      "upstream_auth_valid": true,
+      "prompt_text": "You are an expert fantasy novel analyst. Extract all named entities from the text. Classify each entity strictly as PER, LOC, ORG, ITEM, or SKILL. Return only a JSON array using this schema: [{\"phrase\":\"TiÃªu ViÃªm\",\"entity\":\"PER\",\"score\":9.5}]. Score must be between 0 and 10. Do not include surrounding conjunctions or stopwords.\n\nText to analyze:\n\nbản thảo ban đầu.",
+      "scenario": "p123-p3-v1",
+      "received_at": 1792845849.0448103,
+      "response": {
+        "id": "8bbe984c-412a-4fc6-83da-0fbdaf75bdf6",
+        "object": "chat.completion",
+        "created": 1792845849,
+        "model": "gemini-3.5-flash-lite",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "[]"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 10,
+          "total_tokens": 20
+        }
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "bd5f370efc067277937515b92419789ad07ea841ee210cdc1c0a7a26c960dcf9",
+      "dispatch_id": "022d9c86-09d2-49a6-80a7-2e0f02935036",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 512,
+      "upstream_auth_valid": true,
+      "prompt_text": "Extract atomic narrative facts directly from the prose, not just changes or named entities. Cover explicit historical deaths, disabilities, possession/storage, counts, limitations, world rules and recurring signal patterns. Also extract physical identity attributes of named objects (markings, colors, shape, damage), and explicit limits on what observations prove. A proposed explanation, uncertain location or unverified identity must preserve that uncertainty. Do not invent missing facts. Use an exact contiguous source quote for each fact. Preserve uncertainty: reported speech, hypotheses and proposed limits are not confirmed world rules. subject is an exact named entity from supplied known_entities or empty for general facts. When inventory items contain entity_id, subject must use that exact ID; names/aliases may be ambiguous. Never convert an unresolved entity fact to a general fact to bypass identity review. fact_key is a short attribute name; use status with value Dead/Alive only for explicit confirmed life status. fact_value is an atomic string, number or boolean. Return JSON matching: {\"$defs\": {\"ProseFact\": {\"additionalProperties\": false, \"properties\": {\"subject\": {\"default\": \"\", \"title\": \"Subject\", \"type\": \"string\"}, \"fact_key\": {\"maxLength\": 100, \"minLength\": 1, \"title\": \"Fact Key\", \"type\": \"string\"}, \"fact_value\": {\"anyOf\": [{\"type\": \"string\"}, {\"type\": \"integer\"}, {\"type\": \"number\"}, {\"type\": \"boolean\"}], \"title\": \"Fact Value\"}, \"certainty\": {\"enum\": [\"confirmed\", \"reported\", \"hypothesis\", \"proposed\"], \"title\": \"Certainty\", \"type\": \"string\"}, \"quote\": {\"minLength\": 1, \"title\": \"Quote\", \"type\": \"string\"}, \"confidence\": {\"default\": 0.7, \"maximum\": 1, \"minimum\": 0, \"title\": \"Confidence\", \"type\": \"number\"}}, \"required\": [\"fact_key\", \"fact_value\", \"certainty\", \"quote\"], \"title\": \"ProseFact\", \"type\": \"object\"}}, \"properties\": {\"facts\": {\"items\": {\"$ref\": \"#/$defs/ProseFact\"}, \"title\": \"Facts\", \"type\": \"array\"}}, \"required\": [\"facts\"], \"title\": \"ProseFacts\", \"type\": \"object\"}\n\n{\"source_text\": \"bản thảo ban đầu.\", \"known_entities\": [], \"verified_aliases\": {}}",
+      "scenario": "p123-p3-v1",
+      "received_at": 1792845849.7192721,
+      "response": {
+        "id": "022d9c86-09d2-49a6-80a7-2e0f02935036",
+        "object": "chat.completion",
+        "created": 1792845849,
+        "model": "gemini-3.5-flash-lite",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"facts\": []}"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 10,
+          "total_tokens": 20
+        }
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "c1d4e4df74b1981103272d98e3637d964ba495167c6e1cab10e01ea76ba69bab",
+      "dispatch_id": "ac636bd6-c841-4897-88a8-c596bf5d39cd",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 512,
+      "upstream_auth_valid": true,
+      "prompt_text": "You are an expert fantasy novel analyst. Extract all named entities from the text. Classify each entity strictly as PER, LOC, ORG, ITEM, or SKILL. Return only a JSON array using this schema: [{\"phrase\":\"TiÃªu ViÃªm\",\"entity\":\"PER\",\"score\":9.5}]. Score must be between 0 and 10. Do not include surrounding conjunctions or stopwords.\n\nText to analyze:\n\nbản nháp nối tiếp a.",
+      "scenario": "p123-p3-v1",
+      "received_at": 1792845857.2087603,
+      "response": {
+        "id": "ac636bd6-c841-4897-88a8-c596bf5d39cd",
+        "object": "chat.completion",
+        "created": 1792845857,
+        "model": "gemini-3.5-flash-lite",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "[]"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 10,
+          "total_tokens": 20
+        }
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "d6af0d290aa330159a50337c39eed2f1987a753116511a2013e02193b272d7dd",
+      "dispatch_id": "56b3ef1d-2eb8-4905-bec0-8662ddeede39",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 512,
+      "upstream_auth_valid": true,
+      "prompt_text": "You are an expert fantasy novel analyst. Extract all named entities from the text. Classify each entity strictly as PER, LOC, ORG, ITEM, or SKILL. Return only a JSON array using this schema: [{\"phrase\":\"TiÃªu ViÃªm\",\"entity\":\"PER\",\"score\":9.5}]. Score must be between 0 and 10. Do not include surrounding conjunctions or stopwords.\n\nText to analyze:\n\nbản nháp nối tiếp b.",
+      "scenario": "p123-p3-v1",
+      "received_at": 1792845862.985151,
+      "response": {
+        "id": "56b3ef1d-2eb8-4905-bec0-8662ddeede39",
+        "object": "chat.completion",
+        "created": 1792845862,
+        "model": "gemini-3.5-flash-lite",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "[]"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 10,
+          "total_tokens": 20
+        }
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "d39856d30c3d8bc52c3685a3d794138bbce9ff0d86de0ddc170efa4f947279f6",
+      "dispatch_id": "116963cf-33b8-44a4-9c6f-8610c58f85e3",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 512,
+      "upstream_auth_valid": true,
+      "prompt_text": "You are an expert fantasy novel analyst. Extract all named entities from the text. Classify each entity strictly as PER, LOC, ORG, ITEM, or SKILL. Return only a JSON array using this schema: [{\"phrase\":\"TiÃªu ViÃªm\",\"entity\":\"PER\",\"score\":9.5}]. Score must be between 0 and 10. Do not include surrounding conjunctions or stopwords.\n\nText to analyze:\n\nbản máy chủ từ phiên thứ hai.",
+      "scenario": "p123-p3-v1",
+      "received_at": 1792845872.294529,
+      "response": {
+        "id": "116963cf-33b8-44a4-9c6f-8610c58f85e3",
+        "object": "chat.completion",
+        "created": 1792845872,
+        "model": "gemini-3.5-flash-lite",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "[]"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 10,
+          "total_tokens": 20
+        }
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "b6bed9f79e234e3b1c62699c688704bbbc0df0ae55d668c2e6311f0e6c7d0a23",
+      "dispatch_id": "c9fa6b99-ee11-4ee8-b4e8-f860a45eba85",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 512,
+      "upstream_auth_valid": true,
+      "prompt_text": "You are an expert fantasy novel analyst. Extract all named entities from the text. Classify each entity strictly as PER, LOC, ORG, ITEM, or SKILL. Return only a JSON array using this schema: [{\"phrase\":\"TiÃªu ViÃªm\",\"entity\":\"PER\",\"score\":9.5}]. Score must be between 0 and 10. Do not include surrounding conjunctions or stopwords.\n\nText to analyze:\n\nbản được lưu sau phục hồi.",
+      "scenario": "p123-p3-v1",
+      "received_at": 1792845875.916489,
+      "response": {
+        "id": "c9fa6b99-ee11-4ee8-b4e8-f860a45eba85",
+        "object": "chat.completion",
+        "created": 1792845875,
+        "model": "gemini-3.5-flash-lite",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "[]"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 10,
+          "total_tokens": 20
+        }
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "09dbed62303ea9609de412ecf0bf4bd5402889053f67f2e0e3345eef6370201e",
+      "dispatch_id": "6c7a1541-e527-49df-8c5d-488b610d5255",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 512,
+      "upstream_auth_valid": true,
+      "prompt_text": "You are an expert fantasy novel analyst. Extract all named entities from the text. Classify each entity strictly as PER, LOC, ORG, ITEM, or SKILL. Return only a JSON array using this schema: [{\"phrase\":\"TiÃªu ViÃªm\",\"entity\":\"PER\",\"score\":9.5}]. Score must be between 0 and 10. Do not include surrounding conjunctions or stopwords.\n\nText to analyze:\n\nbản cần lưu khi đổi chương.",
+      "scenario": "p123-p3-v1",
+      "received_at": 1792845876.772267,
+      "response": {
+        "id": "6c7a1541-e527-49df-8c5d-488b610d5255",
+        "object": "chat.completion",
+        "created": 1792845876,
+        "model": "gemini-3.5-flash-lite",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "[]"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 10,
+          "total_tokens": 20
+        }
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "0721376788c1512df36d6cc5003e5efd17b03e04452064d1bd07307f779b0d10",
+      "dispatch_id": "87df6c41-a522-4045-be28-3c3742c84537",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 512,
+      "upstream_auth_valid": true,
+      "prompt_text": "You are an expert fantasy novel analyst. Extract all named entities from the text. Classify each entity strictly as PER, LOC, ORG, ITEM, or SKILL. Return only a JSON array using this schema: [{\"phrase\":\"TiÃªu ViÃªm\",\"entity\":\"PER\",\"score\":9.5}]. Score must be between 0 and 10. Do not include surrounding conjunctions or stopwords.\n\nText to analyze:\n\nriêng tư chưa gửi của tác giả a.",
+      "scenario": "p123-p3-v1",
+      "received_at": 1792845885.6353178,
+      "response": {
+        "id": "87df6c41-a522-4045-be28-3c3742c84537",
+        "object": "chat.completion",
+        "created": 1792845885,
+        "model": "gemini-3.5-flash-lite",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "[]"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 10,
+          "total_tokens": 20
+        }
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "2d9c38712d755e072b223be6d5570d2e3debe08ca6d7fe5eb2226b6dbe7a57d1",
+      "dispatch_id": "695ebe61-a55c-4250-a641-7ab395a676ae",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 512,
+      "upstream_auth_valid": true,
+      "prompt_text": "You are an expert fantasy novel analyst. Extract all named entities from the text. Classify each entity strictly as PER, LOC, ORG, ITEM, or SKILL. Return only a JSON array using this schema: [{\"phrase\":\"TiÃªu ViÃªm\",\"entity\":\"PER\",\"score\":9.5}]. Score must be between 0 and 10. Do not include surrounding conjunctions or stopwords.\n\nText to analyze:\n\nbác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+      "scenario": "p123-p3-v1",
+      "received_at": 1792845887.1751673,
+      "response": {
+        "id": "695ebe61-a55c-4250-a641-7ab395a676ae",
+        "object": "chat.completion",
+        "created": 1792845887,
+        "model": "gemini-3.5-flash-lite",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "[]"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 10,
+          "total_tokens": 20
+        }
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "b82b7148ef0964484234e1d7934090f78f9b9e2469bddf08b42dd97de1fbc290",
+      "dispatch_id": "312025ff-4f9e-437e-bb6c-fedfb64a1f8a",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 512,
+      "upstream_auth_valid": true,
+      "prompt_text": "Verify EVERY supplied candidate OCCURRENCE in its original context, not just the name string. Candidates intentionally overgenerate; sentence-initial common words (e.g. \"Chương\", \"Bến\", \"Chiếc\") and common phrases (e.g. \"an\" in \"an toàn\") are NOT entities. Return exactly one decision per candidate_id, with no missing, extra, or duplicate candidate IDs. Verdicts must be strictly partitioned as follows:\n1. For verdict \"entity\":\n   - entity_type: must be one of PER, LOC, ORG, ITEM, SKILL.\n   - canonical_name: must be an exact known canonical name or the supplied candidate surface.\n   - canonical_entity_id: reference ONLY a supplied known entity ID matching this entity, else empty string \"\".\n   - Distinct people sharing a short name must NOT be merged.\n   - An alias requires identity_quote copied verbatim from source context proving identity; if ambiguous use \"unresolved\".\n   - Non-Unknown life status only for PER with explicit confirmed source status_quote, not hearsay or inference.\n2. For verdict \"not_entity\" and \"unresolved\":\n   - canonical_name MUST be empty string \"\" (DO NOT retain or copy the candidate surface name into canonical_name).\n   - canonical_entity_id MUST be empty string \"\".\n   - entity_type MUST be null.\n   - identity_quote MUST be empty string \"\".\n   - initial_status MUST be \"Unknown\".\n   - status_quote MUST be empty string \"\".\n   - For \"not_entity\": state the linguistic or context reason (e.g. common noun, chapter header, sentence-initial word).\n   - For \"unresolved\": state what ambiguity prevents confirmation (unresolved is not approved truth).\nExplain each decision in reason. Schema: {\"$defs\": {\"EntityDecision\": {\"additionalProperties\": false, \"properties\": {\"candidate_id\": {\"description\": \"Exact candidate_id from the request.\", \"title\": \"Candidate Id\", \"type\": \"string\"}, \"verdict\": {\"description\": \"Verdict: 'entity' for real named entities; 'not_entity' for common words, nouns, phrases; 'unresolved' for ambiguous identity.\", \"enum\": [\"entity\", \"not_entity\", \"unresolved\"], \"title\": \"Verdict\", \"type\": \"string\"}, \"entity_type\": {\"anyOf\": [{\"enum\": [\"PER\", \"LOC\", \"ORG\", \"ITEM\", \"SKILL\"], \"type\": \"string\"}, {\"type\": \"null\"}], \"default\": null, \"description\": \"PER, LOC, ORG, ITEM, or SKILL for 'entity'. MUST be null for 'not_entity' and 'unresolved'.\", \"title\": \"Entity Type\"}, \"canonical_name\": {\"default\": \"\", \"description\": \"Exact known canonical name or supplied candidate surface for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Canonical Name\", \"type\": \"string\"}, \"canonical_entity_id\": {\"default\": \"\", \"description\": \"Known entity ID if matching known entities for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Canonical Entity Id\", \"type\": \"string\"}, \"provisional_identity_key\": {\"default\": \"\", \"description\": \"Human review only: checkpoint scope / author group label. Never assign in machine verification.\", \"maxLength\": 130, \"title\": \"Provisional Identity Key\", \"type\": \"string\"}, \"identity_quote\": {\"default\": \"\", \"description\": \"Verbatim source quote proving alias identity for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Identity Quote\", \"type\": \"string\"}, \"initial_status\": {\"default\": \"Unknown\", \"description\": \"Life status for PER with direct confirmed source status_quote. MUST be 'Unknown' for 'not_entity' and 'unresolved'.\", \"enum\": [\"Alive\", \"Dead\", \"Unknown\"], \"title\": \"Initial Status\", \"type\": \"string\"}, \"status_quote\": {\"default\": \"\", \"description\": \"Verbatim source quote evidencing life status for PER. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Status Quote\", \"type\": \"string\"}, \"confidence\": {\"default\": 0.7, \"maximum\": 1, \"minimum\": 0, \"title\": \"Confidence\", \"type\": \"number\"}, \"reason\": {\"description\": \"Linguistic context reason for this verdict.\", \"minLength\": 1, \"title\": \"Reason\", \"type\": \"string\"}}, \"required\": [\"candidate_id\", \"verdict\", \"reason\"], \"title\": \"EntityDecision\", \"type\": \"object\"}}, \"additionalProperties\": false, \"properties\": {\"decisions\": {\"items\": {\"$ref\": \"#/$defs/EntityDecision\"}, \"title\": \"Decisions\", \"type\": \"array\"}}, \"required\": [\"decisions\"], \"title\": \"EntityDecisionBatch\", \"type\": \"object\"}\n\n{\"candidates\": [{\"candidate_id\": \"b9f5ebd08e13844a9e6993ac\", \"surface\": \"bác sĩ Minh\", \"start\": 0, \"end\": 11, \"context_start\": 0, \"context_end\": 57, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\", \"origins\": [\"title_or_location\"]}, {\"candidate_id\": \"860d52190bce583c8226847f\", \"surface\": \"Minh\", \"start\": 7, \"end\": 11, \"context_start\": 0, \"context_end\": 57, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"90aa831bbcd602c3561d0ada\", \"surface\": \"Minh\", \"start\": 23, \"end\": 27, \"context_start\": 0, \"context_end\": 57, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"6406442cea965652cff9c7fd\", \"surface\": \"Minh\", \"start\": 29, \"end\": 33, \"context_start\": 0, \"context_end\": 57, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\", \"origins\": [\"capitalized_token\"]}], \"known_entities\": [], \"known_aliases\": [], \"allowed_names\": [\"Minh\", \"bác sĩ Minh\"], \"author_guidance\": [], \"guidance_policy\": \"Hints are search instructions, never evidence of an occurrence or event. Author declarations describe world identities, not chapter presence. Do not merge identities or invent source facts from these entries.\"}",
+      "scenario": "p123-p3-v1",
+      "received_at": 1792845887.2575848,
+      "response": {
+        "id": "312025ff-4f9e-437e-bb6c-fedfb64a1f8a",
+        "object": "chat.completion",
+        "created": 1792845887,
+        "model": "gemini-3.5-flash-lite",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"decisions\": [{\"candidate_id\": \"b9f5ebd08e13844a9e6993ac\", \"verdict\": \"entity\", \"entity_type\": \"PER\", \"canonical_name\": \"bác sĩ Minh\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}, {\"candidate_id\": \"860d52190bce583c8226847f\", \"verdict\": \"entity\", \"entity_type\": \"PER\", \"canonical_name\": \"Minh\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}, {\"candidate_id\": \"90aa831bbcd602c3561d0ada\", \"verdict\": \"entity\", \"entity_type\": \"PER\", \"canonical_name\": \"Minh\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}, {\"candidate_id\": \"6406442cea965652cff9c7fd\", \"verdict\": \"entity\", \"entity_type\": \"PER\", \"canonical_name\": \"Minh\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}]}"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 10,
+          "total_tokens": 20
+        }
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "2d9c38712d755e072b223be6d5570d2e3debe08ca6d7fe5eb2226b6dbe7a57d1",
+      "dispatch_id": "fb20946b-f55c-401b-9fd3-2672e0c560ea",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 512,
+      "upstream_auth_valid": true,
+      "prompt_text": "You are an expert fantasy novel analyst. Extract all named entities from the text. Classify each entity strictly as PER, LOC, ORG, ITEM, or SKILL. Return only a JSON array using this schema: [{\"phrase\":\"TiÃªu ViÃªm\",\"entity\":\"PER\",\"score\":9.5}]. Score must be between 0 and 10. Do not include surrounding conjunctions or stopwords.\n\nText to analyze:\n\nbác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+      "scenario": "p123-p3-v1",
+      "received_at": 1792845897.868272,
+      "response": {
+        "id": "fb20946b-f55c-401b-9fd3-2672e0c560ea",
+        "object": "chat.completion",
+        "created": 1792845897,
+        "model": "gemini-3.5-flash-lite",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "[]"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 10,
+          "total_tokens": 20
+        }
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "aae18b225ecc4d3f35fd67e04223d865acc170ed5a2b906f5f0bee2d80d864a4",
+      "dispatch_id": "6a47d01d-10ea-4e16-9451-dac41534f5a3",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 512,
+      "upstream_auth_valid": true,
+      "prompt_text": "Verify EVERY supplied candidate OCCURRENCE in its original context, not just the name string. Candidates intentionally overgenerate; sentence-initial common words (e.g. \"Chương\", \"Bến\", \"Chiếc\") and common phrases (e.g. \"an\" in \"an toàn\") are NOT entities. Return exactly one decision per candidate_id, with no missing, extra, or duplicate candidate IDs. Verdicts must be strictly partitioned as follows:\n1. For verdict \"entity\":\n   - entity_type: must be one of PER, LOC, ORG, ITEM, SKILL.\n   - canonical_name: must be an exact known canonical name or the supplied candidate surface.\n   - canonical_entity_id: reference ONLY a supplied known entity ID matching this entity, else empty string \"\".\n   - Distinct people sharing a short name must NOT be merged.\n   - An alias requires identity_quote copied verbatim from source context proving identity; if ambiguous use \"unresolved\".\n   - Non-Unknown life status only for PER with explicit confirmed source status_quote, not hearsay or inference.\n2. For verdict \"not_entity\" and \"unresolved\":\n   - canonical_name MUST be empty string \"\" (DO NOT retain or copy the candidate surface name into canonical_name).\n   - canonical_entity_id MUST be empty string \"\".\n   - entity_type MUST be null.\n   - identity_quote MUST be empty string \"\".\n   - initial_status MUST be \"Unknown\".\n   - status_quote MUST be empty string \"\".\n   - For \"not_entity\": state the linguistic or context reason (e.g. common noun, chapter header, sentence-initial word).\n   - For \"unresolved\": state what ambiguity prevents confirmation (unresolved is not approved truth).\nExplain each decision in reason. Schema: {\"$defs\": {\"EntityDecision\": {\"additionalProperties\": false, \"properties\": {\"candidate_id\": {\"description\": \"Exact candidate_id from the request.\", \"title\": \"Candidate Id\", \"type\": \"string\"}, \"verdict\": {\"description\": \"Verdict: 'entity' for real named entities; 'not_entity' for common words, nouns, phrases; 'unresolved' for ambiguous identity.\", \"enum\": [\"entity\", \"not_entity\", \"unresolved\"], \"title\": \"Verdict\", \"type\": \"string\"}, \"entity_type\": {\"anyOf\": [{\"enum\": [\"PER\", \"LOC\", \"ORG\", \"ITEM\", \"SKILL\"], \"type\": \"string\"}, {\"type\": \"null\"}], \"default\": null, \"description\": \"PER, LOC, ORG, ITEM, or SKILL for 'entity'. MUST be null for 'not_entity' and 'unresolved'.\", \"title\": \"Entity Type\"}, \"canonical_name\": {\"default\": \"\", \"description\": \"Exact known canonical name or supplied candidate surface for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Canonical Name\", \"type\": \"string\"}, \"canonical_entity_id\": {\"default\": \"\", \"description\": \"Known entity ID if matching known entities for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Canonical Entity Id\", \"type\": \"string\"}, \"provisional_identity_key\": {\"default\": \"\", \"description\": \"Human review only: checkpoint scope / author group label. Never assign in machine verification.\", \"maxLength\": 130, \"title\": \"Provisional Identity Key\", \"type\": \"string\"}, \"identity_quote\": {\"default\": \"\", \"description\": \"Verbatim source quote proving alias identity for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Identity Quote\", \"type\": \"string\"}, \"initial_status\": {\"default\": \"Unknown\", \"description\": \"Life status for PER with direct confirmed source status_quote. MUST be 'Unknown' for 'not_entity' and 'unresolved'.\", \"enum\": [\"Alive\", \"Dead\", \"Unknown\"], \"title\": \"Initial Status\", \"type\": \"string\"}, \"status_quote\": {\"default\": \"\", \"description\": \"Verbatim source quote evidencing life status for PER. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Status Quote\", \"type\": \"string\"}, \"confidence\": {\"default\": 0.7, \"maximum\": 1, \"minimum\": 0, \"title\": \"Confidence\", \"type\": \"number\"}, \"reason\": {\"description\": \"Linguistic context reason for this verdict.\", \"minLength\": 1, \"title\": \"Reason\", \"type\": \"string\"}}, \"required\": [\"candidate_id\", \"verdict\", \"reason\"], \"title\": \"EntityDecision\", \"type\": \"object\"}}, \"additionalProperties\": false, \"properties\": {\"decisions\": {\"items\": {\"$ref\": \"#/$defs/EntityDecision\"}, \"title\": \"Decisions\", \"type\": \"array\"}}, \"required\": [\"decisions\"], \"title\": \"EntityDecisionBatch\", \"type\": \"object\"}\n\n{\"candidates\": [{\"candidate_id\": \"b9f5ebd08e13844a9e6993ac\", \"surface\": \"bác sĩ Minh\", \"start\": 0, \"end\": 11, \"context_start\": 0, \"context_end\": 57, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\", \"origins\": [\"title_or_location\"]}, {\"candidate_id\": \"860d52190bce583c8226847f\", \"surface\": \"Minh\", \"start\": 7, \"end\": 11, \"context_start\": 0, \"context_end\": 57, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"90aa831bbcd602c3561d0ada\", \"surface\": \"Minh\", \"start\": 23, \"end\": 27, \"context_start\": 0, \"context_end\": 57, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"6406442cea965652cff9c7fd\", \"surface\": \"Minh\", \"start\": 29, \"end\": 33, \"context_start\": 0, \"context_end\": 57, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\", \"origins\": [\"capitalized_token\"]}, {\"candidate_id\": \"e41963bacaadda67809f1bb0\", \"surface\": \"lan\", \"start\": 44, \"end\": 47, \"context_start\": 0, \"context_end\": 57, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\", \"origins\": [\"author_guidance\"]}], \"known_entities\": [], \"known_aliases\": [], \"allowed_names\": [\"Minh\", \"bác sĩ Minh\", \"lan\"], \"author_guidance\": [{\"kind\": \"hint\", \"name\": \"lan\", \"notes\": \"\", \"aliases\": [], \"entity_type\": null}], \"guidance_policy\": \"Hints are search instructions, never evidence of an occurrence or event. Author declarations describe world identities, not chapter presence. Do not merge identities or invent source facts from these entries.\"}",
+      "scenario": "p123-p3-v1",
+      "received_at": 1792845898.010605,
+      "response": {
+        "id": "6a47d01d-10ea-4e16-9451-dac41534f5a3",
+        "object": "chat.completion",
+        "created": 1792845898,
+        "model": "gemini-3.5-flash-lite",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"decisions\": [{\"candidate_id\": \"b9f5ebd08e13844a9e6993ac\", \"verdict\": \"entity\", \"entity_type\": \"PER\", \"canonical_name\": \"bác sĩ Minh\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}, {\"candidate_id\": \"860d52190bce583c8226847f\", \"verdict\": \"entity\", \"entity_type\": \"PER\", \"canonical_name\": \"Minh\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}, {\"candidate_id\": \"90aa831bbcd602c3561d0ada\", \"verdict\": \"entity\", \"entity_type\": \"PER\", \"canonical_name\": \"Minh\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}, {\"candidate_id\": \"6406442cea965652cff9c7fd\", \"verdict\": \"entity\", \"entity_type\": \"PER\", \"canonical_name\": \"Minh\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}, {\"candidate_id\": \"e41963bacaadda67809f1bb0\", \"verdict\": \"entity\", \"entity_type\": \"PER\", \"canonical_name\": \"lan\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}]}"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 10,
+          "total_tokens": 20
+        }
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "14d5ad8ab16d0553fb60fed8864dbd6b28fc4936cbf6987347879488797c0e14",
+      "dispatch_id": "09503f3c-c957-42a3-8a0e-3db80da24c24",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 512,
+      "upstream_auth_valid": true,
+      "prompt_text": "Extract narrative events only from this source and the reviewed inventory. Return JSON {\"events\":[{\"event_type\":\"...\",\"summary\":\"...\",\"participants\":[\"exact reviewed entity_id\"],\"locations\":[],\"consequences\":[],\"quote\":\"exact unique source quote\"}]}. No predictions or invented identities.\n\n{\"source_text\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\", \"known_entities\": [{\"entity_id\": \"9edbbcbe-54b3-4855-862b-d1ff2d8ccc45\", \"name\": \"Minh\", \"entity_type\": \"PER\", \"canonical_entity_id\": \"\", \"occurrences\": [{\"end\": 11, \"quote\": \"Minh\", \"start\": 7, \"text_hash\": \"adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f\", \"revision_id\": \"61e8f760-f440-4e72-9258-e87af92b6856\", \"candidate_id\": \"860d52190bce583c8226847f\"}, {\"end\": 33, \"quote\": \"Minh\", \"start\": 29, \"text_hash\": \"adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f\", \"revision_id\": \"61e8f760-f440-4e72-9258-e87af92b6856\", \"candidate_id\": \"6406442cea965652cff9c7fd\"}]}, {\"entity_id\": \"2368d2ba-5f47-434c-8b51-a09c6b13fa1e\", \"name\": \"Minh\", \"entity_type\": \"PER\", \"canonical_entity_id\": \"\", \"occurrences\": [{\"end\": 27, \"quote\": \"Minh\", \"start\": 23, \"text_hash\": \"adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f\", \"revision_id\": \"61e8f760-f440-4e72-9258-e87af92b6856\", \"candidate_id\": \"90aa831bbcd602c3561d0ada\"}]}, {\"entity_id\": \"59bf1840-2aee-403a-94b4-3a39f96e7fcb\", \"name\": \"lan\", \"entity_type\": \"PER\", \"canonical_entity_id\": \"\", \"occurrences\": [{\"end\": 47, \"quote\": \"lan\", \"start\": 44, \"text_hash\": \"adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f\", \"revision_id\": \"61e8f760-f440-4e72-9258-e87af92b6856\", \"candidate_id\": \"e41963bacaadda67809f1bb0\"}]}], \"aliases\": []}",
+      "scenario": "p123-p3-v1",
+      "received_at": 1792845902.979306,
+      "response": {
+        "id": "09503f3c-c957-42a3-8a0e-3db80da24c24",
+        "object": "chat.completion",
+        "created": 1792845902,
+        "model": "gemini-3.5-flash-lite",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"events\": [{\"event_type\": \"observation\", \"summary\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\", \"quote\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\", \"participants\": [\"9edbbcbe-54b3-4855-862b-d1ff2d8ccc45\", \"2368d2ba-5f47-434c-8b51-a09c6b13fa1e\", \"59bf1840-2aee-403a-94b4-3a39f96e7fcb\"], \"locations\": [], \"consequences\": []}]}"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 10,
+          "total_tokens": 20
+        }
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "6a073156e983e34cdfca00894f0f9a4a66389c2350b02a1cf0cf63507d463363",
+      "dispatch_id": "08351d41-9c3b-4182-9a3e-d2f51a56ee62",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 512,
+      "upstream_auth_valid": true,
+      "prompt_text": "You are an expert fantasy novel analyst. Extract all named entities from the text. Classify each entity strictly as PER, LOC, ORG, ITEM, or SKILL. Return only a JSON array using this schema: [{\"phrase\":\"TiÃªu ViÃªm\",\"entity\":\"PER\",\"score\":9.5}]. Score must be between 0 and 10. Do not include surrounding conjunctions or stopwords.\n\nText to analyze:\n\nbác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\nlan đã chết.",
+      "scenario": "p123-p3-v1",
+      "received_at": 1792845911.9998066,
+      "response": {
+        "id": "08351d41-9c3b-4182-9a3e-d2f51a56ee62",
+        "object": "chat.completion",
+        "created": 1792845911,
+        "model": "gemini-3.5-flash-lite",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "[]"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 10,
+          "total_tokens": 20
+        }
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "0be7a9cef01a30f580b174dc2f067962444c0d082a0235712094940af073f581",
+      "dispatch_id": "a541e51e-840c-4d3d-9254-201ec8cf1bc4",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 512,
+      "upstream_auth_valid": true,
+      "prompt_text": "Verify EVERY supplied candidate OCCURRENCE in its original context, not just the name string. Candidates intentionally overgenerate; sentence-initial common words (e.g. \"Chương\", \"Bến\", \"Chiếc\") and common phrases (e.g. \"an\" in \"an toàn\") are NOT entities. Return exactly one decision per candidate_id, with no missing, extra, or duplicate candidate IDs. Verdicts must be strictly partitioned as follows:\n1. For verdict \"entity\":\n   - entity_type: must be one of PER, LOC, ORG, ITEM, SKILL.\n   - canonical_name: must be an exact known canonical name or the supplied candidate surface.\n   - canonical_entity_id: reference ONLY a supplied known entity ID matching this entity, else empty string \"\".\n   - Distinct people sharing a short name must NOT be merged.\n   - An alias requires identity_quote copied verbatim from source context proving identity; if ambiguous use \"unresolved\".\n   - Non-Unknown life status only for PER with explicit confirmed source status_quote, not hearsay or inference.\n2. For verdict \"not_entity\" and \"unresolved\":\n   - canonical_name MUST be empty string \"\" (DO NOT retain or copy the candidate surface name into canonical_name).\n   - canonical_entity_id MUST be empty string \"\".\n   - entity_type MUST be null.\n   - identity_quote MUST be empty string \"\".\n   - initial_status MUST be \"Unknown\".\n   - status_quote MUST be empty string \"\".\n   - For \"not_entity\": state the linguistic or context reason (e.g. common noun, chapter header, sentence-initial word).\n   - For \"unresolved\": state what ambiguity prevents confirmation (unresolved is not approved truth).\nExplain each decision in reason. Schema: {\"$defs\": {\"EntityDecision\": {\"additionalProperties\": false, \"properties\": {\"candidate_id\": {\"description\": \"Exact candidate_id from the request.\", \"title\": \"Candidate Id\", \"type\": \"string\"}, \"verdict\": {\"description\": \"Verdict: 'entity' for real named entities; 'not_entity' for common words, nouns, phrases; 'unresolved' for ambiguous identity.\", \"enum\": [\"entity\", \"not_entity\", \"unresolved\"], \"title\": \"Verdict\", \"type\": \"string\"}, \"entity_type\": {\"anyOf\": [{\"enum\": [\"PER\", \"LOC\", \"ORG\", \"ITEM\", \"SKILL\"], \"type\": \"string\"}, {\"type\": \"null\"}], \"default\": null, \"description\": \"PER, LOC, ORG, ITEM, or SKILL for 'entity'. MUST be null for 'not_entity' and 'unresolved'.\", \"title\": \"Entity Type\"}, \"canonical_name\": {\"default\": \"\", \"description\": \"Exact known canonical name or supplied candidate surface for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Canonical Name\", \"type\": \"string\"}, \"canonical_entity_id\": {\"default\": \"\", \"description\": \"Known entity ID if matching known entities for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Canonical Entity Id\", \"type\": \"string\"}, \"provisional_identity_key\": {\"default\": \"\", \"description\": \"Human review only: checkpoint scope / author group label. Never assign in machine verification.\", \"maxLength\": 130, \"title\": \"Provisional Identity Key\", \"type\": \"string\"}, \"identity_quote\": {\"default\": \"\", \"description\": \"Verbatim source quote proving alias identity for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Identity Quote\", \"type\": \"string\"}, \"initial_status\": {\"default\": \"Unknown\", \"description\": \"Life status for PER with direct confirmed source status_quote. MUST be 'Unknown' for 'not_entity' and 'unresolved'.\", \"enum\": [\"Alive\", \"Dead\", \"Unknown\"], \"title\": \"Initial Status\", \"type\": \"string\"}, \"status_quote\": {\"default\": \"\", \"description\": \"Verbatim source quote evidencing life status for PER. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Status Quote\", \"type\": \"string\"}, \"confidence\": {\"default\": 0.7, \"maximum\": 1, \"minimum\": 0, \"title\": \"Confidence\", \"type\": \"number\"}, \"reason\": {\"description\": \"Linguistic context reason for this verdict.\", \"minLength\": 1, \"title\": \"Reason\", \"type\": \"string\"}}, \"required\": [\"candidate_id\", \"verdict\", \"reason\"], \"title\": \"EntityDecision\", \"type\": \"object\"}}, \"additionalProperties\": false, \"properties\": {\"decisions\": {\"items\": {\"$ref\": \"#/$defs/EntityDecision\"}, \"title\": \"Decisions\", \"type\": \"array\"}}, \"required\": [\"decisions\"], \"title\": \"EntityDecisionBatch\", \"type\": \"object\"}\n\n{\"candidates\": [{\"candidate_id\": \"dcc8b77a4cb37219a5bb715a\", \"surface\": \"bác sĩ Minh\", \"start\": 0, \"end\": 11, \"context_start\": 0, \"context_end\": 70, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\\nlan đã chết.\", \"origins\": [\"title_or_location\"]}, {\"candidate_id\": \"12d7bda3cd8dc8ab168645f5\", \"surface\": \"Minh\", \"start\": 7, \"end\": 11, \"context_start\": 0, \"context_end\": 70, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\\nlan đã chết.\", \"origins\": [\"approved_name_or_alias\", \"capitalized_token\"]}, {\"candidate_id\": \"e8fe017e75906e0d1cbc38ca\", \"surface\": \"Minh\", \"start\": 23, \"end\": 27, \"context_start\": 0, \"context_end\": 70, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\\nlan đã chết.\", \"origins\": [\"approved_name_or_alias\", \"capitalized_token\"]}, {\"candidate_id\": \"9b58355a9a59335e9a5e8755\", \"surface\": \"Minh\", \"start\": 29, \"end\": 33, \"context_start\": 0, \"context_end\": 70, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\\nlan đã chết.\", \"origins\": [\"approved_name_or_alias\", \"capitalized_token\"]}, {\"candidate_id\": \"494297d61ebdfee6d81f6fe0\", \"surface\": \"lan\", \"start\": 44, \"end\": 47, \"context_start\": 0, \"context_end\": 70, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\\nlan đã chết.\", \"origins\": [\"approved_name_or_alias\", \"author_guidance\"]}, {\"candidate_id\": \"ac5cfa7d27bd074f922856a0\", \"surface\": \"lan\", \"start\": 58, \"end\": 61, \"context_start\": 0, \"context_end\": 70, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\\nlan đã chết.\", \"origins\": [\"approved_name_or_alias\", \"author_guidance\"]}], \"known_entities\": [{\"entity_id\": \"9edbbcbe-54b3-4855-862b-d1ff2d8ccc45\", \"name\": \"Minh\", \"entity_type\": \"PER\"}, {\"entity_id\": \"2368d2ba-5f47-434c-8b51-a09c6b13fa1e\", \"name\": \"Minh\", \"entity_type\": \"PER\"}, {\"entity_id\": \"59bf1840-2aee-403a-94b4-3a39f96e7fcb\", \"name\": \"lan\", \"entity_type\": \"PER\"}], \"known_aliases\": [], \"allowed_names\": [\"Minh\", \"bác sĩ Minh\", \"lan\"], \"author_guidance\": [{\"kind\": \"hint\", \"name\": \"lan\", \"notes\": \"\", \"aliases\": [], \"entity_type\": null}], \"guidance_policy\": \"Hints are search instructions, never evidence of an occurrence or event. Author declarations describe world identities, not chapter presence. Do not merge identities or invent source facts from these entries.\"}",
+      "scenario": "p123-p3-v1",
+      "received_at": 1792845912.1169162,
+      "response": {
+        "id": "a541e51e-840c-4d3d-9254-201ec8cf1bc4",
+        "object": "chat.completion",
+        "created": 1792845912,
+        "model": "gemini-3.5-flash-lite",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"decisions\": [{\"candidate_id\": \"dcc8b77a4cb37219a5bb715a\", \"verdict\": \"unresolved\", \"entity_type\": null, \"canonical_name\": \"\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}, {\"candidate_id\": \"12d7bda3cd8dc8ab168645f5\", \"verdict\": \"unresolved\", \"entity_type\": null, \"canonical_name\": \"\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}, {\"candidate_id\": \"e8fe017e75906e0d1cbc38ca\", \"verdict\": \"unresolved\", \"entity_type\": null, \"canonical_name\": \"\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}, {\"candidate_id\": \"9b58355a9a59335e9a5e8755\", \"verdict\": \"unresolved\", \"entity_type\": null, \"canonical_name\": \"\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}, {\"candidate_id\": \"494297d61ebdfee6d81f6fe0\", \"verdict\": \"unresolved\", \"entity_type\": null, \"canonical_name\": \"\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}, {\"candidate_id\": \"ac5cfa7d27bd074f922856a0\", \"verdict\": \"unresolved\", \"entity_type\": null, \"canonical_name\": \"\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}]}"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 10,
+          "total_tokens": 20
+        }
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "6a073156e983e34cdfca00894f0f9a4a66389c2350b02a1cf0cf63507d463363",
+      "dispatch_id": "3cdc9f13-b100-4af9-a3e5-48e3f9916563",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 512,
+      "upstream_auth_valid": true,
+      "prompt_text": "You are an expert fantasy novel analyst. Extract all named entities from the text. Classify each entity strictly as PER, LOC, ORG, ITEM, or SKILL. Return only a JSON array using this schema: [{\"phrase\":\"TiÃªu ViÃªm\",\"entity\":\"PER\",\"score\":9.5}]. Score must be between 0 and 10. Do not include surrounding conjunctions or stopwords.\n\nText to analyze:\n\nbác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\nlan đã chết.",
+      "scenario": "p123-p3-v1",
+      "received_at": 1792845925.7932942,
+      "response": {
+        "id": "3cdc9f13-b100-4af9-a3e5-48e3f9916563",
+        "object": "chat.completion",
+        "created": 1792845925,
+        "model": "gemini-3.5-flash-lite",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "[]"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 10,
+          "total_tokens": 20
+        }
+      },
+      "operation": "discovery"
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "0be7a9cef01a30f580b174dc2f067962444c0d082a0235712094940af073f581",
+      "dispatch_id": "a194c0e1-ffd7-4dbd-a7e5-198e51110f12",
+      "client": "ai-service",
+      "native_schema": null,
+      "output_limit": 512,
+      "upstream_auth_valid": true,
+      "prompt_text": "Verify EVERY supplied candidate OCCURRENCE in its original context, not just the name string. Candidates intentionally overgenerate; sentence-initial common words (e.g. \"Chương\", \"Bến\", \"Chiếc\") and common phrases (e.g. \"an\" in \"an toàn\") are NOT entities. Return exactly one decision per candidate_id, with no missing, extra, or duplicate candidate IDs. Verdicts must be strictly partitioned as follows:\n1. For verdict \"entity\":\n   - entity_type: must be one of PER, LOC, ORG, ITEM, SKILL.\n   - canonical_name: must be an exact known canonical name or the supplied candidate surface.\n   - canonical_entity_id: reference ONLY a supplied known entity ID matching this entity, else empty string \"\".\n   - Distinct people sharing a short name must NOT be merged.\n   - An alias requires identity_quote copied verbatim from source context proving identity; if ambiguous use \"unresolved\".\n   - Non-Unknown life status only for PER with explicit confirmed source status_quote, not hearsay or inference.\n2. For verdict \"not_entity\" and \"unresolved\":\n   - canonical_name MUST be empty string \"\" (DO NOT retain or copy the candidate surface name into canonical_name).\n   - canonical_entity_id MUST be empty string \"\".\n   - entity_type MUST be null.\n   - identity_quote MUST be empty string \"\".\n   - initial_status MUST be \"Unknown\".\n   - status_quote MUST be empty string \"\".\n   - For \"not_entity\": state the linguistic or context reason (e.g. common noun, chapter header, sentence-initial word).\n   - For \"unresolved\": state what ambiguity prevents confirmation (unresolved is not approved truth).\nExplain each decision in reason. Schema: {\"$defs\": {\"EntityDecision\": {\"additionalProperties\": false, \"properties\": {\"candidate_id\": {\"description\": \"Exact candidate_id from the request.\", \"title\": \"Candidate Id\", \"type\": \"string\"}, \"verdict\": {\"description\": \"Verdict: 'entity' for real named entities; 'not_entity' for common words, nouns, phrases; 'unresolved' for ambiguous identity.\", \"enum\": [\"entity\", \"not_entity\", \"unresolved\"], \"title\": \"Verdict\", \"type\": \"string\"}, \"entity_type\": {\"anyOf\": [{\"enum\": [\"PER\", \"LOC\", \"ORG\", \"ITEM\", \"SKILL\"], \"type\": \"string\"}, {\"type\": \"null\"}], \"default\": null, \"description\": \"PER, LOC, ORG, ITEM, or SKILL for 'entity'. MUST be null for 'not_entity' and 'unresolved'.\", \"title\": \"Entity Type\"}, \"canonical_name\": {\"default\": \"\", \"description\": \"Exact known canonical name or supplied candidate surface for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Canonical Name\", \"type\": \"string\"}, \"canonical_entity_id\": {\"default\": \"\", \"description\": \"Known entity ID if matching known entities for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Canonical Entity Id\", \"type\": \"string\"}, \"provisional_identity_key\": {\"default\": \"\", \"description\": \"Human review only: checkpoint scope / author group label. Never assign in machine verification.\", \"maxLength\": 130, \"title\": \"Provisional Identity Key\", \"type\": \"string\"}, \"identity_quote\": {\"default\": \"\", \"description\": \"Verbatim source quote proving alias identity for 'entity'. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Identity Quote\", \"type\": \"string\"}, \"initial_status\": {\"default\": \"Unknown\", \"description\": \"Life status for PER with direct confirmed source status_quote. MUST be 'Unknown' for 'not_entity' and 'unresolved'.\", \"enum\": [\"Alive\", \"Dead\", \"Unknown\"], \"title\": \"Initial Status\", \"type\": \"string\"}, \"status_quote\": {\"default\": \"\", \"description\": \"Verbatim source quote evidencing life status for PER. MUST be empty string '' for 'not_entity' and 'unresolved'.\", \"title\": \"Status Quote\", \"type\": \"string\"}, \"confidence\": {\"default\": 0.7, \"maximum\": 1, \"minimum\": 0, \"title\": \"Confidence\", \"type\": \"number\"}, \"reason\": {\"description\": \"Linguistic context reason for this verdict.\", \"minLength\": 1, \"title\": \"Reason\", \"type\": \"string\"}}, \"required\": [\"candidate_id\", \"verdict\", \"reason\"], \"title\": \"EntityDecision\", \"type\": \"object\"}}, \"additionalProperties\": false, \"properties\": {\"decisions\": {\"items\": {\"$ref\": \"#/$defs/EntityDecision\"}, \"title\": \"Decisions\", \"type\": \"array\"}}, \"required\": [\"decisions\"], \"title\": \"EntityDecisionBatch\", \"type\": \"object\"}\n\n{\"candidates\": [{\"candidate_id\": \"dcc8b77a4cb37219a5bb715a\", \"surface\": \"bác sĩ Minh\", \"start\": 0, \"end\": 11, \"context_start\": 0, \"context_end\": 70, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\\nlan đã chết.\", \"origins\": [\"title_or_location\"]}, {\"candidate_id\": \"12d7bda3cd8dc8ab168645f5\", \"surface\": \"Minh\", \"start\": 7, \"end\": 11, \"context_start\": 0, \"context_end\": 70, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\\nlan đã chết.\", \"origins\": [\"approved_name_or_alias\", \"capitalized_token\"]}, {\"candidate_id\": \"e8fe017e75906e0d1cbc38ca\", \"surface\": \"Minh\", \"start\": 23, \"end\": 27, \"context_start\": 0, \"context_end\": 70, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\\nlan đã chết.\", \"origins\": [\"approved_name_or_alias\", \"capitalized_token\"]}, {\"candidate_id\": \"9b58355a9a59335e9a5e8755\", \"surface\": \"Minh\", \"start\": 29, \"end\": 33, \"context_start\": 0, \"context_end\": 70, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\\nlan đã chết.\", \"origins\": [\"approved_name_or_alias\", \"capitalized_token\"]}, {\"candidate_id\": \"494297d61ebdfee6d81f6fe0\", \"surface\": \"lan\", \"start\": 44, \"end\": 47, \"context_start\": 0, \"context_end\": 70, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\\nlan đã chết.\", \"origins\": [\"approved_name_or_alias\", \"author_guidance\"]}, {\"candidate_id\": \"ac5cfa7d27bd074f922856a0\", \"surface\": \"lan\", \"start\": 58, \"end\": 61, \"context_start\": 0, \"context_end\": 70, \"context\": \"bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.\\nlan đã chết.\", \"origins\": [\"approved_name_or_alias\", \"author_guidance\"]}], \"known_entities\": [{\"entity_id\": \"9edbbcbe-54b3-4855-862b-d1ff2d8ccc45\", \"name\": \"Minh\", \"entity_type\": \"PER\"}, {\"entity_id\": \"2368d2ba-5f47-434c-8b51-a09c6b13fa1e\", \"name\": \"Minh\", \"entity_type\": \"PER\"}, {\"entity_id\": \"59bf1840-2aee-403a-94b4-3a39f96e7fcb\", \"name\": \"lan\", \"entity_type\": \"PER\"}], \"known_aliases\": [], \"allowed_names\": [\"Minh\", \"bác sĩ Minh\", \"lan\"], \"author_guidance\": [{\"kind\": \"hint\", \"name\": \"lan\", \"notes\": \"\", \"aliases\": [], \"entity_type\": null}], \"guidance_policy\": \"Hints are search instructions, never evidence of an occurrence or event. Author declarations describe world identities, not chapter presence. Do not merge identities or invent source facts from these entries.\"}",
+      "scenario": "p123-p3-v1",
+      "received_at": 1792845925.9143608,
+      "response": {
+        "id": "a194c0e1-ffd7-4dbd-a7e5-198e51110f12",
+        "object": "chat.completion",
+        "created": 1792845925,
+        "model": "gemini-3.5-flash-lite",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"decisions\": [{\"candidate_id\": \"dcc8b77a4cb37219a5bb715a\", \"verdict\": \"unresolved\", \"entity_type\": null, \"canonical_name\": \"\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}, {\"candidate_id\": \"12d7bda3cd8dc8ab168645f5\", \"verdict\": \"unresolved\", \"entity_type\": null, \"canonical_name\": \"\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}, {\"candidate_id\": \"e8fe017e75906e0d1cbc38ca\", \"verdict\": \"unresolved\", \"entity_type\": null, \"canonical_name\": \"\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}, {\"candidate_id\": \"9b58355a9a59335e9a5e8755\", \"verdict\": \"unresolved\", \"entity_type\": null, \"canonical_name\": \"\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}, {\"candidate_id\": \"494297d61ebdfee6d81f6fe0\", \"verdict\": \"unresolved\", \"entity_type\": null, \"canonical_name\": \"\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}, {\"candidate_id\": \"ac5cfa7d27bd074f922856a0\", \"verdict\": \"unresolved\", \"entity_type\": null, \"canonical_name\": \"\", \"canonical_entity_id\": \"\", \"provisional_identity_key\": \"\", \"identity_quote\": \"\", \"initial_status\": \"Unknown\", \"status_quote\": \"\", \"confidence\": 0.9, \"reason\": \"Offline fixture suggestion; explicit human identity review required\"}]}"
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 10,
+          "completion_tokens": 10,
+          "total_tokens": 20
+        }
+      },
+      "operation": "discovery"
+    }
+  ],
+  "real_AI_or_embedding_provider_calls": 0,
+  "basis": "Actual received fake-upstream ledger + internal runtime networks, fixed bridge, fake-only model endpoint; runtime embeddings disabled. Fake embedding behavior is covered separately by PG/unit/P7 tests."
+}

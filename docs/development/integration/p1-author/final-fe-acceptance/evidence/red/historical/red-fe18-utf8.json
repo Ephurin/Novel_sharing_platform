@@ -1,0 +1,13 @@
+{
+  "command": [
+    "node",
+    "--import",
+    "tsx",
+    "--test",
+    "tests/entity-casefold-python.test.ts"
+  ],
+  "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+  "started_utc": "2026-10-24T09:33:48.118913+00:00",
+  "finished_utc": "2026-10-24T09:33:48.881095+00:00",
+  "exit_code": 1
+}

@@ -1,0 +1,37 @@
+TAP version 13
+# Subtest: Actual production SPA has offline styling/fonts and no CDN runtime exception
+not ok 1 - Actual production SPA has offline styling/fonts and no CDN runtime exception
+  ---
+  duration_ms: 2617.7826
+  location: 'C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web\\tests\\offline-assets.browser.test.mjs:5:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    The actual SPA must not throw when external CDNs are unavailable
+    + actual - expected
+    
+    + [
+    +   'tailwind is not defined'
+    + ]
+    - []
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected:
+  actual:
+    0: 'tailwind is not defined'
+  operator: 'deepStrictEqual'
+  stack: |-
+    assertOfflineAssets (file:///C:/Users/Laptop/.codex/worktrees/p1-fe-final-acceptance/testproject/web/tests/helpers/p1-offline-assets.mjs:7:10)
+    async TestContext.<anonymous> (file:///C:/Users/Laptop/.codex/worktrees/p1-fe-final-acceptance/testproject/web/tests/offline-assets.browser.test.mjs:7:49)
+    async Test.run (node:internal/test_runner/test:980:9)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3406.0312

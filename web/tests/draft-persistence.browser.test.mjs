@@ -6,8 +6,9 @@ import { createServer } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { chromium } from '@playwright/test';
+import { evidenceDirectory, sanitizedTrace } from './helpers/evidence-output.mjs';
 
 test('mounted draft hook: Undo, serial saves, chapter/account isolation, 409 and durable readback', {
   skip: process.env.RUN_DRAFT_BROWSER_TESTS !== '1', timeout: 120000
@@ -28,8 +29,7 @@ test('mounted draft hook: Undo, serial saves, chapter/account isolation, 409 and
     child.on('message', listener); child.send({ action: 'readback', id, chapterId });
   });
   let browser, server;
-  const evidence = new URL('../../docs/development/PR-54-55-REVIEW/', import.meta.url);
-  await mkdir(evidence, { recursive: true });
+  const evidence = await evidenceDirectory('draft-persistence-browser');
   try {
     const bundle = await build({ entryPoints: [fileURLToPath(new URL('fixtures/draft-persistence.tsx', import.meta.url))], bundle: true, write: false,
       outfile: 'app.js', format: 'iife', jsx: 'automatic', define: { 'import.meta.env.VITE_API_BASE_URL': JSON.stringify(config.base), 'process.env.NODE_ENV': '"test"' } });
@@ -172,7 +172,7 @@ test('mounted draft hook: Undo, serial saves, chapter/account isolation, 409 and
       passed: ['rapid Undo', 'latest full buffer', 'in-flight serial save', 'chapter isolation', 'route blocker', 'same chapter account switch', 'account-scoped recovery', '409 recovery', 'immutable revision/outbox hash', 'in-flight account switch', 'router remount recovery', 'React Strict Mode', 'review labels with score-only rating', 'light desktop', 'dark mobile']
     }, null, 2) + '\n');
   } finally {
-    if (browser) await browser.contexts()[0]?.tracing.stop({ path: fileURLToPath(new URL('draft-trace.zip', evidence)) });
+    if (browser) await sanitizedTrace(browser.contexts()[0], evidence, 'draft-trace');
     await browser?.close(); if (server) await new Promise(resolve => server.close(resolve));
     child.send({ action: 'close' }); await new Promise(resolve => child.once('exit', resolve));
   }

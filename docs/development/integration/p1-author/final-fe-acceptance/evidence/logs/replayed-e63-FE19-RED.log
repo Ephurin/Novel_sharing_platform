@@ -1,0 +1,157 @@
+FFFFFF.
+================================== FAILURES ===================================
+_ test_offline_known_inventory_requires_human_identity_selection[known_names0] _
+
+known_names = ('Minh',)
+
+    @pytest.mark.parametrize('known_names', [('Minh',), ('Minh', 'Minh'), ('Lan',)])
+    def test_offline_known_inventory_requires_human_identity_selection(known_names):
+        from types import SimpleNamespace
+        from services.entity_pipeline.verification import EntityDecision, _validate
+        fake = load_tool('fake_provider_upstream')
+        known = {f'id-{i}': {'entity_id': f'id-{i}', 'name': name, 'entity_type': 'PER'}
+                 for i, name in enumerate(known_names)}
+        payload = {'candidates': [{'candidate_id': 'c1', 'surface': 'Minh'}], 'known_entities': list(known.values())}
+        output = json.loads(fake.integration_response('Verify EVERY supplied candidate OCCURRENCE',
+            {'messages': [{'role': 'user', 'content': json.dumps(payload)}]}))
+        decision = EntityDecision.model_validate(output['decisions'][0])
+>       assert decision.verdict == 'unresolved'
+E       AssertionError: assert 'entity' == 'unresolved'
+E         
+E         - unresolved
+E         + entity
+
+tests\test_p1_fe_final_contracts.py:63: AssertionError
+_ test_offline_known_inventory_requires_human_identity_selection[known_names1] _
+
+known_names = ('Minh', 'Minh')
+
+    @pytest.mark.parametrize('known_names', [('Minh',), ('Minh', 'Minh'), ('Lan',)])
+    def test_offline_known_inventory_requires_human_identity_selection(known_names):
+        from types import SimpleNamespace
+        from services.entity_pipeline.verification import EntityDecision, _validate
+        fake = load_tool('fake_provider_upstream')
+        known = {f'id-{i}': {'entity_id': f'id-{i}', 'name': name, 'entity_type': 'PER'}
+                 for i, name in enumerate(known_names)}
+        payload = {'candidates': [{'candidate_id': 'c1', 'surface': 'Minh'}], 'known_entities': list(known.values())}
+        output = json.loads(fake.integration_response('Verify EVERY supplied candidate OCCURRENCE',
+            {'messages': [{'role': 'user', 'content': json.dumps(payload)}]}))
+        decision = EntityDecision.model_validate(output['decisions'][0])
+>       assert decision.verdict == 'unresolved'
+E       AssertionError: assert 'entity' == 'unresolved'
+E         
+E         - unresolved
+E         + entity
+
+tests\test_p1_fe_final_contracts.py:63: AssertionError
+_ test_offline_known_inventory_requires_human_identity_selection[known_names2] _
+
+known_names = ('Lan',)
+
+    @pytest.mark.parametrize('known_names', [('Minh',), ('Minh', 'Minh'), ('Lan',)])
+    def test_offline_known_inventory_requires_human_identity_selection(known_names):
+        from types import SimpleNamespace
+        from services.entity_pipeline.verification import EntityDecision, _validate
+        fake = load_tool('fake_provider_upstream')
+        known = {f'id-{i}': {'entity_id': f'id-{i}', 'name': name, 'entity_type': 'PER'}
+                 for i, name in enumerate(known_names)}
+        payload = {'candidates': [{'candidate_id': 'c1', 'surface': 'Minh'}], 'known_entities': list(known.values())}
+        output = json.loads(fake.integration_response('Verify EVERY supplied candidate OCCURRENCE',
+            {'messages': [{'role': 'user', 'content': json.dumps(payload)}]}))
+        decision = EntityDecision.model_validate(output['decisions'][0])
+>       assert decision.verdict == 'unresolved'
+E       AssertionError: assert 'entity' == 'unresolved'
+E         
+E         - unresolved
+E         + entity
+
+tests\test_p1_fe_final_contracts.py:63: AssertionError
+_ test_test_ingress_has_fixed_destination_and_no_credentialed_cors_reflection[GET] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000025AAE2C8950>
+method = 'GET'
+
+    @pytest.mark.parametrize('method', ['GET', 'POST', 'PATCH'])
+    def test_test_ingress_has_fixed_destination_and_no_credentialed_cors_reflection(monkeypatch, method):
+        ingress = load_tool('headless_http_ingress')
+        calls = []
+        def upstream(req, **kwargs):
+            calls.append((req.full_url, req.method))
+            raise HTTPError(req.full_url, 409, 'conflict', {'Content-Type': 'application/json'}, BytesIO(b'{"conflict":true}'))
+        monkeypatch.setattr(ingress.request, 'urlopen', upstream)
+        server = ThreadingHTTPServer(('127.0.0.1', 0), ingress.Handler)
+        worker = threading.Thread(target=server.serve_forever, daemon=True)
+        worker.start()
+        try:
+            client = http.client.HTTPConnection(*server.server_address)
+            client.request(method, '/api/v1/chapters/owned', headers={'Origin': 'https://untrusted.invalid'})
+            response = client.getresponse()
+            assert response.status == 409 and json.loads(response.read()) == {'conflict': True}
+>           assert response.getheader('Access-Control-Allow-Origin') is None
+E           AssertionError: assert 'https://untrusted.invalid' is None
+E            +  where 'https://untrusted.invalid' = getheader('Access-Control-Allow-Origin')
+E            +    where getheader = <http.client.HTTPResponse object at 0x0000025AAE2C82E0>.getheader
+
+tests\test_p1_fe_final_contracts.py:93: AssertionError
+_ test_test_ingress_has_fixed_destination_and_no_credentialed_cors_reflection[POST] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000025AAE323170>
+method = 'POST'
+
+    @pytest.mark.parametrize('method', ['GET', 'POST', 'PATCH'])
+    def test_test_ingress_has_fixed_destination_and_no_credentialed_cors_reflection(monkeypatch, method):
+        ingress = load_tool('headless_http_ingress')
+        calls = []
+        def upstream(req, **kwargs):
+            calls.append((req.full_url, req.method))
+            raise HTTPError(req.full_url, 409, 'conflict', {'Content-Type': 'application/json'}, BytesIO(b'{"conflict":true}'))
+        monkeypatch.setattr(ingress.request, 'urlopen', upstream)
+        server = ThreadingHTTPServer(('127.0.0.1', 0), ingress.Handler)
+        worker = threading.Thread(target=server.serve_forever, daemon=True)
+        worker.start()
+        try:
+            client = http.client.HTTPConnection(*server.server_address)
+            client.request(method, '/api/v1/chapters/owned', headers={'Origin': 'https://untrusted.invalid'})
+            response = client.getresponse()
+            assert response.status == 409 and json.loads(response.read()) == {'conflict': True}
+>           assert response.getheader('Access-Control-Allow-Origin') is None
+E           AssertionError: assert 'https://untrusted.invalid' is None
+E            +  where 'https://untrusted.invalid' = getheader('Access-Control-Allow-Origin')
+E            +    where getheader = <http.client.HTTPResponse object at 0x0000025AAE322470>.getheader
+
+tests\test_p1_fe_final_contracts.py:93: AssertionError
+_ test_test_ingress_has_fixed_destination_and_no_credentialed_cors_reflection[PATCH] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000025AAE322570>
+method = 'PATCH'
+
+    @pytest.mark.parametrize('method', ['GET', 'POST', 'PATCH'])
+    def test_test_ingress_has_fixed_destination_and_no_credentialed_cors_reflection(monkeypatch, method):
+        ingress = load_tool('headless_http_ingress')
+        calls = []
+        def upstream(req, **kwargs):
+            calls.append((req.full_url, req.method))
+            raise HTTPError(req.full_url, 409, 'conflict', {'Content-Type': 'application/json'}, BytesIO(b'{"conflict":true}'))
+        monkeypatch.setattr(ingress.request, 'urlopen', upstream)
+        server = ThreadingHTTPServer(('127.0.0.1', 0), ingress.Handler)
+        worker = threading.Thread(target=server.serve_forever, daemon=True)
+        worker.start()
+        try:
+            client = http.client.HTTPConnection(*server.server_address)
+            client.request(method, '/api/v1/chapters/owned', headers={'Origin': 'https://untrusted.invalid'})
+            response = client.getresponse()
+            assert response.status == 409 and json.loads(response.read()) == {'conflict': True}
+>           assert response.getheader('Access-Control-Allow-Origin') is None
+E           AssertionError: assert 'https://untrusted.invalid' is None
+E            +  where 'https://untrusted.invalid' = getheader('Access-Control-Allow-Origin')
+E            +    where getheader = <http.client.HTTPResponse object at 0x0000025AAE321570>.getheader
+
+tests\test_p1_fe_final_contracts.py:93: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_p1_fe_final_contracts.py::test_offline_known_inventory_requires_human_identity_selection[known_names0]
+FAILED tests/test_p1_fe_final_contracts.py::test_offline_known_inventory_requires_human_identity_selection[known_names1]
+FAILED tests/test_p1_fe_final_contracts.py::test_offline_known_inventory_requires_human_identity_selection[known_names2]
+FAILED tests/test_p1_fe_final_contracts.py::test_test_ingress_has_fixed_destination_and_no_credentialed_cors_reflection[GET]
+FAILED tests/test_p1_fe_final_contracts.py::test_test_ingress_has_fixed_destination_and_no_credentialed_cors_reflection[POST]
+FAILED tests/test_p1_fe_final_contracts.py::test_test_ingress_has_fixed_destination_and_no_credentialed_cors_reflection[PATCH]
+6 failed, 1 passed, 11 deselected in 4.05s

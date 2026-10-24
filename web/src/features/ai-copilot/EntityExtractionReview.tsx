@@ -524,7 +524,7 @@ function EntityCheckpoint({
   const pageCandidates = filteredCandidates.slice((activePage - 1) * pageSize, activePage * pageSize);
 
   return (
-    <Card withBorder radius="md" p="md">
+    <Card withBorder radius="md" p="md" data-testid={`entity-checkpoint-${review.analysis_run_id}`}>
       <Stack gap="sm">
         {/* Checkpoint Header */}
         <Group justify="space-between" align="flex-start">
@@ -893,7 +893,7 @@ function OccurrenceCard({
   };
 
   return (
-    <Paper p="xs" withBorder radius="sm">
+    <Paper p="xs" withBorder radius="sm" data-testid={`entity-occurrence-${candidate.candidate_id}`}>
       <Stack gap="xs">
         {/* Header row: Surface, Offset, Decision badge */}
         <Group justify="space-between" align="center">

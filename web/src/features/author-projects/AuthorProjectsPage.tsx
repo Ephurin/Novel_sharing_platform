@@ -4,6 +4,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../auth/useAuthStore';
+import { writeAuthorContext } from '../author-ide/author-context';
 import { createNovel, listGenres, listMyNovels } from '../novels/novel-api';
 import { RetainedHeight } from '../../shared/components/RetainedHeight';
 import { sortProjects, type ProjectSort } from './project-sorting';
@@ -164,8 +165,7 @@ export function AuthorProjectsPage() {
       return novel;
     },
     onSuccess: async (novel: Novel) => {
-      localStorage.setItem('ephurin_author_novel_id', novel.novelId);
-      localStorage.removeItem('ephurin_author_chapter_id');
+      writeAuthorContext(user?.userId ?? '', { novelId: novel.novelId, chapterId: '' });
       await queryClient.invalidateQueries({ queryKey: ['author-projects'] });
       setCreateModalOpen(false);
       setNewTitle('');
