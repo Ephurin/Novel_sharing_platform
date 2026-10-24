@@ -49,6 +49,11 @@ class ProposalRejectRequest(BaseModel):
     reason: str | None = None
 
 
+class ProposalGroupRejectRequest(ProposalDecisionRequest):
+    model_config = ConfigDict(extra='forbid')
+    reason: str | None = None
+
+
 class ProposalEditAcceptRequest(ProposalDecisionRequest):
     edited_payload: dict
     reason: str | None = None

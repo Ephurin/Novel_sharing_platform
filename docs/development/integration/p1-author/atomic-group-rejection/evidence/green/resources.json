@@ -1,0 +1,9 @@
+{
+  "database": "ephurin_test_astra_group_reject_2e286818",
+  "containers": [
+    "astra-group-reject-2e286818-pg",
+    "astra-group-reject-2e286818-mongo"
+  ],
+  "pg_port": "18125",
+  "mongo_port": "18126"
+}

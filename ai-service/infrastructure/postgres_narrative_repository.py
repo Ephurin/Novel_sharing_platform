@@ -508,7 +508,7 @@ class PostgresNarrativeRepository:
                 )
                 .order_by(ProposalRecord.materialization_order, ProposalRecord.created_at)
             ).all()
-            if not records:
+            if not records or len({r.novel_id for r in records}) != 1:
                 raise KeyError(f"Proposal group not found: {group_id}")
             return str(records[0].novel_id), [self._to_proposal(item) for item in records]
 
@@ -814,31 +814,61 @@ class PostgresNarrativeRepository:
                 expected = proposal.expected_brain_version
             self.accept_proposal_group(story_id, [proposal_id], expected, reason=reason)
             return self.locate_proposal(proposal_id)[1]
+        self._reject_pending_group(story_id, single_proposal_id=proposal_id, reason=reason)
+        return self.locate_proposal(proposal_id)[1]
+
+    def reject_proposal_group(
+        self, story_id: str, group_id: str, expected_brain_version: int,
+        *, reason: str | None = None, actor_id: str | None = None,
+    ) -> dict[str, Any]:
+        return self._reject_pending_group(story_id, group_id=group_id,
+            expected_brain_version=expected_brain_version, reason=reason, actor_id=actor_id)
+
+    def _reject_pending_group(
+        self, story_id: str, *, group_id: str | None = None,
+        single_proposal_id: str | None = None, expected_brain_version: int | None = None,
+        reason: str | None = None, actor_id: str | None = None,
+    ) -> dict[str, Any]:
+        """One rejection invariant, serialized against Canon by Brain-before-group locks."""
+        from domain.errors import ProposalAlreadyDecidedError
+
+        novel_id = self._novel_id(story_id)
+        actor = uuid.UUID(actor_id) if actor_id is not None else self._actor_id
         with session_scope(self._session_factory) as session:
-            proposal = session.scalar(
-                select(ProposalRecord).where(
-                    ProposalRecord.id == self._stable_uuid("proposal", proposal_id),
+            brain = session.scalar(select(StoryBrainRecord).where(
+                *self._scope(StoryBrainRecord, novel_id)).with_for_update())
+            if brain is None:
+                raise KeyError(story_id)
+            if expected_brain_version is not None and brain.brain_version != expected_brain_version:
+                raise OptimisticLockError(story_id)
+            if single_proposal_id is not None:
+                selected = session.scalar(select(ProposalRecord).where(
                     *self._scope(ProposalRecord, novel_id),
-                ).with_for_update()
-            )
-            if proposal is None:
-                raise KeyError(f"Proposal not found: {proposal_id}")
-            if proposal.status != ProposalStatus.PENDING.value:
-                return self._to_proposal(proposal)
-            proposal.status = (
-                ProposalStatus.ACCEPTED.value if accepted else ProposalStatus.REJECTED.value
-            )
-            proposal.decision_reason = reason
-            session.add(
-                ProposalDecisionRecord(
-                    proposal_id=proposal.id,
-                    actor_id=self._actor_id,
-                    decision="accept" if accepted else "reject",
-                    reason=reason,
-                )
-            )
+                    ProposalRecord.id == self._stable_uuid('proposal', single_proposal_id)))
+                if selected is None:
+                    raise KeyError(single_proposal_id)
+                group_uuid = selected.dependency_group_id
+            else:
+                group_uuid = self._stable_uuid('proposal-group', group_id)
+            members = session.scalars(select(ProposalRecord).where(
+                *self._scope(ProposalRecord, novel_id), ProposalRecord.dependency_group_id == group_uuid)
+                .order_by(ProposalRecord.materialization_order, ProposalRecord.id)
+                .with_for_update()).all()
+            if not members:
+                raise KeyError(group_id)
+            if single_proposal_id is not None and len(members) != 1:
+                raise ProjectionError('Reject the complete dependency group using the group rejection endpoint')
+            if any(p.status != ProposalStatus.PENDING.value for p in members):
+                raise ProposalAlreadyDecidedError('Proposal group contains a decided proposal')
+            for proposal in members:
+                proposal.status = ProposalStatus.REJECTED.value
+                proposal.decision_reason = reason
+                session.add(ProposalDecisionRecord(proposal_id=proposal.id,
+                    actor_id=actor, decision='reject', reason=reason))
             session.flush()
-            return self._to_proposal(proposal)
+            # Rejection is a decision only. Canon and its version remain untouched.
+            return {'group_id': str(group_uuid), 'proposal_ids': [str(p.id) for p in members],
+                'status': 'rejected', 'brain_version': brain.brain_version}
 
     def get_current_state(self, story_id: str) -> dict[str, Any]:
         with session_scope(self._session_factory) as session:

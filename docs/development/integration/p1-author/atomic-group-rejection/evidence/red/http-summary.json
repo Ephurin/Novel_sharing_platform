@@ -1,0 +1,13 @@
+{
+  "requests": 30,
+  "durable_readbacks": 7,
+  "statuses": {
+    "200": 16,
+    "401": 3,
+    "403": 4,
+    "404": 1,
+    "409": 4,
+    "422": 2
+  },
+  "mounted_browser": "NOT_RUN"
+}
