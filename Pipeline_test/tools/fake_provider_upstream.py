@@ -12,7 +12,34 @@ def integration_response(text, body=None):
     """Scripted source-grounded responses for integration's legacy prompt framing.
     Not model quality or real-provider evidence. Unknown prompts fail explicitly.
     """
-    if 'state changes' in text or 'transitions' in text:
+    messages = (body or {}).get('messages', [])
+    system = '\n'.join(str(m.get('content', '')) for m in messages if m.get('role') == 'system') or text
+    def payload():
+        users = [m for m in messages if m.get('role') == 'user']
+        if not users:
+            raise ValueError('Offline structured fixture requires a user JSON payload')
+        return json.loads(users[-1]['content'])
+    if 'Verify EVERY supplied candidate OCCURRENCE' in system:
+        data = payload()
+        return json.dumps({'decisions': [dict(candidate_id=c['candidate_id'], verdict='entity',
+            entity_type='LOC' if c['surface'] == 'Cồn Vân' else 'PER', canonical_name=c['surface'],
+            canonical_entity_id='', provisional_identity_key='', identity_quote='',
+            initial_status='Unknown', status_quote='', confidence=0.9,
+            reason='Offline fixture suggestion; explicit human identity review required')
+            for c in data['candidates']]}, ensure_ascii=False)
+    if 'Extract narrative events only from this source' in system:
+        data = payload()
+        source = data['source_text']
+        if not isinstance(source, str) or not source.strip():
+            raise ValueError('Offline event fixture requires nonempty immutable source')
+        return json.dumps({'events': [dict(event_type='observation', summary=source, quote=source,
+            participants=[e['entity_id'] for e in data['known_entities'] if e['entity_type'] == 'PER'],
+            locations=[e['entity_id'] for e in data['known_entities'] if e['entity_type'] == 'LOC'],
+            consequences=[])]}, ensure_ascii=False)
+    if 'Extract atomic narrative facts directly from the prose' in system:
+        return json.dumps({'facts': []})
+    if ('Extract only state changes explicitly supported by this event' in system
+            or 'Extract only explicit state changes supported by this event' in system):
         return json.dumps({'transitions':[]})
     if 'narrative state extractor' in text:
         return json.dumps({'states':[]})
@@ -28,54 +55,6 @@ def integration_response(text, body=None):
     if 'Story Brain' in text or 'Author AI Copilot' in text:
         return json.dumps({'draft_text':'Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.',
           'explanation':'FAKE_PROVIDER_OUTPUT scripted continuation for persistence only'},ensure_ascii=False)
-    if 'Verify EVERY supplied candidate OCCURRENCE' in text or 'EntityDecisionBatch' in text or '"candidates"' in text:
-        decisions = []
-        try:
-            if body and 'messages' in body and body['messages']:
-                user_msg = body['messages'][-1].get('content', '')
-                payload = json.loads(user_msg)
-            else:
-                idx = text.find('{"candidates"')
-                payload = json.loads(text[idx:]) if idx != -1 else {}
-            for c in payload.get('candidates', []):
-                surface = c.get('surface', '')
-                etype = 'LOC' if 'Cồn Vân' in surface else 'PER'
-                decisions.append({
-                    'candidate_id': c['candidate_id'],
-                    'verdict': 'entity',
-                    'entity_type': etype,
-                    'canonical_name': surface,
-                    'canonical_entity_id': '',
-                    'provisional_identity_key': '',
-                    'identity_quote': '',
-                    'initial_status': 'Unknown',
-                    'status_quote': '',
-                    'confidence': 0.9,
-                    'reason': f'Context verified candidate {surface}'
-                })
-        except Exception as e:
-            print("Candidate parse error:", e)
-        return json.dumps({'decisions': decisions}, ensure_ascii=False)
-    if 'Extract narrative events only from this source' in text or 'hitl_event_extraction' in text:
-        participants = []
-        try:
-            if body and 'messages' in body and body['messages']:
-                user_msg = body['messages'][-1].get('content', '')
-                payload = json.loads(user_msg)
-                participants = [e['entity_id'] for e in payload.get('known_entities', []) if e.get('entity_type') == 'PER']
-        except Exception:
-            pass
-        return json.dumps({'events': [{
-            'event_type': 'observation',
-            'summary': 'Mai Linh và Duy đứng tại Cồn Vân.',
-            'participants': participants,
-            'locations': [],
-            'consequences': [],
-            'quote': 'Mai Linh và Duy đứng tại Cồn Vân.'
-        }]}, ensure_ascii=False)
-    if 'Extract atomic narrative facts directly from the prose' in text or 'prose_fact_extraction' in text:
-        return json.dumps({'facts': []}, ensure_ascii=False)
-    print("FAILED_PROMPT_TEXT:", repr(text[:500]))
     raise ValueError('Unsupported integration fake prompt')
 
 
