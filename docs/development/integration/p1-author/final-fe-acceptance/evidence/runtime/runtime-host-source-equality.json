@@ -1,0 +1,26 @@
+{
+  "ai-service": {
+    "application/narrative_service.py": {
+      "runtime_sha256": "c9fd37bfdbc9b45fc29665a55a8811ae985765af4dd3db33a4cdaf4b8cb46069",
+      "host_sha256": "c9fd37bfdbc9b45fc29665a55a8811ae985765af4dd3db33a4cdaf4b8cb46069"
+    },
+    "api/narrative_routes.py": {
+      "runtime_sha256": "446015af1ff5115d0d204cc66ed840cfa98ba4bc4e5b9b52c0b7177a364a4dc6",
+      "host_sha256": "446015af1ff5115d0d204cc66ed840cfa98ba4bc4e5b9b52c0b7177a364a4dc6"
+    },
+    "api/entity_hitl_routes.py": {
+      "runtime_sha256": "81e83a0d2ea00401b1fe5d7cba22d4d3e3c3d9b2c22d67f50ec2f3f3f7d4b7e2",
+      "host_sha256": "81e83a0d2ea00401b1fe5d7cba22d4d3e3c3d9b2c22d67f50ec2f3f3f7d4b7e2"
+    }
+  },
+  "backend": {
+    "src/modules/ai/ai-gateway.controller.ts": {
+      "runtime_sha256": "7c9132008ff7cffbb318f218cb9e9ac0023a1121abe7de9da6cde7aabbb2a403",
+      "host_sha256": "7c9132008ff7cffbb318f218cb9e9ac0023a1121abe7de9da6cde7aabbb2a403"
+    },
+    "src/modules/ai/ai-gateway.routes.ts": {
+      "runtime_sha256": "a0c83b36186f5dfbdd887961ae9a8cc7b5bff6242e2418c50c012777058ef46b",
+      "host_sha256": "a0c83b36186f5dfbdd887961ae9a8cc7b5bff6242e2418c50c012777058ef46b"
+    }
+  }
+}

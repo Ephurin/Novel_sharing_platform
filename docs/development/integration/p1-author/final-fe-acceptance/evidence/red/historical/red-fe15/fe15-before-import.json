@@ -1,0 +1,13 @@
+{
+  "trusted": [],
+  "untrusted": [
+    {
+      "method": "OPTIONS",
+      "authorization_present": false
+    },
+    {
+      "method": "GET",
+      "authorization_present": true
+    }
+  ]
+}

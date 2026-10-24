@@ -1,0 +1,90 @@
+TAP version 13
+# Subtest: Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)
+    # Subtest: calls authenticated /internal/v1/writing/generations/{id} route with service token and headers
+    ok 1 - calls authenticated /internal/v1/writing/generations/{id} route with service token and headers
+      ---
+      duration_ms: 59.4288
+      ...
+    # Subtest: rejects with 400 NOVEL_MISMATCH if generation novel does not match chapter novel
+    ok 2 - rejects with 400 NOVEL_MISMATCH if generation novel does not match chapter novel
+      ---
+      duration_ms: 8.1186
+      ...
+    # Subtest: rejects with 400 CHAPTER_MISMATCH if generation chapter does not match target chapter
+    ok 3 - rejects with 400 CHAPTER_MISMATCH if generation chapter does not match target chapter
+      ---
+      duration_ms: 9.0786
+      ...
+    # Subtest: rejects with 403 FORBIDDEN if generation belongs to another tenant or actor
+    ok 4 - rejects with 403 FORBIDDEN if generation belongs to another tenant or actor
+      ---
+      duration_ms: 9.0634
+      ...
+    # Subtest: rejects with 409 GENERATION_NOT_COMPLETED if generation status is not completed
+    ok 5 - rejects with 409 GENERATION_NOT_COMPLETED if generation status is not completed
+      ---
+      duration_ms: 8.9801
+      ...
+# [OutboxProcessor] Event 607c10f6-ee20-4199-8a41-7ba6e409160e (INCREMENTAL_ANALYSIS) failed (attempt 1): res.text is not a function
+    # Subtest: rejects with 422 GENERATION_VALIDATION_FAILED if validation_status is not passed
+    ok 6 - rejects with 422 GENERATION_VALIDATION_FAILED if validation_status is not passed
+      ---
+      duration_ms: 7.8947
+      ...
+    # Subtest: rejects with 422 INVALID_PATCH if patch structure is missing or malformed
+    ok 7 - rejects with 422 INVALID_PATCH if patch structure is missing or malformed
+      ---
+      duration_ms: 7.8369
+      ...
+    # Subtest: rejects with 409 BRAIN_VERSION_CONFLICT if current Story Brain has advanced beyond generation brain_version_used
+    ok 8 - rejects with 409 BRAIN_VERSION_CONFLICT if current Story Brain has advanced beyond generation brain_version_used
+      ---
+      duration_ms: 7.0028
+      ...
+    # Subtest: rejects with 404 STORY_BRAIN_NOT_FOUND if Story Brain route returns 404 when brain is required
+    ok 9 - rejects with 404 STORY_BRAIN_NOT_FOUND if Story Brain route returns 404 when brain is required
+      ---
+      duration_ms: 9.4395
+      ...
+    # Subtest: rejects with 409 OBJECTIVE_INTENT_REQUIRED if P3 controller idempotency_key is malformed
+    ok 10 - rejects with 409 OBJECTIVE_INTENT_REQUIRED if P3 controller idempotency_key is malformed
+      ---
+      duration_ms: 9.6938
+      ...
+    # Subtest: rejects with 409 OBJECTIVE_INTENT_SUPERSEDED if P3 controller intent changed or plan missing
+    ok 11 - rejects with 409 OBJECTIVE_INTENT_SUPERSEDED if P3 controller intent changed or plan missing
+      ---
+      duration_ms: 11.465
+      ...
+    # Subtest: rejects with 404 BASE_REVISION_NOT_FOUND if base revision does not belong to chapter
+    ok 12 - rejects with 404 BASE_REVISION_NOT_FOUND if base revision does not belong to chapter
+      ---
+      duration_ms: 12.6805
+      ...
+    # Subtest: rejects with 409 STALE_BASE_REVISION if base revision is no longer current latest revision
+    ok 13 - rejects with 409 STALE_BASE_REVISION if base revision is no longer current latest revision
+      ---
+      duration_ms: 25.5311
+      ...
+    # Subtest: rejects with 409 CONTENT_HASH_MISMATCH if base revision content hash does not match generation
+    ok 14 - rejects with 409 CONTENT_HASH_MISMATCH if base revision content hash does not match generation
+      ---
+      duration_ms: 18.2658
+      ...
+# {"level":30,"time":1792846077678,"pid":17432,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+    1..14
+ok 1 - Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)
+  ---
+  duration_ms: 441.0183
+  type: 'suite'
+  ...
+# {"level":30,"time":1792846077681,"pid":17432,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}
+1..1
+# tests 14
+# suites 1
+# pass 14
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1405.4726

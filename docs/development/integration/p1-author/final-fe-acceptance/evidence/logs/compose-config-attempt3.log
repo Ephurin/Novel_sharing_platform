@@ -1,0 +1,477 @@
+{
+  "name": "codex-p1-final-8c19b8c475",
+  "networks": {
+    "headless-edge": {
+      "name": "codex-p1-final-8c19b8c475_headless-edge",
+      "ipam": {
+        "config": [
+          {
+            "subnet": "172.29.30.0/24"
+          }
+        ]
+      }
+    },
+    "upstream": {
+      "name": "codex-p1-final-8c19b8c475_upstream",
+      "ipam": {
+        "config": [
+          {
+            "subnet": "172.29.32.0/24"
+          }
+        ]
+      },
+      "internal": true
+    },
+    "workers": {
+      "name": "codex-p1-final-8c19b8c475_workers",
+      "ipam": {
+        "config": [
+          {
+            "subnet": "172.29.142.0/24"
+          }
+        ]
+      },
+      "internal": true
+    }
+  },
+  "services": {
+    "acceptance-bridge": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "command": [
+        "python",
+        "/tools/p1_acceptance_tcp_bridge.py"
+      ],
+      "depends_on": {
+        "mongodb": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "postgres": {
+          "condition": "service_healthy",
+          "required": true
+        }
+      },
+      "entrypoint": null,
+      "image": "python:3.12-slim",
+      "networks": {
+        "headless-edge": null,
+        "workers": null
+      },
+      "ports": [
+        {
+          "mode": "ingress",
+          "host_ip": "127.0.0.1",
+          "target": 15432,
+          "published": "33328",
+          "protocol": "tcp"
+        },
+        {
+          "mode": "ingress",
+          "host_ip": "127.0.0.1",
+          "target": 17017,
+          "published": "33329",
+          "protocol": "tcp"
+        },
+        {
+          "mode": "ingress",
+          "host_ip": "127.0.0.1",
+          "target": 14000,
+          "published": "33330",
+          "protocol": "tcp"
+        }
+      ],
+      "read_only": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "C:/Users/Laptop/.codex/worktrees/p1-fe-final-acceptance/testproject/Pipeline_test/tools",
+          "target": "/tools",
+          "read_only": true,
+          "bind": {
+            "create_host_path": true
+          }
+        }
+      ]
+    },
+    "ai-service": {
+      "build": {
+        "context": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+        "dockerfile": "Dockerfile"
+      },
+      "cap_drop": [
+        "ALL"
+      ],
+      "command": null,
+      "depends_on": {
+        "budget-gateway": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "postgres": {
+          "condition": "service_healthy",
+          "required": true
+        }
+      },
+      "entrypoint": null,
+      "environment": {
+        "ALL_PROXY": "",
+        "APP_ENV": "production",
+        "BUDGET_GUARD_AUTH_TOKEN": "[REDACTED]",
+        "BUDGET_GUARD_MODE": "proxy",
+        "BUDGET_GUARD_URL": "http://budget-gateway:18090",
+        "DATABASE_URL": "postgresql+psycopg://p123:[REDACTED]@postgres:5432/ephurin_test_p1_final_8c19b8c475",
+        "EMBEDDING_PROVIDER": "none",
+        "ENTITY_CANDIDATE_VERIFICATION_ENABLED": "true",
+        "GEMINI_API_KEY": "",
+        "GOOGLE_API_KEY": "",
+        "HTTPS_PROXY": "",
+        "HTTP_PROXY": "",
+        "LLM_API_KEY": "",
+        "LLM_BASE_URL": "http://budget-gateway:18090/v1",
+        "LLM_ENABLED": "true",
+        "LLM_FALLBACK_PROVIDER": "disabled",
+        "LLM_LOCAL_FALLBACK": "false",
+        "LLM_MODEL": "gemini-3.5-flash-lite",
+        "LLM_PROVIDER": "openai",
+        "LLM_STRUCTURED_MAX_TOKENS": "8192",
+        "NARRATIVE_REPOSITORY": "postgres",
+        "NO_PROXY": "*",
+        "OPENAI_API_KEY": "[REDACTED]",
+        "PLATFORM_API_BASE_URL": "http://backend:4000",
+        "PLATFORM_SERVICE_TOKEN": "[REDACTED]",
+        "PORT": "8000",
+        "SEMANTIC_RETRIEVAL_ENABLED": "false"
+      },
+      "networks": {
+        "workers": null
+      },
+      "ports": [
+        {
+          "mode": "ingress",
+          "host_ip": "127.0.0.1",
+          "target": 8000,
+          "published": "33322",
+          "protocol": "tcp"
+        }
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ]
+    },
+    "api-ingress": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "command": [
+        "python",
+        "/tools/headless_http_ingress.py"
+      ],
+      "depends_on": {
+        "backend": {
+          "condition": "service_started",
+          "required": true
+        }
+      },
+      "entrypoint": null,
+      "image": "python:3.12-slim",
+      "networks": {
+        "headless-edge": null,
+        "upstream": null,
+        "workers": null
+      },
+      "ports": [
+        {
+          "mode": "ingress",
+          "host_ip": "127.0.0.1",
+          "target": 4000,
+          "published": "33330",
+          "protocol": "tcp"
+        }
+      ],
+      "read_only": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools",
+          "target": "/tools",
+          "read_only": true,
+          "bind": {
+            "create_host_path": true
+          }
+        }
+      ]
+    },
+    "backend": {
+      "build": {
+        "context": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+        "dockerfile": "backend/Dockerfile"
+      },
+      "cap_drop": [
+        "ALL"
+      ],
+      "command": null,
+      "depends_on": {
+        "ai-service": {
+          "condition": "service_started",
+          "required": true
+        },
+        "mongodb": {
+          "condition": "service_healthy",
+          "required": true
+        },
+        "postgres": {
+          "condition": "service_healthy",
+          "required": true
+        }
+      },
+      "entrypoint": null,
+      "environment": {
+        "AI_LLM_API_KEY": "",
+        "AI_LLM_BASE_URL": "http://budget-gateway:18090/v1",
+        "AI_LLM_MAX_TOKENS": "512",
+        "AI_LLM_MODEL": "gemini-3.5-flash-lite",
+        "AI_SERVICE_URL": "http://ai-service:8000",
+        "ALL_PROXY": "",
+        "API_PREFIX": "/api/v1",
+        "BUDGET_GUARD_AUTH_TOKEN": "[REDACTED]",
+        "BUDGET_GUARD_MODE": "proxy",
+        "BUDGET_GUARD_URL": "http://budget-gateway:18090",
+        "DATABASE_URL": "postgresql://p123:[REDACTED]@postgres:5432/ephurin_test_p1_final_8c19b8c475",
+        "DB_CONNECT_ON_START": "true",
+        "HTTPS_PROXY": "",
+        "HTTP_PROXY": "",
+        "JWT_ACCESS_SECRET": "[REDACTED]",
+        "JWT_REFRESH_SECRET": "[REDACTED]",
+        "MONGODB_URI": "mongodb://mongodb:27017/ephurin_test_p1_final_8c19b8c475",
+        "NODE_ENV": "production",
+        "NO_PROXY": "*",
+        "PLATFORM_SERVICE_TOKEN": "[REDACTED]",
+        "PORT": "4000",
+        "RUN_DEMO_SEED": "false",
+        "RUN_MIGRATIONS": "true",
+        "WAVE1D_AUTHOR_EMAIL": "codex-p1-final-8c19b8c475@example.invalid",
+        "WAVE1D_AUTHOR_PASSWORD": "[REDACTED]",
+        "WAVE1D_AUTHOR_USERNAME": "codex_p1_final_8c19b8c475",
+        "WAVE1D_PROJECT": "codex-p1-final-8c19b8c475",
+        "WEB_ORIGIN": "http://127.0.0.1:33320"
+      },
+      "networks": {
+        "workers": null
+      },
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools",
+          "target": "/wave-tools",
+          "read_only": true,
+          "bind": {
+            "create_host_path": true
+          }
+        }
+      ]
+    },
+    "budget-gateway": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "command": [
+        "python",
+        "-u",
+        "/tools/budget_gateway.py",
+        "--state",
+        "/state/ledger.json"
+      ],
+      "depends_on": {
+        "fake-upstream": {
+          "condition": "service_started",
+          "required": true
+        }
+      },
+      "entrypoint": null,
+      "environment": {
+        "GATEWAY_UPSTREAM_TIMEOUT_SECONDS": "5",
+        "OFFLINE_UPSTREAM_KEY": "[REDACTED]",
+        "OFFLINE_UPSTREAM_URL": "http://fake-upstream:18091",
+        "WORKER_AUTH_TOKENS": "{\"[REDACTED]\":\"ai-service\",\"[REDACTED]\":\"backend\"}"
+      },
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen(\"http://localhost:18090/health\")"
+        ],
+        "timeout": "2s",
+        "interval": "3s",
+        "retries": 20
+      },
+      "image": "python:3.12-slim",
+      "networks": {
+        "upstream": null,
+        "workers": null
+      },
+      "ports": [
+        {
+          "mode": "ingress",
+          "host_ip": "127.0.0.1",
+          "target": 18090,
+          "published": "33323",
+          "protocol": "tcp"
+        }
+      ],
+      "read_only": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools",
+          "target": "/tools",
+          "read_only": true,
+          "bind": {
+            "create_host_path": true
+          }
+        },
+        {
+          "type": "volume",
+          "source": "budget_state",
+          "target": "/state",
+          "volume": {}
+        }
+      ]
+    },
+    "fake-upstream": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "command": [
+        "python",
+        "-u",
+        "/tools/fake_provider_upstream.py"
+      ],
+      "entrypoint": null,
+      "environment": {
+        "FAKE_REQUEST_LOG": "/evidence/requests.jsonl",
+        "FAKE_SCENARIO": "p123-p3-v1",
+        "OFFLINE_UPSTREAM_KEY": "[REDACTED]"
+      },
+      "image": "python:3.12-slim",
+      "networks": {
+        "upstream": null
+      },
+      "ports": [
+        {
+          "mode": "ingress",
+          "host_ip": "127.0.0.1",
+          "target": 18091,
+          "published": "33324",
+          "protocol": "tcp"
+        }
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "volumes": [
+        {
+          "type": "bind",
+          "source": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools",
+          "target": "/tools",
+          "read_only": true,
+          "bind": {
+            "create_host_path": true
+          }
+        },
+        {
+          "type": "volume",
+          "source": "fake_state",
+          "target": "/evidence",
+          "volume": {}
+        }
+      ]
+    },
+    "mongodb": {
+      "command": null,
+      "entrypoint": null,
+      "healthcheck": {
+        "test": [
+          "CMD",
+          "mongosh",
+          "--quiet",
+          "--eval",
+          "db.adminCommand(\"ping\").ok"
+        ],
+        "timeout": "2s",
+        "interval": "3s",
+        "retries": 30
+      },
+      "image": "mongo:7",
+      "networks": {
+        "workers": null
+      },
+      "volumes": [
+        {
+          "type": "volume",
+          "source": "mongo_state",
+          "target": "/data/db",
+          "volume": {}
+        }
+      ]
+    },
+    "postgres": {
+      "command": null,
+      "entrypoint": null,
+      "environment": {
+        "POSTGRES_DB": "ephurin_test_p1_final_8c19b8c475",
+        "POSTGRES_PASSWORD": "[REDACTED]",
+        "POSTGRES_USER": "p123"
+      },
+      "healthcheck": {
+        "test": [
+          "CMD-SHELL",
+          "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""
+        ],
+        "timeout": "2s",
+        "interval": "3s",
+        "retries": 30
+      },
+      "image": "pgvector/pgvector:pg16",
+      "networks": {
+        "workers": null
+      },
+      "volumes": [
+        {
+          "type": "volume",
+          "source": "pg_state",
+          "target": "/var/lib/postgresql/data",
+          "volume": {}
+        }
+      ]
+    }
+  },
+  "volumes": {
+    "budget_state": {
+      "name": "codex-p1-final-8c19b8c475_budget_state"
+    },
+    "fake_state": {
+      "name": "codex-p1-final-8c19b8c475_fake_state"
+    },
+    "mongo_state": {
+      "name": "codex-p1-final-8c19b8c475_mongo_state"
+    },
+    "pg_state": {
+      "name": "codex-p1-final-8c19b8c475_pg_state"
+    }
+  }
+}
