@@ -14,6 +14,19 @@ export async function assertActualMaterialGlyph(h) {
   assert.ok(glyph.width <= glyph.fontSize * 1.5, 'Material ligature rendered as a word rather than an icon');
 }
 
+export async function assertMobileControls(h) {
+  const layout = await h.page.evaluate(() => {
+    const width = document.documentElement.clientWidth;
+    const controls = [...document.querySelectorAll('.sc-studio-toolbar button, .sc-studio-toolbar a, .sc-studio-settings button, .sc-format-toolbar button')]
+      .map(node => { const r = node.getBoundingClientRect(); return { label: node.getAttribute('aria-label') || node.title || node.textContent.trim(),
+        x: r.x, right: r.right, width: r.width, height: r.height }; }).filter(r => r.width > 0 && r.height > 0);
+    return { width, controls };
+  });
+  await h.save('mobile-control-geometry.json', layout);
+  assert.ok(layout.controls.length > 10, 'The actual editor controls must be mounted');
+  assert.deepEqual(layout.controls.filter(r => r.x < -1 || r.right > layout.width + 1), [], 'Visible mobile controls are clipped outside the viewport');
+}
+
 export async function assertOfflineAssets(h) {
   const { page } = h;
   await page.getByLabel('Email or username', { exact: true }).waitFor();

@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { assertMobileControls } from './p1-offline-assets.mjs';
 import { until } from './p1-real-stack.mjs';
 
 export async function crossFeatureSmoke(h, f, x) {
@@ -73,6 +74,7 @@ export async function crossFeatureSmoke(h, f, x) {
     await page.setViewportSize({ width: 390, height: 844 });
     await page.getByTitle('Đóng/Mở thanh danh sách chương', { exact: true }).click();
     assert.equal(await page.getByPlaceholder('Tìm kiếm chương...').count(), 0);
+    await assertMobileControls(h);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     await h.shot('g4-author-dark-mobile'); await page.reload();
     await until(async () => await f.editor().inputValue() === x.latestDraft, 'Mobile reload lost draft');
