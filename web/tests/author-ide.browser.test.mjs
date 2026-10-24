@@ -4,8 +4,8 @@ import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
-import { mkdir } from 'node:fs/promises';
 import { chromium } from '@playwright/test';
+import { evidenceDirectory } from './helpers/evidence-output.mjs';
 
 test('Real AuthorWritingIde: editor typing, autosave, S10 consistency checking & S11 continuity', {
   skip: process.env.RUN_DRAFT_BROWSER_TESTS !== '1',
@@ -45,8 +45,7 @@ test('Real AuthorWritingIde: editor typing, autosave, S10 consistency checking &
   });
 
   let browser, server;
-  const evidenceDir = new URL('../../docs/development/integration/p1-author/evidence/screenshots/', import.meta.url);
-  await mkdir(evidenceDir, { recursive: true });
+  const evidenceDir = await evidenceDirectory('author-ide-browser');
 
   try {
     const bundle = await build({
@@ -195,6 +194,7 @@ test('Real AuthorWritingIde: editor typing, autosave, S10 consistency checking &
     // 1. Verify Real AuthorWritingIde Initial State
     const textarea = page.locator('textarea.sc-manuscript');
     await textarea.waitFor({ timeout: 15000 });
+    await page.waitForFunction(() => document.querySelector('textarea.sc-manuscript')?.value === 'B');
     assert.equal(await textarea.inputValue(), 'B');
 
     // Breadcrumbs check

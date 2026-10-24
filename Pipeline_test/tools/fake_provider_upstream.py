@@ -21,8 +21,11 @@ def integration_response(text, body=None):
         return json.loads(users[-1]['content'])
     if 'Verify EVERY supplied candidate OCCURRENCE' in system:
         data = payload()
-        return json.dumps({'decisions': [dict(candidate_id=c['candidate_id'], verdict='entity',
-            entity_type='LOC' if c['surface'] == 'Cồn Vân' else 'PER', canonical_name=c['surface'],
+        # With an existing inventory the fake cannot establish identity. Leave every
+        # occurrence unresolved for explicit human canonical/provisional selection.
+        known = bool(data.get('known_entities'))
+        return json.dumps({'decisions': [dict(candidate_id=c['candidate_id'], verdict='unresolved' if known else 'entity',
+            entity_type=None if known else ('LOC' if c['surface'] == 'Cồn Vân' else 'PER'), canonical_name='' if known else c['surface'],
             canonical_entity_id='', provisional_identity_key='', identity_quote='',
             initial_status='Unknown', status_quote='', confidence=0.9,
             reason='Offline fixture suggestion; explicit human identity review required')
