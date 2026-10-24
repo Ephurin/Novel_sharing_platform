@@ -1,3 +1,12 @@
+import { ChapterSchedule } from '../author-projects/ChapterSchedule';
+import { RevisionHistory, snapshotDraft } from './RevisionHistory';
+import { useAuthStore } from '../auth/useAuthStore';
+import { useDraftPersistence } from './useDraftPersistence';
+import { resolveAuthorContext, writeAuthorContext } from './author-context';
+import { Alert, Button, Group, Text } from '@mantine/core';
+import { ThemeControl } from '../../shared/components/ThemeControl';
+import { AuthorDialog } from '../../shared/components/AuthorTheme';
+import { AuthorMemoryPanel } from '../ai-copilot/AuthorMemoryPanel';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -98,15 +107,6 @@ export const AVAILABLE_FONTS: FontConfig[] = [
   }
 ];
 
-const AVATAR_FALLBACKS = [
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=160&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=160&q=80',
-  'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=160&q=80',
-  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=160&q=80',
-  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=160&q=80',
-  'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=160&q=80'
-];
-
 function parseIdeCharacterDesc(rawDesc: string | null | undefined): { customTitle: string; cleanDescription: string } {
   if (!rawDesc) return { customTitle: '', cleanDescription: '' };
   const match = rawDesc.match(/^\[(?:Thân phận|Danh xưng|Vai trò cụ thể):\s*([^\]]+)\]\s*\n?/);
@@ -123,15 +123,13 @@ type AccessMode = 'free' | 'vip';
 type StoryBibleTab = 'characters' | 'relationships' | 'timeline' | 'summaries';
 
 export function AuthorWritingIde() {
+  const user = useAuthStore(state => state.user);
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
 
   // URL State
-  const fallbackNovelId = localStorage.getItem('ephurin_author_novel_id') ?? '';
-  const fallbackChapterId = localStorage.getItem('ephurin_author_chapter_id') ?? '';
-  const novelId = searchParams.get('novelId') ?? fallbackNovelId;
-  const chapterId = searchParams.get('chapterId') ?? fallbackChapterId;
+  const { novelId, chapterId } = resolveAuthorContext(user?.userId ?? '', searchParams);
 
   // Local Editor State
   const [title, setTitle] = useState('');
@@ -142,17 +140,25 @@ export function AuthorWritingIde() {
   const [lastSavedTime, setLastSavedTime] = useState<string>('');
 
   // UI Interactive Panels & Modals State
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(() => window.matchMedia('(min-width: 901px)').matches);
   const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
+  const toggleAiDrawer = () => {
+    if (!aiDrawerOpen && window.matchMedia('(max-width: 1200px)').matches) setSidebarOpen(false);
+    setAiDrawerOpen(open => !open);
+  };
   const [storyBibleOpen, setStoryBibleOpen] = useState(false);
+  const [memoryPanelOpen, setMemoryPanelOpen] = useState(false);
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [chapterToDelete, setChapterToDelete] = useState<Chapter | null>(null);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
+  const [formatToolbarVisible, setFormatToolbarVisible] = useState(true);
 
   // Rich Typography & Manuscript Formatting State
   const [fontOption, setFontOption] = useState<FontOption>(() => {
-    return (localStorage.getItem('ephurin_editor_font') as FontOption) || 'merriweather';
+    return (localStorage.getItem('ephurin_editor_font') as FontOption) || 'vietnam';
   });
   const [fontSize, setFontSize] = useState<number>(() => {
     const saved = localStorage.getItem('ephurin_editor_font_size');
@@ -191,8 +197,6 @@ export function AuthorWritingIde() {
 
   // References for tracking changes
   const editorRef = useRef<HTMLTextAreaElement>(null);
-  const lastSavedSnapshot = useRef({ title: '', content: '', isVip: false, priceCoins: 15 });
-  const autosaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Toast Helper
   const showToast = (message: string) => {
@@ -204,35 +208,40 @@ export function AuthorWritingIde() {
 
   // Queries
   const novelsQuery = useQuery({
-    queryKey: ['author', 'my-novels'],
+    queryKey: ['author', 'my-novels', user?.userId],
     queryFn: () => listMyNovels({ status: 'ALL' })
   });
 
   const activeNovelId = novelId || novelsQuery.data?.[0]?.novelId || '';
 
   const novelQuery = useQuery({
-    queryKey: ['author', 'novel', activeNovelId],
+    queryKey: ['author', 'novel', activeNovelId, user?.userId],
     queryFn: () => getNovel(activeNovelId),
     enabled: Boolean(activeNovelId)
   });
 
   const chaptersQuery = useQuery({
-    queryKey: ['author', 'chapters', activeNovelId],
+    queryKey: ['author', 'chapters', activeNovelId, user?.userId],
     queryFn: () => listChapters(activeNovelId),
     enabled: Boolean(activeNovelId)
   });
 
   const activeChapterId = useMemo(() => {
-    if (chapterId) return chapterId;
+    if (!chaptersQuery.data) return '';
+    if (chapterId) return chaptersQuery.data.some(ch => ch.chapterId === chapterId) ? chapterId : '';
     return chaptersQuery.data?.[0]?.chapterId || '';
   }, [chapterId, chaptersQuery.data]);
 
   const chapterQuery = useQuery({
-    queryKey: ['author', 'chapter', activeChapterId],
+    queryKey: ['author', 'chapter', activeChapterId, user?.userId],
     queryFn: () => getChapter(activeChapterId),
+    refetchInterval: query => ['PENDING','PENDING_MODERATION'].includes(query.state.data?.publicationSchedule?.status ?? '') ? 10000 : false,
     enabled: Boolean(activeChapterId)
   });
 
+  const persistence = useDraftPersistence(user?.userId ?? '', activeChapterId);
+  const activeDraftScope = `${user?.userId}:${activeChapterId}`;
+  const loadedChapter = useRef('');
   // Story Bible Queries
   const charactersQuery = useQuery({
     queryKey: ['author', 'story-context', 'characters', activeNovelId],
@@ -261,13 +270,12 @@ export function AuthorWritingIde() {
   // Keep search params in sync
   useEffect(() => {
     if (activeNovelId && activeChapterId) {
-      localStorage.setItem('ephurin_author_novel_id', activeNovelId);
-      localStorage.setItem('ephurin_author_chapter_id', activeChapterId);
+      writeAuthorContext(user?.userId ?? '', { novelId: activeNovelId, chapterId: activeChapterId });
       if (searchParams.get('novelId') !== activeNovelId || searchParams.get('chapterId') !== activeChapterId) {
         setSearchParams({ novelId: activeNovelId, chapterId: activeChapterId }, { replace: true });
       }
     }
-  }, [activeNovelId, activeChapterId, searchParams, setSearchParams]);
+  }, [activeNovelId, activeChapterId, searchParams, setSearchParams, user?.userId]);
 
   // Clean up AI generation polling timer on unmount and chapter switch
   useEffect(() => {
@@ -291,37 +299,32 @@ export function AuthorWritingIde() {
 
   // Load chapter data into editor when chapter changes
   useEffect(() => {
+    loadedChapter.current = '';
+    setTitle(''); setContent(''); setIsVip(false); setPriceCoins(0);
+  }, [user?.userId]);
+
+  useEffect(() => {
     if (chapterQuery.data) {
       const ch = chapterQuery.data;
-      const initialTitle = ch.draft?.title ?? ch.title ?? '';
-      const initialContent = ch.draft?.content ?? ch.content ?? '';
-      const initialVip = Boolean(ch.isVip);
-      const initialPrice = ch.priceCoins ?? 15;
-
-      setTitle(initialTitle);
-      setContent(initialContent);
-      setIsVip(initialVip);
-      setPriceCoins(initialPrice);
-
-      lastSavedSnapshot.current = {
-        title: initialTitle,
-        content: initialContent,
-        isVip: initialVip,
-        priceCoins: initialPrice
-      };
+      if (loadedChapter.current === activeDraftScope) return;
+      loadedChapter.current = activeDraftScope;
+      const value = persistence.initialize(ch);
+      if (!value) return;
+      setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins);
       setAutosaveStatus('saved');
       setLastSavedTime(new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }));
     }
-  }, [chapterQuery.data]);
+  }, [chapterQuery.data, activeChapterId, user?.userId]);
 
-  // Auto-resize textarea to fit content seamlessly without nested scrollbars
+  // The outer workspace scrolls; the manuscript and textarea keep their full height.
   const adjustHeight = () => {
     const el = editorRef.current;
-    if (el) {
-      el.style.height = '0px';
-      const scrollHeight = el.scrollHeight;
-      el.style.height = `${Math.max(520, scrollHeight)}px`;
-    }
+    if (!el) return;
+    const viewport = el.closest<HTMLElement>('.sc-editor-workspace');
+    const scrollTop = viewport?.scrollTop ?? 0;
+    el.style.height = 'auto';
+    el.style.height = `${Math.max(520, Math.ceil(el.scrollHeight) + 2)}px`;
+    if (viewport) viewport.scrollTop = scrollTop;
   };
 
   useEffect(() => {
@@ -329,8 +332,22 @@ export function AuthorWritingIde() {
   }, [content, fontOption, fontSize, lineHeight, textAlign, paragraphIndent]);
 
   useEffect(() => {
+    const editor = editorRef.current;
+    let width = -1;
+    const observer = new ResizeObserver(entries => {
+      const nextWidth = entries[0]?.contentRect.width ?? 0;
+      if (Math.abs(nextWidth - width) < 1) return;
+      width = nextWidth;
+      adjustHeight();
+    });
+    if (editor) observer.observe(editor);
     window.addEventListener('resize', adjustHeight);
-    return () => window.removeEventListener('resize', adjustHeight);
+    document.fonts.addEventListener('loadingdone', adjustHeight);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', adjustHeight);
+      document.fonts.removeEventListener('loadingdone', adjustHeight);
+    };
   }, []);
 
   // Persist formatting preferences in localStorage
@@ -376,6 +393,7 @@ export function AuthorWritingIde() {
 
   // Selection & prose formatting helpers
   const wrapSelection = (prefix: string, suffix: string = prefix, placeholder: string = 'văn bản') => {
+    if (isAcceptingAi) return;
     const textarea = editorRef.current;
     if (!textarea) return;
 
@@ -409,6 +427,7 @@ export function AuthorWritingIde() {
   };
 
   const insertDialogueDash = () => {
+    if (isAcceptingAi) return;
     const textarea = editorRef.current;
     if (!textarea) return;
 
@@ -427,97 +446,29 @@ export function AuthorWritingIde() {
     }, 10);
   };
 
-  const insertSceneBreak = () => {
-    const textarea = editorRef.current;
-    const breakSnippet = '\n\n✦ ✦ ✦\n\n';
-    if (!textarea) {
-      const newContent = content + breakSnippet;
-      setContent(newContent);
-      triggerAutosave(title, newContent, isVip, priceCoins);
-      return;
-    }
-
-    const start = textarea.selectionStart;
-    const currentVal = textarea.value;
-    const newContent = currentVal.substring(0, start) + breakSnippet + currentVal.substring(start);
-    setContent(newContent);
-    triggerAutosave(title, newContent, isVip, priceCoins);
-
-    setTimeout(() => {
-      textarea.focus();
-      const pos = start + breakSnippet.length;
-      textarea.setSelectionRange(pos, pos);
-      adjustHeight();
-    }, 10);
-  };
-
-  // Autosave Mutation
-  const saveMutation = useMutation({
-    mutationFn: async (payload: { title?: string; content?: string; isVip?: boolean; priceCoins?: number }) => {
-      if (!activeChapterId) throw new Error('No chapter selected');
-      return updateChapter(activeChapterId, { ...payload, autosave: true });
-    },
-    onSuccess: (updated: Chapter) => {
-      setAutosaveStatus('saved');
-      setLastSavedTime(new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }));
-      lastSavedSnapshot.current = {
-        title,
-        content,
-        isVip,
-        priceCoins
-      };
-      queryClient.setQueryData(['author', 'chapter', activeChapterId], updated);
-      queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] });
-    },
-    onError: () => {
-      setAutosaveStatus('error');
-    }
-  });
-
-  // Debounced Autosave Trigger
-  const triggerAutosave = (newTitle: string, newContent: string, newIsVip: boolean, newPrice: number) => {
-    if (!activeChapterId) return;
-
-    const hasChanged =
-      newTitle !== lastSavedSnapshot.current.title ||
-      newContent !== lastSavedSnapshot.current.content ||
-      newIsVip !== lastSavedSnapshot.current.isVip ||
-      newPrice !== lastSavedSnapshot.current.priceCoins;
-
-    if (!hasChanged) return;
-
-    setAutosaveStatus('saving');
-    if (autosaveTimeoutRef.current) {
-      clearTimeout(autosaveTimeoutRef.current);
-    }
-
-    autosaveTimeoutRef.current = setTimeout(() => {
-      saveMutation.mutate({
-        title: newTitle,
-        content: newContent,
-        isVip: newIsVip,
-        priceCoins: newIsVip ? Math.max(1, newPrice) : 0
-      });
-    }, 1200);
-  };
-
+  useEffect(() => { setAutosaveStatus(persistence.status); if (persistence.status === 'saved') setLastSavedTime(new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })); }, [persistence.status]);
+  const triggerAutosave = (newTitle: string, newContent: string, newIsVip: boolean, newPrice: number) => persistence.queue({ title: newTitle, content: newContent, isVip: newIsVip, priceCoins: newIsVip ? Math.max(1, newPrice) : 0 });
   const handleTitleChange = (val: string) => {
+    if (isAcceptingAi || loadedChapter.current !== activeDraftScope) return;
     setTitle(val);
     triggerAutosave(val, content, isVip, priceCoins);
   };
 
   const handleContentChange = (val: string) => {
+    if (isAcceptingAi || loadedChapter.current !== activeDraftScope) return;
     setContent(val);
     triggerAutosave(title, val, isVip, priceCoins);
   };
 
   const handleAccessChange = (mode: AccessMode) => {
+    if (isAcceptingAi) return;
     const nextIsVip = mode === 'vip';
     setIsVip(nextIsVip);
     triggerAutosave(title, content, nextIsVip, priceCoins);
   };
 
   const handlePriceChange = (val: number) => {
+    if (isAcceptingAi) return;
     const safePrice = Math.max(1, Number.isNaN(val) ? 1 : val);
     setPriceCoins(safePrice);
     triggerAutosave(title, content, isVip, safePrice);
@@ -530,7 +481,7 @@ export function AuthorWritingIde() {
       const count = chaptersQuery.data?.length ?? 0;
       return createChapter(activeNovelId, {
         title: `Chương ${count + 1}: Bản thảo mới`,
-        content: 'Khởi đầu bản thảo mới...',
+        content: '',
         isVip: false,
         priceCoins: 0
       });
@@ -549,14 +500,8 @@ export function AuthorWritingIde() {
   const publishMutation = useMutation({
     mutationFn: async () => {
       if (!activeChapterId) throw new Error('No chapter selected');
-      // Save current content first if unsaved
-      await updateChapter(activeChapterId, {
-        title,
-        content,
-        isVip,
-        priceCoins: isVip ? priceCoins : 0,
-        autosave: false
-      });
+      await persistence.flush();
+      await snapshotDraft(activeChapterId, content);
       return submitChapterPublish(activeChapterId);
     },
     onSuccess: (res: { chapterId: string; status: Chapter['status']; moderationRequired: boolean }) => {
@@ -685,12 +630,15 @@ export function AuthorWritingIde() {
     if (!activeChapterId || !currentJob) return;
     setIsAcceptingAi(true);
     try {
-      const result = await acceptDraftRevision(activeChapterId, currentJob.job_id);
-      if (result?.revision?.content) {
-        setContent(result.revision.content);
-        lastSavedSnapshot.current.content = result.revision.content;
-        setAutosaveStatus('saved');
-        setLastSavedTime(new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }));
+      await persistence.flush();
+      await acceptDraftRevision(activeChapterId, currentJob.job_id);
+      const chapter = await getChapter(activeChapterId);
+      if (loadedChapter.current === activeDraftScope) {
+        const value = persistence.initialize(chapter, true);
+        setTitle(value.title);
+        setContent(value.content);
+        setIsVip(value.isVip);
+        setPriceCoins(value.priceCoins);
       }
       setCurrentJob(null);
       setAiSuggestion(null);
@@ -728,24 +676,28 @@ export function AuthorWritingIde() {
     return list.filter((ch: Chapter) => ch.title.toLowerCase().includes(q) || String(ch.chapterNumber).includes(q));
   }, [chaptersQuery.data, chapterSearch]);
 
+  const manuscriptActions = (
+    <div className="sc-studio-manuscript-actions">{['DRAFT','REJECTED'].includes(chapterQuery.data?.status ?? '') && <button type="button" className="sc-button sc-button-ghost" onClick={async () => { try { await persistence.flush(); setScheduleOpen(true); } catch { showToast('Lưu bản nháp thành công trước khi đặt lịch.'); } }}>Lên lịch</button>}<button type="button" className="sc-button sc-button-ghost" onClick={() => setHistoryOpen(true)} disabled={!chapterQuery.data}>Lịch sử bản thảo</button><button type="button" className="sc-button sc-button-ghost" onClick={() => { const url = URL.createObjectURL(new Blob([title + '\n\n' + content], { type: 'text/markdown;charset=utf-8' })); const a = document.createElement('a'); a.href = url; a.download = 'ban-thao.md'; a.click(); URL.revokeObjectURL(url); }}>Xuất bản thảo</button></div>
+  );
+
   return (
-    <div className="h-screen flex flex-col text-slate-800 antialiased overflow-hidden select-none bg-[#f7f6f2]">
+    <div className="sc-writing-studio h-screen flex flex-col text-stone-800 antialiased overflow-hidden select-none bg-surface">
       {/* ──────────────────────────────────────────
           BEGIN: TopHeader
          ────────────────────────────────────────── */}
-      <header className="h-14 border-b border-stone-200/90 bg-[#faf9f6]/95 backdrop-blur-md px-3 md:px-4 flex items-center justify-between shrink-0 z-30">
+      <section className="sc-studio-toolbar h-14 border-b border-stone-200/90 bg-surface-subtle/95 backdrop-blur-md px-3 md:px-4 flex items-center justify-between shrink-0 z-30">
         {/* Left: Return link, Breadcrumb & Autosave indicator */}
         <div className="flex items-center gap-2.5 min-w-0">
           <Link
             to={activeNovelId ? `/author/novels/${activeNovelId}` : '/author'}
-            className="inline-flex items-center gap-1 text-xs font-medium text-stone-500 hover:text-stone-900 transition-colors py-1 px-2 rounded-md hover:bg-stone-200/60 shrink-0"
+            className="inline-flex items-center gap-1 text-meta font-medium text-stone-500 hover:text-stone-900 transition-colors py-1 px-2 rounded-md hover:bg-stone-200/60 shrink-0"
             title="Quay lại danh sách tác phẩm"
           >
             <span className="material-symbols-outlined text-[16px]">arrow_back</span>
             <span className="hidden sm:inline">Tủ truyện</span>
           </Link>
           <div className="h-3.5 w-px bg-stone-300 shrink-0"></div>
-          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-stone-500 truncate">
+          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-meta text-stone-500 truncate">
             <span
               onClick={() => navigate(activeNovelId ? `/author/novels/${activeNovelId}` : '/author')}
               className="font-medium text-stone-600 hover:text-stone-900 cursor-pointer truncate max-w-[130px] md:max-w-[160px]"
@@ -762,7 +714,7 @@ export function AuthorWritingIde() {
           </nav>
 
           {/* Autosave Indicator */}
-          <div className="hidden md:flex items-center gap-1.5 ml-1.5 px-2 py-0.5 rounded-full bg-emerald-50/80 border border-emerald-200/60 text-[11px] text-emerald-700 font-medium shrink-0">
+          <div className="hidden md:flex items-center gap-1.5 ml-1.5 px-2 py-0.5 rounded-full bg-emerald-50/80 border border-emerald-200/60 text-meta text-emerald-700 font-medium shrink-0">
             {autosaveStatus === 'saving' ? (
               <>
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
@@ -785,34 +737,57 @@ export function AuthorWritingIde() {
         {/* Center/Right Primary Actions */}
         <div className="flex items-center gap-2 shrink-0">
           {/* Word Count Badge */}
-          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-stone-100/80 text-stone-600 text-xs font-medium border border-stone-200/70">
-            <span className="material-symbols-outlined text-[14px] text-stone-400">description</span>
+          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-stone-100/80 text-stone-600 text-meta font-medium border border-stone-200/70">
+            <span className="material-symbols-outlined text-body text-stone-400">description</span>
             <span>{wordCount.toLocaleString()} từ</span>
             <span className="text-stone-300">•</span>
             <span>~{readMinutes} phút</span>
           </div>
 
           {/* Secondary Tools Group */}
+          <ThemeControl />
           <div className="flex items-center bg-stone-100/70 p-0.5 rounded-lg border border-stone-200/80">
             <button
+              onClick={() => setFormatToolbarVisible((visible) => !visible)}
+              aria-label={formatToolbarVisible ? 'Ẩn thanh công cụ' : 'Hiện thanh công cụ'}
+              aria-expanded={formatToolbarVisible}
+              aria-controls="studio-format-toolbar"
+              title={formatToolbarVisible ? 'Ẩn thanh công cụ' : 'Hiện thanh công cụ'}
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest transition-all"
+              type="button"
+            >
+              <span className="material-symbols-outlined text-stone-500 text-[15px]">text_format</span>
+            </button>
+            <button
               onClick={() => setStoryBibleOpen(true)}
-              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-white transition-all"
+              className="inline-flex items-center gap-1 px-2 py-1 text-meta font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest transition-all"
               title="Cẩm nang thế giới truyện (Story Bible)"
               type="button"
             >
               <span className="material-symbols-outlined text-stone-500 text-[15px]">menu_book</span>
-              <span className="hidden xl:inline text-[11px]">Cẩm nang</span>
+              <span className="hidden xl:inline text-meta">Cẩm nang</span>
+            </button>
+            <button
+              onClick={() => setMemoryPanelOpen(true)}
+              data-testid="btn-story-brain"
+              aria-label="Story Brain & Kiểm tra nhất quán"
+              className="inline-flex items-center gap-1 px-2 py-1 text-meta font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest transition-all"
+              title="Bộ nhớ cốt truyện & Kiểm tra nhất quán (Story Brain)"
+              type="button"
+            >
+              <span className="material-symbols-outlined text-stone-500 text-[15px]">psychology</span>
+              <span className="hidden xl:inline text-meta">Story Brain</span>
             </button>
             <button
               onClick={() => setFocusMode((prev: boolean) => !prev)}
-              className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-white transition-all"
+              className="inline-flex items-center gap-1 px-2 py-1 text-meta font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest transition-all"
               title="Chế độ tập trung (Zen Mode)"
               type="button"
             >
               <span className="material-symbols-outlined text-stone-500 text-[15px]">
                 {focusMode ? 'fullscreen_exit' : 'fullscreen'}
               </span>
-              <span className="hidden md:inline text-[11px]">{focusMode ? 'Thoát Focus' : 'Tập trung'}</span>
+              <span className="hidden md:inline text-meta">{focusMode ? 'Thoát Focus' : 'Tập trung'}</span>
             </button>
           </div>
 
@@ -820,8 +795,10 @@ export function AuthorWritingIde() {
 
           {/* AI Assistant Toggle Button */}
           <button
-            onClick={() => setAiDrawerOpen((prev: boolean) => !prev)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-50 text-primary-600 hover:bg-indigo-100 border border-indigo-200/90 transition-all shadow-2xs active:scale-95"
+            onClick={toggleAiDrawer}
+            aria-expanded={aiDrawerOpen}
+            aria-controls="studio-ai-panel"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-meta font-semibold rounded-lg bg-primary-50 text-primary-600 hover:bg-primary-100 border border-primary-200/90 transition-all shadow-2xs "
             title="Mở trợ lý sáng tác AI"
             type="button"
           >
@@ -832,22 +809,22 @@ export function AuthorWritingIde() {
           {/* Primary Publish Button */}
           <button
             onClick={() => setPublishModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg text-white bg-primary-600 hover:bg-primary-700 shadow-sm shadow-indigo-200 transition-all active:scale-95"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-meta font-semibold rounded-lg text-white bg-primary-600 hover:bg-primary-700 shadow-sm shadow-primary-200 transition-all "
             type="button"
           >
             <span>Xuất bản chương</span>
             <span className="material-symbols-outlined text-[15px]">send</span>
           </button>
         </div>
-      </header>
+      </section>
 
       {/* ──────────────────────────────────────────
           BEGIN: Chapter Settings Subheader Bar
          ────────────────────────────────────────── */}
       {!focusMode && (
-        <section className="h-11 border-b border-stone-200/80 bg-white/90 backdrop-blur-sm px-4 flex items-center justify-between shrink-0 z-20 text-xs">
+        <section className="sc-studio-settings border-b border-stone-200/80 bg-surface-container-lowest/90 backdrop-blur-sm px-4 flex items-center justify-between shrink-0 z-20 text-meta">
           {/* Left: Sidebar toggle & Publication Status */}
-          <div className="flex items-center gap-3">
+          <div className="sc-studio-settings-context flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen((prev: boolean) => !prev)}
               className="p-1 rounded text-stone-500 hover:text-stone-800 hover:bg-stone-100 transition-colors flex items-center"
@@ -859,24 +836,25 @@ export function AuthorWritingIde() {
             <div className="h-3.5 w-px bg-stone-200"></div>
             <div className="flex items-center gap-2">
               <span className="text-stone-500 font-medium hidden sm:inline">Trạng thái:</span>
-              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-amber-200 bg-amber-50 text-amber-800 text-[11px] font-semibold">
+              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-amber-200 bg-amber-50 text-amber-800 text-meta font-semibold">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                 <span>{chapterQuery.data?.status || 'Bản nháp'}</span>
               </div>
-              <div className="text-[11px] text-stone-400 hidden lg:inline">
+              <div className="sc-studio-settings-novel text-meta text-stone-400 hidden lg:inline">
                 • Tác phẩm: <strong className="text-stone-600 font-medium">{novelQuery.data?.title || '...'}</strong>
               </div>
             </div>
           </div>
 
-          {/* Right: VIP / Free segmented switch with Coin price input */}
-          <div className="flex items-center gap-3">
+          {/* Manuscript actions and chapter access share one toolbar. */}
+          <div className="sc-studio-settings-controls">
+            {manuscriptActions}
             <div className="flex items-center bg-stone-100 p-0.5 rounded-lg border border-stone-200">
               <button
                 onClick={() => handleAccessChange('free')}
-                className={`px-2.5 py-1 rounded-md text-[11px] transition-colors ${
+                className={`px-2.5 py-1 rounded-md text-meta transition-colors ${
                   !isVip
-                    ? 'font-semibold bg-white text-stone-900 shadow-2xs border border-stone-200/60'
+                    ? 'font-semibold bg-surface-container-lowest text-stone-900 shadow-2xs border border-stone-200/60'
                     : 'font-medium text-stone-600 hover:text-stone-900'
                 }`}
                 type="button"
@@ -885,22 +863,22 @@ export function AuthorWritingIde() {
               </button>
               <button
                 onClick={() => handleAccessChange('vip')}
-                className={`px-2.5 py-1 rounded-md text-[11px] flex items-center gap-1 transition-all ${
+                className={`px-2.5 py-1 rounded-md text-meta flex items-center gap-1 transition-all ${
                   isVip
-                    ? 'font-semibold bg-white text-primary-700 shadow-2xs border border-stone-200/60'
+                    ? 'font-semibold bg-surface-container-lowest text-primary-700 shadow-2xs border border-stone-200/60'
                     : 'font-medium text-stone-600 hover:text-stone-900'
                 }`}
                 type="button"
               >
-                <span className="material-symbols-outlined text-[13px] text-amber-500 fill-icon">stars</span>
+                <span className="material-symbols-outlined text-table text-amber-500 fill-icon">stars</span>
                 <span>Chương VIP ✦</span>
               </button>
             </div>
 
             {/* Dynamic Unlock Coin Price */}
             {isVip && (
-              <div className="flex items-center gap-1.5 text-stone-600 text-xs bg-amber-50/70 border border-amber-200/80 px-2 py-0.5 rounded-md">
-                <span className="text-[11px] font-medium text-amber-900">Giá mở khóa:</span>
+              <div className="flex items-center gap-1.5 text-stone-600 text-meta bg-amber-50/70 border border-amber-200/80 px-2 py-0.5 rounded-md">
+                <span className="text-meta font-medium text-amber-900">Giá mở khóa:</span>
                 <div className="flex items-center gap-1">
                   <input
                     type="number"
@@ -908,9 +886,9 @@ export function AuthorWritingIde() {
                     max={999}
                     value={priceCoins}
                     onChange={(e) => handlePriceChange(parseInt(e.target.value, 10))}
-                    className="w-12 h-6 text-center text-xs font-semibold rounded border-stone-300 bg-white py-0 px-1 focus:ring-primary-500 focus:border-primary-500 text-stone-800"
+                    className="w-12 h-6 text-center text-meta font-semibold rounded border-stone-300 bg-surface-container-lowest py-0 px-1 focus:ring-primary-500 focus:border-primary-500 text-stone-800"
                   />
-                  <span className="text-[11px] font-semibold text-amber-700">Xu</span>
+                  <span className="text-meta font-semibold text-amber-700">Xu</span>
                 </div>
               </div>
             )}
@@ -921,22 +899,25 @@ export function AuthorWritingIde() {
       {/* ──────────────────────────────────────────
           BEGIN: MainWorkspace
          ────────────────────────────────────────── */}
-      <div className="flex-1 flex overflow-hidden relative">
+      {scheduleOpen && <ChapterSchedule chapterId={activeChapterId} novelId={activeNovelId} onClose={() => setScheduleOpen(false)} />}
+      {historyOpen && <RevisionHistory chapterId={activeChapterId} content={content} onClose={() => setHistoryOpen(false)} onRestore={async next => { await persistence.flush(); setContent(next); triggerAutosave(title, next, isVip, priceCoins); await persistence.flush(); }} />}
+      {persistence.error && <Alert color="red" title="Bản nháp chưa được lưu">{persistence.error}<Group mt="xs"><Button size="xs" variant="light" onClick={() => void persistence.flush().catch(() => {})}>Thử lưu lại</Button><Button size="xs" variant="default" onClick={async () => { const result = await chapterQuery.refetch(); if (result.data) { const value = persistence.initialize(result.data, true); if (value) { setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); } } }}>Tải bản máy chủ</Button></Group></Alert>}
+      {persistence.recovery && <Alert title="Có bản lưu trên máy chưa đồng bộ" color="orange"><Text size="sm">Bản lưu lúc {new Date(persistence.recovery.savedAt).toLocaleString('vi-VN')}. Nội dung máy chủ vẫn được giữ nguyên.</Text><Group mt="xs"><Button size="xs" onClick={() => { const value = persistence.recovery!.value; setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); persistence.dismissRecovery(); triggerAutosave(value.title, value.content, value.isVip, value.priceCoins); }}>Khôi phục vào trình soạn thảo</Button><Button size="xs" variant="default" onClick={persistence.dismissRecovery}>Bỏ bản lưu trên máy</Button></Group></Alert>}
+      {persistence.blocker.state === 'blocked' && <AuthorDialog onClose={() => persistence.blocker.reset?.()}><div className="fixed inset-0 flex items-center justify-center p-4"><div className="w-full max-w-md p-6"><h2 className="text-section">Bản nháp chưa lưu xong</h2><p className="text-body">Bạn có thể lưu trước khi rời trang hoặc giữ bản dự phòng trên máy để khôi phục sau.</p><Group mt="md"><Button onClick={async () => { try { await persistence.flush(); persistence.blocker.proceed?.(); } catch {} }}>Lưu và rời trang</Button><Button variant="default" onClick={() => persistence.blocker.reset?.()}>Ở lại</Button><Button variant="subtle" onClick={() => { persistence.abandon(); persistence.blocker.proceed?.(); }}>Rời trang</Button></Group></div></div></AuthorDialog>}
+      {focusMode && <div className="flex justify-end px-4">{manuscriptActions}</div>}
+      <div className="sc-studio-body flex-1 min-h-0 flex overflow-hidden relative">
         {/* Left Sidebar Chapters Outline Rail */}
         {sidebarOpen && !focusMode && (
-          <aside className="w-[280px] shrink-0 border-r border-stone-200/90 bg-[#f9f8f4] flex flex-col h-full z-10 select-none relative">
+          <aside className="sc-studio-sidebar w-[280px] shrink-0 border-r border-stone-200/90 bg-surface-subtle flex flex-col h-full z-10 select-none relative">
             {/* Rail Header */}
             <div className="p-3 border-b border-stone-200 flex items-center justify-between bg-stone-50/50">
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] font-bold tracking-wider uppercase text-stone-600">Mục lục chương</span>
-                  <span className="text-[10px] bg-stone-200/80 text-stone-700 px-1.5 py-0.2 rounded-full font-semibold">
+                  <span className="text-meta font-bold tracking-wider uppercase text-stone-600">Mục lục chương</span>
+                  <span className="text-meta bg-stone-200/80 text-stone-700 px-1.5 py-0.2 rounded-full font-semibold">
                     {chaptersQuery.data?.length ?? 0}
                   </span>
                 </div>
-                <p className="text-[11px] text-stone-400 mt-0.5">
-                  {novelQuery.data?.title ? `Truyện: ${novelQuery.data.title}` : 'Đang tải...'}
-                </p>
               </div>
               <button
                 onClick={() => setSidebarOpen(false)}
@@ -959,7 +940,7 @@ export function AuthorWritingIde() {
                   value={chapterSearch}
                   onChange={(e) => setChapterSearch(e.target.value)}
                   placeholder="Tìm kiếm chương..."
-                  className="w-full bg-white text-xs pl-8 pr-2.5 py-1.5 rounded-lg border border-stone-200 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 placeholder-stone-400"
+                  className="w-full bg-surface-container-lowest text-meta pl-8 pr-2.5 py-1.5 rounded-lg border border-stone-200 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 placeholder-stone-400"
                 />
               </div>
             </div>
@@ -969,7 +950,7 @@ export function AuthorWritingIde() {
               <button
                 onClick={() => createChapterMutation.mutate()}
                 disabled={createChapterMutation.isPending}
-                className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 text-xs font-semibold rounded-lg border border-dashed border-stone-300 bg-white/70 hover:bg-white hover:border-primary-400 text-stone-700 hover:text-primary-600 transition-all shadow-2xs group"
+                className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 text-meta font-semibold rounded-lg border border-dashed border-stone-300 bg-surface-container-lowest/70 hover:bg-surface-container-lowest hover:border-primary-400 text-stone-700 hover:text-primary-600 transition-all shadow-2xs group"
                 type="button"
               >
                 <span className="material-symbols-outlined text-[16px] text-stone-500 group-hover:text-primary-600">
@@ -980,20 +961,21 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Chapter List Navigation */}
-            <nav className="flex-1 overflow-y-auto px-2 pb-6 space-y-1.5 text-xs">
+            <nav className="flex-1 overflow-y-auto px-2 pb-6 space-y-1.5 text-meta">
               {filteredChapters.map((ch: Chapter, idx: number) => {
                 const isActive = ch.chapterId === activeChapterId;
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={ch.chapterId}
                     onClick={() => {
                       if (!isActive) {
                         setSearchParams({ novelId: activeNovelId, chapterId: ch.chapterId });
                       }
                     }}
-                    className={`block p-2 rounded-lg border transition-all cursor-pointer relative ${
+                    className={`block w-full text-left p-2 rounded-lg border transition-all cursor-pointer relative ${
                       isActive
-                        ? 'bg-indigo-50/90 border-indigo-200 shadow-2xs'
+                        ? 'bg-primary-50/90 border-primary-200 shadow-2xs'
                         : 'border-transparent hover:bg-stone-200/50'
                     }`}
                   >
@@ -1002,7 +984,7 @@ export function AuthorWritingIde() {
                     )}
                     <div className="flex items-center justify-between mb-0.5 pl-1">
                       <span
-                        className={`text-[11px] font-semibold ${
+                        className={`text-meta font-semibold ${
                           isActive ? 'text-primary-700 font-bold' : 'text-stone-500'
                         }`}
                       >
@@ -1010,12 +992,12 @@ export function AuthorWritingIde() {
                       </span>
                       <div className="flex items-center gap-1">
                         {ch.isVip && (
-                          <span className="text-[9px] px-1 py-0.2 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300">
+                          <span className="text-meta px-1 py-0.2 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300">
                             VIP
                           </span>
                         )}
                         <span
-                          className={`text-[10px] px-1.5 py-0.2 rounded border font-normal ${
+                          className={`text-meta px-1.5 py-0.2 rounded border font-normal ${
                             ch.status === 'PUBLISHED'
                               ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                               : 'bg-stone-100 text-stone-500 border-stone-200/70'
@@ -1026,17 +1008,17 @@ export function AuthorWritingIde() {
                       </div>
                     </div>
                     <p
-                      className={`truncate text-xs pl-1 ${
+                      className={`truncate text-meta pl-1 ${
                         isActive ? 'font-semibold text-stone-900' : 'font-medium text-stone-700'
                       }`}
                     >
                       {ch.title || `Chương ${ch.chapterNumber}`}
                     </p>
-                    <div className="flex items-center justify-between text-[11px] text-stone-400 mt-0.5 pl-1">
+                    <div className="flex items-center justify-between text-meta text-stone-400 mt-0.5 pl-1">
                       <span>{ch.wordCount ? `${ch.wordCount.toLocaleString()} từ` : 'Bản nháp'}</span>
-                      {isActive && <span className="text-primary-600 font-medium text-[10px]">Đang mở</span>}
+                      {isActive && <span className="text-primary-600 font-medium text-meta">Đang mở</span>}
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </nav>
@@ -1046,26 +1028,11 @@ export function AuthorWritingIde() {
         {/* ──────────────────────────────────────────
             BEGIN: ManuscriptWritingArea
            ────────────────────────────────────────── */}
-        <main className="flex-1 overflow-y-auto flex flex-col items-center bg-[#f7f6f2] relative select-text">
-          {/* Floating Exit Button for Focus Mode */}
-          {focusMode && (
-            <div className="fixed top-3 right-4 z-50">
-              <button
-                onClick={() => setFocusMode(false)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md shadow-md border border-stone-200 text-xs text-stone-700 hover:text-stone-900 hover:bg-white transition-all font-medium"
-                title="Thoát chế độ tập trung"
-                type="button"
-              >
-                <span className="material-symbols-outlined text-[15px]">fullscreen_exit</span>
-                <span>Thoát tập trung</span>
-              </button>
-            </div>
-          )}
-
+        <main className="sc-editor-workspace flex-1 min-h-0 overflow-y-auto flex flex-col items-center bg-surface relative select-text">
           {/* Sticky Formatting Toolbar with Frosted-Glass Backdrop */}
-          {!focusMode && (
-            <div className="sticky top-0 z-20 w-full py-2 px-3 sm:px-4 bg-[#f7f6f2]/95 backdrop-blur-md border-b border-stone-200/60 flex items-center justify-center mb-6 shrink-0 shadow-2xs">
-              <div className="bg-white/95 border border-stone-200/90 rounded-xl shadow-xs py-1 px-2.5 flex items-center flex-wrap gap-1 max-w-4xl text-xs text-stone-700 select-none">
+          {formatToolbarVisible && (
+            <div id="studio-format-toolbar" className="sc-format-toolbar sticky top-0 z-20 w-full py-2 px-3 sm:px-4 bg-surface/95 backdrop-blur-md border-b border-stone-200/60 flex items-center justify-center mb-6 shrink-0 shadow-2xs">
+              <div className="bg-surface-container-lowest/95 border border-stone-200/90 rounded-xl shadow-xs py-1 px-2.5 flex items-center flex-wrap gap-1 max-w-4xl text-meta text-stone-700 select-none">
                 {/* 1. Font Family Dropdown */}
                 <div className="relative" ref={fontDropdownRef}>
                   <button
@@ -1075,7 +1042,7 @@ export function AuthorWritingIde() {
                     type="button"
                   >
                     <span className="material-symbols-outlined text-[16px] text-stone-500">text_fields</span>
-                    <span className="font-semibold text-xs tracking-tight" style={{ fontFamily: currentFontConfig.fontFamily }}>
+                    <span className="font-semibold text-meta tracking-tight" style={{ fontFamily: currentFontConfig.fontFamily }}>
                       {currentFontConfig.name}
                     </span>
                     <span className="material-symbols-outlined text-[15px] text-stone-400">
@@ -1085,17 +1052,17 @@ export function AuthorWritingIde() {
 
                   {/* Dropdown Menu */}
                   {fontDropdownOpen && (
-                    <div className="absolute top-full left-0 mt-1.5 w-80 bg-white rounded-xl shadow-xl border border-stone-200 py-2 px-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
+                    <div className="absolute top-full left-0 mt-1.5 w-80 bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200 py-2 px-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
                       <div className="px-2.5 py-1 mb-1 border-b border-stone-100 flex items-center justify-between">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                        <span className="text-meta font-bold uppercase tracking-wider text-stone-400">
                           Phông chữ soạn thảo ({AVAILABLE_FONTS.length})
                         </span>
-                        <span className="text-[10px] text-primary-600 font-medium">Hỗ trợ tiếng Việt</span>
+                        <span className="text-meta text-primary-600 font-medium">Hỗ trợ tiếng Việt</span>
                       </div>
 
                       <div className="max-h-72 overflow-y-auto space-y-0.5 py-1">
                         {/* Serif category */}
-                        <div className="px-2.5 pt-1.5 pb-0.5 text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+                        <div className="px-2.5 pt-1.5 pb-0.5 text-meta font-bold text-stone-400 uppercase tracking-wider">
                           Chữ có chân (Serif)
                         </div>
                         {AVAILABLE_FONTS.filter((f) => f.category === 'Serif (Có chân)').map((f) => (
@@ -1108,15 +1075,15 @@ export function AuthorWritingIde() {
                             type="button"
                             className={`w-full text-left px-2.5 py-2 rounded-lg flex items-center justify-between transition-colors ${
                               fontOption === f.id
-                                ? 'bg-indigo-50/80 text-primary-700 font-semibold border border-indigo-100'
+                                ? 'bg-primary-50/80 text-primary-700 font-semibold border border-primary-100'
                                 : 'hover:bg-stone-50 text-stone-800'
                             }`}
                           >
                             <div>
-                              <div className="text-sm font-medium" style={{ fontFamily: f.fontFamily }}>
+                              <div className="text-body font-medium" style={{ fontFamily: f.fontFamily }}>
                                 {f.name}
                               </div>
-                              <div className="text-[10px] text-stone-400 leading-tight mt-0.5">{f.tagline}</div>
+                              <div className="text-meta text-stone-400 leading-tight mt-0.5">{f.tagline}</div>
                             </div>
                             {fontOption === f.id && (
                               <span className="material-symbols-outlined text-[16px] text-primary-600 shrink-0">check</span>
@@ -1125,7 +1092,7 @@ export function AuthorWritingIde() {
                         ))}
 
                         {/* Sans category */}
-                        <div className="px-2.5 pt-2 pb-0.5 text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+                        <div className="px-2.5 pt-2 pb-0.5 text-meta font-bold text-stone-400 uppercase tracking-wider">
                           Chữ không chân (Sans-serif)
                         </div>
                         {AVAILABLE_FONTS.filter((f) => f.category === 'Sans-serif (Không chân)').map((f) => (
@@ -1138,15 +1105,15 @@ export function AuthorWritingIde() {
                             type="button"
                             className={`w-full text-left px-2.5 py-2 rounded-lg flex items-center justify-between transition-colors ${
                               fontOption === f.id
-                                ? 'bg-indigo-50/80 text-primary-700 font-semibold border border-indigo-100'
+                                ? 'bg-primary-50/80 text-primary-700 font-semibold border border-primary-100'
                                 : 'hover:bg-stone-50 text-stone-800'
                             }`}
                           >
                             <div>
-                              <div className="text-sm font-medium" style={{ fontFamily: f.fontFamily }}>
+                              <div className="text-body font-medium" style={{ fontFamily: f.fontFamily }}>
                                 {f.name}
                               </div>
-                              <div className="text-[10px] text-stone-400 leading-tight mt-0.5">{f.tagline}</div>
+                              <div className="text-meta text-stone-400 leading-tight mt-0.5">{f.tagline}</div>
                             </div>
                             {fontOption === f.id && (
                               <span className="material-symbols-outlined text-[16px] text-primary-600 shrink-0">check</span>
@@ -1165,19 +1132,19 @@ export function AuthorWritingIde() {
                   <button
                     onClick={() => setFontSize((prev) => Math.max(13, prev - 1))}
                     disabled={fontSize <= 13}
-                    className="w-6 h-6 flex items-center justify-center rounded hover:bg-white text-stone-600 hover:text-stone-900 disabled:opacity-30 disabled:hover:bg-transparent font-medium text-xs transition-colors"
+                    className="w-6 h-6 flex items-center justify-center rounded hover:bg-surface-container-lowest text-stone-600 hover:text-stone-900 disabled:opacity-30 disabled:hover:bg-transparent font-medium text-meta transition-colors"
                     title="Giảm cỡ chữ (A-)"
                     type="button"
                   >
                     A-
                   </button>
-                  <span className="w-8 text-center font-mono font-semibold text-[11px] text-stone-700 select-none">
+                  <span className="w-8 text-center font-mono font-semibold text-meta text-stone-700 select-none">
                     {fontSize}
                   </span>
                   <button
                     onClick={() => setFontSize((prev) => Math.min(28, prev + 1))}
                     disabled={fontSize >= 28}
-                    className="w-6 h-6 flex items-center justify-center rounded hover:bg-white text-stone-600 hover:text-stone-900 disabled:opacity-30 disabled:hover:bg-transparent font-medium text-xs transition-colors"
+                    className="w-6 h-6 flex items-center justify-center rounded hover:bg-surface-container-lowest text-stone-600 hover:text-stone-900 disabled:opacity-30 disabled:hover:bg-transparent font-medium text-meta transition-colors"
                     title="Tăng cỡ chữ (A+)"
                     type="button"
                   >
@@ -1192,7 +1159,7 @@ export function AuthorWritingIde() {
                   <button
                     onClick={() => setTextAlign('justify')}
                     className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
-                      textAlign === 'justify' ? 'bg-white text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
+                      textAlign === 'justify' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
                     }`}
                     title="Căn đều hai bên (Chuẩn sách xuất bản)"
                     type="button"
@@ -1202,7 +1169,7 @@ export function AuthorWritingIde() {
                   <button
                     onClick={() => setTextAlign('left')}
                     className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
-                      textAlign === 'left' ? 'bg-white text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
+                      textAlign === 'left' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
                     }`}
                     title="Căn trái"
                     type="button"
@@ -1212,7 +1179,7 @@ export function AuthorWritingIde() {
                   <button
                     onClick={() => setTextAlign('center')}
                     className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
-                      textAlign === 'center' ? 'bg-white text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
+                      textAlign === 'center' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
                     }`}
                     title="Căn giữa (Thơ, tiêu đề phụ, lời đề từ)"
                     type="button"
@@ -1222,7 +1189,7 @@ export function AuthorWritingIde() {
                   <button
                     onClick={() => setTextAlign('right')}
                     className={`w-6 h-6 flex items-center justify-center rounded transition-colors ${
-                      textAlign === 'right' ? 'bg-white text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
+                      textAlign === 'right' ? 'bg-surface-container-lowest text-primary-700 shadow-2xs font-bold' : 'text-stone-500 hover:text-stone-800'
                     }`}
                     title="Căn phải (Ký tên, ngày tháng, xuất xứ)"
                     type="button"
@@ -1237,18 +1204,18 @@ export function AuthorWritingIde() {
                 <div className="relative" ref={spacingDropdownRef}>
                   <button
                     onClick={() => setSpacingDropdownOpen((prev) => !prev)}
-                    className="h-7 px-2 flex items-center gap-1 rounded-lg hover:bg-stone-100 text-stone-600 hover:text-stone-900 text-xs transition-colors border border-transparent hover:border-stone-200"
+                    className="h-7 px-2 flex items-center gap-1 rounded-lg hover:bg-stone-100 text-stone-600 hover:text-stone-900 text-meta transition-colors border border-transparent hover:border-stone-200"
                     title="Khoảng cách giãn dòng (Line-height)"
                     type="button"
                   >
                     <span className="material-symbols-outlined text-[15px] text-stone-500">format_line_spacing</span>
-                    <span className="font-mono text-[11px] font-medium">{lineHeight}x</span>
-                    <span className="material-symbols-outlined text-[14px] text-stone-400">expand_more</span>
+                    <span className="font-mono text-meta font-medium">{lineHeight}x</span>
+                    <span className="material-symbols-outlined text-body text-stone-400">expand_more</span>
                   </button>
 
                   {spacingDropdownOpen && (
-                    <div className="absolute top-full left-0 mt-1.5 w-48 bg-white rounded-xl shadow-xl border border-stone-200 p-1.5 z-50 animate-in fade-in duration-100">
-                      <div className="px-2 py-1 text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+                    <div className="absolute top-full left-0 mt-1.5 w-48 bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200 p-1.5 z-50 animate-in fade-in duration-100">
+                      <div className="px-2 py-1 text-meta font-bold text-stone-400 uppercase tracking-wider">
                         Giãn dòng bản thảo
                       </div>
                       {[
@@ -1263,9 +1230,9 @@ export function AuthorWritingIde() {
                             setSpacingDropdownOpen(false);
                           }}
                           type="button"
-                          className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs flex items-center justify-between transition-colors ${
+                          className={`w-full text-left px-2.5 py-1.5 rounded-lg text-meta flex items-center justify-between transition-colors ${
                             lineHeight === opt.val
-                              ? 'bg-indigo-50 text-primary-700 font-semibold'
+                              ? 'bg-primary-50 text-primary-700 font-semibold'
                               : 'hover:bg-stone-50 text-stone-700'
                           }`}
                         >
@@ -1284,14 +1251,14 @@ export function AuthorWritingIde() {
                   onClick={() => setParagraphIndent((prev) => !prev)}
                   className={`h-7 px-2 flex items-center gap-1 rounded-lg transition-colors border ${
                     paragraphIndent
-                      ? 'bg-indigo-50/80 border-indigo-200 text-primary-700 font-semibold'
+                      ? 'bg-primary-50/80 border-primary-200 text-primary-700 font-semibold'
                       : 'border-transparent hover:bg-stone-100 text-stone-500 hover:text-stone-800'
                   }`}
                   title="Thụt đầu dòng đoạn văn (~2.5rem - Quy chuẩn tiểu thuyết)"
                   type="button"
                 >
                   <span className="material-symbols-outlined text-[15px]">format_indent_increase</span>
-                  <span className="text-[11px] hidden md:inline">Thụt dòng</span>
+                  <span className="text-meta hidden md:inline">Thụt dòng</span>
                 </button>
 
                 <div className="h-4 w-px bg-stone-200 mx-1"></div>
@@ -1299,7 +1266,7 @@ export function AuthorWritingIde() {
                 {/* 5. Inline Formatting Tools */}
                 <button
                   onClick={() => wrapSelection('**', '**', 'văn bản in đậm')}
-                  className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors font-bold text-xs"
+                  className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors font-bold text-meta"
                   title="In đậm (**văn bản**)"
                   type="button"
                 >
@@ -1308,7 +1275,7 @@ export function AuthorWritingIde() {
 
                 <button
                   onClick={() => wrapSelection('*', '*', 'văn bản in nghiêng')}
-                  className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors italic text-xs"
+                  className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors italic text-meta"
                   title="In nghiêng (*văn bản*)"
                   type="button"
                 >
@@ -1317,7 +1284,7 @@ export function AuthorWritingIde() {
 
                 <button
                   onClick={() => wrapSelection('<u>', '</u>', 'văn bản gạch chân')}
-                  className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors text-xs"
+                  className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors text-meta"
                   title="Gạch chân (<u>văn bản</u>)"
                   type="button"
                 >
@@ -1326,7 +1293,7 @@ export function AuthorWritingIde() {
 
                 <button
                   onClick={() => wrapSelection('~~', '~~', 'văn bản gạch ngang')}
-                  className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors text-xs"
+                  className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors text-meta"
                   title="Gạch ngang (~~văn bản~~)"
                   type="button"
                 >
@@ -1335,7 +1302,7 @@ export function AuthorWritingIde() {
 
                 <button
                   onClick={() => wrapSelection('“', '”', 'lời thoại nhân vật')}
-                  className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 font-serif text-sm transition-colors"
+                  className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 font-serif text-body transition-colors"
                   title="Trích dẫn lời thoại “...”"
                   type="button"
                 >
@@ -1344,38 +1311,32 @@ export function AuthorWritingIde() {
 
                 <button
                   onClick={insertDialogueDash}
-                  className="px-1.5 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 font-serif text-xs transition-colors"
+                  className="px-1.5 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 font-serif text-meta transition-colors"
                   title="Gạch đầu dòng lời thoại (— )"
                   type="button"
                 >
                   —
                 </button>
 
-                <button
-                  onClick={insertSceneBreak}
-                  className="px-2 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-600 hover:text-stone-900 text-xs tracking-widest transition-colors font-medium"
-                  title="Chèn dấu phân cảnh / chuyển đoạn (✦ ✦ ✦)"
-                  type="button"
-                >
-                  ✦ ✦ ✦
-                </button>
+
               </div>
             </div>
           )}
 
           {/* Centered Manuscript Page */}
-          <article className="w-full max-w-3xl bg-white rounded-xl shadow-sm border border-stone-200/70 py-12 px-8 md:px-16 mb-24 transition-all">
+          <article className="sc-manuscript-page w-full max-w-3xl shrink-0 bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200/70">
             {/* Editable Chapter Title Header */}
             <div className="mb-8 pb-5 border-b border-stone-100">
               <input
                 type="text"
                 value={title}
+                readOnly={isAcceptingAi}
                 onChange={(e) => handleTitleChange(e.target.value)}
                 placeholder="Đặt tiêu đề chương tại đây..."
                 style={{ fontFamily: currentFontConfig.fontFamily }}
-                className="w-full font-bold text-2xl md:text-3xl text-stone-900 border-none p-0 focus:ring-0 focus:outline-none placeholder-stone-300 tracking-tight bg-transparent"
+                className="sc-chapter-title w-full font-bold text-2xl md:text-3xl text-stone-900 border-none p-0 focus:ring-0 focus:outline-none placeholder-stone-300 tracking-tight bg-transparent"
               />
-              <div className="flex flex-wrap items-center gap-2 mt-2.5 text-xs text-stone-400 font-sans">
+              <div className="flex flex-wrap items-center gap-2 mt-2.5 text-meta text-stone-400 font-sans">
                 <span>{lastSavedTime ? `Đã lưu: ${lastSavedTime}` : 'Đang soạn thảo'}</span>
                 <span>•</span>
                 <span className="text-stone-600 font-medium">{novelQuery.data?.title || 'Tác phẩm'}</span>
@@ -1388,6 +1349,7 @@ export function AuthorWritingIde() {
             <div className="w-full min-h-[500px]">
               <textarea
                 ref={editorRef}
+                readOnly={isAcceptingAi || !chapterQuery.data || loadedChapter.current !== activeDraftScope}
                 value={content}
                 onChange={(e) => handleContentChange(e.target.value)}
                 placeholder="Bắt đầu câu từ chương truyện của bạn tại đây..."
@@ -1401,45 +1363,26 @@ export function AuthorWritingIde() {
                   textAlign: textAlign,
                   textIndent: paragraphIndent ? '2.5rem' : '0'
                 }}
-                className="w-full border-none p-0 text-stone-800 bg-transparent focus:ring-0 focus:outline-none placeholder-stone-300 selection:bg-indigo-100 selection:text-indigo-900 transition-all"
+                className="sc-manuscript w-full border-none p-0 text-stone-800 bg-transparent focus:ring-0 focus:outline-none placeholder-stone-300 selection:bg-primary-100 selection:text-primary-900"
               />
             </div>
           </article>
         </main>
 
         {/* ──────────────────────────────────────────
-            BEGIN: Floating AI Edge Trigger
-           ────────────────────────────────────────── */}
-        {!aiDrawerOpen && (
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20">
-            <button
-              onClick={() => setAiDrawerOpen(true)}
-              className="bg-white border-l border-t border-b border-stone-200/90 text-stone-600 hover:text-primary-600 hover:bg-stone-50 py-3 px-2 rounded-l-xl shadow-md flex flex-col items-center gap-1.5 transition-all text-[11px] font-semibold active:scale-95 group"
-              title="Mở trợ lý AI đồng sáng tác"
-              type="button"
-            >
-              <span className="material-symbols-outlined text-[17px] text-primary-600 group-hover:scale-110 transition-transform fill-icon">
-                auto_awesome
-              </span>
-              <span className="[writing-mode:vertical-rl] tracking-wider text-stone-700 text-[11px]">Trợ lý AI</span>
-            </button>
-          </div>
-        )}
-
-        {/* ──────────────────────────────────────────
-            BEGIN: AI Drawer Panel
+            BEGIN: Docked AI Assistant
            ────────────────────────────────────────── */}
         {aiDrawerOpen && (
-          <aside className="fixed inset-y-0 right-0 w-80 md:w-96 bg-white border-l border-stone-200 shadow-2xl flex flex-col z-40 select-none animate-in slide-in-from-right duration-200">
+          <aside id="studio-ai-panel" aria-label="Trợ lý sáng tác AI" className="sc-ai-panel bg-surface-container-lowest border-l border-stone-200 flex flex-col select-none">
             {/* Drawer Header */}
             <div className="h-14 border-b border-stone-200 px-4 flex items-center justify-between bg-stone-50/80">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center text-primary-600">
+                <div className="w-7 h-7 rounded-lg bg-primary-50 border border-primary-200 flex items-center justify-center text-primary-600">
                   <span className="material-symbols-outlined text-[17px] fill-icon">auto_awesome</span>
                 </div>
                 <div>
-                  <h3 className="text-xs font-bold text-stone-900 leading-none">Trợ lý sáng tác AI • Ephurin</h3>
-                  <span className="text-[10px] text-stone-400">Context-Aware LLM & Story Bible</span>
+                  <h3 className="text-meta font-bold text-stone-900 leading-none">Trợ lý sáng tác AI • Ephurin</h3>
+                  <span className="text-meta text-stone-400">Context-Aware LLM & Story Bible</span>
                 </div>
               </div>
               <button
@@ -1453,12 +1396,12 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Context Scope Selector */}
-            <div className="px-3 py-2 border-b border-stone-100 bg-white flex items-center justify-between text-[11px]">
+            <div className="px-3 py-2 border-b border-stone-100 bg-surface-container-lowest flex items-center justify-between text-meta">
               <span className="text-stone-500 font-medium">Phạm vi ngữ cảnh:</span>
               <select
                 value={aiScope}
                 onChange={(e) => setAiScope(e.target.value as any)}
-                className="text-xs py-0.5 px-2 rounded-md border-stone-200 bg-stone-50 text-stone-700 focus:ring-primary-500 focus:border-primary-500 font-medium"
+                className="text-meta py-0.5 px-2 rounded-md border-stone-200 bg-stone-50 text-stone-700 focus:ring-primary-500 focus:border-primary-500 font-medium"
               >
                 <option value="selection">Đoạn văn vừa viết</option>
                 <option value="full">Toàn bộ chương hiện tại</option>
@@ -1468,7 +1411,7 @@ export function AuthorWritingIde() {
 
             {/* Quick Action Chips */}
             <div className="p-3 border-b border-stone-100 bg-stone-50/40">
-              <span className="text-[10px] font-bold uppercase text-stone-400 tracking-wider block mb-2">
+              <span className="text-meta font-bold uppercase text-stone-400 tracking-wider block mb-2">
                 Tác vụ văn học nhanh
               </span>
               <div className="grid grid-cols-2 gap-1.5">
@@ -1508,21 +1451,21 @@ export function AuthorWritingIde() {
             </div>
 
             {/* AI Suggestion Display */}
-            <div className="flex-1 overflow-y-auto p-3.5 space-y-3.5 text-xs select-text">
+            <div className="sc-ai-results flex-1 min-h-0 overflow-y-auto p-3.5 space-y-3.5 text-meta select-text">
               {isGeneratingAi && (
-                <div className="p-4 rounded-xl bg-indigo-50/70 border border-indigo-200 flex flex-col items-center justify-center gap-2 text-primary-700">
+                <div className="p-4 rounded-xl bg-primary-50/70 border border-primary-200 flex flex-col items-center justify-center gap-2 text-primary-700">
                   <span className="w-5 h-5 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></span>
-                  <span className="text-xs font-semibold">AI đang khởi tạo tiến trình sinh bản thảo P1...</span>
+                  <span className="text-meta font-semibold">AI đang suy nghĩ và tổng hợp Story Bible...</span>
                 </div>
               )}
 
               {aiSuggestion && !isGeneratingAi && (
-                <div className="bg-indigo-50/70 border border-indigo-100 rounded-xl p-3.5 text-stone-800 shadow-2xs">
-                  <div className="flex items-center justify-between mb-2 text-[10px] font-semibold text-primary-700">
-                    <span className="uppercase tracking-wide">Bản thảo AI (Canonical P1)</span>
-                    <span className="bg-indigo-100 px-1.5 py-0.2 rounded text-[10px]">{aiSuggestionTone}</span>
+                <div className="bg-primary-50/70 border border-primary-100 rounded-xl p-3.5 text-stone-800 shadow-2xs">
+                  <div className="flex items-center justify-between mb-2 text-meta font-semibold text-primary-700">
+                    <span className="uppercase tracking-wide">Gợi ý từ AI Copilot</span>
+                    <span className="bg-primary-100 px-1.5 py-0.2 rounded text-meta">{aiSuggestionTone}</span>
                   </div>
-                  <p className="font-serif text-[13px] leading-relaxed italic text-stone-700 bg-white/70 p-2.5 rounded-lg border border-indigo-100/60 whitespace-pre-wrap">
+                  <p className="font-serif text-table leading-relaxed italic text-stone-700 bg-surface-container-lowest/70 p-2.5 rounded-lg border border-primary-100/60 whitespace-pre-wrap">
                     {aiSuggestion}
                   </p>
                   <div className="mt-3 grid grid-cols-2 gap-1.5 font-sans pt-1">
@@ -1548,11 +1491,11 @@ export function AuthorWritingIde() {
 
               {!aiSuggestion && !isGeneratingAi && (
                 <div className="bg-stone-50 border border-stone-200 rounded-xl p-3 text-stone-700">
-                  <div className="flex items-center justify-between mb-1 text-[10px] font-semibold text-stone-500 uppercase">
+                  <div className="flex items-center justify-between mb-1 text-meta font-semibold text-stone-500 uppercase">
                     <span>Sẵn sàng hỗ trợ</span>
-                    <span className="text-[10px] text-stone-400">Ephurin AI</span>
+                    <span className="text-meta text-stone-400">Ephurin AI</span>
                   </div>
-                  <p className="text-[12px] leading-normal text-stone-600">
+                  <p className="text-meta leading-normal text-stone-600">
                     Nhập yêu cầu vào ô bên dưới hoặc bấm vào các tác vụ nhanh để AI phân tích bối cảnh truyện và viết tiếp.
                   </p>
                 </div>
@@ -1560,7 +1503,7 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Prompt Input Footer */}
-            <div className="p-3 border-t border-stone-200 bg-white">
+            <div className="p-3 border-t border-stone-200 bg-surface-container-lowest">
               <div className="relative">
                 <textarea
                   value={aiInstruction}
@@ -1573,7 +1516,7 @@ export function AuthorWritingIde() {
                   }}
                   placeholder="Nhập yêu cầu phát triển tình tiết, miêu tả tâm lý nhân vật..."
                   rows={2}
-                  className="w-full text-xs rounded-lg border-stone-200 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 placeholder-stone-400 resize-none pr-10 text-stone-800"
+                  className="w-full text-meta rounded-lg border-stone-200 focus:border-primary-500 focus:ring-1 focus:ring-primary-500 placeholder-stone-400 resize-none pr-10 text-stone-800"
                 />
                 <button
                   onClick={() => handleGenerateAi()}
@@ -1594,10 +1537,10 @@ export function AuthorWritingIde() {
           BEGIN: Story Bible Modal
          ────────────────────────────────────────── */}
       {storyBibleOpen && (
-        <div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <AuthorDialog onClose={() => setStoryBibleOpen(false)}><div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div
             style={{ height: '620px', maxHeight: '88vh' }}
-            className="bg-white rounded-2xl shadow-2xl border border-stone-200/90 w-full max-w-3xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200"
+            className="bg-surface-container-lowest rounded-2xl shadow-sm border border-stone-200/90 w-full max-w-3xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200"
           >
             {/* Header */}
             <div className="h-16 border-b border-stone-200 px-6 flex items-center justify-between bg-stone-50/90 shrink-0">
@@ -1607,10 +1550,10 @@ export function AuthorWritingIde() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold text-stone-900">Cẩm Nang Thế Giới (Story Bible)</h3>
-                    <span className="px-2 py-0.5 rounded-full bg-stone-200/60 text-[10px] font-semibold text-stone-600">Tra cứu nhanh</span>
+                    <h3 className="text-body font-bold text-stone-900">Cẩm Nang Thế Giới (Story Bible)</h3>
+                    <span className="px-2 py-0.5 rounded-full bg-stone-200/60 text-meta font-semibold text-stone-600">Tra cứu nhanh</span>
                   </div>
-                  <p className="text-[11px] text-stone-500 font-medium">Tác phẩm: {novelQuery.data?.title || 'Đang tải...'}</p>
+                  <p className="text-meta text-stone-500 font-medium">Tác phẩm: {novelQuery.data?.title || 'Đang tải...'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -1618,7 +1561,7 @@ export function AuthorWritingIde() {
                   to={activeNovelId ? `/author/context/${activeNovelId}` : '/author'}
                   target="_blank"
                   rel="noreferrer"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-300 text-xs text-stone-700 hover:text-stone-900 hover:bg-white font-medium shadow-xs transition-colors"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-300 text-meta text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest font-medium shadow-xs transition-colors"
                   title="Mở toàn màn hình để thêm/sửa nhân vật, thiết lập chi tiết"
                 >
                   <span className="material-symbols-outlined text-[15px] text-primary-600">open_in_new</span>
@@ -1636,7 +1579,7 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Tabs */}
-            <div className="px-6 border-b border-stone-200 flex items-center gap-6 text-xs font-semibold bg-white text-stone-500 shrink-0">
+            <div className="px-6 border-b border-stone-200 flex items-center gap-6 text-meta font-semibold bg-surface-container-lowest text-stone-500 shrink-0">
               <button
                 onClick={() => setStoryBibleTab('characters')}
                 className={`py-3.5 flex items-center gap-1.5 transition-colors ${
@@ -1688,20 +1631,19 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Tab Contents: Uniform scrollable container */}
-            <div className="p-6 overflow-y-auto space-y-3 flex-1 min-h-0 text-xs text-stone-700 bg-stone-50/40">
+            <div className="p-6 overflow-y-auto space-y-3 flex-1 min-h-0 text-meta text-stone-700 bg-stone-50/40">
               {storyBibleTab === 'characters' && (
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {charactersQuery.data?.map((c: CharacterProfile, idx: number) => {
+                    {charactersQuery.data?.map((c: CharacterProfile) => {
                       const { customTitle, cleanDescription } = parseIdeCharacterDesc(c.description);
-                      const avatarUrl = AVATAR_FALLBACKS[idx % AVATAR_FALLBACKS.length];
                       const roleBadgeClass =
                         c.role === 'PROTAGONIST'
                           ? 'bg-primary-50 text-primary-700 border-primary-200'
                           : c.role === 'ANTAGONIST'
                           ? 'bg-rose-50 text-rose-700 border-rose-200'
                           : c.role === 'SUPPORTING'
-                          ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
+                          ? 'bg-primary-50 text-primary-700 border-primary-200'
                           : 'bg-stone-100 text-stone-600 border-stone-200';
                       const roleLabel =
                         c.role === 'PROTAGONIST'
@@ -1715,40 +1657,39 @@ export function AuthorWritingIde() {
                       return (
                         <div
                           key={c.characterId}
-                          className="p-3.5 rounded-xl border border-stone-200 bg-white hover:border-stone-300 hover:shadow-xs transition-all flex flex-col justify-between gap-2.5"
+                          className="p-3.5 rounded-xl border border-stone-200 bg-surface-container-lowest hover:border-stone-300 hover:shadow-xs transition-all flex flex-col justify-between gap-2.5"
                         >
                           <div className="flex items-start gap-3">
-                            <img
-                              src={avatarUrl}
-                              alt={c.name}
-                              className="w-11 h-11 rounded-full object-cover border border-stone-200 shrink-0 shadow-2xs"
-                            />
+                            <span className="w-11 h-11 rounded-full bg-stone-100 border border-stone-200 shrink-0 shadow-2xs flex items-center justify-center font-bold text-stone-600" aria-label={c.name}>{c.name.slice(0, 1).toUpperCase()}</span>
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-1.5 flex-wrap">
-                                <span className="font-bold text-stone-900 text-sm truncate">{c.name}</span>
+                                <span className="font-bold text-stone-900 text-body truncate">{c.name}</span>
                                 {customTitle && (
-                                  <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200 truncate">
+                                  <span className="px-1.5 py-0.5 rounded text-meta font-semibold bg-amber-50 text-amber-800 border border-amber-200 truncate">
                                     {customTitle}
                                   </span>
                                 )}
                               </div>
                               <div className="flex items-center gap-1 mt-1">
-                                <span className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${roleBadgeClass}`}>
+                                <span className={`text-meta px-2 py-0.5 rounded-full border font-semibold ${roleBadgeClass}`}>
                                   {roleLabel}
                                 </span>
                               </div>
                             </div>
                           </div>
 
+                          <details className="text-meta text-stone-600">
+                          <summary className="cursor-pointer font-medium">Chi tiết nhân vật</summary>
                           {c.personality && (
-                            <div className="bg-stone-50 rounded-lg p-2 border border-stone-100 text-[11px] text-stone-600 italic">
+                            <div className="bg-stone-50 rounded-lg p-2 border border-stone-100 text-meta text-stone-600 italic">
                               "{c.personality}"
                             </div>
                           )}
 
-                          <p className="text-stone-600 text-xs line-clamp-3 leading-relaxed">
+                          <p className="text-stone-600 text-meta whitespace-pre-wrap leading-relaxed mt-2">
                             {cleanDescription || 'Chưa có tiểu sử chi tiết.'}
                           </p>
+                          </details>
                         </div>
                       );
                     })}
@@ -1759,15 +1700,12 @@ export function AuthorWritingIde() {
                       <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 mb-2">
                         <span className="material-symbols-outlined text-[24px]">person_off</span>
                       </div>
-                      <p className="text-stone-600 font-semibold text-sm">Chưa có nhân vật nào trong Story Bible</p>
-                      <p className="text-stone-400 text-xs mt-1 max-w-sm">
-                        Thêm nhân vật để AI Copilot ghi nhớ tính cách, lời thoại và xây dựng cốt truyện nhất quán.
-                      </p>
+                      <p className="text-stone-600 font-semibold text-body">Chưa có nhân vật nào trong Story Bible</p>
                       <Link
                         to={activeNovelId ? `/author/context/${activeNovelId}` : '/author'}
                         target="_blank"
                         rel="noreferrer"
-                        className="mt-4 px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-xs shadow-xs inline-flex items-center gap-1.5 transition-colors"
+                        className="mt-4 px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-meta shadow-xs inline-flex items-center gap-1.5 transition-colors"
                       >
                         <span className="material-symbols-outlined text-[16px]">add</span>
                         <span>Mở Cẩm nang để thêm nhân vật ↗</span>
@@ -1781,18 +1719,18 @@ export function AuthorWritingIde() {
                 <>
                   <div className="space-y-2.5">
                     {relationshipsQuery.data?.map((r: CharacterRelationship) => (
-                      <div key={r.relationshipId} className="p-3.5 rounded-xl border border-stone-200 bg-white hover:border-stone-300 transition-colors">
+                      <div key={r.relationshipId} className="p-3.5 rounded-xl border border-stone-200 bg-surface-container-lowest hover:border-stone-300 transition-colors">
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="font-bold text-stone-900 text-xs flex items-center gap-1.5">
+                          <span className="font-bold text-stone-900 text-meta flex items-center gap-1.5">
                             <span className="text-primary-700">{r.sourceCharacterName}</span>
-                            <span className="material-symbols-outlined text-[14px] text-stone-400">arrow_forward</span>
+                            <span className="material-symbols-outlined text-body text-stone-400">arrow_forward</span>
                             <span className="text-stone-800">{r.targetCharacterName}</span>
                           </span>
-                          <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full font-semibold">
+                          <span className="text-meta bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full font-semibold">
                             {r.relationshipType}
                           </span>
                         </div>
-                        {r.description && <p className="text-xs text-stone-600 leading-relaxed">{r.description}</p>}
+                        {r.description && <p className="text-meta text-stone-600 leading-relaxed">{r.description}</p>}
                       </div>
                     ))}
                   </div>
@@ -1800,7 +1738,7 @@ export function AuthorWritingIde() {
                   {(!relationshipsQuery.data || relationshipsQuery.data.length === 0) && (
                     <div className="py-12 text-center text-stone-400">
                       <span className="material-symbols-outlined text-[28px] text-stone-300 block mb-1">hub</span>
-                      <p className="text-xs italic">Chưa có dữ liệu mối quan hệ nhân vật nào.</p>
+                      <p className="text-meta italic">Chưa có dữ liệu mối quan hệ nhân vật nào.</p>
                     </div>
                   )}
                 </>
@@ -1810,14 +1748,14 @@ export function AuthorWritingIde() {
                 <>
                   <div className="space-y-2.5">
                     {timelineQuery.data?.map((ev: StoryTimelineEvent) => (
-                      <div key={ev.eventId} className="p-3.5 rounded-xl border border-stone-200 bg-white hover:border-stone-300 transition-colors">
+                      <div key={ev.eventId} className="p-3.5 rounded-xl border border-stone-200 bg-surface-container-lowest hover:border-stone-300 transition-colors">
                         <div className="flex items-center gap-2 font-bold text-stone-900 mb-1">
-                          <span className="w-5 h-5 rounded-full bg-stone-100 border border-stone-200 text-[10px] flex items-center justify-center text-stone-600 font-mono">
+                          <span className="w-5 h-5 rounded-full bg-stone-100 border border-stone-200 text-meta flex items-center justify-center text-stone-600 font-mono">
                             #{ev.eventOrder}
                           </span>
-                          <span className="text-xs">{ev.title}</span>
+                          <span className="text-meta">{ev.title}</span>
                         </div>
-                        <p className="text-xs text-stone-600 leading-relaxed ml-7">{ev.summary}</p>
+                        <p className="text-meta text-stone-600 leading-relaxed ml-7">{ev.summary}</p>
                       </div>
                     ))}
                   </div>
@@ -1825,7 +1763,7 @@ export function AuthorWritingIde() {
                   {(!timelineQuery.data || timelineQuery.data.length === 0) && (
                     <div className="py-12 text-center text-stone-400">
                       <span className="material-symbols-outlined text-[28px] text-stone-300 block mb-1">history_edu</span>
-                      <p className="text-xs italic">Chưa có sự kiện mốc thời gian nào được ghi nhận.</p>
+                      <p className="text-meta italic">Chưa có sự kiện mốc thời gian nào được ghi nhận.</p>
                     </div>
                   )}
                 </>
@@ -1835,12 +1773,12 @@ export function AuthorWritingIde() {
                 <>
                   <div className="space-y-2.5">
                     {plotSummariesQuery.data?.map((s: PlotSummary) => (
-                      <div key={s.summaryId} className="p-3.5 rounded-xl border border-stone-200 bg-white hover:border-stone-300 transition-colors">
+                      <div key={s.summaryId} className="p-3.5 rounded-xl border border-stone-200 bg-surface-container-lowest hover:border-stone-300 transition-colors">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="material-symbols-outlined text-[16px] text-primary-600">bookmark</span>
-                          <span className="font-bold text-stone-900 text-xs">{s.arcName || 'Tóm tắt phân cảnh'}</span>
+                          <span className="font-bold text-stone-900 text-meta">{s.arcName || 'Tóm tắt phân cảnh'}</span>
                         </div>
-                        <p className="text-xs text-stone-600 leading-relaxed ml-6">{s.summary}</p>
+                        <p className="text-meta text-stone-600 leading-relaxed ml-6">{s.summary}</p>
                       </div>
                     ))}
                   </div>
@@ -1848,7 +1786,7 @@ export function AuthorWritingIde() {
                   {(!plotSummariesQuery.data || plotSummariesQuery.data.length === 0) && (
                     <div className="py-12 text-center text-stone-400">
                       <span className="material-symbols-outlined text-[28px] text-stone-300 block mb-1">auto_stories</span>
-                      <p className="text-xs italic">Chưa có tóm tắt hồi hay chương nào.</p>
+                      <p className="text-meta italic">Chưa có tóm tắt hồi hay chương nào.</p>
                     </div>
                   )}
                 </>
@@ -1857,7 +1795,7 @@ export function AuthorWritingIde() {
 
             {/* Footer */}
             <div className="p-4 border-t border-stone-200 bg-stone-50 flex items-center justify-between shrink-0">
-              <div className="text-[11px] text-stone-500 hidden sm:flex items-center gap-1.5">
+              <div className="text-meta text-stone-500 hidden sm:flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-[15px] text-amber-500">lightbulb</span>
                 <span>Dữ liệu Cẩm nang được AI Copilot tự động nạp để tạo gợi ý văn phong nhất quán.</span>
               </div>
@@ -1866,14 +1804,14 @@ export function AuthorWritingIde() {
                   to={activeNovelId ? `/author/context/${activeNovelId}` : '/author'}
                   target="_blank"
                   rel="noreferrer"
-                  className="px-3.5 py-1.5 rounded-xl border border-stone-300 text-xs text-stone-700 hover:bg-stone-100 font-medium inline-flex items-center gap-1 transition-colors"
+                  className="px-3.5 py-1.5 rounded-xl border border-stone-300 text-meta text-stone-700 hover:bg-stone-100 font-medium inline-flex items-center gap-1 transition-colors"
                 >
                   <span className="material-symbols-outlined text-[15px]">edit_note</span>
                   <span>Chỉnh sửa Cẩm nang ↗</span>
                 </Link>
                 <button
                   onClick={() => setStoryBibleOpen(false)}
-                  className="px-4 py-1.5 rounded-xl bg-primary-600 text-white text-xs font-semibold hover:bg-primary-700 transition-colors shadow-2xs"
+                  className="px-4 py-1.5 rounded-xl bg-primary-600 text-white text-meta font-semibold hover:bg-primary-700 transition-colors shadow-2xs"
                   type="button"
                 >
                   Đóng cẩm nang
@@ -1881,24 +1819,24 @@ export function AuthorWritingIde() {
               </div>
             </div>
           </div>
-        </div>
+        </div></AuthorDialog>
       )}
 
       {/* ──────────────────────────────────────────
           BEGIN: Publish Confirmation Modal
          ────────────────────────────────────────── */}
       {publishModalOpen && (
-        <div className="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-2xl border border-stone-200 w-full max-w-lg p-6 animate-in fade-in zoom-in-95 duration-200">
+        <AuthorDialog onClose={() => setPublishModalOpen(false)}><div className="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200 w-full max-w-lg p-6 animate-in fade-in zoom-in-95 duration-200">
             {/* Header */}
             <div className="flex items-center justify-between pb-3 border-b border-stone-100 mb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-lg bg-indigo-50 border border-indigo-200 text-primary-600 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-lg bg-primary-50 border border-primary-200 text-primary-600 flex items-center justify-center">
                   <span className="material-symbols-outlined text-[20px]">send</span>
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-stone-900">Xác nhận xuất bản chương</h3>
-                  <p className="text-[11px] text-stone-500">Tác phẩm: {novelQuery.data?.title || '...'}</p>
+                  <h3 className="text-body font-bold text-stone-900">Xác nhận xuất bản chương</h3>
+                  <p className="text-meta text-stone-500">Tác phẩm: {novelQuery.data?.title || '...'}</p>
                 </div>
               </div>
               <button
@@ -1911,7 +1849,7 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Summary Box */}
-            <div className="bg-stone-50 border border-stone-200 rounded-lg p-3 space-y-1.5 text-xs text-stone-700 mb-4">
+            <div className="bg-stone-50 border border-stone-200 rounded-lg p-3 space-y-1.5 text-meta text-stone-700 mb-4">
               <div className="flex justify-between">
                 <span className="text-stone-500">Tiêu đề chương:</span>
                 <span className="font-semibold text-stone-900">{title || 'Chưa đặt tiêu đề'}</span>
@@ -1925,7 +1863,7 @@ export function AuthorWritingIde() {
               <div className="flex justify-between items-center pt-1 border-t border-stone-200/60">
                 <span className="text-stone-500">Quyền truy cập:</span>
                 <span
-                  className={`inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded text-[11px] ${
+                  className={`inline-flex items-center gap-1 font-semibold px-2 py-0.5 rounded text-meta ${
                     isVip
                       ? 'text-amber-700 bg-amber-50 border border-amber-200'
                       : 'text-emerald-700 bg-emerald-50 border border-emerald-200'
@@ -1933,7 +1871,7 @@ export function AuthorWritingIde() {
                 >
                   {isVip ? (
                     <>
-                      <span className="material-symbols-outlined text-[12px] text-amber-500 fill-icon">stars</span>
+                      <span className="material-symbols-outlined text-meta text-amber-500 fill-icon">stars</span>
                       Chương VIP ({priceCoins} Xu)
                     </>
                   ) : (
@@ -1945,10 +1883,10 @@ export function AuthorWritingIde() {
 
             {/* Validation Checklist */}
             <div className="mb-4">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 block mb-2">
+              <span className="text-meta font-bold uppercase tracking-wider text-stone-400 block mb-2">
                 Kiểm tra tiêu chuẩn xuất bản
               </span>
-              <div className="space-y-1.5 text-xs">
+              <div className="space-y-1.5 text-meta">
                 <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50/70 border border-emerald-200/70 px-2.5 py-1.5 rounded-md">
                   <span className="material-symbols-outlined text-[16px] text-emerald-600">check_circle</span>
                   <span>Tiêu đề chương hợp lệ và đúng quy chuẩn</span>
@@ -1961,7 +1899,7 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Moderation Notice */}
-            <div className="p-2.5 rounded-lg bg-indigo-50/60 border border-indigo-100 text-[11px] text-stone-600 leading-relaxed mb-5 flex items-start gap-2">
+            <div className="p-2.5 rounded-lg bg-primary-50/60 border border-primary-100 text-meta text-stone-600 leading-relaxed mb-5 flex items-start gap-2">
               <span className="material-symbols-outlined text-primary-600 text-[16px] shrink-0 mt-0.5">info</span>
               <span>
                 Hệ thống sẽ tự động quét từ khóa nhạy cảm và kiểm tra kiểm duyệt nội dung trước khi chương được độc giả đọc công khai.
@@ -1969,7 +1907,7 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center justify-end gap-2 text-xs">
+            <div className="flex items-center justify-end gap-2 text-meta">
               <button
                 onClick={() => setPublishModalOpen(false)}
                 className="px-3.5 py-1.5 rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-100 font-medium transition-colors"
@@ -1980,27 +1918,39 @@ export function AuthorWritingIde() {
               <button
                 onClick={() => publishMutation.mutate()}
                 disabled={publishMutation.isPending}
-                className="px-4 py-1.5 rounded-lg bg-primary-600 text-white hover:bg-primary-700 font-semibold transition-all shadow-sm shadow-indigo-200 active:scale-95 disabled:opacity-50"
+                className="px-4 py-1.5 rounded-lg bg-primary-600 text-white hover:bg-primary-700 font-semibold transition-all shadow-sm shadow-primary-200  disabled:opacity-50"
                 type="button"
               >
                 {publishMutation.isPending ? 'Đang gửi duyệt...' : 'Xác nhận gửi duyệt'}
               </button>
             </div>
           </div>
-        </div>
+        </div></AuthorDialog>
       )}
 
       {/* ──────────────────────────────────────────
           BEGIN: Toast Notification
          ────────────────────────────────────────── */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <div className="flex items-center gap-2.5 bg-stone-900 text-white px-4 py-2.5 rounded-xl shadow-xl text-xs font-medium border border-stone-800">
+        <div className="fixed bottom-6 right-6 z-50 animate-in fade-in  duration-300">
+          <div className="flex items-center gap-2.5 bg-cover-fallback text-white px-4 py-2.5 rounded-xl shadow-sm text-meta font-medium border border-stone-800">
             <span className="material-symbols-outlined text-emerald-400 text-[18px]">check_circle</span>
             <span>{toastMessage}</span>
           </div>
         </div>
       )}
+
+      {/* ──────────────────────────────────────────
+          BEGIN: Author Memory & Consistency Drawer
+         ────────────────────────────────────────── */}
+      <AuthorMemoryPanel
+        novelId={activeNovelId}
+        chapterId={activeChapterId}
+        content={content}
+        opened={memoryPanelOpen}
+        onClose={() => setMemoryPanelOpen(false)}
+        saved={autosaveStatus === 'saved'}
+      />
     </div>
   );
 }

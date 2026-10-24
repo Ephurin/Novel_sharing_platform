@@ -1,3 +1,4 @@
+import { enqueueNotification } from '../interactions/notification-events.js';
 import type { PoolClient, QueryResultRow } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
@@ -27,6 +28,9 @@ function mapWallet(row: QueryResultRow) {
 }
 
 function mapTransaction(row: QueryResultRow) {
+  const incoming = row.type === 'DEPOSIT' || row.counterparty_wallet_id === row.viewer_wallet_id;
+  const selfTransfer = row.wallet_id === row.counterparty_wallet_id;
+  const affectsBalance = row.status === 'SUCCESS' || (row.type === 'WITHDRAW' && row.status === 'PENDING');
   return {
     transactionId: row.transaction_id,
     walletId: row.wallet_id,
@@ -37,12 +41,18 @@ function mapTransaction(row: QueryResultRow) {
     referenceType: row.reference_type,
     referenceId: row.reference_id,
     metadata: row.metadata,
+    direction: incoming ? 'IN' : 'OUT',
+    balanceChangeCoins: !affectsBalance || selfTransfer ? 0 : (incoming ? 1 : -1) * row.amount_coins,
     createdAt: row.created_at
   };
 }
 
 export function getDepositAmount(packageCode: CreateDepositSessionInput['packageCode']) {
   return depositPackages[packageCode];
+}
+
+export function listDepositPackages() {
+  return Object.entries(depositPackages).map(([code, amountCoins]) => ({ code, amountCoins }));
 }
 
 export async function findWalletByUserId(userId: string) {
@@ -64,13 +74,13 @@ export async function listTransactions(userId: string, input: WalletTransactions
   const offset = (input.page - 1) * input.limit;
   const dataResult = await getPostgresPool().query(
     `
-      select tx.*
+      select tx.*, w.wallet_id as viewer_wallet_id
       from transactions tx
-      join wallets w on w.wallet_id = tx.wallet_id
+      join wallets w on w.wallet_id in (tx.wallet_id, tx.counterparty_wallet_id)
       where w.user_id = $1
         and ($2::transaction_type is null or tx.type = $2)
         and ($3::transaction_status is null or tx.status = $3)
-      order by tx.created_at desc
+      order by tx.created_at desc, tx.transaction_id desc
       limit $4 offset $5
     `,
     [userId, input.type ?? null, input.status ?? null, input.limit, offset]
@@ -79,7 +89,7 @@ export async function listTransactions(userId: string, input: WalletTransactions
     `
       select count(*)::int as total
       from transactions tx
-      join wallets w on w.wallet_id = tx.wallet_id
+      join wallets w on w.wallet_id in (tx.wallet_id, tx.counterparty_wallet_id)
       where w.user_id = $1
         and ($2::transaction_type is null or tx.type = $2)
         and ($3::transaction_status is null or tx.status = $3)
@@ -90,6 +100,42 @@ export async function listTransactions(userId: string, input: WalletTransactions
   return {
     items: dataResult.rows.map(mapTransaction),
     totalItems: countResult.rows[0]?.total ?? 0
+  };
+}
+
+// Calendar days are reported in the product timezone, independent of the DB session.
+export async function getAuthorEarnings(userId: string) {
+  const result = await getPostgresPool().query(
+    `
+      with incoming as (
+        select tx.amount_coins, tx.type,
+               (tx.created_at at time zone 'Asia/Bangkok')::date as day
+        from transactions tx
+        join wallets w on w.wallet_id = tx.counterparty_wallet_id
+        where w.user_id = $1 and tx.wallet_id <> w.wallet_id
+          and tx.type in ('UNLOCK', 'DONATE') and tx.status = 'SUCCESS'
+      ), daily as (
+        select day, sum(amount_coins)::bigint as amount,
+               coalesce(sum(amount_coins) filter (where type = 'UNLOCK'), 0)::bigint as unlock_amount,
+               coalesce(sum(amount_coins) filter (where type = 'DONATE'), 0)::bigint as donate_amount
+        from incoming group by day
+      )
+      select to_char((now() at time zone 'Asia/Bangkok')::date, 'YYYY-MM-DD') as as_of_day,
+             (select coalesce(sum(amount_coins), 0)::bigint from incoming) as total,
+             coalesce((select json_agg(json_build_object(
+               'day', to_char(day, 'YYYY-MM-DD'), 'amountCoins', amount,
+               'unlockCoins', unlock_amount, 'donateCoins', donate_amount
+             ) order by day) from daily
+               where day >= (now() at time zone 'Asia/Bangkok')::date - 729
+                 and day <= (now() at time zone 'Asia/Bangkok')::date), '[]'::json) as daily
+    `,
+    [userId]
+  );
+  return {
+    asOfDay: result.rows[0].as_of_day as string,
+    timeZone: 'Asia/Bangkok',
+    totalEarnedCoins: Number(result.rows[0].total),
+    daily: result.rows[0].daily as Array<{ day: string; amountCoins: number; unlockCoins: number; donateCoins: number }>
   };
 }
 
@@ -242,6 +288,7 @@ export async function unlockChapter(userId: string, chapter: QueryResultRow) {
       [userId, chapter.chapter_id, txResult.rows[0].transaction_id]
     );
 
+    await enqueueNotification(client, { eventKey: 'income:' + txResult.rows[0].transaction_id, userId: chapter.author_id, type: 'AUTHOR_INCOME', title: 'Bạn nhận được xu mở khóa chương', content: chapter.price_coins + ' Xu', payload: { href: '/wallet', transactionId: txResult.rows[0].transaction_id } });
     return {
       chapterId: chapter.chapter_id,
       unlocked: true,
@@ -293,6 +340,7 @@ export async function donateToAuthor(userId: string, authorId: string, input: Do
       [donorWallet.walletId, authorWallet.walletId, input.amountCoins, authorId, { message: input.message ?? null }]
     );
 
+    await enqueueNotification(client, { eventKey: 'income:' + txResult.rows[0].transaction_id, userId: authorId, type: 'AUTHOR_INCOME', title: 'Bạn nhận được xu ủng hộ', content: input.amountCoins + ' Xu', payload: { href: '/wallet', transactionId: txResult.rows[0].transaction_id } });
     return {
       authorId,
       donated: true,

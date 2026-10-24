@@ -11,11 +11,11 @@ export type AppNotification = {
   readAt: string | null;
 };
 
-export async function listNotifications(status?: 'UNREAD' | 'READ') {
+export async function listNotifications(status?: 'UNREAD' | 'READ', page = 1) {
   const response = await apiClient.get<ApiEnvelope<AppNotification[]>>('/notifications', {
-    params: { status, page: 1, limit: 20 }
+    params: { status, page, limit: 20 }
   });
-  return response.data.data;
+  return { ...response.data, meta: { ...response.data.meta, totalPages: Number(response.data.meta.totalPages ?? 0) } };
 }
 
 export async function markNotificationRead(notificationId: string) {
@@ -33,4 +33,11 @@ export async function registerWebPushToken(deviceToken: string) {
     }
   );
   return response.data.data;
+}
+
+export async function getUnreadNotificationCount() {
+  const response = await apiClient.get<ApiEnvelope<AppNotification[]>>('/notifications', {
+    params: { status: 'UNREAD', page: 1, limit: 1 }
+  });
+  return Number(response.data.meta.totalItems);
 }

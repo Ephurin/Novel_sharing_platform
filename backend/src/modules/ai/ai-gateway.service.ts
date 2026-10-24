@@ -16,6 +16,7 @@ export class AIGatewayService {
     userId?: string;
     tenantId?: string;
     requestId?: string;
+    idempotencyKey?: string;
     queryParams?: Record<string, string | number | undefined | null>;
     body?: unknown;
   }): Promise<T> {
@@ -46,6 +47,12 @@ export class AIGatewayService {
 
     if (options.userId) {
       headers['X-User-Id'] = options.userId;
+      headers['X-Author-Id'] = options.userId;
+      headers['X-Actor-Id'] = options.userId;
+    }
+
+    if (options.idempotencyKey) {
+      headers['Idempotency-Key'] = options.idempotencyKey;
     }
 
     try {

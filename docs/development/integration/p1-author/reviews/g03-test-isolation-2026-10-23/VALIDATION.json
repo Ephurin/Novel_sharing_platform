@@ -1,0 +1,986 @@
+{
+  "verdict": "G03_READY_FOR_GPT6_REVIEW",
+  "review_url": "https://github.com/Ephurin/Novel_sharing_platform/pull/62#issuecomment-6362263038",
+  "followup_url": "https://github.com/Ephurin/Novel_sharing_platform/pull/62#issuecomment-6362336293",
+  "initial_sha": "3df13ed51476de3b0e97f7aa5aef63ce8a18e061",
+  "tested_sha": "118ede77311fe160c7f0142cc237acf689a0b818",
+  "source_tree_tracked_clean": true,
+  "untracked_during_tests": "new evidence directory only",
+  "scope": "G-03 test-only teardown admission; no production changes",
+  "counts": {
+    "new_unique_local_pass": 232,
+    "fail": 0,
+    "skip": 3,
+    "count_method": "133 deterministic + 57 native (excluding repeated guard6) + 42 AI PostgreSQL; focused5/guard6/intermediate reruns not counted twice",
+    "controlled_red_fail": 3,
+    "g03_green_cases": 5,
+    "authorized_live_reconciliation_pass": 4,
+    "native_commands_exit_zero": 13
+  },
+  "commands": [
+    {
+      "label": "green-final",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/mongo-reconciliation-authorization.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "sha": "118ede77311fe160c7f0142cc237acf689a0b818"
+    },
+    {
+      "label": "deterministic",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/core/database/test-db-guard-lifecycle.test.ts",
+        "src/core/database/test-db-guard.test.ts",
+        "src/jobs/outbox-processor.test.ts",
+        "src/modules/ai-copilot/llm-provider.test.ts",
+        "src/modules/ai/ai-gateway.test.ts",
+        "src/modules/ai/ai-pipe-01b-ide-e2e.test.ts",
+        "src/modules/ai/autonomous-controller.test.ts",
+        "src/modules/ai/manuscript-import-contract.test.ts",
+        "src/modules/ai/p1-closed-loop-gateway.test.ts",
+        "src/modules/interactions/author-launch.integration.test.ts",
+        "src/modules/interactions/author-workflow.integration.test.ts",
+        "src/modules/interactions/comments.integration.test.ts",
+        "src/modules/media/media.test.ts",
+        "src/modules/novels/chapter-revisions.test.ts",
+        "src/modules/novels/controller-intent.test.ts",
+        "src/modules/novels/draft-read-authorization.test.ts",
+        "src/modules/novels/internal-revision-authorization.test.ts",
+        "src/modules/novels/mongo-reconciliation-authorization.test.ts",
+        "src/modules/novels/outbox.test.ts",
+        "src/scripts/seed-data/author-workspace.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "sha": "118ede77311fe160c7f0142cc237acf689a0b818"
+    },
+    {
+      "label": "typecheck-final",
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.json",
+        "--noEmit"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "sha": "118ede77311fe160c7f0142cc237acf689a0b818"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "src/core/database/migrate.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "118ede77311fe160c7f0142cc237acf689a0b818"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "alembic",
+        "upgrade",
+        "head"
+      ],
+      "cwd": "ai-service",
+      "exit_code": 0,
+      "tested_sha": "118ede77311fe160c7f0142cc237acf689a0b818"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "src/core/database/migrate.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "118ede77311fe160c7f0142cc237acf689a0b818"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "alembic",
+        "downgrade",
+        "-1"
+      ],
+      "cwd": "ai-service",
+      "exit_code": 0,
+      "tested_sha": "118ede77311fe160c7f0142cc237acf689a0b818"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "alembic",
+        "upgrade",
+        "head"
+      ],
+      "cwd": "ai-service",
+      "exit_code": 0,
+      "tested_sha": "118ede77311fe160c7f0142cc237acf689a0b818"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/g03-test-isolation-2026-10-23/observe-durable.mjs",
+        "--import",
+        "tsx",
+        "--test",
+        "src/core/database/test-db-guard-lifecycle.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "118ede77311fe160c7f0142cc237acf689a0b818"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/g03-test-isolation-2026-10-23/observe-durable.mjs",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/fixture-lifecycle-resilience.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "118ede77311fe160c7f0142cc237acf689a0b818"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/g03-test-isolation-2026-10-23/observe-durable.mjs",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/core-reconciliation.live.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "118ede77311fe160c7f0142cc237acf689a0b818"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/g03-test-isolation-2026-10-23/observe-durable.mjs",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/mongo-reconciliation.live.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "118ede77311fe160c7f0142cc237acf689a0b818"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/g03-test-isolation-2026-10-23/observe-durable.mjs",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/accept-draft-contract.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "118ede77311fe160c7f0142cc237acf689a0b818"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/g03-test-isolation-2026-10-23/observe-durable.mjs",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/outbox.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "118ede77311fe160c7f0142cc237acf689a0b818"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/g03-test-isolation-2026-10-23/observe-durable.mjs",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/p1-production-persistence.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "118ede77311fe160c7f0142cc237acf689a0b818"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-m",
+        "postgres_integration",
+        "--basetemp",
+        "C:\\Users\\thaib\\AppData\\Local\\Temp\\combined-pg-9cb824446b0a4d2b8c6f45a00ba1d1a7",
+        "tests"
+      ],
+      "cwd": "ai-service",
+      "exit_code": 0,
+      "tested_sha": "118ede77311fe160c7f0142cc237acf689a0b818"
+    }
+  ],
+  "ci": {
+    "tested_sha": "118ede77311fe160c7f0142cc237acf689a0b818",
+    "runs": [
+      {
+        "id": 39936969399,
+        "name": "P7 Semantic Memory Foundation",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 151,
+        "jobs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/39936969399/jobs",
+        "logs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/39936969399/logs",
+        "workflow_id": 364834893,
+        "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39936969399",
+        "jobs": [
+          {
+            "id": 120358769719,
+            "name": "unit",
+            "status": "completed",
+            "conclusion": "success",
+            "steps": [
+              {
+                "name": "Set up job",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run pip install -r requirements.txt pytest httpx",
+                "conclusion": "success"
+              },
+              {
+                "name": "Semantic-memory, retrieval, hybrid and context-routing unit tests",
+                "conclusion": "success"
+              },
+              {
+                "name": "CTX-RD-01 production/EVAL parity",
+                "conclusion": "success"
+              },
+              {
+                "name": "CTX-RD-01 real-provider evidence contract self-test",
+                "conclusion": "success"
+              },
+              {
+                "name": "CTX-RD-01 opt-in canary evidence contract and frozen-source runner syntax",
+                "conclusion": "success"
+              },
+              {
+                "name": "CTX-RD-01 E2E guardrails (no DB or provider required)",
+                "conclusion": "success"
+              },
+              {
+                "name": "CTX-RD-01 unadapted narrative E2E guardrails (no DB or provider required)",
+                "conclusion": "success"
+              },
+              {
+                "name": "Hybrid retrieval proxy regression",
+                "conclusion": "success"
+              },
+              {
+                "name": "Hybrid retrieval proxy metrics",
+                "conclusion": "success"
+              },
+              {
+                "name": "Benchmark invariant regression",
+                "conclusion": "success"
+              },
+              {
+                "name": "Phase 6 temporal/writing regressions",
+                "conclusion": "success"
+              },
+              {
+                "name": "Full AI-service non-PostgreSQL regression",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Complete job",
+                "conclusion": "success"
+              }
+            ]
+          },
+          {
+            "id": 120358770019,
+            "name": "pgvector-integration",
+            "status": "completed",
+            "conclusion": "success",
+            "steps": [
+              {
+                "name": "Set up job",
+                "conclusion": "success"
+              },
+              {
+                "name": "Initialize containers",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run pip install -r requirements.txt pytest httpx",
+                "conclusion": "success"
+              },
+              {
+                "name": "Live PostgreSQL + pgvector integration",
+                "conclusion": "success"
+              },
+              {
+                "name": "Relevance-scope PostgreSQL cutoff and supersede integration",
+                "conclusion": "success"
+              },
+              {
+                "name": "Unadapted narrative PostgreSQL cutoff, supersession, and isolation integration",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Stop containers",
+                "conclusion": "success"
+              },
+              {
+                "name": "Complete job",
+                "conclusion": "success"
+              }
+            ]
+          },
+          {
+            "id": 120358770021,
+            "name": "root-compose-smoke",
+            "status": "completed",
+            "conclusion": "success",
+            "steps": [
+              {
+                "name": "Set up job",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Validate Compose",
+                "conclusion": "success"
+              },
+              {
+                "name": "Validate opt-in real-demo Flash-Lite routing (no provider calls)",
+                "conclusion": "success"
+              },
+              {
+                "name": "Start production-path services",
+                "conclusion": "success"
+              },
+              {
+                "name": "Wait for health",
+                "conclusion": "success"
+              },
+              {
+                "name": "Verify semantic retriever and context packer composition",
+                "conclusion": "success"
+              },
+              {
+                "name": "Verify pgvector schema capability",
+                "conclusion": "success"
+              },
+              {
+                "name": "Verify existing AI auth boundary",
+                "conclusion": "success"
+              },
+              {
+                "name": "Verify bounded context preview",
+                "conclusion": "success"
+              },
+              {
+                "name": "Show service status",
+                "conclusion": "success"
+              },
+              {
+                "name": "Logs on failure",
+                "conclusion": "skipped"
+              },
+              {
+                "name": "Shutdown",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Complete job",
+                "conclusion": "success"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": 39936969297,
+        "name": "P8 Cutover and Migration",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 166,
+        "jobs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/39936969297/jobs",
+        "logs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/39936969297/logs",
+        "workflow_id": 364977903,
+        "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39936969297",
+        "jobs": [
+          {
+            "id": 120358769588,
+            "name": "root-compose-cutover-smoke",
+            "status": "completed",
+            "conclusion": "success",
+            "steps": [
+              {
+                "name": "Set up job",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Validate Compose",
+                "conclusion": "success"
+              },
+              {
+                "name": "Start production-path services",
+                "conclusion": "success"
+              },
+              {
+                "name": "Wait for health",
+                "conclusion": "success"
+              },
+              {
+                "name": "Dry-run committed legacy StoryKB inventory",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run cutover CLI dry-run apply and idempotent reapply",
+                "conclusion": "success"
+              },
+              {
+                "name": "Verify nginx gateway boundary and built assets",
+                "conclusion": "success"
+              },
+              {
+                "name": "Verify existing production path still healthy",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "conclusion": "success"
+              },
+              {
+                "name": "Install AI-PIPE-01A validation dependencies",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run Gate AI-PIPE-01A Production Persistence Validation",
+                "conclusion": "success"
+              },
+              {
+                "name": "Verify Gate AI-PIPE-01 & AI-PIPE-01A Evidence Schema and Invariants",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run Gate AI-PIPE-02A Idea Bootstrap Validation",
+                "conclusion": "success"
+              },
+              {
+                "name": "Verify Gate AI-PIPE-02A Evidence Schema and Invariants",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run AI-PIPE-02A Idea Bootstrap Route Unit Suite",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run Gate AI-PIPE-02B Outline Planning Validation",
+                "conclusion": "success"
+              },
+              {
+                "name": "Verify Gate AI-PIPE-02B Evidence Schema and Invariants",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run AI-PIPE-02B Story Plan Route Unit Suite",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run Gate AI-PIPE-03A Autonomous Controller Validation",
+                "conclusion": "success"
+              },
+              {
+                "name": "Verify Gate AI-PIPE-03A Evidence Schema and Invariants",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run AI-PIPE-03A Autonomous Route Unit Suite",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run Backend AI-PIPE-03A Autonomous Controller Suite",
+                "conclusion": "success"
+              },
+              {
+                "name": "Show service status",
+                "conclusion": "success"
+              },
+              {
+                "name": "Logs on failure",
+                "conclusion": "skipped"
+              },
+              {
+                "name": "Shutdown",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Complete job",
+                "conclusion": "success"
+              }
+            ]
+          },
+          {
+            "id": 120358769642,
+            "name": "final-cleanup-gate",
+            "status": "completed",
+            "conclusion": "success",
+            "steps": [
+              {
+                "name": "Set up job",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Confirm production cleanup preconditions remain intact",
+                "conclusion": "success"
+              },
+              {
+                "name": "Assert destructive P8-05 cleanup is still blocked",
+                "conclusion": "success"
+              },
+              {
+                "name": "Test final cleanup gate state transitions",
+                "conclusion": "success"
+              },
+              {
+                "name": "Validate cleanup manifest safety contract",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Complete job",
+                "conclusion": "success"
+              }
+            ]
+          },
+          {
+            "id": 120358769678,
+            "name": "backend-integration",
+            "status": "completed",
+            "conclusion": "success",
+            "steps": [
+              {
+                "name": "Set up job",
+                "conclusion": "success"
+              },
+              {
+                "name": "Initialize containers",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/setup-node@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "conclusion": "success"
+              },
+              {
+                "name": "Verify PostgreSQL and MongoDB readiness",
+                "conclusion": "success"
+              },
+              {
+                "name": "Install backend dependencies",
+                "conclusion": "success"
+              },
+              {
+                "name": "Apply backend database migrations",
+                "conclusion": "success"
+              },
+              {
+                "name": "Install AI-service dependencies for Alembic migrations",
+                "conclusion": "success"
+              },
+              {
+                "name": "Apply AI-service Alembic migrations (Tier B Real Schema)",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run test database isolation guard negative/positive rules suite",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run Accept Draft trust-contract integration suite",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run PostgreSQL production persistence integration suite",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run Fixture lifecycle and teardown resilience integration suite",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/setup-node@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Stop containers",
+                "conclusion": "success"
+              },
+              {
+                "name": "Complete job",
+                "conclusion": "success"
+              }
+            ]
+          },
+          {
+            "id": 120358769754,
+            "name": "postgres-integration",
+            "status": "completed",
+            "conclusion": "success",
+            "steps": [
+              {
+                "name": "Set up job",
+                "conclusion": "success"
+              },
+              {
+                "name": "Initialize containers",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run pip install -r requirements.txt pytest httpx",
+                "conclusion": "success"
+              },
+              {
+                "name": "Live PostgreSQL integration suite",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Stop containers",
+                "conclusion": "success"
+              },
+              {
+                "name": "Complete job",
+                "conclusion": "success"
+              }
+            ]
+          },
+          {
+            "id": 120358769757,
+            "name": "unit",
+            "status": "completed",
+            "conclusion": "success",
+            "steps": [
+              {
+                "name": "Set up job",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run pip install -r requirements.txt pytest httpx",
+                "conclusion": "success"
+              },
+              {
+                "name": "Full AI-service non-PostgreSQL regression",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Complete job",
+                "conclusion": "success"
+              }
+            ]
+          },
+          {
+            "id": 120358769831,
+            "name": "rollback-rehearsal",
+            "status": "completed",
+            "conclusion": "success",
+            "steps": [
+              {
+                "name": "Set up job",
+                "conclusion": "success"
+              },
+              {
+                "name": "Initialize containers",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "conclusion": "success"
+              },
+              {
+                "name": "Install AI-service dependencies",
+                "conclusion": "success"
+              },
+              {
+                "name": "Enforce cleanup readiness boundary",
+                "conclusion": "success"
+              },
+              {
+                "name": "Prepare source database and seed canonical cutover fixture",
+                "conclusion": "success"
+              },
+              {
+                "name": "Capture source schema/version/snapshot",
+                "conclusion": "success"
+              },
+              {
+                "name": "Backup source database",
+                "conclusion": "success"
+              },
+              {
+                "name": "Restore into isolated verification database",
+                "conclusion": "success"
+              },
+              {
+                "name": "Verify restored migration state and canonical parity",
+                "conclusion": "success"
+              },
+              {
+                "name": "Prove source database was not mutated by rehearsal restore",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Stop containers",
+                "conclusion": "success"
+              },
+              {
+                "name": "Complete job",
+                "conclusion": "success"
+              }
+            ]
+          },
+          {
+            "id": 120358770459,
+            "name": "frontend-api-cutover",
+            "status": "completed",
+            "conclusion": "success",
+            "steps": [
+              {
+                "name": "Set up job",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Run actions/setup-node@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Enforce browser/mobile Node-gateway boundary",
+                "conclusion": "success"
+              },
+              {
+                "name": "Web build",
+                "conclusion": "success"
+              },
+              {
+                "name": "Verify built web assets do not expose FastAPI",
+                "conclusion": "success"
+              },
+              {
+                "name": "Backend typecheck and deterministic tests",
+                "conclusion": "success"
+              },
+              {
+                "name": "Mobile typecheck",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/setup-node@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "conclusion": "success"
+              },
+              {
+                "name": "Complete job",
+                "conclusion": "success"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "negative_probe": {
+    "proof": "actual node:test before failure and after teardown; driver spies prevent network and durable writes",
+    "green_scenarios": 5,
+    "mongo_write_attempts": 0,
+    "mongo_cleanup_readbacks": 0,
+    "mongo_connect_attempts": 0,
+    "mongo_close_per_child": 1,
+    "pg_pool_close_per_child": 2,
+    "child_exit_expected": 1,
+    "parent_exit": 0
+  },
+  "durable_evidence": "DURABLE_READBACKS.json and n2/readback-*.json",
+  "provider": {
+    "live_calls": 0,
+    "native_configuration": "fake-only providers; live keys blank; AI loopback port9",
+    "negative_probe": "no database/provider network calls",
+    "CI": "existing fake-provider root-compose smoke; no workflow changes"
+  },
+  "not_rerun_locally": [
+    "full AI non-PostgreSQL suite (fresh CI passes)",
+    "full HTTP persistence/Canon probes (outside G03 delta; earlier evidence historical)",
+    "separate local root-compose smoke (fresh P7/P8 root jobs pass)"
+  ],
+  "remaining_blockers": {
+    "AI_memory_and_entity_routes": "BLOCKED, known missing routes; unchanged",
+    "P3_HITL_checkpoint": "BLOCKED, unchanged",
+    "mounted_FE_S09_S11": "NOT_RUN",
+    "real_provider_quality": "NOT_RUN"
+  },
+  "warnings": [
+    "3 existing deterministic opt-in end-to-end suites skipped; no G03 skip",
+    "AI PostgreSQL run reports 5 existing Pydantic warnings",
+    "Default git diff --check flags CRLF in new .mjs preload; cr-at-eol check exit0; no semantic issue"
+  ],
+  "pr_draft": true,
+  "merge_authorized": false,
+  "independent_acceptance": "pending GPT-6"
+}

@@ -1,0 +1,179 @@
+{
+  "contract": "PR58_FINAL_CLEANUP_CORRECTNESS_GATE",
+  "review_findings": {
+    "F09": "Preserve Mongo draft cleanup targets across PostgreSQL teardown mutation",
+    "F10": "Enforce authoritative post-cleanup durable readbacks across storage tiers"
+  },
+  "registries": {
+    "A_ownership": {
+      "name": "owned",
+      "mutability": "immutable_during_cleanup",
+      "purpose": "Stable, permanent record of all fixture and sentinel identities registered during the test session"
+    },
+    "B_pending_deletion": {
+      "name": "pending",
+      "mutability": "pruned_on_successful_mutation",
+      "purpose": "Tracks uncompleted cleanup operations; supports fault-tolerant retry without duplicating successful deletions"
+    },
+    "C_verification": {
+      "name": "verification",
+      "mutability": "retained_throughout_cleanup",
+      "purpose": "Authoritative readback registry verifying true zero-residual storage state across PostgreSQL and MongoDB"
+    }
+  },
+  "cleanup_steps": [
+    {
+      "step": 1,
+      "name": "revision_outbox_events",
+      "target_registry": "pending.pgNovels, pending.pgChapters",
+      "action": "DELETE FROM revision_outbox_events WHERE novel_id = $1 / chapter_id = $1"
+    },
+    {
+      "step": 2,
+      "name": "clear_latest_revision_fk",
+      "target_registry": "pending.pgChapters",
+      "action": "UPDATE chapters SET latest_revision_id = NULL WHERE chapter_id = $1"
+    },
+    {
+      "step": 3,
+      "name": "chapter_revisions",
+      "target_registry": "pending.pgNovels, pending.pgChapters, pending.pgRevisions",
+      "action": "DELETE FROM chapter_revisions per novel, chapter, revision ID"
+    },
+    {
+      "step": 4,
+      "name": "chapters",
+      "target_registry": "pending.pgChapters",
+      "action": "DELETE FROM chapters WHERE chapter_id = $1 per ID"
+    },
+    {
+      "step": 5,
+      "name": "novels",
+      "target_registry": "pending.pgNovels",
+      "action": "DELETE FROM novels WHERE novel_id = $1 per ID"
+    },
+    {
+      "step": 6,
+      "name": "users",
+      "target_registry": "pending.pgUsers",
+      "action": "DELETE FROM users WHERE user_id = $1 per ID"
+    },
+    {
+      "step": 7,
+      "name": "mongo_draft_chapters",
+      "target_registry": "Set(pending.mongoDrafts, owned.pgChapters)",
+      "action": "deleteMany({ chapterId }) per target chapter ID (F-09 target preservation)"
+    },
+    {
+      "step": 8,
+      "name": "authoritative_fixture_readbacks",
+      "target_registry": "verification (pgChapters, pgNovels, pgUsers, pgRevisions, mongoDrafts)",
+      "action": "Direct SELECT count(*) and countDocuments(); fail closed if count > 0 (F-10 durable verification)"
+    },
+    {
+      "step": 9,
+      "name": "sentinel_preservation_verification",
+      "target_registry": "pending.confirmedSentinel*",
+      "action": "Verify confirmed sentinels read back count === 1 before sentinel teardown"
+    },
+    {
+      "step": 10,
+      "name": "sentinel_teardown",
+      "target_registry": "pending.sentinel*",
+      "action": "DELETE sentinel chapters, novels, users, mongo drafts per ID"
+    },
+    {
+      "step": 11,
+      "name": "authoritative_sentinel_readbacks",
+      "target_registry": "verification.sentinel*",
+      "action": "Direct SELECT count(*) and countDocuments() confirming all sentinels count === 0"
+    }
+  ],
+  "matrix_cases": [
+    {
+      "id": "Matrix_1",
+      "focus": "F-06 guard rejected -> Zero mutations executed",
+      "status": "PASS"
+    },
+    {
+      "id": "Matrix_2",
+      "focus": "Failure after first PG insert -> User cleaned",
+      "status": "PASS"
+    },
+    {
+      "id": "Matrix_3",
+      "focus": "Failure during PG setup -> Partial records cleaned",
+      "status": "PASS"
+    },
+    {
+      "id": "Matrix_4",
+      "focus": "Failure before Mongo creation -> Safe PG cleanup",
+      "status": "PASS"
+    },
+    {
+      "id": "Matrix_5",
+      "focus": "Failure after Mongo insert -> Mongo record cleaned",
+      "status": "PASS"
+    },
+    {
+      "id": "Matrix_6",
+      "focus": "Failure during sentinel creation -> Safe uncorrupted cleanup",
+      "status": "PASS"
+    },
+    {
+      "id": "Matrix_7",
+      "focus": "Failure during test run -> Sentinels preserved until step 10",
+      "status": "PASS"
+    },
+    {
+      "id": "Matrix_8",
+      "focus": "Outbox deletion failure -> Independent cleanup continues",
+      "status": "PASS"
+    },
+    {
+      "id": "Matrix_9",
+      "focus": "Full successful run -> Zero residual across PG and Mongo",
+      "status": "PASS"
+    },
+    {
+      "id": "Matrix_10",
+      "focus": "P2-A double cleanup no-op with sentinels preserved",
+      "status": "PASS"
+    },
+    {
+      "id": "Matrix_11",
+      "focus": "P2-B per-ID user failure isolation",
+      "status": "PASS"
+    },
+    {
+      "id": "Matrix_12",
+      "focus": "P2-B sentinel-group per-ID failure isolation",
+      "status": "PASS"
+    },
+    {
+      "id": "Matrix_13",
+      "focus": "Recoverable retry following transient lock failure",
+      "status": "PASS"
+    },
+    {
+      "id": "Matrix_14",
+      "focus": "F-09: Mongo draft cleaned when only PG chapter registered",
+      "status": "PASS"
+    },
+    {
+      "id": "Matrix_15",
+      "focus": "F-09: Mongo draft registered independently of PG chapter",
+      "status": "PASS"
+    },
+    {
+      "id": "Matrix_16",
+      "focus": "F-10: PG DELETE acknowledged but record remains -> Readback fails closed",
+      "status": "PASS"
+    },
+    {
+      "id": "Matrix_17",
+      "focus": "F-10: Mongo delete acknowledged but document remains -> Readback fails closed",
+      "status": "PASS"
+    }
+  ]
+}

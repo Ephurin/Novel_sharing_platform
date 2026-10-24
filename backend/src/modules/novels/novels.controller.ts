@@ -4,12 +4,14 @@ import { successResponse } from '../../core/response/response.js';
 import {
   createNovel,
   deleteNovel,
-  getNovel,
+  readNovel,
+  getNovelEarnings,
   listMyNovels,
   listNovels,
   submitPublish,
   updateNovel
 } from './novels.service.js';
+import { listGenres } from './novels.repository.js';
 
 function requireRequestAuth(request: Parameters<RequestHandler>[0]) {
   if (!request.auth) {
@@ -37,6 +39,14 @@ export const listNovelsController: RequestHandler = async (request, response, ne
   }
 };
 
+export const listGenresController: RequestHandler = async (_request, response, next) => {
+  try {
+    response.json(successResponse(await listGenres()));
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const listMyNovelsController: RequestHandler = async (request, response, next) => {
   try {
     const result = await listMyNovels(requireRequestAuth(request), request.query as never);
@@ -48,8 +58,16 @@ export const listMyNovelsController: RequestHandler = async (request, response, 
 
 export const getNovelController: RequestHandler = async (request, response, next) => {
   try {
-    const result = await getNovel(String(request.params.novelId));
+    const result = await readNovel(String(request.params.novelId), request.auth);
     response.json(successResponse(result));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getNovelEarningsController: RequestHandler = async (request, response, next) => {
+  try {
+    response.json(successResponse(await getNovelEarnings(requireRequestAuth(request), String(request.params.novelId))));
   } catch (error) {
     next(error);
   }

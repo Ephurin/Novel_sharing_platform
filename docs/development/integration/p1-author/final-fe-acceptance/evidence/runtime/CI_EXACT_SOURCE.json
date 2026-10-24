@@ -1,0 +1,1169 @@
+{
+  "source_sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+  "source_tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+  "synthetic_sha": "63933cf7b45a386604114e99ee7f85756f8e3c38",
+  "synthetic_tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+  "tree_equal": true,
+  "p7": {
+    "run_id": 40095154139,
+    "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/40095154139",
+    "jobs": [
+      {
+        "id": 120875727897,
+        "name": "unit",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40095154139,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run pip install -r requirements.txt pytest httpx",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Semantic-memory, retrieval, hybrid and context-routing unit tests",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "CTX-RD-01 production/EVAL parity",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "CTX-RD-01 real-provider evidence contract self-test",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "CTX-RD-01 opt-in canary evidence contract and frozen-source runner syntax",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "CTX-RD-01 E2E guardrails (no DB or provider required)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "CTX-RD-01 unadapted narrative E2E guardrails (no DB or provider required)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Hybrid retrieval proxy regression",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Hybrid retrieval proxy metrics",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Benchmark invariant regression",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Phase 6 temporal/writing regressions",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Full AI-service non-PostgreSQL regression",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 29
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 30
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 31
+          }
+        ]
+      },
+      {
+        "id": 120875728065,
+        "name": "pgvector-integration",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40095154139,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Initialize containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run pip install -r requirements.txt pytest httpx",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Live PostgreSQL + pgvector integration",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Relevance-scope PostgreSQL cutoff and supersede integration",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "P1 approved memory and entity HITL PostgreSQL contracts",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Unadapted narrative PostgreSQL cutoff, supersession, and isolation integration",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          },
+          {
+            "name": "Stop containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          }
+        ]
+      },
+      {
+        "id": 120875728170,
+        "name": "root-compose-smoke",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40095154139,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Validate Compose",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Validate opt-in real-demo Flash-Lite routing (no provider calls)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Start production-path services",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Wait for health",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Verify semantic retriever and context packer composition",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Verify pgvector schema capability",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Verify existing AI auth boundary",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Verify bounded context preview",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Show service status",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Logs on failure",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 12
+          },
+          {
+            "name": "Shutdown",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 26
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 27
+          }
+        ]
+      }
+    ]
+  },
+  "p8": {
+    "run_id": 40095154081,
+    "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/40095154081",
+    "jobs": [
+      {
+        "id": 120875727561,
+        "name": "rollback-rehearsal",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40095154081,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Initialize containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Install AI-service dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Enforce cleanup readiness boundary",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Prepare source database and seed canonical cutover fixture",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Capture source schema/version/snapshot",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Backup source database",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Restore into isolated verification database",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Verify restored migration state and canonical parity",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Prove source database was not mutated by rehearsal restore",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23
+          },
+          {
+            "name": "Stop containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 24
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 25
+          }
+        ]
+      },
+      {
+        "id": 120875727735,
+        "name": "frontend-api-cutover",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40095154081,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Enforce browser/mobile Node-gateway boundary",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Web build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Verify built web assets do not expose FastAPI",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Frontend credential routing, account context and Python casefold contracts",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Upload frontend contract evidence",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Backend typecheck and deterministic tests",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Mobile typecheck",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21
+          }
+        ]
+      },
+      {
+        "id": 120875727761,
+        "name": "postgres-integration",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40095154081,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Initialize containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run pip install -r requirements.txt pytest httpx",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Live PostgreSQL integration suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Stop containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          }
+        ]
+      },
+      {
+        "id": 120875727770,
+        "name": "unit",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40095154081,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run pip install -r requirements.txt pytest httpx",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Full AI-service non-PostgreSQL regression",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          }
+        ]
+      },
+      {
+        "id": 120875727803,
+        "name": "backend-integration",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40095154081,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Initialize containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Verify PostgreSQL and MongoDB readiness",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Install backend dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Apply backend database migrations",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Install AI-service dependencies for Alembic migrations",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Apply AI-service Alembic migrations (Tier B Real Schema)",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Run test database isolation guard negative/positive rules suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Run Accept Draft trust-contract integration suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Run PostgreSQL production persistence integration suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Run Fixture lifecycle and teardown resilience integration suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 25
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 26
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 27
+          },
+          {
+            "name": "Stop containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 28
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 29
+          }
+        ]
+      },
+      {
+        "id": 120875727815,
+        "name": "final-cleanup-gate",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40095154081,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Confirm production cleanup preconditions remain intact",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Assert destructive P8-05 cleanup is still blocked",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Test final cleanup gate state transitions",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Validate cleanup manifest safety contract",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          }
+        ]
+      },
+      {
+        "id": 120875727839,
+        "name": "root-compose-cutover-smoke",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 40095154081,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Validate Compose",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Start production-path services",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Wait for health",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Dry-run committed legacy StoryKB inventory",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run cutover CLI dry-run apply and idempotent reapply",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Verify nginx gateway boundary and built assets",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Verify existing production path still healthy",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Install AI-PIPE-01A validation dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          },
+          {
+            "name": "Run Gate AI-PIPE-01A Production Persistence Validation",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12
+          },
+          {
+            "name": "Verify Gate AI-PIPE-01 & AI-PIPE-01A Evidence Schema and Invariants",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13
+          },
+          {
+            "name": "Run Gate AI-PIPE-02A Idea Bootstrap Validation",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Verify Gate AI-PIPE-02A Evidence Schema and Invariants",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Run AI-PIPE-02A Idea Bootstrap Route Unit Suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Run Gate AI-PIPE-02B Outline Planning Validation",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          },
+          {
+            "name": "Verify Gate AI-PIPE-02B Evidence Schema and Invariants",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18
+          },
+          {
+            "name": "Run AI-PIPE-02B Story Plan Route Unit Suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19
+          },
+          {
+            "name": "Run Gate AI-PIPE-03A Autonomous Controller Validation",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20
+          },
+          {
+            "name": "Verify Gate AI-PIPE-03A Evidence Schema and Invariants",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21
+          },
+          {
+            "name": "Run AI-PIPE-03A Autonomous Route Unit Suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 22
+          },
+          {
+            "name": "Run Backend AI-PIPE-03A Autonomous Controller Suite",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 23
+          },
+          {
+            "name": "Show service status",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 24
+          },
+          {
+            "name": "Logs on failure",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 25
+          },
+          {
+            "name": "Shutdown",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 26
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 51
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 52
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 53
+          }
+        ]
+      }
+    ]
+  },
+  "checkout_proofs": [
+    {
+      "id": 120875727897,
+      "name": "unit",
+      "run_id": 40095154139,
+      "conclusion": "success",
+      "checkout_shas": [
+        "63933cf7b45a386604114e99ee7f85756f8e3c38"
+      ],
+      "test_summaries": [
+        "353 passed, 10 skipped, 187 deselected, 4 warnings, 6 subtests passed in 17.70s"
+      ]
+    },
+    {
+      "id": 120875728065,
+      "name": "pgvector-integration",
+      "run_id": 40095154139,
+      "conclusion": "success",
+      "checkout_shas": [
+        "63933cf7b45a386604114e99ee7f85756f8e3c38"
+      ],
+      "test_summaries": [
+        "145 passed, 110 deselected in 33.42s"
+      ]
+    },
+    {
+      "id": 120875728170,
+      "name": "root-compose-smoke",
+      "run_id": 40095154139,
+      "conclusion": "success",
+      "checkout_shas": [
+        "63933cf7b45a386604114e99ee7f85756f8e3c38"
+      ],
+      "test_summaries": []
+    },
+    {
+      "id": 120875727561,
+      "name": "rollback-rehearsal",
+      "run_id": 40095154081,
+      "conclusion": "success",
+      "checkout_shas": [
+        "63933cf7b45a386604114e99ee7f85756f8e3c38"
+      ],
+      "test_summaries": []
+    },
+    {
+      "id": 120875727735,
+      "name": "frontend-api-cutover",
+      "run_id": 40095154081,
+      "conclusion": "success",
+      "checkout_shas": [
+        "63933cf7b45a386604114e99ee7f85756f8e3c38"
+      ],
+      "test_summaries": [
+        "# tests 4",
+        "# pass 4",
+        "# fail 0",
+        "# skipped 0",
+        "# tests 2",
+        "# pass 2",
+        "# fail 0",
+        "# skipped 0",
+        "# tests 136",
+        "# pass 133",
+        "# fail 0",
+        "# skipped 3"
+      ]
+    },
+    {
+      "id": 120875727761,
+      "name": "postgres-integration",
+      "run_id": 40095154081,
+      "conclusion": "success",
+      "checkout_shas": [
+        "63933cf7b45a386604114e99ee7f85756f8e3c38"
+      ],
+      "test_summaries": [
+        "187 passed, 363 deselected, 5 warnings in 56.70s"
+      ]
+    },
+    {
+      "id": 120875727770,
+      "name": "unit",
+      "run_id": 40095154081,
+      "conclusion": "success",
+      "checkout_shas": [
+        "63933cf7b45a386604114e99ee7f85756f8e3c38"
+      ],
+      "test_summaries": [
+        "353 passed, 10 skipped, 187 deselected, 4 warnings, 6 subtests passed in 18.54s"
+      ]
+    },
+    {
+      "id": 120875727803,
+      "name": "backend-integration",
+      "run_id": 40095154081,
+      "conclusion": "success",
+      "checkout_shas": [
+        "63933cf7b45a386604114e99ee7f85756f8e3c38"
+      ],
+      "test_summaries": [
+        "# tests 11",
+        "# pass 11",
+        "# fail 0",
+        "# skipped 0",
+        "# tests 14",
+        "# pass 14",
+        "# fail 0",
+        "# skipped 0",
+        "# tests 5",
+        "# pass 5",
+        "# fail 0",
+        "# skipped 0",
+        "# tests 25",
+        "# pass 25",
+        "# fail 0",
+        "# skipped 0"
+      ]
+    },
+    {
+      "id": 120875727815,
+      "name": "final-cleanup-gate",
+      "run_id": 40095154081,
+      "conclusion": "success",
+      "checkout_shas": [
+        "63933cf7b45a386604114e99ee7f85756f8e3c38"
+      ],
+      "test_summaries": []
+    },
+    {
+      "id": 120875727839,
+      "name": "root-compose-cutover-smoke",
+      "run_id": 40095154081,
+      "conclusion": "success",
+      "checkout_shas": [
+        "63933cf7b45a386604114e99ee7f85756f8e3c38"
+      ],
+      "test_summaries": [
+        "# tests 6",
+        "# pass 6",
+        "# fail 0",
+        "# skipped 0"
+      ]
+    }
+  ],
+  "parent": {
+    "head": "e63fc8c5a12aac0ce258cf360359f3ec3dca4a28",
+    "base": "6de87f575ee2e3d114ee83159c2b335667a62e7f",
+    "draft": true,
+    "merged": false
+  },
+  "pr57": {
+    "draft": true,
+    "merged": false
+  },
+  "child_pr": 67
+}

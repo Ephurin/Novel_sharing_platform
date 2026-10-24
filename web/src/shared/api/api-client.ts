@@ -24,12 +24,15 @@ export class ApiClientError extends Error {
 }
 
 export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:4000/api/v1',
+  baseURL:
+    import.meta.env?.VITE_API_BASE_URL ||
+    'http://localhost:4000/api/v1',
   withCredentials: true
 });
 
 apiClient.interceptors.request.use((config) => {
-  const accessToken = localStorage.getItem('ephurin_access_token');
+  let accessToken: string | null = null;
+  try { accessToken = localStorage.getItem('ephurin_access_token'); } catch { /* Continue as guest if storage is blocked. */ }
 
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;

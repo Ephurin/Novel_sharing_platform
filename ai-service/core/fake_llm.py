@@ -13,6 +13,35 @@ logger = logging.getLogger("fake-llm")
 
 
 class FakeDeterministicLLMService:
+    def _call_structured(self, *, operation, system_prompt, user_prompt):
+        if operation == 'entity_candidate_verification':
+            data = json.loads(user_prompt)
+            known = {e['name']: e for e in data['known_entities']}
+            return json.dumps({'decisions': [dict(candidate_id=c['candidate_id'],
+                verdict='entity', entity_type=known.get(c['surface'], {}).get('entity_type', 'PER'),
+                canonical_name=c['surface'], canonical_entity_id=known.get(c['surface'], {}).get('entity_id', ''),
+                reason='Deterministic fake occurrence for human review') for c in data['candidates']]})
+        if operation == 'hitl_event_extraction':
+            data = json.loads(user_prompt)
+            refs = [e['entity_id'] if isinstance(e, dict) else e for e in data['known_entities']]
+            return json.dumps({'events': [{'event_type': 'observation',
+                'summary': data['source_text'], 'participants': refs,
+                'locations': [], 'consequences': [], 'quote': data['source_text']}]})
+        if operation == 'hitl_state_extraction':
+            data = json.loads(user_prompt)
+            participants = data['participants']
+            transitions = [{'entity':participants[0], 'attribute_key':'health', 'new_value':60, 'confidence':1}] if participants else []
+            if len(participants) > 1:
+                transitions.append({'entity':participants[0], 'attribute_key':'active_relationships',
+                    'new_value':{participants[1]:'knows'}, 'confidence':1})
+            return json.dumps({'transitions':transitions})
+        if operation == 'prose_fact_extraction':
+            data = json.loads(user_prompt)
+            return json.dumps({'facts': [{'fact_key': 'source_observation',
+                'fact_value': data['source_text'], 'subject': '', 'certainty': 'confirmed',
+                'quote': data['source_text'], 'confidence': 1.0}]})
+        return self._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
+
     def __init__(self, model: str = "fake-p4-model") -> None:
         self.model = model
         self.last_call: dict[str, Any] = {}

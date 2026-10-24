@@ -1,0 +1,60 @@
+{
+  "source_sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+  "source_tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+  "AI_unit": {
+    "passed": 353,
+    "skipped": 10
+  },
+  "AI_PostgreSQL": {
+    "passed": 187,
+    "skipped": 0
+  },
+  "frontend_unit": {
+    "passed": 41,
+    "skipped": 0
+  },
+  "mounted_components_and_security": {
+    "passed": 16,
+    "skipped": 0
+  },
+  "backend_deterministic": {
+    "passed": 133,
+    "skipped": 3
+  },
+  "backend_accept_draft": {
+    "passed": 14
+  },
+  "backend_production_persistence": {
+    "passed": 5
+  },
+  "backend_fixture_lifecycle": {
+    "passed": 25
+  },
+  "production_SPA": {
+    "node_test_cases": 1,
+    "mandatory_named_stages": 28,
+    "passed_stages": 28,
+    "runtime_errors": 0,
+    "http": {
+      "total": 528,
+      "browser": 437,
+      "statuses": {
+        "200": 416,
+        "201": 20,
+        "202": 1,
+        "401": 2,
+        "402": 1,
+        "403": 6,
+        "404": 73,
+        "409": 4,
+        "422": 4,
+        "428": 1
+      }
+    }
+  },
+  "CI": {
+    "P7": "3/3 SUCCESS",
+    "P8": "7/7 SUCCESS"
+  },
+  "counts_policy": "Do not sum repeated runs, CI repeats, parent test/subtest counts, or historical RED into unique acceptance totals."
+}

@@ -1,0 +1,807 @@
+{
+  "gate": "AI-PIPE-02A",
+  "pipeline": "P2",
+  "verdict": "P2_IDEA_BOOTSTRAP_PASS",
+  "timestamp": "2026-10-23T08:19:30.070469+00:00",
+  "git_commit": "fc2a56705a2118a74b99150d50a38aac59b4365b",
+  "git_branch": "codex/p1-core-canon-combined",
+  "environment": {
+    "backend_url": "http://backend:4000/api/v1",
+    "ai_service_url": "http://localhost:8000",
+    "database_backend": "postgresql-16+pgvector",
+    "llm_provider": "fake-deterministic"
+  },
+  "summary": {
+    "total_checkpoints": 13,
+    "passed": 13,
+    "failed": 0
+  },
+  "checkpoints": [
+    {
+      "checkpoint": 1,
+      "name": "Idea Bootstrap Request via Node API",
+      "status": "PASS",
+      "summary": "Successfully queued idea bootstrap job 2675002d-8ec7-5ec4-960c-a3c9a6cf5bdf",
+      "details": {
+        "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+        "job_id": "2675002d-8ec7-5ec4-960c-a3c9a6cf5bdf",
+        "status": "waiting_review"
+      }
+    },
+    {
+      "checkpoint": 2,
+      "name": "Repeatable Bootstrap Idempotency",
+      "status": "PASS",
+      "summary": "Repeated bootstrap request returned same job_id 2675002d-8ec7-5ec4-960c-a3c9a6cf5bdf",
+      "details": {
+        "job_id_1": "2675002d-8ec7-5ec4-960c-a3c9a6cf5bdf",
+        "job_id_2": "2675002d-8ec7-5ec4-960c-a3c9a6cf5bdf"
+      }
+    },
+    {
+      "checkpoint": 3,
+      "name": "Structured Initial Proposals / Blueprint Populated",
+      "status": "PASS",
+      "summary": "Found 7 proposals in review queue covering ['entity', 'fact']",
+      "details": {
+        "proposal_count": 7,
+        "proposal_types": [
+          "entity",
+          "fact"
+        ],
+        "premise_preview": "Một pháp sư mất trí nhớ điều tra cái chết của chính mình tại"
+      }
+    },
+    {
+      "checkpoint": 4,
+      "name": "Author Review & Proposal Acceptance",
+      "status": "PASS",
+      "summary": "Accepted 7 proposals; Story Brain advanced to version 2",
+      "details": {
+        "group_id": "7e6cfab3-5598-5af8-a527-e35ccb8015b3",
+        "accepted_count": 7,
+        "brain_version": 2
+      }
+    },
+    {
+      "checkpoint": 5,
+      "name": "Baseline Activation via Node API",
+      "status": "PASS",
+      "summary": "Story Brain status activated successfully (status=active)",
+      "details": {
+        "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+        "status": "active",
+        "baseline_revision_id": null,
+        "brain_version": 2
+      }
+    },
+    {
+      "checkpoint": 6,
+      "name": "First Canonical Chapter & Revision Association",
+      "status": "PASS",
+      "summary": "Created chapter d0c72beb-25a9-4c8d-b1c0-0ecf926885ff with canonical base revision 6a296f37-a276-47f6-8414-d84378d77fdc",
+      "details": {
+        "chapter_id": "d0c72beb-25a9-4c8d-b1c0-0ecf926885ff",
+        "revision_id": "6a296f37-a276-47f6-8414-d84378d77fdc",
+        "content_hash": "95dc1d65d62422977028895b56d56eae84b3d1c806593ccbf838bb19ab9afb2c"
+      }
+    },
+    {
+      "checkpoint": 7,
+      "name": "Direct PostgreSQL Schema Verification",
+      "status": "PASS",
+      "summary": "Verified narrative schema: 3 entities, 4 facts, brain_version=2",
+      "details": {
+        "pg_entities": 3,
+        "pg_facts": 4,
+        "brain_status": "active",
+        "brain_version": 2
+      }
+    },
+    {
+      "checkpoint": 8,
+      "name": "Context Preview from Active Initial Story Brain",
+      "status": "PASS",
+      "summary": "Context preview returned brain_version=2 with 3 entities",
+      "details": {
+        "brain_version": 2,
+        "entity_count": 3,
+        "world_rules_count": 3
+      }
+    },
+    {
+      "checkpoint": 9,
+      "name": "Assisted AI Generation via Standard P1 Route",
+      "status": "PASS",
+      "summary": "Generated patch draft 2defc56c-4bc7-5769-a168-e7f94aa0edf9 with status=completed, validation=passed",
+      "details": {
+        "generation_id": "2defc56c-4bc7-5769-a168-e7f94aa0edf9",
+        "status": "completed",
+        "validation_status": "passed",
+        "patch": {
+          "start": 0,
+          "end": 0,
+          "replacement": "Tiêu Viêm thở dài một hơi, chậm rãi thu hồi Dị Hỏa, ánh mắt nhìn về phía chân trời xa xăm."
+        }
+      }
+    },
+    {
+      "checkpoint": 10,
+      "name": "Canonical Draft Acceptance & PostgreSQL Persistence",
+      "status": "PASS",
+      "summary": "Persisted revision 2dcf07af-783d-49dd-97ed-4f8e60ba64e6 with source_type=AI_DRAFT_ACCEPT in PostgreSQL",
+      "details": {
+        "revision_id": "2dcf07af-783d-49dd-97ed-4f8e60ba64e6",
+        "parent_revision_id": "6a296f37-a276-47f6-8414-d84378d77fdc",
+        "source_type": "AI_DRAFT_ACCEPT",
+        "source_generation_id": "2defc56c-4bc7-5769-a168-e7f94aa0edf9",
+        "chapters_latest_revision_id": "2dcf07af-783d-49dd-97ed-4f8e60ba64e6"
+      }
+    },
+    {
+      "checkpoint": 11,
+      "name": "Transactional Outbox Dispatch & Incremental Story Brain Update",
+      "status": "PASS",
+      "summary": "Outbox event 19bcd757-3599-4963-8924-ab760d1152a5 dispatched; Story Brain reached version 3",
+      "details": {
+        "outbox_event_id": "19bcd757-3599-4963-8924-ab760d1152a5",
+        "outbox_status": "COMPLETED",
+        "brain_version_before": 2,
+        "story_brain_version": 3,
+        "author_review": {
+          "revision_id": "2dcf07af-783d-49dd-97ed-4f8e60ba64e6",
+          "content_hash": "0eb994b3682c1ccacfe6a83d42d0c6e19735d169c82d153c6ecdc6b82b8d322b",
+          "outbox_event_id": "19bcd757-3599-4963-8924-ab760d1152a5",
+          "pending_proposal_ids": [
+            "7e7ede1f-7d38-5637-aabb-0a35d531ca44",
+            "dc4e42d9-d128-50b8-a6a0-b5b56d18cba8",
+            "1bc41bbf-7f21-52bf-80c0-20c91ae2a8a2"
+          ],
+          "canon_before": {
+            "brain_version": 2,
+            "projections": {
+              "entities": [
+                {
+                  "id": "505f6f9e-2679-431f-8375-bd993e462c4f",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "entity_type": "character",
+                  "canonical_name": "Arthur",
+                  "normalized_name": "arthur",
+                  "description": null,
+                  "static_attributes": {
+                    "status": "Alive",
+                    "location": "Unknown",
+                    "mentions": 1
+                  },
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 0.95,
+                  "is_locked": false,
+                  "created_by": null,
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "updated_at": "2026-10-23T08:19:25.266598+00:00"
+                },
+                {
+                  "id": "2f152f4a-57d9-4133-9dd9-a2052f822485",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "entity_type": "character",
+                  "canonical_name": "Elena",
+                  "normalized_name": "elena",
+                  "description": null,
+                  "static_attributes": {
+                    "status": "Alive",
+                    "location": "Unknown",
+                    "mentions": 1
+                  },
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 0.9,
+                  "is_locked": false,
+                  "created_by": null,
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "updated_at": "2026-10-23T08:19:25.266598+00:00"
+                },
+                {
+                  "id": "d3f9422a-a2e8-40ed-a78f-93e22d157207",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "entity_type": "location",
+                  "canonical_name": "Học Viện Tháp Cổ",
+                  "normalized_name": "học viện tháp cổ",
+                  "description": null,
+                  "static_attributes": {
+                    "status": "Alive",
+                    "location": "Unknown",
+                    "mentions": 1
+                  },
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 0.85,
+                  "is_locked": false,
+                  "created_by": null,
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "updated_at": "2026-10-23T08:19:25.266598+00:00"
+                }
+              ],
+              "events": [],
+              "facts": [
+                {
+                  "id": "0d671ccb-e259-4a3c-9e22-9c7afd5d018f",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "subject_entity_id": null,
+                  "fact_type": "world_rule",
+                  "fact_key": "world_rule_11edd748e1c85c78",
+                  "fact_value": "Ma pháp tiêu hao sinh mệnh lực, cấm kỵ thuật sẽ bị nguyền rủa vĩnh viễn.",
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 0.95,
+                  "priority": 100,
+                  "is_locked": false,
+                  "source_revision_id": null,
+                  "chapter_number": null,
+                  "source_start": null,
+                  "source_end": null,
+                  "created_by": "00000000-0000-0000-0000-000000000001",
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "supersedes_id": null,
+                  "is_retired": false
+                },
+                {
+                  "id": "e306fab1-a714-4aa2-a8a6-cfa40a926723",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "subject_entity_id": null,
+                  "fact_type": "world_rule",
+                  "fact_key": "world_rule_6fcd0c2210538d94",
+                  "fact_value": "Linh hồn không thể rời khỏi thể xác quá ba ngày mà không tiêu tán.",
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 0.95,
+                  "priority": 100,
+                  "is_locked": false,
+                  "source_revision_id": null,
+                  "chapter_number": null,
+                  "source_start": null,
+                  "source_end": null,
+                  "created_by": "00000000-0000-0000-0000-000000000001",
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "supersedes_id": null,
+                  "is_retired": false
+                },
+                {
+                  "id": "566b9ef2-ccf4-4670-8bdc-4a95cf675466",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "subject_entity_id": null,
+                  "fact_type": "world_rule",
+                  "fact_key": "author_constraint_9b9bb5761954fbde",
+                  "fact_value": "Không có du hành thời gian",
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 1.0,
+                  "priority": 100,
+                  "is_locked": false,
+                  "source_revision_id": null,
+                  "chapter_number": null,
+                  "source_start": null,
+                  "source_end": null,
+                  "created_by": "00000000-0000-0000-0000-000000000001",
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "supersedes_id": null,
+                  "is_retired": false
+                },
+                {
+                  "id": "193e6f64-c169-4724-9a28-707d26f4459c",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "subject_entity_id": null,
+                  "fact_type": "premise",
+                  "fact_key": "story_premise",
+                  "fact_value": "Một pháp sư mất trí nhớ điều tra cái chết của chính mình tại sa mạc huyền bí.",
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 1.0,
+                  "priority": 100,
+                  "is_locked": false,
+                  "source_revision_id": null,
+                  "chapter_number": null,
+                  "source_start": null,
+                  "source_end": null,
+                  "created_by": "00000000-0000-0000-0000-000000000001",
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "supersedes_id": null,
+                  "is_retired": false
+                }
+              ]
+            }
+          },
+          "canon_before_review": {
+            "brain_version": 2,
+            "projections": {
+              "entities": [
+                {
+                  "id": "505f6f9e-2679-431f-8375-bd993e462c4f",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "entity_type": "character",
+                  "canonical_name": "Arthur",
+                  "normalized_name": "arthur",
+                  "description": null,
+                  "static_attributes": {
+                    "status": "Alive",
+                    "location": "Unknown",
+                    "mentions": 1
+                  },
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 0.95,
+                  "is_locked": false,
+                  "created_by": null,
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "updated_at": "2026-10-23T08:19:25.266598+00:00"
+                },
+                {
+                  "id": "2f152f4a-57d9-4133-9dd9-a2052f822485",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "entity_type": "character",
+                  "canonical_name": "Elena",
+                  "normalized_name": "elena",
+                  "description": null,
+                  "static_attributes": {
+                    "status": "Alive",
+                    "location": "Unknown",
+                    "mentions": 1
+                  },
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 0.9,
+                  "is_locked": false,
+                  "created_by": null,
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "updated_at": "2026-10-23T08:19:25.266598+00:00"
+                },
+                {
+                  "id": "d3f9422a-a2e8-40ed-a78f-93e22d157207",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "entity_type": "location",
+                  "canonical_name": "Học Viện Tháp Cổ",
+                  "normalized_name": "học viện tháp cổ",
+                  "description": null,
+                  "static_attributes": {
+                    "status": "Alive",
+                    "location": "Unknown",
+                    "mentions": 1
+                  },
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 0.85,
+                  "is_locked": false,
+                  "created_by": null,
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "updated_at": "2026-10-23T08:19:25.266598+00:00"
+                }
+              ],
+              "events": [],
+              "facts": [
+                {
+                  "id": "0d671ccb-e259-4a3c-9e22-9c7afd5d018f",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "subject_entity_id": null,
+                  "fact_type": "world_rule",
+                  "fact_key": "world_rule_11edd748e1c85c78",
+                  "fact_value": "Ma pháp tiêu hao sinh mệnh lực, cấm kỵ thuật sẽ bị nguyền rủa vĩnh viễn.",
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 0.95,
+                  "priority": 100,
+                  "is_locked": false,
+                  "source_revision_id": null,
+                  "chapter_number": null,
+                  "source_start": null,
+                  "source_end": null,
+                  "created_by": "00000000-0000-0000-0000-000000000001",
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "supersedes_id": null,
+                  "is_retired": false
+                },
+                {
+                  "id": "e306fab1-a714-4aa2-a8a6-cfa40a926723",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "subject_entity_id": null,
+                  "fact_type": "world_rule",
+                  "fact_key": "world_rule_6fcd0c2210538d94",
+                  "fact_value": "Linh hồn không thể rời khỏi thể xác quá ba ngày mà không tiêu tán.",
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 0.95,
+                  "priority": 100,
+                  "is_locked": false,
+                  "source_revision_id": null,
+                  "chapter_number": null,
+                  "source_start": null,
+                  "source_end": null,
+                  "created_by": "00000000-0000-0000-0000-000000000001",
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "supersedes_id": null,
+                  "is_retired": false
+                },
+                {
+                  "id": "566b9ef2-ccf4-4670-8bdc-4a95cf675466",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "subject_entity_id": null,
+                  "fact_type": "world_rule",
+                  "fact_key": "author_constraint_9b9bb5761954fbde",
+                  "fact_value": "Không có du hành thời gian",
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 1.0,
+                  "priority": 100,
+                  "is_locked": false,
+                  "source_revision_id": null,
+                  "chapter_number": null,
+                  "source_start": null,
+                  "source_end": null,
+                  "created_by": "00000000-0000-0000-0000-000000000001",
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "supersedes_id": null,
+                  "is_retired": false
+                },
+                {
+                  "id": "193e6f64-c169-4724-9a28-707d26f4459c",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "subject_entity_id": null,
+                  "fact_type": "premise",
+                  "fact_key": "story_premise",
+                  "fact_value": "Một pháp sư mất trí nhớ điều tra cái chết của chính mình tại sa mạc huyền bí.",
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 1.0,
+                  "priority": 100,
+                  "is_locked": false,
+                  "source_revision_id": null,
+                  "chapter_number": null,
+                  "source_start": null,
+                  "source_end": null,
+                  "created_by": "00000000-0000-0000-0000-000000000001",
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "supersedes_id": null,
+                  "is_retired": false
+                }
+              ]
+            }
+          },
+          "canon_after": {
+            "brain_version": 3,
+            "projections": {
+              "entities": [
+                {
+                  "id": "505f6f9e-2679-431f-8375-bd993e462c4f",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "entity_type": "character",
+                  "canonical_name": "Arthur",
+                  "normalized_name": "arthur",
+                  "description": null,
+                  "static_attributes": {
+                    "status": "Alive",
+                    "location": "Unknown",
+                    "mentions": 1
+                  },
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 0.95,
+                  "is_locked": false,
+                  "created_by": null,
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "updated_at": "2026-10-23T08:19:25.266598+00:00"
+                },
+                {
+                  "id": "2f152f4a-57d9-4133-9dd9-a2052f822485",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "entity_type": "character",
+                  "canonical_name": "Elena",
+                  "normalized_name": "elena",
+                  "description": null,
+                  "static_attributes": {
+                    "status": "Alive",
+                    "location": "Unknown",
+                    "mentions": 1
+                  },
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 0.9,
+                  "is_locked": false,
+                  "created_by": null,
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "updated_at": "2026-10-23T08:19:25.266598+00:00"
+                },
+                {
+                  "id": "1ec758db-a83c-42c3-b46a-832649a34235",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "entity_type": "PER",
+                  "canonical_name": "Hải Ba Đông",
+                  "normalized_name": "hải ba đông",
+                  "description": null,
+                  "static_attributes": {
+                    "status": "Alive",
+                    "location": "Unknown",
+                    "mentions": 1
+                  },
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 9.0,
+                  "is_locked": false,
+                  "created_by": null,
+                  "created_at": "2026-10-23T08:19:28.810452+00:00",
+                  "updated_at": "2026-10-23T08:19:28.810452+00:00"
+                },
+                {
+                  "id": "d3f9422a-a2e8-40ed-a78f-93e22d157207",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "entity_type": "location",
+                  "canonical_name": "Học Viện Tháp Cổ",
+                  "normalized_name": "học viện tháp cổ",
+                  "description": null,
+                  "static_attributes": {
+                    "status": "Alive",
+                    "location": "Unknown",
+                    "mentions": 1
+                  },
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 0.85,
+                  "is_locked": false,
+                  "created_by": null,
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "updated_at": "2026-10-23T08:19:25.266598+00:00"
+                },
+                {
+                  "id": "dba274b3-615e-4b84-b017-03062d14e271",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "entity_type": "PER",
+                  "canonical_name": "Tiêu Viêm",
+                  "normalized_name": "tiêu viêm",
+                  "description": null,
+                  "static_attributes": {
+                    "status": "Alive",
+                    "location": "Unknown",
+                    "mentions": 1
+                  },
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 9.5,
+                  "is_locked": false,
+                  "created_by": null,
+                  "created_at": "2026-10-23T08:19:28.810452+00:00",
+                  "updated_at": "2026-10-23T08:19:28.810452+00:00"
+                }
+              ],
+              "events": [
+                {
+                  "id": "1bc41bbf-7f21-52bf-80c0-20c91ae2a8a2",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "narrative_order": 1024,
+                  "event_type": "battle",
+                  "summary": "Tiêu Viêm kịch chiến Hải Ba Đông tại sa mạc Tháp Qua Nhĩ",
+                  "participants": [
+                    "Tiêu Viêm",
+                    "Hải Ba Đông"
+                  ],
+                  "event_metadata": {
+                    "chapter": 1,
+                    "summary": "Tiêu Viêm kịch chiến Hải Ba Đông tại sa mạc Tháp Qua Nhĩ",
+                    "evidence": [
+                      {
+                        "end": 202,
+                        "start": 0,
+                        "text_hash": "0eb994b3682c1ccacfe6a83d42d0c6e19735d169c82d153c6ecdc6b82b8d322b",
+                        "chapter_id": "d0c72beb-25a9-4c8d-b1c0-0ecf926885ff",
+                        "revision_id": "2dcf07af-783d-49dd-97ed-4f8e60ba64e6",
+                        "chapter_number": 1
+                      }
+                    ],
+                    "locations": [
+                      "Sa mạc Tháp Qua Nhĩ"
+                    ],
+                    "event_type": "battle",
+                    "consequences": [
+                      "Hải Ba Đông bị thương nặng"
+                    ],
+                    "participants": [
+                      "Tiêu Viêm",
+                      "Hải Ba Đông"
+                    ],
+                    "chapter_number": 1
+                  },
+                  "chapter_number": 1,
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "created_at": "2026-10-23T08:19:28.810452+00:00"
+                }
+              ],
+              "facts": [
+                {
+                  "id": "0d671ccb-e259-4a3c-9e22-9c7afd5d018f",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "subject_entity_id": null,
+                  "fact_type": "world_rule",
+                  "fact_key": "world_rule_11edd748e1c85c78",
+                  "fact_value": "Ma pháp tiêu hao sinh mệnh lực, cấm kỵ thuật sẽ bị nguyền rủa vĩnh viễn.",
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 0.95,
+                  "priority": 100,
+                  "is_locked": false,
+                  "source_revision_id": null,
+                  "chapter_number": null,
+                  "source_start": null,
+                  "source_end": null,
+                  "created_by": "00000000-0000-0000-0000-000000000001",
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "supersedes_id": null,
+                  "is_retired": false
+                },
+                {
+                  "id": "e306fab1-a714-4aa2-a8a6-cfa40a926723",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "subject_entity_id": null,
+                  "fact_type": "world_rule",
+                  "fact_key": "world_rule_6fcd0c2210538d94",
+                  "fact_value": "Linh hồn không thể rời khỏi thể xác quá ba ngày mà không tiêu tán.",
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 0.95,
+                  "priority": 100,
+                  "is_locked": false,
+                  "source_revision_id": null,
+                  "chapter_number": null,
+                  "source_start": null,
+                  "source_end": null,
+                  "created_by": "00000000-0000-0000-0000-000000000001",
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "supersedes_id": null,
+                  "is_retired": false
+                },
+                {
+                  "id": "566b9ef2-ccf4-4670-8bdc-4a95cf675466",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "subject_entity_id": null,
+                  "fact_type": "world_rule",
+                  "fact_key": "author_constraint_9b9bb5761954fbde",
+                  "fact_value": "Không có du hành thời gian",
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 1.0,
+                  "priority": 100,
+                  "is_locked": false,
+                  "source_revision_id": null,
+                  "chapter_number": null,
+                  "source_start": null,
+                  "source_end": null,
+                  "created_by": "00000000-0000-0000-0000-000000000001",
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "supersedes_id": null,
+                  "is_retired": false
+                },
+                {
+                  "id": "193e6f64-c169-4724-9a28-707d26f4459c",
+                  "story_brain_id": "c13664e4-b821-4aa0-938c-3c860d8ea46a",
+                  "tenant_id": "00000000-0000-0000-0000-000000000001",
+                  "novel_id": "8f953333-344d-481e-9069-1429b09784df",
+                  "subject_entity_id": null,
+                  "fact_type": "premise",
+                  "fact_key": "story_premise",
+                  "fact_value": "Một pháp sư mất trí nhớ điều tra cái chết của chính mình tại sa mạc huyền bí.",
+                  "source_type": "AI",
+                  "confirmation_status": "confirmed",
+                  "confidence": 1.0,
+                  "priority": 100,
+                  "is_locked": false,
+                  "source_revision_id": null,
+                  "chapter_number": null,
+                  "source_start": null,
+                  "source_end": null,
+                  "created_by": "00000000-0000-0000-0000-000000000001",
+                  "created_at": "2026-10-23T08:19:25.266598+00:00",
+                  "supersedes_id": null,
+                  "is_retired": false
+                }
+              ]
+            }
+          },
+          "author_decisions": [
+            {
+              "group_id": "3dee5c70-7065-56bb-9aa7-ff9b61d35c28",
+              "proposal_ids": [
+                "7e7ede1f-7d38-5637-aabb-0a35d531ca44",
+                "dc4e42d9-d128-50b8-a6a0-b5b56d18cba8",
+                "1bc41bbf-7f21-52bf-80c0-20c91ae2a8a2"
+              ],
+              "request": {
+                "proposal_ids": [
+                  "7e7ede1f-7d38-5637-aabb-0a35d531ca44",
+                  "dc4e42d9-d128-50b8-a6a0-b5b56d18cba8",
+                  "1bc41bbf-7f21-52bf-80c0-20c91ae2a8a2"
+                ],
+                "expected_brain_version": 2,
+                "reason": "P8_EXPLICIT_AUTHORIZED_AUTHOR_REVIEW"
+              },
+              "accept_status": 200,
+              "stale_status": 409,
+              "replay_status": 409,
+              "brain_version_before": 2,
+              "brain_version_after": 3
+            }
+          ],
+          "decision_origin": "AUTHORIZED_AUTHOR_HTTP_GATEWAY",
+          "approved_once": true
+        }
+      }
+    },
+    {
+      "checkpoint": 12,
+      "name": "Second Context Preview Observes Updated Brain State",
+      "status": "PASS",
+      "summary": "Context preview successfully observed updated brain_version=3",
+      "details": {
+        "brain_version": 3
+      }
+    },
+    {
+      "checkpoint": 13,
+      "name": "Acceptance Idempotency & Author-Control Semantics",
+      "status": "PASS",
+      "summary": "Retry acceptDraft returned existing revision with count=1; real unaccepted generation left canon and Story Brain untouched",
+      "details": {
+        "accepted_revision_id": "2dcf07af-783d-49dd-97ed-4f8e60ba64e6",
+        "duplicate_row_count": 1,
+        "unaccepted_generation_id": "9990c675-c7f9-5a29-abd7-79f63f5a5e9b",
+        "latest_revision_before": "2dcf07af-783d-49dd-97ed-4f8e60ba64e6",
+        "latest_revision_after": "2dcf07af-783d-49dd-97ed-4f8e60ba64e6",
+        "unaccepted_generation_revision_count": 0,
+        "brain_version_before": 3,
+        "brain_version_after": 3
+      }
+    }
+  ]
+}

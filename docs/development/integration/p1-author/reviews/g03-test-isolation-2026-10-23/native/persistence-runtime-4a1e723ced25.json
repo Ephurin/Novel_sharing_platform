@@ -1,0 +1,192 @@
+{
+  "resources": [
+    {
+      "container": "p1-final-acceptance-4a1e723ced25-pg",
+      "volume": "p1-final-acceptance-4a1e723ced25-pg-data",
+      "image": "pgvector/pgvector:pg16"
+    },
+    {
+      "container": "p1-final-acceptance-4a1e723ced25-mongo",
+      "volume": "p1-final-acceptance-4a1e723ced25-mongo-data",
+      "image": "mongo:7"
+    }
+  ],
+  "database": "ephurin_test_d1d2_4a1e723ced25",
+  "commands": [
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "src/core/database/migrate.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "bc8c4b17735a013917b51e209dc81dfb229e8179"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "alembic",
+        "upgrade",
+        "head"
+      ],
+      "cwd": "ai-service",
+      "exit_code": 0,
+      "tested_sha": "bc8c4b17735a013917b51e209dc81dfb229e8179"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "src/core/database/migrate.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "bc8c4b17735a013917b51e209dc81dfb229e8179"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "alembic",
+        "downgrade",
+        "-1"
+      ],
+      "cwd": "ai-service",
+      "exit_code": 0,
+      "tested_sha": "bc8c4b17735a013917b51e209dc81dfb229e8179"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "alembic",
+        "upgrade",
+        "head"
+      ],
+      "cwd": "ai-service",
+      "exit_code": 0,
+      "tested_sha": "bc8c4b17735a013917b51e209dc81dfb229e8179"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/g03-test-isolation-2026-10-23/observe-durable.mjs",
+        "--import",
+        "tsx",
+        "--test",
+        "src/core/database/test-db-guard-lifecycle.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "bc8c4b17735a013917b51e209dc81dfb229e8179"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/g03-test-isolation-2026-10-23/observe-durable.mjs",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/fixture-lifecycle-resilience.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "bc8c4b17735a013917b51e209dc81dfb229e8179"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/g03-test-isolation-2026-10-23/observe-durable.mjs",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/core-reconciliation.live.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "bc8c4b17735a013917b51e209dc81dfb229e8179"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/g03-test-isolation-2026-10-23/observe-durable.mjs",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/mongo-reconciliation.live.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "bc8c4b17735a013917b51e209dc81dfb229e8179"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/g03-test-isolation-2026-10-23/observe-durable.mjs",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/accept-draft-contract.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "bc8c4b17735a013917b51e209dc81dfb229e8179"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/g03-test-isolation-2026-10-23/observe-durable.mjs",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/outbox.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "bc8c4b17735a013917b51e209dc81dfb229e8179"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "file:///C:/Users/thaib/.codex/worktrees/p1-core-canon-combined/Novel_sharing_platform/docs/development/integration/p1-author/reviews/g03-test-isolation-2026-10-23/observe-durable.mjs",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/p1-production-persistence.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "bc8c4b17735a013917b51e209dc81dfb229e8179"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-m",
+        "postgres_integration",
+        "--basetemp",
+        "C:\\Users\\thaib\\AppData\\Local\\Temp\\combined-pg-7b2d9343c7e34dceb57b18935e2934d1",
+        "tests"
+      ],
+      "cwd": "ai-service",
+      "exit_code": 0,
+      "tested_sha": "bc8c4b17735a013917b51e209dc81dfb229e8179"
+    }
+  ],
+  "retained": true
+}

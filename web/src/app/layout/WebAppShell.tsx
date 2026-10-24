@@ -1,9 +1,11 @@
+import { ThemeControl } from '../../shared/components/ThemeControl';
 import { Badge, Box, Button, Group, NavLink, Stack, Text } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
 import { NavLink as RouterNavLink, Outlet, useNavigate } from 'react-router-dom';
 import type { UserRole } from '../../features/auth/auth-types';
 import { logout } from '../../features/auth/auth-api';
 import { useAuthStore } from '../../features/auth/useAuthStore';
+import { AuthorNavbar, AuthorTheme } from '../../shared/components/AuthorTheme';
 
 const navItems: Array<{ to: string; label: string; roles: UserRole[] }> = [
   { to: '/author', label: 'Writing Projects', roles: ['AUTHOR'] },
@@ -40,6 +42,10 @@ export function WebAppShell() {
     }
   };
 
+  if (user?.role === 'AUTHOR') {
+    return <AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><Outlet /></main></AuthorTheme>;
+  }
+
   return (
     <Box className="web-shell">
       <Group className="web-topbar" justify="space-between">
@@ -48,6 +54,7 @@ export function WebAppShell() {
           <Badge variant="light">Official Web MVP</Badge>
         </Group>
         <Group gap="xs">
+          <ThemeControl />
           <Badge size="sm" variant="outline">
             {user?.role ?? 'GUEST'}
           </Badge>

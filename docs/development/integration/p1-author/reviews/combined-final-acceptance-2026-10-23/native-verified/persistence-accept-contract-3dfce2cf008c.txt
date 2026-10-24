@@ -1,0 +1,27 @@
+▶ Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)
+  ✔ calls authenticated /internal/v1/writing/generations/{id} route with service token and headers (40.3465ms)
+  ✔ rejects with 400 NOVEL_MISMATCH if generation novel does not match chapter novel (11.5311ms)
+  ✔ rejects with 400 CHAPTER_MISMATCH if generation chapter does not match target chapter (12.1329ms)
+[OutboxProcessor] Event b3db69c8-14cb-4da2-810f-1f713d56d182 (INCREMENTAL_ANALYSIS) failed (attempt 1): res.text is not a function
+  ✔ rejects with 403 FORBIDDEN if generation belongs to another tenant or actor (8.5642ms)
+  ✔ rejects with 409 GENERATION_NOT_COMPLETED if generation status is not completed (9.9519ms)
+  ✔ rejects with 422 GENERATION_VALIDATION_FAILED if validation_status is not passed (7.3141ms)
+  ✔ rejects with 422 INVALID_PATCH if patch structure is missing or malformed (7.9551ms)
+  ✔ rejects with 409 BRAIN_VERSION_CONFLICT if current Story Brain has advanced beyond generation brain_version_used (7.1044ms)
+  ✔ rejects with 404 STORY_BRAIN_NOT_FOUND if Story Brain route returns 404 when brain is required (9.6288ms)
+  ✔ rejects with 409 OBJECTIVE_INTENT_REQUIRED if P3 controller idempotency_key is malformed (9.1534ms)
+  ✔ rejects with 409 OBJECTIVE_INTENT_SUPERSEDED if P3 controller intent changed or plan missing (10.7988ms)
+  ✔ rejects with 404 BASE_REVISION_NOT_FOUND if base revision does not belong to chapter (16.5702ms)
+  ✔ rejects with 409 STALE_BASE_REVISION if base revision is no longer current latest revision (12.7985ms)
+  ✔ rejects with 409 CONTENT_HASH_MISMATCH if base revision content hash does not match generation (12.4303ms)
+{"level":30,"time":1792746989156,"pid":23140,"hostname":"Ephurin","msg":"PostgreSQL connection closed"}
+✔ Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening) (303.127ms)
+{"level":30,"time":1792746989159,"pid":23140,"hostname":"Ephurin","msg":"MongoDB connection closed"}
+ℹ tests 14
+ℹ suites 1
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1119.9026

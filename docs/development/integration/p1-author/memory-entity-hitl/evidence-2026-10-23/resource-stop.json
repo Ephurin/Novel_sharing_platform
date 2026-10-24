@@ -1,0 +1,17 @@
+{
+  "at_utc": "2026-10-23T14:35:45.486449+00:00",
+  "command": [
+    "docker",
+    "stop",
+    "astra-p1-hitl-d4396fc7-pg",
+    "astra-p1-hitl-d4396fc7-mongo",
+    "astra-p1-hitl-75942c44-pg",
+    "astra-p1-hitl-75942c44-mongo",
+    "astra-p1-hitl-00e8eb6b-pg",
+    "astra-p1-hitl-00e8eb6b-mongo"
+  ],
+  "exit_code": 0,
+  "stdout": "astra-p1-hitl-d4396fc7-pg\nastra-p1-hitl-d4396fc7-mongo\nastra-p1-hitl-75942c44-pg\nastra-p1-hitl-75942c44-mongo\nastra-p1-hitl-00e8eb6b-pg\nastra-p1-hitl-00e8eb6b-mongo\n",
+  "volumes_removed": false,
+  "unrelated_resources_touched": false
+}

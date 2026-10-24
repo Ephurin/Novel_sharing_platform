@@ -1,0 +1,208 @@
+{
+  "width": 390,
+  "controls": [
+    {
+      "label": "Quay lại danh sách tác phẩm",
+      "x": 12,
+      "right": 44,
+      "width": 32,
+      "height": 36
+    },
+    {
+      "label": "Giao diện",
+      "x": 12,
+      "right": 44,
+      "width": 32,
+      "height": 36
+    },
+    {
+      "label": "Ẩn thanh công cụ",
+      "x": 55,
+      "right": 87,
+      "width": 32,
+      "height": 36
+    },
+    {
+      "label": "Cẩm nang thế giới truyện (Story Bible)",
+      "x": 87,
+      "right": 119,
+      "width": 32,
+      "height": 36
+    },
+    {
+      "label": "Story Brain & Kiểm tra nhất quán",
+      "x": 119,
+      "right": 151,
+      "width": 32,
+      "height": 36
+    },
+    {
+      "label": "Chế độ tập trung (Zen Mode)",
+      "x": 151,
+      "right": 183,
+      "width": 32,
+      "height": 36
+    },
+    {
+      "label": "Mở trợ lý sáng tác AI",
+      "x": 207,
+      "right": 249,
+      "width": 42,
+      "height": 36
+    },
+    {
+      "label": "Xuất bản chươngsend",
+      "x": 257,
+      "right": 425.953125,
+      "width": 168.953125,
+      "height": 36
+    },
+    {
+      "label": "Đóng/Mở thanh danh sách chương",
+      "x": 16,
+      "right": 40,
+      "width": 24,
+      "height": 36
+    },
+    {
+      "label": "Lên lịch",
+      "x": 16,
+      "right": 95.640625,
+      "width": 79.640625,
+      "height": 38
+    },
+    {
+      "label": "Lịch sử bản thảo",
+      "x": 103.640625,
+      "right": 244.84375,
+      "width": 141.203125,
+      "height": 38
+    },
+    {
+      "label": "Xuất bản thảo",
+      "x": 16,
+      "right": 141.578125,
+      "width": 125.578125,
+      "height": 38
+    },
+    {
+      "label": "Miễn phí",
+      "x": 145.15625,
+      "right": 225.25,
+      "width": 80.09375,
+      "height": 36
+    },
+    {
+      "label": "starsChương VIP ✦",
+      "x": 225.25,
+      "right": 361,
+      "width": 135.75,
+      "height": 36
+    },
+    {
+      "label": "Đổi kiểu chữ (7 phông chữ Việt hóa)",
+      "x": 23,
+      "right": 187.390625,
+      "width": 164.390625,
+      "height": 36
+    },
+    {
+      "label": "Giảm cỡ chữ (A-)",
+      "x": 207.390625,
+      "right": 231.390625,
+      "width": 24,
+      "height": 36
+    },
+    {
+      "label": "Tăng cỡ chữ (A+)",
+      "x": 263.390625,
+      "right": 287.390625,
+      "width": 24,
+      "height": 36
+    },
+    {
+      "label": "Căn đều hai bên (Chuẩn sách xuất bản)",
+      "x": 26,
+      "right": 50,
+      "width": 24,
+      "height": 36
+    },
+    {
+      "label": "Căn trái",
+      "x": 50,
+      "right": 74,
+      "width": 24,
+      "height": 36
+    },
+    {
+      "label": "Căn giữa (Thơ, tiêu đề phụ, lời đề từ)",
+      "x": 74,
+      "right": 98,
+      "width": 24,
+      "height": 36
+    },
+    {
+      "label": "Căn phải (Ký tên, ngày tháng, xuất xứ)",
+      "x": 98,
+      "right": 122,
+      "width": 24,
+      "height": 36
+    },
+    {
+      "label": "Khoảng cách giãn dòng (Line-height)",
+      "x": 142,
+      "right": 236.40625,
+      "width": 94.40625,
+      "height": 36
+    },
+    {
+      "label": "Thụt đầu dòng đoạn văn (~2.5rem - Quy chuẩn tiểu thuyết)",
+      "x": 240.40625,
+      "right": 274.40625,
+      "width": 34,
+      "height": 36
+    },
+    {
+      "label": "In đậm (**văn bản**)",
+      "x": 291.40625,
+      "right": 319.40625,
+      "width": 28,
+      "height": 36
+    },
+    {
+      "label": "In nghiêng (*văn bản*)",
+      "x": 23,
+      "right": 51,
+      "width": 28,
+      "height": 36
+    },
+    {
+      "label": "Gạch chân (<u>văn bản</u>)",
+      "x": 55,
+      "right": 83,
+      "width": 28,
+      "height": 36
+    },
+    {
+      "label": "Gạch ngang (~~văn bản~~)",
+      "x": 87,
+      "right": 115,
+      "width": 28,
+      "height": 36
+    },
+    {
+      "label": "Trích dẫn lời thoại “...”",
+      "x": 119,
+      "right": 147,
+      "width": 28,
+      "height": 36
+    },
+    {
+      "label": "Gạch đầu dòng lời thoại (— )",
+      "x": 151,
+      "right": 175.15625,
+      "width": 24.15625,
+      "height": 36
+    }
+  ]
+}

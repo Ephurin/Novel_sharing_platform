@@ -1,0 +1,1519 @@
+{
+  "source_sha": "46da7223aa3152614a75c86ae39db99475e0097a",
+  "workflows": [
+    {
+      "label": "P7",
+      "run": {
+        "id": 40050580516,
+        "name": "P7 Semantic Memory Foundation",
+        "node_id": "WFR_kwLOTaS0988AAAAJUzNcJA",
+        "head_branch": "codex/p1-fe-ai-contract-alignment",
+        "head_sha": "46da7223aa3152614a75c86ae39db99475e0097a",
+        "path": ".github/workflows/p7-semantic-memory.yml",
+        "display_title": "P1: align Author IDE / AI contracts and preserve edited Canon",
+        "run_number": 170,
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "workflow_id": 364834893,
+        "check_suite_id": 108559438644,
+        "check_suite_node_id": "CS_kwDOTaS0988AAAAZRqWTNA",
+        "url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/40050580516",
+        "html_url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/40050580516",
+        "pull_requests": [
+          {
+            "url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/pulls/64",
+            "id": 4991080320,
+            "number": 64,
+            "head": {
+              "ref": "codex/p1-fe-ai-contract-alignment",
+              "sha": "46da7223aa3152614a75c86ae39db99475e0097a",
+              "repo": {
+                "id": 1302639863,
+                "url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform",
+                "name": "Novel_sharing_platform"
+              }
+            },
+            "base": {
+              "ref": "integration/p1-author",
+              "sha": "dd2f8003b0ad94e6097819cdca0249aa591f54fa",
+              "repo": {
+                "id": 1302639863,
+                "url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform",
+                "name": "Novel_sharing_platform"
+              }
+            }
+          }
+        ],
+        "created_at": "2026-10-24T01:36:43Z",
+        "updated_at": "2026-10-24T01:38:54Z",
+        "actor": {
+          "login": "Ephurin",
+          "id": 163795797,
+          "node_id": "U_kgDOCcNTVQ",
+          "avatar_url": "https://avatars.githubusercontent.com/u/163795797?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/Ephurin",
+          "html_url": "https://github.com/Ephurin",
+          "followers_url": "https://api.github.com/users/Ephurin/followers",
+          "following_url": "https://api.github.com/users/Ephurin/following{/other_user}",
+          "gists_url": "https://api.github.com/users/Ephurin/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/Ephurin/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/Ephurin/subscriptions",
+          "organizations_url": "https://api.github.com/users/Ephurin/orgs",
+          "repos_url": "https://api.github.com/users/Ephurin/repos",
+          "events_url": "https://api.github.com/users/Ephurin/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/Ephurin/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "run_attempt": 1,
+        "referenced_workflows": [],
+        "run_started_at": "2026-10-24T01:36:43Z",
+        "triggering_actor": {
+          "login": "Ephurin",
+          "id": 163795797,
+          "node_id": "U_kgDOCcNTVQ",
+          "avatar_url": "https://avatars.githubusercontent.com/u/163795797?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/Ephurin",
+          "html_url": "https://github.com/Ephurin",
+          "followers_url": "https://api.github.com/users/Ephurin/followers",
+          "following_url": "https://api.github.com/users/Ephurin/following{/other_user}",
+          "gists_url": "https://api.github.com/users/Ephurin/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/Ephurin/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/Ephurin/subscriptions",
+          "organizations_url": "https://api.github.com/users/Ephurin/orgs",
+          "repos_url": "https://api.github.com/users/Ephurin/repos",
+          "events_url": "https://api.github.com/users/Ephurin/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/Ephurin/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "jobs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/40050580516/jobs",
+        "logs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/40050580516/logs",
+        "check_suite_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/check-suites/108559438644",
+        "artifacts_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/40050580516/artifacts",
+        "cancel_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/40050580516/cancel",
+        "rerun_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/40050580516/rerun",
+        "previous_attempt_url": null,
+        "workflow_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/workflows/364834893",
+        "head_commit": {
+          "id": "46da7223aa3152614a75c86ae39db99475e0097a",
+          "tree_id": "e5b0aa98aa08fd33d940a83f9e7da2013bb08812",
+          "message": "fix(canon): enforce complete dependency groups inside Canon transaction",
+          "timestamp": "2026-10-24T01:36:35Z",
+          "author": {
+            "name": "Ephurin",
+            "email": "thaibaosuper@gmail.com"
+          },
+          "committer": {
+            "name": "Ephurin",
+            "email": "thaibaosuper@gmail.com"
+          }
+        },
+        "repository": {
+          "id": 1302639863,
+          "node_id": "R_kgDOTaS09w",
+          "name": "Novel_sharing_platform",
+          "full_name": "Ephurin/Novel_sharing_platform",
+          "private": true,
+          "owner": {
+            "login": "Ephurin",
+            "id": 163795797,
+            "node_id": "U_kgDOCcNTVQ",
+            "avatar_url": "https://avatars.githubusercontent.com/u/163795797?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/Ephurin",
+            "html_url": "https://github.com/Ephurin",
+            "followers_url": "https://api.github.com/users/Ephurin/followers",
+            "following_url": "https://api.github.com/users/Ephurin/following{/other_user}",
+            "gists_url": "https://api.github.com/users/Ephurin/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/Ephurin/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/Ephurin/subscriptions",
+            "organizations_url": "https://api.github.com/users/Ephurin/orgs",
+            "repos_url": "https://api.github.com/users/Ephurin/repos",
+            "events_url": "https://api.github.com/users/Ephurin/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/Ephurin/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "html_url": "https://github.com/Ephurin/Novel_sharing_platform",
+          "description": null,
+          "fork": false,
+          "url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform",
+          "forks_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/forks",
+          "keys_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/keys{/key_id}",
+          "collaborators_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/collaborators{/collaborator}",
+          "teams_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/teams",
+          "hooks_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/hooks",
+          "issue_events_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/issues/events{/number}",
+          "events_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/events",
+          "assignees_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/assignees{/user}",
+          "branches_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/branches{/branch}",
+          "tags_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/tags",
+          "blobs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/blobs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/tags{/sha}",
+          "git_refs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/refs{/sha}",
+          "trees_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/trees{/sha}",
+          "statuses_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/statuses/{sha}",
+          "languages_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/languages",
+          "stargazers_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/stargazers",
+          "contributors_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/contributors",
+          "subscribers_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/subscribers",
+          "subscription_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/subscription",
+          "commits_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/commits{/sha}",
+          "git_commits_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/commits{/sha}",
+          "comments_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/comments{/number}",
+          "issue_comment_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/issues/comments{/number}",
+          "contents_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/contents/{+path}",
+          "compare_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/compare/{base}...{head}",
+          "merges_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/merges",
+          "archive_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/{archive_format}{/ref}",
+          "downloads_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/downloads",
+          "issues_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/issues{/number}",
+          "pulls_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/pulls{/number}",
+          "milestones_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/milestones{/number}",
+          "notifications_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/notifications{?since,all,participating}",
+          "labels_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/labels{/name}",
+          "releases_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/releases{/id}",
+          "deployments_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/deployments"
+        },
+        "head_repository": {
+          "id": 1302639863,
+          "node_id": "R_kgDOTaS09w",
+          "name": "Novel_sharing_platform",
+          "full_name": "Ephurin/Novel_sharing_platform",
+          "private": true,
+          "owner": {
+            "login": "Ephurin",
+            "id": 163795797,
+            "node_id": "U_kgDOCcNTVQ",
+            "avatar_url": "https://avatars.githubusercontent.com/u/163795797?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/Ephurin",
+            "html_url": "https://github.com/Ephurin",
+            "followers_url": "https://api.github.com/users/Ephurin/followers",
+            "following_url": "https://api.github.com/users/Ephurin/following{/other_user}",
+            "gists_url": "https://api.github.com/users/Ephurin/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/Ephurin/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/Ephurin/subscriptions",
+            "organizations_url": "https://api.github.com/users/Ephurin/orgs",
+            "repos_url": "https://api.github.com/users/Ephurin/repos",
+            "events_url": "https://api.github.com/users/Ephurin/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/Ephurin/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "html_url": "https://github.com/Ephurin/Novel_sharing_platform",
+          "description": null,
+          "fork": false,
+          "url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform",
+          "forks_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/forks",
+          "keys_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/keys{/key_id}",
+          "collaborators_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/collaborators{/collaborator}",
+          "teams_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/teams",
+          "hooks_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/hooks",
+          "issue_events_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/issues/events{/number}",
+          "events_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/events",
+          "assignees_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/assignees{/user}",
+          "branches_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/branches{/branch}",
+          "tags_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/tags",
+          "blobs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/blobs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/tags{/sha}",
+          "git_refs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/refs{/sha}",
+          "trees_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/trees{/sha}",
+          "statuses_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/statuses/{sha}",
+          "languages_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/languages",
+          "stargazers_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/stargazers",
+          "contributors_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/contributors",
+          "subscribers_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/subscribers",
+          "subscription_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/subscription",
+          "commits_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/commits{/sha}",
+          "git_commits_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/commits{/sha}",
+          "comments_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/comments{/number}",
+          "issue_comment_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/issues/comments{/number}",
+          "contents_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/contents/{+path}",
+          "compare_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/compare/{base}...{head}",
+          "merges_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/merges",
+          "archive_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/{archive_format}{/ref}",
+          "downloads_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/downloads",
+          "issues_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/issues{/number}",
+          "pulls_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/pulls{/number}",
+          "milestones_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/milestones{/number}",
+          "notifications_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/notifications{?since,all,participating}",
+          "labels_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/labels{/name}",
+          "releases_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/releases{/id}",
+          "deployments_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/deployments"
+        }
+      },
+      "jobs": {
+        "jobs": [
+          {
+            "id": 120742126573,
+            "name": "pgvector-integration",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 40050580516,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Initialize containers",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Run pip install -r requirements.txt pytest httpx",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "Live PostgreSQL + pgvector integration",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 6
+              },
+              {
+                "name": "Relevance-scope PostgreSQL cutoff and supersede integration",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 7
+              },
+              {
+                "name": "P1 approved memory and entity HITL PostgreSQL contracts",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 8
+              },
+              {
+                "name": "Unadapted narrative PostgreSQL cutoff, supersession, and isolation integration",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 9
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 16
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 17
+              },
+              {
+                "name": "Stop containers",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 18
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 19
+              }
+            ]
+          },
+          {
+            "id": 120742126824,
+            "name": "root-compose-smoke",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 40050580516,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Validate Compose",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Validate opt-in real-demo Flash-Lite routing (no provider calls)",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Start production-path services",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "Wait for health",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 6
+              },
+              {
+                "name": "Verify semantic retriever and context packer composition",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 7
+              },
+              {
+                "name": "Verify pgvector schema capability",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 8
+              },
+              {
+                "name": "Verify existing AI auth boundary",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 9
+              },
+              {
+                "name": "Verify bounded context preview",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 10
+              },
+              {
+                "name": "Show service status",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 11
+              },
+              {
+                "name": "Logs on failure",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 12
+              },
+              {
+                "name": "Shutdown",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 13
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 26
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 27
+              }
+            ]
+          },
+          {
+            "id": 120742126830,
+            "name": "unit",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 40050580516,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Run pip install -r requirements.txt pytest httpx",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Semantic-memory, retrieval, hybrid and context-routing unit tests",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "CTX-RD-01 production/EVAL parity",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 6
+              },
+              {
+                "name": "CTX-RD-01 real-provider evidence contract self-test",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 7
+              },
+              {
+                "name": "CTX-RD-01 opt-in canary evidence contract and frozen-source runner syntax",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 8
+              },
+              {
+                "name": "CTX-RD-01 E2E guardrails (no DB or provider required)",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 9
+              },
+              {
+                "name": "CTX-RD-01 unadapted narrative E2E guardrails (no DB or provider required)",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 10
+              },
+              {
+                "name": "Hybrid retrieval proxy regression",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 11
+              },
+              {
+                "name": "Hybrid retrieval proxy metrics",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 12
+              },
+              {
+                "name": "Benchmark invariant regression",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 13
+              },
+              {
+                "name": "Phase 6 temporal/writing regressions",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 14
+              },
+              {
+                "name": "Full AI-service non-PostgreSQL regression",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 15
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 29
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 30
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 31
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "label": "P8",
+      "run": {
+        "id": 40050580581,
+        "name": "P8 Cutover and Migration",
+        "node_id": "WFR_kwLOTaS0988AAAAJUzNcZQ",
+        "head_branch": "codex/p1-fe-ai-contract-alignment",
+        "head_sha": "46da7223aa3152614a75c86ae39db99475e0097a",
+        "path": ".github/workflows/p8-cutover.yml",
+        "display_title": "P1: align Author IDE / AI contracts and preserve edited Canon",
+        "run_number": 185,
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "success",
+        "workflow_id": 364977903,
+        "check_suite_id": 108559438744,
+        "check_suite_node_id": "CS_kwDOTaS0988AAAAZRqWTmA",
+        "url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/40050580581",
+        "html_url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/40050580581",
+        "pull_requests": [
+          {
+            "url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/pulls/64",
+            "id": 4991080320,
+            "number": 64,
+            "head": {
+              "ref": "codex/p1-fe-ai-contract-alignment",
+              "sha": "46da7223aa3152614a75c86ae39db99475e0097a",
+              "repo": {
+                "id": 1302639863,
+                "url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform",
+                "name": "Novel_sharing_platform"
+              }
+            },
+            "base": {
+              "ref": "integration/p1-author",
+              "sha": "dd2f8003b0ad94e6097819cdca0249aa591f54fa",
+              "repo": {
+                "id": 1302639863,
+                "url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform",
+                "name": "Novel_sharing_platform"
+              }
+            }
+          }
+        ],
+        "created_at": "2026-10-24T01:36:43Z",
+        "updated_at": "2026-10-24T01:39:54Z",
+        "actor": {
+          "login": "Ephurin",
+          "id": 163795797,
+          "node_id": "U_kgDOCcNTVQ",
+          "avatar_url": "https://avatars.githubusercontent.com/u/163795797?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/Ephurin",
+          "html_url": "https://github.com/Ephurin",
+          "followers_url": "https://api.github.com/users/Ephurin/followers",
+          "following_url": "https://api.github.com/users/Ephurin/following{/other_user}",
+          "gists_url": "https://api.github.com/users/Ephurin/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/Ephurin/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/Ephurin/subscriptions",
+          "organizations_url": "https://api.github.com/users/Ephurin/orgs",
+          "repos_url": "https://api.github.com/users/Ephurin/repos",
+          "events_url": "https://api.github.com/users/Ephurin/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/Ephurin/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "run_attempt": 1,
+        "referenced_workflows": [],
+        "run_started_at": "2026-10-24T01:36:43Z",
+        "triggering_actor": {
+          "login": "Ephurin",
+          "id": 163795797,
+          "node_id": "U_kgDOCcNTVQ",
+          "avatar_url": "https://avatars.githubusercontent.com/u/163795797?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/Ephurin",
+          "html_url": "https://github.com/Ephurin",
+          "followers_url": "https://api.github.com/users/Ephurin/followers",
+          "following_url": "https://api.github.com/users/Ephurin/following{/other_user}",
+          "gists_url": "https://api.github.com/users/Ephurin/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/Ephurin/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/Ephurin/subscriptions",
+          "organizations_url": "https://api.github.com/users/Ephurin/orgs",
+          "repos_url": "https://api.github.com/users/Ephurin/repos",
+          "events_url": "https://api.github.com/users/Ephurin/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/Ephurin/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "jobs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/40050580581/jobs",
+        "logs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/40050580581/logs",
+        "check_suite_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/check-suites/108559438744",
+        "artifacts_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/40050580581/artifacts",
+        "cancel_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/40050580581/cancel",
+        "rerun_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/runs/40050580581/rerun",
+        "previous_attempt_url": null,
+        "workflow_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/actions/workflows/364977903",
+        "head_commit": {
+          "id": "46da7223aa3152614a75c86ae39db99475e0097a",
+          "tree_id": "e5b0aa98aa08fd33d940a83f9e7da2013bb08812",
+          "message": "fix(canon): enforce complete dependency groups inside Canon transaction",
+          "timestamp": "2026-10-24T01:36:35Z",
+          "author": {
+            "name": "Ephurin",
+            "email": "thaibaosuper@gmail.com"
+          },
+          "committer": {
+            "name": "Ephurin",
+            "email": "thaibaosuper@gmail.com"
+          }
+        },
+        "repository": {
+          "id": 1302639863,
+          "node_id": "R_kgDOTaS09w",
+          "name": "Novel_sharing_platform",
+          "full_name": "Ephurin/Novel_sharing_platform",
+          "private": true,
+          "owner": {
+            "login": "Ephurin",
+            "id": 163795797,
+            "node_id": "U_kgDOCcNTVQ",
+            "avatar_url": "https://avatars.githubusercontent.com/u/163795797?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/Ephurin",
+            "html_url": "https://github.com/Ephurin",
+            "followers_url": "https://api.github.com/users/Ephurin/followers",
+            "following_url": "https://api.github.com/users/Ephurin/following{/other_user}",
+            "gists_url": "https://api.github.com/users/Ephurin/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/Ephurin/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/Ephurin/subscriptions",
+            "organizations_url": "https://api.github.com/users/Ephurin/orgs",
+            "repos_url": "https://api.github.com/users/Ephurin/repos",
+            "events_url": "https://api.github.com/users/Ephurin/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/Ephurin/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "html_url": "https://github.com/Ephurin/Novel_sharing_platform",
+          "description": null,
+          "fork": false,
+          "url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform",
+          "forks_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/forks",
+          "keys_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/keys{/key_id}",
+          "collaborators_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/collaborators{/collaborator}",
+          "teams_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/teams",
+          "hooks_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/hooks",
+          "issue_events_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/issues/events{/number}",
+          "events_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/events",
+          "assignees_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/assignees{/user}",
+          "branches_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/branches{/branch}",
+          "tags_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/tags",
+          "blobs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/blobs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/tags{/sha}",
+          "git_refs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/refs{/sha}",
+          "trees_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/trees{/sha}",
+          "statuses_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/statuses/{sha}",
+          "languages_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/languages",
+          "stargazers_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/stargazers",
+          "contributors_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/contributors",
+          "subscribers_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/subscribers",
+          "subscription_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/subscription",
+          "commits_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/commits{/sha}",
+          "git_commits_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/commits{/sha}",
+          "comments_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/comments{/number}",
+          "issue_comment_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/issues/comments{/number}",
+          "contents_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/contents/{+path}",
+          "compare_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/compare/{base}...{head}",
+          "merges_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/merges",
+          "archive_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/{archive_format}{/ref}",
+          "downloads_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/downloads",
+          "issues_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/issues{/number}",
+          "pulls_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/pulls{/number}",
+          "milestones_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/milestones{/number}",
+          "notifications_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/notifications{?since,all,participating}",
+          "labels_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/labels{/name}",
+          "releases_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/releases{/id}",
+          "deployments_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/deployments"
+        },
+        "head_repository": {
+          "id": 1302639863,
+          "node_id": "R_kgDOTaS09w",
+          "name": "Novel_sharing_platform",
+          "full_name": "Ephurin/Novel_sharing_platform",
+          "private": true,
+          "owner": {
+            "login": "Ephurin",
+            "id": 163795797,
+            "node_id": "U_kgDOCcNTVQ",
+            "avatar_url": "https://avatars.githubusercontent.com/u/163795797?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/Ephurin",
+            "html_url": "https://github.com/Ephurin",
+            "followers_url": "https://api.github.com/users/Ephurin/followers",
+            "following_url": "https://api.github.com/users/Ephurin/following{/other_user}",
+            "gists_url": "https://api.github.com/users/Ephurin/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/Ephurin/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/Ephurin/subscriptions",
+            "organizations_url": "https://api.github.com/users/Ephurin/orgs",
+            "repos_url": "https://api.github.com/users/Ephurin/repos",
+            "events_url": "https://api.github.com/users/Ephurin/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/Ephurin/received_events",
+            "type": "User",
+            "user_view_type": "public",
+            "site_admin": false
+          },
+          "html_url": "https://github.com/Ephurin/Novel_sharing_platform",
+          "description": null,
+          "fork": false,
+          "url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform",
+          "forks_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/forks",
+          "keys_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/keys{/key_id}",
+          "collaborators_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/collaborators{/collaborator}",
+          "teams_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/teams",
+          "hooks_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/hooks",
+          "issue_events_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/issues/events{/number}",
+          "events_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/events",
+          "assignees_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/assignees{/user}",
+          "branches_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/branches{/branch}",
+          "tags_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/tags",
+          "blobs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/blobs{/sha}",
+          "git_tags_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/tags{/sha}",
+          "git_refs_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/refs{/sha}",
+          "trees_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/trees{/sha}",
+          "statuses_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/statuses/{sha}",
+          "languages_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/languages",
+          "stargazers_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/stargazers",
+          "contributors_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/contributors",
+          "subscribers_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/subscribers",
+          "subscription_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/subscription",
+          "commits_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/commits{/sha}",
+          "git_commits_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/git/commits{/sha}",
+          "comments_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/comments{/number}",
+          "issue_comment_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/issues/comments{/number}",
+          "contents_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/contents/{+path}",
+          "compare_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/compare/{base}...{head}",
+          "merges_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/merges",
+          "archive_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/{archive_format}{/ref}",
+          "downloads_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/downloads",
+          "issues_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/issues{/number}",
+          "pulls_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/pulls{/number}",
+          "milestones_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/milestones{/number}",
+          "notifications_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/notifications{?since,all,participating}",
+          "labels_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/labels{/name}",
+          "releases_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/releases{/id}",
+          "deployments_url": "https://api.github.com/repos/Ephurin/Novel_sharing_platform/deployments"
+        }
+      },
+      "jobs": {
+        "jobs": [
+          {
+            "id": 120742126847,
+            "name": "rollback-rehearsal",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 40050580581,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Initialize containers",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Install AI-service dependencies",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "Enforce cleanup readiness boundary",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 6
+              },
+              {
+                "name": "Prepare source database and seed canonical cutover fixture",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 7
+              },
+              {
+                "name": "Capture source schema/version/snapshot",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 8
+              },
+              {
+                "name": "Backup source database",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 9
+              },
+              {
+                "name": "Restore into isolated verification database",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 10
+              },
+              {
+                "name": "Verify restored migration state and canonical parity",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 11
+              },
+              {
+                "name": "Prove source database was not mutated by rehearsal restore",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 12
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 22
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 23
+              },
+              {
+                "name": "Stop containers",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 24
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 25
+              }
+            ]
+          },
+          {
+            "id": 120742126973,
+            "name": "final-cleanup-gate",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 40050580581,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Confirm production cleanup preconditions remain intact",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Assert destructive P8-05 cleanup is still blocked",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Test final cleanup gate state transitions",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "Validate cleanup manifest safety contract",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 6
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 12
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 13
+              }
+            ]
+          },
+          {
+            "id": 120742126975,
+            "name": "root-compose-cutover-smoke",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 40050580581,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Validate Compose",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Start production-path services",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Wait for health",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "Dry-run committed legacy StoryKB inventory",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 6
+              },
+              {
+                "name": "Run cutover CLI dry-run apply and idempotent reapply",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 7
+              },
+              {
+                "name": "Verify nginx gateway boundary and built assets",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 8
+              },
+              {
+                "name": "Verify existing production path still healthy",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 9
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 10
+              },
+              {
+                "name": "Install AI-PIPE-01A validation dependencies",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 11
+              },
+              {
+                "name": "Run Gate AI-PIPE-01A Production Persistence Validation",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 12
+              },
+              {
+                "name": "Verify Gate AI-PIPE-01 & AI-PIPE-01A Evidence Schema and Invariants",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 13
+              },
+              {
+                "name": "Run Gate AI-PIPE-02A Idea Bootstrap Validation",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 14
+              },
+              {
+                "name": "Verify Gate AI-PIPE-02A Evidence Schema and Invariants",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 15
+              },
+              {
+                "name": "Run AI-PIPE-02A Idea Bootstrap Route Unit Suite",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 16
+              },
+              {
+                "name": "Run Gate AI-PIPE-02B Outline Planning Validation",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 17
+              },
+              {
+                "name": "Verify Gate AI-PIPE-02B Evidence Schema and Invariants",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 18
+              },
+              {
+                "name": "Run AI-PIPE-02B Story Plan Route Unit Suite",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 19
+              },
+              {
+                "name": "Run Gate AI-PIPE-03A Autonomous Controller Validation",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 20
+              },
+              {
+                "name": "Verify Gate AI-PIPE-03A Evidence Schema and Invariants",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 21
+              },
+              {
+                "name": "Run AI-PIPE-03A Autonomous Route Unit Suite",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 22
+              },
+              {
+                "name": "Run Backend AI-PIPE-03A Autonomous Controller Suite",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 23
+              },
+              {
+                "name": "Show service status",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 24
+              },
+              {
+                "name": "Logs on failure",
+                "status": "completed",
+                "conclusion": "skipped",
+                "number": 25
+              },
+              {
+                "name": "Shutdown",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 26
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 51
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 52
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 53
+              }
+            ]
+          },
+          {
+            "id": 120742126985,
+            "name": "frontend-api-cutover",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 40050580581,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Enforce browser/mobile Node-gateway boundary",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Web build",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "Verify built web assets do not expose FastAPI",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 6
+              },
+              {
+                "name": "Backend typecheck and deterministic tests",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 7
+              },
+              {
+                "name": "Mobile typecheck",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 8
+              },
+              {
+                "name": "Post Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 15
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 16
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 17
+              }
+            ]
+          },
+          {
+            "id": 120742127005,
+            "name": "postgres-integration",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 40050580581,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Initialize containers",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Run pip install -r requirements.txt pytest httpx",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "Live PostgreSQL integration suite",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 6
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 10
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 11
+              },
+              {
+                "name": "Stop containers",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 12
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 13
+              }
+            ]
+          },
+          {
+            "id": 120742127025,
+            "name": "unit",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 40050580581,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Run pip install -r requirements.txt pytest httpx",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Full AI-service non-PostgreSQL regression",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 9
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 10
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 11
+              }
+            ]
+          },
+          {
+            "id": 120742127079,
+            "name": "backend-integration",
+            "status": "completed",
+            "conclusion": "success",
+            "run_id": 40050580581,
+            "logs_url": null,
+            "steps": [
+              {
+                "name": "Set up job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 1
+              },
+              {
+                "name": "Initialize containers",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 2
+              },
+              {
+                "name": "Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 3
+              },
+              {
+                "name": "Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 4
+              },
+              {
+                "name": "Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 5
+              },
+              {
+                "name": "Verify PostgreSQL and MongoDB readiness",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 6
+              },
+              {
+                "name": "Install backend dependencies",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 7
+              },
+              {
+                "name": "Apply backend database migrations",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 8
+              },
+              {
+                "name": "Install AI-service dependencies for Alembic migrations",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 9
+              },
+              {
+                "name": "Apply AI-service Alembic migrations (Tier B Real Schema)",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 10
+              },
+              {
+                "name": "Run test database isolation guard negative/positive rules suite",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 11
+              },
+              {
+                "name": "Run Accept Draft trust-contract integration suite",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 12
+              },
+              {
+                "name": "Run PostgreSQL production persistence integration suite",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 13
+              },
+              {
+                "name": "Run Fixture lifecycle and teardown resilience integration suite",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 14
+              },
+              {
+                "name": "Post Run actions/setup-python@v5",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 25
+              },
+              {
+                "name": "Post Run actions/setup-node@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 26
+              },
+              {
+                "name": "Post Run actions/checkout@v4",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 27
+              },
+              {
+                "name": "Stop containers",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 28
+              },
+              {
+                "name": "Complete job",
+                "status": "completed",
+                "conclusion": "success",
+                "number": 29
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "checkout": {
+    "sha": "f4304552223bb8ab5746795e7574cb2326e3498d",
+    "tree": "e5b0aa98aa08fd33d940a83f9e7da2013bb08812",
+    "parents": [
+      "dd2f8003b0ad94e6097819cdca0249aa591f54fa",
+      "46da7223aa3152614a75c86ae39db99475e0097a"
+    ],
+    "checkout_P7": [
+      "2026-10-24T01:36:49.7341754Z HEAD is now at f430455 Merge 46da7223aa3152614a75c86ae39db99475e0097a into dd2f8003b0ad94e6097819cdca0249aa591f54fa",
+      "2026-10-24T01:36:49.7374172Z [command]/usr/bin/git log -1 --format=%H",
+      "2026-10-24T01:36:49.7404565Z f4304552223bb8ab5746795e7574cb2326e3498d"
+    ],
+    "checkout_P8": [
+      "2026-10-24T01:36:49.6002445Z HEAD is now at f430455 Merge 46da7223aa3152614a75c86ae39db99475e0097a into dd2f8003b0ad94e6097819cdca0249aa591f54fa",
+      "2026-10-24T01:36:49.6005101Z [command]/usr/bin/git log -1 --format=%H",
+      "2026-10-24T01:36:49.6006240Z f4304552223bb8ab5746795e7574cb2326e3498d"
+    ]
+  },
+  "P8_postgres_summary": [
+    "2026-10-24T01:38:07.4519240Z 158 passed, 349 deselected, 5 warnings in 43.38s"
+  ],
+  "utc": "2026-10-24 01:40:49 UTC"
+}

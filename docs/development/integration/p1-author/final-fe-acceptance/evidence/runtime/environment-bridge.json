@@ -1,0 +1,29 @@
+{
+  "project": "codex-p1-final-8c19b8c475",
+  "values": {
+    "WAVE1D_PROJECT": "codex-p1-final-8c19b8c475",
+    "POSTGRES_DB": "ephurin_test_p1_final_8c19b8c475",
+    "POSTGRES_USER": "p123",
+    "POSTGRES_PASSWORD": "[REDACTED]",
+    "JWT_ACCESS_SECRET": "[REDACTED]",
+    "JWT_REFRESH_SECRET": "[REDACTED]",
+    "PLATFORM_SERVICE_TOKEN": "[REDACTED]",
+    "AI_WORKER_TOKEN": "[REDACTED]",
+    "BACKEND_WORKER_TOKEN": "[REDACTED]",
+    "OFFLINE_UPSTREAM_KEY": "[REDACTED]",
+    "WAVE1D_AUTHOR_EMAIL": "codex-p1-final-8c19b8c475@example.invalid",
+    "WAVE1D_AUTHOR_USERNAME": "codex_p1_final_8c19b8c475",
+    "WAVE1D_AUTHOR_PASSWORD": "[REDACTED]",
+    "WAVE1D_WEB_PORT": "33320",
+    "WAVE1D_BACKEND_PORT": "33330",
+    "WAVE1D_AI_PORT": "33322",
+    "WAVE1D_GATE_PORT": "33323",
+    "WAVE1D_FAKE_PORT": "33324",
+    "WAVE1D_PG_PORT": "33328",
+    "WAVE1D_MONGO_PORT": "33329",
+    "P123_WORKER_SUBNET": "172.29.142.0/24",
+    "P123_UPSTREAM_SUBNET": "172.29.32.0/24",
+    "P123_EDGE_SUBNET": "172.29.30.0/24"
+  },
+  "bridge_destinations": "fixed postgres/mongodb/backend only; providers have no edge network"
+}

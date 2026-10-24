@@ -1,0 +1,40 @@
+{
+  "testedAt": "2026-10-23T03:52:13.022Z",
+  "baseCommit": "f82f6e58da93a43f0ee6fe74e0150df991f9454d",
+  "sourceState": "working tree; hashes identify tested frontend source",
+  "sourceHashes": {
+    "src/features/author-ide/useDraftPersistence.ts": "88da92c9ee49f64c168b3b05564240d29564a3c5e11db19b32ca241a68c049f9",
+    "src/features/author-ide/AuthorWritingIde.tsx": "b9f2ef62e63d606000250802a8fcdce4f64e62855a97e5fc5d9cacc31dfd3633"
+  },
+  "rapidUndo": {
+    "writes": 0,
+    "initialHash": "df7e70e5021544f4834bbee64a9e3789febc4be81470df629cad6ddb03320a5c",
+    "unchangedRevisionsAndOutbox": true
+  },
+  "finalSnapshot": {
+    "contentHash": "1c31f508e23011aa9e87458d772c78d68aff6012b218b0fcb7b157a66423d861",
+    "revisionHashes": [
+      "1c31f508e23011aa9e87458d772c78d68aff6012b218b0fcb7b157a66423d861"
+    ],
+    "outboxHashes": [
+      "1c31f508e23011aa9e87458d772c78d68aff6012b218b0fcb7b157a66423d861"
+    ]
+  },
+  "passed": [
+    "rapid Undo",
+    "latest full buffer",
+    "in-flight serial save",
+    "chapter isolation",
+    "route blocker",
+    "same chapter account switch",
+    "account-scoped recovery",
+    "409 recovery",
+    "immutable revision/outbox hash",
+    "in-flight account switch",
+    "router remount recovery",
+    "React Strict Mode",
+    "review labels with score-only rating",
+    "light desktop",
+    "dark mobile"
+  ]
+}

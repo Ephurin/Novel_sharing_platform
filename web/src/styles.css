@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 html,
 body,
 #root {
@@ -6,35 +10,43 @@ body,
 }
 
 body {
-  background: #0f1117;
+  background: var(--sc-bg);
+  color: var(--sc-text);
+}
+
+/* Reserve the scrollbar lane when searches or disclosures change page height. */
+html {
+  scrollbar-gutter: stable;
+}
+
+@supports not (scrollbar-gutter: stable) {
+  html { overflow-y: scroll; }
 }
 
 .auth-shell {
   min-height: 100%;
   display: grid;
   place-items: center;
-  background:
-    radial-gradient(circle at top left, rgba(124, 58, 237, 0.25), transparent 32rem),
-    #0f1117;
+  background: var(--sc-bg);
 }
 
 .auth-card {
   width: min(420px, calc(100vw - 32px));
-  background: #171923;
+  background: var(--sc-surface);
 }
 
 .ide-shell {
   display: grid;
   grid-template-rows: 44px 1fr 26px;
   height: 100vh;
-  color: #d7dce8;
-  background: #0f1117;
+  color: var(--sc-text);
+  background: var(--sc-bg);
 }
 
 .top-toolbar {
   padding: 0 12px;
-  border-bottom: 1px solid #252a36;
-  background: #141824;
+  border-bottom: 1px solid var(--sc-border);
+  background: var(--sc-surface);
 }
 
 .ide-body {
@@ -51,15 +63,15 @@ body {
 
 .activity-bar {
   padding: 10px 0;
-  border-right: 1px solid #252a36;
-  background: #111520;
+  border-right: 1px solid var(--sc-border);
+  background: var(--sc-surface-subtle);
 }
 
 .dynamic-sidebar {
   min-height: 0;
   padding: 12px;
-  border-right: 1px solid #252a36;
-  background: #151a27;
+  border-right: 1px solid var(--sc-border);
+  background: var(--sc-surface-subtle);
 }
 
 .sidebar-scroll {
@@ -69,29 +81,29 @@ body {
 .editor-workspace {
   min-width: 0;
   padding: 22px 28px;
-  background: #0f1117;
+  background: var(--sc-bg);
 }
 
 .context-workspace {
   min-width: 0;
   padding: 22px 28px;
   overflow: auto;
-  background: #0f1117;
+  background: var(--sc-bg);
 }
 
 .editor-surface {
   min-height: calc(100vh - 190px);
   padding: 40px 54px;
-  border-color: #252a36;
-  background: #121620;
+  border-color: var(--sc-border);
+  background: var(--sc-surface);
 }
 
 .editor-textarea textarea {
   min-height: calc(100vh - 190px);
   padding: 40px 54px;
-  border-color: #252a36;
-  background: #121620;
-  color: #edf0f7;
+  border-color: var(--sc-border);
+  background: var(--sc-surface);
+  color: var(--sc-text);
   font-family: Georgia, 'Times New Roman', serif;
   font-size: 19px;
   line-height: 1.9;
@@ -103,35 +115,36 @@ body {
   font-family: Georgia, 'Times New Roman', serif;
   font-size: 19px;
   line-height: 1.9;
-  color: #edf0f7;
+  color: var(--sc-text);
 }
 
 .assistant-panel {
   min-height: 0;
   padding: 14px;
-  border-left: 1px solid #252a36;
-  background: #151a27;
+  border-left: 1px solid var(--sc-border);
+  background: var(--sc-surface-subtle);
 }
 
 .status-bar {
   padding: 0 10px;
-  border-top: 1px solid #252a36;
-  background: #111520;
-  color: #9aa4b8;
+  border-top: 1px solid var(--sc-border);
+  background: var(--sc-surface-subtle);
+  color: var(--sc-text-muted);
 }
 
 .web-shell {
   display: grid;
-  grid-template-rows: 44px 1fr;
+  grid-template-rows: auto 1fr;
   min-height: 100vh;
-  color: #d7dce8;
-  background: #0f1117;
+  color: var(--sc-text);
+  background: var(--sc-bg);
 }
 
 .web-topbar {
+  min-height: 44px;
   padding: 0 14px;
-  border-bottom: 1px solid #252a36;
-  background: #141824;
+  border-bottom: 1px solid var(--sc-border);
+  background: var(--sc-surface);
 }
 
 .web-body {
@@ -143,8 +156,8 @@ body {
 .web-nav {
   min-height: 0;
   padding: 12px;
-  border-right: 1px solid #252a36;
-  background: #151a27;
+  border-right: 1px solid var(--sc-border);
+  background: var(--sc-surface-subtle);
 }
 
 .web-nav-link {
@@ -202,7 +215,7 @@ body {
   .web-nav {
     min-height: auto;
     border-right: 0;
-    border-bottom: 1px solid #252a36;
+    border-bottom: 1px solid var(--sc-border);
   }
 
   .web-content {

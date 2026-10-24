@@ -6,7 +6,7 @@ import json
 import uuid
 from dataclasses import asdict, replace
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, Header, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 
 from api.deps import (
@@ -28,6 +28,7 @@ from api.schemas import (
     ProposalDecisionRequest,
     ProposalEditAcceptRequest,
     ProposalGroupAcceptRequest,
+    ProposalGroupRejectRequest,
     ProposalRejectRequest,
     RevisionAnalysisRequest,
     StoryPlanCreateRequest,
@@ -631,6 +632,84 @@ def rebuild_projection(brain_id: str, payload: ProposalDecisionRequest,
     return {"data": result, "meta": {"schema_version": 1}}
 
 
+@router.post("/story-brains/{brain_id}/author-operation")
+def author_operation(
+    brain_id: str,
+    request: Request,
+    payload: dict[str, Any] = Body(...),
+    service: NarrativeApplicationService = Depends(get_narrative_service),
+):
+    operation = payload.get("operation")
+    if operation == "check_consistency":
+        content = payload.get("content", "")
+        # Reuse the immutable-source validator used by entity HITL. A finding
+        # must never echo an unverified revision or invent historical provenance.
+        from application.entity_hitl import revision_for
+        analysis = get_revision_analysis_service(request)
+        if analysis is None:
+            raise HTTPException(503, detail={'code': 'CONSISTENCY_SOURCE_UNAVAILABLE'})
+        try:
+            source = {'tenant_id': str(uuid.UUID(request.headers['X-Tenant-Id'])),
+                'novel_id': str(uuid.UUID(brain_id)), 'chapter_id': str(uuid.UUID(str(payload['chapter_id']))),
+                'revision_id': str(uuid.UUID(str(payload['revision_id']))), 'content_hash': payload['content_hash']}
+            revision = revision_for(analysis, source)
+            if content != revision.content:
+                raise ValueError('Content differs from the immutable revision')
+        except PermissionError as exc:
+            raise HTTPException(403, detail={'code': 'CONSISTENCY_SOURCE_FORBIDDEN'}) from exc
+        except RevisionNotFoundError as exc:
+            raise HTTPException(404, detail={'code': 'CONSISTENCY_REVISION_NOT_FOUND'}) from exc
+        except (KeyError, ValueError, ContentHashMismatchError) as exc:
+            raise HTTPException(422, detail={'code': 'INVALID_CONSISTENCY_SOURCE'}) from exc
+        revision_id = revision.revision_id
+        brain = service._repository.get_story_brain(brain_id, read_only=True)
+        states = brain.current_state.get('entities', {})
+        names = {}
+        for entity in brain.entities:
+            names.setdefault(entity.name.casefold(), []).append(entity)
+        findings = []
+        ambiguous = set()
+        for entity in brain.entities:
+            status_lower = str(states.get(entity.entity_id, {}).get('status', entity.status) or '').lower()
+            identity = names[entity.name.casefold()]
+            if len(identity) > 1:
+                phrases = [f'{entity.name} {suffix}' for suffix in ('đã hy sinh', 'đã chết', 'tử trận', 'vẫn còn sống', 'xuất hiện', 'còn sống')]
+                evidence = next((p for p in phrases if p in content), None)
+                if evidence and entity.name.casefold() not in ambiguous:
+                    ambiguous.add(entity.name.casefold())
+                    ids = sorted(e.entity_id for e in identity if e.entity_id)
+                    findings.append({'code': 'AMBIGUOUS_ENTITY_REFERENCE', 'candidate_entity_ids': ids,
+                        'description': f'Danh tính chưa rõ: {entity.name} khớp nhiều UUID ({", ".join(ids)}); cần tác giả xác nhận.',
+                        'evidence': evidence, 'revision_id': revision_id})
+                continue
+            if status_lower in {"alive", "active"}:
+                phrases = [f"{entity.name} đã hy sinh", f"{entity.name} đã chết", f"{entity.name} tử trận"]
+                for p in phrases:
+                    if p in content:
+                        findings.append({
+                            "description": f"Mâu thuẫn thực thể: {entity.name} được ghi nhận còn sống trong Story Brain nhưng bản thảo nêu {p.lower()}",
+                            "evidence": p,
+                            "revision_id": revision_id,
+                            "entity_id": entity.entity_id,
+                        })
+            elif status_lower in {"dead", "deceased"}:
+                phrases = [f"{entity.name} vẫn còn sống", f"{entity.name} xuất hiện", f"{entity.name} còn sống"]
+                for p in phrases:
+                    if p in content:
+                        findings.append({
+                            "description": f"Mâu thuẫn thực thể: {entity.name} được ghi nhận đã chết trong Story Brain nhưng bản thảo nêu {p.lower()}",
+                            "evidence": p,
+                            "revision_id": revision_id,
+                            "entity_id": entity.entity_id,
+                        })
+        return {"data": {"findings": findings}}
+
+    if operation == "suggest_events":
+        return {"data": {"events": []}}
+
+    return {"data": {}}
+
+
 @router.post("/story-brains/{brain_id}/events/{event_id}/corrections", status_code=201)
 def propose_correction(brain_id: str, event_id: str, payload: EventCorrectionRequest,
                        service: NarrativeApplicationService = Depends(get_narrative_service)):
@@ -657,7 +736,8 @@ def analyze_revision(
     service: RevisionAnalysisService = Depends(get_revision_analysis_service),
 ):
     try:
-        result = service.analyze(
+        from api.entity_hitl_routes import invoke
+        result = invoke(service.analyze,
             tenant_id=tenant_id,
             novel_id=payload.novel_id,
             chapter_id=payload.chapter_id,
@@ -677,7 +757,7 @@ def analyze_revision(
         "data": {
             "job_id": result.analysis_run.run_id,
             "analysis_run_id": result.analysis_run.run_id,
-            "status": "completed",
+            "status": result.status,
             "proposal_count": len(result.proposals),
             "deduplicated": result.deduplicated,
         },
@@ -754,6 +834,34 @@ def reject_proposal(
     }
 
 
+@router.post('/proposal-groups/{group_id}/reject')
+def reject_proposal_group(
+    group_id: uuid.UUID,
+    payload: ProposalGroupRejectRequest,
+    tenant_id: uuid.UUID = Header(..., alias='X-Tenant-Id'),
+    author_id: uuid.UUID = Header(..., alias='X-Author-Id'),
+    request_id: str = Header(..., alias='X-Request-Id'),
+    service: NarrativeApplicationService = Depends(get_narrative_service),
+):
+    repository = service._repository
+    if not callable(getattr(repository, 'reject_proposal_group', None)):
+        raise HTTPException(503, detail={'code': 'GROUP_REJECTION_REQUIRES_POSTGRES'})
+    if str(tenant_id) != str(repository._tenant_id):
+        raise HTTPException(403, detail={'code': 'TENANT_SCOPE_MISMATCH'})
+    try:
+        result = service.reject_proposal_group_by_id(str(group_id), payload.expected_brain_version,
+            reason=payload.reason, actor_id=str(author_id))
+    except KeyError as exc:
+        raise HTTPException(404, detail={'code': 'PROPOSAL_GROUP_NOT_FOUND'}) from exc
+    except OptimisticLockError as exc:
+        raise HTTPException(409, detail={'code': 'BRAIN_VERSION_CONFLICT'}) from exc
+    except ProposalAlreadyDecidedError as exc:
+        raise HTTPException(409, detail={'code': 'PROPOSAL_ALREADY_DECIDED'}) from exc
+    except ProjectionError as exc:
+        raise HTTPException(422, detail={'code': 'INVALID_PROJECTION', 'message': str(exc)}) from exc
+    return {'data': result, 'meta': {'request_id': request_id, 'schema_version': 1}}
+
+
 @router.post("/proposals/{proposal_id}/edit-and-accept")
 def edit_and_accept_proposal(
     proposal_id: str,
@@ -804,6 +912,7 @@ def accept_proposal_group(
             payload.proposal_ids,
             payload.expected_brain_version,
             payload.reason,
+            edited_payloads=payload.edited_payloads,
         )
     except KeyError as exc:
         raise HTTPException(status_code=404, detail={"code": "PROPOSAL_NOT_FOUND"}) from exc
@@ -965,6 +1074,9 @@ def get_internal_writing_generation(
             "validation_status": job.validation_status,
             "validations": [asdict(v) for v in job.validations],
             "status": job.status,
+            "tenant_id": job.tenant_id,
+            "actor_id": job.actor_id,
+            "idempotency_key": job.idempotency_key,
             "brain_version_used": job.brain_version_used,
             "context_hash": job.context_hash,
             "chapter_number": job.chapter_number,

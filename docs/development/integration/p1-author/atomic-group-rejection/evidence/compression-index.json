@@ -1,0 +1,326 @@
+{
+  "development/first-green-mislabeled-test-red-rejection.log": {
+    "stored_path": "development/first-green-mislabeled-test-red-rejection.log.gz",
+    "uncompressed_sha256": "ba488bd5298725869827d5914a7f304b33ec228fb00668d84a8d59a3c5db9498",
+    "uncompressed_length": 2438077,
+    "stored_length": 147257
+  },
+  "development/test-dev-hitl.log": {
+    "stored_path": "development/test-dev-hitl.log.gz",
+    "uncompressed_sha256": "e411c2c66b30ebe253837120c9335a60ab38daf3b1f6642f33b3295424a42001",
+    "uncompressed_length": 10250952,
+    "stored_length": 624796
+  },
+  "development/test-dev-live.log": {
+    "stored_path": "development/test-dev-live.log.gz",
+    "uncompressed_sha256": "f41c0b1fc62f8c3322d7884960f2fdd7e2ae800ad545cbd2dbc9809fa3ebb7f8",
+    "uncompressed_length": 1982094,
+    "stored_length": 87691
+  },
+  "development/test-dev2-rejection.log": {
+    "stored_path": "development/test-dev2-rejection.log.gz",
+    "uncompressed_sha256": "8dfb035148970bbf57d4258f342f6c5235926e9bd9c99754b62e4aaa81a5799f",
+    "uncompressed_length": 4374152,
+    "stored_length": 264724
+  },
+  "development/test-dev3-rejection.log": {
+    "stored_path": "development/test-dev3-rejection.log.gz",
+    "uncompressed_sha256": "c28ed76c9630d672974549c18cd52b1b43d5c673de93a5d64034cd4505a00024",
+    "uncompressed_length": 5358853,
+    "stored_length": 322401
+  },
+  "green/http-readbacks.json": {
+    "stored_path": "green/http-readbacks.json.gz",
+    "uncompressed_sha256": "a10607146fd000450865a41f7ffaac0f9d94c410dde14f2f4784c9b44737e73c",
+    "uncompressed_length": 2881402,
+    "stored_length": 168726
+  },
+  "green/rejection-postgres-readbacks.json": {
+    "stored_path": "green/rejection-postgres-readbacks.json.gz",
+    "uncompressed_sha256": "c1f2d775a2173947af7216e5199dcd4d67ad13927326ff447f2dc79011cdf38c",
+    "uncompressed_length": 2760402,
+    "stored_length": 171179
+  },
+  "green/test-accept-hitl.log": {
+    "stored_path": "green/test-accept-hitl.log.gz",
+    "uncompressed_sha256": "b83fbc51cdc12211dd7ca57a3e475ba7757cc8801936862bce6589624ec58e92",
+    "uncompressed_length": 13094007,
+    "stored_length": 793438
+  },
+  "green/test-accept-live.log": {
+    "stored_path": "green/test-accept-live.log.gz",
+    "uncompressed_sha256": "a0ff851ab9db014d65e2055dea491129df40ac2b8b5b377afa49c648221870ed",
+    "uncompressed_length": 1982093,
+    "stored_length": 87198
+  },
+  "green/test-accept-rejection.log": {
+    "stored_path": "green/test-accept-rejection.log.gz",
+    "uncompressed_sha256": "dc05209084622a67dd581ac6021c0223b03f0e5d88d44b970dcfbf6e63a67f4b",
+    "uncompressed_length": 5358853,
+    "stored_length": 322377
+  },
+  "red/RED-baseline-replay.log": {
+    "stored_path": "red/RED-baseline-replay.log.gz",
+    "uncompressed_sha256": "d8fc8629de6867eef9f47ddbcd717ba405711fc4a848bcb1e30ccda861722ff2",
+    "uncompressed_length": 1414825,
+    "stored_length": 88111
+  },
+  "final-postgres-container.log": {
+    "stored_path": "final-postgres-container.log.gz",
+    "uncompressed_sha256": "0c52267a7f8e42dd5e86cab97108e5b4aa6c4b2cdc790a467b6931a950c58d47",
+    "uncompressed_length": 9243,
+    "stored_length": 2207
+  },
+  "red-postgres-container.log": {
+    "stored_path": "red-postgres-container.log.gz",
+    "uncompressed_sha256": "4edeeddb50733c7f7ed9ff6b0c0e8dbe478687e8c2352fc90c26e50feea6ecf9",
+    "uncompressed_length": 10994,
+    "stored_length": 2408
+  },
+  "development/test-dev-live-ai.log": {
+    "stored_path": "development/test-dev-live-ai.log.gz",
+    "uncompressed_sha256": "5f490a49335a5d5091671081139fc888f4549c6fdbf5ed80dac59ef9ac6d5783",
+    "uncompressed_length": 34326,
+    "stored_length": 2611
+  },
+  "green/alembic-upgrade.log": {
+    "stored_path": "green/alembic-upgrade.log.gz",
+    "uncompressed_sha256": "7ec3c57a30befa6c369684deceb8ad52857886277fb202b9020a9dcd590dccef",
+    "uncompressed_length": 2145,
+    "stored_length": 655
+  },
+  "green/backend-migration.log": {
+    "stored_path": "green/backend-migration.log.gz",
+    "uncompressed_sha256": "daee3cf0698c637a384985028b9aeae65b8afb11477f16c9b669a2d2f75fc533",
+    "uncompressed_length": 2504,
+    "stored_length": 517
+  },
+  "green/provision-1.log": {
+    "stored_path": "green/provision-1.log.gz",
+    "uncompressed_sha256": "3efa5eef5fbb52c976aef1b2b02ff1c0412bc8f33aa64ac5c33320046f5babd9",
+    "uncompressed_length": 66,
+    "stored_length": 75
+  },
+  "green/provision-2.log": {
+    "stored_path": "green/provision-2.log.gz",
+    "uncompressed_sha256": "c38151672f9575a5f301bce95e566e2444e07884871bba7d6c9ce429b821e270",
+    "uncompressed_length": 17,
+    "stored_length": 35
+  },
+  "green/provision-3.log": {
+    "stored_path": "green/provision-3.log.gz",
+    "uncompressed_sha256": "e38100223207268a0a19b09c346c32c6271b9ecfdefee559ad5a0ff4cb582f7f",
+    "uncompressed_length": 66,
+    "stored_length": 74
+  },
+  "green/provision-4.log": {
+    "stored_path": "green/provision-4.log.gz",
+    "uncompressed_sha256": "d9bfca72341137680f824cca223e8fd8e40e293b4fa1234a1c958d0e27698e7f",
+    "uncompressed_length": 17,
+    "stored_length": 35
+  },
+  "green/test-accept-backend-1.log": {
+    "stored_path": "green/test-accept-backend-1.log.gz",
+    "uncompressed_sha256": "453090e1cd5e44998f6fdd40496b2122333c719aad668bab06a42f2bf34605e9",
+    "uncompressed_length": 42,
+    "stored_length": 60
+  },
+  "green/test-accept-backend-2.log": {
+    "stored_path": "green/test-accept-backend-2.log.gz",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "uncompressed_length": 0,
+    "stored_length": 20
+  },
+  "green/test-accept-backend-typecheck.log": {
+    "stored_path": "green/test-accept-backend-typecheck.log.gz",
+    "uncompressed_sha256": "009c3aa7981b5325009f1794b22987c3279b6810c52c3df95647047eb236e1a4",
+    "uncompressed_length": 72,
+    "stored_length": 88
+  },
+  "green/test-accept-backend.log": {
+    "stored_path": "green/test-accept-backend.log.gz",
+    "uncompressed_sha256": "5b281e3d47a352dd4709a25def0bf1960d5f9a11795936a8108e02bf936e7cda",
+    "uncompressed_length": 15703,
+    "stored_length": 3189
+  },
+  "green/test-accept-hitl-1.log": {
+    "stored_path": "green/test-accept-hitl-1.log.gz",
+    "uncompressed_sha256": "453090e1cd5e44998f6fdd40496b2122333c719aad668bab06a42f2bf34605e9",
+    "uncompressed_length": 42,
+    "stored_length": 60
+  },
+  "green/test-accept-hitl-2.log": {
+    "stored_path": "green/test-accept-hitl-2.log.gz",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "uncompressed_length": 0,
+    "stored_length": 20
+  },
+  "green/test-accept-live-1.log": {
+    "stored_path": "green/test-accept-live-1.log.gz",
+    "uncompressed_sha256": "453090e1cd5e44998f6fdd40496b2122333c719aad668bab06a42f2bf34605e9",
+    "uncompressed_length": 42,
+    "stored_length": 60
+  },
+  "green/test-accept-live-2.log": {
+    "stored_path": "green/test-accept-live-2.log.gz",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "uncompressed_length": 0,
+    "stored_length": 20
+  },
+  "green/test-accept-live-ai.log": {
+    "stored_path": "green/test-accept-live-ai.log.gz",
+    "uncompressed_sha256": "600fb7bbbd28089a80306ba05cc3ad7a1fd280c8492e40e933c9405045c3a582",
+    "uncompressed_length": 34335,
+    "stored_length": 2599
+  },
+  "green/test-accept-postgres-1.log": {
+    "stored_path": "green/test-accept-postgres-1.log.gz",
+    "uncompressed_sha256": "453090e1cd5e44998f6fdd40496b2122333c719aad668bab06a42f2bf34605e9",
+    "uncompressed_length": 42,
+    "stored_length": 60
+  },
+  "green/test-accept-postgres-2.log": {
+    "stored_path": "green/test-accept-postgres-2.log.gz",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "uncompressed_length": 0,
+    "stored_length": 20
+  },
+  "green/test-accept-postgres.log": {
+    "stored_path": "green/test-accept-postgres.log.gz",
+    "uncompressed_sha256": "6a940474f398348e94e9ca1c8bbdd4c636e95027d175dab948e063436b96934a",
+    "uncompressed_length": 799,
+    "stored_length": 457
+  },
+  "green/test-accept-python-1.log": {
+    "stored_path": "green/test-accept-python-1.log.gz",
+    "uncompressed_sha256": "453090e1cd5e44998f6fdd40496b2122333c719aad668bab06a42f2bf34605e9",
+    "uncompressed_length": 42,
+    "stored_length": 60
+  },
+  "green/test-accept-python-2.log": {
+    "stored_path": "green/test-accept-python-2.log.gz",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "uncompressed_length": 0,
+    "stored_length": 20
+  },
+  "green/test-accept-python.log": {
+    "stored_path": "green/test-accept-python.log.gz",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "uncompressed_length": 0,
+    "stored_length": 20
+  },
+  "green/test-accept-rejection-1.log": {
+    "stored_path": "green/test-accept-rejection-1.log.gz",
+    "uncompressed_sha256": "453090e1cd5e44998f6fdd40496b2122333c719aad668bab06a42f2bf34605e9",
+    "uncompressed_length": 42,
+    "stored_length": 60
+  },
+  "green/test-accept-rejection-2.log": {
+    "stored_path": "green/test-accept-rejection-2.log.gz",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "uncompressed_length": 0,
+    "stored_length": 20
+  },
+  "green/test-accept-typescript-1.log": {
+    "stored_path": "green/test-accept-typescript-1.log.gz",
+    "uncompressed_sha256": "453090e1cd5e44998f6fdd40496b2122333c719aad668bab06a42f2bf34605e9",
+    "uncompressed_length": 42,
+    "stored_length": 60
+  },
+  "green/test-accept-typescript-2.log": {
+    "stored_path": "green/test-accept-typescript-2.log.gz",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "uncompressed_length": 0,
+    "stored_length": 20
+  },
+  "green/test-accept-typescript.log": {
+    "stored_path": "green/test-accept-typescript.log.gz",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "uncompressed_length": 0,
+    "stored_length": 20
+  },
+  "green/test-accept-unit-1.log": {
+    "stored_path": "green/test-accept-unit-1.log.gz",
+    "uncompressed_sha256": "453090e1cd5e44998f6fdd40496b2122333c719aad668bab06a42f2bf34605e9",
+    "uncompressed_length": 42,
+    "stored_length": 60
+  },
+  "green/test-accept-unit-2.log": {
+    "stored_path": "green/test-accept-unit-2.log.gz",
+    "uncompressed_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "uncompressed_length": 0,
+    "stored_length": 20
+  },
+  "green/test-accept-unit.log": {
+    "stored_path": "green/test-accept-unit.log.gz",
+    "uncompressed_sha256": "5cb94471808356aaea7a4f8560cbc16bbef7d73312295042e1d45ef1848cba5b",
+    "uncompressed_length": 1970,
+    "stored_length": 538
+  },
+  "red/alembic-upgrade.log": {
+    "stored_path": "red/alembic-upgrade.log.gz",
+    "uncompressed_sha256": "7ec3c57a30befa6c369684deceb8ad52857886277fb202b9020a9dcd590dccef",
+    "uncompressed_length": 2145,
+    "stored_length": 655
+  },
+  "red/backend-migration.log": {
+    "stored_path": "red/backend-migration.log.gz",
+    "uncompressed_sha256": "9b03574f0aff79196ce1e4e92362cae7bfb4baa67abbafc182c2cf751bf167f0",
+    "uncompressed_length": 2504,
+    "stored_length": 514
+  },
+  "red/provision-1.log": {
+    "stored_path": "red/provision-1.log.gz",
+    "uncompressed_sha256": "7fd0d150e4bc1ca9b071b81ea6d7fb9c55ae8c030eb61c2c0e7c247f3521bf7c",
+    "uncompressed_length": 66,
+    "stored_length": 74
+  },
+  "red/provision-2.log": {
+    "stored_path": "red/provision-2.log.gz",
+    "uncompressed_sha256": "ecce58c8a8f45d5345a510259556c304467920bb9a8f3b65375e4707c2d03bd8",
+    "uncompressed_length": 17,
+    "stored_length": 35
+  },
+  "red/provision-3.log": {
+    "stored_path": "red/provision-3.log.gz",
+    "uncompressed_sha256": "1306446414eec832b8646d7e8be8b79d7416b245ff06cfbfc88b1933cce18c9b",
+    "uncompressed_length": 66,
+    "stored_length": 75
+  },
+  "red/provision-4.log": {
+    "stored_path": "red/provision-4.log.gz",
+    "uncompressed_sha256": "c88c5aaa49e729cb7d039f362dd0f0afbfcc71c019410459e4bc67ee97927956",
+    "uncompressed_length": 17,
+    "stored_length": 35
+  },
+  "red/RED-p1-memory-entity.live.test.ts": {
+    "stored_path": "red/RED-p1-memory-entity.live.test.ts.gz",
+    "uncompressed_sha256": "d4ea86b1d10f045e58481fef5ddcb6972182424573a4f4b4c5fb4598ea6147d1",
+    "uncompressed_length": 29664,
+    "stored_length": 6545
+  },
+  "red/RED-test-overlay.patch": {
+    "stored_path": "red/RED-test-overlay.patch.gz",
+    "uncompressed_sha256": "3a7489cc1fdbe9f556c40aa00a803daceeeaeadde6b7c6fbd527a078dffb077b",
+    "uncompressed_length": 2459,
+    "stored_length": 970
+  },
+  "red/RED-test_atomic_group_rejection.py": {
+    "stored_path": "red/RED-test_atomic_group_rejection.py.gz",
+    "uncompressed_sha256": "978979a09204209c6f6a46270aba8bfbafc47d52c82df6e9bf3a67c5869d2b6f",
+    "uncompressed_length": 9618,
+    "stored_length": 2880
+  },
+  "red/test-red-live-ai.log": {
+    "stored_path": "red/test-red-live-ai.log.gz",
+    "uncompressed_sha256": "78188b483f8b4a262cace5028b5328f7104efe46311b5b9c4e9163575d591977",
+    "uncompressed_length": 12612,
+    "stored_length": 1126
+  },
+  "red/test-red-live.log": {
+    "stored_path": "red/test-red-live.log.gz",
+    "uncompressed_sha256": "2b5fc15ed804b1e8cb8f7cf990acb48a49cc94c4960ca5dc1806a9a83bf0316d",
+    "uncompressed_length": 107605,
+    "stored_length": 5711
+  }
+}

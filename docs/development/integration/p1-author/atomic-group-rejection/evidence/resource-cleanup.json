@@ -1,0 +1,138 @@
+{
+  "utc": "2026-10-24T06:27:42.066511+00:00",
+  "resources": [
+    {
+      "phase": "red",
+      "container": "astra-group-reject-51c44309-pg",
+      "label": {
+        "astra.task": "p1-atomic-group-rejection"
+      },
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "command": [
+        "docker",
+        "stop",
+        "astra-group-reject-51c44309-pg"
+      ],
+      "exit_code": 0,
+      "state_after": "exited",
+      "mounts_retained": [
+        {
+          "Type": "volume",
+          "Name": "9bb34b155f1a4ef81f4f9e1f4cef7b73c4c259777be98c2de532439e83b217d6",
+          "Source": "/var/lib/docker/volumes/9bb34b155f1a4ef81f4f9e1f4cef7b73c4c259777be98c2de532439e83b217d6/_data",
+          "Destination": "/var/lib/postgresql/data",
+          "Driver": "local",
+          "Mode": "",
+          "RW": true,
+          "Propagation": ""
+        }
+      ]
+    },
+    {
+      "phase": "red",
+      "container": "astra-group-reject-51c44309-mongo",
+      "label": {
+        "astra.task": "p1-atomic-group-rejection",
+        "org.opencontainers.image.version": "22.04"
+      },
+      "image_id": "sha256:9bdaeb6dac6e7e762e84e2f84103d1f9bb078fa1ba6bde8bb9d2274f655ad173",
+      "command": [
+        "docker",
+        "stop",
+        "astra-group-reject-51c44309-mongo"
+      ],
+      "exit_code": 0,
+      "state_after": "exited",
+      "mounts_retained": [
+        {
+          "Type": "volume",
+          "Name": "cb70ec29dea1e784644e7827af29cc933fd5912087b8a26b26cf08db429b86db",
+          "Source": "/var/lib/docker/volumes/cb70ec29dea1e784644e7827af29cc933fd5912087b8a26b26cf08db429b86db/_data",
+          "Destination": "/data/db",
+          "Driver": "local",
+          "Mode": "",
+          "RW": true,
+          "Propagation": ""
+        },
+        {
+          "Type": "volume",
+          "Name": "76863137e239c3625095b1cefe3189291d51d8811eb5f7f358595fb452ba18d0",
+          "Source": "/var/lib/docker/volumes/76863137e239c3625095b1cefe3189291d51d8811eb5f7f358595fb452ba18d0/_data",
+          "Destination": "/data/configdb",
+          "Driver": "local",
+          "Mode": "",
+          "RW": true,
+          "Propagation": ""
+        }
+      ]
+    },
+    {
+      "phase": "final",
+      "container": "astra-group-reject-2e286818-pg",
+      "label": {
+        "astra.task": "p1-atomic-group-rejection"
+      },
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "command": [
+        "docker",
+        "stop",
+        "astra-group-reject-2e286818-pg"
+      ],
+      "exit_code": 0,
+      "state_after": "exited",
+      "mounts_retained": [
+        {
+          "Type": "volume",
+          "Name": "f945245fc698d21890fed1b16950d29d382886605716132ec4f336c1bfa4a3aa",
+          "Source": "/var/lib/docker/volumes/f945245fc698d21890fed1b16950d29d382886605716132ec4f336c1bfa4a3aa/_data",
+          "Destination": "/var/lib/postgresql/data",
+          "Driver": "local",
+          "Mode": "",
+          "RW": true,
+          "Propagation": ""
+        }
+      ]
+    },
+    {
+      "phase": "final",
+      "container": "astra-group-reject-2e286818-mongo",
+      "label": {
+        "astra.task": "p1-atomic-group-rejection",
+        "org.opencontainers.image.version": "22.04"
+      },
+      "image_id": "sha256:9bdaeb6dac6e7e762e84e2f84103d1f9bb078fa1ba6bde8bb9d2274f655ad173",
+      "command": [
+        "docker",
+        "stop",
+        "astra-group-reject-2e286818-mongo"
+      ],
+      "exit_code": 0,
+      "state_after": "exited",
+      "mounts_retained": [
+        {
+          "Type": "volume",
+          "Name": "5e8f4c1a7705079ac7a4daa221a6abc171e77bf92a99f5f95c5a73ee895ff5d8",
+          "Source": "/var/lib/docker/volumes/5e8f4c1a7705079ac7a4daa221a6abc171e77bf92a99f5f95c5a73ee895ff5d8/_data",
+          "Destination": "/data/configdb",
+          "Driver": "local",
+          "Mode": "",
+          "RW": true,
+          "Propagation": ""
+        },
+        {
+          "Type": "volume",
+          "Name": "f5a56b12f48308071a2381995fcabdcb78bdab23025b850e26858b37b1dfe1cf",
+          "Source": "/var/lib/docker/volumes/f5a56b12f48308071a2381995fcabdcb78bdab23025b850e26858b37b1dfe1cf/_data",
+          "Destination": "/data/db",
+          "Driver": "local",
+          "Mode": "",
+          "RW": true,
+          "Propagation": ""
+        }
+      ]
+    }
+  ],
+  "containers_removed": false,
+  "volumes_removed": false,
+  "other_task_resources_touched": false
+}

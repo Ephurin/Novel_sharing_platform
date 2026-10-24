@@ -1,0 +1,12 @@
+[
+  {
+    "name": "isolated_real_databases_fake_only",
+    "status": "PASS",
+    "details": null
+  },
+  {
+    "name": "outbound_hash_776c02c0-c0fa-53cf-98e3-8c37b4569242",
+    "status": "PASS",
+    "details": null
+  }
+]

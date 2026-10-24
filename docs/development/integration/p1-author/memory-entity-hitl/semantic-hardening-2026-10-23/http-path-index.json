@@ -1,0 +1,9 @@
+[
+  {
+    "record_index": 36,
+    "logged_logical_path": "/proposal-groups/homonym-group/accept",
+    "actual_path_reconstructed_from_same_run_queue": "/proposal-groups/7234ff09-6708-5b21-913a-2ef27095eae6/accept",
+    "queue_record_index": 35,
+    "note": "The raw diagnostic uses a logical label. Source builds the actual URL from this captured queue group ID; raw log/parsed record are unchanged."
+  }
+]

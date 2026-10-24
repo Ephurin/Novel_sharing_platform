@@ -1,5 +1,8 @@
+import { chapterScheduleController } from './chapter-schedules.js';
+import { chapterLifecycleController } from './chapter-lifecycle.js';
+import { requireActiveAccount } from '../../core/security/active-account.js';
 import { Router } from 'express';
-import { requireAuth, requireRoles } from '../../core/security/auth.middleware.js';
+import { optionalAuth, requireAuth, requireRoles } from '../../core/security/auth.middleware.js';
 import { validateRequest } from '../../core/validation/validate.js';
 import {
   getChapterController,
@@ -22,9 +25,9 @@ import {
 
 export const chaptersRoutes = Router();
 
-const requireAuthor = [requireAuth, requireRoles(['AUTHOR', 'ADMIN'])];
+const requireAuthor = [requireAuth, requireActiveAccount, requireRoles(['AUTHOR', 'ADMIN'])];
 
-chaptersRoutes.get('/:chapterId', validateRequest(chapterIdParamSchema), getChapterController);
+chaptersRoutes.get('/:chapterId', ...requireAuthor, validateRequest(chapterIdParamSchema), getChapterController);
 chaptersRoutes.patch('/:chapterId', ...requireAuthor, validateRequest(updateChapterSchema), updateChapterController);
 chaptersRoutes.post(
   '/:chapterId/submit-publish',
@@ -59,3 +62,9 @@ chaptersRoutes.get(
   getRevisionController
 );
 
+
+chaptersRoutes.post('/:chapterId/:action(archive|restore)', ...requireAuthor, chapterLifecycleController);
+chaptersRoutes.delete('/:chapterId', ...requireAuthor, chapterLifecycleController);
+
+chaptersRoutes.post('/:chapterId/schedule', ...requireAuthor, chapterScheduleController);
+chaptersRoutes.delete('/:chapterId/schedule', ...requireAuthor, chapterScheduleController);

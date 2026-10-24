@@ -1,0 +1,132 @@
+{
+  "timestamp": "2026-10-23T07:11:00Z",
+  "sourceCommitSha": "0d4b524ec6f0dc7f22dcf3b0a55e31c9220930aa",
+  "matrixScenarios": [
+    {
+      "id": "Matrix 1",
+      "description": "Guard fails before setup",
+      "faultInjected": "Mismatched DB name on authorize",
+      "expected": "Zero database mutations; fail-closed",
+      "status": "PASS",
+      "mutationsAttempted": 0,
+      "residualRecords": 0
+    },
+    {
+      "id": "Matrix 2",
+      "description": "Failure after first PostgreSQL fixture INSERT",
+      "faultInjected": "Simulated error thrown after user insert",
+      "expected": "User deleted during teardown; zero residuals",
+      "status": "PASS",
+      "mutationsAttempted": 1,
+      "residualRecords": 0
+    },
+    {
+      "id": "Matrix 3",
+      "description": "Failure during PostgreSQL fixture setup",
+      "faultInjected": "Simulated error thrown after novel insert before chapter",
+      "expected": "Both novel and user deleted; zero residuals",
+      "status": "PASS",
+      "mutationsAttempted": 2,
+      "residualRecords": 0
+    },
+    {
+      "id": "Matrix 4",
+      "description": "Failure before Mongo fixture creation",
+      "faultInjected": "All PG records inserted, error thrown before Mongo",
+      "expected": "All PG records safely cleaned; zero residuals",
+      "status": "PASS",
+      "mutationsAttempted": 5,
+      "residualRecords": 0
+    },
+    {
+      "id": "Matrix 5",
+      "description": "Failure immediately after Mongo insertion",
+      "faultInjected": "Mongo draft chapter inserted, error thrown immediately",
+      "expected": "Mongo draft document deleted; zero residuals",
+      "status": "PASS",
+      "mutationsAttempted": 1,
+      "residualRecords": 0
+    },
+    {
+      "id": "Matrix 6",
+      "description": "Failure midway through sentinel creation",
+      "faultInjected": "Sentinel user inserted, error thrown before sentinel novel",
+      "expected": "Sentinel user cleaned; uncreated sentinel novel NOT misclassified as corruption",
+      "status": "PASS",
+      "mutationsAttempted": 1,
+      "residualRecords": 0
+    },
+    {
+      "id": "Matrix 7",
+      "description": "Failure during ordinary test execution",
+      "faultInjected": "Simulated test assertion error while tests running",
+      "expected": "Sentinels preserved; fixtures cleaned; sentinels cleaned in step 10",
+      "status": "PASS",
+      "mutationsAttempted": 2,
+      "residualRecords": 0
+    },
+    {
+      "id": "Matrix 8",
+      "description": "First cleanup operation fails",
+      "faultInjected": "Proxy pool fails on DELETE FROM revision_outbox_events",
+      "expected": "Chapters, novels, users STILL deleted independently; error surfaced",
+      "status": "PASS",
+      "mutationsAttempted": 4,
+      "errorReported": true
+    },
+    {
+      "id": "Matrix 9",
+      "description": "Successful complete run",
+      "faultInjected": "None (nominal path)",
+      "expected": "All fixtures and sentinels cleaned; zero residuals across PG and MongoDB",
+      "status": "PASS",
+      "mutationsAttempted": 9,
+      "residualRecords": 0
+    },
+    {
+      "id": "Matrix 10 (P2-A)",
+      "description": "Repeated cleanup with PostgreSQL and MongoDB sentinels",
+      "faultInjected": "Second cleanup called on already CLEANED instance",
+      "expected": "Idempotent safe no-op; ZERO additional mutations; no exceptions",
+      "status": "PASS",
+      "firstCleanupMutations": 5,
+      "secondCleanupMutations": 0,
+      "unrelatedSentinelPreserved": true,
+      "residualRecords": 0
+    },
+    {
+      "id": "Matrix 11 (P2-B)",
+      "description": "Per-ID cleanup fault tolerance across multiple IDs in the same group",
+      "faultInjected": "Injected deletion failure on uId1 out of 3 users (uId1, uId2, uId3)",
+      "expected": "uId2 and uId3 STILL deleted; uId1 reported as failed ID in AggregateError",
+      "status": "PASS",
+      "attemptedIds": 3,
+      "failedIds": ["uId1"],
+      "successfulIds": ["uId2", "uId3"],
+      "residualAfterStep": 1,
+      "suiteFailedAsExpected": true
+    },
+    {
+      "id": "Matrix 12 (P2-B)",
+      "description": "Sentinel-group per-ID deletion fault tolerance",
+      "faultInjected": "Injected deletion failure on sentinel user sU1 out of 2 sentinel users",
+      "expected": "Sentinel sU2 STILL deleted; sU1 reported as failed sentinel in AggregateError",
+      "status": "PASS",
+      "attemptedSentinelIds": 2,
+      "failedSentinelIds": ["sU1"],
+      "successfulSentinelIds": ["sU2"],
+      "residualAfterStep": 1,
+      "suiteFailedAsExpected": true
+    },
+    {
+      "id": "Matrix 13",
+      "description": "Recoverable retry following CLEANUP_FAILED restores clean state",
+      "faultInjected": "Transient database lock on first cleanup attempt",
+      "expected": "First attempt fails into CLEANUP_FAILED; retry cleans remaining record into CLEANED",
+      "status": "PASS",
+      "firstAttemptStatus": "CLEANUP_FAILED",
+      "secondAttemptStatus": "CLEANED",
+      "residualRecords": 0
+    }
+  ]
+}

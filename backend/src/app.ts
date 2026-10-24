@@ -1,3 +1,5 @@
+import { mediaRoutes } from './modules/media/media.routes.js';
+import { novelEngagementRoutes } from './modules/interactions/novel-engagement.routes.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import express from 'express';
@@ -46,6 +48,7 @@ export function createApp() {
     })
   );
   app.use(cookieParser());
+  app.use(`${env.API_PREFIX}/media`, mediaRoutes);
   app.use(express.json({ limit: '1mb' }));
 
   app.get(`${env.API_PREFIX}/health`, (_request, response) => {
@@ -74,6 +77,7 @@ export function createApp() {
   app.use(`${env.API_PREFIX}`, commentsRoutes);
   app.use(`${env.API_PREFIX}`, notificationRoutes);
   app.use(`${env.API_PREFIX}`, socialRoutes);
+  app.use(`${env.API_PREFIX}`, novelEngagementRoutes);
   app.use(`${env.API_PREFIX}`, walletResourceRoutes);
 
   // Internal server-to-server endpoints (e.g. AI Service)

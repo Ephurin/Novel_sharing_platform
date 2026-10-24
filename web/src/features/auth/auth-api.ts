@@ -20,3 +20,5 @@ export async function logout() {
   const response = await apiClient.post<ApiEnvelope<{ loggedOut: boolean }>>('/auth/logout');
   return response.data.data;
 }
+
+export async function becomeAuthor() { return (await apiClient.post<ApiEnvelope<AuthSession>>('/auth/become-author')).data.data; }

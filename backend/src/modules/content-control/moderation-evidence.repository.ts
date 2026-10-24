@@ -1,4 +1,6 @@
 import { ObjectId } from 'mongodb';
+import type { PoolClient } from 'pg';
+import { getPostgresPool } from '../../core/database/postgres.js';
 import { getMongoDatabase } from '../../core/database/mongo.js';
 import type { MatchedRule, ModerationSource, ModerationTargetType } from './content-control.types.js';
 
@@ -11,8 +13,8 @@ export async function createModerationEvidence(input: {
   source: ModerationSource;
   matchedRules: MatchedRule[];
   summary: string;
-}) {
-  const result = await getMongoDatabase().collection(collectionName).insertOne({
+}, client?: PoolClient) {
+  const evidence = {
     targetType: input.targetType,
     targetId: input.targetId,
     riskLevel: input.riskLevel,
@@ -25,7 +27,14 @@ export async function createModerationEvidence(input: {
     })),
     summary: input.summary,
     createdAt: new Date()
-  });
+  };
+
+  if (client) {
+    const id = new ObjectId().toString();
+    await client.query('insert into moderation_evidence(evidence_id,payload) values($1,$2)', [id, evidence]);
+    return id;
+  }
+  const result = await getMongoDatabase().collection(collectionName).insertOne(evidence);
 
   return result.insertedId.toString();
 }
@@ -34,6 +43,9 @@ export async function findModerationEvidence(evidenceId: string | null) {
   if (!evidenceId) {
     return null;
   }
+
+  const stored = await getPostgresPool().query('select payload from moderation_evidence where evidence_id=$1', [evidenceId]);
+  if (stored.rows[0]) return stored.rows[0].payload;
 
   return getMongoDatabase()
     .collection(collectionName)

@@ -1,0 +1,157 @@
+{
+  "stopped": true,
+  "volumes_preserved": true,
+  "verification": "Compare mounts by destination; Docker may reorder Mounts array",
+  "initial_verifier_exit": 1,
+  "initial_verifier_reason": "Unordered Mounts array comparison after successful docker stop; corrected without resource mutation",
+  "commands": [
+    {
+      "command": [
+        "docker",
+        "stop",
+        "astra-p1-identity-0d96bb94-pg",
+        "astra-p1-identity-0d96bb94-mongo",
+        "astra-p1-identity-eef5a1b6-pg",
+        "astra-p1-identity-eef5a1b6-mongo",
+        "astra-p1-identity-39ad5d85-pg",
+        "astra-p1-identity-39ad5d85-mongo"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "containers": [
+    {
+      "name": "/astra-p1-identity-0d96bb94-pg",
+      "id": "c169e9bf0f713e6cdcca608d824db6a1a25e01f595dd09d746e88026fdf8c56e",
+      "status": "exited",
+      "mounts": [
+        {
+          "Type": "volume",
+          "Name": "52e74b15c87be6e6bb3896448bc2877134a6aa1603770ead26baf3d3ed9c97a0",
+          "Source": "/var/lib/docker/volumes/52e74b15c87be6e6bb3896448bc2877134a6aa1603770ead26baf3d3ed9c97a0/_data",
+          "Destination": "/var/lib/postgresql/data",
+          "Driver": "local",
+          "Mode": "",
+          "RW": true,
+          "Propagation": ""
+        }
+      ]
+    },
+    {
+      "name": "/astra-p1-identity-0d96bb94-mongo",
+      "id": "661c3c1e93f89b986c9da9a4b0b41e799f0510045bd4929ee09c729d6bab635b",
+      "status": "exited",
+      "mounts": [
+        {
+          "Type": "volume",
+          "Name": "cdd800792fcfd3291cdcdd9e98b3abcb9d41250f2fb9a296955b1038966a8614",
+          "Source": "/var/lib/docker/volumes/cdd800792fcfd3291cdcdd9e98b3abcb9d41250f2fb9a296955b1038966a8614/_data",
+          "Destination": "/data/db",
+          "Driver": "local",
+          "Mode": "",
+          "RW": true,
+          "Propagation": ""
+        },
+        {
+          "Type": "volume",
+          "Name": "43c3e5333e9d4bdd52a07ad8d1f0551bcdb4e02a8b78b3a15080855116ba43c8",
+          "Source": "/var/lib/docker/volumes/43c3e5333e9d4bdd52a07ad8d1f0551bcdb4e02a8b78b3a15080855116ba43c8/_data",
+          "Destination": "/data/configdb",
+          "Driver": "local",
+          "Mode": "",
+          "RW": true,
+          "Propagation": ""
+        }
+      ]
+    },
+    {
+      "name": "/astra-p1-identity-eef5a1b6-pg",
+      "id": "53dd9faaeb570436471f31dc0c429bfeb98a8a27c8f9bb0bd6656eb87c05ee39",
+      "status": "exited",
+      "mounts": [
+        {
+          "Type": "volume",
+          "Name": "ea1d6514aa7d47e3020ad5bcb658069d403b24c867d1ad5f337220d761ae5c6b",
+          "Source": "/var/lib/docker/volumes/ea1d6514aa7d47e3020ad5bcb658069d403b24c867d1ad5f337220d761ae5c6b/_data",
+          "Destination": "/var/lib/postgresql/data",
+          "Driver": "local",
+          "Mode": "",
+          "RW": true,
+          "Propagation": ""
+        }
+      ]
+    },
+    {
+      "name": "/astra-p1-identity-eef5a1b6-mongo",
+      "id": "6ff331fc14b5f4e912e65e2a98f82245f2ee99de4330ce2fa8109b7b5b7565e5",
+      "status": "exited",
+      "mounts": [
+        {
+          "Type": "volume",
+          "Name": "e2ca5b1329c7d08df87003773481cac23ea77e3e947acc5d8b4ab1277c48fd89",
+          "Source": "/var/lib/docker/volumes/e2ca5b1329c7d08df87003773481cac23ea77e3e947acc5d8b4ab1277c48fd89/_data",
+          "Destination": "/data/configdb",
+          "Driver": "local",
+          "Mode": "",
+          "RW": true,
+          "Propagation": ""
+        },
+        {
+          "Type": "volume",
+          "Name": "c6950dc7596c7c362f942037371d380866bd184096ba96bb338567305804299f",
+          "Source": "/var/lib/docker/volumes/c6950dc7596c7c362f942037371d380866bd184096ba96bb338567305804299f/_data",
+          "Destination": "/data/db",
+          "Driver": "local",
+          "Mode": "",
+          "RW": true,
+          "Propagation": ""
+        }
+      ]
+    },
+    {
+      "name": "/astra-p1-identity-39ad5d85-pg",
+      "id": "a56ab911f6bb8a3a35976a8fb1a2eedb956d2d64c17d339e35b343d7e453cb05",
+      "status": "exited",
+      "mounts": [
+        {
+          "Type": "volume",
+          "Name": "94fbc6dcf6ed085607344fcc4d301d2c854056ec7de2c7630ca86230116a4709",
+          "Source": "/var/lib/docker/volumes/94fbc6dcf6ed085607344fcc4d301d2c854056ec7de2c7630ca86230116a4709/_data",
+          "Destination": "/var/lib/postgresql/data",
+          "Driver": "local",
+          "Mode": "",
+          "RW": true,
+          "Propagation": ""
+        }
+      ]
+    },
+    {
+      "name": "/astra-p1-identity-39ad5d85-mongo",
+      "id": "4e448ba05c093bc40c6e5e04447d8615a87783330a9864dfd85503fafb86b644",
+      "status": "exited",
+      "mounts": [
+        {
+          "Type": "volume",
+          "Name": "2dee744e68b8c03b7e391f5bf869cfcc0a9fbda6315a97a8eb1db04d2431942a",
+          "Source": "/var/lib/docker/volumes/2dee744e68b8c03b7e391f5bf869cfcc0a9fbda6315a97a8eb1db04d2431942a/_data",
+          "Destination": "/data/configdb",
+          "Driver": "local",
+          "Mode": "",
+          "RW": true,
+          "Propagation": ""
+        },
+        {
+          "Type": "volume",
+          "Name": "3878efb34220b7cd211d7037e99bce92f91aacb9bd3fd60a0fe0323886566a57",
+          "Source": "/var/lib/docker/volumes/3878efb34220b7cd211d7037e99bce92f91aacb9bd3fd60a0fe0323886566a57/_data",
+          "Destination": "/data/db",
+          "Driver": "local",
+          "Mode": "",
+          "RW": true,
+          "Propagation": ""
+        }
+      ]
+    }
+  ],
+  "verified_at_utc": "2026-10-23T17:00:59.608736+00:00"
+}

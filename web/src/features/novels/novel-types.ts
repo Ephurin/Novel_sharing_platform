@@ -6,6 +6,8 @@ export type Novel = {
   title: string;
   slug: string;
   synopsis: string;
+  authorNote: string | null;
+  genres: string[];
   coverImageUrl: string | null;
   status: NovelStatus;
   serialStatus: 'ONGOING' | 'COMPLETED' | 'HIATUS';
@@ -13,6 +15,17 @@ export type Novel = {
   likesCount: number;
   viewsCount: number;
   chaptersCount: number;
+  genreId: string | null;
+  genre: string | null;
+  latestChapter?: {
+    chapterId: string;
+    chapterNumber: number;
+    title: string;
+    status: ChapterStatus;
+    updatedAt: string;
+  } | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type ChapterStatus = 'DRAFT' | 'PENDING_MODERATION' | 'PUBLISHED' | 'REJECTED' | 'ARCHIVED';
@@ -27,6 +40,8 @@ export type Chapter = {
   isVip: boolean;
   priceCoins: number;
   status: ChapterStatus;
+  updatedAt: string;
+  publicationSchedule?: { scheduledAt: string; status: string; error: string | null } | null;
   draft?: {
     title: string;
     content: string;

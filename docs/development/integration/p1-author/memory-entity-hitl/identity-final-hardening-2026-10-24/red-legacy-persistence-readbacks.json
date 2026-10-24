@@ -1,0 +1,1173 @@
+[
+  {
+    "before": {
+      "story_brains": [
+        {
+          "id": "e44f3edf-c9fc-4182-ba9c-f91313d396b8",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "05db5d57-cbc9-4ce0-81f1-ba9a59529509",
+          "status": "active",
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "schema_version": 1,
+          "created_at": "2026-10-23 16:56:53.344579+00:00",
+          "updated_at": "2026-10-23 16:56:53.344579+00:00",
+          "entity_guidance": null
+        }
+      ],
+      "entities": [
+        {
+          "id": "2bce937d-7c08-4a77-b555-ed2e037590b3",
+          "story_brain_id": "e44f3edf-c9fc-4182-ba9c-f91313d396b8",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "05db5d57-cbc9-4ce0-81f1-ba9a59529509",
+          "entity_type": "PER",
+          "canonical_name": "Minh",
+          "normalized_name": "minh",
+          "description": null,
+          "static_attributes": {},
+          "source_type": "author",
+          "confirmation_status": "confirmed",
+          "confidence": null,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23 16:56:53.400498+00:00",
+          "updated_at": "2026-10-23 16:56:53.400498+00:00"
+        },
+        {
+          "id": "6091f552-32e8-4ae7-9081-891d68ac8afb",
+          "story_brain_id": "e44f3edf-c9fc-4182-ba9c-f91313d396b8",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "05db5d57-cbc9-4ce0-81f1-ba9a59529509",
+          "entity_type": "PER",
+          "canonical_name": "Lan",
+          "normalized_name": "lan",
+          "description": null,
+          "static_attributes": {},
+          "source_type": "author",
+          "confirmation_status": "confirmed",
+          "confidence": null,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23 16:56:53.591118+00:00",
+          "updated_at": "2026-10-23 16:56:53.591118+00:00"
+        },
+        {
+          "id": "fdb3773c-08a6-4896-9c5a-321c011410e8",
+          "story_brain_id": "e44f3edf-c9fc-4182-ba9c-f91313d396b8",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "05db5d57-cbc9-4ce0-81f1-ba9a59529509",
+          "entity_type": "PER",
+          "canonical_name": "Minh",
+          "normalized_name": "minh",
+          "description": null,
+          "static_attributes": {},
+          "source_type": "author",
+          "confirmation_status": "confirmed",
+          "confidence": null,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23 16:56:53.400498+00:00",
+          "updated_at": "2026-10-23 16:56:53.400498+00:00"
+        }
+      ],
+      "relationships": [
+        {
+          "id": "1d17ab7a-7793-4521-bc02-a86c7958769b",
+          "story_brain_id": "e44f3edf-c9fc-4182-ba9c-f91313d396b8",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "05db5d57-cbc9-4ce0-81f1-ba9a59529509",
+          "subject_name": "Minh",
+          "relation_type": "ally",
+          "object_name": "Lan",
+          "source_type": "author",
+          "is_locked": true,
+          "relation_metadata": {
+            "object_entity_id": "6091f552-32e8-4ae7-9081-891d68ac8afb",
+            "subject_entity_id": "2bce937d-7c08-4a77-b555-ed2e037590b3"
+          },
+          "created_at": "2026-10-23 16:56:53.595460+00:00"
+        }
+      ],
+      "events": [],
+      "facts": [],
+      "proposals": [
+        {
+          "id": "a115bf0a-4fb6-470e-9ebe-778ba86588d6",
+          "analysis_run_id": "d3809f02-3f22-4fcb-ae12-a6ef00d85327",
+          "story_brain_id": "e44f3edf-c9fc-4182-ba9c-f91313d396b8",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "05db5d57-cbc9-4ce0-81f1-ba9a59529509",
+          "dependency_group_id": "17f6f755-07f9-47c0-820a-c7d3ed9fc19c",
+          "materialization_order": 1,
+          "proposal_type": "fact",
+          "payload": {
+            "fact_key": "mood",
+            "fact_value": "calm",
+            "subject_entity_id": "fdb3773c-08a6-4896-9c5a-321c011410e8"
+          },
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "723ae7f3-0c57-453c-9223-e2e964e93d86",
+              "revision_id": "7332b96d-39b9-422f-b289-2459407b2e2c",
+              "chapter_number": 1
+            }
+          ],
+          "confidence": null,
+          "status": "pending",
+          "expected_brain_version": 1,
+          "decision_reason": null,
+          "created_at": "2026-10-23 16:56:53.622759+00:00",
+          "updated_at": "2026-10-23 16:56:53.622759+00:00"
+        },
+        {
+          "id": "b535bb7a-596c-4201-a65b-258ea43ed8a7",
+          "analysis_run_id": "d3809f02-3f22-4fcb-ae12-a6ef00d85327",
+          "story_brain_id": "e44f3edf-c9fc-4182-ba9c-f91313d396b8",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "05db5d57-cbc9-4ce0-81f1-ba9a59529509",
+          "dependency_group_id": "17f6f755-07f9-47c0-820a-c7d3ed9fc19c",
+          "materialization_order": 0,
+          "proposal_type": "event",
+          "payload": {
+            "chapter": 1,
+            "summary": "Minh bên trái gặp Minh bên phải.",
+            "event_id": "b535bb7a-596c-4201-a65b-258ea43ed8a7",
+            "event_type": "meeting",
+            "participants": [
+              "fdb3773c-08a6-4896-9c5a-321c011410e8",
+              "6091f552-32e8-4ae7-9081-891d68ac8afb"
+            ]
+          },
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "723ae7f3-0c57-453c-9223-e2e964e93d86",
+              "revision_id": "7332b96d-39b9-422f-b289-2459407b2e2c",
+              "chapter_number": 1
+            }
+          ],
+          "confidence": null,
+          "status": "pending",
+          "expected_brain_version": 1,
+          "decision_reason": null,
+          "created_at": "2026-10-23 16:56:53.622759+00:00",
+          "updated_at": "2026-10-23 16:56:53.622759+00:00"
+        },
+        {
+          "id": "c7b2f1e4-789b-4deb-b72f-50debc6d3f97",
+          "analysis_run_id": "d3809f02-3f22-4fcb-ae12-a6ef00d85327",
+          "story_brain_id": "e44f3edf-c9fc-4182-ba9c-f91313d396b8",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "05db5d57-cbc9-4ce0-81f1-ba9a59529509",
+          "dependency_group_id": "17f6f755-07f9-47c0-820a-c7d3ed9fc19c",
+          "materialization_order": 2,
+          "proposal_type": "state_transition",
+          "payload": {
+            "event_id": "b535bb7a-596c-4201-a65b-258ea43ed8a7",
+            "entity_id": "fdb3773c-08a6-4896-9c5a-321c011410e8",
+            "new_value": {
+              "6091f552-32e8-4ae7-9081-891d68ac8afb": "enemy"
+            },
+            "attribute_key": "active_relationships"
+          },
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "723ae7f3-0c57-453c-9223-e2e964e93d86",
+              "revision_id": "7332b96d-39b9-422f-b289-2459407b2e2c",
+              "chapter_number": 1
+            }
+          ],
+          "confidence": null,
+          "status": "pending",
+          "expected_brain_version": 1,
+          "decision_reason": null,
+          "created_at": "2026-10-23 16:56:53.622759+00:00",
+          "updated_at": "2026-10-23 16:56:53.622759+00:00"
+        }
+      ],
+      "state_transitions": [],
+      "current_entity_states": []
+    },
+    "after": {
+      "story_brains": [
+        {
+          "id": "e44f3edf-c9fc-4182-ba9c-f91313d396b8",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "05db5d57-cbc9-4ce0-81f1-ba9a59529509",
+          "status": "active",
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "schema_version": 1,
+          "created_at": "2026-10-23 16:56:53.344579+00:00",
+          "updated_at": "2026-10-23 16:56:53.344579+00:00",
+          "entity_guidance": null
+        }
+      ],
+      "entities": [
+        {
+          "id": "2bce937d-7c08-4a77-b555-ed2e037590b3",
+          "story_brain_id": "e44f3edf-c9fc-4182-ba9c-f91313d396b8",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "05db5d57-cbc9-4ce0-81f1-ba9a59529509",
+          "entity_type": "PER",
+          "canonical_name": "Minh",
+          "normalized_name": "minh",
+          "description": null,
+          "static_attributes": {},
+          "source_type": "author",
+          "confirmation_status": "confirmed",
+          "confidence": null,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23 16:56:53.400498+00:00",
+          "updated_at": "2026-10-23 16:56:53.400498+00:00"
+        },
+        {
+          "id": "6091f552-32e8-4ae7-9081-891d68ac8afb",
+          "story_brain_id": "e44f3edf-c9fc-4182-ba9c-f91313d396b8",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "05db5d57-cbc9-4ce0-81f1-ba9a59529509",
+          "entity_type": "PER",
+          "canonical_name": "Lan",
+          "normalized_name": "lan",
+          "description": null,
+          "static_attributes": {},
+          "source_type": "author",
+          "confirmation_status": "confirmed",
+          "confidence": null,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23 16:56:53.591118+00:00",
+          "updated_at": "2026-10-23 16:56:53.591118+00:00"
+        },
+        {
+          "id": "fdb3773c-08a6-4896-9c5a-321c011410e8",
+          "story_brain_id": "e44f3edf-c9fc-4182-ba9c-f91313d396b8",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "05db5d57-cbc9-4ce0-81f1-ba9a59529509",
+          "entity_type": "PER",
+          "canonical_name": "Minh",
+          "normalized_name": "minh",
+          "description": null,
+          "static_attributes": {},
+          "source_type": "author",
+          "confirmation_status": "confirmed",
+          "confidence": null,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23 16:56:53.400498+00:00",
+          "updated_at": "2026-10-23 16:56:53.400498+00:00"
+        }
+      ],
+      "relationships": [
+        {
+          "id": "1d17ab7a-7793-4521-bc02-a86c7958769b",
+          "story_brain_id": "e44f3edf-c9fc-4182-ba9c-f91313d396b8",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "05db5d57-cbc9-4ce0-81f1-ba9a59529509",
+          "subject_name": "Minh",
+          "relation_type": "ally",
+          "object_name": "Lan",
+          "source_type": "author",
+          "is_locked": true,
+          "relation_metadata": {
+            "object_entity_id": "6091f552-32e8-4ae7-9081-891d68ac8afb",
+            "subject_entity_id": "2bce937d-7c08-4a77-b555-ed2e037590b3"
+          },
+          "created_at": "2026-10-23 16:56:53.595460+00:00"
+        }
+      ],
+      "events": [],
+      "facts": [],
+      "proposals": [
+        {
+          "id": "a115bf0a-4fb6-470e-9ebe-778ba86588d6",
+          "analysis_run_id": "d3809f02-3f22-4fcb-ae12-a6ef00d85327",
+          "story_brain_id": "e44f3edf-c9fc-4182-ba9c-f91313d396b8",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "05db5d57-cbc9-4ce0-81f1-ba9a59529509",
+          "dependency_group_id": "17f6f755-07f9-47c0-820a-c7d3ed9fc19c",
+          "materialization_order": 1,
+          "proposal_type": "fact",
+          "payload": {
+            "fact_key": "mood",
+            "fact_value": "calm",
+            "subject_entity_id": "fdb3773c-08a6-4896-9c5a-321c011410e8"
+          },
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "723ae7f3-0c57-453c-9223-e2e964e93d86",
+              "revision_id": "7332b96d-39b9-422f-b289-2459407b2e2c",
+              "chapter_number": 1
+            }
+          ],
+          "confidence": null,
+          "status": "pending",
+          "expected_brain_version": 1,
+          "decision_reason": null,
+          "created_at": "2026-10-23 16:56:53.622759+00:00",
+          "updated_at": "2026-10-23 16:56:53.622759+00:00"
+        },
+        {
+          "id": "b535bb7a-596c-4201-a65b-258ea43ed8a7",
+          "analysis_run_id": "d3809f02-3f22-4fcb-ae12-a6ef00d85327",
+          "story_brain_id": "e44f3edf-c9fc-4182-ba9c-f91313d396b8",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "05db5d57-cbc9-4ce0-81f1-ba9a59529509",
+          "dependency_group_id": "17f6f755-07f9-47c0-820a-c7d3ed9fc19c",
+          "materialization_order": 0,
+          "proposal_type": "event",
+          "payload": {
+            "chapter": 1,
+            "summary": "Minh bên trái gặp Minh bên phải.",
+            "event_id": "b535bb7a-596c-4201-a65b-258ea43ed8a7",
+            "event_type": "meeting",
+            "participants": [
+              "fdb3773c-08a6-4896-9c5a-321c011410e8",
+              "6091f552-32e8-4ae7-9081-891d68ac8afb"
+            ]
+          },
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "723ae7f3-0c57-453c-9223-e2e964e93d86",
+              "revision_id": "7332b96d-39b9-422f-b289-2459407b2e2c",
+              "chapter_number": 1
+            }
+          ],
+          "confidence": null,
+          "status": "pending",
+          "expected_brain_version": 1,
+          "decision_reason": null,
+          "created_at": "2026-10-23 16:56:53.622759+00:00",
+          "updated_at": "2026-10-23 16:56:53.622759+00:00"
+        },
+        {
+          "id": "c7b2f1e4-789b-4deb-b72f-50debc6d3f97",
+          "analysis_run_id": "d3809f02-3f22-4fcb-ae12-a6ef00d85327",
+          "story_brain_id": "e44f3edf-c9fc-4182-ba9c-f91313d396b8",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "05db5d57-cbc9-4ce0-81f1-ba9a59529509",
+          "dependency_group_id": "17f6f755-07f9-47c0-820a-c7d3ed9fc19c",
+          "materialization_order": 2,
+          "proposal_type": "state_transition",
+          "payload": {
+            "event_id": "b535bb7a-596c-4201-a65b-258ea43ed8a7",
+            "entity_id": "fdb3773c-08a6-4896-9c5a-321c011410e8",
+            "new_value": {
+              "6091f552-32e8-4ae7-9081-891d68ac8afb": "enemy"
+            },
+            "attribute_key": "active_relationships"
+          },
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "723ae7f3-0c57-453c-9223-e2e964e93d86",
+              "revision_id": "7332b96d-39b9-422f-b289-2459407b2e2c",
+              "chapter_number": 1
+            }
+          ],
+          "confidence": null,
+          "status": "pending",
+          "expected_brain_version": 1,
+          "decision_reason": null,
+          "created_at": "2026-10-23 16:56:53.622759+00:00",
+          "updated_at": "2026-10-23 16:56:53.622759+00:00"
+        }
+      ],
+      "state_transitions": [],
+      "current_entity_states": []
+    },
+    "unchanged": true
+  },
+  {
+    "before": {
+      "story_brains": [
+        {
+          "id": "6cec50fd-7057-44b6-a536-78e3ac0de7f1",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "934d5873-363c-40b9-94ee-a8e690015716",
+          "status": "active",
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "schema_version": 1,
+          "created_at": "2026-10-23 16:56:54.606662+00:00",
+          "updated_at": "2026-10-23 16:56:54.606662+00:00",
+          "entity_guidance": null
+        }
+      ],
+      "entities": [
+        {
+          "id": "2a699cda-fc5f-4950-94d7-2d3c9b3ea16f",
+          "story_brain_id": "6cec50fd-7057-44b6-a536-78e3ac0de7f1",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "934d5873-363c-40b9-94ee-a8e690015716",
+          "entity_type": "PER",
+          "canonical_name": "Lan",
+          "normalized_name": "lan",
+          "description": null,
+          "static_attributes": {},
+          "source_type": "author",
+          "confirmation_status": "confirmed",
+          "confidence": null,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23 16:56:54.843027+00:00",
+          "updated_at": "2026-10-23 16:56:54.843027+00:00"
+        },
+        {
+          "id": "42c2d5f4-b873-4f09-8d1c-8272e923963a",
+          "story_brain_id": "6cec50fd-7057-44b6-a536-78e3ac0de7f1",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "934d5873-363c-40b9-94ee-a8e690015716",
+          "entity_type": "PER",
+          "canonical_name": "Minh",
+          "normalized_name": "minh",
+          "description": null,
+          "static_attributes": {},
+          "source_type": "author",
+          "confirmation_status": "confirmed",
+          "confidence": null,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23 16:56:54.657354+00:00",
+          "updated_at": "2026-10-23 16:56:54.657354+00:00"
+        },
+        {
+          "id": "431cb7b4-52a5-4fd5-bfba-b52ab93e167d",
+          "story_brain_id": "6cec50fd-7057-44b6-a536-78e3ac0de7f1",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "934d5873-363c-40b9-94ee-a8e690015716",
+          "entity_type": "PER",
+          "canonical_name": "Minh",
+          "normalized_name": "minh",
+          "description": null,
+          "static_attributes": {},
+          "source_type": "author",
+          "confirmation_status": "confirmed",
+          "confidence": null,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23 16:56:54.657354+00:00",
+          "updated_at": "2026-10-23 16:56:54.657354+00:00"
+        }
+      ],
+      "relationships": [
+        {
+          "id": "9ee06413-e7ae-4fc1-99f6-34daa6beeea5",
+          "story_brain_id": "6cec50fd-7057-44b6-a536-78e3ac0de7f1",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "934d5873-363c-40b9-94ee-a8e690015716",
+          "subject_name": "Lan",
+          "relation_type": "ally",
+          "object_name": "Minh",
+          "source_type": "author",
+          "is_locked": true,
+          "relation_metadata": {
+            "object_entity_id": "431cb7b4-52a5-4fd5-bfba-b52ab93e167d",
+            "subject_entity_id": "2a699cda-fc5f-4950-94d7-2d3c9b3ea16f"
+          },
+          "created_at": "2026-10-23 16:56:54.849483+00:00"
+        }
+      ],
+      "events": [],
+      "facts": [],
+      "proposals": [
+        {
+          "id": "3f27a6bc-c668-412f-949a-97fa36284717",
+          "analysis_run_id": "c037b5b1-3c83-4b73-b205-82c1b6549cd1",
+          "story_brain_id": "6cec50fd-7057-44b6-a536-78e3ac0de7f1",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "934d5873-363c-40b9-94ee-a8e690015716",
+          "dependency_group_id": "2fb7cc13-29d9-4da9-80a9-cdedb7c88dae",
+          "materialization_order": 0,
+          "proposal_type": "event",
+          "payload": {
+            "chapter": 1,
+            "summary": "Minh bên trái gặp Minh bên phải.",
+            "event_id": "3f27a6bc-c668-412f-949a-97fa36284717",
+            "event_type": "meeting",
+            "participants": [
+              "2a699cda-fc5f-4950-94d7-2d3c9b3ea16f",
+              "42c2d5f4-b873-4f09-8d1c-8272e923963a"
+            ]
+          },
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "966db844-0872-498f-8f5d-db7755ad1e41",
+              "revision_id": "eaefb246-4374-4f6f-b003-612e25d0a9b2",
+              "chapter_number": 1
+            }
+          ],
+          "confidence": null,
+          "status": "pending",
+          "expected_brain_version": 1,
+          "decision_reason": null,
+          "created_at": "2026-10-23 16:56:54.881638+00:00",
+          "updated_at": "2026-10-23 16:56:54.881638+00:00"
+        },
+        {
+          "id": "63085d84-6369-409c-8517-4e5c62075272",
+          "analysis_run_id": "c037b5b1-3c83-4b73-b205-82c1b6549cd1",
+          "story_brain_id": "6cec50fd-7057-44b6-a536-78e3ac0de7f1",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "934d5873-363c-40b9-94ee-a8e690015716",
+          "dependency_group_id": "2fb7cc13-29d9-4da9-80a9-cdedb7c88dae",
+          "materialization_order": 2,
+          "proposal_type": "state_transition",
+          "payload": {
+            "event_id": "3f27a6bc-c668-412f-949a-97fa36284717",
+            "entity_id": "2a699cda-fc5f-4950-94d7-2d3c9b3ea16f",
+            "new_value": {
+              "42c2d5f4-b873-4f09-8d1c-8272e923963a": "enemy"
+            },
+            "attribute_key": "active_relationships"
+          },
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "966db844-0872-498f-8f5d-db7755ad1e41",
+              "revision_id": "eaefb246-4374-4f6f-b003-612e25d0a9b2",
+              "chapter_number": 1
+            }
+          ],
+          "confidence": null,
+          "status": "pending",
+          "expected_brain_version": 1,
+          "decision_reason": null,
+          "created_at": "2026-10-23 16:56:54.881638+00:00",
+          "updated_at": "2026-10-23 16:56:54.881638+00:00"
+        },
+        {
+          "id": "6cb585d5-327d-4408-8535-d870c86e3951",
+          "analysis_run_id": "c037b5b1-3c83-4b73-b205-82c1b6549cd1",
+          "story_brain_id": "6cec50fd-7057-44b6-a536-78e3ac0de7f1",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "934d5873-363c-40b9-94ee-a8e690015716",
+          "dependency_group_id": "2fb7cc13-29d9-4da9-80a9-cdedb7c88dae",
+          "materialization_order": 1,
+          "proposal_type": "fact",
+          "payload": {
+            "fact_key": "mood",
+            "fact_value": "calm",
+            "subject_entity_id": "2a699cda-fc5f-4950-94d7-2d3c9b3ea16f"
+          },
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "966db844-0872-498f-8f5d-db7755ad1e41",
+              "revision_id": "eaefb246-4374-4f6f-b003-612e25d0a9b2",
+              "chapter_number": 1
+            }
+          ],
+          "confidence": null,
+          "status": "pending",
+          "expected_brain_version": 1,
+          "decision_reason": null,
+          "created_at": "2026-10-23 16:56:54.881638+00:00",
+          "updated_at": "2026-10-23 16:56:54.881638+00:00"
+        }
+      ],
+      "state_transitions": [],
+      "current_entity_states": []
+    },
+    "after": {
+      "story_brains": [
+        {
+          "id": "6cec50fd-7057-44b6-a536-78e3ac0de7f1",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "934d5873-363c-40b9-94ee-a8e690015716",
+          "status": "active",
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "schema_version": 1,
+          "created_at": "2026-10-23 16:56:54.606662+00:00",
+          "updated_at": "2026-10-23 16:56:54.606662+00:00",
+          "entity_guidance": null
+        }
+      ],
+      "entities": [
+        {
+          "id": "2a699cda-fc5f-4950-94d7-2d3c9b3ea16f",
+          "story_brain_id": "6cec50fd-7057-44b6-a536-78e3ac0de7f1",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "934d5873-363c-40b9-94ee-a8e690015716",
+          "entity_type": "PER",
+          "canonical_name": "Lan",
+          "normalized_name": "lan",
+          "description": null,
+          "static_attributes": {},
+          "source_type": "author",
+          "confirmation_status": "confirmed",
+          "confidence": null,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23 16:56:54.843027+00:00",
+          "updated_at": "2026-10-23 16:56:54.843027+00:00"
+        },
+        {
+          "id": "42c2d5f4-b873-4f09-8d1c-8272e923963a",
+          "story_brain_id": "6cec50fd-7057-44b6-a536-78e3ac0de7f1",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "934d5873-363c-40b9-94ee-a8e690015716",
+          "entity_type": "PER",
+          "canonical_name": "Minh",
+          "normalized_name": "minh",
+          "description": null,
+          "static_attributes": {},
+          "source_type": "author",
+          "confirmation_status": "confirmed",
+          "confidence": null,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23 16:56:54.657354+00:00",
+          "updated_at": "2026-10-23 16:56:54.657354+00:00"
+        },
+        {
+          "id": "431cb7b4-52a5-4fd5-bfba-b52ab93e167d",
+          "story_brain_id": "6cec50fd-7057-44b6-a536-78e3ac0de7f1",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "934d5873-363c-40b9-94ee-a8e690015716",
+          "entity_type": "PER",
+          "canonical_name": "Minh",
+          "normalized_name": "minh",
+          "description": null,
+          "static_attributes": {},
+          "source_type": "author",
+          "confirmation_status": "confirmed",
+          "confidence": null,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23 16:56:54.657354+00:00",
+          "updated_at": "2026-10-23 16:56:54.657354+00:00"
+        }
+      ],
+      "relationships": [
+        {
+          "id": "9ee06413-e7ae-4fc1-99f6-34daa6beeea5",
+          "story_brain_id": "6cec50fd-7057-44b6-a536-78e3ac0de7f1",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "934d5873-363c-40b9-94ee-a8e690015716",
+          "subject_name": "Lan",
+          "relation_type": "ally",
+          "object_name": "Minh",
+          "source_type": "author",
+          "is_locked": true,
+          "relation_metadata": {
+            "object_entity_id": "431cb7b4-52a5-4fd5-bfba-b52ab93e167d",
+            "subject_entity_id": "2a699cda-fc5f-4950-94d7-2d3c9b3ea16f"
+          },
+          "created_at": "2026-10-23 16:56:54.849483+00:00"
+        }
+      ],
+      "events": [],
+      "facts": [],
+      "proposals": [
+        {
+          "id": "3f27a6bc-c668-412f-949a-97fa36284717",
+          "analysis_run_id": "c037b5b1-3c83-4b73-b205-82c1b6549cd1",
+          "story_brain_id": "6cec50fd-7057-44b6-a536-78e3ac0de7f1",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "934d5873-363c-40b9-94ee-a8e690015716",
+          "dependency_group_id": "2fb7cc13-29d9-4da9-80a9-cdedb7c88dae",
+          "materialization_order": 0,
+          "proposal_type": "event",
+          "payload": {
+            "chapter": 1,
+            "summary": "Minh bên trái gặp Minh bên phải.",
+            "event_id": "3f27a6bc-c668-412f-949a-97fa36284717",
+            "event_type": "meeting",
+            "participants": [
+              "2a699cda-fc5f-4950-94d7-2d3c9b3ea16f",
+              "42c2d5f4-b873-4f09-8d1c-8272e923963a"
+            ]
+          },
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "966db844-0872-498f-8f5d-db7755ad1e41",
+              "revision_id": "eaefb246-4374-4f6f-b003-612e25d0a9b2",
+              "chapter_number": 1
+            }
+          ],
+          "confidence": null,
+          "status": "pending",
+          "expected_brain_version": 1,
+          "decision_reason": null,
+          "created_at": "2026-10-23 16:56:54.881638+00:00",
+          "updated_at": "2026-10-23 16:56:54.881638+00:00"
+        },
+        {
+          "id": "63085d84-6369-409c-8517-4e5c62075272",
+          "analysis_run_id": "c037b5b1-3c83-4b73-b205-82c1b6549cd1",
+          "story_brain_id": "6cec50fd-7057-44b6-a536-78e3ac0de7f1",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "934d5873-363c-40b9-94ee-a8e690015716",
+          "dependency_group_id": "2fb7cc13-29d9-4da9-80a9-cdedb7c88dae",
+          "materialization_order": 2,
+          "proposal_type": "state_transition",
+          "payload": {
+            "event_id": "3f27a6bc-c668-412f-949a-97fa36284717",
+            "entity_id": "2a699cda-fc5f-4950-94d7-2d3c9b3ea16f",
+            "new_value": {
+              "42c2d5f4-b873-4f09-8d1c-8272e923963a": "enemy"
+            },
+            "attribute_key": "active_relationships"
+          },
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "966db844-0872-498f-8f5d-db7755ad1e41",
+              "revision_id": "eaefb246-4374-4f6f-b003-612e25d0a9b2",
+              "chapter_number": 1
+            }
+          ],
+          "confidence": null,
+          "status": "pending",
+          "expected_brain_version": 1,
+          "decision_reason": null,
+          "created_at": "2026-10-23 16:56:54.881638+00:00",
+          "updated_at": "2026-10-23 16:56:54.881638+00:00"
+        },
+        {
+          "id": "6cb585d5-327d-4408-8535-d870c86e3951",
+          "analysis_run_id": "c037b5b1-3c83-4b73-b205-82c1b6549cd1",
+          "story_brain_id": "6cec50fd-7057-44b6-a536-78e3ac0de7f1",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "934d5873-363c-40b9-94ee-a8e690015716",
+          "dependency_group_id": "2fb7cc13-29d9-4da9-80a9-cdedb7c88dae",
+          "materialization_order": 1,
+          "proposal_type": "fact",
+          "payload": {
+            "fact_key": "mood",
+            "fact_value": "calm",
+            "subject_entity_id": "2a699cda-fc5f-4950-94d7-2d3c9b3ea16f"
+          },
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "966db844-0872-498f-8f5d-db7755ad1e41",
+              "revision_id": "eaefb246-4374-4f6f-b003-612e25d0a9b2",
+              "chapter_number": 1
+            }
+          ],
+          "confidence": null,
+          "status": "pending",
+          "expected_brain_version": 1,
+          "decision_reason": null,
+          "created_at": "2026-10-23 16:56:54.881638+00:00",
+          "updated_at": "2026-10-23 16:56:54.881638+00:00"
+        }
+      ],
+      "state_transitions": [],
+      "current_entity_states": []
+    },
+    "unchanged": true
+  },
+  {
+    "before": {
+      "story_brains": [
+        {
+          "id": "e70eb2ac-bd7b-4a09-80ca-104d4e679a70",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "40076247-8352-4155-beff-bd52de99fc4e",
+          "status": "active",
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "schema_version": 1,
+          "created_at": "2026-10-23 16:56:55.258456+00:00",
+          "updated_at": "2026-10-23 16:56:55.258456+00:00",
+          "entity_guidance": null
+        }
+      ],
+      "entities": [
+        {
+          "id": "0a93b309-152d-45fd-be66-d815caa396e2",
+          "story_brain_id": "e70eb2ac-bd7b-4a09-80ca-104d4e679a70",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "40076247-8352-4155-beff-bd52de99fc4e",
+          "entity_type": "PER",
+          "canonical_name": "Minh",
+          "normalized_name": "minh",
+          "description": null,
+          "static_attributes": {},
+          "source_type": "author",
+          "confirmation_status": "confirmed",
+          "confidence": null,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23 16:56:55.298033+00:00",
+          "updated_at": "2026-10-23 16:56:55.298033+00:00"
+        },
+        {
+          "id": "4831853b-c994-4a4e-9bce-d17b10e14af2",
+          "story_brain_id": "e70eb2ac-bd7b-4a09-80ca-104d4e679a70",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "40076247-8352-4155-beff-bd52de99fc4e",
+          "entity_type": "PER",
+          "canonical_name": "Minh",
+          "normalized_name": "minh",
+          "description": null,
+          "static_attributes": {},
+          "source_type": "author",
+          "confirmation_status": "confirmed",
+          "confidence": null,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23 16:56:55.298033+00:00",
+          "updated_at": "2026-10-23 16:56:55.298033+00:00"
+        }
+      ],
+      "relationships": [
+        {
+          "id": "3341337d-8427-44f3-b718-d33253c4e4eb",
+          "story_brain_id": "e70eb2ac-bd7b-4a09-80ca-104d4e679a70",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "40076247-8352-4155-beff-bd52de99fc4e",
+          "subject_name": "Minh",
+          "relation_type": "ally",
+          "object_name": "Minh",
+          "source_type": "author",
+          "is_locked": true,
+          "relation_metadata": {
+            "historical": "preserve"
+          },
+          "created_at": "2026-10-23 16:56:55.468792+00:00"
+        }
+      ],
+      "events": [],
+      "facts": [],
+      "proposals": [
+        {
+          "id": "4078f0d5-45de-46f4-b0a6-aa22a51c7f41",
+          "analysis_run_id": "4c996ae5-2858-42a1-a01d-89b438f62c73",
+          "story_brain_id": "e70eb2ac-bd7b-4a09-80ca-104d4e679a70",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "40076247-8352-4155-beff-bd52de99fc4e",
+          "dependency_group_id": "3024f6e7-02ad-4eb8-9a67-e8dfb3299e8b",
+          "materialization_order": 0,
+          "proposal_type": "event",
+          "payload": {
+            "chapter": 1,
+            "summary": "Minh bên trái gặp Minh bên phải.",
+            "event_id": "4078f0d5-45de-46f4-b0a6-aa22a51c7f41",
+            "event_type": "meeting",
+            "participants": [
+              "0a93b309-152d-45fd-be66-d815caa396e2",
+              "4831853b-c994-4a4e-9bce-d17b10e14af2"
+            ]
+          },
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "1cb490ac-a93d-4bfe-9df4-8bfb9e63195a",
+              "revision_id": "1cc48bbd-7e1c-4d2c-b2f8-777d24001447",
+              "chapter_number": 1
+            }
+          ],
+          "confidence": null,
+          "status": "pending",
+          "expected_brain_version": 1,
+          "decision_reason": null,
+          "created_at": "2026-10-23 16:56:55.490954+00:00",
+          "updated_at": "2026-10-23 16:56:55.490954+00:00"
+        },
+        {
+          "id": "5cb0bea3-d155-4754-b2a8-208be7397b50",
+          "analysis_run_id": "4c996ae5-2858-42a1-a01d-89b438f62c73",
+          "story_brain_id": "e70eb2ac-bd7b-4a09-80ca-104d4e679a70",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "40076247-8352-4155-beff-bd52de99fc4e",
+          "dependency_group_id": "3024f6e7-02ad-4eb8-9a67-e8dfb3299e8b",
+          "materialization_order": 2,
+          "proposal_type": "state_transition",
+          "payload": {
+            "event_id": "4078f0d5-45de-46f4-b0a6-aa22a51c7f41",
+            "entity_id": "0a93b309-152d-45fd-be66-d815caa396e2",
+            "new_value": {
+              "4831853b-c994-4a4e-9bce-d17b10e14af2": "enemy"
+            },
+            "attribute_key": "active_relationships"
+          },
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "1cb490ac-a93d-4bfe-9df4-8bfb9e63195a",
+              "revision_id": "1cc48bbd-7e1c-4d2c-b2f8-777d24001447",
+              "chapter_number": 1
+            }
+          ],
+          "confidence": null,
+          "status": "pending",
+          "expected_brain_version": 1,
+          "decision_reason": null,
+          "created_at": "2026-10-23 16:56:55.490954+00:00",
+          "updated_at": "2026-10-23 16:56:55.490954+00:00"
+        },
+        {
+          "id": "d0fa51d2-10b7-4775-afdc-19c45e11e877",
+          "analysis_run_id": "4c996ae5-2858-42a1-a01d-89b438f62c73",
+          "story_brain_id": "e70eb2ac-bd7b-4a09-80ca-104d4e679a70",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "40076247-8352-4155-beff-bd52de99fc4e",
+          "dependency_group_id": "3024f6e7-02ad-4eb8-9a67-e8dfb3299e8b",
+          "materialization_order": 1,
+          "proposal_type": "fact",
+          "payload": {
+            "fact_key": "mood",
+            "fact_value": "calm",
+            "subject_entity_id": "0a93b309-152d-45fd-be66-d815caa396e2"
+          },
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "1cb490ac-a93d-4bfe-9df4-8bfb9e63195a",
+              "revision_id": "1cc48bbd-7e1c-4d2c-b2f8-777d24001447",
+              "chapter_number": 1
+            }
+          ],
+          "confidence": null,
+          "status": "pending",
+          "expected_brain_version": 1,
+          "decision_reason": null,
+          "created_at": "2026-10-23 16:56:55.490954+00:00",
+          "updated_at": "2026-10-23 16:56:55.490954+00:00"
+        }
+      ],
+      "state_transitions": [],
+      "current_entity_states": []
+    },
+    "after": {
+      "story_brains": [
+        {
+          "id": "e70eb2ac-bd7b-4a09-80ca-104d4e679a70",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "40076247-8352-4155-beff-bd52de99fc4e",
+          "status": "active",
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "schema_version": 1,
+          "created_at": "2026-10-23 16:56:55.258456+00:00",
+          "updated_at": "2026-10-23 16:56:55.258456+00:00",
+          "entity_guidance": null
+        }
+      ],
+      "entities": [
+        {
+          "id": "0a93b309-152d-45fd-be66-d815caa396e2",
+          "story_brain_id": "e70eb2ac-bd7b-4a09-80ca-104d4e679a70",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "40076247-8352-4155-beff-bd52de99fc4e",
+          "entity_type": "PER",
+          "canonical_name": "Minh",
+          "normalized_name": "minh",
+          "description": null,
+          "static_attributes": {},
+          "source_type": "author",
+          "confirmation_status": "confirmed",
+          "confidence": null,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23 16:56:55.298033+00:00",
+          "updated_at": "2026-10-23 16:56:55.298033+00:00"
+        },
+        {
+          "id": "4831853b-c994-4a4e-9bce-d17b10e14af2",
+          "story_brain_id": "e70eb2ac-bd7b-4a09-80ca-104d4e679a70",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "40076247-8352-4155-beff-bd52de99fc4e",
+          "entity_type": "PER",
+          "canonical_name": "Minh",
+          "normalized_name": "minh",
+          "description": null,
+          "static_attributes": {},
+          "source_type": "author",
+          "confirmation_status": "confirmed",
+          "confidence": null,
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-23 16:56:55.298033+00:00",
+          "updated_at": "2026-10-23 16:56:55.298033+00:00"
+        }
+      ],
+      "relationships": [
+        {
+          "id": "3341337d-8427-44f3-b718-d33253c4e4eb",
+          "story_brain_id": "e70eb2ac-bd7b-4a09-80ca-104d4e679a70",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "40076247-8352-4155-beff-bd52de99fc4e",
+          "subject_name": "Minh",
+          "relation_type": "ally",
+          "object_name": "Minh",
+          "source_type": "author",
+          "is_locked": true,
+          "relation_metadata": {
+            "historical": "preserve"
+          },
+          "created_at": "2026-10-23 16:56:55.468792+00:00"
+        }
+      ],
+      "events": [],
+      "facts": [],
+      "proposals": [
+        {
+          "id": "4078f0d5-45de-46f4-b0a6-aa22a51c7f41",
+          "analysis_run_id": "4c996ae5-2858-42a1-a01d-89b438f62c73",
+          "story_brain_id": "e70eb2ac-bd7b-4a09-80ca-104d4e679a70",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "40076247-8352-4155-beff-bd52de99fc4e",
+          "dependency_group_id": "3024f6e7-02ad-4eb8-9a67-e8dfb3299e8b",
+          "materialization_order": 0,
+          "proposal_type": "event",
+          "payload": {
+            "chapter": 1,
+            "summary": "Minh bên trái gặp Minh bên phải.",
+            "event_id": "4078f0d5-45de-46f4-b0a6-aa22a51c7f41",
+            "event_type": "meeting",
+            "participants": [
+              "0a93b309-152d-45fd-be66-d815caa396e2",
+              "4831853b-c994-4a4e-9bce-d17b10e14af2"
+            ]
+          },
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "1cb490ac-a93d-4bfe-9df4-8bfb9e63195a",
+              "revision_id": "1cc48bbd-7e1c-4d2c-b2f8-777d24001447",
+              "chapter_number": 1
+            }
+          ],
+          "confidence": null,
+          "status": "pending",
+          "expected_brain_version": 1,
+          "decision_reason": null,
+          "created_at": "2026-10-23 16:56:55.490954+00:00",
+          "updated_at": "2026-10-23 16:56:55.490954+00:00"
+        },
+        {
+          "id": "5cb0bea3-d155-4754-b2a8-208be7397b50",
+          "analysis_run_id": "4c996ae5-2858-42a1-a01d-89b438f62c73",
+          "story_brain_id": "e70eb2ac-bd7b-4a09-80ca-104d4e679a70",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "40076247-8352-4155-beff-bd52de99fc4e",
+          "dependency_group_id": "3024f6e7-02ad-4eb8-9a67-e8dfb3299e8b",
+          "materialization_order": 2,
+          "proposal_type": "state_transition",
+          "payload": {
+            "event_id": "4078f0d5-45de-46f4-b0a6-aa22a51c7f41",
+            "entity_id": "0a93b309-152d-45fd-be66-d815caa396e2",
+            "new_value": {
+              "4831853b-c994-4a4e-9bce-d17b10e14af2": "enemy"
+            },
+            "attribute_key": "active_relationships"
+          },
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "1cb490ac-a93d-4bfe-9df4-8bfb9e63195a",
+              "revision_id": "1cc48bbd-7e1c-4d2c-b2f8-777d24001447",
+              "chapter_number": 1
+            }
+          ],
+          "confidence": null,
+          "status": "pending",
+          "expected_brain_version": 1,
+          "decision_reason": null,
+          "created_at": "2026-10-23 16:56:55.490954+00:00",
+          "updated_at": "2026-10-23 16:56:55.490954+00:00"
+        },
+        {
+          "id": "d0fa51d2-10b7-4775-afdc-19c45e11e877",
+          "analysis_run_id": "4c996ae5-2858-42a1-a01d-89b438f62c73",
+          "story_brain_id": "e70eb2ac-bd7b-4a09-80ca-104d4e679a70",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "40076247-8352-4155-beff-bd52de99fc4e",
+          "dependency_group_id": "3024f6e7-02ad-4eb8-9a67-e8dfb3299e8b",
+          "materialization_order": 1,
+          "proposal_type": "fact",
+          "payload": {
+            "fact_key": "mood",
+            "fact_value": "calm",
+            "subject_entity_id": "0a93b309-152d-45fd-be66-d815caa396e2"
+          },
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "1cb490ac-a93d-4bfe-9df4-8bfb9e63195a",
+              "revision_id": "1cc48bbd-7e1c-4d2c-b2f8-777d24001447",
+              "chapter_number": 1
+            }
+          ],
+          "confidence": null,
+          "status": "pending",
+          "expected_brain_version": 1,
+          "decision_reason": null,
+          "created_at": "2026-10-23 16:56:55.490954+00:00",
+          "updated_at": "2026-10-23 16:56:55.490954+00:00"
+        }
+      ],
+      "state_transitions": [],
+      "current_entity_states": []
+    },
+    "unchanged": true
+  }
+]

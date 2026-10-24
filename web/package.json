@@ -7,13 +7,26 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc -b --noEmit"
+    "typecheck": "tsc -b --noEmit",
+    "test:wallet": "node --experimental-strip-types --test tests/wallet-earnings.test.mjs",
+    "test:draft-browser": "node --test tests/draft-persistence.browser.test.mjs",
+    "test:author-ide-browser": "node --test tests/author-ide.browser.test.mjs",
+    "test:p1-hitl": "tsx --test tests/p1-author-ide-hitl-integration.test.ts && node --test tests/p1-hitl-interactions.browser.test.mjs",
+    "test:p1-hitl-interactions": "node --test tests/p1-hitl-interactions.browser.test.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/material-symbols-outlined": "^5.3.9",
+    "@fontsource/be-vietnam-pro": "^5.3.0",
+    "@fontsource/literata": "^5.3.0",
+    "@fontsource/lora": "^5.3.0",
+    "@fontsource/merriweather": "^5.3.0",
+    "@fontsource/playfair-display": "^5.3.0",
+    "@fontsource/plus-jakarta-sans": "^5.3.0",
+    "@fontsource/roboto-slab": "^5.3.0",
     "@mantine/core": "^7.15.2",
     "@mantine/hooks": "^7.15.2",
-    "@tanstack/react-query": "^5.62.8",
     "@tabler/icons-react": "^3.26.0",
+    "@tanstack/react-query": "^5.62.8",
     "axios": "^1.7.9",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -21,9 +34,16 @@
     "zustand": "^5.0.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@tailwindcss/container-queries": "^0.1.1",
+    "@tailwindcss/forms": "^0.5.11",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "10.4.21",
+    "postcss": "8.5.19",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.23.15",
     "typescript": "^5.7.2",
     "vite": "^6.0.6"
   }

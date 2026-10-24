@@ -4,9 +4,10 @@ from dataclasses import asdict, replace
 from typing import Any
 import uuid
 
-from domain.projection import ProjectionError, validate_payload, project, project_relations, resolve_entity, transition_from_payload
+from domain.projection import author_relationship, ProjectionError, validate_payload, project, project_relations, resolve_entity, transition_from_payload
 from domain.errors import ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError, ProposalAlreadyDecidedError
 from domain.models import (
+    EntityReviewCompletion,
     AnalysisRun,
     BootstrapJob,
     NarrativeAlias,
@@ -26,16 +27,34 @@ from domain.models import (
 
 
 class InMemoryNarrativeRepository:
+    def complete_entity_review(self, story_id, run_id, audit, proposals):
+        from copy import deepcopy
+        current = self.get_entity_candidate_audit(story_id, run_id)
+        if current.get('status') == 'completed':
+            return EntityReviewCompletion(tuple(self.list_proposals(story_id, analysis_run_id=run_id)), True)
+        if current != audit or current.get('status') != 'entities_reviewed':
+            raise OptimisticLockError('Entity checkpoint changed')
+        if int(self.get_story_brain(story_id).metadata.get('brain_version', 1)) != audit['brain_version'] or self.get_entity_guidance(story_id)['version'] != audit['guidance_version']:
+            raise OptimisticLockError('Canon or guidance changed')
+        self.record_revision_provenance(story_id, audit['chapter_id'], audit['revision_id'], audit['chapter_number'])
+        self.save_proposals(story_id, proposals)
+        self._entity_candidate_audits[(story_id, run_id)] = {**deepcopy(audit), 'status': 'completed'}
+        return EntityReviewCompletion(tuple(proposals), False)
+
     def __init__(self) -> None:
         self._brains: dict[str, StoryBrain] = {}
         self._analysis_runs: dict[str, AnalysisRun] = {}
+        self._entity_candidate_audits = {}
+        self._entity_guidance = {}
         self._bootstrap_jobs: dict[str, BootstrapJob] = {}
         self._writing_jobs: dict[str, WritingGenerationJob] = {}
         self._revision_provenance: dict[tuple[str, str], int] = {}
         self._story_plans: dict[str, StoryPlan] = {}
         self._autonomous_runs: dict[str, AutonomousRun] = {}
 
-    def get_story_brain(self, story_id: str) -> StoryBrain:
+    def get_story_brain(self, story_id: str, *, read_only: bool = False) -> StoryBrain:
+        if read_only and story_id not in self._brains:
+            raise KeyError(story_id)
         if story_id not in self._brains:
             self._brains[story_id] = StoryBrain(
                 story_id=story_id, metadata={"brain_version": "1", "status": "active"}
@@ -230,19 +249,29 @@ class InMemoryNarrativeRepository:
         edited_payloads = edited_payloads or {}
         for proposal in sorted(selected, key=lambda item: item.materialization_order):
             payload = edited_payloads.get(proposal.proposal_id, proposal.payload)
+            reserved = proposal.payload.get('entity_id') if proposal.proposal_type == 'entity' else None
+            if reserved:
+                if payload.get('entity_id', reserved) != reserved:
+                    raise ProjectionError('Reviewed entity identity ID is immutable')
+                payload = {**payload, 'entity_id': reserved}
+                if proposal.proposal_id in edited_payloads:
+                    edited_payloads = {**edited_payloads, proposal.proposal_id: payload}
             validate_payload(proposal.proposal_type, payload)
             if proposal.proposal_type == "entity":
                 normalized = str(payload["normalized_name"]).casefold()
-                existing = next(
-                    (item for item in entities if item.name.casefold() == normalized), None
-                )
+                assigned_id = payload.get('entity_id')
+                if assigned_id and any(item.entity_id == assigned_id for item in entities):
+                    raise ProjectionError('New reviewed identity ID is already in use')
+                existing = None if assigned_id else next((item for item in entities if item.name.casefold() == normalized), None)
                 if existing and existing.is_locked and existing.entity_type != payload["entity_type"]:
                     raise OptimisticLockError("Author-locked entity conflicts with proposal")
                 if existing is None:
                     existing = NarrativeEntity(
                         name=str(payload["canonical_name"]),
-                        entity_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"{story_id}:{normalized}")),
+                        entity_id=assigned_id or str(uuid.uuid5(uuid.NAMESPACE_URL, f"{story_id}:{normalized}")),
                         entity_type=str(payload["entity_type"]),
+                        status=str(payload.get("initial_status", "Alive")),
+                        mentions=0 if payload.get("source_type") == "author_declaration" else 1,
                     )
                     entities.append(existing)
                 artifact_ids.append(str(existing.entity_id))
@@ -277,6 +306,8 @@ class InMemoryNarrativeRepository:
                 transitions.append(transition)
                 artifact_ids.append(proposal.proposal_id)
             elif proposal.proposal_type == "alias":
+                if not payload.get('entity_id'):
+                    payload = {**payload, 'entity_id': resolve_entity(payload.get('entity_name', ''), entities)}
                 alias_id = str(
                     uuid.uuid5(
                         uuid.NAMESPACE_URL,
@@ -293,6 +324,8 @@ class InMemoryNarrativeRepository:
                 )
                 artifact_ids.append(alias_id)
             elif proposal.proposal_type == "fact":
+                if payload.get('subject_entity_name'):
+                    payload = {**payload, 'subject_entity_id': resolve_entity(payload['subject_entity_name'], entities)}
                 fact_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"fact:{proposal.proposal_id}"))
                 evidence = proposal.evidence[0] if proposal.evidence else {}
                 rev_id = evidence.get("revision_id")
@@ -455,20 +488,7 @@ class InMemoryNarrativeRepository:
         self, story_id: str, subject: str, relation_type: str, object_name: str
     ) -> dict[str, Any]:
         brain = self.get_story_brain(story_id)
-        relations = tuple(
-            relation
-            for relation in brain.relations
-            if not (relation.subject == subject and relation.object == object_name)
-        )
-        relations += (
-            NarrativeRelation(
-                subject=subject,
-                relation=relation_type,
-                object=object_name,
-                source="author",
-                locked=True,
-            ),
-        )
+        relations = author_relationship(brain.entities, brain.relations, subject, relation_type, object_name)
         self._brains[story_id] = replace(brain, relations=relations)
         return {"status": "success", "relation": relation_type, "locked": True}
 
@@ -1031,4 +1051,38 @@ class InMemoryNarrativeRepository:
         self._autonomous_runs[run.run_id] = run
         return run
 
+
+
+    def get_entity_guidance(self, story_id: str) -> dict:
+        from copy import deepcopy
+        return deepcopy(self._entity_guidance.get(story_id, {'version': 0, 'entries': []}))
+
+    def list_entity_reviews(self, story_id: str) -> list[dict]:
+        from copy import deepcopy
+        return [deepcopy(a) for (s, _), a in self._entity_candidate_audits.items()
+                if s == story_id and a.get('status') in {'waiting_entity_review', 'entities_reviewed'}]
+
+    def save_entity_guidance(self, story_id: str, guidance: dict, expected_version: int) -> dict:
+        from copy import deepcopy
+        if self.get_entity_guidance(story_id)['version'] != expected_version:
+            raise OptimisticLockError('Reload entity guidance')
+        value = {**deepcopy(guidance), 'version': expected_version + 1}
+        self._entity_guidance[story_id] = value
+        return deepcopy(value)
+
+    def get_entity_registry(self, story_id: str) -> dict:
+        brain = self.get_story_brain(story_id)
+        return {'entities': [{'entity_id': e.entity_id, 'name': e.name, 'entity_type': e.entity_type}
+                             for e in brain.entities],
+                'aliases': [{'alias': a.alias, 'entity_id': a.entity_id} for a in brain.aliases]}
+
+    def save_entity_candidate_audit(self, story_id: str, run_id: str, audit: dict, *, expected_version: int | None = None) -> None:
+        from copy import deepcopy
+        if expected_version is not None and (self._entity_candidate_audits.get((story_id, run_id)) or {}).get('review_version', 0) != expected_version:
+            raise OptimisticLockError('Entity checkpoint changed')
+        self._entity_candidate_audits[(story_id, run_id)] = deepcopy(audit)
+
+    def get_entity_candidate_audit(self, story_id: str, run_id: str) -> dict | None:
+        from copy import deepcopy
+        return deepcopy(self._entity_candidate_audits.get((story_id, run_id)))
 

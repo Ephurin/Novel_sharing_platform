@@ -1,3 +1,4 @@
+import { assertActiveAccount } from '../../core/security/active-account.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import type { UpdateProfileInput, UpdateSettingsInput } from './users.schemas.js';
@@ -36,6 +37,7 @@ export async function getPrivateProfile(auth: AuthContext) {
 }
 
 export async function updateMyProfile(auth: AuthContext, input: UpdateProfileInput) {
+  await assertActiveAccount(auth);
   await updateProfileRow(auth.userId, input);
   return getPrivateProfile(auth);
 }
@@ -54,8 +56,8 @@ export async function updateMySettings(auth: AuthContext, input: UpdateSettingsI
   return getMySettings(auth);
 }
 
-export async function getAuthorProfile(authorId: string) {
-  const profile = await findAuthorProfileById(authorId);
+export async function getAuthorProfile(authorId: string, viewerId?: string) {
+  const profile = await findAuthorProfileById(authorId, viewerId);
 
   if (!profile) {
     throw new AppError(404, 'NOT_FOUND_001', 'Resource not found');

@@ -1,0 +1,9 @@
+{
+  "base_sha": "2eca7f19c20a71202d7c827af2e15d8fb6dc88bb",
+  "contract_commit": "3616b503dec46e293a58c98be977fcdad5bf8bdb",
+  "source_sha": "e0c0e72651d2fd7eb52b82fdf53932aa4e849123",
+  "source_tree": "f2fde602c427fc143d50918844b11f9262a8a5c1",
+  "clean_for_every_final_suite": true,
+  "fake_only": true,
+  "utc": "2026-10-24T06:26:41.326730+00:00"
+}

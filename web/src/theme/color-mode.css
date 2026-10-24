@@ -1,0 +1,41 @@
+/* Shared component colors, including Mantine portals outside AuthorTheme. */
+body { font-family: var(--sc-font); background: var(--sc-bg); color: var(--sc-text); }
+::selection { background: var(--sc-primary-soft); color: var(--sc-text); }
+:focus-visible { outline: 2px solid var(--sc-focus-ring); outline-offset: 3px; }
+:root :is(.mantine-Paper-root, .mantine-Table-table) { background: var(--sc-surface); color: var(--sc-text); border-color: var(--sc-border); }
+:root :is(.mantine-Modal-content, .mantine-Modal-header, .mantine-Drawer-content, .mantine-Drawer-header, .mantine-Popover-dropdown, .mantine-Menu-dropdown, .mantine-Combobox-dropdown) { background: var(--sc-surface-elevated); color: var(--sc-text); border-color: var(--sc-border); }
+:root :is(.mantine-Modal-overlay, .mantine-Drawer-overlay) { background: var(--sc-overlay); }
+:root :is(.mantine-Input-input, .mantine-PasswordInput-innerInput) { background: var(--sc-surface-subtle); color: var(--sc-text); border-color: var(--sc-control-border); caret-color: var(--sc-text); }
+:root .mantine-Input-input::placeholder { color: var(--sc-text-muted); opacity: 1; }
+:root .mantine-Input-input:focus { border-color: var(--sc-focus-ring); }
+:root :is(.mantine-Input-label, .mantine-Menu-item, .mantine-Combobox-option) { color: var(--sc-text); }
+:root :is(.mantine-Menu-label, .mantine-Input-description, .mantine-CloseButton-root) { color: var(--sc-text-muted); }
+:root :is(.mantine-Menu-item, .mantine-Combobox-option):hover { background: var(--sc-surface-subtle); }
+:root .mantine-Combobox-option[data-combobox-selected] { background: var(--sc-primary-soft); color: var(--sc-primary-text); }
+:root .mantine-Button-root:not([data-variant]), :root .mantine-Button-root[data-variant="filled"], :root .mantine-Pagination-control[data-active] { color: var(--sc-on-primary); }
+:root .mantine-Button-root[data-variant="filled"]:not([data-disabled]):not([data-loading]) { background: var(--button-bg, var(--sc-primary)); }
+:root .mantine-Button-root[data-variant="filled"][data-loading] { color: var(--sc-on-primary); }
+:root :is(.mantine-Table-th, .mantine-Table-td, .mantine-Divider-root) { border-color: var(--sc-border); }
+:root .mantine-Table-th { color: var(--sc-text-muted); background: var(--sc-surface-subtle); }
+:root .mantine-NavLink-root[data-active] { color: var(--sc-primary-text); background: var(--sc-primary-soft); }
+:root .mantine-Tooltip-tooltip { background: var(--sc-surface-elevated); color: var(--sc-text); border: 1px solid var(--sc-border); }
+:root .mantine-ActionIcon-root[data-variant="subtle"] { color: var(--sc-text-muted); }
+/* Plain/native forms in author screens share the same readable boundaries. */
+.sc-author-theme :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select) { background-color: var(--sc-surface-subtle); color: var(--sc-text); border-color: var(--sc-control-border); caret-color: var(--sc-text); }
+.sc-author-theme select option { background: var(--sc-surface-elevated); color: var(--sc-text); }
+.sc-author-theme .sc-manuscript { background: transparent; color: var(--sc-text); }
+.sc-author-theme .sc-format-toolbar > div { background: var(--sc-surface-elevated); }
+.sc-author-theme :is(button, a):is(.bg-primary, .bg-primary-500, .bg-primary-600, .bg-primary-700, .bg-primary-container) { color: var(--sc-on-primary); }
+.sc-author-theme :is(button, a)[class*="bg-primary-50"], .sc-author-theme :is(button, a)[class*="bg-primary-100"] { color: var(--sc-primary-text); }
+.sc-dialog > div > div { background: var(--sc-surface-elevated); }
+.sc-author-theme .sc-dialog > div { background: var(--sc-overlay); }
+.sc-author-theme :focus-visible { outline-color: var(--sc-focus-ring); }
+/* Disabled controls remain readable, without affecting logos, covers or avatars. */
+:root :is(.mantine-Input-input, .mantine-Button-root)[data-disabled] { background: var(--sc-neutral-bg); color: var(--sc-text-muted); border-color: var(--sc-border); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; }
+}
+
+:root .mantine-Badge-root:not([data-variant]), :root .mantine-Badge-root[data-variant="filled"] { color: var(--sc-on-primary); }
+:root .sc-author-theme textarea.sc-manuscript { background: transparent; }
+.sc-author-theme input:is([type="checkbox"], [type="radio"]) { appearance: auto; accent-color: var(--sc-primary); }

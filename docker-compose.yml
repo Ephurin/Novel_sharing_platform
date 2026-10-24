@@ -61,6 +61,8 @@ services:
         condition: service_healthy
 
   backend:
+    volumes:
+      - media_data:/app/backend/uploads
     build:
       context: .
       dockerfile: backend/Dockerfile
@@ -111,3 +113,4 @@ services:
 volumes:
   postgres_data:
   mongodb_data:
+  media_data:

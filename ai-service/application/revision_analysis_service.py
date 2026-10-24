@@ -7,6 +7,7 @@ import uuid
 from dataclasses import dataclass
 from typing import Any
 
+from services.source_grounding import quote_span, find_mention
 from application.ports import ContentHashMismatchError, RevisionContentProvider
 from domain.models import AnalysisRun, NarrativeProposal
 from domain.repositories import NarrativeRepository
@@ -20,6 +21,7 @@ class RevisionAnalysisResult:
     analysis_run: AnalysisRun
     proposals: tuple[NarrativeProposal, ...]
     deduplicated: bool
+    status: str = "completed"
 
 
 class RevisionAnalysisService:
@@ -47,6 +49,11 @@ class RevisionAnalysisService:
         idempotency_key: str,
         options: dict[str, bool],
     ) -> RevisionAnalysisResult:
+        if getattr(self._entity_pipeline, 'candidate_verification_enabled', False):
+            from application.entity_hitl import analyze
+            return analyze(self, tenant_id=tenant_id, novel_id=novel_id, chapter_id=chapter_id,
+                revision_id=revision_id, content_hash=content_hash, operation=operation,
+                idempotency_key=idempotency_key, options=options)
         revision = self._revision_provider.get_revision(
             tenant_id=tenant_id,
             novel_id=novel_id,
@@ -251,3 +258,83 @@ class RevisionAnalysisService:
             confidence=confidence,
             expected_brain_version=brain_version,
         )
+
+    def create_author_entity(self, story_id, name, entity_type):
+        from application.entity_review_service import registry
+        if not isinstance(name, str) or not name.strip() or len(name.strip()) > 255:
+            raise ValueError('Provide an entity name of at most 255 characters')
+        if entity_type not in {'PER', 'LOC', 'ITEM', 'ORG', 'SKILL'}:
+            raise ValueError('Choose a valid entity type')
+        name = name.strip()
+        # An existing identity is never overwritten or merged by a declaration.
+        if any(e['name'].casefold() == name.casefold() for e in registry(self._repository, story_id)['entities']):
+            raise ValueError('This identity already exists; use an explicit correction')
+        brain = self._repository.get_story_brain(story_id)
+        version = int(brain.metadata.get('brain_version', 1))
+        payload = {'canonical_name': name, 'normalized_name': name.casefold(), 'entity_type': entity_type,
+                   'initial_status': 'Unknown', 'source_type': 'author_declaration'}
+        digest = hashlib.sha256(json.dumps([story_id, version, payload], sort_keys=True).encode()).hexdigest()
+        # No source occurrence is asserted. Normal group approval and brain-version locking still apply.
+        proposal = NarrativeProposal(proposal_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f'author-entity:{digest}')),
+            proposal_type='entity', payload=payload, dependency_group_id=f'author-entity:{digest}',
+            evidence=(), confidence=1.0, expected_brain_version=version)
+        self._repository.save_proposals(story_id, [proposal])
+        return proposal
+
+    def create_author_proposal(self, *, tenant_id, novel_id, chapter_id, revision_id,
+                               quote, proposal_type, payload, expected_brain_version):
+        from application.entity_hitl import scoped
+        scoped(self, tenant_id)
+        from domain.projection import validate_payload, resolve_entity
+        from domain.errors import OptimisticLockError
+        revision = self._revision_provider.get_revision(tenant_id=tenant_id, novel_id=novel_id,
+            chapter_id=chapter_id, revision_id=revision_id)
+        actual_hash = hashlib.sha256(revision.content.encode("utf-8")).hexdigest()
+        if actual_hash != revision.content_hash:
+            raise ContentHashMismatchError(revision_id)
+        start, end = quote_span(revision.content, quote)
+        brain = self._repository.get_story_brain(novel_id)
+        if int(brain.metadata.get("brain_version", "1")) != expected_brain_version:
+            raise OptimisticLockError("Reload memory before creating a correction")
+        if proposal_type not in {"entity", "event", "fact"}:
+            raise ValueError("Unsupported author proposal type")
+        allowed = {"entity": {"canonical_name", "entity_type", "initial_status"},
+                   "event": {"event_type", "summary", "participants", "locations", "consequences"},
+                   "fact": {"fact_key", "fact_value", "subject_entity_id"}}[proposal_type]
+        if set(payload) - allowed:
+            raise ValueError("Unsupported fields in author proposal")
+        payload = dict(payload)
+        validate_payload(proposal_type, payload)
+        if proposal_type == "entity":
+            name = payload.get("canonical_name", "")
+            if not name or find_mention(quote, name) is None:
+                raise ValueError("Entity name must occur in the evidence quote")
+            if payload.get("entity_type") not in {"PER", "LOC", "ITEM", "ORG", "SKILL"}:
+                raise ValueError("Choose a valid entity type")
+            payload["normalized_name"] = name.casefold()
+        if proposal_type == "fact":
+            if payload.get("subject_entity_id"):
+                resolve_entity(payload["subject_entity_id"], list(brain.entities))
+            payload["fact_type"] = "author_fact"
+        payload["chapter_number"] = revision.chapter_number
+        if proposal_type == "event":
+            payload["chapter"] = revision.chapter_number
+        payload["source_type"] = "author"
+        if revision.chapter_number is None:
+            raise ValueError("Source chapter number is required")
+        self._repository.record_revision_provenance(story_id=novel_id, chapter_id=chapter_id,
+            revision_id=revision_id, chapter_number=revision.chapter_number)
+        identity = json.dumps([revision_id, quote, proposal_type, payload], sort_keys=True, ensure_ascii=False)
+        digest = hashlib.sha256(identity.encode()).hexdigest()
+        run = self._repository.get_or_create_analysis_run(novel_id,
+            idempotency_key=f"{tenant_id}:author:{digest}", input_hash=digest,
+            operation="author_memory_proposal", pipeline_version="author-evidence-v1")
+        existing = self._repository.list_proposals(novel_id, analysis_run_id=run.run_id)
+        if existing:
+            return existing[0]
+        proposal = self._proposal(run, str(uuid.uuid5(uuid.NAMESPACE_URL, f"author:{run.run_id}")),
+            proposal_type, payload, {"revision_id": revision_id, "chapter_id": chapter_id,
+                "chapter_number": revision.chapter_number, "start": start, "end": end,
+                "text_hash": actual_hash, "quote": quote}, 1.0, expected_brain_version, 0)
+        self._repository.save_proposals(novel_id, [proposal])
+        return proposal

@@ -5,10 +5,12 @@ import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { env } from '../../core/config/env.js';
 import { findChapterById } from './chapters.repository.js';
-import { findDraftChapterByChapterId, upsertDraftChapter, syncDraftFromRevisionConditional } from './draft-chapters.repository.js';
+import { findDraftChapterByChapterId, syncDraftFromRevisionConditional } from './draft-chapters.repository.js';
 import { getNovel } from './novels.service.js';
 import { insertOutboxEvent } from './outbox.repository.js';
 import { triggerImmediateProcessing } from '../../jobs/outbox-processor.js';
+import { assertControllerIntent } from './controller-intent.js';
+import { withChapterWriter, type ChapterWriterLease } from './chapter-writer.js';
 import {
   findLatestRevisionByChapterId,
   findRevisionById,
@@ -84,7 +86,8 @@ async function checkStoryBrainActive(novelId: string): Promise<boolean> {
 export async function createSnapshot(
   auth: AuthContext,
   chapterId: string,
-  input?: { content?: string; purpose?: 'AUTHOR_SNAPSHOT' | 'MANUSCRIPT_BOOTSTRAP' }
+  input?: { content?: string; purpose?: 'AUTHOR_SNAPSHOT' | 'MANUSCRIPT_BOOTSTRAP' },
+  parent?: ChapterWriterLease
 ): Promise<ChapterRevisionRecord> {
   const chapter = await findChapterById(chapterId);
   if (!chapter) {
@@ -92,6 +95,20 @@ export async function createSnapshot(
   }
   const novel = await getNovel(chapter.novelId);
   assertOwner(novel, auth);
+
+  return withChapterWriter(chapterId, lease => createSnapshotUnderLease(auth, chapterId, input, lease), parent);
+}
+
+async function createSnapshotUnderLease(
+  auth: AuthContext,
+  chapterId: string,
+  input: { content?: string; purpose?: 'AUTHOR_SNAPSHOT' | 'MANUSCRIPT_BOOTSTRAP' } | undefined,
+  lease: ChapterWriterLease
+): Promise<ChapterRevisionRecord> {
+  const chapter = await findChapterById(chapterId);
+  if (!chapter) {
+    throw new AppError(404, 'CHAPTER_001', 'Chapter not found');
+  }
 
   const purpose = input?.purpose ?? 'AUTHOR_SNAPSHOT';
 
@@ -122,6 +139,11 @@ export async function createSnapshot(
 
     const latest = await findLatestRevisionByChapterId(client, chapterId);
 
+    // Repeated saves of the same body must not create duplicate analysis work.
+    if (latest?.contentHash === contentHash && latest.sourceType === sourceType) {
+      return latest;
+    }
+
     const record = await insertRevision(client, {
       novelId: chapter.novelId,
       chapterId,
@@ -151,51 +173,21 @@ export async function createSnapshot(
     return record;
   });
 
-  // Dual-write to Mongo draft storage with conditional reconciliation
-  const snapshotTime = new Date();
-  try {
-    await syncDraftFromRevisionConditional({
-      chapterId,
-      revisionId: revision.revisionId,
-      title: chapter.title,
-      content,
-      wordCount,
-      acceptTimestamp: snapshotTime,
-      novelId: chapter.novelId
-    });
-  } catch (mongoErr: any) {
-    console.error(
-      `[DUAL_WRITE_RECONCILIATION_REQUIRED] MongoDB sync failed in snapshot for revision ${revision.revisionId}:`,
-      mongoErr?.message || mongoErr
-    );
-    try {
-      await insertOutboxEvent(undefined, {
-        eventType: 'MONGO_DRAFT_SYNC',
-        novelId: chapter.novelId,
-        chapterId,
-        revisionId: revision.revisionId,
-        contentHash,
-        createdBy: auth.userId,
-        payload: {
-          novelId: chapter.novelId,
-          authorId: auth.userId,
-          title: chapter.title,
-          chapterNumber: chapter.chapterNumber,
-          content,
-          wordCount,
-          acceptTimestamp: snapshotTime.toISOString()
-        }
-      });
-    } catch (outboxErr) {
-      console.error('[Outbox] Failed to queue MONGO_DRAFT_SYNC fallback:', outboxErr);
-    }
-  }
-
+  // A checkpoint must not overwrite an actively edited MongoDB draft.
   if (purpose === 'AUTHOR_SNAPSHOT') {
     triggerImmediateProcessing();
   }
 
   return revision;
+}
+
+// Before the initial author-triggered extraction, saves remain ordinary drafts.
+// Once the baseline is active, every changed body creates a durable revision and
+// analysis outbox event.
+export async function snapshotSavedChapter(auth: AuthContext, chapterId: string, content: string, lease?: ChapterWriterLease) {
+  const chapter = await findChapterById(chapterId);
+  if (!chapter || !(await checkStoryBrainActive(chapter.novelId))) return null;
+  return createSnapshot(auth, chapterId, { content, purpose: 'AUTHOR_SNAPSHOT' }, lease);
 }
 
 export async function acceptDraft(
@@ -210,6 +202,20 @@ export async function acceptDraft(
   const novel = await getNovel(chapter.novelId);
   assertOwner(novel, auth);
 
+  return withChapterWriter(chapterId, lease => acceptDraftUnderLease(auth, chapterId, input, lease));
+}
+
+async function acceptDraftUnderLease(
+  auth: AuthContext,
+  chapterId: string,
+  input: { generationId: string },
+  lease: ChapterWriterLease
+): Promise<{ revision: ChapterRevisionRecord; chapterId: string }> {
+  const chapter = await findChapterById(chapterId);
+  if (!chapter) {
+    throw new AppError(404, 'CHAPTER_001', 'Chapter not found');
+  }
+
   // 0. Idempotency fast-path: If this generation was already accepted, return existing revision immediately
   const existingAccepted = await findRevisionBySourceGenerationId(undefined, chapterId, input.generationId);
   if (existingAccepted) {
@@ -217,82 +223,126 @@ export async function acceptDraft(
   }
 
   // 1. Server-Side Trust Contract: fetch validated generation job from AI service
-  const aiUrl = `${env.AI_SERVICE_URL}/internal/v1/writing/generations/${input.generationId}`;
-  let generation: any;
+  let generation: {
+    job_id: string;
+    novel_id: string;
+    chapter_id: string;
+    revision_id: string;
+    content_hash: string;
+    tenant_id?: string;
+    actor_id?: string | null;
+    status: string;
+    validation_status: string;
+    patch: { start: number; end: number; replacement: string } | null;
+    brain_version_used?: number | null;
+    idempotency_key?: string | null;
+  };
+
   try {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json'
-    };
-    if (env.PLATFORM_SERVICE_TOKEN) {
-      headers['Authorization'] = `Bearer ${env.PLATFORM_SERVICE_TOKEN}`;
-      headers['X-Service-Token'] = env.PLATFORM_SERVICE_TOKEN;
+    const aiRes = await fetch(
+      `${env.AI_SERVICE_URL}/internal/v1/writing/generations/${input.generationId}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${env.PLATFORM_SERVICE_TOKEN ?? ''}`,
+          'x-service-token': env.PLATFORM_SERVICE_TOKEN ?? '',
+          'x-user-id': auth.userId,
+          'x-tenant-id': auth.userId
+        }
+      }
+    );
+
+    if (aiRes.status === 404) {
+      throw new AppError(404, 'GENERATION_NOT_FOUND', 'AI generation record not found');
     }
-    const res = await fetch(aiUrl, { headers });
-    if (!res.ok) {
-      throw new Error(`AI service returned status ${res.status}`);
+    if (!aiRes.ok) {
+      throw new AppError(
+        502,
+        'AI_SERVICE_ERROR',
+        `AI service returned status ${aiRes.status} while fetching generation details`
+      );
     }
-    const body = (await res.json()) as any;
-    generation = body.data;
+
+    const payload: any = await aiRes.json();
+    generation = payload.data ?? payload;
   } catch (err: any) {
+    if (err instanceof AppError) throw err;
     throw new AppError(
-      400,
-      'AI_SERVICE_ERROR',
-      `Failed to verify generation draft from AI service: ${err.message}`
+      503,
+      'AI_SERVICE_UNAVAILABLE',
+      `Could not communicate with AI service to verify generation: ${err?.message || 'Network error'}`
     );
   }
 
-  if (generation.status !== 'completed' || !generation.patch) {
-    throw new AppError(400, 'INVALID_DRAFT_STATE', 'Writing generation is not in a completed state');
+  // 1a. Contract validation: verify ownership, tenant/actor bounds, completion and patch integrity
+  if (generation.job_id !== input.generationId) {
+    throw new AppError(400, 'GENERATION_MISMATCH', 'Generation ID mismatch between response and request');
   }
-
-  // Enforce server-side validation check: cannot accept a draft with validation failures
-  if (generation.validation_status !== 'passed' || generation.validations?.some((v: any) => !v.passed)) {
+  if (generation.novel_id !== chapter.novelId) {
+    throw new AppError(400, 'NOVEL_MISMATCH', 'Generation belongs to a different novel');
+  }
+  if (generation.chapter_id !== chapterId) {
+    throw new AppError(400, 'CHAPTER_MISMATCH', 'Generation belongs to a different chapter');
+  }
+  const SYSTEM_TENANT_ID = '00000000-0000-0000-0000-000000000001';
+  if (
+    generation.tenant_id &&
+    generation.tenant_id !== auth.userId &&
+    generation.tenant_id !== SYSTEM_TENANT_ID
+  ) {
+    throw new AppError(403, 'FORBIDDEN', 'Generation tenant does not match authenticated user or platform tenant');
+  }
+  if (generation.actor_id && generation.actor_id !== auth.userId) {
+    throw new AppError(403, 'FORBIDDEN', 'Generation actor does not match authenticated user');
+  }
+  if (generation.status !== 'completed') {
+    throw new AppError(409, 'GENERATION_NOT_COMPLETED', `AI generation is not completed (status: ${generation.status})`);
+  }
+  if (generation.validation_status !== 'passed') {
     throw new AppError(
       422,
-      'UNVALIDATED_DRAFT',
-      'Generation draft failed deterministic validation checks and cannot be accepted'
+      'GENERATION_VALIDATION_FAILED',
+      `AI generation validation status is '${generation.validation_status}', cannot accept unvalidated draft`
     );
   }
-
-  if (generation.chapter_id !== chapterId) {
-    throw new AppError(400, 'CHAPTER_MISMATCH', 'Generation chapter does not match target chapter');
+  if (
+    !generation.patch ||
+    typeof generation.patch.start !== 'number' ||
+    typeof generation.patch.end !== 'number' ||
+    typeof generation.patch.replacement !== 'string' ||
+    generation.patch.start < 0 ||
+    generation.patch.end < generation.patch.start
+  ) {
+    throw new AppError(422, 'INVALID_PATCH', 'AI generation contains an invalid or missing patch');
   }
+  const patch = generation.patch;
 
-  // Accept-Time Brain Freshness Policy: Ensure Story Brain has not advanced since draft was generated (strictly fail-closed)
-  if (generation.brain_version_used) {
-    // 1b. Fail-closed Story Brain freshness verification (best-effort freshness semantics):
-    // If AI service is unreachable, we fail closed with 503 AI_SERVICE_UNAVAILABLE.
-    // If Story Brain version advanced past brain_version_used, fail closed with 409 BRAIN_VERSION_CONFLICT.
-    // Note on consistency guarantee: fail-closed availability + best-effort freshness. Cross-service
-    // atomic distributed transactions between Platform Postgres and AI Story Brain are out of scope for MVP.
+  // Guard: Story Brain version drift
+  if (generation.brain_version_used !== undefined && generation.brain_version_used !== null) {
     try {
-      const brainUrl = `${env.AI_SERVICE_URL}/v1/story-brains/by-novel/${chapter.novelId}`;
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        'X-Tenant-Id': '00000000-0000-0000-0000-000000000001',
-        'X-Request-Id': crypto.randomUUID()
-      };
-      if (env.PLATFORM_SERVICE_TOKEN) {
-        headers['Authorization'] = `Bearer ${env.PLATFORM_SERVICE_TOKEN}`;
-        headers['X-Service-Token'] = env.PLATFORM_SERVICE_TOKEN;
+      const brainRes = await fetch(
+        `${env.AI_SERVICE_URL}/v1/story-brains/by-novel/${chapter.novelId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${env.PLATFORM_SERVICE_TOKEN ?? ''}`,
+            'x-service-token': env.PLATFORM_SERVICE_TOKEN ?? '',
+            'x-user-id': auth.userId,
+            'x-tenant-id': auth.userId
+          }
+        }
+      );
+      if (brainRes.status === 404) {
+        throw new AppError(404, 'STORY_BRAIN_NOT_FOUND', `Story Brain not found for novel ${chapter.novelId}`);
       }
-      const brainRes = await fetch(brainUrl, { headers });
       if (!brainRes.ok) {
         throw new AppError(
-          503,
-          'AI_SERVICE_UNAVAILABLE',
-          `Could not verify Story Brain version freshness: AI Service returned HTTP ${brainRes.status}`
-        );
-      }
-      const brainBody = (await brainRes.json()) as any;
-      const currentVersion = brainBody?.data?.brain_version;
-      if (typeof currentVersion !== 'number') {
-        throw new AppError(
           502,
-          'AI_SERVICE_INVALID_RESPONSE',
-          'Could not parse current Story Brain version from AI Service'
+          'AI_SERVICE_ERROR',
+          `AI service returned status ${brainRes.status} while fetching story brain summary`
         );
       }
+      const brainPayload: any = await brainRes.json();
+      const brainData = brainPayload.data ?? brainPayload;
+      const currentVersion = Number(brainData.brain_version ?? brainData.current_version ?? 1);
       if (currentVersion > generation.brain_version_used) {
         throw new AppError(
           409,
@@ -310,9 +360,15 @@ export async function acceptDraft(
     }
   }
 
-
   // 2. Transactional dual-write & conflict verification
   const newRevision = await withPostgresTransaction(async (client) => {
+    await assertControllerIntent(client, {
+      key: generation.idempotency_key ?? '',
+      jobId: generation.job_id,
+      novelId: chapter.novelId,
+      chapterId,
+      authorId: auth.userId
+    });
     await lockChapterForUpdate(client, chapterId);
 
     // 2a. Idempotency guard: If this generation was already accepted, return existing revision
@@ -326,8 +382,8 @@ export async function acceptDraft(
       ? await findRevisionById(client, generation.revision_id)
       : await findLatestRevisionByChapterId(client, chapterId);
 
-    if (!baseRevision) {
-      throw new AppError(404, 'BASE_REVISION_NOT_FOUND', 'Base revision for generation not found');
+    if (!baseRevision || baseRevision.chapterId !== chapterId) {
+      throw new AppError(404, 'BASE_REVISION_NOT_FOUND', 'Base revision for generation not found or does not belong to chapter');
     }
 
     // 2c. Stale base revision check: Ensure the base revision is still the current latest revision
@@ -348,7 +404,7 @@ export async function acceptDraft(
       );
     }
 
-    const newContent = applyPatchToContent(baseRevision.content, generation.patch);
+    const newContent = applyPatchToContent(baseRevision.content, patch);
     const newContentHash = sha256(newContent);
     const newWordCount = countWords(newContent);
 
@@ -394,7 +450,7 @@ export async function acceptDraft(
       acceptTimestamp: acceptTime,
       novelId: chapter.novelId,
       authorId: auth.userId,
-    });
+    }, lease);
     if (syncRes.status === 'skipped_newer_draft') {
       console.log(
         `[MongoDB Reconciliation] Skipped draft sync for revision ${newRevision.revisionId}: newer manual draft in progress.`
@@ -428,31 +484,9 @@ export async function acceptDraft(
     }
   }
 
-
-  // 4. Trigger immediate durable outbox processing
   triggerImmediateProcessing();
 
   return { revision: newRevision, chapterId };
-}
-
-export async function getRevision(
-  auth: AuthContext,
-  chapterId: string,
-  revisionId: string
-): Promise<ChapterRevisionRecord> {
-  const chapter = await findChapterById(chapterId);
-  if (!chapter) {
-    throw new AppError(404, 'CHAPTER_001', 'Chapter not found');
-  }
-  const novel = await getNovel(chapter.novelId);
-  assertOwner(novel, auth);
-
-  const revision = await findRevisionById(undefined, revisionId);
-  if (!revision || revision.chapterId !== chapterId) {
-    throw new AppError(404, 'REVISION_NOT_FOUND', 'Chapter revision not found');
-  }
-
-  return revision;
 }
 
 export async function listRevisions(
@@ -470,14 +504,23 @@ export async function listRevisions(
   return listRevisionsByChapterId(undefined, chapterId, limit);
 }
 
-export async function getInternalRevision(revisionId: string) {
+export interface InternalRevisionDto {
+  revision_id: string;
+  novel_id: string;
+  chapter_id: string;
+  chapter_number: number | undefined;
+  content: string;
+  content_hash: string;
+}
+
+// Service-to-service contract consumed by ai-service PlatformRevisionClient
+// (infrastructure/revision_content_provider.py). Keys MUST stay snake_case.
+export async function getInternalRevision(revisionId: string): Promise<InternalRevisionDto> {
   const revision = await findRevisionById(undefined, revisionId);
   if (!revision) {
     throw new AppError(404, 'REVISION_NOT_FOUND', 'Chapter revision not found');
   }
-
   const chapter = await findChapterById(revision.chapterId);
-
   return {
     revision_id: revision.revisionId,
     novel_id: revision.novelId,
@@ -486,4 +529,24 @@ export async function getInternalRevision(revisionId: string) {
     content: revision.content,
     content_hash: revision.contentHash
   };
+}
+
+export async function getRevision(
+  auth: AuthContext,
+  chapterId: string,
+  revisionId: string
+): Promise<ChapterRevisionRecord> {
+  const chapter = await findChapterById(chapterId);
+  if (!chapter) {
+    throw new AppError(404, 'CHAPTER_001', 'Chapter not found');
+  }
+  const novel = await getNovel(chapter.novelId);
+  assertOwner(novel, auth);
+
+  const revision = await findRevisionById(undefined, revisionId);
+  if (!revision || revision.chapterId !== chapterId) {
+    throw new AppError(404, 'REVISION_NOT_FOUND', 'Revision not found');
+  }
+
+  return revision;
 }

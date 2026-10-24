@@ -1,3 +1,5 @@
+import type { PoolClient } from 'pg';
+import { getPostgresPool } from '../../core/database/postgres.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
@@ -32,6 +34,7 @@ import {
 import { findReadableChapter } from '../reading/reading.repository.js';
 import { createNotification } from '../interactions/notifications.repository.js';
 import { publishNovel, rejectNovelPublication } from '../novels/novels.repository.js';
+import { findNovelById } from '../novels/novels.repository.js';
 import { findChapterById, publishChapter, rejectChapterPublication } from '../novels/chapters.repository.js';
 import { findDraftChapterByChapterId } from '../novels/draft-chapters.repository.js';
 
@@ -52,8 +55,8 @@ function highestSeverity(rules: MatchedRule[]) {
   return 'LOW';
 }
 
-export async function checkContent(input: ContentControlCheckInput) {
-  const rules = await listActiveFilterRules();
+export async function checkContent(input: ContentControlCheckInput & { publicationSnapshot?: { title: string; content: string; wordCount: number } }, client?: PoolClient) {
+  const rules = await listActiveFilterRules(client);
   const matchedRules = scanContent(input.content, rules);
 
   if (!matchedRules.length) {
@@ -64,8 +67,17 @@ export async function checkContent(input: ContentControlCheckInput) {
     } as const;
   }
 
-  const existingReview = await findOpenReview(input.targetType, input.targetId);
+  const existingReview = await findOpenReview(input.targetType, input.targetId, client, 'KEYWORD_FILTER');
   if (existingReview) {
+    if (input.publicationSnapshot && !existingReview.submitted_content) {
+      const attached = await (client ?? getPostgresPool()).query("update moderation_reviews set submitted_content=coalesce(submitted_content,$2::jsonb) where review_id=$1 and status='PENDING' returning submitted_content", [existingReview.review_id,input.publicationSnapshot]);
+      if (!attached.rowCount) throw new AppError(409, 'CONTENT_REVIEW_STALE', 'Kết quả duyệt đã thay đổi, hãy gửi lại');
+      existingReview.submitted_content = attached.rows[0].submitted_content;
+    }
+    if (input.publicationSnapshot && existingReview.submitted_content && JSON.stringify(existingReview.submitted_content) !== JSON.stringify(input.publicationSnapshot)) {
+      const snapshot = existingReview.submitted_content;
+      if (snapshot.title !== input.publicationSnapshot.title || snapshot.content !== input.publicationSnapshot.content) throw new AppError(409, 'CONTENT_REVIEW_PENDING', 'Phiên bản trước đang chờ duyệt. Hãy chờ kết quả trước khi gửi phiên bản mới.');
+    }
     return {
       result: 'NEED_ADMIN_REVIEW',
       moderationRequired: true,
@@ -80,14 +92,15 @@ export async function checkContent(input: ContentControlCheckInput) {
     source: 'KEYWORD_FILTER',
     matchedRules,
     summary: `${matchedRules.length} content filter rule(s) matched.`
-  });
+  }, client);
 
   const review = await createModerationReview({
     targetType: input.targetType,
     targetId: input.targetId,
     source: 'KEYWORD_FILTER',
-    evidenceId
-  });
+    evidenceId,
+    submittedContent: input.publicationSnapshot
+  }, client);
 
   return {
     result: 'NEED_ADMIN_REVIEW',
@@ -105,9 +118,15 @@ export async function createUserReport(auth: AuthContext, input: CreateReportInp
     if (comment.deletedAt !== null || comment.status !== 'APPROVED') {
       throw new AppError(404, 'CONTENT_001', 'Comment not found');
     }
-    const chapter = await findReadableChapter(comment.chapterId);
-    if (!chapter) {
-      throw new AppError(404, 'CONTENT_001', 'Content not found');
+    if (comment.chapterId) {
+      if (!await findReadableChapter(comment.chapterId)) {
+        throw new AppError(404, 'CONTENT_001', 'Content not found');
+      }
+    } else {
+      const novel = await findNovelById(comment.novelId);
+      if (!novel || novel.status !== 'PUBLISHED') {
+        throw new AppError(404, 'CONTENT_001', 'Content not found');
+      }
     }
   }
 
@@ -118,7 +137,7 @@ export async function createUserReport(auth: AuthContext, input: CreateReportInp
         throw new AppError(409, 'REPORT_001', 'An open report already exists for this content');
       }
 
-      const existingReview = await findOpenReview(input.targetType, input.targetId, client);
+      const existingReview = await findOpenReview(input.targetType, input.targetId, client, 'USER_REPORT');
       const review =
         existingReview ??
         (await createModerationReview(
@@ -223,6 +242,10 @@ export async function resolveModerationReview(
     throw new AppError(422, 'ADMIN_003', 'Rejection reason required');
   }
 
+  if (review.target_type === 'CHAPTER' && review.source === 'KEYWORD_FILTER' && input.decision === 'APPROVED') {
+    const chapter = await findChapterById(review.target_id);
+    if (!chapter || chapter.status !== 'PENDING_MODERATION') throw new AppError(409, 'CONTENT_REVIEW_STALE', 'Chương không còn chờ duyệt; không thể phát hành phiên bản cũ');
+  }
   const resolved = await resolveReviewRow({
     reviewId,
     status: input.decision as ModerationStatus,
@@ -239,7 +262,7 @@ export async function resolveModerationReview(
       await resolveCommentUserReport(auth, resolved, input.reason);
     } else {
       const commentStatus: CommentStatus = resolved.status === 'APPROVED' ? 'APPROVED' : 'REJECTED';
-      await updateCommentModerationStatus(resolved.target_id, commentStatus, resolved.review_id);
+      await updateCommentModerationStatus(resolved.target_id, commentStatus, resolved.review_id, resolved.review_id);
     }
   }
 
@@ -259,22 +282,23 @@ export async function resolveModerationReview(
       }
 
       const draft = await findDraftChapterByChapterId(resolved.target_id);
-      const content = draft?.content ?? chapter.content;
+      const content = resolved.submitted_content?.content ?? draft?.content ?? chapter.content;
 
       if (!content) {
         throw new AppError(409, 'CONTENT_004', 'Invalid content state');
       }
 
       await publishChapter(resolved.target_id, {
-        title: draft?.title ?? chapter.title,
+        title: resolved.submitted_content?.title ?? draft?.title ?? chapter.title,
         content,
-        wordCount: draft?.wordCount ?? chapter.wordCount
+        wordCount: resolved.submitted_content?.wordCount ?? draft?.wordCount ?? chapter.wordCount
       });
     } else {
       await rejectChapterPublication(resolved.target_id);
     }
   }
 
+  if (resolved.target_type === 'CHAPTER') await getPostgresPool().query("update chapter_publication_schedules set status=$2,error=$3,updated_at=now() where moderation_review_id=$1 and status='PENDING_MODERATION'", [resolved.review_id, resolved.status === 'APPROVED' ? 'PUBLISHED' : 'FAILED', resolved.status === 'APPROVED' ? null : (input.reason ?? 'Nội dung không được duyệt')]);
   return {
     reviewId: resolved.review_id,
     status: resolved.status,

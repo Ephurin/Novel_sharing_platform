@@ -53,6 +53,11 @@ export async function getBootstrapJob(jobId: string) {
   return response.data.data;
 }
 
+export async function resumeBootstrapJob(jobId: string) {
+  const response = await apiClient.post<ApiEnvelope<BootstrapJob>>(`/ai/jobs/${jobId}/resume`);
+  return response.data.data;
+}
+
 export async function getReviewQueue(novelId: string) {
   const response = await apiClient.get<ApiEnvelope<ReviewProposal[]>>(`/ai/story-brains/${novelId}/review-queue`);
   return response.data.data;
@@ -231,6 +236,8 @@ export async function importChaptersBatch(
   const results: ImportedChapterResult[] = [];
   for (let i = 0; i < chapters.length; i++) {
     const ch = chapters[i];
+    const fingerprint = new TextEncoder().encode(JSON.stringify([novelId, i, ch.title, ch.content]));
+    const clientRequestId = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', fingerprint)), byte => byte.toString(16).padStart(2, '0')).join('');
     if (onProgress) {
       onProgress(i, chapters.length, `Đang tạo chương ${i + 1}/${chapters.length}: ${ch.title}`);
     }
@@ -241,6 +248,7 @@ export async function importChaptersBatch(
       const response = await apiClient.post<ApiEnvelope<any>>(`/novels/${novelId}/chapters`, {
         title: ch.title,
         content: ch.content,
+        clientRequestId,
         isVip: ch.isVip ?? false,
         priceCoins: ch.priceCoins ?? 0
       });

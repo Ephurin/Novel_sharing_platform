@@ -232,7 +232,8 @@ export class AutonomousControllerService {
 
     if (!isAlreadyAccepted) {
       // Generate draft via P1 Writing Generation API
-      const genIdempotencyKey = `auto-${run.run_id}-iter-${run.current_iteration}-try-${run.current_retries}`;
+      const intentVersion = typeof eligibleObj.intent_version === 'number' ? eligibleObj.intent_version : 0;
+      const genIdempotencyKey = `auto-${run.run_id}-obj-${currentObjectiveId}-intent-${intentVersion}-plan-${run.plan_version}-iter-${run.current_iteration}-try-${run.current_retries}`;
       const genPayload = {
         novel_id: run.novel_id,
         chapter_id: targetChapter.chapterId,
@@ -285,6 +286,18 @@ export class AutonomousControllerService {
     if (!genJob) {
       throw new AppError(504, 'AI_SERVICE_TIMEOUT', 'Writing generation did not complete within timeout');
     }
+
+    // P3 Controller Intent Contract: Update run with current execution pointers before acceptance gate
+    await aiGatewayService.forwardRequest<AutonomousRunDto>({
+      method: 'PATCH',
+      path: `/v1/autonomous/runs/${runId}`,
+      body: {
+        current_objective_id: currentObjectiveId,
+        current_chapter_id: targetChapter.chapterId,
+        last_generation_id: genJob.job_id,
+      },
+      userId: auth.userId,
+    });
 
     // Deterministic Quality Gate (Strict Fail-Closed)
     const isJobCompleted = genJob.status === 'completed';

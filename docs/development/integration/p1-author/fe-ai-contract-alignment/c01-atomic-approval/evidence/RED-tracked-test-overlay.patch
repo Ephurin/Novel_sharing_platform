@@ -1,0 +1,72 @@
+diff --git a/backend/src/modules/ai/p1-memory-entity.live.test.ts b/backend/src/modules/ai/p1-memory-entity.live.test.ts
+index 8bc4fa61..c28aedb8 100644
+--- a/backend/src/modules/ai/p1-memory-entity.live.test.ts
++++ b/backend/src/modules/ai/p1-memory-entity.live.test.ts
+@@ -141,6 +141,31 @@ test('live Gateway -> AI -> PostgreSQL: approved memory and revision-bound entit
+     };
+     const approval = { proposal_ids: queue.map((p: any) => p.proposal_id), expected_brain_version: 1,
+       edited_payloads: editedPayloads };
++    const groupEntity = queue.find((p: any) => p.proposal_type === 'entity');
++    const singleUrl = `${base.slice(0, base.indexOf('/story-brains'))}/proposals/${groupEntity.proposal_id}/edit-and-accept`;
++    const singleBody = { expected_brain_version: 1, edited_payload: groupEntity.payload };
++    const beforePartial = await durable('C01-before-partial-approval');
++    for (const [token, expected] of [[null, 401], [foreignToken, 403], [ownerToken, 422]] as const) {
++      const response = await fetch(singleUrl, { method: 'POST', headers: {
++        'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
++        body: JSON.stringify(singleBody) });
++      const result = await response.json();
++      requests.push({ method: 'POST', path: '/proposals/partial/edit-and-accept',
++        actor: token === ownerToken ? 'owner' : token ? 'foreign' : 'anonymous',
++        body: singleBody, status: response.status, response: result });
++      const after = await durable('C01-after-partial-approval-' + response.status);
++      assert.equal(response.status, expected, JSON.stringify(result));
++      assert.deepEqual({ ...after, stage: '' }, { ...beforePartial, stage: '' });
++    }
++    // Python's unedited endpoint is trusted-service only; Node does not mount /proposals/:id/accept.
++    const unedited = await fetch(`${env.AI_SERVICE_URL}/v1/proposals/${groupEntity.proposal_id}/accept`, {
++      method: 'POST', headers: { 'Content-Type': 'application/json',
++        'X-Service-Token': env.PLATFORM_SERVICE_TOKEN!, 'X-Request-Id': randomUUID() },
++      body: JSON.stringify({ expected_brain_version: 1 }) });
++    requests.push({ method: 'POST', path: '/v1/proposals/partial/accept', actor: 'trusted-service',
++      status: unedited.status, response: await unedited.json() });
++    assert.equal(unedited.status, 422);
++    assert.deepEqual({ ...await durable('C01-after-unedited-partial'), stage: '' }, { ...beforePartial, stage: '' });
+     const beforeUnauthorized = await durable('canon-authorization-before');
+     for (const [token, expected] of [[null,401],[foreignToken,403]] as const) {
+       const denied = await fetch(acceptUrl, {method:'POST', headers:{'Content-Type':'application/json',
+@@ -166,8 +191,15 @@ test('live Gateway -> AI -> PostgreSQL: approved memory and revision-bound entit
+       const after = await durable('invalid-edited-group');
+       assert.deepEqual({ ...after, stage: '' }, { ...beforeUnauthorized, stage: '' });
+     }
+-    const accepted = await fetch(acceptUrl, { method: 'POST', headers: { Authorization: `Bearer ${ownerToken}`, 'Content-Type': 'application/json' },
+-      body: JSON.stringify(approval) });
++    const [accepted, overlappingSingle] = await Promise.all([
++      fetch(acceptUrl, { method: 'POST', headers: { Authorization: `Bearer ${ownerToken}`, 'Content-Type': 'application/json' },
++        body: JSON.stringify(approval) }),
++      fetch(singleUrl, { method: 'POST', headers: { Authorization: `Bearer ${ownerToken}`, 'Content-Type': 'application/json' },
++        body: JSON.stringify(singleBody) }),
++    ]);
++    requests.push({ method: 'POST', path: '/proposals/overlapping/edit-and-accept',
++      status: overlappingSingle.status, response: await overlappingSingle.json() });
++    assert.ok([409, 422].includes(overlappingSingle.status));
+     const acceptedBody = await accepted.json();
+     requests.push({ method: 'POST', path: `/proposal-groups/${group}/accept`, status: accepted.status, response: acceptedBody });
+     assert.equal(accepted.status, 200, JSON.stringify(acceptedBody));
+@@ -279,6 +311,17 @@ test('live Gateway -> AI -> PostgreSQL: approved memory and revision-bound entit
+       expected_brain_version: 5 }, ownerToken, 422);
+     assert.deepEqual({ ...await durable('superseded-correction-rejected', semanticRevision), stage: '' },
+       { ...correctedReadback, stage: '' });
++    const standalone = await http('/author-entities', 'POST', { name: 'C01 Standalone', entity_type: 'PER' }, ownerToken, 201);
++    const singletonResponse = await fetch(`${base.slice(0, base.indexOf('/story-brains'))}/proposals/${standalone.proposal_id}/edit-and-accept`, {
++      method: 'POST', headers: { Authorization: `Bearer ${ownerToken}`, 'Content-Type': 'application/json' },
++      body: JSON.stringify({ expected_brain_version: 5, edited_payload: standalone.payload }) });
++    requests.push({ method: 'POST', path: '/proposals/standalone/edit-and-accept',
++      status: singletonResponse.status, response: await singletonResponse.json() });
++    assert.equal(singletonResponse.status, 200);
++    const singletonMemory = await http('/memory');
++    assert.equal(singletonMemory.brain_version, 6);
++    assert.ok(singletonMemory.entities.some((e: any) => e.name === 'C01 Standalone'));
++    await durable('C01-singleton-approved', semanticRevision);
+     // A newer saved revision invalidates the former human checkpoint at Gateway.
+     const nextRevision = randomUUID();
+     lifecycle.registerRevision(nextRevision);

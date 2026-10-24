@@ -1,0 +1,124 @@
+{
+  "contract": "PR58_FINAL_OWNERSHIP_SAFETY_CLOSURE",
+  "verdict": "READY_FOR_GPT6_REVIEW",
+  "provenance": {
+    "repository": "Ephurin/Novel_sharing_platform",
+    "writable_branch": "gemini/p1-ci-isolation",
+    "target_branch": "integration/p1-author",
+    "pull_request_number": 58,
+    "source_commit_sha": "c3f37aa7ac8182a9fe35887fe71b1c218c6ecb5d",
+    "source_commit_message": "fix(test-safety): enforce outbox ownership isolation and canonical count parsing (G-01, G-02)"
+  },
+  "ci_verification": {
+    "workflow": "P8 Cutover and Migration",
+    "run_id": 39927435101,
+    "run_url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39927435101",
+    "head_sha": "c3f37aa7ac8182a9fe35887fe71b1c218c6ecb5d",
+    "jobs_summary": "7/7 jobs verified passing in CI",
+    "jobs": [
+      {
+        "name": "postgres-integration",
+        "conclusion": "success",
+        "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39927435101/job/120327185970"
+      },
+      {
+        "name": "final-cleanup-gate",
+        "conclusion": "success",
+        "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39927435101/job/120327186188"
+      },
+      {
+        "name": "unit",
+        "conclusion": "success",
+        "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39927435101/job/120327186214"
+      },
+      {
+        "name": "rollback-rehearsal",
+        "conclusion": "success",
+        "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39927435101/job/120327186336"
+      },
+      {
+        "name": "backend-integration",
+        "conclusion": "success",
+        "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39927435101/job/120327186362"
+      },
+      {
+        "name": "frontend-api-cutover",
+        "conclusion": "success",
+        "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39927435101/job/120327186462"
+      },
+      {
+        "name": "root-compose-cutover-smoke",
+        "conclusion": "success",
+        "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/39927435101/job/120327186481"
+      }
+    ]
+  },
+  "local_verification": {
+    "database_isolation_opt_in": "EPHURIN_ALLOW_TEST_DB_MUTATIONS=1",
+    "llm_provider": "fake (zero live provider calls)",
+    "database_residue_audit": {
+      "db": "ephurin_int",
+      "users": 0,
+      "novels": 0,
+      "chapters": 0,
+      "revisions": 0,
+      "outbox": 0
+    },
+    "command_results": [
+      {
+        "command": "npx tsx --test src/core/database/test-db-guard-lifecycle.test.ts",
+        "exit_code": 0,
+        "passed": 6,
+        "failed": 0
+      },
+      {
+        "command": "npx tsx --test src/core/database/test-db-guard.test.ts",
+        "exit_code": 0,
+        "passed": 11,
+        "failed": 0
+      },
+      {
+        "command": "npx tsx --test --test-force-exit src/modules/novels/fixture-lifecycle-resilience.postgres.test.ts",
+        "exit_code": 0,
+        "passed": 25,
+        "failed": 0
+      },
+      {
+        "command": "npx tsx --test src/modules/novels/accept-draft-contract.test.ts",
+        "exit_code": 0,
+        "passed": 14,
+        "failed": 0
+      },
+      {
+        "command": "npx tsx --test --test-force-exit src/modules/novels/p1-production-persistence.postgres.test.ts",
+        "exit_code": 0,
+        "passed": 5,
+        "failed": 0
+      },
+      {
+        "command": "npm test",
+        "exit_code": 0,
+        "passed": 181,
+        "skipped": 4,
+        "failed": 0
+      },
+      {
+        "command": "npm run typecheck",
+        "exit_code": 0
+      }
+    ]
+  },
+  "findings_status": {
+    "F06_mutation_guard": "ACCEPTED",
+    "F07_partial_setup_resilience": "ACCEPTED",
+    "F08_provenance": "ACCEPTED",
+    "P2_A_double_cleanup_noop": "ACCEPTED",
+    "P2_B_per_id_fault_tolerance": "ACCEPTED",
+    "F09_mongo_target_preservation": "ACCEPTED",
+    "F10_authoritative_durable_readback": "ACCEPTED",
+    "F11_strict_readback": "ACCEPTED",
+    "F12_outbox_readback": "ACCEPTED",
+    "G01_outbox_ownership_isolation": "VERIFIED_GREEN",
+    "G02_strict_canonical_count_parsing": "VERIFIED_GREEN"
+  }
+}

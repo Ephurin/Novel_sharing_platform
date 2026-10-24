@@ -36,6 +36,7 @@ function mapNotification(document: any) {
 
 export async function createNotification(input: {
   userId: string;
+  eventKey?: string;
   type: string;
   title: string;
   content: string;
@@ -43,7 +44,7 @@ export async function createNotification(input: {
 }) {
   const now = new Date();
   const document = {
-    notificationId: randomUUID(),
+    notificationId: input.eventKey ? createHash('sha256').update(input.eventKey).digest('hex') : randomUUID(),
     userId: input.userId,
     type: input.type,
     status: 'UNREAD' as NotificationStatus,
@@ -60,7 +61,7 @@ export async function createNotification(input: {
     readAt: null
   };
 
-  await notificationsCollection().insertOne(document);
+  await notificationsCollection().updateOne({ notificationId: document.notificationId }, { $setOnInsert: document }, { upsert: true });
   return mapNotification(document);
 }
 

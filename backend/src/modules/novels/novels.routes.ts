@@ -1,5 +1,7 @@
+import { reorderChaptersController } from './chapter-lifecycle.js';
+import { requireActiveAccount } from '../../core/security/active-account.js';
 import { Router } from 'express';
-import { requireAuth, requireRoles } from '../../core/security/auth.middleware.js';
+import { optionalAuth, requireAuth, requireRoles } from '../../core/security/auth.middleware.js';
 import { validateRequest } from '../../core/validation/validate.js';
 import { createChapterController, listChaptersController } from './chapters.controller.js';
 import { createChapterSchema, novelIdParamSchema as chapterNovelIdParamSchema } from './chapters.schemas.js';
@@ -7,8 +9,10 @@ import {
   createNovelController,
   deleteNovelController,
   getNovelController,
+  getNovelEarningsController,
   listMyNovelsController,
   listNovelsController,
+  listGenresController,
   submitNovelPublishController,
   updateNovelController
 } from './novels.controller.js';
@@ -21,14 +25,16 @@ import {
 
 export const novelsRoutes = Router();
 
-const requireAuthor = [requireAuth, requireRoles(['AUTHOR', 'ADMIN'])];
+const requireAuthor = [requireAuth, requireActiveAccount, requireRoles(['AUTHOR', 'ADMIN'])];
 
 novelsRoutes.get('/', validateRequest(listNovelsSchema), listNovelsController);
+novelsRoutes.get('/genres', listGenresController);
 novelsRoutes.get('/me', ...requireAuthor, validateRequest(listNovelsSchema), listMyNovelsController);
 novelsRoutes.post('/', ...requireAuthor, validateRequest(createNovelSchema), createNovelController);
-novelsRoutes.get('/:novelId/chapters', validateRequest(chapterNovelIdParamSchema), listChaptersController);
+novelsRoutes.get('/:novelId/chapters', optionalAuth, validateRequest(chapterNovelIdParamSchema), listChaptersController);
+novelsRoutes.get('/:novelId/earnings', ...requireAuthor, validateRequest(novelIdParamSchema), getNovelEarningsController);
 novelsRoutes.post('/:novelId/chapters', ...requireAuthor, validateRequest(createChapterSchema), createChapterController);
-novelsRoutes.get('/:novelId', validateRequest(novelIdParamSchema), getNovelController);
+novelsRoutes.get('/:novelId', optionalAuth, validateRequest(novelIdParamSchema), getNovelController);
 novelsRoutes.patch('/:novelId', ...requireAuthor, validateRequest(updateNovelSchema), updateNovelController);
 novelsRoutes.delete('/:novelId', ...requireAuthor, validateRequest(novelIdParamSchema), deleteNovelController);
 novelsRoutes.post(
@@ -37,3 +43,5 @@ novelsRoutes.post(
   validateRequest(novelIdParamSchema),
   submitNovelPublishController
 );
+
+novelsRoutes.put('/:novelId/chapter-order', ...requireAuthor, reorderChaptersController);

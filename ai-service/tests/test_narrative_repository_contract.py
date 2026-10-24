@@ -102,7 +102,7 @@ class NarrativeRepositoryContract:
         proposal = NarrativeProposal(
             proposal_id=PROPOSAL_ONE_ID,
             proposal_type="fact",
-            payload={"subject": "Minh", "fact": "is alive"},
+            payload={"fact_key": "alive", "fact_value": True},
         )
 
         self.repository.save_proposals("story-proposal", [proposal])
@@ -115,6 +115,9 @@ class NarrativeRepositoryContract:
         self.assertEqual(len(brain.proposals), 1)
         self.assertEqual(decided.status, ProposalStatus.ACCEPTED)
         self.assertEqual(decided.decision_reason, "author approved")
+        if isinstance(self.repository, PostgresNarrativeRepository):
+            self.assertEqual(len(brain.facts), 1)
+            self.assertEqual(brain.facts[0]['fact_value'], True)
 
     def test_analysis_run_is_idempotent_and_rejects_changed_input(self) -> None:
         kwargs = {
@@ -265,12 +268,14 @@ class PostgresNarrativeRepositoryTests(NarrativeRepositoryContract, unittest.Tes
         first = NarrativeProposal(
             proposal_id="20000000-0000-0000-0000-000000000011",
             proposal_type="fact",
-            payload={"value": "first"},
+            payload={"fact_key": "first", "fact_value": True},
+            dependency_group_id="30000000-0000-0000-0000-000000000011",
         )
         second = NarrativeProposal(
             proposal_id="20000000-0000-0000-0000-000000000012",
             proposal_type="fact",
-            payload={"value": "second"},
+            payload={"fact_key": "second", "fact_value": True},
+            dependency_group_id="30000000-0000-0000-0000-000000000012",
         )
         self.repository.save_proposals("story-lock", [first, second])
         self.repository.decide_proposal("story-lock", first.proposal_id, accepted=True)

@@ -1,0 +1,217 @@
+TAP version 13
+# Subtest: author contexts are paired, account scoped, and never inherit global legacy values
+ok 1 - author contexts are paired, account scoped, and never inherit global legacy values
+  ---
+  duration_ms: 4.5964
+  ...
+# Subtest: initial theme is applied before app rendering, with system and legacy preferences
+ok 2 - initial theme is applied before app rendering, with system and legacy preferences
+  ---
+  duration_ms: 6.0892
+  ...
+# Subtest: manual preference persists and overrides OS, system responds to OS changes
+ok 3 - manual preference persists and overrides OS, system responds to OS changes
+  ---
+  duration_ms: 1.5648
+  ...
+# Subtest: blocked storage still renders and allows an in-memory preference
+ok 4 - blocked storage still renders and allows an in-memory preference
+  ---
+  duration_ms: 1.2733
+  ...
+# Subtest: cross-tab preference and deletion are synchronized
+ok 5 - cross-tab preference and deletion are synchronized
+  ---
+  duration_ms: 0.8633
+  ...
+# Subtest: :root { semantic text and controls meet contrast targets
+ok 6 - :root { semantic text and controls meet contrast targets
+  ---
+  duration_ms: 0.8047
+  ...
+# Subtest: :root[data-theme="dark"] { semantic text and controls meet contrast targets
+ok 7 - :root[data-theme="dark"] { semantic text and controls meet contrast targets
+  ---
+  duration_ms: 0.2838
+  ...
+# FE18_PYTHON_VALIDATION {"items":[{"canonical_name":"Ánh","normalized_name":"ánh"},{"canonical_name":"Ánh","normalized_name":"ánh"},{"canonical_name":"ĐẶNG Thị ÁNH","normalized_name":"đặng thị ánh"},{"canonical_name":"ĐẶNG Thị ÁNH","normalized_name":"đặng thị ánh"},{"canonical_name":"Straße","normalized_name":"strasse"},{"canonical_name":"GROẞ","normalized_name":"gross"},{"canonical_name":"ΟΣ","normalized_name":"οσ"},{"canonical_name":"Σοφός","normalized_name":"σοφόσ"},{"canonical_name":"ﬃ ﬂ ﬁ ﬀ ﬄ ﬅ ﬆ","normalized_name":"ffi fl fi ff ffl st st"},{"canonical_name":"և","normalized_name":"եւ"},{"canonical_name":"  Minh  ","normalized_name":"  minh  "},{"canonical_name":"Mai  Linh","normalized_name":"mai  linh"},{"canonical_name":"\\tÁnh\\t","normalized_name":"\\tánh\\t"},{"canonical_name":"İ ǰ ẖ","normalized_name":"i̇ ǰ ẖ"},{"canonical_name":"µ ſ","normalized_name":"μ s"}],"python":"3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]","unicode":"15.0.0","results":[{"valid":true,"canonical_name":"Ánh","fold":"ánh"},{"valid":true,"canonical_name":"Ánh","fold":"ánh"},{"valid":true,"canonical_name":"ĐẶNG Thị ÁNH","fold":"đặng thị ánh"},{"valid":true,"canonical_name":"ĐẶNG Thị ÁNH","fold":"đặng thị ánh"},{"valid":true,"canonical_name":"Straße","fold":"strasse"},{"valid":true,"canonical_name":"GROẞ","fold":"gross"},{"valid":true,"canonical_name":"ΟΣ","fold":"οσ"},{"valid":true,"canonical_name":"Σοφός","fold":"σοφόσ"},{"valid":true,"canonical_name":"ﬃ ﬂ ﬁ ﬀ ﬄ ﬅ ﬆ","fold":"ffi fl fi ff ffl st st"},{"valid":true,"canonical_name":"և","fold":"եւ"},{"valid":true,"canonical_name":"  Minh  ","fold":"  minh  "},{"valid":true,"canonical_name":"Mai  Linh","fold":"mai  linh"},{"valid":true,"canonical_name":"\\tÁnh\\t","fold":"\\tánh\\t"},{"valid":true,"canonical_name":"İ ǰ ẖ","fold":"i̇ ǰ ẖ"},{"valid":true,"canonical_name":"µ ſ","fold":"μ s"}]}
+# FE18_BOUNDED_ALPHABET {"vectors":1158,"python":"3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]","unicode":"15.0.0"}
+# Subtest: FE-18 actual Python author edit validation accepts exact submitted canonical names
+ok 8 - FE-18 actual Python author edit validation accepts exact submitted canonical names
+  ---
+  duration_ms: 301.0446
+  ...
+# Subtest: FE-18 unsupported name alphabets fail explicitly instead of guessing casefold
+ok 9 - FE-18 unsupported name alphabets fail explicitly instead of guessing casefold
+  ---
+  duration_ms: 1.1367
+  ...
+# Subtest: FE-18 bounded alphabet is experimentally checked against Python validator
+ok 10 - FE-18 bounded alphabet is experimentally checked against Python validator
+  ---
+  duration_ms: 297.3242
+  ...
+# Subtest: B1: Empty initial review DTO handles defaults safely
+ok 11 - B1: Empty initial review DTO handles defaults safely
+  ---
+  duration_ms: 1.8773
+  ...
+# Subtest: B2: Two different characters with same display name "Minh" receive distinct provisional identities
+ok 12 - B2: Two different characters with same display name "Minh" receive distinct provisional identities
+  ---
+  duration_ms: 0.5946
+  ...
+# Subtest: B2: Human provisional group label format validation
+ok 13 - B2: Human provisional group label format validation
+  ---
+  duration_ms: 0.8974
+  ...
+# Subtest: B2: Multiple occurrences sharing one provisional group
+ok 14 - B2: Multiple occurrences sharing one provisional group
+  ---
+  duration_ms: 0.1931
+  ...
+# Subtest: B2: Existing canonical UUID selection distinguishes homonymous entities
+ok 15 - B2: Existing canonical UUID selection distinguishes homonymous entities
+  ---
+  duration_ms: 0.2456
+  ...
+# Subtest: B2: Reject occurrence marks not_entity and clears identity
+ok 16 - B2: Reject occurrence marks not_entity and clears identity
+  ---
+  duration_ms: 0.2229
+  ...
+# Subtest: B3: Partial review request sends finalize=false with only resolved decisions
+ok 17 - B3: Partial review request sends finalize=false with only resolved decisions
+  ---
+  duration_ms: 0.598
+  ...
+# Subtest: B3: Freeze review request requires all candidates resolved with finalize=true
+ok 18 - B3: Freeze review request requires all candidates resolved with finalize=true
+  ---
+  duration_ms: 0.3284
+  ...
+# Subtest: B3: Refresh payload sends expected_version and does not call continue
+ok 19 - B3: Refresh payload sends expected_version and does not call continue
+  ---
+  duration_ms: 0.5815
+  ...
+# Subtest: B5: Full replacement payload preserves immutable provenance and replaces allowed fields
+ok 20 - B5: Full replacement payload preserves immutable provenance and replaces allowed fields
+  ---
+  duration_ms: 1.4294
+  ...
+# Subtest: B5 & C-01: Multi-proposal dependency group must be approved atomically with complete IDs
+ok 21 - B5 & C-01: Multi-proposal dependency group must be approved atomically with complete IDs
+  ---
+  duration_ms: 0.5176
+  ...
+# Subtest: B5 & C-01: Incomplete dependency group submission is prevented
+ok 22 - B5 & C-01: Incomplete dependency group submission is prevented
+  ---
+  duration_ms: 0.2923
+  ...
+# Subtest: B4: Event correction builds valid replacement with canonical entity UUIDs
+ok 23 - B4: Event correction builds valid replacement with canonical entity UUIDs
+  ---
+  duration_ms: 0.6653
+  ...
+# Subtest: B6: Relationship lock requires exact subject and object entity UUIDs
+ok 24 - B6: Relationship lock requires exact subject and object entity UUIDs
+  ---
+  duration_ms: 0.2523
+  ...
+# Subtest: B6: Two same-name characters have independent relationship locks
+ok 25 - B6: Two same-name characters have independent relationship locks
+  ---
+  duration_ms: 0.1848
+  ...
+# Subtest: B6: Ambiguous legacy lock lacking UUIDs triggers remediation detection
+ok 26 - B6: Ambiguous legacy lock lacking UUIDs triggers remediation detection
+  ---
+  duration_ms: 0.2216
+  ...
+# Subtest: State isolation: Switching novel resets local edits and decisions
+ok 27 - State isolation: Switching novel resets local edits and decisions
+  ---
+  duration_ms: 0.2498
+  ...
+# Subtest: Stale 409: Preserves unsaved local edits when version conflict occurs
+ok 28 - Stale 409: Preserves unsaved local edits when version conflict occurs
+  ---
+  duration_ms: 0.4309
+  ...
+# Subtest: FE-07: Atomic group rejection payload formatting and contract validation
+ok 29 - FE-07: Atomic group rejection payload formatting and contract validation
+  ---
+  duration_ms: 0.4174
+  ...
+# Subtest: FE-08: Mixed exact-ID and legacy participants fails closed until legacy participant is resolved
+ok 30 - FE-08: Mixed exact-ID and legacy participants fails closed until legacy participant is resolved
+  ---
+  duration_ms: 0.6916
+  ...
+# Subtest: FE-09: Unsaved dirty candidate choices survive refresh reconciliation
+ok 31 - FE-09: Unsaved dirty candidate choices survive refresh reconciliation
+  ---
+  duration_ms: 0.2206
+  ...
+# Subtest: FE-10: normalizeEntityName handles German sharp S, Greek sigmas, ligatures, and NFC
+ok 32 - FE-10: normalizeEntityName handles German sharp S, Greek sigmas, ligatures, and NFC
+  ---
+  duration_ms: 0.9414
+  ...
+# Subtest: FE-12: Changing or clearing legacy identity does not leak ghost UUIDs into effective participants
+ok 33 - FE-12: Changing or clearing legacy identity does not leak ghost UUIDs into effective participants
+  ---
+  duration_ms: 1.126
+  ...
+# Subtest: FE-12: Duplicate legacy occurrences with same name require distinct occurrence mappings
+ok 34 - FE-12: Duplicate legacy occurrences with same name require distinct occurrence mappings
+  ---
+  duration_ms: 0.6743
+  ...
+# Subtest: FE-14: normalizeEntityName matches Python str.casefold() without modifying whitespace independently
+ok 35 - FE-14: normalizeEntityName matches Python str.casefold() without modifying whitespace independently
+  ---
+  duration_ms: 0.63
+  ...
+# Subtest: project sort choices apply to the result list without changing cached data
+ok 36 - project sort choices apply to the result list without changing cached data
+  ---
+  duration_ms: 3.4875
+  ...
+# Subtest: equal metrics have a predictable order
+ok 37 - equal metrics have a predictable order
+  ---
+  duration_ms: 0.4719
+  ...
+# Subtest: 7 days: calendar boundaries, previous period and source totals
+ok 38 - 7 days: calendar boundaries, previous period and source totals
+  ---
+  duration_ms: 103.0559
+  ...
+# Subtest: 30 days: calendar boundaries, previous period and source totals
+ok 39 - 30 days: calendar boundaries, previous period and source totals
+  ---
+  duration_ms: 1.6348
+  ...
+# Subtest: 365 days: calendar boundaries, previous period and source totals
+ok 40 - 365 days: calendar boundaries, previous period and source totals
+  ---
+  duration_ms: 2.3625
+  ...
+# Subtest: empty ledger has zero bars and no invented earnings
+ok 41 - empty ledger has zero bars and no invented earnings
+  ---
+  duration_ms: 1.457
+  ...
+1..41
+# tests 41
+# suites 0
+# pass 41
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3777.8039

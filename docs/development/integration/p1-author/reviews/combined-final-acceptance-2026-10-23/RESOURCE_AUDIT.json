@@ -1,0 +1,348 @@
+{
+  "resources": [
+    {
+      "name": "/pr60-smoke-2f7cd3d5c3-web-1",
+      "id": "f35ad62d9839a1a0bd3256e5edac5ce61cd182b7c47fd2d9d9999e8a52eabae7",
+      "project": "pr60-smoke-2f7cd3d5c3",
+      "running": false
+    },
+    {
+      "name": "/pr60-smoke-2f7cd3d5c3-backend-1",
+      "id": "392b85189b59578e287cadbef727606411b87e09d2cc9c361ba35b42a701a25d",
+      "project": "pr60-smoke-2f7cd3d5c3",
+      "running": false
+    },
+    {
+      "name": "/pr60-smoke-2f7cd3d5c3-ai-service-1",
+      "id": "23af67105cbfeaf5ee5b58d13e0575991fdf60d41dbf5b2af8e5ad527ae3d240",
+      "project": "pr60-smoke-2f7cd3d5c3",
+      "running": false
+    },
+    {
+      "name": "/pr60-smoke-2f7cd3d5c3-postgres-1",
+      "id": "825ca2d58cc64673faacd8b50274670ca45d66ea7355fe42095214508f3672c5",
+      "project": "pr60-smoke-2f7cd3d5c3",
+      "running": false
+    },
+    {
+      "name": "/pr60-smoke-2f7cd3d5c3-mongodb-1",
+      "id": "a2c020e0bd52892fed353866da544afbd9f69e9d7f41fa4292e0310f71b888a0",
+      "project": "pr60-smoke-2f7cd3d5c3",
+      "running": false
+    },
+    {
+      "name": "/p123-core-a7a97f7f50-api-ingress-1",
+      "id": "82f6b178d19d2c446fc18c72d2cdbf574c84a740604bf8c24d118d28970a2885",
+      "project": "p123-core-a7a97f7f50",
+      "running": false
+    },
+    {
+      "name": "/p123-core-a7a97f7f50-backend-1",
+      "id": "7f19d507de31538d92be52bef976d3e1474412086ff30149794914afae0061bd",
+      "project": "p123-core-a7a97f7f50",
+      "running": false
+    },
+    {
+      "name": "/p123-core-a7a97f7f50-ai-service-1",
+      "id": "ff5b52a035ab4bd4da2cbb74af563cbafd517c396c5a5b44ec4f215918f61c00",
+      "project": "p123-core-a7a97f7f50",
+      "running": false
+    },
+    {
+      "name": "/p123-core-a7a97f7f50-budget-gateway-1",
+      "id": "4e1182fc30622d349bb89abc68f663c04f765dd23be18f0f44ed5933206c7d64",
+      "project": "p123-core-a7a97f7f50",
+      "running": false
+    },
+    {
+      "name": "/p123-core-a7a97f7f50-fake-upstream-1",
+      "id": "9b9a7f4532104200127397b8770aa68e5bc06fe21935daa444feeb22c88f8611",
+      "project": "p123-core-a7a97f7f50",
+      "running": false
+    },
+    {
+      "name": "/p123-core-a7a97f7f50-postgres-1",
+      "id": "ccfaf82d699ac734fc81ced277a23e992b82300c4a7aefeacc6eeb89972f753f",
+      "project": "p123-core-a7a97f7f50",
+      "running": false
+    },
+    {
+      "name": "/p123-core-a7a97f7f50-mongodb-1",
+      "id": "164f7065e6d83eed28b90668c75f8f04a8f3a823708e24f69faa8d5538d340b6",
+      "project": "p123-core-a7a97f7f50",
+      "running": false
+    },
+    {
+      "name": "/p123-core-2f99bc039e-api-ingress-1",
+      "id": "7a9b08a8286d6132d16b1fd24f396671019d7fb931480fb9442ba5d058d05e03",
+      "project": "p123-core-2f99bc039e",
+      "running": false
+    },
+    {
+      "name": "/p123-core-2f99bc039e-backend-1",
+      "id": "1e307629f7596ad2c975c5280c264690a13f97b1accc9025e25801cbd3afe2fe",
+      "project": "p123-core-2f99bc039e",
+      "running": false
+    },
+    {
+      "name": "/p123-core-2f99bc039e-ai-service-1",
+      "id": "690f59a2c67d3da5c95e15b4351d884fc4a597525d88b3db5ed99dab4987e9ac",
+      "project": "p123-core-2f99bc039e",
+      "running": false
+    },
+    {
+      "name": "/p123-core-2f99bc039e-budget-gateway-1",
+      "id": "2fc8dd257fc9a4cc5e0071ee7fd99b82db18034e3b5240bf76a1fd88a8b4e982",
+      "project": "p123-core-2f99bc039e",
+      "running": false
+    },
+    {
+      "name": "/p123-core-2f99bc039e-fake-upstream-1",
+      "id": "1a5d947eb3bac772d8133039f700f23843d82da522a0f56deca91b7b23e5e2c7",
+      "project": "p123-core-2f99bc039e",
+      "running": false
+    },
+    {
+      "name": "/p123-core-2f99bc039e-postgres-1",
+      "id": "141b4abe81d26eb6fcefa117dc66f39cac4cf5c6e791204d95e3bbcd1b0e23f8",
+      "project": "p123-core-2f99bc039e",
+      "running": false
+    },
+    {
+      "name": "/p123-core-2f99bc039e-mongodb-1",
+      "id": "ffe0efaf1a42963dd0b3f176ecf98a64b492ffc02c6d7ba6c39ac00dc08964b8",
+      "project": "p123-core-2f99bc039e",
+      "running": false
+    },
+    {
+      "name": "/p123-core-de545afb38-api-ingress-1",
+      "id": "dcde447c70190654f77077b2416ab14f9ea7b86040fa0de3f09395ebc8511ab6",
+      "project": "p123-core-de545afb38",
+      "running": false
+    },
+    {
+      "name": "/p123-core-de545afb38-backend-1",
+      "id": "01e5f16a051b66f157fc2a36a652edfa08f9347ec6775f5178c956d5a2086c9e",
+      "project": "p123-core-de545afb38",
+      "running": false
+    },
+    {
+      "name": "/p123-core-de545afb38-ai-service-1",
+      "id": "86ebf97223b469fe3399402adc6f644c968f557248c0a25150643da48bbef380",
+      "project": "p123-core-de545afb38",
+      "running": false
+    },
+    {
+      "name": "/p123-core-de545afb38-budget-gateway-1",
+      "id": "877761c7cc33f900d5e9cb45eca568af63075d4c65c6af47ac81286e72e552e3",
+      "project": "p123-core-de545afb38",
+      "running": false
+    },
+    {
+      "name": "/p123-core-de545afb38-fake-upstream-1",
+      "id": "e3fc2feb7173842854232b5bcb530b56b7167ac1ad149728e298e3e38c390abe",
+      "project": "p123-core-de545afb38",
+      "running": false
+    },
+    {
+      "name": "/p123-core-de545afb38-postgres-1",
+      "id": "fb3bbb1f5bc1d0551bfb7aff43ed8f107b1dd77ebe1e8b2f6c0ebdcdc1d7cb4e",
+      "project": "p123-core-de545afb38",
+      "running": false
+    },
+    {
+      "name": "/p123-core-de545afb38-mongodb-1",
+      "id": "0f62fb0b95155c4e1346381087bf8635f62957d53fe4f8b6ae36f7b0ddd9126c",
+      "project": "p123-core-de545afb38",
+      "running": false
+    },
+    {
+      "name": "/pr60-smoke-6286404249-web-1",
+      "id": "862046b44bc8933bee3019611c9210738a937c8f1d42a0e1f17c9e3fa63487e3",
+      "project": "pr60-smoke-6286404249",
+      "running": false
+    },
+    {
+      "name": "/pr60-smoke-6286404249-backend-1",
+      "id": "7b3c57f79ce9d8e451131f4751d258715b9b9b838755f1c30ffed26b675849cf",
+      "project": "pr60-smoke-6286404249",
+      "running": false
+    },
+    {
+      "name": "/pr60-smoke-6286404249-ai-service-1",
+      "id": "828c10974cc61180107057390b397cec3e7c0b5131afb5f3e5d3aa0a75b1e510",
+      "project": "pr60-smoke-6286404249",
+      "running": false
+    },
+    {
+      "name": "/pr60-smoke-6286404249-postgres-1",
+      "id": "8479231b25d85381347ebbf77f026f0d914734be72b4f5e02b45494dd6139e65",
+      "project": "pr60-smoke-6286404249",
+      "running": false
+    },
+    {
+      "name": "/pr60-smoke-6286404249-mongodb-1",
+      "id": "c44361c95d72175e30c56c65f94a8cb7113dcd7e687d89778f7a9d89a80bf10c",
+      "project": "pr60-smoke-6286404249",
+      "running": false
+    },
+    {
+      "name": "/p123-core-abe0ad4e35-api-ingress-1",
+      "id": "03c454571776fed4a9ad783d976e9c9b2de89f9b7c163a8e84670d2a870c000e",
+      "project": "p123-core-abe0ad4e35",
+      "running": false
+    },
+    {
+      "name": "/p123-core-abe0ad4e35-backend-1",
+      "id": "14f13b672a84e4e147d8ab2538bf1d060d3c1c2cb24f79665f581bebf5c4cbc7",
+      "project": "p123-core-abe0ad4e35",
+      "running": false
+    },
+    {
+      "name": "/p123-core-abe0ad4e35-ai-service-1",
+      "id": "b39697bdc48dd6469193c233b40cf486b23983a9475a55c26606618b74201a51",
+      "project": "p123-core-abe0ad4e35",
+      "running": false
+    },
+    {
+      "name": "/p123-core-abe0ad4e35-budget-gateway-1",
+      "id": "82e144adc1c05796c847ab3a95806b691ab338ec4eda863cd6a9cd1f4e367c53",
+      "project": "p123-core-abe0ad4e35",
+      "running": false
+    },
+    {
+      "name": "/p123-core-abe0ad4e35-fake-upstream-1",
+      "id": "09f615d55b3a21287e114bda97b67685ba02365a0a7da12ed3536021d94142f0",
+      "project": "p123-core-abe0ad4e35",
+      "running": false
+    },
+    {
+      "name": "/p123-core-abe0ad4e35-postgres-1",
+      "id": "b0190c68950ec6b06e950c98b3b95986e06f4f2fa65e08b62d34eb6dbf3db62d",
+      "project": "p123-core-abe0ad4e35",
+      "running": false
+    },
+    {
+      "name": "/p123-core-abe0ad4e35-mongodb-1",
+      "id": "6a1e006fe03939a61d67bce99f82e3b6947ceddbe074db743795702bf9a6d81f",
+      "project": "p123-core-abe0ad4e35",
+      "running": false
+    },
+    {
+      "name": "/p123-core-0926623597-api-ingress-1",
+      "id": "cbb2d3e66a506a586beef6f0cc1e65f156ed9dc70bc2b2a2f0b53ca498d96ecc",
+      "project": "p123-core-0926623597",
+      "running": false
+    },
+    {
+      "name": "/p123-core-0926623597-backend-1",
+      "id": "52e3f0f58899a09f8c64b5d7fcba40cfe62cda9629182f94b3377e1ec56d6add",
+      "project": "p123-core-0926623597",
+      "running": false
+    },
+    {
+      "name": "/p123-core-0926623597-ai-service-1",
+      "id": "baebe0d2cbff57bffbc2f69fc02b9fa7699025d9c363d8d3c7bbac362bbdd213",
+      "project": "p123-core-0926623597",
+      "running": false
+    },
+    {
+      "name": "/p123-core-0926623597-budget-gateway-1",
+      "id": "6b8b14932ba58550fe0c970e9fb3da9c85a0544042d3c35752c661c028bb914d",
+      "project": "p123-core-0926623597",
+      "running": false
+    },
+    {
+      "name": "/p123-core-0926623597-fake-upstream-1",
+      "id": "39fb34bd9b2acb28393643d69c7f71521a7bd4a571043b8d8d18ff68df6d12d9",
+      "project": "p123-core-0926623597",
+      "running": false
+    },
+    {
+      "name": "/p123-core-0926623597-postgres-1",
+      "id": "55599f0c16d923f97b3caba4c2ad28cdb8e1b58ba2ce35b7bef3bb2d4d28c05f",
+      "project": "p123-core-0926623597",
+      "running": false
+    },
+    {
+      "name": "/p123-core-0926623597-mongodb-1",
+      "id": "caba9c7ee39198bc632130cd781826d083b5d485a43566775a6393b630cb2e0f",
+      "project": "p123-core-0926623597",
+      "running": false
+    },
+    {
+      "name": "/p1-final-acceptance-005a1178894c-pg",
+      "id": "04363073edfb9567985bc42bbb7cb8576aa56e324d57f0520707df183ddeb896",
+      "running": false,
+      "volume": "p1-final-acceptance-005a1178894c-pg-data"
+    },
+    {
+      "name": "/p1-final-acceptance-005a1178894c-mongo",
+      "id": "84978d15eaf5cccb89f02399c75844e0579983c3003042008abaa6e11cec708b",
+      "running": false,
+      "volume": "p1-final-acceptance-005a1178894c-mongo-data"
+    },
+    {
+      "name": "/p1-final-acceptance-c1b2b4350af1-pg",
+      "id": "bc415a462f39d3fe8b7382c4fc58d47297887852e2e8a532fe6c91d8ae226ac6",
+      "running": false,
+      "volume": "p1-final-acceptance-c1b2b4350af1-pg-data"
+    },
+    {
+      "name": "/p1-final-acceptance-c1b2b4350af1-mongo",
+      "id": "f5906e62394e5ad4cc7d377d6da9f557bc19d7627c54d984df6b8349eb3fc93b",
+      "running": false,
+      "volume": "p1-final-acceptance-c1b2b4350af1-mongo-data"
+    },
+    {
+      "name": "/p1-final-acceptance-3dfce2cf008c-pg",
+      "id": "4f1330490324f7d6c8e9501d25d71122cf312f61b46e0cacde4feac20d2f59e2",
+      "running": false,
+      "volume": "p1-final-acceptance-3dfce2cf008c-pg-data"
+    },
+    {
+      "name": "/p1-final-acceptance-3dfce2cf008c-mongo",
+      "id": "123e32db40ea4432b4110596f5e89133ca32cf8a96250a0c9ebcf4d2c1f53895",
+      "running": false,
+      "volume": "p1-final-acceptance-3dfce2cf008c-mongo-data"
+    }
+  ],
+  "all_stopped": true,
+  "volumes_retained": [
+    "p1-final-acceptance-005a1178894c-mongo-data",
+    "p1-final-acceptance-005a1178894c-pg-data",
+    "p1-final-acceptance-3dfce2cf008c-mongo-data",
+    "p1-final-acceptance-3dfce2cf008c-pg-data",
+    "p1-final-acceptance-c1b2b4350af1-mongo-data",
+    "p1-final-acceptance-c1b2b4350af1-pg-data",
+    "p123-core-0926623597_budget_state",
+    "p123-core-0926623597_fake_state",
+    "p123-core-0926623597_mongo_state",
+    "p123-core-0926623597_pg_state",
+    "p123-core-2f99bc039e_budget_state",
+    "p123-core-2f99bc039e_fake_state",
+    "p123-core-2f99bc039e_mongo_state",
+    "p123-core-2f99bc039e_pg_state",
+    "p123-core-a7a97f7f50_budget_state",
+    "p123-core-a7a97f7f50_fake_state",
+    "p123-core-a7a97f7f50_mongo_state",
+    "p123-core-a7a97f7f50_pg_state",
+    "p123-core-abe0ad4e35_budget_state",
+    "p123-core-abe0ad4e35_fake_state",
+    "p123-core-abe0ad4e35_mongo_state",
+    "p123-core-abe0ad4e35_pg_state",
+    "p123-core-de545afb38_budget_state",
+    "p123-core-de545afb38_fake_state",
+    "p123-core-de545afb38_mongo_state",
+    "p123-core-de545afb38_pg_state",
+    "pr60-smoke-2f7cd3d5c3_media_data",
+    "pr60-smoke-2f7cd3d5c3_mongodb_data",
+    "pr60-smoke-2f7cd3d5c3_postgres_data",
+    "pr60-smoke-6286404249_media_data",
+    "pr60-smoke-6286404249_mongodb_data",
+    "pr60-smoke-6286404249_postgres_data"
+  ],
+  "historical_resources_mutated": false,
+  "native_fixture_records_zero": true,
+  "retention": "Diagnostic HTTP/root data and RED orphan are retained in owned stopped volumes; no global emptiness claim or destructive cleanup."
+}

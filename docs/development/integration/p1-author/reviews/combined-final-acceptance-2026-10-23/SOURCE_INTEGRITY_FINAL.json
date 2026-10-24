@@ -1,0 +1,257 @@
+{
+  "initial": {
+    "sha": "66c1052a8cb63e411a83e330207feb97c13210d4",
+    "parents": [
+      "10d33efe4be068f7ca2b54b40d953843a3a5485b",
+      "f4ab06cc67a3d8f058d5a03b376ccbde0dd58d6c"
+    ],
+    "PR58_exact_paths": [
+      {
+        "path": ".github/workflows/p8-cutover.yml",
+        "same_as_PR58_integration": true,
+        "blob": "e90b7fc930e869d7e5d0b54c15797506cb6b5d59"
+      },
+      {
+        "path": "backend/src/core/database/test-db-guard-lifecycle.test.ts",
+        "same_as_PR58_integration": true,
+        "blob": "e6fd15b7e45576dc50da0f73ac7cecde0fe29b3c"
+      },
+      {
+        "path": "backend/src/modules/novels/accept-draft-contract.test.ts",
+        "same_as_PR58_integration": true,
+        "blob": "f8d5a8b2eed8ad1ed042b209f7640178b1c79e69"
+      },
+      {
+        "path": "backend/src/modules/novels/fixture-lifecycle-resilience.postgres.test.ts",
+        "same_as_PR58_integration": true,
+        "blob": "7ee64686e741a00b3a95fbbd90829d15650eab06"
+      },
+      {
+        "path": "backend/src/modules/novels/p1-production-persistence.postgres.test.ts",
+        "same_as_PR58_integration": true,
+        "blob": "0f025d4f35180dbd99922f0be5af737f8547841d"
+      },
+      {
+        "path": "backend/src/modules/novels/test-fixture-lifecycle.ts",
+        "same_as_PR58_integration": true,
+        "blob": "dd4d097a25fa60579694b4b8fb2dfc84ea8ff964"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/CI_FAILURE_ROOT_CAUSE.md",
+        "same_as_PR58_integration": true,
+        "blob": "bcbca90ef0535fcb909840edb316bf39344cedae"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/CI_RED_GREEN_REPORT.md",
+        "same_as_PR58_integration": true,
+        "blob": "7f6d5c4759d49e57859b18e32719ffb3b320a6b3"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/REVIEW_HANDOFF.md",
+        "same_as_PR58_integration": true,
+        "blob": "9e3f7fa1b9c6823ba6787f287e0b7e86c2810013"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/TEST_PARTITION_MATRIX.md",
+        "same_as_PR58_integration": true,
+        "blob": "3ac3e4bd13533a68c8a527188227dc1c98d62c20"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/commands-and-exits.json",
+        "same_as_PR58_integration": true,
+        "blob": "2581e12ec975de153972c8f96a96e1a0b2a884ce"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-g01-g02-ownership-isolation/CLEANUP_OWNERSHIP_MATRIX.json",
+        "same_as_PR58_integration": true,
+        "blob": "793c40ab5bf72005114a42a9bfeea6b504c8737b"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-g01-g02-ownership-isolation/G01_OUTBOX_OWNERSHIP_ISOLATION_RED_GREEN.md",
+        "same_as_PR58_integration": true,
+        "blob": "1b12053a5a57e6d9402e00549deed0486ded2bc8"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-g01-g02-ownership-isolation/G02_STRICT_COUNT_PARSING_RED_GREEN.md",
+        "same_as_PR58_integration": true,
+        "blob": "6b5c4006c665695b73653822693c510bee308d74"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-g01-g02-ownership-isolation/REVIEW_HANDOFF.md",
+        "same_as_PR58_integration": true,
+        "blob": "ec2fb2f1fa539feba590b0da08d626ab658cf9b6"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-g01-g02-ownership-isolation/VALIDATION.json",
+        "same_as_PR58_integration": true,
+        "blob": "fb10c6c0c2a7d7518c7f44bfd4d1b1fe075545c3"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-ownership-readback/CLEANUP_OWNERSHIP_MATRIX.json",
+        "same_as_PR58_integration": true,
+        "blob": "77d75a893bce1454ce73f59ac4877496c979af82"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-ownership-readback/F09_MONGO_TARGET_RED_GREEN.md",
+        "same_as_PR58_integration": true,
+        "blob": "0102ec38a1c140d156866d125e9decfbb2f9f8c3"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-ownership-readback/F10_AUTHORITATIVE_READBACK_RED_GREEN.md",
+        "same_as_PR58_integration": true,
+        "blob": "8b9e1611b3b946e504ffd835aac0696dcf5b919b"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-ownership-readback/REVIEW_HANDOFF.md",
+        "same_as_PR58_integration": true,
+        "blob": "b9aa61e716311eafd77c8a145a1da6c96b2d9d82"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-ownership-readback/VALIDATION.json",
+        "same_as_PR58_integration": true,
+        "blob": "914db3c8ebe1ed1736960b17f4992c9696c4aaf0"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-p2-closeout/CLEANUP_FAULT_MATRIX.json",
+        "same_as_PR58_integration": true,
+        "blob": "716b96ee9e9d181675129cd2e977bc9bfc867a4a"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-p2-closeout/DOUBLE_CLEANUP_RED_GREEN.md",
+        "same_as_PR58_integration": true,
+        "blob": "fd86ae08f40b555b6636147b4fbe88a0f828c4b1"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-p2-closeout/PER_ID_CLEANUP_RED_GREEN.md",
+        "same_as_PR58_integration": true,
+        "blob": "340afcceb57bdadacd3582b2968af997da9bbd65"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-p2-closeout/REVIEW_HANDOFF.md",
+        "same_as_PR58_integration": true,
+        "blob": "c483bb8de1a1b147dfccc3f6101228211f8986d4"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-p2-closeout/VALIDATION.json",
+        "same_as_PR58_integration": true,
+        "blob": "61cebb82a4aefc0de7d83e44665818da22927aea"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-strict-outbox/CLEANUP_OWNERSHIP_MATRIX.json",
+        "same_as_PR58_integration": true,
+        "blob": "710023dd9fc0a1bbfbd48a6ab8ce5ee7b74bdc2b"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-strict-outbox/F11_STRICT_READBACK_RED_GREEN.md",
+        "same_as_PR58_integration": true,
+        "blob": "80d736eff9f5f70ad0c88e226493ec5d83d9c34a"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-strict-outbox/F12_OUTBOX_OWNERSHIP_RED_GREEN.md",
+        "same_as_PR58_integration": true,
+        "blob": "a866794c6fbda2ed3bbacba0de55e93afa172e78"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-strict-outbox/REVIEW_HANDOFF.md",
+        "same_as_PR58_integration": true,
+        "blob": "dbc86837134e5b1c3c6dff41aeee5eed4442176d"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-strict-outbox/VALIDATION.json",
+        "same_as_PR58_integration": true,
+        "blob": "3de3c6e09f63a4ab4e10e21f39cf67b11beed35f"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-teardown-repair/CI_VERIFICATION.md",
+        "same_as_PR58_integration": true,
+        "blob": "4dd5b197e6cf9d7eae0e5fcde8ba5df7eb2ea831"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-teardown-repair/F06_FAIL_CLOSED_RED_GREEN.md",
+        "same_as_PR58_integration": true,
+        "blob": "77186bd261958f88290a6c21641c0d3af9f50a28"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-teardown-repair/F07_PARTIAL_SETUP_MATRIX.md",
+        "same_as_PR58_integration": true,
+        "blob": "7e8a12eebc4738bc3bea97bcb607df6d6099ec85"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-teardown-repair/F08_SOURCE_PROVENANCE_ERRATUM.md",
+        "same_as_PR58_integration": true,
+        "blob": "eea630e7cf79a3eb2ec530f2a08ca8f1f51d403e"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-teardown-repair/FIXTURE_LIFECYCLE_READBACKS.json",
+        "same_as_PR58_integration": true,
+        "blob": "f82d6373f00e424b26b2e2f779067f010841772a"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-teardown-repair/REVIEW_HANDOFF.md",
+        "same_as_PR58_integration": true,
+        "blob": "5671382fefddc06b960813487dc278c79c63e6fd"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/final-teardown-repair/validation.json",
+        "same_as_PR58_integration": true,
+        "blob": "77f7f627f0e90a8a6a617c9eda6af3b10fe4577b"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/safety-closeout/DATABASE_ISOLATION_PROOF.md",
+        "same_as_PR58_integration": true,
+        "blob": "5b9eea9fb8217114b57a74fc53a726a04b81646b"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/safety-closeout/FIXTURE_CLEANUP_READBACKS.json",
+        "same_as_PR58_integration": true,
+        "blob": "dcd0b8bad13cd7d7086fe0defa3808c8ce5aba5b"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/safety-closeout/RED_GREEN_REPORT.md",
+        "same_as_PR58_integration": true,
+        "blob": "504c6cb9cef468ea5404970b2b82180a0ac0047a"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/safety-closeout/REVIEW_HANDOFF.md",
+        "same_as_PR58_integration": true,
+        "blob": "9c7e38fa529f9d20c9e780bef6c4a03d415abf87"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/safety-closeout/SCHEMA_VERIFICATION_MATRIX.md",
+        "same_as_PR58_integration": true,
+        "blob": "e8e4cdfdb4776d977214be6f1e60ee3dc8f7cbfa"
+      },
+      {
+        "path": "docs/development/integration/p1-author/reviews/ci-isolation-2026-10-23/safety-closeout/commands-and-exits.json",
+        "same_as_PR58_integration": true,
+        "blob": "c60975e268865da9a1e0d3b8673b7877a2efcfb2"
+      }
+    ],
+    "production_exact_blobs": [
+      {
+        "path": "backend/src/modules/novels/chapters.service.ts",
+        "reference": "a41d8baa",
+        "blob": "ec04381ed1351d7ab38d22ba500c5415274dd31d"
+      },
+      {
+        "path": "backend/src/modules/novels/draft-chapters.repository.ts",
+        "reference": "a41d8baa",
+        "blob": "81ad2e06dfcb87c5f5f524f9ef1ed474706eb318"
+      },
+      {
+        "path": "backend/src/jobs/outbox-processor.ts",
+        "reference": "6008fd48",
+        "blob": "f17c59ca24255099d6d73f6c1f110fe4e950ccf5"
+      }
+    ],
+    "tracked_clean": true
+  },
+  "final_tested_sha": "2313a15a5da0415539c1f999df2628674944469e",
+  "test_only_repair_paths": [
+    "backend/src/modules/novels/mongo-reconciliation.live.test.ts",
+    "scripts/run_pr60_root_smoke.py"
+  ],
+  "production_unchanged": true,
+  "PR58_all44_still_exact": true,
+  "tracked_clean": true
+}

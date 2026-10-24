@@ -1,0 +1,34 @@
+import { Router, json } from 'express';
+import { randomUUID } from 'node:crypto';
+import { mkdir, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { z } from 'zod';
+import { requireAuth } from '../../core/security/auth.middleware.js';
+import { requireActiveAccount } from '../../core/security/active-account.js';
+import { AppError } from '../../core/errors/app-error.js';
+import { successResponse } from '../../core/response/response.js';
+export const mediaDirectory = path.resolve(process.env.MEDIA_DIRECTORY || './uploads');
+export const mediaRoutes = Router();
+export function imageExtension(buffer: Buffer): 'png' | 'jpg' | 'webp' {
+  if (buffer.length >= 24 && buffer.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10])) && buffer.toString('ascii',12,16) === 'IHDR') return 'png';
+  if (buffer.length >= 12 && buffer[0] === 255 && buffer[1] === 216 && buffer[2] === 255 && buffer[buffer.length-2] === 255 && buffer[buffer.length-1] === 217) return 'jpg';
+  if (buffer.length >= 20 && buffer.toString('ascii',0,4) === 'RIFF' && buffer.toString('ascii',8,12) === 'WEBP') return 'webp';
+  throw new AppError(400, 'MEDIA_INVALID', 'Chỉ hỗ trợ ảnh PNG, JPEG hoặc WebP hợp lệ');
+}
+mediaRoutes.post('/', requireAuth, requireActiveAccount, json({ limit: '2mb' }), async (req, res, next) => {
+  try {
+    const { data } = z.object({ data: z.string().min(1).max(1400000).regex(/^[A-Za-z0-9+/]+={0,2}$/) }).parse(req.body);
+    const buffer = Buffer.from(data, 'base64');
+    if (buffer.length > 1024*1024) throw new AppError(413, 'MEDIA_TOO_LARGE', 'Ảnh tối đa 1 MB');
+    const fileName = randomUUID() + '.' + imageExtension(buffer);
+    await mkdir(mediaDirectory, { recursive: true });
+    await writeFile(path.join(mediaDirectory, fileName), buffer, { flag: 'wx' });
+    res.status(201).json(successResponse({ path: '/api/v1/media/' + fileName }));
+  } catch (error) { next(error); }
+});
+mediaRoutes.get('/:fileName', (req, res, next) => {
+  const fileName = String(req.params.fileName);
+  if (!/^[a-f0-9-]{36}\.(png|jpg|webp)$/.test(fileName)) { next(new AppError(404, 'MEDIA_NOT_FOUND', 'Ảnh không tồn tại')); return; }
+  res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  res.sendFile(fileName, { root: mediaDirectory, dotfiles: 'deny' }, error => { if (error) next(error); });
+});

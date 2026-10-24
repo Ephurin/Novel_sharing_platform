@@ -1,0 +1,4 @@
+RUN cleanup-only-owned-project
+cleanup-only-owned-project exit 0
+RUN cleanup-owned-containers-remaining
+cleanup-owned-containers-remaining exit 0

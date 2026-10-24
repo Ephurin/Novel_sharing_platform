@@ -1,0 +1,435 @@
+[
+  {
+    "stage": "fixture_setup",
+    "identity": {
+      "postgresDb": "ephurin_test_d1d2_c1b2b4350af1",
+      "postgresServerAddr": "172.17.0.2",
+      "postgresServerPort": 5432,
+      "mongoDb": "ephurin_test_d1d2_c1b2b4350af1",
+      "isIsolated": true,
+      "optInVerified": true
+    },
+    "beforeSetup": {
+      "users": [],
+      "novels": [],
+      "chapters": [],
+      "revisions": [],
+      "drafts": []
+    },
+    "afterSetup": {
+      "users": [
+        {
+          "user_id": "082cc402-7ca4-4f33-b196-99f72f2be0ea"
+        }
+      ],
+      "novels": [
+        {
+          "novel_id": "9fc85a1a-acee-468f-b5d5-b2f19ebc14ed"
+        }
+      ],
+      "chapters": [
+        {
+          "chapter_id": "ad516abb-04e9-47eb-8254-5f5b507deb8b",
+          "latest_revision_id": "240597cb-7366-41e4-b477-3b53a94e072b"
+        },
+        {
+          "chapter_id": "bd982b55-9abe-4ac1-a1cf-6d20eaa0967f",
+          "latest_revision_id": "67fb2d54-d103-4240-a543-3f761926a789"
+        },
+        {
+          "chapter_id": "dbb52f98-f19a-4a55-9107-f4dd2d693468",
+          "latest_revision_id": "e2746117-5c49-4260-936d-103ddb058290"
+        }
+      ],
+      "revisions": [
+        {
+          "revision_id": "0f0c8950-9b45-4fba-bdb4-f9065c57ab7b",
+          "parent_revision_id": null,
+          "content_hash": "d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"
+        },
+        {
+          "revision_id": "240597cb-7366-41e4-b477-3b53a94e072b",
+          "parent_revision_id": "fa778575-cc5b-4061-a3f4-d8d3dd43903a",
+          "content_hash": "d8d1fe76d9f54ef511a1267e5b8b183858cf27bac3ce4c1c311eb37c60a6ea27"
+        },
+        {
+          "revision_id": "347acc26-bc3a-46af-8193-b0ea7a11a4cc",
+          "parent_revision_id": null,
+          "content_hash": "d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"
+        },
+        {
+          "revision_id": "67fb2d54-d103-4240-a543-3f761926a789",
+          "parent_revision_id": "0f0c8950-9b45-4fba-bdb4-f9065c57ab7b",
+          "content_hash": "f182eaac0fa749273a67cf1913daa07fd2d636825873832b967b197ea6113bc2"
+        },
+        {
+          "revision_id": "e2746117-5c49-4260-936d-103ddb058290",
+          "parent_revision_id": "347acc26-bc3a-46af-8193-b0ea7a11a4cc",
+          "content_hash": "9f826323bd9d02d623ffbc551c8adb5289b986ea20f521620ea2cf02530bbca6"
+        },
+        {
+          "revision_id": "fa778575-cc5b-4061-a3f4-d8d3dd43903a",
+          "parent_revision_id": null,
+          "content_hash": "d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"
+        }
+      ],
+      "drafts": []
+    }
+  },
+  {
+    "probe": 1,
+    "latestRevision": "67fb2d54-d103-4240-a543-3f761926a789",
+    "parentRevision": "0f0c8950-9b45-4fba-bdb4-f9065c57ab7b",
+    "draft": {
+      "_id": "6adb2861bc2ef6571a276247",
+      "chapterId": "bd982b55-9abe-4ac1-a1cf-6d20eaa0967f",
+      "authorId": "082cc402-7ca4-4f33-b196-99f72f2be0ea",
+      "autosave": false,
+      "content": "Accepted canonical body 1",
+      "createdAt": "2026-10-23T09:26:57.818Z",
+      "deletedAt": null,
+      "deletionReason": null,
+      "novelId": "9fc85a1a-acee-468f-b5d5-b2f19ebc14ed",
+      "title": "Reconciliation fixture 1",
+      "updatedAt": "2026-10-23T09:26:57.852Z",
+      "version": 2,
+      "wordCount": 4,
+      "lastAcceptedAt": "2026-10-23T09:26:47.544Z",
+      "lastAcceptedRevisionId": "67fb2d54-d103-4240-a543-3f761926a789"
+    }
+  },
+  {
+    "probe": 2,
+    "latestRevision": "240597cb-7366-41e4-b477-3b53a94e072b",
+    "before": {
+      "_id": "6adb2861bc2ef6571a27624e",
+      "chapterId": "ad516abb-04e9-47eb-8254-5f5b507deb8b",
+      "authorId": "082cc402-7ca4-4f33-b196-99f72f2be0ea",
+      "autosave": false,
+      "content": "Newer manual edit must survive",
+      "createdAt": "2026-10-23T09:26:57.875Z",
+      "deletedAt": null,
+      "deletionReason": null,
+      "novelId": "9fc85a1a-acee-468f-b5d5-b2f19ebc14ed",
+      "title": "Reconciliation fixture 2",
+      "updatedAt": "2026-10-23T09:26:57.875Z",
+      "version": 1,
+      "wordCount": 4
+    },
+    "after": {
+      "_id": "6adb2861bc2ef6571a27624e",
+      "chapterId": "ad516abb-04e9-47eb-8254-5f5b507deb8b",
+      "authorId": "082cc402-7ca4-4f33-b196-99f72f2be0ea",
+      "autosave": false,
+      "content": "Newer manual edit must survive",
+      "createdAt": "2026-10-23T09:26:57.875Z",
+      "deletedAt": null,
+      "deletionReason": null,
+      "novelId": "9fc85a1a-acee-468f-b5d5-b2f19ebc14ed",
+      "title": "Reconciliation fixture 2",
+      "updatedAt": "2026-10-23T09:26:57.875Z",
+      "version": 1,
+      "wordCount": 4
+    },
+    "supersededStatus": "skipped_newer_draft"
+  },
+  {
+    "probe": 3,
+    "before": null,
+    "latestRevision": "e2746117-5c49-4260-936d-103ddb058290",
+    "draft": {
+      "_id": "6adb28619deffe6c36db0aea",
+      "novelId": "9fc85a1a-acee-468f-b5d5-b2f19ebc14ed",
+      "chapterId": "dbb52f98-f19a-4a55-9107-f4dd2d693468",
+      "authorId": "082cc402-7ca4-4f33-b196-99f72f2be0ea",
+      "title": "Reconciliation fixture 3",
+      "content": "Accepted canonical body 3",
+      "wordCount": 4,
+      "version": 1,
+      "autosave": false,
+      "lastAcceptedRevisionId": "e2746117-5c49-4260-936d-103ddb058290",
+      "lastAcceptedAt": "2026-10-23T09:26:47.544Z",
+      "createdAt": "2026-10-23T09:26:57.914Z",
+      "updatedAt": "2026-10-23T09:26:57.914Z",
+      "deletedAt": null
+    }
+  },
+  {
+    "probe": 4,
+    "before": {
+      "_id": "6adb2861bc2ef6571a276247",
+      "chapterId": "bd982b55-9abe-4ac1-a1cf-6d20eaa0967f",
+      "authorId": "082cc402-7ca4-4f33-b196-99f72f2be0ea",
+      "autosave": false,
+      "content": "Accepted canonical body 1",
+      "createdAt": "2026-10-23T09:26:57.818Z",
+      "deletedAt": null,
+      "deletionReason": null,
+      "novelId": "9fc85a1a-acee-468f-b5d5-b2f19ebc14ed",
+      "title": "Reconciliation fixture 1",
+      "updatedAt": "2026-10-23T09:26:57.852Z",
+      "version": 2,
+      "wordCount": 4,
+      "lastAcceptedAt": "2026-10-23T09:26:47.544Z",
+      "lastAcceptedRevisionId": "67fb2d54-d103-4240-a543-3f761926a789"
+    },
+    "after": {
+      "_id": "6adb2861bc2ef6571a276247",
+      "chapterId": "bd982b55-9abe-4ac1-a1cf-6d20eaa0967f",
+      "authorId": "082cc402-7ca4-4f33-b196-99f72f2be0ea",
+      "autosave": false,
+      "content": "Accepted canonical body 1",
+      "createdAt": "2026-10-23T09:26:57.818Z",
+      "deletedAt": null,
+      "deletionReason": null,
+      "novelId": "9fc85a1a-acee-468f-b5d5-b2f19ebc14ed",
+      "title": "Reconciliation fixture 1",
+      "updatedAt": "2026-10-23T09:26:57.852Z",
+      "version": 2,
+      "wordCount": 4,
+      "lastAcceptedAt": "2026-10-23T09:26:47.544Z",
+      "lastAcceptedRevisionId": "67fb2d54-d103-4240-a543-3f761926a789"
+    }
+  },
+  {
+    "probe": 5,
+    "before": {
+      "_id": "6adb2861bc2ef6571a276247",
+      "chapterId": "bd982b55-9abe-4ac1-a1cf-6d20eaa0967f",
+      "authorId": "082cc402-7ca4-4f33-b196-99f72f2be0ea",
+      "autosave": false,
+      "content": "Accepted canonical body 1",
+      "createdAt": "2026-10-23T09:26:57.818Z",
+      "deletedAt": null,
+      "deletionReason": null,
+      "novelId": "9fc85a1a-acee-468f-b5d5-b2f19ebc14ed",
+      "title": "Reconciliation fixture 1",
+      "updatedAt": "2026-10-23T09:26:46.544Z",
+      "version": 2,
+      "wordCount": 4,
+      "lastAcceptedAt": "2026-10-23T09:26:47.544Z",
+      "lastAcceptedRevisionId": "0f0c8950-9b45-4fba-bdb4-f9065c57ab7b"
+    },
+    "after": {
+      "_id": "6adb2861bc2ef6571a276247",
+      "chapterId": "bd982b55-9abe-4ac1-a1cf-6d20eaa0967f",
+      "authorId": "082cc402-7ca4-4f33-b196-99f72f2be0ea",
+      "autosave": false,
+      "content": "Accepted canonical body 1",
+      "createdAt": "2026-10-23T09:26:57.818Z",
+      "deletedAt": null,
+      "deletionReason": null,
+      "novelId": "9fc85a1a-acee-468f-b5d5-b2f19ebc14ed",
+      "title": "Reconciliation fixture 1",
+      "updatedAt": "2026-10-23T09:26:57.957Z",
+      "version": 3,
+      "wordCount": 4,
+      "lastAcceptedAt": "2026-10-23T09:26:47.544Z",
+      "lastAcceptedRevisionId": "67fb2d54-d103-4240-a543-3f761926a789"
+    }
+  },
+  {
+    "probe": 6,
+    "revision": "240597cb-7366-41e4-b477-3b53a94e072b",
+    "revisionCreatedAt": "2026-10-23T09:26:47.544Z",
+    "before": {
+      "_id": "6adb2861bc2ef6571a27624e",
+      "chapterId": "ad516abb-04e9-47eb-8254-5f5b507deb8b",
+      "authorId": "082cc402-7ca4-4f33-b196-99f72f2be0ea",
+      "autosave": false,
+      "content": "Newer manual edit must survive",
+      "createdAt": "2026-10-23T09:26:57.875Z",
+      "deletedAt": null,
+      "deletionReason": null,
+      "novelId": "9fc85a1a-acee-468f-b5d5-b2f19ebc14ed",
+      "title": "Reconciliation fixture 2",
+      "updatedAt": "2026-10-23T09:26:57.875Z",
+      "version": 1,
+      "wordCount": 4
+    },
+    "after": {
+      "_id": "6adb2861bc2ef6571a27624e",
+      "chapterId": "ad516abb-04e9-47eb-8254-5f5b507deb8b",
+      "authorId": "082cc402-7ca4-4f33-b196-99f72f2be0ea",
+      "autosave": false,
+      "content": "Newer manual edit must survive",
+      "createdAt": "2026-10-23T09:26:57.875Z",
+      "deletedAt": null,
+      "deletionReason": null,
+      "novelId": "9fc85a1a-acee-468f-b5d5-b2f19ebc14ed",
+      "title": "Reconciliation fixture 2",
+      "updatedAt": "2026-10-23T09:26:57.875Z",
+      "version": 1,
+      "wordCount": 4
+    }
+  },
+  {
+    "probe": 7,
+    "incoming": {
+      "chapterId": "ad516abb-04e9-47eb-8254-5f5b507deb8b",
+      "novelId": "9fc85a1a-acee-468f-b5d5-b2f19ebc14ed",
+      "authorId": "082cc402-7ca4-4f33-b196-99f72f2be0ea",
+      "revisionId": "240597cb-7366-41e4-b477-3b53a94e072b",
+      "title": "Reconciliation fixture 2",
+      "content": "Accepted canonical body 2",
+      "wordCount": 4,
+      "acceptTimestamp": "2026-10-23T09:26:47.544Z"
+    },
+    "before": {
+      "_id": "6adb2861bc2ef6571a27624e",
+      "chapterId": "ad516abb-04e9-47eb-8254-5f5b507deb8b",
+      "authorId": "082cc402-7ca4-4f33-b196-99f72f2be0ea",
+      "autosave": false,
+      "content": "Accepted canonical body 2",
+      "createdAt": "2026-10-23T09:26:57.875Z",
+      "deletedAt": null,
+      "deletionReason": null,
+      "novelId": "9fc85a1a-acee-468f-b5d5-b2f19ebc14ed",
+      "title": "Reconciliation fixture 2",
+      "updatedAt": "2026-10-23T09:26:48.544Z",
+      "version": 1,
+      "wordCount": 4,
+      "lastAcceptedAt": "2026-10-23T09:26:37.544Z",
+      "lastAcceptedRevisionId": "fa778575-cc5b-4061-a3f4-d8d3dd43903a"
+    },
+    "after": {
+      "_id": "6adb2861bc2ef6571a27624e",
+      "chapterId": "ad516abb-04e9-47eb-8254-5f5b507deb8b",
+      "authorId": "082cc402-7ca4-4f33-b196-99f72f2be0ea",
+      "autosave": false,
+      "content": "Accepted canonical body 2",
+      "createdAt": "2026-10-23T09:26:57.875Z",
+      "deletedAt": null,
+      "deletionReason": null,
+      "novelId": "9fc85a1a-acee-468f-b5d5-b2f19ebc14ed",
+      "title": "Reconciliation fixture 2",
+      "updatedAt": "2026-10-23T09:26:48.544Z",
+      "version": 1,
+      "wordCount": 4,
+      "lastAcceptedAt": "2026-10-23T09:26:37.544Z",
+      "lastAcceptedRevisionId": "fa778575-cc5b-4061-a3f4-d8d3dd43903a"
+    },
+    "status": "skipped_newer_draft"
+  },
+  {
+    "stage": "fixture_cleanup",
+    "beforeCleanup": {
+      "users": [
+        {
+          "user_id": "082cc402-7ca4-4f33-b196-99f72f2be0ea"
+        }
+      ],
+      "novels": [
+        {
+          "novel_id": "9fc85a1a-acee-468f-b5d5-b2f19ebc14ed"
+        }
+      ],
+      "chapters": [
+        {
+          "chapter_id": "ad516abb-04e9-47eb-8254-5f5b507deb8b",
+          "latest_revision_id": "240597cb-7366-41e4-b477-3b53a94e072b"
+        },
+        {
+          "chapter_id": "bd982b55-9abe-4ac1-a1cf-6d20eaa0967f",
+          "latest_revision_id": "67fb2d54-d103-4240-a543-3f761926a789"
+        },
+        {
+          "chapter_id": "dbb52f98-f19a-4a55-9107-f4dd2d693468",
+          "latest_revision_id": "e2746117-5c49-4260-936d-103ddb058290"
+        }
+      ],
+      "revisions": [
+        {
+          "revision_id": "0f0c8950-9b45-4fba-bdb4-f9065c57ab7b",
+          "parent_revision_id": null,
+          "content_hash": "d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"
+        },
+        {
+          "revision_id": "240597cb-7366-41e4-b477-3b53a94e072b",
+          "parent_revision_id": "fa778575-cc5b-4061-a3f4-d8d3dd43903a",
+          "content_hash": "d8d1fe76d9f54ef511a1267e5b8b183858cf27bac3ce4c1c311eb37c60a6ea27"
+        },
+        {
+          "revision_id": "347acc26-bc3a-46af-8193-b0ea7a11a4cc",
+          "parent_revision_id": null,
+          "content_hash": "d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"
+        },
+        {
+          "revision_id": "67fb2d54-d103-4240-a543-3f761926a789",
+          "parent_revision_id": "0f0c8950-9b45-4fba-bdb4-f9065c57ab7b",
+          "content_hash": "f182eaac0fa749273a67cf1913daa07fd2d636825873832b967b197ea6113bc2"
+        },
+        {
+          "revision_id": "e2746117-5c49-4260-936d-103ddb058290",
+          "parent_revision_id": "347acc26-bc3a-46af-8193-b0ea7a11a4cc",
+          "content_hash": "9f826323bd9d02d623ffbc551c8adb5289b986ea20f521620ea2cf02530bbca6"
+        },
+        {
+          "revision_id": "fa778575-cc5b-4061-a3f4-d8d3dd43903a",
+          "parent_revision_id": null,
+          "content_hash": "d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"
+        }
+      ],
+      "drafts": [
+        {
+          "_id": "6adb2861bc2ef6571a27624e",
+          "chapterId": "ad516abb-04e9-47eb-8254-5f5b507deb8b",
+          "authorId": "082cc402-7ca4-4f33-b196-99f72f2be0ea",
+          "autosave": false,
+          "content": "Accepted canonical body 2",
+          "createdAt": "2026-10-23T09:26:57.875Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "9fc85a1a-acee-468f-b5d5-b2f19ebc14ed",
+          "title": "Reconciliation fixture 2",
+          "updatedAt": "2026-10-23T09:26:48.544Z",
+          "version": 1,
+          "wordCount": 4,
+          "lastAcceptedAt": "2026-10-23T09:26:37.544Z",
+          "lastAcceptedRevisionId": "fa778575-cc5b-4061-a3f4-d8d3dd43903a"
+        },
+        {
+          "_id": "6adb2861bc2ef6571a276247",
+          "chapterId": "bd982b55-9abe-4ac1-a1cf-6d20eaa0967f",
+          "authorId": "082cc402-7ca4-4f33-b196-99f72f2be0ea",
+          "autosave": false,
+          "content": "Accepted canonical body 1",
+          "createdAt": "2026-10-23T09:26:57.818Z",
+          "deletedAt": null,
+          "deletionReason": null,
+          "novelId": "9fc85a1a-acee-468f-b5d5-b2f19ebc14ed",
+          "title": "Reconciliation fixture 1",
+          "updatedAt": "2026-10-23T09:26:57.957Z",
+          "version": 3,
+          "wordCount": 4,
+          "lastAcceptedAt": "2026-10-23T09:26:47.544Z",
+          "lastAcceptedRevisionId": "67fb2d54-d103-4240-a543-3f761926a789"
+        },
+        {
+          "_id": "6adb28619deffe6c36db0aea",
+          "novelId": "9fc85a1a-acee-468f-b5d5-b2f19ebc14ed",
+          "chapterId": "dbb52f98-f19a-4a55-9107-f4dd2d693468",
+          "authorId": "082cc402-7ca4-4f33-b196-99f72f2be0ea",
+          "title": "Reconciliation fixture 3",
+          "content": "Accepted canonical body 3",
+          "wordCount": 4,
+          "version": 1,
+          "autosave": false,
+          "lastAcceptedRevisionId": "e2746117-5c49-4260-936d-103ddb058290",
+          "lastAcceptedAt": "2026-10-23T09:26:47.544Z",
+          "createdAt": "2026-10-23T09:26:57.914Z",
+          "updatedAt": "2026-10-23T09:26:57.914Z",
+          "deletedAt": null
+        }
+      ]
+    },
+    "afterCleanup": {
+      "users": [],
+      "novels": [],
+      "chapters": [],
+      "revisions": [],
+      "drafts": []
+    },
+    "sentinelsPreserved": true
+  }
+]

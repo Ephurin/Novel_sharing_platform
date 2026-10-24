@@ -156,3 +156,8 @@ export async function revokeRefreshToken(tokenHash: string) {
     [tokenHash]
   );
 }
+
+export async function promoteReaderToAuthor(userId: string) {
+  await getPostgresPool().query("update users set role = 'AUTHOR', updated_at = now() where user_id = $1 and role = 'READER' and status = 'ACTIVE' and deleted_at is null", [userId]);
+  return findAuthUserById(userId);
+}

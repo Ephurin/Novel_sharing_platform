@@ -15,6 +15,7 @@ import {
   findActiveAuthorWallet,
   findPublishedChapterForUnlock,
   findWalletByUserId,
+  getAuthorEarnings,
   listTransactions,
   unlockChapter as unlockChapterRow
 } from './wallet.repository.js';
@@ -38,6 +39,10 @@ export async function getWallet(auth: AuthContext) {
     coinsBalance: wallet.coinsBalance,
     lockedCoins: wallet.lockedCoins
   };
+}
+
+export async function getEarnings(auth: AuthContext) {
+  return getAuthorEarnings(auth.userId);
 }
 
 export async function getTransactions(auth: AuthContext, input: WalletTransactionsInput) {
@@ -74,7 +79,7 @@ export async function unlockVipChapter(auth: AuthContext, chapterId: string) {
   if (!chapter) {
     throw new AppError(404, 'CONTENT_001', 'Content not found');
   }
-  if (!chapter.is_vip || chapter.price_coins <= 0) {
+  if (chapter.author_id === auth.userId || !chapter.is_vip || chapter.price_coins <= 0) {
     return {
       chapterId,
       unlocked: true,

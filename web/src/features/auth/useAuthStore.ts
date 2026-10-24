@@ -13,19 +13,23 @@ type AuthState = {
   clearSession: () => void;
 };
 
+function readStoredToken() {
+  try { return localStorage.getItem('ephurin_access_token'); }
+  catch { return null; }
+}
+
 export const useAuthStore = create<AuthState>((set) => ({
-  accessToken: localStorage.getItem('ephurin_access_token'),
+  accessToken: readStoredToken(),
   user: null,
-  sessionStatus: localStorage.getItem('ephurin_access_token') ? 'unknown' : 'guest',
+  sessionStatus: readStoredToken() ? 'unknown' : 'guest',
   beginRestore: () => set({ sessionStatus: 'restoring' }),
   setUser: (user) => set({ user, sessionStatus: 'authenticated' }),
   setSession: ({ accessToken, user }) => {
-    localStorage.setItem('ephurin_access_token', accessToken);
+    try { localStorage.setItem('ephurin_access_token', accessToken); } catch { /* Storage may be disabled. */ }
     set({ accessToken, user, sessionStatus: 'authenticated' });
   },
   clearSession: () => {
-    localStorage.clear();
-    sessionStorage.clear();
+    try { localStorage.removeItem('ephurin_access_token'); sessionStorage.clear(); } catch { /* Storage may be disabled. */ }
     set({ accessToken: null, user: null, sessionStatus: 'guest' });
   }
 }));

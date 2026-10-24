@@ -1,0 +1,498 @@
+........................................................................ [ 22%]
+..................................................F.................s... [ 45%]
+..F..............s........................ss............................ [ 67%]
+......................................F..F..F..F..F..F..F..F..F..F..F.ss [ 90%]
+..............................                                           [100%]
+================================== FAILURES ===================================
+_ NarrativeRouteCompatibilityTests.test_legacy_kb_relation_and_graph_routes_use_application_service _
+
+self = <tests.test_narrative_route_compatibility.NarrativeRouteCompatibilityTests testMethod=test_legacy_kb_relation_and_graph_routes_use_application_service>
+
+    def test_legacy_kb_relation_and_graph_routes_use_application_service(self) -> None:
+        override = self.client.post(
+            "/v1/enhanced/relation/override",
+            json={
+                "story_id": "default_story",
+                "subject": "Minh",
+                "relation": "ALLY_OF",
+                "object": "Lan",
+            },
+        )
+        snapshot = self.client.get("/v1/enhanced/kb/default_story")
+        graph = self.client.post(
+            "/v1/ai/graph/related", json={"entity": "Minh", "limit": 10}
+        )
+    
+>       self.assertEqual(override.status_code, 200)
+E       AssertionError: 422 != 200
+
+tests\test_narrative_route_compatibility.py:41: AssertionError
+______ test_h04_ambiguous_new_occurrences_do_not_silently_merge[memory] _______
+
+flow = namespace(repo=<infrastructure.in_memory_narrative_repository.InMemoryNarrativeRepository object at 0x000001F34265A870...ct at 0x000001F34265A600>, llm=<tests.test_p1_entity_semantics.SemanticFake object at 0x000001F34271F0E0>, engine=None)
+
+    def test_h04_ambiguous_new_occurrences_do_not_silently_merge(flow):
+        f = prepare(flow, 'Minh g\u1eb7p Minh.')
+        run, audit = discover(f)
+        submit(f, run, audit, audit['decisions'], expected=422)
+>       assert f.repo.get_entity_candidate_audit(f.revision.novel_id, run) == audit
+E       AssertionError: assert {'aliases': [...0, ...}], ...} == {'aliases': [...0, ...}], ...}
+E         
+E         Omitting 18 identical items, use -vv to show
+E         Differing items:
+E         {'candidates': [{'candidate_id': 'd9e6919b617c46fa17ccc893', 'context': 'Minh g\u1eb7p Minh.', 'context_end': 14, 'context_...{'candidate_id': '1db9c58d32e307f67550d1b3', 'context': 'Minh g\u1eb7p Minh.', 'context_end': 14, 'context_start': 0, ...}]} != {'candidates': [{'candidate_id': 'd9e6919b617c46fa17ccc893', 'context': 'Minh g\u1eb7p Minh.', 'context_end': 14, 'context_...{'candidate_id': '1db9c58d32e307f67550d1b3', 'context': 'Minh g\u1eb7p Minh.', 'context_end': 14, 'context_start': 0, ...}]}
+E         Use -v to get more diff
+
+tests\test_p1_identity_final.py:53: AssertionError
+_______ test_rebuild_equals_online_and_provenance_survives_reload[json] _______
+
+repo = <infrastructure.json_narrative_repository.JsonNarrativeRepository object at 0x000001F33E857980>
+
+    def test_rebuild_equals_online_and_provenance_survives_reload(repo):
+        proposals = event_group()
+>       accept(repo, proposals)
+
+tests\test_state_projection.py:64: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_state_projection.py:46: in accept
+    return repo.accept_proposal_group("story", [p.proposal_id for p in proposals], version)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+infrastructure\json_narrative_repository.py:246: in accept_proposal_group
+    result = memory.accept_proposal_group(
+infrastructure\in_memory_narrative_repository.py:353: in accept_proposal_group
+    relations = project_relations(entities, brain.relations, state)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:163: in project_relations
+    pair = relationship_identity(r, entities)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:144: in relationship_identity
+    return resolve_entity(relation.subject, entities), resolve_entity(relation.object, entities)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference = 'story'
+entities = [NarrativeEntity(name='Minh', entity_id='974095f1-83a1-526b-bd0b-9833f10d08e4', entity_type='PER', status='Alive', loc...d2e9-3e86-5638-a167-cebd9fa98e8c', entity_type='PER', status='Alive', location='Unknown', mentions=1, is_locked=False)]
+
+    def resolve_entity(reference: str, entities: list[NarrativeEntity]) -> str:
+        exact = [e for e in entities if e.entity_id == reference]
+        matches = exact or [e for e in entities if e.name.casefold() == reference.casefold()]
+        if len(matches) != 1:
+>           raise ProjectionError(f"Unknown or ambiguous entity: {reference}")
+E           domain.projection.ProjectionError: Unknown or ambiguous entity: story
+
+domain\projection.py:17: ProjectionError
+__ test_correction_replays_at_original_position_and_preserves_history[json] ___
+
+repo = <infrastructure.json_narrative_repository.JsonNarrativeRepository object at 0x000001F34284A180>
+
+    def test_correction_replays_at_original_position_and_preserves_history(repo):
+        first, later = event_group(90), event_group(70)
+>       accept(repo, first)
+
+tests\test_state_projection.py:82: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_state_projection.py:46: in accept
+    return repo.accept_proposal_group("story", [p.proposal_id for p in proposals], version)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+infrastructure\json_narrative_repository.py:246: in accept_proposal_group
+    result = memory.accept_proposal_group(
+infrastructure\in_memory_narrative_repository.py:353: in accept_proposal_group
+    relations = project_relations(entities, brain.relations, state)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:163: in project_relations
+    pair = relationship_identity(r, entities)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:144: in relationship_identity
+    return resolve_entity(relation.subject, entities), resolve_entity(relation.object, entities)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference = 'story'
+entities = [NarrativeEntity(name='Minh', entity_id='974095f1-83a1-526b-bd0b-9833f10d08e4', entity_type='PER', status='Alive', loc...d2e9-3e86-5638-a167-cebd9fa98e8c', entity_type='PER', status='Alive', location='Unknown', mentions=1, is_locked=False)]
+
+    def resolve_entity(reference: str, entities: list[NarrativeEntity]) -> str:
+        exact = [e for e in entities if e.entity_id == reference]
+        matches = exact or [e for e in entities if e.name.casefold() == reference.casefold()]
+        if len(matches) != 1:
+>           raise ProjectionError(f"Unknown or ambiguous entity: {reference}")
+E           domain.projection.ProjectionError: Unknown or ambiguous entity: story
+
+domain\projection.py:17: ProjectionError
+_______ test_bad_transition_rolls_back_whole_group_then_can_retry[json] _______
+
+repo = <infrastructure.json_narrative_repository.JsonNarrativeRepository object at 0x000001F34250C350>
+
+    def test_bad_transition_rolls_back_whole_group_then_can_retry(repo):
+        proposals = event_group(101)
+        repo.save_proposals("story", proposals)
+        with pytest.raises(ProjectionError):
+            repo.accept_proposal_group("story", [p.proposal_id for p in proposals], 1)
+        brain = repo.get_story_brain("story")
+        assert not brain.events and not brain.transitions
+        assert all(p.status == ProposalStatus.PENDING for p in brain.proposals)
+        assert brain.metadata.get("brain_version", "1") == "1"
+>       repo.accept_proposal_group("story", [p.proposal_id for p in proposals], 1,
+            edited_payloads={proposals[1].proposal_id: {**proposals[1].payload, "new_value": 80}})
+
+tests\test_state_projection.py:106: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+infrastructure\json_narrative_repository.py:246: in accept_proposal_group
+    result = memory.accept_proposal_group(
+infrastructure\in_memory_narrative_repository.py:353: in accept_proposal_group
+    relations = project_relations(entities, brain.relations, state)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:163: in project_relations
+    pair = relationship_identity(r, entities)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:144: in relationship_identity
+    return resolve_entity(relation.subject, entities), resolve_entity(relation.object, entities)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference = 'story'
+entities = [NarrativeEntity(name='Minh', entity_id='974095f1-83a1-526b-bd0b-9833f10d08e4', entity_type='PER', status='Alive', loc...d2e9-3e86-5638-a167-cebd9fa98e8c', entity_type='PER', status='Alive', location='Unknown', mentions=1, is_locked=False)]
+
+    def resolve_entity(reference: str, entities: list[NarrativeEntity]) -> str:
+        exact = [e for e in entities if e.entity_id == reference]
+        matches = exact or [e for e in entities if e.name.casefold() == reference.casefold()]
+        if len(matches) != 1:
+>           raise ProjectionError(f"Unknown or ambiguous entity: {reference}")
+E           domain.projection.ProjectionError: Unknown or ambiguous entity: story
+
+domain\projection.py:17: ProjectionError
+____________ test_transition_cannot_reference_another_story[json] _____________
+
+repo = <infrastructure.json_narrative_repository.JsonNarrativeRepository object at 0x000001F3425249B0>
+
+    def test_transition_cannot_reference_another_story(repo):
+        first = event_group()
+>       accept(repo, first)
+
+tests\test_state_projection.py:113: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_state_projection.py:46: in accept
+    return repo.accept_proposal_group("story", [p.proposal_id for p in proposals], version)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+infrastructure\json_narrative_repository.py:246: in accept_proposal_group
+    result = memory.accept_proposal_group(
+infrastructure\in_memory_narrative_repository.py:353: in accept_proposal_group
+    relations = project_relations(entities, brain.relations, state)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:163: in project_relations
+    pair = relationship_identity(r, entities)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:144: in relationship_identity
+    return resolve_entity(relation.subject, entities), resolve_entity(relation.object, entities)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference = 'story'
+entities = [NarrativeEntity(name='Minh', entity_id='974095f1-83a1-526b-bd0b-9833f10d08e4', entity_type='PER', status='Alive', loc...d2e9-3e86-5638-a167-cebd9fa98e8c', entity_type='PER', status='Alive', location='Unknown', mentions=1, is_locked=False)]
+
+    def resolve_entity(reference: str, entities: list[NarrativeEntity]) -> str:
+        exact = [e for e in entities if e.entity_id == reference]
+        matches = exact or [e for e in entities if e.name.casefold() == reference.casefold()]
+        if len(matches) != 1:
+>           raise ProjectionError(f"Unknown or ambiguous entity: {reference}")
+E           domain.projection.ProjectionError: Unknown or ambiguous entity: story
+
+domain\projection.py:17: ProjectionError
+________ test_relationship_projection_has_transition_provenance[json] _________
+
+repo = <infrastructure.json_narrative_repository.JsonNarrativeRepository object at 0x000001F342548BC0>
+
+    def test_relationship_projection_has_transition_provenance(repo):
+        proposals = event_group({"Lan": "ALLY_OF"}, attribute="active_relationships")
+>       accept(repo, proposals)
+
+tests\test_state_projection.py:123: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_state_projection.py:46: in accept
+    return repo.accept_proposal_group("story", [p.proposal_id for p in proposals], version)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+infrastructure\json_narrative_repository.py:246: in accept_proposal_group
+    result = memory.accept_proposal_group(
+infrastructure\in_memory_narrative_repository.py:353: in accept_proposal_group
+    relations = project_relations(entities, brain.relations, state)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:163: in project_relations
+    pair = relationship_identity(r, entities)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:144: in relationship_identity
+    return resolve_entity(relation.subject, entities), resolve_entity(relation.object, entities)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference = 'story'
+entities = [NarrativeEntity(name='Minh', entity_id='974095f1-83a1-526b-bd0b-9833f10d08e4', entity_type='PER', status='Alive', loc...d2e9-3e86-5638-a167-cebd9fa98e8c', entity_type='PER', status='Alive', location='Unknown', mentions=1, is_locked=False)]
+
+    def resolve_entity(reference: str, entities: list[NarrativeEntity]) -> str:
+        exact = [e for e in entities if e.entity_id == reference]
+        matches = exact or [e for e in entities if e.name.casefold() == reference.casefold()]
+        if len(matches) != 1:
+>           raise ProjectionError(f"Unknown or ambiguous entity: {reference}")
+E           domain.projection.ProjectionError: Unknown or ambiguous entity: story
+
+domain\projection.py:17: ProjectionError
+__________________ test_locked_relationship_rolls_back[json] __________________
+
+repo = <infrastructure.json_narrative_repository.JsonNarrativeRepository object at 0x000001F3421F3F80>
+
+    def test_locked_relationship_rolls_back(repo):
+>       repo.override_relation("story", "Minh", "ENEMY_OF", "Lan")
+
+tests\test_state_projection.py:133: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+infrastructure\json_narrative_repository.py:356: in override_relation
+    relations = author_relationship(brain.entities, brain.relations, subject, relation_type, object_name)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:150: in author_relationship
+    retained = tuple(r for r in relations if relationship_identity(r, entities) != pair)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:150: in <genexpr>
+    retained = tuple(r for r in relations if relationship_identity(r, entities) != pair)
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:144: in relationship_identity
+    return resolve_entity(relation.subject, entities), resolve_entity(relation.object, entities)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference = 'story'
+entities = (NarrativeEntity(name='Minh', entity_id='974095f1-83a1-526b-bd0b-9833f10d08e4', entity_type='PER', status='Alive', loc...d2e9-3e86-5638-a167-cebd9fa98e8c', entity_type='PER', status='Alive', location='Unknown', mentions=1, is_locked=False))
+
+    def resolve_entity(reference: str, entities: list[NarrativeEntity]) -> str:
+        exact = [e for e in entities if e.entity_id == reference]
+        matches = exact or [e for e in entities if e.name.casefold() == reference.casefold()]
+        if len(matches) != 1:
+>           raise ProjectionError(f"Unknown or ambiguous entity: {reference}")
+E           domain.projection.ProjectionError: Unknown or ambiguous entity: story
+
+domain\projection.py:17: ProjectionError
+__________ test_initial_fact_produces_transition_and_baseline[json] ___________
+
+repo = <infrastructure.json_narrative_repository.JsonNarrativeRepository object at 0x000001F34241E8A0>
+
+    def test_initial_fact_produces_transition_and_baseline(repo):
+        entity = next(e for e in repo.list_entities("story") if e.name == "Minh")
+>       accept(repo, [NarrativeProposal(str(uuid.uuid4()), "fact", {
+            "subject_entity_id": entity.entity_id, "fact_type": "initial_state",
+            "fact_key": "location", "fact_value": "Village"})])
+
+tests\test_state_projection.py:141: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_state_projection.py:46: in accept
+    return repo.accept_proposal_group("story", [p.proposal_id for p in proposals], version)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+infrastructure\json_narrative_repository.py:246: in accept_proposal_group
+    result = memory.accept_proposal_group(
+infrastructure\in_memory_narrative_repository.py:353: in accept_proposal_group
+    relations = project_relations(entities, brain.relations, state)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:163: in project_relations
+    pair = relationship_identity(r, entities)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:144: in relationship_identity
+    return resolve_entity(relation.subject, entities), resolve_entity(relation.object, entities)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference = 'story'
+entities = [NarrativeEntity(name='Minh', entity_id='974095f1-83a1-526b-bd0b-9833f10d08e4', entity_type='PER', status='Alive', loc...d2e9-3e86-5638-a167-cebd9fa98e8c', entity_type='PER', status='Alive', location='Unknown', mentions=1, is_locked=False)]
+
+    def resolve_entity(reference: str, entities: list[NarrativeEntity]) -> str:
+        exact = [e for e in entities if e.entity_id == reference]
+        matches = exact or [e for e in entities if e.name.casefold() == reference.casefold()]
+        if len(matches) != 1:
+>           raise ProjectionError(f"Unknown or ambiguous entity: {reference}")
+E           domain.projection.ProjectionError: Unknown or ambiguous entity: story
+
+domain\projection.py:17: ProjectionError
+___ test_rebuild_failure_keeps_previous_projection_and_retry_is_safe[json] ____
+
+repo = <infrastructure.json_narrative_repository.JsonNarrativeRepository object at 0x000001F341005940>
+
+    def test_rebuild_failure_keeps_previous_projection_and_retry_is_safe(repo):
+>       accept(repo, event_group())
+
+tests\test_state_projection.py:151: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_state_projection.py:46: in accept
+    return repo.accept_proposal_group("story", [p.proposal_id for p in proposals], version)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+infrastructure\json_narrative_repository.py:246: in accept_proposal_group
+    result = memory.accept_proposal_group(
+infrastructure\in_memory_narrative_repository.py:353: in accept_proposal_group
+    relations = project_relations(entities, brain.relations, state)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:163: in project_relations
+    pair = relationship_identity(r, entities)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:144: in relationship_identity
+    return resolve_entity(relation.subject, entities), resolve_entity(relation.object, entities)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference = 'story'
+entities = [NarrativeEntity(name='Minh', entity_id='974095f1-83a1-526b-bd0b-9833f10d08e4', entity_type='PER', status='Alive', loc...d2e9-3e86-5638-a167-cebd9fa98e8c', entity_type='PER', status='Alive', location='Unknown', mentions=1, is_locked=False)]
+
+    def resolve_entity(reference: str, entities: list[NarrativeEntity]) -> str:
+        exact = [e for e in entities if e.entity_id == reference]
+        matches = exact or [e for e in entities if e.name.casefold() == reference.casefold()]
+        if len(matches) != 1:
+>           raise ProjectionError(f"Unknown or ambiguous entity: {reference}")
+E           domain.projection.ProjectionError: Unknown or ambiguous entity: story
+
+domain\projection.py:17: ProjectionError
+_____________ test_correction_service_creates_pending_group[json] _____________
+
+repo = <infrastructure.json_narrative_repository.JsonNarrativeRepository object at 0x000001F3410AB620>
+
+    def test_correction_service_creates_pending_group(repo):
+        first = event_group()
+>       accept(repo, first)
+
+tests\test_state_projection.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_state_projection.py:46: in accept
+    return repo.accept_proposal_group("story", [p.proposal_id for p in proposals], version)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+infrastructure\json_narrative_repository.py:246: in accept_proposal_group
+    result = memory.accept_proposal_group(
+infrastructure\in_memory_narrative_repository.py:353: in accept_proposal_group
+    relations = project_relations(entities, brain.relations, state)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:163: in project_relations
+    pair = relationship_identity(r, entities)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:144: in relationship_identity
+    return resolve_entity(relation.subject, entities), resolve_entity(relation.object, entities)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference = 'story'
+entities = [NarrativeEntity(name='Minh', entity_id='974095f1-83a1-526b-bd0b-9833f10d08e4', entity_type='PER', status='Alive', loc...d2e9-3e86-5638-a167-cebd9fa98e8c', entity_type='PER', status='Alive', location='Unknown', mentions=1, is_locked=False)]
+
+    def resolve_entity(reference: str, entities: list[NarrativeEntity]) -> str:
+        exact = [e for e in entities if e.entity_id == reference]
+        matches = exact or [e for e in entities if e.name.casefold() == reference.casefold()]
+        if len(matches) != 1:
+>           raise ProjectionError(f"Unknown or ambiguous entity: {reference}")
+E           domain.projection.ProjectionError: Unknown or ambiguous entity: story
+
+domain\projection.py:17: ProjectionError
+______ test_duplicate_event_and_competing_correction_are_rejected[json] _______
+
+repo = <infrastructure.json_narrative_repository.JsonNarrativeRepository object at 0x000001F340EBA360>
+
+    def test_duplicate_event_and_competing_correction_are_rejected(repo):
+        first = event_group()
+>       accept(repo, first)
+
+tests\test_state_projection.py:178: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tests\test_state_projection.py:46: in accept
+    return repo.accept_proposal_group("story", [p.proposal_id for p in proposals], version)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+infrastructure\json_narrative_repository.py:246: in accept_proposal_group
+    result = memory.accept_proposal_group(
+infrastructure\in_memory_narrative_repository.py:353: in accept_proposal_group
+    relations = project_relations(entities, brain.relations, state)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:163: in project_relations
+    pair = relationship_identity(r, entities)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:144: in relationship_identity
+    return resolve_entity(relation.subject, entities), resolve_entity(relation.object, entities)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference = 'story'
+entities = [NarrativeEntity(name='Minh', entity_id='974095f1-83a1-526b-bd0b-9833f10d08e4', entity_type='PER', status='Alive', loc...d2e9-3e86-5638-a167-cebd9fa98e8c', entity_type='PER', status='Alive', location='Unknown', mentions=1, is_locked=False)]
+
+    def resolve_entity(reference: str, entities: list[NarrativeEntity]) -> str:
+        exact = [e for e in entities if e.entity_id == reference]
+        matches = exact or [e for e in entities if e.name.casefold() == reference.casefold()]
+        if len(matches) != 1:
+>           raise ProjectionError(f"Unknown or ambiguous entity: {reference}")
+E           domain.projection.ProjectionError: Unknown or ambiguous entity: story
+
+domain\projection.py:17: ProjectionError
+__ test_matching_author_relationship_is_preserved_and_rebuild_matches[json] ___
+
+repo = <infrastructure.json_narrative_repository.JsonNarrativeRepository object at 0x000001F342446F00>
+
+    def test_matching_author_relationship_is_preserved_and_rebuild_matches(repo):
+>       repo.override_relation("story", "Minh", "ALLY_OF", "Lan")
+
+tests\test_state_projection.py:190: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+infrastructure\json_narrative_repository.py:356: in override_relation
+    relations = author_relationship(brain.entities, brain.relations, subject, relation_type, object_name)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:150: in author_relationship
+    retained = tuple(r for r in relations if relationship_identity(r, entities) != pair)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:150: in <genexpr>
+    retained = tuple(r for r in relations if relationship_identity(r, entities) != pair)
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+domain\projection.py:144: in relationship_identity
+    return resolve_entity(relation.subject, entities), resolve_entity(relation.object, entities)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+reference = 'story'
+entities = (NarrativeEntity(name='Minh', entity_id='974095f1-83a1-526b-bd0b-9833f10d08e4', entity_type='PER', status='Alive', loc...d2e9-3e86-5638-a167-cebd9fa98e8c', entity_type='PER', status='Alive', location='Unknown', mentions=1, is_locked=False))
+
+    def resolve_entity(reference: str, entities: list[NarrativeEntity]) -> str:
+        exact = [e for e in entities if e.entity_id == reference]
+        matches = exact or [e for e in entities if e.name.casefold() == reference.casefold()]
+        if len(matches) != 1:
+>           raise ProjectionError(f"Unknown or ambiguous entity: {reference}")
+E           domain.projection.ProjectionError: Unknown or ambiguous entity: story
+
+domain\projection.py:17: ProjectionError
+============================== warnings summary ===============================
+main.py:165
+  C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\ai-service\main.py:165: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+..\..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495
+..\..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495
+  C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+main.py:170
+  C:\Users\Laptop\.codex\worktrees\draft-read-authz\testproject\ai-service\main.py:170: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_narrative_route_compatibility.py::NarrativeRouteCompatibilityTests::test_legacy_kb_relation_and_graph_routes_use_application_service
+FAILED tests/test_p1_identity_final.py::test_h04_ambiguous_new_occurrences_do_not_silently_merge[memory]
+FAILED tests/test_state_projection.py::test_rebuild_equals_online_and_provenance_survives_reload[json]
+FAILED tests/test_state_projection.py::test_correction_replays_at_original_position_and_preserves_history[json]
+FAILED tests/test_state_projection.py::test_bad_transition_rolls_back_whole_group_then_can_retry[json]
+FAILED tests/test_state_projection.py::test_transition_cannot_reference_another_story[json]
+FAILED tests/test_state_projection.py::test_relationship_projection_has_transition_provenance[json]
+FAILED tests/test_state_projection.py::test_locked_relationship_rolls_back[json]
+FAILED tests/test_state_projection.py::test_initial_fact_produces_transition_and_baseline[json]
+FAILED tests/test_state_projection.py::test_rebuild_failure_keeps_previous_projection_and_retry_is_safe[json]
+FAILED tests/test_state_projection.py::test_correction_service_creates_pending_group[json]
+FAILED tests/test_state_projection.py::test_duplicate_event_and_competing_correction_are_rejected[json]
+FAILED tests/test_state_projection.py::test_matching_author_relationship_is_preserved_and_rebuild_matches[json]
+13 failed, 299 passed, 6 skipped, 107 deselected, 4 warnings in 14.74s

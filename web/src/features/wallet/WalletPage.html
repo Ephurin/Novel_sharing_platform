@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="web_standard" name="shell-type">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Merriweather:ital,wght@0,400;0,700;1,400&amp;display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <style>
+        @layer base {
+
+            html,
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                overscroll-behavior: none;
+            }
+
+            main>:first-child {
+                margin-top: 0 !important;
+            }
+
+            main>:last-child {
+                margin-bottom: 0 !important;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="tailwind-config">tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#4f46e5",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#c3c0ff",
+                        "secondary-container": "#8792fe",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#2f3aa3",
+                        "on-tertiary": "#ffffff",
+                        "inverse-surface": "#283044",
+                        "primary-fixed": "#e2dfff",
+                        "surface-variant": "#dae2fd",
+                        "on-surface": "#131b2e",
+                        "surface-container-low": "#f2f3ff",
+                        "secondary": "#4953bc",
+                        "on-tertiary-fixed": "#1b1a29",
+                        "on-error-container": "#93000a",
+                        "inverse-primary": "#c3c0ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "primary": "#3525cd",
+                        "secondary-fixed-dim": "#bdc2ff",
+                        "tertiary": "#484757",
+                        "surface": "#faf8ff",
+                        "tertiary-container": "#605e6f",
+                        "on-primary-fixed-variant": "#3323cc",
+                        "secondary-fixed": "#e0e0ff",
+                        "background": "#faf8ff",
+                        "on-background": "#131b2e",
+                        "surface-container-high": "#e2e7ff",
+                        "surface-bright": "#faf8ff",
+                        "surface-container": "#eaedff",
+                        "on-tertiary-fixed-variant": "#464555",
+                        "error-container": "#ffdad6",
+                        "on-surface-variant": "#464555",
+                        "on-primary-fixed": "#0f0069",
+                        "outline-variant": "#c7c4d8",
+                        "on-secondary-container": "#17228f",
+                        "tertiary-fixed-dim": "#c7c4d8",
+                        "surface-container-highest": "#dae2fd",
+                        "surface-tint": "#4d44e3",
+                        "tertiary-fixed": "#e4e0f5",
+                        "on-tertiary-container": "#dcd9ed",
+                        "outline": "#777587",
+                        "on-primary-container": "#dad7ff",
+                        "on-secondary-fixed": "#000767",
+                        "surface-dim": "#d2d9f4",
+                        "inverse-on-surface": "#eef0ff",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "space-xs": "0.25rem",
+                        "margin": "1rem",
+                        "margin-sm": "0.75rem",
+                        "gutter": "1rem",
+                        "space-md": "0.75rem",
+                        "space-xl": "1.5rem",
+                        "gutter-lg": "1.25rem",
+                        "gutter-sm": "0.75rem",
+                        "space-lg": "1rem",
+                        "margin-lg": "1.5rem",
+                        "space-sm": "0.375rem"
+                    },
+                    "fontFamily": {
+                        "label-md": [
+                            "Be Vietnam Pro"
+                        ],
+                        "headline-md": [
+                            "Merriweather"
+                        ],
+                        "body-reading": [
+                            "Merriweather"
+                        ],
+                        "headline-sm": [
+                            "Be Vietnam Pro"
+                        ],
+                        "body-md": [
+                            "Be Vietnam Pro"
+                        ],
+                        "label-sm": [
+                            "Be Vietnam Pro"
+                        ],
+                        "body-lg": [
+                            "Be Vietnam Pro"
+                        ],
+                        "headline-lg-mobile": [
+                            "Merriweather"
+                        ],
+                        "display-lg": [
+                            "Merriweather"
+                        ],
+                        "display-lg-mobile": [
+                            "Merriweather"
+                        ],
+                        "headline-lg": [
+                            "Merriweather"
+                        ]
+                    },
+                    "fontSize": {
+                        "label-md": [
+                            "11.5px",
+                            {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.02em",
+                                "fontWeight": "500"
+                            }
+                        ],
+                        "headline-md": [
+                            "18px",
+                            {
+                                "lineHeight": "26px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "400"
+                            }
+                        ],
+                        "body-reading": [
+                            "15px",
+                            {
+                                "lineHeight": "26px",
+                                "letterSpacing": "0.01em",
+                                "fontWeight": "400"
+                            }
+                        ],
+                        "headline-sm": [
+                            "15px",
+                            {
+                                "lineHeight": "22px",
+                                "fontWeight": "600"
+                            }
+                        ],
+                        "body-md": [
+                            "12.5px",
+                            {
+                                "lineHeight": "19px",
+                                "fontWeight": "400"
+                            }
+                        ],
+                        "label-sm": [
+                            "10px",
+                            {
+                                "lineHeight": "14px",
+                                "letterSpacing": "0.04em",
+                                "fontWeight": "600"
+                            }
+                        ],
+                        "body-lg": [
+                            "14px",
+                            {
+                                "lineHeight": "22px",
+                                "fontWeight": "400"
+                            }
+                        ],
+                        "headline-lg-mobile": [
+                            "20px",
+                            {
+                                "lineHeight": "28px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                            }
+                        ],
+                        "display-lg": [
+                            "28px",
+                            {
+                                "lineHeight": "36px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                            }
+                        ],
+                        "display-lg-mobile": [
+                            "22px",
+                            {
+                                "lineHeight": "28px",
+                                "letterSpacing": "-0.01em",
+                                "fontWeight": "700"
+                            }
+                        ],
+                        "headline-lg": [
+                            "22px",
+                            {
+                                "lineHeight": "30px",
+                                "letterSpacing": "-0.015em",
+                                "fontWeight": "700"
+                            }
+                        ]
+                    }
+                },
+            },
+        }</script>
+</head>
+
+<body class="bg-background font-body-md text-on-surface antialiased min-h-screen flex flex-col">
+    <header
+        class="fixed top-0 left-0 right-0 w-full z-50 bg-surface/90 backdrop-blur-md shadow-[0_1px_8px_rgba(15,23,42,0.04)]">
+        <div class="h-14 max-w-7xl mx-auto px-margin-sm lg:px-margin-lg flex items-center justify-between gap-space-md">
+            <div class="flex items-center gap-space-lg"><a class="flex items-center gap-space-sm group"
+                    data-path="tong-quan" href="#">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-on-primary shadow-sm group-hover:bg-primary-container transition-colors">
+                        <span class="material-symbols-outlined text-[18px]">auto_stories</span></div>
+                    <div class="flex flex-col"><span
+                            class="font-headline-sm text-headline-sm tracking-tight text-primary leading-none">StoryCraft</span><span
+                            class="font-label-sm text-label-sm tracking-wider uppercase text-tertiary font-bold mt-0.5">Văn
+                            Hoa Studio</span></div>
+                </a>
+                <nav class="hidden md:flex items-center gap-space-lg h-14"
+                    data-active-classes="text-primary font-semibold relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-primary after:rounded-full">
+                    <a class="h-full flex items-center font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-path="tong-quan" href="#">Tổng quan</a><a
+                        class="h-full flex items-center font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-path="tac-pham" href="#">Tác phẩm</a><a aria-current="page"
+                        class="h-full flex items-center transition-colors text-primary font-semibold relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-primary after:rounded-full"
+                        data-path="vi-va-doanh-thu" href="#">Ví &amp; doanh thu</a><a
+                        class="h-full flex items-center font-body-md text-body-md text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-path="trang-tac-gia" href="#">Trang tác giả</a></nav>
+            </div>
+            <div class="flex items-center gap-space-md"><a
+                    class="hidden sm:flex items-center gap-space-xs bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md px-space-md py-space-sm rounded-lg shadow-sm transition-all transform hover:-translate-y-0.5"
+                    data-path="viet-chuong-moi" href="#"><span
+                        class="material-symbols-outlined text-[16px]">edit_square</span><span class="">Viết chương
+                        mới</span></a>
+                <div class="relative flex items-center"><button aria-label="Thông báo"
+                        class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors relative"
+                        type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span
+                            class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-primary ring-2 ring-surface"></span></button>
+                </div>
+                <div class="flex items-center gap-space-sm pl-space-xs">
+                    <div class="w-7 h-7 rounded-full bg-primary flex items-center justify-center shadow-sm"><span
+                            class="material-symbols-outlined text-on-primary text-[16px]">person</span></div>
+                    <div class="hidden lg:flex flex-col text-left"><span
+                            class="font-label-md text-label-md text-on-surface font-semibold leading-tight">Mai
+                            Linh</span><span
+                            class="font-label-sm text-label-sm text-outline leading-tight">@moclan</span></div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="w-full pt-14 flex-1 bg-background">
+        <div class="flex flex-col w-full">
+            <!-- Top Background Ambient Glow Layer -->
+            <div class="relative w-full overflow-hidden">
+                <div
+                    class="absolute -top-32 left-1/4 w-[500px] h-[350px] bg-primary/5 rounded-full blur-3xl pointer-events-none">
+                </div>
+                <div
+                    class="absolute top-12 right-10 w-[420px] h-[280px] bg-secondary-container/10 rounded-full blur-3xl pointer-events-none">
+                </div>
+                <!-- Main Viewport Container (Desktop 1440px optimized) -->
+                <div
+                    class="max-w-7xl mx-auto px-margin-sm lg:px-margin-lg py-space-lg lg:py-space-xl flex flex-col gap-space-lg">
+                    <!-- 1. Page Header Section -->
+                    <section class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+                        <div class="flex flex-col gap-space-xs">
+                            <!-- Breadcrumb -->
+                            <nav aria-label="Breadcrumb"
+                                class="flex items-center gap-space-xs text-on-surface-variant font-label-md text-label-md">
+                                <a class="hover:text-primary transition-colors" href="#">Trang chủ</a>
+                                <span class="text-outline-variant font-label-sm">/</span>
+                                <span class="text-primary font-medium">Ví &amp; doanh thu</span>
+                            </nav>
+                            <div class="flex items-baseline gap-space-sm mt-1">
+                                <h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Ví &amp;
+                                    Doanh Thu</h1>
+                                <span
+                                    class="font-label-sm text-label-sm px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-semibold uppercase tracking-wider">
+                                    Tác giả Văn Hoa
+                                </span>
+                            </div>
+                            <p class="font-body-md text-body-md text-on-surface-variant">
+                                Theo dõi dòng tiền tác quyền, bảo chứng thu nhập từ tác phẩm và quản lý các giao dịch ký
+                                quỹ của bạn.
+                            </p>
+                        </div>
+                        <!-- Policy link popover trigger -->
+                        <button
+                            class="group self-start md:self-auto inline-flex items-center gap-space-xs px-space-md py-2 rounded-lg bg-surface-container hover:bg-surface-container-high transition-all text-primary font-label-md text-label-md shadow-sm"
+                            id="btn-open-policy" type="button">
+                            <span
+                                class="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">article</span>
+                            <span class="">Chính sách phân chia doanh thu &amp; biểu phí tác giả</span>
+                            <span
+                                class="material-symbols-outlined text-[16px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+                        </button>
+                    </section>
+                    <!-- 2. Wallet Balance Cards Row (3 Cards equal height) -->
+                    <section class="grid grid-cols-1 md:grid-cols-3 gap-space-lg items-stretch">
+                        <!-- Card 1: Khả dụng (Highlighted Primary) -->
+                        <div
+                            class="relative overflow-hidden rounded-xl bg-surface-container-lowest p-space-lg flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+                            <div
+                                class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary via-primary-container to-secondary-container">
+                            </div>
+                            <div class="flex flex-col gap-space-md">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-space-xs">
+                                        <div
+                                            class="w-8 h-8 rounded-lg bg-primary-fixed flex items-center justify-center text-primary">
+                                            <span
+                                                class="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+                                        </div>
+                                        <span class="font-label-md text-label-md font-semibold text-on-surface">Số dư
+                                            khả dụng</span>
+                                    </div>
+                                    <span
+                                        class="font-label-sm text-label-sm text-primary font-medium bg-surface-container-low px-2 py-0.5 rounded">
+                                        1 Xu = 100 VNĐ
+                                    </span>
+                                </div>
+                                <div class="flex flex-col gap-0.5">
+                                    <div class="flex items-baseline gap-2">
+                                        <span class="font-display-lg text-display-lg text-on-surface tracking-tight"
+                                            id="card-available-balance">125.000</span>
+                                        <span class="font-headline-sm text-headline-sm text-primary">Xu</span>
+                                    </div>
+                                    <p class="font-body-md text-body-md text-outline">
+                                        Quy đổi tham khảo: <strong class="text-on-surface font-semibold">12.500.000
+                                            VNĐ</strong>
+                                    </p>
+                                </div>
+                            </div>
+                            <div
+                                class="pt-space-md mt-space-md bg-surface-container-low rounded-lg p-3 flex flex-col gap-2">
+                                <div class="flex items-start gap-2 text-on-surface-variant font-label-sm text-label-sm">
+                                    <span
+                                        class="material-symbols-outlined text-[16px] text-primary mt-0.5">verified</span>
+                                    <span class="">Thu nhập đã đối soát hợp lệ, có thể yêu cầu rút về tài khoản ngân
+                                        hàng ngay.</span>
+                                </div>
+                                <button
+                                    class="w-full inline-flex items-center justify-center gap-space-xs bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md py-2.5 px-space-md rounded-lg shadow-sm hover:shadow-md transform hover:-translate-y-0.5 active:translate-y-0 transition-all"
+                                    id="btn-open-withdraw" type="button">
+                                    <span class="material-symbols-outlined text-[18px]">payments</span>
+                                    <span class="">Yêu cầu rút tiền</span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Card 2: Xu chờ đối soát -->
+                        <div
+                            class="rounded-xl bg-surface-container-lowest p-space-lg flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex flex-col gap-space-md">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-space-xs">
+                                        <div
+                                            class="w-8 h-8 rounded-lg bg-[#fef3c7] flex items-center justify-center text-[#d97706]">
+                                            <span class="material-symbols-outlined text-[18px]">hourglass_top</span>
+                                        </div>
+                                        <span class="font-label-md text-label-md font-semibold text-on-surface">Xu chờ
+                                            đối soát</span>
+                                    </div>
+                                    <span
+                                        class="font-label-sm text-label-sm text-[#b45309] bg-[#fffbeb] px-2 py-0.5 rounded font-medium">
+                                        Kỳ soát 15 hàng tháng
+                                    </span>
+                                </div>
+                                <div class="flex flex-col gap-0.5">
+                                    <div class="flex items-baseline gap-2">
+                                        <span
+                                            class="font-display-lg text-display-lg text-on-surface tracking-tight">18.500</span>
+                                        <span class="font-headline-sm text-headline-sm text-outline">Xu</span>
+                                    </div>
+                                    <p class="font-body-md text-body-md text-outline">
+                                        Tương đương: <strong class="text-on-surface font-semibold">1.850.000
+                                            VNĐ</strong>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="pt-space-md mt-space-md bg-surface-container-low rounded-lg p-3">
+                                <div class="flex items-start gap-2 text-on-surface-variant font-label-sm text-label-sm">
+                                    <span
+                                        class="material-symbols-outlined text-[16px] text-[#b45309] mt-0.5">info</span>
+                                    <span class="">Doanh thu chương VIP &amp; ủng hộ trong kỳ hiện tại, đang chờ đối
+                                        soát vào ngày chốt kỳ.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Card 3: Tổng thu nhập tích lũy -->
+                        <div
+                            class="rounded-xl bg-surface-container-lowest p-space-lg flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex flex-col gap-space-md">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-space-xs">
+                                        <div
+                                            class="w-8 h-8 rounded-lg bg-[#ecfdf5] flex items-center justify-center text-[#059669]">
+                                            <span class="material-symbols-outlined text-[18px]">military_tech</span>
+                                        </div>
+                                        <span class="font-label-md text-label-md font-semibold text-on-surface">Tổng thu
+                                            nhập tích lũy</span>
+                                    </div>
+                                    <span
+                                        class="font-label-sm text-label-sm text-[#047857] bg-[#f0fdf4] px-2 py-0.5 rounded font-medium">
+                                        Toàn thời gian
+                                    </span>
+                                </div>
+                                <div class="flex flex-col gap-0.5">
+                                    <div class="flex items-baseline gap-2">
+                                        <span
+                                            class="font-display-lg text-display-lg text-on-surface tracking-tight">486.400</span>
+                                        <span class="font-headline-sm text-headline-sm text-outline">Xu</span>
+                                    </div>
+                                    <p class="font-body-md text-body-md text-outline">
+                                        Tổng cộng: <strong class="text-on-surface font-semibold">48.640.000 VNĐ</strong>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="pt-space-md mt-space-md bg-surface-container-low rounded-lg p-3">
+                                <div class="flex items-start gap-2 text-on-surface-variant font-label-sm text-label-sm">
+                                    <span
+                                        class="material-symbols-outlined text-[16px] text-[#059669] mt-0.5">trending_up</span>
+                                    <span class="">Toàn bộ doanh thu bản quyền được ghi nhận lũy kế từ trước đến nay qua
+                                        mọi tác phẩm.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <!-- 3. Second Row: Revenue Chart (65%) & Bank Info (35%) -->
+                    <section class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-stretch">
+                        <!-- Left: Revenue Analytics Chart (Col 1-8: 65%) -->
+                        <div
+                            class="lg:col-span-8 bg-surface-container-lowest rounded-xl p-space-lg flex flex-col justify-between shadow-sm">
+                            <div>
+                                <!-- Chart Header Controls -->
+                                <div
+                                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-md">
+                                    <div class="flex flex-col">
+                                        <div class="flex items-center gap-space-xs flex-wrap">
+                                            <h2 class="font-headline-md text-headline-md text-on-surface">Doanh thu theo
+                                                thời gian</h2>
+                                            <span
+                                                class="inline-flex items-center gap-1 text-[11px] font-semibold text-[#047857] bg-[#ecfdf5] px-2.5 py-0.5 rounded-full">
+                                                <span class="material-symbols-outlined text-[13px]">percent</span>
+                                                Thu nhập thực nhận của tác giả sau phân chia tác quyền (70%)
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            <span class="font-label-md text-label-md text-outline">Tổng kỳ này:</span>
+                                            <span class="font-headline-sm text-headline-sm text-on-surface font-bold"
+                                                id="chart-period-total">34.200 Xu</span>
+                                            <span
+                                                class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded bg-[#ecfdf5] text-[#059669]"
+                                                id="chart-growth-badge">
+                                                <span class="material-symbols-outlined text-[14px]">arrow_upward</span>
+                                                18.4%
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <!-- Time filter toggle tabs -->
+                                    <div
+                                        class="inline-flex p-1 bg-surface-container rounded-lg self-start sm:self-auto text-on-surface-variant font-label-md text-label-md">
+                                        <button
+                                            class="chart-tab px-3 py-1 rounded hover:text-on-surface transition-colors"
+                                            data-period="7" type="button">7 ngày</button>
+                                        <button
+                                            class="chart-tab px-3 py-1 rounded bg-surface-container-lowest text-primary font-semibold shadow-xs"
+                                            data-period="30" type="button">30 ngày</button>
+                                        <button
+                                            class="chart-tab px-3 py-1 rounded hover:text-on-surface transition-colors"
+                                            data-period="365" type="button">12 tháng</button>
+                                    </div>
+                                </div>
+                                <!-- SVG Bar Chart Visualization -->
+                                <div class="w-full pt-2 pb-1">
+                                    <div class="relative w-full h-44 flex flex-col justify-end">
+                                        <!-- Background Gridlines -->
+                                        <div
+                                            class="absolute inset-0 flex flex-col justify-between pointer-events-none text-outline-variant opacity-40">
+                                            <div class="w-full flex items-center gap-2">
+                                                <span class="font-label-sm text-[10px] w-8 text-right"
+                                                    id="grid-max-label">10k</span>
+                                                <div class="h-[1px] w-full bg-surface-container-highest"></div>
+                                            </div>
+                                            <div class="w-full flex items-center gap-2">
+                                                <span class="font-label-sm text-[10px] w-8 text-right">7.5k</span>
+                                                <div class="h-[1px] w-full bg-surface-container-highest"></div>
+                                            </div>
+                                            <div class="w-full flex items-center gap-2">
+                                                <span class="font-label-sm text-[10px] w-8 text-right">5k</span>
+                                                <div class="h-[1px] w-full bg-surface-container-highest"></div>
+                                            </div>
+                                            <div class="w-full flex items-center gap-2">
+                                                <span class="font-label-sm text-[10px] w-8 text-right">2.5k</span>
+                                                <div class="h-[1px] w-full bg-surface-container-highest"></div>
+                                            </div>
+                                            <div class="w-full flex items-center gap-2">
+                                                <span class="font-label-sm text-[10px] w-8 text-right">0</span>
+                                                <div class="h-[1px] w-full bg-surface-container-highest"></div>
+                                            </div>
+                                        </div>
+                                        <!-- Bars Cluster Container (Dynamic via JS) -->
+                                        <div class="relative pl-10 pr-2 h-36 flex items-end justify-between gap-2 sm:gap-4 z-10"
+                                            id="chart-bars-cluster">
+                                            <!-- Default 30-day view: 5 cohorts across the 30 days -->
+                                            <div
+                                                class="group flex-1 flex flex-col items-center h-full justify-end relative cursor-pointer">
+                                                <div
+                                                    class="absolute -top-8 px-2 py-1 bg-inverse-surface text-inverse-on-surface font-label-sm text-[11px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md z-20">
+                                                    01-07/10: 6.200 Xu
+                                                </div>
+                                                <div
+                                                    class="w-full max-w-[38px] flex flex-col justify-end h-[62%] rounded-t-lg overflow-hidden group-hover:brightness-95 transition-all">
+                                                    <div class="w-full h-full bg-primary-container rounded-t-md"></div>
+                                                </div>
+                                                <span
+                                                    class="font-label-sm text-[11px] text-on-surface-variant mt-3 whitespace-nowrap">01-07/10</span>
+                                            </div>
+                                            <div
+                                                class="group flex-1 flex flex-col items-center h-full justify-end relative cursor-pointer">
+                                                <div
+                                                    class="absolute -top-8 px-2 py-1 bg-inverse-surface text-inverse-on-surface font-label-sm text-[11px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md z-20">
+                                                    08-14/10: 7.100 Xu
+                                                </div>
+                                                <div
+                                                    class="w-full max-w-[38px] flex flex-col justify-end h-[71%] rounded-t-lg overflow-hidden group-hover:brightness-95 transition-all">
+                                                    <div class="w-full h-full bg-primary-container rounded-t-md"></div>
+                                                </div>
+                                                <span
+                                                    class="font-label-sm text-[11px] text-on-surface-variant mt-3 whitespace-nowrap">08-14/10</span>
+                                            </div>
+                                            <div
+                                                class="group flex-1 flex flex-col items-center h-full justify-end relative cursor-pointer">
+                                                <div
+                                                    class="absolute -top-8 px-2 py-1 bg-inverse-surface text-inverse-on-surface font-label-sm text-[11px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md z-20">
+                                                    15-21/10: 6.850 Xu
+                                                </div>
+                                                <div
+                                                    class="w-full max-w-[38px] flex flex-col justify-end h-[68%] rounded-t-lg overflow-hidden group-hover:brightness-95 transition-all">
+                                                    <div class="w-full h-full bg-primary-container rounded-t-md"></div>
+                                                </div>
+                                                <span
+                                                    class="font-label-sm text-[11px] text-on-surface-variant mt-3 whitespace-nowrap">15-21/10</span>
+                                            </div>
+                                            <div
+                                                class="group flex-1 flex flex-col items-center h-full justify-end relative cursor-pointer">
+                                                <div
+                                                    class="absolute -top-8 px-2 py-1 bg-inverse-surface text-inverse-on-surface font-label-sm text-[11px] rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-md z-20">
+                                                    22-28/10: 8.400 Xu
+                                                </div>
+                                                <div
+                                                    class="w-full max-w-[38px] flex flex-col justify-end h-[84%] rounded-t-lg overflow-hidden group-hover:brightness-95 transition-all">
+                                                    <div class="w-full h-full bg-primary-container rounded-t-md"></div>
+                                                </div>
+                                                <span
+                                                    class="font-label-sm text-[11px] text-on-surface-variant mt-3 whitespace-nowrap">22-28/10</span>
+                                            </div>
+                                            <div
+                                                class="group flex-1 flex flex-col items-center h-full justify-end relative cursor-pointer">
+                                                <div
+                                                    class="absolute -top-9 px-2.5 py-1 bg-primary text-on-primary font-label-sm text-[11px] font-semibold rounded opacity-100 shadow-md z-20 flex items-center gap-1">
+                                                    <span class="">29-30/10: 5.650 Xu</span>
+                                                </div>
+                                                <div
+                                                    class="w-full max-w-[38px] flex flex-col justify-end h-[57%] rounded-t-lg overflow-hidden shadow-sm">
+                                                    <div class="w-full h-full bg-primary rounded-t-md"></div>
+                                                </div>
+                                                <span
+                                                    class="font-label-sm text-[11px] text-primary font-bold mt-3 whitespace-nowrap">29-30/10</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Chart Sub-Legend Breakdown -->
+                            <div
+                                class="pt-space-md mt-space-sm flex flex-wrap items-center justify-between gap-space-sm bg-surface-container-low px-space-md py-space-sm rounded-lg">
+                                <div class="flex items-center gap-space-md">
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-3 h-3 rounded-full bg-primary"></span>
+                                        <span class="font-label-md text-label-md text-on-surface">Mở khóa chương VIP:
+                                            <strong class="text-on-surface font-semibold">82%</strong></span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-3 h-3 rounded-full bg-secondary-container"></span>
+                                        <span class="font-label-md text-label-md text-on-surface">Độc giả ủng hộ / Tip:
+                                            <strong class="text-on-surface font-semibold">18%</strong></span>
+                                    </div>
+                                </div>
+                                <span class="font-label-sm text-label-sm text-tertiary">Dữ liệu kết chuyển tự động mỗi
+                                    24h</span>
+                            </div>
+                        </div>
+                        <!-- Right: Connected Bank Account Card (Col 9-12: 35%) -->
+                        <div
+                            class="lg:col-span-4 bg-surface-container-lowest rounded-xl p-space-lg flex flex-col justify-between shadow-sm">
+                            <div class="flex flex-col gap-space-md">
+                                <div class="flex items-center justify-between">
+                                    <h2 class="font-headline-sm text-headline-sm text-on-surface">Tài khoản nhận tiền
+                                    </h2>
+                                    <span
+                                        class="inline-flex items-center gap-1 text-[11px] font-semibold text-[#047857] bg-[#ecfdf5] px-2 py-0.5 rounded-full">
+                                        <span class="material-symbols-outlined text-[14px]">verified</span>
+                                        KYC chính chủ
+                                    </span>
+                                </div>
+                                <!-- Stylized Bank Pass Card Component -->
+                                <div
+                                    class="relative overflow-hidden rounded-xl bg-gradient-to-br from-[#064e3b] via-[#047857] to-[#022c22] text-white p-3.5 shadow-md flex flex-col justify-between min-h-[145px]">
+                                    <!-- Subtle decorative watermark pattern -->
+                                    <div
+                                        class="absolute -right-6 -bottom-6 w-28 h-28 rounded-full bg-white/5 pointer-events-none">
+                                    </div>
+                                    <div
+                                        class="absolute -right-2 top-0 w-20 h-20 rounded-full bg-white/5 pointer-events-none">
+                                    </div>
+                                    <div class="flex items-start justify-between relative z-10">
+                                        <div class="flex flex-col">
+                                            <span
+                                                class="text-[10px] uppercase tracking-wider text-emerald-200/90 font-medium font-label-sm">Ngân
+                                                hàng thụ hưởng</span>
+                                            <span class="font-semibold text-sm tracking-tight">Vietcombank</span>
+                                        </div>
+                                        <div
+                                            class="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-xs">
+                                            <span
+                                                class="material-symbols-outlined text-white text-[16px]">contactless</span>
+                                        </div>
+                                    </div>
+                                    <div class="my-2 relative z-10">
+                                        <span
+                                            class="text-[10px] text-emerald-200/80 uppercase font-label-sm tracking-wider">Số
+                                            tài khoản</span>
+                                        <p class="font-mono text-base tracking-widest text-white/95 mt-0.5">•••• •••• ••••
+                                            4829</p>
+                                    </div>
+                                    <div class="flex items-end justify-between relative z-10">
+                                        <div>
+                                            <span
+                                                class="text-[9px] uppercase tracking-wider text-emerald-200/80 font-label-sm">Chủ
+                                                tài khoản</span>
+                                            <p class="font-semibold text-xs tracking-wide text-white">MAI LINH</p>
+                                        </div>
+                                        <div class="flex items-center gap-1 text-[10px] text-emerald-100 font-label-sm">
+                                            <span class="">Văn Hoa Payout</span>
+                                            <span class="material-symbols-outlined text-[13px]">shield</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Details overview -->
+                                <div class="flex flex-col gap-2 pt-1 font-body-md text-body-md text-on-surface-variant">
+                                    <div class="flex justify-between items-center py-1">
+                                        <span class="text-outline text-label-md">Ngân hàng:</span>
+                                        <span class="text-on-surface font-medium text-right text-xs">TMCP Ngoại Thương
+                                            VN (VCB)</span>
+                                    </div>
+                                    <div class="flex justify-between items-center py-1">
+                                        <span class="text-outline text-label-md">Chi nhánh:</span>
+                                        <span class="text-on-surface font-medium text-right text-xs">CN Hoàn Kiếm, Hà
+                                            Nội</span>
+                                    </div>
+                                    <div class="flex justify-between items-center py-1">
+                                        <span class="text-outline text-label-md">Hạn mức rút / ngày:</span>
+                                        <span class="text-on-surface font-medium text-right text-xs">100.000.000
+                                            VNĐ</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="pt-space-md mt-space-sm">
+                                <button
+                                    class="w-full inline-flex items-center justify-center gap-space-xs px-space-md py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-all shadow-xs"
+                                    id="btn-manage-bank" type="button">
+                                    <span class="material-symbols-outlined text-[18px] text-outline">credit_card</span>
+                                    <span class="">Quản lý tài khoản ngân hàng</span>
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                    <!-- 4. Transaction History Table Section -->
+                    <section
+                        class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+                        <!-- Table Header and Action Controls -->
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+                            <div class="flex items-center gap-space-sm">
+                                <h2 class="font-headline-md text-headline-md text-on-surface">Lịch sử giao dịch</h2>
+                                <span
+                                    class="font-label-sm text-label-sm px-2.5 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-medium">
+                                    48 giao dịch
+                                </span>
+                            </div>
+                            <!-- Multi-filter bar -->
+                            <div class="flex flex-wrap items-center gap-space-sm">
+                                <!-- Search bar -->
+                                <div class="relative min-w-[220px]">
+                                    <span
+                                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-outline">search</span>
+                                    <input
+                                        class="w-full pl-9 pr-3 py-1.5 rounded-lg bg-surface-container-low focus:bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-outline outline-none ring-1 ring-outline-variant/30 focus:ring-2 focus:ring-primary transition-all text-sm"
+                                        id="search-input" placeholder="Tìm nội dung hoặc mã..." type="text">
+                                </div>
+                                <!-- Type Filter Dropdown -->
+                                <div class="relative">
+                                    <select
+                                        class="appearance-none pl-3 pr-8 py-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md outline-none cursor-pointer"
+                                        id="filter-type">
+                                        <option value="all">Tất cả loại giao dịch</option>
+                                        <option value="vip">Doanh thu chương VIP</option>
+                                        <option value="tip">Độc giả ủng hộ / Tip</option>
+                                        <option value="withdraw">Rút tiền về ngân hàng</option>
+                                        <option value="audit">Chốt đối soát định kỳ</option>
+                                    </select>
+                                    <span
+                                        class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-[16px] pointer-events-none text-outline">expand_more</span>
+                                </div>
+                                <!-- Status Filter Dropdown -->
+                                <div class="relative">
+                                    <select
+                                        class="appearance-none pl-3 pr-8 py-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md outline-none cursor-pointer"
+                                        id="filter-status">
+                                        <option value="all">Tất cả trạng thái</option>
+                                        <option value="done">Hoàn tất</option>
+                                        <option value="pending">Đang xử lý</option>
+                                        <option value="audit">Chờ đối soát</option>
+                                    </select>
+                                    <span
+                                        class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-[16px] pointer-events-none text-outline">expand_more</span>
+                                </div>
+                                <!-- Range Filter Pill -->
+                                <div class="relative">
+                                    <select
+                                        class="appearance-none pl-3 pr-8 py-1.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md outline-none cursor-pointer">
+                                        <option>30 ngày gần đây</option>
+                                        <option>60 ngày gần đây</option>
+                                        <option>Năm 2025</option>
+                                    </select>
+                                    <span
+                                        class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-[16px] pointer-events-none text-outline">calendar_today</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Table Viewport Container -->
+                        <div class="w-full overflow-x-auto rounded-lg">
+                            <table class="w-full text-left border-collapse min-w-[960px]">
+                                <thead>
+                                    <tr
+                                        class="bg-surface-container-low text-on-surface-variant font-label-md text-label-md uppercase tracking-wider text-[11px]">
+                                        <th class="py-3 px-4 font-semibold">Thời gian</th>
+                                        <th class="py-3 px-4 font-semibold">Loại giao dịch</th>
+                                        <th class="py-3 px-4 font-semibold">Nội dung chi tiết</th>
+                                        <th class="py-3 px-4 font-semibold text-right">Số Xu</th>
+                                        <th class="py-3 px-4 font-semibold text-center">Trạng thái</th>
+                                        <th class="py-3 px-4 font-semibold text-right">Mã giao dịch</th>
+                                    </tr>
+                                </thead>
+                                <tbody
+                                    class="divide-y divide-surface-container font-body-md text-body-md text-on-surface"
+                                    id="transaction-tbody">
+                                    <!-- Row 1 -->
+                                    <tr class="hover:bg-surface-container-low/60 transition-colors group">
+                                        <td class="py-3.5 px-4 text-xs font-mono text-outline whitespace-nowrap">
+                                            26/10/2025 <span class="text-tertiary">14:15</span>
+                                        </td>
+                                        <td class="py-3.5 px-4 whitespace-nowrap">
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="w-7 h-7 rounded bg-primary-fixed text-primary flex items-center justify-center">
+                                                    <span class="material-symbols-outlined text-[16px]">menu_book</span>
+                                                </span>
+                                                <span class="font-label-md text-label-md font-medium">Mở khóa chương
+                                                    VIP</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3.5 px-4 max-w-sm truncate text-on-surface"
+                                            title="Mở khóa Chương 48: Lời thú nhận – Gió Thoảng Qua Phố Cổ">
+                                            Mở khóa <strong class="font-medium text-primary">Chương 48: Lời thú
+                                                nhận</strong> – Gió Thoảng Qua Phố Cổ
+                                        </td>
+                                        <td
+                                            class="py-3.5 px-4 text-right font-headline-sm text-headline-sm text-[#059669] font-bold whitespace-nowrap">
+                                            +15 <span class="text-xs font-normal text-outline">Xu</span>
+                                        </td>
+                                        <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                                            <span
+                                                class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#ecfdf5] text-[#059669]">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-[#059669]"></span>
+                                                Hoàn tất
+                                            </span>
+                                        </td>
+                                        <td
+                                            class="py-3.5 px-4 text-right font-mono text-xs text-outline whitespace-nowrap group-hover:text-on-surface">
+                                            TX-20251026-0842
+                                        </td>
+                                    </tr>
+                                    <!-- Row 2 -->
+                                    <tr class="hover:bg-surface-container-low/60 transition-colors group">
+                                        <td class="py-3.5 px-4 text-xs font-mono text-outline whitespace-nowrap">
+                                            26/10/2025 <span class="text-tertiary">11:30</span>
+                                        </td>
+                                        <td class="py-3.5 px-4 whitespace-nowrap">
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="w-7 h-7 rounded bg-[#fae8ff] text-[#a21caf] flex items-center justify-center">
+                                                    <span class="material-symbols-outlined text-[16px]">favorite</span>
+                                                </span>
+                                                <span class="font-label-md text-label-md font-medium">Độc giả ủng
+                                                    hộ</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3.5 px-4 max-w-sm truncate text-on-surface"
+                                            title="Thưởng trà ngọc lan từ độc giả @hoanglan">
+                                            Thưởng trà ngọc lan từ độc giả <span
+                                                class="font-medium text-on-surface">@hoanglan</span>
+                                        </td>
+                                        <td
+                                            class="py-3.5 px-4 text-right font-headline-sm text-headline-sm text-[#059669] font-bold whitespace-nowrap">
+                                            +50 <span class="text-xs font-normal text-outline">Xu</span>
+                                        </td>
+                                        <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                                            <span
+                                                class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#ecfdf5] text-[#059669]">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-[#059669]"></span>
+                                                Hoàn tất
+                                            </span>
+                                        </td>
+                                        <td
+                                            class="py-3.5 px-4 text-right font-mono text-xs text-outline whitespace-nowrap group-hover:text-on-surface">
+                                            TX-20251026-0319
+                                        </td>
+                                    </tr>
+                                    <!-- Row 3 -->
+                                    <tr class="hover:bg-surface-container-low/60 transition-colors group">
+                                        <td class="py-3.5 px-4 text-xs font-mono text-outline whitespace-nowrap">
+                                            25/10/2025 <span class="text-tertiary">16:40</span>
+                                        </td>
+                                        <td class="py-3.5 px-4 whitespace-nowrap">
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="w-7 h-7 rounded bg-primary-fixed text-primary flex items-center justify-center">
+                                                    <span class="material-symbols-outlined text-[16px]">menu_book</span>
+                                                </span>
+                                                <span class="font-label-md text-label-md font-medium">Mở khóa chương
+                                                    VIP</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3.5 px-4 max-w-sm truncate text-on-surface"
+                                            title="Mở khóa Chương 47: Quán cà phê góc phố Hàng Vải">
+                                            Mở khóa <strong class="font-medium text-primary">Chương 47: Quán cà phê góc
+                                                phố Hàng Vải</strong>
+                                        </td>
+                                        <td
+                                            class="py-3.5 px-4 text-right font-headline-sm text-headline-sm text-[#059669] font-bold whitespace-nowrap">
+                                            +15 <span class="text-xs font-normal text-outline">Xu</span>
+                                        </td>
+                                        <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                                            <span
+                                                class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#ecfdf5] text-[#059669]">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-[#059669]"></span>
+                                                Hoàn tất
+                                            </span>
+                                        </td>
+                                        <td
+                                            class="py-3.5 px-4 text-right font-mono text-xs text-outline whitespace-nowrap group-hover:text-on-surface">
+                                            TX-20251025-9921
+                                        </td>
+                                    </tr>
+                                    <!-- Row 4 -->
+                                    <tr class="hover:bg-surface-container-low/60 transition-colors group">
+                                        <td class="py-3.5 px-4 text-xs font-mono text-outline whitespace-nowrap">
+                                            20/10/2025 <span class="text-tertiary">09:00</span>
+                                        </td>
+                                        <td class="py-3.5 px-4 whitespace-nowrap">
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="w-7 h-7 rounded bg-[#fee2e2] text-[#dc2626] flex items-center justify-center">
+                                                    <span
+                                                        class="material-symbols-outlined text-[16px]">north_east</span>
+                                                </span>
+                                                <span class="font-label-md text-label-md font-medium">Rút tiền về ngân
+                                                    hàng</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3.5 px-4 max-w-sm truncate text-on-surface"
+                                            title="Lệnh rút tiền về Vietcombank (****4829)">
+                                            Lệnh chuyển khoản rút tiền về Vietcombank (****4829)
+                                        </td>
+                                        <td
+                                            class="py-3.5 px-4 text-right font-headline-sm text-headline-sm text-[#dc2626] font-bold whitespace-nowrap">
+                                            -50.000 <span class="text-xs font-normal text-outline">Xu</span>
+                                        </td>
+                                        <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                                            <span
+                                                class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#ecfdf5] text-[#059669]">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-[#059669]"></span>
+                                                Hoàn tất
+                                            </span>
+                                        </td>
+                                        <td
+                                            class="py-3.5 px-4 text-right font-mono text-xs text-outline whitespace-nowrap group-hover:text-on-surface">
+                                            WD-20251020-0112
+                                        </td>
+                                    </tr>
+                                    <!-- Row 5 -->
+                                    <tr class="hover:bg-surface-container-low/60 transition-colors group">
+                                        <td class="py-3.5 px-4 text-xs font-mono text-outline whitespace-nowrap">
+                                            18/10/2025 <span class="text-tertiary">17:20</span>
+                                        </td>
+                                        <td class="py-3.5 px-4 whitespace-nowrap">
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="w-7 h-7 rounded bg-[#fee2e2] text-[#dc2626] flex items-center justify-center">
+                                                    <span
+                                                        class="material-symbols-outlined text-[16px]">north_east</span>
+                                                </span>
+                                                <span class="font-label-md text-label-md font-medium">Rút tiền về ngân
+                                                    hàng</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3.5 px-4 max-w-sm truncate text-on-surface"
+                                            title="Lệnh rút tiền định kỳ tháng 10">
+                                            Lệnh rút tiền định kỳ tháng 10 (Chờ giải ngân đối tác)
+                                        </td>
+                                        <td
+                                            class="py-3.5 px-4 text-right font-headline-sm text-headline-sm text-[#dc2626] font-bold whitespace-nowrap">
+                                            -30.000 <span class="text-xs font-normal text-outline">Xu</span>
+                                        </td>
+                                        <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                                            <span
+                                                class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#eff6ff] text-[#2563eb]">
+                                                <span
+                                                    class="w-1.5 h-1.5 rounded-full bg-[#2563eb] animate-pulse"></span>
+                                                Đang xử lý
+                                            </span>
+                                        </td>
+                                        <td
+                                            class="py-3.5 px-4 text-right font-mono text-xs text-outline whitespace-nowrap group-hover:text-on-surface">
+                                            WD-20251018-0450
+                                        </td>
+                                    </tr>
+                                    <!-- Row 6 -->
+                                    <tr class="hover:bg-surface-container-low/60 transition-colors group">
+                                        <td class="py-3.5 px-4 text-xs font-mono text-outline whitespace-nowrap">
+                                            15/10/2025 <span class="text-tertiary">00:00</span>
+                                        </td>
+                                        <td class="py-3.5 px-4 whitespace-nowrap">
+                                            <div class="flex items-center gap-2">
+                                                <span
+                                                    class="w-7 h-7 rounded bg-[#fef3c7] text-[#d97706] flex items-center justify-center">
+                                                    <span class="material-symbols-outlined text-[16px]">rule</span>
+                                                </span>
+                                                <span class="font-label-md text-label-md font-medium">Chốt đối soát kỳ
+                                                    1</span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3.5 px-4 max-w-sm truncate text-on-surface"
+                                            title="Đối soát doanh thu độc quyền tháng 10 (Đợt 1)">
+                                            Đối soát doanh thu độc quyền tác giả tháng 10 (Đợt 1)
+                                        </td>
+                                        <td
+                                            class="py-3.5 px-4 text-right font-headline-sm text-headline-sm text-[#d97706] font-bold whitespace-nowrap">
+                                            +18.500 <span class="text-xs font-normal text-outline">Xu</span>
+                                        </td>
+                                        <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                                            <span
+                                                class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#fffbeb] text-[#b45309]">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-[#b45309]"></span>
+                                                Chờ đối soát
+                                            </span>
+                                        </td>
+                                        <td
+                                            class="py-3.5 px-4 text-right font-mono text-xs text-outline whitespace-nowrap group-hover:text-on-surface">
+                                            ST-20251015-0001
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Table Pagination Controls -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pt-space-sm">
+                            <p class="font-body-md text-body-md text-outline">
+                                Hiển thị <span class="font-semibold text-on-surface">6</span> trên tổng số <span
+                                    class="font-semibold text-on-surface">48</span> giao dịch
+                            </p>
+                            <div class="inline-flex items-center gap-1">
+                                <button
+                                    class="w-8 h-8 rounded flex items-center justify-center text-outline-variant hover:bg-surface-container disabled:opacity-40 disabled:cursor-not-allowed"
+                                    disabled="" type="button">
+                                    <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+                                </button>
+                                <button
+                                    class="w-8 h-8 rounded bg-primary text-on-primary font-label-md text-label-md font-semibold flex items-center justify-center"
+                                    type="button">1</button>
+                                <button
+                                    class="w-8 h-8 rounded hover:bg-surface-container text-on-surface font-label-md text-label-md flex items-center justify-center transition-colors"
+                                    type="button">2</button>
+                                <button
+                                    class="w-8 h-8 rounded hover:bg-surface-container text-on-surface font-label-md text-label-md flex items-center justify-center transition-colors"
+                                    type="button">3</button>
+                                <span class="w-6 text-center text-outline font-label-sm">...</span>
+                                <button
+                                    class="w-8 h-8 rounded hover:bg-surface-container text-on-surface font-label-md text-label-md flex items-center justify-center transition-colors"
+                                    type="button">8</button>
+                                <button
+                                    class="w-8 h-8 rounded flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors"
+                                    type="button">
+                                    <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+            <!-- 5. Modal: Yêu cầu rút tiền (Withdrawal Request Modal) -->
+            <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface/50 backdrop-blur-sm hidden transition-opacity"
+                id="withdraw-modal">
+                <div
+                    class="relative w-full max-w-lg bg-surface-container-lowest rounded-xl shadow-2xl p-space-lg flex flex-col gap-space-md animate-in fade-in zoom-in-95 duration-200">
+                    <!-- Modal Header -->
+                    <div class="flex items-start justify-between">
+                        <div class="flex flex-col">
+                            <h3 class="font-headline-sm text-headline-sm text-on-surface">Yêu cầu rút tiền về ngân hàng
+                            </h3>
+                            <p class="font-body-md text-body-md text-outline">Chuyển đổi số dư Xu sang tiền VNĐ vào tài
+                                khoản đã xác minh KYC</p>
+                        </div>
+                        <button
+                            class="w-8 h-8 rounded-full flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors"
+                            id="btn-close-withdraw" type="button">
+                            <span class="material-symbols-outlined text-[20px]">close</span>
+                        </button>
+                    </div>
+                    <!-- Balance Reference Banner -->
+                    <div class="bg-surface-container-low p-3.5 rounded-lg flex items-center justify-between">
+                        <div class="flex flex-col">
+                            <span class="font-label-sm text-label-sm text-outline">Số dư khả dụng hiện tại</span>
+                            <span class="font-headline-sm text-headline-sm text-on-surface font-bold">125.000 Xu</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="font-label-sm text-label-sm text-outline">Quy đổi tương ứng</span>
+                            <p class="font-label-md text-label-md font-semibold text-primary">~12.500.000 VNĐ</p>
+                        </div>
+                    </div>
+                    <!-- Form Inputs -->
+                    <form class="flex flex-col gap-space-md" id="withdraw-form">
+                        <!-- Input Xu -->
+                        <div class="flex flex-col gap-1.5">
+                            <label class="font-label-md text-label-md font-medium text-on-surface flex justify-between"
+                                for="withdraw-amount">
+                                <span class="">Số Xu muốn rút</span>
+                                <button class="text-primary hover:underline font-semibold text-xs" id="btn-max-amount"
+                                    type="button">Rút tối đa (125.000 Xu)</button>
+                            </label>
+                            <div class="relative">
+                                <input
+                                    class="w-full pl-3 pr-16 py-2.5 rounded-lg bg-surface-container-lowest ring-1 ring-outline-variant focus:ring-2 focus:ring-primary outline-none font-headline-sm text-headline-sm text-on-surface font-bold transition-all"
+                                    id="withdraw-amount" max="125000" min="50000" name="amount" step="1000"
+                                    type="number" value="50000">
+                                <span
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 font-label-md text-label-md text-outline font-semibold">Xu</span>
+                            </div>
+                            <!-- Live Validation Warning Message -->
+                            <div class="hidden text-xs text-error flex items-center gap-1 mt-0.5"
+                                id="withdraw-error-msg">
+                                <span class="material-symbols-outlined text-[14px]">error</span>
+                                <span id="withdraw-error-text" class="">Số Xu rút phải tối thiểu 50.000 Xu và không vượt
+                                    quá số dư khả dụng.</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 text-xs text-outline mt-0.5" id="withdraw-helper-msg">
+                                <span class="material-symbols-outlined text-[14px]">info</span>
+                                <span class="">Hạn mức tối thiểu: 50.000 Xu (5.000.000 VNĐ). 1 Xu = 100 VNĐ.</span>
+                            </div>
+                        </div>
+                        <!-- Calculated Real Amount Preview -->
+                        <div class="p-3 bg-surface-container rounded-lg flex items-center justify-between">
+                            <span class="font-label-md text-label-md text-on-surface">Thực nhận về tài khoản:</span>
+                            <div class="text-right">
+                                <span class="font-headline-sm text-headline-sm text-[#059669] font-bold"
+                                    id="preview-vnd">5.000.000 VNĐ</span>
+                                <span class="block text-[11px] text-[#059669] font-medium">Miễn phí giao dịch nền tảng
+                                    Văn Hoa</span>
+                            </div>
+                        </div>
+                        <!-- Destination Account Confirm -->
+                        <div class="border-t border-surface-container pt-3 flex flex-col gap-1.5">
+                            <span class="font-label-sm text-label-sm text-outline">Tài khoản nhận tiền thụ hưởng:</span>
+                            <div
+                                class="flex items-center justify-between p-2.5 rounded-lg bg-surface-container-low text-sm">
+                                <div class="flex items-center gap-2">
+                                    <span
+                                        class="material-symbols-outlined text-[#047857] text-[20px]">account_balance</span>
+                                    <div>
+                                        <p class="font-semibold text-on-surface text-xs sm:text-sm">Vietcombank ••••
+                                            4829</p>
+                                        <p class="font-label-sm text-[11px] text-tertiary">CN Hoàn Kiếm, Hà Nội</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="font-mono text-xs font-semibold text-on-surface block">MAI LINH</span>
+                                    <span
+                                        class="inline-flex items-center gap-0.5 text-[10px] text-[#047857] font-semibold">
+                                        <span class="material-symbols-outlined text-[12px]">check_circle</span> KYC hợp
+                                        lệ
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="p-2.5 rounded bg-surface-container-low text-xs text-on-surface-variant flex items-start gap-2">
+                            <span class="material-symbols-outlined text-[16px] text-tertiary mt-0.5">schedule</span>
+                            <span class="">Thời gian xử lý: 1-3 ngày làm việc theo chu kỳ chuyển khoản liên ngân hàng.
+                                Biểu phí và điều kiện tuân thủ theo quy chế tác giả Văn Hoa.</span>
+                        </div>
+                        <!-- Modal Actions -->
+                        <div class="flex items-center justify-end gap-space-sm pt-space-xs mt-1">
+                            <button
+                                class="px-space-md py-2.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors"
+                                id="btn-cancel-withdraw" type="button">
+                                Hủy
+                            </button>
+                            <button
+                                class="px-space-lg py-2.5 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md font-semibold shadow-sm hover:shadow-md transition-all flex items-center gap-1.5"
+                                id="btn-submit-withdraw" type="submit">
+                                <span class="material-symbols-outlined text-[18px]">check_circle</span>
+                                <span class="">Xác nhận rút tiền</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <!-- 6. Policy Popover / Modal Component -->
+            <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface/50 backdrop-blur-sm hidden transition-opacity"
+                id="policy-modal">
+                <div
+                    class="relative w-full max-w-2xl bg-surface-container-lowest rounded-xl shadow-2xl p-space-lg flex flex-col gap-space-md max-h-[870px] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+                    <!-- Header -->
+                    <div class="flex items-start justify-between border-b border-surface-container pb-space-sm">
+                        <div class="flex items-center gap-2">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-primary-fixed text-primary flex items-center justify-center">
+                                <span class="material-symbols-outlined text-[18px]">article</span>
+                            </div>
+                            <div>
+                                <h3 class="font-headline-sm text-headline-sm text-on-surface">Chính sách phân chia doanh
+                                    thu &amp; biểu phí tác giả</h3>
+                                <p class="font-body-md text-xs text-outline">Áp dụng chính thức cho các tác giả xuất bản
+                                    nội dung số tại Văn Hoa Studio</p>
+                            </div>
+                        </div>
+                        <button
+                            class="w-8 h-8 rounded-full flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors"
+                            id="btn-close-policy" type="button">
+                            <span class="material-symbols-outlined text-[20px]">close</span>
+                        </button>
+                    </div>
+                    <!-- Content Body -->
+                    <div class="flex flex-col gap-space-md text-on-surface font-body-md text-body-md leading-relaxed">
+                        <!-- Section 1 -->
+                        <div
+                            class="p-3.5 rounded-lg bg-surface-container-low flex flex-col gap-1.5 border-l-4 border-primary">
+                            <h4 class="font-semibold text-primary flex items-center gap-1.5 text-base">
+                                <span class="material-symbols-outlined text-[18px]">pie_chart</span>
+                                1. Tỷ lệ phân chia tác quyền (70% / 30%)
+                            </h4>
+                            <p class="text-on-surface-variant text-sm">
+                                Tác giả ký kết hợp đồng xuất bản tiêu chuẩn nhận tỷ lệ cố định <strong
+                                    class="text-on-surface font-semibold">70%</strong> trên toàn bộ doanh thu mở khóa
+                                chương trả phí (VIP) và đóng góp quà tặng từ độc giả. Phần <strong
+                                    class="text-on-surface font-semibold">30%</strong> còn lại được phân bổ cho chi phí
+                                vận hành máy chủ, cổng thanh toán viễn thông, tiếp thị tác phẩm và bảo vệ bản quyền số.
+                            </p>
+                        </div>
+                        <!-- Section 2 -->
+                        <div
+                            class="p-3.5 rounded-lg bg-surface-container-low flex flex-col gap-1.5 border-l-4 border-secondary">
+                            <h4 class="font-semibold text-secondary flex items-center gap-1.5 text-base">
+                                <span class="material-symbols-outlined text-[18px]">currency_exchange</span>
+                                2. Cơ chế quy đổi Xu &amp; định giá nội dung
+                            </h4>
+                            <p class="text-on-surface-variant text-sm">
+                                Đơn vị giao dịch trên nền tảng được chuẩn hóa: <strong
+                                    class="text-on-surface font-semibold">1 Xu = 100 VNĐ</strong> quy đổi tham khảo theo
+                                quy chế nền tảng. Tác giả có quyền chủ động định giá mở khóa mỗi chương từ 5 Xu đến 30
+                                Xu tùy theo khối lượng chữ và mức độ độc quyền.
+                            </p>
+                        </div>
+                        <!-- Section 3 -->
+                        <div
+                            class="p-3.5 rounded-lg bg-surface-container-low flex flex-col gap-1.5 border-l-4 border-[#059669]">
+                            <h4 class="font-semibold text-[#059669] flex items-center gap-1.5 text-base">
+                                <span class="material-symbols-outlined text-[18px]">event_available</span>
+                                3. Chu kỳ và quy trình đối soát
+                            </h4>
+                            <p class="text-on-surface-variant text-sm">
+                                Hệ thống tự động chốt kỳ đối soát định kỳ vào <strong
+                                    class="text-on-surface font-semibold">ngày 15 hàng tháng</strong> cho toàn bộ phát
+                                sinh tháng dương lịch liền trước. Sau khi tác giả xác nhận đối soát trên cổng quản trị,
+                                lệnh rút tiền hợp lệ sẽ được giải ngân vào tài khoản ngân hàng trong vòng <strong
+                                    class="text-on-surface font-semibold">3-5 ngày làm việc</strong>.
+                            </p>
+                        </div>
+                        <!-- Section 4 -->
+                        <div
+                            class="p-3.5 rounded-lg bg-surface-container-low flex flex-col gap-1.5 border-l-4 border-outline">
+                            <h4 class="font-semibold text-on-surface flex items-center gap-1.5 text-base">
+                                <span class="material-symbols-outlined text-[18px]">gavel</span>
+                                4. Chính sách thuế TNCN &amp; điều kiện giải ngân
+                            </h4>
+                            <p class="text-on-surface-variant text-sm">
+                                Theo quy định của pháp luật hiện hành, các khoản thu nhập từ bản quyền trên 2.000.000
+                                VNĐ/lần chi trả sẽ được khấu trừ thuế TNCN (hoặc kê khai theo mã số thuế cá nhân đã đăng
+                                ký trên hồ sơ tác giả). Tài khoản nhận tiền bắt buộc phải trùng khớp họ tên với chứng
+                                minh nhân dân/CCCD đã KYC.
+                            </p>
+                        </div>
+                    </div>
+                    <!-- Footer -->
+                    <div class="pt-space-xs flex items-center justify-between border-t border-surface-container pt-3">
+                        <span class="font-label-sm text-xs text-outline">Phiên bản chính sách 2.4 - Có hiệu lực từ
+                            01/2025</span>
+                        <div class="flex items-center gap-2">
+                            <button
+                                class="px-space-lg py-2 rounded-lg bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md font-semibold transition-colors"
+                                id="btn-accept-policy" type="button">
+                                Đóng
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Inline Javascript for Interactive Behavior & Micro-Interactions -->
+        <script>
+                (function initWalletExperience() {
+                    // Modal controls
+                    const withdrawModal = document.getElementById('withdraw-modal');
+                    const btnOpenWithdraw = document.getElementById('btn-open-withdraw');
+                    const btnCloseWithdraw = document.getElementById('btn-close-withdraw');
+                    const btnCancelWithdraw = document.getElementById('btn-cancel-withdraw');
+                    const withdrawForm = document.getElementById('withdraw-form');
+                    const withdrawInput = document.getElementById('withdraw-amount');
+                    const previewVnd = document.getElementById('preview-vnd');
+                    const btnMaxAmount = document.getElementById('btn-max-amount');
+
+                    const policyModal = document.getElementById('policy-modal');
+                    const btnOpenPolicy = document.getElementById('btn-open-policy');
+                    const btnClosePolicy = document.getElementById('btn-close-policy');
+                    const btnAcceptPolicy = document.getElementById('btn-accept-policy');
+
+                    function openWithdrawModal() {
+                        withdrawModal.classList.remove('hidden');
+                    }
+
+                    function closeWithdrawModal() {
+                        withdrawModal.classList.add('hidden');
+                    }
+
+                    if (btnOpenWithdraw) btnOpenWithdraw.addEventListener('click', openWithdrawModal);
+                    if (btnCloseWithdraw) btnCloseWithdraw.addEventListener('click', closeWithdrawModal);
+                    if (btnCancelWithdraw) btnCancelWithdraw.addEventListener('click', closeWithdrawModal);
+
+                    // Dynamic VND conversion on input
+                    function updateVndPreview() {
+                        const xu = parseInt(withdrawInput.value, 10) || 0;
+                        const vnd = xu * 100;
+                        previewVnd.textContent = new Intl.NumberFormat('vi-VN').format(vnd) + ' VNĐ';
+                    }
+
+                    if (withdrawInput) {
+                        withdrawInput.addEventListener('input', updateVndPreview);
+                    }
+
+                    if (btnMaxAmount) {
+                        btnMaxAmount.addEventListener('click', () => {
+                            withdrawInput.value = '125000';
+                            updateVndPreview();
+                        });
+                    }
+
+                    if (withdrawForm) {
+                        withdrawForm.addEventListener('submit', (e) => {
+                            e.preventDefault();
+                            const xu = withdrawInput.value;
+                            alert('Yêu cầu rút ' + Number(xu).toLocaleString('vi-VN') + ' Xu đã được ghi nhận vào hàng đợi xử lý!');
+                            closeWithdrawModal();
+                        });
+                    }
+
+                    // Policy Modal Controls
+                    if (btnOpenPolicy) {
+                        btnOpenPolicy.addEventListener('click', () => policyModal.classList.remove('hidden'));
+                    }
+                    if (btnClosePolicy) {
+                        btnClosePolicy.addEventListener('click', () => policyModal.classList.add('hidden'));
+                    }
+                    if (btnAcceptPolicy) {
+                        btnAcceptPolicy.addEventListener('click', () => policyModal.classList.add('hidden'));
+                    }
+
+                    // Chart Period Switcher Toggle Visuals
+                    const chartTabs = document.querySelectorAll('.chart-tab');
+                    chartTabs.forEach(tab => {
+                        tab.addEventListener('click', () => {
+                            chartTabs.forEach(t => {
+                                t.classList.remove('bg-surface-container-lowest', 'text-primary', 'font-semibold', 'shadow-xs');
+                                t.classList.add('hover:text-on-surface');
+                            });
+                            tab.classList.add('bg-surface-container-lowest', 'text-primary', 'font-semibold', 'shadow-xs');
+                            tab.classList.remove('hover:text-on-surface');
+                        });
+                    });
+
+                    // Bank Management prompt feedback
+                    const btnManageBank = document.getElementById('btn-manage-bank');
+                    if (btnManageBank) {
+                        btnManageBank.addEventListener('click', () => {
+                            alert('Chuyển tới giao diện xác thực liên kết tài khoản ngân hàng bảo mật.');
+                        });
+                    }
+
+                    // Filter and Search table rows
+                    const searchInput = document.getElementById('search-input');
+                    const filterType = document.getElementById('filter-type');
+                    const filterStatus = document.getElementById('filter-status');
+                    const rows = document.querySelectorAll('#transaction-tbody tr');
+
+                    function filterTransactions() {
+                        const query = (searchInput.value || '').toLowerCase().trim();
+                        const typeVal = filterType.value;
+                        const statusVal = filterStatus.value;
+
+                        rows.forEach(row => {
+                            const text = row.innerText.toLowerCase();
+                            let matchesQuery = !query || text.includes(query);
+                            let matchesType = true;
+                            let matchesStatus = true;
+
+                            if (typeVal === 'vip') matchesType = text.includes('chương vip');
+                            else if (typeVal === 'tip') matchesType = text.includes('ủng hộ') || text.includes('tip');
+                            else if (typeVal === 'withdraw') matchesType = text.includes('rút tiền');
+                            else if (typeVal === 'audit') matchesType = text.includes('đối soát');
+
+                            if (statusVal === 'done') matchesStatus = text.includes('hoàn tất');
+                            else if (statusVal === 'pending') matchesStatus = text.includes('đang xử lý');
+                            else if (statusVal === 'audit') matchesStatus = text.includes('chờ đối soát');
+
+                            if (matchesQuery && matchesType && matchesStatus) {
+                                row.style.display = '';
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        });
+                    }
+
+                    if (searchInput) searchInput.addEventListener('input', filterTransactions);
+                    if (filterType) filterType.addEventListener('change', filterTransactions);
+                    if (filterStatus) filterStatus.addEventListener('change', filterTransactions);
+
+                })();
+        </script>
+    </main>
+    <footer class="w-full bg-surface-container-low mt-auto">
+        <div
+            class="max-w-7xl mx-auto px-margin-sm lg:px-margin-lg py-space-xl flex flex-col md:flex-row items-center justify-between gap-space-lg text-on-surface-variant">
+            <div class="flex flex-col items-center md:items-start gap-space-xs">
+                <div class="flex items-center gap-space-xs"><span
+                        class="font-headline-sm text-headline-sm text-primary">StoryCraft</span><span
+                        class="font-label-sm text-label-sm text-tertiary">Văn Hoa Studio</span></div>
+                <p class="font-body-md text-body-md text-outline text-center md:text-left">© 2025 Nền tảng Xuất bản Văn
+                    học Văn Hoa. Bảo lưu mọi quyền.</p>
+            </div>
+            <nav class="flex flex-wrap justify-center items-center gap-x-space-lg gap-y-space-xs"><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors"
+                    data-path="chinh-sach-xuat-ban" href="#">Chính sách xuất bản</a><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors"
+                    data-path="ban-quyen-va-so-huu-tri-tue" href="#">Bản quyền &amp; Sở hữu trí tuệ</a><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors"
+                    data-path="tieu-chuan-cong-dong" href="#">Tiêu chuẩn cộng đồng</a><a
+                    class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors"
+                    data-path="trung-tam-tro-giup-tac-gia" href="#">Trung tâm trợ giúp tác giả</a></nav>
+        </div>
+    </footer>
+
+</body>
+
+</html>

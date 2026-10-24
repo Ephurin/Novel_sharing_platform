@@ -1,3 +1,7 @@
+import { ManuscriptContent } from '../../shared/components/ManuscriptContent';
+import { CommentsSection } from './CommentsSection';
+import { ThemeControl } from '../../shared/components/ThemeControl';
+import { NovelEngagement } from './NovelEngagement';
 import {
   Alert,
   Badge,
@@ -15,22 +19,19 @@ import {
   Title
 } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
 import {
   addToLibrary,
-  createComment,
-  deleteComment,
   followAuthor,
   getHistoryForNovel,
   getReadingPreferences,
   getReaderChapter,
   getReaderNovel,
   likeNovel,
-  listComments,
   listHistory,
   listLibrary,
   removeFromLibrary,
@@ -41,10 +42,8 @@ import {
   unlikeNovel,
   unlockVipChapter,
   unfollowAuthor,
-  updateComment,
   type ReadingPreferences,
   type ReaderChapter,
-  type ReaderComment,
   type ReaderNovel
 } from './reader-api';
 
@@ -276,6 +275,7 @@ export function ReaderNovelDetailPage() {
               <Badge variant="outline">{novel?.status ?? novel?.serialStatus ?? 'Published'}</Badge>
               <Badge variant="outline">{novel?.chaptersCount ?? chapters.length} chapters</Badge>
             </Group>
+            {novel && <NovelEngagement novelId={novelId} authorId={novel.authorId} />}
             <Text c="dimmed">{novel?.synopsis ?? 'No synopsis.'}</Text>
             {interactionNotice ? <Alert color="blue">{interactionNotice}</Alert> : null}
             <Group>
@@ -343,6 +343,7 @@ export function ReaderNovelDetailPage() {
           ))}
         </Stack>
       </Paper>
+      <CommentsSection kind="novel" id={novelId} />
     </Box>
   );
 }
@@ -422,6 +423,7 @@ export function PublicReaderNovelDetailPage() {
           ))}
         </Stack>
       </Paper>
+      <CommentsSection kind="novel" id={novelId} />
     </Box>
   );
 }
@@ -429,7 +431,6 @@ export function PublicReaderNovelDetailPage() {
 export function ReaderChapterPage() {
   const { chapterId = '' } = useParams();
   const queryClient = useQueryClient();
-  const [commentContent, setCommentContent] = useState('');
   const preferencesQuery = useQuery({ queryKey: ['reading-preferences'], queryFn: getReadingPreferences });
   const chapterQuery = useQuery({
     queryKey: ['reader-chapter', chapterId],
@@ -441,11 +442,6 @@ export function ReaderChapterPage() {
     queryKey: ['reader-novel', chapterQuery.data?.novelId],
     queryFn: () => getReaderNovel(chapterQuery.data?.novelId ?? ''),
     enabled: Boolean(chapterQuery.data?.novelId)
-  });
-  const commentsQuery = useQuery({
-    queryKey: ['reader-comments', chapterId],
-    queryFn: () => listComments(chapterId),
-    enabled: Boolean(chapterId)
   });
   const syncHistoryMutation = useMutation({
     mutationFn: (input: { novelId: string; chapterId: string }) => syncHistory(input),
@@ -459,17 +455,6 @@ export function ReaderChapterPage() {
   });
   const reportMutation = useMutation({
     mutationFn: () => reportContent({ targetType: 'CHAPTER', targetId: chapterId, reason: 'Reader report' })
-  });
-  const commentMutation = useMutation({
-    mutationFn: () => createComment(chapterId, commentContent),
-    onSuccess: async () => {
-      setCommentContent('');
-      await queryClient.invalidateQueries({ queryKey: ['reader-comments', chapterId] });
-    }
-  });
-  const deleteCommentMutation = useMutation({
-    mutationFn: deleteComment,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reader-comments', chapterId] })
   });
   const preferencesMutation = useMutation({
     mutationFn: saveReadingPreferences,
@@ -566,50 +551,10 @@ export function ReaderChapterPage() {
       </Paper>
 
       <Paper p="xl" withBorder mb="md" style={readerStyle}>
-        <Text className="chapter-prose" style={{ whiteSpace: 'pre-wrap', fontSize: 'inherit', lineHeight: 'inherit', fontFamily: 'inherit' }}>
-          {chapter?.content ?? 'No content.'}
-        </Text>
+        <ManuscriptContent content={chapter?.content ?? ''} />
       </Paper>
 
-      <Paper p="md" withBorder>
-        <Title order={4} mb="sm">
-          Comments
-        </Title>
-        <Textarea
-          label="Add comment"
-          value={commentContent}
-          onChange={(event) => setCommentContent(event.currentTarget.value)}
-          minRows={3}
-          mb="sm"
-          data-testid="reader-comment-input"
-        />
-        <Button
-          loading={commentMutation.isPending}
-          disabled={!commentContent.trim()}
-          onClick={() => commentMutation.mutate()}
-          mb="md"
-          data-testid="reader-comment-submit-btn"
-        >
-          Submit comment
-        </Button>
-
-        {commentsQuery.isLoading ? <LoadingState label="Loading comments..." /> : null}
-        {commentsQuery.isError ? <ErrorState error={commentsQuery.error} onRetry={() => void commentsQuery.refetch()} /> : null}
-        {!commentsQuery.isLoading && !commentsQuery.isError && !commentsQuery.data?.length ? (
-          <EmptyState description="No approved comments yet." />
-        ) : null}
-        <Stack gap="xs">
-          {(commentsQuery.data ?? []).map((comment) => (
-            <CommentCard
-              key={comment.commentId}
-              comment={comment}
-              chapterId={chapterId}
-              deleting={deleteCommentMutation.isPending}
-              onDelete={() => deleteCommentMutation.mutate(comment.commentId)}
-            />
-          ))}
-        </Stack>
-      </Paper>
+      <CommentsSection kind="chapter" id={chapterId} />
     </Box>
   );
 }
@@ -621,11 +566,6 @@ export function PublicReaderChapterPage() {
     queryFn: () => getReaderChapter(chapterId),
     enabled: Boolean(chapterId),
     retry: false
-  });
-  const commentsQuery = useQuery({
-    queryKey: ['public-reader-comments', chapterId],
-    queryFn: () => listComments(chapterId),
-    enabled: Boolean(chapterId)
   });
   const isLockedVip = chapterQuery.error instanceof ApiClientError && chapterQuery.error.code === 'PAYMENT_002';
 
@@ -672,34 +612,10 @@ export function PublicReaderChapterPage() {
       />
 
       <Paper p="xl" withBorder mb="md" style={buildReaderStyle()}>
-        <Text className="chapter-prose" style={{ whiteSpace: 'pre-wrap', fontSize: 'inherit', lineHeight: 'inherit', fontFamily: 'inherit' }}>
-          {chapter?.content ?? 'No content.'}
-        </Text>
+        <ManuscriptContent content={chapter?.content ?? ''} />
       </Paper>
 
-      <Paper p="md" withBorder>
-        <Group justify="space-between" mb="sm">
-          <Title order={4}>Public Comments</Title>
-          <Button component={Link} to="/login" size="xs" variant="light">
-            Login to comment/report
-          </Button>
-        </Group>
-        {commentsQuery.isLoading ? <LoadingState label="Loading comments..." /> : null}
-        {commentsQuery.isError ? <ErrorState error={commentsQuery.error} onRetry={() => void commentsQuery.refetch()} /> : null}
-        {!commentsQuery.isLoading && !commentsQuery.isError && !commentsQuery.data?.length ? (
-          <EmptyState description="No approved comments yet." />
-        ) : null}
-        <Stack gap="xs">
-          {(commentsQuery.data ?? []).map((comment) => (
-            <Paper key={comment.commentId} p="sm" withBorder>
-              <Badge size="xs" variant="outline">
-                {comment.status}
-              </Badge>
-              <Text mt={6}>{comment.content}</Text>
-            </Paper>
-          ))}
-        </Stack>
-      </Paper>
+      <CommentsSection kind="chapter" id={chapterId} />
     </Box>
   );
 }
@@ -767,126 +683,14 @@ function ReadingPreferencesPanel({
   );
 }
 
-function CommentCard({
-  comment,
-  chapterId,
-  deleting,
-  onDelete
-}: {
-  comment: ReaderComment;
-  chapterId: string;
-  deleting: boolean;
-  onDelete: () => void;
-}) {
-  const queryClient = useQueryClient();
-  const [isEditing, setIsEditing] = useState(false);
-  const [content, setContent] = useState(comment.content);
-  const updateMutation = useMutation({
-    mutationFn: () => updateComment({ commentId: comment.commentId, content }),
-    onSuccess: async () => {
-      setIsEditing(false);
-      await queryClient.invalidateQueries({ queryKey: ['reader-comments', chapterId] });
-    }
-  });
-  const reportMutation = useMutation({
-    mutationFn: () =>
-      reportContent({
-        targetType: 'COMMENT',
-        targetId: comment.commentId,
-        reason: 'Reader report',
-        description: 'Reader reported this comment from the chapter comment list.'
-      })
-  });
-
-  return (
-    <Paper p="sm" withBorder data-testid={`reader-comment-card-${comment.commentId}`}>
-      <Group justify="space-between" align="flex-start">
-        <Box flex={1}>
-          <Badge size="xs" variant="outline">
-            {comment.status}
-          </Badge>
-          {isEditing ? (
-            <Textarea
-              mt="xs"
-              value={content}
-              onChange={(event) => setContent(event.currentTarget.value)}
-              minRows={2}
-              data-testid={`reader-comment-edit-input-${comment.commentId}`}
-            />
-          ) : (
-            <Text mt={6}>{comment.content}</Text>
-          )}
-        </Box>
-        <Group gap="xs">
-          {isEditing ? (
-            <Button
-              size="compact-xs"
-              loading={updateMutation.isPending}
-              disabled={!content.trim()}
-              onClick={() => updateMutation.mutate()}
-              data-testid={`reader-comment-save-btn-${comment.commentId}`}
-            >
-              Save
-            </Button>
-          ) : (
-            <Button
-              size="compact-xs"
-              variant="subtle"
-              onClick={() => setIsEditing(true)}
-              data-testid={`reader-comment-edit-btn-${comment.commentId}`}
-            >
-              Edit
-            </Button>
-          )}
-          <Button
-            size="compact-xs"
-            color="red"
-            variant="subtle"
-            loading={deleting}
-            onClick={onDelete}
-            data-testid={`reader-comment-delete-btn-${comment.commentId}`}
-          >
-            Delete
-          </Button>
-          <Button
-            size="compact-xs"
-            color="orange"
-            variant="subtle"
-            loading={reportMutation.isPending}
-            onClick={() => reportMutation.mutate()}
-            data-testid={`reader-comment-report-btn-${comment.commentId}`}
-          >
-            Report
-          </Button>
-        </Group>
-      </Group>
-      {updateMutation.isError ? (
-        <Alert color="red" mt="sm">
-          {getApiErrorMessage(updateMutation.error)}
-        </Alert>
-      ) : null}
-      {reportMutation.isSuccess ? (
-        <Alert color="yellow" mt="sm" data-testid={`reader-comment-report-alert-${comment.commentId}`}>
-          Comment report submitted.
-        </Alert>
-      ) : null}
-      {reportMutation.isError ? (
-        <Alert color="red" mt="sm">
-          {getApiErrorMessage(reportMutation.error)}
-        </Alert>
-      ) : null}
-    </Paper>
-  );
-}
-
 function buildReaderStyle(preferences?: ReadingPreferences) {
   const background =
     preferences?.background === 'LIGHT'
       ? '#f8fafc'
       : preferences?.background === 'SEPIA'
         ? '#2f261c'
-        : '#111827';
-  const color = preferences?.background === 'LIGHT' ? '#111827' : preferences?.background === 'SEPIA' ? '#f5e6c8' : '#f8fafc';
+        : preferences?.background === 'DARK' ? 'var(--sc-reader-dark-bg)' : 'var(--sc-surface)';
+  const color = preferences?.background === 'LIGHT' ? '#111827' : preferences?.background === 'SEPIA' ? '#f5e6c8' : preferences?.background === 'DARK' ? 'var(--sc-reader-dark-text)' : 'var(--sc-text)';
 
   return {
     background,
@@ -978,13 +782,14 @@ export function ReaderHistoryPage() {
 }
 
 function ReaderHeader({ title, description, actions }: { title: string; description: string; actions?: ReactNode }) {
+  const publicPage = useLocation().pathname.startsWith('/public');
   return (
     <Group justify="space-between" mb="lg">
       <Box>
         <Title order={2}>{title}</Title>
         <Text c="dimmed">{description}</Text>
       </Box>
-      {actions}
+      <Group gap="xs">{actions}{publicPage && <ThemeControl />}</Group>
     </Group>
   );
 }

@@ -1,0 +1,20 @@
+{
+  "command": [
+    "python",
+    "-m",
+    "pytest",
+    "--basetemp=C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\group-rejection-red\\replay-pytest",
+    "-q",
+    "-s",
+    "-m",
+    "postgres_integration",
+    "tests/test_atomic_group_rejection.py"
+  ],
+  "cwd": "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\group-rejection-red\\baseline-replay\\ai-service",
+  "exit_code": 1,
+  "base": "3616b503dec46e293a58c98be977fcdad5bf8bdb",
+  "archive_sha256": "7269fa639792241dd575d50d79f31d22915fcd657eeadee7459d1e45e2fe9edb",
+  "test_overlay_sha256": "978979a09204209c6f6a46270aba8bfbafc47d52c82df6e9bf3a67c5869d2b6f",
+  "at_utc": "2026-10-24T06:17:46.183914+00:00",
+  "note": "Original PG RED log was accidentally overwritten by the first development GREEN run. This full RED recapture uses immutable git archive plus the sealed original test overlay. Original Gateway RED is preserved."
+}

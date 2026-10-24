@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { requireAuth } from '../../core/security/auth.middleware.js';
+import { optionalAuth, requireAuth } from '../../core/security/auth.middleware.js';
 import { validateRequest } from '../../core/validation/validate.js';
 import {
   getMyProfileController,
@@ -20,4 +20,4 @@ usersRoutes.get('/me/settings', requireAuth, getMySettingsController);
 usersRoutes.patch('/me/settings', requireAuth, validateRequest(updateSettingsSchema), updateMySettingsController);
 usersRoutes.get('/:userId/profile', validateRequest(userIdParamSchema), getPublicProfileController);
 
-authorsRoutes.get('/authors/:authorId/profile', validateRequest(authorIdParamSchema), getAuthorProfileController);
+authorsRoutes.get('/authors/:authorId/profile', optionalAuth, validateRequest(authorIdParamSchema), getAuthorProfileController);

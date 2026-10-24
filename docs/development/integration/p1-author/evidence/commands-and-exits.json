@@ -1,0 +1,11 @@
+[
+  {
+    "command": "GET /health",
+    "exitCode": 200,
+    "outputSummary": {
+      "status": "OK",
+      "service": "ephurin-backend"
+    },
+    "timestamp": "2026-10-24T09:00:14.088Z"
+  }
+]

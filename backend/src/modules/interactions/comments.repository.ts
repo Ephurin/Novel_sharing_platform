@@ -7,9 +7,10 @@ export type CommentStatus = 'PENDING_MODERATION' | 'APPROVED' | 'REJECTED' | 'DE
 
 export type CommentDocument = {
   commentId: string;
-  chapterId: string;
+  chapterId: string | null;
   novelId: string;
   userId: string;
+  parentCommentId?: string | null;
   paragraphOffset: number | null;
   content: string;
   status: CommentStatus;
@@ -26,14 +27,17 @@ function collection() {
 export async function ensureCommentIndexes() {
   await collection().createIndex({ commentId: 1 }, { unique: true });
   await collection().createIndex({ chapterId: 1, status: 1, paragraphOffset: 1 });
+  await collection().createIndex({ novelId: 1, chapterId: 1, status: 1, createdAt: -1, commentId: 1 });
+  await collection().createIndex({ parentCommentId: 1, status: 1, createdAt: 1, commentId: 1 });
   await collection().createIndex({ userId: 1, createdAt: -1 });
   await collection().createIndex({ status: 1, createdAt: -1 });
 }
 
 export async function createComment(input: {
-  chapterId: string;
+  chapterId: string | null;
   novelId: string;
   userId: string;
+  parentCommentId?: string | null;
   paragraphOffset?: number | null;
   content: string;
 }) {
@@ -43,6 +47,7 @@ export async function createComment(input: {
     chapterId: input.chapterId,
     novelId: input.novelId,
     userId: input.userId,
+    parentCommentId: input.parentCommentId ?? null,
     paragraphOffset: input.paragraphOffset ?? null,
     content: input.content,
     status: 'PENDING_MODERATION',
@@ -59,14 +64,16 @@ export async function createComment(input: {
 export async function updateCommentModerationStatus(
   commentId: string,
   status: CommentStatus,
-  moderationReviewId: string | null
+  moderationReviewId: string | null,
+  expectedReviewId?: string
 ) {
   await collection().updateOne(
-    { commentId },
+    { commentId, deletedAt: null, ...(expectedReviewId ? { moderationReviewId: expectedReviewId, status: 'PENDING_MODERATION' as const } : {}) },
     {
       $set: {
         status,
         moderationReviewId,
+        notificationPending: status === 'APPROVED',
         updatedAt: new Date()
       }
     }
@@ -76,14 +83,20 @@ export async function updateCommentModerationStatus(
 }
 
 export async function listApprovedComments(input: {
-  chapterId: string;
+  chapterId: string | null;
+  novelId: string;
+  viewerId?: string;
+  parentCommentId?: string;
+  allChapters?: boolean;
   paragraphOffset?: number;
   page: number;
   limit: number;
 }) {
   const filter: Record<string, unknown> = {
-    chapterId: input.chapterId,
-    status: 'APPROVED',
+    ...(input.allChapters ? {} : { chapterId: input.chapterId }),
+    parentCommentId: input.parentCommentId ?? null,
+    novelId: input.novelId,
+    $or: [{ status: 'APPROVED' }, ...(input.viewerId ? [{ userId: input.viewerId, status: { $in: ['PENDING_MODERATION', 'REJECTED'] } }] : [])],
     deletedAt: null
   };
 
@@ -93,7 +106,7 @@ export async function listApprovedComments(input: {
 
   const skip = (input.page - 1) * input.limit;
   const [items, totalItems] = await Promise.all([
-    collection().find(filter).sort({ createdAt: -1 }).skip(skip).limit(input.limit).toArray(),
+    collection().find(filter).sort({ createdAt: input.parentCommentId ? 1 : -1, commentId: 1 }).skip(skip).limit(input.limit).toArray(),
     collection().countDocuments(filter)
   ]);
 
@@ -125,8 +138,8 @@ export async function updateCommentContent(commentId: string, content: string) {
 }
 
 export async function softDeleteComment(commentId: string) {
-  await collection().updateOne(
-    { commentId, deletedAt: null },
+  await collection().updateMany(
+    { $or: [{ commentId }, { parentCommentId: commentId }], deletedAt: null },
     {
       $set: {
         status: 'DELETED',
@@ -135,4 +148,12 @@ export async function softDeleteComment(commentId: string) {
       }
     }
   );
+}
+
+export async function countVisibleReplies(parentIds: string[], viewerId?: string) {
+  return collection().aggregate<{ _id: string; total: number }>([
+    { $match: { parentCommentId: { $in: parentIds }, deletedAt: null,
+      $or: [{ status: 'APPROVED' }, ...(viewerId ? [{ userId: viewerId, status: { $in: ['PENDING_MODERATION', 'REJECTED'] } }] : [])] } },
+    { $group: { _id: '$parentCommentId', total: { $sum: 1 } } }
+  ]).toArray();
 }

@@ -1,0 +1,294 @@
+{
+  "audit_utc": "2026-10-24T16:13:13.001854+00:00",
+  "source": "368e1294c58401e62198d24f91086f3280438ca4",
+  "target": "390b09fd043ec29db84519a9d195b59b76eec003",
+  "tree": "2c0565f8757da142b9d8d129f922177d47eda9d2",
+  "ahead": 119,
+  "behind": 0,
+  "full_diff_paths": 1649,
+  "categories": {
+    "root/CI/other configuration": 17,
+    "documentation/evidence/pipeline tooling": 1401,
+    "AI runtime/config/migrations": 32,
+    "tests/fixtures": 57,
+    "Node runtime/config/migrations": 70,
+    "frontend runtime/config": 72
+  },
+  "deletions": 0,
+  "pr52_head": "63946d068801fc10de2d7d01b1fb56dd2fc42f9f",
+  "pr52_merge_base": "864dfabdf05be30e1e745b09312058425aff09d7",
+  "pr52_paths": 18,
+  "pr52_overlap": [
+    {
+      "path": "web/index.html",
+      "same_blob": false,
+      "current": "100644 blob 7004b5124f24589d5f67d74882723892ce672971\tweb/index.html",
+      "pr52": "100644 blob 10d8aab17378d28dadcfb89c49a2aee3d3c636ce\tweb/index.html"
+    },
+    {
+      "path": "web/src/app/layout/WebAppShell.tsx",
+      "same_blob": false,
+      "current": "100644 blob 81b0bc7ffbcd67f9c728e8b8e33f7e9afd34089b\tweb/src/app/layout/WebAppShell.tsx",
+      "pr52": "100644 blob fa4b35665710f41564ca000b20fdca01243c920b\tweb/src/app/layout/WebAppShell.tsx"
+    },
+    {
+      "path": "web/src/app/providers.tsx",
+      "same_blob": false,
+      "current": "100644 blob 8a3f40f4645c449a4540057f848c230b1a7957b2\tweb/src/app/providers.tsx",
+      "pr52": "100644 blob ab1672ac88c7e06acae8fb839c87bf70f9b20db2\tweb/src/app/providers.tsx"
+    },
+    {
+      "path": "web/src/app/router.tsx",
+      "same_blob": false,
+      "current": "100644 blob 60b9bc4189d9670fc4015912d5e3ff3fa7259929\tweb/src/app/router.tsx",
+      "pr52": "100644 blob 7a7f6e9d3b403d5ed1a37ce7623c3c7316a52a88\tweb/src/app/router.tsx"
+    },
+    {
+      "path": "web/src/features/author-projects/AuthorNovelMetadataPage.tsx",
+      "same_blob": false,
+      "current": "100644 blob 363dfbd8dca02f490a6c2d813cd5cd2d5cbd5f27\tweb/src/features/author-projects/AuthorNovelMetadataPage.tsx",
+      "pr52": "100644 blob 52c1acff1f354ad30c15a284411b2637ff82168b\tweb/src/features/author-projects/AuthorNovelMetadataPage.tsx"
+    },
+    {
+      "path": "web/src/features/author-projects/AuthorProjectsPage.tsx",
+      "same_blob": false,
+      "current": "100644 blob 786ae3ff35fc6d0a81c08cdf91724be00367c9a5\tweb/src/features/author-projects/AuthorProjectsPage.tsx",
+      "pr52": "100644 blob ee4e6b926f4f19b7d58b9d87d71e64f7680df2f2\tweb/src/features/author-projects/AuthorProjectsPage.tsx"
+    },
+    {
+      "path": "web/src/features/manuscript-import/ManuscriptImportPage.tsx",
+      "same_blob": false,
+      "current": "100644 blob 8b967364af78f49af170ee6265b15046104ed763\tweb/src/features/manuscript-import/ManuscriptImportPage.tsx",
+      "pr52": "100644 blob fc03e3a8b6ffbf7bc0bf332fdb139108f728041f\tweb/src/features/manuscript-import/ManuscriptImportPage.tsx"
+    },
+    {
+      "path": "web/src/features/notifications/NotificationsPage.tsx",
+      "same_blob": false,
+      "current": "100644 blob dd72a798c121dd9c3733920888b61c3040bb7c8f\tweb/src/features/notifications/NotificationsPage.tsx",
+      "pr52": "100644 blob 8932aefb3a940d0d6b2da5959379bfa12afde9c4\tweb/src/features/notifications/NotificationsPage.tsx"
+    },
+    {
+      "path": "web/src/features/profile/ProfilePage.tsx",
+      "same_blob": false,
+      "current": "100644 blob 3973c4304c5f85de55f1a0de73d026c5ef5487ce\tweb/src/features/profile/ProfilePage.tsx",
+      "pr52": "100644 blob c5dceb02b5d2038977e0f5ce6ddeda33d7015baf\tweb/src/features/profile/ProfilePage.tsx"
+    },
+    {
+      "path": "web/src/features/reader/ReaderPage.tsx",
+      "same_blob": false,
+      "current": "100644 blob ed16c526a5d3618fa19e7a87efe16bdb4a85d7e8\tweb/src/features/reader/ReaderPage.tsx",
+      "pr52": "100644 blob a0ba73e4d8d408f2c3fe31cbed5131f25f7d969b\tweb/src/features/reader/ReaderPage.tsx"
+    },
+    {
+      "path": "web/src/features/story-context/AuthorStoryContextPage.tsx",
+      "same_blob": false,
+      "current": "100644 blob d8c2bee230767e3da502859077d56c2427d67731\tweb/src/features/story-context/AuthorStoryContextPage.tsx",
+      "pr52": "100644 blob 416ce17705ef6b4d248cf3b80c33117ff3002485\tweb/src/features/story-context/AuthorStoryContextPage.tsx"
+    },
+    {
+      "path": "web/src/features/wallet/WalletPage.tsx",
+      "same_blob": false,
+      "current": "100644 blob 4866cc56f996ed2ebda5d6f8bb7dfb24b6ff5cac\tweb/src/features/wallet/WalletPage.tsx",
+      "pr52": "100644 blob f6186635b4ff689799ea3aa1cfd5a6a0cbb1ef9f\tweb/src/features/wallet/WalletPage.tsx"
+    },
+    {
+      "path": "web/src/styles.css",
+      "same_blob": false,
+      "current": "100644 blob 4d12e6b6f8f47adfc96ab81c2af10d29068b5249\tweb/src/styles.css",
+      "pr52": "100644 blob 6111bf064c8dd48d9efdf7b0658abe54b96c42d3\tweb/src/styles.css"
+    },
+    {
+      "path": "web/src/theme/index.ts",
+      "same_blob": false,
+      "current": "100644 blob 5084a80955810beb084e628584a1f1d9ec78e2ed\tweb/src/theme/index.ts",
+      "pr52": "100644 blob 2a496ba98b32957594ad509eaa8a6c774368f63c\tweb/src/theme/index.ts"
+    }
+  ],
+  "migrations": [
+    "A\tai-service/migrations/versions/0010_fact_supersession.py",
+    "A\tai-service/migrations/versions/0011_entity_candidate_audit.py",
+    "A\tai-service/migrations/versions/0012_entity_guidance.py",
+    "A\tai-service/migrations/versions/0013_objective_intent.py",
+    "A\tbackend/src/core/database/migrations/012_novel_engagement.sql",
+    "A\tbackend/src/core/database/migrations/013_novel_review_text.sql",
+    "A\tbackend/src/core/database/migrations/014_novel_editorial_metadata.sql",
+    "A\tbackend/src/core/database/migrations/015_author_workflow.sql",
+    "A\tbackend/src/core/database/migrations/016_author_launch_checklist.sql",
+    "A\tbackend/src/core/database/migrations/017_transactional_moderation_evidence.sql"
+  ],
+  "ci": [
+    {
+      "run": 40107226736,
+      "workflow": "P7",
+      "jobs": [
+        "unit",
+        "pgvector-integration",
+        "root-compose-smoke"
+      ],
+      "conclusion": "success",
+      "head_sha": "368e1294c58401e62198d24f91086f3280438ca4",
+      "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/40107226736"
+    },
+    {
+      "run": 40107226724,
+      "workflow": "P8",
+      "jobs": [
+        "frontend-api-cutover",
+        "backend-integration",
+        "final-cleanup-gate",
+        "unit",
+        "root-compose-cutover-smoke",
+        "rollback-rehearsal",
+        "postgres-integration"
+      ],
+      "conclusion": "success",
+      "head_sha": "368e1294c58401e62198d24f91086f3280438ca4",
+      "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/40107226724"
+    },
+    {
+      "run": 40107226743,
+      "workflow": "Defense Demo Contract",
+      "jobs": [
+        "validate-defense-demo"
+      ],
+      "conclusion": "success",
+      "head_sha": "368e1294c58401e62198d24f91086f3280438ca4",
+      "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/40107226743"
+    }
+  ],
+  "ci_checkout": {
+    "P7_and_P8_all_10_job_logs": "0a91952679e969a795faae3d4c68ce7daa3f4bfa",
+    "checkout_tree": "2c0565f8757da142b9d8d129f922177d47eda9d2",
+    "parents": [
+      "390b09fd043ec29db84519a9d195b59b76eec003",
+      "368e1294c58401e62198d24f91086f3280438ca4"
+    ],
+    "verification": "GitHub job logs plus Git commit API, inspected 2026-10-24"
+  },
+  "commands": [
+    {
+      "command": "git rev-parse HEAD",
+      "exit": 0,
+      "stdout": "368e1294c58401e62198d24f91086f3280438ca4",
+      "stderr": ""
+    },
+    {
+      "command": "git rev-parse origin/main",
+      "exit": 0,
+      "stdout": "390b09fd043ec29db84519a9d195b59b76eec003",
+      "stderr": ""
+    },
+    {
+      "command": "git rev-parse origin/feat/author-workspace",
+      "exit": 0,
+      "stdout": "368e1294c58401e62198d24f91086f3280438ca4",
+      "stderr": ""
+    },
+    {
+      "command": "git rev-parse HEAD^{tree}",
+      "exit": 0,
+      "stdout": "2c0565f8757da142b9d8d129f922177d47eda9d2",
+      "stderr": ""
+    },
+    {
+      "command": "git rev-list --left-right --count 390b09fd043ec29db84519a9d195b59b76eec003...368e1294c58401e62198d24f91086f3280438ca4",
+      "exit": 0,
+      "stdout": "0\t119",
+      "stderr": ""
+    },
+    {
+      "command": "git merge-base --is-ancestor 390b09fd043ec29db84519a9d195b59b76eec003 368e1294c58401e62198d24f91086f3280438ca4",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git merge-base --is-ancestor 7b15c078c1ffe2fca96c4e66c96577e3ff007c3c 368e1294c58401e62198d24f91086f3280438ca4",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git merge-base --is-ancestor 3100c46f46cd071467d762dff4ffa1fc4efe07f2 368e1294c58401e62198d24f91086f3280438ca4",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git merge-base --is-ancestor 33972098 368e1294c58401e62198d24f91086f3280438ca4",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git merge-base --is-ancestor c5a015aa 368e1294c58401e62198d24f91086f3280438ca4",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git merge-base --is-ancestor d466daa6 368e1294c58401e62198d24f91086f3280438ca4",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git diff --exit-code 33972098 368e1294c58401e62198d24f91086f3280438ca4",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git diff --exit-code c5a015aa 368e1294c58401e62198d24f91086f3280438ca4 -- . :(exclude)docs/**",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git diff --exit-code d466daa6 368e1294c58401e62198d24f91086f3280438ca4 -- docs/development/integration/p1-author/final-fe-acceptance/evidence",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "git merge-base 390b09fd043ec29db84519a9d195b59b76eec003 63946d068801fc10de2d7d01b1fb56dd2fc42f9f",
+      "exit": 0,
+      "stdout": "864dfabdf05be30e1e745b09312058425aff09d7",
+      "stderr": ""
+    },
+    {
+      "command": "git diff --name-status 390b09fd043ec29db84519a9d195b59b76eec003 368e1294c58401e62198d24f91086f3280438ca4 -- backend/src/core/database/migrations ai-service/migrations/versions",
+      "exit": 0,
+      "stdout": "A\tai-service/migrations/versions/0010_fact_supersession.py\nA\tai-service/migrations/versions/0011_entity_candidate_audit.py\nA\tai-service/migrations/versions/0012_entity_guidance.py\nA\tai-service/migrations/versions/0013_objective_intent.py\nA\tbackend/src/core/database/migrations/012_novel_engagement.sql\nA\tbackend/src/core/database/migrations/013_novel_review_text.sql\nA\tbackend/src/core/database/migrations/014_novel_editorial_metadata.sql\nA\tbackend/src/core/database/migrations/015_author_workflow.sql\nA\tbackend/src/core/database/migrations/016_author_launch_checklist.sql\nA\tbackend/src/core/database/migrations/017_transactional_moderation_evidence.sql",
+      "stderr": ""
+    },
+    {
+      "command": "git ls-tree --name-only 368e1294c58401e62198d24f91086f3280438ca4:backend/src/core/database/migrations",
+      "exit": 0,
+      "stdout": "001_auth_user_wallet.sql\n002_novels.sql\n003_chapters.sql\n004_content_control.sql\n005_reports_description.sql\n006_reading_interactions.sql\n007_wallet_transactions.sql\n008_authoring_context.sql\n009_chapter_revisions.sql\n010_analysis_outbox.sql\n011_outbox_claim_token.sql\n012_novel_engagement.sql\n012_reports_unique_open.sql\n013_novel_review_text.sql\n014_novel_editorial_metadata.sql\n015_author_workflow.sql\n016_author_launch_checklist.sql\n017_transactional_moderation_evidence.sql",
+      "stderr": ""
+    },
+    {
+      "command": "git ls-tree --name-only 368e1294c58401e62198d24f91086f3280438ca4:backend/src/core/database/migrations",
+      "exit": 0,
+      "stdout": "001_auth_user_wallet.sql\n002_novels.sql\n003_chapters.sql\n004_content_control.sql\n005_reports_description.sql\n006_reading_interactions.sql\n007_wallet_transactions.sql\n008_authoring_context.sql\n009_chapter_revisions.sql\n010_analysis_outbox.sql\n011_outbox_claim_token.sql\n012_novel_engagement.sql\n012_reports_unique_open.sql\n013_novel_review_text.sql\n014_novel_editorial_metadata.sql\n015_author_workflow.sql\n016_author_launch_checklist.sql\n017_transactional_moderation_evidence.sql",
+      "stderr": ""
+    },
+    {
+      "command": "git ls-tree --name-only 368e1294c58401e62198d24f91086f3280438ca4:backend/src/core/database/migrations",
+      "exit": 0,
+      "stdout": "001_auth_user_wallet.sql\n002_novels.sql\n003_chapters.sql\n004_content_control.sql\n005_reports_description.sql\n006_reading_interactions.sql\n007_wallet_transactions.sql\n008_authoring_context.sql\n009_chapter_revisions.sql\n010_analysis_outbox.sql\n011_outbox_claim_token.sql\n012_novel_engagement.sql\n012_reports_unique_open.sql\n013_novel_review_text.sql\n014_novel_editorial_metadata.sql\n015_author_workflow.sql\n016_author_launch_checklist.sql\n017_transactional_moderation_evidence.sql",
+      "stderr": ""
+    }
+  ],
+  "execution_scope": {
+    "new_runtime_tests": 0,
+    "docker_operations": 0,
+    "live_provider_calls": 0,
+    "dependency_updates": 0
+  },
+  "readiness": {
+    "MAIN_BRANCH_MERGE_READY": "recommended for independent review and owner-authorized code promotion only",
+    "PRODUCTION_READY": false
+  }
+}

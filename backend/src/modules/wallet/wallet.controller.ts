@@ -1,12 +1,14 @@
 import type { RequestHandler } from 'express';
 import { AppError } from '../../core/errors/app-error.js';
 import { successResponse } from '../../core/response/response.js';
+import { listDepositPackages } from './wallet.repository.js';
 import {
   completeMockDeposit,
   createDepositSession,
   createWithdrawRequest,
   donate,
   getTransactions,
+  getEarnings,
   getWallet,
   unlockVipChapter
 } from './wallet.service.js';
@@ -33,6 +35,18 @@ export const getTransactionsController: RequestHandler = async (request, respons
   } catch (error) {
     next(error);
   }
+};
+
+export const getEarningsController: RequestHandler = async (request, response, next) => {
+  try {
+    response.json(successResponse(await getEarnings(requireRequestAuth(request))));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const listDepositPackagesController: RequestHandler = (_request, response) => {
+  response.json(successResponse(listDepositPackages()));
 };
 
 export const createDepositSessionController: RequestHandler = async (request, response, next) => {
