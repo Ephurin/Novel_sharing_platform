@@ -5,6 +5,8 @@ parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('stage')
 parser.add_argument('--output',required=True,help='Fresh task-owned directory OUTSIDE the checkout; contains private test credentials.')
 options=parser.parse_args();MODE=options.stage
+stages={'provision','bridge-config','db-up','up','rebuild-app','status','fe19-tests','fe19-known-red','fe19-known-green','consistency-red','consistency-green','legacy-consistency','web-build','web-units','web-mounted','ai-unit','ai-postgres','backend-regression','runtime-proof','provider-before','provider-after','cleanup-owned'}
+if MODE not in stages and not MODE.startswith('browser-'):parser.error('Unknown stage: '+MODE)
 OUT=pathlib.Path(options.output).resolve()
 assert not OUT.is_relative_to(ROOT),'Private credentials/evidence must remain outside the checkout'
 PRIVATE=OUT/'private-stack.json'
@@ -31,7 +33,11 @@ def run(label,args,*,cwd=ROOT,stdin=None,env=None,timeout=900):
  while (OUT/(label+'.log')).exists():
   attempt+=1;label=original+'-attempt'+str(attempt)
  started=datetime.datetime.now(datetime.timezone.utc).isoformat();print('RUN',label,flush=True)
- p=subprocess.run(args,cwd=cwd,input=stdin,env=env,capture_output=True,text=True,encoding='utf8',errors='replace',timeout=timeout)
+ try:
+  p=subprocess.run(args,cwd=cwd,input=stdin,env=env,capture_output=True,text=True,encoding='utf8',errors='replace',timeout=timeout)
+ except subprocess.TimeoutExpired as error:
+  def decoded(value):return value.decode('utf8',errors='replace') if isinstance(value,bytes) else (value or '')
+  p=subprocess.CompletedProcess(args,124,decoded(error.stdout),decoded(error.stderr)+'\nTIMEOUT after '+str(timeout)+' seconds')
  (OUT/(label+'.log')).write_text(scrub(p.stdout+p.stderr),encoding='utf8')
  entry={'label':label,'log':label+'.log','command':args,'cwd':str(cwd),'source_before':before,'source_after':source(),'start_utc':started,'end_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'exit_code':p.returncode,'stdin_recorded':False}
  with (OUT/'commands-and-exits.jsonl').open('a',encoding='utf8') as f:f.write(json.dumps(entry)+'\n')
@@ -153,3 +159,53 @@ if MODE in ('web-units','web-mounted'):
    MONGODB_URI=f"mongodb://127.0.0.1:{v['WAVE1D_MONGO_PORT']}/{db}",P1_EVIDENCE_DIR=str(OUT/('web-mounted-'+secrets.token_hex(4))),
    EPHURIN_ALLOW_TEST_DB_MUTATIONS='1',EXPECTED_TEST_DB_NAME=db)
   run(MODE,['node','--test','--test-concurrency=1','tests/api-client-security.browser.test.mjs','tests/author-ide.browser.test.mjs','tests/draft-persistence.browser.test.mjs','tests/p1-hitl-interactions.browser.test.mjs'],cwd=ROOT/'web',env=env)
+if MODE in ('ai-unit','ai-postgres','backend-regression'):
+ v=cfg['values'];env={**os.environ,**v}
+ db=cfg.get('regression_database')
+ if not db:
+  db='ephurin_test_p1_final_regression_'+secrets.token_hex(5)
+  env.update(PGHOST='127.0.0.1',PGPORT=v['WAVE1D_PG_PORT'],PGUSER=v['POSTGRES_USER'],PGPASSWORD=v['POSTGRES_PASSWORD'],PGDATABASE=v['POSTGRES_DB'],P1_NEW_DATABASE=db)
+  run('create-regression-database',['python','-c',"import os,psycopg;from psycopg import sql; c=psycopg.connect(autocommit=True);c.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(os.environ['P1_NEW_DATABASE'])));c.close();print('Created fresh owned regression database')"],env=env)
+  cfg['regression_database']=db;PRIVATE.write_text(json.dumps(cfg,indent=2))
+ pg=f"postgresql://{v['POSTGRES_USER']}:{v['POSTGRES_PASSWORD']}@127.0.0.1:{v['WAVE1D_PG_PORT']}/{db}"
+ env.update(NODE_ENV='test',DATABASE_URL=pg,TEST_DATABASE_URL=pg,MONGODB_URI=f"mongodb://127.0.0.1:{v['WAVE1D_MONGO_PORT']}/{db}",
+  EXPECTED_TEST_DB_NAME=db,EPHURIN_ALLOW_TEST_DB_MUTATIONS='1',LLM_PROVIDER='fake',EMBEDDING_PROVIDER='fake',
+  LLM_BASE_URL='http://127.0.0.1:9',AI_LLM_BASE_URL='http://127.0.0.1:9',AI_SERVICE_URL='http://127.0.0.1:9',
+  PLATFORM_API_BASE_URL='http://127.0.0.1:9',NARRATIVE_REPOSITORY='json',SERVICE_AUTH_DISABLED='true',
+  ENTITY_CANDIDATE_VERIFICATION_ENABLED='false',PYTHONUTF8='1',PYTHONIOENCODING='utf-8')
+ for key in ['GEMINI_API_KEY','GOOGLE_API_KEY','OPENAI_API_KEY','AI_LLM_API_KEY','LLM_API_KEY']:env[key]=''
+ if MODE=='backend-regression':
+  run('backend-regression-migrations',[NPM,'run','db:migrate'],cwd=ROOT/'backend',env=env)
+  pyenv={**env,'DATABASE_URL':pg.replace('postgresql:','postgresql+psycopg:')}
+  run('backend-regression-alembic',['python','-m','alembic','upgrade','head'],cwd=ROOT/'ai-service',env=pyenv)
+  run('backend-typecheck',[NPM,'run','typecheck'],cwd=ROOT/'backend',env=env)
+  files=sorted(str(p.relative_to(ROOT/'backend')) for p in (ROOT/'backend/src').rglob('*.test.ts') if not p.name.endswith(('.live.test.ts','.postgres.test.ts')) and p.name!='accept-draft-contract.test.ts')
+  run('backend-deterministic',[NPX,'tsx','--test',*files],cwd=ROOT/'backend',env=env)
+  for name in ['accept-draft-contract.test.ts','p1-production-persistence.postgres.test.ts','fixture-lifecycle-resilience.postgres.test.ts']:
+   run('backend-'+name,[NPX,'tsx','--test','--test-force-exit','src/modules/novels/'+name],cwd=ROOT/'backend',env=env)
+ else:
+  env.update(DATABASE_URL=pg.replace('postgresql:','postgresql+psycopg:'),TEST_DATABASE_URL=pg.replace('postgresql:','postgresql+psycopg:'))
+  run('python-compile',['python','-m','compileall','-q','api','application','domain','infrastructure','core'],cwd=ROOT/'ai-service',env=env)
+  args=['python','-m','pytest','-q'] if MODE=='ai-unit' else ['python','-m','pytest','-o','addopts=','-q','-m','postgres_integration']
+  run(MODE,args,cwd=ROOT/'ai-service',env=env,timeout=1800)
+if MODE in ('provider-before','provider-after'):
+ run(MODE,compose+['exec','-T','fake-upstream','python','-c',"import urllib.request,json;data=json.load(urllib.request.urlopen('http://127.0.0.1:18091/received'));print(json.dumps({'count':len(data),'requests':data}))"])
+if MODE=='runtime-proof':
+ config=json.loads(run('sanitized-compose',compose+['config','--format','json']))
+ graph={'project':cfg['project'],'services':{},'networks':config.get('networks',{})}
+ allowed={'LLM_PROVIDER','LLM_MODEL','LLM_BASE_URL','LLM_FALLBACK_PROVIDER','EMBEDDING_PROVIDER','SEMANTIC_RETRIEVAL_ENABLED','AI_LLM_BASE_URL','AI_SERVICE_URL','PLATFORM_API_BASE_URL','ENTITY_CANDIDATE_VERIFICATION_ENABLED'}
+ for name,service in config['services'].items():
+  graph['services'][name]={'networks':service.get('networks'), 'ports':service.get('ports'),
+   'providers':{k:v for k,v in service.get('environment',{}).items() if k in allowed}}
+ (OUT/'runtime-topology.json').write_text(json.dumps(graph,indent=2),encoding='utf8')
+ run('owned-container-status',compose+['ps','--format','json'])
+ for service,files in [('ai-service',['application/narrative_service.py','api/narrative_routes.py','api/entity_hitl_routes.py']),('backend',['src/modules/ai/ai-gateway.controller.ts','src/modules/ai/ai-gateway.routes.ts'])]:
+  if service=='ai-service':command=['python','-c',"import hashlib,pathlib,json;print(json.dumps({p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in "+repr(files)+"}))"]
+  else:command=['node','-e',"const fs=require('fs'),crypto=require('crypto');console.log(JSON.stringify(Object.fromEntries("+json.dumps(files)+".map(p=>[p,crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex')]))))"]
+  run('runtime-source-hashes-'+service,compose+['exec','-T',service,*command])
+ env={**os.environ,'NARRATIVE_REPOSITORY':'json','LLM_PROVIDER':'fake','EMBEDDING_PROVIDER':'fake'};env.pop('ENTITY_CANDIDATE_VERIFICATION_ENABLED',None)
+ run('default-flag-off',['python','-c',"from core.settings import Settings;s=Settings.from_env();assert s.entity_candidate_verification_enabled is False;print('ENTITY_CANDIDATE_VERIFICATION_ENABLED default OFF verified')"],cwd=ROOT/'ai-service',env=env)
+if MODE=='cleanup-owned':
+ # Preserve all volumes and evidence; never prune or enumerate unrelated resources for deletion.
+ run('cleanup-only-owned-project',compose+['down'])
+ run('cleanup-owned-containers-remaining',['docker','ps','-a','--filter','label=com.docker.compose.project='+cfg['project'],'--format','{{.ID}} {{.Names}}'])

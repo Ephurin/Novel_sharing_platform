@@ -35,7 +35,7 @@ export async function createHarness() {
   await mkdir(out); // Refuse to overwrite a prior run, including failed runs.
   await mkdir(join(out, 'screenshots'));
   const secrets = new Set(Object.entries(v).filter(([key]) => /password|secret|token|key/i.test(key)).map(([, value]) => value));
-  const requests = [], readbacks = [], steps = [], browserErrors = [], blockedExternal = [], sqlCommands = [];
+  const requests = [], readbacks = [], steps = [], browserErrors = [], browserConsole = [], blockedExternal = [], sqlCommands = [];
   let trackedNovels = [];
   const sensitive = /password|authorization|cookie|access.?token|refresh.?token|secret|api.?key/i;
   const clean = value => {
@@ -145,7 +145,10 @@ export async function createHarness() {
     blockedExternal.push({ host: url.host, path: url.pathname }); return route.abort('blockedbyclient');
   });
   await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
-  context.on('page', page => page.on('pageerror', error => browserErrors.push(error.message)));
+  context.on('page', page => {
+    page.on('pageerror', error => browserErrors.push(error.message));
+    page.on('console', message => browserConsole.push({ type: message.type(), text: clean(message.text()), location: message.location() }));
+  });
   const page = await context.newPage();
   async function shot(name, target = page) { await target.screenshot({ path: join(out, 'screenshots', name + '.png'), fullPage: true }); }
   async function step(name, fn) {
@@ -176,7 +179,7 @@ export async function createHarness() {
     await browser.close().catch(() => {});
     await new Promise(resolve => server.close(resolve));
     await save('http-requests-responses.json', requests);
-    await save('browser-errors.json', browserErrors); await save('blocked-external.json', blockedExternal);
+    await save('browser-errors.json', browserErrors); await save('browser-console.json', browserConsole); await save('blocked-external.json', blockedExternal);
     await save('sql-commands.json', sqlCommands);
     await save('http-counts.json', { total: requests.length, browser: requests.filter(r => r.transport === 'production-spa-browser').length,
       statuses: Object.fromEntries([...new Set(requests.map(r => r.status))].sort().map(s => [s, requests.filter(r => r.status === s).length])) });

@@ -65,7 +65,7 @@ export async function crossFeatureSmoke(h, f, x) {
     await until(async () => await f.editor().inputValue() === x.latestDraft, 'Author draft/session continuity failed');
     await page.getByRole('button', { name: 'Lên lịch', exact: true }).click();
     await page.getByRole('dialog').getByText('Lên lịch xuất bản chương', { exact: true }).waitFor();
-    await page.getByLabel('Ngày giờ đăng', { exact: true }).waitFor();
+    await page.getByRole('dialog').getByLabel(/^Ngày giờ đăng/).waitFor();
     await h.shot('g4-schedule-form-no-publish'); await page.keyboard.press('Escape');
     await page.getByRole('button', { name: 'Giao diện', exact: true }).click();
     await page.getByRole('menuitem', { name: 'Tối', exact: true }).click();
