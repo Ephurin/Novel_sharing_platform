@@ -1,0 +1,680 @@
+{
+  "utc": "2026-10-24T01:09:36.901117+00:00",
+  "resources": [
+    {
+      "name": "astra-p1-contract-33dac064-pg",
+      "label": {
+        "astra.task": "p1-fe-ai-contract"
+      },
+      "before": "running",
+      "after": "exited",
+      "mounts": [
+        {
+          "Type": "volume",
+          "Name": "7e79db21a5e18472d590ec884486dacce0a13d312c713fa8de6b746e97c7d37f",
+          "Destination": "/var/lib/postgresql/data",
+          "RW": true
+        }
+      ],
+      "database": "ephurin_test_astra_p1_contract_33dac064"
+    },
+    {
+      "name": "astra-p1-contract-33dac064-mongo",
+      "label": {
+        "astra.task": "p1-fe-ai-contract",
+        "org.opencontainers.image.version": "22.04"
+      },
+      "before": "running",
+      "after": "exited",
+      "mounts": [
+        {
+          "Type": "volume",
+          "Name": "dfa67b194a20921316f35e7829d8e353798863498a2eda31cb6695953772e937",
+          "Destination": "/data/configdb",
+          "RW": true
+        },
+        {
+          "Type": "volume",
+          "Name": "bca9c0b1e4416550585906ffd3438468cacf02eab008c50716536dca714eced3",
+          "Destination": "/data/db",
+          "RW": true
+        }
+      ],
+      "database": "ephurin_test_astra_p1_contract_33dac064"
+    },
+    {
+      "name": "astra-p1-contract-7f20d9c3-pg",
+      "label": {
+        "astra.task": "p1-fe-ai-contract"
+      },
+      "before": "running",
+      "after": "exited",
+      "mounts": [
+        {
+          "Type": "volume",
+          "Name": "cb6bcadf3d8c08200a3a200dd44ee97ce54f0fa9ccd8a68ac7e5596f11899580",
+          "Destination": "/var/lib/postgresql/data",
+          "RW": true
+        }
+      ],
+      "database": "ephurin_test_astra_p1_contract_7f20d9c3"
+    },
+    {
+      "name": "astra-p1-contract-7f20d9c3-mongo",
+      "label": {
+        "astra.task": "p1-fe-ai-contract",
+        "org.opencontainers.image.version": "22.04"
+      },
+      "before": "running",
+      "after": "exited",
+      "mounts": [
+        {
+          "Type": "volume",
+          "Name": "43fc12a79cebb03aaad8d3d29d6a087793cd78a7583068177ac06eaac591e6f2",
+          "Destination": "/data/configdb",
+          "RW": true
+        },
+        {
+          "Type": "volume",
+          "Name": "f8f60d2c39a31440c6736f58ba78f2c0fb2bcea193e03a7a70afc0201d40b9f7",
+          "Destination": "/data/db",
+          "RW": true
+        }
+      ],
+      "database": "ephurin_test_astra_p1_contract_7f20d9c3"
+    },
+    {
+      "name": "astra-p1-contract-0381160f-pg",
+      "label": {
+        "astra.task": "p1-fe-ai-contract"
+      },
+      "before": "running",
+      "after": "exited",
+      "mounts": [
+        {
+          "Type": "volume",
+          "Name": "6b1a2787f240373a94b32c1e8fc5bf0fff8b54e759c8f9cd449e320a82191584",
+          "Destination": "/var/lib/postgresql/data",
+          "RW": true
+        }
+      ],
+      "database": "ephurin_test_astra_p1_contract_0381160f"
+    },
+    {
+      "name": "astra-p1-contract-0381160f-mongo",
+      "label": {
+        "astra.task": "p1-fe-ai-contract",
+        "org.opencontainers.image.version": "22.04"
+      },
+      "before": "running",
+      "after": "exited",
+      "mounts": [
+        {
+          "Type": "volume",
+          "Name": "96625921f5980b956a15d39361f366599886d6e56696f6fcdd4f3d0a3923f4e3",
+          "Destination": "/data/configdb",
+          "RW": true
+        },
+        {
+          "Type": "volume",
+          "Name": "c509719a519d84f978d35167b084d9b17794df6f20982f601729125cad25a58e",
+          "Destination": "/data/db",
+          "RW": true
+        }
+      ],
+      "database": "ephurin_test_astra_p1_contract_0381160f"
+    }
+  ],
+  "commands": [
+    {
+      "command": [
+        "docker",
+        "volume",
+        "ls",
+        "--format",
+        "{{.Name}}"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "inspect",
+        "astra-p1-contract-33dac064-pg"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "stop",
+        "astra-p1-contract-33dac064-pg"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "inspect",
+        "astra-p1-contract-33dac064-pg"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "inspect",
+        "astra-p1-contract-33dac064-mongo"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "stop",
+        "astra-p1-contract-33dac064-mongo"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "inspect",
+        "astra-p1-contract-33dac064-mongo"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "inspect",
+        "astra-p1-contract-7f20d9c3-pg"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "stop",
+        "astra-p1-contract-7f20d9c3-pg"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "inspect",
+        "astra-p1-contract-7f20d9c3-pg"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "inspect",
+        "astra-p1-contract-7f20d9c3-mongo"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "stop",
+        "astra-p1-contract-7f20d9c3-mongo"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "inspect",
+        "astra-p1-contract-7f20d9c3-mongo"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "inspect",
+        "astra-p1-contract-0381160f-pg"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "stop",
+        "astra-p1-contract-0381160f-pg"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "inspect",
+        "astra-p1-contract-0381160f-pg"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "inspect",
+        "astra-p1-contract-0381160f-mongo"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "stop",
+        "astra-p1-contract-0381160f-mongo"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "inspect",
+        "astra-p1-contract-0381160f-mongo"
+      ],
+      "exit_code": 0
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "ls",
+        "--format",
+        "{{.Name}}"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "volumes_before": [
+    "02764fe7bb35870a811ca6e6f00888f3fb2b453e71f06d037c0c5d0d8e5a520e",
+    "035ff41478e359e7d0822971a5501484b3fd093f725eca4602d38f2df552711d",
+    "0416243313aaafde2efb0412fcb75c89bfb7e12bbc62a687f907b0884b325912",
+    "046fa299ce5d3b1688fb8ccc6f15f1925204a64e92a5ec26241b6730264ff293",
+    "04b26dddfd562992f46762583267de5740073cda1b7201bb4119b2f1f3066ebb",
+    "078e25c330dab4a7be00ef386fc736a8bba56eef66f577c159b3a5f0ba403b38",
+    "0817b58a6b8c5487bd65c383af1644ad97bb22394480faeac0eefa2451919e2c",
+    "08da9ea7ce8103054bf53ce1c219f8404cfccac75975862ca32602dfb0aa2818",
+    "0961be2bc9efe4afd3059f11c26d8cfe3798a45936d07d4a87e763a45346e1ae",
+    "09929656aeccc8cd66a58691a90327cd827c4818005dc3edaeb162b3fbfa1899",
+    "0c0be687a83cfc209a54a04b8aa306b978ef28bda154b43b733d3385e1122fd9",
+    "0cbaa00b80b5f43da11b098377231f428c025660e214b0c608227e3126da1218",
+    "0d743e0b61b670ad25bbd5dc85ac7a881d602ca9d462929bb2c77231d5ba37d1",
+    "0f4d09c9fdf5161a771239cbcdbe263156392b2e9c3b7de1c1b56f716a02aa51",
+    "0f6efaf5789012d4dc1e469593b90fb57ecca09f12475cdb10aad8b7c55b1e7c",
+    "113d81a3bd7030596067b77194e38be33692bfb79939814ef9b7b792d2062dbf",
+    "143525d550c1bfde738046108fdaba90274b8063ccddbc36dacbe6623effdd3e",
+    "1a041d1f5a9532dbdd6782474c61aecfcc16becc881b32e1bfb4965d74bddb31",
+    "22538bb80a331be99a0ff23ed12aa2a9266e8582c3afdc7cdeaab8087c25d276",
+    "27e29183d35c3c64f0b29ac82c3604c0c0f73179294f4ecb6507292167c7d661",
+    "2a5f186466956175278d6996d7b56f7f02f09c05a4e8ca0883767c327274d188",
+    "2dee744e68b8c03b7e391f5bf869cfcc0a9fbda6315a97a8eb1db04d2431942a",
+    "2e1508971da6674413042e404a241dbc5f0ba475b50992a20b87aec01d829380",
+    "31f28cceff8805f11aa176274fdd602e15d6e99566f625bdb2c966b0f1b2b872",
+    "322ac3be97faac6fdb37989aaa544031829c7d3cd36f58765f0846a7507db57c",
+    "339b248d62e775eed1e51d3b66fbfbd7fc146773b9479aec1a1cef074f587d01",
+    "36039b83b661e2299819e6d07ed64938704f259ef6d16b42621a13d45cb7d0df",
+    "3878efb34220b7cd211d7037e99bce92f91aacb9bd3fd60a0fe0323886566a57",
+    "39f0721684115a0f51104839dbf39cc4174eb0216032f359bee96bb790310182",
+    "3d0a3f02a5a74762aec8edb17aa0e1b5a8a05562bed613abf7dd27ded70534b4",
+    "3f411cfd2adf32c78fc1e906c7ebc97915ba66dea550e886fb075f098230b461",
+    "40bbe0a9d1b682ae6219f2b0b79e8e6e3333002e3c1f3283999001b3b58b2d2c",
+    "41fb9ac8e8fa63d2e329cc16a4416f571c15687370ed30d7d9084f75d5cc1fbc",
+    "4287a85842775ade5933dfdc60484516f41cb00622c15d5e90a444b1036626e9",
+    "43c3e5333e9d4bdd52a07ad8d1f0551bcdb4e02a8b78b3a15080855116ba43c8",
+    "43fc12a79cebb03aaad8d3d29d6a087793cd78a7583068177ac06eaac591e6f2",
+    "47cd207c342ea7917ff9a9dfcf8c3984ffa35db99fc2d16853dcb9bfdba24131",
+    "4830a16587113529a87ef8f0a93161a459f02c6792a5adb7c6daab61f33ec33f",
+    "49fb65c1f80359186d7b3c49c507395ce1018730fe5a3ff09ef594dd0433f0a6",
+    "4c22386faac82dfd6f180e9e0270154cca101ef1755e619c4f56ac3aa049f99a",
+    "4c869952692a3290511ecaf32892fadcd49e04e1808e7695e48d3fb1b099b9ad",
+    "4c9fa41d7271cefd380a2d85ef884dcd8afd76304974dd368d7a0e15593fb981",
+    "4ef72e3ec64b1d727b39463be99c71ed44a5d3a312fb81a31fbebfc2f01cee7b",
+    "4f3243b57fd63e4bf78fbf012877db420228ad7b613bd0c4a08c6d4f3faf7078",
+    "4fea44f05a9f06ff7bcc431ae662ba18491cffad0d8092c6c0fd5a7c669e23de",
+    "50e7e6d9ba43054d5a4d343afb61663b67ab3551b2533f4fa8bc851f84e65a9f",
+    "516320f4b1be3f92eb0cc47a39be7304ec4e30132e39bec046b23bf7fcc481a8",
+    "52e74b15c87be6e6bb3896448bc2877134a6aa1603770ead26baf3d3ed9c97a0",
+    "55decbfc3c00896961bd89bb10267a073d4232c9732183a68a305b411bbbd569",
+    "5d78d10fa341dada6fadca354b6b53521838be840753b5f17530f1d7e3f73342",
+    "5e77beb6995d2a4d205d09d52d6a3b39ca8d35a492d62f458d07caa554b4af31",
+    "64ec848b77a4392317e8709195bde2297bc06785809f2fa64f68cb6a5c00a727",
+    "65fc529b28023ddac3fc836ccf96f59c2958802452f25b9fffefd9c23c2142e8",
+    "68d5696b15b6cad529c16b9d9fa24ddcb462be9d6f9bccdc638f474016aad6ef",
+    "6b1a2787f240373a94b32c1e8fc5bf0fff8b54e759c8f9cd449e320a82191584",
+    "71f9a0bb360319fe436e6f3b8e48cb372aa9f9678f1d3f7b1b873d7e2878ba03",
+    "72699379c469acbac35601a716e599c6e4c3f411833f06eab3f4f12bef933dbd",
+    "726cbaa2d91cdc370e76ab1fa5342d8b09af25226b03392a128eb1e7cf086363",
+    "72fb836419f4fee3474c869d910d56c52328777058fb4f544f8a5ce7d116e6e0",
+    "7333a8f64aef0425fb2e9e463f0b4fb32a684e2204064c817a4d85ee9142bf90",
+    "7599e0d5107df96dbfcf0c4db362528b9b13f8e4d0b12b1c0e737d0bb5f7036c",
+    "7c2accf3a3860df113023327db61dc9af56f9009eac493a80da7a225c17a6624",
+    "7e79db21a5e18472d590ec884486dacce0a13d312c713fa8de6b746e97c7d37f",
+    "7fee54e49b309585308da43a3e61c348c18c3e94e77cd196f87e9d583df85cd7",
+    "80c1f725006e2e5eabad2b57f3c631654575d42cdcb4270488301c8996f0c515",
+    "80e0116e56639a0cde43e8bf98d260595f576f14ca296476b62bbeae8ca6bfdc",
+    "83c43ac29764d39a9c37a80d23d72dd6ea797430766b7b69dce47d793d015eb5",
+    "84942690a5e494699711bb92bb3c8e5b6566ae9559759a27a5bfe00528c15f13",
+    "85693de789036394bf0984fc904d16707c11118216f2c8b7fc903672ee9441ed",
+    "880b811af6f71c8796d378e85644249527bf6127bf8b5cc0b8349a966138e71b",
+    "88729df8862ff834cc312039175c5bb9d2a86a0f47072d402b0aa13b39d65b20",
+    "89a27b8c2193f55b1c977328beb9d456a6c903a74927ceec8003b7aeb30ab352",
+    "8ba37ac91fb19e13ec742282ae47430da557c8003f529c66ee52d24e02c15ce8",
+    "9002ce8622d5045224c8d9b274c8d35571dbc304124c0ad41637fd954de6a755",
+    "90bf7389e4f1a8a6edd9b349925d3867d8a1895386364e22891547e581cd0ef9",
+    "917fef666f15aa53cd43d4f59302b029141a5ca4ef2b0a660d11c5f8d6f2e2ac",
+    "91d69893f6393aa613ea2c5648e699ab41c566e51f66a5dd773bca1f49dff5e0",
+    "929a585ad63ae7841b69fdc503b81dd99a7fd9ff5512ab552f54b5924b20a801",
+    "94fbc6dcf6ed085607344fcc4d301d2c854056ec7de2c7630ca86230116a4709",
+    "95d67ede33a59621c6ee9b6ab68d709e1d295d50433cf5b2b2a484c3a4a86575",
+    "96625921f5980b956a15d39361f366599886d6e56696f6fcdd4f3d0a3923f4e3",
+    "9662adf1fff0c6c9e021569b39e0488a87c18d851da607f6ed32d55e9cf354b4",
+    "9d3918b1bc1f0769214855e4221224b9735caf0d1b514b0c7fc019c5282bc607",
+    "9f0978b50caeda4c0525aefb89189156bd24516770884e6a67f406b57f309002",
+    "a39b08e9155b637701baf7459f203d2984920e3764afcbf8e32b86bfcf8f15d3",
+    "a52c648c2b740fdd9d2f4fdbc57a94af78eb4d38e722754c42cf2a6132df56ce",
+    "a57aa92668af3be95d4838a47000993f8f3015341cfc20d030e8e770c7633228",
+    "aa74fdbc74c1b927e2e6a71126f2e629fe6c64576cd3b9dc339d90b23d36251a",
+    "ac07e505d50003de2481ca10e2db93669ab5823fec4df75fcfb0061bce241a81",
+    "b0c757bb200eb958fe9d9637d92c5ff7f30d68a776aa8194a59ba2a5fa3d7759",
+    "b7031e421d95e8cdf1fb602c62206e7d000a3404bc4a503ce9a258655c2376d3",
+    "backend_novelhub_postgres_data",
+    "bbfd7bcaf15257e91e93347ba6463da6867996c2bf8be0a46667660f6be156cf",
+    "bca9c0b1e4416550585906ffd3438468cacf02eab008c50716536dca714eced3",
+    "bcf8beb6ca50592f8ea1672fa98fc208a74b055ab413727b988d35d90fd0341c",
+    "be_mongo_data",
+    "be_mysql_data",
+    "be_postgres_data",
+    "be_redis_data",
+    "becabeaa321bbc8f9cdef521a1ad4382b4bfd0e56877458025dcafb56f700e21",
+    "c015bf9aa4fdcbf4fc1546c0c240ab4e4a00a06dd01d05df60c38230681b5a05",
+    "c1c15aaaac128a8d62122fc202c555da93267946c361521bb330e3ffdf7d02ab",
+    "c2dd89986deefdc23bd0754e2ee1c64245486f93e995b19bdab64967172fa116",
+    "c3102b504a985a9658603a4b67e8940dbd12c103e9d500cc016ddebea43383ef",
+    "c4161dabd64cb89bb3beccfb879d434647cd0d2af20865a4f1de482cf85fe583",
+    "c509719a519d84f978d35167b084d9b17794df6f20982f601729125cad25a58e",
+    "c5da1ba90f93557048e0dc8758a17942eb3b8fbb4821ff4bf3d953571708772a",
+    "c6950dc7596c7c362f942037371d380866bd184096ba96bb338567305804299f",
+    "c85850805ed12ab2223f4389227d3d74344267516a18e92932680be643d2025a",
+    "c87c4d0c410df051c2c4f499b225c9ab803fbe147d6101d4aac3fcda203ddbca",
+    "c96530ca2703c98e58ae221de7a0bcfabcb8f7c5b38938d95bce0ab09030ca1e",
+    "ca93e71e53809f1f229cfe6287fde4ef4d6608c838d6736769e0072d934099af",
+    "cac22395c1ac445288f9e759f9b8081527e3a854772727f38a7028fb8c610d82",
+    "cace5cf97659dfa33b74e1cf85f6aefb5f7623bcdb59bfe2fb925bdd07e2b5dc",
+    "cb6bcadf3d8c08200a3a200dd44ee97ce54f0fa9ccd8a68ac7e5596f11899580",
+    "cdd800792fcfd3291cdcdd9e98b3abcb9d41250f2fb9a296955b1038966a8614",
+    "d083b8e529cbf24b7ad6d23e2378652a1690d924c96e12689441f308fed8b756",
+    "d594a4f20047bba7e757855779867c639aeef0463984bcdb6709b6a2f08c24be",
+    "db4397d8eda0ca0a6f0ee782ef541d05bce410639fbfe93164f56d7af40acc85",
+    "db55507e44c3b23bbcefde70be33338353bf9e576e6aff34dc0ac9b847c025c7",
+    "dcf27b47bd3d90d3d3c9f108bf14214f1bee772bf620bba2f9040346c195a0b5",
+    "dd3d540a37a067714aa642e696ac81c194f959c4fde9fb2b36ea3a7c0b27adc9",
+    "dfa67b194a20921316f35e7829d8e353798863498a2eda31cb6695953772e937",
+    "dfeea7fb4699b0a8716ff70a859227a865a52985e8d7bc1fe837ef33d020422b",
+    "e-commerce_microservice_ai_data",
+    "e-commerce_microservice_employee_data",
+    "e-commerce_microservice_identity_data",
+    "e-commerce_microservice_inventory_data",
+    "e-commerce_microservice_order_data",
+    "e-commerce_microservice_product_data",
+    "e1dc448fb3412c13abea5eaca56419de9951f61992d51623ac40bd4c45a8bbb3",
+    "e23350cfde9eba0c692c478a5eb1c0e6af618d50ae74f227d6d8939e14679f87",
+    "e2ca5b1329c7d08df87003773481cac23ea77e3e947acc5d8b4ab1277c48fd89",
+    "e398bd0bef4d7e8de9a8ce64840738ea4e495c55ff75194685952fec74d06590",
+    "e71055c5a35c9a64c403bdb9b06278b83e6e493ae0200abf28ca046cf19beb4a",
+    "ea1d6514aa7d47e3020ad5bcb658069d403b24c867d1ad5f337220d761ae5c6b",
+    "ea842f53c97ed44c84b8a1539edda02f27a2317b82f3fd5815a85b00c56175b3",
+    "eaa0c65c1ab7af5e2e8bc55552469ef18ca791cdde4581234e57706f905f89ce",
+    "ef1eb2b2c55b060e983d0dcd58693467582ad8c623eabaa3cae98ffa11426d7a",
+    "ef8fdce1ec73a9dd2b9e27fd2d72b242e5f69e61a47b9874b319f5a3ec4aeb68",
+    "ephurin-ui-retest_mongodb_data",
+    "ephurin-ui-retest_postgres_data",
+    "f1f20c457598745dec63fa8a8183c2519b1f8d77cbb7e2cf962fbbc861d9d5be",
+    "f3566c25db438edfebeef180ad866820eca0478060ea164d35e67815acb5a1e1",
+    "f6ebc07ae26ae381985839583db0351cb27eef6dab0a9233877313b93d1c4d5d",
+    "f704e9126d978173af39044acb32f00819f9d315f49d64ea3ca4420cc03bf6ac",
+    "f779dc36abdbe1bfd7eba58c637262b338773bc782cba07043959deb73e9be9c",
+    "f86a9f14dd9d0ae030f1ee8769f02f4995c73441e82c9141709118298787ad47",
+    "f8f60d2c39a31440c6736f58ba78f2c0fb2bcea193e03a7a70afc0201d40b9f7",
+    "fc0c3bf38a210bae17716660efa5ddbb963e362dc102a71480a5ddece0c29334",
+    "ffbca29e072c419477356f23b8df909c876170104b8611a52f288daf18d944c7",
+    "microservices-assignment_db-data",
+    "novel_sharing_platform_mongodb_data",
+    "novel_sharing_platform_postgres_data",
+    "p1-live-01_p1_live_01_mongodb_data",
+    "p1-live-01_p1_live_01_postgres_data",
+    "p1-wave1d-20261021-browser-01_budget_state",
+    "p1-wave1d-20261021-browser-01_fake_state",
+    "p1-wave1d-20261021-browser-01_mongo_state",
+    "p1-wave1d-20261021-browser-01_pg_state",
+    "p1-wave1d-20261021-offline-01_budget_state",
+    "p1-wave1d-20261021-offline-01_fake_state",
+    "p1-wave1d-20261021-offline-01_mongo_state",
+    "p1-wave1d-20261021-offline-01_pg_state",
+    "p1-wave1e-20261021-functional-01_budget_state",
+    "p1-wave1e-20261021-functional-01_fake_state",
+    "p1-wave1e-20261021-functional-01_mongo_state",
+    "p1-wave1e-20261021-functional-01_pg_state",
+    "p1-wave1f-20261021-workflow-01_budget_state",
+    "p1-wave1f-20261021-workflow-01_fake_state",
+    "p1-wave1f-20261021-workflow-01_mongo_state",
+    "p1-wave1f-20261021-workflow-01_pg_state",
+    "p1-wave1g-20261022-s09-red-01_budget_state",
+    "p1-wave1g-20261022-s09-red-01_fake_state",
+    "p1-wave1g-20261022-s09-red-01_mongo_state",
+    "p1-wave1g-20261022-s09-red-01_pg_state",
+    "p123-core-092cfc4a3d_budget_state",
+    "p123-core-092cfc4a3d_fake_state",
+    "p123-core-092cfc4a3d_mongo_state",
+    "p123-core-092cfc4a3d_pg_state",
+    "p123-core-8c853261f5_mongo_state",
+    "p123-core-8c853261f5_pg_state",
+    "p123-core-bce7da708c_budget_state",
+    "p123-core-bce7da708c_fake_state",
+    "p123-core-bce7da708c_mongo_state",
+    "p123-core-bce7da708c_pg_state",
+    "p4_postgres_data",
+    "testproject_mongodb_data",
+    "testproject_postgres_data",
+    "todo-async-service_postgres_data"
+  ],
+  "volumes_after": [
+    "02764fe7bb35870a811ca6e6f00888f3fb2b453e71f06d037c0c5d0d8e5a520e",
+    "035ff41478e359e7d0822971a5501484b3fd093f725eca4602d38f2df552711d",
+    "0416243313aaafde2efb0412fcb75c89bfb7e12bbc62a687f907b0884b325912",
+    "046fa299ce5d3b1688fb8ccc6f15f1925204a64e92a5ec26241b6730264ff293",
+    "04b26dddfd562992f46762583267de5740073cda1b7201bb4119b2f1f3066ebb",
+    "078e25c330dab4a7be00ef386fc736a8bba56eef66f577c159b3a5f0ba403b38",
+    "0817b58a6b8c5487bd65c383af1644ad97bb22394480faeac0eefa2451919e2c",
+    "08da9ea7ce8103054bf53ce1c219f8404cfccac75975862ca32602dfb0aa2818",
+    "0961be2bc9efe4afd3059f11c26d8cfe3798a45936d07d4a87e763a45346e1ae",
+    "09929656aeccc8cd66a58691a90327cd827c4818005dc3edaeb162b3fbfa1899",
+    "0c0be687a83cfc209a54a04b8aa306b978ef28bda154b43b733d3385e1122fd9",
+    "0cbaa00b80b5f43da11b098377231f428c025660e214b0c608227e3126da1218",
+    "0d743e0b61b670ad25bbd5dc85ac7a881d602ca9d462929bb2c77231d5ba37d1",
+    "0f4d09c9fdf5161a771239cbcdbe263156392b2e9c3b7de1c1b56f716a02aa51",
+    "0f6efaf5789012d4dc1e469593b90fb57ecca09f12475cdb10aad8b7c55b1e7c",
+    "113d81a3bd7030596067b77194e38be33692bfb79939814ef9b7b792d2062dbf",
+    "143525d550c1bfde738046108fdaba90274b8063ccddbc36dacbe6623effdd3e",
+    "1a041d1f5a9532dbdd6782474c61aecfcc16becc881b32e1bfb4965d74bddb31",
+    "22538bb80a331be99a0ff23ed12aa2a9266e8582c3afdc7cdeaab8087c25d276",
+    "27e29183d35c3c64f0b29ac82c3604c0c0f73179294f4ecb6507292167c7d661",
+    "2a5f186466956175278d6996d7b56f7f02f09c05a4e8ca0883767c327274d188",
+    "2dee744e68b8c03b7e391f5bf869cfcc0a9fbda6315a97a8eb1db04d2431942a",
+    "2e1508971da6674413042e404a241dbc5f0ba475b50992a20b87aec01d829380",
+    "31f28cceff8805f11aa176274fdd602e15d6e99566f625bdb2c966b0f1b2b872",
+    "322ac3be97faac6fdb37989aaa544031829c7d3cd36f58765f0846a7507db57c",
+    "339b248d62e775eed1e51d3b66fbfbd7fc146773b9479aec1a1cef074f587d01",
+    "36039b83b661e2299819e6d07ed64938704f259ef6d16b42621a13d45cb7d0df",
+    "3878efb34220b7cd211d7037e99bce92f91aacb9bd3fd60a0fe0323886566a57",
+    "39f0721684115a0f51104839dbf39cc4174eb0216032f359bee96bb790310182",
+    "3d0a3f02a5a74762aec8edb17aa0e1b5a8a05562bed613abf7dd27ded70534b4",
+    "3f411cfd2adf32c78fc1e906c7ebc97915ba66dea550e886fb075f098230b461",
+    "40bbe0a9d1b682ae6219f2b0b79e8e6e3333002e3c1f3283999001b3b58b2d2c",
+    "41fb9ac8e8fa63d2e329cc16a4416f571c15687370ed30d7d9084f75d5cc1fbc",
+    "4287a85842775ade5933dfdc60484516f41cb00622c15d5e90a444b1036626e9",
+    "43c3e5333e9d4bdd52a07ad8d1f0551bcdb4e02a8b78b3a15080855116ba43c8",
+    "43fc12a79cebb03aaad8d3d29d6a087793cd78a7583068177ac06eaac591e6f2",
+    "47cd207c342ea7917ff9a9dfcf8c3984ffa35db99fc2d16853dcb9bfdba24131",
+    "4830a16587113529a87ef8f0a93161a459f02c6792a5adb7c6daab61f33ec33f",
+    "49fb65c1f80359186d7b3c49c507395ce1018730fe5a3ff09ef594dd0433f0a6",
+    "4c22386faac82dfd6f180e9e0270154cca101ef1755e619c4f56ac3aa049f99a",
+    "4c869952692a3290511ecaf32892fadcd49e04e1808e7695e48d3fb1b099b9ad",
+    "4c9fa41d7271cefd380a2d85ef884dcd8afd76304974dd368d7a0e15593fb981",
+    "4ef72e3ec64b1d727b39463be99c71ed44a5d3a312fb81a31fbebfc2f01cee7b",
+    "4f3243b57fd63e4bf78fbf012877db420228ad7b613bd0c4a08c6d4f3faf7078",
+    "4fea44f05a9f06ff7bcc431ae662ba18491cffad0d8092c6c0fd5a7c669e23de",
+    "50e7e6d9ba43054d5a4d343afb61663b67ab3551b2533f4fa8bc851f84e65a9f",
+    "516320f4b1be3f92eb0cc47a39be7304ec4e30132e39bec046b23bf7fcc481a8",
+    "52e74b15c87be6e6bb3896448bc2877134a6aa1603770ead26baf3d3ed9c97a0",
+    "55decbfc3c00896961bd89bb10267a073d4232c9732183a68a305b411bbbd569",
+    "5d78d10fa341dada6fadca354b6b53521838be840753b5f17530f1d7e3f73342",
+    "5e77beb6995d2a4d205d09d52d6a3b39ca8d35a492d62f458d07caa554b4af31",
+    "64ec848b77a4392317e8709195bde2297bc06785809f2fa64f68cb6a5c00a727",
+    "65fc529b28023ddac3fc836ccf96f59c2958802452f25b9fffefd9c23c2142e8",
+    "68d5696b15b6cad529c16b9d9fa24ddcb462be9d6f9bccdc638f474016aad6ef",
+    "6b1a2787f240373a94b32c1e8fc5bf0fff8b54e759c8f9cd449e320a82191584",
+    "71f9a0bb360319fe436e6f3b8e48cb372aa9f9678f1d3f7b1b873d7e2878ba03",
+    "72699379c469acbac35601a716e599c6e4c3f411833f06eab3f4f12bef933dbd",
+    "726cbaa2d91cdc370e76ab1fa5342d8b09af25226b03392a128eb1e7cf086363",
+    "72fb836419f4fee3474c869d910d56c52328777058fb4f544f8a5ce7d116e6e0",
+    "7333a8f64aef0425fb2e9e463f0b4fb32a684e2204064c817a4d85ee9142bf90",
+    "7599e0d5107df96dbfcf0c4db362528b9b13f8e4d0b12b1c0e737d0bb5f7036c",
+    "7c2accf3a3860df113023327db61dc9af56f9009eac493a80da7a225c17a6624",
+    "7e79db21a5e18472d590ec884486dacce0a13d312c713fa8de6b746e97c7d37f",
+    "7fee54e49b309585308da43a3e61c348c18c3e94e77cd196f87e9d583df85cd7",
+    "80c1f725006e2e5eabad2b57f3c631654575d42cdcb4270488301c8996f0c515",
+    "80e0116e56639a0cde43e8bf98d260595f576f14ca296476b62bbeae8ca6bfdc",
+    "83c43ac29764d39a9c37a80d23d72dd6ea797430766b7b69dce47d793d015eb5",
+    "84942690a5e494699711bb92bb3c8e5b6566ae9559759a27a5bfe00528c15f13",
+    "85693de789036394bf0984fc904d16707c11118216f2c8b7fc903672ee9441ed",
+    "880b811af6f71c8796d378e85644249527bf6127bf8b5cc0b8349a966138e71b",
+    "88729df8862ff834cc312039175c5bb9d2a86a0f47072d402b0aa13b39d65b20",
+    "89a27b8c2193f55b1c977328beb9d456a6c903a74927ceec8003b7aeb30ab352",
+    "8ba37ac91fb19e13ec742282ae47430da557c8003f529c66ee52d24e02c15ce8",
+    "9002ce8622d5045224c8d9b274c8d35571dbc304124c0ad41637fd954de6a755",
+    "90bf7389e4f1a8a6edd9b349925d3867d8a1895386364e22891547e581cd0ef9",
+    "917fef666f15aa53cd43d4f59302b029141a5ca4ef2b0a660d11c5f8d6f2e2ac",
+    "91d69893f6393aa613ea2c5648e699ab41c566e51f66a5dd773bca1f49dff5e0",
+    "929a585ad63ae7841b69fdc503b81dd99a7fd9ff5512ab552f54b5924b20a801",
+    "94fbc6dcf6ed085607344fcc4d301d2c854056ec7de2c7630ca86230116a4709",
+    "95d67ede33a59621c6ee9b6ab68d709e1d295d50433cf5b2b2a484c3a4a86575",
+    "96625921f5980b956a15d39361f366599886d6e56696f6fcdd4f3d0a3923f4e3",
+    "9662adf1fff0c6c9e021569b39e0488a87c18d851da607f6ed32d55e9cf354b4",
+    "9d3918b1bc1f0769214855e4221224b9735caf0d1b514b0c7fc019c5282bc607",
+    "9f0978b50caeda4c0525aefb89189156bd24516770884e6a67f406b57f309002",
+    "a39b08e9155b637701baf7459f203d2984920e3764afcbf8e32b86bfcf8f15d3",
+    "a52c648c2b740fdd9d2f4fdbc57a94af78eb4d38e722754c42cf2a6132df56ce",
+    "a57aa92668af3be95d4838a47000993f8f3015341cfc20d030e8e770c7633228",
+    "aa74fdbc74c1b927e2e6a71126f2e629fe6c64576cd3b9dc339d90b23d36251a",
+    "ac07e505d50003de2481ca10e2db93669ab5823fec4df75fcfb0061bce241a81",
+    "b0c757bb200eb958fe9d9637d92c5ff7f30d68a776aa8194a59ba2a5fa3d7759",
+    "b7031e421d95e8cdf1fb602c62206e7d000a3404bc4a503ce9a258655c2376d3",
+    "backend_novelhub_postgres_data",
+    "bbfd7bcaf15257e91e93347ba6463da6867996c2bf8be0a46667660f6be156cf",
+    "bca9c0b1e4416550585906ffd3438468cacf02eab008c50716536dca714eced3",
+    "bcf8beb6ca50592f8ea1672fa98fc208a74b055ab413727b988d35d90fd0341c",
+    "be_mongo_data",
+    "be_mysql_data",
+    "be_postgres_data",
+    "be_redis_data",
+    "becabeaa321bbc8f9cdef521a1ad4382b4bfd0e56877458025dcafb56f700e21",
+    "c015bf9aa4fdcbf4fc1546c0c240ab4e4a00a06dd01d05df60c38230681b5a05",
+    "c1c15aaaac128a8d62122fc202c555da93267946c361521bb330e3ffdf7d02ab",
+    "c2dd89986deefdc23bd0754e2ee1c64245486f93e995b19bdab64967172fa116",
+    "c3102b504a985a9658603a4b67e8940dbd12c103e9d500cc016ddebea43383ef",
+    "c4161dabd64cb89bb3beccfb879d434647cd0d2af20865a4f1de482cf85fe583",
+    "c509719a519d84f978d35167b084d9b17794df6f20982f601729125cad25a58e",
+    "c5da1ba90f93557048e0dc8758a17942eb3b8fbb4821ff4bf3d953571708772a",
+    "c6950dc7596c7c362f942037371d380866bd184096ba96bb338567305804299f",
+    "c85850805ed12ab2223f4389227d3d74344267516a18e92932680be643d2025a",
+    "c87c4d0c410df051c2c4f499b225c9ab803fbe147d6101d4aac3fcda203ddbca",
+    "c96530ca2703c98e58ae221de7a0bcfabcb8f7c5b38938d95bce0ab09030ca1e",
+    "ca93e71e53809f1f229cfe6287fde4ef4d6608c838d6736769e0072d934099af",
+    "cac22395c1ac445288f9e759f9b8081527e3a854772727f38a7028fb8c610d82",
+    "cace5cf97659dfa33b74e1cf85f6aefb5f7623bcdb59bfe2fb925bdd07e2b5dc",
+    "cb6bcadf3d8c08200a3a200dd44ee97ce54f0fa9ccd8a68ac7e5596f11899580",
+    "cdd800792fcfd3291cdcdd9e98b3abcb9d41250f2fb9a296955b1038966a8614",
+    "d083b8e529cbf24b7ad6d23e2378652a1690d924c96e12689441f308fed8b756",
+    "d594a4f20047bba7e757855779867c639aeef0463984bcdb6709b6a2f08c24be",
+    "db4397d8eda0ca0a6f0ee782ef541d05bce410639fbfe93164f56d7af40acc85",
+    "db55507e44c3b23bbcefde70be33338353bf9e576e6aff34dc0ac9b847c025c7",
+    "dcf27b47bd3d90d3d3c9f108bf14214f1bee772bf620bba2f9040346c195a0b5",
+    "dd3d540a37a067714aa642e696ac81c194f959c4fde9fb2b36ea3a7c0b27adc9",
+    "dfa67b194a20921316f35e7829d8e353798863498a2eda31cb6695953772e937",
+    "dfeea7fb4699b0a8716ff70a859227a865a52985e8d7bc1fe837ef33d020422b",
+    "e-commerce_microservice_ai_data",
+    "e-commerce_microservice_employee_data",
+    "e-commerce_microservice_identity_data",
+    "e-commerce_microservice_inventory_data",
+    "e-commerce_microservice_order_data",
+    "e-commerce_microservice_product_data",
+    "e1dc448fb3412c13abea5eaca56419de9951f61992d51623ac40bd4c45a8bbb3",
+    "e23350cfde9eba0c692c478a5eb1c0e6af618d50ae74f227d6d8939e14679f87",
+    "e2ca5b1329c7d08df87003773481cac23ea77e3e947acc5d8b4ab1277c48fd89",
+    "e398bd0bef4d7e8de9a8ce64840738ea4e495c55ff75194685952fec74d06590",
+    "e71055c5a35c9a64c403bdb9b06278b83e6e493ae0200abf28ca046cf19beb4a",
+    "ea1d6514aa7d47e3020ad5bcb658069d403b24c867d1ad5f337220d761ae5c6b",
+    "ea842f53c97ed44c84b8a1539edda02f27a2317b82f3fd5815a85b00c56175b3",
+    "eaa0c65c1ab7af5e2e8bc55552469ef18ca791cdde4581234e57706f905f89ce",
+    "ef1eb2b2c55b060e983d0dcd58693467582ad8c623eabaa3cae98ffa11426d7a",
+    "ef8fdce1ec73a9dd2b9e27fd2d72b242e5f69e61a47b9874b319f5a3ec4aeb68",
+    "ephurin-ui-retest_mongodb_data",
+    "ephurin-ui-retest_postgres_data",
+    "f1f20c457598745dec63fa8a8183c2519b1f8d77cbb7e2cf962fbbc861d9d5be",
+    "f3566c25db438edfebeef180ad866820eca0478060ea164d35e67815acb5a1e1",
+    "f6ebc07ae26ae381985839583db0351cb27eef6dab0a9233877313b93d1c4d5d",
+    "f704e9126d978173af39044acb32f00819f9d315f49d64ea3ca4420cc03bf6ac",
+    "f779dc36abdbe1bfd7eba58c637262b338773bc782cba07043959deb73e9be9c",
+    "f86a9f14dd9d0ae030f1ee8769f02f4995c73441e82c9141709118298787ad47",
+    "f8f60d2c39a31440c6736f58ba78f2c0fb2bcea193e03a7a70afc0201d40b9f7",
+    "fc0c3bf38a210bae17716660efa5ddbb963e362dc102a71480a5ddece0c29334",
+    "ffbca29e072c419477356f23b8df909c876170104b8611a52f288daf18d944c7",
+    "microservices-assignment_db-data",
+    "novel_sharing_platform_mongodb_data",
+    "novel_sharing_platform_postgres_data",
+    "p1-live-01_p1_live_01_mongodb_data",
+    "p1-live-01_p1_live_01_postgres_data",
+    "p1-wave1d-20261021-browser-01_budget_state",
+    "p1-wave1d-20261021-browser-01_fake_state",
+    "p1-wave1d-20261021-browser-01_mongo_state",
+    "p1-wave1d-20261021-browser-01_pg_state",
+    "p1-wave1d-20261021-offline-01_budget_state",
+    "p1-wave1d-20261021-offline-01_fake_state",
+    "p1-wave1d-20261021-offline-01_mongo_state",
+    "p1-wave1d-20261021-offline-01_pg_state",
+    "p1-wave1e-20261021-functional-01_budget_state",
+    "p1-wave1e-20261021-functional-01_fake_state",
+    "p1-wave1e-20261021-functional-01_mongo_state",
+    "p1-wave1e-20261021-functional-01_pg_state",
+    "p1-wave1f-20261021-workflow-01_budget_state",
+    "p1-wave1f-20261021-workflow-01_fake_state",
+    "p1-wave1f-20261021-workflow-01_mongo_state",
+    "p1-wave1f-20261021-workflow-01_pg_state",
+    "p1-wave1g-20261022-s09-red-01_budget_state",
+    "p1-wave1g-20261022-s09-red-01_fake_state",
+    "p1-wave1g-20261022-s09-red-01_mongo_state",
+    "p1-wave1g-20261022-s09-red-01_pg_state",
+    "p123-core-092cfc4a3d_budget_state",
+    "p123-core-092cfc4a3d_fake_state",
+    "p123-core-092cfc4a3d_mongo_state",
+    "p123-core-092cfc4a3d_pg_state",
+    "p123-core-8c853261f5_mongo_state",
+    "p123-core-8c853261f5_pg_state",
+    "p123-core-bce7da708c_budget_state",
+    "p123-core-bce7da708c_fake_state",
+    "p123-core-bce7da708c_mongo_state",
+    "p123-core-bce7da708c_pg_state",
+    "p4_postgres_data",
+    "testproject_mongodb_data",
+    "testproject_postgres_data",
+    "todo-async-service_postgres_data"
+  ],
+  "all_volumes_preserved": true,
+  "containers_removed": false
+}

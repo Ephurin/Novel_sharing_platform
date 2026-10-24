@@ -12,7 +12,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from api.deps import require_service_token, get_revision_analysis_service
 from application import entity_hitl
-from application.entity_review_service import save_guidance
+from application.entity_review_service import save_guidance, registry
 from application.ports import ContentHashMismatchError, RevisionNotFoundError
 from domain.errors import OptimisticLockError, IdempotencyConflictError
 
@@ -55,6 +55,7 @@ class ApprovedMemory(BaseModel):
     events: list[dict]
     facts: list[dict]
     relations: list[dict]
+    transitions: list[dict]
     current_state: dict
     metadata: dict
     provenance: list[dict]
@@ -100,7 +101,7 @@ def memory(novel_id: UUID, service=Depends(get_revision_analysis_service)):
         brain_version=int(brain.metadata.get('brain_version', 1)), entities=entities,
         aliases=[asdict(a) for a in brain.aliases], mentions=[asdict(m) for m in brain.mentions],
         events=events, facts=facts, relations=[asdict(r) for r in relations],
-        current_state=state, metadata=brain.metadata,
+        transitions=transitions, current_state=state, metadata=brain.metadata,
         provenance=[{'proposal_id': p.proposal_id, 'proposal_type': p.proposal_type,
             'analysis_run_id': p.analysis_run_id, 'source_type': p.payload.get('source_type', 'AI'),
             'evidence': list(p.evidence)} for p in brain.proposals if p.status.value == 'accepted'])
@@ -131,6 +132,21 @@ class AuthorEntity(BaseModel):
     entity_type: Literal['PER', 'LOC', 'ORG', 'ITEM', 'SKILL']
 
 
+class RelationshipLock(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    subject_entity_id: UUID
+    object_entity_id: UUID
+    relation_type: str = Field(min_length=1, max_length=80, pattern=r'\S')
+    expected_brain_version: int = Field(ge=1)
+
+
+@router.post('/{novel_id}/relationship-locks')
+def relationship_lock(novel_id: UUID, payload: RelationshipLock, service=Depends(get_revision_analysis_service)):
+    if not hasattr(service._repository, 'lock_relationship'):
+        raise HTTPException(503, detail={'code': 'RELATIONSHIP_LOCK_REQUIRES_POSTGRES'})
+    return {'data': invoke(service._repository.lock_relationship, str(novel_id), **payload.model_dump(mode='json'))}
+
+
 class AuthorProposal(BaseModel):
     model_config = ConfigDict(extra='forbid')
     chapter_id: UUID
@@ -141,12 +157,24 @@ class AuthorProposal(BaseModel):
     expected_brain_version: int = Field(ge=1)
 
 
+def review_dto(service, novel_id, value):
+    """Add wire defaults without changing the durable checkpoint or CAS input."""
+    known = registry(service._repository, str(novel_id))
+    reviewed = value.get('reviewed_decisions', [])
+    reviewed_ids = {d['candidate_id'] for d in reviewed}
+    pending = [] if value['status'] in ('entities_reviewed', 'completed') else [
+        c['candidate_id'] for c in value.get('candidates', []) if c['candidate_id'] not in reviewed_ids]
+    return {**value, 'review_schema_version': 1, 'reviewed_decisions': reviewed,
+        'pending_candidate_ids': pending, 'known_entities': known['entities'],
+        'registry_brain_version': known.get('brain_version', value['brain_version'])}
+
+
 @router.get('/{novel_id}/entity-candidate-audits/{run_id}')
 def audit(novel_id: UUID, run_id: UUID, service=Depends(get_revision_analysis_service)):
     value = service._repository.get_entity_candidate_audit(str(novel_id), str(run_id))
     if value is None:
         raise HTTPException(404, detail={'code': 'AUDIT_NOT_FOUND'})
-    return {'data': value}
+    return {'data': review_dto(service, novel_id, value)}
 
 
 @router.get('/{novel_id}/entity-guidance')
@@ -167,12 +195,13 @@ def author_entity(novel_id: UUID, payload: AuthorEntity, service=Depends(get_rev
 
 @router.get('/{novel_id}/entity-reviews')
 def reviews(novel_id: UUID, service=Depends(get_revision_analysis_service)):
-    return {'data': service._repository.list_entity_reviews(str(novel_id))}
+    return {'data': [review_dto(service, novel_id, v) for v in service._repository.list_entity_reviews(str(novel_id))]}
 
 
 @router.post('/{novel_id}/entity-reviews/{run_id}/review')
 def review(novel_id: UUID, run_id: UUID, payload: Review, tenant=Depends(author_scope), service=Depends(get_revision_analysis_service)):
-    return {'data': invoke(entity_hitl.review, service, str(novel_id), str(run_id), tenant, **payload.model_dump())}
+    value = invoke(entity_hitl.review, service, str(novel_id), str(run_id), tenant, **payload.model_dump())
+    return {'data': review_dto(service, novel_id, value)}
 
 
 @router.post('/{novel_id}/entity-reviews/{run_id}/continue')
@@ -184,7 +213,8 @@ def continue_review(novel_id: UUID, run_id: UUID, tenant=Depends(author_scope), 
 
 @router.post('/{novel_id}/entity-reviews/{run_id}/refresh')
 def refresh(novel_id: UUID, run_id: UUID, payload: Refresh, tenant=Depends(author_scope), service=Depends(get_revision_analysis_service)):
-    return {'data': invoke(entity_hitl.refresh, service, str(novel_id), str(run_id), tenant, payload.expected_version)}
+    value = invoke(entity_hitl.refresh, service, str(novel_id), str(run_id), tenant, payload.expected_version)
+    return {'data': review_dto(service, novel_id, value)}
 
 
 @router.post('/{novel_id}/author-proposals', status_code=201)

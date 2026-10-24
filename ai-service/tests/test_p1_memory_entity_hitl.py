@@ -253,11 +253,13 @@ def test_atomic_finalize_rejects_changed_checkpoint_without_proposals(flow):
     f = flow
     run, audit = discover(f)
     frozen = freeze(f, run, audit).json()['data']
+    stored = json.loads(json.dumps(f.repo.get_entity_candidate_audit(f.revision.novel_id, run)))
     from domain.errors import OptimisticLockError
     with pytest.raises(OptimisticLockError):
         f.repo.complete_entity_review(f.revision.novel_id, run, {**frozen, 'review_version': 999}, [])
     assert f.repo.list_proposals(f.revision.novel_id) == []
-    assert json.loads(json.dumps(f.repo.get_entity_candidate_audit(f.revision.novel_id, run))) == frozen
+    assert json.loads(json.dumps(f.repo.get_entity_candidate_audit(f.revision.novel_id, run))) == stored
+    assert f.client.get(f'{f.base}/entity-candidate-audits/{run}', headers=f.headers).json()['data'] == frozen
 
 
 def test_memory_uses_active_facts_and_transition_provenance(flow):
@@ -334,4 +336,4 @@ def test_memory_and_registry_exclude_unconfirmed_materialized_rows(flow):
             conn.execute(text(f"UPDATE narrative.{table} SET confirmation_status='proposed' WHERE novel_id=:n"), {'n':f.revision.novel_id})
     memory = f.client.get(f'{f.base}/memory', headers=f.headers).json()['data']
     assert memory['entities'] == [] and memory['events'] == [] and memory['facts'] == []
-    assert f.repo.get_entity_registry(f.revision.novel_id) == {'entities': [], 'aliases': []}
+    assert f.repo.get_entity_registry(f.revision.novel_id) == {'entities': [], 'aliases': [], 'brain_version': 2}

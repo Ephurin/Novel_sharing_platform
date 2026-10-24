@@ -1,0 +1,11 @@
+{
+  "source_sha": "4811963d235dd9f79b2efa387152e008f9519e47",
+  "source_tree": "a72f876e9ce3f35236d71e06339cfa8d19cce3c0",
+  "integration_base": "dd2f8003b0ad94e6097819cdca0249aa591f54fa",
+  "specification_commit": "4654c8cf1c5803d65d2f6fc25f63a0ed245ed500",
+  "sealed_at_utc": "2026-10-24T01:08:27.333769+00:00",
+  "clean_source_for_every_acceptance_suite": true,
+  "fake_only": true,
+  "inventory_red_base": "6a723bfc49aec3b173d2cbf90077300023bee127",
+  "inventory_red_test_patch_sha256": "66c3ebf927862df75027d0431cbbe20628e64cf358db7ee8ee22f9787f71c81c"
+}

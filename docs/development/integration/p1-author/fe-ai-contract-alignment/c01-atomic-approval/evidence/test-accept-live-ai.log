@@ -1,0 +1,196 @@
+INFO:     Started server process [29636]
+INFO:     Waiting for application startup.
+2026-10-24 08:39:11,728 | INFO | ai-service | Starting AI service with pure-LLM entity pipeline.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:59113 (Press CTRL+C to quit)
+2026-10-24 08:39:12,198 | INFO | ai-service | GET /health -> 200 (1.11 ms)
+INFO:     127.0.0.1:59118 - "GET /health HTTP/1.1" 200 OK
+2026-10-24 08:39:13,373 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory -> 404 (64.56 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory HTTP/1.1" 404 Not Found
+2026-10-24 08:39:13,511 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-guidance -> 200 (21.50 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-guidance HTTP/1.1" 200 OK
+2026-10-24 08:39:13,558 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory -> 200 (36.79 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory HTTP/1.1" 200 OK
+2026-10-24 08:39:13,693 | INFO | fake-llm | Fake LLM returning deterministic entities
+2026-10-24 08:39:13,714 | INFO | ai-service | POST /v1/revisions/240c0f78-9c23-4aaa-a3ab-f388ffd94f72/analyses -> 202 (132.84 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/revisions/240c0f78-9c23-4aaa-a3ab-f388ffd94f72/analyses HTTP/1.1" 202 Accepted
+2026-10-24 08:39:13,740 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 -> 200 (17.37 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 HTTP/1.1" 200 OK
+2026-10-24 08:39:13,795 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 -> 200 (16.89 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 HTTP/1.1" 200 OK
+2026-10-24 08:39:13,858 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/continue -> 409 (59.05 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/continue HTTP/1.1" 409 Conflict
+2026-10-24 08:39:13,887 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 -> 200 (17.42 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 HTTP/1.1" 200 OK
+2026-10-24 08:39:13,966 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/review -> 422 (74.32 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/review HTTP/1.1" 422 Unprocessable Entity
+2026-10-24 08:39:13,992 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 -> 200 (16.06 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 HTTP/1.1" 200 OK
+2026-10-24 08:39:14,164 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/review -> 409 (166.87 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/review HTTP/1.1" 409 Conflict
+2026-10-24 08:39:14,229 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 -> 200 (55.65 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 HTTP/1.1" 200 OK
+2026-10-24 08:39:14,419 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/review -> 422 (175.54 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/review HTTP/1.1" 422 Unprocessable Entity
+2026-10-24 08:39:14,455 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 -> 200 (23.00 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 HTTP/1.1" 200 OK
+2026-10-24 08:39:14,581 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/review -> 200 (121.92 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/review HTTP/1.1" 200 OK
+2026-10-24 08:39:14,616 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 -> 200 (24.47 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 HTTP/1.1" 200 OK
+2026-10-24 08:39:14,710 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/review -> 200 (86.02 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/review HTTP/1.1" 200 OK
+2026-10-24 08:39:14,762 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-guidance -> 200 (21.84 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-guidance HTTP/1.1" 200 OK
+2026-10-24 08:39:14,799 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 -> 200 (20.71 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 HTTP/1.1" 200 OK
+2026-10-24 08:39:14,872 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/refresh -> 409 (67.58 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/refresh HTTP/1.1" 409 Conflict
+2026-10-24 08:39:14,904 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 -> 200 (23.36 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 HTTP/1.1" 200 OK
+2026-10-24 08:39:14,959 | INFO | fake-llm | Fake LLM returning deterministic entities
+2026-10-24 08:39:14,995 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/refresh -> 200 (86.47 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/refresh HTTP/1.1" 200 OK
+2026-10-24 08:39:15,022 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 -> 200 (16.21 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 HTTP/1.1" 200 OK
+2026-10-24 08:39:15,115 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/refresh -> 200 (88.15 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/refresh HTTP/1.1" 200 OK
+2026-10-24 08:39:15,155 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 -> 200 (27.49 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 HTTP/1.1" 200 OK
+2026-10-24 08:39:15,237 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/continue -> 409 (77.12 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/continue HTTP/1.1" 409 Conflict
+2026-10-24 08:39:15,381 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 -> 200 (61.88 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 HTTP/1.1" 200 OK
+2026-10-24 08:39:15,505 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/review -> 200 (109.33 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/review HTTP/1.1" 200 OK
+2026-10-24 08:39:15,590 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 -> 200 (70.83 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 HTTP/1.1" 200 OK
+2026-10-24 08:39:15,804 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/continue -> 200 (201.77 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/continue HTTP/1.1" 200 OK
+2026-10-24 08:39:15,826 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 -> 200 (15.88 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 HTTP/1.1" 200 OK
+2026-10-24 08:39:15,998 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/continue -> 200 (167.74 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/3c25d3a6-d6cb-4079-899d-0de777516f30/continue HTTP/1.1" 200 OK
+2026-10-24 08:39:16,056 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory -> 200 (27.64 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory HTTP/1.1" 200 OK
+2026-10-24 08:39:16,093 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory -> 200 (27.34 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory HTTP/1.1" 200 OK
+2026-10-24 08:39:16,111 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue -> 200 (8.30 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue HTTP/1.1" 200 OK
+2026-10-24 08:39:16,155 | INFO | ai-service | GET /internal/v1/proposals/68c83ff2-05cc-56fd-bf49-0a74dec8dab2/novel -> 200 (7.54 ms)
+INFO:     127.0.0.1:59122 - "GET /internal/v1/proposals/68c83ff2-05cc-56fd-bf49-0a74dec8dab2/novel HTTP/1.1" 200 OK
+2026-10-24 08:39:16,182 | INFO | ai-service | GET /internal/v1/proposals/68c83ff2-05cc-56fd-bf49-0a74dec8dab2/novel -> 200 (5.48 ms)
+INFO:     127.0.0.1:59122 - "GET /internal/v1/proposals/68c83ff2-05cc-56fd-bf49-0a74dec8dab2/novel HTTP/1.1" 200 OK
+2026-10-24 08:39:16,192 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue -> 200 (6.15 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue HTTP/1.1" 200 OK
+2026-10-24 08:39:16,258 | INFO | ai-service | POST /v1/proposals/68c83ff2-05cc-56fd-bf49-0a74dec8dab2/edit-and-accept -> 422 (61.71 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/proposals/68c83ff2-05cc-56fd-bf49-0a74dec8dab2/edit-and-accept HTTP/1.1" 422 Unprocessable Entity
+2026-10-24 08:39:16,299 | INFO | ai-service | POST /v1/proposals/68c83ff2-05cc-56fd-bf49-0a74dec8dab2/accept -> 422 (24.11 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/proposals/68c83ff2-05cc-56fd-bf49-0a74dec8dab2/accept HTTP/1.1" 422 Unprocessable Entity
+2026-10-24 08:39:16,376 | INFO | ai-service | GET /internal/v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/novel -> 200 (10.40 ms)
+INFO:     127.0.0.1:59122 - "GET /internal/v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/novel HTTP/1.1" 200 OK
+2026-10-24 08:39:16,414 | INFO | ai-service | GET /internal/v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/novel -> 200 (8.37 ms)
+INFO:     127.0.0.1:59122 - "GET /internal/v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/novel HTTP/1.1" 200 OK
+2026-10-24 08:39:16,426 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue -> 200 (7.54 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue HTTP/1.1" 200 OK
+2026-10-24 08:39:16,481 | INFO | ai-service | POST /v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/accept -> 422 (49.81 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/accept HTTP/1.1" 422 Unprocessable Entity
+2026-10-24 08:39:16,516 | INFO | ai-service | GET /internal/v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/novel -> 200 (6.98 ms)
+INFO:     127.0.0.1:59122 - "GET /internal/v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/novel HTTP/1.1" 200 OK
+2026-10-24 08:39:16,528 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue -> 200 (8.42 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue HTTP/1.1" 200 OK
+2026-10-24 08:39:16,622 | INFO | ai-service | POST /v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/accept -> 422 (89.43 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/accept HTTP/1.1" 422 Unprocessable Entity
+2026-10-24 08:39:16,660 | INFO | ai-service | GET /internal/v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/novel -> 200 (6.00 ms)
+INFO:     127.0.0.1:59122 - "GET /internal/v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/novel HTTP/1.1" 200 OK
+2026-10-24 08:39:16,672 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue -> 200 (7.99 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue HTTP/1.1" 200 OK
+2026-10-24 08:39:16,829 | INFO | ai-service | POST /v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/accept -> 422 (151.07 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/accept HTTP/1.1" 422 Unprocessable Entity
+2026-10-24 08:39:16,877 | INFO | ai-service | GET /internal/v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/novel -> 200 (12.86 ms)
+INFO:     127.0.0.1:59122 - "GET /internal/v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/novel HTTP/1.1" 200 OK
+2026-10-24 08:39:16,896 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue -> 200 (12.59 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue HTTP/1.1" 200 OK
+2026-10-24 08:39:17,095 | INFO | ai-service | POST /v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/accept -> 409 (189.88 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/accept HTTP/1.1" 409 Conflict
+2026-10-24 08:39:17,136 | INFO | ai-service | GET /internal/v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/novel -> 200 (9.24 ms)
+INFO:     127.0.0.1:59122 - "GET /internal/v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/novel HTTP/1.1" 200 OK
+2026-10-24 08:39:17,148 | INFO | ai-service | GET /internal/v1/proposals/68c83ff2-05cc-56fd-bf49-0a74dec8dab2/novel -> 200 (11.13 ms)
+INFO:     127.0.0.1:38745 - "GET /internal/v1/proposals/68c83ff2-05cc-56fd-bf49-0a74dec8dab2/novel HTTP/1.1" 200 OK
+2026-10-24 08:39:17,159 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue -> 200 (17.63 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue HTTP/1.1" 200 OK
+2026-10-24 08:39:17,162 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue -> 200 (9.93 ms)
+INFO:     127.0.0.1:38745 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue HTTP/1.1" 200 OK
+2026-10-24 08:39:17,233 | INFO | ai-service | POST /v1/proposals/68c83ff2-05cc-56fd-bf49-0a74dec8dab2/edit-and-accept -> 422 (64.64 ms)
+INFO:     127.0.0.1:38745 - "POST /v1/proposals/68c83ff2-05cc-56fd-bf49-0a74dec8dab2/edit-and-accept HTTP/1.1" 422 Unprocessable Entity
+2026-10-24 08:39:17,382 | INFO | ai-service | POST /v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/accept -> 200 (215.46 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/accept HTTP/1.1" 200 OK
+2026-10-24 08:39:17,422 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory -> 200 (30.90 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory HTTP/1.1" 200 OK
+2026-10-24 08:39:17,476 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory -> 200 (27.89 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory HTTP/1.1" 200 OK
+2026-10-24 08:39:17,488 | INFO | ai-service | GET /internal/v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/novel -> 200 (4.99 ms)
+INFO:     127.0.0.1:59122 - "GET /internal/v1/proposal-groups/b991fd92-18c5-5207-b9cb-d32dc517414b/novel HTTP/1.1" 200 OK
+2026-10-24 08:39:17,497 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue -> 200 (5.44 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue HTTP/1.1" 200 OK
+2026-10-24 08:39:17,535 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/events/a865f2e6-2e47-56f3-aa7f-f7aa741b1c06/corrections -> 409 (24.91 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/events/a865f2e6-2e47-56f3-aa7f-f7aa741b1c06/corrections HTTP/1.1" 409 Conflict
+2026-10-24 08:39:17,547 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/events/a865f2e6-2e47-56f3-aa7f-f7aa741b1c06/corrections -> 422 (1.32 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/events/a865f2e6-2e47-56f3-aa7f-f7aa741b1c06/corrections HTTP/1.1" 422 Unprocessable Entity
+2026-10-24 08:39:17,626 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/relationship-locks -> 200 (22.56 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/relationship-locks HTTP/1.1" 200 OK
+2026-10-24 08:39:17,662 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/relationship-locks -> 409 (13.05 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/relationship-locks HTTP/1.1" 409 Conflict
+2026-10-24 08:39:17,679 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/relationship-locks -> 422 (9.94 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/relationship-locks HTTP/1.1" 422 Unprocessable Entity
+2026-10-24 08:39:17,814 | INFO | fake-llm | Fake LLM returning deterministic entities
+2026-10-24 08:39:17,827 | INFO | ai-service | POST /v1/revisions/0d62a24e-40ff-4f1c-9f19-0e14d6dbe20b/analyses -> 202 (92.02 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/revisions/0d62a24e-40ff-4f1c-9f19-0e14d6dbe20b/analyses HTTP/1.1" 202 Accepted
+2026-10-24 08:39:17,851 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/80b4f0ab-709d-46ad-9dde-60b5b00cf39b -> 200 (16.27 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/80b4f0ab-709d-46ad-9dde-60b5b00cf39b HTTP/1.1" 200 OK
+2026-10-24 08:39:17,884 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/80b4f0ab-709d-46ad-9dde-60b5b00cf39b -> 200 (24.59 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/80b4f0ab-709d-46ad-9dde-60b5b00cf39b HTTP/1.1" 200 OK
+2026-10-24 08:39:18,055 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/80b4f0ab-709d-46ad-9dde-60b5b00cf39b/review -> 200 (161.92 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/80b4f0ab-709d-46ad-9dde-60b5b00cf39b/review HTTP/1.1" 200 OK
+2026-10-24 08:39:18,091 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/80b4f0ab-709d-46ad-9dde-60b5b00cf39b -> 200 (23.61 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/80b4f0ab-709d-46ad-9dde-60b5b00cf39b HTTP/1.1" 200 OK
+2026-10-24 08:39:18,301 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/80b4f0ab-709d-46ad-9dde-60b5b00cf39b/continue -> 200 (202.05 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-reviews/80b4f0ab-709d-46ad-9dde-60b5b00cf39b/continue HTTP/1.1" 200 OK
+2026-10-24 08:39:18,351 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue -> 200 (10.29 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue HTTP/1.1" 200 OK
+2026-10-24 08:39:18,373 | INFO | ai-service | GET /internal/v1/proposal-groups/fd566b55-3dda-5e19-b809-299c52743179/novel -> 200 (10.41 ms)
+INFO:     127.0.0.1:59122 - "GET /internal/v1/proposal-groups/fd566b55-3dda-5e19-b809-299c52743179/novel HTTP/1.1" 200 OK
+2026-10-24 08:39:18,391 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue -> 200 (9.39 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue HTTP/1.1" 200 OK
+2026-10-24 08:39:18,494 | INFO | ai-service | POST /v1/proposal-groups/fd566b55-3dda-5e19-b809-299c52743179/accept -> 200 (96.20 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/proposal-groups/fd566b55-3dda-5e19-b809-299c52743179/accept HTTP/1.1" 200 OK
+2026-10-24 08:39:18,569 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory -> 200 (66.67 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory HTTP/1.1" 200 OK
+2026-10-24 08:39:18,682 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory -> 200 (51.12 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory HTTP/1.1" 200 OK
+2026-10-24 08:39:18,806 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/events/16f4291b-82e1-5189-af1b-5b29efcbfa8b/corrections -> 201 (113.14 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/events/16f4291b-82e1-5189-af1b-5b29efcbfa8b/corrections HTTP/1.1" 201 Created
+2026-10-24 08:39:18,908 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory -> 200 (83.99 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory HTTP/1.1" 200 OK
+2026-10-24 08:39:18,927 | INFO | ai-service | GET /internal/v1/proposal-groups/54cb4525-22fb-445e-b4ac-520048188e5e/novel -> 200 (8.74 ms)
+INFO:     127.0.0.1:59122 - "GET /internal/v1/proposal-groups/54cb4525-22fb-445e-b4ac-520048188e5e/novel HTTP/1.1" 200 OK
+2026-10-24 08:39:18,937 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue -> 200 (6.50 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue HTTP/1.1" 200 OK
+2026-10-24 08:39:19,012 | INFO | ai-service | POST /v1/proposal-groups/54cb4525-22fb-445e-b4ac-520048188e5e/accept -> 200 (70.59 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/proposal-groups/54cb4525-22fb-445e-b4ac-520048188e5e/accept HTTP/1.1" 200 OK
+2026-10-24 08:39:19,060 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory -> 200 (37.71 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory HTTP/1.1" 200 OK
+2026-10-24 08:39:19,114 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/events/16f4291b-82e1-5189-af1b-5b29efcbfa8b/corrections -> 422 (25.21 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/events/16f4291b-82e1-5189-af1b-5b29efcbfa8b/corrections HTTP/1.1" 422 Unprocessable Entity
+2026-10-24 08:39:19,182 | INFO | ai-service | POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/author-entities -> 201 (45.84 ms)
+INFO:     127.0.0.1:59122 - "POST /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/author-entities HTTP/1.1" 201 Created
+2026-10-24 08:39:19,193 | INFO | ai-service | GET /internal/v1/proposals/cc9b6704-4f6f-5692-91bd-53a7d87c6356/novel -> 200 (6.20 ms)
+INFO:     127.0.0.1:59122 - "GET /internal/v1/proposals/cc9b6704-4f6f-5692-91bd-53a7d87c6356/novel HTTP/1.1" 200 OK
+2026-10-24 08:39:19,209 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue -> 200 (11.76 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/review-queue HTTP/1.1" 200 OK
+2026-10-24 08:39:19,295 | INFO | ai-service | POST /v1/proposals/cc9b6704-4f6f-5692-91bd-53a7d87c6356/edit-and-accept -> 200 (84.27 ms)
+INFO:     127.0.0.1:38745 - "POST /v1/proposals/cc9b6704-4f6f-5692-91bd-53a7d87c6356/edit-and-accept HTTP/1.1" 200 OK
+2026-10-24 08:39:19,346 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory -> 200 (40.13 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/memory HTTP/1.1" 200 OK
+2026-10-24 08:39:19,408 | INFO | ai-service | GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 -> 200 (29.84 ms)
+INFO:     127.0.0.1:59122 - "GET /v1/story-brains/a188242f-2015-4c66-8c32-280e8ed01908/entity-candidate-audits/3c25d3a6-d6cb-4079-899d-0de777516f30 HTTP/1.1" 200 OK

@@ -41,8 +41,13 @@ test('live Gateway -> AI -> PostgreSQL: approved memory and revision-bound entit
     const proposals = (await pool.query('SELECT id,proposal_type,status,payload,evidence FROM narrative.proposals WHERE novel_id=$1 ORDER BY materialization_order', [novel])).rows;
     const relationships = (await pool.query('SELECT * FROM narrative.relationships WHERE novel_id=$1', [novel])).rows;
     const facts = (await pool.query('SELECT id,fact_key,source_revision_id,chapter_number FROM narrative.facts WHERE novel_id=$1', [novel])).rows;
+    const canon: Record<string, unknown[]> = {};
+    for (const table of ['entities', 'events', 'facts', 'state_transitions', 'current_entity_states']) {
+      canon[table] = (await pool.query(`SELECT * FROM narrative.${table} WHERE novel_id=$1 ORDER BY 1`, [novel])).rows;
+    }
+    canon.decisions = (await pool.query('SELECT d.* FROM narrative.proposal_decisions d JOIN narrative.proposals p ON p.id=d.proposal_id WHERE p.novel_id=$1 ORDER BY d.id', [novel])).rows;
     const revisionRows = (await pool.query('SELECT revision_id,content_hash,content FROM chapter_revisions WHERE revision_id=$1', [observedRevision])).rows;
-    const value = { stage, brain, runs, proposals, facts, relationships, revisions: revisionRows,
+    const value = { stage, brain, runs, proposals, facts, relationships, canon, revisions: revisionRows,
       mongo: await mongo.collection('draft_chapters').find({ chapterId: chapter }).toArray() };
     readbacks.push(value);
     return value;
@@ -71,6 +76,9 @@ test('live Gateway -> AI -> PostgreSQL: approved memory and revision-bound entit
     assert.equal(analysis.status, 'waiting_entity_review');
     const run = analysis.analysis_run_id;
     const audit = await http(`/entity-candidate-audits/${run}`);
+    assert.equal(audit.review_schema_version, 1);
+    assert.deepEqual(audit.reviewed_decisions, []);
+    assert.deepEqual(audit.known_entities, []);
     assert.equal(audit.revision_id, revision);
     assert.equal(audit.source_hash, hash);
     assert.ok(audit.candidates.every((c: any) => c.surface !== 'Absent Hint'));
@@ -125,41 +133,118 @@ test('live Gateway -> AI -> PostgreSQL: approved memory and revision-bound entit
     const queue = await http('/review-queue');
     const group = queue[0].dependency_group_id;
     const acceptUrl = `${base.slice(0, base.indexOf('/story-brains'))}/proposal-groups/${group}/accept`;
+    const editedEvent = queue.find((p: any) => p.proposal_type === 'event');
+    const editedFact = queue.find((p: any) => p.proposal_type === 'fact');
+    const editedPayloads = {
+      [editedEvent.proposal_id]: { ...editedEvent.payload, summary: 'Exact author HTTP summary' },
+      [editedFact.proposal_id]: { ...editedFact.payload, fact_value: 'Exact author HTTP fact' },
+    };
+    const approval = { proposal_ids: queue.map((p: any) => p.proposal_id), expected_brain_version: 1,
+      edited_payloads: editedPayloads };
+    const groupEntity = queue.find((p: any) => p.proposal_type === 'entity');
+    const singleUrl = `${base.slice(0, base.indexOf('/story-brains'))}/proposals/${groupEntity.proposal_id}/edit-and-accept`;
+    const singleBody = { expected_brain_version: 1, edited_payload: groupEntity.payload };
+    const beforePartial = await durable('C01-before-partial-approval');
+    for (const [token, expected] of [[null, 401], [foreignToken, 403], [ownerToken, 422]] as const) {
+      const response = await fetch(singleUrl, { method: 'POST', headers: {
+        'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify(singleBody) });
+      const result = await response.json();
+      requests.push({ method: 'POST', path: '/proposals/partial/edit-and-accept',
+        actor: token === ownerToken ? 'owner' : token ? 'foreign' : 'anonymous',
+        body: singleBody, status: response.status, response: result });
+      const after = await durable('C01-after-partial-approval-' + response.status);
+      assert.equal(response.status, expected, JSON.stringify(result));
+      assert.deepEqual({ ...after, stage: '' }, { ...beforePartial, stage: '' });
+    }
+    // Python's unedited endpoint is trusted-service only; Node does not mount /proposals/:id/accept.
+    const unedited = await fetch(`${env.AI_SERVICE_URL}/v1/proposals/${groupEntity.proposal_id}/accept`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json',
+        'X-Service-Token': env.PLATFORM_SERVICE_TOKEN!, 'X-Request-Id': randomUUID() },
+      body: JSON.stringify({ expected_brain_version: 1 }) });
+    requests.push({ method: 'POST', path: '/v1/proposals/partial/accept', actor: 'trusted-service',
+      status: unedited.status, response: await unedited.json() });
+    assert.equal(unedited.status, 422);
+    assert.deepEqual({ ...await durable('C01-after-unedited-partial'), stage: '' }, { ...beforePartial, stage: '' });
     const beforeUnauthorized = await durable('canon-authorization-before');
     for (const [token, expected] of [[null,401],[foreignToken,403]] as const) {
       const denied = await fetch(acceptUrl, {method:'POST', headers:{'Content-Type':'application/json',
         ...(token ? {Authorization:`Bearer ${token}`} : {})},
-        body:JSON.stringify({proposal_ids:queue.map((p:any)=>p.proposal_id),expected_brain_version:1})});
+        body:JSON.stringify(approval)});
       const deniedBody = await denied.json();
       requests.push({method:'POST',path:`/proposal-groups/${group}/accept`,actor:token?'foreign':'anonymous',status:denied.status,response:deniedBody});
       assert.equal(denied.status,expected,JSON.stringify(deniedBody));
       const after = await durable('canon-authorization-after-'+expected);
       assert.deepEqual({...after,stage:''},{...beforeUnauthorized,stage:''});
     }
-    const accepted = await fetch(acceptUrl, { method: 'POST', headers: { Authorization: `Bearer ${ownerToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ proposal_ids: queue.map((p: any) => p.proposal_id), expected_brain_version: 1 }) });
+    for (const invalid of [
+      { ...approval, edited_payloads: { ...editedPayloads, [randomUUID()]: editedEvent.payload } },
+      { ...approval, edited_payloads: { ...editedPayloads, [editedEvent.proposal_id]: { ...editedEvent.payload, evidence: [{ revision_id: randomUUID() }] } } },
+      { ...approval, edited_payloads: { ...editedPayloads, [editedEvent.proposal_id]: { ...editedEvent.payload, participants: [randomUUID()] } } },
+      { ...approval, expected_brain_version: 99 },
+    ]) {
+      const response = await fetch(acceptUrl, { method: 'POST', headers: {
+        Authorization: `Bearer ${ownerToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(invalid) });
+      const result = await response.json();
+      requests.push({ method: 'POST', path: '/proposal-groups/accept-invalid', status: response.status, response: result });
+      assert.equal(response.status, invalid.expected_brain_version === 99 ? 409 : 422, JSON.stringify(result));
+      const after = await durable('invalid-edited-group');
+      assert.deepEqual({ ...after, stage: '' }, { ...beforeUnauthorized, stage: '' });
+    }
+    const [accepted, overlappingSingle] = await Promise.all([
+      fetch(acceptUrl, { method: 'POST', headers: { Authorization: `Bearer ${ownerToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(approval) }),
+      fetch(singleUrl, { method: 'POST', headers: { Authorization: `Bearer ${ownerToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(singleBody) }),
+    ]);
+    requests.push({ method: 'POST', path: '/proposals/overlapping/edit-and-accept',
+      status: overlappingSingle.status, response: await overlappingSingle.json() });
+    assert.ok([409, 422].includes(overlappingSingle.status));
     const acceptedBody = await accepted.json();
     requests.push({ method: 'POST', path: `/proposal-groups/${group}/accept`, status: accepted.status, response: acceptedBody });
     assert.equal(accepted.status, 200, JSON.stringify(acceptedBody));
     const memory = await http('/memory');
     assert.equal(memory.brain_version, 2);
     assert.ok(memory.entities.length && memory.events.length && memory.facts.length);
+    assert.ok(memory.events.some((e: any) => e.summary === 'Exact author HTTP summary'));
+    assert.ok(memory.facts.some((f: any) => f.fact_value === 'Exact author HTTP fact'));
+    assert.ok(Array.isArray(memory.transitions));
     const final = await durable('approved-memory');
     assert.ok(final.proposals.every(p => p.status === 'accepted'));
     assert.equal(final.facts[0].source_revision_id, revision);
     assert.deepEqual(final.revisions, pending.revisions);
     assert.deepEqual(final.mongo, pending.mongo);
     assert.deepEqual(await http('/memory'), memory);
+    const replay = await fetch(acceptUrl, { method: 'POST', headers: {
+      Authorization: `Bearer ${ownerToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(approval) });
+    requests.push({ method: 'POST', path: '/proposal-groups/accept-retry', status: replay.status, response: await replay.json() });
+    assert.equal(replay.status, 409);
+    const correctionPath = `/events/${memory.events[0].event_id}/corrections`;
+    const correctionBody = { expected_brain_version: 2, replacement: {
+      event_type: 'meeting', summary: 'Author correction', participants: memory.events[0].participants } };
+    await http(correctionPath, 'POST', correctionBody, null, 401);
+    await http(correctionPath, 'POST', correctionBody, foreignToken, 403);
+    await http(correctionPath, 'POST', { ...correctionBody, expected_brain_version: 1 }, ownerToken, 409);
+    await http(correctionPath, 'POST', { ...correctionBody, replacement: {
+      ...correctionBody.replacement, evidence: [{ revision_id: randomUUID() }] } }, ownerToken, 422);
+    assert.deepEqual({ ...await durable('correction-authorization-and-invalid'), stage: '' }, { ...final, stage: '' });
     // Both homonyms originated in this empty-Canon human review, without seeding Canon rows.
     const minhIds = memory.entities.filter((e: any) => e.name === 'Minh').map((e: any) => e.entity_id);
     assert.equal(new Set(minhIds).size, 2);
     const [firstId, secondId] = minhIds;
-    const locked = await fetch(`${env.AI_SERVICE_URL}/v1/enhanced/relation/override`, { method:'POST',
-      headers:{'Content-Type':'application/json', 'X-Service-Token':env.PLATFORM_SERVICE_TOKEN!},
-      body:JSON.stringify({story_id:novel, subject:secondId, relation:'ally', object:secondId}) });
-    const lockBody = await locked.json();
-    requests.push({method:'POST', path:'/v1/enhanced/relation/override', actor:'trusted-author-service', status:locked.status, response:lockBody});
-    assert.equal(locked.status,200,JSON.stringify(lockBody));
+    const lockRequest = { subject_entity_id: secondId, object_entity_id: secondId,
+      relation_type: 'ally', expected_brain_version: 2 };
+    const beforeLock = await durable('public-lock-before');
+    await http('/relationship-locks', 'POST', lockRequest, null, 401);
+    await http('/relationship-locks', 'POST', lockRequest, foreignToken, 403);
+    assert.deepEqual({ ...await durable('public-lock-denied'), stage: '' }, { ...beforeLock, stage: '' });
+    const lockBody = await http('/relationship-locks', 'POST', lockRequest);
+    assert.equal(lockBody.brain_version, 3);
+    const afterLock = await durable('public-lock-after');
+    await http('/relationship-locks', 'POST', lockRequest, ownerToken, 409);
+    await http('/relationship-locks', 'POST', { ...lockRequest, expected_brain_version: 3,
+      object_entity_id: randomUUID() }, ownerToken, 422);
+    assert.deepEqual({ ...await durable('public-lock-retry'), stage: '' }, { ...afterLock, stage: '' });
     const semanticRevision = randomUUID();
     const semanticContent = 'Minh bên trái gặp Minh bên phải.';
     const semanticHash = createHash('sha256').update(semanticContent).digest('hex');
@@ -183,16 +268,16 @@ test('live Gateway -> AI -> PostgreSQL: approved memory and revision-bound entit
     const semanticPending = await durable('homonyms-pending-exact-ids', semanticRevision);
     const queuedEvent = (await pool.query("SELECT payload FROM narrative.proposals WHERE analysis_run_id=$1 AND proposal_type='event'", [semanticRun.analysis_run_id])).rows[0].payload;
     assert.deepEqual(new Set(queuedEvent.participants), new Set([firstId, secondId]));
-    assert.equal(semanticPending.brain[0].brain_version, '2');
+    assert.equal(semanticPending.brain[0].brain_version, '3');
     const semanticQueue = await http('/review-queue');
     const semanticAccept = await fetch(`${base.slice(0, base.indexOf('/story-brains'))}/proposal-groups/${semanticQueue[0].dependency_group_id}/accept`, {
       method: 'POST', headers: { Authorization: `Bearer ${ownerToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ proposal_ids: semanticQueue.map((p: any) => p.proposal_id), expected_brain_version: 2 }) });
+      body: JSON.stringify({ proposal_ids: semanticQueue.map((p: any) => p.proposal_id), expected_brain_version: 3 }) });
     const semanticAcceptedBody = await semanticAccept.json();
     requests.push({ method: 'POST', path: `/proposal-groups/${semanticQueue[0].dependency_group_id}/accept`, status: semanticAccept.status, response: semanticAcceptedBody });
     assert.equal(semanticAccept.status, 200, JSON.stringify(semanticAcceptedBody));
     const semanticMemory = await http('/memory');
-    assert.equal(semanticMemory.brain_version, 3);
+    assert.equal(semanticMemory.brain_version, 4);
     assert.deepEqual(new Set(semanticMemory.entities.filter((e: any) => e.name === 'Minh').map((e: any) => e.entity_id)), new Set([firstId, secondId]));
     assert.deepEqual(new Set(semanticMemory.events.find((e: any) => e.metadata.evidence[0].revision_id === semanticRevision).participants), new Set([firstId, secondId]));
     const lockRows = (await pool.query('SELECT * FROM narrative.relationships WHERE novel_id=$1', [novel])).rows;
@@ -200,6 +285,43 @@ test('live Gateway -> AI -> PostgreSQL: approved memory and revision-bound entit
     assert.ok(lockRows.some(r => !r.is_locked && r.relation_metadata.subject_entity_id !== secondId && r.relation_metadata.object_entity_id === secondId));
     await durable('homonyms-approved-exact-ids', semanticRevision);
     assert.deepEqual(await http('/memory'), semanticMemory);
+    const sourceEvent = semanticMemory.events.find((e: any) => e.metadata.evidence[0].revision_id === semanticRevision);
+    const corrected = await http(`/events/${sourceEvent.event_id}/corrections`, 'POST', {
+      expected_brain_version: 4, replacement: { event_type: sourceEvent.event_type,
+        summary: 'Exact author event correction', participants: sourceEvent.participants },
+      transitions: [{ entity_id: firstId, attribute_key: 'health', new_value: 95 }],
+    }, ownerToken, 201);
+    assert.deepEqual(await http('/memory'), semanticMemory);
+    const correctionGroup = corrected[0].dependency_group_id;
+    const correctionAccept = await fetch(`${base.slice(0, base.indexOf('/story-brains'))}/proposal-groups/${correctionGroup}/accept`, {
+      method: 'POST', headers: { Authorization: `Bearer ${ownerToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ proposal_ids: corrected.map((p: any) => p.proposal_id), expected_brain_version: 4 }) });
+    const correctionAccepted = await correctionAccept.json();
+    requests.push({ method: 'POST', path: `/proposal-groups/${correctionGroup}/accept`,
+      status: correctionAccept.status, response: correctionAccepted });
+    assert.equal(correctionAccept.status, 200, JSON.stringify(correctionAccepted));
+    const correctedMemory = await http('/memory');
+    assert.equal(correctedMemory.brain_version, 5);
+    assert.ok(correctedMemory.events.some((e: any) => e.summary === 'Exact author event correction'));
+    assert.ok(!correctedMemory.events.some((e: any) => e.event_id === sourceEvent.event_id));
+    assert.ok(correctedMemory.transitions.some((t: any) => t.entity_id === firstId && t.new_value === 95));
+    assert.ok(!correctedMemory.transitions.some((t: any) => t.event_id === sourceEvent.event_id));
+    const correctedReadback = await durable('approved-event-correction', semanticRevision);
+    await http(`/events/${sourceEvent.event_id}/corrections`, 'POST', { ...correctionBody,
+      expected_brain_version: 5 }, ownerToken, 422);
+    assert.deepEqual({ ...await durable('superseded-correction-rejected', semanticRevision), stage: '' },
+      { ...correctedReadback, stage: '' });
+    const standalone = await http('/author-entities', 'POST', { name: 'C01 Standalone', entity_type: 'PER' }, ownerToken, 201);
+    const singletonResponse = await fetch(`${base.slice(0, base.indexOf('/story-brains'))}/proposals/${standalone.proposal_id}/edit-and-accept`, {
+      method: 'POST', headers: { Authorization: `Bearer ${ownerToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ expected_brain_version: 5, edited_payload: standalone.payload }) });
+    requests.push({ method: 'POST', path: '/proposals/standalone/edit-and-accept',
+      status: singletonResponse.status, response: await singletonResponse.json() });
+    assert.equal(singletonResponse.status, 200);
+    const singletonMemory = await http('/memory');
+    assert.equal(singletonMemory.brain_version, 6);
+    assert.ok(singletonMemory.entities.some((e: any) => e.name === 'C01 Standalone'));
+    await durable('C01-singleton-approved', semanticRevision);
     // A newer saved revision invalidates the former human checkpoint at Gateway.
     const nextRevision = randomUUID();
     lifecycle.registerRevision(nextRevision);

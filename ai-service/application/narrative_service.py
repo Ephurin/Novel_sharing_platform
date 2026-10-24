@@ -39,18 +39,27 @@ class NarrativeApplicationService:
                                  transitions: list[dict], expected_brain_version: int) -> list[NarrativeProposal]:
         import uuid
         from domain.errors import OptimisticLockError
-        from domain.projection import ProjectionError
+        from domain.projection import ProjectionError, validate_payload, resolve_entity, transition_from_payload
         brain = self._repository.get_story_brain(story_id)
         if int(brain.metadata.get("brain_version", "1")) != expected_brain_version:
             raise OptimisticLockError(story_id)
         original = next((e for e in brain.events if e.event_id == event_id), None)
         if original is None:
             raise KeyError(event_id)
-        if any(e.metadata.get("supersedes_id") == event_id for e in brain.events):
+        if original.metadata.get('is_retired') or any(e.metadata.get("supersedes_id") == event_id for e in brain.events):
             raise ProjectionError("Event has already been superseded")
         group_id, proposal_id = str(uuid.uuid4()), str(uuid.uuid4())
         orig_chapter = getattr(original, "chapter", None) or original.metadata.get("chapter_number") or original.metadata.get("chapter")
-        payload = {"chapter": orig_chapter, **replacement, "event_id": proposal_id, "supersedes_id": event_id}
+        if replacement.get('chapter') is not None and replacement['chapter'] != orig_chapter:
+            raise ProjectionError('Correction cannot change the immutable source chapter')
+        payload = {**replacement, "chapter": orig_chapter, "event_id": proposal_id, "supersedes_id": event_id}
+        validate_payload('event', payload)
+        payload['participants'] = [resolve_entity(p, brain.entities) for p in payload.get('participants', [])]
+        from dataclasses import replace
+        corrected_event = replace(original, event_id=proposal_id, participants=tuple(payload['participants']))
+        for transition in transitions:
+            transition_from_payload(str(uuid.uuid4()), {**transition, 'event_id': proposal_id},
+                brain.entities, [corrected_event], brain.facts)
         proposals = [NarrativeProposal(proposal_id=proposal_id, proposal_type="event", payload=payload,
             dependency_group_id=group_id, expected_brain_version=expected_brain_version,
             evidence=tuple(original.metadata.get("evidence", [])))]
@@ -156,11 +165,13 @@ class NarrativeApplicationService:
         proposal = self._find_proposal(story_id, proposal_id)
         if proposal.status != ProposalStatus.PENDING:
             raise ProposalAlreadyDecidedError(proposal_id)
+        self._validate_author_edits(story_id, [proposal_id],
+            {proposal_id: edited_payload} if edited_payload is not None else {})
         result = self._repository.accept_proposal_group(
             story_id,
             [proposal_id],
             expected_brain_version,
-            edited_payloads={proposal_id: edited_payload} if edited_payload else None,
+            edited_payloads={proposal_id: edited_payload} if edited_payload is not None else None,
             reason=reason,
         )
         return {
@@ -176,11 +187,15 @@ class NarrativeApplicationService:
         proposal_ids: list[str],
         expected_brain_version: int,
         reason: str | None = None,
+        *,
+        edited_payloads: dict[str, dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
+        self._validate_author_edits(story_id, proposal_ids, edited_payloads or {})
         return self._repository.accept_proposal_group(
             story_id,
             proposal_ids,
             expected_brain_version,
+            edited_payloads=edited_payloads,
             reason=reason,
         )
 
@@ -190,6 +205,8 @@ class NarrativeApplicationService:
         proposal_ids: list[str],
         expected_brain_version: int,
         reason: str | None = None,
+        *,
+        edited_payloads: dict[str, dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         located = [self._repository.locate_proposal(item) for item in proposal_ids]
         story_ids = {story_id for story_id, _ in located}
@@ -197,9 +214,29 @@ class NarrativeApplicationService:
             raise ValueError("All proposals must belong to the same Story Brain")
         if any(proposal.dependency_group_id != group_id for _, proposal in located):
             raise ValueError("Proposal does not belong to dependency group")
+        _, complete_group = self.resolve_proposal_group_novel(group_id)
+        if len(set(proposal_ids)) != len(proposal_ids) or set(proposal_ids) != {p.proposal_id for p in complete_group}:
+            from domain.projection import ProjectionError
+            raise ProjectionError('Submit the complete dependency group exactly once')
         return self.accept_proposal_group(
-            story_ids.pop(), proposal_ids, expected_brain_version, reason
+            story_ids.pop(), proposal_ids, expected_brain_version, reason,
+            edited_payloads=edited_payloads,
         )
+
+    def _validate_author_edits(self, story_id, proposal_ids, edits):
+        from domain.projection import ProjectionError, validate_author_edit
+        if not set(edits) <= set(proposal_ids):
+            raise ProjectionError('Edited proposal IDs must belong to the submitted group')
+        if not edits:
+            return
+        brain = self._repository.get_story_brain(story_id)
+        selected = [self._find_proposal(story_id, p) for p in proposal_ids]
+        ids = {e.entity_id for e in brain.entities}
+        ids.update(p.payload['entity_id'] for p in selected
+            if p.proposal_type == 'entity' and p.payload.get('entity_id'))
+        for p in selected:
+            if p.proposal_id in edits:
+                validate_author_edit(p.proposal_type, p.payload, edits[p.proposal_id], ids)
 
     def accept_proposal_by_id(
         self,

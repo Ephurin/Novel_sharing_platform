@@ -1,0 +1,28 @@
+F
+================================== FAILURES ===================================
+_________ test_author_relationship_lock_exact_pair_and_cas[postgres] __________
+
+flow = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000023DB5898BC0>...000023DB5BBD7C0>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:38919/ephurin_test_astra_p1_contract_33dac064))
+
+    def test_author_relationship_lock_exact_pair_and_cas(flow):
+        f = flow
+        if not f.engine:
+            pytest.skip('Public relationship mutation requires PostgreSQL')
+        proposals = pending(f)
+        assert accept(f, proposals).status_code == 200
+        brain = f.repo.get_story_brain(f.revision.novel_id)
+        a, b = [e.entity_id for e in brain.entities][:2]
+        payload = {'subject_entity_id': a, 'object_entity_id': b,
+            'relation_type': 'ally', 'expected_brain_version': 2}
+        result = f.client.post(f'{f.base}/relationship-locks', json=payload, headers=f.headers)
+>       assert result.status_code == 200, result.text
+E       AssertionError: {"detail":"Not Found"}
+E       assert 404 == 200
+E        +  where 404 = <Response [404 Not Found]>.status_code
+
+tests\test_p1_contract_alignment.py:101: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_p1_contract_alignment.py::test_author_relationship_lock_exact_pair_and_cas[postgres]
+1 failed, 1 deselected in 3.14s
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.

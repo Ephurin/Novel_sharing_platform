@@ -136,6 +136,16 @@ export async function eventCorrectionController(req: Request, res: Response, nex
   } catch (error) { next(error); }
 }
 
+export async function relationshipLockController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+    const data = await aiGatewayService.forwardRequest({ method: 'POST',
+      path: `/v1/story-brains/${novelId}/relationship-locks`, body: req.body, userId: req.auth!.userId });
+    res.json(successResponse(data));
+  } catch (error) { next(error); }
+}
+
 export async function assertNovelOwnership(
   userId: string,
   role: string,
