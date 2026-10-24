@@ -5,7 +5,7 @@ parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('stage')
 parser.add_argument('--output',required=True,help='Fresh task-owned directory OUTSIDE the checkout; contains private test credentials.')
 options=parser.parse_args();MODE=options.stage
-stages={'provision','bridge-config','db-up','up','rebuild-app','status','fe19-tests','fe19-known-red','fe19-known-green','consistency-red','consistency-green','legacy-consistency','web-build','web-units','web-mounted','ai-unit','ai-postgres','backend-regression','runtime-proof','provider-before','provider-after','cleanup-owned'}
+stages={'provision','bridge-config','db-up','up','rebuild-app','status','fe19-tests','fe19-known-red','fe19-known-green','consistency-red','consistency-green','legacy-consistency','web-build','web-units','web-mounted','web-assets','ai-unit','ai-postgres','backend-regression','runtime-proof','provider-before','provider-after','cleanup-owned'}
 if MODE not in stages and not MODE.startswith('browser-'):parser.error('Unknown stage: '+MODE)
 OUT=pathlib.Path(options.output).resolve()
 assert not OUT.is_relative_to(ROOT),'Private credentials/evidence must remain outside the checkout'
@@ -138,6 +138,9 @@ if MODE.startswith('browser-'):
  env=os.environ.copy()
  env.update(P1_ACCEPTANCE_CONFIG=str(PRIVATE),P1_EVIDENCE_DIR=str(OUT/MODE),PYTHONUTF8='1',PYTHONIOENCODING='utf-8')
  run(MODE,['node','--test','tests/p1-final-acceptance.browser.test.mjs'],cwd=ROOT/'web',env=env,timeout=1000)
+if MODE=='web-assets':
+ env={**os.environ,'P1_ACCEPTANCE_CONFIG':str(PRIVATE),'P1_EVIDENCE_DIR':str(OUT/('web-assets-'+secrets.token_hex(4)))}
+ run(MODE,['node','--test','tests/offline-assets.browser.test.mjs'],cwd=ROOT/'web',env=env)
 if MODE in ('web-units','web-mounted'):
  env=os.environ.copy();env.update(cfg['values'])
  env.update(PYTHONUTF8='1',PYTHONIOENCODING='utf-8',PLAYWRIGHT_CHANNEL='msedge',RUN_DRAFT_BROWSER_TESTS='1',NODE_ENV='test',
@@ -186,7 +189,8 @@ if MODE in ('ai-unit','ai-postgres','backend-regression'):
  else:
   env.update(DATABASE_URL=pg.replace('postgresql:','postgresql+psycopg:'),TEST_DATABASE_URL=pg.replace('postgresql:','postgresql+psycopg:'))
   run('python-compile',['python','-m','compileall','-q','api','application','domain','infrastructure','core'],cwd=ROOT/'ai-service',env=env)
-  args=['python','-m','pytest','-q'] if MODE=='ai-unit' else ['python','-m','pytest','-o','addopts=','-q','-m','postgres_integration']
+  args=['python','-m','pytest','-q','-ra'] if MODE=='ai-unit' else ['python','-m','pytest','-o','addopts=','-q','-ra','-m','postgres_integration']
+  args+=['--basetemp='+str(OUT/('pytest-'+MODE+'-'+secrets.token_hex(4)))]
   run(MODE,args,cwd=ROOT/'ai-service',env=env,timeout=1800)
 if MODE in ('provider-before','provider-after'):
  run(MODE,compose+['exec','-T','fake-upstream','python','-c',"import urllib.request,json;data=json.load(urllib.request.urlopen('http://127.0.0.1:18091/received'));print(json.dumps({'count':len(data),'requests':data}))"])

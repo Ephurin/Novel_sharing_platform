@@ -6,12 +6,16 @@ import { fixtures } from './helpers/p1-fixtures.mjs';
 import { entityAcceptance } from './helpers/p1-entity-acceptance.mjs';
 import { canonAcceptance } from './helpers/p1-canon-acceptance.mjs';
 import { crossFeatureSmoke } from './helpers/p1-cross-feature-smoke.mjs';
+import { assertOfflineAssets } from './helpers/p1-offline-assets.mjs';
 
 test('Real production Author IDE: mandatory S09–S11 and cross-feature acceptance', { timeout: 900000 }, async () => {
   const h = await createHarness(), f = fixtures(h), { page } = h;
   const matrix = { G0: 'NOT_RUN', G1: 'NOT_RUN', G2: 'NOT_RUN', G3: 'NOT_RUN', G4: 'NOT_RUN', G5: 'NOT_RUN' };
   let x;
   try {
+    await h.step('G4 prerequisite: actual locally built styles/fonts, no CDN substitution', async () => {
+      await page.goto(h.origin + '/login'); await assertOfflineAssets(h);
+    });
     await h.step('FIXTURE only: owned accounts/projects and empty baseline; no pre-approved named Canon', async () => {
       x = await f.seed(); await h.snapshot('fixture-empty-approved-canon', x.owned);
     });
@@ -101,7 +105,9 @@ test('Real production Author IDE: mandatory S09–S11 and cross-feature acceptan
     x.entities = await entityAcceptance(h, f, x);
     x.canon = await canonAcceptance(h, f, x);
     matrix.G3 = 'PASS';
-    await crossFeatureSmoke(h, f, x); matrix.G4 = 'PASS';
+    await crossFeatureSmoke(h, f, x);
+    assert.deepEqual(h.browserErrors, [], 'Unexpected runtime exceptions invalidate mounted acceptance');
+    matrix.G4 = 'PASS';
     // Development guard: incomplete browser work must never report overall acceptance.
     assert.equal(matrix.G3, 'PASS', 'S10/S11 UI stages have not executed yet');
     assert.equal(matrix.G4, 'PASS', 'Cross-feature smoke has not executed yet');
