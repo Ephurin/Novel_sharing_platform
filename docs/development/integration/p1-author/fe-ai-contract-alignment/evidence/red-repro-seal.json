@@ -1,0 +1,41 @@
+{
+  "base_sha": "4654c8cf1c5803d65d2f6fc25f63a0ed245ed500",
+  "git_archive_sha256": "77606d25bb653f39fface3566de4e8d3541795c2dd2448446b8c7b98c178a9b3",
+  "test_sha256": "4b5e56e687f8f61ce76cd84869029d876f98d303fade0dea0d573f8289e24ef2",
+  "command": [
+    "python",
+    "-m",
+    "pytest",
+    "--basetemp=C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\p1-contract-runtime\\pytest-red-repro",
+    "-q",
+    "-s",
+    "-m",
+    "postgres_integration",
+    "tests/test_p1_contract_alignment.py"
+  ],
+  "cwd": "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\p1-contract-runtime\\red-baseline-export\\ai-service",
+  "exit_code": 1,
+  "expected_exit": 1,
+  "utc": "2026-10-24T01:00:28.608545+00:00",
+  "fake_only": true,
+  "api/schemas.py": {
+    "exported_sha256": "50f23950fbc8c6fd359fe6337a39552181baa932fc84d629dab38d8b8826f5a4",
+    "git_blob_sha256": "8810dd373e163531ef85dcbe841a8f801b43ecc42a5a76adbc3fb2800ed96fe1",
+    "git_archive_windows_crlf_only": true
+  },
+  "api/narrative_routes.py": {
+    "exported_sha256": "2f430a738924ab8475134600e4c07eb02c2514e24d32cb95d9c2665d5cea67f3",
+    "git_blob_sha256": "77d6b0f92b11774d815ac1fdd27d5175fe5fbe2c2d6c955418836c048b012a79",
+    "git_archive_windows_crlf_only": true
+  },
+  "application/narrative_service.py": {
+    "exported_sha256": "1a5b36ab44c9a5eaaebfb606ccca481d5d382c23279d7b06c46462b4c9e01e00",
+    "git_blob_sha256": "70285581832be87c06e556a8f79bdbf365e4a29081bb3ff098ee3973e3951a7b",
+    "git_archive_windows_crlf_only": true
+  },
+  "infrastructure/postgres_narrative_repository.py": {
+    "exported_sha256": "80c7753970bfe811a9aec4b52ffd72a5579191484e49947e410b77a3ca10ccdc",
+    "git_blob_sha256": "35a547364a3688e47f43bc5b951efe83305ad053ec1929aa3f8f37d155013fd5",
+    "git_archive_windows_crlf_only": true
+  }
+}

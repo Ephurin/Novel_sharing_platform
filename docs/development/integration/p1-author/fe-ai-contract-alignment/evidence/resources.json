@@ -1,0 +1,9 @@
+{
+  "database": "ephurin_test_astra_p1_contract_0381160f",
+  "containers": [
+    "astra-p1-contract-0381160f-pg",
+    "astra-p1-contract-0381160f-mongo"
+  ],
+  "pg_port": "26297",
+  "mongo_port": "26306"
+}
