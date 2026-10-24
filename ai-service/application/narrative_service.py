@@ -271,6 +271,16 @@ class NarrativeApplicationService:
         story_id, _ = self._repository.locate_proposal(proposal_id)
         return self.reject_proposal(story_id, proposal_id, reason)
 
+    def reject_proposal_group_by_id(
+        self, group_id: str, expected_brain_version: int,
+        *, reason: str | None = None, actor_id: str,
+    ) -> dict[str, Any]:
+        story_id, _ = self._repository.locate_proposal_group(group_id)
+        # Lookup is only routing. The repository reloads and validates membership
+        # and every status under the same transaction/Brain lock as acceptance.
+        return self._repository.reject_proposal_group(story_id, group_id,
+            expected_brain_version, reason=reason, actor_id=actor_id)
+
     def resolve_proposal_novel(self, proposal_id: str) -> tuple[str, NarrativeProposal]:
         return self._repository.locate_proposal(proposal_id)
 

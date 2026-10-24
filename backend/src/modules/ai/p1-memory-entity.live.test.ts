@@ -45,6 +45,10 @@ test('live Gateway -> AI -> PostgreSQL: approved memory and revision-bound entit
     for (const table of ['entities', 'events', 'facts', 'state_transitions', 'current_entity_states']) {
       canon[table] = (await pool.query(`SELECT * FROM narrative.${table} WHERE novel_id=$1 ORDER BY 1`, [novel])).rows;
     }
+    const scopedTables = (await pool.query("SELECT table_name FROM information_schema.columns WHERE table_schema='narrative' AND column_name IN ('tenant_id','novel_id') GROUP BY table_name HAVING count(*)=2 ORDER BY table_name")).rows;
+    for (const { table_name } of scopedTables) {
+      canon[table_name] = (await pool.query(`SELECT * FROM narrative.${table_name} WHERE novel_id=$1 ORDER BY 1`, [novel])).rows;
+    }
     canon.decisions = (await pool.query('SELECT d.* FROM narrative.proposal_decisions d JOIN narrative.proposals p ON p.id=d.proposal_id WHERE p.novel_id=$1 ORDER BY d.id', [novel])).rows;
     const revisionRows = (await pool.query('SELECT revision_id,content_hash,content FROM chapter_revisions WHERE revision_id=$1', [observedRevision])).rows;
     const value = { stage, brain, runs, proposals, facts, relationships, canon, revisions: revisionRows,
@@ -142,6 +146,26 @@ test('live Gateway -> AI -> PostgreSQL: approved memory and revision-bound entit
     const approval = { proposal_ids: queue.map((p: any) => p.proposal_id), expected_brain_version: 1,
       edited_payloads: editedPayloads };
     const groupEntity = queue.find((p: any) => p.proposal_type === 'entity');
+    const rejectBase = base.slice(0, base.indexOf('/story-brains'));
+    const rejectRequest = async (path: string, body: unknown, token: string | null = ownerToken) => {
+      const response = await fetch(`${rejectBase}${path}`, { method: 'POST', headers: {
+        'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify(body) });
+      const result: any = await response.json();
+      requests.push({ method: 'POST', path, body, actor: token === ownerToken ? 'owner' : token ? 'foreign' : 'anonymous',
+        status: response.status, response: result });
+      return { status: response.status, data: result.data, result };
+    };
+    const rejectBefore = await durable('group-reject-before-partial');
+    const partialReject = await rejectRequest(`/proposals/${groupEntity.proposal_id}/reject`, { reason: 'partial' });
+    const rejectAfter = await durable('group-reject-after-partial');
+    assert.equal(partialReject.status, 422, JSON.stringify(partialReject.result));
+    assert.deepEqual({ ...rejectAfter, stage: '' }, { ...rejectBefore, stage: '' });
+    for (const [token, expected] of [[null, 401], [foreignToken, 403], [ownerToken, 409]] as const) {
+      const result = await rejectRequest(`/proposal-groups/${group}/reject`, { expected_brain_version: 99 }, token);
+      assert.equal(result.status, expected, JSON.stringify(result.result));
+      assert.deepEqual({ ...await durable('group-reject-negative-' + expected), stage: '' }, { ...rejectBefore, stage: '' });
+    }
     const singleUrl = `${base.slice(0, base.indexOf('/story-brains'))}/proposals/${groupEntity.proposal_id}/edit-and-accept`;
     const singleBody = { expected_brain_version: 1, edited_payload: groupEntity.payload };
     const beforePartial = await durable('C01-before-partial-approval');
@@ -322,6 +346,53 @@ test('live Gateway -> AI -> PostgreSQL: approved memory and revision-bound entit
     assert.equal(singletonMemory.brain_version, 6);
     assert.ok(singletonMemory.entities.some((e: any) => e.name === 'C01 Standalone'));
     await durable('C01-singleton-approved', semanticRevision);
+    const activeEvent = singletonMemory.events.find((e: any) => e.summary === 'Exact author event correction');
+    const discard = await http(`/events/${activeEvent.event_id}/corrections`, 'POST', {
+      expected_brain_version: 6, replacement: { event_type: activeEvent.event_type,
+        summary: 'This correction must stay rejected', participants: activeEvent.participants },
+      transitions: [{ entity_id: firstId, attribute_key: 'health', new_value: 80 }],
+    }, ownerToken, 201);
+    assert.ok(discard.length >= 2);
+    const discardPath = `/proposal-groups/${discard[0].dependency_group_id}/reject`;
+    const discardBefore = await durable('group-reject-full-before', semanticRevision);
+    for (const [path, body, expected] of [
+      [discardPath, { expected_brain_version: 5 }, 409],
+      [discardPath, { expected_brain_version: 6, novel_id: randomUUID() }, 422],
+      [discardPath, { reason: 'missing CAS' }, 422],
+      [`/proposal-groups/${randomUUID()}/reject`, { expected_brain_version: 6 }, 404],
+    ] as const) {
+      const result = await rejectRequest(path, body);
+      assert.equal(result.status, expected, JSON.stringify(result.result));
+      assert.deepEqual({ ...await durable('group-reject-failure-' + expected, semanticRevision), stage: '' },
+        { ...discardBefore, stage: '' });
+    }
+    await pool.query('UPDATE users SET deleted_at=NOW() WHERE user_id=$1', [foreign]);
+    const inactive = await rejectRequest(discardPath, { expected_brain_version: 6 }, foreignToken);
+    assert.equal(inactive.status, 403);
+    await pool.query('UPDATE users SET deleted_at=NULL WHERE user_id=$1', [foreign]);
+    assert.deepEqual({ ...await durable('group-reject-inactive', semanticRevision), stage: '' }, { ...discardBefore, stage: '' });
+    const discarded = await rejectRequest(discardPath, { expected_brain_version: 6, reason: 'Author discards correction' });
+    assert.equal(discarded.status, 200, JSON.stringify(discarded.result));
+    assert.deepEqual(new Set(discarded.data.proposal_ids), new Set(discard.map((p: any) => p.proposal_id)));
+    assert.equal(discarded.data.brain_version, 6);
+    assert.deepEqual(await http('/memory'), singletonMemory);
+    const discardAfter = await durable('group-reject-full-after', semanticRevision);
+    const statuses = (await pool.query('SELECT status FROM narrative.proposals WHERE dependency_group_id=$1 AND novel_id=$2',
+      [discard[0].dependency_group_id, novel])).rows;
+    assert.ok(statuses.every(p => p.status === 'rejected'));
+    const decisions = (await pool.query('SELECT d.* FROM narrative.proposal_decisions d JOIN narrative.proposals p ON p.id=d.proposal_id WHERE p.dependency_group_id=$1 AND p.novel_id=$2',
+      [discard[0].dependency_group_id, novel])).rows;
+    assert.equal(decisions.length, discard.length);
+    assert.ok(decisions.every(d => d.actor_id === owner && d.decision === 'reject' && d.reason === 'Author discards correction'));
+    assert.equal((await rejectRequest(discardPath, { expected_brain_version: 6 })).status, 409);
+    const approveRejected = await rejectRequest(discardPath.replace('/reject', '/accept'), {
+      expected_brain_version: 6, proposal_ids: discard.map((p: any) => p.proposal_id) });
+    assert.equal(approveRejected.status, 409);
+    assert.deepEqual({ ...await durable('group-reject-retries', semanticRevision), stage: '' }, { ...discardAfter, stage: '' });
+    const rejectedSingleton = await http('/author-entities', 'POST', { name: 'Discard standalone', entity_type: 'PER' }, ownerToken, 201);
+    assert.equal((await rejectRequest(`/proposals/${rejectedSingleton.proposal_id}/reject`, { reason: 'Standalone rejected' })).status, 200);
+    assert.deepEqual(await http('/memory'), singletonMemory);
+    await durable('group-reject-singleton', semanticRevision);
     // A newer saved revision invalidates the former human checkpoint at Gateway.
     const nextRevision = randomUUID();
     lifecycle.registerRevision(nextRevision);

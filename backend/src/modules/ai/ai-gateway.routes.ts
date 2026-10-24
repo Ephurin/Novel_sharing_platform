@@ -15,6 +15,7 @@ import {
   getStoryBrainSummaryController,
   getStoryPlanController,
   rejectProposalController,
+  rejectProposalGroupController,
   startIdeaBootstrapController,
   startManuscriptBootstrapController,
   startWritingGenerationController,
@@ -95,6 +96,11 @@ aiGatewayRoutes.post(
 aiGatewayRoutes.post(
   '/proposal-groups/:groupId/accept',
   acceptProposalGroupController
+);
+
+aiGatewayRoutes.post(
+  '/proposal-groups/:groupId/reject',
+  rejectProposalGroupController
 );
 
 aiGatewayRoutes.post(

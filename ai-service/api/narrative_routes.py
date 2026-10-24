@@ -28,6 +28,7 @@ from api.schemas import (
     ProposalDecisionRequest,
     ProposalEditAcceptRequest,
     ProposalGroupAcceptRequest,
+    ProposalGroupRejectRequest,
     ProposalRejectRequest,
     RevisionAnalysisRequest,
     StoryPlanCreateRequest,
@@ -793,6 +794,34 @@ def reject_proposal(
         "data": {"proposal_id": result.proposal_id, "status": result.status.value},
         "meta": {"request_id": request_id, "schema_version": 1},
     }
+
+
+@router.post('/proposal-groups/{group_id}/reject')
+def reject_proposal_group(
+    group_id: uuid.UUID,
+    payload: ProposalGroupRejectRequest,
+    tenant_id: uuid.UUID = Header(..., alias='X-Tenant-Id'),
+    author_id: uuid.UUID = Header(..., alias='X-Author-Id'),
+    request_id: str = Header(..., alias='X-Request-Id'),
+    service: NarrativeApplicationService = Depends(get_narrative_service),
+):
+    repository = service._repository
+    if not callable(getattr(repository, 'reject_proposal_group', None)):
+        raise HTTPException(503, detail={'code': 'GROUP_REJECTION_REQUIRES_POSTGRES'})
+    if str(tenant_id) != str(repository._tenant_id):
+        raise HTTPException(403, detail={'code': 'TENANT_SCOPE_MISMATCH'})
+    try:
+        result = service.reject_proposal_group_by_id(str(group_id), payload.expected_brain_version,
+            reason=payload.reason, actor_id=str(author_id))
+    except KeyError as exc:
+        raise HTTPException(404, detail={'code': 'PROPOSAL_GROUP_NOT_FOUND'}) from exc
+    except OptimisticLockError as exc:
+        raise HTTPException(409, detail={'code': 'BRAIN_VERSION_CONFLICT'}) from exc
+    except ProposalAlreadyDecidedError as exc:
+        raise HTTPException(409, detail={'code': 'PROPOSAL_ALREADY_DECIDED'}) from exc
+    except ProjectionError as exc:
+        raise HTTPException(422, detail={'code': 'INVALID_PROJECTION', 'message': str(exc)}) from exc
+    return {'data': result, 'meta': {'request_id': request_id, 'schema_version': 1}}
 
 
 @router.post("/proposals/{proposal_id}/edit-and-accept")

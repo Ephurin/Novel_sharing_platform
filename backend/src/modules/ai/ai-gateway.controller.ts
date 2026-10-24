@@ -463,6 +463,30 @@ export async function acceptProposalGroupController(
   }
 }
 
+export async function rejectProposalGroupController(
+  req: Request, res: Response, next: NextFunction
+) {
+  try {
+    const { groupId } = req.params;
+    const userId = req.auth!.userId;
+    const resolution = await aiGatewayService.forwardRequest<{ novel_id: string }>({
+      method: 'GET', path: `/internal/v1/proposal-groups/${groupId}/novel`,
+      userId, requestId: req.header('x-request-id'),
+    });
+    if (!resolution?.novel_id) {
+      throw new AppError(404, 'PROPOSAL_GROUP_NOT_FOUND', 'Proposal group not found');
+    }
+    await assertNovelOwnership(userId, req.auth!.role, resolution.novel_id);
+    const data = await aiGatewayService.forwardRequest({
+      method: 'POST', path: `/v1/proposal-groups/${groupId}/reject`, body: req.body,
+      userId, requestId: req.header('x-request-id'),
+    });
+    res.json(successResponse(data));
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function rejectProposalController(
   req: Request,
   res: Response,
