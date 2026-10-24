@@ -12,14 +12,24 @@ class ProjectionError(ValueError):
 
 def validate_author_edit(kind, original, edited, entity_ids):
     """Full replacement edits cannot change source authority or reserved identities."""
-    editable = {'event': {'summary', 'event_type', 'participants'},
+    editable = {'entity': {'canonical_name', 'normalized_name'},
+                'event': {'summary', 'event_type', 'participants'},
                 'fact': {'fact_key', 'fact_value', 'subject_entity_id'},
                 'state_transition': {'attribute_key', 'new_value', 'entity_id'}}.get(kind, set())
     for key in original.keys() | edited.keys():
+        if kind == 'entity' and key == 'entity_id' and key not in edited:
+            continue  # Persistence restores the frozen reserved ID; never allocate a replacement.
         if key not in editable and (key not in original or key not in edited or original[key] != edited[key]):
             raise ProjectionError(f'Author edit cannot change protected field: {key}')
     validate_payload(kind, edited)
+    if kind == 'entity' and (not isinstance(edited.get('canonical_name'), str)
+            or not edited['canonical_name'].strip()
+            or edited.get('normalized_name') != edited['canonical_name'].casefold()):
+        raise ProjectionError('Entity display label and normalized label must agree')
     references = []
+    if (kind == 'fact' and original.get('subject_entity_name')
+            and edited.get('subject_entity_id') != original.get('subject_entity_id')):
+        raise ProjectionError('Legacy name-bound fact subject requires an identity-safe correction proposal')
     if kind == 'event' and edited.get('participants') != original.get('participants'):
         references.extend(edited.get('participants', []))
     for key in ('subject_entity_id', 'entity_id'):
@@ -30,7 +40,7 @@ def validate_author_edit(kind, original, edited, entity_ids):
         if not isinstance(value, dict):
             raise ProjectionError('Relationships require exact target IDs')
         references.extend(value)
-    if any(reference not in entity_ids for reference in references):
+    if any(not isinstance(reference, str) or reference not in entity_ids for reference in references):
         raise ProjectionError('Author edit references an unapproved or unreviewed identity')
 
 

@@ -974,16 +974,30 @@ class PostgresNarrativeRepository:
         }
 
     def override_relation(
-        self, story_id: str, subject: str, relation_type: str, object_name: str
+        self, story_id: str, subject: str, relation_type: str, object_name: str,
+        *, expected_brain_version: int | None = None,
     ) -> dict[str, Any]:
         novel_id = self._novel_id(story_id)
         with session_scope(self._session_factory) as session:
-            brain = self._get_or_create_brain(session, novel_id)
+            if expected_brain_version is None:
+                brain = self._get_or_create_brain(session, novel_id)
+            else:
+                brain = session.scalar(select(StoryBrainRecord).where(
+                    *self._scope(StoryBrainRecord, novel_id)).with_for_update())
+                if brain is None:
+                    raise KeyError(story_id)
             # Serialize corrections against Canon acceptance/rebuild on this brain.
             session.refresh(brain, with_for_update=True)
+            if expected_brain_version is not None and brain.brain_version != expected_brain_version:
+                raise OptimisticLockError('Brain version changed')
             entities = [self._to_entity(e) for e in session.scalars(select(EntityRecord).where(
-                *self._scope(EntityRecord, novel_id))).all()]
+                *self._scope(EntityRecord, novel_id),
+                EntityRecord.confirmation_status == 'confirmed' if expected_brain_version is not None else True)).all()]
             rows = session.scalars(select(RelationshipRecord).where(*self._scope(RelationshipRecord, novel_id))).all()
+            if expected_brain_version is not None:
+                ids = {e.entity_id for e in entities}
+                if subject not in ids or object_name not in ids:
+                    raise ProjectionError('Relationship endpoints must be approved canonical IDs in this novel')
             relations = [NarrativeRelation(subject=r.subject_name, object=r.object_name, relation=r.relation_type,
                 metadata=r.relation_metadata or {}, source=r.source_type, locked=r.is_locked) for r in rows]
             updated = author_relationship(entities, relations, subject, relation_type, object_name)
@@ -995,7 +1009,17 @@ class PostgresNarrativeRepository:
             session.add(RelationshipRecord(story_brain_id=brain.id, tenant_id=self._tenant_id, novel_id=novel_id,
                 subject_name=r.subject, relation_type=r.relation, object_name=r.object,
                 source_type='author', is_locked=True, relation_metadata=r.metadata))
+            if expected_brain_version is not None:
+                brain.brain_version += 1
+                result_version = brain.brain_version
+        if expected_brain_version is not None:
+            return {'status': 'success', 'relation': relation_type, 'locked': True,
+                'brain_version': result_version, 'subject_entity_id': subject, 'object_entity_id': object_name}
         return {"status": "success", "relation": relation_type, "locked": True}
+
+    def lock_relationship(self, story_id, subject_entity_id, object_entity_id, relation_type, expected_brain_version):
+        return self.override_relation(story_id, subject_entity_id, relation_type, object_entity_id,
+            expected_brain_version=expected_brain_version)
 
     def export_snapshot(self, story_id: str) -> dict[str, Any]:
         brain = self.get_story_brain(story_id)
@@ -2439,6 +2463,8 @@ class PostgresNarrativeRepository:
     def get_entity_registry(self, story_id: str) -> dict:
         novel_id = self._novel_id(story_id)
         with session_scope(self._session_factory) as session:
+            brain = session.scalar(select(StoryBrainRecord).where(
+                *self._scope(StoryBrainRecord, novel_id)).with_for_update(read=True))
             entities = session.execute(select(EntityRecord.id, EntityRecord.canonical_name,
                 EntityRecord.entity_type).where(*self._scope(EntityRecord, novel_id),
                     EntityRecord.confirmation_status == 'confirmed')).all()
@@ -2446,7 +2472,8 @@ class PostgresNarrativeRepository:
                 .join(EntityRecord, EntityRecord.id == EntityAliasRecord.entity_id)
                 .where(*self._scope(EntityRecord, novel_id), EntityRecord.confirmation_status == 'confirmed',
                     EntityAliasRecord.confirmation_status == 'confirmed')).all()
-            return {'entities': [{'entity_id': str(e.id), 'name': e.canonical_name,
+            return {'brain_version': brain.brain_version if brain else 1,
+                    'entities': [{'entity_id': str(e.id), 'name': e.canonical_name,
                                   'entity_type': e.entity_type} for e in entities],
                     'aliases': [{'alias': a.alias, 'entity_id': str(a.entity_id)} for a in aliases]}
 

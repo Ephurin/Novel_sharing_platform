@@ -39,18 +39,27 @@ class NarrativeApplicationService:
                                  transitions: list[dict], expected_brain_version: int) -> list[NarrativeProposal]:
         import uuid
         from domain.errors import OptimisticLockError
-        from domain.projection import ProjectionError
+        from domain.projection import ProjectionError, validate_payload, resolve_entity, transition_from_payload
         brain = self._repository.get_story_brain(story_id)
         if int(brain.metadata.get("brain_version", "1")) != expected_brain_version:
             raise OptimisticLockError(story_id)
         original = next((e for e in brain.events if e.event_id == event_id), None)
         if original is None:
             raise KeyError(event_id)
-        if any(e.metadata.get("supersedes_id") == event_id for e in brain.events):
+        if original.metadata.get('is_retired') or any(e.metadata.get("supersedes_id") == event_id for e in brain.events):
             raise ProjectionError("Event has already been superseded")
         group_id, proposal_id = str(uuid.uuid4()), str(uuid.uuid4())
         orig_chapter = getattr(original, "chapter", None) or original.metadata.get("chapter_number") or original.metadata.get("chapter")
-        payload = {"chapter": orig_chapter, **replacement, "event_id": proposal_id, "supersedes_id": event_id}
+        if replacement.get('chapter') is not None and replacement['chapter'] != orig_chapter:
+            raise ProjectionError('Correction cannot change the immutable source chapter')
+        payload = {**replacement, "chapter": orig_chapter, "event_id": proposal_id, "supersedes_id": event_id}
+        validate_payload('event', payload)
+        payload['participants'] = [resolve_entity(p, brain.entities) for p in payload.get('participants', [])]
+        from dataclasses import replace
+        corrected_event = replace(original, event_id=proposal_id, participants=tuple(payload['participants']))
+        for transition in transitions:
+            transition_from_payload(str(uuid.uuid4()), {**transition, 'event_id': proposal_id},
+                brain.entities, [corrected_event], brain.facts)
         proposals = [NarrativeProposal(proposal_id=proposal_id, proposal_type="event", payload=payload,
             dependency_group_id=group_id, expected_brain_version=expected_brain_version,
             evidence=tuple(original.metadata.get("evidence", [])))]

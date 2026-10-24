@@ -62,19 +62,22 @@ class ProposalGroupAcceptRequest(ProposalDecisionRequest):
 
 
 class CorrectionEventPayload(BaseModel):
+    model_config = ConfigDict(extra='forbid')
     event_type: str = Field(min_length=1)
     summary: str = Field(min_length=1)
     participants: list[str] = Field(default_factory=list)
-    chapter: int = Field(default=1, ge=1)
+    chapter: int | None = Field(default=None, ge=1)
 
 
 class CorrectionTransitionPayload(BaseModel):
+    model_config = ConfigDict(extra='forbid')
     entity_id: str = Field(min_length=1)
     attribute_key: str = Field(min_length=1, max_length=100)
     new_value: object
 
 
 class EventCorrectionRequest(ProposalDecisionRequest):
+    model_config = ConfigDict(extra='forbid')
     replacement: CorrectionEventPayload
     transitions: list[CorrectionTransitionPayload] = Field(default_factory=list)
 
