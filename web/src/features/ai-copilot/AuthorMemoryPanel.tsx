@@ -51,6 +51,7 @@ import {
   type RejectGroupPayload,
   correctMemoryEvent,
   normalizeEntityName,
+  entityNameEditError,
   type AutoRun,
   type AuthorPlan,
   type ConsistencyFinding,
@@ -290,6 +291,17 @@ export function AuthorMemoryPanel({
   // Group acceptance submission (B5 & C-01)
   const handleAcceptGroup = (groupId: string, proposals: ReviewProposal[]) => {
     perform(async () => {
+      for (const proposal of proposals) {
+        const edited = edits[proposal.proposal_id];
+        if (proposal.proposal_type === 'entity' && edited) {
+          const name = String(edited.canonical_name ?? '');
+          const error = entityNameEditError(name);
+          if (error) throw new Error(error);
+          if (edited.normalized_name !== normalizeEntityName(name)) {
+            throw new Error('Tên thực thể và tên chuẩn hóa không khớp.');
+          }
+        }
+      }
       const edited_payloads = Object.fromEntries(
         proposals
           .filter(p => edits[p.proposal_id] !== undefined)
@@ -1412,14 +1424,10 @@ function ProposalReview({
                 onEdit({
                   ...p,
                   canonical_name: name,
-                  normalized_name: normalizeEntityName(name)
+                  normalized_name: entityNameEditError(name) ? '' : normalizeEntityName(name)
                 });
               }}
-              error={
-                p.canonical_name !== undefined && !String(p.canonical_name).trim()
-                  ? 'Tên thực thể không được để trống hoặc chỉ chứa khoảng trắng'
-                  : undefined
-              }
+              error={entityNameEditError(String(p.canonical_name ?? ''))}
               disabled={disabled}
             />
           </Stack>
