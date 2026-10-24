@@ -845,6 +845,7 @@ def accept_proposal_group(
             payload.proposal_ids,
             payload.expected_brain_version,
             payload.reason,
+            edited_payloads=payload.edited_payloads,
         )
     except KeyError as exc:
         raise HTTPException(status_code=404, detail={"code": "PROPOSAL_NOT_FOUND"}) from exc

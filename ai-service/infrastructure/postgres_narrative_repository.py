@@ -527,6 +527,8 @@ class PostgresNarrativeRepository:
         novel_id = self._novel_id(story_id)
         proposal_uuids = [self._stable_uuid("proposal", item) for item in proposal_ids]
         edited_payloads = edited_payloads or {}
+        if not set(edited_payloads) <= set(proposal_ids):
+            raise ProjectionError('Edited proposal IDs must belong to the submitted group')
         with session_scope(self._session_factory) as session:
             brain = session.scalar(
                 select(StoryBrainRecord)
@@ -555,6 +557,18 @@ class PostgresNarrativeRepository:
                 raise ValueError("All proposals must belong to the same dependency group")
             if any(item.expected_brain_version != expected_brain_version for item in proposals):
                 raise OptimisticLockError(story_id)
+
+            if edited_payloads:
+                from domain.projection import validate_author_edit
+                entity_ids = {str(e) for e in session.scalars(select(EntityRecord.id).where(
+                    *self._scope(EntityRecord, novel_id), EntityRecord.confirmation_status == 'confirmed')).all()}
+                entity_ids.update(p.payload['entity_id'] for p in proposals
+                    if p.proposal_type == 'entity' and p.payload.get('entity_id'))
+                for proposal in proposals:
+                    external = next(p for p in proposal_ids if self._stable_uuid('proposal', p) == proposal.id)
+                    if external in edited_payloads:
+                        validate_author_edit(proposal.proposal_type, proposal.payload,
+                            edited_payloads[external], entity_ids)
 
             artifact_ids: list[str] = []
             for proposal in proposals:

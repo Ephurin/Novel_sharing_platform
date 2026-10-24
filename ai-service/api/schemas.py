@@ -8,7 +8,7 @@ Tập trung toàn bộ request/response models tại đây để:
 """
 
 from typing import Any
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from core.candidate_processor import Candidate
 from core.story_kb_manager import EventHistoryEntry, CurrentWorldState
@@ -55,8 +55,10 @@ class ProposalEditAcceptRequest(ProposalDecisionRequest):
 
 
 class ProposalGroupAcceptRequest(ProposalDecisionRequest):
+    model_config = ConfigDict(extra='forbid')
     proposal_ids: list[str] = Field(..., min_length=1)
     reason: str | None = None
+    edited_payloads: dict[str, dict[str, Any]] = Field(default_factory=dict)
 
 
 class CorrectionEventPayload(BaseModel):

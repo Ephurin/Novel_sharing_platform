@@ -10,6 +10,30 @@ class ProjectionError(ValueError):
     """Invalid provenance or an ambiguous correction; nothing may be committed."""
 
 
+def validate_author_edit(kind, original, edited, entity_ids):
+    """Full replacement edits cannot change source authority or reserved identities."""
+    editable = {'event': {'summary', 'event_type', 'participants'},
+                'fact': {'fact_key', 'fact_value', 'subject_entity_id'},
+                'state_transition': {'attribute_key', 'new_value', 'entity_id'}}.get(kind, set())
+    for key in original.keys() | edited.keys():
+        if key not in editable and (key not in original or key not in edited or original[key] != edited[key]):
+            raise ProjectionError(f'Author edit cannot change protected field: {key}')
+    validate_payload(kind, edited)
+    references = []
+    if kind == 'event' and edited.get('participants') != original.get('participants'):
+        references.extend(edited.get('participants', []))
+    for key in ('subject_entity_id', 'entity_id'):
+        if edited.get(key) != original.get(key) and edited.get(key):
+            references.append(edited[key])
+    if kind == 'state_transition' and edited.get('attribute_key') == 'active_relationships':
+        value = edited.get('new_value')
+        if not isinstance(value, dict):
+            raise ProjectionError('Relationships require exact target IDs')
+        references.extend(value)
+    if any(reference not in entity_ids for reference in references):
+        raise ProjectionError('Author edit references an unapproved or unreviewed identity')
+
+
 def resolve_entity(reference: str, entities: list[NarrativeEntity]) -> str:
     exact = [e for e in entities if e.entity_id == reference]
     matches = exact or [e for e in entities if e.name.casefold() == reference.casefold()]

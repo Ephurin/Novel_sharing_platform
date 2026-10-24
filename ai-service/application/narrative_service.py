@@ -156,11 +156,13 @@ class NarrativeApplicationService:
         proposal = self._find_proposal(story_id, proposal_id)
         if proposal.status != ProposalStatus.PENDING:
             raise ProposalAlreadyDecidedError(proposal_id)
+        self._validate_author_edits(story_id, [proposal_id],
+            {proposal_id: edited_payload} if edited_payload is not None else {})
         result = self._repository.accept_proposal_group(
             story_id,
             [proposal_id],
             expected_brain_version,
-            edited_payloads={proposal_id: edited_payload} if edited_payload else None,
+            edited_payloads={proposal_id: edited_payload} if edited_payload is not None else None,
             reason=reason,
         )
         return {
@@ -176,11 +178,15 @@ class NarrativeApplicationService:
         proposal_ids: list[str],
         expected_brain_version: int,
         reason: str | None = None,
+        *,
+        edited_payloads: dict[str, dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
+        self._validate_author_edits(story_id, proposal_ids, edited_payloads or {})
         return self._repository.accept_proposal_group(
             story_id,
             proposal_ids,
             expected_brain_version,
+            edited_payloads=edited_payloads,
             reason=reason,
         )
 
@@ -190,6 +196,8 @@ class NarrativeApplicationService:
         proposal_ids: list[str],
         expected_brain_version: int,
         reason: str | None = None,
+        *,
+        edited_payloads: dict[str, dict[str, Any]] | None = None,
     ) -> dict[str, Any]:
         located = [self._repository.locate_proposal(item) for item in proposal_ids]
         story_ids = {story_id for story_id, _ in located}
@@ -197,9 +205,29 @@ class NarrativeApplicationService:
             raise ValueError("All proposals must belong to the same Story Brain")
         if any(proposal.dependency_group_id != group_id for _, proposal in located):
             raise ValueError("Proposal does not belong to dependency group")
+        _, complete_group = self.resolve_proposal_group_novel(group_id)
+        if len(set(proposal_ids)) != len(proposal_ids) or set(proposal_ids) != {p.proposal_id for p in complete_group}:
+            from domain.projection import ProjectionError
+            raise ProjectionError('Submit the complete dependency group exactly once')
         return self.accept_proposal_group(
-            story_ids.pop(), proposal_ids, expected_brain_version, reason
+            story_ids.pop(), proposal_ids, expected_brain_version, reason,
+            edited_payloads=edited_payloads,
         )
+
+    def _validate_author_edits(self, story_id, proposal_ids, edits):
+        from domain.projection import ProjectionError, validate_author_edit
+        if not set(edits) <= set(proposal_ids):
+            raise ProjectionError('Edited proposal IDs must belong to the submitted group')
+        if not edits:
+            return
+        brain = self._repository.get_story_brain(story_id)
+        selected = [self._find_proposal(story_id, p) for p in proposal_ids]
+        ids = {e.entity_id for e in brain.entities}
+        ids.update(p.payload['entity_id'] for p in selected
+            if p.proposal_type == 'entity' and p.payload.get('entity_id'))
+        for p in selected:
+            if p.proposal_id in edits:
+                validate_author_edit(p.proposal_type, p.payload, edits[p.proposal_id], ids)
 
     def accept_proposal_by_id(
         self,
