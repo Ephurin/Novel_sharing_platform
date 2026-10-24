@@ -10,7 +10,8 @@
     "typecheck": "tsc -b --noEmit",
     "test:wallet": "node --experimental-strip-types --test tests/wallet-earnings.test.mjs",
     "test:draft-browser": "node --test tests/draft-persistence.browser.test.mjs",
-    "test:author-ide-browser": "node --test tests/author-ide.browser.test.mjs"
+    "test:author-ide-browser": "node --test tests/author-ide.browser.test.mjs",
+    "test:p1-hitl": "tsx --test tests/p1-author-ide-hitl-integration.test.ts"
   },
   "dependencies": {
     "@mantine/core": "^7.15.2",
@@ -28,6 +29,7 @@
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "@vitejs/plugin-react": "^4.3.4",
+    "tsx": "^4.23.15",
     "typescript": "^5.7.2",
     "vite": "^6.0.6"
   }
