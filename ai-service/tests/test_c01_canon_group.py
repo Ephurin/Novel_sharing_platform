@@ -93,22 +93,27 @@ def test_c01_genuine_singleton_still_materializes(flow, entry):
 def test_c01_rejection_race_cannot_overwrite_committed_status(flow):
     f = flow
     proposals = group(f)
-    fact = next(p for p in proposals if p.proposal_type == 'fact')
     with ThreadPoolExecutor(2) as pool:
         complete = pool.submit(accept, f, proposals)
-        rejection = pool.submit(f.repo.decide_proposal, f.revision.novel_id, fact.proposal_id, False)
+        def reject():
+            try:
+                return f.repo.reject_proposal_group(f.revision.novel_id, proposals[0].dependency_group_id, 1)
+            except (OptimisticLockError, ProposalAlreadyDecidedError):
+                return None
+        rejection = pool.submit(reject)
         response, rejected = complete.result(), rejection.result()
     value = snapshot(f, 'C01-rejection-race')
     if response.status_code == 200:
         assert all(p['status'] == 'accepted' for p in value['proposals'])
-        assert rejected.status.value == 'accepted'
+        assert rejected is None
         assert value['story_brains'][0]['brain_version'] == 2
         assert len(value['proposal_decisions']) == len(proposals)
     else:
         assert response.status_code == 409, response.text
         assert value['story_brains'][0]['brain_version'] == 1
         assert not value['entities'] and not value['events'] and not value['facts'] and not value['state_transitions']
-        assert len(value['proposal_decisions']) == 1 and rejected.status.value == 'rejected'
+        assert all(p['status'] == 'rejected' for p in value['proposals'])
+        assert len(value['proposal_decisions']) == len(proposals) and rejected['status'] == 'rejected'
 
 
 @pytest.mark.parametrize('ordering', ['single_first', 'group_first', 'overlap'])
@@ -159,7 +164,11 @@ def test_c01_repository_rejects_invalid_selection_without_mutation(flow, invalid
         foreign_before = snapshot(other, 'C01-foreign-before')
     if invalid == 'decided_omitted':
         fact = next(p for p in proposals if p.proposal_type == 'fact')
-        f.repo.decide_proposal(novel, fact.proposal_id, accepted=False)
+        # Historical inconsistent group fixture: new single rejection must fail
+        # closed, but acceptance still has to reject preexisting decided siblings.
+        from sqlalchemy import text
+        with f.engine.begin() as c:
+            c.execute(text("UPDATE narrative.proposals SET status='rejected' WHERE id=:p"), {'p': fact.proposal_id})
         ids.remove(fact.proposal_id)
     before = snapshot(f, 'C01-invalid-before-' + invalid)
     try:
