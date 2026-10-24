@@ -1,0 +1,4484 @@
+[
+  {
+    "label": "compose-config",
+    "log": "compose-config.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "config",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "80b12c6717381187baa4af1f911e5d2ff7d6713e",
+      "tree": "5d8ab140514a7a9e651c4860bf1e4b956379db94",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "80b12c6717381187baa4af1f911e5d2ff7d6713e",
+      "tree": "5d8ab140514a7a9e651c4860bf1e4b956379db94",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T11:41:44.016950+00:00",
+    "end_utc": "2026-10-24T11:41:44.410162+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "compose-db-up",
+    "log": "compose-db-up.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "up",
+      "-d",
+      "--wait",
+      "postgres",
+      "mongodb",
+      "acceptance-bridge"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "80b12c6717381187baa4af1f911e5d2ff7d6713e",
+      "tree": "5d8ab140514a7a9e651c4860bf1e4b956379db94",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "80b12c6717381187baa4af1f911e5d2ff7d6713e",
+      "tree": "5d8ab140514a7a9e651c4860bf1e4b956379db94",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T11:41:44.550811+00:00",
+    "end_utc": "2026-10-24T11:41:50.693034+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-migrations",
+    "log": "backend-migrations.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "db:migrate"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "80b12c6717381187baa4af1f911e5d2ff7d6713e",
+      "tree": "5d8ab140514a7a9e651c4860bf1e4b956379db94",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "80b12c6717381187baa4af1f911e5d2ff7d6713e",
+      "tree": "5d8ab140514a7a9e651c4860bf1e4b956379db94",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T11:41:50.836289+00:00",
+    "end_utc": "2026-10-24T11:41:54.934056+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "ai-alembic-migrations",
+    "log": "ai-alembic-migrations.log",
+    "command": [
+      "python",
+      "-m",
+      "alembic",
+      "upgrade",
+      "head"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "80b12c6717381187baa4af1f911e5d2ff7d6713e",
+      "tree": "5d8ab140514a7a9e651c4860bf1e4b956379db94",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "80b12c6717381187baa4af1f911e5d2ff7d6713e",
+      "tree": "5d8ab140514a7a9e651c4860bf1e4b956379db94",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T11:41:55.073985+00:00",
+    "end_utc": "2026-10-24T11:41:58.230909+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "budget-initialize",
+    "log": "budget-initialize.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "--profile",
+      "initialize",
+      "run",
+      "--rm",
+      "budget-init"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "80b12c6717381187baa4af1f911e5d2ff7d6713e",
+      "tree": "5d8ab140514a7a9e651c4860bf1e4b956379db94",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "80b12c6717381187baa4af1f911e5d2ff7d6713e",
+      "tree": "5d8ab140514a7a9e651c4860bf1e4b956379db94",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T11:45:32.245096+00:00",
+    "end_utc": "2026-10-24T11:45:34.059064+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "compose-stack-up",
+    "log": "compose-stack-up.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "up",
+      "-d",
+      "--build",
+      "postgres",
+      "mongodb",
+      "fake-upstream",
+      "budget-gateway",
+      "ai-service",
+      "backend"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "80b12c6717381187baa4af1f911e5d2ff7d6713e",
+      "tree": "5d8ab140514a7a9e651c4860bf1e4b956379db94",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "80b12c6717381187baa4af1f911e5d2ff7d6713e",
+      "tree": "5d8ab140514a7a9e651c4860bf1e4b956379db94",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T11:45:34.194269+00:00",
+    "end_utc": "2026-10-24T11:45:49.264821+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-typecheck",
+    "log": "web-typecheck.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "typecheck"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "80b12c6717381187baa4af1f911e5d2ff7d6713e",
+      "tree": "5d8ab140514a7a9e651c4860bf1e4b956379db94",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "80b12c6717381187baa4af1f911e5d2ff7d6713e",
+      "tree": "5d8ab140514a7a9e651c4860bf1e4b956379db94",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T11:45:49.697926+00:00",
+    "end_utc": "2026-10-24T11:45:59.211490+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-production-build",
+    "log": "web-production-build.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "build"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "80b12c6717381187baa4af1f911e5d2ff7d6713e",
+      "tree": "5d8ab140514a7a9e651c4860bf1e4b956379db94",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "80b12c6717381187baa4af1f911e5d2ff7d6713e",
+      "tree": "5d8ab140514a7a9e651c4860bf1e4b956379db94",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T11:45:59.387987+00:00",
+    "end_utc": "2026-10-24T11:46:25.869710+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "browser-clean-1",
+    "log": "browser-clean-1.log",
+    "command": [
+      "node",
+      "--test",
+      "tests/p1-final-acceptance.browser.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "80b12c6717381187baa4af1f911e5d2ff7d6713e",
+      "tree": "5d8ab140514a7a9e651c4860bf1e4b956379db94",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "80b12c6717381187baa4af1f911e5d2ff7d6713e",
+      "tree": "5d8ab140514a7a9e651c4860bf1e4b956379db94",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T11:51:24.530963+00:00",
+    "end_utc": "2026-10-24T11:52:33.826170+00:00",
+    "exit_code": 1,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "browser-clean-2",
+    "log": "browser-clean-2.log",
+    "command": [
+      "node",
+      "--test",
+      "tests/p1-final-acceptance.browser.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "787080060fdf041aa7d0cb92bc6383fb0e52cb47",
+      "tree": "983b1d4c9aa814943f901c91197bc0a6aff2309b",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "787080060fdf041aa7d0cb92bc6383fb0e52cb47",
+      "tree": "983b1d4c9aa814943f901c91197bc0a6aff2309b",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T11:56:49.114843+00:00",
+    "end_utc": "2026-10-24T11:58:34.237006+00:00",
+    "exit_code": 1,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "create-regression-database",
+    "log": "create-regression-database.log",
+    "command": [
+      "python",
+      "-c",
+      "import os,psycopg;from psycopg import sql; c=psycopg.connect(autocommit=True);c.execute(sql.SQL('CREATE DATABASE {}').format(sql.Identifier(os.environ['P1_NEW_DATABASE'])));c.close();print('Created fresh owned regression database')"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:04:32.807687+00:00",
+    "end_utc": "2026-10-24T12:04:34.194400+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-regression-migrations",
+    "log": "backend-regression-migrations.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "db:migrate"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:04:34.329157+00:00",
+    "end_utc": "2026-10-24T12:04:37.098731+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-regression-alembic",
+    "log": "backend-regression-alembic.log",
+    "command": [
+      "python",
+      "-m",
+      "alembic",
+      "upgrade",
+      "head"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:04:37.282940+00:00",
+    "end_utc": "2026-10-24T12:04:41.106183+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-typecheck",
+    "log": "backend-typecheck.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "typecheck"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:04:41.247298+00:00",
+    "end_utc": "2026-10-24T12:04:49.726939+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "sanitized-compose",
+    "log": "sanitized-compose.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "config",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:04:53.063551+00:00",
+    "end_utc": "2026-10-24T12:04:53.576302+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "python-compile",
+    "log": "python-compile.log",
+    "command": [
+      "python",
+      "-m",
+      "compileall",
+      "-q",
+      "api",
+      "application",
+      "domain",
+      "infrastructure",
+      "core"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:04:53.287061+00:00",
+    "end_utc": "2026-10-24T12:04:53.756290+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "owned-container-status",
+    "log": "owned-container-status.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "ps",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:04:53.776375+00:00",
+    "end_utc": "2026-10-24T12:04:57.299080+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "runtime-source-hashes-ai-service",
+    "log": "runtime-source-hashes-ai-service.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "exec",
+      "-T",
+      "ai-service",
+      "python",
+      "-c",
+      "import hashlib,pathlib,json;print(json.dumps({p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in ['application/narrative_service.py', 'api/narrative_routes.py', 'api/entity_hitl_routes.py']}))"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:04:57.445963+00:00",
+    "end_utc": "2026-10-24T12:05:01.155957+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "runtime-source-hashes-backend",
+    "log": "runtime-source-hashes-backend.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "exec",
+      "-T",
+      "backend",
+      "node",
+      "-e",
+      "const fs=require('fs'),crypto=require('crypto');console.log(JSON.stringify(Object.fromEntries([\"src/modules/ai/ai-gateway.controller.ts\", \"src/modules/ai/ai-gateway.routes.ts\"].map(p=>[p,crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex')]))))"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:05:01.323051+00:00",
+    "end_utc": "2026-10-24T12:05:02.331934+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "default-flag-off",
+    "log": "default-flag-off.log",
+    "command": [
+      "python",
+      "-c",
+      "from core.settings import Settings;s=Settings.from_env();assert s.entity_candidate_verification_enabled is False;print('ENTITY_CANDIDATE_VERIFICATION_ENABLED default OFF verified')"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:05:02.585572+00:00",
+    "end_utc": "2026-10-24T12:05:03.024498+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "browser-final",
+    "log": "browser-final.log",
+    "command": [
+      "node",
+      "--test",
+      "tests/p1-final-acceptance.browser.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:03:39.072850+00:00",
+    "end_utc": "2026-10-24T12:05:03.091989+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "provider-after",
+    "log": "provider-after.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "exec",
+      "-T",
+      "fake-upstream",
+      "python",
+      "-c",
+      "import urllib.request,json;data=json.load(urllib.request.urlopen('http://127.0.0.1:18091/received'));print(json.dumps({'count':len(data),'requests':data}))"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:05:03.367251+00:00",
+    "end_utc": "2026-10-24T12:05:07.280656+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-units",
+    "log": "web-units.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "tests\\author-context.test.ts",
+      "tests\\entity-casefold-python.test.ts",
+      "tests\\p1-author-ide-hitl-integration.test.ts",
+      "tests/color-scheme.test.mjs",
+      "tests/project-sorting.test.mjs",
+      "tests/wallet-earnings.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:04:53.439550+00:00",
+    "end_utc": "2026-10-24T12:05:07.766283+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-deterministic",
+    "log": "backend-deterministic.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "src\\core\\database\\test-db-guard-lifecycle.test.ts",
+      "src\\core\\database\\test-db-guard.test.ts",
+      "src\\jobs\\outbox-processor.test.ts",
+      "src\\modules\\ai-copilot\\llm-provider.test.ts",
+      "src\\modules\\ai\\ai-gateway.test.ts",
+      "src\\modules\\ai\\ai-pipe-01b-ide-e2e.test.ts",
+      "src\\modules\\ai\\autonomous-controller.test.ts",
+      "src\\modules\\ai\\manuscript-import-contract.test.ts",
+      "src\\modules\\ai\\p1-closed-loop-gateway.test.ts",
+      "src\\modules\\interactions\\author-launch.integration.test.ts",
+      "src\\modules\\interactions\\author-workflow.integration.test.ts",
+      "src\\modules\\interactions\\comments.integration.test.ts",
+      "src\\modules\\media\\media.test.ts",
+      "src\\modules\\novels\\chapter-revisions.test.ts",
+      "src\\modules\\novels\\controller-intent.test.ts",
+      "src\\modules\\novels\\draft-read-authorization.test.ts",
+      "src\\modules\\novels\\internal-revision-authorization.test.ts",
+      "src\\modules\\novels\\mongo-reconciliation-authorization.test.ts",
+      "src\\modules\\novels\\outbox.test.ts",
+      "src\\scripts\\seed-data\\author-workspace.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:04:49.890822+00:00",
+    "end_utc": "2026-10-24T12:05:10.997862+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-accept-draft-contract.test.ts",
+    "log": "backend-accept-draft-contract.test.ts.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "--test-force-exit",
+      "src/modules/novels/accept-draft-contract.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:05:11.159504+00:00",
+    "end_utc": "2026-10-24T12:05:14.073765+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-p1-production-persistence.postgres.test.ts",
+    "log": "backend-p1-production-persistence.postgres.test.ts.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "--test-force-exit",
+      "src/modules/novels/p1-production-persistence.postgres.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:05:14.327478+00:00",
+    "end_utc": "2026-10-24T12:05:16.818926+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-fixture-lifecycle-resilience.postgres.test.ts",
+    "log": "backend-fixture-lifecycle-resilience.postgres.test.ts.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "--test-force-exit",
+      "src/modules/novels/fixture-lifecycle-resilience.postgres.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:05:16.969947+00:00",
+    "end_utc": "2026-10-24T12:05:22.152338+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "ai-unit",
+    "log": "ai-unit.log",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "start_utc": "2026-10-24T12:04:53.976297+00:00",
+    "end_utc": "2026-10-24T12:05:27.922840+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "python-compile-attempt2",
+    "log": "python-compile-attempt2.log",
+    "command": [
+      "python",
+      "-m",
+      "compileall",
+      "-q",
+      "api",
+      "application",
+      "domain",
+      "infrastructure",
+      "core"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "start_utc": "2026-10-24T12:05:46.124346+00:00",
+    "end_utc": "2026-10-24T12:05:46.488242+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-typecheck-attempt2",
+    "log": "web-typecheck-attempt2.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "typecheck"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "start_utc": "2026-10-24T12:05:47.149151+00:00",
+    "end_utc": "2026-10-24T12:05:58.562653+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-production-build-attempt2",
+    "log": "web-production-build-attempt2.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "build"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "start_utc": "2026-10-24T12:05:58.705797+00:00",
+    "end_utc": "2026-10-24T12:06:31.746048+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-mounted",
+    "log": "web-mounted.log",
+    "command": [
+      "node",
+      "--test",
+      "--test-concurrency=1",
+      "tests/api-client-security.browser.test.mjs",
+      "tests/author-ide.browser.test.mjs",
+      "tests/draft-persistence.browser.test.mjs",
+      "tests/p1-hitl-interactions.browser.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "start_utc": "2026-10-24T12:05:47.250266+00:00",
+    "end_utc": "2026-10-24T12:07:11.350334+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "ai-postgres",
+    "log": "ai-postgres.log",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-m",
+      "postgres_integration"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "start_utc": "2026-10-24T12:05:46.629399+00:00",
+    "end_utc": "2026-10-24T12:08:31.565467+00:00",
+    "exit_code": 1,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "provider-before",
+    "log": "provider-before.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "exec",
+      "-T",
+      "fake-upstream",
+      "python",
+      "-c",
+      "import urllib.request,json;data=json.load(urllib.request.urlopen('http://127.0.0.1:18091/received'));print(json.dumps({'count':len(data),'requests':data}))"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "start_utc": "2026-10-24T12:08:36.258222+00:00",
+    "end_utc": "2026-10-24T12:08:40.027307+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "browser-sealed",
+    "log": "browser-sealed.log",
+    "command": [
+      "node",
+      "--test",
+      "tests/p1-final-acceptance.browser.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "source_after": {
+      "sha": "5b474aee899123778e9f6ab941af1971e735c650",
+      "tree": "970e0c9f0f0a314b47f3440ca664e8ac6ae08dc4",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "start_utc": "2026-10-24T12:08:40.325684+00:00",
+    "end_utc": "2026-10-24T12:10:03.435647+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-typecheck-attempt3",
+    "log": "web-typecheck-attempt3.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "typecheck"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "70f63166e9caeebbd859bb2aefbc6d2a82429225",
+      "tree": "4d1d343c780ff084e8367636753bfb2529ac1efe",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "source_after": {
+      "sha": "70f63166e9caeebbd859bb2aefbc6d2a82429225",
+      "tree": "4d1d343c780ff084e8367636753bfb2529ac1efe",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "start_utc": "2026-10-24T12:13:24.764314+00:00",
+    "end_utc": "2026-10-24T12:13:34.272272+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-production-build-attempt3",
+    "log": "web-production-build-attempt3.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "build"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "70f63166e9caeebbd859bb2aefbc6d2a82429225",
+      "tree": "4d1d343c780ff084e8367636753bfb2529ac1efe",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "source_after": {
+      "sha": "70f63166e9caeebbd859bb2aefbc6d2a82429225",
+      "tree": "4d1d343c780ff084e8367636753bfb2529ac1efe",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "start_utc": "2026-10-24T12:13:34.434075+00:00",
+    "end_utc": "2026-10-24T12:13:58.241424+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-assets",
+    "log": "web-assets.log",
+    "command": [
+      "node",
+      "--test",
+      "tests/offline-assets.browser.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "70f63166e9caeebbd859bb2aefbc6d2a82429225",
+      "tree": "4d1d343c780ff084e8367636753bfb2529ac1efe",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "source_after": {
+      "sha": "70f63166e9caeebbd859bb2aefbc6d2a82429225",
+      "tree": "4d1d343c780ff084e8367636753bfb2529ac1efe",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "start_utc": "2026-10-24T12:13:58.603282+00:00",
+    "end_utc": "2026-10-24T12:14:02.247305+00:00",
+    "exit_code": 1,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-typecheck-attempt4",
+    "log": "web-typecheck-attempt4.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "typecheck"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "start_utc": "2026-10-24T12:17:12.757791+00:00",
+    "end_utc": "2026-10-24T12:17:23.078997+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-production-build-attempt4",
+    "log": "web-production-build-attempt4.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "build"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "start_utc": "2026-10-24T12:17:23.221746+00:00",
+    "end_utc": "2026-10-24T12:17:50.296108+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-assets-attempt2",
+    "log": "web-assets-attempt2.log",
+    "command": [
+      "node",
+      "--test",
+      "tests/offline-assets.browser.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "start_utc": "2026-10-24T12:17:50.619635+00:00",
+    "end_utc": "2026-10-24T12:17:53.817169+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-typecheck-attempt5",
+    "log": "web-typecheck-attempt5.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "typecheck"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "start_utc": "2026-10-24T12:18:29.440551+00:00",
+    "end_utc": "2026-10-24T12:18:38.203066+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-production-build-attempt5",
+    "log": "web-production-build-attempt5.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "build"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "start_utc": "2026-10-24T12:18:38.436456+00:00",
+    "end_utc": "2026-10-24T12:19:04.717169+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "python-compile-attempt3",
+    "log": "python-compile-attempt3.log",
+    "command": [
+      "python",
+      "-m",
+      "compileall",
+      "-q",
+      "api",
+      "application",
+      "domain",
+      "infrastructure",
+      "core"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "start_utc": "2026-10-24T12:19:41.111891+00:00",
+    "end_utc": "2026-10-24T12:19:41.429178+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "python-compile-attempt4",
+    "log": "python-compile-attempt4.log",
+    "command": [
+      "python",
+      "-m",
+      "compileall",
+      "-q",
+      "api",
+      "application",
+      "domain",
+      "infrastructure",
+      "core"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:21:13.023110+00:00",
+    "end_utc": "2026-10-24T12:21:13.355158+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-units-attempt2",
+    "log": "web-units-attempt2.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "tests\\author-context.test.ts",
+      "tests\\entity-casefold-python.test.ts",
+      "tests\\p1-author-ide-hitl-integration.test.ts",
+      "tests/color-scheme.test.mjs",
+      "tests/project-sorting.test.mjs",
+      "tests/wallet-earnings.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:21:14.475476+00:00",
+    "end_utc": "2026-10-24T12:21:18.448849+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-regression-migrations-attempt2",
+    "log": "backend-regression-migrations-attempt2.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "db:migrate"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:21:15.615187+00:00",
+    "end_utc": "2026-10-24T12:21:19.077883+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-regression-alembic-attempt2",
+    "log": "backend-regression-alembic-attempt2.log",
+    "command": [
+      "python",
+      "-m",
+      "alembic",
+      "upgrade",
+      "head"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:21:19.301510+00:00",
+    "end_utc": "2026-10-24T12:21:21.637981+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-typecheck-attempt6",
+    "log": "web-typecheck-attempt6.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "typecheck"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:21:14.779310+00:00",
+    "end_utc": "2026-10-24T12:21:27.975699+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-typecheck-attempt2",
+    "log": "backend-typecheck-attempt2.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "typecheck"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:21:21.842871+00:00",
+    "end_utc": "2026-10-24T12:21:30.596295+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-deterministic-attempt2",
+    "log": "backend-deterministic-attempt2.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "src\\core\\database\\test-db-guard-lifecycle.test.ts",
+      "src\\core\\database\\test-db-guard.test.ts",
+      "src\\jobs\\outbox-processor.test.ts",
+      "src\\modules\\ai-copilot\\llm-provider.test.ts",
+      "src\\modules\\ai\\ai-gateway.test.ts",
+      "src\\modules\\ai\\ai-pipe-01b-ide-e2e.test.ts",
+      "src\\modules\\ai\\autonomous-controller.test.ts",
+      "src\\modules\\ai\\manuscript-import-contract.test.ts",
+      "src\\modules\\ai\\p1-closed-loop-gateway.test.ts",
+      "src\\modules\\interactions\\author-launch.integration.test.ts",
+      "src\\modules\\interactions\\author-workflow.integration.test.ts",
+      "src\\modules\\interactions\\comments.integration.test.ts",
+      "src\\modules\\media\\media.test.ts",
+      "src\\modules\\novels\\chapter-revisions.test.ts",
+      "src\\modules\\novels\\controller-intent.test.ts",
+      "src\\modules\\novels\\draft-read-authorization.test.ts",
+      "src\\modules\\novels\\internal-revision-authorization.test.ts",
+      "src\\modules\\novels\\mongo-reconciliation-authorization.test.ts",
+      "src\\modules\\novels\\outbox.test.ts",
+      "src\\scripts\\seed-data\\author-workspace.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:21:30.927397+00:00",
+    "end_utc": "2026-10-24T12:21:42.134825+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-accept-draft-contract.test.ts-attempt2",
+    "log": "backend-accept-draft-contract.test.ts-attempt2.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "--test-force-exit",
+      "src/modules/novels/accept-draft-contract.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:21:42.300436+00:00",
+    "end_utc": "2026-10-24T12:21:45.773381+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-p1-production-persistence.postgres.test.ts-attempt2",
+    "log": "backend-p1-production-persistence.postgres.test.ts-attempt2.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "--test-force-exit",
+      "src/modules/novels/p1-production-persistence.postgres.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:21:45.924910+00:00",
+    "end_utc": "2026-10-24T12:21:49.387025+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "ai-unit-attempt2",
+    "log": "ai-unit-attempt2.log",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-ra",
+      "--basetemp=C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\pytest-ai-unit-2ec74dcb"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:21:13.537448+00:00",
+    "end_utc": "2026-10-24T12:21:49.633447+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-fixture-lifecycle-resilience.postgres.test.ts-attempt2",
+    "log": "backend-fixture-lifecycle-resilience.postgres.test.ts-attempt2.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "--test-force-exit",
+      "src/modules/novels/fixture-lifecycle-resilience.postgres.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:21:49.569995+00:00",
+    "end_utc": "2026-10-24T12:21:55.073794+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-production-build-attempt6",
+    "log": "web-production-build-attempt6.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "build"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:21:28.144513+00:00",
+    "end_utc": "2026-10-24T12:22:04.657577+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "ai-postgres-attempt2",
+    "log": "ai-postgres-attempt2.log",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "-m",
+      "postgres_integration",
+      "--basetemp=C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\pytest-ai-postgres-f33fe9ae"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": "M ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json\n M ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json\n M ai-service/.pytest_tmp/test_correction_service_create1/story.json\n M ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json\n M ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json\n M ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json\n M ai-service/.pytest_tmp/test_matching_author_relations1/story.json\n M ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json\n M ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json\n M ai-service/.pytest_tmp/test_relationship_projection_h1/story.json\n M ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json\n M ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json"
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:19:41.564578+00:00",
+    "end_utc": "2026-10-24T12:22:09.545023+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "python-compile-attempt5",
+    "log": "python-compile-attempt5.log",
+    "command": [
+      "python",
+      "-m",
+      "compileall",
+      "-q",
+      "api",
+      "application",
+      "domain",
+      "infrastructure",
+      "core"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:22:57.545068+00:00",
+    "end_utc": "2026-10-24T12:22:58.080090+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "provider-before-attempt2",
+    "log": "provider-before-attempt2.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "exec",
+      "-T",
+      "fake-upstream",
+      "python",
+      "-c",
+      "import urllib.request,json;data=json.load(urllib.request.urlopen('http://127.0.0.1:18091/received'));print(json.dumps({'count':len(data),'requests':data}))"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:22:55.056920+00:00",
+    "end_utc": "2026-10-24T12:22:58.793125+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-mounted-attempt2",
+    "log": "web-mounted-attempt2.log",
+    "command": [
+      "node",
+      "--test",
+      "--test-concurrency=1",
+      "tests/api-client-security.browser.test.mjs",
+      "tests/author-ide.browser.test.mjs",
+      "tests/draft-persistence.browser.test.mjs",
+      "tests/p1-hitl-interactions.browser.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:22:54.203377+00:00",
+    "end_utc": "2026-10-24T12:24:33.888864+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "browser-offline-final",
+    "log": "browser-offline-final.log",
+    "command": [
+      "node",
+      "--test",
+      "tests/p1-final-acceptance.browser.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:22:59.251031+00:00",
+    "end_utc": "2026-10-24T12:25:07.886887+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "ai-postgres-attempt3",
+    "log": "ai-postgres-attempt3.log",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "-m",
+      "postgres_integration",
+      "--basetemp=C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\pytest-ai-postgres-4338198b"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "9a7b76180450777c4a8635373f6e235a14d1ea0f",
+      "tree": "b791695f47ea73335bbca5ee5f0399ede683f874",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:22:58.270556+00:00",
+    "end_utc": "2026-10-24T12:26:05.580955+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "browser-icon-red",
+    "log": "browser-icon-red.log",
+    "command": [
+      "node",
+      "--test",
+      "tests/p1-final-acceptance.browser.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "39fefdad8ee9faccfdce40774873d03d746f3b17",
+      "tree": "77143a69e62900a6bb30ca428609b2db42a7b189",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "39fefdad8ee9faccfdce40774873d03d746f3b17",
+      "tree": "77143a69e62900a6bb30ca428609b2db42a7b189",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:31:36.259274+00:00",
+    "end_utc": "2026-10-24T12:31:53.820828+00:00",
+    "exit_code": 1,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-typecheck-attempt7",
+    "log": "web-typecheck-attempt7.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "typecheck"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:32:31.214030+00:00",
+    "end_utc": "2026-10-24T12:32:44.712581+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-production-build-attempt7",
+    "log": "web-production-build-attempt7.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "build"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:32:44.859205+00:00",
+    "end_utc": "2026-10-24T12:33:26.386210+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "python-compile-attempt6",
+    "log": "python-compile-attempt6.log",
+    "command": [
+      "python",
+      "-m",
+      "compileall",
+      "-q",
+      "api",
+      "application",
+      "domain",
+      "infrastructure",
+      "core"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:34:01.907328+00:00",
+    "end_utc": "2026-10-24T12:34:02.216138+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "python-compile-attempt7",
+    "log": "python-compile-attempt7.log",
+    "command": [
+      "python",
+      "-m",
+      "compileall",
+      "-q",
+      "api",
+      "application",
+      "domain",
+      "infrastructure",
+      "core"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:34:02.321147+00:00",
+    "end_utc": "2026-10-24T12:34:02.609439+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "provider-before-attempt3",
+    "log": "provider-before-attempt3.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "exec",
+      "-T",
+      "fake-upstream",
+      "python",
+      "-c",
+      "import urllib.request,json;data=json.load(urllib.request.urlopen('http://127.0.0.1:18091/received'));print(json.dumps({'count':len(data),'requests':data}))"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:34:02.775390+00:00",
+    "end_utc": "2026-10-24T12:34:06.389871+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-regression-migrations-attempt3",
+    "log": "backend-regression-migrations-attempt3.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "db:migrate"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:34:03.646275+00:00",
+    "end_utc": "2026-10-24T12:34:06.405264+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-regression-alembic-attempt3",
+    "log": "backend-regression-alembic-attempt3.log",
+    "command": [
+      "python",
+      "-m",
+      "alembic",
+      "upgrade",
+      "head"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:34:06.548949+00:00",
+    "end_utc": "2026-10-24T12:34:08.983453+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-typecheck-attempt3",
+    "log": "backend-typecheck-attempt3.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "typecheck"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:34:09.326386+00:00",
+    "end_utc": "2026-10-24T12:34:18.979735+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "ai-unit-attempt3",
+    "log": "ai-unit-attempt3.log",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-ra",
+      "--basetemp=C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\pytest-ai-unit-34d564a0"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:34:02.746060+00:00",
+    "end_utc": "2026-10-24T12:34:38.784896+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-deterministic-attempt3",
+    "log": "backend-deterministic-attempt3.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "src\\core\\database\\test-db-guard-lifecycle.test.ts",
+      "src\\core\\database\\test-db-guard.test.ts",
+      "src\\jobs\\outbox-processor.test.ts",
+      "src\\modules\\ai-copilot\\llm-provider.test.ts",
+      "src\\modules\\ai\\ai-gateway.test.ts",
+      "src\\modules\\ai\\ai-pipe-01b-ide-e2e.test.ts",
+      "src\\modules\\ai\\autonomous-controller.test.ts",
+      "src\\modules\\ai\\manuscript-import-contract.test.ts",
+      "src\\modules\\ai\\p1-closed-loop-gateway.test.ts",
+      "src\\modules\\interactions\\author-launch.integration.test.ts",
+      "src\\modules\\interactions\\author-workflow.integration.test.ts",
+      "src\\modules\\interactions\\comments.integration.test.ts",
+      "src\\modules\\media\\media.test.ts",
+      "src\\modules\\novels\\chapter-revisions.test.ts",
+      "src\\modules\\novels\\controller-intent.test.ts",
+      "src\\modules\\novels\\draft-read-authorization.test.ts",
+      "src\\modules\\novels\\internal-revision-authorization.test.ts",
+      "src\\modules\\novels\\mongo-reconciliation-authorization.test.ts",
+      "src\\modules\\novels\\outbox.test.ts",
+      "src\\scripts\\seed-data\\author-workspace.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:34:19.175147+00:00",
+    "end_utc": "2026-10-24T12:34:43.369167+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-accept-draft-contract.test.ts-attempt3",
+    "log": "backend-accept-draft-contract.test.ts-attempt3.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "--test-force-exit",
+      "src/modules/novels/accept-draft-contract.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:34:43.575253+00:00",
+    "end_utc": "2026-10-24T12:34:47.343562+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-p1-production-persistence.postgres.test.ts-attempt3",
+    "log": "backend-p1-production-persistence.postgres.test.ts-attempt3.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "--test-force-exit",
+      "src/modules/novels/p1-production-persistence.postgres.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:34:47.514834+00:00",
+    "end_utc": "2026-10-24T12:34:51.038642+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-fixture-lifecycle-resilience.postgres.test.ts-attempt3",
+    "log": "backend-fixture-lifecycle-resilience.postgres.test.ts-attempt3.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "--test-force-exit",
+      "src/modules/novels/fixture-lifecycle-resilience.postgres.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:34:51.236535+00:00",
+    "end_utc": "2026-10-24T12:34:57.137001+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "browser-verified-final",
+    "log": "browser-verified-final.log",
+    "command": [
+      "node",
+      "--test",
+      "tests/p1-final-acceptance.browser.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:34:06.744663+00:00",
+    "end_utc": "2026-10-24T12:35:49.870678+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "ai-postgres-attempt4",
+    "log": "ai-postgres-attempt4.log",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "-m",
+      "postgres_integration",
+      "--basetemp=C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\pytest-ai-postgres-36ca75f4"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:34:02.365524+00:00",
+    "end_utc": "2026-10-24T12:36:41.110236+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "sanitized-compose-attempt2",
+    "log": "sanitized-compose-attempt2.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "config",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:37:47.691895+00:00",
+    "end_utc": "2026-10-24T12:37:48.215637+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "compose-config-attempt2",
+    "log": "compose-config-attempt2.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "config",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:37:48.460900+00:00",
+    "end_utc": "2026-10-24T12:37:49.015547+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "compose-db-up-attempt2",
+    "log": "compose-db-up-attempt2.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "up",
+      "-d",
+      "--wait",
+      "postgres",
+      "mongodb",
+      "acceptance-bridge"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:37:49.221066+00:00",
+    "end_utc": "2026-10-24T12:37:50.905651+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "owned-container-status-attempt2",
+    "log": "owned-container-status-attempt2.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "ps",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:37:48.440944+00:00",
+    "end_utc": "2026-10-24T12:37:52.032646+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-units-attempt3",
+    "log": "web-units-attempt3.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "tests\\author-context.test.ts",
+      "tests\\entity-casefold-python.test.ts",
+      "tests\\p1-author-ide-hitl-integration.test.ts",
+      "tests/color-scheme.test.mjs",
+      "tests/project-sorting.test.mjs",
+      "tests/wallet-earnings.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:37:46.956072+00:00",
+    "end_utc": "2026-10-24T12:37:52.082004+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "backend-migrations-attempt2",
+    "log": "backend-migrations-attempt2.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "db:migrate"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:37:51.098603+00:00",
+    "end_utc": "2026-10-24T12:37:52.556239+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "ai-alembic-migrations-attempt2",
+    "log": "ai-alembic-migrations-attempt2.log",
+    "command": [
+      "python",
+      "-m",
+      "alembic",
+      "upgrade",
+      "head"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:37:52.709317+00:00",
+    "end_utc": "2026-10-24T12:37:54.701412+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "runtime-source-hashes-ai-service-attempt2",
+    "log": "runtime-source-hashes-ai-service-attempt2.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "exec",
+      "-T",
+      "ai-service",
+      "python",
+      "-c",
+      "import hashlib,pathlib,json;print(json.dumps({p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in ['application/narrative_service.py', 'api/narrative_routes.py', 'api/entity_hitl_routes.py']}))"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:37:52.210250+00:00",
+    "end_utc": "2026-10-24T12:37:55.866157+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "runtime-source-hashes-backend-attempt2",
+    "log": "runtime-source-hashes-backend-attempt2.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "exec",
+      "-T",
+      "backend",
+      "node",
+      "-e",
+      "const fs=require('fs'),crypto=require('crypto');console.log(JSON.stringify(Object.fromEntries([\"src/modules/ai/ai-gateway.controller.ts\", \"src/modules/ai/ai-gateway.routes.ts\"].map(p=>[p,crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex')]))))"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:37:56.003499+00:00",
+    "end_utc": "2026-10-24T12:37:56.575177+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "default-flag-off-attempt2",
+    "log": "default-flag-off-attempt2.log",
+    "command": [
+      "python",
+      "-c",
+      "from core.settings import Settings;s=Settings.from_env();assert s.entity_candidate_verification_enabled is False;print('ENTITY_CANDIDATE_VERIFICATION_ENABLED default OFF verified')"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:37:56.717873+00:00",
+    "end_utc": "2026-10-24T12:37:56.999629+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-mounted-attempt3",
+    "log": "web-mounted-attempt3.log",
+    "command": [
+      "node",
+      "--test",
+      "--test-concurrency=1",
+      "tests/api-client-security.browser.test.mjs",
+      "tests/author-ide.browser.test.mjs",
+      "tests/draft-persistence.browser.test.mjs",
+      "tests/p1-hitl-interactions.browser.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "efeda734997009c12aab25480d11d0a4543c1258",
+      "tree": "7654156acaf40cefbd0efc30303cf71e68851cbb",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:37:46.955515+00:00",
+    "end_utc": "2026-10-24T12:39:23.616483+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-assets-attempt3",
+    "log": "web-assets-attempt3.log",
+    "command": [
+      "node",
+      "--test",
+      "tests/offline-assets.browser.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "d6356d4d8f507c3325c829f6f6ee29f747ae83ba",
+      "tree": "66f7b6b34a54485930822032481055b3af741d2f",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "d6356d4d8f507c3325c829f6f6ee29f747ae83ba",
+      "tree": "66f7b6b34a54485930822032481055b3af741d2f",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:41:01.364459+00:00",
+    "end_utc": "2026-10-24T12:41:13.945355+00:00",
+    "exit_code": 1,
+    "stdin_recorded": false,
+    "acceptance_source": false
+  },
+  {
+    "label": "web-typecheck-attempt8",
+    "log": "web-typecheck-attempt8.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "typecheck"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:42:25.153170+00:00",
+    "end_utc": "2026-10-24T12:42:38.195829+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "web-production-build-attempt8",
+    "log": "web-production-build-attempt8.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "build"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:42:38.355931+00:00",
+    "end_utc": "2026-10-24T12:43:20.246945+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "web-assets-attempt4",
+    "log": "web-assets-attempt4.log",
+    "command": [
+      "node",
+      "--test",
+      "tests/offline-assets.browser.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:43:20.566534+00:00",
+    "end_utc": "2026-10-24T12:43:27.723159+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "python-compile-attempt8",
+    "log": "python-compile-attempt8.log",
+    "command": [
+      "python",
+      "-m",
+      "compileall",
+      "-q",
+      "api",
+      "application",
+      "domain",
+      "infrastructure",
+      "core"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:43:54.699946+00:00",
+    "end_utc": "2026-10-24T12:43:55.033429+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "python-compile-attempt9",
+    "log": "python-compile-attempt9.log",
+    "command": [
+      "python",
+      "-m",
+      "compileall",
+      "-q",
+      "api",
+      "application",
+      "domain",
+      "infrastructure",
+      "core"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:43:57.049930+00:00",
+    "end_utc": "2026-10-24T12:43:57.585340+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "provider-before-attempt4",
+    "log": "provider-before-attempt4.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "exec",
+      "-T",
+      "fake-upstream",
+      "python",
+      "-c",
+      "import urllib.request,json;data=json.load(urllib.request.urlopen('http://127.0.0.1:18091/received'));print(json.dumps({'count':len(data),'requests':data}))"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:44:00.208062+00:00",
+    "end_utc": "2026-10-24T12:44:03.961261+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "ai-unit-attempt4",
+    "log": "ai-unit-attempt4.log",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-ra",
+      "--basetemp=C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\pytest-ai-unit-ebc995a0"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:43:57.919092+00:00",
+    "end_utc": "2026-10-24T12:44:29.721605+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "web-mounted-attempt4",
+    "log": "web-mounted-attempt4.log",
+    "command": [
+      "node",
+      "--test",
+      "--test-concurrency=1",
+      "tests/api-client-security.browser.test.mjs",
+      "tests/author-ide.browser.test.mjs",
+      "tests/draft-persistence.browser.test.mjs",
+      "tests/p1-hitl-interactions.browser.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:43:56.417539+00:00",
+    "end_utc": "2026-10-24T12:45:35.002027+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "browser-c5-final",
+    "log": "browser-c5-final.log",
+    "command": [
+      "node",
+      "--test",
+      "tests/p1-final-acceptance.browser.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:44:04.413210+00:00",
+    "end_utc": "2026-10-24T12:46:02.593306+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "ai-postgres-attempt5",
+    "log": "ai-postgres-attempt5.log",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "-m",
+      "postgres_integration",
+      "--basetemp=C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\pytest-ai-postgres-452afb4b"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:43:55.207956+00:00",
+    "end_utc": "2026-10-24T12:47:17.049227+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "provider-after-attempt2",
+    "log": "provider-after-attempt2.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "exec",
+      "-T",
+      "fake-upstream",
+      "python",
+      "-c",
+      "import urllib.request,json;data=json.load(urllib.request.urlopen('http://127.0.0.1:18091/received'));print(json.dumps({'count':len(data),'requests':data}))"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:47:17.992531+00:00",
+    "end_utc": "2026-10-24T12:47:21.801562+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "backend-regression-migrations-attempt4",
+    "log": "backend-regression-migrations-attempt4.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "db:migrate"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:47:18.334286+00:00",
+    "end_utc": "2026-10-24T12:47:23.269418+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "backend-regression-alembic-attempt4",
+    "log": "backend-regression-alembic-attempt4.log",
+    "command": [
+      "python",
+      "-m",
+      "alembic",
+      "upgrade",
+      "head"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:47:23.486056+00:00",
+    "end_utc": "2026-10-24T12:47:26.952704+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "web-units-attempt4",
+    "log": "web-units-attempt4.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "tests\\author-context.test.ts",
+      "tests\\entity-casefold-python.test.ts",
+      "tests\\p1-author-ide-hitl-integration.test.ts",
+      "tests/color-scheme.test.mjs",
+      "tests/project-sorting.test.mjs",
+      "tests/wallet-earnings.test.mjs"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:47:16.816609+00:00",
+    "end_utc": "2026-10-24T12:47:38.755909+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "backend-typecheck-attempt4",
+    "log": "backend-typecheck-attempt4.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "typecheck"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:47:27.145550+00:00",
+    "end_utc": "2026-10-24T12:47:39.090966+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "backend-deterministic-attempt4",
+    "log": "backend-deterministic-attempt4.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "src\\core\\database\\test-db-guard-lifecycle.test.ts",
+      "src\\core\\database\\test-db-guard.test.ts",
+      "src\\jobs\\outbox-processor.test.ts",
+      "src\\modules\\ai-copilot\\llm-provider.test.ts",
+      "src\\modules\\ai\\ai-gateway.test.ts",
+      "src\\modules\\ai\\ai-pipe-01b-ide-e2e.test.ts",
+      "src\\modules\\ai\\autonomous-controller.test.ts",
+      "src\\modules\\ai\\manuscript-import-contract.test.ts",
+      "src\\modules\\ai\\p1-closed-loop-gateway.test.ts",
+      "src\\modules\\interactions\\author-launch.integration.test.ts",
+      "src\\modules\\interactions\\author-workflow.integration.test.ts",
+      "src\\modules\\interactions\\comments.integration.test.ts",
+      "src\\modules\\media\\media.test.ts",
+      "src\\modules\\novels\\chapter-revisions.test.ts",
+      "src\\modules\\novels\\controller-intent.test.ts",
+      "src\\modules\\novels\\draft-read-authorization.test.ts",
+      "src\\modules\\novels\\internal-revision-authorization.test.ts",
+      "src\\modules\\novels\\mongo-reconciliation-authorization.test.ts",
+      "src\\modules\\novels\\outbox.test.ts",
+      "src\\scripts\\seed-data\\author-workspace.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:47:39.346804+00:00",
+    "end_utc": "2026-10-24T12:47:54.386056+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "backend-accept-draft-contract.test.ts-attempt4",
+    "log": "backend-accept-draft-contract.test.ts-attempt4.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "--test-force-exit",
+      "src/modules/novels/accept-draft-contract.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:47:54.557270+00:00",
+    "end_utc": "2026-10-24T12:47:57.894428+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "backend-p1-production-persistence.postgres.test.ts-attempt4",
+    "log": "backend-p1-production-persistence.postgres.test.ts-attempt4.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "--test-force-exit",
+      "src/modules/novels/p1-production-persistence.postgres.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:47:58.061717+00:00",
+    "end_utc": "2026-10-24T12:48:01.143590+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "backend-fixture-lifecycle-resilience.postgres.test.ts-attempt4",
+    "log": "backend-fixture-lifecycle-resilience.postgres.test.ts-attempt4.log",
+    "command": [
+      "npx.cmd",
+      "tsx",
+      "--test",
+      "--test-force-exit",
+      "src/modules/novels/fixture-lifecycle-resilience.postgres.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:48:01.302478+00:00",
+    "end_utc": "2026-10-24T12:48:07.132432+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "compose-status",
+    "log": "compose-status.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "ps",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:52:09.374561+00:00",
+    "end_utc": "2026-10-24T12:52:13.013510+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "compose-status-attempt2",
+    "log": "compose-status-attempt2.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "ps",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:54:03.586200+00:00",
+    "end_utc": "2026-10-24T12:54:07.082193+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "replayed-e63-FE19-RED",
+    "log": "replayed-e63-FE19-RED.log",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-s",
+      "-m",
+      "not postgres_integration",
+      "--basetemp=C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\red-pytest-b3ec764d",
+      "tests/test_p1_fe_final_contracts.py",
+      "-k",
+      "known_inventory or correction_author_marker or test_test_ingress"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\red-replay-415dbc4d\\ai-service",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:54:21.691402+00:00",
+    "end_utc": "2026-10-24T12:54:27.805023+00:00",
+    "exit_code": 1,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "compose-config-attempt3",
+    "log": "compose-config-attempt3.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "config",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:56:08.070765+00:00",
+    "end_utc": "2026-10-24T12:56:08.512609+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "compose-db-up-attempt3",
+    "log": "compose-db-up-attempt3.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "up",
+      "-d",
+      "--wait",
+      "postgres",
+      "mongodb",
+      "acceptance-bridge"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:56:08.649897+00:00",
+    "end_utc": "2026-10-24T12:56:10.262560+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "backend-migrations-attempt3",
+    "log": "backend-migrations-attempt3.log",
+    "command": [
+      "npm.cmd",
+      "run",
+      "db:migrate"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\backend",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:56:10.519274+00:00",
+    "end_utc": "2026-10-24T12:56:13.235219+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "ai-alembic-migrations-attempt3",
+    "log": "ai-alembic-migrations-attempt3.log",
+    "command": [
+      "python",
+      "-m",
+      "alembic",
+      "upgrade",
+      "head"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:56:13.417556+00:00",
+    "end_utc": "2026-10-24T12:56:16.772510+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "sanitized-compose-attempt3",
+    "log": "sanitized-compose-attempt3.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "config",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:56:17.170401+00:00",
+    "end_utc": "2026-10-24T12:56:17.596447+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "owned-container-status-attempt3",
+    "log": "owned-container-status-attempt3.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "ps",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:56:17.826221+00:00",
+    "end_utc": "2026-10-24T12:56:21.417405+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "runtime-source-hashes-ai-service-attempt3",
+    "log": "runtime-source-hashes-ai-service-attempt3.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "exec",
+      "-T",
+      "ai-service",
+      "python",
+      "-c",
+      "import hashlib,pathlib,json;print(json.dumps({p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in ['application/narrative_service.py', 'api/narrative_routes.py', 'api/entity_hitl_routes.py']}))"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:56:21.635893+00:00",
+    "end_utc": "2026-10-24T12:56:25.528668+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "runtime-source-hashes-backend-attempt3",
+    "log": "runtime-source-hashes-backend-attempt3.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "exec",
+      "-T",
+      "backend",
+      "node",
+      "-e",
+      "const fs=require('fs'),crypto=require('crypto');console.log(JSON.stringify(Object.fromEntries([\"src/modules/ai/ai-gateway.controller.ts\", \"src/modules/ai/ai-gateway.routes.ts\"].map(p=>[p,crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex')]))))"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:56:25.685270+00:00",
+    "end_utc": "2026-10-24T12:56:26.538525+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "default-flag-off-attempt3",
+    "log": "default-flag-off-attempt3.log",
+    "command": [
+      "python",
+      "-c",
+      "from core.settings import Settings;s=Settings.from_env();assert s.entity_candidate_verification_enabled is False;print('ENTITY_CANDIDATE_VERIFICATION_ENABLED default OFF verified')"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:56:26.847775+00:00",
+    "end_utc": "2026-10-24T12:56:27.268758+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "provider-after-attempt3",
+    "log": "provider-after-attempt3.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "exec",
+      "-T",
+      "fake-upstream",
+      "python",
+      "-c",
+      "import urllib.request,json;data=json.load(urllib.request.urlopen('http://127.0.0.1:18091/received'));print(json.dumps({'count':len(data),'requests':data}))"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:56:27.714836+00:00",
+    "end_utc": "2026-10-24T12:56:31.492972+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "compose-status-attempt3",
+    "log": "compose-status-attempt3.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "ps",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:57:59.193512+00:00",
+    "end_utc": "2026-10-24T12:58:02.807547+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "replayed-e63-FE19-RED-attempt2",
+    "log": "replayed-e63-FE19-RED-attempt2.log",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-s",
+      "-m",
+      "not postgres_integration",
+      "--basetemp=C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\red-pytest-b92631af",
+      "tests/test_p1_fe_final_contracts.py",
+      "-k",
+      "known_inventory or correction_author_marker or test_test_ingress"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\red-replay-61d9507a\\ai-service",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:58:20.278190+00:00",
+    "end_utc": "2026-10-24T12:58:28.067050+00:00",
+    "exit_code": 1,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "compose-status-attempt4",
+    "log": "compose-status-attempt4.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "ps",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:58:25.628256+00:00",
+    "end_utc": "2026-10-24T12:58:29.207733+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "final-gateway-health",
+    "log": "final-gateway-health.log",
+    "command": [
+      "python",
+      "-c",
+      "import os,json,urllib.request;c=json.load(open(os.environ['P1_CONFIG']));r=urllib.request.urlopen('http://127.0.0.1:'+c['values']['WAVE1D_BACKEND_PORT']+'/health');assert r.status==200;print(r.read().decode())"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:58:29.430647+00:00",
+    "end_utc": "2026-10-24T12:58:30.043752+00:00",
+    "exit_code": 1,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "sanitized-compose-attempt4",
+    "log": "sanitized-compose-attempt4.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "config",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:59:16.711315+00:00",
+    "end_utc": "2026-10-24T12:59:17.192288+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "owned-container-status-attempt4",
+    "log": "owned-container-status-attempt4.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "ps",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:59:17.359505+00:00",
+    "end_utc": "2026-10-24T12:59:21.040752+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "runtime-source-hashes-ai-service-attempt4",
+    "log": "runtime-source-hashes-ai-service-attempt4.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "exec",
+      "-T",
+      "ai-service",
+      "python",
+      "-c",
+      "import hashlib,pathlib,json;print(json.dumps({p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in ['application/narrative_service.py', 'api/narrative_routes.py', 'api/entity_hitl_routes.py']}))"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:59:21.415878+00:00",
+    "end_utc": "2026-10-24T12:59:25.128734+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "runtime-source-hashes-backend-attempt4",
+    "log": "runtime-source-hashes-backend-attempt4.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "exec",
+      "-T",
+      "backend",
+      "node",
+      "-e",
+      "const fs=require('fs'),crypto=require('crypto');console.log(JSON.stringify(Object.fromEntries([\"src/modules/ai/ai-gateway.controller.ts\", \"src/modules/ai/ai-gateway.routes.ts\"].map(p=>[p,crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex')]))))"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:59:25.290336+00:00",
+    "end_utc": "2026-10-24T12:59:25.895839+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "default-flag-off-attempt4",
+    "log": "default-flag-off-attempt4.log",
+    "command": [
+      "python",
+      "-c",
+      "from core.settings import Settings;s=Settings.from_env();assert s.entity_candidate_verification_enabled is False;print('ENTITY_CANDIDATE_VERIFICATION_ENABLED default OFF verified')"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:59:26.056556+00:00",
+    "end_utc": "2026-10-24T12:59:26.390453+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "final-gateway-health-attempt2",
+    "log": "final-gateway-health-attempt2.log",
+    "command": [
+      "python",
+      "-c",
+      "import os,json,urllib.request;c=json.load(open(os.environ['P1_CONFIG']));r=urllib.request.urlopen('http://127.0.0.1:'+c['values']['WAVE1D_BACKEND_PORT']+'/api/v1/health');assert r.status==200;print(r.read().decode())"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:59:26.645675+00:00",
+    "end_utc": "2026-10-24T12:59:27.307716+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "final-python-health",
+    "log": "final-python-health.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "exec",
+      "-T",
+      "ai-service",
+      "python",
+      "-c",
+      "import urllib.request;r=urllib.request.urlopen('http://127.0.0.1:8000/health');assert r.status==200;print(r.read().decode())"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:59:27.514546+00:00",
+    "end_utc": "2026-10-24T12:59:32.325235+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "final-compose-policy",
+    "log": "final-compose-policy.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "config",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:59:32.479449+00:00",
+    "end_utc": "2026-10-24T12:59:33.051163+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "final-actual-network-inspection",
+    "log": "final-actual-network-inspection.log",
+    "command": [
+      "docker",
+      "network",
+      "inspect",
+      "codex-p1-final-8c19b8c475_headless-edge",
+      "codex-p1-final-8c19b8c475_upstream",
+      "codex-p1-final-8c19b8c475_workers"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T12:59:33.342381+00:00",
+    "end_utc": "2026-10-24T12:59:33.731918+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "sanitized-compose-attempt5",
+    "log": "sanitized-compose-attempt5.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "config",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T13:01:41.785777+00:00",
+    "end_utc": "2026-10-24T13:01:42.227946+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "owned-container-status-attempt5",
+    "log": "owned-container-status-attempt5.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "ps",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T13:01:42.374299+00:00",
+    "end_utc": "2026-10-24T13:01:45.845704+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "runtime-source-hashes-ai-service-attempt5",
+    "log": "runtime-source-hashes-ai-service-attempt5.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "exec",
+      "-T",
+      "ai-service",
+      "python",
+      "-c",
+      "import hashlib,pathlib,json;print(json.dumps({p:hashlib.sha256(pathlib.Path(p).read_bytes()).hexdigest() for p in ['application/narrative_service.py', 'api/narrative_routes.py', 'api/entity_hitl_routes.py']}))"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T13:01:46.010131+00:00",
+    "end_utc": "2026-10-24T13:01:49.688738+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "runtime-source-hashes-backend-attempt5",
+    "log": "runtime-source-hashes-backend-attempt5.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "exec",
+      "-T",
+      "backend",
+      "node",
+      "-e",
+      "const fs=require('fs'),crypto=require('crypto');console.log(JSON.stringify(Object.fromEntries([\"src/modules/ai/ai-gateway.controller.ts\", \"src/modules/ai/ai-gateway.routes.ts\"].map(p=>[p,crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex')]))))"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T13:01:49.864770+00:00",
+    "end_utc": "2026-10-24T13:01:50.494912+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "default-flag-off-attempt5",
+    "log": "default-flag-off-attempt5.log",
+    "command": [
+      "python",
+      "-c",
+      "from core.settings import Settings;s=Settings.from_env();assert s.entity_candidate_verification_enabled is False;print('ENTITY_CANDIDATE_VERIFICATION_ENABLED default OFF verified')"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\ai-service",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T13:01:50.741603+00:00",
+    "end_utc": "2026-10-24T13:01:51.279176+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "final-gateway-health-attempt3",
+    "log": "final-gateway-health-attempt3.log",
+    "command": [
+      "python",
+      "-c",
+      "import os,json,urllib.request;c=json.load(open(os.environ['P1_CONFIG']));r=urllib.request.urlopen('http://127.0.0.1:'+c['values']['WAVE1D_BACKEND_PORT']+'/api/v1/health');assert r.status==200;print(r.read().decode())"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T13:01:51.620574+00:00",
+    "end_utc": "2026-10-24T13:01:52.311066+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "final-python-health-attempt2",
+    "log": "final-python-health-attempt2.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "exec",
+      "-T",
+      "ai-service",
+      "python",
+      "-c",
+      "import urllib.request;r=urllib.request.urlopen('http://127.0.0.1:8000/health');assert r.status==200;print(r.read().decode())"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T13:01:52.476618+00:00",
+    "end_utc": "2026-10-24T13:01:56.437235+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "final-compose-policy-attempt2",
+    "log": "final-compose-policy-attempt2.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "config",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T13:01:56.597461+00:00",
+    "end_utc": "2026-10-24T13:01:56.994447+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "final-actual-network-inspection-attempt2",
+    "log": "final-actual-network-inspection-attempt2.log",
+    "command": [
+      "docker",
+      "network",
+      "inspect",
+      "codex-p1-final-8c19b8c475_headless-edge",
+      "codex-p1-final-8c19b8c475_upstream",
+      "codex-p1-final-8c19b8c475_workers"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T13:01:57.162312+00:00",
+    "end_utc": "2026-10-24T13:01:57.501114+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "compose-status-attempt5",
+    "log": "compose-status-attempt5.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "ps",
+      "--format",
+      "json"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T13:06:45.327016+00:00",
+    "end_utc": "2026-10-24T13:06:48.835214+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "other-containers-before-owned-cleanup",
+    "log": "other-containers-before-owned-cleanup.log",
+    "command": [
+      "docker",
+      "ps",
+      "-a",
+      "--format",
+      "{{json .}}"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T13:06:48.990018+00:00",
+    "end_utc": "2026-10-24T13:06:49.593324+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "owned-volumes-before-cleanup",
+    "log": "owned-volumes-before-cleanup.log",
+    "command": [
+      "docker",
+      "volume",
+      "ls",
+      "--filter",
+      "label=com.docker.compose.project=codex-p1-final-8c19b8c475",
+      "--format",
+      "{{.Name}}"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T13:06:49.762283+00:00",
+    "end_utc": "2026-10-24T13:06:50.075033+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "cleanup-only-owned-project",
+    "log": "cleanup-only-owned-project.log",
+    "command": [
+      "docker-compose",
+      "--env-file",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\.env.codex-p1-final-8c19b8c475",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\Pipeline_test\\tools\\compose.p123-p3.yml",
+      "-f",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67\\compose.override.private.json",
+      "down"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T13:06:50.548056+00:00",
+    "end_utc": "2026-10-24T13:06:58.806821+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "cleanup-owned-containers-remaining",
+    "log": "cleanup-owned-containers-remaining.log",
+    "command": [
+      "docker",
+      "ps",
+      "-a",
+      "--filter",
+      "label=com.docker.compose.project=codex-p1-final-8c19b8c475",
+      "--format",
+      "{{.ID}} {{.Names}}"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T13:06:58.967523+00:00",
+    "end_utc": "2026-10-24T13:06:59.340265+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "final-owned-cleanup-command",
+    "log": "final-owned-cleanup-command.log",
+    "command": [
+      "python",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\scripts\\p1_final_acceptance.py",
+      "cleanup-owned",
+      "--output",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\fe-final-clean-80b12c67"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T13:06:50.230239+00:00",
+    "end_utc": "2026-10-24T13:06:59.528289+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "other-containers-after-owned-cleanup",
+    "log": "other-containers-after-owned-cleanup.log",
+    "command": [
+      "docker",
+      "ps",
+      "-a",
+      "--format",
+      "{{json .}}"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T13:06:59.696940+00:00",
+    "end_utc": "2026-10-24T13:07:00.307284+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  },
+  {
+    "label": "owned-volumes-after-cleanup",
+    "log": "owned-volumes-after-cleanup.log",
+    "command": [
+      "docker",
+      "volume",
+      "ls",
+      "--filter",
+      "label=com.docker.compose.project=codex-p1-final-8c19b8c475",
+      "--format",
+      "{{.Name}}"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject",
+    "source_before": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "source_after": {
+      "sha": "c5a015aaef73eb4c5ed7c2b1673cc795567d0991",
+      "tree": "aaef0ae0d52cfd2c062fbe2d6c919b64cb1b0d28",
+      "dirty": ""
+    },
+    "start_utc": "2026-10-24T13:07:00.522887+00:00",
+    "end_utc": "2026-10-24T13:07:00.927891+00:00",
+    "exit_code": 0,
+    "stdin_recorded": false,
+    "acceptance_source": true
+  }
+]

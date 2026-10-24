@@ -1,0 +1,75 @@
+{
+  "results": [
+    {
+      "path": "/reader",
+      "status": "PASS",
+      "scope": "real mounted page/API read smoke"
+    },
+    {
+      "path": "/reader/library",
+      "status": "PASS",
+      "scope": "real mounted page/API read smoke"
+    },
+    {
+      "path": "/reader/history",
+      "status": "PASS",
+      "scope": "real mounted page/API read smoke"
+    },
+    {
+      "path": "/wallet",
+      "status": "PASS",
+      "scope": "real mounted page/API read smoke"
+    },
+    {
+      "path": "/notifications",
+      "status": "PASS",
+      "scope": "real mounted page/API read smoke"
+    },
+    {
+      "case": "VIP negative authorization / private draft and Canon isolation",
+      "status": "PASS"
+    },
+    {
+      "path": "/author/novels/de911636-eacb-48e2-a2ea-0555e1948dbc/comments",
+      "status": "PASS",
+      "scope": "real mounted page/API read smoke"
+    },
+    {
+      "path": "/author/novels/de911636-eacb-48e2-a2ea-0555e1948dbc/reviews",
+      "status": "PASS",
+      "scope": "real mounted page/API read smoke"
+    },
+    {
+      "case": "real local media upload/metadata/read/decode",
+      "status": "PASS"
+    },
+    {
+      "case": "scheduling form/read only, theme/mobile/auth/draft reload",
+      "status": "PASS"
+    },
+    {
+      "path": "/admin",
+      "status": "PASS",
+      "scope": "real mounted page/API read smoke"
+    },
+    {
+      "path": "/admin/novels",
+      "status": "PASS",
+      "scope": "real mounted page/API read smoke"
+    },
+    {
+      "path": "/admin/moderation",
+      "status": "PASS",
+      "scope": "real mounted page/API read smoke"
+    }
+  ],
+  "not_run": [
+    "real payment/deposit/withdrawal",
+    "VIP purchase",
+    "publication/scheduler execution",
+    "moderation resolution",
+    "live providers",
+    "P3 autonomous workflows"
+  ],
+  "scope": "bounded read/UI smoke, local test fixtures and local media only; not complete acceptance of unrelated modules"
+}

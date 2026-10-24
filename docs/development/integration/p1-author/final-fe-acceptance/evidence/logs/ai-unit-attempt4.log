@@ -1,0 +1,47 @@
+........................................................................ [ 19%]
+.............................................................s.ss....... [ 39%]
+s.................s..................................s.................. [ 59%]
+...............ss....................................................... [ 79%]
+...........................................ss........................... [ 99%]
+...                                                                      [100%]
+============================== warnings summary ===============================
+main.py:165
+  C:\Users\Laptop\.codex\worktrees\p1-fe-final-acceptance\testproject\ai-service\main.py:165: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+..\..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495
+..\..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495
+  C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)
+
+main.py:170
+  C:\Users\Laptop\.codex\worktrees\p1-fe-final-acceptance\testproject\ai-service\main.py:170: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+SKIPPED [1] tests\test_p1_contract_alignment.py:96: Authoritative transaction concurrency requires PostgreSQL
+SKIPPED [1] tests\test_p1_contract_alignment.py:129: Foreign durable registry isolation requires PostgreSQL
+SKIPPED [1] tests\test_p1_contract_alignment.py:161: Frozen inventory transaction guard requires PostgreSQL
+SKIPPED [1] tests\test_p1_contract_alignment.py:264: Public relationship mutation requires PostgreSQL
+SKIPPED [1] tests\test_p1_entity_semantics.py:284: Row-lock concurrency requires PostgreSQL
+SKIPPED [1] tests\test_p1_identity_final.py:165: Real row-lock concurrency is PostgreSQL-only
+SKIPPED [1] tests\test_p1_memory_entity_hitl.py:294: Row-lock concurrency requires PostgreSQL
+SKIPPED [1] tests\test_p1_memory_entity_hitl.py:326: Confirmation status is a PostgreSQL persistence field
+SKIPPED [2] tests\test_state_projection.py:199: SQL tenant boundary
+353 passed, 10 skipped, 187 deselected, 4 warnings in 28.49s

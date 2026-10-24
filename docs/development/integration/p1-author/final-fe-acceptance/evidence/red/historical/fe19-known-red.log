@@ -1,0 +1,73 @@
+FFF                                                                      [100%]
+================================== FAILURES ===================================
+_ test_offline_known_inventory_requires_human_identity_selection[known_names0] _
+
+known_names = ('Minh',)
+
+    @pytest.mark.parametrize('known_names', [('Minh',), ('Minh', 'Minh'), ('Lan',)])
+    def test_offline_known_inventory_requires_human_identity_selection(known_names):
+        from types import SimpleNamespace
+        from services.entity_pipeline.verification import EntityDecision, _validate
+        fake = load_tool('fake_provider_upstream')
+        known = {f'id-{i}': {'entity_id': f'id-{i}', 'name': name, 'entity_type': 'PER'}
+                 for i, name in enumerate(known_names)}
+        payload = {'candidates': [{'candidate_id': 'c1', 'surface': 'Minh'}], 'known_entities': list(known.values())}
+        output = json.loads(fake.integration_response('Verify EVERY supplied candidate OCCURRENCE',
+            {'messages': [{'role': 'user', 'content': json.dumps(payload)}]}))
+        decision = EntityDecision.model_validate(output['decisions'][0])
+>       assert decision.verdict == 'unresolved'
+E       AssertionError: assert 'entity' == 'unresolved'
+E         
+E         - unresolved
+E         + entity
+
+tests\test_p1_fe_final_contracts.py:60: AssertionError
+_ test_offline_known_inventory_requires_human_identity_selection[known_names1] _
+
+known_names = ('Minh', 'Minh')
+
+    @pytest.mark.parametrize('known_names', [('Minh',), ('Minh', 'Minh'), ('Lan',)])
+    def test_offline_known_inventory_requires_human_identity_selection(known_names):
+        from types import SimpleNamespace
+        from services.entity_pipeline.verification import EntityDecision, _validate
+        fake = load_tool('fake_provider_upstream')
+        known = {f'id-{i}': {'entity_id': f'id-{i}', 'name': name, 'entity_type': 'PER'}
+                 for i, name in enumerate(known_names)}
+        payload = {'candidates': [{'candidate_id': 'c1', 'surface': 'Minh'}], 'known_entities': list(known.values())}
+        output = json.loads(fake.integration_response('Verify EVERY supplied candidate OCCURRENCE',
+            {'messages': [{'role': 'user', 'content': json.dumps(payload)}]}))
+        decision = EntityDecision.model_validate(output['decisions'][0])
+>       assert decision.verdict == 'unresolved'
+E       AssertionError: assert 'entity' == 'unresolved'
+E         
+E         - unresolved
+E         + entity
+
+tests\test_p1_fe_final_contracts.py:60: AssertionError
+_ test_offline_known_inventory_requires_human_identity_selection[known_names2] _
+
+known_names = ('Lan',)
+
+    @pytest.mark.parametrize('known_names', [('Minh',), ('Minh', 'Minh'), ('Lan',)])
+    def test_offline_known_inventory_requires_human_identity_selection(known_names):
+        from types import SimpleNamespace
+        from services.entity_pipeline.verification import EntityDecision, _validate
+        fake = load_tool('fake_provider_upstream')
+        known = {f'id-{i}': {'entity_id': f'id-{i}', 'name': name, 'entity_type': 'PER'}
+                 for i, name in enumerate(known_names)}
+        payload = {'candidates': [{'candidate_id': 'c1', 'surface': 'Minh'}], 'known_entities': list(known.values())}
+        output = json.loads(fake.integration_response('Verify EVERY supplied candidate OCCURRENCE',
+            {'messages': [{'role': 'user', 'content': json.dumps(payload)}]}))
+        decision = EntityDecision.model_validate(output['decisions'][0])
+>       assert decision.verdict == 'unresolved'
+E       AssertionError: assert 'entity' == 'unresolved'
+E         
+E         - unresolved
+E         + entity
+
+tests\test_p1_fe_final_contracts.py:60: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_p1_fe_final_contracts.py::test_offline_known_inventory_requires_human_identity_selection[known_names0]
+FAILED tests/test_p1_fe_final_contracts.py::test_offline_known_inventory_requires_human_identity_selection[known_names1]
+FAILED tests/test_p1_fe_final_contracts.py::test_offline_known_inventory_requires_human_identity_selection[known_names2]
+3 failed, 9 deselected in 2.10s

@@ -1,0 +1,29 @@
+TAP version 13
+# Subtest: Real production Author IDE: mandatory S09–S11 and cross-feature acceptance
+not ok 1 - Real production Author IDE: mandatory S09–S11 and cross-feature acceptance
+  ---
+  duration_ms: 104071.0652
+  location: 'C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web\\tests\\p1-final-acceptance.browser.test.mjs:10:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByLabel('Ngày giờ đăng', { exact: true }) to be visible[22m
+    
+  code: 'ERR_TEST_FAILURE'
+  name: 'TimeoutError'
+  stack: |-
+    C:\Users\Laptop\.codex\worktrees\p1-fe-final-acceptance\testproject\web\tests\helpers\p1-cross-feature-smoke.mjs:68:61
+    async Object.step (C:\Users\Laptop\.codex\worktrees\p1-fe-final-acceptance\testproject\web\tests\helpers\p1-real-stack.mjs:153:11)
+    async crossFeatureSmoke (C:\Users\Laptop\.codex\worktrees\p1-fe-final-acceptance\testproject\web\tests\helpers\p1-cross-feature-smoke.mjs:63:3)
+    async TestContext.<anonymous> (C:\Users\Laptop\.codex\worktrees\p1-fe-final-acceptance\testproject\web\tests\p1-final-acceptance.browser.test.mjs:104:5)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 104842.8409

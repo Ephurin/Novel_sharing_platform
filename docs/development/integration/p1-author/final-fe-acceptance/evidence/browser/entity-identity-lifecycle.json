@@ -1,0 +1,887 @@
+{
+  "run": "a7699164-b7df-4c3a-82ec-b02ff84cb920",
+  "revision": "61e8f760-f440-4e72-9258-e87af92b6856",
+  "initial": {
+    "chunks": [
+      {
+        "end": 57,
+        "start": 0
+      }
+    ],
+    "counts": {
+      "entity": 4,
+      "candidates": 4
+    },
+    "policy": "entity-candidates-v1",
+    "status": "waiting_entity_review",
+    "aliases": [],
+    "request": {
+      "options": {
+        "extract_events": true,
+        "build_embeddings": false,
+        "extract_entities": true,
+        "check_consistency": true,
+        "extract_world_rules": false,
+        "extract_state_transitions": false
+      },
+      "novel_id": "de911636-eacb-48e2-a2ea-0555e1948dbc",
+      "operation": "incremental_story_analysis",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+      "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+      "content_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+      "idempotency_key": "analysis-61e8f760-f440-4e72-9258-e87af92b6856"
+    },
+    "entities": [],
+    "decisions": [
+      {
+        "reason": "Offline fixture suggestion; explicit human identity review required",
+        "verdict": "entity",
+        "confidence": 0.9,
+        "entity_type": "PER",
+        "candidate_id": "b9f5ebd08e13844a9e6993ac",
+        "status_quote": "",
+        "canonical_name": "bác sĩ Minh",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": "",
+        "provisional_identity_key": ""
+      },
+      {
+        "reason": "Offline fixture suggestion; explicit human identity review required",
+        "verdict": "entity",
+        "confidence": 0.9,
+        "entity_type": "PER",
+        "candidate_id": "860d52190bce583c8226847f",
+        "status_quote": "",
+        "canonical_name": "Minh",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": "",
+        "provisional_identity_key": ""
+      },
+      {
+        "reason": "Offline fixture suggestion; explicit human identity review required",
+        "verdict": "entity",
+        "confidence": 0.9,
+        "entity_type": "PER",
+        "candidate_id": "90aa831bbcd602c3561d0ada",
+        "status_quote": "",
+        "canonical_name": "Minh",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": "",
+        "provisional_identity_key": ""
+      },
+      {
+        "reason": "Offline fixture suggestion; explicit human identity review required",
+        "verdict": "entity",
+        "confidence": 0.9,
+        "entity_type": "PER",
+        "candidate_id": "6406442cea965652cff9c7fd",
+        "status_quote": "",
+        "canonical_name": "Minh",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": "",
+        "provisional_identity_key": ""
+      }
+    ],
+    "candidates": [
+      {
+        "end": 11,
+        "start": 0,
+        "context": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+        "origins": [
+          "title_or_location"
+        ],
+        "surface": "bác sĩ Minh",
+        "context_end": 57,
+        "candidate_id": "b9f5ebd08e13844a9e6993ac",
+        "context_start": 0
+      },
+      {
+        "end": 11,
+        "start": 7,
+        "context": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+        "origins": [
+          "capitalized_token"
+        ],
+        "surface": "Minh",
+        "context_end": 57,
+        "candidate_id": "860d52190bce583c8226847f",
+        "context_start": 0
+      },
+      {
+        "end": 27,
+        "start": 23,
+        "context": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+        "origins": [
+          "capitalized_token"
+        ],
+        "surface": "Minh",
+        "context_end": 57,
+        "candidate_id": "90aa831bbcd602c3561d0ada",
+        "context_start": 0
+      },
+      {
+        "end": 33,
+        "start": 29,
+        "context": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+        "origins": [
+          "capitalized_token"
+        ],
+        "surface": "Minh",
+        "context_end": 57,
+        "candidate_id": "6406442cea965652cff9c7fd",
+        "context_start": 0
+      }
+    ],
+    "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+    "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+    "source_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+    "brain_version": 1,
+    "chapter_number": 1,
+    "review_version": 1,
+    "analysis_run_id": "a7699164-b7df-4c3a-82ec-b02ff84cb920",
+    "guidance_version": 0,
+    "unanchored_discoveries": [],
+    "provisional_identity_scope": "e13f3c380911d08efc057b4222cb53f41fdf50fa909ed24ec9ca7a53d87db7c4",
+    "review_schema_version": 1,
+    "reviewed_decisions": [],
+    "pending_candidate_ids": [
+      "b9f5ebd08e13844a9e6993ac",
+      "860d52190bce583c8226847f",
+      "90aa831bbcd602c3561d0ada",
+      "6406442cea965652cff9c7fd"
+    ],
+    "known_entities": [],
+    "registry_brain_version": 1
+  },
+  "frozen": {
+    "chunks": [
+      {
+        "end": 57,
+        "start": 0
+      }
+    ],
+    "counts": {
+      "entity": 5,
+      "candidates": 5
+    },
+    "policy": "entity-candidates-v1",
+    "status": "entities_reviewed",
+    "aliases": [],
+    "request": {
+      "options": {
+        "extract_events": true,
+        "build_embeddings": false,
+        "extract_entities": true,
+        "check_consistency": true,
+        "extract_world_rules": false,
+        "extract_state_transitions": false
+      },
+      "novel_id": "de911636-eacb-48e2-a2ea-0555e1948dbc",
+      "operation": "incremental_story_analysis",
+      "tenant_id": "00000000-0000-0000-0000-000000000001",
+      "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+      "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+      "content_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+      "idempotency_key": "analysis-61e8f760-f440-4e72-9258-e87af92b6856"
+    },
+    "entities": [
+      {
+        "phrase": "Minh",
+        "entity": "PER",
+        "score": 9,
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "verified_start": 7,
+        "verified_end": 11,
+        "canonical_entity_id": "",
+        "provisional_identity_key": "e13f3c380911d08efc057b4222cb53f41fdf50fa909ed24ec9ca7a53d87db7c4/doctor",
+        "candidate_ids": [
+          "860d52190bce583c8226847f",
+          "6406442cea965652cff9c7fd"
+        ],
+        "entity_id": "9edbbcbe-54b3-4855-862b-d1ff2d8ccc45",
+        "occurrences": [
+          {
+            "candidate_id": "860d52190bce583c8226847f",
+            "start": 7,
+            "end": 11,
+            "quote": "Minh",
+            "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+            "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f"
+          },
+          {
+            "candidate_id": "6406442cea965652cff9c7fd",
+            "start": 29,
+            "end": 33,
+            "quote": "Minh",
+            "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+            "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f"
+          }
+        ]
+      },
+      {
+        "phrase": "Minh",
+        "entity": "PER",
+        "score": 9,
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "verified_start": 23,
+        "verified_end": 27,
+        "canonical_entity_id": "",
+        "provisional_identity_key": "e13f3c380911d08efc057b4222cb53f41fdf50fa909ed24ec9ca7a53d87db7c4/driver",
+        "candidate_ids": [
+          "90aa831bbcd602c3561d0ada"
+        ],
+        "entity_id": "2368d2ba-5f47-434c-8b51-a09c6b13fa1e",
+        "occurrences": [
+          {
+            "candidate_id": "90aa831bbcd602c3561d0ada",
+            "start": 23,
+            "end": 27,
+            "quote": "Minh",
+            "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+            "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f"
+          }
+        ]
+      },
+      {
+        "phrase": "lan",
+        "entity": "PER",
+        "score": 9,
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "verified_start": 44,
+        "verified_end": 47,
+        "canonical_entity_id": "",
+        "provisional_identity_key": "e13f3c380911d08efc057b4222cb53f41fdf50fa909ed24ec9ca7a53d87db7c4/witness",
+        "candidate_ids": [
+          "e41963bacaadda67809f1bb0"
+        ],
+        "entity_id": "59bf1840-2aee-403a-94b4-3a39f96e7fcb",
+        "occurrences": [
+          {
+            "candidate_id": "e41963bacaadda67809f1bb0",
+            "start": 44,
+            "end": 47,
+            "quote": "lan",
+            "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+            "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f"
+          }
+        ]
+      }
+    ],
+    "decisions": [
+      {
+        "reason": "Offline fixture suggestion; explicit human identity review required",
+        "verdict": "entity",
+        "confidence": 0.9,
+        "entity_type": "PER",
+        "candidate_id": "b9f5ebd08e13844a9e6993ac",
+        "status_quote": "",
+        "canonical_name": "bác sĩ Minh",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": "",
+        "provisional_identity_key": ""
+      },
+      {
+        "reason": "Offline fixture suggestion; explicit human identity review required",
+        "verdict": "entity",
+        "confidence": 0.9,
+        "entity_type": "PER",
+        "candidate_id": "860d52190bce583c8226847f",
+        "status_quote": "",
+        "canonical_name": "Minh",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": "",
+        "provisional_identity_key": ""
+      },
+      {
+        "reason": "Offline fixture suggestion; explicit human identity review required",
+        "verdict": "entity",
+        "confidence": 0.9,
+        "entity_type": "PER",
+        "candidate_id": "90aa831bbcd602c3561d0ada",
+        "status_quote": "",
+        "canonical_name": "Minh",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": "",
+        "provisional_identity_key": ""
+      },
+      {
+        "reason": "Offline fixture suggestion; explicit human identity review required",
+        "verdict": "entity",
+        "confidence": 0.9,
+        "entity_type": "PER",
+        "candidate_id": "6406442cea965652cff9c7fd",
+        "status_quote": "",
+        "canonical_name": "Minh",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": "",
+        "provisional_identity_key": ""
+      },
+      {
+        "reason": "Offline fixture suggestion; explicit human identity review required",
+        "verdict": "entity",
+        "confidence": 0.9,
+        "entity_type": "PER",
+        "candidate_id": "e41963bacaadda67809f1bb0",
+        "status_quote": "",
+        "canonical_name": "lan",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": "",
+        "provisional_identity_key": ""
+      }
+    ],
+    "candidates": [
+      {
+        "end": 11,
+        "start": 0,
+        "context": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+        "origins": [
+          "title_or_location"
+        ],
+        "surface": "bác sĩ Minh",
+        "context_end": 57,
+        "candidate_id": "b9f5ebd08e13844a9e6993ac",
+        "context_start": 0
+      },
+      {
+        "end": 11,
+        "start": 7,
+        "context": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+        "origins": [
+          "capitalized_token"
+        ],
+        "surface": "Minh",
+        "context_end": 57,
+        "candidate_id": "860d52190bce583c8226847f",
+        "context_start": 0
+      },
+      {
+        "end": 27,
+        "start": 23,
+        "context": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+        "origins": [
+          "capitalized_token"
+        ],
+        "surface": "Minh",
+        "context_end": 57,
+        "candidate_id": "90aa831bbcd602c3561d0ada",
+        "context_start": 0
+      },
+      {
+        "end": 33,
+        "start": 29,
+        "context": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+        "origins": [
+          "capitalized_token"
+        ],
+        "surface": "Minh",
+        "context_end": 57,
+        "candidate_id": "6406442cea965652cff9c7fd",
+        "context_start": 0
+      },
+      {
+        "end": 47,
+        "start": 44,
+        "context": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+        "origins": [
+          "author_guidance"
+        ],
+        "surface": "lan",
+        "context_end": 57,
+        "candidate_id": "e41963bacaadda67809f1bb0",
+        "context_start": 0
+      }
+    ],
+    "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+    "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+    "source_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+    "brain_version": 1,
+    "chapter_number": 1,
+    "review_version": 5,
+    "analysis_run_id": "a7699164-b7df-4c3a-82ec-b02ff84cb920",
+    "guidance_version": 1,
+    "preserved_entities": [],
+    "refresh_generation": 1,
+    "reviewed_decisions": [
+      {
+        "candidate_id": "860d52190bce583c8226847f",
+        "verdict": "entity",
+        "entity_type": "PER",
+        "canonical_name": "Minh",
+        "canonical_entity_id": "",
+        "provisional_identity_key": "e13f3c380911d08efc057b4222cb53f41fdf50fa909ed24ec9ca7a53d87db7c4/doctor",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.9,
+        "reason": "Author assigned to provisional identity group: doctor"
+      },
+      {
+        "candidate_id": "90aa831bbcd602c3561d0ada",
+        "verdict": "entity",
+        "entity_type": "PER",
+        "canonical_name": "Minh",
+        "canonical_entity_id": "",
+        "provisional_identity_key": "e13f3c380911d08efc057b4222cb53f41fdf50fa909ed24ec9ca7a53d87db7c4/driver",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.9,
+        "reason": "Author assigned to provisional identity group: driver"
+      },
+      {
+        "candidate_id": "b9f5ebd08e13844a9e6993ac",
+        "verdict": "not_entity",
+        "entity_type": null,
+        "canonical_name": "",
+        "canonical_entity_id": "",
+        "provisional_identity_key": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.9,
+        "reason": "Author rejected this occurrence"
+      },
+      {
+        "candidate_id": "6406442cea965652cff9c7fd",
+        "verdict": "entity",
+        "entity_type": "PER",
+        "canonical_name": "Minh",
+        "canonical_entity_id": "",
+        "provisional_identity_key": "e13f3c380911d08efc057b4222cb53f41fdf50fa909ed24ec9ca7a53d87db7c4/doctor",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.9,
+        "reason": "Author assigned to provisional identity group: doctor"
+      },
+      {
+        "candidate_id": "e41963bacaadda67809f1bb0",
+        "verdict": "entity",
+        "entity_type": "PER",
+        "canonical_name": "lan",
+        "canonical_entity_id": "",
+        "provisional_identity_key": "e13f3c380911d08efc057b4222cb53f41fdf50fa909ed24ec9ca7a53d87db7c4/witness",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.9,
+        "reason": "Author assigned to provisional identity group: witness"
+      }
+    ],
+    "preserved_decisions": [
+      {
+        "reason": "Author assigned to provisional identity group: doctor",
+        "verdict": "entity",
+        "confidence": 0.9,
+        "entity_type": "PER",
+        "candidate_id": "860d52190bce583c8226847f",
+        "status_quote": "",
+        "canonical_name": "Minh",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": "",
+        "provisional_identity_key": "e13f3c380911d08efc057b4222cb53f41fdf50fa909ed24ec9ca7a53d87db7c4/doctor"
+      },
+      {
+        "reason": "Author assigned to provisional identity group: other-driver",
+        "verdict": "entity",
+        "confidence": 0.9,
+        "entity_type": "PER",
+        "candidate_id": "90aa831bbcd602c3561d0ada",
+        "status_quote": "",
+        "canonical_name": "Minh",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "canonical_entity_id": "",
+        "provisional_identity_key": "e13f3c380911d08efc057b4222cb53f41fdf50fa909ed24ec9ca7a53d87db7c4/other-driver"
+      }
+    ],
+    "pending_candidate_ids": [],
+    "refresh_input_version": 3,
+    "unanchored_discoveries": [],
+    "provisional_identity_scope": "e13f3c380911d08efc057b4222cb53f41fdf50fa909ed24ec9ca7a53d87db7c4",
+    "identity_inventory_version": 2,
+    "review_finalize": true,
+    "review_submitted_decisions": [
+      {
+        "candidate_id": "b9f5ebd08e13844a9e6993ac",
+        "verdict": "not_entity",
+        "entity_type": null,
+        "canonical_name": "",
+        "canonical_entity_id": "",
+        "provisional_identity_key": "",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.9,
+        "reason": "Author rejected this occurrence"
+      },
+      {
+        "candidate_id": "860d52190bce583c8226847f",
+        "verdict": "entity",
+        "entity_type": "PER",
+        "canonical_name": "Minh",
+        "canonical_entity_id": "",
+        "provisional_identity_key": "e13f3c380911d08efc057b4222cb53f41fdf50fa909ed24ec9ca7a53d87db7c4/doctor",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.9,
+        "reason": "Author assigned to provisional identity group: doctor"
+      },
+      {
+        "candidate_id": "90aa831bbcd602c3561d0ada",
+        "verdict": "entity",
+        "entity_type": "PER",
+        "canonical_name": "Minh",
+        "canonical_entity_id": "",
+        "provisional_identity_key": "e13f3c380911d08efc057b4222cb53f41fdf50fa909ed24ec9ca7a53d87db7c4/driver",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.9,
+        "reason": "Author assigned to provisional identity group: driver"
+      },
+      {
+        "candidate_id": "6406442cea965652cff9c7fd",
+        "verdict": "entity",
+        "entity_type": "PER",
+        "canonical_name": "Minh",
+        "canonical_entity_id": "",
+        "provisional_identity_key": "e13f3c380911d08efc057b4222cb53f41fdf50fa909ed24ec9ca7a53d87db7c4/doctor",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.9,
+        "reason": "Author assigned to provisional identity group: doctor"
+      },
+      {
+        "candidate_id": "e41963bacaadda67809f1bb0",
+        "verdict": "entity",
+        "entity_type": "PER",
+        "canonical_name": "lan",
+        "canonical_entity_id": "",
+        "provisional_identity_key": "e13f3c380911d08efc057b4222cb53f41fdf50fa909ed24ec9ca7a53d87db7c4/witness",
+        "identity_quote": "",
+        "initial_status": "Unknown",
+        "status_quote": "",
+        "confidence": 0.9,
+        "reason": "Author assigned to provisional identity group: witness"
+      }
+    ],
+    "review_input_version": 4,
+    "review_schema_version": 1,
+    "known_entities": [],
+    "registry_brain_version": 1
+  },
+  "proposals": [
+    {
+      "proposal_id": "3ffd7989-0605-53da-8e27-c57971b171b0",
+      "proposal_type": "entity",
+      "payload": {
+        "entity_id": "9edbbcbe-54b3-4855-862b-d1ff2d8ccc45",
+        "entity_type": "PER",
+        "source_type": "prose",
+        "canonical_name": "Minh",
+        "chapter_number": 1,
+        "initial_status": "Unknown",
+        "normalized_name": "minh"
+      },
+      "analysis_run_id": "a7699164-b7df-4c3a-82ec-b02ff84cb920",
+      "dependency_group_id": "08c55aa4-56b1-5ad2-817f-aa4f0dc9dee4",
+      "materialization_order": 0,
+      "evidence": [
+        {
+          "end": 11,
+          "quote": "Minh",
+          "start": 7,
+          "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+          "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+          "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+          "chapter_number": 1
+        }
+      ],
+      "confidence": 0.9,
+      "expected_brain_version": 1,
+      "status": "pending",
+      "decision_reason": null,
+      "review_priority": 40,
+      "review_reason": "standard_review"
+    },
+    {
+      "proposal_id": "24ac4ab0-393d-53e6-9569-fa6bc044956a",
+      "proposal_type": "entity",
+      "payload": {
+        "entity_id": "2368d2ba-5f47-434c-8b51-a09c6b13fa1e",
+        "entity_type": "PER",
+        "source_type": "prose",
+        "canonical_name": "Minh",
+        "chapter_number": 1,
+        "initial_status": "Unknown",
+        "normalized_name": "minh"
+      },
+      "analysis_run_id": "a7699164-b7df-4c3a-82ec-b02ff84cb920",
+      "dependency_group_id": "08c55aa4-56b1-5ad2-817f-aa4f0dc9dee4",
+      "materialization_order": 1,
+      "evidence": [
+        {
+          "end": 27,
+          "quote": "Minh",
+          "start": 23,
+          "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+          "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+          "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+          "chapter_number": 1
+        }
+      ],
+      "confidence": 0.9,
+      "expected_brain_version": 1,
+      "status": "pending",
+      "decision_reason": null,
+      "review_priority": 40,
+      "review_reason": "standard_review"
+    },
+    {
+      "proposal_id": "8d023c8a-f887-5555-ac40-d398c40b4479",
+      "proposal_type": "entity",
+      "payload": {
+        "entity_id": "59bf1840-2aee-403a-94b4-3a39f96e7fcb",
+        "entity_type": "PER",
+        "source_type": "prose",
+        "canonical_name": "lan",
+        "chapter_number": 1,
+        "initial_status": "Unknown",
+        "normalized_name": "lan"
+      },
+      "analysis_run_id": "a7699164-b7df-4c3a-82ec-b02ff84cb920",
+      "dependency_group_id": "08c55aa4-56b1-5ad2-817f-aa4f0dc9dee4",
+      "materialization_order": 2,
+      "evidence": [
+        {
+          "end": 47,
+          "quote": "lan",
+          "start": 44,
+          "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+          "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+          "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+          "chapter_number": 1
+        }
+      ],
+      "confidence": 0.9,
+      "expected_brain_version": 1,
+      "status": "pending",
+      "decision_reason": null,
+      "review_priority": 40,
+      "review_reason": "standard_review"
+    },
+    {
+      "proposal_id": "72a766ee-5552-52b3-b204-97bfd0b7c165",
+      "proposal_type": "event",
+      "payload": {
+        "chapter": 1,
+        "summary": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+        "locations": [],
+        "event_type": "observation",
+        "consequences": [],
+        "participants": [
+          "9edbbcbe-54b3-4855-862b-d1ff2d8ccc45",
+          "2368d2ba-5f47-434c-8b51-a09c6b13fa1e",
+          "59bf1840-2aee-403a-94b4-3a39f96e7fcb"
+        ],
+        "chapter_number": 1
+      },
+      "analysis_run_id": "a7699164-b7df-4c3a-82ec-b02ff84cb920",
+      "dependency_group_id": "08c55aa4-56b1-5ad2-817f-aa4f0dc9dee4",
+      "materialization_order": 3,
+      "evidence": [
+        {
+          "end": 57,
+          "quote": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+          "start": 0,
+          "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+          "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+          "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+          "chapter_number": 1
+        }
+      ],
+      "confidence": 1,
+      "expected_brain_version": 1,
+      "status": "pending",
+      "decision_reason": null,
+      "review_priority": 40,
+      "review_reason": "standard_review"
+    }
+  ],
+  "approved": {
+    "schema_version": 1,
+    "story_id": "de911636-eacb-48e2-a2ea-0555e1948dbc",
+    "brain_id": "0b604702-2a60-4655-abe6-59886011feb2",
+    "brain_version": 2,
+    "entities": [
+      {
+        "name": "Minh",
+        "entity_id": "9edbbcbe-54b3-4855-862b-d1ff2d8ccc45",
+        "entity_type": "PER",
+        "status": "Unknown",
+        "location": "Unknown",
+        "mentions": 1,
+        "is_locked": false
+      },
+      {
+        "name": "Minh",
+        "entity_id": "2368d2ba-5f47-434c-8b51-a09c6b13fa1e",
+        "entity_type": "PER",
+        "status": "Unknown",
+        "location": "Unknown",
+        "mentions": 1,
+        "is_locked": false
+      },
+      {
+        "name": "lan",
+        "entity_id": "59bf1840-2aee-403a-94b4-3a39f96e7fcb",
+        "entity_type": "PER",
+        "status": "Unknown",
+        "location": "Unknown",
+        "mentions": 1,
+        "is_locked": false
+      }
+    ],
+    "aliases": [],
+    "mentions": [],
+    "events": [
+      {
+        "event_id": "72a766ee-5552-52b3-b204-97bfd0b7c165",
+        "event_type": "observation",
+        "participants": [
+          "9edbbcbe-54b3-4855-862b-d1ff2d8ccc45",
+          "2368d2ba-5f47-434c-8b51-a09c6b13fa1e",
+          "59bf1840-2aee-403a-94b4-3a39f96e7fcb"
+        ],
+        "summary": "Hai người tên Minh gặp nhau; bác sĩ mở hồ sơ.",
+        "chapter": 1,
+        "metadata": {
+          "chapter": 1,
+          "summary": "Hai người tên Minh gặp nhau; bác sĩ mở hồ sơ.",
+          "evidence": [
+            {
+              "end": 57,
+              "quote": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+              "start": 0,
+              "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+              "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+              "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+              "chapter_number": 1
+            }
+          ],
+          "locations": [],
+          "event_type": "observation",
+          "consequences": [],
+          "participants": [
+            "9edbbcbe-54b3-4855-862b-d1ff2d8ccc45",
+            "2368d2ba-5f47-434c-8b51-a09c6b13fa1e",
+            "59bf1840-2aee-403a-94b4-3a39f96e7fcb"
+          ],
+          "chapter_number": 1
+        }
+      }
+    ],
+    "facts": [],
+    "relations": [],
+    "transitions": [],
+    "current_state": {
+      "entities": {},
+      "provenance": {},
+      "relationships": [],
+      "projection_version": 1
+    },
+    "metadata": {
+      "brain_id": "0b604702-2a60-4655-abe6-59886011feb2",
+      "brain_version": "2",
+      "status": "active",
+      "baseline_revision_id": "cf5a63be-9bae-422e-9688-5cdef80fa50d"
+    },
+    "provenance": [
+      {
+        "proposal_id": "24ac4ab0-393d-53e6-9569-fa6bc044956a",
+        "proposal_type": "entity",
+        "analysis_run_id": "a7699164-b7df-4c3a-82ec-b02ff84cb920",
+        "source_type": "prose",
+        "evidence": [
+          {
+            "end": 27,
+            "quote": "Minh",
+            "start": 23,
+            "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+            "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+            "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "proposal_id": "3ffd7989-0605-53da-8e27-c57971b171b0",
+        "proposal_type": "entity",
+        "analysis_run_id": "a7699164-b7df-4c3a-82ec-b02ff84cb920",
+        "source_type": "prose",
+        "evidence": [
+          {
+            "end": 11,
+            "quote": "Minh",
+            "start": 7,
+            "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+            "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+            "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "proposal_id": "72a766ee-5552-52b3-b204-97bfd0b7c165",
+        "proposal_type": "event",
+        "analysis_run_id": "a7699164-b7df-4c3a-82ec-b02ff84cb920",
+        "source_type": "AI",
+        "evidence": [
+          {
+            "end": 57,
+            "quote": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+            "start": 0,
+            "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+            "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+            "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "proposal_id": "8d023c8a-f887-5555-ac40-d398c40b4479",
+        "proposal_type": "entity",
+        "analysis_run_id": "a7699164-b7df-4c3a-82ec-b02ff84cb920",
+        "source_type": "prose",
+        "evidence": [
+          {
+            "end": 47,
+            "quote": "lan",
+            "start": 44,
+            "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+            "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+            "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+            "chapter_number": 1
+          }
+        ]
+      }
+    ]
+  }
+}

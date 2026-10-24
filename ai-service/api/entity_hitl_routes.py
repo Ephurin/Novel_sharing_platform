@@ -104,7 +104,7 @@ def memory(novel_id: UUID, service=Depends(get_revision_analysis_service)):
         transitions=transitions, current_state=state, metadata=brain.metadata,
         provenance=[{'proposal_id': p.proposal_id, 'proposal_type': p.proposal_type,
             'analysis_run_id': p.analysis_run_id, 'source_type': p.payload.get('source_type', 'AI'),
-            'evidence': list(p.evidence)} for p in brain.proposals if p.status.value == 'accepted'])
+            'evidence': list(p.evidence)} for p in sorted(brain.proposals, key=lambda p: p.proposal_id) if p.status.value == 'accepted'])
     return {'data': dto.model_dump()}
 
 

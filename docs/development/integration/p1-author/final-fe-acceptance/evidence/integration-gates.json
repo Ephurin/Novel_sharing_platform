@@ -1,0 +1,9 @@
+{
+  "G0": "PASS",
+  "G1": "PASS",
+  "G2": "PASS",
+  "G3": "PASS",
+  "G4": "PASS_BOUNDED_SMOKE",
+  "G5": "NOT_RUN_INDEPENDENT_REVIEW_REQUIRED",
+  "aggregation": "Browser-owned matrix records G2-G4. G0/G1 aggregate source ancestry/tree proof, CLI migration/build/typecheck and durable API negative readbacks; browser G0/G1 placeholders are not global gate results."
+}

@@ -1,0 +1,71 @@
+{
+  "reason": "Legacy pytest.ini basetemp was tracked. Preserve attempt outputs and restore exact source blobs; final runner uses a new external basetemp for every run.",
+  "records": [
+    {
+      "path": "ai-service/.pytest_tmp/test_bad_transition_rolls_back1/story.json",
+      "attempt_sha256": "2d2ac3eaef1a11a270ea76ef7b4381fc65745d1fb744b583d910e725c7c0f6e9",
+      "restored_git_blob_sha256": "fbef224f3159d9f364519073c06e03baef14ec8a47fd26db1b720279c1f1518d"
+    },
+    {
+      "path": "ai-service/.pytest_tmp/test_correction_replays_at_ori1/story.json",
+      "attempt_sha256": "2c8184904d6e83e23b0163df0cab8d70227410770b28b8a073ae82fcd154b665",
+      "restored_git_blob_sha256": "57364c260e4d085fa7c8a3f742cca077a83f729c542a2456388841b73b4e621a"
+    },
+    {
+      "path": "ai-service/.pytest_tmp/test_correction_service_create1/story.json",
+      "attempt_sha256": "d4420be6bba16fcbe53bb50986815401e34c43563482ef1c31452e0f5c3a6851",
+      "restored_git_blob_sha256": "60d6d59240ab82f05cc4ec583c67f7e33fe631d1e11118a0eb413e294d3c6581"
+    },
+    {
+      "path": "ai-service/.pytest_tmp/test_duplicate_event_and_compe1/story.json",
+      "attempt_sha256": "600fe503f525e33703667d2ca8b3c49573b04ba425a84d8b8d75c4596a259ebb",
+      "restored_git_blob_sha256": "39c1c1af1cd6ef1c0624daaaf378e7f9fd48014f64b8120f86755d86e2f21d55"
+    },
+    {
+      "path": "ai-service/.pytest_tmp/test_initial_fact_produces_tra1/story.json",
+      "attempt_sha256": "7df2165155a3ca691342cbea8d3a5a9a497c07cce6b6d62768db47e7bcdf6d3e",
+      "restored_git_blob_sha256": "e16418e18eba02b8f3da4b3ea256f7b2aaa96546c1c1048080ec5bdcc6809553"
+    },
+    {
+      "path": "ai-service/.pytest_tmp/test_locked_relationship_rolls1/story.json",
+      "attempt_sha256": "4601edbfe3a80160effbf267f307c7f55f1f219c3c7075d6b180c788edbec233",
+      "restored_git_blob_sha256": "12374d604fa8a5801237a266d6328bcdc4272b4030e11f6e60e1a01c5cf809fd"
+    },
+    {
+      "path": "ai-service/.pytest_tmp/test_matching_author_relations1/story.json",
+      "attempt_sha256": "13aebcbf4f2287ff8ace30bc578cb3ee2d6798dfc07fd9ef28de2d86d6088029",
+      "restored_git_blob_sha256": "3fa6fd01fb059f6c83fffb870cd9e56800bdfe49208340aa4cda30ca94bbe26a"
+    },
+    {
+      "path": "ai-service/.pytest_tmp/test_rebuild_equals_online_and1/story.json",
+      "attempt_sha256": "af0ab3ea3c79d85eed1b6346a8fd5ac489273161f2dc8512af3607467a7ee3d1",
+      "restored_git_blob_sha256": "ecb37f24e231b58598653ead746a40ee4fa6bd1840d557ac352a5237b0c9d667"
+    },
+    {
+      "path": "ai-service/.pytest_tmp/test_rebuild_failure_keeps_pre1/story.json",
+      "attempt_sha256": "0dd3e2f203e2129cf2a72958a00ef9338a89fdac847a857788f8fbb5b14f8662",
+      "restored_git_blob_sha256": "c12fd8d898d9327a71c9e87eb4b45421f351ecfdddabdeda1033699ac0d15403"
+    },
+    {
+      "path": "ai-service/.pytest_tmp/test_relationship_projection_h1/story.json",
+      "attempt_sha256": "4f805488d328ebc61260f68bef3b88521f174407bea64813fb99c75aba9dcfb8",
+      "restored_git_blob_sha256": "fe0f68f16258a09e6f3343b04d14dcf4133f0ead7fc01c3a678e41f916fb1a38"
+    },
+    {
+      "path": "ai-service/.pytest_tmp/test_sql_tenant_scope_on_state1/story.json",
+      "attempt_sha256": "55979fce84f83d68161da59c3134d7b625c2d6b84d01d754c78a6c1d906cdd2d",
+      "restored_git_blob_sha256": "7e773628939c60c4078184066c9a18d99693fa1de118cf36b3c421c520a0afe6"
+    },
+    {
+      "path": "ai-service/.pytest_tmp/test_transition_cannot_referen1/other.json",
+      "attempt_sha256": "791da388563060471916265cf267eecfe77345065d444afb418dc0940e937aac",
+      "restored_git_blob_sha256": "a9c53b752092c9506fa90c9a339879adba99cb47aae54fe3c51968896635fb42"
+    },
+    {
+      "path": "ai-service/.pytest_tmp/test_transition_cannot_referen1/story.json",
+      "attempt_sha256": "d4618bd8de575dfa1a44895d5c1692a276f3fcf2ad4dfa064d1af15d653333c7",
+      "restored_git_blob_sha256": "a97d4acbcca25a53c6fe8a78f8306eacdbfcfd46373e6368e05102f315d2c8ec"
+    }
+  ],
+  "checkout_eol_restored": true
+}

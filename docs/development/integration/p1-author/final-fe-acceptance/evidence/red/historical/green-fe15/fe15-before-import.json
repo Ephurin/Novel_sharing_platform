@@ -1,0 +1,8 @@
+{
+  "trusted": [
+    {
+      "authorization_present": true
+    }
+  ],
+  "untrusted": []
+}

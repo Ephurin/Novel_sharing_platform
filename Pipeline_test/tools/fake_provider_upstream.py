@@ -8,11 +8,41 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 
-def integration_response(text):
+def integration_response(text, body=None):
     """Scripted source-grounded responses for integration's legacy prompt framing.
     Not model quality or real-provider evidence. Unknown prompts fail explicitly.
     """
-    if 'Extract only state changes explicitly supported by this event' in text:
+    messages = (body or {}).get('messages', [])
+    system = '\n'.join(str(m.get('content', '')) for m in messages if m.get('role') == 'system') or text
+    def payload():
+        users = [m for m in messages if m.get('role') == 'user']
+        if not users:
+            raise ValueError('Offline structured fixture requires a user JSON payload')
+        return json.loads(users[-1]['content'])
+    if 'Verify EVERY supplied candidate OCCURRENCE' in system:
+        data = payload()
+        # With an existing inventory the fake cannot establish identity. Leave every
+        # occurrence unresolved for explicit human canonical/provisional selection.
+        known = bool(data.get('known_entities'))
+        return json.dumps({'decisions': [dict(candidate_id=c['candidate_id'], verdict='unresolved' if known else 'entity',
+            entity_type=None if known else ('LOC' if c['surface'] == 'Cồn Vân' else 'PER'), canonical_name='' if known else c['surface'],
+            canonical_entity_id='', provisional_identity_key='', identity_quote='',
+            initial_status='Unknown', status_quote='', confidence=0.9,
+            reason='Offline fixture suggestion; explicit human identity review required')
+            for c in data['candidates']]}, ensure_ascii=False)
+    if 'Extract narrative events only from this source' in system:
+        data = payload()
+        source = data['source_text']
+        if not isinstance(source, str) or not source.strip():
+            raise ValueError('Offline event fixture requires nonempty immutable source')
+        return json.dumps({'events': [dict(event_type='observation', summary=source, quote=source,
+            participants=[e['entity_id'] for e in data['known_entities'] if e['entity_type'] == 'PER'],
+            locations=[e['entity_id'] for e in data['known_entities'] if e['entity_type'] == 'LOC'],
+            consequences=[])]}, ensure_ascii=False)
+    if 'Extract atomic narrative facts directly from the prose' in system:
+        return json.dumps({'facts': []})
+    if ('Extract only state changes explicitly supported by this event' in system
+            or 'Extract only explicit state changes supported by this event' in system):
         return json.dumps({'transitions':[]})
     if 'narrative state extractor' in text:
         return json.dumps({'states':[]})
@@ -130,7 +160,7 @@ class FakeHandler(BaseHTTPRequestHandler):
         else:
             assert self.path == '/v1/chat/completions' and body['max_tokens'] > 0
             text = '\n\n'.join(str(m.get('content','')) for m in body['messages'])
-            content = integration_response(text)
+            content = integration_response(text, body)
             config = {'max_tokens': body['max_tokens']}
             result = {'id': self.headers['X-Gateway-Dispatch-Id'], 'object': 'chat.completion',
                       'created': int(time.time()), 'model': body['model'],

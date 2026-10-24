@@ -1,0 +1,185 @@
+{
+  "initial": {
+    "entities": [
+      {
+        "id": "780c0f01-5e6c-48f6-970e-38c0aed81a14",
+        "story_brain_id": "71b35020-20e4-4e12-bcfa-5d8c6dafa38a",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "e52dbbe8-e7d5-428d-ad3f-5ecfd113e67e",
+        "entity_type": "PER",
+        "canonical_name": "Mai Linh",
+        "normalized_name": "mai linh",
+        "description": null,
+        "static_attributes": {
+          "status": "Unknown",
+          "location": "Unknown",
+          "mentions": 1,
+          "source_type": "prose"
+        },
+        "source_type": "AI",
+        "confirmation_status": "confirmed",
+        "confidence": 0.9,
+        "is_locked": false,
+        "created_by": null,
+        "created_at": "2026-10-24T09:00:17.005102+00:00",
+        "updated_at": "2026-10-24T09:00:17.005102+00:00"
+      },
+      {
+        "id": "16426fc0-ce7d-42a2-8b7d-d3bd322ecdad",
+        "story_brain_id": "71b35020-20e4-4e12-bcfa-5d8c6dafa38a",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "e52dbbe8-e7d5-428d-ad3f-5ecfd113e67e",
+        "entity_type": "PER",
+        "canonical_name": "Duy",
+        "normalized_name": "duy",
+        "description": null,
+        "static_attributes": {
+          "status": "Unknown",
+          "location": "Unknown",
+          "mentions": 1,
+          "source_type": "prose"
+        },
+        "source_type": "AI",
+        "confirmation_status": "confirmed",
+        "confidence": 0.9,
+        "is_locked": false,
+        "created_by": null,
+        "created_at": "2026-10-24T09:00:17.005102+00:00",
+        "updated_at": "2026-10-24T09:00:17.005102+00:00"
+      },
+      {
+        "id": "e5bfb33a-5cdc-4a77-a348-b29384acaef9",
+        "story_brain_id": "71b35020-20e4-4e12-bcfa-5d8c6dafa38a",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "e52dbbe8-e7d5-428d-ad3f-5ecfd113e67e",
+        "entity_type": "LOC",
+        "canonical_name": "Cồn Vân",
+        "normalized_name": "cồn vân",
+        "description": null,
+        "static_attributes": {
+          "status": "Unknown",
+          "location": "Unknown",
+          "mentions": 1,
+          "source_type": "prose"
+        },
+        "source_type": "AI",
+        "confirmation_status": "confirmed",
+        "confidence": 0.9,
+        "is_locked": false,
+        "created_by": null,
+        "created_at": "2026-10-24T09:00:17.005102+00:00",
+        "updated_at": "2026-10-24T09:00:17.005102+00:00"
+      }
+    ],
+    "events": [
+      {
+        "id": "db4ed1e1-e488-5a75-aed6-e49dadd4d033",
+        "story_brain_id": "71b35020-20e4-4e12-bcfa-5d8c6dafa38a",
+        "tenant_id": "00000000-0000-0000-0000-000000000001",
+        "novel_id": "e52dbbe8-e7d5-428d-ad3f-5ecfd113e67e",
+        "narrative_order": 1024,
+        "event_type": "observation",
+        "summary": "Mai Linh và Duy đứng tại Cồn Vân.",
+        "participants": [
+          "780c0f01-5e6c-48f6-970e-38c0aed81a14",
+          "16426fc0-ce7d-42a2-8b7d-d3bd322ecdad"
+        ],
+        "event_metadata": {
+          "chapter": 1,
+          "summary": "Mai Linh và Duy đứng tại Cồn Vân.",
+          "evidence": [
+            {
+              "end": 33,
+              "quote": "Mai Linh và Duy đứng tại Cồn Vân.",
+              "start": 0,
+              "text_hash": "38366e825a436856d1e566550ce9960a5fb35df8d637c7a39663505a24d98b91",
+              "chapter_id": "680e0284-4cd0-4832-bbe9-0c02838b7817",
+              "revision_id": "3eebcf75-2600-4945-a1ed-5629922a388e",
+              "chapter_number": 1
+            }
+          ],
+          "locations": [],
+          "event_type": "observation",
+          "consequences": [],
+          "participants": [
+            "780c0f01-5e6c-48f6-970e-38c0aed81a14",
+            "16426fc0-ce7d-42a2-8b7d-d3bd322ecdad"
+          ],
+          "chapter_number": 1
+        },
+        "chapter_number": 1,
+        "source_type": "AI",
+        "confirmation_status": "confirmed",
+        "created_at": "2026-10-24T09:00:17.005102+00:00"
+      }
+    ],
+    "brain_version": 2
+  },
+  "final": {
+    "entities": [
+      {
+        "name": "Mai Linh",
+        "entity_id": "780c0f01-5e6c-48f6-970e-38c0aed81a14",
+        "entity_type": "PER",
+        "status": "Unknown",
+        "location": "Unknown",
+        "mentions": 1,
+        "is_locked": false
+      },
+      {
+        "name": "Duy",
+        "entity_id": "16426fc0-ce7d-42a2-8b7d-d3bd322ecdad",
+        "entity_type": "PER",
+        "status": "Unknown",
+        "location": "Unknown",
+        "mentions": 1,
+        "is_locked": false
+      },
+      {
+        "name": "Cồn Vân",
+        "entity_id": "e5bfb33a-5cdc-4a77-a348-b29384acaef9",
+        "entity_type": "LOC",
+        "status": "Unknown",
+        "location": "Unknown",
+        "mentions": 1,
+        "is_locked": false
+      }
+    ],
+    "events": [
+      {
+        "event_id": "0df2bd18-7aec-4ee4-b7f9-49b78175f71a",
+        "event_type": "observation",
+        "participants": [
+          "780c0f01-5e6c-48f6-970e-38c0aed81a14",
+          "16426fc0-ce7d-42a2-8b7d-d3bd322ecdad"
+        ],
+        "summary": "Mai Linh và Duy đứng cạnh đài quan sát Cồn Vân.",
+        "chapter": 1,
+        "metadata": {
+          "chapter": 1,
+          "summary": "Mai Linh và Duy đứng cạnh đài quan sát Cồn Vân.",
+          "event_id": "0df2bd18-7aec-4ee4-b7f9-49b78175f71a",
+          "evidence": [
+            {
+              "end": 33,
+              "quote": "Mai Linh và Duy đứng tại Cồn Vân.",
+              "start": 0,
+              "text_hash": "38366e825a436856d1e566550ce9960a5fb35df8d637c7a39663505a24d98b91",
+              "chapter_id": "680e0284-4cd0-4832-bbe9-0c02838b7817",
+              "revision_id": "3eebcf75-2600-4945-a1ed-5629922a388e",
+              "chapter_number": 1
+            }
+          ],
+          "event_type": "observation",
+          "source_type": "author",
+          "participants": [
+            "780c0f01-5e6c-48f6-970e-38c0aed81a14",
+            "16426fc0-ce7d-42a2-8b7d-d3bd322ecdad"
+          ],
+          "supersedes_id": "db4ed1e1-e488-5a75-aed6-e49dadd4d033"
+        }
+      }
+    ],
+    "brain_version": 3
+  }
+}
