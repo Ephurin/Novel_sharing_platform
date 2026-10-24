@@ -41,8 +41,13 @@ test('live Gateway -> AI -> PostgreSQL: approved memory and revision-bound entit
     const proposals = (await pool.query('SELECT id,proposal_type,status,payload,evidence FROM narrative.proposals WHERE novel_id=$1 ORDER BY materialization_order', [novel])).rows;
     const relationships = (await pool.query('SELECT * FROM narrative.relationships WHERE novel_id=$1', [novel])).rows;
     const facts = (await pool.query('SELECT id,fact_key,source_revision_id,chapter_number FROM narrative.facts WHERE novel_id=$1', [novel])).rows;
+    const canon: Record<string, unknown[]> = {};
+    for (const table of ['entities', 'events', 'facts', 'state_transitions', 'current_entity_states']) {
+      canon[table] = (await pool.query(`SELECT * FROM narrative.${table} WHERE novel_id=$1 ORDER BY 1`, [novel])).rows;
+    }
+    canon.decisions = (await pool.query('SELECT d.* FROM narrative.proposal_decisions d JOIN narrative.proposals p ON p.id=d.proposal_id WHERE p.novel_id=$1 ORDER BY d.id', [novel])).rows;
     const revisionRows = (await pool.query('SELECT revision_id,content_hash,content FROM chapter_revisions WHERE revision_id=$1', [observedRevision])).rows;
-    const value = { stage, brain, runs, proposals, facts, relationships, revisions: revisionRows,
+    const value = { stage, brain, runs, proposals, facts, relationships, canon, revisions: revisionRows,
       mongo: await mongo.collection('draft_chapters').find({ chapterId: chapter }).toArray() };
     readbacks.push(value);
     return value;
@@ -71,6 +76,9 @@ test('live Gateway -> AI -> PostgreSQL: approved memory and revision-bound entit
     assert.equal(analysis.status, 'waiting_entity_review');
     const run = analysis.analysis_run_id;
     const audit = await http(`/entity-candidate-audits/${run}`);
+    assert.equal(audit.review_schema_version, 1);
+    assert.deepEqual(audit.reviewed_decisions, []);
+    assert.deepEqual(audit.known_entities, []);
     assert.equal(audit.revision_id, revision);
     assert.equal(audit.source_hash, hash);
     assert.ok(audit.candidates.every((c: any) => c.surface !== 'Absent Hint'));
@@ -125,25 +133,50 @@ test('live Gateway -> AI -> PostgreSQL: approved memory and revision-bound entit
     const queue = await http('/review-queue');
     const group = queue[0].dependency_group_id;
     const acceptUrl = `${base.slice(0, base.indexOf('/story-brains'))}/proposal-groups/${group}/accept`;
+    const editedEvent = queue.find((p: any) => p.proposal_type === 'event');
+    const editedFact = queue.find((p: any) => p.proposal_type === 'fact');
+    const editedPayloads = {
+      [editedEvent.proposal_id]: { ...editedEvent.payload, summary: 'Exact author HTTP summary' },
+      [editedFact.proposal_id]: { ...editedFact.payload, fact_value: 'Exact author HTTP fact' },
+    };
+    const approval = { proposal_ids: queue.map((p: any) => p.proposal_id), expected_brain_version: 1,
+      edited_payloads: editedPayloads };
     const beforeUnauthorized = await durable('canon-authorization-before');
     for (const [token, expected] of [[null,401],[foreignToken,403]] as const) {
       const denied = await fetch(acceptUrl, {method:'POST', headers:{'Content-Type':'application/json',
         ...(token ? {Authorization:`Bearer ${token}`} : {})},
-        body:JSON.stringify({proposal_ids:queue.map((p:any)=>p.proposal_id),expected_brain_version:1})});
+        body:JSON.stringify(approval)});
       const deniedBody = await denied.json();
       requests.push({method:'POST',path:`/proposal-groups/${group}/accept`,actor:token?'foreign':'anonymous',status:denied.status,response:deniedBody});
       assert.equal(denied.status,expected,JSON.stringify(deniedBody));
       const after = await durable('canon-authorization-after-'+expected);
       assert.deepEqual({...after,stage:''},{...beforeUnauthorized,stage:''});
     }
+    for (const invalid of [
+      { ...approval, edited_payloads: { ...editedPayloads, [randomUUID()]: editedEvent.payload } },
+      { ...approval, edited_payloads: { ...editedPayloads, [editedEvent.proposal_id]: { ...editedEvent.payload, evidence: [{ revision_id: randomUUID() }] } } },
+      { ...approval, edited_payloads: { ...editedPayloads, [editedEvent.proposal_id]: { ...editedEvent.payload, participants: [randomUUID()] } } },
+      { ...approval, expected_brain_version: 99 },
+    ]) {
+      const response = await fetch(acceptUrl, { method: 'POST', headers: {
+        Authorization: `Bearer ${ownerToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(invalid) });
+      const result = await response.json();
+      requests.push({ method: 'POST', path: '/proposal-groups/accept-invalid', status: response.status, response: result });
+      assert.equal(response.status, invalid.expected_brain_version === 99 ? 409 : 422, JSON.stringify(result));
+      const after = await durable('invalid-edited-group');
+      assert.deepEqual({ ...after, stage: '' }, { ...beforeUnauthorized, stage: '' });
+    }
     const accepted = await fetch(acceptUrl, { method: 'POST', headers: { Authorization: `Bearer ${ownerToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ proposal_ids: queue.map((p: any) => p.proposal_id), expected_brain_version: 1 }) });
+      body: JSON.stringify(approval) });
     const acceptedBody = await accepted.json();
     requests.push({ method: 'POST', path: `/proposal-groups/${group}/accept`, status: accepted.status, response: acceptedBody });
     assert.equal(accepted.status, 200, JSON.stringify(acceptedBody));
     const memory = await http('/memory');
     assert.equal(memory.brain_version, 2);
     assert.ok(memory.entities.length && memory.events.length && memory.facts.length);
+    assert.ok(memory.events.some((e: any) => e.summary === 'Exact author HTTP summary'));
+    assert.ok(memory.facts.some((f: any) => f.fact_value === 'Exact author HTTP fact'));
+    assert.ok(Array.isArray(memory.transitions));
     const final = await durable('approved-memory');
     assert.ok(final.proposals.every(p => p.status === 'accepted'));
     assert.equal(final.facts[0].source_revision_id, revision);
@@ -154,12 +187,19 @@ test('live Gateway -> AI -> PostgreSQL: approved memory and revision-bound entit
     const minhIds = memory.entities.filter((e: any) => e.name === 'Minh').map((e: any) => e.entity_id);
     assert.equal(new Set(minhIds).size, 2);
     const [firstId, secondId] = minhIds;
-    const locked = await fetch(`${env.AI_SERVICE_URL}/v1/enhanced/relation/override`, { method:'POST',
-      headers:{'Content-Type':'application/json', 'X-Service-Token':env.PLATFORM_SERVICE_TOKEN!},
-      body:JSON.stringify({story_id:novel, subject:secondId, relation:'ally', object:secondId}) });
-    const lockBody = await locked.json();
-    requests.push({method:'POST', path:'/v1/enhanced/relation/override', actor:'trusted-author-service', status:locked.status, response:lockBody});
-    assert.equal(locked.status,200,JSON.stringify(lockBody));
+    const lockRequest = { subject_entity_id: secondId, object_entity_id: secondId,
+      relation_type: 'ally', expected_brain_version: 2 };
+    const beforeLock = await durable('public-lock-before');
+    await http('/relationship-locks', 'POST', lockRequest, null, 401);
+    await http('/relationship-locks', 'POST', lockRequest, foreignToken, 403);
+    assert.deepEqual({ ...await durable('public-lock-denied'), stage: '' }, { ...beforeLock, stage: '' });
+    const lockBody = await http('/relationship-locks', 'POST', lockRequest);
+    assert.equal(lockBody.brain_version, 3);
+    const afterLock = await durable('public-lock-after');
+    await http('/relationship-locks', 'POST', lockRequest, ownerToken, 409);
+    await http('/relationship-locks', 'POST', { ...lockRequest, expected_brain_version: 3,
+      object_entity_id: randomUUID() }, ownerToken, 422);
+    assert.deepEqual({ ...await durable('public-lock-retry'), stage: '' }, { ...afterLock, stage: '' });
     const semanticRevision = randomUUID();
     const semanticContent = 'Minh bên trái gặp Minh bên phải.';
     const semanticHash = createHash('sha256').update(semanticContent).digest('hex');
@@ -183,16 +223,16 @@ test('live Gateway -> AI -> PostgreSQL: approved memory and revision-bound entit
     const semanticPending = await durable('homonyms-pending-exact-ids', semanticRevision);
     const queuedEvent = (await pool.query("SELECT payload FROM narrative.proposals WHERE analysis_run_id=$1 AND proposal_type='event'", [semanticRun.analysis_run_id])).rows[0].payload;
     assert.deepEqual(new Set(queuedEvent.participants), new Set([firstId, secondId]));
-    assert.equal(semanticPending.brain[0].brain_version, '2');
+    assert.equal(semanticPending.brain[0].brain_version, '3');
     const semanticQueue = await http('/review-queue');
     const semanticAccept = await fetch(`${base.slice(0, base.indexOf('/story-brains'))}/proposal-groups/${semanticQueue[0].dependency_group_id}/accept`, {
       method: 'POST', headers: { Authorization: `Bearer ${ownerToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ proposal_ids: semanticQueue.map((p: any) => p.proposal_id), expected_brain_version: 2 }) });
+      body: JSON.stringify({ proposal_ids: semanticQueue.map((p: any) => p.proposal_id), expected_brain_version: 3 }) });
     const semanticAcceptedBody = await semanticAccept.json();
     requests.push({ method: 'POST', path: `/proposal-groups/${semanticQueue[0].dependency_group_id}/accept`, status: semanticAccept.status, response: semanticAcceptedBody });
     assert.equal(semanticAccept.status, 200, JSON.stringify(semanticAcceptedBody));
     const semanticMemory = await http('/memory');
-    assert.equal(semanticMemory.brain_version, 3);
+    assert.equal(semanticMemory.brain_version, 4);
     assert.deepEqual(new Set(semanticMemory.entities.filter((e: any) => e.name === 'Minh').map((e: any) => e.entity_id)), new Set([firstId, secondId]));
     assert.deepEqual(new Set(semanticMemory.events.find((e: any) => e.metadata.evidence[0].revision_id === semanticRevision).participants), new Set([firstId, secondId]));
     const lockRows = (await pool.query('SELECT * FROM narrative.relationships WHERE novel_id=$1', [novel])).rows;

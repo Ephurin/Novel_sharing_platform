@@ -677,11 +677,12 @@ class PostgresNarrativeRepository:
                     session.flush()
                     artifact_ids.append(str(proposal.id))
                 elif proposal.proposal_type == "alias":
+                    alias_entity_id = payload.get('entity_id')
                     if not payload.get('entity_id'):
                         entities = [self._to_entity(e) for e in session.scalars(select(EntityRecord).where(*self._scope(EntityRecord, novel_id))).all()]
-                        payload = {**payload, 'entity_id': resolve_entity(payload.get('entity_name', ''), entities)}
+                        alias_entity_id = resolve_entity(payload.get('entity_name', ''), entities)
                     alias = EntityAliasRecord(
-                        entity_id=uuid.UUID(str(payload["entity_id"])),
+                        entity_id=uuid.UUID(str(alias_entity_id)),
                         alias=str(payload["alias"]),
                         normalized_alias=str(payload["alias"]).casefold(),
                         source_type="AI",
@@ -692,9 +693,13 @@ class PostgresNarrativeRepository:
                     session.flush()
                     artifact_ids.append(str(alias.id))
                 elif proposal.proposal_type == "fact":
+                    fact_subject_id = payload.get('subject_entity_id')
                     if payload.get('subject_entity_name'):
                         entities = [self._to_entity(e) for e in session.scalars(select(EntityRecord).where(*self._scope(EntityRecord, novel_id))).all()]
-                        payload = {**payload, 'subject_entity_id': resolve_entity(payload['subject_entity_name'], entities)}
+                        resolved = resolve_entity(payload['subject_entity_name'], entities)
+                        if fact_subject_id and fact_subject_id != resolved:
+                            raise ProjectionError('Fact subject ID conflicts with its legacy name')
+                        fact_subject_id = resolved
                     evidence = proposal.evidence[0] if proposal.evidence else {}
                     fact_ch = payload.get("chapter_number")
                     rev_uuid = (
@@ -716,8 +721,8 @@ class PostgresNarrativeRepository:
                         tenant_id=self._tenant_id,
                         novel_id=novel_id,
                         subject_entity_id=(
-                            uuid.UUID(str(payload["subject_entity_id"]))
-                            if payload.get("subject_entity_id")
+                            uuid.UUID(str(fact_subject_id))
+                            if fact_subject_id
                             else None
                         ),
                         fact_type=str(payload.get("fact_type", "world_rule")),

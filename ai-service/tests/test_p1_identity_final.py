@@ -48,10 +48,12 @@ def test_h04_new_homonyms_are_distinct_human_identities(flow):
 def test_h04_ambiguous_new_occurrences_do_not_silently_merge(flow):
     f = prepare(flow, 'Minh gặp Minh.')
     run, audit = discover(f)
+    stored = json.loads(json.dumps(f.repo.get_entity_candidate_audit(f.revision.novel_id, run)))
     before = snapshot(f, 'H04-C-before-ambiguous-review')
     submit(f, run, audit, audit['decisions'], expected=422)
     assert snapshot(f, 'H04-C-after-ambiguous-review') == before
-    assert json.loads(json.dumps(f.repo.get_entity_candidate_audit(f.revision.novel_id, run))) == audit
+    assert json.loads(json.dumps(f.repo.get_entity_candidate_audit(f.revision.novel_id, run))) == stored
+    assert f.client.get(f'{f.base}/entity-candidate-audits/{run}', headers=f.headers).json()['data'] == audit
     assert not f.repo.list_proposals(f.revision.novel_id)
     readback(f, run, 'H04-ambiguous-review-unchanged')
 
