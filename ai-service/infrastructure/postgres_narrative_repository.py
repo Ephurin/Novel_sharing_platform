@@ -567,8 +567,16 @@ class PostgresNarrativeRepository:
                 for proposal in proposals:
                     external = next(p for p in proposal_ids if self._stable_uuid('proposal', p) == proposal.id)
                     if external in edited_payloads:
+                        allowed_ids = entity_ids
+                        if proposal.analysis_run_id:
+                            run = session.scalar(select(AnalysisRunRecord).where(
+                                AnalysisRunRecord.id == proposal.analysis_run_id,
+                                *self._scope(AnalysisRunRecord, novel_id)))
+                            audit = (run.entity_candidate_audit or {}) if run else {}
+                            if audit.get('status') in ('entities_reviewed', 'completed'):
+                                allowed_ids = {e['entity_id'] for e in audit.get('entities', [])}
                         validate_author_edit(proposal.proposal_type, proposal.payload,
-                            edited_payloads[external], entity_ids)
+                            edited_payloads[external], allowed_ids)
 
             artifact_ids: list[str] = []
             for proposal in proposals:
