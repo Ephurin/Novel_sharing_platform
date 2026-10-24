@@ -255,7 +255,9 @@ export function AuthorMemoryPanel({
     const result = await runAuthorOperation<{ findings: ConsistencyFinding[] }>(novelId, {
       operation: 'check_consistency',
       content,
-      revision_id: revision.revisionId
+      revision_id: revision.revisionId,
+      chapter_id: chapterId,
+      content_hash: revision.contentHash
     });
     setFindings(result.findings);
   };

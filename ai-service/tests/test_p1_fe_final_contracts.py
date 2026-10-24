@@ -155,3 +155,11 @@ def test_consistency_reads_approved_projection_with_exact_identity_and_source(fl
     assert findings[0]['entity_id'] == entity.entity_id
     assert findings[0]['revision_id'] == revision.revision_id
     assert findings[0]['evidence'] == phrase
+    for label, updates, expected in [('missing-source', {'chapter_id': None}, 422),
+            ('forged-hash', {'content_hash': '0' * 64}, 422),
+            ('changed-content', {'content': 'Fabricated source'}, 422),
+            ('foreign-revision', {'revision_id': str(uuid.uuid4())}, 404)]:
+        before = snapshot(f, 'S10-' + label + '-before')
+        rejected = f.client.post(f'{f.base}/author-operation', headers=f.headers, json={**body, **updates})
+        assert rejected.status_code == expected, rejected.text
+        assert snapshot(f, 'S10-' + label + '-after') == before

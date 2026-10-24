@@ -6,7 +6,7 @@ import json
 import uuid
 from dataclasses import asdict, replace
 
-from fastapi import APIRouter, BackgroundTasks, Body, Depends, Header, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, Header, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 
 from api.deps import (
@@ -635,17 +635,53 @@ def rebuild_projection(brain_id: str, payload: ProposalDecisionRequest,
 @router.post("/story-brains/{brain_id}/author-operation")
 def author_operation(
     brain_id: str,
+    request: Request,
     payload: dict[str, Any] = Body(...),
     service: NarrativeApplicationService = Depends(get_narrative_service),
 ):
     operation = payload.get("operation")
     if operation == "check_consistency":
         content = payload.get("content", "")
-        revision_id = payload.get("revision_id")
-        brain = service.get_story_brain(brain_id)
-        findings = []
+        # Reuse the immutable-source validator used by entity HITL. A finding
+        # must never echo an unverified revision or invent historical provenance.
+        from application.entity_hitl import revision_for
+        analysis = get_revision_analysis_service(request)
+        if analysis is None:
+            raise HTTPException(503, detail={'code': 'CONSISTENCY_SOURCE_UNAVAILABLE'})
+        try:
+            source = {'tenant_id': str(uuid.UUID(request.headers['X-Tenant-Id'])),
+                'novel_id': str(uuid.UUID(brain_id)), 'chapter_id': str(uuid.UUID(str(payload['chapter_id']))),
+                'revision_id': str(uuid.UUID(str(payload['revision_id']))), 'content_hash': payload['content_hash']}
+            revision = revision_for(analysis, source)
+            if content != revision.content:
+                raise ValueError('Content differs from the immutable revision')
+        except PermissionError as exc:
+            raise HTTPException(403, detail={'code': 'CONSISTENCY_SOURCE_FORBIDDEN'}) from exc
+        except RevisionNotFoundError as exc:
+            raise HTTPException(404, detail={'code': 'CONSISTENCY_REVISION_NOT_FOUND'}) from exc
+        except (KeyError, ValueError, ContentHashMismatchError) as exc:
+            raise HTTPException(422, detail={'code': 'INVALID_CONSISTENCY_SOURCE'}) from exc
+        revision_id = revision.revision_id
+        brain = service._repository.get_story_brain(brain_id, read_only=True)
+        states = brain.current_state.get('entities', {})
+        names = {}
         for entity in brain.entities:
-            status_lower = (entity.status or "").lower()
+            names.setdefault(entity.name.casefold(), []).append(entity)
+        findings = []
+        ambiguous = set()
+        for entity in brain.entities:
+            status_lower = str(states.get(entity.entity_id, {}).get('status', entity.status) or '').lower()
+            identity = names[entity.name.casefold()]
+            if len(identity) > 1:
+                phrases = [f'{entity.name} {suffix}' for suffix in ('đã hy sinh', 'đã chết', 'tử trận', 'vẫn còn sống', 'xuất hiện', 'còn sống')]
+                evidence = next((p for p in phrases if p in content), None)
+                if evidence and entity.name.casefold() not in ambiguous:
+                    ambiguous.add(entity.name.casefold())
+                    ids = sorted(e.entity_id for e in identity if e.entity_id)
+                    findings.append({'code': 'AMBIGUOUS_ENTITY_REFERENCE', 'candidate_entity_ids': ids,
+                        'description': f'Danh tính chưa rõ: {entity.name} khớp nhiều UUID ({", ".join(ids)}); cần tác giả xác nhận.',
+                        'evidence': evidence, 'revision_id': revision_id})
+                continue
             if status_lower in {"alive", "active"}:
                 phrases = [f"{entity.name} đã hy sinh", f"{entity.name} đã chết", f"{entity.name} tử trận"]
                 for p in phrases:
@@ -653,7 +689,8 @@ def author_operation(
                         findings.append({
                             "description": f"Mâu thuẫn thực thể: {entity.name} được ghi nhận còn sống trong Story Brain nhưng bản thảo nêu {p.lower()}",
                             "evidence": p,
-                            "revision_id": revision_id or "rev-mock",
+                            "revision_id": revision_id,
+                            "entity_id": entity.entity_id,
                         })
             elif status_lower in {"dead", "deceased"}:
                 phrases = [f"{entity.name} vẫn còn sống", f"{entity.name} xuất hiện", f"{entity.name} còn sống"]
@@ -662,7 +699,8 @@ def author_operation(
                         findings.append({
                             "description": f"Mâu thuẫn thực thể: {entity.name} được ghi nhận đã chết trong Story Brain nhưng bản thảo nêu {p.lower()}",
                             "evidence": p,
-                            "revision_id": revision_id or "rev-mock",
+                            "revision_id": revision_id,
+                            "entity_id": entity.entity_id,
                         })
         return {"data": {"findings": findings}}
 

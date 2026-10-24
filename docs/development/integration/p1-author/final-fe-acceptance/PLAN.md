@@ -20,3 +20,13 @@ Current evidence from Gemini stays historical **PARTIAL smoke**. All new browser
 Only newly created task-owned projects, volumes, networks and localhost ports may be used. Production workers/provider gateway remain internal; a test-only bridge has fixed DB/Gateway TCP destinations, never a request-selected proxy. Standalone Docker Compose is installed on this host. No other task containers are reused/stopped/restarted/deleted.
 
 No live provider calls, quota use, deployment, main changes or PR57/PR65 merges. Future live model policy remains primary Gemini 3.5 Flash Lite, explicit fallback Gemini 3.1 Flash Lite; no 2.5. Offline acceptance does not establish production/live-model readiness. Stop for independent review.
+
+## S10 contract delta found during acceptance
+
+The old consistency checker used entity creation-time status instead of approved projected status. A real SPA run and memory/PostgreSQL RED at source `35d2e94dafe04b0ee35b3696fbeaf09bebbea089` reproduced an empty findings list after an authorized status correction.
+
+`POST /api/v1/ai/story-brains/:novelId/author-operation` with `operation=check_consistency` now requires `chapter_id`, `revision_id`, `content_hash` and the exact saved `content`. The mounted AuthorMemoryPanel obtains these from the existing Core revision API. Python reuses the existing HITL immutable-source validator. Missing/invalid source is 422, absent revision is 404, foreign tenant is 403; no fabricated `rev-mock` provenance. Existing text-only callers must supply a real Core revision before using this operation. Other author operations are unchanged.
+
+Findings reference approved current state by UUID. A unique-name contradiction returns `entity_id`, exact evidence and verified `revision_id`. A homonym warning returns `code=AMBIGUOUS_ENTITY_REFERENCE` and `candidate_entity_ids`, without assigning a guessed `entity_id`. This operation creates no proposal, decision, Canon artifact or Brain version increment. Canon correction remains the existing separately authorized proposal/atomic approval workflow.
+
+The fake provider now leaves candidates unresolved whenever an approved inventory exists. It never selects an existing homonym or creates a provisional group. Production verification remains strict; fake-only invalid decisions caused a separately retained outbox RED and three focused RED/GREEN tests.

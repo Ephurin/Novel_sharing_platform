@@ -252,6 +252,9 @@ export interface AutoRun {
 }
 
 export interface ConsistencyFinding {
+  code?: 'AMBIGUOUS_ENTITY_REFERENCE';
+  entity_id?: UUID;
+  candidate_entity_ids?: UUID[];
   description: string;
   evidence: string;
   revision_id: string;
