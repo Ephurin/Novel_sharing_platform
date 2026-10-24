@@ -1,0 +1,120 @@
+{
+  "resources": [
+    {
+      "container": "combined-native-1d9e27413e4d-pg",
+      "volume": "combined-native-1d9e27413e4d-pg-data",
+      "image": "pgvector/pgvector:pg16"
+    },
+    {
+      "container": "combined-native-1d9e27413e4d-mongo",
+      "volume": "combined-native-1d9e27413e4d-mongo-data",
+      "image": "mongo:7"
+    }
+  ],
+  "database": "ephurin_test_d1d2_1d9e27413e4d",
+  "commands": [
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "src/core/database/migrate.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "fc2a56705a2118a74b99150d50a38aac59b4365b"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "alembic",
+        "upgrade",
+        "head"
+      ],
+      "cwd": "ai-service",
+      "exit_code": 0,
+      "tested_sha": "fc2a56705a2118a74b99150d50a38aac59b4365b"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/core-reconciliation.live.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "fc2a56705a2118a74b99150d50a38aac59b4365b"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/mongo-reconciliation.live.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "fc2a56705a2118a74b99150d50a38aac59b4365b"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/accept-draft-contract.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "fc2a56705a2118a74b99150d50a38aac59b4365b"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/outbox.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "fc2a56705a2118a74b99150d50a38aac59b4365b"
+    },
+    {
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "--test",
+        "src/modules/novels/p1-production-persistence.postgres.test.ts"
+      ],
+      "cwd": "backend",
+      "exit_code": 0,
+      "tested_sha": "fc2a56705a2118a74b99150d50a38aac59b4365b"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-m",
+        "postgres_integration",
+        "--basetemp",
+        "C:\\Users\\thaib\\AppData\\Local\\Temp\\combined-pg-e3269286987b443c8379a77cfb40dd75",
+        "tests/test_semantic_memory_postgres_integration.py",
+        "tests/test_semantic_retriever_postgres_integration.py"
+      ],
+      "cwd": "ai-service",
+      "exit_code": 0,
+      "tested_sha": "fc2a56705a2118a74b99150d50a38aac59b4365b"
+    }
+  ],
+  "retained": true
+}

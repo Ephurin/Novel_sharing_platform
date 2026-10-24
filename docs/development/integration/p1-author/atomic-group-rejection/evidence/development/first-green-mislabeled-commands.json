@@ -1,0 +1,19 @@
+[
+  {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "--basetemp=C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\group-rejection-red\\pytest-test-red-rejection",
+      "-q",
+      "-s",
+      "-m",
+      "postgres_integration",
+      "tests/test_atomic_group_rejection.py"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\ai-service",
+    "exit_code": 0,
+    "expected_exit": 1,
+    "at_utc": "2026-10-24T06:16:31.395584+00:00"
+  }
+]

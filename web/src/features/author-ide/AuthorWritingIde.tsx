@@ -2,9 +2,11 @@ import { ChapterSchedule } from '../author-projects/ChapterSchedule';
 import { RevisionHistory, snapshotDraft } from './RevisionHistory';
 import { useAuthStore } from '../auth/useAuthStore';
 import { useDraftPersistence } from './useDraftPersistence';
+import { resolveAuthorContext, writeAuthorContext } from './author-context';
 import { Alert, Button, Group, Text } from '@mantine/core';
 import { ThemeControl } from '../../shared/components/ThemeControl';
 import { AuthorDialog } from '../../shared/components/AuthorTheme';
+import { AuthorMemoryPanel } from '../ai-copilot/AuthorMemoryPanel';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -127,10 +129,7 @@ export function AuthorWritingIde() {
   const queryClient = useQueryClient();
 
   // URL State
-  const fallbackNovelId = localStorage.getItem('ephurin_author_novel_id') ?? '';
-  const fallbackChapterId = localStorage.getItem('ephurin_author_chapter_id') ?? '';
-  const novelId = searchParams.get('novelId') ?? fallbackNovelId;
-  const chapterId = searchParams.get('chapterId') ?? fallbackChapterId;
+  const { novelId, chapterId } = resolveAuthorContext(user?.userId ?? '', searchParams);
 
   // Local Editor State
   const [title, setTitle] = useState('');
@@ -148,6 +147,7 @@ export function AuthorWritingIde() {
     setAiDrawerOpen(open => !open);
   };
   const [storyBibleOpen, setStoryBibleOpen] = useState(false);
+  const [memoryPanelOpen, setMemoryPanelOpen] = useState(false);
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [chapterToDelete, setChapterToDelete] = useState<Chapter | null>(null);
@@ -208,26 +208,27 @@ export function AuthorWritingIde() {
 
   // Queries
   const novelsQuery = useQuery({
-    queryKey: ['author', 'my-novels'],
+    queryKey: ['author', 'my-novels', user?.userId],
     queryFn: () => listMyNovels({ status: 'ALL' })
   });
 
   const activeNovelId = novelId || novelsQuery.data?.[0]?.novelId || '';
 
   const novelQuery = useQuery({
-    queryKey: ['author', 'novel', activeNovelId],
+    queryKey: ['author', 'novel', activeNovelId, user?.userId],
     queryFn: () => getNovel(activeNovelId),
     enabled: Boolean(activeNovelId)
   });
 
   const chaptersQuery = useQuery({
-    queryKey: ['author', 'chapters', activeNovelId],
+    queryKey: ['author', 'chapters', activeNovelId, user?.userId],
     queryFn: () => listChapters(activeNovelId),
     enabled: Boolean(activeNovelId)
   });
 
   const activeChapterId = useMemo(() => {
-    if (chapterId) return chapterId;
+    if (!chaptersQuery.data) return '';
+    if (chapterId) return chaptersQuery.data.some(ch => ch.chapterId === chapterId) ? chapterId : '';
     return chaptersQuery.data?.[0]?.chapterId || '';
   }, [chapterId, chaptersQuery.data]);
 
@@ -269,13 +270,12 @@ export function AuthorWritingIde() {
   // Keep search params in sync
   useEffect(() => {
     if (activeNovelId && activeChapterId) {
-      localStorage.setItem('ephurin_author_novel_id', activeNovelId);
-      localStorage.setItem('ephurin_author_chapter_id', activeChapterId);
+      writeAuthorContext(user?.userId ?? '', { novelId: activeNovelId, chapterId: activeChapterId });
       if (searchParams.get('novelId') !== activeNovelId || searchParams.get('chapterId') !== activeChapterId) {
         setSearchParams({ novelId: activeNovelId, chapterId: activeChapterId }, { replace: true });
       }
     }
-  }, [activeNovelId, activeChapterId, searchParams, setSearchParams]);
+  }, [activeNovelId, activeChapterId, searchParams, setSearchParams, user?.userId]);
 
   // Clean up AI generation polling timer on unmount and chapter switch
   useEffect(() => {
@@ -766,6 +766,17 @@ export function AuthorWritingIde() {
             >
               <span className="material-symbols-outlined text-stone-500 text-[15px]">menu_book</span>
               <span className="hidden xl:inline text-meta">Cẩm nang</span>
+            </button>
+            <button
+              onClick={() => setMemoryPanelOpen(true)}
+              data-testid="btn-story-brain"
+              aria-label="Story Brain & Kiểm tra nhất quán"
+              className="inline-flex items-center gap-1 px-2 py-1 text-meta font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest transition-all"
+              title="Bộ nhớ cốt truyện & Kiểm tra nhất quán (Story Brain)"
+              type="button"
+            >
+              <span className="material-symbols-outlined text-stone-500 text-[15px]">psychology</span>
+              <span className="hidden xl:inline text-meta">Story Brain</span>
             </button>
             <button
               onClick={() => setFocusMode((prev: boolean) => !prev)}
@@ -1928,6 +1939,18 @@ export function AuthorWritingIde() {
           </div>
         </div>
       )}
+
+      {/* ──────────────────────────────────────────
+          BEGIN: Author Memory & Consistency Drawer
+         ────────────────────────────────────────── */}
+      <AuthorMemoryPanel
+        novelId={activeNovelId}
+        chapterId={activeChapterId}
+        content={content}
+        opened={memoryPanelOpen}
+        onClose={() => setMemoryPanelOpen(false)}
+        saved={autosaveStatus === 'saved'}
+      />
     </div>
   );
 }

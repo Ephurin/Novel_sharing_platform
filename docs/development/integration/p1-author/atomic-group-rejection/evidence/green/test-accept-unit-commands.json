@@ -1,0 +1,39 @@
+[
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-24T06:22:53.528561+00:00"
+  },
+  {
+    "command": [
+      "git",
+      "status",
+      "--porcelain"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-24T06:22:53.594705+00:00"
+  },
+  {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "--basetemp=C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\group-rejection-final\\pytest-test-accept-unit",
+      "-q",
+      "-m",
+      "not postgres_integration"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\ai-service",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-24T06:23:28.878000+00:00"
+  }
+]

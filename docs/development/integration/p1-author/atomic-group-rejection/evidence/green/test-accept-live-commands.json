@@ -1,0 +1,37 @@
+[
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-24T06:26:07.151993+00:00"
+  },
+  {
+    "command": [
+      "git",
+      "status",
+      "--porcelain"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-24T06:26:07.209284+00:00"
+  },
+  {
+    "command": [
+      "node",
+      "--import",
+      "tsx",
+      "--test",
+      "src/modules/ai/p1-memory-entity.live.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\backend",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-24T06:26:20.462442+00:00"
+  }
+]

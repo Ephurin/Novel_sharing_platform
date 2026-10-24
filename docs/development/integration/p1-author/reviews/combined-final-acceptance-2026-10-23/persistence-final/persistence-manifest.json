@@ -1,0 +1,13 @@
+{
+  "project": "p123-core-abe0ad4e35",
+  "env_file": "Pipeline_test\\tools\\.env.p123-core-abe0ad4e35",
+  "new_resources_only": true,
+  "runtime_started": false,
+  "subnets": [
+    "10.246.64.0/24",
+    "10.246.65.0/24",
+    "10.246.66.0/24"
+  ],
+  "explicit_mutation_opt_in": true,
+  "scope": "FE_CORE_CONTRACT_SPIKE_ONLY"
+}

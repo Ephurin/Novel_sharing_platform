@@ -1,0 +1,73 @@
+[
+  {
+    "command": [
+      "python",
+      "Pipeline_test/tools/prepare_fe_core_contract.py",
+      "--manifest",
+      "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\canon\\canon-manifest.json",
+      "--allow-new-test-resources"
+    ],
+    "exit_code": 0,
+    "tested_sha": "66c1052a8cb63e411a83e330207feb97c13210d4"
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-a7a97f7f50",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "--profile",
+      "initialize",
+      "run",
+      "--rm",
+      "budget-init"
+    ],
+    "exit_code": 0,
+    "tested_sha": "66c1052a8cb63e411a83e330207feb97c13210d4"
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-a7a97f7f50",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "up",
+      "-d",
+      "--build"
+    ],
+    "exit_code": 0,
+    "tested_sha": "66c1052a8cb63e411a83e330207feb97c13210d4"
+  },
+  {
+    "command": [
+      "python",
+      "Pipeline_test/tools/canon_hitl_probe.py",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-a7a97f7f50",
+      "--output",
+      "C:\\Users\\thaib\\.codex\\worktrees\\p1-core-canon-combined\\Novel_sharing_platform\\docs\\development\\integration\\p1-author\\reviews\\combined-final-acceptance-2026-10-23\\canon\\canon-runtime",
+      "--allow-test-mutations"
+    ],
+    "exit_code": 0,
+    "tested_sha": "66c1052a8cb63e411a83e330207feb97c13210d4"
+  },
+  {
+    "command": [
+      "docker",
+      "compose",
+      "--env-file",
+      "Pipeline_test\\tools\\.env.p123-core-a7a97f7f50",
+      "-f",
+      "Pipeline_test/tools/compose.p123-p3.yml",
+      "stop",
+      "-t",
+      "2"
+    ],
+    "exit_code": 0,
+    "tested_sha": "66c1052a8cb63e411a83e330207feb97c13210d4"
+  }
+]

@@ -1,0 +1,3636 @@
+[
+  {
+    "stage": "missing-read-no-mutation",
+    "brain": [],
+    "runs": [],
+    "proposals": [],
+    "facts": [],
+    "relationships": [],
+    "canon": {
+      "entities": [],
+      "events": [],
+      "facts": [],
+      "state_transitions": [],
+      "current_entity_states": [],
+      "decisions": []
+    },
+    "revisions": [
+      {
+        "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+        "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+        "content": "Minh g\\u1eb7p Minh. lan."
+      }
+    ],
+    "mongo": []
+  },
+  {
+    "stage": "waiting-review",
+    "brain": [
+      {
+        "id": "e41596d8-141c-4931-ae21-0b5aaa77683d",
+        "novel_id": "d6936071-f17f-4656-b5f8-14fdb840d750",
+        "brain_version": "1",
+        "entity_guidance": {
+          "entries": [
+            {
+              "kind": "hint",
+              "name": "Absent Hint",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            }
+          ],
+          "version": 1
+        }
+      }
+    ],
+    "runs": [
+      {
+        "id": "8e3dc033-6294-46e7-976a-ca5f3936abe3",
+        "status": "pending",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 19,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 2,
+            "candidates": 2
+          },
+          "policy": "entity-candidates-v1",
+          "status": "waiting_entity_review",
+          "aliases": [],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": true
+            },
+            "novel_id": "d6936071-f17f-4656-b5f8-14fdb840d750",
+            "operation": "author_reanalysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "idempotency_key": "author-reanalysis:1b36d4af5f6c3f3713a252cc365aa1f6ebf22febe6cc3913728d4ef51713e9d2"
+          },
+          "entities": [],
+          "decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Minh",
+              "context_end": 19,
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "context_start": 0
+            },
+            {
+              "end": 13,
+              "start": 9,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Minh",
+              "context_end": 19,
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+          "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+          "source_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 1,
+          "analysis_run_id": "8e3dc033-6294-46e7-976a-ca5f3936abe3",
+          "guidance_version": 1,
+          "unanchored_discoveries": [
+            {
+              "name": "Ti\\u00eau Vi\\u00eam",
+              "chunk_start": 0
+            }
+          ],
+          "provisional_identity_scope": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9"
+        }
+      }
+    ],
+    "proposals": [],
+    "facts": [],
+    "relationships": [],
+    "canon": {
+      "entities": [],
+      "events": [],
+      "facts": [],
+      "state_transitions": [],
+      "current_entity_states": [],
+      "decisions": []
+    },
+    "revisions": [
+      {
+        "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+        "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+        "content": "Minh g\\u1eb7p Minh. lan."
+      }
+    ],
+    "mongo": []
+  },
+  {
+    "stage": "frozen-review",
+    "brain": [
+      {
+        "id": "e41596d8-141c-4931-ae21-0b5aaa77683d",
+        "novel_id": "d6936071-f17f-4656-b5f8-14fdb840d750",
+        "brain_version": "1",
+        "entity_guidance": {
+          "entries": [
+            {
+              "kind": "hint",
+              "name": "Absent Hint",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            }
+          ],
+          "version": 1
+        }
+      }
+    ],
+    "runs": [
+      {
+        "id": "8e3dc033-6294-46e7-976a-ca5f3936abe3",
+        "status": "pending",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 19,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 2,
+            "candidates": 2
+          },
+          "policy": "entity-candidates-v1",
+          "status": "entities_reviewed",
+          "aliases": [],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": true
+            },
+            "novel_id": "d6936071-f17f-4656-b5f8-14fdb840d750",
+            "operation": "author_reanalysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "idempotency_key": "author-reanalysis:1b36d4af5f6c3f3713a252cc365aa1f6ebf22febe6cc3913728d4ef51713e9d2"
+          },
+          "entities": [
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+              "occurrences": [
+                {
+                  "end": 4,
+                  "quote": "Minh",
+                  "start": 0,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "e7b6d58dc0545cf53f5ba68c"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "e7b6d58dc0545cf53f5ba68c"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+              "occurrences": [
+                {
+                  "end": 13,
+                  "quote": "Minh",
+                  "start": 9,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "4a446fd0f9237259b54648c9"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 13,
+              "candidate_ids": [
+                "4a446fd0f9237259b54648c9"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 9,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            }
+          ],
+          "decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Minh",
+              "context_end": 19,
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "context_start": 0
+            },
+            {
+              "end": 13,
+              "start": 9,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Minh",
+              "context_end": 19,
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+          "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+          "source_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 2,
+          "analysis_run_id": "8e3dc033-6294-46e7-976a-ca5f3936abe3",
+          "review_finalize": true,
+          "guidance_version": 1,
+          "reviewed_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            }
+          ],
+          "review_input_version": 1,
+          "pending_candidate_ids": [],
+          "unanchored_discoveries": [
+            {
+              "name": "Ti\\u00eau Vi\\u00eam",
+              "chunk_start": 0
+            }
+          ],
+          "identity_inventory_version": 2,
+          "provisional_identity_scope": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9",
+          "review_submitted_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            }
+          ]
+        }
+      }
+    ],
+    "proposals": [],
+    "facts": [],
+    "relationships": [],
+    "canon": {
+      "entities": [],
+      "events": [],
+      "facts": [],
+      "state_transitions": [],
+      "current_entity_states": [],
+      "decisions": []
+    },
+    "revisions": [
+      {
+        "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+        "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+        "content": "Minh g\\u1eb7p Minh. lan."
+      }
+    ],
+    "mongo": []
+  },
+  {
+    "stage": "refreshed-entity-only",
+    "brain": [
+      {
+        "id": "e41596d8-141c-4931-ae21-0b5aaa77683d",
+        "novel_id": "d6936071-f17f-4656-b5f8-14fdb840d750",
+        "brain_version": "1",
+        "entity_guidance": {
+          "entries": [
+            {
+              "kind": "hint",
+              "name": "Absent Hint",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            },
+            {
+              "kind": "hint",
+              "name": "lan",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            }
+          ],
+          "version": 2
+        }
+      }
+    ],
+    "runs": [
+      {
+        "id": "8e3dc033-6294-46e7-976a-ca5f3936abe3",
+        "status": "pending",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 19,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 3,
+            "candidates": 3
+          },
+          "policy": "entity-candidates-v1",
+          "status": "waiting_entity_review",
+          "aliases": [],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": true
+            },
+            "novel_id": "d6936071-f17f-4656-b5f8-14fdb840d750",
+            "operation": "author_reanalysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "idempotency_key": "author-reanalysis:1b36d4af5f6c3f3713a252cc365aa1f6ebf22febe6cc3913728d4ef51713e9d2"
+          },
+          "entities": [],
+          "decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "status_quote": "",
+              "canonical_name": "lan",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Minh",
+              "context_end": 19,
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "context_start": 0
+            },
+            {
+              "end": 13,
+              "start": 9,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Minh",
+              "context_end": 19,
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "context_start": 0
+            },
+            {
+              "end": 18,
+              "start": 15,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "author_guidance"
+              ],
+              "surface": "lan",
+              "context_end": 19,
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+          "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+          "source_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 3,
+          "analysis_run_id": "8e3dc033-6294-46e7-976a-ca5f3936abe3",
+          "guidance_version": 2,
+          "preserved_entities": [
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+              "occurrences": [
+                {
+                  "end": 4,
+                  "quote": "Minh",
+                  "start": 0,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "e7b6d58dc0545cf53f5ba68c"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "e7b6d58dc0545cf53f5ba68c"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+              "occurrences": [
+                {
+                  "end": 13,
+                  "quote": "Minh",
+                  "start": 9,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "4a446fd0f9237259b54648c9"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 13,
+              "candidate_ids": [
+                "4a446fd0f9237259b54648c9"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 9,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            }
+          ],
+          "refresh_generation": 1,
+          "reviewed_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            }
+          ],
+          "preserved_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            }
+          ],
+          "pending_candidate_ids": [
+            "8597cec6c24f0f3105a7390d"
+          ],
+          "refresh_input_version": 2,
+          "unanchored_discoveries": [
+            {
+              "name": "Ti\\u00eau Vi\\u00eam",
+              "chunk_start": 0
+            }
+          ],
+          "provisional_identity_scope": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9"
+        }
+      }
+    ],
+    "proposals": [],
+    "facts": [],
+    "relationships": [],
+    "canon": {
+      "entities": [],
+      "events": [],
+      "facts": [],
+      "state_transitions": [],
+      "current_entity_states": [],
+      "decisions": []
+    },
+    "revisions": [
+      {
+        "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+        "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+        "content": "Minh g\\u1eb7p Minh. lan."
+      }
+    ],
+    "mongo": []
+  },
+  {
+    "stage": "completed-pending-canon",
+    "brain": [
+      {
+        "id": "e41596d8-141c-4931-ae21-0b5aaa77683d",
+        "novel_id": "d6936071-f17f-4656-b5f8-14fdb840d750",
+        "brain_version": "1",
+        "entity_guidance": {
+          "entries": [
+            {
+              "kind": "hint",
+              "name": "Absent Hint",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            },
+            {
+              "kind": "hint",
+              "name": "lan",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            }
+          ],
+          "version": 2
+        }
+      }
+    ],
+    "runs": [
+      {
+        "id": "8e3dc033-6294-46e7-976a-ca5f3936abe3",
+        "status": "pending",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 19,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 3,
+            "candidates": 3
+          },
+          "policy": "entity-candidates-v1",
+          "status": "completed",
+          "aliases": [],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": true
+            },
+            "novel_id": "d6936071-f17f-4656-b5f8-14fdb840d750",
+            "operation": "author_reanalysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "idempotency_key": "author-reanalysis:1b36d4af5f6c3f3713a252cc365aa1f6ebf22febe6cc3913728d4ef51713e9d2"
+          },
+          "entities": [
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+              "occurrences": [
+                {
+                  "end": 4,
+                  "quote": "Minh",
+                  "start": 0,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "e7b6d58dc0545cf53f5ba68c"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "e7b6d58dc0545cf53f5ba68c"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+              "occurrences": [
+                {
+                  "end": 13,
+                  "quote": "Minh",
+                  "start": 9,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "4a446fd0f9237259b54648c9"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 13,
+              "candidate_ids": [
+                "4a446fd0f9237259b54648c9"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 9,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "lan",
+              "entity_id": "118f5089-b6c7-42da-b0df-9e600b4e4373",
+              "occurrences": [
+                {
+                  "end": 18,
+                  "quote": "lan",
+                  "start": 15,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "8597cec6c24f0f3105a7390d"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 18,
+              "candidate_ids": [
+                "8597cec6c24f0f3105a7390d"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 15,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/8597cec6c24f0f3105a7390d"
+            }
+          ],
+          "decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "status_quote": "",
+              "canonical_name": "lan",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Minh",
+              "context_end": 19,
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "context_start": 0
+            },
+            {
+              "end": 13,
+              "start": 9,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Minh",
+              "context_end": 19,
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "context_start": 0
+            },
+            {
+              "end": 18,
+              "start": 15,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "author_guidance"
+              ],
+              "surface": "lan",
+              "context_end": 19,
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+          "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+          "source_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 4,
+          "analysis_run_id": "8e3dc033-6294-46e7-976a-ca5f3936abe3",
+          "review_finalize": true,
+          "guidance_version": 2,
+          "preserved_entities": [
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+              "occurrences": [
+                {
+                  "end": 4,
+                  "quote": "Minh",
+                  "start": 0,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "e7b6d58dc0545cf53f5ba68c"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "e7b6d58dc0545cf53f5ba68c"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+              "occurrences": [
+                {
+                  "end": 13,
+                  "quote": "Minh",
+                  "start": 9,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "4a446fd0f9237259b54648c9"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 13,
+              "candidate_ids": [
+                "4a446fd0f9237259b54648c9"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 9,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            }
+          ],
+          "refresh_generation": 1,
+          "reviewed_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "status_quote": "",
+              "canonical_name": "lan",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/8597cec6c24f0f3105a7390d"
+            }
+          ],
+          "preserved_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            }
+          ],
+          "review_input_version": 3,
+          "pending_candidate_ids": [],
+          "refresh_input_version": 2,
+          "unanchored_discoveries": [
+            {
+              "name": "Ti\\u00eau Vi\\u00eam",
+              "chunk_start": 0
+            }
+          ],
+          "identity_inventory_version": 2,
+          "provisional_identity_scope": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9",
+          "review_submitted_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "status_quote": "",
+              "canonical_name": "lan",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/8597cec6c24f0f3105a7390d"
+            }
+          ]
+        }
+      }
+    ],
+    "proposals": [
+      {
+        "id": "59565245-375f-56db-b5d6-0aa59cda22f5",
+        "proposal_type": "entity",
+        "status": "pending",
+        "payload": {
+          "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+          "entity_type": "PER",
+          "source_type": "prose",
+          "canonical_name": "Minh",
+          "chapter_number": 1,
+          "initial_status": "Unknown",
+          "normalized_name": "minh"
+        },
+        "evidence": [
+          {
+            "end": 4,
+            "quote": "Minh",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "2e97aca4-f628-50d3-af67-e185eee66fd8",
+        "proposal_type": "entity",
+        "status": "pending",
+        "payload": {
+          "entity_id": "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+          "entity_type": "PER",
+          "source_type": "prose",
+          "canonical_name": "Minh",
+          "chapter_number": 1,
+          "initial_status": "Unknown",
+          "normalized_name": "minh"
+        },
+        "evidence": [
+          {
+            "end": 13,
+            "quote": "Minh",
+            "start": 9,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "799fffc1-ef4a-5031-ad66-9b9d622b1f71",
+        "proposal_type": "entity",
+        "status": "pending",
+        "payload": {
+          "entity_id": "118f5089-b6c7-42da-b0df-9e600b4e4373",
+          "entity_type": "PER",
+          "source_type": "prose",
+          "canonical_name": "lan",
+          "chapter_number": 1,
+          "initial_status": "Unknown",
+          "normalized_name": "lan"
+        },
+        "evidence": [
+          {
+            "end": 18,
+            "quote": "lan",
+            "start": 15,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "35b0d514-dfe4-5b82-bf92-ab86394c17e3",
+        "proposal_type": "event",
+        "status": "pending",
+        "payload": {
+          "chapter": 1,
+          "summary": "Minh g\\u1eb7p Minh. lan.",
+          "locations": [],
+          "event_type": "observation",
+          "consequences": [],
+          "participants": [
+            "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+            "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+            "118f5089-b6c7-42da-b0df-9e600b4e4373"
+          ],
+          "chapter_number": 1
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "faea8c5b-b092-5d3f-ab47-10870eee5582",
+        "proposal_type": "state_transition",
+        "status": "pending",
+        "payload": {
+          "event_id": "35b0d514-dfe4-5b82-bf92-ab86394c17e3",
+          "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+          "new_value": 60,
+          "attribute_key": "health"
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "ee7ea505-5a6c-525d-bef5-e18c19a519bc",
+        "proposal_type": "state_transition",
+        "status": "pending",
+        "payload": {
+          "event_id": "35b0d514-dfe4-5b82-bf92-ab86394c17e3",
+          "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+          "new_value": {
+            "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b": "knows"
+          },
+          "attribute_key": "active_relationships"
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "2b39e56d-f742-5455-8766-88c9bfec4d8a",
+        "proposal_type": "fact",
+        "status": "pending",
+        "payload": {
+          "fact_key": "source_observation",
+          "fact_type": "narrative_fact",
+          "fact_value": "Minh g\\u1eb7p Minh. lan.",
+          "chapter_number": 1,
+          "subject_entity_id": null
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      }
+    ],
+    "facts": [],
+    "relationships": [],
+    "canon": {
+      "entities": [],
+      "events": [],
+      "facts": [],
+      "state_transitions": [],
+      "current_entity_states": [],
+      "decisions": []
+    },
+    "revisions": [
+      {
+        "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+        "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+        "content": "Minh g\\u1eb7p Minh. lan."
+      }
+    ],
+    "mongo": []
+  },
+  {
+    "stage": "C01-before-partial-approval",
+    "brain": [
+      {
+        "id": "e41596d8-141c-4931-ae21-0b5aaa77683d",
+        "novel_id": "d6936071-f17f-4656-b5f8-14fdb840d750",
+        "brain_version": "1",
+        "entity_guidance": {
+          "entries": [
+            {
+              "kind": "hint",
+              "name": "Absent Hint",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            },
+            {
+              "kind": "hint",
+              "name": "lan",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            }
+          ],
+          "version": 2
+        }
+      }
+    ],
+    "runs": [
+      {
+        "id": "8e3dc033-6294-46e7-976a-ca5f3936abe3",
+        "status": "pending",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 19,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 3,
+            "candidates": 3
+          },
+          "policy": "entity-candidates-v1",
+          "status": "completed",
+          "aliases": [],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": true
+            },
+            "novel_id": "d6936071-f17f-4656-b5f8-14fdb840d750",
+            "operation": "author_reanalysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "idempotency_key": "author-reanalysis:1b36d4af5f6c3f3713a252cc365aa1f6ebf22febe6cc3913728d4ef51713e9d2"
+          },
+          "entities": [
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+              "occurrences": [
+                {
+                  "end": 4,
+                  "quote": "Minh",
+                  "start": 0,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "e7b6d58dc0545cf53f5ba68c"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "e7b6d58dc0545cf53f5ba68c"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+              "occurrences": [
+                {
+                  "end": 13,
+                  "quote": "Minh",
+                  "start": 9,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "4a446fd0f9237259b54648c9"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 13,
+              "candidate_ids": [
+                "4a446fd0f9237259b54648c9"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 9,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "lan",
+              "entity_id": "118f5089-b6c7-42da-b0df-9e600b4e4373",
+              "occurrences": [
+                {
+                  "end": 18,
+                  "quote": "lan",
+                  "start": 15,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "8597cec6c24f0f3105a7390d"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 18,
+              "candidate_ids": [
+                "8597cec6c24f0f3105a7390d"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 15,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/8597cec6c24f0f3105a7390d"
+            }
+          ],
+          "decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "status_quote": "",
+              "canonical_name": "lan",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Minh",
+              "context_end": 19,
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "context_start": 0
+            },
+            {
+              "end": 13,
+              "start": 9,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Minh",
+              "context_end": 19,
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "context_start": 0
+            },
+            {
+              "end": 18,
+              "start": 15,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "author_guidance"
+              ],
+              "surface": "lan",
+              "context_end": 19,
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+          "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+          "source_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 4,
+          "analysis_run_id": "8e3dc033-6294-46e7-976a-ca5f3936abe3",
+          "review_finalize": true,
+          "guidance_version": 2,
+          "preserved_entities": [
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+              "occurrences": [
+                {
+                  "end": 4,
+                  "quote": "Minh",
+                  "start": 0,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "e7b6d58dc0545cf53f5ba68c"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "e7b6d58dc0545cf53f5ba68c"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+              "occurrences": [
+                {
+                  "end": 13,
+                  "quote": "Minh",
+                  "start": 9,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "4a446fd0f9237259b54648c9"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 13,
+              "candidate_ids": [
+                "4a446fd0f9237259b54648c9"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 9,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            }
+          ],
+          "refresh_generation": 1,
+          "reviewed_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "status_quote": "",
+              "canonical_name": "lan",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/8597cec6c24f0f3105a7390d"
+            }
+          ],
+          "preserved_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            }
+          ],
+          "review_input_version": 3,
+          "pending_candidate_ids": [],
+          "refresh_input_version": 2,
+          "unanchored_discoveries": [
+            {
+              "name": "Ti\\u00eau Vi\\u00eam",
+              "chunk_start": 0
+            }
+          ],
+          "identity_inventory_version": 2,
+          "provisional_identity_scope": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9",
+          "review_submitted_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "status_quote": "",
+              "canonical_name": "lan",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/8597cec6c24f0f3105a7390d"
+            }
+          ]
+        }
+      }
+    ],
+    "proposals": [
+      {
+        "id": "59565245-375f-56db-b5d6-0aa59cda22f5",
+        "proposal_type": "entity",
+        "status": "pending",
+        "payload": {
+          "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+          "entity_type": "PER",
+          "source_type": "prose",
+          "canonical_name": "Minh",
+          "chapter_number": 1,
+          "initial_status": "Unknown",
+          "normalized_name": "minh"
+        },
+        "evidence": [
+          {
+            "end": 4,
+            "quote": "Minh",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "2e97aca4-f628-50d3-af67-e185eee66fd8",
+        "proposal_type": "entity",
+        "status": "pending",
+        "payload": {
+          "entity_id": "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+          "entity_type": "PER",
+          "source_type": "prose",
+          "canonical_name": "Minh",
+          "chapter_number": 1,
+          "initial_status": "Unknown",
+          "normalized_name": "minh"
+        },
+        "evidence": [
+          {
+            "end": 13,
+            "quote": "Minh",
+            "start": 9,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "799fffc1-ef4a-5031-ad66-9b9d622b1f71",
+        "proposal_type": "entity",
+        "status": "pending",
+        "payload": {
+          "entity_id": "118f5089-b6c7-42da-b0df-9e600b4e4373",
+          "entity_type": "PER",
+          "source_type": "prose",
+          "canonical_name": "lan",
+          "chapter_number": 1,
+          "initial_status": "Unknown",
+          "normalized_name": "lan"
+        },
+        "evidence": [
+          {
+            "end": 18,
+            "quote": "lan",
+            "start": 15,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "35b0d514-dfe4-5b82-bf92-ab86394c17e3",
+        "proposal_type": "event",
+        "status": "pending",
+        "payload": {
+          "chapter": 1,
+          "summary": "Minh g\\u1eb7p Minh. lan.",
+          "locations": [],
+          "event_type": "observation",
+          "consequences": [],
+          "participants": [
+            "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+            "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+            "118f5089-b6c7-42da-b0df-9e600b4e4373"
+          ],
+          "chapter_number": 1
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "faea8c5b-b092-5d3f-ab47-10870eee5582",
+        "proposal_type": "state_transition",
+        "status": "pending",
+        "payload": {
+          "event_id": "35b0d514-dfe4-5b82-bf92-ab86394c17e3",
+          "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+          "new_value": 60,
+          "attribute_key": "health"
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "ee7ea505-5a6c-525d-bef5-e18c19a519bc",
+        "proposal_type": "state_transition",
+        "status": "pending",
+        "payload": {
+          "event_id": "35b0d514-dfe4-5b82-bf92-ab86394c17e3",
+          "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+          "new_value": {
+            "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b": "knows"
+          },
+          "attribute_key": "active_relationships"
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "2b39e56d-f742-5455-8766-88c9bfec4d8a",
+        "proposal_type": "fact",
+        "status": "pending",
+        "payload": {
+          "fact_key": "source_observation",
+          "fact_type": "narrative_fact",
+          "fact_value": "Minh g\\u1eb7p Minh. lan.",
+          "chapter_number": 1,
+          "subject_entity_id": null
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      }
+    ],
+    "facts": [],
+    "relationships": [],
+    "canon": {
+      "entities": [],
+      "events": [],
+      "facts": [],
+      "state_transitions": [],
+      "current_entity_states": [],
+      "decisions": []
+    },
+    "revisions": [
+      {
+        "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+        "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+        "content": "Minh g\\u1eb7p Minh. lan."
+      }
+    ],
+    "mongo": []
+  },
+  {
+    "stage": "C01-after-partial-approval-401",
+    "brain": [
+      {
+        "id": "e41596d8-141c-4931-ae21-0b5aaa77683d",
+        "novel_id": "d6936071-f17f-4656-b5f8-14fdb840d750",
+        "brain_version": "1",
+        "entity_guidance": {
+          "entries": [
+            {
+              "kind": "hint",
+              "name": "Absent Hint",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            },
+            {
+              "kind": "hint",
+              "name": "lan",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            }
+          ],
+          "version": 2
+        }
+      }
+    ],
+    "runs": [
+      {
+        "id": "8e3dc033-6294-46e7-976a-ca5f3936abe3",
+        "status": "pending",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 19,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 3,
+            "candidates": 3
+          },
+          "policy": "entity-candidates-v1",
+          "status": "completed",
+          "aliases": [],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": true
+            },
+            "novel_id": "d6936071-f17f-4656-b5f8-14fdb840d750",
+            "operation": "author_reanalysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "idempotency_key": "author-reanalysis:1b36d4af5f6c3f3713a252cc365aa1f6ebf22febe6cc3913728d4ef51713e9d2"
+          },
+          "entities": [
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+              "occurrences": [
+                {
+                  "end": 4,
+                  "quote": "Minh",
+                  "start": 0,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "e7b6d58dc0545cf53f5ba68c"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "e7b6d58dc0545cf53f5ba68c"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+              "occurrences": [
+                {
+                  "end": 13,
+                  "quote": "Minh",
+                  "start": 9,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "4a446fd0f9237259b54648c9"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 13,
+              "candidate_ids": [
+                "4a446fd0f9237259b54648c9"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 9,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "lan",
+              "entity_id": "118f5089-b6c7-42da-b0df-9e600b4e4373",
+              "occurrences": [
+                {
+                  "end": 18,
+                  "quote": "lan",
+                  "start": 15,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "8597cec6c24f0f3105a7390d"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 18,
+              "candidate_ids": [
+                "8597cec6c24f0f3105a7390d"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 15,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/8597cec6c24f0f3105a7390d"
+            }
+          ],
+          "decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "status_quote": "",
+              "canonical_name": "lan",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Minh",
+              "context_end": 19,
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "context_start": 0
+            },
+            {
+              "end": 13,
+              "start": 9,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Minh",
+              "context_end": 19,
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "context_start": 0
+            },
+            {
+              "end": 18,
+              "start": 15,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "author_guidance"
+              ],
+              "surface": "lan",
+              "context_end": 19,
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+          "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+          "source_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 4,
+          "analysis_run_id": "8e3dc033-6294-46e7-976a-ca5f3936abe3",
+          "review_finalize": true,
+          "guidance_version": 2,
+          "preserved_entities": [
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+              "occurrences": [
+                {
+                  "end": 4,
+                  "quote": "Minh",
+                  "start": 0,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "e7b6d58dc0545cf53f5ba68c"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "e7b6d58dc0545cf53f5ba68c"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+              "occurrences": [
+                {
+                  "end": 13,
+                  "quote": "Minh",
+                  "start": 9,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "4a446fd0f9237259b54648c9"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 13,
+              "candidate_ids": [
+                "4a446fd0f9237259b54648c9"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 9,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            }
+          ],
+          "refresh_generation": 1,
+          "reviewed_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "status_quote": "",
+              "canonical_name": "lan",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/8597cec6c24f0f3105a7390d"
+            }
+          ],
+          "preserved_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            }
+          ],
+          "review_input_version": 3,
+          "pending_candidate_ids": [],
+          "refresh_input_version": 2,
+          "unanchored_discoveries": [
+            {
+              "name": "Ti\\u00eau Vi\\u00eam",
+              "chunk_start": 0
+            }
+          ],
+          "identity_inventory_version": 2,
+          "provisional_identity_scope": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9",
+          "review_submitted_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "status_quote": "",
+              "canonical_name": "lan",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/8597cec6c24f0f3105a7390d"
+            }
+          ]
+        }
+      }
+    ],
+    "proposals": [
+      {
+        "id": "59565245-375f-56db-b5d6-0aa59cda22f5",
+        "proposal_type": "entity",
+        "status": "pending",
+        "payload": {
+          "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+          "entity_type": "PER",
+          "source_type": "prose",
+          "canonical_name": "Minh",
+          "chapter_number": 1,
+          "initial_status": "Unknown",
+          "normalized_name": "minh"
+        },
+        "evidence": [
+          {
+            "end": 4,
+            "quote": "Minh",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "2e97aca4-f628-50d3-af67-e185eee66fd8",
+        "proposal_type": "entity",
+        "status": "pending",
+        "payload": {
+          "entity_id": "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+          "entity_type": "PER",
+          "source_type": "prose",
+          "canonical_name": "Minh",
+          "chapter_number": 1,
+          "initial_status": "Unknown",
+          "normalized_name": "minh"
+        },
+        "evidence": [
+          {
+            "end": 13,
+            "quote": "Minh",
+            "start": 9,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "799fffc1-ef4a-5031-ad66-9b9d622b1f71",
+        "proposal_type": "entity",
+        "status": "pending",
+        "payload": {
+          "entity_id": "118f5089-b6c7-42da-b0df-9e600b4e4373",
+          "entity_type": "PER",
+          "source_type": "prose",
+          "canonical_name": "lan",
+          "chapter_number": 1,
+          "initial_status": "Unknown",
+          "normalized_name": "lan"
+        },
+        "evidence": [
+          {
+            "end": 18,
+            "quote": "lan",
+            "start": 15,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "35b0d514-dfe4-5b82-bf92-ab86394c17e3",
+        "proposal_type": "event",
+        "status": "pending",
+        "payload": {
+          "chapter": 1,
+          "summary": "Minh g\\u1eb7p Minh. lan.",
+          "locations": [],
+          "event_type": "observation",
+          "consequences": [],
+          "participants": [
+            "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+            "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+            "118f5089-b6c7-42da-b0df-9e600b4e4373"
+          ],
+          "chapter_number": 1
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "faea8c5b-b092-5d3f-ab47-10870eee5582",
+        "proposal_type": "state_transition",
+        "status": "pending",
+        "payload": {
+          "event_id": "35b0d514-dfe4-5b82-bf92-ab86394c17e3",
+          "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+          "new_value": 60,
+          "attribute_key": "health"
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "ee7ea505-5a6c-525d-bef5-e18c19a519bc",
+        "proposal_type": "state_transition",
+        "status": "pending",
+        "payload": {
+          "event_id": "35b0d514-dfe4-5b82-bf92-ab86394c17e3",
+          "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+          "new_value": {
+            "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b": "knows"
+          },
+          "attribute_key": "active_relationships"
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "2b39e56d-f742-5455-8766-88c9bfec4d8a",
+        "proposal_type": "fact",
+        "status": "pending",
+        "payload": {
+          "fact_key": "source_observation",
+          "fact_type": "narrative_fact",
+          "fact_value": "Minh g\\u1eb7p Minh. lan.",
+          "chapter_number": 1,
+          "subject_entity_id": null
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      }
+    ],
+    "facts": [],
+    "relationships": [],
+    "canon": {
+      "entities": [],
+      "events": [],
+      "facts": [],
+      "state_transitions": [],
+      "current_entity_states": [],
+      "decisions": []
+    },
+    "revisions": [
+      {
+        "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+        "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+        "content": "Minh g\\u1eb7p Minh. lan."
+      }
+    ],
+    "mongo": []
+  },
+  {
+    "stage": "C01-after-partial-approval-403",
+    "brain": [
+      {
+        "id": "e41596d8-141c-4931-ae21-0b5aaa77683d",
+        "novel_id": "d6936071-f17f-4656-b5f8-14fdb840d750",
+        "brain_version": "1",
+        "entity_guidance": {
+          "entries": [
+            {
+              "kind": "hint",
+              "name": "Absent Hint",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            },
+            {
+              "kind": "hint",
+              "name": "lan",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            }
+          ],
+          "version": 2
+        }
+      }
+    ],
+    "runs": [
+      {
+        "id": "8e3dc033-6294-46e7-976a-ca5f3936abe3",
+        "status": "pending",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 19,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 3,
+            "candidates": 3
+          },
+          "policy": "entity-candidates-v1",
+          "status": "completed",
+          "aliases": [],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": true
+            },
+            "novel_id": "d6936071-f17f-4656-b5f8-14fdb840d750",
+            "operation": "author_reanalysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "idempotency_key": "author-reanalysis:1b36d4af5f6c3f3713a252cc365aa1f6ebf22febe6cc3913728d4ef51713e9d2"
+          },
+          "entities": [
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+              "occurrences": [
+                {
+                  "end": 4,
+                  "quote": "Minh",
+                  "start": 0,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "e7b6d58dc0545cf53f5ba68c"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "e7b6d58dc0545cf53f5ba68c"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+              "occurrences": [
+                {
+                  "end": 13,
+                  "quote": "Minh",
+                  "start": 9,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "4a446fd0f9237259b54648c9"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 13,
+              "candidate_ids": [
+                "4a446fd0f9237259b54648c9"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 9,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "lan",
+              "entity_id": "118f5089-b6c7-42da-b0df-9e600b4e4373",
+              "occurrences": [
+                {
+                  "end": 18,
+                  "quote": "lan",
+                  "start": 15,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "8597cec6c24f0f3105a7390d"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 18,
+              "candidate_ids": [
+                "8597cec6c24f0f3105a7390d"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 15,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/8597cec6c24f0f3105a7390d"
+            }
+          ],
+          "decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "status_quote": "",
+              "canonical_name": "lan",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Minh",
+              "context_end": 19,
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "context_start": 0
+            },
+            {
+              "end": 13,
+              "start": 9,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Minh",
+              "context_end": 19,
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "context_start": 0
+            },
+            {
+              "end": 18,
+              "start": 15,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "author_guidance"
+              ],
+              "surface": "lan",
+              "context_end": 19,
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+          "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+          "source_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 4,
+          "analysis_run_id": "8e3dc033-6294-46e7-976a-ca5f3936abe3",
+          "review_finalize": true,
+          "guidance_version": 2,
+          "preserved_entities": [
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+              "occurrences": [
+                {
+                  "end": 4,
+                  "quote": "Minh",
+                  "start": 0,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "e7b6d58dc0545cf53f5ba68c"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "e7b6d58dc0545cf53f5ba68c"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+              "occurrences": [
+                {
+                  "end": 13,
+                  "quote": "Minh",
+                  "start": 9,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "4a446fd0f9237259b54648c9"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 13,
+              "candidate_ids": [
+                "4a446fd0f9237259b54648c9"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 9,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            }
+          ],
+          "refresh_generation": 1,
+          "reviewed_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "status_quote": "",
+              "canonical_name": "lan",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/8597cec6c24f0f3105a7390d"
+            }
+          ],
+          "preserved_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            }
+          ],
+          "review_input_version": 3,
+          "pending_candidate_ids": [],
+          "refresh_input_version": 2,
+          "unanchored_discoveries": [
+            {
+              "name": "Ti\\u00eau Vi\\u00eam",
+              "chunk_start": 0
+            }
+          ],
+          "identity_inventory_version": 2,
+          "provisional_identity_scope": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9",
+          "review_submitted_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "status_quote": "",
+              "canonical_name": "lan",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/8597cec6c24f0f3105a7390d"
+            }
+          ]
+        }
+      }
+    ],
+    "proposals": [
+      {
+        "id": "59565245-375f-56db-b5d6-0aa59cda22f5",
+        "proposal_type": "entity",
+        "status": "pending",
+        "payload": {
+          "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+          "entity_type": "PER",
+          "source_type": "prose",
+          "canonical_name": "Minh",
+          "chapter_number": 1,
+          "initial_status": "Unknown",
+          "normalized_name": "minh"
+        },
+        "evidence": [
+          {
+            "end": 4,
+            "quote": "Minh",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "2e97aca4-f628-50d3-af67-e185eee66fd8",
+        "proposal_type": "entity",
+        "status": "pending",
+        "payload": {
+          "entity_id": "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+          "entity_type": "PER",
+          "source_type": "prose",
+          "canonical_name": "Minh",
+          "chapter_number": 1,
+          "initial_status": "Unknown",
+          "normalized_name": "minh"
+        },
+        "evidence": [
+          {
+            "end": 13,
+            "quote": "Minh",
+            "start": 9,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "799fffc1-ef4a-5031-ad66-9b9d622b1f71",
+        "proposal_type": "entity",
+        "status": "pending",
+        "payload": {
+          "entity_id": "118f5089-b6c7-42da-b0df-9e600b4e4373",
+          "entity_type": "PER",
+          "source_type": "prose",
+          "canonical_name": "lan",
+          "chapter_number": 1,
+          "initial_status": "Unknown",
+          "normalized_name": "lan"
+        },
+        "evidence": [
+          {
+            "end": 18,
+            "quote": "lan",
+            "start": 15,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "35b0d514-dfe4-5b82-bf92-ab86394c17e3",
+        "proposal_type": "event",
+        "status": "pending",
+        "payload": {
+          "chapter": 1,
+          "summary": "Minh g\\u1eb7p Minh. lan.",
+          "locations": [],
+          "event_type": "observation",
+          "consequences": [],
+          "participants": [
+            "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+            "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+            "118f5089-b6c7-42da-b0df-9e600b4e4373"
+          ],
+          "chapter_number": 1
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "faea8c5b-b092-5d3f-ab47-10870eee5582",
+        "proposal_type": "state_transition",
+        "status": "pending",
+        "payload": {
+          "event_id": "35b0d514-dfe4-5b82-bf92-ab86394c17e3",
+          "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+          "new_value": 60,
+          "attribute_key": "health"
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "ee7ea505-5a6c-525d-bef5-e18c19a519bc",
+        "proposal_type": "state_transition",
+        "status": "pending",
+        "payload": {
+          "event_id": "35b0d514-dfe4-5b82-bf92-ab86394c17e3",
+          "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+          "new_value": {
+            "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b": "knows"
+          },
+          "attribute_key": "active_relationships"
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "2b39e56d-f742-5455-8766-88c9bfec4d8a",
+        "proposal_type": "fact",
+        "status": "pending",
+        "payload": {
+          "fact_key": "source_observation",
+          "fact_type": "narrative_fact",
+          "fact_value": "Minh g\\u1eb7p Minh. lan.",
+          "chapter_number": 1,
+          "subject_entity_id": null
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      }
+    ],
+    "facts": [],
+    "relationships": [],
+    "canon": {
+      "entities": [],
+      "events": [],
+      "facts": [],
+      "state_transitions": [],
+      "current_entity_states": [],
+      "decisions": []
+    },
+    "revisions": [
+      {
+        "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+        "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+        "content": "Minh g\\u1eb7p Minh. lan."
+      }
+    ],
+    "mongo": []
+  },
+  {
+    "stage": "C01-after-partial-approval-200",
+    "brain": [
+      {
+        "id": "e41596d8-141c-4931-ae21-0b5aaa77683d",
+        "novel_id": "d6936071-f17f-4656-b5f8-14fdb840d750",
+        "brain_version": "2",
+        "entity_guidance": {
+          "entries": [
+            {
+              "kind": "hint",
+              "name": "Absent Hint",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            },
+            {
+              "kind": "hint",
+              "name": "lan",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            }
+          ],
+          "version": 2
+        }
+      }
+    ],
+    "runs": [
+      {
+        "id": "8e3dc033-6294-46e7-976a-ca5f3936abe3",
+        "status": "pending",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 19,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 3,
+            "candidates": 3
+          },
+          "policy": "entity-candidates-v1",
+          "status": "completed",
+          "aliases": [],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": true
+            },
+            "novel_id": "d6936071-f17f-4656-b5f8-14fdb840d750",
+            "operation": "author_reanalysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "idempotency_key": "author-reanalysis:1b36d4af5f6c3f3713a252cc365aa1f6ebf22febe6cc3913728d4ef51713e9d2"
+          },
+          "entities": [
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+              "occurrences": [
+                {
+                  "end": 4,
+                  "quote": "Minh",
+                  "start": 0,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "e7b6d58dc0545cf53f5ba68c"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "e7b6d58dc0545cf53f5ba68c"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+              "occurrences": [
+                {
+                  "end": 13,
+                  "quote": "Minh",
+                  "start": 9,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "4a446fd0f9237259b54648c9"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 13,
+              "candidate_ids": [
+                "4a446fd0f9237259b54648c9"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 9,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "lan",
+              "entity_id": "118f5089-b6c7-42da-b0df-9e600b4e4373",
+              "occurrences": [
+                {
+                  "end": 18,
+                  "quote": "lan",
+                  "start": 15,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "8597cec6c24f0f3105a7390d"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 18,
+              "candidate_ids": [
+                "8597cec6c24f0f3105a7390d"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 15,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/8597cec6c24f0f3105a7390d"
+            }
+          ],
+          "decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "status_quote": "",
+              "canonical_name": "lan",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Minh",
+              "context_end": 19,
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "context_start": 0
+            },
+            {
+              "end": 13,
+              "start": 9,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "Minh",
+              "context_end": 19,
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "context_start": 0
+            },
+            {
+              "end": 18,
+              "start": 15,
+              "context": "Minh g\\u1eb7p Minh. lan.",
+              "origins": [
+                "author_guidance"
+              ],
+              "surface": "lan",
+              "context_end": 19,
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+          "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+          "source_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 4,
+          "analysis_run_id": "8e3dc033-6294-46e7-976a-ca5f3936abe3",
+          "review_finalize": true,
+          "guidance_version": 2,
+          "preserved_entities": [
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+              "occurrences": [
+                {
+                  "end": 4,
+                  "quote": "Minh",
+                  "start": 0,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "e7b6d58dc0545cf53f5ba68c"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "e7b6d58dc0545cf53f5ba68c"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "score": 7,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+              "occurrences": [
+                {
+                  "end": 13,
+                  "quote": "Minh",
+                  "start": 9,
+                  "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+                  "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+                  "candidate_id": "4a446fd0f9237259b54648c9"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 13,
+              "candidate_ids": [
+                "4a446fd0f9237259b54648c9"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 9,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            }
+          ],
+          "refresh_generation": 1,
+          "reviewed_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "status_quote": "",
+              "canonical_name": "lan",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/8597cec6c24f0f3105a7390d"
+            }
+          ],
+          "preserved_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "e7b6d58dc0545cf53f5ba68c",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/e7b6d58dc0545cf53f5ba68c"
+            },
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "4a446fd0f9237259b54648c9",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/4a446fd0f9237259b54648c9"
+            }
+          ],
+          "review_input_version": 3,
+          "pending_candidate_ids": [],
+          "refresh_input_version": 2,
+          "unanchored_discoveries": [
+            {
+              "name": "Ti\\u00eau Vi\\u00eam",
+              "chunk_start": 0
+            }
+          ],
+          "identity_inventory_version": 2,
+          "provisional_identity_scope": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9",
+          "review_submitted_decisions": [
+            {
+              "reason": "Deterministic fake occurrence for human review",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "8597cec6c24f0f3105a7390d",
+              "status_quote": "",
+              "canonical_name": "lan",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "7216a63ef98b47e5cd1a437e1cef599bce4808f10e809547efc0097e2c4063b9/8597cec6c24f0f3105a7390d"
+            }
+          ]
+        }
+      }
+    ],
+    "proposals": [
+      {
+        "id": "59565245-375f-56db-b5d6-0aa59cda22f5",
+        "proposal_type": "entity",
+        "status": "accepted",
+        "payload": {
+          "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+          "entity_type": "PER",
+          "source_type": "prose",
+          "canonical_name": "Minh",
+          "chapter_number": 1,
+          "initial_status": "Unknown",
+          "normalized_name": "minh"
+        },
+        "evidence": [
+          {
+            "end": 4,
+            "quote": "Minh",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "2e97aca4-f628-50d3-af67-e185eee66fd8",
+        "proposal_type": "entity",
+        "status": "pending",
+        "payload": {
+          "entity_id": "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+          "entity_type": "PER",
+          "source_type": "prose",
+          "canonical_name": "Minh",
+          "chapter_number": 1,
+          "initial_status": "Unknown",
+          "normalized_name": "minh"
+        },
+        "evidence": [
+          {
+            "end": 13,
+            "quote": "Minh",
+            "start": 9,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "799fffc1-ef4a-5031-ad66-9b9d622b1f71",
+        "proposal_type": "entity",
+        "status": "pending",
+        "payload": {
+          "entity_id": "118f5089-b6c7-42da-b0df-9e600b4e4373",
+          "entity_type": "PER",
+          "source_type": "prose",
+          "canonical_name": "lan",
+          "chapter_number": 1,
+          "initial_status": "Unknown",
+          "normalized_name": "lan"
+        },
+        "evidence": [
+          {
+            "end": 18,
+            "quote": "lan",
+            "start": 15,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "35b0d514-dfe4-5b82-bf92-ab86394c17e3",
+        "proposal_type": "event",
+        "status": "pending",
+        "payload": {
+          "chapter": 1,
+          "summary": "Minh g\\u1eb7p Minh. lan.",
+          "locations": [],
+          "event_type": "observation",
+          "consequences": [],
+          "participants": [
+            "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+            "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b",
+            "118f5089-b6c7-42da-b0df-9e600b4e4373"
+          ],
+          "chapter_number": 1
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "faea8c5b-b092-5d3f-ab47-10870eee5582",
+        "proposal_type": "state_transition",
+        "status": "pending",
+        "payload": {
+          "event_id": "35b0d514-dfe4-5b82-bf92-ab86394c17e3",
+          "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+          "new_value": 60,
+          "attribute_key": "health"
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "ee7ea505-5a6c-525d-bef5-e18c19a519bc",
+        "proposal_type": "state_transition",
+        "status": "pending",
+        "payload": {
+          "event_id": "35b0d514-dfe4-5b82-bf92-ab86394c17e3",
+          "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+          "new_value": {
+            "5dc46821-fdd6-4b78-a9b7-4eab0854ff5b": "knows"
+          },
+          "attribute_key": "active_relationships"
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "id": "2b39e56d-f742-5455-8766-88c9bfec4d8a",
+        "proposal_type": "fact",
+        "status": "pending",
+        "payload": {
+          "fact_key": "source_observation",
+          "fact_type": "narrative_fact",
+          "fact_value": "Minh g\\u1eb7p Minh. lan.",
+          "chapter_number": 1,
+          "subject_entity_id": null
+        },
+        "evidence": [
+          {
+            "end": 19,
+            "quote": "Minh g\\u1eb7p Minh. lan.",
+            "start": 0,
+            "text_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+            "chapter_id": "26a7f6ce-45be-4ad0-ae60-d9886edc4e8b",
+            "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+            "chapter_number": 1
+          }
+        ]
+      }
+    ],
+    "facts": [],
+    "relationships": [],
+    "canon": {
+      "entities": [
+        {
+          "id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+          "story_brain_id": "e41596d8-141c-4931-ae21-0b5aaa77683d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "novel_id": "d6936071-f17f-4656-b5f8-14fdb840d750",
+          "entity_type": "PER",
+          "canonical_name": "Minh",
+          "normalized_name": "minh",
+          "description": null,
+          "static_attributes": {
+            "status": "Unknown",
+            "location": "Unknown",
+            "mentions": 1,
+            "source_type": "prose"
+          },
+          "source_type": "AI",
+          "confirmation_status": "confirmed",
+          "confidence": "0.7000",
+          "is_locked": false,
+          "created_by": null,
+          "created_at": "2026-10-24T01:31:43.137Z",
+          "updated_at": "2026-10-24T01:31:43.137Z"
+        }
+      ],
+      "events": [],
+      "facts": [],
+      "state_transitions": [],
+      "current_entity_states": [],
+      "decisions": [
+        {
+          "id": "e3b648e0-b840-47ed-999a-63d57b07c500",
+          "proposal_id": "59565245-375f-56db-b5d6-0aa59cda22f5",
+          "actor_id": "00000000-0000-0000-0000-000000000001",
+          "decision": "edit_accept",
+          "edited_payload": {
+            "entity_id": "5c15fe4a-3dfa-42fe-a0ef-c6df3cc52ab0",
+            "entity_type": "PER",
+            "source_type": "prose",
+            "canonical_name": "Minh",
+            "chapter_number": 1,
+            "initial_status": "Unknown",
+            "normalized_name": "minh"
+          },
+          "reason": null,
+          "decided_at": "2026-10-24T01:31:43.137Z"
+        }
+      ]
+    },
+    "revisions": [
+      {
+        "revision_id": "68a80ecf-0f71-4b83-a393-ec97a311701d",
+        "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+        "content": "Minh g\\u1eb7p Minh. lan."
+      }
+    ],
+    "mongo": []
+  }
+]

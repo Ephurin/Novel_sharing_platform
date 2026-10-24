@@ -1,0 +1,4 @@
+{
+  "DTO_status": "ABSENT_IN_INTEGRATION",
+  "runtime_policy_evidence": "containment.json: embeddings none, semantic retrieval false; no status field is inferred"
+}

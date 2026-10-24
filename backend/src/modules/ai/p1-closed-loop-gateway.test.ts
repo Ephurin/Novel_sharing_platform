@@ -301,5 +301,57 @@ describe('AI-PIPE-01 P1 Node Gateway & Acceptance Flow', () => {
       /403_FORBIDDEN/
     );
   });
+
+  test('P1-Gateway: Author operation consistency check forwards with actor/tenant and returns findings', async () => {
+    let capturedUrl = '';
+    let capturedHeaders: Record<string, string> = {};
+    let capturedBody: any = null;
+
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (async (url: any, init: any) => {
+      capturedUrl = String(url);
+      capturedHeaders = init?.headers || {};
+      capturedBody = JSON.parse(init?.body || '{}');
+      return new Response(
+        JSON.stringify({
+          data: {
+            findings: [
+              {
+                description: 'Mâu thuẫn thực thể: Trần Vân được ghi nhận còn sống trong Story Brain nhưng bản thảo nêu đã hy sinh',
+                evidence: 'Trần Vân đã hy sinh',
+                revision_id: capturedBody.revision_id,
+              }
+            ],
+          },
+        }),
+        { status: 200, headers: { 'Content-Type': 'application/json' } }
+      );
+    }) as typeof fetch;
+
+    try {
+      const gateway = new AIGatewayService();
+      const res = await gateway.forwardRequest({
+        method: 'POST',
+        path: '/v1/story-brains/novel-001/author-operation',
+        userId: 'author-123',
+        tenantId: '00000000-0000-0000-0000-000000000001',
+        requestId: 'req-consist-01',
+        body: {
+          operation: 'check_consistency',
+          content: 'Bản thảo mới: Trần Vân đã hy sinh tại đại chiến.',
+          revision_id: 'rev-test-1',
+        },
+      });
+
+      assert.equal(capturedHeaders['X-Tenant-Id'], '00000000-0000-0000-0000-000000000001');
+      assert.equal(capturedHeaders['X-User-Id'], 'author-123');
+      assert.match(capturedUrl, /\/v1\/story-brains\/novel-001\/author-operation$/);
+      assert.equal(res.findings.length, 1);
+      assert.equal(res.findings[0].evidence, 'Trần Vân đã hy sinh');
+      assert.equal(res.findings[0].revision_id, 'rev-test-1');
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  });
 });
 

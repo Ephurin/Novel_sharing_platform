@@ -1,0 +1,9 @@
+{
+  "database": "ephurin_test_astra_p1_identity_39ad5d85",
+  "containers": [
+    "astra-p1-identity-39ad5d85-pg",
+    "astra-p1-identity-39ad5d85-mongo"
+  ],
+  "pg_port": "4410",
+  "mongo_port": "4414"
+}

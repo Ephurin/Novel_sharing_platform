@@ -89,6 +89,12 @@ class AnalysisRun:
 
 
 @dataclass(frozen=True, slots=True)
+class EntityReviewCompletion:
+    proposals: tuple[NarrativeProposal, ...]
+    deduplicated: bool
+
+
+@dataclass(frozen=True, slots=True)
 class BootstrapRevision:
     chapter_id: str
     revision_id: str
@@ -154,6 +160,7 @@ class StoryPlanObjective:
     objective_type: str = "chapter_goal"
     status: str = "pending"
     metadata: dict[str, Any] = field(default_factory=dict)
+    intent_version: int = 0
 
 
 @dataclass(frozen=True, slots=True)

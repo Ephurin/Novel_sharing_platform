@@ -2,7 +2,9 @@ import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { getPostgresPool, disconnectPostgres } from '../../core/database/postgres.js';
-import { disconnectMongo } from '../../core/database/mongo.js';
+import { getMongoDatabase, disconnectMongo } from '../../core/database/mongo.js';
+import { TestFixtureLifecycle } from './test-fixture-lifecycle.js';
+import { disconnectChapterWriter } from './chapter-writer.js';
 import { acceptDraft } from './chapter-revisions.service.js';
 import { env } from '../../core/config/env.js';
 
@@ -21,11 +23,64 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
   const testGenId = `gen-${Date.now()}-${crypto.randomUUID()}`;
   const mockReplacement = ' Tiêu Viêm chậm rãi thu hồi Dị Hỏa.';
 
+  // Unrelated sentinel fixtures to verify non-destructive isolation
+  const sentinelUserId = crypto.randomUUID();
+  const sentinelNovelId = crypto.randomUUID();
+  const sentinelChapterId = crypto.randomUUID();
+  const sentinelMongoChapterId = crypto.randomUUID();
+
+  const lifecycle = new TestFixtureLifecycle();
+
   // Mock global.fetch to intercept AI service calls during acceptDraft
   const originalFetch = global.fetch;
 
   before(async () => {
-    // Setup author and novel fixture in PostgreSQL
+    const mongoDb = getMongoDatabase();
+
+    // STEP 1: Enforce fail-closed database isolation guard before ANY mutation
+    await lifecycle.authorize(pool, mongoDb);
+
+    // STEP 2: Seed sentinel records to verify cleanup specificity (register then confirm)
+    lifecycle.registerSentinelUser(sentinelUserId);
+    await pool.query(
+      `INSERT INTO users (user_id, username, email, password_hash, role)
+       VALUES ($1, $2, $3, 'dummy-hash', 'AUTHOR') ON CONFLICT DO NOTHING`,
+      [sentinelUserId, `sentinel_p1_${Date.now()}`, `sentinel_p1_${Date.now()}@ephurin.com`]
+    );
+    lifecycle.confirmSentinelUser(sentinelUserId);
+
+    lifecycle.registerSentinelNovel(sentinelNovelId);
+    await pool.query(
+      `INSERT INTO novels (novel_id, author_id, title, slug, synopsis)
+       VALUES ($1, $2, 'Sentinel Persistence Novel', $3, 'Sentinel Synopsis') ON CONFLICT DO NOTHING`,
+      [sentinelNovelId, sentinelUserId, `sentinel-p1-slug-${Date.now()}`]
+    );
+    lifecycle.confirmSentinelNovel(sentinelNovelId);
+
+    lifecycle.registerSentinelChapter(sentinelChapterId);
+    await pool.query(
+      `INSERT INTO chapters (chapter_id, novel_id, chapter_number, title, content, word_count)
+       VALUES ($1, $2, 999, 'Sentinel Persistence Chapter', 'Sentinel Content', 2) ON CONFLICT DO NOTHING`,
+      [sentinelChapterId, sentinelNovelId]
+    );
+    lifecycle.confirmSentinelChapter(sentinelChapterId);
+
+    lifecycle.registerSentinelMongoDraft(sentinelMongoChapterId);
+    await mongoDb.collection('draft_chapters').insertOne({
+      chapterId: sentinelMongoChapterId,
+      novelId: sentinelNovelId,
+      authorId: sentinelUserId,
+      title: 'Sentinel Persistence Draft',
+      content: 'Sentinel draft content',
+      wordCount: 3,
+      version: 1,
+      autosave: false,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+    lifecycle.confirmSentinelMongoDraft(sentinelMongoChapterId);
+
+    // STEP 3: Setup author and novel fixture in PostgreSQL
     const userRes = await pool.query(
       `insert into users (email, username, password_hash, role)
        values ($1, $2, 'dummy-hash', 'AUTHOR')
@@ -33,6 +88,7 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
       [`author-pipe01a-${Date.now()}@ephurin.com`, `auth_${Date.now()}`]
     );
     userId = userRes.rows[0].user_id;
+    lifecycle.registerUser(userId);
 
     const novelRes = await pool.query(
       `insert into novels (author_id, title, slug, synopsis)
@@ -41,6 +97,7 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
       [userId, `novel-pipe01a-${Date.now()}`]
     );
     novelId = novelRes.rows[0].novel_id;
+    lifecycle.registerNovel(novelId);
 
     const chapRes = await pool.query(
       `insert into chapters (novel_id, chapter_number, title, content, word_count)
@@ -49,6 +106,7 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
       [novelId, baseContent]
     );
     chapterId = chapRes.rows[0].chapter_id;
+    lifecycle.registerChapter(chapterId);
 
     const revRes = await pool.query(
       `insert into chapter_revisions (novel_id, chapter_id, content_hash, content, word_count, source_type, created_by)
@@ -57,6 +115,7 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
       [novelId, chapterId, baseContentHash, baseContent, userId]
     );
     baseRevisionId = revRes.rows[0].revision_id;
+    lifecycle.registerRevision(baseRevisionId);
 
     await pool.query(
       'update chapters set latest_revision_id = $1 where chapter_id = $2',
@@ -67,7 +126,7 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
     global.fetch = (async (url: string | URL | Request, init?: RequestInit) => {
       const urlStr = String(url);
 
-      if (urlStr.includes(`/internal/v1/writing/generations/${testGenId}`)) {
+      if (urlStr.includes(`/internal/v1/writing/generations/${testGenId}`) || urlStr.includes(`/v1/writing-generations/${testGenId}`)) {
         return {
           ok: true,
           status: 200,
@@ -92,7 +151,7 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
         } as any;
       }
 
-      if (urlStr.includes(`/v1/story-brains/by-novel/${novelId}`)) {
+      if (urlStr.includes(`/v1/story-brains/by-novel/${novelId}`) || urlStr.includes(`/v1/story-brains/${novelId}`)) {
         return {
           ok: true,
           status: 200,
@@ -118,20 +177,20 @@ describe('Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Inte
 
       return originalFetch(url, init);
     }) as any;
+
+    lifecycle.markTestsRunning();
   });
 
   after(async () => {
-    // Teardown fixture data from PostgreSQL
-    if (novelId) {
-      await pool.query('delete from novels where novel_id = $1', [novelId]);
-    }
-    if (userId) {
-      await pool.query('delete from users where user_id = $1', [userId]);
-    }
-
-    await disconnectPostgres();
-    await disconnectMongo();
     global.fetch = originalFetch;
+    try {
+      const mongoDb = getMongoDatabase();
+      await lifecycle.cleanup(pool, mongoDb);
+    } finally {
+      await disconnectPostgres();
+      await disconnectMongo();
+      await disconnectChapterWriter();
+    }
   });
 
   test('Checkpoint 08: acceptDraft persists chapter_revisions with source_type=AI_DRAFT_ACCEPT in PostgreSQL', async () => {

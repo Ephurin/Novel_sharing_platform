@@ -243,6 +243,8 @@ class WritingValidationGoldenTests(unittest.TestCase):
             operation="continue",
             selection={"start": 0, "end": 0, "cursor": 10},
             instruction="Viết tiếp đoạn văn",
+            actor_id="test-author-1",
+            idempotency_key="test-key-p1",
             process_inline=True,
         )
 
@@ -259,6 +261,9 @@ class WritingValidationGoldenTests(unittest.TestCase):
         self.assertEqual(internal_resp.status_code, 200)
         internal_data = internal_resp.json()["data"]
         self.assertEqual(internal_data["job_id"], job.job_id)
+        self.assertEqual(internal_data["tenant_id"], self.tenant_id)
+        self.assertEqual(internal_data["actor_id"], "test-author-1")
+        self.assertEqual(internal_data["idempotency_key"], "test-key-p1")
         self.assertIsNotNone(internal_data["draft"])
         self.assertIsNotNone(internal_data["patch"])
         self.assertEqual(internal_data["validation_status"], "passed")

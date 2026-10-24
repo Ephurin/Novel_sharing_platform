@@ -1,0 +1,121 @@
+{
+  "timestamp": "2026-10-23T06:48:44Z",
+  "sourceCommitSha": "be7aaf9b6b54f6200cd205496bf27c9279fe9a65",
+  "databaseIsolation": {
+    "postgres": {
+      "database": "ephurin_test_integration",
+      "serverAddr": "127.0.0.1",
+      "serverPort": 5432,
+      "isIsolated": true,
+      "optInVerified": true
+    },
+    "mongo": {
+      "database": "ephurin_test_integration",
+      "isIsolated": true,
+      "optInVerified": true
+    },
+    "optInEnv": "EPHURIN_ALLOW_TEST_DB_MUTATIONS=1"
+  },
+  "failClosedGuardMetrics": {
+    "mutationCallsAfterGuardRejection": 0,
+    "mutationsAttemptedOnRejectedDb": 0,
+    "rejectedVectorsTested": [
+      "missing_opt_in",
+      "forbidden_postgres_db_name",
+      "forbidden_mongo_db_name",
+      "expected_db_identity_mismatch",
+      "guard_connection_failure"
+    ]
+  },
+  "postCleanupResidualReadbacks": {
+    "postgres": {
+      "users": {
+        "trackedCount": 14,
+        "residualCount": 0,
+        "status": "ZERO_RESIDUAL_VERIFIED"
+      },
+      "novels": {
+        "trackedCount": 14,
+        "residualCount": 0,
+        "status": "ZERO_RESIDUAL_VERIFIED"
+      },
+      "chapters": {
+        "trackedCount": 14,
+        "residualCount": 0,
+        "status": "ZERO_RESIDUAL_VERIFIED"
+      },
+      "chapter_revisions": {
+        "trackedCount": 16,
+        "residualCount": 0,
+        "status": "ZERO_RESIDUAL_VERIFIED"
+      },
+      "revision_outbox_events": {
+        "trackedCount": 8,
+        "residualCount": 0,
+        "status": "ZERO_RESIDUAL_VERIFIED"
+      }
+    },
+    "mongo": {
+      "draft_chapters": {
+        "trackedCount": 12,
+        "residualCount": 0,
+        "status": "ZERO_RESIDUAL_VERIFIED"
+      }
+    }
+  },
+  "sentinelLifecycleReadbacks": {
+    "sentinelUsers": {
+      "survivalVerifiedDuringTests": true,
+      "postTeardownResidualCount": 0
+    },
+    "sentinelNovels": {
+      "survivalVerifiedDuringTests": true,
+      "postTeardownResidualCount": 0
+    },
+    "sentinelChapters": {
+      "survivalVerifiedDuringTests": true,
+      "postTeardownResidualCount": 0
+    },
+    "sentinelMongoDrafts": {
+      "survivalVerifiedDuringTests": true,
+      "postTeardownResidualCount": 0
+    }
+  },
+  "suiteResults": {
+    "test-db-guard-lifecycle.test.ts": {
+      "total": 6,
+      "pass": 6,
+      "fail": 0,
+      "skipped": 0,
+      "durationMs": 7.7
+    },
+    "test-db-guard.test.ts": {
+      "total": 11,
+      "pass": 11,
+      "fail": 0,
+      "skipped": 0,
+      "durationMs": 5.5
+    },
+    "fixture-lifecycle-resilience.postgres.test.ts": {
+      "total": 10,
+      "pass": 10,
+      "fail": 0,
+      "skipped": 0,
+      "durationMs": 257.2
+    },
+    "accept-draft-contract.test.ts": {
+      "total": 14,
+      "pass": 14,
+      "fail": 0,
+      "skipped": 0,
+      "durationMs": 304.6
+    },
+    "p1-production-persistence.postgres.test.ts": {
+      "total": 5,
+      "pass": 5,
+      "fail": 0,
+      "skipped": 0,
+      "durationMs": 175.1
+    }
+  }
+}

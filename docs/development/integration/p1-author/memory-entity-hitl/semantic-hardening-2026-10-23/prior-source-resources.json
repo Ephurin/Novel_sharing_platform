@@ -1,0 +1,9 @@
+{
+  "database": "ephurin_test_astra_p1_semantics_c7329d5a",
+  "containers": [
+    "astra-p1-semantics-c7329d5a-pg",
+    "astra-p1-semantics-c7329d5a-mongo"
+  ],
+  "pg_port": "35701",
+  "mongo_port": "35708"
+}

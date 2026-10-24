@@ -1,0 +1,760 @@
+TAP version 13
+# Subtest: F-06 Regression: Fail-Closed Teardown Mutation Guard
+    # Subtest: F-06.1: Missing opt-in rejects guard and executes ZERO teardown mutations
+    ok 1 - F-06.1: Missing opt-in rejects guard and executes ZERO teardown mutations
+      ---
+      duration_ms: 15.6603
+      ...
+    # Subtest: F-06.2: Forbidden PostgreSQL database name rejects guard and executes ZERO teardown mutations
+    ok 2 - F-06.2: Forbidden PostgreSQL database name rejects guard and executes ZERO teardown mutations
+      ---
+      duration_ms: 3.6429
+      ...
+    # Subtest: F-06.3: Forbidden MongoDB database name rejects guard and executes ZERO teardown mutations
+    ok 3 - F-06.3: Forbidden MongoDB database name rejects guard and executes ZERO teardown mutations
+      ---
+      duration_ms: 6.1302
+      ...
+    # Subtest: F-06.4: Expected DB identity mismatch rejects guard and executes ZERO teardown mutations
+    ok 4 - F-06.4: Expected DB identity mismatch rejects guard and executes ZERO teardown mutations
+      ---
+      duration_ms: 2.5756
+      ...
+    # Subtest: F-06.5: Guard query/connection failure rejects guard and executes ZERO teardown mutations
+    ok 5 - F-06.5: Guard query/connection failure rejects guard and executes ZERO teardown mutations
+      ---
+      duration_ms: 0.7659
+      ...
+    # Subtest: F-06.6: Positive authorization enables valid lifecycle progression
+    ok 6 - F-06.6: Positive authorization enables valid lifecycle progression
+      ---
+      duration_ms: 0.5083
+      ...
+    1..6
+ok 1 - F-06 Regression: Fail-Closed Teardown Mutation Guard
+  ---
+  duration_ms: 41.1872
+  type: 'suite'
+  ...
+# Subtest: Test Database Isolation Guard Rules (Negative and Positive Contract)
+    # Subtest: Rule 1: Missing external opt-in (EPHURIN_ALLOW_TEST_DB_MUTATIONS != "1") fails closed
+    ok 1 - Rule 1: Missing external opt-in (EPHURIN_ALLOW_TEST_DB_MUTATIONS != "1") fails closed
+      ---
+      duration_ms: 3.126
+      ...
+    # Subtest: Rule 2: Ambient CI=true does NOT authorize mutations without opt-in
+    ok 2 - Rule 2: Ambient CI=true does NOT authorize mutations without opt-in
+      ---
+      duration_ms: 0.5144
+      ...
+    # Subtest: Rule 3: Ambient NODE_ENV=test does NOT authorize mutations without opt-in
+    ok 3 - Rule 3: Ambient NODE_ENV=test does NOT authorize mutations without opt-in
+      ---
+      duration_ms: 0.3555
+      ...
+    # Subtest: Rule 4: Ambient npm lifecycle script does NOT authorize mutations without opt-in
+    ok 4 - Rule 4: Ambient npm lifecycle script does NOT authorize mutations without opt-in
+      ---
+      duration_ms: 0.4271
+      ...
+    # Subtest: Rule 5: Default PostgreSQL database "ephurin" is REJECTED even with opt-in
+    ok 5 - Rule 5: Default PostgreSQL database "ephurin" is REJECTED even with opt-in
+      ---
+      duration_ms: 0.3914
+      ...
+    # Subtest: Rule 6: Production/system PostgreSQL databases (postgres, template0) are REJECTED even with opt-in
+    ok 6 - Rule 6: Production/system PostgreSQL databases (postgres, template0) are REJECTED even with opt-in
+      ---
+      duration_ms: 0.5789
+      ...
+    # Subtest: Rule 7: Default MongoDB database "ephurin" is REJECTED even with opt-in
+    ok 7 - Rule 7: Default MongoDB database "ephurin" is REJECTED even with opt-in
+      ---
+      duration_ms: 0.4716
+      ...
+    # Subtest: Rule 8: System MongoDB databases (admin, config, local) are REJECTED even with opt-in
+    ok 8 - Rule 8: System MongoDB databases (admin, config, local) are REJECTED even with opt-in
+      ---
+      duration_ms: 10.9127
+      ...
+    # Subtest: Rule 9: Expected test DB name mismatch is REJECTED
+    ok 9 - Rule 9: Expected test DB name mismatch is REJECTED
+      ---
+      duration_ms: 0.9008
+      ...
+    # Subtest: Rule 10: Approved isolated test database with opt-in PASSES
+    ok 10 - Rule 10: Approved isolated test database with opt-in PASSES
+      ---
+      duration_ms: 1.1438
+      ...
+    # Subtest: Rule 11: isAllowedTestDbName helper enforces positive pattern and rejects forbidden names
+    ok 11 - Rule 11: isAllowedTestDbName helper enforces positive pattern and rejects forbidden names
+      ---
+      duration_ms: 0.3064
+      ...
+    1..11
+ok 2 - Test Database Isolation Guard Rules (Negative and Positive Contract)
+  ---
+  duration_ms: 22.2643
+  type: 'suite'
+  ...
+# [OutboxProcessor] Event evt-1 (INCREMENTAL_ANALYSIS) failed (attempt 1): AI service returned HTTP 503: {}
+# Subtest: P1 extraction-only outbox authorization boundary
+    # Subtest: successful extraction issues exactly one source-scoped request and no canon decision
+    ok 1 - successful extraction issues exactly one source-scoped request and no canon decision
+      ---
+      duration_ms: 56.7053
+      ...
+    # Subtest: duplicate delivery preserves extraction idempotency key and never invokes accept
+    ok 2 - duplicate delivery preserves extraction idempotency key and never invokes accept
+      ---
+      duration_ms: 0.9936
+      ...
+    # Subtest: interrupted extraction fails explicitly, retry remains extraction-only
+    ok 3 - interrupted extraction fails explicitly, retry remains extraction-only
+      ---
+      duration_ms: 1.574
+      ...
+    # Subtest: HTTP extraction failure is retryable without accessing pending canon
+    ok 4 - HTTP extraction failure is retryable without accessing pending canon
+      ---
+      duration_ms: 4.0817
+      ...
+    # Subtest: outbox COMPLETED means extraction delivered, not canon accepted
+    ok 5 - outbox COMPLETED means extraction delivered, not canon accepted
+      ---
+      duration_ms: 2.6285
+      ...
+    # Subtest: failed extraction marks FAILED then successful retry completes using claim fences
+    ok 6 - failed extraction marks FAILED then successful retry completes using claim fences
+      ---
+      duration_ms: 3.7266
+      ...
+    1..6
+ok 3 - P1 extraction-only outbox authorization boundary
+  ---
+  duration_ms: 71.8266
+  type: 'suite'
+  ...
+# Subtest: AI Copilot LLM Provider Health Check
+    # Subtest: recognizes models with models/ prefix from Google OpenAI endpoint
+    ok 1 - recognizes models with models/ prefix from Google OpenAI endpoint
+      ---
+      duration_ms: 68.4884
+      ...
+    # Subtest: recognizes models without prefix from standard OpenAI endpoint
+    ok 2 - recognizes models without prefix from standard OpenAI endpoint
+      ---
+      duration_ms: 1.1405
+      ...
+    # Subtest: reports ready=false when configured model is absent
+    ok 3 - reports ready=false when configured model is absent
+      ---
+      duration_ms: 2.2375
+      ...
+    1..3
+ok 4 - AI Copilot LLM Provider Health Check
+  ---
+  duration_ms: 74.0335
+  type: 'suite'
+  ...
+# Subtest: Node.js AI Gateway Service (P6.5 Hardening)
+    # Subtest: AIGatewayService forwards headers with tenant, user, and service token
+    ok 1 - AIGatewayService forwards headers with tenant, user, and service token
+      ---
+      duration_ms: 74.6691
+      ...
+    # Subtest: AIGatewayService builds query parameters correctly for context-preview
+    ok 2 - AIGatewayService builds query parameters correctly for context-preview
+      ---
+      duration_ms: 2.8798
+      ...
+    # Subtest: AIGatewayService propagates remote AI errors as AppError with correct status code
+    ok 3 - AIGatewayService propagates remote AI errors as AppError with correct status code
+      ---
+      duration_ms: 1.8378
+      ...
+    # Subtest: AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE
+    ok 4 - AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE
+      ---
+      duration_ms: 0.7569
+      ...
+    # Subtest: assertNovelOwnership enforces author access control with 403 FORBIDDEN
+    ok 5 - assertNovelOwnership enforces author access control with 403 FORBIDDEN
+      ---
+      duration_ms: 0.8076
+      ...
+    # Subtest: Canonical chapter cutoff derivation from DB record overrides client cutoff
+    ok 6 - Canonical chapter cutoff derivation from DB record overrides client cutoff
+      ---
+      duration_ms: 0.3982
+      ...
+    # Subtest: Cross-author proposal group resolution enforces 403 FORBIDDEN when novel belongs to another author
+    ok 7 - Cross-author proposal group resolution enforces 403 FORBIDDEN when novel belongs to another author
+      ---
+      duration_ms: 8.3241
+      ...
+    # Subtest: Cross-author single proposal resolution enforces 403 FORBIDDEN for reject and edit-and-accept
+    ok 8 - Cross-author single proposal resolution enforces 403 FORBIDDEN for reject and edit-and-accept
+      ---
+      duration_ms: 4.2276
+      ...
+    # Subtest: Cross-author story plan read enforces 403 FORBIDDEN when novel belongs to another author
+    ok 9 - Cross-author story plan read enforces 403 FORBIDDEN when novel belongs to another author
+      ---
+      duration_ms: 1.4553
+      ...
+    # Subtest: Story Brain freshness check fails closed with 503 when AI service is unavailable
+    ok 10 - Story Brain freshness check fails closed with 503 when AI service is unavailable
+      ---
+      duration_ms: 1.5706
+      ...
+    1..10
+ok 5 - Node.js AI Gateway Service (P6.5 Hardening)
+  ---
+  duration_ms: 107.1891
+  type: 'suite'
+  ...
+# Subtest: AI-PIPE-01B Author Writing IDE & Canonical P1 Loop Contract
+    # Subtest: Checkpoint B1: Manual autosave contract updates chapter draft without creating AI_DRAFT_ACCEPT revision or outbox event
+    ok 1 - Checkpoint B1: Manual autosave contract updates chapter draft without creating AI_DRAFT_ACCEPT revision or outbox event
+      ---
+      duration_ms: 1.8231
+      ...
+    # Subtest: Checkpoint B2: AI generation reject/dismiss leaves canon revision and Story Brain unchanged
+    ok 2 - Checkpoint B2: AI generation reject/dismiss leaves canon revision and Story Brain unchanged
+      ---
+      duration_ms: 0.3749
+      ...
+    # Subtest: Checkpoint B3: Canonical P1 writing generation and accept-draft contract
+    ok 3 - Checkpoint B3: Canonical P1 writing generation and accept-draft contract
+      ---
+      duration_ms: 54.9575
+      ...
+    # Subtest: Checkpoint B4: Story Brain closed-loop feedback advances version
+    ok 4 - Checkpoint B4: Story Brain closed-loop feedback advances version
+      ---
+      duration_ms: 1.3033
+      ...
+    # Subtest: Checkpoint C: Story Bible context preview observes updated character/fact constraints
+    ok 5 - Checkpoint C: Story Bible context preview observes updated character/fact constraints
+      ---
+      duration_ms: 2.3418
+      ...
+    1..5
+ok 6 - AI-PIPE-01B Author Writing IDE & Canonical P1 Loop Contract
+  ---
+  duration_ms: 63.7057
+  type: 'suite'
+  ...
+# Subtest: Autonomous Controller Gateway & Contract Tests
+    # Subtest: Cross-author autonomous run access enforces 403 FORBIDDEN
+    ok 1 - Cross-author autonomous run access enforces 403 FORBIDDEN
+      ---
+      duration_ms: 72.0729
+      ...
+    # Subtest: Single-writer conflict returns 409 ACTIVE_RUN_CONFLICT
+    ok 2 - Single-writer conflict returns 409 ACTIVE_RUN_CONFLICT
+      ---
+      duration_ms: 1.9295
+      ...
+    # Subtest: Deterministic quality gate: strict fail-closed on brain freshness and non-empty patch
+    ok 3 - Deterministic quality gate: strict fail-closed on brain freshness and non-empty patch
+      ---
+      duration_ms: 3.4504
+      ...
+    # Subtest: Scoped proposal acceptance: ignores unrelated pending proposals in review queue
+    ok 4 - Scoped proposal acceptance: ignores unrelated pending proposals in review queue
+      ---
+      duration_ms: 0.7265
+      ...
+    # Subtest: Crash recovery: detects already-accepted revision and avoids duplicate acceptDraft
+    ok 5 - Crash recovery: detects already-accepted revision and avoids duplicate acceptDraft
+      ---
+      duration_ms: 0.3474
+      ...
+    # Subtest: Intentional completion gate terminates on terminal objective or all objectives done
+    ok 6 - Intentional completion gate terminates on terminal objective or all objectives done
+      ---
+      duration_ms: 0.4754
+      ...
+    1..6
+ok 7 - Autonomous Controller Gateway & Contract Tests
+  ---
+  duration_ms: 81.5108
+  type: 'suite'
+  ...
+# Subtest: Phase D: Manuscript Import & Canonical Provenance Contract Tests
+    # Subtest: Checkpoint D1: Import never maps chapterId to revision_id
+    ok 1 - Checkpoint D1: Import never maps chapterId to revision_id
+      ---
+      duration_ms: 2.4244
+      ...
+    # Subtest: Checkpoint D2: Bootstrap never sends placeholder content_hash
+    ok 2 - Checkpoint D2: Bootstrap never sends placeholder content_hash
+      ---
+      duration_ms: 0.617
+      ...
+    # Subtest: Checkpoint D3: Canonical revision metadata is preserved per chapter
+    ok 3 - Checkpoint D3: Canonical revision metadata is preserved per chapter
+      ---
+      duration_ms: 0.6199
+      ...
+    # Subtest: Checkpoint D4: Malformed/failed revision provenance blocks bootstrap
+    ok 4 - Checkpoint D4: Malformed/failed revision provenance blocks bootstrap
+      ---
+      duration_ms: 1.004
+      ...
+    # Subtest: Checkpoint D5: Partial chapter import is reported honestly
+    ok 5 - Checkpoint D5: Partial chapter import is reported honestly
+      ---
+      duration_ms: 0.5016
+      ...
+    # Subtest: Checkpoint D6: Story Brain bootstrap receives revisions in correct narrative order
+    ok 6 - Checkpoint D6: Story Brain bootstrap receives revisions in correct narrative order
+      ---
+      duration_ms: 1.0174
+      ...
+    # Subtest: Checkpoint D7: Proposal accept uses current brain_version
+    ok 7 - Checkpoint D7: Proposal accept uses current brain_version
+      ---
+      duration_ms: 0.3462
+      ...
+    # Subtest: Checkpoint D8: Rejected proposal is not materialized into canon
+    ok 8 - Checkpoint D8: Rejected proposal is not materialized into canon
+      ---
+      duration_ms: 1.8318
+      ...
+    # Subtest: Checkpoint D9: Vietnamese Unicode SHA-256 fixture matches backend contract
+    ok 9 - Checkpoint D9: Vietnamese Unicode SHA-256 fixture matches backend contract
+      ---
+      duration_ms: 0.5809
+      ...
+    # Subtest: Checkpoint D10: Requirement A - Ordinary author snapshot creates INCREMENTAL_ANALYSIS outbox
+    ok 10 - Checkpoint D10: Requirement A - Ordinary author snapshot creates INCREMENTAL_ANALYSIS outbox
+      ---
+      duration_ms: 4.2879
+      ...
+    # Subtest: Checkpoint D11: Requirement B - Bootstrap-owned snapshot creates BOOTSTRAP revision without competing generic outbox event
+    ok 11 - Checkpoint D11: Requirement B - Bootstrap-owned snapshot creates BOOTSTRAP revision without competing generic outbox event
+      ---
+      duration_ms: 0.4109
+      ...
+    # Subtest: Checkpoint D12: Requirement C - Single bootstrap analysis lineage prevents duplicate proposal groups
+    ok 12 - Checkpoint D12: Requirement C - Single bootstrap analysis lineage prevents duplicate proposal groups
+      ---
+      duration_ms: 0.3281
+      ...
+    # Subtest: Checkpoint D13: Requirement D - Pre-baseline bootstrap proposals stay review-controlled and un-materialized by generic outbox
+    ok 13 - Checkpoint D13: Requirement D - Pre-baseline bootstrap proposals stay review-controlled and un-materialized by generic outbox
+      ---
+      duration_ms: 0.2284
+      ...
+    # Subtest: Checkpoint D14: Requirement E - Rejected bootstrap proposal stays rejected/non-canonical and target is not materialized
+    ok 14 - Checkpoint D14: Requirement E - Rejected bootstrap proposal stays rejected/non-canonical and target is not materialized
+      ---
+      duration_ms: 0.2183
+      ...
+    # Subtest: Checkpoint D15: Requirement F - After baseline activation, normal P1 AI_DRAFT_ACCEPT creates outbox and Story Brain advances
+    ok 15 - Checkpoint D15: Requirement F - After baseline activation, normal P1 AI_DRAFT_ACCEPT creates outbox and Story Brain advances
+      ---
+      duration_ms: 61.7427
+      ...
+    # Subtest: Checkpoint D16: Safety constraint - Active Story Brain rejects subsequent MANUSCRIPT_BOOTSTRAP snapshots
+    ok 16 - Checkpoint D16: Safety constraint - Active Story Brain rejects subsequent MANUSCRIPT_BOOTSTRAP snapshots
+      ---
+      duration_ms: 1.7249
+      ...
+    1..16
+ok 8 - Phase D: Manuscript Import & Canonical Provenance Contract Tests
+  ---
+  duration_ms: 80.6212
+  type: 'suite'
+  ...
+# Subtest: AI-PIPE-01 P1 Node Gateway & Acceptance Flow
+    # Subtest: P1-Gateway: Forward manuscript bootstrap with tenant & service authentication
+    ok 1 - P1-Gateway: Forward manuscript bootstrap with tenant & service authentication
+      ---
+      duration_ms: 60.5117
+      ...
+    # Subtest: P1-Gateway: Context preview derives canonical cutoff and returns Story Brain package
+    ok 2 - P1-Gateway: Context preview derives canonical cutoff and returns Story Brain package
+      ---
+      duration_ms: 3.1836
+      ...
+    # Subtest: P1-Gateway: AI Writing generation creates queued job with pinned brain version
+    ok 3 - P1-Gateway: AI Writing generation creates queued job with pinned brain version
+      ---
+      duration_ms: 1.3809
+      ...
+    # Subtest: P1-Accept: Patch application and content hash update contract
+    ok 4 - P1-Accept: Patch application and content hash update contract
+      ---
+      duration_ms: 0.3969
+      ...
+    # Subtest: P2-Gateway: Forward bootstrap from idea with tenant & service authentication
+    ok 5 - P2-Gateway: Forward bootstrap from idea with tenant & service authentication
+      ---
+      duration_ms: 1.4389
+      ...
+    # Subtest: P2B-Gateway: Forward Story Plan creation, activation, and objective update
+    ok 6 - P2B-Gateway: Forward Story Plan creation, activation, and objective update
+      ---
+      duration_ms: 4.2227
+      ...
+    # Subtest: P2B-Gateway: Non-owner cannot read another novel plan by UUID (403 FORBIDDEN)
+    ok 7 - P2B-Gateway: Non-owner cannot read another novel plan by UUID (403 FORBIDDEN)
+      ---
+      duration_ms: 4.6269
+      ...
+    # Subtest: P1-Gateway: Author operation consistency check forwards with actor/tenant and returns findings
+    ok 8 - P1-Gateway: Author operation consistency check forwards with actor/tenant and returns findings
+      ---
+      duration_ms: 3.0167
+      ...
+    1..8
+ok 9 - AI-PIPE-01 P1 Node Gateway & Acceptance Flow
+  ---
+  duration_ms: 82.7043
+  type: 'suite'
+  ...
+# Subtest: author launch checklist: scheduled publication, profile metadata, notifications and comment reports
+ok 10 - author launch checklist: scheduled publication, profile metadata, notifications and comment reports # SKIP
+  ---
+  duration_ms: 1.2235
+  ...
+# Subtest: author workflow: draft privacy, conflicts, revisions, idempotent imports, lifecycle and onboarding
+ok 11 - author workflow: draft privacy, conflicts, revisions, idempotent imports, lifecycle and onboarding # SKIP
+  ---
+  duration_ms: 1.1812
+  ...
+# Subtest: novel/chapter comments: permissions, moderation, pagination and isolation
+ok 12 - novel/chapter comments: permissions, moderation, pagination and isolation # SKIP
+  ---
+  duration_ms: 1.6038
+  ...
+# Subtest: image uploads reject HTML, SVG and fake extensions by inspecting bytes
+ok 13 - image uploads reject HTML, SVG and fake extensions by inspecting bytes
+  ---
+  duration_ms: 3.2881
+  ...
+# Subtest: Chapter Revisions & Patch Application
+    # Subtest: applyPatchToContent correctly applies insertion at cursor
+    ok 1 - applyPatchToContent correctly applies insertion at cursor
+      ---
+      duration_ms: 3.5156
+      ...
+    # Subtest: applyPatchToContent correctly replaces selection range
+    ok 2 - applyPatchToContent correctly replaces selection range
+      ---
+      duration_ms: 0.298
+      ...
+    # Subtest: applyPatchToContent handles unicode code points without splitting multi-byte characters
+    ok 3 - applyPatchToContent handles unicode code points without splitting multi-byte characters
+      ---
+      duration_ms: 0.2168
+      ...
+    # Subtest: applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping)
+    ok 4 - applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping)
+      ---
+      duration_ms: 2.6556
+      ...
+    # Subtest: applyPatchToContent allows valid boundary edge cases (0 to length)
+    ok 5 - applyPatchToContent allows valid boundary edge cases (0 to length)
+      ---
+      duration_ms: 0.3957
+      ...
+    1..5
+ok 14 - Chapter Revisions & Patch Application
+  ---
+  duration_ms: 9.6153
+  type: 'suite'
+  ...
+# Subtest: controller identity parses full pinned intent and rejects legacy attempts
+ok 15 - controller identity parses full pinned intent and rejects legacy attempts
+  ---
+  duration_ms: 3.4612
+  ...
+# Subtest: intent checks run, plan and objective under row locks and rejects ABA epoch
+ok 16 - intent checks run, plan and objective under row locks and rejects ABA epoch
+  ---
+  duration_ms: 2.5999
+  ...
+# {"level":30,"time":1792846068438,"pid":17592,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+# Subtest: private read boundaries deny before Mongo; controllers require trusted actor
+ok 17 - private read boundaries deny before Mongo; controllers require trusted actor
+  ---
+  duration_ms: 37.8135
+  ...
+# {"level":30,"time":1792846068441,"pid":17592,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}
+# Subtest: internal revision HTTP authorization fails closed before repository access
+    # Subtest: missing/anonymous
+    ok 1 - missing/anonymous
+      ---
+      duration_ms: 82.3815
+      ...
+    # Subtest: missing/arbitrary_Bearer [REDACTED] 2 - missing/arbitrary_Bearer [REDACTED]
+      duration_ms: 10.9874
+      ...
+    # Subtest: missing/empty_Bearer [REDACTED] 3 - missing/empty_Bearer [REDACTED]
+      duration_ms: 6.5475
+      ...
+    # Subtest: missing/wrong_service_token
+    ok 4 - missing/wrong_service_token
+      ---
+      duration_ms: 6.4441
+      ...
+    # Subtest: missing/empty_service_token
+    ok 5 - missing/empty_service_token
+      ---
+      duration_ms: 6.6424
+      ...
+    # Subtest: missing/correct_Bearer [REDACTED] 6 - missing/correct_Bearer [REDACTED]
+      duration_ms: 6.1756
+      ...
+    # Subtest: missing/correct_service_header
+    ok 7 - missing/correct_service_header
+      ---
+      duration_ms: 5.7534
+      ...
+    # Subtest: missing/correct_legacy_header
+    ok 8 - missing/correct_legacy_header
+      ---
+      duration_ms: 5.6428
+      ...
+    # Subtest: empty/anonymous
+    ok 9 - empty/anonymous
+      ---
+      duration_ms: 8.6213
+      ...
+    # Subtest: empty/arbitrary_Bearer [REDACTED] 10 - empty/arbitrary_Bearer [REDACTED]
+      duration_ms: 6.5661
+      ...
+    # Subtest: empty/empty_Bearer [REDACTED] 11 - empty/empty_Bearer [REDACTED]
+      duration_ms: 4.5927
+      ...
+    # Subtest: empty/wrong_service_token
+    ok 12 - empty/wrong_service_token
+      ---
+      duration_ms: 5.2018
+      ...
+    # Subtest: empty/empty_service_token
+    ok 13 - empty/empty_service_token
+      ---
+      duration_ms: 5.1421
+      ...
+    # Subtest: empty/correct_Bearer [REDACTED] 14 - empty/correct_Bearer [REDACTED]
+      duration_ms: 5.1316
+      ...
+    # Subtest: empty/correct_service_header
+    ok 15 - empty/correct_service_header
+      ---
+      duration_ms: 5.0936
+      ...
+    # Subtest: empty/correct_legacy_header
+    ok 16 - empty/correct_legacy_header
+      ---
+      duration_ms: 4.3075
+      ...
+    # Subtest: whitespace/anonymous
+    ok 17 - whitespace/anonymous
+      ---
+      duration_ms: 3.7098
+      ...
+    # Subtest: whitespace/arbitrary_Bearer [REDACTED] 18 - whitespace/arbitrary_Bearer [REDACTED]
+      duration_ms: 3.7655
+      ...
+    # Subtest: whitespace/empty_Bearer [REDACTED] 19 - whitespace/empty_Bearer [REDACTED]
+      duration_ms: 5.8747
+      ...
+    # Subtest: whitespace/wrong_service_token
+    ok 20 - whitespace/wrong_service_token
+      ---
+      duration_ms: 6.8246
+      ...
+    # Subtest: whitespace/empty_service_token
+    ok 21 - whitespace/empty_service_token
+      ---
+      duration_ms: 3.8471
+      ...
+    # Subtest: whitespace/correct_Bearer [REDACTED] 22 - whitespace/correct_Bearer [REDACTED]
+      duration_ms: 4.8451
+      ...
+    # Subtest: whitespace/correct_service_header
+    ok 23 - whitespace/correct_service_header
+      ---
+      duration_ms: 9.0713
+      ...
+    # Subtest: whitespace/correct_legacy_header
+    ok 24 - whitespace/correct_legacy_header
+      ---
+      duration_ms: 13.6386
+      ...
+    # Subtest: configured/anonymous
+    ok 25 - configured/anonymous
+      ---
+      duration_ms: 6.2239
+      ...
+    # Subtest: configured/arbitrary_Bearer [REDACTED] 26 - configured/arbitrary_Bearer [REDACTED]
+      duration_ms: 4.8197
+      ...
+    # Subtest: configured/empty_Bearer [REDACTED] 27 - configured/empty_Bearer [REDACTED]
+      duration_ms: 3.8026
+      ...
+    # Subtest: configured/wrong_service_token
+    ok 28 - configured/wrong_service_token
+      ---
+      duration_ms: 4.1026
+      ...
+    # Subtest: configured/empty_service_token
+    ok 29 - configured/empty_service_token
+      ---
+      duration_ms: 4.3868
+      ...
+    # Subtest: configured/correct_Bearer [REDACTED] 30 - configured/correct_Bearer [REDACTED]
+      duration_ms: 9.2362
+      ...
+    # Subtest: configured/correct_service_header
+    ok 31 - configured/correct_service_header
+      ---
+      duration_ms: 5.4942
+      ...
+    # Subtest: configured/correct_legacy_header
+    ok 32 - configured/correct_legacy_header
+      ---
+      duration_ms: 4.4362
+      ...
+    # Subtest: valid token missing revision is 404; invalid token missing revision is 401
+# {"level":30,"time":1792846070623,"pid":23452,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+    ok 33 - valid token missing revision is 404; invalid token missing revision is 401
+      ---
+      duration_ms: 7.6117
+      ...
+    1..33
+ok 18 - internal revision HTTP authorization fails closed before repository access
+  ---
+  duration_ms: 329.3717
+  ...
+# {"scenario":"missing opt-in","childExit":1,"calls":{"identity":1,"mongoConnect":0,"mongoClose":1,"pgEnd":2,"writes":[],"reads":[]}}
+# {"scenario":"forbidden PostgreSQL","childExit":1,"calls":{"identity":1,"mongoConnect":0,"mongoClose":1,"pgEnd":2,"writes":[],"reads":[]}}
+# {"scenario":"forbidden MongoDB","childExit":1,"calls":{"identity":1,"mongoConnect":0,"mongoClose":1,"pgEnd":2,"writes":[],"reads":[]}}
+# {"scenario":"PostgreSQL identity mismatch","childExit":1,"calls":{"identity":1,"mongoConnect":0,"mongoClose":1,"pgEnd":2,"writes":[],"reads":[]}}
+# {"scenario":"MongoDB identity mismatch","childExit":1,"calls":{"identity":1,"mongoConnect":0,"mongoClose":1,"pgEnd":2,"writes":[],"reads":[]}}
+# Subtest: Denied live reconciliation teardown: missing opt-in
+ok 19 - Denied live reconciliation teardown: missing opt-in
+  ---
+  duration_ms: 5225.5547
+  ...
+# Subtest: Denied live reconciliation teardown: forbidden PostgreSQL
+ok 20 - Denied live reconciliation teardown: forbidden PostgreSQL
+  ---
+  duration_ms: 1263.0987
+  ...
+# Subtest: Denied live reconciliation teardown: forbidden MongoDB
+ok 21 - Denied live reconciliation teardown: forbidden MongoDB
+  ---
+  duration_ms: 1096.9795
+  ...
+# Subtest: Denied live reconciliation teardown: PostgreSQL identity mismatch
+ok 22 - Denied live reconciliation teardown: PostgreSQL identity mismatch
+  ---
+  duration_ms: 1633.4272
+  ...
+# Subtest: Denied live reconciliation teardown: MongoDB identity mismatch
+ok 23 - Denied live reconciliation teardown: MongoDB identity mismatch
+  ---
+  duration_ms: 1199.0999
+  ...
+# Subtest: Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+    # Subtest: Exponential backoff for outbox retries is bounded by 300s
+    ok 1 - Exponential backoff for outbox retries is bounded by 300s
+      ---
+      duration_ms: 1.6888
+      ...
+    # Subtest: Conditional MongoDB draft reconciliation preserves newer manual draft edits
+    ok 2 - Conditional MongoDB draft reconciliation preserves newer manual draft edits
+      ---
+      duration_ms: 0.4133
+      ...
+    # Subtest: Conditional MongoDB draft reconciliation creates new draft if not found
+    ok 3 - Conditional MongoDB draft reconciliation creates new draft if not found
+      ---
+      duration_ms: 0.2439
+      ...
+    # Subtest: Accept-time brain version conflict rejects stale generation
+    ok 4 - Accept-time brain version conflict rejects stale generation
+      ---
+      duration_ms: 0.2381
+      ...
+    # Subtest: Outbox lease concurrency: active PROCESSING event cannot be claimed by concurrent worker
+    ok 5 - Outbox lease concurrency: active PROCESSING event cannot be claimed by concurrent worker
+      ---
+      duration_ms: 0.274
+      ...
+    # Subtest: Outbox expired lease recovery: crashed worker event is reclaimed after timeout
+    ok 6 - Outbox expired lease recovery: crashed worker event is reclaimed after timeout
+      ---
+      duration_ms: 0.2639
+      ...
+    1..6
+ok 24 - Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+  ---
+  duration_ms: 4.5935
+  type: 'suite'
+  ...
+# Subtest: author workspace seed data
+    # Subtest: has the agreed size: 7 authors, 20 readers, 58 novels
+    ok 1 - has the agreed size: 7 authors, 20 readers, 58 novels
+      ---
+      duration_ms: 2.5097
+      ...
+    # Subtest: accounts have unique usernames and emails that fit the schema
+    ok 2 - accounts have unique usernames and emails that fit the schema
+      ---
+      duration_ms: 0.9438
+      ...
+    # Subtest: generation is deterministic
+    ok 3 - generation is deterministic
+      ---
+      duration_ms: 115.1763
+      ...
+    # Subtest: covers the novel and chapter states the author pages show
+    ok 4 - covers the novel and chapter states the author pages show
+      ---
+      duration_ms: 0.9806
+      ...
+    # Subtest: novels and chapters fit the schema
+    ok 5 - novels and chapters fit the schema
+      ---
+      duration_ms: 7.2508
+      ...
+    # Subtest: story context references existing characters and chapters
+    ok 6 - story context references existing characters and chapters
+      ---
+      duration_ms: 2.2252
+      ...
+    # Subtest: seedUuid is deterministic and UUID-shaped
+    ok 7 - seedUuid is deterministic and UUID-shaped
+      ---
+      duration_ms: 0.8299
+      ...
+    # Subtest: slugify strips Vietnamese diacritics
+    ok 8 - slugify strips Vietnamese diacritics
+      ---
+      duration_ms: 0.3509
+      ...
+    1..8
+ok 25 - author workspace seed data
+  ---
+  duration_ms: 133.3691
+  type: 'suite'
+  ...
+1..25
+# tests 136
+# suites 12
+# pass 133
+# fail 0
+# cancelled 0
+# skipped 3
+# todo 0
+# duration_ms 12257.9837

@@ -1,0 +1,66 @@
+[
+  {
+    "command": [
+      "docker",
+      "run",
+      "-d",
+      "--name",
+      "astra-c01-b82b171e-pg",
+      "--label",
+      "astra.task=c01-canon-group",
+      "-p",
+      "127.0.0.1::5432",
+      "-e",
+      "POSTGRES_HOST_AUTH_METHOD=trust",
+      "-e",
+      "POSTGRES_DB=ephurin_test_astra_c01_b82b171e",
+      "pgvector/pgvector:pg16"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-24T01:36:58.460660+00:00"
+  },
+  {
+    "command": [
+      "docker",
+      "port",
+      "astra-c01-b82b171e-pg",
+      "5432"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-24T01:36:58.610087+00:00"
+  },
+  {
+    "command": [
+      "docker",
+      "run",
+      "-d",
+      "--name",
+      "astra-c01-b82b171e-mongo",
+      "--label",
+      "astra.task=c01-canon-group",
+      "-p",
+      "127.0.0.1::27017",
+      "mongo:7"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-24T01:37:01.883178+00:00"
+  },
+  {
+    "command": [
+      "docker",
+      "port",
+      "astra-c01-b82b171e-mongo",
+      "27017"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-24T01:37:02.037912+00:00"
+  }
+]

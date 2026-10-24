@@ -1,0 +1,88 @@
+FFF
+================================== FAILURES ===================================
+________ test_h04_new_homonyms_are_distinct_human_identities[postgres] ________
+
+flow = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x00000156B2CE74A0>...0000156B26EFFE0>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:19629/ephurin_test_astra_p1_identity_0d96bb94))
+
+    def test_h04_new_homonyms_are_distinct_human_identities(flow):
+        f = prepare(flow, 'Minh g\u1eb7p Minh.')
+        run, audit = discover(f)
+>       frozen = submit(f, run, audit, choices(audit))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_p1_identity_final.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+f = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x00000156B2CE74A0>...0000156B26EFFE0>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:19629/ephurin_test_astra_p1_identity_0d96bb94))
+run = '44626fd6-38d3-4d39-a8b1-d7b743fc7152'
+audit = {'aliases': [], 'analysis_run_id': '44626fd6-38d3-4d39-a8b1-d7b743fc7152', 'brain_version': 1, 'candidates': [{'candid...didate_id': '1db9c58d32e307f67550d1b3', 'context': 'Minh g\u1eb7p Minh.', 'context_end': 14, 'context_start': 0, ...}], ...}
+decisions = [{'candidate_id': 'd9e6919b617c46fa17ccc893', 'canonical_entity_id': '', 'canonical_name': 'Minh', 'confidence': 0.7, ...andidate_id': '1db9c58d32e307f67550d1b3', 'canonical_entity_id': '', 'canonical_name': 'Minh', 'confidence': 0.7, ...}]
+expected = 200
+
+    def submit(f, run, audit, decisions, expected=200):
+        response = f.client.post(f'{f.base}/entity-reviews/{run}/review', headers=f.headers,
+            json={'expected_version': audit['review_version'], 'decisions': decisions})
+>       assert response.status_code == expected, response.text
+E       AssertionError: {"detail":{"code":"INVALID_EVIDENCE","message":"1 validation error for EntityDecision\nprovisional_identity_key\n  Extra inputs are not permitted [type=extra_forbidden, input_value='2fac6b80bb35fb631b4f2836...a229fb15536bbe1ed38f0/0', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"}}
+E       assert 422 == 200
+E        +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+
+tests\test_p1_identity_final.py:32: AssertionError
+_____ test_h04_ambiguous_new_occurrences_do_not_silently_merge[postgres] ______
+
+flow = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x00000156B35A5A90>...0000156B309AC30>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:19629/ephurin_test_astra_p1_identity_0d96bb94))
+
+    def test_h04_ambiguous_new_occurrences_do_not_silently_merge(flow):
+        f = prepare(flow, 'Minh g\u1eb7p Minh.')
+        run, audit = discover(f)
+>       submit(f, run, audit, audit['decisions'], expected=422)
+
+tests\test_p1_identity_final.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+f = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x00000156B35A5A90>...0000156B309AC30>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:19629/ephurin_test_astra_p1_identity_0d96bb94))
+run = 'ed2a937b-5e25-4efe-b83a-fafa34bd2703'
+audit = {'aliases': [], 'analysis_run_id': 'ed2a937b-5e25-4efe-b83a-fafa34bd2703', 'brain_version': 1, 'candidates': [{'candid...didate_id': '1db9c58d32e307f67550d1b3', 'context': 'Minh g\u1eb7p Minh.', 'context_end': 14, 'context_start': 0, ...}], ...}
+decisions = [{'candidate_id': 'd9e6919b617c46fa17ccc893', 'canonical_entity_id': '', 'canonical_name': 'Minh', 'confidence': 0.7, ...andidate_id': '1db9c58d32e307f67550d1b3', 'canonical_entity_id': '', 'canonical_name': 'Minh', 'confidence': 0.7, ...}]
+expected = 422
+
+    def submit(f, run, audit, decisions, expected=200):
+        response = f.client.post(f'{f.base}/entity-reviews/{run}/review', headers=f.headers,
+            json={'expected_version': audit['review_version'], 'decisions': decisions})
+>       assert response.status_code == expected, response.text
+E       AssertionError: {"data":{"chunks":[{"end":14,"start":0}],"counts":{"entity":2,"candidates":2},"policy":"entity-candidates-v1","status":"entities_reviewed","aliases":[],"request":{"options":{"extract_events":true,"build_embeddings":false,"extract_entities":true,"check_consistency":true,"extract_world_rules":true,"extract_state_transitions":false},"novel_id":"9395f222-1380-436c-afa1-11a1cd37d149","operation":"incremental_story_analysis","tenant_id":"00000000-0000-0000-0000-000000000001","chapter_id":"da2d98a3-08a4-4149-8d99-1eaf77799385","revision_id":"a628630d-2d37-40e4-87df-0d9feb921a4d","content_hash":"906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20","idempotency_key":"fbac7907-16d7-437a-9e7e-e76efe9d92c5"},"entities":[{"phrase":"Minh","entity":"PER","score":7.0,"initial_status":"Unknown","status_quote":"","verified_start":0,"verified_end":4,"canonical_entity_id":"","candidate_ids":["d9e6919b617c46fa17ccc893","1db9c58d32e307f67550d1b3"],"entity_id":"5dba0795-429a-4df8-afb5-3fa97affcda4","occurrences":[{"candidate_id":"d9e6919b617c46fa17ccc893","start":0,"end":4,"quote":"Minh","revision_id":"a628630d-2d37-40e4-87df-0d9feb921a4d","text_hash":"906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20"},{"candidate_id":"1db9c58d32e307f67550d1b3","start":9,"end":13,"quote":"Minh","revision_id":"a628630d-2d37-40e4-87df-0d9feb921a4d","text_hash":"906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20"}]}],"decisions":[{"reason":"controlled semantic verification","verdict":"entity","confidence":0.7,"entity_type":"PER","candidate_id":"d9e6919b617c46fa17ccc893","status_quote":"","canonical_name":"Minh","identity_quote":"","initial_status":"Unknown","canonical_entity_id":""},{"reason":"controlled semantic verification","verdict":"entity","confidence":0.7,"entity_type":"PER","candidate_id":"1db9c58d32e307f67550d1b3","status_quote":"","canonical_name":"Minh","identity_quote":"","initial_status":"Unknown","canonical_entity_id":""}],"candidates":[{"end":4,"start":0,"context":"Minh g\u1eb7p Minh.","origins":["capitalized_token","llm_discovery"],"surface":"Minh","context_end":14,"candidate_id":"d9e6919b617c46fa17ccc893","context_start":0},{"end":13,"start":9,"context":"Minh g\u1eb7p Minh.","origins":["capitalized_token","llm_discovery"],"surface":"Minh","context_end":14,"candidate_id":"1db9c58d32e307f67550d1b3","context_start":0}],"chapter_id":"da2d98a3-08a4-4149-8d99-1eaf77799385","revision_id":"a628630d-2d37-40e4-87df-0d9feb921a4d","source_hash":"906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20","brain_version":1,"chapter_number":1,"review_version":2,"analysis_run_id":"ed2a937b-5e25-4efe-b83a-fafa34bd2703","guidance_version":0,"unanchored_discoveries":[],"pending_candidate_ids":[],"identity_inventory_version":2,"review_finalize":true,"review_submitted_decisions":[{"candidate_id":"d9e6919b617c46fa17ccc893","verdict":"entity","entity_type":"PER","canonical_name":"Minh","canonical_entity_id":"","identity_quote":"","initial_status":"Unknown","status_quote":"","confidence":0.7,"reason":"controlled semantic verification"},{"candidate_id":"1db9c58d32e307f67550d1b3","verdict":"entity","entity_type":"PER","canonical_name":"Minh","canonical_entity_id":"","identity_quote":"","initial_status":"Unknown","status_quote":"","confidence":0.7,"reason":"controlled semantic verification"}],"review_input_version":1,"reviewed_decisions":[{"candidate_id":"d9e6919b617c46fa17ccc893","verdict":"entity","entity_type":"PER","canonical_name":"Minh","canonical_entity_id":"","identity_quote":"","initial_status":"Unknown","status_quote":"","confidence":0.7,"reason":"controlled semantic verification"},{"candidate_id":"1db9c58d32e307f67550d1b3","verdict":"entity","entity_type":"PER","canonical_name":"Minh","canonical_entity_id":"","identity_quote":"","initial_status":"Unknown","status_quote":"","confidence":0.7,"reason":"controlled semantic verification"}]}}
+E       assert 200 == 422
+E        +  where 200 = <Response [200 OK]>.status_code
+
+tests\test_p1_identity_final.py:32: AssertionError
+______ test_h05_exact_id_locked_subject_does_not_block_homonym[postgres] ______
+
+flow = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x00000156B3674050>...0000156B3697170>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:19629/ephurin_test_astra_p1_identity_0d96bb94))
+
+    def test_h05_exact_id_locked_subject_does_not_block_homonym(flow):
+        f = flow
+        run, frozen = homonyms(f)
+        a, b = f.llm.ids
+        # This durable author lock is A -> A. B -> A is a different identity pair.
+        f.repo.override_relation(f.revision.novel_id, a, 'ally', a)
+        assert f.client.post(f'{f.base}/entity-reviews/{run}/continue', headers=f.headers).status_code == 200
+        proposals = f.repo.list_proposals(f.revision.novel_id, analysis_run_id=run)
+        f.repo.accept_proposal_group(f.revision.novel_id, [p.proposal_id for p in proposals], 1)
+        brain = f.repo.get_story_brain(f.revision.novel_id)
+        locked = next(r for r in brain.relations if r.locked)
+>       assert locked.metadata['subject_entity_id'] == a and locked.metadata['object_entity_id'] == a
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       KeyError: 'subject_entity_id'
+
+tests\test_p1_identity_final.py:67: KeyError
+=========================== short test summary info ===========================
+FAILED tests/test_p1_identity_final.py::test_h04_new_homonyms_are_distinct_human_identities[postgres]
+FAILED tests/test_p1_identity_final.py::test_h04_ambiguous_new_occurrences_do_not_silently_merge[postgres]
+FAILED tests/test_p1_identity_final.py::test_h05_exact_id_locked_subject_does_not_block_homonym[postgres]
+3 failed, 3 deselected in 3.33s
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.

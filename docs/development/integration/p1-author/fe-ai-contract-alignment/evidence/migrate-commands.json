@@ -1,0 +1,26 @@
+[
+  {
+    "command": [
+      "npm.cmd",
+      "run",
+      "db:migrate"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\backend",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-24T01:06:09.932896+00:00"
+  },
+  {
+    "command": [
+      "python",
+      "-m",
+      "alembic",
+      "upgrade",
+      "head"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\ai-service",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-24T01:06:13.248128+00:00"
+  }
+]

@@ -1,0 +1,12 @@
+{
+  "active_response": 10,
+  "active_Mongo": 10,
+  "replay_before": 10,
+  "replay_after": 10,
+  "next_response": 11,
+  "different_revision_version_before": 2,
+  "different_revision_version_after": 3,
+  "older_same_prose_status": "skipped_newer_draft",
+  "accepted_revision": "ea6f0c0b-a576-48f4-b401-e88b459fee08",
+  "accepted_hash": "314cb931dd5ee62a446c320598d19bc90a5ec075961f0e9d33fdaf102feb265f"
+}

@@ -1,0 +1,23 @@
+
+> ephurin-backend@0.1.0 db:migrate
+> tsx src/core/database/migrate.ts
+
+{"level":30,"time":1792805824206,"pid":28392,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 001_auth_user_wallet.sql"}
+{"level":30,"time":1792805824330,"pid":28392,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 002_novels.sql"}
+{"level":30,"time":1792805824382,"pid":28392,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 003_chapters.sql"}
+{"level":30,"time":1792805824496,"pid":28392,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 004_content_control.sql"}
+{"level":30,"time":1792805824505,"pid":28392,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 005_reports_description.sql"}
+{"level":30,"time":1792805824601,"pid":28392,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 006_reading_interactions.sql"}
+{"level":30,"time":1792805824688,"pid":28392,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 007_wallet_transactions.sql"}
+{"level":30,"time":1792805824820,"pid":28392,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 008_authoring_context.sql"}
+{"level":30,"time":1792805824872,"pid":28392,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 009_chapter_revisions.sql"}
+{"level":30,"time":1792805824916,"pid":28392,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 010_analysis_outbox.sql"}
+{"level":30,"time":1792805824956,"pid":28392,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 011_outbox_claim_token.sql"}
+{"level":30,"time":1792805824997,"pid":28392,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 012_novel_engagement.sql"}
+{"level":30,"time":1792805825032,"pid":28392,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 012_reports_unique_open.sql"}
+{"level":30,"time":1792805825055,"pid":28392,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 013_novel_review_text.sql"}
+{"level":30,"time":1792805825072,"pid":28392,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 014_novel_editorial_metadata.sql"}
+{"level":30,"time":1792805825091,"pid":28392,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 015_author_workflow.sql"}
+{"level":30,"time":1792805825143,"pid":28392,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 016_author_launch_checklist.sql"}
+{"level":30,"time":1792805825169,"pid":28392,"hostname":"LAPTOP-2CITHEGB","msg":"Applied migration 017_transactional_moderation_evidence.sql"}
+{"level":30,"time":1792805825169,"pid":28392,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}

@@ -1,0 +1,118 @@
+[
+  {
+    "path": "screenshots/g4-admin-console.png",
+    "sha256": "d7e89dd8072b0e5662f968d0b87e051b79f36add05c5f255cab9cd74a6a9c9f9"
+  },
+  {
+    "path": "screenshots/g4-admin-moderation.png",
+    "sha256": "23cafead140b747e5f22fe91fded4f46165a5678050bf4017079db3d39de7770"
+  },
+  {
+    "path": "screenshots/g4-admin-novels.png",
+    "sha256": "20c1438d089644ca16ea94db065f3b09546d7cbadca9d0f65f7ebc00f6bb97a6"
+  },
+  {
+    "path": "screenshots/g4-author-comments.png",
+    "sha256": "db7d432ce24cf596e87650c982a9b8d205c3f50c0b4aa0d90971b93760acdf7e"
+  },
+  {
+    "path": "screenshots/g4-author-dark-mobile.png",
+    "sha256": "da85e227a7b3a1fbc1834e122f9708c4f183c99e08ba4d11897c4f937b40f3c9"
+  },
+  {
+    "path": "screenshots/g4-author-media-upload.png",
+    "sha256": "27eddcf4959a4bdea9c42d134e849a89cc6a7d9b7792e3bff88cae41b293d86c"
+  },
+  {
+    "path": "screenshots/g4-author-reviews.png",
+    "sha256": "1a91ccfdb06d032bb5327dece730cb01582b1e923b4ada9b955f4a944fd040d0"
+  },
+  {
+    "path": "screenshots/g4-reader-history.png",
+    "sha256": "93a58ab55a1bb0d45bfa237686fc0f3090da5fa57f88d19072ad9318c2d2e615"
+  },
+  {
+    "path": "screenshots/g4-reader-home.png",
+    "sha256": "7b206d0e282e306e659f0582e48ef76e24aac515c94bcfda1fe11bf4a9e19d7b"
+  },
+  {
+    "path": "screenshots/g4-reader-library.png",
+    "sha256": "421f23fdb18d26dc518e25d306dd49195f38f23bd11d60e80c00e16e59f4c641"
+  },
+  {
+    "path": "screenshots/g4-reader-notifications.png",
+    "sha256": "c5ccdc77213ff1dcaecf4e57eb03945819d4175e154b947e6edcabf193ae2baa"
+  },
+  {
+    "path": "screenshots/g4-reader-wallet.png",
+    "sha256": "a9e10a3f134aec746976d565275562c67ccbc8a9adb235d0b22fb4c4c1559e74"
+  },
+  {
+    "path": "screenshots/g4-schedule-form-no-publish.png",
+    "sha256": "c91501d51901c20a7cab7eb790845915fe5ca78058cba70b85f9199abb4a7abd"
+  },
+  {
+    "path": "screenshots/g4-vip-unpaid-locked.png",
+    "sha256": "796ec9e7abb1363b7d4c8acf2822688c859d5a014044b8b3edf682c6c6238134"
+  },
+  {
+    "path": "screenshots/s09-409-recovery.png",
+    "sha256": "5bc80eb0c33213fd4d3e4f14d0d286c0372c04a3a7d739aad10cfacaf43937f4"
+  },
+  {
+    "path": "screenshots/s09-account-isolation.png",
+    "sha256": "694bd8bc8b2e92680dff6f9aa23ed2395dfc4f2d62f32f8fc0d59fb7d48b1f0b"
+  },
+  {
+    "path": "screenshots/s09-rapid-undo.png",
+    "sha256": "5428873f5515dc7da15a1d95e837b17f479f0aee14f16d8bd2e10c79216c7315"
+  },
+  {
+    "path": "screenshots/s10-atomic-canon-approved.png",
+    "sha256": "f35c9949c04e24f1b94c1e9085d99afcb099a321d1561c443de7af0792a09df4"
+  },
+  {
+    "path": "screenshots/s10-atomic-group-rejected.png",
+    "sha256": "6089cbf54ae9afcc2cc2b495401ffc54473e866dd46bd673af21adfee83855b1"
+  },
+  {
+    "path": "screenshots/s10-correction-approved-exact-identity.png",
+    "sha256": "af6a4068a6ccf888f040cccee82aa8ed5b4492706a38e302bcedbdfdec3d9e4c"
+  },
+  {
+    "path": "screenshots/s10-correction-resolves-consistency.png",
+    "sha256": "e2dd9221f77eb0d7e087af4637c78ab391075e96d450af215b1fa8d5a8979800"
+  },
+  {
+    "path": "screenshots/s10-homonyms-frozen.png",
+    "sha256": "9eb2705e4d6b62e98239c88f9f3f8c69048469ed480be45c7078ba295d4b8d1d"
+  },
+  {
+    "path": "screenshots/s10-human-review-initial.png",
+    "sha256": "665ef8861c68312b2bdb007c1f5f6154ea33690ba84e813399e9b4489d69f7be"
+  },
+  {
+    "path": "screenshots/s10-real-current-state-consistency.png",
+    "sha256": "f10445f0729bd19eb8dce3d49bc3e6fff3d9e15b58ef93eb3f953f68169c9cf5"
+  },
+  {
+    "path": "screenshots/s10-real-review-conflict-local-choice-preserved.png",
+    "sha256": "7b7e82e60d0146477bcf0e2aeb91f7d979ee9119c8c7a09c42ecdb4921f8a5b0"
+  },
+  {
+    "path": "screenshots/s10-two-homonymous-subject-locks.png",
+    "sha256": "06d5314e1b8b5dede77bde40eccb9cc46f77db2a26d55e136e2dca7387541985"
+  },
+  {
+    "path": "screenshots/s11-pending-proposal-and-stable-canon.png",
+    "sha256": "f2e5cd5f8e9c8acc4f92779bc312218615c41c0163ff1732acfbbeadf1a72be7"
+  },
+  {
+    "path": "screenshots/s11-pending-review-resumed.png",
+    "sha256": "4f74598806432cffa224561285ba148d36a4fe57e44423e1af9e9eb14b104cb1"
+  },
+  {
+    "path": "screenshots/s11-SPA-account-switch-no-private-cache.png",
+    "sha256": "1d053606b0768c39f44841b3caafdc3b29dba47feac6e4f4916fdf7aab5611b8"
+  }
+]

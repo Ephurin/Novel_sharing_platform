@@ -1,0 +1,166 @@
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.26kB done
+#1 DONE 0.0s
+
+#2 [ai-service internal] load build definition from Dockerfile
+#2 transferring dockerfile: 457B done
+#2 DONE 0.0s
+
+#3 [backend internal] load build definition from Dockerfile
+#3 transferring dockerfile: 324B done
+#3 DONE 0.0s
+
+#4 [backend internal] load metadata for docker.io/library/node:22-bookworm-slim
+#4 ...
+
+#5 [ai-service internal] load metadata for docker.io/library/python:3.12.10-slim-bookworm
+#5 DONE 0.3s
+
+#6 [ai-service internal] load .dockerignore
+#6 transferring context: 219B done
+#6 DONE 0.0s
+
+#7 [ai-service 1/6] FROM docker.io/library/python:3.12.10-slim-bookworm@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db
+#7 resolve docker.io/library/python:3.12.10-slim-bookworm@sha256:fd95fa221297a88e1cf49c55ec1828edd7c5a428187e67b5d1805692d11588db 0.0s done
+#7 DONE 0.0s
+
+#8 [ai-service internal] load build context
+#8 transferring context: 19.08kB 0.0s done
+#8 DONE 0.0s
+
+#9 [ai-service 6/6] COPY . .
+#9 CACHED
+
+#10 [ai-service] exporting to image
+#10 exporting layers done
+#10 exporting manifest sha256:8b755e8d7db900682cafca0e10578b133619bca48234202f550d883497aff7a6 0.0s done
+#10 exporting config sha256:35a65fe82faafba80b8156907091e2be03105a72922a28ef71a7af0fd07eabe7 0.0s done
+#10 exporting attestation manifest sha256:e5d9cd1c2d027e9c3ae4912d5b86d81d078093171baf95a473e3dba879e35312 0.0s done
+#10 exporting manifest list sha256:fc253227dbf2ab80b08fa7bf38079a90dc262b5b7bc17df1a5ddd036a88f3554 0.0s done
+#10 naming to docker.io/library/p123-core-abe0ad4e35-ai-service:latest
+#10 naming to docker.io/library/p123-core-abe0ad4e35-ai-service:latest done
+#10 unpacking to docker.io/library/p123-core-abe0ad4e35-ai-service:latest 0.0s done
+#10 DONE 0.2s
+
+#4 [backend internal] load metadata for docker.io/library/node:22-bookworm-slim
+#4 DONE 0.8s
+
+#11 [backend internal] load .dockerignore
+#11 transferring context: 201B done
+#11 DONE 0.0s
+
+#12 [backend internal] load build context
+#12 DONE 0.0s
+
+#13 [backend build 1/6] FROM docker.io/library/node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d
+#13 resolve docker.io/library/node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d
+#13 resolve docker.io/library/node:22-bookworm-slim@sha256:de170b39439eb0e5a3444ad7d60b015614a381e10fecae2e30ec9e735122f38d 0.2s done
+#13 DONE 0.2s
+
+#14 [ai-service] resolving provenance for metadata file
+#14 DONE 0.0s
+
+#12 [backend internal] load build context
+#12 transferring context: 21.97kB 0.1s done
+#12 DONE 0.1s
+
+#15 [backend 2/8] WORKDIR /app/backend
+#15 CACHED
+
+#16 [backend 3/8] COPY backend/package*.json ./
+#16 CACHED
+
+#17 [backend 4/8] RUN npm ci
+#17 CACHED
+
+#18 [backend 5/8] COPY backend ./
+#18 DONE 0.3s
+
+#19 [backend 6/8] COPY docs/Assets /app/docs/Assets
+#19 DONE 0.1s
+
+#20 [backend 7/8] RUN sed -i 's/\r$//' ./docker-entrypoint.sh && chmod +x ./docker-entrypoint.sh
+#20 DONE 0.5s
+
+#21 [backend 8/8] RUN npm run build
+#21 0.465 
+#21 0.465 > ephurin-backend@0.1.0 build
+#21 0.465 > tsc -p tsconfig.json
+#21 0.465 
+#21 DONE 8.1s
+
+#22 [backend] exporting to image
+#22 exporting layers
+#22 exporting layers 0.2s done
+#22 exporting manifest sha256:96d3e800d02c6eafe70ea7ab2591ef0da4405f339eacd0ba9b85ee632e77ede0 0.0s done
+#22 exporting config sha256:0ca65ec5392e5508e30140d805600985f7e1bd9c98e5c454ecb31824063367c4 0.0s done
+#22 exporting attestation manifest sha256:e960bb02741f324f91481e6343565698302ad7014884324e51b09ef792802648 0.1s done
+#22 exporting manifest list sha256:5d9e2852e9b0d5ceff43038b3c9cf82deb451ae2bab6c9e6404e0780af8cfb53
+#22 exporting manifest list sha256:5d9e2852e9b0d5ceff43038b3c9cf82deb451ae2bab6c9e6404e0780af8cfb53 0.0s done
+#22 naming to docker.io/library/p123-core-abe0ad4e35-backend:latest done
+#22 unpacking to docker.io/library/p123-core-abe0ad4e35-backend:latest
+#22 unpacking to docker.io/library/p123-core-abe0ad4e35-backend:latest 0.2s done
+#22 DONE 0.6s
+
+#23 [backend] resolving provenance for metadata file
+#23 DONE 0.0s
+ Image p123-core-abe0ad4e35-backend Building 
+ Image p123-core-abe0ad4e35-ai-service Building 
+ Image p123-core-abe0ad4e35-ai-service Built 
+ Image p123-core-abe0ad4e35-backend Built 
+ Network p123-core-abe0ad4e35_upstream Creating 
+ Volume p123-core-abe0ad4e35_fake_state Creating 
+ Volume p123-core-abe0ad4e35_fake_state Creating 
+ Volume p123-core-abe0ad4e35_mongo_state Creating 
+ Network p123-core-abe0ad4e35_headless-edge Creating 
+ Volume p123-core-abe0ad4e35_mongo_state Creating 
+ Volume p123-core-abe0ad4e35_pg_state Creating 
+ Network p123-core-abe0ad4e35_headless-edge Creating 
+ Volume p123-core-abe0ad4e35_pg_state Creating 
+ Network p123-core-abe0ad4e35_upstream Creating 
+ Volume p123-core-abe0ad4e35_fake_state Created 
+ Volume p123-core-abe0ad4e35_fake_state Created 
+ Volume p123-core-abe0ad4e35_pg_state Created 
+ Volume p123-core-abe0ad4e35_pg_state Created 
+ Container p123-core-abe0ad4e35-postgres-1 Creating 
+ Volume p123-core-abe0ad4e35_mongo_state Created 
+ Volume p123-core-abe0ad4e35_mongo_state Created 
+ Container p123-core-abe0ad4e35-mongodb-1 Creating 
+ Network p123-core-abe0ad4e35_upstream Created 
+ Network p123-core-abe0ad4e35_upstream Created 
+ Container p123-core-abe0ad4e35-fake-upstream-1 Creating 
+ Network p123-core-abe0ad4e35_headless-edge Created 
+ Network p123-core-abe0ad4e35_headless-edge Created 
+ Container p123-core-abe0ad4e35-mongodb-1 Created 
+ Container p123-core-abe0ad4e35-postgres-1 Created 
+ Container p123-core-abe0ad4e35-fake-upstream-1 Created 
+ Container p123-core-abe0ad4e35-budget-gateway-1 Creating 
+ Container p123-core-abe0ad4e35-budget-gateway-1 Created 
+ Container p123-core-abe0ad4e35-ai-service-1 Creating 
+ Container p123-core-abe0ad4e35-ai-service-1 Created 
+ Container p123-core-abe0ad4e35-backend-1 Creating 
+ Container p123-core-abe0ad4e35-backend-1 Created 
+ Container p123-core-abe0ad4e35-api-ingress-1 Creating 
+ Container p123-core-abe0ad4e35-api-ingress-1 Created 
+ Container p123-core-abe0ad4e35-postgres-1 Starting 
+ Container p123-core-abe0ad4e35-mongodb-1 Starting 
+ Container p123-core-abe0ad4e35-fake-upstream-1 Starting 
+ Container p123-core-abe0ad4e35-postgres-1 Started 
+ Container p123-core-abe0ad4e35-mongodb-1 Started 
+ Container p123-core-abe0ad4e35-fake-upstream-1 Started 
+ Container p123-core-abe0ad4e35-budget-gateway-1 Starting 
+ Container p123-core-abe0ad4e35-budget-gateway-1 Started 
+ Container p123-core-abe0ad4e35-postgres-1 Waiting 
+ Container p123-core-abe0ad4e35-budget-gateway-1 Waiting 
+ Container p123-core-abe0ad4e35-postgres-1 Healthy 
+ Container p123-core-abe0ad4e35-budget-gateway-1 Healthy 
+ Container p123-core-abe0ad4e35-ai-service-1 Starting 
+ Container p123-core-abe0ad4e35-ai-service-1 Started 
+ Container p123-core-abe0ad4e35-postgres-1 Waiting 
+ Container p123-core-abe0ad4e35-mongodb-1 Waiting 
+ Container p123-core-abe0ad4e35-postgres-1 Healthy 
+ Container p123-core-abe0ad4e35-mongodb-1 Healthy 
+ Container p123-core-abe0ad4e35-backend-1 Starting 
+ Container p123-core-abe0ad4e35-backend-1 Started 
+ Container p123-core-abe0ad4e35-api-ingress-1 Starting 
+ Container p123-core-abe0ad4e35-api-ingress-1 Started 

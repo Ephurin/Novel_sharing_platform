@@ -1,6 +1,8 @@
 import { AppError } from '../../core/errors/app-error.js';
 import { ObjectId } from 'mongodb';
 import { getMongoDatabase } from '../../core/database/mongo.js';
+import { withChapterWriter, type ChapterWriterLease } from './chapter-writer.js';
+import { findLatestRevisionByChapterId } from './chapter-revisions.repository.js';
 
 const collectionName = 'draft_chapters';
 
@@ -47,40 +49,48 @@ export async function upsertDraftChapter(input: {
   const now = new Date();
 
   let saved;
-  try { saved = await collection().findOneAndUpdate(
-    { chapterId: input.chapterId, ...(input.expectedVersion !== undefined ? { version: input.expectedVersion } : {}) },
-    {
-      $set: {
-        novelId: input.novelId,
-        authorId: input.authorId,
-        title: input.title,
-        content: input.content,
-        wordCount: input.wordCount,
-        autosave: input.autosave,
-        ...(input.lastAcceptedRevisionId !== undefined
-          ? { lastAcceptedRevisionId: input.lastAcceptedRevisionId, lastAcceptedAt: now }
-          : {}),
-        deletedAt: null,
-        deletionReason: null,
-        updatedAt: now
+  try {
+    saved = await collection().findOneAndUpdate(
+      { chapterId: input.chapterId, ...(input.expectedVersion !== undefined ? { version: input.expectedVersion } : {}) },
+      {
+        $set: {
+          novelId: input.novelId,
+          authorId: input.authorId,
+          title: input.title,
+          content: input.content,
+          wordCount: input.wordCount,
+          autosave: input.autosave,
+          ...(input.lastAcceptedRevisionId !== undefined
+            ? { lastAcceptedRevisionId: input.lastAcceptedRevisionId, lastAcceptedAt: now }
+            : {}),
+          deletedAt: null,
+          deletionReason: null,
+          updatedAt: now
+        },
+        $setOnInsert: {
+          chapterId: input.chapterId,
+          createdAt: now
+        },
+        $inc: {
+          version: 1
+        }
       },
-      $setOnInsert: {
-        chapterId: input.chapterId,
-        createdAt: now
-      },
-      $inc: {
-        version: 1
-      }
-    },
-    { upsert: input.expectedVersion === undefined || input.expectedVersion === 0, returnDocument: 'after' }
-  );
-
-  } catch (error) {
-    if ((error as { code?: number }).code === 11000 && input.expectedVersion !== undefined) throw new AppError(409, 'DRAFT_CONFLICT', 'Bản nháp đã thay đổi ở phiên khác. Bản đang viết chưa bị ghi đè.');
-    throw error;
+      { upsert: input.expectedVersion === undefined || input.expectedVersion === 0, returnDocument: 'after' }
+    );
+  } catch (error: any) {
+    if (error?.code !== 11000 || input.expectedVersion === undefined) throw error;
   }
-  if (!saved) throw new AppError(409, 'DRAFT_CONFLICT', 'Bản nháp đã thay đổi ở phiên khác.');
-  return saved;
+
+  if (saved) return saved;
+
+  const current = await findDraftChapterByChapterId(input.chapterId);
+  // A retry of the same successful body/title must not create another version (lost-response retry idempotency).
+  if (current && input.expectedVersion !== undefined && current.version > input.expectedVersion &&
+      current.authorId === input.authorId && current.novelId === input.novelId &&
+      current.title === input.title && current.content === input.content) {
+    return current;
+  }
+  throw new AppError(409, 'DRAFT_CONFLICT', 'Bản nháp đã thay đổi ở phiên khác. Bản đang viết chưa bị ghi đè.');
 }
 
 export async function syncDraftFromRevisionConditional(input: {
@@ -92,12 +102,29 @@ export async function syncDraftFromRevisionConditional(input: {
   acceptTimestamp: Date;
   novelId?: string;
   authorId?: string;
-}): Promise<{ status: 'synced' | 'skipped_newer_draft'; draft?: DraftChapterDocument | null }> {
+}, parent?: ChapterWriterLease): Promise<{ status: 'synced' | 'skipped_newer_draft'; draft?: DraftChapterDocument | null }> {
+  return withChapterWriter(input.chapterId, async () => {
+    const latest = await findLatestRevisionByChapterId(undefined, input.chapterId);
+    if (latest && latest.revisionId !== input.revisionId) return { status: 'skipped_newer_draft' as const };
+    return syncDraftUnderLease(input);
+  }, parent);
+}
+
+async function syncDraftUnderLease(input: Parameters<typeof syncDraftFromRevisionConditional>[0]): Promise<{ status: 'synced' | 'skipped_newer_draft'; draft?: DraftChapterDocument | null }> {
   const now = new Date();
   const existing = await collection().findOne({ chapterId: input.chapterId, deletedAt: null });
   if (existing) {
     if (existing.updatedAt && existing.updatedAt > input.acceptTimestamp) {
       return { status: 'skipped_newer_draft', draft: existing };
+    }
+    // Prose equality is not revision identity. A delayed different revision must
+    // pass freshness/CAS and advance provenance, even when its text is identical.
+    if (existing.lastAcceptedRevisionId === input.revisionId && existing.lastAcceptedAt &&
+        existing.content === input.content && existing.wordCount === input.wordCount &&
+        (input.title === undefined || existing.title === input.title) &&
+        (input.novelId === undefined || existing.novelId === input.novelId) &&
+        (input.authorId === undefined || existing.authorId === input.authorId)) {
+      return { status: 'synced', draft: existing };
     }
   } else {
     // If draft does not exist yet, atomically create it with trusted ownership
@@ -153,7 +180,6 @@ export async function syncDraftFromRevisionConditional(input: {
       $inc: { version: 1 }
     }
   );
-
 
   if (result.matchedCount === 0 && existing) {
     return { status: 'skipped_newer_draft', draft: existing };

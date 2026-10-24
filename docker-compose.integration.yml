@@ -1,0 +1,34 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: p1_author_int_postgres
+    environment:
+      POSTGRES_DB: ephurin_int
+      POSTGRES_USER: int_user
+      POSTGRES_PASSWORD: int_secure_password_987
+    ports:
+      - "55432:5432"
+    volumes:
+      - int_pg_state_b5249:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U int_user -d ephurin_int"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  mongodb:
+    image: mongo:7
+    container_name: p1_author_int_mongodb
+    ports:
+      - "28017:27017"
+    volumes:
+      - int_mongo_state_b5249:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  int_pg_state_b5249:
+  int_mongo_state_b5249:

@@ -1,0 +1,297 @@
+{
+  "project": "codex-p1-final-8c19b8c475",
+  "other_containers_before": [
+    {
+      "id": "0963ae7cd643",
+      "name": "p123-core-0b0995076d-api-ingress-1",
+      "state": "running"
+    },
+    {
+      "id": "15c81b37023f",
+      "name": "p123-core-bce7da708c-budget-gateway-1",
+      "state": "running"
+    },
+    {
+      "id": "1a837722265e",
+      "name": "p123-core-0b0995076d-backend-1",
+      "state": "running"
+    },
+    {
+      "id": "22816960f745",
+      "name": "p123-core-092cfc4a3d-backend-1",
+      "state": "running"
+    },
+    {
+      "id": "35c6d972fe1c",
+      "name": "p123-core-0b0995076d-ai-service-1",
+      "state": "running"
+    },
+    {
+      "id": "43aefb11f8ed",
+      "name": "p123-core-bce7da708c-backend-1",
+      "state": "running"
+    },
+    {
+      "id": "4db6017c033a",
+      "name": "p123-core-0b0995076d-mongodb-1",
+      "state": "running"
+    },
+    {
+      "id": "50bb6e889414",
+      "name": "p123-core-bce7da708c-mongodb-1",
+      "state": "running"
+    },
+    {
+      "id": "5971aae0c9e1",
+      "name": "p123-core-092cfc4a3d-api-ingress-1",
+      "state": "running"
+    },
+    {
+      "id": "6ad8f408e6c2",
+      "name": "p123-core-092cfc4a3d-mongodb-1",
+      "state": "running"
+    },
+    {
+      "id": "70d8e3de925b",
+      "name": "p123-core-bce7da708c-fake-upstream-1",
+      "state": "running"
+    },
+    {
+      "id": "70de6074d241",
+      "name": "astra-c01-5e23ed17-pg",
+      "state": "exited"
+    },
+    {
+      "id": "74df41fb8136",
+      "name": "p123-core-8c853261f5-mongodb-1",
+      "state": "running"
+    },
+    {
+      "id": "8d6078ce1822",
+      "name": "p123-core-092cfc4a3d-budget-gateway-1",
+      "state": "running"
+    },
+    {
+      "id": "96d02ba4c87b",
+      "name": "p123-core-092cfc4a3d-postgres-1",
+      "state": "running"
+    },
+    {
+      "id": "a6daf2b0cd47",
+      "name": "p123-core-0b0995076d-postgres-1",
+      "state": "running"
+    },
+    {
+      "id": "acd70b46f157",
+      "name": "p123-core-092cfc4a3d-fake-upstream-1",
+      "state": "running"
+    },
+    {
+      "id": "b3de85a97b45",
+      "name": "p123-core-0b0995076d-fake-upstream-1",
+      "state": "running"
+    },
+    {
+      "id": "c71043752c00",
+      "name": "p123-core-8c853261f5-postgres-1",
+      "state": "running"
+    },
+    {
+      "id": "ccd66c2cd27e",
+      "name": "p123-core-092cfc4a3d-ai-service-1",
+      "state": "running"
+    },
+    {
+      "id": "d1074c35720b",
+      "name": "p123-core-0b0995076d-budget-gateway-1",
+      "state": "running"
+    },
+    {
+      "id": "d2036f5bfa97",
+      "name": "p123-core-bce7da708c-ai-service-1",
+      "state": "running"
+    },
+    {
+      "id": "d5e51bebe5d5",
+      "name": "astra-c01-b82b171e-pg",
+      "state": "exited"
+    },
+    {
+      "id": "da6e001679eb",
+      "name": "p123-core-bce7da708c-api-ingress-1",
+      "state": "running"
+    },
+    {
+      "id": "dfba2cc19c64",
+      "name": "astra-c01-5e23ed17-mongo",
+      "state": "exited"
+    },
+    {
+      "id": "f7404dd1be4e",
+      "name": "p123-core-bce7da708c-postgres-1",
+      "state": "running"
+    },
+    {
+      "id": "f9e1b299caab",
+      "name": "p123-core-8c853261f5-db-proxy-1",
+      "state": "running"
+    },
+    {
+      "id": "fbfde4213e82",
+      "name": "astra-c01-b82b171e-mongo",
+      "state": "exited"
+    }
+  ],
+  "other_containers_after": [
+    {
+      "id": "0963ae7cd643",
+      "name": "p123-core-0b0995076d-api-ingress-1",
+      "state": "running"
+    },
+    {
+      "id": "15c81b37023f",
+      "name": "p123-core-bce7da708c-budget-gateway-1",
+      "state": "running"
+    },
+    {
+      "id": "1a837722265e",
+      "name": "p123-core-0b0995076d-backend-1",
+      "state": "running"
+    },
+    {
+      "id": "22816960f745",
+      "name": "p123-core-092cfc4a3d-backend-1",
+      "state": "running"
+    },
+    {
+      "id": "35c6d972fe1c",
+      "name": "p123-core-0b0995076d-ai-service-1",
+      "state": "running"
+    },
+    {
+      "id": "43aefb11f8ed",
+      "name": "p123-core-bce7da708c-backend-1",
+      "state": "running"
+    },
+    {
+      "id": "4db6017c033a",
+      "name": "p123-core-0b0995076d-mongodb-1",
+      "state": "running"
+    },
+    {
+      "id": "50bb6e889414",
+      "name": "p123-core-bce7da708c-mongodb-1",
+      "state": "running"
+    },
+    {
+      "id": "5971aae0c9e1",
+      "name": "p123-core-092cfc4a3d-api-ingress-1",
+      "state": "running"
+    },
+    {
+      "id": "6ad8f408e6c2",
+      "name": "p123-core-092cfc4a3d-mongodb-1",
+      "state": "running"
+    },
+    {
+      "id": "70d8e3de925b",
+      "name": "p123-core-bce7da708c-fake-upstream-1",
+      "state": "running"
+    },
+    {
+      "id": "70de6074d241",
+      "name": "astra-c01-5e23ed17-pg",
+      "state": "exited"
+    },
+    {
+      "id": "74df41fb8136",
+      "name": "p123-core-8c853261f5-mongodb-1",
+      "state": "running"
+    },
+    {
+      "id": "8d6078ce1822",
+      "name": "p123-core-092cfc4a3d-budget-gateway-1",
+      "state": "running"
+    },
+    {
+      "id": "96d02ba4c87b",
+      "name": "p123-core-092cfc4a3d-postgres-1",
+      "state": "running"
+    },
+    {
+      "id": "a6daf2b0cd47",
+      "name": "p123-core-0b0995076d-postgres-1",
+      "state": "running"
+    },
+    {
+      "id": "acd70b46f157",
+      "name": "p123-core-092cfc4a3d-fake-upstream-1",
+      "state": "running"
+    },
+    {
+      "id": "b3de85a97b45",
+      "name": "p123-core-0b0995076d-fake-upstream-1",
+      "state": "running"
+    },
+    {
+      "id": "c71043752c00",
+      "name": "p123-core-8c853261f5-postgres-1",
+      "state": "running"
+    },
+    {
+      "id": "ccd66c2cd27e",
+      "name": "p123-core-092cfc4a3d-ai-service-1",
+      "state": "running"
+    },
+    {
+      "id": "d1074c35720b",
+      "name": "p123-core-0b0995076d-budget-gateway-1",
+      "state": "running"
+    },
+    {
+      "id": "d2036f5bfa97",
+      "name": "p123-core-bce7da708c-ai-service-1",
+      "state": "running"
+    },
+    {
+      "id": "d5e51bebe5d5",
+      "name": "astra-c01-b82b171e-pg",
+      "state": "exited"
+    },
+    {
+      "id": "da6e001679eb",
+      "name": "p123-core-bce7da708c-api-ingress-1",
+      "state": "running"
+    },
+    {
+      "id": "dfba2cc19c64",
+      "name": "astra-c01-5e23ed17-mongo",
+      "state": "exited"
+    },
+    {
+      "id": "f7404dd1be4e",
+      "name": "p123-core-bce7da708c-postgres-1",
+      "state": "running"
+    },
+    {
+      "id": "f9e1b299caab",
+      "name": "p123-core-8c853261f5-db-proxy-1",
+      "state": "running"
+    },
+    {
+      "id": "fbfde4213e82",
+      "name": "astra-c01-b82b171e-mongo",
+      "state": "exited"
+    }
+  ],
+  "other_container_records_unchanged": true,
+  "owned_volumes_retained": [
+    "codex-p1-final-8c19b8c475_budget_state",
+    "codex-p1-final-8c19b8c475_fake_state",
+    "codex-p1-final-8c19b8c475_mongo_state",
+    "codex-p1-final-8c19b8c475_pg_state"
+  ],
+  "volumes_deleted": 0,
+  "global_prune_used": false,
+  "only_owned_project_stopped": true
+}

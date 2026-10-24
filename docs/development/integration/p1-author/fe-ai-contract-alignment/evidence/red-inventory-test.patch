@@ -1,0 +1,26 @@
+diff --git a/ai-service/tests/test_p1_contract_alignment.py b/ai-service/tests/test_p1_contract_alignment.py
+index 655b93b8..2273fe59 100644
+--- a/ai-service/tests/test_p1_contract_alignment.py
++++ b/ai-service/tests/test_p1_contract_alignment.py
+@@ -155,6 +155,21 @@ def test_real_foreign_novel_identity_cannot_enter_edited_group_or_lock(flow):
+             c.execute(text('DELETE FROM narrative.story_brains WHERE novel_id=:n AND tenant_id=:t'), {'n': foreign, 't': TENANT})
+ 
+ 
++def test_author_edit_cannot_bypass_frozen_review_inventory(flow):
++    f = flow
++    if not f.engine:
++        pytest.skip('Frozen inventory transaction guard requires PostgreSQL')
++    existing = f.service.create_author_entity(f.revision.novel_id, name='Absent Author', entity_type='PER')
++    f.repo.accept_proposal_group(f.revision.novel_id, [existing.proposal_id], 1)
++    absent_id = f.repo.get_story_brain(f.revision.novel_id).entities[0].entity_id
++    proposals = pending(f)
++    event = next(p for p in proposals if p.proposal_type == 'event')
++    before = snapshot(f, 'outside-frozen-inventory-before')
++    response = accept(f, proposals, {event.proposal_id: {**event.payload, 'participants': [absent_id]}}, version=2)
++    assert response.status_code == 422, response.text
++    assert snapshot(f, 'outside-frozen-inventory-after') == before
++
++
+ def test_partial_refresh_frozen_projection_does_not_rewrite_checkpoint(flow):
+     f = flow
+     run, audit = discover(f)

@@ -1,0 +1,154 @@
+{
+  "version_before": 3,
+  "fresh": {
+    "chapterId": "ef81061d-48b1-415c-83bb-2509b6bf8e43",
+    "novelId": "eebb92fd-2387-435e-96cb-c9e06ad3d439",
+    "title": "Contract chapter",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 11,
+    "isVip": true,
+    "priceCoins": 2,
+    "status": "DRAFT",
+    "publicationSchedule": null,
+    "updatedAt": "2026-10-23T09:27:39.366Z",
+    "draft": {
+      "title": "Contract chapter",
+      "content": "Mai Linh và Duy đứng tại Cồn Vân. B response unread",
+      "wordCount": 11,
+      "version": 4,
+      "autosave": true,
+      "updatedAt": "2026-10-23T09:27:39.365Z"
+    },
+    "analysisRevisionId": null,
+    "draftVersion": 4
+  },
+  "replay": {
+    "chapterId": "ef81061d-48b1-415c-83bb-2509b6bf8e43",
+    "novelId": "eebb92fd-2387-435e-96cb-c9e06ad3d439",
+    "title": "Contract chapter",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 11,
+    "isVip": true,
+    "priceCoins": 2,
+    "status": "DRAFT",
+    "publicationSchedule": null,
+    "updatedAt": "2026-10-23T09:27:39.366Z",
+    "draft": {
+      "title": "Contract chapter",
+      "content": "Mai Linh và Duy đứng tại Cồn Vân. B response unread",
+      "wordCount": 11,
+      "version": 4,
+      "autosave": true,
+      "updatedAt": "2026-10-23T09:27:39.365Z"
+    },
+    "analysisRevisionId": null,
+    "draftVersion": 4
+  },
+  "pricing_only": {
+    "chapterId": "ef81061d-48b1-415c-83bb-2509b6bf8e43",
+    "novelId": "eebb92fd-2387-435e-96cb-c9e06ad3d439",
+    "title": "Contract chapter",
+    "chapterNumber": 1,
+    "content": null,
+    "wordCount": 11,
+    "isVip": true,
+    "priceCoins": 3,
+    "status": "DRAFT",
+    "publicationSchedule": null,
+    "updatedAt": "2026-10-23T09:27:44.602Z",
+    "draft": {
+      "title": "Contract chapter",
+      "content": "Mai Linh và Duy đứng tại Cồn Vân. B response unread",
+      "wordCount": 11,
+      "version": 5,
+      "autosave": false,
+      "updatedAt": "2026-10-23T09:27:44.601Z"
+    },
+    "analysisRevisionId": null,
+    "draftVersion": 5
+  },
+  "before_replay": {
+    "chapters": [
+      {
+        "chapter_id": "ef81061d-48b1-415c-83bb-2509b6bf8e43",
+        "novel_id": "eebb92fd-2387-435e-96cb-c9e06ad3d439",
+        "title": "Contract chapter",
+        "chapter_number": 1,
+        "content": null,
+        "word_count": 11,
+        "is_vip": true,
+        "price_coins": 2,
+        "status": "DRAFT",
+        "published_at": null,
+        "created_at": "2026-10-23T09:27:15.951766+00:00",
+        "updated_at": "2026-10-23T09:27:39.366611+00:00",
+        "deleted_at": null,
+        "latest_revision_id": null,
+        "import_key": null,
+        "import_hash": null
+      }
+    ],
+    "chapter_revisions": [],
+    "revision_outbox_events": [],
+    "Mongo_drafts": [
+      {
+        "_id": "6adb2874660ded0f73946ec8",
+        "chapterId": "ef81061d-48b1-415c-83bb-2509b6bf8e43",
+        "version": 4,
+        "authorId": "61ed0fab-9154-4be8-b999-2cbe7ad0f433",
+        "autosave": true,
+        "content": "Mai Linh và Duy đứng tại Cồn Vân. B response unread",
+        "createdAt": "2026-10-23T09:27:16.320Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "eebb92fd-2387-435e-96cb-c9e06ad3d439",
+        "title": "Contract chapter",
+        "updatedAt": "2026-10-23T09:27:39.365Z",
+        "wordCount": 11
+      }
+    ]
+  },
+  "after": {
+    "chapters": [
+      {
+        "chapter_id": "ef81061d-48b1-415c-83bb-2509b6bf8e43",
+        "novel_id": "eebb92fd-2387-435e-96cb-c9e06ad3d439",
+        "title": "Contract chapter",
+        "chapter_number": 1,
+        "content": null,
+        "word_count": 11,
+        "is_vip": false,
+        "price_coins": 0,
+        "status": "DRAFT",
+        "published_at": null,
+        "created_at": "2026-10-23T09:27:15.951766+00:00",
+        "updated_at": "2026-10-23T09:27:49.577127+00:00",
+        "deleted_at": null,
+        "latest_revision_id": null,
+        "import_key": null,
+        "import_hash": null
+      }
+    ],
+    "chapter_revisions": [],
+    "revision_outbox_events": [],
+    "Mongo_drafts": [
+      {
+        "_id": "6adb2874660ded0f73946ec8",
+        "chapterId": "ef81061d-48b1-415c-83bb-2509b6bf8e43",
+        "version": 6,
+        "authorId": "61ed0fab-9154-4be8-b999-2cbe7ad0f433",
+        "autosave": true,
+        "content": "Mai Linh và Duy đứng tại Cồn Vân. B response unread",
+        "createdAt": "2026-10-23T09:27:16.320Z",
+        "deletedAt": null,
+        "deletionReason": null,
+        "novelId": "eebb92fd-2387-435e-96cb-c9e06ad3d439",
+        "title": "Contract chapter",
+        "updatedAt": "2026-10-23T09:27:49.576Z",
+        "wordCount": 11
+      }
+    ]
+  }
+}

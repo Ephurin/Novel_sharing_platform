@@ -1,0 +1,14 @@
+{"scenario":"missing opt-in","childExit":1,"calls":{"identity":1,"mongoConnect":0,"mongoClose":1,"pgEnd":2,"writes":[],"reads":[]}}
+{"scenario":"forbidden PostgreSQL","childExit":1,"calls":{"identity":1,"mongoConnect":0,"mongoClose":1,"pgEnd":2,"writes":[],"reads":[]}}
+{"scenario":"forbidden MongoDB","childExit":1,"calls":{"identity":1,"mongoConnect":0,"mongoClose":1,"pgEnd":2,"writes":[],"reads":[]}}
+✔ Denied live reconciliation teardown: missing opt-in (737.3392ms)
+✔ Denied live reconciliation teardown: forbidden PostgreSQL (698.3676ms)
+✔ Denied live reconciliation teardown: forbidden MongoDB (1026.1919ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2616.1991

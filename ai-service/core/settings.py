@@ -56,6 +56,7 @@ class Settings:
     semantic_retrieval_limit: int
     context_routing_policy: str = "legacy-v1"
     service_auth_disabled: bool = False
+    entity_candidate_verification_enabled: bool = False
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -64,7 +65,7 @@ class Settings:
             raise ValueError("LLM_PROVIDER must be one of: none, gemini, openai, groq, fake")
 
         default_model = {
-            "gemini": "gemini-2.5-flash-lite",
+            "gemini": "gemini-3.5-flash-lite",
             "openai": "gpt-4o-mini",
             "groq": "llama-3.3-70b-versatile",
             "none": "disabled",
@@ -142,6 +143,7 @@ class Settings:
                     "http://localhost:4173",
                 ),
             ),
+            entity_candidate_verification_enabled=_env_bool('ENTITY_CANDIDATE_VERIFICATION_ENABLED', False),
             pipeline_version=(os.getenv("ENTITY_PIPELINE_VERSION", "entity-v1") or "").strip(),
             entity_prompt_version=(os.getenv("ENTITY_PROMPT_VERSION", "entity-extraction-v1") or "").strip(),
             semantic_retrieval_enabled=_env_bool(

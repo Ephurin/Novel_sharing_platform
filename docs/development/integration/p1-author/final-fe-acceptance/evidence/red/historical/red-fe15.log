@@ -1,0 +1,55 @@
+TAP version 13
+# Subtest: FE-15 browser-controlled destination cannot receive credentials: before-import
+not ok 1 - FE-15 browser-controlled destination cannot receive credentials: before-import
+  ---
+  duration_ms: 3038.7166
+  location: 'C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web\\tests\\api-client-security.browser.test.mjs:10:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    No request/preflight/token may reach the untrusted origin
+    
+    2 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 2
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/Laptop/.codex/worktrees/p1-fe-final-acceptance/testproject/web/tests/api-client-security.browser.test.mjs:53:14)
+    runNextTicks (node:internal/process/task_queues:65:5)
+    process.processImmediate (node:internal/timers:459:9)
+    process.callbackTrampoline (node:internal/async_hooks:130:17)
+    async Test.run (node:internal/test_runner/test:980:9)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# Subtest: FE-15 browser-controlled destination cannot receive credentials: after-import
+not ok 2 - FE-15 browser-controlled destination cannot receive credentials: after-import
+  ---
+  duration_ms: 1511.6673
+  location: 'C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web\\tests\\api-client-security.browser.test.mjs:10:3'
+  failureType: 'testCodeFailure'
+  error: |-
+    No request/preflight/token may reach the untrusted origin
+    
+    2 !== 0
+    
+  code: 'ERR_ASSERTION'
+  name: 'AssertionError'
+  expected: 0
+  actual: 2
+  operator: 'strictEqual'
+  stack: |-
+    TestContext.<anonymous> (file:///C:/Users/Laptop/.codex/worktrees/p1-fe-final-acceptance/testproject/web/tests/api-client-security.browser.test.mjs:53:14)
+    async Test.run (node:internal/test_runner/test:980:9)
+    async Test.processPendingSubtests (node:internal/test_runner/test:677:7)
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 0
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5652.3308

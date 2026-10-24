@@ -1,0 +1,89 @@
+[
+  {
+    "stage": "H01-refreshed-author-decisions-preserved",
+    "canon_version": 1,
+    "identity_ids": [],
+    "checkpoint_status": "waiting_entity_review",
+    "review_version": 3,
+    "preserved_decision_ids": [
+      "29673db25eeb77ba96b60166",
+      "57e54cb3bc9bd5dbd436f9fb"
+    ],
+    "pending_candidate_ids": [
+      "f89ea092703f1954b6852b9e",
+      "2dd34380e8f9e38ef87ea1b7"
+    ],
+    "event_participants": [],
+    "fact_subject_ids": []
+  },
+  {
+    "stage": "H02-pending-exact-ids-alias-False",
+    "canon_version": 1,
+    "identity_ids": [
+      "a9f7fa2c-0ac7-4ea7-a477-85bd96227eaf",
+      "0757329d-4d7b-4102-844f-dbf9d4ef2788"
+    ],
+    "checkpoint_status": "completed",
+    "review_version": 2,
+    "preserved_decision_ids": [],
+    "pending_candidate_ids": [],
+    "event_participants": [],
+    "fact_subject_ids": []
+  },
+  {
+    "stage": "H02-approved-exact-ids-alias-False",
+    "canon_version": 2,
+    "identity_ids": [
+      "a9f7fa2c-0ac7-4ea7-a477-85bd96227eaf",
+      "0757329d-4d7b-4102-844f-dbf9d4ef2788"
+    ],
+    "checkpoint_status": "completed",
+    "review_version": 2,
+    "preserved_decision_ids": [],
+    "pending_candidate_ids": [],
+    "event_participants": [
+      [
+        "a9f7fa2c-0ac7-4ea7-a477-85bd96227eaf",
+        "0757329d-4d7b-4102-844f-dbf9d4ef2788"
+      ]
+    ],
+    "fact_subject_ids": [
+      "a9f7fa2c-0ac7-4ea7-a477-85bd96227eaf"
+    ]
+  },
+  {
+    "stage": "H02-pending-exact-ids-alias-True",
+    "canon_version": 1,
+    "identity_ids": [
+      "9cd6fb38-d3d2-4cd3-b377-4d9455b83e5c",
+      "0e685c9b-f169-41de-95e0-bcee6d2bcbf5"
+    ],
+    "checkpoint_status": "completed",
+    "review_version": 2,
+    "preserved_decision_ids": [],
+    "pending_candidate_ids": [],
+    "event_participants": [],
+    "fact_subject_ids": []
+  },
+  {
+    "stage": "H02-approved-exact-ids-alias-True",
+    "canon_version": 2,
+    "identity_ids": [
+      "9cd6fb38-d3d2-4cd3-b377-4d9455b83e5c",
+      "0e685c9b-f169-41de-95e0-bcee6d2bcbf5"
+    ],
+    "checkpoint_status": "completed",
+    "review_version": 2,
+    "preserved_decision_ids": [],
+    "pending_candidate_ids": [],
+    "event_participants": [
+      [
+        "9cd6fb38-d3d2-4cd3-b377-4d9455b83e5c",
+        "0e685c9b-f169-41de-95e0-bcee6d2bcbf5"
+      ]
+    ],
+    "fact_subject_ids": [
+      "9cd6fb38-d3d2-4cd3-b377-4d9455b83e5c"
+    ]
+  }
+]

@@ -1,0 +1,3023 @@
+[
+  {
+    "stage": "H01-refreshed-author-decisions-preserved",
+    "run_id": "dacc3ab0-bcbb-40cc-a897-6bbdcaf61028",
+    "story_brains": [
+      {
+        "id": "89527b0f-9445-4d14-ab40-922315063b96",
+        "brain_version": 1,
+        "entity_guidance": {
+          "entries": [
+            {
+              "kind": "hint",
+              "name": "lan",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            },
+            {
+              "kind": "hint",
+              "name": "absent",
+              "notes": "",
+              "aliases": [],
+              "entity_type": null
+            }
+          ],
+          "version": 1
+        }
+      }
+    ],
+    "analysis_runs": [
+      {
+        "id": "dacc3ab0-bcbb-40cc-a897-6bbdcaf61028",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 28,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 4,
+            "candidates": 4
+          },
+          "policy": "entity-candidates-v1",
+          "status": "waiting_entity_review",
+          "aliases": [],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": false
+            },
+            "novel_id": "23d035e1-5e1e-4a06-a422-d94f4f80946a",
+            "operation": "incremental_story_analysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "a34370d0-0fcc-45cf-a060-49eaff4c45e2",
+            "revision_id": "2641ab26-5dfa-4444-b288-17141b8b91da",
+            "content_hash": "6fbb96bc79ffe039d2097d277eacde834817251a93c4c69636a5ed309c8dcf45",
+            "idempotency_key": "9044bb8e-29a0-4036-8352-7b6a91486512"
+          },
+          "entities": [],
+          "decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "29673db25eeb77ba96b60166",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "f89ea092703f1954b6852b9e",
+              "status_quote": "",
+              "canonical_name": "lan",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "57e54cb3bc9bd5dbd436f9fb",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "2dd34380e8f9e38ef87ea1b7",
+              "status_quote": "",
+              "canonical_name": "lan",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Minh gặp lan. Minh chào lan.",
+              "origins": [
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 28,
+              "candidate_id": "29673db25eeb77ba96b60166",
+              "context_start": 0
+            },
+            {
+              "end": 12,
+              "start": 9,
+              "context": "Minh gặp lan. Minh chào lan.",
+              "origins": [
+                "author_guidance"
+              ],
+              "surface": "lan",
+              "context_end": 28,
+              "candidate_id": "f89ea092703f1954b6852b9e",
+              "context_start": 0
+            },
+            {
+              "end": 18,
+              "start": 14,
+              "context": "Minh gặp lan. Minh chào lan.",
+              "origins": [
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 28,
+              "candidate_id": "57e54cb3bc9bd5dbd436f9fb",
+              "context_start": 0
+            },
+            {
+              "end": 27,
+              "start": 24,
+              "context": "Minh gặp lan. Minh chào lan.",
+              "origins": [
+                "author_guidance"
+              ],
+              "surface": "lan",
+              "context_end": 28,
+              "candidate_id": "2dd34380e8f9e38ef87ea1b7",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "a34370d0-0fcc-45cf-a060-49eaff4c45e2",
+          "revision_id": "2641ab26-5dfa-4444-b288-17141b8b91da",
+          "source_hash": "6fbb96bc79ffe039d2097d277eacde834817251a93c4c69636a5ed309c8dcf45",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 3,
+          "analysis_run_id": "dacc3ab0-bcbb-40cc-a897-6bbdcaf61028",
+          "guidance_version": 1,
+          "preserved_entities": [],
+          "refresh_generation": 1,
+          "reviewed_decisions": [
+            {
+              "reason": "author rejects false positive",
+              "verdict": "not_entity",
+              "confidence": 0.7,
+              "entity_type": null,
+              "candidate_id": "29673db25eeb77ba96b60166",
+              "status_quote": "",
+              "canonical_name": "",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "author rejects false positive",
+              "verdict": "not_entity",
+              "confidence": 0.7,
+              "entity_type": null,
+              "candidate_id": "57e54cb3bc9bd5dbd436f9fb",
+              "status_quote": "",
+              "canonical_name": "",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            }
+          ],
+          "preserved_decisions": [
+            {
+              "reason": "author rejects false positive",
+              "verdict": "not_entity",
+              "confidence": 0.7,
+              "entity_type": null,
+              "candidate_id": "29673db25eeb77ba96b60166",
+              "status_quote": "",
+              "canonical_name": "",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "author rejects false positive",
+              "verdict": "not_entity",
+              "confidence": 0.7,
+              "entity_type": null,
+              "candidate_id": "57e54cb3bc9bd5dbd436f9fb",
+              "status_quote": "",
+              "canonical_name": "",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            }
+          ],
+          "pending_candidate_ids": [
+            "f89ea092703f1954b6852b9e",
+            "2dd34380e8f9e38ef87ea1b7"
+          ],
+          "refresh_input_version": 2,
+          "unanchored_discoveries": [],
+          "provisional_identity_scope": "1b8e59ad308d3132279bff9d8d5c0463b421bac3d49f664f232b7974756d73a3"
+        }
+      }
+    ],
+    "entities": [],
+    "proposals": [],
+    "events": [],
+    "facts": [],
+    "current_entity_states": []
+  },
+  {
+    "stage": "H02-pending-exact-ids-alias-False",
+    "run_id": "d769f795-d1da-44a1-888c-c63e57c1f2be",
+    "story_brains": [
+      {
+        "id": "563f2e3c-37f7-4cdc-b1fd-8a45160c4298",
+        "brain_version": 1,
+        "entity_guidance": null
+      }
+    ],
+    "analysis_runs": [
+      {
+        "id": "d769f795-d1da-44a1-888c-c63e57c1f2be",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 32,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 2,
+            "candidates": 2
+          },
+          "policy": "entity-candidates-v1",
+          "status": "completed",
+          "aliases": [],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": true
+            },
+            "novel_id": "173cf918-6b64-4008-8f66-db7ca8d798b5",
+            "operation": "incremental_story_analysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "480eca53-9c3f-4a76-a0e7-0c821112ec0b",
+            "revision_id": "0685c86f-4540-4280-b6a2-f586faa25cfe",
+            "content_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+            "idempotency_key": "4675e132-19cf-4e6a-9223-06994911dba3"
+          },
+          "entities": [
+            {
+              "score": 7.0,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+              "occurrences": [
+                {
+                  "end": 4,
+                  "quote": "Minh",
+                  "start": 0,
+                  "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+                  "revision_id": "0685c86f-4540-4280-b6a2-f586faa25cfe",
+                  "candidate_id": "9389322d7e8db9905c8bac44"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "9389322d7e8db9905c8bac44"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+              "provisional_identity_key": ""
+            },
+            {
+              "score": 7.0,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "03a22edb-d9dc-46b5-9022-7c3b5474286f",
+              "occurrences": [
+                {
+                  "end": 22,
+                  "quote": "Minh",
+                  "start": 18,
+                  "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+                  "revision_id": "0685c86f-4540-4280-b6a2-f586faa25cfe",
+                  "candidate_id": "63151984d652c168e6cab060"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 22,
+              "candidate_ids": [
+                "63151984d652c168e6cab060"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 18,
+              "canonical_entity_id": "03a22edb-d9dc-46b5-9022-7c3b5474286f",
+              "provisional_identity_key": ""
+            }
+          ],
+          "decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "9389322d7e8db9905c8bac44",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "63151984d652c168e6cab060",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+              "provisional_identity_key": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Minh bên trái gặp Minh bên phải.",
+              "origins": [
+                "approved_name_or_alias",
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 32,
+              "candidate_id": "9389322d7e8db9905c8bac44",
+              "context_start": 0
+            },
+            {
+              "end": 22,
+              "start": 18,
+              "context": "Minh bên trái gặp Minh bên phải.",
+              "origins": [
+                "approved_name_or_alias",
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 32,
+              "candidate_id": "63151984d652c168e6cab060",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "480eca53-9c3f-4a76-a0e7-0c821112ec0b",
+          "revision_id": "0685c86f-4540-4280-b6a2-f586faa25cfe",
+          "source_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 2,
+          "analysis_run_id": "d769f795-d1da-44a1-888c-c63e57c1f2be",
+          "review_finalize": true,
+          "guidance_version": 0,
+          "reviewed_decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "9389322d7e8db9905c8bac44",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "63151984d652c168e6cab060",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "03a22edb-d9dc-46b5-9022-7c3b5474286f",
+              "provisional_identity_key": ""
+            }
+          ],
+          "review_input_version": 1,
+          "pending_candidate_ids": [],
+          "unanchored_discoveries": [],
+          "identity_inventory_version": 2,
+          "provisional_identity_scope": "93d9650bdec0cf3b98e58974d26b0af2cf2a64c6209cf6736f06560ac251bc5c",
+          "review_submitted_decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "9389322d7e8db9905c8bac44",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "63151984d652c168e6cab060",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "03a22edb-d9dc-46b5-9022-7c3b5474286f",
+              "provisional_identity_key": ""
+            }
+          ]
+        }
+      }
+    ],
+    "entities": [
+      {
+        "id": "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+        "canonical_name": "Minh",
+        "confirmation_status": "confirmed"
+      },
+      {
+        "id": "03a22edb-d9dc-46b5-9022-7c3b5474286f",
+        "canonical_name": "Minh",
+        "confirmation_status": "confirmed"
+      }
+    ],
+    "proposals": [
+      {
+        "id": "2e5cec1d-1b8e-5db2-b8d1-aa5a3644f263",
+        "proposal_type": "event",
+        "payload": {
+          "chapter": 1,
+          "summary": "Minh bên trái gặp Minh bên phải.",
+          "locations": [],
+          "event_type": "meeting",
+          "consequences": [],
+          "participants": [
+            "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+            "03a22edb-d9dc-46b5-9022-7c3b5474286f"
+          ],
+          "chapter_number": 1
+        },
+        "evidence": [
+          {
+            "end": 32,
+            "quote": "Minh bên trái gặp Minh bên phải.",
+            "start": 0,
+            "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+            "chapter_id": "480eca53-9c3f-4a76-a0e7-0c821112ec0b",
+            "revision_id": "0685c86f-4540-4280-b6a2-f586faa25cfe",
+            "chapter_number": 1
+          }
+        ],
+        "status": "pending"
+      },
+      {
+        "id": "a642516f-e192-5a93-bd8e-74dafa351e41",
+        "proposal_type": "state_transition",
+        "payload": {
+          "event_id": "2e5cec1d-1b8e-5db2-b8d1-aa5a3644f263",
+          "entity_id": "03a22edb-d9dc-46b5-9022-7c3b5474286f",
+          "new_value": {
+            "ed5ba9c4-c392-4d86-91fa-b9a935bfc668": "knows"
+          },
+          "attribute_key": "active_relationships"
+        },
+        "evidence": [
+          {
+            "end": 32,
+            "quote": "Minh bên trái gặp Minh bên phải.",
+            "start": 0,
+            "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+            "chapter_id": "480eca53-9c3f-4a76-a0e7-0c821112ec0b",
+            "revision_id": "0685c86f-4540-4280-b6a2-f586faa25cfe",
+            "chapter_number": 1
+          }
+        ],
+        "status": "pending"
+      },
+      {
+        "id": "87c1780f-a788-535e-89c3-5a3f3ddbb176",
+        "proposal_type": "fact",
+        "payload": {
+          "fact_key": "mood",
+          "fact_type": "narrative_fact",
+          "fact_value": "calm",
+          "chapter_number": 1,
+          "subject_entity_id": "ed5ba9c4-c392-4d86-91fa-b9a935bfc668"
+        },
+        "evidence": [
+          {
+            "end": 32,
+            "quote": "Minh bên trái gặp Minh bên phải.",
+            "start": 0,
+            "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+            "chapter_id": "480eca53-9c3f-4a76-a0e7-0c821112ec0b",
+            "revision_id": "0685c86f-4540-4280-b6a2-f586faa25cfe",
+            "chapter_number": 1
+          }
+        ],
+        "status": "pending"
+      }
+    ],
+    "events": [],
+    "facts": [],
+    "current_entity_states": []
+  },
+  {
+    "stage": "H02-approved-exact-ids-alias-False",
+    "run_id": "d769f795-d1da-44a1-888c-c63e57c1f2be",
+    "story_brains": [
+      {
+        "id": "563f2e3c-37f7-4cdc-b1fd-8a45160c4298",
+        "brain_version": 2,
+        "entity_guidance": null
+      }
+    ],
+    "analysis_runs": [
+      {
+        "id": "d769f795-d1da-44a1-888c-c63e57c1f2be",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 32,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 2,
+            "candidates": 2
+          },
+          "policy": "entity-candidates-v1",
+          "status": "completed",
+          "aliases": [],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": true
+            },
+            "novel_id": "173cf918-6b64-4008-8f66-db7ca8d798b5",
+            "operation": "incremental_story_analysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "480eca53-9c3f-4a76-a0e7-0c821112ec0b",
+            "revision_id": "0685c86f-4540-4280-b6a2-f586faa25cfe",
+            "content_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+            "idempotency_key": "4675e132-19cf-4e6a-9223-06994911dba3"
+          },
+          "entities": [
+            {
+              "score": 7.0,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+              "occurrences": [
+                {
+                  "end": 4,
+                  "quote": "Minh",
+                  "start": 0,
+                  "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+                  "revision_id": "0685c86f-4540-4280-b6a2-f586faa25cfe",
+                  "candidate_id": "9389322d7e8db9905c8bac44"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "9389322d7e8db9905c8bac44"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+              "provisional_identity_key": ""
+            },
+            {
+              "score": 7.0,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "03a22edb-d9dc-46b5-9022-7c3b5474286f",
+              "occurrences": [
+                {
+                  "end": 22,
+                  "quote": "Minh",
+                  "start": 18,
+                  "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+                  "revision_id": "0685c86f-4540-4280-b6a2-f586faa25cfe",
+                  "candidate_id": "63151984d652c168e6cab060"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 22,
+              "candidate_ids": [
+                "63151984d652c168e6cab060"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 18,
+              "canonical_entity_id": "03a22edb-d9dc-46b5-9022-7c3b5474286f",
+              "provisional_identity_key": ""
+            }
+          ],
+          "decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "9389322d7e8db9905c8bac44",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "63151984d652c168e6cab060",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+              "provisional_identity_key": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Minh bên trái gặp Minh bên phải.",
+              "origins": [
+                "approved_name_or_alias",
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 32,
+              "candidate_id": "9389322d7e8db9905c8bac44",
+              "context_start": 0
+            },
+            {
+              "end": 22,
+              "start": 18,
+              "context": "Minh bên trái gặp Minh bên phải.",
+              "origins": [
+                "approved_name_or_alias",
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 32,
+              "candidate_id": "63151984d652c168e6cab060",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "480eca53-9c3f-4a76-a0e7-0c821112ec0b",
+          "revision_id": "0685c86f-4540-4280-b6a2-f586faa25cfe",
+          "source_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 2,
+          "analysis_run_id": "d769f795-d1da-44a1-888c-c63e57c1f2be",
+          "review_finalize": true,
+          "guidance_version": 0,
+          "reviewed_decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "9389322d7e8db9905c8bac44",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "63151984d652c168e6cab060",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "03a22edb-d9dc-46b5-9022-7c3b5474286f",
+              "provisional_identity_key": ""
+            }
+          ],
+          "review_input_version": 1,
+          "pending_candidate_ids": [],
+          "unanchored_discoveries": [],
+          "identity_inventory_version": 2,
+          "provisional_identity_scope": "93d9650bdec0cf3b98e58974d26b0af2cf2a64c6209cf6736f06560ac251bc5c",
+          "review_submitted_decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "9389322d7e8db9905c8bac44",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "63151984d652c168e6cab060",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "03a22edb-d9dc-46b5-9022-7c3b5474286f",
+              "provisional_identity_key": ""
+            }
+          ]
+        }
+      }
+    ],
+    "entities": [
+      {
+        "id": "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+        "canonical_name": "Minh",
+        "confirmation_status": "confirmed"
+      },
+      {
+        "id": "03a22edb-d9dc-46b5-9022-7c3b5474286f",
+        "canonical_name": "Minh",
+        "confirmation_status": "confirmed"
+      }
+    ],
+    "proposals": [
+      {
+        "id": "2e5cec1d-1b8e-5db2-b8d1-aa5a3644f263",
+        "proposal_type": "event",
+        "payload": {
+          "chapter": 1,
+          "summary": "Minh bên trái gặp Minh bên phải.",
+          "locations": [],
+          "event_type": "meeting",
+          "consequences": [],
+          "participants": [
+            "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+            "03a22edb-d9dc-46b5-9022-7c3b5474286f"
+          ],
+          "chapter_number": 1
+        },
+        "evidence": [
+          {
+            "end": 32,
+            "quote": "Minh bên trái gặp Minh bên phải.",
+            "start": 0,
+            "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+            "chapter_id": "480eca53-9c3f-4a76-a0e7-0c821112ec0b",
+            "revision_id": "0685c86f-4540-4280-b6a2-f586faa25cfe",
+            "chapter_number": 1
+          }
+        ],
+        "status": "accepted"
+      },
+      {
+        "id": "a642516f-e192-5a93-bd8e-74dafa351e41",
+        "proposal_type": "state_transition",
+        "payload": {
+          "event_id": "2e5cec1d-1b8e-5db2-b8d1-aa5a3644f263",
+          "entity_id": "03a22edb-d9dc-46b5-9022-7c3b5474286f",
+          "new_value": {
+            "ed5ba9c4-c392-4d86-91fa-b9a935bfc668": "knows"
+          },
+          "attribute_key": "active_relationships"
+        },
+        "evidence": [
+          {
+            "end": 32,
+            "quote": "Minh bên trái gặp Minh bên phải.",
+            "start": 0,
+            "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+            "chapter_id": "480eca53-9c3f-4a76-a0e7-0c821112ec0b",
+            "revision_id": "0685c86f-4540-4280-b6a2-f586faa25cfe",
+            "chapter_number": 1
+          }
+        ],
+        "status": "accepted"
+      },
+      {
+        "id": "87c1780f-a788-535e-89c3-5a3f3ddbb176",
+        "proposal_type": "fact",
+        "payload": {
+          "fact_key": "mood",
+          "fact_type": "narrative_fact",
+          "fact_value": "calm",
+          "chapter_number": 1,
+          "subject_entity_id": "ed5ba9c4-c392-4d86-91fa-b9a935bfc668"
+        },
+        "evidence": [
+          {
+            "end": 32,
+            "quote": "Minh bên trái gặp Minh bên phải.",
+            "start": 0,
+            "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+            "chapter_id": "480eca53-9c3f-4a76-a0e7-0c821112ec0b",
+            "revision_id": "0685c86f-4540-4280-b6a2-f586faa25cfe",
+            "chapter_number": 1
+          }
+        ],
+        "status": "accepted"
+      }
+    ],
+    "events": [
+      {
+        "id": "2e5cec1d-1b8e-5db2-b8d1-aa5a3644f263",
+        "participants": [
+          "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+          "03a22edb-d9dc-46b5-9022-7c3b5474286f"
+        ],
+        "event_metadata": {
+          "chapter": 1,
+          "summary": "Minh bên trái gặp Minh bên phải.",
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "480eca53-9c3f-4a76-a0e7-0c821112ec0b",
+              "revision_id": "0685c86f-4540-4280-b6a2-f586faa25cfe",
+              "chapter_number": 1
+            }
+          ],
+          "locations": [],
+          "event_type": "meeting",
+          "consequences": [],
+          "participants": [
+            "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+            "03a22edb-d9dc-46b5-9022-7c3b5474286f"
+          ],
+          "chapter_number": 1
+        }
+      }
+    ],
+    "facts": [
+      {
+        "id": "d08ee499-ced4-481a-a5f0-4ad49c7de93e",
+        "subject_entity_id": "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+        "fact_key": "mood",
+        "source_revision_id": "0685c86f-4540-4280-b6a2-f586faa25cfe"
+      }
+    ],
+    "current_entity_states": [
+      {
+        "entity_id": "ed5ba9c4-c392-4d86-91fa-b9a935bfc668",
+        "state": {
+          "mood": "calm"
+        },
+        "provenance": {
+          "mood": {
+            "fact_id": "d08ee499-ced4-481a-a5f0-4ad49c7de93e",
+            "event_id": null,
+            "transition_id": "eba59f2b-2c65-5c26-bef4-a3f34bda4831"
+          }
+        }
+      },
+      {
+        "entity_id": "03a22edb-d9dc-46b5-9022-7c3b5474286f",
+        "state": {
+          "active_relationships": {
+            "ed5ba9c4-c392-4d86-91fa-b9a935bfc668": "knows"
+          }
+        },
+        "provenance": {
+          "active_relationships": {
+            "fact_id": null,
+            "event_id": "2e5cec1d-1b8e-5db2-b8d1-aa5a3644f263",
+            "transition_id": "a642516f-e192-5a93-bd8e-74dafa351e41"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "stage": "H02-pending-exact-ids-alias-True",
+    "run_id": "9def3d3d-bd48-4c0b-88f7-4cf31807da9f",
+    "story_brains": [
+      {
+        "id": "b698b707-e341-4f4b-9a7b-e04ccb8480cc",
+        "brain_version": 1,
+        "entity_guidance": null
+      }
+    ],
+    "analysis_runs": [
+      {
+        "id": "9def3d3d-bd48-4c0b-88f7-4cf31807da9f",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 66,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 6,
+            "candidates": 6
+          },
+          "policy": "entity-candidates-v1",
+          "status": "completed",
+          "aliases": [
+            {
+              "end": 48,
+              "alias": "M",
+              "start": 47,
+              "entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "confidence": 0.7,
+              "entity_name": "Minh",
+              "identity_quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "provisional_identity_key": ""
+            },
+            {
+              "end": 65,
+              "alias": "M",
+              "start": 64,
+              "entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+              "confidence": 0.7,
+              "entity_name": "Minh",
+              "identity_quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "provisional_identity_key": ""
+            }
+          ],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": true
+            },
+            "novel_id": "65e0ed0b-3d36-4d41-ac6f-cd9cf7172300",
+            "operation": "incremental_story_analysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "74740ad0-3dd9-45d7-9d5b-ea51e5b80493",
+            "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+            "content_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+            "idempotency_key": "581e67cc-8f11-4151-9a07-b38250b230aa"
+          },
+          "entities": [
+            {
+              "score": 7.0,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "occurrences": [
+                {
+                  "end": 4,
+                  "quote": "Minh",
+                  "start": 0,
+                  "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+                  "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+                  "candidate_id": "7c35a222d63e1eb2f0850f1e"
+                },
+                {
+                  "end": 37,
+                  "quote": "Minh",
+                  "start": 33,
+                  "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+                  "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+                  "candidate_id": "9f5df0a949b9516a59f01a69"
+                },
+                {
+                  "end": 48,
+                  "quote": "M",
+                  "start": 47,
+                  "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+                  "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+                  "candidate_id": "af4da459198b0b336307cc2e"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "7c35a222d63e1eb2f0850f1e",
+                "9f5df0a949b9516a59f01a69",
+                "af4da459198b0b336307cc2e"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "score": 7.0,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+              "occurrences": [
+                {
+                  "end": 22,
+                  "quote": "Minh",
+                  "start": 18,
+                  "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+                  "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+                  "candidate_id": "066b35c6f26994f484317421"
+                },
+                {
+                  "end": 54,
+                  "quote": "Minh",
+                  "start": 50,
+                  "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+                  "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+                  "candidate_id": "66fae008aad54c5d8d02bb63"
+                },
+                {
+                  "end": 65,
+                  "quote": "M",
+                  "start": 64,
+                  "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+                  "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+                  "candidate_id": "5a5cd7163cd9e4d82ba80b27"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 22,
+              "candidate_ids": [
+                "066b35c6f26994f484317421",
+                "66fae008aad54c5d8d02bb63",
+                "5a5cd7163cd9e4d82ba80b27"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 18,
+              "canonical_entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+              "provisional_identity_key": ""
+            }
+          ],
+          "decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "7c35a222d63e1eb2f0850f1e",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "066b35c6f26994f484317421",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "9f5df0a949b9516a59f01a69",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "af4da459198b0b336307cc2e",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "66fae008aad54c5d8d02bb63",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "5a5cd7163cd9e4d82ba80b27",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "origins": [
+                "approved_name_or_alias",
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 66,
+              "candidate_id": "7c35a222d63e1eb2f0850f1e",
+              "context_start": 0
+            },
+            {
+              "end": 22,
+              "start": 18,
+              "context": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "origins": [
+                "approved_name_or_alias",
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 66,
+              "candidate_id": "066b35c6f26994f484317421",
+              "context_start": 0
+            },
+            {
+              "end": 37,
+              "start": 33,
+              "context": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "origins": [
+                "approved_name_or_alias",
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 66,
+              "candidate_id": "9f5df0a949b9516a59f01a69",
+              "context_start": 0
+            },
+            {
+              "end": 48,
+              "start": 47,
+              "context": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "M",
+              "context_end": 66,
+              "candidate_id": "af4da459198b0b336307cc2e",
+              "context_start": 0
+            },
+            {
+              "end": 54,
+              "start": 50,
+              "context": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "origins": [
+                "approved_name_or_alias",
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 66,
+              "candidate_id": "66fae008aad54c5d8d02bb63",
+              "context_start": 0
+            },
+            {
+              "end": 65,
+              "start": 64,
+              "context": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "M",
+              "context_end": 66,
+              "candidate_id": "5a5cd7163cd9e4d82ba80b27",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "74740ad0-3dd9-45d7-9d5b-ea51e5b80493",
+          "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+          "source_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 2,
+          "analysis_run_id": "9def3d3d-bd48-4c0b-88f7-4cf31807da9f",
+          "review_finalize": true,
+          "guidance_version": 0,
+          "reviewed_decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "7c35a222d63e1eb2f0850f1e",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "066b35c6f26994f484317421",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "9f5df0a949b9516a59f01a69",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "af4da459198b0b336307cc2e",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "66fae008aad54c5d8d02bb63",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "5a5cd7163cd9e4d82ba80b27",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+              "provisional_identity_key": ""
+            }
+          ],
+          "review_input_version": 1,
+          "pending_candidate_ids": [],
+          "unanchored_discoveries": [],
+          "identity_inventory_version": 2,
+          "provisional_identity_scope": "d622ed5f66c920f03e22bdf9dcd257fbc871e9767c3e880a8322c0f066ef6083",
+          "review_submitted_decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "7c35a222d63e1eb2f0850f1e",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "066b35c6f26994f484317421",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "9f5df0a949b9516a59f01a69",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "af4da459198b0b336307cc2e",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "66fae008aad54c5d8d02bb63",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "5a5cd7163cd9e4d82ba80b27",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+              "provisional_identity_key": ""
+            }
+          ]
+        }
+      }
+    ],
+    "entities": [
+      {
+        "id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+        "canonical_name": "Minh",
+        "confirmation_status": "confirmed"
+      },
+      {
+        "id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+        "canonical_name": "Minh",
+        "confirmation_status": "confirmed"
+      }
+    ],
+    "proposals": [
+      {
+        "id": "824e03d3-f4eb-5602-9350-4fc93219177e",
+        "proposal_type": "fact",
+        "payload": {
+          "fact_key": "mood",
+          "fact_type": "narrative_fact",
+          "fact_value": "calm",
+          "chapter_number": 1,
+          "subject_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9"
+        },
+        "evidence": [
+          {
+            "end": 66,
+            "quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+            "start": 0,
+            "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+            "chapter_id": "74740ad0-3dd9-45d7-9d5b-ea51e5b80493",
+            "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+            "chapter_number": 1
+          }
+        ],
+        "status": "pending"
+      },
+      {
+        "id": "06dde89e-b9cf-5c02-963a-38e8d90f65b2",
+        "proposal_type": "alias",
+        "payload": {
+          "alias": "M",
+          "entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+          "entity_name": "Minh",
+          "chapter_number": 1
+        },
+        "evidence": [
+          {
+            "end": 66,
+            "quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+            "start": 0,
+            "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+            "chapter_id": "74740ad0-3dd9-45d7-9d5b-ea51e5b80493",
+            "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+            "chapter_number": 1
+          }
+        ],
+        "status": "pending"
+      },
+      {
+        "id": "a114ecc4-a514-56fe-9e0f-682829fd89a2",
+        "proposal_type": "alias",
+        "payload": {
+          "alias": "M",
+          "entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+          "entity_name": "Minh",
+          "chapter_number": 1
+        },
+        "evidence": [
+          {
+            "end": 66,
+            "quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+            "start": 0,
+            "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+            "chapter_id": "74740ad0-3dd9-45d7-9d5b-ea51e5b80493",
+            "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+            "chapter_number": 1
+          }
+        ],
+        "status": "pending"
+      },
+      {
+        "id": "2857711b-0f34-503d-bb44-0747a75c5a49",
+        "proposal_type": "event",
+        "payload": {
+          "chapter": 1,
+          "summary": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+          "locations": [],
+          "event_type": "meeting",
+          "consequences": [],
+          "participants": [
+            "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+            "ccc66e79-45ad-4e4e-8fef-45d6e298edcc"
+          ],
+          "chapter_number": 1
+        },
+        "evidence": [
+          {
+            "end": 66,
+            "quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+            "start": 0,
+            "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+            "chapter_id": "74740ad0-3dd9-45d7-9d5b-ea51e5b80493",
+            "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+            "chapter_number": 1
+          }
+        ],
+        "status": "pending"
+      },
+      {
+        "id": "2234e5c7-85e9-54fc-8545-c69e9df943fe",
+        "proposal_type": "state_transition",
+        "payload": {
+          "event_id": "2857711b-0f34-503d-bb44-0747a75c5a49",
+          "entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+          "new_value": {
+            "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9": "knows"
+          },
+          "attribute_key": "active_relationships"
+        },
+        "evidence": [
+          {
+            "end": 66,
+            "quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+            "start": 0,
+            "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+            "chapter_id": "74740ad0-3dd9-45d7-9d5b-ea51e5b80493",
+            "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+            "chapter_number": 1
+          }
+        ],
+        "status": "pending"
+      }
+    ],
+    "events": [],
+    "facts": [],
+    "current_entity_states": []
+  },
+  {
+    "stage": "H02-approved-exact-ids-alias-True",
+    "run_id": "9def3d3d-bd48-4c0b-88f7-4cf31807da9f",
+    "story_brains": [
+      {
+        "id": "b698b707-e341-4f4b-9a7b-e04ccb8480cc",
+        "brain_version": 2,
+        "entity_guidance": null
+      }
+    ],
+    "analysis_runs": [
+      {
+        "id": "9def3d3d-bd48-4c0b-88f7-4cf31807da9f",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 66,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 6,
+            "candidates": 6
+          },
+          "policy": "entity-candidates-v1",
+          "status": "completed",
+          "aliases": [
+            {
+              "end": 48,
+              "alias": "M",
+              "start": 47,
+              "entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "confidence": 0.7,
+              "entity_name": "Minh",
+              "identity_quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "provisional_identity_key": ""
+            },
+            {
+              "end": 65,
+              "alias": "M",
+              "start": 64,
+              "entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+              "confidence": 0.7,
+              "entity_name": "Minh",
+              "identity_quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "provisional_identity_key": ""
+            }
+          ],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": true
+            },
+            "novel_id": "65e0ed0b-3d36-4d41-ac6f-cd9cf7172300",
+            "operation": "incremental_story_analysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "74740ad0-3dd9-45d7-9d5b-ea51e5b80493",
+            "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+            "content_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+            "idempotency_key": "581e67cc-8f11-4151-9a07-b38250b230aa"
+          },
+          "entities": [
+            {
+              "score": 7.0,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "occurrences": [
+                {
+                  "end": 4,
+                  "quote": "Minh",
+                  "start": 0,
+                  "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+                  "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+                  "candidate_id": "7c35a222d63e1eb2f0850f1e"
+                },
+                {
+                  "end": 37,
+                  "quote": "Minh",
+                  "start": 33,
+                  "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+                  "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+                  "candidate_id": "9f5df0a949b9516a59f01a69"
+                },
+                {
+                  "end": 48,
+                  "quote": "M",
+                  "start": 47,
+                  "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+                  "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+                  "candidate_id": "af4da459198b0b336307cc2e"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "7c35a222d63e1eb2f0850f1e",
+                "9f5df0a949b9516a59f01a69",
+                "af4da459198b0b336307cc2e"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "score": 7.0,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+              "occurrences": [
+                {
+                  "end": 22,
+                  "quote": "Minh",
+                  "start": 18,
+                  "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+                  "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+                  "candidate_id": "066b35c6f26994f484317421"
+                },
+                {
+                  "end": 54,
+                  "quote": "Minh",
+                  "start": 50,
+                  "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+                  "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+                  "candidate_id": "66fae008aad54c5d8d02bb63"
+                },
+                {
+                  "end": 65,
+                  "quote": "M",
+                  "start": 64,
+                  "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+                  "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+                  "candidate_id": "5a5cd7163cd9e4d82ba80b27"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 22,
+              "candidate_ids": [
+                "066b35c6f26994f484317421",
+                "66fae008aad54c5d8d02bb63",
+                "5a5cd7163cd9e4d82ba80b27"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 18,
+              "canonical_entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+              "provisional_identity_key": ""
+            }
+          ],
+          "decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "7c35a222d63e1eb2f0850f1e",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "066b35c6f26994f484317421",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "9f5df0a949b9516a59f01a69",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "af4da459198b0b336307cc2e",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "66fae008aad54c5d8d02bb63",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "5a5cd7163cd9e4d82ba80b27",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "origins": [
+                "approved_name_or_alias",
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 66,
+              "candidate_id": "7c35a222d63e1eb2f0850f1e",
+              "context_start": 0
+            },
+            {
+              "end": 22,
+              "start": 18,
+              "context": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "origins": [
+                "approved_name_or_alias",
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 66,
+              "candidate_id": "066b35c6f26994f484317421",
+              "context_start": 0
+            },
+            {
+              "end": 37,
+              "start": 33,
+              "context": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "origins": [
+                "approved_name_or_alias",
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 66,
+              "candidate_id": "9f5df0a949b9516a59f01a69",
+              "context_start": 0
+            },
+            {
+              "end": 48,
+              "start": 47,
+              "context": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "M",
+              "context_end": 66,
+              "candidate_id": "af4da459198b0b336307cc2e",
+              "context_start": 0
+            },
+            {
+              "end": 54,
+              "start": 50,
+              "context": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "origins": [
+                "approved_name_or_alias",
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 66,
+              "candidate_id": "66fae008aad54c5d8d02bb63",
+              "context_start": 0
+            },
+            {
+              "end": 65,
+              "start": 64,
+              "context": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "origins": [
+                "capitalized_token"
+              ],
+              "surface": "M",
+              "context_end": 66,
+              "candidate_id": "5a5cd7163cd9e4d82ba80b27",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "74740ad0-3dd9-45d7-9d5b-ea51e5b80493",
+          "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+          "source_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 2,
+          "analysis_run_id": "9def3d3d-bd48-4c0b-88f7-4cf31807da9f",
+          "review_finalize": true,
+          "guidance_version": 0,
+          "reviewed_decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "7c35a222d63e1eb2f0850f1e",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "066b35c6f26994f484317421",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "9f5df0a949b9516a59f01a69",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "af4da459198b0b336307cc2e",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "66fae008aad54c5d8d02bb63",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "5a5cd7163cd9e4d82ba80b27",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+              "provisional_identity_key": ""
+            }
+          ],
+          "review_input_version": 1,
+          "pending_candidate_ids": [],
+          "unanchored_discoveries": [],
+          "identity_inventory_version": 2,
+          "provisional_identity_scope": "d622ed5f66c920f03e22bdf9dcd257fbc871e9767c3e880a8322c0f066ef6083",
+          "review_submitted_decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "7c35a222d63e1eb2f0850f1e",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "066b35c6f26994f484317421",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "9f5df0a949b9516a59f01a69",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "af4da459198b0b336307cc2e",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "66fae008aad54c5d8d02bb63",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "5a5cd7163cd9e4d82ba80b27",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+              "provisional_identity_key": ""
+            }
+          ]
+        }
+      }
+    ],
+    "entities": [
+      {
+        "id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+        "canonical_name": "Minh",
+        "confirmation_status": "confirmed"
+      },
+      {
+        "id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+        "canonical_name": "Minh",
+        "confirmation_status": "confirmed"
+      }
+    ],
+    "proposals": [
+      {
+        "id": "824e03d3-f4eb-5602-9350-4fc93219177e",
+        "proposal_type": "fact",
+        "payload": {
+          "fact_key": "mood",
+          "fact_type": "narrative_fact",
+          "fact_value": "calm",
+          "chapter_number": 1,
+          "subject_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9"
+        },
+        "evidence": [
+          {
+            "end": 66,
+            "quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+            "start": 0,
+            "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+            "chapter_id": "74740ad0-3dd9-45d7-9d5b-ea51e5b80493",
+            "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+            "chapter_number": 1
+          }
+        ],
+        "status": "accepted"
+      },
+      {
+        "id": "06dde89e-b9cf-5c02-963a-38e8d90f65b2",
+        "proposal_type": "alias",
+        "payload": {
+          "alias": "M",
+          "entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+          "entity_name": "Minh",
+          "chapter_number": 1
+        },
+        "evidence": [
+          {
+            "end": 66,
+            "quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+            "start": 0,
+            "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+            "chapter_id": "74740ad0-3dd9-45d7-9d5b-ea51e5b80493",
+            "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+            "chapter_number": 1
+          }
+        ],
+        "status": "accepted"
+      },
+      {
+        "id": "a114ecc4-a514-56fe-9e0f-682829fd89a2",
+        "proposal_type": "alias",
+        "payload": {
+          "alias": "M",
+          "entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+          "entity_name": "Minh",
+          "chapter_number": 1
+        },
+        "evidence": [
+          {
+            "end": 66,
+            "quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+            "start": 0,
+            "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+            "chapter_id": "74740ad0-3dd9-45d7-9d5b-ea51e5b80493",
+            "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+            "chapter_number": 1
+          }
+        ],
+        "status": "accepted"
+      },
+      {
+        "id": "2857711b-0f34-503d-bb44-0747a75c5a49",
+        "proposal_type": "event",
+        "payload": {
+          "chapter": 1,
+          "summary": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+          "locations": [],
+          "event_type": "meeting",
+          "consequences": [],
+          "participants": [
+            "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+            "ccc66e79-45ad-4e4e-8fef-45d6e298edcc"
+          ],
+          "chapter_number": 1
+        },
+        "evidence": [
+          {
+            "end": 66,
+            "quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+            "start": 0,
+            "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+            "chapter_id": "74740ad0-3dd9-45d7-9d5b-ea51e5b80493",
+            "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+            "chapter_number": 1
+          }
+        ],
+        "status": "accepted"
+      },
+      {
+        "id": "2234e5c7-85e9-54fc-8545-c69e9df943fe",
+        "proposal_type": "state_transition",
+        "payload": {
+          "event_id": "2857711b-0f34-503d-bb44-0747a75c5a49",
+          "entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+          "new_value": {
+            "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9": "knows"
+          },
+          "attribute_key": "active_relationships"
+        },
+        "evidence": [
+          {
+            "end": 66,
+            "quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+            "start": 0,
+            "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+            "chapter_id": "74740ad0-3dd9-45d7-9d5b-ea51e5b80493",
+            "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+            "chapter_number": 1
+          }
+        ],
+        "status": "accepted"
+      }
+    ],
+    "events": [
+      {
+        "id": "2857711b-0f34-503d-bb44-0747a75c5a49",
+        "participants": [
+          "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+          "ccc66e79-45ad-4e4e-8fef-45d6e298edcc"
+        ],
+        "event_metadata": {
+          "chapter": 1,
+          "summary": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+          "evidence": [
+            {
+              "end": 66,
+              "quote": "Minh bên trái gặp Minh bên phải. Minh trái gọi M; Minh phải gọi M.",
+              "start": 0,
+              "text_hash": "38013d61069b0223326a0b469a649ca646ee00b438c04128e4474ab958aaf97a",
+              "chapter_id": "74740ad0-3dd9-45d7-9d5b-ea51e5b80493",
+              "revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0",
+              "chapter_number": 1
+            }
+          ],
+          "locations": [],
+          "event_type": "meeting",
+          "consequences": [],
+          "participants": [
+            "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+            "ccc66e79-45ad-4e4e-8fef-45d6e298edcc"
+          ],
+          "chapter_number": 1
+        }
+      }
+    ],
+    "facts": [
+      {
+        "id": "c7bb901f-15ba-4df9-923e-db391c040077",
+        "subject_entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+        "fact_key": "mood",
+        "source_revision_id": "46eba7fe-b34f-473b-949c-cf0e5b680dd0"
+      }
+    ],
+    "current_entity_states": [
+      {
+        "entity_id": "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9",
+        "state": {
+          "mood": "calm"
+        },
+        "provenance": {
+          "mood": {
+            "fact_id": "c7bb901f-15ba-4df9-923e-db391c040077",
+            "event_id": null,
+            "transition_id": "70adcc24-76e7-5fdc-8a41-e7bce535f357"
+          }
+        }
+      },
+      {
+        "entity_id": "ccc66e79-45ad-4e4e-8fef-45d6e298edcc",
+        "state": {
+          "active_relationships": {
+            "2ec1dff7-5365-4773-aa4b-1f3f8c5f86e9": "knows"
+          }
+        },
+        "provenance": {
+          "active_relationships": {
+            "fact_id": null,
+            "event_id": "2857711b-0f34-503d-bb44-0747a75c5a49",
+            "transition_id": "2234e5c7-85e9-54fc-8545-c69e9df943fe"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "stage": "H04-two-new-homonyms-frozen",
+    "run_id": "6f4aac40-413e-446a-8be6-54aa86757185",
+    "story_brains": [
+      {
+        "id": "84a838c5-da3f-4f9c-81b8-6f237d7f1718",
+        "brain_version": 1,
+        "entity_guidance": null
+      }
+    ],
+    "analysis_runs": [
+      {
+        "id": "6f4aac40-413e-446a-8be6-54aa86757185",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 14,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 2,
+            "candidates": 2
+          },
+          "policy": "entity-candidates-v1",
+          "status": "entities_reviewed",
+          "aliases": [],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": false
+            },
+            "novel_id": "0f1b8c07-12a8-4dd7-8203-77d0d3cdd806",
+            "operation": "incremental_story_analysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "c79f2141-c997-4945-aedc-00e19da44176",
+            "revision_id": "553d1061-667d-4ca0-8618-91b0e15e528f",
+            "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+            "idempotency_key": "ff865371-11b5-4d2d-8664-093e75e21da5"
+          },
+          "entities": [
+            {
+              "score": 7.0,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "ca2160c7-2f81-4393-83cb-f40213262553",
+              "occurrences": [
+                {
+                  "end": 4,
+                  "quote": "Minh",
+                  "start": 0,
+                  "text_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+                  "revision_id": "553d1061-667d-4ca0-8618-91b0e15e528f",
+                  "candidate_id": "d9e6919b617c46fa17ccc893"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "d9e6919b617c46fa17ccc893"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "d5bf70ba9e752c4f03b489bfd9689403ed0a304fcaba77eafa5a7803301c82c3/0"
+            },
+            {
+              "score": 7.0,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "20ccf389-b26c-4725-833a-e4fc76b14bbf",
+              "occurrences": [
+                {
+                  "end": 13,
+                  "quote": "Minh",
+                  "start": 9,
+                  "text_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+                  "revision_id": "553d1061-667d-4ca0-8618-91b0e15e528f",
+                  "candidate_id": "1db9c58d32e307f67550d1b3"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 13,
+              "candidate_ids": [
+                "1db9c58d32e307f67550d1b3"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 9,
+              "canonical_entity_id": "",
+              "provisional_identity_key": "d5bf70ba9e752c4f03b489bfd9689403ed0a304fcaba77eafa5a7803301c82c3/1"
+            }
+          ],
+          "decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "d9e6919b617c46fa17ccc893",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "1db9c58d32e307f67550d1b3",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Minh gặp Minh.",
+              "origins": [
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 14,
+              "candidate_id": "d9e6919b617c46fa17ccc893",
+              "context_start": 0
+            },
+            {
+              "end": 13,
+              "start": 9,
+              "context": "Minh gặp Minh.",
+              "origins": [
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 14,
+              "candidate_id": "1db9c58d32e307f67550d1b3",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "c79f2141-c997-4945-aedc-00e19da44176",
+          "revision_id": "553d1061-667d-4ca0-8618-91b0e15e528f",
+          "source_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 2,
+          "analysis_run_id": "6f4aac40-413e-446a-8be6-54aa86757185",
+          "review_finalize": true,
+          "guidance_version": 0,
+          "reviewed_decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "d9e6919b617c46fa17ccc893",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "d5bf70ba9e752c4f03b489bfd9689403ed0a304fcaba77eafa5a7803301c82c3/0"
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "1db9c58d32e307f67550d1b3",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "d5bf70ba9e752c4f03b489bfd9689403ed0a304fcaba77eafa5a7803301c82c3/1"
+            }
+          ],
+          "review_input_version": 1,
+          "pending_candidate_ids": [],
+          "unanchored_discoveries": [],
+          "identity_inventory_version": 2,
+          "provisional_identity_scope": "d5bf70ba9e752c4f03b489bfd9689403ed0a304fcaba77eafa5a7803301c82c3",
+          "review_submitted_decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "d9e6919b617c46fa17ccc893",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "d5bf70ba9e752c4f03b489bfd9689403ed0a304fcaba77eafa5a7803301c82c3/0"
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "1db9c58d32e307f67550d1b3",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": "d5bf70ba9e752c4f03b489bfd9689403ed0a304fcaba77eafa5a7803301c82c3/1"
+            }
+          ]
+        }
+      }
+    ],
+    "entities": [],
+    "proposals": [],
+    "events": [],
+    "facts": [],
+    "current_entity_states": []
+  },
+  {
+    "stage": "H04-ambiguous-review-unchanged",
+    "run_id": "3307fb32-f9fa-4220-9123-17dd7aeea294",
+    "story_brains": [
+      {
+        "id": "96bccc37-4fdd-44b5-b5cc-8e9cf176eb44",
+        "brain_version": 1,
+        "entity_guidance": null
+      }
+    ],
+    "analysis_runs": [
+      {
+        "id": "3307fb32-f9fa-4220-9123-17dd7aeea294",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 14,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 2,
+            "candidates": 2
+          },
+          "policy": "entity-candidates-v1",
+          "status": "waiting_entity_review",
+          "aliases": [],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": false
+            },
+            "novel_id": "0b075139-8302-47b0-a6af-85375361ceee",
+            "operation": "incremental_story_analysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "869fd1eb-4884-4512-abca-a67d62f3492e",
+            "revision_id": "4f400045-3e2a-4c3c-bf0e-c92c713fc456",
+            "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+            "idempotency_key": "36ea8dc7-3d28-4861-805b-9d5ef17cd4fc"
+          },
+          "entities": [],
+          "decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "d9e6919b617c46fa17ccc893",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "1db9c58d32e307f67550d1b3",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "",
+              "provisional_identity_key": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Minh gặp Minh.",
+              "origins": [
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 14,
+              "candidate_id": "d9e6919b617c46fa17ccc893",
+              "context_start": 0
+            },
+            {
+              "end": 13,
+              "start": 9,
+              "context": "Minh gặp Minh.",
+              "origins": [
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 14,
+              "candidate_id": "1db9c58d32e307f67550d1b3",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "869fd1eb-4884-4512-abca-a67d62f3492e",
+          "revision_id": "4f400045-3e2a-4c3c-bf0e-c92c713fc456",
+          "source_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 1,
+          "analysis_run_id": "3307fb32-f9fa-4220-9123-17dd7aeea294",
+          "guidance_version": 0,
+          "unanchored_discoveries": [],
+          "provisional_identity_scope": "46fe57d43822cc4d23046e42e49fc8e5ece0bde220f3c1b7028b3c7db5ec1fbe"
+        }
+      }
+    ],
+    "entities": [],
+    "proposals": [],
+    "events": [],
+    "facts": [],
+    "current_entity_states": []
+  },
+  {
+    "stage": "H05-exact-lock-and-independent-homonym",
+    "run_id": "e58a5d12-0584-4dfa-8f62-0fb69f9f7ded",
+    "story_brains": [
+      {
+        "id": "bd5b1bf6-c8cb-4cbd-b666-31c65a6db23a",
+        "brain_version": 2,
+        "entity_guidance": null
+      }
+    ],
+    "analysis_runs": [
+      {
+        "id": "e58a5d12-0584-4dfa-8f62-0fb69f9f7ded",
+        "entity_candidate_audit": {
+          "chunks": [
+            {
+              "end": 32,
+              "start": 0
+            }
+          ],
+          "counts": {
+            "entity": 2,
+            "candidates": 2
+          },
+          "policy": "entity-candidates-v1",
+          "status": "completed",
+          "aliases": [],
+          "request": {
+            "options": {
+              "extract_events": true,
+              "build_embeddings": false,
+              "extract_entities": true,
+              "check_consistency": true,
+              "extract_world_rules": true,
+              "extract_state_transitions": true
+            },
+            "novel_id": "43d5d528-7da3-434e-9276-163568a24bd2",
+            "operation": "incremental_story_analysis",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "chapter_id": "60041c56-df20-4dd3-a0a4-7a8d3d39d2ec",
+            "revision_id": "258c2dbe-27bc-4600-8d42-bc2804f56879",
+            "content_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+            "idempotency_key": "457d92ed-81cf-441c-9bc1-99d5a4a88bad"
+          },
+          "entities": [
+            {
+              "score": 7.0,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "08f796d1-2fde-4a95-bfa6-25f1b1c2c412",
+              "occurrences": [
+                {
+                  "end": 4,
+                  "quote": "Minh",
+                  "start": 0,
+                  "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+                  "revision_id": "258c2dbe-27bc-4600-8d42-bc2804f56879",
+                  "candidate_id": "9389322d7e8db9905c8bac44"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 4,
+              "candidate_ids": [
+                "9389322d7e8db9905c8bac44"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 0,
+              "canonical_entity_id": "08f796d1-2fde-4a95-bfa6-25f1b1c2c412",
+              "provisional_identity_key": ""
+            },
+            {
+              "score": 7.0,
+              "entity": "PER",
+              "phrase": "Minh",
+              "entity_id": "c3ebc632-c3b5-41e4-a63a-3f53a12ccc51",
+              "occurrences": [
+                {
+                  "end": 22,
+                  "quote": "Minh",
+                  "start": 18,
+                  "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+                  "revision_id": "258c2dbe-27bc-4600-8d42-bc2804f56879",
+                  "candidate_id": "63151984d652c168e6cab060"
+                }
+              ],
+              "status_quote": "",
+              "verified_end": 22,
+              "candidate_ids": [
+                "63151984d652c168e6cab060"
+              ],
+              "initial_status": "Unknown",
+              "verified_start": 18,
+              "canonical_entity_id": "c3ebc632-c3b5-41e4-a63a-3f53a12ccc51",
+              "provisional_identity_key": ""
+            }
+          ],
+          "decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "9389322d7e8db9905c8bac44",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "08f796d1-2fde-4a95-bfa6-25f1b1c2c412",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "63151984d652c168e6cab060",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "08f796d1-2fde-4a95-bfa6-25f1b1c2c412",
+              "provisional_identity_key": ""
+            }
+          ],
+          "candidates": [
+            {
+              "end": 4,
+              "start": 0,
+              "context": "Minh bên trái gặp Minh bên phải.",
+              "origins": [
+                "approved_name_or_alias",
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 32,
+              "candidate_id": "9389322d7e8db9905c8bac44",
+              "context_start": 0
+            },
+            {
+              "end": 22,
+              "start": 18,
+              "context": "Minh bên trái gặp Minh bên phải.",
+              "origins": [
+                "approved_name_or_alias",
+                "capitalized_token",
+                "llm_discovery"
+              ],
+              "surface": "Minh",
+              "context_end": 32,
+              "candidate_id": "63151984d652c168e6cab060",
+              "context_start": 0
+            }
+          ],
+          "chapter_id": "60041c56-df20-4dd3-a0a4-7a8d3d39d2ec",
+          "revision_id": "258c2dbe-27bc-4600-8d42-bc2804f56879",
+          "source_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+          "brain_version": 1,
+          "chapter_number": 1,
+          "review_version": 2,
+          "analysis_run_id": "e58a5d12-0584-4dfa-8f62-0fb69f9f7ded",
+          "review_finalize": true,
+          "guidance_version": 0,
+          "reviewed_decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "9389322d7e8db9905c8bac44",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "08f796d1-2fde-4a95-bfa6-25f1b1c2c412",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "63151984d652c168e6cab060",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "c3ebc632-c3b5-41e4-a63a-3f53a12ccc51",
+              "provisional_identity_key": ""
+            }
+          ],
+          "review_input_version": 1,
+          "pending_candidate_ids": [],
+          "unanchored_discoveries": [],
+          "identity_inventory_version": 2,
+          "provisional_identity_scope": "6e4b9f4ab5337da4a078e004d3062a1c8116fd395f2f2893c54eef214fb8abc1",
+          "review_submitted_decisions": [
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "9389322d7e8db9905c8bac44",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "08f796d1-2fde-4a95-bfa6-25f1b1c2c412",
+              "provisional_identity_key": ""
+            },
+            {
+              "reason": "controlled semantic verification",
+              "verdict": "entity",
+              "confidence": 0.7,
+              "entity_type": "PER",
+              "candidate_id": "63151984d652c168e6cab060",
+              "status_quote": "",
+              "canonical_name": "Minh",
+              "identity_quote": "",
+              "initial_status": "Unknown",
+              "canonical_entity_id": "c3ebc632-c3b5-41e4-a63a-3f53a12ccc51",
+              "provisional_identity_key": ""
+            }
+          ]
+        }
+      }
+    ],
+    "entities": [
+      {
+        "id": "08f796d1-2fde-4a95-bfa6-25f1b1c2c412",
+        "canonical_name": "Minh",
+        "confirmation_status": "confirmed"
+      },
+      {
+        "id": "c3ebc632-c3b5-41e4-a63a-3f53a12ccc51",
+        "canonical_name": "Minh",
+        "confirmation_status": "confirmed"
+      }
+    ],
+    "proposals": [
+      {
+        "id": "a80a17ea-f9aa-5679-8892-fe34ffc8e663",
+        "proposal_type": "event",
+        "payload": {
+          "chapter": 1,
+          "summary": "Minh bên trái gặp Minh bên phải.",
+          "locations": [],
+          "event_type": "meeting",
+          "consequences": [],
+          "participants": [
+            "08f796d1-2fde-4a95-bfa6-25f1b1c2c412",
+            "c3ebc632-c3b5-41e4-a63a-3f53a12ccc51"
+          ],
+          "chapter_number": 1
+        },
+        "evidence": [
+          {
+            "end": 32,
+            "quote": "Minh bên trái gặp Minh bên phải.",
+            "start": 0,
+            "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+            "chapter_id": "60041c56-df20-4dd3-a0a4-7a8d3d39d2ec",
+            "revision_id": "258c2dbe-27bc-4600-8d42-bc2804f56879",
+            "chapter_number": 1
+          }
+        ],
+        "status": "accepted"
+      },
+      {
+        "id": "604942ad-27dd-5bb5-9541-0db8693fe1bc",
+        "proposal_type": "state_transition",
+        "payload": {
+          "event_id": "a80a17ea-f9aa-5679-8892-fe34ffc8e663",
+          "entity_id": "c3ebc632-c3b5-41e4-a63a-3f53a12ccc51",
+          "new_value": {
+            "08f796d1-2fde-4a95-bfa6-25f1b1c2c412": "knows"
+          },
+          "attribute_key": "active_relationships"
+        },
+        "evidence": [
+          {
+            "end": 32,
+            "quote": "Minh bên trái gặp Minh bên phải.",
+            "start": 0,
+            "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+            "chapter_id": "60041c56-df20-4dd3-a0a4-7a8d3d39d2ec",
+            "revision_id": "258c2dbe-27bc-4600-8d42-bc2804f56879",
+            "chapter_number": 1
+          }
+        ],
+        "status": "accepted"
+      },
+      {
+        "id": "2dc3e2e1-b4f1-5107-9c8c-ea7593b10671",
+        "proposal_type": "fact",
+        "payload": {
+          "fact_key": "mood",
+          "fact_type": "narrative_fact",
+          "fact_value": "calm",
+          "chapter_number": 1,
+          "subject_entity_id": "08f796d1-2fde-4a95-bfa6-25f1b1c2c412"
+        },
+        "evidence": [
+          {
+            "end": 32,
+            "quote": "Minh bên trái gặp Minh bên phải.",
+            "start": 0,
+            "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+            "chapter_id": "60041c56-df20-4dd3-a0a4-7a8d3d39d2ec",
+            "revision_id": "258c2dbe-27bc-4600-8d42-bc2804f56879",
+            "chapter_number": 1
+          }
+        ],
+        "status": "accepted"
+      }
+    ],
+    "events": [
+      {
+        "id": "a80a17ea-f9aa-5679-8892-fe34ffc8e663",
+        "participants": [
+          "08f796d1-2fde-4a95-bfa6-25f1b1c2c412",
+          "c3ebc632-c3b5-41e4-a63a-3f53a12ccc51"
+        ],
+        "event_metadata": {
+          "chapter": 1,
+          "summary": "Minh bên trái gặp Minh bên phải.",
+          "evidence": [
+            {
+              "end": 32,
+              "quote": "Minh bên trái gặp Minh bên phải.",
+              "start": 0,
+              "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a",
+              "chapter_id": "60041c56-df20-4dd3-a0a4-7a8d3d39d2ec",
+              "revision_id": "258c2dbe-27bc-4600-8d42-bc2804f56879",
+              "chapter_number": 1
+            }
+          ],
+          "locations": [],
+          "event_type": "meeting",
+          "consequences": [],
+          "participants": [
+            "08f796d1-2fde-4a95-bfa6-25f1b1c2c412",
+            "c3ebc632-c3b5-41e4-a63a-3f53a12ccc51"
+          ],
+          "chapter_number": 1
+        }
+      }
+    ],
+    "facts": [
+      {
+        "id": "8b39efff-390a-4a5d-81cc-ac81795c4491",
+        "subject_entity_id": "08f796d1-2fde-4a95-bfa6-25f1b1c2c412",
+        "fact_key": "mood",
+        "source_revision_id": "258c2dbe-27bc-4600-8d42-bc2804f56879"
+      }
+    ],
+    "current_entity_states": [
+      {
+        "entity_id": "08f796d1-2fde-4a95-bfa6-25f1b1c2c412",
+        "state": {
+          "mood": "calm"
+        },
+        "provenance": {
+          "mood": {
+            "fact_id": "8b39efff-390a-4a5d-81cc-ac81795c4491",
+            "event_id": null,
+            "transition_id": "ba225542-95c1-5247-ba43-3724f10e4fa2"
+          }
+        }
+      },
+      {
+        "entity_id": "c3ebc632-c3b5-41e4-a63a-3f53a12ccc51",
+        "state": {
+          "active_relationships": {
+            "08f796d1-2fde-4a95-bfa6-25f1b1c2c412": "knows"
+          }
+        },
+        "provenance": {
+          "active_relationships": {
+            "fact_id": null,
+            "event_id": "a80a17ea-f9aa-5679-8892-fe34ffc8e663",
+            "transition_id": "604942ad-27dd-5bb5-9541-0db8693fe1bc"
+          }
+        }
+      }
+    ]
+  }
+]

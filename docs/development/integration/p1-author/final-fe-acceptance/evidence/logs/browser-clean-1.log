@@ -1,0 +1,37 @@
+TAP version 13
+# Subtest: Real production Author IDE: mandatory S09–S11 and cross-feature acceptance
+not ok 1 - Real production Author IDE: mandatory S09–S11 and cross-feature acceptance
+  ---
+  duration_ms: 68115.4159
+  location: 'C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web\\tests\\p1-final-acceptance.browser.test.mjs:10:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    locator.evaluateAll: ReferenceError: path is not defined
+        at eval (eval at evaluate (:370:30), <anonymous>:1:41)
+        at Array.some (<anonymous>)
+        at eval (eval at evaluate (:370:30), <anonymous>:1:16)
+        at UtilityScript.evaluate (<anonymous>:372:16)
+        at UtilityScript.<anonymous> (<anonymous>:1:44)
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    eval (eval at evaluate (:370:30), <anonymous>:1:41)
+    Array.some (<anonymous>)
+    eval (eval at evaluate (:370:30), <anonymous>:1:16)
+    UtilityScript.evaluate (<anonymous>:372:16)
+    UtilityScript.<anonymous> (<anonymous>:1:44)
+    C:\Users\Laptop\.codex\worktrees\p1-fe-final-acceptance\testproject\web\tests\helpers\p1-cross-feature-smoke.mjs:60:49
+    until (C:\Users\Laptop\.codex\worktrees\p1-fe-final-acceptance\testproject\web\tests\helpers\p1-real-stack.mjs:20:20)
+    C:\Users\Laptop\.codex\worktrees\p1-fe-final-acceptance\testproject\web\tests\helpers\p1-cross-feature-smoke.mjs:60:11
+    async Object.step (C:\Users\Laptop\.codex\worktrees\p1-fe-final-acceptance\testproject\web\tests\helpers\p1-real-stack.mjs:153:11)
+    async crossFeatureSmoke (C:\Users\Laptop\.codex\worktrees\p1-fe-final-acceptance\testproject\web\tests\helpers\p1-cross-feature-smoke.mjs:47:3)
+    async TestContext.<anonymous> (C:\Users\Laptop\.codex\worktrees\p1-fe-final-acceptance\testproject\web\tests\p1-final-acceptance.browser.test.mjs:104:5)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 68921.9064

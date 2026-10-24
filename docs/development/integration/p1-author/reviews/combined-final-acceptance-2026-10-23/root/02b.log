@@ -1,0 +1,29 @@
+======================================================================
+GATE AI-PIPE-02B: DURABLE OUTLINE PLANNING INTEGRATION RUNNER
+Backend URL:    http://backend:4000/api/v1
+AI Service URL: http://localhost:8000
+Database URL:   postgres:5432/ephurin_test_pr60_2f7cd3d5c3
+======================================================================
+[AUTH] Author authenticated: 591ebb39-da53-4b4b-9dbe-098f5440b0f6 (reader03)
+[FIXTURE] Created novel: afa04de6-e7d4-4a66-b732-4f9bfcc0ea70
+[PASS] Checkpoint 01: Application-Facing Outline/Plan Request -> Created Story Plan draft 6efb5d45-5d52-4ccf-9c11-3c19a265cbaf with 3 objectives via Node API
+[PASS] Checkpoint 02: Deterministic Repeat / Idempotency Semantics -> Repeated plan request returned identical plan_id 6efb5d45-5d52-4ccf-9c11-3c19a265cbaf, 409 on conflict, and enforced read ownership (403)
+[PASS] Checkpoint 03: Durable PostgreSQL Persistence via Repository Layer -> Verified narrative.story_plans and narrative.story_plan_objectives persisted durably in PostgreSQL
+[PASS] Checkpoint 04: Explicit Plan Version & Lifecycle State -> Plan 6efb5d45-5d52-4ccf-9c11-3c19a265cbaf is explicit version 1 in 'draft' lifecycle state
+[PASS] Checkpoint 05: Author Review/Activation Semantics -> Author explicitly activated plan 6efb5d45-5d52-4ccf-9c11-3c19a265cbaf; status reached 'active'
+[PASS] Checkpoint 06: Deterministic Current Objective Selection -> Chapter 1 deterministically selected Objective #1 (Tỉnh dậy trên cồn cát)
+[PASS] Checkpoint 07: Context Preview Carries Plan Version & Objective Provenance -> Context preview carries plan version 1 and objective provenance separately from canon
+[PASS] Checkpoint 08: Future-Information Leakage Guard (Machine-Checkable Assertion) -> Verified FUTURE PLAN != HISTORICAL CANON: future objectives 2 and 3 are 100% absent from events and facts
+[PASS] Checkpoint 09: Standard P1 Generation Reuse -> P1 writing generation 4c3ed904-6f7d-5720-a8c3-b1f55cec87ca completed successfully using active plan context
+[PASS] Checkpoint 10: Unaccepted Generation Safety (Author Control) -> Unaccepted generation 1326dd16-6826-597d-a1f6-73dd0e057caa left canonical revisions and plan progress untouched
+[PASS] Checkpoint 11: Accepted Generation Persists via acceptDraft() & Outbox -> Accepted revision 003e6573-3e76-43df-afb8-5e2932ab15b7 with source_type=AI_DRAFT_ACCEPT and outbox event
+[PASS] Checkpoint 12: Story Brain Memory Advances Only from Accepted Content -> Transactional outbox completed and Story Brain advanced 2 -> 3
+[PASS] Checkpoint 13: Explicit Plan Progress Update -> Objective #1 status explicitly advanced to 'completed' via Node API; mismatched novel mutation rejected
+[PASS] Checkpoint 14: Next Chapter / Scene Receives Next Objective -> Chapter 2 context preview received next Objective #2 (Đối mặt hắc ám kỵ sĩ Roland)
+[PASS] Checkpoint 15: Plan Edit Creates Version 2 without Rewriting Historical Canon -> Plan edited to version 2; Plan 1 superseded, Plan 2 active, historical Story Brain intact
+[PASS] Checkpoint 16: Subsequent Context Observes Active Plan Version 2 -> Context preview for Chapter 2 observes updated Plan Version 2 objective with canon intact
+
+======================================================================
+GATE AI-PIPE-02B COMPLETE: 16/16 PASSED
+Evidence artifact saved to: /tmp/02b-evidence.json
+======================================================================

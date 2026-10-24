@@ -37,6 +37,7 @@ class Base(DeclarativeBase):
 
 
 class StoryBrainRecord(Base):
+    entity_guidance: Mapped[dict | None] = mapped_column(JSON_TYPE, nullable=True, deferred=True)
     __tablename__ = "story_brains"
     __table_args__ = (UniqueConstraint("tenant_id", "novel_id", name="uq_story_brain_tenant_novel"), {"schema": SCHEMA})
 
@@ -165,6 +166,8 @@ class EventRecord(Base):
 
 
 class FactRecord(Base):
+    supersedes_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, nullable=True)
+    is_retired: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=text('false'))
     __tablename__ = "facts"
     __table_args__ = ({"schema": SCHEMA},)
 
@@ -321,6 +324,7 @@ class MemoryEmbeddingRecord(Base):
 
 
 class AnalysisRunRecord(Base):
+    entity_candidate_audit: Mapped[dict | None] = mapped_column(JSON_TYPE, nullable=True, deferred=True)
 
     __tablename__ = "analysis_runs"
     __table_args__ = ({"schema": SCHEMA},)
@@ -572,6 +576,9 @@ class StoryPlanObjectiveRecord(Base):
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending")
     objective_metadata: Mapped[dict[str, Any]] = mapped_column(
         JSON_TYPE, nullable=False, default=dict, server_default=text("'{}'")
+    )
+    intent_version: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default=text("0")
     )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(

@@ -1,0 +1,45 @@
+[
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-24T06:23:29.130458+00:00"
+  },
+  {
+    "command": [
+      "git",
+      "status",
+      "--porcelain"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-24T06:23:29.200894+00:00"
+  },
+  {
+    "command": [
+      "python",
+      "-m",
+      "compileall",
+      "-q",
+      "application",
+      "domain",
+      "infrastructure",
+      "services",
+      "api",
+      "tests/test_p1_identity_final.py",
+      "tests/test_p1_contract_alignment.py",
+      "tests/test_c01_canon_group.py",
+      "tests/test_atomic_group_rejection.py"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\ai-service",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-24T06:23:29.496739+00:00"
+  }
+]

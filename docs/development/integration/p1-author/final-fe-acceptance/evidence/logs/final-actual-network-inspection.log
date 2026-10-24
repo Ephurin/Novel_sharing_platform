@@ -1,0 +1,176 @@
+[
+    {
+        "Name": "codex-p1-final-8c19b8c475_headless-edge",
+        "Id": "bf8237a0970bb51b4b82f6856adcaef19986989b760892d097a030c11eb99405",
+        "Created": "2026-10-24T11:41:44.737462629Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.29.30.0/24"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {
+            "bc02ed31772bd04d5d0f512a6594da7424b76cd3efde243001118614cff31402": {
+                "Name": "codex-p1-final-8c19b8c475-acceptance-bridge-1",
+                "EndpointID": "da6ef8e16b450ff430f2d63e6423aaddfa056693109bc10a85c91dc97b8a5def",
+                "MacAddress": "b6:8b:cf:39:32:20",
+                "IPv4Address": "172.29.30.2/24",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {
+            "com.docker.network.enable_ipv4": "true",
+            "com.docker.network.enable_ipv6": "false"
+        },
+        "Labels": {
+            "com.docker.compose.config-hash": "4df58d4688b51596d3d462f29009cdf270e69ec74f5594638f947cfa04abcd09",
+            "com.docker.compose.network": "headless-edge",
+            "com.docker.compose.project": "codex-p1-final-8c19b8c475",
+            "com.docker.compose.version": "2.40.2"
+        }
+    },
+    {
+        "Name": "codex-p1-final-8c19b8c475_upstream",
+        "Id": "d820a372555487f81920054342a07476b2aa3ac66b57bb7961c63dfed683d431",
+        "Created": "2026-10-24T11:45:39.740432817Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.29.32.0/24"
+                }
+            ]
+        },
+        "Internal": true,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {
+            "2d44d08516e48b2144b450678878af1e137ce052148eeb30f05ce090b45e65be": {
+                "Name": "codex-p1-final-8c19b8c475-budget-gateway-1",
+                "EndpointID": "5b680feb6898f6174cf73daf1fed82c7a2402d69a4fce84bf08ab5f8020ca3da",
+                "MacAddress": "46:ac:07:45:aa:bf",
+                "IPv4Address": "172.29.32.3/24",
+                "IPv6Address": ""
+            },
+            "41ecf8b7db045c4e50ab7bbc566aae16e5fbcb74e35e420ee4074155b297420d": {
+                "Name": "codex-p1-final-8c19b8c475-fake-upstream-1",
+                "EndpointID": "dd173ee64994cc8417fe56651658c74612c809b45bfd78bbe9953dfcae462929",
+                "MacAddress": "6a:d1:94:a2:72:2b",
+                "IPv4Address": "172.29.32.2/24",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {
+            "com.docker.network.enable_ipv4": "true",
+            "com.docker.network.enable_ipv6": "false"
+        },
+        "Labels": {
+            "com.docker.compose.config-hash": "b7be32b00e277d11004c40a3060d9f6c040afb317bff56909999d9174859ae67",
+            "com.docker.compose.network": "upstream",
+            "com.docker.compose.project": "codex-p1-final-8c19b8c475",
+            "com.docker.compose.version": "2.40.2"
+        }
+    },
+    {
+        "Name": "codex-p1-final-8c19b8c475_workers",
+        "Id": "774e91e2c6c3a1430877c4164613f4e4eb02cbb73576bd4f08cf19da1435e3e1",
+        "Created": "2026-10-24T11:41:44.693001827Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.29.142.0/24"
+                }
+            ]
+        },
+        "Internal": true,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {
+            "2d44d08516e48b2144b450678878af1e137ce052148eeb30f05ce090b45e65be": {
+                "Name": "codex-p1-final-8c19b8c475-budget-gateway-1",
+                "EndpointID": "3a7233766ca82746aac5ea0cd651e56ae12e602a42828a62b3a1bdb8123f9475",
+                "MacAddress": "16:3e:b6:57:be:2c",
+                "IPv4Address": "172.29.142.5/24",
+                "IPv6Address": ""
+            },
+            "63e468b6f34871413788911602621862d85abd22c58f60ff9ed147d619bd934a": {
+                "Name": "codex-p1-final-8c19b8c475-postgres-1",
+                "EndpointID": "ce555dcc396406fc793a3dc99d998275da3d1beaac16392d939477764be794a9",
+                "MacAddress": "fa:f9:95:11:d6:98",
+                "IPv4Address": "172.29.142.2/24",
+                "IPv6Address": ""
+            },
+            "769dfd9fc9d6ff947615045578a7445cd8ed631f52e71517bc80562ffe9575dd": {
+                "Name": "codex-p1-final-8c19b8c475-mongodb-1",
+                "EndpointID": "9f80a35821265df1ea7e5e0902f316f1b387d7f5519b382f3fd3c7510ddfd0f2",
+                "MacAddress": "0a:f0:91:6d:6a:c2",
+                "IPv4Address": "172.29.142.3/24",
+                "IPv6Address": ""
+            },
+            "bc02ed31772bd04d5d0f512a6594da7424b76cd3efde243001118614cff31402": {
+                "Name": "codex-p1-final-8c19b8c475-acceptance-bridge-1",
+                "EndpointID": "1ffab5960fbab4ebe2cc2b7f98ec98000e760ba0e13adb9720f9d4ed2e30b7e8",
+                "MacAddress": "1a:71:b1:bb:ed:ce",
+                "IPv4Address": "172.29.142.4/24",
+                "IPv6Address": ""
+            },
+            "db656cd2da101009b7d35aaa79690eca579e38aac553007b1fd7cc11001e0dd3": {
+                "Name": "codex-p1-final-8c19b8c475-ai-service-1",
+                "EndpointID": "81b17ecfcc5b1c175a051e913ae3bb8a3b2f215ff42a979b5dfbb1d26543faff",
+                "MacAddress": "6a:0b:9b:65:ef:1a",
+                "IPv4Address": "172.29.142.6/24",
+                "IPv6Address": ""
+            },
+            "de4cb8c377a9f164bc2b722de431cdffdc11c4a1f9b441aed71d3b972d5f84f1": {
+                "Name": "codex-p1-final-8c19b8c475-backend-1",
+                "EndpointID": "2c4dff74da3dc2cfa8d26e765bede695ee2821181d7dfab83493f0056e3bebff",
+                "MacAddress": "aa:3f:f1:4c:bd:6c",
+                "IPv4Address": "172.29.142.7/24",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {
+            "com.docker.network.enable_ipv4": "true",
+            "com.docker.network.enable_ipv6": "false"
+        },
+        "Labels": {
+            "com.docker.compose.config-hash": "30c4c13c111e8a0043b6a347691487b6cedcc00d17f527193cba74ece6c4be4b",
+            "com.docker.compose.network": "workers",
+            "com.docker.compose.project": "codex-p1-final-8c19b8c475",
+            "com.docker.compose.version": "2.40.2"
+        }
+    }
+]

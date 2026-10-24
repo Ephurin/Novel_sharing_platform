@@ -350,9 +350,16 @@ class JsonNarrativeRepository:
     def override_relation(
         self, story_id: str, subject: str, relation_type: str, object_name: str
     ) -> dict[str, Any]:
-        return self._manager.override_relation(
-            story_id, subject, relation_type, object_name, source="author"
-        )
+        from domain.projection import author_relationship
+        from datetime import datetime, timezone
+        brain = self.get_story_brain(story_id)
+        relations = author_relationship(brain.entities, brain.relations, subject, relation_type, object_name)
+        kb = self._manager.load_kb(story_id)
+        kb.relations = [KBRelation(**asdict(r)) for r in relations]
+        kb.relation_history.append({'action':'override', 'relation':kb.relations[-1].model_dump(),
+            'timestamp':datetime.now(timezone.utc).isoformat()})
+        self._manager.save_kb(story_id, kb)
+        return {'status':'success', 'relation':relation_type, 'locked':True}
 
     def export_snapshot(self, story_id: str) -> dict[str, Any]:
         return self._manager.load_kb(story_id).model_dump()

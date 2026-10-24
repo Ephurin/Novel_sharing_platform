@@ -1,0 +1,11 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "tests/api-client-security.browser.test.mjs"
+  ],
+  "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p1-fe-final-acceptance\\testproject\\web",
+  "started_utc": "2026-10-24T09:33:16.401288+00:00",
+  "finished_utc": "2026-10-24T09:33:22.431253+00:00",
+  "exit_code": 1
+}

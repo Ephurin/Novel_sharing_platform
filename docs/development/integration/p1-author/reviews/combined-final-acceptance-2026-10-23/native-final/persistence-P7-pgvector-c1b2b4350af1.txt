@@ -1,0 +1,37 @@
+..........................................                               [100%]
+============================== warnings summary ===============================
+main.py:163
+  C:\Users\thaib\.codex\worktrees\p1-core-canon-combined\Novel_sharing_platform\ai-service\main.py:163: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("startup")
+
+..\..\..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4681
+..\..\..\..\..\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4681
+  C:\Users\thaib\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\applications.py:4681: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    return self.router.on_event(event_type)  # ty: ignore[deprecated]
+
+main.py:168
+  C:\Users\thaib\.codex\worktrees\p1-core-canon-combined\Novel_sharing_platform\ai-service\main.py:168: DeprecationWarning: 
+          on_event is deprecated, use lifespan event handlers instead.
+  
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+          
+    @app.on_event("shutdown")
+
+tests/test_p8_json_postgres_cutover_integration.py::test_legacy_only_noncanonical_fields_are_archival_warnings
+  C:\Users\thaib\AppData\Local\Programs\Python\Python311\Lib\site-packages\pydantic\main.py:542: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `EventHistoryEntry` - serialized value may not be as expected [field_name='event_history', input_value={'event_id': 'old-history...'event_type': 'general'}, input_type=dict])
+    return self.__pydantic_serializer__.to_json(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+42 passed, 253 deselected, 5 warnings in 16.20s

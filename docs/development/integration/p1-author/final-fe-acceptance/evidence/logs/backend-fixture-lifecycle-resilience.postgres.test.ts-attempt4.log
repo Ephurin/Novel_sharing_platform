@@ -1,0 +1,144 @@
+TAP version 13
+# Subtest: F-07 Fault Injection Matrix: Fixture Lifecycle & Teardown Resilience
+    # Subtest: Matrix 1: Guard fails before setup -> Zero mutations executed
+    ok 1 - Matrix 1: Guard fails before setup -> Zero mutations executed
+      ---
+      duration_ms: 9.9948
+      ...
+    # Subtest: Matrix 2: Failure after first PostgreSQL fixture INSERT -> Owned user cleaned
+    ok 2 - Matrix 2: Failure after first PostgreSQL fixture INSERT -> Owned user cleaned
+      ---
+      duration_ms: 33.189
+      ...
+    # Subtest: Matrix 3: Failure during PostgreSQL fixture setup -> Partial records cleaned
+    ok 3 - Matrix 3: Failure during PostgreSQL fixture setup -> Partial records cleaned
+      ---
+      duration_ms: 38.4394
+      ...
+    # Subtest: Matrix 4: Failure before Mongo fixture creation -> Safe cleanup of all PG records
+    ok 4 - Matrix 4: Failure before Mongo fixture creation -> Safe cleanup of all PG records
+      ---
+      duration_ms: 104.5917
+      ...
+    # Subtest: Matrix 5: Failure immediately after Mongo insertion -> Mongo record cleaned
+    ok 5 - Matrix 5: Failure immediately after Mongo insertion -> Mongo record cleaned
+      ---
+      duration_ms: 13.1145
+      ...
+    # Subtest: Matrix 6: Failure midway through sentinel creation -> Existing sentinels cleaned, no false corruption
+    ok 6 - Matrix 6: Failure midway through sentinel creation -> Existing sentinels cleaned, no false corruption
+      ---
+      duration_ms: 16.9753
+      ...
+    # Subtest: Matrix 7: Failure during ordinary test execution -> Fixture cleanup still attempted and sentinels preserved
+    ok 7 - Matrix 7: Failure during ordinary test execution -> Fixture cleanup still attempted and sentinels preserved
+      ---
+      duration_ms: 33.3851
+      ...
+    # Subtest: Matrix 8: First cleanup operation fails -> Independent cleanup continues; suite surfaces failure
+    ok 8 - Matrix 8: First cleanup operation fails -> Independent cleanup continues; suite surfaces failure
+      ---
+      duration_ms: 64.0551
+      ...
+    # Subtest: Matrix 9: Successful complete run -> Zero residual records across PG and MongoDB
+    ok 9 - Matrix 9: Successful complete run -> Zero residual records across PG and MongoDB
+      ---
+      duration_ms: 128.9595
+      ...
+    # Subtest: Matrix 10: Repeated cleanup with sentinels -> Safe, idempotent, zero residual mutations (P2-A)
+    ok 10 - Matrix 10: Repeated cleanup with sentinels -> Safe, idempotent, zero residual mutations (P2-A)
+      ---
+      duration_ms: 84.3531
+      ...
+    # Subtest: Matrix 11: Per-ID cleanup fault tolerance across multiple IDs in the same group (P2-B)
+    ok 11 - Matrix 11: Per-ID cleanup fault tolerance across multiple IDs in the same group (P2-B)
+      ---
+      duration_ms: 54.415
+      ...
+    # Subtest: Matrix 12: Sentinel-group per-ID deletion fault tolerance (P2-B)
+    ok 12 - Matrix 12: Sentinel-group per-ID deletion fault tolerance (P2-B)
+      ---
+      duration_ms: 39.0992
+      ...
+    # Subtest: Matrix 13: Recoverable retry following CLEANUP_FAILED restores clean state
+    ok 13 - Matrix 13: Recoverable retry following CLEANUP_FAILED restores clean state
+      ---
+      duration_ms: 20.5802
+      ...
+    # Subtest: Matrix 14: F-09 Mongo draft cleaned when only PostgreSQL chapter registered
+    ok 14 - Matrix 14: F-09 Mongo draft cleaned when only PostgreSQL chapter registered
+      ---
+      duration_ms: 82.8934
+      ...
+    # Subtest: Matrix 15: F-09 Mongo draft registered independently of PostgreSQL chapter
+    ok 15 - Matrix 15: F-09 Mongo draft registered independently of PostgreSQL chapter
+      ---
+      duration_ms: 12.6055
+      ...
+    # Subtest: Matrix 16: F-10 PostgreSQL DELETE acknowledged but matching row remains -> Durable readback fails closed
+    ok 16 - Matrix 16: F-10 PostgreSQL DELETE acknowledged but matching row remains -> Durable readback fails closed
+      ---
+      duration_ms: 27.5573
+      ...
+    # Subtest: Matrix 17: F-10 MongoDB delete acknowledged but matching document remains -> Durable readback fails closed
+    ok 17 - Matrix 17: F-10 MongoDB delete acknowledged but matching document remains -> Durable readback fails closed
+      ---
+      duration_ms: 16.0387
+      ...
+    # Subtest: Matrix 18: F-11 Malformed PostgreSQL readback must fail closed and report affected resource
+    ok 18 - Matrix 18: F-11 Malformed PostgreSQL readback must fail closed and report affected resource
+      ---
+      duration_ms: 24.9847
+      ...
+    # Subtest: Matrix 19: F-12 Outbox registration fails closed when novel and chapter are unowned
+    ok 19 - Matrix 19: F-12 Outbox registration fails closed when novel and chapter are unowned
+      ---
+      duration_ms: 54.4963
+      ...
+    # Subtest: Matrix 20: F-12 Persisted outbox fixture cleaned and independently verified with fail-closed readback
+    ok 20 - Matrix 20: F-12 Persisted outbox fixture cleaned and independently verified with fail-closed readback
+      ---
+      duration_ms: 172.3506
+      ...
+    # Subtest: Matrix 21: G-01 Foreign outbox event registered under owned pair survives; cleanup reports ownership mismatch
+    ok 21 - Matrix 21: G-01 Foreign outbox event registered under owned pair survives; cleanup reports ownership mismatch
+      ---
+      duration_ms: 243.6218
+      ...
+    # Subtest: Matrix 22: G-01 Owned novel/chapter pair that is not a real parent relationship fails closed
+    ok 22 - Matrix 22: G-01 Owned novel/chapter pair that is not a real parent relationship fails closed
+      ---
+      duration_ms: 178.5761
+      ...
+    # Subtest: Matrix 23: G-01 Exact event DELETE is scoped by event_id + novel_id + chapter_id; failure retries to CLEANED
+    ok 23 - Matrix 23: G-01 Exact event DELETE is scoped by event_id + novel_id + chapter_id; failure retries to CLEANED
+      ---
+      duration_ms: 114.7316
+      ...
+# {"level":30,"time":1792846086871,"pid":16760,"hostname":"LAPTOP-2CITHEGB","msg":"PostgreSQL connection closed"}
+    # Subtest: Matrix 24: G-02 Non-decimal / coercible count mutants fail closed on fixture and sentinel readbacks, then recover
+    ok 24 - Matrix 24: G-02 Non-decimal / coercible count mutants fail closed on fixture and sentinel readbacks, then recover
+      ---
+      duration_ms: 1320.0427
+      ...
+    # Subtest: Matrix 25: G-02 parseStrictRowCount accepts only safe non-negative integers / canonical decimal strings
+    ok 25 - Matrix 25: G-02 parseStrictRowCount accepts only safe non-negative integers / canonical decimal strings
+      ---
+      duration_ms: 1.9057
+      ...
+    1..25
+ok 1 - F-07 Fault Injection Matrix: Fixture Lifecycle & Teardown Resilience
+  ---
+  duration_ms: 2948.2259
+  type: 'suite'
+  ...
+# {"level":30,"time":1792846086876,"pid":16760,"hostname":"LAPTOP-2CITHEGB","msg":"MongoDB connection closed"}
+1..1
+# tests 25
+# suites 1
+# pass 25
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3777.806

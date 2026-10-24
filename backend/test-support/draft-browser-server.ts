@@ -59,6 +59,8 @@ process.on('message', async (message: { id: number; action: string; chapterId?: 
     await new Promise<void>(resolve => server.close(() => resolve()));
     await mongo.getMongoDatabase().dropDatabase();
     await mongo.disconnectMongo(); await pg.disconnectPostgres();
+    const { disconnectChapterWriter } = await import('../src/modules/novels/chapter-writer.js');
+    await disconnectChapterWriter();
     await admin.query(`drop schema "${schema}" cascade`); await admin.end();
     process.exit(0);
   }

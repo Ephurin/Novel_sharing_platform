@@ -1,0 +1,8 @@
+{
+  "utility": {
+    "display": "flex",
+    "padding": "16px"
+  },
+  "textFont": true,
+  "symbolFont": true
+}

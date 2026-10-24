@@ -1,0 +1,126 @@
+[
+  {
+    "name": "backend-unit",
+    "command": [
+      "node",
+      "--import",
+      "tsx",
+      "--test",
+      "src/modules/novels/chapter-revisions.test.ts",
+      "src/modules/novels/outbox.test.ts",
+      "src/modules/novels/controller-intent.test.ts",
+      "src/modules/novels/internal-revision-authorization.test.ts",
+      "src/modules/novels/draft-read-authorization.test.ts",
+      "src/jobs/outbox-processor.test.ts",
+      "src/modules/ai/ai-gateway.test.ts",
+      "src/modules/ai/autonomous-controller.test.ts",
+      "src/core/database/test-db-guard.test.ts"
+    ],
+    "cwd": "backend",
+    "exit_code": 0,
+    "tested_sha": "c4d29c6b4039ea4060d0f91313bba62f88b7896a",
+    "tracked_source_clean": true
+  },
+  {
+    "name": "typecheck",
+    "command": [
+      "node",
+      "node_modules/typescript/bin/tsc",
+      "--noEmit",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "backend",
+    "exit_code": 0,
+    "tested_sha": "c4d29c6b4039ea4060d0f91313bba62f88b7896a",
+    "tracked_source_clean": true
+  },
+  {
+    "name": "build",
+    "command": [
+      "node",
+      "node_modules/typescript/bin/tsc",
+      "-p",
+      "tsconfig.json"
+    ],
+    "cwd": "backend",
+    "exit_code": 0,
+    "tested_sha": "c4d29c6b4039ea4060d0f91313bba62f88b7896a",
+    "tracked_source_clean": true
+  },
+  {
+    "name": "AI-unit",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "--basetemp",
+      "C:\\Users\\thaib\\AppData\\Local\\Temp\\d1d2-pytest-277685b2215b4a74bf21e1366a00f197",
+      "tests/test_revision_content_provider.py",
+      "tests/test_revision_analysis_workflow.py",
+      "tests/test_revision_analysis_routes.py",
+      "tests/test_manuscript_bootstrap.py",
+      "tests/test_manuscript_bootstrap_routes.py",
+      "tests/test_writing_validation_golden.py",
+      "tests/test_narrative_application_service.py",
+      "tests/test_narrative_repository_contract.py",
+      "tests/test_narrative_route_compatibility.py",
+      "tests/test_autonomous_routes.py"
+    ],
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "tested_sha": "c4d29c6b4039ea4060d0f91313bba62f88b7896a",
+    "tracked_source_clean": true
+  },
+  {
+    "name": "P7-unit",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "--basetemp",
+      "C:\\Users\\thaib\\AppData\\Local\\Temp\\combined-p7-46d06917ce714da2bcecf6ab1cc0d369",
+      "tests/test_semantic_memory_service.py",
+      "tests/test_semantic_retriever.py",
+      "tests/test_hybrid_ranker.py",
+      "tests/test_context_budget.py",
+      "tests/test_context_scope.py",
+      "tests/test_context_routing.py",
+      "tests/test_settings.py",
+      "tests/test_ctx_rd_staging_harness.py"
+    ],
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "tested_sha": "c4d29c6b4039ea4060d0f91313bba62f88b7896a",
+    "tracked_source_clean": true
+  },
+  {
+    "name": "P8-full-AI-unit",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-q",
+      "-rs",
+      "--basetemp",
+      "C:\\Users\\thaib\\AppData\\Local\\Temp\\combined-ai-9b702809b93c407bb56b064e909f9e05"
+    ],
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "tested_sha": "c4d29c6b4039ea4060d0f91313bba62f88b7896a",
+    "tracked_source_clean": true
+  },
+  {
+    "name": "P8-boundary",
+    "command": [
+      "python",
+      "scripts/check_p8_frontend_api_cutover.py"
+    ],
+    "cwd": ".",
+    "exit_code": 0,
+    "tested_sha": "c4d29c6b4039ea4060d0f91313bba62f88b7896a",
+    "tracked_source_clean": true
+  }
+]

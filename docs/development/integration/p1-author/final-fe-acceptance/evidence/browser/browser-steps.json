@@ -1,0 +1,170 @@
+[
+  {
+    "name": "G4 prerequisite: actual locally built styles/fonts, no CDN substitution",
+    "started": "2026-10-24T12:44:06.293Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:44:07.110Z"
+  },
+  {
+    "name": "FIXTURE only: owned accounts/projects and empty baseline; no pre-approved named Canon",
+    "started": "2026-10-24T12:44:07.112Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:44:10.018Z"
+  },
+  {
+    "name": "G1: draft 401/403/404 and required-version 428 do not mutate scoped durable state",
+    "started": "2026-10-24T12:44:10.019Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:44:10.257Z"
+  },
+  {
+    "name": "G2: real login, production SPA, B→A→B Undo before debounce",
+    "started": "2026-10-24T12:44:10.258Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:44:15.199Z"
+  },
+  {
+    "name": "G2: in-flight A→B serial saves, real revisions/outbox/Mongo",
+    "started": "2026-10-24T12:44:15.200Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:44:31.623Z"
+  },
+  {
+    "name": "G2: real stale 409 displayed in UI and server-version recovery",
+    "started": "2026-10-24T12:44:31.624Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:44:36.475Z"
+  },
+  {
+    "name": "G2: switch chapter while dirty, flush only the old chapter",
+    "started": "2026-10-24T12:44:36.476Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:44:37.011Z"
+  },
+  {
+    "name": "G2: novel navigation before debounce cannot write the next context",
+    "started": "2026-10-24T12:44:37.012Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:44:39.313Z"
+  },
+  {
+    "name": "G2: pending account switch cannot restore the previous owner context",
+    "started": "2026-10-24T12:44:39.315Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:44:42.971Z"
+  },
+  {
+    "name": "G3/S10: manuscript saved by UI, immutable-source checkpoint; no machine identity approval",
+    "started": "2026-10-24T12:44:42.973Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:44:48.205Z"
+  },
+  {
+    "name": "G3/S11: UI partial review persists one human group; interrupted review resumes",
+    "started": "2026-10-24T12:44:48.206Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:44:51.328Z"
+  },
+  {
+    "name": "G3/S10: two real UI sessions cause review CAS 409; dirty human choices survive without DB mutation",
+    "started": "2026-10-24T12:44:51.330Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:44:55.775Z"
+  },
+  {
+    "name": "G3/S10: explicit guidance refresh preserves compatible human decisions and adds pending name",
+    "started": "2026-10-24T12:44:55.776Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:44:59.279Z"
+  },
+  {
+    "name": "G3/S10: UI separates homonyms, groups repeated occurrences, freezes and reloads stable UUIDs",
+    "started": "2026-10-24T12:44:59.280Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:45:02.779Z"
+  },
+  {
+    "name": "G3/S10: UI Continue creates exact-ID proposals; complete edited group acceptance alone commits Canon",
+    "started": "2026-10-24T12:45:02.780Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:45:05.927Z"
+  },
+  {
+    "name": "G3/S10: UI correction creates a multi-member pending group without changing approved memory",
+    "started": "2026-10-24T12:45:05.937Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:45:07.059Z"
+  },
+  {
+    "name": "G3/S10: browser atomic group rejection persists both author decisions with no Canon/version change",
+    "started": "2026-10-24T12:45:07.060Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:45:08.241Z"
+  },
+  {
+    "name": "G3/S10: separate UI correction and complete approval preserve immutable event provenance",
+    "started": "2026-10-24T12:45:08.243Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:45:10.061Z"
+  },
+  {
+    "name": "G3/S10: mounted consistency uses approved current state and an actual immutable revision",
+    "started": "2026-10-24T12:45:10.068Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:45:17.211Z"
+  },
+  {
+    "name": "G3/S10: author corrects the identified contradiction and separately approves the complete group",
+    "started": "2026-10-24T12:45:17.212Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:45:20.400Z"
+  },
+  {
+    "name": "G3/S10: exact-ID author locks distinguish homonymous subjects",
+    "started": "2026-10-24T12:45:20.402Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:45:22.618Z"
+  },
+  {
+    "name": "G3/S11: pending correction survives reload, without entering Canon or changing UUIDs/locks",
+    "started": "2026-10-24T12:45:22.619Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:45:31.253Z"
+  },
+  {
+    "name": "S11: actual SPA logout/login clears private account context without a document reload",
+    "started": "2026-10-24T12:45:31.255Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:45:33.851Z"
+  },
+  {
+    "name": "G4 fixture only: local published reader rows, separate private Mongo drafts; no publish endpoint",
+    "started": "2026-10-24T12:45:33.924Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:45:35.601Z"
+  },
+  {
+    "name": "G4: actual Reader/free content, VIP lock, private draft denial, library/history, wallet and notifications",
+    "started": "2026-10-24T12:45:35.602Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:45:39.607Z"
+  },
+  {
+    "name": "G4: Author comment/review screens and real media upload round trip",
+    "started": "2026-10-24T12:45:39.608Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:45:42.658Z"
+  },
+  {
+    "name": "G4: real Author scheduling form, dark theme/mobile and reload continuity; no schedule/publish",
+    "started": "2026-10-24T12:45:42.660Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:45:44.213Z"
+  },
+  {
+    "name": "G4: actual Admin role access and moderation/novel management read smoke",
+    "started": "2026-10-24T12:45:44.214Z",
+    "status": "PASS",
+    "finished": "2026-10-24T12:45:46.372Z"
+  }
+]

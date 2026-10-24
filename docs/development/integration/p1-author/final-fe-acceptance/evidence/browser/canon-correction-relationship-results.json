@@ -1,0 +1,414 @@
+{
+  "doctor": "9edbbcbe-54b3-4855-862b-d1ff2d8ccc45",
+  "driver": "2368d2ba-5f47-434c-8b51-a09c6b13fa1e",
+  "witness": "59bf1840-2aee-403a-94b4-3a39f96e7fcb",
+  "rejected": [
+    {
+      "proposal_id": "59ec777b-280b-4a5d-aade-ff862e7a5a23",
+      "proposal_type": "state_transition",
+      "payload": {
+        "event_id": "4dccfc05-76f1-44f7-9051-bbf04cb3d3f0",
+        "entity_id": "59bf1840-2aee-403a-94b4-3a39f96e7fcb",
+        "new_value": "Alive",
+        "attribute_key": "status"
+      },
+      "analysis_run_id": "964dcb80-8686-49c2-af7e-c58fbc5121bd",
+      "dependency_group_id": "133b8ee0-2eef-4b53-9255-9d8e4681f5d4",
+      "materialization_order": 1,
+      "evidence": [
+        {
+          "end": 57,
+          "quote": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+          "start": 0,
+          "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+          "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+          "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+          "chapter_number": 1
+        }
+      ],
+      "confidence": null,
+      "expected_brain_version": 2,
+      "status": "pending",
+      "decision_reason": null,
+      "review_priority": 70,
+      "review_reason": "current_character_state"
+    },
+    {
+      "proposal_id": "4dccfc05-76f1-44f7-9051-bbf04cb3d3f0",
+      "proposal_type": "event",
+      "payload": {
+        "chapter": 1,
+        "summary": "Nhóm chỉnh sửa mà tác giả sẽ từ chối.",
+        "event_id": "4dccfc05-76f1-44f7-9051-bbf04cb3d3f0",
+        "event_type": "observation",
+        "source_type": "author",
+        "participants": [
+          "9edbbcbe-54b3-4855-862b-d1ff2d8ccc45",
+          "2368d2ba-5f47-434c-8b51-a09c6b13fa1e",
+          "59bf1840-2aee-403a-94b4-3a39f96e7fcb"
+        ],
+        "supersedes_id": "72a766ee-5552-52b3-b204-97bfd0b7c165"
+      },
+      "analysis_run_id": "964dcb80-8686-49c2-af7e-c58fbc5121bd",
+      "dependency_group_id": "133b8ee0-2eef-4b53-9255-9d8e4681f5d4",
+      "materialization_order": 0,
+      "evidence": [
+        {
+          "end": 57,
+          "quote": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+          "start": 0,
+          "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+          "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+          "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+          "chapter_number": 1
+        }
+      ],
+      "confidence": null,
+      "expected_brain_version": 2,
+      "status": "pending",
+      "decision_reason": null,
+      "review_priority": 40,
+      "review_reason": "standard_review"
+    }
+  ],
+  "corrected": [
+    {
+      "proposal_id": "4b4495f1-31df-4c40-aa35-c14fdf1cfbd5",
+      "proposal_type": "state_transition",
+      "payload": {
+        "event_id": "d633a70b-035c-4e3d-ae42-560ee21f0ea1",
+        "entity_id": "59bf1840-2aee-403a-94b4-3a39f96e7fcb",
+        "new_value": "Alive",
+        "attribute_key": "status"
+      },
+      "analysis_run_id": "52c8061c-e876-4839-acfb-3fe7f24124cb",
+      "dependency_group_id": "5aff9bbf-2b12-43cf-a2c9-3484ee8869bf",
+      "materialization_order": 1,
+      "evidence": [
+        {
+          "end": 57,
+          "quote": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+          "start": 0,
+          "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+          "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+          "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+          "chapter_number": 1
+        }
+      ],
+      "confidence": null,
+      "expected_brain_version": 2,
+      "status": "pending",
+      "decision_reason": null,
+      "review_priority": 70,
+      "review_reason": "current_character_state"
+    },
+    {
+      "proposal_id": "d633a70b-035c-4e3d-ae42-560ee21f0ea1",
+      "proposal_type": "event",
+      "payload": {
+        "chapter": 1,
+        "summary": "Tác giả xác nhận lan còn sống, hai Minh giữ nguyên danh tính.",
+        "event_id": "d633a70b-035c-4e3d-ae42-560ee21f0ea1",
+        "event_type": "observation",
+        "source_type": "author",
+        "participants": [
+          "9edbbcbe-54b3-4855-862b-d1ff2d8ccc45",
+          "2368d2ba-5f47-434c-8b51-a09c6b13fa1e",
+          "59bf1840-2aee-403a-94b4-3a39f96e7fcb"
+        ],
+        "supersedes_id": "72a766ee-5552-52b3-b204-97bfd0b7c165"
+      },
+      "analysis_run_id": "52c8061c-e876-4839-acfb-3fe7f24124cb",
+      "dependency_group_id": "5aff9bbf-2b12-43cf-a2c9-3484ee8869bf",
+      "materialization_order": 0,
+      "evidence": [
+        {
+          "end": 57,
+          "quote": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+          "start": 0,
+          "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+          "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+          "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+          "chapter_number": 1
+        }
+      ],
+      "confidence": null,
+      "expected_brain_version": 2,
+      "status": "pending",
+      "decision_reason": null,
+      "review_priority": 40,
+      "review_reason": "standard_review"
+    }
+  ],
+  "memory": {
+    "schema_version": 1,
+    "story_id": "de911636-eacb-48e2-a2ea-0555e1948dbc",
+    "brain_id": "0b604702-2a60-4655-abe6-59886011feb2",
+    "brain_version": 6,
+    "entities": [
+      {
+        "name": "Minh",
+        "entity_id": "9edbbcbe-54b3-4855-862b-d1ff2d8ccc45",
+        "entity_type": "PER",
+        "status": "Unknown",
+        "location": "Unknown",
+        "mentions": 1,
+        "is_locked": false
+      },
+      {
+        "name": "Minh",
+        "entity_id": "2368d2ba-5f47-434c-8b51-a09c6b13fa1e",
+        "entity_type": "PER",
+        "status": "Unknown",
+        "location": "Unknown",
+        "mentions": 1,
+        "is_locked": false
+      },
+      {
+        "name": "lan",
+        "entity_id": "59bf1840-2aee-403a-94b4-3a39f96e7fcb",
+        "entity_type": "PER",
+        "status": "Dead",
+        "location": "Unknown",
+        "mentions": 1,
+        "is_locked": false
+      }
+    ],
+    "aliases": [],
+    "mentions": [],
+    "events": [
+      {
+        "event_id": "d66e97e3-7394-46be-9871-fada4457b5d3",
+        "event_type": "observation",
+        "participants": [
+          "9edbbcbe-54b3-4855-862b-d1ff2d8ccc45",
+          "2368d2ba-5f47-434c-8b51-a09c6b13fa1e",
+          "59bf1840-2aee-403a-94b4-3a39f96e7fcb"
+        ],
+        "summary": "Tác giả sửa trạng thái lan theo bản thảo đã lưu.",
+        "chapter": 1,
+        "metadata": {
+          "chapter": 1,
+          "summary": "Tác giả sửa trạng thái lan theo bản thảo đã lưu.",
+          "event_id": "d66e97e3-7394-46be-9871-fada4457b5d3",
+          "evidence": [
+            {
+              "end": 57,
+              "quote": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+              "start": 0,
+              "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+              "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+              "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+              "chapter_number": 1
+            }
+          ],
+          "event_type": "observation",
+          "source_type": "author",
+          "participants": [
+            "9edbbcbe-54b3-4855-862b-d1ff2d8ccc45",
+            "2368d2ba-5f47-434c-8b51-a09c6b13fa1e",
+            "59bf1840-2aee-403a-94b4-3a39f96e7fcb"
+          ],
+          "supersedes_id": "d633a70b-035c-4e3d-ae42-560ee21f0ea1"
+        }
+      }
+    ],
+    "facts": [],
+    "relations": [
+      {
+        "subject": "Minh",
+        "relation": "ally",
+        "object": "lan",
+        "metadata": {
+          "object_entity_id": "59bf1840-2aee-403a-94b4-3a39f96e7fcb",
+          "subject_entity_id": "9edbbcbe-54b3-4855-862b-d1ff2d8ccc45"
+        },
+        "source": "author",
+        "locked": true
+      },
+      {
+        "subject": "Minh",
+        "relation": "enemy",
+        "object": "lan",
+        "metadata": {
+          "object_entity_id": "59bf1840-2aee-403a-94b4-3a39f96e7fcb",
+          "subject_entity_id": "2368d2ba-5f47-434c-8b51-a09c6b13fa1e"
+        },
+        "source": "author",
+        "locked": true
+      }
+    ],
+    "transitions": [
+      {
+        "transition_id": "0d6f31a6-2fa3-4413-bb8d-4c389d4bf9c8",
+        "entity_id": "59bf1840-2aee-403a-94b4-3a39f96e7fcb",
+        "event_id": "d66e97e3-7394-46be-9871-fada4457b5d3",
+        "fact_id": null,
+        "attribute_key": "status",
+        "new_value": "Dead"
+      }
+    ],
+    "current_state": {
+      "entities": {
+        "59bf1840-2aee-403a-94b4-3a39f96e7fcb": {
+          "status": "Dead"
+        }
+      },
+      "provenance": {
+        "59bf1840-2aee-403a-94b4-3a39f96e7fcb": {
+          "status": {
+            "transition_id": "0d6f31a6-2fa3-4413-bb8d-4c389d4bf9c8",
+            "event_id": "d66e97e3-7394-46be-9871-fada4457b5d3",
+            "fact_id": null
+          }
+        }
+      },
+      "relationships": [],
+      "projection_version": 1
+    },
+    "metadata": {
+      "brain_id": "0b604702-2a60-4655-abe6-59886011feb2",
+      "brain_version": "6",
+      "status": "active",
+      "baseline_revision_id": "cf5a63be-9bae-422e-9688-5cdef80fa50d"
+    },
+    "provenance": [
+      {
+        "proposal_id": "0d6f31a6-2fa3-4413-bb8d-4c389d4bf9c8",
+        "proposal_type": "state_transition",
+        "analysis_run_id": "7d5a24f1-8a9b-43bb-8bd0-d4235af1f3a8",
+        "source_type": "AI",
+        "evidence": [
+          {
+            "end": 57,
+            "quote": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+            "start": 0,
+            "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+            "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+            "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "proposal_id": "24ac4ab0-393d-53e6-9569-fa6bc044956a",
+        "proposal_type": "entity",
+        "analysis_run_id": "a7699164-b7df-4c3a-82ec-b02ff84cb920",
+        "source_type": "prose",
+        "evidence": [
+          {
+            "end": 27,
+            "quote": "Minh",
+            "start": 23,
+            "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+            "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+            "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "proposal_id": "3ffd7989-0605-53da-8e27-c57971b171b0",
+        "proposal_type": "entity",
+        "analysis_run_id": "a7699164-b7df-4c3a-82ec-b02ff84cb920",
+        "source_type": "prose",
+        "evidence": [
+          {
+            "end": 11,
+            "quote": "Minh",
+            "start": 7,
+            "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+            "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+            "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "proposal_id": "4b4495f1-31df-4c40-aa35-c14fdf1cfbd5",
+        "proposal_type": "state_transition",
+        "analysis_run_id": "52c8061c-e876-4839-acfb-3fe7f24124cb",
+        "source_type": "AI",
+        "evidence": [
+          {
+            "end": 57,
+            "quote": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+            "start": 0,
+            "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+            "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+            "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "proposal_id": "72a766ee-5552-52b3-b204-97bfd0b7c165",
+        "proposal_type": "event",
+        "analysis_run_id": "a7699164-b7df-4c3a-82ec-b02ff84cb920",
+        "source_type": "AI",
+        "evidence": [
+          {
+            "end": 57,
+            "quote": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+            "start": 0,
+            "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+            "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+            "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "proposal_id": "8d023c8a-f887-5555-ac40-d398c40b4479",
+        "proposal_type": "entity",
+        "analysis_run_id": "a7699164-b7df-4c3a-82ec-b02ff84cb920",
+        "source_type": "prose",
+        "evidence": [
+          {
+            "end": 47,
+            "quote": "lan",
+            "start": 44,
+            "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+            "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+            "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "proposal_id": "d633a70b-035c-4e3d-ae42-560ee21f0ea1",
+        "proposal_type": "event",
+        "analysis_run_id": "52c8061c-e876-4839-acfb-3fe7f24124cb",
+        "source_type": "author",
+        "evidence": [
+          {
+            "end": 57,
+            "quote": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+            "start": 0,
+            "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+            "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+            "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+            "chapter_number": 1
+          }
+        ]
+      },
+      {
+        "proposal_id": "d66e97e3-7394-46be-9871-fada4457b5d3",
+        "proposal_type": "event",
+        "analysis_run_id": "7d5a24f1-8a9b-43bb-8bd0-d4235af1f3a8",
+        "source_type": "author",
+        "evidence": [
+          {
+            "end": 57,
+            "quote": "bác sĩ Minh gặp tài xế Minh. Minh mở hồ sơ. lan đứng gần.",
+            "start": 0,
+            "text_hash": "adb97008496c07ebccd056bcc941d20486c656a165ac257b6bad6cf98e3a665f",
+            "chapter_id": "4b7f72bc-e6d7-4a7f-8735-0995905479dd",
+            "revision_id": "61e8f760-f440-4e72-9258-e87af92b6856",
+            "chapter_number": 1
+          }
+        ]
+      }
+    ]
+  }
+}

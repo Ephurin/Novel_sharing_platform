@@ -1,0 +1,19 @@
+[
+  {
+    "suite": "fixture-resilience",
+    "store": "PG",
+    "sql": "SELECT novel_id, chapter_id, revision_id, content_hash FROM revision_outbox_events WHERE event_id = $1",
+    "values": [
+      "b0795d82-c653-4c56-bb66-01589ddc5fcc"
+    ],
+    "rows": [
+      {
+        "novel_id": "4eda4b35-14d4-49e2-ad1b-73aceccb2afe",
+        "chapter_id": "6518f775-dd96-4ea3-b644-b2b58e8f50ef",
+        "revision_id": "2a153fa0-833e-4265-bee0-4c242df6d600",
+        "content_hash": "hash-B-4a104c42"
+      }
+    ],
+    "rowCount": 1
+  }
+]

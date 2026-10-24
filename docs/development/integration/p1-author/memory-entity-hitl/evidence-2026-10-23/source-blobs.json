@@ -1,0 +1,130 @@
+{
+  "source_sha": "8a1dab633e3eb47cc1b7e565b46d39187218b6d8",
+  "files": [
+    {
+      "path": ".github/workflows/p7-semantic-memory.yml",
+      "git_blob": "c3d8a1fa723eceb60d78013c178ea1b6f64d72e2",
+      "sha256_git_blob_bytes": "3fa5ffeb0d4a9754f81cb97de868fae1c0b255ce3d4c85feac2d218f4a6a9b49"
+    },
+    {
+      "path": "ai-service/api/entity_hitl_routes.py",
+      "git_blob": "bef1e9590bf41545ac43e0a33527267a507e8143",
+      "sha256_git_blob_bytes": "ab0bdf0c59b7b484de626fc3a4247413a1e41cead0431442e1ccec212ea5d6f3"
+    },
+    {
+      "path": "ai-service/api/narrative_routes.py",
+      "git_blob": "6acbc77d9cbd1815ff2ea31dc07067bcca3583d6",
+      "sha256_git_blob_bytes": "77d6b0f92b11774d815ac1fdd27d5175fe5fbe2c2d6c955418836c048b012a79"
+    },
+    {
+      "path": "ai-service/application/entity_hitl.py",
+      "git_blob": "ab95333923bdcde9c653a04d934198100c734d52",
+      "sha256_git_blob_bytes": "2b79ddccd5dc3967e9b413361dc6c9ece3ad98ab913031bc142d07aaf6785b05"
+    },
+    {
+      "path": "ai-service/application/entity_review_service.py",
+      "git_blob": "d6784cb2f52c42b66c9f4c189ad49180aa56b61e",
+      "sha256_git_blob_bytes": "88dfc4cc70ba4564ef672ad4cb972daa318b0696adad8a55ef0006bcf9b6c567"
+    },
+    {
+      "path": "ai-service/application/revision_analysis_service.py",
+      "git_blob": "c63cc83acc498090bdd40df2c9934b3cd3b81909",
+      "sha256_git_blob_bytes": "f3d9a961b7dbda63c9e0f00f477db1ed519c8c808b0514fba5bc8757c59cf3c5"
+    },
+    {
+      "path": "ai-service/core/fake_llm.py",
+      "git_blob": "ec13efbe11893e274ffa23897d5d470d4d209e30",
+      "sha256_git_blob_bytes": "c0ccd6bf2f8720a60f36531d58d9edca34a383167339c9606dfde678173b94a1"
+    },
+    {
+      "path": "ai-service/core/settings.py",
+      "git_blob": "6c952cbd5a06e50608bad363ec60527998502ba1",
+      "sha256_git_blob_bytes": "e4f882949434f803646a880fa72c389e494baf4156183bc81bab0a8ac468ff4a"
+    },
+    {
+      "path": "ai-service/core/structured_call.py",
+      "git_blob": "fa69c48e3629c40a252d7f6d63749f34d6cf9a47",
+      "sha256_git_blob_bytes": "337da74827c363a7aa8e5688c632b7979228b93cdba009e8e6f8bb6377c7c98a"
+    },
+    {
+      "path": "ai-service/domain/errors.py",
+      "git_blob": "3191fd09542393a2b0d7f0d9ac74bbe4d0940b9c",
+      "sha256_git_blob_bytes": "1d519abc85e0c9078867afe2b93ce3ea1488135d1e66339d8ffdeb43d8542558"
+    },
+    {
+      "path": "ai-service/domain/repositories.py",
+      "git_blob": "4f5172021577ad9c7d84c9c135b3ee661c78e118",
+      "sha256_git_blob_bytes": "a3a78236458c3e2c3bf9f186811dea75554d8d57955a5a1346fa8136f68c5346"
+    },
+    {
+      "path": "ai-service/infrastructure/in_memory_narrative_repository.py",
+      "git_blob": "bbfa875104dca0b53842be19227609d5a22e047c",
+      "sha256_git_blob_bytes": "8cb9ce5973cb2a3b33396cd02c463832bb47826bd12ef879bb15e8f3af7e1cef"
+    },
+    {
+      "path": "ai-service/infrastructure/orm_models.py",
+      "git_blob": "b12c371cccaacccc4ed9fda45860644e6ba1500e",
+      "sha256_git_blob_bytes": "e7135b34b8cc65633e69f804c17f44bb819a13cc23af83b201970c68bc5d8241"
+    },
+    {
+      "path": "ai-service/infrastructure/postgres_narrative_repository.py",
+      "git_blob": "184a3b3ddc138d19ab907f04e56ebab40550c797",
+      "sha256_git_blob_bytes": "09c83281214efc1dc35f4c46304fd25ee9be8ca17f114f71893e322481152668"
+    },
+    {
+      "path": "ai-service/main.py",
+      "git_blob": "a8cbefd41618c74d20a61d27f57001735e2cb8a7",
+      "sha256_git_blob_bytes": "6d934a40fa70cd29133c4cc21afaed89c1828b38a13226766a733bfd439d5f4d"
+    },
+    {
+      "path": "ai-service/services/entity_pipeline/candidates.py",
+      "git_blob": "e3d3711e01b88591d5365113f35275083afa4aa1",
+      "sha256_git_blob_bytes": "956441356385b3a11ff57d4f03048bf04f35843c77f3ab7cf165f262245e2afc"
+    },
+    {
+      "path": "ai-service/services/entity_pipeline/pipeline.py",
+      "git_blob": "b610833a6423cb7e7c046f7be9ea1aba7200ef90",
+      "sha256_git_blob_bytes": "533490c19db37cc68e744b57d221f700fc723e02bb728c5c506ae262b3a6b6c1"
+    },
+    {
+      "path": "ai-service/services/entity_pipeline/verification.py",
+      "git_blob": "affda853b6f905c4562cd87db4122ef3023f7cbd",
+      "sha256_git_blob_bytes": "41ab392720dad2cdf96f6577b0d40349b9835890be68fc9aa0d1f6096209f801"
+    },
+    {
+      "path": "ai-service/services/prose_facts.py",
+      "git_blob": "f3c64225c18d4d5e1b737fec505535533132b751",
+      "sha256_git_blob_bytes": "76b1f35dc65b0858b0b711166a52990ba69c3a54cbcd7af0484b65de33914d2e"
+    },
+    {
+      "path": "ai-service/services/source_grounding.py",
+      "git_blob": "6e1aecbc604d00fdcf0f3bc019ee31ce6e3710dc",
+      "sha256_git_blob_bytes": "c24a3585f0834b3fde105b29a89ef9a15487e383e89e5573b78b88e03d8ba0f8"
+    },
+    {
+      "path": "ai-service/tests/test_p1_memory_entity_hitl.py",
+      "git_blob": "fc227bb27a19a19da150fb285cc63cf0b7aa334c",
+      "sha256_git_blob_bytes": "4d5e337b038cfd9fa60c1a89f535d40e068cd14c813b326e672c3cde7442fb08"
+    },
+    {
+      "path": "backend/src/modules/ai/ai-gateway.controller.ts",
+      "git_blob": "c85e4c0849ff5371d85ab345de0d96625f5d81c2",
+      "sha256_git_blob_bytes": "6e23844a287bd0cff18ae985359f0e72396f7d29ddf338d1004079ab45a103e1"
+    },
+    {
+      "path": "backend/src/modules/ai/ai-gateway.routes.ts",
+      "git_blob": "489a4fa3a626feb1a9cf25ab4772c9fb2c5fb202",
+      "sha256_git_blob_bytes": "81595d63653c92c83963e09806077ec4cbf25d91927f3461447a61466ffb8cb5"
+    },
+    {
+      "path": "backend/src/modules/ai/p1-memory-entity.live.test.ts",
+      "git_blob": "e7036a29584a9a3c5570adf482b740939fee431b",
+      "sha256_git_blob_bytes": "02d9d0ff4c0d52e3f4877ea98129e69128105d33e76c17be43833b82cf586ce5"
+    },
+    {
+      "path": "docs/development/integration/p1-author/memory-entity-hitl/CONTRACT.md",
+      "git_blob": "9cfe08fa396a552ebd2e2238e6997bfd0181555d",
+      "sha256_git_blob_bytes": "a4b10602206d9761303a64589dab03cd181821a55407e1cea3592272473ff0c4"
+    }
+  ]
+}

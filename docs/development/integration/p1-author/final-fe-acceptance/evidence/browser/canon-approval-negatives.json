@@ -1,0 +1,30 @@
+[
+  {
+    "name": "G1-401-anonymous-Canon",
+    "status": "PASS"
+  },
+  {
+    "name": "G1-403-foreign-owner-Canon",
+    "status": "PASS"
+  },
+  {
+    "name": "G1-409-stale-Canon",
+    "status": "PASS"
+  },
+  {
+    "name": "C01-incomplete-single-edit-accept",
+    "status": "PASS"
+  },
+  {
+    "name": "atomic-rejection-incomplete-single-reject",
+    "status": "PASS"
+  },
+  {
+    "name": "G1-422-unknown-identity-whole-group-rollback",
+    "status": "PASS"
+  },
+  {
+    "name": "G1-422-forged-author-authority-marker",
+    "status": "PASS"
+  }
+]

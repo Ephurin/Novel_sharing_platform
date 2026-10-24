@@ -1,0 +1,73 @@
+{
+  "initial_sha": "3df13ed51476de3b0e97f7aa5aef63ce8a18e061",
+  "tested_sha": "118ede77311fe160c7f0142cc237acf689a0b818",
+  "tracked_clean": true,
+  "untracked_paths": "only new G03 evidence directory",
+  "changed_paths": [
+    "backend/src/modules/novels/mongo-reconciliation-authorization.test.ts",
+    "backend/src/modules/novels/mongo-reconciliation-denial.preload.mjs",
+    "backend/src/modules/novels/mongo-reconciliation.live.test.ts"
+  ],
+  "production": {
+    "backend/src/modules/novels/chapters.service.ts": {
+      "sha256": "2232c69d8172d0b246d82bb73ef34d545b5bd4be552e6882d6a170a0c859f4ad",
+      "unchanged_from_reviewed_head": true
+    },
+    "backend/src/modules/novels/draft-chapters.repository.ts": {
+      "sha256": "70596d6ade1aa7830a8394a488dea03e69edce30988cfb7507ef514240e7ca31",
+      "unchanged_from_reviewed_head": true
+    },
+    "backend/src/modules/novels/chapter-revisions.service.ts": {
+      "sha256": "8698a85868da6f47dac4190ec5241f6e51e5ef86892b94caf756cfef1a34e0a0",
+      "unchanged_from_reviewed_head": true
+    },
+    "backend/src/jobs/outbox-processor.ts": {
+      "sha256": "54b9980c57d0a7d410b5ec1d549f5306c3a014b040ad571c33d0ebd368c37184",
+      "unchanged_from_reviewed_head": true
+    },
+    "backend/src/modules/novels/chapter-revisions.controller.ts": {
+      "sha256": "ba227f113a871207d5d96e92536b44a2d54a374d358bb6e9cb3970cd405b8c0e",
+      "unchanged_from_reviewed_head": true
+    }
+  },
+  "resources": [
+    {
+      "container": "p1-final-acceptance-1135b1e3f84e-pg",
+      "volume": "p1-final-acceptance-1135b1e3f84e-pg-data",
+      "image": "pgvector/pgvector:pg16",
+      "inspect_exit": 0,
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-10-23T10:08:39.022130772Z",
+        "FinishedAt": "2026-10-23T10:09:14.665763091Z"
+      }
+    },
+    {
+      "container": "p1-final-acceptance-1135b1e3f84e-mongo",
+      "volume": "p1-final-acceptance-1135b1e3f84e-mongo-data",
+      "image": "mongo:7",
+      "inspect_exit": 0,
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-10-23T10:08:39.98793226Z",
+        "FinishedAt": "2026-10-23T10:09:15.356151679Z"
+      }
+    }
+  ]
+}
