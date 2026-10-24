@@ -300,6 +300,21 @@ export function rejectOccurrence(machine: Decision): Decision {
 }
 
 // ──────────────────────────────────────────────
+// Entity Name Normalization (Python casefold alignment)
+// ──────────────────────────────────────────────
+
+export function normalizeEntityName(name: string): string {
+  if (!name) return '';
+  const trimmed = name.trim().normalize('NFC');
+  // Expand casefold edge cases that simple toLowerCase doesn't expand:
+  // ß (U+00DF) -> ss, ẞ (U+1E9E) -> ss
+  return trimmed
+    .replace(/\u00df/g, 'ss')
+    .replace(/\u1e9e/g, 'ss')
+    .toLowerCase();
+}
+
+// ──────────────────────────────────────────────
 // HTTP Client Helpers
 // ──────────────────────────────────────────────
 

@@ -216,7 +216,7 @@ export function EntityExtractionReview({
         {reviews.data && reviews.data.length > 0 ? (
           reviews.data.map(review => (
             <EntityCheckpoint
-              key={`${review.analysis_run_id}:${review.review_version}`}
+              key={`${novelId}:${review.analysis_run_id}`}
               review={review}
               novelId={novelId}
               guidanceVersion={guidance.data?.version}
@@ -280,12 +280,15 @@ function EntityCheckpoint({
   const [newGroupInput, setNewGroupInput] = useState('');
   const [newGroupError, setNewGroupError] = useState('');
 
+  // Track candidate IDs that the author has locally modified
+  const [dirtyCandidateIds, setDirtyCandidateIds] = useState<Set<string>>(() => new Set());
+
   // Local human choices state: preserved across version updates
   const [choices, setChoices] = useState<Record<string, Decision>>(() => {
     return Object.fromEntries(reviewedDecisions.map(d => [d.candidate_id, d]));
   });
 
-  // Track conflict errors
+  // Track conflict errors and version conflict notifications
   const [conflictMessage, setConflictMessage] = useState<string | null>(null);
 
   // Filter state for occurrences: 'all' | 'pending' | 'resolved'
@@ -296,18 +299,54 @@ function EntityCheckpoint({
   // Stale guidance check
   const staleGuidance = guidanceVersion !== undefined && guidanceVersion !== review.guidance_version;
 
-  // Sync incoming reviewed decisions while preserving local unsaved modifications
+  // Sync incoming reviewed decisions while strictly preserving unsaved local modifications (FE-05)
   useEffect(() => {
     setChoices(prev => {
       const serverMap = Object.fromEntries(reviewedDecisions.map(d => [d.candidate_id, d]));
-      return { ...serverMap, ...prev };
+      const next: Record<string, Decision> = { ...prev };
+      let hasConflict = false;
+
+      // Update non-dirty candidates with server reviewed decisions
+      for (const [candidateId, serverDecision] of Object.entries(serverMap)) {
+        if (!dirtyCandidateIds.has(candidateId)) {
+          next[candidateId] = serverDecision;
+        } else {
+          // Candidate is dirty locally; check if server decision conflicts
+          const localDecision = prev[candidateId];
+          if (
+            localDecision &&
+            (localDecision.canonical_entity_id !== serverDecision.canonical_entity_id ||
+              localDecision.verdict !== serverDecision.verdict ||
+              localDecision.provisional_identity_key !== serverDecision.provisional_identity_key)
+          ) {
+            hasConflict = true;
+          }
+        }
+      }
+
+      // Prune candidates that were removed from the server
+      const currentCandidateIdSet = new Set(candidates.map(c => c.candidate_id));
+      for (const id of Object.keys(next)) {
+        if (!currentCandidateIdSet.has(id)) {
+          delete next[id];
+        }
+      }
+
+      if (hasConflict) {
+        setConflictMessage(
+          `Phiên bản trên máy chủ đã cập nhật (v${review.review_version}). Các lựa chọn chưa lưu của bạn vẫn được giữ nguyên. Vui lòng kiểm tra lại trước khi lưu.`
+        );
+      }
+      return next;
     });
   }, [review.review_version, review.analysis_run_id]);
 
-  // Reset local state if checkpoint or novel changes completely
+  // Reset local state if checkpoint or novel changes completely (FE-05 isolation)
   useEffect(() => {
     setConflictMessage(null);
-  }, [review.analysis_run_id]);
+    setDirtyCandidateIds(new Set());
+    setChoices(Object.fromEntries(reviewedDecisions.map(d => [d.candidate_id, d])));
+  }, [review.analysis_run_id, novelId]);
 
   // Resolved decisions count
   const resolvedCandidates = candidates.filter(c => {
@@ -342,24 +381,30 @@ function EntityCheckpoint({
     };
   };
 
-  // Assign decision for a single candidate
+  // Assign decision for a single candidate (marks candidate dirty)
   const setCandidateDecision = (candidateId: string, decision: Decision) => {
+    setDirtyCandidateIds(prev => new Set(prev).add(candidateId));
     setChoices(prev => ({
       ...prev,
       [candidateId]: decision
     }));
   };
 
-  // Batch assign same decision to all occurrences of same surface text
+  // Batch assign same decision to all occurrences of same surface text (marks candidates dirty)
   const applyToMatchingSurface = (surface: string, decisionTemplate: (machine: Decision) => Decision) => {
     setChoices(prev => {
       const next = { ...prev };
-      for (const c of candidates) {
-        if (c.surface.toLowerCase() === surface.toLowerCase()) {
-          const m = getMachineDecision(c.candidate_id);
-          next[c.candidate_id] = decisionTemplate(m);
+      setDirtyCandidateIds(dirtyPrev => {
+        const nextDirty = new Set(dirtyPrev);
+        for (const c of candidates) {
+          if (c.surface.toLowerCase() === surface.toLowerCase()) {
+            const m = getMachineDecision(c.candidate_id);
+            next[c.candidate_id] = decisionTemplate(m);
+            nextDirty.add(c.candidate_id);
+          }
         }
-      }
+        return nextDirty;
+      });
       return next;
     });
   };
@@ -393,6 +438,7 @@ function EntityCheckpoint({
           decisions: decisionsToSend,
           finalize: false
         });
+        setDirtyCandidateIds(new Set());
         await onContinued();
       } catch (err) {
         if (err instanceof ApiClientError && err.status === 409) {
@@ -410,6 +456,7 @@ function EntityCheckpoint({
       setConflictMessage(null);
       try {
         await refreshEntityReview(novelId, review.analysis_run_id, review.review_version);
+        setDirtyCandidateIds(new Set());
         await onContinued();
       } catch (err) {
         if (err instanceof ApiClientError && err.status === 409) {
@@ -439,6 +486,7 @@ function EntityCheckpoint({
           decisions: allDecisions,
           finalize: true
         });
+        setDirtyCandidateIds(new Set());
         await onContinued();
       } catch (err) {
         if (err instanceof ApiClientError && err.status === 409) {
@@ -762,6 +810,7 @@ function OccurrenceCard({
   );
   const [identityQuote, setIdentityQuote] = useState(decision?.identity_quote || '');
   const [statusQuote, setStatusQuote] = useState(decision?.status_quote || '');
+  const [confirmBatchOpen, setConfirmBatchOpen] = useState(false);
 
   // Extract selected group or entity
   const selectedKnownId = decision?.canonical_entity_id || '';
@@ -1006,35 +1055,62 @@ function OccurrenceCard({
             </Paper>
           </Collapse>
 
-          {/* Batch Helper Link */}
+          {/* Batch Helper Link with Explicit Confirmation (FE-02) */}
           {decision && (
-            <Group justify="flex-end">
-              <Button
-                variant="transparent"
-                size="compact-xs"
-                color="dimmed"
-                disabled={disabled}
-                onClick={() => {
-                  if (currentMode === 'reject') {
-                    onApplyToAllSurface(m => rejectOccurrence(m));
-                  } else if (currentMode === 'known') {
-                    const target = knownEntities.find(e => e.entity_id === selectedKnownId);
-                    if (target) {
-                      onApplyToAllSurface(m => knownIdentity(m, target));
-                    }
-                  } else if (currentMode === 'provisional' && currentProvisionalGroup) {
-                    onApplyToAllSurface(m => ({
-                      ...newIdentity(review, m, currentProvisionalGroup),
-                      canonical_name: canonicalName.trim() || candidate.surface,
-                      entity_type: entityType,
-                      initial_status: initialStatus
-                    }));
-                  }
-                }}
-              >
-                Áp dụng quyết định này cho mọi vị trí &ldquo;{candidate.surface}&rdquo;
-              </Button>
-            </Group>
+            <Stack gap="xs" align="flex-end">
+              {!confirmBatchOpen ? (
+                <Button
+                  variant="transparent"
+                  size="compact-xs"
+                  color="dimmed"
+                  disabled={disabled}
+                  onClick={() => setConfirmBatchOpen(true)}
+                >
+                  Áp dụng quyết định này cho mọi vị trí &ldquo;{candidate.surface}&rdquo;
+                </Button>
+              ) : (
+                <Paper p="xs" withBorder radius="xs" bg="var(--mantine-color-orange-0)">
+                  <Stack gap="xs">
+                    <Text size="xs" fw={500} c="orange.9">
+                      Xác nhận gán thực thể hàng loạt (FE-02):
+                    </Text>
+                    <Text size="xs">
+                      Hai nhân vật khác nhau có thể trùng tên mặt chữ &ldquo;{candidate.surface}&rdquo;.
+                      Bạn có chắc chắn muốn gán tất cả vị trí này cho cùng một danh tính?
+                    </Text>
+                    <Group justify="flex-end" gap="xs">
+                      <Button size="compact-xs" variant="default" onClick={() => setConfirmBatchOpen(false)}>
+                        Hủy
+                      </Button>
+                      <Button
+                        size="compact-xs"
+                        color="orange"
+                        onClick={() => {
+                          setConfirmBatchOpen(false);
+                          if (currentMode === 'reject') {
+                            onApplyToAllSurface(m => rejectOccurrence(m));
+                          } else if (currentMode === 'known') {
+                            const target = knownEntities.find(e => e.entity_id === selectedKnownId);
+                            if (target) {
+                              onApplyToAllSurface(m => knownIdentity(m, target));
+                            }
+                          } else if (currentMode === 'provisional' && currentProvisionalGroup) {
+                            onApplyToAllSurface(m => ({
+                              ...newIdentity(review, m, currentProvisionalGroup),
+                              canonical_name: canonicalName.trim() || candidate.surface,
+                              entity_type: entityType,
+                              initial_status: initialStatus
+                            }));
+                          }
+                        }}
+                      >
+                        Xác nhận gán toàn bộ
+                      </Button>
+                    </Group>
+                  </Stack>
+                </Paper>
+              )}
+            </Stack>
           )}
         </Stack>
       </Stack>

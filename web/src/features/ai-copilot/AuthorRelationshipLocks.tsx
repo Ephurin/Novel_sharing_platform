@@ -103,14 +103,32 @@ export function AuthorRelationshipLocks({
   };
 
   const handlePrefillForRemediation = (rel: Relationship) => {
-    // Try to find matching entity IDs by metadata or exact match
-    const subjId = rel.metadata?.subject_entity_id || entities.find(e => e.name === rel.subject)?.entity_id || null;
-    const objId = rel.metadata?.object_entity_id || entities.find(e => e.name === rel.object)?.entity_id || null;
-    if (subjId) setSubjectId(subjId);
-    if (objId) setObjectId(objId);
+    // Only accept authoritative UUIDs if already present in metadata and existing in Canon entities.
+    // Never guess or substitute UUID by display name matching (FE-02 homonym safety).
+    const subjId =
+      rel.metadata?.subject_entity_id && entities.some(e => e.entity_id === rel.metadata?.subject_entity_id)
+        ? rel.metadata.subject_entity_id
+        : null;
+    const objId =
+      rel.metadata?.object_entity_id && entities.some(e => e.entity_id === rel.metadata?.object_entity_id)
+        ? rel.metadata.object_entity_id
+        : null;
+
+    setSubjectId(subjId);
+    setObjectId(objId);
     setRelationType(rel.relation);
     setErrorMsg(null);
-    setSuccessMsg('Đã nạp thông tin quan hệ vào form để bạn chọn lại UUID chính xác.');
+
+    if (!subjId || !objId) {
+      setErrorMsg(
+        `Quan hệ cũ thiếu UUID chính xác cho ${!subjId ? `chủ thể "${rel.subject}"` : ''}${
+          !subjId && !objId ? ' và ' : ''
+        }${!objId ? `đối tượng "${rel.object}"` : ''}. Vui lòng chọn UUID chính xác từ danh sách Canon trước khi khóa.`
+      );
+      setSuccessMsg(null);
+    } else {
+      setSuccessMsg('Đã nạp thông tin quan hệ vào form để bạn xác nhận hoặc cập nhật.');
+    }
   };
 
   const lockedRelations = relations.filter(r => r.locked);
@@ -244,12 +262,22 @@ export function AuthorRelationshipLocks({
                       <Text fw={600} size="sm">
                         {rel.subject}
                       </Text>
+                      {!rel.metadata?.subject_entity_id && (
+                        <Badge color="red" size="xs" variant="filled">
+                          Thiếu UUID
+                        </Badge>
+                      )}
                       <Badge variant="light" color="indigo" size="xs">
                         {rel.relation}
                       </Badge>
                       <Text fw={600} size="sm">
                         {rel.object}
                       </Text>
+                      {!rel.metadata?.object_entity_id && (
+                        <Badge color="red" size="xs" variant="filled">
+                          Thiếu UUID
+                        </Badge>
+                      )}
                     </Group>
 
                     {rel.locked ? (

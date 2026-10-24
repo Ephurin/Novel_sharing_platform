@@ -47,6 +47,7 @@ import {
   saveFuturePlan,
   acceptProposalGroupAtomic,
   correctMemoryEvent,
+  normalizeEntityName,
   type AutoRun,
   type AuthorPlan,
   type ConsistencyFinding,
@@ -249,16 +250,32 @@ export function AuthorMemoryPanel({
     setFindings(result.findings);
   };
 
-  // Event correction submission (B4)
+  // Event correction submission (B4, FE-01, FE-06)
   const handleEventCorrection = async (event: MemoryEvent, correction: EventCorrection) => {
-    perform(async () => {
+    try {
       await correctMemoryEvent(novelId, event.event_id, correction);
       setMessageType('success');
       setMessage(
         'Đã gửi đề xuất cập nhật sự kiện thành công (HTTP 201). Đề xuất đang ở trạng thái CHỜ DUYỆT; hãy chuyển sang tab "Chờ duyệt" để kiểm tra và chấp thuận vào Canon.'
       );
       await qc.invalidateQueries({ queryKey: ['memory-review', novelId] });
-    });
+    } catch (err) {
+      setMessageType('error');
+      if (err instanceof ApiClientError) {
+        if (err.status === 409) {
+          setMessage(
+            'Xung đột phiên bản bộ nhớ (409 Conflict). Dữ liệu đã thay đổi trên máy chủ; các chỉnh sửa của bạn được bảo lưu.'
+          );
+        } else if (err.status === 422) {
+          setMessage(`Dữ liệu không hợp lệ (422): ${getApiErrorMessage(err)}. Các chỉnh sửa của bạn được bảo lưu.`);
+        } else {
+          setMessage(getApiErrorMessage(err));
+        }
+      } else {
+        setMessage(getApiErrorMessage(err));
+      }
+      throw err;
+    }
   };
 
   // Group acceptance submission (B5 & C-01)
@@ -289,23 +306,6 @@ export function AuthorMemoryPanel({
       );
       setMessageType('success');
       setMessage(`Đã duyệt nhóm đề xuất gồm ${proposals.length} phần tử vào Canon thành công.`);
-      await refresh();
-    });
-  };
-
-  // Reject entire dependency group
-  const handleRejectEntireGroup = (proposals: ReviewProposal[]) => {
-    perform(async () => {
-      for (const p of proposals) {
-        await rejectProposal(p.proposal_id);
-      }
-      setEdits(previous =>
-        Object.fromEntries(
-          Object.entries(previous).filter(([pId]) => !proposals.some(p => p.proposal_id === pId))
-        )
-      );
-      setMessageType('info');
-      setMessage(`Đã loại bỏ toàn bộ nhóm gồm ${proposals.length} đề xuất.`);
       await refresh();
     });
   };
@@ -445,7 +445,7 @@ export function AuthorMemoryPanel({
                 const editedCount = proposals.filter(p => edits[p.proposal_id] !== undefined).length;
 
                 return (
-                  <Card withBorder key={groupId} p="sm" radius="md">
+                  <Card withBorder key={groupId} p="sm" radius="md" data-testid={`dependency-group-${groupId}`}>
                     <Stack gap="xs">
                       <Group justify="space-between" align="center">
                         <Group gap="xs">
@@ -463,22 +463,42 @@ export function AuthorMemoryPanel({
                         </Group>
 
                         <Group gap="xs">
-                          <Button
-                            size="xs"
-                            variant="subtle"
-                            color="red"
-                            disabled={pending}
-                            onClick={() => handleRejectEntireGroup(proposals)}
-                          >
-                            Loại toàn bộ nhóm
-                          </Button>
+                          {proposals.length > 1 ? (
+                            <Button
+                              size="xs"
+                              variant="subtle"
+                              color="gray"
+                              disabled
+                              title="Loại toàn bộ nhóm tạm thời không khả dụng: Đang chờ hợp đồng giao dịch an toàn từ máy chủ (FE-03)."
+                            >
+                              Loại toàn bộ nhóm (Tạm khóa)
+                            </Button>
+                          ) : (
+                            <Button
+                              size="xs"
+                              variant="subtle"
+                              color="red"
+                              disabled={pending}
+                              onClick={() => perform(() => rejectProposal(proposals[0].proposal_id))}
+                            >
+                              Loại đề xuất
+                            </Button>
+                          )}
                         </Group>
                       </Group>
 
-                      <Text size="xs" c="dimmed">
-                        Quy tắc nguyên tử (C-01): Toàn bộ các đề xuất trong nhóm này phải được duyệt cùng lúc
-                        vào Canon để bảo đảm tính toàn vẹn phụ thuộc.
-                      </Text>
+                      {proposals.length > 1 ? (
+                        <Alert color="gray" icon={<IconAlertTriangle size={14} />} p="xs">
+                          <Text size="xs">
+                            Tính năng loại bỏ toàn bộ nhóm phụ thuộc đang tạm khóa chờ hợp đồng giao dịch an toàn (transactional group rejection) từ máy chủ (FE-03).
+                            Việc loại bỏ đề xuất đơn lẻ trong nhóm bị vô hiệu hóa để tránh làm hỏng cấu trúc phụ thuộc (C-01).
+                          </Text>
+                        </Alert>
+                      ) : (
+                        <Text size="xs" c="dimmed">
+                          Đề xuất độc lập: Có thể duyệt hoặc loại bỏ an toàn mà không ảnh hưởng đến các đề xuất khác.
+                        </Text>
+                      )}
 
                       {/* Proposals list in group */}
                       {proposals.map(p => (
@@ -488,6 +508,8 @@ export function AuthorMemoryPanel({
                           editedPayload={edits[p.proposal_id]}
                           entities={memory.data?.entities ?? []}
                           disabled={pending}
+                          canReject={proposals.length === 1}
+                          rejectDisabledReason="Không thể loại bỏ đề xuất đơn lẻ trong nhóm phụ thuộc nhiều phần tử (C-01). Phải duyệt toàn bộ nhóm hoặc chờ cập nhật loại nhóm an toàn."
                           onEdit={newPayload => setEdits(prev => ({ ...prev, [p.proposal_id]: newPayload }))}
                           onRevertEdit={() =>
                             setEdits(prev => {
@@ -505,6 +527,7 @@ export function AuthorMemoryPanel({
                         color="teal"
                         size="sm"
                         disabled={pending}
+                        data-testid={`btn-accept-group-${groupId}`}
                         onClick={() => handleAcceptGroup(groupId, proposals)}
                       >
                         {hasEdits
@@ -677,6 +700,7 @@ export function AuthorMemoryPanel({
                     event={event}
                     entities={memory.data?.entities ?? []}
                     transitions={memory.data?.transitions ?? []}
+                    currentBrainVersion={currentBrainVersion}
                     disabled={pending}
                     onCorrect={correction => handleEventCorrection(event, correction)}
                   />
@@ -902,7 +926,7 @@ export function AuthorMemoryPanel({
                   Xác nhận và lưu định hướng
                 </Button>
               </Group>
-              {plan.data?.objectives.map((o, i) => (
+              {(plan.data?.objectives ?? []).map((o, i) => (
                 <Card key={i} withBorder p="xs">
                   <Badge>{o.status}</Badge>
                   <Text fw={600} size="sm">
@@ -993,6 +1017,8 @@ function ProposalReview({
   editedPayload,
   entities,
   disabled,
+  canReject = true,
+  rejectDisabledReason,
   onEdit,
   onRevertEdit,
   onReject
@@ -1001,6 +1027,8 @@ function ProposalReview({
   editedPayload?: Record<string, unknown>;
   entities: MemoryEntity[];
   disabled: boolean;
+  canReject?: boolean;
+  rejectDisabledReason?: string;
   onEdit: (payload: Record<string, unknown>) => void;
   onRevertEdit: () => void;
   onReject: () => void;
@@ -1022,7 +1050,14 @@ function ProposalReview({
         <Stack gap="xs">
           <Group justify="space-between">
             <Badge color="violet">Tên gọi / Alias</Badge>
-            <Button variant="subtle" size="compact-xs" color="red" disabled={disabled} onClick={onReject}>
+            <Button
+              variant="subtle"
+              size="compact-xs"
+              color="red"
+              disabled={disabled || !canReject}
+              title={!canReject ? rejectDisabledReason : undefined}
+              onClick={onReject}
+            >
               Loại đề xuất
             </Button>
           </Group>
@@ -1048,7 +1083,14 @@ function ProposalReview({
         <Stack gap="xs">
           <Group justify="space-between">
             <Badge color="cyan">Đã có trong Canon — Giữ nguyên</Badge>
-            <Button variant="subtle" size="compact-xs" color="red" disabled={disabled} onClick={onReject}>
+            <Button
+              variant="subtle"
+              size="compact-xs"
+              color="red"
+              disabled={disabled || !canReject}
+              title={!canReject ? rejectDisabledReason : undefined}
+              onClick={onReject}
+            >
               Loại đề xuất
             </Button>
           </Group>
@@ -1089,7 +1131,14 @@ function ProposalReview({
                 Hoàn tác sửa
               </Button>
             )}
-            <Button variant="subtle" size="compact-xs" color="red" disabled={disabled} onClick={onReject}>
+            <Button
+              variant="subtle"
+              size="compact-xs"
+              color="red"
+              disabled={disabled || !canReject}
+              title={!canReject ? rejectDisabledReason : undefined}
+              onClick={onReject}
+            >
               Loại đề xuất
             </Button>
           </Group>
@@ -1146,7 +1195,7 @@ function ProposalReview({
           </Stack>
         )}
 
-        {/* 2. Fact Proposal Editing */}
+        {/* 2. Fact Proposal Editing (FE-04: Preserve typed numbers/booleans/JSON) */}
         {proposal.proposal_type === 'fact' && (
           <Stack gap="xs">
             <TextInput
@@ -1171,7 +1220,24 @@ function ProposalReview({
               size="xs"
               label="Giá trị dữ kiện (fact_value)"
               value={typeof p.fact_value === 'string' ? p.fact_value : JSON.stringify(p.fact_value ?? '')}
-              onChange={e => onEdit({ ...p, fact_value: e.currentTarget.value })}
+              onChange={e => {
+                const raw = e.currentTarget.value;
+                const orig = original.fact_value;
+                let parsed: unknown = raw;
+                if (typeof orig === 'number' && !isNaN(Number(raw)) && raw.trim() !== '') {
+                  parsed = Number(raw);
+                } else if (typeof orig === 'boolean') {
+                  if (raw.trim().toLowerCase() === 'true') parsed = true;
+                  else if (raw.trim().toLowerCase() === 'false') parsed = false;
+                } else if (typeof orig === 'object' && orig !== null) {
+                  try {
+                    parsed = JSON.parse(raw);
+                  } catch {
+                    parsed = raw;
+                  }
+                }
+                onEdit({ ...p, fact_value: parsed });
+              }}
               disabled={disabled}
               autosize
               minRows={2}
@@ -1179,7 +1245,7 @@ function ProposalReview({
           </Stack>
         )}
 
-        {/* 3. State Transition Proposal Editing */}
+        {/* 3. State Transition Proposal Editing (FE-04: Preserve typed numbers/booleans/JSON) */}
         {proposal.proposal_type === 'state_transition' && (
           <Stack gap="xs">
             <Select
@@ -1204,13 +1270,30 @@ function ProposalReview({
               size="xs"
               label="Giá trị mới (new_value)"
               value={typeof p.new_value === 'string' ? p.new_value : JSON.stringify(p.new_value ?? '')}
-              onChange={e => onEdit({ ...p, new_value: e.currentTarget.value })}
+              onChange={e => {
+                const raw = e.currentTarget.value;
+                const orig = original.new_value;
+                let parsed: unknown = raw;
+                if ((p.attribute_key === 'health' || typeof orig === 'number') && !isNaN(Number(raw)) && raw.trim() !== '') {
+                  parsed = Number(raw);
+                } else if (typeof orig === 'boolean') {
+                  if (raw.trim().toLowerCase() === 'true') parsed = true;
+                  else if (raw.trim().toLowerCase() === 'false') parsed = false;
+                } else if (typeof orig === 'object' && orig !== null) {
+                  try {
+                    parsed = JSON.parse(raw);
+                  } catch {
+                    parsed = raw;
+                  }
+                }
+                onEdit({ ...p, new_value: parsed });
+              }}
               disabled={disabled}
             />
           </Stack>
         )}
 
-        {/* 4. Entity Proposal Editing */}
+        {/* 4. Entity Proposal Editing (FE-04: Whitelist only canonical_name/normalized_name) */}
         {proposal.proposal_type === 'entity' && (
           <Stack gap="xs">
             <TextInput
@@ -1222,17 +1305,9 @@ function ProposalReview({
                 onEdit({
                   ...p,
                   canonical_name: name,
-                  normalized_name: name.trim().toLocaleLowerCase()
+                  normalized_name: normalizeEntityName(name)
                 });
               }}
-              disabled={disabled}
-            />
-            <Select
-              size="xs"
-              label="Trạng thái ban đầu (initial_status)"
-              data={['Alive', 'Dead', 'Unknown']}
-              value={String(p.initial_status ?? 'Unknown')}
-              onChange={v => onEdit({ ...p, initial_status: v ?? 'Unknown' })}
               disabled={disabled}
             />
           </Stack>
@@ -1250,30 +1325,36 @@ function EventItem({
   event,
   entities,
   transitions,
+  currentBrainVersion,
   disabled,
   onCorrect
 }: {
   event: MemoryEvent;
   entities: MemoryEntity[];
   transitions: Transition[];
+  currentBrainVersion: number;
   disabled: boolean;
   onCorrect: (correction: EventCorrection) => Promise<unknown>;
 }) {
   const [editing, setEditing] = useState(false);
   const [summary, setSummary] = useState(event.summary);
   const [eventType, setEventType] = useState(event.event_type);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // Selected participants as UUID[]
+  // Identify authoritative entity UUIDs in participants.
+  // Never guess by matching display name (FE-02: Minh A vs Minh B must never auto-resolve).
   const initialParticipantUuids = event.participants
     .map(p => {
-      // Find matching entity either by ID or by name
       const byId = entities.find(e => e.entity_id === p);
-      if (byId) return byId.entity_id;
-      const byName = entities.find(e => e.name === p);
-      if (byName) return byName.entity_id;
-      return null;
+      return byId ? byId.entity_id : null;
     })
     .filter((id): id is string => Boolean(id));
+
+  // Legacy unresolved participants (names without UUIDs)
+  const unresolvedLegacyParticipants = event.participants.filter(
+    p => !entities.some(e => e.entity_id === p)
+  );
 
   const [selectedParticipants, setSelectedParticipants] = useState<string[]>(initialParticipantUuids);
 
@@ -1293,10 +1374,27 @@ function EventItem({
     label: `${e.name} [${e.entity_type}] · ID: ${e.entity_id.slice(0, 8)}...`
   }));
 
-  const handleSubmitCorrection = () => {
+  // Check if all selected participants are valid UUIDs from canonical entities
+  const allParticipantsValid =
+    selectedParticipants.length > 0 &&
+    selectedParticipants.every(id => entities.some(e => e.entity_id === id));
+
+  const handleSubmitCorrection = async () => {
     if (!summary.trim()) return;
+    if (selectedParticipants.length === 0) {
+      setSubmitError('Vui lòng chọn ít nhất một nhân vật tham gia bằng UUID chính xác từ Canon.');
+      return;
+    }
+    if (!allParticipantsValid) {
+      setSubmitError('Một hoặc nhiều nhân vật tham gia không tồn tại trong danh sách Canon chính thức.');
+      return;
+    }
+
+    setSubmitError(null);
+    setIsSubmitting(true);
+
     const correction: EventCorrection = {
-      expected_brain_version: 1, // Will be filled by caller or current brain
+      expected_brain_version: currentBrainVersion,
       replacement: {
         event_type: eventType.trim() || event.event_type,
         summary: summary.trim(),
@@ -1305,12 +1403,35 @@ function EventItem({
       },
       transitions: transitionEdits.filter(t => t.entity_id && t.attribute_key.trim())
     };
-    onCorrect(correction);
-    setEditing(false);
+
+    try {
+      await onCorrect(correction);
+      // On successful HTTP 201, close editor
+      setEditing(false);
+    } catch (err) {
+      // On 409, 422, network timeout, or error: preserve visible edits and show error!
+      if (err instanceof ApiClientError) {
+        if (err.status === 409) {
+          setSubmitError(
+            'Xung đột phiên bản Story Brain (409 Conflict): Phiên bản máy chủ đã thay đổi; bản nháp chỉnh sửa của bạn vẫn được giữ nguyên.'
+          );
+        } else if (err.status === 422) {
+          setSubmitError(
+            `Dữ liệu không hợp lệ (422): ${getApiErrorMessage(err)}. Bản nháp chỉnh sửa của bạn vẫn được giữ nguyên.`
+          );
+        } else {
+          setSubmitError(getApiErrorMessage(err));
+        }
+      } else {
+        setSubmitError(String(err));
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <Card withBorder radius="sm" p="xs">
+    <Card withBorder radius="sm" p="xs" data-testid={`event-card-${event.event_id}`}>
       <Stack gap="xs">
         <Group justify="space-between" align="center">
           <Group gap="xs">
@@ -1326,6 +1447,7 @@ function EventItem({
             variant="subtle"
             leftSection={<IconEdit size={12} />}
             disabled={disabled}
+            data-testid={`btn-edit-event-${event.event_id}`}
             onClick={() => setEditing(prev => !prev)}
           >
             {editing ? 'Đóng chỉnh sửa' : 'Đề xuất chỉnh sửa'}
@@ -1336,17 +1458,21 @@ function EventItem({
           {event.summary}
         </Text>
 
-        {/* Display participants */}
+        {/* Display participants (FE-02: explicit UUID or unresolved warning) */}
         {event.participants.length > 0 && (
           <Group gap="xs">
             <Text size="xs" c="dimmed">
               Nhân vật:
             </Text>
             {event.participants.map((p, i) => {
-              const matchedEntity = entities.find(e => e.entity_id === p || e.name === p);
-              return (
+              const matchedEntity = entities.find(e => e.entity_id === p);
+              return matchedEntity ? (
                 <Badge key={i} size="xs" variant="light" color="cyan">
-                  {matchedEntity ? `${matchedEntity.name} (${matchedEntity.entity_id.slice(0, 6)})` : p}
+                  {matchedEntity.name} ({matchedEntity.entity_id.slice(0, 6)}...)
+                </Badge>
+              ) : (
+                <Badge key={i} size="xs" variant="filled" color="red">
+                  Chưa xác thực UUID: {p}
                 </Badge>
               );
             })}
@@ -1385,12 +1511,27 @@ function EventItem({
                 cho đến khi được chấp thuận trong tab &quot;Chờ duyệt&quot;.
               </Text>
 
+              {unresolvedLegacyParticipants.length > 0 && (
+                <Alert color="orange" title="Cảnh báo danh tính chưa xác thực (FE-02)">
+                  <Text size="xs">
+                    Sự kiện gốc có người tham gia chưa có UUID chính xác ({unresolvedLegacyParticipants.join(', ')}).
+                    Để tránh nhầm lẫn giữa hai nhân vật cùng tên (như Minh A và Minh B), bạn phải chọn UUID chính xác từ danh sách Canon bên dưới trước khi gửi.
+                  </Text>
+                </Alert>
+              )}
+
+              {submitError && (
+                <Alert color="red" title="Lỗi gửi chỉnh sửa sự kiện" withCloseButton onClose={() => setSubmitError(null)}>
+                  {submitError}
+                </Alert>
+              )}
+
               <TextInput
                 size="xs"
                 label="Loại sự kiện (event_type)"
                 value={eventType}
                 onChange={e => setEventType(e.currentTarget.value)}
-                disabled={disabled}
+                disabled={disabled || isSubmitting}
               />
 
               <Textarea
@@ -1398,7 +1539,7 @@ function EventItem({
                 label="Tóm tắt sự kiện đã sửa (summary)"
                 value={summary}
                 onChange={e => setSummary(e.currentTarget.value)}
-                disabled={disabled}
+                disabled={disabled || isSubmitting}
                 autosize
                 minRows={2}
               />
@@ -1412,7 +1553,7 @@ function EventItem({
                 onChange={setSelectedParticipants}
                 searchable
                 clearable
-                disabled={disabled || entities.length === 0}
+                disabled={disabled || isSubmitting || entities.length === 0}
               />
 
               {/* Editable Transitions */}
@@ -1433,7 +1574,7 @@ function EventItem({
                         )
                       }
                       searchable
-                      disabled={disabled}
+                      disabled={disabled || isSubmitting}
                     />
                     <TextInput
                       size="xs"
@@ -1444,7 +1585,7 @@ function EventItem({
                           prev.map((x, i) => (i === tIdx ? { ...x, attribute_key: e.currentTarget.value } : x))
                         )
                       }
-                      disabled={disabled}
+                      disabled={disabled || isSubmitting}
                     />
                     <TextInput
                       size="xs"
@@ -1455,14 +1596,14 @@ function EventItem({
                           prev.map((x, i) => (i === tIdx ? { ...x, new_value: e.currentTarget.value } : x))
                         )
                       }
-                      disabled={disabled}
+                      disabled={disabled || isSubmitting}
                     />
                     <Button
                       size="xs"
                       color="red"
                       variant="subtle"
                       onClick={() => setTransitionEdits(prev => prev.filter((_, i) => i !== tIdx))}
-                      disabled={disabled}
+                      disabled={disabled || isSubmitting}
                     >
                       Bỏ
                     </Button>
@@ -1478,21 +1619,23 @@ function EventItem({
                       { entity_id: entities[0]?.entity_id || '', attribute_key: '', new_value: '' }
                     ])
                   }
-                  disabled={disabled || entities.length === 0}
+                  disabled={disabled || isSubmitting || entities.length === 0}
                 >
                   + Thêm cập nhật trạng thái
                 </Button>
               </Stack>
 
               <Group justify="flex-end" mt="xs">
-                <Button size="xs" variant="default" onClick={() => setEditing(false)} disabled={disabled}>
+                <Button size="xs" variant="default" onClick={() => setEditing(false)} disabled={disabled || isSubmitting}>
                   Hủy
                 </Button>
                 <Button
                   size="xs"
                   color="indigo"
+                  data-testid={`btn-submit-correction-${event.event_id}`}
                   onClick={handleSubmitCorrection}
-                  disabled={disabled || !summary.trim()}
+                  disabled={disabled || isSubmitting || !summary.trim() || selectedParticipants.length === 0 || !allParticipantsValid}
+                  loading={isSubmitting}
                 >
                   Gửi đề xuất chỉnh sửa (Tạo proposal chờ duyệt)
                 </Button>
