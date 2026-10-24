@@ -238,6 +238,7 @@
   .sc-continue { padding-inline: 8px; }
   .sc-author-theme h1 { font-size: 22px; line-height: 30px; }
   .sc-author-theme .sc-studio-toolbar { align-items: flex-start; }
+  .sc-author-theme .sc-studio-toolbar > div:last-child { max-width: 100%; flex-shrink: 1; flex-wrap: wrap; }
   .sc-shell-content { padding: 16px; }
   .sc-author-theme .sc-manuscript { padding-inline: 16px; }
 }
