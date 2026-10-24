@@ -176,6 +176,7 @@ export async function canonAcceptance(h, f, x) {
     await h.shot('s11-pending-proposal-and-stable-canon');
   });
   await h.step('S11: actual SPA logout/login clears private account context without a document reload', async () => {
+    const canonical = await memory();
     await page.keyboard.press('Escape');
     await page.getByTitle('Quay lại danh sách tác phẩm', { exact: true }).click();
     await page.getByRole('button', { name: /^Tài khoản / }).click();
