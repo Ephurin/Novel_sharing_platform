@@ -1,0 +1,24 @@
+{
+  "base": "839b9525385f0ab137512c76ba4d434bdb736dbc",
+  "only_tracked_change": [
+    "backend/src/modules/ai/p1-memory-entity.live.test.ts"
+  ],
+  "utc": "2026-10-24T01:32:04.108233+00:00",
+  "files": {
+    "ai-service/tests/test_c01_canon_group.py": "abe22076369d6f80995d7e7c1c9273de0c8c2b4435a0022458960391665c3f9e",
+    "backend/src/modules/ai/p1-memory-entity.live.test.ts": "1eada21eb289a7230a80d723fbe231ef327dcce1b8e7ec028b4226d2455a24d4",
+    "ai-service/infrastructure/postgres_narrative_repository.py": {
+      "runtime_sha256": "753f2afbf1d7f545da7d60a7e5cb09d3d7743de2376de31c3e6c6743220dddd0",
+      "git_blob_sha256": "cc1ff396f07d86369e2cc87da285953cda33d56abbabd8b41d487f2ee6e5dfa6"
+    },
+    "ai-service/application/narrative_service.py": {
+      "runtime_sha256": "8116bd8d25703cb9cc5085fc355231df95d024a2ebe795e2024b53dc389320a8",
+      "git_blob_sha256": "972dcd0487a036dd5872f6ce2c7f8afc023aa438b3cce51e721c9b38d7def5dc"
+    },
+    "ai-service/api/narrative_routes.py": {
+      "runtime_sha256": "d8cdc9c4f541e5362b33687a8faa3e5dbe4baa410797da088580d2d562bba82e",
+      "git_blob_sha256": "52523b9c4264a63f540ebb33dc3bfce9a99e25df49c8978d81d7dd77ba6be5b3"
+    }
+  },
+  "tracked_overlay_sha256": "f9e8cae766111fbc92c51d33d2fa5d2290da8e3d4a043a98181267f4a1c2dd0a"
+}
