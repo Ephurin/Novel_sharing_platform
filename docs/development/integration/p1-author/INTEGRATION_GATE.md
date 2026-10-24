@@ -53,3 +53,29 @@ Artifacts to add under docs/development/integration/p1-author/evidence/:
 - FINAL_HANDOFF.md with exact tested commit SHA and explicit unresolved blockers.
 
 No live Gemini/provider/embedding usage, publication, production migration, 100k story or merge to main is authorized by this task.
+
+
+## Current post-acceptance status — 2026-10-24 PR57 promotion audit
+
+Current bounded status: **PR57_READY_FOR_OWNER_AUTHORIZED_MERGE**, subject to independent review of the documentation delta and explicit owner authorization. The bootstrap status and earlier statements above are historical records of2026-10-23; they are preserved verbatim.
+
+- Audited integration: `ccbd81d6b52c7839e18cb433c60a130a6acee5de`; target feat/author-workspace: `3100c46f46cd071467d762dff4ffa1fc4efe07f2`. Target ancestor; ahead102/behind0. Current tree `b212272bc6521ae65787977dadfb9eca085d4ad3` equals accepted evidence tree `d466daa6`; runtime/tests/config equal browser-tested `c5a015aa` after excluding its evidence-only directory.
+- Completed normal merge milestones: #63→`dd2f8003`, #64→`2eca7f19`, #66→`6de87f57`, #67→`608bc3b7` (into PR65), #65→`ccbd81d6` (into integration). PR57 remains OPEN/Draft; no promotion performed by this audit.
+- Final integration [P7:3/3 SUCCESS](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/40099358646), [P8:7/7 SUCCESS](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/40099358658). All10 actual checkout logs reference synthetic `f5b572db`, whose tree equals integration. Full uncapped diff1518 paths, zero deletions.
+
+| Gate | Current bounded disposition |
+|---|---|
+| G0 | PASS: PR57-specific full source/contract/migration reconciliation and exact ancestry/tree proof. |
+| G1 | PASS: existing combined migration/security/CAS/persistence evidence applies; final integration CI green. |
+| G2 | PASS: existing actual S09 production-SPA save/Undo/409/context/revision/outbox acceptance applies. |
+| G3 | PASS: existing S10/S11 human review, UUID identity, atomic Canon, correction/lock/reload acceptance applies. |
+| G4 | PASS for documented read/UI smoke; finance/VIP purchase, publish/scheduler execution and moderation resolution NOT_RUN. |
+| G5 | Existing bounded P1 source/evidence independently ACCEPTED; PR57 promotion audit complete. New documentation awaits GPT-6 review. |
+
+References: [PR57 audit](PR57_FINAL_PROMOTION_AUDIT.md), [full inventory](PR57_FINAL_PROMOTION_INVENTORY.tsv), [machine checks](PR57_FINAL_PROMOTION_CHECKS.json), [accepted S09–S11 matrix](final-fe-acceptance/evidence/S09_S11_MATRIX.md), [historical final handoff](final-fe-acceptance/evidence/FINAL_HANDOFF.md), [independent G5](https://github.com/Ephurin/Novel_sharing_platform/pull/67#issuecomment-6384788368), [postmerge checkpoint](https://github.com/Ephurin/Novel_sharing_platform/pull/57#issuecomment-6385045600).
+
+Supported P1 scope: ordered/versioned draft persistence and immutable revisions/outbox; approved-only UUID memory; human occurrence/provisional identity review/refresh/freeze/continue; atomic edited group approval and group rejection; source-grounded corrections, exact-ID relationship locks and reload/resume isolation. Candidate verification remains OFF by default; isolated acceptance explicitly enabled it. No source or migration changed in this documentation audit, and no runtime suite/Docker/provider operation was repeated.
+
+Release limitations persist: known baseline dependency advisories plus3 moderate build-only selector-parser package advisories; bounded Unicode edits; saved immutable-source consistency contract; inherited ADMIN override and legacy consumer limits. No live-model/embedding, full P2/P3, load/scale, finance/publishing/moderation-execution or production-readiness clearance. [Audit risk section](PR57_FINAL_PROMOTION_AUDIT.md#deferred-functionality-and-release-risks) specifies scope and provenance/Windows hash handling.
+
+Keep experimental feature-branch promotion separate from production release. After owner authorization, normal merge to feat/author-workspace requires a fresh head/CI lease and lightweight postmerge CI. Main/deploy remain unauthorized; this audit stops for GPT-6 review.
