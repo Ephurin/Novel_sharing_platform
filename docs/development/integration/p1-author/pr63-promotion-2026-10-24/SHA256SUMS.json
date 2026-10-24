@@ -1,0 +1,18 @@
+{
+  "bytes": "committed Git blob bytes",
+  "sha256": {
+    "docs/development/integration/p1-author/pr63-promotion-2026-10-24/GEMINI_PROMPT.md": "f53bf464387aa111b99a0b6bd1690e11bdef5024984cdd26ecd7069da5809a73",
+    "docs/development/integration/p1-author/pr63-promotion-2026-10-24/READINESS.md": "27f128227e7777194d2fb7d3f3eb76485bc37de60d9adaf1e9a6fd1493453388",
+    "docs/development/integration/p1-author/pr63-promotion-2026-10-24/README.md": "edbe856f460091f7cf72eaf1033b13fe3e61c108777d95d6b1a1f03d9c5f2d70",
+    "docs/development/integration/p1-author/pr63-promotion-2026-10-24/dto-readonly-probe.json": "f408c7c959ea06509555d03bf3eb1f3c59c9387da84c63ce3b64cd5f1a718651",
+    "docs/development/integration/p1-author/pr63-promotion-2026-10-24/final-state.json": "045d89beadff78d76224ed39682b80b8e45c44cf1beec024e0528426cf52dbb8",
+    "docs/development/integration/p1-author/pr63-promotion-2026-10-24/independent-acceptance.md": "0682e00fc28d2d53490485fd9a416c899c6c46a6f2e20d681ea9f8710b5f00f3",
+    "docs/development/integration/p1-author/pr63-promotion-2026-10-24/integrity-commands.json": "14c06392a22b8923bed817ab2f5b53ed3dafbf049d00179a5a30e8e96ba4375d",
+    "docs/development/integration/p1-author/pr63-promotion-2026-10-24/integrity.json": "8da3b20820178baa4b2f986408fd097542732797ca2d5f1465a49edb64f82d8b",
+    "docs/development/integration/p1-author/pr63-promotion-2026-10-24/postmerge-ci.json": "b5ad62b2b3c116febe4bc884907f586676559c6cea82832d8923cf24370ec6c7",
+    "docs/development/integration/p1-author/pr63-promotion-2026-10-24/premerge-ci.json": "69e371345399701dacf75db8e110284321c5b5327607d4ff649698e74159c8af",
+    "docs/development/integration/p1-author/pr63-promotion-2026-10-24/premerge-gates.json": "2c99f64439c963a73be65d41c665738293d0fe837499f15acd6c6fae40c8411d",
+    "docs/development/integration/p1-author/pr63-promotion-2026-10-24/prompt-syntax-check.json": "032f13c07b046b79bff787c8a17fc5a398ccbf682e69ae83ac5f20563fe0d31d",
+    "docs/development/integration/p1-author/pr63-promotion-2026-10-24/verify_integrity.py": "752b98f60ddbe6eb52bca076e77f33d0793dd5e6f5d063464ba0d416285b489c"
+  }
+}

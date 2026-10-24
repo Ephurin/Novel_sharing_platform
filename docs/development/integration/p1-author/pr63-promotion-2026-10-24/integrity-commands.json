@@ -1,0 +1,353 @@
+[
+  {
+    "command": [
+      "git",
+      "show",
+      "-s",
+      "--format=%P",
+      "dd2f8003b0ad94e6097819cdca0249aa591f54fa"
+    ],
+    "exit_code": 0,
+    "stdout": "7fd6f71b388320e00408b7ea47c0998708c70a2c 8b6bd15846cc2fea3cf67459ce94028d5ed49403\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "fd2f51aaaaa7196a0fdab9e6bb2498c9b55ce5e9",
+      "dd2f8003b0ad94e6097819cdca0249aa591f54fa"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "merge-base",
+      "--is-ancestor",
+      "7fd6f71b388320e00408b7ea47c0998708c70a2c",
+      "dd2f8003b0ad94e6097819cdca0249aa591f54fa"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "dd2f8003b0ad94e6097819cdca0249aa591f54fa^{tree}"
+    ],
+    "exit_code": 0,
+    "stdout": "5a60db0f8e5591594902ab0bdd9d3832b663f453\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "8b6bd15846cc2fea3cf67459ce94028d5ed49403^{tree}"
+    ],
+    "exit_code": 0,
+    "stdout": "5a60db0f8e5591594902ab0bdd9d3832b663f453\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "82beb667f743c7f10ab9eb13fdea991fd7df3e63^{tree}"
+    ],
+    "exit_code": 0,
+    "stdout": "5a60db0f8e5591594902ab0bdd9d3832b663f453\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--name-only",
+      "fd2f51aaaaa7196a0fdab9e6bb2498c9b55ce5e9",
+      "8b6bd15846cc2fea3cf67459ce94028d5ed49403"
+    ],
+    "exit_code": 0,
+    "stdout": "docs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/REPORT.md\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/SHA256SUMS.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/acceptance-container-inspect.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/alembic-upgrade.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/all-task-containers-after-stop.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/all-task-containers-before-stop.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/backend-migration.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/changed-source-paths.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/concurrent-completion-readback.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/container-stop.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev-backend-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev-backend-typecheck.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev-hitl-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev-hitl.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev-identity-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev-identity.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev-live-ai.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev-live-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev-live.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev-postgres-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev-postgres.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev-unit-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev-unit.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev2-backend-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev2-backend-typecheck.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev2-backend.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev2-identity-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev2-identity.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev2-live-ai.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev2-live-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev2-live.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev2-unit-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev2-unit.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev3-identity-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev3-identity.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev3-unit-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev3-unit.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev4-hitl-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev4-hitl.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev4-unit-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev4-unit.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev5-identity-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev5-identity.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev6-identity-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-dev6-identity.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-repair-identity-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/development/test-repair-identity.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/existing-semantics-postgres-readbacks.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/final-mongo-inventory.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/final-pg-inventory.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/final-source-sha.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/final-source-status.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/gateway-postgres-readbacks.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/github-actions-source.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/historical-evidence-diff.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/http-requests-responses.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/identity-postgres-readbacks.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/identity_final_runner.py\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/identity_red_locks.py\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/identity_red_locks_readback.py\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/identity_runner.py\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/migrate-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/package_identity.py\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/pr-merge-tree.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/preseal_identity.py\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/provenance.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/provision-1.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/provision-2.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/provision-3.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/provision-4.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/provision-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/red-legacy-persistence-readbacks.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/red/PROVENANCE.md\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/red/red-development-resources.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/red/red-migrate-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/red/red-provision-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/red/red-test-snapshot.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/red/superseded-source-resources.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/red/test-red-identity-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/red/test-red-identity.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/red/test-red-lockreadback-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/red/test-red-lockreadback.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/red/test-red-locks-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/red/test-red-locks.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/resources.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/results.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/retained-containers-volumes.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/seal-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/source-blobs.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/source-tree.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/stop_identity_resources.py\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-backend-1.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-backend-2.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-backend-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-backend-source.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-backend-typecheck.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-backend.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-hitl-1.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-hitl-2.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-hitl-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-hitl-source.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-hitl.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-live-1.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-live-2.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-live-ai.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-live-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-live-source.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-live.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-postgres-1.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-postgres-2.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-postgres-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-postgres-source.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-postgres.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-unit-1.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-unit-2.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-unit-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-unit-source.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/superseded-79bfcebb/test-accept-unit.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-backend-1.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-backend-2.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-backend-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-backend-source.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-backend-typecheck.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-backend.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-hitl-1.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-hitl-2.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-hitl-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-hitl-source.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-hitl.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-live-1.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-live-2.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-live-ai.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-live-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-live-source.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-live.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-postgres-1.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-postgres-2.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-postgres-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-postgres-source.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-postgres.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-python-1.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-python-2.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-python-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-python-source.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-python.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-unit-1.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-unit-2.log\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-unit-commands.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-unit-source.json\ndocs/development/integration/p1-author/memory-entity-hitl/identity-final-hardening-2026-10-24/test-accept-unit.log\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--name-only",
+      "fd2f51aaaaa7196a0fdab9e6bb2498c9b55ce5e9",
+      "dd2f8003b0ad94e6097819cdca0249aa591f54fa",
+      "--",
+      "ai-service",
+      "backend",
+      "web",
+      ".github",
+      "docker-compose.yml"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--name-only",
+      "7fd6f71b388320e00408b7ea47c0998708c70a2c",
+      "dd2f8003b0ad94e6097819cdca0249aa591f54fa",
+      "--",
+      "ai-service/requirements.txt",
+      "ai-service/migrations",
+      "backend/src/core/database/migrations",
+      "backend/package.json",
+      "backend/package-lock.json",
+      "web/package.json",
+      "web/package-lock.json"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--name-only",
+      "--",
+      "web",
+      "backend",
+      "ai-service",
+      ".github"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "fd2f51aaaaa7196a0fdab9e6bb2498c9b55ce5e9:backend/src/modules/novels/chapter-revisions.service.ts"
+    ],
+    "exit_code": 0,
+    "stdout": "fae692b6af68efad258b037b3f31c4fe1d2aaf2e\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "dd2f8003b0ad94e6097819cdca0249aa591f54fa:backend/src/modules/novels/chapter-revisions.service.ts"
+    ],
+    "exit_code": 0,
+    "stdout": "fae692b6af68efad258b037b3f31c4fe1d2aaf2e\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "fd2f51aaaaa7196a0fdab9e6bb2498c9b55ce5e9:backend/src/jobs/outbox-processor.ts"
+    ],
+    "exit_code": 0,
+    "stdout": "f17c59ca24255099d6d73f6c1f110fe4e950ccf5\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "dd2f8003b0ad94e6097819cdca0249aa591f54fa:backend/src/jobs/outbox-processor.ts"
+    ],
+    "exit_code": 0,
+    "stdout": "f17c59ca24255099d6d73f6c1f110fe4e950ccf5\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "fd2f51aaaaa7196a0fdab9e6bb2498c9b55ce5e9:backend/src/modules/ai/ai-gateway.controller.ts"
+    ],
+    "exit_code": 0,
+    "stdout": "1cf46288e6648da6670a1525779c8fc0ff48aadc\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "dd2f8003b0ad94e6097819cdca0249aa591f54fa:backend/src/modules/ai/ai-gateway.controller.ts"
+    ],
+    "exit_code": 0,
+    "stdout": "1cf46288e6648da6670a1525779c8fc0ff48aadc\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "fd2f51aaaaa7196a0fdab9e6bb2498c9b55ce5e9:ai-service/api/entity_hitl_routes.py"
+    ],
+    "exit_code": 0,
+    "stdout": "716d819330c489a687ae9f6cfb9010c9007af02a\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "dd2f8003b0ad94e6097819cdca0249aa591f54fa:ai-service/api/entity_hitl_routes.py"
+    ],
+    "exit_code": 0,
+    "stdout": "716d819330c489a687ae9f6cfb9010c9007af02a\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "fd2f51aaaaa7196a0fdab9e6bb2498c9b55ce5e9:ai-service/application/entity_hitl.py"
+    ],
+    "exit_code": 0,
+    "stdout": "ccdfb7085dad49755f66e1f96e07c303384d1c14\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "dd2f8003b0ad94e6097819cdca0249aa591f54fa:ai-service/application/entity_hitl.py"
+    ],
+    "exit_code": 0,
+    "stdout": "ccdfb7085dad49755f66e1f96e07c303384d1c14\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "fd2f51aaaaa7196a0fdab9e6bb2498c9b55ce5e9:ai-service/application/entity_review_service.py"
+    ],
+    "exit_code": 0,
+    "stdout": "d6de093982ecf6c65202845e5143c0a48f0a0dc7\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "dd2f8003b0ad94e6097819cdca0249aa591f54fa:ai-service/application/entity_review_service.py"
+    ],
+    "exit_code": 0,
+    "stdout": "d6de093982ecf6c65202845e5143c0a48f0a0dc7\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "fd2f51aaaaa7196a0fdab9e6bb2498c9b55ce5e9:ai-service/application/reviewed_inventory.py"
+    ],
+    "exit_code": 0,
+    "stdout": "0909e8c4c9681321d2c5b6b9121b9441f2982099\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "dd2f8003b0ad94e6097819cdca0249aa591f54fa:ai-service/application/reviewed_inventory.py"
+    ],
+    "exit_code": 0,
+    "stdout": "0909e8c4c9681321d2c5b6b9121b9441f2982099\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "fd2f51aaaaa7196a0fdab9e6bb2498c9b55ce5e9:ai-service/domain/projection.py"
+    ],
+    "exit_code": 0,
+    "stdout": "52452963476df97793b9da0133dcd5ed084ed65c\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "dd2f8003b0ad94e6097819cdca0249aa591f54fa:ai-service/domain/projection.py"
+    ],
+    "exit_code": 0,
+    "stdout": "52452963476df97793b9da0133dcd5ed084ed65c\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "fd2f51aaaaa7196a0fdab9e6bb2498c9b55ce5e9:ai-service/infrastructure/postgres_narrative_repository.py"
+    ],
+    "exit_code": 0,
+    "stdout": "3919b7d4badad0228eff926879e39f3b16565076\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "dd2f8003b0ad94e6097819cdca0249aa591f54fa:ai-service/infrastructure/postgres_narrative_repository.py"
+    ],
+    "exit_code": 0,
+    "stdout": "3919b7d4badad0228eff926879e39f3b16565076\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "fd2f51aaaaa7196a0fdab9e6bb2498c9b55ce5e9:ai-service/core/settings.py"
+    ],
+    "exit_code": 0,
+    "stdout": "6c952cbd5a06e50608bad363ec60527998502ba1\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "dd2f8003b0ad94e6097819cdca0249aa591f54fa:ai-service/core/settings.py"
+    ],
+    "exit_code": 0,
+    "stdout": "6c952cbd5a06e50608bad363ec60527998502ba1\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "show",
+      "dd2f8003b0ad94e6097819cdca0249aa591f54fa:ai-service/core/settings.py"
+    ],
+    "exit_code": 0,
+    "stdout": "import os\nfrom dataclasses import dataclass\n\n\ndef _env_bool(name: str, default: bool) -> bool:\n    raw_value = os.getenv(name)\n    if raw_value is None:\n        return default\n    return raw_value.strip().lower() not in {\"0\", \"false\", \"no\", \"off\"}\n\n\ndef _env_int(name: str, default: int, minimum: int = 1) -> int:\n    raw_value = os.getenv(name)\n    if raw_value is None or not raw_value.strip():\n        return default\n    try:\n        value = int(raw_value)\n    except ValueError as exc:\n        raise ValueError(f\"{name} must be an integer\") from exc\n    if value < minimum:\n        raise ValueError(f\"{name} must be greater than or equal to {minimum}\")\n    return value\n\n\ndef _env_csv(name: str, default: tuple[str, ...]) -> tuple[str, ...]:\n    raw_value = os.getenv(name)\n    if raw_value is None:\n        return default\n    values = tuple(item.strip() for item in raw_value.split(\",\") if item.strip())\n    return values or default\n\n\n@dataclass(frozen=True, slots=True)\nclass Settings:\n    app_env: str\n    service_name: str\n    service_version: str\n    llm_enabled: bool\n    llm_provider: str\n    llm_model: str\n    llm_base_url: str\n    llm_timeout_seconds: int\n    database_url: str\n    narrative_repository: str\n    json_repository_mode: str\n    default_tenant_id: str\n    default_actor_id: str\n    platform_api_base_url: str\n    platform_service_token: str\n    cors_origins: tuple[str, ...]\n    pipeline_version: str\n    entity_prompt_version: str\n    semantic_retrieval_enabled: bool\n    embedding_provider: str\n    active_embedding_version: str\n    semantic_retrieval_limit: int\n    context_routing_policy: str = \"legacy-v1\"\n    service_auth_disabled: bool = False\n    entity_candidate_verification_enabled: bool = False\n\n    @classmethod\n    def from_env(cls) -> \"Settings\":\n        provider = (os.getenv(\"LLM_PROVIDER\", \"none\") or \"none\").strip().lower()\n        if provider not in {\"none\", \"gemini\", \"openai\", \"groq\", \"fake\"}:\n            raise ValueError(\"LLM_PROVIDER must be one of: none, gemini, openai, groq, fake\")\n\n        default_model = {\n            \"gemini\": \"gemini-3.5-flash-lite\",\n            \"openai\": \"gpt-4o-mini\",\n            \"groq\": \"llama-3.3-70b-versatile\",\n            \"none\": \"disabled\",\n            \"fake\": \"fake-p4-model\",\n        }[provider]\n        configured_base_url = (os.getenv(\"LLM_BASE_URL\") or os.getenv(\"CUSTOM_LLM_URL\") or \"\").strip()\n        if provider == \"groq\" and not configured_base_url:\n            configured_base_url = \"https://api.groq.com/openai/v1\"\n\n        app_env = (os.getenv(\"APP_ENV\", \"development\") or \"development\").strip().lower()\n        if app_env not in {\"development\", \"test\", \"production\"}:\n            raise ValueError(\"APP_ENV must be one of: development, test, production\")\n\n        repository = (os.getenv(\"NARRATIVE_REPOSITORY\", \"json\") or \"json\").strip().lower()\n        if repository not in {\"json\", \"postgres\"}:\n            raise ValueError(\"NARRATIVE_REPOSITORY must be one of: json, postgres\")\n        if app_env == \"production\" and repository != \"postgres\":\n            raise ValueError(\"NARRATIVE_REPOSITORY must be postgres when APP_ENV=production\")\n\n        default_json_mode = \"read-only\" if app_env == \"production\" else \"read-write\"\n        json_repository_mode = (\n            os.getenv(\"JSON_REPOSITORY_MODE\", default_json_mode) or default_json_mode\n        ).strip().lower()\n        if json_repository_mode not in {\"read-only\", \"read-write\"}:\n            raise ValueError(\"JSON_REPOSITORY_MODE must be one of: read-only, read-write\")\n        if app_env == \"production\" and json_repository_mode != \"read-only\":\n            raise ValueError(\"JSON_REPOSITORY_MODE must be read-only when APP_ENV=production\")\n\n        database_url = (os.getenv(\"DATABASE_URL\", \"\") or \"\").strip()\n        if repository == \"postgres\" and not database_url:\n            raise ValueError(\"DATABASE_URL is required when NARRATIVE_REPOSITORY=postgres\")\n\n        embedding_provider = (os.getenv(\"EMBEDDING_PROVIDER\", \"none\") or \"none\").strip().lower()\n        if embedding_provider not in {\"none\", \"gemini\", \"fake\"}:\n            raise ValueError(\"EMBEDDING_PROVIDER must be one of: none, gemini, fake\")\n        default_embedding_version = {\n            \"gemini\": \"gemini-embedding-2-768-v1\",\n            \"fake\": \"fake-embedding-768-v1\",\n            \"none\": \"gemini-embedding-2-768-v1\",\n        }[embedding_provider]\n\n        context_routing_policy = (\n            os.getenv(\"CONTEXT_ROUTING_POLICY\", \"legacy-v1\") or \"legacy-v1\"\n        ).strip().lower()\n        if context_routing_policy not in {\"legacy-v1\", \"balanced-scope-v1\"}:\n            raise ValueError(\n                \"CONTEXT_ROUTING_POLICY must be one of: legacy-v1, balanced-scope-v1\"\n            )\n\n        return cls(\n            app_env=app_env,\n            service_name=(os.getenv(\"SERVICE_NAME\", \"AI Service - Story Platform\") or \"\").strip(),\n            service_version=(os.getenv(\"SERVICE_VERSION\", \"1.0.0\") or \"\").strip(),\n            llm_enabled=_env_bool(\"LLM_ENABLED\", provider != \"none\"),\n            llm_provider=provider,\n            llm_model=(os.getenv(\"LLM_MODEL\", default_model) or default_model).strip(),\n            llm_base_url=configured_base_url,\n            llm_timeout_seconds=_env_int(\"LLM_TIMEOUT_SECONDS\", 30),\n            database_url=database_url,\n            narrative_repository=repository,\n            json_repository_mode=json_repository_mode,\n            default_tenant_id=(\n                os.getenv(\"DEFAULT_TENANT_ID\", \"00000000-0000-0000-0000-000000000001\") or \"\"\n            ).strip(),\n            default_actor_id=(\n                os.getenv(\"DEFAULT_ACTOR_ID\", \"00000000-0000-0000-0000-000000000001\") or \"\"\n            ).strip(),\n            platform_api_base_url=(os.getenv(\"PLATFORM_API_BASE_URL\", \"\") or \"\").strip().rstrip(\"/\"),\n            platform_service_token=(os.getenv(\"PLATFORM_SERVICE_TOKEN\", \"\") or \"\").strip(),\n            cors_origins=_env_csv(\n                \"CORS_ORIGINS\",\n                (\n                    \"http://localhost:5173\",\n                    \"http://127.0.0.1:5173\",\n                    \"http://localhost:4173\",\n                ),\n            ),\n            entity_candidate_verification_enabled=_env_bool('ENTITY_CANDIDATE_VERIFICATION_ENABLED', False),\n            pipeline_version=(os.getenv(\"ENTITY_PIPELINE_VERSION\", \"entity-v1\") or \"\").strip(),\n            entity_prompt_version=(os.getenv(\"ENTITY_PROMPT_VERSION\", \"entity-extraction-v1\") or \"\").strip(),\n            semantic_retrieval_enabled=_env_bool(\n                \"SEMANTIC_RETRIEVAL_ENABLED\",\n                embedding_provider != \"none\",\n            ),\n            embedding_provider=embedding_provider,\n            active_embedding_version=(\n                os.getenv(\"ACTIVE_EMBEDDING_VERSION\", default_embedding_version)\n                or default_embedding_version\n            ).strip(),\n            semantic_retrieval_limit=_env_int(\"SEMANTIC_RETRIEVAL_LIMIT\", 8),\n            context_routing_policy=context_routing_policy,\n            service_auth_disabled=_env_bool(\"SERVICE_AUTH_DISABLED\", False),\n        )\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "git",
+      "show",
+      "dd2f8003b0ad94e6097819cdca0249aa591f54fa:backend/src/jobs/outbox-processor.ts"
+    ],
+    "exit_code": 0,
+    "stdout": "import { env } from '../core/config/env.js';\nimport { getPostgresPool } from '../core/database/postgres.js';\nimport {\n  claimPendingOutboxEvents,\n  fetchPendingOutboxEvents,\n  markOutboxEventCompleted,\n  markOutboxEventFailed,\n  type RevisionOutboxEvent\n} from '../modules/novels/outbox.repository.js';\nimport { syncDraftFromRevisionConditional } from '../modules/novels/draft-chapters.repository.js';\n\nlet isProcessing = false;\nlet outboxTimer: NodeJS.Timeout | null = null;\n\nexport interface OutboxDependencies {\n  claimEvents?: (limit: number) => Promise<RevisionOutboxEvent[]>;\n  handleEvent?: (event: RevisionOutboxEvent) => Promise<void>;\n  markCompleted?: (eventId: string, claimToken: string) => Promise<boolean>;\n  markFailed?: (eventId: string, error: string, backoffSeconds: number, claimToken: string) => Promise<boolean>;\n}\n\nexport async function processOutboxOnce(\n  limit: number = 10,\n  deps?: OutboxDependencies\n): Promise<{\n  processed: number;\n  succeeded: number;\n  failed: number;\n}> {\n  if (isProcessing) {\n    return { processed: 0, succeeded: 0, failed: 0 };\n  }\n\n  isProcessing = true;\n  let processed = 0;\n  let succeeded = 0;\n  let failed = 0;\n\n  try {\n    let events: RevisionOutboxEvent[] = [];\n    if (deps?.claimEvents) {\n      events = await deps.claimEvents(limit);\n    } else {\n      const pool = getPostgresPool();\n      const client = await pool.connect();\n      try {\n        await client.query('BEGIN');\n        events = await claimPendingOutboxEvents(client, limit);\n        await client.query('COMMIT');\n      } catch (claimErr) {\n        await client.query('ROLLBACK');\n        throw claimErr;\n      } finally {\n        client.release();\n      }\n    }\n\n    const handler = deps?.handleEvent ?? handleOutboxEvent;\n    const markCompletedFn = deps?.markCompleted ?? ((id, token) => markOutboxEventCompleted(undefined, id, token));\n    const markFailedFn = deps?.markFailed ?? ((id, err, backoff, token) => markOutboxEventFailed(undefined, id, err, backoff, token));\n\n    for (const event of events) {\n      processed++;\n      if (!event.claimToken) {\n        console.error(`[OutboxProcessor] Event ${event.eventId} missing active claim token. Skipping.`);\n        continue;\n      }\n      try {\n        await handler(event);\n        await markCompletedFn(event.eventId, event.claimToken);\n        succeeded++;\n      } catch (err: any) {\n        failed++;\n        const backoffSeconds = Math.min(300, Math.pow(2, event.retryCount + 1) * 5);\n        await markFailedFn(event.eventId, err?.message || String(err), backoffSeconds, event.claimToken);\n        console.warn(\n          `[OutboxProcessor] Event ${event.eventId} (${event.eventType}) failed (attempt ${event.retryCount + 1}):`,\n          err?.message || err\n        );\n      }\n    }\n  } catch (err: any) {\n    console.error('[OutboxProcessor] Error fetching outbox events:', err?.message || err);\n  } finally {\n    isProcessing = false;\n  }\n\n  return { processed, succeeded, failed };\n}\n\nexport async function handleOutboxEvent(event: RevisionOutboxEvent): Promise<void> {\n  if (event.eventType === 'INCREMENTAL_ANALYSIS') {\n    const analysisUrl = `${env.AI_SERVICE_URL}/v1/revisions/${event.revisionId}/analyses`;\n    const headers: Record<string, string> = {\n      'Content-Type': 'application/json',\n      'X-Tenant-Id': '00000000-0000-0000-0000-000000000001',\n      'X-Actor-Id': event.createdBy || '00000000-0000-0000-0000-000000000001',\n      'X-Request-Id': crypto.randomUUID(),\n      'Idempotency-Key': `analysis-${event.revisionId}`\n    };\n    if (env.PLATFORM_SERVICE_TOKEN) {\n      headers['Authorization'] = `Bearer ${env.PLATFORM_SERVICE_TOKEN}`;\n      headers['X-Service-Token'] = env.PLATFORM_SERVICE_TOKEN;\n    }\n\n    const body = {\n      novel_id: event.novelId,\n      chapter_id: event.chapterId,\n      revision_id: event.revisionId,\n      content_hash: event.contentHash,\n      operation: 'incremental_story_analysis'\n    };\n\n    const res = await fetch(analysisUrl, {\n      method: 'POST',\n      headers,\n      body: JSON.stringify(body)\n    });\n\n    if (!res.ok) {\n      const errText = await res.text().catch(() => '');\n      throw new Error(`AI service returned HTTP ${res.status}: ${errText}`);\n    }\n\n    // Extraction delivery is complete; proposals remain pending for authorized review.\n    // Generic workers have no canon-approval authority in either P1 or P3.\n    // The controller owns its separate, revision-scoped decisions and mode fences.\n  } else if (event.eventType === 'MONGO_DRAFT_SYNC') {\n    const payload = event.payload || {};\n    const result = await syncDraftFromRevisionConditional({\n      chapterId: event.chapterId,\n      revisionId: event.revisionId,\n      novelId: payload.novelId || event.novelId,\n      authorId: payload.authorId || event.createdBy || '',\n      title: payload.title,\n      content: payload.content || '',\n      wordCount: payload.wordCount || 0,\n      acceptTimestamp: new Date(payload.acceptTimestamp || event.createdAt)\n    });\n\n    if (result.status === 'skipped_newer_draft') {\n      console.log(\n        `[OutboxProcessor] MONGO_DRAFT_SYNC for chapter ${event.chapterId} skipped: author has newer draft in progress.`\n      );\n    }\n  } else {\n    console.warn(`[OutboxProcessor] Unhandled event type: ${event.eventType}`);\n  }\n}\n\n\nexport function triggerImmediateProcessing(): void {\n  setTimeout(() => {\n    processOutboxOnce().catch((err) => {\n      console.error('[OutboxProcessor] Immediate process failed:', err);\n    });\n  }, 10);\n}\n\nexport function startOutboxProcessor(intervalMs: number = 5000): void {\n  if (outboxTimer) return;\n  outboxTimer = setInterval(() => {\n    processOutboxOnce().catch((err) => {\n      console.error('[OutboxProcessor] Periodic process failed:', err);\n    });\n  }, intervalMs);\n}\n\nexport function stopOutboxProcessor(): void {\n  if (outboxTimer) {\n    clearInterval(outboxTimer);\n    outboxTimer = null;\n  }\n}\n",
+    "stderr": ""
+  }
+]

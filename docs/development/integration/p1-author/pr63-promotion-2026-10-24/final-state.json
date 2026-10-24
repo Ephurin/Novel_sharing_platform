@@ -1,0 +1,21 @@
+{
+  "recorded_at_utc": "2026-10-24T00:27:17.772Z",
+  "integration_head": "dd2f8003b0ad94e6097819cdca0249aa591f54fa",
+  "feat_author_workspace_head_unchanged": "3100c46f46cd071467d762dff4ffa1fc4efe07f2",
+  "pr63": {
+    "state": "closed",
+    "merged": true,
+    "merge_commit_sha": "dd2f8003b0ad94e6097819cdca0249aa591f54fa"
+  },
+  "pr57": {
+    "draft": true,
+    "state": "open",
+    "merged": false,
+    "head": "dd2f8003b0ad94e6097819cdca0249aa591f54fa"
+  },
+  "source_or_FE_repairs": "none",
+  "local_stack_or_browser_execution": "none; Gemini owns separate execution",
+  "main": "No mutations issued",
+  "handoff_branch": "codex/p1-integration-promotion-handoff",
+  "handoff_branch_scope": "Documentation/evidence only, not merged"
+}

@@ -1,0 +1,39 @@
+{
+  "scope": "Read-only schema compatibility probe; no HTTP/database/browser execution",
+  "source": "dd2f8003b0ad94e6097819cdca0249aa591f54fa",
+  "group_accept_input": {
+    "expected_brain_version": 1,
+    "proposal_ids": [
+      "00000000-0000-0000-0000-000000000001"
+    ],
+    "edited_payloads": {
+      "00000000-0000-0000-0000-000000000001": {
+        "summary": "author edited"
+      }
+    }
+  },
+  "normalized_group_accept": {
+    "expected_brain_version": 1,
+    "proposal_ids": [
+      "00000000-0000-0000-0000-000000000001"
+    ],
+    "reason": null
+  },
+  "edited_payloads_ignored": true,
+  "ApprovedMemory_fields": [
+    "schema_version",
+    "story_id",
+    "brain_id",
+    "brain_version",
+    "entities",
+    "aliases",
+    "mentions",
+    "events",
+    "facts",
+    "relations",
+    "current_state",
+    "metadata",
+    "provenance"
+  ],
+  "top_level_transitions_absent": true
+}
