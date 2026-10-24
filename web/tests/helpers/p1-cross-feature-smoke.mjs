@@ -57,7 +57,7 @@ export async function crossFeatureSmoke(h, f, x) {
     const path = (await response.json()).data.path; assert.match(path, /^\/api\/v1\/media\/[a-f0-9-]+\.png$/);
     const stored = page.waitForResponse(r => r.url().endsWith('/api/v1/novels/' + x.novelA) && r.request().method() === 'PATCH');
     await page.getByRole('button', { name: 'Lưu thay đổi', exact: true }).click(); assert.equal((await stored).status(), 200);
-    await until(async () => page.locator('img').evaluateAll(nodes => nodes.some(n => n.src.endsWith(path) && n.complete && n.naturalWidth === 1)), 'Uploaded image did not decode in production UI');
+    await until(async () => page.locator('img').evaluateAll((nodes, path) => nodes.some(n => n.src.endsWith(path) && n.complete && n.naturalWidth === 1), path), 'Uploaded image did not decode in production UI');
     await h.shot('g4-author-media-upload'); results.push({ case: 'real local media upload/metadata/read/decode', status: 'PASS' });
   });
   await h.step('G4: real Author scheduling form, dark theme/mobile and reload continuity; no schedule/publish', async () => {
