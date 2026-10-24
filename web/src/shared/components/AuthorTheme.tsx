@@ -6,6 +6,7 @@ import { useEffect, useRef, type PropsWithChildren } from 'react';
 import { Link, NavLink, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { logout } from '../../features/auth/auth-api';
 import { useAuthStore } from '../../features/auth/useAuthStore';
+import { readAuthorContext } from '../../features/author-ide/author-context';
 import '../../theme/storycraft.css';
 
 export function AuthorTheme({ children, className = '' }: PropsWithChildren<{ className?: string }>) {
@@ -57,7 +58,7 @@ export function AuthorNavbar() {
   const location = useLocation();
   const params = useParams();
   const [searchParams] = useSearchParams();
-  const novelId = params.novelId || searchParams.get('novelId') || localStorage.getItem('ephurin_author_novel_id');
+  const novelId = params.novelId || searchParams.get('novelId') || readAuthorContext(user?.userId ?? '').novelId;
   const writingUrl = novelId ? `/author/ide?novelId=${encodeURIComponent(novelId)}` : '/author';
   const name = user?.displayName || user?.username || 'Tài khoản';
 
