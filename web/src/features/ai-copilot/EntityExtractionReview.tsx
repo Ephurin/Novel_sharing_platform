@@ -566,6 +566,7 @@ function EntityCheckpoint({
               leftSection={<IconRefresh size={14} />}
               disabled={disabled}
               onClick={handleRefresh}
+              data-testid="btn-refresh-entity-review"
             >
               Làm mới (Refresh)
             </Button>

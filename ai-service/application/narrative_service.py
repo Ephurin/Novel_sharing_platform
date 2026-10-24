@@ -52,7 +52,7 @@ class NarrativeApplicationService:
         orig_chapter = getattr(original, "chapter", None) or original.metadata.get("chapter_number") or original.metadata.get("chapter")
         if replacement.get('chapter') is not None and replacement['chapter'] != orig_chapter:
             raise ProjectionError('Correction cannot change the immutable source chapter')
-        payload = {**replacement, "chapter": orig_chapter, "event_id": proposal_id, "supersedes_id": event_id}
+        payload = {**replacement, "chapter": orig_chapter, "event_id": proposal_id, "supersedes_id": event_id, "source_type": replacement.get("source_type", "author")}
         validate_payload('event', payload)
         payload['participants'] = [resolve_entity(p, brain.entities) for p in payload.get('participants', [])]
         from dataclasses import replace

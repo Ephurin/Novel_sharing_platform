@@ -66,7 +66,9 @@ function TestHarness() {
             novelId={novelId}
             disabled={false}
             perform={async (fn) => fn()}
-            onContinued={async () => {}}
+            onContinued={async () => {
+              await queryClient.invalidateQueries({ queryKey: ['entity-reviews'] });
+            }}
           />
         </Paper>
       )}

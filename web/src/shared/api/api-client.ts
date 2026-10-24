@@ -24,11 +24,21 @@ export class ApiClientError extends Error {
 }
 
 export const apiClient = axios.create({
-  baseURL: import.meta.env?.VITE_API_BASE_URL ?? 'http://localhost:4000/api/v1',
+  baseURL:
+    (typeof window !== 'undefined' && ((window as any).__API_BASE__ || localStorage.getItem('ephurin_api_base_url'))) ||
+    import.meta.env?.VITE_API_BASE_URL ||
+    'http://localhost:4000/api/v1',
   withCredentials: true
 });
 
 apiClient.interceptors.request.use((config) => {
+  try {
+    const customBase = typeof window !== 'undefined' && ((window as any).__API_BASE__ || localStorage.getItem('ephurin_api_base_url'));
+    if (customBase) {
+      config.baseURL = customBase;
+    }
+  } catch { /* Continue if storage access blocked */ }
+
   let accessToken: string | null = null;
   try { accessToken = localStorage.getItem('ephurin_access_token'); } catch { /* Continue as guest if storage is blocked. */ }
 

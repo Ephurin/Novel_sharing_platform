@@ -694,7 +694,7 @@ test('FE-09: Unsaved dirty candidate choices survive refresh reconciliation', ()
 // Tests: FE-10 Unicode Casefold Equivalence
 // ──────────────────────────────────────────────
 
-test('FE-10: normalizeEntityName handles German sharp S, Greek sigmas, ligatures, and whitespace', () => {
+test('FE-10: normalizeEntityName handles German sharp S, Greek sigmas, ligatures, and NFC', () => {
   // German sharp S (ß and ẞ)
   assert.equal(normalizeEntityName('groß'), 'gross');
   assert.equal(normalizeEntityName('GROẞ'), 'gross');
@@ -715,11 +715,154 @@ test('FE-10: normalizeEntityName handles German sharp S, Greek sigmas, ligatures
   // Armenian ligatures
   assert.equal(normalizeEntityName('և'), 'եւ');
 
-  // Whitespace collapsing and trimming
-  assert.equal(normalizeEntityName('   Minh     Thái   '), 'minh thái');
-  assert.equal(normalizeEntityName('\t  Lý   Thường    Kiệt \n '), 'lý thường kiệt');
-
   // Empty string
   assert.equal(normalizeEntityName(''), '');
+});
+
+// ──────────────────────────────────────────────
+// Tests: FE-12 Prevent Ghost Participant UUIDs
+// ──────────────────────────────────────────────
+
+test('FE-12: Changing or clearing legacy identity does not leak ghost UUIDs into effective participants', () => {
+  const canonicalEntities: MemoryEntity[] = [
+    { entity_id: 'ent-thai', name: 'Thái', entity_type: 'PER', status: 'Alive', location: 'HN' },
+    { entity_id: 'ent-minh-a', name: 'Minh A (Bác sĩ)', entity_type: 'PER', status: 'Alive', location: 'HN' },
+    { entity_id: 'ent-minh-b', name: 'Minh B (Tài xế)', entity_type: 'PER', status: 'Alive', location: 'HN' },
+    { entity_id: 'ent-lan', name: 'Lan', entity_type: 'PER', status: 'Alive', location: 'HN' }
+  ];
+
+  const originalParticipants = ['ent-thai', 'Minh'];
+
+  // Identify initial valid UUIDs
+  const initialParticipantUuids = originalParticipants.filter(p =>
+    canonicalEntities.some(e => e.entity_id === p)
+  );
+  assert.deepEqual(initialParticipantUuids, ['ent-thai']);
+
+  // Legacy occurrences
+  const legacyOccurrences = originalParticipants
+    .map((name, index) => ({ name, index, isLegacy: !canonicalEntities.some(e => e.entity_id === name) }))
+    .filter(item => item.isLegacy);
+  assert.equal(legacyOccurrences.length, 1);
+  assert.equal(legacyOccurrences[0].name, 'Minh');
+
+  let manualParticipants = [...initialParticipantUuids];
+  let legacyResolutions: Record<string, string> = {};
+
+  const computeEffective = () => {
+    const resolvedLegacyUuids = legacyOccurrences
+      .map(occ => legacyResolutions[occ.name])
+      .filter((id): id is string => Boolean(id) && canonicalEntities.some(e => e.entity_id === id));
+    return Array.from(new Set([...manualParticipants, ...resolvedLegacyUuids]));
+  };
+
+  const isAllLegacyResolved = () =>
+    legacyOccurrences.length === 0 ||
+    legacyOccurrences.every(occ => {
+      const id = legacyResolutions[occ.name];
+      return Boolean(id) && canonicalEntities.some(e => e.entity_id === id);
+    });
+
+  // 1. Initial state: unmapped -> fails closed
+  assert.equal(isAllLegacyResolved(), false);
+  assert.deepEqual(computeEffective(), ['ent-thai']);
+
+  // 2. Map Minh -> Minh A
+  legacyResolutions['Minh'] = 'ent-minh-a';
+  assert.equal(isAllLegacyResolved(), true);
+  assert.deepEqual(computeEffective(), ['ent-thai', 'ent-minh-a']);
+
+  // 3. Change Minh -> Minh B: MUST NOT retain Minh A (FE-12)
+  legacyResolutions['Minh'] = 'ent-minh-b';
+  assert.equal(isAllLegacyResolved(), true);
+  const effectiveAfterChange = computeEffective();
+  assert.deepEqual(effectiveAfterChange, ['ent-thai', 'ent-minh-b']);
+  assert.equal(effectiveAfterChange.includes('ent-minh-a'), false, 'Ghost Minh-A UUID must be absent');
+
+  // 4. Clear Minh (author clicks clear): MUST fail closed, no ghost
+  delete legacyResolutions['Minh'];
+  assert.equal(isAllLegacyResolved(), false, 'Clearing legacy resolution must fail closed');
+  assert.deepEqual(computeEffective(), ['ent-thai']);
+  assert.equal(computeEffective().includes('ent-minh-b'), false);
+
+  // 5. Re-select Minh B
+  legacyResolutions['Minh'] = 'ent-minh-b';
+  assert.equal(isAllLegacyResolved(), true);
+  assert.deepEqual(computeEffective(), ['ent-thai', 'ent-minh-b']);
+
+  // 6. Author independently adds 'ent-lan' in MultiSelect
+  manualParticipants = [...manualParticipants, 'ent-lan'];
+  assert.deepEqual(computeEffective(), ['ent-thai', 'ent-lan', 'ent-minh-b']);
+
+  // 7. Author removes 'ent-lan' from MultiSelect
+  manualParticipants = manualParticipants.filter(id => id !== 'ent-lan');
+  assert.deepEqual(computeEffective(), ['ent-thai', 'ent-minh-b']);
+});
+
+test('FE-12: Duplicate legacy occurrences with same name require distinct occurrence mappings', () => {
+  const canonicalEntities: MemoryEntity[] = [
+    { entity_id: 'ent-thai', name: 'Thái', entity_type: 'PER', status: 'Alive', location: 'HN' },
+    { entity_id: 'ent-minh-a', name: 'Minh A (Bác sĩ)', entity_type: 'PER', status: 'Alive', location: 'HN' },
+    { entity_id: 'ent-minh-b', name: 'Minh B (Tài xế)', entity_type: 'PER', status: 'Alive', location: 'HN' }
+  ];
+
+  // Event has two legacy participants with identical display name "Minh"
+  const eventParticipants = ['ent-thai', 'Minh', 'Minh'];
+
+  const legacyOccurrences = eventParticipants
+    .map((name, index) => ({ name, index, isLegacy: !canonicalEntities.some(e => e.entity_id === name) }))
+    .filter(item => item.isLegacy);
+
+  assert.equal(legacyOccurrences.length, 2);
+
+  const hasDuplicates = new Set(legacyOccurrences.map(o => o.name)).size !== legacyOccurrences.length;
+  assert.equal(hasDuplicates, true);
+
+  const getOccKey = (occ: { name: string; index: number }) => `${occ.name}#${occ.index}`;
+
+  const legacyResolutions: Record<string, string> = {
+    [getOccKey(legacyOccurrences[0])]: 'ent-minh-a',
+    [getOccKey(legacyOccurrences[1])]: 'ent-minh-b'
+  };
+
+  const manualParticipants = ['ent-thai'];
+  const resolvedLegacyUuids = legacyOccurrences
+    .map(occ => legacyResolutions[getOccKey(occ)])
+    .filter((id): id is string => Boolean(id) && canonicalEntities.some(e => e.entity_id === id));
+
+  const effective = Array.from(new Set([...manualParticipants, ...resolvedLegacyUuids]));
+  assert.deepEqual(effective, ['ent-thai', 'ent-minh-a', 'ent-minh-b']);
+});
+
+// ──────────────────────────────────────────────
+// Tests: FE-14 Python-Aligned Entity Normalization Parity
+// ──────────────────────────────────────────────
+
+test('FE-14: normalizeEntityName matches Python str.casefold() without modifying whitespace independently', () => {
+  // Golden vectors cross-validated against Python 3.12 str.casefold() & domain/projection.py::validate_author_edit
+  const goldenVectors: Array<[string, string]> = [
+    ['Trần Văn Nam', 'trần văn nam'],
+    ['Nguyễn Thị Ánh Tuyết', 'nguyễn thị ánh tuyết'],
+    ['  Minh   Thái  ', '  minh   thái  '],
+    ['   ', '   '],
+    ['', ''],
+    ['Straße', 'strasse'],
+    ['GROSS', 'gross'],
+    ['Σοφός', 'σοφόσ'],
+    ['ΟΔΥΣΣΕΥΣ', 'οδυσσευσ'],
+    ['ﬁle', 'file'],
+    ['ﬂag', 'flag'],
+    ['ﬄ', 'ffl'],
+    ['ﬅ', 'st']
+  ];
+
+  for (const [input, expected] of goldenVectors) {
+    const actual = normalizeEntityName(input);
+    assert.equal(
+      actual,
+      expected,
+      `normalizeEntityName('${input}') expected '${expected}', got '${actual}'`
+    );
+  }
 });
 

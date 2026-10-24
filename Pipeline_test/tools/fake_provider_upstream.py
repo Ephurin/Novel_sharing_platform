@@ -8,11 +8,11 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 
-def integration_response(text):
+def integration_response(text, body=None):
     """Scripted source-grounded responses for integration's legacy prompt framing.
     Not model quality or real-provider evidence. Unknown prompts fail explicitly.
     """
-    if 'Extract only state changes explicitly supported by this event' in text:
+    if 'state changes' in text or 'transitions' in text:
         return json.dumps({'transitions':[]})
     if 'narrative state extractor' in text:
         return json.dumps({'states':[]})
@@ -28,6 +28,54 @@ def integration_response(text):
     if 'Story Brain' in text or 'Author AI Copilot' in text:
         return json.dumps({'draft_text':'Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.',
           'explanation':'FAKE_PROVIDER_OUTPUT scripted continuation for persistence only'},ensure_ascii=False)
+    if 'Verify EVERY supplied candidate OCCURRENCE' in text or 'EntityDecisionBatch' in text or '"candidates"' in text:
+        decisions = []
+        try:
+            if body and 'messages' in body and body['messages']:
+                user_msg = body['messages'][-1].get('content', '')
+                payload = json.loads(user_msg)
+            else:
+                idx = text.find('{"candidates"')
+                payload = json.loads(text[idx:]) if idx != -1 else {}
+            for c in payload.get('candidates', []):
+                surface = c.get('surface', '')
+                etype = 'LOC' if 'Cồn Vân' in surface else 'PER'
+                decisions.append({
+                    'candidate_id': c['candidate_id'],
+                    'verdict': 'entity',
+                    'entity_type': etype,
+                    'canonical_name': surface,
+                    'canonical_entity_id': '',
+                    'provisional_identity_key': '',
+                    'identity_quote': '',
+                    'initial_status': 'Unknown',
+                    'status_quote': '',
+                    'confidence': 0.9,
+                    'reason': f'Context verified candidate {surface}'
+                })
+        except Exception as e:
+            print("Candidate parse error:", e)
+        return json.dumps({'decisions': decisions}, ensure_ascii=False)
+    if 'Extract narrative events only from this source' in text or 'hitl_event_extraction' in text:
+        participants = []
+        try:
+            if body and 'messages' in body and body['messages']:
+                user_msg = body['messages'][-1].get('content', '')
+                payload = json.loads(user_msg)
+                participants = [e['entity_id'] for e in payload.get('known_entities', []) if e.get('entity_type') == 'PER']
+        except Exception:
+            pass
+        return json.dumps({'events': [{
+            'event_type': 'observation',
+            'summary': 'Mai Linh và Duy đứng tại Cồn Vân.',
+            'participants': participants,
+            'locations': [],
+            'consequences': [],
+            'quote': 'Mai Linh và Duy đứng tại Cồn Vân.'
+        }]}, ensure_ascii=False)
+    if 'Extract atomic narrative facts directly from the prose' in text or 'prose_fact_extraction' in text:
+        return json.dumps({'facts': []}, ensure_ascii=False)
+    print("FAILED_PROMPT_TEXT:", repr(text[:500]))
     raise ValueError('Unsupported integration fake prompt')
 
 
@@ -130,7 +178,7 @@ class FakeHandler(BaseHTTPRequestHandler):
         else:
             assert self.path == '/v1/chat/completions' and body['max_tokens'] > 0
             text = '\n\n'.join(str(m.get('content','')) for m in body['messages'])
-            content = integration_response(text)
+            content = integration_response(text, body)
             config = {'max_tokens': body['max_tokens']}
             result = {'id': self.headers['X-Gateway-Dispatch-Id'], 'object': 'chat.completion',
                       'created': int(time.time()), 'model': body['model'],

@@ -28,10 +28,23 @@ class Handler(BaseHTTPRequestHandler):
             self.send_response(response.status)
             self.send_header("Content-Type", response.headers.get("Content-Type", "application/json"))
             self.send_header("Content-Length", str(len(data)))
+            origin = self.headers.get("Origin", "*")
+            self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Access-Control-Allow-Credentials", "true")
             self.end_headers()
             self.wfile.write(data)
 
-    do_GET = do_POST = do_PATCH = forward
+    def do_OPTIONS(self):
+        self.send_response(204)
+        origin = self.headers.get("Origin", "*")
+        self.send_header("Access-Control-Allow-Origin", origin)
+        self.send_header("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", self.headers.get("Access-Control-Request-Headers", "Content-Type, Authorization, X-Requested-With"))
+        self.send_header("Access-Control-Allow-Credentials", "true")
+        self.send_header("Access-Control-Max-Age", "86400")
+        self.end_headers()
+
+    do_GET = do_POST = do_PATCH = do_PUT = do_DELETE = forward
 
     def log_message(self, *args):
         pass

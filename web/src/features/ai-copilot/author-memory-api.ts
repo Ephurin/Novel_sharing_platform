@@ -337,15 +337,24 @@ const CASEFOLD_MAP: Record<string, string> = {
 const CASEFOLD_REGEX = new RegExp(Object.keys(CASEFOLD_MAP).join('|'), 'g');
 
 /**
- * Normalizes an entity name by trimming, collapsing runs of whitespace to a single space,
- * normalizing to Unicode NFC, and applying standard Unicode full casefold expansions
- * (including German ß/ẞ -> ss, Greek sigmas Σ/ς -> σ, Latin ligatures ﬁ/ﬂ/ﬀ/ﬃ/ﬄ -> fi/fl/ff/ffi/ffl)
- * followed by lowercase conversion.
+ * Python-aligned Unicode casefolding for entity names (FE-10, FE-14).
+ * Aligns strictly with Python `canonical_name.casefold()` without modifying whitespace independently.
+ *
+ * Supported subset:
+ * - Standard Latin & Vietnamese characters with tonal diacritics (NFC preserved)
+ * - German sharp S (ß, ẞ -> ss)
+ * - Greek sigmas (Σ, ς -> σ)
+ * - Latin ligatures (ﬀ -> ff, ﬁ -> fi, ﬂ -> fl, ﬃ -> ffi, ﬄ -> ffl, ﬅ -> st, ﬆ -> st)
+ * - Armenian ligatures (և -> եւ, etc.)
+ * - Standard casefold expansions (ŉ -> ʼn, ǰ -> ǰ, İ -> i̇, ẚ -> aʾ, ẛ -> ṡ, ẖ -> ẖ)
+ *
+ * Note: Python str.casefold() is the authoritative specification for backend validate_author_edit().
+ * Characters outside this defined subset rely on standard JavaScript toLowerCase().
  */
 export function normalizeEntityName(name: string): string {
   if (!name) return '';
-  const collapsed = name.trim().replace(/\s+/g, ' ').normalize('NFC');
-  return collapsed
+  return name
+    .normalize('NFC')
     .replace(CASEFOLD_REGEX, match => CASEFOLD_MAP[match] ?? match)
     .toLowerCase();
 }

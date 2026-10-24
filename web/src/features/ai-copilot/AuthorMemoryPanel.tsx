@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { EntityExtractionReview } from './EntityExtractionReview';
 import { AuthorRelationshipLocks } from './AuthorRelationshipLocks';
 import {
@@ -1415,6 +1415,11 @@ function ProposalReview({
                   normalized_name: normalizeEntityName(name)
                 });
               }}
+              error={
+                p.canonical_name !== undefined && !String(p.canonical_name).trim()
+                  ? 'Tên thực thể không được để trống hoặc chỉ chứa khoảng trắng'
+                  : undefined
+              }
               disabled={disabled}
             />
           </Stack>
@@ -1458,14 +1463,29 @@ function EventItem({
     })
     .filter((id): id is string => Boolean(id));
 
-  // Legacy unresolved participants (names without UUIDs)
-  const unresolvedLegacyParticipants = event.participants.filter(
-    p => !entities.some(e => e.entity_id === p)
-  );
+  // Legacy unresolved participants (names without UUIDs) with positional tracking (FE-12)
+  const legacyOccurrences = useMemo(() => {
+    return event.participants
+      .map((name, index) => ({ name, index, isLegacy: !entities.some(e => e.entity_id === name) }))
+      .filter(item => item.isLegacy);
+  }, [event.participants, entities]);
 
-  const [selectedParticipants, setSelectedParticipants] = useState<string[]>(initialParticipantUuids);
+  const unresolvedLegacyParticipants = useMemo(() => {
+    return legacyOccurrences.map(o => o.name);
+  }, [legacyOccurrences]);
 
-  // Track explicit author mapping of legacy participant strings to canonical entity UUIDs (FE-08)
+  const hasDuplicateLegacyNames = useMemo(() => {
+    const names = legacyOccurrences.map(o => o.name);
+    return new Set(names).size !== names.length;
+  }, [legacyOccurrences]);
+
+  const getOccKey = (occ: { name: string; index: number }) =>
+    hasDuplicateLegacyNames ? `${occ.name}#${occ.index}` : occ.name;
+
+  // Manual participant selections (direct UUID selections, independent of legacy mappings) (FE-12)
+  const [manualParticipants, setManualParticipants] = useState<string[]>(initialParticipantUuids);
+
+  // Track explicit author mapping of legacy participant strings to canonical entity UUIDs (FE-08, FE-12)
   const [legacyResolutions, setLegacyResolutions] = useState<Record<string, string>>({});
 
   // Transitions tied to this event
@@ -1484,21 +1504,21 @@ function EventItem({
     label: `${e.name} [${e.entity_type}] · ID: ${e.entity_id}`
   }));
 
-  // Fail closed if any legacy participant remains unresolved (FE-08)
+  // Fail closed if any legacy participant remains unresolved (FE-08, FE-12)
   const allLegacyResolved =
-    unresolvedLegacyParticipants.length === 0 ||
-    unresolvedLegacyParticipants.every(
-      name => Boolean(legacyResolutions[name]) && entities.some(e => e.entity_id === legacyResolutions[name])
-    );
+    legacyOccurrences.length === 0 ||
+    legacyOccurrences.every(occ => {
+      const resolvedId = legacyResolutions[getOccKey(occ)];
+      return Boolean(resolvedId) && entities.some(e => e.entity_id === resolvedId);
+    });
 
-  // Effective participants to send: selected UUIDs + resolved legacy UUIDs
+  // Effective participants to send: directly selected UUIDs + current resolved legacy UUIDs (FE-12: deterministic, no ghost UUIDs)
+  const resolvedLegacyUuids = legacyOccurrences
+    .map(occ => legacyResolutions[getOccKey(occ)])
+    .filter((id): id is string => Boolean(id) && entities.some(e => e.entity_id === id));
+
   const effectiveParticipants = Array.from(
-    new Set([
-      ...selectedParticipants,
-      ...Object.values(legacyResolutions).filter((uuid): uuid is string =>
-        Boolean(uuid) && entities.some(e => e.entity_id === uuid)
-      )
-    ])
+    new Set([...manualParticipants, ...resolvedLegacyUuids])
   );
 
   // Check if all participants are valid UUIDs from canonical entities and no legacy participant is unmapped
@@ -1658,28 +1678,43 @@ function EventItem({
                       Sự kiện gốc chứa {unresolvedLegacyParticipants.length} người tham gia dạng văn bản chưa có UUID ({unresolvedLegacyParticipants.join(', ')}).
                       Để tránh nhầm lẫn giữa các nhân vật cùng tên (như Minh A và Minh B) và tránh mất người tham gia, bạn phải gán UUID chính xác từ danh sách Canon cho từng người trước khi gửi.
                     </Text>
-                    {unresolvedLegacyParticipants.map(legacyName => (
-                      <Select
-                        key={legacyName}
-                        size="xs"
-                        label={`Ánh xạ danh tính cho "${legacyName}":`}
-                        placeholder="Chọn nhân vật có ID chính xác từ Canon..."
-                        data={entityOptions}
-                        value={legacyResolutions[legacyName] || null}
-                        onChange={val => {
-                          setLegacyResolutions(prev => ({ ...prev, [legacyName]: val || '' }));
-                          if (val) {
-                            setSelectedParticipants(prev => Array.from(new Set([...prev, val])));
-                          }
-                        }}
-                        data-testid={`select-resolve-legacy-${legacyName}`}
-                        searchable
-                        clearable
-                        required
-                        disabled={disabled || isSubmitting}
-                        comboboxProps={{ withinPortal: false }}
-                      />
-                    ))}
+                    {legacyOccurrences.map(occ => {
+                      const occKey = getOccKey(occ);
+                      const label = hasDuplicateLegacyNames
+                        ? `Ánh xạ danh tính cho "${occ.name}" (lần xuất hiện ${occ.index + 1}):`
+                        : `Ánh xạ danh tính cho "${occ.name}":`;
+                      return (
+                        <Select
+                          key={occKey}
+                          size="xs"
+                          label={label}
+                          placeholder="Chọn nhân vật có ID chính xác từ Canon..."
+                          data={entityOptions}
+                          value={legacyResolutions[occKey] || null}
+                          onChange={val => {
+                            setLegacyResolutions(prev => {
+                              const next = { ...prev };
+                              if (val) {
+                                next[occKey] = val;
+                              } else {
+                                delete next[occKey];
+                              }
+                              return next;
+                            });
+                          }}
+                          data-testid={`select-resolve-legacy-${occ.name}`}
+                          searchable
+                          clearable
+                          clearButtonProps={{
+                            'data-testid': `btn-clear-legacy-${occ.name}`,
+                            'aria-label': `Xóa ánh xạ ${occ.name}`
+                          } as any}
+                          required
+                          disabled={disabled || isSubmitting}
+                          comboboxProps={{ withinPortal: false }}
+                        />
+                      );
+                    })}
                   </Stack>
                 </Paper>
               )}
@@ -1710,14 +1745,16 @@ function EventItem({
 
               <MultiSelect
                 size="xs"
-                label="Nhân vật tham gia (chọn bằng UUID chính xác từ Canon)"
+                label="Nhân vật tham gia bổ sung / trực tiếp (chọn bằng UUID chính xác từ Canon)"
                 placeholder="Chọn nhân vật..."
                 data={entityOptions}
-                value={selectedParticipants}
-                onChange={setSelectedParticipants}
+                value={manualParticipants}
+                onChange={setManualParticipants}
                 searchable
                 clearable
                 disabled={disabled || isSubmitting || entities.length === 0}
+                data-testid="multiselect-manual-participants"
+                comboboxProps={{ withinPortal: false }}
               />
 
               {/* Editable Transitions */}
