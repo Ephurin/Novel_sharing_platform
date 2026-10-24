@@ -20,7 +20,9 @@ class EntityPipeline:
         ml_enabled: bool = False,
         pipeline_version: str = "entity-v1",
         prompt_version: str = "entity-extraction-v1",
+        candidate_verification_enabled: bool = False,
     ) -> None:
+        self.candidate_verification_enabled = candidate_verification_enabled
         self.ml_enabled = False
         self.pipeline_version = pipeline_version
         self.prompt_version = prompt_version
@@ -56,7 +58,7 @@ class EntityPipeline:
             "You are an expert fantasy novel analyst. Extract all named entities from the text. "
             "Classify each entity strictly as PER, LOC, ORG, ITEM, or SKILL. "
             "Return only a JSON array using this schema: "
-            '[{"phrase":"Tiêu Viêm","entity":"PER","score":9.5}]. '
+            '[{"phrase":"TiÃªu ViÃªm","entity":"PER","score":9.5}]. '
             "Score must be between 0 and 10. Do not include surrounding conjunctions or stopwords."
         )
         user_prompt = f"Text to analyze:\n\n{normalized_text}"
@@ -122,3 +124,15 @@ class EntityPipeline:
 
             normalized.append({"phrase": phrase, "entity": entity_type, "score": score})
         return normalized
+
+    def run_verified(self, text, *, llm_service, known_entities=(), known_aliases=(), audit_sink=None,
+                     guidance=(), defer_materialization=False):
+        """Canonical revision workflow; legacy extraction endpoints retain their contract."""
+        from services.entity_pipeline.verification import verify_entities
+        if llm_service is None:
+            raise EntityExtractionError('LLM provider is unavailable')
+        def discover(chunk, llm):
+            return self.run(chunk, llm_service=llm)
+        return verify_entities(text, llm_service, discover, known_entities=known_entities,
+                               known_aliases=known_aliases, audit_sink=audit_sink, guidance=guidance,
+                               defer_materialization=defer_materialization)

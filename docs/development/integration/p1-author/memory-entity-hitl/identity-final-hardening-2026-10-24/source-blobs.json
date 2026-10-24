@@ -1,0 +1,76 @@
+{
+  "source": "fd2f51aaaaa7196a0fdab9e6bb2498c9b55ce5e9",
+  "reviewed_base": "0de3fcf63fc6afdd2e1875af06dadddf844ed33f",
+  "files": [
+    {
+      "path": ".github/workflows/p7-semantic-memory.yml",
+      "git_blob": "978aa1a3da7b1ee78dff966aec1c31ba9f736af4",
+      "sha256_git_blob": "17065514e9e38f96af7f0eb9cf050932e540a361ec2abf240ee807944c7b4fec"
+    },
+    {
+      "path": "ai-service/api/interactions.py",
+      "git_blob": "71525450d2b66d30e66f4df777b8d123ce5d3c53",
+      "sha256_git_blob": "92979bacfb2b1c997d586c0500e098cc5152334baf942293fd023dc3c95aecb2"
+    },
+    {
+      "path": "ai-service/application/entity_hitl.py",
+      "git_blob": "ccdfb7085dad49755f66e1f96e07c303384d1c14",
+      "sha256_git_blob": "4fb72e4c8ee9775c35b97ccfa765c8775edc3af33adc2a6cb9cf7aaf41b67789"
+    },
+    {
+      "path": "ai-service/application/entity_review_service.py",
+      "git_blob": "d6de093982ecf6c65202845e5143c0a48f0a0dc7",
+      "sha256_git_blob": "283b7c1c2426c4a777e2c29744b924355a6f3e58f2ad26318023448f317b2b70"
+    },
+    {
+      "path": "ai-service/domain/projection.py",
+      "git_blob": "52452963476df97793b9da0133dcd5ed084ed65c",
+      "sha256_git_blob": "dbf6f93b58c853b60c1bcfbbc1e72d183aeb99587a2583502b86487a54b0d192"
+    },
+    {
+      "path": "ai-service/infrastructure/in_memory_narrative_repository.py",
+      "git_blob": "d7946022e593d6355aa2bb8cab5b6d5b057be9af",
+      "sha256_git_blob": "c24048469827899801228c6b6cfb0ff8b096dc4edf632aa754fd6fa8753f4bbf"
+    },
+    {
+      "path": "ai-service/infrastructure/json_narrative_repository.py",
+      "git_blob": "e3ff0e6ada30dc632215f2ca705366aeaa92dbaf",
+      "sha256_git_blob": "e4c6b5881ebd58db981946c0294a814bc58609aa70e8a8eda1b081fc8959718a"
+    },
+    {
+      "path": "ai-service/infrastructure/postgres_narrative_repository.py",
+      "git_blob": "3919b7d4badad0228eff926879e39f3b16565076",
+      "sha256_git_blob": "35a547364a3688e47f43bc5b951efe83305ad053ec1929aa3f8f37d155013fd5"
+    },
+    {
+      "path": "ai-service/services/entity_pipeline/verification.py",
+      "git_blob": "d67e05f802612656e1f61960e5c1c432841d2aa5",
+      "sha256_git_blob": "2e7174579754fb7c823e44ea48b12cf0403661adde7dc7737f3a938b0f9f7411"
+    },
+    {
+      "path": "ai-service/tests/test_p1_entity_semantics.py",
+      "git_blob": "c691625c85813114b163a3e5233bace77cd5e4e4",
+      "sha256_git_blob": "fe6866671db9f04ff310ffca29cbb390598531827a6eb8bdad46741a69dad6a4"
+    },
+    {
+      "path": "ai-service/tests/test_p1_identity_final.py",
+      "git_blob": "cbdbe6499d3b2c9bd28f28745a695b1d8add356a",
+      "sha256_git_blob": "997ac13b8b1b0566dfb87f8c6b263b4f19339f8777506c577288e6088c44ae7c"
+    },
+    {
+      "path": "ai-service/tests/test_p1_memory_entity_hitl.py",
+      "git_blob": "e04def46ecc24e5baf279658ab7e325400c87806",
+      "sha256_git_blob": "6b5cd58a71ff577f0299ef2077be378fd2b969195dc9055b63ca4d108fa29124"
+    },
+    {
+      "path": "backend/src/modules/ai/p1-memory-entity.live.test.ts",
+      "git_blob": "995a44109274a5188ab8a4dfc15b6ee8c78a5818",
+      "sha256_git_blob": "4a316dc1bf5fcef26e4bc52a2256fd2fd3750ea9c3af94eb4a9dcfd2c329dc7a"
+    },
+    {
+      "path": "docs/development/integration/p1-author/memory-entity-hitl/CONTRACT.md",
+      "git_blob": "bc05b2ac57ee29805d86016904ecd27899a510f9",
+      "sha256_git_blob": "0a14f27913cba0506a8380537df318d4a2838efc269c66be52bdffe87255bbee"
+    }
+  ]
+}

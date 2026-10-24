@@ -1,0 +1,136 @@
+BASE_METHOD {"base": "0de3fcf63fc6afdd2e1875af06dadddf844ed33f", "path": "ai-service/infrastructure/postgres_narrative_repository.py", "method": "_persist_projection", "blob_sha256": "e5121fe9d5b6eaf64e22e903597aff0877f7f7f1d5046265d1522e2f85aef15d"}
+FFIDENTITY_PG_READBACK {"stage": "H05-D-legacy-before", "data": {"story_brains": [{"entity_guidance": null, "id": "d66f439d-809d-4ce5-8f3e-0d84e738bda5", "tenant_id": "00000000-0000-0000-0000-000000000001", "novel_id": "dd56bee3-560b-4c85-b7db-4a3dd526599e", "status": "active", "baseline_revision_id": null, "brain_version": 1, "schema_version": 1, "created_at": "2026-10-23 16:48:40.748701+00:00", "updated_at": "2026-10-23 16:48:40.748701+00:00"}], "analysis_runs": [{"entity_candidate_audit": null, "id": "b0dd0868-0b2b-4e36-84fd-43e40be0ef28", "story_brain_id": "d66f439d-809d-4ce5-8f3e-0d84e738bda5", "tenant_id": "00000000-0000-0000-0000-000000000001", "novel_id": "dd56bee3-560b-4c85-b7db-4a3dd526599e", "operation": "proposal_batch", "status": "pending", "idempotency_key": "00000000-0000-0000-0000-000000000001:proposal-batch:26597ece8928b9d2b3eddeb739e6b1525ef69a0600ed2aaf5fe38249fc9d3f71", "input_hash": "26597ece8928b9d2b3eddeb739e6b1525ef69a0600ed2aaf5fe38249fc9d3f71", "pipeline_version": "legacy-v1", "model_name": null, "prompt_version": null, "created_at": "2026-10-23 16:48:41.114652+00:00"}, {"entity_candidate_audit": {"chunks": [{"end": 32, "start": 0}], "counts": {"entity": 2, "candidates": 2}, "policy": "entity-candidates-v1", "status": "entities_reviewed", "aliases": [], "request": {"options": {"extract_events": true, "build_embeddings": false, "extract_entities": true, "check_consistency": true, "extract_world_rules": true, "extract_state_transitions": true}, "novel_id": "dd56bee3-560b-4c85-b7db-4a3dd526599e", "operation": "incremental_story_analysis", "tenant_id": "00000000-0000-0000-0000-000000000001", "chapter_id": "a3aa4799-73b8-44bc-8da8-24229d73dbe7", "revision_id": "7e3a6871-a7ac-4b19-bed0-3a40d99265de", "content_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a", "idempotency_key": "f3e4f062-3f08-419e-a0d3-33a3e98ea830"}, "entities": [{"score": 7.0, "entity": "PER", "phrase": "Minh", "entity_id": "8f7a81d1-c18b-44ab-85f2-a5bfee446fe3", "occurrences": [{"end": 4, "quote": "Minh", "start": 0, "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a", "revision_id": "7e3a6871-a7ac-4b19-bed0-3a40d99265de", "candidate_id": "9389322d7e8db9905c8bac44"}], "status_quote": "", "verified_end": 4, "candidate_ids": ["9389322d7e8db9905c8bac44"], "initial_status": "Unknown", "verified_start": 0, "canonical_entity_id": "8f7a81d1-c18b-44ab-85f2-a5bfee446fe3", "provisional_identity_key": ""}, {"score": 7.0, "entity": "PER", "phrase": "Minh", "entity_id": "e1208362-913a-4509-91b3-37444da6fa3d", "occurrences": [{"end": 22, "quote": "Minh", "start": 18, "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a", "revision_id": "7e3a6871-a7ac-4b19-bed0-3a40d99265de", "candidate_id": "63151984d652c168e6cab060"}], "status_quote": "", "verified_end": 22, "candidate_ids": ["63151984d652c168e6cab060"], "initial_status": "Unknown", "verified_start": 18, "canonical_entity_id": "e1208362-913a-4509-91b3-37444da6fa3d", "provisional_identity_key": ""}], "decisions": [{"reason": "controlled semantic verification", "verdict": "entity", "confidence": 0.7, "entity_type": "PER", "candidate_id": "9389322d7e8db9905c8bac44", "status_quote": "", "canonical_name": "Minh", "identity_quote": "", "initial_status": "Unknown", "canonical_entity_id": "8f7a81d1-c18b-44ab-85f2-a5bfee446fe3", "provisional_identity_key": ""}, {"reason": "controlled semantic verification", "verdict": "entity", "confidence": 0.7, "entity_type": "PER", "candidate_id": "63151984d652c168e6cab060", "status_quote": "", "canonical_name": "Minh", "identity_quote": "", "initial_status": "Unknown", "canonical_entity_id": "8f7a81d1-c18b-44ab-85f2-a5bfee446fe3", "provisional_identity_key": ""}], "candidates": [{"end": 4, "start": 0, "context": "Minh b\u00ean tr\u00e1i g\u1eb7p Minh b\u00ean ph\u1ea3i.", "origins": ["approved_name_or_alias", "capitalized_token", "llm_discovery"], "surface": "Minh", "context_end": 32, "candidate_id": "9389322d7e8db9905c8bac44", "context_start": 0}, {"end": 22, "start": 18, "context": "Minh b\u00ean tr\u00e1i g\u1eb7p Minh b\u00ean ph\u1ea3i.", "origins": ["approved_name_or_alias", "capitalized_token", "llm_discovery"], "surface": "Minh", "context_end": 32, "candidate_id": "63151984d652c168e6cab060", "context_start": 0}], "chapter_id": "a3aa4799-73b8-44bc-8da8-24229d73dbe7", "revision_id": "7e3a6871-a7ac-4b19-bed0-3a40d99265de", "source_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a", "brain_version": 1, "chapter_number": 1, "review_version": 2, "analysis_run_id": "ebe5b09a-f0ab-4513-9681-886fe17d930f", "review_finalize": true, "guidance_version": 0, "reviewed_decisions": [{"reason": "controlled semantic verification", "verdict": "entity", "confidence": 0.7, "entity_type": "PER", "candidate_id": "9389322d7e8db9905c8bac44", "status_quote": "", "canonical_name": "Minh", "identity_quote": "", "initial_status": "Unknown", "canonical_entity_id": "8f7a81d1-c18b-44ab-85f2-a5bfee446fe3", "provisional_identity_key": ""}, {"reason": "controlled semantic verification", "verdict": "entity", "confidence": 0.7, "entity_type": "PER", "candidate_id": "63151984d652c168e6cab060", "status_quote": "", "canonical_name": "Minh", "identity_quote": "", "initial_status": "Unknown", "canonical_entity_id": "e1208362-913a-4509-91b3-37444da6fa3d", "provisional_identity_key": ""}], "review_input_version": 1, "pending_candidate_ids": [], "unanchored_discoveries": [], "identity_inventory_version": 2, "provisional_identity_scope": "59b0f4ff2e7a2780487e142743d09ecb45a36519aa520ac71f5fac6bbca4a703", "review_submitted_decisions": [{"reason": "controlled semantic verification", "verdict": "entity", "confidence": 0.7, "entity_type": "PER", "candidate_id": "9389322d7e8db9905c8bac44", "status_quote": "", "canonical_name": "Minh", "identity_quote": "", "initial_status": "Unknown", "canonical_entity_id": "8f7a81d1-c18b-44ab-85f2-a5bfee446fe3", "provisional_identity_key": ""}, {"reason": "controlled semantic verification", "verdict": "entity", "confidence": 0.7, "entity_type": "PER", "candidate_id": "63151984d652c168e6cab060", "status_quote": "", "canonical_name": "Minh", "identity_quote": "", "initial_status": "Unknown", "canonical_entity_id": "e1208362-913a-4509-91b3-37444da6fa3d", "provisional_identity_key": ""}]}, "id": "ebe5b09a-f0ab-4513-9681-886fe17d930f", "story_brain_id": "d66f439d-809d-4ce5-8f3e-0d84e738bda5", "tenant_id": "00000000-0000-0000-0000-000000000001", "novel_id": "dd56bee3-560b-4c85-b7db-4a3dd526599e", "operation": "incremental_story_analysis", "status": "pending", "idempotency_key": "00000000-0000-0000-0000-000000000001:f3e4f062-3f08-419e-a0d3-33a3e98ea830", "input_hash": "507876e3fe9aba3241e2126ee8831010029cb44fb2607903ad0aed9735fc4819", "pipeline_version": "entity-human-review-v1", "model_name": null, "prompt_version": null, "created_at": "2026-10-23 16:48:40.910382+00:00"}], "entities": [{"id": "8f7a81d1-c18b-44ab-85f2-a5bfee446fe3", "story_brain_id": "d66f439d-809d-4ce5-8f3e-0d84e738bda5", "tenant_id": "00000000-0000-0000-0000-000000000001", "novel_id": "dd56bee3-560b-4c85-b7db-4a3dd526599e", "entity_type": "PER", "canonical_name": "Minh", "normalized_name": "minh", "description": null, "static_attributes": {}, "source_type": "author", "confirmation_status": "confirmed", "confidence": null, "is_locked": false, "created_by": null, "created_at": "2026-10-23 16:48:40.897736+00:00", "updated_at": "2026-10-23 16:48:40.897736+00:00"}, {"id": "e1208362-913a-4509-91b3-37444da6fa3d", "story_brain_id": "d66f439d-809d-4ce5-8f3e-0d84e738bda5", "tenant_id": "00000000-0000-0000-0000-000000000001", "novel_id": "dd56bee3-560b-4c85-b7db-4a3dd526599e", "entity_type": "PER", "canonical_name": "Minh", "normalized_name": "minh", "description": null, "static_attributes": {}, "source_type": "author", "confirmation_status": "confirmed", "confidence": null, "is_locked": false, "created_by": null, "created_at": "2026-10-23 16:48:40.897736+00:00", "updated_at": "2026-10-23 16:48:40.897736+00:00"}], "relationships": [{"id": "26f56b31-4820-4c01-a5f0-b01fc96f7887", "story_brain_id": "d66f439d-809d-4ce5-8f3e-0d84e738bda5", "tenant_id": "00000000-0000-0000-0000-000000000001", "novel_id": "dd56bee3-560b-4c85-b7db-4a3dd526599e", "subject_name": "Minh", "relation_type": "ally", "object_name": "Minh", "source_type": "author", "is_locked": true, "relation_metadata": {"historical": "preserve"}, "created_at": "2026-10-23 16:48:41.090249+00:00"}], "events": [], "facts": [], "proposals": [{"id": "07f63586-2a97-459a-b488-0dee52b01c14", "analysis_run_id": "b0dd0868-0b2b-4e36-84fd-43e40be0ef28", "story_brain_id": "d66f439d-809d-4ce5-8f3e-0d84e738bda5", "tenant_id": "00000000-0000-0000-0000-000000000001", "novel_id": "dd56bee3-560b-4c85-b7db-4a3dd526599e", "dependency_group_id": "906d3af5-83b9-40dd-9daa-7125205213f2", "materialization_order": 2, "proposal_type": "state_transition", "payload": {"event_id": "73169fd6-3162-439e-8274-b98fc8d87249", "entity_id": "8f7a81d1-c18b-44ab-85f2-a5bfee446fe3", "new_value": {"e1208362-913a-4509-91b3-37444da6fa3d": "enemy"}, "attribute_key": "active_relationships"}, "evidence": [{"end": 32, "quote": "Minh b\u00ean tr\u00e1i g\u1eb7p Minh b\u00ean ph\u1ea3i.", "start": 0, "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a", "chapter_id": "a3aa4799-73b8-44bc-8da8-24229d73dbe7", "revision_id": "7e3a6871-a7ac-4b19-bed0-3a40d99265de", "chapter_number": 1}], "confidence": null, "status": "pending", "expected_brain_version": 1, "decision_reason": null, "created_at": "2026-10-23 16:48:41.114652+00:00", "updated_at": "2026-10-23 16:48:41.114652+00:00"}, {"id": "504b206e-0988-436d-aa93-68f524a44857", "analysis_run_id": "b0dd0868-0b2b-4e36-84fd-43e40be0ef28", "story_brain_id": "d66f439d-809d-4ce5-8f3e-0d84e738bda5", "tenant_id": "00000000-0000-0000-0000-000000000001", "novel_id": "dd56bee3-560b-4c85-b7db-4a3dd526599e", "dependency_group_id": "906d3af5-83b9-40dd-9daa-7125205213f2", "materialization_order": 1, "proposal_type": "fact", "payload": {"fact_key": "mood", "fact_value": "calm", "subject_entity_id": "8f7a81d1-c18b-44ab-85f2-a5bfee446fe3"}, "evidence": [{"end": 32, "quote": "Minh b\u00ean tr\u00e1i g\u1eb7p Minh b\u00ean ph\u1ea3i.", "start": 0, "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a", "chapter_id": "a3aa4799-73b8-44bc-8da8-24229d73dbe7", "revision_id": "7e3a6871-a7ac-4b19-bed0-3a40d99265de", "chapter_number": 1}], "confidence": null, "status": "pending", "expected_brain_version": 1, "decision_reason": null, "created_at": "2026-10-23 16:48:41.114652+00:00", "updated_at": "2026-10-23 16:48:41.114652+00:00"}, {"id": "73169fd6-3162-439e-8274-b98fc8d87249", "analysis_run_id": "b0dd0868-0b2b-4e36-84fd-43e40be0ef28", "story_brain_id": "d66f439d-809d-4ce5-8f3e-0d84e738bda5", "tenant_id": "00000000-0000-0000-0000-000000000001", "novel_id": "dd56bee3-560b-4c85-b7db-4a3dd526599e", "dependency_group_id": "906d3af5-83b9-40dd-9daa-7125205213f2", "materialization_order": 0, "proposal_type": "event", "payload": {"chapter": 1, "summary": "Minh b\u00ean tr\u00e1i g\u1eb7p Minh b\u00ean ph\u1ea3i.", "event_id": "73169fd6-3162-439e-8274-b98fc8d87249", "event_type": "meeting", "participants": ["8f7a81d1-c18b-44ab-85f2-a5bfee446fe3", "e1208362-913a-4509-91b3-37444da6fa3d"]}, "evidence": [{"end": 32, "quote": "Minh b\u00ean tr\u00e1i g\u1eb7p Minh b\u00ean ph\u1ea3i.", "start": 0, "text_hash": "429afa39175eac786257c2261a2719583024b19f86abe98699abe9eed825805a", "chapter_id": "a3aa4799-73b8-44bc-8da8-24229d73dbe7", "revision_id": "7e3a6871-a7ac-4b19-bed0-3a40d99265de", "chapter_number": 1}], "confidence": null, "status": "pending", "expected_brain_version": 1, "decision_reason": null, "created_at": "2026-10-23 16:48:41.114652+00:00", "updated_at": "2026-10-23 16:48:41.114652+00:00"}], "state_transitions": [], "current_entity_states": [], "event_participants": []}}
+F
+================================== FAILURES ===================================
+______ test_h05_homonyms_lock_only_exact_pair_and_reload[postgres-False] ______
+
+flow = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000017A9C7A3590>...000017A9CB3CB90>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:19629/ephurin_test_astra_p1_identity_0d96bb94))
+target_side = False
+
+    @pytest.mark.parametrize('target_side', [False, True])
+    def test_h05_homonyms_lock_only_exact_pair_and_reload(flow, target_side):
+        f = flow
+        run, _ = homonyms(f)
+        a, b = f.llm.ids
+        x = str(uuid.uuid4())
+        brain = f.repo.get_story_brain(f.revision.novel_id)
+        if f.engine:
+            from infrastructure.orm_models import EntityRecord
+            with f.repo._session_factory.begin() as session:
+                session.add(EntityRecord(id=uuid.UUID(x), story_brain_id=uuid.UUID(brain.metadata['brain_id']),
+                    tenant_id=uuid.UUID(TENANT), novel_id=uuid.UUID(f.revision.novel_id), entity_type='PER',
+                    canonical_name='Lan', normalized_name='lan', static_attributes={}, source_type='author',
+                    confirmation_status='confirmed'))
+        else:
+            f.repo._brains[f.revision.novel_id] = replace(brain, entities=brain.entities+(NarrativeEntity('Lan', x, 'PER'),))
+        locked_pair = (x, a) if target_side else (a, x)
+        f.repo.override_relation(f.revision.novel_id, locked_pair[0], 'ally', locked_pair[1])
+        subject, target = (x, b) if target_side else (b, x)
+        proposals = pending_relationship(f, subject, target)
+>       f.repo.accept_proposal_group(f.revision.novel_id, [p.proposal_id for p in proposals], 1)
+
+tests\test_p1_identity_final.py:216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+infrastructure\postgres_narrative_repository.py:753: in accept_proposal_group
+    self._persist_projection(session, brain, novel_id)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000017A9C7A3590>
+session = <sqlalchemy.orm.session.Session object at 0x0000017A9CAD3860>
+brain = <infrastructure.orm_models.StoryBrainRecord object at 0x0000017A9D0989E0>
+novel_id = UUID('ad3e207a-9250-4b1d-b2fd-4d261514fb2c')
+
+>   ???
+E   domain.errors.OptimisticLockError: Projection conflicts with an author-locked relationship
+
+ai-service/infrastructure/postgres_narrative_repository.py:854: OptimisticLockError
+______ test_h05_homonyms_lock_only_exact_pair_and_reload[postgres-True] _______
+
+flow = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000017A9D01C8F0>...000017A9CB8E2A0>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:19629/ephurin_test_astra_p1_identity_0d96bb94))
+target_side = True
+
+    @pytest.mark.parametrize('target_side', [False, True])
+    def test_h05_homonyms_lock_only_exact_pair_and_reload(flow, target_side):
+        f = flow
+        run, _ = homonyms(f)
+        a, b = f.llm.ids
+        x = str(uuid.uuid4())
+        brain = f.repo.get_story_brain(f.revision.novel_id)
+        if f.engine:
+            from infrastructure.orm_models import EntityRecord
+            with f.repo._session_factory.begin() as session:
+                session.add(EntityRecord(id=uuid.UUID(x), story_brain_id=uuid.UUID(brain.metadata['brain_id']),
+                    tenant_id=uuid.UUID(TENANT), novel_id=uuid.UUID(f.revision.novel_id), entity_type='PER',
+                    canonical_name='Lan', normalized_name='lan', static_attributes={}, source_type='author',
+                    confirmation_status='confirmed'))
+        else:
+            f.repo._brains[f.revision.novel_id] = replace(brain, entities=brain.entities+(NarrativeEntity('Lan', x, 'PER'),))
+        locked_pair = (x, a) if target_side else (a, x)
+        f.repo.override_relation(f.revision.novel_id, locked_pair[0], 'ally', locked_pair[1])
+        subject, target = (x, b) if target_side else (b, x)
+        proposals = pending_relationship(f, subject, target)
+>       f.repo.accept_proposal_group(f.revision.novel_id, [p.proposal_id for p in proposals], 1)
+
+tests\test_p1_identity_final.py:216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+infrastructure\postgres_narrative_repository.py:753: in accept_proposal_group
+    self._persist_projection(session, brain, novel_id)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000017A9D01C8F0>
+session = <sqlalchemy.orm.session.Session object at 0x0000017A9D21BF80>
+brain = <infrastructure.orm_models.StoryBrainRecord object at 0x0000017A9E6B03E0>
+novel_id = UUID('d2b1f04b-feff-4ac2-95bf-f8a46ce2a4ee')
+
+>   ???
+E   domain.errors.OptimisticLockError: Projection conflicts with an author-locked relationship
+
+ai-service/infrastructure/postgres_narrative_repository.py:854: OptimisticLockError
+_ test_h05_ambiguous_legacy_lock_is_preserved_without_partial_canon[postgres] _
+
+flow = namespace(repo=<infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000017A9D249E80>...000017A9E6B0C50>, engine=Engine(postgresql+psycopg://postgres@127.0.0.1:19629/ephurin_test_astra_p1_identity_0d96bb94))
+
+    def test_h05_ambiguous_legacy_lock_is_preserved_without_partial_canon(flow):
+        f = flow
+        run, _ = homonyms(f)
+        brain = f.repo.get_story_brain(f.revision.novel_id)
+        if f.engine:
+            from infrastructure.orm_models import RelationshipRecord
+            with f.repo._session_factory.begin() as s:
+                s.add(RelationshipRecord(story_brain_id=uuid.UUID(brain.metadata['brain_id']), tenant_id=uuid.UUID(TENANT),
+                    novel_id=uuid.UUID(f.revision.novel_id), subject_name='Minh', object_name='Minh',
+                    relation_type='ally', source_type='author', is_locked=True, relation_metadata={'historical':'preserve'}))
+        else:
+            f.repo._brains[f.revision.novel_id] = replace(brain, relations=(NarrativeRelation('Minh', 'ally', 'Minh',
+                metadata={'historical':'preserve'}, source='author', locked=True),))
+        proposals = pending_relationship(f, *f.llm.ids)
+        before = snapshot(f, 'H05-D-legacy-before')
+        with pytest.raises(ProjectionError):
+>           f.repo.accept_proposal_group(f.revision.novel_id, [p.proposal_id for p in proposals], 1)
+
+tests\test_p1_identity_final.py:257: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+infrastructure\postgres_narrative_repository.py:753: in accept_proposal_group
+    self._persist_projection(session, brain, novel_id)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <infrastructure.postgres_narrative_repository.PostgresNarrativeRepository object at 0x0000017A9D249E80>
+session = <sqlalchemy.orm.session.Session object at 0x0000017A9E6B1610>
+brain = <infrastructure.orm_models.StoryBrainRecord object at 0x0000017A9D2489B0>
+novel_id = UUID('dd56bee3-560b-4c85-b7db-4a3dd526599e')
+
+>   ???
+E   domain.errors.OptimisticLockError: Projection conflicts with an author-locked relationship
+
+ai-service/infrastructure/postgres_narrative_repository.py:854: OptimisticLockError
+=========================== short test summary info ===========================
+FAILED tests/test_p1_identity_final.py::test_h05_homonyms_lock_only_exact_pair_and_reload[postgres-False]
+FAILED tests/test_p1_identity_final.py::test_h05_homonyms_lock_only_exact_pair_and_reload[postgres-True]
+FAILED tests/test_p1_identity_final.py::test_h05_ambiguous_legacy_lock_is_preserved_without_partial_canon[postgres]
+3 failed, 3 deselected in 3.24s
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.

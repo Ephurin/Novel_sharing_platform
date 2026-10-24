@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import nullcontext
 import hashlib
 import json
 import logging
@@ -17,6 +18,7 @@ logger = logging.getLogger(__name__)
 from domain.projection import ProjectionError, validate_payload, project, resolve_entity, transition_from_payload
 from domain.errors import ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError
 from domain.models import (
+    EntityReviewCompletion,
     AnalysisRun,
     BootstrapJob,
     BootstrapRevision,
@@ -36,6 +38,7 @@ from domain.models import (
     WritingGenerationJob,
     WritingPatch,
 )
+from domain.projection import project_relations, author_relationship
 from infrastructure.database import session_scope
 from infrastructure.orm_models import (
     CurrentEntityStateRecord,
@@ -61,6 +64,34 @@ from infrastructure.orm_models import (
 
 
 class PostgresNarrativeRepository:
+    def complete_entity_review(self, story_id, run_id, audit, proposals):
+        """CAS and proposals commit together, including a valid empty extraction."""
+        from copy import deepcopy
+        novel_id = self._novel_id(story_id)
+        with session_scope(self._session_factory) as session:
+            brain = session.scalar(select(StoryBrainRecord).where(
+                *self._scope(StoryBrainRecord, novel_id)).with_for_update())
+            record = session.scalar(select(AnalysisRunRecord).where(
+                AnalysisRunRecord.id == uuid.UUID(run_id),
+                *self._scope(AnalysisRunRecord, novel_id)).with_for_update())
+            if brain is None or record is None:
+                raise KeyError(run_id)
+            current = record.entity_candidate_audit or {}
+            if brain.brain_version != audit['brain_version'] or (brain.entity_guidance or {}).get('version', 0) != audit['guidance_version']:
+                raise OptimisticLockError('Canon or guidance changed during extraction')
+            if current.get('status') == 'completed' and current.get('review_version') == audit['review_version']:
+                rows = session.scalars(select(ProposalRecord).where(
+                    *self._scope(ProposalRecord, novel_id), ProposalRecord.analysis_run_id == record.id)
+                    .order_by(ProposalRecord.materialization_order)).all()
+                return EntityReviewCompletion(tuple(self._to_proposal(row) for row in rows), True)
+            if current != audit or current.get('status') != 'entities_reviewed':
+                raise OptimisticLockError('Entity checkpoint changed during extraction')
+            self.record_revision_provenance(story_id, audit['chapter_id'], audit['revision_id'],
+                audit['chapter_number'], _session=session)
+            self.save_proposals(story_id, proposals, _session=session)
+            record.entity_candidate_audit = {**deepcopy(audit), 'status': 'completed'}
+            return EntityReviewCompletion(tuple(proposals), False)
+
     def __init__(
         self,
         session_factory: sessionmaker[Session],
@@ -73,10 +104,13 @@ class PostgresNarrativeRepository:
         self._tenant_id = uuid.UUID(str(tenant_id))
         self._actor_id = uuid.UUID(str(actor_id))
 
-    def get_story_brain(self, story_id: str) -> StoryBrain:
+    def get_story_brain(self, story_id: str, *, read_only: bool = False) -> StoryBrain:
         novel_id = self._novel_id(story_id)
         with session_scope(self._session_factory) as session:
-            brain = self._get_or_create_brain(session, novel_id)
+            brain = (session.scalar(select(StoryBrainRecord).where(*self._scope(StoryBrainRecord, novel_id)).with_for_update(read=True))
+                     if read_only else self._get_or_create_brain(session, novel_id))
+            if brain is None:
+                raise KeyError(story_id)
             entities = session.scalars(
 
                 select(EntityRecord).where(*self._scope(EntityRecord, novel_id))
@@ -106,6 +140,15 @@ class PostgresNarrativeRepository:
             proposals = session.scalars(
                 select(ProposalRecord).where(*self._scope(ProposalRecord, novel_id))
             ).all()
+            if read_only:
+                entities = [e for e in entities if e.confirmation_status == 'confirmed']
+                entity_ids = {e.id for e in entities}
+                entity_names = {e.canonical_name for e in entities}
+                aliases = [a for a in aliases if a.confirmation_status == 'confirmed' and a.entity_id in entity_ids]
+                mentions = [m for m in mentions if m.entity_id in entity_ids]
+                events = [e for e in events if e.confirmation_status == 'confirmed']
+                facts = [f for f in facts if f.confirmation_status == 'confirmed']
+                relations = [r for r in relations if r.subject_name in entity_names and r.object_name in entity_names]
             return StoryBrain(
                 story_id=story_id,
                 entities=tuple(self._to_entity(item) for item in entities),
@@ -140,6 +183,12 @@ class PostgresNarrativeRepository:
                         "fact_key": item.fact_key,
                         "fact_value": item.fact_value,
                         "is_locked": item.is_locked,
+                        "source_revision_id": str(item.source_revision_id) if item.source_revision_id else None,
+                        "chapter_number": item.chapter_number,
+                        "source_start": item.source_start, "source_end": item.source_end,
+                        "supersedes_id": str(item.supersedes_id) if item.supersedes_id else None,
+                        "is_retired": item.is_retired,
+                        "confirmation_status": item.confirmation_status,
                     }
                     for item in facts
                 ),
@@ -342,7 +391,7 @@ class PostgresNarrativeRepository:
             )
 
     def save_proposals(
-        self, story_id: str, proposals: list[NarrativeProposal]
+        self, story_id: str, proposals: list[NarrativeProposal], *, _session=None
     ) -> list[NarrativeProposal]:
         if not proposals:
             return []
@@ -355,7 +404,7 @@ class PostgresNarrativeRepository:
             ).encode("utf-8")
         ).hexdigest()
         key = f"{self._tenant_id}:proposal-batch:{digest}"
-        with session_scope(self._session_factory) as session:
+        with (nullcontext(_session) if _session is not None else session_scope(self._session_factory)) as session:
             brain = self._get_or_create_brain(session, novel_id)
             run = None
             if proposals[0].analysis_run_id:
@@ -513,26 +562,34 @@ class PostgresNarrativeRepository:
                     item for item in proposal_ids if self._stable_uuid("proposal", item) == proposal.id
                 )
                 payload = edited_payloads.get(external_id, proposal.payload)
+                reserved = proposal.payload.get('entity_id') if proposal.proposal_type == 'entity' else None
+                if reserved:
+                    if payload.get('entity_id', reserved) != reserved:
+                        raise ProjectionError('Reviewed entity identity ID is immutable')
+                    payload = {**payload, 'entity_id': reserved}
                 validate_payload(proposal.proposal_type, payload)
                 if proposal.proposal_type == "entity":
                     normalized = str(payload["normalized_name"]).casefold()
-                    entity = session.scalar(
-                        select(EntityRecord).where(
-                            *self._scope(EntityRecord, novel_id),
-                            EntityRecord.normalized_name == normalized,
-                        )
-                    )
+                    assigned_id = uuid.UUID(payload['entity_id']) if payload.get('entity_id') else None
+                    if assigned_id:
+                        if session.get(EntityRecord, assigned_id) is not None:
+                            raise ProjectionError('New reviewed identity ID is already in use')
+                        entity = None
+                    else:
+                        entity = session.scalar(select(EntityRecord).where(
+                            *self._scope(EntityRecord, novel_id), EntityRecord.normalized_name == normalized))
                     if entity and entity.is_locked and entity.entity_type != payload["entity_type"]:
                         raise OptimisticLockError("Author-locked entity conflicts with proposal")
                     if entity is None:
                         entity = EntityRecord(
+                            **({"id": assigned_id} if assigned_id else {}),
                             story_brain_id=brain.id,
                             tenant_id=self._tenant_id,
                             novel_id=novel_id,
                             entity_type=str(payload["entity_type"]),
                             canonical_name=str(payload["canonical_name"]),
                             normalized_name=normalized,
-                            static_attributes={"mentions": 1, "status": "Alive", "location": "Unknown"},
+                            static_attributes={"mentions": 0 if payload.get("source_type") == "author_declaration" else 1, "status": payload.get("initial_status", "Alive"), "location": "Unknown", "source_type": payload.get("source_type", "AI")},
                             source_type="AI",
                             confirmation_status="confirmed",
                             confidence=proposal.confidence,
@@ -606,6 +663,9 @@ class PostgresNarrativeRepository:
                     session.flush()
                     artifact_ids.append(str(proposal.id))
                 elif proposal.proposal_type == "alias":
+                    if not payload.get('entity_id'):
+                        entities = [self._to_entity(e) for e in session.scalars(select(EntityRecord).where(*self._scope(EntityRecord, novel_id))).all()]
+                        payload = {**payload, 'entity_id': resolve_entity(payload.get('entity_name', ''), entities)}
                     alias = EntityAliasRecord(
                         entity_id=uuid.UUID(str(payload["entity_id"])),
                         alias=str(payload["alias"]),
@@ -618,6 +678,9 @@ class PostgresNarrativeRepository:
                     session.flush()
                     artifact_ids.append(str(alias.id))
                 elif proposal.proposal_type == "fact":
+                    if payload.get('subject_entity_name'):
+                        entities = [self._to_entity(e) for e in session.scalars(select(EntityRecord).where(*self._scope(EntityRecord, novel_id))).all()]
+                        payload = {**payload, 'subject_entity_id': resolve_entity(payload['subject_entity_name'], entities)}
                     evidence = proposal.evidence[0] if proposal.evidence else {}
                     fact_ch = payload.get("chapter_number")
                     rev_uuid = (
@@ -771,29 +834,26 @@ class PostgresNarrativeRepository:
         return entities, facts, events, transitions
 
     def _persist_projection(self, session, brain, novel_id):
-        state = project(*self._projection_inputs(session, novel_id))
+        inputs = self._projection_inputs(session, novel_id)
+        state = project(*inputs)
+        records = session.scalars(select(RelationshipRecord).where(*self._scope(RelationshipRecord, novel_id))).all()
+        originals = [NarrativeRelation(subject=r.subject_name, object=r.object_name, relation=r.relation_type,
+            metadata=r.relation_metadata or {}, source=r.source_type, locked=r.is_locked) for r in records]
+        projected = project_relations(inputs[0], originals, state)  # Validate before any projection mutation.
         session.execute(delete(CurrentEntityStateRecord).where(*self._scope(CurrentEntityStateRecord, novel_id)))
-        for entity_id, attributes in state["entities"].items():
-            session.add(CurrentEntityStateRecord(
-                story_brain_id=brain.id, entity_id=uuid.UUID(entity_id), tenant_id=self._tenant_id,
-                novel_id=novel_id, state=attributes, provenance=state["provenance"][entity_id]))
-        session.execute(delete(RelationshipRecord).where(
-            *self._scope(RelationshipRecord, novel_id), RelationshipRecord.source_type == "projection",
-            RelationshipRecord.is_locked.is_(False)))
-        entities = {str(e.id): e.canonical_name for e in session.scalars(
-            select(EntityRecord).where(*self._scope(EntityRecord, novel_id))).all()}
-        for relation in state["relationships"]:
-            subject, target = entities[relation["subject_entity_id"]], entities[relation["object_entity_id"]]
-            locked = session.scalar(select(RelationshipRecord).where(
-                *self._scope(RelationshipRecord, novel_id), RelationshipRecord.subject_name == subject,
-                RelationshipRecord.object_name == target, RelationshipRecord.is_locked.is_(True)))
-            if locked:
-                if locked.relation_type != relation["relation"]:
-                    raise OptimisticLockError("Projection conflicts with an author-locked relationship")
-                continue
+        for entity_id, attributes in state['entities'].items():
+            session.add(CurrentEntityStateRecord(story_brain_id=brain.id, entity_id=uuid.UUID(entity_id),
+                tenant_id=self._tenant_id, novel_id=novel_id, state=attributes,
+                provenance=state['provenance'][entity_id]))
+        retained = [r for r in records if r.source_type != 'projection' or r.is_locked]
+        for row, relation in zip(retained, projected[:len(retained)]):
+            row.relation_metadata = relation.metadata
+        session.execute(delete(RelationshipRecord).where(*self._scope(RelationshipRecord, novel_id),
+            RelationshipRecord.source_type == 'projection', RelationshipRecord.is_locked.is_(False)))
+        for r in projected[len(retained):]:
             session.add(RelationshipRecord(story_brain_id=brain.id, tenant_id=self._tenant_id, novel_id=novel_id,
-                subject_name=subject, object_name=target, relation_type=relation["relation"],
-                source_type="projection", relation_metadata=relation))
+                subject_name=r.subject, object_name=r.object, relation_type=r.relation,
+                source_type='projection', relation_metadata=r.metadata))
         session.flush()
         return state
 
@@ -905,25 +965,22 @@ class PostgresNarrativeRepository:
         novel_id = self._novel_id(story_id)
         with session_scope(self._session_factory) as session:
             brain = self._get_or_create_brain(session, novel_id)
-            session.execute(
-                delete(RelationshipRecord).where(
-                    *self._scope(RelationshipRecord, novel_id),
-                    RelationshipRecord.subject_name == subject,
-                    RelationshipRecord.object_name == object_name,
-                )
-            )
-            session.add(
-                RelationshipRecord(
-                    story_brain_id=brain.id,
-                    tenant_id=self._tenant_id,
-                    novel_id=novel_id,
-                    subject_name=subject,
-                    relation_type=relation_type,
-                    object_name=object_name,
-                    source_type="author",
-                    is_locked=True,
-                )
-            )
+            # Serialize corrections against Canon acceptance/rebuild on this brain.
+            session.refresh(brain, with_for_update=True)
+            entities = [self._to_entity(e) for e in session.scalars(select(EntityRecord).where(
+                *self._scope(EntityRecord, novel_id))).all()]
+            rows = session.scalars(select(RelationshipRecord).where(*self._scope(RelationshipRecord, novel_id))).all()
+            relations = [NarrativeRelation(subject=r.subject_name, object=r.object_name, relation=r.relation_type,
+                metadata=r.relation_metadata or {}, source=r.source_type, locked=r.is_locked) for r in rows]
+            updated = author_relationship(entities, relations, subject, relation_type, object_name)
+            retained_ids = {id(r) for r in updated[:-1]}
+            for row, relation in zip(rows, relations):
+                if id(relation) not in retained_ids:
+                    session.delete(row)
+            r = updated[-1]
+            session.add(RelationshipRecord(story_brain_id=brain.id, tenant_id=self._tenant_id, novel_id=novel_id,
+                subject_name=r.subject, relation_type=r.relation, object_name=r.object,
+                source_type='author', is_locked=True, relation_metadata=r.metadata))
         return {"status": "success", "relation": relation_type, "locked": True}
 
     def export_snapshot(self, story_id: str) -> dict[str, Any]:
@@ -1106,11 +1163,12 @@ class PostgresNarrativeRepository:
         chapter_id: str,
         revision_id: str,
         chapter_number: int,
+        *, _session=None,
     ) -> None:
         novel_id = self._novel_id(story_id)
         rev_uuid = self._stable_uuid("revision", revision_id)
         chap_uuid = self._stable_uuid("chapter", chapter_id)
-        with session_scope(self._session_factory) as session:
+        with (nullcontext(_session) if _session is not None else session_scope(self._session_factory)) as session:
             brain = self._get_or_create_brain(session, novel_id)
             existing = session.scalar(
                 select(RevisionProvenanceRecord).where(
@@ -2335,4 +2393,72 @@ class PostgresNarrativeRepository:
             session.flush()
             return self._to_autonomous_run(record)
 
+
+
+    def get_entity_guidance(self, story_id: str) -> dict:
+        from copy import deepcopy
+        with session_scope(self._session_factory) as session:
+            brain = session.scalar(select(StoryBrainRecord).where(*self._scope(StoryBrainRecord, self._novel_id(story_id))))
+            if brain is None:
+                return {'version': 0, 'entries': []}
+            return deepcopy(brain.entity_guidance or {'version': 0, 'entries': []})
+
+    def list_entity_reviews(self, story_id: str) -> list[dict]:
+        from copy import deepcopy
+        with session_scope(self._session_factory) as session:
+            rows = session.scalars(select(AnalysisRunRecord.entity_candidate_audit).where(
+                *self._scope(AnalysisRunRecord, self._novel_id(story_id)),
+                AnalysisRunRecord.entity_candidate_audit['status'].as_string().in_(
+                    ['waiting_entity_review', 'entities_reviewed']))).all()
+            return [deepcopy(a) for a in rows]
+
+    def save_entity_guidance(self, story_id: str, guidance: dict, expected_version: int) -> dict:
+        from copy import deepcopy
+        with session_scope(self._session_factory) as session:
+            brain = self._get_or_create_brain(session, self._novel_id(story_id))
+            session.refresh(brain, with_for_update=True)
+            if (brain.entity_guidance or {}).get('version', 0) != expected_version:
+                raise OptimisticLockError('Reload entity guidance')
+            brain.entity_guidance = {**deepcopy(guidance), 'version': expected_version + 1}
+            return deepcopy(brain.entity_guidance)
+
+    def get_entity_registry(self, story_id: str) -> dict:
+        novel_id = self._novel_id(story_id)
+        with session_scope(self._session_factory) as session:
+            entities = session.execute(select(EntityRecord.id, EntityRecord.canonical_name,
+                EntityRecord.entity_type).where(*self._scope(EntityRecord, novel_id),
+                    EntityRecord.confirmation_status == 'confirmed')).all()
+            aliases = session.execute(select(EntityAliasRecord.alias, EntityAliasRecord.entity_id)
+                .join(EntityRecord, EntityRecord.id == EntityAliasRecord.entity_id)
+                .where(*self._scope(EntityRecord, novel_id), EntityRecord.confirmation_status == 'confirmed',
+                    EntityAliasRecord.confirmation_status == 'confirmed')).all()
+            return {'entities': [{'entity_id': str(e.id), 'name': e.canonical_name,
+                                  'entity_type': e.entity_type} for e in entities],
+                    'aliases': [{'alias': a.alias, 'entity_id': str(a.entity_id)} for a in aliases]}
+
+    def save_entity_candidate_audit(self, story_id: str, run_id: str, audit: dict, *, expected_version: int | None = None) -> None:
+        from copy import deepcopy
+        with session_scope(self._session_factory) as session:
+            brain = session.scalar(select(StoryBrainRecord).where(
+                *self._scope(StoryBrainRecord, self._novel_id(story_id))).with_for_update())
+            if brain is None:
+                raise KeyError(story_id)
+            if brain.brain_version != audit['brain_version'] or (brain.entity_guidance or {}).get('version', 0) != audit['guidance_version']:
+                raise OptimisticLockError('Canon or guidance changed')
+            record = session.scalar(select(AnalysisRunRecord).where(
+                AnalysisRunRecord.id == uuid.UUID(run_id),
+                *self._scope(AnalysisRunRecord, self._novel_id(story_id))).with_for_update())
+            if record is None:
+                raise KeyError(run_id)
+            if expected_version is not None and (record.entity_candidate_audit or {}).get('review_version', 0) != expected_version:
+                raise OptimisticLockError('Entity checkpoint changed')
+            record.entity_candidate_audit = deepcopy(audit)
+
+    def get_entity_candidate_audit(self, story_id: str, run_id: str) -> dict | None:
+        from copy import deepcopy
+        with session_scope(self._session_factory) as session:
+            record = session.scalar(select(AnalysisRunRecord).where(
+                AnalysisRunRecord.id == uuid.UUID(run_id),
+                *self._scope(AnalysisRunRecord, self._novel_id(story_id))))
+            return deepcopy(record.entity_candidate_audit) if record else None
 

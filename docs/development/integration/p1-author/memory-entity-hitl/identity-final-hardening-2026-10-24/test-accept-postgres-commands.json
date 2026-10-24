@@ -1,0 +1,42 @@
+[
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-23T16:56:54.144389+00:00"
+  },
+  {
+    "command": [
+      "git",
+      "status",
+      "--porcelain"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-23T16:56:54.213262+00:00"
+  },
+  {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "--basetemp=C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\p1-identity-final-acceptance\\pytest-test-accept-postgres",
+      "-q",
+      "-m",
+      "postgres_integration",
+      "tests/test_postgres_integration.py",
+      "tests/test_semantic_memory_postgres_integration.py",
+      "tests/test_p8_json_postgres_cutover_integration.py"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject\\ai-service",
+    "exit_code": 0,
+    "expected_exit": 0,
+    "at_utc": "2026-10-23T16:57:04.931096+00:00"
+  }
+]

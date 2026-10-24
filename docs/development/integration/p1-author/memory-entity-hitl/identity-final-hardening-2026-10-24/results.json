@@ -1,0 +1,31 @@
+{
+  "hitl": {
+    "passed": 74,
+    "skipped": 0
+  },
+  "unit": {
+    "passed": 321,
+    "skipped": 6
+  },
+  "postgres": {
+    "passed": 31,
+    "skipped": 0
+  },
+  "backend": {
+    "tests": 74,
+    "pass": 74,
+    "fail": 0,
+    "skipped": 0
+  },
+  "live": {
+    "tests": 1,
+    "pass": 1,
+    "fail": 0,
+    "skipped": 0
+  },
+  "http_records": 44,
+  "identity_pg_stages": 51,
+  "semantic_pg_stages": 8,
+  "h03_pg_stages": 1,
+  "unique_local_passes": 501
+}

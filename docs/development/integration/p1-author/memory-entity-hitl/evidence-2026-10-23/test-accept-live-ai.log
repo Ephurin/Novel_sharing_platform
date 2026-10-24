@@ -1,0 +1,65 @@
+INFO:     Started server process [24808]
+INFO:     Waiting for application startup.
+2026-10-23 21:34:31,758 | INFO | ai-service | Starting AI service with pure-LLM entity pipeline.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:44359 (Press CTRL+C to quit)
+2026-10-23 21:34:32,314 | INFO | ai-service | GET /health -> 200 (1.37 ms)
+INFO:     127.0.0.1:44364 - "GET /health HTTP/1.1" 200 OK
+2026-10-23 21:34:33,636 | INFO | ai-service | GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/memory -> 404 (70.76 ms)
+INFO:     127.0.0.1:44368 - "GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/memory HTTP/1.1" 404 Not Found
+2026-10-23 21:34:33,718 | INFO | ai-service | POST /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-guidance -> 200 (29.14 ms)
+INFO:     127.0.0.1:44368 - "POST /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-guidance HTTP/1.1" 200 OK
+2026-10-23 21:34:33,775 | INFO | ai-service | GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/memory -> 200 (46.39 ms)
+INFO:     127.0.0.1:44368 - "GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/memory HTTP/1.1" 200 OK
+2026-10-23 21:34:33,882 | INFO | fake-llm | Fake LLM returning deterministic entities
+2026-10-23 21:34:33,930 | INFO | ai-service | POST /v1/revisions/e1777889-1e35-4621-9377-481ec14850ca/analyses -> 202 (141.42 ms)
+INFO:     127.0.0.1:44368 - "POST /v1/revisions/e1777889-1e35-4621-9377-481ec14850ca/analyses HTTP/1.1" 202 Accepted
+2026-10-23 21:34:33,951 | INFO | ai-service | GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-candidate-audits/e495df17-42e4-431d-8268-5bcabe624594 -> 200 (9.10 ms)
+INFO:     127.0.0.1:44368 - "GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-candidate-audits/e495df17-42e4-431d-8268-5bcabe624594 HTTP/1.1" 200 OK
+2026-10-23 21:34:33,987 | INFO | ai-service | GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-candidate-audits/e495df17-42e4-431d-8268-5bcabe624594 -> 200 (8.23 ms)
+INFO:     127.0.0.1:44368 - "GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-candidate-audits/e495df17-42e4-431d-8268-5bcabe624594 HTTP/1.1" 200 OK
+2026-10-23 21:34:34,051 | INFO | ai-service | POST /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-reviews/e495df17-42e4-431d-8268-5bcabe624594/continue -> 409 (57.65 ms)
+INFO:     127.0.0.1:44368 - "POST /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-reviews/e495df17-42e4-431d-8268-5bcabe624594/continue HTTP/1.1" 409 Conflict
+2026-10-23 21:34:34,070 | INFO | ai-service | GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-candidate-audits/e495df17-42e4-431d-8268-5bcabe624594 -> 200 (9.72 ms)
+INFO:     127.0.0.1:44368 - "GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-candidate-audits/e495df17-42e4-431d-8268-5bcabe624594 HTTP/1.1" 200 OK
+2026-10-23 21:34:34,141 | INFO | ai-service | POST /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-reviews/e495df17-42e4-431d-8268-5bcabe624594/review -> 422 (66.09 ms)
+INFO:     127.0.0.1:44368 - "POST /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-reviews/e495df17-42e4-431d-8268-5bcabe624594/review HTTP/1.1" 422 Unprocessable Entity
+2026-10-23 21:34:34,159 | INFO | ai-service | GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-candidate-audits/e495df17-42e4-431d-8268-5bcabe624594 -> 200 (8.68 ms)
+INFO:     127.0.0.1:44368 - "GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-candidate-audits/e495df17-42e4-431d-8268-5bcabe624594 HTTP/1.1" 200 OK
+2026-10-23 21:34:34,238 | INFO | ai-service | POST /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-reviews/e495df17-42e4-431d-8268-5bcabe624594/review -> 409 (73.92 ms)
+INFO:     127.0.0.1:44368 - "POST /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-reviews/e495df17-42e4-431d-8268-5bcabe624594/review HTTP/1.1" 409 Conflict
+2026-10-23 21:34:34,253 | INFO | ai-service | GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-candidate-audits/e495df17-42e4-431d-8268-5bcabe624594 -> 200 (7.39 ms)
+INFO:     127.0.0.1:44368 - "GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-candidate-audits/e495df17-42e4-431d-8268-5bcabe624594 HTTP/1.1" 200 OK
+2026-10-23 21:34:34,358 | INFO | ai-service | POST /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-reviews/e495df17-42e4-431d-8268-5bcabe624594/review -> 200 (100.12 ms)
+INFO:     127.0.0.1:44368 - "POST /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-reviews/e495df17-42e4-431d-8268-5bcabe624594/review HTTP/1.1" 200 OK
+2026-10-23 21:34:34,376 | INFO | ai-service | GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-candidate-audits/e495df17-42e4-431d-8268-5bcabe624594 -> 200 (8.03 ms)
+INFO:     127.0.0.1:44368 - "GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-candidate-audits/e495df17-42e4-431d-8268-5bcabe624594 HTTP/1.1" 200 OK
+2026-10-23 21:34:34,430 | INFO | ai-service | POST /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-reviews/e495df17-42e4-431d-8268-5bcabe624594/review -> 200 (50.72 ms)
+INFO:     127.0.0.1:44368 - "POST /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-reviews/e495df17-42e4-431d-8268-5bcabe624594/review HTTP/1.1" 200 OK
+2026-10-23 21:34:34,461 | INFO | ai-service | GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-candidate-audits/e495df17-42e4-431d-8268-5bcabe624594 -> 200 (9.38 ms)
+INFO:     127.0.0.1:44368 - "GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-candidate-audits/e495df17-42e4-431d-8268-5bcabe624594 HTTP/1.1" 200 OK
+2026-10-23 21:34:34,509 | INFO | fake-llm | Fake LLM returning deterministic state transitions
+2026-10-23 21:34:34,666 | INFO | ai-service | POST /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-reviews/e495df17-42e4-431d-8268-5bcabe624594/continue -> 200 (201.42 ms)
+INFO:     127.0.0.1:44368 - "POST /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-reviews/e495df17-42e4-431d-8268-5bcabe624594/continue HTTP/1.1" 200 OK
+2026-10-23 21:34:34,687 | INFO | ai-service | GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-candidate-audits/e495df17-42e4-431d-8268-5bcabe624594 -> 200 (11.72 ms)
+INFO:     127.0.0.1:44368 - "GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-candidate-audits/e495df17-42e4-431d-8268-5bcabe624594 HTTP/1.1" 200 OK
+2026-10-23 21:34:34,772 | INFO | ai-service | POST /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-reviews/e495df17-42e4-431d-8268-5bcabe624594/continue -> 200 (78.90 ms)
+INFO:     127.0.0.1:44368 - "POST /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-reviews/e495df17-42e4-431d-8268-5bcabe624594/continue HTTP/1.1" 200 OK
+2026-10-23 21:34:34,848 | INFO | ai-service | GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/memory -> 200 (58.98 ms)
+INFO:     127.0.0.1:44368 - "GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/memory HTTP/1.1" 200 OK
+2026-10-23 21:34:34,893 | INFO | ai-service | GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/memory -> 200 (34.20 ms)
+INFO:     127.0.0.1:44368 - "GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/memory HTTP/1.1" 200 OK
+2026-10-23 21:34:34,913 | INFO | ai-service | GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/review-queue -> 200 (12.42 ms)
+INFO:     127.0.0.1:44368 - "GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/review-queue HTTP/1.1" 200 OK
+2026-10-23 21:34:34,933 | INFO | ai-service | GET /internal/v1/proposal-groups/a0617936-e142-5c22-986d-8a9308a15ed2/novel -> 200 (12.97 ms)
+INFO:     127.0.0.1:44368 - "GET /internal/v1/proposal-groups/a0617936-e142-5c22-986d-8a9308a15ed2/novel HTTP/1.1" 200 OK
+2026-10-23 21:34:34,951 | INFO | ai-service | GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/review-queue -> 200 (13.32 ms)
+INFO:     127.0.0.1:44368 - "GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/review-queue HTTP/1.1" 200 OK
+2026-10-23 21:34:35,207 | INFO | ai-service | POST /v1/proposal-groups/a0617936-e142-5c22-986d-8a9308a15ed2/accept -> 200 (247.38 ms)
+INFO:     127.0.0.1:44368 - "POST /v1/proposal-groups/a0617936-e142-5c22-986d-8a9308a15ed2/accept HTTP/1.1" 200 OK
+2026-10-23 21:34:35,258 | INFO | ai-service | GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/memory -> 200 (40.61 ms)
+INFO:     127.0.0.1:44368 - "GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/memory HTTP/1.1" 200 OK
+2026-10-23 21:34:35,320 | INFO | ai-service | GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/memory -> 200 (39.79 ms)
+INFO:     127.0.0.1:44368 - "GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/memory HTTP/1.1" 200 OK
+2026-10-23 21:34:35,346 | INFO | ai-service | GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-candidate-audits/e495df17-42e4-431d-8268-5bcabe624594 -> 200 (9.97 ms)
+INFO:     127.0.0.1:44368 - "GET /v1/story-brains/14006b57-e23a-4527-b2f4-3e09ba92f788/entity-candidate-audits/e495df17-42e4-431d-8268-5bcabe624594 HTTP/1.1" 200 OK

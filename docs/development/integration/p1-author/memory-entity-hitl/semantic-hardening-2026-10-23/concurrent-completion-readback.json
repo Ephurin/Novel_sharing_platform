@@ -1,0 +1,23 @@
+[
+  {
+    "run_id": "b2dfb013-92de-4fdb-a17c-27a04a3d32ea",
+    "proposal_count": 11,
+    "deduplicated": [
+      false,
+      true
+    ],
+    "proposal_ids": [
+      "1d5a4265-36ac-54ad-abc7-621489770403",
+      "f82bcfd4-8475-5639-b425-b1a691049cc2",
+      "588db31b-25c7-5c1b-87cf-6cb152709ad2",
+      "a08f9411-f700-5d35-b10b-98c80d848db8",
+      "ac12bc26-209c-54b4-bac4-dc3abef7dd26",
+      "aec30253-0fe9-583a-bb26-638ccaa3704e",
+      "7df6a904-c258-53c4-93f0-aded4474db62",
+      "97136bec-d68b-5d01-9a46-33bdbc8e2ceb",
+      "223902ab-56db-5172-9a47-c9cedab41521",
+      "a04b4c73-0736-5b4f-81f6-a20c05ac1427",
+      "ce406880-5282-504b-bf2f-fa6131ba937f"
+    ]
+  }
+]

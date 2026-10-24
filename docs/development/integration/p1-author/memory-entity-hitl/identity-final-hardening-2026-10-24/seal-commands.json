@@ -1,0 +1,112 @@
+[
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "at_utc": "2026-10-23T16:58:46.393839+00:00"
+  },
+  {
+    "command": [
+      "git",
+      "status",
+      "--porcelain"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "at_utc": "2026-10-23T16:58:46.446138+00:00"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "0de3fcf63fc6afdd2e1875af06dadddf844ed33f",
+      "fd2f51aaaaa7196a0fdab9e6bb2498c9b55ce5e9",
+      "--",
+      "docs/development/integration/p1-author/memory-entity-hitl/evidence-2026-10-23",
+      "docs/development/integration/p1-author/memory-entity-hitl/semantic-hardening-2026-10-23"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "at_utc": "2026-10-23T16:58:46.622508+00:00"
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "fd2f51aaaaa7196a0fdab9e6bb2498c9b55ce5e9^{tree}"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "at_utc": "2026-10-23T16:58:46.655056+00:00"
+  },
+  {
+    "command": [
+      "git",
+      "rev-parse",
+      "1a41a3731377dd97f12224e1e016a10c5415a4a1^{tree}"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "at_utc": "2026-10-23T16:58:46.684362+00:00"
+  },
+  {
+    "command": [
+      "docker",
+      "inspect",
+      "astra-p1-identity-39ad5d85-pg",
+      "astra-p1-identity-39ad5d85-mongo"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "at_utc": "2026-10-23T16:58:46.848165+00:00"
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "astra-p1-identity-39ad5d85-pg",
+      "psql",
+      "-U",
+      "postgres",
+      "-d",
+      "ephurin_test_astra_p1_identity_39ad5d85",
+      "-At",
+      "-c",
+      "SELECT json_build_object('alembic',(SELECT version_num FROM alembic_version),'pgvector',(SELECT extversion FROM pg_extension WHERE extname='vector'),'users',(SELECT count(*) FROM public.users),'novels',(SELECT count(*) FROM public.novels),'chapters',(SELECT count(*) FROM public.chapters),'revisions',(SELECT count(*) FROM public.chapter_revisions),'brains',(SELECT count(*) FROM narrative.story_brains),'analysis_runs',(SELECT count(*) FROM narrative.analysis_runs));"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "at_utc": "2026-10-23T16:58:47.095391+00:00"
+  },
+  {
+    "command": [
+      "docker",
+      "exec",
+      "astra-p1-identity-39ad5d85-mongo",
+      "mongosh",
+      "--quiet",
+      "ephurin_test_astra_p1_identity_39ad5d85",
+      "--eval",
+      "JSON.stringify(db.getCollectionNames().sort().map(n=>({name:n,count:db.getCollection(n).countDocuments({})})))"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "at_utc": "2026-10-23T16:58:47.711362+00:00"
+  },
+  {
+    "command": [
+      "git",
+      "diff",
+      "--name-only",
+      "0de3fcf63fc6afdd2e1875af06dadddf844ed33f",
+      "fd2f51aaaaa7196a0fdab9e6bb2498c9b55ce5e9"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\draft-read-authz\\testproject",
+    "exit_code": 0,
+    "at_utc": "2026-10-23T16:58:47.844245+00:00"
+  }
+]

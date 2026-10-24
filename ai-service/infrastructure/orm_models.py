@@ -37,6 +37,7 @@ class Base(DeclarativeBase):
 
 
 class StoryBrainRecord(Base):
+    entity_guidance: Mapped[dict | None] = mapped_column(JSON_TYPE, nullable=True, deferred=True)
     __tablename__ = "story_brains"
     __table_args__ = (UniqueConstraint("tenant_id", "novel_id", name="uq_story_brain_tenant_novel"), {"schema": SCHEMA})
 
@@ -165,6 +166,8 @@ class EventRecord(Base):
 
 
 class FactRecord(Base):
+    supersedes_id: Mapped[uuid.UUID | None] = mapped_column(Uuid, nullable=True)
+    is_retired: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default=text('false'))
     __tablename__ = "facts"
     __table_args__ = ({"schema": SCHEMA},)
 
@@ -321,6 +324,7 @@ class MemoryEmbeddingRecord(Base):
 
 
 class AnalysisRunRecord(Base):
+    entity_candidate_audit: Mapped[dict | None] = mapped_column(JSON_TYPE, nullable=True, deferred=True)
 
     __tablename__ = "analysis_runs"
     __table_args__ = ({"schema": SCHEMA},)

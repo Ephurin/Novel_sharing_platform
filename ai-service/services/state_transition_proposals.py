@@ -18,18 +18,24 @@ class TransitionOutput(BaseModel):
     confidence: float = Field(ge=0, le=1)
 
 
-def generate_state_transition_proposals(event: NarrativeProposal, llm_service) -> list[NarrativeProposal]:
+def generate_state_transition_proposals(event: NarrativeProposal, llm_service, *, identity_inventory=None, identity_resolver=None) -> list[NarrativeProposal]:
     participants = event.payload.get("participants", [])
     if not participants:
         return []
     try:
-        raw = llm_service._call_llm(
-            system_prompt=(
-                "Extract only state changes explicitly supported by this event. Return JSON with a transitions array. "
-                "Each item has entity (exact participant name), attribute_key, new_value and confidence (0..1). "
-                "Health is numeric 0..100. active_relationships is a mapping of entity names to relationship types. "
-                "Do not invent defaults or infer changes without evidence. Preserve original proper nouns."),
-            user_prompt=json.dumps(event.payload, ensure_ascii=False))
+        if identity_inventory is not None:
+            from core.structured_call import call_structured
+            raw = call_structured(llm_service, operation='hitl_state_extraction',
+                system_prompt='Extract only explicit state changes supported by this event. Return JSON with a transitions array, fields entity (exact reviewed entity_id), attribute_key, new_value, confidence (0..1). active_relationships uses exact entity_id keys. Names are not unique; never infer or merge identities.',
+                user_prompt=json.dumps({**event.payload, 'known_entities':identity_inventory}, ensure_ascii=False))
+        else:
+            raw = llm_service._call_llm(
+                system_prompt=(
+                    "Extract only state changes explicitly supported by this event. Return JSON with a transitions array. "
+                    "Each item has entity (exact participant name), attribute_key, new_value and confidence (0..1). "
+                    "Health is numeric 0..100. active_relationships is a mapping of entity names to relationship types. "
+                    "Do not invent defaults or infer changes without evidence. Preserve original proper nouns."),
+                user_prompt=json.dumps(event.payload, ensure_ascii=False))
         changes = [TransitionOutput.model_validate(item) for item in _parse_items(raw, "transitions")]
     except (ValidationError, ValueError) as exc:
         raise StateExtractionError(f"Invalid transition output: {exc}") from exc
@@ -38,10 +44,28 @@ def generate_state_transition_proposals(event: NarrativeProposal, llm_service) -
     result = []
     names = {name.casefold(): name for name in participants}
     for change in changes:
-        if change.entity.casefold() not in names or change.confidence < 0.5:
+        if identity_resolver is not None:
+            identity = identity_resolver(change.entity)
+            if identity not in participants:
+                raise ValueError('State transition subject must participate in its source event')
+            if change.attribute_key == 'active_relationships':
+                if not isinstance(change.new_value, dict):
+                    raise ValueError('Relationship state must be a mapping')
+                targets = {}
+                for key,value in change.new_value.items():
+                    target = identity_resolver(key)
+                    if target in targets and targets[target] != value:
+                        raise ValueError('Conflicting relationship values for one reviewed identity')
+                    targets[target] = value
+                change.new_value = targets
+        else:
+            if change.entity.casefold() not in names:
+                continue
+            identity = names[change.entity.casefold()]
+        if change.confidence < 0.5:
             continue
         payload = {"event_id": event.payload.get("event_id", event.proposal_id),
-                   "entity_id": names[change.entity.casefold()],
+                   "entity_id": identity,
                    "attribute_key": change.attribute_key, "new_value": change.new_value}
         identity = json.dumps([event.proposal_id, payload], sort_keys=True, ensure_ascii=False)
         result.append(NarrativeProposal(

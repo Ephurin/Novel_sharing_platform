@@ -1,0 +1,17 @@
+{
+  "at_utc": "2026-10-23T16:18:24.149977+00:00",
+  "command": [
+    "docker",
+    "stop",
+    "astra-p1-semantics-35be1a69-pg",
+    "astra-p1-semantics-35be1a69-mongo",
+    "astra-p1-semantics-c7329d5a-pg",
+    "astra-p1-semantics-c7329d5a-mongo",
+    "astra-p1-semantics-f836768d-pg",
+    "astra-p1-semantics-f836768d-mongo"
+  ],
+  "exit_code": 0,
+  "stdout": "astra-p1-semantics-35be1a69-pg\nastra-p1-semantics-35be1a69-mongo\nastra-p1-semantics-c7329d5a-pg\nastra-p1-semantics-c7329d5a-mongo\nastra-p1-semantics-f836768d-pg\nastra-p1-semantics-f836768d-mongo\n",
+  "volumes_removed": false,
+  "unrelated_resources_touched": false
+}

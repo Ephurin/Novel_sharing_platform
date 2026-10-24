@@ -1,0 +1,14 @@
+.github/workflows/p7-semantic-memory.yml
+ai-service/api/interactions.py
+ai-service/application/entity_hitl.py
+ai-service/application/entity_review_service.py
+ai-service/domain/projection.py
+ai-service/infrastructure/in_memory_narrative_repository.py
+ai-service/infrastructure/json_narrative_repository.py
+ai-service/infrastructure/postgres_narrative_repository.py
+ai-service/services/entity_pipeline/verification.py
+ai-service/tests/test_p1_entity_semantics.py
+ai-service/tests/test_p1_identity_final.py
+ai-service/tests/test_p1_memory_entity_hitl.py
+backend/src/modules/ai/p1-memory-entity.live.test.ts
+docs/development/integration/p1-author/memory-entity-hitl/CONTRACT.md
