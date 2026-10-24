@@ -163,3 +163,49 @@ def test_consistency_reads_approved_projection_with_exact_identity_and_source(fl
         rejected = f.client.post(f'{f.base}/author-operation', headers=f.headers, json={**body, **updates})
         assert rejected.status_code == expected, rejected.text
         assert snapshot(f, 'S10-' + label + '-after') == before
+
+
+def test_approved_provenance_order_is_stable_independent_of_repository_row_order(flow, monkeypatch):
+    f = flow
+    assert accept(f, pending(f)).status_code == 200
+    original = f.repo.get_story_brain
+    def reverse_rows(*args, **kwargs):
+        brain = original(*args, **kwargs)
+        return replace(brain, proposals=tuple(sorted(brain.proposals, key=lambda p: p.proposal_id, reverse=True)))
+    monkeypatch.setattr(f.repo, 'get_story_brain', reverse_rows)
+    before = snapshot(f, 'stable-approved-provenance-before')
+    response = f.client.get(f'{f.base}/memory', headers=f.headers)
+    assert response.status_code == 200, response.text
+    rows = response.json()['data']['provenance']
+    assert len(rows) > 1
+    assert [p['proposal_id'] for p in rows] == sorted(p['proposal_id'] for p in rows)
+    assert snapshot(f, 'stable-approved-provenance-after') == before
+
+
+def test_consistency_homonym_warning_never_assigns_an_arbitrary_identity(flow):
+    from tests.test_p1_entity_semantics import prepare
+    from tests.test_p1_identity_final import choices, submit
+    from tests.test_p1_memory_entity_hitl import discover
+    from infrastructure.revision_content_provider import InMemoryRevisionContentProvider
+    f = prepare(flow, 'Minh gặp Minh.')
+    run, audit = discover(f)
+    frozen = submit(f, run, audit, choices(audit))
+    ids = {e['entity_id'] for e in frozen['entities']}
+    f.llm.ids = list(ids)
+    assert f.client.post(f'{f.base}/entity-reviews/{run}/continue', headers=f.headers).status_code == 200
+    proposals = [p for p in f.repo.list_proposals(f.revision.novel_id) if p.status.value == 'pending']
+    assert accept(f, proposals).status_code == 200
+    text = 'Minh đã chết.'
+    revision = replace(f.revision, revision_id=str(uuid.uuid4()), content=text, content_hash=hashlib.sha256(text.encode()).hexdigest())
+    f.service._revision_provider = InMemoryRevisionContentProvider([f.revision, revision])
+    body = {'operation': 'check_consistency', 'content': text, 'revision_id': revision.revision_id,
+        'chapter_id': revision.chapter_id, 'content_hash': revision.content_hash}
+    before = snapshot(f, 'consistency-homonyms-before')
+    response = f.client.post(f'{f.base}/author-operation', headers=f.headers, json=body)
+    assert response.status_code == 200, response.text
+    rows = response.json()['data']['findings']
+    assert len(rows) == 1 and rows[0]['code'] == 'AMBIGUOUS_ENTITY_REFERENCE'
+    assert set(rows[0]['candidate_entity_ids']) == ids
+    assert 'entity_id' not in rows[0]
+    assert rows[0]['revision_id'] == revision.revision_id
+    assert snapshot(f, 'consistency-homonyms-after') == before

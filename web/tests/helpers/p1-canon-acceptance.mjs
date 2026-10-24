@@ -14,9 +14,10 @@ export async function canonAcceptance(h, f, x) {
   assert.equal(source[0].event_metadata.evidence[0].quote, x.entities.text);
   let rejected, corrected;
   async function correction(summary, entity = witness, status = 'Alive') {
+    const active = (await memory()).events[0];
     await page.getByRole('tab', { name: /^Sự kiện/ }).click();
-    const card = page.getByTestId('event-card-' + original.event_id);
-    await card.getByTestId('btn-edit-event-' + original.event_id).click();
+    const card = page.getByTestId('event-card-' + active.event_id);
+    await card.getByTestId('btn-edit-event-' + active.event_id).click();
     await card.getByLabel('Tóm tắt sự kiện đã sửa (summary)', { exact: true }).fill(summary);
     // Clear prior form rows explicitly, then create precisely the intended update through UI.
     while (await card.getByRole('button', { name: 'Bỏ', exact: true }).count()) await card.getByRole('button', { name: 'Bỏ', exact: true }).last().click();
@@ -25,8 +26,8 @@ export async function canonAcceptance(h, f, x) {
     await page.getByRole('option').filter({ hasText: entity.slice(0, 8) }).click();
     await card.getByLabel('Thuộc tính', { exact: true }).fill('status');
     await card.getByLabel('Giá trị mới', { exact: true }).fill(status);
-    const result = page.waitForResponse(r => r.url().endsWith('/api/v1' + base + `/events/${original.event_id}/corrections`) && r.request().method() === 'POST');
-    await card.getByTestId('btn-submit-correction-' + original.event_id).click();
+    const result = page.waitForResponse(r => r.url().endsWith('/api/v1' + base + `/events/${active.event_id}/corrections`) && r.request().method() === 'POST');
+    await card.getByTestId('btn-submit-correction-' + active.event_id).click();
     const response = await result; assert.equal(response.status(), 201);
     assert.deepEqual(response.request().postDataJSON().transitions, [{ entity_id: entity, attribute_key: 'status', new_value: status }]);
     return await queue();
@@ -93,10 +94,35 @@ export async function canonAcceptance(h, f, x) {
     assert.equal(finding.revision_id, x.consistencyRevision); assert.equal(finding.evidence, 'lan đã chết');
     await page.getByText(finding.description, { exact: false }).waitFor(); await h.shot('s10-real-current-state-consistency');
   });
+  await h.step('G3/S10: author corrects the identified contradiction and separately approves the complete group', async () => {
+    const previous = (await memory()).events[0];
+    const proposals = await correction('Tác giả sửa trạng thái lan theo bản thảo đã lưu.', witness, 'Dead');
+    assert.equal((await memory()).brain_version, 3);
+    const gid = proposals[0].dependency_group_id;
+    await page.getByRole('tab', { name: /^Chờ duyệt/ }).click();
+    const accepted = page.waitForResponse(r => r.url().endsWith(`/api/v1/ai/proposal-groups/${gid}/accept`) && r.request().method() === 'POST');
+    await page.getByTestId('btn-accept-group-' + gid).click(); assert.equal((await accepted).status(), 200);
+    const value = await memory(); assert.equal(value.brain_version, 4);
+    assert.equal(value.entities.find(e => e.entity_id === witness).status, 'Dead');
+    assert.equal(value.events[0].metadata.supersedes_id, previous.event_id);
+    assert.deepEqual(value.events[0].metadata.evidence, original.metadata.evidence);
+    await page.getByRole('tab', { name: /^Sự kiện/ }).click();
+    const checked = page.waitForResponse(r => r.url().endsWith('/api/v1' + base + '/author-operation') && r.request().method() === 'POST');
+    await page.getByRole('button', { name: 'Kiểm tra nhất quán chương đang mở', exact: true }).click();
+    assert.deepEqual((await (await checked).json()).data.findings, []);
+    await page.getByText('Không tìm thấy mâu thuẫn trong lần kiểm tra này.', { exact: true }).waitFor();
+    await h.snapshot('S10-consistency-corrected-author-approval-v4', x.owned); await h.shot('s10-correction-resolves-consistency');
+  });
   await h.step('G3/S10: exact-ID author locks distinguish homonymous subjects', async () => {
     await page.getByRole('tab', { name: /^Quan hệ Canon/ }).click();
-    for (const [subject, relation, version] of [[doctor, 'ally', 3], [driver, 'enemy', 4]]) {
+    for (const [subject, relation, version] of [[doctor, 'ally', 4], [driver, 'enemy', 5]]) {
       await page.getByRole('textbox', { name: 'Chủ thể (Subject)', exact: true }).click(); await page.getByRole('option').filter({ hasText: subject.slice(0, 8) }).click();
+      if (subject === driver) {
+        // Mantine deselects the current option when clicked again. Make the
+        // author's target change explicit, then choose witness again below.
+        await page.getByRole('textbox', { name: 'Đối tượng (Object)', exact: true }).click();
+        await page.getByRole('option').filter({ hasText: doctor.slice(0, 8) }).click();
+      }
       await page.getByRole('textbox', { name: 'Đối tượng (Object)', exact: true }).click(); await page.getByRole('option').filter({ hasText: witness.slice(0, 8) }).click();
       await page.getByLabel('Loại quan hệ (Relation Type, tối đa 80 ký tự)', { exact: true }).fill(relation);
       const pending = page.waitForResponse(r => r.url().endsWith('/api/v1' + base + '/relationship-locks') && r.request().method() === 'POST');
@@ -107,7 +133,47 @@ export async function canonAcceptance(h, f, x) {
       assert.ok(value.relations.some(r => r.locked && r.relation === relation && r.metadata.subject_entity_id === subject && r.metadata.object_entity_id === witness));
     }
     const value = await memory(); assert.equal(value.relations.length, 2);
-    await h.snapshot('S10-homonym-exact-pair-locks-v5', x.owned); await h.shot('s10-two-homonymous-subject-locks');
+    await h.snapshot('S10-homonym-exact-pair-locks-v6', x.owned); await h.shot('s10-two-homonymous-subject-locks');
+  });
+  await h.step('G3/S11: pending correction survives reload, without entering Canon or changing UUIDs/locks', async () => {
+    const canonical = await memory(); assert.equal(canonical.brain_version, 6);
+    const proposals = await correction('Đề xuất còn chờ duyệt cho tài xế Minh.', driver, 'Alive');
+    assert.equal(proposals.length, 2); assert.deepEqual(await memory(), canonical);
+    const groupId = proposals[0].dependency_group_id;
+    await page.reload(); await until(async () => await f.editor().inputValue() === x.latestDraft, 'Latest saved draft lost on reload');
+    await page.getByTestId('btn-story-brain').click(); await page.getByRole('tab', { name: /^Chờ duyệt/ }).click();
+    await page.getByTestId('dependency-group-' + groupId).waitFor();
+    assert.deepEqual(await memory(), canonical);
+    const reviews = (await h.api('GET', base + '/entity-reviews', undefined, x.a.token)).data;
+    assert.ok(reviews.some(r => r.revision_id === x.consistencyRevision && r.status === 'waiting_entity_review'));
+    const audit = (await h.api('GET', base + '/entity-candidate-audits/' + x.entities.run, undefined, x.a.token)).data;
+    assert.deepEqual(audit.entities, x.entities.frozen.entities);
+    assert.equal(canonical.entities.find(e => e.entity_id === driver).status, 'Unknown');
+    const analysed = page.waitForResponse(r => r.request().method() === 'POST' && r.url().includes('/reanalyse'));
+    await page.getByRole('button', { name: 'Phân tích lại chương đang mở', exact: true }).click();
+    assert.equal((await analysed).status(), 200);
+    const active = await until(async () => {
+      const all = (await h.api('GET', base + '/entity-reviews', undefined, x.a.token)).data;
+      return all.find(r => r.revision_id === x.consistencyRevision && r.brain_version === canonical.brain_version);
+    }, 'No current-Brain checkpoint after explicit UI reanalysis');
+    const checkpoint = page.getByTestId('entity-checkpoint-' + active.analysis_run_id);
+    const candidate = active.candidates.find(c => c.surface === 'Minh'); assert.ok(candidate);
+    await checkpoint.getByTestId('entity-occurrence-' + candidate.candidate_id).getByRole('textbox', { name: 'Chọn thực thể Canon đã có', exact: true }).click();
+    await page.getByRole('option').filter({ hasText: doctor.slice(0, 8) }).click();
+    const reviewed = page.waitForResponse(r => r.request().method() === 'POST' && r.url().endsWith(`/entity-reviews/${active.analysis_run_id}/review`));
+    await checkpoint.getByRole('button', { name: /^Lưu quyết định một phần/ }).click();
+    const review = await reviewed; assert.equal(review.status(), 200);
+    const choice = review.request().postDataJSON().decisions.find(d => d.candidate_id === candidate.candidate_id);
+    assert.equal(choice.canonical_entity_id, doctor); assert.equal(choice.provisional_identity_key, '');
+    await page.reload(); await until(async () => await f.editor().inputValue() === x.latestDraft, 'Review reload changed draft');
+    await page.getByTestId('btn-story-brain').click(); await page.getByRole('tab', { name: /^Chờ duyệt/ }).click();
+    const resumed = page.getByTestId('entity-checkpoint-' + active.analysis_run_id).getByTestId('entity-occurrence-' + candidate.candidate_id);
+    await until(async () => (await resumed.getByRole('textbox', { name: 'Chọn thực thể Canon đã có', exact: true }).inputValue()).includes(doctor.slice(0, 8)), 'Exact canonical selection did not resume');
+    assert.deepEqual(await memory(), canonical);
+    const before = await h.snapshot('S11-before-stale-continuation', x.owned);
+    await h.api('POST', base + `/entity-reviews/${x.entities.run}/continue`, {}, x.a.token, [409]);
+    assert.deepEqual(await h.snapshot('S11-after-stale-continuation-no-mutation', x.owned), before);
+    await h.shot('s11-pending-proposal-and-stable-canon');
   });
   await h.save('canon-correction-relationship-results.json', { doctor, driver, witness, rejected, corrected, memory: await memory() });
   return { doctor, driver, witness, memory: await memory() };

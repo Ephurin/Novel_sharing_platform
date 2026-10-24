@@ -1,9 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
 import { createHarness, until } from './helpers/p1-real-stack.mjs';
 import { fixtures } from './helpers/p1-fixtures.mjs';
 import { entityAcceptance } from './helpers/p1-entity-acceptance.mjs';
 import { canonAcceptance } from './helpers/p1-canon-acceptance.mjs';
+import { crossFeatureSmoke } from './helpers/p1-cross-feature-smoke.mjs';
 
 test('Real production Author IDE: mandatory S09–S11 and cross-feature acceptance', { timeout: 900000 }, async () => {
   const h = await createHarness(), f = fixtures(h), { page } = h;
@@ -12,6 +14,14 @@ test('Real production Author IDE: mandatory S09–S11 and cross-feature acceptan
   try {
     await h.step('FIXTURE only: owned accounts/projects and empty baseline; no pre-approved named Canon', async () => {
       x = await f.seed(); await h.snapshot('fixture-empty-approved-canon', x.owned);
+    });
+    await h.step('G1: draft 401/403/404 and required-version 428 do not mutate scoped durable state', async () => {
+      const before = await h.snapshot('G1-before-draft-negatives', x.owned);
+      await h.api('GET', '/chapters/' + x.first, undefined, undefined, [401]);
+      await h.api('GET', '/chapters/' + x.first, undefined, x.b.token, [403]);
+      await h.api('GET', '/chapters/' + randomUUID(), undefined, x.a.token, [404]);
+      await h.api('PATCH', '/chapters/' + x.first, { content: 'Must never save without expectedVersion' }, x.a.token, [428]);
+      assert.deepEqual(await h.snapshot('G1-after-draft-negatives', x.owned), before);
     });
     await h.step('G2: real login, production SPA, B→A→B Undo before debounce', async () => {
       await f.login(x.a); await page.goto(f.ide(x.novelA, x.first));
@@ -90,6 +100,8 @@ test('Real production Author IDE: mandatory S09–S11 and cross-feature acceptan
     matrix.G2 = 'PASS';
     x.entities = await entityAcceptance(h, f, x);
     x.canon = await canonAcceptance(h, f, x);
+    matrix.G3 = 'PASS';
+    await crossFeatureSmoke(h, f, x); matrix.G4 = 'PASS';
     // Development guard: incomplete browser work must never report overall acceptance.
     assert.equal(matrix.G3, 'PASS', 'S10/S11 UI stages have not executed yet');
     assert.equal(matrix.G4, 'PASS', 'Cross-feature smoke has not executed yet');
