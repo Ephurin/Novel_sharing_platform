@@ -183,6 +183,19 @@ test('live Gateway -> AI -> PostgreSQL: approved memory and revision-bound entit
     assert.deepEqual(final.revisions, pending.revisions);
     assert.deepEqual(final.mongo, pending.mongo);
     assert.deepEqual(await http('/memory'), memory);
+    const replay = await fetch(acceptUrl, { method: 'POST', headers: {
+      Authorization: `Bearer ${ownerToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(approval) });
+    requests.push({ method: 'POST', path: '/proposal-groups/accept-retry', status: replay.status, response: await replay.json() });
+    assert.equal(replay.status, 409);
+    const correctionPath = `/events/${memory.events[0].event_id}/corrections`;
+    const correctionBody = { expected_brain_version: 2, replacement: {
+      event_type: 'meeting', summary: 'Author correction', participants: memory.events[0].participants } };
+    await http(correctionPath, 'POST', correctionBody, null, 401);
+    await http(correctionPath, 'POST', correctionBody, foreignToken, 403);
+    await http(correctionPath, 'POST', { ...correctionBody, expected_brain_version: 1 }, ownerToken, 409);
+    await http(correctionPath, 'POST', { ...correctionBody, replacement: {
+      ...correctionBody.replacement, evidence: [{ revision_id: randomUUID() }] } }, ownerToken, 422);
+    assert.deepEqual({ ...await durable('correction-authorization-and-invalid'), stage: '' }, { ...final, stage: '' });
     // Both homonyms originated in this empty-Canon human review, without seeding Canon rows.
     const minhIds = memory.entities.filter((e: any) => e.name === 'Minh').map((e: any) => e.entity_id);
     assert.equal(new Set(minhIds).size, 2);
@@ -240,6 +253,32 @@ test('live Gateway -> AI -> PostgreSQL: approved memory and revision-bound entit
     assert.ok(lockRows.some(r => !r.is_locked && r.relation_metadata.subject_entity_id !== secondId && r.relation_metadata.object_entity_id === secondId));
     await durable('homonyms-approved-exact-ids', semanticRevision);
     assert.deepEqual(await http('/memory'), semanticMemory);
+    const sourceEvent = semanticMemory.events.find((e: any) => e.metadata.evidence[0].revision_id === semanticRevision);
+    const corrected = await http(`/events/${sourceEvent.event_id}/corrections`, 'POST', {
+      expected_brain_version: 4, replacement: { event_type: sourceEvent.event_type,
+        summary: 'Exact author event correction', participants: sourceEvent.participants },
+      transitions: [{ entity_id: firstId, attribute_key: 'health', new_value: 95 }],
+    }, ownerToken, 201);
+    assert.deepEqual(await http('/memory'), semanticMemory);
+    const correctionGroup = corrected[0].dependency_group_id;
+    const correctionAccept = await fetch(`${base.slice(0, base.indexOf('/story-brains'))}/proposal-groups/${correctionGroup}/accept`, {
+      method: 'POST', headers: { Authorization: `Bearer ${ownerToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ proposal_ids: corrected.map((p: any) => p.proposal_id), expected_brain_version: 4 }) });
+    const correctionAccepted = await correctionAccept.json();
+    requests.push({ method: 'POST', path: `/proposal-groups/${correctionGroup}/accept`,
+      status: correctionAccept.status, response: correctionAccepted });
+    assert.equal(correctionAccept.status, 200, JSON.stringify(correctionAccepted));
+    const correctedMemory = await http('/memory');
+    assert.equal(correctedMemory.brain_version, 5);
+    assert.ok(correctedMemory.events.some((e: any) => e.summary === 'Exact author event correction'));
+    assert.ok(!correctedMemory.events.some((e: any) => e.event_id === sourceEvent.event_id));
+    assert.ok(correctedMemory.transitions.some((t: any) => t.entity_id === firstId && t.new_value === 95));
+    assert.ok(!correctedMemory.transitions.some((t: any) => t.event_id === sourceEvent.event_id));
+    const correctedReadback = await durable('approved-event-correction', semanticRevision);
+    await http(`/events/${sourceEvent.event_id}/corrections`, 'POST', { ...correctionBody,
+      expected_brain_version: 5 }, ownerToken, 422);
+    assert.deepEqual({ ...await durable('superseded-correction-rejected', semanticRevision), stage: '' },
+      { ...correctedReadback, stage: '' });
     // A newer saved revision invalidates the former human checkpoint at Gateway.
     const nextRevision = randomUUID();
     lifecycle.registerRevision(nextRevision);

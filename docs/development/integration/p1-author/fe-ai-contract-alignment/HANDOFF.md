@@ -99,6 +99,8 @@ Entity label normalization must equal canonical_name.casefold(); entity type and
 remain immutable. For compatibility an omitted reserved entity_id is restored, never reallocated.
 Alias edits and other field changes are unsupported and explicitly rejected.
 Changed entity references require exact approved scoped or submitted reserved identity UUIDs.
+For analysis proposals with a human checkpoint, changed references must also belong to that
+checkpoint's frozen inventory; an approved same-novel entity outside it is rejected.
 Legacy name-bound fact subject changes require an identity-safe correction proposal; they cannot
 be overridden by an ignored subject_entity_id. UUIDs, event/fact linkage, evidence, source type,
 chapter, revision/hash, analysis/checkpoint and supersedes provenance cannot be edited.
