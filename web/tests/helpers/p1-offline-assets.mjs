@@ -1,5 +1,19 @@
 import assert from 'node:assert/strict';
 
+export async function assertActualMaterialGlyph(h) {
+  const icon = h.page.locator('.material-symbols-outlined').first();
+  await icon.waitFor();
+  const glyph = await icon.evaluate(async node => {
+    const style = getComputedStyle(node), font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+    const faces = await document.fonts.load(font, node.textContent);
+    return { family: style.fontFamily, loadedFaces: faces.length, width: node.getBoundingClientRect().width,
+      fontSize: parseFloat(style.fontSize), text: node.textContent };
+  });
+  await h.save('actual-material-glyph.json', glyph);
+  assert.ok(glyph.loadedFaces > 0, 'The author theme must use an actual bundled icon face, not text fallback');
+  assert.ok(glyph.width <= glyph.fontSize * 1.5, 'Material ligature rendered as a word rather than an icon');
+}
+
 export async function assertOfflineAssets(h) {
   const { page } = h;
   await page.getByLabel('Email or username', { exact: true }).waitFor();

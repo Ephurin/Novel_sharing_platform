@@ -175,6 +175,30 @@ export async function canonAcceptance(h, f, x) {
     assert.deepEqual(await h.snapshot('S11-after-stale-continuation-no-mutation', x.owned), before);
     await h.shot('s11-pending-proposal-and-stable-canon');
   });
+  await h.step('S11: actual SPA logout/login clears private account context without a document reload', async () => {
+    await page.keyboard.press('Escape');
+    await page.getByTitle('Quay lại danh sách tác phẩm', { exact: true }).click();
+    await page.getByRole('button', { name: /^Tài khoản / }).click();
+    await page.getByRole('menuitem', { name: 'Đăng xuất', exact: true }).click();
+    await page.waitForURL(/\/login$/);
+    const navigation = await page.evaluate(() => performance.timeOrigin);
+    await page.getByLabel('Email or username', { exact: true }).fill(x.b.email);
+    await page.getByLabel('Password', { exact: true }).fill(x.b.password);
+    const logged = page.waitForResponse(r => r.url().endsWith('/api/v1/auth/login') && r.request().method() === 'POST');
+    await page.getByRole('button', { name: 'Login', exact: true }).click(); assert.equal((await logged).status(), 200);
+    await page.waitForURL(/\/author$/);
+    await page.locator('header').getByRole('link', { name: /Viết tiếp/ }).click();
+    await until(async () => await f.editor().inputValue() === 'bản thảo tác giả khác.', 'SPA account switch restored another owner draft');
+    assert.equal(await page.evaluate(() => performance.timeOrigin), navigation, 'Account switch unexpectedly reset the SPA/cache');
+    await page.getByTestId('btn-story-brain').click();
+    const content = await page.content();
+    for (const id of [doctor, driver, witness]) assert.ok(!content.includes(id), 'Previous author Canon identity leaked after SPA logout');
+    const before = await h.snapshot('S11-SPA-account-before-foreign-negative', x.owned);
+    await h.api('GET', base + '/memory', undefined, x.b.token, [403]);
+    assert.deepEqual(await h.snapshot('S11-SPA-account-after-foreign-negative', x.owned), before);
+    assert.deepEqual(await memory(), canonical);
+    await h.shot('s11-SPA-account-switch-no-private-cache');
+  });
   await h.save('canon-correction-relationship-results.json', { doctor, driver, witness, rejected, corrected, memory: await memory() });
   return { doctor, driver, witness, memory: await memory() };
 }

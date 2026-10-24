@@ -71,6 +71,8 @@ export async function crossFeatureSmoke(h, f, x) {
     await page.getByRole('menuitem', { name: 'Tối', exact: true }).click();
     assert.equal(await page.locator('html').getAttribute('data-mantine-color-scheme'), 'dark');
     await page.setViewportSize({ width: 390, height: 844 });
+    await page.getByTitle('Đóng/Mở thanh danh sách chương', { exact: true }).click();
+    assert.equal(await page.getByPlaceholder('Tìm kiếm chương...').count(), 0);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     await h.shot('g4-author-dark-mobile'); await page.reload();
     await until(async () => await f.editor().inputValue() === x.latestDraft, 'Mobile reload lost draft');

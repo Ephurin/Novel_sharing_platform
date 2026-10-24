@@ -6,7 +6,7 @@ import { fixtures } from './helpers/p1-fixtures.mjs';
 import { entityAcceptance } from './helpers/p1-entity-acceptance.mjs';
 import { canonAcceptance } from './helpers/p1-canon-acceptance.mjs';
 import { crossFeatureSmoke } from './helpers/p1-cross-feature-smoke.mjs';
-import { assertOfflineAssets } from './helpers/p1-offline-assets.mjs';
+import { assertOfflineAssets, assertActualMaterialGlyph } from './helpers/p1-offline-assets.mjs';
 
 test('Real production Author IDE: mandatory S09–S11 and cross-feature acceptance', { timeout: 900000 }, async () => {
   const h = await createHarness(), f = fixtures(h), { page } = h;
@@ -29,6 +29,7 @@ test('Real production Author IDE: mandatory S09–S11 and cross-feature acceptan
     });
     await h.step('G2: real login, production SPA, B→A→B Undo before debounce', async () => {
       await f.login(x.a); await page.goto(f.ide(x.novelA, x.first));
+      await assertActualMaterialGlyph(h);
       await until(async () => await f.editor().inputValue() === 'bản thảo ban đầu.', 'Initial draft did not finish loading');
       const before = await f.chapterState(x.first), start = h.requests.length;
       await f.editor().focus(); await f.editor().press('ControlOrMeta+A'); await f.editor().press('A'); await f.editor().press('ControlOrMeta+Z');
