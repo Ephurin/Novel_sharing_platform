@@ -1,0 +1,16 @@
+{
+  "source": "749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb",
+  "test_sha256": "182afd51e99ce10c322b5df649b3bcb5e129e1767ea7adbe829fd275cff67094",
+  "command": [
+    "python",
+    "-m",
+    "pytest",
+    "tests/test_p2_bootstrap_guard.py",
+    "-q",
+    "--basetemp",
+    "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\p2a-correct-red-temp"
+  ],
+  "exit": 1,
+  "archive_sha256": "4bf6410bb6c9fc0ab9de9e484749c6f51eb3da025da4f6523773f2fae4f34b86",
+  "excluded_attempt": "Initial RED fixture signature error is excluded; this immutable archive replay uses the corrected test."
+}

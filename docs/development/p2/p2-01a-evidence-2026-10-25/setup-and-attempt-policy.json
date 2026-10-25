@@ -1,0 +1,46 @@
+{
+  "contract_commit": "eda01124",
+  "baseline": "749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb",
+  "authoritative_red": "p2a-correct-red.log / p2a-red-provenance.json: corrected overlay on immutable baseline,5 failures,exit1",
+  "excluded_red": "Initial fixture supplied wrong RevisionContent arguments; not security RED. Original log retained externally.",
+  "development_failures": [
+    {
+      "attempt": "first focused GREEN",
+      "result": "fixture-signature error plus overly strict waiting_review concurrency check; corrected without weakening legacy locale test"
+    },
+    {
+      "attempt": "first Node live",
+      "result": "SQL fixture lacked Python-side defaults; fixed fixture schema_version/entity fields"
+    },
+    {
+      "attempt": "second Node live",
+      "result": "test PLATFORM_API_BASE_URL had extra /api/v1; Core adapter uses /internal/v1; corrected test topology only"
+    },
+    {
+      "attempt": "first final source e3b038bb",
+      "result": "unit350 PASS/8 FAIL due JSON protocol methods; PG131 setup errors due wrong driver URL. Fixed JSON capability in735ab563 and recorder URL separately."
+    },
+    {
+      "attempt": "source735ab563 verification",
+      "result": "unit358 PASS/10 SKIP; PG131 PASS; live1 PASS. Superseded by f42194f2 manuscript replay-hash repair and its added PG case."
+    }
+  ],
+  "setup_commands": [
+    {
+      "command": "docker run -d --name eph-p2a-pg-20261025 --label ephurin.task=p2-01a -e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_DB=p2a -p 127.0.0.1::5432 --mount type=volume,source=eph-p2a-pg-20261025,target=/var/lib/postgresql/data pgvector/pgvector:pg16",
+      "exit": 0
+    },
+    {
+      "command": "docker run -d --name eph-p2a-mongo-20261025 --label ephurin.task=p2-01a -p 127.0.0.1::27017 --mount type=volume,source=eph-p2a-mongo-20261025,target=/data/db mongo:7",
+      "exit": 0
+    },
+    {
+      "command": "npm run db:migrate (isolated p2a DB; test JWT values not exported)",
+      "exit": 0
+    },
+    {
+      "command": "Alembic upgrade head through PG fixture (TEST_DATABASE_URL and DATABASE_URL use postgresql+psycopg)",
+      "exit": 0
+    }
+  ]
+}

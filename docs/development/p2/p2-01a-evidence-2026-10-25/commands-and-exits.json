@@ -1,0 +1,247 @@
+[
+  {
+    "kind": "unit",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "tests",
+      "-q",
+      "--basetemp",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\p2a-final-unit-temp",
+      "--junitxml",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\p2a-final-unit.xml"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p2-01a-active-brain\\testproject\\ai-service",
+    "started_utc": "2026-10-25T05:45:10.713136+00:00",
+    "ended_utc": "2026-10-25T05:45:46.919237+00:00",
+    "exit": 0,
+    "before": {
+      "sha": "f42194f25cf6548bf65db3d7768489c48ecb5f61",
+      "tree": "32f2c2f92ab8e1fb62940b1a41e858e117ea1382",
+      "dirty": ""
+    },
+    "after": {
+      "sha": "f42194f25cf6548bf65db3d7768489c48ecb5f61",
+      "tree": "32f2c2f92ab8e1fb62940b1a41e858e117ea1382",
+      "dirty": ""
+    },
+    "clean_exact_source": true,
+    "log": "p2a-final-unit.log",
+    "environment": {
+      "databases": "fresh task-owned p2a PG/Mongo",
+      "providers": "fake in live service; none/offline in pytest",
+      "ENTITY_CANDIDATE_VERIFICATION_ENABLED": "default false in live; true in P1 HITL fixtures",
+      "ports": {
+        "postgres": 57110,
+        "mongo": 57112,
+        "gateway": 57114,
+        "ai": 57115
+      }
+    }
+  },
+  {
+    "kind": "pg",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "tests/test_p2_bootstrap_postgres.py",
+      "tests/test_c01_canon_group.py",
+      "tests/test_atomic_group_rejection.py",
+      "tests/test_p1_identity_final.py",
+      "tests/test_p1_memory_entity_hitl.py",
+      "tests/test_p1_contract_alignment.py",
+      "-m",
+      "postgres_integration",
+      "-q",
+      "-s",
+      "--basetemp",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\p2a-final-pg-temp",
+      "--junitxml",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\p2a-final-pg.xml"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p2-01a-active-brain\\testproject\\ai-service",
+    "started_utc": "2026-10-25T05:45:12.467728+00:00",
+    "ended_utc": "2026-10-25T05:47:08.583641+00:00",
+    "exit": 0,
+    "before": {
+      "sha": "f42194f25cf6548bf65db3d7768489c48ecb5f61",
+      "tree": "32f2c2f92ab8e1fb62940b1a41e858e117ea1382",
+      "dirty": ""
+    },
+    "after": {
+      "sha": "f42194f25cf6548bf65db3d7768489c48ecb5f61",
+      "tree": "32f2c2f92ab8e1fb62940b1a41e858e117ea1382",
+      "dirty": ""
+    },
+    "clean_exact_source": true,
+    "log": "p2a-final-pg.log",
+    "environment": {
+      "databases": "fresh task-owned p2a PG/Mongo",
+      "providers": "fake in live service; none/offline in pytest",
+      "ENTITY_CANDIDATE_VERIFICATION_ENABLED": "default false in live; true in P1 HITL fixtures",
+      "ports": {
+        "postgres": 57110,
+        "mongo": 57112,
+        "gateway": 57114,
+        "ai": 57115
+      }
+    }
+  },
+  {
+    "kind": "node",
+    "command": [
+      "cmd.exe",
+      "/d",
+      "/c",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p2-01a-active-brain\\testproject\\backend\\node_modules\\.bin\\tsx.cmd",
+      "--test",
+      "src/modules/ai/p2-bootstrap-guard.live.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p2-01a-active-brain\\testproject\\backend",
+    "started_utc": "2026-10-25T05:45:12.045884+00:00",
+    "ended_utc": "2026-10-25T05:45:16.800226+00:00",
+    "exit": 0,
+    "before": {
+      "sha": "f42194f25cf6548bf65db3d7768489c48ecb5f61",
+      "tree": "32f2c2f92ab8e1fb62940b1a41e858e117ea1382",
+      "dirty": ""
+    },
+    "after": {
+      "sha": "f42194f25cf6548bf65db3d7768489c48ecb5f61",
+      "tree": "32f2c2f92ab8e1fb62940b1a41e858e117ea1382",
+      "dirty": ""
+    },
+    "clean_exact_source": true,
+    "log": "p2a-final-node.log",
+    "environment": {
+      "databases": "fresh task-owned p2a PG/Mongo",
+      "providers": "fake in live service; none/offline in pytest",
+      "ENTITY_CANDIDATE_VERIFICATION_ENABLED": "default false in live; true in P1 HITL fixtures",
+      "ports": {
+        "postgres": 57110,
+        "mongo": 57112,
+        "gateway": 57114,
+        "ai": 57115
+      }
+    }
+  },
+  {
+    "kind": "gateway",
+    "command": [
+      "cmd.exe",
+      "/d",
+      "/c",
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p2-01a-active-brain\\testproject\\backend\\node_modules\\.bin\\tsx.cmd",
+      "--test",
+      "src/modules/ai/ai-gateway.test.ts",
+      "src/modules/ai/p1-closed-loop-gateway.test.ts"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p2-01a-active-brain\\testproject\\backend",
+    "started_utc": "2026-10-25T05:46:07.114755+00:00",
+    "ended_utc": "2026-10-25T05:46:09.235281+00:00",
+    "exit": 0,
+    "before": {
+      "sha": "f42194f25cf6548bf65db3d7768489c48ecb5f61",
+      "tree": "32f2c2f92ab8e1fb62940b1a41e858e117ea1382",
+      "dirty": ""
+    },
+    "after": {
+      "sha": "f42194f25cf6548bf65db3d7768489c48ecb5f61",
+      "tree": "32f2c2f92ab8e1fb62940b1a41e858e117ea1382",
+      "dirty": ""
+    },
+    "clean_exact_source": true,
+    "log": "p2a-final-gateway.log",
+    "environment": {
+      "databases": "fresh task-owned p2a PG/Mongo",
+      "providers": "fake in live service; none/offline in pytest",
+      "ENTITY_CANDIDATE_VERIFICATION_ENABLED": "default false in live; true in P1 HITL fixtures",
+      "ports": {
+        "postgres": 57110,
+        "mongo": 57112,
+        "gateway": 57114,
+        "ai": 57115
+      }
+    }
+  },
+  {
+    "kind": "typecheck",
+    "command": [
+      "cmd.exe",
+      "/d",
+      "/c",
+      "npm",
+      "run",
+      "typecheck"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p2-01a-active-brain\\testproject\\backend",
+    "started_utc": "2026-10-25T05:46:07.114218+00:00",
+    "ended_utc": "2026-10-25T05:46:14.707174+00:00",
+    "exit": 0,
+    "before": {
+      "sha": "f42194f25cf6548bf65db3d7768489c48ecb5f61",
+      "tree": "32f2c2f92ab8e1fb62940b1a41e858e117ea1382",
+      "dirty": ""
+    },
+    "after": {
+      "sha": "f42194f25cf6548bf65db3d7768489c48ecb5f61",
+      "tree": "32f2c2f92ab8e1fb62940b1a41e858e117ea1382",
+      "dirty": ""
+    },
+    "clean_exact_source": true,
+    "log": "p2a-final-typecheck.log",
+    "environment": {
+      "databases": "fresh task-owned p2a PG/Mongo",
+      "providers": "fake in live service; none/offline in pytest",
+      "ENTITY_CANDIDATE_VERIFICATION_ENABLED": "default false in live; true in P1 HITL fixtures",
+      "ports": {
+        "postgres": 57110,
+        "mongo": 57112,
+        "gateway": 57114,
+        "ai": 57115
+      }
+    }
+  },
+  {
+    "kind": "compile",
+    "command": [
+      "python",
+      "-m",
+      "compileall",
+      "-q",
+      "api",
+      "application",
+      "domain",
+      "infrastructure"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p2-01a-active-brain\\testproject\\ai-service",
+    "started_utc": "2026-10-25T05:46:05.690469+00:00",
+    "ended_utc": "2026-10-25T05:46:05.999462+00:00",
+    "exit": 0,
+    "before": {
+      "sha": "f42194f25cf6548bf65db3d7768489c48ecb5f61",
+      "tree": "32f2c2f92ab8e1fb62940b1a41e858e117ea1382",
+      "dirty": ""
+    },
+    "after": {
+      "sha": "f42194f25cf6548bf65db3d7768489c48ecb5f61",
+      "tree": "32f2c2f92ab8e1fb62940b1a41e858e117ea1382",
+      "dirty": ""
+    },
+    "clean_exact_source": true,
+    "log": "p2a-final-compile.log",
+    "environment": {
+      "databases": "fresh task-owned p2a PG/Mongo",
+      "providers": "fake in live service; none/offline in pytest",
+      "ENTITY_CANDIDATE_VERIFICATION_ENABLED": "default false in live; true in P1 HITL fixtures",
+      "ports": {
+        "postgres": 57110,
+        "mongo": 57112,
+        "gateway": 57114,
+        "ai": 57115
+      }
+    }
+  }
+]

@@ -1,0 +1,100 @@
+{
+  "encoding": "UTF-8 canonical LF; display log normalization documented in log-normalization.json",
+  "files": [
+    {
+      "file": "a16-postgres-readbacks.json",
+      "bytes": 61260,
+      "sha256": "4390ed783c00ffb2df1742e769669195f1805004e84034e282bda063adeeb4ac"
+    },
+    {
+      "file": "cleanup.json",
+      "bytes": 537,
+      "sha256": "e3c8724e7eb9f5c67be76664dbd6f80edad5765cb8868b0394536585da751a77"
+    },
+    {
+      "file": "commands-and-exits.json",
+      "bytes": 7831,
+      "sha256": "26472b620db86a57bda28f92e60fe5331c9c341852bd674484fd5a115c48af24"
+    },
+    {
+      "file": "log-normalization.json",
+      "bytes": 2593,
+      "sha256": "1dd3af580680b0f98e0e717cd22040764ea2a770f000d4eccf9c8b40dba0326d"
+    },
+    {
+      "file": "negative-equality-checks.json",
+      "bytes": 2229,
+      "sha256": "8ba6281f5324778e06dd5ed9cd398ba3f664b2939dfc83acb96dd895d2aaca44"
+    },
+    {
+      "file": "p2a-correct-red.log",
+      "bytes": 6393,
+      "sha256": "14a86df19445c534b2bd6cc857088896adc7e168fee4bec02e4d7b841a366123"
+    },
+    {
+      "file": "p2a-final-compile.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "p2a-final-gateway.log",
+      "bytes": 4635,
+      "sha256": "c2d22592548c5fa0983320f53b2424c138b5701fd21130d532e46d94625616c1"
+    },
+    {
+      "file": "p2a-final-node-durable.json",
+      "bytes": 43184,
+      "sha256": "bfdfd378aef0d0f0e628e1386bc3a6c2cea9ea9fd0ba20cf4bf6fe77221ec4ac"
+    },
+    {
+      "file": "p2a-final-node.log",
+      "bytes": 588,
+      "sha256": "57b39e697f25882b1f6d2267438aad05454c5be8ec5e59edaf5e4d13a1df1126"
+    },
+    {
+      "file": "p2a-final-pg.xml",
+      "bytes": 18927,
+      "sha256": "278f50cad1ff54e47b2d757ac8cd14ab5fc09eaf4a81fe50eb7f89357981cc33"
+    },
+    {
+      "file": "p2a-final-typecheck.log",
+      "bytes": 67,
+      "sha256": "1b533e68e4469644b52cfd4fec4031253379be913c011792624cba2abf35a6a7"
+    },
+    {
+      "file": "p2a-final-unit.log",
+      "bytes": 2110,
+      "sha256": "080c17e28639a9e603b83e9028fa98284061fe7c2bea57ac7828bea318f41d0b"
+    },
+    {
+      "file": "p2a-final-unit.xml",
+      "bytes": 55887,
+      "sha256": "e5e27b7d3081e7e3d79df6078b061b08efd1188eeb628e9b182f24f3546d5c94"
+    },
+    {
+      "file": "p2a-red-provenance.json",
+      "bytes": 621,
+      "sha256": "8f89c70ed276aa50911055050c19531cb65d9aecac2730e9079b748d5a065f74"
+    },
+    {
+      "file": "pg-regression-summary.log",
+      "bytes": 17936,
+      "sha256": "671a787e84ff8a5bcddf40b9b9f66ce04144e39daf4cf34e860d241dfb1971f1"
+    },
+    {
+      "file": "setup-and-attempt-policy.json",
+      "bytes": 2136,
+      "sha256": "569b244abd3f4f26735354215d37e6c6b0f14910a9dd9962f5a74461760b733b"
+    },
+    {
+      "file": "source-ci.json",
+      "bytes": 5277,
+      "sha256": "63cf2a2109635337c98586faba1556aa5ba579da47f3e41415d1f784ce9ea2d4"
+    },
+    {
+      "file": "summary.json",
+      "bytes": 3592,
+      "sha256": "30d6aaeb3030e2d14ae5511a2052101edec5a30f1cffadd6eb9b12731da017ff"
+    }
+  ]
+}
