@@ -19,3 +19,12 @@ PostgreSQL is authoritative for concurrent bootstrap lifecycle. In-memory adapte
 ## Review scope
 
 G10/A16 only: active P1/setup, replay/key conflicts, concurrent start/activation/finalization, proposal-write ordering, and following ordinary P1 save regression. Fake providers and fresh task-owned PG/Mongo only. No full P1 browser run, P2-01b extract/identity, P2-01c first-chapter bridge, P3, merge or deployment.
+
+
+## PR72 compatibility review clarification — 2026-10-25
+
+For a new unsupported JSON initialization, lifecycle capability is checked before manuscript active-state preflight/source access. Both supported idea/blueprint and manuscript requests return503 BOOTSTRAP_REQUIRES_POSTGRES without reading/autovivifying a Brain, mutating JSON files/jobs/runs, or invoking a provider. Exact persisted scoped replay remains checked first. This does not add transactional JSON lifecycle or change the JSON read-only interface globally.
+
+Strictness is intentionally bounded: top-level IdeaBootstrapRequest forbids unknown fields and mode is a typed literal. Nested IdeaBootstrapPreferences retains Pydantic's legacy extra-ignore behavior: unknown nested preferences are discarded; genre/tone/target_length are the recognized fields. No all-depth strict DTO claim is made. Nested strictness/source separation is a P2-01b hardening decision, covered here by an explicit compatibility test rather than silently changed.
+
+Shared-main owner decision remains **OPEN**: current AuthorMemoryPanel sends mode=extract, which intentionally returns422 EXTRACT_NOT_IMPLEMENTED until P2-01b/P2-02. Owner must acknowledge this transitional nonfunctional setup action before merge, or explicitly choose an integration hold. This correction does not grant that acknowledgment, retarget the Draft PR, modify React, or claim extract/M0/M-FIRST PASS.

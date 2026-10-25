@@ -65,9 +65,11 @@ class ManuscriptBootstrapService:
         if brain.metadata.get('status') == 'active':
             raise BootstrapConflictError('ALREADY_ACTIVE')
 
-    def _reserve(self, job):
+    def _require_lifecycle(self):
         if not getattr(self._repository, 'supports_bootstrap_lifecycle', False):
             raise BootstrapConflictError('BOOTSTRAP_REQUIRES_POSTGRES')
+    def _reserve(self, job):
+        self._require_lifecycle()
         return self._repository.create_bootstrap_job(job)
 
     def start(
@@ -86,6 +88,9 @@ class ManuscriptBootstrapService:
         request_hash = hashlib.sha256((identity + (locale if idempotency_key else "")).encode()).hexdigest()
         replay = self._replay(job_id, tenant_id, novel_id, request_hash)
         if replay: return replay
+        # Unsupported adapters fail before the read-only port or source work.
+        # Exact persisted replay above remains nonmutating and compatible.
+        self._require_lifecycle()
         self._preflight_active(novel_id)
         # Preflight immutable content so the HTTP contract can reject bad hash/limits
         # before a durable job is accepted.
