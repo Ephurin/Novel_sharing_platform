@@ -62,9 +62,60 @@
 
 :root .mantine-Input-input:hover:not(:focus):not([data-disabled]) { border-color: var(--sc-control-border-hover); }
 
-/* Soft buttons: tint instead of a full-strength orange outline. */
-.sc-button-soft { border-color: rgb(var(--sc-primary-rgb) / .4); }
+/* ─── Buttons: compact and flat; secondary actions stay quiet ─────────────── */
 
-/* Neutral buttons get a quieter edge too. */
-.sc-button:not(.sc-button-primary):not(.sc-button-soft) { border-color: var(--sc-control-border); }
-.sc-button:not(.sc-button-primary):not(.sc-button-soft):hover { border-color: var(--sc-control-border-hover); background: var(--sc-surface-subtle); }
+/* Every button-like control on StoryCraft screens: 34px tall, 13px semibold, no drop shadow. */
+.sc-author-theme :is(button, a[class*="inline-flex"]) { font-size: 13px; min-height: 34px; }
+.sc-author-theme :is(button, a)[class*="shadow"] { box-shadow: none; }
+
+.sc-author-theme :is(a, button, span).sc-button {
+  min-height: 34px;
+  padding: 6px 14px;
+  gap: 6px;
+  border-radius: var(--sc-radius-control);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 20px;
+  transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+.sc-author-theme .sc-button .material-symbols-outlined { font-size: 17px; }
+
+/* Primary: solid orange, white label, slightly deeper on hover. */
+.sc-author-theme :is(a, button).sc-button-primary { background: rgb(var(--sc-primary-rgb)); border-color: transparent; color: var(--sc-on-primary); }
+.sc-author-theme :is(a, button).sc-button-primary:hover { background: rgb(var(--sc-primary-hover-rgb)); color: var(--sc-on-primary); }
+
+/* Soft: orange tint without an outline; hover deepens the tint instead of flipping to solid. */
+.sc-author-theme :is(a, button).sc-button-soft { background: var(--sc-primary-soft); border-color: transparent; color: var(--sc-primary-text); }
+.sc-author-theme :is(a, button).sc-button-soft:hover { background: rgb(var(--sc-primary-rgb) / .2); color: var(--sc-primary-text); }
+
+/* Neutral: white with a hairline border. */
+.sc-author-theme :is(a, button, span).sc-button:not(.sc-button-primary):not(.sc-button-soft) {
+  background: var(--sc-surface);
+  border-color: var(--sc-control-border);
+  color: var(--sc-text);
+}
+.sc-author-theme :is(a, button).sc-button:not(.sc-button-primary):not(.sc-button-soft):hover {
+  background: var(--sc-surface-subtle);
+  border-color: var(--sc-control-border-hover);
+}
+.sc-author-theme :is(a, button).sc-button:not(.sc-button-primary):not(.sc-button-soft)[class*="text-red"] { color: var(--sc-danger); }
+
+/* Card footers: the secondary action ("Quản lý") is a plain icon + label next to the primary one. */
+.sc-author-theme .sc-novel-card :is(a, button)[class*="bg-stone-50"]:not([class*="text-red"]) {
+  background: transparent;
+  border-color: transparent;
+  color: var(--sc-text-muted);
+}
+.sc-author-theme .sc-novel-card :is(a, button)[class*="bg-stone-50"]:hover { background: var(--sc-neutral-bg); color: var(--sc-text); }
+.sc-author-theme .sc-novel-card :is(a, button)[class*="bg-stone-50"][class*="text-red"] { background: transparent; border-color: transparent; }
+.sc-author-theme .sc-novel-card :is(a, button)[class*="bg-stone-50"][class*="text-red"]:hover { background: var(--sc-danger-bg); }
+
+/* Segmented filters are a smaller control than page buttons. */
+.sc-author-theme .sc-filter-tabs > button { min-height: 28px; padding: 4px 12px; font-size: 12.5px; }
+
+/* Mantine buttons inside the theme follow the same shape and quiet secondary style. */
+.sc-author-theme .mantine-Button-root { --button-radius: var(--sc-radius-control); font-weight: 600; }
+.sc-author-theme .mantine-Button-root[data-variant="default"] { background: var(--sc-surface); border-color: var(--sc-control-border); color: var(--sc-text); }
+.sc-author-theme .mantine-Button-root[data-variant="default"]:hover:not([data-disabled]) { background: var(--sc-surface-subtle); border-color: var(--sc-control-border-hover); }
+.sc-author-theme .mantine-Button-root[data-variant="subtle"]:not([data-disabled]) { color: var(--sc-primary-text); }
+.sc-author-theme .mantine-Button-root[data-variant="subtle"]:hover:not([data-disabled]) { background: var(--sc-primary-soft); }
