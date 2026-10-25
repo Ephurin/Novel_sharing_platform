@@ -9,14 +9,14 @@ from dataclasses import asdict
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import delete, func, or_, select, update
+from sqlalchemy import delete, func, or_, select, update, text
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
 logger = logging.getLogger(__name__)
 
 from domain.projection import ProjectionError, validate_payload, project, resolve_entity, transition_from_payload
-from domain.errors import ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError
+from domain.errors import BootstrapConflictError, BaselineReviewRequiredError, ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError
 from domain.models import (
     EntityReviewCompletion,
     AnalysisRun,
@@ -1131,15 +1131,37 @@ class PostgresNarrativeRepository:
             "state_transitions": list(brain.transitions),
         }
 
+    def _bootstrap_brain(self, session, novel_id):
+        # Serialize first insertion as well as existing-row transitions. Lock order:
+        # scoped advisory admission, Brain, then bootstrap rows. Network work is outside.
+        key = int.from_bytes(hashlib.sha256(f'{self._tenant_id}:{novel_id}:bootstrap'.encode()).digest()[:8], 'big', signed=True)
+        session.execute(text('SELECT pg_advisory_xact_lock(:key)'), {'key': key})
+        brain = self._get_or_create_brain(session, novel_id)
+        session.refresh(brain, with_for_update=True)
+        return brain
+
     def create_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob:
         novel_id = self._novel_id(job.novel_id)
         job_id = self._stable_uuid("bootstrap-job", job.job_id)
+        if str(job.tenant_id) != str(self._tenant_id):
+            raise PermissionError('TENANT_SCOPE_MISMATCH')
         with session_scope(self._session_factory) as session:
-            existing = session.get(BootstrapJobRecord, job_id)
+            brain = self._bootstrap_brain(session, novel_id)
+            existing = session.scalar(select(BootstrapJobRecord).where(
+                BootstrapJobRecord.id == job_id, *self._scope(BootstrapJobRecord, novel_id)))
             if existing is not None:
+                stored = (existing.result or {}).get('bootstrap_input_hash')
+                if stored is not None and stored != (job.result or {}).get('bootstrap_input_hash'):
+                    raise IdempotencyConflictError(job.job_id)
                 return self._to_bootstrap_job(existing)
-            brain = self._get_or_create_brain(session, novel_id)
-            brain.status = "importing"
+            if brain.status == 'active':
+                raise BootstrapConflictError('ALREADY_ACTIVE')
+            competing = session.scalar(select(BootstrapJobRecord.id).where(
+                *self._scope(BootstrapJobRecord, novel_id),
+                BootstrapJobRecord.status.in_(['queued', 'running', 'waiting_entity_review'])))
+            if competing:
+                raise BootstrapConflictError('BOOTSTRAP_IN_PROGRESS')
+            brain.status = 'importing'
             record = BootstrapJobRecord(
                 id=job_id,
                 story_brain_id=brain.id,
@@ -1185,6 +1207,58 @@ class PostgresNarrativeRepository:
             session.flush()
             return self._to_bootstrap_job(record)
 
+    def start_bootstrap_processing(self, job_id):
+        job = self.get_bootstrap_job(job_id)
+        novel_id = self._novel_id(job.novel_id)
+        with session_scope(self._session_factory) as session:
+            brain = self._bootstrap_brain(session, novel_id)
+            record = session.scalar(select(BootstrapJobRecord).where(
+                BootstrapJobRecord.id == self._stable_uuid('bootstrap-job', job_id),
+                *self._scope(BootstrapJobRecord, novel_id)).with_for_update())
+            if record.status in ('waiting_review','completed','cancelled'):
+                return self._to_bootstrap_job(record)
+            if brain.status == 'active':
+                raise BootstrapConflictError('ALREADY_ACTIVE')
+            if record.status == 'running':
+                raise BootstrapConflictError('BOOTSTRAP_IN_PROGRESS')
+            record.status, record.stage = 'running', 'chapter_analysis'
+            session.flush()
+            return self._to_bootstrap_job(record)
+
+    def fail_bootstrap_job(self, job):
+        with session_scope(self._session_factory) as session:
+            self._bootstrap_brain(session, self._novel_id(job.novel_id))
+            record = session.scalar(select(BootstrapJobRecord).where(
+                BootstrapJobRecord.id == self._stable_uuid('bootstrap-job', job.job_id),
+                *self._scope(BootstrapJobRecord, self._novel_id(job.novel_id))).with_for_update())
+            if record and record.status == 'running' and (record.result or {}).get('reservation_token') == (job.result or {}).get('reservation_token'):
+                record.status, record.stage, record.error = 'failed', 'failed', {'code': 'BOOTSTRAP_FAILED'}
+
+    def finalize_idea_bootstrap(self, job, proposals, run):
+        novel_id = self._novel_id(job.novel_id)
+        with session_scope(self._session_factory) as session:
+            brain = self._bootstrap_brain(session, novel_id)
+            record = session.scalar(select(BootstrapJobRecord).where(
+                BootstrapJobRecord.id == self._stable_uuid('bootstrap-job', job.job_id),
+                *self._scope(BootstrapJobRecord, novel_id)).with_for_update())
+            if record is None:
+                raise KeyError(job.job_id)
+            if brain.status == 'active':
+                raise BootstrapConflictError('ALREADY_ACTIVE')
+            if record.status != 'running' or (record.result or {}).get('reservation_token') != (job.result or {}).get('reservation_token'):
+                raise BootstrapConflictError('BOOTSTRAP_RESERVATION_CONFLICT')
+            if any(p.expected_brain_version != brain.brain_version for p in proposals):
+                raise OptimisticLockError(job.novel_id)
+            session.add(AnalysisRunRecord(id=uuid.UUID(run.run_id), story_brain_id=brain.id,
+                tenant_id=self._tenant_id, novel_id=novel_id, operation=run.operation,
+                status=run.status, idempotency_key=run.idempotency_key,
+                input_hash=run.input_hash, pipeline_version=run.pipeline_version))
+            session.flush()
+            self.save_proposals(job.novel_id, proposals, _session=session)
+            record.status, record.stage, record.result = job.status, job.stage, job.result
+            session.flush()
+            return self._to_bootstrap_job(record)
+
     def get_bootstrap_job(self, job_id: str) -> BootstrapJob:
         with session_scope(self._session_factory) as session:
             record = session.scalar(
@@ -1223,19 +1297,31 @@ class PostgresNarrativeRepository:
     ) -> dict[str, Any]:
         novel_id = self._novel_id(story_id)
         with session_scope(self._session_factory) as session:
-            job = session.scalar(
-                select(BootstrapJobRecord).where(
-                    BootstrapJobRecord.id == self._stable_uuid("bootstrap-job", job_id),
-                    *self._scope(BootstrapJobRecord, novel_id),
-                )
-            )
-            brain = session.scalar(
-                select(StoryBrainRecord)
-                .where(*self._scope(StoryBrainRecord, novel_id))
-                .with_for_update()
-            )
-            if job is None or brain is None:
+            brain = self._bootstrap_brain(session, novel_id)
+            job = session.scalar(select(BootstrapJobRecord).where(
+                BootstrapJobRecord.id == self._stable_uuid('bootstrap-job', job_id),
+                *self._scope(BootstrapJobRecord, novel_id)).with_for_update())
+            if job is None:
                 raise KeyError(job_id)
+            if brain.status == 'active':
+                if job.status == 'completed':
+                    return {'story_brain_id': str(brain.id), 'status': brain.status,
+                        'baseline_revision_id': str(brain.baseline_revision_id) if brain.baseline_revision_id else None,
+                        'brain_version': brain.brain_version}
+                raise BootstrapConflictError('ALREADY_ACTIVE')
+            if job.status != 'waiting_review':
+                raise BootstrapConflictError('BOOTSTRAP_NOT_REVIEWABLE')
+            other = session.scalar(select(BootstrapJobRecord.id).where(
+                *self._scope(BootstrapJobRecord, novel_id), BootstrapJobRecord.id != job.id,
+                BootstrapJobRecord.status.in_(['queued','running','waiting_entity_review'])))
+            if other:
+                raise BootstrapConflictError('BOOTSTRAP_IN_PROGRESS')
+            required = {self._stable_uuid('proposal', p) for p in (job.result or {}).get('required_proposal_ids', [])}
+            members = session.scalars(select(ProposalRecord).where(
+                *self._scope(ProposalRecord, novel_id), ProposalRecord.id.in_(required)).with_for_update()).all() if required else []
+            if {p.id for p in members} != required or any(p.status not in ('accepted','rejected') for p in members):
+                raise BaselineReviewRequiredError([str(p) for p in required])
+            job.status, job.stage = 'completed', 'completed'
             brain.status = "active"
             brain.baseline_revision_id = (
                 self._stable_uuid("revision", baseline_revision_id)
@@ -1402,7 +1488,7 @@ class PostgresNarrativeRepository:
                     brain = StoryBrainRecord(
                         tenant_id=self._tenant_id,
                         novel_id=novel_id,
-                        status="active",
+                        status="draft",
                     )
                     session.add(brain)
                     session.flush()

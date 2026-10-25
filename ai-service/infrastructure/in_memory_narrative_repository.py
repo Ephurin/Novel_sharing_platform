@@ -3,9 +3,10 @@ from __future__ import annotations
 from dataclasses import asdict, replace
 from typing import Any
 import uuid
+from threading import RLock
 
 from domain.projection import author_relationship, ProjectionError, validate_payload, project, project_relations, resolve_entity, transition_from_payload
-from domain.errors import ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError, ProposalAlreadyDecidedError
+from domain.errors import BootstrapConflictError, BaselineReviewRequiredError, ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError, ProposalAlreadyDecidedError
 from domain.models import (
     EntityReviewCompletion,
     AnalysisRun,
@@ -42,6 +43,7 @@ class InMemoryNarrativeRepository:
         return EntityReviewCompletion(tuple(proposals), False)
 
     def __init__(self) -> None:
+        self._bootstrap_lock = RLock()
         self._brains: dict[str, StoryBrain] = {}
         self._analysis_runs: dict[str, AnalysisRun] = {}
         self._entity_candidate_audits = {}
@@ -57,7 +59,7 @@ class InMemoryNarrativeRepository:
             raise KeyError(story_id)
         if story_id not in self._brains:
             self._brains[story_id] = StoryBrain(
-                story_id=story_id, metadata={"brain_version": "1", "status": "active"}
+                story_id=story_id, metadata={"brain_version": "1", "status": "draft"}
             )
         return self._brains[story_id]
 
@@ -496,14 +498,61 @@ class InMemoryNarrativeRepository:
         return asdict(self.get_story_brain(story_id))
 
     def create_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob:
-        self._bootstrap_jobs[job.job_id] = job
-        for idx, rev in enumerate(job.revisions):
-            r_id = getattr(rev, "revision_id", None)
-            if r_id:
-                ch_val = getattr(rev, "chapter_number", None)
-                ch_num = ch_val if ch_val is not None else (idx + 1)
-                self._revision_provenance[(job.novel_id, str(r_id))] = ch_num
-        return job
+        with self._bootstrap_lock:
+            existing = self._bootstrap_jobs.get(job.job_id)
+            if existing:
+                if existing.tenant_id != job.tenant_id or existing.novel_id != job.novel_id:
+                    raise PermissionError('SCOPE_MISMATCH')
+                stored = (existing.result or {}).get('bootstrap_input_hash')
+                if stored is not None and stored != (job.result or {}).get('bootstrap_input_hash'):
+                    raise IdempotencyConflictError(job.job_id)
+                return existing
+            brain = self.get_story_brain(job.novel_id)
+            if brain.metadata.get('status') == 'active':
+                raise BootstrapConflictError('ALREADY_ACTIVE')
+            if any(j.novel_id == job.novel_id and j.status in ('queued','running','waiting_entity_review') for j in self._bootstrap_jobs.values()):
+                raise BootstrapConflictError('BOOTSTRAP_IN_PROGRESS')
+            self._brains[job.novel_id] = replace(brain, metadata={**brain.metadata, 'status':'importing'})
+            self._bootstrap_jobs[job.job_id] = job
+            for idx, rev in enumerate(job.revisions):
+                r_id = getattr(rev, "revision_id", None)
+                if r_id:
+                    ch_val = getattr(rev, "chapter_number", None)
+                    ch_num = ch_val if ch_val is not None else (idx + 1)
+                    self._revision_provenance[(job.novel_id, str(r_id))] = ch_num
+            return job
+
+
+    def start_bootstrap_processing(self, job_id):
+        with self._bootstrap_lock:
+            job = self.get_bootstrap_job(job_id)
+            if job.status in ('waiting_review','completed','cancelled'):
+                return job
+            if self.get_story_brain(job.novel_id).metadata.get('status') == 'active':
+                raise BootstrapConflictError('ALREADY_ACTIVE')
+            if job.status == 'running':
+                raise BootstrapConflictError('BOOTSTRAP_IN_PROGRESS')
+            return self.save_bootstrap_job(replace(job, status='running', stage='chapter_analysis'))
+
+    def fail_bootstrap_job(self, job):
+        with self._bootstrap_lock:
+            current = self.get_bootstrap_job(job.job_id)
+            if current.status == 'running' and (current.result or {}).get('reservation_token') == (job.result or {}).get('reservation_token'):
+                self.save_bootstrap_job(replace(current, status='failed', stage='failed', error={'code':'BOOTSTRAP_FAILED'}))
+
+    def finalize_idea_bootstrap(self, job, proposals, run):
+        with self._bootstrap_lock:
+            brain = self.get_story_brain(job.novel_id)
+            current = self.get_bootstrap_job(job.job_id)
+            if brain.metadata.get('status') == 'active':
+                raise BootstrapConflictError('ALREADY_ACTIVE')
+            if current.status != 'running' or (current.result or {}).get('reservation_token') != (job.result or {}).get('reservation_token'):
+                raise BootstrapConflictError('BOOTSTRAP_RESERVATION_CONFLICT')
+            if any(p.expected_brain_version != int(brain.metadata.get('brain_version',1)) for p in proposals):
+                raise OptimisticLockError(job.novel_id)
+            self.save_proposals(job.novel_id, proposals)
+            self._analysis_runs[run.idempotency_key] = run
+            return self.save_bootstrap_job(job)
 
     def record_revision_provenance(
         self,
@@ -542,24 +591,38 @@ class InMemoryNarrativeRepository:
     def activate_baseline(
         self, story_id: str, job_id: str, baseline_revision_id: str
     ) -> dict[str, Any]:
-        job = self.get_bootstrap_job(job_id)
-        if job.novel_id != story_id:
-            raise KeyError(job_id)
-        brain = self.get_story_brain(story_id)
-        self._brains[story_id] = replace(
-            brain,
-            metadata={
-                **brain.metadata,
+        with self._bootstrap_lock:
+            job = self.get_bootstrap_job(job_id)
+            if job.novel_id != story_id:
+                raise KeyError(job_id)
+            if self.get_story_brain(story_id).metadata.get('status') == 'active' and job.status != 'completed':
+                raise BootstrapConflictError('ALREADY_ACTIVE')
+            if job.status not in ('waiting_review','completed'):
+                raise BootstrapConflictError('BOOTSTRAP_NOT_REVIEWABLE')
+            required = set((job.result or {}).get('required_proposal_ids', []))
+            decided = {p.proposal_id for p in self.list_proposals(story_id) if p.status.value in ('accepted','rejected')}
+            if not required <= decided:
+                raise BaselineReviewRequiredError(sorted(required-decided))
+            self.save_bootstrap_job(replace(job, status='completed', stage='completed'))
+            job = self.get_bootstrap_job(job_id)
+            if job.novel_id != story_id:
+                raise KeyError(job_id)
+            brain = self.get_story_brain(story_id)
+            self._brains[story_id] = replace(
+                brain,
+                metadata={
+                    **brain.metadata,
+                    "status": "active",
+                    "baseline_revision_id": baseline_revision_id,
+                },
+            )
+            return {
+                "story_brain_id": story_id,
                 "status": "active",
                 "baseline_revision_id": baseline_revision_id,
-            },
-        )
-        return {
-            "story_brain_id": story_id,
-            "status": "active",
-            "baseline_revision_id": baseline_revision_id,
-            "brain_version": int(brain.metadata.get("brain_version", "1")),
-        }
+                "brain_version": int(brain.metadata.get("brain_version", "1")),
+            }
+
 
     def merge_entities(
         self,
