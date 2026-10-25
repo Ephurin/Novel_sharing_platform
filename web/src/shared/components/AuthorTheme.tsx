@@ -86,7 +86,7 @@ export function AuthorNavbar() {
         </Link>
         {isWriter ? (
           <nav className="sc-global-nav" aria-label="Điều hướng chính">
-            <NavLink to="/author/projects" className={location.pathname.startsWith('/author') && location.pathname !== '/author/profile' ? 'sc-nav-link is-active' : 'sc-nav-link'}>Tác phẩm</NavLink>
+            <NavLink to="/author/projects" className={(path === '/author' || path.startsWith('/author/')) && path !== '/author/profile' ? 'sc-nav-link is-active' : 'sc-nav-link'}>Tác phẩm</NavLink>
             <NavLink to="/wallet" className="sc-nav-link">Ví &amp; doanh thu</NavLink>
             <NavLink to="/author/profile" className="sc-nav-link">Trang tác giả</NavLink>
           </nav>
