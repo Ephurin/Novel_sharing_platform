@@ -1,0 +1,38 @@
+........................................................................ [ 19%]
+.............................................................s.ss....... [ 38%]
+s.................s..................................s.................. [ 57%]
+...............ss....................................................... [ 77%]
+.....................................................ss................. [ 96%]
+.............                                                            [100%]
+============================== warnings summary ===============================
+main.py:165
+  C:\Users\Laptop\.codex\worktrees\p2-01a-active-brain\testproject\ai-service\main.py:165: DeprecationWarning:
+          on_event is deprecated, use lifespan event handlers instead.
+
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+
+    @app.on_event("startup")
+
+..\..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495
+..\..\..\..\..\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495
+  C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\fastapi\applications.py:4495: DeprecationWarning:
+          on_event is deprecated, use lifespan event handlers instead.
+
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+
+    return self.router.on_event(event_type)
+
+main.py:170
+  C:\Users\Laptop\.codex\worktrees\p2-01a-active-brain\testproject\ai-service\main.py:170: DeprecationWarning:
+          on_event is deprecated, use lifespan event handlers instead.
+
+          Read more about it in the
+          [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+
+    @app.on_event("shutdown")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: C:\Users\Laptop\.codex\visualizations\2026\10\22\01a1643d-da57-7160-b72e-640d59fa14db\p72-final-unit.xml -
+363 passed, 10 skipped, 200 deselected, 4 warnings in 25.38s

@@ -1,0 +1,80 @@
+JSON_COMPAT_READBACK {"entry": "idea", "seeded": false, "http_status": 503, "before_files": {}, "after_files": {}, "jobs_unchanged": true, "runs_unchanged": true, "provider_calls": 0}
+.JSON_COMPAT_READBACK {"entry": "manuscript", "seeded": false, "http_status": 500, "before_files": {}, "after_files": {}, "jobs_unchanged": true, "runs_unchanged": true, "provider_calls": 0}
+FJSON_COMPAT_READBACK {"entry": "idea", "seeded": true, "http_status": 503, "before_files": {"2581fc87-ce86-45cd-99b2-2fa9c5ccf100.json": "83345d51dcbd1d12512c4d74c3394e9dec5ad40d183eead055b78630cb04c125"}, "after_files": {"2581fc87-ce86-45cd-99b2-2fa9c5ccf100.json": "83345d51dcbd1d12512c4d74c3394e9dec5ad40d183eead055b78630cb04c125"}, "jobs_unchanged": true, "runs_unchanged": true, "provider_calls": 0}
+.JSON_COMPAT_READBACK {"entry": "manuscript", "seeded": true, "http_status": 500, "before_files": {"391fb132-5455-47db-84fc-b3277220efb5.json": "efa90c19459a41fa548b7d5a0f861d2fdd69549efbd9c9636dc5f17aef58c09e"}, "after_files": {"391fb132-5455-47db-84fc-b3277220efb5.json": "efa90c19459a41fa548b7d5a0f861d2fdd69549efbd9c9636dc5f17aef58c09e"}, "jobs_unchanged": true, "runs_unchanged": true, "provider_calls": 0}
+F.
+================================== FAILURES ===================================
+____ test_json_new_bootstrap_returns503_without_mutation[False-manuscript] ____
+
+tmp_path = WindowsPath('C:/Users/Laptop/.codex/visualizations/2026/10/22/01a1643d-da57-7160-b72e-640d59fa14db/p72-json-red2-temp/test_json_new_bootstrap_return1')
+entry = 'manuscript', seeded = False
+
+    @pytest.mark.parametrize('entry', ['idea','manuscript'])
+    @pytest.mark.parametrize('seeded', [False,True])
+    def test_json_new_bootstrap_returns503_without_mutation(tmp_path,entry,seeded):
+        manager=StoryKBManager(storage_dir=tmp_path)
+        repo=JsonNarrativeRepository(manager)
+        novel=str(uuid.uuid4())
+        if seeded:
+            kb=manager.load_kb(novel)
+            kb.metadata['status']='active'
+            manager.save_narrative_kb(novel,kb)
+        tripwire=Tripwire()
+        service=ManuscriptBootstrapService(repo,tripwire,None,tripwire)
+        app=FastAPI();app.state.bootstrap_service=service
+        app.state.settings=SimpleNamespace(platform_service_token='json-compat-test',service_auth_disabled=False)
+        app.include_router(router)
+        headers={'X-Service-Token':'json-compat-test','X-Tenant-Id':str(uuid.uuid4()),'X-Request-Id':str(uuid.uuid4())}
+        disk=lambda:{str(p.relative_to(tmp_path)):p.read_bytes() for p in tmp_path.rglob('*') if p.is_file()}
+        before=disk()
+        assert bool(before)==seeded
+        jobs=deepcopy(repo._bootstrap_jobs);runs=deepcopy(repo._analysis_runs)
+        body={'novel_id':novel,'idea':'Author setup','mode':'blueprint'} if entry=='idea' else {'novel_id':novel,'revisions':[{'chapter_id':str(uuid.uuid4()),'revision_id':str(uuid.uuid4()),'content_hash':'0'*64}]}
+        with TestClient(app,raise_server_exceptions=False) as client:
+            response=client.post('/v1/story-brains/bootstrap/from-'+entry,headers=headers,json=body)
+        try:
+>           assert response.status_code==503, response.text
+E           AssertionError: Internal Server Error
+E           assert 500 == 503
+E            +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\test_p2_json_bootstrap_compat.py:48: AssertionError
+____ test_json_new_bootstrap_returns503_without_mutation[True-manuscript] _____
+
+tmp_path = WindowsPath('C:/Users/Laptop/.codex/visualizations/2026/10/22/01a1643d-da57-7160-b72e-640d59fa14db/p72-json-red2-temp/test_json_new_bootstrap_return3')
+entry = 'manuscript', seeded = True
+
+    @pytest.mark.parametrize('entry', ['idea','manuscript'])
+    @pytest.mark.parametrize('seeded', [False,True])
+    def test_json_new_bootstrap_returns503_without_mutation(tmp_path,entry,seeded):
+        manager=StoryKBManager(storage_dir=tmp_path)
+        repo=JsonNarrativeRepository(manager)
+        novel=str(uuid.uuid4())
+        if seeded:
+            kb=manager.load_kb(novel)
+            kb.metadata['status']='active'
+            manager.save_narrative_kb(novel,kb)
+        tripwire=Tripwire()
+        service=ManuscriptBootstrapService(repo,tripwire,None,tripwire)
+        app=FastAPI();app.state.bootstrap_service=service
+        app.state.settings=SimpleNamespace(platform_service_token='json-compat-test',service_auth_disabled=False)
+        app.include_router(router)
+        headers={'X-Service-Token':'json-compat-test','X-Tenant-Id':str(uuid.uuid4()),'X-Request-Id':str(uuid.uuid4())}
+        disk=lambda:{str(p.relative_to(tmp_path)):p.read_bytes() for p in tmp_path.rglob('*') if p.is_file()}
+        before=disk()
+        assert bool(before)==seeded
+        jobs=deepcopy(repo._bootstrap_jobs);runs=deepcopy(repo._analysis_runs)
+        body={'novel_id':novel,'idea':'Author setup','mode':'blueprint'} if entry=='idea' else {'novel_id':novel,'revisions':[{'chapter_id':str(uuid.uuid4()),'revision_id':str(uuid.uuid4()),'content_hash':'0'*64}]}
+        with TestClient(app,raise_server_exceptions=False) as client:
+            response=client.post('/v1/story-brains/bootstrap/from-'+entry,headers=headers,json=body)
+        try:
+>           assert response.status_code==503, response.text
+E           AssertionError: Internal Server Error
+E           assert 500 == 503
+E            +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\test_p2_json_bootstrap_compat.py:48: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_p2_json_bootstrap_compat.py::test_json_new_bootstrap_returns503_without_mutation[False-manuscript]
+FAILED tests/test_p2_json_bootstrap_compat.py::test_json_new_bootstrap_returns503_without_mutation[True-manuscript]
+2 failed, 3 passed in 2.33s

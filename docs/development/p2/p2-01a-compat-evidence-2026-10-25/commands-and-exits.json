@@ -1,0 +1,143 @@
+[
+  {
+    "mode": "json",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "tests/test_p2_json_bootstrap_compat.py",
+      "-q",
+      "-s",
+      "--basetemp",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\p72-final-json-temp",
+      "--junitxml",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\p72-final-json.xml"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p2-01a-active-brain\\testproject\\ai-service",
+    "exit": 0,
+    "started_utc": "2026-10-25T06:21:15.767404+00:00",
+    "ended_utc": "2026-10-25T06:21:22.516183+00:00",
+    "before": {
+      "sha": "5d3449d4dc75dc9659c054496a713f8d7675b04d",
+      "tree": "2af5781d2e7471775700ad0dd39e367b7fcc42d8",
+      "dirty": ""
+    },
+    "after": {
+      "sha": "5d3449d4dc75dc9659c054496a713f8d7675b04d",
+      "tree": "2af5781d2e7471775700ad0dd39e367b7fcc42d8",
+      "dirty": ""
+    },
+    "clean_exact_source": true,
+    "environment": {
+      "LLM_ENABLED": false,
+      "LLM_PROVIDER": "none",
+      "NARRATIVE_REPOSITORY": "json; PG fixture explicitly constructs isolated Postgres repository",
+      "TEST_DATABASE_URL": "postgresql+psycopg://postgres@127.0.0.1:57110/p2a"
+    }
+  },
+  {
+    "mode": "unit",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "tests",
+      "-q",
+      "--basetemp",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\p72-final-unit-temp",
+      "--junitxml",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\p72-final-unit.xml"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p2-01a-active-brain\\testproject\\ai-service",
+    "exit": 0,
+    "started_utc": "2026-10-25T06:21:17.572045+00:00",
+    "ended_utc": "2026-10-25T06:21:45.583332+00:00",
+    "before": {
+      "sha": "5d3449d4dc75dc9659c054496a713f8d7675b04d",
+      "tree": "2af5781d2e7471775700ad0dd39e367b7fcc42d8",
+      "dirty": ""
+    },
+    "after": {
+      "sha": "5d3449d4dc75dc9659c054496a713f8d7675b04d",
+      "tree": "2af5781d2e7471775700ad0dd39e367b7fcc42d8",
+      "dirty": ""
+    },
+    "clean_exact_source": true,
+    "environment": {
+      "LLM_ENABLED": false,
+      "LLM_PROVIDER": "none",
+      "NARRATIVE_REPOSITORY": "json; PG fixture explicitly constructs isolated Postgres repository",
+      "TEST_DATABASE_URL": "postgresql+psycopg://postgres@127.0.0.1:57110/p2a"
+    }
+  },
+  {
+    "mode": "pg",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "tests/test_p2_bootstrap_postgres.py",
+      "-m",
+      "postgres_integration",
+      "-q",
+      "-s",
+      "--basetemp",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\p72-final-pg-temp",
+      "--junitxml",
+      "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\22\\01a1643d-da57-7160-b72e-640d59fa14db\\p72-final-pg.xml"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p2-01a-active-brain\\testproject\\ai-service",
+    "exit": 0,
+    "started_utc": "2026-10-25T06:36:23.254474+00:00",
+    "ended_utc": "2026-10-25T06:36:30.810708+00:00",
+    "before": {
+      "sha": "5d3449d4dc75dc9659c054496a713f8d7675b04d",
+      "tree": "2af5781d2e7471775700ad0dd39e367b7fcc42d8",
+      "dirty": ""
+    },
+    "after": {
+      "sha": "5d3449d4dc75dc9659c054496a713f8d7675b04d",
+      "tree": "2af5781d2e7471775700ad0dd39e367b7fcc42d8",
+      "dirty": ""
+    },
+    "clean_exact_source": true,
+    "environment": {
+      "LLM_ENABLED": false,
+      "LLM_PROVIDER": "none",
+      "NARRATIVE_REPOSITORY": "json; PG fixture explicitly constructs isolated Postgres repository",
+      "TEST_DATABASE_URL": "postgresql+psycopg://postgres@127.0.0.1:46099/p72compat"
+    }
+  },
+  {
+    "mode": "compile",
+    "command": [
+      "python",
+      "-m",
+      "compileall",
+      "-q",
+      "application/bootstrap_service.py",
+      "tests/test_p2_json_bootstrap_compat.py"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\worktrees\\p2-01a-active-brain\\testproject\\ai-service",
+    "exit": 0,
+    "started_utc": "2026-10-25T06:21:15.885966+00:00",
+    "ended_utc": "2026-10-25T06:21:16.342102+00:00",
+    "before": {
+      "sha": "5d3449d4dc75dc9659c054496a713f8d7675b04d",
+      "tree": "2af5781d2e7471775700ad0dd39e367b7fcc42d8",
+      "dirty": ""
+    },
+    "after": {
+      "sha": "5d3449d4dc75dc9659c054496a713f8d7675b04d",
+      "tree": "2af5781d2e7471775700ad0dd39e367b7fcc42d8",
+      "dirty": ""
+    },
+    "clean_exact_source": true,
+    "environment": {
+      "LLM_ENABLED": false,
+      "LLM_PROVIDER": "none",
+      "NARRATIVE_REPOSITORY": "json; PG fixture explicitly constructs isolated Postgres repository",
+      "TEST_DATABASE_URL": "postgresql+psycopg://postgres@127.0.0.1:57110/p2a"
+    }
+  }
+]

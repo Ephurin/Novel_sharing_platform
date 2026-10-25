@@ -85,3 +85,8 @@ Only exact task container IDs with ephurin.task=p2-01a were stopped after collec
 - Existing provider-quality, broader product/security/deployment gates remain separate. Default verification OFF is preserved. Gemini must consume the frozen supported/unsupported contract and cannot bypass safety in React.
 
 **Request independent GPT-6 review. PR72 stays Draft. No merge or deployment authorization.**
+
+
+## Subsequent independent-review correction — 2026-10-25
+
+The original source/evidence above is preserved as the accepted G10 checkpoint. Current narrow JSON compatibility correction, exact new SHA/tests/CI and unresolved owner UX gate are in [P2_01A_COMPAT_REVIEW_HANDOFF.md](P2_01A_COMPAT_REVIEW_HANDOFF.md). This does not retroactively relabel the original runs.
