@@ -1,5 +1,7 @@
 # Frontend Design System
 
+> **Outdated.** This describes the earlier dark, violet MVP theme. The current web UI uses the StoryCraft theme; see `ui-conventions.md`.
+
 This document defines the MVP visual and component rules for the Ephurin web UI.
 
 The system should feel like a dark, focused writing IDE for authors, while keeping Reader and Admin screens readable and demo-safe.
