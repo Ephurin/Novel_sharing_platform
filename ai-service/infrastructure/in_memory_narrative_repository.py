@@ -28,6 +28,7 @@ from domain.models import (
 
 
 class InMemoryNarrativeRepository:
+    supports_bootstrap_lifecycle = True
     def complete_entity_review(self, story_id, run_id, audit, proposals):
         from copy import deepcopy
         current = self.get_entity_candidate_audit(story_id, run_id)

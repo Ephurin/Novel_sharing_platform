@@ -64,6 +64,7 @@ from infrastructure.orm_models import (
 
 
 class PostgresNarrativeRepository:
+    supports_bootstrap_lifecycle = True
     def complete_entity_review(self, story_id, run_id, audit, proposals):
         """CAS and proposals commit together, including a valid empty extraction."""
         from copy import deepcopy

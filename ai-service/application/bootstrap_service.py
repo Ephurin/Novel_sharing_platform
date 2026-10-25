@@ -66,7 +66,7 @@ class ManuscriptBootstrapService:
             raise BootstrapConflictError('ALREADY_ACTIVE')
 
     def _reserve(self, job):
-        if not hasattr(self._repository, 'finalize_idea_bootstrap'):
+        if not getattr(self._repository, 'supports_bootstrap_lifecycle', False):
             raise BootstrapConflictError('BOOTSTRAP_REQUIRES_POSTGRES')
         return self._repository.create_bootstrap_job(job)
 
