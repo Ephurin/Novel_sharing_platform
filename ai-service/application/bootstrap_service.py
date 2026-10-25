@@ -418,11 +418,12 @@ class ManuscriptBootstrapService:
                         job,
                         revisions=tuple(revisions),
                         progress_current=sum(r.status == "completed" for r in revisions),
-                        result={"scene_count": scene_count},
+                        result={**(job.result or {}), "scene_count": scene_count},
                     )
                 )
             proposals = self._repository.list_proposals(job.novel_id, status="pending")
             result = {
+                **(job.result or {}),
                 "proposal_count": len(proposals),
                 "required_proposal_ids": [
                     item.proposal_id for item in proposals

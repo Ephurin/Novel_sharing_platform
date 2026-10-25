@@ -600,6 +600,8 @@ class InMemoryNarrativeRepository:
                 raise BootstrapConflictError('ALREADY_ACTIVE')
             if job.status not in ('waiting_review','completed'):
                 raise BootstrapConflictError('BOOTSTRAP_NOT_REVIEWABLE')
+            if any(j.job_id != job.job_id and j.novel_id == story_id and j.status in ('queued','running','waiting_entity_review') for j in self._bootstrap_jobs.values()):
+                raise BootstrapConflictError('BOOTSTRAP_IN_PROGRESS')
             required = set((job.result or {}).get('required_proposal_ids', []))
             decided = {p.proposal_id for p in self.list_proposals(story_id) if p.status.value in ('accepted','rejected')}
             if not required <= decided:

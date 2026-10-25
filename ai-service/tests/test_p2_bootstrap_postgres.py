@@ -191,3 +191,20 @@ def test_a16_late_stale_version_rejects_without_orphan_group(f):
     data=snapshot(f,'stale-finalization')
     assert not data['analysis_runs'] and not data['proposals']
     assert data['bootstrap_jobs'][0]['status']=='failed'
+
+
+def test_a16_manuscript_hash_survives_processing_and_active_replay(f):
+    from domain.errors import IdempotencyConflictError
+    f.service._analysis_service=SimpleNamespace(analyze=lambda **kw: SimpleNamespace(proposals=(), analysis_run=SimpleNamespace(run_id=str(uuid.uuid4()))))
+    source={'chapter_id':f.src.chapter_id,'revision_id':f.src.revision_id,'content_hash':f.src.content_hash}
+    args=dict(tenant_id=TENANT,novel_id=f.src.novel_id,revisions=[source],locale='vi-VN',options={},idempotency_key='manuscript-op')
+    job=f.service.start(**args)
+    f.service.process(job.job_id)
+    f.service.activate_baseline(f.src.novel_id,job.job_id)
+    before=snapshot(f,'manuscript-replay-before')
+    assert f.service.start(**args).job_id==job.job_id
+    with pytest.raises(IdempotencyConflictError):
+        f.service.start(**{**args,'locale':'en-US'})
+    with pytest.raises(IdempotencyConflictError):
+        f.service.start(**{**args,'revisions':[{**source,'content_hash':'0'*64}]})
+    assert snapshot(f,'manuscript-replay-after')==before
