@@ -1,0 +1,70 @@
+/*
+ * Visual refinements shared by author and reader screens: lighter control borders, one chevron
+ * per select, and a softer orange with white text on filled buttons.
+ * Loaded after storycraft.css and color-mode.css so these values win.
+ */
+
+:root {
+  --sc-primary-rgb: 220 131 99;       /* #dc8363 */
+  --sc-primary-hover-rgb: 201 111 79; /* #c96f4f */
+  --sc-primary-text-rgb: 184 95 66;   /* #b85f42, still readable on white and soft orange */
+  --sc-on-primary-rgb: 255 255 255;
+  --sc-control-border: #ddd8d0;
+  --sc-control-border-hover: #c9c2b8;
+  --sc-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6l4 4 4-4' stroke='%2378716c' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+:root[data-theme="dark"] {
+  --sc-on-primary-rgb: 36 25 21; /* the dark-mode orange is light, so keep dark text on it */
+  --sc-control-border: #4f4943;
+  --sc-control-border-hover: #6a625a;
+  --sc-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6l4 4 4-4' stroke='%23bdb6ad' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* Native selects: one chevron, compact height, light border. */
+.sc-author-theme select:not([multiple]):not([size]) {
+  appearance: none;
+  -webkit-appearance: none;
+  min-height: 34px;
+  padding: 6px 32px 6px 12px;
+  border: 1px solid var(--sc-control-border);
+  border-radius: var(--sc-radius-control);
+  background-color: var(--sc-surface);
+  background-image: var(--sc-select-chevron);
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px 14px;
+  color: var(--sc-text);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+  cursor: pointer;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+/* Author screens draw their own expand_more icon next to the select; the chevron above replaces it. */
+.sc-author-theme select + .material-symbols-outlined { display: none; }
+
+.sc-author-theme select:not([multiple]):not([size]):hover { border-color: var(--sc-control-border-hover); }
+
+/* Text fields share the same quiet border and focus ring. */
+.sc-author-theme :is(input:not([type="checkbox"]):not([type="radio"]), textarea) {
+  border-color: var(--sc-control-border);
+}
+
+.sc-author-theme :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea):focus,
+:root :is(.mantine-Input-input, .mantine-PasswordInput-innerInput):focus {
+  border-color: rgb(var(--sc-primary-rgb));
+  box-shadow: 0 0 0 3px rgb(var(--sc-primary-rgb) / .15);
+  outline: none;
+  --tw-ring-shadow: 0 0 #0000;
+}
+
+:root .mantine-Input-input:hover:not(:focus):not([data-disabled]) { border-color: var(--sc-control-border-hover); }
+
+/* Soft buttons: tint instead of a full-strength orange outline. */
+.sc-button-soft { border-color: rgb(var(--sc-primary-rgb) / .4); }
+
+/* Neutral buttons get a quieter edge too. */
+.sc-button:not(.sc-button-primary):not(.sc-button-soft) { border-color: var(--sc-control-border); }
+.sc-button:not(.sc-button-primary):not(.sc-button-soft):hover { border-color: var(--sc-control-border-hover); background: var(--sc-surface-subtle); }
