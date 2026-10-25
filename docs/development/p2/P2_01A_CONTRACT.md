@@ -1,0 +1,21 @@
+# P2-01a setup contract freeze
+
+Baseline main749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb; Issue71. P1 manuscript and P2 setup are initialization paths into the same Author IDE, Story Brain, immutable revisions and writing loop. P3 is an optional controller, not a different memory/editor/writer.
+
+## Current supported API delta
+
+POST /api/v1/ai/story-brains/bootstrap/from-idea and /from-manuscript retain their Gateway owner/active-author checks. Python /v1 routes remain trusted-service endpoints, reject request tenant mismatch, and never trust a caller's novel instead of the Gateway ownership check.
+
+Idea mode is typed: omitted mode explicitly means legacy blueprint, preserving historical proposal semantics and content-derived identity. Explicit blueprint has the same meaning. Explicit extract fails422 EXTRACT_NOT_IMPLEMENTED in this slice; unknown modes/fields fail422. The existing UI's extract request therefore fails visibly rather than silently running creative blueprint. No claim of P2-01b extraction support is made. Legacy blueprint proposals remain pending; author-only complete-group Canon approval is unchanged.
+
+Optional body idempotency_key scopes an operation to tenant+novel+entry kind. Identical request replays the same persisted job without provider work or writes, even after activation. Changed content/semantic mode under the same key returns409 IDEMPOTENCY_CONFLICT. Without a key, historical content-derived job identity remains unchanged. Keys are not author authorization. Canonical input hashing includes semantic mode, locale and source data; origin/version/source_hash are recorded on job result. Future extract will require immutable setup source, explicit-only entity evidence, hints/settings/outline separation and human identity review; blueprint output is model_proposed, author acceptance is a separate Canon transaction. Those future fields/behaviors are not implemented by merely defining this contract.
+
+A distinct bootstrap request against active Brain returns409 ALREADY_ACTIVE before provider/proposal/run/job writes. Exact scoped persisted replay is allowed without demotion. A different in-progress bootstrap returns409 BOOTSTRAP_IN_PROGRESS. No implicit re-baseline. Guard/reservation and finalization use the same scoped Brain lock as activation; no lock is held during provider work. Idea run/proposals and waiting_review job finalize in one transaction after revalidation. Failures leave a retryable failed reservation, not an orphan group. Initial reservation may create an importing Brain/job; a rejected attempt on an existing active Brain changes nothing.
+
+New empty Brain rows use draft rather than misleading active before initialization; existing active rows are never silently reclassified, including null-revision setup baselines. Replay hashes are checked before mutation. Activation only allows a scoped waiting_review job with complete terminal required decisions, and cannot race an outstanding bootstrap worker. Activation+completed job are one transaction. Brain version semantics are preserved: only Canon materialization advances the version; activation/rejection do not. Current setup null-baseline first-save bridge remains P2-01c, not fixed here.
+
+PostgreSQL is authoritative for concurrent bootstrap lifecycle. In-memory adapter is a deterministic test adapter. JSON bootstrap does not offer transactional reservations and fails closed rather than silently using unsafe legacy writes. No migrations, new tables, proposal states or secondary stores are introduced. Error bodies use FastAPI detail.code; Gateway preserves status/code. Active source validation and genuine replay are scoped; malformed/foreign requests fail before provider work.
+
+## Review scope
+
+G10/A16 only: active P1/setup, replay/key conflicts, concurrent start/activation/finalization, proposal-write ordering, and following ordinary P1 save regression. Fake providers and fresh task-owned PG/Mongo only. No full P1 browser run, P2-01b extract/identity, P2-01c first-chapter bridge, P3, merge or deployment.
