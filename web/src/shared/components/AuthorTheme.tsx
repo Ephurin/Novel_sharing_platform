@@ -61,6 +61,11 @@ export function AuthorNavbar() {
   const novelId = params.novelId || searchParams.get('novelId') || readAuthorContext(user?.userId ?? '').novelId;
   const writingUrl = novelId ? `/author/ide?novelId=${encodeURIComponent(novelId)}` : '/author';
   const name = user?.displayName || user?.username || 'Tài khoản';
+  // Readers and guests share this navbar so every StoryCraft page has one header; only authors and
+  // admins get the writing workspace links.
+  const isWriter = user?.role === 'AUTHOR' || user?.role === 'ADMIN';
+  const path = location.pathname;
+  const readerLink = (active: boolean) => (active ? 'sc-nav-link is-active' : 'sc-nav-link');
 
   async function handleLogout() {
     try {
@@ -75,20 +80,34 @@ export function AuthorNavbar() {
   return (
     <header className="sc-navbar">
       <div className="sc-navbar-inner">
-        <Link to="/author" className="sc-brand" aria-label="StoryCraft — Bàn làm việc">
+        <Link to={isWriter ? '/author' : user ? '/reader' : '/public'} className="sc-brand" aria-label={isWriter ? 'StoryCraft — Bàn làm việc' : 'StoryCraft — Khám phá truyện'}>
           <span className="material-symbols-outlined">menu_book</span>
           <span>StoryCraft</span><span className="sc-brand-edition">Văn Hoa</span>
         </Link>
-        <nav className="sc-global-nav" aria-label="Điều hướng chính">
-          <NavLink to="/author/projects" className={location.pathname.startsWith('/author') && location.pathname !== '/author/profile' ? 'sc-nav-link is-active' : 'sc-nav-link'}>Tác phẩm</NavLink>
-          <NavLink to="/wallet" className="sc-nav-link">Ví &amp; doanh thu</NavLink>
-          <NavLink to="/author/profile" className="sc-nav-link">Trang tác giả</NavLink>
-        </nav>
+        {isWriter ? (
+          <nav className="sc-global-nav" aria-label="Điều hướng chính">
+            <NavLink to="/author/projects" className={location.pathname.startsWith('/author') && location.pathname !== '/author/profile' ? 'sc-nav-link is-active' : 'sc-nav-link'}>Tác phẩm</NavLink>
+            <NavLink to="/wallet" className="sc-nav-link">Ví &amp; doanh thu</NavLink>
+            <NavLink to="/author/profile" className="sc-nav-link">Trang tác giả</NavLink>
+          </nav>
+        ) : user ? (
+          <nav className="sc-global-nav" aria-label="Điều hướng chính">
+            <Link to="/reader" className={readerLink(path === '/reader' || path.startsWith('/reader/novels') || path.startsWith('/reader/chapters') || path.startsWith('/authors/'))}>Khám phá</Link>
+            <Link to="/reader/library" className={readerLink(path.startsWith('/reader/library'))}>Thư viện</Link>
+            <Link to="/reader/history" className={readerLink(path.startsWith('/reader/history'))}>Lịch sử đọc</Link>
+            <Link to="/wallet" className={readerLink(path.startsWith('/wallet'))}>Ví xu</Link>
+          </nav>
+        ) : (
+          <nav className="sc-global-nav" aria-label="Điều hướng chính">
+            <Link to="/public" className={readerLink(path.startsWith('/public'))}>Thư viện công khai</Link>
+          </nav>
+        )}
         <div className="sc-navbar-actions">
           <ThemeControl />
-          {location.pathname !== '/author/ide' && <Link to={writingUrl} className="sc-button sc-button-primary sc-continue"><span className="material-symbols-outlined">edit_note</span><span>Viết tiếp</span></Link>}
-          <NotificationBell />
-          <Menu position="bottom-end" withinPortal={false}>
+          {isWriter && location.pathname !== '/author/ide' && <Link to={writingUrl} className="sc-button sc-button-primary sc-continue"><span className="material-symbols-outlined">edit_note</span><span>Viết tiếp</span></Link>}
+          {!user && <Link to="/login" className="sc-button sc-button-primary"><span className="material-symbols-outlined">login</span><span>Đăng nhập</span></Link>}
+          {user && <NotificationBell />}
+          {user && <Menu position="bottom-end" withinPortal={false}>
             <Menu.Target>
               <button type="button" className="sc-avatar" aria-label={`Tài khoản ${name}`}>
                 {user?.avatarUrl ? <img src={user.avatarUrl} alt={name} /> : name.slice(0, 1).toUpperCase()}
@@ -97,13 +116,15 @@ export function AuthorNavbar() {
             <Menu.Dropdown>
               <Menu.Label>{name}</Menu.Label>
               <Menu.Item component={Link} to="/profile/me">Hồ sơ &amp; cài đặt</Menu.Item>
-              <Menu.Item component={Link} to="/author/profile">Trang tác giả</Menu.Item>
-              <Menu.Item component={Link} to="/reader/library">Thư viện của tôi</Menu.Item>
-              <Menu.Item component={Link} to="/reader/history">Lịch sử đọc</Menu.Item>
+              {isWriter ? <>
+                <Menu.Item component={Link} to="/author/profile">Trang tác giả</Menu.Item>
+                <Menu.Item component={Link} to="/reader/library">Thư viện của tôi</Menu.Item>
+                <Menu.Item component={Link} to="/reader/history">Lịch sử đọc</Menu.Item>
+              </> : <Menu.Item component={Link} to="/notifications">Thông báo</Menu.Item>}
               <Menu.Divider />
-              <Menu.Item onClick={() => void handleLogout()}>Đăng xuất</Menu.Item>
+              <Menu.Item onClick={() => void handleLogout()} data-testid="shell-logout-btn">Đăng xuất</Menu.Item>
             </Menu.Dropdown>
-          </Menu>
+          </Menu>}
         </div>
       </div>
     </header>

@@ -42,7 +42,8 @@ export function WebAppShell() {
     }
   };
 
-  if (user?.role === 'AUTHOR') {
+  // Authors and readers share the StoryCraft shell; admins keep the operations shell for now.
+  if (user?.role === 'AUTHOR' || user?.role === 'READER') {
     return <AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><Outlet /></main></AuthorTheme>;
   }
 

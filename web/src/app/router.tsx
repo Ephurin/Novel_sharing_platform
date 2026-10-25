@@ -39,15 +39,15 @@ export const router = createBrowserRouter([
   },
   {
     path: '/public',
-    element: <PublicReaderPage />
+    element: <AuthorTheme><PublicReaderPage /></AuthorTheme>
   },
   {
     path: '/public/novels/:novelId',
-    element: <PublicReaderNovelDetailPage />
+    element: <AuthorTheme><PublicReaderNovelDetailPage /></AuthorTheme>
   },
   {
     path: '/public/chapters/:chapterId',
-    element: <PublicReaderChapterPage />
+    element: <AuthorTheme><PublicReaderChapterPage /></AuthorTheme>
   },
   {
     path: '/author/ide',
