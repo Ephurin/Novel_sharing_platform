@@ -6,6 +6,7 @@ import type { UserRole } from '../../features/auth/auth-types';
 import { logout } from '../../features/auth/auth-api';
 import { useAuthStore } from '../../features/auth/useAuthStore';
 import { AuthorNavbar, AuthorTheme } from '../../shared/components/AuthorTheme';
+import { AdminShell } from '../../features/admin/AdminShell';
 
 const navItems: Array<{ to: string; label: string; roles: UserRole[] }> = [
   { to: '/author', label: 'Writing Projects', roles: ['AUTHOR'] },
@@ -44,6 +45,10 @@ export function WebAppShell() {
 
   if (user?.role === 'AUTHOR') {
     return <AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><Outlet /></main></AuthorTheme>;
+  }
+
+  if (user?.role === 'ADMIN') {
+    return <AdminShell onLogout={() => void handleLogout()} />;
   }
 
   return (
