@@ -1,4 +1,4 @@
-import { AdminModerationPage as AdminReportsPlaceholder } from '../features/admin/AdminPage';
+import { AdminReportsPage } from '../features/admin/AdminReportsPage';
 import { AdminModerationPage } from '../features/admin/AdminModerationPage';
 import { AdminTaxonomyPage } from '../features/admin/AdminTaxonomyPage';
 import { AdminNovelDetailPage } from '../features/admin/AdminNovelDetailPage';
@@ -257,7 +257,7 @@ export const router = createBrowserRouter([
         path: '/admin/reports',
         element: (
           <RoleGuard roles={['ADMIN']}>
-            <AdminReportsPlaceholder sourceFilter="USER_REPORT" />
+            <AdminReportsPage />
           </RoleGuard>
         )
       },
