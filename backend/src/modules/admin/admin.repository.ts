@@ -105,6 +105,7 @@ export async function listAdminNovels(input: ListAdminNovelsInput) {
       where ($1::boolean = true or n.deleted_at is null)
         and ($2::uuid is null or n.author_id = $2)
         and ($3::novel_status is null or n.status = $3)
+        and ($7::novel_serial_status is null or n.serial_status = $7)
         and (
           $4::text is null
           or n.title ilike $4
@@ -115,7 +116,7 @@ export async function listAdminNovels(input: ListAdminNovelsInput) {
       order by n.updated_at desc
       limit $5 offset $6
     `,
-    [input.includeDeleted, input.authorId ?? null, input.status ?? null, search, input.limit, offset]
+    [input.includeDeleted, input.authorId ?? null, input.status ?? null, search, input.limit, offset, input.serialStatus ?? null]
   );
   const countResult = await getPostgresPool().query(
     `
@@ -125,6 +126,7 @@ export async function listAdminNovels(input: ListAdminNovelsInput) {
       where ($1::boolean = true or n.deleted_at is null)
         and ($2::uuid is null or n.author_id = $2)
         and ($3::novel_status is null or n.status = $3)
+        and ($5::novel_serial_status is null or n.serial_status = $5)
         and (
           $4::text is null
           or n.title ilike $4
@@ -133,7 +135,7 @@ export async function listAdminNovels(input: ListAdminNovelsInput) {
           or u.email ilike $4
         )
     `,
-    [input.includeDeleted, input.authorId ?? null, input.status ?? null, search]
+    [input.includeDeleted, input.authorId ?? null, input.status ?? null, search, input.serialStatus ?? null]
   );
 
   return {

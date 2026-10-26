@@ -15,7 +15,8 @@ export const listAdminNovelsSchema = z.object({
     q: z.string().optional(),
     authorId: z.string().uuid().optional(),
     status: z.enum(['DRAFT', 'PENDING_MODERATION', 'PUBLISHED', 'REJECTED']).optional(),
-    includeDeleted: z.coerce.boolean().default(false),
+    serialStatus: z.enum(['ONGOING', 'COMPLETED', 'HIATUS']).optional(),
+    includeDeleted: z.preprocess(value => value === 'true' ? true : value === 'false' ? false : value, z.boolean()).default(false),
     page: z.coerce.number().int().positive().default(1),
     limit: z.coerce.number().int().positive().max(100).default(20)
   })

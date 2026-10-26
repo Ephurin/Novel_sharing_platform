@@ -1,3 +1,4 @@
+import { AdminNovelsPage } from '../features/admin/AdminNovelsPage';
 import { AdminUsersPage } from '../features/admin/AdminUsersPage';
 import { AdminOverviewPage } from '../features/admin/AdminOverviewPage';
 import { AuthorNovelCommentsPage } from '../features/author-projects/AuthorNovelCommentsPage';
@@ -11,7 +12,6 @@ import {
   AdminModerationDetailPage,
   AdminModerationPage,
   AdminNovelDetailPage,
-  AdminNovelsPage,
   AdminPage
 } from '../features/admin/AdminPage';
 import { AuthorNovelMetadataPage } from '../features/author-projects/AuthorNovelMetadataPage';
