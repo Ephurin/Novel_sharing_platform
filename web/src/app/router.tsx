@@ -1,3 +1,4 @@
+import { AdminUsersPage } from '../features/admin/AdminUsersPage';
 import { AdminOverviewPage } from '../features/admin/AdminOverviewPage';
 import { AuthorNovelCommentsPage } from '../features/author-projects/AuthorNovelCommentsPage';
 import { AuthorNovelReviewsPage } from '../features/author-projects/AuthorNovelReviewsPage';
@@ -214,7 +215,7 @@ export const router = createBrowserRouter([
         path: '/admin/users',
         element: (
           <RoleGuard roles={['ADMIN']}>
-            <AdminPage initialTab="users" />
+            <AdminUsersPage />
           </RoleGuard>
         )
       },
