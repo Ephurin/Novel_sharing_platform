@@ -2,12 +2,31 @@ import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
 import type { PageMeta } from './AdminShared';
 
 export type Paged<T> = { items: T[]; meta: PageMeta };
-export async function getAdminList<T>(path: string, params: Record<string, unknown>): Promise<Paged<T>> {
-  const response = await apiClient.get<ApiEnvelope<T[]>>(path, { params: Object.fromEntries(Object.entries(params).filter(([, value]) => value !== '' && value !== undefined)) });
+export async function getAdminList<T>(
+  path: string,
+  params: Record<string, unknown>
+): Promise<Paged<T>> {
+  const response = await apiClient.get<ApiEnvelope<T[]>>(path, {
+    params: Object.fromEntries(
+      Object.entries(params).filter(([, value]) => value !== '' && value !== undefined)
+    )
+  });
   return { items: response.data.data, meta: response.data.meta as PageMeta };
 }
 
-export type DashboardStats = { totalUsers: number; totalNovels: number; pendingModerationItems: number; mockRevenueCoins: number; totalDepositedCoins: number; newUsers7Days: number; newNovels7Days: number; pendingReports: number; pendingWithdraws: number; activity: Array<{ date: string; users: number; novels: number }>; generatedAt: string };
+export type DashboardStats = {
+  totalUsers: number;
+  totalNovels: number;
+  pendingModerationItems: number;
+  mockRevenueCoins: number;
+  totalDepositedCoins: number;
+  newUsers7Days: number;
+  newNovels7Days: number;
+  pendingReports: number;
+  pendingWithdraws: number;
+  activity: Array<{ date: string; users: number; novels: number }>;
+  generatedAt: string;
+};
 
 export type AdminUser = {
   userId: string;
@@ -38,8 +57,19 @@ export type ModerationReviewFilters = {
 
 export type ModerationReviewDetail = ModerationReview & {
   reviewedAt?: string | null;
-  target?: { title?: string; content?: string | null; username?: string; novelTitle?: string; chapterTitle?: string; novelId?: string; chapterId?: string; status?: string; deletedAt?: string | null; isSubmittedVersion?: boolean } | null;
-  reportReasons?: Array<{ reason:string; count:number }>;
+  target?: {
+    title?: string;
+    content?: string | null;
+    username?: string;
+    novelTitle?: string;
+    chapterTitle?: string;
+    novelId?: string;
+    chapterId?: string;
+    status?: string;
+    deletedAt?: string | null;
+    isSubmittedVersion?: boolean;
+  } | null;
+  reportReasons?: Array<{ reason: string; count: number }>;
   evidenceSummary: {
     matchedRules: string[];
     reportCount: number;
@@ -109,9 +139,7 @@ export async function listAdminUsers(q = '') {
 }
 
 export async function lockUser(userId: string) {
-  const response = await apiClient.patch<ApiEnvelope<AdminUser>>(`/admin/users/${userId}/lock`, {
-    reason: 'Locked from Phase 8 web UI'
-  });
+  const response = await apiClient.patch<ApiEnvelope<AdminUser>>(`/admin/users/${userId}/lock`, {});
   return response.data.data;
 }
 
@@ -120,11 +148,13 @@ export async function unlockUser(userId: string) {
   return response.data.data;
 }
 
-export async function listAdminNovels(input: {
-  q?: string;
-  status?: string;
-  includeDeleted?: boolean;
-} = {}) {
+export async function listAdminNovels(
+  input: {
+    q?: string;
+    status?: string;
+    includeDeleted?: boolean;
+  } = {}
+) {
   const response = await apiClient.get<ApiEnvelope<AdminNovel[]>>('/admin/novels', {
     params: {
       q: input.q || undefined,
@@ -158,45 +188,66 @@ export async function restoreAdminNovel(novelId: string, input: { reason?: strin
 }
 
 export async function getTaxonomy() {
-  const response = await apiClient.get<ApiEnvelope<{ genres: Array<{ genreId: string; name: string }>; tags: Array<{ tagId: string; name: string }> }>>(
-    '/admin/taxonomy'
-  );
+  const response = await apiClient.get<
+    ApiEnvelope<{
+      genres: Array<{ genreId: string; name: string }>;
+      tags: Array<{ tagId: string; name: string }>;
+    }>
+  >('/admin/taxonomy');
   return response.data.data;
 }
 
 export async function createGenre(name: string) {
-  const response = await apiClient.post<ApiEnvelope<{ genreId: string; name: string }>>('/admin/taxonomy/genres', { name });
+  const response = await apiClient.post<ApiEnvelope<{ genreId: string; name: string }>>(
+    '/admin/taxonomy/genres',
+    { name }
+  );
   return response.data.data;
 }
 
 export async function createTag(name: string) {
-  const response = await apiClient.post<ApiEnvelope<{ tagId: string; name: string }>>('/admin/taxonomy/tags', { name });
+  const response = await apiClient.post<ApiEnvelope<{ tagId: string; name: string }>>(
+    '/admin/taxonomy/tags',
+    { name }
+  );
   return response.data.data;
 }
 
 export async function listModerationReviews(filters: ModerationReviewFilters = {}) {
-  const response = await apiClient.get<ApiEnvelope<ModerationReview[]>>('/admin/moderation/reviews', {
-    params: {
-      targetType: filters.targetType || undefined,
-      status: filters.status || undefined,
-      source: filters.source || undefined,
-      page: 1,
-      limit: 20
+  const response = await apiClient.get<ApiEnvelope<ModerationReview[]>>(
+    '/admin/moderation/reviews',
+    {
+      params: {
+        targetType: filters.targetType || undefined,
+        status: filters.status || undefined,
+        source: filters.source || undefined,
+        page: 1,
+        limit: 20
+      }
     }
-  });
+  );
   return response.data.data;
 }
 
 export async function getModerationReview(reviewId: string) {
-  const response = await apiClient.get<ApiEnvelope<ModerationReviewDetail>>(`/admin/moderation/reviews/${reviewId}`);
+  const response = await apiClient.get<ApiEnvelope<ModerationReviewDetail>>(
+    `/admin/moderation/reviews/${reviewId}`
+  );
   return response.data.data;
 }
 
-export async function resolveModerationReview(reviewId: string, decision: 'APPROVED' | 'REJECTED' | 'REVISION_REQUIRED', reason?: string) {
-  const response = await apiClient.post<ApiEnvelope<{ reviewId: string; status: string }>>(`/admin/moderation/reviews/${reviewId}/resolve`, {
-    decision,
-    reason: reason?.trim() || undefined
-  });
+export async function resolveModerationReview(
+  reviewId: string,
+  decision: 'APPROVED' | 'REJECTED' | 'REVISION_REQUIRED',
+  reason?: string
+) {
+  const response = await apiClient.post<ApiEnvelope<{ reviewId: string; status: string }>>(
+    `/admin/moderation/reviews/${reviewId}/resolve`,
+    {
+      decision,
+      reason: reason?.trim() || undefined
+    }
+  );
   return response.data.data;
 }
 
@@ -214,10 +265,12 @@ export async function approveWithdrawRequest(withdrawRequestId: string) {
   return response.data.data;
 }
 
-export async function rejectWithdrawRequest(withdrawRequestId: string) {
+export async function rejectWithdrawRequest(withdrawRequestId: string, reason: string) {
   const response = await apiClient.post<ApiEnvelope<{ withdrawRequestId: string; status: string }>>(
     `/admin/withdraw-requests/${withdrawRequestId}/reject`,
-    { reason: 'Rejected from Phase 8 web UI' }
+    {
+      reason: reason.trim()
+    }
   );
   return response.data.data;
 }

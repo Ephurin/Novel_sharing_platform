@@ -3,13 +3,6 @@ import { AppError } from '../../core/errors/app-error.js';
 import { successResponse } from '../../core/response/response.js';
 import { getPostgresPool } from '../../core/database/postgres.js';
 
-export const getAdminChapterController: RequestHandler = async (request, response, next) => {
-  try {
-    const result = await getPostgresPool().query('select chapter_id, title, content, status, deleted_at from chapters where chapter_id=$1', [request.params.chapterId]);
-    if (!result.rows[0]) throw new AppError(404, 'CONTENT_001', 'Chapter not found');
-    response.json(successResponse(result.rows[0]));
-  } catch (error) { next(error); }
-};
 import {
   addGenre,
   addTag,
@@ -27,6 +20,18 @@ import {
   unlockUser
 } from './admin.service.js';
 
+export const getAdminChapterController: RequestHandler = async (request, response, next) => {
+  try {
+    const result = await getPostgresPool().query(
+      'select chapter_id, title, content, status, deleted_at from chapters where chapter_id=$1',
+      [request.params.chapterId]
+    );
+    if (!result.rows[0]) throw new AppError(404, 'CONTENT_001', 'Chapter not found');
+    response.json(successResponse(result.rows[0]));
+  } catch (error) {
+    next(error);
+  }
+};
 function requireRequestAuth(request: Parameters<RequestHandler>[0]) {
   if (!request.auth) throw new AppError(401, 'AUTH_002', 'Missing access token');
   return request.auth;
@@ -127,7 +132,11 @@ export const listWithdrawRequestsController: RequestHandler = async (request, re
 
 export const approveWithdrawController: RequestHandler = async (request, response, next) => {
   try {
-    response.json(successResponse(await approveWithdraw(requireRequestAuth(request), String(request.params.withdrawRequestId))));
+    response.json(
+      successResponse(
+        await approveWithdraw(requireRequestAuth(request), String(request.params.withdrawRequestId))
+      )
+    );
   } catch (error) {
     next(error);
   }
@@ -136,7 +145,13 @@ export const approveWithdrawController: RequestHandler = async (request, respons
 export const rejectWithdrawController: RequestHandler = async (request, response, next) => {
   try {
     response.json(
-      successResponse(await rejectWithdraw(requireRequestAuth(request), String(request.params.withdrawRequestId), request.body.reason))
+      successResponse(
+        await rejectWithdraw(
+          requireRequestAuth(request),
+          String(request.params.withdrawRequestId),
+          request.body.reason
+        )
+      )
     );
   } catch (error) {
     next(error);

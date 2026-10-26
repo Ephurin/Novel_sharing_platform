@@ -411,7 +411,7 @@ export async function listWithdrawRequests(input: {
       join wallets w on w.wallet_id = wr.wallet_id
       join users u on u.user_id = w.user_id
       where ($1::transaction_status is null or wr.status = $1)
-      order by wr.created_at desc
+      order by wr.created_at desc, wr.withdraw_request_id
       limit $2 offset $3
     `,
     [input.status ?? null, input.limit, offset]

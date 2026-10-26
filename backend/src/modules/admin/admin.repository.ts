@@ -2,7 +2,11 @@ import { AppError } from '../../core/errors/app-error.js';
 import type { PoolClient, QueryResultRow } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { slugify } from '../../core/utils/slug.js';
-import type { ListAdminNovelsInput, ListAdminUsersInput, TaxonomyNameInput } from './admin.schemas.js';
+import type {
+  ListAdminNovelsInput,
+  ListAdminUsersInput,
+  TaxonomyNameInput
+} from './admin.schemas.js';
 
 type DbClient = Pick<PoolClient, 'query'>;
 
@@ -69,7 +73,7 @@ export async function listAdminUsers(input: ListAdminUsersInput) {
         and ($1::user_role is null or u.role = $1)
         and ($2::user_status is null or u.status = $2)
         and ($3::text is null or u.email ilike $3 or u.username ilike $3 or p.display_name ilike $3)
-      order by u.created_at desc
+      order by u.created_at desc, u.user_id
       limit $4 offset $5
     `,
     [input.role ?? null, input.status ?? null, search, input.limit, offset]
@@ -115,10 +119,18 @@ export async function listAdminNovels(input: ListAdminNovelsInput) {
           or u.username ilike $4
           or u.email ilike $4
         )
-      order by n.updated_at desc
+      order by n.updated_at desc, n.novel_id
       limit $5 offset $6
     `,
-    [input.includeDeleted, input.authorId ?? null, input.status ?? null, search, input.limit, offset, input.serialStatus ?? null]
+    [
+      input.includeDeleted,
+      input.authorId ?? null,
+      input.status ?? null,
+      search,
+      input.limit,
+      offset,
+      input.serialStatus ?? null
+    ]
   );
   const countResult = await getPostgresPool().query(
     `
@@ -137,7 +149,13 @@ export async function listAdminNovels(input: ListAdminNovelsInput) {
           or u.email ilike $4
         )
     `,
-    [input.includeDeleted, input.authorId ?? null, input.status ?? null, search, input.serialStatus ?? null]
+    [
+      input.includeDeleted,
+      input.authorId ?? null,
+      input.status ?? null,
+      search,
+      input.serialStatus ?? null
+    ]
   );
 
   return {
@@ -174,11 +192,17 @@ export async function findAdminNovelById(novelId: string, includeDeleted = false
     [novelId]
   );
 
-  const genres = await getPostgresPool().query(`select g.genre_id, g.name from genres g where g.genre_id in (select genre_id from novel_genres where novel_id=$1) or g.genre_id=$2 order by g.name`, [novelId, novelResult.rows[0].genre_id]);
+  const genres = await getPostgresPool().query(
+    `select g.genre_id, g.name from genres g where g.genre_id in (select genre_id from novel_genres where novel_id=$1) or g.genre_id=$2 order by g.name`,
+    [novelId, novelResult.rows[0].genre_id]
+  );
 
   return {
     ...mapAdminNovel(novelResult.rows[0]),
-    genres: genres.rows.map(row => ({ genreId:row.genre_id, name:row.name })),
+    genres: genres.rows.map((row) => ({
+      genreId: row.genre_id,
+      name: row.name
+    })),
     chapters: chaptersResult.rows.map(mapAdminChapter)
   };
 }
@@ -251,7 +275,9 @@ export async function updateUserStatus(userId: string, status: 'ACTIVE' | 'LOCKE
 
 export async function listTaxonomy() {
   const [genres, tags] = await Promise.all([
-    getPostgresPool().query('select genre_id, name, slug, description, created_at from genres order by name asc'),
+    getPostgresPool().query(
+      'select genre_id, name, slug, description, created_at from genres order by name asc'
+    ),
     getPostgresPool().query('select tag_id, name, slug, created_at from tags order by name asc')
   ]);
 
@@ -335,9 +361,17 @@ export async function getDashboardStats() {
     order by d.day
   `);
   const row = result.rows[0];
-  return { totalUsers:row.users, totalNovels:row.novels, pendingModerationItems:row.moderation,
-    mockRevenueCoins:row.deposited, totalDepositedCoins:row.deposited, pendingReports:row.reports,
-    pendingWithdraws:row.withdraws, activity:activity.rows,
-    newUsers7Days:activity.rows.reduce((sum,r) => sum+r.users,0),
-    newNovels7Days:activity.rows.reduce((sum,r) => sum+r.novels,0), generatedAt:new Date().toISOString() };
+  return {
+    totalUsers: row.users,
+    totalNovels: row.novels,
+    pendingModerationItems: row.moderation,
+    mockRevenueCoins: row.deposited,
+    totalDepositedCoins: row.deposited,
+    pendingReports: row.reports,
+    pendingWithdraws: row.withdraws,
+    activity: activity.rows,
+    newUsers7Days: activity.rows.reduce((sum, r) => sum + r.users, 0),
+    newNovels7Days: activity.rows.reduce((sum, r) => sum + r.novels, 0),
+    generatedAt: new Date().toISOString()
+  };
 }
