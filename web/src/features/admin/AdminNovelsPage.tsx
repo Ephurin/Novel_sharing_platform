@@ -114,8 +114,13 @@ export function AdminNovelsPage() {
                 {query.data.items.map((novel) => (
                   <tr key={novel.novelId}>
                     <td className="admin-table-title">
-                      <strong>{novel.title}</strong>
-                      <small>{novel.synopsis}</small>
+                      <Link
+                        className="admin-novel-title"
+                        title={novel.title}
+                        to={`/admin/novels/${novel.novelId}`}
+                      >
+                        {novel.title}
+                      </Link>
                     </td>
                     <td>@{novel.authorUsername}</td>
                     <td>
