@@ -6,6 +6,7 @@ import { getAdminNovel, removeAdminNovel, restoreAdminNovel } from './admin-api'
 import {
   AdminConfirm,
   AdminHeader,
+  AdminId,
   AdminPagination,
   AdminPanel,
   dateTime,
@@ -15,6 +16,7 @@ import {
 } from './AdminShared';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
 import { AdminChapterPreview } from './AdminChapterPreview';
+import { AdminIcon } from './AdminShell';
 
 export function AdminNovelDetailPage() {
   const { novelId = '' } = useParams();
@@ -27,6 +29,7 @@ export function AdminNovelDetailPage() {
   const [page, setPage] = useState(1);
   const [expanded, setExpanded] = useState(false);
   const [chapterId, setChapterId] = useState<string | null>(null);
+  const [failedCover, setFailedCover] = useState<string | null>(null);
   const query = useQuery({
     queryKey: ['admin-novel-detail', novelId],
     queryFn: () => getAdminNovel(novelId)
@@ -70,18 +73,33 @@ export function AdminNovelDetailPage() {
         description={`Cập nhật lần cuối: ${dateTime(novel.updatedAt)}`}
       />
       <AdminPanel>
-        <div className="admin-page-header">
-          <div>
+        <div className="admin-novel-overview">
+          <div className="admin-novel-cover">
+            {novel.coverImageUrl && failedCover !== novel.coverImageUrl ? (
+              <img
+                src={novel.coverImageUrl}
+                alt={`Ảnh bìa ${novel.title}`}
+                onError={() => setFailedCover(novel.coverImageUrl!)}
+              />
+            ) : (
+              <div>
+                <AdminIcon name="menu_book" />
+                <span>{novel.coverImageUrl ? 'Không tải được ảnh bìa' : 'Chưa có ảnh bìa'}</span>
+              </div>
+            )}
+          </div>
+          <div className="admin-novel-summary">
+            <h2>{novel.title}</h2>
+            <p className="admin-muted">@{novel.authorUsername}</p>
             <div className="admin-actions">
               <Status value={novel.status} />
               <span>{options([novel.serialStatus])[1].label}</span>
               {novel.deletedAt && <Status value="DELETED" />}
             </div>
-            <h2>{novel.title}</h2>
-            <p>
-              @{novel.authorUsername} · {novel.authorEmail}
-            </p>
-            <p className="admin-id">Mã truyện: {novel.novelId}</p>
+            <div className="admin-novel-stats">
+              <strong>{number(novel.chapters.length)} chương</strong>
+              <span>{number(novel.viewsCount)} lượt đọc</span>
+            </div>
             {novel.genres?.length ? (
               <p>Thể loại: {novel.genres.map((g) => g.name).join(' · ')}</p>
             ) : null}
@@ -99,20 +117,32 @@ export function AdminNovelDetailPage() {
             {novel.deletedAt ? 'Khôi phục truyện' : 'Gỡ truyện'}
           </Button>
         </div>
-        <p className="admin-prose">
+        <p className="admin-prose" id="admin-novel-synopsis">
           {expanded || novel.synopsis.length <= 320
             ? novel.synopsis
             : `${novel.synopsis.slice(0, 320)}…`}
         </p>
         {novel.synopsis.length > 320 && (
-          <Button variant="subtle" onClick={() => setExpanded(!expanded)}>
+          <Button
+            variant="subtle"
+            aria-expanded={expanded}
+            aria-controls="admin-novel-synopsis"
+            onClick={() => setExpanded(!expanded)}
+          >
             {expanded ? 'Thu gọn' : 'Xem thêm'}
           </Button>
         )}
-        <div className="admin-actions">
-          <strong>{number(novel.chapters.length)} chương</strong>
-          <span>· {number(novel.viewsCount)} lượt đọc</span>
-        </div>
+        <details className="admin-metadata">
+          <summary>Thông tin bổ sung</summary>
+          <dl>
+            <dt>Mã truyện</dt>
+            <dd>
+              <AdminId value={novel.novelId} label="mã truyện" compact={false} />
+            </dd>
+            <dt>Email tác giả</dt>
+            <dd>{novel.authorEmail}</dd>
+          </dl>
+        </details>
       </AdminPanel>
       <AdminPanel>
         <h2>Danh sách chương</h2>
