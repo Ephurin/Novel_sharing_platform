@@ -429,6 +429,7 @@ export async function listWithdrawRequests(input: {
       walletId: row.wallet_id,
       amountCoins: row.amount_coins,
       bankAccountLabel: row.bank_account_label,
+      rejectionReason: row.rejection_reason,
       status: row.status,
       transactionId: row.transaction_id,
       createdAt: row.created_at

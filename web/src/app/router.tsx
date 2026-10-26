@@ -1,3 +1,4 @@
+import { AdminWithdrawsPage } from '../features/admin/AdminWithdrawsPage';
 import { AdminModerationDetailPage } from '../features/admin/AdminModerationDetailPage';
 import { AdminReportsPage } from '../features/admin/AdminReportsPage';
 import { AdminModerationPage } from '../features/admin/AdminModerationPage';
@@ -13,9 +14,6 @@ import { createBrowserRouter, Navigate, useParams } from 'react-router-dom';
 import { AuthorIdeShell } from './layout/AuthorIdeShell';
 import { AuthorWritingIde } from '../features/author-ide/AuthorWritingIde';
 import { WebAppShell } from './layout/WebAppShell';
-import {
-  AdminPage
-} from '../features/admin/AdminPage';
 import { AuthorNovelMetadataPage } from '../features/author-projects/AuthorNovelMetadataPage';
 import { AuthorProjectsPage } from '../features/author-projects/AuthorProjectsPage';
 import { AuthorStoryContextPage } from '../features/story-context/AuthorStoryContextPage';
@@ -273,7 +271,7 @@ export const router = createBrowserRouter([
         path: '/admin/withdraws',
         element: (
           <RoleGuard roles={['ADMIN']}>
-            <AdminPage initialTab="withdraw" />
+            <AdminWithdrawsPage />
           </RoleGuard>
         )
       }

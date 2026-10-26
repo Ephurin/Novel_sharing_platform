@@ -48,6 +48,8 @@ export type ModerationReviewDetail = ModerationReview & {
 };
 
 export type WithdrawRequest = {
+  bankAccountLabel?: string;
+  rejectionReason?: string | null;
   withdrawRequestId: string;
   userId: string;
   username: string;
