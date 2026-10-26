@@ -9,6 +9,26 @@ import { assertCurrentProposalEvidence } from './proposal-evidence.service.js';
 import { listLatestChapterAnalysis } from '../novels/outbox.repository.js';
 import { findRevisionById, findLatestRevisionByChapterId } from '../novels/chapter-revisions.repository.js';
 
+export async function entityProfileController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    const entityId = String(req.params.entityId);
+    if (!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(entityId)) {
+      throw new AppError(422, 'INVALID_ENTITY_ID', 'Entity UUID is required');
+    }
+    await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+    const key = req.get('Idempotency-Key');
+    if (req.method === 'PATCH' && (!key || !/^[A-Za-z0-9_-]{1,128}$/.test(key))) {
+      throw new AppError(422, 'INVALID_IDEMPOTENCY_KEY', 'A stable request identifier is required');
+    }
+    const data = await aiGatewayService.forwardRequest({ method: req.method === 'GET' ? 'GET' : 'PATCH',
+      path: `/v1/story-brains/${novelId}/entities/${entityId}/profile`, userId: req.auth!.userId,
+      ...(req.method === 'GET' ? {} : { body: req.body, idempotencyKey: key }) });
+    res.set('Cache-Control', 'no-store');
+    res.json(successResponse(data));
+  } catch (error) { next(error); }
+}
+
 export async function entityGuidanceController(req: Request, res: Response, next: NextFunction) {
   try {
     const novelId = String(req.params.novelId);

@@ -7,7 +7,7 @@ from dataclasses import asdict, replace
 from typing import Literal
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
 from pydantic import BaseModel, ConfigDict, Field
 
 from api.deps import require_service_token, get_revision_analysis_service
@@ -15,6 +15,7 @@ from application import entity_hitl
 from application.entity_review_service import save_guidance, registry
 from application.ports import ContentHashMismatchError, RevisionNotFoundError
 from domain.errors import OptimisticLockError, IdempotencyConflictError
+from domain.entity_profile import EntityProfilePatch
 
 
 def author_scope(request: Request, tenant: UUID = Header(alias='X-Tenant-Id'),
@@ -221,3 +222,35 @@ def refresh(novel_id: UUID, run_id: UUID, payload: Refresh, tenant=Depends(autho
 def author_proposal(novel_id: UUID, payload: AuthorProposal, tenant=Depends(author_scope), service=Depends(get_revision_analysis_service)):
     return {'data': asdict(invoke(service.create_author_proposal, tenant_id=tenant,
         novel_id=str(novel_id), **payload.model_dump(mode='json')))}
+
+
+def profile_invoke(fn, *args, **kwargs):
+    from sqlalchemy.exc import SQLAlchemyError
+    try:
+        return invoke(fn, *args, **kwargs)
+    except SQLAlchemyError:
+        # DB exceptions can contain private bound parameters. Never forward/log them.
+        raise HTTPException(503, detail={"code": "PROFILE_STORAGE_UNAVAILABLE"}) from None
+
+
+def profile_repository(service=Depends(get_revision_analysis_service)):
+    if not hasattr(service._repository, "get_entity_profile"):
+        raise HTTPException(503, detail={"code": "PROFILE_REQUIRES_POSTGRES"})
+    return service._repository
+
+
+@router.get('/{novel_id}/entities/{entity_id}/profile')
+def read_entity_profile(novel_id: UUID, entity_id: UUID, response: Response,
+                        repository=Depends(profile_repository)):
+    response.headers["Cache-Control"] = "no-store"
+    return {'data': profile_invoke(repository.get_entity_profile, str(novel_id), str(entity_id))}
+
+
+@router.patch('/{novel_id}/entities/{entity_id}/profile')
+def edit_entity_profile(novel_id: UUID, entity_id: UUID, payload: EntityProfilePatch, response: Response,
+                        actor: UUID = Header(alias='X-Author-Id'),
+                        request_key: str = Header(alias='Idempotency-Key', pattern=r'^[A-Za-z0-9_-]{1,128}$'),
+                        repository=Depends(profile_repository)):
+    response.headers["Cache-Control"] = "no-store"
+    return {'data': profile_invoke(repository.update_entity_profile, str(novel_id), str(entity_id),
+        payload, actor_id=str(actor), request_key=request_key)}

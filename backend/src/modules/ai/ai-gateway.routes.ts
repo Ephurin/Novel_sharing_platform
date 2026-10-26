@@ -27,6 +27,7 @@ import {
   extractionStatusController,
   authorMemoryProposalController,
   reanalyseSavedChapterController,
+  entityProfileController,
   entityGuidanceController,
   entityReviewController,
   authorEntityController,
@@ -44,6 +45,8 @@ export const aiGatewayRoutes = Router();
 
 // All AI operations require AUTHOR or ADMIN role with active account
 aiGatewayRoutes.use(requireAuth, requireActiveAccount, requireRoles(['AUTHOR', 'ADMIN']));
+aiGatewayRoutes.get('/story-brains/:novelId/entities/:entityId/profile', entityProfileController);
+aiGatewayRoutes.patch('/story-brains/:novelId/entities/:entityId/profile', entityProfileController);
 aiGatewayRoutes.get('/story-brains/:novelId/memory', getApprovedMemoryController);
 aiGatewayRoutes.get('/story-brains/:novelId/entity-guidance', entityGuidanceController);
 aiGatewayRoutes.post('/story-brains/:novelId/entity-guidance', entityGuidanceController);

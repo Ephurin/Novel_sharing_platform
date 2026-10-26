@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 logger = logging.getLogger(__name__)
 
+from domain.entity_profile import EntityProfilePatch, PROFILE_FIELDS, approved_profile
 from domain.projection import ProjectionError, validate_payload, project, resolve_entity, transition_from_payload
 from domain.errors import ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError
 from domain.models import (
@@ -41,6 +42,7 @@ from domain.models import (
 from domain.projection import project_relations, author_relationship
 from infrastructure.database import session_scope
 from infrastructure.orm_models import (
+    EntityProfileAuditRecord,
     CurrentEntityStateRecord,
     BootstrapJobRecord,
     EventParticipantRecord,
@@ -216,6 +218,77 @@ class PostgresNarrativeRepository:
                     ),
                 },
             )
+
+    @staticmethod
+    def _profile_dto(entity, brain):
+        profile = entity.author_profile or {}
+        return {
+            "entity_id": str(entity.id), "novel_id": str(entity.novel_id),
+            "version": entity.profile_version, "brain_version": brain.brain_version,
+            "profile": {key: profile.get(key, entity.description or "" if key == "description" else "") for key in PROFILE_FIELDS},
+            "effective_from_chapter": profile.get("effective_from_chapter"),
+            "author_notes": entity.private_author_notes,
+        }
+
+    def get_entity_profile(self, story_id: str, entity_id: str):
+        novel_id = self._novel_id(story_id)
+        with session_scope(self._session_factory) as session:
+            brain = session.scalar(select(StoryBrainRecord).where(*self._scope(StoryBrainRecord, novel_id)).with_for_update(read=True))
+            entity = session.scalar(select(EntityRecord).where(*self._scope(EntityRecord, novel_id),
+                EntityRecord.id == uuid.UUID(entity_id), EntityRecord.confirmation_status == "confirmed"))
+            if brain is None or entity is None:
+                raise KeyError(entity_id)
+            return self._profile_dto(entity, brain)
+
+    def update_entity_profile(self, story_id: str, entity_id: str, patch: EntityProfilePatch,
+                              *, actor_id: str, request_key: str):
+        # Revalidate at repository boundary, including callers other than HTTP.
+        patch = EntityProfilePatch.model_validate(patch.model_dump(exclude_unset=True))
+        import re
+        if not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", request_key):
+            raise ValueError("Invalid idempotency key")
+        actor = uuid.UUID(actor_id)
+        novel_id = self._novel_id(story_id)
+        entity_uuid = uuid.UUID(entity_id)
+        digest = hashlib.sha256(json.dumps([str(entity_uuid), patch.model_dump(exclude_unset=True)],
+            sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+        with session_scope(self._session_factory) as session:
+            # Same Brain lock and lock order as Canon acceptance; serializes retries too.
+            brain = session.scalar(select(StoryBrainRecord).where(*self._scope(StoryBrainRecord, novel_id)).with_for_update())
+            entity = session.scalar(select(EntityRecord).where(*self._scope(EntityRecord, novel_id),
+                EntityRecord.id == entity_uuid, EntityRecord.confirmation_status == "confirmed").with_for_update())
+            if brain is None or entity is None:
+                raise KeyError(entity_id)
+            prior = session.scalar(select(EntityProfileAuditRecord).where(
+                *self._scope(EntityProfileAuditRecord, novel_id), EntityProfileAuditRecord.actor_id == actor,
+                EntityProfileAuditRecord.request_key == request_key))
+            if prior:
+                if prior.input_hash != digest or prior.entity_id != entity_uuid:
+                    raise IdempotencyConflictError("Request key was already used")
+                return dict(prior.after)
+            if brain.brain_version != patch.expected_brain_version or entity.profile_version != patch.expected_version:
+                raise OptimisticLockError("Profile or Canon changed; reload before saving")
+            before = self._profile_dto(entity, brain)
+            profile = dict(entity.author_profile or {})
+            canonical_fields = patch.model_fields_set & set(PROFILE_FIELDS)
+            if canonical_fields:
+                # Full resulting snapshot has one explicit applicability cutoff.
+                for key in PROFILE_FIELDS:
+                    profile.setdefault(key, before['profile'][key])
+                for key in canonical_fields:
+                    profile[key] = getattr(patch, key)
+                profile['effective_from_chapter'] = patch.effective_from_chapter
+                entity.author_profile = profile
+                entity.description = profile['description']
+                brain.brain_version += 1
+            if 'author_notes' in patch.model_fields_set:
+                entity.private_author_notes = patch.author_notes
+            entity.profile_version += 1
+            after = self._profile_dto(entity, brain)
+            session.add(EntityProfileAuditRecord(tenant_id=self._tenant_id, novel_id=novel_id,
+                entity_id=entity_uuid, actor_id=actor, request_key=request_key, input_hash=digest,
+                before=before, after=after))
+            return after
 
     def list_entities(self, story_id: str) -> list[NarrativeEntity]:
         novel_id = self._novel_id(story_id)
@@ -1482,6 +1555,7 @@ class PostgresNarrativeRepository:
             location=str(attributes.get("location", "Unknown")),
             mentions=int(attributes.get("mentions", 1)),
             is_locked=record.is_locked,
+            approved_profile={k: v for k, v in (record.author_profile or {}).items() if k in ("description", "appearance", "personality", "background", "effective_from_chapter")},
         )
 
     @staticmethod
@@ -1953,6 +2027,8 @@ class PostgresNarrativeRepository:
                         "status": status,
                         "location": location,
                         "is_locked": entity.is_locked,
+                        "approved_profile": (approved_profile(entity.author_profile, chapter_number)
+                            if e_id in recent_scope_participant_entity_ids or (character_name and entity.canonical_name.casefold() == character_name.casefold()) else {}),
                     })
                     states_all.append({
                         "entity_id": e_id,
@@ -2098,7 +2174,7 @@ class PostgresNarrativeRepository:
                     context_summary["active_objective_id"] = [matching_obj.objective_id]
                     context_summary["active_objective_title"] = [matching_obj.title]
 
-            return WritingContextPackage(
+            package = WritingContextPackage(
                 brain_version=brain_version,
                 entities=tuple(entities_out),
                 current_states=tuple(states_out),
@@ -2110,6 +2186,10 @@ class PostgresNarrativeRepository:
                 planning_context=planning_context,
                 current_objective=current_objective,
             )
+            if enforce_token_budget and any(e.get("approved_profile") for e in package.entities):
+                from application.context_budget import ContextBudgetPacker
+                return ContextBudgetPacker().pack(package, maximum=target_maximum)
+            return package
 
     def _to_story_plan(
         self,
