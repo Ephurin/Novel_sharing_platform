@@ -186,6 +186,7 @@ export async function listModerationReviews(input: ListReviewsInput) {
       source: row.source,
       status: row.status,
       evidenceId: row.evidence_id,
+      reportCount: row.report_count,
       createdAt: row.created_at
     })),
     meta: {

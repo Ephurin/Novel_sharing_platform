@@ -1,3 +1,5 @@
+import { AdminModerationPage as AdminReportsPlaceholder } from '../features/admin/AdminPage';
+import { AdminModerationPage } from '../features/admin/AdminModerationPage';
 import { AdminTaxonomyPage } from '../features/admin/AdminTaxonomyPage';
 import { AdminNovelDetailPage } from '../features/admin/AdminNovelDetailPage';
 import { AdminNovelsPage } from '../features/admin/AdminNovelsPage';
@@ -12,7 +14,6 @@ import { AuthorWritingIde } from '../features/author-ide/AuthorWritingIde';
 import { WebAppShell } from './layout/WebAppShell';
 import {
   AdminModerationDetailPage,
-  AdminModerationPage,
   AdminPage
 } from '../features/admin/AdminPage';
 import { AuthorNovelMetadataPage } from '../features/author-projects/AuthorNovelMetadataPage';
@@ -248,7 +249,7 @@ export const router = createBrowserRouter([
         path: '/admin/moderation',
         element: (
           <RoleGuard roles={['ADMIN']}>
-            <AdminModerationPage />
+            <AdminModerationPage key="moderation" />
           </RoleGuard>
         )
       },
@@ -256,7 +257,7 @@ export const router = createBrowserRouter([
         path: '/admin/reports',
         element: (
           <RoleGuard roles={['ADMIN']}>
-            <AdminModerationPage sourceFilter="USER_REPORT" />
+            <AdminReportsPlaceholder sourceFilter="USER_REPORT" />
           </RoleGuard>
         )
       },

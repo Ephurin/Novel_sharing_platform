@@ -19,6 +19,7 @@ export type AdminUser = {
 };
 
 export type ModerationReview = {
+  reportCount?: number;
   reviewId: string;
   targetType: string;
   targetId: string;
