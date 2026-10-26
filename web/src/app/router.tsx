@@ -1,3 +1,4 @@
+import { AdminNovelDetailPage } from '../features/admin/AdminNovelDetailPage';
 import { AdminNovelsPage } from '../features/admin/AdminNovelsPage';
 import { AdminUsersPage } from '../features/admin/AdminUsersPage';
 import { AdminOverviewPage } from '../features/admin/AdminOverviewPage';
@@ -11,7 +12,6 @@ import { WebAppShell } from './layout/WebAppShell';
 import {
   AdminModerationDetailPage,
   AdminModerationPage,
-  AdminNovelDetailPage,
   AdminPage
 } from '../features/admin/AdminPage';
 import { AuthorNovelMetadataPage } from '../features/author-projects/AuthorNovelMetadataPage';

@@ -67,6 +67,7 @@ export type AdminNovelChapter = {
 };
 
 export type AdminNovel = {
+  genres?: Array<{ genreId: string; name: string }>;
   novelId: string;
   authorId: string;
   authorUsername: string;

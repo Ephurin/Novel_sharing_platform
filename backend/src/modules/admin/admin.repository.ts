@@ -27,6 +27,7 @@ function mapAdminNovel(row: QueryResultRow) {
     title: row.title,
     slug: row.slug,
     synopsis: row.synopsis,
+    coverImageUrl: row.cover_image_url,
     status: row.status,
     serialStatus: row.serial_status,
     ageRating: row.age_rating,
@@ -172,8 +173,11 @@ export async function findAdminNovelById(novelId: string, includeDeleted = false
     [novelId]
   );
 
+  const genres = await getPostgresPool().query(`select g.genre_id, g.name from genres g where g.genre_id in (select genre_id from novel_genres where novel_id=$1) or g.genre_id=$2 order by g.name`, [novelId, novelResult.rows[0].genre_id]);
+
   return {
     ...mapAdminNovel(novelResult.rows[0]),
+    genres: genres.rows.map(row => ({ genreId:row.genre_id, name:row.name })),
     chapters: chaptersResult.rows.map(mapAdminChapter)
   };
 }

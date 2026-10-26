@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { requireAuth, requireRoles } from '../../core/security/auth.middleware.js';
 import { validateRequest } from '../../core/validation/validate.js';
 import {
+  getAdminChapterController,
   approveWithdrawController,
   createGenreController,
   createTagController,
@@ -18,6 +19,7 @@ import {
   unlockUserController
 } from './admin.controller.js';
 import {
+  chapterIdParamSchema,
   listAdminNovelsSchema,
   listAdminUsersSchema,
   listWithdrawRequestsSchema,
@@ -34,6 +36,7 @@ import {
 export const adminRoutes = Router();
 
 adminRoutes.use(requireAuth, requireRoles(['ADMIN']));
+adminRoutes.get('/chapters/:chapterId', validateRequest(chapterIdParamSchema), getAdminChapterController);
 adminRoutes.get('/users', validateRequest(listAdminUsersSchema), listAdminUsersController);
 adminRoutes.patch('/users/:userId/lock', validateRequest(lockUserSchema), lockUserController);
 adminRoutes.patch('/users/:userId/unlock', validateRequest(userIdParamSchema), unlockUserController);

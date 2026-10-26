@@ -28,6 +28,8 @@ export const novelIdParamSchema = z.object({
   })
 });
 
+export const chapterIdParamSchema = z.object({ params:z.object({chapterId:z.string().uuid()}) });
+
 export const removeNovelSchema = z.object({
   params: novelIdParamSchema.shape.params,
   body: z.object({
