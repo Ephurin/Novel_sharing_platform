@@ -1,4 +1,13 @@
 import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
+import type { PageMeta } from './AdminShared';
+
+export type Paged<T> = { items: T[]; meta: PageMeta };
+export async function getAdminList<T>(path: string, params: Record<string, unknown>): Promise<Paged<T>> {
+  const response = await apiClient.get<ApiEnvelope<T[]>>(path, { params: Object.fromEntries(Object.entries(params).filter(([, value]) => value !== '' && value !== undefined)) });
+  return { items: response.data.data, meta: response.data.meta as PageMeta };
+}
+
+export type DashboardStats = { totalUsers: number; totalNovels: number; pendingModerationItems: number; mockRevenueCoins: number; totalDepositedCoins: number; newUsers7Days: number; newNovels7Days: number; pendingReports: number; pendingWithdraws: number; activity: Array<{ date: string; users: number; novels: number }>; generatedAt: string };
 
 export type AdminUser = {
   userId: string;
@@ -81,12 +90,7 @@ export type AdminNovelDetail = AdminNovel & {
 };
 
 export async function getDashboardStats() {
-  const response = await apiClient.get<ApiEnvelope<{
-    totalUsers: number;
-    totalNovels: number;
-    pendingModerationItems: number;
-    mockRevenueCoins: number;
-  }>>('/admin/dashboard/stats');
+  const response = await apiClient.get<ApiEnvelope<DashboardStats>>('/admin/dashboard/stats');
   return response.data.data;
 }
 

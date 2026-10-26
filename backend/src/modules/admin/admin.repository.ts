@@ -310,17 +310,26 @@ export async function createTag(input: TaxonomyNameInput) {
 }
 
 export async function getDashboardStats() {
-  const [users, novels, pendingModeration, mockRevenue] = await Promise.all([
-    getPostgresPool().query("select count(*)::int as total from users where deleted_at is null"),
-    getPostgresPool().query("select count(*)::int as total from novels where deleted_at is null"),
-    getPostgresPool().query("select count(*)::int as total from moderation_reviews where status = 'PENDING'"),
-    getPostgresPool().query("select coalesce(sum(amount_coins), 0)::int as total from transactions where type = 'DEPOSIT' and status = 'SUCCESS'")
-  ]);
-
-  return {
-    totalUsers: users.rows[0]?.total ?? 0,
-    totalNovels: novels.rows[0]?.total ?? 0,
-    pendingModerationItems: pendingModeration.rows[0]?.total ?? 0,
-    mockRevenueCoins: mockRevenue.rows[0]?.total ?? 0
-  };
+  const result = await getPostgresPool().query(`
+    select
+      (select count(*)::int from users where deleted_at is null) as users,
+      (select count(*)::int from novels where deleted_at is null) as novels,
+      (select count(*)::int from moderation_reviews where status='PENDING') as moderation,
+      (select count(*)::int from moderation_reviews where status='PENDING' and source='USER_REPORT') as reports,
+      (select count(*)::int from withdraw_requests where status='PENDING') as withdraws,
+      (select coalesce(sum(amount_coins),0)::float8 from transactions where type='DEPOSIT' and status='SUCCESS') as deposited
+  `);
+  const activity = await getPostgresPool().query(`
+    select to_char(d.day,'YYYY-MM-DD') as date,
+      (select count(*)::int from users where deleted_at is null and (created_at at time zone 'Asia/Bangkok')::date=d.day::date) as users,
+      (select count(*)::int from novels where deleted_at is null and (created_at at time zone 'Asia/Bangkok')::date=d.day::date) as novels
+    from generate_series((now() at time zone 'Asia/Bangkok')::date-6, (now() at time zone 'Asia/Bangkok')::date, interval '1 day') d(day)
+    order by d.day
+  `);
+  const row = result.rows[0];
+  return { totalUsers:row.users, totalNovels:row.novels, pendingModerationItems:row.moderation,
+    mockRevenueCoins:row.deposited, totalDepositedCoins:row.deposited, pendingReports:row.reports,
+    pendingWithdraws:row.withdraws, activity:activity.rows,
+    newUsers7Days:activity.rows.reduce((sum,r) => sum+r.users,0),
+    newNovels7Days:activity.rows.reduce((sum,r) => sum+r.novels,0), generatedAt:new Date().toISOString() };
 }

@@ -1,3 +1,4 @@
+import { AdminOverviewPage } from '../features/admin/AdminOverviewPage';
 import { AuthorNovelCommentsPage } from '../features/author-projects/AuthorNovelCommentsPage';
 import { AuthorNovelReviewsPage } from '../features/author-projects/AuthorNovelReviewsPage';
 import { AuthorTheme } from '../shared/components/AuthorTheme';
@@ -205,7 +206,7 @@ export const router = createBrowserRouter([
         path: '/admin',
         element: (
           <RoleGuard roles={['ADMIN']}>
-            <AdminPage />
+            <AdminOverviewPage />
           </RoleGuard>
         )
       },
