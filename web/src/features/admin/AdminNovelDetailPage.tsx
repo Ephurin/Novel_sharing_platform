@@ -94,7 +94,7 @@ export function AdminNovelDetailPage() {
             <div className="admin-actions">
               <Status value={novel.status} />
               <span>{options([novel.serialStatus])[1].label}</span>
-              {novel.deletedAt && <Status value="DELETED" />}
+              {novel.deletedAt && <Status value="DELETED" label="Đã gỡ" />}
             </div>
             <div className="admin-novel-stats">
               <strong>{number(novel.chapters.length)} chương</strong>

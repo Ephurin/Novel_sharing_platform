@@ -128,7 +128,7 @@ export function AdminNovelsPage() {
                     </td>
                     <td>{options([novel.serialStatus])[1].label}</td>
                     <td>{number(novel.chaptersCount)}</td>
-                    <td>{novel.deletedAt ? <Status value="DELETED" /> : 'Bình thường'}</td>
+                    <td>{novel.deletedAt ? <Status value="DELETED" label="Đã gỡ" /> : 'Bình thường'}</td>
                     <td>
                       <Button
                         component={Link}
