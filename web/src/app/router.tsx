@@ -1,3 +1,4 @@
+import { AdminTaxonomyPage } from '../features/admin/AdminTaxonomyPage';
 import { AdminNovelDetailPage } from '../features/admin/AdminNovelDetailPage';
 import { AdminNovelsPage } from '../features/admin/AdminNovelsPage';
 import { AdminUsersPage } from '../features/admin/AdminUsersPage';
@@ -239,7 +240,7 @@ export const router = createBrowserRouter([
         path: '/admin/taxonomy',
         element: (
           <RoleGuard roles={['ADMIN']}>
-            <AdminPage initialTab="taxonomy" />
+            <AdminTaxonomyPage />
           </RoleGuard>
         )
       },

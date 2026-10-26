@@ -60,7 +60,7 @@ export const lockUserSchema = z.object({
 
 export const taxonomyNameSchema = z.object({
   body: z.object({
-    name: z.string().min(1).max(100),
+    name: z.string().trim().min(1).max(100),
     description: z.string().max(1000).optional()
   })
 });

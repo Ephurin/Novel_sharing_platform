@@ -1,3 +1,4 @@
+import { AppError } from '../../core/errors/app-error.js';
 import type { PoolClient, QueryResultRow } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { slugify } from '../../core/utils/slug.js';
@@ -273,18 +274,18 @@ export async function listTaxonomy() {
 
 export async function createGenre(input: TaxonomyNameInput) {
   const slug = slugify(input.name);
+  if (!slug) throw new AppError(422, 'TAXONOMY_INVALID', 'T?n ph?i ch?a ch? ho?c s?.');
   const result = await getPostgresPool().query(
     `
       insert into genres (name, slug, description)
       values ($1, $2, $3)
-      on conflict (slug) do update
-      set name = excluded.name,
-          description = excluded.description
+      on conflict do nothing
       returning genre_id, name, slug, description, created_at
     `,
     [input.name, slug, input.description ?? null]
   );
 
+  if (!result.rows[0]) throw new AppError(409, 'TAXONOMY_EXISTS', 'Th? lo?i ?? t?n t?i.');
   return {
     genreId: result.rows[0].genre_id,
     name: result.rows[0].name,
@@ -296,17 +297,18 @@ export async function createGenre(input: TaxonomyNameInput) {
 
 export async function createTag(input: TaxonomyNameInput) {
   const slug = slugify(input.name);
+  if (!slug) throw new AppError(422, 'TAXONOMY_INVALID', 'T?n ph?i ch?a ch? ho?c s?.');
   const result = await getPostgresPool().query(
     `
       insert into tags (name, slug)
       values ($1, $2)
-      on conflict (slug) do update
-      set name = excluded.name
+      on conflict do nothing
       returning tag_id, name, slug, created_at
     `,
     [input.name, slug]
   );
 
+  if (!result.rows[0]) throw new AppError(409, 'TAXONOMY_EXISTS', 'Tag ?? t?n t?i.');
   return {
     tagId: result.rows[0].tag_id,
     name: result.rows[0].name,
