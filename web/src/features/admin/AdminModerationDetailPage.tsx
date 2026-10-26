@@ -6,6 +6,7 @@ import { getModerationReview, resolveModerationReview } from './admin-api';
 import {
   AdminConfirm,
   AdminHeader,
+  AdminId,
   AdminPanel,
   dateTime,
   labels,
@@ -62,15 +63,15 @@ export function AdminModerationDetailPage() {
           Mở hàng đợi
         </Button>
       </div>
-      <AdminHeader title="Chi tiết kiểm duyệt" description={`Mã vụ: ${review.reviewId}`}>
+      <AdminHeader
+        title="Chi tiết kiểm duyệt"
+        description={`${labels[review.source]} · ${labels[review.targetType]}`}
+      >
         <Status value={review.status} />
       </AdminHeader>
-      <div className="admin-grid-two">
+      <div className="admin-grid-two admin-review-layout">
         <AdminPanel>
           <h2>Nội dung cần kiểm tra</h2>
-          <p className="admin-id">
-            {labels[review.targetType]} · {review.targetId}
-          </p>
           {review.target ? (
             <>
               <h3>{review.target.title}</h3>
@@ -84,13 +85,18 @@ export function AdminModerationDetailPage() {
               {review.target.isSubmittedVersion && (
                 <p className="admin-muted">Phiên bản đã gửi để kiểm duyệt</p>
               )}
-              <div className="admin-prose">
+              <div className="admin-prose" id="admin-review-content">
                 {expanded || content.length <= 800
                   ? content || 'Đối tượng chưa có nội dung văn bản.'
                   : `${content.slice(0, 800)}…`}
               </div>
               {content.length > 800 && (
-                <Button variant="subtle" onClick={() => setExpanded(!expanded)}>
+                <Button
+                  variant="subtle"
+                  aria-expanded={expanded}
+                  aria-controls="admin-review-content"
+                  onClick={() => setExpanded(!expanded)}
+                >
                   {expanded ? 'Thu gọn' : 'Xem đầy đủ'}
                 </Button>
               )}
@@ -109,63 +115,90 @@ export function AdminModerationDetailPage() {
         <div>
           <AdminPanel>
             <h2>Bằng chứng</h2>
-            <p>Nguồn: {labels[review.source]}</p>
-            <p>{number(review.evidenceSummary.reportCount)} báo cáo</p>
-            {review.evidenceSummary.summary && <p>{review.evidenceSummary.summary}</p>}
+            {(report || review.evidenceSummary.reportCount > 0) && (
+              <p>{number(review.evidenceSummary.reportCount)} báo cáo</p>
+            )}
+            {review.evidenceSummary.summary && (
+              <p className="admin-prose">{review.evidenceSummary.summary}</p>
+            )}
             {review.reportReasons?.map((item) => (
               <div className="admin-task" key={item.reason}>
                 <span>{item.reason}</span>
                 <span>{number(item.count)} lượt</span>
               </div>
             ))}
-            {review.evidenceSummary.matchedRules.map((rule) => (
-              <p key={rule}>
-                <Status value="PENDING" /> {rule}
-              </p>
-            ))}
+            {!!review.evidenceSummary.matchedRules.length && (
+              <ul className="admin-evidence-list">
+                {review.evidenceSummary.matchedRules.map((rule) => (
+                  <li key={rule}>{rule}</li>
+                ))}
+              </ul>
+            )}
             {!review.evidenceSummary.reportCount && !review.evidenceSummary.matchedRules.length && (
               <p className="admin-muted">Chưa có bằng chứng bổ sung.</p>
             )}
           </AdminPanel>
           <AdminPanel>
-            <h2>Thông tin kiểm duyệt</h2>
-            <p>Đối tượng: {labels[review.targetType]}</p>
-            <p>Tiếp nhận: {dateTime(review.createdAt)}</p>
-            {review.reviewedAt && <p>Xử lý: {dateTime(review.reviewedAt)}</p>}
+            <h2>Quyết định xử lý</h2>
             {review.reason && <p className="admin-prose">Lý do: {review.reason}</p>}
+            {mutation.isSuccess && (
+              <p role="status" className="admin-muted">
+                Đã lưu quyết định xử lý.
+              </p>
+            )}
+            <div className="admin-actions">
+              <Button
+                disabled={review.status !== 'PENDING' || mutation.isPending}
+                data-testid={
+                  commentReport ? 'admin-approve-report-btn' : 'admin-approve-review-btn'
+                }
+                onClick={() => {
+                  mutation.reset();
+                  setReason('');
+                  setDecision('APPROVED');
+                }}
+              >
+                {approveLabel}
+              </Button>
+              <Button
+                color="red"
+                className="admin-danger"
+                variant="light"
+                disabled={review.status !== 'PENDING' || mutation.isPending}
+                data-testid={commentReport ? 'admin-reject-report-btn' : 'admin-reject-review-btn'}
+                onClick={() => {
+                  mutation.reset();
+                  setReason('');
+                  setDecision('REJECTED');
+                }}
+              >
+                {rejectLabel}
+              </Button>
+            </div>
           </AdminPanel>
         </div>
       </div>
-      <AdminPanel>
-        <h2>Quyết định xử lý</h2>
-        <div className="admin-actions">
-          <Button
-            disabled={review.status !== 'PENDING'}
-            data-testid={commentReport ? 'admin-approve-report-btn' : 'admin-approve-review-btn'}
-            onClick={() => {
-              mutation.reset();
-              setReason('');
-              setDecision('APPROVED');
-            }}
-          >
-            {approveLabel}
-          </Button>
-          <Button
-            color="red"
-            className="admin-danger"
-            variant="light"
-            disabled={review.status !== 'PENDING'}
-            data-testid={commentReport ? 'admin-reject-report-btn' : 'admin-reject-review-btn'}
-            onClick={() => {
-              mutation.reset();
-              setReason('');
-              setDecision('REJECTED');
-            }}
-          >
-            {rejectLabel}
-          </Button>
-        </div>
-      </AdminPanel>
+      <details className="admin-metadata">
+        <summary>Thông tin kiểm duyệt</summary>
+        <dl>
+          <dt>Mã kiểm duyệt</dt>
+          <dd>
+            <AdminId value={review.reviewId} label="mã kiểm duyệt" compact={false} />
+          </dd>
+          <dt>Mã đối tượng</dt>
+          <dd>
+            <AdminId value={review.targetId} label="mã đối tượng" compact={false} />
+          </dd>
+          <dt>Tiếp nhận</dt>
+          <dd>{dateTime(review.createdAt)}</dd>
+          {review.reviewedAt && (
+            <>
+              <dt>Xử lý</dt>
+              <dd>{dateTime(review.reviewedAt)}</dd>
+            </>
+          )}
+        </dl>
+      </details>
       <AdminConfirm
         destructive={decision === 'REJECTED' || commentReport}
         opened={!!decision}
@@ -184,11 +217,15 @@ export function AdminModerationDetailPage() {
             ? decision === 'APPROVED'
               ? 'Bình luận sẽ bị gỡ và các báo cáo liên quan được đánh dấu đã xử lý.'
               : 'Báo cáo sẽ bị từ chối. Bình luận được giữ nguyên.'
-            : report
-              ? 'Ghi nhận quyết định xử lý báo cáo đối với đối tượng này.'
-              : decision === 'APPROVED'
-                ? 'Duyệt phiên bản nội dung đã gửi để phát hành.'
-                : 'Từ chối phiên bản nội dung đang chờ duyệt.'}
+            : review.targetType === 'COMMENT'
+              ? decision === 'APPROVED'
+                ? 'Bình luận sẽ được duyệt để hiển thị.'
+                : 'Bình luận sẽ bị từ chối kiểm duyệt.'
+              : review.targetType === 'NOVEL' || review.targetType === 'CHAPTER'
+                ? decision === 'APPROVED'
+                  ? 'Duyệt xuất bản nội dung theo phiên bản đang được kiểm duyệt.'
+                  : 'Từ chối xuất bản nội dung đang được kiểm duyệt.'
+                : 'Ghi nhận quyết định xử lý trong hồ sơ kiểm duyệt tài khoản.'}
         </p>
       </AdminConfirm>
     </>
