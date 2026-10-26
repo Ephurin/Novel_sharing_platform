@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { Alert, Button, Select } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -158,7 +159,14 @@ export function AdminWithdrawsPage() {
                             </Button>
                           </>
                         ) : (
-                          <span className="admin-muted">Đã xử lý</span>
+                          <Button
+                            component={Link}
+                            to={`/admin/withdraws/${request.withdrawRequestId}`}
+                            variant="subtle"
+                            size="xs"
+                          >
+                            Đối soát / Lịch sử
+                          </Button>
                         )}
                       </div>
                     </td>

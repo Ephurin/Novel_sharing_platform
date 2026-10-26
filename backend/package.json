@@ -13,6 +13,7 @@
     "start": "node dist/main.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "tsx --test \"src/**/*.test.ts\"",
+    "test:isolated": "node scripts/run-isolated-tests.mjs",
     "db:seed:admin": "tsx src/scripts/seed-admin.ts"
   },
   "dependencies": {

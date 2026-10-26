@@ -5,6 +5,68 @@
   color: var(--sc-text);
   font: 14px/22px var(--sc-font);
 }
+.admin-block {
+  display: block;
+  color: var(--sc-text-muted);
+}
+.admin-case {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--sc-border);
+  overflow-wrap: anywhere;
+}
+.admin-case:last-child {
+  border-bottom: 0;
+}
+.admin-case p {
+  margin: 8px 0;
+}
+.admin-audit-detail {
+  max-width: 420px;
+  margin-top: 6px;
+}
+.admin-audit-detail pre {
+  max-height: 320px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  background: var(--sc-surface-subtle);
+  padding: 12px;
+  border-radius: 6px;
+}
+.admin-audit-detail summary {
+  cursor: pointer;
+  color: var(--sc-primary-text);
+}
+.admin-form-stack {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+.admin-definition {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 16px;
+}
+.admin-definition dt {
+  color: var(--sc-text-muted);
+}
+.admin-definition dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.admin-appeal-portal {
+  padding: 24px max(16px, calc((100vw - 1000px) / 2));
+}
+.admin-taxonomy-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--sc-border);
+}
 .admin-shell *,
 .admin-confirm * {
   box-sizing: border-box;

@@ -1,3 +1,4 @@
+import { assertAdminPermission, audit } from '../admin/admin-access.js';
 import { enqueueNotification } from '../interactions/notification-events.js';
 import type { PoolClient, QueryResultRow } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
@@ -440,6 +441,7 @@ export async function listWithdrawRequests(input: {
 
 export async function approveWithdrawRequest(withdrawRequestId: string, adminUserId: string) {
   return withPostgresTransaction(async (client) => {
+    await assertAdminPermission({userId:adminUserId,role:'ADMIN'},'finance',client);
     const requestResult = await client.query(
       'select * from withdraw_requests where withdraw_request_id = $1 for update',
       [withdrawRequestId]
@@ -476,6 +478,18 @@ export async function approveWithdrawRequest(withdrawRequestId: string, adminUse
       [withdrawRequestId, adminUserId]
     );
 
+    await audit(
+      client,
+      { userId: adminUserId, role: 'ADMIN' },
+      {
+        action: 'WITHDRAW_APPROVED',
+        targetType: 'WITHDRAW',
+        targetId: withdrawRequestId,
+        affectedUserId: wallet.userId,
+        before: withdrawRequest,
+        after: result.rows[0]
+      }
+    );
     return {
       withdrawRequestId,
       userId: wallet.userId,
@@ -488,6 +502,7 @@ export async function approveWithdrawRequest(withdrawRequestId: string, adminUse
 
 export async function rejectWithdrawRequest(withdrawRequestId: string, adminUserId: string, reason: string) {
   return withPostgresTransaction(async (client) => {
+    await assertAdminPermission({userId:adminUserId,role:'ADMIN'},'finance',client);
     const requestResult = await client.query(
       'select * from withdraw_requests where withdraw_request_id = $1 for update',
       [withdrawRequestId]
@@ -526,6 +541,19 @@ export async function rejectWithdrawRequest(withdrawRequestId: string, adminUser
       [withdrawRequestId, adminUserId, reason]
     );
 
+    await audit(
+      client,
+      { userId: adminUserId, role: 'ADMIN' },
+      {
+        action: 'WITHDRAW_REJECTED',
+        targetType: 'WITHDRAW',
+        targetId: withdrawRequestId,
+        affectedUserId: wallet.userId,
+        reason,
+        before: withdrawRequest,
+        after: result.rows[0]
+      }
+    );
     return {
       withdrawRequestId,
       userId: wallet.userId,

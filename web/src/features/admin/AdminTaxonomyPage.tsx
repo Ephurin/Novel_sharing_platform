@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AdminTaxonomyActions } from './AdminTaxonomyActions';
 import { Alert, Button, TextInput } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createGenre, createTag, getTaxonomy } from './admin-api';
@@ -86,11 +87,10 @@ export function AdminTaxonomyPage() {
             {!query.data.genres.length ? (
               <EmptyState description="Chưa có thể loại." />
             ) : (
-              <div className="admin-taxonomy-list">
-                {query.data.genres.map((item) => (
-                  <div key={item.genreId}>{item.name}</div>
-                ))}
-              </div>
+              <AdminTaxonomyActions
+                kind="genres"
+                items={query.data.genres.map((i) => ({ ...i, id: i.genreId }))}
+              />
             )}
           </AdminPanel>
           <AdminPanel>
@@ -125,11 +125,10 @@ export function AdminTaxonomyPage() {
             {!query.data.tags.length ? (
               <EmptyState description="Chưa có tag." />
             ) : (
-              <div className="admin-tags">
-                {query.data.tags.map((item) => (
-                  <span key={item.tagId}># {item.name}</span>
-                ))}
-              </div>
+              <AdminTaxonomyActions
+                kind="tags"
+                items={query.data.tags.map((i) => ({ ...i, id: i.tagId }))}
+              />
             )}
           </AdminPanel>
         </div>

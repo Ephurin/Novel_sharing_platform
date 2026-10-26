@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+import { useAuthStore } from '../auth/useAuthStore';
 import { useState } from 'react';
 import { Button, Select, TextInput } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -16,6 +18,8 @@ import { AdminIcon } from './AdminShell';
 
 export function AdminUsersPage() {
   const cache = useQueryClient();
+  const currentUser = useAuthStore((s) => s.user);
+  const [reason, setReason] = useState('');
   const [q, setQ] = useState('');
   const [role, setRole] = useState('');
   const [status, setStatus] = useState('');
@@ -34,7 +38,7 @@ export function AdminUsersPage() {
   });
   const mutation = useMutation({
     mutationFn: (user: AdminUser) =>
-      user.status === 'LOCKED' ? unlockUser(user.userId) : lockUser(user.userId),
+      user.status === 'LOCKED' ? unlockUser(user.userId, reason) : lockUser(user.userId, reason),
     onSuccess: async () => {
       setSelected(null);
       await cache.invalidateQueries({ queryKey: ['admin-users'] });
@@ -122,7 +126,9 @@ export function AdminUsersPage() {
                             .toUpperCase()}
                         </span>
                         <div>
-                          <strong>{user.displayName || user.username}</strong>
+                          <Link className="admin-link" to={`/admin/users/${user.userId}`}>
+                            <strong>{user.displayName || user.username}</strong>
+                          </Link>
                           <small>@{user.username}</small>
                         </div>
                       </div>
@@ -133,6 +139,7 @@ export function AdminUsersPage() {
                     </td>
                     <td>
                       <Button
+                        disabled={user.userId === currentUser?.userId || user.status === 'DELETED'}
                         variant="light"
                         color={user.status === 'LOCKED' ? undefined : 'red'}
                         className={user.status === 'LOCKED' ? undefined : 'admin-danger'}
@@ -142,6 +149,7 @@ export function AdminUsersPage() {
                         }
                         onClick={() => {
                           mutation.reset();
+                          setReason('');
                           setSelected(user);
                         }}
                       >
@@ -157,6 +165,9 @@ export function AdminUsersPage() {
         <AdminPagination meta={query.data?.meta} onChange={setPage} />
       </AdminPanel>
       <AdminConfirm
+        reason={reason}
+        setReason={setReason}
+        required
         destructive={selected?.status !== 'LOCKED'}
         opened={!!selected}
         title={selected?.status === 'LOCKED' ? 'Xác nhận mở khóa' : 'Xác nhận khóa tài khoản'}

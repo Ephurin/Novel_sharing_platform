@@ -1,0 +1,16 @@
+﻿{
+    "migration":  "018_admin_operations.sql",
+    "health":  "OK",
+    "preservedDataFingerprint":  true,
+    "routes":  [
+                   "/admin/access",
+                   "/admin/audit",
+                   "/admin/appeals",
+                   "/admin/taxonomy",
+                   "/admin/withdraw-requests",
+                   "/appeals"
+               ],
+    "demoReseed":  false,
+    "url":  "http://localhost:8080",
+    "checkedAt":  "2026-10-26"
+}

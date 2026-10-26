@@ -83,7 +83,7 @@ export const restoreAdminNovelController: RequestHandler = async (request, respo
 
 export const lockUserController: RequestHandler = async (request, response, next) => {
   try {
-    response.json(successResponse(await lockUser(String(request.params.userId))));
+    response.json(successResponse(await lockUser(requireRequestAuth(request), String(request.params.userId), request.body?.reason)));
   } catch (error) {
     next(error);
   }
@@ -91,7 +91,7 @@ export const lockUserController: RequestHandler = async (request, response, next
 
 export const unlockUserController: RequestHandler = async (request, response, next) => {
   try {
-    response.json(successResponse(await unlockUser(String(request.params.userId))));
+    response.json(successResponse(await unlockUser(requireRequestAuth(request), String(request.params.userId), request.body?.reason)));
   } catch (error) {
     next(error);
   }
@@ -107,7 +107,7 @@ export const taxonomyController: RequestHandler = async (_request, response, nex
 
 export const createGenreController: RequestHandler = async (request, response, next) => {
   try {
-    response.status(201).json(successResponse(await addGenre(request.body)));
+    response.status(201).json(successResponse(await addGenre(requireRequestAuth(request), request.body)));
   } catch (error) {
     next(error);
   }
@@ -115,7 +115,7 @@ export const createGenreController: RequestHandler = async (request, response, n
 
 export const createTagController: RequestHandler = async (request, response, next) => {
   try {
-    response.status(201).json(successResponse(await addTag(request.body)));
+    response.status(201).json(successResponse(await addTag(requireRequestAuth(request), request.body)));
   } catch (error) {
     next(error);
   }

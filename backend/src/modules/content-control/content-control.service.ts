@@ -1,3 +1,5 @@
+import { assertAdminPermission, audit } from '../admin/admin-access.js';
+import { resolveUserReport } from './report-resolution.js';
 import type { PoolClient } from 'pg';
 import { getAdminReviewTarget } from './admin-target.repository.js';
 import { getPostgresPool } from '../../core/database/postgres.js';
@@ -20,7 +22,6 @@ import {
   listReviews as listReviewRows,
   listReportsForReview,
   findOpenReportByReporter,
-  resolveReportsForReview,
   resolveReview as resolveReviewRow
 } from './content-control.repository.js';
 import {
@@ -33,14 +34,11 @@ import type {
   ModerationTargetType
 } from './content-control.types.js';
 import {
-  findCommentById,
   findCommentRecordById,
-  softDeleteComment,
   updateCommentModerationStatus,
   type CommentStatus
 } from '../interactions/comments.repository.js';
 import { findReadableChapter } from '../reading/reading.repository.js';
-import { createNotification } from '../interactions/notifications.repository.js';
 import { publishNovel, rejectNovelPublication } from '../novels/novels.repository.js';
 import { findNovelById } from '../novels/novels.repository.js';
 import {
@@ -154,6 +152,25 @@ export async function checkContent(
 }
 
 export async function createUserReport(auth: AuthContext, input: CreateReportInput) {
+  if (
+    input.targetType !== 'COMMENT' &&
+    !/^[\da-f]{8}-(?:[\da-f]{4}-){3}[\da-f]{12}$/i.test(input.targetId)
+  )
+    throw new AppError(422, 'REPORT_TARGET', 'Mã đối tượng không hợp lệ.');
+  if (input.targetType === 'NOVEL') {
+    const novel = await findNovelById(input.targetId);
+    if (!novel || novel.status !== 'PUBLISHED')
+      throw new AppError(404, 'CONTENT_001', 'Không tìm thấy truyện đang xuất bản.');
+  } else if (input.targetType === 'CHAPTER') {
+    if (!(await findReadableChapter(input.targetId)))
+      throw new AppError(404, 'CONTENT_001', 'Không tìm thấy chương đang xuất bản.');
+  } else if (input.targetType === 'USER') {
+    const user = await getPostgresPool().query(
+      "select 1 from users where user_id::text=$1 and deleted_at is null and status<>'DELETED'",
+      [input.targetId]
+    );
+    if (!user.rowCount) throw new AppError(404, 'USER_001', 'Không tìm thấy tài khoản.');
+  }
   if (input.targetType === 'COMMENT') {
     const comment = await findCommentRecordById(input.targetId);
     if (!comment) {
@@ -203,6 +220,13 @@ export async function createUserReport(auth: AuthContext, input: CreateReportInp
           client
         ));
 
+      const lockedReview = (
+        await client.query('select status from moderation_reviews where review_id=$1 for update', [
+          review.review_id
+        ])
+      ).rows[0];
+      if (lockedReview.status !== 'PENDING')
+        throw new AppError(409, 'REPORT_RETRY', 'Review was resolved. Please submit again.');
       const report = await createReportRow(
         {
           ...input,
@@ -287,6 +311,13 @@ export async function getModerationReview(reviewId: string) {
           isSubmittedVersion: true
         }
       : target,
+    sanctions: (
+      await getPostgresPool().query(
+        "select s.sanction_id,s.action,s.active,exists(select 1 from admin_jobs j where j.kind='COMMENT_SYNC' and j.status='PENDING' and j.payload->>'sanctionId'=s.sanction_id::text) as pending from admin_sanctions s where s.review_id=$1 order by s.created_at",
+        [reviewId]
+      )
+    ).rows,
+    reportDescriptions: reports.map((r) => ({ reason: r.reason, description: r.description })),
     reportReasons: Array.from(reasonCounts, ([reason, count]) => ({ reason, count })),
     evidenceSummary: {
       matchedRules: evidence?.matchedRules ?? [],
@@ -306,6 +337,9 @@ export async function resolveModerationReview(
   if (!review) {
     throw new AppError(404, 'ADMIN_001', 'Review item not found');
   }
+
+  await assertAdminPermission(auth, 'content');
+  if (review.source === 'USER_REPORT') return resolveUserReport(auth, reviewId, input);
 
   if (review.status !== 'PENDING') {
     throw new AppError(409, 'ADMIN_002', 'Review item already resolved');
@@ -328,11 +362,26 @@ export async function resolveModerationReview(
         'Chương không còn chờ duyệt; không thể phát hành phiên bản cũ'
       );
   }
-  const resolved = await resolveReviewRow({
-    reviewId,
-    status: input.decision as ModerationStatus,
-    reviewedBy: auth.userId,
-    reason: input.reason
+  const resolved = await withPostgresTransaction(async (client) => {
+    const row = await resolveReviewRow(
+      {
+        reviewId,
+        status: input.decision as ModerationStatus,
+        reviewedBy: auth.userId,
+        reason: input.reason
+      },
+      client
+    );
+    if (row)
+      await audit(client, auth, {
+        action: `PUBLICATION_${input.decision}`,
+        targetType: review.target_type,
+        targetId: review.target_id,
+        reason: input.reason,
+        before: { status: review.status },
+        after: { status: row.status, reviewId }
+      });
+    return row;
   });
 
   if (!resolved) {
@@ -340,9 +389,7 @@ export async function resolveModerationReview(
   }
 
   if (resolved.target_type === 'COMMENT') {
-    if (resolved.source === 'USER_REPORT') {
-      await resolveCommentUserReport(auth, resolved, input.reason);
-    } else {
+    {
       const commentStatus: CommentStatus = resolved.status === 'APPROVED' ? 'APPROVED' : 'REJECTED';
       await updateCommentModerationStatus(
         resolved.target_id,
@@ -400,79 +447,4 @@ export async function resolveModerationReview(
     targetType: resolved.target_type as ModerationTargetType,
     targetId: resolved.target_id
   };
-}
-
-async function resolveCommentUserReport(
-  auth: AuthContext,
-  resolved: {
-    review_id: string;
-    target_id: string;
-    status: ModerationStatus;
-  },
-  reason?: string
-) {
-  const comment = await findCommentById(resolved.target_id);
-  const reports = await listReportsForReview(resolved.review_id);
-  const reportAccepted = resolved.status === 'APPROVED';
-  const reportStatus = reportAccepted ? 'RESOLVED' : 'REJECTED';
-  const resolution =
-    reason ??
-    (reportAccepted ? 'Comment report approved by Admin.' : 'Comment report rejected by Admin.');
-
-  await resolveReportsForReview({
-    reviewId: resolved.review_id,
-    resolvedBy: auth.userId,
-    status: reportStatus,
-    resolution
-  });
-
-  if (reportAccepted && comment) {
-    await softDeleteComment(resolved.target_id);
-  }
-
-  if (comment) {
-    await createNotification({
-      userId: comment.userId,
-      type: reportAccepted ? 'COMMENT_REMOVED_BY_REPORT' : 'COMMENT_REPORT_REJECTED_OWNER',
-      title: reportAccepted ? 'Bình luận của bạn đã bị gỡ' : 'Báo cáo bình luận đã bị từ chối',
-      content: reportAccepted
-        ? `Bình luận của bạn đã bị gỡ sau khi Admin duyệt báo cáo.${reason ? ` Lý do: ${reason}` : ''}`
-        : `Admin đã từ chối báo cáo đối với bình luận của bạn. Bình luận được giữ nguyên.${reason ? ` Lý do: ${reason}` : ''}`,
-      payload: {
-        reviewId: resolved.review_id,
-        commentId: resolved.target_id,
-        chapterId: comment.chapterId,
-        novelId: comment.novelId,
-        decision: resolved.status,
-        adminId: auth.userId,
-        reason: reason ?? null
-      }
-    });
-  }
-
-  const notifiedUserIds = new Set(comment ? [comment.userId] : []);
-  for (const report of reports) {
-    const reporterId = report.reporter_id as string;
-    if (notifiedUserIds.has(reporterId)) {
-      continue;
-    }
-
-    notifiedUserIds.add(reporterId);
-    await createNotification({
-      userId: reporterId,
-      type: reportAccepted ? 'COMMENT_REPORT_APPROVED' : 'COMMENT_REPORT_REJECTED',
-      title: reportAccepted ? 'Báo cáo bình luận đã được duyệt' : 'Báo cáo bình luận đã bị từ chối',
-      content: reportAccepted
-        ? `Admin đã duyệt báo cáo của bạn và gỡ bình luận vi phạm.${reason ? ` Lý do: ${reason}` : ''}`
-        : `Admin đã từ chối báo cáo của bạn. Bình luận được giữ nguyên.${reason ? ` Lý do: ${reason}` : ''}`,
-      payload: {
-        reviewId: resolved.review_id,
-        reportId: report.report_id,
-        commentId: resolved.target_id,
-        decision: resolved.status,
-        adminId: auth.userId,
-        reason: reason ?? null
-      }
-    });
-  }
 }

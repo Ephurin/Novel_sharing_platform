@@ -1,3 +1,4 @@
+import { isContentAdmin } from '../../core/security/auth-context.js';
 import { assertActiveAccount } from '../../core/security/active-account.js';
 import { randomUUID } from 'node:crypto';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
@@ -20,7 +21,7 @@ import {
 } from './novels.repository.js';
 
 function assertNovelOwner(novel: { authorId: string }, auth: AuthContext) {
-  if (auth.role === 'ADMIN') {
+  if (isContentAdmin(auth)) {
     return;
   }
 
@@ -156,7 +157,7 @@ export async function submitPublish(auth: AuthContext, novelId: string) {
 
 export async function readNovel(novelId: string, auth?: AuthContext) {
   const novel = await getNovel(novelId);
-  const owner = auth && (auth.userId === novel.authorId || auth.role === 'ADMIN');
+  const owner = auth && (auth.userId === novel.authorId || isContentAdmin(auth));
   if (owner) await assertActiveAccount(auth);
   else if (novel.status !== 'PUBLISHED') throw new AppError(404, 'CONTENT_001', 'Content not found');
   return novel;

@@ -231,13 +231,13 @@ export function AdminNovelDetailPage() {
       </AdminPanel>
       <AdminChapterPreview chapterId={chapterId} onClose={() => setChapterId(null)} />
       <AdminConfirm
+        required
         destructive={action === 'remove'}
         opened={!!action}
         title={action === 'remove' ? 'Xác nhận gỡ truyện' : 'Khôi phục truyện'}
         confirmLabel={action === 'remove' ? 'Xác nhận gỡ truyện' : 'Khôi phục'}
         reason={reason}
         setReason={setReason}
-        required={action === 'remove'}
         pending={mutation.isPending}
         error={mutation.error}
         onClose={() => setAction(null)}
@@ -246,8 +246,8 @@ export function AdminNovelDetailPage() {
         <strong>{novel.title}</strong>
         <p>
           {action === 'remove'
-            ? 'Truyện, chương và bản nháp sẽ bị ẩn khỏi các màn hình thông thường. Dữ liệu được giữ để khôi phục.'
-            : 'Khôi phục truyện và các chương về các truy vấn thông thường.'}
+            ? 'Ẩn truyện và quyền đọc các chương của truyện. Dữ liệu được giữ để xem xét lại; trạng thái xuất bản không đổi.'
+            : 'Thu hồi hạn chế đối với truyện. Các hạn chế riêng trên chương được giữ nguyên.'}
         </p>
       </AdminConfirm>
     </>

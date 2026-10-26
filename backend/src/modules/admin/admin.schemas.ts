@@ -41,14 +41,14 @@ export const removeNovelSchema = z.object({
   params: novelIdParamSchema.shape.params,
   body: z.object({
     confirm: z.literal(true),
-    reason: z.string().max(1000).optional()
+    reason: z.string().trim().min(1).max(1000)
   })
 });
 
 export const restoreNovelSchema = z.object({
   params: novelIdParamSchema.shape.params,
   body: z.object({
-    reason: z.string().max(1000).optional()
+    reason: z.string().trim().min(1).max(1000)
   })
 });
 
@@ -61,7 +61,7 @@ export const userIdParamSchema = z.object({
 export const lockUserSchema = z.object({
   params: userIdParamSchema.shape.params,
   body: z.object({
-    reason: z.string().max(500).optional()
+    reason: z.string().trim().min(1).max(1000)
   })
 });
 
@@ -89,7 +89,7 @@ export const withdrawRequestIdParamSchema = z.object({
 export const rejectWithdrawRequestSchema = z.object({
   params: withdrawRequestIdParamSchema.shape.params,
   body: z.object({
-    reason: z.string().min(1).max(1000)
+    reason: z.string().trim().min(1).max(1000)
   })
 });
 

@@ -1,4 +1,6 @@
 import { Router } from 'express';
+import { adminOperationsRoutes } from './admin-operations.routes.js';
+import { requireAdminPermission } from './admin-access.js';
 import { requireAuth, requireRoles } from '../../core/security/auth.middleware.js';
 import { validateRequest } from '../../core/validation/validate.js';
 import {
@@ -36,6 +38,14 @@ import {
 export const adminRoutes = Router();
 
 adminRoutes.use(requireAuth, requireRoles(['ADMIN']));
+adminRoutes.use(adminOperationsRoutes);
+adminRoutes.use('/users', requireAdminPermission('users'));
+adminRoutes.use(
+  ['/novels', '/chapters', '/taxonomy', '/moderation'],
+  requireAdminPermission('content')
+);
+adminRoutes.use('/withdraw-requests', requireAdminPermission('finance'));
+adminRoutes.use('/dashboard', requireAdminPermission('audit'));
 adminRoutes.get(
   '/chapters/:chapterId',
   validateRequest(chapterIdParamSchema),
@@ -43,11 +53,7 @@ adminRoutes.get(
 );
 adminRoutes.get('/users', validateRequest(listAdminUsersSchema), listAdminUsersController);
 adminRoutes.patch('/users/:userId/lock', validateRequest(lockUserSchema), lockUserController);
-adminRoutes.patch(
-  '/users/:userId/unlock',
-  validateRequest(userIdParamSchema),
-  unlockUserController
-);
+adminRoutes.patch('/users/:userId/unlock', validateRequest(lockUserSchema), unlockUserController);
 adminRoutes.get('/novels', validateRequest(listAdminNovelsSchema), listAdminNovelsController);
 adminRoutes.get('/novels/:novelId', validateRequest(novelIdParamSchema), getAdminNovelController);
 adminRoutes.delete(

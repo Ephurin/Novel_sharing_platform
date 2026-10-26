@@ -1,11 +1,11 @@
+import { withPostgresTransaction } from '../../core/database/transaction.js';
+import { assertAdminPermission, audit, protectAccount, requiredReason } from './admin-access.js';
+import { applySanction, restoreSanction } from './admin-sanctions.js';
+import { drainAdminJobs } from './admin-jobs.js';
 import { AppError } from '../../core/errors/app-error.js';
-import { getPostgresPool } from '../../core/database/postgres.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { createNotification } from '../interactions/notifications.repository.js';
-import {
-  markDraftChaptersDeletedByNovelId,
-  restoreDraftChaptersByNovelId
-} from '../novels/draft-chapters.repository.js';
+import { restoreDraftChaptersByNovelId } from '../novels/draft-chapters.repository.js';
 import {
   approveWithdrawRequest,
   listWithdrawRequests as listWithdrawRequestRows,
@@ -23,13 +23,12 @@ import {
   createGenre,
   createTag,
   findAdminNovelById,
+  findAdminUserById,
   getDashboardStats,
   listAdminNovels as listAdminNovelRows,
   listAdminUsers as listAdminUserRows,
   listTaxonomy,
-  restoreNovelAggregate,
-  softRemoveNovelAggregate,
-  updateUserStatus
+  restoreNovelAggregate
 } from './admin.repository.js';
 
 function buildMeta(totalItems: number, page: number, limit: number) {
@@ -64,95 +63,122 @@ export async function getNovel(novelId: string) {
 }
 
 export async function removeNovel(auth: AuthContext, novelId: string, input: RemoveNovelInput) {
-  const existingNovel = await findAdminNovelById(novelId, false);
-  if (!existingNovel) throw new AppError(404, 'CONTENT_001', 'Content not found');
-
-  const client = await getPostgresPool().connect();
-  try {
-    await client.query('begin');
-    const removedNovel = await softRemoveNovelAggregate(client, novelId);
-    if (!removedNovel) throw new AppError(404, 'CONTENT_001', 'Content not found');
-    await markDraftChaptersDeletedByNovelId(novelId, input.reason);
-    await client.query('commit');
-  } catch (error) {
-    await client.query('rollback');
-    throw error;
-  } finally {
-    client.release();
-  }
-
-  await createNotification({
-    userId: existingNovel.authorId,
-    type: 'NOVEL_REMOVED_BY_ADMIN',
-    title: 'Truyện đã bị gỡ bởi Admin',
-    content: input.reason
-      ? `Truyện "${existingNovel.title}" đã bị gỡ bởi Admin. Lý do: ${input.reason}`
-      : `Truyện "${existingNovel.title}" đã bị gỡ bởi Admin.`,
-    payload: {
-      novelId,
-      novelTitle: existingNovel.title,
-      reason: input.reason ?? null,
-      adminId: auth.userId
-    }
+  await withPostgresTransaction(async (client) => {
+    await assertAdminPermission(auth, 'content', client);
+    await applySanction(client, auth, {
+      targetType: 'NOVEL',
+      targetId: novelId,
+      action: 'HIDE',
+      reason: requiredReason(input.reason)
+    });
   });
+  await drainAdminJobs();
 }
-
 export async function restoreNovel(auth: AuthContext, novelId: string, input: RestoreNovelInput) {
-  const existingNovel = await findAdminNovelById(novelId, true);
-  if (!existingNovel) throw new AppError(404, 'CONTENT_001', 'Content not found');
-
-  const client = await getPostgresPool().connect();
-  try {
-    await client.query('begin');
-    const restoredNovel = await restoreNovelAggregate(client, novelId);
-    if (!restoredNovel) throw new AppError(404, 'CONTENT_001', 'Content not found');
-    await restoreDraftChaptersByNovelId(novelId);
-    await client.query('commit');
-  } catch (error) {
-    await client.query('rollback');
-    throw error;
-  } finally {
-    client.release();
-  }
-
-  await createNotification({
-    userId: existingNovel.authorId,
-    type: 'NOVEL_RESTORED_BY_ADMIN',
-    title: 'Truyện đã được khôi phục bởi Admin',
-    content: input.reason
-      ? `Truyện "${existingNovel.title}" đã được khôi phục bởi Admin. Lý do: ${input.reason}`
-      : `Truyện "${existingNovel.title}" đã được khôi phục bởi Admin.`,
-    payload: {
-      novelId,
-      novelTitle: existingNovel.title,
-      reason: input.reason ?? null,
-      adminId: auth.userId
+  await withPostgresTransaction(async (client) => {
+    await assertAdminPermission(auth, 'content', client);
+    const reason = requiredReason(input.reason);
+    await client.query('select pg_advisory_xact_lock(hashtext($1))', [`sanction:NOVEL:${novelId}`]);
+    const sanction = (
+      await client.query(
+        "select * from admin_sanctions where target_type='NOVEL' and target_id=$1 and action='HIDE' and active",
+        [novelId]
+      )
+    ).rows[0];
+    if (sanction) await restoreSanction(client, auth, sanction, reason);
+    else {
+      const before = await findAdminNovelById(novelId, true);
+      if (!before?.deletedAt)
+        throw new AppError(409, 'ADMIN_NOT_REMOVED', 'Content is not removed');
+      await restoreNovelAggregate(client, novelId);
+      await restoreDraftChaptersByNovelId(novelId);
+      await audit(client, auth, {
+        action: 'NOVEL_RESTORED',
+        targetType: 'NOVEL',
+        targetId: novelId,
+        affectedUserId: before.authorId,
+        reason,
+        before,
+        after: { deletedAt: null }
+      });
     }
   });
+  await drainAdminJobs();
 }
-
-export async function lockUser(userId: string) {
-  const user = await updateUserStatus(userId, 'LOCKED');
-  if (!user) throw new AppError(404, 'NOT_FOUND_001', 'Resource not found');
-  return user;
+export async function lockUser(auth: AuthContext, userId: string, reason?: string) {
+  await withPostgresTransaction((client) =>
+    applySanction(client, auth, {
+      targetType: 'USER',
+      targetId: userId,
+      action: 'LOCK',
+      reason: requiredReason(reason)
+    })
+  );
+  await drainAdminJobs();
+  return findAdminUserById(userId);
 }
-
-export async function unlockUser(userId: string) {
-  const user = await updateUserStatus(userId, 'ACTIVE');
-  if (!user) throw new AppError(404, 'NOT_FOUND_001', 'Resource not found');
-  return user;
+export async function unlockUser(auth: AuthContext, userId: string, reason?: string) {
+  await withPostgresTransaction(async (client) => {
+    const before = await protectAccount(client, auth, userId);
+    const note = requiredReason(reason);
+    const sanction = (
+      await client.query(
+        "select * from admin_sanctions where target_type='USER' and target_id=$1 and action='LOCK' and active",
+        [userId]
+      )
+    ).rows[0];
+    if (sanction) await restoreSanction(client, auth, sanction, note);
+    else {
+      if (before.status !== 'LOCKED')
+        throw new AppError(409, 'ADMIN_NOT_LOCKED', 'User is not locked');
+      await client.query("update users set status='ACTIVE',updated_at=now() where user_id=$1", [
+        userId
+      ]);
+      await audit(client, auth, {
+        action: 'USER_UNLOCKED',
+        targetType: 'USER',
+        targetId: userId,
+        affectedUserId: userId,
+        reason: note,
+        before: { status: before.status },
+        after: { status: 'ACTIVE' }
+      });
+    }
+  });
+  await drainAdminJobs();
+  return findAdminUserById(userId);
 }
 
 export async function getTaxonomy() {
   return listTaxonomy();
 }
 
-export async function addGenre(input: TaxonomyNameInput) {
-  return createGenre(input);
+export async function addGenre(auth: AuthContext, input: TaxonomyNameInput) {
+  return withPostgresTransaction(async (client) => {
+    await assertAdminPermission(auth, 'content', client);
+    const result = await createGenre(input, client);
+    await audit(client, auth, {
+      action: 'TAXONOMY_CREATED',
+      targetType: 'genres',
+      targetId: result.genreId,
+      after: result
+    });
+    return result;
+  });
 }
 
-export async function addTag(input: TaxonomyNameInput) {
-  return createTag(input);
+export async function addTag(auth: AuthContext, input: TaxonomyNameInput) {
+  return withPostgresTransaction(async (client) => {
+    await assertAdminPermission(auth, 'content', client);
+    const result = await createTag(input, client);
+    await audit(client, auth, {
+      action: 'TAXONOMY_CREATED',
+      targetType: 'tags',
+      targetId: result.tagId,
+      after: result
+    });
+    return result;
+  });
 }
 
 export async function listWithdrawRequests(input: ListWithdrawRequestsInput) {

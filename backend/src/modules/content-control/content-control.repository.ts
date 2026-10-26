@@ -1,9 +1,6 @@
 import type { QueryResultRow, PoolClient } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
-import type {
-  ListReviewsInput,
-  CreateReportInput
-} from './content-control.schemas.js';
+import type { ListReviewsInput, CreateReportInput } from './content-control.schemas.js';
 import type {
   MatchedRule,
   ModerationSource,
@@ -53,7 +50,13 @@ export async function createModerationReview(
       do update set updated_at = now()
       returning *
     `,
-    [input.targetType, input.targetId, input.source, input.evidenceId ?? null, input.submittedContent ?? null]
+    [
+      input.targetType,
+      input.targetId,
+      input.source,
+      input.evidenceId ?? null,
+      input.submittedContent ?? null
+    ]
   );
 
   return result.rows[0];
@@ -211,13 +214,16 @@ export async function resolveReportsForReview(input: {
   );
 }
 
-export async function resolveReview(input: {
-  reviewId: string;
-  status: ModerationStatus;
-  reviewedBy: string;
-  reason?: string;
-}) {
-  const result = await getPostgresPool().query(
+export async function resolveReview(
+  input: {
+    reviewId: string;
+    status: ModerationStatus;
+    reviewedBy: string;
+    reason?: string;
+  },
+  client?: PoolClient
+) {
+  const result = await (client ?? getPostgresPool()).query(
     `
       update moderation_reviews
       set status = $2,

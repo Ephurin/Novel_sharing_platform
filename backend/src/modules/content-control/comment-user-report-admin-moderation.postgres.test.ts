@@ -294,7 +294,7 @@ describe('Phase C: Comment User Report, Admin Moderation, and Notifications Inva
       await pool.query('delete from reports where report_id = any($1)', [Array.from(trackedReportIds)]);
     }
     if (trackedReviewIds.size > 0) {
-      await pool.query('delete from moderation_reviews where review_id = any($1)', [Array.from(trackedReviewIds)]);
+      await pool.query('delete from moderation_reviews r where review_id = any($1) and not exists(select 1 from admin_sanctions s where s.review_id=r.review_id)', [Array.from(trackedReviewIds)]);
     }
     if (trackedChapterIds.size > 0) {
       await pool.query('delete from chapters where chapter_id = any($1)', [Array.from(trackedChapterIds)]);
@@ -303,7 +303,7 @@ describe('Phase C: Comment User Report, Admin Moderation, and Notifications Inva
       await pool.query('delete from novels where novel_id = any($1)', [Array.from(trackedNovelIds)]);
     }
     if (trackedUserIds.size > 0) {
-      await pool.query('delete from users where user_id = any($1)', [Array.from(trackedUserIds)]);
+      await pool.query("update users set status='DELETED',deleted_at=now() where user_id=any($1)", [Array.from(trackedUserIds)]);
     }
 
     // Clean up MongoDB test comments and notifications by explicit IDs

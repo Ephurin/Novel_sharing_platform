@@ -273,18 +273,29 @@ export async function updateUserStatus(userId: string, status: 'ACTIVE' | 'LOCKE
   return result.rows[0] ? mapAdminUser(result.rows[0]) : null;
 }
 
+export async function findAdminUserById(userId: string) {
+  const result = await getPostgresPool().query(
+    'select u.*,p.display_name from users u left join user_profiles p using(user_id) where u.user_id=$1',
+    [userId]
+  );
+  return result.rows[0] ? mapAdminUser(result.rows[0]) : null;
+}
+
 export async function listTaxonomy() {
   const [genres, tags] = await Promise.all([
     getPostgresPool().query(
-      'select genre_id, name, slug, description, created_at from genres order by name asc'
+      'select g.*, (select count(distinct n.novel_id)::int from novels n left join novel_genres ng using(novel_id) where n.genre_id=g.genre_id or ng.genre_id=g.genre_id) as usage_count from genres g order by name asc'
     ),
-    getPostgresPool().query('select tag_id, name, slug, created_at from tags order by name asc')
+    getPostgresPool().query(
+      'select t.*, (select count(*)::int from novel_tags nt where nt.tag_id=t.tag_id) as usage_count from tags t order by name asc'
+    )
   ]);
 
   return {
     genres: genres.rows.map((row) => ({
       genreId: row.genre_id,
       name: row.name,
+      usageCount: row.usage_count,
       slug: row.slug,
       description: row.description,
       createdAt: row.created_at
@@ -292,16 +303,17 @@ export async function listTaxonomy() {
     tags: tags.rows.map((row) => ({
       tagId: row.tag_id,
       name: row.name,
+      usageCount: row.usage_count,
       slug: row.slug,
       createdAt: row.created_at
     }))
   };
 }
 
-export async function createGenre(input: TaxonomyNameInput) {
+export async function createGenre(input: TaxonomyNameInput, client?: PoolClient) {
   const slug = slugify(input.name);
   if (!slug) throw new AppError(422, 'TAXONOMY_INVALID', 'T?n ph?i ch?a ch? ho?c s?.');
-  const result = await getPostgresPool().query(
+  const result = await (client ?? getPostgresPool()).query(
     `
       insert into genres (name, slug, description)
       values ($1, $2, $3)
@@ -321,10 +333,10 @@ export async function createGenre(input: TaxonomyNameInput) {
   };
 }
 
-export async function createTag(input: TaxonomyNameInput) {
+export async function createTag(input: TaxonomyNameInput, client?: PoolClient) {
   const slug = slugify(input.name);
   if (!slug) throw new AppError(422, 'TAXONOMY_INVALID', 'T?n ph?i ch?a ch? ho?c s?.');
-  const result = await getPostgresPool().query(
+  const result = await (client ?? getPostgresPool()).query(
     `
       insert into tags (name, slug)
       values ($1, $2)

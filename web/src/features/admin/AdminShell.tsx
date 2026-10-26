@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Button, Menu } from '@mantine/core';
 import { useAuthStore } from '../auth/useAuthStore';
+import { Navigate } from 'react-router-dom';
+import { useAdminAccess, scopeLabels, type Permission } from './admin-operations-api';
+import { LoadingState, ErrorState } from '../../shared/components/PageStates';
 import { NotificationBell } from '../notifications/NotificationBell';
 import { ThemeControl } from '../../shared/components/ThemeControl';
 import './admin.css';
@@ -13,7 +16,9 @@ const navigation = [
   ['/admin/taxonomy', 'sell', 'Thể loại & Tag'],
   ['/admin/moderation', 'fact_check', 'Kiểm duyệt'],
   ['/admin/reports', 'flag', 'Báo cáo người dùng'],
-  ['/admin/withdraws', 'payments', 'Yêu cầu rút tiền']
+  ['/admin/withdraws', 'payments', 'Yêu cầu rút tiền'],
+  ['/admin/appeals', 'forum', 'Khiếu nại'],
+  ['/admin/audit', 'history', 'Nhật ký quản trị']
 ] as const;
 
 export function AdminIcon({ name }: { name: string }) {
@@ -28,6 +33,30 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
   const user = useAuthStore((state) => state.user);
   const location = useLocation();
   const [opened, setOpened] = useState(false);
+  const access = useAdminAccess();
+  const can = (path: string) => {
+    const permissions = access.data?.permissions || [];
+    const permission: Permission | undefined =
+      path === '/admin'
+        ? 'audit'
+        : path.startsWith('/admin/users')
+          ? 'users'
+          : path.startsWith('/admin/withdraws')
+            ? 'finance'
+            : /^\/admin\/(novels|taxonomy|moderation|reports)/.test(path)
+              ? 'content'
+              : undefined;
+    if (path.startsWith('/admin/appeals'))
+      return permissions.includes('content') || permissions.includes('users');
+    return !permission || permissions.includes(permission);
+  };
+  const home = access.data?.permissions.includes('audit')
+    ? '/admin'
+    : access.data?.permissions.includes('content')
+      ? '/admin/moderation'
+      : access.data?.permissions.includes('users')
+        ? '/admin/users'
+        : '/admin/withdraws';
   const title =
     [...navigation]
       .reverse()
@@ -49,20 +78,27 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
         </Link>
         <p className="admin-nav-label">Quản lý hệ thống</p>
         <nav>
-          {navigation.map(([path, icon, label]) => (
-            <NavLink key={path} to={path} end={path === '/admin'} onClick={() => setOpened(false)}>
-              <AdminIcon name={icon} />
-              {label}
-            </NavLink>
-          ))}
+          {navigation
+            .filter(([path]) => can(path))
+            .map(([path, icon, label]) => (
+              <NavLink
+                key={path}
+                to={path}
+                end={path === '/admin'}
+                onClick={() => setOpened(false)}
+              >
+                <AdminIcon name={icon} />
+                {label}
+              </NavLink>
+            ))}
         </nav>
-        <div className="admin-sidebar-footer">
+        {access.data?.permissions.includes('content') && <div className="admin-sidebar-footer">
           <Link to="/author">
             <AdminIcon name="open_in_new" />
             Xem trang tác giả
             <AdminIcon name="arrow_forward" />
           </Link>
-        </div>
+        </div>}
       </aside>
       {opened && (
         <button
@@ -95,7 +131,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
                 <AdminIcon name="account_circle" />
                 <span>
                   {user?.displayName || user?.username}
-                  <small>Quản trị viên</small>
+                  <small>{scopeLabels[access.data?.scope || ''] || 'Quản trị viên'}</small>
                 </span>
                 <AdminIcon name="expand_more" />
               </Button>
@@ -112,7 +148,15 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
         </div>
       </header>
       <main className="admin-main">
-        <Outlet />
+        {access.isLoading ? (
+          <LoadingState label="Đang kiểm tra quyền quản trị..." />
+        ) : access.isError ? (
+          <ErrorState error={access.error} onRetry={() => void access.refetch()} />
+        ) : can(location.pathname) ? (
+          <Outlet />
+        ) : (
+          <Navigate to={home} replace />
+        )}
         <footer className="admin-footer">
           <AdminIcon name="auto_stories" />
           StoryCraft Publishing CMS <span>• Dành riêng cho Quản trị viên</span>

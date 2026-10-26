@@ -97,6 +97,7 @@ export function AuthorNavbar() {
             </Menu.Target>
             <Menu.Dropdown>
               <Menu.Label>{name}</Menu.Label>
+              <Menu.Item component={Link} to="/appeals">Quyết định &amp; khiếu nại</Menu.Item>
               <Menu.Item component={Link} to="/profile/me">Hồ sơ &amp; cài đặt</Menu.Item>
               <Menu.Item component={Link} to="/author/profile">Trang tác giả</Menu.Item>
               <Menu.Item component={Link} to="/reader/library">Thư viện của tôi</Menu.Item>

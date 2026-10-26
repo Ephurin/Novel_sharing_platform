@@ -56,6 +56,8 @@ export type ModerationReviewFilters = {
 };
 
 export type ModerationReviewDetail = ModerationReview & {
+  sanctions?: Array<{ sanction_id: string; action: string; active: boolean; pending: boolean }>;
+  reportDescriptions?: Array<{ reason: string; description: string | null }>;
   reviewedAt?: string | null;
   target?: {
     title?: string;
@@ -139,13 +141,17 @@ export async function listAdminUsers(q = '') {
   return response.data.data;
 }
 
-export async function lockUser(userId: string) {
-  const response = await apiClient.patch<ApiEnvelope<AdminUser>>(`/admin/users/${userId}/lock`, {});
+export async function lockUser(userId: string, reason?: string) {
+  const response = await apiClient.patch<ApiEnvelope<AdminUser>>(`/admin/users/${userId}/lock`, {
+    reason
+  });
   return response.data.data;
 }
 
-export async function unlockUser(userId: string) {
-  const response = await apiClient.patch<ApiEnvelope<AdminUser>>(`/admin/users/${userId}/unlock`);
+export async function unlockUser(userId: string, reason?: string) {
+  const response = await apiClient.patch<ApiEnvelope<AdminUser>>(`/admin/users/${userId}/unlock`, {
+    reason
+  });
   return response.data.data;
 }
 
@@ -191,26 +197,24 @@ export async function restoreAdminNovel(novelId: string, input: { reason?: strin
 export async function getTaxonomy() {
   const response = await apiClient.get<
     ApiEnvelope<{
-      genres: Array<{ genreId: string; name: string }>;
-      tags: Array<{ tagId: string; name: string }>;
+      genres: Array<{ genreId: string; name: string; description?: string; usageCount: number }>;
+      tags: Array<{ tagId: string; name: string; usageCount: number }>;
     }>
   >('/admin/taxonomy');
   return response.data.data;
 }
 
 export async function createGenre(name: string) {
-  const response = await apiClient.post<ApiEnvelope<{ genreId: string; name: string }>>(
-    '/admin/taxonomy/genres',
-    { name }
-  );
+  const response = await apiClient.post<
+    ApiEnvelope<{ genreId: string; name: string; description?: string; usageCount: number }>
+  >('/admin/taxonomy/genres', { name });
   return response.data.data;
 }
 
 export async function createTag(name: string) {
-  const response = await apiClient.post<ApiEnvelope<{ tagId: string; name: string }>>(
-    '/admin/taxonomy/tags',
-    { name }
-  );
+  const response = await apiClient.post<
+    ApiEnvelope<{ tagId: string; name: string; usageCount: number }>
+  >('/admin/taxonomy/tags', { name });
   return response.data.data;
 }
 
@@ -240,12 +244,14 @@ export async function getModerationReview(reviewId: string) {
 export async function resolveModerationReview(
   reviewId: string,
   decision: 'APPROVED' | 'REJECTED' | 'REVISION_REQUIRED',
-  reason?: string
+  reason?: string,
+  action?: string
 ) {
   const response = await apiClient.post<ApiEnvelope<{ reviewId: string; status: string }>>(
     `/admin/moderation/reviews/${reviewId}/resolve`,
     {
       decision,
+      action,
       reason: reason?.trim() || undefined
     }
   );

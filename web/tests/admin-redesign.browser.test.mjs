@@ -1,3 +1,4 @@
+import { adminOperationsCases } from './admin-operations.cases.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
@@ -23,7 +24,7 @@ const id = (key) => {
 
 test(
   'admin redesign: real API, isolated seed, browser flows and responsive themes',
-  { skip: process.env.RUN_ADMIN_BROWSER_TESTS !== '1', timeout: 240000 },
+  { skip: process.env.RUN_ADMIN_BROWSER_TESTS !== '1', timeout: 360000 },
   async (t) => {
     const dbName = `ephurin_test_admin_ui_${Date.now()}`;
     const adminUrl =
@@ -220,7 +221,7 @@ test(
       page.on('pageerror', (e) => errors.push(e.message));
       const goto = async (route) => {
         await page.goto(`http://localhost:5174${route}`);
-        await page.locator('main h1').waitFor();
+        await page.locator('main h1, .admin-appeal-portal h1').waitFor();
       };
       await t.test('browser: compact IDs copy full UUIDs and preserve routing', async () => {
         for (const route of ['/admin/moderation', '/admin/reports']) {
@@ -265,11 +266,11 @@ test(
         await goto('/admin/novels');
         await page.locator('tbody tr').first().waitFor();
         assert.equal(await page.locator('td.admin-table-title small').count(), 0);
-        await page.getByLabel('Tìm kiếm', {exact:true}).fill('admin_seed_12');
-        await page.getByLabel('Hiện truyện đã gỡ', {exact:true}).check();
-        const removed = page.locator('tbody tr').filter({hasText:'@admin_seed_12'});
-        await removed.getByText('Đã gỡ', {exact:true}).waitFor();
-        await removed.getByText('Đã xuất bản', {exact:true}).waitFor();
+        await page.getByLabel('Tìm kiếm', { exact: true }).fill('admin_seed_12');
+        await page.getByLabel('Hiện truyện đã gỡ', { exact: true }).check();
+        const removed = page.locator('tbody tr').filter({ hasText: '@admin_seed_12' });
+        await removed.getByText('Đã gỡ', { exact: true }).waitFor();
+        await removed.getByText('Đã xuất bản', { exact: true }).waitFor();
         await goto(`/admin/novels/${id('novel:1')}`);
         await page.locator('.admin-novel-cover img').waitFor();
         assert.equal(await page.locator('.admin-novel-cover img').getAttribute('src'), cover);
@@ -337,7 +338,11 @@ test(
             ['moderation', '/admin/moderation'],
             ['reports', '/admin/reports'],
             ['moderation-detail', `/admin/moderation/${id('review:1')}`],
-            ['withdraws', '/admin/withdraws']
+            ['withdraws', '/admin/withdraws'],
+            ['audit', '/admin/audit'],
+            ['appeals', '/admin/appeals'],
+            ['user-detail', `/admin/users/${id('user:13')}`],
+            ['reconciliation', `/admin/withdraws/${id('withdraw:1')}`]
           ];
           await mkdir(output, { recursive: true });
           for (const [name, route] of routes) {
@@ -391,6 +396,7 @@ test(
         const row = page.locator('tbody tr').filter({ hasText: '@admin_seed_13' });
         await row.waitFor();
         await row.getByRole('button', { name: 'Khóa tài khoản', exact: true }).click();
+        await page.getByRole('dialog').locator('textarea').fill('Admin operations lock test');
         await page
           .getByRole('dialog')
           .getByRole('button', { name: 'Khóa tài khoản', exact: true })
@@ -398,6 +404,7 @@ test(
         await row.getByRole('button', { name: 'Mở khóa', exact: true }).waitFor();
         assert.equal((await api('/admin/users?q=admin_seed_13')).data[0].status, 'LOCKED');
         await row.getByRole('button', { name: 'Mở khóa', exact: true }).click();
+        await page.getByRole('dialog').locator('textarea').fill('Admin operations unlock test');
         await page
           .getByRole('dialog')
           .getByRole('button', { name: 'Mở khóa tài khoản', exact: true })
@@ -450,6 +457,7 @@ test(
         const hidden = await api('/admin/novels?includeDeleted=false');
         assert.ok(!hidden.data.some((n) => n.novelId === id('novel:1')));
         await page.getByRole('button', { name: 'Khôi phục truyện', exact: true }).click();
+        await page.getByRole('dialog').locator('textarea').fill('Admin operations restore test');
         await page
           .getByRole('dialog')
           .getByRole('button', { name: 'Khôi phục', exact: true })
@@ -673,6 +681,13 @@ test(
           );
         }
       );
+      const operationsDb = new Client({ connectionString: pgUrl.toString() });
+      await operationsDb.connect();
+      try {
+        await adminOperationsCases({ t, api, pg: operationsDb, mongo, id, page, goto, output });
+      } finally {
+        await operationsDb.end();
+      }
     } finally {
       await browser?.close();
       for (const child of children) {

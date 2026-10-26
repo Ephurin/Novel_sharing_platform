@@ -16,6 +16,7 @@ const navItems: Array<{ to: string; label: string; roles: UserRole[] }> = [
   { to: '/reader/history', label: 'History', roles: ['READER', 'AUTHOR'] },
   { to: '/wallet', label: 'Wallet', roles: ['READER', 'AUTHOR'] },
   { to: '/notifications', label: 'Notifications', roles: ['READER', 'AUTHOR'] },
+  { to: '/appeals', label: 'Khiếu nại', roles: ['READER', 'AUTHOR'] },
   { to: '/profile/me', label: 'Profile', roles: ['READER', 'AUTHOR'] },
   { to: '/admin', label: 'Admin', roles: ['ADMIN'] },
   { to: '/admin/novels', label: 'Novels', roles: ['ADMIN'] },

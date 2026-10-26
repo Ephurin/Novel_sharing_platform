@@ -23,6 +23,11 @@ export const dateTime = (value?: string | null) =>
       })
     : '—';
 export const labels: Record<string, string> = {
+  WARN: 'Cảnh báo',
+  HIDE: 'Ẩn nội dung',
+  LOCK: 'Khóa tài khoản',
+  OPEN: 'Chờ xem xét',
+  ACCEPTED: 'Đã chấp nhận',
   ACTIVE: 'Hoạt động',
   LOCKED: 'Đã khóa',
   DELETED: 'Đã xóa',
@@ -173,6 +178,7 @@ export function AdminConfirm({
   destructive = false,
   confirmLabel,
   pending,
+  disabled = false,
   error,
   onClose,
   onConfirm
@@ -186,6 +192,7 @@ export function AdminConfirm({
   destructive?: boolean;
   confirmLabel: string;
   pending?: boolean;
+  disabled?: boolean;
   error?: unknown;
   onClose: () => void;
   onConfirm: () => void;
@@ -221,7 +228,7 @@ export function AdminConfirm({
             color={destructive ? 'red' : undefined}
             className={destructive ? 'admin-danger' : undefined}
             loading={pending}
-            disabled={pending || (required && !reason?.trim())}
+            disabled={disabled || pending || (required && !reason?.trim())}
             onClick={onConfirm}
           >
             {confirmLabel}

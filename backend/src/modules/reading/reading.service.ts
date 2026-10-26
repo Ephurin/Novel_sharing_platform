@@ -1,3 +1,4 @@
+import { isContentAdmin } from '../../core/security/auth-context.js';
 import { assertActiveAccount } from '../../core/security/active-account.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
@@ -73,7 +74,7 @@ export async function getReaderChapter(chapterId: string, auth?: AuthContext) {
     throw new AppError(404, 'CONTENT_001', 'Content not found');
   }
 
-  const owner = auth && (auth.userId === chapter.authorId || auth.role === 'ADMIN');
+  const owner = auth && (auth.userId === chapter.authorId || isContentAdmin(auth));
   if (auth && chapter.isVip) await assertActiveAccount(auth);
   if (chapter.isVip && !owner && (!auth || !(await userHasChapterUnlock(auth.userId, chapterId)))) {
     throw new AppError(402, 'PAYMENT_002', 'Chapter unlock required');
