@@ -103,6 +103,7 @@ export type AdminNovelChapter = {
 };
 
 export type AdminNovel = {
+  coverImageUrl?: string | null;
   genres?: Array<{ genreId: string; name: string }>;
   novelId: string;
   authorId: string;

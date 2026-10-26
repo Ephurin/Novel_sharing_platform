@@ -3,7 +3,7 @@
   min-height: 100vh;
   background: var(--sc-bg);
   color: var(--sc-text);
-  font: 14px/1.6 var(--sc-font);
+  font: 14px/22px var(--sc-font);
 }
 .admin-shell *,
 .admin-confirm * {
@@ -158,6 +158,9 @@
   margin: 4px 0 0;
   color: var(--sc-text-muted);
 }
+.admin-page-header > h2 {
+  margin: 0;
+}
 .admin-shell h2 {
   font-size: 18px;
   line-height: 26px;
@@ -190,32 +193,40 @@
 .admin-toolbar .mantine-Select-root {
   min-width: 150px;
 }
-.admin-shell .mantine-Input-label {
+.admin-shell .mantine-Input-label,
+.admin-confirm .mantine-Input-label {
   font-size: 13px;
   font-weight: 500;
+  line-height: 20px;
 }
 .admin-shell .mantine-Input-input {
   height: 40px;
   font-size: 14px;
 }
-.admin-shell .mantine-Button-root {
+.admin-shell .mantine-Button-root,
+.admin-confirm .mantine-Button-root {
   height: 36px;
   font-size: 14px;
   font-weight: 600;
+  line-height: 20px;
   border-radius: 8px;
 }
-.admin-shell .mantine-Button-root[data-size='xs'] {
+.admin-shell .mantine-Button-root[data-size='xs'],
+.admin-shell td .mantine-Button-root {
   height: 30px;
-  font-size: 12px;
+  font-size: 14px;
 }
 .admin-table-scroll {
   overflow-x: auto;
+  max-width: 100%;
+  scrollbar-gutter: stable;
 }
 .admin-shell table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
   font-size: 13px;
+  line-height: 20px;
 }
 .admin-shell th {
   background: var(--sc-surface-subtle);
@@ -223,11 +234,16 @@
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
+  height: 44px;
+  line-height: 18px;
 }
 .admin-shell :is(th, td) {
-  padding: 14px 12px;
+  padding: 12px;
   border-bottom: 1px solid var(--sc-border);
   vertical-align: middle;
+}
+.admin-shell td {
+  height: 52px;
 }
 .admin-shell tbody tr:hover {
   background: var(--sc-surface-subtle);
@@ -244,11 +260,125 @@
   min-width: 220px;
   max-width: 340px;
 }
-.admin-shell .admin-table-title small {
+.admin-novel-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
+  font-size: 14px;
+  line-height: 22px;
+  font-weight: 600;
+}
+.admin-novel-title:hover {
+  color: var(--sc-primary-text);
+  text-decoration: underline;
+}
+.admin-id-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--sc-text-muted);
+}
+.admin-id-value > span {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.admin-id-value.is-compact > span {
   white-space: nowrap;
-  max-width: 300px;
+}
+.admin-id-value .material-symbols-outlined {
+  font-size: 16px;
+}
+.admin-metadata {
+  color: var(--sc-text-muted);
+  font-size: 12px;
+  line-height: 18px;
+  padding: 16px 0;
+}
+.admin-metadata summary {
+  cursor: pointer;
+  font-weight: 600;
+  width: fit-content;
+}
+.admin-metadata dl {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 12px 20px;
+  margin: 16px 0 0;
+  align-items: center;
+}
+.admin-metadata dt {
+  font-weight: 500;
+}
+.admin-metadata dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.admin-novel-overview {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+.admin-novel-summary {
+  flex: 1;
+  min-width: 0;
+}
+.admin-novel-summary h2 {
+  margin-bottom: 8px;
+  font-size: 24px;
+  line-height: 32px;
+  overflow-wrap: anywhere;
+}
+.admin-novel-summary p {
+  margin: 8px 0;
+}
+.admin-novel-stats {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.admin-novel-cover {
+  flex: 0 0 112px;
+  width: 112px;
+  aspect-ratio: 2/3;
+  background: var(--sc-surface-subtle);
+  border: 1px solid var(--sc-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.admin-novel-cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.admin-novel-cover > div {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  text-align: center;
+  color: var(--sc-text-muted);
+  font-size: 12px;
+  line-height: 18px;
+}
+.admin-review-layout {
+  align-items: start;
+}
+.admin-evidence-list {
+  padding-left: 20px;
+  overflow-wrap: anywhere;
+}
+.admin-evidence-list li + li {
+  margin-top: 8px;
 }
 .admin-id {
   font-size: 12px;
@@ -264,6 +394,7 @@
   line-height: 16px;
   font-weight: 500;
   white-space: nowrap;
+  min-height: 22px;
   background: var(--sc-neutral-bg);
   color: var(--sc-text-muted);
 }
@@ -311,7 +442,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  font: 14px/1.6 var(--sc-font);
+  font: 14px/22px var(--sc-font);
   color: var(--sc-text);
 }
 .admin-confirm .mantine-Input-label {
@@ -340,6 +471,11 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24px;
+  margin-bottom: 24px;
+}
+.admin-grid-two > .admin-panel,
+.admin-review-layout > div > .admin-panel:last-child {
+  margin-bottom: 0;
 }
 .admin-grid-four {
   display: grid;
@@ -538,6 +674,24 @@
   }
   .admin-page-header h1 {
     font-size: 24px;
+  }
+  .admin-novel-overview {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .admin-novel-cover {
+    flex-basis: 80px;
+    width: 80px;
+  }
+  .admin-novel-summary {
+    flex-basis: calc(100% - 96px);
+  }
+  .admin-metadata dl {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+  .admin-metadata dd {
+    margin-bottom: 8px;
   }
 }
 @media (max-width: 420px) {

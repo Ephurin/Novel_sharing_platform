@@ -1,6 +1,16 @@
 import type { ReactNode } from 'react';
 import { useEffect } from 'react';
-import { Alert, Button, Group, Modal, Pagination, Textarea } from '@mantine/core';
+import {
+  ActionIcon,
+  Alert,
+  Button,
+  CopyButton,
+  Group,
+  Modal,
+  Pagination,
+  Textarea,
+  Tooltip
+} from '@mantine/core';
 import { AdminIcon } from './AdminShell';
 
 export const number = (value: number) => value.toLocaleString('vi-VN');
@@ -40,9 +50,39 @@ export const options = (values: string[], all = 'Tất cả') => [
   { value: '', label: all },
   ...values.map((value) => ({ value, label: labels[value] || value }))
 ];
-export function Status({ value }: { value: string }) {
+export function Status({ value, label }: { value: string; label?: string }) {
   return (
-    <span className={`admin-status status-${value.toLowerCase()}`}>{labels[value] || value}</span>
+    <span className={`admin-status status-${value.toLowerCase()}`}>
+      {label || labels[value] || value}
+    </span>
+  );
+}
+export function AdminId({
+  value,
+  label,
+  compact = true
+}: {
+  value: string;
+  label: string;
+  compact?: boolean;
+}) {
+  const abbreviated =
+    compact && /^[\da-f]{8}-(?:[\da-f]{4}-){3}[\da-f]{12}$/i.test(value)
+      ? `${value.slice(0, 8)}…${value.slice(-4)}`
+      : value;
+  return (
+    <span className={`admin-id-value ${compact ? 'is-compact' : ''}`}>
+      <span title={value}>{abbreviated}</span>
+      <CopyButton value={value}>
+        {({ copied, copy }) => (
+          <Tooltip label={copied ? 'Đã sao chép' : value} withArrow>
+            <ActionIcon variant="subtle" size={28} onClick={copy} aria-label={`Sao chép ${label}`}>
+              <AdminIcon name={copied ? 'check' : 'content_copy'} />
+            </ActionIcon>
+          </Tooltip>
+        )}
+      </CopyButton>
+    </span>
   );
 }
 export function AdminHeader({
@@ -181,7 +221,7 @@ export function AdminConfirm({
             color={destructive ? 'red' : undefined}
             className={destructive ? 'admin-danger' : undefined}
             loading={pending}
-            disabled={required && !reason?.trim()}
+            disabled={pending || (required && !reason?.trim())}
             onClick={onConfirm}
           >
             {confirmLabel}
