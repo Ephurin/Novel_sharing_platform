@@ -37,6 +37,9 @@ export type ModerationReviewFilters = {
 };
 
 export type ModerationReviewDetail = ModerationReview & {
+  reviewedAt?: string | null;
+  target?: { title?: string; content?: string | null; username?: string; novelTitle?: string; chapterTitle?: string; novelId?: string; chapterId?: string; status?: string; deletedAt?: string | null; isSubmittedVersion?: boolean } | null;
+  reportReasons?: Array<{ reason:string; count:number }>;
   evidenceSummary: {
     matchedRules: string[];
     reportCount: number;
@@ -187,10 +190,10 @@ export async function getModerationReview(reviewId: string) {
   return response.data.data;
 }
 
-export async function resolveModerationReview(reviewId: string, decision: 'APPROVED' | 'REJECTED' | 'REVISION_REQUIRED') {
+export async function resolveModerationReview(reviewId: string, decision: 'APPROVED' | 'REJECTED' | 'REVISION_REQUIRED', reason?: string) {
   const response = await apiClient.post<ApiEnvelope<{ reviewId: string; status: string }>>(`/admin/moderation/reviews/${reviewId}/resolve`, {
     decision,
-    reason: `Resolved as ${decision} from Phase 8 web UI`
+    reason: reason?.trim() || undefined
   });
   return response.data.data;
 }

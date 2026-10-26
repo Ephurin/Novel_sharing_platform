@@ -1,3 +1,4 @@
+import { AdminModerationDetailPage } from '../features/admin/AdminModerationDetailPage';
 import { AdminReportsPage } from '../features/admin/AdminReportsPage';
 import { AdminModerationPage } from '../features/admin/AdminModerationPage';
 import { AdminTaxonomyPage } from '../features/admin/AdminTaxonomyPage';
@@ -13,7 +14,6 @@ import { AuthorIdeShell } from './layout/AuthorIdeShell';
 import { AuthorWritingIde } from '../features/author-ide/AuthorWritingIde';
 import { WebAppShell } from './layout/WebAppShell';
 import {
-  AdminModerationDetailPage,
   AdminPage
 } from '../features/admin/AdminPage';
 import { AuthorNovelMetadataPage } from '../features/author-projects/AuthorNovelMetadataPage';

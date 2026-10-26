@@ -1,4 +1,5 @@
 import type { PoolClient } from 'pg';
+import { getAdminReviewTarget } from './admin-target.repository.js';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
@@ -205,9 +206,11 @@ export async function getModerationReview(reviewId: string) {
     throw new AppError(404, 'ADMIN_001', 'Review item not found');
   }
 
-  const [evidence, reportCount] = await Promise.all([
+  const [evidence, reportCount, reports, target] = await Promise.all([
     findModerationEvidence(review.evidence_id),
-    countReportsForReview(reviewId)
+    countReportsForReview(reviewId),
+    listReportsForReview(reviewId),
+    getAdminReviewTarget(review.target_type, review.target_id)
   ]);
 
   return {
@@ -216,6 +219,11 @@ export async function getModerationReview(reviewId: string) {
     targetId: review.target_id,
     status: review.status,
     source: review.source,
+    createdAt: review.created_at,
+    reason: review.reason,
+    reviewedAt: review.reviewed_at,
+    target: review.submitted_content ? { ...target, title:review.submitted_content.title, content:review.submitted_content.content, isSubmittedVersion:true } : target,
+    reportReasons: Object.entries(reports.reduce<Record<string, number>>((counts, report) => { counts[report.reason] = (counts[report.reason] ?? 0) + 1; return counts; }, {})).map(([reason,count]) => ({ reason,count })),
     evidenceSummary: {
       matchedRules: evidence?.matchedRules ?? [],
       reportCount,
