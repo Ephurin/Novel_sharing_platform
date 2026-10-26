@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getAdminList, type ModerationReview } from './admin-api';
 import {
   AdminHeader,
+  AdminId,
   AdminPagination,
   AdminPanel,
   labels,
@@ -117,11 +118,13 @@ export function AdminModerationPage({ reports = false }: { reports?: boolean }) 
                     key={review.reviewId}
                     data-testid={`moderation-review-card-${review.reviewId}`}
                   >
-                    <td className="admin-id" title={review.reviewId}>
-                      {review.reviewId}
+                    <td>
+                      <AdminId value={review.reviewId} label="mã kiểm duyệt" />
                     </td>
                     <td>{labels[review.targetType]}</td>
-                    <td className="admin-id">{review.targetId}</td>
+                    <td>
+                      <AdminId value={review.targetId} label="mã đối tượng" />
+                    </td>
                     <td>
                       {reports
                         ? `${number(review.reportCount ?? 0)} báo cáo`
