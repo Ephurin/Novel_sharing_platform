@@ -49,11 +49,22 @@ if not DEMO_PASSWORD:
 
 READER_EMAIL = "reader04@example.com"
 READER_PASSWORD = DEMO_PASSWORD
-READER_USER_ID = "077e20a2-e26d-466a-bf3a-1811d037df50"
+# Canonical fixture ids; override for a disposable local database where seeded ids differ.
+READER_USER_ID = os.environ.get("EPHURIN_E2E_READER_USER_ID", "077e20a2-e26d-466a-bf3a-1811d037df50")
 
 TARGET_NOVEL_ID = "81b923d7-5507-48ea-9a84-5303fd1de5f4"
 TARGET_NOVEL_TITLE = "Ashenhold - Sample Story"
-TARGET_AUTHOR_ID = "51ca9a66-d798-4f6c-8518-11c085678e4f"
+TARGET_AUTHOR_ID = os.environ.get("EPHURIN_E2E_AUTHOR_USER_ID", "51ca9a66-d798-4f6c-8518-11c085678e4f")
+
+# Signed-in role from the shell's stable session hook; falls back to the legacy topbar text so the
+# runner works on both the StoryCraft shell and the older WebAppShell.
+SESSION_ROLE_JS = r"""(() => {
+  const marker = document.querySelector('[data-testid="shell-session"]');
+  if (marker) return marker.dataset.userRole || '';
+  const text = document.querySelector('.web-topbar')?.innerText || '';
+  const match = text.match(/\b(READER|AUTHOR|ADMIN)\b/);
+  return match ? match[1] : '';
+})()"""
 
 TARGET_CHAPTER_ID = "c660bede-0493-4a46-97f2-6d01c8ddd3db"
 TARGET_CHAPTER_NUMBER = 1
@@ -524,8 +535,9 @@ async def main():
         await browser.wait_for_condition("window.location.pathname === '/reader'", 15.0)
         await asyncio.sleep(1.0)
 
-        role_text = await browser.evaluate("document.querySelector('.web-topbar')?.innerText || ''")
-        assert "READER" in role_text, f"Expected READER in topbar, got: {role_text}"
+        await browser.wait_for_condition(f"{SESSION_ROLE_JS} === 'READER'", 10.0)
+        role_text = await browser.evaluate(SESSION_ROLE_JS)
+        assert role_text == "READER", f"Expected READER session role, got: {role_text}"
 
         img_a = await browser.screenshot("interact-a-login.png")
 
