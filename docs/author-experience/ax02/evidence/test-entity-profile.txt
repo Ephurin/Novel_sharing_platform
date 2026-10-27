@@ -1,0 +1,131 @@
+Source SHA: 595ef1bd0d060a02140f7659560ce6e9bb242aeb
+Tree SHA: f2a9ba4758383d5f135f14b1753bf062eef9a454
+CWD: web
+Command: npm run test:entity-profile
+
+> ephurin-web@0.1.0 test:entity-profile
+> tsx --test tests/entity-profile.test.ts && node --test tests/entity-profile.browser.test.mjs
+
+TAP version 13
+# Subtest: AX02 partial Canon patch, clear, note-only, no-op and cutoff semantics
+ok 1 - AX02 partial Canon patch, clear, note-only, no-op and cutoff semantics
+  ---
+  duration_ms: 1.3992
+  ...
+# Subtest: AX02 Unicode code points and bounds, control characters and strict cutoff
+ok 2 - AX02 Unicode code points and bounds, control characters and strict cutoff
+  ---
+  duration_ms: 1.2224
+  ...
+# Subtest: AX02 typed Gateway API GET/PATCH, stable retry key and fail-closed payload
+ok 3 - AX02 typed Gateway API GET/PATCH, stable retry key and fail-closed payload
+  ---
+  duration_ms: 3.8147
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 373.8302
+TAP version 13
+# Subtest: AX02 mounted AuthorMemoryPanel profile component (MOCK HTTP ONLY)
+    # Subtest: GET, Canon PATCH, mock server readback, reload and homonym UUID isolation
+    ok 1 - GET, Canon PATCH, mock server readback, reload and homonym UUID isolation
+      ---
+      duration_ms: 1681.8142
+      ...
+    # Subtest: note-only PATCH, Unicode bounds and private cache/storage/log isolation
+    ok 2 - note-only PATCH, Unicode bounds and private cache/storage/log isolation
+      ---
+      duration_ms: 893.6322
+      ...
+    # Subtest: success requires GET readback; readback failure retries GET without another PATCH
+    ok 3 - success requires GET readback; readback failure retries GET without another PATCH
+      ---
+      duration_ms: 1228.1194
+      ...
+    # Subtest: 409 preserves draft; explicit server reconciliation uses fresh versions and key
+    ok 4 - 409 preserves draft; explicit server reconciliation uses fresh versions and key
+      ---
+      duration_ms: 1146.9015
+      ...
+    # Subtest: ambiguous transport failure retries exactly once with same key/body; new edit gets new key
+    ok 5 - ambiguous transport failure retries exactly once with same key/body; new edit gets new key
+      ---
+      duration_ms: 1089.5223
+      ...
+    # Subtest: 401 is explicit; auth failures clear private view
+    ok 6 - 401 is explicit; auth failures clear private view
+      ---
+      duration_ms: 968.5664
+      ...
+    # Subtest: 403 is explicit; auth failures clear private view
+    ok 7 - 403 is explicit; auth failures clear private view
+      ---
+      duration_ms: 976.3475
+      ...
+    # Subtest: 404 is explicit; auth failures clear private view
+    ok 8 - 404 is explicit; auth failures clear private view
+      ---
+      duration_ms: 920.8756
+      ...
+    # Subtest: 422 is explicit; auth failures clear private view
+    ok 9 - 422 is explicit; auth failures clear private view
+      ---
+      duration_ms: 976.7797
+      ...
+    # Subtest: 503 is explicit; auth failures clear private view
+    ok 10 - 503 is explicit; auth failures clear private view
+      ---
+      duration_ms: 923.3111
+      ...
+    # Subtest: late private GET discarded on account switch
+    ok 11 - late private GET discarded on account switch
+      ---
+      duration_ms: 884.6956
+      ...
+    # Subtest: late private GET discarded on novel switch
+    ok 12 - late private GET discarded on novel switch
+      ---
+      duration_ms: 954.3175
+      ...
+    # Subtest: late private GET discarded on entity switch
+    ok 13 - late private GET discarded on entity switch
+      ---
+      duration_ms: 1038.458
+      ...
+    # Subtest: in-flight PATCH stays bound on account switch
+    ok 14 - in-flight PATCH stays bound on account switch
+      ---
+      duration_ms: 912.1272
+      ...
+    # Subtest: in-flight PATCH stays bound on novel switch
+    ok 15 - in-flight PATCH stays bound on novel switch
+      ---
+      duration_ms: 1050.8544
+      ...
+    # Subtest: in-flight PATCH stays bound on entity switch
+    ok 16 - in-flight PATCH stays bound on entity switch
+      ---
+      duration_ms: 1035.6908
+      ...
+    1..16
+ok 1 - AX02 mounted AuthorMemoryPanel profile component (MOCK HTTP ONLY)
+  ---
+  duration_ms: 18112.5671
+  ...
+1..1
+# tests 17
+# suites 0
+# pass 17
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 18521.5912
+
+EXIT_CODE=0
