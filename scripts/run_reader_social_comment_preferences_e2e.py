@@ -463,12 +463,14 @@ async def main():
             cur.execute("DELETE FROM likes WHERE user_id = %s AND novel_id = %s", (READER_USER_ID, TARGET_NOVEL_ID))
             cur.execute("DELETE FROM follows WHERE follower_id = %s AND author_id = %s", (READER_USER_ID, TARGET_AUTHOR_ID))
 
-            # Query initial reading preferences
+            # Query initial reading preferences, then reset them so Interact-E always changes values
+            # (re-selecting an already chosen option must not be what the run depends on).
             cur.execute(
                 "SELECT font_family, font_size, background, line_height FROM reading_preferences WHERE user_id = %s",
                 (READER_USER_ID,)
             )
             initial_pref = cur.fetchone()
+            cur.execute("DELETE FROM reading_preferences WHERE user_id = %s", (READER_USER_ID,))
             conn.commit()
 
     # Clean existing comments for reader04 on target chapter in MongoDB
