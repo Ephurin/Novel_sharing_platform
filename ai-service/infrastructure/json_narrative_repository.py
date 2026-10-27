@@ -541,6 +541,7 @@ class JsonNarrativeRepository:
         limit_recent_events: int = 20,
         token_budget: int | None = None,
         enforce_token_budget: bool = True,
+        profile_entity_ids: tuple[str, ...] | None = None,
     ) -> WritingContextPackage:
         from infrastructure.in_memory_narrative_repository import InMemoryNarrativeRepository
         memory = InMemoryNarrativeRepository()
@@ -552,6 +553,7 @@ class JsonNarrativeRepository:
             limit_recent_events=limit_recent_events,
             token_budget=token_budget,
             enforce_token_budget=enforce_token_budget,
+            profile_entity_ids=profile_entity_ids,
         )
 
     def record_revision_provenance(

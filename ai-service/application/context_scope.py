@@ -76,6 +76,9 @@ class BalancedRelevanceScopeBuilder:
                     if entity_id:
                         explicit_ids.add(entity_id)
 
+        if len(explicit_ids) != 1:
+            explicit_ids.clear()
+
         wanted = locked_ids | query_ids | semantic_ids | recent_ids | explicit_ids
 
         entities = tuple(

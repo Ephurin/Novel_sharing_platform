@@ -75,24 +75,30 @@ class WritingService:
         semantic_limit: int | None = None,
     ) -> WritingContextPackage:
         """Fetch and structure narrative context for writing assistance."""
-        package = self._repository.get_structured_context(
-            story_id=story_id,
-            chapter_number=chapter_number,
-            character_name=character_name,
-            limit_recent_events=limit_recent_events,
-            token_budget=None,
-            enforce_token_budget=False,
-        )
-
         retrieval_result = None
         if self._semantic_retriever is not None and semantic_query and semantic_query.strip():
             retrieval_result = self._semantic_retriever.retrieve(
-                story_id,
-                query_text=semantic_query,
-                chapter_number=chapter_number,
-                limit=semantic_limit,
-                tenant_id=tenant_id,
+                story_id, query_text=semantic_query, chapter_number=chapter_number,
+                limit=semantic_limit, tenant_id=tenant_id,
             )
+        profile_selection = {}
+        if retrieval_result is not None and getattr(retrieval_result, "hybrid_signals_resolved", False):
+            # Resolved canonical query IDs, never all similarity matches.
+            profile_selection['profile_entity_ids'] = tuple(retrieval_result.query_entity_ids)
+        elif semantic_query and chapter_number is not None:
+            # Author profiles also work without an embedding runtime. Reuse the
+            # exact same scoped UUID resolver; never infer identity from similarity.
+            resolver = getattr(self._repository, 'resolve_profile_query_ids', None)
+            configured_tenant = getattr(self._repository, '_tenant_id', None)
+            if resolver is not None and str(configured_tenant) == str(tenant_id):
+                profile_selection['profile_entity_ids'] = resolver(
+                    story_id, query_text=semantic_query, chapter_number=chapter_number)
+        package = self._repository.get_structured_context(
+            story_id=story_id, chapter_number=chapter_number, character_name=character_name,
+            limit_recent_events=limit_recent_events, token_budget=None,
+            enforce_token_budget=False, **profile_selection,
+        )
+        if retrieval_result is not None:
             semantic_memories = tuple(
                 self._semantic_match_payload(match) for match in retrieval_result.matches
             )
@@ -148,10 +154,12 @@ class WritingService:
             if not package.entities or scope.entity_count_after > 0:
                 return self._context_budget_router.route(scope)
 
-        return self._context_packer.pack(
-            package,
-            maximum=token_budget,
-        )
+        packed = self._context_packer.pack(package, maximum=token_budget)
+        if packed.token_budget.get('protected_overflow') or packed.token_budget.get('budget_overflow'):
+            raise ContextRoutingUnresolvedError(
+                estimated_tokens=packed.token_budget['used'],
+                max_tier=packed.token_budget['maximum'], policy='legacy-v1')
+        return packed
 
     def _balanced_scope_eligible(
         self,

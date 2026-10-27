@@ -1768,6 +1768,16 @@ class PostgresNarrativeRepository:
             session.flush()
             return self._to_writing_job(record)
 
+    def resolve_profile_query_ids(self, story_id: str, *, query_text: str, chapter_number: int) -> tuple[str, ...]:
+        # Same canonical identity resolver as semantic ranking; no embedding call,
+        # new store, index or separate name-matching policy for the fallback path.
+        from infrastructure.postgres_semantic_memory_repository import PostgresSemanticMemoryRepository
+        return PostgresSemanticMemoryRepository(
+            self._session_factory, tenant_id=self._tenant_id,
+        ).get_hybrid_ranking_signals(
+            story_id, query_text=query_text, chapter_number=chapter_number,
+        ).query_entity_ids
+
     def get_structured_context(
         self,
         story_id: str,
@@ -1777,6 +1787,7 @@ class PostgresNarrativeRepository:
         limit_recent_events: int = 20,
         token_budget: int | None = None,
         enforce_token_budget: bool = True,
+        profile_entity_ids: tuple[str, ...] | None = None,
     ) -> WritingContextPackage:
         novel_id = self._novel_id(story_id)
         with session_scope(self._session_factory) as session:
@@ -2011,6 +2022,14 @@ class PostgresNarrativeRepository:
                 ),
             )
 
+            # UUID signals are authoritative. A name alone must resolve uniquely
+            # across the confirmed registry, not just the temporally filtered list.
+            named_ids = {str(e.id) for e in raw_entities if character_name
+                         and e.canonical_name.casefold() == character_name.strip().casefold()}
+            explicit_ids = named_ids if len(named_ids) == 1 else set()
+            selected_profile_ids = (set(profile_entity_ids) if profile_entity_ids is not None
+                                    else explicit_ids if character_name else set(recent_scope_participant_entity_ids))
+
             def _all_entity_outputs() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
                 entities_all: list[dict[str, Any]] = []
                 states_all: list[dict[str, Any]] = []
@@ -2028,7 +2047,7 @@ class PostgresNarrativeRepository:
                         "location": location,
                         "is_locked": entity.is_locked,
                         "approved_profile": (approved_profile(entity.author_profile, chapter_number)
-                            if e_id in recent_scope_participant_entity_ids or (character_name and entity.canonical_name.casefold() == character_name.casefold()) else {}),
+                            if e_id in selected_profile_ids else {}),
                     })
                     states_all.append({
                         "entity_id": e_id,

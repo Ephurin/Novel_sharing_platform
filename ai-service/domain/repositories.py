@@ -144,6 +144,7 @@ class NarrativeRepository(Protocol):
         limit_recent_events: int = 20,
         token_budget: int | None = None,
         enforce_token_budget: bool = True,
+        profile_entity_ids: tuple[str, ...] | None = None,
     ) -> WritingContextPackage: ...
 
     def record_revision_provenance(
