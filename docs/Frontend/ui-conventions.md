@@ -14,33 +14,46 @@ Tài liệu này ghi lại các quy ước dùng chung của giao diện web hi�
 | `web/tailwind.config.cjs` | Ánh xạ class Tailwind (`primary-*`, `stone-*`, `surface-*`, `red/amber/emerald-*`) sang biến `--sc-*` |
 
 ### Màu đang nằm ở hai nơi
-`refinements.css` ghi đè các biến chế độ sáng sau: `--sc-primary-rgb`, `--sc-primary-hover-rgb`, `--sc-primary-text-rgb`, `--sc-on-primary-rgb`, `--sc-control-border`, `--sc-control-border-hover`.
+`refinements.css` ghi đè các biến chế độ sáng sau: `--sc-primary-rgb`, `--sc-primary-hover-rgb`, `--sc-primary-text-rgb`, `--sc-primary-text-strong-rgb`, `--sc-control-border`, `--sc-control-border-hover`.
 
 - Muốn đổi màu cam hoặc màu viền ở chế độ sáng: **sửa trong `refinements.css`**. Sửa trong `storycraft.css` sẽ không có tác dụng.
-- Chế độ tối vẫn lấy từ `storycraft.css` (riêng viền và màu chữ trên nút cam được chỉnh trong `refinements.css`).
+- Chế độ tối vẫn lấy từ `storycraft.css`. Riêng viền ô nhập và `--sc-primary-text-strong-rgb` được chỉnh trong `refinements.css`.
+- Màu chữ trên nút cam (`--sc-on-primary-rgb`, màu tối `#241915`) chỉ đặt trong `storycraft.css` và dùng cho cả hai chế độ.
 - Việc cần làm sau: gộp các giá trị này về `storycraft.css` để chỉ còn một nguồn.
 
-Màu hiện tại (chế độ sáng): cam `#dc8363`, cam khi rê chuột `#c96f4f`, chữ cam `#b85f42`, chữ trên nút cam màu trắng, viền ô nhập `#ddd8d0`.
+Màu hiện tại (chế độ sáng):
+- Cam `#dc8363`, cam khi rê chuột `#c96f4f`.
+- Chữ cam `#a9573a`; chữ cam của nút nhạt khi rê chuột `#9b4930`.
+- Chữ trên nút cam dùng màu tối `--sc-on-primary`, **không dùng chữ trắng**.
+- Viền ô nhập `#ddd8d0`.
 
 Không viết mã màu cứng trong component. Dùng class Tailwind (`bg-primary-600`, `text-stone-500`...) hoặc `var(--sc-*)`.
+
+### Độ tương phản
+- Chữ thường phải đạt **≥ 4,5:1** so với nền (WCAG AA).
+- Chữ trắng trên nền cam `#dc8363` chỉ đạt khoảng 2,8:1. Vì vậy nút cam và mọi nền cam đặc dùng chữ tối `--sc-on-primary`: đạt 6,1:1, và 4,8:1 khi rê chuột.
+- Mọi phần tử `.bg-primary`, `.bg-primary-500/600/700` bên trong theme đều bị ép sang chữ tối, kể cả khi markup ghi `text-white`. Điều này áp dụng cho số đếm, avatar và tab đang chọn.
+- `npm run test:contrast` (trong `web/`, file `web/tests/contrast.test.mjs`) đọc token từ `storycraft.css` rồi `refinements.css` và kiểm 9 cặp chữ/nền ở cả sáng lẫn tối. **Đổi token màu nào thì chạy lại**; thêm cặp mới vào `pairs` nếu bạn tạo nhãn trên một nền mới.
+- Test chưa kiểm `--sc-muted-rgb`. Xem mục 8.
 
 ## 2. Nút
 
 Mọi `button` và link dạng nút (`a` có class `inline-flex`) bên trong theme đều được chuẩn hoá: **cao 34px, chữ 13px đậm vừa, bo góc 8px, không đổ bóng**.
 
-| Kiểu | Class | Dùng khi |
-| :--- | :--- | :--- |
-| Chính | `sc-button sc-button-primary` | Hành động chính của khu vực. Mỗi khu vực chỉ nên có **một** nút chính. |
-| Nhạt | `sc-button sc-button-soft` | Hành động phụ có nhấn (Thêm vào thư viện, Đọc, Bình luận). |
-| Thường | `sc-button` | Hành động phụ (Thích, Chương trước, Mục lục). |
-| Nguy hiểm | `sc-button text-red-700` | Báo cáo, xoá. Giữ chữ đỏ trên nền trắng. |
-| Chỉ icon | `sc-button sc-button-icon` kèm `aria-label` | Chia sẻ, thao tác thu gọn. |
-| Ủng hộ | `sc-button sc-button-support` | Ủng hộ tác giả (nền vàng nhạt). |
+| Kiểu | Class | Màu chữ / nền | Dùng khi |
+| :--- | :--- | :--- | :--- |
+| Chính | `sc-button sc-button-primary` | Chữ tối `--sc-on-primary` trên cam (6,1:1; rê chuột 4,8:1) | Hành động chính của khu vực. Mỗi khu vực chỉ nên có **một** nút chính. |
+| Nhạt | `sc-button sc-button-soft` | Chữ cam `#a9573a` trên cam nhạt (4,6:1); rê chuột chữ đậm hơn `#9b4930` | Hành động phụ có nhấn (Thêm vào thư viện, Đọc, Bình luận). |
+| Thường | `sc-button` | Chữ thường trên nền trắng | Hành động phụ (Thích, Chương trước, Mục lục). |
+| Nguy hiểm | `sc-button text-red-700` | Chữ đỏ `--sc-danger` trên nền trắng | Báo cáo, xoá. |
+| Chỉ icon | `sc-button sc-button-icon` kèm `aria-label` | Như nút thường | Chia sẻ, thao tác thu gọn. |
+| Ủng hộ | `sc-button sc-button-support` | Chữ `--sc-warning` trên nền vàng nhạt | Ủng hộ tác giả. |
 
 Icon bên trong nút: `<span className="material-symbols-outlined" aria-hidden="true">tên_icon</span>`, cỡ tự động 17px.
 
 Lưu ý:
-- Nút mới **dùng các class trên**, không tự ghép class Tailwind màu cho nút.
+- Nút mới **dùng các class trên**, không tự ghép class Tailwind màu cho nút. Không thêm `text-white` lên nền cam (xem "Độ tương phản").
+- Nút **chỉ có icon**, hoặc nút có chữ bị ẩn ở màn hẹp (`hidden sm:inline`), phải có `aria-label` (nên thêm cả `title`). Ví dụ: Báo cáo, Lưu tiến độ, Đọc từ đầu ở 375px.
 - Cần nút nhỏ hơn 34px (tag bấm được, icon trong bảng): phải tự ghi đè `min-height`. Nút trong ô bảng (`td`) đã tự nhỏ còn 30px. Tab lọc `.sc-filter-tabs > button` đã có ngoại lệ 28px.
 - Trong `.sc-novel-card`, nút có class `bg-stone-50` sẽ hiển thị **trong suốt** (chỉ icon kèm chữ, như nút "Quản lý"). Muốn nút có viền trong thẻ truyện thì dùng `sc-button`.
 - Nút Mantine trong theme dùng cùng bo góc. Kiểu `default` là nút thường, `subtle` là chữ cam.
@@ -49,7 +62,7 @@ Lưu ý:
 
 - `<select>` trong theme tự có mũi tên riêng (cao 34px, chữ 13px, viền nhạt). **Phần tử `.material-symbols-outlined` đặt ngay sau `<select>` sẽ bị ẩn**, để tránh hai mũi tên chồng nhau.
 - Ô nhập, textarea, dropdown và ô Mantine dùng viền `--sc-control-border`. Khi focus: viền cam kèm quầng cam nhạt.
-- Thanh lọc theo trạng thái dùng tab: `div.sc-filter-tabs` chứa các `button`. Nút đang chọn: `bg-primary-600 text-white`.
+- Thanh lọc theo trạng thái dùng tab: `div.sc-filter-tabs` chứa các `button`. Nút đang chọn: `bg-primary-600`. Chữ tự chuyển sang tối; `text-white` cũ nếu còn sẽ bị ghi đè.
 
 ## 4. Khung trang và navbar
 
@@ -62,7 +75,14 @@ Lưu ý:
   - Khách: Thư viện công khai, cùng nút Đăng nhập.
 
   Mục chỉ dành cho tác giả phải đặt trong nhánh `isWriter`.
-- Đăng xuất nằm trong menu avatar (`data-testid="shell-logout-btn"`). Script E2E phải mở menu avatar trước khi bấm.
+- Đăng xuất nằm trong menu avatar (`data-testid="shell-logout-btn"`). Nút avatar có `data-testid="shell-avatar-btn"`. Script E2E phải bấm nút avatar trước, chờ menu hiện ra rồi mới bấm Đăng xuất.
+- **Điểm neo phiên cho E2E:** `SessionMarker` (`AuthorTheme.tsx`) render `<span hidden data-testid="shell-session" data-user-role="…" data-username="…">`.
+  - Có mặt trong `AuthorNavbar` khi đã đăng nhập, và trong khung cũ `WebAppShell` của admin.
+  - Script đọc vai trò và tên đăng nhập từ đây, không đọc chữ trên topbar. `.web-topbar` chỉ còn ở khung admin.
+  - Khung mới nào thay navbar cũng phải giữ điểm neo này.
+- Menu avatar là `Menu` của Mantine, dùng được bằng bàn phím:
+  - Enter/Space mở menu (`aria-expanded`, `aria-haspopup="menu"`); mũi tên lên/xuống đi vòng qua các mục; Esc đóng menu và trả focus về nút avatar.
+  - Tab khi menu đang mở thì focus vẫn nằm trong menu (bẫy focus mặc định của Mantine).
 
 ## 5. Thành phần trang
 
@@ -86,10 +106,14 @@ Lưu ý:
 - Giữ nguyên `data-testid` khi sửa giao diện; script E2E trong `scripts/` dựa vào chúng. Riêng hai option `Serif` và `Sepia` trong tùy chỉnh đọc được script chọn theo chữ, không đổi tên.
 - Hiển thị tên chương bằng dạng `Chương N: tên`, bỏ tiền tố "Chương N:" lặp lại nếu dữ liệu đã có sẵn.
 - Không hiển thị dữ liệu mà API không trả về (huy hiệu, địa điểm, câu trích dẫn...). Cần thì bổ sung API trước.
-- Trước khi mở PR giao diện: chạy `npm run typecheck` trong `web/`, rồi xem thử trên trình duyệt ở desktop và 375px với tài khoản tác giả, độc giả và khách (tài khoản mẫu có trong seed `backend/src/scripts/`).
+- Trước khi mở PR giao diện:
+  - Chạy `npm run typecheck` và `npm run test:contrast` trong `web/`.
+  - Xem thử trên trình duyệt ở desktop và 375px, cả sáng lẫn tối, với tài khoản tác giả, độc giả và khách. Tài khoản mẫu có trong seed `backend/src/scripts/`.
+  - Nếu đổi `:root` hoặc CSS toàn cục, xem thêm `/login` và `/admin`.
 
 ## 8. Đã biết, chưa xử lý
 
-- Chữ trắng trên nền cam `#dc8363` có độ tương phản khoảng 2,9:1, thấp hơn mức 4,5:1 khuyến nghị cho chữ nhỏ. Cần cân nhắc làm đậm màu cam nếu ưu tiên khả năng đọc.
-- Giao diện admin chưa chuyển sang StoryCraft.
+- Chữ phụ `--sc-muted-rgb` (`text-stone-400/500/600`, `#77736f`) trên nền trang `--sc-bg` chỉ đạt 4,39:1. Trên nền thẻ màu trắng thì đạt 4,7:1. Token này có từ trước và chưa nằm trong `test:contrast`.
+- Chữ trong chương (`.chapter-prose` trong `styles.css`) luôn lấy `--sc-text`, nên không đổi theo màu nền đã chọn trong tùy chỉnh đọc. Ở giao diện sáng, nền Sepia/Tối làm chữ gần như không đọc được (khoảng 1:1). Lỗi có từ trước PR #73.
+- Giao diện admin và trang `/login` chưa chuyển sang StoryCraft. Nút Mantine `light`/`subtle` và badge ở đó còn chữ cam khoảng 3,2–3,6:1.
 - Màu chế độ sáng chưa được gộp về `storycraft.css` (xem mục 1).
