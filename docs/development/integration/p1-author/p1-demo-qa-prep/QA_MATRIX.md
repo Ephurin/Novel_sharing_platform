@@ -9,16 +9,21 @@
 
 ## Matrix Summary & Gate Status
 
-| Group | Category | Case IDs | Count | Gate Status on Baseline `749b4bf3` | Target Integration Branch |
+| Group | Category | Case IDs | Count | Gate Status on Current Branch | Evidence Type / Blocker |
 |---|---|---|---|---|---|
-| **A** | Editable Entity Profile | `EEP-01` to `EEP-05` | 5 | **BLOCKED_PENDING_INTEGRATION** | `codex/p1-ax01-storybrain-core` |
-| **B** | Canon / Notes / Plans Boundary | `CNP-01` to `CNP-04` | 4 | **BLOCKED_PENDING_INTEGRATION** | `codex/p1-ax01-storybrain-core` |
-| **C** | Event / State Integrity | `EVS-01` to `EVS-04` | 4 | **BLOCKED_PENDING_INTEGRATION** | `codex/p1-ax01-storybrain-core` |
-| **D** | Authoritative Context Assembly | `CTX-01` to `CTX-04` | 4 | **BLOCKED_PENDING_INTEGRATION** | `codex/p1-ax01-storybrain-core` |
-| **E** | P1 Core Baseline Regression | `REG-01` to `REG-06` | 6 | **BASELINE PROVEN ON MAIN** | `main@749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb` |
+| **A** | Editable Entity Profile | `EEP-01` to `EEP-05` | 5 | **BLOCKED** | Blocked pending integration of `codex/p1-ax01-storybrain-core` |
+| **B** | Canon / Notes / Plans Boundary | `CNP-01` to `CNP-04` | 4 | **BLOCKED** | Blocked pending AX-01 integration and Story Brain baseline |
+| **C** | Event / State Integrity | `EVS-01` to `EVS-04` | 4 | **BLOCKED** | Blocked pending AX-01 integration and Story Brain baseline |
+| **D** | Authoritative Context Assembly | `CTX-01` to `CTX-04` | 4 | **BLOCKED** | Blocked pending AX-01 integration and Story Brain baseline |
+| **E** | P1 Core Baseline Regression | `REG-01` to `REG-06` | 6 | **HISTORICAL_PASS** | Referenced from baseline commit `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb` |
 | **TOTAL** | | | **23** | | |
 
-*Discipline Rule:* No test case depending on AX-01 features is marked as PASS until an integrated candidate SHA has been delivered, reviewed, and executed against live multi-tier readbacks.
+*Discipline Rules:*
+- **PASS**: Executed on current HEAD with live verified multi-tier evidence.
+- **FAIL**: Executed on current HEAD and failed assertions.
+- **BLOCKED**: Blocker identified; execution cannot proceed until upstream dependency delivers.
+- **NOT_RUN**: Test case not yet executed.
+- **HISTORICAL_PASS**: Proven on previous baseline SHA (`749b4bf3`); cannot be claimed as PASS on new source without live re-execution.
 
 ---
 
@@ -72,12 +77,12 @@
     }
     ```
 - **PostgreSQL Readback:**
-  - `SELECT profile_version, canonical_name, entity_type, description, author_profile, effective_from_chapter, updated_at FROM narrative.entities WHERE id='{uuid}' AND novel_id='{novelA}'`
-  - Assert `profile_version=1`, `entity_type='PER'`, `description` matches updated text.
+  - `SELECT profile_version, canonical_name, entity_type, description, author_profile, author_profile->>'effective_from_chapter' AS effective_from_chapter, updated_at FROM narrative.entities WHERE id='{uuid}' AND novel_id='{novelA}'`
+  - Assert `profile_version=1`, `entity_type='PER'`, `description` matches updated text, `author_profile->>'effective_from_chapter' = '1'` (stored inside JSONB `author_profile`, not a separate top-level column).
   - `SELECT brain_version FROM narrative.story_brains WHERE novel_id='{novelA}'` -> increments from 1 to 2.
   - `SELECT COUNT(*) FROM narrative.entity_profile_audits WHERE entity_id='{uuid}' AND novel_id='{novelA}'` -> returns `1` (audit ledger populated).
 - **Scope Boundary:** Alias editing is NOT part of the entity profile PATCH endpoint; entity aliases remain governed by narrative identity lock rules.
-- **Status:** **BLOCKED_PENDING_INTEGRATION** (Requires branch `codex/p1-ax01-storybrain-core`).
+- **Status:** **BLOCKED** (Requires branch `codex/p1-ax01-storybrain-core`).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -101,7 +106,7 @@
 - **PostgreSQL Readback:**
   - `SELECT profile_version FROM narrative.entities WHERE id='{uuid}'` confirms row was not overwritten by stale v0 write; cleanly transitions `0 -> 1 -> 2`.
 - **Scope Boundary:** Advanced 3-way line-level diff merge is out of scope; standard recovery contract is informing author, fetching current server state, and re-submitting with aligned version.
-- **Status:** **BLOCKED_PENDING_INTEGRATION**
+- **Status:** **BLOCKED** (Requires branch `codex/p1-ax01-storybrain-core`).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -122,7 +127,7 @@
 - **PostgreSQL Readback:**
   - `narrative.entities`: `profile_version` transitions `0 -> 1 -> 2`.
   - `narrative.entity_profile_audits`: contains both audit records with monotonic timestamps and respective request keys.
-- **Status:** **BLOCKED_PENDING_INTEGRATION**
+- **Status:** **BLOCKED** (Requires branch `codex/p1-ax01-storybrain-core`).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -144,7 +149,7 @@
 - **PostgreSQL Readback:**
   - `SELECT COUNT(*) FROM narrative.entity_profile_audits WHERE novel_id='{novelA}' AND actor_id='{authorB_userId}'` -> returns `0`.
   - Zero rows updated in `narrative.entities` where `novel_id='{novelA}'`.
-- **Status:** **BLOCKED_PENDING_INTEGRATION**
+- **Status:** **BLOCKED** (Requires branch `codex/p1-ax01-storybrain-core`).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -166,7 +171,7 @@
   - Returns 2 rows:
     - $U_1$: `profile_version=0`, description untouched.
     - $U_2$: `profile_version=1`, description updated.
-- **Status:** **BLOCKED_PENDING_INTEGRATION**
+- **Status:** **BLOCKED** (Requires branch `codex/p1-ax01-storybrain-core`).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -187,10 +192,10 @@
   - Note-only edits increment `profile_version`, but do NOT increment Story Brain `brain_version` (Canon unaffected).
 - **PostgreSQL Readback:**
   - Verified in PostgreSQL `narrative.entities`: `private_author_notes` column contains note text.
-  - `SELECT COUNT(*) FROM narrative.facts WHERE subject_id='{uuid}' AND fact_text LIKE '%tỷ tỷ thất lạc%'` -> returns `0`.
-  - `SELECT COUNT(*) FROM narrative.events WHERE event_description LIKE '%tỷ tỷ thất lạc%'` -> returns `0`.
+  - `SELECT COUNT(*) FROM narrative.facts WHERE subject_entity_id='{uuid}' AND fact_value::text LIKE '%tỷ tỷ thất lạc%'` -> returns `0` (schema uses `subject_entity_id` and JSONB `fact_value`).
+  - `SELECT COUNT(*) FROM narrative.events WHERE summary LIKE '%tỷ tỷ thất lạc%'` -> returns `0` (schema uses `summary`, not `event_description`).
   - Note is strictly stored in PostgreSQL `narrative.entities.private_author_notes`, NOT in an ungrounded MongoDB collection.
-- **Status:** **BLOCKED_PENDING_INTEGRATION**
+- **Status:** **BLOCKED** (Requires AX-01 integration and Story Brain baseline).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -205,9 +210,9 @@
   - Plan saved via `POST /api/v1/ai/story-plans` with status `PLANNED`.
   - Plan status is NOT `HAPPENED` / `OCCURRED`.
 - **DB Readback:**
-  - `SELECT COUNT(*) FROM narrative.events WHERE event_description LIKE '%đột phá Trúc Cơ%'` -> returns `0`.
+  - `SELECT COUNT(*) FROM narrative.events WHERE summary LIKE '%đột phá Trúc Cơ%'` -> returns `0` (schema uses `summary`, not `event_description`).
   - Consistency checker treats plan as non-Canon future intent and does not flag contradiction in Chapter 3.
-- **Status:** **BLOCKED_PENDING_INTEGRATION**
+- **Status:** **BLOCKED** (Requires AX-01 integration and Story Brain baseline).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -226,7 +231,7 @@
 - **Payload Readback:**
   - Sanitized request body inspected at gateway/LLM provider.
   - Substring `"hậu duệ Ma Thần"` or `"tàn hồn của Cổ Đại Thần Ma"` is strictly ABSENT.
-- **Status:** **BLOCKED_PENDING_INTEGRATION**
+- **Status:** **BLOCKED** (Requires AX-01 integration and Story Brain baseline).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -241,9 +246,9 @@
   - Downstream extraction endpoint returns `428 Precondition Required` or `400 Bad Request`.
   - State remains `waiting_review` until explicit freeze/continue.
 - **PostgreSQL Readback:**
-  - `SELECT status FROM narrative.entity_reviews WHERE analysis_run_id='{runId}'` -> returns `waiting_review`.
+  - `SELECT status, entity_candidate_audit->>'status' AS audit_status FROM narrative.analysis_runs WHERE id='{runId}'` -> returns `status='waiting_review'` / `audit_status='waiting_entity_review'` (candidate audits persisted in `narrative.analysis_runs`).
   - Zero downstream rows created in `narrative.events`.
-- **Status:** **BLOCKED_PENDING_INTEGRATION**
+- **Status:** **BLOCKED** (Requires AX-01 integration and Story Brain baseline).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -257,24 +262,29 @@
   1. In Timeline/Memory panel, author selects event $E_1$.
   2. Author clicks "Correct Event". Modifies description to: "Lâm Phong và Diệp Linh Nhi hiệp lực đẩy lui Hắc Long Xà tại Hang Hắc Long."
   3. Submits correction request.
-- **Production API Contract:**
+- **Production API Contract (Pydantic EventCorrectionRequest):**
   - `POST /api/v1/ai/story-brains/{novelId}/events/{eventId}/corrections`
   - Body:
     ```json
     {
-      "replacement": { "event_description": "Lâm Phong và Diệp Linh Nhi hiệp lực đẩy lui Hắc Long Xà tại Hang Hắc Long." },
-      "transitions": [],
-      "expected_brain_version": 2
+      "expected_brain_version": 2,
+      "replacement": {
+        "event_type": "plot_event",
+        "summary": "Lâm Phong và Diệp Linh Nhi hiệp lực đẩy lui Hắc Long Xà tại Hang Hắc Long.",
+        "participants": ["{entityId_LamPhong}", "{entityId_DiepLinhNhi}"],
+        "chapter": 2
+      },
+      "transitions": []
     }
     ```
   - Status Code: `201 Created`.
   - Pending Review Semantics: Endpoint returns a proposal list/group; correction does NOT immediately overwrite Canon in-place.
   - Review Acceptance: Author approves correction proposal group via `POST /api/v1/ai/proposal-groups/{groupId}/accept` with `expected_brain_version: 2`.
 - **PostgreSQL Readback:**
-  - `SELECT id, status, supersedes_event_id, provenance FROM narrative.events WHERE novel_id='{novelA}'`
-  - $E_1$ status = `SUPERSEDED`.
-  - $E_2$ status = `ACTIVE`, `supersedes_event_id` = $E_1$, `provenance` = `'AUTHOR_CORRECTION'`.
-- **Status:** **BLOCKED_PENDING_INTEGRATION**
+  - `SELECT id, confirmation_status, summary, event_metadata->>'supersedes_event_id' AS supersedes_event_id, source_type FROM narrative.events WHERE novel_id='{novelA}'`
+  - $E_1$ (original event): `confirmation_status = 'superseded'` (ORM column is `confirmation_status`, not `status`).
+  - $E_2$ (correction event): `confirmation_status = 'confirmed'`, `event_metadata->>'supersedes_event_id' = '{E1_uuid}'` (linkage held in JSONB `event_metadata`, not a top-level column), `source_type = 'author'` (ORM column is `source_type`, not `provenance`), `summary` matches replacement.
+- **Status:** **BLOCKED** (Requires AX-01 integration and Story Brain baseline).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -294,8 +304,8 @@
   - `GET /api/v1/ai/story-brains/{storyBrainId}/context-preview?chapterId={ch2}` -> item condition is broken.
   - `GET /api/v1/ai/story-brains/{storyBrainId}/context-preview?chapterId={ch3}` -> item condition is broken.
 - **PostgreSQL Readback:**
-  - State projection queries read from `narrative.events` up to chapter sequence index.
-- **Status:** **BLOCKED_PENDING_INTEGRATION**
+  - State projection queries read from `narrative.events` where `confirmation_status = 'confirmed'` up to chapter sequence index.
+- **Status:** **BLOCKED** (Requires AX-01 integration and Story Brain baseline).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -311,7 +321,7 @@
   - What is STRICTLY FORBIDDEN is future events, future actions, and future state transitions (e.g. the jade breaking event in Chapter 2, or Chapter 3 discoveries).
 - **Gateway Payload Readback:**
   - Verify prompt payload sent to upstream LLM contains zero mention of the jade breaking ("vỡ làm đôi", "long đầu", "long vĩ") or Chapter 2 combat outcomes.
-- **Status:** **BLOCKED_PENDING_INTEGRATION**
+- **Status:** **BLOCKED** (Requires AX-01 integration and Story Brain baseline).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -325,7 +335,7 @@
   3. UI displays Consistency Warning citing Chapter 2 state change.
 - **Expected API Behavior:**
   - Advisory finding returned without mutating Canon or blocking author workflow.
-- **Status:** **BLOCKED_PENDING_INTEGRATION**
+- **Status:** **BLOCKED** (Requires AX-01 integration and Story Brain baseline).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -341,9 +351,9 @@
   2. Immediately inspect Context Preview in Chapter 4 editor.
 - **Production API Contract:**
   - `GET /api/v1/ai/story-brains/{storyBrainId}/context-preview?chapterId={ch4Id}`
-  - Fetches fresh entity from `narrative.entities` with updated `approved_profile`.
+  - Fetches fresh entity from `narrative.entities` with updated `author_profile` and `description`.
   - Assembled prompt contains "Thiếu các chủ Đan Hà Các" and omits stale text.
-- **Status:** **BLOCKED_PENDING_INTEGRATION**
+- **Status:** **BLOCKED** (Requires AX-01 integration and Story Brain baseline).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -356,7 +366,7 @@
   - `private_author_notes` is NEVER packed regardless of token pressure or truncation fallback (whitelisted fields only).
 - **Payload Readback:**
   - Assert zero private note tokens present across all packed context chunks.
-- **Status:** **BLOCKED_PENDING_INTEGRATION**
+- **Status:** **BLOCKED** (Requires AX-01 integration and Story Brain baseline).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -366,7 +376,7 @@
 - **Setup:** Mention of an entity with zero confirmed facts in Canon.
 - **Expected Behavior:**
   - Context assembler outputs unverified status; system prompt strictly forbids hallucinating ungrounded historical lore.
-- **Status:** **BLOCKED_PENDING_INTEGRATION**
+- **Status:** **BLOCKED** (Requires AX-01 integration and Story Brain baseline).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -375,9 +385,9 @@
 - **Category:** Context Assembly
 - **Setup:** An erroneous proposal was marked `REJECTED` in review queue.
 - **Expected Behavior:**
-  - Context assembler queries `narrative.events` where `status='ACTIVE'`.
-  - Rejected proposal rows in `narrative.proposals` are completely excluded from context bundle.
-- **Status:** **BLOCKED_PENDING_INTEGRATION**
+  - Context assembler queries `narrative.events` where `confirmation_status='confirmed'`.
+  - Rejected proposal rows in `narrative.proposals` (`status='rejected'`) are completely excluded from context bundle.
+- **Status:** **BLOCKED** (Requires AX-01 integration and Story Brain baseline).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -393,7 +403,7 @@
   - `GET /api/v1/ai/story-brains/{novelId}/memory` returns `entities: []`, `events: []`, `brain_version: 1`.
 - **PostgreSQL Readback:**
   - `narrative.story_brains`: `brain_version=1`, active baseline established.
-- **Status:** **PROVEN PASS on baseline main** (via `scripts/p1_final_acceptance.py` on `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`).
+- **Status:** **HISTORICAL_PASS** (Evidence referenced from baseline `main@749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb` via `scripts/p1_final_acceptance.py`; not executed on current HEAD).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -405,8 +415,8 @@
   - `POST /api/v1/ai/story-brains/{novelId}/entity-reviews/{runId}/review` persists decisions.
   - `POST /api/v1/ai/story-brains/{novelId}/entity-reviews/{runId}/continue` transitions run to downstream proposal generation.
 - **PostgreSQL Readback:**
-  - `narrative.entity_reviews` record updated with finalized decisions and frozen timestamp.
-- **Status:** **PROVEN PASS on baseline main** (via `web/tests/p1-full-stack-s09-s11.browser.test.mjs` on `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`).
+  - `narrative.analysis_runs.entity_candidate_audit` JSONB record updated with finalized decisions and frozen timestamp.
+- **Status:** **HISTORICAL_PASS** (Evidence referenced from baseline `main@749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb` via `web/tests/p1-full-stack-s09-s11.browser.test.mjs`; not executed on current HEAD).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -433,7 +443,7 @@
 - **PostgreSQL Readback:**
   - `SELECT id, status, decision_reason FROM narrative.proposals WHERE dependency_group_id='{groupId}'` -> status `accepted` or `rejected`.
   - `narrative.story_brains.brain_version` incremented exactly by 1.
-- **Status:** **PROVEN PASS on baseline main** (via `scripts/canon_review_smoke.py` on `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`).
+- **Status:** **HISTORICAL_PASS** (Evidence referenced from baseline `main@749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb` via `scripts/canon_review_smoke.py`; not executed on current HEAD).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -450,7 +460,7 @@
   - Flush writes exact revision to PostgreSQL `chapter_revisions` and draft to MongoDB.
 - **DB Readback:**
   - Content hash matches SHA256 of final text string; parent revision linkage intact.
-- **Status:** **PROVEN PASS on baseline main** (via `web/tests/draft-persistence.browser.test.mjs` on `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`).
+- **Status:** **HISTORICAL_PASS** (Evidence referenced from baseline `main@749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb` via `web/tests/draft-persistence.browser.test.mjs`; not executed on current HEAD).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -463,7 +473,7 @@
 - **PostgreSQL Readback:**
   - Outbox event processed by AI worker (`status='COMPLETED'`).
   - Event payload matches immutable revision provenance.
-- **Status:** **PROVEN PASS on baseline main** (via `backend/src/modules/interactions/author-workflow.integration.test.ts` on `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`).
+- **Status:** **HISTORICAL_PASS** (Evidence referenced from baseline `main@749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb` via `backend/src/modules/interactions/author-workflow.integration.test.ts`; not executed on current HEAD).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`
 
 ---
@@ -477,5 +487,5 @@
   - Session logout clears auth tokens and memory drawer state without document reload.
 - **PostgreSQL & MongoDB Readback:**
   - Zero cross-author data leakage between accounts.
-- **Status:** **PROVEN PASS on baseline main** (via `web/tests/author-ide.browser.test.mjs` on `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`).
+- **Status:** **HISTORICAL_PASS** (Evidence referenced from baseline `main@749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb` via `web/tests/author-ide.browser.test.mjs`; not executed on current HEAD).
 - **Source Baseline SHA:** `749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb`

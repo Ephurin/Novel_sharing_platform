@@ -31,7 +31,7 @@ RULES = [
     ),
     (
         "BEARER_TOKEN_VALUE",
-        re.compile(r'Bearer\s+(?!\[REDACTED\]|token|\{token\}|<token>)[A-Za-z0-9_\-\.]{15,}'),
+        re.compile(r'Bearer\s+(?!\[REDACTED\]|token|\{token\}|<token>|\{authorToken\})[A-Za-z0-9_\-\.]{15,}'),
         "Live Bearer token detected"
     ),
     (
@@ -46,8 +46,8 @@ RULES = [
     ),
     (
         "RAW_SECRET_NOTE_LEAK_IN_MANIFEST",
-        re.compile(r'"author_secret_note"\s*:\s*"(?!(?:\[REDACTED\]|""))[^"]{10,}"', re.I),
-        "Raw author private secret note leaked in manifest"
+        re.compile(r'"(?:author_secret_note|private_author_notes|private_note_raw)"\s*:\s*"(?!(?:\[REDACTED\]|""))[^"]{8,}"', re.I),
+        "Raw author private secret note leaked in manifest/evidence"
     ),
 ]
 
@@ -130,7 +130,16 @@ def run_negative_tests():
     assert "RAW_SECRET_NOTE_LEAK_IN_MANIFEST" in v3, "Validator failed to catch leaked raw secret note!"
     print("    [OK] Negative Test 3 Passed: Leaked author secret note detected successfully")
 
-    # Test 4: Allow sanitized manifest
+    # Test 4: Catch private_author_notes leakage in JSON
+    synthetic_private = '{\n  "private_author_notes": "Bí mật Ma Thần không được công khai"\n}'
+    v4 = []
+    for rule_id, regex, desc in RULES:
+        if regex.search(synthetic_private):
+            v4.append(rule_id)
+    assert "RAW_SECRET_NOTE_LEAK_IN_MANIFEST" in v4, "Validator failed to catch leaked private_author_notes!"
+    print("    [OK] Negative Test 4 Passed: Leaked private_author_notes detected successfully")
+
+    # Test 5: Allow sanitized manifest
     sanitized_manifest = json.dumps({
         "manifest_type": "P1_DEMO_FIXTURE_PUBLIC_MANIFEST",
         "novel": {"novel_id": "11111111-1111-1111-1111-111111111111", "title": "Đại Lục Tinh Thần"},
@@ -138,14 +147,14 @@ def run_negative_tests():
         "chapters": [{"chapter_id": "22222222-2222-2222-2222-222222222222", "title": "Chương 1"}],
         "stages": {"basic_fixture": "BASIC_FIXTURE_READY", "canon_fixture": "CANON_FIXTURE_PENDING_HITL"}
     })
-    v4 = []
+    v5 = []
     for rule_id, regex, desc in RULES:
         if regex.search(sanitized_manifest):
-            v4.append(rule_id)
-    assert len(v4) == 0, f"Validator falsely flagged clean sanitized manifest: {v4}"
-    print("    [OK] Positive Test 4 Passed: Sanitized manifest passed with zero violations")
+            v5.append(rule_id)
+    assert len(v5) == 0, f"Validator falsely flagged clean sanitized manifest: {v5}"
+    print("    [OK] Positive Test 5 Passed: Sanitized manifest passed with zero violations")
 
-    print("\n[OK] All 4 Secret Hygiene Negative/Positive Self-Tests PASSED!\n")
+    print("\n[OK] All 5 Secret Hygiene Negative/Positive Self-Tests PASSED!\n")
     return True
 
 
