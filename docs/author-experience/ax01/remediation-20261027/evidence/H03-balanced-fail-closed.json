@@ -1,0 +1,24 @@
+{
+  "label": "H03-balanced-fail-closed",
+  "job_id": "604d250b-9fcc-5a13-a542-267608631be6",
+  "status": "failed",
+  "error": {
+    "code": "CONTEXT_SCOPE_EXCEEDS_MAX_TIER",
+    "message": "Scoped context requires about 43646 tokens, above maximum tier 24000",
+    "details": {
+      "estimated_tokens": 43646,
+      "max_tier": 24000,
+      "policy": "balanced-scope-v1",
+      "routing_status": "unresolved",
+      "routing_reason": "scoped_package_exceeds_max_tier"
+    }
+  },
+  "brain_version_used": 9,
+  "context_hash": "",
+  "context_summary": {
+    "brain_version_used": 9,
+    "chapter_number": 3
+  },
+  "provider_call_count": 0,
+  "transport_prompts": []
+}

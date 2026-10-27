@@ -1,0 +1,24 @@
+{
+  "label": "H03-identity-overflow",
+  "job_id": "3211fbbd-2f45-5af7-9a11-1d3740f841e2",
+  "status": "failed",
+  "error": {
+    "code": "CONTEXT_SCOPE_EXCEEDS_MAX_TIER",
+    "message": "Scoped context requires about 806 tokens, above maximum tier 200",
+    "details": {
+      "estimated_tokens": 806,
+      "max_tier": 200,
+      "policy": "legacy-v1",
+      "routing_status": "unresolved",
+      "routing_reason": "scoped_package_exceeds_max_tier"
+    }
+  },
+  "brain_version_used": 9,
+  "context_hash": "",
+  "context_summary": {
+    "brain_version_used": 9,
+    "chapter_number": 3
+  },
+  "provider_call_count": 0,
+  "transport_prompts": []
+}
