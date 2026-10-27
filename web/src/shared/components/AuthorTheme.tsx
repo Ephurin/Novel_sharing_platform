@@ -50,6 +50,14 @@ export function AuthorDialog({ children, onClose }: PropsWithChildren<{ onClose:
   return <FocusTrap active innerRef={dialogRef}><div role="dialog" aria-modal="true" aria-label="Hộp thoại StoryCraft" className="sc-dialog" tabIndex={-1}><FocusTrap.InitialFocus />{children}</div></FocusTrap>;
 }
 
+/**
+ * Stable, non-visual hook for the signed-in session. Browser tests read the role and username from
+ * here instead of parsing shell text, so they keep working across shell redesigns.
+ */
+export function SessionMarker({ role, username }: { role: string; username: string }) {
+  return <span hidden data-testid="shell-session" data-user-role={role} data-username={username} />;
+}
+
 export function AuthorNavbar() {
   const user = useAuthStore((state) => state.user);
   const clearSession = useAuthStore((state) => state.clearSession);
@@ -107,9 +115,10 @@ export function AuthorNavbar() {
           {isWriter && location.pathname !== '/author/ide' && <Link to={writingUrl} className="sc-button sc-button-primary sc-continue"><span className="material-symbols-outlined">edit_note</span><span>Viết tiếp</span></Link>}
           {!user && <Link to="/login" className="sc-button sc-button-primary"><span className="material-symbols-outlined">login</span><span>Đăng nhập</span></Link>}
           {user && <NotificationBell />}
+          {user && <SessionMarker role={user.role} username={user.username} />}
           {user && <Menu position="bottom-end" withinPortal={false}>
             <Menu.Target>
-              <button type="button" className="sc-avatar" aria-label={`Tài khoản ${name}`}>
+              <button type="button" className="sc-avatar" aria-label={`Tài khoản ${name}`} data-testid="shell-avatar-btn">
                 {user?.avatarUrl ? <img src={user.avatarUrl} alt={name} /> : name.slice(0, 1).toUpperCase()}
               </button>
             </Menu.Target>

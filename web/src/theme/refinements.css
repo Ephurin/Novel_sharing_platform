@@ -1,21 +1,25 @@
 /*
  * Visual refinements shared by author and reader screens: lighter control borders, one chevron
- * per select, and a softer orange with white text on filled buttons.
+ * per select, and a softer orange for filled buttons.
  * Loaded after storycraft.css and color-mode.css so these values win.
+ *
+ * Contrast: label colors must reach 4.5:1 against their background (WCAG AA, normal text).
+ * White on this orange is only 2.8:1, so filled buttons keep storycraft's dark --sc-on-primary.
+ * web/tests/contrast.test.mjs checks these pairs; run `npm run test:contrast` after changing them.
  */
 
 :root {
-  --sc-primary-rgb: 220 131 99;       /* #dc8363 */
-  --sc-primary-hover-rgb: 201 111 79; /* #c96f4f */
-  --sc-primary-text-rgb: 184 95 66;   /* #b85f42, still readable on white and soft orange */
-  --sc-on-primary-rgb: 255 255 255;
+  --sc-primary-rgb: 220 131 99;              /* #dc8363, dark label 6.1:1 */
+  --sc-primary-hover-rgb: 201 111 79;        /* #c96f4f, dark label 4.8:1 */
+  --sc-primary-text-rgb: 169 87 58;          /* #a9573a, 5.1:1 on white, 4.6:1 on soft orange */
+  --sc-primary-text-strong-rgb: 155 73 48;   /* #9b4930, label on the soft-button hover tint */
   --sc-control-border: #ddd8d0;
   --sc-control-border-hover: #c9c2b8;
   --sc-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6l4 4 4-4' stroke='%2378716c' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
 :root[data-theme="dark"] {
-  --sc-on-primary-rgb: 36 25 21; /* the dark-mode orange is light, so keep dark text on it */
+  --sc-primary-text-strong-rgb: 240 174 149;
   --sc-control-border: #4f4943;
   --sc-control-border-hover: #6a625a;
   --sc-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M4 6l4 4 4-4' stroke='%23bdb6ad' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
@@ -86,7 +90,10 @@
 
 /* Soft: orange tint without an outline; hover deepens the tint instead of flipping to solid. */
 .sc-author-theme :is(a, button).sc-button-soft { background: var(--sc-primary-soft); border-color: transparent; color: var(--sc-primary-text); }
-.sc-author-theme :is(a, button).sc-button-soft:hover { background: rgb(var(--sc-primary-rgb) / .2); color: var(--sc-primary-text); }
+.sc-author-theme :is(a, button).sc-button-soft:hover { background: rgb(var(--sc-primary-rgb) / .16); color: rgb(var(--sc-primary-text-strong-rgb)); }
+
+/* Any filled-orange surface (count badges, avatars, tabs) uses the dark label, even if the markup says text-white. */
+.sc-author-theme :is(.bg-primary, .bg-primary-500, .bg-primary-600, .bg-primary-700) { color: var(--sc-on-primary); }
 
 /* Neutral: white with a hairline border. */
 .sc-author-theme :is(a, button, span).sc-button:not(.sc-button-primary):not(.sc-button-soft) {

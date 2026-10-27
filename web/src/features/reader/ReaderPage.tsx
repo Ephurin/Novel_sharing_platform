@@ -263,9 +263,16 @@ export function ReaderNovelDetailPage() {
   return (
     <div className="flex flex-col gap-4">
       <Breadcrumb back={{ to: '/reader', label: 'Khám phá' }} current={novel?.title ?? 'Chi tiết truyện'}>
-        <button type="button" onClick={() => reportMutation.mutate()} disabled={reportMutation.isPending} className="sc-button text-red-700">
+        <button
+          type="button"
+          onClick={() => reportMutation.mutate()}
+          disabled={reportMutation.isPending}
+          className="sc-button text-red-700"
+          aria-label="Báo cáo truyện"
+          title="Báo cáo truyện"
+        >
           <span className="material-symbols-outlined" aria-hidden="true">flag</span>
-          <span className="hidden sm:inline">Báo cáo</span>
+          <span className="hidden sm:inline" aria-hidden="true">Báo cáo</span>
         </button>
       </Breadcrumb>
 
@@ -470,13 +477,22 @@ export function ReaderChapterPage() {
           onClick={() => chapter?.novelId && syncHistoryMutation.mutate({ novelId: chapter.novelId, chapterId })}
           disabled={!chapter || syncHistoryMutation.isPending}
           className="sc-button"
+          aria-label={syncHistoryMutation.isPending ? 'Đang lưu tiến độ đọc' : 'Lưu tiến độ đọc'}
+          title="Lưu tiến độ đọc"
         >
           <span className="material-symbols-outlined" aria-hidden="true">sync</span>
-          <span className="hidden sm:inline">{syncHistoryMutation.isPending ? 'Đang lưu...' : 'Lưu tiến độ'}</span>
+          <span className="hidden sm:inline" aria-hidden="true">{syncHistoryMutation.isPending ? 'Đang lưu...' : 'Lưu tiến độ'}</span>
         </button>
-        <button type="button" onClick={() => reportMutation.mutate()} disabled={reportMutation.isPending} className="sc-button text-red-700">
+        <button
+          type="button"
+          onClick={() => reportMutation.mutate()}
+          disabled={reportMutation.isPending}
+          className="sc-button text-red-700"
+          aria-label={reportMutation.isSuccess ? 'Đã báo cáo chương' : 'Báo cáo chương'}
+          title="Báo cáo chương"
+        >
           <span className="material-symbols-outlined" aria-hidden="true">flag</span>
-          <span className="hidden sm:inline">{reportMutation.isSuccess ? 'Đã báo cáo' : 'Báo cáo'}</span>
+          <span className="hidden sm:inline" aria-hidden="true">{reportMutation.isSuccess ? 'Đã báo cáo' : 'Báo cáo'}</span>
         </button>
       </Breadcrumb>
 
@@ -926,9 +942,9 @@ function ChapterTable({ chapters, publicMode = false, onReadFirst }: { chapters:
           <span className="text-meta bg-primary-600 text-white px-2 py-0.5 rounded-full font-bold">{chapters.length}</span>
         </div>
         {onReadFirst ? (
-          <button type="button" onClick={onReadFirst} className="sc-button sc-button-soft">
+          <button type="button" onClick={onReadFirst} className="sc-button sc-button-soft" aria-label="Đọc từ chương đầu" title="Đọc từ chương đầu">
             <span className="material-symbols-outlined" aria-hidden="true">first_page</span>
-            <span className="hidden sm:inline">Đọc từ đầu</span>
+            <span className="hidden sm:inline" aria-hidden="true">Đọc từ đầu</span>
           </button>
         ) : null}
       </div>

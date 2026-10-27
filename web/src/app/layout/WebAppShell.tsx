@@ -5,7 +5,7 @@ import { NavLink as RouterNavLink, Outlet, useNavigate } from 'react-router-dom'
 import type { UserRole } from '../../features/auth/auth-types';
 import { logout } from '../../features/auth/auth-api';
 import { useAuthStore } from '../../features/auth/useAuthStore';
-import { AuthorNavbar, AuthorTheme } from '../../shared/components/AuthorTheme';
+import { AuthorNavbar, AuthorTheme, SessionMarker } from '../../shared/components/AuthorTheme';
 
 const navItems: Array<{ to: string; label: string; roles: UserRole[] }> = [
   { to: '/author', label: 'Writing Projects', roles: ['AUTHOR'] },
@@ -55,6 +55,7 @@ export function WebAppShell() {
           <Badge variant="light">Official Web MVP</Badge>
         </Group>
         <Group gap="xs">
+          {user && <SessionMarker role={user.role} username={user.username} />}
           <ThemeControl />
           <Badge size="sm" variant="outline">
             {user?.role ?? 'GUEST'}
