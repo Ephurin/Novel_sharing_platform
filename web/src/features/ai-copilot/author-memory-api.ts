@@ -1,4 +1,4 @@
-import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
+import { apiClient, ApiClientError, type ApiEnvelope } from '../../shared/api/api-client';
 
 export type UUID = string;
 export type EntityType = 'PER' | 'LOC' | 'ORG' | 'ITEM' | 'SKILL';
@@ -102,6 +102,33 @@ export interface Evidence {
   chapter_number?: number;
 }
 
+export interface EntityProfileFields {
+  description: string;
+  appearance: string;
+  personality: string;
+  background: string;
+}
+
+export interface EntityProfile {
+  entity_id: UUID;
+  novel_id: UUID;
+  version: number;
+  brain_version: number;
+  profile: EntityProfileFields;
+  effective_from_chapter: number | null;
+  author_notes: string;
+}
+
+type ProfileVersions = { expected_version: number; expected_brain_version: number };
+type CanonicalProfileChanges = {
+  [Key in keyof EntityProfileFields]: Pick<EntityProfileFields, Key> & Partial<EntityProfileFields>
+}[keyof EntityProfileFields];
+export type EntityProfilePatch = ProfileVersions & (
+  (CanonicalProfileChanges & { effective_from_chapter: number; author_notes?: string }) |
+  { author_notes: string; effective_from_chapter?: never; description?: never;
+    appearance?: never; personality?: never; background?: never }
+);
+
 export interface MemoryEntity {
   entity_id: UUID;
   name: string;
@@ -110,6 +137,7 @@ export interface MemoryEntity {
   location: string;
   mentions?: number;
   is_locked?: boolean;
+  approved_profile?: Partial<EntityProfileFields> & { effective_from_chapter?: number };
 }
 
 export interface MemoryEvent {
@@ -389,6 +417,44 @@ export async function memoryPost<T>(path: string, body: unknown): Promise<T> {
 
 export const getApprovedMemory = (novelId: string) =>
   memoryGet<ApprovedMemory>(`/ai/story-brains/${novelId}/memory`);
+
+/** Private readback: never place this DTO in the approved-memory query cache. */
+export async function getEntityProfile(novelId: string, entityId: string): Promise<EntityProfile> {
+  const data = await memoryGet<EntityProfile>(`/ai/story-brains/${encodeURIComponent(novelId)}/entities/${encodeURIComponent(entityId)}/profile`);
+  if (data.entity_id !== entityId || data.novel_id !== novelId) {
+    throw new ApiClientError({ status: 502, code: 'PROFILE_SCOPE_INVALID', message: 'Không xác nhận được phạm vi hồ sơ.' });
+  }
+  if (!Number.isInteger(data.version) || data.version < 0 || !Number.isInteger(data.brain_version) || data.brain_version < 1 ||
+      typeof data.author_notes !== 'string' || !data.profile ||
+      ['description', 'appearance', 'personality', 'background'].some(key => typeof data.profile[key as keyof EntityProfileFields] !== 'string')) {
+    throw new ApiClientError({ status: 502, code: 'PROFILE_RESPONSE_INVALID', message: 'Không đọc được hồ sơ hợp lệ từ máy chủ.' });
+  }
+  return data;
+}
+
+export async function updateEntityProfile(
+  novelId: string, entityId: string, patch: EntityProfilePatch, idempotencyKey: string
+): Promise<EntityProfile> {
+  const allowed = new Set(['expected_version', 'expected_brain_version', 'description', 'appearance',
+    'personality', 'background', 'author_notes', 'effective_from_chapter']);
+  const canonical = ['description', 'appearance', 'personality', 'background'].some(key => key in patch);
+  const valuesInvalid = Object.entries(patch).some(([key, value]) =>
+    ['description', 'appearance', 'personality', 'background', 'author_notes'].includes(key) &&
+    (typeof value !== 'string' || Array.from(value).length > (key === 'author_notes' ? 8000 : 4000) || /[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(value)));
+  if (valuesInvalid || (!canonical && !('author_notes' in patch)) ||
+      (canonical ? (!Number.isInteger(patch.effective_from_chapter) || patch.effective_from_chapter! < 1 || patch.effective_from_chapter! > 1000000) : ('effective_from_chapter' in patch)) ||
+      Object.keys(patch).some(key => !allowed.has(key)) ||
+      Object.values(patch).some(value => value === null || value === undefined) ||
+      !Number.isInteger(patch.expected_version) || patch.expected_version < 0 ||
+      !Number.isInteger(patch.expected_brain_version) || patch.expected_brain_version < 1 ||
+      !/^[A-Za-z0-9_-]{1,128}$/.test(idempotencyKey)) {
+    throw new ApiClientError({ status: 422, code: 'INVALID_PROFILE_REQUEST', message: 'Yêu cầu hồ sơ không hợp lệ.' });
+  }
+  return (await apiClient.patch<ApiEnvelope<EntityProfile>>(
+    `/ai/story-brains/${encodeURIComponent(novelId)}/entities/${encodeURIComponent(entityId)}/profile`, patch,
+    { headers: { 'Idempotency-Key': idempotencyKey } }
+  )).data.data;
+}
 
 export async function getEntityReviews(novelId: string): Promise<EntityReview[]> {
   return memoryGet<EntityReview[]>(`/ai/story-brains/${novelId}/entity-reviews`);
