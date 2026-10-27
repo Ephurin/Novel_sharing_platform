@@ -1,4 +1,4 @@
-﻿# P1 Integration Readiness Protocol & Codex Handoff Gate
+# P1 Integration Readiness Protocol & Codex Handoff Gate
 
 **Document Version:** 1.0  
 **Target Demo Date:** 09/11/2026  
@@ -59,16 +59,18 @@ git status --porcelain # Must be completely clean
 ### Step 6 — Multi-Tier State Reconciliation
 Perform cross-database readbacks comparing:
 1. **PostgreSQL:**
-   - `canon_entities` (verify UUID, canonical_name, aliases, version, updated_at).
-   - `canon_events` (verify event status `ACTIVE` vs `SUPERSEDED`, provenance `AUTHOR_CORRECTION`).
+   - `narrative.entities` (verify UUID, canonical_name, entity_type, profile_version, author_profile, private_author_notes).
+   - `narrative.entity_profile_audits` (verify actor, request key, before/after audit records).
+   - `narrative.events` (verify event status `ACTIVE` vs `SUPERSEDED`, provenance `AUTHOR_CORRECTION`).
+   - `narrative.proposals` (verify proposal group acceptance and atomic status).
    - `chapter_revisions` & `revision_outbox_events` (verify SHA256 content hashes, parent linkages).
 2. **MongoDB:**
    - `draft_chapters` (verify real-time dirty edits, version monotonically increasing).
-   - `story_brains` (verify author private notes stored exclusively in private collections).
 3. **Budget Gateway / LLM Ledger:**
    - Confirm zero live cloud requests (`live_requests = 0`).
    - Verify fake upstream ledger records expected model alias `gemini-3.5-flash-lite`.
    - Verify zero leakage of author private secrets into context prompt.
+
 
 ### Step 7 — Issue Reporting with Exact Reproduction
 - For any failure, document:
