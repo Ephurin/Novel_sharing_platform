@@ -638,7 +638,7 @@ export function ReaderHistoryPage() {
                 <div className="flex-1 min-w-0">
                   <Link
                     to={`/reader/novels/${item.novelId}`}
-                    className="text-body font-bold text-stone-900 hover:text-primary-600 line-clamp-1 transition-colors"
+                    className="py-0.5 text-body font-bold text-stone-900 hover:text-primary-600 line-clamp-1 transition-colors"
                   >
                     {item.novel.title}
                   </Link>
@@ -836,7 +836,7 @@ function NovelCard({ novel, extraAction, publicMode = false }: { novel: ReaderNo
             {novel.authorName ? <p className="text-meta text-stone-500 truncate mt-0.5">{novel.authorName}</p> : null}
             <p className="text-meta text-stone-600 line-clamp-2 mt-1">{novel.synopsis || 'Chưa có lời giới thiệu.'}</p>
           </div>
-          <div className="mt-2 flex items-center gap-1.5 text-meta text-stone-600 whitespace-nowrap">
+          <div className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-meta text-stone-600">
             <span className="material-symbols-outlined text-[15px] text-primary-600" aria-hidden="true">menu_book</span>
             <span><strong>{novel.chaptersCount ?? 0}</strong> chương</span>
             <span className="text-stone-300">•</span>
@@ -965,7 +965,7 @@ function ChapterTable({ chapters, publicMode = false, onReadFirst }: { chapters:
                 return (
                   <tr key={chapter.chapterId} className="hover:bg-stone-50 transition-colors">
                     <td className="px-4">
-                      <Link to={chapterPath} className="font-medium text-stone-900 hover:text-primary-600 transition-colors line-clamp-1">
+                      <Link to={chapterPath} className="py-1 font-medium text-stone-900 hover:text-primary-600 transition-colors line-clamp-1">
                         {formatChapterTitle(chapter.chapterNumber, chapter.title)}
                       </Link>
                     </td>
@@ -1078,6 +1078,7 @@ function ReadingPreferencesPanel({
           { value: 'Arial', label: 'Sans' }
         ]}
         value={draft.fontFamily ?? 'system-ui'}
+        allowDeselect={false}
         onChange={(value) => setDraft((current) => ({ ...current, fontFamily: value }))}
         data-testid="reader-pref-font-family"
       />
@@ -1097,6 +1098,7 @@ function ReadingPreferencesPanel({
           { value: 'SEPIA', label: 'Sepia' }
         ]}
         value={draft.background}
+        allowDeselect={false}
         onChange={(value) => setDraft((current) => ({ ...current, background: (value ?? 'DARK') as ReadingPreferences['background'] }))}
         data-testid="reader-pref-background"
       />
