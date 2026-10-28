@@ -199,7 +199,7 @@ export async function createHarness() {
     if (url.origin === origin || url.protocol === 'data:' || url.protocol === 'blob:') return route.continue();
     blockedExternal.push({ host: url.host, path: url.pathname }); return route.abort('blockedbyclient');
   });
-  await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
+  await context.tracing.start({ screenshots: false, snapshots: true, sources: false });
   context.on('page', page => {
     page.on('pageerror', error => browserErrors.push(error.message));
     page.on('console', message => browserConsole.push({ type: message.type(), text: clean(message.text()), location: message.location() }));

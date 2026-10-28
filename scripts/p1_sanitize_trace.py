@@ -38,8 +38,12 @@ def sanitize_trace(source, target, secrets):
             return [clean(item) for item in value]
         return text(value) if isinstance(value, str) else value
     count = 0
+    binary_images_stripped = 0
     with ZipFile(source) as old, ZipFile(target, 'w', compression=ZIP_DEFLATED) as new:
         for entry in old.infolist():
+            if entry.filename.lower().endswith(('.png', '.jpg', '.jpeg', '.webp')):
+                binary_images_stripped += 1
+                continue
             raw = old.read(entry.filename)
             try:
                 decoded = raw.decode('utf8')
@@ -55,7 +59,7 @@ def sanitize_trace(source, target, secrets):
             safe = ''.join(lines)
             assert not JWT.search(safe) and not any(secret in safe for secret in secrets), entry.filename
             new.writestr(entry, safe.encode('utf8')); count += 1
-    return {'credential_scan': 'PASS', 'text_entries_sanitized': count}
+    return {'credential_scan': 'PASS', 'text_entries_sanitized': count, 'binary_images_stripped': binary_images_stripped, 'binary_images_remaining': 0}
 
 
 if __name__ == '__main__':
