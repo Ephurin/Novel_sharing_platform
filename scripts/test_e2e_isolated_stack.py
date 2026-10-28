@@ -1,10 +1,10 @@
 """
 Refusal tests for disposable E2E stacks: an unsafe target is refused before the first write.
 
-GuardTests cover the pure checks. RunnerRefusalTests start the real reader social runner against
-unsafe targets (the shared `ephurin` database, no opt-in, shared dev ports, an existing database)
-and prove from fingerprints of every shared table and collection that nothing changed. They need
-local PostgreSQL and MongoDB and are skipped when those are unreachable.
+GuardTests cover the pure checks. RunnerRefusalTests start every runner built on the disposable
+stack against unsafe targets (the shared `ephurin` database, no opt-in, shared dev ports, an
+existing database) and prove from fingerprints of every shared table and collection that nothing
+changed. They need local PostgreSQL and MongoDB and are skipped when those are unreachable.
 
 Run (repo root): python -m unittest scripts/test_e2e_isolated_stack.py -v
 """
@@ -23,7 +23,14 @@ from psycopg import sql  # noqa: E402
 
 import e2e_isolated_stack as stack  # noqa: E402
 
-RUNNER = os.path.join(SCRIPTS_DIR, "run_reader_social_comment_preferences_e2e.py")
+RUNNERS = [
+    os.path.join(SCRIPTS_DIR, name)
+    for name in (
+        "run_reader_social_comment_preferences_e2e.py",
+        "run_reader_discovery_reading_state_e2e.py",
+        "run_ui_smoke_matrix_e2e.py",
+    )
+]
 RUNNER_ENV_KEYS = [stack.OPT_IN_ENV, "EPHURIN_E2E_TEST_DB_NAME", "EPHURIN_E2E_BACKEND_PORT", "EPHURIN_E2E_WEB_PORT"]
 
 
@@ -82,25 +89,27 @@ class GuardTests(unittest.TestCase):
 
 @unittest.skipUnless(services_up(), "local PostgreSQL/MongoDB with the shared ephurin database not reachable")
 class RunnerRefusalTests(unittest.TestCase):
-    def run_runner(self, **overrides):
+    def run_runner(self, runner: str, **overrides):
         env = {key: value for key, value in os.environ.items() if key not in RUNNER_ENV_KEYS}
         env.update({"EPHURIN_E2E_DEMO_PASSWORD": "not-used-by-refused-runs", "PYTHONIOENCODING": "utf-8"})
         env.update({key: value for key, value in overrides.items() if value is not None})
-        return subprocess.run([sys.executable, RUNNER], env=env, capture_output=True, text=True,
+        return subprocess.run([sys.executable, runner], env=env, capture_output=True, text=True,
                               encoding="utf-8", errors="replace", timeout=120)
 
     def assert_refused_without_writes(self, reason: str, **overrides):
-        before = stack.fingerprint_shared()
-        result = self.run_runner(**overrides)
-        after = stack.fingerprint_shared()
-        output = result.stdout + result.stderr
-        self.assertEqual(result.returncode, stack.REFUSED_EXIT_CODE, output)
-        self.assertIn("REFUSED", result.stdout)
-        self.assertIn(reason, result.stdout)
-        self.assertEqual(stack.diff_fingerprints(before, after), [], "shared data changed")
-        self.assertEqual(before["sha256"], after["sha256"])
-        self.assertEqual(before["postgres_databases"], after["postgres_databases"], "a database was created or dropped")
-        self.assertEqual(before["mongo_databases"], after["mongo_databases"], "a database was created or dropped")
+        for runner in RUNNERS:
+            with self.subTest(runner=os.path.basename(runner)):
+                before = stack.fingerprint_shared()
+                result = self.run_runner(runner, **overrides)
+                after = stack.fingerprint_shared()
+                output = result.stdout + result.stderr
+                self.assertEqual(result.returncode, stack.REFUSED_EXIT_CODE, output)
+                self.assertIn("REFUSED", result.stdout)
+                self.assertIn(reason, result.stdout)
+                self.assertEqual(stack.diff_fingerprints(before, after), [], "shared data changed")
+                self.assertEqual(before["sha256"], after["sha256"])
+                self.assertEqual(before["postgres_databases"], after["postgres_databases"], "a database was created or dropped")
+                self.assertEqual(before["mongo_databases"], after["mongo_databases"], "a database was created or dropped")
 
     def test_shared_default_database_is_refused(self):
         self.assert_refused_without_writes("shared or protected", **{stack.OPT_IN_ENV: "1", "EPHURIN_E2E_TEST_DB_NAME": "ephurin"})
