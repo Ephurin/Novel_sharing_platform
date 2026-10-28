@@ -18,7 +18,7 @@ This integrated acceptance report delivers hardened, independently reproducible 
 
 ### Independent Review Remediation Summary
 Following the independent QA review (`AX01_AX02_INTEGRATION_NEEDS_CHANGES`), this iteration resolved all identified evidence hygiene and assertion gaps:
-1. **Task A (Evidence Hygiene & Leakage Prevention):** Implemented strict allowlist sanitization for all HTTP traces and database readbacks. Excluded raw `author_notes`, `private_author_notes`, audit `before`/`after` snapshots, and MongoDB chapter draft contents from evidence. Pre-registered all credentials and test sentinels (`SENTINEL_NOTE_CONFIDENTIAL_LORE_7749_SECRET`). Masked DOM fields before screenshot capture. Added deep inspection of zip archives in secret scanner and proved negative tests across 7 distinct credential/leak classes.
+1. **Task A (Evidence Hygiene & Leakage Prevention):** Implemented strict allowlist sanitization for all HTTP traces and database readbacks. Excluded raw `author_notes`, `private_author_notes`, audit `before`/`after` snapshots, and MongoDB chapter draft contents from evidence. Pre-registered all credentials and test sentinels (`[REDACTED_AUTHOR_NOTE]`). Masked DOM fields before screenshot capture. Added deep inspection of zip archives in secret scanner and proved negative tests across 7 distinct credential/leak classes.
 2. **Task B (Context Integrity Verification in AX-E2E-07):** Queried PostgreSQL `narrative.writing_generations` by exact `job_id` (eliminated `ORDER BY created_at DESC LIMIT 1`). Bound fake-upstream prompt captures to the generation request using a unique correlation token (`CORR_JOB_10ea7726d5`) embedded in `instruction`. Recalculated SHA256 context hash from prompt Story Brain JSON using the exact implementation canonical contract (`json.dumps(..., ensure_ascii=False, sort_keys=True, separators=(",", ":"), default=str)`), proving `recomputed_hash == persisted_hash`. Verified `ContextBudgetPacker` execution (`context-budget-v1`) and strict exclusion of private notes and unrelated entity profiles.
 3. **Task C (Overclaimed Coverage Corrections):**
    - **AX-E2E-04:** Formally marked as **`PARTIAL_PASS`**. Explicitly disclosed domain uniqueness constraint (`HOMONYM_CREATION_UNSUPPORTED` returning HTTP 422 via author creation API) and labeled the secondary entity fixture as **`SYNTHETIC_DB_FIXTURE`** (`UUID_ISOLATION_PASS` in test DB).
@@ -114,7 +114,7 @@ The tests executed against an isolated, disposable Docker Compose project:
 - **Visual Artifact:** Screenshot `ax-e2e-02-profile-saved.png` captured (SHA256: `c44155e1817c4f8c4d5a9038b418ae5c824dcd0bde8e6264324a7fc7714ae911`).
 
 ### 5.3 AX-E2E-03: Private Author Notes Isolation & Secrecy
-- **Sentinel Secret Registered:** `"SENTINEL_NOTE_CONFIDENTIAL_LORE_7749_SECRET"`
+- **Sentinel Secret Registered:** `"[REDACTED_AUTHOR_NOTE]"`
 - **Browser Mitigation:** Textarea masked to `[REDACTED_AUTHOR_NOTE_MASKED]` prior to screenshot capture to ensure zero visual exposure.
 - **Invariance Checks:**
   - `narrative.entities.profile_version`: `2` (incremented from 1).

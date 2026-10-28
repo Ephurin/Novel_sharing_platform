@@ -175,8 +175,8 @@ Executed `python scripts/verify_secret_hygiene.py --target docs/development/inte
 - **Negative Test 1 (JWT):** Detected and rejected (`PASS`).
 - **Negative Test 2 (Plaintext password):** Detected and rejected (`PASS`).
 - **Negative Test 3 (`Authorization` header / Bearer token):** Detected and rejected (`PASS`).
-- **Negative Test 4 (Private author note sentinel `PRIVATE_SENTINEL_` / `TOP_SECRET_ENDING_DO_NOT_LEAK`):** Detected and rejected (`PASS`).
-- **Negative Test 5 (Private audit snapshot `before_snapshot` / `after_snapshot`):** Detected and rejected (`PASS`).
+- **Negative Test 4 (Private author note sentinel):** Detected and rejected (`PASS`).
+- **Negative Test 5 (Private audit snapshot payload):** Detected and rejected (`PASS`).
 - **Negative Test 6 (Raw profile `author_notes` in HTTP payload):** Detected and rejected (`PASS`).
 - **Negative Test 7 (Private input inside trace ZIP archive):** Detected and rejected (`PASS`).
 - **Positive Scan of `docs/development/integration/p1-author/evidence/2026-10-28-p1-demo-gate-03`:** `0` violations found (`PASS`).
