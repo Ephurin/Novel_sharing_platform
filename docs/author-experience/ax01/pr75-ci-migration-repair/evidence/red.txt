@@ -1,0 +1,82 @@
+F                                                                        [100%]
+================================== FAILURES ===================================
+_________ test_migration_downgrade_reupgrade_preserves_canonical_data _________
+C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\sqlalchemy\engine\base.py:1963: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\sqlalchemy\engine\default.py:943: in do_execute
+    cursor.execute(statement, parameters)
+C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\psycopg\cursor.py:97: in execute
+    raise ex.with_traceback(None)
+E   psycopg.errors.UndefinedColumn: column entities.author_profile does not exist
+E   LINE 1: ....normalized_name, narrative.entities.description, narrative....
+E                                                                ^
+
+The above exception was the direct cause of the following exception:
+tests\test_semantic_memory_postgres_integration.py:409: in test_migration_downgrade_reupgrade_preserves_canonical_data
+    assert [entity.name for entity in narrative.list_entities(novel_id)] == [
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+infrastructure\postgres_narrative_repository.py:297: in list_entities
+    records = session.scalars(
+C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\sqlalchemy\orm\session.py:2473: in scalars
+    return self._execute_internal(
+C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\sqlalchemy\orm\session.py:2251: in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\sqlalchemy\orm\context.py:306: in orm_execute_statement
+    result = conn.execute(
+C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\sqlalchemy\engine\base.py:1415: in execute
+    return meth(
+C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\sqlalchemy\sql\elements.py:523: in _execute_on_connection
+    return connection._execute_clauseelement(
+C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\sqlalchemy\engine\base.py:1637: in _execute_clauseelement
+    ret = self._execute_context(
+C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\sqlalchemy\engine\base.py:1842: in _execute_context
+    return self._exec_single_context(
+C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\sqlalchemy\engine\base.py:1982: in _exec_single_context
+    self._handle_dbapi_exception(
+C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\sqlalchemy\engine\base.py:2351: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\sqlalchemy\engine\base.py:1963: in _exec_single_context
+    self.dialect.do_execute(
+C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\sqlalchemy\engine\default.py:943: in do_execute
+    cursor.execute(statement, parameters)
+C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\psycopg\cursor.py:97: in execute
+    raise ex.with_traceback(None)
+E   sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedColumn) column entities.author_profile does not exist
+E   LINE 1: ....normalized_name, narrative.entities.description, narrative....
+E                                                                ^
+E   [SQL: SELECT narrative.entities.id, narrative.entities.story_brain_id, narrative.entities.tenant_id, narrative.entities.novel_id, narrative.entities.entity_type, narrative.entities.canonical_name, narrative.entities.normalized_name, narrative.entities.description, narrative.entities.author_profile, narrative.entities.private_author_notes, narrative.entities.profile_version, narrative.entities.static_attributes, narrative.entities.source_type, narrative.entities.confirmation_status, narrative.entities.confidence, narrative.entities.is_locked, narrative.entities.created_by, narrative.entities.created_at, narrative.entities.updated_at 
+E   FROM narrative.entities 
+E   WHERE narrative.entities.tenant_id = %(tenant_id_1)s::UUID AND narrative.entities.novel_id = %(novel_id_1)s::UUID]
+E   [parameters: {'tenant_id_1': UUID('b2e3ae0b-4a1c-4304-8a1c-7fefba67d05a'), 'novel_id_1': UUID('b28a0529-b6ac-43d4-a221-9c0ec13f9feb')}]
+E   (Background on this error at: https://sqlalche.me/e/20/f405)
+---------------------------- Captured stderr setup ----------------------------
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001_narrative_foundation, Create Narrative Memory foundation tables.
+INFO  [alembic.runtime.migration] Running upgrade 0001_narrative_foundation -> 0002_state_projection, Add confirmed transitions, participants and rebuildable state projections.
+INFO  [alembic.runtime.migration] Running upgrade 0002_state_projection -> 0003_manuscript_bootstrap, Add durable manuscript bootstrap jobs.
+INFO  [alembic.runtime.migration] Running upgrade 0003_manuscript_bootstrap -> 0004_writing_generations, Add durable writing generations.
+INFO  [alembic.runtime.migration] Running upgrade 0004_writing_generations -> 0005_revision_provenance, Add revision provenance and fact chapter number.
+INFO  [alembic.runtime.migration] Running upgrade 0005_revision_provenance -> 0006_fix_revision_provenance, Fix revision provenance schema with revision_id and unique constraint.
+INFO  [alembic.runtime.migration] Running upgrade 0006_fix_revision_provenance -> 0007_semantic_memory_foundation, Add semantic-memory chunk and embedding storage.
+INFO  [alembic.runtime.migration] Running upgrade 0007_semantic_memory_foundation -> 0008_story_plans, Add story_plans and story_plan_objectives storage.
+INFO  [alembic.runtime.migration] Running upgrade 0008_story_plans -> 0009_autonomous_runs
+INFO  [alembic.runtime.migration] Running upgrade 0009_autonomous_runs -> 0010_fact_supersession, Keep fact revision history while projecting only the current source occurrence.
+INFO  [alembic.runtime.migration] Running upgrade 0010_fact_supersession -> 0011_entity_candidate_audit, Persist candidate decisions separately from approved narrative memory.
+INFO  [alembic.runtime.migration] Running upgrade 0011_entity_candidate_audit -> 0012_entity_guidance, Author extraction guidance, kept outside approved narrative memory.
+INFO  [alembic.runtime.migration] Running upgrade 0012_entity_guidance -> 0013_objective_intent, Monotone objective intent epoch for accept-commit fencing.
+INFO  [alembic.runtime.migration] Running upgrade 0013_objective_intent -> 0014_entity_profiles, Additive author profile and private audit ledger (AX-01).
+---------------------------- Captured stderr call -----------------------------
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running downgrade 0014_entity_profiles -> 0013_objective_intent, Additive author profile and private audit ledger (AX-01).
+INFO  [alembic.runtime.migration] Running downgrade 0013_objective_intent -> 0012_entity_guidance, Monotone objective intent epoch for accept-commit fencing.
+INFO  [alembic.runtime.migration] Running downgrade 0012_entity_guidance -> 0011_entity_candidate_audit, Author extraction guidance, kept outside approved narrative memory.
+INFO  [alembic.runtime.migration] Running downgrade 0011_entity_candidate_audit -> 0010_fact_supersession, Persist candidate decisions separately from approved narrative memory.
+INFO  [alembic.runtime.migration] Running downgrade 0010_fact_supersession -> 0009_autonomous_runs, Keep fact revision history while projecting only the current source occurrence.
+INFO  [alembic.runtime.migration] Running downgrade 0009_autonomous_runs -> 0008_story_plans
+INFO  [alembic.runtime.migration] Running downgrade 0008_story_plans -> 0007_semantic_memory_foundation, Add story_plans and story_plan_objectives storage.
+INFO  [alembic.runtime.migration] Running downgrade 0007_semantic_memory_foundation -> 0006_fix_revision_provenance, Add semantic-memory chunk and embedding storage.
+=========================== short test summary info ===========================
+FAILED tests/test_semantic_memory_postgres_integration.py::test_migration_downgrade_reupgrade_preserves_canonical_data
+1 failed in 3.48s

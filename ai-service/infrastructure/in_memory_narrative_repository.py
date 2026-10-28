@@ -663,6 +663,7 @@ class InMemoryNarrativeRepository:
         limit_recent_events: int = 20,
         token_budget: int | None = None,
         enforce_token_budget: bool = True,
+        profile_entity_ids: tuple[str, ...] | None = None,
     ) -> WritingContextPackage:
         brain = self.get_story_brain(story_id)
         brain_version = int(brain.metadata.get("brain_version", "1"))

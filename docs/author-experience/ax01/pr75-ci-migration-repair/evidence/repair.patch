@@ -1,0 +1,77 @@
+diff --git a/ai-service/tests/test_semantic_memory_postgres_integration.py b/ai-service/tests/test_semantic_memory_postgres_integration.py
+index e0cc2d7..8cb0782 100644
+--- a/ai-service/tests/test_semantic_memory_postgres_integration.py
++++ b/ai-service/tests/test_semantic_memory_postgres_integration.py
+@@ -392,28 +392,62 @@ def pg_engine_for(session_factory):
+ 
+ 
+ def test_migration_downgrade_reupgrade_preserves_canonical_data(session_factory) -> None:
+-    _, narrative, _ = _repos(session_factory)
++    tenant_id, narrative, _ = _repos(session_factory)
+     novel_id = str(uuid.uuid4())
+     narrative.upsert_entity(novel_id, {"name": "Persistent Canonical Entity", "type": "PER"})
++    original_entity = narrative.list_entities(novel_id)[0]
++    scope = {"tenant": uuid.UUID(tenant_id), "novel": uuid.UUID(novel_id),
++             "entity": uuid.UUID(original_entity.entity_id)}
++    # Only columns belonging to the v0006 entity contract. Current ORM mappings
++    # include later columns and must not be used while the schema is downgraded.
++    canonical_entity = text("""
++        SELECT id, story_brain_id, tenant_id, novel_id, canonical_name,
++               normalized_name, entity_type, description, static_attributes,
++               source_type, confirmation_status, confidence, is_locked,
++               created_by, created_at
++        FROM narrative.entities
++        WHERE tenant_id=:tenant AND novel_id=:novel AND id=:entity
++    """)
++    engine = pg_engine_for(session_factory)
++    with engine.connect() as connection:
++        original_data = dict(connection.execute(canonical_entity, scope).mappings().one())
+ 
+     cfg = Config(str(SERVICE_ROOT / "alembic.ini"))
+     cfg.set_main_option("script_location", str(SERVICE_ROOT / "migrations"))
+     cfg.set_main_option("sqlalchemy.url", get_postgres_url())
+ 
+     command.downgrade(cfg, "0006_fix_revision_provenance")
+-    inspector = inspect(pg_engine_for(session_factory))
++    inspector = inspect(engine)
+     tables = set(inspector.get_table_names(schema=SCHEMA))
+     assert "memory_chunks" not in tables
+     assert "memory_embeddings" not in tables
+     assert "entities" in tables
+-    assert [entity.name for entity in narrative.list_entities(novel_id)] == [
+-        "Persistent Canonical Entity"
+-    ]
++    profile_columns = {"author_profile", "private_author_notes", "profile_version"}
++    assert profile_columns.isdisjoint(c["name"] for c in inspector.get_columns("entities", schema=SCHEMA))
++    assert "entity_profile_audits" not in tables
++    with engine.connect() as connection:
++        assert connection.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0006_fix_revision_provenance"
++        assert dict(connection.execute(canonical_entity, scope).mappings().one()) == original_data
+ 
+     command.upgrade(cfg, "head")
+-    inspector = inspect(pg_engine_for(session_factory))
++    inspector = inspect(engine)
+     tables = set(inspector.get_table_names(schema=SCHEMA))
+-    assert {"memory_chunks", "memory_embeddings"}.issubset(tables)
+-    assert [entity.name for entity in narrative.list_entities(novel_id)] == [
+-        "Persistent Canonical Entity"
+-    ]
++    assert {"memory_chunks", "memory_embeddings", "entity_profile_audits"}.issubset(tables)
++    columns = {c["name"]: c for c in inspector.get_columns("entities", schema=SCHEMA)}
++    assert profile_columns <= columns.keys()
++    assert all(not columns[name]["nullable"] for name in profile_columns)
++    with engine.connect() as connection:
++        assert dict(connection.execute(canonical_entity, scope).mappings().one()) == original_data
++        profile_defaults = connection.execute(text("""
++            SELECT author_profile, private_author_notes, profile_version
++            FROM narrative.entities
++            WHERE tenant_id=:tenant AND novel_id=:novel AND id=:entity
++        """), scope).one()
++        assert tuple(profile_defaults) == ({}, "", 0)
++    # Back at head, use the real current repository, including its profile DTO.
++    assert narrative.list_entities(novel_id) == [original_entity]
++    profile = narrative.get_entity_profile(novel_id, original_entity.entity_id)
++    assert profile["entity_id"] == original_entity.entity_id and profile["novel_id"] == novel_id
++    assert profile["version"] == 0 and profile["author_notes"] == ""
++    assert profile["profile"] == {key: "" for key in ("description", "appearance", "personality", "background")}
++    assert profile["effective_from_chapter"] is None

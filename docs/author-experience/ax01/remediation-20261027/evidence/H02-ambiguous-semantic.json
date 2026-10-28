@@ -1,0 +1,73 @@
+{
+  "label": "H02-ambiguous-semantic",
+  "job_id": "a32387f1-bca5-5229-adb6-d0987ae7ae6c",
+  "status": "completed",
+  "error": null,
+  "brain_version_used": 3,
+  "context_hash": "fed905c9e3dfb8aae61e242c44ffc45e4cb134d33cd45a37c29ede2050bfed22",
+  "context_summary": {
+    "entity_ids": [
+      "fd52e06f-9e5a-4f54-93b3-dc4d6507a12f"
+    ],
+    "event_ids": [],
+    "fact_ids": [],
+    "cutoff_chapter": 3,
+    "recent_scope_participant_entity_ids": [],
+    "recent_scope_participant_identity": [
+      "normalized-event-participants-v1"
+    ],
+    "semantic_retrieval_status": [
+      "ok"
+    ],
+    "semantic_embedding_version": [
+      "fake-embedding-768-v1"
+    ],
+    "semantic_ranking_version": [
+      "hybrid-v1"
+    ],
+    "semantic_memory_ids": [],
+    "context_packing_version": [
+      "context-budget-v1"
+    ],
+    "context_token_estimator_version": [
+      "utf8-json-bytes-3-v1"
+    ],
+    "profile_entity_ids": [],
+    "dropped_profile_entity_ids": [],
+    "dropped_entity_ids": [],
+    "dropped_event_ids": [],
+    "dropped_fact_ids": [],
+    "dropped_semantic_memory_ids": [],
+    "deduplicated_semantic_memory_ids": [],
+    "context_routing_version": [
+      "balanced-scope-v1"
+    ],
+    "context_routing_status": [
+      "routed"
+    ],
+    "context_routing_reason": [
+      "minimum_full_fit_tier"
+    ],
+    "context_scope_policy": [
+      "balanced-scope-v1"
+    ],
+    "scope_query_entity_ids": [],
+    "scope_semantic_entity_ids": [],
+    "scope_recent_participant_entity_ids": [],
+    "scope_locked_entity_ids": [
+      "fd52e06f-9e5a-4f54-93b3-dc4d6507a12f"
+    ],
+    "brain_version_used": 3,
+    "context_hash": "fed905c9e3dfb8aae61e242c44ffc45e4cb134d33cd45a37c29ede2050bfed22",
+    "chapter_number": 3
+  },
+  "provider_call_count": 3,
+  "transport_prompts": [
+    {
+      "system": "Bạn là trợ lý viết tiểu thuyết chuyên nghiệp (Author AI Copilot).\nDựa trên bối cảnh thế giới, nhân vật, phong cách và các ràng buộc của tác giả, hãy tạo nội dung viết tiếp hoặc sửa đổi phù hợp.\nChỉ trả về định dạng JSON hợp lệ:\n{\n  \"draft_text\": \"Nội dung văn bản được sinh ra\",\n  \"explanation\": \"Lý giải ngắn gọn về hướng phát triển cốt truyện\"\n}",
+      "user": "Thao tác: continue\nĐoạn văn được chọn: Minh nhìn căn phòng.\nVị trí con trỏ: 0\nYêu cầu / Chỉ dẫn: Write about Minh.\nBối cảnh tiểu thuyết (Story Brain): {\"author_constraints\":[],\"brain_version\":3,\"current_states\":[{\"entity_id\":\"fd52e06f-9e5a-4f54-93b3-dc4d6507a12f\",\"location\":\"Unknown\",\"name\":\"Minh\",\"state\":{},\"status\":\"Alive\"}],\"entities\":[{\"approved_profile\":{},\"entity_id\":\"fd52e06f-9e5a-4f54-93b3-dc4d6507a12f\",\"entity_type\":\"PER\",\"is_locked\":true,\"location\":\"Unknown\",\"name\":\"Minh\",\"status\":\"Alive\"}],\"recent_events\":[],\"semantic_memories\":[],\"world_rules\":[]}\n"
+    }
+  ],
+  "prompt_context_hash": "fed905c9e3dfb8aae61e242c44ffc45e4cb134d33cd45a37c29ede2050bfed22",
+  "prompt_context_estimated_tokens": 138
+}

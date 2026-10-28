@@ -9,6 +9,7 @@ from typing import Any
 from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session, sessionmaker
 
+from domain.entity_profile import approved_profile
 from domain.models import (
     EventMemorySource,
     HybridRankingSignals,
@@ -494,8 +495,6 @@ class PostgresSemanticMemoryRepository:
             active_event_ids = [
                 event.id for event in events if event.id not in superseded_ids
             ]
-            if not active_event_ids:
-                return HybridRankingSignals()
 
             participant_rows = session.execute(
                 select(
@@ -509,40 +508,41 @@ class PostgresSemanticMemoryRepository:
                 participants_by_event.setdefault(event_id, set()).add(entity_id)
                 eligible_entity_ids.add(entity_id)
 
-            if not eligible_entity_ids:
-                return HybridRankingSignals()
-
             entities = session.scalars(
                 select(EntityRecord).where(
-                    EntityRecord.id.in_(eligible_entity_ids),
                     EntityRecord.story_brain_id == brain.id,
                     EntityRecord.tenant_id == self._tenant_id,
                     EntityRecord.novel_id == novel_id,
                     EntityRecord.confirmation_status == "confirmed",
                 )
             ).all()
+            # Extend existing identity signals with confirmed baseline knowledge;
+            # no occurrence or semantic-memory chunk is invented.
+            def baseline_eligible(entity):
+                first = (entity.static_attributes or {}).get('first_chapter')
+                try:
+                    if first is not None and int(first) > chapter_number:
+                        return False
+                except (ValueError, TypeError):
+                    return False
+                return bool(approved_profile(entity.author_profile, chapter_number))
+            eligible_entity_ids.update(e.id for e in entities if baseline_eligible(e))
             entity_by_id = {entity.id: entity for entity in entities}
-            id_by_name = {
-                entity.canonical_name.casefold(): entity.id for entity in entities
-            }
-
-            aliases = session.scalars(
-                select(EntityAliasRecord).where(
-                    EntityAliasRecord.entity_id.in_(list(entity_by_id)),
-                    EntityAliasRecord.confirmation_status == "confirmed",
-                )
-            ).all()
-            names_by_id: dict[uuid.UUID, set[str]] = {
-                entity_id: {entity.canonical_name}
-                for entity_id, entity in entity_by_id.items()
-            }
+            aliases = session.scalars(select(EntityAliasRecord).where(
+                EntityAliasRecord.entity_id.in_(list(entity_by_id)),
+                EntityAliasRecord.confirmation_status == "confirmed")).all()
+            ids_by_name: dict[str, set[uuid.UUID]] = {}
+            for entity in entities:
+                ids_by_name.setdefault(entity.canonical_name.casefold(), set()).add(entity.id)
             for alias in aliases:
-                names_by_id.setdefault(alias.entity_id, set()).add(alias.alias)
-
-            query_entity_ids: set[uuid.UUID] = set()
-            for entity_id, names in names_by_id.items():
-                if any(self._contains_phrase(query, name) for name in names):
-                    query_entity_ids.add(entity_id)
+                ids_by_name.setdefault(alias.alias.casefold(), set()).add(alias.entity_id)
+            # A name cannot silently collapse homonymous UUIDs.
+            id_by_name = {name: next(iter(ids)) for name, ids in ids_by_name.items() if len(ids) == 1}
+            query_entity_ids = {e_id for e_id in eligible_entity_ids
+                                if self._contains_phrase(query, str(e_id))}
+            for name, ids in ids_by_name.items():
+                if len(ids) == 1 and self._contains_phrase(query, name):
+                    query_entity_ids.update(ids & eligible_entity_ids)
 
             if not query_entity_ids:
                 return HybridRankingSignals()

@@ -68,6 +68,10 @@ class EntityRecord(Base):
     canonical_name: Mapped[str] = mapped_column(String(255), nullable=False)
     normalized_name: Mapped[str] = mapped_column(String(255), nullable=False, index=True)
     description: Mapped[str | None] = mapped_column(Text)
+    author_profile: Mapped[dict[str, Any]] = mapped_column(JSON_TYPE, nullable=False, default=dict, server_default=text("'{}'"))
+    private_author_notes: Mapped[str] = mapped_column(Text, nullable=False, default="", server_default="")
+    profile_version: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+
     static_attributes: Mapped[dict[str, Any]] = mapped_column(
         JSON_TYPE, nullable=False, default=dict, server_default=text("'{}'")
     )
@@ -636,3 +640,19 @@ class AutonomousRunRecord(Base):
 
 
 
+
+
+class EntityProfileAuditRecord(Base):
+    """Private durable mutation ledger; never part of approved memory/export/context."""
+    __tablename__ = "entity_profile_audits"
+    __table_args__ = (UniqueConstraint("tenant_id", "novel_id", "actor_id", "request_key", name="uq_entity_profile_request"), {"schema": SCHEMA})
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    tenant_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
+    novel_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
+    entity_id: Mapped[uuid.UUID] = mapped_column(Uuid, ForeignKey(f"{SCHEMA}.entities.id", ondelete="CASCADE"), nullable=False)
+    actor_id: Mapped[uuid.UUID] = mapped_column(Uuid, nullable=False)
+    request_key: Mapped[str] = mapped_column(String(128), nullable=False)
+    input_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    before: Mapped[dict[str, Any]] = mapped_column(JSON_TYPE, nullable=False)
+    after: Mapped[dict[str, Any]] = mapped_column(JSON_TYPE, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

@@ -62,6 +62,13 @@ class ContextBudgetPacker:
     ) -> WritingContextPackage:
         budget = int(maximum) if maximum is not None and int(maximum) > 0 else self.default_budget
         before_tokens = self.estimate_prompt_tokens(package)
+        profiles = {self._entity_id(e): e['approved_profile'] for e in package.entities
+                    if e.get('approved_profile')}
+        if profiles:
+            package = replace(package, entities=tuple(
+                {**e, 'approved_profile': {}} if e.get('approved_profile') else e
+                for e in package.entities))
+        dropped_profile_ids: list[str] = []
 
         locked_rules = [rule for rule in package.world_rules if bool(rule.get("is_locked"))]
         unlocked_rules = [rule for rule in package.world_rules if not bool(rule.get("is_locked"))]
@@ -261,6 +268,20 @@ class ContextBudgetPacker:
         # Canonical recent-event output remains chronological/deterministic.
         selected_recent.sort(key=self._recent_sort_key)
 
+        # Baseline text is optional; Canon identity/state remain protected.
+        for index, entity in enumerate(selected_entities):
+            entity_id = self._entity_id(entity)
+            if entity_id not in profiles:
+                continue
+            enriched = {**entity, 'approved_profile': profiles[entity_id]}
+            proposed = [*selected_entities[:index], enriched, *selected_entities[index + 1:]]
+            if not protected_overflow and fits(candidate_package(entities=proposed)):
+                selected_entities[index] = enriched
+            else:
+                dropped_profile_ids.append(entity_id)
+        dropped_profile_ids.extend(eid for eid in profiles if eid not in
+                                   {self._entity_id(e) for e in selected_entities})
+
         packed = self._build_package(
             package,
             entities=selected_entities,
@@ -288,6 +309,8 @@ class ContextBudgetPacker:
         context_summary["semantic_memory_ids"] = selected_semantic_ids
         context_summary["context_packing_version"] = [CONTEXT_PACKING_VERSION]
         context_summary["context_token_estimator_version"] = [TOKEN_ESTIMATOR_VERSION]
+        context_summary["profile_entity_ids"] = [self._entity_id(e) for e in selected_entities if e.get("approved_profile")]
+        context_summary["dropped_profile_entity_ids"] = self._unique(dropped_profile_ids)
         context_summary["dropped_entity_ids"] = self._unique(dropped_entity_ids)
         context_summary["dropped_event_ids"] = self._unique(dropped_event_ids)
         context_summary["dropped_fact_ids"] = self._unique(dropped_rule_ids)
@@ -306,7 +329,8 @@ class ContextBudgetPacker:
             "estimator_version": TOKEN_ESTIMATOR_VERSION,
             "deduplicated_semantic_count": len(self._unique(deduplicated_semantic_ids)),
             "dropped_artifact_count": (
-                len(self._unique(dropped_entity_ids))
+                len(self._unique(dropped_profile_ids))
+                + len(self._unique(dropped_entity_ids))
                 + len(self._unique(dropped_event_ids))
                 + len(self._unique(dropped_rule_ids))
                 + len(self._unique(dropped_semantic_ids))

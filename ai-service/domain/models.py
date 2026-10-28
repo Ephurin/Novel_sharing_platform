@@ -20,6 +20,7 @@ class NarrativeEntity:
     location: str = "Unknown"
     mentions: int = 1
     is_locked: bool = False
+    approved_profile: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True, slots=True)
