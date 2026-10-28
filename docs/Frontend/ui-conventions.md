@@ -69,6 +69,10 @@ Lưu ý:
 - **Khung:** người dùng vai trò `AUTHOR` và `READER` vào các route trong `WebAppShell` đều nhận `AuthorTheme`, `AuthorNavbar` và `main.sc-shell-content` (rộng tối đa 1240px, padding 24px). `ADMIN` vẫn dùng khung cũ.
 - **Trang trong khung** (`/reader/...`, `/notifications`, `/profile/me`): **không** tự gắn navbar hay thêm container `max-w-*` có padding. Khung đã có sẵn.
 - **Trang ngoài khung** (`/wallet`, `/authors/:id`, `/author/...`, `/public/...`): tự bọc `AuthorTheme` (trong `router.tsx`) và tự gắn `<AuthorNavbar />` một lần.
+- **Trang công khai** (`/public/...`, hồ sơ tác giả `/authors/:id`): khách xem được mà không cần đăng nhập.
+  - Hồ sơ tác giả bọc `OptionalSession` thay vì `AuthGate`: có token thì vẫn khôi phục phiên, không có thì hiển thị cho khách.
+  - Với khách, mọi link trên trang phải trỏ về `/public/...`. Nút theo dõi và ủng hộ đổi thành "Đăng nhập để theo dõi".
+  - API ghi dữ liệu vẫn bắt đăng nhập (401).
 - **`AuthorNavbar` đổi menu theo vai trò:**
   - Tác giả/Admin: Tác phẩm · Ví & doanh thu · Trang tác giả, cùng nút "Viết tiếp".
   - Độc giả: Khám phá · Thư viện · Lịch sử đọc · Ví xu.
@@ -105,6 +109,12 @@ Lưu ý:
 - Chữ trên giao diện viết bằng **tiếng Việt**.
 - Giữ nguyên `data-testid` khi sửa giao diện; script E2E trong `scripts/` dựa vào chúng. Riêng hai option `Serif` và `Sepia` trong tùy chỉnh đọc được script chọn theo chữ, không đổi tên.
 - Hiển thị tên chương bằng dạng `Chương N: tên`, bỏ tiền tố "Chương N:" lặp lại nếu dữ liệu đã có sẵn.
+- Khung đọc chương có class `sc-reading-surface` và nhận màu nền/chữ từ tùy chỉnh đọc. `.chapter-prose` bên trong kế thừa màu đó, không đặt màu riêng.
+- Script E2E có ghi dữ liệu **không được chạy trên DB dùng chung** (`ephurin`):
+  - Dùng `scripts/e2e_isolated_stack.py`. Module này tạo DB Postgres/Mongo tạm `ephurin_test_*`, chạy backend và web build trên cổng riêng, rồi xoá DB khi kết thúc.
+  - Script từ chối chạy (mã 3) nếu thiếu `EPHURIN_ALLOW_TEST_DB_MUTATIONS=1`, nếu tên DB không phải DB tạm, nếu DB đã tồn tại, hoặc nếu cổng trùng dev stack (4000/5173).
+  - Test cho phần này: `python -m unittest scripts/test_e2e_isolated_stack.py`.
+  - Smoke giao diện theo vai trò, kích thước và giao diện sáng/tối: `scripts/run_ui_smoke_matrix_e2e.py`.
 - Không hiển thị dữ liệu mà API không trả về (huy hiệu, địa điểm, câu trích dẫn...). Cần thì bổ sung API trước.
 - Trước khi mở PR giao diện:
   - Chạy `npm run typecheck` và `npm run test:contrast` trong `web/`.
@@ -114,6 +124,5 @@ Lưu ý:
 ## 8. Đã biết, chưa xử lý
 
 - Chữ phụ `--sc-muted-rgb` (`text-stone-400/500/600`, `#77736f`) trên nền trang `--sc-bg` chỉ đạt 4,39:1. Trên nền thẻ màu trắng thì đạt 4,7:1. Token này có từ trước và chưa nằm trong `test:contrast`.
-- Chữ trong chương (`.chapter-prose` trong `styles.css`) luôn lấy `--sc-text`, nên không đổi theo màu nền đã chọn trong tùy chỉnh đọc. Ở giao diện sáng, nền Sepia/Tối làm chữ gần như không đọc được (khoảng 1:1). Lỗi có từ trước PR #73.
 - Giao diện admin và trang `/login` chưa chuyển sang StoryCraft. Nút Mantine `light`/`subtle` và badge ở đó còn chữ cam khoảng 3,2–3,6:1.
 - Màu chế độ sáng chưa được gộp về `storycraft.css` (xem mục 1).
