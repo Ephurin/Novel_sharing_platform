@@ -9,7 +9,9 @@ from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 
 JWT = re.compile(r'eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+')
-SENSITIVE = re.compile(r'password|authorization|cookie|access.?token|refresh.?token|secret|api.?key', re.I)
+BEARER = re.compile(r'Bearer\s+[A-Za-z0-9_\-\.]{15,}', re.I)
+SENSITIVE = re.compile(r'password|authorization|cookie|access.?token|refresh.?token|secret|api.?key|author_notes|private_author_notes|prompt_text', re.I)
+PRIVATE_NOTE_KEY = re.compile(r'author_notes|private_author_notes', re.I)
 
 
 def sanitize_trace(source, target, secrets):
@@ -17,13 +19,21 @@ def sanitize_trace(source, target, secrets):
     def text(value):
         for secret in secrets:
             value = value.replace(secret, '[REDACTED]')
-        return JWT.sub('[REDACTED_JWT]', value)
+        value = JWT.sub('[REDACTED_JWT]', value)
+        value = BEARER.sub('Bearer [REDACTED_TOKEN]', value)
+        return value
     def clean(value):
         if isinstance(value, dict):
             header = SENSITIVE.search(str(value.get('name', '')))
-            return {key: '[REDACTED]' if isinstance(item, str) and
-                    (SENSITIVE.search(key) or header and key == 'value') else clean(item)
-                    for key, item in value.items()}
+            res = {}
+            for key, item in value.items():
+                if PRIVATE_NOTE_KEY.search(key):
+                    res[key] = '[REDACTED_PRIVATE_NOTE]'
+                elif isinstance(item, str) and (SENSITIVE.search(key) or (header and key == 'value')):
+                    res[key] = '[REDACTED]'
+                else:
+                    res[key] = clean(item)
+            return res
         if isinstance(value, list):
             return [clean(item) for item in value]
         return text(value) if isinstance(value, str) else value

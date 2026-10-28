@@ -11,7 +11,9 @@ function sha256(val) {
 
 test('P1 AX-01 + AX-02 Integrated Acceptance Suite (8 Scenarios)', { timeout: 900000 }, async (t) => {
   const h = await createHarness();
-  const { page, api, sql, shot, step, finish, origin, v, out } = h;
+  const { page, api, sql, shot, step, finish, origin, v, out, registerSecret, browser } = h;
+  registerSecret('Password!12345678');
+  registerSecret('SENTINEL_NOTE_CONFIDENTIAL_LORE_7749_SECRET');
 
   const results = {
     'AX-E2E-01': 'NOT_RUN',
@@ -322,6 +324,7 @@ test('P1 AX-01 + AX-02 Integrated Acceptance Suite (8 Scenarios)', { timeout: 90
     // =========================================================================
     await step('AX-E2E-03: Private Author Notes Isolation and Secrecy', async () => {
       const sentinelNote = 'SENTINEL_NOTE_CONFIDENTIAL_LORE_7749_SECRET';
+      registerSecret(sentinelNote);
 
       // Capture before state
       const brainBefore = Number((await sql('SELECT brain_version FROM narrative.story_brains WHERE novel_id=$1', [novelId]))[0].brain_version);
@@ -343,6 +346,8 @@ test('P1 AX-01 + AX-02 Integrated Acceptance Suite (8 Scenarios)', { timeout: 90
       assert.equal(Number(patchJson.data.version), 2);
       assert.equal(Number(patchJson.data.brain_version), brainBefore);
 
+      // Mask sensitive private notes before taking screenshot to guarantee zero visual leakage
+      await page.getByLabel('Private Author Notes — ghi chú riêng', { exact: true }).fill('[REDACTED_AUTHOR_NOTE_MASKED]');
       await shot('ax-e2e-03-private-notes-saved');
 
       // Independent PostgreSQL readback
@@ -379,7 +384,7 @@ test('P1 AX-01 + AX-02 Integrated Acceptance Suite (8 Scenarios)', { timeout: 90
     // =========================================================================
     // SCENARIO 4: AX-E2E-04 — Homonymous Characters
     // =========================================================================
-    await step('AX-E2E-04: Homonymous Characters UUID Isolation', async () => {
+    await step('AX-E2E-04: Homonymous Characters UUID Isolation & Domain Contract Verification', async () => {
       // Create first "Minh" (Entity A)
       await api('POST', `/ai/story-brains/${novelId}/author-entities`, {
         name: 'Minh', entity_type: 'PER'
@@ -403,13 +408,15 @@ test('P1 AX-01 + AX-02 Integrated Acceptance Suite (8 Scenarios)', { timeout: 90
       assert.ok(minhA);
       const minhAId = minhA.entity_id;
 
-      // Contract test: Attempting to create duplicate "Minh" via author-entities endpoint is rejected by domain rule
+      // Contract test: Attempting to create duplicate "Minh" via author-entities endpoint is rejected with HTTP 422
       const dupRes = await api('POST', `/ai/story-brains/${novelId}/author-entities`, {
         name: 'Minh', entity_type: 'PER'
       }, authorUser.token, [422]);
-      assert.equal(dupRes.status, 422);
+      assert.equal(dupRes.status, 422, 'Duplicate canonical name creation must return HTTP 422');
+      const homonymCreationContract = 'HOMONYM_CREATION_UNSUPPORTED: Production author creation workflow strictly enforces unique canonical name per story brain, rejecting duplicates with HTTP 422';
 
-      // Create second distinct "Minh" (Entity B) via legitimate PostgreSQL insertion under same story brain
+      // Create second distinct "Minh" (Entity B) via direct SQL insertion labeled SYNTHETIC_DB_FIXTURE
+      const fixtureLabel = 'SYNTHETIC_DB_FIXTURE: Created in isolated test database for UUID isolation verification only; not an end-user workflow';
       const storyBrainId = (await sql('SELECT id FROM narrative.story_brains WHERE novel_id=$1', [novelId]))[0].id;
       tenantId = (await sql('SELECT tenant_id FROM narrative.story_brains WHERE novel_id=$1', [novelId]))[0].tenant_id;
       const minhBId = randomUUID();
@@ -422,7 +429,7 @@ test('P1 AX-01 + AX-02 Integrated Acceptance Suite (8 Scenarios)', { timeout: 90
 
       // Edit Entity A's profile via PATCH to distinct values
       const profA = (await api('GET', `/ai/story-brains/${novelId}/entities/${minhAId}/profile`, undefined, authorUser.token)).data;
-      const patchARes = await api('PATCH', `/ai/story-brains/${novelId}/entities/${minhAId}/profile`, {
+      await api('PATCH', `/ai/story-brains/${novelId}/entities/${minhAId}/profile`, {
         expected_version: Number(profA.version),
         expected_brain_version: Number(profA.brain_version),
         effective_from_chapter: 1,
@@ -454,93 +461,141 @@ test('P1 AX-01 + AX-02 Integrated Acceptance Suite (8 Scenarios)', { timeout: 90
       assert.notEqual(dbA.author_profile.appearance, dbB.author_profile.appearance);
 
       evidence['AX-E2E-04'] = {
-        status: 'PASS',
-        homonymDomainRestricted: true,
+        status: 'PARTIAL_PASS',
+        homonymCreationContract,
+        fixtureLabel,
+        uuidIsolationStatus: 'UUID_ISOLATION_PASS (SYNTHETIC_DB_FIXTURE)',
         entityA_UUID: minhAId,
         entityB_UUID: minhBId,
         entityA_Appearance: dbA.author_profile.appearance,
         entityB_Appearance: dbB.author_profile.appearance
       };
-      results['AX-E2E-04'] = 'PASS';
+      results['AX-E2E-04'] = 'PARTIAL_PASS';
     });
 
     // =========================================================================
-    // SCENARIO 5: AX-E2E-05 — Concurrent Editing and CAS
+    // SCENARIO 5: AX-E2E-05 — Concurrent Editing and CAS with Two Real Browsers
     // =========================================================================
-    await step('AX-E2E-05: Concurrent Editing, CAS Conflict (409), and Reconcile', async () => {
-      // Read current state of Lâm Phong
+    await step('AX-E2E-05: Concurrent Editing on Two Real Browser Contexts, CAS Conflict (409), and Reconcile', async () => {
+      const pageA = h.page;
+      const contextB = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      const pageB = await contextB.newPage();
+
+      try {
+        // Log into Browser B with real author account
+        await pageB.goto(origin + '/login');
+        await pageB.getByLabel('Email or username', { exact: true }).fill(authorUser.email);
+        await pageB.getByLabel('Password', { exact: true }).fill(authorUser.password);
+        const loginRespPromiseB = pageB.waitForResponse(r => r.url().includes('/auth/login') && r.request().method() === 'POST');
+        await pageB.getByRole('button', { name: 'Login', exact: true }).click();
+        const loginRespB = await loginRespPromiseB;
+        assert.equal(loginRespB.status(), 200);
+        await pageB.waitForURL(/\/(author|reader|admin)(?:\/|$)/);
+
+        // Both navigate to the Author IDE to the same novel and chapter
+        await pageA.goto(`${origin}/author/ide?novelId=${novelId}&chapterId=${ch1Id}`);
+        await pageA.locator('textarea.sc-manuscript').waitFor();
+        await pageA.getByTestId('btn-story-brain').click();
+        await pageA.getByRole('tab', { name: 'Hồ sơ Codex' }).click();
+        await pageA.getByRole('textbox', { name: 'Chọn entity theo UUID', exact: true }).click();
+        await pageA.getByRole('option', { name: new RegExp(lamPhongEntityId) }).click();
+        await pageA.locator('[data-testid="entity-profile-editor"]').waitFor();
+
+        await pageB.goto(`${origin}/author/ide?novelId=${novelId}&chapterId=${ch1Id}`);
+        await pageB.locator('textarea.sc-manuscript').waitFor();
+        await pageB.getByTestId('btn-story-brain').click();
+        await pageB.getByRole('tab', { name: 'Hồ sơ Codex' }).click();
+        await pageB.getByRole('textbox', { name: 'Chọn entity theo UUID', exact: true }).click();
+        await pageB.getByRole('option', { name: new RegExp(lamPhongEntityId) }).click();
+        await pageB.locator('[data-testid="entity-profile-editor"]').waitFor();
+
+        // Capture initial version before concurrency
+        const vInitial = Number((await sql('SELECT profile_version FROM narrative.entities WHERE id=$1', [lamPhongEntityId]))[0].profile_version);
+
+        // Browser A modifies appearance and saves successfully
+        const appearanceA = 'Session A browser: vết sẹo sậm màu hơn';
+        await pageA.getByLabel('Ngoại hình', { exact: true }).fill(appearanceA);
+        const patchPromiseA = pageA.waitForResponse(r => r.url().includes(`/entities/${lamPhongEntityId}/profile`) && r.request().method() === 'PATCH');
+        await pageA.getByRole('button', { name: 'Lưu thay đổi', exact: true }).click();
+        const patchResA = await patchPromiseA;
+        assert.equal(patchResA.status(), 200);
+
+        // Browser B (holding stale form version N) modifies appearance and saves
+        const appearanceB = 'Session B browser: vết sẹo mờ nhạt';
+        await pageB.getByLabel('Ngoại hình', { exact: true }).fill(appearanceB);
+        const patchPromiseB = pageB.waitForResponse(r => r.url().includes(`/entities/${lamPhongEntityId}/profile`) && r.request().method() === 'PATCH');
+        await pageB.getByRole('button', { name: 'Lưu thay đổi', exact: true }).click();
+        const patchResB = await patchPromiseB;
+        assert.equal(patchResB.status(), 409, 'Browser B MUST receive HTTP 409 Conflict');
+
+        // Verify B's input is still retained in B's form
+        assert.equal(await pageB.getByLabel('Ngoại hình', { exact: true }).inputValue(), appearanceB);
+
+        // Verify Session A's committed profile was NOT overwritten in DB
+        const dbAfterA = (await sql('SELECT author_profile, profile_version FROM narrative.entities WHERE id=$1', [lamPhongEntityId]))[0];
+        assert.equal(Number(dbAfterA.profile_version), vInitial + 1);
+        assert.equal(dbAfterA.author_profile.appearance, appearanceA);
+
+        // Browser B clicks "Tải phiên bản server để đối chiếu"
+        const reconcileBtn = pageB.getByRole('button', { name: 'Tải phiên bản server để đối chiếu' });
+        assert.ok(await reconcileBtn.isVisible());
+        await reconcileBtn.click();
+
+        // Verify server comparison panel appears showing A's changes
+        await pageB.locator('[data-testid="profile-server-comparison"]').waitFor();
+
+        // Browser B clicks "Lưu bản đã đối chiếu"
+        const saveReconciledPromiseB = pageB.waitForResponse(r => r.url().includes(`/entities/${lamPhongEntityId}/profile`) && r.request().method() === 'PATCH');
+        await pageB.getByRole('button', { name: 'Lưu bản đã đối chiếu' }).click();
+        const saveReconciledResB = await saveReconciledPromiseB;
+        assert.equal(saveReconciledResB.status(), 200, 'Reconciled save must succeed with HTTP 200');
+
+        // Verify DB now has B's reconciled update at version N+2
+        const dbAfterReconcile = (await sql('SELECT author_profile, profile_version FROM narrative.entities WHERE id=$1', [lamPhongEntityId]))[0];
+        assert.equal(Number(dbAfterReconcile.profile_version), vInitial + 2);
+        assert.equal(dbAfterReconcile.author_profile.appearance, appearanceB);
+
+        // Database audit check: exactly 2 audits recorded during this concurrency scenario
+        const audits = await sql("SELECT id, (after->>'version')::int AS version FROM narrative.entity_profile_audits WHERE entity_id=$1 AND (after->>'version')::int > $2 ORDER BY (after->>'version')::int", [lamPhongEntityId, vInitial]);
+        assert.equal(audits.length, 2, 'Exactly 2 audits must be recorded (one for A, one for B reconcile)');
+      } finally {
+        await contextB.close();
+      }
+
+      // Backend regression: Same-key idempotent retry
       const profCurrent = (await api('GET', `/ai/story-brains/${novelId}/entities/${lamPhongEntityId}/profile`, undefined, authorUser.token)).data;
-      const vInitial = Number(profCurrent.version); // e.g. 2
-      const bInitial = Number(profCurrent.brain_version);
-
-      // Session A edits and saves successfully
-      const keyA = randomUUID();
-      const patchA = await api('PATCH', `/ai/story-brains/${novelId}/entities/${lamPhongEntityId}/profile`, {
-        expected_version: vInitial,
-        expected_brain_version: bInitial,
+      const keyRegression = randomUUID();
+      await api('PATCH', `/ai/story-brains/${novelId}/entities/${lamPhongEntityId}/profile`, {
+        expected_version: Number(profCurrent.version),
+        expected_brain_version: Number(profCurrent.brain_version),
         effective_from_chapter: 1,
-        appearance: 'Session A: vết sẹo sậm màu hơn'
-      }, authorUser.token, [200], { 'Idempotency-Key': keyA });
-      assert.equal(Number(patchA.data.version), vInitial + 1);
+        appearance: 'Regression: same key retry test'
+      }, authorUser.token, [200], { 'Idempotency-Key': keyRegression });
 
-      // Session B submits stale expected_version
-      const keyB = randomUUID();
-      const patchB = await fetch(`${origin}/api/v1/ai/story-brains/${novelId}/entities/${lamPhongEntityId}/profile`, {
+      const patchReg2 = await fetch(`${origin}/api/v1/ai/story-brains/${novelId}/entities/${lamPhongEntityId}/profile`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authorUser.token}`,
-          'Idempotency-Key': keyB
+          'Idempotency-Key': keyRegression
         },
         body: JSON.stringify({
-          expected_version: vInitial, // Stale!
-          expected_brain_version: bInitial,
+          expected_version: Number(profCurrent.version),
+          expected_brain_version: Number(profCurrent.brain_version),
           effective_from_chapter: 1,
-          appearance: 'Session B: vết sẹo biến mất'
+          appearance: 'Regression: same key retry test'
         })
       });
-      assert.equal(patchB.status, 409, 'Session B MUST receive HTTP 409 Conflict');
-
-      // Verify Session A's data was NOT overwritten
-      const dbAfterConflict = (await sql('SELECT author_profile, profile_version FROM narrative.entities WHERE id=$1', [lamPhongEntityId]))[0];
-      assert.equal(Number(dbAfterConflict.profile_version), vInitial + 1);
-      assert.equal(dbAfterConflict.author_profile.appearance, 'Session A: vết sẹo sậm màu hơn');
-
-      // Same-key retry: Session A repeats exact request with same key
-      const retryRes = await fetch(`${origin}/api/v1/ai/story-brains/${novelId}/entities/${lamPhongEntityId}/profile`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authorUser.token}`,
-          'Idempotency-Key': keyA
-        },
-        body: JSON.stringify({
-          expected_version: vInitial,
-          expected_brain_version: bInitial,
-          effective_from_chapter: 1,
-          appearance: 'Session A: vết sẹo sậm màu hơn'
-        })
-      });
-      assert.equal(retryRes.status, 200, 'Same-key retry MUST succeed and return original response');
-
-      // Session B reconciles: fetches latest version, submits with fresh versions and new key
-      const freshProf = (await api('GET', `/ai/story-brains/${novelId}/entities/${lamPhongEntityId}/profile`, undefined, authorUser.token)).data;
-      assert.equal(Number(freshProf.version), vInitial + 1);
-
-      const keyBReconciled = randomUUID();
-      const reconcileRes = await api('PATCH', `/ai/story-brains/${novelId}/entities/${lamPhongEntityId}/profile`, {
-        expected_version: Number(freshProf.version),
-        expected_brain_version: Number(freshProf.brain_version),
-        effective_from_chapter: 1,
-        appearance: 'Session B reconciled: vết sẹo mờ nhạt'
-      }, authorUser.token, [200]);
-      assert.equal(Number(reconcileRes.data.version), vInitial + 2);
+      assert.equal(patchReg2.status, 200, 'Same-key retry must return 200 with original response');
 
       evidence['AX-E2E-05'] = {
         status: 'PASS',
-        conflictStatus: patchB.status,
-        sameKeyRetryStatus: retryRes.status,
-        reconciledVersion: reconcileRes.data.version
+        twoRealBrowserSessionsTested: true,
+        sessionB_ConflictStatus: 409,
+        sessionB_InputRetained: true,
+        sessionA_Unoverwritten: true,
+        reconciledSaveStatus: 200,
+        sameKeyRetryStatus: patchReg2.status
       };
       results['AX-E2E-05'] = 'PASS';
     });
@@ -623,13 +678,13 @@ print(json.dumps({
     // =========================================================================
     // SCENARIO 7: AX-E2E-07 — Actual Writing Generation Context
     // =========================================================================
-    await step('AX-E2E-07: Actual Writing Generation Context & LLM Prompt Verification', async () => {
+    await step('AX-E2E-07: Actual Writing Generation Context & Canonical Context Integrity Verification', async () => {
       // 1. Set distinctive profile on Lâm Phong with effective_from_chapter = 1 (covers chapter 4)
       const pCurrent = (await api('GET', `/ai/story-brains/${novelId}/entities/${lamPhongEntityId}/profile`, undefined, authorUser.token)).data;
       const targetAppearance = 'Vết sẹo mảnh cắt ngang lông mày trái, ánh mắt sắc như chim ưng';
       const targetPersonality = 'Trầm tĩnh cẩn trọng và không dễ tin người';
 
-      const setupPatch = await api('PATCH', `/ai/story-brains/${novelId}/entities/${lamPhongEntityId}/profile`, {
+      await api('PATCH', `/ai/story-brains/${novelId}/entities/${lamPhongEntityId}/profile`, {
         expected_version: Number(pCurrent.version),
         expected_brain_version: Number(pCurrent.brain_version),
         effective_from_chapter: 1,
@@ -640,7 +695,10 @@ print(json.dumps({
       // 2. Fetch fresh brain version after profile edit
       const pLatest = (await api('GET', `/ai/story-brains/${novelId}/entities/${lamPhongEntityId}/profile`, undefined, authorUser.token)).data;
 
-      // 3. Submit normal writing generation request without calling context-preview
+      // 3. Submit normal writing generation request with unique correlation token in instruction
+      const correlationToken = `CORR_JOB_${randomUUID().replaceAll('-', '').slice(0, 10)}`;
+      const genInstruction = `Lâm Phong bước đi trong sương sớm, cảnh giác quan sát xung quanh. [${correlationToken}]`;
+
       const genRes = await api('POST', '/ai/writing/generations', {
         novel_id: novelId,
         chapter_id: ch4Id,
@@ -648,7 +706,7 @@ print(json.dumps({
         content_hash: ch4Hash,
         operation: 'continue',
         selection: { start: prose4Draft.length, end: prose4Draft.length, cursor: prose4Draft.length },
-        instruction: 'Lâm Phong bước đi trong sương sớm, cảnh giác quan sát xung quanh.',
+        instruction: genInstruction,
         expected_brain_version: Number(pLatest.brain_version),
         idempotency_key: `gen-test-${randomUUID()}`,
         style: {}
@@ -670,46 +728,97 @@ print(json.dumps({
 
       assert.equal(writingJob.status, 'completed');
 
-      // 5. Query PostgreSQL narrative.writing_generations for persisted context_hash
-      const dbJob = (await sql('SELECT * FROM narrative.writing_generations WHERE novel_id=$1 ORDER BY created_at DESC LIMIT 1', [novelId]))[0];
-      assert.ok(dbJob, 'Writing generation job must be persisted in database');
+      // 5. Query PostgreSQL narrative.writing_generations by exact job_id (NO ORDER BY DESC LIMIT 1)
+      const dbJobRows = await sql('SELECT * FROM narrative.writing_generations WHERE job_id=$1', [jobId]);
+      assert.equal(dbJobRows.length, 1, 'Job must be queryable by its exact job_id');
+      const dbJob = dbJobRows[0];
+      assert.equal(dbJob.status, 'completed');
+
+      // Verify ContextBudgetPacker execution was recorded and not bypassed
+      const packingVersion = dbJob.context_summary?.context_packing_version;
+      assert.ok(Array.isArray(packingVersion) && packingVersion.includes('context-budget-v1'), 'ContextBudgetPacker must be verified in context_summary');
+
       const persistedContextHash = dbJob.context_summary?.context_hash || writingJob.context_hash;
       assert.ok(persistedContextHash, 'context_hash must be present on job record');
 
-      // 6. Inspect actual requests logged by fake-upstream
+      // 6. Inspect fake-upstream requests using exact correlationToken
       const { spawnSync } = await import('node:child_process');
-      const upstreamLogProc = spawnSync('docker', [
-        'exec', `${v.WAVE1D_PROJECT}-fake-upstream-1`,
-        'python', '-c', `
-import json
+      const verifyScript = `
+import json, hashlib
+
 with open('/evidence/requests.jsonl') as f:
     lines = [json.loads(line) for line in f if line.strip()]
-writing_reqs = [r for r in lines if 'Story Brain' in r.get('prompt_text', '') or 'Author AI Copilot' in r.get('prompt_text', '')]
-print(json.dumps(writing_reqs[-1] if writing_reqs else {}))
-`
+
+corr = [r for r in lines if '${correlationToken}' in r.get('prompt_text', '')]
+assert len(corr) >= 1, "No correlated fake-upstream request found for ${correlationToken}"
+req = corr[-1]
+prompt = req.get('prompt_text', '')
+
+prefix = 'Bối cảnh tiểu thuyết (Story Brain): '
+assert prefix in prompt, "Story Brain context prefix missing in prompt"
+ctx_part = prompt.split(prefix, 1)[1]
+
+for delim in ['\\nPhong cách văn phong (Style):', '\\nRàng buộc bắt buộc (Constraints):', '\\n\\n']:
+    if delim in ctx_part:
+        ctx_part = ctx_part.split(delim, 1)[0]
+
+ctx_obj = json.loads(ctx_part.strip())
+
+# Recalculate hash per implementation contract
+canonical_bytes = json.dumps(
+    ctx_obj,
+    ensure_ascii=False,
+    sort_keys=True,
+    separators=(",", ":"),
+    default=str
+).encode('utf-8')
+recomputed_hash = hashlib.sha256(canonical_bytes).hexdigest()
+
+entities = ctx_obj.get('entities', [])
+lam_phong = next((e for e in entities if e.get('entity_id') == '${lamPhongEntityId}'), None)
+second_minh = next((e for e in entities if e.get('entity_id') == '${secondMinhEntityId}'), None)
+unrelated_profiles = [e for e in entities if e.get('entity_id') != '${lamPhongEntityId}' and e.get('approved_profile')]
+
+print(json.dumps({
+    'recomputed_context_hash': recomputed_hash,
+    'has_lam_phong': bool(lam_phong),
+    'lam_phong_appearance': lam_phong.get('approved_profile', {}).get('appearance') if lam_phong else None,
+    'lam_phong_personality': lam_phong.get('approved_profile', {}).get('personality') if lam_phong else None,
+    'unrelated_profiles_count': len(unrelated_profiles),
+    'unrelated_minh_has_profile': bool(second_minh.get('approved_profile')) if second_minh else False,
+    'has_sentinel_note': 'SENTINEL_NOTE_CONFIDENTIAL_LORE_7749_SECRET' in prompt,
+    'entities_count': len(entities)
+}))
+`;
+      const verifyProc = spawnSync('docker', [
+        'exec', `${v.WAVE1D_PROJECT}-fake-upstream-1`,
+        'python', '-c', verifyScript
       ], { encoding: 'utf8' });
 
-      assert.equal(upstreamLogProc.status, 0);
-      const upstreamReq = JSON.parse(upstreamLogProc.stdout.trim().split('\n').pop());
-      assert.ok(upstreamReq.prompt_text, 'Prompt text must be captured by fake upstream');
+      assert.equal(verifyProc.status, 0, verifyProc.stderr);
+      const vResult = JSON.parse(verifyProc.stdout.trim().split('\n').pop());
 
-      const promptText = upstreamReq.prompt_text;
+      // 7. Verify recomputed hash matches persisted hash
+      assert.equal(vResult.recomputed_context_hash, persistedContextHash, 'Recomputed context_hash from upstream prompt MUST match persisted context_hash');
 
-      // 7. Verify prompt contents
-      assert.ok(promptText.includes('Lâm Phong'), 'Prompt must contain canonical entity name Lâm Phong');
-      assert.ok(promptText.includes(lamPhongEntityId), 'Prompt must contain Lâm Phong UUID');
-      assert.ok(promptText.includes(targetAppearance), 'Prompt must contain updated appearance profile');
-      assert.ok(promptText.includes(targetPersonality), 'Prompt must contain updated personality profile');
-
-      // Exclusions
-      assert.equal(promptText.includes('SENTINEL_NOTE_CONFIDENTIAL_LORE_7749_SECRET'), false, 'Prompt MUST EXCLUDE private author notes');
-      assert.equal(promptText.includes('Gầy gò áo da thú'), false, 'Prompt MUST EXCLUDE unrelated entity profile');
+      // 8. Verify profile inclusions and exclusions
+      assert.equal(vResult.has_lam_phong, true, 'Lâm Phong UUID must be present in Story Brain context');
+      assert.equal(vResult.lam_phong_appearance, targetAppearance, 'Updated appearance must be present in Story Brain context');
+      assert.equal(vResult.lam_phong_personality, targetPersonality, 'Updated personality must be present in Story Brain context');
+      assert.equal(vResult.unrelated_profiles_count, 0, 'Unrelated entity profiles must be excluded from Story Brain context');
+      assert.equal(vResult.unrelated_minh_has_profile, false, 'Unrelated entity profile for Minh must be empty/excluded');
+      assert.equal(vResult.has_sentinel_note, false, 'Private author notes must be strictly excluded from prompt');
 
       evidence['AX-E2E-07'] = {
         status: 'PASS',
         jobId,
+        correlationToken,
         jobTerminalStatus: writingJob.status,
         persistedContextHash,
+        recomputedContextHash: vResult.recomputed_context_hash,
+        hashesMatch: vResult.recomputed_context_hash === persistedContextHash,
+        contextPackingVersion: packingVersion,
+        contextBudgetPackerVerified: true,
         promptContainsUUID: true,
         promptContainsUpdatedProfile: true,
         privateNotesExcluded: true,
@@ -719,45 +828,102 @@ print(json.dumps(writing_reqs[-1] if writing_reqs else {}))
     });
 
     // =========================================================================
-    // SCENARIO 8: AX-E2E-08 — Security and Regression
+    // SCENARIO 8: AX-E2E-08 — Real Cross-Author Ownership & Security Boundaries
     // =========================================================================
-    await step('AX-E2E-08: Security Boundaries and Regressions', async () => {
-      const foreignNovelId = randomUUID();
-      const foreignEntityId = randomUUID();
+    await step('AX-E2E-08: Real Cross-Author Ownership & Security Boundaries', async () => {
+      // 1. Register a real second AUTHOR account via production auth flow (NO direct SQL role update)
+      const authorBSuffix = randomUUID().replaceAll('-', '').slice(0, 8);
+      const emailB = `author_b_${authorBSuffix}@example.invalid`;
+      const passwordB = 'Password!12345678';
+      registerSecret(passwordB);
+      const usernameB = `author_b_${authorBSuffix}`;
 
-      // 1. Unauthenticated request -> rejected (401)
-      const unauth = await fetch(`${origin}/api/v1/ai/story-brains/${novelId}/entities/${lamPhongEntityId}/profile`, {
-        method: 'GET'
+      const regB = await api('POST', '/auth/register', { username: usernameB, email: emailB, password: passwordB });
+      assert.equal(regB.status, 201);
+      const userIdB = regB.data.user.userId;
+
+      const loginB = await api('POST', '/auth/login', { identifier: emailB, password: passwordB });
+      assert.equal(loginB.status, 200);
+      const initialTokenB = loginB.data.accessToken;
+      registerSecret(initialTokenB);
+
+      // Promote User B to AUTHOR through production become-author endpoint
+      const promoteB = await api('POST', '/auth/become-author', {}, initialTokenB, [200]);
+      const authorBToken = promoteB.data.accessToken || initialTokenB;
+      registerSecret(authorBToken);
+
+      // Verify Author B role in DB
+      const dbUserB = (await sql('SELECT role FROM users WHERE user_id=$1', [userIdB]))[0];
+      assert.equal(dbUserB.role, 'AUTHOR');
+
+      // 2. Author B creates their own novel and entity
+      const novelBRes = await api('POST', '/novels', {
+        title: 'Bí Ẩn Thiên Sơn',
+        synopsis: 'Tác phẩm độc lập của Author B.',
+        tags: ['Huyền huyễn']
+      }, authorBToken, [201]);
+      const novelBId = novelBRes.data.novelId;
+
+      await api('POST', `/ai/story-brains/${novelBId}/author-entities`, {
+        name: 'Vân Tiêu', entity_type: 'PER'
+      }, authorBToken, [201]);
+
+      const qResB = await api('GET', `/ai/story-brains/${novelBId}/review-queue`, undefined, authorBToken, [200]);
+      const bProposals = qResB.data || [];
+      assert.ok(bProposals.length > 0);
+      const groupB = bProposals[0].dependency_group_id;
+      const pidsB = bProposals.map(p => p.proposal_id);
+
+      await api('POST', `/ai/proposal-groups/${groupB}/accept`, {
+        proposal_ids: pidsB,
+        expected_brain_version: 1,
+        reason: 'AUTHOR_B_INITIAL_REVIEW'
+      }, authorBToken, [200]);
+
+      const memB = (await api('GET', `/ai/story-brains/${novelBId}/memory`, undefined, authorBToken, [200])).data;
+      const vanTieu = memB.entities.find(e => e.name === 'Vân Tiêu');
+      assert.ok(vanTieu);
+      const vanTieuId = vanTieu.entity_id;
+
+      // 3. Author B attempts to access Author A's private entity profile -> 403 or 404, never private data
+      const bAccessesARes = await fetch(`${origin}/api/v1/ai/story-brains/${novelId}/entities/${lamPhongEntityId}/profile`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${authorBToken}` }
       });
+      assert.ok([403, 404].includes(bAccessesARes.status), 'Author B must be denied access to Author A profile');
+      const bAccessesAText = await bAccessesARes.text();
+      assert.equal(bAccessesAText.includes('SENTINEL_NOTE'), false);
+      assert.equal(bAccessesAText.includes('chim ưng'), false);
+
+      // 4. Author A attempts to access Author B's entity profile -> 403 or 404
+      const aAccessesBRes = await fetch(`${origin}/api/v1/ai/story-brains/${novelBId}/entities/${vanTieuId}/profile`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${authorUser.token}` }
+      });
+      assert.ok([403, 404].includes(aAccessesBRes.status), 'Author A must be denied access to Author B profile');
+
+      // 5. Unauthenticated request -> 401
+      const unauth = await fetch(`${origin}/api/v1/ai/story-brains/${novelId}/entities/${lamPhongEntityId}/profile`);
       assert.equal(unauth.status, 401);
 
-      // 2. READER without author permission -> rejected (403)
+      // 6. READER role request -> 403
       const readerForbidden = await fetch(`${origin}/api/v1/ai/story-brains/${novelId}/entities/${lamPhongEntityId}/profile`, {
-        method: 'GET',
         headers: { 'Authorization': `Bearer ${readerUser.token}` }
       });
       assert.equal(readerForbidden.status, 403);
 
-      // 3. Foreign novel / wrong ownership -> denied (403 or 404)
-      const wrongNovel = await fetch(`${origin}/api/v1/ai/story-brains/${foreignNovelId}/entities/${lamPhongEntityId}/profile`, {
-        method: 'GET',
-        headers: { 'Authorization': `Bearer ${authorUser.token}` }
-      });
-      assert.ok([403, 404].includes(wrongNovel.status));
-
-      // 4. Missing CAS version / idempotency key -> rejected (422)
+      // 7. Missing CAS version / idempotency key -> 422
       const missingKey = await fetch(`${origin}/api/v1/ai/story-brains/${novelId}/entities/${lamPhongEntityId}/profile`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${authorUser.token}`
-          // Missing Idempotency-Key
         },
         body: JSON.stringify({ expected_version: 1, expected_brain_version: 1, appearance: 'New' })
       });
       assert.equal(missingKey.status, 422);
 
-      // 5. Oversized payload (>4000 code points) -> rejected (422)
+      // 8. Oversized payload (>4000 code points) -> 422
       const oversized = await fetch(`${origin}/api/v1/ai/story-brains/${novelId}/entities/${lamPhongEntityId}/profile`, {
         method: 'PATCH',
         headers: {
@@ -769,16 +935,20 @@ print(json.dumps(writing_reqs[-1] if writing_reqs else {}))
           expected_version: 1,
           expected_brain_version: 1,
           effective_from_chapter: 1,
-          appearance: 'a'.repeat(4001) // Oversized!
+          appearance: 'a'.repeat(4001)
         })
       });
       assert.equal(oversized.status, 422);
 
       evidence['AX-E2E-08'] = {
         status: 'PASS',
+        crossAuthorTestedWithProductionAuth: true,
+        authorB_UserId: userIdB,
+        novelB_Id: novelBId,
+        authorB_AccessToNovelA_Status: bAccessesARes.status,
+        authorA_AccessToNovelB_Status: aAccessesBRes.status,
         unauthenticatedStatus: unauth.status,
         readerForbiddenStatus: readerForbidden.status,
-        wrongNovelStatus: wrongNovel.status,
         missingKeyStatus: missingKey.status,
         oversizedStatus: oversized.status
       };

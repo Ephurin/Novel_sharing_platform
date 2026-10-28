@@ -137,7 +137,8 @@ if MODE=='web-build':
 if MODE.startswith('browser-'):
  env=os.environ.copy()
  env.update(P1_ACCEPTANCE_CONFIG=str(PRIVATE),P1_EVIDENCE_DIR=str(OUT/MODE),PYTHONUTF8='1',PYTHONIOENCODING='utf-8')
- run(MODE,['node','--test','tests/p1-final-acceptance.browser.test.mjs'],cwd=ROOT/'web',env=env,timeout=1000)
+ test_file='tests/p1-ax-integrated-acceptance.browser.test.mjs' if 'ax' in MODE else 'tests/p1-final-acceptance.browser.test.mjs'
+ run(MODE,['node','--test',test_file],cwd=ROOT/'web',env=env,timeout=1000)
 if MODE=='web-assets':
  env={**os.environ,'P1_ACCEPTANCE_CONFIG':str(PRIVATE),'P1_EVIDENCE_DIR':str(OUT/('web-assets-'+secrets.token_hex(4)))}
  run(MODE,['node','--test','tests/offline-assets.browser.test.mjs'],cwd=ROOT/'web',env=env)

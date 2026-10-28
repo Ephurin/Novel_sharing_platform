@@ -1,0 +1,102 @@
+{
+  "results": {
+    "AX-E2E-01": "PASS",
+    "AX-E2E-02": "PASS",
+    "AX-E2E-03": "PASS",
+    "AX-E2E-04": "PARTIAL_PASS",
+    "AX-E2E-05": "PASS",
+    "AX-E2E-06": "PASS",
+    "AX-E2E-07": "PASS",
+    "AX-E2E-08": "PASS"
+  },
+  "evidence": {
+    "AX-E2E-01": {
+      "status": "PASS",
+      "novelId": "e78e28c9-ad76-484b-a8ef-f492c7c30deb",
+      "authorId": "52b14c91-e5e7-4d77-975e-9127d426517d",
+      "chapterIds": [
+        "186b3d66-205c-471b-9ebc-4a1fb3a142a8",
+        "34491ec2-de3a-48fd-a969-9120e17e130e",
+        "1de337fc-5149-403b-873b-47c51a9fac0f",
+        "45fac9fb-961a-4d1e-8807-0afe6db3e8e4"
+      ],
+      "revisionIds": [
+        "bb8f0f22-18f0-4bb1-ad93-323d14eb6fb7",
+        "d67287d1-dfd5-4cd3-8983-c5b14dfdad5f",
+        "c201da47-6e40-41a2-a308-631013c65560"
+      ],
+      "lamPhongEntityId": "8194063a-6700-46d4-ac53-2e3a50fdc47d",
+      "brainVersion": "2",
+      "dbEntitiesCount": 4
+    },
+    "AX-E2E-02": {
+      "status": "PASS",
+      "patchStatus": 200,
+      "profileVersion": 1,
+      "brainVersion": "3",
+      "auditCount": 1,
+      "auditId": "a8b4c0b2-99b5-4e49-a64f-a0403e5b479b"
+    },
+    "AX-E2E-03": {
+      "status": "PASS",
+      "profileVersion": 2,
+      "brainVersionUnchanged": true,
+      "sentinelExcludedFromApprovedMemory": true
+    },
+    "AX-E2E-04": {
+      "status": "PARTIAL_PASS",
+      "homonymCreationContract": "HOMONYM_CREATION_UNSUPPORTED: Production author creation workflow strictly enforces unique canonical name per story brain, rejecting duplicates with HTTP 422",
+      "fixtureLabel": "SYNTHETIC_DB_FIXTURE: Created in isolated test database for UUID isolation verification only; not an end-user workflow",
+      "uuidIsolationStatus": "UUID_ISOLATION_PASS (SYNTHETIC_DB_FIXTURE)",
+      "entityA_UUID": "c076b893-7ae1-4307-aed5-a180f238e559",
+      "entityB_UUID": "e228925f-3834-4da1-b50c-5033233a8ffb",
+      "entityA_Appearance": "Béo tốt, áo gấm hoa lệ",
+      "entityB_Appearance": "Gầy gò áo da thú"
+    },
+    "AX-E2E-05": {
+      "status": "PASS",
+      "twoRealBrowserSessionsTested": true,
+      "sessionB_ConflictStatus": 409,
+      "sessionB_InputRetained": true,
+      "sessionA_Unoverwritten": true,
+      "reconciledSaveStatus": 200,
+      "sameKeyRetryStatus": 200
+    },
+    "AX-E2E-06": {
+      "status": "PASS",
+      "cutoffSet": 10,
+      "chapter9_Excluded": true,
+      "chapter10_Included": true,
+      "ch10_Appearance": "Lâm Phong sau 10 chương tu luyện: phong trần dày dạn"
+    },
+    "AX-E2E-07": {
+      "status": "PASS",
+      "jobId": "245f820f-751e-5105-9228-16bfee14ea33",
+      "correlationToken": "CORR_JOB_10ea7726d5",
+      "jobTerminalStatus": "completed",
+      "persistedContextHash": "1da8f7ef8378ed5a5eb010eb7abfaafe7df34b2c08bb7923fa75ed549357a60b",
+      "recomputedContextHash": "1da8f7ef8378ed5a5eb010eb7abfaafe7df34b2c08bb7923fa75ed549357a60b",
+      "hashesMatch": true,
+      "contextPackingVersion": [
+        "context-budget-v1"
+      ],
+      "contextBudgetPackerVerified": true,
+      "promptContainsUUID": true,
+      "promptContainsUpdatedProfile": true,
+      "privateNotesExcluded": true,
+      "unrelatedProfilesExcluded": true
+    },
+    "AX-E2E-08": {
+      "status": "PASS",
+      "crossAuthorTestedWithProductionAuth": true,
+      "authorB_UserId": "4c7dad45-e2aa-454a-b9ce-641fa79357c1",
+      "novelB_Id": "d0e2f531-4b26-4c69-962f-0b5e65ca4da3",
+      "authorB_AccessToNovelA_Status": 403,
+      "authorA_AccessToNovelB_Status": 403,
+      "unauthenticatedStatus": 401,
+      "readerForbiddenStatus": 403,
+      "missingKeyStatus": 422,
+      "oversizedStatus": 422
+    }
+  }
+}

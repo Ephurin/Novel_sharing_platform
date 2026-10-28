@@ -31,8 +31,13 @@ RULES = [
     ),
     (
         "BEARER_TOKEN_VALUE",
-        re.compile(r'Bearer\s+(?!\[REDACTED\]|token|\{token\}|<token>|\{authorToken\})[A-Za-z0-9_\-\.]{15,}'),
+        re.compile(r'Bearer\s+(?!\[REDACTED\]|\[REDACTED_TOKEN\]|token|\{token\}|<token>|\{authorToken\})[A-Za-z0-9_\-\.]{15,}'),
         "Live Bearer token detected"
+    ),
+    (
+        "AUTHORIZATION_HEADER_LEAK",
+        re.compile(r'"(?:authorization|Authorization)"\s*:\s*"(?!(?:\[REDACTED\]|Bearer \[REDACTED\]|Bearer \[REDACTED_TOKEN\]|Bearer \[REDACTED_JWT\]|""))[^"]{8,}"', re.I),
+        "Unredacted authorization header in evidence"
     ),
     (
         "PLAINTEXT_PASSWORD_FIELD",
@@ -45,13 +50,28 @@ RULES = [
         "Active access token field found in JSON"
     ),
     (
+        "PRIVATE_SENTINEL_NOTE",
+        re.compile(r'SENTINEL_NOTE_[A-Za-z0-9_]+'),
+        "Private author note sentinel leaked in evidence"
+    ),
+    (
         "RAW_SECRET_NOTE_LEAK_IN_MANIFEST",
-        re.compile(r'"(?:author_secret_note|private_author_notes|private_note_raw)"\s*:\s*"(?!(?:\[REDACTED\]|""))[^"]{8,}"', re.I),
+        re.compile(r'"(?:author_secret_note|private_author_notes|private_note_raw)"\s*:\s*"(?!(?:\[REDACTED\]|\[REDACTED_PRIVATE_NOTE\]|""))[^"]{8,}"', re.I),
         "Raw author private secret note leaked in manifest/evidence"
+    ),
+    (
+        "RAW_PROFILE_NOTE_HTTP",
+        re.compile(r'"author_notes"\s*:\s*"(?!(?:\[REDACTED\]|\[REDACTED_PRIVATE_NOTE\]|\[REDACTED_AUTHOR_NOTE_MASKED\]|""))[^"]{3,}"', re.I),
+        "Raw author_notes leaked in HTTP request/response evidence"
+    ),
+    (
+        "AUDIT_SNAPSHOT_LEAK",
+        re.compile(r'"(?:audit_snapshot|before|after)"\s*:\s*\{[^}]*"(?:private_author_notes|author_notes)"\s*:\s*"(?!(?:\[REDACTED\]|\[REDACTED_PRIVATE_NOTE\]|""))[^"]{3,}"', re.I),
+        "Private notes leaked in audit snapshot"
     ),
 ]
 
-SAFE_EXTENSIONS = {".json", ".md", ".txt", ".mjs", ".ts", ".py"}
+SAFE_EXTENSIONS = {".json", ".md", ".txt", ".mjs", ".ts", ".py", ".log"}
 
 
 def scan_file(file_path):
@@ -60,15 +80,14 @@ def scan_file(file_path):
     try:
         content = pathlib.Path(file_path).read_text(encoding="utf-8", errors="replace")
     except Exception as exc:
-        return [{"file": str(file_path), "line": 0, "rule": "READ_ERROR", "msg": str(exc)}]
+        return [{"file": str(file_path), "line": 0, "rule": "READ_ERROR", "desc": str(exc), "snippet": ""}]
 
     lines = content.splitlines()
     for idx, line in enumerate(lines, start=1):
         for rule_id, regex, desc in RULES:
             match = regex.search(line)
             if match:
-                # Truncate snippet to avoid printing the secret in the scan report
-                matched_snippet = match.group(0)[:12] + "..."
+                matched_snippet = match.group(0)[:16] + "..."
                 violations.append({
                     "file": str(file_path),
                     "line": idx,
@@ -79,82 +98,142 @@ def scan_file(file_path):
     return violations
 
 
+def scan_zip(zip_path):
+    """Scan uncompressed text entries of a ZIP file (e.g. playwright-trace.zip)."""
+    import zipfile
+    violations = []
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zf:
+            for info in zf.infolist():
+                if info.is_dir():
+                    continue
+                ext = pathlib.Path(info.filename).suffix.lower()
+                if ext in {".json", ".txt", ".md", ".log", ".html", ""}:
+                    try:
+                        raw = zf.read(info.filename)
+                        content = raw.decode("utf-8", errors="replace")
+                    except Exception:
+                        continue
+                    for idx, line in enumerate(content.splitlines(), start=1):
+                        for rule_id, regex, desc in RULES:
+                            match = regex.search(line)
+                            if match:
+                                violations.append({
+                                    "file": f"{zip_path}!{info.filename}",
+                                    "line": idx,
+                                    "rule": rule_id,
+                                    "desc": desc,
+                                    "snippet": match.group(0)[:16] + "..."
+                                })
+    except Exception as exc:
+        violations.append({
+            "file": str(zip_path),
+            "line": 0,
+            "rule": "ZIP_READ_ERROR",
+            "desc": str(exc),
+            "snippet": ""
+        })
+    return violations
+
+
 def scan_directory(target_dir):
-    """Recursively scan a directory for public artifact violations."""
+    """Recursively scan a directory including zip archives for public artifact violations."""
     all_violations = []
     target_path = pathlib.Path(target_dir).resolve()
 
     if target_path.is_file():
+        if target_path.suffix.lower() == ".zip":
+            return scan_zip(target_path)
         return scan_file(target_path)
 
     for root, _, files in os.walk(target_path):
-        # Exclude git directories, node_modules, and python caches
         if any(ignored in root for ignored in [".git", "node_modules", "__pycache__", ".pytest_tmp"]):
             continue
         for f in files:
             p = pathlib.Path(root) / f
-            if p.suffix.lower() in SAFE_EXTENSIONS:
-                violations = scan_file(p)
-                all_violations.extend(violations)
+            ext = p.suffix.lower()
+            if ext == ".zip":
+                all_violations.extend(scan_zip(p))
+            elif ext in SAFE_EXTENSIONS:
+                all_violations.extend(scan_file(p))
     return all_violations
 
 
 def run_negative_tests():
-    """Negative self-tests to prove validator catches tokens and passwords."""
-    print("[*] Running Secret Hygiene Negative Self-Tests...")
+    """Negative self-tests to prove validator catches all 7 required leakage classes."""
+    import io
+    import zipfile
 
-    # Test 1: Catch simulated JWT
-    synthetic_jwt = '{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"}'
-    v1 = []
-    for rule_id, regex, desc in RULES:
-        if regex.search(synthetic_jwt):
-            v1.append(rule_id)
-    assert "JWT_ACCESS_TOKEN" in v1, "Validator failed to catch synthetic JWT!"
-    print("    [OK] Negative Test 1 Passed: Synthetic JWT detected successfully")
+    print("[*] Running Secret Hygiene Negative Self-Tests (7 required classes)...")
 
-    # Test 2: Catch plaintext password in JSON
-    synthetic_pass = '{\n  "username": "tester",\n  "password": "StrongSecretPassword123!"\n}'
-    v2 = []
-    for rule_id, regex, desc in RULES:
-        if regex.search(synthetic_pass):
-            v2.append(rule_id)
-    assert "PLAINTEXT_PASSWORD_FIELD" in v2, "Validator failed to catch plaintext password!"
-    print("    [OK] Negative Test 2 Passed: Plaintext password in JSON detected successfully")
+    def match_rules(text):
+        matched = []
+        for rule_id, regex, _ in RULES:
+            if regex.search(text):
+                matched.append(rule_id)
+        return matched
 
-    # Test 3: Catch raw secret note
-    synthetic_note = '{\n  "author_secret_note": "BÍ MẬT TÁC GIẢ (CHỈ DÀNH CHO OUTLINE): Lâm Phong là huyết mạch Ma Thần"\n}'
-    v3 = []
-    for rule_id, regex, desc in RULES:
-        if regex.search(synthetic_note):
-            v3.append(rule_id)
-    assert "RAW_SECRET_NOTE_LEAK_IN_MANIFEST" in v3, "Validator failed to catch leaked raw secret note!"
-    print("    [OK] Negative Test 3 Passed: Leaked author secret note detected successfully")
+    # 1. JWT
+    synthetic_jwt = '{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIn0.abcdEFGH1234567890_-xyz"}'
+    assert "JWT_ACCESS_TOKEN" in match_rules(synthetic_jwt), "Failed to catch synthetic JWT"
+    print("    [OK] Negative Test 1: JWT detected successfully")
 
-    # Test 4: Catch private_author_notes leakage in JSON
-    synthetic_private = '{\n  "private_author_notes": "Bí mật Ma Thần không được công khai"\n}'
-    v4 = []
-    for rule_id, regex, desc in RULES:
-        if regex.search(synthetic_private):
-            v4.append(rule_id)
-    assert "RAW_SECRET_NOTE_LEAK_IN_MANIFEST" in v4, "Validator failed to catch leaked private_author_notes!"
-    print("    [OK] Negative Test 4 Passed: Leaked private_author_notes detected successfully")
+    # 2. Plaintext Password
+    synthetic_pass = '{\n  "username": "author_user",\n  "password": "RealSecretPassword123!"\n}'
+    assert "PLAINTEXT_PASSWORD_FIELD" in match_rules(synthetic_pass), "Failed to catch plaintext password"
+    print("    [OK] Negative Test 2: Plaintext password detected successfully")
 
-    # Test 5: Allow sanitized manifest
+    # 3. Authorization Header / Bearer token
+    synthetic_auth = '{\n  "authorization": "Bearer 1234567890abcdef1234567890"\n}'
+    rules3 = match_rules(synthetic_auth)
+    assert "BEARER_TOKEN_VALUE" in rules3 or "AUTHORIZATION_HEADER_LEAK" in rules3, "Failed to catch Bearer/auth header"
+    print("    [OK] Negative Test 3: Authorization header / Bearer token detected successfully")
+
+    # 4. Private author note sentinel
+    synthetic_sentinel = '{"note": "SENTINEL_NOTE_CONFIDENTIAL_LORE_7749_SECRET"}'
+    assert "PRIVATE_SENTINEL_NOTE" in match_rules(synthetic_sentinel), "Failed to catch private note sentinel"
+    print("    [OK] Negative Test 4: Private note sentinel detected successfully")
+
+    # 5. Private audit snapshots
+    synthetic_audit = '{"after": {"id": "1", "author_notes": "Bí mật Ma Thần không được công khai"}}'
+    assert "AUDIT_SNAPSHOT_LEAK" in match_rules(synthetic_audit) or "RAW_PROFILE_NOTE_HTTP" in match_rules(synthetic_audit), "Failed to catch audit snapshot leak"
+    print("    [OK] Negative Test 5: Audit snapshot leak detected successfully")
+
+    # 6. Raw profile note in HTTP request/response
+    synthetic_http_body = '{"method": "PATCH", "body": {"appearance": "Tall", "author_notes": "Tình tiết tuyệt mật chưa ra mắt"}}'
+    assert "RAW_PROFILE_NOTE_HTTP" in match_rules(synthetic_http_body), "Failed to catch raw profile note in HTTP payload"
+    print("    [OK] Negative Test 6: Raw profile note in HTTP payload detected successfully")
+
+    # 7. Private input in browser trace/DOM (scanned inside zip archive)
+    zip_buffer = io.BytesIO()
+    with zipfile.ZipFile(zip_buffer, 'w', compression=zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("snapshot-dom.json", json.dumps({"tag": "textarea", "value": "SENTINEL_NOTE_CONFIDENTIAL_LORE_7749_SECRET"}))
+    zip_buffer.seek(0)
+    zip_violations = []
+    with zipfile.ZipFile(zip_buffer, 'r') as zf:
+        for info in zf.infolist():
+            content = zf.read(info.filename).decode('utf-8')
+            for rule_id, regex, desc in RULES:
+                if regex.search(content):
+                    zip_violations.append(rule_id)
+    assert "PRIVATE_SENTINEL_NOTE" in zip_violations, "Failed to catch private note inside zip entry"
+    print("    [OK] Negative Test 7: Private input inside trace ZIP detected successfully")
+
+    # 8. Clean sanitized manifest must pass with 0 violations
     sanitized_manifest = json.dumps({
         "manifest_type": "P1_DEMO_FIXTURE_PUBLIC_MANIFEST",
         "novel": {"novel_id": "11111111-1111-1111-1111-111111111111", "title": "Đại Lục Tinh Thần"},
-        "author": {"username": "author_demo"},
+        "author": {"username": "author_demo", "password": "[REDACTED]", "token": "[REDACTED]"},
+        "authorization": "[REDACTED]",
+        "author_notes": "[REDACTED_PRIVATE_NOTE]",
         "chapters": [{"chapter_id": "22222222-2222-2222-2222-222222222222", "title": "Chương 1"}],
         "stages": {"basic_fixture": "BASIC_FIXTURE_READY", "canon_fixture": "CANON_FIXTURE_PENDING_HITL"}
     })
-    v5 = []
-    for rule_id, regex, desc in RULES:
-        if regex.search(sanitized_manifest):
-            v5.append(rule_id)
-    assert len(v5) == 0, f"Validator falsely flagged clean sanitized manifest: {v5}"
-    print("    [OK] Positive Test 5 Passed: Sanitized manifest passed with zero violations")
+    clean_rules = match_rules(sanitized_manifest)
+    assert len(clean_rules) == 0, f"Validator falsely flagged clean sanitized manifest: {clean_rules}"
+    print("    [OK] Positive Test 8: Sanitized manifest passed with zero violations")
 
-    print("\n[OK] All 5 Secret Hygiene Negative/Positive Self-Tests PASSED!\n")
+    print("\n[OK] All 7 Negative Tests + Positive Clean Test PASSED!\n")
     return True
 
 

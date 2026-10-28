@@ -1,0 +1,165 @@
+{
+  "project": "codex-p1-final-a99e773598",
+  "services": {
+    "acceptance-bridge": {
+      "networks": {
+        "headless-edge": null,
+        "workers": null
+      },
+      "ports": [
+        {
+          "mode": "ingress",
+          "host_ip": "127.0.0.1",
+          "target": 15432,
+          "published": "61287",
+          "protocol": "tcp"
+        },
+        {
+          "mode": "ingress",
+          "host_ip": "127.0.0.1",
+          "target": 17017,
+          "published": "61288",
+          "protocol": "tcp"
+        },
+        {
+          "mode": "ingress",
+          "host_ip": "127.0.0.1",
+          "target": 14000,
+          "published": "61289",
+          "protocol": "tcp"
+        }
+      ],
+      "providers": {}
+    },
+    "ai-service": {
+      "networks": {
+        "workers": null
+      },
+      "ports": [
+        {
+          "mode": "ingress",
+          "host_ip": "127.0.0.1",
+          "target": 8000,
+          "published": "61282",
+          "protocol": "tcp"
+        }
+      ],
+      "providers": {
+        "EMBEDDING_PROVIDER": "none",
+        "ENTITY_CANDIDATE_VERIFICATION_ENABLED": "true",
+        "LLM_BASE_URL": "http://budget-gateway:18090/v1",
+        "LLM_FALLBACK_PROVIDER": "disabled",
+        "LLM_MODEL": "gemini-3.5-flash-lite",
+        "LLM_PROVIDER": "openai",
+        "PLATFORM_API_BASE_URL": "http://backend:4000",
+        "SEMANTIC_RETRIEVAL_ENABLED": "false"
+      }
+    },
+    "api-ingress": {
+      "networks": {
+        "headless-edge": null,
+        "upstream": null,
+        "workers": null
+      },
+      "ports": [
+        {
+          "mode": "ingress",
+          "host_ip": "127.0.0.1",
+          "target": 4000,
+          "published": "61289",
+          "protocol": "tcp"
+        }
+      ],
+      "providers": {}
+    },
+    "backend": {
+      "networks": {
+        "workers": null
+      },
+      "ports": null,
+      "providers": {
+        "AI_LLM_BASE_URL": "http://budget-gateway:18090/v1",
+        "AI_SERVICE_URL": "http://ai-service:8000"
+      }
+    },
+    "budget-gateway": {
+      "networks": {
+        "upstream": null,
+        "workers": null
+      },
+      "ports": [
+        {
+          "mode": "ingress",
+          "host_ip": "127.0.0.1",
+          "target": 18090,
+          "published": "61283",
+          "protocol": "tcp"
+        }
+      ],
+      "providers": {}
+    },
+    "fake-upstream": {
+      "networks": {
+        "upstream": null
+      },
+      "ports": [
+        {
+          "mode": "ingress",
+          "host_ip": "127.0.0.1",
+          "target": 18091,
+          "published": "61284",
+          "protocol": "tcp"
+        }
+      ],
+      "providers": {}
+    },
+    "mongodb": {
+      "networks": {
+        "workers": null
+      },
+      "ports": null,
+      "providers": {}
+    },
+    "postgres": {
+      "networks": {
+        "workers": null
+      },
+      "ports": null,
+      "providers": {}
+    }
+  },
+  "networks": {
+    "headless-edge": {
+      "name": "codex-p1-final-a99e773598_headless-edge",
+      "ipam": {
+        "config": [
+          {
+            "subnet": "172.29.119.0/24"
+          }
+        ]
+      }
+    },
+    "upstream": {
+      "name": "codex-p1-final-a99e773598_upstream",
+      "ipam": {
+        "config": [
+          {
+            "subnet": "172.29.244.0/24"
+          }
+        ]
+      },
+      "internal": true
+    },
+    "workers": {
+      "name": "codex-p1-final-a99e773598_workers",
+      "ipam": {
+        "config": [
+          {
+            "subnet": "172.29.120.0/24"
+          }
+        ]
+      },
+      "internal": true
+    }
+  }
+}
