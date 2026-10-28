@@ -71,6 +71,8 @@
 /* Every button-like control on StoryCraft screens: 34px tall, 13px semibold, no drop shadow. */
 .sc-author-theme :is(button, a[class*="inline-flex"]) { font-size: 13px; min-height: 34px; }
 .sc-author-theme :is(button, a)[class*="shadow"] { box-shadow: none; }
+/* Buttons inside a field (number steppers, clear/reveal icons) keep the field's own sizing. */
+.sc-author-theme :is(.mantine-Input-section, .mantine-NumberInput-controls) button { min-height: 0; }
 
 .sc-author-theme :is(a, button, span).sc-button {
   min-height: 34px;
