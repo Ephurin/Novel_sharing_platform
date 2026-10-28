@@ -1,0 +1,12 @@
+{
+  "command": [
+    "docker-compose",
+    "-p",
+    "codex-schema-drift02-f9815bc55f",
+    "-f",
+    "<private compose file>",
+    "down"
+  ],
+  "exit_code": 0,
+  "scope": "Only owned project; volumes retained for authorized review"
+}
