@@ -168,6 +168,10 @@
   .sc-profile-stats > div:nth-child(3) { border-left: 0; }
 }
 
+/* Chapter text takes the colour of the reader's chosen surface (light, sepia, dark), not the page
+   text token, which would leave dark text on the sepia and dark surfaces. */
+.sc-reading-surface .chapter-prose { color: inherit; }
+
 /* Segmented filters are a smaller control than page buttons. */
 .sc-author-theme .sc-filter-tabs > button { min-height: 28px; padding: 4px 12px; font-size: 12.5px; }
 

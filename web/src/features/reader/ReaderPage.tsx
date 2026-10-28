@@ -1033,7 +1033,7 @@ function ChapterNavigation({ previousTo, nextTo, indexTo }: { previousTo?: strin
 
 function ChapterProse({ content, style }: { content: string; style: ReturnType<typeof buildReaderStyle> }) {
   return (
-    <article className="rounded-xl border border-stone-200/80 shadow-2xs px-5 sm:px-12 py-8 sm:py-10" style={style}>
+    <article className="sc-reading-surface rounded-xl border border-stone-200/80 shadow-2xs px-5 sm:px-12 py-8 sm:py-10" style={style}>
       <div className="max-w-[720px] mx-auto">
         <ManuscriptContent content={content} />
       </div>
