@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { EntityProfileEditor } from './EntityProfileEditor';
 import { EntityExtractionReview } from './EntityExtractionReview';
 import { AuthorRelationshipLocks } from './AuthorRelationshipLocks';
 import {
@@ -81,6 +82,7 @@ export function AuthorMemoryPanel({
   saved: boolean;
 }) {
   const qc = useQueryClient();
+  const [profileTabOpened, setProfileTabOpened] = useState(false);
   const [setup, setSetup] = useState('');
   const [direction, setDirection] = useState('');
   const [events, setEvents] = useState<FutureEvent[]>([]);
@@ -423,9 +425,10 @@ export function AuthorMemoryPanel({
           </Alert>
         )}
 
-        <Tabs defaultValue="review">
+        <Tabs defaultValue="review" onChange={value => setProfileTabOpened(value === 'profiles')}>
           <Tabs.List>
             <Tabs.Tab value="review">Chờ duyệt ({queue.data?.length ?? 0})</Tabs.Tab>
+            <Tabs.Tab value="profiles">Hồ sơ Codex</Tabs.Tab>
             <Tabs.Tab value="characters">Nhân vật ({category(['character', 'per', 'person']).length})</Tabs.Tab>
             <Tabs.Tab value="relations">
               Quan hệ Canon ({memory.data?.relations?.filter(r => r.locked).length ?? 0} khóa)
@@ -640,6 +643,11 @@ export function AuthorMemoryPanel({
                 </Button>
               )}
             </Stack>
+          </Tabs.Panel>
+
+          <Tabs.Panel value="profiles" pt="md">
+            <EntityProfileEditor novelId={novelId} entities={memory.data?.entities ?? []}
+              active={opened && profileTabOpened} onSaved={refresh} />
           </Tabs.Panel>
 
           {/* ──────────────────────────────────────────

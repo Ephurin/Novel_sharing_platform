@@ -1,0 +1,10 @@
+Source SHA: 595ef1bd0d060a02140f7659560ce6e9bb242aeb
+Tree SHA: f2a9ba4758383d5f135f14b1753bf062eef9a454
+CWD: web
+Command: npm run typecheck
+
+> ephurin-web@0.1.0 typecheck
+> tsc -b --noEmit
+
+
+EXIT_CODE=0
