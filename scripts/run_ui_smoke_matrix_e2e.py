@@ -83,6 +83,18 @@ PROFILE_HEADING_CLEAR_JS = r"""(() => {
   return Boolean(heading && banner && heading.top >= banner.bottom - 1);
 })()"""
 
+# Stepper buttons of every NumberInput must sit inside their field.
+NUMBER_STEPPERS_FIT_JS = r"""(() => {
+  const roots = [...document.querySelectorAll('.mantine-NumberInput-root')];
+  return roots.length > 0 && roots.every((root) => {
+    const field = root.querySelector('input').getBoundingClientRect();
+    return [...root.querySelectorAll('.mantine-NumberInput-controls button')].every((button) => {
+      const b = button.getBoundingClientRect();
+      return b.top >= field.top - 1 && b.bottom <= field.bottom + 1;
+    });
+  });
+})()"""
+
 PROSE_CONTRAST_JS = r"""(() => {
   const prose = document.querySelector('.chapter-prose');
   if (!prose) return null;
@@ -353,6 +365,7 @@ class Matrix:
                     await self.page.goto(f"{web}/reader/chapters/{fx['chapter_id']}", "document.querySelector('.chapter-prose') !== null && document.querySelector('[data-testid=\"reader-save-preferences-btn\"]') !== null")
                     prose = await self.page.evaluate(PROSE_CONTRAST_JS)
                     assert prose["textLength"] > 200 and prose["ratio"] >= 4.5, f"prose not readable on {background}: {prose}"
+                    assert await self.page.evaluate(NUMBER_STEPPERS_FIT_JS), "number stepper buttons overflow their field"
                     return {"background": background, "prose": prose}
                 await self.check("reader", f"chapter-prose-{background.lower()}", chapter_prose, "/reader/chapters/")
 
