@@ -1,0 +1,12 @@
+{
+  "base": "9646b147eca1aacb9a12db00ee11e99923c71e97",
+  "head": "0014_entity_profiles",
+  "column": [
+    "YES",
+    "timestamp with time zone",
+    "now()"
+  ],
+  "total_rows": 0,
+  "null_rows": 0,
+  "scope": "fresh isolated task DB only; no production data examined"
+}

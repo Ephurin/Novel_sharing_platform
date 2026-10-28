@@ -1,0 +1,30 @@
+{
+  "transport": "CaptureTransport._call_llm (in-process fake final transport), deterministic fake embeddings",
+  "live_calls": 0,
+  "cases": [
+    {
+      "label": "H01-balanced-scope-v1-semantic",
+      "job_id": "a3473a1b-f567-51c1-b467-c09200f06335",
+      "status": "completed",
+      "provider_call_count": 1,
+      "context_hash": "ea29fdf31e2967cf42bab17dd7da7035f5eb052c15a4cd5f6ba610605bedd7b0",
+      "prompt_context_hash": "ea29fdf31e2967cf42bab17dd7da7035f5eb052c15a4cd5f6ba610605bedd7b0"
+    },
+    {
+      "label": "H01-legacy-v1-no-embedding",
+      "job_id": "99fd6f02-5d3c-5af5-9e01-7ab8224ba2ab",
+      "status": "completed",
+      "provider_call_count": 1,
+      "context_hash": "bc6c9837cc5272f311d718af466a9b74fe9205f958540d845bb50539ab64d1fb",
+      "prompt_context_hash": "bc6c9837cc5272f311d718af466a9b74fe9205f958540d845bb50539ab64d1fb"
+    },
+    {
+      "label": "H01-legacy-v1-semantic",
+      "job_id": "deeba30a-3c99-5b0c-a087-42d8218bc0c4",
+      "status": "completed",
+      "provider_call_count": 1,
+      "context_hash": "82a5acd249bcd628d8c515e7fb1e8d972e908217a3e781df9b9eac54d196b9bc",
+      "prompt_context_hash": "82a5acd249bcd628d8c515e7fb1e8d972e908217a3e781df9b9eac54d196b9bc"
+    }
+  ]
+}

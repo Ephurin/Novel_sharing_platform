@@ -1,0 +1,139 @@
+[
+  {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "tests/test_revision_provenance_timestamp_migration.py"
+    ],
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "log": "migration-tests-final.txt",
+    "sha": "5bd448012f7b16399d82abc94faec2f545895aa2",
+    "tree": "0bf657a4705ea1fbe99b43ee02334fc2b083bcef"
+  },
+  {
+    "command": [
+      "npm.cmd",
+      "run",
+      "db:migrate"
+    ],
+    "cwd": "backend",
+    "exit_code": 0,
+    "log": "backend-migrations.txt",
+    "sha": "5bd448012f7b16399d82abc94faec2f545895aa2",
+    "tree": "0bf657a4705ea1fbe99b43ee02334fc2b083bcef"
+  },
+  {
+    "command": [
+      "python",
+      "-m",
+      "alembic",
+      "upgrade",
+      "head"
+    ],
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "log": "ai-migrations.txt",
+    "sha": "5bd448012f7b16399d82abc94faec2f545895aa2",
+    "tree": "0bf657a4705ea1fbe99b43ee02334fc2b083bcef"
+  },
+  {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "tests/test_postgres_integration.py",
+      "-k",
+      "revision_provenance_lifecycle or migration_upgrade_from_legacy_0005_schema"
+    ],
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "log": "provenance-regression.txt",
+    "sha": "5bd448012f7b16399d82abc94faec2f545895aa2",
+    "tree": "0bf657a4705ea1fbe99b43ee02334fc2b083bcef"
+  },
+  {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "tests/test_semantic_memory_postgres_integration.py",
+      "-k",
+      "migration_downgrade_reupgrade_preserves_canonical_data or event_provenance_metadata_survives_to_writing_payload"
+    ],
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "log": "semantic-rollback-context.txt",
+    "sha": "5bd448012f7b16399d82abc94faec2f545895aa2",
+    "tree": "0bf657a4705ea1fbe99b43ee02334fc2b083bcef"
+  },
+  {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "tests/test_entity_profiles.py",
+      "tests/test_entity_profile_remediation.py"
+    ],
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "log": "ax01-profile-generation.txt",
+    "sha": "5bd448012f7b16399d82abc94faec2f545895aa2",
+    "tree": "0bf657a4705ea1fbe99b43ee02334fc2b083bcef"
+  },
+  {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "tests/test_entity_profiles.py",
+      "-k",
+      "test_additive_upgrade_and_rollback_preserve_existing_identity"
+    ],
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "log": "ax01-migration-compatibility.txt",
+    "sha": "5bd448012f7b16399d82abc94faec2f545895aa2",
+    "tree": "0bf657a4705ea1fbe99b43ee02334fc2b083bcef"
+  },
+  {
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "tests/test_entity_profile_remediation.py",
+      "-k",
+      "test_h01_generation_without_character_or_events"
+    ],
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "log": "fake-generation-readbacks.txt",
+    "sha": "5bd448012f7b16399d82abc94faec2f545895aa2",
+    "tree": "0bf657a4705ea1fbe99b43ee02334fc2b083bcef"
+  }
+]
