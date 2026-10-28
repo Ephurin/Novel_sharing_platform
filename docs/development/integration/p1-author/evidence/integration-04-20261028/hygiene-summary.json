@@ -1,0 +1,9 @@
+{
+  "new_evidence_scan_exit": 0,
+  "report_rules": 0,
+  "broad_historical_scan_exit": 1,
+  "broad_historical_scan_counts": {
+    "READ_ERROR": 45
+  },
+  "scope": "New evidence and report pass; historical scan incomplete due READ_ERROR"
+}

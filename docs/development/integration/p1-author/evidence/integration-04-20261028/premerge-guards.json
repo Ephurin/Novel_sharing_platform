@@ -1,0 +1,23 @@
+{
+  "locked_refs_match": true,
+  "baseline_and_main_before": "749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb",
+  "branch_protection_http_status": 404,
+  "branch_protection_message": "Branch not protected",
+  "effective_branch_rules": [],
+  "repository_rulesets_including_parents": [],
+  "pr75_reviews": [],
+  "pr76_reviews": [],
+  "required_review_or_check_rules": [],
+  "pr75_existing_checks_success": 10,
+  "pr76_existing_checks_success": 7,
+  "pr75_runs": [
+    40534013021,
+    40534013028
+  ],
+  "pr76_runs": [
+    40544279840
+  ],
+  "draft_transitions": "Marked ready as authorized by current controlled-merge request; no protection or review rule bypass",
+  "pr76_retargeted_after_ax01": true,
+  "pr76_retargeted_diff_files": 19
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "path": "scripts/p1_final_acceptance.py",
+    "qa_sha": "0e001e396cfc6745c0efc8595922da9ae389a6f4",
+    "original_sha256": "f2994f8a7c6a2e1c25d874a26faaee4c1e61ed243047ba2cdcdb2cf4a1352d62",
+    "adapter_sha256": "52a648a4d3a4cdb3d19474f17c005538853b0f1de546b21c58ec31908caff6ab"
+  },
+  {
+    "path": "scripts/p1_sanitize_trace.py",
+    "qa_sha": "0e001e396cfc6745c0efc8595922da9ae389a6f4",
+    "original_sha256": "bc34ed102ac5becf5c8bfd4ef9024437fbc3e09e36be3772126d2a024495cf1b",
+    "adapter_sha256": "76fe271e8ba6b5f7bde8c8c26cf6ba50e25c56d787f704667b5615dabda0cc8e"
+  },
+  {
+    "path": "scripts/verify_secret_hygiene.py",
+    "qa_sha": "0e001e396cfc6745c0efc8595922da9ae389a6f4",
+    "original_sha256": "a13d0ca797a9f96c5d3ae54a61bde86d6b0481518313a37b6960392c818c1b1a",
+    "adapter_sha256": "02878d31324b84dfdc07429254aee0d793987197cfdcecef81e42042dd2f3dec"
+  },
+  {
+    "path": "web/tests/helpers/p1-real-stack.mjs",
+    "qa_sha": "0e001e396cfc6745c0efc8595922da9ae389a6f4",
+    "original_sha256": "ccf968947c7bbb7e79a48448faaff713f2ff691d2f595d877f797ee88b97821a",
+    "adapter_sha256": "9ee05a5359b20f6ab9d4388254a5162c99f5f3d8ac56c50da5e113e5d2ebecbf"
+  },
+  {
+    "path": "web/tests/p1-ax-integrated-acceptance.browser.test.mjs",
+    "qa_sha": "0e001e396cfc6745c0efc8595922da9ae389a6f4",
+    "original_sha256": "491b84ff24a3de32ebdf345e2f6d29e1bfca1bc3aa1d453479b388c39227c269",
+    "adapter_sha256": "c7eb048c0a492f9d67ce0549102cd552ba9d79d66e2b82cebb5787cc04df7cfc"
+  }
+]

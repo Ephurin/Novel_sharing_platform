@@ -1,0 +1,37 @@
+[
+  {
+    "service": "ai-service",
+    "path": "application/narrative_service.py",
+    "runtime_sha256": "c9fd37bfdbc9b45fc29665a55a8811ae985765af4dd3db33a4cdaf4b8cb46069",
+    "source_file_sha256": "c9fd37bfdbc9b45fc29665a55a8811ae985765af4dd3db33a4cdaf4b8cb46069",
+    "matches": true
+  },
+  {
+    "service": "ai-service",
+    "path": "api/narrative_routes.py",
+    "runtime_sha256": "446015af1ff5115d0d204cc66ed840cfa98ba4bc4e5b9b52c0b7177a364a4dc6",
+    "source_file_sha256": "446015af1ff5115d0d204cc66ed840cfa98ba4bc4e5b9b52c0b7177a364a4dc6",
+    "matches": true
+  },
+  {
+    "service": "ai-service",
+    "path": "api/entity_hitl_routes.py",
+    "runtime_sha256": "66e81c94771eaef5425c2d4fb00d6494cc5b3ad5c22d1e98de04d6ffcc2145f8",
+    "source_file_sha256": "66e81c94771eaef5425c2d4fb00d6494cc5b3ad5c22d1e98de04d6ffcc2145f8",
+    "matches": true
+  },
+  {
+    "service": "backend",
+    "path": "src/modules/ai/ai-gateway.controller.ts",
+    "runtime_sha256": "c11378b23358420672d09c263a01d0bedbfe764e8706df3ca2d1d9b67c3f9f72",
+    "source_file_sha256": "c11378b23358420672d09c263a01d0bedbfe764e8706df3ca2d1d9b67c3f9f72",
+    "matches": true
+  },
+  {
+    "service": "backend",
+    "path": "src/modules/ai/ai-gateway.routes.ts",
+    "runtime_sha256": "6f7de0d6f2acbcff6430ff39e5004cd2e9b0c02455b1b9a4b8323dbca21daad5",
+    "source_file_sha256": "6f7de0d6f2acbcff6430ff39e5004cd2e9b0c02455b1b9a4b8323dbca21daad5",
+    "matches": true
+  }
+]

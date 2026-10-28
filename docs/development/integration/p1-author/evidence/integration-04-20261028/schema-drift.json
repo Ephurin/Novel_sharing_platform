@@ -1,0 +1,11 @@
+{
+  "table": "narrative.revision_provenances",
+  "column": "created_at",
+  "orm_nullable": false,
+  "database_nullable": true,
+  "database_type": "timestamp with time zone",
+  "database_default": "now()",
+  "baseline_orm_unchanged": false,
+  "runtime_modification_performed": false,
+  "baseline_revision_provenance_class_unchanged": true
+}

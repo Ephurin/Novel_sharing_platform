@@ -1,0 +1,69 @@
+{
+  "baseline": {
+    "sha": "749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb",
+    "tree": "ad0092004cfbd5d042b5c687fb31010e9638835b",
+    "production_subtrees": {
+      "backend": "fbbaff7f5940b550dd81123ac88f5b1e6bae3afc",
+      "backend/src": "1949aeb72615eadb498667e3c2ddd134e8fe2c0c",
+      "ai-service": "02d36dca54d7857ee5b7cc4a6bfb41bb41b084c7",
+      "web/src": "17dfd71b4ab2c3ed0b5f719d9c24f6226231bfd2",
+      "Pipeline_test/tools": "29c895ec4a208bf8be2d25d7213ed7931694a66d"
+    }
+  },
+  "ax01": {
+    "sha": "b98dab9712e587cc75449795d73252f662b57d6d",
+    "tree": "e8ec5fd8e39973f9a067c40061952036379d1f10",
+    "production_subtrees": {
+      "backend": "714ad348f6d2ca9826f8088066e8b850dbcd1213",
+      "backend/src": "73f4614a983d87a12134b4c0a51c8196e7f9ee14",
+      "ai-service": "8e48a4d1dc4c5de4df9314bd556271705b797e7c",
+      "web/src": "17dfd71b4ab2c3ed0b5f719d9c24f6226231bfd2",
+      "Pipeline_test/tools": "29c895ec4a208bf8be2d25d7213ed7931694a66d"
+    }
+  },
+  "ax02": {
+    "sha": "3be021d2c0f777ba6cd5c0043554499acffcbc09",
+    "tree": "8269a69d197f432da92f05f9663d87c9f1654fda",
+    "production_subtrees": {
+      "backend": "714ad348f6d2ca9826f8088066e8b850dbcd1213",
+      "backend/src": "73f4614a983d87a12134b4c0a51c8196e7f9ee14",
+      "ai-service": "8e48a4d1dc4c5de4df9314bd556271705b797e7c",
+      "web/src": "21e0f12ba7a949805b44c6c6f3f9209ebeebb8ab",
+      "Pipeline_test/tools": "29c895ec4a208bf8be2d25d7213ed7931694a66d"
+    }
+  },
+  "qa": {
+    "sha": "0e001e396cfc6745c0efc8595922da9ae389a6f4",
+    "tree": "653c4e1019918281a6a63d9c85b1d0a3eb117675",
+    "production_subtrees": {
+      "backend": "714ad348f6d2ca9826f8088066e8b850dbcd1213",
+      "backend/src": "73f4614a983d87a12134b4c0a51c8196e7f9ee14",
+      "ai-service": "8e48a4d1dc4c5de4df9314bd556271705b797e7c",
+      "web/src": "21e0f12ba7a949805b44c6c6f3f9209ebeebb8ab",
+      "Pipeline_test/tools": "29c895ec4a208bf8be2d25d7213ed7931694a66d"
+    }
+  },
+  "integration": {
+    "sha": "9646b147eca1aacb9a12db00ee11e99923c71e97",
+    "tree": "8269a69d197f432da92f05f9663d87c9f1654fda",
+    "production_subtrees": {
+      "backend": "714ad348f6d2ca9826f8088066e8b850dbcd1213",
+      "backend/src": "73f4614a983d87a12134b4c0a51c8196e7f9ee14",
+      "ai-service": "8e48a4d1dc4c5de4df9314bd556271705b797e7c",
+      "web/src": "21e0f12ba7a949805b44c6c6f3f9209ebeebb8ab",
+      "Pipeline_test/tools": "29c895ec4a208bf8be2d25d7213ed7931694a66d"
+    }
+  },
+  "integration_equals_ax02_tree": true,
+  "qa_not_ancestor": true,
+  "merge_parents": {
+    "033da85ba6690c04362120cbfce3055826bec763": [
+      "749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb",
+      "b98dab9712e587cc75449795d73252f662b57d6d"
+    ],
+    "9646b147eca1aacb9a12db00ee11e99923c71e97": [
+      "033da85ba6690c04362120cbfce3055826bec763",
+      "3be021d2c0f777ba6cd5c0043554499acffcbc09"
+    ]
+  }
+}
