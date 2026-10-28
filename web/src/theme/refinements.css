@@ -134,6 +134,7 @@
 .sc-profile-heading { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 20px; margin-top: -48px; }
 .sc-author-theme .sc-profile-avatar {
   flex-shrink: 0;
+  align-self: flex-start;
   width: 112px;
   height: 112px;
   border: 4px solid var(--sc-surface);
@@ -144,7 +145,8 @@
   box-shadow: 0 2px 8px rgb(var(--sc-text-rgb) / .08);
 }
 .sc-profile-avatar .mantine-Avatar-placeholder { font-size: inherit; background: var(--sc-primary-soft); color: var(--sc-primary-text); }
-.sc-profile-heading > .min-w-0 { padding-bottom: 6px; }
+/* Top padding equals the banner overlap, so a wrapped name never rises under the banner. */
+.sc-profile-heading > .min-w-0 { padding: 48px 0 6px; }
 .sc-profile-heading > :last-child { padding-bottom: 6px; }
 .sc-profile-stats {
   display: grid;
@@ -163,6 +165,7 @@
 @media (max-width: 640px) {
   .sc-profile-banner { height: 96px; }
   .sc-profile-heading { margin-top: -40px; }
+  .sc-profile-heading > .min-w-0 { padding-top: 40px; }
   .sc-author-theme .sc-profile-avatar { width: 88px; height: 88px; font-size: 28px; }
   .sc-profile-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 12px; }
   .sc-profile-stats > div:nth-child(3) { border-left: 0; }
