@@ -1,0 +1,5 @@
+....................................s.....s.......                       [100%]
+=========================== short test summary info ===========================
+SKIPPED [1] tests\test_entity_profiles.py:206: Real row locks require PostgreSQL
+SKIPPED [1] tests\test_entity_profiles.py:256: AX01_MIGRATION_DATABASE_URL required: separate disposable DB
+48 passed, 2 skipped in 13.88s
