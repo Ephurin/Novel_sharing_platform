@@ -64,16 +64,22 @@ export async function createHarness() {
     catch { return 'anonymous'; }
   };
   const parse = raw => { try { return JSON.parse(raw); } catch { return raw; } };
-  async function api(method, path, body, token, expected = [200, 201, 202]) {
+  async function api(method, path, body, token, expected = [200, 201, 202], customHeaders = {}) {
     const started = new Date().toISOString();
+    const headers = {
+      'Content-Type': 'application/json',
+      'Idempotency-Key': randomUUID(),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...customHeaders
+    };
     const response = await fetch(gateway + '/api/v1' + path, { method,
-      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      headers,
       ...(body !== undefined ? { body: JSON.stringify(body) } : {}) });
     const json = parse(await response.text());
     requests.push(clean({ transport: 'fixture-or-negative-api', method, path, body, actor: actor('Bearer ' + token),
       started, status: response.status, response: json }));
     assert.ok(expected.includes(response.status), clean(`${method} ${path} ${response.status} ${JSON.stringify(json)}`));
-    return { status: response.status, json, data: json.data };
+    return { status: response.status, json, data: json?.data };
   }
   async function sql(query, params = []) {
     sqlCommands.push({ query, params: clean(params), at: new Date().toISOString() });
