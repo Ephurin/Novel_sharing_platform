@@ -73,7 +73,7 @@ def seed(engine):
 
 def test_fresh_chain_aligns_orm_and_preserves_default(database):
     engine, cfg = database
-    command.upgrade(cfg, "head")
+    command.upgrade(cfg, HEAD)
     with engine.connect() as conn:
         assert conn.execute(text("SELECT version_num FROM public.alembic_version")).scalar_one() == HEAD
     assert column(engine)["nullable"] is False
