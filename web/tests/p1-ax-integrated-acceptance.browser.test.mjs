@@ -162,33 +162,45 @@ test('P1 AX-01 + AX-02 Integrated Acceptance Suite (8 Scenarios)', { timeout: 90
           finalize: true
         }, authorToken, [200]);
         await api('POST', `/ai/story-brains/${novelId}/entity-reviews/${rev0.analysis_run_id}/continue`, {}, authorToken, [200]);
+
+        const qRes = await api('GET', `/ai/story-brains/${novelId}/review-queue`, undefined, authorToken, [200]);
+        if (qRes.data && qRes.data.length > 0) {
+          const initGroupId = qRes.data[0].dependency_group_id;
+          const initPids = qRes.data.filter(p => p.dependency_group_id === initGroupId).map(p => p.proposal_id);
+          await api('POST', `/ai/proposal-groups/${initGroupId}/accept`, {
+            proposal_ids: initPids,
+            expected_brain_version: 1,
+            reason: 'P1_AX_ACCEPTANCE_AUTHOR_REVIEW'
+          }, authorToken, [200]);
+        }
       } else {
         // When ENTITY_CANDIDATE_VERIFICATION_ENABLED=false (default demo flag), candidate verification
         // checkpoint is bypassed and fake-upstream legacy extraction only matches its 3-name static fixture.
-        // Register the 4 canonical entities via production POST /author-entities.
+        // Accept any initial analysis proposal group first, then register & accept the 4 canonical entities sequentially.
+        const qRes = await api('GET', `/ai/story-brains/${novelId}/review-queue`, undefined, authorToken, [200]);
+        if (qRes.data && qRes.data.length > 0) {
+          const initGroupId = qRes.data[0].dependency_group_id;
+          const initPids = qRes.data.filter(p => p.dependency_group_id === initGroupId).map(p => p.proposal_id);
+          const expectedBv = Number(qRes.data[0].expected_brain_version ?? 1);
+          await api('POST', `/ai/proposal-groups/${initGroupId}/accept`, {
+            proposal_ids: initPids,
+            expected_brain_version: expectedBv,
+            reason: 'P1_AX_ACCEPTANCE_AUTHOR_REVIEW'
+          }, authorToken, [200]);
+        }
         for (const [name, entity_type] of [
           ['Lâm Phong', 'PER'],
           ['Diệp Linh Nhi', 'PER'],
           ['Trấn Thanh Phong', 'LOC'],
           ['Ngọc Bội Huyết Long', 'ITEM']
         ]) {
-          await api('POST', `/ai/story-brains/${novelId}/author-entities`, { name, entity_type }, authorToken, [201]);
+          const createdEnt = await api('POST', `/ai/story-brains/${novelId}/author-entities`, { name, entity_type }, authorToken, [201]);
+          await api('POST', `/ai/proposal-groups/${createdEnt.data.dependency_group_id}/accept`, {
+            proposal_ids: [createdEnt.data.proposal_id],
+            expected_brain_version: Number(createdEnt.data.expected_brain_version),
+            reason: 'P1_AX_ACCEPTANCE_AUTHOR_ENTITY'
+          }, authorToken, [200]);
         }
-      }
-
-      // Accept all pending proposal groups in review queue
-      while (true) {
-        const qRes = await api('GET', `/ai/story-brains/${novelId}/review-queue`, undefined, authorToken, [200]);
-        if (!qRes.data || qRes.data.length === 0) break;
-        const brainCur = await sql('SELECT brain_version FROM narrative.story_brains WHERE novel_id=$1', [novelId]);
-        const expectedBv = Number(brainCur[0]?.brain_version ?? 1);
-        const initGroupId = qRes.data[0].dependency_group_id;
-        const initPids = qRes.data.filter(p => p.dependency_group_id === initGroupId).map(p => p.proposal_id);
-        await api('POST', `/ai/proposal-groups/${initGroupId}/accept`, {
-          proposal_ids: initPids,
-          expected_brain_version: expectedBv,
-          reason: 'P1_AX_ACCEPTANCE_AUTHOR_REVIEW'
-        }, authorToken, [200]);
       }
 
       // Activate baseline
