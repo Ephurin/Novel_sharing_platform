@@ -1,0 +1,31 @@
+{
+  "project": "codex-p1-final-70a6a2620b",
+  "private_env_file": ".env.codex-p1-final-70a6a2620b",
+  "values": {
+    "WAVE1D_PROJECT": "codex-p1-final-70a6a2620b",
+    "POSTGRES_DB": "ephurin_test_p1_final_70a6a2620b",
+    "POSTGRES_USER": "p123",
+    "POSTGRES_PASSWORD": "[REDACTED]",
+    "JWT_ACCESS_SECRET": "[REDACTED]",
+    "JWT_REFRESH_SECRET": "[REDACTED]",
+    "PLATFORM_SERVICE_TOKEN": "[REDACTED]",
+    "AI_WORKER_TOKEN": "[REDACTED]",
+    "BACKEND_WORKER_TOKEN": "[REDACTED]",
+    "OFFLINE_UPSTREAM_KEY": "[REDACTED]",
+    "WAVE1D_AUTHOR_EMAIL": "codex-p1-final-70a6a2620b@example.invalid",
+    "WAVE1D_AUTHOR_USERNAME": "codex_p1_final_70a6a2620b",
+    "WAVE1D_AUTHOR_PASSWORD": "[REDACTED]",
+    "WAVE1D_WEB_PORT": "63913",
+    "WAVE1D_BACKEND_PORT": "63914",
+    "WAVE1D_AI_PORT": "63915",
+    "WAVE1D_GATE_PORT": "63916",
+    "WAVE1D_FAKE_PORT": "63917",
+    "WAVE1D_PG_PORT": "63918",
+    "WAVE1D_MONGO_PORT": "63919",
+    "P123_WORKER_SUBNET": "172.29.111.0/24",
+    "P123_UPSTREAM_SUBNET": "172.29.99.0/24",
+    "P123_EDGE_SUBNET": "172.29.180.0/24"
+  },
+  "fresh_resources_only": true,
+  "fake_providers_only": true
+}

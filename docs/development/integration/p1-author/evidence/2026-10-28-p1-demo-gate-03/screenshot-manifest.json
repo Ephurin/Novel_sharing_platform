@@ -1,0 +1,14 @@
+[
+  {
+    "path": "screenshots/ax-e2e-02-profile-saved.png",
+    "sha256": "3969f892b2947662465ed2721692619ad87328a09f8ec92851e20cd757f8a8d1"
+  },
+  {
+    "path": "screenshots/ax-e2e-03-private-notes-saved.png",
+    "sha256": "e23e41ad9329127aef6ec26fedb5255e88aa5a2806aeed73717705975dcd7af1"
+  },
+  {
+    "path": "screenshots/ax-e2e-04-homonymous-dropdown.png",
+    "sha256": "d936189b5610ffebc98982527a2262b6896a541b9d582e356ec8136bd2dbedf2"
+  }
+]
