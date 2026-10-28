@@ -364,6 +364,7 @@ export function PublicReaderNovelDetailPage() {
           <NovelOverview
             novel={novel}
             chapterCount={novel.chaptersCount ?? chapters.length}
+            authorLink={novel.authorId ? `/authors/${novel.authorId}` : undefined}
             notice="Thêm vào thư viện, thích, theo dõi, bình luận, báo cáo, lưu tiến độ và mở khóa chương VIP cần đăng nhập."
             actions={
               <>

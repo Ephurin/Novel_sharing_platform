@@ -5,6 +5,7 @@ import type { AuthorProfile } from './profile-api';
 type AuthorProfileHeaderProps = {
   author: AuthorProfile;
   isOwnProfile: boolean;
+  isGuest: boolean;
   canInteract: boolean;
   followingPending: boolean;
   onFollow: () => void;
@@ -13,7 +14,7 @@ type AuthorProfileHeaderProps = {
 };
 
 // Reader-facing author identity: banner, overlapping avatar, actions and one stats strip.
-export function AuthorProfileHeader({ author, isOwnProfile, canInteract, followingPending, onFollow, onSupport, onShare }: AuthorProfileHeaderProps) {
+export function AuthorProfileHeader({ author, isOwnProfile, isGuest, canInteract, followingPending, onFollow, onSupport, onShare }: AuthorProfileHeaderProps) {
   const name = author.displayName || author.username;
   const publishedChapters = author.novels.reduce((total, novel) => total + (novel.chaptersCount ?? 0), 0);
   const stats = [
@@ -49,6 +50,10 @@ export function AuthorProfileHeader({ author, isOwnProfile, canInteract, followi
             {isOwnProfile ? (
               <Link to="/profile/me" className="sc-button sc-button-primary">
                 <span className="material-symbols-outlined" aria-hidden="true">edit</span>Chỉnh sửa hồ sơ
+              </Link>
+            ) : isGuest ? (
+              <Link to="/login" className="sc-button sc-button-primary" data-testid="author-profile-login-cta">
+                <span className="material-symbols-outlined" aria-hidden="true">login</span>Đăng nhập để theo dõi
               </Link>
             ) : (
               <>

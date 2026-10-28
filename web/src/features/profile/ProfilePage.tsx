@@ -27,9 +27,9 @@ const serialStatusLabels: Record<string, { label: string; className: string }> =
   ONGOING: { label: 'Đang ra', className: 'bg-primary-50 text-primary-700' }
 };
 
-function AuthorWorkCard({ novel }: { novel: AuthorProfile['novels'][number] }) {
+function AuthorWorkCard({ novel, publicMode }: { novel: AuthorProfile['novels'][number]; publicMode: boolean }) {
   const status = serialStatusLabels[novel.serialStatus ?? ''] ?? serialStatusLabels.ONGOING;
-  const detailPath = `/reader/novels/${novel.novelId}`;
+  const detailPath = `${publicMode ? '/public' : '/reader'}/novels/${novel.novelId}`;
   return (
     <article className="sc-novel-card bg-surface-container-lowest rounded-xl border border-stone-200/90 transition-all flex flex-col justify-between gap-3 group">
       <div className="flex gap-3 items-start">
@@ -129,6 +129,9 @@ export function AuthorProfilePage() {
   });
   const authorGenres = [...new Set(displayNovels.map((novel) => novel.genre).filter((genre): genre is string => Boolean(genre)))];
   const isOwnProfile = Boolean(currentUser?.userId && currentUser.userId === targetAuthorId);
+  // Guests reach this page from the public library, so links must not lead into login-only routes.
+  const isGuest = !currentUser;
+  const homePath = isGuest ? '/public' : currentUser.role === 'AUTHOR' || currentUser.role === 'ADMIN' ? '/author/projects' : '/reader';
 
   const handleShare = async () => {
     try {
@@ -161,7 +164,7 @@ export function AuthorProfilePage() {
       <main className="max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-6 flex-1">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-meta text-stone-500">
-          <Link to={currentUser?.role === 'AUTHOR' || currentUser?.role === 'ADMIN' ? '/author/projects' : '/reader'} className="hover:text-stone-900 transition-colors">
+          <Link to={homePath} className="hover:text-stone-900 transition-colors">
             Trang chủ
           </Link>
           <span className="text-stone-300">/</span>
@@ -173,6 +176,7 @@ export function AuthorProfilePage() {
         <AuthorProfileHeader
           author={author}
           isOwnProfile={isOwnProfile}
+          isGuest={isGuest}
           canInteract={currentUser?.status === 'ACTIVE'}
           followingPending={followMutation.isPending}
           onFollow={() => followMutation.mutate()}
@@ -212,7 +216,7 @@ export function AuthorProfilePage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3">
                 {sortedNovels.map((novel) => (
-                  <AuthorWorkCard key={novel.novelId} novel={novel} />
+                  <AuthorWorkCard key={novel.novelId} novel={novel} publicMode={isGuest} />
                 ))}
               </div>
             )}
@@ -257,7 +261,7 @@ export function AuthorProfilePage() {
 
       </main>
 
-      <footer className="sc-author-profile-footer text-meta"><span>© {new Date().getFullYear()} StoryCraft Văn Hoa</span><Link to="/reader">Khám phá tác phẩm</Link></footer>
+      <footer className="sc-author-profile-footer text-meta"><span>© {new Date().getFullYear()} StoryCraft Văn Hoa</span><Link to={isGuest ? '/public' : '/reader'}>Khám phá tác phẩm</Link></footer>
 
       {/* 6. Support Author Modal */}
       {supportModalOpen && (
