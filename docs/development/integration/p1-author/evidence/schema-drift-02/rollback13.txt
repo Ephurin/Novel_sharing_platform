@@ -1,0 +1,4 @@
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running downgrade 0015_provenance_timestamp -> 0014_entity_profiles, Align provenance timestamp nullability without inventing historical data.
+INFO  [alembic.runtime.migration] Running downgrade 0014_entity_profiles -> 0013_objective_intent, Additive author profile and private audit ledger (AX-01).

@@ -1,0 +1,31 @@
+[
+  {
+    "path": "ai-service/migrations/versions/0014_entity_profiles.py",
+    "blob": "0ea3acb1991fe75166c006997eb7c10c703489c4",
+    "worktree_sha256": "3b76680eac5b2a470af9bc4901106fe5bdad2e70bb376beac6130de48836ba5d",
+    "unchanged_from_base": true
+  },
+  {
+    "path": "ai-service/migrations/versions/0015_revision_provenance_created_at_not_null.py",
+    "blob": "430b677f3b750c84a485418c87a05748345285d8",
+    "worktree_sha256": "d06657dd2e9d4d1fc7b9bc24e368b3f1c6be203d0574dbfe1d91e89685d6b274",
+    "unchanged_from_base": true
+  },
+  {
+    "path": "ai-service/migrations/versions/0016_entity_profile_audit_created_at_not_null.py",
+    "blob": "61fdfe5edffbcca2f76a9828b356baa066643dda",
+    "worktree_sha256": "b46f65d910cf93e84c933bd5d2b1b3267a164be9dd6fda1e38ee02f7cae2e268"
+  },
+  {
+    "path": "ai-service/infrastructure/orm_models.py",
+    "blob": "5a1fd3610d07635576567fd254dbb671de0cd5b6",
+    "worktree_sha256": "e53432ca5eb9eb2c876ff0963bbfe5658756232effbf5e1941db31802a84a6e8",
+    "unchanged_from_base": true
+  },
+  {
+    "path": "ai-service/infrastructure/postgres_narrative_repository.py",
+    "blob": "699d92e8b2ab62f6881caad7dd12e1264513a07f",
+    "worktree_sha256": "a1686f384cbe27ca90ebf3c1353fb980dbee76caa5561f22acb87fe15dc08aee",
+    "unchanged_from_base": true
+  }
+]

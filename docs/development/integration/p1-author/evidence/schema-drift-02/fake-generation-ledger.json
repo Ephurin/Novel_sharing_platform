@@ -1,0 +1,127 @@
+{
+  "final_transport": "In-process CaptureTransport._call_llm; deterministic fake embeddings",
+  "live_calls": 0,
+  "captures": [
+    {
+      "label": "H01-balanced-scope-v1-semantic",
+      "job_id": "9267b770-97eb-5a19-a5e7-33dabbe7a880",
+      "status": "completed",
+      "provider_call_count": 1,
+      "context_hash": "7790060e7cefdb2f0756969a101071fc206ed0051be053efc5bb038f7e550692",
+      "prompt_context_hash": "7790060e7cefdb2f0756969a101071fc206ed0051be053efc5bb038f7e550692"
+    },
+    {
+      "label": "H01-legacy-v1-no-embedding",
+      "job_id": "f7323769-b788-52c8-96c8-e34add1456dc",
+      "status": "completed",
+      "provider_call_count": 1,
+      "context_hash": "a6a2a9b818e1ade81c156d2c8b7c2711395a698e4b359687cf45c612797c4a97",
+      "prompt_context_hash": "a6a2a9b818e1ade81c156d2c8b7c2711395a698e4b359687cf45c612797c4a97"
+    },
+    {
+      "label": "H01-legacy-v1-semantic",
+      "job_id": "23aa1ced-f47a-59b4-8b0f-b5401fd70e37",
+      "status": "completed",
+      "provider_call_count": 1,
+      "context_hash": "814a7a16732cb39440ae3f66bf03cefa629fd6040546fe7076273edf09ae6388",
+      "prompt_context_hash": "814a7a16732cb39440ae3f66bf03cefa629fd6040546fe7076273edf09ae6388"
+    },
+    {
+      "label": "H02-ambiguous-no-embedding",
+      "job_id": "486d4b1f-279a-511b-82bb-fb9d0496d858",
+      "status": "completed",
+      "provider_call_count": 3,
+      "context_hash": "12c2a3ad78fb3b512582703259d8f5de40235530e4bcdc47827a7b7e78400b22",
+      "prompt_context_hash": "12c2a3ad78fb3b512582703259d8f5de40235530e4bcdc47827a7b7e78400b22"
+    },
+    {
+      "label": "H02-ambiguous-semantic",
+      "job_id": "e701c8fe-af36-5d97-af84-06e99566dd0a",
+      "status": "completed",
+      "provider_call_count": 3,
+      "context_hash": "597136a3bb80b6b980aa8f2690bf48776f3abfe5f0d6724006b2df8c361ad1d6",
+      "prompt_context_hash": "597136a3bb80b6b980aa8f2690bf48776f3abfe5f0d6724006b2df8c361ad1d6"
+    },
+    {
+      "label": "H02-uuid-first-no-embedding",
+      "job_id": "bf5dac26-38ec-5a42-83d1-b4a2bad8d1d4",
+      "status": "completed",
+      "provider_call_count": 1,
+      "context_hash": "529598cb28d7cef0fe30635e2bc213e9631aef0f64979a7cda30f36b61ff5be4",
+      "prompt_context_hash": "529598cb28d7cef0fe30635e2bc213e9631aef0f64979a7cda30f36b61ff5be4"
+    },
+    {
+      "label": "H02-uuid-first-semantic",
+      "job_id": "0ff0d4a5-92e6-5888-97cf-6f8b03442756",
+      "status": "completed",
+      "provider_call_count": 1,
+      "context_hash": "eafa2038c14d92c0855aa3fe51eed3e1d686af038eb07b01d622246e16a563a5",
+      "prompt_context_hash": "eafa2038c14d92c0855aa3fe51eed3e1d686af038eb07b01d622246e16a563a5"
+    },
+    {
+      "label": "H02-uuid-second-no-embedding",
+      "job_id": "1a08a004-f9ae-5c9c-b1dc-640606730536",
+      "status": "completed",
+      "provider_call_count": 2,
+      "context_hash": "ea6168adc5eaddcda93191d73dff0de778adc8ba5be62475126cead387b27192",
+      "prompt_context_hash": "ea6168adc5eaddcda93191d73dff0de778adc8ba5be62475126cead387b27192"
+    },
+    {
+      "label": "H02-uuid-second-semantic",
+      "job_id": "97fecc31-68f8-5d6e-a500-69ffab1e94ec",
+      "status": "completed",
+      "provider_call_count": 2,
+      "context_hash": "fce92a34225556cde37ab1402338fe7c6db2e27f8a5593ac1f545e193c7f45a3",
+      "prompt_context_hash": "fce92a34225556cde37ab1402338fe7c6db2e27f8a5593ac1f545e193c7f45a3"
+    },
+    {
+      "label": "H03-balanced-fail-closed",
+      "job_id": "916f3c59-d6dc-5248-a6d5-c9ab10af200f",
+      "status": "failed",
+      "provider_call_count": 0,
+      "context_hash": "",
+      "prompt_context_hash": null
+    },
+    {
+      "label": "H03-identity-overflow",
+      "job_id": "e7bd060a-8996-576c-aa6f-c1ba12013e34",
+      "status": "failed",
+      "provider_call_count": 0,
+      "context_hash": "",
+      "prompt_context_hash": null
+    },
+    {
+      "label": "H03-legacy-optional-profiles",
+      "job_id": "73efd4ea-e8a4-5430-a4c3-2d94d2551022",
+      "status": "completed",
+      "provider_call_count": 1,
+      "context_hash": "659b189da54b8b9eb71a87c37dfa0e4a632401c98a080476d80805bffea2debf",
+      "prompt_context_hash": "659b189da54b8b9eb71a87c37dfa0e4a632401c98a080476d80805bffea2debf"
+    },
+    {
+      "label": "H04-at-cutoff",
+      "job_id": "a0e51689-44b1-57f3-b975-709f2dc2c013",
+      "status": "completed",
+      "provider_call_count": 4,
+      "context_hash": "b58b69c1df8e782cc0e3b98891f40a41a7b26e5c7c06f92ebd0de24c4d635cbe",
+      "prompt_context_hash": "b58b69c1df8e782cc0e3b98891f40a41a7b26e5c7c06f92ebd0de24c4d635cbe"
+    },
+    {
+      "label": "H04-before-cutoff-3",
+      "job_id": "60bc3c0f-adf1-5f45-8567-7c32efef4d34",
+      "status": "completed",
+      "provider_call_count": 2,
+      "context_hash": "055eca5b2e0e120f71c64987bb43d2360bb07bf56f3a24835ac7b3c77f65ef78",
+      "prompt_context_hash": "055eca5b2e0e120f71c64987bb43d2360bb07bf56f3a24835ac7b3c77f65ef78"
+    },
+    {
+      "label": "H04-before-cutoff-9",
+      "job_id": "5024a84b-8b6e-5ebe-bf7e-3d63c8d53dd4",
+      "status": "completed",
+      "provider_call_count": 3,
+      "context_hash": "055eca5b2e0e120f71c64987bb43d2360bb07bf56f3a24835ac7b3c77f65ef78",
+      "prompt_context_hash": "055eca5b2e0e120f71c64987bb43d2360bb07bf56f3a24835ac7b3c77f65ef78"
+    }
+  ],
+  "count_semantics": "provider_call_count is cumulative for each captured transport; histories may overlap and counts must not be summed as a total"
+}
