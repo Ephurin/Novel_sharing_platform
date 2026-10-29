@@ -1,0 +1,11 @@
+{
+  "reviewed_qa_source": "0e001e396cfc6745c0efc8595922da9ae389a6f4",
+  "used_outside_production_checkout": true,
+  "source_root_override": "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\26\\01a178b1-4361-75b3-a66b-3bc53990597a\\p1-demo-postmerge-79",
+  "files": {
+    "web/tests/p1-ax-integrated-acceptance.browser.test.mjs": "c7eb048c0a492f9d67ce0549102cd552ba9d79d66e2b82cebb5787cc04df7cfc",
+    "web/tests/helpers/p1-real-stack.mjs": "9ee05a5359b20f6ab9d4388254a5162c99f5f3d8ac56c50da5e113e5d2ebecbf",
+    "scripts/p1_sanitize_trace.py": "76fe271e8ba6b5f7bde8c8c26cf6ba50e25c56d787f704667b5615dabda0cc8e"
+  },
+  "adapters": "existing reviewed helper uses P1_SOURCE_ROOT and external sanitizer; no new harness/app modification"
+}

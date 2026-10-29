@@ -1,0 +1,1 @@
+PASS: actual UI generation -> fake prompt -> exact persisted job/context hash; private note excluded

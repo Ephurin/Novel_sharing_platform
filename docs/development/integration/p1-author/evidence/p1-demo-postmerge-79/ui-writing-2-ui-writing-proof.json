@@ -1,0 +1,14 @@
+{
+  "job_id": "31c2fba1-26fb-5f97-85a9-e6d928fa71f2",
+  "novel_id": "18348a4c-40ba-4b87-aa0c-706568f879ba",
+  "chapter_id": "56ab66a2-b17a-4ae9-ad5a-2b354fdd9a38",
+  "context_hash": "7c6126fd161a6a56cd34b448e3a8c2b9755f7ee86f74ec9370f1195d5bfe3b63",
+  "request_sha256": "e808501f3d570fcdace1a2e674ae1b3ddc85def2054e7c3a89b5ff40db9b7edf",
+  "profile_present": true,
+  "private_note_excluded": true,
+  "persisted_hash_matches": true,
+  "natural_instruction_no_correlation_marker": true,
+  "no_separate_preview_button": true,
+  "completed_draft_rejected": true,
+  "brain_version_unchanged": true
+}

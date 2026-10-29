@@ -1,0 +1,32 @@
+[
+  {
+    "label": "profile-db-migrations",
+    "command": [
+      "python",
+      "-m",
+      "alembic",
+      "upgrade",
+      "head"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\26\\01a178b1-4361-75b3-a66b-3bc53990597a\\p1-demo-postmerge-79\\ai-service",
+    "source_sha": "6cbff8829d731704a0e8301fedaa2b1f38dd14c1",
+    "exit_code": 0
+  },
+  {
+    "label": "profile-domain-regressions",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "tests/test_entity_profiles.py",
+      "tests/test_entity_profile_remediation.py"
+    ],
+    "cwd": "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\26\\01a178b1-4361-75b3-a66b-3bc53990597a\\p1-demo-postmerge-79\\ai-service",
+    "source_sha": "6cbff8829d731704a0e8301fedaa2b1f38dd14c1",
+    "exit_code": 0
+  }
+]

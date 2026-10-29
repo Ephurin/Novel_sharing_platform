@@ -1,0 +1,11 @@
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+page.waitForResponse: Timeout 30000ms exceeded while waiting for event "response"
+    at C:\Users\Laptop\.codex\visualizations\2026\10\26\01a178b1-4361-75b3-a66b-3bc53990597a\p1-postmerge-79-private\ui-writing-check.mjs:24:23 {
+  log: [],
+  name: 'TimeoutError'
+}
+
+Node.js v22.14.0

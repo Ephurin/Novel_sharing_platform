@@ -1,0 +1,25 @@
+{
+  "source_sha": "6cbff8829d731704a0e8301fedaa2b1f38dd14c1",
+  "source_tree": "3137e2d5ec2596664547ab7feb21ca2c63656d45",
+  "reviewed_pr79_tree": "3137e2d5ec2596664547ab7feb21ca2c63656d45",
+  "merge_preserves_reviewed_tree": true,
+  "merge_history": [
+    "6cbff8829d731704a0e8301fedaa2b1f38dd14c1 e8f44dfbad7950b5a6b6835ec239ba45b4fb7e6f 9b997c9c0623e21e594c24847389db78c7baec84 Merge pull request #79 from Ephurin/codex/p1-demo-ux-01",
+    "e8f44dfbad7950b5a6b6835ec239ba45b4fb7e6f 993493704308b53332ab2cd404097a5d6736c531 9dc0c81dbdfed93e1d33b3bd187334fe5e3fd3a3 Merge pull request #78 from Ephurin/codex/p1-schema-drift-02",
+    "993493704308b53332ab2cd404097a5d6736c531 9646b147eca1aacb9a12db00ee11e99923c71e97 7461e8b00dd642acc22939c156a2dcffbb7cda69 Merge pull request #77 from Ephurin/codex/p1-schema-drift-01",
+    "9646b147eca1aacb9a12db00ee11e99923c71e97 033da85ba6690c04362120cbfce3055826bec763 3be021d2c0f777ba6cd5c0043554499acffcbc09 Merge PR #76: P1 AX-02 Editable Codex UI",
+    "033da85ba6690c04362120cbfce3055826bec763 749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb b98dab9712e587cc75449795d73252f662b57d6d Merge PR #75: P1 AX-00/AX-01 versioned entity profiles"
+  ],
+  "tracked_status_before_reports": "?? docs/development/integration/p1-author/evidence/p1-demo-postmerge-79/",
+  "production_subtrees": {
+    "backend": "714ad348f6d2ca9826f8088066e8b850dbcd1213",
+    "ai-service": "25abb68322d0854416c8706df94e3b45053bd89e",
+    "web/src": "52a3d3117ea2b02c4ccc536a0a14a282f635c30f",
+    "Pipeline_test/tools": "29c895ec4a208bf8be2d25d7213ed7931694a66d"
+  },
+  "compiled_asset_count": 302,
+  "compiled_asset_manifest_sha256": "ef63a4282f68478d3557127aa4b24e1ccc6ef50a74ca3fad6afbeed84c345734",
+  "index_html_sha256": "f3e97919e3177d69b0b3ec6e06672029bcbe715e9b022d1ea1aa8a7a191f27b9",
+  "api_base_url": "/api/v1",
+  "fresh_dist_build": true
+}
