@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { findText, replaceMatches, manuscriptScenes, studioStatistics } from '../src/features/author-ide/studio-tools.ts';
 import { passageAnchor, moveAnchor, locateAnchor } from '../src/features/author-ide/studio-annotations.ts';
+import { selectedStudioText, transformStudioRange } from '../src/features/author-ide/studio-formatting.ts';
 
 test('search uses literal text, Vietnamese whole-word boundaries and UTF-16 editor offsets', () => {
   const text = '🌙 An ăn. Anam AN ăn. [a+b]';
@@ -46,4 +47,25 @@ test('formatting a passage does not detach its comment', () => {
   const anchor = passageAnchor(before, 0, 2);
   const moved = moveAnchor(anchor, before, after);
   assert.equal(moved.detached, undefined);assert.equal(after.slice(moved.start, moved.end), 'An');
+});
+
+test('clearing partial formatting preserves adjacent marks, nested styles and literal prose', () => {
+  const source = '**An và Bình** gặp ***Mai***. <u>Nhớ ~~sửa~~.</u>';
+  const start = source.indexOf('và'), end = start + 'và'.length;
+  const result = transformStudioRange(source, start, end, 'clear');
+  assert.equal(result.text, '**An **và** Bình** gặp ***Mai***. <u>Nhớ ~~sửa~~.</u>');
+  assert.equal(result.text.slice(result.start, result.end), 'và');
+  assert.equal(transformStudioRange(source, 0, source.length, 'clear').text, 'An và Bình gặp Mai. Nhớ sửa.');
+  assert.equal(transformStudioRange('x *y*', 0, 0, 'clear').text, 'x *y*');
+});
+
+test('case conversion preserves styles and Unicode; deleting styled prose leaves no empty delimiters', () => {
+  const source = '🌙 **An gặp Bình**!';
+  const result = transformStudioRange(source, 0, source.length, 'upper');
+  assert.equal(result.text, '🌙 **AN GẶP BÌNH**!');
+  assert.equal(transformStudioRange(result.text, 0, result.text.length, 'lower').text, '🌙 **an gặp bình**!');
+  assert.equal(selectedStudioText(source, 0, source.length), '🌙 An gặp Bình!');
+  assert.equal(selectedStudioText(source, 5, 7), 'An');
+  assert.equal(transformStudioRange('***An*** gặp Bình.', 3, 5, 'delete').text, ' gặp Bình.');
+  assert.equal(transformStudioRange('**An và Bình**', 5, 8, 'delete').text, '**An Bình**');
 });

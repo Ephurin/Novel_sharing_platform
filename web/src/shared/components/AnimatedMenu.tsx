@@ -2,14 +2,15 @@ import { createContext, useContext, useRef, type ComponentPropsWithoutRef, type 
 import { DropdownMenu } from '@animate-ui/react/primitives/radix-ui/dropdown-menu';
 import './animated-overlays.css';
 
-const MenuOptions = createContext<{ withinPortal: boolean; align: 'start' | 'end'; trigger: RefObject<HTMLButtonElement | null> | null }>({ withinPortal: true, align: 'end', trigger: null });
+const MenuOptions = createContext<{ withinPortal: boolean; align: 'start' | 'end'; trigger: RefObject<HTMLButtonElement | null> | null; onCloseAutoFocus?: (event: Event) => void }>({ withinPortal: true, align: 'end', trigger: null });
 
-function MenuRoot({ children, position = 'bottom-end', withinPortal = true }: PropsWithChildren<{
+function MenuRoot({ children, position = 'bottom-end', withinPortal = true, onCloseAutoFocus }: PropsWithChildren<{
   position?: 'bottom-start' | 'bottom-end';
   withinPortal?: boolean;
+  onCloseAutoFocus?: (event: Event) => void;
 }>) {
   const trigger = useRef<HTMLButtonElement>(null);
-  return <MenuOptions.Provider value={{ withinPortal, align: position === 'bottom-start' ? 'start' : 'end', trigger }}>
+  return <MenuOptions.Provider value={{ withinPortal, align: position === 'bottom-start' ? 'start' : 'end', trigger, onCloseAutoFocus }}>
     <DropdownMenu.Root modal={false}>{children}</DropdownMenu.Root>
   </MenuOptions.Provider>;
 }
@@ -20,9 +21,11 @@ function Target({ children }: { children: ReactElement }) {
 }
 
 function Dropdown({ children }: PropsWithChildren) {
-  const { withinPortal, align, trigger } = useContext(MenuOptions);
+  const { withinPortal, align, trigger, onCloseAutoFocus } = useContext(MenuOptions);
   const content = <DropdownMenu.Content className="sc-animated-menu" align={align} sideOffset={6} collisionPadding={12}
     onCloseAutoFocus={(event) => {
+      onCloseAutoFocus?.(event);
+      if (event.defaultPrevented) return;
       event.preventDefault();
       const active = document.activeElement;
       // Keep focus in a newly opened dialog or an outside field. Restoring a

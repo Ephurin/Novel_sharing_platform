@@ -92,3 +92,22 @@ Các bài kiểm tra trên không dùng chương đang viết của người dù
 - **Ghi chú** mở bảng bên phải, không đẩy vùng viết xuống. Trên màn hình nhỏ bảng nổi lên ở mép phải và có nút đóng. Hai tab **Theo đoạn** và **Sổ tay chương** dùng lại ghi chú đã lưu, không di chuyển hoặc xóa dữ liệu cũ.
 - Chọn đoạn, bấm chuột phải → **Thêm ghi chú đoạn** hoặc Ctrl/Cmd+Alt+M. Có thể tìm ghi chú, lọc đang mở/đã xử lý/tất cả/đoạn đã thay đổi, tới đoạn và gắn lại vùng chọn. Bảng này là ghi chú riêng trên trình duyệt, không phải nhận xét cộng tác hoặc thông báo cho người khác.
 - Menu chuột phải có Cắt, Sao chép, Dán văn bản, Xóa vùng chọn và Chọn tất cả bản thảo. Khi trình duyệt chặn bảng nhớ tạm, dùng phím tắt được hướng dẫn; cắt chỉ xóa sau khi sao chép thành công.
+
+## Công cụ sửa bản thảo tham khảo từ Docs
+
+- **Chỉnh sửa → Xóa định dạng vùng chọn** (Ctrl/Cmd+\): bỏ in đậm, nghiêng, gạch chân và gạch ngang trong phần chọn, giữ định dạng phần trước/sau. Có cả trong menu chuột phải. Không đổi phông, cỡ chữ hoặc bố cục chung.
+- **Chỉnh sửa → Đổi vùng chọn thành CHỮ HOA / chữ thường** giữ các dấu định dạng; hỗ trợ tiếng Việt và có thể hoàn tác.
+- **Chèn → Ngoặc thoại** bao vùng chọn bằng “…”; nếu chưa chọn, đặt con trỏ giữa hai dấu. **Dấu chấm lửng** chèn ký tự ….
+- **Xem → Chiều rộng vùng viết** có Hẹp / Vừa / Rộng, lưu lựa chọn trên máy. Chỉ thay cách trình bày khi viết, không sửa nội dung hoặc bản xuất.
+- Ctrl/Cmd+Shift+C mở thống kê và mục tiêu, kể cả thống kê riêng vùng chọn. **Xem → Phím tắt Studio** liệt kê các phím tắt hiện có.
+- Tham khảo các thao tác phù hợp từ [hướng dẫn phím tắt Google Docs](https://support.google.com/docs/answer/179738?hl=en). Không thêm chức năng chia sẻ tài liệu, bảng tính, bố cục trang in hoặc nhận xét cộng tác.
+
+### Kiểm tra nhanh
+
+1. Tải lại Studio; giữ nguyên thanh đầu tiên. Bên dưới còn hàng menu/cài đặt và thanh định dạng phẳng. Mở **Tệp** để tìm lịch sử, lên lịch và xuất tệp.
+2. Ở chế độ **Soạn thảo**, bôi đen một phần câu in đậm → **Chỉnh sửa → Xóa định dạng vùng chọn**. Chỉ phần chọn mất định dạng; Ctrl+Z phục hồi. Thử đổi HOA/thường với đoạn tiếng Việt.
+3. Bôi đen đoạn → chuột phải → **Thêm ghi chú đoạn** → nhập và lưu. Nút **Ghi chú** mở/đóng bảng bên phải. Thử tìm, lọc trạng thái, đánh dấu đã xử lý, tới đoạn, tab Sổ tay chương, rồi tải lại trang.
+4. Chọn một từ in đậm → chuột phải → Sao chép/Cắt; dán vào vị trí khác và hoàn tác. Nếu quyền bảng nhớ tạm bị chặn, bản thảo giữ nguyên và hiện hướng dẫn phím tắt.
+5. **Xem → Hẹp/Rộng**, tải lại để kiểm tra lưu lựa chọn. Thử giao diện tối và màn hình điện thoại; ghi chú có vùng cuộn và nút đóng riêng.
+
+Kiểm thử tự động: `npm run test:studio-tools`, `node --test tests/author-ide-caret.browser.test.mjs`, `npm run typecheck`, `npm run build` trong thư mục `web`.

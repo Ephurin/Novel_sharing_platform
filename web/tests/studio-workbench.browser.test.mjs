@@ -120,6 +120,27 @@ test('Studio workbench: undo, literal replacements, formatting, notes, scenes, e
         await page.screenshot({ path: path.join(output, `${mobile ? 'mobile-dark' : 'desktop-light'}-writing.png`) });
         await page.getByRole('button', { name: 'Soạn thảo', exact: true }).click();
         const rich = page.locator('[data-studio-rich-editor]'), canonical = page.locator('textarea.sc-manuscript');
+        await rich.fill('An gặp **Bình**.');
+        await canonical.evaluate(el => { const start=el.value.indexOf('Bình');el.dispatchEvent(new CustomEvent('studio-select-source',{detail:{start,end:start+4},cancelable:true})); });
+        await page.getByRole('button',{name:'Chỉnh sửa',exact:true}).click();await page.getByRole('menuitem',{name:'Đổi vùng chọn thành CHỮ HOA',exact:true}).click();
+        await expect(canonical).toHaveValue('An gặp **BÌNH**.');await expect(rich.locator('strong')).toHaveText('BÌNH');await expect(rich).toBeFocused();
+        await page.keyboard.press('Control+Backslash');await expect(canonical).toHaveValue('An gặp BÌNH.');await expect(rich.locator('strong')).toHaveCount(0);
+        await page.keyboard.press('Control+z');await expect(canonical).toHaveValue('An gặp **BÌNH**.');
+        await page.getByRole('button',{name:'Chỉnh sửa',exact:true}).click();await page.getByRole('menuitem',{name:'Đổi vùng chọn thành chữ thường',exact:true}).click();
+        await expect(canonical).toHaveValue('An gặp **bình**.');await expect(rich).toBeFocused();
+        await page.getByRole('button',{name:'Xem',exact:true}).click();await page.getByRole('menuitem',{name:'Hẹp · dòng ngắn',exact:true}).click();
+        await expect(page.locator('.sc-writing-studio')).toHaveAttribute('data-writing-width','narrow');
+        if (!mobile) {
+          await context.grantPermissions(['clipboard-read','clipboard-write']);
+          const openContext = async () => { await canonical.evaluate(el => {const start=el.value.indexOf('bình');el.dispatchEvent(new CustomEvent('studio-select-source',{detail:{start,end:start+4},cancelable:true}));});const box=await page.evaluate(()=>{const r=getSelection().getRangeAt(0).getBoundingClientRect();return {x:r.x+5,y:r.y+5};});await page.mouse.click(box.x,box.y,{button:'right'}); };
+          await openContext();await page.getByRole('menuitem',{name:'Sao chép',exact:false}).click();
+          assert.equal(await page.evaluate(()=>navigator.clipboard.readText()),'bình');await expect(rich).toBeFocused();
+          await openContext();await page.getByRole('menuitem',{name:'Cắt',exact:false}).click();
+          await expect(canonical).toHaveValue('An gặp .');await rich.focus();await page.keyboard.press('Control+z');await expect(canonical).toHaveValue('An gặp **bình**.');
+          await page.evaluate(()=>navigator.clipboard.writeText('Mai 🌙'));
+          await openContext();await page.getByRole('menuitem',{name:'Dán văn bản',exact:false}).click();await expect(canonical).toHaveValue('An gặp **Mai 🌙**.');
+        }
+        await page.getByRole('button',{name:'Xem',exact:true}).click();await page.getByRole('menuitem',{name:'Vừa · mặc định',exact:true}).click();
         await rich.fill('Một');await page.keyboard.press('End');await page.keyboard.press('Enter');await page.keyboard.insertText('Hai 🌙');
         assert.equal((await canonical.inputValue()).replace(/\n+/g, '\n'), 'Một\nHai 🌙');
         await rich.fill('Đoạn một 🌙.\n\nĐoạn hai cần ghi chú.');
@@ -179,7 +200,7 @@ test('Studio workbench: undo, literal replacements, formatting, notes, scenes, e
         await expect(editor).toHaveValue('Bản đang sửa khi có xung đột');assert.notEqual(savedContent, 'Bản đang sửa khi có xung đột');
         await page.screenshot({ path: path.join(output, `${mobile ? 'mobile-dark' : 'desktop-light'}-studio.png`) });
         assert.deepEqual(errors, []);
-      } finally { await context.setOffline(false);await context.close(); }
+      } catch (error) { await page.screenshot({path:path.join(output,'failure.png')});console.log('Failure state',output,await page.locator('[data-radix-popper-content-wrapper]').evaluateAll(elements=>elements.map(el=>({text:el.textContent,state:el.querySelector('[data-state]')?.getAttribute('data-state'),box:el.getBoundingClientRect().toJSON()}))));throw error; } finally { await context.setOffline(false);await context.close(); }
     }
     console.log('Studio screenshots:', output);
   } finally { await browser?.close();await new Promise(resolve => server.close(resolve)); }
