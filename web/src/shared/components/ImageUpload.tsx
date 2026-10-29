@@ -1,4 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
+import { useState } from 'react';
+import { CoverCropEditor } from './CoverCropEditor';
 import { FileButton, Button, Stack, Text } from '@mantine/core';
 import { apiClient, type ApiEnvelope, getApiErrorMessage } from '../api/api-client';
 export async function uploadImage(file: File) {
@@ -8,7 +10,8 @@ export async function uploadImage(file: File) {
   const result = await apiClient.post<ApiEnvelope<{ path: string }>>('/media', { data });
   return new URL(result.data.data.path, window.location.origin).href;
 }
-export function ImageUpload({ onUpload, label = 'Tải ảnh lên' }: { onUpload: (url: string) => void; label?: string }) {
+export function ImageUpload({ onUpload, label = 'Tải ảnh lên', cropCover = false }: { onUpload: (url: string) => void; label?: string; cropCover?: boolean }) {
+  const [selected, setSelected] = useState<File | null>(null);
   const mutation = useMutation({ mutationFn: uploadImage, onSuccess: onUpload });
-  return <Stack gap={4}><FileButton accept="image/png,image/jpeg,image/webp" onChange={file => { if (file) mutation.mutate(file); }}>{props => <Button {...props} variant="light" size="xs" loading={mutation.isPending}>{label}</Button>}</FileButton>{mutation.isError && <Text size="sm" c="red" role="alert">{getApiErrorMessage(mutation.error)}</Text>}</Stack>;
+  return <Stack gap={4}><FileButton accept="image/png,image/jpeg,image/webp" onChange={file => { if (file) { mutation.reset(); if (cropCover) setSelected(file); else mutation.mutate(file); } }}>{props => <Button {...props} disabled={mutation.isPending} variant="light" size="xs" loading={mutation.isPending}>{label}</Button>}</FileButton>{selected && <CoverCropEditor file={selected} onCancel={() => setSelected(null)} onConfirm={async file => { await mutation.mutateAsync(file); setSelected(null); }} />}{mutation.isError && !selected && <Text size="sm" c="red" role="alert">{getApiErrorMessage(mutation.error)}</Text>}</Stack>;
 }

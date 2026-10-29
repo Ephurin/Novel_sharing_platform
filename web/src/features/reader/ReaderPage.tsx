@@ -1,3 +1,5 @@
+import { ResponsiveFilters, ReactionIcon } from '../../shared/components/InteractionWidgets';
+import { ChapterToc, ReadingSettings } from '../../shared/components/ReaderTools';
 import { ManuscriptContent } from '../../shared/components/ManuscriptContent';
 import { CommentsSection } from './CommentsSection';
 import { ThemeControl } from '../../shared/components/ThemeControl';
@@ -24,6 +26,8 @@ import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
+import { ReadingProgress } from '../../shared/components/ReadingProgress';
+import { AnimatedSaveButton } from '../../shared/components/SaveFeedback';
 import {
   addToLibrary,
   followAuthor,
@@ -74,7 +78,7 @@ export function ReaderPage() {
         description="Browse published novels, then open detail or continue reading."
       />
 
-      <Paper p="md" withBorder mb="md">
+      <Paper p="md" withBorder mb="md"><ResponsiveFilters>
         <TextInput
           label="Search published novels"
           placeholder="Title, synopsis, genre..."
@@ -90,8 +94,7 @@ export function ReaderPage() {
             onChange={(event) => setGenreFilter(event.currentTarget.value)}
           />
           <TextInput label="Tag" placeholder="slow-burn..." value={tagFilter} onChange={(event) => setTagFilter(event.currentTarget.value)} />
-          <Select
-            label="Story status"
+          <Select comboboxProps={{ withinPortal: false }}             label="Story status"
             data={[
               { value: '', label: 'Any' },
               { value: 'ONGOING', label: 'Ongoing' },
@@ -102,8 +105,7 @@ export function ReaderPage() {
             onChange={(value) => setStatusFilter((value ?? '') as typeof statusFilter)}
           />
           <Group grow align="flex-end">
-            <Select
-              label="Sort"
+            <Select comboboxProps={{ withinPortal: false }}               label="Sort"
               data={[
                 { value: 'updatedAt', label: 'Updated' },
                 { value: 'views', label: 'Views' },
@@ -113,8 +115,7 @@ export function ReaderPage() {
               value={sortFilter}
               onChange={(value) => setSortFilter((value ?? 'updatedAt') as typeof sortFilter)}
             />
-            <Select
-              label="Order"
+            <Select comboboxProps={{ withinPortal: false }}               label="Order"
               data={[
                 { value: 'desc', label: 'Desc' },
                 { value: 'asc', label: 'Asc' }
@@ -124,7 +125,7 @@ export function ReaderPage() {
             />
           </Group>
         </SimpleGrid>
-      </Paper>
+      </ResponsiveFilters></Paper>
 
       {novelsQuery.isLoading ? <LoadingState label="Loading published novels..." /> : null}
       {novelsQuery.isError ? <ErrorState error={novelsQuery.error} onRetry={() => void novelsQuery.refetch()} /> : null}
@@ -174,7 +175,7 @@ export function PublicReaderPage() {
         }
       />
 
-      <Paper p="md" withBorder mb="md">
+      <Paper p="md" withBorder mb="md"><ResponsiveFilters>
         <SimpleGrid cols={{ base: 1, md: 3 }}>
           <TextInput
             label="Search"
@@ -185,7 +186,7 @@ export function PublicReaderPage() {
           <TextInput label="Genre" value={genreFilter} onChange={(event) => setGenreFilter(event.currentTarget.value)} />
           <TextInput label="Tag" value={tagFilter} onChange={(event) => setTagFilter(event.currentTarget.value)} />
         </SimpleGrid>
-      </Paper>
+      </ResponsiveFilters></Paper>
 
       {novelsQuery.isLoading ? <LoadingState label="Loading public novels..." /> : null}
       {novelsQuery.isError ? <ErrorState error={novelsQuery.error} onRetry={() => void novelsQuery.refetch()} /> : null}
@@ -286,13 +287,13 @@ export function ReaderNovelDetailPage() {
               >
                 Add library
               </Button>
-              <Button variant="light" loading={likeMutation.isPending} onClick={() => likeMutation.mutate()} data-testid="reader-like-btn">
+              <Button leftSection={<ReactionIcon icon="favorite" successVersion={likeMutation.isSuccess ? likeMutation.submittedAt : 0} />} variant="light" loading={likeMutation.isPending} onClick={() => likeMutation.mutate()} data-testid="reader-like-btn">
                 Like
               </Button>
               <Button variant="light" loading={unlikeMutation.isPending} onClick={() => unlikeMutation.mutate()} data-testid="reader-unlike-btn">
                 Unlike
               </Button>
-              <Button variant="light" loading={followMutation.isPending} disabled={!novel?.authorId} onClick={() => followMutation.mutate()} data-testid="reader-follow-btn">
+              <Button leftSection={<ReactionIcon icon="person_add" successVersion={followMutation.isSuccess ? followMutation.submittedAt : 0} />} variant="light" loading={followMutation.isPending} disabled={!novel?.authorId} onClick={() => followMutation.mutate()} data-testid="reader-follow-btn">
                 Follow
               </Button>
               <Button component={Link} to={`/authors/${novel?.authorId ?? ''}`} variant="light" disabled={!novel?.authorId}>
@@ -509,6 +510,8 @@ export function ReaderChapterPage() {
         description={chapter?.isVip ? `VIP chapter · ${chapter.priceCoins} coins` : 'Free published chapter'}
         actions={
           <Group gap="xs">
+            <ChapterToc chapters={chapterList} currentId={chapterId} />
+            {preferences && <ReadingSettings><ReadingPreferencesPanel preferences={preferences} onSave={next => preferencesMutation.mutate(next)} saving={preferencesMutation.isPending} saved={preferencesMutation.isSuccess} /></ReadingSettings>}
             <Button component={Link} to={`/reader/novels/${chapter?.novelId ?? ''}`} variant="light" disabled={!chapter?.novelId}>
               Novel detail
             </Button>
@@ -537,21 +540,10 @@ export function ReaderChapterPage() {
         }
       />
 
-      <Paper p="xl" withBorder mb="md">
-        <Group justify="space-between" mb="md" align="flex-start">
-          <Box>
-            <Title order={4}>Reading Preferences</Title>
-            <Text size="sm" c="dimmed">
-              Saved to `reading_preferences` and applied immediately to the chapter body.
-            </Text>
-          </Box>
-          <Badge variant="light">{preferencesQuery.isLoading ? 'Loading' : 'Synced'}</Badge>
-        </Group>
-        {preferences ? <ReadingPreferencesPanel preferences={preferences} onSave={(next) => preferencesMutation.mutate(next)} saving={preferencesMutation.isPending} /> : null}
-      </Paper>
+
 
       <Paper p="xl" withBorder mb="md" style={readerStyle}>
-        <ManuscriptContent content={chapter?.content ?? ''} />
+        <ReadingProgress key={chapterId}><ManuscriptContent content={chapter?.content ?? ''} /></ReadingProgress>
       </Paper>
 
       <CommentsSection kind="chapter" id={chapterId} />
@@ -566,6 +558,11 @@ export function PublicReaderChapterPage() {
     queryFn: () => getReaderChapter(chapterId),
     enabled: Boolean(chapterId),
     retry: false
+  });
+  const tocQuery = useQuery({
+    queryKey: ['public-reader-novel', chapterQuery.data?.novelId],
+    queryFn: () => getReaderNovel(chapterQuery.data!.novelId),
+    enabled: Boolean(chapterQuery.data?.novelId)
   });
   const isLockedVip = chapterQuery.error instanceof ApiClientError && chapterQuery.error.code === 'PAYMENT_002';
 
@@ -600,7 +597,7 @@ export function PublicReaderChapterPage() {
         title={chapter ? `Ch. ${chapter.chapterNumber}: ${chapter.title}` : 'Chapter'}
         description="Guest free-chapter reading. Login to save progress, comment, report, or unlock VIP chapters."
         actions={
-          <Group>
+          <Group><ChapterToc chapters={tocQuery.data?.chapters ?? []} currentId={chapterId} publicMode />
             <Button component={Link} to={`/public/novels/${chapter?.novelId ?? ''}`} variant="light" disabled={!chapter?.novelId}>
               Novel detail
             </Button>
@@ -612,7 +609,7 @@ export function PublicReaderChapterPage() {
       />
 
       <Paper p="xl" withBorder mb="md" style={buildReaderStyle()}>
-        <ManuscriptContent content={chapter?.content ?? ''} />
+        <ReadingProgress key={chapterId}><ManuscriptContent content={chapter?.content ?? ''} /></ReadingProgress>
       </Paper>
 
       <CommentsSection kind="chapter" id={chapterId} />
@@ -623,11 +620,13 @@ export function PublicReaderChapterPage() {
 function ReadingPreferencesPanel({
   preferences,
   onSave,
-  saving
+  saving,
+  saved
 }: {
   preferences: ReadingPreferences;
   onSave: (preferences: ReadingPreferences) => void;
   saving: boolean;
+  saved: boolean;
 }) {
   const [draft, setDraft] = useState(preferences);
 
@@ -636,9 +635,8 @@ function ReadingPreferencesPanel({
   }, [preferences]);
 
   return (
-    <SimpleGrid cols={{ base: 1, md: 5 }} mb="md">
-      <Select
-        label="Font family"
+    <SimpleGrid cols={{ base: 1, sm: 2 }} mb="md">
+      <Select comboboxProps={{ withinPortal: false }}         label="Font family"
         data={[
           { value: 'system-ui', label: 'System' },
           { value: 'Georgia', label: 'Serif' },
@@ -656,8 +654,7 @@ function ReadingPreferencesPanel({
         onChange={(value) => setDraft((current) => ({ ...current, fontSize: Number(value) || current.fontSize }))}
         data-testid="reader-pref-font-size"
       />
-      <Select
-        label="Background"
+      <Select comboboxProps={{ withinPortal: false }}         label="Background"
         data={[
           { value: 'LIGHT', label: 'Light' },
           { value: 'DARK', label: 'Dark' },
@@ -676,9 +673,9 @@ function ReadingPreferencesPanel({
         onChange={(value) => setDraft((current) => ({ ...current, lineHeight: Number(value) || current.lineHeight }))}
         data-testid="reader-pref-line-height"
       />
-      <Button mt="xl" loading={saving} onClick={() => onSave(draft)} data-testid="reader-save-preferences-btn">
+      <AnimatedSaveButton mt="xl" loading={saving} saved={saved} onClick={() => onSave(draft)} data-testid="reader-save-preferences-btn">
         Save preferences
-      </Button>
+      </AnimatedSaveButton>
     </SimpleGrid>
   );
 }
@@ -797,7 +794,7 @@ function ReaderHeader({ title, description, actions }: { title: string; descript
 function NovelCard({ novel, extraAction, publicMode = false }: { novel: ReaderNovel; extraAction?: ReactNode; publicMode?: boolean }) {
   return (
     <Paper p="md" withBorder>
-      <Stack gap="sm">
+      <Stack gap="sm">{novel.coverImageUrl && <Link className="sc-reader-cover sc-cover-hover" to={`${publicMode ? '/public' : '/reader'}/novels/${novel.novelId}`}><img src={novel.coverImageUrl} alt={novel.title} loading="lazy" /></Link>}
         <Group justify="space-between" align="flex-start">
           <Box>
             <Title order={4}>{novel.title}</Title>

@@ -228,6 +228,10 @@ export interface ImportedChapterResult {
   };
 }
 
+export class ManuscriptImportError extends Error {
+  constructor(message: string, public readonly completed: ImportedChapterResult[], public readonly failedIndex: number, public readonly stage: 'create' | 'snapshot', public readonly createdChapterId?: string) { super(message); this.name = 'ManuscriptImportError'; }
+}
+
 export async function importChaptersBatch(
   novelId: string,
   chapters: Array<{ title: string; content: string; isVip?: boolean; priceCoins?: number }>,
@@ -254,7 +258,7 @@ export async function importChaptersBatch(
       });
       chapterData = response.data.data;
     } catch (err: any) {
-      throw new Error(`Lỗi khi tạo chương "${ch.title}": ${err?.message || 'Không thể tạo chương'}`);
+      throw new ManuscriptImportError(`Lỗi khi tạo chương "${ch.title}": ${err?.message || 'Không thể tạo chương'}`, [...results], i, 'create');
     }
 
     if (onProgress) {
@@ -270,7 +274,7 @@ export async function importChaptersBatch(
       );
       revisionData = snapResponse.data.data;
     } catch (err: any) {
-      throw new Error(`Lỗi khi tạo snapshot revision cho chương "${ch.title}" (${chapterData.chapterId}): ${err?.message || 'Không thể tạo snapshot'}`);
+      throw new ManuscriptImportError(`Lỗi khi tạo snapshot revision cho chương "${ch.title}" (${chapterData.chapterId}): ${err?.message || 'Không thể tạo snapshot'}`, [...results], i, 'snapshot', chapterData.chapterId);
     }
 
     results.push({

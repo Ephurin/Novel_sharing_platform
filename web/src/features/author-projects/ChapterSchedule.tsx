@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Alert, Button, Group, Modal, Stack, Text, TextInput } from '@mantine/core';
+import { Alert, Button, Group, Stack, Text, TextInput } from '@mantine/core';
+import { AnimatedModal as Modal } from '../../shared/components/AnimatedModal';
 import { apiClient, getApiErrorMessage } from '../../shared/api/api-client';
 import { getChapter } from '../novels/novel-api';
 import { ErrorState, LoadingState } from '../../shared/components/PageStates';
@@ -30,6 +31,8 @@ export function ChapterSchedule({ chapterId, novelId, onClose }: { chapterId: st
     }
   });
   const current = chapter.data?.publicationSchedule;
+  const previewDate = new Date(date);
+  const previewTime = Number.isFinite(previewDate.getTime()) ? previewDate.toLocaleString('vi-VN', { timeZone: 'Asia/Bangkok', dateStyle: 'short', timeStyle: 'short' }) : null;
   return <Modal opened onClose={() => !save.isPending && onClose()} title="Lên lịch xuất bản chương">
     <Stack>
       {chapter.isPending && <LoadingState label="Đang tải bản nháp…" />}
@@ -39,6 +42,7 @@ export function ChapterSchedule({ chapterId, novelId, onClose }: { chapterId: st
         {current?.status === 'PENDING' && <Text size="sm">Lịch hiện tại: {new Date(current.scheduledAt).toLocaleString('vi-VN')}</Text>}
         <TextInput type="datetime-local" label="Ngày giờ đăng" value={date} onChange={event => setDate(event.currentTarget.value)} required
           description={`Múi giờ: ${Intl.DateTimeFormat().resolvedOptions().timeZone}. Sửa bản nháp sẽ hủy lịch cũ.`} />
+        {previewTime && <Text size="sm" c="dimmed" role="status">Dự kiến: {previewTime} (Asia/Bangkok)</Text>}
         <Text size="sm" c="dimmed">Tác phẩm cần được phát hành. Chương vẫn tuân theo quy trình kiểm duyệt.</Text>
         {save.isError && <Alert color="red">{getApiErrorMessage(save.error)}</Alert>}
         <Group justify="flex-end">

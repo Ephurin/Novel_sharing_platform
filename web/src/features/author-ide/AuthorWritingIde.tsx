@@ -1,3 +1,10 @@
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { useToast } from '../../shared/components/ToastProvider';
+import { SaveStatus } from '../../shared/components/SaveFeedback';
+import { StudioWorkbench } from './StudioWorkbench';
+import { useStudioHistory } from './useStudioHistory';
+import { revealStudioSelection } from './studio-tools';
+import { RichManuscriptEditor } from './RichManuscriptEditor';
 import { ChapterSchedule } from '../author-projects/ChapterSchedule';
 import { RevisionHistory, snapshotDraft } from './RevisionHistory';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -7,7 +14,7 @@ import { Alert, Button, Group, Text } from '@mantine/core';
 import { ThemeControl } from '../../shared/components/ThemeControl';
 import { AuthorDialog } from '../../shared/components/AuthorTheme';
 import { AuthorMemoryPanel } from '../ai-copilot/AuthorMemoryPanel';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -40,6 +47,7 @@ import {
   fetchContextPreview,
   listChapterRevisions,
   utf16OffsetToCodePoint,
+  codePointToUtf16Offset,
   type WritingGenerationJob
 } from '../ai-copilot/ai-copilot-api';
 import { getApiErrorMessage } from '../../shared/api/api-client';
@@ -121,6 +129,8 @@ function parseIdeCharacterDesc(rawDesc: string | null | undefined): { customTitl
 
 type AccessMode = 'free' | 'vip';
 type StoryBibleTab = 'characters' | 'relationships' | 'timeline' | 'summaries';
+function readEditorSetting(key: string) { try { return localStorage.getItem(key); } catch { return null; } }
+function writeEditorSetting(key: string, value: string) { try { localStorage.setItem(key, value); } catch { /* Presentation preferences must never block writing. */ } }
 
 export function AuthorWritingIde() {
   const user = useAuthStore(state => state.user);
@@ -142,6 +152,7 @@ export function AuthorWritingIde() {
   // UI Interactive Panels & Modals State
   const [sidebarOpen, setSidebarOpen] = useState(() => window.matchMedia('(min-width: 901px)').matches);
   const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
+  const reducePanelMotion = useReducedMotion();
   const toggleAiDrawer = () => {
     if (!aiDrawerOpen && window.matchMedia('(max-width: 1200px)').matches) setSidebarOpen(false);
     setAiDrawerOpen(open => !open);
@@ -155,25 +166,28 @@ export function AuthorWritingIde() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
   const [formatToolbarVisible, setFormatToolbarVisible] = useState(true);
+  const [visualEditor, setVisualEditor] = useState(() => readEditorSetting('storycraft-studio-editor-mode') !== 'source');
+  const [exportOpen, setExportOpen] = useState(false);
 
   // Rich Typography & Manuscript Formatting State
   const [fontOption, setFontOption] = useState<FontOption>(() => {
-    return (localStorage.getItem('ephurin_editor_font') as FontOption) || 'vietnam';
+    const value = readEditorSetting('ephurin_editor_font');
+    return AVAILABLE_FONTS.some(font => font.id === value) ? value as FontOption : 'vietnam';
   });
   const [fontSize, setFontSize] = useState<number>(() => {
-    const saved = localStorage.getItem('ephurin_editor_font_size');
-    return saved ? Math.min(28, Math.max(13, Number(saved))) : 17;
+    const saved = Number(readEditorSetting('ephurin_editor_font_size'));
+    return Number.isFinite(saved) && saved >= 13 && saved <= 28 ? saved : 17;
   });
   const [lineHeight, setLineHeight] = useState<number>(() => {
-    const saved = localStorage.getItem('ephurin_editor_line_height');
-    return saved ? Number(saved) : 2.15;
+    const saved = Number(readEditorSetting('ephurin_editor_line_height'));
+    return Number.isFinite(saved) && saved >= 1.2 && saved <= 3 ? saved : 2.15;
   });
   const [textAlign, setTextAlign] = useState<TextAlignment>(() => {
-    return (localStorage.getItem('ephurin_editor_text_align') as TextAlignment) || 'justify';
+    const value = readEditorSetting('ephurin_editor_text_align');
+    return ['justify','left','center','right'].includes(value ?? '') ? value as TextAlignment : 'justify';
   });
   const [paragraphIndent, setParagraphIndent] = useState<boolean>(() => {
-    const saved = localStorage.getItem('ephurin_editor_indent');
-    return saved !== null ? saved === 'true' : true;
+    return readEditorSetting('ephurin_editor_indent') !== 'false';
   });
 
   const [fontDropdownOpen, setFontDropdownOpen] = useState(false);
@@ -192,19 +206,21 @@ export function AuthorWritingIde() {
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
   const [isAcceptingAi, setIsAcceptingAi] = useState(false);
   const [currentJob, setCurrentJob] = useState<WritingGenerationJob | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const pollTimerRef = useRef<number | null>(null);
 
   // References for tracking changes
   const editorRef = useRef<HTMLTextAreaElement>(null);
+  const editorSelectionRef = useRef<{ scope: string; start: number; end: number } | null>(null);
+  const acceptedCaretRef = useRef<{ scope: string; position: number; scrollTop: number } | null>(null);
+  const rememberEditorSelection = () => {
+    const editor = editorRef.current;
+    if (editor) editorSelectionRef.current = {
+      scope: activeDraftScope, start: editor.selectionStart, end: editor.selectionEnd
+    };
+  };
 
   // Toast Helper
-  const showToast = (message: string) => {
-    setToastMessage(message);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 3800);
-  };
+  const { showToast } = useToast();
 
   // Queries
   const novelsQuery = useQuery({
@@ -319,7 +335,7 @@ export function AuthorWritingIde() {
   // The outer workspace scrolls; the manuscript and textarea keep their full height.
   const adjustHeight = () => {
     const el = editorRef.current;
-    if (!el) return;
+    if (!el || el.hidden) return;
     const viewport = el.closest<HTMLElement>('.sc-editor-workspace');
     const scrollTop = viewport?.scrollTop ?? 0;
     el.style.height = 'auto';
@@ -330,6 +346,19 @@ export function AuthorWritingIde() {
   useEffect(() => {
     adjustHeight();
   }, [content, fontOption, fontSize, lineHeight, textAlign, paragraphIndent]);
+
+  useLayoutEffect(() => {
+    const caret = acceptedCaretRef.current;
+    if (!caret || isAcceptingAi) return;
+    acceptedCaretRef.current = null;
+    const editor = editorRef.current;
+    if (!editor || caret.scope !== activeDraftScope) return;
+    adjustHeight();
+    revealStudioSelection(editor, caret.position, caret.position);
+    rememberEditorSelection();
+    const viewport = editor.closest<HTMLElement>('.sc-editor-workspace');
+    if (viewport) viewport.scrollTop = caret.scrollTop;
+  }, [content, isAcceptingAi, activeDraftScope]);
 
   useEffect(() => {
     const editor = editorRef.current;
@@ -352,23 +381,23 @@ export function AuthorWritingIde() {
 
   // Persist formatting preferences in localStorage
   useEffect(() => {
-    localStorage.setItem('ephurin_editor_font', fontOption);
+    writeEditorSetting('ephurin_editor_font', fontOption);
   }, [fontOption]);
 
   useEffect(() => {
-    localStorage.setItem('ephurin_editor_font_size', String(fontSize));
+    writeEditorSetting('ephurin_editor_font_size', String(fontSize));
   }, [fontSize]);
 
   useEffect(() => {
-    localStorage.setItem('ephurin_editor_line_height', String(lineHeight));
+    writeEditorSetting('ephurin_editor_line_height', String(lineHeight));
   }, [lineHeight]);
 
   useEffect(() => {
-    localStorage.setItem('ephurin_editor_text_align', textAlign);
+    writeEditorSetting('ephurin_editor_text_align', textAlign);
   }, [textAlign]);
 
   useEffect(() => {
-    localStorage.setItem('ephurin_editor_indent', String(paragraphIndent));
+    writeEditorSetting('ephurin_editor_indent', String(paragraphIndent));
   }, [paragraphIndent]);
 
   // Close dropdowns on outside click
@@ -407,23 +436,25 @@ export function AuthorWritingIde() {
 
     if (start !== end) {
       const selected = currentVal.substring(start, end);
-      newContent = currentVal.substring(0, start) + prefix + selected + suffix + currentVal.substring(end);
-      newCursorStart = start + prefix.length;
-      newCursorEnd = end + prefix.length;
+      const italicBoundary = prefix !== '*' || ((currentVal.slice(0, start).match(/\*+$/)?.[0].length ?? 0) % 2 === 1 && (currentVal.slice(end).match(/^\*+/)?.[0].length ?? 0) % 2 === 1);
+      const selectedItalic = prefix !== '*' || ((selected.match(/^\*+/)?.[0].length ?? 0) % 2 === 1 && (selected.match(/\*+$/)?.[0].length ?? 0) % 2 === 1);
+      if (italicBoundary && start >= prefix.length && currentVal.slice(start - prefix.length, start) === prefix && currentVal.slice(end, end + suffix.length) === suffix) {
+        newContent = currentVal.slice(0, start - prefix.length) + selected + currentVal.slice(end + suffix.length);
+        newCursorStart = start - prefix.length; newCursorEnd = end - prefix.length;
+      } else if (selectedItalic && selected.startsWith(prefix) && selected.endsWith(suffix) && selected.length >= prefix.length + suffix.length) {
+        const plain = selected.slice(prefix.length, -suffix.length);
+        newContent = currentVal.slice(0, start) + plain + currentVal.slice(end); newCursorStart = start; newCursorEnd = start + plain.length;
+      } else {
+        newContent = currentVal.substring(0, start) + prefix + selected + suffix + currentVal.substring(end);
+        newCursorStart = start + prefix.length; newCursorEnd = end + prefix.length;
+      }
     } else {
       newContent = currentVal.substring(0, start) + prefix + placeholder + suffix + currentVal.substring(end);
       newCursorStart = start + prefix.length;
       newCursorEnd = start + prefix.length + placeholder.length;
     }
 
-    setContent(newContent);
-    triggerAutosave(title, newContent, isVip, priceCoins);
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(newCursorStart, newCursorEnd);
-      adjustHeight();
-    }, 10);
+    applyStudioEdit(newContent, newCursorStart, newCursorEnd);
   };
 
   const insertDialogueDash = () => {
@@ -434,16 +465,8 @@ export function AuthorWritingIde() {
     const start = textarea.selectionStart;
     const currentVal = textarea.value;
     const prefix = '— ';
-    const newContent = currentVal.substring(0, start) + prefix + currentVal.substring(start);
-    setContent(newContent);
-    triggerAutosave(title, newContent, isVip, priceCoins);
-
-    setTimeout(() => {
-      textarea.focus();
-      const pos = start + prefix.length;
-      textarea.setSelectionRange(pos, pos);
-      adjustHeight();
-    }, 10);
+    const newContent = currentVal.substring(0, start) + prefix + currentVal.substring(textarea.selectionEnd);
+    applyStudioEdit(newContent, start + prefix.length, start + prefix.length);
   };
 
   useEffect(() => { setAutosaveStatus(persistence.status); if (persistence.status === 'saved') setLastSavedTime(new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })); }, [persistence.status]);
@@ -459,6 +482,28 @@ export function AuthorWritingIde() {
     setContent(val);
     triggerAutosave(title, val, isVip, priceCoins);
   };
+
+  const studioReady = Boolean(chapterQuery.data) && loadedChapter.current === activeDraftScope;
+  const studioHistory = useStudioHistory(activeDraftScope, content, studioReady, handleContentChange);
+  const studioCaret = useRef<{ scope: string; start: number; end: number; text: string } | null>(null);
+  const applyStudioEdit = (value: string, start: number, end: number) => {
+    if (!studioReady || isAcceptingAi) return;
+    studioCaret.current = { scope: activeDraftScope, start, end, text: value };
+    studioHistory.edit(value, start, end);
+    if (value === content && editorRef.current) { revealStudioSelection(editorRef.current, start, end); studioCaret.current = null; }
+  };
+  const moveStudioHistory = (redo = false) => {
+    if (!studioReady || isAcceptingAi) return;
+    const entry = redo ? studioHistory.redo() : studioHistory.undo();
+    if (entry) studioCaret.current = { scope: activeDraftScope, start: entry.start, end: entry.end, text: entry.text };
+  };
+  const rememberStudioSelection = () => { rememberEditorSelection(); const editor = editorRef.current; if (editor) studioHistory.remember(editor.selectionStart, editor.selectionEnd); };
+  useLayoutEffect(() => {
+    const caret = studioCaret.current;
+    if (caret && caret.scope === activeDraftScope && caret.text === content && editorRef.current && studioReady) {
+      studioCaret.current = null; adjustHeight(); revealStudioSelection(editorRef.current, caret.start, caret.end); rememberEditorSelection();
+    } else if (caret?.scope !== activeDraftScope) studioCaret.current = null;
+  }, [content, activeDraftScope, studioReady]);
 
   const handleAccessChange = (mode: AccessMode) => {
     if (isAcceptingAi) return;
@@ -531,6 +576,13 @@ export function AuthorWritingIde() {
     const finalInstruction = instructionText || aiInstruction;
     if (!finalInstruction.trim()) return;
 
+    // Capture before async preparation or focus changes in the assistant panel.
+    const savedSelection = editorSelectionRef.current;
+    const selStart = savedSelection?.scope === activeDraftScope ? savedSelection.start : content.length;
+    const selEnd = savedSelection?.scope === activeDraftScope ? savedSelection.end : content.length;
+    const codePointStart = utf16OffsetToCodePoint(content, selStart);
+    const codePointEnd = utf16OffsetToCodePoint(content, selEnd);
+
     if (pollTimerRef.current) {
       window.clearTimeout(pollTimerRef.current);
       pollTimerRef.current = null;
@@ -566,13 +618,6 @@ export function AuthorWritingIde() {
       } catch {
         brainVer = 1;
       }
-
-      // 3. Selection offsets in Unicode code points
-      const textarea = editorRef.current;
-      const selStart = textarea ? textarea.selectionStart : 0;
-      const selEnd = textarea ? textarea.selectionEnd : 0;
-      const codePointStart = utf16OffsetToCodePoint(content, selStart);
-      const codePointEnd = utf16OffsetToCodePoint(content, selEnd);
 
       // 4. Start writing generation job
       const initiatedJob = await startWritingGeneration({
@@ -628,6 +673,7 @@ export function AuthorWritingIde() {
   // Canonical Accept Draft: creates immutable revision & emits INCREMENTAL_ANALYSIS outbox event
   const handleAcceptDraft = async () => {
     if (!activeChapterId || !currentJob) return;
+    const scrollTop = editorRef.current?.closest<HTMLElement>('.sc-editor-workspace')?.scrollTop ?? 0;
     setIsAcceptingAi(true);
     try {
       await persistence.flush();
@@ -639,6 +685,13 @@ export function AuthorWritingIde() {
         setContent(value.content);
         setIsVip(value.isVip);
         setPriceCoins(value.priceCoins);
+        if (currentJob.patch) {
+          acceptedCaretRef.current = {
+            scope: activeDraftScope,
+            position: codePointToUtf16Offset(value.content, currentJob.patch.start) + currentJob.patch.replacement.length,
+            scrollTop
+          };
+        }
       }
       setCurrentJob(null);
       setAiSuggestion(null);
@@ -677,7 +730,7 @@ export function AuthorWritingIde() {
   }, [chaptersQuery.data, chapterSearch]);
 
   const manuscriptActions = (
-    <div className="sc-studio-manuscript-actions">{['DRAFT','REJECTED'].includes(chapterQuery.data?.status ?? '') && <button type="button" className="sc-button sc-button-ghost" onClick={async () => { try { await persistence.flush(); setScheduleOpen(true); } catch { showToast('Lưu bản nháp thành công trước khi đặt lịch.'); } }}>Lên lịch</button>}<button type="button" className="sc-button sc-button-ghost" onClick={() => setHistoryOpen(true)} disabled={!chapterQuery.data}>Lịch sử bản thảo</button><button type="button" className="sc-button sc-button-ghost" onClick={() => { const url = URL.createObjectURL(new Blob([title + '\n\n' + content], { type: 'text/markdown;charset=utf-8' })); const a = document.createElement('a'); a.href = url; a.download = 'ban-thao.md'; a.click(); URL.revokeObjectURL(url); }}>Xuất bản thảo</button></div>
+    <div className="sc-studio-manuscript-actions">{['DRAFT','REJECTED'].includes(chapterQuery.data?.status ?? '') && <button type="button" className="sc-button sc-button-ghost" onClick={async () => { try { await persistence.flush(); setScheduleOpen(true); } catch { showToast('Lưu bản nháp thành công trước khi đặt lịch.'); } }}>Lên lịch</button>}<button type="button" className="sc-button sc-button-ghost" onClick={() => setHistoryOpen(true)} disabled={!chapterQuery.data}>Lịch sử bản thảo</button><button type="button" className="sc-button sc-button-ghost" onClick={() => setExportOpen(true)}>Xuất bản thảo</button></div>
   );
 
   return (
@@ -714,24 +767,7 @@ export function AuthorWritingIde() {
           </nav>
 
           {/* Autosave Indicator */}
-          <div className="hidden md:flex items-center gap-1.5 ml-1.5 px-2 py-0.5 rounded-full bg-emerald-50/80 border border-emerald-200/60 text-meta text-emerald-700 font-medium shrink-0">
-            {autosaveStatus === 'saving' ? (
-              <>
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
-                <span>Đang lưu...</span>
-              </>
-            ) : autosaveStatus === 'error' ? (
-              <>
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                <span className="text-red-600">Lỗi lưu đám mây</span>
-              </>
-            ) : (
-              <>
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                <span>Đã lưu • {lastSavedTime || 'Mới nhất'}</span>
-              </>
-            )}
-          </div>
+          <SaveStatus className="hidden md:inline-flex shrink-0" status={activeChapterId && chapterQuery.data && loadedChapter.current === activeDraftScope ? autosaveStatus : 'idle'} dirty={persistence.dirty} savedAt={lastSavedTime} />
         </div>
 
         {/* Center/Right Primary Actions */}
@@ -905,6 +941,9 @@ export function AuthorWritingIde() {
       {persistence.recovery && <Alert title="Có bản lưu trên máy chưa đồng bộ" color="orange"><Text size="sm">Bản lưu lúc {new Date(persistence.recovery.savedAt).toLocaleString('vi-VN')}. Nội dung máy chủ vẫn được giữ nguyên.</Text><Group mt="xs"><Button size="xs" onClick={() => { const value = persistence.recovery!.value; setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); persistence.dismissRecovery(); triggerAutosave(value.title, value.content, value.isVip, value.priceCoins); }}>Khôi phục vào trình soạn thảo</Button><Button size="xs" variant="default" onClick={persistence.dismissRecovery}>Bỏ bản lưu trên máy</Button></Group></Alert>}
       {persistence.blocker.state === 'blocked' && <AuthorDialog onClose={() => persistence.blocker.reset?.()}><div className="fixed inset-0 flex items-center justify-center p-4"><div className="w-full max-w-md p-6"><h2 className="text-section">Bản nháp chưa lưu xong</h2><p className="text-body">Bạn có thể lưu trước khi rời trang hoặc giữ bản dự phòng trên máy để khôi phục sau.</p><Group mt="md"><Button onClick={async () => { try { await persistence.flush(); persistence.blocker.proceed?.(); } catch {} }}>Lưu và rời trang</Button><Button variant="default" onClick={() => persistence.blocker.reset?.()}>Ở lại</Button><Button variant="subtle" onClick={() => { persistence.abandon(); persistence.blocker.proceed?.(); }}>Rời trang</Button></Group></div></div></AuthorDialog>}
       {focusMode && <div className="flex justify-end px-4">{manuscriptActions}</div>}
+      <StudioWorkbench key={activeDraftScope} scope={activeDraftScope} title={title} content={content} editor={editorRef} disabled={!studioReady || isAcceptingAi} exportOpen={exportOpen} onExportClose={() => setExportOpen(false)}
+        apply={applyStudioEdit} undo={() => moveStudioHistory()} redo={() => moveStudioHistory(true)} canUndo={studioHistory.canUndo} canRedo={studioHistory.canRedo}
+        save={async () => { await persistence.flush(); }} onError={message => showToast(message, 'error')} />
       <div className="sc-studio-body flex-1 min-h-0 flex overflow-hidden relative">
         {/* Left Sidebar Chapters Outline Rail */}
         {sidebarOpen && !focusMode && (
@@ -1265,6 +1304,7 @@ export function AuthorWritingIde() {
 
                 {/* 5. Inline Formatting Tools */}
                 <button
+                  onMouseDown={event => event.preventDefault()}
                   onClick={() => wrapSelection('**', '**', 'văn bản in đậm')}
                   className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors font-bold text-meta"
                   title="In đậm (**văn bản**)"
@@ -1274,6 +1314,7 @@ export function AuthorWritingIde() {
                 </button>
 
                 <button
+                  onMouseDown={event => event.preventDefault()}
                   onClick={() => wrapSelection('*', '*', 'văn bản in nghiêng')}
                   className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors italic text-meta"
                   title="In nghiêng (*văn bản*)"
@@ -1283,6 +1324,7 @@ export function AuthorWritingIde() {
                 </button>
 
                 <button
+                  onMouseDown={event => event.preventDefault()}
                   onClick={() => wrapSelection('<u>', '</u>', 'văn bản gạch chân')}
                   className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors text-meta"
                   title="Gạch chân (<u>văn bản</u>)"
@@ -1292,6 +1334,7 @@ export function AuthorWritingIde() {
                 </button>
 
                 <button
+                  onMouseDown={event => event.preventDefault()}
                   onClick={() => wrapSelection('~~', '~~', 'văn bản gạch ngang')}
                   className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors text-meta"
                   title="Gạch ngang (~~văn bản~~)"
@@ -1301,6 +1344,7 @@ export function AuthorWritingIde() {
                 </button>
 
                 <button
+                  onMouseDown={event => event.preventDefault()}
                   onClick={() => wrapSelection('“', '”', 'lời thoại nhân vật')}
                   className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 font-serif text-body transition-colors"
                   title="Trích dẫn lời thoại “...”"
@@ -1310,6 +1354,7 @@ export function AuthorWritingIde() {
                 </button>
 
                 <button
+                  onMouseDown={event => event.preventDefault()}
                   onClick={insertDialogueDash}
                   className="px-1.5 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 font-serif text-meta transition-colors"
                   title="Gạch đầu dòng lời thoại (— )"
@@ -1346,12 +1391,26 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Prose Editor Textarea: Auto-grow without internal scrollbar */}
-            <div className="w-full min-h-[500px]">
+            <div className="sc-manuscript-input w-full min-h-[500px]">
+              <div className="sc-studio-editor-mode" role="group" aria-label="Chế độ soạn thảo"><button type="button" aria-pressed={visualEditor} onClick={() => { setVisualEditor(true); writeEditorSetting('storycraft-studio-editor-mode', 'visual'); }}>Soạn thảo</button><button type="button" aria-pressed={!visualEditor} onClick={() => { setVisualEditor(false); writeEditorSetting('storycraft-studio-editor-mode', 'source'); }}>Ký hiệu định dạng</button></div>
+              {visualEditor && <RichManuscriptEditor value={content} source={editorRef} disabled={!studioReady || isAcceptingAi}
+                style={{ fontFamily: currentFontConfig.fontFamily, fontSize: `${fontSize}px`, lineHeight, textAlign, textIndent: paragraphIndent ? '2.5rem' : '0' }}
+                onChange={(next, start, end) => studioHistory.edit(next, start, end, true)} onSelection={(start, end) => { editorSelectionRef.current = { scope: activeDraftScope, start, end }; studioHistory.remember(start, end); }}
+                onKeyDown={e => { if (e.nativeEvent.isComposing || !(e.ctrlKey || e.metaKey) || isAcceptingAi) return; const key = e.key.toLowerCase(); if (['b','i','u'].includes(key)) { e.preventDefault(); if (key === 'b') wrapSelection('**'); else if (key === 'i') wrapSelection('*'); else wrapSelection('<u>', '</u>'); } }} />}
               <textarea
                 ref={editorRef}
+                hidden={visualEditor}
                 readOnly={isAcceptingAi || !chapterQuery.data || loadedChapter.current !== activeDraftScope}
                 value={content}
-                onChange={(e) => handleContentChange(e.target.value)}
+                onChange={(e) => studioHistory.edit(e.target.value, e.currentTarget.selectionStart, e.currentTarget.selectionEnd, true)}
+                onBeforeInput={e => studioHistory.remember(e.currentTarget.selectionStart, e.currentTarget.selectionEnd)}
+                onSelect={rememberStudioSelection}
+                onClick={rememberStudioSelection}
+                onKeyUp={rememberStudioSelection}
+                onBlur={rememberStudioSelection}
+                onKeyDown={e => { if (e.nativeEvent.isComposing || !(e.ctrlKey || e.metaKey) || isAcceptingAi) return; const key = e.key.toLowerCase(); if (['b','i','u'].includes(key)) { e.preventDefault(); if (key === 'b') wrapSelection('**'); else if (key === 'i') wrapSelection('*'); else wrapSelection('<u>', '</u>'); } }}
+                aria-label="Nội dung bản thảo"
+                spellCheck
                 placeholder="Bắt đầu câu từ chương truyện của bạn tại đây..."
                 style={{
                   overflow: 'hidden',
@@ -1372,8 +1431,8 @@ export function AuthorWritingIde() {
         {/* ──────────────────────────────────────────
             BEGIN: Docked AI Assistant
            ────────────────────────────────────────── */}
-        {aiDrawerOpen && (
-          <aside id="studio-ai-panel" aria-label="Trợ lý sáng tác AI" className="sc-ai-panel bg-surface-container-lowest border-l border-stone-200 flex flex-col select-none">
+        <AnimatePresence initial={false}>{aiDrawerOpen && (
+          <motion.aside initial={{ opacity: 0, x: reducePanelMotion ? 0 : 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: reducePanelMotion ? 0 : 12 }} transition={{ duration: 0.18 }} id="studio-ai-panel" aria-label="Trợ lý sáng tác AI" className="sc-ai-panel bg-surface-container-lowest border-l border-stone-200 flex flex-col select-none">
             {/* Drawer Header */}
             <div className="h-14 border-b border-stone-200 px-4 flex items-center justify-between bg-stone-50/80">
               <div className="flex items-center gap-2">
@@ -1529,8 +1588,8 @@ export function AuthorWritingIde() {
                 </button>
               </div>
             </div>
-          </aside>
-        )}
+          </motion.aside>
+        )}</AnimatePresence>
       </div>
 
       {/* ──────────────────────────────────────────
@@ -1931,14 +1990,6 @@ export function AuthorWritingIde() {
       {/* ──────────────────────────────────────────
           BEGIN: Toast Notification
          ────────────────────────────────────────── */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 animate-in fade-in  duration-300">
-          <div className="flex items-center gap-2.5 bg-cover-fallback text-white px-4 py-2.5 rounded-xl shadow-sm text-meta font-medium border border-stone-800">
-            <span className="material-symbols-outlined text-emerald-400 text-[18px]">check_circle</span>
-            <span>{toastMessage}</span>
-          </div>
-        </div>
-      )}
 
       {/* ──────────────────────────────────────────
           BEGIN: Author Memory & Consistency Drawer

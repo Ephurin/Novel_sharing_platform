@@ -1,4 +1,4 @@
-import { Modal } from '@mantine/core';
+import { AnimatedModal as Modal } from '../../shared/components/AnimatedModal';
 import { useQuery } from '@tanstack/react-query';
 import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
 import { AdminError } from './AdminShared';

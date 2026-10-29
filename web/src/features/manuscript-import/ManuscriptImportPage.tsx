@@ -1,4 +1,12 @@
+import { AnimatedStepper } from '../../shared/components/AuthorAdminMotion';
+import { NormalizationPreview, SplitPresets } from './ManuscriptTools';
+import { duplicateChapterGroups, splitPatternError } from './manuscript-tools';
+import { SelectionToolbar } from '../../shared/components/InteractionWidgets';
+import { AnimatedProgress } from '../../shared/components/AnimatedProgress';
+import { AnimatedCheckbox } from '../../shared/components/AnimatedCheckIcon';
+import { useToast } from '../../shared/components/ToastProvider';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -15,6 +23,7 @@ import {
   parseManuscriptChapters,
   normalizeManuscriptText,
   importChaptersBatch,
+  ManuscriptImportError,
   type BootstrapRevisionInput,
   type ParsedChapterItem,
   type ReviewProposal
@@ -55,6 +64,10 @@ export function ManuscriptImportPage() {
   const [fileName, setFileName] = useState('');
   const [fileSizeStr, setFileSizeStr] = useState('');
   const [rawText, setRawText] = useState('');
+  const [fileReadProgress, setFileReadProgress] = useState<number | null>(null);
+  const [isReadingFile, setIsReadingFile] = useState(false);
+  const fileReaderRef = useRef<FileReader | null>(null);
+  useEffect(() => () => fileReaderRef.current?.abort(), []);
   const [pasteModalOpen, setPasteModalOpen] = useState(false);
   const [tempPasteText, setTempPasteText] = useState('');
 
@@ -78,18 +91,18 @@ export function ManuscriptImportPage() {
 
   // Pagination for chapter table
   const [currentPage, setCurrentPage] = useState(1);
+  const [onlyInvalid, setOnlyInvalid] = useState(false);
+  const [onlyDuplicates, setOnlyDuplicates] = useState(false);
+  const jumpFocus = useRef<string | null>(null);
   const pageSize = 6;
 
   // Toast message
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
-  };
+  const { showToast } = useToast();
 
   // Import Execution State
   const [isImporting, setIsImporting] = useState(false);
   const [importProgress, setImportProgress] = useState({ current: 0, total: 0 });
+  const [importSummary, setImportSummary] = useState<{ total: number; completed: string[]; failed?: string; unattempted: number; message?: string; snapshotFailed?: boolean } | null>(null);
 
   // Story Brain Job & Review State
   const [jobId, setJobId] = useState<string | null>(queryJobId);
@@ -114,21 +127,17 @@ export function ManuscriptImportPage() {
     enabled: Boolean(novelId)
   });
 
+  const normalizedText = useMemo(() => normalizeManuscriptText(rawText, { normalizePunctuation, removeExtraBlankLines, preserveDialogue }), [rawText, normalizePunctuation, removeExtraBlankLines, preserveDialogue]);
   // Re-parse when text, regex, or normalizations change
   useEffect(() => {
-    const normalized = normalizeManuscriptText(rawText, {
-      normalizePunctuation,
-      removeExtraBlankLines,
-      preserveDialogue
-    });
-    const parsed = parseManuscriptChapters(normalized, appliedRegex, startingChapterNumber);
+    const parsed = parseManuscriptChapters(normalizedText, appliedRegex, startingChapterNumber);
     setParsedChapters(parsed);
     setSelectedChapterIds(parsed.map((c) => c.id));
     if (parsed.length > 0 && !previewChapterId) {
       setPreviewChapterId(parsed[0].id);
     }
   }, [
-    rawText,
+    normalizedText,
     appliedRegex,
     normalizePunctuation,
     removeExtraBlankLines,
@@ -146,12 +155,41 @@ export function ManuscriptImportPage() {
     [parsedChapters]
   );
 
+  const duplicateGroups = useMemo(() => duplicateChapterGroups(parsedChapters), [parsedChapters]);
+  const duplicateIds = useMemo(() => new Set(duplicateGroups.flat()), [duplicateGroups]);
+  const deselectDuplicateCopies = () => {
+    setSelectedChapterIds(selected => {
+      const removed = new Set<string>();
+      for (const group of duplicateGroups) {
+        const chosen = group.filter(id => selected.includes(id)); chosen.slice(1).forEach(id => removed.add(id));
+      }
+      return selected.filter(id => !removed.has(id));
+    });
+  };
   // Paginated chapters for the table
-  const totalPages = Math.ceil(parsedChapters.length / pageSize) || 1;
+  const visibleChapters = useMemo(() => parsedChapters.filter(ch => (!onlyInvalid || !ch.isValid) && (!onlyDuplicates || duplicateIds.has(ch.id))), [parsedChapters, onlyInvalid, onlyDuplicates, duplicateIds]);
+  const totalPages = Math.ceil(visibleChapters.length / pageSize) || 1;
   const paginatedChapters = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
-    return parsedChapters.slice(start, start + pageSize);
-  }, [parsedChapters, currentPage, pageSize]);
+    return visibleChapters.slice(start, start + pageSize);
+  }, [visibleChapters, currentPage, pageSize]);
+  useEffect(() => { setCurrentPage(page => Math.min(page, totalPages)); }, [totalPages]);
+  useEffect(() => {
+    if (!jumpFocus.current) return;
+    const id = jumpFocus.current; jumpFocus.current = null;
+    const frame = requestAnimationFrame(() => document.querySelector<HTMLInputElement>(`[data-chapter-title="${CSS.escape(id)}"]`)?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [currentPage, previewChapterId, onlyInvalid, onlyDuplicates]);
+  const nextInvalid = () => {
+    const candidates = parsedChapters.filter(ch => !ch.isValid);
+    if (!candidates.length) return;
+    const current = candidates.findIndex(ch => ch.id === previewChapterId);
+    const next = candidates[(current + 1) % candidates.length];
+    setOnlyDuplicates(false);
+    jumpFocus.current = next.id; setPreviewChapterId(next.id);
+    setCurrentPage(Math.floor((onlyInvalid ? candidates : parsedChapters).findIndex(ch => ch.id === next.id) / pageSize) + 1);
+    if (next.id === previewChapterId) requestAnimationFrame(() => document.querySelector<HTMLInputElement>(`[data-chapter-title="${CSS.escape(next.id)}"]`)?.focus());
+  };
 
   // Active preview chapter
   const activePreviewChapter = useMemo(() => {
@@ -221,21 +259,33 @@ export function ManuscriptImportPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    fileReaderRef.current?.abort();
+    setIsReadingFile(true);
+    setFileReadProgress(0);
+    setImportProgress({ current: 0, total: 0 });
     setFileName(file.name);
     const sizeKb = Math.round(file.size / 1024);
     setFileSizeStr(sizeKb > 1024 ? `${(sizeKb / 1024).toFixed(1)} MB` : `${sizeKb} KB`);
 
     const reader = new FileReader();
+    fileReaderRef.current = reader;
+    reader.onprogress = event => {
+      setFileReadProgress(event.lengthComputable && event.total > 0 ? event.loaded / event.total * 100 : null);
+    };
     reader.onload = (event) => {
       const content = event.target?.result;
       if (typeof content === 'string') {
+        setIsReadingFile(false);
+        setFileReadProgress(100);
         setRawText(content);
         setCurrentStep(2);
         showToast(`Đã tải lên "${file.name}" và phân tích ${content.length} ký tự!`);
       }
     };
     reader.onerror = () => {
-      showToast('Lỗi khi đọc tệp. Vui lòng thử lại với tệp định dạng .txt, .md hoặc .json');
+      setIsReadingFile(false);
+      setFileReadProgress(null);
+      showToast('Lỗi khi đọc tệp. Vui lòng thử lại với tệp định dạng .txt, .md hoặc .json', 'error');
     };
     reader.readAsText(file);
   };
@@ -299,6 +349,7 @@ export function ManuscriptImportPage() {
     }
 
     setIsImporting(true);
+    setImportSummary(null);
     setImportProgress({ current: 0, total: toImport.length });
 
     try {
@@ -313,6 +364,7 @@ export function ManuscriptImportPage() {
         })),
         (curr, tot) => setImportProgress({ current: curr, total: tot })
       );
+      setImportSummary({ total: toImport.length, completed: toImport.map(ch => ch.title), unattempted: 0 });
 
       await queryClient.invalidateQueries({ queryKey: ['chapters', novelId] });
       await queryClient.invalidateQueries({ queryKey: ['novel', novelId] });
@@ -334,6 +386,9 @@ export function ManuscriptImportPage() {
 
       setCurrentStep(3);
     } catch (err: any) {
+      if (err instanceof ManuscriptImportError) {
+        setImportSummary({ total: toImport.length, completed: toImport.slice(0, err.completed.length).map(ch => ch.title), failed: toImport[err.failedIndex]?.title, unattempted: toImport.length - err.failedIndex - 1, message: err.message, snapshotFailed: err.stage === 'snapshot' });
+      } else setImportSummary({ total: toImport.length, completed: [], unattempted: toImport.length, message: err?.message || 'Không thể xác định kết quả nhập.' });
       showToast('Lỗi nhập chương: ' + (err?.message || 'Không thể nhập toàn bộ chương'));
     } finally {
       setIsImporting(false);
@@ -412,6 +467,8 @@ export function ManuscriptImportPage() {
             </Link>
           </div>
 
+          {fileReadProgress !== null || isReadingFile ? <AnimatedProgress value={fileReadProgress} label={isReadingFile ? 'Đang đọc tệp bản thảo' : 'Đã đọc tệp bản thảo'} /> : null}
+
           {/* Target Novel Identifier & Header Section */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-stone-200">
             <div className="flex flex-col gap-1">
@@ -439,107 +496,20 @@ export function ManuscriptImportPage() {
           </div>
 
           {/* 3-Step Workflow Stepper */}
-          <div className="w-full bg-surface-container-lowest rounded-xl p-2 shadow-2xs border border-stone-200">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-              {/* Step 1 */}
-              <button
-                type="button"
-                onClick={() => setCurrentStep(1)}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all cursor-pointer ${
-                  currentStep === 1
-                    ? 'bg-primary-600 text-white shadow-2xs'
-                    : 'bg-stone-50/70 hover:bg-stone-100 text-stone-700'
-                }`}
-              >
-                <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-meta font-bold shrink-0 ${
-                    currentStep === 1
-                      ? 'bg-surface-container-lowest/20 text-white'
-                      : 'bg-primary-600/10 text-primary-600'
-                  }`}
-                >
-                  {parsedChapters.length > 0 ? (
-                    <span className="material-symbols-outlined text-body">check</span>
-                  ) : (
-                    '1'
-                  )}
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="text-meta font-semibold truncate">1. Tải bản thảo</span>
-                  <span
-                    className={`text-meta truncate ${
-                      currentStep === 1 ? 'text-white/80' : 'text-stone-500'
-                    }`}
-                  >
-                    {fileName}
-                  </span>
-                </div>
-              </button>
+          <AnimatedStepper current={currentStep} onChange={step => setCurrentStep(step as 1 | 2 | 3)} steps={[
+            { title: '1. Tải bản thảo', description: fileName, completed: parsedChapters.length > 0 },
+            { title: '2. Phân tích & Xem trước', description: `${parsedChapters.length} chương phát hiện · ${invalidChaptersCount > 0 ? `${invalidChaptersCount} cần xem` : 'Sẵn sàng'}`, completed: importProgress.total > 0 && importProgress.current === importProgress.total },
+            { title: '3. Xác nhận & Story Brain', description: enableStoryBrainAi ? 'Lưu bản nháp & phân tích AI' : 'Lưu chương ở trạng thái bản nháp', completed: job?.status === 'completed' }
+          ]} />
 
-              {/* Step 2 */}
-              <button
-                type="button"
-                onClick={() => setCurrentStep(2)}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all cursor-pointer ${
-                  currentStep === 2
-                    ? 'bg-primary-600 text-white shadow-2xs'
-                    : 'bg-stone-50/70 hover:bg-stone-100 text-stone-700'
-                }`}
-              >
-                <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-meta font-bold shrink-0 ${
-                    currentStep === 2
-                      ? 'bg-surface-container-lowest/20 text-white'
-                      : 'bg-stone-200 text-stone-700'
-                  }`}
-                >
-                  2
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="text-meta font-semibold truncate">2. Phân tích &amp; Xem trước</span>
-                  <span
-                    className={`text-meta truncate ${
-                      currentStep === 2 ? 'text-white/80' : 'text-stone-500'
-                    }`}
-                  >
-                    {parsedChapters.length} chương phát hiện •{' '}
-                    {invalidChaptersCount > 0 ? `${invalidChaptersCount} cần xem` : 'Sẵn sàng'}
-                  </span>
-                </div>
-              </button>
-
-              {/* Step 3 */}
-              <button
-                type="button"
-                onClick={() => setCurrentStep(3)}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-left transition-all cursor-pointer ${
-                  currentStep === 3
-                    ? 'bg-primary-600 text-white shadow-2xs'
-                    : 'bg-stone-50/70 hover:bg-stone-100 text-stone-700'
-                }`}
-              >
-                <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center text-meta font-bold shrink-0 ${
-                    currentStep === 3
-                      ? 'bg-surface-container-lowest/20 text-white'
-                      : 'bg-stone-200 text-stone-700'
-                  }`}
-                >
-                  3
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="text-meta font-semibold truncate">3. Xác nhận &amp; Story Brain</span>
-                  <span
-                    className={`text-meta truncate ${
-                      currentStep === 3 ? 'text-white/80' : 'text-stone-500'
-                    }`}
-                  >
-                    Lưu bản nháp &amp; Huấn luyện AI
-                  </span>
-                </div>
-              </button>
-            </div>
-          </div>
+          {importSummary && <section className="sc-import-result" aria-label="Kết quả nhập bản thảo" aria-live="polite">
+            <strong>Kết quả nhập: {importSummary.completed.length}/{importSummary.total} chương hoàn tất</strong>
+            {importSummary.failed && <p>Dừng tại: {importSummary.failed} · {importSummary.unattempted} chương chưa xử lý.</p>}
+            {importSummary.message && <p role="alert">{importSummary.message}</p>}
+            {importSummary.message && <p>{importSummary.snapshotFailed ? 'Chương đã được tạo nhưng chưa hoàn tất snapshot. ' : ''}Hãy kiểm tra danh sách chương trước khi nhập lại để tránh trùng nội dung.</p>}
+            {!!importSummary.completed.length && <details><summary>Chương đã hoàn tất</summary><ul>{importSummary.completed.map((title, index) => <li key={index}>{title}</li>)}</ul></details>}
+            <Link className="sc-workspace-button" to={`/author/novels/${novelId}`}>Kiểm tra danh sách chương</Link>
+          </section>}
 
           {/* Main 2-Column Workspace */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
@@ -609,7 +579,7 @@ export function ManuscriptImportPage() {
               </div>
 
               {/* Regex & Splitting Config Card */}
-              <details className="bg-surface-container-lowest rounded-xl p-4 shadow-2xs border border-stone-200"><summary className="cursor-pointer text-body font-semibold text-stone-800">Cấu hình nâng cao</summary><div className="flex flex-col gap-4 mt-4">
+              <AnimatedDisclosure summary="Cấu hình nâng cao" summaryClassName="text-body font-semibold text-stone-800" className="bg-surface-container-lowest rounded-xl p-4 shadow-2xs border border-stone-200"><div className="flex flex-col gap-4 mt-4">
                 <div className="flex items-center justify-between pb-2 border-b border-stone-100">
                   <div className="flex items-center gap-1.5">
                     <span className="material-symbols-outlined text-primary-600 text-[18px]">tune</span>
@@ -642,6 +612,7 @@ export function ManuscriptImportPage() {
                     <input
                       type="text"
                       spellCheck={false}
+                      aria-label="Quy tắc nhận diện Regex"
                       value={regexInput}
                       onChange={(e) => setRegexInput(e.target.value)}
                       className="flex-1 bg-stone-50 text-stone-900 font-mono text-meta rounded-lg px-2.5 py-1.5 border border-stone-200 focus:outline-none focus:bg-surface-container-lowest focus:border-primary-600 focus:ring-1 focus:ring-primary-600"
@@ -649,17 +620,20 @@ export function ManuscriptImportPage() {
                     <button
                       type="button"
                       onClick={() => {
+                        const error = splitPatternError(regexInput);
+                        if (error) { showToast(error, 'error'); return; }
                         setAppliedRegex(regexInput);
                         showToast(`Đã áp dụng quy tắc tách: ${regexInput}`);
                       }}
                       className="px-3 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-meta font-semibold shadow-2xs transition-all flex items-center gap-1 cursor-pointer shrink-0"
                     >
-                      <span className="material-symbols-outlined text-body">play_arrow</span>
+                      <span className="material-symbols-outlined text-body" aria-hidden="true">play_arrow</span>
                       <span>Áp dụng</span>
                     </button>
                   </div>
                 </div>
 
+                <SplitPresets disabled={isImporting} current={{ pattern: regexInput, normalizePunctuation, removeExtraBlankLines, preserveDialogue }} onApply={preset => { setRegexInput(preset.pattern); setAppliedRegex(preset.pattern); setNormalizePunctuation(preset.normalizePunctuation); setRemoveExtraBlankLines(preset.removeExtraBlankLines); setPreserveDialogue(preset.preserveDialogue); }} />
                 {/* Common Presets */}
                 <div className="flex flex-col gap-1.5">
                   <span className="text-meta text-stone-500 font-medium">Mẫu quy tắc phổ biến:</span>
@@ -708,11 +682,10 @@ export function ManuscriptImportPage() {
                     Chuẩn hóa văn bản đầu vào
                   </span>
                   <label className="flex items-start gap-2.5 cursor-pointer group">
-                    <input
-                      type="checkbox"
+                    <AnimatedCheckbox
                       checked={normalizePunctuation}
                       onChange={(e) => setNormalizePunctuation(e.target.checked)}
-                      className="mt-0.5 w-3.5 h-3.5 rounded text-primary-600 border-stone-300 focus:ring-0 cursor-pointer"
+                      className="shrink-0"
                     />
                     <div className="flex flex-col">
                       <span className="text-meta text-stone-800 group-hover:text-primary-600 font-medium transition-colors">
@@ -724,11 +697,10 @@ export function ManuscriptImportPage() {
                     </div>
                   </label>
                   <label className="flex items-start gap-2.5 cursor-pointer group">
-                    <input
-                      type="checkbox"
+                    <AnimatedCheckbox
                       checked={removeExtraBlankLines}
                       onChange={(e) => setRemoveExtraBlankLines(e.target.checked)}
-                      className="mt-0.5 w-3.5 h-3.5 rounded text-primary-600 border-stone-300 focus:ring-0 cursor-pointer"
+                      className="shrink-0"
                     />
                     <div className="flex flex-col">
                       <span className="text-meta text-stone-800 group-hover:text-primary-600 font-medium transition-colors">
@@ -740,11 +712,10 @@ export function ManuscriptImportPage() {
                     </div>
                   </label>
                   <label className="flex items-start gap-2.5 cursor-pointer group">
-                    <input
-                      type="checkbox"
+                    <AnimatedCheckbox
                       checked={preserveDialogue}
                       onChange={(e) => setPreserveDialogue(e.target.checked)}
-                      className="mt-0.5 w-3.5 h-3.5 rounded text-primary-600 border-stone-300 focus:ring-0 cursor-pointer"
+                      className="shrink-0"
                     />
                     <div className="flex flex-col">
                       <span className="text-meta text-stone-800 group-hover:text-primary-600 font-medium transition-colors">
@@ -757,14 +728,14 @@ export function ManuscriptImportPage() {
                   </label>
                 </div>
 
+                {rawText && <NormalizationPreview original={rawText} normalized={normalizedText} />}
                 {/* AI Story Brain Toggle */}
                 <div className="pt-2 border-t border-stone-100 flex flex-col gap-1.5">
                   <label className="flex items-start gap-2.5 cursor-pointer group">
-                    <input
-                      type="checkbox"
+                    <AnimatedCheckbox
                       checked={enableStoryBrainAi}
                       onChange={(e) => setEnableStoryBrainAi(e.target.checked)}
-                      className="mt-0.5 w-3.5 h-3.5 rounded text-primary-600 border-stone-300 focus:ring-0 cursor-pointer"
+                      className="shrink-0"
                     />
                     <div className="flex flex-col">
                       <span className="text-meta text-stone-800 group-hover:text-primary-600 font-semibold transition-colors flex items-center gap-1">
@@ -777,7 +748,7 @@ export function ManuscriptImportPage() {
                     </div>
                   </label>
                 </div>
-              </div></details>
+              </div></AnimatedDisclosure>
             </div>
 
             {/* ──────────────────────────────────────────
@@ -826,20 +797,27 @@ export function ManuscriptImportPage() {
                 </div>
               </div>
 
+              {!!duplicateGroups.length && <section className="sc-duplicate-warning" aria-label="Chương trùng nội dung">
+                <strong>{duplicateGroups.length} nhóm chương có nội dung trùng nhau</strong>
+                <p className="text-meta">Chỉ so sánh các chương trong tệp đang nhập, bỏ qua khác biệt khoảng trắng.</p>
+                <div className="sc-workspace-row"><button type="button" className="sc-workspace-button" disabled={isImporting} onClick={() => { setOnlyDuplicates(true); setOnlyInvalid(false); setCurrentPage(1); }}>Xem chương trùng</button><button type="button" className="sc-workspace-button" disabled={isImporting} onClick={deselectDuplicateCopies}>Bỏ chọn bản trùng</button></div>
+                <details><summary>Nhóm chương trùng</summary><ul>{duplicateGroups.map(group => <li key={group[0]}>{group.map(id => parsedChapters.find(ch => ch.id === id)?.title).join(' · ')}</li>)}</ul></details>
+              </section>}
               {/* Chapter Detection Table */}
               <div className="bg-surface-container-lowest rounded-xl shadow-2xs border border-stone-200 flex flex-col overflow-hidden">
                 {/* Table Control Bar */}
                 <div className="px-4 py-2 bg-stone-50/80 flex flex-wrap items-center justify-between gap-2.5 border-b border-stone-200">
                   <div className="flex items-center gap-3 flex-wrap">
                     <label className="flex items-center gap-1.5 cursor-pointer">
-                      <input
-                        type="checkbox"
+                      <AnimatedCheckbox
+                        aria-label="Chọn tất cả chương"
+                        indeterminate={selectedChapterIds.length > 0 && selectedChapterIds.length < parsedChapters.length}
                         checked={
                           selectedChapterIds.length === parsedChapters.length &&
                           parsedChapters.length > 0
                         }
                         onChange={handleSelectAll}
-                        className="w-3.5 h-3.5 rounded text-primary-600 border-stone-300 focus:ring-0 cursor-pointer"
+                        className="shrink-0"
                       />
                       <span className="text-meta font-semibold text-stone-800">
                         Chọn tất cả ({selectedChapterIds.length} / {parsedChapters.length} chương)
@@ -851,7 +829,10 @@ export function ManuscriptImportPage() {
                       Nhấp vào ô tiêu đề để sửa nhanh
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label className="text-meta"><input type="checkbox" checked={onlyInvalid} disabled={isImporting} onChange={e => { setOnlyInvalid(e.target.checked); setCurrentPage(1); }} /> Chỉ chương cần sửa ({invalidChaptersCount})</label>
+                    <label className="text-meta"><input type="checkbox" checked={onlyDuplicates} disabled={isImporting} onChange={e => { setOnlyDuplicates(e.target.checked); setCurrentPage(1); }} /> Chỉ chương trùng ({duplicateIds.size})</label>
+                    <button type="button" className="sc-workspace-button" disabled={!invalidChaptersCount || isImporting} onClick={nextInvalid}>Lỗi tiếp theo</button>
                     <button
                       type="button"
                       onClick={handleAutoRenumber}
@@ -863,6 +844,7 @@ export function ManuscriptImportPage() {
                   </div>
                 </div>
 
+                <SelectionToolbar count={selectedChapterIds.length} onClear={() => setSelectedChapterIds([])} />
                 {/* Table */}
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[900px] text-left border-collapse">
@@ -894,11 +876,11 @@ export function ManuscriptImportPage() {
                             }`}
                           >
                             <td className="py-2 px-3 text-center">
-                              <input
-                                type="checkbox"
+                              <AnimatedCheckbox
+                                aria-label={`Chọn chương ${ch.targetNumber}`}
                                 checked={isSelected}
                                 onChange={() => handleSelectOne(ch.id)}
-                                className="w-3.5 h-3.5 rounded text-primary-600 border-stone-300 focus:ring-0 cursor-pointer"
+                                className="shrink-0"
                               />
                             </td>
                             <td className="py-2 px-2 text-center font-mono text-stone-400 text-meta">
@@ -913,6 +895,8 @@ export function ManuscriptImportPage() {
                               <div className="relative group">
                                 <input
                                   type="text"
+                                  data-chapter-title={ch.id}
+                                  aria-label={`Tiêu đề chương ${ch.targetNumber}`}
                                   value={ch.title}
                                   onChange={(e) => handleUpdateTitle(ch.id, e.target.value)}
                                   className={`w-full px-2 py-1 rounded text-meta transition-colors focus:outline-none focus:ring-1 focus:ring-primary-600 ${
@@ -929,7 +913,7 @@ export function ManuscriptImportPage() {
                               </div>
                             </td>
                             <td className="py-2 px-3 text-right font-mono text-stone-600 text-meta">
-                              {ch.wordCount.toLocaleString()} từ
+                                  {ch.wordCount.toLocaleString()} từ
                             </td>
                             <td className="py-2 px-3 text-center">
                               {ch.isValid ? (
@@ -963,10 +947,10 @@ export function ManuscriptImportPage() {
                           </tr>
                         );
                       })}
-                      {parsedChapters.length === 0 && (
+                      {visibleChapters.length === 0 && (
                         <tr>
                           <td colSpan={7} className="py-8 text-center text-stone-500 text-meta">
-                            Chưa tìm thấy chương nào theo quy tắc hiện tại. Hãy kiểm tra lại regex hoặc dán nội dung.
+                            {onlyDuplicates ? 'Không có chương trùng phù hợp với bộ lọc.' : onlyInvalid ? 'Không có chương cần sửa.' : 'Chưa tìm thấy chương nào theo quy tắc hiện tại. Hãy kiểm tra lại regex hoặc dán nội dung.'}
                           </td>
                         </tr>
                       )}
@@ -977,7 +961,7 @@ export function ManuscriptImportPage() {
                 {/* Pagination */}
                 <div className="p-2.5 px-4 bg-stone-50/80 flex items-center justify-between text-meta text-stone-500 border-t border-stone-200">
                   <span>
-                    Hiển thị {paginatedChapters.length} / {parsedChapters.length} chương phát hiện
+                    Hiển thị {paginatedChapters.length} / {visibleChapters.length} chương{onlyInvalid ? ' cần sửa' : ' phát hiện'}
                   </span>
                   <div className="flex items-center gap-1">
                     <button
@@ -1091,6 +1075,7 @@ export function ManuscriptImportPage() {
                         ? `${invalidChaptersCount} chương cần lưu ý`
                         : 'Sẵn sàng nhập trực tiếp'}
                     </span>
+                    {importProgress.total > 0 && <AnimatedProgress value={importProgress.current / importProgress.total * 100} label={`Đã nhập ${importProgress.current}/${importProgress.total} chương`} />}
                   </div>
                 </div>
 
@@ -1104,7 +1089,7 @@ export function ManuscriptImportPage() {
                   </button>
                   <button
                     type="button"
-                    disabled={isImporting || selectedChapterIds.length === 0}
+                    disabled={isImporting || isReadingFile || selectedChapterIds.length === 0}
                     onClick={handleConfirmImport}
                     className="flex-1 md:flex-initial px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-meta font-semibold shadow-2xs transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                   >
@@ -1151,12 +1136,7 @@ export function ManuscriptImportPage() {
                   </div>
 
                   {/* Progress Bar */}
-                  <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden">
-                    <div
-                      className="bg-primary-600 h-full transition-all duration-300"
-                      style={{ width: `${jobPercent}%` }}
-                    ></div>
-                  </div>
+                  <AnimatedProgress value={job.progress.total > 0 ? jobPercent : null} label="Tiến độ phân tích AI" />
 
                   <span className="text-meta text-stone-500">
                     {job.progress.current}/{job.progress.total} chương • Giai đoạn:{' '}
@@ -1293,6 +1273,8 @@ export function ManuscriptImportPage() {
                 <button
                   type="button"
                   onClick={() => {
+                    setFileReadProgress(null);
+                    setImportProgress({ current: 0, total: 0 });
                     setRawText(tempPasteText);
                     setFileName('manuscript_pasted_content.txt');
                     setFileSizeStr(`${Math.round(tempPasteText.length / 1024)} KB`);
@@ -1312,12 +1294,6 @@ export function ManuscriptImportPage() {
       {/* ──────────────────────────────────────────
           Toast Feedback Notification
          ────────────────────────────────────────── */}
-      {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2.5 bg-cover-fallback text-white text-meta font-medium px-4 py-2.5 rounded-lg shadow-sm animate-in  duration-200">
-          <span className="material-symbols-outlined text-[18px] text-emerald-400">info</span>
-          <span>{toastMessage}</span>
-        </div>
-      )}
     </div>
   );
 }

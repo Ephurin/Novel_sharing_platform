@@ -105,9 +105,9 @@
 .sc-author-bio-collapsed p { visibility: hidden; }
 .sc-novel-overview { padding: 20px; border: 1px solid var(--sc-border); border-radius: var(--sc-radius-card); background: var(--sc-surface); }
 .sc-novel-identity { display: flex; align-items: flex-start; gap: 20px; }
-.sc-author-theme .sc-novel-cover { display: flex; flex: 0 0 192px; width: 192px; height: 288px; aspect-ratio: 2 / 3; align-items: center; justify-content: center; overflow: hidden; padding: 0; border: 1px solid var(--sc-border); border-radius: 10px; background: var(--sc-cover-fallback); color: #fff; }
+.sc-author-theme .sc-novel-cover { display: flex; flex: 0 0 192px; width: 192px; height: 288px; aspect-ratio: 2 / 3; align-items: center; justify-content: center; overflow: hidden; padding: 0; border: 0; border-radius: 10px; background: var(--sc-cover-fallback); color: #fff; }
 .sc-novel-cover img { width: 100%; height: 100%; object-fit: cover; }
-.sc-novel-cover > span { padding: 12px; text-align: center; overflow-wrap: anywhere; }
+.sc-novel-cover > span:not(.sc-loaded-image) { padding: 12px; text-align: center; overflow-wrap: anywhere; }
 .sc-novel-description { flex: 1; min-width: 0; }
 .sc-novel-synopsis { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
 .sc-novel-status, .sc-genre-tag { padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 500; line-height: 18px; background: var(--sc-neutral-bg); color: var(--sc-text); }
@@ -157,6 +157,7 @@
 .sc-author-theme .sc-novel-card:hover { border-color: rgb(var(--sc-primary-rgb) / .5); }
 .sc-author-theme .sc-studio-toolbar { min-height: 56px; height: auto; gap: 12px; padding-block: 8px; flex-wrap: wrap; }
 .sc-author-theme .sc-manuscript { font-family: var(--sc-font); transition: none; }
+.sc-author-theme textarea.sc-manuscript:focus { outline: none; box-shadow: none; }
 .sc-author-theme .sc-writing-studio input.sc-chapter-title { font-size: 24px; line-height: 32px; }
 .sc-author-theme .sc-import-target { max-width: 100%; }
 .sc-author-theme .sc-import-target { height: auto; white-space: normal; border-radius: var(--sc-radius-control); }

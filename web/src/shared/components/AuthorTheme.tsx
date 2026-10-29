@@ -1,6 +1,8 @@
 import { NotificationBell } from '../../features/notifications/NotificationBell';
 import { ThemeControl } from './ThemeControl';
-import { FocusTrap, Menu, useComputedColorScheme } from '@mantine/core';
+import { WorkspaceCommands } from './WorkspaceCommands';
+import { FocusTrap, useComputedColorScheme } from '@mantine/core';
+import { AnimatedMenu as Menu } from './AnimatedMenu';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, type PropsWithChildren } from 'react';
 import { Link, NavLink, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -108,6 +110,14 @@ export function AuthorNavbar() {
           </nav>
         )}
         <div className="sc-navbar-actions">
+          {isWriter && <WorkspaceCommands author commands={[
+            { label: 'Tác phẩm của tôi', to: '/author/projects', icon: 'menu_book' },
+            { label: 'Viết tiếp', to: writingUrl, icon: 'edit_note' },
+            ...(novelId ? [{ label: 'Quản lý tác phẩm đang viết', to: `/author/novels/${novelId}` }, { label: 'Nhập bản thảo', to: `/author/import/${novelId}` }, { label: 'Cẩm nang tác phẩm', to: `/author/context/${novelId}` }] : []),
+            { label: 'Ví và doanh thu', to: '/wallet', icon: 'payments' },
+            { label: 'Trang tác giả', to: '/author/profile', icon: 'person' },
+            { label: 'Hồ sơ và cài đặt', to: '/profile/me' }
+          ]} />}
           <ThemeControl />
           {isWriter && location.pathname !== '/author/ide' && <Link to={writingUrl} className="sc-button sc-button-primary sc-continue"><span className="material-symbols-outlined">edit_note</span><span>Viết tiếp</span></Link>}
           {!user && <Link to="/login" className="sc-button sc-button-primary"><span className="material-symbols-outlined">login</span><span>Đăng nhập</span></Link>}

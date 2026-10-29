@@ -1,6 +1,11 @@
+import { LoadedImage } from '../../shared/components/AuthorAdminMotion';
+import { useWorkspacePreference, stringArray } from '../../shared/components/WorkspacePreferences';
+import { ResponsiveFilters, SelectionToolbar, useUpdatedItems } from '../../shared/components/InteractionWidgets';
+import { useToast } from '../../shared/components/ToastProvider';
 import { ImageUpload } from '../../shared/components/ImageUpload';
 import { ChapterActions, ChapterOrder, ChapterHistoryPanel } from './ChapterActions';
-import { Menu, TagsInput } from '@mantine/core';
+import { TagsInput } from '@mantine/core';
+import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
 import { chapterSortOptions, sortChapters, type ChapterSort } from './chapter-sorting';
 import { getNovelStatistics } from '../novels/novel-statistics-api';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
@@ -31,6 +36,10 @@ export function AuthorNovelMetadataPage() {
     queryFn: () => getNovel(novelId),
     enabled: Boolean(novelId)
   });
+  const [, setRecentProjects] = useWorkspacePreference<string[]>('recent-projects', [], stringArray);
+  useEffect(() => {
+    if (novelQuery.data?.novelId && user?.userId) setRecentProjects(old => [novelId, ...old.filter(id => id !== novelId)].slice(0, 8));
+  }, [novelQuery.data?.novelId, user?.userId]);
 
   const chaptersQuery = useQuery({
     queryKey: ['chapters', novelId],
@@ -77,12 +86,8 @@ export function AuthorNovelMetadataPage() {
   const pageSize = 5;
 
   // Feedback Toast
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
-  };
+  const { showToast } = useToast();
 
   // Populate edit fields
   useEffect(() => {
@@ -153,6 +158,7 @@ export function AuthorNovelMetadataPage() {
   });
 
   const chapters: Chapter[] = chaptersQuery.data ?? [];
+  const updated = useUpdatedItems(chaptersQuery.data?.map(chapter => ({ id: chapter.chapterId, version: [chapter.updatedAt, chapter.draftVersion, chapter.status, chapter.title, chapter.chapterNumber, chapter.isVip, chapter.priceCoins].join('|') })), novelId);
 
   // Filtered chapters
   const filteredChapters = useMemo(() => {
@@ -336,8 +342,8 @@ export function AuthorNovelMetadataPage() {
           <div className="max-w-7xl mx-auto px-4 lg:px-8 w-full mt-4 flex flex-col gap-4">
             <section className="sc-novel-overview" aria-label="Thông tin tác phẩm">
               <div className="sc-novel-identity">
-                <button type="button" className="sc-novel-cover" onClick={() => setEditModalOpen(true)} aria-label="Đổi ảnh bìa" title="Đổi ảnh bìa">
-                  {coverImage ? <img src={coverImage} alt={novel.title} /> : <span>{novel.title}</span>}
+                <button type="button" className="sc-novel-cover sc-cover-hover" onClick={() => setEditModalOpen(true)} aria-label="Đổi ảnh bìa" title="Đổi ảnh bìa">
+                  {coverImage ? <LoadedImage src={coverImage} alt={novel.title} /> : <span>{novel.title}</span>}
                 </button>
                 <div className="sc-novel-description">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
@@ -440,7 +446,7 @@ export function AuthorNovelMetadataPage() {
               {activeTab === 'history' ? <ChapterHistoryPanel chapters={chapters} /> : <>
               {/* Streamlined Chapter Toolbar */}
               <div className="sc-chapter-toolbar" role="group" aria-label="Bộ lọc và thao tác chương">
-                <div className="sc-chapter-filters">
+                <ResponsiveFilters className="sc-chapter-filters">
                   {/* Search Box */}
                   <div className="relative sc-chapter-search">
                     <span className="material-symbols-outlined absolute left-2.5 top-2 text-[16px] text-stone-400 pointer-events-none">
@@ -508,7 +514,7 @@ export function AuthorNovelMetadataPage() {
                       expand_more
                     </span>
                   </div>
-                </div>
+                </ResponsiveFilters>
 
                 {/* Right Toolbar Actions */}
                 <div className="sc-chapter-toolbar-actions">
@@ -550,6 +556,14 @@ export function AuthorNovelMetadataPage() {
               </div>
 
 
+              <SelectionToolbar count={chapters.filter(chapter => selectedChapters.includes(chapter.chapterId)).length} onClear={() => setSelectedChapters([])}>
+                <button type="button" className="sc-button sc-button-ghost" onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(chapters.filter(chapter => selectedChapters.includes(chapter.chapterId)).map(chapter => `${chapter.chapterNumber}. ${chapter.title}`).join('\n'));
+                    showToast('Đã sao chép danh sách chương', 'success');
+                  } catch { showToast('Không sao chép được danh sách chương', 'error'); }
+                }}>Sao chép danh sách</button>
+              </SelectionToolbar>
               {/* Decluttered 8-Column Chapter Table */}
               <div className="w-full overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[950px] sc-chapter-table">
@@ -578,7 +592,7 @@ export function AuthorNovelMetadataPage() {
                     {paginatedChapters.map((chapter) => (
                       <tr
                         key={chapter.chapterId}
-                        className={`hover:bg-surface-subtle/60 transition-colors ${
+                        className={`${updated.has(chapter.chapterId) ? 'sc-item-updated' : ''} hover:bg-surface-subtle/60 transition-colors ${
                           chapter.status === 'ARCHIVED' ? 'opacity-65 bg-stone-50/50' : 'bg-surface-container-lowest'
                         }`}
                       >
@@ -785,7 +799,7 @@ export function AuthorNovelMetadataPage() {
 
               <div>
                 <label className="block font-semibold text-stone-800 mb-1">Ảnh bìa</label>
-                <ImageUpload onUpload={setCoverInput} label="Tải ảnh bìa" />
+                <ImageUpload cropCover onUpload={setCoverInput} label="Tải ảnh bìa" />
                 <div className="flex gap-2.5">
                   <input
                     type="text"
@@ -949,14 +963,6 @@ export function AuthorNovelMetadataPage() {
       {/* ──────────────────────────────────────────
           BEGIN: Toast Notification
          ────────────────────────────────────────── */}
-      {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 animate-in fade-in  duration-300">
-          <div className="flex items-center gap-2 bg-cover-fallback text-white px-3.5 py-2 rounded-xl shadow-sm text-meta font-medium border border-stone-800">
-            <span className="material-symbols-outlined text-emerald-400 text-[16px]">check_circle</span>
-            <span>{toastMessage}</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

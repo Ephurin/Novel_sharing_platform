@@ -731,6 +731,9 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
 
       // Verify "Đã chỉnh sửa bởi tác giả" badge appears
       await page.waitForSelector('text=Đã chỉnh sửa bởi tác giả');
+      await page.locator('.sc-state-comparison summary').first().click();
+      assert.match(await page.locator('.sc-state-comparison[open] .sc-diff-grid').first().innerText(), /Minh Thái trigger-409/);
+      assert.match(await page.locator('.sc-state-comparison[open]').first().innerText(), /Đề xuất AI/);
 
       // Click accept button and await response
       const acceptBtn = page.locator('[data-testid="btn-accept-group-group-multi-1"]');

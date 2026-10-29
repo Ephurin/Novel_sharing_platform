@@ -1,3 +1,8 @@
+import { ImageLightbox } from '../../shared/components/InteractionWidgets';
+import { LoadedImage } from '../../shared/components/AuthorAdminMotion';
+import { useToast } from '../../shared/components/ToastProvider';
+import { AnimatedSaveButton } from '../../shared/components/SaveFeedback';
+import { Switch } from '@mantine/core';
 import { AuthorProfileHeader } from './AuthorProfileHeader';
 import { ImageUpload } from '../../shared/components/ImageUpload';
 import { becomeAuthor } from '../auth/auth-api';
@@ -36,7 +41,7 @@ export function AuthorProfilePage() {
   const [supportModalOpen, setSupportModalOpen] = useState(false);
   const [supportAmount, setSupportAmount] = useState(20);
   const [supportMessage, setSupportMessage] = useState('');
-  const [toastMessage, setToastMessage] = useState<{ text: string; isError: boolean } | null>(null);
+  const { showToast: notify } = useToast();
   const queryClient = useQueryClient();
   const targetAuthorId = authorId || currentUser?.userId || '';
 
@@ -60,10 +65,7 @@ export function AuthorProfilePage() {
     onError: (error) => showToast(getApiErrorMessage(error), true)
   });
 
-  const showToast = (msg: string, isError = false) => {
-    setToastMessage({ text: msg, isError });
-    setTimeout(() => setToastMessage(null), 3500);
-  };
+  const showToast = (msg: string, isError = false) => notify(msg, isError ? 'error' : 'success');
 
   const author = authorQuery.data;
   const authorName = author?.displayName || author?.username || '';
@@ -90,12 +92,6 @@ export function AuthorProfilePage() {
   return (
     <div className="min-h-screen flex flex-col bg-surface text-stone-800 antialiased selection:bg-primary-100 selection:text-primary-900">
       {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 bg-cover-fallback text-white px-4 py-3 rounded-xl shadow-sm text-meta font-medium border border-stone-800 animate-in fade-in  duration-300">
-          <span className={`material-symbols-outlined text-[18px] ${toastMessage.isError ? 'text-red-400' : 'text-emerald-400'}`}>{toastMessage.isError ? 'error' : 'check_circle'}</span>
-          <span>{toastMessage.text}</span>
-        </div>
-      )}
 
       {/* 1. Global Top Navbar */}
       <AuthorNavbar />
@@ -301,7 +297,7 @@ export function MyProfilePage() {
   const [publishingSchedule, setPublishingSchedule] = useState('');
   const [language, setLanguage] = useState('vi');
   const [notificationEnabled, setNotificationEnabled] = useState(true);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   React.useEffect(() => {
     if (profileQuery.data) {
@@ -332,19 +328,19 @@ export function MyProfilePage() {
     onSuccess: profile => {
       if (account) useAuthStore.getState().setUser({ ...account, displayName: profile.displayName, avatarUrl: profile.avatarUrl });
       void queryClient.invalidateQueries({ queryKey: ['author-profile'] });
-      setToastMessage('Đã lưu hồ sơ thành công!');
-      setTimeout(() => setToastMessage(null), 3000);
+      showToast('Đã lưu hồ sơ thành công!', 'success');
       void queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
-    }
+    },
+    onError: error => showToast(getApiErrorMessage(error), 'error')
   });
 
   const settingsMutation = useMutation({
     mutationFn: () => updateMySettings({ language, notificationEnabled }),
     onSuccess: () => {
-      setToastMessage('Đã cập nhật cài đặt thành công!');
-      setTimeout(() => setToastMessage(null), 3000);
+      showToast('Đã cập nhật cài đặt thành công!', 'success');
       void queryClient.invalidateQueries({ queryKey: ['settings', 'me'] });
-    }
+    },
+    onError: error => showToast(getApiErrorMessage(error), 'error')
   });
 
   if (profileQuery.isLoading || settingsQuery.isLoading) return <LoadingState label="Đang tải thông tin cá nhân..." />;
@@ -352,12 +348,6 @@ export function MyProfilePage() {
 
   return (
     <div className="sc-author-theme min-h-screen bg-surface py-8 px-4 sm:px-6 lg:px-8 text-stone-800">
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-cover-fallback text-white px-4 py-2.5 rounded-xl text-meta font-medium shadow-sm">
-          <span className="material-symbols-outlined text-emerald-400 text-[18px]">check_circle</span>
-          <span>{toastMessage}</span>
-        </div>
-      )}
 
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Top Header */}
@@ -387,7 +377,7 @@ export function MyProfilePage() {
             <div className="flex items-center gap-3.5">
               <div className="w-14 h-14 rounded-full border-2 border-primary-100 bg-primary-50 overflow-hidden flex items-center justify-center shrink-0">
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  <ImageLightbox src={avatarUrl} alt="Ảnh đại diện" className="sc-image-preview-fill">{account?.role === 'AUTHOR' || account?.role === 'ADMIN' ? <LoadedImage src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" /> : <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />}</ImageLightbox>
                 ) : (
                   <span className="font-bold text-primary-600 text-body">
                     {(displayName || profileQuery.data?.username || 'A').substring(0, 2).toUpperCase()}
@@ -423,7 +413,7 @@ export function MyProfilePage() {
 
               <ImageUpload onUpload={setAvatarUrl} label="Tải ảnh đại diện" />
               {account && ['AUTHOR','ADMIN'].includes(account.role) && <>
-                <div><label className="font-medium text-stone-700 block mb-1" htmlFor="author-banner">Ảnh bìa tác giả</label><input id="author-banner" type="url" value={bannerUrl} onChange={event => setBannerUrl(event.target.value)} className="w-full text-meta rounded-lg border border-stone-200 py-2 px-3" placeholder="https://…" />{bannerUrl && <img className="sc-author-banner mt-2" src={bannerUrl} alt="Xem trước ảnh bìa tác giả" />}</div>
+                <div><label className="font-medium text-stone-700 block mb-1" htmlFor="author-banner">Ảnh bìa tác giả</label><input id="author-banner" type="url" value={bannerUrl} onChange={event => setBannerUrl(event.target.value)} className="w-full text-meta rounded-lg border border-stone-200 py-2 px-3" placeholder="https://…" />{bannerUrl && <ImageLightbox src={bannerUrl} alt="Ảnh bìa tác giả" className="sc-image-preview-fill"><img className="sc-author-banner mt-2" src={bannerUrl} alt="Xem trước ảnh bìa tác giả" /></ImageLightbox>}</div>
                 <ImageUpload onUpload={setBannerUrl} label="Tải ảnh bìa tác giả" />
                 <div><label className="font-medium text-stone-700 block mb-1" htmlFor="author-publishing-schedule">Lịch đăng dự kiến</label><textarea id="author-publishing-schedule" rows={3} maxLength={500} value={publishingSchedule} onChange={event => setPublishingSchedule(event.target.value)} className="w-full text-meta rounded-lg border border-stone-200 py-2 px-3" placeholder="Ví dụ: Thứ Tư và thứ Bảy, lúc 20:00" /></div>
               </>}
@@ -437,14 +427,15 @@ export function MyProfilePage() {
                 />
               </div>
 
-              <button
+              <AnimatedSaveButton
                 type="button"
-                disabled={profileMutation.isPending}
+                loading={profileMutation.isPending}
+                saved={profileMutation.isSuccess}
                 onClick={() => profileMutation.mutate()}
                 className="w-full py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700 font-semibold text-meta transition-colors shadow-xs disabled:opacity-50"
               >
-                {profileMutation.isPending ? 'Đang lưu...' : 'Lưu hồ sơ'}
-              </button>
+                Lưu hồ sơ
+              </AnimatedSaveButton>
               {profileMutation.isError && <p role="alert" className="text-body">{getApiErrorMessage(profileMutation.error)}</p>}
             </div>
           </div>
@@ -474,22 +465,23 @@ export function MyProfilePage() {
                   <span className="font-semibold text-stone-800 block text-meta">Thông báo hoạt động</span>
                   <span className="text-meta text-stone-500">Nhận thông báo khi có người theo dõi hoặc ủng hộ</span>
                 </div>
-                <input
-                  type="checkbox"
+                <Switch
+                  aria-label="Nhận thông báo"
                   checked={notificationEnabled}
                   onChange={(e) => setNotificationEnabled(e.target.checked)}
-                  className="w-4 h-4 text-primary-600 rounded border-stone-300 focus:ring-primary-600"
+                  className="shrink-0"
                 />
               </div>
 
-              <button
+              <AnimatedSaveButton
                 type="button"
-                disabled={settingsMutation.isPending}
+                loading={settingsMutation.isPending}
+                saved={settingsMutation.isSuccess}
                 onClick={() => settingsMutation.mutate()}
                 className="w-full py-2 rounded-lg bg-cover-fallback hover:bg-cover-fallback text-white font-semibold text-meta transition-colors shadow-xs disabled:opacity-50"
               >
-                {settingsMutation.isPending ? 'Đang lưu...' : 'Lưu cài đặt'}
-              </button>
+                Lưu cài đặt
+              </AnimatedSaveButton>
             </div>
           </div>
         </div>

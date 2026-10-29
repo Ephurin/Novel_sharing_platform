@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { FilterPresets, useUrlFilters, useListScroll, WorkspaceTable } from '../../shared/components/WorkspacePreferences';
+import { ActiveFilterChips, AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
+import { ResponsiveFilters } from '../../shared/components/InteractionWidgets';
 import { Link } from 'react-router-dom';
 import { Button, Select } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
@@ -13,13 +15,14 @@ import {
   options,
   Status
 } from './AdminShared';
-import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
+import { ErrorState, LoadingState } from '../../shared/components/PageStates';
 
 export function AdminModerationPage({ reports = false }: { reports?: boolean }) {
-  const [targetType, setTargetType] = useState('');
-  const [status, setStatus] = useState('PENDING');
-  const [source, setSource] = useState('');
-  const [page, setPage] = useState(1);
+  const urlFilters = useUrlFilters({ targetType: '', status: 'PENDING', source: '', page: 1 }, { targetType: ['', 'NOVEL', 'CHAPTER', 'COMMENT', 'USER'], status: ['', 'PENDING', 'APPROVED', 'REJECTED', 'REVISION_REQUIRED'], source: ['', 'KEYWORD_FILTER', 'USER_REPORT'] });
+  const [targetType, setTargetType] = urlFilters.field('targetType');
+  const [status, setStatus] = urlFilters.field('status');
+  const [source, setSource] = urlFilters.field('source');
+  const [page, setPage] = urlFilters.field('page');
   const filters = {
     targetType,
     status,
@@ -31,6 +34,7 @@ export function AdminModerationPage({ reports = false }: { reports?: boolean }) 
     queryKey: ['admin-moderation', filters],
     queryFn: () => getAdminList<ModerationReview>('/admin/moderation/reviews', filters)
   });
+  useListScroll(!query.isPending);
   return (
     <>
       <AdminHeader
@@ -47,9 +51,8 @@ export function AdminModerationPage({ reports = false }: { reports?: boolean }) 
         </span>
       </AdminHeader>
       <AdminPanel>
-        <div className="admin-toolbar">
-          <Select
-            label="Đối tượng"
+        <ResponsiveFilters className="admin-toolbar">
+          <Select comboboxProps={{ withinPortal: false }}             label="Đối tượng"
             data={options(['NOVEL', 'CHAPTER', 'COMMENT', 'USER'], 'Tất cả đối tượng')}
             value={targetType}
             onChange={(v) => {
@@ -57,8 +60,7 @@ export function AdminModerationPage({ reports = false }: { reports?: boolean }) 
               setPage(1);
             }}
           />
-          <Select
-            label="Trạng thái"
+          <Select comboboxProps={{ withinPortal: false }}             label="Trạng thái"
             data={options(
               ['PENDING', 'APPROVED', 'REJECTED', 'REVISION_REQUIRED'],
               'Tất cả trạng thái'
@@ -72,8 +74,7 @@ export function AdminModerationPage({ reports = false }: { reports?: boolean }) 
           {reports ? (
             <span className="admin-muted">Nguồn: Báo cáo người dùng</span>
           ) : (
-            <Select
-              label="Nguồn"
+            <Select comboboxProps={{ withinPortal: false }}               label="Nguồn"
               data={options(['KEYWORD_FILTER', 'USER_REPORT'], 'Tất cả nguồn')}
               value={source}
               onChange={(v) => {
@@ -93,14 +94,20 @@ export function AdminModerationPage({ reports = false }: { reports?: boolean }) 
           >
             Xóa bộ lọc
           </Button>
-        </div>
-        {query.isLoading && <LoadingState label="Đang tải kiểm duyệt..." />}
+        </ResponsiveFilters>
+        <FilterPresets name={reports ? 'admin-reports' : 'admin-moderation'} fields={["targetType", "status", "source"]} />
+        <ActiveFilterChips items={[
+          ...(targetType ? [{ id: 'target', label: labels[targetType] || targetType, onRemove: () => { setTargetType(''); setPage(1); } }] : []),
+          ...(status ? [{ id: 'status', label: labels[status] || status, onRemove: () => { setStatus(''); setPage(1); } }] : []),
+          ...(!reports && source ? [{ id: 'source', label: labels[source] || source, onRemove: () => { setSource(''); setPage(1); } }] : [])
+        ]} />
+        <ResultsSurface identity={String(query.dataUpdatedAt)} busy={query.isFetching} retain={Boolean(targetType || status || source)}>{query.isLoading && <LoadingState variant="table" label="Đang tải kiểm duyệt..." />}
         {query.isError && <ErrorState error={query.error} onRetry={() => void query.refetch()} />}
         {query.data && !query.data.items.length && (
           <EmptyState description="Không có mục nào khớp với bộ lọc hiện tại." />
         )}
         {!!query.data?.items.length && (
-          <div className="admin-table-scroll">
+          <WorkspaceTable name={reports ? 'adminreportspage' : 'adminmoderationpage'} columns={['Mã kiểm duyệt', 'Đối tượng', 'Mã đối tượng', reports ? 'Số báo cáo' : 'Nguồn', 'Trạng thái', 'Thao tác']}>
             <table>
               <thead>
                 <tr>
@@ -148,9 +155,10 @@ export function AdminModerationPage({ reports = false }: { reports?: boolean }) 
                 ))}
               </tbody>
             </table>
-          </div>
+          </WorkspaceTable>
         )}
         <AdminPagination meta={query.data?.meta} onChange={setPage} />
+      </ResultsSurface>
       </AdminPanel>
     </>
   );

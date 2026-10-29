@@ -1,4 +1,5 @@
 import { Avatar } from '@mantine/core';
+import { ImageLightbox, ReactionIcon } from '../../shared/components/InteractionWidgets';
 import { Link } from 'react-router-dom';
 import type { AuthorProfile } from './profile-api';
 
@@ -21,7 +22,7 @@ export function AuthorProfileHeader({ author, isOwnProfile, canInteract, followi
       </div>
       <div className="sc-author-profile-body">
         <div className="sc-author-profile-heading">
-          <Avatar className="sc-author-profile-avatar" src={author.avatarUrl} alt={name} size={104} radius="50%">{name.slice(0,1).toUpperCase()}</Avatar>
+          {author.avatarUrl ? <ImageLightbox src={author.avatarUrl} alt={`Ảnh đại diện ${name}`}><Avatar className="sc-author-profile-avatar" src={author.avatarUrl} alt={name} size={104} radius="50%">{name.slice(0,1).toUpperCase()}</Avatar></ImageLightbox> : <Avatar className="sc-author-profile-avatar" alt={name} size={104} radius="50%">{name.slice(0,1).toUpperCase()}</Avatar>}
           <div className="sc-author-profile-identity">
             <h1 className="text-page-title">{name}</h1>
             <p className="text-meta sc-author-profile-handle">
@@ -36,7 +37,7 @@ export function AuthorProfileHeader({ author, isOwnProfile, canInteract, followi
               <>
                 <button type="button" onClick={onFollow} disabled={!canInteract || followingPending} aria-pressed={author.isFollowing} aria-busy={followingPending}
                   className={`sc-button ${author.isFollowing ? 'sc-author-profile-following' : 'sc-button-primary'}`}>
-                  <span className="material-symbols-outlined" aria-hidden="true">{author.isFollowing ? 'check' : 'add'}</span>
+                  <ReactionIcon icon={author.isFollowing ? 'check' : 'add'} active={author.isFollowing} />
                   {author.isFollowing ? 'Đang theo dõi' : 'Theo dõi'}
                 </button>
                 <button type="button" onClick={onSupport} disabled={!canInteract} className="sc-button sc-author-profile-support">

@@ -7,6 +7,7 @@ import { theme, cssVariablesResolver } from '../../src/theme';
 import { apiClient } from '../../src/shared/api/api-client';
 import { useAuthStore } from '../../src/features/auth/useAuthStore';
 import { AuthorWritingIde } from '../../src/features/author-ide/AuthorWritingIde';
+import { ToastProvider } from '../../src/shared/components/ToastProvider';
 
 import '@mantine/core/styles.css';
 import '../../src/theme/storycraft.css';
@@ -77,7 +78,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <MantineProvider theme={theme} cssVariablesResolver={cssVariablesResolver} forceColorScheme={mode}>
-        <RouterProvider key={generation} router={router} />
+        <ToastProvider><RouterProvider key={generation} router={router} /></ToastProvider>
       </MantineProvider>
     </QueryClientProvider>
   );
