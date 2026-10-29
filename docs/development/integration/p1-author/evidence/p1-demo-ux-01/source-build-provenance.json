@@ -1,0 +1,15 @@
+{
+  "base_sha": "e8f44dfbad7950b5a6b6835ec239ba45b4fb7e6f",
+  "production_change_commit": "9786b493147a9581f929bcfc026862d4dfc35330",
+  "tested_source_sha": "75b9c5c1d9561d8fc6e6f8b0e6d65a9bcc5f2f8d",
+  "tested_tree": "847fe1e9659a9756d88a3f7c8889f9fc7e1593a7",
+  "build_source_sha": "9786b493147a9581f929bcfc026862d4dfc35330",
+  "later_commit_test_teardown_only": true,
+  "web_src_tree": "06caa7922202ac9478ff6a9dd048f50ac8c1c504",
+  "web_src_tree_at_build": "06caa7922202ac9478ff6a9dd048f50ac8c1c504",
+  "asset_count": 302,
+  "asset_manifest_sha256": "1c0897ed284111fe97b5cfe1109d9248ed006ed805dff51bb88ada4b05ff6d7b",
+  "index_html_sha256": "45f37f5b368a9dde8b239a37a145fca60382179460e9138566b692d5a6b7c453",
+  "api_base_url": "/api/v1",
+  "application_source_clean_at_final_tests": true
+}

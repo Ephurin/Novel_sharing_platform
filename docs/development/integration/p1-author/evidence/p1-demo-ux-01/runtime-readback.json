@@ -1,0 +1,14 @@
+{
+  "project": "codex-p1-final-952b786311",
+  "source_sha": "9786b493147a9581f929bcfc026862d4dfc35330",
+  "ai_env_allowlist": {
+    "ENTITY_CANDIDATE_VERIFICATION_ENABLED": "true",
+    "LLM_PROVIDER": "openai",
+    "LLM_BASE_URL": "http://budget-gateway:18090/v1",
+    "LLM_FALLBACK_PROVIDER": "disabled",
+    "EMBEDDING_PROVIDER": "none",
+    "SEMANTIC_RETRIEVAL_ENABLED": "false"
+  },
+  "alembic_head": "0016_entity_profile_audit_timestamp",
+  "commands_exit": 0
+}

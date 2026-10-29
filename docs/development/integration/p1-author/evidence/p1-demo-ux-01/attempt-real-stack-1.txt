@@ -1,0 +1,25 @@
+TAP version 13
+# Subtest: Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial reload, CAS, Freeze and Canon readback
+not ok 1 - Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial reload, CAS, Freeze and Canon readback
+  ---
+  duration_ms: 33613.0181
+  location: 'C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\26\\01a178b1-4361-75b3-a66b-3bc53990597a\\p1-demo-ux-01\\web\\tests\\p1-entity-checkpoint-real.browser.test.mjs:8:1'
+  failureType: 'testCodeFailure'
+  error: 'page.waitForResponse: Timeout 30000ms exceeded while waiting for event "response"'
+  code: 'ERR_TEST_FAILURE'
+  name: 'TimeoutError'
+  stack: |-
+    Object.login (C:\Users\Laptop\.codex\visualizations\2026\10\26\01a178b1-4361-75b3-a66b-3bc53990597a\p1-demo-ux-01\web\tests\helpers\p1-fixtures.mjs:12:27)
+    async file:///C:/Users/Laptop/.codex/visualizations/2026/10/26/01a178b1-4361-75b3-a66b-3bc53990597a/p1-demo-ux-01/web/tests/p1-entity-checkpoint-real.browser.test.mjs:72:7
+    async Object.step (C:\Users\Laptop\.codex\visualizations\2026\10\26\01a178b1-4361-75b3-a66b-3bc53990597a\p1-demo-ux-01\web\tests\helpers\p1-real-stack.mjs:156:11)
+    async TestContext.<anonymous> (C:\Users\Laptop\.codex\visualizations\2026\10\26\01a178b1-4361-75b3-a66b-3bc53990597a\p1-demo-ux-01\web\tests\p1-entity-checkpoint-real.browser.test.mjs:46:5)
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 36806.0227

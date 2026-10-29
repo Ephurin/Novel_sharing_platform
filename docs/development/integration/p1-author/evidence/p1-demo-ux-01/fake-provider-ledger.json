@@ -1,0 +1,199 @@
+{
+  "scope": "all owned fake-volume calls including documented failed harness attempts",
+  "received_requests": 24,
+  "live_provider_calls": 0,
+  "requests": [
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "9cf037f66fd335fc990c437dd6ce16c241ac1a8f0afccebcbe277791c16e6a30",
+      "received_at": 1793289049.8049521,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "adf052d5485b733c60fc8b935a2fb14feee5c2c5282a9072f486eeeb8427f2eb",
+      "received_at": 1793289049.8657062,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "9cf037f66fd335fc990c437dd6ce16c241ac1a8f0afccebcbe277791c16e6a30",
+      "received_at": 1793289459.5531251,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "adf052d5485b733c60fc8b935a2fb14feee5c2c5282a9072f486eeeb8427f2eb",
+      "received_at": 1793289459.6262655,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "9cf037f66fd335fc990c437dd6ce16c241ac1a8f0afccebcbe277791c16e6a30",
+      "received_at": 1793289614.247425,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "adf052d5485b733c60fc8b935a2fb14feee5c2c5282a9072f486eeeb8427f2eb",
+      "received_at": 1793289614.3225913,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "2f48e5cb52f6e33beaf3991b6eaf93048773377ffdff736a434713aa6bcee97a",
+      "received_at": 1793289627.6059496,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "0386767add30c6d7b5dce447bd6ae65bd406e869a26522fe6e9846636b9b7ddc",
+      "received_at": 1793289627.6655607,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "377f6d0c77311148a98659c9c6f2f6f08f7fc345f277b1caf4231344050f688d",
+      "received_at": 1793289627.7192516,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "9cf037f66fd335fc990c437dd6ce16c241ac1a8f0afccebcbe277791c16e6a30",
+      "received_at": 1793289802.4429939,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "adf052d5485b733c60fc8b935a2fb14feee5c2c5282a9072f486eeeb8427f2eb",
+      "received_at": 1793289802.4936423,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "3ce9ba3ed3b012870a5643ec0ac24fb65789a7e8de62f80e770f2cc1a0dc60e5",
+      "received_at": 1793289813.4901192,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "0b9c24daa7c15782d53facfbb9ecdc57d55c377a56f53db842f53ffba3204852",
+      "received_at": 1793289813.5456474,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "d60954a203dd256eaaf6dec67f68935505fcb87c2752f62aba5d0ab86151a2b8",
+      "received_at": 1793289813.5988524,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "9cf037f66fd335fc990c437dd6ce16c241ac1a8f0afccebcbe277791c16e6a30",
+      "received_at": 1793290018.12404,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "adf052d5485b733c60fc8b935a2fb14feee5c2c5282a9072f486eeeb8427f2eb",
+      "received_at": 1793290018.183625,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "b2cbf2867bfbefc47fea61c14a73deba8d1dd49e7f4b2b0dad23f698f649d7f4",
+      "received_at": 1793290028.9434206,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "db02ec3d599bf95cd5987e8814068d0da88dfcc08b6c25b93561540a4aa345e9",
+      "received_at": 1793290028.9960322,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "937c9674ef1cde57619e96a39d03837f96cc8310d6be4a2d4949f707764d04f7",
+      "received_at": 1793290029.0456905,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "9cf037f66fd335fc990c437dd6ce16c241ac1a8f0afccebcbe277791c16e6a30",
+      "received_at": 1793290180.1168523,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "adf052d5485b733c60fc8b935a2fb14feee5c2c5282a9072f486eeeb8427f2eb",
+      "received_at": 1793290180.199394,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "a1d44ea879d73f008bcecc29c02bae587c8919b2bf0df937f07c297e00bdf7fc",
+      "received_at": 1793290191.1124873,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "a0ed93079198c539a507826ca2d1d0bfd6c5c67b755660368976d4e72870982d",
+      "received_at": 1793290191.1671727,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "request_sha256": "5fec97fe046cfcea4df37bd374af796e9d234bd5498724af1420b8671600d769",
+      "received_at": 1793290191.2188866,
+      "upstream_auth_valid": true
+    }
+  ]
+}
