@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
 // Called only inside the browser harness's freshly created, uniquely named databases.
-export async function adminOperationsCases({ t, api, pg, mongo, id, page, goto, output }) {
+export async function adminOperationsCases({ t, api, pg, mongo, id, page, goto, output,apiBase }) {
   const reason = 'Verified administrative integration test';
   const login = async (n) =>
     (
@@ -152,7 +152,7 @@ export async function adminOperationsCases({ t, api, pg, mongo, id, page, goto, 
         status: 404
       });
       const results = await Promise.all(
-        [201, 409].map(() => fetchAppeal(api, owner, decision.audit_id, reason))
+        [201, 409].map(() => fetchAppeal(apiBase, owner, decision.audit_id, reason))
       );
       assert.deepEqual(results.map((r) => r.status).sort(), [201, 409]);
       const appeal = (await api('/admin/appeals?status=OPEN')).data.find(
@@ -416,7 +416,7 @@ export async function adminOperationsCases({ t, api, pg, mongo, id, page, goto, 
         body: { role: 'ADMIN', scope: 'SUPER_ADMIN', reason }
       });
       // Both actors race to demote the other. Serialized protection preserves one full admin.
-      const base = 'http://localhost:4110/api/v1';
+      const base=apiBase;
       const rootToken = await page.evaluate(() => localStorage.getItem('ephurin_access_token'));
       const results = await Promise.all(
         [
@@ -435,7 +435,7 @@ export async function adminOperationsCases({ t, api, pg, mongo, id, page, goto, 
       assert.equal(
         (
           await pg.query(
-            "select count(*)::int n from users u left join admin_access a using(user_id) where u.role='ADMIN' and u.status='ACTIVE' and coalesce(a.scope,'SUPER_ADMIN')='SUPER_ADMIN'"
+            "select count(*)::int n from users u left join admin_access a using(user_id) where u.role='ADMIN' and u.status='ACTIVE' and a.scope='SUPER_ADMIN'"
           )
         ).rows[0].n,
         1
@@ -444,7 +444,7 @@ export async function adminOperationsCases({ t, api, pg, mongo, id, page, goto, 
       if (
         (
           await pg.query(
-            "select coalesce(a.scope,'SUPER_ADMIN') as scope from users u left join admin_access a using(user_id) where user_id=$1",
+            "select a.scope as scope from users u left join admin_access a using(user_id) where user_id=$1",
             [id('user:0')]
           )
         ).rows[0]?.scope !== 'SUPER_ADMIN'
@@ -590,11 +590,28 @@ export async function adminOperationsCases({ t, api, pg, mongo, id, page, goto, 
       assert.equal(await page.getByRole('textbox',{name:/Cập nhật đối soát/}).count(), 0);
     }
   );
+  await t.test('R74-01 browser: inspect a quarantined job and explicitly schedule its retry',async()=>{
+    const job=(await pg.query("insert into admin_jobs(kind,payload) values('COMMENT_SYNC',$1) returning job_id",[{sanctionId:'poison-regression'}])).rows[0];
+    try{
+      for(let i=0;i<6;i++){
+        await pg.query("update admin_jobs set next_attempt_at=now()-interval '1 second' where job_id=$1",[job.job_id]);
+        await api('/admin/jobs/retry',{method:'POST',body:{}});
+      }
+      assert.equal((await pg.query('select status from admin_jobs where job_id=$1',[job.job_id])).rows[0].status,'FAILED');
+      await goto('/admin/audit');
+      await page.getByText('Chi tiết tác vụ',{exact:true}).click();
+      const failed=page.locator('.admin-case').filter({hasText:'Đã dừng do lỗi'});
+      await failed.getByRole('button',{name:'Lên lịch thử lại',exact:true}).click();
+      await page.getByText('Lần thử tiếp theo:',{exact:false}).waitFor();
+      const retried=(await pg.query('select status,attempts,retry_count from admin_jobs where job_id=$1',[job.job_id])).rows[0];
+      assert.equal(retried.status,'PENDING');assert.equal(retried.attempts,0);assert.equal(retried.retry_count,1);
+    }finally{await pg.query('delete from admin_jobs where job_id=$1',[job.job_id]);}
+  });
 }
 
 // api asserts statuses; concurrent duplicates are read without assuming which wins.
-async function fetchAppeal(api, auth, auditId, message) {
-  const response = await fetch('http://localhost:4110/api/v1/account/appeals', {
+async function fetchAppeal(apiBase, auth, auditId, message) {
+  const response = await fetch(`${apiBase}/account/appeals`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${auth}` },
     body: JSON.stringify({ auditId, message })

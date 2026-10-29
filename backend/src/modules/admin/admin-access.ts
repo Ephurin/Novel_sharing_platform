@@ -14,10 +14,10 @@ export const scopePermissions: Record<AdminScope, AdminPermission[]> = {
 };
 export async function adminAccess(auth: AuthContext, client?: PoolClient) {
   const result = await (client ?? getPostgresPool()).query(
-    `select u.user_id,coalesce(a.scope,'SUPER_ADMIN') as scope from users u left join admin_access a using(user_id) where u.user_id::text=$1 and u.role='ADMIN' and u.status='ACTIVE' and u.deleted_at is null`,
+    `select u.user_id,a.scope from users u join admin_access a using(user_id) where u.user_id::text=$1 and u.role='ADMIN' and u.status='ACTIVE' and u.deleted_at is null`,
     [auth.userId]
   );
-  if (!result.rows[0])
+  if (!result.rows[0] || !scopePermissions[result.rows[0].scope as AdminScope])
     throw new AppError(403, 'ADMIN_ACCESS', 'Tài khoản không có quyền quản trị đang hoạt động.');
   const scope = result.rows[0].scope as AdminScope;
   return { scope, permissions: scopePermissions[scope] };
@@ -85,7 +85,7 @@ export async function protectAccount(
   const access = await assertAdminPermission(auth, permission, client);
   const row = (
     await client.query(
-      `select u.*,coalesce(a.scope,'SUPER_ADMIN') as admin_scope from users u left join admin_access a using(user_id) where user_id=$1 and deleted_at is null and status<>'DELETED' for update of u`,
+      `select u.*,a.scope as admin_scope from users u left join admin_access a using(user_id) where user_id=$1 and deleted_at is null and status<>'DELETED' for update of u`,
       [userId]
     )
   ).rows[0];
@@ -104,7 +104,7 @@ export async function protectAccount(
         'Chỉ quản trị viên toàn quyền được quản lý tài khoản admin.'
       );
     const count = await client.query(
-      `select count(*)::int as count from users u left join admin_access a using(user_id) where u.role='ADMIN' and u.status='ACTIVE' and u.deleted_at is null and coalesce(a.scope,'SUPER_ADMIN')='SUPER_ADMIN'`
+      `select count(*)::int as count from users u join admin_access a using(user_id) where u.role='ADMIN' and u.status='ACTIVE' and u.deleted_at is null and a.scope='SUPER_ADMIN'`
     );
     if (row.status === 'ACTIVE' && row.admin_scope === 'SUPER_ADMIN' && count.rows[0].count <= 1)
       throw new AppError(

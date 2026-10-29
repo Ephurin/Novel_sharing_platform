@@ -13,7 +13,7 @@ import {
   requireAdminPermission
 } from './admin-access.js';
 import { applySanction, restoreSanction } from './admin-sanctions.js';
-import { drainAdminJobs, queueAdminNotification } from './admin-jobs.js';
+import { drainAdminJobs, queueAdminNotification, retryAdminJob } from './admin-jobs.js';
 
 export const adminOperationsRoutes = Router();
 const uuid = (value: unknown) => z.string().uuid().parse(value);
@@ -84,10 +84,18 @@ adminOperationsRoutes.get(
     async () =>
       (
         await getPostgresPool().query(
-          "select job_id,kind,status,attempts,error,created_at from admin_jobs where status='PENDING' order by job_order limit 100"
+          "select job_id,kind,status,attempts,error,created_at,next_attempt_at,last_attempt_at,failed_at,retry_count from admin_jobs where status in ('PENDING','FAILED') order by (status='FAILED') desc,job_order limit 100"
         )
       ).rows
   )
+);
+adminOperationsRoutes.post(
+  '/jobs/:jobId/retry',
+  requireAdminPermission('audit'),
+  http(async (req) => {
+    const result = await retryAdminJob(req.auth!, uuid(req.params.jobId));
+    return { jobId: result.job_id, status: result.status };
+  })
 );
 adminOperationsRoutes.post(
   '/jobs/retry',
@@ -113,7 +121,7 @@ adminOperationsRoutes.get(
     const userId = uuid(req.params.userId);
     const user = (
       await getPostgresPool().query(
-        `select u.user_id,u.username,u.email,u.role,u.status,u.created_at,u.last_login_at,p.display_name,p.bio,p.avatar_url,case when u.role='ADMIN' then coalesce(a.scope,'SUPER_ADMIN') end as admin_scope from users u left join user_profiles p using(user_id) left join admin_access a using(user_id) where u.user_id=$1 and u.deleted_at is null`,
+        `select u.user_id,u.username,u.email,u.role,u.status,u.created_at,u.last_login_at,p.display_name,p.bio,p.avatar_url,case when u.role='ADMIN' then a.scope end as admin_scope from users u left join user_profiles p using(user_id) left join admin_access a using(user_id) where u.user_id=$1 and u.deleted_at is null`,
         [userId]
       )
     ).rows[0];

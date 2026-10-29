@@ -1,4 +1,6 @@
+import { createServer } from 'node:net';
 import { adminOperationsCases } from './admin-operations.cases.mjs';
+import { adminSessionTransitions } from './admin-session-transitions.cases.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
@@ -10,6 +12,8 @@ import { createHash } from 'node:crypto';
 import { chromium } from '@playwright/test';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
+const sourceSha=spawnSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8',windowsHide:true}).stdout.trim();
+const sourceTreeDirty=spawnSync('git',['diff','--quiet','HEAD','--','backend','web'],{cwd:root,windowsHide:true}).status!==0;
 const backend = path.join(root, 'backend');
 const requireBackend = createRequire(path.join(backend, 'package.json'));
 const { Client } = requireBackend('pg');
@@ -26,6 +30,10 @@ test(
   'admin redesign: real API, isolated seed, browser flows and responsive themes',
   { skip: process.env.RUN_ADMIN_BROWSER_TESTS !== '1', timeout: 360000 },
   async (t) => {
+    const availablePort=()=>new Promise((resolve,reject)=>{const server=createServer();server.once('error',reject);server.listen(0,'127.0.0.1',()=>{const port=server.address().port;server.close(error=>error?reject(error):resolve(port));});});
+    const apiPort=await availablePort();let webPort=await availablePort();while(webPort===apiPort)webPort=await availablePort();
+    const base=`http://127.0.0.1:${apiPort}/api/v1`;
+    const webOrigin=`http://127.0.0.1:${webPort}`;
     const dbName = `ephurin_test_admin_ui_${Date.now()}`;
     const adminUrl =
       process.env.ADMIN_TEST_POSTGRES_URL ||
@@ -45,9 +53,9 @@ test(
       MONGODB_URI: mongoUrl.toString(),
       JWT_ACCESS_SECRET: 'admin-ui-test-access-secret',
       JWT_REFRESH_SECRET: 'admin-ui-test-refresh-secret',
-      PORT: '4110',
+      PORT: String(apiPort),
       DB_CONNECT_ON_START: 'false',
-      VITE_API_BASE_URL: 'http://localhost:4110/api/v1'
+      VITE_API_BASE_URL: base, WEB_ORIGIN:webOrigin
     };
     const children = [];
     let browser;
@@ -79,13 +87,13 @@ test(
     const waitFor = async (url) => {
       for (let i = 0; i < 80; i++) {
         try {
+          if(children.some(child=>child.exitCode!==null))throw new Error('Test server exited before readiness');
           if ((await fetch(url)).ok) return;
         } catch {}
         await new Promise((r) => setTimeout(r, 250));
       }
       throw new Error(`Server not ready: ${url}`);
     };
-    const base = 'http://localhost:4110/api/v1';
     let token;
     const api = async (route, { method = 'GET', body, auth = token, status = 200 } = {}) => {
       const r = await fetch(`${base}${route}`, {
@@ -111,12 +119,12 @@ test(
           '--host',
           '127.0.0.1',
           '--port',
-          '5174',
+          String(webPort),
           '--strictPort'
         ],
         path.join(root, 'web')
       );
-      await Promise.all([waitFor(`${base}/health`), waitFor('http://localhost:5174')]);
+      await Promise.all([waitFor(`${base}/health`), waitFor(webOrigin)]);
       token = (
         await api('/auth/login', {
           method: 'POST',
@@ -220,7 +228,7 @@ test(
       const page = await context.newPage();
       page.on('pageerror', (e) => errors.push(e.message));
       const goto = async (route) => {
-        await page.goto(`http://localhost:5174${route}`);
+        await page.goto(`${webOrigin}${route}`);
         await page.locator('main h1, .admin-appeal-portal h1').waitFor();
       };
       await t.test('browser: compact IDs copy full UUIDs and preserve routing', async () => {
@@ -672,7 +680,7 @@ test(
             viewport: { width: 390, height: 844 }
           });
           const p = await persistent.newPage();
-          await p.goto('http://localhost:5174/admin/taxonomy');
+          await p.goto(`${webOrigin}/admin/taxonomy`);
           await p.locator('main h1').waitFor();
           assert.equal(await p.evaluate(() => document.documentElement.dataset.theme), 'dark');
           await persistent.close();
@@ -684,7 +692,8 @@ test(
       const operationsDb = new Client({ connectionString: pgUrl.toString() });
       await operationsDb.connect();
       try {
-        await adminOperationsCases({ t, api, pg: operationsDb, mongo, id, page, goto, output });
+        await adminOperationsCases({ t, api, pg: operationsDb, mongo, id, page, goto, output,apiBase:base });
+        await adminSessionTransitions({t,browser,output,origin:webOrigin});
       } finally {
         await operationsDb.end();
       }
@@ -706,7 +715,7 @@ test(
       await mkdir(output, { recursive: true });
       await writeFile(
         path.join(output, 'browser-checks.json'),
-        JSON.stringify({ checks, errors, isolatedDatabase: dbName, cleanedUp: true }, null, 2)
+        JSON.stringify({ sourceSha,sourceTreeDirty,apiOrigin:base,webOrigin,checks, errors, isolatedDatabase: dbName, cleanedUp: true }, null, 2)
       );
       await writeFile(path.join(output, 'test-server.log'), logs.join(''));
     }

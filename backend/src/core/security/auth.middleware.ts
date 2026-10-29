@@ -5,6 +5,7 @@ import { userRoles, type UserRole } from '../../shared/constants/roles.js';
 import { env } from '../config/env.js';
 import { AppError } from '../errors/app-error.js';
 import { getPostgresPool } from '../database/postgres.js';
+import { isContentAdmin } from './auth-context.js';
 
 const accessTokenPayloadSchema = z.object({
   sub: z.string().min(1),
@@ -50,7 +51,7 @@ async function activeIdentity(token: string) {
   const identity = verifyAccessToken(token);
   const user = (
     await getPostgresPool().query(
-      "select u.role,u.status,u.deleted_at,case when u.role='ADMIN' then coalesce(a.scope,'SUPER_ADMIN') end as admin_scope from users u left join admin_access a using(user_id) where u.user_id::text=$1",
+      'select u.role,u.status,u.deleted_at,a.scope as admin_scope from users u left join admin_access a using(user_id) where u.user_id::text=$1',
       [identity.userId]
     )
   ).rows[0];
@@ -60,7 +61,17 @@ async function activeIdentity(token: string) {
       'AUTH_ACCOUNT_INACTIVE',
       'Tài khoản bị khóa hoặc không còn hoạt động. Bạn có thể gửi khiếu nại tại /appeals.'
     );
-  return { ...identity, role: user.role, adminScope:user.admin_scope };
+  if (user.role === 'ADMIN' && !user.admin_scope)
+    throw new AppError(
+      403,
+      'ADMIN_ENTITLEMENT_MISSING',
+      'Tài khoản chưa được cấp phạm vi quản trị.'
+    );
+  return {
+    ...identity,
+    role: user.role,
+    adminScope: user.role === 'ADMIN' ? user.admin_scope : undefined
+  };
 }
 export const optionalAuth: RequestHandler = async (request, _response, next) => {
   const token = readBearerToken(request.header('authorization'));
@@ -100,8 +111,19 @@ export function requireRoles(allowedRoles: UserRole[]): RequestHandler {
       next(new AppError(403, 'AUTH_008', 'Unauthorized action'));
       return;
     }
-    if(request.auth.role==='ADMIN'&&allowedRoles.includes('AUTHOR')&&request.auth.adminScope&&['FINANCE','USER_MANAGER'].includes(request.auth.adminScope)){
-      next(new AppError(403,'ADMIN_PERMISSION','Nhóm quyền hiện tại không có quyền quản lý nội dung.'));return;
+    if (
+      request.auth.role === 'ADMIN' &&
+      allowedRoles.includes('AUTHOR') &&
+      !isContentAdmin(request.auth)
+    ) {
+      next(
+        new AppError(
+          403,
+          'ADMIN_PERMISSION',
+          'Nhóm quyền hiện tại không có quyền quản lý nội dung.'
+        )
+      );
+      return;
     }
 
     next();

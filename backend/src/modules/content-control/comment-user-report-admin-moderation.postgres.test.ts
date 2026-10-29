@@ -72,8 +72,9 @@ describe('Phase C: Comment User Report, Admin Moderation, and Notifications Inva
       [`admin-report-${timestamp}@ephurin.com`, `admin_rep_${timestamp}`]
     );
     adminId = adminRes.rows[0].user_id;
+    await pool.query("insert into admin_access(user_id,scope) values($1,'SUPER_ADMIN')",[adminId]);
     trackedUserIds.add(adminId);
-    adminAuth = { userId: adminId, role: 'ADMIN' };
+    adminAuth = { userId: adminId, role: 'ADMIN',adminScope:'SUPER_ADMIN' };
 
     // 2. Create Comment Owner
     const ownerRes = await pool.query(

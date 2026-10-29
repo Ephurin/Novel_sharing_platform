@@ -1,3 +1,4 @@
+import { SessionMarker } from '../../shared/components/AuthorTheme';
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Button, Menu } from '@mantine/core';
@@ -67,6 +68,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
       )?.[2] ?? 'Bảng quản trị';
   return (
     <div className="admin-shell">
+      {user && <SessionMarker role={user.role} username={user.username} />}
       <aside
         className={`admin-sidebar ${opened ? 'is-open' : ''}`}
         aria-label="Điều hướng quản trị"

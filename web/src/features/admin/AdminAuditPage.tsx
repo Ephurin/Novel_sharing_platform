@@ -69,13 +69,22 @@ export function AdminAuditPage() {
   const jobs = useQuery({
     queryKey: ['admin-jobs'],
     queryFn: () =>
-      adminGet<Array<{ job_id: string; kind: string; attempts: number; error: string }>>(
-        '/admin/jobs'
-      ),
+      adminGet<
+        Array<{
+          job_id: string;
+          kind: string;
+          status: string;
+          attempts: number;
+          error: string;
+          next_attempt_at: string;
+          retry_count: number;
+        }>
+      >('/admin/jobs'),
     enabled: !!access.data?.permissions.includes('audit')
   });
   const retry = useMutation({
-    mutationFn: () => adminSend('post', '/admin/jobs/retry', {}),
+    mutationFn: (jobId?: string) =>
+      adminSend('post', jobId ? `/admin/jobs/${jobId}/retry` : '/admin/jobs/retry', {}),
     onSuccess: () => jobs.refetch()
   });
   return (
@@ -94,26 +103,41 @@ export function AdminAuditPage() {
       />
       {!!jobs.data?.length && (
         <Alert color="yellow" mb="md">
-          <strong>{jobs.data.length} tác vụ đang chờ đồng bộ</strong>
-          <p>
-            Hệ thống tự thử lại. Tác vụ chưa hoàn tất có thể làm chậm cập nhật bình luận hoặc thông
-            báo.
-          </p>
+          <strong>{jobs.data.length} tác vụ chưa hoàn tất</strong>
+          <p>Tác vụ lỗi được thử lại giãn dần; sau nhiều lần lỗi sẽ dừng để kiểm tra.</p>
           <details>
             <summary>Chi tiết tác vụ</summary>
             {jobs.data.map((j) => (
-              <p key={j.job_id}>
-                {j.kind} · {j.attempts} lần thử · {j.error || 'Đang chờ'}
-              </p>
+              <div className="admin-case" key={j.job_id}>
+                <strong>
+                  {j.kind} · {j.status === 'FAILED' ? 'Đã dừng do lỗi' : 'Đang chờ'}
+                </strong>
+                <p>
+                  {j.attempts} lần thử · {j.error || 'Chờ xử lý'}
+                </p>
+                {j.status === 'PENDING' && (
+                  <small>Lần thử tiếp theo: {dateTime(j.next_attempt_at)}</small>
+                )}
+                {j.status === 'FAILED' && (
+                  <Button
+                    variant="default"
+                    size="xs"
+                    disabled={retry.isPending}
+                    onClick={() => retry.mutate(j.job_id)}
+                  >
+                    Lên lịch thử lại
+                  </Button>
+                )}
+              </div>
             ))}
           </details>
           <Button
             mt="sm"
             variant="default"
             loading={retry.isPending}
-            onClick={() => retry.mutate()}
+            onClick={() => retry.mutate(undefined)}
           >
-            Thử đồng bộ lại
+            Xử lý tác vụ đến lịch
           </Button>
           <AdminError error={retry.error} />
         </Alert>

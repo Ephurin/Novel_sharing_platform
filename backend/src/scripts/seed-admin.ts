@@ -72,6 +72,7 @@ try {
         `insert into wallets(wallet_id,user_id) values($1,$2) on conflict do nothing`,
         [id(`wallet:${i}`), id(`user:${i}`)]
       );
+      if(i===0)await client.query("insert into admin_access(user_id,scope) select user_id,'SUPER_ADMIN' from users where user_id=$1 and role='ADMIN' on conflict(user_id) do nothing",[id('user:0')]);
     }
     for (const [i, name] of [
       'Trinh thám',
