@@ -90,11 +90,21 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
   useLayoutEffect(() => {
     if (!notesHost) return;
     const toolbar = notesHost.querySelector<HTMLElement>('.sc-format-toolbar');
-    const measure = () => notesHost.style.setProperty('--sc-studio-format-height', `${toolbar ? toolbar.getBoundingClientRect().height + parseFloat(getComputedStyle(toolbar).marginBottom || '0') : 0}px`);
+    const preferredWidth = { narrow: 640, standard: 760, wide: 1040 }[width];
+    notesHost.style.setProperty('--sc-studio-reading-width', `${preferredWidth}px`);
+    const measure = () => {
+      const style = getComputedStyle(notesHost);
+      const workspace = notesHost.querySelector<HTMLElement>('.sc-editor-workspace');
+      const scrollbar = workspace ? workspace.offsetWidth - workspace.clientWidth : 0;
+      const required = preferredWidth + parseFloat(style.getPropertyValue('--sc-studio-canvas-gutter')) + parseFloat(style.getPropertyValue('--sc-studio-notes-width')) + scrollbar;
+      // Use the space left after chapter navigation and any AI panel, not viewport guesses.
+      notesHost.dataset.notesLayout = notesHost.clientWidth >= required ? 'dock' : 'drawer';
+      notesHost.style.setProperty('--sc-studio-format-height', `${toolbar ? toolbar.getBoundingClientRect().height + parseFloat(getComputedStyle(toolbar).marginBottom || '0') : 0}px`);
+    };
     measure();
-    const observer = new ResizeObserver(measure); if (toolbar) observer.observe(toolbar);
+    const observer = new ResizeObserver(measure); observer.observe(notesHost); if (toolbar) observer.observe(toolbar);
     return () => observer.disconnect();
-  }, [notesHost, formatToolbarVisible]);
+  }, [notesHost, formatToolbarVisible, width]);
   useEffect(() => { const root = editor.current?.closest<HTMLElement>('.sc-writing-studio'); if (root) root.dataset.writingWidth = width; return () => { if (root) delete root.dataset.writingWidth; }; }, [width, editor]);
   useEffect(() => { setMatchIndex(-1); }, [query, caseSensitive, wholeWord]);
   useEffect(() => { if (panel && panel !== 'notes') panelRef.current?.querySelector<HTMLElement>((panel === 'search' || panel === 'replace') ? '[aria-label="Tìm trong bản thảo"]' : '.sc-studio-scene-list button')?.focus({ preventScroll: true }); }, [panel]);
@@ -166,14 +176,14 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
         <div className="sc-studio-tool-row"><label><input type="checkbox" checked={caseSensitive} onChange={e => setCaseSensitive(e.target.checked)} /> Phân biệt hoa/thường</label><label><input type="checkbox" checked={wholeWord} onChange={e => setWholeWord(e.target.checked)} /> Nguyên từ</label><span>{found.truncated ? 'Hơn 10.000 kết quả. Thu hẹp tìm kiếm để thay tất cả.' : `${found.matches.length} kết quả`}</span></div></>}
       {panel === 'scenes' && <><p className="text-meta">Các cảnh được ngăn bằng dấu ngắt cảnh. Bấm để đến vị trí trong bản thảo.</p><div className="sc-studio-scene-list">{scenes.map((scene, index) => <button key={scene.start} type="button" onClick={() => select(scene.start, scene.start)}>{index + 1}. {scene.label}</button>)}</div></>}
     </motion.section>
-    {notesHost && createPortal(<aside id="studio-notes-sidebar" data-open={panel === 'notes'} inert={panel !== 'notes'} aria-hidden={panel !== 'notes'} className="sc-studio-notes-sidebar" aria-label="Ghi chú chương">
+    {notesHost && createPortal(<><div className="sc-studio-notes-backdrop" data-open={panel === 'notes'} aria-hidden="true" onClick={closeTools} /><aside id="studio-notes-sidebar" data-open={panel === 'notes'} inert={panel !== 'notes'} aria-hidden={panel !== 'notes'} className="sc-studio-notes-sidebar" aria-label="Ghi chú chương">
       <header><h2>Ghi chú</h2><button type="button" aria-label="Đóng công cụ" onClick={closeTools}>×</button></header>
       <div role="tablist" aria-label="Loại ghi chú" className="sc-studio-note-tabs">{(['passages','private'] as const).map((tab, index, tabs) => <button key={tab} id={`studio-note-tab-${tab}`} type="button" role="tab" aria-selected={noteTab === tab} aria-controls={`studio-note-panel-${tab}`} tabIndex={noteTab === tab ? 0 : -1} onClick={() => setNoteTab(tab)} onKeyDown={event => { if (['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) { event.preventDefault(); const next = event.key === 'Home' ? tabs[0] : event.key === 'End' ? tabs[1] : tabs[1-index]; setNoteTab(next); document.getElementById(`studio-note-tab-${next}`)?.focus(); } }}>{tab === 'passages' ? 'Theo đoạn' : 'Sổ tay chương'}</button>)}</div>
       <div className="sc-studio-notes-scroll">
         <div role="tabpanel" id="studio-note-panel-passages" aria-labelledby="studio-note-tab-passages" hidden={noteTab !== 'passages'}><PassageNotes request={noteRequest} scope={scope} content={content} ready={!disabled} getSelection={() => ({ start: editor.current?.selectionStart ?? 0, end: editor.current?.selectionEnd ?? 0 })} onJump={select} /></div>
         <div role="tabpanel" id="studio-note-panel-private" aria-labelledby="studio-note-tab-private" hidden={noteTab !== 'private'}><label className="text-meta" htmlFor="studio-private-note">Ý tưởng và việc cần sửa cho chương này</label><textarea id="studio-private-note" aria-label="Ghi chú riêng" value={note} maxLength={20000} onChange={e => setNoteValue(e.target.value)} /><div className="sc-studio-tool-row"><button type="button" onClick={() => downloadStudioFile(title + '-ghi-chu', note, 'txt', 'text/plain')}>Tải ghi chú</button><span>{note.length.toLocaleString('vi-VN')}/20.000 ký tự</span></div>{noteError && <p role="alert">{noteError}</p>}</div>
       </div><footer>Lưu trên trình duyệt này · chỉ dành cho bạn, không xuất bản cùng chương.</footer>
-    </aside>, notesHost)}
+    </aside></>, notesHost)}
     <span className="sc-motion-sr-only" role="status">{announcement}</span>
     <AnimatedModal opened={exportOpen} onClose={onExportClose} title="Xuất bản thảo" centered>
       <label className="sc-studio-goal">Định dạng xuất<select aria-label="Định dạng xuất" value={exportType} onChange={event => setExportType(event.target.value as typeof exportType)}><option value="txt">TXT · văn bản</option><option value="md">Markdown · ký hiệu định dạng</option><option value="html">HTML · giữ định dạng</option><option value="pdf">PDF · qua hộp thoại in</option></select></label>

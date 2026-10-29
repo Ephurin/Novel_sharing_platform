@@ -192,10 +192,7 @@ export function AuthorWritingIde() {
     return readEditorSetting('ephurin_editor_indent') !== 'false';
   });
 
-  const [fontDropdownOpen, setFontDropdownOpen] = useState(false);
-  const [spacingDropdownOpen, setSpacingDropdownOpen] = useState(false);
-  const fontDropdownRef = useRef<HTMLDivElement>(null);
-  const spacingDropdownRef = useRef<HTMLDivElement>(null);
+
 
   const [storyBibleTab, setStoryBibleTab] = useState<StoryBibleTab>('characters');
   const [chapterSearch, setChapterSearch] = useState('');
@@ -402,25 +399,14 @@ export function AuthorWritingIde() {
     writeEditorSetting('ephurin_editor_indent', String(paragraphIndent));
   }, [paragraphIndent]);
 
-  // Close dropdowns on outside click
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (fontDropdownRef.current && !fontDropdownRef.current.contains(event.target as Node)) {
-        setFontDropdownOpen(false);
-      }
-      if (spacingDropdownRef.current && !spacingDropdownRef.current.contains(event.target as Node)) {
-        setSpacingDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
   const currentFontConfig = useMemo(() => {
     return AVAILABLE_FONTS.find((f) => f.id === fontOption) || AVAILABLE_FONTS[0];
   }, [fontOption]);
+  const preserveNextToolbarMenu = (event: Event) => {
+    // An exiting font menu must not steal focus from the spacing menu just opened.
+    if (document.querySelector('[role="menu"][data-state="open"]') || document.activeElement?.getAttribute('aria-expanded') === 'true') event.preventDefault();
+  };
 
   // Selection & prose formatting helpers
   const wrapSelection = (prefix: string, suffix: string = prefix, placeholder: string = 'văn bản') => {
@@ -1074,97 +1060,10 @@ export function AuthorWritingIde() {
           {formatToolbarVisible && (
             <div id="studio-format-toolbar" className="sc-format-toolbar sticky top-0 z-20 w-full py-2 px-3 sm:px-4 bg-surface/95 backdrop-blur-md border-b border-stone-200/60 flex items-center justify-center mb-2 shrink-0">
               <div className="sc-format-controls py-0 px-1 flex items-center gap-1 max-w-4xl text-meta text-stone-700 select-none">
-                {/* 1. Font Family Dropdown */}
-                <div className="relative" ref={fontDropdownRef}>
-                  <button
-                    onClick={() => setFontDropdownOpen((prev) => !prev)}
-                    className="font-medium flex items-center gap-1.5 hover:text-stone-900 px-2 py-1 rounded-lg hover:bg-stone-100 transition-colors border border-transparent hover:border-stone-200 text-stone-800"
-                    title="Đổi kiểu chữ (7 phông chữ Việt hóa)"
-                    type="button"
-                  >
-                    <span className="material-symbols-outlined text-[16px] text-stone-500">text_fields</span>
-                    <span className="font-semibold text-meta tracking-tight" style={{ fontFamily: currentFontConfig.fontFamily }}>
-                      {currentFontConfig.name}
-                    </span>
-                    <span className="material-symbols-outlined text-[15px] text-stone-400">
-                      {fontDropdownOpen ? 'expand_less' : 'expand_more'}
-                    </span>
-                  </button>
-
-                  {/* Dropdown Menu */}
-                  {fontDropdownOpen && (
-                    <div className="absolute top-full left-0 mt-1.5 w-80 bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200 py-2 px-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
-                      <div className="px-2.5 py-1 mb-1 border-b border-stone-100 flex items-center justify-between">
-                        <span className="text-meta font-bold uppercase tracking-wider text-stone-400">
-                          Phông chữ soạn thảo ({AVAILABLE_FONTS.length})
-                        </span>
-                        <span className="text-meta text-primary-600 font-medium">Hỗ trợ tiếng Việt</span>
-                      </div>
-
-                      <div className="max-h-72 overflow-y-auto space-y-0.5 py-1">
-                        {/* Serif category */}
-                        <div className="px-2.5 pt-1.5 pb-0.5 text-meta font-bold text-stone-400 uppercase tracking-wider">
-                          Chữ có chân (Serif)
-                        </div>
-                        {AVAILABLE_FONTS.filter((f) => f.category === 'Serif (Có chân)').map((f) => (
-                          <button
-                            key={f.id}
-                            onClick={() => {
-                              setFontOption(f.id);
-                              setFontDropdownOpen(false);
-                            }}
-                            type="button"
-                            className={`w-full text-left px-2.5 py-2 rounded-lg flex items-center justify-between transition-colors ${
-                              fontOption === f.id
-                                ? 'bg-primary-50/80 text-primary-700 font-semibold border border-primary-100'
-                                : 'hover:bg-stone-50 text-stone-800'
-                            }`}
-                          >
-                            <div>
-                              <div className="text-body font-medium" style={{ fontFamily: f.fontFamily }}>
-                                {f.name}
-                              </div>
-                              <div className="text-meta text-stone-400 leading-tight mt-0.5">{f.tagline}</div>
-                            </div>
-                            {fontOption === f.id && (
-                              <span className="material-symbols-outlined text-[16px] text-primary-600 shrink-0">check</span>
-                            )}
-                          </button>
-                        ))}
-
-                        {/* Sans category */}
-                        <div className="px-2.5 pt-2 pb-0.5 text-meta font-bold text-stone-400 uppercase tracking-wider">
-                          Chữ không chân (Sans-serif)
-                        </div>
-                        {AVAILABLE_FONTS.filter((f) => f.category === 'Sans-serif (Không chân)').map((f) => (
-                          <button
-                            key={f.id}
-                            onClick={() => {
-                              setFontOption(f.id);
-                              setFontDropdownOpen(false);
-                            }}
-                            type="button"
-                            className={`w-full text-left px-2.5 py-2 rounded-lg flex items-center justify-between transition-colors ${
-                              fontOption === f.id
-                                ? 'bg-primary-50/80 text-primary-700 font-semibold border border-primary-100'
-                                : 'hover:bg-stone-50 text-stone-800'
-                            }`}
-                          >
-                            <div>
-                              <div className="text-body font-medium" style={{ fontFamily: f.fontFamily }}>
-                                {f.name}
-                              </div>
-                              <div className="text-meta text-stone-400 leading-tight mt-0.5">{f.tagline}</div>
-                            </div>
-                            {fontOption === f.id && (
-                              <span className="material-symbols-outlined text-[16px] text-primary-600 shrink-0">check</span>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                {/* Portalled menus remain usable inside the horizontally scrolling toolbar. */}
+                <Menu position="bottom-start" onCloseAutoFocus={preserveNextToolbarMenu}><Menu.Target><button className="font-medium flex items-center gap-1.5 px-2 py-1" title="Đổi kiểu chữ (7 phông chữ Việt hóa)" type="button">
+                  <span className="material-symbols-outlined text-[16px]">text_fields</span><span>{currentFontConfig.name}</span><span className="material-symbols-outlined text-[15px]">expand_more</span>
+                </button></Menu.Target><Menu.Dropdown><Menu.Label>Phông chữ soạn thảo</Menu.Label>{AVAILABLE_FONTS.map(font => <Menu.Item key={font.id} onClick={() => setFontOption(font.id)} leftSection={fontOption === font.id ? '✓' : ' '}><span style={{fontFamily:font.fontFamily}}>{font.name}</span><span className="block text-meta text-stone-500">{font.tagline}</span></Menu.Item>)}</Menu.Dropdown></Menu>
 
                 <div className="h-4 w-px bg-stone-200 mx-1"></div>
 
@@ -1242,50 +1141,9 @@ export function AuthorWritingIde() {
                 <div className="h-4 w-px bg-stone-200 mx-1"></div>
 
                 {/* 4. Line Spacing & Indent */}
-                <div className="relative" ref={spacingDropdownRef}>
-                  <button
-                    onClick={() => setSpacingDropdownOpen((prev) => !prev)}
-                    className="h-7 px-2 flex items-center gap-1 rounded-lg hover:bg-stone-100 text-stone-600 hover:text-stone-900 text-meta transition-colors border border-transparent hover:border-stone-200"
-                    title="Khoảng cách giãn dòng (Line-height)"
-                    type="button"
-                  >
-                    <span className="material-symbols-outlined text-[15px] text-stone-500">format_line_spacing</span>
-                    <span className="font-mono text-meta font-medium">{lineHeight}x</span>
-                    <span className="material-symbols-outlined text-body text-stone-400">expand_more</span>
-                  </button>
-
-                  {spacingDropdownOpen && (
-                    <div className="absolute top-full left-0 mt-1.5 w-48 bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200 p-1.5 z-50 animate-in fade-in duration-100">
-                      <div className="px-2 py-1 text-meta font-bold text-stone-400 uppercase tracking-wider">
-                        Giãn dòng bản thảo
-                      </div>
-                      {[
-                        { val: 1.8, label: '1.8x • Gọn gàng' },
-                        { val: 2.15, label: '2.15x • Chuẩn tiểu thuyết' },
-                        { val: 2.5, label: '2.5x • Rộng rãi, thoáng' }
-                      ].map((opt) => (
-                        <button
-                          key={opt.val}
-                          onClick={() => {
-                            setLineHeight(opt.val);
-                            setSpacingDropdownOpen(false);
-                          }}
-                          type="button"
-                          className={`w-full text-left px-2.5 py-1.5 rounded-lg text-meta flex items-center justify-between transition-colors ${
-                            lineHeight === opt.val
-                              ? 'bg-primary-50 text-primary-700 font-semibold'
-                              : 'hover:bg-stone-50 text-stone-700'
-                          }`}
-                        >
-                          <span>{opt.label}</span>
-                          {lineHeight === opt.val && (
-                            <span className="material-symbols-outlined text-[15px] text-primary-600">check</span>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <Menu position="bottom-start" onCloseAutoFocus={preserveNextToolbarMenu}><Menu.Target><button className="h-7 px-2 flex items-center gap-1" title="Khoảng cách giãn dòng (Line-height)" type="button">
+                  <span className="material-symbols-outlined text-[15px]">format_line_spacing</span><span>{lineHeight}x</span><span className="material-symbols-outlined text-[15px]">expand_more</span>
+                </button></Menu.Target><Menu.Dropdown><Menu.Label>Giãn dòng bản thảo</Menu.Label>{[{val:1.8,label:'1.8x • Gọn gàng'},{val:2.15,label:'2.15x • Chuẩn tiểu thuyết'},{val:2.5,label:'2.5x • Rộng rãi, thoáng'}].map(option => <Menu.Item key={option.val} onClick={() => setLineHeight(option.val)} leftSection={lineHeight === option.val ? '✓' : ' '}>{option.label}</Menu.Item>)}</Menu.Dropdown></Menu>
 
                 {/* First-line Indent Toggle */}
                 <button
@@ -1296,10 +1154,12 @@ export function AuthorWritingIde() {
                       : 'border-transparent hover:bg-stone-100 text-stone-500 hover:text-stone-800'
                   }`}
                   title="Thụt đầu dòng đoạn văn (~2.5rem - Quy chuẩn tiểu thuyết)"
+                  aria-label="Thụt đầu dòng"
+                  aria-pressed={paragraphIndent}
                   type="button"
                 >
                   <span className="material-symbols-outlined text-[15px]">format_indent_increase</span>
-                  <span className="text-meta hidden md:inline">Thụt dòng</span>
+                  <span className="sr-only">Thụt dòng</span>
                 </button>
 
                 <div className="h-4 w-px bg-stone-200 mx-1"></div>

@@ -114,8 +114,10 @@ Kiểm thử tự động: `npm run test:studio-tools`, `node --test tests/autho
 
 ## Notes không làm dịch bản thảo
 
-- Trước đây Notes là phần tử flex rộng 336 px, làm vùng viết hẹp đi mỗi khi mở. Hiện Notes nằm ngoài luồng bố cục, trong vùng chứa riêng của trình soạn thảo. Bản thảo mặc định tối đa 760 px; lựa chọn Hẹp/Rộng vẫn được giữ.
-- Khi vùng viết đủ rộng, Notes dùng khoảng trắng bên phải. Ở desktop hẹp/tablet, Notes là ngăn nổi bắt đầu bên dưới thanh định dạng; chiều cao thanh được đo khi thay đổi hoặc ẩn/hiện. Bật/tắt Notes không thay kích thước vùng viết.
+- Vùng sau danh sách chương (280 px) dùng Grid với cột editor `minmax(0, 1fr)` và cột Notes 336 px khi đủ chỗ. Notes dock là phần tử trong luồng, không dùng absolute/fixed. Cột Notes được giữ cả khi đóng để bật/tắt không dịch trang. Bản thảo mặc định tối đa 760 px; lựa chọn Hẹp/Rộng vẫn được giữ.
+- Ngưỡng dock dựa trên chiều rộng thực còn lại sau danh sách chương/AI: chiều rộng bản thảo ưu tiên + lề 32 px + Notes 336 px + scrollbar. Vì vậy đóng danh sách chương có thể chuyển drawer sang dock ngay tại cùng viewport. Với cài đặt mặc định và danh sách chương mở: 1920/1600/1440 px dùng dock; 1280 px dùng drawer.
+- Drawer bắt đầu bên dưới thanh định dạng, có nền che, nút đóng và Esc; bấm nền che cũng đóng. Chỉ drawer dùng absolute. Bật/tắt Notes không thay kích thước vùng viết.
+- Thanh định dạng cùng chiều rộng và căn giữa theo trang bản thảo, không tự xuống hàng. Trên màn hình nhỏ có cuộn ngang riêng; menu phông chữ/giãn dòng dùng portal nên không bị cắt bởi vùng cuộn. Không đổi phông, cỡ chữ hoặc nội dung bản thảo để đạt bố cục.
 - Chỉ panel Notes chuyển động bằng transform/opacity 200 ms; chế độ giảm chuyển động tắt hiệu ứng. Panel đóng có `inert` và `aria-hidden`, không nhận bàn phím.
 - Đóng Notes khôi phục vùng chọn đang lưu và focus vào editor bằng `preventScroll`, không cuộn tới vị trí con trỏ. Editor không remount khi bật/tắt Notes; lịch sử undo và autosave giữ nguyên.
-- Chạy `npm run test:studio-notes-layout`: đối chiếu tọa độ/kích thước bản thảo, thanh định dạng, chiều cao nội dung, scrollTop, vùng chọn, node editor, undo/redo và autosave ở 1920/1440/1024/768 px, sáng/tối, có giảm chuyển động và cả hai chế độ soạn thảo. Bài kiểm tra cũng chuyển chương và kiểm tra sổ tay không lẫn giữa các chương.
+- Chạy `npm run test:studio-notes-layout`: chụp cả mở/đóng và đối chiếu tọa độ/kích thước bản thảo, thanh định dạng, chiều cao nội dung, scrollTop, vùng chọn, node editor, undo/redo và autosave ở 1920/1600/1440/1280/1024/768 px, sáng/tối, có giảm chuyển động và cả hai chế độ soạn thảo. Kiểm tra dock không đè editor, không tràn ngang, thanh công cụ thẳng trang và menu định dạng dùng được; chuyển chương không lẫn sổ tay. Ảnh trước/sau sửa được chụp bằng cùng fixture.

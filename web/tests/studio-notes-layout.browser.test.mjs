@@ -19,7 +19,7 @@ test('Notes preserve manuscript geometry, wrapping, scroll, selection, history a
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve)); let browser;
   try {
     browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome', headless: true });
-    for (const width of [1920, 1440, 1024, 768]) for (const dark of [false, true]) {
+    for (const width of [1920, 1600, 1440, 1280, 1024, 768]) for (const dark of [false, true]) {
       const sourceMode = width === 1024 && dark, reduced = width === 768;
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: reduced ? 'reduce' : 'no-preference' });
       const page = await context.newPage(), errors = []; page.on('pageerror', error => errors.push(error.message));
@@ -45,6 +45,12 @@ test('Notes preserve manuscript geometry, wrapping, scroll, selection, history a
         if(dark) await page.evaluate(()=>window.setTheme('dark'));
         const canonical=page.locator('textarea.sc-manuscript'), editor=sourceMode?canonical:page.locator('[data-studio-rich-editor]'), viewport=page.locator('.sc-editor-workspace');
         await expect(canonical).toHaveValue(initial);
+        if(width===1440 && !dark) {
+          await page.getByTitle('Đổi kiểu chữ (7 phông chữ Việt hóa)',{exact:true}).click();
+          await expect(page.getByRole('menuitem',{name:/Be Vietnam Pro/})).toBeVisible();await page.getByRole('menuitem',{name:/Be Vietnam Pro/}).click();
+          await page.getByTitle('Khoảng cách giãn dòng (Line-height)',{exact:true}).click();
+          await expect(page.getByRole('menuitem',{name:/2.15x/})).toBeVisible();await page.getByRole('menuitem',{name:/2.15x/}).click();
+        }
         const edited=initial+'\n\nĐoạn vừa chỉnh sửa.';await editor.fill(edited);await page.keyboard.press('Control+s');await expect.poll(()=>saved).toBe(edited);
         await canonical.evaluate(el=>{const start=el.value.indexOf('Đoạn 30.');if(el.hidden) el.dispatchEvent(new CustomEvent('studio-select-source',{detail:{start,end:start+8},cancelable:true}));else{el.focus();el.setSelectionRange(start,start+8);el.dispatchEvent(new Event('select',{bubbles:true}));}});
         if(sourceMode) await viewport.evaluate(el=>{el.scrollTop=3000;});
@@ -53,9 +59,11 @@ test('Notes preserve manuscript geometry, wrapping, scroll, selection, history a
         const geometry=()=>page.evaluate(()=>{
           const workspace=document.querySelector('.sc-editor-workspace'), page=document.querySelector('.sc-manuscript-page'), source=document.querySelector('textarea.sc-manuscript'), editor=document.querySelector('[data-studio-rich-editor]')??source, toolbar=document.querySelector('.sc-format-toolbar');
           const box=element=>{const r=element.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height};};
-          return {page:box(page),editor:box(editor),toolbar:box(toolbar),scroll:workspace.scrollTop,scrollHeight:workspace.scrollHeight,start:source.selectionStart,end:source.selectionEnd,sameNode:window.layoutEditor===editor};
+          return {page:box(page),editor:box(editor),toolbar:box(toolbar),controls:box(document.querySelector('.sc-format-controls')),workspace:box(workspace),mode:workspace.parentElement.dataset.notesLayout,overflow:document.documentElement.scrollWidth>innerWidth,scroll:workspace.scrollTop,scrollHeight:workspace.scrollHeight,start:source.selectionStart,end:source.selectionEnd,sameNode:window.layoutEditor===editor};
         });
         const before=await geometry(), beforePatches=patches;
+        assert.equal(before.overflow,false);assert.ok(Math.abs(before.controls.x-before.page.x)<.5,'Toolbar and manuscript left edges align');assert.ok(Math.abs(before.controls.width-before.page.width)<.5,'Toolbar and manuscript widths align');await expect(page.locator('.sc-format-controls')).toHaveCSS('flex-wrap','nowrap');
+        if(width>=1280) assert.ok(await page.locator('.sc-format-controls').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'All desktop formatting controls fit in one row');
         assert.ok(before.page.width<=760);assert.ok(before.scroll>0);
         await page.screenshot({path:path.join(output,`${name}-closed.png`)});
         await page.getByRole('button',{name:'Ghi chú',exact:true}).click();
@@ -63,20 +71,49 @@ test('Notes preserve manuscript geometry, wrapping, scroll, selection, history a
         await expect(notes).toHaveCSS('opacity','1');
         const checkStable = async () => {
           const after=await geometry();
-          for(const area of ['page','editor','toolbar']) for(const key of ['x','y','width','height']) assert.ok(Math.abs(before[area][key]-after[area][key])<.5,`${name}: ${area}.${key} changed ${before[area][key]} -> ${after[area][key]}`);
-          assert.equal(after.scroll,before.scroll);assert.equal(after.scrollHeight,before.scrollHeight);assert.equal(after.start,before.start);assert.equal(after.end,before.end);assert.equal(after.sameNode,true);await expect(canonical).toHaveValue(edited);
+          for(const area of ['page','editor','toolbar','controls']) for(const key of ['x','y','width','height']) assert.ok(Math.abs(before[area][key]-after[area][key])<.5,`${name}: ${area}.${key} changed ${before[area][key]} -> ${after[area][key]}`);
+          assert.equal(after.overflow,false);assert.equal(after.mode,before.mode);assert.equal(after.scroll,before.scroll);assert.equal(after.scrollHeight,before.scrollHeight);assert.equal(after.start,before.start);assert.equal(after.end,before.end);assert.equal(after.sameNode,true);await expect(canonical).toHaveValue(edited);
         };
         await checkStable();
         const notesBox=await notes.boundingBox(), toolbarBox=await page.locator('.sc-format-toolbar').boundingBox();
-        if(width===1920) { assert.ok(notesBox.x>=before.page.x+before.page.width);await expect(notes).toHaveCSS('box-shadow','none'); }
-        else assert.ok(notesBox.y>=toolbarBox.y+toolbarBox.height,`${name}: drawer covers formatting controls`);
+        if(before.mode==='dock') {
+          assert.ok(notesBox.x>=before.workspace.x+before.workspace.width-.5,`${name}: dock overlaps editor workspace`);
+          assert.ok(notesBox.x>=before.page.x+before.page.width,`${name}: dock overlaps manuscript`);
+          await expect(notes).toHaveCSS('position','relative');await expect(notes).toHaveCSS('box-shadow','none');
+        } else {
+          assert.ok(notesBox.y>=toolbarBox.y+toolbarBox.height,`${name}: drawer covers formatting controls`);
+          await expect(page.locator('.sc-studio-notes-backdrop')).toBeVisible();
+        }
+        console.log('Layout',name,JSON.stringify({mode:before.mode,pageX:before.page.x,pageWidth:before.page.width,notesX:notesBox.x,workspaceRight:before.workspace.x+before.workspace.width}));
         if(reduced) await expect(notes).toHaveCSS('transition-duration','0s');
         await page.getByRole('tab',{name:'Sổ tay chương',exact:true}).click();await page.getByRole('textbox',{name:'Ghi chú riêng',exact:true}).fill('Ý tưởng riêng cho chương một.');
         await page.screenshot({path:path.join(output,`${name}-open.png`)});
-        await page.getByRole('button',{name:'Đóng công cụ',exact:true}).click();await expect(notes).toBeHidden();await expect(editor).toBeFocused();await checkStable();
+        await page.getByRole('button',{name:'Đóng công cụ',exact:true}).click();await expect(notes).toBeHidden();await expect(editor).toBeFocused();await checkStable();if(!sourceMode) assert.equal(await page.evaluate(()=>getSelection().toString()),'Đoạn 30.');
         assert.equal(patches,beforePatches,'Toggling Notes must not edit or autosave the manuscript');
         await page.keyboard.press('Control+z');await expect(canonical).toHaveValue(initial);await page.keyboard.press('Control+Shift+z');await expect(canonical).toHaveValue(edited);
         await page.keyboard.press('Control+s');await expect.poll(()=>saved).toBe(edited);
+        if((width===1920 && !dark) || (width===1440 && dark)) {
+          await page.getByRole('button',{name:'Xem',exact:true}).click();await page.getByRole('menuitem',{name:'Rộng · tận dụng màn hình',exact:true}).click();
+          await expect(page.locator('.sc-manuscript-page')).toHaveCSS('max-width','1040px');
+          const wideClosed=await geometry();await page.getByRole('button',{name:'Ghi chú',exact:true}).click();await expect(notes).toHaveCSS('opacity','1');const wideOpen=await geometry();
+          assert.equal(wideOpen.page.x,wideClosed.page.x);assert.equal(wideOpen.page.width,wideClosed.page.width);assert.equal(wideOpen.editor.height,wideClosed.editor.height);assert.equal(wideOpen.scroll,wideClosed.scroll);assert.equal(wideOpen.overflow,false);
+          const wideNotes=await notes.boundingBox();
+          if(wideOpen.mode==='dock') assert.ok(wideNotes.x>=wideOpen.page.x+wideOpen.page.width);else await expect(page.locator('.sc-studio-notes-backdrop')).toBeVisible();
+          await page.screenshot({path:path.join(output,`${name}-wide-open.png`)});
+          await page.keyboard.press('Escape');await expect(notes).toBeHidden();
+          await page.getByRole('button',{name:'Xem',exact:true}).click();await page.getByRole('menuitem',{name:'Vừa · mặc định',exact:true}).click();
+          await expect(page.locator('.sc-manuscript-page')).toHaveCSS('max-width','760px');
+        }
+        if(width===1280 && !dark) {
+          await page.getByTitle('Đóng/Mở thanh danh sách chương',{exact:true}).click();
+          await expect(page.locator('.sc-studio-editor-region')).toHaveAttribute('data-notes-layout','dock');
+          await page.getByRole('button',{name:'Ghi chú',exact:true}).click();await expect(notes).toBeVisible();await expect(notes).toHaveCSS('position','relative');
+          await page.keyboard.press('Escape');await expect(notes).toBeHidden();
+          await page.getByTitle('Đóng/Mở thanh danh sách chương',{exact:true}).click();
+          await expect(page.locator('.sc-studio-editor-region')).toHaveAttribute('data-notes-layout','drawer');
+          await page.getByRole('button',{name:'Ghi chú',exact:true}).click();await expect(notes).toBeVisible();
+          await page.locator('.sc-studio-notes-backdrop').click({position:{x:8,y:8}});await expect(notes).toBeHidden();
+        }
         if(width<=900) await page.getByTitle('Đóng/Mở thanh danh sách chương',{exact:true}).click();
         await page.locator('.sc-studio-sidebar').getByText('Chương khác',{exact:true}).click();await expect(canonical).toHaveValue(second.content);
         if(width<=900) await page.getByTitle('Đóng/Mở thanh danh sách chương',{exact:true}).click();
