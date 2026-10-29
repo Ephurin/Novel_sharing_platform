@@ -6,6 +6,7 @@ import { StudioWorkbench } from './StudioWorkbench';
 import { useStudioHistory } from './useStudioHistory';
 import { revealStudioSelection } from './studio-tools';
 import { RichManuscriptEditor } from './RichManuscriptEditor';
+import { StudioContextMenu } from './StudioContextMenu';
 import { ChapterSchedule } from '../author-projects/ChapterSchedule';
 import { RevisionHistory, snapshotDraft } from './RevisionHistory';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -1390,7 +1391,7 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Prose Editor Textarea: Auto-grow without internal scrollbar */}
-            <div className="sc-manuscript-input w-full min-h-[500px]">
+            <StudioContextMenu key={activeDraftScope} editor={editorRef} disabled={!studioReady || isAcceptingAi} apply={applyStudioEdit} onError={message => showToast(message, 'error')}><div className="sc-manuscript-input w-full min-h-[500px]">
               <div className="sc-studio-editor-mode" role="group" aria-label="Chế độ soạn thảo"><button type="button" aria-pressed={visualEditor} onClick={() => { setVisualEditor(true); writeEditorSetting('storycraft-studio-editor-mode', 'visual'); }}>Soạn thảo</button><button type="button" aria-pressed={!visualEditor} onClick={() => { setVisualEditor(false); writeEditorSetting('storycraft-studio-editor-mode', 'source'); }}>Ký hiệu định dạng</button></div>
               {visualEditor && <RichManuscriptEditor value={content} source={editorRef} disabled={!studioReady || isAcceptingAi}
                 style={{ fontFamily: currentFontConfig.fontFamily, fontSize: `${fontSize}px`, lineHeight, textAlign, textIndent: paragraphIndent ? '2.5rem' : '0' }}
@@ -1423,7 +1424,7 @@ export function AuthorWritingIde() {
                 }}
                 className="sc-manuscript w-full border-none p-0 text-stone-800 bg-transparent focus:ring-0 focus:outline-none placeholder-stone-300 selection:bg-primary-100 selection:text-primary-900"
               />
-            </div>
+            </div></StudioContextMenu>
           </article>
         </main>
 

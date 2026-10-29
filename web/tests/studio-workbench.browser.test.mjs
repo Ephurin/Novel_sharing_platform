@@ -86,7 +86,7 @@ test('Studio workbench: undo, literal replacements, formatting, notes, scenes, e
         await page.locator('.sc-studio-scene-list button').nth(1).click();
         assert.ok(await editor.evaluate(el => el.selectionStart > el.value.indexOf('---')));
         await page.getByRole('button', { name: 'Ghi chú', exact: true }).click();
-        await page.getByRole('textbox', { name: 'Ghi chú riêng', exact: true }).fill('Nhớ giữ bí mật nhân vật 🌙.');
+        await page.getByRole('tab', {name:'Sổ tay chương',exact:true}).click();await page.getByRole('textbox', { name: 'Ghi chú riêng', exact: true }).fill('Nhớ giữ bí mật nhân vật 🌙.');
         await page.getByRole('button', { name: 'Đóng công cụ', exact: true }).click();
         await page.getByRole('button', { name: 'Xem', exact: true }).click();await page.getByRole('menuitem', { name: 'Thống kê & mục tiêu', exact: true }).click();
         await page.getByRole('spinbutton', { name: 'Mục tiêu số từ', exact: true }).fill('2000');
@@ -103,7 +103,7 @@ test('Studio workbench: undo, literal replacements, formatting, notes, scenes, e
         if (mobile) await page.getByTitle('Đóng/Mở thanh danh sách chương', { exact: true }).click();
         await page.locator('.sc-studio-sidebar').getByText('Chương thứ hai', { exact: true }).click();await expect(editor).toHaveValue(otherChapter.content);
         await expect(page.getByRole('button', { name: 'Hoàn tác nội dung', exact: true })).toBeDisabled();
-        await page.getByRole('button', { name: 'Ghi chú', exact: true }).click();await expect(page.getByRole('textbox', { name: 'Ghi chú riêng', exact: true })).toHaveValue('');
+        await page.getByRole('button', { name: 'Ghi chú', exact: true }).click();await page.getByRole('tab', {name:'Sổ tay chương',exact:true}).click();await expect(page.getByRole('textbox', { name: 'Ghi chú riêng', exact: true })).toHaveValue('');
         await page.getByRole('button', { name: 'Đóng công cụ', exact: true }).click();
         await page.locator('.sc-studio-sidebar').getByText('Chương thử', { exact: true }).click();await expect(editor).toHaveValue('**$&**' + replaced.slice(2));
         if (mobile) await page.getByTitle('Đóng/Mở thanh danh sách chương', { exact: true }).click();
@@ -115,7 +115,7 @@ test('Studio workbench: undo, literal replacements, formatting, notes, scenes, e
         await page.reload();await expect(editor).toHaveValue('Bản thảo ngoại tuyến 🌙.');
         if (mobile) { await page.evaluate(() => window.setTheme('dark'));await expect(page.locator('html')).toHaveAttribute('data-theme','dark'); }
         await expect(page.getByRole('button', { name: 'Hoàn tác nội dung', exact: true })).toBeDisabled();
-        await page.getByRole('button', { name: 'Ghi chú', exact: true }).click();await expect(page.getByRole('textbox', { name: 'Ghi chú riêng', exact: true })).toHaveValue('Nhớ giữ bí mật nhân vật 🌙.');
+        await page.getByRole('button', { name: 'Ghi chú', exact: true }).click();await page.getByRole('tab', {name:'Sổ tay chương',exact:true}).click();await expect(page.getByRole('textbox', { name: 'Ghi chú riêng', exact: true })).toHaveValue('Nhớ giữ bí mật nhân vật 🌙.');
         await page.getByRole('button', { name: 'Đóng công cụ', exact: true }).click();
         await page.screenshot({ path: path.join(output, `${mobile ? 'mobile-dark' : 'desktop-light'}-writing.png`) });
         await page.getByRole('button', { name: 'Soạn thảo', exact: true }).click();
@@ -133,10 +133,28 @@ test('Studio workbench: undo, literal replacements, formatting, notes, scenes, e
         await expect(canonical).toHaveValue('***Đoạn một*** 🌙.\n\nĐoạn hai cần ghi chú.');
         await canonical.evaluate(el => { const start = el.value.indexOf('Đoạn hai'); el.dispatchEvent(new CustomEvent('studio-select-source', { detail: { start, end: el.value.length }, cancelable: true })); });
         await page.getByRole('button', { name: 'Ghi chú', exact: true }).click();
-        await page.getByRole('button', { name: 'Ghi chú vùng chọn / dòng hiện tại', exact: true }).click();
+        await page.getByRole('button', {name:'Đóng công cụ',exact:true}).click();
+        await canonical.evaluate(el => { const start = el.value.indexOf('Đoạn hai'); el.dispatchEvent(new CustomEvent('studio-select-source', { detail: { start, end: el.value.length }, cancelable: true })); });
+        if (mobile) await page.keyboard.press('Control+Alt+m');
+        else {
+          const box = await page.evaluate(() => {const r=getSelection().getRangeAt(0).getBoundingClientRect();return {x:r.x+10,y:r.y+5};});
+          await page.mouse.click(box.x,box.y,{button:'right'});
+          await expect(page.getByRole('menuitem',{name:'Thêm ghi chú đoạn',exact:false})).toBeVisible();
+          await page.screenshot({path:path.join(output,'desktop-context-menu.png')});
+          await page.getByRole('menuitem',{name:'Thêm ghi chú đoạn',exact:false}).click();
+        }
+        await expect(page.getByRole('complementary',{name:'Ghi chú chương',exact:true})).toBeVisible();
+        await expect(page.getByRole('textbox',{name:'Nội dung ghi chú đoạn',exact:true})).toBeFocused();
         await page.getByRole('textbox', { name: 'Nội dung ghi chú đoạn', exact: true }).fill('Sửa lời thoại ở đoạn này.');
         await page.getByRole('button', { name: 'Lưu ghi chú đoạn', exact: true }).click();
         await expect(page.getByRole('textbox', { name: 'Sửa ghi chú đoạn', exact: true })).toHaveValue('Sửa lời thoại ở đoạn này.');
+        await page.getByRole('searchbox',{name:'Tìm ghi chú',exact:true}).fill('không tồn tại');
+        await expect(page.getByRole('textbox',{name:'Sửa ghi chú đoạn',exact:true})).toHaveCount(0);
+        await page.getByRole('searchbox',{name:'Tìm ghi chú',exact:true}).fill('');
+        await page.getByRole('button',{name:'Đánh dấu đã xử lý',exact:true}).click();
+        await page.getByRole('combobox',{name:'Trạng thái ghi chú',exact:true}).selectOption('resolved');
+        await page.getByRole('button',{name:'Mở lại',exact:true}).click();
+        await page.getByRole('combobox',{name:'Trạng thái ghi chú',exact:true}).selectOption('open');
         await page.getByRole('button', { name: 'Đóng công cụ', exact: true }).click();
         await canonical.evaluate(el => el.dispatchEvent(new CustomEvent('studio-select-source', { detail: { start: 0, end: 0 }, cancelable: true })));
         await page.keyboard.insertText('Mở đầu. ');

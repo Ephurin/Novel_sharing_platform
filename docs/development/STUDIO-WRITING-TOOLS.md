@@ -86,3 +86,9 @@ node --env-file=../backend/.env.example --test tests/author-ide.browser.test.mjs
 ```
 
 Các bài kiểm tra trên không dùng chương đang viết của người dùng.
+# Thanh công cụ gọn và bảng ghi chú
+
+- Giữ nguyên thanh đầu tiên (Tủ truyện, Story Brain, AI, xuất bản chương). Hàng menu và cài đặt chương dùng chung một hàng trên desktop; Lên lịch, Lịch sử bản thảo và Xuất bản thảo nằm trong **Tệp**. Tìm/Thay thế nằm trong **Chỉnh sửa**; cảnh, xem bản định dạng và thống kê nằm trong **Xem**.
+- **Ghi chú** mở bảng bên phải, không đẩy vùng viết xuống. Trên màn hình nhỏ bảng nổi lên ở mép phải và có nút đóng. Hai tab **Theo đoạn** và **Sổ tay chương** dùng lại ghi chú đã lưu, không di chuyển hoặc xóa dữ liệu cũ.
+- Chọn đoạn, bấm chuột phải → **Thêm ghi chú đoạn** hoặc Ctrl/Cmd+Alt+M. Có thể tìm ghi chú, lọc đang mở/đã xử lý/tất cả/đoạn đã thay đổi, tới đoạn và gắn lại vùng chọn. Bảng này là ghi chú riêng trên trình duyệt, không phải nhận xét cộng tác hoặc thông báo cho người khác.
+- Menu chuột phải có Cắt, Sao chép, Dán văn bản, Xóa vùng chọn và Chọn tất cả bản thảo. Khi trình duyệt chặn bảng nhớ tạm, dùng phím tắt được hướng dẫn; cắt chỉ xóa sau khi sao chép thành công.

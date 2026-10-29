@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { createPortal } from 'react-dom';
+import { motion, useReducedMotion } from 'motion/react';
 import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
 import { AnimatedTooltip } from '../../shared/components/AnimatedTooltip';
@@ -26,6 +27,8 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
   const [exportType, setExportType] = useState<'txt' | 'md' | 'html' | 'pdf'>('txt');
   const [selected, setSelected] = useState('');
   const [noteRequest, setNoteRequest] = useState(0);
+  const [noteTab, setNoteTab] = useState<'passages' | 'private'>('passages');
+  const [notesHost, setNotesHost] = useState<HTMLElement | null>(null);
   const [goal, setGoal] = useWorkspacePreference<number>(`studio-word-goal:${scope}`, 1500, (v): v is number => typeof v === 'number' && Number.isInteger(v) && v >= 100 && v <= 100000);
   const [goalDraft, setGoalDraft] = useState(String(goal));
   const noteKey = `storycraft-studio-note:${scope}`;
@@ -62,8 +65,10 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
     frame.srcdoc = html; document.body.append(frame); setTimeout(() => frame.remove(), 60000);
   };
   const setNoteValue = (value: string) => { setNote(value); try { localStorage.setItem(noteKey, value); setNoteError(''); } catch { setNoteError('Không lưu được ghi chú trên máy. Hãy tải ghi chú về trước khi rời trang.'); } };
+  const addNote = () => { setPanel('notes'); setNoteTab('passages'); setNoteRequest(value => value + 1); };
+  useEffect(() => { setNotesHost(editor.current?.closest('.sc-writing-studio')?.querySelector<HTMLElement>('.sc-studio-body') ?? null); const el = editor.current; el?.addEventListener('studio-add-note', addNote); return () => el?.removeEventListener('studio-add-note', addNote); }, [editor]);
   useEffect(() => { setMatchIndex(-1); }, [query, caseSensitive, wholeWord]);
-  useEffect(() => { if (panel) panelRef.current?.querySelector<HTMLElement>((panel === 'search' || panel === 'replace') ? '[aria-label="Tìm trong bản thảo"]' : panel === 'notes' ? 'textarea' : '.sc-studio-scene-list button')?.focus({ preventScroll: true }); }, [panel]);
+  useEffect(() => { if (panel && panel !== 'notes') panelRef.current?.querySelector<HTMLElement>((panel === 'search' || panel === 'replace') ? '[aria-label="Tìm trong bản thảo"]' : '.sc-studio-scene-list button')?.focus({ preventScroll: true }); }, [panel]);
   useEffect(() => { const update = () => setOnline(navigator.onLine); window.addEventListener('online', update); window.addEventListener('offline', update); return () => { window.removeEventListener('online', update); window.removeEventListener('offline', update); }; }, []);
   useEffect(() => {
     const keydown = (event: KeyboardEvent) => {
@@ -73,7 +78,7 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
       if (mod && key === 's') { event.preventDefault(); void saveNow(); }
       else if (mod && key === 'f' && (inEditor || panel === 'search' || panel === 'replace' || !(event.target instanceof HTMLElement && event.target.closest('input,textarea,[contenteditable]')))) { event.preventDefault(); rememberSelection(); if (inEditor && editor.current && editor.current.selectionEnd > editor.current.selectionStart) setQuery(editor.current.value.slice(editor.current.selectionStart, editor.current.selectionEnd)); setPanel('search'); panelRef.current?.querySelector<HTMLInputElement>('[aria-label="Tìm trong bản thảo"]')?.focus(); }
       else if (mod && key === 'h' && (inEditor || panel === 'search' || panel === 'replace')) { event.preventDefault(); setPanel('replace'); }
-      else if (mod && event.altKey && key === 'm' && inEditor) { event.preventDefault(); rememberSelection(); setPanel('notes'); setNoteRequest(value => value + 1); }
+      else if (mod && event.altKey && key === 'm' && inEditor && !disabled) { event.preventDefault(); rememberSelection(); addNote(); }
       else if (inEditor && !disabled && mod && key === 'z') { event.preventDefault(); event.shiftKey ? redo() : undo(); }
       else if (inEditor && !disabled && mod && key === 'y') { event.preventDefault(); redo(); }
       else if (event.key === 'Escape' && panel) { setPanel(null); focusStudioEditor(editor.current); }
@@ -111,15 +116,22 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
       <button type="button" aria-expanded={panel === 'notes'} onClick={() => setPanel(panel === 'notes' ? null : 'notes')}>Ghi chú</button>
       {!online && <span role="status" className="sc-studio-offline">Ngoại tuyến · kiểm tra trạng thái lưu trước khi rời trang</span>}
     </div>{chapterSettings}</div>
-    <motion.section hidden={!panel} ref={panelRef} className="sc-studio-tool-panel" aria-label={panel === 'search' ? 'Tìm kiếm bản thảo' : panel === 'replace' ? 'Thay thế bản thảo' : panel === 'scenes' ? 'Điều hướng cảnh' : 'Ghi chú riêng'} initial={false} animate={{ opacity: 1, height: 'auto' }} transition={{ duration: reduce ? 0 : 0.16 }}>
+    <motion.section hidden={!panel || panel === 'notes'} ref={panelRef} className="sc-studio-tool-panel" aria-label={panel === 'search' ? 'Tìm kiếm bản thảo' : panel === 'replace' ? 'Thay thế bản thảo' : 'Điều hướng cảnh'} initial={false} animate={{ opacity: 1, height: 'auto' }} transition={{ duration: reduce ? 0 : 0.16 }}>
       <button type="button" className="sc-studio-panel-close" aria-label="Đóng công cụ" onClick={() => { setPanel(null); focusStudioEditor(editor.current); }}>×</button>
       {(panel === 'search' || panel === 'replace') && <><div className="sc-studio-tool-row"><label>Tìm<input aria-label="Tìm trong bản thảo" value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); nextMatch(e.shiftKey ? -1 : 1); } }} /></label>{panel === 'replace' && <label>Thay bằng<input aria-label="Thay bằng" value={replacement} onChange={e => setReplacement(e.target.value)} /></label>}
         <button type="button" disabled={!found.matches.length} onClick={() => nextMatch(-1)}>Trước</button><button type="button" disabled={!found.matches.length} onClick={() => nextMatch(1)}>Tiếp</button>
         {panel === 'replace' && <><button type="button" disabled={disabled || !found.matches.length} onClick={replaceOne}>Thay một</button><button type="button" disabled={disabled || !found.matches.length || found.truncated} onClick={() => { apply(replaceMatches(content, found.matches, replacement), 0, 0); setMatchIndex(-1); setAnnouncement(`Đã thay ${found.matches.length} kết quả. Có thể hoàn tác.`); }}>Thay tất cả ({found.matches.length})</button></>}</div>
         <div className="sc-studio-tool-row"><label><input type="checkbox" checked={caseSensitive} onChange={e => setCaseSensitive(e.target.checked)} /> Phân biệt hoa/thường</label><label><input type="checkbox" checked={wholeWord} onChange={e => setWholeWord(e.target.checked)} /> Nguyên từ</label><span>{found.truncated ? 'Hơn 10.000 kết quả. Thu hẹp tìm kiếm để thay tất cả.' : `${found.matches.length} kết quả`}</span></div></>}
       {panel === 'scenes' && <><p className="text-meta">Các cảnh được ngăn bằng dấu ngắt cảnh. Bấm để đến vị trí trong bản thảo.</p><div className="sc-studio-scene-list">{scenes.map((scene, index) => <button key={scene.start} type="button" onClick={() => select(scene.start, scene.start)}>{index + 1}. {scene.label}</button>)}</div></>}
-      <div hidden={panel !== 'notes'}><PassageNotes request={noteRequest} scope={scope} content={content} ready={!disabled} getSelection={() => ({ start: editor.current?.selectionStart ?? 0, end: editor.current?.selectionEnd ?? 0 })} onJump={select} /><label className="text-meta" htmlFor="studio-private-note">Ghi chú riêng trên trình duyệt này · không xuất bản cùng chương</label><textarea id="studio-private-note" aria-label="Ghi chú riêng" value={note} maxLength={20000} onChange={e => setNoteValue(e.target.value)} /><div className="sc-studio-tool-row"><button type="button" onClick={() => downloadStudioFile(title + '-ghi-chu', note, 'txt', 'text/plain')}>Tải ghi chú</button><span>{note.length.toLocaleString('vi-VN')}/20.000 ký tự</span></div>{noteError && <p role="alert">{noteError}</p>}</div>
     </motion.section>
+    {notesHost && createPortal(<aside hidden={panel !== 'notes'} className="sc-studio-notes-sidebar" aria-label="Ghi chú chương">
+      <header><h2>Ghi chú</h2><button type="button" aria-label="Đóng công cụ" onClick={() => { setPanel(null); focusStudioEditor(editor.current); }}>×</button></header>
+      <div role="tablist" aria-label="Loại ghi chú" className="sc-studio-note-tabs">{(['passages','private'] as const).map((tab, index, tabs) => <button key={tab} id={`studio-note-tab-${tab}`} type="button" role="tab" aria-selected={noteTab === tab} aria-controls={`studio-note-panel-${tab}`} tabIndex={noteTab === tab ? 0 : -1} onClick={() => setNoteTab(tab)} onKeyDown={event => { if (['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) { event.preventDefault(); const next = event.key === 'Home' ? tabs[0] : event.key === 'End' ? tabs[1] : tabs[1-index]; setNoteTab(next); document.getElementById(`studio-note-tab-${next}`)?.focus(); } }}>{tab === 'passages' ? 'Theo đoạn' : 'Sổ tay chương'}</button>)}</div>
+      <div className="sc-studio-notes-scroll">
+        <div role="tabpanel" id="studio-note-panel-passages" aria-labelledby="studio-note-tab-passages" hidden={noteTab !== 'passages'}><PassageNotes request={noteRequest} scope={scope} content={content} ready={!disabled} getSelection={() => ({ start: editor.current?.selectionStart ?? 0, end: editor.current?.selectionEnd ?? 0 })} onJump={select} /></div>
+        <div role="tabpanel" id="studio-note-panel-private" aria-labelledby="studio-note-tab-private" hidden={noteTab !== 'private'}><label className="text-meta" htmlFor="studio-private-note">Ý tưởng và việc cần sửa cho chương này</label><textarea id="studio-private-note" aria-label="Ghi chú riêng" value={note} maxLength={20000} onChange={e => setNoteValue(e.target.value)} /><div className="sc-studio-tool-row"><button type="button" onClick={() => downloadStudioFile(title + '-ghi-chu', note, 'txt', 'text/plain')}>Tải ghi chú</button><span>{note.length.toLocaleString('vi-VN')}/20.000 ký tự</span></div>{noteError && <p role="alert">{noteError}</p>}</div>
+      </div><footer>Lưu trên trình duyệt này · chỉ dành cho bạn, không xuất bản cùng chương.</footer>
+    </aside>, notesHost)}
     <span className="sc-motion-sr-only" role="status">{announcement}</span>
     <AnimatedModal opened={exportOpen} onClose={onExportClose} title="Xuất bản thảo" centered>
       <label className="sc-studio-goal">Định dạng xuất<select aria-label="Định dạng xuất" value={exportType} onChange={event => setExportType(event.target.value as typeof exportType)}><option value="txt">TXT · văn bản</option><option value="md">Markdown · ký hiệu định dạng</option><option value="html">HTML · giữ định dạng</option><option value="pdf">PDF · qua hộp thoại in</option></select></label>
