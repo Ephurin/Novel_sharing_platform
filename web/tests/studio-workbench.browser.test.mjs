@@ -47,6 +47,10 @@ test('Studio workbench: undo, literal replacements, formatting, notes, scenes, e
         await page.goto('http://127.0.0.1:' + server.address().port);
         const editor = page.getByRole('textbox', { name: 'Nội dung bản thảo', exact: true });
         await expect(editor).toHaveValue(initial);
+        await page.locator('.sc-studio-settings-controls').getByRole('button',{name:'Lịch sử bản thảo',exact:true}).click();
+        await expect(page.getByRole('dialog',{name:'Lịch sử bản thảo',exact:true})).toBeVisible();await page.keyboard.press('Escape');
+        await page.locator('.sc-studio-settings-controls').getByRole('button',{name:'Lên lịch',exact:true}).click();
+        await expect(page.getByRole('dialog',{name:'Lên lịch xuất bản chương',exact:true})).toBeVisible();await page.keyboard.press('Escape');
         if (!mobile) { await page.screenshot({path:path.join(output,'compact-desktop.png')});assert.ok(await page.locator('.sc-studio-command-row').evaluate(el => el.getBoundingClientRect().height <= 48));assert.ok(await page.locator('.sc-format-toolbar').evaluate(el => el.getBoundingClientRect().height <= 56)); }
         if (mobile) await page.evaluate(() => window.setTheme('dark'));
         await editor.focus(); await page.keyboard.press('Control+f');

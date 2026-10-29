@@ -731,9 +731,9 @@ export function AuthorWritingIde() {
     return list.filter((ch: Chapter) => ch.title.toLowerCase().includes(q) || String(ch.chapterNumber).includes(q));
   }, [chaptersQuery.data, chapterSearch]);
 
-  const manuscriptActions = (
-    <>{['DRAFT','REJECTED'].includes(chapterQuery.data?.status ?? '') && <Menu.Item onClick={async () => { try { await persistence.flush(); setScheduleOpen(true); } catch { showToast('Lưu bản nháp thành công trước khi đặt lịch.'); } }}>Lên lịch</Menu.Item>}<Menu.Item onClick={() => setHistoryOpen(true)} disabled={!chapterQuery.data}>Lịch sử bản thảo</Menu.Item><Menu.Item onClick={() => setExportOpen(true)}>Xuất bản thảo</Menu.Item></>
-  );
+  const canSchedule = ['DRAFT','REJECTED'].includes(chapterQuery.data?.status ?? '');
+  const openSchedule = async () => { try { await persistence.flush(); setScheduleOpen(true); } catch { showToast('Lưu bản nháp thành công trước khi đặt lịch.'); } };
+  const manuscriptActions = <>{focusMode && <>{canSchedule && <Menu.Item onClick={openSchedule}>Lên lịch</Menu.Item>}<Menu.Item onClick={() => setHistoryOpen(true)} disabled={!chapterQuery.data}>Lịch sử bản thảo</Menu.Item></>}<Menu.Item onClick={() => setExportOpen(true)}>Xuất bản thảo</Menu.Item></>;
 
   const chapterSettings = !focusMode && (
         <section className="sc-studio-settings border-b border-stone-200/80 bg-surface-container-lowest/90 backdrop-blur-sm px-4 flex items-center justify-between shrink-0 z-20 text-meta">
@@ -760,6 +760,8 @@ export function AuthorWritingIde() {
 
           {/* Manuscript actions and chapter access share one toolbar. */}
           <div className="sc-studio-settings-controls">
+            {canSchedule && <button type="button" className="sc-button sc-button-ghost" onClick={openSchedule}>Lên lịch</button>}
+            <button type="button" className="sc-button sc-button-ghost" aria-label="Lịch sử bản thảo" title="Lịch sử bản thảo" onClick={() => setHistoryOpen(true)} disabled={!chapterQuery.data}><span className="material-symbols-outlined" aria-hidden="true">history</span></button>
             <div className="flex items-center bg-stone-100 p-0.5 rounded-lg border border-stone-200">
               <button
                 onClick={() => handleAccessChange('free')}
