@@ -47,11 +47,12 @@ test('Studio workbench: undo, literal replacements, formatting, notes, scenes, e
         await page.goto('http://127.0.0.1:' + server.address().port);
         const editor = page.getByRole('textbox', { name: 'Nội dung bản thảo', exact: true });
         await expect(editor).toHaveValue(initial);
+        if (!mobile) { await page.screenshot({path:path.join(output,'compact-desktop.png')});assert.ok(await page.locator('.sc-studio-command-row').evaluate(el => el.getBoundingClientRect().height <= 48));assert.ok(await page.locator('.sc-format-toolbar').evaluate(el => el.getBoundingClientRect().height <= 56)); }
         if (mobile) await page.evaluate(() => window.setTheme('dark'));
         await editor.focus(); await page.keyboard.press('Control+f');
         await expect(page.getByRole('textbox', { name: 'Tìm trong bản thảo', exact: true })).toBeFocused();
         await expect(page.getByRole('textbox', { name: 'Thay bằng', exact: true })).toHaveCount(0);
-        await page.getByRole('button', { name: 'Thay thế', exact: true }).click();
+        await page.getByRole('button', { name: 'Chỉnh sửa', exact: true }).click();await page.getByRole('menuitem', { name: 'Thay thế', exact: true }).click();
         await page.getByRole('textbox', { name: 'Tìm trong bản thảo', exact: true }).fill('An');
         await page.getByRole('checkbox', { name: 'Nguyên từ' }).check();
         await page.getByRole('textbox', { name: 'Thay bằng', exact: true }).fill('$&');
@@ -67,11 +68,11 @@ test('Studio workbench: undo, literal replacements, formatting, notes, scenes, e
         await page.keyboard.press('Control+b');await expect(editor).toHaveValue('**$&**' + replaced.slice(2));
         await page.keyboard.press('Control+b');await expect(editor).toHaveValue(replaced);
         await page.keyboard.press('Control+b');await expect(editor).toHaveValue('**$&**' + replaced.slice(2));
-        await page.getByRole('button', { name: 'Xem bản định dạng', exact: true }).click();
+        await page.getByRole('button', { name: 'Xem', exact: true }).click();await page.getByRole('menuitem', { name: 'Xem bản định dạng', exact: true }).click();
         await expect(page.getByRole('dialog', { name: 'Xem bản định dạng' }).locator('strong').first()).toHaveText('$&');
         await page.keyboard.press('Escape');
         await editor.fill('**Đậm**\n\n<script>window.studioInjected=true</script>');
-        await page.getByRole('button', { name: 'Xem bản định dạng', exact: true }).click();
+        await page.getByRole('button', { name: 'Xem', exact: true }).click();await page.getByRole('menuitem', { name: 'Xem bản định dạng', exact: true }).click();
         await expect(page.getByRole('dialog', { name: 'Xem bản định dạng' }).locator('script')).toHaveCount(0);
         assert.equal(await page.evaluate(() => window.studioInjected), undefined);
         await page.keyboard.press('Escape');
@@ -81,13 +82,13 @@ test('Studio workbench: undo, literal replacements, formatting, notes, scenes, e
         assert.ok(htmlText.includes('&lt;script&gt;'));assert.ok(!htmlText.includes('<script>'));
         await editor.focus();await page.keyboard.press('Control+z');
         await expect(editor).toHaveValue('**$&**' + replaced.slice(2));
-        await page.getByRole('button', { name: 'Cảnh (2)', exact: true }).click();
+        await page.getByRole('button', { name: 'Xem', exact: true }).click();await page.getByRole('menuitem', { name: 'Cảnh (2)', exact: true }).click();
         await page.locator('.sc-studio-scene-list button').nth(1).click();
         assert.ok(await editor.evaluate(el => el.selectionStart > el.value.indexOf('---')));
         await page.getByRole('button', { name: 'Ghi chú', exact: true }).click();
         await page.getByRole('textbox', { name: 'Ghi chú riêng', exact: true }).fill('Nhớ giữ bí mật nhân vật 🌙.');
         await page.getByRole('button', { name: 'Đóng công cụ', exact: true }).click();
-        await page.getByRole('button', { name: 'Thống kê & mục tiêu', exact: true }).click();
+        await page.getByRole('button', { name: 'Xem', exact: true }).click();await page.getByRole('menuitem', { name: 'Thống kê & mục tiêu', exact: true }).click();
         await page.getByRole('spinbutton', { name: 'Mục tiêu số từ', exact: true }).fill('2000');
         await expect(page.getByRole('progressbar')).toBeVisible();await page.keyboard.press('Escape');
         await page.getByRole('button', { name: 'Tệp', exact: true }).click();
@@ -150,7 +151,7 @@ test('Studio workbench: undo, literal replacements, formatting, notes, scenes, e
         await expect(page.getByText('Đoạn gốc đã bị thay hoặc xóa; ghi chú được giữ lại.', { exact: true })).toBeVisible();
         await page.screenshot({ path: path.join(output, `${mobile ? 'mobile-dark' : 'desktop-light'}-passage-notes.png`) });
         await page.getByRole('button', { name: 'Đóng công cụ', exact: true }).click();
-        await page.getByRole('button', { name: 'Xuất bản thảo', exact: true }).click();
+        await page.getByRole('button', { name: 'Tệp', exact: true }).click();await page.getByRole('menuitem', { name: 'Xuất bản thảo', exact: true }).click();
         await expect(page.getByRole('dialog', { name: 'Xuất bản thảo', exact: true })).toBeVisible();
         await page.getByRole('combobox', { name: 'Định dạng xuất', exact: true }).selectOption('txt');
         const chosenDownload = page.waitForEvent('download');await page.getByRole('button', { name: 'Xuất tệp', exact: true }).click();assert.match((await chosenDownload).suggestedFilename(), /\.txt$/);

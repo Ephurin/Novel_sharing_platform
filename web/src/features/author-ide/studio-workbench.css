@@ -1,4 +1,12 @@
 .sc-studio-workbench { flex-shrink: 0; min-width: 0; border-bottom: 1px solid var(--sc-border); background: var(--sc-surface); color: var(--sc-text); }
+.sc-studio-command-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; min-width: 0; }
+.sc-studio-command-row .sc-studio-workbench-bar { flex-shrink: 0; padding-block: 2px; }
+.sc-studio-command-row .sc-studio-settings { flex: 1; min-width: 0; min-height: 36px; padding-block: 2px; padding-inline: 8px; border: 0; gap: 8px; background: transparent; }
+.sc-studio-command-row .sc-studio-settings-controls { gap: 8px; }
+.sc-writing-studio .sc-format-toolbar { padding-block: 4px; margin-bottom: 8px; }
+.sc-format-toolbar .sc-format-controls { max-width: 100%; overflow-x: auto; flex-wrap: nowrap; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.sc-format-controls > * { flex-shrink: 0; }
+.sc-writing-studio .sc-manuscript-page { padding-top: 20px; }
 .sc-studio-workbench-bar { display: flex; align-items: center; gap: 4px; padding: 4px 12px; overflow-x: auto; }
 .sc-studio-workbench button { white-space: nowrap; }
 .sc-studio-workbench-bar > button, .sc-studio-tool-panel button { border: 0; border-radius: 6px; padding: 6px 10px; min-height: 32px; background: transparent; color: var(--sc-text); cursor: pointer; font: 500 12px/18px var(--sc-font); }
@@ -24,7 +32,7 @@
 .sc-rich-manuscript { min-height: 520px; white-space: pre-wrap; overflow-wrap: break-word; cursor: text; user-select: text; outline: none !important; box-shadow: none !important; }
 .sc-rich-manuscript strong { font-weight: 700; }
 .sc-rich-manuscript em { font-style: italic; }
-.sc-studio-editor-mode { display: flex; gap: 8px; margin-bottom: 16px; text-indent: 0; }
+.sc-studio-editor-mode { display: flex; gap: 8px; margin-bottom: 8px; text-indent: 0; }
 .sc-studio-editor-mode button { border: 0; border-radius: 6px; background: transparent; color: var(--sc-text-muted); font: 500 12px/18px var(--sc-font); padding: 6px 10px; cursor: pointer; }
 .sc-studio-editor-mode button[aria-pressed="true"] { color: var(--sc-primary-text); background: var(--sc-primary-soft); }
 .sc-passage-notes { margin-top: 12px; border-top: 1px solid var(--sc-border); padding-top: 12px; }

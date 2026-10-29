@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
@@ -15,8 +15,9 @@ type Props = {
   apply: (value: string, start: number, end: number) => void;
   undo: () => void; redo: () => void; canUndo: boolean; canRedo: boolean; save: () => Promise<void>;
   onError: (message: string) => void; exportOpen: boolean; onExportClose: () => void;
+  chapterSettings?: ReactNode; fileActions?: ReactNode;
 };
-export function StudioWorkbench({ scope, title, content, editor, disabled, apply, undo, redo, canUndo, canRedo, save, onError, exportOpen, onExportClose }: Props) {
+export function StudioWorkbench({ scope, title, content, editor, disabled, apply, undo, redo, canUndo, canRedo, save, onError, exportOpen, onExportClose, chapterSettings, fileActions }: Props) {
   const [panel, setPanel] = useState<'search' | 'replace' | 'scenes' | 'notes' | null>(null);
   const [preview, setPreview] = useState(false), [statistics, setStatistics] = useState(false), [help, setHelp] = useState(false);
   const [query, setQuery] = useState(''), [replacement, setReplacement] = useState('');
@@ -80,9 +81,10 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
     document.addEventListener('keydown', keydown); return () => document.removeEventListener('keydown', keydown);
   });
   return <div className="sc-studio-workbench">
-    <div className="sc-studio-workbench-bar" role="toolbar" aria-label="Công cụ bản thảo">
+    <div className="sc-studio-command-row"><div className="sc-studio-workbench-bar" role="toolbar" aria-label="Công cụ bản thảo">
       <Menu position="bottom-start"><Menu.Target><button type="button">Tệp</button></Menu.Target><Menu.Dropdown>
         <Menu.Item disabled={disabled || saving} onClick={() => void saveNow()}>Lưu ngay · Ctrl/Cmd + S</Menu.Item>
+        {fileActions}<Menu.Divider />
         <Menu.Item onClick={() => downloadStudioFile(title, title + '\n\n' + plainStudioText(content), 'txt', 'text/plain')}>Tải văn bản TXT</Menu.Item>
         <Menu.Item onClick={() => downloadStudioFile(title, title + '\n\n' + content, 'md', 'text/markdown')}>Tải Markdown</Menu.Item>
         <Menu.Item onClick={() => void exportHtml().then(html => downloadStudioFile(title, html, 'html', 'text/html')).catch(error => onError(String(error)))}>Tải bản định dạng HTML</Menu.Item>
@@ -96,16 +98,19 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
       </Menu.Dropdown></Menu>
       <AnimatedTooltip label="Hoàn tác nội dung · Ctrl/Cmd + Z"><button type="button" aria-label="Hoàn tác nội dung" disabled={disabled || !canUndo} onClick={undo}>↶</button></AnimatedTooltip>
       <AnimatedTooltip label="Làm lại · Ctrl/Cmd + Shift + Z"><button type="button" aria-label="Làm lại nội dung" disabled={disabled || !canRedo} onClick={redo}>↷</button></AnimatedTooltip>
-      <button type="button" aria-expanded={panel === 'search'} onClick={() => { rememberSelection(); setPanel(panel === 'search' ? null : 'search'); }}>Tìm kiếm</button>
-      <button type="button" aria-expanded={panel === 'replace'} onClick={() => setPanel(panel === 'replace' ? null : 'replace')}>Thay thế</button>
-      <button type="button" aria-expanded={panel === 'scenes'} onClick={() => setPanel(panel === 'scenes' ? null : 'scenes')}>Cảnh ({scenes.length})</button>
+      <Menu position="bottom-start"><Menu.Target><button type="button">Chỉnh sửa</button></Menu.Target><Menu.Dropdown>
+        <Menu.Item onClick={() => { rememberSelection(); setPanel('search'); }}>Tìm kiếm</Menu.Item>
+        <Menu.Item onClick={() => setPanel('replace')}>Thay thế</Menu.Item>
+      </Menu.Dropdown></Menu>
+      <Menu position="bottom-start"><Menu.Target><button type="button">Xem</button></Menu.Target><Menu.Dropdown>
+        <Menu.Item onClick={() => setPanel('scenes')}>Cảnh ({scenes.length})</Menu.Item>
+        <Menu.Item onClick={() => setPreview(true)}>Xem bản định dạng</Menu.Item>
+        <Menu.Item onClick={() => { rememberSelection(); setStatistics(true); }}>Thống kê &amp; mục tiêu</Menu.Item>
+        <Menu.Item onClick={() => setHelp(true)}>Phím tắt Studio</Menu.Item>
+      </Menu.Dropdown></Menu>
       <button type="button" aria-expanded={panel === 'notes'} onClick={() => setPanel(panel === 'notes' ? null : 'notes')}>Ghi chú</button>
-      <button type="button" disabled={disabled} onMouseDown={event => event.preventDefault()} onClick={() => { setPanel('notes'); setNoteRequest(value => value + 1); }}>Ghi chú đoạn</button>
-      <button type="button" onClick={() => setPreview(true)}>Xem bản định dạng</button>
-      <button type="button" onClick={() => { rememberSelection(); setStatistics(true); }}>Thống kê &amp; mục tiêu</button>
-      <button type="button" aria-label="Phím tắt Studio" onClick={() => setHelp(true)}>?</button>
       {!online && <span role="status" className="sc-studio-offline">Ngoại tuyến · kiểm tra trạng thái lưu trước khi rời trang</span>}
-    </div>
+    </div>{chapterSettings}</div>
     <motion.section hidden={!panel} ref={panelRef} className="sc-studio-tool-panel" aria-label={panel === 'search' ? 'Tìm kiếm bản thảo' : panel === 'replace' ? 'Thay thế bản thảo' : panel === 'scenes' ? 'Điều hướng cảnh' : 'Ghi chú riêng'} initial={false} animate={{ opacity: 1, height: 'auto' }} transition={{ duration: reduce ? 0 : 0.16 }}>
       <button type="button" className="sc-studio-panel-close" aria-label="Đóng công cụ" onClick={() => { setPanel(null); focusStudioEditor(editor.current); }}>×</button>
       {(panel === 'search' || panel === 'replace') && <><div className="sc-studio-tool-row"><label>Tìm<input aria-label="Tìm trong bản thảo" value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); nextMatch(e.shiftKey ? -1 : 1); } }} /></label>{panel === 'replace' && <label>Thay bằng<input aria-label="Thay bằng" value={replacement} onChange={e => setReplacement(e.target.value)} /></label>}

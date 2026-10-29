@@ -1,6 +1,7 @@
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useToast } from '../../shared/components/ToastProvider';
 import { SaveStatus } from '../../shared/components/SaveFeedback';
+import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
 import { StudioWorkbench } from './StudioWorkbench';
 import { useStudioHistory } from './useStudioHistory';
 import { revealStudioSelection } from './studio-tools';
@@ -730,8 +731,80 @@ export function AuthorWritingIde() {
   }, [chaptersQuery.data, chapterSearch]);
 
   const manuscriptActions = (
-    <div className="sc-studio-manuscript-actions">{['DRAFT','REJECTED'].includes(chapterQuery.data?.status ?? '') && <button type="button" className="sc-button sc-button-ghost" onClick={async () => { try { await persistence.flush(); setScheduleOpen(true); } catch { showToast('Lưu bản nháp thành công trước khi đặt lịch.'); } }}>Lên lịch</button>}<button type="button" className="sc-button sc-button-ghost" onClick={() => setHistoryOpen(true)} disabled={!chapterQuery.data}>Lịch sử bản thảo</button><button type="button" className="sc-button sc-button-ghost" onClick={() => setExportOpen(true)}>Xuất bản thảo</button></div>
+    <>{['DRAFT','REJECTED'].includes(chapterQuery.data?.status ?? '') && <Menu.Item onClick={async () => { try { await persistence.flush(); setScheduleOpen(true); } catch { showToast('Lưu bản nháp thành công trước khi đặt lịch.'); } }}>Lên lịch</Menu.Item>}<Menu.Item onClick={() => setHistoryOpen(true)} disabled={!chapterQuery.data}>Lịch sử bản thảo</Menu.Item><Menu.Item onClick={() => setExportOpen(true)}>Xuất bản thảo</Menu.Item></>
   );
+
+  const chapterSettings = !focusMode && (
+        <section className="sc-studio-settings border-b border-stone-200/80 bg-surface-container-lowest/90 backdrop-blur-sm px-4 flex items-center justify-between shrink-0 z-20 text-meta">
+          {/* Left: Sidebar toggle & Publication Status */}
+          <div className="sc-studio-settings-context flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen((prev: boolean) => !prev)}
+              className="p-1 rounded text-stone-500 hover:text-stone-800 hover:bg-stone-100 transition-colors flex items-center"
+              title="Đóng/Mở thanh danh sách chương"
+              type="button"
+            >
+              <span className="material-symbols-outlined text-[18px]">view_sidebar</span>
+            </button>
+            <div className="h-3.5 w-px bg-stone-200"></div>
+            <div className="flex items-center gap-2">
+              <span className="text-stone-500 font-medium hidden sm:inline">Trạng thái:</span>
+              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-amber-200 bg-amber-50 text-amber-800 text-meta font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                <span>{chapterQuery.data?.status || 'Bản nháp'}</span>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Manuscript actions and chapter access share one toolbar. */}
+          <div className="sc-studio-settings-controls">
+            <div className="flex items-center bg-stone-100 p-0.5 rounded-lg border border-stone-200">
+              <button
+                onClick={() => handleAccessChange('free')}
+                className={`px-2.5 py-1 rounded-md text-meta transition-colors ${
+                  !isVip
+                    ? 'font-semibold bg-surface-container-lowest text-stone-900 shadow-2xs border border-stone-200/60'
+                    : 'font-medium text-stone-600 hover:text-stone-900'
+                }`}
+                type="button"
+              >
+                Miễn phí
+              </button>
+              <button
+                onClick={() => handleAccessChange('vip')}
+                className={`px-2.5 py-1 rounded-md text-meta flex items-center gap-1 transition-all ${
+                  isVip
+                    ? 'font-semibold bg-surface-container-lowest text-primary-700 shadow-2xs border border-stone-200/60'
+                    : 'font-medium text-stone-600 hover:text-stone-900'
+                }`}
+                type="button"
+              >
+                <span className="material-symbols-outlined text-table text-amber-500 fill-icon">stars</span>
+                <span>Chương VIP ✦</span>
+              </button>
+            </div>
+
+            {/* Dynamic Unlock Coin Price */}
+            {isVip && (
+              <div className="flex items-center gap-1.5 text-stone-600 text-meta bg-amber-50/70 border border-amber-200/80 px-2 py-0.5 rounded-md">
+                <span className="text-meta font-medium text-amber-900">Giá mở khóa:</span>
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    min={1}
+                    max={999}
+                    value={priceCoins}
+                    onChange={(e) => handlePriceChange(parseInt(e.target.value, 10))}
+                    className="w-12 h-6 text-center text-meta font-semibold rounded border-stone-300 bg-surface-container-lowest py-0 px-1 focus:ring-primary-500 focus:border-primary-500 text-stone-800"
+                  />
+                  <span className="text-meta font-semibold text-amber-700">Xu</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      );
 
   return (
     <div className="sc-writing-studio h-screen flex flex-col text-stone-800 antialiased overflow-hidden select-none bg-surface">
@@ -857,80 +930,7 @@ export function AuthorWritingIde() {
       {/* ──────────────────────────────────────────
           BEGIN: Chapter Settings Subheader Bar
          ────────────────────────────────────────── */}
-      {!focusMode && (
-        <section className="sc-studio-settings border-b border-stone-200/80 bg-surface-container-lowest/90 backdrop-blur-sm px-4 flex items-center justify-between shrink-0 z-20 text-meta">
-          {/* Left: Sidebar toggle & Publication Status */}
-          <div className="sc-studio-settings-context flex items-center gap-3">
-            <button
-              onClick={() => setSidebarOpen((prev: boolean) => !prev)}
-              className="p-1 rounded text-stone-500 hover:text-stone-800 hover:bg-stone-100 transition-colors flex items-center"
-              title="Đóng/Mở thanh danh sách chương"
-              type="button"
-            >
-              <span className="material-symbols-outlined text-[18px]">view_sidebar</span>
-            </button>
-            <div className="h-3.5 w-px bg-stone-200"></div>
-            <div className="flex items-center gap-2">
-              <span className="text-stone-500 font-medium hidden sm:inline">Trạng thái:</span>
-              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-amber-200 bg-amber-50 text-amber-800 text-meta font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                <span>{chapterQuery.data?.status || 'Bản nháp'}</span>
-              </div>
-              <div className="sc-studio-settings-novel text-meta text-stone-400 hidden lg:inline">
-                • Tác phẩm: <strong className="text-stone-600 font-medium">{novelQuery.data?.title || '...'}</strong>
-              </div>
-            </div>
-          </div>
 
-          {/* Manuscript actions and chapter access share one toolbar. */}
-          <div className="sc-studio-settings-controls">
-            {manuscriptActions}
-            <div className="flex items-center bg-stone-100 p-0.5 rounded-lg border border-stone-200">
-              <button
-                onClick={() => handleAccessChange('free')}
-                className={`px-2.5 py-1 rounded-md text-meta transition-colors ${
-                  !isVip
-                    ? 'font-semibold bg-surface-container-lowest text-stone-900 shadow-2xs border border-stone-200/60'
-                    : 'font-medium text-stone-600 hover:text-stone-900'
-                }`}
-                type="button"
-              >
-                Miễn phí
-              </button>
-              <button
-                onClick={() => handleAccessChange('vip')}
-                className={`px-2.5 py-1 rounded-md text-meta flex items-center gap-1 transition-all ${
-                  isVip
-                    ? 'font-semibold bg-surface-container-lowest text-primary-700 shadow-2xs border border-stone-200/60'
-                    : 'font-medium text-stone-600 hover:text-stone-900'
-                }`}
-                type="button"
-              >
-                <span className="material-symbols-outlined text-table text-amber-500 fill-icon">stars</span>
-                <span>Chương VIP ✦</span>
-              </button>
-            </div>
-
-            {/* Dynamic Unlock Coin Price */}
-            {isVip && (
-              <div className="flex items-center gap-1.5 text-stone-600 text-meta bg-amber-50/70 border border-amber-200/80 px-2 py-0.5 rounded-md">
-                <span className="text-meta font-medium text-amber-900">Giá mở khóa:</span>
-                <div className="flex items-center gap-1">
-                  <input
-                    type="number"
-                    min={1}
-                    max={999}
-                    value={priceCoins}
-                    onChange={(e) => handlePriceChange(parseInt(e.target.value, 10))}
-                    className="w-12 h-6 text-center text-meta font-semibold rounded border-stone-300 bg-surface-container-lowest py-0 px-1 focus:ring-primary-500 focus:border-primary-500 text-stone-800"
-                  />
-                  <span className="text-meta font-semibold text-amber-700">Xu</span>
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
 
       {/* ──────────────────────────────────────────
           BEGIN: MainWorkspace
@@ -940,8 +940,7 @@ export function AuthorWritingIde() {
       {persistence.error && <Alert color="red" title="Bản nháp chưa được lưu">{persistence.error}<Group mt="xs"><Button size="xs" variant="light" onClick={() => void persistence.flush().catch(() => {})}>Thử lưu lại</Button><Button size="xs" variant="default" onClick={async () => { const result = await chapterQuery.refetch(); if (result.data) { const value = persistence.initialize(result.data, true); if (value) { setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); } } }}>Tải bản máy chủ</Button></Group></Alert>}
       {persistence.recovery && <Alert title="Có bản lưu trên máy chưa đồng bộ" color="orange"><Text size="sm">Bản lưu lúc {new Date(persistence.recovery.savedAt).toLocaleString('vi-VN')}. Nội dung máy chủ vẫn được giữ nguyên.</Text><Group mt="xs"><Button size="xs" onClick={() => { const value = persistence.recovery!.value; setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); persistence.dismissRecovery(); triggerAutosave(value.title, value.content, value.isVip, value.priceCoins); }}>Khôi phục vào trình soạn thảo</Button><Button size="xs" variant="default" onClick={persistence.dismissRecovery}>Bỏ bản lưu trên máy</Button></Group></Alert>}
       {persistence.blocker.state === 'blocked' && <AuthorDialog onClose={() => persistence.blocker.reset?.()}><div className="fixed inset-0 flex items-center justify-center p-4"><div className="w-full max-w-md p-6"><h2 className="text-section">Bản nháp chưa lưu xong</h2><p className="text-body">Bạn có thể lưu trước khi rời trang hoặc giữ bản dự phòng trên máy để khôi phục sau.</p><Group mt="md"><Button onClick={async () => { try { await persistence.flush(); persistence.blocker.proceed?.(); } catch {} }}>Lưu và rời trang</Button><Button variant="default" onClick={() => persistence.blocker.reset?.()}>Ở lại</Button><Button variant="subtle" onClick={() => { persistence.abandon(); persistence.blocker.proceed?.(); }}>Rời trang</Button></Group></div></div></AuthorDialog>}
-      {focusMode && <div className="flex justify-end px-4">{manuscriptActions}</div>}
-      <StudioWorkbench key={activeDraftScope} scope={activeDraftScope} title={title} content={content} editor={editorRef} disabled={!studioReady || isAcceptingAi} exportOpen={exportOpen} onExportClose={() => setExportOpen(false)}
+      <StudioWorkbench chapterSettings={chapterSettings} fileActions={manuscriptActions} key={activeDraftScope} scope={activeDraftScope} title={title} content={content} editor={editorRef} disabled={!studioReady || isAcceptingAi} exportOpen={exportOpen} onExportClose={() => setExportOpen(false)}
         apply={applyStudioEdit} undo={() => moveStudioHistory()} redo={() => moveStudioHistory(true)} canUndo={studioHistory.canUndo} canRedo={studioHistory.canRedo}
         save={async () => { await persistence.flush(); }} onError={message => showToast(message, 'error')} />
       <div className="sc-studio-body flex-1 min-h-0 flex overflow-hidden relative">
@@ -1070,8 +1069,8 @@ export function AuthorWritingIde() {
         <main className="sc-editor-workspace flex-1 min-h-0 overflow-y-auto flex flex-col items-center bg-surface relative select-text">
           {/* Sticky Formatting Toolbar with Frosted-Glass Backdrop */}
           {formatToolbarVisible && (
-            <div id="studio-format-toolbar" className="sc-format-toolbar sticky top-0 z-20 w-full py-2 px-3 sm:px-4 bg-surface/95 backdrop-blur-md border-b border-stone-200/60 flex items-center justify-center mb-6 shrink-0 shadow-2xs">
-              <div className="bg-surface-container-lowest/95 border border-stone-200/90 rounded-xl shadow-xs py-1 px-2.5 flex items-center flex-wrap gap-1 max-w-4xl text-meta text-stone-700 select-none">
+            <div id="studio-format-toolbar" className="sc-format-toolbar sticky top-0 z-20 w-full py-2 px-3 sm:px-4 bg-surface/95 backdrop-blur-md border-b border-stone-200/60 flex items-center justify-center mb-2 shrink-0">
+              <div className="sc-format-controls py-0 px-1 flex items-center gap-1 max-w-4xl text-meta text-stone-700 select-none">
                 {/* 1. Font Family Dropdown */}
                 <div className="relative" ref={fontDropdownRef}>
                   <button
@@ -1371,7 +1370,7 @@ export function AuthorWritingIde() {
           {/* Centered Manuscript Page */}
           <article className="sc-manuscript-page w-full max-w-3xl shrink-0 bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200/70">
             {/* Editable Chapter Title Header */}
-            <div className="mb-8 pb-5 border-b border-stone-100">
+            <div className="sc-studio-title-header mb-4 pb-3 border-b border-stone-100">
               <input
                 type="text"
                 value={title}
