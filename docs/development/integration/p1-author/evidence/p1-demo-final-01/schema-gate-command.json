@@ -1,0 +1,9 @@
+{
+  "command": [
+    "python",
+    "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\26\\01a178b1-4361-75b3-a66b-3bc53990597a\\demo-final-01-private\\schema_gate_logged.py"
+  ],
+  "exit_code": 0,
+  "source": "e8f44dfbad7950b5a6b6835ec239ba45b4fb7e6f",
+  "reason": "repeat once to persist full migration console log; fresh and existing databases both newly created, application DB unchanged"
+}

@@ -1,0 +1,606 @@
+{
+  "proxy_capture_scope": "resumed server only; initial Windows interruption did not flush earlier in-memory HTTP log",
+  "denials": [
+    {
+      "method": "GET",
+      "path": "/api/v1/novels/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/novels/51100c57-c7a5-453f-8879-8207049542c9/chapters",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/novels/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/novels/51100c57-c7a5-453f-8879-8207049542c9/chapters",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/novels/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/novels/51100c57-c7a5-453f-8879-8207049542c9/chapters",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/novels/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/novels/51100c57-c7a5-453f-8879-8207049542c9/chapters",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/novels/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/novels/51100c57-c7a5-453f-8879-8207049542c9/chapters",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/by-novel/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/memory",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/review-queue",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-plans/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/autonomous/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/extraction-status",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/novels/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/novels/51100c57-c7a5-453f-8879-8207049542c9/chapters",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-guidance",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-reviews",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/by-novel/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-plans/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/autonomous/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/memory",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/extraction-status",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/review-queue",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-guidance",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-reviews",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/novels/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/novels/51100c57-c7a5-453f-8879-8207049542c9/chapters",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-plans/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/by-novel/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/autonomous/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/memory",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/extraction-status",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/review-queue",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-guidance",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-reviews",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/novels/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/novels/51100c57-c7a5-453f-8879-8207049542c9/chapters",
+      "status": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-plans/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/by-novel/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/autonomous/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/review-queue",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/memory",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/extraction-status",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-guidance",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-reviews",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/by-novel/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/autonomous/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/review-queue",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/memory",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/extraction-status",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-reviews",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/by-novel/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/autonomous/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/review-queue",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/memory",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/extraction-status",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-reviews",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/by-novel/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/autonomous/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/review-queue",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/memory",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/extraction-status",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-reviews",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/by-novel/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/autonomous/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/review-queue",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/extraction-status",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/memory",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-reviews",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/by-novel/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/autonomous/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/review-queue",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/extraction-status",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/memory",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-reviews",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/autonomous/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/by-novel/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/review-queue",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/memory",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/extraction-status",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-reviews",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/review-queue",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/by-novel/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/autonomous/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/extraction-status",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/memory",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-reviews",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/review-queue",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/by-novel/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/autonomous/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/extraction-status",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/memory",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-reviews",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/review-queue",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/autonomous/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/extraction-status",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/by-novel/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/memory",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-reviews",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/extraction-status",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/review-queue",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/autonomous/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/by-novel/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/memory",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-reviews",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/review-queue",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/extraction-status",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/by-novel/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/autonomous/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/memory",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-reviews",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/review-queue",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/by-novel/51100c57-c7a5-453f-8879-8207049542c9",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/extraction-status",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/memory",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/autonomous/by-novel/51100c57-c7a5-453f-8879-8207049542c9/active",
+      "status": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ai/story-brains/51100c57-c7a5-453f-8879-8207049542c9/entity-reviews",
+      "status": 403
+    }
+  ],
+  "private_note_visible_after_reload": false
+}

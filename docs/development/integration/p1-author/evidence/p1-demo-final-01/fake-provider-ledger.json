@@ -1,0 +1,215 @@
+{
+  "ledger_scope": "persistent owned fake volume across intentional process restart, not just in-memory /received snapshot",
+  "received_count": 23,
+  "live_llm_calls": 0,
+  "known_private_note_values_absent": true,
+  "requests": [
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "2f6a2387566ffdca20c77b74268cefa0397a7abf7ace282ee8af348f22d21725",
+      "dispatch_id": "24a44c49-4995-4bf1-bf10-391480d78b3c",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793202382.2806268,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "92ac1cad4d463dd4276b2fbe26b1445538e575937ac4650424597517356b9461",
+      "dispatch_id": "c9239d57-157f-4da9-bebe-bac5d0507caa",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793202382.3424773,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "609acbe899342ce7cacadff79dea30aed4bff0e6e45c70aa47d8fd521ee703d0",
+      "dispatch_id": "be8ac9a8-abe7-402f-98f8-ad4bc7a95f64",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793202382.398268,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "873a22018be9111081a03ba0de42fe55f5c200296fb36b0a79fe993ad69e5c39",
+      "dispatch_id": "7d68a148-83d3-4527-9ce8-86abe10c6588",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793202658.943606,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "1acceefc5528eadb1db3400417687893fbf563b14b01b55790c922492ffed504",
+      "dispatch_id": "a77d8c9b-6e2b-4e2e-aee7-e6458b8a33d8",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793202659.0027387,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "92c7a8b302fe9ca43d2a9107f530a273ac5697a0443c93c331a13c635cc9bbc7",
+      "dispatch_id": "d3d058d7-55d8-46d9-ad87-94b829e7a843",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793202659.0502474,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "cb5d24e8780da196acd7cf996b10e4ded4550735abe5fcbca9c78a10d466e392",
+      "dispatch_id": "b6c5aa62-3561-42d3-9c81-9c9ad4c71ef5",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793203186.9758031,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "5590bd94a552eaec455b73a4f2e415483d2a395f8cb7449c374b04aba353850e",
+      "dispatch_id": "3c7026a5-bc12-46d8-9d4e-ffbf4ace0f49",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793203187.0373776,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "f01c5be32b28ac30b76b05009567f3df9a2493fa688afa899ea8e681abf79797",
+      "dispatch_id": "205df608-3830-48fe-85c9-e8a87f5f95e4",
+      "operation": "writing_generation",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793203228.0415277,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "df3beaae5d8d8d9c805d03fa8bdf69b9233e565223e9101d934f34a3d99ee35c",
+      "dispatch_id": "6715a5f4-aa3d-494e-89ef-27b9053ae532",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793203683.1984918,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "a0bbbada7e57656c98a88d08c7facf7b952b18d51e33e65ad238807ef96b4e55",
+      "dispatch_id": "36e7e9f7-d54d-4274-b76a-3dc7262b4f31",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793203683.2657301,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "745093d94de65cea38b33839c1845ed0578a37c32bf4290c04c83a3c21d74d6f",
+      "dispatch_id": "e423cf30-1e66-452c-9d3b-608da6f4d195",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793203683.3255475,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "a4fb292498360ee42305b1c48b1b6a1897ae96931a694171198ed94a8185ff56",
+      "dispatch_id": "2e525811-20f4-404c-ae7d-82c957668b2d",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793203683.919172,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "8b0c6fc17e77b355958ab97d84a0c1dca25fb4d6c0b974a07b76bc13a04d5654",
+      "dispatch_id": "34f45573-7026-4874-8058-c1a00f8123dc",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793203683.9790778,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "6b03f0d1764d029e8e5aa005c34585a956d24631de13bf85c523ce8ceeedf566",
+      "dispatch_id": "342013ca-2f35-4b29-a6e0-205267633ba7",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793203684.0317614,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "aae3638bca1b00ab619650b973cca349cb7f80c0b04f0d0b9d21181816341164",
+      "dispatch_id": "f3473e50-468a-4d17-923f-bcb45e8638ad",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793203684.3031108,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "67b567a4274abce6cbadf1640033c8e8a4c628198e89eef163e70f98ba9de4c2",
+      "dispatch_id": "0de157fd-b138-4412-ab3d-b515be72bc28",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793203684.3612192,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "1ee17c0fa1f69b435d63aede00748d1d0b90bc4276c4502c40f52ed251a8c5b8",
+      "dispatch_id": "473c5eaa-7623-4f44-8429-e7817f86fc44",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793203684.4214437,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "bcd98fedf9ee8e38ca0466772ef322bd7620bb4c6ae9839d5f7f9a7b9d66cdd4",
+      "dispatch_id": "68d5a363-b32b-4504-92ae-04da28e2c397",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793203684.7506313,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "4ee2ffd1adede9888708c5a8b5120f49b3638f57e53021cc0cca2f94f29b9acf",
+      "dispatch_id": "09124053-274a-4504-9258-400563217d96",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793203684.8093216,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "67571c252fea635393ce00ef137b22104baa3bc5f11786942129731473581236",
+      "dispatch_id": "927740de-9b7a-4842-8e22-e78e45a647ad",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793203684.914517,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "0fa057be4c1a123cba5c93e07fa9f62d26d44d81ef741cbf857a480edd06f4f3",
+      "dispatch_id": "86a7e0c1-53b2-4450-8a1a-c74712ef4b6a",
+      "operation": "discovery",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793203684.9665153,
+      "upstream_auth_valid": true
+    },
+    {
+      "path": "/v1/chat/completions",
+      "request_sha256": "bd3f4052a514b63afb82ef327680c09601cbc5653629f08104f47a604af14fc9",
+      "dispatch_id": "bcc95e22-bec1-4bc4-9b99-028ed12767ae",
+      "operation": "writing_generation",
+      "scenario": "p123-p3-v1",
+      "received_at": 1793203702.6397486,
+      "upstream_auth_valid": true
+    }
+  ]
+}

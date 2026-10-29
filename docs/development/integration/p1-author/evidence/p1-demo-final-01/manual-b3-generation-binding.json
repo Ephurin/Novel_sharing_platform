@@ -1,0 +1,17 @@
+{
+  "binding": "single actual UI generation for chapter; unique natural instruction plus exact context hash, no test correlation injected",
+  "job_id": "8a3b8773-d7b7-50b8-8c65-5e62305309ae",
+  "chapter_id": "98af857f-1c6c-454c-855a-16a85c10d59e",
+  "revision_id": "e3eb10ef-67ad-40b6-8085-e46bb1808480",
+  "status": "completed",
+  "brain_version": 4,
+  "provider_request_sha256": "f01c5be32b28ac30b76b05009567f3df9a2493fa688afa899ea8e681abf79797",
+  "context_hash": "438846b9fbdf9d64c56430707ebf58966297f266cca8d139c03f03af97de2d6d",
+  "persisted_hash_matches": true,
+  "updated_profile_present": true,
+  "private_note_excluded": true,
+  "future_profile_excluded": true,
+  "future_cutoff": 10,
+  "current_chapter": 2,
+  "prompt_exported": false
+}

@@ -1,0 +1,12 @@
+{
+  "canon_sha256_after": "8a8be5059cfdccc5c649a7e87c1477bb832331cef104f3d94039b125fe8f707e",
+  "canon_unchanged": true,
+  "brain_version": 3,
+  "status": "active",
+  "profile_version": 2,
+  "private_note_readback_matches": true,
+  "audit_count": 2,
+  "audit_actor_matches_owner": true,
+  "audit_timestamps_non_null": true,
+  "notes_exported": false
+}

@@ -1,0 +1,11 @@
+{
+  "command": "owned ai-service env allowlist readback",
+  "exit_code": 0,
+  "values": {
+    "ENTITY_CANDIDATE_VERIFICATION_ENABLED": "true",
+    "LLM_PROVIDER": "openai",
+    "LLM_BASE_URL": "http://budget-gateway:18090/v1",
+    "LLM_FALLBACK_PROVIDER": "disabled",
+    "EMBEDDING_PROVIDER": "none"
+  }
+}

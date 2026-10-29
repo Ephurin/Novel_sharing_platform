@@ -1,0 +1,6 @@
+{
+  "action": "stop only owned fake-upstream service",
+  "exit_code": 0,
+  "project": "codex-p1-final-5bdacaf501",
+  "purpose": "expected provider-unavailable negative test; no runtime source/security change"
+}

@@ -1,0 +1,42 @@
+{
+  "method": "Visible CUA UI actions on compiled production frontend; no API/SQL writes for normal author steps",
+  "actor_A_novel": "51100c57-c7a5-453f-8879-8207049542c9",
+  "chapter_1": "0d71d92b-507a-447e-8820-9db504a7be03",
+  "chapter_2": "98af857f-1c6c-454c-855a-16a85c10d59e",
+  "steps_completed": [
+    "UI registration",
+    "UI self-service author onboarding",
+    "UI novel/chapter creation",
+    "Vietnamese prose and autosave",
+    "UI bootstrap",
+    "27 explicit entity decisions and three identity groups",
+    "entity freeze",
+    "continue event/fact extraction",
+    "atomic approval of four proposals",
+    "activate Brain",
+    "reload",
+    "Canon profile save",
+    "away-and-back profile readback",
+    "private-note save",
+    "future-cutoff baseline save",
+    "next chapter creation",
+    "natural writing request with Story Bible scope",
+    "reject canned draft",
+    "injected-provider failure handling",
+    "UI logout/register/promote second author",
+    "reload original author URL under second author",
+    "second author empty dashboard"
+  ],
+  "manual_not_tested": [
+    "inflight cancel button",
+    "manual two-window conflict (automated contexts tested)",
+    "manual ambiguous profile retry button (API replay tested)",
+    "accept/insert generated draft",
+    "post-confirm identity/type rename/correction",
+    "pre-freeze LOC correction",
+    "bulk-apply second confirmation completion",
+    "flag=false",
+    "mobile/light theme",
+    "live-provider quality or production deployment"
+  ]
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "file": "ui-b1-active.jpg",
+    "sha256": "9342c5f8a11d2e3f9e604046acf0ea18815c8593ac6fd3a87479e0d705fbbe7d",
+    "classification": "visually inspected fictional Canon/manuscript; private notes blank/not on screen"
+  },
+  {
+    "file": "ui-b2-saved.jpg",
+    "sha256": "8205b1de6682e83e03ad34536e1c89726de2347fb27bd92524ab6794d7e9eff2",
+    "classification": "visually inspected fictional Canon/manuscript; private notes blank/not on screen"
+  },
+  {
+    "file": "ui-b3-fake-result.jpg",
+    "sha256": "338414e56e0116ab70fa89e8db65be9e04442e23a7f34ac9e4bcd7ef761a216e",
+    "classification": "visually inspected fictional Canon/manuscript; private notes blank/not on screen"
+  }
+]

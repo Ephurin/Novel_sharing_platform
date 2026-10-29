@@ -1,0 +1,10 @@
+{
+  "canon_sha256": "2aab6f5fb9741d4b7256b99a89bc4ac4c64d0fa9e2c9e7b71c45d8525615fa7b",
+  "canon_unchanged": true,
+  "brain_version": 4,
+  "failed_job_id": "e5fcfe4d-52fa-5151-bece-2997e9ce376f",
+  "failed_jobs": 1,
+  "cause": "intentional owned fake-upstream unavailability",
+  "completed_draft_rejected_via_ui": true,
+  "inflight_cancel_button_tested": false
+}

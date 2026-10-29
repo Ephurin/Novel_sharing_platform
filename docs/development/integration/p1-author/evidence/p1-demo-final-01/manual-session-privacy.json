@@ -1,0 +1,9 @@
+{
+  "sequence": "UI logout A -> UI register/promote B -> observed A Studio URL -> reload -> B own dashboard",
+  "author_B_own_dashboard_novel_count": 0,
+  "private_note_visible_after_reload": false,
+  "normal_workflow_fixture_api_sql_writes": 0,
+  "manual_inflight_cancel_tested": false,
+  "viewport": "desktop1440x900, restored after rehearsal",
+  "operator": "AI operating visible production UI; not a naive-human usability study"
+}

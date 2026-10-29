@@ -1,0 +1,76 @@
+{
+  "A_fresh": {
+    "head": "0016_entity_profile_audit_timestamp",
+    "mapped_columns_checked": 291,
+    "missing": [],
+    "nullability_mismatches": [],
+    "timestamps": [
+      {
+        "table_name": "entity_profile_audits",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      },
+      {
+        "table_name": "revision_provenances",
+        "is_nullable": "NO",
+        "column_default": "now()"
+      }
+    ],
+    "version_width": 35,
+    "defaults_scope": "two timestamps only",
+    "constraints_indexes_scope": "audit objects only; not global equivalence"
+  },
+  "B_existing": {
+    "schema": {
+      "head": "0016_entity_profile_audit_timestamp",
+      "mapped_columns_checked": 291,
+      "missing": [],
+      "nullability_mismatches": [],
+      "timestamps": [
+        {
+          "table_name": "entity_profile_audits",
+          "is_nullable": "NO",
+          "column_default": "now()"
+        },
+        {
+          "table_name": "revision_provenances",
+          "is_nullable": "NO",
+          "column_default": "now()"
+        }
+      ],
+      "version_width": 35,
+      "defaults_scope": "two timestamps only",
+      "constraints_indexes_scope": "audit objects only; not global equivalence"
+    },
+    "before_hashes_counts_timestamps": {
+      "audit_sha256": "f59b2d19724d1c7074a8afceef360a33516164784f002eaec084541f3aff5a68",
+      "audit_count": 3,
+      "audit_timestamps": [
+        "2026-10-28 15:41:20.882779+00:00",
+        "2026-10-28 15:41:20.791015+00:00",
+        "2026-10-28 15:41:20.824959+00:00"
+      ],
+      "profile_sha256": "46cf011fa038317c905e5d2aeab44d770523ac3203e05ac32c7fab89d9cd6607",
+      "provenance_sha256": "b0e55870f8455ec2c8832c255272b0c4fa62252a4a243ec995a477a2431d2c81",
+      "profile_count": 1,
+      "provenance_count": 1
+    },
+    "migration_preserves_data": true,
+    "audit_objects_unchanged": true,
+    "post_upgrade_retry_no_duplicate": true
+  },
+  "NULL_revision_provenances": {
+    "expected_fail_closed": true,
+    "error": "DATA_REPAIR_DECISION_REQUIRED: revision_provenances.created_at contains 1 NULL row(s); no timestamps or rows modified",
+    "null_rows": 1,
+    "unchanged_data": true,
+    "unchanged_head": "0014_entity_profiles"
+  },
+  "NULL_entity_profile_audits": {
+    "expected_fail_closed": true,
+    "error": "DATA_REPAIR_DECISION_REQUIRED: entity_profile_audits.created_at contains 2 NULL row(s); no timestamps or audits modified",
+    "null_rows": 2,
+    "unchanged_data": true,
+    "unchanged_head": "0015_provenance_timestamp"
+  }
+}

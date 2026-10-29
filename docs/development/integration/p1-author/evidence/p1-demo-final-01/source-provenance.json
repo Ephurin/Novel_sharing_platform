@@ -1,0 +1,12 @@
+{
+  "source_sha": "e8f44dfbad7950b5a6b6835ec239ba45b4fb7e6f",
+  "tree": "d8aaa4cb036153dfb2d3dfade5c2072ffc9ba2e8",
+  "tracked_status_before_reports": "",
+  "production_subtrees": {
+    "backend": "714ad348f6d2ca9826f8088066e8b850dbcd1213",
+    "ai-service": "25abb68322d0854416c8706df94e3b45053bd89e",
+    "web/src": "21e0f12ba7a949805b44c6c6f3f9209ebeebb8ab",
+    "Pipeline_test/tools": "29c895ec4a208bf8be2d25d7213ed7931694a66d"
+  },
+  "build_dist_absent_initially": true
+}
