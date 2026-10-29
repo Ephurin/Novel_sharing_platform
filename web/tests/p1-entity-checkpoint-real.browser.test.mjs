@@ -126,7 +126,7 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
         await expect(occurrence(unresolved[0].candidate_id)).toContainText('Đã loại');
         assert.deepEqual(await current(), committed);
         proof.real_cas_status = 409; proof.dirty_retained = true; proof.conflict_server_unchanged = true;
-      } finally { release(); await page.unroute(pattern); await other.close(); }
+      } finally { release(); await page.unrouteAll({ behavior: 'wait' }); await other.close(); }
       await checkpoint().getByText('v' + (before.review_version + 1), { exact: true }).waitFor();
       assert.equal((await save()).status(), 200);
       const merged = await current();
