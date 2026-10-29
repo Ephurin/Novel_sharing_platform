@@ -42,6 +42,15 @@ import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client'
 const ENTITY_TYPES: EntityType[] = ['PER', 'LOC', 'ORG', 'ITEM', 'SKILL'];
 const STATUS_OPTIONS: Array<'Alive' | 'Dead' | 'Unknown'> = ['Alive', 'Dead', 'Unknown'];
 
+const HUMAN_FIELDS: Array<keyof Decision> = [
+  'verdict', 'canonical_entity_id', 'provisional_identity_key', 'canonical_name',
+  'entity_type', 'initial_status', 'identity_quote', 'status_quote'
+];
+const sameHumanDecision = (a: Decision, b: Decision) => HUMAN_FIELDS.every(key => a[key] === b[key]);
+const sameIdentity = (a: Decision, b: Decision) =>
+  a.verdict === b.verdict && a.canonical_entity_id === b.canonical_entity_id &&
+  a.provisional_identity_key === b.provisional_identity_key;
+
 export function EntityExtractionReview({
   novelId,
   disabled,
@@ -210,9 +219,13 @@ export function EntityExtractionReview({
          ────────────────────────────────────────── */}
       <Stack gap="xs">
         <Text fw={600} size="sm">
-          2. Kiểm tra &amp; Xác thực thực thể trước khi trích xuất event/fact
+          2. Duyệt danh tính — trước bước duyệt đề xuất Canon
         </Text>
 
+        <Text size="xs" c="dimmed">
+          Đây là checkpoint xác định mỗi lần xuất hiện thuộc danh tính nào, độc lập với số đề xuất Canon chờ duyệt.
+          Freeze không thay thế bước duyệt event/fact và kích hoạt Story Brain.
+        </Text>
         {reviews.data && reviews.data.length > 0 ? (
           reviews.data.map(review => (
             <EntityCheckpoint
@@ -292,6 +305,9 @@ function EntityCheckpoint({
     return Object.fromEntries(reviewedDecisions.map(d => [d.candidate_id, d]));
   });
 
+  const choicesRef = useRef(choices);
+  useEffect(() => { choicesRef.current = choices; }, [choices]);
+
   // Track conflict errors and version conflict notifications
   const [conflictMessage, setConflictMessage] = useState<string | null>(null);
 
@@ -303,47 +319,23 @@ function EntityCheckpoint({
   // Stale guidance check
   const staleGuidance = guidanceVersion !== undefined && guidanceVersion !== review.guidance_version;
 
-  // Sync incoming reviewed decisions while strictly preserving unsaved local modifications (FE-05 / FE-09)
+  // Reconcile server snapshots without overwriting local author drafts. Keep state updaters pure.
   useEffect(() => {
-    setChoices(prev => {
-      const serverMap = Object.fromEntries(reviewedDecisions.map(d => [d.candidate_id, d]));
-      const next: Record<string, Decision> = { ...prev };
-      let hasConflict = false;
-      const currentDirty = dirtyCandidateIdsRef.current;
-
-      // Update non-dirty candidates with server reviewed decisions
-      for (const [candidateId, serverDecision] of Object.entries(serverMap)) {
-        if (!currentDirty.has(candidateId)) {
-          next[candidateId] = serverDecision;
-        } else {
-          // Candidate is dirty locally; check if server decision conflicts
-          const localDecision = prev[candidateId];
-          if (
-            localDecision &&
-            (localDecision.canonical_entity_id !== serverDecision.canonical_entity_id ||
-              localDecision.verdict !== serverDecision.verdict ||
-              localDecision.provisional_identity_key !== serverDecision.provisional_identity_key)
-          ) {
-            hasConflict = true;
-          }
-        }
-      }
-
-      // Prune candidates that were removed from the server
-      const currentCandidateIdSet = new Set(candidates.map(c => c.candidate_id));
-      for (const id of Object.keys(next)) {
-        if (!currentCandidateIdSet.has(id)) {
-          delete next[id];
-        }
-      }
-
-      if (hasConflict) {
-        setConflictMessage(
-          `Phiên bản trên máy chủ đã cập nhật (v${review.review_version}). Các lựa chọn chưa lưu của bạn vẫn được giữ nguyên. Vui lòng kiểm tra lại trước khi lưu.`
-        );
-      }
-      return next;
-    });
+    const previous = choicesRef.current;
+    const next = { ...previous };
+    let hasConflict = false;
+    for (const serverDecision of reviewedDecisions) {
+      const id = serverDecision.candidate_id;
+      if (!dirtyCandidateIdsRef.current.has(id)) next[id] = serverDecision;
+      else if (previous[id] && !sameHumanDecision(previous[id], serverDecision)) hasConflict = true;
+    }
+    const currentIds = new Set(candidates.map(c => c.candidate_id));
+    for (const id of Object.keys(next)) if (!currentIds.has(id)) delete next[id];
+    setChoices(next);
+    if (hasConflict) setConflictMessage(
+      `Phiên bản trên máy chủ đã cập nhật (v${review.review_version}). Các lựa chọn chưa lưu của bạn vẫn được giữ nguyên. Vui lòng kiểm tra lại trước khi lưu.`
+    );
+    setAuthorGroups(previousGroups => Array.from(new Set([...previousGroups, ...initialGroups])));
   }, [review.review_version, review.analysis_run_id]);
 
   // Reset local state if checkpoint or novel changes completely (FE-05 isolation)
@@ -365,6 +357,21 @@ function EntityCheckpoint({
       const d = choices[c.candidate_id];
       return d && (d.verdict === 'entity' || d.verdict === 'not_entity');
     });
+
+  const identityVariants = new Map<string, Set<string>>();
+  for (const c of resolvedCandidates) {
+    const d = choices[c.candidate_id];
+    if (d.verdict !== 'entity') continue;
+    const identity = d.canonical_entity_id || d.provisional_identity_key;
+    const variants = identityVariants.get(identity) ?? new Set<string>();
+    variants.add(JSON.stringify([d.canonical_name, d.entity_type, d.initial_status]));
+    identityVariants.set(identity, variants);
+  }
+  const inconsistentIdentity = Array.from(identityVariants.values()).some(variants => variants.size > 1);
+  const clearSavedDraft = (submitted: Decision[]) => setDirtyCandidateIds(previous => new Set(
+    [...previous].filter(id => !submitted.some(d => d.candidate_id === id &&
+      choicesRef.current[id] && sameHumanDecision(d, choicesRef.current[id])))
+  ));
 
   // Find candidate helper
   const getMachineDecision = (candidateId: string): Decision => {
@@ -395,23 +402,17 @@ function EntityCheckpoint({
     }));
   };
 
-  // Batch assign same decision to all occurrences of same surface text (marks candidates dirty)
-  const applyToMatchingSurface = (surface: string, decisionTemplate: (machine: Decision) => Decision) => {
-    setChoices(prev => {
-      const next = { ...prev };
-      setDirtyCandidateIds(dirtyPrev => {
-        const nextDirty = new Set(dirtyPrev);
-        for (const c of candidates) {
-          if (c.surface.toLowerCase() === surface.toLowerCase()) {
-            const m = getMachineDecision(c.candidate_id);
-            next[c.candidate_id] = decisionTemplate(m);
-            nextDirty.add(c.candidate_id);
-          }
-        }
-        return nextDirty;
-      });
-      return next;
-    });
+  // A surface match is not identity resolution. Preserve every different explicit human identity.
+  const bulkTargets = (surface: string, source: Decision) => candidates.filter(c => {
+    if (c.surface.toLowerCase() !== surface.toLowerCase()) return false;
+    const existing = choices[c.candidate_id];
+    return !existing || existing.verdict === 'unresolved' || sameIdentity(existing, source);
+  });
+  const applyToMatchingSurface = (surface: string, source: Decision, template: (machine: Decision) => Decision) => {
+    const targets = bulkTargets(surface, source);
+    const updates = Object.fromEntries(targets.map(c => [c.candidate_id, template(getMachineDecision(c.candidate_id))]));
+    setChoices(previous => ({ ...previous, ...updates }));
+    setDirtyCandidateIds(previous => new Set([...previous, ...targets.map(c => c.candidate_id)]));
   };
 
   // Add author provisional group
@@ -419,7 +420,7 @@ function EntityCheckpoint({
     const trimmed = newGroupInput.trim();
     if (!trimmed) return;
     if (!/^[A-Za-z0-9_-]{1,64}$/.test(trimmed)) {
-      setNewGroupError('Tên nhóm chỉ gồm chữ, số, gạch ngang, gạch dưới (1-64 ký tự).');
+      setNewGroupError('Khóa nhóm chỉ dùng A–Z, a–z, 0–9, gạch ngang hoặc gạch dưới (1–64 ký tự); ví dụ con-van.');
       return;
     }
     setNewGroupError('');
@@ -443,7 +444,7 @@ function EntityCheckpoint({
           decisions: decisionsToSend,
           finalize: false
         });
-        setDirtyCandidateIds(new Set());
+        clearSavedDraft(decisionsToSend);
         await onContinued();
       } catch (err) {
         if (err instanceof ApiClientError && err.status === 409) {
@@ -491,7 +492,7 @@ function EntityCheckpoint({
           decisions: allDecisions,
           finalize: true
         });
-        setDirtyCandidateIds(new Set());
+        clearSavedDraft(allDecisions);
         await onContinued();
       } catch (err) {
         if (err instanceof ApiClientError && err.status === 409) {
@@ -555,7 +556,7 @@ function EntityCheckpoint({
             </Group>
             <Text size="xs" c="dimmed">
               Bản lưu: {review.revision_id?.slice(0, 8)} · Tiến độ: {resolvedCandidates.length}/
-              {candidates.length} vị trí đã quyết định
+              {candidates.length} vị trí đã quyết định · Còn {candidates.length - resolvedCandidates.length} vị trí chưa quyết định
             </Text>
           </div>
 
@@ -619,6 +620,7 @@ function EntityCheckpoint({
               <TextInput
                 size="xs"
                 placeholder="Tên nhóm mới (ví dụ: minh-bac-si)"
+                description="Khóa kỹ thuật ASCII, không phải tên hiển thị. Ví dụ con-van; tên hiển thị vẫn là Cồn Vân."
                 value={newGroupInput}
                 onChange={e => setNewGroupInput(e.currentTarget.value)}
                 error={newGroupError}
@@ -676,19 +678,12 @@ function EntityCheckpoint({
               color="blue"
               disabled={disabled}
               onClick={() => {
-                // Pre-populate with verified machine decisions if author desires
-                setChoices(prev => {
-                  const updated = { ...prev };
-                  for (const c of candidates) {
-                    if (!updated[c.candidate_id]) {
-                      const m = getMachineDecision(c.candidate_id);
-                      if (m && m.verdict === 'not_entity') {
-                        updated[c.candidate_id] = rejectOccurrence(m);
-                      }
-                    }
-                  }
-                  return updated;
-                });
+                // Explicit author rejection action; preserve it as a dirty draft across refresh.
+                const updates = Object.fromEntries(candidates.filter(c =>
+                  !choices[c.candidate_id] && getMachineDecision(c.candidate_id).verdict === 'not_entity'
+                ).map(c => [c.candidate_id, rejectOccurrence(getMachineDecision(c.candidate_id))]));
+                setChoices(previous => ({ ...previous, ...updates }));
+                setDirtyCandidateIds(previous => new Set([...previous, ...Object.keys(updates)]));
               }}
             >
               Tự động loại các từ AI chắc chắn không phải entity
@@ -720,7 +715,8 @@ function EntityCheckpoint({
                   review={review}
                   disabled={disabled || review.status !== 'waiting_entity_review'}
                   onChange={d => setCandidateDecision(c.candidate_id, d)}
-                  onApplyToAllSurface={template => applyToMatchingSurface(c.surface, template)}
+                  bulkCandidates={decision ? bulkTargets(c.surface, decision) : []}
+                  onApplyToAllSurface={template => decision && applyToMatchingSurface(c.surface, decision, template)}
                 />
               );
             })
@@ -734,6 +730,28 @@ function EntityCheckpoint({
         )}
 
         <Divider my="xs" />
+
+        <Paper withBorder p="xs" data-testid="entity-freeze-summary">
+          <Text size="sm" fw={600}>Tóm tắt quyết định trước Freeze</Text>
+          {Array.from(new Map(resolvedCandidates.filter(c => choices[c.candidate_id].verdict === 'entity').map(c => {
+            const d = choices[c.candidate_id];
+            const key = d.canonical_entity_id || d.provisional_identity_key || `reject:${c.candidate_id}`;
+            return [JSON.stringify([key, d.canonical_name, d.entity_type, d.initial_status]), d] as const;
+          })).values()).map(d => (
+            <Text size="xs" key={JSON.stringify([d.canonical_entity_id || d.provisional_identity_key || d.candidate_id, d.canonical_name, d.entity_type, d.initial_status])}>
+              {`${d.canonical_name} [${d.entity_type}] · ${d.canonical_entity_id || d.provisional_identity_key.split('/').at(-1)}`}
+            </Text>
+          ))}
+          <Text size="xs">Đã loại {resolvedCandidates.filter(c => choices[c.candidate_id].verdict === 'not_entity').length} vị trí không phải thực thể.</Text>
+          {inconsistentIdentity && <Alert color="orange" mt="xs">
+            Cùng một UUID/nhóm đang có tên, loại hoặc trạng thái khác nhau. Kiểm tra từng vị trí hoặc áp dụng có xác nhận cho cùng danh tính trước Freeze.
+          </Alert>}
+          <Text size="xs" mt="xs">
+            {review.status === 'entities_reviewed' ? 'Bước tiếp theo: tiếp tục trích xuất event/fact, rồi duyệt đề xuất Canon.' :
+              !allCandidatesResolved ? 'Bước tiếp theo: quyết định các vị trí còn lại; có thể lưu một phần để tiếp tục sau.' :
+              'Bước tiếp theo: kiểm tra tên và loại ở trên, rồi Freeze. Đề xuất Canon sẽ được duyệt ở bước riêng.'}
+          </Text>
+        </Paper>
 
         {/* Review Action Controls */}
         <Group justify="space-between" align="center">
@@ -752,7 +770,7 @@ function EntityCheckpoint({
                 <Button
                   size="sm"
                   color="indigo"
-                  disabled={disabled || !allCandidatesResolved}
+                  disabled={disabled || !allCandidatesResolved || inconsistentIdentity}
                   onClick={handleFreeze}
                 >
                   Đóng băng danh sách entity (Freeze)
@@ -795,7 +813,8 @@ function OccurrenceCard({
   review,
   disabled,
   onChange,
-  onApplyToAllSurface
+  onApplyToAllSurface,
+  bulkCandidates
 }: {
   candidate: EntityReview['candidates'][0];
   machine: Decision;
@@ -806,16 +825,16 @@ function OccurrenceCard({
   review: EntityReview;
   disabled: boolean;
   onChange: (decision: Decision) => void;
+  bulkCandidates: EntityReview['candidates'];
   onApplyToAllSurface: (template: (m: Decision) => Decision) => void;
 }) {
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const [canonicalName, setCanonicalName] = useState(decision?.canonical_name || candidate.surface);
-  const [entityType, setEntityType] = useState<EntityType>(decision?.entity_type || 'PER');
-  const [initialStatus, setInitialStatus] = useState<'Alive' | 'Dead' | 'Unknown'>(
-    decision?.initial_status || 'Unknown'
-  );
-  const [identityQuote, setIdentityQuote] = useState(decision?.identity_quote || '');
-  const [statusQuote, setStatusQuote] = useState(decision?.status_quote || '');
+  // The checkpoint draft is the only author-edit buffer, including fields hidden by pagination.
+  const canonicalName = decision?.canonical_name ?? candidate.surface;
+  const entityType = decision?.entity_type ?? machine.entity_type ?? 'PER';
+  const initialStatus = decision?.initial_status ?? 'Unknown';
+  const identityQuote = decision?.identity_quote ?? '';
+  const statusQuote = decision?.status_quote ?? '';
   const [confirmBatchOpen, setConfirmBatchOpen] = useState(false);
 
   // Extract selected group or entity
@@ -878,7 +897,7 @@ function OccurrenceCard({
   };
 
   // Sync edits if in provisional mode
-  const handleCommitEdits = () => {
+  const handleCommitEdits = (patch: Partial<Decision>) => {
     if (!currentProvisionalGroup) return;
     const updated = newIdentity(review, machine, currentProvisionalGroup);
     onChange({
@@ -888,6 +907,7 @@ function OccurrenceCard({
       initial_status: initialStatus,
       identity_quote: identityQuote,
       status_quote: statusQuote,
+      ...patch,
       reason: `Author refined provisional identity: ${currentProvisionalGroup}`
     });
   };
@@ -916,7 +936,7 @@ function OccurrenceCard({
               </Badge>
             ) : currentMode === 'provisional' ? (
               <Badge color="blue" size="xs" leftSection={<IconUserCheck size={10} />}>
-                Nhóm tạm: {currentProvisionalGroup} ({decision?.canonical_name})
+                Nhóm tạm: {currentProvisionalGroup} ({decision?.canonical_name}) [{decision?.entity_type}]
               </Badge>
             ) : (
               <Badge color="gray" size="xs">
@@ -928,7 +948,7 @@ function OccurrenceCard({
           {/* Machine Suggestion Summary */}
           <Group gap="xs">
             <Text size="xs" c="dimmed">
-              Gợi ý máy:
+              Gợi ý máy (chưa được tác giả duyệt):
             </Text>
             <Badge
               size="xs"
@@ -1014,15 +1034,16 @@ function OccurrenceCard({
                     size="xs"
                     label="Tên chuẩn (phải có bằng chứng trong chương)"
                     value={canonicalName}
-                    onChange={e => setCanonicalName(e.currentTarget.value)}
+                    onChange={e => handleCommitEdits({ canonical_name: e.currentTarget.value })}
                     disabled={disabled}
                   />
                   <Select
                     size="xs"
                     label="Loại thực thể"
+                    description="PER: nhân vật · LOC: địa danh · ORG: tổ chức · ITEM: vật phẩm · SKILL: kỹ năng"
                     data={ENTITY_TYPES}
                     value={entityType}
-                    onChange={v => setEntityType(v as EntityType)}
+                    onChange={v => { if (v) handleCommitEdits({ entity_type: v as EntityType }); }}
                     disabled={disabled}
                   />
                   <Select
@@ -1030,7 +1051,7 @@ function OccurrenceCard({
                     label="Trạng thái ban đầu"
                     data={STATUS_OPTIONS}
                     value={initialStatus}
-                    onChange={v => setInitialStatus(v as 'Alive' | 'Dead' | 'Unknown')}
+                    onChange={v => { if (v) handleCommitEdits({ initial_status: v as 'Alive' | 'Dead' | 'Unknown' }); }}
                     disabled={disabled}
                   />
                 </Group>
@@ -1040,7 +1061,7 @@ function OccurrenceCard({
                     label="Bằng chứng alias / tên khác"
                     placeholder="Đoạn văn chứng minh..."
                     value={identityQuote}
-                    onChange={e => setIdentityQuote(e.currentTarget.value)}
+                    onChange={e => handleCommitEdits({ identity_quote: e.currentTarget.value })}
                     disabled={disabled}
                   />
                   <TextInput
@@ -1048,21 +1069,19 @@ function OccurrenceCard({
                     label="Bằng chứng trạng thái"
                     placeholder="Đoạn văn chứng minh trạng thái..."
                     value={statusQuote}
-                    onChange={e => setStatusQuote(e.currentTarget.value)}
+                    onChange={e => handleCommitEdits({ status_quote: e.currentTarget.value })}
                     disabled={disabled}
                   />
                 </Group>
-                <Group justify="flex-end">
-                  <Button size="xs" color="blue" onClick={handleCommitEdits} disabled={disabled}>
-                    Cập nhật thuộc tính danh tính
-                  </Button>
-                </Group>
+                <Text size="xs" c="dimmed">
+                  Thuộc tính đang ở bản nháp của checkpoint. Chọn Lưu quyết định một phần hoặc Freeze để lưu lên máy chủ.
+                </Text>
               </Stack>
             </Paper>
           </Collapse>
 
           {/* Batch Helper Link with Explicit Confirmation (FE-02) */}
-          {decision && (
+          {decision && currentMode !== 'unresolved' && (
             <Stack gap="xs" align="flex-end">
               {!confirmBatchOpen ? (
                 <Button
@@ -1072,17 +1091,17 @@ function OccurrenceCard({
                   disabled={disabled}
                   onClick={() => setConfirmBatchOpen(true)}
                 >
-                  Áp dụng quyết định này cho mọi vị trí &ldquo;{candidate.surface}&rdquo;
+                  Áp dụng quyết định này cho các vị trí phù hợp &ldquo;{candidate.surface}&rdquo;
                 </Button>
               ) : (
                 <Paper p="xs" withBorder radius="xs" bg="var(--mantine-color-orange-0)">
                   <Stack gap="xs">
                     <Text size="xs" fw={500} c="orange.9">
-                      Xác nhận gán thực thể hàng loạt (FE-02):
+                      Xác nhận áp dụng cho {bulkCandidates.length} vị trí:
                     </Text>
                     <Text size="xs">
                       Hai nhân vật khác nhau có thể trùng tên mặt chữ &ldquo;{candidate.surface}&rdquo;.
-                      Bạn có chắc chắn muốn gán tất cả vị trí này cho cùng một danh tính?
+                      Chỉ áp dụng cho vị trí chưa quyết định hoặc đã chọn cùng danh tính. Quyết định khác UUID/nhóm hoặc đã loại được giữ nguyên. Các vị trí: {bulkCandidates.map(c => `[${c.start}, ${c.end})`).join(', ')}.
                     </Text>
                     <Group justify="flex-end" gap="xs">
                       <Button size="compact-xs" variant="default" onClick={() => setConfirmBatchOpen(false)}>
@@ -1091,6 +1110,7 @@ function OccurrenceCard({
                       <Button
                         size="compact-xs"
                         color="orange"
+                        disabled={disabled || bulkCandidates.length === 0}
                         onClick={() => {
                           setConfirmBatchOpen(false);
                           if (currentMode === 'reject') {
