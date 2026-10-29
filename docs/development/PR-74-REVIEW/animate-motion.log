@@ -1,0 +1,15 @@
+
+> ephurin-web@0.1.0 test:author-admin-motion
+> node --test tests/author-admin-motion.browser.test.mjs
+
+3:14:05 PM [vite] (client) Re-optimizing dependencies because vite config has changed
+Author/admin screenshots: C:\Users\ADMIN\AppData\Local\Temp\storycraft-author-motion-DbhPLN
+✔ author/admin motion preserves filters, actions, values and reader role exclusion (34184.5816ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 34713.3106

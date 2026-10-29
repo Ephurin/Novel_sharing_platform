@@ -1,5 +1,7 @@
 # Admin operations
 
+Các sửa lỗi theo review PR #74 (queue retry/quarantine, entitlement fail-closed, tích hợp PR #73) và bằng chứng mới: [PR-74-REVIEW](../PR-74-REVIEW/README.md).
+
 Triển khai đầy đủ các nhóm chức năng quản trị đã thống nhất, mở rộng trên React/Mantine/React Query và Express/PostgreSQL/MongoDB hiện có. Không thêm dependency ứng dụng; giữ khung Admin, token ivory/terracotta, font và theme chung. Áp dụng `storycraft-design-system`, `storycraft-content-density`, `storycraft-dark-mode` trong `.agents/skills`.
 
 ## Chức năng
