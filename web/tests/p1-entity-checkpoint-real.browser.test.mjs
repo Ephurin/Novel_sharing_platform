@@ -2,14 +2,35 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { expect } from '@playwright/test';
-import { createHarness, until } from './helpers/p1-real-stack.mjs';
+import { createHarness, until, hash } from './helpers/p1-real-stack.mjs';
 import { fixtures } from './helpers/p1-fixtures.mjs';
 
 test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial reload, CAS, Freeze and Canon readback',
   { timeout: 300000 }, async () => {
   const h = await createHarness(), f = fixtures(h), { page } = h;
   const proof = { setup: 'Public API registration/onboarding/novel/chapter fixture; UI manuscript bootstrap, checkpoint and Canon decisions', flag: true };
-  let a, novel, chapter, run, initial, locs;
+  let a, novel, chapter, run, initial, locs, immutableRevision, baselineAudit;
+  const occurrenceQuotes = [
+    ['Lâm Phong gặp Diệp Linh Nhi tại Cồn Vân.', 'tại Cồn Vân.'],
+    ['Cồn Vân có cổng đá.', 'có cổng đá.']
+  ];
+  function checkQuotes(decisions) {
+    for (let i = 0; i < locs.length; i++) {
+      const d = decisions.find(d => d.candidate_id === locs[i].candidate_id);
+      assert.deepEqual([d.identity_quote, d.status_quote], occurrenceQuotes[i]);
+    }
+  }
+  async function storedAudit() {
+    return (await h.sql('SELECT entity_candidate_audit FROM narrative.analysis_runs WHERE id=$1', [run]))[0].entity_candidate_audit;
+  }
+  async function editQuotes(index) {
+    await position(locs[index].candidate_id);
+    const c = occurrence(locs[index].candidate_id);
+    if (await c.getByRole('button', { name: 'Sửa thuộc tính', exact: true }).isVisible())
+      await c.getByRole('button', { name: 'Sửa thuộc tính', exact: true }).click();
+    await c.getByLabel('Bằng chứng alias / tên khác', { exact: true }).fill(occurrenceQuotes[index][0]);
+    await c.getByLabel('Bằng chứng trạng thái', { exact: true }).fill(occurrenceQuotes[index][1]);
+  }
   const endpoint = () => '/ai/story-brains/' + novel;
   const reviews = async () => (await h.api('GET', endpoint() + '/entity-reviews', undefined, a.token)).data;
   const current = async () => (await reviews()).find(r => r.analysis_run_id === run);
@@ -67,6 +88,8 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
         assert.notEqual(job.status, 'failed'); return job.status === 'waiting_review';
       }, 'Bootstrap did not reach entity review', 60000);
       initial = (await reviews())[0]; run = initial.analysis_run_id;
+      baselineAudit = await storedAudit();
+      immutableRevision = (await h.sql('SELECT revision_id,content_hash,content FROM chapter_revisions WHERE revision_id=$1', [initial.revision_id]))[0];
       assert.equal(initial.status, 'waiting_entity_review'); assert.deepEqual(initial.reviewed_decisions, []);
       locs = initial.candidates.filter(c => c.surface === 'Cồn Vân');
       assert.equal(locs.length, 2);
@@ -86,6 +109,7 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
         await c.getByLabel('Loại thực thể', { exact: true }).click();
         await page.getByRole('option', { name: type, exact: true }).click();
       }
+      await editQuotes(0);
       await c.getByRole('button', { name: /Áp dụng quyết định này/ }).click();
       await c.getByRole('button', { name: 'Hủy', exact: true }).click();
       assert.deepEqual((await current()).reviewed_decisions, []);
@@ -93,20 +117,32 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
       await expect(occurrence(locs[1].candidate_id).getByLabel('Gán nhóm danh tính mới', { exact: true })).toHaveValue('');
       proof.cancel_server_unchanged = true;
     });
-    await h.step('Explicit bulk confirm targets exact IDs; partial save survives full page reload', async () => {
+    await h.step('Explicit bulk confirm preserves occurrence evidence through pagination, partial save and reload', async () => {
+      await assign(locs[1].candidate_id, 'con-van');
+      await editQuotes(1);
       await position(locs[0].candidate_id);
       const c = occurrence(locs[0].candidate_id);
       await c.getByRole('button', { name: /Áp dụng quyết định này/ }).click();
       await c.getByRole('button', { name: 'Xác nhận gán toàn bộ', exact: true }).click();
+      await checkpoint().getByRole('button', { name: '1', exact: true }).click();
       const r = await save(); assert.equal(r.status(), 200);
       const decisions = r.request().postDataJSON().decisions;
+      checkQuotes(decisions); checkQuotes((await storedAudit()).reviewed_decisions);
       assert.deepEqual(decisions.filter(d => d.provisional_identity_key.endsWith('/con-van')).map(d => d.candidate_id).sort(), locs.map(c => c.candidate_id).sort());
       assert.ok(decisions.filter(d => d.provisional_identity_key.endsWith('/con-van')).every(d => d.entity_type === 'LOC'));
       await page.reload(); await page.getByTestId('btn-story-brain').click();
       await page.getByRole('tab', { name: /^Chờ duyệt/ }).click();
       await position(locs[1].candidate_id);
       await expect(occurrence(locs[1].candidate_id).getByLabel('Gán nhóm danh tính mới', { exact: true })).toHaveValue('con-van');
-      proof.partial_reload_loc = true;
+      for (let i = 0; i < locs.length; i++) {
+        await position(locs[i].candidate_id);
+        const c = occurrence(locs[i].candidate_id);
+        await c.getByRole('button', { name: 'Sửa thuộc tính', exact: true }).click();
+        await expect(c.getByLabel('Bằng chứng alias / tên khác', { exact: true })).toHaveValue(occurrenceQuotes[i][0]);
+        await expect(c.getByLabel('Bằng chứng trạng thái', { exact: true })).toHaveValue(occurrenceQuotes[i][1]);
+      }
+      checkQuotes((await current()).reviewed_decisions);
+      proof.partial_reload_loc = true; proof.partial_reload_quotes = true;
     });
     await h.step('Two genuine UI sessions: stale partial save 409 retains local draft and does not mutate server', async () => {
       const before = await current();
@@ -146,6 +182,17 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
       const body = r.request().postDataJSON(); assert.equal(body.finalize, true);
       assert.equal(body.decisions.length, initial.candidates.length);
       assert.ok(body.decisions.filter(d => locs.some(c => c.candidate_id === d.candidate_id)).every(d => d.entity_type === 'LOC'));
+      checkQuotes(body.decisions);
+      const audit = await storedAudit();
+      checkQuotes(audit.reviewed_decisions); checkQuotes(audit.review_submitted_decisions);
+      assert.equal(audit.revision_id, initial.revision_id); assert.equal(audit.source_hash, initial.source_hash);
+      assert.deepEqual(audit.candidates, baselineAudit.candidates); assert.deepEqual(audit.decisions, baselineAudit.decisions);
+      for (const entity of audit.entities) for (const o of entity.occurrences) {
+        assert.equal(o.revision_id, initial.revision_id); assert.equal(o.text_hash, initial.source_hash);
+        assert.equal(immutableRevision.content.slice(o.start, o.end), o.quote);
+      }
+      proof.quote_hashes_by_candidate = Object.fromEntries(locs.map((c, i) => [c.candidate_id, hash(occurrenceQuotes[i])]));
+      proof.postgres_freeze_quotes_preserved = true; proof.machine_and_source_projection_unchanged = true;
       proof.freeze_expected_version = body.expected_version;
       proof.freeze_entities = (await current()).entities.map(e => ({ entity_id: e.entity_id, name: e.phrase, type: e.entity, candidate_ids: e.candidate_ids }));
       assert.equal(proof.freeze_entities.length, 3);
@@ -160,6 +207,12 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
         return q.length ? q : false;
       }, 'Canon proposals did not appear');
       assert.equal(queue.filter(p => p.proposal_type === 'entity').length, 3);
+      assert.equal(queue.filter(p => ['alias', 'state_transition'].includes(p.proposal_type)).length, 0);
+      for (const proposal of queue) for (const e of proposal.evidence) {
+        assert.equal(e.revision_id, initial.revision_id); assert.equal(e.text_hash, initial.source_hash);
+        assert.equal(immutableRevision.content.slice(e.start, e.end), e.quote);
+      }
+      proof.hitl_source_spans_verified = true;
       for (const proposal of queue.filter(p => p.proposal_type === 'entity')) {
         const payload = proposal.payload;
         assert.ok(['Lâm Phong', 'Diệp Linh Nhi', 'Cồn Vân'].includes(payload.canonical_name));
@@ -181,6 +234,9 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
         assert.ok(memory.entities.some(e => e.entity_id === row.id && e.entity_type === row.entity_type));
         assert.ok(proof.freeze_entities.some(e => e.entity_id === row.id));
       }
+      assert.deepEqual((await h.sql('SELECT revision_id,content_hash,content FROM chapter_revisions WHERE revision_id=$1', [initial.revision_id]))[0], immutableRevision);
+      checkQuotes((await storedAudit()).reviewed_decisions);
+      proof.immutable_revision_unchanged = true;
       proof.approved_entities = rows; proof.uuid_preserved = true;
       await h.save('ux-checkpoint-proof.json', proof);
     });

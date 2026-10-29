@@ -410,7 +410,17 @@ function EntityCheckpoint({
   });
   const applyToMatchingSurface = (surface: string, source: Decision, template: (machine: Decision) => Decision) => {
     const targets = bulkTargets(surface, source);
-    const updates = Object.fromEntries(targets.map(c => [c.candidate_id, template(getMachineDecision(c.candidate_id))]));
+    const updates = Object.fromEntries(targets.map(c => {
+      // Bulk changes identity, not the source decision or another occurrence's evidence.
+      if (c.candidate_id === source.candidate_id) return [c.candidate_id, source];
+      const existing = choices[c.candidate_id];
+      const updated = template(existing ?? getMachineDecision(c.candidate_id));
+      return [c.candidate_id, existing ? {
+        ...updated,
+        identity_quote: existing.identity_quote,
+        status_quote: existing.status_quote
+      } : updated];
+    }));
     setChoices(previous => ({ ...previous, ...updates }));
     setDirtyCandidateIds(previous => new Set([...previous, ...targets.map(c => c.candidate_id)]));
   };

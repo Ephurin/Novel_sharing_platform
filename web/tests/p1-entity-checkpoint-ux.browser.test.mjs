@@ -154,6 +154,55 @@ test('Identity checkpoint UX: type, bulk, CAS and isolation', { timeout: 180000 
         assert.equal(h.state.requests.at(-1).body.decisions.find(d => d.candidate_id === 'loc-1').entity_type, 'LOC');
       } finally { await h.page.close(); }
     });
+    await t.test('bulk preserves source and per-occurrence authored quotes through pagination, save, reload and Freeze', async () => {
+      const h = await setup('LOC');
+      const quotes = { 'loc-1': ['Source identity evidence', 'Source status evidence'],
+        'loc-2': ['Target identity evidence', 'Target status evidence'], 'loc-3': ['', ''] };
+      async function fields(id) {
+        const card = h.card(id);
+        await card.getByRole('button', { name: 'Sửa thuộc tính', exact: true }).click();
+        return [card.getByLabel('Bằng chứng alias / tên khác', { exact: true }),
+          card.getByLabel('Bằng chứng trạng thái', { exact: true })];
+      }
+      function assertQuotes(ds) {
+        for (const [id, values] of Object.entries(quotes)) {
+          const d = ds.find(x => x.candidate_id === id);
+          assert.deepEqual([d.identity_quote, d.status_quote], values, 'Evidence must stay with ' + id);
+        }
+        assert.equal(ds.find(d => d.candidate_id === 'loc-1').reason, 'Author refined provisional identity: con-van');
+      }
+      try {
+        h.state.review = { ...h.state.review, review_version: 2, candidates: [
+          ...h.state.review.candidates,
+          { candidate_id: 'loc-3', surface: 'Cồn Vân', start: 60, end: 67, context: 'Cồn Vân ở đây.' },
+          ...Array.from({ length: 3 }, (_, i) => ({ candidate_id: 'extra-' + i, surface: 'Khác', start: 80 + i * 10, end: 84 + i * 10, context: 'Khác.' }))
+        ] };
+        await h.page.evaluate(() => window.__queryClient.invalidateQueries({ queryKey: ['entity-reviews'] }));
+        await h.page.getByRole('button', { name: '2', exact: true }).waitFor();
+        await h.assign();
+        await h.card('loc-2').getByLabel('Gán nhóm danh tính mới', { exact: true }).click();
+        await h.page.getByRole('option', { name: 'con-van', exact: true }).click();
+        for (const id of ['loc-1', 'loc-2']) {
+          const inputs = await fields(id); await inputs[0].fill(quotes[id][0]); await inputs[1].fill(quotes[id][1]);
+        }
+        await h.card('loc-1').getByRole('button', { name: /Áp dụng quyết định này/ }).click();
+        await h.card('loc-1').getByRole('button', { name: 'Xác nhận gán toàn bộ', exact: true }).click();
+        await h.page.getByRole('button', { name: '2', exact: true }).click();
+        await h.page.getByRole('button', { name: '1', exact: true }).click();
+        await h.save(); assertQuotes(h.state.requests.at(-1).body.decisions);
+        await h.page.reload();
+        for (const id of ['loc-1', 'loc-2', 'loc-3']) {
+          const inputs = await fields(id); await expect(inputs[0]).toHaveValue(quotes[id][0]); await expect(inputs[1]).toHaveValue(quotes[id][1]);
+        }
+        for (let i = 0; i < 3; i++) {
+          if (i === 1) await h.page.getByRole('button', { name: '2', exact: true }).click();
+          await h.card('extra-' + i).getByRole('button', { name: 'Loại bỏ', exact: true }).click();
+        }
+        await h.page.getByRole('button', { name: /Đóng băng danh sách entity/ }).click();
+        await expect.poll(() => h.state.requests.filter(r => r.body.finalize).length).toBe(1);
+        assertQuotes(h.state.requests.at(-1).body.decisions);
+      } finally { await h.page.close(); }
+    });
     await t.test('bulk never remaps another explicitly selected same-name UUID', async () => {
       const h = await setup('LOC');
       try {
