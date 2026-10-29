@@ -1,3 +1,4 @@
+import { validateTestDatabaseIsolation } from '../../core/database/test-db-guard.js';
 import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { getPostgresPool, disconnectPostgres } from '../../core/database/postgres.js';
@@ -35,6 +36,7 @@ describe('Phase C: Reader Social, Comment, and Preferences Invariants', () => {
   let draftChapterId: string;
 
   before(async () => {
+    await validateTestDatabaseIsolation(pool,getMongoDatabase());
     const timestamp = Date.now();
 
     // 1. Create Author

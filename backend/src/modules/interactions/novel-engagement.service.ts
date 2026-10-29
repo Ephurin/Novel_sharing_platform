@@ -1,3 +1,4 @@
+import { isContentAdmin } from '../../core/security/auth-context.js';
 import type { ReviewSort } from './novel-engagement.repository.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { AppError } from '../../core/errors/app-error.js';
@@ -6,7 +7,7 @@ import { getNovelStatistics, isActiveReader, listNovelReviews, setNovelFollow, s
 
 export async function readNovelStatistics(novelId: string, auth?: AuthContext) {
   const novel = await findNovelById(novelId);
-  const owner = Boolean(auth && (auth.userId === novel?.authorId || auth.role === 'ADMIN'));
+  const owner = Boolean(auth && (auth.userId === novel?.authorId || isContentAdmin(auth)));
   if (!novel || (novel.status !== 'PUBLISHED' && !owner)) {
     throw new AppError(404, 'CONTENT_001', 'Content not found');
   }

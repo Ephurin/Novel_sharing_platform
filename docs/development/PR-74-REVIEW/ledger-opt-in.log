@@ -1,0 +1,36 @@
+
+> ephurin-backend@0.1.0 test:isolated
+> node scripts/run-isolated-tests.mjs src/modules/wallet/author-data.postgres.test.ts
+
+{"level":30,"time":1793261668959,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 001_auth_user_wallet.sql"}
+{"level":30,"time":1793261669013,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 002_novels.sql"}
+{"level":30,"time":1793261669042,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 003_chapters.sql"}
+{"level":30,"time":1793261669088,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 004_content_control.sql"}
+{"level":30,"time":1793261669094,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 005_reports_description.sql"}
+{"level":30,"time":1793261669141,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 006_reading_interactions.sql"}
+{"level":30,"time":1793261669197,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 007_wallet_transactions.sql"}
+{"level":30,"time":1793261669280,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 008_authoring_context.sql"}
+{"level":30,"time":1793261669308,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 009_chapter_revisions.sql"}
+{"level":30,"time":1793261669328,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 010_analysis_outbox.sql"}
+{"level":30,"time":1793261669336,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 011_outbox_claim_token.sql"}
+{"level":30,"time":1793261669350,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 012_novel_engagement.sql"}
+{"level":30,"time":1793261669367,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 012_reports_unique_open.sql"}
+{"level":30,"time":1793261669380,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 013_novel_review_text.sql"}
+{"level":30,"time":1793261669390,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 014_novel_editorial_metadata.sql"}
+{"level":30,"time":1793261669398,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 015_author_workflow.sql"}
+{"level":30,"time":1793261669434,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 016_author_launch_checklist.sql"}
+{"level":30,"time":1793261669448,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 017_transactional_moderation_evidence.sql"}
+{"level":30,"time":1793261669542,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 018_admin_operations.sql"}
+{"level":30,"time":1793261669551,"pid":8524,"hostname":"TrungTo-PC","msg":"Applied migration 019_admin_job_retries.sql"}
+{"level":30,"time":1793261669552,"pid":8524,"hostname":"TrungTo-PC","msg":"PostgreSQL connection closed"}
+{"level":30,"time":1793261671710,"pid":11292,"hostname":"TrungTo-PC","msg":"PostgreSQL connection closed"}
+✔ author ledger, public profile and project summaries (1765.2749ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2045.8468
+{"isolatedDatabase":"ephurin_test_admin_backend_1793261668515","cleanedUp":true,"exitCode":0}

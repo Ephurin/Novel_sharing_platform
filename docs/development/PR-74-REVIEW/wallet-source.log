@@ -1,0 +1,16 @@
+
+> ephurin-web@0.1.0 test:wallet
+> node --experimental-strip-types --test tests/wallet-earnings.test.mjs
+
+✔ 7 days: calendar boundaries, previous period and source totals (16.8899ms)
+✔ 30 days: calendar boundaries, previous period and source totals (0.85ms)
+✔ 365 days: calendar boundaries, previous period and source totals (1.4684ms)
+✔ empty ledger has zero bars and no invented earnings (0.6594ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 149.3457

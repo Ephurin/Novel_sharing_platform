@@ -1,3 +1,4 @@
+import { isContentAdmin } from '../../core/security/auth-context.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { getPostgresPool } from '../../core/database/postgres.js';
@@ -58,7 +59,7 @@ async function present(result: { items: CommentDocument[]; totalItems: number },
   const byId = new Map(profiles.rows.map(row => [row.user_id, row]));
   const byChapter = new Map(chapters.rows.map(row => [row.chapter_id, row]));
   const replyCounts = new Map(counts.map(row => [row._id, row.total]));
-  const manager = Boolean(auth && (auth.role === 'ADMIN' || (auth.role === 'AUTHOR' && auth.userId === novel.authorId)));
+  const manager = Boolean(auth && (isContentAdmin(auth) || (auth.role === 'AUTHOR' && auth.userId === novel.authorId)));
   return {
     data: result.items.map(comment => {
       const chapter = comment.chapterId ? byChapter.get(comment.chapterId) : null;
@@ -80,7 +81,7 @@ export async function listAuthorComments(auth: AuthContext, novelId: string, inp
   await activeAccount(auth);
   const novel = await findNovelById(novelId);
   if (!novel) throw new AppError(404, 'CONTENT_001', 'Content not found');
-  if (auth.role !== 'ADMIN' && (auth.role !== 'AUTHOR' || novel.authorId !== auth.userId)) throw new AppError(403, 'AUTH_008', 'Chỉ quản lý bình luận thuộc tác phẩm của mình');
+  if (!isContentAdmin(auth) && (auth.role !== 'AUTHOR' || novel.authorId !== auth.userId)) throw new AppError(403, 'AUTH_008', 'Chỉ quản lý bình luận thuộc tác phẩm của mình');
   if (input.scope === 'CHAPTER' && !input.chapterId) throw new AppError(400, 'VALIDATION_001', 'Chọn chương cần xem');
   if (input.chapterId) {
     const chapter = await findChapterById(input.chapterId);
@@ -96,7 +97,7 @@ export async function createCommentReply(auth: AuthContext, parentId: string, in
   if (!parent || parent.parentCommentId || parent.status !== 'APPROVED') throw new AppError(404, 'CONTENT_001', 'Comment not found');
   await publishedTarget(parent.chapterId ?? parent.novelId, parent.chapterId ? 'chapter' : 'novel');
   const novel = await findNovelById(parent.novelId);
-  if (auth.role !== 'ADMIN' && (auth.role !== 'AUTHOR' || novel?.authorId !== auth.userId)) throw new AppError(403, 'AUTH_008', 'Chỉ tác giả của tác phẩm được trả lời tại đây');
+  if (!isContentAdmin(auth) && (auth.role !== 'AUTHOR' || novel?.authorId !== auth.userId)) throw new AppError(403, 'AUTH_008', 'Chỉ tác giả của tác phẩm được trả lời tại đây');
   const reply = await createCommentRow({ novelId: parent.novelId, chapterId: parent.chapterId, parentCommentId: parentId, userId: auth.userId, content: input.content });
   if (!await findCommentById(parentId)) { await softDeleteComment(reply.commentId); throw new AppError(404, 'CONTENT_001', 'Comment not found'); }
   const moderated = await moderateComment(reply.commentId, input.content, auth.userId);
@@ -109,7 +110,7 @@ export async function listCommentReplies(parentId: string, input: ListCommentsIn
   const viewer = auth ? await findAuthUserById(auth.userId) : null;
   const viewerAuth = viewer?.status === 'ACTIVE' && viewer.role === auth?.role ? auth : undefined;
   const novel = await findNovelById(parent.novelId);
-  const manager = viewerAuth && (viewerAuth.role === 'ADMIN' || (viewerAuth.role === 'AUTHOR' && novel?.authorId === viewerAuth.userId));
+  const manager = viewerAuth && (isContentAdmin(viewerAuth) || (viewerAuth.role === 'AUTHOR' && novel?.authorId === viewerAuth.userId));
   if (!manager) await publishedTarget(parent.chapterId ?? parent.novelId, parent.chapterId ? 'chapter' : 'novel');
   if (!novel) throw new AppError(404, 'CONTENT_001', 'Content not found');
   if (parent.status !== 'APPROVED' && parent.userId !== viewerAuth?.userId) throw new AppError(404, 'CONTENT_001', 'Comment not found');
@@ -133,6 +134,6 @@ export async function deleteComment(auth: AuthContext, commentId: string) {
   if (!comment) throw new AppError(404, 'CONTENT_001', 'Content not found');
   const novel = await findNovelById(comment.novelId);
   const ownsNovel = auth.role === 'AUTHOR' && novel?.authorId === auth.userId;
-  if (comment.userId !== auth.userId && auth.role !== 'ADMIN' && !ownsNovel) throw new AppError(403, 'AUTH_008', 'Unauthorized action');
+  if (comment.userId !== auth.userId && !isContentAdmin(auth) && !ownsNovel) throw new AppError(403, 'AUTH_008', 'Unauthorized action');
   await softDeleteComment(commentId);
 }

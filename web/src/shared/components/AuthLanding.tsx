@@ -66,6 +66,7 @@ export function AuthLanding() {
           <Button variant="light" onClick={() => navigate('/public')}>
             Browse public library as guest
           </Button>
+          <Button variant="subtle" onClick={()=>navigate('/appeals')}>Quyết định & khiếu nại tài khoản</Button>
           <Text size="xs" c="dimmed" ta="center">
             OAuth callback is intentionally not wired in this MVP phase.
           </Text>

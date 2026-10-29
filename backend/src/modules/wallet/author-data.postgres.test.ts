@@ -22,7 +22,7 @@ test('author ledger, public profile and project summaries', {
     const { getPostgresPool, disconnectPostgres } = await import('../../core/database/postgres.js');
     disconnect = disconnectPostgres;
     const pool = getPostgresPool();
-    for (const name of ['001_auth_user_wallet', '002_novels', '003_chapters', '004_content_control', '005_reports_description', '006_reading_interactions', '007_wallet_transactions', '012_reports_unique_open','012_novel_engagement', '013_novel_review_text', '014_novel_editorial_metadata','015_author_workflow','016_author_launch_checklist','017_transactional_moderation_evidence']) {
+    for (const name of ['001_auth_user_wallet', '002_novels', '003_chapters', '004_content_control', '005_reports_description', '006_reading_interactions', '007_wallet_transactions', '012_reports_unique_open','012_novel_engagement', '013_novel_review_text', '014_novel_editorial_metadata','015_author_workflow','016_author_launch_checklist','017_transactional_moderation_evidence','018_admin_operations','019_admin_job_retries']) {
       const sql = await readFile(new URL(`../../core/database/migrations/${name}.sql`, import.meta.url), 'utf8');
       await pool.query(sql);
     }
@@ -30,12 +30,13 @@ test('author ledger, public profile and project summaries', {
     const users = await import('../users/users.repository.js');
     const novels = await import('../novels/novels.repository.js');
     const { unlockVipChapter } = await import('./wallet.service.js');
-    const author = randomUUID(), reader = randomUUID(), stranger = randomUUID();
-    for (const [id, role] of [[author, 'AUTHOR'], [reader, 'READER'], [stranger, 'AUTHOR']]) {
+    const author = randomUUID(), reader = randomUUID(), stranger = randomUUID(), reviewer=randomUUID();
+    for (const [id, role] of [[author, 'AUTHOR'], [reader, 'READER'], [stranger, 'AUTHOR'],[reviewer,'ADMIN']]) {
       await pool.query(`insert into users (user_id, email, username, role) values ($1::uuid, $2, $1::text, $3)`, [id, `${id}@test.invalid`, role]);
       await pool.query('insert into user_profiles (user_id) values ($1)', [id]);
       await pool.query('insert into wallets (user_id) values ($1)', [id]);
     }
+    await pool.query("insert into admin_access(user_id,scope) values($1,'FINANCE')",[reviewer]);
     const genre = (await pool.query("insert into genres (name, slug) values ('Fantasy', 'fantasy') returning genre_id")).rows[0].genre_id;
     const novel = (await pool.query(`insert into novels (author_id, title, slug, synopsis, status, views_count, genre_id, cover_image_url)
       values ($1, 'Published', 'published', 'Synopsis', 'PUBLISHED', 123, $2, 'https://example.com/cover.jpg') returning novel_id`, [author, genre])).rows[0].novel_id;
@@ -71,7 +72,7 @@ test('author ledger, public profile and project summaries', {
     const withdrawal = await wallet.createWithdrawRequest(author, { amountCoins: 100, bankAccountLabel: 'Demo destination' });
     assert.ok(withdrawal);
     assert.equal((await wallet.findWalletByUserId(author))?.lockedCoins, 100);
-    await wallet.rejectWithdrawRequest(withdrawal.withdrawRequestId, author, 'Demo rejection');
+    await wallet.rejectWithdrawRequest(withdrawal.withdrawRequestId, reviewer, 'Demo rejection');
     const balance = await wallet.findWalletByUserId(author);
     assert.equal(balance?.coinsBalance, 200);
     assert.equal(balance?.lockedCoins, 0);
@@ -83,7 +84,7 @@ test('author ledger, public profile and project summaries', {
     assert.ok(approved);
     const pendingLedger = await wallet.listTransactions(author, { page: 1, limit: 100, status: 'PENDING' });
     assert.equal(pendingLedger.items[0].balanceChangeCoins, -100);
-    await wallet.approveWithdrawRequest(approved.withdrawRequestId, author);
+    await wallet.approveWithdrawRequest(approved.withdrawRequestId, reviewer);
     assert.equal((await wallet.findWalletByUserId(author))?.coinsBalance, 100);
     assert.equal((await wallet.findWalletByUserId(author))?.lockedCoins, 0);
     await pool.query(`insert into transactions (wallet_id, counterparty_wallet_id, type, status, amount_coins)
@@ -264,8 +265,9 @@ test('author ledger, public profile and project summaries', {
         assert.equal(invalidReview.status, 400);
         await invalidReview.json();
       }
-      for (const role of ['AUTHOR', 'ADMIN']) {
-        const forbiddenHeaders = { ...headers, Authorization: `Bearer ${jwt.sign({ sub: reader, role }, env.JWT_ACCESS_SECRET)}` };
+      // Authorization uses current database roles, not stale role claims on a reader's JWT.
+      for (const [userId,role] of [[author,'AUTHOR'],[reviewer,'ADMIN']]) {
+        const forbiddenHeaders = { ...headers, Authorization: `Bearer ${jwt.sign({ sub: userId, role }, env.JWT_ACCESS_SECRET)}` };
         for (const path of ['rating', 'follow']) {
           const forbidden = await fetch(`${base}/${path}`, { method: 'PUT', headers: forbiddenHeaders, body: JSON.stringify({ score: 9 }) });
           assert.equal(forbidden.status, 403);

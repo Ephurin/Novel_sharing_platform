@@ -1,3 +1,4 @@
+import { assertAdminPermission, audit } from '../admin/admin-access.js';
 import { enqueueNotification } from '../interactions/notification-events.js';
 import type { PoolClient, QueryResultRow } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
@@ -411,7 +412,7 @@ export async function listWithdrawRequests(input: {
       join wallets w on w.wallet_id = wr.wallet_id
       join users u on u.user_id = w.user_id
       where ($1::transaction_status is null or wr.status = $1)
-      order by wr.created_at desc
+      order by wr.created_at desc, wr.withdraw_request_id
       limit $2 offset $3
     `,
     [input.status ?? null, input.limit, offset]
@@ -429,6 +430,7 @@ export async function listWithdrawRequests(input: {
       walletId: row.wallet_id,
       amountCoins: row.amount_coins,
       bankAccountLabel: row.bank_account_label,
+      rejectionReason: row.rejection_reason,
       status: row.status,
       transactionId: row.transaction_id,
       createdAt: row.created_at
@@ -439,6 +441,7 @@ export async function listWithdrawRequests(input: {
 
 export async function approveWithdrawRequest(withdrawRequestId: string, adminUserId: string) {
   return withPostgresTransaction(async (client) => {
+    await assertAdminPermission({userId:adminUserId,role:'ADMIN'},'finance',client);
     const requestResult = await client.query(
       'select * from withdraw_requests where withdraw_request_id = $1 for update',
       [withdrawRequestId]
@@ -475,6 +478,18 @@ export async function approveWithdrawRequest(withdrawRequestId: string, adminUse
       [withdrawRequestId, adminUserId]
     );
 
+    await audit(
+      client,
+      { userId: adminUserId, role: 'ADMIN' },
+      {
+        action: 'WITHDRAW_APPROVED',
+        targetType: 'WITHDRAW',
+        targetId: withdrawRequestId,
+        affectedUserId: wallet.userId,
+        before: withdrawRequest,
+        after: result.rows[0]
+      }
+    );
     return {
       withdrawRequestId,
       userId: wallet.userId,
@@ -487,6 +502,7 @@ export async function approveWithdrawRequest(withdrawRequestId: string, adminUse
 
 export async function rejectWithdrawRequest(withdrawRequestId: string, adminUserId: string, reason: string) {
   return withPostgresTransaction(async (client) => {
+    await assertAdminPermission({userId:adminUserId,role:'ADMIN'},'finance',client);
     const requestResult = await client.query(
       'select * from withdraw_requests where withdraw_request_id = $1 for update',
       [withdrawRequestId]
@@ -525,6 +541,19 @@ export async function rejectWithdrawRequest(withdrawRequestId: string, adminUser
       [withdrawRequestId, adminUserId, reason]
     );
 
+    await audit(
+      client,
+      { userId: adminUserId, role: 'ADMIN' },
+      {
+        action: 'WITHDRAW_REJECTED',
+        targetType: 'WITHDRAW',
+        targetId: withdrawRequestId,
+        affectedUserId: wallet.userId,
+        reason,
+        before: withdrawRequest,
+        after: result.rows[0]
+      }
+    );
     return {
       withdrawRequestId,
       userId: wallet.userId,

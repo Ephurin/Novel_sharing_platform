@@ -1,0 +1,25 @@
+{
+  "webTypecheck": "PASS",
+  "backendTypecheck": "PASS",
+  "webBuild": "PASS (native and Docker)",
+  "backendBuild": "PASS",
+  "lint": "No lint script configured in web/backend",
+  "adminBrowser": {
+    "pass": 13,
+    "fail": 0,
+    "skip": 0
+  },
+  "backendModeration": {
+    "pass": 22,
+    "fail": 0,
+    "skip": 0
+  },
+  "wallet": {
+    "pass": 4,
+    "fail": 0
+  },
+  "screenshots": 36,
+  "apiContractsChanged": false,
+  "backendCodeChanged": false,
+  "localUi": "http://localhost:8080/admin"
+}

@@ -1,3 +1,5 @@
+import { getMongoDatabase } from '../../core/database/mongo.js';
+import { validateTestDatabaseIsolation } from '../../core/database/test-db-guard.js';
 import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { getPostgresPool, disconnectPostgres } from '../../core/database/postgres.js';
@@ -19,6 +21,7 @@ describe('Phase C: Author Publish -> Admin Moderation Lifecycle Invariants', () 
   let readerAuth: AuthContext;
 
   before(async () => {
+    await validateTestDatabaseIsolation(pool,getMongoDatabase());
     const timestamp = Date.now();
     // 1. Create Author
     const authorRes = await pool.query(
@@ -38,7 +41,8 @@ describe('Phase C: Author Publish -> Admin Moderation Lifecycle Invariants', () 
       [`admin-test-${timestamp}@ephurin.com`, `admin_${timestamp}`]
     );
     adminId = adminRes.rows[0].user_id;
-    adminAuth = { userId: adminId, role: 'ADMIN' };
+    await pool.query("insert into admin_access(user_id,scope) values($1,'SUPER_ADMIN')",[adminId]);
+    adminAuth = { userId: adminId, role: 'ADMIN',adminScope:'SUPER_ADMIN' };
 
     // 3. Create Reader
     const readerRes = await pool.query(

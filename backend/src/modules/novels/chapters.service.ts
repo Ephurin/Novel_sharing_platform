@@ -1,3 +1,4 @@
+import { isContentAdmin } from '../../core/security/auth-context.js';
 import type { PoolClient } from 'pg';
 import { createHash } from 'node:crypto';
 import { assertActiveAccount } from '../../core/security/active-account.js';
@@ -30,7 +31,7 @@ function countWords(content: string) {
 }
 
 function assertOwner(resource: { authorId: string }, auth: AuthContext) {
-  if (auth.role === 'ADMIN') {
+  if (isContentAdmin(auth)) {
     return;
   }
 
@@ -112,7 +113,7 @@ export async function createChapter(auth: AuthContext, novelId: string, input: C
 export async function listChapters(novelId: string, auth?: AuthContext) {
   const novel = await readNovel(novelId, auth);
   const rows = await listChaptersByNovelId(novelId);
-  if (auth && (auth.userId === novel.authorId || auth.role === 'ADMIN')) {
+  if (auth && (auth.userId === novel.authorId || isContentAdmin(auth))) {
     const schedules = await listPublicationSchedules(novelId);
     return rows.map(chapter => ({ ...chapter, publicationSchedule: schedules.get(chapter.chapterId) ?? null }));
   }
