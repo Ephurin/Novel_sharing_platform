@@ -1,0 +1,18 @@
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade  -> 0001_narrative_foundation, Create Narrative Memory foundation tables.
+INFO  [alembic.runtime.migration] Running upgrade 0001_narrative_foundation -> 0002_state_projection, Add confirmed transitions, participants and rebuildable state projections.
+INFO  [alembic.runtime.migration] Running upgrade 0002_state_projection -> 0003_manuscript_bootstrap, Add durable manuscript bootstrap jobs.
+INFO  [alembic.runtime.migration] Running upgrade 0003_manuscript_bootstrap -> 0004_writing_generations, Add durable writing generations.
+INFO  [alembic.runtime.migration] Running upgrade 0004_writing_generations -> 0005_revision_provenance, Add revision provenance and fact chapter number.
+INFO  [alembic.runtime.migration] Running upgrade 0005_revision_provenance -> 0006_fix_revision_provenance, Fix revision provenance schema with revision_id and unique constraint.
+INFO  [alembic.runtime.migration] Running upgrade 0006_fix_revision_provenance -> 0007_semantic_memory_foundation, Add semantic-memory chunk and embedding storage.
+INFO  [alembic.runtime.migration] Running upgrade 0007_semantic_memory_foundation -> 0008_story_plans, Add story_plans and story_plan_objectives storage.
+INFO  [alembic.runtime.migration] Running upgrade 0008_story_plans -> 0009_autonomous_runs
+INFO  [alembic.runtime.migration] Running upgrade 0009_autonomous_runs -> 0010_fact_supersession, Keep fact revision history while projecting only the current source occurrence.
+INFO  [alembic.runtime.migration] Running upgrade 0010_fact_supersession -> 0011_entity_candidate_audit, Persist candidate decisions separately from approved narrative memory.
+INFO  [alembic.runtime.migration] Running upgrade 0011_entity_candidate_audit -> 0012_entity_guidance, Author extraction guidance, kept outside approved narrative memory.
+INFO  [alembic.runtime.migration] Running upgrade 0012_entity_guidance -> 0013_objective_intent, Monotone objective intent epoch for accept-commit fencing.
+INFO  [alembic.runtime.migration] Running upgrade 0013_objective_intent -> 0014_entity_profiles, Additive author profile and private audit ledger (AX-01).
+INFO  [alembic.runtime.migration] Running upgrade 0014_entity_profiles -> 0015_provenance_timestamp, Align provenance timestamp nullability without inventing historical data.
+INFO  [alembic.runtime.migration] Running upgrade 0015_provenance_timestamp -> 0016_entity_profile_audit_timestamp, Require real audit timestamps without rewriting historical audit data.

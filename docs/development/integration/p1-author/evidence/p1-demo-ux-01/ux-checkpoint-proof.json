@@ -1,0 +1,65 @@
+{
+  "setup": "Public API registration/onboarding/novel/chapter fixture; UI manuscript bootstrap, checkpoint and Canon decisions",
+  "flag": true,
+  "bootstrap_job_id": "18ec2c7c-ddd4-58da-a60c-f81400ba872d",
+  "novel_id": "58c7e625-6d3b-44b5-8ada-1f693ee2005c",
+  "analysis_run_id": "5faefab7-e1ce-4993-ab96-e006e93f9d29",
+  "loc_candidate_ids": [
+    "e9e97db1820ed3bf823d0e69",
+    "b530a172152bf81d226138f0"
+  ],
+  "cancel_server_unchanged": true,
+  "partial_reload_loc": true,
+  "real_cas_status": 409,
+  "dirty_retained": true,
+  "conflict_server_unchanged": true,
+  "freeze_expected_version": 4,
+  "freeze_entities": [
+    {
+      "entity_id": "9a3012a4-9618-41bf-96ba-b325d7934e78",
+      "name": "Lâm Phong",
+      "type": "PER",
+      "candidate_ids": [
+        "ddc4557566e10aa8ca1da2f7"
+      ]
+    },
+    {
+      "entity_id": "4ce6f1a4-9824-4b58-9482-2174f6e86411",
+      "name": "Diệp Linh Nhi",
+      "type": "PER",
+      "candidate_ids": [
+        "5edd4f8dcc02a8d18d213881"
+      ]
+    },
+    {
+      "entity_id": "6fe290bb-88b0-449e-9973-d92e158f263a",
+      "name": "Cồn Vân",
+      "type": "LOC",
+      "candidate_ids": [
+        "e9e97db1820ed3bf823d0e69",
+        "b530a172152bf81d226138f0"
+      ]
+    }
+  ],
+  "approved_entities": [
+    {
+      "id": "6fe290bb-88b0-449e-9973-d92e158f263a",
+      "canonical_name": "Cồn Vân",
+      "entity_type": "LOC",
+      "confirmation_status": "confirmed"
+    },
+    {
+      "id": "4ce6f1a4-9824-4b58-9482-2174f6e86411",
+      "canonical_name": "Diệp Linh Nhi",
+      "entity_type": "PER",
+      "confirmation_status": "confirmed"
+    },
+    {
+      "id": "9a3012a4-9618-41bf-96ba-b325d7934e78",
+      "canonical_name": "Lâm Phong",
+      "entity_type": "PER",
+      "confirmation_status": "confirmed"
+    }
+  ],
+  "uuid_preserved": true
+}

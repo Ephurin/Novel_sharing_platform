@@ -11,9 +11,10 @@
     "test:wallet": "node --experimental-strip-types --test tests/wallet-earnings.test.mjs",
     "test:draft-browser": "node --test tests/draft-persistence.browser.test.mjs",
     "test:author-ide-browser": "node --test tests/author-ide.browser.test.mjs",
-    "test:p1-hitl": "tsx --test tests/p1-author-ide-hitl-integration.test.ts && node --test tests/p1-hitl-interactions.browser.test.mjs",
+    "test:p1-hitl": "tsx --test tests/p1-author-ide-hitl-integration.test.ts && node --test tests/p1-hitl-interactions.browser.test.mjs && node --test tests/p1-entity-checkpoint-ux.browser.test.mjs",
     "test:p1-hitl-interactions": "node --test tests/p1-hitl-interactions.browser.test.mjs",
-    "test:entity-profile": "tsx --test tests/entity-profile.test.ts && node --test tests/entity-profile.browser.test.mjs"
+    "test:entity-profile": "tsx --test tests/entity-profile.test.ts && node --test tests/entity-profile.browser.test.mjs",
+    "test:p1-checkpoint-real": "node --test tests/p1-entity-checkpoint-real.browser.test.mjs"
   },
   "dependencies": {
     "@fontsource-variable/material-symbols-outlined": "^5.3.9",
