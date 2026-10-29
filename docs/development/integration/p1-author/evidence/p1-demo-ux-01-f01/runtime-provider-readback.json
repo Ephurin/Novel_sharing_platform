@@ -1,0 +1,47 @@
+{
+  "project": "codex-p1-final-c6f98821bb",
+  "configuration_basis": "resolved compose config used by successful up; not a post-cleanup container env probe",
+  "ai_env_allowlist": {
+    "ENTITY_CANDIDATE_VERIFICATION_ENABLED": "true",
+    "LLM_PROVIDER": "openai",
+    "LLM_BASE_URL": "http://budget-gateway:18090/v1",
+    "LLM_FALLBACK_PROVIDER": "disabled",
+    "EMBEDDING_PROVIDER": "none"
+  },
+  "fake_received_count": 5,
+  "fake_requests": [
+    {
+      "request_sha256": "9cf037f66fd335fc990c437dd6ce16c241ac1a8f0afccebcbe277791c16e6a30",
+      "operation": "discovery",
+      "received_at": 1793291722.2251666,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "adf052d5485b733c60fc8b935a2fb14feee5c2c5282a9072f486eeeb8427f2eb",
+      "operation": "discovery",
+      "received_at": 1793291722.28913,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "3548658a291e677963fe1311dde79e60f3957c493b6c695250070981f656598c",
+      "operation": "discovery",
+      "received_at": 1793291737.842119,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "1bb18900c065502ba4e2e753f04740f5eae2a6ae01435e7efb36df33e28aa190",
+      "operation": "discovery",
+      "received_at": 1793291737.914982,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "762a81bb0e0c6cf8b0ea5822095bdfc73012d24ceb69d8ee7ada5b2a947d8541",
+      "operation": "discovery",
+      "received_at": 1793291737.9706337,
+      "upstream_auth_valid": true
+    }
+  ],
+  "live_provider_calls": 0,
+  "ledger_read_command_exit": 0,
+  "ledger_read_method": "ephemeral owned fake-service container reads retained evidence volume after stack shutdown; no provider server started"
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "name": "Public API fixture: fresh author/novel/chapter; real UI bootstrap creates immutable revision and fake extraction",
+    "started": "2026-10-29T16:35:18.268Z",
+    "status": "PASS",
+    "finished": "2026-10-29T16:35:24.540Z"
+  },
+  {
+    "name": "Author groups, explicit LOC selection; canceled bulk has no mutation",
+    "started": "2026-10-29T16:35:24.541Z",
+    "status": "PASS",
+    "finished": "2026-10-29T16:35:27.251Z"
+  },
+  {
+    "name": "Explicit bulk confirm preserves occurrence evidence through pagination, partial save and reload",
+    "started": "2026-10-29T16:35:27.252Z",
+    "status": "PASS",
+    "finished": "2026-10-29T16:35:30.868Z"
+  },
+  {
+    "name": "Two genuine UI sessions: stale partial save 409 retains local draft and does not mutate server",
+    "started": "2026-10-29T16:35:30.869Z",
+    "status": "PASS",
+    "finished": "2026-10-29T16:35:35.344Z"
+  },
+  {
+    "name": "Explicit remaining decisions; Freeze summary and payload preserve author types",
+    "started": "2026-10-29T16:35:35.346Z",
+    "status": "PASS",
+    "finished": "2026-10-29T16:35:37.568Z"
+  },
+  {
+    "name": "Separate HITL proposal approval and activation; final PostgreSQL Canon readback",
+    "started": "2026-10-29T16:35:37.569Z",
+    "status": "PASS",
+    "finished": "2026-10-29T16:35:38.888Z"
+  }
+]
