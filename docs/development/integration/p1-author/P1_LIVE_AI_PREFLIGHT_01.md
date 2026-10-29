@@ -18,6 +18,7 @@
 | **Intended Fallback Model** | Gemini 3.1 Flash Lite | Identifier `gemini-3.1-flash-lite` supported via env; **NO automatic intra-Gemini code fallback**. |
 | **Forbidden Models** | Gemini 2.5 / 1.5 / 2.0 | **`DISQUALIFIED`**; zero references permitted in active configuration. |
 | **Silent Mock Fallback** | `LLM_LOCAL_FALLBACK` | Defaults to `"true"` in code (`core/llm_service.py`); **MUST be set to `"false"`** in env to prevent silent mock substitution. |
+| **Key Quota Envelope** | 15 RPM / 250K TPM / 500 RPD | **CONFIRMED BY OPERATOR**; requires inter-request pacing $\ge 4.5\text{s}$ ($\le 12\text{ RPM}$) to prevent burst 429s. |
 | **Call Budget Gateway** | Context Token Budget | Present (`ContextBudgetPacker` 12k–24k); external provider spending gateway is absent and must be bounded by harness. |
 | **HITL Checkpoint** | `ENTITY_CANDIDATE_VERIFICATION_ENABLED` | Fully integrated two-phase CAS checkpoint; enforces source quotes, author review, and freeze before extraction. |
 | **Private Note Isolation** | `EntityProfilePatch` & `approved_profile()` | Verified by code audit: `author_notes` is excluded from prompt context at the domain and repository layers. |
@@ -206,6 +207,27 @@ The evaluation scenario is a small Vietnamese fantasy story segment (~2,000 Unic
 - **Request Timeout:** **30 seconds** (`LLM_TIMEOUT_SECONDS=30`).
 - **Fail-Closed Policy:** On HTTP 429 (Quota Exceeded) or network failure with `LLM_LOCAL_FALLBACK=false`, the job immediately transitions to `status="failed"` with code `QUOTA_EXCEEDED` or `PROVIDER_ERROR`. No infinite retries or fake text generation.
 
+### 3.4 Confirmed Key Quota Baseline & Rate-Pacing Strategy
+
+The operator has confirmed the exact key quota parameters for the live testing account:
+- **Rate Limit (RPM):** **15 Requests Per Minute (RPM)**
+- **Token Throughput (TPM):** **250,000 Tokens Per Minute (250K TPM)**
+- **Daily Request Allowance (RPD):** **500 Requests Per Day (RPD)**
+
+#### Analysis Against Workflow Forecast:
+1. **RPM Headroom & Burst Pacing Risk:**
+   - The small Vietnamese fantasy workflow requires **8 base requests** (up to **11 requests** including bounded verification repair, quote repair, and one operational retry).
+   - If executed in rapid unpaced succession ($< 30\text{s}$), 8–11 calls will exceed 15 RPM, triggering HTTP 429 `RESOURCE_EXHAUSTED`.
+   - **Mitigation / Pacing Invariant:** The acceptance test driver MUST enforce an explicit inter-request sleep delay of $\ge 4.5\text{ seconds}$ between sequential calls. This caps peak request rate at $\le 12\text{ RPM}$, providing a 20% safety margin below the 15 RPM threshold.
+   - Total workflow elapsed execution time with 4.5s pacing: approximately $50\text{--}60\text{ seconds}$.
+2. **TPM Headroom:**
+   - The entire workflow consumes ~20,000 to 30,000 total tokens (input + output).
+   - Under the 250,000 TPM ceiling, this represents only **8.0% to 12.0%** of minute token capacity. TPM is well within safe operating margins.
+3. **RPD Headroom:**
+   - A complete acceptance run consumes at most 11 calls, which represents **2.2%** of the 500 RPD daily allowance per key.
+   - A single key supports up to **45 complete acceptance runs per day**, provided runs are spaced and do not loop on failure.
+   - The fail-closed policy ensures that any unexpected failure aborts immediately without burning remaining daily quota.
+
 ---
 
 ## 4. Acceptance Design & Evaluation Fixture
@@ -329,7 +351,7 @@ flowchart TD
 | Risk ID | Severity | Likelihood | Risk Description | Mitigation Strategy |
 |---|---|---|---|---|
 | **R-01** | **CRITICAL** | High | `LLM_LOCAL_FALLBACK="true"` silently masks provider failure by generating canned fallback prose. | Live environment contract MUST explicitly set `LLM_LOCAL_FALLBACK="false"`. |
-| **R-02** | **HIGH** | Medium | Gemini API key has restricted quota (e.g. free tier RPM/RPD exhaustion). | Implement bounded call budget ($\le 15$ requests); fail closed on 429. |
+| **R-02** | **HIGH** | Medium | Key quota: 15 RPM, 250K TPM, 500 RPD. Burst execution of 8–11 calls within <30s risks tripping 15 RPM limit. | Enforce sequential execution with an explicit inter-request sleep delay of $\ge 4.5\text{s}$ ($\le 12\text{ RPM}$). Hard request cap $\le 15$ calls. Fail closed on 429. |
 | **R-03** | **HIGH** | Medium | `gemini-3.5-flash-lite` model ID not accessible on active Google Cloud project. | Operator can override `LLM_MODEL=gemini-3.1-flash-lite` without code modifications. |
 | **R-04** | **MEDIUM** | Low | Verbatim source quote grounding fails due to LLM punctuation normalization. | `resolve_grounded_quote()` applies whitespace-tolerant regex before attempting bounded LLM repair. |
 | **R-05** | **LOW** | Low | Secret author notes leak into AI prompt context. | Verified by domain test: `approved_profile()` strictly filters `author_notes` out of LLM payloads. |
@@ -357,7 +379,10 @@ SERVICE_AUTH_DISABLED=false
 # 2. Run static configuration assertion (0 cloud calls)
 python -c "import os; from dotenv import load_dotenv; load_dotenv('.env.acceptance.local'); from core.settings import Settings; s = Settings.from_env(); assert s.llm_provider == 'gemini'; assert s.llm_model == 'gemini-3.5-flash-lite'; assert s.entity_candidate_verification_enabled is True; print('Configuration preflight OK')"
 
-# 3. STOP: Await formal budget authorization signature before executing live acceptance script
+# 3. Acceptance Execution Invariant (Once spending is authorized):
+# - Rate-Pacing: Enforce >= 4.5s sleep between consecutive provider requests (caps at <= 12 RPM < 15 RPM).
+# - Hard Ceiling: Stop immediately if call count reaches 15 or on HTTP 429.
+# - Fail-Closed: Assert LLM_LOCAL_FALLBACK == 'false'.
 ```
 
 ---
@@ -367,3 +392,4 @@ python -c "import os; from dotenv import load_dotenv; load_dotenv('.env.acceptan
 - **Audited by:** Gemini 3.8 Flash (Autonomous Agent)
 - **Audit Methodology:** Full Codebase Static Analysis, AST & Dependency Trace, Schema Inspection, Zero Cloud Calls.
 - **Next Milestone:** Request operator budget authorization ($\le 15$ calls, $\le \$0.50$ ceiling) and credential verification before initiating live acceptance.
+
