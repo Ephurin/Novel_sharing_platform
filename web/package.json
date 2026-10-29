@@ -20,7 +20,8 @@
     "test:animated-navigation": "node --test tests/animated-navigation.browser.test.mjs",
     "test:author-admin-motion": "node --test tests/author-admin-motion.browser.test.mjs",
     "test:manuscript-tools": "node --experimental-strip-types --test tests/manuscript-tools.test.mjs",
-    "test:studio-tools": "tsx --test tests/studio-tools.test.mjs && node --test tests/studio-workbench.browser.test.mjs"
+    "test:studio-tools": "tsx --test tests/studio-tools.test.mjs && node --test tests/studio-workbench.browser.test.mjs",
+    "test:studio-notes-layout": "node --test tests/studio-notes-layout.browser.test.mjs"
   },
   "dependencies": {
     "@animate-ui/react": "2.3.0",

@@ -47,9 +47,10 @@ export function downloadStudioFile(title: string, content: string, extension: 't
 }
 
 /** Reveal the selected text in an auto-growing textarea without altering its value. */
-export function revealStudioSelection(editor: HTMLTextAreaElement, start: number, end: number) {
-  if (!editor.dispatchEvent(new CustomEvent('studio-select-source', { detail: { start, end }, cancelable: true }))) return;
+export function revealStudioSelection(editor: HTMLTextAreaElement, start: number, end: number, scroll = true) {
+  if (!editor.dispatchEvent(new CustomEvent('studio-select-source', { detail: { start, end, scroll }, cancelable: true }))) return;
   editor.focus({ preventScroll: true }); editor.setSelectionRange(start, end);
+  if (!scroll) return;
   const viewport = editor.closest<HTMLElement>('.sc-editor-workspace'); if (!viewport) return;
   const mirror = document.createElement('div'), style = getComputedStyle(editor);
   mirror.setAttribute('aria-hidden', 'true');

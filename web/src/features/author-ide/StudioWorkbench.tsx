@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, useReducedMotion } from 'motion/react';
 import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
@@ -7,7 +7,7 @@ import { AnimatedTooltip } from '../../shared/components/AnimatedTooltip';
 import { AnimatedProgress } from '../../shared/components/AnimatedProgress';
 import { ManuscriptContent } from '../../shared/components/ManuscriptContent';
 import { useWorkspacePreference } from '../../shared/components/WorkspacePreferences';
-import { downloadStudioFile, findText, plainStudioText, focusStudioEditor, isStudioEditorTarget, manuscriptScenes, replaceMatches, revealStudioSelection, studioStatistics } from './studio-tools';
+import { downloadStudioFile, findText, plainStudioText, isStudioEditorTarget, manuscriptScenes, replaceMatches, revealStudioSelection, studioStatistics } from './studio-tools';
 import { PassageNotes } from './PassageNotes';
 import { transformStudioRange } from './studio-formatting';
 import './studio-workbench.css';
@@ -18,8 +18,9 @@ type Props = {
   undo: () => void; redo: () => void; canUndo: boolean; canRedo: boolean; save: () => Promise<void>;
   onError: (message: string) => void; exportOpen: boolean; onExportClose: () => void;
   chapterSettings?: ReactNode; fileActions?: ReactNode;
+  formatToolbarVisible: boolean;
 };
-export function StudioWorkbench({ scope, title, content, editor, disabled, apply, undo, redo, canUndo, canRedo, save, onError, exportOpen, onExportClose, chapterSettings, fileActions }: Props) {
+export function StudioWorkbench({ scope, title, content, editor, disabled, apply, undo, redo, canUndo, canRedo, save, onError, exportOpen, onExportClose, chapterSettings, fileActions, formatToolbarVisible }: Props) {
   const [panel, setPanel] = useState<'search' | 'replace' | 'scenes' | 'notes' | null>(null);
   const [preview, setPreview] = useState(false), [statistics, setStatistics] = useState(false), [help, setHelp] = useState(false);
   const [query, setQuery] = useState(''), [replacement, setReplacement] = useState('');
@@ -52,6 +53,7 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
   const scenes = useMemo(() => manuscriptScenes(content), [content]);
   const rememberSelection = () => { const el = editor.current; if (el) setSelected(el.value.slice(el.selectionStart, el.selectionEnd)); };
   const select = (start: number, end: number) => { if (editor.current) revealStudioSelection(editor.current, start, end); };
+  const closeTools = () => { setPanel(null); const el = editor.current; if (el) revealStudioSelection(el, el.selectionStart, el.selectionEnd, false); };
   const nextMatch = (direction = 1) => {
     if (!found.matches.length) return;
     const next = matchIndex < 0 ? (direction > 0 ? 0 : found.matches.length - 1) : (matchIndex + direction + found.matches.length) % found.matches.length;
@@ -84,7 +86,15 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
   };
   const setNoteValue = (value: string) => { setNote(value); try { localStorage.setItem(noteKey, value); setNoteError(''); } catch { setNoteError('Không lưu được ghi chú trên máy. Hãy tải ghi chú về trước khi rời trang.'); } };
   const addNote = () => { setPanel('notes'); setNoteTab('passages'); setNoteRequest(value => value + 1); };
-  useEffect(() => { setNotesHost(editor.current?.closest('.sc-writing-studio')?.querySelector<HTMLElement>('.sc-studio-body') ?? null); const el = editor.current; el?.addEventListener('studio-add-note', addNote); return () => el?.removeEventListener('studio-add-note', addNote); }, [editor]);
+  useEffect(() => { setNotesHost(editor.current?.closest<HTMLElement>('.sc-studio-editor-region') ?? null); const el = editor.current; el?.addEventListener('studio-add-note', addNote); return () => el?.removeEventListener('studio-add-note', addNote); }, [editor]);
+  useLayoutEffect(() => {
+    if (!notesHost) return;
+    const toolbar = notesHost.querySelector<HTMLElement>('.sc-format-toolbar');
+    const measure = () => notesHost.style.setProperty('--sc-studio-format-height', `${toolbar ? toolbar.getBoundingClientRect().height + parseFloat(getComputedStyle(toolbar).marginBottom || '0') : 0}px`);
+    measure();
+    const observer = new ResizeObserver(measure); if (toolbar) observer.observe(toolbar);
+    return () => observer.disconnect();
+  }, [notesHost, formatToolbarVisible]);
   useEffect(() => { const root = editor.current?.closest<HTMLElement>('.sc-writing-studio'); if (root) root.dataset.writingWidth = width; return () => { if (root) delete root.dataset.writingWidth; }; }, [width, editor]);
   useEffect(() => { setMatchIndex(-1); }, [query, caseSensitive, wholeWord]);
   useEffect(() => { if (panel && panel !== 'notes') panelRef.current?.querySelector<HTMLElement>((panel === 'search' || panel === 'replace') ? '[aria-label="Tìm trong bản thảo"]' : '.sc-studio-scene-list button')?.focus({ preventScroll: true }); }, [panel]);
@@ -102,7 +112,7 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
       else if (inEditor && !disabled && mod && key === 'y') { event.preventDefault(); redo(); }
       else if (inEditor && !disabled && mod && key === '\\') { event.preventDefault(); transform('clear', false); }
       else if (inEditor && mod && event.shiftKey && key === 'c') { event.preventDefault(); rememberSelection(); setStatistics(true); }
-      else if (event.key === 'Escape' && panel) { setPanel(null); focusStudioEditor(editor.current); }
+      else if (event.key === 'Escape' && panel) { closeTools(); }
     };
     document.addEventListener('keydown', keydown); return () => document.removeEventListener('keydown', keydown);
   });
@@ -145,19 +155,19 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
         <Menu.Divider /><Menu.Label>Chiều rộng vùng viết</Menu.Label>
         {(['narrow','standard','wide'] as const).map(option => <Menu.Item key={option} onClick={() => setWidth(option)} leftSection={width === option ? '✓' : ' '}>{option === 'narrow' ? 'Hẹp · dòng ngắn' : option === 'standard' ? 'Vừa · mặc định' : 'Rộng · tận dụng màn hình'}</Menu.Item>)}
       </Menu.Dropdown></Menu>
-      <button type="button" aria-expanded={panel === 'notes'} aria-controls="studio-notes-sidebar" onClick={() => setPanel(panel === 'notes' ? null : 'notes')}>Ghi chú</button>
+      <button type="button" aria-expanded={panel === 'notes'} aria-controls="studio-notes-sidebar" onMouseDown={event => event.preventDefault()} onClick={() => panel === 'notes' ? closeTools() : setPanel('notes')}>Ghi chú</button>
       {!online && <span role="status" className="sc-studio-offline">Ngoại tuyến · kiểm tra trạng thái lưu trước khi rời trang</span>}
     </div>{chapterSettings}</div>
     <motion.section hidden={!panel || panel === 'notes'} ref={panelRef} className="sc-studio-tool-panel" aria-label={panel === 'search' ? 'Tìm kiếm bản thảo' : panel === 'replace' ? 'Thay thế bản thảo' : 'Điều hướng cảnh'} initial={false} animate={{ opacity: 1, height: 'auto' }} transition={{ duration: reduce ? 0 : 0.16 }}>
-      <button type="button" className="sc-studio-panel-close" aria-label="Đóng công cụ" onClick={() => { setPanel(null); focusStudioEditor(editor.current); }}>×</button>
+      <button type="button" className="sc-studio-panel-close" aria-label="Đóng công cụ" onClick={closeTools}>×</button>
       {(panel === 'search' || panel === 'replace') && <><div className="sc-studio-tool-row"><label>Tìm<input aria-label="Tìm trong bản thảo" value={query} onChange={e => setQuery(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); nextMatch(e.shiftKey ? -1 : 1); } }} /></label>{panel === 'replace' && <label>Thay bằng<input aria-label="Thay bằng" value={replacement} onChange={e => setReplacement(e.target.value)} /></label>}
         <button type="button" disabled={!found.matches.length} onClick={() => nextMatch(-1)}>Trước</button><button type="button" disabled={!found.matches.length} onClick={() => nextMatch(1)}>Tiếp</button>
         {panel === 'replace' && <><button type="button" disabled={disabled || !found.matches.length} onClick={replaceOne}>Thay một</button><button type="button" disabled={disabled || !found.matches.length || found.truncated} onClick={() => { apply(replaceMatches(content, found.matches, replacement), 0, 0); setMatchIndex(-1); setAnnouncement(`Đã thay ${found.matches.length} kết quả. Có thể hoàn tác.`); }}>Thay tất cả ({found.matches.length})</button></>}</div>
         <div className="sc-studio-tool-row"><label><input type="checkbox" checked={caseSensitive} onChange={e => setCaseSensitive(e.target.checked)} /> Phân biệt hoa/thường</label><label><input type="checkbox" checked={wholeWord} onChange={e => setWholeWord(e.target.checked)} /> Nguyên từ</label><span>{found.truncated ? 'Hơn 10.000 kết quả. Thu hẹp tìm kiếm để thay tất cả.' : `${found.matches.length} kết quả`}</span></div></>}
       {panel === 'scenes' && <><p className="text-meta">Các cảnh được ngăn bằng dấu ngắt cảnh. Bấm để đến vị trí trong bản thảo.</p><div className="sc-studio-scene-list">{scenes.map((scene, index) => <button key={scene.start} type="button" onClick={() => select(scene.start, scene.start)}>{index + 1}. {scene.label}</button>)}</div></>}
     </motion.section>
-    {notesHost && createPortal(<aside id="studio-notes-sidebar" hidden={panel !== 'notes'} className="sc-studio-notes-sidebar" aria-label="Ghi chú chương">
-      <header><h2>Ghi chú</h2><button type="button" aria-label="Đóng công cụ" onClick={() => { setPanel(null); focusStudioEditor(editor.current); }}>×</button></header>
+    {notesHost && createPortal(<aside id="studio-notes-sidebar" data-open={panel === 'notes'} inert={panel !== 'notes'} aria-hidden={panel !== 'notes'} className="sc-studio-notes-sidebar" aria-label="Ghi chú chương">
+      <header><h2>Ghi chú</h2><button type="button" aria-label="Đóng công cụ" onClick={closeTools}>×</button></header>
       <div role="tablist" aria-label="Loại ghi chú" className="sc-studio-note-tabs">{(['passages','private'] as const).map((tab, index, tabs) => <button key={tab} id={`studio-note-tab-${tab}`} type="button" role="tab" aria-selected={noteTab === tab} aria-controls={`studio-note-panel-${tab}`} tabIndex={noteTab === tab ? 0 : -1} onClick={() => setNoteTab(tab)} onKeyDown={event => { if (['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) { event.preventDefault(); const next = event.key === 'Home' ? tabs[0] : event.key === 'End' ? tabs[1] : tabs[1-index]; setNoteTab(next); document.getElementById(`studio-note-tab-${next}`)?.focus(); } }}>{tab === 'passages' ? 'Theo đoạn' : 'Sổ tay chương'}</button>)}</div>
       <div className="sc-studio-notes-scroll">
         <div role="tabpanel" id="studio-note-panel-passages" aria-labelledby="studio-note-tab-passages" hidden={noteTab !== 'passages'}><PassageNotes request={noteRequest} scope={scope} content={content} ready={!disabled} getSelection={() => ({ start: editor.current?.selectionStart ?? 0, end: editor.current?.selectionEnd ?? 0 })} onJump={select} /></div>

@@ -88,7 +88,7 @@ node --env-file=../backend/.env.example --test tests/author-ide.browser.test.mjs
 Các bài kiểm tra trên không dùng chương đang viết của người dùng.
 # Thanh công cụ gọn và bảng ghi chú
 
-- Giữ nguyên thanh đầu tiên (Tủ truyện, Story Brain, AI, xuất bản chương). Hàng menu và cài đặt chương dùng chung một hàng trên desktop; Lên lịch, Lịch sử bản thảo và Xuất bản thảo nằm trong **Tệp**. Tìm/Thay thế nằm trong **Chỉnh sửa**; cảnh, xem bản định dạng và thống kê nằm trong **Xem**.
+- Giữ nguyên thanh đầu tiên (Tủ truyện, Story Brain, AI, xuất bản chương). Hàng menu và cài đặt chương dùng chung một hàng trên desktop; **Lên lịch** và icon **Lịch sử bản thảo** nằm cạnh Miễn phí/VIP. Trong chế độ Tập trung, hai lệnh vẫn có trong **Tệp**, cùng với Xuất bản thảo. Tìm/Thay thế nằm trong **Chỉnh sửa**; cảnh, xem bản định dạng và thống kê nằm trong **Xem**.
 - **Ghi chú** mở bảng bên phải, không đẩy vùng viết xuống. Trên màn hình nhỏ bảng nổi lên ở mép phải và có nút đóng. Hai tab **Theo đoạn** và **Sổ tay chương** dùng lại ghi chú đã lưu, không di chuyển hoặc xóa dữ liệu cũ.
 - Chọn đoạn, bấm chuột phải → **Thêm ghi chú đoạn** hoặc Ctrl/Cmd+Alt+M. Có thể tìm ghi chú, lọc đang mở/đã xử lý/tất cả/đoạn đã thay đổi, tới đoạn và gắn lại vùng chọn. Bảng này là ghi chú riêng trên trình duyệt, không phải nhận xét cộng tác hoặc thông báo cho người khác.
 - Menu chuột phải có Cắt, Sao chép, Dán văn bản, Xóa vùng chọn và Chọn tất cả bản thảo. Khi trình duyệt chặn bảng nhớ tạm, dùng phím tắt được hướng dẫn; cắt chỉ xóa sau khi sao chép thành công.
@@ -104,10 +104,18 @@ Các bài kiểm tra trên không dùng chương đang viết của người dù
 
 ### Kiểm tra nhanh
 
-1. Tải lại Studio; giữ nguyên thanh đầu tiên. Bên dưới còn hàng menu/cài đặt và thanh định dạng phẳng. Mở **Tệp** để tìm lịch sử, lên lịch và xuất tệp.
+1. Tải lại Studio; giữ nguyên thanh đầu tiên. Bên dưới còn hàng menu/cài đặt và thanh định dạng phẳng. Lịch sử (icon) và Lên lịch nằm cạnh Miễn phí/VIP; mở **Tệp** để xuất tệp.
 2. Ở chế độ **Soạn thảo**, bôi đen một phần câu in đậm → **Chỉnh sửa → Xóa định dạng vùng chọn**. Chỉ phần chọn mất định dạng; Ctrl+Z phục hồi. Thử đổi HOA/thường với đoạn tiếng Việt.
 3. Bôi đen đoạn → chuột phải → **Thêm ghi chú đoạn** → nhập và lưu. Nút **Ghi chú** mở/đóng bảng bên phải. Thử tìm, lọc trạng thái, đánh dấu đã xử lý, tới đoạn, tab Sổ tay chương, rồi tải lại trang.
 4. Chọn một từ in đậm → chuột phải → Sao chép/Cắt; dán vào vị trí khác và hoàn tác. Nếu quyền bảng nhớ tạm bị chặn, bản thảo giữ nguyên và hiện hướng dẫn phím tắt.
 5. **Xem → Hẹp/Rộng**, tải lại để kiểm tra lưu lựa chọn. Thử giao diện tối và màn hình điện thoại; ghi chú có vùng cuộn và nút đóng riêng.
 
 Kiểm thử tự động: `npm run test:studio-tools`, `node --test tests/author-ide-caret.browser.test.mjs`, `npm run typecheck`, `npm run build` trong thư mục `web`.
+
+## Notes không làm dịch bản thảo
+
+- Trước đây Notes là phần tử flex rộng 336 px, làm vùng viết hẹp đi mỗi khi mở. Hiện Notes nằm ngoài luồng bố cục, trong vùng chứa riêng của trình soạn thảo. Bản thảo mặc định tối đa 760 px; lựa chọn Hẹp/Rộng vẫn được giữ.
+- Khi vùng viết đủ rộng, Notes dùng khoảng trắng bên phải. Ở desktop hẹp/tablet, Notes là ngăn nổi bắt đầu bên dưới thanh định dạng; chiều cao thanh được đo khi thay đổi hoặc ẩn/hiện. Bật/tắt Notes không thay kích thước vùng viết.
+- Chỉ panel Notes chuyển động bằng transform/opacity 200 ms; chế độ giảm chuyển động tắt hiệu ứng. Panel đóng có `inert` và `aria-hidden`, không nhận bàn phím.
+- Đóng Notes khôi phục vùng chọn đang lưu và focus vào editor bằng `preventScroll`, không cuộn tới vị trí con trỏ. Editor không remount khi bật/tắt Notes; lịch sử undo và autosave giữ nguyên.
+- Chạy `npm run test:studio-notes-layout`: đối chiếu tọa độ/kích thước bản thảo, thanh định dạng, chiều cao nội dung, scrollTop, vùng chọn, node editor, undo/redo và autosave ở 1920/1440/1024/768 px, sáng/tối, có giảm chuyển động và cả hai chế độ soạn thảo. Bài kiểm tra cũng chuyển chương và kiểm tra sổ tay không lẫn giữa các chương.

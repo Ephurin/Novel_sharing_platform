@@ -74,7 +74,7 @@ export function RichManuscriptEditor({ value, source, disabled, style, onChange,
   useLayoutEffect(() => {
     const canonical = source.current, element = root.current; if (!canonical || !element) return;
     const choose = (event: Event) => {
-      const request = (event as CustomEvent<{ start: number; end: number }>).detail; if (!request) return;
+      const request = (event as CustomEvent<{ start: number; end: number; scroll?: boolean }>).detail; if (!request) return;
       event.preventDefault();
       const parsed = readRichSource(element);
       const point = (offset: number) => {
@@ -85,7 +85,7 @@ export function RichManuscriptEditor({ value, source, disabled, style, onChange,
       element.focus({ preventScroll: true }); range.setStart(start.node, start.offset); range.setEnd(end.node, end.offset);
       const selection = window.getSelection(); selection?.removeAllRanges(); selection?.addRange(range); remember();
       const box = range.getClientRects()[0], viewport = element.closest<HTMLElement>('.sc-editor-workspace');
-      if (box && viewport) viewport.scrollTop += box.top - viewport.getBoundingClientRect().top - Math.min(120, viewport.clientHeight / 3);
+      if (box && viewport && request.scroll !== false) viewport.scrollTop += box.top - viewport.getBoundingClientRect().top - Math.min(120, viewport.clientHeight / 3);
     };
     const changed = () => { if (!composing.current) remember(); };
     canonical.addEventListener('studio-select-source', choose); document.addEventListener('selectionchange', changed);
