@@ -1,4 +1,4 @@
-name: p1-safety-31dc1f42
+name: p1-safety-329cede0
 services:
   ai-service:
     build:
@@ -120,7 +120,7 @@ services:
       WAVE1D_AUTHOR_EMAIL: author@test.local
       WAVE1D_AUTHOR_PASSWORD: <REDACTED_TEST_ONLY_CREDENTIAL>
       WAVE1D_AUTHOR_USERNAME: test_author
-      WAVE1D_PROJECT: p1-safety-31dc1f42
+      WAVE1D_PROJECT: p1-safety-329cede0
       WEB_ORIGIN: http://127.0.0.1:18410
     networks:
       workers: null
@@ -254,28 +254,28 @@ services:
         volume: {}
 networks:
   headless-edge:
-    name: p1-safety-31dc1f42_headless-edge
+    name: p1-safety-329cede0_headless-edge
     ipam:
       config:
         - subnet: 172.31.212.0/24
   upstream:
-    name: p1-safety-31dc1f42_upstream
+    name: p1-safety-329cede0_upstream
     ipam:
       config:
         - subnet: 172.31.211.0/24
     internal: true
   workers:
-    name: p1-safety-31dc1f42_workers
+    name: p1-safety-329cede0_workers
     ipam:
       config:
         - subnet: 172.31.210.0/24
     internal: true
 volumes:
   budget_state:
-    name: p1-safety-31dc1f42_budget_state
+    name: p1-safety-329cede0_budget_state
   fake_state:
-    name: p1-safety-31dc1f42_fake_state
+    name: p1-safety-329cede0_fake_state
   mongo_state:
-    name: p1-safety-31dc1f42_mongo_state
+    name: p1-safety-329cede0_mongo_state
   pg_state:
-    name: p1-safety-31dc1f42_pg_state
+    name: p1-safety-329cede0_pg_state

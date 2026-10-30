@@ -425,3 +425,100 @@ Upstream Provider Used Exclusively:            FakeProviderServer (fake_provider
 **`P1_LIVE_SAFETY_OFFLINE_PASS`**
 
 All eight adversarial findings (F-01 through F-08 across Independent Reviews #1 and #2) are fully resolved, covered by deterministic negative test suites, backed by durable machine-readable evidence, and demonstrated to operate fail-closed. Ready for **GPT-6 Independent Review #3**.
+
+
+---
+
+## 15. GPT-6 Independent Review #3 — Final Remediation Report (F-09 & /v1/models)
+
+**Date:** 2026-10-30  
+**Repository:** `Ephurin/Novel_sharing_platform`  
+**Base branch:** `integration/p1-demo-20261109`  
+**Locked base SHA:** `6cbff8829d731704a0e8301fedaa2b1f38dd14c1`  
+**Working branch:** `codex/p1-live-safety-01`  
+**Tested implementation commit SHA:** `1a71bc18bf4ae6886eefd7df43e498c4dbe6cb2a`  
+**Target Verdict:** `P1_LIVE_SAFETY_OFFLINE_PASS` (provisional, pending GPT-6 Independent Review #4)
+
+---
+
+### 15.1 Review #3 Findings Summary
+
+| Finding | Severity | Component | Summary | Target Resolution |
+|---|---|---|---|---|
+| **F-09** | **P1** | `verify_p1_live_safety_containers.py` | `_get_project_resources()` parsed stdout without validating subprocess exit codes. A failed Docker inspection command returning empty stdout was falsely interpreted as empty inventory, threatening ownership safety and risking fabricated cleanup PASS. | Check `returncode` for every inspection command (`docker ps`, `docker volume ls`, `docker network ls`). Raise `DockerInspectionError` on nonzero exit codes with sanitized stderr. Never establish run ownership after failed inspection; never execute teardown on unowned resources; record `CLEANUP_UNVERIFIED` and fail closed if post-cleanup inspection fails. |
+| **Secondary** | **P2** | `p1_live_safety_gateway.py` | `self.ledger._healthy()` in `/v1/models` was called outside the `try:` block. A missing or corrupt ledger could trigger an unhandled exception or connection drop rather than a structured HTTP 503 response. | Move `self.ledger._healthy()` inside the `try:` block in `/v1/models`, mapping ledger unavailability to HTTP 503 `{"error": "BUDGET_METER_UNAVAILABLE", "detail": ...}` with zero upstream dispatch. |
+
+---
+
+### 15.2 Root Cause Analysis & Architecture Diffs
+
+#### 15.2.1 Remediation of F-09: Fail-Closed Docker Inspection
+- **Root Cause:** In `verify_p1_live_safety_containers.py`, `_get_project_resources(project)` ran `docker ps -a`, `docker volume ls`, and `docker network ls` via `subprocess.run(..., capture_output=True, text=True)` without checking `ps.returncode`, `vols.returncode`, or `nets.returncode`. If Docker daemon failed or returned an error with empty stdout, `_get_project_resources` returned `{"containers": [], "volumes": [], "networks": []}`. This could bypass conflict detection or claim false cleanup PASS.
+- **Architectural Fix:**
+  1. Defined `class DockerInspectionError(RuntimeError)`.
+  2. In `_get_project_resources(project)`:
+     ```python
+     if ps.returncode != 0:
+         err = _sanitize(ps.stderr.strip() or ps.stdout.strip())
+         raise DockerInspectionError(f"INSPECTION_FAILED: Failed to inspect containers for project '{project}' (code {ps.returncode}): {err}")
+     ```
+     Enforced identical checks for volumes and networks with sanitized stderr.
+  3. Preflight fails closed: if preflight inspection raises `DockerInspectionError`, `ownership_established` remains `False`, teardown in `finally:` is aborted (`status: ABORTED_UNOWNED`), and zero unowned resources are touched.
+  4. Post-cleanup inspection: wrapped in `try...except Exception as exc:`. If post-cleanup inspection fails, evidence is saved with `status: "CLEANUP_UNVERIFIED"`, `containers_remaining: None`, and the error is re-raised. `main()` explicitly asserts `status == "CLEANUP_VERIFIED"`, guaranteeing container verification never passes without verified empty inventories.
+
+#### 15.2.2 Remediation of Secondary Finding: `/v1/models` Structured Error Mapping
+- **Root Cause:** In `LiveSafetyGatewayHandler.do_GET()`, the `/v1/models` route checked auth, verified fake-upstream, and then called `self.ledger._healthy()` on line 711 directly preceding `try: ticket = self.ledger.reserve(...)`. If `_healthy()` raised `BudgetMeterUnavailableError`, it was not caught by the route handler.
+- **Architectural Fix:**
+  Moved `self.ledger._healthy()` inside the `try:` block. If the ledger is missing or corrupted, `BudgetMeterUnavailableError` is caught by line 749, returning structured HTTP 503 `{"error": "BUDGET_METER_UNAVAILABLE", "detail": str(exc)}`. Fake-upstream dispatches remain 0.
+
+---
+
+### 15.3 Mandatory Negative Tests Suite (F-09 & Secondary)
+
+Two new test functions were added to `Pipeline_test/tests/test_p1_live_safety_01.py`:
+
+#### 15.3.1 `test_17_f09_docker_inspection_fail_closed`
+- **Test A (Failed container inspection):** Mocked `docker ps` to return exit code 1 with stderr `"daemon socket closed"`. Verified `DockerInspectionError("INSPECTION_FAILED")` raised; ownership not established; cleanup aborted without teardown.
+- **Test B (Failed volume inspection):** Mocked `docker volume ls` to return exit code 1. Verified `DockerInspectionError("INSPECTION_FAILED")` for volumes; ownership not established; cleanup aborted.
+- **Test C (Failed network inspection):** Mocked `docker network ls` to return exit code 1. Verified `DockerInspectionError("INSPECTION_FAILED")` for networks; ownership not established; cleanup aborted.
+- **Test D (Post-cleanup inspection failure):** Preflight passed (ownership established), but post-cleanup inspection failed (exit code 2). Verified `DockerInspectionError` raised; `cleanup_verification.status == "CLEANUP_UNVERIFIED"`; `containers_remaining` is `None` (no fabricated empty lists); evidence persisted.
+- **Test E (Healthy empty inventory):** Three successful commands returning empty stdout return verified `{"containers": [], "volumes": [], "networks": []}`.
+- **Test F (Real Docker regression):** Preflight conflict, foreign project survival, and cleanup on disposable resources pass against real Docker daemon.
+- **Acceptance tag:** `F09_DOCKER_INSPECTION_FAIL_CLOSED_PASS`.
+
+#### 15.3.2 `test_18_v1_models_ledger_health_fail_closed`
+- **Test A (Missing ledger):** Gateway started, ledger file deleted. Request to `/v1/models` returned HTTP 503 `{"error": "BUDGET_METER_UNAVAILABLE"}`. File was **NOT** recreated. Upstream dispatches = 0.
+- **Test B (Corrupted ledger):** Ledger overwritten with broken JSON. Request to `/v1/models` returned HTTP 503 `{"error": "BUDGET_METER_UNAVAILABLE"}`. Corruption was **NOT** overwritten. Upstream dispatches = 0.
+- **Test C (Healthy ledger):** Healthy ledger returns HTTP 200 with model list; ticket reserved and finalized; dispatches = 1.
+
+---
+
+### 15.4 Full Verification Suite Results
+
+| Test Suite / Script | Command Executed | Tests | Exit Code | Result |
+|---|---|---|---|---|
+| Complete P1 Safety Adversarial Suite | `python -m pytest Pipeline_test/tests/test_p1_live_safety_01.py -v --basetemp=pytest_tmp -p no:cacheprovider` | 19 / 19 | `0` | **ALL 19 PASSED** (43.51s) |
+| Cross-Container Budget Gate Regression | `python -m pytest Pipeline_test/tests/test_cross_container_budget_gate.py -v --basetemp=pytest_tmp -p no:cacheprovider` | 41 / 41 | `0` | **ALL 41 PASSED** (51.78s) |
+| Container Runtime Stack Verification | `python Pipeline_test/tools/verify_p1_live_safety_containers.py` | 11 checkpoints | `0` | **P1_LIVE_SAFETY_01_CONTAINER_VERIFICATION_PASS** |
+| Backend AI Copilot Unit Tests | `npx tsx --test backend/src/modules/ai-copilot/llm-provider.test.ts` | 5 / 5 | `0` | **ALL 5 PASSED** (0.43s) |
+| Backend TypeScript Build | `npm --prefix backend run build` | `tsc -p tsconfig.json` | `0` | **CLEAN BUILD** |
+
+---
+
+### 15.5 Zero-Call & Zero-Spend Audit Confirmation
+
+```
+Real Generative Provider API Calls Dispatched:  0
+Real Provider Quota Consumed:                  0 tokens
+Real Provider Invoice / Financial Spending:    $0.00
+Unverified Live Models Dispatched:             0
+Upstream Provider Used Exclusively:            FakeProviderServer (fake_provider_upstream.py)
+```
+
+---
+
+### 15.6 Target Provisional Verdict
+
+**`P1_LIVE_SAFETY_OFFLINE_PASS`**
+
+All nine adversarial findings (F-01 through F-09) and the `/v1/models` error mapping finding are fully resolved, covered by deterministic negative test suites, backed by durable machine-readable evidence, and demonstrated to operate fail-closed. Ready for **GPT-6 Independent Review #4**.
