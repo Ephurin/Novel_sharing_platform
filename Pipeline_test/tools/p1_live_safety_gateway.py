@@ -708,8 +708,8 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
                 return
             if self.ledger is None:
                 return self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE", "detail": "LEDGER_NOT_ATTACHED"})
-            self.ledger._healthy()
             try:
+                self.ledger._healthy()
                 ticket = self.ledger.reserve(
                     operation="models_discovery",
                     provider="fake-metadata",

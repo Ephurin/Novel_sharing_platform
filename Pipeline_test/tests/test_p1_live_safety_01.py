@@ -1077,6 +1077,8 @@ def test_13_f03_durable_evidence_bundle_persistence(safety_stack, tmp_path: Path
             "F-06": "Comprehensive remediation report appended to P1_LIVE_SAFETY_01_REVIEW.md with provisional verdict P1_LIVE_SAFETY_OFFLINE_PASS.",
             "F-07": "Run ownership tracking gates compose teardown; preflight conflict aborts without touching unowned Docker resources.",
             "F-08": "Ledger health enforcement and transaction rollback prevent recreation of missing ledger or overwriting disk corruption during denial logging.",
+            "F-09": "Docker inspection commands fail closed with DockerInspectionError on nonzero exit codes, preventing false ownership or fabricated cleanup PASS.",
+            "secondary_models_contract": "/v1/models ledger health check moved inside try: block, guaranteeing HTTP 503 BUDGET_METER_UNAVAILABLE on missing or corrupted ledger.",
         },
     }
 
@@ -1113,6 +1115,7 @@ def test_14_f04_project_isolation_and_foreign_project_survival() -> None:
 
 
 from Pipeline_test.tools.verify_p1_live_safety_containers import (
+    DockerInspectionError,
     OwnershipConflictError,
     run_container_verification,
     _get_project_resources,
@@ -1437,3 +1440,231 @@ def test_16_f08_ledger_tampering_and_denial_fail_closed(tmp_path: Path) -> None:
         ledger_d.close()
         upstream_d.shutdown()
         upstream_d.server_close()
+
+
+
+def test_17_f09_docker_inspection_fail_closed(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    """F-09: Docker inspection must fail closed on nonzero exit codes, preventing false ownership and unverified cleanup PASS."""
+    import subprocess
+    import uuid
+
+    # --- Test A: Failed container inspection (docker ps -a fails) ---
+    real_run = subprocess.run
+    def mock_run_fail_ps(cmd: list[str], *args: object, **kwargs: object):
+        if len(cmd) >= 2 and cmd[0] == "docker" and cmd[1] == "ps":
+            return subprocess.CompletedProcess(cmd, returncode=1, stdout="", stderr="error: daemon socket closed")
+        return real_run(cmd, *args, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", mock_run_fail_ps)
+    proj_a = f"p1-safety-f09a-{uuid.uuid4().hex[:8]}"
+    with pytest.raises(DockerInspectionError) as exc_info:
+        run_container_verification(project_name=proj_a, evidence_dir=tmp_path / "ev_a")
+    assert "INSPECTION_FAILED" in str(exc_info.value)
+    assert "containers" in str(exc_info.value)
+
+    # --- Test B: Failed volume inspection (docker volume ls fails) ---
+    def mock_run_fail_vol(cmd: list[str], *args: object, **kwargs: object):
+        if len(cmd) >= 2 and cmd[0] == "docker" and cmd[1] == "volume":
+            return subprocess.CompletedProcess(cmd, returncode=1, stdout="", stderr="error: volume driver timeout")
+        return real_run(cmd, *args, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", mock_run_fail_vol)
+    proj_b = f"p1-safety-f09b-{uuid.uuid4().hex[:8]}"
+    with pytest.raises(DockerInspectionError) as exc_info:
+        run_container_verification(project_name=proj_b, evidence_dir=tmp_path / "ev_b")
+    assert "INSPECTION_FAILED" in str(exc_info.value)
+    assert "volumes" in str(exc_info.value)
+
+    # --- Test C: Failed network inspection (docker network ls fails) ---
+    def mock_run_fail_net(cmd: list[str], *args: object, **kwargs: object):
+        if len(cmd) >= 2 and cmd[0] == "docker" and cmd[1] == "network":
+            return subprocess.CompletedProcess(cmd, returncode=1, stdout="", stderr="error: network subsystem dead")
+        return real_run(cmd, *args, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", mock_run_fail_net)
+    proj_c = f"p1-safety-f09c-{uuid.uuid4().hex[:8]}"
+    with pytest.raises(DockerInspectionError) as exc_info:
+        run_container_verification(project_name=proj_c, evidence_dir=tmp_path / "ev_c")
+    assert "INSPECTION_FAILED" in str(exc_info.value)
+    assert "networks" in str(exc_info.value)
+
+    # --- Test D: Post-cleanup inspection failure ---
+    inspection_calls = 0
+    def mock_run_fail_post_cleanup(cmd: list[str], *args: object, **kwargs: object):
+        nonlocal inspection_calls
+        if len(cmd) >= 2 and cmd[0] == "docker" and cmd[1] in ("ps", "volume", "network") and "--filter" in cmd:
+            inspection_calls += 1
+            if inspection_calls > 3:
+                return subprocess.CompletedProcess(cmd, returncode=2, stdout="", stderr="error: post-cleanup inspect failure")
+            return subprocess.CompletedProcess(cmd, returncode=0, stdout="", stderr="")
+        return real_run(cmd, *args, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", mock_run_fail_post_cleanup)
+    proj_d = f"p1-safety-f09d-{uuid.uuid4().hex[:8]}"
+    ev_dir_d = tmp_path / "ev_d"
+    with pytest.raises(DockerInspectionError) as exc_info:
+        run_container_verification(
+            project_name=proj_d,
+            evidence_dir=ev_dir_d,
+            simulate_fail_partial_startup=True,
+        )
+    assert "INSPECTION_FAILED" in str(exc_info.value)
+    ev_file = ev_dir_d / "container-runtime-evidence.json"
+    assert ev_file.exists()
+    ev_data = json.loads(ev_file.read_text(encoding="utf-8"))
+    assert ev_data["cleanup_verification"]["status"] == "CLEANUP_UNVERIFIED"
+    assert ev_data["cleanup_verification"]["containers_remaining"] is None
+
+    # --- Test E: Healthy empty inventory returns clean empty dictionary ---
+    def mock_run_all_healthy_empty(cmd: list[str], *args: object, **kwargs: object):
+        if len(cmd) >= 2 and cmd[0] == "docker" and cmd[1] in ("ps", "volume", "network"):
+            return subprocess.CompletedProcess(cmd, returncode=0, stdout="", stderr="")
+        return real_run(cmd, *args, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", mock_run_all_healthy_empty)
+    healthy_inv = _get_project_resources("p1-test-healthy")
+    assert healthy_inv == {"containers": [], "volumes": [], "networks": []}
+
+    # Reset monkeypatch for real Docker regression checks
+    monkeypatch.undo()
+
+    # --- Test F: Real Docker regression on disposable resources ---
+    if shutil.which("docker") is not None:
+        chk = subprocess.run(["docker", "ps"], capture_output=True, text=True)
+        if chk.returncode == 0:
+            proj_f = f"p1-safety-f09f-{uuid.uuid4().hex[:8]}"
+            vol_f = f"test-f09f-vol-{uuid.uuid4().hex[:6]}"
+            subprocess.run(["docker", "volume", "create", "--label", f"com.docker.compose.project={proj_f}", vol_f], check=True)
+            try:
+                with pytest.raises(OwnershipConflictError):
+                    run_container_verification(project_name=proj_f, evidence_dir=tmp_path / "ev_f")
+                surv = subprocess.run(["docker", "volume", "ls", "--filter", f"label=com.docker.compose.project={proj_f}", "--format", "{{.Name}}"], capture_output=True, text=True)
+                assert vol_f in surv.stdout
+            finally:
+                subprocess.run(["docker", "volume", "rm", vol_f], capture_output=True, text=True)
+
+    print("F09_DOCKER_INSPECTION_FAIL_CLOSED_PASS")
+
+
+def test_18_v1_models_ledger_health_fail_closed(tmp_path: Path) -> None:
+    """Secondary Finding: /v1/models must fail closed with 503 BUDGET_METER_UNAVAILABLE when ledger is missing or corrupt."""
+    # --- Test A: Missing ledger on /v1/models ---
+    upstream_a, _, received_a = start_fake_upstream(port=0, scenario="p1-live-safety-v1")
+    state_file_a = tmp_path / "ledger_models_a.json"
+
+    server_a, _, ledger_a = start_live_safety_gateway(
+        state_file_a,
+        port=0,
+        enable_live_safety_guard=True,
+        initialize=True,
+        run_id="run-models-a",
+        upstream_base_url=f"http://127.0.0.1:{upstream_a.server_port}",
+        upstream_api_key="fake-upstream-only",
+        client_tokens={"ai-worker": "ai-service"},
+    )
+    gateway_url_a = f"http://127.0.0.1:{server_a.server_port}"
+    try:
+        assert state_file_a.exists()
+        state_file_a.unlink()
+        assert not state_file_a.exists()
+
+        req = urllib.request.Request(
+            gateway_url_a + "/v1/models",
+            headers={"Authorization": "Bearer ai-worker"},
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=3.0) as resp:
+                status = resp.status
+                payload = json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            status = exc.code
+            payload = json.loads(exc.read().decode("utf-8"))
+
+        assert status == 503
+        assert payload.get("error") == "BUDGET_METER_UNAVAILABLE"
+        assert not state_file_a.exists(), "Missing ledger file was recreated during /v1/models request!"
+        assert len(received_a) == 0, "Model discovery request dispatched upstream with missing ledger!"
+    finally:
+        server_a.shutdown()
+        server_a.server_close()
+        ledger_a.close()
+        upstream_a.shutdown()
+        upstream_a.server_close()
+
+    # --- Test B: Corrupted ledger on /v1/models ---
+    upstream_b, _, received_b = start_fake_upstream(port=0, scenario="p1-live-safety-v1")
+    state_file_b = tmp_path / "ledger_models_b.json"
+
+    server_b, _, ledger_b = start_live_safety_gateway(
+        state_file_b,
+        port=0,
+        enable_live_safety_guard=True,
+        initialize=True,
+        run_id="run-models-b",
+        upstream_base_url=f"http://127.0.0.1:{upstream_b.server_port}",
+        upstream_api_key="fake-upstream-only",
+        client_tokens={"ai-worker": "ai-service"},
+    )
+    gateway_url_b = f"http://127.0.0.1:{server_b.server_port}"
+    try:
+        assert state_file_b.exists()
+        corrupt_content = '{"state": {"truncated": true, '
+        state_file_b.write_text(corrupt_content, encoding="utf-8")
+
+        req = urllib.request.Request(
+            gateway_url_b + "/v1/models",
+            headers={"Authorization": "Bearer ai-worker"},
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=3.0) as resp:
+                status = resp.status
+                payload = json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            status = exc.code
+            payload = json.loads(exc.read().decode("utf-8"))
+
+        assert status == 503
+        assert payload.get("error") == "BUDGET_METER_UNAVAILABLE"
+        assert state_file_b.read_text(encoding="utf-8") == corrupt_content, "Corrupted ledger on disk was overwritten!"
+        assert len(received_b) == 0, "Model discovery request dispatched upstream with corrupted ledger!"
+    finally:
+        server_b.shutdown()
+        server_b.server_close()
+        ledger_b.close()
+        upstream_b.shutdown()
+        upstream_b.server_close()
+
+    # --- Test C: Healthy ledger on /v1/models ---
+    upstream_c, _, received_c = start_fake_upstream(port=0, scenario="p1-live-safety-v1")
+    state_file_c = tmp_path / "ledger_models_c.json"
+
+    server_c, _, ledger_c = start_live_safety_gateway(
+        state_file_c,
+        port=0,
+        enable_live_safety_guard=True,
+        initialize=True,
+        run_id="run-models-c",
+        upstream_base_url=f"http://127.0.0.1:{upstream_c.server_port}",
+        upstream_api_key="fake-upstream-only",
+        client_tokens={"ai-worker": "ai-service"},
+    )
+    gateway_url_c = f"http://127.0.0.1:{server_c.server_port}"
+    try:
+        req = urllib.request.Request(
+            gateway_url_c + "/v1/models",
+            headers={"Authorization": "Bearer ai-worker"},
+        )
+        with urllib.request.urlopen(req, timeout=3.0) as resp:
+            status = resp.status
+            payload = json.loads(resp.read().decode("utf-8"))
+
+        assert status == 200
+        assert "data" in payload or "models" in payload
+        assert len(received_c) == 1
+        assert ledger_c.state["total_calls"] == 1
+    finally:
+        server_c.shutdown()
+        server_c.server_close()
+        ledger_c.close()
+        upstream_c.shutdown()
+        upstream_c.server_close()

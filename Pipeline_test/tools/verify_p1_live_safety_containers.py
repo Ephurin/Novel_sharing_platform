@@ -70,19 +70,35 @@ def _sanitize(text: str) -> str:
 
 
 
+class DockerInspectionError(RuntimeError):
+    """Raised when Docker inspection fails or returns an unverified inventory."""
+
+
 def _get_project_resources(project: str) -> dict[str, list[str]]:
     ps = subprocess.run(
         ["docker", "ps", "-a", "--filter", f"label=com.docker.compose.project={project}", "--format", "{{.Names}}"],
         capture_output=True, text=True,
     )
+    if ps.returncode != 0:
+        err = _sanitize(ps.stderr.strip() or ps.stdout.strip())
+        raise DockerInspectionError(f"INSPECTION_FAILED: Failed to inspect containers for project '{project}' (code {ps.returncode}): {err}")
+
     vols = subprocess.run(
         ["docker", "volume", "ls", "--filter", f"label=com.docker.compose.project={project}", "--format", "{{.Name}}"],
         capture_output=True, text=True,
     )
+    if vols.returncode != 0:
+        err = _sanitize(vols.stderr.strip() or vols.stdout.strip())
+        raise DockerInspectionError(f"INSPECTION_FAILED: Failed to inspect volumes for project '{project}' (code {vols.returncode}): {err}")
+
     nets = subprocess.run(
         ["docker", "network", "ls", "--filter", f"label=com.docker.compose.project={project}", "--format", "{{.Name}}"],
         capture_output=True, text=True,
     )
+    if nets.returncode != 0:
+        err = _sanitize(nets.stderr.strip() or nets.stdout.strip())
+        raise DockerInspectionError(f"INSPECTION_FAILED: Failed to inspect networks for project '{project}' (code {nets.returncode}): {err}")
+
     return {
         "containers": [x for x in ps.stdout.strip().splitlines() if x],
         "volumes": [x for x in vols.stdout.strip().splitlines() if x],
@@ -471,43 +487,66 @@ import('./dist/modules/ai-copilot/llm-provider.js').then(async ({ generateCopilo
                 "status": "ABORTED_UNOWNED",
             }
         else:
-            # Run ownership IS established: only resources created by this run under project_name exist.
-            # F-04: Create a foreign volume labeled with a distinct project name to verify foreign survival
-            foreign_vol_name = f"foreign-vol-{uuid.uuid4().hex[:6]}"
-            subprocess.run(
-                ["docker", "volume", "create", "--label", "com.docker.compose.project=foreign-project-survives", foreign_vol_name],
-                capture_output=True, text=True,
-            )
+            try:
+                # Run ownership IS established: only resources created by this run under project_name exist.
+                # F-04: Create a foreign volume labeled with a distinct project name to verify foreign survival
+                foreign_vol_name = f"foreign-vol-{uuid.uuid4().hex[:6]}"
+                subprocess.run(
+                    ["docker", "volume", "create", "--label", "com.docker.compose.project=foreign-project-survives", foreign_vol_name],
+                    capture_output=True, text=True,
+                )
 
-            # 11. Tear down and clean up all containers, networks, and volumes owned strictly by this disposable project
-            _compose("down", "-v", "--remove-orphans", check=True, project=project_name)
+                # 11. Tear down and clean up all containers, networks, and volumes owned strictly by this disposable project
+                _compose("down", "-v", "--remove-orphans", check=True, project=project_name)
 
-            # Clean up any remaining run-owned resources matching project label
-            rem_sweep = _get_project_resources(project_name)
-            for c in rem_sweep["containers"]:
-                subprocess.run(["docker", "rm", "-f", c], capture_output=True, text=True)
-            for v in rem_sweep["volumes"]:
-                subprocess.run(["docker", "volume", "rm", "-f", v], capture_output=True, text=True)
-            for n in rem_sweep["networks"]:
-                subprocess.run(["docker", "network", "rm", n], capture_output=True, text=True)
+                # Clean up any remaining run-owned resources matching project label
+                try:
+                    rem_sweep = _get_project_resources(project_name)
+                    for c in rem_sweep["containers"]:
+                        subprocess.run(["docker", "rm", "-f", c], capture_output=True, text=True)
+                    for v in rem_sweep["volumes"]:
+                        subprocess.run(["docker", "volume", "rm", "-f", v], capture_output=True, text=True)
+                    for n in rem_sweep["networks"]:
+                        subprocess.run(["docker", "network", "rm", n], capture_output=True, text=True)
+                except DockerInspectionError:
+                    pass
 
-            # Verify foreign volume survived the scoped teardown
-            foreign_check = subprocess.run(
-                ["docker", "volume", "ls", "--filter", "label=com.docker.compose.project=foreign-project-survives", "--format", "{{.Name}}"],
-                capture_output=True, text=True,
-            )
-            foreign_survived = foreign_vol_name in foreign_check.stdout
-            # Clean up foreign test volume
-            subprocess.run(["docker", "volume", "rm", foreign_vol_name], capture_output=True, text=True)
+                # Verify foreign volume survived the scoped teardown
+                foreign_check = subprocess.run(
+                    ["docker", "volume", "ls", "--filter", "label=com.docker.compose.project=foreign-project-survives", "--format", "{{.Name}}"],
+                    capture_output=True, text=True,
+                )
+                if foreign_check.returncode != 0:
+                    err = _sanitize(foreign_check.stderr.strip() or foreign_check.stdout.strip())
+                    raise DockerInspectionError(f"INSPECTION_FAILED: Failed to inspect foreign volume survival: {err}")
+                foreign_survived = foreign_vol_name in foreign_check.stdout
+                # Clean up foreign test volume
+                subprocess.run(["docker", "volume", "rm", foreign_vol_name], capture_output=True, text=True)
 
-            rem = _get_project_resources(project_name)
-            evidence["cleanup_verification"] = {
-                "ownership_established": True,
-                "containers_remaining": rem["containers"],
-                "volumes_remaining": rem["volumes"],
-                "networks_remaining": rem["networks"],
-                "foreign_project_resource_survived": foreign_survived,
-            }
+                rem = _get_project_resources(project_name)
+                evidence["cleanup_verification"] = {
+                    "ownership_established": True,
+                    "status": "CLEANUP_VERIFIED",
+                    "containers_remaining": rem["containers"],
+                    "volumes_remaining": rem["volumes"],
+                    "networks_remaining": rem["networks"],
+                    "foreign_project_resource_survived": foreign_survived,
+                }
+            except Exception as exc:
+                evidence["cleanup_verification"] = {
+                    "ownership_established": True,
+                    "status": "CLEANUP_UNVERIFIED",
+                    "error": str(exc),
+                    "containers_remaining": None,
+                    "volumes_remaining": None,
+                    "networks_remaining": None,
+                }
+                (evidence_dir / "container-runtime-evidence.json").write_text(
+                    json.dumps(evidence, indent=2, ensure_ascii=False),
+                    encoding="utf-8",
+                )
+                raise
+
             (evidence_dir / "container-runtime-evidence.json").write_text(
                 json.dumps(evidence, indent=2, ensure_ascii=False),
                 encoding="utf-8",
@@ -519,6 +558,7 @@ import('./dist/modules/ai-copilot/llm-provider.js').then(async ({ generateCopilo
 def main() -> int:
     try:
         code, evidence = run_container_verification(PROJECT_NAME, INGRESS_PORT, EVIDENCE_DIR)
+        assert evidence["cleanup_verification"].get("status") == "CLEANUP_VERIFIED", f"Cleanup not verified: {evidence.get('cleanup_verification')}"
         assert evidence["cleanup_verification"]["containers_remaining"] == []
         assert evidence["cleanup_verification"]["volumes_remaining"] == []
         assert evidence["cleanup_verification"]["networks_remaining"] == []
