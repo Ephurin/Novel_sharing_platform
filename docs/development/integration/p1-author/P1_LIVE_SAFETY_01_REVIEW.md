@@ -218,3 +218,107 @@ From `docs/development/integration/p1-author/evidence/p1-live-safety-01/containe
 ## 12. Provisional Verdict
 
 **`P1_LIVE_SAFETY_OFFLINE_PASS`** — Ready for GPT-6 independent architecture, threat-model, and evidence review.
+
+
+---
+
+## 13. GPT-6 REVIEW #1 — F01 REMEDIATION
+
+**Remediation Target:** Close all 6 findings from GPT-6 Independent Review #1  
+**Working Branch:** `codex/p1-live-safety-01`  
+**Base Branch:** `integration/p1-demo-20261109` (`6cbff8829d731704a0e8301fedaa2b1f38dd14c1`)  
+**Remediation Commit SHA:** `6cf3f3e3e59b7b32daf43d9bade5c1e4d4d607df`
+**Authorization Adherence:** ZERO generative provider calls, ZERO cloud spending ($0.00)  
+**Target Verdict:** `P1_LIVE_SAFETY_OFFLINE_PASS` (Subject to GPT-6 Independent Review #2)
+
+---
+
+### 13.1 Findings Closure Matrix
+
+| Finding ID | Finding Description | Severity | Remediation Implementation | Verification Evidence & Test Target | Status |
+|---|---|---|---|---|---|
+| **F-01** | Serialized private notes in nested message content / strings bypassed dictionary inspection | P1 (Privacy) | Enhanced `_payload_contains_private_notes()` with recursive `_extract_json_candidates()` to parse embedded JSON strings, escaped JSON, and markdown blocks; added regex matching for serialized entity notes (`notes_pattern` and `entity_pattern`); added positive exemption for legitimate fiction prose mentioning the ordinary word "notes". | `Pipeline_test/tests/test_p1_live_safety_01.py::test_11_f01_serialized_private_notes_rejection_suite` (9 negative attacks blocked with 403, zero request slot leak, positive fiction prose passes with 200). | **CLOSED** |
+| **F-02** | Gateway transport lacked an absolute wall-clock request deadline; slow chunk trickling could extend indefinitely | P1 (Runtime Safety) | Replaced raw `urllib.request.urlopen` with monotonic-deadline-enforcing `_execute_bounded_request()`. Integrated custom `BoundedHTTPConnection`, proactive watchdog socket shutdown (`threading.Timer`), chunked read loop with per-chunk remaining deadline recalculation, and `ResponseBoundExceeded` for responses exceeding 2MB. | `Pipeline_test/tests/test_p1_live_safety_01.py::test_12_f02_absolute_per_request_deadline_and_fault_handling` (`fault:hang`, `fault:sleep_long`, `fault:slow_trickle`, `fault:oversized`, and `fault:redirect` all fail safely within 2.0s tolerance without fallback text). | **CLOSED** |
+| **F-03** | Lack of durable machine-readable evidence bundle capturing 1-15 admission history and denials | P1 (Audit Evidence) | Implemented `record_denial()` on `LiveSafetyBudgetLedger` recording denied requests with timestamps, reasons, and client attributions without consuming request slots. Persisted full machine-readable artifact `budget-concurrency-evidence.json`. | `docs/development/integration/p1-author/evidence/p1-live-safety-01/budget-concurrency-evidence.json` (Captures tested SHA, 15 admissions, request 16 denial, rolling-window denial, before/after restart counter equality, identical SHA-256 state hashes, and fake-upstream 15-request match). | **CLOSED** |
+| **F-04** | Disposable container verification used static project name and blind `down -v` before checking ownership | P1 (Isolation) | Assigned run-scoped dynamic project naming `p1-safety-<uuid>`. Replaced initial blind `down -v` with pre-flight conflict check failing closed if existing resources exist. Enforced label-scoped deletion `label=com.docker.compose.project={PROJECT_NAME}` in `finally:`. Demonstrated foreign labeled volume survival. | `Pipeline_test/tools/verify_p1_live_safety_containers.py` (`cleanup_verification.foreign_project_resource_survived == true`, 0 remaining containers/volumes/networks) and `test_p1_live_safety_01.py::test_14_f04_project_isolation_and_foreign_project_survival`. | **CLOSED** |
+| **F-05** | Network isolation relied on DNS resolution failure; direct non-DNS IP socket egress and routing unverified | P1 (Network Isolation) | Added non-DNS direct IP socket connection probes to RFC 5737 test addresses (`192.0.2.1:443`, `198.51.100.1:443`) from inside both `ai-service` (Python socket) and `backend` (Node net). Added direct fake-upstream bypass probe. Inspected `/proc/net/route` confirming isolated bridge routing without external default gateway. | `docs/development/integration/p1-author/evidence/p1-live-safety-01/container-runtime-evidence.json` (`ai_service` blocked with `[Errno 101] Network is unreachable`, `backend` blocked with `ENETUNREACH`, fake-upstream bypass blocked). | **CLOSED** |
+| **F-06** | Closure report required summarizing findings, command transcripts, exit codes, and provisional verdict | P1 (Reporting) | Authored Section 13 in `P1_LIVE_SAFETY_01_REVIEW.md` detailing finding-by-finding remediation, test suite logs, SHA links, zero-call verification, and explicit provisional verdict. | This document section (`P1_LIVE_SAFETY_01_REVIEW.md`). | **CLOSED** |
+
+---
+
+### 13.2 Detailed Technical Remediation
+
+#### 13.2.1 Remediation of F-01: Serialized Private Notes
+- **Vulnerability:** Attackers or prompt construction components could embed JSON-serialized strings inside OpenAI-compatible `messages[].content`, e.g. `{"messages": [{"role": "user", "content": "{"characters":[{"name":"Test","notes":"CANARY"}]}"}]}`. Dictionary-key checks alone did not traverse into string-encoded JSON.
+- **Fix:**
+  - `_extract_json_candidates()` extracts and parses candidates from top-level trimmed strings, markdown code fences (````json ... ````), and bracket-delimited substrings.
+  - `_payload_contains_private_notes()` recursively checks each candidate structure.
+  - Added targeted string regex for serialized entity key/value pairs (`notes_pattern` and `entity_pattern`) without falsely rejecting natural language prose mentioning the ordinary word "notes" (e.g. musical notes, general remarks).
+  - Unsafe requests are rejected with `403 PRIVATE_NOTES_FORBIDDEN_IN_PROMPT` before ticket reservation or ledger commitment, ensuring 0 quota consumption.
+
+#### 13.2.2 Remediation of F-02: Absolute Per-Request Deadline & Socket Abort
+- **Vulnerability:** Standard `urllib.request.urlopen(..., timeout=...)` only enforces idle socket timeouts. Malicious or malfunctioning upstreams continuously sending trickle bytes below the idle timeout could hold connections open indefinitely.
+- **Fix:**
+  - `_execute_bounded_request(request, timeout_seconds, max_response_bytes)` measures `time.monotonic()` against an absolute deadline.
+  - A background `threading.Timer` watchdog fires at `timeout_seconds`, executing `socket.shutdown(socket.SHUT_RDWR)` and `socket.close()` on the active connection.
+  - The chunk-reading loop recalculates `deadline_mono - time.monotonic()` per read chunk, raising `RequestDeadlineExceeded` immediately if exceeded.
+  - Cumulative bytes are capped at `max_response_bytes = 2_000_000`, raising `ResponseBoundExceeded` if exceeded.
+  - Upstream redirect attempts trigger `NoRedirect` and fail closed with `503 UPSTREAM_REDIRECT_DENIED`.
+  - In all deadline and transport failures, the ticket is finalized with status `"UNKNOWN"`, holding conservative liability in the ledger and preventing synthetic fallback text generation.
+
+#### 13.2.3 Remediation of F-03: Machine-Readable Evidence Bundle
+- **Artifact:** `docs/development/integration/p1-author/evidence/p1-live-safety-01/budget-concurrency-evidence.json`
+- **Key Evidence Captured:**
+  - Exact tested commit SHA and base branch reference.
+  - Physical admission history for calls 1 through 15 with timestamps, tickets, and client attribution (8 `ai-service`, 7 `backend`).
+  - Recorded rejection of rolling-window burst call #11 (`ROLLING_RATE_LIMIT_EXCEEDED`).
+  - Recorded rejection of physical call #16 (`MAX_CALLS_REACHED`).
+  - Restart verification: counters identical before and after restart (15 total, 0 remaining, $0.0213468 charged).
+  - SHA-256 state hashes: identical before and after restart (`1416b84e9f12db29b11c4209ac3338329a37a36bc8e3981e222c59466971bae9`).
+  - Agreement between fake upstream request log and gateway admissions: exactly 15 requests received upstream.
+
+#### 13.2.4 Remediation of F-04: Isolated Container Lifecycle
+- **Fix:**
+  - `verify_p1_live_safety_containers.py` allocates a unique `PROJECT_NAME = f"p1-safety-{uuid.uuid4().hex[:8]}"` per run.
+  - Pre-flight check inspects `label=com.docker.compose.project={PROJECT_NAME}` before creating resources; if any resource pre-exists, the script fails closed.
+  - Teardown in `finally:` passes `-p {PROJECT_NAME}` and checks post-teardown resource inventory strictly by project label.
+  - Verified foreign project resource survival by injecting a volume labeled `com.docker.compose.project=foreign-project-survives` and confirming it survives teardown.
+
+#### 13.2.5 Remediation of F-05: Non-DNS IP Socket Egress & Routing Verification
+- **Fix:**
+  - Direct socket connection from `ai-service` to RFC 5737 documentation IP addresses `192.0.2.1:443` and `198.51.100.1:443`: blocked with `[Errno 101] Network is unreachable`.
+  - Direct socket connection from `backend` to RFC 5737 IP addresses: blocked with `connect ENETUNREACH 192.0.2.1:443`.
+  - Direct worker container route to `http://fake-upstream:18091/received`: blocked at container network boundary.
+  - Inspecting `/proc/net/route` inside containers confirms zero external default gateways on `workers` network (`internal: true`).
+
+---
+
+### 13.3 Test Execution & Audit Logs
+
+| Test Suite / Script | Command Executed | Tests | Exit Code | Result |
+|---|---|---|---|---|
+| Mandatory Offline Adversarial Suite | `python -m pytest Pipeline_test/tests/test_p1_live_safety_01.py -v --basetemp=pytest_tmp -p no:cacheprovider` | 15 / 15 | `0` | **ALL PASSED** (27.07s) |
+| Offline Budget Gateway Regression | `python -m pytest Pipeline_test/tests/test_cross_container_budget_gate.py -v --basetemp=pytest_tmp -p no:cacheprovider` | 41 / 41 | `0` | **ALL PASSED** (53.20s) |
+| Live Safety Container Runtime Verification | `python Pipeline_test/tools/verify_p1_live_safety_containers.py` | 11 verification checkpoints | `0` | **P1_LIVE_SAFETY_01_CONTAINER_VERIFICATION_PASS** |
+| Backend AI Copilot Unit Tests | `npx tsx --test backend/src/modules/ai-copilot/llm-provider.test.ts` | 5 / 5 | `0` | **ALL PASSED** (0.30s) |
+| Backend TypeScript Build | `npm --prefix backend run build` (`tsc -p tsconfig.json`) | TypeScript compilation | `0` | **CLEAN BUILD** |
+
+---
+
+### 13.4 Zero-Call & Zero-Spend Audit Confirmation
+
+```
+Real Generative Provider API Calls Dispatched:  0
+Real Provider Quota Consumed:                  0 tokens
+Real Provider Invoice / Financial Spending:    $0.00
+Unverified Live Models Dispatched:             0
+Upstream Provider Used Exclusively:            FakeProviderServer (fake_provider_upstream.py)
+```
+
+---
+
+### 13.5 Updated Provisional Verdict
+
+**`P1_LIVE_SAFETY_OFFLINE_PASS`**
+
+All six findings (F-01 through F-06) identified in GPT-6 Independent Review #1 have been fully addressed, verified offline, backed by durable machine-readable evidence, and demonstrated to operate with fail-closed safety. The codebase is ready for **GPT-6 Independent Review #2**.

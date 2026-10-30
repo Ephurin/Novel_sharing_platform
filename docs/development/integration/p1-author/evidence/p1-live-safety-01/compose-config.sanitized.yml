@@ -1,8 +1,8 @@
-name: p1-live-safety-01-verify
+name: p1-safety-fddf05fd
 services:
   ai-service:
     build:
-      context: C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\ai-service
+      context: C:\Users\Laptop\OneDrive\Documents\testproject\.gemini-p1-safety\ai-service
       dockerfile: Dockerfile
     cap_drop:
       - ALL
@@ -72,13 +72,14 @@ services:
       - no-new-privileges:true
     volumes:
       - type: bind
-        source: C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\Pipeline_test\tools
+        source: C:\Users\Laptop\OneDrive\Documents\testproject\.gemini-p1-safety\Pipeline_test\tools
         target: /tools
         read_only: true
-        bind: {}
+        bind:
+          create_host_path: true
   backend:
     build:
-      context: C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform
+      context: C:\Users\Laptop\OneDrive\Documents\testproject\.gemini-p1-safety
       dockerfile: backend/Dockerfile
     cap_drop:
       - ALL
@@ -119,7 +120,7 @@ services:
       WAVE1D_AUTHOR_EMAIL: author@test.local
       WAVE1D_AUTHOR_PASSWORD: <REDACTED_TEST_ONLY_CREDENTIAL>
       WAVE1D_AUTHOR_USERNAME: test_author
-      WAVE1D_PROJECT: p1-live-safety-01-verify
+      WAVE1D_PROJECT: p1-safety-fddf05fd
       WEB_ORIGIN: http://127.0.0.1:18410
     networks:
       workers: null
@@ -127,10 +128,11 @@ services:
       - no-new-privileges:true
     volumes:
       - type: bind
-        source: C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\Pipeline_test\tools
+        source: C:\Users\Laptop\OneDrive\Documents\testproject\.gemini-p1-safety\Pipeline_test\tools
         target: /wave-tools
         read_only: true
-        bind: {}
+        bind:
+          create_host_path: true
   budget-gateway:
     cap_drop:
       - ALL
@@ -175,10 +177,11 @@ services:
       - no-new-privileges:true
     volumes:
       - type: bind
-        source: C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\Pipeline_test\tools
+        source: C:\Users\Laptop\OneDrive\Documents\testproject\.gemini-p1-safety\Pipeline_test\tools
         target: /tools
         read_only: true
-        bind: {}
+        bind:
+          create_host_path: true
       - type: volume
         source: budget_state
         target: /state
@@ -201,10 +204,11 @@ services:
       - no-new-privileges:true
     volumes:
       - type: bind
-        source: C:\Users\thaib\Documents\Projects\Novel_sharing_platform\Novel_sharing_platform\Pipeline_test\tools
+        source: C:\Users\Laptop\OneDrive\Documents\testproject\.gemini-p1-safety\Pipeline_test\tools
         target: /tools
         read_only: true
-        bind: {}
+        bind:
+          create_host_path: true
       - type: volume
         source: fake_state
         target: /evidence
@@ -250,28 +254,28 @@ services:
         volume: {}
 networks:
   headless-edge:
-    name: p1-live-safety-01-verify_headless-edge
+    name: p1-safety-fddf05fd_headless-edge
     ipam:
       config:
         - subnet: 172.31.212.0/24
   upstream:
-    name: p1-live-safety-01-verify_upstream
+    name: p1-safety-fddf05fd_upstream
     ipam:
       config:
         - subnet: 172.31.211.0/24
     internal: true
   workers:
-    name: p1-live-safety-01-verify_workers
+    name: p1-safety-fddf05fd_workers
     ipam:
       config:
         - subnet: 172.31.210.0/24
     internal: true
 volumes:
   budget_state:
-    name: p1-live-safety-01-verify_budget_state
+    name: p1-safety-fddf05fd_budget_state
   fake_state:
-    name: p1-live-safety-01-verify_fake_state
+    name: p1-safety-fddf05fd_fake_state
   mongo_state:
-    name: p1-live-safety-01-verify_mongo_state
+    name: p1-safety-fddf05fd_mongo_state
   pg_state:
-    name: p1-live-safety-01-verify_pg_state
+    name: p1-safety-fddf05fd_pg_state

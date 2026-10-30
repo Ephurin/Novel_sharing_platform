@@ -1,6 +1,6 @@
 {
   "task_id": "P1-LIVE-SAFETY-01",
-  "project_name": "p1-live-safety-01-verify",
+  "project_name": "p1-safety-fddf05fd",
   "compose_file": "Pipeline_test/tools/compose.p1-live-safety.yml",
   "real_gemini_calls": 0,
   "real_spending_usd": "0.00",
@@ -11,15 +11,15 @@
   "budget_status_initial": {
     "schema": 3,
     "guard_profile": "P1_LIVE_SAFETY_01",
-    "run_id": "p1-live-safety-01-verify",
+    "run_id": "p1-safety-fddf05fd",
     "approved_model": "gemini-3.5-flash-lite",
     "max_calls": 15,
     "max_window_calls": 10,
     "window_seconds": 60.0,
     "max_cost_usd": "0.05",
     "admission_cost_usd": "0.05",
-    "deadline": 1793335185.6678574,
-    "started": 1793333385.6678574,
+    "deadline": 1793372016.438241,
+    "started": 1793370216.438241,
     "total_calls": 0,
     "charged_usd": "0",
     "outstanding_usd": "0",
@@ -29,6 +29,8 @@
     "actual_invoice_usd": "0.00",
     "rolling_window_calls": 0,
     "remaining_calls": 15,
+    "denied_requests_count": 0,
+    "denied_history": [],
     "live_authorized": false,
     "live_cost_hard_cap": "BUDGET_COST_HARD_CAP_UNPROVEN",
     "pricing_scope": "GEMINI_3_5_FLASH_LITE_PAID_STANDARD_CONSERVATIVE_CEILING"
@@ -74,6 +76,16 @@
   },
   "network_isolation_probes": {
     "ai_service": {
+      "rfc5737_test_net_1": {
+        "blocked": true,
+        "error_type": "OSError",
+        "error": "[Errno 101] Network is unreachable"
+      },
+      "rfc5737_test_net_2": {
+        "blocked": true,
+        "error_type": "OSError",
+        "error": "[Errno 101] Network is unreachable"
+      },
       "external_google": {
         "blocked": true,
         "error_type": "URLError",
@@ -83,9 +95,24 @@
         "blocked": true,
         "error_type": "URLError",
         "error": "<urlopen error [Errno -3] Temporary failure in name resolution>"
+      },
+      "routing_table": {
+        "entries": 2,
+        "content": [
+          "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       ",
+          "eth0\t00D21FAC\t00000000\t0001\t0\t0\t0\t00FFFFFF\t0\t0\t0                                                                               "
+        ]
       }
     },
     "backend": {
+      "rfc5737_test_net_1": {
+        "blocked": true,
+        "error": "connect ENETUNREACH 192.0.2.1:443 - Local (0.0.0.0:0)"
+      },
+      "rfc5737_test_net_2": {
+        "blocked": true,
+        "error": "connect ENETUNREACH 198.51.100.1:443 - Local (0.0.0.0:0)"
+      },
       "external_google": {
         "blocked": true,
         "error": "Error: getaddrinfo EAI_AGAIN generativelanguage.googleapis.com"
@@ -93,27 +120,35 @@
       "direct_fake_upstream": {
         "blocked": true,
         "error": "Error: getaddrinfo EAI_AGAIN fake-upstream"
+      },
+      "routing_table": {
+        "entries": 3,
+        "content": [
+          "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                                                       ",
+          "eth0\t00D21FAC\t00000000\t0001\t0\t0\t0\t00FFFFFF\t0\t0\t0                                                                               ",
+          ""
+        ]
       }
     }
   },
   "budget_status_after_gateway_restart": {
     "schema": 3,
     "guard_profile": "P1_LIVE_SAFETY_01",
-    "run_id": "p1-live-safety-01-verify",
+    "run_id": "p1-safety-fddf05fd",
     "approved_model": "gemini-3.5-flash-lite",
     "max_calls": 15,
     "max_window_calls": 10,
     "window_seconds": 60.0,
     "max_cost_usd": "0.05",
     "admission_cost_usd": "0.05",
-    "deadline": 1793335185.6678574,
-    "started": 1793333385.6678574,
+    "deadline": 1793372016.438241,
+    "started": 1793370216.438241,
     "total_calls": 2,
     "charged_usd": "0.0055096",
     "outstanding_usd": "0E-7",
     "call_history": [
       {
-        "ticket_id": "8e6de807-d966-44e8-b679-1e64b6fd9f93",
+        "ticket_id": "640535a3-a470-4446-b249-d22b78ef91a2",
         "call_index": 1,
         "client_service": "ai-service",
         "operation": "gemini_generate_content",
@@ -122,11 +157,11 @@
         "liability_usd": "0.0027770",
         "charged_usd": "0.0027770",
         "status": "SUCCESS",
-        "timestamp": 1793333412.9415393,
-        "finished": 1793333412.9609277
+        "timestamp": 1793370236.281459,
+        "finished": 1793370236.3097484
       },
       {
-        "ticket_id": "0db69486-24cf-4836-a390-5b4f9754ec63",
+        "ticket_id": "0aeaed27-4da2-4a7a-afa7-4a98a0e94033",
         "call_index": 2,
         "client_service": "backend",
         "operation": "chat_completions",
@@ -135,8 +170,8 @@
         "liability_usd": "0.0027326",
         "charged_usd": "0.0027326",
         "status": "SUCCESS",
-        "timestamp": 1793333413.3808892,
-        "finished": 1793333413.39679
+        "timestamp": 1793370236.6660113,
+        "finished": 1793370236.6879296
       }
     ],
     "status": "FAKE_UPSTREAM_ONLY",
@@ -144,6 +179,8 @@
     "actual_invoice_usd": "0.00",
     "rolling_window_calls": 2,
     "remaining_calls": 13,
+    "denied_requests_count": 0,
+    "denied_history": [],
     "live_authorized": false,
     "live_cost_hard_cap": "BUDGET_COST_HARD_CAP_UNPROVEN",
     "pricing_scope": "GEMINI_3_5_FLASH_LITE_PAID_STANDARD_CONSERVATIVE_CEILING"
@@ -153,6 +190,7 @@
   "cleanup_verification": {
     "containers_remaining": [],
     "volumes_remaining": [],
-    "networks_remaining": []
+    "networks_remaining": [],
+    "foreign_project_resource_survived": true
   }
 }
