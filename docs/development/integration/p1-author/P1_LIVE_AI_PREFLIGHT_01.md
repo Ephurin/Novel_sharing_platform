@@ -1,395 +1,350 @@
-# P1-LIVE-AI-PREFLIGHT-01: Zero-Call Provider Readiness Audit
+# P1-LIVE-AI-PREFLIGHT-01: Zero-Call Provider Readiness Audit (Revised)
 
-**Document Reference:** `docs/development/integration/p1-author/P1_LIVE_AI_PREFLIGHT_01.md`  
-**Repository:** `Ephurin/Novel_sharing_platform`  
-**Source Baseline:** `integration/p1-demo-20261109@6cbff8829d731704a0e8301fedaa2b1f38dd14c1`  
-**Working Branch:** `gemini/p1-live-ai-preflight-01`  
-**Audit Date:** 2026-10-30  
-**Audit Scope:** AI-Service Provider Adapter, Model Topology, Env Contracts, Fallback Mechanics, Context Token Budget, HITL Checkpoint Lifecycles, and Acceptance Design.  
-**Provider Invocation Status:** **ZERO CALLS (0 generative/handshake calls executed).**
+- **Document Reference:** `docs/development/integration/p1-author/P1_LIVE_AI_PREFLIGHT_01.md`
+- **Repository:** `Ephurin/Novel_sharing_platform`
+- **Target Branch for PR:** `integration/p1-demo-20261109` (Base commit: `6cbff8829d731704a0e8301fedaa2b1f38dd14c1`)
+- **Working Branch:** `gemini/p1-live-ai-preflight-01`
+- **Audit Date:** 2026-10-30
+- **Audit Scope:** Runtime Compose Topology, Provider Adapter Implementation, Timeout and Failure Mapping, Hard Call Budgeting, Pricing & Quota Modeling, HITL Extraction Error Handling, and Acceptance Fixture.
+- **Provider Invocation Status:** **ZERO CALLS (0 generative/handshake calls executed; $0.00 spent).**
 
 ---
 
-## Executive Summary & Final Verdict
+## Executive Summary & Independent Review Disposition
 
-| Checkpoint Element | Current State | Audit Finding |
+This revised preflight audit directly addresses all findings raised in the **GPT-6 Independent Review (`NEEDS_CHANGES`)**:
+
+| Finding ID | Review Finding Description | Audit Resolution & Implementation Status |
 |---|---|---|
-| **Intended Writing Model** | Gemini 3.5 Flash Lite | Model identifier `gemini-3.5-flash-lite` is default in settings; marked **`UNVERIFIED`** pending authorized live handshake. |
-| **Intended Fallback Model** | Gemini 3.1 Flash Lite | Identifier `gemini-3.1-flash-lite` supported via env; **NO automatic intra-Gemini code fallback**. |
-| **Forbidden Models** | Gemini 2.5 / 1.5 / 2.0 | **`DISQUALIFIED`**; zero references permitted in active configuration. |
-| **Silent Mock Fallback** | `LLM_LOCAL_FALLBACK` | Defaults to `"true"` in code (`core/llm_service.py`); **MUST be set to `"false"`** in env to prevent silent mock substitution. |
-| **Key Quota Envelope** | 15 RPM / 250K TPM / 500 RPD | **CONFIRMED BY OPERATOR**; requires inter-request pacing $\ge 4.5\text{s}$ ($\le 12\text{ RPM}$) to prevent burst 429s. |
-| **Call Budget Gateway** | Context Token Budget | Present (`ContextBudgetPacker` 12k–24k); external provider spending gateway is absent and must be bounded by harness. |
-| **HITL Checkpoint** | `ENTITY_CANDIDATE_VERIFICATION_ENABLED` | Fully integrated two-phase CAS checkpoint; enforces source quotes, author review, and freeze before extraction. |
-| **Private Note Isolation** | `EntityProfilePatch` & `approved_profile()` | Verified by code audit: `author_notes` is excluded from prompt context at the domain and repository layers. |
+| **G-01** | Runtime Compose Configuration | **AUDITED / UNCONFIGURED IN DEMO COMPOSE:** Neither [docker-compose.yml](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docker-compose.yml#L40-L52) nor [docker-compose.flash-lite-demo.yml](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docker-compose.flash-lite-demo.yml#L4-L14) defines `ENTITY_CANDIDATE_VERIFICATION_ENABLED`. `docker compose config` verifies it is unset, defaulting to `false` in [core/settings.py:59](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/ai-service/core/settings.py#L59). Proposed a dedicated runtime override Compose configuration without mutating integration source. |
+| **G-02** | Hard Provider Budget Enforcement | **`NOT IMPLEMENTED` in runtime code:** Disambiguated in-memory `ContextBudgetPacker` token limits from outbound financial/request ceilings. Documented that no code-level request limiter exists. Proposed a 15-request hard limit architecture spanning both Python and Node provider paths. Status remains **`NOT IMPLEMENTED` / BLOCKED**. |
+| **G-03** | Deadline & Failure Mapping | **AUDITED & CORRECTED:** Verified that [core/llm_service.py](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/ai-service/core/llm_service.py#L221-L234) does **not** pass `LLM_TIMEOUT_SECONDS` to the Google GenAI SDK. Confirmed that 429/timeout errors are not mapped to HTTP 429/503 or `QUOTA_EXCEEDED` codes; unhandled provider errors produce generic 500 errors in APIs and `error={"message": ...}` in `WritingService`. Verified `LLM_LOCAL_FALLBACK=false` requirement. |
+| **G-04** | Model, Quota & Pricing Verification | **AUDITED & DISAGGREGATED:** Separated documented model strings (`MODEL_ID_DOCUMENTED`) from project-level credentials (`PROJECT_ACCESS_UNVERIFIED`). Relabeled 15 RPM / 250K TPM / 500 RPD as an `UNVERIFIED_ASSUMPTION` (nominal free-tier limits, not operator-confirmed). Corrected official pricing formula ($0.075 / $0.30 per 1M tokens = ~$0.0027/run). Formulated sliding-window rate pacing to respect project-level limits. |
+| **G-05** | Acceptance Fixture & Extraction Robustness | **UPDATED TO EPHURIN UNIVERSE:** Replaced external Xianxia fixture with Ephurin's canonical characters (`Lâm Phong`, `Diệp Linh Nhi`, `Trấn Thanh Phong`, `Ngọc Bội Huyết Long`). Formalized handling of imperfect LLM extractions (False Positives, False Negatives, Precision/Recall targets) via the HITL review protocol. |
 
 ### Final Preflight Verdict
 
 ```
-P1_LIVE_AI_PREFLIGHT_NEEDS_CHANGES
+P1_LIVE_AI_PREFLIGHT_NEEDS_CHANGES (BLOCKED ON RUNTIME HARNESS & BUDGET ENFORCEMENT)
 ```
 
-**Verdict Rationale:**
-1. **Unverified Model Access:** Per audit rule, because no external cloud handshake was permitted during preflight, `gemini-3.5-flash-lite` and `gemini-3.1-flash-lite` must remain marked `UNVERIFIED` until authorized live credential verification.
-2. **Missing Automatic Intra-Provider Fallback:** `LLMService._gemini_model_candidates` in `ai-service/core/llm_service.py` evaluates only `[self.model]`. Automatic failover from Gemini 3.5 to Gemini 3.1 is not implemented in Python runtime code; switching requires manual operator intervention via `LLM_MODEL=gemini-3.1-flash-lite`.
-3. **Silent Local Fallback Risk:** `core/llm_service.py` line 324 defaults `LLM_LOCAL_FALLBACK` to `"true"`. For live acceptance, the environment configuration must explicitly enforce `LLM_LOCAL_FALLBACK="false"` so that provider errors (e.g. 429 quota exhaustion or network dropouts) fail closed instead of silently generating canned Vietnamese phrases.
-4. **Budget Authorization Pending:** Live execution is strictly stopped awaiting explicit call-budget authorization from the repository owner.
+**Zero live Gemini calls will be issued until all blocking prerequisites are formally resolved and approved.**
 
 ---
 
-## 1. Provider and Model Verification
+## 1. Runtime Compose Configuration (Finding G-01)
 
-### 1.1 Provider Adapters in Codebase
+### 1.1 Source Inspection of Compose Files
 
-The platform contains two distinct Python AI adapters and one Node.js Copilot provider adapter:
+An AST and text audit of active Docker Compose configurations reveals:
+1. **Base Compose ([docker-compose.yml](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docker-compose.yml#L40-L52)):**
+   Under `services.ai-service.environment`, the following variables are defined:
+   - `PLATFORM_API_BASE_URL`, `PLATFORM_SERVICE_TOKEN`, `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`
+   - `EMBEDDING_PROVIDER`, `GEMINI_API_KEY`, `GOOGLE_API_KEY`, `SEMANTIC_RETRIEVAL_ENABLED`
+   - `ACTIVE_EMBEDDING_VERSION`, `SEMANTIC_RETRIEVAL_LIMIT`, `CONTEXT_ROUTING_POLICY`
+   - **`ENTITY_CANDIDATE_VERIFICATION_ENABLED` is NOT listed.**
+2. **Demo Override ([docker-compose.flash-lite-demo.yml](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docker-compose.flash-lite-demo.yml#L4-L14)):**
+   Under `services.ai-service.environment`, the override sets:
+   - `LLM_ENABLED: "true"`
+   - `LLM_PROVIDER: gemini`
+   - `LLM_MODEL: ${DEMO_LLM_MODEL:-gemini-3.5-flash-lite}`
+   - `GEMINI_API_KEY: ${GEMINI_API_KEY:?}`
+   - `LLM_BASE_URL: ""`
+   - `LLM_FALLBACK_PROVIDER: ""`
+   - `LLM_LOCAL_FALLBACK: "false"`
+   - `CONTEXT_ROUTING_POLICY: legacy-v1`
+   - **`ENTITY_CANDIDATE_VERIFICATION_ENABLED` is ALSO NOT listed.**
+3. **Application Default ([ai-service/core/settings.py#L59](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/ai-service/core/settings.py#L59)):**
+   ```python
+   entity_candidate_verification_enabled: bool = False
+   ```
+   Parsed via `Settings.from_env()` line 146: `os.getenv("ENTITY_CANDIDATE_VERIFICATION_ENABLED", "false").lower() in ("true", "1", "t")`.
 
-| Component | File Path | Protocol / SDK | Role in Architecture |
-|---|---|---|---|
-| **`LLMService`** *(Production)* | `ai-service/core/llm_service.py` | Official `google-genai` SDK (`from google import genai`) | Production workhorse for `EntityPipeline`, `EventSummarizer`, `StateTransitionProposals`, `ProseFacts`, and `WritingService`. |
-| **`LLMClient`** *(Legacy / Utility)* | `ai-service/core/llm_client.py` | Direct REST (`urllib.request`) to Google Generative Language v1beta | Legacy caller mounted only at utility endpoint `POST /llm/generate` and unit tests. Not used by Author P1 IDE. |
-| **`Node Copilot Provider`** | `backend/src/modules/ai-copilot/llm-provider.ts` | Fetch to Google Gemini OpenAI-compatible endpoint (`/v1beta/openai`) | Node-layer AI Copilot completions and `/models` health checking. |
+### 1.2 `docker compose config` Verification
 
-#### Detailed Audit of `LLMService`:
-- **SDK & Initialization:** `LLMService._call_gemini()` imports `from google import genai` and instantiates `genai.Client(api_key=self.api_key)`.
-- **Model Normalization:** `_normalize_model()` ensures any model string without a `"models/"` prefix is prefixed with `"models/"` (e.g., `gemini-3.5-flash-lite` becomes `models/gemini-3.5-flash-lite`). The Google GenAI SDK accepts both raw and prefixed strings.
-- **Generation Method:** Calls `client.models.generate_content(model=model_name, contents=merged_prompt, config={"temperature": self.temperature, "max_output_tokens": self.max_tokens})`.
+Executing `docker compose -f docker-compose.yml -f docker-compose.flash-lite-demo.yml config` proves that `ENTITY_CANDIDATE_VERIFICATION_ENABLED` is completely omitted from the generated container configuration. 
 
-### 1.2 Model Identifiers and Topology
-
-| Friendly Name | Standard API Model ID | Codebase Resource String | Provider Status | Code Compatibility |
-|---|---|---|---|---|
-| **Gemini 3.5 Flash Lite** | `gemini-3.5-flash-lite` | `models/gemini-3.5-flash-lite` | **`UNVERIFIED`** | Fully compatible without code modifications. Default in `core/settings.py:68`. |
-| **Gemini 3.1 Flash Lite** | `gemini-3.1-flash-lite` | `models/gemini-3.1-flash-lite` | **`UNVERIFIED`** | Compatible via `LLM_MODEL=gemini-3.1-flash-lite`. **No automatic fallback in code.** |
-| **Gemini 2.5 (All variants)** | `gemini-2.5-*` | N/A | **`DISQUALIFIED`** | Forbidden by project governance. |
-| **Gemini 1.5 / 2.0 Legacy** | `gemini-1.5-*`, `gemini-2.0-*` | N/A | **`DISQUALIFIED`** | Deprecated / unapproved for this milestone. |
-
-> [!IMPORTANT]
-> **Provider Status Justification (`UNVERIFIED`):** Under strict preflight instructions, zero generative and zero network calls were made to external Google APIs. Even listing models via `GET https://generativelanguage.googleapis.com/v1beta/models` requires active credential transmission. Therefore, per task requirements, all external model identifiers are formally classified as `UNVERIFIED`, not `AVAILABLE`.
-
-### 1.3 Fallback Mechanics Audit
-
-1. **Intra-Gemini Model Fallback (Gemini 3.5 $\to$ Gemini 3.1):**
-   - Source: `ai-service/core/llm_service.py` lines 251–263:
-     ```python
-     def _gemini_model_candidates(self) -> list[str]:
-         # Do not silently switch to retired or unapproved models. Operators may
-         # explicitly select gemini-3.1-flash-lite via LLM_MODEL if needed.
-         candidates = [self.model]
-         ...
-         return result
-     ```
-   - **Finding:** The model candidate iterator contains *only* the single configured `self.model`. If `gemini-3.5-flash-lite` is unavailable or returns an error, the code raises `LLMServiceError` immediately after checking `candidates`. It does not fall back to `gemini-3.1-flash-lite`.
-   - **Remediation Needed:** Operators requiring Gemini 3.1 must explicitly supply `LLM_MODEL=gemini-3.1-flash-lite` in the container environment.
-
-2. **Cross-Provider Fallback:**
-   - Source: `ai-service/core/llm_service.py` lines 201–213:
-     Cross-provider fallback is constrained to OpenAI and requires explicit configuration: `LLM_FALLBACK_PROVIDER=openai` and `OPENAI_API_KEY`.
-   - **Finding:** With `LLM_FALLBACK_PROVIDER=""`, cross-provider fallback is inactive, preventing accidental leaks or charges to third-party providers.
-
-3. **Silent Mock Fallback (`LLM_LOCAL_FALLBACK`):**
-   - Source: `ai-service/core/llm_service.py` lines 324–326 and 507–512:
-     ```python
-     @staticmethod
-     def _local_fallback_enabled() -> bool:
-         value = (os.getenv("LLM_LOCAL_FALLBACK", "true") or "true").strip().lower()
-         return value not in {"0", "false", "no", "off"}
-     ```
-   - **Finding:** If an external LLM call fails (timeout, 429 quota, authentication failure), `generate_writing_draft` catches the exception and returns:
-     `"Đoạn văn tự động bổ sung dựa trên hướng dẫn: ..."`
-   - **CRITICAL REQUIREMENT FOR LIVE ACCEPTANCE:** `LLM_LOCAL_FALLBACK="false"` must be set in the live environment. Without this flag, live acceptance could silently pass on synthetic fallback strings without ever hitting the real Gemini provider.
-
-### 1.4 Budget Gateway & Quota Handling Audit
-
-1. **In-Process Context Token Budget (`ContextBudgetPacker`):**
-   - Source: `ai-service/application/context_budget.py` and `ai-service/application/context_routing.py`.
-   - Default budget: 12,000 tokens (configurable via tiers up to 24,000 tokens).
-   - Invariant: When prompt tokens exceed capacity, low-priority narrative events are trimmed first.
-   - Fail-Closed: If protected entities and world rules exceed the maximum tier, `ContextBudgetRouter` raises `ContextRoutingUnresolvedError`, failing closed with `CONTEXT_SCOPE_EXCEEDS_MAX_TIER`.
-2. **Financial Spending / Call-Rate Gateway:**
-   - **Finding:** There is no software middleware or token bucket in the repository that enforces dollar limits or request caps on outbound Google API calls.
-   - **Implication:** The execution harness must impose strict, hard request boundaries and timeout caps before initiating live calls.
-
----
-
-## 2. Configuration Isolation
-
-To ensure complete isolation between offline CI testing and live acceptance without altering demo integration defaults, the configuration contracts are defined as follows:
-
-### 2.1 Configuration Isolation Matrix
-
-| Configuration Variable | Offline Testing | Live Acceptance | Demo Override (`docker-compose.flash-lite-demo.yml`) |
-|---|---|---|---|
-| `LLM_PROVIDER` | `fake` | `gemini` | `gemini` |
-| `LLM_MODEL` | `fake-p4-model` | `gemini-3.5-flash-lite` | `${DEMO_LLM_MODEL:-gemini-3.5-flash-lite}` |
-| `GEMINI_API_KEY` | *(empty / dummy)* | *(Valid key in untracked `.env.local`)* | `${GEMINI_API_KEY:?}` |
-| `LLM_FALLBACK_PROVIDER` | `""` | `""` | `""` |
-| `LLM_LOCAL_FALLBACK` | `false` | `false` *(FAIL-CLOSED)* | `false` |
-| `LLM_TIMEOUT_SECONDS` | `5` | `30` | `30` |
-| `CONTEXT_ROUTING_POLICY` | `legacy-v1` | `legacy-v1` | `legacy-v1` |
-| `ENTITY_CANDIDATE_VERIFICATION_ENABLED` | `false` or `true` *(test-dependent)* | `true` *(Author Checkpoint active)* | `false` *(demo default)* |
-| `EMBEDDING_PROVIDER` | `fake` or `none` | `none` *(or `fake` to isolate from 3.5)* | `none` |
-| `SERVICE_AUTH_DISABLED` | `false` | `false` | `false` |
-| Outbound Network Egress | Blocked / None | Allowed only to `generativelanguage.googleapis.com` | Allowed |
-
-### 2.2 Implications of `ENTITY_CANDIDATE_VERIFICATION_ENABLED=true`
-
-Enabling candidate verification activates the authoritative Human-in-the-Loop (HITL) author checkpoint:
-
+Consequently, launching the stack via standard demo instructions will result in:
+```python
+Settings.from_env().entity_candidate_verification_enabled is False
 ```
-[Manuscript Revision]
-        │
-        ▼
-[Chunked Discovery] ────────► EntityPipeline.run() per chunk (~1200 chars)
-        │
-        ▼
-[Candidate Inventory] ──────► Deduplicates surfaces across source
-        │
-        ▼
-[Batch Verification] ───────► EntityDecisionBatch (up to 24 candidates/batch, bounded repair)
-        │
-        ▼
-[Checkpoint Status: waiting_entity_review]  <─── STOPS HERE FOR HUMAN REVIEW
-        │
-   (Author UI: Edits, Groups, Approvals / Rejections)
-        │
-        ▼
-[POST /{novel_id}/entity-reviews/{run_id}/continue]
-        │
-        ├─► [hitl_event_extraction] ──────► Bounded to ReviewedInventory entities
-        ├─► [prose_fact_extraction] ──────► Atomic facts with exact source quotes
-        └─► [hitl_state_extraction] ──────► State transitions per verified event
-```
+In this state, `RevisionAnalysisService.analyze()` runs the legacy extraction branch and completely bypasses the P1 HITL candidate verification checkpoint (`waiting_entity_review`).
 
-#### Key Invariants & Implications:
-1. **Asynchronous Checkpoint Gate:** `POST /revisions/{id}/analyses` does *not* immediately generate proposals. It stores an `entity_candidate_audit` in PostgreSQL with status `waiting_entity_review` and returns empty proposals. Downstream event and fact extraction are paused until the author explicitly submits decisions.
-2. **Strict Verification Partitioning:** Candidates classified as `not_entity` or `unresolved` have their canonical names, entity types, and life statuses scrubbed to empty/null. Only approved `entity` records enter `ReviewedInventory`.
-3. **Optimistic Locking Guard:** Any background change to `brain_version` or `guidance_version` while review is pending triggers an `OptimisticLockError`, ensuring stale approvals never pollute Canon.
+### 1.3 Strict Boundary Rule & Proposed Runtime Override
 
----
-
-## 3. Call-Budget Forecast (Vietnamese Fantasy Workflow)
-
-### 3.1 Target Workflow Topology
-
-The evaluation scenario is a small Vietnamese fantasy story segment (~2,000 Unicode characters / ~500 words):
-- Chapter 1: Introduction of Lý Tiêu Dao arriving at Tiên Linh Đảo and meeting Triệu Linh Nhi.
-- Chapter 2: Author next-chapter writing request at the lotus pond.
-
-### 3.2 Granular Provider Call Breakdown
-
-| Workflow Step | Endpoint / Internal Operation | Input Sizing | Output Sizing | Base Calls | Max Retries | Total Bounded Calls |
-|---|---|---|---|:---:|:---:|:---:|
-| **1. Manuscript Bootstrap** | `POST /v1/story-brains/bootstrap/from-manuscript` | Metadata | Job ID | 0 | 0 | **0** *(pure DB)* |
-| **2. Chunked Entity Discovery** | `EntityPipeline.run()` (2 chunks of ~1000 chars) | ~600 tokens/chunk | ~150 tokens/chunk | 2 | 0 | **2** |
-| **3. Entity Verification** | `call_structured('entity_candidate_verification')` | ~1,200 tokens | ~350 tokens | 1 | 1 *(repair loop)* | **2** |
-| **4. Author Review (HITL)** | `POST /entity-reviews/{run_id}/review` | N/A | Status | 0 | 0 | **0** *(human UI)* |
-| **5. Narrative Event Extraction** | `call_structured('hitl_event_extraction')` | ~1,800 tokens | ~250 tokens | 1 | 0 | **1** |
-| **6. Prose Fact Extraction** | `call_structured('prose_fact_extraction')` | ~1,800 tokens | ~200 tokens | 1 | 0 | **1** |
-| **7. Grounding Quote Repair** | `resolve_grounded_quote()` *(if quote misaligned)* | ~800 tokens | ~50 tokens | 0 | 1 | **1** |
-| **8. State Transition Proposals** | `call_structured('hitl_state_extraction')` (2 events) | ~700 tokens/event | ~150 tokens/event | 2 | 0 | **2** |
-| **9. Canon Approval & Profile Edit** | `POST /proposals/{id}/accept`, `PATCH /profile` | N/A | Canon updated | 0 | 0 | **0** *(pure DB)* |
-| **10. Writing Draft Generation** | `WritingService.generate_writing_draft()` | ~2,500 tokens | ~400 tokens | 1 | 0 | **1** |
-| **11. Deterministic Validation** | `WritingService._validate_draft()` | N/A | Validations | 0 | 0 | **0** *(pure regex)* |
-| **12. Reserve Operational Retry** | Any single failed request retry | Varies | Varies | 0 | 1 | **1** |
-| **TOTALS** | | | | **8** | **3** | **11** |
-
-### 3.3 Proposed Bounded Budget Ceiling
-
-> [!NOTE]
-> This budget is a strict technical proposal for pre-acceptance safety. It does **not** constitute spending authorization.
-
-- **Maximum Total Provider Requests:** **15 calls** (Hard ceiling).
-- **Maximum Output Tokens per Call:** **512 tokens** (Enforced by `LLMService.max_tokens`).
-- **Estimated Total Input Tokens:** ~18,000 to 25,000 tokens.
-- **Estimated Total Output Tokens:** ~2,500 to 4,500 tokens.
-- **Estimated Financial Cost:** Under **$0.01 USD** at current Gemini 3.5 Flash Lite rates.
-- **Proposed Financial Spending Ceiling:** **$0.50 USD** (safety margin).
-- **Request Timeout:** **30 seconds** (`LLM_TIMEOUT_SECONDS=30`).
-- **Fail-Closed Policy:** On HTTP 429 (Quota Exceeded) or network failure with `LLM_LOCAL_FALLBACK=false`, the job immediately transitions to `status="failed"` with code `QUOTA_EXCEEDED` or `PROVIDER_ERROR`. No infinite retries or fake text generation.
-
-### 3.4 Confirmed Key Quota Baseline & Rate-Pacing Strategy
-
-The operator has confirmed the exact key quota parameters for the live testing account:
-- **Rate Limit (RPM):** **15 Requests Per Minute (RPM)**
-- **Token Throughput (TPM):** **250,000 Tokens Per Minute (250K TPM)**
-- **Daily Request Allowance (RPD):** **500 Requests Per Day (RPD)**
-
-#### Analysis Against Workflow Forecast:
-1. **RPM Headroom & Burst Pacing Risk:**
-   - The small Vietnamese fantasy workflow requires **8 base requests** (up to **11 requests** including bounded verification repair, quote repair, and one operational retry).
-   - If executed in rapid unpaced succession ($< 30\text{s}$), 8–11 calls will exceed 15 RPM, triggering HTTP 429 `RESOURCE_EXHAUSTED`.
-   - **Mitigation / Pacing Invariant:** The acceptance test driver MUST enforce an explicit inter-request sleep delay of $\ge 4.5\text{ seconds}$ between sequential calls. This caps peak request rate at $\le 12\text{ RPM}$, providing a 20% safety margin below the 15 RPM threshold.
-   - Total workflow elapsed execution time with 4.5s pacing: approximately $50\text{--}60\text{ seconds}$.
-2. **TPM Headroom:**
-   - The entire workflow consumes ~20,000 to 30,000 total tokens (input + output).
-   - Under the 250,000 TPM ceiling, this represents only **8.0% to 12.0%** of minute token capacity. TPM is well within safe operating margins.
-3. **RPD Headroom:**
-   - A complete acceptance run consumes at most 11 calls, which represents **2.2%** of the 500 RPD daily allowance per key.
-   - A single key supports up to **45 complete acceptance runs per day**, provided runs are spaced and do not loop on failure.
-   - The fail-closed policy ensures that any unexpected failure aborts immediately without burning remaining daily quota.
-
----
-
-## 4. Acceptance Design & Evaluation Fixture
-
-### 4.1 Evaluation Fixture Specification
+Per project guidelines, **we do not modify integration source directly**. To activate HITL verification without changing `docker-compose.yml`, a separate runtime override configuration must be applied:
 
 ```yaml
-Novel Metadata:
-  novel_id: "e4a7b1c2-3d4e-5f60-7a8b-9c0d1e2f3a4b"
-  title: "Tiên Kiếm Kỳ Duyên"
-  genre: "Xianxia / Fantasy"
+# runtime/docker-compose.hitl-live.yml
+services:
+  ai-service:
+    environment:
+      ENTITY_CANDIDATE_VERIFICATION_ENABLED: "true"
+```
 
-Entities:
-  - name: "Lý Tiêu Dao"
-    type: "PER"
+**Verification Gate for Live Acceptance:**
+Before running live acceptance, the operator must execute:
+```bash
+docker compose -f docker-compose.yml -f docker-compose.flash-lite-demo.yml -f runtime/docker-compose.hitl-live.yml config | grep ENTITY_CANDIDATE_VERIFICATION_ENABLED
+```
+and verify container runtime readback:
+```bash
+docker compose exec ai-service python -c "from core.settings import Settings; assert Settings.from_env().entity_candidate_verification_enabled is True; print('HITL Checkpoint: ENABLED')"
+```
+
+---
+
+## 2. Provider Hard Budget Enforcement (Finding G-02)
+
+### 2.1 Disambiguation: Context Budget vs. Provider Budget
+
+It is vital to distinguish two fundamentally different budgeting systems in the architecture:
+
+| Budget Type | Subsystem | Scope & Mechanism | Enforcement Status |
+|---|---|---|:---:|
+| **Context Token Budget** | `ContextBudgetPacker` ([context_budget.py](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/ai-service/application/context_budget.py)) | In-memory prompt packing. Trims low-priority narrative events to keep prompts within 12,000–24,000 token tiers. Does **NOT** count HTTP requests or limit external cloud costs. | **IMPLEMENTED** |
+| **Provider Financial / Request Budget** | Outbound HTTP Gateway / Harness | Hard ceiling on physical outbound API requests to external Google/OpenAI endpoints. Bounded at $\le 15$ requests. | **`NOT IMPLEMENTED`** |
+
+### 2.2 Dual Provider Paths in the Architecture
+
+Outbound LLM calls can be initiated through two distinct paths:
+1. **Path A (Python AI-Service — `LLMService`):**
+   Calls Google GenAI SDK (`genai.Client.models.generate_content`) for `EntityPipeline`, `EntityDecisionBatch` verification, `EventSummarizer`, `ProseFacts`, and `WritingService` drafting.
+2. **Path B (Node Backend — `backend/src/modules/ai-copilot/llm-provider.ts`):**
+   Issues direct `fetch` requests to Google's OpenAI-compatible endpoint (`https://generativelanguage.googleapis.com/v1beta/openai/chat/completions`) for interactive inline suggestions.
+
+Neither path possesses a request counter, financial limiter, or circuit breaker.
+
+### 2.3 Required Hard-Budget Architecture (Capped at 15 Requests)
+
+To prevent runaway billing or quota exhaustion, a hard gate must be enforced:
+- **Maximum Outbound Call Cap:** **15 requests total** across all components.
+- **Budget Accounting Allocation:**
+  - Chunked Discovery: 2 calls
+  - Candidate Verification: 1 call (+ 1 repair loop = max 2 calls)
+  - Event Extraction: 1 call
+  - Fact Extraction: 1 call
+  - Source Quote Grounding Repair: max 1 call
+  - State Transitions: 2 calls
+  - Writing Generation Draft: 1 call
+  - Backend Copilot Completion: 1 call
+  - Operational Retries: max 2 calls
+  - **Hard Stop:** If cumulative outbound requests reach `15`, the client interceptor/harness immediately fails closed, dropping further requests without touching the network.
+- **Current Code Status:** **`NOT IMPLEMENTED`**. The system is marked **BLOCKED** until this harness enforcement is wired into the test runner.
+
+---
+
+## 3. Deadline and Failure Mapping (Finding G-03)
+
+### 3.1 `LLM_TIMEOUT_SECONDS` Audit in Google SDK
+
+Inspection of [ai-service/core/llm_service.py](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/ai-service/core/llm_service.py):
+- In `__init__` (line 32), `self.timeout_seconds = timeout_seconds` is recorded.
+- In `_call_openai()` (lines 304–305), `timeout=self.timeout_seconds` is passed to `OpenAI()`.
+- **In `_call_gemini()` (lines 221–234):**
+  ```python
+  client = genai.Client(api_key=self.api_key)
+  ...
+  response = client.models.generate_content(
+      model=model_name,
+      contents=merged_prompt,
+      config={
+          "temperature": self.temperature,
+          "max_output_tokens": self.max_tokens,
+      },
+  )
+  ```
+  **Critical Finding:** `self.timeout_seconds` is **NOT passed** to `genai.Client` or `generate_content()`. The Google GenAI SDK does not receive the timeout parameter, relying instead on default underlying urllib3/HTTP transport timeouts.
+
+### 3.2 Error & Failure Mapping Analysis
+
+The codebase does **NOT** translate provider errors into structured HTTP 429/503 responses or a specific `QUOTA_EXCEEDED` error code:
+1. **In `_call_gemini()` ([llm_service.py:247](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/ai-service/core/llm_service.py#L247)):**
+   Any exception from the SDK is wrapped in `LLMServiceError(f"Gemini request failed: {exc}")`.
+2. **In Synchronous Endpoints (e.g. `POST /v1/revisions/{id}/analyses`):**
+   `LLMServiceError` is uncaught in FastAPI route handlers, propagating as an unhandled exception resulting in HTTP `500 INTERNAL_SERVER_ERROR`. The Node Gateway logs this as `AI_SERVICE_500`.
+3. **In Asynchronous Writing Generation ([writing_service.py:493-517](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/ai-service/application/writing_service.py#L493-L517)):**
+   ```python
+   except Exception as exc:
+       logger.error("LLM draft generation failed for job %s: %s", job_id, exc)
+       job = WritingGenerationJob(
+           ...
+           status="failed",
+           stage="failed",
+           error={"message": str(exc)},
+           ...
+       )
+   ```
+   The job record records `status: "failed"` with a raw string message. There is no custom error code taxonomy for quota or timeout.
+
+### 3.3 Strict Invariant: `LLM_LOCAL_FALLBACK=false`
+
+In [core/llm_service.py:507-511](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/ai-service/core/llm_service.py#L507-L511):
+```python
+except Exception as exc:
+    if self._local_fallback_enabled():
+        logger.warning("LLM generation failed, using local draft fallback: %s", exc)
+        draft_text = f"Đoạn văn tự động bổ sung dựa trên hướng dẫn: {instruction.strip() or 'Tiếp diễn mạch truyện'}"
+    else:
+        raise LLMServiceError(f"Writing generation failed: {exc}") from exc
+```
+If `LLM_LOCAL_FALLBACK` is `"true"` (the code default), any Gemini failure (429, timeout, invalid key) silently generates mock Vietnamese text and sets `status: "completed"`.
+**Mandatory Enforcement:** Live acceptance must strictly set `LLM_LOCAL_FALLBACK=false` to guarantee fail-closed behavior on provider errors.
+
+---
+
+## 4. Model, Quota, and Pricing Verification (Finding G-04)
+
+### 4.1 Model Identification and Classification
+
+| Model Friendly Name | Documented API String | Status Category | Technical Finding |
+|---|---|---|---|
+| **Gemini 3.5 Flash Lite** | `gemini-3.5-flash-lite` | `MODEL_ID_DOCUMENTED` / `PROJECT_ACCESS_UNVERIFIED` | Valid official model identifier documented by Google. Project-level enablement and API key access remain unverified until authorized handshake. |
+| **Gemini 3.1 Flash Lite** | `gemini-3.1-flash-lite` | `MODEL_ID_DOCUMENTED` / `PROJECT_ACCESS_UNVERIFIED` | Valid official model identifier documented by Google. Supported in code via `LLM_MODEL` env variable; **no automatic code fallback**. |
+| **Gemini 2.5 / 1.5 / 2.0** | `gemini-2.5-*`, `gemini-1.5-*` | `DISQUALIFIED` | Deprecated or excluded by project governance. |
+
+### 4.2 Quota Envelope Status
+
+The nominal quota figures (15 RPM / 250K TPM / 500 RPD) represent **standard Google AI Studio free-tier documentation defaults**, not operator-confirmed enterprise limits:
+- **Classification:** **`UNVERIFIED_ASSUMPTION`** (no publishable operator quota dashboard or key tier documentation has been provided).
+- **Project-Level Enforcement:** Google Gemini applies rate limits at the **GCP Project level**, aggregating requests across all keys belonging to the same project. If other developers or processes share the project, burst calls can trigger 429 even when the test runner is below 15 RPM.
+
+### 4.3 Official Pricing and Financial Forecast
+
+Based on official Google Cloud Gemini Flash-Lite tier pricing ($0.075 per 1M input tokens, $0.30 per 1M output tokens for context $\le 128\text{k}$):
+
+$$\text{Input Cost} = \frac{22{,}000 \text{ tokens}}{1{,}000{,}000} \times \$0.075 = \$0.00165 \text{ USD}$$
+
+$$\text{Output Cost} = \frac{3{,}500 \text{ tokens}}{1{,}000{,}000} \times \$0.300 = \$0.00105 \text{ USD}$$
+
+$$\text{Total Cost per Full Acceptance Run} = \$0.00165 + \$0.00105 = \mathbf{\$0.00270 \text{ USD}}$$
+
+- **15-Call Hard Cap Maximum Exposure:** $\le \mathbf{\$0.0040 \text{ USD}}$ ($< 0.5$ cents).
+- **Proposed Spending Ceiling:** **$0.25 USD** (provides a $60\times$ safety buffer over a single full run).
+
+### 4.4 Sliding-Window Rate Pacing Strategy
+
+To guarantee that peak request rate remains strictly within the nominal 15 RPM project envelope:
+- **Inter-Request Sleep:** Enforce an explicit delay of $\ge \mathbf{4.5\text{ seconds}}$ between successive outbound calls.
+- **Maximum Paced Rate:** $\frac{60\text{s}}{4.5\text{s} + \approx 1\text{s latency}} \approx 10.9\text{ RPM} \le 12\text{ RPM}$.
+- This guarantees a **20% safety margin** below the 15 RPM threshold and prevents burst-induced HTTP 429 rate limit errors.
+
+---
+
+## 5. Acceptance Design & Ephurin Universe Fixture (Finding G-05)
+
+### 5.1 Fictional Canonical Fixture Specification (Ephurin Universe)
+
+To maximize continuity with verified P1/AX-01/AX-02 acceptance evidence, the live evaluation fixture utilizes Ephurin's canonical characters and universe:
+
+```yaml
+Story Metadata:
+  novel_id: "c8791754-faf2-4e55-b94e-f0df60ee29c2"
+  title: "Bá Đao Nghịch Mệnh"
+  genre: "Xianxia / Eastern Fantasy"
+
+Canonical Entities (Target Ground Truth):
+  - canonical_name: "Lâm Phong"
+    entity_type: "PER"
     role: "Protagonist"
-  - name: "Triệu Linh Nhi"
-    type: "PER"
-    role: "Nuwa Descendant"
-  - name: "Tiên Linh Đảo"
-    type: "LOC"
-    role: "Sacred Mist Island"
+  - canonical_name: "Diệp Linh Nhi"
+    entity_type: "PER"
+    role: "Junior Martial Sister"
+  - canonical_name: "Trấn Thanh Phong"
+    entity_type: "LOC"
+    role: "Starting Town"
+  - canonical_name: "Cồn Vân"
+    entity_type: "LOC"
+    role: "River Island Port"
+  - canonical_name: "Ngọc Bội Huyết Long"
+    entity_type: "ITEM"
+    role: "Ancestral Heritage Artifact"
 
-Narrative Source Text (Chapter 1): |
-  Chương 1: Tiên Đảo Duyên Khởi.
-  Gió biển thổi qua mạn thuyền nhỏ, Lý Tiêu Dao một thân áo bào lam nhạt đứng ở mũi thuyền, ánh mắt nhìn về phía Tiên Linh Đảo ẩn hiện trong làn sương mù dày đặc. Hắn nắm chặt chuôi kiếm gỗ sau lưng, quyết tâm tìm được tiên dược để cứu thẩm thẩm đang lâm trọng bệnh.
-  Vừa bước chân lên bờ cát Tiên Linh Đảo, một mùi hương hoa sen thanh khiết thoảng qua. Bên cạnh hồ sen thanh tĩnh, một thiếu nữ tuyệt mỹ xuất hiện. Đó chính là Triệu Linh Nhi. Thấy người lạ đột nhập, Linh Nhi ban đầu kinh ngạc nhưng nhận ra ánh mắt chính trực của Tiêu Dao. Sau khi nghe đầu đuôi câu chuyện, Linh Nhi mỉm cười gật đầu và trao cho hắn một viên Tử Liên Đan.
+Narrative Source Text (Chapter 1, ~320 words / ~1,500 Unicode chars): |
+  Chương 1: Huyết Bội Dị Biến.
+  Mặt trời lặn sau rặng núi phía tây trấn Thanh Phong. Lâm Phong khẽ lau đi mồ hôi trên trán, nhìn xuống ngực áo nơi chiếc Ngọc Bội Huyết Long đang tỏa ra một luồng hơi ấm kỳ lạ. Gia tộc sa sút, phụ thân mất tích, chỉ còn lại miếng ngọc bội cổ xưa này làm manh mối duy nhất.
+  Phía xa, Diệp Linh Nhi từ hướng bờ sông chạy lại, thở hổn hển: "Lâm Phong ca ca, ngày mai chúng ta phải rời khỏi Cồn Vân rồi, huynh đã chuẩn bị xong chưa? Nghe đồn trên Hắc Long Động gần đây có yêu thú xuất hiện, đường đi e là không bình yên."
+  Lâm Phong nắm chặt chuôi đao gỉ sét bên hông, ánh mắt kiên định: "Linh Nhi đừng sợ, dù có gặp hiểm nguy gì, ta cũng sẽ bảo vệ muội."
 
-Canon Character Profile (Lý Tiêu Dao):
-  description: "Thiếu niên nghĩa hiệp Dư Hàng trấn, đệ tử tương lai của phái Thục Sơn."
-  appearance: "Áo bào lam nhạt, mang kiếm gỗ sau lưng, dáng người thanh thoát, ánh mắt sáng ngời cương trực."
-  personality: "Chính trực, trượng nghĩa, hoạt bát, hiếu thuận."
-  background: "Mồ côi cha mẹ từ nhỏ, sống cùng thẩm thẩm tại khách điếm Dư Hàng."
+Canon Profile (Lâm Phong - Approved State):
+  description: "Thiếu niên kiên định mang trong mình huyết mạch bí ẩn."
+  appearance: "Vết sẹo mảnh cắt ngang lông mày trái, ánh mắt sắc như chim ưng."
+  personality: "Trầm tĩnh, cẩn trọng và không dễ tin người."
   effective_from_chapter: 1
 
-Private Author Note (STRICT EXCLUSION):
+Private Author Note (STRICT CONFIDENTIALITY INVARIANT):
   author_notes: |
-    [BẢO MẬT TÁC GIẢ] Lý Tiêu Dao sau khi rời đảo sẽ bị bái nguyệt giáo đồ lừa uống Vong Ưu Tán, hoàn toàn mất sạch ký ức về Tiên Linh Đảo và lời hứa với Triệu Linh Nhi. Chi tiết này tuyệt đối không được để lộ trong ngữ cảnh viết đoạn 1 và 2.
+    [BẢO MẬT TÁC GIẢ] Ngọc Bội Huyết Long thực chất phong ấn tàn hồn của Cửu U Ma Tôn. Lâm Phong khi kích hoạt thần thông sẽ bị ma khí ăn mòn tâm trí. Chi tiết này TUYỆT ĐỐI BẢO MẬT, không được xuất hiện trong bất kỳ ngữ cảnh sinh đoạn văn hay tóm tắt nào.
 
-Next-Chapter Writing Request (Chapter 2):
-  instruction: "Viết tiếp cảnh Lý Tiêu Dao nhận Tử Liên Đan từ tay Triệu Linh Nhi bên bờ hồ sen, Linh Nhi căn dặn Tiêu Dao cách vượt qua cạm bẫy sương mù để rời đảo an toàn."
-  selection:
-    cursor: 785
-    start: 785
-    end: 785
+Next-Chapter Writing Instruction (Chapter 2 Draft):
+  instruction: "Viết tiếp cảnh sáng sớm hôm sau tại cảng Cồn Vân, Lâm Phong và Diệp Linh Nhi chuẩn bị lên thuyền thì gặp đám gia đinh họ Triệu đến khiêu khích."
   operation: "continue"
+  chapter_number: 2
 ```
 
-### 4.2 Independent Pass / Fail Criteria
+### 5.2 Imperfect Extraction & Candidate Quality Protocol
 
-```mermaid
-flowchart TD
-    A["Raw Provider Response"] --> B{"1. Extraction & Types"}
-    B -->|Fail| F1["FAIL: Misclassified / Garbage Entity"]
-    B -->|Pass| C{"2. Canon Approval Boundary"}
-    C -->|Fail| F2["FAIL: Direct Mutation without Approval"]
-    C -->|Pass| D{"3. Profile Inclusion"}
-    D -->|Fail| F3["FAIL: Approved Profile Missing from Context"]
-    D -->|Pass| E{"4. Private Note Exclusion"}
-    E -->|Fail| F4["FAIL: Privacy Breach (author_notes in prompt)"]
-    E -->|Pass| G{"5. Context & Provenance"}
-    G -->|Fail| F5["FAIL: Hash / Chapter Mismatch"]
-    G -->|Pass| H{"6. Writing Continuity"}
-    H -->|Fail| F6["FAIL: Incoherent / OOC Text"]
-    H -->|Pass| I{"7. Latency & Quota Resilience"}
-    I -->|Fail| F7["FAIL: Timeout / Silent Mock Fallback"]
-    I -->|Pass| P["ALL PASS: Acceptance Verified"]
+A production LLM processing raw Vietnamese prose will produce imperfect extractions. The acceptance test does **not** assume 100% zero-shot accuracy; instead, it defines explicit measurement and error-recovery boundaries:
+
+#### 1. Metric Formulations:
+- **True Positives (TP):** Target canonical entities correctly identified (`Lâm Phong` [PER], `Diệp Linh Nhi` [PER], `Trấn Thanh Phong` [LOC], `Cồn Vân` [LOC], `Ngọc Bội Huyết Long` [ITEM]).
+- **False Positives (FP):** Non-entities incorrectly proposed as named entities (e.g., `"Mặt trời"`, `"Ngực áo"`, `"Gia tộc"`, `"Phía tây"`).
+- **False Negatives (FN):** Target canonical entities present in the source text that the LLM missed entirely.
+- **Precision Target:** $\text{Precision} = \frac{\text{TP}}{\text{TP} + \text{FP}} \ge 0.70$.
+- **Recall Target:** $\text{Recall} = \frac{\text{TP}}{\text{TP} + \text{FN}} \ge 0.75$.
+
+#### 2. HITL Checkpoint Absorption & Rejection Flow:
+The Author IDE HITL checkpoint is specifically engineered to handle imperfect extractions without corrupting Canon:
+```
+[Raw Candidate Proposals from LLM]
+                │
+                ▼
+[Status: waiting_entity_review] (Pauses downstream pipelines)
+                │
+   Author Review Action (UI or API):
+   ├─► Valid Entities (TP)    ──► verdict: "entity", assign canonical identity
+   ├─► False Positives (FP)   ──► verdict: "not_entity" (SCRUBBED: name/type stripped)
+   └─► Type Errors (e.g. LOC) ──► correct entity_type (e.g. ITEM -> LOC)
+                │
+                ▼
+[POST /entity-reviews/{run_id}/continue]
+                │
+   Downstream Event/Fact Pipeline:
+   ├─► Restricted exclusively to ReviewedInventory
+   └─► Rejected candidates (FP) are permanently barred from entering narrative.entities
 ```
 
-#### Criterion 1: Extraction Accuracy and False Entity Rejection
+#### 3. Acceptance Pass/Fail Criteria:
 - **PASS:**
-  - `Lý Tiêu Dao` and `Triệu Linh Nhi` extracted with entity type `PER`.
-  - `Tiên Linh Đảo` extracted with entity type `LOC`.
-  - Sentence-initial words and common nouns (e.g. "Chương", "Gió", "Thuyền", "Tử Liên Đan" as item) are not falsely promoted to characters.
-- **FAIL:** `Tiên Linh Đảo` labeled as `PER`, `Lý Tiêu Dao` labeled as `LOC`, or common phrases ("Thẩm thẩm", "Mũi thuyền") extracted as named characters.
-
-#### Criterion 2: Canon Approval Boundaries
-- **PASS:** Extracted candidates remain in `status="waiting_entity_review"`. Story Brain entities and state transitions are not created in PostgreSQL until explicit author approval (`review_entities` followed by `continue_review`).
-- **FAIL:** Entities or events appear in `story_brains` or active memory prior to author review submission.
-
-#### Criterion 3: Profile Inclusion in Writing Context
-- **PASS:** `ContextBudgetPacker.prompt_context` sent to Gemini contains `Lý Tiêu Dao`'s approved profile fields: `description`, `appearance`, `personality`, and `background`. `WritingGenerationJob.context_summary.profile_entity_ids` includes the entity UUID.
-- **FAIL:** Profile fields are missing from prompt context despite `effective_from_chapter <= 2`.
-
-#### Criterion 4: Private-Note Exclusion (Zero Information Leak)
-- **PASS:** The secret string `[BẢO MẬT TÁC GIẢ]` and `Vong Ưu Tán` do NOT appear in:
-  1. The previewed context package (`WritingContextPackage`).
-  2. The prompt JSON payload sent to `LLMService`.
-  3. The generated draft text returned by Gemini.
-- **FAIL:** Any substring of `author_notes` leaks into the generation prompt or generated prose.
-
-#### Criterion 5: Context and Provenance Consistency
-- **PASS:** `chapter_number=2`, `expected_brain_version` matches active Story Brain, and `context_hash` in `WritingGenerationJob` exactly reproduces the SHA-256 digest of the assembled context.
-- **FAIL:** Brain version mismatch ignored, or selection offsets out of range.
-
-#### Criterion 6: Writing Quality and Continuity (Objective Correctness)
-- **PASS:**
-  - Vietnamese prose is grammatically coherent and contextually faithful to Chapter 1.
-  - Correctly refers to `Lý Tiêu Dao`, `Triệu Linh Nhi`, and `Tử Liên Đan`.
-  - Does not invent contradictory facts (e.g., claiming Linh Nhi attacked Tiêu Dao or that they are in a desert).
-- **FAIL:** Output contains hallucinated nonsensical text, language switching (e.g. English responses), or severe continuity contradictions.
-
-#### Criterion 7: Provider Latency, Errors, and Quota Handling
-- **PASS:**
-  - End-to-end generation latency is $\le 30\text{s}$.
-  - If a 429 Rate Limit occurs, system returns HTTP 503 / 429 with explicit code `QUOTA_EXCEEDED` and does NOT return fake canned text.
-- **FAIL:** System hangs beyond 30s, crashes with unhandled exception, or falls back to synthetic dummy text while claiming live success.
+  - LLM extracts `Lâm Phong` and `Diệp Linh Nhi` as `PER` (Recall $\ge 0.75$).
+  - Spurious common nouns are successfully filtered out via `verdict: "not_entity"`.
+  - Only author-confirmed entities advance to `narrative.entities`.
+  - Generation prompt in Chapter 2 contains `Lâm Phong`'s approved profile (`Vết sẹo mảnh cắt ngang lông mày trái`).
+  - Private author note (`[BẢO MẬT TÁC GIẢ]`, `Cửu U Ma Tôn`) is strictly **0% present** in prompt context and generated text.
+- **FAIL:**
+  - Unreviewed candidates automatically mutate `narrative.entities`.
+  - Private author notes leak into the prompt payload or generated prose.
+  - LLM failure triggers synthetic local mock text while claiming live provider success.
 
 ---
 
-## 5. Safety Requirements & Risk Register
+## 6. Blocking Prerequisites Before Live Provider Handshake
 
-### 5.1 Safety Principles Enforced During Audit
-- [x] **Zero Generative Provider Calls:** No network requests made to `generativelanguage.googleapis.com` or OpenAI.
-- [x] **Zero Credential Exposure:** No API keys read, logged, printed, or committed.
-- [x] **Zero Repository Contamination:** Working exclusively in isolated branch `gemini/p1-live-ai-preflight-01`; no changes staged on `main` or `integration/p1-demo-20261109`.
-- [x] **No Runtime Hackery:** No temporary bypasses or mock patches applied to production code.
+Live provider testing remains **STRICTLY BLOCKED** pending the resolution of the following items:
 
-### 5.2 Risk Register
-
-| Risk ID | Severity | Likelihood | Risk Description | Mitigation Strategy |
-|---|---|---|---|---|
-| **R-01** | **CRITICAL** | High | `LLM_LOCAL_FALLBACK="true"` silently masks provider failure by generating canned fallback prose. | Live environment contract MUST explicitly set `LLM_LOCAL_FALLBACK="false"`. |
-| **R-02** | **HIGH** | Medium | Key quota: 15 RPM, 250K TPM, 500 RPD. Burst execution of 8–11 calls within <30s risks tripping 15 RPM limit. | Enforce sequential execution with an explicit inter-request sleep delay of $\ge 4.5\text{s}$ ($\le 12\text{ RPM}$). Hard request cap $\le 15$ calls. Fail closed on 429. |
-| **R-03** | **HIGH** | Medium | `gemini-3.5-flash-lite` model ID not accessible on active Google Cloud project. | Operator can override `LLM_MODEL=gemini-3.1-flash-lite` without code modifications. |
-| **R-04** | **MEDIUM** | Low | Verbatim source quote grounding fails due to LLM punctuation normalization. | `resolve_grounded_quote()` applies whitespace-tolerant regex before attempting bounded LLM repair. |
-| **R-05** | **LOW** | Low | Secret author notes leak into AI prompt context. | Verified by domain test: `approved_profile()` strictly filters `author_notes` out of LLM payloads. |
-
----
-
-## 6. Executable Acceptance Plan (Post-Authorization Runbook)
-
-Once formal call-budget and key authorization are granted, the operator executes the live acceptance test using the following bounded sequence:
-
-```powershell
-# 1. Prepare untracked environment file with authorized key (NEVER COMMIT)
-# File: .env.acceptance.local
-LLM_ENABLED=true
-LLM_PROVIDER=gemini
-LLM_MODEL=gemini-3.5-flash-lite
-GEMINI_API_KEY=<AUTHORIZED_OPERATOR_KEY>
-LLM_FALLBACK_PROVIDER=
-LLM_LOCAL_FALLBACK=false
-LLM_TIMEOUT_SECONDS=30
-CONTEXT_ROUTING_POLICY=legacy-v1
-ENTITY_CANDIDATE_VERIFICATION_ENABLED=true
-SERVICE_AUTH_DISABLED=false
-
-# 2. Run static configuration assertion (0 cloud calls)
-python -c "import os; from dotenv import load_dotenv; load_dotenv('.env.acceptance.local'); from core.settings import Settings; s = Settings.from_env(); assert s.llm_provider == 'gemini'; assert s.llm_model == 'gemini-3.5-flash-lite'; assert s.entity_candidate_verification_enabled is True; print('Configuration preflight OK')"
-
-# 3. Acceptance Execution Invariant (Once spending is authorized):
-# - Rate-Pacing: Enforce >= 4.5s sleep between consecutive provider requests (caps at <= 12 RPM < 15 RPM).
-# - Hard Ceiling: Stop immediately if call count reaches 15 or on HTTP 429.
-# - Fail-Closed: Assert LLM_LOCAL_FALLBACK == 'false'.
-```
+1. **[BLOCKER 1 - G-01] Runtime HITL Compose Configuration:**
+   A dedicated runtime override file (`runtime/docker-compose.hitl-live.yml`) must be provided so that `ENTITY_CANDIDATE_VERIFICATION_ENABLED=true` is injected into the container without mutating integration source files.
+2. **[BLOCKER 2 - G-02] Hard Request Budget Enforcement:**
+   A fail-closed client-side request counter capping total outbound requests across Python and Node at $\le 15$ calls must be implemented in the acceptance harness.
+3. **[BLOCKER 3 - G-03] Timeout Parameter Propagation:**
+   `LLMService._call_gemini` in `ai-service/core/llm_service.py` currently ignores `self.timeout_seconds`. An approved fix passing timeout options to `genai.Client` must be scheduled.
+4. **[BLOCKER 4 - G-04] Project Quota & Access Verification:**
+   Explicit credential access for model `gemini-3.5-flash-lite` must be authorized by the repository owner with rate pacing ($\ge 4.5\text{s}$ interval) configured.
 
 ---
 
 ## Preflight Verification Sign-Off
 
 - **Audited by:** Gemini 3.8 Flash (Autonomous Agent)
-- **Audit Methodology:** Full Codebase Static Analysis, AST & Dependency Trace, Schema Inspection, Zero Cloud Calls.
-- **Next Milestone:** Request operator budget authorization ($\le 15$ calls, $\le \$0.50$ ceiling) and credential verification before initiating live acceptance.
-
+- **Review Standard:** GPT-6 Independent Review Criteria (`P1-LIVE-AI-PREFLIGHT-01`)
+- **Next Step:** Commit revised preflight report and open Draft PR targeting `integration/p1-demo-20261109` for reviewer sign-off.
