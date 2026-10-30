@@ -27,8 +27,175 @@ import time
 from typing import Any
 import urllib.error
 from urllib.parse import urlparse
+import http.client
+import re
+import socket
 import urllib.request
 import uuid
+
+class RequestDeadlineExceeded(TimeoutError):
+    """Raised when the end-to-end request exceeds the wall-clock deadline."""
+
+
+class ResponseBoundExceeded(ValueError):
+    """Raised when the response body exceeds the maximum permitted byte bound."""
+
+
+def _extract_json_candidates(text: str) -> list[Any]:
+    candidates: list[Any] = []
+    trimmed = text.strip()
+    if (trimmed.startswith("{") and trimmed.endswith("}")) or (trimmed.startswith("[") and trimmed.endswith("]")):
+        try:
+            parsed = json.loads(trimmed)
+            candidates.append(parsed)
+            while isinstance(parsed, str):
+                p_trimmed = parsed.strip()
+                if (p_trimmed.startswith("{") and p_trimmed.endswith("}")) or (p_trimmed.startswith("[") and p_trimmed.endswith("]")):
+                    parsed = json.loads(p_trimmed)
+                    candidates.append(parsed)
+                else:
+                    break
+        except Exception:
+            pass
+
+    for m in re.finditer(r"```(?:json)?\s*([\{\[].*?[\}\]])\s*```", text, re.DOTALL):
+        try:
+            candidates.append(json.loads(m.group(1).strip()))
+        except Exception:
+            pass
+
+    for m in re.finditer(r"(\{(?:[^{}]|(?:\{[^{}]*\}))*\}|\[(?:[^\[\]]|(?:\[[^\[\]]*\]))*\])", text, re.DOTALL):
+        snippet = m.group(1).strip()
+        if snippet != trimmed:
+            try:
+                parsed = json.loads(snippet)
+                if isinstance(parsed, (dict, list)):
+                    candidates.append(parsed)
+            except Exception:
+                pass
+    return candidates
+
+
+def _execute_bounded_request(
+    request: urllib.request.Request,
+    timeout_seconds: float,
+    max_response_bytes: int = 2_000_000,
+) -> tuple[int, dict[str, str], bytes]:
+    start_mono = time.monotonic()
+    deadline_mono = start_mono + timeout_seconds
+
+    active_sock: list[socket.socket | None] = [None]
+    timed_out = threading.Event()
+
+    def watchdog_fire() -> None:
+        timed_out.set()
+        s = active_sock[0]
+        if s is not None:
+            try:
+                s.shutdown(socket.SHUT_RDWR)
+            except Exception:
+                pass
+            try:
+                s.close()
+            except Exception:
+                pass
+
+    timer = threading.Timer(timeout_seconds, watchdog_fire)
+    timer.daemon = True
+    timer.start()
+
+    class BoundedHTTPConnection(http.client.HTTPConnection):
+        def connect(self) -> None:
+            remaining = deadline_mono - time.monotonic()
+            if remaining <= 0 or timed_out.is_set():
+                raise RequestDeadlineExceeded(f"Deadline exceeded before connection ({timeout_seconds}s)")
+            self.timeout = max(0.001, remaining)
+            super().connect()
+            active_sock[0] = self.sock
+            if self.sock is not None:
+                self.sock.settimeout(max(0.001, remaining))
+
+    class BoundedHTTPHandler(urllib.request.HTTPHandler):
+        def http_open(self, req: urllib.request.Request) -> http.client.HTTPResponse:
+            return self.do_open(BoundedHTTPConnection, req)
+
+    opener = urllib.request.build_opener(
+        urllib.request.ProxyHandler({}),
+        NoRedirect(),
+        BoundedHTTPHandler(),
+    )
+
+    try:
+        remaining = deadline_mono - time.monotonic()
+        if remaining <= 0 or timed_out.is_set():
+            raise RequestDeadlineExceeded(f"Deadline exceeded before request dispatch ({timeout_seconds}s)")
+
+        try:
+            response = opener.open(request, timeout=max(0.001, remaining))
+        except urllib.error.HTTPError as http_err:
+            fp = getattr(http_err, "fp", None)
+            raw_sock = getattr(fp, "raw", None)
+            if hasattr(raw_sock, "_sock"):
+                active_sock[0] = raw_sock._sock
+
+            chunks: list[bytes] = []
+            total_read = 0
+            while True:
+                now = time.monotonic()
+                if now >= deadline_mono or timed_out.is_set():
+                    raise RequestDeadlineExceeded(f"Deadline exceeded while reading error response ({timeout_seconds}s)")
+                rem = deadline_mono - now
+                if active_sock[0] is not None:
+                    try:
+                        active_sock[0].settimeout(max(0.001, rem))
+                    except Exception:
+                        pass
+                chunk = http_err.read(min(8192, max_response_bytes + 1 - total_read))
+                if not chunk:
+                    break
+                chunks.append(chunk)
+                total_read += len(chunk)
+                if total_read > max_response_bytes:
+                    raise ResponseBoundExceeded("Upstream response exceeds bound")
+            return http_err.code, dict(http_err.headers), b"".join(chunks)
+
+        fp = getattr(response, "fp", None)
+        raw_sock = getattr(fp, "raw", None)
+        if hasattr(raw_sock, "_sock"):
+            active_sock[0] = raw_sock._sock
+
+        chunks = []
+        total_read = 0
+        while True:
+            now = time.monotonic()
+            if now >= deadline_mono or timed_out.is_set():
+                raise RequestDeadlineExceeded(f"Deadline exceeded while reading response body ({timeout_seconds}s)")
+            rem = deadline_mono - now
+            if active_sock[0] is not None:
+                try:
+                    active_sock[0].settimeout(max(0.001, rem))
+                except Exception:
+                    pass
+            chunk = response.read(min(8192, max_response_bytes + 1 - total_read))
+            if not chunk:
+                break
+            chunks.append(chunk)
+            total_read += len(chunk)
+            if total_read > max_response_bytes:
+                raise ResponseBoundExceeded("Upstream response exceeds bound")
+
+        status = response.status if hasattr(response, "status") else response.code
+        headers = dict(response.headers)
+        return status, headers, b"".join(chunks)
+
+    except (socket.timeout, TimeoutError) as exc:
+        raise RequestDeadlineExceeded(f"Request socket timed out under deadline: {exc}") from exc
+    except OSError as exc:
+        if timed_out.is_set():
+            raise RequestDeadlineExceeded(f"Request aborted by deadline watchdog ({timeout_seconds}s)") from exc
+        raise
+    finally:
+        timer.cancel()
 
 try:
     from Pipeline_test.tools.budget_gateway import (
@@ -55,14 +222,16 @@ FORBIDDEN_PRIVATE_NOTE_KEYS = frozenset({
     "private_author_notes",
     "authorNotes",
     "privateAuthorNotes",
+    "private_notes",
+    "privateNotes",
 })
 
 
 def _payload_contains_private_notes(value: Any, *, in_entity_list: bool = False) -> bool:
     if isinstance(value, dict):
         is_entity = in_entity_list or any(
-            k in value for k in ("entity_id", "characterId", "character_id", "canonical_name")
-        )
+            k in value for k in ("entity_id", "characterId", "character_id", "canonical_name", "role")
+        ) or ("name" in value and any(k in value for k in ("notes", "description", "personality")))
         for k, v in value.items():
             if k in FORBIDDEN_PRIVATE_NOTE_KEYS:
                 return True
@@ -70,23 +239,45 @@ def _payload_contains_private_notes(value: Any, *, in_entity_list: bool = False)
                 return True
             if _payload_contains_private_notes(
                 v,
-                in_entity_list=(k in {"entities", "characters", "known_entities"}),
+                in_entity_list=(in_entity_list or k in {"entities", "characters", "known_entities"}),
             ):
                 return True
         return False
     if isinstance(value, list):
         return any(_payload_contains_private_notes(item, in_entity_list=in_entity_list) for item in value)
     if isinstance(value, str):
+        # 1. Inspect any JSON-serialized structures inside string
+        for candidate in _extract_json_candidates(value):
+            if _payload_contains_private_notes(candidate, in_entity_list=in_entity_list):
+                return True
+
+        # 2. String-level key detection for private author notes (quoted/escaped keys)
         lowered = value.lower()
-        return any(
+        if any(
             token in lowered
             for token in (
                 '"author_notes"',
                 '"private_author_notes"',
                 '"authornotes"',
                 '"privateauthornotes"',
+                '"private_notes"',
+                '"privatenotes"',
+                '\"author_notes\"',
+                '\"private_author_notes\"',
+                '\"authornotes\"',
+                '\"privateauthornotes\"',
+                '\"private_notes\"',
+                '\"privatenotes\"',
             )
-        )
+        ):
+            return True
+
+        # 3. String-level detection of serialized entity notes like {"name": "...", "notes": "..."}
+        # Avoid blocking prose that merely mentions "notes".
+        notes_pattern = re.compile(r"""(?:\\?"|['"])notes(?:\\?"|['"])\s*:\s*(?:\\?"|['"])(?!null)(?!\s*(?:\\?"|['"]))[^"'\\]+""", re.IGNORECASE)
+        entity_pattern = re.compile(r"""(?:\\?"|['"])(?:characters?|entities|known_entities|character_id|characterId|entity_id|canonical_name|protagonist|role)(?:\\?"|['"])""", re.IGNORECASE)
+        if notes_pattern.search(value) and entity_pattern.search(value):
+            return True
     return False
 
 
@@ -299,8 +490,10 @@ class LiveSafetyBudgetLedger:
             s = self.state
             now = float(now_override) if now_override is not None else time.time()
             if now >= s["deadline"]:
+                self.record_denial("ABSOLUTE_DEADLINE_EXPIRED", client_service=client_service, operation=operation)
                 raise BudgetExceededError("ABSOLUTE_DEADLINE_EXPIRED")
             if s["total_calls"] >= s["max_calls"]:
+                self.record_denial("MAX_CALLS_REACHED", client_service=client_service, operation=operation)
                 raise BudgetExceededError("MAX_CALLS_REACHED")
 
             # Sliding-window rate limit check across all physical requests in the last window_seconds.
@@ -315,10 +508,12 @@ class LiveSafetyBudgetLedger:
                 entry for entry in s["call_history"] if (now - float(entry["timestamp"])) < window_secs
             ]
             if len(recent_calls) >= max_window:
+                self.record_denial("ROLLING_RATE_LIMIT_EXCEEDED", client_service=client_service, operation=operation)
                 raise BudgetExceededError("ROLLING_RATE_LIMIT_EXCEEDED")
 
             committed = Decimal(s["charged_usd"]) + Decimal(s["outstanding_usd"]) + amount
             if committed > min(Decimal(s["admission_cost_usd"]), Decimal(s["max_cost_usd"])):
+                self.record_denial("OUTSTANDING_LIABILITY_COST_LIMIT", client_service=client_service, operation=operation)
                 raise BudgetExceededError("OUTSTANDING_LIABILITY_COST_LIMIT")
 
             ticket = dict(
@@ -338,6 +533,20 @@ class LiveSafetyBudgetLedger:
             s["outstanding_usd"] = str(Decimal(s["outstanding_usd"]) + amount)
             self._save_durable()
             return copy.deepcopy(ticket)
+
+    def record_denial(self, reason: str, client_service: str = "unknown", operation: str = "unknown") -> None:
+        with self._lock:
+            try:
+                self.state.setdefault("denied_history", []).append({
+                    "denial_index": len(self.state.get("denied_history", [])) + 1,
+                    "timestamp": time.time(),
+                    "reason": reason,
+                    "client_service": client_service,
+                    "operation": operation,
+                })
+                self._save_durable()
+            except Exception:
+                pass
 
     def finalize(
         self,
@@ -376,6 +585,8 @@ class LiveSafetyBudgetLedger:
                 **copy.deepcopy(self.state),
                 "rolling_window_calls": rolling_window_calls,
                 "remaining_calls": max(0, self.state["max_calls"] - self.state["total_calls"]),
+                "denied_requests_count": len(self.state.get("denied_history", [])),
+                "denied_history": copy.deepcopy(self.state.get("denied_history", [])),
                 "live_authorized": False,
                 "live_cost_hard_cap": "BUDGET_COST_HARD_CAP_UNPROVEN",
                 "pricing_scope": "GEMINI_3_5_FLASH_LITE_PAID_STANDARD_CONSERVATIVE_CEILING",
@@ -456,7 +667,6 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
                     client_service=self.client_tokens[token],
                     liability_usd="0.000001",
                 )
-                opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
                 request = urllib.request.Request(
                     (self.upstream_base_url or "").rstrip("/") + "/v1/models",
                     headers={
@@ -466,17 +676,28 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
                     },
                 )
                 try:
-                    with opener.open(request, timeout=self.upstream_timeout) as response:
-                        result = json.loads(response.read(65536))
-                    self.ledger.finalize(ticket["ticket_id"], "SUCCESS")
-                    self._send_json(200, result)
+                    status, headers, body_bytes = _execute_bounded_request(
+                        request,
+                        timeout_seconds=self.upstream_timeout,
+                        max_response_bytes=65536,
+                    )
+                    if status == 200:
+                        result = json.loads(body_bytes.decode("utf-8"))
+                        self.ledger.finalize(ticket["ticket_id"], "SUCCESS")
+                        self._send_json(200, result)
+                    else:
+                        self.ledger.finalize(ticket["ticket_id"], "FAILED")
+                        self._send_json(status, {"error": "MODEL_DISCOVERY_UNAVAILABLE"})
+                except RequestDeadlineExceeded:
+                    self.ledger.finalize(ticket["ticket_id"], "UNKNOWN")
+                    self._send_json(503, {"error": "MODEL_DISCOVERY_UNAVAILABLE", "detail": "REQUEST_DEADLINE_EXCEEDED"})
                 except Exception:
                     self.ledger.finalize(ticket["ticket_id"], "UNKNOWN")
                     self._send_json(503, {"error": "MODEL_DISCOVERY_UNAVAILABLE"})
             except BudgetExceededError as exc:
                 self._send_json(429, {"error": str(exc)})
-            except BudgetMeterUnavailableError:
-                self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE"})
+            except BudgetMeterUnavailableError as exc:
+                self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE", "detail": str(exc)})
             except Exception:
                 self._send_json(503, {"error": "MODEL_DISCOVERY_UNAVAILABLE"})
         else:
@@ -520,9 +741,13 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
             model = self.path.split("/models/", 1)[1].split(":")[0] if native else body.get("model")
             normalized_model = str(model or "").strip().removeprefix("models/")
             if normalized_model != APPROVED_MODEL:
+                if self.ledger:
+                    self.ledger.record_denial("MODEL_NOT_APPROVED", client_service=client, operation=self.path)
                 return self._send_json(403, {"error": "MODEL_NOT_APPROVED", "requested_model": str(model)})
 
             if _payload_contains_private_notes(body):
+                if self.ledger:
+                    self.ledger.record_denial("PRIVATE_NOTES_FORBIDDEN_IN_PROMPT", client_service=client, operation=self.path)
                 return self._send_json(403, {"error": "PRIVATE_NOTES_FORBIDDEN_IN_PROMPT"})
 
             config = body.get("generationConfig", {}) if native else body
@@ -577,21 +802,31 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
                     "" if native else "Bearer "
                 ) + self.upstream_api_key
             request = urllib.request.Request(url, data=wire, headers=headers, method="POST")
-            opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), NoRedirect())
             try:
-                with opener.open(request, timeout=self.upstream_timeout) as response:
-                    raw = response.read(2_000_001)
-                    if len(raw) > 2_000_000:
-                        raise ValueError("Upstream response exceeds bound")
-                    result = json.loads(raw)
-                self.ledger.finalize(ticket["ticket_id"], "SUCCESS")
-                return self._send_json(200, result)
-            except urllib.error.HTTPError as exc:
-                self.ledger.finalize(ticket["ticket_id"], "FAILED")
-                return self._send_json(exc.code, {"error": "UPSTREAM_HTTP_ERROR", "upstream_status": exc.code})
-            except Exception:
+                status, headers, body_bytes = _execute_bounded_request(
+                    request,
+                    timeout_seconds=self.upstream_timeout,
+                    max_response_bytes=2_000_000,
+                )
+                if status == 200:
+                    result = json.loads(body_bytes.decode("utf-8"))
+                    self.ledger.finalize(ticket["ticket_id"], "SUCCESS")
+                    return self._send_json(200, result)
+                else:
+                    self.ledger.finalize(ticket["ticket_id"], "FAILED")
+                    return self._send_json(status, {"error": "UPSTREAM_HTTP_ERROR", "upstream_status": status})
+            except RequestDeadlineExceeded:
                 self.ledger.finalize(ticket["ticket_id"], "UNKNOWN")
-                return self._send_json(502, {"error": "UPSTREAM_ERROR_OR_TIMEOUT"})
+                return self._send_json(502, {"error": "UPSTREAM_ERROR_OR_TIMEOUT", "detail": "REQUEST_DEADLINE_EXCEEDED"})
+            except ResponseBoundExceeded:
+                self.ledger.finalize(ticket["ticket_id"], "UNKNOWN")
+                return self._send_json(502, {"error": "UPSTREAM_ERROR_OR_TIMEOUT", "detail": "RESPONSE_BOUND_EXCEEDED"})
+            except BudgetMeterUnavailableError as exc:
+                self.ledger.finalize(ticket["ticket_id"], "UNKNOWN")
+                return self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE", "detail": str(exc)})
+            except Exception as exc:
+                self.ledger.finalize(ticket["ticket_id"], "UNKNOWN")
+                return self._send_json(502, {"error": "UPSTREAM_ERROR_OR_TIMEOUT", "detail": str(exc)})
         except BudgetExceededError as exc:
             self._send_json(429, {"error": str(exc)})
         except BudgetMeterUnavailableError as exc:

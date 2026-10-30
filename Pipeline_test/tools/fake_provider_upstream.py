@@ -268,7 +268,40 @@ class FakeHandler(BaseHTTPRequestHandler):
             if self.log_path:
                 with Path(self.log_path).open('a', encoding='utf-8') as stream: stream.write(json.dumps(entry) + '\n')
         if 'fault:redirect' in text:
-            self.send_response(302); self.send_header('Location', 'https://must-not-resolve.invalid/'); self.end_headers(); return
+            self.send_response(302)
+            self.send_header('Location', 'https://must-not-resolve.invalid/')
+            self.end_headers()
+            return
+        if 'fault:hang' in text:
+            time.sleep(60.0)
+            return
+        if 'fault:sleep_long' in text:
+            time.sleep(5.0)
+            return self.reply(200, result)
+        if 'fault:slow_trickle' in text:
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Transfer-Encoding', 'chunked')
+            self.end_headers()
+            try:
+                for chunk_idx in range(40):
+                    time.sleep(0.08)
+                    data = f'{{"chunk": {chunk_idx}}} '.encode('utf-8')
+                    self.wfile.write(f"{len(data):X}\r\n".encode('ascii') + data + b"\r\n")
+                    self.wfile.flush()
+                self.wfile.write(b"0\r\n\r\n")
+                self.wfile.flush()
+            except (BrokenPipeError, ConnectionResetError, OSError):
+                pass
+            return
+        if 'fault:oversized' in text:
+            large_data = (b" " * 2_050_000)
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', str(len(large_data)))
+            self.end_headers()
+            self.wfile.write(large_data)
+            return
         if 'fault:timeout_long' in text: time.sleep(2.5)
         elif 'fault:timeout' in text: time.sleep(0.5)
         for status in (401, 404, 429, 500, 503):

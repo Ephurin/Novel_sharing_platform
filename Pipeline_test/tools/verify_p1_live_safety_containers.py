@@ -25,8 +25,11 @@ import urllib.request
 ROOT = Path(__file__).resolve().parents[2]
 COMPOSE_FILE = ROOT / "Pipeline_test" / "tools" / "compose.p1-live-safety.yml"
 EVIDENCE_DIR = ROOT / "docs" / "development" / "integration" / "p1-author" / "evidence" / "p1-live-safety-01"
-PROJECT_NAME = "p1-live-safety-01-verify"
-INGRESS_PORT = "18410"
+import uuid
+
+RUN_ID = f"p1-safety-{uuid.uuid4().hex[:8]}"
+PROJECT_NAME = os.getenv("P1_SAFETY_PROJECT", RUN_ID)
+INGRESS_PORT = os.getenv("P1_SAFETY_INGRESS_PORT", "18410")
 
 TEST_ENV = {
     **os.environ,
@@ -66,10 +69,36 @@ def _sanitize(text: str) -> str:
     return result
 
 
+
+def _get_project_resources(project: str) -> dict[str, list[str]]:
+    ps = subprocess.run(
+        ["docker", "ps", "-a", "--filter", f"label=com.docker.compose.project={project}", "--format", "{{.Names}}"],
+        capture_output=True, text=True,
+    )
+    vols = subprocess.run(
+        ["docker", "volume", "ls", "--filter", f"label=com.docker.compose.project={project}", "--format", "{{.Name}}"],
+        capture_output=True, text=True,
+    )
+    nets = subprocess.run(
+        ["docker", "network", "ls", "--filter", f"label=com.docker.compose.project={project}", "--format", "{{.Name}}"],
+        capture_output=True, text=True,
+    )
+    return {
+        "containers": [x for x in ps.stdout.strip().splitlines() if x],
+        "volumes": [x for x in vols.stdout.strip().splitlines() if x],
+        "networks": [x for x in nets.stdout.strip().splitlines() if x],
+    }
+
+def _compose_cmd() -> list[str]:
+    import shutil
+    if shutil.which("docker-compose"):
+        return ["docker-compose"]
+    return ["docker", "compose"]
+
+
 def _compose(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
     cmd = [
-        "docker",
-        "compose",
+        *_compose_cmd(),
         "-f",
         str(COMPOSE_FILE),
         "-p",
@@ -101,8 +130,10 @@ def main() -> int:
     }
 
     try:
-        # Clean up any prior leftover resources first
-        _compose("down", "-v", "--remove-orphans", check=False)
+        # F-04: Verify zero pre-existing resources for run-scoped project; fail closed if conflict detected
+        initial_conflict = _get_project_resources(PROJECT_NAME)
+        if any(initial_conflict.values()):
+            raise RuntimeError(f"CONFLICT_DETECTED: Pre-existing resources exist with project label {PROJECT_NAME}: {initial_conflict}")
 
         # 1. Capture sanitized docker compose config
         cfg_res = _compose("config")
@@ -218,10 +249,24 @@ console.log(JSON.stringify({
         be_readback = json.loads(be_env_res.stdout.strip().splitlines()[-1])
         evidence["backend_container_readback"] = be_readback
 
-        # 7. Probe container network isolation inside ai-service and backend
+        # 7. Probe container network isolation inside ai-service and backend (F-05: raw IP sockets, DNS, direct routing bypass, and routes)
         ai_net_probe_script = """
-import json, urllib.request
+import json, socket, urllib.request
 results = {}
+
+# Test non-DNS direct IP socket egress to RFC 5737 test addresses
+for name, (ip, port) in [
+    ("rfc5737_test_net_1", ("192.0.2.1", 443)),
+    ("rfc5737_test_net_2", ("198.51.100.1", 443)),
+]:
+    try:
+        s = socket.create_connection((ip, port), timeout=2.0)
+        s.close()
+        results[name] = {"blocked": False}
+    except Exception as exc:
+        results[name] = {"blocked": True, "error_type": type(exc).__name__, "error": str(exc)[:160]}
+
+# Test DNS and fake-upstream direct bypass
 for name, target in [
     ("external_google", "https://generativelanguage.googleapis.com"),
     ("direct_fake_upstream", "http://fake-upstream:18091/received"),
@@ -231,19 +276,48 @@ for name, target in [
         results[name] = {"blocked": False}
     except Exception as exc:
         results[name] = {"blocked": True, "error_type": type(exc).__name__, "error": str(exc)[:160]}
+
+# Inspect routing table
+try:
+    with open("/proc/net/route", "r") as f:
+        routes = f.read().splitlines()
+    results["routing_table"] = {"entries": len(routes), "content": routes[:5]}
+except Exception as exc:
+    results["routing_table"] = {"error": str(exc)}
+
 print(json.dumps(results))
 """
         ai_net_res = _compose("exec", "-T", "ai-service", "python", "-c", ai_net_probe_script)
         ai_net_data = json.loads(ai_net_res.stdout.strip().splitlines()[-1])
+        assert ai_net_data["rfc5737_test_net_1"]["blocked"] is True
+        assert ai_net_data["rfc5737_test_net_2"]["blocked"] is True
         assert ai_net_data["external_google"]["blocked"] is True
         assert ai_net_data["direct_fake_upstream"]["blocked"] is True
 
         be_net_probe_script = """
+import net from 'net';
+import fs from 'fs';
+
 (async () => {
   const results = {};
+  
+  // Test raw IP socket connections to RFC 5737 addresses
+  for (const [name, host, port] of [
+    ['rfc5737_test_net_1', '192.0.2.1', 443],
+    ['rfc5737_test_net_2', '198.51.100.1', 443],
+  ]) {
+    await new Promise((resolve) => {
+      const s = net.createConnection({ host, port, timeout: 2000 });
+      s.on('connect', () => { results[name] = { blocked: false }; s.destroy(); resolve(); });
+      s.on('error', (err) => { results[name] = { blocked: true, error: String(err.message || err).slice(0, 160) }; resolve(); });
+      s.on('timeout', () => { results[name] = { blocked: true, error: 'TIMEOUT' }; s.destroy(); resolve(); });
+    });
+  }
+
+  // Test external google and fake-upstream direct
   for (const [name, target] of [
-    ["external_google", "https://generativelanguage.googleapis.com"],
-    ["direct_fake_upstream", "http://fake-upstream:18091/received"]
+    ['external_google', 'https://generativelanguage.googleapis.com'],
+    ['direct_fake_upstream', 'http://fake-upstream:18091/received']
   ]) {
     try {
       const ctrl = new AbortController();
@@ -254,11 +328,21 @@ print(json.dumps(results))
       results[name] = { blocked: true, error: String(err.cause || err.message || err).slice(0, 160) };
     }
   }
+
+  try {
+    const routeContent = fs.readFileSync('/proc/net/route', 'utf8').split(String.fromCharCode(10)).slice(0, 5);
+    results['routing_table'] = { entries: routeContent.length, content: routeContent };
+  } catch (err) {
+    results['routing_table'] = { error: String(err.message || err) };
+  }
+
   console.log(JSON.stringify(results));
 })();
 """
         be_net_res = _compose("exec", "-T", "backend", "node", "-e", be_net_probe_script)
         be_net_data = json.loads(be_net_res.stdout.strip().splitlines()[-1])
+        assert be_net_data["rfc5737_test_net_1"]["blocked"] is True
+        assert be_net_data["rfc5737_test_net_2"]["blocked"] is True
         assert be_net_data["external_google"]["blocked"] is True
         assert be_net_data["direct_fake_upstream"]["blocked"] is True
         evidence["network_isolation_probes"] = {
@@ -341,27 +425,31 @@ import('./dist/modules/ai-copilot/llm-provider.js').then(async ({ generateCopilo
         evidence["privacy_canaries_absent_in_upstream"] = True
 
     finally:
-        # 11. Tear down and clean up all containers, networks, and volumes owned by the disposable project
-        _compose("down", "-v", "--remove-orphans", check=False)
-        ps_res = subprocess.run(
-            ["docker", "ps", "-a", "--filter", f"label=com.docker.compose.project={PROJECT_NAME}", "--format", "{{.Names}}"],
-            capture_output=True,
-            text=True,
+        # F-04: Create a foreign volume labeled with a distinct project name to verify foreign survival
+        foreign_vol_name = f"foreign-vol-{uuid.uuid4().hex[:6]}"
+        subprocess.run(
+            ["docker", "volume", "create", "--label", "com.docker.compose.project=foreign-project-survives", foreign_vol_name],
+            capture_output=True, text=True,
         )
-        vol_res = subprocess.run(
-            ["docker", "volume", "ls", "--filter", f"label=com.docker.compose.project={PROJECT_NAME}", "--format", "{{.Name}}"],
-            capture_output=True,
-            text=True,
+
+        # 11. Tear down and clean up all containers, networks, and volumes owned strictly by this disposable project
+        _compose("down", "-v", "--remove-orphans", check=True)
+
+        # Verify foreign volume survived the scoped teardown
+        foreign_check = subprocess.run(
+            ["docker", "volume", "ls", "--filter", "label=com.docker.compose.project=foreign-project-survives", "--format", "{{.Name}}"],
+            capture_output=True, text=True,
         )
-        net_res = subprocess.run(
-            ["docker", "network", "ls", "--filter", f"label=com.docker.compose.project={PROJECT_NAME}", "--format", "{{.Name}}"],
-            capture_output=True,
-            text=True,
-        )
+        foreign_survived = foreign_vol_name in foreign_check.stdout
+        # Clean up foreign test volume
+        subprocess.run(["docker", "volume", "rm", foreign_vol_name], capture_output=True, text=True)
+
+        rem = _get_project_resources(PROJECT_NAME)
         evidence["cleanup_verification"] = {
-            "containers_remaining": [x for x in ps_res.stdout.strip().splitlines() if x],
-            "volumes_remaining": [x for x in vol_res.stdout.strip().splitlines() if x],
-            "networks_remaining": [x for x in net_res.stdout.strip().splitlines() if x],
+            "containers_remaining": rem["containers"],
+            "volumes_remaining": rem["volumes"],
+            "networks_remaining": rem["networks"],
+            "foreign_project_resource_survived": foreign_survived,
         }
         (EVIDENCE_DIR / "container-runtime-evidence.json").write_text(
             json.dumps(evidence, indent=2, ensure_ascii=False),

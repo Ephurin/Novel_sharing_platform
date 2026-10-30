@@ -103,7 +103,12 @@ def test_client_tickets_never_dispatch_even_if_well_named(stack,ticket):
 def test_actual_backend_provider_uses_gateway_once_in_separate_node_process(stack):
     import shutil, subprocess
     url, ledger, received, _ = stack
-    environment = {**os.environ, 'BUDGET_GUARD_URL': url, 'BUDGET_GUARD_MODE': 'proxy',
+    environment = {**os.environ,
+        'DATABASE_URL': 'postgresql://test:test@127.0.0.1:5432/test',
+        'MONGODB_URI': 'mongodb://127.0.0.1:27017/test',
+        'JWT_ACCESS_SECRET': 'test-jwt-access-secret-32-chars-long!',
+        'JWT_REFRESH_SECRET': 'test-jwt-refresh-secret-32-chars-long!',
+        'BUDGET_GUARD_URL': url, 'BUDGET_GUARD_MODE': 'proxy',
         'BUDGET_GUARD_AUTH_TOKEN': 'backend-worker', 'AI_LLM_BASE_URL': url + '/v1',
         'AI_LLM_API_KEY': '', 'AI_LLM_MODEL': 'gemini-3.5-flash-lite',
         'DB_CONNECT_ON_START': 'false', 'AI_LLM_MAX_TOKENS': '128'}

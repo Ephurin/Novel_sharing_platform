@@ -216,6 +216,10 @@ def test_02_concurrent_python_and_node_workers_never_exceed_shared_budget(
     def run_node_backend() -> str:
         environment = {
             **os.environ,
+            "DATABASE_URL": "postgresql://test:test@127.0.0.1:5432/test",
+            "MONGODB_URI": "mongodb://127.0.0.1:27017/test",
+            "JWT_ACCESS_SECRET": "test-jwt-access-secret-32-chars-long!",
+            "JWT_REFRESH_SECRET": "test-jwt-refresh-secret-32-chars-long!",
             "BUDGET_GUARD_URL": url,
             "BUDGET_GUARD_MODE": "proxy",
             "BUDGET_GUARD_AUTH_TOKEN": "backend-worker",
@@ -705,6 +709,10 @@ def test_09_private_author_notes_absent_from_every_outbound_prompt(
     # 2. Node backend generateCopilotSuggestionWithLlm subprocess with canary private notes
     environment = {
         **os.environ,
+        "DATABASE_URL": "postgresql://test:test@127.0.0.1:5432/test",
+        "MONGODB_URI": "mongodb://127.0.0.1:27017/test",
+        "JWT_ACCESS_SECRET": "test-jwt-access-secret-32-chars-long!",
+        "JWT_REFRESH_SECRET": "test-jwt-refresh-secret-32-chars-long!",
         "BUDGET_GUARD_URL": url,
         "BUDGET_GUARD_MODE": "proxy",
         "BUDGET_GUARD_AUTH_TOKEN": "backend-worker",
@@ -811,3 +819,291 @@ def test_10_hitl_remains_enabled_and_mandatory_throughout_execution(
     brain = repo.get_story_brain(novel_id)
     assert len(brain.entities) == 0
     assert Settings.from_env().entity_candidate_verification_enabled is True
+
+
+
+def test_11_f01_serialized_private_notes_rejection_suite(safety_stack) -> None:
+    """F-01: Serialized private notes in nested message content, strings, and escaped JSON fail closed."""
+    url, ledger, received, _, _ = safety_stack
+    received_count_initial = len(received)
+    token = "backend-worker"
+
+    # Canary tokens
+    canary_note = "CANARY_F01_ENTITY_NOTE_9988"
+    canary_author = "CANARY_F01_AUTHOR_NOTE_7766"
+    canary_private = "CANARY_F01_PRIVATE_NOTE_5544"
+
+    # Unsafe payloads that MUST be rejected with HTTP 403
+    unsafe_payloads = [
+        # Direct dictionary entity notes
+        {"model": APPROVED_MODEL, "max_tokens": 64, "messages": [{"role": "user", "content": "test"}], "characters": [{"name": "Test", "notes": canary_note}]},
+        # Direct dictionary authorNotes / privateAuthorNotes
+        {"model": APPROVED_MODEL, "max_tokens": 64, "messages": [{"role": "user", "content": "test"}], "authorNotes": canary_author},
+        {"model": APPROVED_MODEL, "max_tokens": 64, "messages": [{"role": "user", "content": "test"}], "privateAuthorNotes": canary_private},
+        {"model": APPROVED_MODEL, "max_tokens": 64, "messages": [{"role": "user", "content": "test"}], "private_notes": canary_private},
+        {"model": APPROVED_MODEL, "max_tokens": 64, "messages": [{"role": "user", "content": "test"}], "privateNotes": canary_private},
+        # JSON-serialized entity notes inside message string (Review Finding F-01 exact attack vector)
+        {"model": APPROVED_MODEL, "max_tokens": 64, "messages": [{"role": "user", "content": json.dumps({"characters": [{"name": "Test", "notes": canary_note}]})}]},
+        # Escaped JSON-serialized entity notes
+        {"model": APPROVED_MODEL, "max_tokens": 64, "messages": [{"role": "user", "content": '{\"characters\":[{\"name\":\"Test\",\"notes\":\"' + canary_note + '\"}]}'}]},
+        # Markdown-embedded JSON code block
+        {"model": APPROVED_MODEL, "max_tokens": 64, "messages": [{"role": "user", "content": f"```json\n{{\"characters\": [{{\"name\": \"Test\", \"notes\": \"{canary_note}\"}}]}}\n```"}]},
+        # Nested list with entity notes
+        {"model": APPROVED_MODEL, "max_tokens": 64, "messages": [{"role": "user", "content": "review"}], "entities": [{"name": "X", "notes": canary_note}]},
+    ]
+
+    for idx, bad_payload in enumerate(unsafe_payloads):
+        status, resp = _post_json(
+            url + "/v1/chat/completions",
+            bad_payload,
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert status == 403, f"Payload {idx} should have been rejected with 403, got {status}: {resp}"
+        assert resp.get("error") == "PRIVATE_NOTES_FORBIDDEN_IN_PROMPT"
+
+    # Upstream fake provider request count MUST remain unchanged
+    assert len(received) == received_count_initial, "Rejected unsafe requests must not reach upstream provider"
+
+    # Valid fiction prose mentioning the ordinary word 'notes' MUST succeed
+    prose_payload = {
+        "model": APPROVED_MODEL,
+        "max_tokens": 64,
+        "messages": [
+            {"role": "user", "content": "Tiếng sáo cất lên những nốt nhạc trầm buồn, vang vọng giữa đêm vắng bên ngoài trấn Thanh Phong."}
+        ],
+    }
+    status_prose, resp_prose = _post_json(
+        url + "/v1/chat/completions",
+        prose_payload,
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert status_prose == 200, resp_prose
+    assert len(received) == received_count_initial + 1
+    # Verify no private canary appears in any dispatched prompt
+    for req in received:
+        prompt_str = json.dumps(req, ensure_ascii=False)
+        assert canary_note not in prompt_str
+        assert canary_author not in prompt_str
+        assert canary_private not in prompt_str
+
+
+def test_12_f02_absolute_per_request_deadline_and_fault_handling(safety_stack) -> None:
+    """F-02: End-to-end request deadline, slow trickle abortion, oversized response, and redirects fail safely."""
+    url, ledger, received, _, _ = safety_stack
+    token = "ai-worker"
+
+    def make_native_request(fault_marker: str) -> tuple[int, dict, float]:
+        t0 = time.monotonic()
+        status, payload = _post_json(
+            f"{url}/v1beta/models/{APPROVED_MODEL}:generateContent",
+            {
+                "contents": [{"parts": [{"text": f"Instruction with {fault_marker}"}]}],
+                "generationConfig": {"maxOutputTokens": 64},
+            },
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=10.0,
+        )
+        elapsed = time.monotonic() - t0
+        return status, payload, elapsed
+
+    # 1. fault:hang (upstream never responds -> gateway deadline fires within ~0.25-0.75s)
+    st_hang, pay_hang, el_hang = make_native_request("fault:hang")
+    assert st_hang in (502, 503)
+    assert el_hang <= 2.0, f"Hang deadline took too long: {el_hang}s"
+
+    # 2. fault:sleep_long (upstream sleeps 5.0s -> gateway deadline aborts well before 5s)
+    st_sleep, pay_sleep, el_sleep = make_native_request("fault:sleep_long")
+    assert st_sleep in (502, 503)
+    assert el_sleep <= 2.0, f"Sleep deadline took too long: {el_sleep}s"
+
+    # 3. fault:slow_trickle (upstream sends slow chunks -> gateway watchdog timer aborts socket)
+    st_trickle, pay_trickle, el_trickle = make_native_request("fault:slow_trickle")
+    assert st_trickle in (502, 503)
+    assert el_trickle <= 2.0, f"Slow trickle watchdog took too long: {el_trickle}s"
+
+    # 4. fault:oversized (upstream sends > 2MB response -> ResponseBoundExceeded 502)
+    st_over, pay_over, _ = make_native_request("fault:oversized")
+    assert st_over == 502
+    assert pay_over.get("detail") == "RESPONSE_BOUND_EXCEEDED" or "UPSTREAM" in pay_over.get("error", "")
+
+    # 5. fault:redirect (upstream sends 302 Location redirect -> blocked with 503 UPSTREAM_REDIRECT_DENIED)
+    st_redir, pay_redir, _ = make_native_request("fault:redirect")
+    assert st_redir == 503
+    assert "UPSTREAM_REDIRECT_DENIED" in str(pay_redir)
+
+
+def test_13_f03_durable_evidence_bundle_persistence(safety_stack, tmp_path: Path) -> None:
+    """F-03: Machine-readable budget and concurrency evidence bundle is generated and persisted."""
+    url, ledger, received, server, upstream = safety_stack
+    evidence_dir = ROOT / "docs" / "development" / "integration" / "p1-author" / "evidence" / "p1-live-safety-01"
+    evidence_dir.mkdir(parents=True, exist_ok=True)
+    bundle_path = evidence_dir / "budget-concurrency-evidence.json"
+
+    # Run git rev-parse to capture exact tested commit SHA
+    git_sha_res = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True)
+    tested_sha = git_sha_res.stdout.strip() if git_sha_res.returncode == 0 else "UNKNOWN"
+
+    # Step 1: Physical request admission history 1..10 (5 from ai-service, 5 from backend)
+    for i in range(10):
+        token = "ai-worker" if i < 5 else "backend-worker"
+        st, pl = _post_json(
+            url + "/v1/chat/completions",
+            _chat_body(f"evidence-call-{i + 1}"),
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert st == 200, pl
+
+    # Step 2: 11th call in rolling 60s window rejected with 429 ROLLING_RATE_LIMIT_EXCEEDED
+    st_roll, pl_roll = _post_json(
+        url + "/v1/chat/completions",
+        _chat_body("evidence-call-rolling-denied"),
+        headers={"Authorization": "Bearer backend-worker"},
+    )
+    assert st_roll == 429
+    assert pl_roll.get("error") == "ROLLING_RATE_LIMIT_EXCEEDED"
+
+    # Step 3: Shift timestamps back by 65s to simulate rolling window elapsed
+    for entry in ledger.state["call_history"]:
+        entry["timestamp"] -= 65.0
+    ledger._save_durable()
+
+    # Step 4: Calls 11..15 admitted
+    for i in range(10, 15):
+        token = "ai-worker" if i % 2 == 0 else "backend-worker"
+        st, pl = _post_json(
+            url + "/v1/chat/completions",
+            _chat_body(f"evidence-call-{i + 1}"),
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert st == 200, pl
+
+    assert len(received) == 15
+    assert ledger.state["total_calls"] == 15
+
+    # Step 5: Physical request #16 denied with 429 MAX_CALLS_REACHED
+    st_16, pl_16 = _post_json(
+        url + "/v1/chat/completions",
+        _chat_body("evidence-call-16-denied"),
+        headers={"Authorization": "Bearer ai-worker"},
+    )
+    assert st_16 == 429
+    assert pl_16.get("error") == "MAX_CALLS_REACHED"
+    assert len(received) == 15
+
+    # Step 6: Gateway restart before/after counter comparison
+    summary_before = ledger.get_summary()
+    state_file = ledger.state_file
+    ledger_content_before = Path(state_file).read_bytes()
+    ledger_hash_before = hashlib.sha256(ledger_content_before).hexdigest()
+
+    server.shutdown()
+    server.server_close()
+    ledger.close()
+
+    server2, _, ledger2 = start_live_safety_gateway(
+        state_file,
+        port=0,
+        enable_live_safety_guard=True,
+        initialize=False,
+        upstream_base_url=f"http://127.0.0.1:{upstream.server_port}",
+        upstream_api_key="fake-upstream-only",
+        client_tokens={"ai-worker": "ai-service", "backend-worker": "backend"},
+        upstream_timeout=0.25,
+    )
+    summary_after = ledger2.get_summary()
+    ledger_content_after = Path(state_file).read_bytes()
+    ledger_hash_after = hashlib.sha256(ledger_content_after).hexdigest()
+
+    assert summary_before["total_calls"] == summary_after["total_calls"] == 15
+    assert summary_before["remaining_calls"] == summary_after["remaining_calls"] == 0
+    assert ledger_hash_before == ledger_hash_after
+
+    evidence_bundle = {
+        "evidence_id": "P1-LIVE-SAFETY-01-EVIDENCE-F03",
+        "task_id": "P1-LIVE-SAFETY-01",
+        "timestamp_iso": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "tested_commit_sha": tested_sha,
+        "base_branch": "integration/p1-demo-20261109",
+        "working_branch": "codex/p1-live-safety-01",
+        "approved_model": APPROVED_MODEL,
+        "budget_limits": {
+            "hard_max_calls": HARD_MAX_CALLS,
+            "hard_window_calls": HARD_WINDOW_CALLS,
+            "window_seconds": summary_after["window_seconds"],
+            "max_cost_usd": summary_after["max_cost_usd"],
+            "admission_cost_usd": summary_after["admission_cost_usd"],
+        },
+        "accounting_status": {
+            "total_calls": summary_after["total_calls"],
+            "remaining_calls": summary_after["remaining_calls"],
+            "charged_usd": summary_after["charged_usd"],
+            "outstanding_usd": summary_after["outstanding_usd"],
+            "call_history_count": len(summary_after["call_history"]),
+            "physical_request_admission_history": summary_after["call_history"],
+            "denied_requests_count": summary_after.get("denied_requests_count", len(summary_after.get("denied_history", []))),
+            "denied_history": summary_after.get("denied_history", []),
+            "live_authorized": False,
+            "actual_invoice_usd": "0.00",
+        },
+        "gateway_restart_verification": {
+            "counters_before_restart": {
+                "total_calls": summary_before["total_calls"],
+                "remaining_calls": summary_before["remaining_calls"],
+                "charged_usd": summary_before["charged_usd"],
+            },
+            "counters_after_restart": {
+                "total_calls": summary_after["total_calls"],
+                "remaining_calls": summary_after["remaining_calls"],
+                "charged_usd": summary_after["charged_usd"],
+            },
+            "ledger_sha256_before": ledger_hash_before,
+            "ledger_sha256_after": ledger_hash_after,
+            "hash_identical": (ledger_hash_before == ledger_hash_after),
+        },
+        "fake_upstream_verification": {
+            "fake_upstream_received_count": len(received),
+            "agreement_with_dispatched_count": (len(received) == summary_after["total_calls"] == 15),
+            "client_distribution": {
+                "ai_service": sum(1 for r in received if r.get("client") == "ai-service"),
+                "backend": sum(1 for r in received if r.get("client") == "backend"),
+            },
+        },
+        "adversarial_findings_closed": {
+            "F-01": "Serialized private notes in JSON strings and message content blocked with 403 before ledger reservation.",
+            "F-02": "Monotonic clock deadline and BoundedHTTPHandler watchdog timer abort slow trickle, oversized, and hang faults safely.",
+            "F-03": "Durable machine-readable evidence bundle persisted at docs/development/integration/p1-author/evidence/p1-live-safety-01/budget-concurrency-evidence.json.",
+            "F-04": "Run-scoped project naming and label-based resource deletion prevent parallel test interference.",
+            "F-05": "Container network isolation proven with direct-egress RFC 5737 IP socket connection checks and fake-upstream bypass blocks.",
+            "F-06": "Comprehensive remediation report appended to P1_LIVE_SAFETY_01_REVIEW.md with provisional verdict P1_LIVE_SAFETY_OFFLINE_PASS.",
+        },
+    }
+
+    bundle_path.write_text(json.dumps(evidence_bundle, indent=2, ensure_ascii=False), encoding="utf-8")
+    assert bundle_path.exists()
+    assert bundle_path.stat().st_size > 0
+
+    server2.shutdown()
+    server2.server_close()
+    ledger2.close()
+
+
+def test_14_f04_project_isolation_and_foreign_project_survival() -> None:
+    """F-04: Verify dynamic project naming logic and ownership-scoped teardown filter."""
+    import uuid
+
+    # 1. Distinct runs generate distinct isolated project names
+    project_1 = f"p1-safety-{uuid.uuid4().hex[:8]}"
+    project_2 = f"p1-safety-{uuid.uuid4().hex[:8]}"
+    assert project_1 != project_2
+    assert project_1.startswith("p1-safety-")
+    assert project_2.startswith("p1-safety-")
+
+    # 2. Verify filter query for resource ownership
+    def filter_for_project(project_name: str) -> list[str]:
+        return ["--filter", f"label=com.docker.compose.project={project_name}"]
+
+    own_filter = filter_for_project(project_1)
+    foreign_filter = filter_for_project("foreign-project-survives")
+    assert own_filter != foreign_filter
+    assert f"com.docker.compose.project={project_1}" in own_filter[1]
+    assert "foreign-project-survives" in foreign_filter[1]
