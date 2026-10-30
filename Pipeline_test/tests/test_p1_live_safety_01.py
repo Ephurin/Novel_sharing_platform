@@ -1075,6 +1075,8 @@ def test_13_f03_durable_evidence_bundle_persistence(safety_stack, tmp_path: Path
             "F-04": "Run-scoped project naming and label-based resource deletion prevent parallel test interference.",
             "F-05": "Container network isolation proven with direct-egress RFC 5737 IP socket connection checks and fake-upstream bypass blocks.",
             "F-06": "Comprehensive remediation report appended to P1_LIVE_SAFETY_01_REVIEW.md with provisional verdict P1_LIVE_SAFETY_OFFLINE_PASS.",
+            "F-07": "Run ownership tracking gates compose teardown; preflight conflict aborts without touching unowned Docker resources.",
+            "F-08": "Ledger health enforcement and transaction rollback prevent recreation of missing ledger or overwriting disk corruption during denial logging.",
         },
     }
 
@@ -1107,3 +1109,331 @@ def test_14_f04_project_isolation_and_foreign_project_survival() -> None:
     assert own_filter != foreign_filter
     assert f"com.docker.compose.project={project_1}" in own_filter[1]
     assert "foreign-project-survives" in foreign_filter[1]
+
+
+
+from Pipeline_test.tools.verify_p1_live_safety_containers import (
+    OwnershipConflictError,
+    run_container_verification,
+    _get_project_resources,
+)
+
+
+def test_15_f07_resource_ownership_and_conflict_safety(tmp_path: Path) -> None:
+    """F-07: Resource ownership tracking, conflict preflight abort, and foreign project protection."""
+    import shutil
+    import subprocess
+    import uuid
+
+    if shutil.which("docker") is None:
+        pytest.skip("Docker CLI unavailable")
+    res = subprocess.run(["docker", "ps"], capture_output=True, text=True)
+    if res.returncode != 0:
+        pytest.skip("Docker daemon not responsive")
+
+    # --- Test A: Pre-existing project conflict ---
+    proj_a = f"p1-safety-f07a-{uuid.uuid4().hex[:8]}"
+    vol_a = f"test-f07a-vol-{uuid.uuid4().hex[:6]}"
+    subprocess.run(
+        ["docker", "volume", "create", "--label", f"com.docker.compose.project={proj_a}", vol_a],
+        capture_output=True, text=True, check=True,
+    )
+    try:
+        with pytest.raises(OwnershipConflictError) as exc_info:
+            run_container_verification(project_name=proj_a, evidence_dir=tmp_path / "ev_a")
+        assert "CONFLICT_DETECTED" in str(exc_info.value)
+        check_vol = subprocess.run(
+            ["docker", "volume", "ls", "--filter", f"label=com.docker.compose.project={proj_a}", "--format", "{{.Name}}"],
+            capture_output=True, text=True, check=True,
+        )
+        assert vol_a in check_vol.stdout, f"Pre-existing volume {vol_a} was destroyed by unowned cleanup!"
+    finally:
+        subprocess.run(["docker", "volume", "rm", vol_a], capture_output=True, text=True)
+
+    # --- Test B: Initialization failure before ownership ---
+    proj_b = f"p1-safety-f07b-{uuid.uuid4().hex[:8]}"
+    vol_unowned = f"test-f07b-unowned-{uuid.uuid4().hex[:6]}"
+    subprocess.run(
+        ["docker", "volume", "create", "--label", "com.docker.compose.project=unowned-proj-f07b", vol_unowned],
+        capture_output=True, text=True, check=True,
+    )
+    try:
+        with pytest.raises(RuntimeError) as exc_info:
+            run_container_verification(
+                project_name=proj_b,
+                evidence_dir=tmp_path / "ev_b",
+                simulate_fail_before_ownership=True,
+            )
+        assert "SIMULATED_PRE_OWNERSHIP_FAILURE" in str(exc_info.value)
+        check_unowned = subprocess.run(
+            ["docker", "volume", "ls", "--filter", "label=com.docker.compose.project=unowned-proj-f07b", "--format", "{{.Name}}"],
+            capture_output=True, text=True, check=True,
+        )
+        assert vol_unowned in check_unowned.stdout, "Unowned volume was destroyed after pre-ownership failure!"
+    finally:
+        subprocess.run(["docker", "volume", "rm", vol_unowned], capture_output=True, text=True)
+
+    # --- Test C: Partial startup failure ---
+    proj_c = f"p1-safety-f07c-{uuid.uuid4().hex[:8]}"
+    vol_foreign_c = f"test-f07c-foreign-{uuid.uuid4().hex[:6]}"
+    subprocess.run(
+        ["docker", "volume", "create", "--label", "com.docker.compose.project=foreign-proj-c", vol_foreign_c],
+        capture_output=True, text=True, check=True,
+    )
+    try:
+        with pytest.raises(RuntimeError) as exc_info:
+            run_container_verification(
+                project_name=proj_c,
+                evidence_dir=tmp_path / "ev_c",
+                simulate_fail_partial_startup=True,
+            )
+        assert "SIMULATED_PARTIAL_STARTUP_FAILURE" in str(exc_info.value)
+        # Verify that only run-owned resources were cleaned up, and foreign survived
+        check_proj_c = _get_project_resources(proj_c)
+        assert check_proj_c["containers"] == []
+        assert check_proj_c["volumes"] == []
+        assert check_proj_c["networks"] == []
+        check_foreign = subprocess.run(
+            ["docker", "volume", "ls", "--filter", "label=com.docker.compose.project=foreign-proj-c", "--format", "{{.Name}}"],
+            capture_output=True, text=True, check=True,
+        )
+        assert vol_foreign_c in check_foreign.stdout, "Foreign project volume was destroyed!"
+    finally:
+        subprocess.run(["docker", "volume", "rm", vol_foreign_c], capture_output=True, text=True)
+
+    # --- Test D: Foreign project survival ---
+    proj_d = f"p1-safety-f07d-{uuid.uuid4().hex[:8]}"
+    vol_foreign_d = f"test-f07d-foreign-{uuid.uuid4().hex[:6]}"
+    subprocess.run(
+        ["docker", "volume", "create", "--label", "com.docker.compose.project=unrelated-foreign-d", vol_foreign_d],
+        capture_output=True, text=True, check=True,
+    )
+    try:
+        res_d = _get_project_resources(proj_d)
+        assert not any(res_d.values())
+        check_d = subprocess.run(
+            ["docker", "volume", "ls", "--filter", "label=com.docker.compose.project=unrelated-foreign-d", "--format", "{{.Name}}"],
+            capture_output=True, text=True, check=True,
+        )
+        assert vol_foreign_d in check_d.stdout, "Foreign resource destroyed during conflict verification!"
+    finally:
+        subprocess.run(["docker", "volume", "rm", vol_foreign_d], capture_output=True, text=True)
+
+
+def test_16_f08_ledger_tampering_and_denial_fail_closed(tmp_path: Path) -> None:
+    """F-08: Authoritative ledger tampering, missing file, and denial fail-closed verification."""
+    # --- Test A: Missing ledger after startup ---
+    upstream_a, _, received_a = start_fake_upstream(port=0, scenario="p1-live-safety-v1")
+    state_file_a = tmp_path / "ledger_f08_a.json"
+
+    server_a, _, ledger_a = start_live_safety_gateway(
+        state_file_a,
+        port=0,
+        enable_live_safety_guard=True,
+        initialize=True,
+        run_id="run-f08-a",
+        upstream_base_url=f"http://127.0.0.1:{upstream_a.server_port}",
+        upstream_api_key="fake-upstream-only",
+        client_tokens={"ai-worker": "ai-service"},
+    )
+    gateway_url_a = f"http://127.0.0.1:{server_a.server_port}"
+    try:
+        assert state_file_a.exists()
+        # 2. Delete or unmount the ledger file on disk
+        state_file_a.unlink()
+        assert not state_file_a.exists()
+
+        # 3. Submit a request targeting an unapproved model (normally 403)
+        st_unapproved, pl_unapproved = _post_json(
+            gateway_url_a + "/v1/chat/completions",
+            {"model": "gemini-2.5-pro", "messages": [{"role": "user", "content": "hi"}]},
+            headers={"Authorization": "Bearer ai-worker"},
+        )
+        # 4. Verify the gateway fails closed (503 Service Unavailable) instead of recreating the file
+        assert st_unapproved == 503
+        assert pl_unapproved.get("error") == "BUDGET_METER_UNAVAILABLE"
+
+        # 5. Verify the ledger file is NOT recreated on disk
+        assert not state_file_a.exists(), "Missing ledger file was illegally recreated by denial logging!"
+
+        # 6. Submit a valid request; verify it is also rejected (503)
+        st_valid, pl_valid = _post_json(
+            gateway_url_a + "/v1/chat/completions",
+            _chat_body("valid-call"),
+            headers={"Authorization": "Bearer ai-worker"},
+        )
+        assert st_valid == 503
+        assert pl_valid.get("error") == "BUDGET_METER_UNAVAILABLE"
+
+        # 7. Verify total fake-upstream dispatches remains 0
+        assert len(received_a) == 0
+    finally:
+        server_a.shutdown()
+        server_a.server_close()
+        ledger_a.close()
+        upstream_a.shutdown()
+        upstream_a.server_close()
+
+    # --- Test B: Corrupted ledger on disk ---
+    upstream_b, _, received_b = start_fake_upstream(port=0, scenario="p1-live-safety-v1")
+    state_file_b = tmp_path / "ledger_f08_b.json"
+
+    server_b, _, ledger_b = start_live_safety_gateway(
+        state_file_b,
+        port=0,
+        enable_live_safety_guard=True,
+        initialize=True,
+        run_id="run-f08-b",
+        upstream_base_url=f"http://127.0.0.1:{upstream_b.server_port}",
+        upstream_api_key="fake-upstream-only",
+        client_tokens={"ai-worker": "ai-service"},
+    )
+    gateway_url_b = f"http://127.0.0.1:{server_b.server_port}"
+    try:
+        assert state_file_b.exists()
+        corrupt_content = '{"state": {"broken_json": true, '
+        state_file_b.write_text(corrupt_content, encoding="utf-8")
+
+        # 2. Send request that would otherwise trigger denial (unapproved model or private notes)
+        st_corrupt_denial, pl_corrupt_denial = _post_json(
+            gateway_url_b + "/v1/chat/completions",
+            {"model": "gemini-unapproved", "messages": [{"role": "user", "content": "hi"}]},
+            headers={"Authorization": "Bearer ai-worker"},
+        )
+        # 3. Verify corruption is NOT repaired, overwritten or replaced with default state
+        assert st_corrupt_denial == 503
+        assert pl_corrupt_denial.get("error") == "BUDGET_METER_UNAVAILABLE"
+        assert state_file_b.read_text(encoding="utf-8") == corrupt_content, "Corrupted ledger on disk was overwritten!"
+
+        # 4. Verify valid request fails closed as well
+        st_corrupt_valid, _ = _post_json(
+            gateway_url_b + "/v1/chat/completions",
+            _chat_body("valid-attempt"),
+            headers={"Authorization": "Bearer ai-worker"},
+        )
+        assert st_corrupt_valid == 503
+        assert len(received_b) == 0
+    finally:
+        server_b.shutdown()
+        server_b.server_close()
+        ledger_b.close()
+        upstream_b.shutdown()
+        upstream_b.server_close()
+
+    # --- Test C: Ledger write failure / I/O fault ---
+    upstream_c, _, received_c = start_fake_upstream(port=0, scenario="p1-live-safety-v1")
+    state_file_c = tmp_path / "ledger_f08_c.json"
+
+    server_c, _, ledger_c = start_live_safety_gateway(
+        state_file_c,
+        port=0,
+        enable_live_safety_guard=True,
+        initialize=True,
+        run_id="run-f08-c",
+        upstream_base_url=f"http://127.0.0.1:{upstream_c.server_port}",
+        upstream_api_key="fake-upstream-only",
+        client_tokens={"ai-worker": "ai-service"},
+    )
+    gateway_url_c = f"http://127.0.0.1:{server_c.server_port}"
+    try:
+        # Inject durability write failure
+        def failing_save_durable() -> None:
+            ledger_c._init_error = BudgetMeterUnavailableError("LEDGER_DURABILITY_FAILURE")
+            raise ledger_c._init_error
+
+        ledger_c._save_durable = failing_save_durable  # type: ignore[assignment]
+
+        # Attempt request
+        st_io, pl_io = _post_json(
+            gateway_url_c + "/v1/chat/completions",
+            _chat_body("write-failure-test"),
+            headers={"Authorization": "Bearer ai-worker"},
+        )
+        # Verify no admission, no counter reset, no unmetered dispatch
+        assert st_io == 503
+        assert pl_io.get("error") == "BUDGET_METER_UNAVAILABLE"
+        assert len(received_c) == 0
+        assert ledger_c.state["total_calls"] == 0
+    finally:
+        server_c.shutdown()
+        server_c.server_close()
+        ledger_c.close()
+        upstream_c.shutdown()
+        upstream_c.server_close()
+
+    # --- Test D: Normal rejection regression on healthy ledger ---
+    upstream_d, _, received_d = start_fake_upstream(port=0, scenario="p1-live-safety-v1")
+    state_file_d = tmp_path / "ledger_f08_d.json"
+
+    server_d, _, ledger_d = start_live_safety_gateway(
+        state_file_d,
+        port=0,
+        enable_live_safety_guard=True,
+        initialize=True,
+        run_id="run-f08-d",
+        upstream_base_url=f"http://127.0.0.1:{upstream_d.server_port}",
+        upstream_api_key="fake-upstream-only",
+        client_tokens={"ai-worker": "ai-service"},
+    )
+    gateway_url_d = f"http://127.0.0.1:{server_d.server_port}"
+    try:
+        # 1. Unapproved models return 403
+        st_unapp, pl_unapp = _post_json(
+            gateway_url_d + "/v1/chat/completions",
+            {"model": "gemini-1.5-pro", "messages": [{"role": "user", "content": "hi"}]},
+            headers={"Authorization": "Bearer ai-worker"},
+        )
+        assert st_unapp == 403
+        assert pl_unapp.get("error") == "MODEL_NOT_APPROVED"
+
+        # 2. Dispatch 10 valid calls to saturate rolling window
+        for i in range(10):
+            st, pl = _post_json(
+                gateway_url_d + "/v1/chat/completions",
+                _chat_body(f"call-{i+1}"),
+                headers={"Authorization": "Bearer ai-worker"},
+            )
+            assert st == 200, f"Call {i+1} failed: {pl}"
+
+        # 3. Call 11 in rolling window returns 429 ROLLING_RATE_LIMIT_EXCEEDED
+        st_rolling, pl_rolling = _post_json(
+            gateway_url_d + "/v1/chat/completions",
+            _chat_body("call-11-rolling"),
+            headers={"Authorization": "Bearer ai-worker"},
+        )
+        assert st_rolling == 429
+        assert pl_rolling.get("error") == "ROLLING_RATE_LIMIT_EXCEEDED"
+
+        # 4. Test call 16 MAX_CALLS_REACHED: reset call_history timestamps to simulate expired window
+        with ledger_d._lock:
+            for entry in ledger_d.state["call_history"]:
+                entry["timestamp"] -= 70.0
+            ledger_d._save_durable()
+
+        # Dispatch 5 more calls to reach 15 total calls
+        for i in range(11, 16):
+            st, pl = _post_json(
+                gateway_url_d + "/v1/chat/completions",
+                _chat_body(f"call-{i}"),
+                headers={"Authorization": "Bearer ai-worker"},
+            )
+            assert st == 200, f"Call {i} failed: {pl}"
+
+        assert ledger_d.state["total_calls"] == 15
+        assert len(received_d) == 15
+
+        # Call 16 returns 429 MAX_CALLS_REACHED
+        st_16, pl_16 = _post_json(
+            gateway_url_d + "/v1/chat/completions",
+            _chat_body("call-16"),
+            headers={"Authorization": "Bearer ai-worker"},
+        )
+        assert st_16 == 429
+        assert pl_16.get("error") == "MAX_CALLS_REACHED"
+        assert len(received_d) == 15
+    finally:
+        server_d.shutdown()
+        server_d.server_close()
+        ledger_d.close()
+        upstream_d.shutdown()
+        upstream_d.server_close()

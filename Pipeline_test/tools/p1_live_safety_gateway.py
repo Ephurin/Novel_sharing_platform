@@ -301,6 +301,7 @@ class LiveSafetyBudgetLedger:
         self._lock = threading.RLock()
         self._init_error: BudgetMeterUnavailableError | None = None
         self._owner = None
+        self._initializing = False
         self.state: dict[str, Any] = {}
         try:
             if not strict_fail_closed:
@@ -370,11 +371,15 @@ class LiveSafetyBudgetLedger:
                     live_forwarding_enabled=False,
                     actual_invoice_usd="0.00",
                 )
-                with marker.open("x", encoding="utf-8") as stream:
-                    json.dump({"run_id": run_id, "guard_profile": "P1_LIVE_SAFETY_01"}, stream)
-                    stream.flush()
-                    os.fsync(stream.fileno())
-                self._save_durable()
+                self._initializing = True
+                try:
+                    with marker.open("x", encoding="utf-8") as stream:
+                        json.dump({"run_id": run_id, "guard_profile": "P1_LIVE_SAFETY_01"}, stream)
+                        stream.flush()
+                        os.fsync(stream.fileno())
+                    self._save_durable()
+                finally:
+                    self._initializing = False
             else:
                 self.state = self._read_verified()
                 if not marker.is_file() or json.loads(marker.read_text(encoding="utf-8")).get("run_id") != self.state["run_id"]:
@@ -388,11 +393,29 @@ class LiveSafetyBudgetLedger:
             self._owner = None
 
     def _read_verified(self) -> dict[str, Any]:
-        envelope = json.loads(self.state_file.read_text(encoding="utf-8"))
+        if not self.state_file.is_file():
+            raise BudgetMeterUnavailableError("MISSING_AUTHORITATIVE_LEDGER")
+        marker = Path(str(self.state_file) + ".initialized")
+        if not marker.is_file():
+            raise BudgetMeterUnavailableError("MISSING_LEDGER_MARKER")
+        try:
+            envelope = json.loads(self.state_file.read_text(encoding="utf-8"))
+        except Exception as exc:
+            raise BudgetMeterUnavailableError(f"CORRUPT_LEDGER_JSON: {exc}") from exc
+        if not isinstance(envelope, dict) or "state" not in envelope:
+            raise BudgetMeterUnavailableError("INVALID_LEDGER_ENVELOPE")
         data = envelope["state"]
         encoded = json.dumps(data, sort_keys=True, separators=(",", ":")).encode()
         if envelope.get("sha256") != hashlib.sha256(encoded).hexdigest() or data.get("schema") != 3:
             raise BudgetMeterUnavailableError("CORRUPT_OR_LEGACY_LEDGER")
+        try:
+            marker_data = json.loads(marker.read_text(encoding="utf-8"))
+            if marker_data.get("run_id") != data.get("run_id"):
+                raise BudgetMeterUnavailableError("LEDGER_MARKER_MISMATCH")
+        except Exception as exc:
+            if isinstance(exc, BudgetMeterUnavailableError):
+                raise
+            raise BudgetMeterUnavailableError(f"INVALID_LEDGER_MARKER: {exc}") from exc
         if data.get("guard_profile") != "P1_LIVE_SAFETY_01" or data.get("approved_model") != APPROVED_MODEL:
             raise BudgetMeterUnavailableError("INVALID_GUARD_PROFILE")
         if data.get("live_forwarding_enabled") is not False:
@@ -425,16 +448,25 @@ class LiveSafetyBudgetLedger:
         return data
 
     def _healthy(self) -> None:
-        if self._init_error:
-            raise self._init_error
-        try:
-            if self._read_verified() != self.state:
-                raise BudgetMeterUnavailableError("AUTHORITATIVE_LEDGER_CHANGED")
-        except Exception as exc:
-            self._init_error = BudgetMeterUnavailableError(str(exc))
-            raise self._init_error
+        with self._lock:
+            if self._init_error:
+                raise self._init_error
+            if not self.state_file.is_file():
+                self._init_error = BudgetMeterUnavailableError("MISSING_AUTHORITATIVE_LEDGER")
+                raise self._init_error
+            try:
+                if self._read_verified() != self.state:
+                    raise BudgetMeterUnavailableError("AUTHORITATIVE_LEDGER_CHANGED")
+            except Exception as exc:
+                self._init_error = BudgetMeterUnavailableError(str(exc))
+                raise self._init_error
 
     def _save_durable(self) -> None:
+        if self._init_error:
+            raise self._init_error
+        if not getattr(self, "_initializing", False) and not self.state_file.is_file():
+            self._init_error = BudgetMeterUnavailableError("MISSING_AUTHORITATIVE_LEDGER")
+            raise self._init_error
         temporary = self.state_file.with_name(self.state_file.name + ".tmp-" + uuid.uuid4().hex)
         try:
             data = json.dumps(self.state, sort_keys=True, separators=(",", ":")).encode()
@@ -528,25 +560,40 @@ class LiveSafetyBudgetLedger:
                 status="RESERVED",
                 timestamp=now,
             )
+            prev_total = s["total_calls"]
+            prev_history = list(s["call_history"])
+            prev_outstanding = s["outstanding_usd"]
+
             s["total_calls"] += 1
             s["call_history"].append(ticket)
             s["outstanding_usd"] = str(Decimal(s["outstanding_usd"]) + amount)
-            self._save_durable()
+            try:
+                self._save_durable()
+            except Exception:
+                s["total_calls"] = prev_total
+                s["call_history"] = prev_history
+                s["outstanding_usd"] = prev_outstanding
+                raise
             return copy.deepcopy(ticket)
 
     def record_denial(self, reason: str, client_service: str = "unknown", operation: str = "unknown") -> None:
         with self._lock:
+            self._healthy()
+            if "denied_history" not in self.state:
+                self.state["denied_history"] = []
+            denial_entry = {
+                "denial_index": len(self.state["denied_history"]) + 1,
+                "timestamp": time.time(),
+                "reason": reason,
+                "client_service": client_service,
+                "operation": operation,
+            }
+            self.state["denied_history"].append(denial_entry)
             try:
-                self.state.setdefault("denied_history", []).append({
-                    "denial_index": len(self.state.get("denied_history", [])) + 1,
-                    "timestamp": time.time(),
-                    "reason": reason,
-                    "client_service": client_service,
-                    "operation": operation,
-                })
                 self._save_durable()
             except Exception:
-                pass
+                self.state["denied_history"].pop()
+                raise
 
     def finalize(
         self,
@@ -657,8 +704,11 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
             token = self.headers.get("Authorization", "").removeprefix("Bearer ")
             if token not in (self.client_tokens or {}):
                 return self._send_json(401, {"error": "WORKER_AUTH_REQUIRED"})
-            if not self._verify_fake_upstream_only() or self.ledger is None:
+            if not self._verify_fake_upstream_only():
                 return
+            if self.ledger is None:
+                return self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE", "detail": "LEDGER_NOT_ATTACHED"})
+            self.ledger._healthy()
             try:
                 ticket = self.ledger.reserve(
                     operation="models_discovery",
@@ -729,8 +779,11 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
             client = (self.client_tokens or {}).get(token)
             if not client:
                 return self._send_json(401, {"error": "WORKER_AUTH_REQUIRED"})
-            if not self._verify_fake_upstream_only() or self.ledger is None:
+            if not self._verify_fake_upstream_only():
                 return
+            if self.ledger is None:
+                return self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE", "detail": "LEDGER_NOT_ATTACHED"})
+            self.ledger._healthy()
 
             body = json.loads(raw_body)
             native = self.path.startswith("/v1beta/models/") and self.path.endswith(":generateContent")

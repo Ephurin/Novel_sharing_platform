@@ -96,16 +96,22 @@ def _compose_cmd() -> list[str]:
     return ["docker", "compose"]
 
 
-def _compose(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
+class OwnershipConflictError(RuntimeError):
+    """Raised when existing Docker resources conflict with the requested project."""
+
+
+def _compose(*args: str, check: bool = True, project: str | None = None) -> subprocess.CompletedProcess[str]:
+    target_project = project or PROJECT_NAME
     cmd = [
         *_compose_cmd(),
         "-f",
         str(COMPOSE_FILE),
         "-p",
-        PROJECT_NAME,
+        target_project,
         *args,
     ]
-    res = subprocess.run(cmd, cwd=ROOT, env=TEST_ENV, capture_output=True, text=True, timeout=300)
+    env = {**TEST_ENV, "P1_SAFETY_PROJECT": target_project}
+    res = subprocess.run(cmd, cwd=ROOT, env=env, capture_output=True, text=True, timeout=300)
     if check and res.returncode != 0:
         raise RuntimeError(f"Command failed ({res.returncode}): {' '.join(cmd)}\nSTDERR:\n{res.stderr}\nSTDOUT:\n{res.stdout}")
     return res
@@ -119,30 +125,58 @@ def _get_json(url: str, timeout: float = 5.0) -> tuple[int, dict | list]:
         return exc.code, json.loads(exc.read().decode("utf-8"))
 
 
-def main() -> int:
-    EVIDENCE_DIR.mkdir(parents=True, exist_ok=True)
+def run_container_verification(
+    project_name: str = PROJECT_NAME,
+    ingress_port: str = INGRESS_PORT,
+    evidence_dir: Path = EVIDENCE_DIR,
+    *,
+    simulate_fail_before_ownership: bool = False,
+    simulate_fail_partial_startup: bool = False,
+) -> tuple[int, dict]:
+    evidence_dir.mkdir(parents=True, exist_ok=True)
+    ownership_established = False
     evidence: dict = {
         "task_id": "P1-LIVE-SAFETY-01",
-        "project_name": PROJECT_NAME,
+        "project_name": project_name,
         "compose_file": "Pipeline_test/tools/compose.p1-live-safety.yml",
         "real_gemini_calls": 0,
         "real_spending_usd": "0.00",
+        "ownership_established": False,
     }
 
     try:
-        # F-04: Verify zero pre-existing resources for run-scoped project; fail closed if conflict detected
-        initial_conflict = _get_project_resources(PROJECT_NAME)
+        if simulate_fail_before_ownership:
+            raise RuntimeError("SIMULATED_PRE_OWNERSHIP_FAILURE")
+
+        # F-04 / F-07: Verify zero pre-existing resources for run-scoped project; fail closed if conflict detected
+        initial_conflict = _get_project_resources(project_name)
         if any(initial_conflict.values()):
-            raise RuntimeError(f"CONFLICT_DETECTED: Pre-existing resources exist with project label {PROJECT_NAME}: {initial_conflict}")
+            evidence["conflict_detected"] = initial_conflict
+            raise OwnershipConflictError(
+                f"CONFLICT_DETECTED: Pre-existing resources exist with project label {project_name}: {initial_conflict}"
+            )
+
+        # F-07: Explicit run ownership established only after preflight proves zero resource collisions
+        ownership_established = True
+        evidence["ownership_established"] = True
+
+        if simulate_fail_partial_startup:
+            # Create disposable run-owned resource to simulate partial startup
+            test_partial_vol = f"{project_name}_partial_test_vol"
+            subprocess.run(
+                ["docker", "volume", "create", "--label", f"com.docker.compose.project={project_name}", test_partial_vol],
+                capture_output=True, text=True, check=True,
+            )
+            raise RuntimeError("SIMULATED_PARTIAL_STARTUP_FAILURE")
 
         # 1. Capture sanitized docker compose config
-        cfg_res = _compose("config")
+        cfg_res = _compose("config", project=project_name)
         sanitized_cfg = _sanitize(cfg_res.stdout)
-        (EVIDENCE_DIR / "compose-config.sanitized.yml").write_text(sanitized_cfg, encoding="utf-8")
+        (evidence_dir / "compose-config.sanitized.yml").write_text(sanitized_cfg, encoding="utf-8")
         evidence["compose_config_verified"] = True
 
         # 2. Initialize durable ledger via one-shot budget-init container
-        _compose("--profile", "initialize", "run", "--rm", "budget-init")
+        _compose("--profile", "initialize", "run", "--rm", "budget-init", project=project_name)
 
         # 3. Start services
         _compose(
@@ -156,10 +190,11 @@ def main() -> int:
             "ai-service",
             "backend",
             "api-ingress",
+            project=project_name,
         )
 
         # 4. Wait for ingress to reach ai-service health, backend health, and budget-gateway status
-        ingress_base = f"http://127.0.0.1:{INGRESS_PORT}"
+        ingress_base = f"http://127.0.0.1:{ingress_port}"
         deadline = time.time() + 90.0
         ai_health = None
         budget_status_initial = None
@@ -222,7 +257,7 @@ print(json.dumps({
     }
 }))
 """
-        ai_env_res = _compose("exec", "-T", "ai-service", "python", "-c", ai_readback_script)
+        ai_env_res = _compose("exec", "-T", "ai-service", "python", "-c", ai_readback_script, project=project_name)
         ai_readback = json.loads(ai_env_res.stdout.strip().splitlines()[-1])
         evidence["ai_service_container_readback"] = ai_readback
 
@@ -245,7 +280,7 @@ console.log(JSON.stringify({
     AI_LLM_API_KEY_EMPTY: (process.env.AI_LLM_API_KEY || "") === "",
 }));
 """
-        be_env_res = _compose("exec", "-T", "backend", "node", "-e", backend_readback_script)
+        be_env_res = _compose("exec", "-T", "backend", "node", "-e", backend_readback_script, project=project_name)
         be_readback = json.loads(be_env_res.stdout.strip().splitlines()[-1])
         evidence["backend_container_readback"] = be_readback
 
@@ -287,7 +322,7 @@ except Exception as exc:
 
 print(json.dumps(results))
 """
-        ai_net_res = _compose("exec", "-T", "ai-service", "python", "-c", ai_net_probe_script)
+        ai_net_res = _compose("exec", "-T", "ai-service", "python", "-c", ai_net_probe_script, project=project_name)
         ai_net_data = json.loads(ai_net_res.stdout.strip().splitlines()[-1])
         assert ai_net_data["rfc5737_test_net_1"]["blocked"] is True
         assert ai_net_data["rfc5737_test_net_2"]["blocked"] is True
@@ -339,7 +374,7 @@ import fs from 'fs';
   console.log(JSON.stringify(results));
 })();
 """
-        be_net_res = _compose("exec", "-T", "backend", "node", "-e", be_net_probe_script)
+        be_net_res = _compose("exec", "-T", "backend", "node", "-e", be_net_probe_script, project=project_name)
         be_net_data = json.loads(be_net_res.stdout.strip().splitlines()[-1])
         assert be_net_data["rfc5737_test_net_1"]["blocked"] is True
         assert be_net_data["rfc5737_test_net_2"]["blocked"] is True
@@ -368,7 +403,7 @@ res = llm.generate_writing_draft(
 )
 print(json.dumps({"ok": True, "draft_length": len(res.get("draft_text", ""))}))
 """
-        ai_call_res = _compose("exec", "-T", "ai-service", "python", "-c", ai_call_script)
+        ai_call_res = _compose("exec", "-T", "ai-service", "python", "-c", ai_call_script, project=project_name)
         ai_call_out = json.loads(ai_call_res.stdout.strip().splitlines()[-1])
         assert ai_call_out["ok"] is True
 
@@ -391,12 +426,12 @@ import('./dist/modules/ai-copilot/llm-provider.js').then(async ({ generateCopilo
   console.log(JSON.stringify({ ok: true, length: out.length }));
 });
 """
-        be_call_res = _compose("exec", "-T", "backend", "node", "-e", be_call_script)
+        be_call_res = _compose("exec", "-T", "backend", "node", "-e", be_call_script, project=project_name)
         be_call_out = json.loads(be_call_res.stdout.strip().splitlines()[-1])
         assert be_call_out["ok"] is True
 
         # 9. Restart budget-gateway container and verify ledger persistence across container restart
-        _compose("restart", "budget-gateway")
+        _compose("restart", "budget-gateway", project=project_name)
         time.sleep(3.0)
         st_after, bg_after_restart = _get_json(f"{ingress_base}/budget-status", timeout=5.0)
         assert st_after == 200
@@ -425,42 +460,73 @@ import('./dist/modules/ai-copilot/llm-provider.js').then(async ({ generateCopilo
         evidence["privacy_canaries_absent_in_upstream"] = True
 
     finally:
-        # F-04: Create a foreign volume labeled with a distinct project name to verify foreign survival
-        foreign_vol_name = f"foreign-vol-{uuid.uuid4().hex[:6]}"
-        subprocess.run(
-            ["docker", "volume", "create", "--label", "com.docker.compose.project=foreign-project-survives", foreign_vol_name],
-            capture_output=True, text=True,
-        )
+        # F-07: Cleanup must ONLY run if run ownership was verified and established!
+        # If preflight detected a conflict or failed before ownership, abort cleanup immediately.
+        if not ownership_established:
+            print(f"[F-07] ABORT CLEANUP: Run ownership was not established for project '{project_name}'. "
+                  f"Pre-existing and unowned resources remain completely untouched.")
+            evidence["cleanup_skipped_unowned"] = True
+            evidence["cleanup_verification"] = {
+                "ownership_established": False,
+                "status": "ABORTED_UNOWNED",
+            }
+        else:
+            # Run ownership IS established: only resources created by this run under project_name exist.
+            # F-04: Create a foreign volume labeled with a distinct project name to verify foreign survival
+            foreign_vol_name = f"foreign-vol-{uuid.uuid4().hex[:6]}"
+            subprocess.run(
+                ["docker", "volume", "create", "--label", "com.docker.compose.project=foreign-project-survives", foreign_vol_name],
+                capture_output=True, text=True,
+            )
 
-        # 11. Tear down and clean up all containers, networks, and volumes owned strictly by this disposable project
-        _compose("down", "-v", "--remove-orphans", check=True)
+            # 11. Tear down and clean up all containers, networks, and volumes owned strictly by this disposable project
+            _compose("down", "-v", "--remove-orphans", check=True, project=project_name)
 
-        # Verify foreign volume survived the scoped teardown
-        foreign_check = subprocess.run(
-            ["docker", "volume", "ls", "--filter", "label=com.docker.compose.project=foreign-project-survives", "--format", "{{.Name}}"],
-            capture_output=True, text=True,
-        )
-        foreign_survived = foreign_vol_name in foreign_check.stdout
-        # Clean up foreign test volume
-        subprocess.run(["docker", "volume", "rm", foreign_vol_name], capture_output=True, text=True)
+            # Clean up any remaining run-owned resources matching project label
+            rem_sweep = _get_project_resources(project_name)
+            for c in rem_sweep["containers"]:
+                subprocess.run(["docker", "rm", "-f", c], capture_output=True, text=True)
+            for v in rem_sweep["volumes"]:
+                subprocess.run(["docker", "volume", "rm", "-f", v], capture_output=True, text=True)
+            for n in rem_sweep["networks"]:
+                subprocess.run(["docker", "network", "rm", n], capture_output=True, text=True)
 
-        rem = _get_project_resources(PROJECT_NAME)
-        evidence["cleanup_verification"] = {
-            "containers_remaining": rem["containers"],
-            "volumes_remaining": rem["volumes"],
-            "networks_remaining": rem["networks"],
-            "foreign_project_resource_survived": foreign_survived,
-        }
-        (EVIDENCE_DIR / "container-runtime-evidence.json").write_text(
-            json.dumps(evidence, indent=2, ensure_ascii=False),
-            encoding="utf-8",
-        )
+            # Verify foreign volume survived the scoped teardown
+            foreign_check = subprocess.run(
+                ["docker", "volume", "ls", "--filter", "label=com.docker.compose.project=foreign-project-survives", "--format", "{{.Name}}"],
+                capture_output=True, text=True,
+            )
+            foreign_survived = foreign_vol_name in foreign_check.stdout
+            # Clean up foreign test volume
+            subprocess.run(["docker", "volume", "rm", foreign_vol_name], capture_output=True, text=True)
 
-    assert evidence["cleanup_verification"]["containers_remaining"] == []
-    assert evidence["cleanup_verification"]["volumes_remaining"] == []
-    assert evidence["cleanup_verification"]["networks_remaining"] == []
-    print("P1_LIVE_SAFETY_01_CONTAINER_VERIFICATION_PASS")
-    return 0
+            rem = _get_project_resources(project_name)
+            evidence["cleanup_verification"] = {
+                "ownership_established": True,
+                "containers_remaining": rem["containers"],
+                "volumes_remaining": rem["volumes"],
+                "networks_remaining": rem["networks"],
+                "foreign_project_resource_survived": foreign_survived,
+            }
+            (evidence_dir / "container-runtime-evidence.json").write_text(
+                json.dumps(evidence, indent=2, ensure_ascii=False),
+                encoding="utf-8",
+            )
+
+    return 0, evidence
+
+
+def main() -> int:
+    try:
+        code, evidence = run_container_verification(PROJECT_NAME, INGRESS_PORT, EVIDENCE_DIR)
+        assert evidence["cleanup_verification"]["containers_remaining"] == []
+        assert evidence["cleanup_verification"]["volumes_remaining"] == []
+        assert evidence["cleanup_verification"]["networks_remaining"] == []
+        print("P1_LIVE_SAFETY_01_CONTAINER_VERIFICATION_PASS")
+        return code
+    except Exception as exc:
+        print(f"Container verification aborted: {exc}")
+        return 1
 
 
 if __name__ == "__main__":
