@@ -1,0 +1,15 @@
+{
+  "novelId": "a66b8297-9c4b-42a5-a689-b2038b832ae8",
+  "sampleChapterCount": 10,
+  "model": "gemini-3.5-flash-lite",
+  "gitSha": "749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb",
+  "project": "ephurin-uat01",
+  "firstChapterWordCount": 257,
+  "chapterIds": [
+    "849dc2ec-a60b-4966-9c7a-49140678a35b",
+    "45a55b3b-fdb9-4239-9f79-27533a98f769"
+  ],
+  "generationRequestsUsed": 0,
+  "sampleVipCount": 1,
+  "url": "http://localhost:8080"
+}

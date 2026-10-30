@@ -1,0 +1,34 @@
+[
+  {
+    "status": 200,
+    "path": "/reading/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db"
+  },
+  {
+    "status": 200,
+    "path": "/reading/library/me"
+  },
+  {
+    "status": 200,
+    "path": "/reading/history/me"
+  },
+  {
+    "status": 402,
+    "path": "/reading/chapters/e30f7437-467b-4b3d-94fe-796ed9970499"
+  },
+  {
+    "status": 403,
+    "path": "/chapters/849dc2ec-a60b-4966-9c7a-49140678a35b"
+  },
+  {
+    "status": 404,
+    "path": "/reading/chapters/849dc2ec-a60b-4966-9c7a-49140678a35b"
+  },
+  {
+    "status": 200,
+    "path": "/ai/story-brains/by-novel/a66b8297-9c4b-42a5-a689-b2038b832ae8"
+  },
+  {
+    "status": 200,
+    "path": "/ai/story-brains/a66b8297-9c4b-42a5-a689-b2038b832ae8/review-queue"
+  }
+]
