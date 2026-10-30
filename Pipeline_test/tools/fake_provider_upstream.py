@@ -48,7 +48,7 @@ def integration_response(text, body=None):
         return json.dumps({'states':[]})
     if 'expert fantasy novel analyst' in text:
         source=text.split('Text to analyze:\n\n',1)[1]
-        names=[('Mai Linh','PER'),('Duy','PER'),('Cồn Vân','LOC')]
+        names=[('Mai Linh','PER'),('Duy','PER'),('Cồn Vân','LOC'),('Lâm Phong','PER'),('Tô Mặc','PER'),('Thanh Phong','LOC'),('Thiên Kiếm Tông','ORG'),('Huyết Ngọc Bội','ITEM')]
         return json.dumps([{'phrase':n,'entity':t,'score':9} for n,t in names if n in source],ensure_ascii=False)
     if 'narrative event extractor' in text:
         source=text.split('Text passage: ',1)[1].split('\nKnown entities:',1)[0]
@@ -56,9 +56,12 @@ def integration_response(text, body=None):
           'locations':['Cồn Vân'] if 'Cồn Vân' in source else [],'summary':source.split('\n\n',1)[0],
           'emotion_tags':[],'importance_score':0.5,'consequences':[]}]},ensure_ascii=False)
     if 'Story Brain' in text or 'Author AI Copilot' in text:
+        if 'Lâm Phong' in text or 'Thanh Phong' in text:
+            return json.dumps({'draft_text':'Lâm Phong giữ chặt Huyết Ngọc Bội trong tay áo, lặng lẽ quan sát Tô Mặc giữa trấn Thanh Phong.',
+              'explanation':'FAKE_PROVIDER_OUTPUT scripted continuation for P1 live safety fixture'},ensure_ascii=False)
         return json.dumps({'draft_text':'Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.',
           'explanation':'FAKE_PROVIDER_OUTPUT scripted continuation for persistence only'},ensure_ascii=False)
-    raise ValueError('Unsupported integration fake prompt')
+    return 'Separate fake upstream response.'
 
 
 class FakeHandler(BaseHTTPRequestHandler):
@@ -118,7 +121,63 @@ class FakeHandler(BaseHTTPRequestHandler):
                         except ImportError:
                             from fake_entity_scenario import mixed_decisions
                         output = mixed_decisions(request)
-                elif 'events' in props: output = {'events': []}
+                    elif self.scenario == 'p1-live-safety-v1':
+                        known_map = {
+                            'Lâm Phong': 'PER',
+                            'Tô Mặc': 'PER',
+                            'Thanh Phong': 'LOC',
+                            'Trấn Thanh Phong': 'LOC',
+                            'Thiên Kiếm Tông': 'ORG',
+                            'Huyết Ngọc Bội': 'ITEM',
+                        }
+                        decisions = []
+                        for c in request['candidates']:
+                            surf = c.get('surface', '')
+                            if surf in known_map:
+                                etype = known_map[surf]
+                                decisions.append({
+                                    'candidate_id': c['candidate_id'],
+                                    'verdict': 'entity',
+                                    'entity_type': etype,
+                                    'canonical_name': surf,
+                                    'canonical_entity_id': '',
+                                    'provisional_identity_key': '',
+                                    'identity_quote': '',
+                                    'initial_status': 'Unknown',
+                                    'status_quote': '',
+                                    'confidence': 0.92,
+                                    'reason': 'Deterministic fake-upstream verification for P1-LIVE-SAFETY-01',
+                                })
+                            else:
+                                decisions.append({
+                                    'candidate_id': c['candidate_id'],
+                                    'verdict': 'not_entity',
+                                    'entity_type': None,
+                                    'canonical_name': '',
+                                    'canonical_entity_id': '',
+                                    'provisional_identity_key': '',
+                                    'identity_quote': '',
+                                    'initial_status': 'Unknown',
+                                    'status_quote': '',
+                                    'confidence': 0.9,
+                                    'reason': 'Deterministic fake-upstream non-entity',
+                                })
+                        output = {'decisions': decisions}
+                elif 'events' in props:
+                    if self.scenario == 'p1-live-safety-v1' and ('Lâm Phong' in text or 'Thanh Phong' in text):
+                        req_payload = json.loads(text.split('\n\n')[-1])
+                        src = req_payload.get('source_text', '')
+                        quote = src.split('.')[0].strip() + '.' if '.' in src else src[:120]
+                        output = {'events': [{
+                            'event_type': 'encounter',
+                            'summary': 'Lâm Phong gặp Tô Mặc tại trấn Thanh Phong.',
+                            'quote': quote,
+                            'participants': [e['entity_id'] for e in req_payload.get('known_entities', []) if e.get('entity_type') == 'PER'],
+                            'locations': [e['entity_id'] for e in req_payload.get('known_entities', []) if e.get('entity_type') == 'LOC'],
+                            'consequences': [],
+                        }]}
+                    else:
+                        output = {'events': []}
                 elif 'facts' in props: output = {'facts': []}
                 else: output = {'entities': []}
                 if self.scenario in ('wave1f-grounded-v1', 'p123-core-v1','p123-next-v1','p123-p3-v1') and 'removed_ids' not in props:
@@ -134,13 +193,37 @@ class FakeHandler(BaseHTTPRequestHandler):
                         from fake_p123_next_scenario import setup_output
                     output = setup_output(text, output)
                 content = json.dumps(output)
+            elif 'expert fantasy novel analyst' in text:
+                source = text.split('Text to analyze:\n\n', 1)[1]
+                names = [
+                    ('Mai Linh', 'PER'),
+                    ('Duy', 'PER'),
+                    ('Cồn Vân', 'LOC'),
+                    ('Lâm Phong', 'PER'),
+                    ('Tô Mặc', 'PER'),
+                    ('Thanh Phong', 'LOC'),
+                    ('Thiên Kiếm Tông', 'ORG'),
+                    ('Huyết Ngọc Bội', 'ITEM'),
+                ]
+                content = json.dumps(
+                    [{'phrase': n, 'entity': t, 'score': 9} for n, t in names if n in source],
+                    ensure_ascii=False,
+                )
             elif 'Story Brain' in text or 'Author AI Copilot' in text:
-                content = json.dumps({
-                    'draft_text': 'Mai Linh tiếp tục theo dõi các chỉ số tín hiệu trên màn hình máy thu CV-04.',
-                    'explanation': 'Tiếp tục mạch truyện phù hợp bối cảnh'
-                })
+                if 'Lâm Phong' in text or 'Thanh Phong' in text:
+                    content = json.dumps({
+                        'draft_text': 'Lâm Phong giữ chặt Huyết Ngọc Bội trong tay áo, lặng lẽ quan sát Tô Mặc giữa trấn Thanh Phong.',
+                        'explanation': 'FAKE_PROVIDER_OUTPUT scripted continuation for P1 live safety fixture'
+                    }, ensure_ascii=False)
+                else:
+                    content = json.dumps({
+                        'draft_text': 'Mai Linh tiếp tục theo dõi các chỉ số tín hiệu trên màn hình máy thu CV-04.',
+                        'explanation': 'Tiếp tục mạch truyện phù hợp bối cảnh'
+                    })
             else:
                 content = 'Separate fake upstream response.'
+            if 'fault:empty' in text:
+                content = ''
             if self.scenario in ('p123-next-v1','p123-p3-v1'):
                 try:
                     from .fake_p123_next_scenario import response_text
@@ -160,7 +243,7 @@ class FakeHandler(BaseHTTPRequestHandler):
         else:
             assert self.path == '/v1/chat/completions' and body['max_tokens'] > 0
             text = '\n\n'.join(str(m.get('content','')) for m in body['messages'])
-            content = integration_response(text, body)
+            content = '' if 'fault:empty' in text else integration_response(text, body)
             config = {'max_tokens': body['max_tokens']}
             result = {'id': self.headers['X-Gateway-Dispatch-Id'], 'object': 'chat.completion',
                       'created': int(time.time()), 'model': body['model'],
@@ -170,7 +253,7 @@ class FakeHandler(BaseHTTPRequestHandler):
                  'dispatch_id': self.headers['X-Gateway-Dispatch-Id'], 'client': self.headers['X-Gateway-Client'],
                  'native_schema': config.get('responseJsonSchema'), 'output_limit': config.get('maxOutputTokens', config.get('max_tokens')),
                  'upstream_auth_valid': True, 'prompt_text': text}
-        if self.scenario in ('wave1e-mixed-v1','wave1f-grounded-v1','wave1h-context-verify-v1','p123-core-v1','p123-next-v1','p123-p3-v1'):
+        if self.scenario in ('wave1e-mixed-v1','wave1f-grounded-v1','wave1h-context-verify-v1','p123-core-v1','p123-next-v1','p123-p3-v1','p1-live-safety-v1'):
             entry.update(scenario=self.scenario,received_at=time.time(),response=result,
                          operation=('canon_reconciliation' if 'removed_ids' in config.get('responseJsonSchema',{}).get('properties',{}) else
                                     'writing_generation' if ('Story Brain' in text or 'Author AI Copilot' in text) else
@@ -186,9 +269,10 @@ class FakeHandler(BaseHTTPRequestHandler):
                 with Path(self.log_path).open('a', encoding='utf-8') as stream: stream.write(json.dumps(entry) + '\n')
         if 'fault:redirect' in text:
             self.send_response(302); self.send_header('Location', 'https://must-not-resolve.invalid/'); self.end_headers(); return
-        if 'fault:timeout' in text: time.sleep(0.5)
-        for status in (429, 500):
-            if f'fault:{status}' in text: return self.reply(status, {'error': 'offline injected fault'})
+        if 'fault:timeout_long' in text: time.sleep(2.5)
+        elif 'fault:timeout' in text: time.sleep(0.5)
+        for status in (401, 404, 429, 500, 503):
+            if f'fault:{status}' in text: return self.reply(status, {'error': f'offline injected fault {status}'})
         self.reply(200, result)
 
     def log_message(self, *args): pass

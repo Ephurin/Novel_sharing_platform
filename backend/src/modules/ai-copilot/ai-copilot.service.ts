@@ -4,7 +4,7 @@ import { findChapterById } from '../novels/chapters.repository.js';
 import { findNovelById } from '../novels/novels.repository.js';
 import { listCopilotCharacters, listRecentCopilotTimelineEvents } from './ai-copilot.repository.js';
 import type { CopilotSuggestionInput } from './ai-copilot.schemas.js';
-import { generateCopilotSuggestionWithLlm, isLlmConfigured } from './llm-provider.js';
+import { generateCopilotSuggestionWithLlm, isLlmConfigured, sanitizeCopilotCharactersForPrompt } from './llm-provider.js';
 
 const recentWordLimit = 500;
 
@@ -62,18 +62,21 @@ export async function createCopilotSuggestion(auth: AuthContext, input: CopilotS
     listRecentCopilotTimelineEvents(input.novelId, input.chapterId)
   ]);
   const recentText = takeLastWords(input.recentText, recentWordLimit);
+  const promptCharacters = sanitizeCopilotCharactersForPrompt(
+    characters as unknown as ReadonlyArray<Record<string, unknown>>
+  );
   const provider = isLlmConfigured() ? 'openai-compatible-ngrok' : 'typescript-direct-mock';
   const suggestion = isLlmConfigured()
     ? await generateCopilotSuggestionWithLlm({
         instruction: input.instruction,
         recentText,
-        characters,
+        characters: promptCharacters,
         recentEvents
       })
     : buildDraftSuggestion({
         instruction: input.instruction,
         recentText,
-        characters,
+        characters: promptCharacters,
         recentEvents
       });
 

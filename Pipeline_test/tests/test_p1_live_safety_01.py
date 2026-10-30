@@ -1,0 +1,813 @@
+"""P1-LIVE-SAFETY-01: Mandatory Offline Adversarial & Safety Harness Verification Suite.
+
+Covers all 10 mandatory adversarial tests from ARGON TASK P1-LIVE-SAFETY-01:
+1. Physical outbound request #16 never dispatches (`MAX_CALLS_REACHED`).
+2. Concurrent Python/Node workers never exceed the shared 15-call budget.
+3. Rolling rate limit (10 per 60s) cannot be bypassed across workers or restarts (`ROLLING_RATE_LIMIT_EXCEEDED`).
+4. Restart does not reset accounting (durable OS-locked ledger + SHA-256 verification).
+5. Both application workers fail to reach external provider or fake-upstream directly.
+6. Gateway downtime blocks dispatch (no direct SDK fallback, no local fallback prose).
+7. Invalid or missing credentials / unapproved model fail closed (`WORKER_AUTH_REQUIRED`, `MODEL_NOT_APPROVED`).
+8. Timeout and full 8-scenario failure matrix (429, 503, timeout, 401, 404/unapproved model, empty response,
+   gateway down, budget exhausted) cannot generate fallback prose; writing job fails safely without Canon mutation
+   or manuscript data loss.
+9. Private author notes are absent from every outbound prompt (Python & Node canary tests + gateway defense-in-depth).
+10. HITL remains enabled (`ENTITY_CANDIDATE_VERIFICATION_ENABLED=true`) throughout execution.
+"""
+from __future__ import annotations
+
+import concurrent.futures
+import copy
+import hashlib
+import importlib.metadata
+import json
+import os
+from pathlib import Path
+import shutil
+import socket
+import subprocess
+import sys
+import time
+from types import SimpleNamespace
+import urllib.error
+import urllib.request
+
+import pytest
+
+ROOT = Path(__file__).resolve().parents[2]
+sys.path[:0] = [str(ROOT), str(ROOT / "ai-service")]
+
+from application.writing_service import WritingService
+from core.llm_service import LLMService, LLMServiceError
+from core.structured_call import call_structured
+from domain.models import (
+    NarrativeEntity,
+    NarrativeEvent,
+    StoryBrain,
+    WritingContextPackage,
+    WritingGenerationJob,
+)
+from infrastructure.in_memory_narrative_repository import InMemoryNarrativeRepository
+from Pipeline_test.tools.budget_gateway import (
+    AuthoritativeBudgetLedger,
+    BudgetExceededError,
+    BudgetMeterUnavailableError,
+)
+from Pipeline_test.tools.fake_provider_upstream import start_fake_upstream
+from Pipeline_test.tools.p1_live_safety_gateway import (
+    APPROVED_MODEL,
+    HARD_MAX_CALLS,
+    HARD_WINDOW_CALLS,
+    LiveSafetyBudgetLedger,
+    start_live_safety_gateway,
+)
+from core.settings import Settings
+from services.entity_pipeline.pipeline import EntityPipeline
+from services.entity_pipeline.verification import EntityDecisionBatch
+
+
+@pytest.fixture(autouse=True)
+def forbid_non_loopback_python_dns(monkeypatch: pytest.MonkeyPatch) -> None:
+    original = socket.getaddrinfo
+
+    def local_only(host: str, *args: object, **kwargs: object):
+        if host not in {"127.0.0.1", "localhost", "::1", None}:
+            raise RuntimeError(f"OFFLINE_TEST_EXTERNAL_NETWORK_DENIED: {host}")
+        return original(host, *args, **kwargs)
+
+    monkeypatch.setattr(socket, "getaddrinfo", local_only)
+
+
+def _post_json(
+    url: str,
+    data: dict | None = None,
+    headers: dict[str, str] | None = None,
+    timeout: float = 5.0,
+) -> tuple[int, dict]:
+    req = urllib.request.Request(
+        url,
+        data=json.dumps(data or {}).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "Authorization": "Bearer ai-worker",
+            **(headers or {}),
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as res:
+            return res.status, json.load(res)
+    except urllib.error.HTTPError as exc:
+        return exc.code, json.load(exc)
+
+
+def _chat_body(text: str = "Lâm Phong tiến vào trấn Thanh Phong.", model: str = APPROVED_MODEL) -> dict:
+    return {
+        "model": model,
+        "max_tokens": 64,
+        "messages": [{"role": "user", "content": text}],
+    }
+
+
+@pytest.fixture
+def safety_stack(tmp_path: Path):
+    upstream, _, received = start_fake_upstream(scenario="p1-live-safety-v1")
+    server, _, ledger = start_live_safety_gateway(
+        tmp_path / "p1_live_safety_ledger.json",
+        port=0,
+        max_calls=15,
+        max_window_calls=10,
+        window_seconds=60.0,
+        enable_live_safety_guard=True,
+        initialize=True,
+        run_id="p1-live-safety-01-test",
+        upstream_base_url=f"http://127.0.0.1:{upstream.server_port}",
+        upstream_api_key="fake-upstream-only",
+        client_tokens={"ai-worker": "ai-service", "backend-worker": "backend"},
+        upstream_timeout=0.25,
+    )
+    url = f"http://127.0.0.1:{server.server_port}"
+    yield url, ledger, received, server, upstream
+    server.shutdown()
+    server.server_close()
+    ledger.close()
+    upstream.shutdown()
+    upstream.server_close()
+
+
+def test_00_explicit_enablement_required_and_offline_gateway_preserved(tmp_path: Path) -> None:
+    """Guard fails closed unless explicitly enabled; offline budget_gateway preserves BUDGET_COST_HARD_CAP_UNPROVEN."""
+    disabled_ledger = LiveSafetyBudgetLedger(
+        tmp_path / "disabled.json",
+        enable_live_safety_guard=False,
+        initialize=True,
+        run_id="must-fail",
+    )
+    try:
+        with pytest.raises(BudgetMeterUnavailableError, match="LIVE_SAFETY_GUARD_NOT_ENABLED"):
+            disabled_ledger.get_summary()
+    finally:
+        disabled_ledger.close()
+
+    offline_ledger = AuthoritativeBudgetLedger(
+        tmp_path / "offline.json",
+        initialize=True,
+        run_id="offline-preserved",
+    )
+    try:
+        summary = offline_ledger.get_summary()
+        assert summary["live_cost_hard_cap"] == "BUDGET_COST_HARD_CAP_UNPROVEN"
+        assert summary["live_authorized"] is False
+    finally:
+        offline_ledger.close()
+
+
+def test_01_physical_outbound_request_16_never_dispatches(safety_stack) -> None:
+    """Adversarial Test 1: Physical outbound request #16 never dispatches."""
+    url, ledger, received, _, _ = safety_stack
+    base_ts = time.time() - 120.0
+
+    # First 10 calls in window 1
+    for i in range(10):
+        status, payload = _post_json(url + "/v1/chat/completions", _chat_body(f"call-{i + 1}"))
+        assert status == 200, payload
+
+    # Shift first 10 timestamps back by 65 seconds and persist atomically to test the 15-call cap after window rollover
+    for i in range(10):
+        ledger.state["call_history"][i]["timestamp"] = base_ts + i
+    ledger._save_durable()
+
+    # Calls 11..15 succeed in current window
+    for i in range(10, 15):
+        status, payload = _post_json(url + "/v1/chat/completions", _chat_body(f"call-{i + 1}"))
+        assert status == 200, payload
+
+    assert len(received) == 15
+    assert ledger.state["total_calls"] == 15
+
+    # Physical request #16 MUST be rejected with 429 MAX_CALLS_REACHED before upstream dispatch
+    status_16, payload_16 = _post_json(url + "/v1/chat/completions", _chat_body("call-16-must-fail"))
+    assert status_16 == 429
+    assert payload_16.get("error") == "MAX_CALLS_REACHED"
+    assert len(received) == 15
+    assert ledger.state["total_calls"] == 15
+
+
+def test_02_concurrent_python_and_node_workers_never_exceed_shared_budget(
+    safety_stack,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Adversarial Test 2: Concurrent Python (`ai-service`) and Node (`backend`) workers share the 15-call budget."""
+    url, ledger, received, _, _ = safety_stack
+    monkeypatch.setenv("BUDGET_GUARD_URL", url)
+    monkeypatch.setenv("BUDGET_GUARD_MODE", "proxy")
+    monkeypatch.setenv("BUDGET_GUARD_AUTH_TOKEN", "ai-worker")
+
+    # 1. Dispatch 1 real Python google-genai SDK call + 1 real Node backend subprocess call concurrently
+    def run_python_gemini() -> str:
+        llm = LLMService(provider="gemini", model=APPROVED_MODEL, api_key="", structured_max_tokens=128)
+        return call_structured(
+            llm,
+            operation="entity_candidate_verification",
+            system_prompt="Verify candidates.",
+            user_prompt=json.dumps({"candidates": [{"candidate_id": "c1", "surface": "Lâm Phong", "sentence": "Lâm Phong tới trấn Thanh Phong."}]}),
+        )
+
+    def run_node_backend() -> str:
+        environment = {
+            **os.environ,
+            "BUDGET_GUARD_URL": url,
+            "BUDGET_GUARD_MODE": "proxy",
+            "BUDGET_GUARD_AUTH_TOKEN": "backend-worker",
+            "AI_LLM_BASE_URL": url + "/v1",
+            "AI_LLM_API_KEY": "",
+            "AI_LLM_MODEL": APPROVED_MODEL,
+            "DB_CONNECT_ON_START": "false",
+            "AI_LLM_MAX_TOKENS": "128",
+        }
+        script = """
+        import {generateCopilotSuggestionWithLlm} from './dist/modules/ai-copilot/llm-provider.js';
+        generateCopilotSuggestionWithLlm({
+          instruction: 'Story Brain continuation',
+          recentText: 'Lâm Phong bước vào trấn Thanh Phong.',
+          characters: [{name: 'Lâm Phong', role: 'protagonist', personality: 'Trầm tĩnh', description: 'Đệ tử ngoại môn'}],
+          recentEvents: []
+        }).then(v => { console.log('NODE_OK:' + v.length); process.exit(0); })
+          .catch(e => { console.error(e.message); process.exit(1); });
+        """
+        res = subprocess.run(
+            [shutil.which("node") or "node", "--input-type=module", "--eval", script],
+            cwd=ROOT / "backend",
+            env=environment,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        assert res.returncode == 0, res.stderr
+        return res.stdout.strip()
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+        f_py = pool.submit(run_python_gemini)
+        f_node = pool.submit(run_node_backend)
+        py_out = f_py.result()
+        node_out = f_node.result()
+
+    assert EntityDecisionBatch.model_validate_json(py_out).decisions[0].verdict == "entity"
+    assert "NODE_OK:" in node_out
+    assert len(received) == 2
+    assert {e["client"] for e in received} == {"ai-service", "backend"}
+
+    # Age first 2 calls by 65s, then launch 24 concurrent requests across ai-worker and backend-worker
+    for entry in ledger.state["call_history"]:
+        entry["timestamp"] -= 65.0
+    ledger._save_durable()
+
+    def burst_worker(idx: int) -> tuple[int, str]:
+        token = "ai-worker" if idx % 2 == 0 else "backend-worker"
+        status, payload = _post_json(
+            url + "/v1/chat/completions",
+            _chat_body(f"burst-{idx}"),
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        return status, payload.get("error", "OK")
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=12) as pool:
+        results = list(pool.map(burst_worker, range(20)))
+
+    # At most 10 calls can succeed in the rolling 60s window (total calls now 2 + 10 = 12 <= 15)
+    ok_count = sum(1 for status, _ in results if status == 200)
+    denied_count = sum(1 for status, _ in results if status == 429)
+    assert ok_count == 10
+    assert denied_count == 10
+    assert len(received) == 12
+    assert ledger.state["total_calls"] == 12
+
+    # Age calls 3..12 by 65s and fire 10 more concurrent requests; only 3 can succeed (reaching 15 total)
+    for entry in ledger.state["call_history"]:
+        entry["timestamp"] -= 65.0
+    ledger._save_durable()
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as pool:
+        results_2 = list(pool.map(burst_worker, range(10)))
+
+    ok_count_2 = sum(1 for status, _ in results_2 if status == 200)
+    max_calls_denied = sum(1 for status, err in results_2 if status == 429 and err == "MAX_CALLS_REACHED")
+    assert ok_count_2 == 3
+    assert max_calls_denied == 7
+    assert len(received) == 15
+    assert ledger.state["total_calls"] == 15
+
+
+def test_03_rolling_rate_limit_enforced_across_workers_and_restarts(safety_stack) -> None:
+    """Adversarial Test 3: 10 admissions per rolling 60 seconds cannot be bypassed across workers or restarts."""
+    url, ledger, received, server, upstream = safety_stack
+    state_file = ledger.state_file
+
+    # Send 5 calls as ai-worker and 5 calls as backend-worker within the same 60s window
+    for i in range(10):
+        token = "ai-worker" if i < 5 else "backend-worker"
+        status, payload = _post_json(
+            url + "/v1/chat/completions",
+            _chat_body(f"window-call-{i + 1}"),
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert status == 200, payload
+
+    assert len(received) == 10
+
+    # 11th call in the same 60s window is denied with 429 ROLLING_RATE_LIMIT_EXCEEDED
+    status_11, payload_11 = _post_json(
+        url + "/v1/chat/completions",
+        _chat_body("window-call-11"),
+        headers={"Authorization": "Bearer backend-worker"},
+    )
+    assert status_11 == 429
+    assert payload_11.get("error") == "ROLLING_RATE_LIMIT_EXCEEDED"
+    assert len(received) == 10
+
+    # Restart gateway on the same ledger file and verify call #11 is STILL denied
+    server.shutdown()
+    server.server_close()
+    ledger.close()
+
+    server2, _, ledger2 = start_live_safety_gateway(
+        state_file,
+        port=0,
+        enable_live_safety_guard=True,
+        initialize=False,
+        upstream_base_url=f"http://127.0.0.1:{upstream.server_port}",
+        upstream_api_key="fake-upstream-only",
+        client_tokens={"ai-worker": "ai-service", "backend-worker": "backend"},
+        upstream_timeout=0.25,
+    )
+    try:
+        url2 = f"http://127.0.0.1:{server2.server_port}"
+        status_after_restart, payload_after_restart = _post_json(
+            url2 + "/v1/chat/completions",
+            _chat_body("window-call-11-after-restart"),
+            headers={"Authorization": "Bearer ai-worker"},
+        )
+        assert status_after_restart == 429
+        assert payload_after_restart.get("error") == "ROLLING_RATE_LIMIT_EXCEEDED"
+        assert len(received) == 10
+
+        # Verify clock rollback detection fails closed
+        with pytest.raises(BudgetMeterUnavailableError, match="CLOCK_ROLLBACK_DETECTED"):
+            ledger2.reserve(
+                operation="clock_rollback_probe",
+                model=APPROVED_MODEL,
+                liability_usd="0.0001",
+                now_override=time.time() - 30.0,
+            )
+    finally:
+        server2.shutdown()
+        server2.server_close()
+        ledger2.close()
+
+
+def test_04_restart_does_not_reset_accounting_and_tampering_fails_closed(tmp_path: Path) -> None:
+    """Adversarial Test 4: Restart preserves accounting; missing or corrupted ledger fails closed."""
+    state_path = tmp_path / "durable_safety.json"
+    ledger = LiveSafetyBudgetLedger(
+        state_path,
+        enable_live_safety_guard=True,
+        initialize=True,
+        run_id="restart-persistence-run",
+    )
+    ticket = ledger.reserve(
+        operation="gemini_generate_content",
+        provider="gemini-native",
+        model=APPROVED_MODEL,
+        client_service="ai-service",
+        liability_usd="0.0025",
+    )
+    ledger.finalize(ticket["ticket_id"], "SUCCESS")
+    ticket2 = ledger.reserve(
+        operation="chat_completions",
+        provider="gemini-openai-compatible",
+        model=APPROVED_MODEL,
+        client_service="backend",
+        liability_usd="0.0015",
+    )
+    saved_deadline = ledger.state["deadline"]
+    ledger.close()
+
+    # Reopen without initialize: preserves both finalized and in-flight reservations
+    reopened = LiveSafetyBudgetLedger(
+        state_path,
+        enable_live_safety_guard=True,
+        initialize=False,
+    )
+    summary = reopened.get_summary()
+    assert summary["total_calls"] == 2
+    assert summary["remaining_calls"] == 13
+    assert summary["charged_usd"] == "0.0025"
+    assert summary["outstanding_usd"] == "0.0015"
+    assert summary["deadline"] == saved_deadline
+    reopened.close()
+
+    # Deleting state file while .initialized marker exists prevents re-initialization
+    state_path.unlink()
+    reinit_attempt = LiveSafetyBudgetLedger(
+        state_path,
+        enable_live_safety_guard=True,
+        initialize=True,
+        run_id="attacker-reset-attempt",
+    )
+    try:
+        with pytest.raises(BudgetMeterUnavailableError, match="MISSING_AUTHORITATIVE_LEDGER"):
+            reinit_attempt.get_summary()
+    finally:
+        reinit_attempt.close()
+
+
+def test_05_workers_fail_to_reach_external_provider_or_fake_upstream_directly(
+    safety_stack,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Adversarial Test 5: Direct provider URLs and direct fake-upstream bypass fail closed."""
+    url, ledger, received, server, upstream = safety_stack
+
+    # 1. Worker configured with external URL fails before transport
+    for bad_url in ["", "https://generativelanguage.googleapis.com", "http://8.8.8.8:8080"]:
+        monkeypatch.setenv("BUDGET_GUARD_URL", bad_url)
+        monkeypatch.setenv("BUDGET_GUARD_MODE", "proxy")
+        monkeypatch.setenv("BUDGET_GUARD_AUTH_TOKEN", "ai-worker")
+        llm = LLMService(provider="gemini", model=APPROVED_MODEL, api_key="dummy")
+        with pytest.raises(LLMServiceError, match="GUARD_CONFIGURATION_INVALID"):
+            llm._call_llm("system", "user")
+
+    # 2. Direct call to fake-upstream without gateway dispatch header is rejected with 403
+    direct_url = f"http://127.0.0.1:{upstream.server_port}/v1/chat/completions"
+    status_direct, _ = _post_json(
+        direct_url,
+        _chat_body("direct bypass attempt"),
+        headers={"Authorization": "Bearer fake-upstream-only"},
+    )
+    assert status_direct == 403
+    assert len(received) == 0
+
+    # 3. Gateway pointed at external Google URL refuses to dispatch (503 LIVE_UPSTREAM_NOT_AUTHORIZED)
+    server.RequestHandlerClass.upstream_base_url = "https://generativelanguage.googleapis.com"
+    status_ext, payload_ext = _post_json(url + "/v1/chat/completions", _chat_body("external attempt"))
+    assert status_ext == 503
+    assert payload_ext.get("error") == "LIVE_UPSTREAM_NOT_AUTHORIZED"
+    assert len(received) == 0
+
+
+def test_06_gateway_downtime_blocks_dispatch(safety_stack, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Adversarial Test 6: Gateway downtime blocks dispatch for both Python and Node workers."""
+    url, ledger, received, server, _ = safety_stack
+    server.shutdown()
+    server.server_close()
+
+    monkeypatch.setenv("BUDGET_GUARD_URL", url)
+    monkeypatch.setenv("BUDGET_GUARD_MODE", "proxy")
+    monkeypatch.setenv("BUDGET_GUARD_AUTH_TOKEN", "ai-worker")
+    monkeypatch.setenv("LLM_LOCAL_FALLBACK", "false")
+
+    llm_gemini = LLMService(provider="gemini", model=APPROVED_MODEL, api_key="dummy", timeout_seconds=1)
+    with pytest.raises(LLMServiceError):
+        llm_gemini._call_llm("system", "user")
+
+    llm_openai = LLMService(provider="openai", model=APPROVED_MODEL, api_key="dummy", timeout_seconds=1)
+    with pytest.raises(LLMServiceError):
+        llm_openai._call_llm("system", "user")
+
+    assert len(received) == 0
+
+
+def test_07_invalid_credentials_and_unapproved_models_fail_closed(safety_stack) -> None:
+    """Adversarial Test 7: Invalid/missing worker credentials and unapproved models fail closed."""
+    url, ledger, received, _, _ = safety_stack
+
+    # Forged or missing worker token -> 401 WORKER_AUTH_REQUIRED
+    for bad_header in [{"Authorization": "Bearer wrong-token"}, {"Authorization": ""}]:
+        status, payload = _post_json(url + "/v1/chat/completions", _chat_body("test"), headers=bad_header)
+        assert status == 401
+        assert payload.get("error") == "WORKER_AUTH_REQUIRED"
+
+    # Unapproved models (including fallback model gemini-3.1-flash-lite) -> 403 MODEL_NOT_APPROVED
+    for unapproved in ["gemini-3.1-flash-lite", "gemini-2.5-flash", "gpt-4o-mini", "models/gemini-1.5-pro"]:
+        status_compat, payload_compat = _post_json(
+            url + "/v1/chat/completions",
+            _chat_body("test", model=unapproved),
+        )
+        assert status_compat == 403
+        assert payload_compat.get("error") == "MODEL_NOT_APPROVED"
+
+        clean_name = unapproved.removeprefix("models/")
+        status_native, payload_native = _post_json(
+            f"{url}/v1beta/models/{clean_name}:generateContent",
+            {
+                "contents": [{"parts": [{"text": "hello"}]}],
+                "generationConfig": {"maxOutputTokens": 64},
+            },
+        )
+        assert status_native == 403
+        assert payload_native.get("error") == "MODEL_NOT_APPROVED"
+
+    assert len(received) == 0
+    assert ledger.state["total_calls"] == 0
+
+
+def test_08_sdk_timeout_and_failure_matrix_safe_writing_failure(
+    safety_stack,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Adversarial Test 8: Verify google-genai SDK timeout wiring and all 8 failure matrix cases."""
+    url, ledger, received, server, _ = safety_stack
+    monkeypatch.setenv("BUDGET_GUARD_URL", url)
+    monkeypatch.setenv("BUDGET_GUARD_MODE", "proxy")
+    monkeypatch.setenv("BUDGET_GUARD_AUTH_TOKEN", "ai-worker")
+    monkeypatch.setenv("LLM_LOCAL_FALLBACK", "false")
+    monkeypatch.setattr("core.llm_service.time", SimpleNamespace(monotonic=time.monotonic, sleep=lambda _: None))
+
+    # Verify installed google-genai version and HttpOptions.timeout milliseconds conversion
+    sdk_version = importlib.metadata.version("google-genai")
+    assert sdk_version, "google-genai must be installed"
+    from google.genai import types
+    from google.genai._api_client import get_timeout_in_seconds
+
+    opts = types.HttpOptions(timeout=1500, retry_options=types.HttpRetryOptions(attempts=1))
+    assert opts.timeout == 1500
+    assert get_timeout_in_seconds(opts.timeout) == 1.5
+    assert opts.retry_options.attempts == 1
+
+    # Seed repository with canonical entities, events, and chapter text
+    repo = InMemoryNarrativeRepository()
+    novel_id = "novel-lam-phong-01"
+    chapter_id = "chap-01"
+    revision_id = "rev-01"
+    manuscript_text = (
+        "Mặt trời lặn sau rặng núi phía tây trấn Thanh Phong. "
+        "Lâm Phong bước vào quán trọ cũ, ánh mắt cảnh giác nhìn Tô Mặc."
+    )
+    content_hash = hashlib.sha256(manuscript_text.encode("utf-8")).hexdigest()
+
+    initial_entity = NarrativeEntity(
+        entity_id="ent-lam-phong",
+        name="Lâm Phong",
+        entity_type="PER",
+        status="Alive",
+        location="Trấn Thanh Phong",
+        approved_profile={
+            "summary": "Đệ tử ngoại môn Thiên Kiếm Tông",
+            "author_notes": "CANARY_REPO_PRIVATE_NOTE_DO_NOT_MUTATE",
+        },
+    )
+    initial_event = NarrativeEvent(
+        event_id="evt-01",
+        chapter=1,
+        event_type="arrival",
+        summary="Lâm Phong đến trấn Thanh Phong.",
+        participants=("Lâm Phong",),
+    )
+    repo._brains[novel_id] = StoryBrain(
+        story_id=novel_id,
+        entities=(initial_entity,),
+        relations=(),
+        events=(initial_event,),
+        metadata={"brain_version": "1", "status": "active"},
+    )
+    brain_snapshot_before = copy.deepcopy(repo.get_story_brain(novel_id))
+
+    def run_writing_job(instruction_text: str, *, model: str = APPROVED_MODEL, timeout_s: float = 1.0) -> WritingGenerationJob:
+        llm = LLMService(provider="gemini", model=model, api_key="dummy", timeout_seconds=timeout_s)
+        ws = WritingService(repository=repo, llm_service=llm)
+        return ws.start_generation(
+            tenant_id="tenant-01",
+            novel_id=novel_id,
+            chapter_id=chapter_id,
+            revision_id=revision_id,
+            content_hash=content_hash,
+            operation="continue",
+            selection={"start": 0, "end": len(manuscript_text), "cursor": len(manuscript_text)},
+            instruction=instruction_text,
+            expected_brain_version=1,
+            chapter_number=1,
+            source_text=manuscript_text,
+        )
+
+    # Failure 1: 429 / quota failure (with 1 slot remaining so budget denial stops retry)
+    # First test normal 429 fault
+    job_429 = run_writing_job("fault:429")
+    assert job_429.status == "failed"
+    assert job_429.patch is None
+    assert "LOCAL_FALLBACK" not in json.dumps(job_429.error or {})
+
+    # Reset call history timestamps so rolling window has room for remaining failure probes
+    for e in ledger.state["call_history"]:
+        e["timestamp"] -= 120.0
+    ledger._save_durable()
+
+    # Failure 2: 503 / provider unavailable
+    job_503 = run_writing_job("fault:503")
+    assert job_503.status == "failed"
+    assert job_503.patch is None
+
+    # Failure 3: Timeout (gateway upstream_timeout=0.25s, fake-upstream sleeps 0.5s on fault:timeout)
+    job_timeout = run_writing_job("fault:timeout", timeout_s=0.2)
+    assert job_timeout.status == "failed"
+    assert job_timeout.patch is None
+
+    # Failure 4: Invalid upstream credentials (401)
+    job_401 = run_writing_job("fault:401")
+    assert job_401.status == "failed"
+    assert job_401.patch is None
+
+    # Failure 5: Unsupported or unavailable model (unapproved model blocked at gateway with 403 MODEL_NOT_APPROVED)
+    job_bad_model = run_writing_job("Continue scene", model="gemini-3.1-flash-lite")
+    assert job_bad_model.status == "failed"
+    assert job_bad_model.patch is None
+    assert "BUDGET_GUARD_DENIED" in (job_bad_model.error or {}).get("message", "")
+
+    # Failure 6: Empty response (upstream returns 200 with empty text "")
+    job_empty = run_writing_job("fault:empty")
+    assert job_empty.status == "failed"
+    assert job_empty.patch is None
+
+    # Failure 7: Budget exhausted (set total_calls to max_calls=15)
+    for e in ledger.state["call_history"]:
+        e["timestamp"] -= 180.0
+    ledger._save_durable()
+    while ledger.state["total_calls"] < HARD_MAX_CALLS:
+        t = ledger.reserve(
+            operation="fill_budget",
+            model=APPROVED_MODEL,
+            liability_usd="0.0001",
+        )
+        ledger.finalize(t["ticket_id"], "SUCCESS")
+        ledger.state["call_history"][-1]["timestamp"] -= 120.0
+        ledger._save_durable()
+    job_exhausted = run_writing_job("Continue after budget exhausted")
+    assert job_exhausted.status == "failed"
+    assert job_exhausted.patch is None
+    assert "BUDGET_GUARD_DENIED" in (job_exhausted.error or {}).get("message", "")
+
+    # Failure 8: Gateway unavailable
+    server.shutdown()
+    server.server_close()
+    job_gw_down = run_writing_job("Continue when gateway offline")
+    assert job_gw_down.status == "failed"
+    assert job_gw_down.patch is None
+
+    # Verify Canon and manuscript integrity after all 8 failures
+    brain_after = repo.get_story_brain(novel_id)
+    assert brain_after == brain_snapshot_before
+
+
+def test_09_private_author_notes_absent_from_every_outbound_prompt(
+    safety_stack,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Adversarial Test 9: Deterministic canary test for private author notes in Python, Node, and Gateway."""
+    url, ledger, received, _, _ = safety_stack
+    monkeypatch.setenv("BUDGET_GUARD_URL", url)
+    monkeypatch.setenv("BUDGET_GUARD_MODE", "proxy")
+    monkeypatch.setenv("BUDGET_GUARD_AUTH_TOKEN", "ai-worker")
+
+    canary_author = "CANARY_SECRET_AUTHOR_NOTE_88421"
+    canary_private = "CANARY_SECRET_PRIVATE_AUTHOR_NOTE_99532"
+    canary_entity = "CANARY_SECRET_CHARACTER_NOTE_77643"
+
+    # 1. Python LLMService.generate_writing_draft with canary private notes in context_package
+    llm = LLMService(provider="gemini", model=APPROVED_MODEL, api_key="dummy")
+    draft_res = llm.generate_writing_draft(
+        operation="continue",
+        selected_text="Lâm Phong bước vào trấn Thanh Phong.",
+        cursor_offset=35,
+        instruction="Story Brain continuation",
+        context_package={
+            "entities": [
+                {
+                    "entity_id": "ent-1",
+                    "name": "Lâm Phong",
+                    "entity_type": "PER",
+                    "description": "Đệ tử ngoại môn",
+                    "notes": canary_entity,
+                    "author_notes": canary_author,
+                    "private_author_notes": canary_private,
+                }
+            ],
+            "author_notes": canary_author,
+            "private_author_notes": canary_private,
+            "recent_events": [{"summary": "Đến trấn Thanh Phong"}],
+        },
+    )
+    assert "Lâm Phong" in draft_res["draft_text"]
+    assert len(received) == 1
+    outbound_prompt_py = received[-1]["prompt_text"]
+    assert canary_author not in outbound_prompt_py
+    assert canary_private not in outbound_prompt_py
+    assert canary_entity not in outbound_prompt_py
+
+    # 2. Node backend generateCopilotSuggestionWithLlm subprocess with canary private notes
+    environment = {
+        **os.environ,
+        "BUDGET_GUARD_URL": url,
+        "BUDGET_GUARD_MODE": "proxy",
+        "BUDGET_GUARD_AUTH_TOKEN": "backend-worker",
+        "AI_LLM_BASE_URL": url + "/v1",
+        "AI_LLM_API_KEY": "",
+        "AI_LLM_MODEL": APPROVED_MODEL,
+        "DB_CONNECT_ON_START": "false",
+        "AI_LLM_MAX_TOKENS": "128",
+    }
+    script = f"""
+    import {{generateCopilotSuggestionWithLlm}} from './dist/modules/ai-copilot/llm-provider.js';
+    generateCopilotSuggestionWithLlm({{
+      instruction: 'Story Brain continuation',
+      recentText: 'Lâm Phong bước vào trấn Thanh Phong.',
+      characters: [{{
+        name: 'Lâm Phong',
+        role: 'protagonist',
+        personality: 'Trầm tĩnh',
+        description: 'Đệ tử ngoại môn',
+        notes: '{canary_entity}',
+        author_notes: '{canary_author}',
+        private_author_notes: '{canary_private}'
+      }}],
+      recentEvents: []
+    }}).then(() => {{ console.log('NODE_PRIVACY_OK'); process.exit(0); }})
+      .catch(e => {{ console.error(e.message); process.exit(1); }});
+    """
+    res = subprocess.run(
+        [shutil.which("node") or "node", "--input-type=module", "--eval", script],
+        cwd=ROOT / "backend",
+        env=environment,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert res.returncode == 0, res.stderr
+    assert "NODE_PRIVACY_OK" in res.stdout
+    assert len(received) == 2
+    outbound_prompt_node = received[-1]["prompt_text"]
+    assert canary_author not in outbound_prompt_node
+    assert canary_private not in outbound_prompt_node
+    assert canary_entity not in outbound_prompt_node
+
+    # 3. Gateway defense-in-depth: raw request containing private_author_notes is blocked with 403 before dispatch
+    status_raw, payload_raw = _post_json(
+        url + "/v1/chat/completions",
+        {
+            "model": APPROVED_MODEL,
+            "max_tokens": 32,
+            "messages": [{"role": "user", "content": json.dumps({"author_notes": canary_author})}],
+        },
+    )
+    assert status_raw == 403
+    assert payload_raw.get("error") == "PRIVATE_NOTES_FORBIDDEN_IN_PROMPT"
+    assert len(received) == 2
+
+
+def test_10_hitl_remains_enabled_and_mandatory_throughout_execution(
+    safety_stack,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Adversarial Test 10: ENTITY_CANDIDATE_VERIFICATION_ENABLED=true remains active and Canon is not auto-mutated."""
+    url, ledger, received, _, _ = safety_stack
+    monkeypatch.setenv("BUDGET_GUARD_URL", url)
+    monkeypatch.setenv("BUDGET_GUARD_MODE", "proxy")
+    monkeypatch.setenv("BUDGET_GUARD_AUTH_TOKEN", "ai-worker")
+    monkeypatch.setenv("ENTITY_CANDIDATE_VERIFICATION_ENABLED", "true")
+
+    monkeypatch.setenv("LLM_LOCAL_FALLBACK", "false")
+    monkeypatch.setenv("LLM_MODEL", APPROVED_MODEL)
+    settings = Settings.from_env()
+    assert settings.entity_candidate_verification_enabled is True
+    assert LLMService._local_fallback_enabled() is False
+    assert settings.llm_model == APPROVED_MODEL
+
+    repo = InMemoryNarrativeRepository()
+    novel_id = "novel-hitl-check"
+    repo._brains[novel_id] = StoryBrain(
+        story_id=novel_id,
+        entities=(),
+        relations=(),
+        events=(),
+        metadata={"brain_version": "1", "status": "active"},
+    )
+
+    llm = LLMService(provider="gemini", model=APPROVED_MODEL, api_key="dummy", structured_max_tokens=512)
+    pipeline = EntityPipeline(
+        candidate_verification_enabled=settings.entity_candidate_verification_enabled,
+    )
+    assert pipeline.candidate_verification_enabled is True
+    fixture_text = (
+        "Mặt trời lặn sau rặng núi phía tây trấn Thanh Phong. "
+        "Lâm Phong bước vào quán trọ cũ, tay nắm chặt Huyết Ngọc Bội. "
+        "Từ cầu thang gỗ, Tô Mặc — đệ tử Thiên Kiếm Tông — chậm rãi bước xuống."
+    )
+    verified = pipeline.run_verified(fixture_text, llm_service=llm, defer_materialization=True)
+    assert len(verified.entities) >= 2
+    assert len(verified.audit["candidates"]) >= 2
+    assert len(received) == 2
+    assert received[0]["path"] == "/v1beta/models/gemini-3.5-flash-lite:generateContent"
+    assert received[1]["path"] == "/v1beta/models/gemini-3.5-flash-lite:generateContent"
+
+    # Verify StoryBrain Canon was NOT automatically mutated by extraction (HITL review required before commit)
+    brain = repo.get_story_brain(novel_id)
+    assert len(brain.entities) == 0
+    assert Settings.from_env().entity_candidate_verification_enabled is True

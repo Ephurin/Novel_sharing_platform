@@ -1,0 +1,158 @@
+{
+  "task_id": "P1-LIVE-SAFETY-01",
+  "project_name": "p1-live-safety-01-verify",
+  "compose_file": "Pipeline_test/tools/compose.p1-live-safety.yml",
+  "real_gemini_calls": 0,
+  "real_spending_usd": "0.00",
+  "compose_config_verified": true,
+  "ai_service_health": {
+    "status": "ok"
+  },
+  "budget_status_initial": {
+    "schema": 3,
+    "guard_profile": "P1_LIVE_SAFETY_01",
+    "run_id": "p1-live-safety-01-verify",
+    "approved_model": "gemini-3.5-flash-lite",
+    "max_calls": 15,
+    "max_window_calls": 10,
+    "window_seconds": 60.0,
+    "max_cost_usd": "0.05",
+    "admission_cost_usd": "0.05",
+    "deadline": 1793335185.6678574,
+    "started": 1793333385.6678574,
+    "total_calls": 0,
+    "charged_usd": "0",
+    "outstanding_usd": "0",
+    "call_history": [],
+    "status": "FAKE_UPSTREAM_ONLY",
+    "live_forwarding_enabled": false,
+    "actual_invoice_usd": "0.00",
+    "rolling_window_calls": 0,
+    "remaining_calls": 15,
+    "live_authorized": false,
+    "live_cost_hard_cap": "BUDGET_COST_HARD_CAP_UNPROVEN",
+    "pricing_scope": "GEMINI_3_5_FLASH_LITE_PAID_STANDARD_CONSERVATIVE_CEILING"
+  },
+  "ai_service_container_readback": {
+    "env": {
+      "ENTITY_CANDIDATE_VERIFICATION_ENABLED": "true",
+      "LLM_LOCAL_FALLBACK": "false",
+      "LLM_PROVIDER": "gemini",
+      "LLM_MODEL": "gemini-3.5-flash-lite",
+      "LLM_FALLBACK_PROVIDER": "disabled",
+      "LLM_TIMEOUT_SECONDS": "15",
+      "EMBEDDING_PROVIDER": "none",
+      "SEMANTIC_RETRIEVAL_ENABLED": "false",
+      "BUDGET_GUARD_MODE": "proxy",
+      "BUDGET_GUARD_URL": "http://budget-gateway:18090",
+      "GEMINI_API_KEY_EMPTY": true,
+      "GOOGLE_API_KEY_EMPTY": true
+    },
+    "parsed_settings": {
+      "entity_candidate_verification_enabled": true,
+      "llm_local_fallback_enabled": false,
+      "llm_provider": "gemini",
+      "llm_model": "gemini-3.5-flash-lite",
+      "llm_timeout_seconds": 15,
+      "embedding_provider": "none",
+      "semantic_retrieval_enabled": false
+    },
+    "sdk": {
+      "google_genai_version": "2.33.0",
+      "http_options_timeout_ms": 15000,
+      "http_options_timeout_seconds": 15.0,
+      "http_retry_attempts": 1
+    }
+  },
+  "backend_container_readback": {
+    "AI_LLM_BASE_URL": "http://budget-gateway:18090/v1",
+    "AI_LLM_MODEL": "gemini-3.5-flash-lite",
+    "AI_LLM_MAX_TOKENS": "512",
+    "BUDGET_GUARD_MODE": "proxy",
+    "BUDGET_GUARD_URL": "http://budget-gateway:18090",
+    "AI_LLM_API_KEY_EMPTY": true
+  },
+  "network_isolation_probes": {
+    "ai_service": {
+      "external_google": {
+        "blocked": true,
+        "error_type": "URLError",
+        "error": "<urlopen error [Errno -3] Temporary failure in name resolution>"
+      },
+      "direct_fake_upstream": {
+        "blocked": true,
+        "error_type": "URLError",
+        "error": "<urlopen error [Errno -3] Temporary failure in name resolution>"
+      }
+    },
+    "backend": {
+      "external_google": {
+        "blocked": true,
+        "error": "Error: getaddrinfo EAI_AGAIN generativelanguage.googleapis.com"
+      },
+      "direct_fake_upstream": {
+        "blocked": true,
+        "error": "Error: getaddrinfo EAI_AGAIN fake-upstream"
+      }
+    }
+  },
+  "budget_status_after_gateway_restart": {
+    "schema": 3,
+    "guard_profile": "P1_LIVE_SAFETY_01",
+    "run_id": "p1-live-safety-01-verify",
+    "approved_model": "gemini-3.5-flash-lite",
+    "max_calls": 15,
+    "max_window_calls": 10,
+    "window_seconds": 60.0,
+    "max_cost_usd": "0.05",
+    "admission_cost_usd": "0.05",
+    "deadline": 1793335185.6678574,
+    "started": 1793333385.6678574,
+    "total_calls": 2,
+    "charged_usd": "0.0055096",
+    "outstanding_usd": "0E-7",
+    "call_history": [
+      {
+        "ticket_id": "8e6de807-d966-44e8-b679-1e64b6fd9f93",
+        "call_index": 1,
+        "client_service": "ai-service",
+        "operation": "gemini_generate_content",
+        "provider": "gemini-native",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.0027770",
+        "charged_usd": "0.0027770",
+        "status": "SUCCESS",
+        "timestamp": 1793333412.9415393,
+        "finished": 1793333412.9609277
+      },
+      {
+        "ticket_id": "0db69486-24cf-4836-a390-5b4f9754ec63",
+        "call_index": 2,
+        "client_service": "backend",
+        "operation": "chat_completions",
+        "provider": "gemini-openai-compatible",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.0027326",
+        "charged_usd": "0.0027326",
+        "status": "SUCCESS",
+        "timestamp": 1793333413.3808892,
+        "finished": 1793333413.39679
+      }
+    ],
+    "status": "FAKE_UPSTREAM_ONLY",
+    "live_forwarding_enabled": false,
+    "actual_invoice_usd": "0.00",
+    "rolling_window_calls": 2,
+    "remaining_calls": 13,
+    "live_authorized": false,
+    "live_cost_hard_cap": "BUDGET_COST_HARD_CAP_UNPROVEN",
+    "pricing_scope": "GEMINI_3_5_FLASH_LITE_PAID_STANDARD_CONSERVATIVE_CEILING"
+  },
+  "fake_upstream_received_count": 2,
+  "privacy_canaries_absent_in_upstream": true,
+  "cleanup_verification": {
+    "containers_remaining": [],
+    "volumes_remaining": [],
+    "networks_remaining": []
+  }
+}
