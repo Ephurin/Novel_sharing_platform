@@ -1,9 +1,10 @@
 {
   "task_id": "P1-LIVE-SAFETY-01",
-  "project_name": "p1-safety-fddf05fd",
+  "project_name": "p1-safety-31dc1f42",
   "compose_file": "Pipeline_test/tools/compose.p1-live-safety.yml",
   "real_gemini_calls": 0,
   "real_spending_usd": "0.00",
+  "ownership_established": true,
   "compose_config_verified": true,
   "ai_service_health": {
     "status": "ok"
@@ -11,15 +12,15 @@
   "budget_status_initial": {
     "schema": 3,
     "guard_profile": "P1_LIVE_SAFETY_01",
-    "run_id": "p1-safety-fddf05fd",
+    "run_id": "p1-safety-31dc1f42",
     "approved_model": "gemini-3.5-flash-lite",
     "max_calls": 15,
     "max_window_calls": 10,
     "window_seconds": 60.0,
     "max_cost_usd": "0.05",
     "admission_cost_usd": "0.05",
-    "deadline": 1793372016.438241,
-    "started": 1793370216.438241,
+    "deadline": 1793378286.6768696,
+    "started": 1793376486.6768696,
     "total_calls": 0,
     "charged_usd": "0",
     "outstanding_usd": "0",
@@ -134,21 +135,21 @@
   "budget_status_after_gateway_restart": {
     "schema": 3,
     "guard_profile": "P1_LIVE_SAFETY_01",
-    "run_id": "p1-safety-fddf05fd",
+    "run_id": "p1-safety-31dc1f42",
     "approved_model": "gemini-3.5-flash-lite",
     "max_calls": 15,
     "max_window_calls": 10,
     "window_seconds": 60.0,
     "max_cost_usd": "0.05",
     "admission_cost_usd": "0.05",
-    "deadline": 1793372016.438241,
-    "started": 1793370216.438241,
+    "deadline": 1793378286.6768696,
+    "started": 1793376486.6768696,
     "total_calls": 2,
     "charged_usd": "0.0055096",
     "outstanding_usd": "0E-7",
     "call_history": [
       {
-        "ticket_id": "640535a3-a470-4446-b249-d22b78ef91a2",
+        "ticket_id": "9f74ca29-3810-481c-9fba-1c4e49908ebb",
         "call_index": 1,
         "client_service": "ai-service",
         "operation": "gemini_generate_content",
@@ -157,11 +158,11 @@
         "liability_usd": "0.0027770",
         "charged_usd": "0.0027770",
         "status": "SUCCESS",
-        "timestamp": 1793370236.281459,
-        "finished": 1793370236.3097484
+        "timestamp": 1793376506.8805065,
+        "finished": 1793376506.90524
       },
       {
-        "ticket_id": "0aeaed27-4da2-4a7a-afa7-4a98a0e94033",
+        "ticket_id": "658ac9f1-3f7e-4bc5-8368-378c2343cd34",
         "call_index": 2,
         "client_service": "backend",
         "operation": "chat_completions",
@@ -170,8 +171,8 @@
         "liability_usd": "0.0027326",
         "charged_usd": "0.0027326",
         "status": "SUCCESS",
-        "timestamp": 1793370236.6660113,
-        "finished": 1793370236.6879296
+        "timestamp": 1793376507.2798543,
+        "finished": 1793376507.3305368
       }
     ],
     "status": "FAKE_UPSTREAM_ONLY",
@@ -188,6 +189,7 @@
   "fake_upstream_received_count": 2,
   "privacy_canaries_absent_in_upstream": true,
   "cleanup_verification": {
+    "ownership_established": true,
     "containers_remaining": [],
     "volumes_remaining": [],
     "networks_remaining": [],

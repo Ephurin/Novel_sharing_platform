@@ -322,3 +322,106 @@ Upstream Provider Used Exclusively:            FakeProviderServer (fake_provider
 **`P1_LIVE_SAFETY_OFFLINE_PASS`**
 
 All six findings (F-01 through F-06) identified in GPT-6 Independent Review #1 have been fully addressed, verified offline, backed by durable machine-readable evidence, and demonstrated to operate with fail-closed safety. The codebase is ready for **GPT-6 Independent Review #2**.
+
+
+---
+
+## 14. GPT-6 Independent Review #2 — Final Safety Remediation Report (F-07, F-08)
+
+**Date:** 2026-10-30  
+**Repository:** `Ephurin/Novel_sharing_platform`  
+**Base branch:** `integration/p1-demo-20261109`  
+**Locked base SHA:** `6cbff8829d731704a0e8301fedaa2b1f38dd14c1`  
+**Working branch:** `codex/p1-live-safety-01`  
+**Tested implementation commit SHA:** `e4f04558d278fcb27dabaf2556b73c4a5f76a5d5`  
+**Target Verdict:** `P1_LIVE_SAFETY_OFFLINE_PASS` (provisional, pending GPT-6 Independent Review #3)
+
+---
+
+### 14.1 Review #2 Findings Summary
+
+| Finding | Severity | Component | Summary | Target Resolution |
+|---|---|---|---|---|
+| **F-07** | **P1** | `verify_p1_live_safety_containers.py` | Preflight detects project ownership conflict and raises `CONFLICT_DETECTED`, but the `finally:` block executed `compose down -v --remove-orphans`, destroying pre-existing resources the run did not own. | Implement explicit run ownership tracking (`ownership_established = False`). Preflight conflicts abort immediately with `OwnershipConflictError`. The `finally:` block strictly gates teardown: if `not ownership_established`, cleanup is aborted without modifying any Docker resources. |
+| **F-08** | **P1** | `p1_live_safety_gateway.py` | If authoritative ledger was missing or corrupt on disk, receiving a denied request (e.g. unapproved model or blocked prompt) called `record_denial()`, which called `_save_durable()`, recreating the missing ledger on disk or overwriting on-disk corruption from RAM cache. | Enforce `self.ledger._healthy()` at the very start of `do_POST` and inside `record_denial()`. Guard `_save_durable()` against file creation if `not state_file.is_file()` and not initializing. If ledger health fails, request fails closed with 503 `BUDGET_METER_UNAVAILABLE` without writing to disk. Implement in-memory state rollback on durability write failures. |
+
+---
+
+### 14.2 Root Cause Analysis & Architecture Diffs
+
+#### 14.2.1 Remediation of F-07: Unsafe Cleanup After Ownership Conflict
+- **Root Cause:** In `verify_p1_live_safety_containers.py`, `initial_conflict = _get_project_resources(PROJECT_NAME)` detected pre-existing resources and raised a `RuntimeError`. Because Python's `try...finally` executes the `finally` block unconditionally, it executed `_compose("down", "-v", "--remove-orphans", check=True)`, destroying the unowned resources.
+- **Architectural Fix:**
+  1. Defined `OwnershipConflictError(RuntimeError)`.
+  2. Introduced explicit run ownership gating: `ownership_established = False`.
+  3. Preflight query `_get_project_resources(project_name)` runs before any resource creation. If any containers, volumes, or networks pre-exist with the project label, the runner records the conflict in evidence and raises `OwnershipConflictError("CONFLICT_DETECTED...")`.
+  4. Run ownership is established (`ownership_established = True`) strictly *after* verified conflict-free.
+  5. In `finally:`, if `not ownership_established`, the runner logs `[F-07] ABORT CLEANUP: Run ownership was not established...` and returns without executing any compose or docker removal commands.
+  6. If ownership is established, cleanup executes `_compose("down", "-v", "--remove-orphans", project=project_name)` and performs a label-scoped resource sweep for `com.docker.compose.project={project_name}`, while foreign project resources (`foreign-project-survives`) are verified to survive untouched.
+
+#### 14.2.2 Remediation of F-08: Denial Logging Recreating Missing Ledger or Overwriting Corruption
+- **Root Cause:** `LiveSafetyGatewayHandler.do_POST` checked route and model before calling `self.ledger.reserve()`. When an unapproved model was requested, it immediately called `self.ledger.record_denial(...)`. Inside `record_denial()`, `self._healthy()` was never called; it directly called `_save_durable()`. `_save_durable()` wrote a temporary file and called `os.replace(temporary, self.state_file)`, recreating a deleted ledger on disk or replacing corrupted disk content with in-memory cached state. Furthermore, `record_denial()` swallowed exceptions (`except Exception: pass`), returning 403 to the caller instead of failing closed with 503.
+- **Architectural Fix:**
+  1. In `LiveSafetyGatewayHandler.do_POST` and `do_GET` (`/v1/models`), `self.ledger._healthy()` is called under `self._lock` before *any* route, model, or payload inspection occurs.
+  2. If the authoritative ledger file is missing or corrupted, `_healthy()` immediately raises `BudgetMeterUnavailableError` (caught by `do_POST` to return 503 `BUDGET_METER_UNAVAILABLE`).
+  3. In `LiveSafetyBudgetLedger.record_denial()`, `self._healthy()` is called first under `with self._lock:`. If health check fails, the error propagates and no disk write occurs.
+  4. In `_save_durable()`, added guard:
+     ```python
+     if self._init_error:
+         raise self._init_error
+     if not getattr(self, "_initializing", False) and not self.state_file.is_file():
+         self._init_error = BudgetMeterUnavailableError("MISSING_AUTHORITATIVE_LEDGER")
+         raise self._init_error
+     ```
+  5. In `_read_verified()`, explicit checks ensure `self.state_file.is_file()`, `.initialized` marker exists, JSON parses cleanly without corruption, SHA-256 matches, and `run_id` matches marker.
+  6. Added transaction rollback in `reserve()` and `record_denial()`: if `_save_durable()` fails due to an I/O or permissions fault, in-memory state mutations (`total_calls`, `call_history`, `outstanding_usd`, `denied_history`) are rolled back to their pre-mutation values, and `self._init_error` is set, preserving terminal fail-closed state without dirtying memory.
+
+---
+
+### 14.3 Mandatory Negative Tests Suite (F-07 & F-08)
+
+Two comprehensive new test functions were added to `Pipeline_test/tests/test_p1_live_safety_01.py`:
+
+#### 14.3.1 `test_15_f07_resource_ownership_and_conflict_safety`
+- **Test A (Pre-existing project conflict):** Created disposable volume labeled `com.docker.compose.project={proj_a}`. Executed `run_container_verification(project_name=proj_a)`. Verified `OwnershipConflictError("CONFLICT_DETECTED")` was raised. Inspected Docker: verified pre-existing volume was **NOT** destroyed by cleanup.
+- **Test B (Initialization failure before ownership):** Injected `simulate_fail_before_ownership=True`. Verified runner aborted without executing cleanup, and unowned foreign volume survived intact.
+- **Test C (Partial startup failure):** Injected `simulate_fail_partial_startup=True` after ownership was established. Verified that only run-owned resources were cleaned up, while foreign resources survived.
+- **Test D (Foreign project survival):** Created unrelated volume `com.docker.compose.project=unrelated-foreign-d`. Verified conflict query returned zero collisions for run-scoped project, and foreign project resources remained untouched throughout verification.
+
+#### 14.3.2 `test_16_f08_ledger_tampering_and_denial_fail_closed`
+- **Test A (Missing ledger after startup):** Started gateway with valid ledger. Deleted ledger file on disk (`state_file.unlink()`). Submitted request targeting unapproved model `gemini-2.5-pro`. Verified gateway failed closed with HTTP 503 `BUDGET_METER_UNAVAILABLE` (instead of 403). Verified ledger file was **NOT** recreated on disk (`assert not state_file.exists()`). Submitted valid request; verified 503 fail-closed. Verified total fake-upstream dispatches remained 0.
+- **Test B (Corrupted ledger on disk):** Started gateway with valid ledger. Overwrote ledger with invalid partial JSON (`{"state": {"broken_json": true, `). Submitted request that would otherwise trigger denial. Verified HTTP 503 `BUDGET_METER_UNAVAILABLE`. Verified on-disk corruption was **NOT** repaired, replaced, or overwritten with default state. Verified subsequent requests fail closed with 503 and 0 upstream dispatches.
+- **Test C (Ledger write failure / I/O fault):** Injected durability failure into `_save_durable()`. Attempted requests. Verified HTTP 503 `BUDGET_METER_UNAVAILABLE`. Verified no admission, no counter increment (`total_calls == 0`), and no unmetered dispatch.
+- **Test D (Normal rejection regression on healthy ledger):** On healthy ledger, verified unapproved model returned 403 `MODEL_NOT_APPROVED`; saturated 10-call sliding window with valid 200 responses; verified call 11 returned 429 `ROLLING_RATE_LIMIT_EXCEEDED`; verified call 16 returned 429 `MAX_CALLS_REACHED`.
+
+---
+
+### 14.4 Full Verification Suite Results
+
+| Test Suite / Script | Command Executed | Tests | Exit Code | Result |
+|---|---|---|---|---|
+| Complete P1 Safety Adversarial Suite | `python -m pytest Pipeline_test/tests/test_p1_live_safety_01.py -v --basetemp=pytest_tmp -p no:cacheprovider` | 17 / 17 | `0` | **ALL 17 PASSED** (38.16s) |
+| Cross-Container Budget Gate Regression | `python -m pytest Pipeline_test/tests/test_cross_container_budget_gate.py -v --basetemp=pytest_tmp -p no:cacheprovider` | 41 / 41 | `0` | **ALL 41 PASSED** (53.94s) |
+| Container Runtime Verification & Teardown | `python Pipeline_test/tools/verify_p1_live_safety_containers.py` | 11 checkpoints | `0` | **P1_LIVE_SAFETY_01_CONTAINER_VERIFICATION_PASS** |
+| Backend AI Copilot Unit Tests | `npx tsx --test backend/src/modules/ai-copilot/llm-provider.test.ts` | 5 / 5 | `0` | **ALL 5 PASSED** (0.27s) |
+| Backend TypeScript Build | `npm --prefix backend run build` | `tsc -p tsconfig.json` | `0` | **CLEAN BUILD** |
+
+---
+
+### 14.5 Zero-Call & Zero-Spend Audit Confirmation
+
+```
+Real Generative Provider API Calls Dispatched:  0
+Real Provider Quota Consumed:                  0 tokens
+Real Provider Invoice / Financial Spending:    $0.00
+Unverified Live Models Dispatched:             0
+Upstream Provider Used Exclusively:            FakeProviderServer (fake_provider_upstream.py)
+```
+
+---
+
+### 14.6 Updated Provisional Verdict
+
+**`P1_LIVE_SAFETY_OFFLINE_PASS`**
+
+All eight adversarial findings (F-01 through F-08 across Independent Reviews #1 and #2) are fully resolved, covered by deterministic negative test suites, backed by durable machine-readable evidence, and demonstrated to operate fail-closed. Ready for **GPT-6 Independent Review #3**.
