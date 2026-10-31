@@ -49,7 +49,7 @@ def run(command: str, cwd: str, env: Dict[str, str], log_path: str) -> Dict[str,
     unittest_ran = re.search(r"^Ran (\d+) tests?", output, re.M)
     evidence = re.findall(r"\(evidence: ([^)]+)\)", output)
     return {
-        "command": command, "cwd": os.path.relpath(cwd, REPO_ROOT) or ".", "exit_code": result.returncode,
+        "command": redact(command.replace(sys.executable, "python")), "cwd": os.path.relpath(cwd, REPO_ROOT) or ".", "exit_code": result.returncode,
         "seconds": round(time.time() - started, 1),
         "tests_passed": sum(passed) if passed else None, "tests_failed": sum(failed) if failed else None,
         "tests_skipped": sum(skipped) if skipped else None,
@@ -64,7 +64,8 @@ def run(command: str, cwd: str, env: Dict[str, str], log_path: str) -> Dict[str,
 def redact(text: str) -> str:
     for path, label in ((tempfile.gettempdir(), "%TEMP%"), (os.path.expanduser("~"), "%USERPROFILE%"), (REPO_ROOT, "<repo>")):
         text = text.replace(path, label)
-    return text
+    # Output tails may start in the middle of a path.
+    return re.sub(r"AppData\\+Local\\+Temp", "%TEMP%", text)
 
 
 def tool_version(command: str) -> str:
