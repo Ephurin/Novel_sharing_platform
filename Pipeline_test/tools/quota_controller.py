@@ -1,18 +1,19 @@
-"""P1-LIVE-FREE-01: Shared Quota Controller & Durable Ledger for Gemini Free Tier.
+"""P1-LIVE-FREE-02: Shared Quota Controller & Durable Ledger for Gemini Free Tier.
 
 Enforces quota-aware admission for Google AI Studio Free Tier:
 - Requests Per Minute (RPM) sliding window with configurable headroom
 - Input Tokens Per Minute (TPM) pre-reservation and post-response reconciliation
-- Requests Per Day (RPD) with calendar day reset (UTC midnight)
-- Bounded in-flight concurrency semaphore
-- Bounded request deadline and retry limits
+- Requests Per Day (RPD) with Pacific Time daily reset (America/Los_Angeles, DST-aware)
+- Explicit per-model quota configuration (no silent unverified production defaults)
+- Operator attestation verification (project fingerprint, expiration, fail-closed)
+- Bounded in-flight concurrency semaphore and durable stale recovery
 - Atomic OS file locking across Python and Node workers
-- Fail-closed durability with SHA-256 state verification
+- Fail-closed durability with SHA-256 state envelope verification
 """
 from __future__ import annotations
 
 import copy
-from datetime import datetime, timezone
+from datetime import datetime, time as datetime_time, timedelta
 import hashlib
 import json
 import math
@@ -23,6 +24,7 @@ import threading
 import time
 from typing import Any
 import uuid
+from zoneinfo import ZoneInfo
 
 
 class QuotaExceededError(Exception):
@@ -62,39 +64,72 @@ APPROVED_LLM_MODELS = frozenset({"gemini-3.5-flash-lite", "gemini-3.1-flash-lite
 APPROVED_EMBEDDING_MODELS = frozenset({"gemini-embedding-2"})
 ALL_APPROVED_MODELS = APPROVED_LLM_MODELS | APPROVED_EMBEDDING_MODELS
 
-# Default published quotas for Google AI Studio Free Tier
-DEFAULT_MODEL_QUOTAS = {
-    "gemini-3.5-flash-lite": {
-        "rpm": 15,
-        "tpm": 250_000,
-        "rpd": 500,
-        "max_concurrency": 2,
-        "headroom": 0.10,  # 10% safety margin below published rate limit
-    },
-    "gemini-3.1-flash-lite": {
-        "rpm": 15,
-        "tpm": 250_000,
-        "rpd": 500,
-        "max_concurrency": 2,
-        "headroom": 0.10,
-    },
-    "gemini-embedding-2": {
-        "rpm": 15,
-        "tpm": 1_000_000,
-        "rpd": 500,
-        "max_concurrency": 2,
-        "headroom": 0.10,
-    },
-}
+PACIFIC_TZ = ZoneInfo("America/Los_Angeles")
 
 
-def _get_next_utc_midnight(now_ts: float) -> float:
-    """Calculate the Unix timestamp of the next 00:00:00 UTC."""
-    dt = datetime.fromtimestamp(now_ts, tz=timezone.utc)
-    # Next day at 00:00:00 UTC
-    next_day = dt.date().toordinal() + 1
-    next_midnight = datetime.fromordinal(next_day).replace(tzinfo=timezone.utc)
+def get_next_pacific_midnight(now_ts: float) -> float:
+    """Calculate the Unix timestamp of the next 00:00:00 in America/Los_Angeles (DST-aware)."""
+    dt = datetime.fromtimestamp(now_ts, tz=PACIFIC_TZ)
+    next_day_date = dt.date() + timedelta(days=1)
+    next_midnight = datetime.combine(next_day_date, datetime_time.min, tzinfo=PACIFIC_TZ)
     return next_midnight.timestamp()
+
+
+def create_operator_attestation(
+    project_id: str,
+    *,
+    free_tier_confirmed: bool = True,
+    duration_seconds: float = 86400.0,
+    attested_by: str = "operator",
+    now_override: float | None = None,
+) -> dict[str, Any]:
+    """Construct a documented operator attestation envelope."""
+    now = float(now_override) if now_override is not None else time.time()
+    raw_pid = str(project_id or "").strip()
+    if not raw_pid:
+        raise ValueError("project_id must not be empty")
+    fp = hashlib.sha256(raw_pid.encode("utf-8")).hexdigest()[:12]
+    return {
+        "project_id_fingerprint": f"prj-sha256:{fp}",
+        "free_tier_confirmed": bool(free_tier_confirmed),
+        "verification_timestamp": now,
+        "expires_at": now + float(duration_seconds),
+        "attested_by": str(attested_by or "operator"),
+    }
+
+
+def parse_model_quotas_from_env() -> dict[str, dict[str, Any]]:
+    """Parse operator-supplied quota limits from environment variables."""
+    quotas: dict[str, dict[str, Any]] = {}
+    gemini_rpm = int(os.getenv("FREE_TIER_GEMINI_RPM", "0"))
+    gemini_tpm = int(os.getenv("FREE_TIER_GEMINI_TPM", "0"))
+    gemini_rpd = int(os.getenv("FREE_TIER_GEMINI_RPD", "0"))
+    concurrency = int(os.getenv("FREE_TIER_MAX_CONCURRENCY", "2"))
+    headroom = float(os.getenv("FREE_TIER_HEADROOM", "0.10"))
+
+    if gemini_rpm > 0 and gemini_tpm > 0 and gemini_rpd > 0:
+        llm_cfg = {
+            "rpm": gemini_rpm,
+            "tpm": gemini_tpm,
+            "rpd": gemini_rpd,
+            "max_concurrency": concurrency,
+            "headroom": headroom,
+        }
+        quotas["gemini-3.5-flash-lite"] = copy.deepcopy(llm_cfg)
+        quotas["gemini-3.1-flash-lite"] = copy.deepcopy(llm_cfg)
+
+    embed_rpm = int(os.getenv("FREE_TIER_EMBEDDING_RPM", "0"))
+    embed_tpm = int(os.getenv("FREE_TIER_EMBEDDING_TPM", "0"))
+    embed_rpd = int(os.getenv("FREE_TIER_EMBEDDING_RPD", "0"))
+    if embed_rpm > 0 and embed_tpm > 0 and embed_rpd > 0:
+        quotas["gemini-embedding-2"] = {
+            "rpm": embed_rpm,
+            "tpm": embed_tpm,
+            "rpd": embed_rpd,
+            "max_concurrency": concurrency,
+            "headroom": headroom,
+        }
+    return quotas
 
 
 class FreeTierQuotaLedger:
@@ -107,6 +142,7 @@ class FreeTierQuotaLedger:
         run_id: str | None = None,
         live_free_tier_enabled: bool = False,
         model_quotas: dict[str, dict[str, Any]] | None = None,
+        operator_attestation: dict[str, Any] | None = None,
         strict_fail_closed: bool = True,
         initialize: bool = False,
         in_flight_timeout_seconds: float = 120.0,
@@ -146,26 +182,43 @@ class FreeTierQuotaLedger:
                 if not run_id:
                     raise QuotaMeterUnavailableError("Explicit run_id required for initialization")
 
-                merged_quotas: dict[str, dict[str, Any]] = copy.deepcopy(DEFAULT_MODEL_QUOTAS)
-                if model_quotas:
-                    for model_name, cfg in model_quotas.items():
-                        norm_name = model_name.removeprefix("models/").strip()
-                        if norm_name in merged_quotas:
-                            merged_quotas[norm_name].update(cfg)
-                        else:
-                            merged_quotas[norm_name] = copy.deepcopy(cfg)
+                # Require explicit per-model quota configuration
+                if not model_quotas:
+                    raise QuotaConfigRequiredError("QUOTA_CONFIG_REQUIRED: Explicit model_quotas mapping required")
 
-                # Validate quota values
-                for m_name, q in merged_quotas.items():
-                    rpm = q.get("rpm", 0)
-                    tpm = q.get("tpm", 0)
-                    rpd = q.get("rpd", 0)
-                    conc = q.get("max_concurrency", 0)
-                    if rpm <= 0 or tpm <= 0 or rpd <= 0 or conc <= 0:
-                        raise QuotaConfigRequiredError(f"Invalid quota configuration for {m_name}")
+                validated_quotas: dict[str, dict[str, Any]] = {}
+                for m_raw, cfg in model_quotas.items():
+                    m_name = m_raw.removeprefix("models/").strip()
+                    if m_name not in ALL_APPROVED_MODELS:
+                        raise ValueError(f"MODEL_NOT_APPROVED: {m_name}")
+                    rpm = int(cfg.get("rpm", 0))
+                    tpm = int(cfg.get("tpm", 0))
+                    rpd = int(cfg.get("rpd", 0))
+                    conc = int(cfg.get("max_concurrency", 0))
+                    headroom = float(cfg.get("headroom", 0.10))
+                    if rpm <= 0 or tpm <= 0 or rpd <= 0 or conc <= 0 or not (0.0 <= headroom < 1.0):
+                        raise QuotaConfigRequiredError(f"QUOTA_CONFIG_REQUIRED: Invalid quota limits for {m_name}")
+                    validated_quotas[m_name] = {
+                        "rpm": rpm,
+                        "tpm": tpm,
+                        "rpd": rpd,
+                        "max_concurrency": conc,
+                        "headroom": headroom,
+                    }
 
                 now = time.time()
-                next_midnight = _get_next_utc_midnight(now)
+                next_midnight = get_next_pacific_midnight(now)
+
+                # Validate operator attestation if live_free_tier_enabled is True
+                if live_free_tier_enabled:
+                    if not operator_attestation or not isinstance(operator_attestation, dict):
+                        raise FreeTierStatusUnverifiedError("FREE_TIER_STATUS_UNVERIFIED: Operator attestation required")
+                    if not operator_attestation.get("free_tier_confirmed"):
+                        raise FreeTierStatusUnverifiedError("FREE_TIER_STATUS_UNVERIFIED: Free tier status not confirmed")
+                    if float(operator_attestation.get("expires_at", 0)) <= now:
+                        raise FreeTierStatusUnverifiedError("FREE_TIER_STATUS_UNVERIFIED: Operator attestation expired")
+                    if not operator_attestation.get("project_id_fingerprint"):
+                        raise FreeTierStatusUnverifiedError("FREE_TIER_STATUS_UNVERIFIED: Missing project fingerprint")
 
                 self.state = {
                     "schema": 4,
@@ -174,7 +227,8 @@ class FreeTierQuotaLedger:
                     "live_free_tier_enabled": bool(live_free_tier_enabled),
                     "started": now,
                     "rpd_reset_timestamp": next_midnight,
-                    "model_quotas": merged_quotas,
+                    "model_quotas": validated_quotas,
+                    "operator_attestation": copy.deepcopy(operator_attestation) if operator_attestation else None,
                     "current_in_flight": 0,
                     "in_flight_tickets": {},
                     "rpd_call_count": 0,
@@ -200,14 +254,27 @@ class FreeTierQuotaLedger:
                 marker_data = json.loads(marker.read_text(encoding="utf-8"))
                 if marker_data.get("run_id") != self.state.get("run_id"):
                     raise QuotaMeterUnavailableError("LEDGER_MARKER_MISMATCH")
+        except (QuotaConfigRequiredError, FreeTierStatusUnverifiedError) as exc:
+            self._init_error = exc
+            self.close()
+            if strict_fail_closed:
+                raise exc
         except Exception as exc:
             self._init_error = QuotaMeterUnavailableError(str(exc))
+            self.close()
             if strict_fail_closed:
                 raise self._init_error
 
     def close(self) -> None:
         if self._owner:
             try:
+                if os.name == "nt":
+                    import msvcrt
+                    try:
+                        self._owner.seek(0)
+                        msvcrt.locking(self._owner.fileno(), msvcrt.LK_UNLCK, 1)
+                    except Exception:
+                        pass
                 self._owner.close()
             except Exception:
                 pass
@@ -304,7 +371,7 @@ class FreeTierQuotaLedger:
                     pass
 
     def _cleanup_stale_in_flight(self, now: float) -> bool:
-        """Mark stale in-flight tickets as TIMEOUT if they exceeded max duration."""
+        """Mark stale in-flight tickets as TIMEOUT if they exceeded max duration and persist durably."""
         changed = False
         in_flight = self.state.get("in_flight_tickets", {})
         expired_ids: list[str] = []
@@ -325,7 +392,34 @@ class FreeTierQuotaLedger:
 
         if changed:
             self.state["current_in_flight"] = len(in_flight)
+            self._save_durable()
         return changed
+
+    def set_live_free_tier_enabled(self, enabled: bool) -> None:
+        """Atomically toggle live_free_tier_enabled with durable lock."""
+        with self._lock:
+            self._healthy()
+            if enabled:
+                attestation = self.state.get("operator_attestation")
+                if not attestation or not attestation.get("free_tier_confirmed"):
+                    raise FreeTierStatusUnverifiedError("FREE_TIER_STATUS_UNVERIFIED: Valid attestation required to enable")
+                if float(attestation.get("expires_at", 0)) <= time.time():
+                    raise FreeTierStatusUnverifiedError("FREE_TIER_STATUS_UNVERIFIED: Attestation has expired")
+            self.state["live_free_tier_enabled"] = bool(enabled)
+            self._save_durable()
+
+    def update_operator_attestation(self, attestation: dict[str, Any]) -> None:
+        """Durably update operator attestation state."""
+        with self._lock:
+            self._healthy()
+            if not isinstance(attestation, dict) or not attestation.get("free_tier_confirmed"):
+                raise FreeTierStatusUnverifiedError("FREE_TIER_STATUS_UNVERIFIED: Invalid attestation")
+            if float(attestation.get("expires_at", 0)) <= time.time():
+                raise FreeTierStatusUnverifiedError("FREE_TIER_STATUS_UNVERIFIED: Attestation has expired")
+            if not attestation.get("project_id_fingerprint"):
+                raise FreeTierStatusUnverifiedError("FREE_TIER_STATUS_UNVERIFIED: Missing project fingerprint")
+            self.state["operator_attestation"] = copy.deepcopy(attestation)
+            self._save_durable()
 
     def reserve(
         self,
@@ -342,10 +436,19 @@ class FreeTierQuotaLedger:
             s = self.state
             now = float(now_override) if now_override is not None else time.time()
 
-            # 1. Verification of operator enablement
+            # 1. Verification of operator enablement & attestation
             if not s.get("live_free_tier_enabled"):
                 self.record_denial("FREE_TIER_STATUS_UNVERIFIED", client_service, operation)
                 raise FreeTierStatusUnverifiedError("FREE_TIER_STATUS_UNVERIFIED")
+
+            attestation = s.get("operator_attestation")
+            if not attestation or not attestation.get("free_tier_confirmed"):
+                self.record_denial("FREE_TIER_STATUS_UNVERIFIED", client_service, operation)
+                raise FreeTierStatusUnverifiedError("FREE_TIER_STATUS_UNVERIFIED")
+
+            if now > float(attestation.get("expires_at", 0)):
+                self.record_denial("FREE_TIER_STATUS_UNVERIFIED", client_service, operation)
+                raise FreeTierStatusUnverifiedError("FREE_TIER_STATUS_UNVERIFIED: Expired attestation")
 
             # 2. Model normalization and verification
             normalized_model = str(model or "").strip().removeprefix("models/")
@@ -358,13 +461,14 @@ class FreeTierQuotaLedger:
                 self.record_denial("QUOTA_CONFIG_REQUIRED", client_service, operation)
                 raise QuotaConfigRequiredError(f"Missing quota config for model {normalized_model}")
 
-            # 3. Clean up stale in-flight reservations
+            # 3. Clean up stale in-flight reservations (durable write if changed)
             self._cleanup_stale_in_flight(now)
 
-            # 4. Check and execute daily RPD reset (midnight UTC)
+            # 4. Check and execute daily RPD reset (midnight Pacific Time)
             if now >= float(s.get("rpd_reset_timestamp", 0)):
                 s["rpd_call_count"] = 0
-                s["rpd_reset_timestamp"] = _get_next_utc_midnight(now)
+                s["rpd_reset_timestamp"] = get_next_pacific_midnight(now)
+                self._save_durable()
 
             headroom = float(quotas.get("headroom", 0.10))
             effective_rpm = max(1, int(math.floor(float(quotas["rpm"]) * (1.0 - headroom))))
@@ -418,55 +522,53 @@ class FreeTierQuotaLedger:
                 "client_service": client_service,
                 "operation": operation,
                 "reserved_tokens": estimated_tokens,
-                "input_tokens": estimated_tokens,
-                "timestamp": now,
-                "status": "RESERVED",
-            }
-
-            s["in_flight_tickets"][ticket_id] = {
-                "model": normalized_model,
-                "reserved_tokens": estimated_tokens,
                 "start_time": now,
-                "client_service": client_service,
-                "operation": operation,
             }
+            s["in_flight_tickets"][ticket_id] = ticket
             s["current_in_flight"] = len(s["in_flight_tickets"])
             s["rpd_call_count"] += 1
-            s["call_history"].append(copy.deepcopy(ticket))
+
+            s["call_history"].append({
+                "ticket_id": ticket_id,
+                "call_index": ticket["call_index"],
+                "timestamp": now,
+                "model": normalized_model,
+                "client_service": client_service,
+                "operation": operation,
+                "input_tokens": estimated_tokens,
+                "status": "RESERVED",
+            })
 
             self._save_durable()
-            return ticket
+            return copy.deepcopy(ticket)
 
     def finalize(
         self,
         ticket_id: str,
-        status: str = "SUCCESS",
+        status: str,
         *,
         actual_input_tokens: int | None = None,
-        output_tokens: int | None = None,
         error: str | None = None,
-        now_override: float | None = None,
     ) -> dict[str, Any]:
         with self._lock:
             self._healthy()
-            s = self.state
-            now = float(now_override) if now_override is not None else time.time()
 
-            entry = next((e for e in s["call_history"] if e["ticket_id"] == ticket_id), None)
-            if not entry:
-                raise ValueError(f"Unknown reservation ticket: {ticket_id}")
+            in_flight = self.state.get("in_flight_tickets", {})
+            ticket = in_flight.pop(ticket_id, None)
+            self.state["current_in_flight"] = len(in_flight)
 
-            in_flight = s.get("in_flight_tickets", {})
-            in_flight.pop(ticket_id, None)
-            s["current_in_flight"] = len(in_flight)
+            # Update call history entry
+            entry: dict[str, Any] = {}
+            for h in self.state.get("call_history", []):
+                if h.get("ticket_id") == ticket_id:
+                    entry = h
+                    break
 
-            if entry.get("status") == "RESERVED":
+            if entry:
                 entry["status"] = status
-                entry["finished_time"] = now
-                if actual_input_tokens is not None and actual_input_tokens >= 0:
+                entry["finished_time"] = time.time()
+                if actual_input_tokens is not None and int(actual_input_tokens) >= 0:
                     entry["input_tokens"] = int(actual_input_tokens)
-                if output_tokens is not None and output_tokens >= 0:
-                    entry["output_tokens"] = int(output_tokens)
                 if error:
                     entry["error"] = str(error)
 
@@ -498,6 +600,10 @@ class FreeTierQuotaLedger:
             now = time.time()
             s = self.state
             self._cleanup_stale_in_flight(now)
+            if now >= float(s.get("rpd_reset_timestamp", 0)):
+                s["rpd_call_count"] = 0
+                s["rpd_reset_timestamp"] = get_next_pacific_midnight(now)
+                self._save_durable()
 
             window_start = now - 60.0
             recent_calls = [e for e in s["call_history"] if float(e.get("timestamp", 0)) >= window_start]
@@ -518,6 +624,16 @@ class FreeTierQuotaLedger:
                     "rpd_effective_limit": eff_rpd,
                 }
 
+            attestation_summary = None
+            if s.get("operator_attestation"):
+                att = s["operator_attestation"]
+                attestation_summary = {
+                    "project_id_fingerprint": att.get("project_id_fingerprint"),
+                    "free_tier_confirmed": att.get("free_tier_confirmed"),
+                    "expired": now > float(att.get("expires_at", 0)),
+                    "expires_at": att.get("expires_at"),
+                }
+
             return {
                 "guard_profile": "P1_LIVE_FREE_TIER_01",
                 "run_id": s.get("run_id"),
@@ -528,6 +644,7 @@ class FreeTierQuotaLedger:
                 "total_calls": len(s.get("call_history", [])),
                 "denied_count": len(s.get("denied_history", [])),
                 "model_summaries": model_summaries,
+                "operator_attestation": attestation_summary,
                 "live_cost_usd": "0.00",
             }
 
@@ -548,4 +665,3 @@ def calculate_backoff_delay(
     base = min(30.0, 1.0 * (2.0 ** attempt))
     jitter = random.uniform(0.8 * base, 1.2 * base)
     return True, round(jitter, 3)
-

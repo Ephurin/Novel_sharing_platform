@@ -46,7 +46,32 @@ export function sanitizeCopilotCharactersForPrompt(
 }
 
 function providerSettings() {
+  const mode = (process.env.AI_EXECUTION_MODE || 'offline_test').toLowerCase().trim();
   const guard = process.env.BUDGET_GUARD_URL?.replace(/\/$/, '');
+  const guardToken = process.env.BUDGET_GUARD_AUTH_TOKEN?.trim();
+
+  if (mode === 'live_free_tier') {
+    if (!guard || !guardToken || process.env.BUDGET_GUARD_MODE !== 'proxy') {
+      throw new AppError(503, 'GUARD_CONFIGURATION_INVALID', 'Guard URL and auth token are required in live_free_tier mode');
+    }
+    let url: URL;
+    try {
+      url = new URL(guard);
+    } catch {
+      throw new AppError(503, 'GUARD_CONFIGURATION_INVALID', 'Guarded egress URL is malformed');
+    }
+    if (
+      !['http:', 'https:'].includes(url.protocol) ||
+      !['budget-gateway', '127.0.0.1', 'localhost'].includes(url.hostname) ||
+      url.pathname !== '/' ||
+      url.search ||
+      url.username
+    ) {
+      throw new AppError(503, 'GUARD_CONFIGURATION_INVALID', 'Guarded egress configuration is invalid');
+    }
+    return { baseUrl: `${guard}/v1`, key: guardToken };
+  }
+
   if (!guard) {
     if (process.env.BUDGET_GUARD_MODE === 'proxy') {
       throw new AppError(503, 'GUARD_CONFIGURATION_INVALID', 'Guard URL is required');

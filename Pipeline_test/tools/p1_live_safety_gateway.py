@@ -119,10 +119,29 @@ def _execute_bounded_request(
         def http_open(self, req: urllib.request.Request) -> http.client.HTTPResponse:
             return self.do_open(BoundedHTTPConnection, req)
 
+    class BoundedHTTPSConnection(http.client.HTTPSConnection):
+        def connect(self) -> None:
+            remaining = deadline_mono - time.monotonic()
+            if remaining <= 0 or timed_out.is_set():
+                raise RequestDeadlineExceeded(f"Deadline exceeded before connection ({timeout_seconds}s)")
+            self.timeout = max(0.001, remaining)
+            super().connect()
+            active_sock[0] = self.sock
+            if self.sock is not None:
+                self.sock.settimeout(max(0.001, remaining))
+
+    class BoundedHTTPSHandler(urllib.request.HTTPSHandler):
+        def https_open(self, req: urllib.request.Request) -> http.client.HTTPResponse:
+            return self.do_open(BoundedHTTPSConnection, req)
+
+    import ssl
+    ssl_context = ssl.create_default_context()
+
     opener = urllib.request.build_opener(
         urllib.request.ProxyHandler({}),
         NoRedirect(),
         BoundedHTTPHandler(),
+        BoundedHTTPSHandler(context=ssl_context),
     )
 
     try:
@@ -702,12 +721,45 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError):
             pass
 
-    def _verify_fake_upstream_only(self) -> bool:
+    def _verify_upstream(self) -> bool:
         if self.execution_mode == "live_free_tier":
             if not self.live_free_tier_enabled:
                 self._send_json(503, {"error": "FREE_TIER_STATUS_UNVERIFIED"})
                 return False
             if self.live_forwarding_enabled:
+                parsed = urlparse(self.upstream_base_url or "")
+                if (
+                    parsed.scheme != "https"
+                    or parsed.netloc != "generativelanguage.googleapis.com"
+                    or parsed.username
+                    or parsed.password
+                    or parsed.query
+                ):
+                    self._send_json(
+                        503,
+                        {
+                            "error": "LIVE_UPSTREAM_NOT_AUTHORIZED",
+                            "detail": "ONLY_APPROVED_HTTPS_GEMINI_ORIGIN_PERMITTED",
+                        },
+                    )
+                    return False
+                return True
+            else:
+                parsed = urlparse(self.upstream_base_url or "")
+                if (
+                    parsed.scheme != "http"
+                    or parsed.hostname not in {"127.0.0.1", "localhost", "fake-upstream"}
+                    or parsed.username
+                    or parsed.query
+                ):
+                    self._send_json(
+                        503,
+                        {
+                            "error": "LIVE_UPSTREAM_NOT_AUTHORIZED",
+                            "live_cost_hard_cap": "BUDGET_COST_HARD_CAP_UNPROVEN",
+                        },
+                    )
+                    return False
                 return True
         else:
             if not self.enable_live_safety_guard:
@@ -716,22 +768,25 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
             if self.live_forwarding_enabled:
                 self._send_json(503, {"error": "LIVE_UPSTREAM_NOT_AUTHORIZED"})
                 return False
-        parsed = urlparse(self.upstream_base_url or "")
-        if (
-            parsed.scheme != "http"
-            or parsed.hostname not in {"127.0.0.1", "localhost", "fake-upstream"}
-            or parsed.username
-            or parsed.query
-        ):
-            self._send_json(
-                503,
-                {
-                    "error": "LIVE_UPSTREAM_NOT_AUTHORIZED",
-                    "live_cost_hard_cap": "BUDGET_COST_HARD_CAP_UNPROVEN",
-                },
-            )
-            return False
-        return True
+            parsed = urlparse(self.upstream_base_url or "")
+            if (
+                parsed.scheme != "http"
+                or parsed.hostname not in {"127.0.0.1", "localhost", "fake-upstream"}
+                or parsed.username
+                or parsed.query
+            ):
+                self._send_json(
+                    503,
+                    {
+                        "error": "LIVE_UPSTREAM_NOT_AUTHORIZED",
+                        "live_cost_hard_cap": "BUDGET_COST_HARD_CAP_UNPROVEN",
+                    },
+                )
+                return False
+            return True
+
+    def _verify_fake_upstream_only(self) -> bool:
+        return self._verify_upstream()
 
     def do_GET(self) -> None:
         if self.path in ("/health", "/status", "/api/budget/status"):
@@ -866,6 +921,44 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
                 self.connection.settimeout(previous_timeout)
             if len(raw_body) != length:
                 return self._send_json(400, {"error": "TRUNCATED_REQUEST_BODY"})
+            if self.path == "/api/gateway/emergency/disable":
+                op_token = (
+                    self.headers.get("X-Operator-Token", "")
+                    or self.headers.get("Authorization", "").removeprefix("Bearer ")
+                ).strip()
+                if not getattr(self, "operator_auth_token", "") or op_token != self.operator_auth_token:
+                    return self._send_json(403, {"error": "OPERATOR_AUTH_REQUIRED"})
+
+                self.live_free_tier_enabled = False
+                self.live_forwarding_enabled = False
+                if self.quota_ledger:
+                    self.quota_ledger.set_live_free_tier_enabled(False)
+                return self._send_json(200, {
+                    "status": "DISABLED",
+                    "live_free_tier_enabled": False,
+                    "live_forwarding_enabled": False,
+                    "message": "EMERGENCY_KILL_SWITCH_ACTIVATED",
+                })
+
+            if self.path == "/api/gateway/emergency/enable":
+                op_token = (
+                    self.headers.get("X-Operator-Token", "")
+                    or self.headers.get("Authorization", "").removeprefix("Bearer ")
+                ).strip()
+                if not getattr(self, "operator_auth_token", "") or op_token != self.operator_auth_token:
+                    return self._send_json(403, {"error": "OPERATOR_AUTH_REQUIRED"})
+
+                try:
+                    if self.quota_ledger:
+                        self.quota_ledger.set_live_free_tier_enabled(True)
+                    self.live_free_tier_enabled = True
+                    return self._send_json(200, {
+                        "status": "ENABLED",
+                        "live_free_tier_enabled": True,
+                    })
+                except Exception as exc:
+                    return self._send_json(503, {"error": "FREE_TIER_STATUS_UNVERIFIED", "detail": str(exc)})
+
             if "X-Budget-Ticket" in self.headers:
                 return self._send_json(403, {"error": "CLIENT_TICKETS_FORBIDDEN"})
             if self.path.startswith("/api/budget/"):
@@ -877,7 +970,7 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
             client = (self.client_tokens or {}).get(token)
             if not client:
                 return self._send_json(401, {"error": "WORKER_AUTH_REQUIRED"})
-            if not self._verify_fake_upstream_only():
+            if not self._verify_upstream():
                 return
             if self.execution_mode == "live_free_tier":
                 if self.quota_ledger is None:
@@ -1125,6 +1218,9 @@ def start_live_safety_gateway(
     execution_mode: str = "offline_test",
     enable_live_free_tier: bool = False,
     model_quotas: dict[str, dict[str, Any]] | None = None,
+    operator_attestation: dict[str, Any] | None = None,
+    enable_live_forwarding: bool = False,
+    operator_auth_token: str | None = None,
 ) -> tuple[ThreadingHTTPServer, threading.Thread, Any]:
     class Handler(LiveSafetyGatewayHandler):
         pass
@@ -1134,9 +1230,10 @@ def start_live_safety_gateway(
     Handler.client_tokens = client_tokens or {}
     Handler.upstream_timeout = upstream_timeout
     Handler.enable_live_safety_guard = enable_live_safety_guard
-    Handler.live_forwarding_enabled = False
+    Handler.live_forwarding_enabled = enable_live_forwarding
     Handler.execution_mode = execution_mode
     Handler.live_free_tier_enabled = enable_live_free_tier
+    Handler.operator_auth_token = (operator_auth_token or os.getenv("OPERATOR_AUTH_TOKEN", "")).strip()
 
     if execution_mode == "live_free_tier":
         quota_ledger = FreeTierQuotaLedger(
@@ -1144,6 +1241,7 @@ def start_live_safety_gateway(
             run_id=run_id,
             live_free_tier_enabled=enable_live_free_tier,
             model_quotas=model_quotas,
+            operator_attestation=operator_attestation,
             initialize=initialize,
         )
         Handler.quota_ledger = quota_ledger
@@ -1167,6 +1265,15 @@ def start_live_safety_gateway(
         ledger_ret = ledger
 
     server = ThreadingHTTPServer((host, port), Handler)
+    orig_server_close = server.server_close
+    def _safe_server_close():
+        orig_server_close()
+        if ledger_ret is not None and hasattr(ledger_ret, "close"):
+            try:
+                ledger_ret.close()
+            except Exception:
+                pass
+    server.server_close = _safe_server_close
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     return server, thread, ledger_ret

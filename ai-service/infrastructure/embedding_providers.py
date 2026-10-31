@@ -78,8 +78,18 @@ class GeminiEmbeddingProvider:
             if guard_url or os.getenv("BUDGET_GUARD_MODE") == "proxy":
                 raise EmbeddingProviderError("GUARDED_P1_EMBEDDING_DISABLED")
         elif mode == "live_free_tier":
-            if not guard_url or not guard_token:
-                raise EmbeddingProviderError("FREE_TIER_STATUS_UNVERIFIED")
+            if not guard_url or not guard_token or os.getenv("BUDGET_GUARD_MODE") != "proxy":
+                raise EmbeddingProviderError("GUARD_CONFIGURATION_INVALID")
+            from urllib.parse import urlparse
+            parsed = urlparse(guard_url)
+            if (
+                parsed.scheme not in {"http", "https"}
+                or parsed.hostname not in {"budget-gateway", "127.0.0.1", "localhost"}
+                or parsed.path
+                or parsed.query
+                or parsed.username
+            ):
+                raise EmbeddingProviderError("GUARD_CONFIGURATION_INVALID")
         else:
             raise EmbeddingProviderError(f"UNSUPPORTED_EXECUTION_MODE: {mode}")
 
@@ -102,7 +112,7 @@ class GeminiEmbeddingProvider:
             from google.genai import types
 
             if guard_url:
-                client = self._client or genai.Client(
+                client = genai.Client(
                     api_key=guard_token,
                     http_options=types.HttpOptions(
                         base_url=guard_url,
@@ -113,6 +123,8 @@ class GeminiEmbeddingProvider:
                     ),
                 )
             else:
+                if mode == "live_free_tier":
+                    raise EmbeddingProviderError("GUARD_CONFIGURATION_INVALID")
                 client = self._client or genai.Client(api_key=self._api_key)
             delays = (5, 15, 30)
             response = None

@@ -43,7 +43,25 @@ class LLMClient:
     def _guard_proxy_config() -> tuple[str, str] | None:
         from urllib.parse import urlparse
 
+        mode = os.getenv("AI_EXECUTION_MODE", "offline_test").lower().strip()
         url = os.getenv("BUDGET_GUARD_URL", "").rstrip("/")
+        token = os.getenv("BUDGET_GUARD_AUTH_TOKEN", "").strip()
+
+        if mode == "live_free_tier":
+            if not url or not token:
+                raise LLMClientError("GUARD_CONFIGURATION_INVALID")
+            parsed = urlparse(url)
+            if (
+                os.getenv("BUDGET_GUARD_MODE") != "proxy"
+                or parsed.scheme not in {"http", "https"}
+                or parsed.hostname not in {"budget-gateway", "127.0.0.1", "localhost"}
+                or parsed.path
+                or parsed.query
+                or parsed.username
+            ):
+                raise LLMClientError("GUARD_CONFIGURATION_INVALID")
+            return url, token
+
         if not url:
             if os.getenv("BUDGET_GUARD_MODE") == "proxy":
                 raise LLMClientError("GUARD_CONFIGURATION_INVALID")
@@ -51,7 +69,6 @@ class LLMClient:
                 raise LLMClientError("LEGACY_CLIENT_SIDE_LEDGER_DISABLED")
             return None
         parsed = urlparse(url)
-        token = os.getenv("BUDGET_GUARD_AUTH_TOKEN", "")
         if (
             os.getenv("BUDGET_GUARD_MODE") != "proxy"
             or not token
@@ -160,11 +177,14 @@ class LLMClient:
             },
         }
 
+        mode = os.getenv("AI_EXECUTION_MODE", "offline_test").lower().strip()
         model_id = self.model.removeprefix("models/")
         if guard:
             url = f"{guard[0]}/v1beta/models/{model_id}:generateContent"
             headers = {"Content-Type": "application/json", "Authorization": f"Bearer {key}"}
         else:
+            if mode == "live_free_tier":
+                raise LLMClientError("GUARD_CONFIGURATION_INVALID")
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateContent?key={key}"
             headers = {"Content-Type": "application/json"}
         try:
