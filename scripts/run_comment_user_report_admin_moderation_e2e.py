@@ -600,10 +600,14 @@ class CDPBrowser:
         print("  [Auth] Logging out via rendered shell logout button...")
         self.network_events.clear()
         self.network_requests.clear()
-        # StoryCraft shells keep logout in the avatar menu; the legacy admin shell shows it directly.
-        avatar_sel = "[data-testid='shell-avatar-btn']"
-        if await self.evaluate(f"document.querySelector({json.dumps(avatar_sel)}) !== null"):
-            await self.mouse_click(avatar_sel)
+        # Logout sits in an account menu (StoryCraft avatar, or the admin shell account button from
+        # PR #74); the legacy admin topbar shows it directly.
+        trigger = await self.evaluate("""(() => {
+            if (document.querySelector("[data-testid='shell-logout-btn']")) return null;
+            return ["[data-testid='shell-avatar-btn']", ".admin-account-button"].find((s) => document.querySelector(s)) || null;
+        })()""")
+        if trigger:
+            await self.mouse_click(trigger)
             await self.wait_for_condition("document.querySelector(\"[data-testid='shell-logout-btn']\") !== null", 5.0)
         await self.click_element("[data-testid='shell-logout-btn']")
         await self.wait_for_condition("window.location.pathname === '/login'", 10.0)

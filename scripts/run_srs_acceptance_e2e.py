@@ -222,13 +222,14 @@ class Suite:
             user_id = str(self.sql("SELECT user_id FROM users WHERE email = %s", (account["email"],))[0][0])
             lock = self.admin.call("PATCH", f"/admin/users/{user_id}/lock", {"reason": "SRS acceptance"})
             response = Client(self.stack.api_url).call("POST", "/auth/login", {"identifier": account["email"], "password": account["password"]}, auth=False)
-            self.admin.call("PATCH", f"/admin/users/{user_id}/unlock", {})
-            return response.code == "AUTH_004", {"lock": lock.brief(), "login": response.brief()}
+            unlock = self.admin.call("PATCH", f"/admin/users/{user_id}/unlock", {"reason": "SRS acceptance"})
+            return response.code == "AUTH_004", {"lock": lock.brief(), "login": response.brief(), "unlock": unlock.brief()}
         self.record("TC-AUTH-08", "Tài khoản bị khoá đăng nhập trả AUTH_004", locked_account)
 
         def refresh_token():
+            client, own = self.new_reader("srs_refresh")  # own account: TC-AUTH-08 locks the shared one
             client = Client(self.stack.api_url)
-            login = client.login(account["email"], account["password"])
+            login = client.login(own["email"], own["password"])
             cookie = login.headers.get("set-cookie", "").lower()
             max_age = next((int(part.split("=")[1]) for part in cookie.replace(",", ";").split(";") if part.strip().startswith("max-age=")), None)
             refreshed = client.call("POST", "/auth/refresh-token", auth=False)
@@ -703,15 +704,19 @@ class Suite:
         self.record("TC-ADM-04", "Người không phải Admin không gỡ được truyện (AUTH_008)", non_admin_remove)
 
         def remove_soft_and_notify():
-            response = self.admin.call("DELETE", f"/admin/novels/{target}", {"confirm": True, "reason": "SRS acceptance"})
+            reason = f"Gỡ truyện SRS {uuid.uuid4().hex[:6]}"
+            response = self.admin.call("DELETE", f"/admin/novels/{target}", {"confirm": True, "reason": reason})
             novel_deleted = self.sql("SELECT deleted_at IS NOT NULL FROM novels WHERE novel_id = %s", (target,))[0][0]
             live_chapters = self.sql("SELECT count(*) FROM chapters WHERE novel_id = %s AND deleted_at IS NULL", (target,))[0][0]
             listing = self.admin.call("GET", "/admin/novels", params={"q": "SRS Novel"})
             gone = all(item.get("novelId") != target for item in listing.data or [])
             notified = self.wait(lambda: [item for item in (self.author.call("GET", "/notifications").data or [])
-                                          if "gỡ" in json.dumps(item, ensure_ascii=False).lower()], timeout=20)
+                                          if target in json.dumps(item, default=str) or reason in json.dumps(item, ensure_ascii=False)], timeout=20) or []
+            srs_wording = any("bị gỡ bởi admin" in json.dumps(item, ensure_ascii=False).lower() for item in notified)
             ok = response.status in (200, 204) and novel_deleted and live_chapters == 0 and gone and bool(notified)
-            return ok, {"remove": response.brief(), "novel_soft_deleted": novel_deleted, "live_chapters": live_chapters, "gone_from_list": gone, "author_notified": bool(notified)}
+            return ok, {"remove": response.brief(), "novel_soft_deleted": novel_deleted, "live_chapters": live_chapters, "gone_from_list": gone,
+                        "author_notified": bool(notified), "srs_wording_present": srs_wording,
+                        "notification_title": notified[0].get("title") if notified else None}
         self.record("TC-ADM-03", "Gỡ mềm truyện: ẩn truyện và chương, báo tác giả", remove_soft_and_notify)
 
         def drafts_archived():
@@ -724,7 +729,7 @@ class Suite:
         self.record("TC-ADM-08", "Bản nháp Mongo của truyện bị gỡ được đánh dấu xoá", drafts_archived)
 
         def remove_missing():
-            response = self.admin.call("DELETE", f"/admin/novels/{uuid.uuid4()}", {"confirm": True})
+            response = self.admin.call("DELETE", f"/admin/novels/{uuid.uuid4()}", {"confirm": True, "reason": "SRS acceptance"})
             return response.status == 404 and response.code == "CONTENT_001", {"response": response.brief()}
         self.record("TC-ADM-05", "Gỡ truyện không tồn tại trả CONTENT_001", remove_missing)
 

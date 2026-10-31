@@ -145,12 +145,16 @@ class Browser:
         return await self.evaluate(SESSION_ROLE_JS)
 
     async def logout(self) -> str:
-        avatar = "[data-testid='shell-avatar-btn']"
+        # The StoryCraft avatar or the admin shell account button (PR #74) opens the account menu.
+        trigger = await self.evaluate("""(() => {
+            if (document.querySelector("[data-testid='shell-logout-btn']")) return null;
+            return ["[data-testid='shell-avatar-btn']", ".admin-account-button"].find((s) => document.querySelector(s)) || null;
+        })()""")
         via = "visible topbar button"
-        if await self.evaluate(f"document.querySelector({json.dumps(avatar)}) !== null"):
-            await self.mouse_click(avatar)
+        if trigger:
+            await self.mouse_click(trigger)
             await self.wait_for("document.querySelector(\"[data-testid='shell-logout-btn']\") !== null", 5.0)
-            via = "avatar menu"
+            via = f"account menu ({trigger})"
         await self.evaluate("document.querySelector(\"[data-testid='shell-logout-btn']\").click()")
         await self.wait_for("location.pathname === '/login'", 10.0)
         token_cleared = await self.evaluate("localStorage.getItem('ephurin_access_token') === null")

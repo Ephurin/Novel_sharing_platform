@@ -66,6 +66,13 @@ SESSION_ROLE_JS = r"""(() => {
   return match ? match[1] : '';
 })()"""
 
+# Logout sits in an account menu: the StoryCraft avatar, or the admin shell account button (PR #74).
+# Returns the selector to click, or null when a logout button is already visible (legacy topbar).
+ACCOUNT_MENU_TRIGGER_JS = r"""(() => {
+  if (document.querySelector("[data-testid='shell-logout-btn']")) return null;
+  return ["[data-testid='shell-avatar-btn']", ".admin-account-button"].find((s) => document.querySelector(s)) || null;
+})()"""
+
 PAGE_STATE_JS = r"""(() => {
   const text = document.body.innerText;
   return {
@@ -273,12 +280,12 @@ class Matrix:
         return {"session_role": await self.page.evaluate(SESSION_ROLE_JS)}
 
     async def logout(self):
-        avatar = "[data-testid='shell-avatar-btn']"
         via = "visible button"
-        if await self.page.evaluate(f"document.querySelector({json.dumps(avatar)}) !== null"):
-            await self.page.mouse_click(avatar)
+        trigger = await self.page.evaluate(ACCOUNT_MENU_TRIGGER_JS)
+        if trigger:
+            await self.page.mouse_click(trigger)
             await self.page.wait_for("document.querySelector(\"[data-testid='shell-logout-btn']\") !== null", 5.0)
-            via = "avatar menu"
+            via = f"account menu ({trigger})"
         await self.page.evaluate("document.querySelector(\"[data-testid='shell-logout-btn']\").click()")
         await self.page.wait_for("location.pathname === '/login'", 10.0)
         assert await self.page.evaluate("localStorage.getItem('ephurin_access_token') === null"), "token kept after logout"
