@@ -66,7 +66,7 @@ Lưu ý:
 
 ## 4. Khung trang và navbar
 
-- **Khung:** người dùng vai trò `AUTHOR` và `READER` vào các route trong `WebAppShell` đều nhận `AuthorTheme`, `AuthorNavbar` và `main.sc-shell-content` (rộng tối đa 1240px, padding 24px). `ADMIN` vẫn dùng khung cũ.
+- **Khung:** người dùng vai trò `AUTHOR` và `READER` vào các route trong `WebAppShell` đều nhận `AuthorTheme`, `AuthorNavbar` và `main.sc-shell-content` (rộng tối đa 1240px, padding 24px). `ADMIN` dùng `AdminShell` (từ PR #74).
 - **Trang trong khung** (`/reader/...`, `/notifications`, `/profile/me`): **không** tự gắn navbar hay thêm container `max-w-*` có padding. Khung đã có sẵn.
 - **Trang ngoài khung** (`/wallet`, `/authors/:id`, `/author/...`, `/public/...`): tự bọc `AuthorTheme` (trong `router.tsx`) và tự gắn `<AuthorNavbar />` một lần.
 - **Trang công khai** (`/public/...`, hồ sơ tác giả `/authors/:id`): khách xem được mà không cần đăng nhập.
@@ -79,9 +79,9 @@ Lưu ý:
   - Khách: Thư viện công khai, cùng nút Đăng nhập.
 
   Mục chỉ dành cho tác giả phải đặt trong nhánh `isWriter`.
-- Đăng xuất nằm trong menu avatar (`data-testid="shell-logout-btn"`). Nút avatar có `data-testid="shell-avatar-btn"`. Script E2E phải bấm nút avatar trước, chờ menu hiện ra rồi mới bấm Đăng xuất.
+- Đăng xuất nằm trong menu tài khoản (`data-testid="shell-logout-btn"`). Nút avatar của `AuthorNavbar` có `data-testid="shell-avatar-btn"`; nút tài khoản của `AdminShell` là `.admin-account-button`. Script E2E phải bấm nút mở menu trước, chờ menu hiện ra rồi mới bấm Đăng xuất.
 - **Điểm neo phiên cho E2E:** `SessionMarker` (`AuthorTheme.tsx`) render `<span hidden data-testid="shell-session" data-user-role="…" data-username="…">`.
-  - Có mặt trong `AuthorNavbar` khi đã đăng nhập, và trong khung cũ `WebAppShell` của admin.
+  - Có mặt trong `AuthorNavbar` khi đã đăng nhập, trong `AdminShell` của admin, và trong topbar cũ của `WebAppShell`.
   - Script đọc vai trò và tên đăng nhập từ đây, không đọc chữ trên topbar. `.web-topbar` chỉ còn ở khung admin.
   - Khung mới nào thay navbar cũng phải giữ điểm neo này.
 - Menu avatar là `Menu` của Mantine, dùng được bằng bàn phím:
