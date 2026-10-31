@@ -19,6 +19,7 @@ Exit codes: 0 every executed check passed, 1 at least one FAIL, 3 REFUSED (nothi
 import base64
 import json
 import os
+import re
 import shutil
 import statistics
 import subprocess
@@ -50,6 +51,7 @@ READER, READER_B, AUTHOR, ADMIN = "reader04@example.com", "reader05@example.com"
 NOVEL_SLUG = "sample-ashenhold-test-story"
 FILTER_WORD = "srs-blocked-term"
 STRONG_PASSWORD = "Srs-Check-2026"  # throwaway accounts created inside the disposable database only
+re_llm = re.compile(r"(ai-copilot|ai-gateway|llm|openai|anthropic|story-brain)", re.I)
 
 
 class Response:
@@ -395,6 +397,18 @@ class Suite:
             return response.status == 403, {"response": response.brief()}
         self.record("TC-MOD-08", "Độc giả không vào được hàng đợi kiểm duyệt", reader_cannot_moderate)
 
+        def no_llm_in_moderation():
+            folder = os.path.join(REPO_ROOT, "backend", "src", "modules", "content-control")
+            offenders = []
+            for name in sorted(os.listdir(folder)):
+                if name.endswith(".ts") and ".test." not in name:
+                    with open(os.path.join(folder, name), encoding="utf-8") as handle:
+                        for line in handle:
+                            if line.lstrip().startswith("import") and re_llm.search(line):
+                                offenders.append(f"{name}: {line.strip()}")
+            return not offenders, {"files_scanned": "backend/src/modules/content-control/*.ts", "ai_imports": offenders}
+        self.record("TC-MOD-10", "Luồng kiểm duyệt không gọi AI/LLM (quét import)", no_llm_in_moderation)
+
     # NOVELS / CHAPTERS -------------------------------------------------------
     def novel_cases(self) -> None:
         synopsis = "Tóm tắt kiểm thử SRS. " * 30  # > 500 characters
@@ -498,6 +512,18 @@ class Suite:
             status = self.wait(lambda: (lambda s: s if s == "PUBLISHED" else None)(chapter_status(self.flagged_chapter_id)), timeout=20) or chapter_status(self.flagged_chapter_id)
             return resolve.status == 200 and status == "PUBLISHED", {"resolve": resolve.brief(), "final_status": status}
         self.record("TC-NOV-09", "Admin duyệt chương chờ duyệt thì chương được xuất bản", admin_approves_chapter)
+
+        def admin_rejects_chapter():
+            submit, chapter_id, status = submit_chapter(pipeline, "Chương bị từ chối", f"Đoạn có {FILTER_WORD}. " + long_text)
+            review = self.sql("SELECT review_id FROM moderation_reviews WHERE target_id = %s AND status = 'PENDING' ORDER BY created_at DESC LIMIT 1", (chapter_id,))
+            if not review:
+                return False, {"submit": submit.brief(), "status": status, "error": "no pending review"}
+            reason = f"Lý do SRS {uuid.uuid4().hex[:6]}"
+            resolve = self.admin.call("POST", f"/admin/moderation/reviews/{review[0][0]}/resolve", {"decision": "REJECTED", "reason": reason})
+            final = chapter_status(chapter_id)
+            notified = self.wait(lambda: [item for item in (self.author.call("GET", "/notifications").data or []) if reason in json.dumps(item, ensure_ascii=False)], timeout=20)
+            return resolve.status == 200 and final != "PUBLISHED" and bool(notified), {"resolve": resolve.brief(), "final_status": final, "author_got_reason": bool(notified)}
+        self.record("TC-NOV-10", "Admin từ chối chương thì chương không công khai và tác giả nhận lý do", admin_rejects_chapter)
 
         def guest_vip_locked():
             if not self.vip_chapter_id:
@@ -615,11 +641,18 @@ class Suite:
             request = self.author.call("POST", "/wallet/withdraw-requests", {"amountCoins": 100, "bankAccountLabel": "SRS Bank"})
             locked = balance(self.author)
             request_id = (request.data or {}).get("withdrawRequestId")
-            reject = self.admin.call("POST", f"/admin/withdraw-requests/{request_id}/reject", {"reason": "SRS acceptance"})
+            self.withdraw_reject_reason = f"Từ chối rút SRS {uuid.uuid4().hex[:6]}"
+            reject = self.admin.call("POST", f"/admin/withdraw-requests/{request_id}/reject", {"reason": self.withdraw_reject_reason})
             after = balance(self.author)
             ok = request.status in (200, 201) and locked == (before[0] - 100, before[1] + 100) and reject.status == 200 and after == before
             return ok, {"before": before, "after_request": locked, "after_reject": after, "reject": reject.brief()}
         self.record("TC-PAY-12", "Yêu cầu rút đóng băng Coin; Admin từ chối thì trả lại", withdraw_lock_and_reject)
+
+        def withdraw_reject_notified():
+            reason = getattr(self, "withdraw_reject_reason", None)
+            notified = self.wait(lambda: [item for item in (self.author.call("GET", "/notifications").data or []) if reason and reason in json.dumps(item, ensure_ascii=False)], timeout=20)
+            return bool(notified), {"author_notified_with_reason": bool(notified)}
+        self.record("TC-PAY-13", "Tác giả nhận thông báo từ chối rút kèm lý do", withdraw_reject_notified)
 
         def withdraw_approve():
             if balance(self.author)[0] < 100:
@@ -642,6 +675,14 @@ class Suite:
     # ADMIN NOVEL MANAGEMENT ----------------------------------------------------
     def admin_cases(self) -> None:
         target = (getattr(self, "test_novel", {}) or {}).get("novelId")
+        # An autosave creates the Mongo draft that the removal must archive (TC-ADM-08).
+        chapter = self.sql("SELECT chapter_id FROM chapters WHERE novel_id = %s AND deleted_at IS NULL ORDER BY created_at LIMIT 1", (target,))
+        self.autosave = None
+        if chapter:
+            current = self.author.call("GET", f"/chapters/{chapter[0][0]}").data or {}
+            version = (current.get("draft") or {}).get("version") or current.get("draftVersion") or 0
+            self.autosave = self.author.call("PATCH", f"/chapters/{chapter[0][0]}", {
+                "content": "Bản nháp autosave cho kiểm thử SRS.", "autosave": True, "expectedVersion": int(version)})
 
         def list_and_detail():
             listing = self.admin.call("GET", "/admin/novels", params={"q": "SRS Novel"})
@@ -672,6 +713,15 @@ class Suite:
             ok = response.status in (200, 204) and novel_deleted and live_chapters == 0 and gone and bool(notified)
             return ok, {"remove": response.brief(), "novel_soft_deleted": novel_deleted, "live_chapters": live_chapters, "gone_from_list": gone, "author_notified": bool(notified)}
         self.record("TC-ADM-03", "Gỡ mềm truyện: ẩn truyện và chương, báo tác giả", remove_soft_and_notify)
+
+        def drafts_archived():
+            db = self.mongo()
+            drafts = db["draft_chapters"]
+            total = drafts.count_documents({"novelId": target})
+            live = drafts.count_documents({"novelId": target, "deletedAt": None})
+            return total > 0 and live == 0, {"autosave": self.autosave.brief() if self.autosave else None, "drafts_total": total, "drafts_not_deleted": live,
+                                             "mongo_db": db.name, "collections": sorted(db.list_collection_names()), "all_drafts": drafts.count_documents({})}
+        self.record("TC-ADM-08", "Bản nháp Mongo của truyện bị gỡ được đánh dấu xoá", drafts_archived)
 
         def remove_missing():
             response = self.admin.call("DELETE", f"/admin/novels/{uuid.uuid4()}", {"confirm": True})

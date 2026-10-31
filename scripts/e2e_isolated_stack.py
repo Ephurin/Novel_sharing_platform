@@ -35,7 +35,7 @@ import tempfile
 import time
 import uuid
 from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 from urllib.parse import urlsplit, urlunsplit
 
 import httpx
@@ -58,10 +58,12 @@ FORBIDDEN_DB_NAMES = {
 }
 TEST_DB_PATTERN = re.compile(r"ephurin_test_[a-z0-9_]{6,48}")
 SHARED_PORTS = {4000, 5173, 8000, 8080}
-LOCAL_HOSTS = {"localhost", "127.0.0.1"}
+LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1"}
 
 DEFAULT_ADMIN_PG_URL = "postgresql://postgres:postgres@localhost:5432/postgres"
-DEFAULT_MONGO_BASE_URI = "mongodb://localhost:27017"
+# Node resolves "localhost" to ::1 first and Python to 127.0.0.1; if two different MongoDB servers
+# listen there (e.g. a Windows service and Docker), set an explicit host such as mongodb://[::1]:27017.
+DEFAULT_MONGO_BASE_URI = os.environ.get("BASE_MONGODB_URI", "mongodb://localhost:27017")
 DEFAULT_SHARED_PG_URL = "postgresql://postgres:postgres@localhost:5432/ephurin"
 DEFAULT_SHARED_MONGO_DB = "ephurin"
 
@@ -87,6 +89,31 @@ def assert_safe_target(db_name: str, opt_in: Optional[str], backend_port: int, w
     for host in (pg_host, mongo_host):
         if host not in LOCAL_HOSTS:
             raise RefusedError(f"database host '{host}' is not local")
+
+
+def assert_single_mongo_server(base_uri: str) -> None:
+    """Refuses a `localhost` URI that IPv4 and IPv6 resolve to different MongoDB servers.
+
+    The backend (Node) and these scripts (Python) would otherwise talk to different servers: the
+    disposable database would be created and dropped on one while the API writes to the other.
+    """
+    parts = urlsplit(base_uri)
+    if parts.hostname != "localhost":
+        return
+    port = parts.port or 27017
+    seen: Dict[str, Tuple[Any, Any, Any]] = {}
+    for host in ("127.0.0.1", "[::1]"):
+        try:
+            client = MongoClient(f"mongodb://{host}:{port}", serverSelectionTimeoutMS=1500, directConnection=True)
+            status = client.admin.command("serverStatus")
+            seen[host] = (status.get("host"), status.get("pid"), status.get("version"))
+            client.close()
+        except Exception:
+            continue
+    if len(set(seen.values())) > 1:
+        servers = "; ".join(f"{host} = MongoDB {info[2]} (pid {info[1]})" for host, info in seen.items())
+        raise RefusedError(f"localhost:{port} reaches different MongoDB servers ({servers}); "
+                           "set BASE_MONGODB_URI to an explicit host, e.g. mongodb://[::1]:27017")
 
 
 def new_test_db_name(gate: str) -> str:
@@ -165,6 +192,7 @@ def fingerprint_shared(shared_pg_url: str = DEFAULT_SHARED_PG_URL,
                        mongo_base_uri: str = DEFAULT_MONGO_BASE_URI,
                        shared_mongo_db: str = DEFAULT_SHARED_MONGO_DB,
                        admin_pg_url: str = DEFAULT_ADMIN_PG_URL) -> Dict[str, Any]:
+    assert_single_mongo_server(mongo_base_uri)
     postgres = fingerprint_postgres(shared_pg_url)
     mongo = fingerprint_mongo(mongo_base_uri, shared_mongo_db)
     combined = hashlib.sha256(json_util.dumps({"pg": postgres, "mongo": mongo}, sort_keys=True).encode("utf-8"))
@@ -264,6 +292,7 @@ class IsolatedStack:
             urlsplit(self.config.admin_pg_url).hostname,
             urlsplit(self.config.mongo_base_uri).hostname,
         )
+        assert_single_mongo_server(self.config.mongo_base_uri)
         if self.config.db_name in list_postgres_databases(self.config.admin_pg_url):
             raise RefusedError(f"PostgreSQL database '{self.config.db_name}' already exists; it is not owned by this run")
         if self.config.db_name in list_mongo_databases(self.config.mongo_base_uri):

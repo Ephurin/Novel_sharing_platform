@@ -86,6 +86,7 @@ def environment(git: str) -> Dict[str, Any]:
         "browser": f"Microsoft Edge {edge_version} (headless=new, CDP)",
         "postgres": tool_version('docker exec novel_sharing_platform-postgres-1 psql -U postgres -tAc "show server_version"'),
         "mongodb": tool_version('docker exec novel_sharing_platform-mongodb-1 mongosh --quiet --eval "db.version()"'),
+        "mongo_base_uri": os.environ.get("BASE_MONGODB_URI", "mongodb://localhost:27017"),
         "git_sha": git_out("rev-parse HEAD"), "git_branch": git_out("rev-parse --abbrev-ref HEAD"),
         "git_dirty_tracked": bool(git_out("status --porcelain --untracked-files=no")),
         "origin_main_sha": git_out("rev-parse origin/main"),
@@ -110,8 +111,7 @@ def load_evidence(step: Dict[str, Any], name: str) -> Optional[Dict[str, Any]]:
     if name == "srs":
         summary["results"] = [{k: r.get(k) for k in ("id", "title", "result", "detail")} for r in data.get("results", [])]
     if name == "smoke":
-        failed = [r for r in data.get("results", []) if r.get("result") != "PASS"]
-        summary["failed_checks"] = [{k: r.get(k) for k in ("combo", "role", "step", "problems")} for r in failed]
+        summary["results"] = [{k: r.get(k) for k in ("combo", "role", "step", "result", "problems", "screenshot")} for r in data.get("results", [])]
     return json.loads(redact(json.dumps(summary, ensure_ascii=False, default=str)))
 
 
@@ -151,9 +151,12 @@ def main() -> int:
         plan += [
             ("social_run_1", f"{py} scripts/run_reader_social_comment_preferences_e2e.py", REPO_ROOT, runner_env),
             ("social_run_2", f"{py} scripts/run_reader_social_comment_preferences_e2e.py", REPO_ROOT, runner_env),
-            ("discovery_run", f"{py} scripts/run_reader_discovery_reading_state_e2e.py", REPO_ROOT, runner_env),
-            ("smoke_matrix", f"{py} scripts/run_ui_smoke_matrix_e2e.py", REPO_ROOT, runner_env),
-            ("srs_acceptance", f"{py} scripts/run_srs_acceptance_e2e.py", REPO_ROOT, runner_env),
+            ("discovery_run_1", f"{py} scripts/run_reader_discovery_reading_state_e2e.py", REPO_ROOT, runner_env),
+            ("discovery_run_2", f"{py} scripts/run_reader_discovery_reading_state_e2e.py", REPO_ROOT, runner_env),
+            ("smoke_matrix_1", f"{py} scripts/run_ui_smoke_matrix_e2e.py", REPO_ROOT, runner_env),
+            ("smoke_matrix_2", f"{py} scripts/run_ui_smoke_matrix_e2e.py", REPO_ROOT, runner_env),
+            ("srs_acceptance_1", f"{py} scripts/run_srs_acceptance_e2e.py", REPO_ROOT, runner_env),
+            ("srs_acceptance_2", f"{py} scripts/run_srs_acceptance_e2e.py", REPO_ROOT, runner_env),
         ]
 
     manifest: Dict[str, Any] = {"label": args.label, "started_at": time.strftime("%Y-%m-%dT%H:%M:%S%z"), "environment": environment(git), "steps": []}
@@ -166,7 +169,7 @@ def main() -> int:
             step["evidence"] = load_evidence(step, kind)
             for shot in SCREENSHOTS.get(kind, []):
                 source = os.path.join(step.get("evidence_dir") or "", shot)
-                if os.path.exists(source) and name != "social_run_2":
+                if os.path.exists(source) and name.endswith("_1"):
                     shutil.copy2(source, os.path.join(out_dir, "screenshots", f"{kind}-{shot}"))
         step["evidence_dir"] = redact(step["evidence_dir"]) if step.get("evidence_dir") else None
         manifest["steps"].append(step)
@@ -201,13 +204,13 @@ def write_readme(manifest: Dict[str, Any], path: str) -> None:
         shared = "unchanged" if evidence and not evidence.get("shared_changes") else (", ".join(evidence.get("shared_changes") or []) if evidence else "")
         rows.append(f"| `{step['name']}` | `{step['command'].replace(sys.executable, 'python')}` | {step['exit_code']} | {step['seconds']} | {'; '.join(counts)} | {f'`{db}`' if db else ''} | {'' if dropped is None else dropped} | {shared} |")
     fingerprints = sorted({(s['evidence'] or {}).get('shared_fingerprint_before', '')[:16] for s in manifest['steps'] if s.get('evidence')} - {''})
-    srs = next((s.get("evidence") or {} for s in manifest["steps"] if s["name"] == "srs_acceptance"), {})
+    srs = next((s.get("evidence") or {} for s in manifest["steps"] if s["name"] == "srs_acceptance_1"), {})
     srs_rows = "\n".join(f"| {r['id']} | {r['title']} | {r['result']} |" for r in srs.get("results", []))
     text = f"""# Evidence `{manifest['label']}`
 
 - Source: `{env['git_sha']}` on `{env['git_branch']}` (tracked changes uncommitted: {env['git_dirty_tracked']}); `origin/main` at `{env['origin_main_sha']}`
 - Started {manifest['started_at']}, finished {manifest['finished_at']}
-- Environment: {env['os']}; Python {env['python']}; Node {env['node']}; npm {env['npm']}; {env['browser']}; PostgreSQL {env['postgres']}; MongoDB {env['mongodb']}
+- Environment: {env['os']}; Python {env['python']}; Node {env['node']}; npm {env['npm']}; {env['browser']}; PostgreSQL {env['postgres']}; MongoDB {env['mongodb']} at `{env['mongo_base_uri']}`
 - Every step exit 0: **{manifest['all_steps_exit_zero']}**
 - Shared database fingerprint (35 Postgres tables + Mongo collections of `ephurin`, before = after for every runner): {', '.join(f'`{f}`' for f in fingerprints) or 'n/a'}
 

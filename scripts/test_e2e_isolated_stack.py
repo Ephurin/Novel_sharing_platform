@@ -121,6 +121,14 @@ class RunnerRefusalTests(unittest.TestCase):
     def test_shared_dev_ports_are_refused(self):
         self.assert_refused_without_writes("port 4000", **{stack.OPT_IN_ENV: "1", "EPHURIN_E2E_BACKEND_PORT": "4000"})
 
+    def test_ambiguous_localhost_mongo_is_refused(self):
+        try:
+            stack.assert_single_mongo_server("mongodb://localhost:27017")
+            self.skipTest("only one MongoDB server answers on localhost:27017 here")
+        except stack.RefusedError:
+            pass
+        self.assert_refused_without_writes("different MongoDB servers", **{stack.OPT_IN_ENV: "1", "BASE_MONGODB_URI": "mongodb://localhost:27017"})
+
     def test_existing_database_is_refused_and_preserved(self):
         name = f"ephurin_test_guard_{uuid.uuid4().hex[:12]}"
         with psycopg.connect(stack.DEFAULT_ADMIN_PG_URL, autocommit=True) as conn:
