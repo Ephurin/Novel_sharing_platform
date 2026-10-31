@@ -115,6 +115,9 @@ Lưu ý:
   - Script từ chối chạy (mã 3) nếu thiếu `EPHURIN_ALLOW_TEST_DB_MUTATIONS=1`, nếu tên DB không phải DB tạm, nếu DB đã tồn tại, hoặc nếu cổng trùng dev stack (4000/5173).
   - Test cho phần này: `python -m unittest scripts/test_e2e_isolated_stack.py`.
   - Smoke giao diện theo vai trò, kích thước và giao diện sáng/tối: `scripts/run_ui_smoke_matrix_e2e.py`.
+  - Kiểm tra theo SRS ở mức API: `scripts/run_srs_acceptance_e2e.py`; danh mục test case ở `docs/testing/srs-test-cases.md`.
+  - Chạy toàn bộ và xuất bằng chứng (SHA, lệnh, exit code, DB tạm, fingerprint, ảnh): `python scripts/run_e2e_evidence_suite.py --label <tên> --out docs/development/<thư-mục>`.
+  - Các script này chỉ chạy trên Windows (`taskkill`, đường dẫn Edge). Khi chạy phải tắt dev server và không dùng web dev, vì fingerprint DB dùng chung phải giữ nguyên.
 - Không hiển thị dữ liệu mà API không trả về (huy hiệu, địa điểm, câu trích dẫn...). Cần thì bổ sung API trước.
 - Trước khi mở PR giao diện:
   - Chạy `npm run typecheck` và `npm run test:contrast` trong `web/`.
