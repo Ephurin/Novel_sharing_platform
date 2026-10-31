@@ -1,8 +1,8 @@
 {
   "evidence_id": "P1-LIVE-SAFETY-01-EVIDENCE-F03",
   "task_id": "P1-LIVE-SAFETY-01",
-  "timestamp_iso": "2026-10-30T16:27:37Z",
-  "tested_commit_sha": "1a71bc187e506c596749342874abc08fdc40686a",
+  "timestamp_iso": "2026-10-31T01:46:35Z",
+  "tested_commit_sha": "f7f33825f0af7834ce325dbe216a155cc691b09f",
   "base_branch": "integration/p1-demo-20261109",
   "working_branch": "codex/p1-live-safety-01",
   "approved_model": "gemini-3.5-flash-lite",
@@ -21,7 +21,7 @@
     "call_history_count": 15,
     "physical_request_admission_history": [
       {
-        "ticket_id": "559a9f08-5dc1-4631-a206-76a833e22d49",
+        "ticket_id": "e0e4aaac-7464-4b70-ab19-c6608351abb2",
         "call_index": 1,
         "client_service": "ai-service",
         "operation": "chat_completions",
@@ -30,11 +30,11 @@
         "liability_usd": "0.0014230",
         "charged_usd": "0.0014230",
         "status": "SUCCESS",
-        "timestamp": 1793377591.03647,
-        "finished": 1793377656.0816083
+        "timestamp": 1793411128.5561593,
+        "finished": 1793411193.6081712
       },
       {
-        "ticket_id": "c708006e-0ea9-498f-bab6-247073e47f44",
+        "ticket_id": "b9c58bfc-b5f8-4505-8d1c-bc3bee8c12cc",
         "call_index": 2,
         "client_service": "ai-service",
         "operation": "chat_completions",
@@ -43,11 +43,11 @@
         "liability_usd": "0.0014230",
         "charged_usd": "0.0014230",
         "status": "SUCCESS",
-        "timestamp": 1793377591.102758,
-        "finished": 1793377656.1443276
+        "timestamp": 1793411128.6391869,
+        "finished": 1793411193.7019677
       },
       {
-        "ticket_id": "c6a932f5-0e82-43db-bb9a-df54f032388e",
+        "ticket_id": "f43993b9-9f2e-44e0-9a3f-d087d718754b",
         "call_index": 3,
         "client_service": "ai-service",
         "operation": "chat_completions",
@@ -56,11 +56,11 @@
         "liability_usd": "0.0014230",
         "charged_usd": "0.0014230",
         "status": "SUCCESS",
-        "timestamp": 1793377591.162844,
-        "finished": 1793377656.2109
+        "timestamp": 1793411128.7315392,
+        "finished": 1793411193.7816439
       },
       {
-        "ticket_id": "4e80f7ec-ccf4-48fb-bfe1-e05a92901fbe",
+        "ticket_id": "e4b6021d-0b39-4c0e-a87c-74d9a48bcf7d",
         "call_index": 4,
         "client_service": "ai-service",
         "operation": "chat_completions",
@@ -69,11 +69,11 @@
         "liability_usd": "0.0014230",
         "charged_usd": "0.0014230",
         "status": "SUCCESS",
-        "timestamp": 1793377591.2302728,
-        "finished": 1793377656.2698112
+        "timestamp": 1793411128.8022661,
+        "finished": 1793411193.862628
       },
       {
-        "ticket_id": "78c419c4-5ab6-4848-a31f-95d3933be742",
+        "ticket_id": "4ff549dc-ccc0-48b6-91fd-9723c0464542",
         "call_index": 5,
         "client_service": "ai-service",
         "operation": "chat_completions",
@@ -82,11 +82,11 @@
         "liability_usd": "0.0014230",
         "charged_usd": "0.0014230",
         "status": "SUCCESS",
-        "timestamp": 1793377591.284015,
-        "finished": 1793377656.3320339
+        "timestamp": 1793411128.904564,
+        "finished": 1793411193.9568286
       },
       {
-        "ticket_id": "96aab1c5-2672-4e50-a51b-f8fa026503f9",
+        "ticket_id": "61d2e319-c0cb-4721-a3f7-4628416cbc91",
         "call_index": 6,
         "client_service": "backend",
         "operation": "chat_completions",
@@ -95,11 +95,11 @@
         "liability_usd": "0.0014230",
         "charged_usd": "0.0014230",
         "status": "SUCCESS",
-        "timestamp": 1793377591.362966,
-        "finished": 1793377656.3918355
+        "timestamp": 1793411128.9980774,
+        "finished": 1793411194.0635443
       },
       {
-        "ticket_id": "d4218e01-11df-44e4-831a-75ec45b1fa19",
+        "ticket_id": "ddaee7fb-c5ad-4448-b7ca-f975e3aac0ed",
         "call_index": 7,
         "client_service": "backend",
         "operation": "chat_completions",
@@ -108,11 +108,11 @@
         "liability_usd": "0.0014230",
         "charged_usd": "0.0014230",
         "status": "SUCCESS",
-        "timestamp": 1793377591.4141529,
-        "finished": 1793377656.4639053
+        "timestamp": 1793411129.0899096,
+        "finished": 1793411194.1576858
       },
       {
-        "ticket_id": "47a49079-07ac-4781-b402-64065961ca69",
+        "ticket_id": "1f1a4a59-6d07-4c10-be96-295fedf5b371",
         "call_index": 8,
         "client_service": "backend",
         "operation": "chat_completions",
@@ -121,11 +121,11 @@
         "liability_usd": "0.0014230",
         "charged_usd": "0.0014230",
         "status": "SUCCESS",
-        "timestamp": 1793377591.4878001,
-        "finished": 1793377656.5390236
+        "timestamp": 1793411129.188085,
+        "finished": 1793411194.2480068
       },
       {
-        "ticket_id": "e19f2753-bd70-4d2e-8570-89db4ebb5063",
+        "ticket_id": "ba71040b-f03a-47ff-b884-3e1234096c95",
         "call_index": 9,
         "client_service": "backend",
         "operation": "chat_completions",
@@ -134,11 +134,11 @@
         "liability_usd": "0.0014230",
         "charged_usd": "0.0014230",
         "status": "SUCCESS",
-        "timestamp": 1793377591.5598326,
-        "finished": 1793377656.6085684
+        "timestamp": 1793411129.2659504,
+        "finished": 1793411194.3464122
       },
       {
-        "ticket_id": "d0234471-8596-4315-af0a-887589c637b6",
+        "ticket_id": "8162b986-3f9a-4d12-a8ee-3181178f73ca",
         "call_index": 10,
         "client_service": "backend",
         "operation": "chat_completions",
@@ -147,11 +147,11 @@
         "liability_usd": "0.0014233",
         "charged_usd": "0.0014233",
         "status": "SUCCESS",
-        "timestamp": 1793377591.629601,
-        "finished": 1793377656.666433
+        "timestamp": 1793411129.381066,
+        "finished": 1793411194.429423
       },
       {
-        "ticket_id": "d6acf210-54c3-4b7d-b3a3-eb89c639b48c",
+        "ticket_id": "94f9000a-ed72-4f3a-b9a6-54d5d24d2c85",
         "call_index": 11,
         "client_service": "ai-service",
         "operation": "chat_completions",
@@ -160,11 +160,11 @@
         "liability_usd": "0.0014233",
         "charged_usd": "0.0014233",
         "status": "SUCCESS",
-        "timestamp": 1793377656.7210214,
-        "finished": 1793377656.749391
+        "timestamp": 1793411194.4808674,
+        "finished": 1793411194.544387
       },
       {
-        "ticket_id": "074cd323-f60e-40e4-9f7a-8d7778f6b48e",
+        "ticket_id": "bae533fa-9f38-4c25-9277-16b8ab951ece",
         "call_index": 12,
         "client_service": "backend",
         "operation": "chat_completions",
@@ -173,11 +173,11 @@
         "liability_usd": "0.0014233",
         "charged_usd": "0.0014233",
         "status": "SUCCESS",
-        "timestamp": 1793377656.763127,
-        "finished": 1793377656.8180022
+        "timestamp": 1793411194.5721924,
+        "finished": 1793411194.6388452
       },
       {
-        "ticket_id": "1befb570-0d12-4e54-a7f3-761d9edab514",
+        "ticket_id": "024fa95d-9cd3-44af-9b22-14d88f1c2332",
         "call_index": 13,
         "client_service": "ai-service",
         "operation": "chat_completions",
@@ -186,11 +186,11 @@
         "liability_usd": "0.0014233",
         "charged_usd": "0.0014233",
         "status": "SUCCESS",
-        "timestamp": 1793377656.843929,
-        "finished": 1793377656.8733532
+        "timestamp": 1793411194.6696155,
+        "finished": 1793411194.7322412
       },
       {
-        "ticket_id": "51f4ade6-dd72-4cd4-8899-55f926c67a25",
+        "ticket_id": "b9a3a849-446e-4856-8448-0a771c42bf11",
         "call_index": 14,
         "client_service": "backend",
         "operation": "chat_completions",
@@ -199,11 +199,11 @@
         "liability_usd": "0.0014233",
         "charged_usd": "0.0014233",
         "status": "SUCCESS",
-        "timestamp": 1793377656.8963833,
-        "finished": 1793377656.9372916
+        "timestamp": 1793411194.7769809,
+        "finished": 1793411194.8442302
       },
       {
-        "ticket_id": "b9697ee7-e89d-47e6-9ade-b8138b099aa8",
+        "ticket_id": "7c2757ad-a843-4653-ac10-07025fb13e3c",
         "call_index": 15,
         "client_service": "ai-service",
         "operation": "chat_completions",
@@ -212,22 +212,22 @@
         "liability_usd": "0.0014233",
         "charged_usd": "0.0014233",
         "status": "SUCCESS",
-        "timestamp": 1793377656.9529693,
-        "finished": 1793377657.0082562
+        "timestamp": 1793411194.864472,
+        "finished": 1793411194.933401
       }
     ],
     "denied_requests_count": 2,
     "denied_history": [
       {
         "denial_index": 1,
-        "timestamp": 1793377656.6897182,
+        "timestamp": 1793411194.4505808,
         "reason": "ROLLING_RATE_LIMIT_EXCEEDED",
         "client_service": "backend",
         "operation": "chat_completions"
       },
       {
         "denial_index": 2,
-        "timestamp": 1793377657.0286138,
+        "timestamp": 1793411194.9773495,
         "reason": "MAX_CALLS_REACHED",
         "client_service": "ai-service",
         "operation": "chat_completions"
@@ -247,8 +247,8 @@
       "remaining_calls": 0,
       "charged_usd": "0.0213468"
     },
-    "ledger_sha256_before": "ac6350a5463a1c47b39aaca205be3cce88566a4d1532f0ffb4ee4c68057ae71c",
-    "ledger_sha256_after": "ac6350a5463a1c47b39aaca205be3cce88566a4d1532f0ffb4ee4c68057ae71c",
+    "ledger_sha256_before": "2417a6bc8d5bb415784048ac99ee1c66f4ba629d57b3def3c5ed297ec1b586f2",
+    "ledger_sha256_after": "2417a6bc8d5bb415784048ac99ee1c66f4ba629d57b3def3c5ed297ec1b586f2",
     "hash_identical": true
   },
   "fake_upstream_verification": {
