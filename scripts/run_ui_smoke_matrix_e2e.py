@@ -15,6 +15,7 @@ Usage (repo root):
   EPHURIN_ALLOW_TEST_DB_MUTATIONS=1 EPHURIN_E2E_DEMO_PASSWORD=... python scripts/run_ui_smoke_matrix_e2e.py
 Optional: EPHURIN_E2E_BACKEND_PORT (4321), EPHURIN_E2E_WEB_PORT (5321), EPHURIN_E2E_EVIDENCE_DIR.
 Exit codes: 0 PASS, 1 FAIL, 3 REFUSED (nothing was written).
+Windows-only (taskkill, Microsoft Edge under Program Files); see scripts/e2e_isolated_stack.py.
 """
 
 import asyncio

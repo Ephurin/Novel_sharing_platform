@@ -13,6 +13,7 @@ Usage (repo root):
 Optional: EPHURIN_E2E_TEST_DB_NAME, EPHURIN_E2E_BACKEND_PORT (4312), EPHURIN_E2E_WEB_PORT (5312),
 EPHURIN_E2E_EVIDENCE_DIR (default: a temp folder; canonical docs/development evidence is not overwritten).
 Exit codes: 0 PASS, 1 FAIL, 3 REFUSED (nothing was written).
+Windows-only (taskkill, Microsoft Edge under Program Files); see scripts/e2e_isolated_stack.py.
 """
 
 import asyncio

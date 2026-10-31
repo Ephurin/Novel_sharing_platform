@@ -16,6 +16,7 @@ EPHURIN_E2E_EVIDENCE_DIR (default: a temp folder; canonical docs/development evi
 Exit codes: 0 PASS, 1 FAIL, 3 REFUSED (nothing was written).
 
 The full backend suite is not a gate input here: it runs in CI and needs the AI service.
+Windows-only (taskkill, Microsoft Edge under Program Files); see scripts/e2e_isolated_stack.py.
 """
 
 import asyncio

@@ -18,6 +18,10 @@ so a runner can prove that a run left them unchanged.
 
 Requires local PostgreSQL and MongoDB (docker-compose), Node dependencies in backend/ and web/,
 and the Python packages httpx, psycopg and pymongo.
+
+Windows-only: processes are stopped with `taskkill /T`, and the browser runners use the Microsoft
+Edge install path under Program Files. Stop the dev servers and do not use the dev web app while a
+runner is active; the shared-database fingerprint must stay unchanged.
 """
 
 import hashlib
