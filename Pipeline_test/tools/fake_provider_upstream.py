@@ -8,7 +8,7 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 
-def integration_response(text, body=None):
+def integration_response(text, body=None, *, scenario=None):
     """Scripted source-grounded responses for integration's legacy prompt framing.
     Not model quality or real-provider evidence. Unknown prompts fail explicitly.
     """
@@ -61,7 +61,9 @@ def integration_response(text, body=None):
               'explanation':'FAKE_PROVIDER_OUTPUT scripted continuation for P1 live safety fixture'},ensure_ascii=False)
         return json.dumps({'draft_text':'Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.',
           'explanation':'FAKE_PROVIDER_OUTPUT scripted continuation for persistence only'},ensure_ascii=False)
-    return 'Separate fake upstream response.'
+    if scenario == 'p1-live-safety-v1':
+        return 'Separate fake upstream response.'
+    raise ValueError('Unsupported integration fake prompt')
 
 
 class FakeHandler(BaseHTTPRequestHandler):
@@ -243,7 +245,7 @@ class FakeHandler(BaseHTTPRequestHandler):
         else:
             assert self.path == '/v1/chat/completions' and body['max_tokens'] > 0
             text = '\n\n'.join(str(m.get('content','')) for m in body['messages'])
-            content = '' if 'fault:empty' in text else integration_response(text, body)
+            content = '' if 'fault:empty' in text else integration_response(text, body, scenario=self.scenario)
             config = {'max_tokens': body['max_tokens']}
             result = {'id': self.headers['X-Gateway-Dispatch-Id'], 'object': 'chat.completion',
                       'created': int(time.time()), 'model': body['model'],
