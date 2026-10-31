@@ -1706,3 +1706,78 @@ def test_18_v1_models_ledger_health_fail_closed(tmp_path: Path) -> None:
         ledger_c.close()
         upstream_c.shutdown()
         upstream_c.server_close()
+def test_19_f10_fake_prompt_contracts(tmp_path: Path) -> None:
+    """F-10 Regression: Verify all 5 contracts for fake provider prompt isolation and scenario compatibility.
+
+    Contract A: Direct legacy unsupported prompt fails closed with ValueError.
+    Contract B: Malformed structured request fails closed with JSON parsing ValueError.
+    Contract C: Wave 1D HTTP fixture scenario ('wave1d-negative-only') returns deterministic scripted fake.
+    Contract D: P1 safety fixture scenario ('p1-live-safety-v1') returns deterministic scripted fake.
+    Contract E: Actual HTTP integration with default scenario serves budget gateway chat completions cleanly.
+    """
+    from Pipeline_test.tools.fake_provider_upstream import integration_response
+
+    # Contract A: Legacy unsupported prompt without approved scenario
+    with pytest.raises(ValueError, match="Unsupported integration fake prompt"):
+        integration_response("ordinary prose contains transitions", None)
+
+    # Contract B: Malformed structured request fails parsing, never fabricates entities
+    with pytest.raises(ValueError):
+        integration_response(
+            "Verify EVERY supplied candidate OCCURRENCE",
+            {"messages": [{"content": "invalid json"}]},
+        )
+
+    # Contract C: Wave 1D HTTP fixture returns scripted response
+    resp_c = integration_response("hello", scenario="wave1d-negative-only")
+    assert resp_c == "Separate fake upstream response."
+
+    # Contract D: P1 live safety fixture returns scripted response
+    resp_d = integration_response("hello", scenario="p1-live-safety-v1")
+    assert resp_d == "Separate fake upstream response."
+
+    # Contract E: Actual HTTP integration through start_fake_upstream() default scenario
+    upstream, _, received = start_fake_upstream()
+    server, _, ledger = start_live_safety_gateway(
+        tmp_path / "f10_state.json",
+        port=0,
+        initialize=True,
+        enable_live_safety_guard=True,
+        max_calls=15,
+        max_window_calls=10,
+        window_seconds=60.0,
+        run_id="f10-contract-e",
+        upstream_base_url=f"http://127.0.0.1:{upstream.server_port}",
+        upstream_api_key="fake-upstream-only",
+        client_tokens={"ai-worker": "ai-service"},
+    )
+    gw_url = f"http://127.0.0.1:{server.server_port}"
+    try:
+        body = {
+            "model": APPROVED_MODEL,
+            "max_tokens": 20,
+            "messages": [{"role": "user", "content": "hello"}],
+        }
+        req = urllib.request.Request(
+            gw_url + "/v1/chat/completions",
+            data=json.dumps(body).encode("utf-8"),
+            headers={
+                "Authorization": "Bearer ai-worker",
+                "Content-Type": "application/json",
+            },
+        )
+        with urllib.request.urlopen(req, timeout=5.0) as resp:
+            status = resp.status
+            result = json.loads(resp.read().decode("utf-8"))
+
+        assert status == 200
+        assert result["choices"][0]["message"]["content"] == "Separate fake upstream response."
+        assert len(received) == 1
+        assert received[0]["prompt_text"] == "hello"
+        assert ledger.state["total_calls"] == 1
+    finally:
+        server.shutdown()
+        server.server_close()
+        ledger.close()
+        upstream.shutdown()
+        upstream.server_close()

@@ -61,7 +61,7 @@ def integration_response(text, body=None, *, scenario=None):
               'explanation':'FAKE_PROVIDER_OUTPUT scripted continuation for P1 live safety fixture'},ensure_ascii=False)
         return json.dumps({'draft_text':'Mai Linh đặt một thẻ giấy ghi “kiểm tra micro” cạnh máy thu.\n\nDuy đứng bên Mai Linh tại Cồn Vân.',
           'explanation':'FAKE_PROVIDER_OUTPUT scripted continuation for persistence only'},ensure_ascii=False)
-    if scenario == 'p1-live-safety-v1':
+    if scenario in ('p1-live-safety-v1', 'wave1d-negative-only'):
         return 'Separate fake upstream response.'
     raise ValueError('Unsupported integration fake prompt')
 
