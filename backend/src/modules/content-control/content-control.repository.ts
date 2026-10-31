@@ -1,9 +1,6 @@
 import type { QueryResultRow, PoolClient } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
-import type {
-  ListReviewsInput,
-  CreateReportInput
-} from './content-control.schemas.js';
+import type { ListReviewsInput, CreateReportInput } from './content-control.schemas.js';
 import type {
   MatchedRule,
   ModerationSource,
@@ -53,7 +50,13 @@ export async function createModerationReview(
       do update set updated_at = now()
       returning *
     `,
-    [input.targetType, input.targetId, input.source, input.evidenceId ?? null, input.submittedContent ?? null]
+    [
+      input.targetType,
+      input.targetId,
+      input.source,
+      input.evidenceId ?? null,
+      input.submittedContent ?? null
+    ]
   );
 
   return result.rows[0];
@@ -131,12 +134,12 @@ export async function listReviews(input: ListReviewsInput) {
   const offset = (input.page - 1) * input.limit;
   const result = await getPostgresPool().query(
     `
-      select *
+      select moderation_reviews.*, (select count(*)::int from reports r where r.review_id=moderation_reviews.review_id) as report_count
       from moderation_reviews
       where ($1::moderation_target_type is null or target_type = $1)
         and ($2::moderation_status is null or status = $2)
         and ($3::moderation_source is null or source = $3)
-      order by created_at desc
+      order by created_at desc, review_id
       limit $4 offset $5
     `,
     [input.targetType ?? null, input.status ?? null, input.source ?? null, input.limit, offset]
@@ -211,13 +214,16 @@ export async function resolveReportsForReview(input: {
   );
 }
 
-export async function resolveReview(input: {
-  reviewId: string;
-  status: ModerationStatus;
-  reviewedBy: string;
-  reason?: string;
-}) {
-  const result = await getPostgresPool().query(
+export async function resolveReview(
+  input: {
+    reviewId: string;
+    status: ModerationStatus;
+    reviewedBy: string;
+    reason?: string;
+  },
+  client?: PoolClient
+) {
+  const result = await (client ?? getPostgresPool()).query(
     `
       update moderation_reviews
       set status = $2,

@@ -8,6 +8,7 @@ import { env } from './core/config/env.js';
 import { errorMiddleware } from './core/middleware/error.middleware.js';
 import { notFoundMiddleware } from './core/middleware/not-found.middleware.js';
 import { successResponse } from './core/response/response.js';
+import { accountAppealsRoutes } from './modules/admin/account-appeals.routes.js';
 import { adminRoutes } from './modules/admin/admin.routes.js';
 import { aiCopilotRoutes } from './modules/ai-copilot/ai-copilot.routes.js';
 import { aiGatewayRoutes } from './modules/ai/ai-gateway.routes.js';
@@ -61,6 +62,7 @@ export function createApp() {
   });
 
   app.use(`${env.API_PREFIX}/auth`, authRoutes);
+  app.use(`${env.API_PREFIX}/account`, accountAppealsRoutes);
   app.use(`${env.API_PREFIX}/ai`, aiCopilotRoutes);
   app.use(`${env.API_PREFIX}/ai`, aiGatewayRoutes);
   app.use(`${env.API_PREFIX}/users`, usersRoutes);

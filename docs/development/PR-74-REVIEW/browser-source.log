@@ -1,0 +1,38 @@
+
+> ephurin-web@0.1.0 test:admin-browser
+> node --test tests/admin-redesign.browser.test.mjs
+
+▶ admin redesign: real API, isolated seed, browser flows and responsive themes
+  ✔ API: pagination, filters, authorization, seed idempotence and evidence (541.965ms)
+  ✔ browser: compact IDs copy full UUIDs and preserve routing (7207.385ms)
+  ✔ browser: novel cover, expandable synopsis and secondary IDs (1780.3994ms)
+  ✔ browser: loading, recoverable error and real empty search (9722.2458ms)
+  ✔ browser: all 9 routes, both themes at desktop/mobile, shared type and no page overflow (30758.3586ms)
+  ✔ browser: account lock/unlock and search empty state (1574.0506ms)
+  ✔ browser: taxonomy saves to database and rejects duplicates/whitespace (1131.3007ms)
+  ✔ browser: chapter inspection, novel remove and restore (3075.6497ms)
+  ✔ browser: full reported content/evidence and keyword publication semantics (1399.4468ms)
+  ✔ browser: accept/reject comment reports and verify persisted content state (1787.8184ms)
+  ✔ browser: approve/reject withdrawals and verify wallet state (1532.5484ms)
+  ✔ browser: mobile navigation, theme menu and preference persistence (1737.4552ms)
+  ✔ operations: audit, account details and immutable history (42.6646ms)
+  ✔ operations: taxonomy edit, merge preserves associations, only unused deletion (71.6944ms)
+  ✔ operations: reported novels hide without publishing, owner-only appeal and safe reversal (85.2206ms)
+  ✔ operations: warnings and dismissed chapter reports preserve publication (55.7311ms)
+  ✔ operations: locked accounts, restricted appeal sessions, accept and reject semantics (233.6595ms)
+  ✔ operations: comment sanctions restore replies and jobs stay idempotent (163.0254ms)
+  ✔ operations: reconciliation guards version/reference and never changes balances (49.2885ms)
+  ✔ operations: scope permissions, immediate role changes and concurrent last-admin protection (317.5737ms)
+  ✔ browser operations: user warning, locked-safe appeal login and admin review (3194.8065ms)
+  ✔ browser operations: taxonomy edits and manual payout confirmation/history (1584.1797ms)
+  ✔ R74-01 browser: inspect a quarantined job and explicitly schedule its retry (580.4318ms)
+  ✔ R74-03: guest, reader, author and admin session transitions preserve role navigation and appeals (5397.6875ms)
+✔ admin redesign: real API, isolated seed, browser flows and responsive themes (101763.8272ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 105110.0302

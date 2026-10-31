@@ -1,0 +1,18 @@
+{
+  "backendBuild": "PASS (native and Docker)",
+  "webBuild": "PASS (native and Docker)",
+  "browserTests": {
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0
+  },
+  "backendModerationTests": {
+    "passed": 22,
+    "failed": 0,
+    "skipped": 0
+  },
+  "screenshots": 18,
+  "localAdminUrl": "http://localhost:8080/admin",
+  "localSeedApplied": true,
+  "testDatabasesCleanedUp": true
+}

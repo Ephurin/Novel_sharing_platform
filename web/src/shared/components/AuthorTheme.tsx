@@ -95,6 +95,7 @@ export function AuthorNavbar() {
         {isWriter ? (
           <nav className="sc-global-nav" aria-label="Điều hướng chính">
             <NavLink to="/author/projects" className={(path === '/author' || path.startsWith('/author/')) && path !== '/author/profile' ? 'sc-nav-link is-active' : 'sc-nav-link'}>Tác phẩm</NavLink>
+            <NavLink to="/reader" end className="sc-nav-link">Đọc truyện</NavLink>
             <NavLink to="/wallet" className="sc-nav-link">Ví &amp; doanh thu</NavLink>
             <NavLink to="/author/profile" className="sc-nav-link">Trang tác giả</NavLink>
           </nav>
@@ -124,6 +125,7 @@ export function AuthorNavbar() {
             </Menu.Target>
             <Menu.Dropdown>
               <Menu.Label>{name}</Menu.Label>
+              <Menu.Item component={Link} to="/appeals">Quyết định &amp; khiếu nại</Menu.Item>
               <Menu.Item component={Link} to="/profile/me">Hồ sơ &amp; cài đặt</Menu.Item>
               {isWriter ? <>
                 <Menu.Item component={Link} to="/author/profile">Trang tác giả</Menu.Item>

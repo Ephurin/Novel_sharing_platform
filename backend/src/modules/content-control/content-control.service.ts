@@ -1,4 +1,7 @@
+import { assertAdminPermission, audit } from '../admin/admin-access.js';
+import { resolveUserReport } from './report-resolution.js';
 import type { PoolClient } from 'pg';
+import { getAdminReviewTarget } from './admin-target.repository.js';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
@@ -19,23 +22,30 @@ import {
   listReviews as listReviewRows,
   listReportsForReview,
   findOpenReportByReporter,
-  resolveReportsForReview,
   resolveReview as resolveReviewRow
 } from './content-control.repository.js';
-import { createModerationEvidence, findModerationEvidence } from './moderation-evidence.repository.js';
-import type { MatchedRule, ModerationStatus, ModerationTargetType } from './content-control.types.js';
 import {
-  findCommentById,
+  createModerationEvidence,
+  findModerationEvidence
+} from './moderation-evidence.repository.js';
+import type {
+  MatchedRule,
+  ModerationStatus,
+  ModerationTargetType
+} from './content-control.types.js';
+import {
   findCommentRecordById,
-  softDeleteComment,
   updateCommentModerationStatus,
   type CommentStatus
 } from '../interactions/comments.repository.js';
 import { findReadableChapter } from '../reading/reading.repository.js';
-import { createNotification } from '../interactions/notifications.repository.js';
 import { publishNovel, rejectNovelPublication } from '../novels/novels.repository.js';
 import { findNovelById } from '../novels/novels.repository.js';
-import { findChapterById, publishChapter, rejectChapterPublication } from '../novels/chapters.repository.js';
+import {
+  findChapterById,
+  publishChapter,
+  rejectChapterPublication
+} from '../novels/chapters.repository.js';
 import { findDraftChapterByChapterId } from '../novels/draft-chapters.repository.js';
 
 function scanContent(content: string, rules: MatchedRule[]) {
@@ -55,7 +65,12 @@ function highestSeverity(rules: MatchedRule[]) {
   return 'LOW';
 }
 
-export async function checkContent(input: ContentControlCheckInput & { publicationSnapshot?: { title: string; content: string; wordCount: number } }, client?: PoolClient) {
+export async function checkContent(
+  input: ContentControlCheckInput & {
+    publicationSnapshot?: { title: string; content: string; wordCount: number };
+  },
+  client?: PoolClient
+) {
   const rules = await listActiveFilterRules(client);
   const matchedRules = scanContent(input.content, rules);
 
@@ -67,16 +82,37 @@ export async function checkContent(input: ContentControlCheckInput & { publicati
     } as const;
   }
 
-  const existingReview = await findOpenReview(input.targetType, input.targetId, client, 'KEYWORD_FILTER');
+  const existingReview = await findOpenReview(
+    input.targetType,
+    input.targetId,
+    client,
+    'KEYWORD_FILTER'
+  );
   if (existingReview) {
     if (input.publicationSnapshot && !existingReview.submitted_content) {
-      const attached = await (client ?? getPostgresPool()).query("update moderation_reviews set submitted_content=coalesce(submitted_content,$2::jsonb) where review_id=$1 and status='PENDING' returning submitted_content", [existingReview.review_id,input.publicationSnapshot]);
-      if (!attached.rowCount) throw new AppError(409, 'CONTENT_REVIEW_STALE', 'Kết quả duyệt đã thay đổi, hãy gửi lại');
+      const attached = await (client ?? getPostgresPool()).query(
+        "update moderation_reviews set submitted_content=coalesce(submitted_content,$2::jsonb) where review_id=$1 and status='PENDING' returning submitted_content",
+        [existingReview.review_id, input.publicationSnapshot]
+      );
+      if (!attached.rowCount)
+        throw new AppError(409, 'CONTENT_REVIEW_STALE', 'Kết quả duyệt đã thay đổi, hãy gửi lại');
       existingReview.submitted_content = attached.rows[0].submitted_content;
     }
-    if (input.publicationSnapshot && existingReview.submitted_content && JSON.stringify(existingReview.submitted_content) !== JSON.stringify(input.publicationSnapshot)) {
+    if (
+      input.publicationSnapshot &&
+      existingReview.submitted_content &&
+      JSON.stringify(existingReview.submitted_content) !== JSON.stringify(input.publicationSnapshot)
+    ) {
       const snapshot = existingReview.submitted_content;
-      if (snapshot.title !== input.publicationSnapshot.title || snapshot.content !== input.publicationSnapshot.content) throw new AppError(409, 'CONTENT_REVIEW_PENDING', 'Phiên bản trước đang chờ duyệt. Hãy chờ kết quả trước khi gửi phiên bản mới.');
+      if (
+        snapshot.title !== input.publicationSnapshot.title ||
+        snapshot.content !== input.publicationSnapshot.content
+      )
+        throw new AppError(
+          409,
+          'CONTENT_REVIEW_PENDING',
+          'Phiên bản trước đang chờ duyệt. Hãy chờ kết quả trước khi gửi phiên bản mới.'
+        );
     }
     return {
       result: 'NEED_ADMIN_REVIEW',
@@ -85,22 +121,28 @@ export async function checkContent(input: ContentControlCheckInput & { publicati
     } as const;
   }
 
-  const evidenceId = await createModerationEvidence({
-    targetType: input.targetType,
-    targetId: input.targetId,
-    riskLevel: highestSeverity(matchedRules),
-    source: 'KEYWORD_FILTER',
-    matchedRules,
-    summary: `${matchedRules.length} content filter rule(s) matched.`
-  }, client);
+  const evidenceId = await createModerationEvidence(
+    {
+      targetType: input.targetType,
+      targetId: input.targetId,
+      riskLevel: highestSeverity(matchedRules),
+      source: 'KEYWORD_FILTER',
+      matchedRules,
+      summary: `${matchedRules.length} content filter rule(s) matched.`
+    },
+    client
+  );
 
-  const review = await createModerationReview({
-    targetType: input.targetType,
-    targetId: input.targetId,
-    source: 'KEYWORD_FILTER',
-    evidenceId,
-    submittedContent: input.publicationSnapshot
-  }, client);
+  const review = await createModerationReview(
+    {
+      targetType: input.targetType,
+      targetId: input.targetId,
+      source: 'KEYWORD_FILTER',
+      evidenceId,
+      submittedContent: input.publicationSnapshot
+    },
+    client
+  );
 
   return {
     result: 'NEED_ADMIN_REVIEW',
@@ -110,6 +152,25 @@ export async function checkContent(input: ContentControlCheckInput & { publicati
 }
 
 export async function createUserReport(auth: AuthContext, input: CreateReportInput) {
+  if (
+    input.targetType !== 'COMMENT' &&
+    !/^[\da-f]{8}-(?:[\da-f]{4}-){3}[\da-f]{12}$/i.test(input.targetId)
+  )
+    throw new AppError(422, 'REPORT_TARGET', 'Mã đối tượng không hợp lệ.');
+  if (input.targetType === 'NOVEL') {
+    const novel = await findNovelById(input.targetId);
+    if (!novel || novel.status !== 'PUBLISHED')
+      throw new AppError(404, 'CONTENT_001', 'Không tìm thấy truyện đang xuất bản.');
+  } else if (input.targetType === 'CHAPTER') {
+    if (!(await findReadableChapter(input.targetId)))
+      throw new AppError(404, 'CONTENT_001', 'Không tìm thấy chương đang xuất bản.');
+  } else if (input.targetType === 'USER') {
+    const user = await getPostgresPool().query(
+      "select 1 from users where user_id::text=$1 and deleted_at is null and status<>'DELETED'",
+      [input.targetId]
+    );
+    if (!user.rowCount) throw new AppError(404, 'USER_001', 'Không tìm thấy tài khoản.');
+  }
   if (input.targetType === 'COMMENT') {
     const comment = await findCommentRecordById(input.targetId);
     if (!comment) {
@@ -119,7 +180,7 @@ export async function createUserReport(auth: AuthContext, input: CreateReportInp
       throw new AppError(404, 'CONTENT_001', 'Comment not found');
     }
     if (comment.chapterId) {
-      if (!await findReadableChapter(comment.chapterId)) {
+      if (!(await findReadableChapter(comment.chapterId))) {
         throw new AppError(404, 'CONTENT_001', 'Content not found');
       }
     } else {
@@ -132,12 +193,22 @@ export async function createUserReport(auth: AuthContext, input: CreateReportInp
 
   try {
     return await withPostgresTransaction(async (client) => {
-      const existingOpenReport = await findOpenReportByReporter(auth.userId, input.targetType, input.targetId, client);
+      const existingOpenReport = await findOpenReportByReporter(
+        auth.userId,
+        input.targetType,
+        input.targetId,
+        client
+      );
       if (existingOpenReport) {
         throw new AppError(409, 'REPORT_001', 'An open report already exists for this content');
       }
 
-      const existingReview = await findOpenReview(input.targetType, input.targetId, client, 'USER_REPORT');
+      const existingReview = await findOpenReview(
+        input.targetType,
+        input.targetId,
+        client,
+        'USER_REPORT'
+      );
       const review =
         existingReview ??
         (await createModerationReview(
@@ -149,6 +220,13 @@ export async function createUserReport(auth: AuthContext, input: CreateReportInp
           client
         ));
 
+      const lockedReview = (
+        await client.query('select status from moderation_reviews where review_id=$1 for update', [
+          review.review_id
+        ])
+      ).rows[0];
+      if (lockedReview.status !== 'PENDING')
+        throw new AppError(409, 'REPORT_RETRY', 'Review was resolved. Please submit again.');
       const report = await createReportRow(
         {
           ...input,
@@ -186,6 +264,7 @@ export async function listModerationReviews(input: ListReviewsInput) {
       source: row.source,
       status: row.status,
       evidenceId: row.evidence_id,
+      reportCount: row.report_count,
       createdAt: row.created_at
     })),
     meta: {
@@ -204,10 +283,16 @@ export async function getModerationReview(reviewId: string) {
     throw new AppError(404, 'ADMIN_001', 'Review item not found');
   }
 
-  const [evidence, reportCount] = await Promise.all([
+  const [evidence, reportCount, reports, target] = await Promise.all([
     findModerationEvidence(review.evidence_id),
-    countReportsForReview(reviewId)
+    countReportsForReview(reviewId),
+    listReportsForReview(reviewId),
+    getAdminReviewTarget(review.target_type, review.target_id)
   ]);
+  const reasonCounts = new Map<string, number>();
+  for (const report of reports) {
+    reasonCounts.set(report.reason, (reasonCounts.get(report.reason) ?? 0) + 1);
+  }
 
   return {
     reviewId: review.review_id,
@@ -215,6 +300,25 @@ export async function getModerationReview(reviewId: string) {
     targetId: review.target_id,
     status: review.status,
     source: review.source,
+    createdAt: review.created_at,
+    reason: review.reason,
+    reviewedAt: review.reviewed_at,
+    target: review.submitted_content
+      ? {
+          ...target,
+          title: review.submitted_content.title,
+          content: review.submitted_content.content,
+          isSubmittedVersion: true
+        }
+      : target,
+    sanctions: (
+      await getPostgresPool().query(
+        "select s.sanction_id,s.action,s.active,exists(select 1 from admin_jobs j where j.kind='COMMENT_SYNC' and j.status='PENDING' and j.payload->>'sanctionId'=s.sanction_id::text) as pending from admin_sanctions s where s.review_id=$1 order by s.created_at",
+        [reviewId]
+      )
+    ).rows,
+    reportDescriptions: reports.map((r) => ({ reason: r.reason, description: r.description })),
+    reportReasons: Array.from(reasonCounts, ([reason, count]) => ({ reason, count })),
     evidenceSummary: {
       matchedRules: evidence?.matchedRules ?? [],
       reportCount,
@@ -234,6 +338,9 @@ export async function resolveModerationReview(
     throw new AppError(404, 'ADMIN_001', 'Review item not found');
   }
 
+  await assertAdminPermission(auth, 'content');
+  if (review.source === 'USER_REPORT') return resolveUserReport(auth, reviewId, input);
+
   if (review.status !== 'PENDING') {
     throw new AppError(409, 'ADMIN_002', 'Review item already resolved');
   }
@@ -242,15 +349,39 @@ export async function resolveModerationReview(
     throw new AppError(422, 'ADMIN_003', 'Rejection reason required');
   }
 
-  if (review.target_type === 'CHAPTER' && review.source === 'KEYWORD_FILTER' && input.decision === 'APPROVED') {
+  if (
+    review.target_type === 'CHAPTER' &&
+    review.source === 'KEYWORD_FILTER' &&
+    input.decision === 'APPROVED'
+  ) {
     const chapter = await findChapterById(review.target_id);
-    if (!chapter || chapter.status !== 'PENDING_MODERATION') throw new AppError(409, 'CONTENT_REVIEW_STALE', 'Chương không còn chờ duyệt; không thể phát hành phiên bản cũ');
+    if (!chapter || chapter.status !== 'PENDING_MODERATION')
+      throw new AppError(
+        409,
+        'CONTENT_REVIEW_STALE',
+        'Chương không còn chờ duyệt; không thể phát hành phiên bản cũ'
+      );
   }
-  const resolved = await resolveReviewRow({
-    reviewId,
-    status: input.decision as ModerationStatus,
-    reviewedBy: auth.userId,
-    reason: input.reason
+  const resolved = await withPostgresTransaction(async (client) => {
+    const row = await resolveReviewRow(
+      {
+        reviewId,
+        status: input.decision as ModerationStatus,
+        reviewedBy: auth.userId,
+        reason: input.reason
+      },
+      client
+    );
+    if (row)
+      await audit(client, auth, {
+        action: `PUBLICATION_${input.decision}`,
+        targetType: review.target_type,
+        targetId: review.target_id,
+        reason: input.reason,
+        before: { status: review.status },
+        after: { status: row.status, reviewId }
+      });
+    return row;
   });
 
   if (!resolved) {
@@ -258,11 +389,14 @@ export async function resolveModerationReview(
   }
 
   if (resolved.target_type === 'COMMENT') {
-    if (resolved.source === 'USER_REPORT') {
-      await resolveCommentUserReport(auth, resolved, input.reason);
-    } else {
+    {
       const commentStatus: CommentStatus = resolved.status === 'APPROVED' ? 'APPROVED' : 'REJECTED';
-      await updateCommentModerationStatus(resolved.target_id, commentStatus, resolved.review_id, resolved.review_id);
+      await updateCommentModerationStatus(
+        resolved.target_id,
+        commentStatus,
+        resolved.review_id,
+        resolved.review_id
+      );
     }
   }
 
@@ -298,84 +432,19 @@ export async function resolveModerationReview(
     }
   }
 
-  if (resolved.target_type === 'CHAPTER') await getPostgresPool().query("update chapter_publication_schedules set status=$2,error=$3,updated_at=now() where moderation_review_id=$1 and status='PENDING_MODERATION'", [resolved.review_id, resolved.status === 'APPROVED' ? 'PUBLISHED' : 'FAILED', resolved.status === 'APPROVED' ? null : (input.reason ?? 'Nội dung không được duyệt')]);
+  if (resolved.target_type === 'CHAPTER')
+    await getPostgresPool().query(
+      "update chapter_publication_schedules set status=$2,error=$3,updated_at=now() where moderation_review_id=$1 and status='PENDING_MODERATION'",
+      [
+        resolved.review_id,
+        resolved.status === 'APPROVED' ? 'PUBLISHED' : 'FAILED',
+        resolved.status === 'APPROVED' ? null : (input.reason ?? 'Nội dung không được duyệt')
+      ]
+    );
   return {
     reviewId: resolved.review_id,
     status: resolved.status,
     targetType: resolved.target_type as ModerationTargetType,
     targetId: resolved.target_id
   };
-}
-
-async function resolveCommentUserReport(
-  auth: AuthContext,
-  resolved: {
-    review_id: string;
-    target_id: string;
-    status: ModerationStatus;
-  },
-  reason?: string
-) {
-  const comment = await findCommentById(resolved.target_id);
-  const reports = await listReportsForReview(resolved.review_id);
-  const reportAccepted = resolved.status === 'APPROVED';
-  const reportStatus = reportAccepted ? 'RESOLVED' : 'REJECTED';
-  const resolution = reason ?? (reportAccepted ? 'Comment report approved by Admin.' : 'Comment report rejected by Admin.');
-
-  await resolveReportsForReview({
-    reviewId: resolved.review_id,
-    resolvedBy: auth.userId,
-    status: reportStatus,
-    resolution
-  });
-
-  if (reportAccepted && comment) {
-    await softDeleteComment(resolved.target_id);
-  }
-
-  if (comment) {
-    await createNotification({
-      userId: comment.userId,
-      type: reportAccepted ? 'COMMENT_REMOVED_BY_REPORT' : 'COMMENT_REPORT_REJECTED_OWNER',
-      title: reportAccepted ? 'Bình luận của bạn đã bị gỡ' : 'Báo cáo bình luận đã bị từ chối',
-      content: reportAccepted
-        ? `Bình luận của bạn đã bị gỡ sau khi Admin duyệt báo cáo.${reason ? ` Lý do: ${reason}` : ''}`
-        : `Admin đã từ chối báo cáo đối với bình luận của bạn. Bình luận được giữ nguyên.${reason ? ` Lý do: ${reason}` : ''}`,
-      payload: {
-        reviewId: resolved.review_id,
-        commentId: resolved.target_id,
-        chapterId: comment.chapterId,
-        novelId: comment.novelId,
-        decision: resolved.status,
-        adminId: auth.userId,
-        reason: reason ?? null
-      }
-    });
-  }
-
-  const notifiedUserIds = new Set(comment ? [comment.userId] : []);
-  for (const report of reports) {
-    const reporterId = report.reporter_id as string;
-    if (notifiedUserIds.has(reporterId)) {
-      continue;
-    }
-
-    notifiedUserIds.add(reporterId);
-    await createNotification({
-      userId: reporterId,
-      type: reportAccepted ? 'COMMENT_REPORT_APPROVED' : 'COMMENT_REPORT_REJECTED',
-      title: reportAccepted ? 'Báo cáo bình luận đã được duyệt' : 'Báo cáo bình luận đã bị từ chối',
-      content: reportAccepted
-        ? `Admin đã duyệt báo cáo của bạn và gỡ bình luận vi phạm.${reason ? ` Lý do: ${reason}` : ''}`
-        : `Admin đã từ chối báo cáo của bạn. Bình luận được giữ nguyên.${reason ? ` Lý do: ${reason}` : ''}`,
-      payload: {
-        reviewId: resolved.review_id,
-        reportId: report.report_id,
-        commentId: resolved.target_id,
-        decision: resolved.status,
-        adminId: auth.userId,
-        reason: reason ?? null
-      }
-    });
-  }
 }

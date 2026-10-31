@@ -1,6 +1,7 @@
 import { ImageUpload } from '../../shared/components/ImageUpload';
 import { ChapterActions, ChapterOrder, ChapterHistoryPanel } from './ChapterActions';
-import { TagsInput } from '@mantine/core';
+import { Menu, TagsInput } from '@mantine/core';
+import { chapterSortOptions, sortChapters, type ChapterSort } from './chapter-sorting';
 import { getNovelStatistics } from '../novels/novel-statistics-api';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
 import React, { useState, useMemo, useEffect } from 'react';
@@ -70,6 +71,7 @@ export function AuthorNovelMetadataPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [accessFilter, setAccessFilter] = useState<'ALL' | 'FREE' | 'VIP'>('ALL');
+  const [chapterSort, setChapterSort] = useState<ChapterSort>('number-asc');
   const [selectedChapters, setSelectedChapters] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
@@ -154,7 +156,7 @@ export function AuthorNovelMetadataPage() {
 
   // Filtered chapters
   const filteredChapters = useMemo(() => {
-    return chapters.filter((ch) => {
+    return sortChapters(chapters.filter((ch) => {
 
 
       if (searchQuery.trim()) {
@@ -170,8 +172,8 @@ export function AuthorNovelMetadataPage() {
       if (accessFilter === 'VIP' && !ch.isVip) return false;
 
       return true;
-    });
-  }, [chapters, activeTab, searchQuery, statusFilter, accessFilter]);
+    }), chapterSort);
+  }, [chapters, searchQuery, statusFilter, accessFilter, chapterSort]);
 
   // Paginated chapters
   const totalPages = Math.ceil(filteredChapters.length / pageSize) || 1;
@@ -436,12 +438,11 @@ export function AuthorNovelMetadataPage() {
 
               {orderOpen && <ChapterOrder novelId={novelId} chapters={chapters} onClose={() => setOrderOpen(false)} />}
               {activeTab === 'history' ? <ChapterHistoryPanel chapters={chapters} /> : <>
-              <div className="flex justify-end px-4 pt-3"><button type="button" className="sc-button sc-button-ghost" onClick={() => setOrderOpen(true)} disabled={!chapters.length}>Sắp xếp chương</button></div>
               {/* Streamlined Chapter Toolbar */}
-              <div className="p-3.5 bg-surface-container-lowest flex flex-col sm:flex-row items-center justify-between gap-2.5 border-b border-stone-200/80">
-                <div className="flex items-center gap-2 flex-1 w-full sm:w-auto flex-wrap">
+              <div className="sc-chapter-toolbar" role="group" aria-label="Bộ lọc và thao tác chương">
+                <div className="sc-chapter-filters">
                   {/* Search Box */}
-                  <div className="relative min-w-[240px] flex-1 sm:flex-initial">
+                  <div className="relative sc-chapter-search">
                     <span className="material-symbols-outlined absolute left-2.5 top-2 text-[16px] text-stone-400 pointer-events-none">
                       search
                     </span>
@@ -453,6 +454,7 @@ export function AuthorNovelMetadataPage() {
                       }}
                       className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-surface-subtle text-stone-900 placeholder:text-stone-400 font-body-md text-meta focus:outline-none focus:ring-1 focus:ring-primary-500 border border-stone-200"
                       placeholder="Tìm kiếm số chương, tên chương..."
+                      aria-label="Tìm kiếm chương"
                       type="text"
                     />
                   </div>
@@ -460,6 +462,7 @@ export function AuthorNovelMetadataPage() {
                   {/* Status Dropdown */}
                   <div className="relative">
                     <select
+                      aria-label="Trạng thái chương"
                       value={statusFilter}
                       onChange={(e) => {
                         setStatusFilter(e.target.value);
@@ -467,7 +470,7 @@ export function AuthorNovelMetadataPage() {
                       }}
                       className="appearance-none bg-surface-subtle text-stone-800 font-label-md text-meta py-1.5 pl-3 pr-7 rounded-lg focus:outline-none cursor-pointer border border-stone-200 hover:border-stone-300 transition-colors"
                     >
-                      <option value="ALL">Tất cả trạng thái ({chapters.length})</option>
+                      <option value="ALL">Trạng thái ({chapters.length})</option>
                       <option value="PUBLISHED">
                         Đã xuất bản ({chapters.filter((c) => c.status === 'PUBLISHED').length})
                       </option>
@@ -489,6 +492,7 @@ export function AuthorNovelMetadataPage() {
                   {/* Access Dropdown */}
                   <div className="relative">
                     <select
+                      aria-label="Quyền đọc chương"
                       value={accessFilter}
                       onChange={(e) => {
                         setAccessFilter(e.target.value as any);
@@ -496,7 +500,7 @@ export function AuthorNovelMetadataPage() {
                       }}
                       className="appearance-none bg-surface-subtle text-stone-800 font-label-md text-meta py-1.5 pl-3 pr-7 rounded-lg focus:outline-none cursor-pointer border border-stone-200 hover:border-stone-300 transition-colors"
                     >
-                      <option value="ALL">Tất cả quyền đọc</option>
+                      <option value="ALL">Quyền đọc</option>
                       <option value="FREE">Miễn phí</option>
                       <option value="VIP">VIP</option>
                     </select>
@@ -507,7 +511,26 @@ export function AuthorNovelMetadataPage() {
                 </div>
 
                 {/* Right Toolbar Actions */}
-                <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                <div className="sc-chapter-toolbar-actions">
+                  <Menu position="bottom-end" withinPortal>
+                    <Menu.Target>
+                      <button type="button" className="sc-button" aria-label="Sắp xếp hiển thị chương" title={chapterSortOptions.find(option => option.value === chapterSort)?.label}>
+                        <span className="material-symbols-outlined" aria-hidden="true">sort</span>
+                        <span>Hiển thị</span>
+                      </button>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      <Menu.Label>Thứ tự hiển thị</Menu.Label>
+                      {chapterSortOptions.map(option => (
+                        <Menu.Item key={option.value}
+                          leftSection={chapterSort === option.value ? <span className="material-symbols-outlined" aria-hidden="true">check</span> : undefined}
+                          onClick={() => { setChapterSort(option.value); setCurrentPage(1); }}>
+                          {option.label}
+                        </Menu.Item>
+                      ))}
+                    </Menu.Dropdown>
+                  </Menu>
+                  <button type="button" className="sc-button" onClick={() => setOrderOpen(true)} disabled={!chapters.length}>Sắp xếp chương</button>
                   <Link
                     to={`/author/import/${novelId}`}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200/80 text-stone-700 border border-stone-200/70 font-label-md text-meta transition-colors"
