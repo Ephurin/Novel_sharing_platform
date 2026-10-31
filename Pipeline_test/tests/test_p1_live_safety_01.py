@@ -1501,19 +1501,57 @@ def test_17_f09_docker_inspection_fail_closed(monkeypatch: pytest.MonkeyPatch, t
 
     monkeypatch.setattr(subprocess, "run", mock_run_fail_post_cleanup)
     proj_d = f"p1-safety-f09d-{uuid.uuid4().hex[:8]}"
+    partial_volume_d = f"{proj_d}_partial_test_vol"
     ev_dir_d = tmp_path / "ev_d"
-    with pytest.raises(DockerInspectionError) as exc_info:
-        run_container_verification(
-            project_name=proj_d,
-            evidence_dir=ev_dir_d,
-            simulate_fail_partial_startup=True,
+    try:
+        with pytest.raises(DockerInspectionError) as exc_info:
+            run_container_verification(
+                project_name=proj_d,
+                evidence_dir=ev_dir_d,
+                simulate_fail_partial_startup=True,
+            )
+        assert "INSPECTION_FAILED" in str(exc_info.value)
+        ev_file = ev_dir_d / "container-runtime-evidence.json"
+        assert ev_file.exists()
+        ev_data = json.loads(ev_file.read_text(encoding="utf-8"))
+        assert ev_data["cleanup_verification"]["status"] == "CLEANUP_UNVERIFIED"
+        assert ev_data["cleanup_verification"]["containers_remaining"] is None
+    finally:
+        # The fault injection deliberately prevents the runner from verifying
+        # cleanup. Restore real Docker calls and remove ONLY this test-owned
+        # volume, after verifying its project label.
+        monkeypatch.undo()
+        inspect_volume = real_run(
+            [
+                "docker", "volume", "inspect", "--format",
+                '{{ index .Labels "com.docker.compose.project" }}',
+                partial_volume_d,
+            ],
+            capture_output=True, text=True,
         )
-    assert "INSPECTION_FAILED" in str(exc_info.value)
-    ev_file = ev_dir_d / "container-runtime-evidence.json"
-    assert ev_file.exists()
-    ev_data = json.loads(ev_file.read_text(encoding="utf-8"))
-    assert ev_data["cleanup_verification"]["status"] == "CLEANUP_UNVERIFIED"
-    assert ev_data["cleanup_verification"]["containers_remaining"] is None
+        if inspect_volume.returncode == 0:
+            assert inspect_volume.stdout.strip() == proj_d, (
+                "Refusing to remove a volume without matching run ownership"
+            )
+            real_run(
+                ["docker", "volume", "rm", partial_volume_d],
+                capture_output=True, text=True, check=True,
+            )
+        else:
+            assert "no such volume" in inspect_volume.stderr.lower(), (
+                f"Could not verify disposable volume state: {inspect_volume.stderr}"
+            )
+        remaining_volumes = real_run(
+            [
+                "docker", "volume", "ls",
+                "--filter", f"label=com.docker.compose.project={proj_d}",
+                "--format", "{{.Name}}",
+            ],
+            capture_output=True, text=True, check=True,
+        )
+        assert remaining_volumes.stdout.strip() == "", (
+            "Test D leaked run-owned Docker volumes"
+        )
 
     # --- Test E: Healthy empty inventory returns clean empty dictionary ---
     def mock_run_all_healthy_empty(cmd: list[str], *args: object, **kwargs: object):
