@@ -17,6 +17,8 @@ Mọi script có ghi dữ liệu chạy trên môi trường tạm `scripts/e2e_
 
 Biến môi trường: `EPHURIN_ALLOW_TEST_DB_MUTATIONS=1`, `EPHURIN_E2E_DEMO_PASSWORD` (lấy từ `backend/src/scripts/seed-sample-stories.ts`).
 
+Nếu máy có hai MongoDB cùng nghe cổng 27017 (ví dụ dịch vụ MongoDB của Windows ở `127.0.0.1` và MongoDB trong Docker ở `::1`), script sẽ từ chối chạy. Lý do: backend Node hiểu `localhost` là `::1`, còn Python hiểu là `127.0.0.1`, nên hai bên sẽ nói chuyện với hai server khác nhau. Khi đó đặt `BASE_MONGODB_URI=mongodb://[::1]:27017` để trỏ đúng Mongo của Docker mà backend dev đang dùng.
+
 **Trạng thái dùng trong evidence:**
 - `PASS` / `FAIL`: đã chạy tự động.
 - `NOT_IMPLEMENTED`: SRS mô tả nhưng code chưa có, nên không có gì để chạy.
@@ -102,7 +104,7 @@ Biến môi trường: `EPHURIN_ALLOW_TEST_DB_MUTATIONS=1`, `EPHURIN_E2E_DEMO_PA
 | TC-NOV-07 | §2.2, §3.2 bước 5–8 | Gửi xuất bản chương hợp lệ | `PUBLISHED`, khách đọc được | SRS |
 | TC-NOV-08 | §3.2 7a1 | Gửi xuất bản chương chứa từ khoá | `PENDING_MODERATION`, chưa công khai | SRS |
 | TC-NOV-09 | §3.2 7a2 | Admin duyệt chương chờ | `PUBLISHED` | SRS |
-| TC-NOV-10 | §3.2 7a2 (từ chối) | Admin từ chối/yêu cầu sửa chương | Tác giả nhận lý do | MANUAL |
+| TC-NOV-10 | §3.2 7a2 (từ chối) | Admin từ chối/yêu cầu sửa chương | Chương không công khai; tác giả nhận lý do | SRS |
 | TC-NOV-11 | §3.3 bước 1–7 | Quản lý nhân vật/timeline, quyền sở hữu | Lưu kèm nguồn; người không sở hữu bị chặn | NOT_RUN (thuộc luồng Writing Copilot, ngoài phạm vi PR #73) |
 | TC-NOV-12 | README §3.2 (Chapters: Guest R Free) | Khách mở chương VIP | Không nhận nội dung (402) | SRS; SMOKE (khách chỉ đọc chương miễn phí) |
 | TC-NOV-13 | README §3.2 | Độc giả tạo truyện | 403 | SRS |
@@ -124,7 +126,7 @@ Biến môi trường: `EPHURIN_ALLOW_TEST_DB_MUTATIONS=1`, `EPHURIN_E2E_DEMO_PA
 | TC-PAY-10 | §3.4 Pre-condition | Khách ủng hộ / xem ví | 401 | SMOKE (`guest/anonymous-api-negatives`) |
 | TC-PAY-11 | §3.3 2a | Rút dưới hạn mức tối thiểu | Từ chối | SRS |
 | TC-PAY-12 | §1 Locked Balance, §3.3 5a | Gửi yêu cầu rút rồi Admin từ chối | Coin chuyển sang đóng băng; từ chối thì trả lại | SRS |
-| TC-PAY-13 | §3.3 5a3 | Tác giả nhận thông báo từ chối rút | Có thông báo kèm lý do | MANUAL |
+| TC-PAY-13 | §3.3 5a3 | Tác giả nhận thông báo từ chối rút | Có thông báo kèm lý do | SRS |
 | TC-PAY-14 | §3.3 bước 5–7 | Admin duyệt rút | Trừ hẳn Coin đóng băng, giao dịch `SUCCESS` | SRS |
 | TC-PAY-15 | §1 Rate Limiting | Gửi liên tục 40 yêu cầu thanh toán | Có phản hồi 429 | SRS |
 
@@ -141,7 +143,7 @@ Biến môi trường: `EPHURIN_ALLOW_TEST_DB_MUTATIONS=1`, `EPHURIN_E2E_DEMO_PA
 | TC-MOD-07 | §3.4 3a | Quyết định lần hai trên review đã xử lý | Báo trạng thái đã đổi (409) | SRS |
 | TC-MOD-08 | §3.4 Actor | Độc giả mở hàng đợi kiểm duyệt | 403 | SRS |
 | TC-MOD-09 | §1 Non-blocking Authoring | Lưu nháp chứa từ khoá | Không bị chặn | SRS |
-| TC-MOD-10 | §1 No LLM Moderation | Kiểm duyệt không gọi LLM | Không có lời gọi AI trong luồng kiểm duyệt | MANUAL (đọc code `content-control`) |
+| TC-MOD-10 | §1 No LLM Moderation | Kiểm duyệt không gọi LLM | Không có lời gọi AI trong luồng kiểm duyệt | SRS (quét import trong `content-control`) |
 
 ## 8. Admin Novel Management (`admin-novel-management-service.md`)
 
@@ -154,7 +156,7 @@ Biến môi trường: `EPHURIN_ALLOW_TEST_DB_MUTATIONS=1`, `EPHURIN_E2E_DEMO_PA
 | TC-ADM-05 | §5 | Gỡ truyện không tồn tại | `CONTENT_001` | SRS |
 | TC-ADM-06 | §1, §6 (khôi phục được) | Khôi phục truyện đã gỡ | Hiện lại | SRS |
 | TC-ADM-07 | §4 bước 6, §7 | Hộp thoại cảnh báo trước khi gỡ trên UI | Có cảnh báo | MANUAL |
-| TC-ADM-08 | §4 bước 8, §7 | Draft Mongo của truyện bị gỡ không còn load trong IDE | Ẩn/archived | MANUAL |
+| TC-ADM-08 | §4 bước 8, §7 | Draft Mongo của truyện bị gỡ không còn load trong IDE | `deletedAt` được đặt cho mọi bản nháp của truyện | SRS |
 
 ## 9. AI Intelligence Service (`ai-intelligence-service.md`)
 
