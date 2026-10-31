@@ -29,6 +29,7 @@ RUNNERS = [
         "run_reader_social_comment_preferences_e2e.py",
         "run_reader_discovery_reading_state_e2e.py",
         "run_ui_smoke_matrix_e2e.py",
+        "run_srs_acceptance_e2e.py",
     )
 ]
 RUNNER_ENV_KEYS = [stack.OPT_IN_ENV, "EPHURIN_E2E_TEST_DB_NAME", "EPHURIN_E2E_BACKEND_PORT", "EPHURIN_E2E_WEB_PORT"]
