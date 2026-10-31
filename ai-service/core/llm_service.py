@@ -469,6 +469,15 @@ class LLMService:
                             "live_upstream_not_authorized",
                             "model_not_approved",
                             "private_notes_forbidden_in_prompt",
+                            "free_tier_status_unverified",
+                            "quota_config_required",
+                            "rpm_limit_exceeded",
+                            "tpm_limit_exceeded",
+                            "rpd_limit_exceeded",
+                            "concurrency_limit_exceeded",
+                            "provider_rate_limited",
+                            "provider_timeout",
+                            "provider_unavailable",
                         )
                     ):
                         raise LLMServiceError("BUDGET_GUARD_DENIED") from exc
@@ -604,7 +613,11 @@ class LLMService:
             raise LLMServiceError(f"OpenAI request failed: {exc}") from exc
 
     def _can_fallback_to_openai(self) -> bool:
-        if os.getenv("BUDGET_GUARD_URL") or os.getenv("BUDGET_GUARD_MODE") == "proxy":
+        if (
+            os.getenv("BUDGET_GUARD_URL")
+            or os.getenv("BUDGET_GUARD_MODE") == "proxy"
+            or os.getenv("AI_EXECUTION_MODE") == "live_free_tier"
+        ):
             return False
         return self.fallback_provider == "openai" and bool(self.fallback_api_key)
 
@@ -618,7 +631,11 @@ class LLMService:
 
     @staticmethod
     def _local_fallback_enabled() -> bool:
-        if os.getenv("BUDGET_GUARD_URL") or os.getenv("BUDGET_GUARD_MODE") == "proxy":
+        if (
+            os.getenv("BUDGET_GUARD_URL")
+            or os.getenv("BUDGET_GUARD_MODE") == "proxy"
+            or os.getenv("AI_EXECUTION_MODE") == "live_free_tier"
+        ):
             return False
         value = (os.getenv("LLM_LOCAL_FALLBACK", "true") or "true").strip().lower()
         return value not in {"0", "false", "no", "off"}

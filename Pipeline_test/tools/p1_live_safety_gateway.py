@@ -210,6 +210,39 @@ except ImportError:
         NoRedirect,
     )
 
+try:
+    from Pipeline_test.tools.quota_controller import (
+        FreeTierQuotaLedger,
+        QuotaExceededError,
+        RPMLimitExceeded,
+        TPMLimitExceeded,
+        RPDLimitExceeded,
+        ConcurrencyLimitExceeded,
+        QuotaMeterUnavailableError,
+        FreeTierStatusUnverifiedError,
+        QuotaConfigRequiredError,
+        APPROVED_LLM_MODELS,
+        APPROVED_EMBEDDING_MODELS,
+        ALL_APPROVED_MODELS,
+        calculate_backoff_delay,
+    )
+except ImportError:
+    from quota_controller import (  # type: ignore[no-redef]
+        FreeTierQuotaLedger,
+        QuotaExceededError,
+        RPMLimitExceeded,
+        TPMLimitExceeded,
+        RPDLimitExceeded,
+        ConcurrencyLimitExceeded,
+        QuotaMeterUnavailableError,
+        FreeTierStatusUnverifiedError,
+        QuotaConfigRequiredError,
+        APPROVED_LLM_MODELS,
+        APPROVED_EMBEDDING_MODELS,
+        ALL_APPROVED_MODELS,
+        calculate_backoff_delay,
+    )
+
 APPROVED_MODEL = "gemini-3.5-flash-lite"
 HARD_MAX_CALLS = 15
 HARD_WINDOW_CALLS = 10
@@ -643,6 +676,9 @@ class LiveSafetyBudgetLedger:
 
 class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
     ledger: LiveSafetyBudgetLedger | None = None
+    execution_mode: str = "offline_test"
+    quota_ledger: FreeTierQuotaLedger | None = None
+    live_free_tier_enabled: bool = False
     upstream_base_url: str | None = None
     upstream_api_key: str | None = None
     client_tokens: dict[str, str] | None = None
@@ -667,12 +703,19 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
             pass
 
     def _verify_fake_upstream_only(self) -> bool:
-        if not self.enable_live_safety_guard:
-            self._send_json(503, {"error": "LIVE_SAFETY_GUARD_NOT_ENABLED"})
-            return False
-        if self.live_forwarding_enabled:
-            self._send_json(503, {"error": "LIVE_UPSTREAM_NOT_AUTHORIZED"})
-            return False
+        if self.execution_mode == "live_free_tier":
+            if not self.live_free_tier_enabled:
+                self._send_json(503, {"error": "FREE_TIER_STATUS_UNVERIFIED"})
+                return False
+            if self.live_forwarding_enabled:
+                return True
+        else:
+            if not self.enable_live_safety_guard:
+                self._send_json(503, {"error": "LIVE_SAFETY_GUARD_NOT_ENABLED"})
+                return False
+            if self.live_forwarding_enabled:
+                self._send_json(503, {"error": "LIVE_UPSTREAM_NOT_AUTHORIZED"})
+                return False
         parsed = urlparse(self.upstream_base_url or "")
         if (
             parsed.scheme != "http"
@@ -692,6 +735,13 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         if self.path in ("/health", "/status", "/api/budget/status"):
+            if self.execution_mode == "live_free_tier":
+                if self.quota_ledger is None:
+                    return self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE", "detail": "LEDGER_NOT_ATTACHED"})
+                try:
+                    return self._send_json(200, self.quota_ledger.get_summary())
+                except QuotaMeterUnavailableError as exc:
+                    return self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE", "detail": str(exc)})
             if not self.enable_live_safety_guard or self.ledger is None:
                 return self._send_json(503, {"error": "LIVE_SAFETY_GUARD_NOT_ENABLED"})
             try:
@@ -706,6 +756,54 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
                 return self._send_json(401, {"error": "WORKER_AUTH_REQUIRED"})
             if not self._verify_fake_upstream_only():
                 return
+            if self.execution_mode == "live_free_tier":
+                if self.quota_ledger is None:
+                    return self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE", "detail": "LEDGER_NOT_ATTACHED"})
+                try:
+                    self.quota_ledger._healthy()
+                    ticket = self.quota_ledger.reserve(
+                        model=APPROVED_MODEL,
+                        estimated_input_tokens=10,
+                        client_service=self.client_tokens[token],
+                        operation="models_discovery",
+                    )
+                    request = urllib.request.Request(
+                        (self.upstream_base_url or "").rstrip("/") + "/v1/models",
+                        headers={
+                            "Authorization": "Bearer " + (self.upstream_api_key or ""),
+                            "X-Gateway-Dispatch-Id": ticket["ticket_id"],
+                            "X-Gateway-Client": self.client_tokens[token],
+                        },
+                    )
+                    try:
+                        status, headers, body_bytes = _execute_bounded_request(
+                            request,
+                            timeout_seconds=self.upstream_timeout,
+                            max_response_bytes=65536,
+                        )
+                        if status == 200:
+                            result = json.loads(body_bytes.decode("utf-8"))
+                            self.quota_ledger.finalize(ticket["ticket_id"], "SUCCESS")
+                            self._send_json(200, result)
+                        else:
+                            self.quota_ledger.finalize(ticket["ticket_id"], "FAILED")
+                            self._send_json(status, {"error": "MODEL_DISCOVERY_UNAVAILABLE"})
+                    except RequestDeadlineExceeded:
+                        self.quota_ledger.finalize(ticket["ticket_id"], "TIMEOUT")
+                        self._send_json(503, {"error": "MODEL_DISCOVERY_UNAVAILABLE", "detail": "REQUEST_DEADLINE_EXCEEDED"})
+                    except Exception:
+                        self.quota_ledger.finalize(ticket["ticket_id"], "FAILED")
+                        self._send_json(503, {"error": "MODEL_DISCOVERY_UNAVAILABLE"})
+                except FreeTierStatusUnverifiedError:
+                    self._send_json(503, {"error": "FREE_TIER_STATUS_UNVERIFIED"})
+                except (RPMLimitExceeded, TPMLimitExceeded, RPDLimitExceeded, ConcurrencyLimitExceeded) as exc:
+                    self._send_json(429, {"error": str(exc)})
+                except QuotaMeterUnavailableError as exc:
+                    self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE", "detail": str(exc)})
+                except Exception:
+                    self._send_json(503, {"error": "MODEL_DISCOVERY_UNAVAILABLE"})
+                return
+
             if self.ledger is None:
                 return self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE", "detail": "LEDGER_NOT_ATTACHED"})
             try:
@@ -781,37 +879,28 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
                 return self._send_json(401, {"error": "WORKER_AUTH_REQUIRED"})
             if not self._verify_fake_upstream_only():
                 return
-            if self.ledger is None:
-                return self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE", "detail": "LEDGER_NOT_ATTACHED"})
-            self.ledger._healthy()
+            if self.execution_mode == "live_free_tier":
+                if self.quota_ledger is None:
+                    return self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE", "detail": "LEDGER_NOT_ATTACHED"})
+                self.quota_ledger._healthy()
+            else:
+                if self.ledger is None:
+                    return self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE", "detail": "LEDGER_NOT_ATTACHED"})
+                self.ledger._healthy()
 
             body = json.loads(raw_body)
             native = self.path.startswith("/v1beta/models/") and self.path.endswith(":generateContent")
             compat = self.path == "/v1/chat/completions"
-            if not (native or compat):
+            is_embed = self.path.startswith("/v1beta/models/") and (self.path.endswith(":embedContent") or self.path.endswith(":batchEmbedContents"))
+            if not (native or compat or is_embed):
                 return self._send_json(403, {"error": "UNSUPPORTED_BILLABLE_ROUTE"})
 
-            model = self.path.split("/models/", 1)[1].split(":")[0] if native else body.get("model")
-            normalized_model = str(model or "").strip().removeprefix("models/")
-            if normalized_model != APPROVED_MODEL:
-                if self.ledger:
-                    self.ledger.record_denial("MODEL_NOT_APPROVED", client_service=client, operation=self.path)
-                return self._send_json(403, {"error": "MODEL_NOT_APPROVED", "requested_model": str(model)})
-
             if _payload_contains_private_notes(body):
-                if self.ledger:
+                if self.execution_mode == "live_free_tier" and self.quota_ledger:
+                    self.quota_ledger.record_denial("PRIVATE_NOTES_FORBIDDEN_IN_PROMPT", client_service=client, operation=self.path)
+                elif self.ledger:
                     self.ledger.record_denial("PRIVATE_NOTES_FORBIDDEN_IN_PROMPT", client_service=client, operation=self.path)
                 return self._send_json(403, {"error": "PRIVATE_NOTES_FORBIDDEN_IN_PROMPT"})
-
-            config = body.get("generationConfig", {}) if native else body
-            limit = config.get("maxOutputTokens") if native else config.get("max_tokens")
-            if type(limit) is not int or not 1 <= limit <= self.max_output_tokens or body.get("stream"):
-                return self._send_json(422, {"error": "BOUNDED_TEXT_OUTPUT_REQUIRED"})
-            variants = config.get("candidateCount", 1) if native else body.get("n", 1)
-            if type(variants) is not int or variants != 1 or "best_of" in body:
-                return self._send_json(403, {"error": "UNPRICED_MULTIPLE_OUTPUTS"})
-            if config.get("responseModalities", ["TEXT"]) != ["TEXT"]:
-                return self._send_json(403, {"error": "UNPRICED_OUTPUT_MODALITY"})
 
             forbidden = (
                 "inlineData",
@@ -832,8 +921,132 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
                     return any(has_forbidden(v) for v in value)
                 return False
 
-            if has_forbidden(body):
-                return self._send_json(403, {"error": "UNPRICED_BILLABLE_VARIANT"})
+            if self.execution_mode == "offline_test":
+                if is_embed:
+                    return self._send_json(403, {"error": "GUARDED_P1_EMBEDDING_DISABLED"})
+                model = self.path.split("/models/", 1)[1].split(":")[0] if native else body.get("model")
+                normalized_model = str(model or "").strip().removeprefix("models/")
+                if normalized_model != APPROVED_MODEL:
+                    if self.ledger:
+                        self.ledger.record_denial("MODEL_NOT_APPROVED", client_service=client, operation=self.path)
+                    return self._send_json(403, {"error": "MODEL_NOT_APPROVED", "requested_model": str(model)})
+
+                config = body.get("generationConfig", {}) if native else body
+                limit = config.get("maxOutputTokens") if native else config.get("max_tokens")
+                if type(limit) is not int or not 1 <= limit <= self.max_output_tokens or body.get("stream"):
+                    return self._send_json(422, {"error": "BOUNDED_TEXT_OUTPUT_REQUIRED"})
+                variants = config.get("candidateCount", 1) if native else body.get("n", 1)
+                if type(variants) is not int or variants != 1 or "best_of" in body:
+                    return self._send_json(403, {"error": "UNPRICED_MULTIPLE_OUTPUTS"})
+                if config.get("responseModalities", ["TEXT"]) != ["TEXT"]:
+                    return self._send_json(403, {"error": "UNPRICED_OUTPUT_MODALITY"})
+                if has_forbidden(body):
+                    return self._send_json(403, {"error": "UNPRICED_BILLABLE_VARIANT"})
+
+            elif self.execution_mode == "live_free_tier":
+                if self.quota_ledger is None:
+                    return self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE", "detail": "QUOTA_LEDGER_NOT_ATTACHED"})
+                self.quota_ledger._healthy()
+
+                if is_embed:
+                    model = self.path.split("/models/", 1)[1].split(":")[0] if "/models/" in self.path else "gemini-embedding-2"
+                    normalized_model = str(model or "").strip().removeprefix("models/")
+                    if normalized_model not in APPROVED_EMBEDDING_MODELS:
+                        self.quota_ledger.record_denial("MODEL_NOT_APPROVED", client_service=client, operation=self.path)
+                        return self._send_json(403, {"error": "MODEL_NOT_APPROVED", "requested_model": str(model)})
+                    op_name = "gemini_batch_embed" if self.path.endswith(":batchEmbedContents") else "gemini_embed"
+                else:
+                    model = self.path.split("/models/", 1)[1].split(":")[0] if native else body.get("model")
+                    normalized_model = str(model or "").strip().removeprefix("models/")
+                    if normalized_model not in APPROVED_LLM_MODELS:
+                        self.quota_ledger.record_denial("MODEL_NOT_APPROVED", client_service=client, operation=self.path)
+                        return self._send_json(403, {"error": "MODEL_NOT_APPROVED", "requested_model": str(model)})
+
+                    config = body.get("generationConfig", {}) if native else body
+                    limit = config.get("maxOutputTokens") if native else config.get("max_tokens")
+                    if type(limit) is not int or not 1 <= limit <= self.max_output_tokens or body.get("stream"):
+                        return self._send_json(422, {"error": "BOUNDED_TEXT_OUTPUT_REQUIRED"})
+                    variants = config.get("candidateCount", 1) if native else body.get("n", 1)
+                    if type(variants) is not int or variants != 1 or "best_of" in body:
+                        return self._send_json(403, {"error": "UNPRICED_MULTIPLE_OUTPUTS"})
+                    if config.get("responseModalities", ["TEXT"]) != ["TEXT"]:
+                        return self._send_json(403, {"error": "UNPRICED_OUTPUT_MODALITY"})
+                    if has_forbidden(body):
+                        return self._send_json(403, {"error": "UNPRICED_BILLABLE_VARIANT"})
+                    op_name = "gemini_generate_content" if native else "chat_completions"
+
+                estimated_tokens = max(10, len(raw_body) // 4)
+                try:
+                    ticket = self.quota_ledger.reserve(
+                        model=normalized_model,
+                        estimated_input_tokens=estimated_tokens,
+                        client_service=client,
+                        operation=op_name,
+                    )
+                except FreeTierStatusUnverifiedError:
+                    return self._send_json(503, {"error": "FREE_TIER_STATUS_UNVERIFIED"})
+                except QuotaConfigRequiredError:
+                    return self._send_json(503, {"error": "QUOTA_CONFIG_REQUIRED"})
+                except RPMLimitExceeded:
+                    return self._send_json(429, {"error": "RPM_LIMIT_EXCEEDED"})
+                except TPMLimitExceeded:
+                    return self._send_json(429, {"error": "TPM_LIMIT_EXCEEDED"})
+                except RPDLimitExceeded:
+                    return self._send_json(429, {"error": "RPD_LIMIT_EXCEEDED"})
+                except ConcurrencyLimitExceeded:
+                    return self._send_json(429, {"error": "CONCURRENCY_LIMIT_EXCEEDED"})
+                except QuotaMeterUnavailableError as exc:
+                    return self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE", "detail": str(exc)})
+
+                wire = json.dumps(body, ensure_ascii=False).encode("utf-8")
+                url = (self.upstream_base_url or "").rstrip("/") + self.path
+                headers = {
+                    "Content-Type": "application/json",
+                    "X-Gateway-Dispatch-Id": ticket["ticket_id"],
+                    "X-Gateway-Client": client,
+                }
+                if self.upstream_api_key:
+                    headers["x-goog-api-key" if (native or is_embed) else "Authorization"] = (
+                        "" if (native or is_embed) else "Bearer "
+                    ) + self.upstream_api_key
+                request = urllib.request.Request(url, data=wire, headers=headers, method="POST")
+                try:
+                    status, headers, body_bytes = _execute_bounded_request(
+                        request,
+                        timeout_seconds=self.upstream_timeout,
+                        max_response_bytes=2_000_000,
+                    )
+                    if status == 200:
+                        result = json.loads(body_bytes.decode("utf-8"))
+                        actual_tokens = None
+                        if isinstance(result, dict):
+                            usage = result.get("usageMetadata") or result.get("usage")
+                            if isinstance(usage, dict):
+                                actual_tokens = usage.get("promptTokenCount") or usage.get("prompt_tokens")
+                        self.quota_ledger.finalize(ticket["ticket_id"], "SUCCESS", actual_input_tokens=actual_tokens)
+                        return self._send_json(200, result)
+                    elif status == 429:
+                        self.quota_ledger.finalize(ticket["ticket_id"], "PROVIDER_RATE_LIMITED")
+                        retry_after = headers.get("Retry-After")
+                        resp_data: dict[str, Any] = {"error": "PROVIDER_RATE_LIMITED"}
+                        if retry_after:
+                            resp_data["retry_after"] = retry_after
+                        return self._send_json(429, resp_data)
+                    elif status in (401, 403):
+                        self.quota_ledger.finalize(ticket["ticket_id"], "AUTH_ERROR")
+                        return self._send_json(status, {"error": "PROVIDER_UNAVAILABLE", "upstream_status": status})
+                    else:
+                        self.quota_ledger.finalize(ticket["ticket_id"], "FAILED")
+                        return self._send_json(status, {"error": "PROVIDER_UNAVAILABLE", "upstream_status": status})
+                except RequestDeadlineExceeded:
+                    self.quota_ledger.finalize(ticket["ticket_id"], "TIMEOUT")
+                    return self._send_json(504, {"error": "PROVIDER_TIMEOUT", "detail": "REQUEST_DEADLINE_EXCEEDED"})
+                except ResponseBoundExceeded:
+                    self.quota_ledger.finalize(ticket["ticket_id"], "OVERSIZED")
+                    return self._send_json(502, {"error": "PROVIDER_UNAVAILABLE", "detail": "RESPONSE_BOUND_EXCEEDED"})
+                except Exception as exc:
+                    self.quota_ledger.finalize(ticket["ticket_id"], "FAILED")
+                    return self._send_json(502, {"error": "PROVIDER_UNAVAILABLE", "detail": str(exc)})
 
             wire = json.dumps(body, ensure_ascii=False).encode("utf-8")
             liability = (len(wire) + 4096) * self.input_rate + limit * self.output_rate
@@ -909,34 +1122,54 @@ def start_live_safety_gateway(
     run_id: str | None = None,
     client_tokens: dict[str, str] | None = None,
     upstream_timeout: float = 3.0,
-) -> tuple[ThreadingHTTPServer, threading.Thread, LiveSafetyBudgetLedger]:
-    ledger = LiveSafetyBudgetLedger(
-        state_file,
-        max_calls=max_calls,
-        max_window_calls=max_window_calls,
-        window_seconds=window_seconds,
-        max_cost_usd=max_cost_usd,
-        admission_cost_usd=admission_cost_usd,
-        max_wall_clock_seconds=max_wall_clock_seconds,
-        enable_live_safety_guard=enable_live_safety_guard,
-        initialize=initialize,
-        run_id=run_id,
-    )
-
+    execution_mode: str = "offline_test",
+    enable_live_free_tier: bool = False,
+    model_quotas: dict[str, dict[str, Any]] | None = None,
+) -> tuple[ThreadingHTTPServer, threading.Thread, Any]:
     class Handler(LiveSafetyGatewayHandler):
         pass
 
-    Handler.ledger = ledger
     Handler.upstream_base_url = upstream_base_url
     Handler.upstream_api_key = upstream_api_key
     Handler.client_tokens = client_tokens or {}
     Handler.upstream_timeout = upstream_timeout
     Handler.enable_live_safety_guard = enable_live_safety_guard
     Handler.live_forwarding_enabled = False
+    Handler.execution_mode = execution_mode
+    Handler.live_free_tier_enabled = enable_live_free_tier
+
+    if execution_mode == "live_free_tier":
+        quota_ledger = FreeTierQuotaLedger(
+            state_file,
+            run_id=run_id,
+            live_free_tier_enabled=enable_live_free_tier,
+            model_quotas=model_quotas,
+            initialize=initialize,
+        )
+        Handler.quota_ledger = quota_ledger
+        Handler.ledger = None
+        ledger_ret: Any = quota_ledger
+    else:
+        ledger = LiveSafetyBudgetLedger(
+            state_file,
+            max_calls=max_calls,
+            max_window_calls=max_window_calls,
+            window_seconds=window_seconds,
+            max_cost_usd=max_cost_usd,
+            admission_cost_usd=admission_cost_usd,
+            max_wall_clock_seconds=max_wall_clock_seconds,
+            enable_live_safety_guard=enable_live_safety_guard,
+            initialize=initialize,
+            run_id=run_id,
+        )
+        Handler.ledger = ledger
+        Handler.quota_ledger = None
+        ledger_ret = ledger
+
     server = ThreadingHTTPServer((host, port), Handler)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
-    return server, thread, ledger
+    return server, thread, ledger_ret
 
 
 if __name__ == "__main__":
@@ -951,25 +1184,42 @@ if __name__ == "__main__":
     parser.add_argument("--max-calls", type=int, default=HARD_MAX_CALLS)
     parser.add_argument("--max-window-calls", type=int, default=HARD_WINDOW_CALLS)
     parser.add_argument("--window-seconds", type=float, default=HARD_WINDOW_SECONDS)
+    parser.add_argument("--execution-mode", default=os.getenv("AI_EXECUTION_MODE", "offline_test"))
+    parser.add_argument("--enable-live-free-tier", action="store_true")
     args = parser.parse_args()
 
     guard_enabled = args.enable_live_safety_guard or (
         os.getenv("LIVE_SAFETY_GUARD_ENABLED", "").strip().lower() == "true"
     )
+    free_tier_enabled = args.enable_live_free_tier or (
+        os.getenv("LIVE_FREE_TIER_ENABLED", "").strip().lower() == "true"
+    )
+    mode = args.execution_mode.strip().lower()
+
     if args.initialize:
-        ledger = LiveSafetyBudgetLedger(
-            args.state,
-            max_calls=args.max_calls,
-            max_window_calls=args.max_window_calls,
-            window_seconds=args.window_seconds,
-            enable_live_safety_guard=guard_enabled,
-            initialize=True,
-            run_id=args.run_id,
-        )
-        ledger.get_summary()
-        ledger.close()
+        if mode == "live_free_tier":
+            quota_ledger = FreeTierQuotaLedger(
+                args.state,
+                run_id=args.run_id,
+                live_free_tier_enabled=free_tier_enabled,
+                initialize=True,
+            )
+            quota_ledger.get_summary()
+            quota_ledger.close()
+        else:
+            ledger = LiveSafetyBudgetLedger(
+                args.state,
+                max_calls=args.max_calls,
+                max_window_calls=args.max_window_calls,
+                window_seconds=args.window_seconds,
+                enable_live_safety_guard=guard_enabled,
+                initialize=True,
+                run_id=args.run_id,
+            )
+            ledger.get_summary()
+            ledger.close()
     else:
-        server, thread, ledger = start_live_safety_gateway(
+        server, thread, active_ledger = start_live_safety_gateway(
             args.state,
             host="0.0.0.0",
             port=args.port,
@@ -981,5 +1231,7 @@ if __name__ == "__main__":
             enable_live_safety_guard=guard_enabled,
             client_tokens=json.loads(os.environ["WORKER_AUTH_TOKENS"]),
             upstream_timeout=float(os.getenv("GATEWAY_UPSTREAM_TIMEOUT_SECONDS", "3")),
+            execution_mode=mode,
+            enable_live_free_tier=free_tier_enabled,
         )
         thread.join()
