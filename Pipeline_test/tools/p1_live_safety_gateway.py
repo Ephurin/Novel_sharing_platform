@@ -30,6 +30,7 @@ from urllib.parse import urlparse
 import http.client
 import re
 import socket
+import sys
 import urllib.request
 import uuid
 
@@ -74,6 +75,16 @@ def _extract_json_candidates(text: str) -> list[Any]:
             except Exception:
                 pass
     return candidates
+
+
+import ssl
+
+_OPENER_OVERRIDE: urllib.request.OpenerDirector | None = None
+
+
+def get_default_ssl_context() -> ssl.SSLContext:
+    """Return standard verified SSL context used for bounded HTTPS provider forwarding."""
+    return ssl.create_default_context()
 
 
 def _execute_bounded_request(
@@ -134,15 +145,16 @@ def _execute_bounded_request(
         def https_open(self, req: urllib.request.Request) -> http.client.HTTPResponse:
             return self.do_open(BoundedHTTPSConnection, req)
 
-    import ssl
-    ssl_context = ssl.create_default_context()
-
-    opener = urllib.request.build_opener(
-        urllib.request.ProxyHandler({}),
-        NoRedirect(),
-        BoundedHTTPHandler(),
-        BoundedHTTPSHandler(context=ssl_context),
-    )
+    if _OPENER_OVERRIDE is not None:
+        opener = _OPENER_OVERRIDE
+    else:
+        ssl_context = get_default_ssl_context()
+        opener = urllib.request.build_opener(
+            urllib.request.ProxyHandler({}),
+            NoRedirect(),
+            BoundedHTTPHandler(),
+            BoundedHTTPSHandler(context=ssl_context),
+        )
 
     try:
         remaining = deadline_mono - time.monotonic()
@@ -151,6 +163,8 @@ def _execute_bounded_request(
 
         try:
             response = opener.open(request, timeout=max(0.001, remaining))
+        except (TimeoutError, socket.timeout) as exc:
+            raise RequestDeadlineExceeded(f"Socket timed out: {exc}")
         except urllib.error.HTTPError as http_err:
             fp = getattr(http_err, "fp", None)
             raw_sock = getattr(fp, "raw", None)
@@ -177,6 +191,10 @@ def _execute_bounded_request(
                 if total_read > max_response_bytes:
                     raise ResponseBoundExceeded("Upstream response exceeds bound")
             return http_err.code, dict(http_err.headers), b"".join(chunks)
+        except urllib.error.URLError as exc:
+            if isinstance(getattr(exc, "reason", None), (TimeoutError, socket.timeout)) or "timed out" in str(getattr(exc, "reason", "")).lower():
+                raise RequestDeadlineExceeded(f"Socket timed out: {getattr(exc, 'reason', exc)}")
+            raise
 
         fp = getattr(response, "fp", None)
         raw_sock = getattr(fp, "raw", None)
@@ -244,6 +262,7 @@ try:
         APPROVED_EMBEDDING_MODELS,
         ALL_APPROVED_MODELS,
         calculate_backoff_delay,
+        parse_model_quotas_from_env,
     )
 except ImportError:
     from quota_controller import (  # type: ignore[no-redef]
@@ -260,6 +279,7 @@ except ImportError:
         APPROVED_EMBEDDING_MODELS,
         ALL_APPROVED_MODELS,
         calculate_backoff_delay,
+        parse_model_quotas_from_env,
     )
 
 APPROVED_MODEL = "gemini-3.5-flash-lite"
@@ -710,12 +730,15 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
     input_rate = Decimal("0.30") / Decimal("1000000")
     output_rate = Decimal("2.50") / Decimal("1000000")
 
-    def _send_json(self, status: int, data: dict[str, Any]) -> None:
+    def _send_json(self, status: int, data: dict[str, Any], extra_headers: dict[str, str] | None = None) -> None:
         body = json.dumps(data).encode("utf-8")
         try:
             self.send_response(status)
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(body)))
+            if extra_headers:
+                for k, v in extra_headers.items():
+                    self.send_header(k, str(v))
             self.end_headers()
             self.wfile.write(body)
         except (BrokenPipeError, ConnectionResetError):
@@ -1120,11 +1143,13 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
                         return self._send_json(200, result)
                     elif status == 429:
                         self.quota_ledger.finalize(ticket["ticket_id"], "PROVIDER_RATE_LIMITED")
-                        retry_after = headers.get("Retry-After")
+                        retry_after = headers.get("Retry-After") or headers.get("retry-after")
                         resp_data: dict[str, Any] = {"error": "PROVIDER_RATE_LIMITED"}
+                        extra_hdrs: dict[str, str] = {}
                         if retry_after:
-                            resp_data["retry_after"] = retry_after
-                        return self._send_json(429, resp_data)
+                            resp_data["retry_after"] = str(retry_after)
+                            extra_hdrs["Retry-After"] = str(retry_after)
+                        return self._send_json(429, resp_data, extra_headers=extra_hdrs)
                     elif status in (401, 403):
                         self.quota_ledger.finalize(ticket["ticket_id"], "AUTH_ERROR")
                         return self._send_json(status, {"error": "PROVIDER_UNAVAILABLE", "upstream_status": status})
@@ -1279,21 +1304,37 @@ def start_live_safety_gateway(
     return server, thread, ledger_ret
 
 
-if __name__ == "__main__":
+def cli_main(argv: list[str] | None = None) -> int:
     import argparse
 
-    parser = argparse.ArgumentParser(description="P1-LIVE-SAFETY-01 Budget Gateway")
-    parser.add_argument("--state", required=True)
-    parser.add_argument("--initialize", action="store_true")
-    parser.add_argument("--enable-live-safety-guard", action="store_true")
-    parser.add_argument("--run-id")
-    parser.add_argument("--port", type=int, default=18090)
+    parser = argparse.ArgumentParser(description="P1-LIVE-SAFETY-01 / P1-LIVE-FREE-01 Safety Gateway")
+    parser.add_argument("--state", required=True, help="Path to authoritative ledger state file")
+    parser.add_argument("--initialize", action="store_true", help="Initialize authoritative ledger file")
+    parser.add_argument("--run-id", help="Deterministic run ID for initialization")
+    parser.add_argument("--host", default="0.0.0.0", help="Gateway bind host")
+    parser.add_argument("--port", type=int, default=18090, help="Gateway bind port")
     parser.add_argument("--max-calls", type=int, default=HARD_MAX_CALLS)
     parser.add_argument("--max-window-calls", type=int, default=HARD_WINDOW_CALLS)
     parser.add_argument("--window-seconds", type=float, default=HARD_WINDOW_SECONDS)
-    parser.add_argument("--execution-mode", default=os.getenv("AI_EXECUTION_MODE", "offline_test"))
+    parser.add_argument("--execution-mode", default=None, help="offline_test | live_free_tier | live_paid")
+    parser.add_argument("--enable-live-safety-guard", action="store_true")
     parser.add_argument("--enable-live-free-tier", action="store_true")
-    args = parser.parse_args()
+    parser.add_argument("--enable-live-forwarding", action="store_true")
+    parser.add_argument("--model-quotas-json", help="Explicit model quotas JSON string")
+    parser.add_argument("--model-quotas-file", help="Path to explicit model quotas JSON file")
+    parser.add_argument("--attestation-json", help="Operator attestation JSON string")
+    parser.add_argument("--attestation-file", help="Path to operator attestation JSON file")
+    parser.add_argument("--operator-auth-token", help="Secret token for operator emergency operations")
+    parser.add_argument("--worker-auth-tokens", help="Worker auth tokens JSON string or single token")
+    parser.add_argument("--upstream-base-url", help="Upstream API base URL")
+    parser.add_argument("--upstream-api-key", help="Upstream API key")
+    parser.add_argument("--upstream-timeout", type=float, default=None, help="Upstream socket timeout in seconds")
+    args = parser.parse_args(argv)
+
+    execution_mode = (
+        args.execution_mode
+        or os.getenv("AI_EXECUTION_MODE", "offline_test")
+    ).strip().lower()
 
     guard_enabled = args.enable_live_safety_guard or (
         os.getenv("LIVE_SAFETY_GUARD_ENABLED", "").strip().lower() == "true"
@@ -1301,44 +1342,201 @@ if __name__ == "__main__":
     free_tier_enabled = args.enable_live_free_tier or (
         os.getenv("LIVE_FREE_TIER_ENABLED", "").strip().lower() == "true"
     )
-    mode = args.execution_mode.strip().lower()
+    live_forwarding = args.enable_live_forwarding or (
+        os.getenv("LIVE_UPSTREAM_FORWARDING", "").strip().lower() == "true"
+    )
 
-    if args.initialize:
-        if mode == "live_free_tier":
-            quota_ledger = FreeTierQuotaLedger(
-                args.state,
-                run_id=args.run_id,
-                live_free_tier_enabled=free_tier_enabled,
-                initialize=True,
-            )
-            quota_ledger.get_summary()
-            quota_ledger.close()
-        else:
-            ledger = LiveSafetyBudgetLedger(
-                args.state,
-                max_calls=args.max_calls,
-                max_window_calls=args.max_window_calls,
-                window_seconds=args.window_seconds,
-                enable_live_safety_guard=guard_enabled,
-                initialize=True,
-                run_id=args.run_id,
-            )
-            ledger.get_summary()
-            ledger.close()
+    # 1. Resolve model quotas
+    model_quotas: dict[str, dict[str, Any]] | None = None
+    if args.model_quotas_json:
+        try:
+            model_quotas = json.loads(args.model_quotas_json)
+        except Exception as exc:
+            sys.stderr.write(f"QUOTA_CONFIG_REQUIRED: Malformed --model-quotas-json: {exc}\n")
+            return 1
+    elif args.model_quotas_file:
+        try:
+            model_quotas = json.loads(Path(args.model_quotas_file).read_text(encoding="utf-8"))
+        except Exception as exc:
+            sys.stderr.write(f"QUOTA_CONFIG_REQUIRED: Failed to read --model-quotas-file: {exc}\n")
+            return 1
+    elif os.getenv("MODEL_QUOTAS_JSON"):
+        try:
+            model_quotas = json.loads(os.environ["MODEL_QUOTAS_JSON"])
+        except Exception as exc:
+            sys.stderr.write(f"QUOTA_CONFIG_REQUIRED: Malformed MODEL_QUOTAS_JSON env: {exc}\n")
+            return 1
     else:
+        env_quotas = parse_model_quotas_from_env()
+        if env_quotas:
+            model_quotas = env_quotas
+
+    # 2. Resolve operator attestation
+    attestation: dict[str, Any] | None = None
+    if args.attestation_json:
+        try:
+            attestation = json.loads(args.attestation_json)
+        except Exception as exc:
+            sys.stderr.write(f"FREE_TIER_STATUS_UNVERIFIED: Malformed --attestation-json: {exc}\n")
+            return 1
+    elif args.attestation_file:
+        try:
+            attestation = json.loads(Path(args.attestation_file).read_text(encoding="utf-8"))
+        except Exception as exc:
+            sys.stderr.write(f"FREE_TIER_STATUS_UNVERIFIED: Failed to read --attestation-file: {exc}\n")
+            return 1
+    elif os.getenv("OPERATOR_ATTESTATION_JSON"):
+        try:
+            attestation = json.loads(os.environ["OPERATOR_ATTESTATION_JSON"])
+        except Exception as exc:
+            sys.stderr.write(f"FREE_TIER_STATUS_UNVERIFIED: Malformed OPERATOR_ATTESTATION_JSON env: {exc}\n")
+            return 1
+    elif os.getenv("OPERATOR_ATTESTATION_FILE"):
+        try:
+            attestation = json.loads(Path(os.environ["OPERATOR_ATTESTATION_FILE"]).read_text(encoding="utf-8"))
+        except Exception as exc:
+            sys.stderr.write(f"FREE_TIER_STATUS_UNVERIFIED: Failed to read OPERATOR_ATTESTATION_FILE: {exc}\n")
+            return 1
+
+    operator_token = (args.operator_auth_token or os.getenv("OPERATOR_AUTH_TOKEN", "")).strip()
+
+    # 3. Worker tokens
+    client_tokens: dict[str, str] = {}
+    raw_worker_tokens = (args.worker_auth_tokens or os.getenv("WORKER_AUTH_TOKENS", "")).strip()
+    if raw_worker_tokens:
+        try:
+            parsed_tokens = json.loads(raw_worker_tokens)
+            if isinstance(parsed_tokens, dict):
+                client_tokens = parsed_tokens
+            elif isinstance(parsed_tokens, list):
+                client_tokens = {t: f"worker-{i}" for i, t in enumerate(parsed_tokens)}
+        except Exception:
+            client_tokens = {raw_worker_tokens: "worker"}
+    elif os.getenv("BUDGET_GUARD_AUTH_TOKEN"):
+        client_tokens = {os.environ["BUDGET_GUARD_AUTH_TOKEN"].strip(): "worker"}
+
+    # 4. Upstream timeout
+    timeout = (
+        args.upstream_timeout
+        if args.upstream_timeout is not None
+        else float(os.getenv("GATEWAY_UPSTREAM_TIMEOUT_SECONDS", "3"))
+    )
+
+    # 5. Upstream base URL and API key
+    if execution_mode == "live_free_tier":
+        if live_forwarding:
+            upstream_url = args.upstream_base_url or os.getenv("UPSTREAM_BASE_URL") or "https://generativelanguage.googleapis.com"
+            upstream_key = args.upstream_api_key or os.getenv("GEMINI_API_KEY") or os.getenv("UPSTREAM_API_KEY", "")
+        else:
+            upstream_url = args.upstream_base_url or os.getenv("OFFLINE_UPSTREAM_URL") or os.getenv("UPSTREAM_BASE_URL", "http://127.0.0.1:8080")
+            upstream_key = args.upstream_api_key or os.getenv("OFFLINE_UPSTREAM_KEY") or os.getenv("UPSTREAM_API_KEY", "fake-key")
+    else:
+        upstream_url = args.upstream_base_url or os.getenv("OFFLINE_UPSTREAM_URL", "http://127.0.0.1:8080")
+        upstream_key = args.upstream_api_key or os.getenv("OFFLINE_UPSTREAM_KEY", "fake-key")
+
+    run_id = args.run_id or os.getenv("P1_SAFETY_PROJECT") or "run-gateway"
+
+    # --- CLI Path A: Initialization ---
+    if args.initialize:
+        if execution_mode == "live_free_tier":
+            if not model_quotas:
+                sys.stderr.write("QUOTA_CONFIG_REQUIRED: Explicit model_quotas required for Free Tier initialization\n")
+                return 1
+            if free_tier_enabled:
+                if "gemini-3.5-flash-lite" not in model_quotas or "gemini-embedding-2" not in model_quotas:
+                    sys.stderr.write("QUOTA_CONFIG_REQUIRED: Explicit project quotas required for gemini-3.5-flash-lite and gemini-embedding-2\n")
+                    return 1
+                if not attestation:
+                    sys.stderr.write("FREE_TIER_STATUS_UNVERIFIED: Operator attestation required when live_free_tier_enabled=True\n")
+                    return 1
+                if float(attestation.get("expires_at", 0)) < time.time():
+                    sys.stderr.write("FREE_TIER_STATUS_UNVERIFIED: Operator attestation expired\n")
+                    return 1
+            try:
+                quota_ledger = FreeTierQuotaLedger(
+                    args.state,
+                    run_id=run_id,
+                    live_free_tier_enabled=free_tier_enabled,
+                    model_quotas=model_quotas,
+                    operator_attestation=attestation,
+                    initialize=True,
+                )
+                summary = quota_ledger.get_summary()
+                quota_ledger.close()
+                print(json.dumps({"initialized": True, "mode": execution_mode, "summary": summary}))
+                return 0
+            except Exception as exc:
+                sys.stderr.write(f"Ledger initialization failed: {exc}\n")
+                return 1
+        else:
+            try:
+                ledger = LiveSafetyBudgetLedger(
+                    args.state,
+                    max_calls=args.max_calls,
+                    max_window_calls=args.max_window_calls,
+                    window_seconds=args.window_seconds,
+                    enable_live_safety_guard=guard_enabled,
+                    initialize=True,
+                    run_id=run_id,
+                )
+                summary = ledger.get_summary()
+                ledger.close()
+                print(json.dumps({"initialized": True, "mode": "offline_test", "summary": summary}))
+                return 0
+            except Exception as exc:
+                sys.stderr.write(f"Ledger initialization failed: {exc}\n")
+                return 1
+
+    # --- CLI Path B: Normal service startup ---
+    if execution_mode == "live_free_tier":
+        if free_tier_enabled:
+            if not attestation:
+                sys.stderr.write("FREE_TIER_STATUS_UNVERIFIED: Operator attestation required when live_free_tier_enabled=True\n")
+                return 1
+            if float(attestation.get("expires_at", 0)) < time.time():
+                sys.stderr.write("FREE_TIER_STATUS_UNVERIFIED: Operator attestation expired\n")
+                return 1
+        if live_forwarding:
+            parsed = urlparse(upstream_url)
+            if parsed.scheme != "https" or parsed.netloc != "generativelanguage.googleapis.com":
+                sys.stderr.write(f"LIVE_UPSTREAM_NOT_AUTHORIZED: Only https://generativelanguage.googleapis.com permitted in live forwarding (got {upstream_url})\n")
+                return 1
+
+    try:
         server, thread, active_ledger = start_live_safety_gateway(
             args.state,
-            host="0.0.0.0",
+            host=args.host,
             port=args.port,
             max_calls=args.max_calls,
             max_window_calls=args.max_window_calls,
             window_seconds=args.window_seconds,
-            upstream_base_url=os.environ["OFFLINE_UPSTREAM_URL"],
-            upstream_api_key=os.environ.get("OFFLINE_UPSTREAM_KEY"),
+            upstream_base_url=upstream_url,
+            upstream_api_key=upstream_key,
             enable_live_safety_guard=guard_enabled,
-            client_tokens=json.loads(os.environ["WORKER_AUTH_TOKENS"]),
-            upstream_timeout=float(os.getenv("GATEWAY_UPSTREAM_TIMEOUT_SECONDS", "3")),
-            execution_mode=mode,
+            client_tokens=client_tokens,
+            upstream_timeout=timeout,
+            execution_mode=execution_mode,
             enable_live_free_tier=free_tier_enabled,
+            model_quotas=model_quotas,
+            operator_attestation=attestation,
+            enable_live_forwarding=live_forwarding,
+            operator_auth_token=operator_token,
+            initialize=False,
         )
+        print(json.dumps({
+            "status": "RUNNING",
+            "host": args.host,
+            "port": server.server_address[1],
+            "mode": execution_mode,
+            "live_free_tier_enabled": free_tier_enabled,
+            "live_forwarding": live_forwarding,
+        }), flush=True)
         thread.join()
+        return 0
+    except Exception as exc:
+        sys.stderr.write(f"Gateway startup failed: {exc}\n")
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(cli_main())

@@ -15,11 +15,14 @@ ZERO REAL CALLS to Google Gemini. ZERO PROVIDER SPENDING ($0.00).
 from __future__ import annotations
 
 from datetime import datetime, time as datetime_time, timedelta
+import email
+import io
 import json
 import math
 import multiprocessing
 import os
 from pathlib import Path
+import ssl
 import subprocess
 import sys
 import threading
@@ -34,7 +37,13 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT / "ai-service"), str(ROOT / "Pipeline_test" / "tools")]
 
 from Pipeline_test.tools.fake_provider_upstream import start_fake_upstream
-from Pipeline_test.tools.p1_live_safety_gateway import start_live_safety_gateway
+import Pipeline_test.tools.p1_live_safety_gateway as p1_gateway_module
+from Pipeline_test.tools.p1_live_safety_gateway import (
+    start_live_safety_gateway,
+    get_default_ssl_context,
+    NoRedirect,
+    cli_main,
+)
 from Pipeline_test.tools.quota_controller import (
     FreeTierQuotaLedger,
     QuotaExceededError,
@@ -48,6 +57,7 @@ from Pipeline_test.tools.quota_controller import (
     calculate_backoff_delay,
     create_operator_attestation,
     get_next_pacific_midnight,
+    parse_model_quotas_from_env,
     APPROVED_LLM_MODELS,
     APPROVED_EMBEDDING_MODELS,
     ALL_APPROVED_MODELS,
@@ -1261,3 +1271,899 @@ def test_33_multi_process_concurrency_accounting(temp_dir: Path, fake_upstream_s
         server.shutdown()
         server.server_close()
         active_ledger.close()
+
+
+# ==============================================================================
+# Helper Mock Classes for HTTPS Forwarding Tests
+# ==============================================================================
+
+class MockHTTPResponse(io.BytesIO):
+    def __init__(self, data: bytes, headers: dict[str, str], code: int = 200, reason: str = "OK", url: str = ""):
+        super().__init__(data)
+        self.code = code
+        self.status = code
+        self.reason = reason
+        self.msg = reason
+        self.headers = email.message_from_string("\r\n".join(f"{k}: {v}" for k, v in headers.items()) + "\r\n\r\n")
+        self.url = url
+
+    def info(self):
+        return self.headers
+
+    def getcode(self):
+        return self.code
+
+    def geturl(self):
+        return self.url
+
+
+class MockGeminiHTTPSHandler(urllib.request.BaseHandler):
+    def __init__(self, responder_fn):
+        self.responder_fn = responder_fn
+        self.recorded_requests: list[urllib.request.Request] = []
+
+    def default_open(self, req: urllib.request.Request):
+        self.recorded_requests.append(req)
+        return self.responder_fn(req)
+
+
+# ==============================================================================
+# TEST GROUP 11: F-16 Gateway CLI Bootstrap Subprocess Tests
+# ==============================================================================
+
+def test_34_f16_cli_initialize_valid_free_tier(temp_dir: Path):
+    """Subprocess CLI --initialize with valid quotas and attestation succeeds."""
+    state_file = temp_dir / "ledger_cli_init.json"
+    att = create_operator_attestation("proj-cli-34", duration_seconds=86400)
+    res = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "Pipeline_test" / "tools" / "p1_live_safety_gateway.py"),
+            "--state", str(state_file),
+            "--initialize",
+            "--execution-mode", "live_free_tier",
+            "--enable-live-free-tier",
+            "--model-quotas-json", json.dumps(MOCK_TEST_QUOTAS),
+            "--attestation-json", json.dumps(att),
+            "--run-id", "run-cli-init-34",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert res.returncode == 0
+    assert '"initialized": true' in res.stdout
+    assert state_file.is_file()
+
+
+def test_35_f16_cli_initialize_missing_quotas_fails_closed(temp_dir: Path):
+    """Subprocess CLI --initialize with missing quotas fails closed with exit code 1."""
+    state_file = temp_dir / "ledger_cli_no_quotas.json"
+    env = os.environ.copy()
+    for k in list(env.keys()):
+        if k.startswith("FREE_TIER_") or k == "MODEL_QUOTAS_JSON":
+            del env[k]
+    res = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "Pipeline_test" / "tools" / "p1_live_safety_gateway.py"),
+            "--state", str(state_file),
+            "--initialize",
+            "--execution-mode", "live_free_tier",
+            "--run-id", "run-cli-init-35",
+        ],
+        capture_output=True,
+        text=True,
+        env=env,
+    )
+    assert res.returncode == 1
+    assert "QUOTA_CONFIG_REQUIRED" in res.stderr
+
+
+def test_36_f16_cli_initialize_expired_attestation_fails_closed(temp_dir: Path):
+    """Subprocess CLI --initialize with expired attestation fails closed."""
+    state_file = temp_dir / "ledger_cli_expired.json"
+    att = create_operator_attestation("proj-cli-36", duration_seconds=-100)
+    res = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "Pipeline_test" / "tools" / "p1_live_safety_gateway.py"),
+            "--state", str(state_file),
+            "--initialize",
+            "--execution-mode", "live_free_tier",
+            "--enable-live-free-tier",
+            "--model-quotas-json", json.dumps(MOCK_TEST_QUOTAS),
+            "--attestation-json", json.dumps(att),
+            "--run-id", "run-cli-init-36",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert res.returncode == 1
+    assert "FREE_TIER_STATUS_UNVERIFIED" in res.stderr
+
+
+def test_37_f16_cli_start_gateway_and_health_check(temp_dir: Path, fake_upstream_server):
+    """Subprocess CLI starts gateway, binds loopback port, and responds to health and status."""
+    state_file = temp_dir / "ledger_cli_srv.json"
+    att = create_operator_attestation("proj-cli-37", duration_seconds=86400)
+    # 1. Initialize first
+    res = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "Pipeline_test" / "tools" / "p1_live_safety_gateway.py"),
+            "--state", str(state_file),
+            "--initialize",
+            "--execution-mode", "live_free_tier",
+            "--enable-live-free-tier",
+            "--model-quotas-json", json.dumps(MOCK_TEST_QUOTAS),
+            "--attestation-json", json.dumps(att),
+            "--run-id", "run-cli-srv-37",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert res.returncode == 0
+
+    # 2. Start running gateway
+    proc = subprocess.Popen(
+        [
+            sys.executable,
+            str(ROOT / "Pipeline_test" / "tools" / "p1_live_safety_gateway.py"),
+            "--state", str(state_file),
+            "--execution-mode", "live_free_tier",
+            "--enable-live-free-tier",
+            "--attestation-json", json.dumps(att),
+            "--host", "127.0.0.1",
+            "--port", "0",
+            "--worker-auth-tokens", json.dumps({"token-cli": "worker"}),
+            "--upstream-base-url", fake_upstream_server["url"],
+            "--upstream-api-key", "fake-key-free-tier",
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    try:
+        first_line = proc.stdout.readline()
+        info = json.loads(first_line)
+        port = info["port"]
+        gw_url = f"http://127.0.0.1:{port}"
+
+        # Check /health
+        st_h, data_h, _ = get_gateway(gw_url, "/health", token="token-cli")
+        assert st_h == 200
+        assert data_h.get("guard_profile") == "P1_LIVE_FREE_TIER_01"
+
+        # Check /status
+        st_s, data_s, _ = get_gateway(gw_url, "/status", token="token-cli")
+        assert st_s == 200
+        assert data_s.get("live_free_tier_enabled") is True
+
+        # Check guarded dispatch
+        body = {
+            "contents": [{"parts": [{"text": "Hello story"}]}],
+            "generationConfig": {"maxOutputTokens": 64},
+        }
+        st_req, data_req, _ = post_gateway(gw_url, "/v1beta/models/gemini-3.5-flash-lite:generateContent", body, token="token-cli")
+        assert st_req == 200
+    finally:
+        proc.terminate()
+        proc.wait(timeout=5)
+
+
+def test_38_f16_cli_live_upstream_forwarding_false_forbids_real_egress(temp_dir: Path):
+    """When LIVE_UPSTREAM_FORWARDING=false, gateway forbids real egress to external origin."""
+    state_file = temp_dir / "ledger_cli_no_fwd.json"
+    att = create_operator_attestation("proj-cli-38", duration_seconds=86400)
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "Pipeline_test" / "tools" / "p1_live_safety_gateway.py"),
+            "--state", str(state_file),
+            "--initialize",
+            "--execution-mode", "live_free_tier",
+            "--enable-live-free-tier",
+            "--model-quotas-json", json.dumps(MOCK_TEST_QUOTAS),
+            "--attestation-json", json.dumps(att),
+            "--run-id", "run-cli-no-fwd-38",
+        ],
+        check=True,
+    )
+    proc = subprocess.Popen(
+        [
+            sys.executable,
+            str(ROOT / "Pipeline_test" / "tools" / "p1_live_safety_gateway.py"),
+            "--state", str(state_file),
+            "--execution-mode", "live_free_tier",
+            "--enable-live-free-tier",
+            "--attestation-json", json.dumps(att),
+            "--host", "127.0.0.1",
+            "--port", "0",
+            "--worker-auth-tokens", json.dumps({"token-cli": "worker"}),
+            "--upstream-base-url", "https://generativelanguage.googleapis.com",
+            # NOTE: --enable-live-forwarding is deliberately NOT passed!
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    try:
+        first_line = proc.stdout.readline()
+        info = json.loads(first_line)
+        port = info["port"]
+        gw_url = f"http://127.0.0.1:{port}"
+
+        body = {"contents": [{"parts": [{"text": "Hello"}]}]}
+        st, data, _ = post_gateway(gw_url, "/v1beta/models/gemini-3.5-flash-lite:generateContent", body, token="token-cli")
+        assert st == 503
+        assert data.get("error") == "LIVE_UPSTREAM_NOT_AUTHORIZED"
+    finally:
+        proc.terminate()
+        proc.wait(timeout=5)
+
+
+def test_39_f16_cli_start_with_invalid_upstream_host_fails_closed(temp_dir: Path):
+    """Gateway with --enable-live-forwarding but foreign host (e.g. malicious.org) fails closed."""
+    state_file = temp_dir / "ledger_cli_bad_host.json"
+    att = create_operator_attestation("proj-cli-39", duration_seconds=86400)
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "Pipeline_test" / "tools" / "p1_live_safety_gateway.py"),
+            "--state", str(state_file),
+            "--initialize",
+            "--execution-mode", "live_free_tier",
+            "--enable-live-free-tier",
+            "--model-quotas-json", json.dumps(MOCK_TEST_QUOTAS),
+            "--attestation-json", json.dumps(att),
+            "--run-id", "run-cli-bad-host-39",
+        ],
+        check=True,
+    )
+    res = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "Pipeline_test" / "tools" / "p1_live_safety_gateway.py"),
+            "--state", str(state_file),
+            "--execution-mode", "live_free_tier",
+            "--enable-live-free-tier",
+            "--enable-live-forwarding",
+            "--attestation-json", json.dumps(att),
+            "--upstream-base-url", "https://malicious.org",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    assert res.returncode == 1
+    assert "LIVE_UPSTREAM_NOT_AUTHORIZED" in res.stderr
+
+
+def test_40_f16_cli_restart_preserves_durable_quota_state(temp_dir: Path, fake_upstream_server):
+    """Stopping and restarting gateway CLI preserves daily RPD counter in ledger."""
+    state_file = temp_dir / "ledger_cli_restart.json"
+    att = create_operator_attestation("proj-cli-40", duration_seconds=86400)
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "Pipeline_test" / "tools" / "p1_live_safety_gateway.py"),
+            "--state", str(state_file),
+            "--initialize",
+            "--execution-mode", "live_free_tier",
+            "--enable-live-free-tier",
+            "--model-quotas-json", json.dumps(MOCK_TEST_QUOTAS),
+            "--attestation-json", json.dumps(att),
+            "--run-id", "run-cli-restart-40",
+        ],
+        check=True,
+    )
+
+    # Run 1: send 1 request
+    proc1 = subprocess.Popen(
+        [
+            sys.executable,
+            str(ROOT / "Pipeline_test" / "tools" / "p1_live_safety_gateway.py"),
+            "--state", str(state_file),
+            "--execution-mode", "live_free_tier",
+            "--enable-live-free-tier",
+            "--attestation-json", json.dumps(att),
+            "--host", "127.0.0.1",
+            "--port", "0",
+            "--worker-auth-tokens", json.dumps({"token-cli": "worker"}),
+            "--upstream-base-url", fake_upstream_server["url"],
+            "--upstream-api-key", "fake-key-free-tier",
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    try:
+        first_line = proc1.stdout.readline()
+        port1 = json.loads(first_line)["port"]
+        body = {"contents": [{"parts": [{"text": "Hello 1"}]}], "generationConfig": {"maxOutputTokens": 32}}
+        st, _, _ = post_gateway(f"http://127.0.0.1:{port1}", "/v1beta/models/gemini-3.5-flash-lite:generateContent", body, token="token-cli")
+        assert st == 200
+    finally:
+        proc1.terminate()
+        proc1.wait(timeout=5)
+
+    # Run 2: start on same state file, verify rpd_call_count is 1
+    proc2 = subprocess.Popen(
+        [
+            sys.executable,
+            str(ROOT / "Pipeline_test" / "tools" / "p1_live_safety_gateway.py"),
+            "--state", str(state_file),
+            "--execution-mode", "live_free_tier",
+            "--enable-live-free-tier",
+            "--attestation-json", json.dumps(att),
+            "--host", "127.0.0.1",
+            "--port", "0",
+            "--worker-auth-tokens", json.dumps({"token-cli": "worker"}),
+            "--upstream-base-url", fake_upstream_server["url"],
+            "--upstream-api-key", "fake-key-free-tier",
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    try:
+        first_line2 = proc2.stdout.readline()
+        port2 = json.loads(first_line2)["port"]
+        st2, summary2, _ = get_gateway(f"http://127.0.0.1:{port2}", "/status", token="token-cli")
+        assert st2 == 200
+        assert summary2.get("rpd_call_count") == 1
+    finally:
+        proc2.terminate()
+        proc2.wait(timeout=5)
+
+
+def test_41_f16_cli_offline_test_mode_preserves_legacy_contracts(temp_dir: Path, fake_upstream_server):
+    """Gateway CLI in offline_test mode continues working with legacy budget ledger."""
+    state_file = temp_dir / "ledger_cli_offline.json"
+    subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "Pipeline_test" / "tools" / "p1_live_safety_gateway.py"),
+            "--state", str(state_file),
+            "--initialize",
+            "--execution-mode", "offline_test",
+            "--enable-live-safety-guard",
+            "--max-calls", "15",
+            "--run-id", "run-offline-cli-41",
+        ],
+        check=True,
+    )
+    proc = subprocess.Popen(
+        [
+            sys.executable,
+            str(ROOT / "Pipeline_test" / "tools" / "p1_live_safety_gateway.py"),
+            "--state", str(state_file),
+            "--execution-mode", "offline_test",
+            "--enable-live-safety-guard",
+            "--host", "127.0.0.1",
+            "--port", "0",
+            "--worker-auth-tokens", json.dumps({"token-cli": "worker"}),
+            "--upstream-base-url", fake_upstream_server["url"],
+            "--upstream-api-key", "fake-key-free-tier",
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    try:
+        first_line = proc.stdout.readline()
+        port = json.loads(first_line)["port"]
+        st, data, _ = get_gateway(f"http://127.0.0.1:{port}", "/health")
+        assert st == 200
+        assert data.get("guard_profile") == "P1_LIVE_SAFETY_01"
+    finally:
+        proc.terminate()
+        proc.wait(timeout=5)
+
+
+# ==============================================================================
+# TEST GROUP 12: F-17 Mocked HTTPS Forwarding Positive and Negative Tests
+# ==============================================================================
+
+def test_42_f17_mocked_https_positive_llm_request_lifecycle(temp_dir: Path):
+    """Complete positive HTTPS lifecycle for LLM request with quota accounting and ticket settlement."""
+    state_file = temp_dir / "gw_https_llm.json"
+    att = create_operator_attestation("proj-f17-llm", duration_seconds=86400)
+
+    recorded_requests: list[urllib.request.Request] = []
+
+    def mock_responder(req: urllib.request.Request):
+        recorded_requests.append(req)
+        body = {
+            "candidates": [
+                {
+                    "content": {
+                        "parts": [{"text": "Mocked LLM generation content"}]
+                    },
+                    "finishReason": "STOP",
+                }
+            ],
+            "usageMetadata": {
+                "promptTokenCount": 120,
+                "candidatesTokenCount": 45,
+                "totalTokenCount": 165,
+            },
+        }
+        data = json.dumps(body).encode("utf-8")
+        headers = {"Content-Type": "application/json", "Content-Length": str(len(data))}
+        return MockHTTPResponse(data, headers, 200, "OK", req.full_url)
+
+    mock_handler = MockGeminiHTTPSHandler(mock_responder)
+    orig_override = p1_gateway_module._OPENER_OVERRIDE
+    p1_gateway_module._OPENER_OVERRIDE = urllib.request.build_opener(mock_handler)
+
+    try:
+        server, thread, active_ledger = start_live_safety_gateway(
+            state_file,
+            host="127.0.0.1",
+            port=0,
+            upstream_base_url="https://generativelanguage.googleapis.com",
+            upstream_api_key="real-simulated-key",
+            client_tokens={"worker-token": "ai-service"},
+            execution_mode="live_free_tier",
+            enable_live_free_tier=True,
+            enable_live_forwarding=True,
+            model_quotas=MOCK_TEST_QUOTAS,
+            operator_attestation=att,
+            initialize=True,
+            run_id="gw-https-llm-run",
+        )
+        port = server.server_address[1]
+        gw_url = f"http://127.0.0.1:{port}"
+
+        try:
+            body = {
+                "contents": [{"parts": [{"text": "Tell me a story about Lâm Phong"}]}],
+                "generationConfig": {"maxOutputTokens": 128},
+            }
+            st, data, _ = post_gateway(gw_url, "/v1beta/models/gemini-3.5-flash-lite:generateContent", body, token="worker-token")
+            assert st == 200
+            assert "candidates" in data
+            assert data["candidates"][0]["content"]["parts"][0]["text"] == "Mocked LLM generation content"
+
+            # Verify outbound HTTPS request inspection
+            assert len(recorded_requests) == 1
+            outbound = recorded_requests[0]
+            assert outbound.full_url.startswith("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent")
+            assert outbound.headers.get("X-goog-api-key") == "real-simulated-key" or outbound.headers.get("x-goog-api-key") == "real-simulated-key"
+            # Worker token must not leak to Google
+            assert "worker-token" not in (outbound.headers.get("Authorization") or "")
+
+            # Verify ticket settlement in durable ledger
+            st_s, summary, _ = get_gateway(gw_url, "/status", token="worker-token")
+            assert st_s == 200
+            assert summary["rpd_call_count"] == 1
+            assert summary["current_in_flight"] == 0
+        finally:
+            server.shutdown()
+            server.server_close()
+            active_ledger.close()
+    finally:
+        p1_gateway_module._OPENER_OVERRIDE = orig_override
+
+
+def test_43_f17_mocked_https_positive_embedding_request_lifecycle(temp_dir: Path):
+    """Complete positive HTTPS lifecycle for Embedding request with 768-dim vector validation."""
+    state_file = temp_dir / "gw_https_emb.json"
+    att = create_operator_attestation("proj-f17-emb", duration_seconds=86400)
+
+    recorded_requests: list[urllib.request.Request] = []
+
+    def mock_responder(req: urllib.request.Request):
+        recorded_requests.append(req)
+        values = [0.001 * (i % 50) for i in range(768)]
+        body = {
+            "embedding": {
+                "values": values
+            }
+        }
+        data = json.dumps(body).encode("utf-8")
+        headers = {"Content-Type": "application/json", "Content-Length": str(len(data))}
+        return MockHTTPResponse(data, headers, 200, "OK", req.full_url)
+
+    mock_handler = MockGeminiHTTPSHandler(mock_responder)
+    orig_override = p1_gateway_module._OPENER_OVERRIDE
+    p1_gateway_module._OPENER_OVERRIDE = urllib.request.build_opener(mock_handler)
+
+    try:
+        server, thread, active_ledger = start_live_safety_gateway(
+            state_file,
+            host="127.0.0.1",
+            port=0,
+            upstream_base_url="https://generativelanguage.googleapis.com",
+            upstream_api_key="real-simulated-key",
+            client_tokens={"worker-token": "ai-service"},
+            execution_mode="live_free_tier",
+            enable_live_free_tier=True,
+            enable_live_forwarding=True,
+            model_quotas=MOCK_TEST_QUOTAS,
+            operator_attestation=att,
+            initialize=True,
+            run_id="gw-https-emb-run",
+        )
+        port = server.server_address[1]
+        gw_url = f"http://127.0.0.1:{port}"
+
+        try:
+            body = {
+                "content": {"parts": [{"text": "Document chunk about martial arts"}]},
+            }
+            st, data, _ = post_gateway(gw_url, "/v1beta/models/gemini-embedding-2:embedContent", body, token="worker-token")
+            assert st == 200
+            assert "embedding" in data
+            vals = data["embedding"]["values"]
+            assert len(vals) == 768
+            assert all(math.isfinite(v) for v in vals)
+
+            # Outbound check
+            assert len(recorded_requests) == 1
+            assert recorded_requests[0].full_url.startswith("https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-2:embedContent")
+
+            # Ledger check
+            st_s, summary, _ = get_gateway(gw_url, "/status", token="worker-token")
+            assert st_s == 200
+            assert summary["current_in_flight"] == 0
+        finally:
+            server.shutdown()
+            server.server_close()
+            active_ledger.close()
+    finally:
+        p1_gateway_module._OPENER_OVERRIDE = orig_override
+
+
+def test_44_f17_mocked_https_upstream_429_rate_limit_settlement(temp_dir: Path):
+    """Upstream HTTPS 429 propagates Retry-After and cleanly finalizes in-flight ticket."""
+    state_file = temp_dir / "gw_https_429.json"
+    att = create_operator_attestation("proj-f17-429", duration_seconds=86400)
+
+    def mock_responder(req: urllib.request.Request):
+        err_body = json.dumps({"error": {"code": 429, "message": "Resource exhausted by quota"}}).encode("utf-8")
+        headers = {"Content-Type": "application/json", "Retry-After": "4", "Content-Length": str(len(err_body))}
+        hdrs = email.message_from_string("\r\n".join(f"{k}: {v}" for k, v in headers.items()) + "\r\n\r\n")
+        raise urllib.error.HTTPError(req.full_url, 429, "Too Many Requests", hdrs, io.BytesIO(err_body))
+
+    orig_override = p1_gateway_module._OPENER_OVERRIDE
+    p1_gateway_module._OPENER_OVERRIDE = urllib.request.build_opener(MockGeminiHTTPSHandler(mock_responder))
+
+    try:
+        server, thread, active_ledger = start_live_safety_gateway(
+            state_file,
+            host="127.0.0.1",
+            port=0,
+            upstream_base_url="https://generativelanguage.googleapis.com",
+            upstream_api_key="real-simulated-key",
+            client_tokens={"worker-token": "ai-service"},
+            execution_mode="live_free_tier",
+            enable_live_free_tier=True,
+            enable_live_forwarding=True,
+            model_quotas=MOCK_TEST_QUOTAS,
+            operator_attestation=att,
+            initialize=True,
+            run_id="gw-https-429-run",
+        )
+        port = server.server_address[1]
+        gw_url = f"http://127.0.0.1:{port}"
+
+        try:
+            body = {"contents": [{"parts": [{"text": "Hello"}]}], "generationConfig": {"maxOutputTokens": 64}}
+            st, data, resp_hdrs = post_gateway(gw_url, "/v1beta/models/gemini-3.5-flash-lite:generateContent", body, token="worker-token")
+            assert st == 429
+            assert resp_hdrs.get("Retry-After") == "4" or resp_hdrs.get("retry-after") == "4"
+
+            # In-flight ticket must be cleared
+            st_s, summary, _ = get_gateway(gw_url, "/status", token="worker-token")
+            assert st_s == 200
+            assert summary["current_in_flight"] == 0
+        finally:
+            server.shutdown()
+            server.server_close()
+            active_ledger.close()
+    finally:
+        p1_gateway_module._OPENER_OVERRIDE = orig_override
+
+
+def test_45_f17_mocked_https_upstream_timeout_settlement(temp_dir: Path):
+    """Upstream HTTPS timeout returns 504 and releases in-flight semaphore."""
+    state_file = temp_dir / "gw_https_504.json"
+    att = create_operator_attestation("proj-f17-504", duration_seconds=86400)
+
+    def mock_responder(req: urllib.request.Request):
+        raise urllib.error.URLError(TimeoutError("Socket connection timed out"))
+
+    orig_override = p1_gateway_module._OPENER_OVERRIDE
+    p1_gateway_module._OPENER_OVERRIDE = urllib.request.build_opener(MockGeminiHTTPSHandler(mock_responder))
+
+    try:
+        server, thread, active_ledger = start_live_safety_gateway(
+            state_file,
+            host="127.0.0.1",
+            port=0,
+            upstream_base_url="https://generativelanguage.googleapis.com",
+            upstream_api_key="real-simulated-key",
+            client_tokens={"worker-token": "ai-service"},
+            execution_mode="live_free_tier",
+            enable_live_free_tier=True,
+            enable_live_forwarding=True,
+            model_quotas=MOCK_TEST_QUOTAS,
+            operator_attestation=att,
+            initialize=True,
+            run_id="gw-https-504-run",
+        )
+        port = server.server_address[1]
+        gw_url = f"http://127.0.0.1:{port}"
+
+        try:
+            body = {"contents": [{"parts": [{"text": "Hello"}]}], "generationConfig": {"maxOutputTokens": 64}}
+            st, data, _ = post_gateway(gw_url, "/v1beta/models/gemini-3.5-flash-lite:generateContent", body, token="worker-token")
+            assert st == 504
+            assert data.get("error") == "PROVIDER_TIMEOUT"
+
+            st_s, summary, _ = get_gateway(gw_url, "/status", token="worker-token")
+            assert st_s == 200
+            assert summary["current_in_flight"] == 0
+        finally:
+            server.shutdown()
+            server.server_close()
+            active_ledger.close()
+    finally:
+        p1_gateway_module._OPENER_OVERRIDE = orig_override
+
+
+def test_46_f17_mocked_https_upstream_auth_failure_settlement(temp_dir: Path):
+    """Upstream HTTPS 401 returns 502/503 and releases in-flight reservation."""
+    state_file = temp_dir / "gw_https_401.json"
+    att = create_operator_attestation("proj-f17-401", duration_seconds=86400)
+
+    def mock_responder(req: urllib.request.Request):
+        err_body = json.dumps({"error": {"code": 401, "message": "API key invalid"}}).encode("utf-8")
+        headers = {"Content-Type": "application/json", "Content-Length": str(len(err_body))}
+        hdrs = email.message_from_string("\r\n".join(f"{k}: {v}" for k, v in headers.items()) + "\r\n\r\n")
+        raise urllib.error.HTTPError(req.full_url, 401, "Unauthorized", hdrs, io.BytesIO(err_body))
+
+    orig_override = p1_gateway_module._OPENER_OVERRIDE
+    p1_gateway_module._OPENER_OVERRIDE = urllib.request.build_opener(MockGeminiHTTPSHandler(mock_responder))
+
+    try:
+        server, thread, active_ledger = start_live_safety_gateway(
+            state_file,
+            host="127.0.0.1",
+            port=0,
+            upstream_base_url="https://generativelanguage.googleapis.com",
+            upstream_api_key="bad-simulated-key",
+            client_tokens={"worker-token": "ai-service"},
+            execution_mode="live_free_tier",
+            enable_live_free_tier=True,
+            enable_live_forwarding=True,
+            model_quotas=MOCK_TEST_QUOTAS,
+            operator_attestation=att,
+            initialize=True,
+            run_id="gw-https-401-run",
+        )
+        port = server.server_address[1]
+        gw_url = f"http://127.0.0.1:{port}"
+
+        try:
+            body = {"contents": [{"parts": [{"text": "Hello"}]}], "generationConfig": {"maxOutputTokens": 64}}
+            st, data, _ = post_gateway(gw_url, "/v1beta/models/gemini-3.5-flash-lite:generateContent", body, token="worker-token")
+            assert st in (401, 502, 503)
+            assert data.get("error") in ("PROVIDER_AUTH_FAILED", "PROVIDER_UNAVAILABLE")
+
+            st_s, summary, _ = get_gateway(gw_url, "/status", token="worker-token")
+            assert st_s == 200
+            assert summary["current_in_flight"] == 0
+        finally:
+            server.shutdown()
+            server.server_close()
+            active_ledger.close()
+    finally:
+        p1_gateway_module._OPENER_OVERRIDE = orig_override
+
+
+def test_47_f17_mocked_https_ssl_context_strictness():
+    """Default SSL context for bounded HTTPS forwarder enforces certificate verification and hostname checking."""
+    ctx = get_default_ssl_context()
+    assert ctx.verify_mode == ssl.CERT_REQUIRED
+    assert ctx.check_hostname is True
+
+
+def test_48_f17_mocked_https_noredirect_rejects_301_302():
+    """NoRedirect handler refuses following redirects and raises UPSTREAM_REDIRECT_DENIED."""
+    handler = NoRedirect()
+    req = urllib.request.Request("https://generativelanguage.googleapis.com")
+    fp = io.BytesIO(b"redirect body")
+    hdrs = email.message_from_string("Location: https://evil.com\r\n\r\n")
+
+    for status_code in (301, 302, 303, 307, 308):
+        with pytest.raises(Exception, match="UPSTREAM_REDIRECT_DENIED"):
+            handler.http_error_302(req, fp, status_code, "Redirect", hdrs)
+
+
+def test_49_f17_mocked_https_private_note_rejected_before_https_dispatch(temp_dir: Path):
+    """Payload containing private author notes is rejected with 403 with ZERO outbound HTTPS dispatch."""
+    state_file = temp_dir / "gw_https_priv.json"
+    att = create_operator_attestation("proj-f17-priv", duration_seconds=86400)
+
+    recorded_requests: list[urllib.request.Request] = []
+
+    def mock_responder(req: urllib.request.Request):
+        recorded_requests.append(req)
+        return MockHTTPResponse(b"{}", {}, 200, "OK", req.full_url)
+
+    orig_override = p1_gateway_module._OPENER_OVERRIDE
+    p1_gateway_module._OPENER_OVERRIDE = urllib.request.build_opener(MockGeminiHTTPSHandler(mock_responder))
+
+    try:
+        server, thread, active_ledger = start_live_safety_gateway(
+            state_file,
+            host="127.0.0.1",
+            port=0,
+            upstream_base_url="https://generativelanguage.googleapis.com",
+            upstream_api_key="real-simulated-key",
+            client_tokens={"worker-token": "ai-service"},
+            execution_mode="live_free_tier",
+            enable_live_free_tier=True,
+            enable_live_forwarding=True,
+            model_quotas=MOCK_TEST_QUOTAS,
+            operator_attestation=att,
+            initialize=True,
+            run_id="gw-https-priv-run",
+        )
+        port = server.server_address[1]
+        gw_url = f"http://127.0.0.1:{port}"
+
+        try:
+            body = {
+                "contents": [{"parts": [{"text": 'Context: {"author_notes": "Secret true plot identity"}'}]}],
+                "generationConfig": {"maxOutputTokens": 64},
+            }
+            st, data, _ = post_gateway(gw_url, "/v1beta/models/gemini-3.5-flash-lite:generateContent", body, token="worker-token")
+            assert st == 403
+            assert data.get("error") == "PRIVATE_NOTES_FORBIDDEN_IN_PROMPT"
+
+            # ZERO requests made to HTTPS mock!
+            assert len(recorded_requests) == 0
+        finally:
+            server.shutdown()
+            server.server_close()
+            active_ledger.close()
+    finally:
+        p1_gateway_module._OPENER_OVERRIDE = orig_override
+
+
+def test_50_f17_mocked_https_http_downgrade_rejected(temp_dir: Path):
+    """Attempting HTTP downgrade during live forwarding is rejected with 503 before any socket connection."""
+    state_file = temp_dir / "gw_https_downgrade.json"
+    att = create_operator_attestation("proj-f17-dg", duration_seconds=86400)
+
+    recorded_requests: list[urllib.request.Request] = []
+
+    def mock_responder(req: urllib.request.Request):
+        recorded_requests.append(req)
+        return MockHTTPResponse(b"{}", {}, 200, "OK", req.full_url)
+
+    orig_override = p1_gateway_module._OPENER_OVERRIDE
+    p1_gateway_module._OPENER_OVERRIDE = urllib.request.build_opener(MockGeminiHTTPSHandler(mock_responder))
+
+    try:
+        server, thread, active_ledger = start_live_safety_gateway(
+            state_file,
+            host="127.0.0.1",
+            port=0,
+            upstream_base_url="http://generativelanguage.googleapis.com",  # HTTP downgrade!
+            upstream_api_key="real-simulated-key",
+            client_tokens={"worker-token": "ai-service"},
+            execution_mode="live_free_tier",
+            enable_live_free_tier=True,
+            enable_live_forwarding=True,
+            model_quotas=MOCK_TEST_QUOTAS,
+            operator_attestation=att,
+            initialize=True,
+            run_id="gw-https-dg-run",
+        )
+        port = server.server_address[1]
+        gw_url = f"http://127.0.0.1:{port}"
+
+        try:
+            body = {"contents": [{"parts": [{"text": "Hello"}]}]}
+            st, data, _ = post_gateway(gw_url, "/v1beta/models/gemini-3.5-flash-lite:generateContent", body, token="worker-token")
+            assert st == 503
+            assert data.get("error") == "LIVE_UPSTREAM_NOT_AUTHORIZED"
+            assert len(recorded_requests) == 0
+        finally:
+            server.shutdown()
+            server.server_close()
+            active_ledger.close()
+    finally:
+        p1_gateway_module._OPENER_OVERRIDE = orig_override
+
+
+# ==============================================================================
+# TEST GROUP 13: F-18 Configuration Consistency and Fallback Model Strictness Tests
+# ==============================================================================
+
+def test_51_f18_canonical_headroom_env_variable(monkeypatch):
+    """Canonical FREE_TIER_QUOTA_HEADROOM takes precedence, falling back to FREE_TIER_HEADROOM."""
+    monkeypatch.setenv("FREE_TIER_GEMINI_RPM", "15")
+    monkeypatch.setenv("FREE_TIER_GEMINI_TPM", "250000")
+    monkeypatch.setenv("FREE_TIER_GEMINI_RPD", "500")
+
+    # 1. Canonical variable
+    monkeypatch.setenv("FREE_TIER_QUOTA_HEADROOM", "0.15")
+    monkeypatch.delenv("FREE_TIER_HEADROOM", raising=False)
+    q1 = parse_model_quotas_from_env()
+    assert q1["gemini-3.5-flash-lite"]["headroom"] == 0.15
+
+    # 2. Legacy fallback variable
+    monkeypatch.delenv("FREE_TIER_QUOTA_HEADROOM", raising=False)
+    monkeypatch.setenv("FREE_TIER_HEADROOM", "0.25")
+    q2 = parse_model_quotas_from_env()
+    assert q2["gemini-3.5-flash-lite"]["headroom"] == 0.25
+
+
+def test_52_f18_placeholder_quotas_fail_closed(monkeypatch):
+    """Placeholder string values in environment variables evaluate to 0 and are omitted from quotas."""
+    monkeypatch.setenv("FREE_TIER_GEMINI_RPM", "<OPERATOR_SUPPLIED_GEMINI_RPM_E_G_15>")
+    monkeypatch.setenv("FREE_TIER_GEMINI_TPM", "<OPERATOR_SUPPLIED_GEMINI_TPM_E_G_250000>")
+    monkeypatch.setenv("FREE_TIER_GEMINI_RPD", "<OPERATOR_SUPPLIED_GEMINI_RPD_E_G_500>")
+    monkeypatch.setenv("FREE_TIER_EMBEDDING_RPM", "15")
+    monkeypatch.setenv("FREE_TIER_EMBEDDING_TPM", "1000000")
+    monkeypatch.setenv("FREE_TIER_EMBEDDING_RPD", "500")
+
+    quotas = parse_model_quotas_from_env()
+    assert "gemini-3.5-flash-lite" not in quotas
+    assert "gemini-embedding-2" in quotas
+
+
+def test_53_f18_prevent_silently_enabling_fallback_models(monkeypatch):
+    """gemini-3.1-flash-lite is ONLY included when LLM_FALLBACK_MODEL is explicitly configured."""
+    monkeypatch.setenv("FREE_TIER_GEMINI_RPM", "15")
+    monkeypatch.setenv("FREE_TIER_GEMINI_TPM", "250000")
+    monkeypatch.setenv("FREE_TIER_GEMINI_RPD", "500")
+
+    # Disabled by default
+    monkeypatch.setenv("LLM_FALLBACK_MODEL", "disabled")
+    q1 = parse_model_quotas_from_env()
+    assert "gemini-3.5-flash-lite" in q1
+    assert "gemini-3.1-flash-lite" not in q1
+
+    # Explicitly configured
+    monkeypatch.setenv("LLM_FALLBACK_MODEL", "gemini-3.1-flash-lite")
+    q2 = parse_model_quotas_from_env()
+    assert "gemini-3.5-flash-lite" in q2
+    assert "gemini-3.1-flash-lite" in q2
+
+    # Forbidden Gemini 2.5
+    monkeypatch.setenv("LLM_FALLBACK_MODEL", "gemini-2.5-flash")
+    q3 = parse_model_quotas_from_env()
+    assert "gemini-2.5-flash" not in q3
+    assert "gemini-3.1-flash-lite" not in q3
+
+
+def test_54_f18_env_example_file_contract():
+    """Verify .env.free-tier.example uses canonical headroom name and placeholder instructions."""
+    example_path = ROOT / ".env.free-tier.example"
+    assert example_path.is_file()
+    text = example_path.read_text(encoding="utf-8")
+
+    assert "FREE_TIER_QUOTA_HEADROOM" in text
+    assert "<OPERATOR_SUPPLIED_GEMINI_RPM_E_G_15>" in text
+    assert "<OPERATOR_SUPPLIED_EMBEDDING_RPM_E_G_15>" in text
+    assert "The application CANNOT independently verify billing tier" in text
+
+
+def test_55_f18_operator_attestation_mandatory_for_live_mode(temp_dir: Path):
+    """Enabling live_free_tier without attestation raises FreeTierStatusUnverifiedError."""
+    state_file = temp_dir / "ledger_f18_no_att.json"
+    with pytest.raises(FreeTierStatusUnverifiedError):
+        FreeTierQuotaLedger(
+            state_file,
+            run_id="run-f18-no-att",
+            live_free_tier_enabled=True,
+            model_quotas=MOCK_TEST_QUOTAS,
+            operator_attestation=None,
+            initialize=True,
+        )

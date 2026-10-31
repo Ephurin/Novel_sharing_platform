@@ -1,4 +1,4 @@
-# P1-LIVE-FREE-01 / P1-LIVE-FREE-02: Gemini Free Tier Runtime with Quota-Aware Guarding
+# P1-LIVE-FREE-01 / P1-LIVE-FREE-02 / P1-LIVE-FREE-03: Gemini Free Tier Runtime with Quota-Aware Guarding
 **Status:** REMEDIATION_COMPLETE — READY FOR GPT-6 INDEPENDENT REVIEW  
 **Verdict:** `P1_LIVE_FREE_TIER_OFFLINE_READY`  
 **Provider Egress:** `REAL_PROVIDER_NOT_RUN` ($0.00 spent, zero real cloud calls)  
@@ -11,35 +11,38 @@
 
 ## 1. Executive Summary
 
-Under **GEMINI TASK P1-LIVE-FREE-01** and remediation task **P1-LIVE-FREE-02**, we implemented and verified the `live_free_tier` runtime profile for Ephurin AI Copilot alongside the backward-compatible `offline_test` and future `live_paid` profiles.
+Under **GEMINI TASK P1-LIVE-FREE-01** and remediation tasks **P1-LIVE-FREE-02** and **P1-LIVE-FREE-03**, we implemented, remediated, and fully verified the `live_free_tier` runtime profile for Ephurin AI Copilot alongside the backward-compatible `offline_test` and future `live_paid` profiles.
 
 In `live_free_tier` mode:
 - Monetary USD budget ceilings and artificial 15-call or 200-call limits are replaced with quota-aware controls:
-  - **RPM** (Requests Per Minute) sliding-window admission with configurable safety headroom.
+  - **RPM** (Requests Per Minute) sliding-window admission with configurable safety headroom (`FREE_TIER_QUOTA_HEADROOM`).
   - **TPM** (Input Tokens Per Minute) pre-dispatch token reservation reconciled with response usage metadata.
   - **RPD** (Requests Per Day) calendar day tracking with Pacific Midnight (`America/Los_Angeles`, DST-aware) reset semantics.
   - **In-flight concurrency semaphore** (bounded simultaneous worker requests).
   - **Request deadlines** (bounded socket read and execution watchdog).
   - **Bounded 429 backoff** with jitter and `Retry-After` header parsing.
 - Egress is strictly guarded:
-  - Default disabled (`LIVE_FREE_TIER_ENABLED=false`).
+  - Default disabled (`LIVE_FREE_TIER_ENABLED=false`, `LIVE_UPSTREAM_FORWARDING=false`).
   - No direct worker egress; Python (`ai-service`) and Node (`backend`) workers share the authoritative OS-locked durable ledger.
-  - LLM models: `gemini-3.5-flash-lite` (primary), `gemini-3.1-flash-lite` (authorized fallback). Gemini 2.5 is strictly forbidden.
+  - LLM models: `gemini-3.5-flash-lite` (primary), `gemini-3.1-flash-lite` (authorized fallback only when explicitly configured in `LLM_FALLBACK_MODEL`). Gemini 2.5 is strictly forbidden.
   - Embedding model: `gemini-embedding-2` producing strictly validated 768-dimensional finite vectors.
-  - Zero private note leakage: defense-in-depth regex/JSON inspection rejects private notes on all outbound routes.
-- **ZERO real Gemini calls were made during this implementation.** All verifications executed against the deterministic offline fake upstream.
+  - Zero private note leakage: defense-in-depth regex/JSON inspection rejects private notes on all outbound routes before HTTPS dispatch.
+- **ZERO real Gemini calls were made during this implementation.** All verifications executed against deterministic offline fake upstreams and mocked HTTPS openers.
 
 ---
 
-## 2. GPT-6 Review Remediation Summary (F-11 through F-15)
+## 2. GPT-6 Review Remediation Summary (F-11 through F-18)
 
 | Finding ID | Severity | Description | Remediation Implemented | Verification Test |
 |---|---|---|---|---|
 | **F-11** | P0 | Live Free Tier LLM can bypass quota gateway | Removed direct SDK fallback; `AI_EXECUTION_MODE == "live_free_tier"` strictly fails closed with `GUARD_CONFIGURATION_INVALID` if proxy is absent/invalid. Direct client calls to `generativelanguage.googleapis.com` are blocked in `llm_service.py`, `llm_client.py`, `embedding_providers.py`, and `llm-provider.ts`. | `test_22`, `test_23`, `llm-provider.test.ts` |
-| **F-12** | P1 | Real HTTPS provider forwarding not wired | Implemented `BoundedHTTPSConnection` and `BoundedHTTPSHandler` in `p1_live_safety_gateway.py` with `ssl.create_default_context()` and `NoRedirect`. Enforced origin strictly matches `https://generativelanguage.googleapis.com` during live forwarding, rejecting HTTP downgrade or foreign hosts. Upstream API key injected at gateway boundary only. | `test_24` |
+| **F-12** | P1 | Real HTTPS provider forwarding not wired | Implemented `BoundedHTTPSConnection` and `BoundedHTTPSHandler` in `p1_live_safety_gateway.py` with `ssl.create_default_context()` and `NoRedirect`. Enforced origin strictly matches `https://generativelanguage.googleapis.com` during live forwarding, rejecting HTTP downgrade or foreign hosts. Upstream API key injected at gateway boundary only. | `test_24`, `test_42`..`test_50` |
 | **F-13** | P1 | Unverified quota defaults & incorrect RPD reset | Quota controller requires explicit `model_quotas` (raises `QuotaConfigRequiredError` if missing or non-positive). Requires valid operator attestation when `live_free_tier_enabled=True` (raises `FreeTierStatusUnverifiedError` if missing or expired). Implemented DST-aware Pacific midnight calculation (`America/Los_Angeles` via `zoneinfo`). | `test_25`, `test_26`, `test_27` |
 | **F-14** | P1 | Stale-ticket cleanup can desynchronize durable ledger | `_cleanup_stale_in_flight()` and RPD resets now durably call `_save_durable()`, ensuring in-memory and disk states match across processes and restarts. | `test_28`, `test_29` |
 | **F-15** | P1 | Emergency kill switch does not disable running gateway | Added authenticated HTTP endpoints `/api/gateway/emergency/disable` and `/enable` requiring `OPERATOR_AUTH_TOKEN`. Worker tokens are rejected with 403. Kill switch immediately disables admissions and persists `DISABLED` state to disk. `p1_free_tier_preflight.py --kill-switch` updated to use HTTP endpoint with local fallback. | `test_30`, `test_31`, `test_32` |
+| **F-16** | P1 | Incomplete gateway CLI bootstrap in `live_free_tier` mode | Extended `cli_main` in `p1_live_safety_gateway.py` to parse explicit `--model-quotas-json`, `--model-quotas-file`, `--attestation-json`, `--attestation-file`, `--operator-auth-token`, `--worker-auth-tokens`, `--enable-live-forwarding`, and `--upstream-base-url`. Both `--initialize` and normal server startup fail closed with exit code 1 if quotas or attestation are missing or expired in `live_free_tier` mode. | `test_34`..`test_41` (Subprocess CLI tests) |
+| **F-17** | P1 | Lack of end-to-end mocked HTTPS forwarding verification | Built test harness with `_OPENER_OVERRIDE` hook and `MockGeminiHTTPSHandler`. Tested full lifecycle for LLM (`gemini-3.5-flash-lite`) and Embedding (`gemini-embedding-2`), token accounting, `NoRedirect` 301/302 rejection, TLS context verification, upstream 429 backoff & `Retry-After` propagation, upstream timeout & auth failures, and private note rejection before dispatch. | `test_42`..`test_50` (Mocked HTTPS suite) |
+| **F-18** | P2 | Configuration consistency and placeholder defaults | Standardized on canonical `FREE_TIER_QUOTA_HEADROOM` (with `FREE_TIER_HEADROOM` fallback). Replaced hardcoded quota numbers in `.env.free-tier.example` with `<OPERATOR_SUPPLIED...>` placeholders so operators cannot accidentally use unverified values. Prevented silently enabling fallback models (`gemini-3.1-flash-lite` only enabled if explicitly configured in `LLM_FALLBACK_MODEL`). | `test_51`..`test_55` (Config contract tests) |
 
 ---
 
@@ -77,13 +80,13 @@ BUDGET_GUARD_URL=http://budget-gateway:18090
 BUDGET_GUARD_AUTH_TOKEN=<operator-worker-token>
 OPERATOR_AUTH_TOKEN=<operator-admin-token>
 
-FREE_TIER_GEMINI_RPM=15
-FREE_TIER_GEMINI_TPM=250000
-FREE_TIER_GEMINI_RPD=500
+FREE_TIER_GEMINI_RPM=<OPERATOR_SUPPLIED_GEMINI_RPM_E_G_15>
+FREE_TIER_GEMINI_TPM=<OPERATOR_SUPPLIED_GEMINI_TPM_E_G_250000>
+FREE_TIER_GEMINI_RPD=<OPERATOR_SUPPLIED_GEMINI_RPD_E_G_500>
 
-FREE_TIER_EMBEDDING_RPM=15
-FREE_TIER_EMBEDDING_TPM=1000000
-FREE_TIER_EMBEDDING_RPD=500
+FREE_TIER_EMBEDDING_RPM=<OPERATOR_SUPPLIED_EMBEDDING_RPM_E_G_15>
+FREE_TIER_EMBEDDING_TPM=<OPERATOR_SUPPLIED_EMBEDDING_TPM_E_G_1000000>
+FREE_TIER_EMBEDDING_RPD=<OPERATOR_SUPPLIED_EMBEDDING_RPD_E_G_500>
 
 FREE_TIER_MAX_CONCURRENCY=2
 FREE_TIER_REQUEST_TIMEOUT_SECONDS=30
@@ -112,29 +115,29 @@ The gateway maps quota and provider exceptions to structured HTTP responses:
 - `PROVIDER_TIMEOUT` (HTTP 504): Upstream request exceeded wall-clock deadline.
 - `PROVIDER_UNAVAILABLE` (HTTP 502/503): Upstream connectivity or authentication failure.
 - `MODEL_NOT_APPROVED` (HTTP 403): Attempt to invoke unapproved model (e.g. Gemini 2.5).
-- `PRIVATE_NOTES_FORBIDDEN_IN_PROMPT` (HTTP 403): Private author notes detected in payload.
+- `PRIVATE_NOTES_FORBIDDEN_IN_PROMPT` (HTTP 403): Private author notes detected in payload before dispatch.
 
 ---
 
 ## 5. Offline Verification & Regression Results
 
-All tests executed with **ZERO real Gemini calls** using the local fake upstream.
+All tests executed with **ZERO real Gemini calls** using local fake upstreams and mocked HTTPS openers.
 
 | Test Suite | File | Tests Run | Result | Duration |
 |---|---|---|---|---|
-| **Free Tier Quota & Protocol (inc. F-11 to F-15)** | `Pipeline_test/tests/test_p1_free_tier_01.py` | 33 / 33 | **PASS** | 17.40s |
-| **P1 Live Safety Adversarial** | `Pipeline_test/tests/test_p1_live_safety_01.py` | 20 / 20 | **PASS** | 40.66s |
-| **Cross-Container Budget Gate** | `Pipeline_test/tests/test_cross_container_budget_gate.py` | 41 / 41 | **PASS** | 53.66s |
-| **FE-19 Final Contracts** | `ai-service/tests/test_p1_fe_final_contracts.py` | 14 / 14 | **PASS** | 3.14s |
-| **Backend AI Copilot Provider** | `backend/src/modules/ai-copilot/llm-provider.test.ts` | 5 / 5 | **PASS** | 0.28s |
-| **Backend TypeScript Build** | `npx tsc -p tsconfig.json --noEmit` (`backend`) | 1 / 1 | **PASS** | 4.00s |
-| **Total** | | **114 / 114** | **100% PASS** | **119.14s** |
+| **Free Tier Quota & Protocol (F-11 through F-18)** | `Pipeline_test/tests/test_p1_free_tier_01.py` | 55 / 55 | **PASS** | 25.51s |
+| **P1 Live Safety Adversarial** | `Pipeline_test/tests/test_p1_live_safety_01.py` | 20 / 20 | **PASS** | 41.54s |
+| **Cross-Container Budget Gate** | `Pipeline_test/tests/test_cross_container_budget_gate.py` | 41 / 41 | **PASS** | 52.89s |
+| **FE-19 Final Contracts** | `ai-service/tests/test_p1_fe_final_contracts.py` | 14 / 14 | **PASS** | 3.17s |
+| **Backend AI Copilot Provider** | `backend/src/modules/ai-copilot/llm-provider.test.ts` | 5 / 5 | **PASS** | 0.40s |
+| **Backend TypeScript Build** | `npx tsc -p tsconfig.json --noEmit` (`backend`) | 1 / 1 | **PASS** | 4.20s |
+| **Total** | | **136 / 136** | **100% PASS** | **127.71s** |
 
 ### Evidence Gap Notes:
 1. **pgvector Integration**:
    - `CREATE EXTENSION IF NOT EXISTS vector;` failed on standard local PostgreSQL (`extension "vector" is not available`).
    - Recorded as **`PGVECTOR_INTEGRATION_NOT_RUN`**.
-   - Per Phase 6 instructions, PostgreSQL container provisioning with pgvector support is delegated to Argon.
+   - Per project instructions, PostgreSQL container provisioning with pgvector support is delegated to Argon.
    - Vector format and mathematical operations (cosine similarity, finite checks, 768-dim validation) are verified in `test_18`.
 2. **Multi-Process Concurrency**:
    - Verified via `test_33_multi_process_concurrency_accounting` with separate OS client processes addressing the running gateway concurrently.
@@ -205,6 +208,9 @@ python Pipeline_test/tools/p1_free_tier_preflight.py --kill-switch --state /stat
 | F-13 Quota config & Attestation | **RESOLVED** | Explicit quotas required, operator attestation required, Pacific midnight reset |
 | F-14 Durable stale ticket recovery | **RESOLVED** | Durably persisted on disk matching in-memory state |
 | F-15 Running gateway kill switch | **RESOLVED** | Authenticated `/api/gateway/emergency/disable`, worker tokens rejected |
+| F-16 Gateway CLI bootstrap | **RESOLVED** | Explicit flags for quotas, attestation, tokens; fail-closed validation |
+| F-17 Mocked HTTPS forwarding | **RESOLVED** | Full request lifecycle, origin check, `NoRedirect`, 429/timeout/auth handling |
+| F-18 Configuration consistency | **RESOLVED** | Standardized `FREE_TIER_QUOTA_HEADROOM`, placeholder quotas, no silent fallback |
 | Gemini LLM routing | Verified | `gemini-3.5-flash-lite`, fallback `3.1`, reject `2.5` |
 | Gemini Embedding routing | Verified | `gemini-embedding-2`, mode-aware routing |
 | 768-dimensional vector validation | Verified | Length 768, finite check, NaN rejection |
@@ -213,7 +219,7 @@ python Pipeline_test/tools/p1_free_tier_preflight.py --kill-switch --state /stat
 | Existing safety regression | **20/20 PASSED** | Offline fake upstream |
 | Cross-container budget regression | **41/41 PASSED** | Offline fake upstream |
 | FE-19 contract regression | **14/14 PASSED** | In-memory verified |
-| New Free Tier offline tests | **33/33 PASSED** | Comprehensive F-11 to F-15 suite |
+| Free Tier offline tests | **55/55 PASSED** | Comprehensive F-11 to F-18 suite |
 | Backend AI Copilot tests | **5/5 PASSED** | Privacy guard & budget proxy |
 | Real Gemini dispatch | **`NOT_RUN`** | $0.00 spend, zero cloud calls |
 | Real Gemini Embedding dispatch | **`NOT_RUN`** | $0.00 spend, zero cloud calls |

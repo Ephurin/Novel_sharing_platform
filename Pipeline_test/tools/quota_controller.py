@@ -101,11 +101,28 @@ def create_operator_attestation(
 def parse_model_quotas_from_env() -> dict[str, dict[str, Any]]:
     """Parse operator-supplied quota limits from environment variables."""
     quotas: dict[str, dict[str, Any]] = {}
-    gemini_rpm = int(os.getenv("FREE_TIER_GEMINI_RPM", "0"))
-    gemini_tpm = int(os.getenv("FREE_TIER_GEMINI_TPM", "0"))
-    gemini_rpd = int(os.getenv("FREE_TIER_GEMINI_RPD", "0"))
-    concurrency = int(os.getenv("FREE_TIER_MAX_CONCURRENCY", "2"))
-    headroom = float(os.getenv("FREE_TIER_HEADROOM", "0.10"))
+
+    def _safe_int(var_name: str) -> int:
+        val = os.getenv(var_name, "").strip()
+        try:
+            return int(val)
+        except (ValueError, TypeError):
+            return 0
+
+    def _safe_float(var_name: str, fallback_var: str | None = None, default: float = 0.10) -> float:
+        val = os.getenv(var_name, "").strip()
+        if not val and fallback_var:
+            val = os.getenv(fallback_var, "").strip()
+        try:
+            return float(val) if val else default
+        except (ValueError, TypeError):
+            return default
+
+    gemini_rpm = _safe_int("FREE_TIER_GEMINI_RPM")
+    gemini_tpm = _safe_int("FREE_TIER_GEMINI_TPM")
+    gemini_rpd = _safe_int("FREE_TIER_GEMINI_RPD")
+    concurrency = _safe_int("FREE_TIER_MAX_CONCURRENCY") or 2
+    headroom = _safe_float("FREE_TIER_QUOTA_HEADROOM", fallback_var="FREE_TIER_HEADROOM", default=0.10)
 
     if gemini_rpm > 0 and gemini_tpm > 0 and gemini_rpd > 0:
         llm_cfg = {
@@ -116,11 +133,14 @@ def parse_model_quotas_from_env() -> dict[str, dict[str, Any]]:
             "headroom": headroom,
         }
         quotas["gemini-3.5-flash-lite"] = copy.deepcopy(llm_cfg)
-        quotas["gemini-3.1-flash-lite"] = copy.deepcopy(llm_cfg)
+        # Prevent silently enabling fallback models: only add gemini-3.1-flash-lite if explicitly configured
+        fallback_model = os.getenv("LLM_FALLBACK_MODEL", "").strip().lower()
+        if fallback_model in {"gemini-3.1-flash-lite", "models/gemini-3.1-flash-lite"}:
+            quotas["gemini-3.1-flash-lite"] = copy.deepcopy(llm_cfg)
 
-    embed_rpm = int(os.getenv("FREE_TIER_EMBEDDING_RPM", "0"))
-    embed_tpm = int(os.getenv("FREE_TIER_EMBEDDING_TPM", "0"))
-    embed_rpd = int(os.getenv("FREE_TIER_EMBEDDING_RPD", "0"))
+    embed_rpm = _safe_int("FREE_TIER_EMBEDDING_RPM")
+    embed_tpm = _safe_int("FREE_TIER_EMBEDDING_TPM")
+    embed_rpd = _safe_int("FREE_TIER_EMBEDDING_RPD")
     if embed_rpm > 0 and embed_tpm > 0 and embed_rpd > 0:
         quotas["gemini-embedding-2"] = {
             "rpm": embed_rpm,
