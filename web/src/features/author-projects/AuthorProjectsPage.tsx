@@ -5,6 +5,8 @@ import { useToast } from '../../shared/components/ToastProvider';
 import { LoadingState } from '../../shared/components/PageStates';
 import { uploadImage } from '../../shared/components/ImageUpload';
 import { CoverCropEditor } from '../../shared/components/CoverCropEditor';
+import { WorkspacePreview } from '../../shared/components/WorkspacePreview';
+import { ReactionIcon } from '../../shared/components/InteractionWidgets';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -16,7 +18,7 @@ import { sortProjects, type ProjectSort } from './project-sorting';
 import type { Novel, NovelStatus } from '../novels/novel-types';
 
 function ProjectPin({ title, active, onClick }: { title: string; active: boolean; onClick: () => void }) {
-  return <button type="button" className="sc-project-pin" aria-pressed={active} aria-label={`${active ? 'Bỏ ghim' : 'Ghim'} ${title}`} title={active ? 'Bỏ ghim' : 'Ghim lên đầu'} onClick={onClick}><span className="material-symbols-outlined" aria-hidden="true">push_pin</span></button>;
+  return <button type="button" className="sc-project-pin" aria-pressed={active} aria-label={`${active ? 'Bỏ ghim' : 'Ghim'} ${title}`} title={active ? 'Bỏ ghim' : 'Ghim lên đầu'} onClick={onClick}><ReactionIcon icon="push_pin" active={active} /></button>;
 }
 
 function formatTimeAgo(dateStr?: string) {
@@ -52,6 +54,7 @@ export function AuthorProjectsPage() {
   const [recentIds] = useWorkspacePreference<string[]>('recent-projects', [], stringArray);
   const togglePin = (id: string) => setPinnedIds(ids => ids.includes(id) ? ids.filter(item => item !== id) : [id, ...ids].slice(0, 200));
   const [activeMenuNovelId, setActiveMenuNovelId] = useState<string | null>(null);
+  const [previewId, setPreviewId] = useState<string | null>(null);
 
   // Modal State for New Project
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -578,6 +581,7 @@ export function AuthorProjectsPage() {
                       {/* Bottom Action Footer */}
                       <div className="mt-3.5 pt-2.5 border-t border-stone-100 flex items-center justify-between gap-1.5 relative">
                         <ProjectPin title={project.title} active={pinnedIds.includes(project.novelId)} onClick={() => togglePin(project.novelId)} />
+                        <button type="button" className="sc-project-pin" aria-label={`Xem nhanh ${project.title}`} title="Xem nhanh tác phẩm" onClick={() => setPreviewId(project.novelId)}><span className="material-symbols-outlined" aria-hidden="true">visibility</span></button>
                         <div className="flex items-center gap-1.5 flex-1">
                           <Link
                             to={`/author/novels/${project.novelId}`}
@@ -724,6 +728,7 @@ export function AuthorProjectsPage() {
 
                       <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
                         <ProjectPin title={project.title} active={pinnedIds.includes(project.novelId)} onClick={() => togglePin(project.novelId)} />
+                        <button type="button" className="sc-project-pin" aria-label={`Xem nhanh ${project.title}`} title="Xem nhanh tác phẩm" onClick={() => setPreviewId(project.novelId)}><span className="material-symbols-outlined" aria-hidden="true">visibility</span></button>
                         <Link
                           to={`/author/novels/${project.novelId}`}
                           className="px-2.5 py-1 rounded-lg bg-stone-50 hover:bg-stone-100 border border-stone-200/80 text-meta font-medium text-stone-700 shadow-2xs transition-colors"
@@ -758,6 +763,7 @@ export function AuthorProjectsPage() {
 
         </div>
       </main>
+      <WorkspacePreview selected={previewId} onSelect={setPreviewId} records={filteredProjects.map(project => ({ id: project.novelId, title: project.title, to: `/author/novels/${project.novelId}`, fields: [['Giới thiệu', project.synopsis || 'Chưa có giới thiệu'], ['Thể loại', project.genres?.join(', ') || project.genre || 'Chưa phân loại'], ['Chương', String(project.chaptersCount ?? 0)], ['Lượt đọc', (project.viewsCount ?? 0).toLocaleString('vi-VN')], ['Cập nhật', formatTimeAgo(project.latestChapter?.updatedAt ?? project.updatedAt)]] }))} />
 
       {/* ──────────────────────────────────────────
           3. Create Novel Modal Dialog

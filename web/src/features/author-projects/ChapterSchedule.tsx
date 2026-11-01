@@ -5,6 +5,7 @@ import { AnimatedModal as Modal } from '../../shared/components/AnimatedModal';
 import { apiClient, getApiErrorMessage } from '../../shared/api/api-client';
 import { getChapter } from '../novels/novel-api';
 import { ErrorState, LoadingState } from '../../shared/components/PageStates';
+import { FeedbackIcon, FeedbackReveal } from '../../shared/components/ActionFeedback';
 
 export function ChapterSchedule({ chapterId, novelId, onClose }: { chapterId: string; novelId: string; onClose: () => void }) {
   const cache = useQueryClient();
@@ -33,6 +34,7 @@ export function ChapterSchedule({ chapterId, novelId, onClose }: { chapterId: st
   const current = chapter.data?.publicationSchedule;
   const previewDate = new Date(date);
   const previewTime = Number.isFinite(previewDate.getTime()) ? previewDate.toLocaleString('vi-VN', { timeZone: 'Asia/Bangkok', dateStyle: 'short', timeStyle: 'short' }) : null;
+  const futureDate = previewDate.getTime() > Date.now();
   return <Modal opened onClose={() => !save.isPending && onClose()} title="Lên lịch xuất bản chương">
     <Stack>
       {chapter.isPending && <LoadingState label="Đang tải bản nháp…" />}
@@ -42,12 +44,12 @@ export function ChapterSchedule({ chapterId, novelId, onClose }: { chapterId: st
         {current?.status === 'PENDING' && <Text size="sm">Lịch hiện tại: {new Date(current.scheduledAt).toLocaleString('vi-VN')}</Text>}
         <TextInput type="datetime-local" label="Ngày giờ đăng" value={date} onChange={event => setDate(event.currentTarget.value)} required
           description={`Múi giờ: ${Intl.DateTimeFormat().resolvedOptions().timeZone}. Sửa bản nháp sẽ hủy lịch cũ.`} />
-        {previewTime && <Text size="sm" c="dimmed" role="status">Dự kiến: {previewTime} (Asia/Bangkok)</Text>}
+        {previewTime && <FeedbackReveal key={date}><Text size="sm" c={futureDate ? 'dimmed' : 'red'} role="status"><FeedbackIcon icon={futureDate ? 'event_available' : 'event_busy'} /> Dự kiến: {previewTime} (Asia/Bangkok){!futureDate && ' · Chọn thời gian trong tương lai'}</Text></FeedbackReveal>}
         <Text size="sm" c="dimmed">Tác phẩm cần được phát hành. Chương vẫn tuân theo quy trình kiểm duyệt.</Text>
         {save.isError && <Alert color="red">{getApiErrorMessage(save.error)}</Alert>}
         <Group justify="flex-end">
           {current?.status === 'PENDING' && <Button variant="subtle" color="red" disabled={save.isPending} onClick={() => save.mutate(true)}>Hủy lịch</Button>}
-          <Button loading={save.isPending} disabled={!date || chapter.isFetching || !['DRAFT','REJECTED'].includes(chapter.data.status)} onClick={() => save.mutate(false)}>Lưu lịch đăng</Button>
+          <Button loading={save.isPending} disabled={!date || !futureDate || chapter.isFetching || !['DRAFT','REJECTED'].includes(chapter.data.status)} onClick={() => save.mutate(false)}>Lưu lịch đăng</Button>
         </Group>
       </>}
     </Stack>

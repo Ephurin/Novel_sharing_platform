@@ -109,6 +109,7 @@ test('Studio workbench: undo, literal replacements, formatting, notes, scenes, e
         await expect(page.getByRole('button', { name: 'Hoàn tác nội dung', exact: true })).toBeDisabled();
         await page.getByRole('button', { name: 'Ghi chú', exact: true }).click();await page.getByRole('tab', {name:'Sổ tay chương',exact:true}).click();await expect(page.getByRole('textbox', { name: 'Ghi chú riêng', exact: true })).toHaveValue('');
         await page.getByRole('button', { name: 'Đóng công cụ', exact: true }).click();
+        if (mobile) await page.getByTitle('Đóng/Mở thanh danh sách chương', {exact:true}).click();
         await page.locator('.sc-studio-sidebar').getByText('Chương thử', { exact: true }).click();await expect(editor).toHaveValue('**$&**' + replaced.slice(2));
         if (mobile) await page.getByTitle('Đóng/Mở thanh danh sách chương', { exact: true }).click();
         await context.setOffline(true);await editor.fill('Bản thảo ngoại tuyến 🌙.');

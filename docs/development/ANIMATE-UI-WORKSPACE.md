@@ -23,6 +23,8 @@ Mở `http://localhost:8080`, nhấn **Ctrl + Shift + R**, đăng nhập đúng 
 | Header bảng cố định | Với bảng dài, cuộn bên trong bảng | Tiêu đề cột giữ ở trên; có thể cuộn ngang trên điện thoại. |
 | Quay lại danh sách | Cuộn Tác phẩm hoặc bảng admin → mở chi tiết → Back | Khôi phục vị trí cuộn trang theo URL. Nếu chủ động cuộn trong lúc tải thì không ép về vị trí cũ. |
 | Xem nhanh admin | Users/Novels → **Xem nhanh** | Mở ngăn bên phải bằng dữ liệu danh sách đã tải; **Trước/Sau** chuyển bản ghi trong trang; **Mở chi tiết** đến trang đầy đủ. |
+| Xem nhanh tác phẩm | Tác phẩm → icon mắt cạnh ghim (lưới hoặc danh sách) | Xem giới thiệu, thể loại, số chương, lượt đọc; Trước/Sau chuyển trong kết quả hiện tại. Không rời danh sách; có nút sao chép thông tin. |
+| Phản hồi thao tác mới | Studio → xuất tệp, ghi chú, lịch sử, lịch đăng; Tác phẩm → cắt ảnh bìa | Có trạng thái xử lý và kết quả phù hợp. Giảm chuyển động tắt hiệu ứng; không tự công bố hoặc chấp nhận nội dung. |
 | So sánh AI | Sửa một trường của đề xuất AI → **So sánh thay đổi** | Hiện giá trị AI và giá trị tác giả sửa cho các trường thực sự khác nhau; không tự duyệt hoặc lưu. |
 | So sánh audit | Nhật ký quản trị → mở **So sánh thay đổi** | Hiện trường trước/sau thay đổi; bản JSON gốc vẫn ở mục **Xem trước / sau**. |
 | Tìm lỗi bản thảo | Nhập tệp có chương thiếu tên → **Lỗi tiếp theo** | Chuyển đến đúng trang và focus ô tiêu đề của chương cần sửa. |

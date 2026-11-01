@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button, Group, Stack, Text } from '@mantine/core';
+import { AnimatedProgress } from './AnimatedProgress';
 import './workspace-tools.css';
 
 export function coverCrop(width: number, height: number, zoom: number, x: number, y: number) {
@@ -52,6 +53,7 @@ export function CoverCropEditor({ file, onConfirm, onCancel }: { file: File; onC
     <label className="sc-crop-control">Vị trí ngang<input type="range" aria-label="Vị trí ngang ảnh bìa" min="0" max="1" step="0.01" value={x} disabled={busy || !size.width} onChange={e => setX(Number(e.target.value))} /></label>
     <label className="sc-crop-control">Vị trí dọc<input type="range" aria-label="Vị trí dọc ảnh bìa" min="0" max="1" step="0.01" value={y} disabled={busy || !size.width} onChange={e => setY(Number(e.target.value))} /></label>
     {error && <Text size="sm" c="red" role="alert">{error}</Text>}
+    {busy && <AnimatedProgress value={null} label="Đang xử lý và tải ảnh bìa…" />}
     <Group justify="flex-end"><Button type="button" variant="subtle" disabled={busy} onClick={() => { setZoom(1); setX(0.5); setY(0.5); }}>Đặt lại vùng cắt</Button><Button type="button" variant="default" disabled={busy} onClick={onCancel}>Hủy cắt ảnh</Button><Button type="button" loading={busy} disabled={!size.width || !!error && !source} onClick={() => void save()}>Dùng ảnh đã cắt</Button></Group>
   </Stack></section>;
 }

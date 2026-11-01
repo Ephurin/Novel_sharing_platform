@@ -1,5 +1,46 @@
 # Bộ công cụ viết trong Studio
 
+## Nhãn ghi chú, đánh dấu, vị trí viết và rà soát bản thảo
+
+Đợt này triển khai 5 mục ưu tiên cho tác giả; không thay đổi giao diện người đọc.
+
+| Công cụ | Cách dùng | Cách kiểm tra |
+| --- | --- | --- |
+| Nhãn ghi chú | Tạo/sửa ghi chú theo đoạn → chọn **Cốt truyện / Nhân vật / Câu chữ / Cần tra cứu**. **Lọc nhãn** dùng kết hợp với trạng thái và từ khóa. | Đặt nhãn, lọc sang nhãn khác rồi quay lại; tải lại trang. Ghi chú cũ vẫn có ở **Chưa phân loại**. |
+| Đánh dấu đoạn | Bôi đen → icon bookmark trên thanh nổi, hoặc chuột phải → **Đánh dấu đoạn văn**. Có thể mở từ **Xem → Đánh dấu đoạn văn**, rồi chọn vùng/dòng hiện tại và đặt tên. | Mở tab **Đánh dấu** trong bảng Ghi chú, bấm **Tới đánh dấu**. Thêm chữ trước đoạn rồi kiểm tra vị trí; đổi chương và tải lại để kiểm tra lưu. Đoạn bị xóa được giữ như đánh dấu mất liên kết, có thể gắn lại. |
+| Nhớ vị trí viết | Studio tự nhớ con trỏ/vùng chọn và vị trí cuộn riêng theo tài khoản/chương. | Đặt con trỏ giữa chương dài, cuộn xuống, đợi khoảng một giây rồi tải lại hoặc đổi chương và quay lại. Khôi phục chỉ chạy lúc vào chương; thao tác mới của người dùng hủy lần khôi phục đang chờ. |
+| Tìm xuyên chương | **Chỉnh sửa → Tìm xuyên chương**, hoặc **Ctrl/Cmd+Shift+F**. Nhập từ khóa → **Tìm toàn truyện**; có phân biệt hoa/thường và nguyên từ. | Tìm một cụm xuất hiện ở nhiều chương; bấm kết quả để mở đúng chương và chọn đúng đoạn. Chương hiện tại dùng nội dung đang viết, chương khác ưu tiên bản nháp máy chủ. Chương lỗi quyền/tải được báo riêng; có nút dừng. |
+| Dấu câu/khoảng trắng | **Xem → Kiểm tra dấu câu & khoảng trắng**. Xem đề xuất, lọc loại, bỏ qua, áp dụng từng mục hoặc các mục đang hiện. | Thử `An  mở cửa ,Bình nói...  `; chỉ mở công cụ không làm đổi nội dung. Áp dụng rồi đóng và Ctrl+Z để hoàn tác. Ghi chú/bookmark ở giữa các chỗ sửa vẫn giữ liên kết. |
+
+- Nhãn, bookmark và vị trí viết hiện lưu trong trình duyệt, có khóa riêng theo tài khoản/chương. Vị trí viết lưu tọa độ và một mẩu ngữ cảnh tối đa 160 ký tự để nhận diện chỗ cũ nếu nội dung đổi; không đồng bộ sang thiết bị khác. Xóa dữ liệu trình duyệt sẽ xóa các dữ liệu tiện ích này.
+- Tối đa 100 bookmark mỗi chương, tên tối đa 80 ký tự. Tìm xuyên chương tải tối đa 3 chương đồng thời và hiển thị tối đa 300 kết quả; không tự thay thế trên nhiều chương. Chương chưa lưu vẫn đi qua cảnh báo lưu hiện có trước khi chuyển.
+- Kiểm tra trình bày chỉ gợi ý khoảng trắng lặp/cuối dòng/trước dấu câu, khoảng trắng sau một số dấu câu và dấu chấm lửng. Giữ xuống dòng, định dạng, URL, đoạn mã; không phải kiểm tra chính tả/ngữ pháp. Hiện tối đa 500 đề xuất mỗi lượt. Không tự áp dụng khi mở hoặc đổi bộ lọc.
+- Nếu bản thảo đã đổi, công cụ kiểm tra lại tọa độ trước khi sửa; nếu đoạn tìm kiếm đã đổi thì báo tìm lại. Đánh dấu không tạo nội dung trong bản thảo hoặc bản xuất.
+
+Kiểm thử riêng: `npm run test:studio-assistance` trong `web`. Browser test dùng API giả lập và kiểm tra cả bản nháp chưa lưu, quyền đọc chương, nhãn, liên kết bookmark qua nhiều chỗ sửa, undo, vị trí sau tải lại/đổi chương và cách ly tài khoản.
+
+## Công cụ vùng chọn và phản hồi thao tác
+
+- Bôi đen trong **Soạn thảo** hoặc **Ký hiệu định dạng** để hiện thanh công cụ nổi: đậm/nghiêng/gạch chân, ghi chú, tra cứu cẩm nang, mở AI. Thanh này dùng portal, không chèn phần tử vào nội dung và không thay kích thước bản thảo. Alt+Shift+T đưa focus vào thanh; dùng phím mũi tên, Home/End và Esc. Không tự gửi yêu cầu AI khi mở thanh.
+- **Xem → Tra cứu cẩm nang** hoặc chuột phải → **Tra cứu trong cẩm nang** tìm nhân vật, sự kiện và tóm tắt đã có của tác phẩm. Tìm được bằng chữ không dấu; có lọc loại, sao chép và liên kết đến cẩm nang đầy đủ. Không tự phân tích hoặc tạo nhân vật từ bản thảo.
+- Ghi chú theo đoạn có **Ghim/Bỏ ghim**, bộ lọc **Đã ghim**, và **Hoàn tác xóa** cho ghi chú vừa xóa. Ghim lưu theo tài khoản/chương cùng các ghi chú cũ; không thay đổi vị trí đoạn văn. **Tới đoạn** chọn đúng vùng và nhấn mạnh tạm thời trên trình duyệt hỗ trợ CSS Highlights, không sửa DOM của trình soạn thảo.
+- Gợi ý AI có **So sánh trước khi áp dụng** và **Sao chép gợi ý**. So sánh dùng vùng thay thế và bản gốc tại thời điểm yêu cầu; xem hoặc đóng không tự chấp nhận. Chấp nhận tiếp tục qua API và kiểm tra phiên bản hiện hữu. AI và Ghi chú không mở cùng lúc.
+- Hộp xác nhận xuất bản kiểm tra tình trạng thật: tiêu đề, nội dung, lưu bản nháp, giá VIP, ghi chú còn mở và lịch đăng nếu có. Ghi chú là nhắc việc, không tự chặn gửi duyệt. Nút gửi vẫn đi qua lưu, snapshot và kiểm tra của máy chủ.
+- Thống kê dùng số chuyển động và phản hồi đạt mục tiêu. Cảnh đang chọn được đánh dấu. Xuất tệp có trạng thái đang tạo, ngăn bấm lặp trong cùng tác vụ; sao chép báo thành công chỉ sau khi trình duyệt xác nhận.
+- Lịch sử bản thảo dùng hộp thoại chung, có phản hồi lưu mốc và sao chép phiên bản. Lên lịch nhấn mạnh ngày giờ xem trước và báo thời điểm đã qua. Cắt ảnh bìa báo đang xử lý/tải bằng tiến trình không xác định, không giả lập phần trăm tải.
+- Các hiệu ứng mới dùng màu giao diện hiện có, hỗ trợ sáng/tối và giảm chuyển động. Không tạo animation cho văn bản đang gõ.
+
+### Thử nhanh phần mới
+
+1. Dùng chương thử, bôi đen một tên → bấm **B** trên thanh nổi → Ctrl+Z; nội dung phải khôi phục, trang không đổi kích thước.
+2. Chọn tên nhân vật đã có → tra cứu cẩm nang; thử tìm không dấu. Đóng hộp thoại, nội dung bản thảo phải giữ nguyên.
+3. Tạo hai ghi chú, ghim ghi chú thứ hai → nó lên đầu. Xóa → **Hoàn tác xóa** → lọc **Đã ghim** → tải lại để kiểm tra lưu.
+4. Tạo gợi ý AI → **So sánh trước khi áp dụng**. Chỉ xem/đóng không sửa nội dung; **Chấp nhận bản thảo** mới gửi yêu cầu áp dụng.
+5. Mở xác nhận xuất bản khi còn ghi chú chưa xử lý để thấy nhắc việc. Không cần xác nhận gửi để kiểm tra giao diện.
+6. Mở lịch sử, lưu mốc thử; mở lên lịch và chọn thời điểm đã qua để thấy cảnh báo. Ở Tác phẩm, dùng icon mắt **Xem nhanh**, thử Trước/Sau và Esc.
+
+Kiểm thử thêm: `npm run test:studio-enhancements`. Browser test dùng API giả lập, không thay đổi chương thật.
+
 Mở một chương tại `/author/ide`. Nhấn **Ctrl + Shift + R** sau khi cập nhật web để nhận bản mới.
 
 ## Sửa xuất tệp, tìm kiếm, định dạng và ghi chú theo đoạn
@@ -114,9 +155,9 @@ Kiểm thử tự động: `npm run test:studio-tools`, `node --test tests/autho
 
 ## Notes không làm dịch bản thảo
 
-- Vùng sau danh sách chương (280 px) dùng Grid với cột editor `minmax(0, 1fr)` và cột Notes 336 px khi đủ chỗ. Notes dock là phần tử trong luồng, không dùng absolute/fixed. Cột Notes được giữ cả khi đóng để bật/tắt không dịch trang. Bản thảo mặc định tối đa 760 px; lựa chọn Hẹp/Rộng vẫn được giữ.
-- Ngưỡng dock dựa trên chiều rộng thực còn lại sau danh sách chương/AI: chiều rộng bản thảo ưu tiên + lề 32 px + Notes 336 px + scrollbar. Vì vậy đóng danh sách chương có thể chuyển drawer sang dock ngay tại cùng viewport. Với cài đặt mặc định và danh sách chương mở: 1920/1600/1440 px dùng dock; 1280 px dùng drawer.
-- Drawer bắt đầu bên dưới thanh định dạng, có nền che, nút đóng và Esc; bấm nền che cũng đóng. Chỉ drawer dùng absolute. Bật/tắt Notes không thay kích thước vùng viết.
+- Bản thảo căn giữa trên workspace và mặc định tối đa 760 px; lựa chọn Hẹp/Rộng vẫn được giữ. Mục lục chương 280 px không lấy chiều rộng khỏi workspace khi bật/tắt. Không giữ cột Notes rỗng khi đóng.
+- Notes dock 336 px nằm trong khoảng trắng tự nhiên bên phải nếu khoảng này đủ rộng, không đè bản thảo. Ngưỡng tính bằng vị trí thực của trang, có tính scrollbar; ở cài đặt mặc định 1920/1600 px dùng dock, 1440/1280 px dùng bảng nổi. Tắt phần chừa scrollbar ngoài riêng trong Studio vì workspace đã có thanh cuộn riêng.
+- Trên màn hình hẹp, Notes nổi bên dưới thanh định dạng, có nút đóng và Esc, không có nền che khóa vùng viết. Có thể chuyển giữa ghi chú và bản thảo. AI dùng cùng vị trí bên phải, chỉ một trong AI/Ghi chú được mở. Bật/tắt các bảng không thay kích thước hoặc vị trí vùng viết.
 - Thanh định dạng cùng chiều rộng và căn giữa theo trang bản thảo, không tự xuống hàng. Trên màn hình nhỏ có cuộn ngang riêng; menu phông chữ/giãn dòng dùng portal nên không bị cắt bởi vùng cuộn. Không đổi phông, cỡ chữ hoặc nội dung bản thảo để đạt bố cục.
 - Chỉ panel Notes chuyển động bằng transform/opacity 200 ms; chế độ giảm chuyển động tắt hiệu ứng. Panel đóng có `inert` và `aria-hidden`, không nhận bàn phím.
 - Đóng Notes khôi phục vùng chọn đang lưu và focus vào editor bằng `preventScroll`, không cuộn tới vị trí con trỏ. Editor không remount khi bật/tắt Notes; lịch sử undo và autosave giữ nguyên.

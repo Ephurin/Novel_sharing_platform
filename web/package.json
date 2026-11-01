@@ -21,7 +21,9 @@
     "test:author-admin-motion": "node --test tests/author-admin-motion.browser.test.mjs",
     "test:manuscript-tools": "node --experimental-strip-types --test tests/manuscript-tools.test.mjs",
     "test:studio-tools": "tsx --test tests/studio-tools.test.mjs && node --test tests/studio-workbench.browser.test.mjs",
-    "test:studio-notes-layout": "node --test tests/studio-notes-layout.browser.test.mjs"
+    "test:studio-notes-layout": "node --test tests/studio-notes-layout.browser.test.mjs",
+    "test:studio-enhancements": "node --test tests/studio-enhancements.browser.test.mjs",
+    "test:studio-assistance": "tsx --test tests/studio-writing-assistance.test.mjs && node --test tests/studio-writing-assistance.browser.test.mjs"
   },
   "dependencies": {
     "@animate-ui/react": "2.3.0",

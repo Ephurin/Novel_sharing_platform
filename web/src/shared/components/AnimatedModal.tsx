@@ -15,11 +15,12 @@ type AnimatedModalProps = PropsWithChildren<{
   withCloseButton?: boolean;
   className?: string;
   side?: 'right';
+  onCloseAutoFocus?: (event: Event) => void;
 }>;
 
 /** Keep the existing form controls and dismissal rules, animate the shared shell. */
 export function AnimatedModal({ opened, onClose, title, children, size = 'md', centered = false,
-  closeOnClickOutside = true, closeOnEscape = true, withCloseButton = true, className = '', side }: AnimatedModalProps) {
+  closeOnClickOutside = true, closeOnEscape = true, withCloseButton = true, className = '', side, onCloseAutoFocus }: AnimatedModalProps) {
   const previousFocus = useRef<HTMLElement | null>(null);
   const reduceMotion = useReducedMotion();
   const hidden = side ? { opacity: reduceMotion ? 0 : 1, x: reduceMotion ? 0 : '100%' } : { opacity: 0, scale: reduceMotion ? 1 : 0.96 };
@@ -43,6 +44,8 @@ export function AnimatedModal({ opened, onClose, title, children, size = 'md', c
           onEscapeKeyDown={(event) => { if (!closeOnEscape) event.preventDefault(); }}
           onPointerDownOutside={(event) => { if (!closeOnClickOutside) event.preventDefault(); }}
           onCloseAutoFocus={(event) => {
+            onCloseAutoFocus?.(event);
+            if (event.defaultPrevented) return;
             event.preventDefault();
             if (previousFocus.current?.isConnected) previousFocus.current.focus({ preventScroll: true });
           }}>

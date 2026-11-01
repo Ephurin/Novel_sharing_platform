@@ -76,6 +76,12 @@ test('author/admin motion preserves filters, actions, values and reader role exc
         assert.deepEqual(await loaded.boundingBox(),coverBox,'loading images must retain cover geometry');
         await expect(page.locator('.sc-loaded-image[data-state="error"]')).toHaveCount(1);
         await expect(page.getByRole('article')).toHaveCount(3);
+        await page.getByRole('button',{name:'Xem nhanh Tác phẩm 1',exact:true}).click();
+        const projectPreview=page.getByRole('dialog',{name:'Tác phẩm 1',exact:true});
+        await expect(projectPreview).toContainText('Giới thiệu tác phẩm thử nghiệm.');
+        await projectPreview.getByRole('button',{name:'Sau',exact:true}).click();
+        await expect(page.getByRole('dialog',{name:'Tác phẩm 2',exact:true})).toBeVisible();
+        await page.keyboard.press('Escape');await expect(page.getByRole('article')).toHaveCount(3);
         await page.getByTitle('Danh sách',{exact:true}).click();await expect(page.locator('.sc-motion-project')).toHaveCount(3);
         await expect.poll(()=>page.locator('.sc-motion-project').first().evaluate(el=>el.tagName)).toBe('DIV');
         await expect(page.getByRole('link',{name:'Quản lý',exact:true})).toHaveCount(3);

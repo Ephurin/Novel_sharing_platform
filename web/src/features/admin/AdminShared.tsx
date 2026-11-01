@@ -12,6 +12,7 @@ import {
 } from '@mantine/core';
 import { AdminIcon } from './AdminShell';
 import { AnimatedTooltip } from '../../shared/components/AnimatedTooltip';
+import { FeedbackIcon } from '../../shared/components/ActionFeedback';
 import { AnimatedModal as Modal } from '../../shared/components/AnimatedModal';
 
 export const number = (value: number) => value.toLocaleString('vi-VN');
@@ -84,7 +85,7 @@ export function AdminId({
           <>
             <AnimatedTooltip label={copied ? 'Đã sao chép' : value}>
               <ActionIcon variant="subtle" size={28} onClick={copy} aria-label={`Sao chép ${label}`}>
-                <AdminIcon name={copied ? 'check' : 'content_copy'} />
+                <FeedbackIcon icon={copied ? 'check' : 'content_copy'} />
               </ActionIcon>
             </AnimatedTooltip>
             <VisuallyHidden role="status">{copied ? 'Đã sao chép' : ''}</VisuallyHidden>

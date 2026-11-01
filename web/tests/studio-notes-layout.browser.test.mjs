@@ -19,7 +19,8 @@ test('Notes preserve manuscript geometry, wrapping, scroll, selection, history a
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve)); let browser;
   try {
     browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome', headless: true });
-    for (const width of [1920, 1600, 1440, 1280, 1024, 768]) for (const dark of [false, true]) {
+    const widths = process.env.STUDIO_LAYOUT_WIDTHS ? process.env.STUDIO_LAYOUT_WIDTHS.split(',').map(Number) : [1920, 1600, 1440, 1280, 1024, 768];
+    for (const width of widths) for (const dark of [false, true]) {
       const sourceMode = width === 1024 && dark, reduced = width === 768;
       const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: reduced ? 'reduce' : 'no-preference' });
       const page = await context.newPage(), errors = []; page.on('pageerror', error => errors.push(error.message));
@@ -62,6 +63,7 @@ test('Notes preserve manuscript geometry, wrapping, scroll, selection, history a
           return {page:box(page),editor:box(editor),toolbar:box(toolbar),controls:box(document.querySelector('.sc-format-controls')),workspace:box(workspace),mode:workspace.parentElement.dataset.notesLayout,overflow:document.documentElement.scrollWidth>innerWidth,scroll:workspace.scrollTop,scrollHeight:workspace.scrollHeight,start:source.selectionStart,end:source.selectionEnd,sameNode:window.layoutEditor===editor};
         });
         const before=await geometry(), beforePatches=patches;
+        assert.ok(await page.locator('.sc-writing-studio').evaluate(el=>Math.abs(el.getBoundingClientRect().right-innerWidth)<.5),'Studio must not reserve an outer scrollbar gap');
         assert.equal(before.overflow,false);assert.ok(Math.abs(before.controls.x-before.page.x)<.5,'Toolbar and manuscript left edges align');assert.ok(Math.abs(before.controls.width-before.page.width)<.5,'Toolbar and manuscript widths align');await expect(page.locator('.sc-format-controls')).toHaveCSS('flex-wrap','nowrap');
         if(width>=1280) assert.ok(await page.locator('.sc-format-controls').evaluate(el=>el.scrollWidth<=el.clientWidth+1),'All desktop formatting controls fit in one row');
         assert.ok(before.page.width<=760);assert.ok(before.scroll>0);
@@ -77,12 +79,11 @@ test('Notes preserve manuscript geometry, wrapping, scroll, selection, history a
         await checkStable();
         const notesBox=await notes.boundingBox(), toolbarBox=await page.locator('.sc-format-toolbar').boundingBox();
         if(before.mode==='dock') {
-          assert.ok(notesBox.x>=before.workspace.x+before.workspace.width-.5,`${name}: dock overlaps editor workspace`);
           assert.ok(notesBox.x>=before.page.x+before.page.width,`${name}: dock overlaps manuscript`);
           await expect(notes).toHaveCSS('position','relative');await expect(notes).toHaveCSS('box-shadow','none');
         } else {
           assert.ok(notesBox.y>=toolbarBox.y+toolbarBox.height,`${name}: drawer covers formatting controls`);
-          await expect(page.locator('.sc-studio-notes-backdrop')).toBeVisible();
+          await expect(page.locator('.sc-studio-notes-backdrop')).toHaveCount(0);
         }
         console.log('Layout',name,JSON.stringify({mode:before.mode,pageX:before.page.x,pageWidth:before.page.width,notesX:notesBox.x,workspaceRight:before.workspace.x+before.workspace.width}));
         if(reduced) await expect(notes).toHaveCSS('transition-duration','0s');
@@ -90,6 +91,11 @@ test('Notes preserve manuscript geometry, wrapping, scroll, selection, history a
         await page.screenshot({path:path.join(output,`${name}-open.png`)});
         await page.getByRole('button',{name:'Đóng công cụ',exact:true}).click();await expect(notes).toBeHidden();await expect(editor).toBeFocused();await checkStable();if(!sourceMode) assert.equal(await page.evaluate(()=>getSelection().toString()),'Đoạn 30.');
         assert.equal(patches,beforePatches,'Toggling Notes must not edit or autosave the manuscript');
+        await page.getByTitle('Đóng/Mở thanh danh sách chương',{exact:true}).click();await checkStable();
+        await page.getByTitle('Đóng/Mở thanh danh sách chương',{exact:true}).click();await checkStable();
+        await page.getByTitle('Mở trợ lý sáng tác AI',{exact:true}).click();await expect(page.locator('#studio-ai-panel')).toBeVisible();await checkStable();
+        await page.screenshot({path:path.join(output,`${name}-ai.png`)});
+        await page.keyboard.press('Escape');await expect(page.locator('#studio-ai-panel')).toHaveCount(0);await checkStable();
         await page.keyboard.press('Control+z');await expect(canonical).toHaveValue(initial);await page.keyboard.press('Control+Shift+z');await expect(canonical).toHaveValue(edited);
         await page.keyboard.press('Control+s');await expect.poll(()=>saved).toBe(edited);
         if((width===1920 && !dark) || (width===1440 && dark)) {
@@ -98,7 +104,7 @@ test('Notes preserve manuscript geometry, wrapping, scroll, selection, history a
           const wideClosed=await geometry();await page.getByRole('button',{name:'Ghi chú',exact:true}).click();await expect(notes).toHaveCSS('opacity','1');const wideOpen=await geometry();
           assert.equal(wideOpen.page.x,wideClosed.page.x);assert.equal(wideOpen.page.width,wideClosed.page.width);assert.equal(wideOpen.editor.height,wideClosed.editor.height);assert.equal(wideOpen.scroll,wideClosed.scroll);assert.equal(wideOpen.overflow,false);
           const wideNotes=await notes.boundingBox();
-          if(wideOpen.mode==='dock') assert.ok(wideNotes.x>=wideOpen.page.x+wideOpen.page.width);else await expect(page.locator('.sc-studio-notes-backdrop')).toBeVisible();
+          if(wideOpen.mode==='dock') assert.ok(wideNotes.x>=wideOpen.page.x+wideOpen.page.width);else await expect(page.locator('.sc-studio-notes-backdrop')).toHaveCount(0);
           await page.screenshot({path:path.join(output,`${name}-wide-open.png`)});
           await page.keyboard.press('Escape');await expect(notes).toBeHidden();
           await page.getByRole('button',{name:'Xem',exact:true}).click();await page.getByRole('menuitem',{name:'Vừa · mặc định',exact:true}).click();
@@ -106,13 +112,14 @@ test('Notes preserve manuscript geometry, wrapping, scroll, selection, history a
         }
         if(width===1280 && !dark) {
           await page.getByTitle('Đóng/Mở thanh danh sách chương',{exact:true}).click();
-          await expect(page.locator('.sc-studio-editor-region')).toHaveAttribute('data-notes-layout','dock');
-          await page.getByRole('button',{name:'Ghi chú',exact:true}).click();await expect(notes).toBeVisible();await expect(notes).toHaveCSS('position','relative');
+          await expect(page.locator('.sc-studio-editor-region')).toHaveAttribute('data-notes-layout',before.mode);
+          assert.equal((await geometry()).page.x,before.page.x,'Chapter navigation must not shift prose');
+          await page.getByRole('button',{name:'Ghi chú',exact:true}).click();await expect(notes).toBeVisible();
           await page.keyboard.press('Escape');await expect(notes).toBeHidden();
           await page.getByTitle('Đóng/Mở thanh danh sách chương',{exact:true}).click();
           await expect(page.locator('.sc-studio-editor-region')).toHaveAttribute('data-notes-layout','drawer');
           await page.getByRole('button',{name:'Ghi chú',exact:true}).click();await expect(notes).toBeVisible();
-          await page.locator('.sc-studio-notes-backdrop').click({position:{x:8,y:8}});await expect(notes).toBeHidden();
+          await page.getByRole('button',{name:'Đóng công cụ',exact:true}).click();await expect(notes).toBeHidden();
         }
         if(width<=900) await page.getByTitle('Đóng/Mở thanh danh sách chương',{exact:true}).click();
         await page.locator('.sc-studio-sidebar').getByText('Chương khác',{exact:true}).click();await expect(canonical).toHaveValue(second.content);

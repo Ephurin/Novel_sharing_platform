@@ -1,4 +1,4 @@
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { useToast } from '../../shared/components/ToastProvider';
 import { SaveStatus } from '../../shared/components/SaveFeedback';
 import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
@@ -7,6 +7,13 @@ import { useStudioHistory } from './useStudioHistory';
 import { revealStudioSelection } from './studio-tools';
 import { RichManuscriptEditor } from './RichManuscriptEditor';
 import { StudioContextMenu } from './StudioContextMenu';
+import { StudioSelectionTools } from './StudioSelectionTools';
+import { StudioNovelSearch, type ChapterSearchHit } from './StudioNovelSearch';
+import { locateAnchor } from './studio-annotations';
+import { useStudioPosition } from './useStudioPosition';
+import { PublishChecklist, StoryReferenceLookup, TextComparison } from './StudioReviewTools';
+import { AnimatedModal } from '../../shared/components/AnimatedModal';
+import { CopyTextButton, FeedbackReveal } from '../../shared/components/ActionFeedback';
 import { ChapterSchedule } from '../author-projects/ChapterSchedule';
 import { RevisionHistory, snapshotDraft } from './RevisionHistory';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -153,11 +160,19 @@ export function AuthorWritingIde() {
 
   // UI Interactive Panels & Modals State
   const [sidebarOpen, setSidebarOpen] = useState(() => window.matchMedia('(min-width: 901px)').matches);
-  const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
+  const [rightPanel, setRightPanel] = useState<'ai' | 'notes' | null>(null);
+  const aiDrawerOpen = rightPanel === 'ai';
   const reducePanelMotion = useReducedMotion();
+  const openAiDrawer = () => {
+    if (window.matchMedia('(max-width: 900px)').matches) setSidebarOpen(false);
+    setRightPanel('ai');
+  };
   const toggleAiDrawer = () => {
-    if (!aiDrawerOpen && window.matchMedia('(max-width: 1200px)').matches) setSidebarOpen(false);
-    setAiDrawerOpen(open => !open);
+    if (aiDrawerOpen) setRightPanel(null); else openAiDrawer();
+  };
+  const changeNotesOpen = (open: boolean) => {
+    if (open && window.matchMedia('(max-width: 900px)').matches) setSidebarOpen(false);
+    setRightPanel(current => open ? 'notes' : current === 'notes' ? null : current);
   };
   const [storyBibleOpen, setStoryBibleOpen] = useState(false);
   const [memoryPanelOpen, setMemoryPanelOpen] = useState(false);
@@ -170,6 +185,11 @@ export function AuthorWritingIde() {
   const [formatToolbarVisible, setFormatToolbarVisible] = useState(true);
   const [visualEditor, setVisualEditor] = useState(() => readEditorSetting('storycraft-studio-editor-mode') !== 'source');
   const [exportOpen, setExportOpen] = useState(false);
+  const [referenceQuery, setReferenceQuery] = useState<string | null>(null);
+  const [novelSearchOpen, setNovelSearchOpen] = useState(false);
+  const pendingSearchJump = useRef<{ scope: string; hit: ChapterSearchHit } | null>(null);
+  const [aiComparisonOpen, setAiComparisonOpen] = useState(false);
+  const aiBaseRef = useRef({ scope: '', content: '' });
 
   // Rich Typography & Manuscript Formatting State
   const [fontOption, setFontOption] = useState<FontOption>(() => {
@@ -261,7 +281,7 @@ export function AuthorWritingIde() {
   const charactersQuery = useQuery({
     queryKey: ['author', 'story-context', 'characters', activeNovelId],
     queryFn: () => listCharacters(activeNovelId),
-    enabled: storyBibleOpen && Boolean(activeNovelId)
+    enabled: (storyBibleOpen || referenceQuery !== null) && Boolean(activeNovelId)
   });
 
   const relationshipsQuery = useQuery({
@@ -273,13 +293,13 @@ export function AuthorWritingIde() {
   const timelineQuery = useQuery({
     queryKey: ['author', 'story-context', 'timeline', activeNovelId],
     queryFn: () => listTimelineEvents(activeNovelId),
-    enabled: storyBibleOpen && Boolean(activeNovelId)
+    enabled: (storyBibleOpen || referenceQuery !== null) && Boolean(activeNovelId)
   });
 
   const plotSummariesQuery = useQuery({
     queryKey: ['author', 'story-context', 'summaries', activeNovelId],
     queryFn: () => listPlotSummaries(activeNovelId),
-    enabled: storyBibleOpen && Boolean(activeNovelId)
+    enabled: (storyBibleOpen || referenceQuery !== null) && Boolean(activeNovelId)
   });
 
   // Keep search params in sync
@@ -310,6 +330,8 @@ export function AuthorWritingIde() {
     setIsAcceptingAi(false);
     setCurrentJob(null);
     setAiSuggestion(null);
+    setAiComparisonOpen(false);
+    setReferenceQuery(null);
   }, [activeChapterId]);
 
   // Load chapter data into editor when chapter changes
@@ -472,6 +494,38 @@ export function AuthorWritingIde() {
   };
 
   const studioReady = Boolean(chapterQuery.data) && loadedChapter.current === activeDraftScope;
+  useStudioPosition(activeDraftScope, content, studioReady, editorRef);
+  useLayoutEffect(() => {
+    const pending = pendingSearchJump.current, source = editorRef.current;
+    if (!pending || pending.scope !== activeDraftScope || !studioReady || !source) return;
+    pendingSearchJump.current = null;
+    const anchor = locateAnchor(pending.hit.anchor, content);
+    if (anchor.detached) { showToast('Đoạn tìm thấy đã thay đổi. Hãy tìm lại trong chương.', 'error'); return; }
+    revealStudioSelection(source, anchor.start, anchor.end);
+  }, [activeDraftScope, content, studioReady]);
+  const searchScope = `${user?.userId}:${activeNovelId}`, currentSearchScope = useRef(searchScope); currentSearchScope.current = searchScope;
+  const navigateSearchHit = (hit: ChapterSearchHit) => {
+    if (currentSearchScope.current !== searchScope || !chaptersQuery.data?.some(chapter => chapter.chapterId === hit.chapterId)) return;
+    if (window.matchMedia('(max-width: 900px)').matches) setSidebarOpen(false);
+    if (editorRef.current?.closest('.sc-studio-body')?.getAttribute('data-panel-layout') === 'drawer') setRightPanel(null);
+    if (hit.chapterId === activeChapterId) {
+      const anchor = locateAnchor(hit.anchor, content); if (anchor.detached) { showToast('Nội dung đã thay đổi. Hãy tìm lại.', 'error'); return; }
+      if (editorRef.current) revealStudioSelection(editorRef.current, anchor.start, anchor.end);
+    } else { pendingSearchJump.current = { scope: `${user?.userId}:${hit.chapterId}`, hit }; setSearchParams({ novelId: activeNovelId, chapterId: hit.chapterId }); }
+  };
+  const searchNavigationBlocked = useRef(false);
+  useEffect(() => {
+    if (searchNavigationBlocked.current && persistence.blocker.state === 'unblocked' && pendingSearchJump.current?.scope !== activeDraftScope) pendingSearchJump.current = null;
+    searchNavigationBlocked.current = persistence.blocker.state === 'blocked';
+  }, [persistence.blocker.state, activeDraftScope]);
+  useEffect(() => {
+    if (!aiDrawerOpen) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || event.defaultPrevented || document.querySelector('[role="dialog"], [role="menu"][data-state="open"]')) return;
+      setRightPanel(null); const source = editorRef.current; if (source) revealStudioSelection(source, source.selectionStart, source.selectionEnd, false);
+    };
+    document.addEventListener('keydown', close); return () => document.removeEventListener('keydown', close);
+  }, [aiDrawerOpen]);
   const studioHistory = useStudioHistory(activeDraftScope, content, studioReady, handleContentChange);
   const studioCaret = useRef<{ scope: string; start: number; end: number; text: string } | null>(null);
   const applyStudioEdit = (value: string, start: number, end: number) => {
@@ -577,6 +631,8 @@ export function AuthorWritingIde() {
     }
 
     setIsGeneratingAi(true);
+    aiBaseRef.current = { scope: activeDraftScope, content };
+    setAiComparisonOpen(false);
     setCurrentJob(null);
     setAiSuggestion(null);
 
@@ -683,6 +739,7 @@ export function AuthorWritingIde() {
       }
       setCurrentJob(null);
       setAiSuggestion(null);
+      setAiComparisonOpen(false);
       queryClient.invalidateQueries({ queryKey: ['author', 'chapter', activeChapterId] });
       queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] });
       showToast('Đã chấp nhận bản thảo AI và kích hoạt cập nhật Story Brain!');
@@ -695,6 +752,7 @@ export function AuthorWritingIde() {
 
   // Canonical Discard Draft: leaves canon, revision pointer, and Story Brain unchanged
   const handleDiscardDraft = () => {
+    setAiComparisonOpen(false);
     setCurrentJob(null);
     setAiSuggestion(null);
     showToast('Đã từ chối gợi ý AI.');
@@ -925,14 +983,18 @@ export function AuthorWritingIde() {
           BEGIN: MainWorkspace
          ────────────────────────────────────────── */}
       {scheduleOpen && <ChapterSchedule chapterId={activeChapterId} novelId={activeNovelId} onClose={() => setScheduleOpen(false)} />}
-      {historyOpen && <RevisionHistory chapterId={activeChapterId} content={content} onClose={() => setHistoryOpen(false)} onRestore={async next => { await persistence.flush(); setContent(next); triggerAutosave(title, next, isVip, priceCoins); await persistence.flush(); }} />}
+      {historyOpen && <RevisionHistory chapterId={activeChapterId} content={content} onClose={() => setHistoryOpen(false)} onRestore={async next => { await persistence.flush(); setContent(next); triggerAutosave(title, next, isVip, priceCoins); await persistence.flush(); showToast('Đã khôi phục và lưu phiên bản bản thảo.'); }} />}
       {persistence.error && <Alert color="red" title="Bản nháp chưa được lưu">{persistence.error}<Group mt="xs"><Button size="xs" variant="light" onClick={() => void persistence.flush().catch(() => {})}>Thử lưu lại</Button><Button size="xs" variant="default" onClick={async () => { const result = await chapterQuery.refetch(); if (result.data) { const value = persistence.initialize(result.data, true); if (value) { setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); } } }}>Tải bản máy chủ</Button></Group></Alert>}
       {persistence.recovery && <Alert title="Có bản lưu trên máy chưa đồng bộ" color="orange"><Text size="sm">Bản lưu lúc {new Date(persistence.recovery.savedAt).toLocaleString('vi-VN')}. Nội dung máy chủ vẫn được giữ nguyên.</Text><Group mt="xs"><Button size="xs" onClick={() => { const value = persistence.recovery!.value; setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); persistence.dismissRecovery(); triggerAutosave(value.title, value.content, value.isVip, value.priceCoins); }}>Khôi phục vào trình soạn thảo</Button><Button size="xs" variant="default" onClick={persistence.dismissRecovery}>Bỏ bản lưu trên máy</Button></Group></Alert>}
       {persistence.blocker.state === 'blocked' && <AuthorDialog onClose={() => persistence.blocker.reset?.()}><div className="fixed inset-0 flex items-center justify-center p-4"><div className="w-full max-w-md p-6"><h2 className="text-section">Bản nháp chưa lưu xong</h2><p className="text-body">Bạn có thể lưu trước khi rời trang hoặc giữ bản dự phòng trên máy để khôi phục sau.</p><Group mt="md"><Button onClick={async () => { try { await persistence.flush(); persistence.blocker.proceed?.(); } catch {} }}>Lưu và rời trang</Button><Button variant="default" onClick={() => persistence.blocker.reset?.()}>Ở lại</Button><Button variant="subtle" onClick={() => { persistence.abandon(); persistence.blocker.proceed?.(); }}>Rời trang</Button></Group></div></div></AuthorDialog>}
-      <StudioWorkbench formatToolbarVisible={formatToolbarVisible} chapterSettings={chapterSettings} fileActions={manuscriptActions} key={activeDraftScope} scope={activeDraftScope} title={title} content={content} editor={editorRef} disabled={!studioReady || isAcceptingAi} exportOpen={exportOpen} onExportClose={() => setExportOpen(false)}
+      <StudioNovelSearch key={searchScope} opened={novelSearchOpen} chapters={chaptersQuery.data ?? []} activeChapterId={activeChapterId} content={content} onClose={() => setNovelSearchOpen(false)} onNavigate={navigateSearchHit} />
+      <StudioWorkbench onSearchNovel={() => setNovelSearchOpen(true)} notesOpen={rightPanel === 'notes'} onNotesOpenChange={changeNotesOpen} onLookup={setReferenceQuery} formatToolbarVisible={formatToolbarVisible} chapterSettings={chapterSettings} fileActions={manuscriptActions} key={activeDraftScope} scope={activeDraftScope} title={title} content={content} editor={editorRef} disabled={!studioReady || isAcceptingAi} exportOpen={exportOpen} onExportClose={() => setExportOpen(false)}
         apply={applyStudioEdit} undo={() => moveStudioHistory()} redo={() => moveStudioHistory(true)} canUndo={studioHistory.canUndo} canRedo={studioHistory.canRedo}
         save={async () => { await persistence.flush(); }} onError={message => showToast(message, 'error')} />
-      <div className="sc-studio-body flex-1 min-h-0 flex overflow-hidden relative">
+      <StudioSelectionTools key={`selection:${activeDraftScope}`} editor={editorRef} disabled={!studioReady || isAcceptingAi}
+        onFormat={format => format === 'bold' ? wrapSelection('**') : format === 'italic' ? wrapSelection('*') : wrapSelection('<u>', '</u>')}
+        onLookup={setReferenceQuery} onAi={() => { rememberEditorSelection(); openAiDrawer(); }} />
+      <div data-right-panel={rightPanel ?? 'none'} className="sc-studio-body flex-1 min-h-0 flex overflow-hidden relative">
         {/* Left Sidebar Chapters Outline Rail */}
         {sidebarOpen && !focusMode && (
           <aside className="sc-studio-sidebar w-[280px] shrink-0 border-r border-stone-200/90 bg-surface-subtle flex flex-col h-full z-10 select-none relative">
@@ -1253,7 +1315,7 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Prose Editor Textarea: Auto-grow without internal scrollbar */}
-            <StudioContextMenu key={activeDraftScope} editor={editorRef} disabled={!studioReady || isAcceptingAi} apply={applyStudioEdit} onError={message => showToast(message, 'error')}><div className="sc-manuscript-input w-full min-h-[500px]">
+            <StudioContextMenu key={activeDraftScope} editor={editorRef} disabled={!studioReady || isAcceptingAi} apply={applyStudioEdit} onError={message => showToast(message, 'error')} onLookup={setReferenceQuery} onAi={() => { rememberEditorSelection(); openAiDrawer(); }} onCopied={() => showToast('Đã sao chép vùng chọn.')}><div className="sc-manuscript-input w-full min-h-[500px]">
               <div className="sc-studio-editor-mode" role="group" aria-label="Chế độ soạn thảo"><button type="button" aria-pressed={visualEditor} onClick={() => { setVisualEditor(true); writeEditorSetting('storycraft-studio-editor-mode', 'visual'); }}>Soạn thảo</button><button type="button" aria-pressed={!visualEditor} onClick={() => { setVisualEditor(false); writeEditorSetting('storycraft-studio-editor-mode', 'source'); }}>Ký hiệu định dạng</button></div>
               {visualEditor && <RichManuscriptEditor value={content} source={editorRef} disabled={!studioReady || isAcceptingAi}
                 style={{ fontFamily: currentFontConfig.fontFamily, fontSize: `${fontSize}px`, lineHeight, textAlign, textIndent: paragraphIndent ? '2.5rem' : '0' }}
@@ -1293,7 +1355,7 @@ export function AuthorWritingIde() {
         {/* ──────────────────────────────────────────
             BEGIN: Docked AI Assistant
            ────────────────────────────────────────── */}
-        <AnimatePresence initial={false}>{aiDrawerOpen && (
+        {aiDrawerOpen && (
           <motion.aside initial={{ opacity: 0, x: reducePanelMotion ? 0 : 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: reducePanelMotion ? 0 : 12 }} transition={{ duration: 0.18 }} id="studio-ai-panel" aria-label="Trợ lý sáng tác AI" className="sc-ai-panel bg-surface-container-lowest border-l border-stone-200 flex flex-col select-none">
             {/* Drawer Header */}
             <div className="h-14 border-b border-stone-200 px-4 flex items-center justify-between bg-stone-50/80">
@@ -1307,7 +1369,7 @@ export function AuthorWritingIde() {
                 </div>
               </div>
               <button
-                onClick={() => setAiDrawerOpen(false)}
+                onClick={() => setRightPanel(null)}
                 className="p-1 rounded text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 transition-colors"
                 title="Đóng trợ lý"
                 type="button"
@@ -1381,7 +1443,7 @@ export function AuthorWritingIde() {
               )}
 
               {aiSuggestion && !isGeneratingAi && (
-                <div className="bg-primary-50/70 border border-primary-100 rounded-xl p-3.5 text-stone-800 shadow-2xs">
+                <FeedbackReveal className="bg-primary-50/70 border border-primary-100 rounded-xl p-3.5 text-stone-800 shadow-2xs">
                   <div className="flex items-center justify-between mb-2 text-meta font-semibold text-primary-700">
                     <span className="uppercase tracking-wide">Gợi ý từ AI Copilot</span>
                     <span className="bg-primary-100 px-1.5 py-0.2 rounded text-meta">{aiSuggestionTone}</span>
@@ -1389,6 +1451,7 @@ export function AuthorWritingIde() {
                   <p className="font-serif text-table leading-relaxed italic text-stone-700 bg-surface-container-lowest/70 p-2.5 rounded-lg border border-primary-100/60 whitespace-pre-wrap">
                     {aiSuggestion}
                   </p>
+                  <div className="sc-studio-tool-row"><button type="button" className="sc-feedback-button" onClick={() => setAiComparisonOpen(true)}>So sánh trước khi áp dụng</button><CopyTextButton value={aiSuggestion} label="Sao chép gợi ý" onError={message => showToast(message, 'error')} /></div>
                   <div className="mt-3 grid grid-cols-2 gap-1.5 font-sans pt-1">
                     <button
                       onClick={() => handleAcceptDraft()}
@@ -1407,7 +1470,7 @@ export function AuthorWritingIde() {
                       Từ chối / Bỏ qua
                     </button>
                   </div>
-                </div>
+                </FeedbackReveal>
               )}
 
               {!aiSuggestion && !isGeneratingAi && (
@@ -1451,12 +1514,23 @@ export function AuthorWritingIde() {
               </div>
             </div>
           </motion.aside>
-        )}</AnimatePresence>
+        )}
       </div>
 
       {/* ──────────────────────────────────────────
           BEGIN: Story Bible Modal
          ────────────────────────────────────────── */}
+      {referenceQuery !== null && <StoryReferenceLookup key={`${activeNovelId}:${referenceQuery}`} novelId={activeNovelId} initialQuery={referenceQuery}
+        characters={charactersQuery.data ?? []} timeline={timelineQuery.data ?? []} summaries={plotSummariesQuery.data ?? []}
+        loading={charactersQuery.isFetching || timelineQuery.isFetching || plotSummariesQuery.isFetching}
+        failed={charactersQuery.isError || timelineQuery.isError || plotSummariesQuery.isError}
+        onRetry={() => { void charactersQuery.refetch(); void timelineQuery.refetch(); void plotSummariesQuery.refetch(); }} onClose={() => setReferenceQuery(null)} />}
+      <AnimatedModal opened={aiComparisonOpen && !!aiSuggestion && aiBaseRef.current.scope === activeDraftScope} onClose={() => !isAcceptingAi && setAiComparisonOpen(false)} title="So sánh đề xuất AI" size="xl" centered closeOnEscape={!isAcceptingAi} closeOnClickOutside={!isAcceptingAi} withCloseButton={!isAcceptingAi}>
+        <p className="text-meta">{currentJob?.patch ? 'So sánh vùng văn bản AI đề xuất thay thế. Phần được tô là vùng khác nhau; nội dung chưa được áp dụng.' : 'Đối chiếu bản gốc lúc yêu cầu với gợi ý AI. Nội dung chưa được áp dụng.'}</p>
+        {content !== aiBaseRef.current.content && <p role="status" className="text-meta">Bạn đã sửa bản thảo sau khi yêu cầu AI. Máy chủ sẽ kiểm tra phiên bản trước khi chấp nhận.</p>}
+        <TextComparison before={currentJob?.patch ? aiBaseRef.current.content.slice(codePointToUtf16Offset(aiBaseRef.current.content, currentJob.patch.start), codePointToUtf16Offset(aiBaseRef.current.content, currentJob.patch.end)) : aiBaseRef.current.content} after={currentJob?.patch?.replacement ?? aiSuggestion ?? ''} />
+        <div className="sc-ai-comparison-actions"><button type="button" className="sc-feedback-button" disabled={isAcceptingAi} onClick={() => setAiComparisonOpen(false)}>Quay lại gợi ý</button><button type="button" className="sc-feedback-button" disabled={isAcceptingAi} onClick={() => void handleAcceptDraft()}>{isAcceptingAi ? 'Đang xác nhận…' : 'Chấp nhận bản thảo'}</button></div>
+      </AnimatedModal>
       {storyBibleOpen && (
         <AuthorDialog onClose={() => setStoryBibleOpen(false)}><div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div
@@ -1803,21 +1877,8 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Validation Checklist */}
-            <div className="mb-4">
-              <span className="text-meta font-bold uppercase tracking-wider text-stone-400 block mb-2">
-                Kiểm tra tiêu chuẩn xuất bản
-              </span>
-              <div className="space-y-1.5 text-meta">
-                <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50/70 border border-emerald-200/70 px-2.5 py-1.5 rounded-md">
-                  <span className="material-symbols-outlined text-[16px] text-emerald-600">check_circle</span>
-                  <span>Tiêu đề chương hợp lệ và đúng quy chuẩn</span>
-                </div>
-                <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50/70 border border-emerald-200/70 px-2.5 py-1.5 rounded-md">
-                  <span className="material-symbols-outlined text-[16px] text-emerald-600">check_circle</span>
-                  <span>Bản thảo đã được lưu trữ tự động trên đám mây</span>
-                </div>
-              </div>
-            </div>
+            <PublishChecklist scope={activeDraftScope} title={title} content={content} isVip={isVip} price={priceCoins}
+              saved={autosaveStatus === 'saved' && !persistence.dirty} saving={autosaveStatus === 'saving'} error={autosaveStatus === 'error'} scheduledAt={chapterQuery.data?.publicationSchedule?.status === 'PENDING' ? chapterQuery.data.publicationSchedule.scheduledAt : undefined} />
 
             {/* Moderation Notice */}
             <div className="p-2.5 rounded-lg bg-primary-50/60 border border-primary-100 text-meta text-stone-600 leading-relaxed mb-5 flex items-start gap-2">
