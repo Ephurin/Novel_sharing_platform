@@ -369,7 +369,7 @@ async function acceptDraftUnderLease(
       chapterId,
       authorId: auth.userId
     });
-    await lockChapterForUpdate(client, chapterId);
+    const lockedChapter = await lockChapterForUpdate(client, chapterId);
 
     // 2a. Idempotency guard: If this generation was already accepted, return existing revision
     const existingAccepted = await findRevisionBySourceGenerationId(client, chapterId, input.generationId);
@@ -384,6 +384,10 @@ async function acceptDraftUnderLease(
 
     if (!baseRevision || baseRevision.chapterId !== chapterId) {
       throw new AppError(404, 'BASE_REVISION_NOT_FOUND', 'Base revision for generation not found or does not belong to chapter');
+    }
+
+    if (lockedChapter?.latest_revision_id !== baseRevision.revisionId) {
+      throw new AppError(409, 'STALE_BASE_REVISION', 'Authoritative chapter revision has changed since generation');
     }
 
     // 2c. Stale base revision check: Ensure the base revision is still the current latest revision

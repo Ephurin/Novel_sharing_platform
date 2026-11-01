@@ -15,14 +15,13 @@ export async function recoverWritingDraft(scope: Scope) {
       w.base_content_hash, w.operation, w.status, w.stage, w.draft, w.patch,
       w.validation_status, w.brain_version,
       w.context_summary->>'brain_version_used' AS used_brain_version,
-      r.content_hash AS revision_hash, latest.revision_id AS latest_revision_id,
+      r.content_hash AS revision_hash, c.latest_revision_id,
       b.brain_version AS current_brain_version,
       EXISTS (SELECT 1 FROM chapter_revisions accepted
         WHERE accepted.chapter_id = w.chapter_id AND accepted.source_generation_id = w.job_id::text) AS accepted
     FROM narrative.writing_generations w
+    JOIN chapters c ON c.chapter_id = w.chapter_id AND c.novel_id = w.novel_id
     LEFT JOIN chapter_revisions r ON r.revision_id = w.revision_id AND r.chapter_id = w.chapter_id
-    LEFT JOIN LATERAL (SELECT revision_id FROM chapter_revisions
-      WHERE chapter_id = w.chapter_id ORDER BY created_at DESC LIMIT 1) latest ON true
     LEFT JOIN narrative.story_brains b ON b.novel_id = w.novel_id AND b.tenant_id = w.tenant_id
     WHERE w.novel_id = $1 AND w.chapter_id = $2 AND w.actor_id = $3
       AND w.tenant_id IN ($3::uuid, $4::uuid)
