@@ -74,6 +74,11 @@ function App() {
     );
   }, [generation, initialUrl]);
 
+  (window as any).navigateChapter = (id: string) => router.navigate(`/author/ide?novelId=${novelId}&chapterId=${id}`);
+  (window as any).switchAuthor = (id: string) => useAuthStore.getState().setSession({
+    accessToken: 'fixture-token', user: { userId: id, role: 'AUTHOR', username: 'fixture', email: 'fixture@test.invalid' }
+  });
+
   return (
     <QueryClientProvider client={queryClient}>
       <MantineProvider theme={theme} cssVariablesResolver={cssVariablesResolver} forceColorScheme={mode}>
