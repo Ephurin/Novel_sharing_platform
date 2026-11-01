@@ -1,5 +1,7 @@
 # P1-AUTHOR-ACCEPTANCE-02 — Sol 6.1
 
+> Publication note: personal paths, project metadata and QA record identifiers are redacted. See the [sanitized evidence index](evidence-sanitized/README.md). Original evidence filenames cited below refer to local-only archives; no raw dumps are published. Historical verdicts/results are unchanged; this publication does not renew attestation or rerun runtime checks.
+
 **Verdict: P1_AUTHOR_ACCEPTANCE_PARTIAL**
 
 Ngày kiểm thử: 31/10/2026, Asia/Ho_Chi_Minh. Target demo: 09/11/2026.
@@ -8,11 +10,11 @@ Canon/HITL và chỉnh sửa entity/event trước/sau duyệt đã hoạt độ
 
 ## Phạm vi, môi trường và giới hạn
 
-- Repo Ephurin/Novel_sharing_platform; checkout `C:\Users\Laptop\OneDrive\Documents\testproject\.gemini-p1-free`.
+- Repo Ephurin/Novel_sharing_platform; checkout `[local-checkout]/.gemini-p1-free`.
 - Branch gemini/p1-live-free-tier-01; SHA đầu/cuối `59b0fcb54863391081cbf6d0ed5b5c56e441e487`.
 - Backend, ai-service, frontend, gateway HTTP 200; PostgreSQL/pgvector 0.8.6 hoạt động.
 - Tài khoản sol61, đăng nhập bằng mật khẩu đọc cục bộ không hiển thị. Đã thực hiện logout/login bằng UI.
-- Truyện QA Huyết Ngọc Bội: 09167bb0-e6b0-4aca-bf55-20fc94b35e8a; chương 7144ea09-a77a-43cd-a804-e67a69e6bd82.
+- Truyện QA Huyết Ngọc Bội: QA-NOVEL; chương QA-CHAPTER.
 - Manuscript 346 từ giữ nguyên hoàn toàn so với smoke; không chứa đoạn draft chưa được accept.
 - Mọi thay đổi dữ liệu thực hiện qua giao diện. SQL chỉ SELECT/đọc schema; không INSERT/UPDATE/DELETE để tạo PASS. Không sửa source, rebuild, merge, PR mới, reset ledger hoặc bật forwarding.
 
@@ -89,13 +91,13 @@ Các checkpoint SQL được ghi trước mỗi mutation quan trọng. Hash là 
 | item-pending-before-approve | 6 | 1 | 2 | ITEM chưa Canon |
 | final-canon | 7 | 2 | 2 | Lâm Phong PER + Huyết Ngọc Bội ITEM; 1 event hiện hành, 1 lịch sử |
 
-Event gốc 37fae82f-b9e3-57b5-aca3-453372a59d89 vẫn còn; correction 9f0cdd85-b01f-4740-bbce-c6a74f8bc11f có event_metadata.supersedes_id trỏ đúng event gốc. UI hiển thị summary mới: “Lâm Phong quyết định giữ kín Huyết Ngọc Bội và trở lại nơi phát hiện vào sáng hôm sau.”
+Event gốc QA-EVENT-ORIGINAL vẫn còn; correction QA-EVENT-CORRECTION có event_metadata.supersedes_id trỏ đúng event gốc. UI hiển thị summary mới: “Lâm Phong quyết định giữ kín Huyết Ngọc Bội và trở lại nơi phát hiện vào sáng hôm sau.”
 
 entity_profile_audits có ba records với actor QA, timestamp và before/after: Profile 0→1, 1→2, 2→3; Brain 2→3, 3→4, 4→4. Audit được xác minh read-only trong DB; không khẳng định UI có timeline lịch sử profile đầy đủ. Ghi chú thay đổi entity row hash vì row chứa private fields; không được diễn giải hash đổi này là Canon event bị thay đổi. Tất cả ghi chú nhập ở vòng này là dữ liệu giả lập, không phải thông tin riêng tư thật.
 
 ## AI draft: giới hạn thực nghiệm
 
-Job duy nhất: d651e39b-f08c-564a-91ca-5c151c83646d, completed/passed, 428 ký tự, MD5 4dcf92571e2a20dfca3004a7b3f65052; nội dung giữ nguyên trong toàn bộ lượt. Không sửa, nhân bản hay chèn lại qua DB/API để làm test PASS.
+Job duy nhất: QA-WRITING-JOB, completed/passed, 428 ký tự, MD5 [content comparison retained locally]; nội dung giữ nguyên trong toàn bộ lượt. Không sửa, nhân bản hay chèn lại qua DB/API để làm test PASS.
 
 Tab từ smoke vẫn có trong inventory nhưng công cụ không bind/đọc được tab cũ (`browser.user is unavailable`). Đã giữ tab cũ và mở tab QA mới làm fallback; không cố reload hoặc thao tác reject trên tab cũ. Tab mới, reload và phiên đăng nhập mới đều không khôi phục draft. Lịch sử bản thảo chỉ có snapshot manuscript 346 từ, không có Writing job để review. Không có action UI đã biết để mở job cũ theo job ID.
 
@@ -130,7 +132,7 @@ Vì vậy chưa thực hiện được luồng Reject hoặc Accept trong lượ
 - Repro: tạo event bằng form “Bổ sung hoặc thay thế dữ liệu trích xuất” với quote bản lưu → sửa summary ở card pending.
 - Expected: nhãn phản ánh nội dung gốc do tác giả nhập, hoặc dùng từ trung tính “Nội dung gốc”.
 - Actual: UI hiện “Gốc từ AI” dù event_metadata.source_type=author, chưa có Gemini call.
-- HTTP/trace: không có HTTP error; proposal gốc 37fae82f-b9e3-57b5-aca3-453372a59d89.
+- HTTP/trace: không có HTTP error; proposal gốc QA-EVENT-ORIGINAL.
 - Evidence: event-pending-edited-dom.txt, event-before-approve.png và event-history-draft.txt.
 - Minimal fix đề xuất: đổi nhãn theo provenance hoặc dùng “Nội dung trước chỉnh sửa”.
 
