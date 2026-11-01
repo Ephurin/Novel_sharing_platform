@@ -19,6 +19,7 @@ import {
   startIdeaBootstrapController,
   startManuscriptBootstrapController,
   startWritingGenerationController,
+  writingDraftReviewController,
   updateStoryPlanObjectiveController,
   getApprovedMemoryController,
   authorOperationController,
@@ -117,6 +118,8 @@ aiGatewayRoutes.post(
 );
 
 // Writing Generations
+aiGatewayRoutes.get('/writing/generations', writingDraftReviewController);
+aiGatewayRoutes.post('/writing/generations/:jobId/dismiss', writingDraftReviewController);
 aiGatewayRoutes.post(
   '/writing/generations',
   startWritingGenerationController
