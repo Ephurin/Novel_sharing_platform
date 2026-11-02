@@ -127,6 +127,8 @@ def resolve_grounded_quote(
                             return start, end, cand_clean
             except Exception as exc:
                 logger.warning("Quote repair attempt %d failed: %s", attempt + 1, exc)
+                if "budget_guard_denied" in str(exc).lower():
+                    break
 
     # 4. Heuristic segment fallback (e.g. if quote contained '[...]', '...', or multiple sentences)
     split_patterns = r"\[\.\.\.\]|\.\.\.|\n\n"

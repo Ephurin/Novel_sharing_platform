@@ -1,16 +1,17 @@
 import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/errors/app-error.js';
 
+export type CopilotLlmCharacter = {
+  name: string;
+  role: string;
+  personality: string | null;
+  description: string | null;
+};
+
 export type CopilotLlmContext = {
   instruction: string;
   recentText: string;
-  characters: Array<{
-    name: string;
-    role: string;
-    personality: string | null;
-    description: string | null;
-    notes?: string | null;
-  }>;
+  characters: CopilotLlmCharacter[];
   recentEvents: Array<{
     title: string;
     summary: string;
@@ -33,12 +34,78 @@ type ModelsResponse = {
   }>;
 };
 
+export function sanitizeCopilotCharactersForPrompt(
+  characters: ReadonlyArray<Record<string, unknown>>
+): CopilotLlmCharacter[] {
+  return characters.map((character) => ({
+    name: typeof character.name === 'string' ? character.name : '',
+    role: typeof character.role === 'string' ? character.role : '',
+    personality: typeof character.personality === 'string' ? character.personality : null,
+    description: typeof character.description === 'string' ? character.description : null
+  }));
+}
+
+function providerSettings() {
+  const mode = (process.env.AI_EXECUTION_MODE || 'offline_test').toLowerCase().trim();
+  const guard = process.env.BUDGET_GUARD_URL?.replace(/\/$/, '');
+  const guardToken = process.env.BUDGET_GUARD_AUTH_TOKEN?.trim();
+
+  if (mode === 'live_free_tier') {
+    if (!guard || !guardToken || process.env.BUDGET_GUARD_MODE !== 'proxy') {
+      throw new AppError(503, 'GUARD_CONFIGURATION_INVALID', 'Guard URL and auth token are required in live_free_tier mode');
+    }
+    let url: URL;
+    try {
+      url = new URL(guard);
+    } catch {
+      throw new AppError(503, 'GUARD_CONFIGURATION_INVALID', 'Guarded egress URL is malformed');
+    }
+    if (
+      !['http:', 'https:'].includes(url.protocol) ||
+      !['budget-gateway', '127.0.0.1', 'localhost'].includes(url.hostname) ||
+      url.pathname !== '/' ||
+      url.search ||
+      url.username
+    ) {
+      throw new AppError(503, 'GUARD_CONFIGURATION_INVALID', 'Guarded egress configuration is invalid');
+    }
+    return { baseUrl: `${guard}/v1`, key: guardToken };
+  }
+
+  if (!guard) {
+    if (process.env.BUDGET_GUARD_MODE === 'proxy') {
+      throw new AppError(503, 'GUARD_CONFIGURATION_INVALID', 'Guard URL is required');
+    }
+    return { baseUrl: env.AI_LLM_BASE_URL, key: env.AI_LLM_API_KEY };
+  }
+  let url: URL;
+  try {
+    url = new URL(guard);
+  } catch {
+    throw new AppError(503, 'GUARD_CONFIGURATION_INVALID', 'Guarded egress URL is malformed');
+  }
+  const key = process.env.BUDGET_GUARD_AUTH_TOKEN;
+  if (
+    process.env.BUDGET_GUARD_MODE !== 'proxy' ||
+    !key ||
+    url.protocol !== 'http:' ||
+    !['budget-gateway', '127.0.0.1', 'localhost'].includes(url.hostname) ||
+    url.pathname !== '/' ||
+    url.search ||
+    url.username
+  ) {
+    throw new AppError(503, 'GUARD_CONFIGURATION_INVALID', 'Guarded egress configuration is invalid');
+  }
+  return { baseUrl: `${guard}/v1`, key };
+}
+
 export function isLlmConfigured() {
-  return Boolean(env.AI_LLM_BASE_URL);
+  return Boolean(env.AI_LLM_BASE_URL || process.env.BUDGET_GUARD_URL);
 }
 
 export async function checkLlmProviderHealth() {
-  if (!env.AI_LLM_BASE_URL) {
+  const settings = providerSettings();
+  if (!settings.baseUrl) {
     return {
       ready: false,
       provider: 'not-configured',
@@ -53,12 +120,12 @@ export async function checkLlmProviderHealth() {
   const timeout = setTimeout(() => controller.abort(), Math.min(env.AI_LLM_TIMEOUT_MS, 15000));
 
   try {
-    const response = await fetch(`${env.AI_LLM_BASE_URL.replace(/\/$/, '')}/models`, {
+    const response = await fetch(`${settings.baseUrl.replace(/\/$/, '')}/models`, {
       method: 'GET',
       signal: controller.signal,
       headers: {
         'ngrok-skip-browser-warning': 'true',
-        ...(env.AI_LLM_API_KEY ? { Authorization: `Bearer ${env.AI_LLM_API_KEY}` } : {})
+        ...(settings.key ? { Authorization: `Bearer ${settings.key}` } : {})
       }
     });
 
@@ -110,21 +177,32 @@ export async function checkLlmProviderHealth() {
 }
 
 export async function generateCopilotSuggestionWithLlm(context: CopilotLlmContext) {
-  if (!env.AI_LLM_BASE_URL) {
+  const settings = providerSettings();
+  if (!settings.baseUrl) {
     throw new AppError(500, 'AI_001', 'AI LLM base URL is not configured');
   }
+
+  const sanitizedCharacters = sanitizeCopilotCharactersForPrompt(
+    (context.characters ?? []) as unknown as ReadonlyArray<Record<string, unknown>>
+  );
+  const sanitizedEvents = (context.recentEvents ?? []).map((event) => ({
+    title: event.title,
+    summary: event.summary,
+    chapterNumber: event.chapterNumber ?? null
+  }));
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), env.AI_LLM_TIMEOUT_MS);
 
   try {
-    const response = await fetch(`${env.AI_LLM_BASE_URL.replace(/\/$/, '')}/chat/completions`, {
+    const response = await fetch(`${settings.baseUrl.replace(/\/$/, '')}/chat/completions`, {
       method: 'POST',
       signal: controller.signal,
       headers: {
         'Content-Type': 'application/json',
         'ngrok-skip-browser-warning': 'true',
-        ...(env.AI_LLM_API_KEY ? { Authorization: `Bearer ${env.AI_LLM_API_KEY}` } : {})
+        'X-Client-Service': 'backend-copilot',
+        ...(settings.key ? { Authorization: `Bearer ${settings.key}` } : {})
       },
       body: JSON.stringify({
         model: env.AI_LLM_MODEL,
@@ -141,8 +219,8 @@ export async function generateCopilotSuggestionWithLlm(context: CopilotLlmContex
             content: JSON.stringify(
               {
                 instruction: context.instruction,
-                characters: context.characters,
-                recentTimelineEvents: context.recentEvents,
+                characters: sanitizedCharacters,
+                recentTimelineEvents: sanitizedEvents,
                 recentTextLast500Words: context.recentText
               },
               null,

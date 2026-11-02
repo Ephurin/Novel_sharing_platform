@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { createHash, randomUUID } from 'node:crypto';
 import { aiGatewayService } from './ai-gateway.service.js';
+import { recoverWritingDraft, dismissWritingDraft } from './writing-drafts.service.js';
 import { successResponse } from '../../core/response/response.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { findNovelById, type NovelRecord } from '../novels/novels.repository.js';
@@ -241,6 +242,26 @@ export async function getContextPreviewController(
   } catch (error) {
     next(error);
   }
+}
+
+export async function writingDraftReviewController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const chapterId = req.method === 'GET' ? req.query.chapter_id : req.body.chapter_id;
+    const novelId = req.method === 'GET' ? req.query.novel_id : req.body.novel_id;
+    const uuid = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+    if (typeof chapterId !== 'string' || typeof novelId !== 'string' ||
+        !uuid.test(chapterId) || !uuid.test(novelId) ||
+        (req.method !== 'GET' && !uuid.test(String(req.params.jobId)))) {
+      throw new AppError(400, 'INVALID_REQUEST', 'Valid novel_id, chapter_id and job UUIDs are required');
+    }
+    const { chapter } = await assertChapterOwnership(req.auth!.userId, req.auth!.role, chapterId);
+    if (chapter.novelId !== novelId) throw new AppError(400, 'CHAPTER_MISMATCH', 'Chapter belongs to another novel');
+    const scope = { userId: req.auth!.userId, novelId, chapterId };
+    const data = req.method === 'GET' ? await recoverWritingDraft(scope)
+      : await dismissWritingDraft(scope, String(req.params.jobId));
+    res.set('Cache-Control', 'no-store');
+    res.json(successResponse(data));
+  } catch (error) { next(error); }
 }
 
 export async function startWritingGenerationController(
