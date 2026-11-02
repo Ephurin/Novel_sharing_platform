@@ -15,7 +15,9 @@ Mọi script có ghi dữ liệu chạy trên môi trường tạm `scripts/e2e_
 | `GUARD` | `python -m unittest scripts/test_e2e_isolated_stack.py` |
 | `BACKEND` | `npm run test:isolated` (backend, DB tạm) hoặc test Postgres tương ứng |
 
-Biến môi trường: `EPHURIN_ALLOW_TEST_DB_MUTATIONS=1`, `EPHURIN_E2E_DEMO_PASSWORD` (lấy từ `backend/src/scripts/seed-sample-stories.ts`).
+Biến môi trường: `EPHURIN_ALLOW_TEST_DB_MUTATIONS=1`, `EPHURIN_E2E_DEMO_PASSWORD` (lấy từ `backend/src/scripts/seed-sample-stories.ts`). Script `SRS` tự chạy một provider LLM giả trên cổng ngẫu nhiên và trỏ `AI_LLM_BASE_URL` của API tạm vào đó.
+
+Phân loại các kiểm tra từng FAIL và quyết định đi kèm: `docs/testing/srs-disposition.md`.
 
 Nếu máy có hai MongoDB cùng nghe cổng 27017 (ví dụ dịch vụ MongoDB của Windows ở `127.0.0.1` và MongoDB trong Docker ở `::1`), script sẽ từ chối chạy. Lý do: backend Node hiểu `localhost` là `::1`, còn Python hiểu là `127.0.0.1`, nên hai bên sẽ nói chuyện với hai server khác nhau. Khi đó đặt `BASE_MONGODB_URI=mongodb://[::1]:27017` để trỏ đúng Mongo của Docker mà backend dev đang dùng.
 
@@ -151,10 +153,10 @@ Nếu máy có hai MongoDB cùng nghe cổng 27017 (ví dụ dịch vụ MongoDB
 | :--- | :--- | :--- | :--- | :--- |
 | TC-ADM-01 | §4 bước 1–4 | Admin xem danh sách và chi tiết truyện | 200, có truyện | SRS |
 | TC-ADM-02 | §5 Admin hủy xác nhận | Gỡ truyện thiếu xác nhận | Không đổi dữ liệu | SRS |
-| TC-ADM-03 | §4 bước 7–10 | Gỡ mềm truyện | `deleted_at` ở truyện và chương; mất khỏi danh sách; tác giả nhận thông báo | SRS |
+| TC-ADM-03 | §4 bước 7–10, §6 | Gỡ mềm một truyện đang công khai | `deleted_at` ở truyện và chương; khách và tác giả đọc lại truyện/chương nhận 404, truyện mất khỏi danh sách công khai và danh sách admin; tác giả nhận "Truyện đã bị gỡ bởi Admin" | SRS |
 | TC-ADM-04 | §5 | Người không phải Admin gỡ truyện | `AUTH_008` | SRS |
 | TC-ADM-05 | §5 | Gỡ truyện không tồn tại | `CONTENT_001` | SRS |
-| TC-ADM-06 | §1, §6 (khôi phục được) | Khôi phục truyện đã gỡ | Hiện lại | SRS |
+| TC-ADM-06 | §1, §6 (khôi phục được) | Khôi phục truyện đã gỡ | Khách và tác giả đọc lại được như trước khi gỡ; số bản nháp còn hiệu lực bằng lúc trước khi gỡ | SRS |
 | TC-ADM-07 | §4 bước 6, §7 | Hộp thoại cảnh báo trước khi gỡ trên UI | Có cảnh báo | MANUAL |
 | TC-ADM-08 | §4 bước 8, §7 | Draft Mongo của truyện bị gỡ không còn load trong IDE | `deletedAt` được đặt cho mọi bản nháp của truyện | SRS |
 
@@ -167,7 +169,7 @@ Nếu máy có hai MongoDB cùng nghe cổng 27017 (ví dụ dịch vụ MongoDB
 | TC-AI-03 | §3.3 | Phân tích văn phong | Báo cáo; chương < 500 từ bị từ chối | NOT_RUN (cần dịch vụ LLM) |
 | TC-AI-04 | §3.4 | Writing Copilot gợi ý theo ngữ cảnh | Gợi ý; chỉ lưu khi tác giả chấp nhận | NOT_RUN (cần dịch vụ LLM) |
 | TC-AI-05 | §3.5 | Kiểm tra nhất quán | Danh sách cảnh báo, không tự sửa | NOT_RUN (cần dịch vụ LLM) |
-| TC-AI-06 | §1 Fallback, Timeout | AI không sẵn sàng | Trả `AI_001` trong 5 giây, không chặn thao tác | SRS |
+| TC-AI-06 | §1 Fallback, Timeout | Provider LLM giả trả 503, treo quá timeout (API đặt 3 giây), rồi tắt cổng | Cả ba lần trả 503 `AI_001` kèm `details.reason` trong 5 giây; ngay sau đó tác giả vẫn lưu chương được | SRS |
 
 ## 10. Client Applications (`client-applications.md`)
 

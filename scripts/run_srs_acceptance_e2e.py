@@ -25,9 +25,11 @@ import statistics
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import traceback
 import uuid
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 if hasattr(sys.stdout, "reconfigure"):
@@ -52,6 +54,56 @@ NOVEL_SLUG = "sample-ashenhold-test-story"
 FILTER_WORD = "srs-blocked-term"
 STRONG_PASSWORD = "Srs-Check-2026"  # throwaway accounts created inside the disposable database only
 re_llm = re.compile(r"(ai-copilot|ai-gateway|llm|openai|anthropic|story-brain)", re.I)
+# SRS ai-intelligence-service §1: an LLM call must not hang longer than 5 seconds. The stack's API gets this timeout.
+AI_TIMEOUT_MS = 3000
+
+
+class StubLlmProvider:
+    """OpenAI-compatible provider that is unavailable on purpose, so TC-AI-06 sees a real outage.
+
+    mode "error" answers 503, "hang" answers only after the API has given up, and stop() closes the
+    port so the next call is refused. The API reaches it through AI_LLM_BASE_URL.
+    """
+
+    def __init__(self) -> None:
+        self.mode = "error"
+        stub = self
+
+        class Handler(BaseHTTPRequestHandler):
+            def do_POST(self) -> None:  # noqa: N802 - http.server naming
+                self.rfile.read(int(self.headers.get("Content-Length") or 0))
+                if stub.mode == "hang":
+                    time.sleep(AI_TIMEOUT_MS / 1000 + 3)
+                body = b'{"error":"provider unavailable (SRS acceptance stub)"}'
+                try:
+                    self.send_response(503)
+                    self.send_header("Content-Type", "application/json")
+                    self.send_header("Content-Length", str(len(body)))
+                    self.end_headers()
+                    self.wfile.write(body)
+                except OSError:
+                    pass  # the API already aborted the request
+
+            do_GET = do_POST
+
+            def log_message(self, *args: Any) -> None:
+                pass
+
+        self.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        self.server.daemon_threads = True
+        self.port = self.server.server_address[1]
+        self.running = True
+        threading.Thread(target=self.server.serve_forever, daemon=True).start()
+
+    @property
+    def base_url(self) -> str:
+        return f"http://127.0.0.1:{self.port}/v1"
+
+    def stop(self) -> None:
+        if self.running:
+            self.running = False
+            self.server.shutdown()
+            self.server.server_close()
 
 
 class Response:
@@ -101,9 +153,10 @@ class Client:
 
 
 class Suite:
-    def __init__(self, stack: IsolatedStack, password: str):
+    def __init__(self, stack: IsolatedStack, password: str, llm: StubLlmProvider):
         self.stack = stack
         self.password = password
+        self.llm = llm
         self.results: List[Dict[str, Any]] = []
         self.pg_url = stack.pg_url
         self.mongo_uri = stack.mongo_uri
@@ -470,7 +523,8 @@ class Suite:
         self.record("TC-NOV-04", "Truyện dưới 5 chương nháp không gửi xuất bản được", publish_below_five)
 
         def publish_novel_with_five():
-            created = self.author.call("POST", "/novels", {"title": f"SRS Pipeline {uuid.uuid4().hex[:6]}", "synopsis": synopsis, "genre": "Fantasy", "tags": []})
+            self.pipeline_title = f"SRS Pipeline {uuid.uuid4().hex[:6]}"
+            created = self.author.call("POST", "/novels", {"title": self.pipeline_title, "synopsis": synopsis, "genre": "Fantasy", "tags": []})
             self.pipeline_novel = (created.data or {}).get("novelId")
             for index in range(1, 6):
                 self.author.call("POST", f"/novels/{self.pipeline_novel}/chapters", {"title": f"Chương {index}", "content": long_text})
@@ -675,15 +729,30 @@ class Suite:
 
     # ADMIN NOVEL MANAGEMENT ----------------------------------------------------
     def admin_cases(self) -> None:
+        # TC-ADM-01/02/04 use the DRAFT novel; removal and restore (TC-ADM-03/06/08) use the published pipeline
+        # novel so the readback shows a public novel and chapter going away for guests and the author, then back.
         target = (getattr(self, "test_novel", {}) or {}).get("novelId")
+        removed = getattr(self, "pipeline_novel", None)
+        public_chapter = getattr(self, "clean_chapter_id", None)
         # An autosave creates the Mongo draft that the removal must archive (TC-ADM-08).
-        chapter = self.sql("SELECT chapter_id FROM chapters WHERE novel_id = %s AND deleted_at IS NULL ORDER BY created_at LIMIT 1", (target,))
+        chapter = self.sql("SELECT chapter_id FROM chapters WHERE novel_id = %s AND deleted_at IS NULL ORDER BY created_at LIMIT 1", (removed,))
         self.autosave = None
         if chapter:
             current = self.author.call("GET", f"/chapters/{chapter[0][0]}").data or {}
             version = (current.get("draft") or {}).get("version") or current.get("draftVersion") or 0
             self.autosave = self.author.call("PATCH", f"/chapters/{chapter[0][0]}", {
                 "content": "Bản nháp autosave cho kiểm thử SRS.", "autosave": True, "expectedVersion": int(version)})
+
+        def readback() -> Dict[str, Any]:
+            listed = self.guest.call("GET", "/novels", params={"q": getattr(self, "pipeline_title", ""), "limit": 20}).data or []
+            return {
+                "guest_novel_detail": self.guest.call("GET", f"/reading/novels/{removed}").status,
+                "guest_chapter": self.guest.call("GET", f"/reading/chapters/{public_chapter}").status,
+                "guest_listing_has_novel": any(item.get("novelId") == removed for item in listed),
+                "author_ide_chapter": self.author.call("GET", f"/chapters/{public_chapter}").status,
+            }
+        self.removal_before = readback()
+        self.drafts_live_before = self.mongo()["draft_chapters"].count_documents({"novelId": removed, "deletedAt": None})
 
         def list_and_detail():
             listing = self.admin.call("GET", "/admin/novels", params={"q": "SRS Novel"})
@@ -704,28 +773,33 @@ class Suite:
         self.record("TC-ADM-04", "Người không phải Admin không gỡ được truyện (AUTH_008)", non_admin_remove)
 
         def remove_soft_and_notify():
+            before = self.removal_before
+            visible_before = before["guest_novel_detail"] == 200 and before["guest_chapter"] == 200 and before["guest_listing_has_novel"] and before["author_ide_chapter"] == 200
             reason = f"Gỡ truyện SRS {uuid.uuid4().hex[:6]}"
-            response = self.admin.call("DELETE", f"/admin/novels/{target}", {"confirm": True, "reason": reason})
-            novel_deleted = self.sql("SELECT deleted_at IS NOT NULL FROM novels WHERE novel_id = %s", (target,))[0][0]
-            live_chapters = self.sql("SELECT count(*) FROM chapters WHERE novel_id = %s AND deleted_at IS NULL", (target,))[0][0]
-            listing = self.admin.call("GET", "/admin/novels", params={"q": "SRS Novel"})
-            gone = all(item.get("novelId") != target for item in listing.data or [])
+            response = self.admin.call("DELETE", f"/admin/novels/{removed}", {"confirm": True, "reason": reason})
+            novel_deleted = self.sql("SELECT deleted_at IS NOT NULL FROM novels WHERE novel_id = %s", (removed,))[0][0]
+            live_chapters = self.sql("SELECT count(*) FROM chapters WHERE novel_id = %s AND deleted_at IS NULL", (removed,))[0][0]
+            listing = self.admin.call("GET", "/admin/novels", params={"q": getattr(self, "pipeline_title", "")})
+            gone = all(item.get("novelId") != removed for item in listing.data or [])
+            after = readback()
+            hidden_after = after["guest_novel_detail"] == 404 and after["guest_chapter"] == 404 and not after["guest_listing_has_novel"] and after["author_ide_chapter"] == 404
             notified = self.wait(lambda: [item for item in (self.author.call("GET", "/notifications").data or [])
-                                          if target in json.dumps(item, default=str) or reason in json.dumps(item, ensure_ascii=False)], timeout=20) or []
+                                          if removed in json.dumps(item, default=str) and reason in json.dumps(item, ensure_ascii=False)], timeout=20) or []
             srs_wording = any("bị gỡ bởi admin" in json.dumps(item, ensure_ascii=False).lower() for item in notified)
-            ok = response.status in (200, 204) and novel_deleted and live_chapters == 0 and gone and bool(notified)
-            return ok, {"remove": response.brief(), "novel_soft_deleted": novel_deleted, "live_chapters": live_chapters, "gone_from_list": gone,
-                        "author_notified": bool(notified), "srs_wording_present": srs_wording,
-                        "notification_title": notified[0].get("title") if notified else None}
-        self.record("TC-ADM-03", "Gỡ mềm truyện: ẩn truyện và chương, báo tác giả", remove_soft_and_notify)
+            ok = (response.status in (200, 204) and visible_before and novel_deleted and live_chapters == 0 and gone and hidden_after
+                  and bool(notified) and srs_wording)
+            return ok, {"remove": response.brief(), "readback_before": before, "readback_after": after, "novel_soft_deleted": novel_deleted,
+                        "live_chapters": live_chapters, "gone_from_admin_list": gone, "author_notified": bool(notified),
+                        "srs_wording_present": srs_wording, "notification_title": notified[0].get("title") if notified else None}
+        self.record("TC-ADM-03", "Gỡ mềm truyện đang công khai: khách và tác giả không còn đọc được truyện/chương, tác giả được báo", remove_soft_and_notify)
 
         def drafts_archived():
             db = self.mongo()
             drafts = db["draft_chapters"]
-            total = drafts.count_documents({"novelId": target})
-            live = drafts.count_documents({"novelId": target, "deletedAt": None})
+            total = drafts.count_documents({"novelId": removed})
+            live = drafts.count_documents({"novelId": removed, "deletedAt": None})
             return total > 0 and live == 0, {"autosave": self.autosave.brief() if self.autosave else None, "drafts_total": total, "drafts_not_deleted": live,
-                                             "mongo_db": db.name, "collections": sorted(db.list_collection_names()), "all_drafts": drafts.count_documents({})}
+                                             "mongo_db": db.name}
         self.record("TC-ADM-08", "Bản nháp Mongo của truyện bị gỡ được đánh dấu xoá", drafts_archived)
 
         def remove_missing():
@@ -734,19 +808,42 @@ class Suite:
         self.record("TC-ADM-05", "Gỡ truyện không tồn tại trả CONTENT_001", remove_missing)
 
         def restore():
-            response = self.admin.call("POST", f"/admin/novels/{target}/restore", {"reason": "SRS acceptance"})
-            restored = self.sql("SELECT deleted_at IS NULL FROM novels WHERE novel_id = %s", (target,))[0][0]
-            return response.status in (200, 204) and restored, {"restore": response.brief(), "visible_again": restored}
-        self.record("TC-ADM-06", "Admin khôi phục truyện đã gỡ", restore)
-
+            response = self.admin.call("POST", f"/admin/novels/{removed}/restore", {"reason": "SRS acceptance"})
+            restored = self.sql("SELECT deleted_at IS NULL FROM novels WHERE novel_id = %s", (removed,))[0][0]
+            expected = self.drafts_live_before
+            live_drafts = self.wait(lambda: (lambda n: n if n == expected else None)(
+                self.mongo()["draft_chapters"].count_documents({"novelId": removed, "deletedAt": None})), timeout=10)
+            live_drafts = live_drafts if live_drafts is not None else self.mongo()["draft_chapters"].count_documents({"novelId": removed, "deletedAt": None})
+            after = readback()
+            ok = response.status in (200, 204) and restored and after == self.removal_before and live_drafts == expected
+            return ok, {"restore": response.brief(), "visible_again": restored, "readback_after_restore": after,
+                        "live_drafts_after_restore": live_drafts, "live_drafts_before_removal": expected}
+        self.record("TC-ADM-06", "Admin khôi phục truyện đã gỡ: truyện, chương và bản nháp trở lại như trước", restore)
     # AI + PERMISSIONS ----------------------------------------------------------
     def ai_and_permission_cases(self) -> None:
         def ai_fallback():
-            response = self.author.call("POST", "/ai/copilot/suggestions", {"novelId": self.novel_id, "instruction": "Viết tiếp đoạn mở đầu"})
-            data = response.data if isinstance(response.data, dict) else {}
-            return response.code == "AI_001" and response.elapsed_ms < 5000, {
-                "response": response.brief(), "data_keys": sorted(data)[:12], "data_preview": json.dumps(data, ensure_ascii=False)[:300]}
-        self.record("TC-AI-06", "AI không sẵn sàng trả AI_001 trong 5 giây, không chặn thao tác", ai_fallback)
+            # The API points at StubLlmProvider: a provider that answers 503, then one that hangs past the
+            # timeout, then a closed port. Each must give AI_001 within 5 s, and the author must still save.
+            expected = {"error": "provider_http_503", "hang": "timeout", "down": "unreachable"}
+            outcomes, ok = {}, True
+            for mode, reason in expected.items():
+                if mode == "down":
+                    self.llm.stop()
+                else:
+                    self.llm.mode = mode
+                response = self.author.call("POST", "/ai/copilot/suggestions", {"novelId": self.novel_id, "instruction": "Viết tiếp đoạn mở đầu"})
+                error = response.json.get("error") if isinstance(response.json, dict) else None
+                details = error.get("details") if isinstance(error, dict) else None
+                got = details.get("reason") if isinstance(details, dict) else None
+                outcomes[mode] = {"response": response.brief(), "reason": got}
+                ok = ok and response.status == 503 and response.code == "AI_001" and got == reason and response.elapsed_ms < 5000
+            current = self.author.call("GET", f"/chapters/{self.free_chapter_id}").data or {}
+            version = (current.get("draft") or {}).get("version") or current.get("draftVersion") or 0
+            save = self.author.call("PATCH", f"/chapters/{self.free_chapter_id}", {
+                "content": "Tác giả viết tay tiếp sau khi AI lỗi (SRS TC-AI-06).", "autosave": True, "expectedVersion": int(version)})
+            ok = ok and save.status == 200
+            return ok, {"provider": outcomes, "api_timeout_ms": AI_TIMEOUT_MS, "manual_save_after_ai_failure": save.brief()}
+        self.record("TC-AI-06", "AI không sẵn sàng (provider 503, treo, mất kết nối) trả AI_001 trong 5 giây, không chặn thao tác", ai_fallback)
 
         def permission_matrix():
             checks = {
@@ -803,15 +900,20 @@ def main() -> int:
     shared_before = fingerprint_shared()
     suite: Optional[Suite] = None
     failure = None
+    llm = StubLlmProvider()
+    # The stack passes this process's environment to the API (dotenv does not override it).
+    os.environ["AI_LLM_BASE_URL"] = llm.base_url
+    os.environ["AI_LLM_TIMEOUT_MS"] = str(AI_TIMEOUT_MS)
     try:
         stack.start()
-        suite = Suite(stack, password)
+        suite = Suite(stack, password, llm)
         suite.run()
     except Exception as error:
         failure = f"{type(error).__name__}: {error}"
         traceback.print_exc()
     finally:
         stack.stop()
+        llm.stop()
     shared_after = fingerprint_shared()
     results = suite.results if suite else []
     failed = [r for r in results if r["result"] != "PASS"]

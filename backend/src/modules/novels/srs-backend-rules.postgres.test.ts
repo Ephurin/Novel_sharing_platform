@@ -9,7 +9,9 @@ import type { AuthContext } from '../../core/security/auth-context.js';
 import { rateLimit } from '../../core/security/rate-limit.js';
 import { removeNovel, restoreNovel } from '../admin/admin.service.js';
 import { createCopilotSuggestion } from '../ai-copilot/ai-copilot.service.js';
-import { isLlmConfigured } from '../ai-copilot/llm-provider.js';
+import { generateCopilotSuggestionWithLlm, isLlmConfigured } from '../ai-copilot/llm-provider.js';
+import { env } from '../../core/config/env.js';
+import { createServer } from 'node:http';
 import { notifyFollowersOfPublishedChapter } from '../interactions/new-chapter-notifications.js';
 import { submitChapterPublish } from './chapters.service.js';
 import { createNovelSchema } from './novels.schemas.js';
@@ -216,5 +218,44 @@ describe('SRS backend rules', () => {
       return true;
     });
     assert.ok(Date.now() - started < 5000);
+  });
+
+  test('AI-06: a provider that answers 5xx, hangs past the timeout or is down gives AI_001 with the reason', async () => {
+    let mode: 'error' | 'hang' = 'error';
+    const provider = createServer((_request, response) => {
+      if (mode === 'error') response.writeHead(503, { 'Content-Type': 'application/json' }).end('{"error":"down"}');
+    });
+    await new Promise<void>((resolve) => provider.listen(0, '127.0.0.1', () => resolve()));
+    const saved = { baseUrl: env.AI_LLM_BASE_URL, timeout: env.AI_LLM_TIMEOUT_MS };
+    env.AI_LLM_BASE_URL = `http://127.0.0.1:${(provider.address() as AddressInfo).port}/v1`;
+    env.AI_LLM_TIMEOUT_MS = 500;
+    const reason = async () => {
+      const started = Date.now();
+      try {
+        await generateCopilotSuggestionWithLlm({ instruction: 'Viết tiếp', recentText: '', characters: [], recentEvents: [] });
+        return 'resolved';
+      } catch (error) {
+        assert.ok(error instanceof AppError);
+        assert.equal(error.httpStatus, 503);
+        assert.equal(error.code, 'AI_001');
+        assert.ok(Date.now() - started < 5000);
+        return (error.details as { reason: string }).reason;
+      }
+    };
+    try {
+      assert.equal(await reason(), 'provider_http_503');
+      mode = 'hang';
+      assert.equal(await reason(), 'timeout');
+      provider.closeAllConnections();
+      await new Promise<void>((resolve) => provider.close(() => resolve()));
+      assert.equal(await reason(), 'unreachable');
+    } finally {
+      if (provider.listening) {
+        provider.closeAllConnections();
+        provider.close();
+      }
+      env.AI_LLM_BASE_URL = saved.baseUrl;
+      env.AI_LLM_TIMEOUT_MS = saved.timeout;
+    }
   });
 });
