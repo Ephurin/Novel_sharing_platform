@@ -956,7 +956,8 @@ async def run_browser_e2e():
         await browser.wait_for_condition("document.querySelector('textarea[placeholder*=\"Tóm tắt nội dung hấp dẫn\"]') !== null", 5.0)
 
         # Modify synopsis field through UI
-        test_synopsis = f"Bản hùng ca Ashenhold [Cập nhật qua UI thật lúc {int(time.time())}]"
+        # SRS novel-chapter-service §1: a synopsis needs at least 500 characters.
+        test_synopsis = f"Bản hùng ca Ashenhold [Cập nhật qua UI thật lúc {int(time.time())}] " + "Hành trình qua vùng đất tro tàn và những lời thề cũ. " * 10
         await browser.evaluate(f"""
             (() => {{
                 const textarea = document.querySelector('textarea[placeholder*="Tóm tắt nội dung hấp dẫn"]');
@@ -992,7 +993,7 @@ async def run_browser_e2e():
         forbidden_res = httpx.patch(
             f"{BACKEND_URL}/novels/{active_novel_id}",
             headers={"Authorization": f"Bearer {non_owner_token}", "Content-Type": "application/json"},
-            json={"synopsis": "Malicious non-owner edit"}
+            json={"synopsis": "Malicious non-owner edit. " * 25}  # valid length, so the ownership check is what rejects it
         )
         assert forbidden_res.status_code == 403, f"Expected 403 Forbidden, got {forbidden_res.status_code}"
         print("  [API_SECURITY] Non-owner PATCH rejected with HTTP 403 Forbidden.")

@@ -517,7 +517,7 @@ def run_e2e(
         # ---------------------------------------------------------
         print("\n[E2E-D] Testing Novel Metadata & Ownership Guard...")
         # 1. Update novel metadata
-        updated_synopsis = active_novel.get("synopsis", "") + " [Updated in AI-PIPE-01B Main E2E]"
+        updated_synopsis = (active_novel.get("synopsis", "") + " [Updated in AI-PIPE-01B Main E2E]").ljust(500, ".")  # SRS: >= 500 characters
         upd_res = client.patch(
             f"{backend_url}/novels/{novel_id}",
             headers=author_headers,
@@ -530,7 +530,7 @@ def run_e2e(
         non_owner_res = client.patch(
             f"{backend_url}/novels/{novel_id}",
             headers=reader_headers,
-            json={"synopsis": "Hacked synopsis by non-owner"}
+            json={"synopsis": "Hacked synopsis by non-owner. " * 20}  # valid length, so the ownership check is what rejects it
         )
         assert non_owner_res.status_code == 403, f"Expected 403 Forbidden for non-owner, got {non_owner_res.status_code}"
         print("  Non-owner mutation correctly blocked with 403 Forbidden.")
@@ -570,7 +570,7 @@ def run_e2e(
             headers=author_headers,
             json={
                 "title": "Chương E2E: Thử nghiệm vòng đời (VIP)",
-                "content": "Nội dung chương VIP đã được biên tập hoàn chỉnh.",
+                "content": "Nội dung chương VIP đã được biên tập hoàn chỉnh. " * 12,  # SRS: >= 500 characters to publish
                 "isVip": True,
                 "priceCoins": 25,
                 "autosave": False
