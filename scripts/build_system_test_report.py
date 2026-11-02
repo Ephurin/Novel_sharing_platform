@@ -23,6 +23,8 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 
+PR_LABEL = "PR #73"  # set from --pr-label
+
 FONT = "Times New Roman"
 YELLOW = PatternFill("solid", fgColor="FFFF00")
 HEADER = PatternFill("solid", fgColor="D9D9D9")
@@ -151,7 +153,7 @@ FEATURES: List[Dict[str, Any]] = [
                 ("NOV_13", "Admin duyệt chương (TC-NOV-09)", "Admin resolve APPROVED", "PUBLISHED", "decision APPROVED", ("srs", "TC-NOV-09")),
                 ("NOV_14", "Admin từ chối chương (TC-NOV-10)", "Admin resolve REJECTED kèm lý do", "Chương không công khai; tác giả nhận lý do", "lý do 'Lý do SRS *'", ("srs", "TC-NOV-10")),
                 ("NOV_15", "Khách mở chương VIP (TC-NOV-12)", "Khách gọi đọc chương VIP", "Không nhận nội dung (402)", "chương VIP 50 xu", ("srs", "TC-NOV-12")),
-                ("NOV_16", "Nhân vật/timeline (TC-NOV-11)", "—", "Lưu kèm nguồn; người không sở hữu bị chặn", "—", ("na", "Không chạy: thuộc luồng Writing Copilot, ngoài phạm vi PR #73.")),
+                ("NOV_16", "Nhân vật/timeline (TC-NOV-11)", "—", "Lưu kèm nguồn; người không sở hữu bị chặn", "—", ("na", "Không chạy: thuộc luồng Writing Copilot, ngoài phạm vi lần kiểm thử này.")),
             ]),
         ],
     },
@@ -258,7 +260,7 @@ FEATURES: List[Dict[str, Any]] = [
                 ("UI_12", "Luồng tác giả (TC-UI-04)", "Dashboard → quản lý truyện → IDE → hồ sơ", "Đi hết luồng", SMOKE_NOTE, ("smoke", "author", "")),
                 ("UI_13", "Luồng admin (TC-UI-05)", "Đăng nhập → hàng đợi kiểm duyệt → đăng xuất", "Đi hết luồng", SMOKE_NOTE, ("smoke", "admin", "")),
                 ("UI_14", "Toàn bộ trang ở mọi kích thước/giao diện (TC-UI-07)", "Smoke 4 vai trò", "Không tràn ngang, đúng giao diện, không lỗi", SMOKE_NOTE, ("smoke", "*", "")),
-                ("UI_15", "App di động React Native (TC-UI-08)", "—", "Chạy được luồng đọc", "—", ("na", "Không chạy: thư mục mobile/ ngoài phạm vi PR #73.")),
+                ("UI_15", "App di động React Native (TC-UI-08)", "—", "Chạy được luồng đọc", "—", ("na", "Không chạy: thư mục mobile/ ngoài phạm vi lần kiểm thử này.")),
             ]),
         ],
     },
@@ -330,10 +332,10 @@ class Evidence:
                 fixed = ""
                 if base and all(b == "FAIL" for b in base):
                     self.fixed.add(source[1])
-                    fixed = f" Trên main {self.baseline_sha} cả {len(base)}/{len(base)} lần baseline đều FAIL; đã sửa trong PR #73."
+                    fixed = f" Trên main {self.baseline_sha} cả {len(base)}/{len(base)} lần baseline đều FAIL; đã sửa trong {PR_LABEL}."
                 return "Pass", f"Đạt {len(outcomes)}/{len(outcomes)} lần chạy. Thực tế: {detail}.{fixed}"
             if base and all(b == "FAIL" for b in base):
-                origin = f"Có sẵn trên main {self.baseline_sha} ({len(base)}/{len(base)} lần baseline cũng FAIL), không do PR #73."
+                origin = f"Có sẵn trên main {self.baseline_sha} ({len(base)}/{len(base)} lần baseline cũng FAIL), không do {PR_LABEL}."
             elif base:
                 origin = f"main {self.baseline_sha}: {'/'.join(b or '-' for b in base)} → lỗi mới so với main."
             else:
@@ -581,7 +583,10 @@ def main() -> int:
     parser.add_argument("--out", required=True)
     parser.add_argument("--group", default="(điền số nhóm)")
     parser.add_argument("--tester", default="Minh Sơn")
+    parser.add_argument("--pr-label", default="PR #73", help="name of the change under test, used in the Evaluation text")
     args = parser.parse_args()
+    global PR_LABEL
+    PR_LABEL = args.pr_label
     with open(args.manifest, encoding="utf-8") as handle:
         manifest = json.load(handle)
     baseline_runs = []
@@ -595,11 +600,11 @@ def main() -> int:
         totals[feature["sheet"]] = build_feature(wb, feature, ev)
     pass_n = sum(t["Pass"] for t in totals.values()); fail_n = sum(t["Fail"] for t in totals.values()); na_n = sum(t["N/A"] for t in totals.values())
     env = manifest["environment"]
-    fail_text = (f"Toàn bộ Fail đã chạy lại trên main {ev.baseline_sha} và cho cùng kết quả, nên không do PR #73: đó là chỗ code lệch SRS. "
+    fail_text = (f"Toàn bộ Fail đã chạy lại trên main {ev.baseline_sha} và cho cùng kết quả, nên không do {PR_LABEL}: đó là chỗ code lệch SRS. "
                  if fail_n else "Không còn test case Fail. ")
     fixed_text = (f"{len(ev.fixed)} kiểm tra SRS ({', '.join(sorted(ev.fixed))}) Fail ở mọi lần chạy baseline trên main {ev.baseline_sha} "
                   "(mã lỗi, giới hạn độ dài, điều kiện 5 chương, thông báo theo dõi, giới hạn tần suất, fallback AI, gỡ truyện) "
-                  "và đã được sửa trong PR #73. " if ev.fixed else "")
+                  f"và đã được sửa trong {PR_LABEL}. " if ev.fixed else "")
     comment = (f"Kiểm thử hệ thống theo SRS (docs/SRS) và chương 6.2: {pass_n + fail_n + na_n} test case, {pass_n} Pass, {fail_n} Fail, {na_n} N/A. "
                f"Mọi kết quả lấy từ lần chạy thật tại {env['git_sha'][:8]} trên môi trường tạm, mỗi script chạy 2 lần; DB dùng chung không đổi. "
                f"{fail_text}{fixed_text}"
