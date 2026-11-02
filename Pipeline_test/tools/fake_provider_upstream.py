@@ -91,15 +91,57 @@ class FakeHandler(BaseHTTPRequestHandler):
                 self.received.append(entry)
                 if self.log_path:
                     with Path(self.log_path).open('a', encoding='utf-8') as stream: stream.write(json.dumps(entry) + '\n')
-            return self.reply(200, {'data': [{'id': 'gemini-3.5-flash-lite'}]})
+            return self.reply(200, {'data': [{'id': 'gemini-3.5-flash-lite'}, {'id': 'gemini-3.1-flash-lite'}, {'id': 'gemini-embedding-2'}]})
         self.reply(404, {})
 
     def do_POST(self):
         body = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
         native = self.path.startswith('/v1beta/models/') and self.path.endswith(':generateContent')
-        auth = self.headers.get('x-goog-api-key') if native else self.headers.get('Authorization', '').removeprefix('Bearer ')
+        is_embed = self.path.startswith('/v1beta/models/') and (self.path.endswith(':embedContent') or self.path.endswith(':batchEmbedContents'))
+        auth = (self.headers.get('x-goog-api-key') or self.headers.get('Authorization', '').removeprefix('Bearer ')) if (native or is_embed) else self.headers.get('Authorization', '').removeprefix('Bearer ')
         if auth != self.expected_key or not self.headers.get('X-Gateway-Dispatch-Id'):
             return self.reply(403, {'error': 'Gateway-only upstream credential required'})
+        if is_embed:
+            dim = 768
+            if self.path.endswith(':embedContent'):
+                parts = body.get('content', {}).get('parts', [])
+                embed_text = '\n'.join(p.get('text', '') for p in parts)
+                if 'fault:429' in embed_text:
+                    return self.reply(429, {'error': 'RESOURCE_EXHAUSTED'})
+                if 'fault:nan' in embed_text:
+                    values = [float('nan')] * dim
+                elif 'fault:wrong_dim' in embed_text:
+                    values = [0.1] * 512
+                else:
+                    digest = hashlib.sha512(embed_text.encode('utf-8')).digest()
+                    values = [(float(digest[i % len(digest)]) - 127.5) / 127.5 for i in range(dim)]
+                result = {'embedding': {'values': values}}
+            else:
+                requests = body.get('requests', [])
+                embeddings = []
+                for req in requests:
+                    parts = req.get('content', {}).get('parts', [])
+                    embed_text = '\n'.join(p.get('text', '') for p in parts)
+                    if 'fault:429' in embed_text:
+                        return self.reply(429, {'error': 'RESOURCE_EXHAUSTED'})
+                    digest = hashlib.sha512(embed_text.encode('utf-8')).digest()
+                    values = [(float(digest[i % len(digest)]) - 127.5) / 127.5 for i in range(dim)]
+                    embeddings.append({'values': values})
+                result = {'embeddings': embeddings}
+            entry = {
+                'path': self.path,
+                'request_sha256': hashlib.sha256(json.dumps(body, sort_keys=True).encode()).hexdigest(),
+                'dispatch_id': self.headers['X-Gateway-Dispatch-Id'],
+                'client': self.headers['X-Gateway-Client'],
+                'upstream_auth_valid': True,
+                'operation': 'embedding',
+            }
+            with self.lock:
+                self.received.append(entry)
+                if self.log_path:
+                    with Path(self.log_path).open('a', encoding='utf-8') as stream:
+                        stream.write(json.dumps(entry) + '\n')
+            return self.reply(200, result)
         if native:
             config = body['generationConfig']
             assert isinstance(config['maxOutputTokens'], int)

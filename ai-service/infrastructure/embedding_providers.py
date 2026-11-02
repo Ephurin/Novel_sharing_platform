@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import math
 import os
 import time
 from typing import Any
@@ -69,17 +70,62 @@ class GeminiEmbeddingProvider:
         kind: str,
         retry_rate_limits: bool,
     ) -> tuple[tuple[float, ...], ...]:
-        if os.getenv("BUDGET_GUARD_URL") or os.getenv("BUDGET_GUARD_MODE") == "proxy":
-            raise EmbeddingProviderError("GUARDED_P1_EMBEDDING_DISABLED")
+        mode = os.getenv("AI_EXECUTION_MODE", "offline_test").lower().strip()
+        guard_url = os.getenv("BUDGET_GUARD_URL", "").rstrip("/")
+        guard_token = os.getenv("BUDGET_GUARD_AUTH_TOKEN", "").strip()
+
+        if mode == "offline_test":
+            if guard_url or os.getenv("BUDGET_GUARD_MODE") == "proxy":
+                raise EmbeddingProviderError("GUARDED_P1_EMBEDDING_DISABLED")
+        elif mode == "live_free_tier":
+            if not guard_url or not guard_token or os.getenv("BUDGET_GUARD_MODE") != "proxy":
+                raise EmbeddingProviderError("GUARD_CONFIGURATION_INVALID")
+            from urllib.parse import urlparse
+            parsed = urlparse(guard_url)
+            if (
+                parsed.scheme not in {"http", "https"}
+                or parsed.hostname not in {"budget-gateway", "127.0.0.1", "localhost"}
+                or parsed.path
+                or parsed.query
+                or parsed.username
+            ):
+                raise EmbeddingProviderError("GUARD_CONFIGURATION_INVALID")
+        else:
+            raise EmbeddingProviderError(f"UNSUPPORTED_EXECUTION_MODE: {mode}")
+
         if not texts or any(not text.strip() for text in texts):
             raise EmbeddingProviderError(
                 f"Cannot embed empty semantic-memory {kind}"
             )
+
+        forbidden_tokens = (
+            '"author_notes"', '"private_author_notes"', '"authornotes"', '"privateauthornotes"',
+            '"private_notes"', '"privatenotes"'
+        )
+        for t in texts:
+            lowered = t.lower()
+            if any(tok in lowered for tok in forbidden_tokens):
+                raise EmbeddingProviderError("PRIVATE_NOTES_FORBIDDEN_IN_PROMPT")
+
         try:
             from google import genai
             from google.genai import types
 
-            client = self._client or genai.Client(api_key=self._api_key)
+            if guard_url:
+                client = genai.Client(
+                    api_key=guard_token,
+                    http_options=types.HttpOptions(
+                        base_url=guard_url,
+                        api_version="v1beta",
+                        headers={"Authorization": f"Bearer {guard_token}"},
+                        client_args={"trust_env": False},
+                        retry_options=types.HttpRetryOptions(attempts=1),
+                    ),
+                )
+            else:
+                if mode == "live_free_tier":
+                    raise EmbeddingProviderError("GUARD_CONFIGURATION_INVALID")
+                client = self._client or genai.Client(api_key=self._api_key)
             delays = (5, 15, 30)
             response = None
             for attempt in range(len(delays) + 1):
@@ -126,6 +172,8 @@ class GeminiEmbeddingProvider:
                         f"Gemini embedding dimension mismatch: expected {self.dimension}, "
                         f"got {len(values)}"
                     )
+                if not all(math.isfinite(v) and not math.isnan(v) for v in values):
+                    raise EmbeddingProviderError("Gemini embedding returned NaN or non-finite vector")
                 vectors.append(values)
             return tuple(vectors)
         except EmbeddingProviderError:

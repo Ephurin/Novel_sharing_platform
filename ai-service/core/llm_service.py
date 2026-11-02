@@ -296,7 +296,25 @@ class LLMService:
     def _guard_proxy_config() -> tuple[str, str] | None:
         from urllib.parse import urlparse
 
+        mode = os.getenv("AI_EXECUTION_MODE", "offline_test").lower().strip()
         url = os.getenv("BUDGET_GUARD_URL", "").rstrip("/")
+        token = os.getenv("BUDGET_GUARD_AUTH_TOKEN", "").strip()
+
+        if mode == "live_free_tier":
+            if not url or not token:
+                raise LLMServiceError("GUARD_CONFIGURATION_INVALID")
+            parsed = urlparse(url)
+            if (
+                os.getenv("BUDGET_GUARD_MODE") != "proxy"
+                or parsed.scheme not in {"http", "https"}
+                or parsed.hostname not in {"budget-gateway", "127.0.0.1", "localhost"}
+                or parsed.path
+                or parsed.query
+                or parsed.username
+            ):
+                raise LLMServiceError("GUARD_CONFIGURATION_INVALID")
+            return url, token
+
         if not url:
             if os.getenv("BUDGET_GUARD_MODE") == "proxy":
                 raise LLMServiceError("GUARD_CONFIGURATION_INVALID")
@@ -304,7 +322,6 @@ class LLMService:
                 raise LLMServiceError("LEGACY_CLIENT_SIDE_LEDGER_DISABLED")
             return None
         parsed = urlparse(url)
-        token = os.getenv("BUDGET_GUARD_AUTH_TOKEN", "")
         if (
             os.getenv("BUDGET_GUARD_MODE") != "proxy"
             or not token
@@ -318,7 +335,10 @@ class LLMService:
         return url, token
 
     def _call_llm(self, system_prompt: str, user_prompt: str) -> str:
+        mode = os.getenv("AI_EXECUTION_MODE", "offline_test").lower().strip()
         guard = self._guard_proxy_config()
+        if mode == "live_free_tier" and not guard:
+            raise LLMServiceError("GUARD_CONFIGURATION_INVALID")
         if not self.api_key and not guard:
             raise LLMServiceError(f"Missing API key for provider '{self.provider}'")
 
@@ -341,6 +361,11 @@ class LLMService:
             raise
 
     def _call_gemini(self, system_prompt: str, user_prompt: str) -> str:
+        mode = os.getenv("AI_EXECUTION_MODE", "offline_test").lower().strip()
+        guard = self._guard_proxy_config()
+        if mode == "live_free_tier" and not guard:
+            raise LLMServiceError("GUARD_CONFIGURATION_INVALID")
+
         try:
             from google import genai
             from google.genai import types
@@ -348,7 +373,6 @@ class LLMService:
             raise LLMServiceError("google-genai is not installed") from exc
 
         timeout_ms = max(1, round(float(self.timeout_seconds) * 1000))
-        guard = self._guard_proxy_config()
         if guard:
             client = genai.Client(
                 api_key=guard[1],
@@ -362,6 +386,8 @@ class LLMService:
                 ),
             )
         else:
+            if mode == "live_free_tier":
+                raise LLMServiceError("GUARD_CONFIGURATION_INVALID")
             client = genai.Client(
                 api_key=self.api_key,
                 http_options=types.HttpOptions(
@@ -469,6 +495,15 @@ class LLMService:
                             "live_upstream_not_authorized",
                             "model_not_approved",
                             "private_notes_forbidden_in_prompt",
+                            "free_tier_status_unverified",
+                            "quota_config_required",
+                            "rpm_limit_exceeded",
+                            "tpm_limit_exceeded",
+                            "rpd_limit_exceeded",
+                            "concurrency_limit_exceeded",
+                            "provider_rate_limited",
+                            "provider_timeout",
+                            "provider_unavailable",
                         )
                     ):
                         raise LLMServiceError("BUDGET_GUARD_DENIED") from exc
@@ -604,7 +639,11 @@ class LLMService:
             raise LLMServiceError(f"OpenAI request failed: {exc}") from exc
 
     def _can_fallback_to_openai(self) -> bool:
-        if os.getenv("BUDGET_GUARD_URL") or os.getenv("BUDGET_GUARD_MODE") == "proxy":
+        if (
+            os.getenv("BUDGET_GUARD_URL")
+            or os.getenv("BUDGET_GUARD_MODE") == "proxy"
+            or os.getenv("AI_EXECUTION_MODE") == "live_free_tier"
+        ):
             return False
         return self.fallback_provider == "openai" and bool(self.fallback_api_key)
 
@@ -618,7 +657,11 @@ class LLMService:
 
     @staticmethod
     def _local_fallback_enabled() -> bool:
-        if os.getenv("BUDGET_GUARD_URL") or os.getenv("BUDGET_GUARD_MODE") == "proxy":
+        if (
+            os.getenv("BUDGET_GUARD_URL")
+            or os.getenv("BUDGET_GUARD_MODE") == "proxy"
+            or os.getenv("AI_EXECUTION_MODE") == "live_free_tier"
+        ):
             return False
         value = (os.getenv("LLM_LOCAL_FALLBACK", "true") or "true").strip().lower()
         return value not in {"0", "false", "no", "off"}

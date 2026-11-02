@@ -35,6 +35,8 @@ import type {
 import {
   startWritingGeneration,
   getJobStatus,
+  recoverWritingDraft,
+  dismissWritingDraft,
   acceptDraftRevision,
   createChapterSnapshot,
   fetchContextPreview,
@@ -192,6 +194,7 @@ export function AuthorWritingIde() {
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
   const [isAcceptingAi, setIsAcceptingAi] = useState(false);
   const [currentJob, setCurrentJob] = useState<WritingGenerationJob | null>(null);
+  const [aiRecoveryMessage, setAiRecoveryMessage] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const pollTimerRef = useRef<number | null>(null);
 
@@ -241,6 +244,14 @@ export function AuthorWritingIde() {
 
   const persistence = useDraftPersistence(user?.userId ?? '', activeChapterId);
   const activeDraftScope = `${user?.userId}:${activeChapterId}`;
+  const writingScope = `${user?.userId}:${activeNovelId}:${activeChapterId}`;
+  const writingSession = useRef<object>({});
+  const writingSessionKey = useRef('');
+  // Change identity during render so even a response racing effect cleanup is ignored.
+  if (writingSessionKey.current !== writingScope) {
+    writingSessionKey.current = writingScope;
+    writingSession.current = {};
+  }
   const loadedChapter = useRef('');
   // Story Bible Queries
   const charactersQuery = useQuery({
@@ -280,6 +291,7 @@ export function AuthorWritingIde() {
   // Clean up AI generation polling timer on unmount and chapter switch
   useEffect(() => {
     return () => {
+      writingSession.current = {};
       if (pollTimerRef.current) {
         window.clearTimeout(pollTimerRef.current);
       }
@@ -295,7 +307,38 @@ export function AuthorWritingIde() {
     setIsAcceptingAi(false);
     setCurrentJob(null);
     setAiSuggestion(null);
-  }, [activeChapterId]);
+    setAiRecoveryMessage(null);
+    const session = writingSession.current;
+    if (user?.userId && activeNovelId && activeChapterId) {
+      setAiRecoveryMessage('Đang tải bản nháp AI đã lưu…');
+      void recoverWritingDraft(activeNovelId, activeChapterId).then(({ job }) => {
+        if (writingSession.current !== session) return;
+        if (!job) { setAiRecoveryMessage(null); return; }
+        if (job.novel_id !== activeNovelId || job.chapter_id !== activeChapterId) {
+          setAiRecoveryMessage('Không thể khôi phục bản nháp thuộc chương khác.'); return;
+        }
+        setCurrentJob(job);
+        if (job.status === 'completed' && job.validation_status === 'passed') {
+          setAiSuggestion(job.draft || job.patch?.replacement || null);
+          setAiSuggestionTone('Bản nháp đã lưu • Chưa được chấp nhận');
+          setAiRecoveryMessage(job.stale_reason
+            ? 'Bản nháp đã cũ: nội dung hoặc Canon đã thay đổi. Không thể chấp nhận; hãy bỏ qua hoặc tạo bản nháp khác.' : null);
+          setAiDrawerOpen(true);
+          if (window.matchMedia('(max-width: 1200px)').matches) setSidebarOpen(false);
+        } else {
+          setAiRecoveryMessage(job.status === 'failed' || job.validation_status === 'failed'
+            ? 'Tác vụ AI trước không thành công; không có bản nháp hợp lệ để chấp nhận.'
+            : 'Tác vụ AI chưa hoàn tất. Mở lại chương để kiểm tra sau; không tự tạo hoặc tiếp tục tác vụ.');
+        }
+      }).catch(() => {
+        if (writingSession.current === session) setAiRecoveryMessage('Chưa tải được bản nháp đã lưu. Tải lại trang để thử đọc lại; không cần tạo AI mới.');
+      });
+    }
+    return () => {
+      if (writingSession.current === session) writingSession.current = {};
+      if (pollTimerRef.current) window.clearTimeout(pollTimerRef.current);
+    };
+  }, [writingScope]);
 
   // Load chapter data into editor when chapter changes
   useEffect(() => {
@@ -537,6 +580,9 @@ export function AuthorWritingIde() {
     }
 
     setIsGeneratingAi(true);
+    writingSession.current = {};
+    const session = writingSession.current;
+    setAiRecoveryMessage(null);
     setCurrentJob(null);
     setAiSuggestion(null);
 
@@ -553,8 +599,10 @@ export function AuthorWritingIde() {
       }
 
       if (!baseRevision || baseRevision.content !== content) {
+        if (writingSession.current !== session) return;
         baseRevision = await createChapterSnapshot(activeChapterId, content);
       }
+      if (writingSession.current !== session) return;
 
       // 2. Retrieve expected Story Brain version
       let brainVer = 1;
@@ -568,6 +616,7 @@ export function AuthorWritingIde() {
       }
 
       // 3. Selection offsets in Unicode code points
+      if (writingSession.current !== session) return;
       const textarea = editorRef.current;
       const selStart = textarea ? textarea.selectionStart : 0;
       const selEnd = textarea ? textarea.selectionEnd : 0;
@@ -591,35 +640,42 @@ export function AuthorWritingIde() {
         idempotencyKey: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `ui-${Date.now()}`
       });
 
+      if (writingSession.current !== session) return;
       setCurrentJob(initiatedJob);
-      pollJob(initiatedJob.job_id);
+      void pollJob(initiatedJob.job_id, session);
     } catch (err: unknown) {
+      if (writingSession.current !== session) return;
       setIsGeneratingAi(false);
       showToast(`Lỗi khởi tạo AI: ${getApiErrorMessage(err)}`);
     }
   };
 
-  const pollJob = async (jobId: string) => {
+  const pollJob = async (jobId: string, session: object, attempt = 0) => {
     try {
       const updated = await getJobStatus(jobId);
+      if (writingSession.current !== session) return;
       setCurrentJob(updated);
       const status = updated.status?.toLowerCase();
-      if (status === 'completed') {
+      if (status === 'completed' && updated.validation_status === 'passed') {
         setIsGeneratingAi(false);
         const draftText = updated.draft || (updated.patch?.replacement ?? '');
         setAiSuggestion(draftText);
         setAiSuggestionTone(
           updated.validation_status === 'passed' ? 'Đã kiểm định nhất quán • P1 Loop' : 'Hoàn thành'
         );
-      } else if (status === 'failed') {
+      } else if (status === 'failed' || status === 'dismissed' || status === 'completed') {
         setIsGeneratingAi(false);
         showToast(`Tác vụ AI thất bại: ${updated.error?.message || 'Không rõ nguyên nhân'}`);
-      } else {
+      } else if (attempt < 59) {
         pollTimerRef.current = window.setTimeout(() => {
-          void pollJob(jobId);
+          if (writingSession.current === session) void pollJob(jobId, session, attempt + 1);
         }, 1000);
+      } else {
+        setIsGeneratingAi(false);
+        setAiRecoveryMessage('Tác vụ chưa hoàn tất. Mở lại chương để đọc lại trạng thái sau.');
       }
     } catch (err: unknown) {
+      if (writingSession.current !== session) return;
       setIsGeneratingAi(false);
       showToast(`Lỗi kiểm tra tiến trình: ${getApiErrorMessage(err)}`);
     }
@@ -627,12 +683,25 @@ export function AuthorWritingIde() {
 
   // Canonical Accept Draft: creates immutable revision & emits INCREMENTAL_ANALYSIS outbox event
   const handleAcceptDraft = async () => {
-    if (!activeChapterId || !currentJob) return;
+    if (!activeChapterId || !currentJob || currentJob.stale_reason || currentJob.validation_status !== 'passed') return;
+    const session = writingSession.current;
     setIsAcceptingAi(true);
     try {
       await persistence.flush();
+      if (writingSession.current !== session) return;
+      // A restored draft may become stale while the author edits this session.
+      // Re-read after autosave; the existing accept endpoint remains authoritative.
+      const review = await recoverWritingDraft(activeNovelId, activeChapterId);
+      if (writingSession.current !== session) return;
+      if (!review.job || review.job.job_id !== currentJob.job_id || review.job.status !== 'completed' ||
+          review.job.validation_status !== 'passed' || review.job.stale_reason) {
+        setAiRecoveryMessage('Bản nháp không còn chờ duyệt hoặc đã cũ. Tải lại chương trước khi tiếp tục; bản thảo chính chưa bị thay đổi.');
+        return;
+      }
       await acceptDraftRevision(activeChapterId, currentJob.job_id);
+      if (writingSession.current !== session) return;
       const chapter = await getChapter(activeChapterId);
+      if (writingSession.current !== session) return;
       if (loadedChapter.current === activeDraftScope) {
         const value = persistence.initialize(chapter, true);
         setTitle(value.title);
@@ -642,21 +711,34 @@ export function AuthorWritingIde() {
       }
       setCurrentJob(null);
       setAiSuggestion(null);
+      setAiRecoveryMessage(null);
       queryClient.invalidateQueries({ queryKey: ['author', 'chapter', activeChapterId] });
       queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] });
       showToast('Đã chấp nhận bản thảo AI và kích hoạt cập nhật Story Brain!');
     } catch (err: unknown) {
+      if (writingSession.current !== session) return;
+      setAiRecoveryMessage(`Không thể chấp nhận bản nháp: ${getApiErrorMessage(err)}`);
       showToast(`Chấp nhận bản thảo thất bại: ${getApiErrorMessage(err)}`);
     } finally {
-      setIsAcceptingAi(false);
+      if (writingSession.current === session) setIsAcceptingAi(false);
     }
   };
 
   // Canonical Discard Draft: leaves canon, revision pointer, and Story Brain unchanged
-  const handleDiscardDraft = () => {
-    setCurrentJob(null);
-    setAiSuggestion(null);
-    showToast('Đã từ chối gợi ý AI.');
+  const handleDiscardDraft = async () => {
+    if (!currentJob || !activeNovelId || !activeChapterId) return;
+    const session = writingSession.current;
+    setIsAcceptingAi(true);
+    try {
+      await dismissWritingDraft(activeNovelId, activeChapterId, currentJob.job_id);
+      if (writingSession.current !== session) return;
+      setCurrentJob(null); setAiSuggestion(null); setAiRecoveryMessage(null);
+      showToast('Đã từ chối gợi ý AI và lưu quyết định.');
+    } catch (error) {
+      if (writingSession.current === session) setAiRecoveryMessage(`Chưa lưu được quyết định từ chối: ${getApiErrorMessage(error)}`);
+    } finally {
+      if (writingSession.current === session) setIsAcceptingAi(false);
+    }
   };
 
   // Word count & read time calculation
@@ -1459,6 +1541,7 @@ export function AuthorWritingIde() {
                 </div>
               )}
 
+              {aiRecoveryMessage && <div role="status" className="mb-3 rounded border p-3 text-sm">{aiRecoveryMessage}</div>}
               {aiSuggestion && !isGeneratingAi && (
                 <div className="bg-primary-50/70 border border-primary-100 rounded-xl p-3.5 text-stone-800 shadow-2xs">
                   <div className="flex items-center justify-between mb-2 text-meta font-semibold text-primary-700">
@@ -1471,7 +1554,7 @@ export function AuthorWritingIde() {
                   <div className="mt-3 grid grid-cols-2 gap-1.5 font-sans pt-1">
                     <button
                       onClick={() => handleAcceptDraft()}
-                      disabled={isAcceptingAi}
+                      disabled={isAcceptingAi || Boolean(currentJob?.stale_reason) || currentJob?.validation_status !== 'passed'}
                       className="px-2 py-1.5 rounded bg-primary-600 text-white font-medium text-[11px] hover:bg-primary-700 text-center transition-all shadow-2xs active:scale-95 disabled:opacity-50"
                       type="button"
                     >
