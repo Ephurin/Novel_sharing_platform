@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../auth/useAuthStore';
 import { writeAuthorContext } from '../author-ide/author-context';
-import { createNovel, listGenres, listMyNovels } from '../novels/novel-api';
+import { createNovel, listGenres, listMyNovels, NOVEL_SYNOPSIS_MIN, NOVEL_TITLE_MAX } from '../novels/novel-api';
 import { RetainedHeight } from '../../shared/components/RetainedHeight';
 import { sortProjects, type ProjectSort } from './project-sorting';
 import type { Novel, NovelStatus } from '../novels/novel-types';
@@ -152,7 +152,8 @@ export function AuthorProjectsPage() {
       if (!trimmedTitle || trimmedTitle.length < 2) {
         throw new Error('Vui lòng nhập tên tác phẩm (tối thiểu 2 ký tự).');
       }
-      if (newSynopsis.trim().length < 10) throw new Error('Giới thiệu cần tối thiểu 10 ký tự.');
+      if (trimmedTitle.length > NOVEL_TITLE_MAX) throw new Error(`Tên tác phẩm tối đa ${NOVEL_TITLE_MAX} ký tự.`);
+      if (newSynopsis.trim().length < NOVEL_SYNOPSIS_MIN) throw new Error(`Giới thiệu cần tối thiểu ${NOVEL_SYNOPSIS_MIN} ký tự.`);
 
       const novel = await createNovel({
         title: trimmedTitle,
@@ -770,6 +771,7 @@ export function AuthorProjectsPage() {
                   type="text"
                   required
                   minLength={2}
+                  maxLength={NOVEL_TITLE_MAX}
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   placeholder="Tên tác phẩm"
@@ -832,10 +834,10 @@ export function AuthorProjectsPage() {
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
                   <label className="text-meta font-bold text-stone-900">Giới thiệu ngắn</label>
-                  <span className="text-meta text-stone-400 font-normal">Tối thiểu 10 ký tự</span>
+                  <span className="text-meta text-stone-400 font-normal">Tối thiểu {NOVEL_SYNOPSIS_MIN} ký tự · {newSynopsis.trim().length}/{NOVEL_SYNOPSIS_MIN}</span>
                 </div>
                 <textarea
-                  rows={3}
+                  rows={5}
                   value={newSynopsis}
                   onChange={(e) => setNewSynopsis(e.target.value)}
                   placeholder="Giới thiệu tác phẩm"

@@ -8,7 +8,8 @@ import { getPostgresPool } from '../../core/database/postgres.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { checkContent } from '../content-control/content-control.service.js';
-import type { CreateChapterInput, UpdateChapterInput } from './chapters.schemas.js';
+import { CHAPTER_CONTENT_MIN, type CreateChapterInput, type UpdateChapterInput } from './chapters.schemas.js';
+import { notifyFollowersOfPublishedChapter } from '../interactions/new-chapter-notifications.js';
 import {
   createChapter as createChapterRow,
   findChapterById,
@@ -310,6 +311,12 @@ export async function submitChapterPublish(auth: AuthContext, chapterId: string,
     throw new AppError(409, 'CONTENT_004', 'Invalid content state');
   }
 
+  const contentLength = publishContent.trim().length;
+  if (contentLength < CHAPTER_CONTENT_MIN) {
+    throw new AppError(422, 'CONTENT_003', `Nội dung chương cần ít nhất ${CHAPTER_CONTENT_MIN} ký tự trước khi xuất bản.`,
+      { contentLength, requiredLength: CHAPTER_CONTENT_MIN });
+  }
+
   const moderation = await checkContent({
     targetType: 'CHAPTER',
     targetId: chapter.chapterId,
@@ -331,6 +338,7 @@ export async function submitChapterPublish(auth: AuthContext, chapterId: string,
     }
 
     await client.query("update chapter_publication_schedules set status='CANCELLED', error='Đã phát hành phiên bản mới thủ công.', updated_at=now() where chapter_id=$1 and status='PENDING_MODERATION'", [chapterId]);
+    await notifyFollowersOfPublishedChapter(client, chapterId);
     return {
       chapterId: publishedChapter.chapterId,
       status: publishedChapter.status,

@@ -17,7 +17,9 @@ import {
   listChapters,
   listMyNovels,
   submitChapterPublish,
-  updateChapter
+  updateChapter,
+  CHAPTER_CONTENT_MIN,
+  CHAPTER_TITLE_MAX
 } from '../novels/novel-api';
 import type { Chapter, Novel } from '../novels/novel-types';
 import {
@@ -667,6 +669,9 @@ export function AuthorWritingIde() {
   }, [content]);
 
   const readMinutes = Math.max(1, Math.ceil(wordCount / 350));
+  const contentLength = content.trim().length;
+  const titleReady = title.trim().length > 0 && title.length <= CHAPTER_TITLE_MAX;
+  const contentReady = contentLength >= CHAPTER_CONTENT_MIN;
 
   // Filtered chapters for search
   const filteredChapters = useMemo(() => {
@@ -1330,6 +1335,7 @@ export function AuthorWritingIde() {
               <input
                 type="text"
                 value={title}
+                maxLength={CHAPTER_TITLE_MAX}
                 readOnly={isAcceptingAi}
                 onChange={(e) => handleTitleChange(e.target.value)}
                 placeholder="Đặt tiêu đề chương tại đây..."
@@ -1887,10 +1893,15 @@ export function AuthorWritingIde() {
                 Kiểm tra tiêu chuẩn xuất bản
               </span>
               <div className="space-y-1.5 text-meta">
-                <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50/70 border border-emerald-200/70 px-2.5 py-1.5 rounded-md">
-                  <span className="material-symbols-outlined text-[16px] text-emerald-600">check_circle</span>
-                  <span>Tiêu đề chương hợp lệ và đúng quy chuẩn</span>
-                </div>
+                {[
+                  { ok: titleReady, text: `Tiêu đề chương có nội dung và dưới ${CHAPTER_TITLE_MAX + 1} ký tự` },
+                  { ok: contentReady, text: `Nội dung từ ${CHAPTER_CONTENT_MIN} ký tự trở lên (hiện có ${contentLength})` }
+                ].map(check => (
+                  <div key={check.text} className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md border ${check.ok ? 'text-emerald-700 bg-emerald-50/70 border-emerald-200/70' : 'text-red-700 bg-red-50/70 border-red-200/70'}`}>
+                    <span className={`material-symbols-outlined text-[16px] ${check.ok ? 'text-emerald-600' : 'text-red-600'}`}>{check.ok ? 'check_circle' : 'error'}</span>
+                    <span>{check.text}</span>
+                  </div>
+                ))}
                 <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50/70 border border-emerald-200/70 px-2.5 py-1.5 rounded-md">
                   <span className="material-symbols-outlined text-[16px] text-emerald-600">check_circle</span>
                   <span>Bản thảo đã được lưu trữ tự động trên đám mây</span>
@@ -1917,7 +1928,7 @@ export function AuthorWritingIde() {
               </button>
               <button
                 onClick={() => publishMutation.mutate()}
-                disabled={publishMutation.isPending}
+                disabled={publishMutation.isPending || !titleReady || !contentReady}
                 className="px-4 py-1.5 rounded-lg bg-primary-600 text-white hover:bg-primary-700 font-semibold transition-all shadow-sm shadow-primary-200  disabled:opacity-50"
                 type="button"
               >

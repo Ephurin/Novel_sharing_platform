@@ -37,6 +37,12 @@ export function isLlmConfigured() {
   return Boolean(env.AI_LLM_BASE_URL);
 }
 
+// SRS appendix A / docs/API/error-codes.md: a timeout or an unavailable provider is AI_001 (503), so the
+// client can drop the suggestion and let the author keep writing by hand. `reason` tells the causes apart.
+export function aiUnavailable(reason: string, message = 'AI tạm thời không khả dụng. Có thể tiếp tục viết thủ công hoặc thử lại sau.', detail?: unknown) {
+  return new AppError(503, 'AI_001', message, detail === undefined ? { reason } : { reason, detail });
+}
+
 export async function checkLlmProviderHealth() {
   if (!env.AI_LLM_BASE_URL) {
     return {
@@ -111,7 +117,7 @@ export async function checkLlmProviderHealth() {
 
 export async function generateCopilotSuggestionWithLlm(context: CopilotLlmContext) {
   if (!env.AI_LLM_BASE_URL) {
-    throw new AppError(500, 'AI_001', 'AI LLM base URL is not configured');
+    throw aiUnavailable('not_configured');
   }
 
   const controller = new AbortController();
@@ -155,7 +161,7 @@ export async function generateCopilotSuggestionWithLlm(context: CopilotLlmContex
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new AppError(response.status, 'AI_002', 'AI provider request failed', errorText.slice(0, 1000));
+      throw aiUnavailable(`provider_http_${response.status}`, undefined, errorText.slice(0, 1000));
     }
 
     const payload = (await response.json()) as ChatCompletionResponse;
@@ -164,14 +170,13 @@ export async function generateCopilotSuggestionWithLlm(context: CopilotLlmContex
 
     if (!content) {
       if (choice?.finish_reason === 'length') {
-        throw new AppError(
-          502,
-          'AI_005',
+        throw aiUnavailable(
+          'token_limit',
           'AI provider used all completion tokens before returning final content. Increase AI_LLM_MAX_TOKENS or use a non-thinking model.'
         );
       }
 
-      throw new AppError(502, 'AI_003', 'AI provider returned an empty response');
+      throw aiUnavailable('empty_response');
     }
 
     return content;
@@ -181,10 +186,10 @@ export async function generateCopilotSuggestionWithLlm(context: CopilotLlmContex
     }
 
     if (error instanceof Error && error.name === 'AbortError') {
-      throw new AppError(504, 'AI_004', 'AI provider request timed out');
+      throw aiUnavailable('timeout');
     }
 
-    throw new AppError(502, 'AI_002', 'AI provider request failed', error instanceof Error ? error.message : error);
+    throw aiUnavailable('unreachable', undefined, error instanceof Error ? error.message : error);
   } finally {
     clearTimeout(timeout);
   }
