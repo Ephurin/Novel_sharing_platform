@@ -20,15 +20,6 @@ describe('Phase C: Author Publish -> Admin Moderation Lifecycle Invariants', () 
   let adminAuth: AuthContext;
   let readerAuth: AuthContext;
 
-  // SRS novel-chapter-service §1: a novel needs five valid chapters (content >= 500 characters) before its publish request.
-  async function addPublishableChapters(targetNovelId: string) {
-    for (let number = 1; number <= 5; number++)
-      await pool.query(
-        `insert into chapters (novel_id, title, chapter_number, content, status) values ($1, $2, $3, $4, 'DRAFT')`,
-        [targetNovelId, `Chapter ${number}`, number, 'Publishable chapter body for the lifecycle test. '.repeat(12)]
-      );
-  }
-
   before(async () => {
     await validateTestDatabaseIsolation(pool,getMongoDatabase());
     const timestamp = Date.now();
@@ -76,7 +67,6 @@ describe('Phase C: Author Publish -> Admin Moderation Lifecycle Invariants', () 
       ]
     );
     novelId = novelRes.rows[0].novel_id;
-    await addPublishableChapters(novelId);
   });
 
   after(async () => {
@@ -158,7 +148,6 @@ describe('Phase C: Author Publish -> Admin Moderation Lifecycle Invariants', () 
       ]
     );
     const otherNovelId = otherNovelRes.rows[0].novel_id;
-    await addPublishableChapters(otherNovelId);
     const otherSubmit = await submitPublish(authorAuth, otherNovelId);
     assert.ok(otherSubmit.moderationReviewId);
 

@@ -15,14 +15,10 @@ export const listNovelsSchema = z.object({
   })
 });
 
-// SRS novel-chapter-service §1: title < 255 characters, synopsis >= 500 characters.
-export const NOVEL_TITLE_MAX = 254;
-export const NOVEL_SYNOPSIS_MIN = 500;
-
 export const createNovelSchema = z.object({
   body: z.object({
-    title: z.string().trim().min(1).max(NOVEL_TITLE_MAX),
-    synopsis: z.string().trim().min(NOVEL_SYNOPSIS_MIN),
+    title: z.string().min(1).max(255),
+    synopsis: z.string().min(10),
     authorNote: z.string().trim().max(5000).nullable().optional(),
     genres: z.array(z.string().trim().min(1).max(100)).max(5).optional(),
     genre: z.string().max(100).optional(),
@@ -34,8 +30,8 @@ export const createNovelSchema = z.object({
 export const updateNovelSchema = z.object({
   params: novelIdParamSchema.shape.params,
   body: z.object({
-    title: z.string().trim().min(1).max(NOVEL_TITLE_MAX).optional(),
-    synopsis: z.string().trim().min(NOVEL_SYNOPSIS_MIN).optional(),
+    title: z.string().min(1).max(255).optional(),
+    synopsis: z.string().min(10).optional(),
     authorNote: z.string().trim().max(5000).nullable().optional(),
     genres: z.array(z.string().trim().min(1).max(100)).max(5).optional(),
     genre: z.string().max(100).nullable().optional(),

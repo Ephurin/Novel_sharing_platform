@@ -12,15 +12,10 @@ export const chapterIdParamSchema = z.object({
   })
 });
 
-// SRS novel-chapter-service §1: chapter title < 100 characters, content >= 500 characters.
-// Content length is enforced when a chapter is published, so drafts and autosave never block writing.
-export const CHAPTER_TITLE_MAX = 99;
-export const CHAPTER_CONTENT_MIN = 500;
-
 export const createChapterSchema = z.object({
   params: novelIdParamSchema.shape.params,
   body: z.object({
-    title: z.string().min(1).max(CHAPTER_TITLE_MAX),
+    title: z.string().min(1).max(100),
     content: z.string().default(''),
     clientRequestId: z.string().min(1).max(128).optional(),
     isVip: z.boolean().default(false),
@@ -31,7 +26,7 @@ export const createChapterSchema = z.object({
 export const updateChapterSchema = z.object({
   params: chapterIdParamSchema.shape.params,
   body: z.object({
-    title: z.string().min(1).max(CHAPTER_TITLE_MAX).optional(),
+    title: z.string().min(1).max(100).optional(),
     content: z.string().optional(),
     isVip: z.boolean().optional(),
     priceCoins: z.number().int().min(0).optional(),

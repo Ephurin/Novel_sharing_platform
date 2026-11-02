@@ -25,7 +25,6 @@ export async function applySanction(
   ]);
   let ownerId: string;
   let before: any;
-  let novelTitle: string | null = null;
   if (input.targetType === 'COMMENT') {
     const comment = await findCommentRecordById(input.targetId);
     if (!comment) throw new AppError(404, 'CONTENT_001', 'Không tìm thấy bình luận.');
@@ -49,7 +48,7 @@ export async function applySanction(
       type === 'NOVEL'
         ? (
             await client.query(
-              'select novel_id,author_id,deleted_at,status,title from novels where novel_id::text=$1 for update',
+              'select novel_id,author_id,deleted_at,status from novels where novel_id::text=$1 for update',
               [input.targetId]
             )
           ).rows[0]
@@ -62,15 +61,6 @@ export async function applySanction(
     if (!row) throw new AppError(404, 'CONTENT_001', 'Không tìm thấy nội dung.');
     ownerId = row.author_id;
     before = { status: row.status, deletedAt: row.deleted_at };
-    if (type === 'NOVEL') {
-      novelTitle = row.title;
-      // SRS admin-novel-management §4 step 8: removal hides the whole aggregate. Remember which chapters were
-      // live so a restore brings back exactly those, not chapters the author had already deleted.
-      if (input.action === 'HIDE')
-        before.chapterIds = (
-          await client.query('select chapter_id from chapters where novel_id=$1 and deleted_at is null', [row.novel_id])
-        ).rows.map((chapter) => chapter.chapter_id);
-    }
   }
   if (
     (input.action === 'LOCK' && input.targetType !== 'USER') ||
@@ -116,19 +106,10 @@ export async function applySanction(
     await client.query("update users set status='LOCKED',updated_at=now() where user_id=$1", [
       input.targetId
     ]);
-  const removesNovel = input.action === 'HIDE' && input.targetType === 'NOVEL';
-  if (removesNovel) {
+  if (input.action === 'HIDE' && input.targetType === 'NOVEL')
     await client.query('update novels set deleted_at=now(),updated_at=now() where novel_id=$1', [
       input.targetId
     ]);
-    await client.query(
-      'update chapters set deleted_at=now(),updated_at=now() where chapter_id=any($1::uuid[])',
-      [before.chapterIds]
-    );
-    await client.query("insert into admin_jobs(kind,payload) values('NOVEL_DRAFT_SYNC',$1)", [
-      { sanctionId: sanction.sanction_id }
-    ]);
-  }
   if (input.action === 'HIDE' && input.targetType === 'CHAPTER')
     await client.query(
       'update chapters set deleted_at=now(),updated_at=now() where chapter_id=$1',
@@ -138,20 +119,15 @@ export async function applySanction(
     await client.query("insert into admin_jobs(kind,payload) values('COMMENT_SYNC',$1)", [
       { sanctionId: sanction.sanction_id }
     ]);
-  // SRS admin-novel-management §6: the author is told the novel title, the reason and when it was removed.
-  const removedAt: Date = sanction.created_at;
   if (!(input.targetType === 'COMMENT' && input.reviewId))
     await queueAdminNotification(client, {
       userId: ownerId,
       type: 'ADMIN_DECISION',
-      title: removesNovel
-        ? 'Truyện đã bị gỡ bởi Admin'
-        : input.action === 'WARN'
+      title:
+        input.action === 'WARN'
           ? 'Cảnh báo từ quản trị viên'
           : 'Quyết định quản trị đối với tài khoản/nội dung của bạn',
-      content: removesNovel
-        ? `Truyện "${novelTitle}" đã bị gỡ bởi Admin lúc ${removedAt.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}. Lý do: ${reason}`
-        : reason,
+      content: reason,
       payload: {
         auditId: event,
         sanctionId: sanction.sanction_id,
@@ -159,8 +135,7 @@ export async function applySanction(
         targetType: input.targetType,
         targetId: input.targetId,
         action: input.action,
-        appealsUrl: '/appeals',
-        ...(removesNovel ? { novelTitle, reason, removedAt: removedAt.toISOString() } : {})
+        appealsUrl: '/appeals'
       }
     });
   return sanction;
@@ -199,15 +174,6 @@ export async function restoreSanction(
       row.target_id,
       row.previous_state.deletedAt ?? null
     ]);
-    if (row.target_type === 'NOVEL') {
-      await client.query(
-        'update chapters set deleted_at=null,updated_at=now() where chapter_id=any($1::uuid[])',
-        [row.previous_state.chapterIds ?? []]
-      );
-      await client.query("insert into admin_jobs(kind,payload) values('NOVEL_DRAFT_SYNC',$1)", [
-        { sanctionId: row.sanction_id }
-      ]);
-    }
   }
   await client.query(
     'update admin_sanctions set active=false,restored_at=now(),restored_by=$2 where sanction_id=$1',

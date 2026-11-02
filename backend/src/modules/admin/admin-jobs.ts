@@ -18,7 +18,7 @@ const notificationPayload = z.object({
   content: z.string(),
   payload: z.record(z.unknown()).optional()
 });
-const sanctionPayload = z.object({ sanctionId: z.string().uuid() });
+const commentPayload = z.object({ sanctionId: z.string().uuid() });
 
 export async function queueAdminNotification(
   client: PoolClient,
@@ -31,32 +31,6 @@ export async function queueAdminNotification(
   }
 ) {
   await client.query("insert into admin_jobs(kind,payload) values('NOTIFY',$1)", [input]);
-}
-
-// Drafts follow the novel sanction: archived while it is active, restored once it is lifted. Only drafts tagged
-// with this sanction come back, so drafts the author had already deleted stay deleted. Both branches are idempotent.
-async function syncNovelDrafts(client: PoolClient, payload: unknown) {
-  const sanction = (
-    await client.query("select * from admin_sanctions where sanction_id=$1 and target_type='NOVEL'", [
-      sanctionPayload.parse(payload).sanctionId
-    ])
-  ).rows[0];
-  if (!sanction) return;
-  const drafts = getMongoDatabase().collection('draft_chapters');
-  const now = new Date();
-  if (sanction.active)
-    await drafts.updateMany(
-      { novelId: sanction.target_id, deletedAt: null },
-      { $set: { deletedAt: now, deletionReason: 'ADMIN_REMOVED', adminSanctionId: sanction.sanction_id, updatedAt: now } }
-    );
-  else
-    await drafts.updateMany(
-      { novelId: sanction.target_id, adminSanctionId: sanction.sanction_id },
-      {
-        $set: { deletedAt: null, deletionReason: null, restoredAt: now, updatedAt: now },
-        $unset: { adminSanctionId: '' }
-      }
-    );
 }
 // Advisory lock serializes job draining across API workers; updates are idempotent.
 export async function drainAdminJobs() {
@@ -79,11 +53,10 @@ export async function drainAdminJobs() {
             ...notificationPayload.parse(job.payload),
             eventKey: `admin-job:${job.job_id}`
           });
-        else if (job.kind === 'NOVEL_DRAFT_SYNC') await syncNovelDrafts(client, job.payload);
         else {
           const sanction = (
             await client.query('select * from admin_sanctions where sanction_id=$1', [
-              sanctionPayload.parse(job.payload).sanctionId
+              commentPayload.parse(job.payload).sanctionId
             ])
           ).rows[0];
           if (sanction) {

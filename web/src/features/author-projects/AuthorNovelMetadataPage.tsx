@@ -15,10 +15,7 @@ import {
   listChapters,
   updateNovel,
   submitNovelPublish,
-  createChapter,
-  CHAPTER_TITLE_MAX,
-  NOVEL_SYNOPSIS_MIN,
-  NOVEL_TITLE_MAX
+  createChapter
 } from '../novels/novel-api';
 import type { Chapter, ChapterStatus } from '../novels/novel-types';
 
@@ -102,9 +99,8 @@ export function AuthorNovelMetadataPage() {
   const updateMutation = useMutation({
     mutationFn: () =>
       updateNovel(novelId, {
-        // Unchanged fields are left out so a legacy title or short synopsis does not block other edits.
-        ...(titleInput !== (novelQuery.data?.title ?? '') ? { title: titleInput } : {}),
-        ...(synopsisInput !== (novelQuery.data?.synopsis ?? '') ? { synopsis: synopsisInput } : {}),
+        title: titleInput,
+        synopsis: synopsisInput,
         authorNote: authorNoteInput.trim() || null,
         genres: genresInput,
         coverImageUrl: coverInput.trim() || null
@@ -781,7 +777,6 @@ export function AuthorNovelMetadataPage() {
                 <input
                   type="text"
                   value={titleInput}
-                  maxLength={NOVEL_TITLE_MAX}
                   onChange={(e) => setTitleInput(e.target.value)}
                   placeholder="Nhập tên tiểu thuyết..."
                   className="w-full px-3 py-2 rounded-lg bg-stone-50 text-stone-900 border border-stone-200 focus:ring-1 focus:ring-primary-500 focus:outline-none text-meta"
@@ -825,7 +820,6 @@ export function AuthorNovelMetadataPage() {
                   placeholder="Tóm tắt nội dung hấp dẫn để thu hút độc giả..."
                   className="w-full px-3 py-2 rounded-lg bg-stone-50 text-stone-900 border border-stone-200 focus:ring-1 focus:ring-primary-500 focus:outline-none text-meta leading-relaxed"
                 />
-                <p className="text-meta text-stone-500">Tối thiểu {NOVEL_SYNOPSIS_MIN} ký tự · hiện có {synopsisInput.trim().length}</p>
               </div>
             </div>
 
@@ -897,7 +891,6 @@ export function AuthorNovelMetadataPage() {
                 <input
                   type="text"
                   value={newChapterTitle}
-                  maxLength={CHAPTER_TITLE_MAX}
                   onChange={(e) => setNewChapterTitle(e.target.value)}
                   placeholder={`Ví dụ: Chương ${chapters.length + 1}: Khởi đầu mới`}
                   className="w-full px-3 py-1.5 rounded-lg bg-stone-50 text-stone-900 border border-stone-200 focus:ring-1 focus:ring-primary-500 focus:outline-none text-meta"
