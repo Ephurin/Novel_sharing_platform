@@ -18,12 +18,14 @@ test('author launch checklist: scheduled publication, profile metadata, notifica
     const pg=await import('../../core/database/postgres.js'), mongo=await import('../../core/database/mongo.js');
     closePostgres=pg.disconnectPostgres; closeMongo=mongo.disconnectMongo; dropMongo=()=>mongo.getMongoDatabase().dropDatabase();
     const pool=pg.getPostgresPool();
-    for(const name of ['001_auth_user_wallet','002_novels','003_chapters','004_content_control','005_reports_description','006_reading_interactions','007_wallet_transactions','008_authoring_context','009_chapter_revisions','010_analysis_outbox','011_outbox_claim_token','012_reports_unique_open','012_novel_engagement','013_novel_review_text','014_novel_editorial_metadata','015_author_workflow','016_author_launch_checklist','017_transactional_moderation_evidence']) await pool.query(await readFile(new URL(`../../core/database/migrations/${name}.sql`,import.meta.url),'utf8'));
+    for(const name of ['001_auth_user_wallet','002_novels','003_chapters','004_content_control','005_reports_description','006_reading_interactions','007_wallet_transactions','008_authoring_context','009_chapter_revisions','010_analysis_outbox','011_outbox_claim_token','012_reports_unique_open','012_novel_engagement','013_novel_review_text','014_novel_editorial_metadata','015_author_workflow','016_author_launch_checklist','017_transactional_moderation_evidence','018_admin_operations','019_admin_job_retries','020_admin_novel_draft_sync']) await pool.query(await readFile(new URL(`../../core/database/migrations/${name}.sql`,import.meta.url),'utf8'));
     const author=randomUUID(),reader=randomUUID(),other=randomUUID(),admin=randomUUID(),outsider=randomUUID();
     for(const [id,role] of [[author,'AUTHOR'],[reader,'READER'],[other,'READER'],[admin,'ADMIN'],[outsider,'AUTHOR']]) {
       await pool.query(`insert into users (user_id,email,username,password_hash,role) values ($1::uuid,$2,$1::text,'hash',$3)`,[id,id+'@test.invalid',role]);
       await pool.query('insert into user_profiles (user_id,display_name) values ($1,$2)',[id,'Account '+role]);
     }
+    // #74: admin routes check admin_access, so the admin needs an explicit scope.
+    await pool.query("insert into admin_access(user_id,scope) values($1,'SUPER_ADMIN')",[admin]);
     const novel=(await pool.query("insert into novels (author_id,title,slug,synopsis,status) values ($1,'Comments','comments','Test synopsis','PUBLISHED') returning novel_id",[author])).rows[0].novel_id;
     const chapter=(await pool.query("insert into chapters (novel_id,chapter_number,title,status) values ($1,1,'Chapter','PUBLISHED') returning chapter_id",[novel])).rows[0].chapter_id;
     const draft=(await pool.query("insert into chapters (novel_id,chapter_number,title,status) values ($1,2,'Draft','DRAFT') returning chapter_id",[novel])).rows[0].chapter_id;
@@ -38,7 +40,9 @@ test('author launch checklist: scheduled publication, profile metadata, notifica
 
     const drafts=await import('../novels/draft-chapters.repository.js');await drafts.ensureDraftChapterIndexes();
     const scheduler=await import('../novels/chapter-schedules.js');
-    const create=async(content='Scheduled text')=>{const r=await req('/novels/'+novel+'/chapters','POST',{title:'Scheduled chapter',content},authorToken);assert.equal(r.status,201);return r.body.data.chapterId as string;};
+    // SRS: a chapter needs at least 500 characters before it can be published.
+    const publishable=(text:string)=>text+' '+'Đoạn văn đủ dài cho luật xuất bản.'.repeat(16);
+    const create=async(content=publishable('Scheduled text'))=>{const r=await req('/novels/'+novel+'/chapters','POST',{title:'Scheduled chapter',content},authorToken);assert.equal(r.status,201);return r.body.data.chapterId as string;};
     const data=async(id:string)=>(await req('/chapters/'+id,'GET',undefined,authorToken)).body.data;
     const plan=async(id:string)=>({scheduledAt:new Date(Date.now()+3600000).toISOString(),expectedVersion:(await data(id)).draft.version});
     const due=async(id:string)=>pool.query("update chapter_publication_schedules set scheduled_at=now()-interval '1 second' where chapter_id=$1",[id]);
@@ -62,7 +66,7 @@ test('author launch checklist: scheduled publication, profile metadata, notifica
     await scheduler.publishDueChapters();assert.equal((await data(id)).status,'DRAFT');
     await due(id);await Promise.all([scheduler.publishDueChapters(),scheduler.publishDueChapters()]);
     assert.equal((await data(id)).status,'PUBLISHED');assert.equal((await data(id)).publicationSchedule.status,'PUBLISHED');
-    assert.equal((await req('/reading/chapters/'+id)).body.data.content,'Scheduled text');
+    assert.equal((await req('/reading/chapters/'+id)).body.data.content,publishable('Scheduled text'));
     await scheduler.publishDueChapters();assert.equal((await pool.query("select count(*)::int as n from notification_events where type='CHAPTER_SCHEDULE'")).rows[0].n,1);
     const cancelled=await create();assert.equal((await req('/chapters/'+cancelled+'/schedule','POST',await plan(cancelled),authorToken)).status,200);
     assert.equal((await req('/chapters/'+cancelled+'/schedule','DELETE',undefined,authorToken)).status,200);await due(cancelled);await scheduler.publishDueChapters();assert.equal((await data(cancelled)).status,'DRAFT');
@@ -72,7 +76,7 @@ test('author launch checklist: scheduled publication, profile metadata, notifica
     // Scheduled publication uses normal moderation and pins the exact submitted version.
     await pool.query("insert into content_filter_rules(name,pattern,category,severity) values('Scheduled rule','flagged-schedule','test','HIGH')");
     // Fault after moderation creation must roll back evidence/review/chapter/outbox.
-    const faulted=await create('flagged-schedule rollback test');
+    const faulted=await create(publishable('flagged-schedule rollback test'));
     await req('/chapters/'+faulted+'/schedule','POST',await plan(faulted),authorToken);await due(faulted);
     const evidenceCount=(await pool.query('select count(*)::int as n from moderation_evidence')).rows[0].n;
     const mongoEvidenceCount=await mongo.getMongoDatabase().collection('moderation_evidence').countDocuments({targetId:faulted});
@@ -94,22 +98,22 @@ test('author launch checklist: scheduled publication, profile metadata, notifica
     const faultReview=(await pool.query('select evidence_id from moderation_reviews where target_id=$1',[faulted])).rows[0];
     const evidenceRepo=await import('../content-control/moderation-evidence.repository.js');
     assert.ok((await evidenceRepo.findModerationEvidence(faultReview.evidence_id)).matchedRules.includes('Scheduled rule'));
-    const moderated=await create('flagged-schedule original content');
+    const moderated=await create(publishable('flagged-schedule original content'));
     await req('/reports','POST',{targetType:'CHAPTER',targetId:moderated,reason:'Separate report workflow'},readerToken);
     await req('/chapters/'+moderated+'/schedule','POST',await plan(moderated),authorToken);await due(moderated);await scheduler.publishDueChapters();
     const pending=await data(moderated);assert.equal(pending.status,'PENDING_MODERATION');assert.equal(pending.publicationSchedule.status,'PENDING_MODERATION');
     const review=(await pool.query('select moderation_review_id from chapter_publication_schedules where chapter_id=$1',[moderated])).rows[0].moderation_review_id;
     await req('/chapters/'+moderated,'PATCH',{content:'Unreviewed new draft',expectedVersion:pending.draft.version},authorToken);
     assert.equal((await req('/admin/moderation/reviews/'+review+'/resolve','POST',{decision:'APPROVED'},adminToken)).status,200);
-    const approved=await data(moderated);assert.equal(approved.content,'flagged-schedule original content');assert.equal(approved.draft.content,'Unreviewed new draft');assert.equal(approved.publicationSchedule.status,'PUBLISHED');
+    const approved=await data(moderated);assert.equal(approved.content,publishable('flagged-schedule original content'));assert.equal(approved.draft.content,'Unreviewed new draft');assert.equal(approved.publicationSchedule.status,'PUBLISHED');
     // An older review cannot overwrite a newer version that has already passed publication.
-    const stale=await create('flagged-schedule stale submission');await req('/chapters/'+stale+'/schedule','POST',await plan(stale),authorToken);await due(stale);await scheduler.publishDueChapters();
+    const stale=await create(publishable('flagged-schedule stale submission'));await req('/chapters/'+stale+'/schedule','POST',await plan(stale),authorToken);await due(stale);await scheduler.publishDueChapters();
     const staleDraft=await data(stale);const oldReview=(await pool.query('select moderation_review_id from chapter_publication_schedules where chapter_id=$1',[stale])).rows[0].moderation_review_id;
     assert.equal((await req('/chapters/'+stale+'/archive','POST',{},authorToken)).status,409);
-    await req('/chapters/'+stale,'PATCH',{content:'Clean new version',expectedVersion:staleDraft.draft.version},authorToken);
+    await req('/chapters/'+stale,'PATCH',{content:publishable('Clean new version'),expectedVersion:staleDraft.draft.version},authorToken);
     assert.equal((await req('/chapters/'+stale+'/submit-publish','POST',{},authorToken)).status,200);
     assert.equal((await req('/admin/moderation/reviews/'+oldReview+'/resolve','POST',{decision:'APPROVED'},adminToken)).status,409);
-    assert.equal((await data(stale)).content,'Clean new version');assert.equal((await data(stale)).publicationSchedule.status,'CANCELLED');
+    assert.equal((await data(stale)).content,publishable('Clean new version'));assert.equal((await data(stale)).publicationSchedule.status,'CANCELLED');
     // New reader interactions and income each create durable, recipient-scoped events.
     assert.equal((await req('/novels/'+novel+'/rating','PUT',{score:8,review:'Reader review'},readerToken)).status,200);
     await req('/novels/'+novel+'/rating','PUT',{score:8,review:'Reader review'},readerToken);
