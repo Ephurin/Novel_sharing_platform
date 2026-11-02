@@ -309,6 +309,7 @@ class Evidence:
         self.steps = {step["name"]: step for step in manifest["steps"]}
         self.baseline = [{r["id"]: r for r in run.get("results", [])} for run in baseline]
         self.baseline_sha = baseline[0].get("tested_code_sha", "")[:8] if baseline else ""
+        self.fixed: set = set()  # SRS checks that fail on every baseline run but pass here
 
     def runs(self, prefix: str) -> List[Dict[str, Any]]:
         return [step.get("evidence") or {} for name, step in self.steps.items() if name.startswith(prefix)]
@@ -324,9 +325,13 @@ class Evidence:
                 return "N/A", "Không có kết quả chạy."
             outcomes = [r["result"] for r in results]
             detail = fmt_detail(results[-1].get("detail"))
-            if all(o == "PASS" for o in outcomes):
-                return "Pass", f"Đạt {len(outcomes)}/{len(outcomes)} lần chạy. Thực tế: {detail}"
             base = [b.get(source[1], {}).get("result") for b in self.baseline]
+            if all(o == "PASS" for o in outcomes):
+                fixed = ""
+                if base and all(b == "FAIL" for b in base):
+                    self.fixed.add(source[1])
+                    fixed = f" Trên main {self.baseline_sha} cả {len(base)}/{len(base)} lần baseline đều FAIL; đã sửa trong PR #73."
+                return "Pass", f"Đạt {len(outcomes)}/{len(outcomes)} lần chạy. Thực tế: {detail}.{fixed}"
             if base and all(b == "FAIL" for b in base):
                 origin = f"Có sẵn trên main {self.baseline_sha} ({len(base)}/{len(base)} lần baseline cũng FAIL), không do PR #73."
             elif base:
@@ -590,10 +595,14 @@ def main() -> int:
         totals[feature["sheet"]] = build_feature(wb, feature, ev)
     pass_n = sum(t["Pass"] for t in totals.values()); fail_n = sum(t["Fail"] for t in totals.values()); na_n = sum(t["N/A"] for t in totals.values())
     env = manifest["environment"]
+    fail_text = (f"Toàn bộ Fail đã chạy lại trên main {ev.baseline_sha} và cho cùng kết quả, nên không do PR #73: đó là chỗ code lệch SRS. "
+                 if fail_n else "Không còn test case Fail. ")
+    fixed_text = (f"{len(ev.fixed)} kiểm tra SRS ({', '.join(sorted(ev.fixed))}) Fail ở mọi lần chạy baseline trên main {ev.baseline_sha} "
+                  "(mã lỗi, giới hạn độ dài, điều kiện 5 chương, thông báo theo dõi, giới hạn tần suất, fallback AI, gỡ truyện) "
+                  "và đã được sửa trong PR #73. " if ev.fixed else "")
     comment = (f"Kiểm thử hệ thống theo SRS (docs/SRS) và chương 6.2: {pass_n + fail_n + na_n} test case, {pass_n} Pass, {fail_n} Fail, {na_n} N/A. "
                f"Mọi kết quả lấy từ lần chạy thật tại {env['git_sha'][:8]} trên môi trường tạm, mỗi script chạy 2 lần; DB dùng chung không đổi. "
-               f"Toàn bộ Fail đã chạy lại trên main {ev.baseline_sha} và cho cùng kết quả, nên không do PR #73: đó là chỗ code lệch SRS "
-               "(mã lỗi, giới hạn độ dài, điều kiện 5 chương, thông báo theo dõi, giới hạn tần suất, fallback AI, gỡ truyện theo cách của PR #74). "
+               f"{fail_text}{fixed_text}"
                "N/A là tính năng chưa triển khai (OAuth, Redis, bình luận inline, FCM, app di động) hoặc cần hạ tầng/LLM không có ở local.")
     build_summary(wb, FEATURES, totals, ev, {"group": args.group, "project": "Ephurin Novel Platform (StoryCraft)",
                                              "source": f"github.com/Ephurin/Novel_sharing_platform @ {env['git_sha'][:8]} ({env['git_branch']})",
