@@ -139,7 +139,7 @@ FEATURES: List[Dict[str, Any]] = [
                 ("NOV_03", "Tạo truyện (TC-NOV-01)", "Gửi tạo truyện hợp lệ", "Trạng thái DRAFT", "tiêu đề SRS Novel *, tóm tắt > 500 ký tự", ("srs", "TC-NOV-01")),
                 ("NOV_04", "Tiêu đề 255 ký tự (TC-NOV-02)", "Tạo truyện với tiêu đề 255 ký tự", "Từ chối (SRS: tiêu đề < 255 ký tự)", "title = 'T' × 255", ("srs", "TC-NOV-02")),
                 ("NOV_05", "Tóm tắt dưới 500 ký tự (TC-NOV-03)", "Tạo truyện với tóm tắt ngắn", "Từ chối", "synopsis 18 ký tự", ("srs", "TC-NOV-03")),
-                ("NOV_06", "Gửi xuất bản khi dưới 5 chương (TC-NOV-04)", "Truyện có 2 chương nháp → submit-publish", "Bị chặn", "2 chương nháp", ("srs", "TC-NOV-04")),
+                ("NOV_06", "Gửi xuất bản khi dưới 5 chương (TC-NOV-04)", "Truyện có 1 chương nháp hợp lệ → submit-publish", "Bị chặn (422), truyện giữ DRAFT", "1 chương nháp ≥ 500 ký tự", ("srs", "TC-NOV-04")),
                 ("NOV_07", "Tiêu đề chương 100 ký tự (TC-NOV-05)", "Tạo chương với tiêu đề 100 ký tự", "Từ chối (SRS: < 100 ký tự)", "title = 'C' × 100", ("srs", "TC-NOV-05")),
                 ("NOV_08", "Chương dưới 500 ký tự (TC-NOV-06)", "Tạo chương ngắn → submit-publish", "Không được xuất bản", "nội dung 18 ký tự", ("srs", "TC-NOV-06")),
                 ("NOV_09", "Độc giả tạo truyện (TC-NOV-13)", "reader04 gửi tạo truyện", "403", "reader04", ("srs", "TC-NOV-13")),
