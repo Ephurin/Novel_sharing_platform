@@ -15,7 +15,7 @@ Nhãn phân loại:
 | PR #73 (giao diện) | `4983d6a` | 60/71 × 2 | `docs/development/PR73-REVIEW-R3/pr73-head/` |
 | `main`, runner cũ | `06ecfbb` | 60/71 × 2 | `docs/development/PR73-REVIEW-R3/main-baseline/` |
 | `main`, runner đã chỉnh `TC-AI-06` và `TC-ADM-03/06` | `06ecfbb` | 60/71 × 2 | `docs/development/SRS-BACKEND-R1/main-baseline/` |
-| Nhánh sửa | xem `docs/development/SRS-BACKEND-R1/README.md` | | `docs/development/SRS-BACKEND-R1/pr-head/` |
+| Nhánh sửa `fix/srs-backend-rules` | `4d89f0a` | 71/71 × 2 | `docs/development/SRS-BACKEND-R1/pr-head/` |
 
 ## Bảng phân loại
 
