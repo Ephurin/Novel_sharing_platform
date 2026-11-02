@@ -7,6 +7,9 @@ import type { AuthContext } from '../../core/security/auth-context.js';
 import { slugify } from '../../core/utils/slug.js';
 import { checkContent } from '../content-control/content-control.service.js';
 import type { CreateNovelInput, ListNovelsInput, UpdateNovelInput } from './novels.schemas.js';
+import { CHAPTER_CONTENT_MIN, CHAPTER_TITLE_MAX } from './chapters.schemas.js';
+import { listChaptersByNovelId } from './chapters.repository.js';
+import { findDraftChapterByChapterId } from './draft-chapters.repository.js';
 import {
   createNovel as createNovelRow,
   findNovelById,
@@ -30,8 +33,11 @@ function assertNovelOwner(novel: { authorId: string }, auth: AuthContext) {
   }
 }
 
+// novels.slug is varchar(255); keep room for the 9-character suffix so a long title cannot overflow it.
+const SLUG_BASE_MAX = 200;
+
 function makeUniqueSlug(title: string) {
-  const baseSlug = slugify(title) || 'novel';
+  const baseSlug = slugify(title).slice(0, SLUG_BASE_MAX).replace(/-+$/, '') || 'novel';
   return `${baseSlug}-${randomUUID().slice(0, 8)}`;
 }
 
@@ -113,12 +119,33 @@ export async function deleteNovel(auth: AuthContext, novelId: string) {
   await softDeleteNovel(novelId);
 }
 
+// SRS novel-chapter-service §1: a novel needs five valid chapters before its publish request.
+export const INITIAL_PUBLISH_MIN_CHAPTERS = 5;
+
+async function countPublishReadyChapters(novelId: string) {
+  let ready = 0;
+  for (const chapter of await listChaptersByNovelId(novelId)) {
+    const draft = await findDraftChapterByChapterId(chapter.chapterId);
+    const title = draft?.title ?? chapter.title;
+    const content = draft?.content ?? chapter.content ?? '';
+    if (title.length <= CHAPTER_TITLE_MAX && content.trim().length >= CHAPTER_CONTENT_MIN) ready += 1;
+  }
+  return ready;
+}
+
 export async function submitPublish(auth: AuthContext, novelId: string) {
   const novel = await getNovel(novelId);
   assertNovelOwner(novel, auth);
 
   if (!['DRAFT', 'REJECTED', 'PENDING_MODERATION'].includes(novel.status)) {
     throw new AppError(409, 'CONTENT_004', 'Invalid content state');
+  }
+
+  const readyChapters = await countPublishReadyChapters(novelId);
+  if (readyChapters < INITIAL_PUBLISH_MIN_CHAPTERS) {
+    throw new AppError(422, 'VALIDATION_002',
+      `Truyện cần ít nhất ${INITIAL_PUBLISH_MIN_CHAPTERS} chương hợp lệ (tiêu đề dưới ${CHAPTER_TITLE_MAX + 1} ký tự, nội dung từ ${CHAPTER_CONTENT_MIN} ký tự) trước khi gửi xuất bản.`,
+      { readyChapters, requiredChapters: INITIAL_PUBLISH_MIN_CHAPTERS });
   }
 
   const moderation = await checkContent({
