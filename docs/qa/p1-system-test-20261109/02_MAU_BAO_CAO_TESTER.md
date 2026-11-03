@@ -23,7 +23,7 @@
 - Provider models đúng phiên: text __, embedding __ / NOT_RUN
 - Tài khoản mã hóa: QA-A/QA-B, tuyệt đối không ghi email/mật khẩu
 - Novel aliases / chapter ids đã rút gọn:
-- Dataset ZIP SHA256: 915e14652b2a0b9a2d6e078cb37e89a99148324ee9668f31574f0dd67d057c8b
+- Dataset ZIP SHA256: b8b49dc647ef84fa870f1731cefda5e294efb1f60595a81b254940794fe3e820
 - Báo cáo này có trích xuất dữ liệu private? Không / Có (nếu Có phải ẩn trước push)
 
 ## B. Môi trường khởi động
