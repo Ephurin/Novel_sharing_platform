@@ -29,7 +29,7 @@ Kỳ vọng: đúng nhánh và $LASTEXITCODE = 0. Sau đó đọc toàn bộ [ru
 
 - **Tester 01:** test hành trình Author (A-01…A-14), import novel 5/8/10 chương, Story Brain/Canon, hồ sơ và Writing draft.
 - **Tester 02:** test lỗi và độ bền (B-01…B-17), truy cập chéo account, autosave 2 tab, stale, bảo mật, và câu hỏi nhớ thông tin xuyên chương.
-- Dữ liệu long-context: **Cửa Bắc và hồi chuông thứ ba** — 10 chương/21.512 từ. Người phụ trách gửi ZIP P1_Long_Context_10_Chapters_21512_Words_QA.zip **riêng**, không tìm file này trên GitHub. SHA256 ZIP: 915e14652b2a0b9a2d6e078cb37e89a99148324ee9668f31574f0dd67d057c8b.
+- Dữ liệu long-context: **Cửa Bắc và hồi chuông thứ ba** — 10 chương/21.512 từ. Người phụ trách gửi ZIP P1_Tester_Long_Context_10_Chapters_No_Gold_Answers.zip **riêng**, không tìm file này trên GitHub. ZIP dành cho tester không chứa file đáp án Gold. SHA256 ZIP: b8b49dc647ef84fa870f1731cefda5e294efb1f60595a81b254940794fe3e820.
 - Hai tester dùng tài khoản AUTHOR và novel riêng; không truy cập hoặc sửa historical QA.
 
 ## Gemini key và phạm vi test
