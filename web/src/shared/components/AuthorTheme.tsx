@@ -50,6 +50,10 @@ export function AuthorDialog({ children, onClose }: PropsWithChildren<{ onClose:
   return <FocusTrap active innerRef={dialogRef}><div role="dialog" aria-modal="true" aria-label="Hộp thoại StoryCraft" className="sc-dialog" tabIndex={-1}><FocusTrap.InitialFocus />{children}</div></FocusTrap>;
 }
 
+/**
+ * Stable, non-visual hook for the signed-in session. Browser tests read the role and username from
+ * here instead of parsing shell text, so they keep working across shell redesigns.
+ */
 export function SessionMarker({ role, username }: { role: string; username: string }) {
   return <span hidden data-testid="shell-session" data-user-role={role} data-username={username} />;
 }

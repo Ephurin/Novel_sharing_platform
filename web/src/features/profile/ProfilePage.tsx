@@ -13,6 +13,56 @@ import { donateToAuthor } from '../wallet/wallet-api';
 import { followAuthor, unfollowAuthor } from '../reader/reader-api';
 import { getApiErrorMessage } from '../../shared/api/api-client';
 import { LoadingState, ErrorState } from '../../shared/components/PageStates';
+import type { AuthorProfile } from './profile-api';
+
+type WorkSort = 'views' | 'likes' | 'chapters';
+const workSortOptions: Array<{ value: WorkSort; label: string }> = [
+  { value: 'views', label: 'Phổ biến nhất' },
+  { value: 'likes', label: 'Yêu thích nhất' },
+  { value: 'chapters', label: 'Nhiều chương' }
+];
+const serialStatusLabels: Record<string, { label: string; className: string }> = {
+  COMPLETED: { label: 'Hoàn thành', className: 'bg-emerald-50 text-emerald-700' },
+  HIATUS: { label: 'Tạm ngưng', className: 'bg-amber-50 text-amber-700' },
+  ONGOING: { label: 'Đang ra', className: 'bg-primary-50 text-primary-700' }
+};
+
+function AuthorWorkCard({ novel, publicMode }: { novel: AuthorProfile['novels'][number]; publicMode: boolean }) {
+  const status = serialStatusLabels[novel.serialStatus ?? ''] ?? serialStatusLabels.ONGOING;
+  const detailPath = `${publicMode ? '/public' : '/reader'}/novels/${novel.novelId}`;
+  return (
+    <article className="sc-novel-card bg-surface-container-lowest rounded-xl border border-stone-200/90 transition-all flex flex-col justify-between gap-3 group">
+      <div className="flex gap-3 items-start">
+        <Link to={detailPath} className="relative w-[76px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-cover-fallback border border-stone-200/70">
+          {novel.coverImageUrl ? (
+            <img alt={novel.title} src={novel.coverImageUrl} className="w-full h-full object-cover" />
+          ) : (
+            <span className="flex h-full items-center justify-center p-2 text-center text-meta text-white">{novel.title}</span>
+          )}
+        </Link>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-1 mb-1">
+            <span className="text-meta font-medium text-stone-500 truncate">{novel.genre || 'Chưa phân loại'}</span>
+            <span className={`shrink-0 inline-flex items-center rounded-full ${status.className}`}>{status.label}</span>
+          </div>
+          <Link to={detailPath} className="text-body font-bold text-stone-900 line-clamp-2 leading-snug group-hover:text-primary-600 transition-colors" title={novel.title}>
+            {novel.title}
+          </Link>
+          <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-meta text-stone-500">
+            <span className="inline-flex items-center gap-1"><span className="material-symbols-outlined text-[15px] text-primary-600" aria-hidden="true">menu_book</span><strong className="text-stone-800">{(novel.chaptersCount ?? 0).toLocaleString('vi-VN')}</strong> chương</span>
+            <span className="inline-flex items-center gap-1"><span className="material-symbols-outlined text-[15px]" aria-hidden="true">visibility</span><strong className="text-stone-800">{(novel.viewsCount ?? 0).toLocaleString('vi-VN')}</strong></span>
+            <span className="inline-flex items-center gap-1 text-red-700"><span className="material-symbols-outlined text-[15px]" aria-hidden="true">favorite</span><strong>{(novel.likesCount ?? 0).toLocaleString('vi-VN')}</strong></span>
+          </div>
+        </div>
+      </div>
+      <div className="pt-2.5 border-t border-stone-100 flex items-center justify-end">
+        <Link to={detailPath} className="sc-button sc-button-soft">
+          <span className="material-symbols-outlined" aria-hidden="true">auto_stories</span>Xem tác phẩm
+        </Link>
+      </div>
+    </article>
+  );
+}
 
 export function AuthorProfilePage() {
   const { authorId = '' } = useParams();
@@ -37,6 +87,7 @@ export function AuthorProfilePage() {
   const [supportAmount, setSupportAmount] = useState(20);
   const [supportMessage, setSupportMessage] = useState('');
   const [toastMessage, setToastMessage] = useState<{ text: string; isError: boolean } | null>(null);
+  const [workSort, setWorkSort] = useState<WorkSort>('views');
   const queryClient = useQueryClient();
   const targetAuthorId = authorId || currentUser?.userId || '';
 
@@ -71,7 +122,16 @@ export function AuthorProfilePage() {
   const authorAvatar = author?.avatarUrl;
   const availableCoins = walletQuery.data?.coinsBalance ?? 0;
   const displayNovels = author?.novels ?? [];
+  const sortedNovels = [...displayNovels].sort((left, right) => {
+    if (workSort === 'likes') return (right.likesCount ?? 0) - (left.likesCount ?? 0);
+    if (workSort === 'chapters') return (right.chaptersCount ?? 0) - (left.chaptersCount ?? 0);
+    return (right.viewsCount ?? 0) - (left.viewsCount ?? 0);
+  });
+  const authorGenres = [...new Set(displayNovels.map((novel) => novel.genre).filter((genre): genre is string => Boolean(genre)))];
   const isOwnProfile = Boolean(currentUser?.userId && currentUser.userId === targetAuthorId);
+  // Guests reach this page from the public library, so links must not lead into login-only routes.
+  const isGuest = !currentUser;
+  const homePath = isGuest ? '/public' : currentUser.role === 'AUTHOR' || currentUser.role === 'ADMIN' ? '/author/projects' : '/reader';
 
   const handleShare = async () => {
     try {
@@ -104,7 +164,7 @@ export function AuthorProfilePage() {
       <main className="max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-6 flex-1">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-meta text-stone-500">
-          <Link to={currentUser?.role === 'AUTHOR' || currentUser?.role === 'ADMIN' ? '/author/projects' : '/reader'} className="hover:text-stone-900 transition-colors">
+          <Link to={homePath} className="hover:text-stone-900 transition-colors">
             Trang chủ
           </Link>
           <span className="text-stone-300">/</span>
@@ -116,6 +176,7 @@ export function AuthorProfilePage() {
         <AuthorProfileHeader
           author={author}
           isOwnProfile={isOwnProfile}
+          isGuest={isGuest}
           canInteract={currentUser?.status === 'ACTIVE'}
           followingPending={followMutation.isPending}
           onFollow={() => followMutation.mutate()}
@@ -123,48 +184,84 @@ export function AuthorProfilePage() {
           onShare={() => void handleShare()}
         />
 
-        {/* 3. Book Collection (Authentic 3D Book Covers) */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-stone-200/70">
-            <div>
-              <h2 className="font-serif font-bold text-base sm:text-lg text-stone-900">Tác phẩm đã xuất bản</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-5 items-start">
+          {/* Works */}
+          <section className="bg-surface-container-lowest rounded-xl border border-stone-200/80 shadow-2xs p-4 sm:p-5" aria-labelledby="author-works-heading">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 id="author-works-heading" className="text-section-title text-stone-900">Tác phẩm của {authorName}</h2>
+                <p className="text-meta text-stone-500">{displayNovels.length.toLocaleString('vi-VN')} tác phẩm đã xuất bản</p>
+              </div>
+              {displayNovels.length > 1 && (
+                <div className="sc-filter-tabs flex items-center bg-stone-100 p-0.5 rounded-lg text-meta font-medium" role="group" aria-label="Sắp xếp tác phẩm">
+                  {workSortOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setWorkSort(option.value)}
+                      aria-pressed={workSort === option.value}
+                      className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
+                        workSort === option.value ? 'bg-primary-600 text-white font-semibold' : 'text-stone-600 hover:text-stone-900'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
 
-          {/* 4-Column Authentic Book Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-            {displayNovels.length === 0 && <p className="col-span-full text-body text-stone-500">Tác giả chưa có tác phẩm đã xuất bản.</p>}
-            {displayNovels.map((novel) => (
-              <Link key={novel.novelId} to={`/reader/novels/${novel.novelId}`} className="group flex flex-col">
-                <div
-                  className="block relative aspect-[2/3] w-full rounded-r-xl rounded-l-xs overflow-hidden transition-all duration-300  bg-cover-fallback shadow-none group-hover:shadow-none"
-                >
-                  {/* Book Art Image */}
-                  {novel.coverImageUrl ? <img alt={novel.title} src={novel.coverImageUrl} className="w-full h-full object-cover " /> : <div className="w-full h-full flex items-center justify-center text-white text-center p-4 font-serif">{novel.title}</div>}
+            {displayNovels.length === 0 ? (
+              <p className="text-body text-stone-500 py-8 text-center">Tác giả chưa có tác phẩm đã xuất bản.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3">
+                {sortedNovels.map((novel) => (
+                  <AuthorWorkCard key={novel.novelId} novel={novel} publicMode={isGuest} />
+                ))}
+              </div>
+            )}
+          </section>
 
+          {/* Sidebar */}
+          <aside className="flex flex-col gap-4">
+            <section className="bg-surface-container-lowest rounded-xl border border-stone-200/80 shadow-2xs p-4 sm:p-5" aria-labelledby="author-about-heading">
+              <h2 id="author-about-heading" className="text-card-title text-stone-900 flex items-center gap-2 mb-3">
+                <span className="material-symbols-outlined text-primary-600" aria-hidden="true">badge</span>Về tác giả
+              </h2>
+              {author.bio ? (
+                <p className="text-body text-stone-600 whitespace-pre-wrap break-words">{author.bio}</p>
+              ) : (
+                <p className="text-body text-stone-500">Tác giả chưa viết lời giới thiệu.</p>
+              )}
+              {authorGenres.length > 0 && (
+                <div className="mt-4">
+                  <h3 className="text-meta font-semibold uppercase tracking-wider text-stone-500 mb-2">Thể loại sáng tác</h3>
+                  <div className="flex flex-wrap gap-1.5">
+                    {authorGenres.map((genre) => <span key={genre} className="sc-genre-tag">{genre}</span>)}
+                  </div>
                 </div>
+              )}
+            </section>
 
-                {/* Book Details Footer */}
-                <div className="mt-2.5 space-y-1">
-                  <h3
-                    className="block font-serif font-bold text-body text-stone-900 group-hover:text-primary-600 transition-colors leading-snug line-clamp-2"
-                    title={novel.title}
-                  >
-                    {novel.title}
-                  </h3>
-                  <p className="text-meta text-stone-500 font-medium">{novel.genre || 'Chưa phân loại'}</p>
-                  <p className="text-meta text-stone-400 pt-0.5">
-                    {novel.chaptersCount ?? 0} chương • {(novel.viewsCount ?? 0).toLocaleString('vi-VN')} lượt đọc
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+            <section className="bg-surface-container-lowest rounded-xl border border-stone-200/80 shadow-2xs p-4 sm:p-5" aria-labelledby="author-schedule-heading">
+              <h2 id="author-schedule-heading" className="text-card-title text-stone-900 flex items-center gap-2 mb-3">
+                <span className="material-symbols-outlined text-primary-600" aria-hidden="true">calendar_month</span>Lịch ra chương dự kiến
+              </h2>
+              {author.publishingSchedule ? (
+                <>
+                  <p className="rounded-lg bg-primary-50 px-3 py-2.5 text-body font-semibold text-stone-800 whitespace-pre-wrap break-words">{author.publishingSchedule}</p>
+                  <p className="text-meta text-stone-500 mt-2.5">Lịch có thể thay đổi tùy tiến độ của tác giả. Theo dõi để nhận thông báo khi có chương mới.</p>
+                </>
+              ) : (
+                <p className="text-body text-stone-500">Tác giả chưa công bố lịch ra chương.</p>
+              )}
+            </section>
+          </aside>
+        </div>
 
       </main>
 
-      <footer className="sc-author-profile-footer text-meta"><span>© {new Date().getFullYear()} StoryCraft Văn Hoa</span><Link to="/reader">Khám phá tác phẩm</Link></footer>
+      <footer className="sc-author-profile-footer text-meta"><span>© {new Date().getFullYear()} StoryCraft Văn Hoa</span><Link to={isGuest ? '/public' : '/reader'}>Khám phá tác phẩm</Link></footer>
 
       {/* 6. Support Author Modal */}
       {supportModalOpen && (
