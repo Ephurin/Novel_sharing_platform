@@ -66,7 +66,11 @@ Nếu báo branch đã tồn tại, dùng git switch qa/p1-system-test-20261109 
 
 ## 3. Lấy dữ liệu kiểm thử 21.512 từ / 10 chương
 
-Bộ ZIP được người phụ trách chia sẻ riêng, tên: P1_Tester_Long_Context_10_Chapters_No_Gold_Answers.zip; không chứa API key. Đặt **ngoài thư mục Git**, ví dụ Documents\EphurinQAInput.
+**Tệp ZIP chính xác:** `P1_Tester_Long_Context_10_Chapters_No_Gold_Answers.zip` (bản dành cho tester, **không chứa Gold answers**).
+
+**Địa chỉ tải trong cuộc trò chuyện ChatGPT của chủ dự án:** [Tải ZIP dành cho tester](sandbox:/mnt/data/P1_Tester_Long_Context_10_Chapters_No_Gold_Answers.zip).
+
+**Quan trọng:** đường dẫn `sandbox:/...` là tệp đính kèm trong ChatGPT, **không phải địa chỉ công khai trên GitHub** và có thể không mở được khi tester chỉ nhận link tài liệu GitHub. Chủ dự án cần tải ZIP từ ChatGPT rồi **đính kèm trực tiếp file ZIP** vào tin nhắn gửi tester. Không gửi file Gold có đáp án. Đặt ZIP nhận được **ngoài thư mục Git**, ví dụ Documents\EphurinQAInput.
 
 ~~~powershell
 $qaInput = "$env:USERPROFILE\Documents\EphurinQAInput"
