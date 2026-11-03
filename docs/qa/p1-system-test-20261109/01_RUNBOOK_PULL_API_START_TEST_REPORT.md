@@ -66,25 +66,25 @@ Nếu báo branch đã tồn tại, dùng git switch qa/p1-system-test-20261109 
 
 ## 3. Lấy dữ liệu kiểm thử 21.512 từ / 10 chương
 
-Bộ ZIP được người phụ trách chia sẻ riêng, tên: P1_Long_Context_10_Chapters_21512_Words_QA.zip; không chứa API key. Đặt **ngoài thư mục Git**, ví dụ Documents\EphurinQAInput.
+Bộ ZIP được người phụ trách chia sẻ riêng, tên: P1_Tester_Long_Context_10_Chapters_No_Gold_Answers.zip; không chứa API key. Đặt **ngoài thư mục Git**, ví dụ Documents\EphurinQAInput.
 
 ~~~powershell
 $qaInput = "$env:USERPROFILE\Documents\EphurinQAInput"
 New-Item -ItemType Directory -Force $qaInput | Out-Null
 # Tự đặt file ZIP đã nhận vào thư mục trên, sau đó:
-Get-FileHash "$qaInput\P1_Long_Context_10_Chapters_21512_Words_QA.zip" -Algorithm SHA256
-Expand-Archive "$qaInput\P1_Long_Context_10_Chapters_21512_Words_QA.zip" -DestinationPath "$qaInput\extracted" -Force
+Get-FileHash "$qaInput\P1_Tester_Long_Context_10_Chapters_No_Gold_Answers.zip" -Algorithm SHA256
+Expand-Archive "$qaInput\P1_Tester_Long_Context_10_Chapters_No_Gold_Answers.zip" -DestinationPath "$qaInput\extracted" -Force
 ~~~
 
-**Checksum ZIP đúng:** 915e14652b2a0b9a2d6e078cb37e89a99148324ee9668f31574f0dd67d057c8b.
+**Checksum ZIP đúng:** b8b49dc647ef84fa870f1731cefda5e294efb1f60595a81b254940794fe3e820.
 
-Trong bộ giải nén:
+Trong ZIP dành cho tester (không chứa đáp án Gold):
 - MANUSCRIPT_FIRST_05_CHAPTERS.txt: 5 chương (novel QA-05 riêng).
 - MANUSCRIPT_FIRST_08_CHAPTERS.txt: 8 chương (novel QA-08 riêng).
 - MANUSCRIPT_FULL_10_CHAPTERS.txt: 10 chương, khoảng 21.512 từ (novel QA-10 riêng).
 - P1_LONG_CONTEXT_STRESS_PROTOCOL.md: kịch bản đo độ dài.
 - GOLD_RETRIEVAL_QUESTIONS.md: câu hỏi cho Tester 02.
-- GOLD_RETRIEVAL_CASES.csv/json: **đáp án gold; điều phối giữ riêng, không đưa vào prompt hoặc Story Brain trước test**.
+- GOLD_RETRIEVAL_CASES.csv/json: **đáp án Gold chỉ có trong gói quản lý của điều phối, KHÔNG có trong ZIP dành cho tester**; không đưa đáp án vào prompt hoặc Story Brain trước test.
 
 Để đánh giá đúng tăng trưởng 5→8→10: tạo **ba novel độc lập**, không gọi bootstrap mới trên một Story Brain đã active. Các dữ liệu này chưa từng được hệ thống chạy nghiệm thu đầy đủ; không mặc định import/extract sẽ PASS.
 
@@ -226,7 +226,7 @@ Mỗi cấp:
 4. Import rồi reload danh sách; kiểm tra đủ số chương và nội dung đã lưu. Không được có duplicate khi refresh.
 5. Nếu fake pipeline được cấu hình: có thể kiểm trạng thái job/HITL/Canon, nhưng **không chấm chất lượng thật của Gemini**.
 6. Chỉ khi có provider live được phép qua gateway: chạy extraction/candidate review trên novel cô lập, đếm provider dispatch thực ở ledger; không vượt ngân sách được duyệt, không tự bật fallback.
-7. Tester 02 dùng GOLD_RETRIEVAL_QUESTIONS.md hỏi hệ thống tại mốc đúng, ghi câu trả lời, provenance (entity/event/chapter), tình trạng tin đồn vs xác nhận, thứ tự vật phẩm, và identity homonym. Người điều phối chấm bằng GOLD_RETRIEVAL_CASES.csv **sau**, không đưa đáp án vào context.
+7. Tester 02 dùng GOLD_RETRIEVAL_QUESTIONS.md hỏi hệ thống tại mốc đúng, ghi câu trả lời, provenance (entity/event/chapter), tình trạng tin đồn vs xác nhận, thứ tự vật phẩm, và identity homonym. Người điều phối giữ đáp án GOLD_RETRIEVAL_CASES.csv từ gói Gold riêng, chấm **sau**, không đưa đáp án vào context.
 8. Ghi số câu PASS/PARTIAL/FAIL/NOT_RUN; phân biệt lỗi STORAGE, IMPORT, ENTITY_EXTRACTION, CANON_HITL, SEMANTIC_RETRIEVAL, CONTEXT_PACKING, GENERATION và TEST_ENV.
 9. Ghi latencies, progress, số pending proposal, Brain version, số entity/event/fact approved, thiếu đầu ra hay timeout.
 
