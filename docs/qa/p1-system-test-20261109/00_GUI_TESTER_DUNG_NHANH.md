@@ -29,7 +29,7 @@ Kỳ vọng: đúng nhánh và $LASTEXITCODE = 0. Sau đó đọc toàn bộ [ru
 
 - **Tester 01:** test hành trình Author (A-01…A-14), import novel 5/8/10 chương, Story Brain/Canon, hồ sơ và Writing draft.
 - **Tester 02:** test lỗi và độ bền (B-01…B-17), truy cập chéo account, autosave 2 tab, stale, bảo mật, và câu hỏi nhớ thông tin xuyên chương.
-- Dữ liệu long-context: **Cửa Bắc và hồi chuông thứ ba** — 10 chương/21.512 từ. Người phụ trách gửi ZIP P1_Tester_Long_Context_10_Chapters_No_Gold_Answers.zip **riêng**, không tìm file này trên GitHub. ZIP dành cho tester không chứa file đáp án Gold. SHA256 ZIP: b8b49dc647ef84fa870f1731cefda5e294efb1f60595a81b254940794fe3e820.
+- Dữ liệu long-context: **Cửa Bắc và hồi chuông thứ ba** — 10 chương/21.512 từ. **Tải bản ZIP từ cuộc trò chuyện của chủ dự án:** [P1_Tester_Long_Context_10_Chapters_No_Gold_Answers.zip](sandbox:/mnt/data/P1_Tester_Long_Context_10_Chapters_No_Gold_Answers.zip). Đây là link đính kèm nội bộ ChatGPT, không phải URL GitHub công khai; nếu không mở được từ trang GitHub, chủ dự án cần **gửi trực tiếp ZIP dưới dạng file đính kèm**. Bản tester không có Gold answers. SHA256 ZIP: b8b49dc647ef84fa870f1731cefda5e294efb1f60595a81b254940794fe3e820.
 - Hai tester dùng tài khoản AUTHOR và novel riêng; không truy cập hoặc sửa historical QA.
 
 ## Gemini key và phạm vi test
