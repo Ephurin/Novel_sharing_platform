@@ -129,6 +129,13 @@ node --env-file=../backend/.env.example --test tests/author-ide.browser.test.mjs
 Các bài kiểm tra trên không dùng chương đang viết của người dùng.
 # Thanh công cụ gọn và bảng ghi chú
 
+## Vị trí chèn bản thảo AI
+
+- Vùng chọn và con trỏ dùng offset Unicode code point ở API; Studio chuyển đổi từ/to UTF-16 khi gửi yêu cầu và khôi phục con trỏ sau khi chấp nhận.
+- Repository PostgreSQL của AI lưu con trỏ vào metadata riêng `_selection_cursor` vì bảng hiện hữu chỉ có `selection_start`/`selection_end`. Metadata này được tách khỏi `context_summary` trả ra API. Tác vụ cũ thiếu con trỏ dùng `selection_end`, không mặc định về đầu chương.
+- Luồng tạo và đọc tác vụ kiểm tra vị trí patch khớp vùng chọn hoặc con trỏ. Gợi ý cũ sinh sai offset bị đánh dấu `PATCH_SELECTION_MISMATCH` khi đọc, không sửa lịch sử đã lưu; cần tạo gợi ý mới.
+- Kiểm tra hồi quy: `python -m pytest tests/test_writing_cursor_persistence.py` trong `ai-service`, dùng SQLite riêng với ORM PostgreSQL để kiểm tra round-trip lưu/tải và xử lý nền. Kiểm tra phía Studio: `node --test tests/author-ide-caret.browser.test.mjs` trong `web`.
+
 - Giữ nguyên thanh đầu tiên (Tủ truyện, Story Brain, AI, xuất bản chương). Hàng menu và cài đặt chương dùng chung một hàng trên desktop; **Lên lịch** và icon **Lịch sử bản thảo** nằm cạnh Miễn phí/VIP. Trong chế độ Tập trung, hai lệnh vẫn có trong **Tệp**, cùng với Xuất bản thảo. Tìm/Thay thế nằm trong **Chỉnh sửa**; cảnh, xem bản định dạng và thống kê nằm trong **Xem**.
 - **Ghi chú** mở bảng bên phải, không đẩy vùng viết xuống. Trên màn hình nhỏ bảng nổi lên ở mép phải và có nút đóng. Hai tab **Theo đoạn** và **Sổ tay chương** dùng lại ghi chú đã lưu, không di chuyển hoặc xóa dữ liệu cũ.
 - Chọn đoạn, bấm chuột phải → **Thêm ghi chú đoạn** hoặc Ctrl/Cmd+Alt+M. Có thể tìm ghi chú, lọc đang mở/đã xử lý/tất cả/đoạn đã thay đổi, tới đoạn và gắn lại vùng chọn. Bảng này là ghi chú riêng trên trình duyệt, không phải nhận xét cộng tác hoặc thông báo cho người khác.

@@ -239,7 +239,7 @@ class WritingService:
 
         if idempotency_key:
             try:
-                existing = self._repository.get_writing_job(job_id)
+                existing = self.get_generation(job_id)
                 if existing:
                     if existing.input_hash and existing.input_hash != input_hash:
                         raise IdempotencyConflictError(
@@ -297,7 +297,7 @@ class WritingService:
                 f"Story brain version conflict: expected {expected_brain_version}, found {current_version}"
             )
 
-        selection_with_meta = dict(selection)
+        selection_with_meta = {**selection, "start": start, "end": end, "cursor": cursor}
         if source_text is not None:
             selection_with_meta["source_text"] = source_text
         if base_content_length is not None:
@@ -335,9 +335,34 @@ class WritingService:
 
         return saved_job
 
+    @staticmethod
+    def _patch_matches_selection(patch: WritingPatch, selection: dict[str, int]) -> bool:
+        start = selection.get("start", 0)
+        end = selection.get("end", start)
+        cursor = selection.get("cursor", end)
+        return (patch.start, patch.end) in {(start, end), (cursor, cursor)}
+
+    @staticmethod
+    def _selection_mismatch() -> ValidationResult:
+        return ValidationResult(
+            validator="patch_selection", passed=False, code="PATCH_SELECTION_MISMATCH",
+            message="Vị trí chèn của gợi ý AI không khớp với con trỏ hoặc vùng chọn. Hãy tạo lại gợi ý.",
+        )
+
+    def get_generation(self, job_id: str) -> WritingGenerationJob:
+        job = self._repository.get_writing_job(job_id)
+        # Recheck old completed jobs too, so an already-open suggestion cannot
+        # apply an offset produced by the former cursor-loss bug.
+        if job.status == "completed" and job.patch and not self._patch_matches_selection(job.patch, job.selection):
+            validations = job.validations
+            if not any(item.code == "PATCH_SELECTION_MISMATCH" for item in validations):
+                validations += (self._selection_mismatch(),)
+            return replace(job, validation_status="failed", validations=validations)
+        return job
+
     def process_generation(self, job_id: str) -> WritingGenerationJob:
         """Process queued writing job: retrieve context, call LLM, run validations, update state."""
-        job = self._repository.get_writing_job(job_id)
+        job = self.get_generation(job_id)
         if job.status == "completed":
             return job
 
@@ -474,7 +499,7 @@ class WritingService:
             llm_result = self._llm_service.generate_writing_draft(
                 operation=job.operation,
                 selected_text=selected_text,
-                cursor_offset=job.selection.get("cursor", 0),
+                cursor_offset=job.selection.get("cursor", job.selection.get("end", 0)),
                 start_offset=job.selection.get("start"),
                 end_offset=job.selection.get("end"),
                 instruction=job.instruction,
@@ -540,6 +565,9 @@ class WritingService:
             instruction=job.instruction,
             base_content_length=base_len,
         )
+
+        if not self._patch_matches_selection(patch, job.selection):
+            validations.append(self._selection_mismatch())
 
         validation_status = "passed" if all(v.passed for v in validations) else "failed"
 
