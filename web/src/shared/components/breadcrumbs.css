@@ -1,0 +1,12 @@
+.sc-breadcrumbs { min-width: 0; max-width: 100%; color: var(--sc-text-muted); font: 500 12px/18px var(--sc-font); }
+.sc-breadcrumbs ol { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; list-style: none; margin: 0; padding: 0; }
+.sc-breadcrumbs li { display: inline-flex; align-items: center; gap: 4px; min-width: 0; max-width: 100%; }
+.sc-breadcrumbs a, .sc-breadcrumbs [aria-current="page"] { display: block; min-width: 0; max-width: 48ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sc-breadcrumbs a { color: var(--sc-text-muted); text-decoration: none; transition: color 150ms; }
+.sc-breadcrumbs a:hover { color: var(--sc-primary-text); }
+.sc-breadcrumbs [aria-current="page"] { color: var(--sc-text); font-weight: 600; }
+.sc-breadcrumbs .material-symbols-outlined { flex-shrink: 0; font-size: 16px; color: var(--sc-text-muted); }
+.sc-breadcrumbs.is-compact ol { flex-wrap: nowrap; }
+.sc-breadcrumbs.is-compact li { min-width: 0; }
+.sc-breadcrumbs.is-compact a { max-width: 160px; }
+.sc-breadcrumbs.is-compact [aria-current="page"] { max-width: 200px; }

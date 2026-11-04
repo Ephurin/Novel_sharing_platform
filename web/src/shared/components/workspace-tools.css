@@ -1,6 +1,13 @@
 .sc-workspace-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .sc-filter-presets, .sc-column-settings { margin: 8px 0 12px; color: var(--sc-text-muted); font: 400 12px/18px var(--sc-font); }
 .sc-filter-presets summary, .sc-column-settings summary { cursor: pointer; width: fit-content; padding: 4px 0; }
+.sc-filter-presets-trigger { display: inline-flex; align-items: center; gap: 4px; min-height: 26px; padding: 0; border: 0; background: transparent; color: var(--sc-text-muted); font: 400 12px/18px var(--sc-font); cursor: pointer; }
+.sc-filter-presets-trigger .material-symbols-outlined { font-size: 16px; transition: transform 150ms; }
+.sc-filter-presets-trigger[aria-expanded="true"] .material-symbols-outlined { transform: rotate(90deg); }
+.sc-filter-presets.sc-filter-presets-popover { z-index: 100; width: 380px; max-width: calc(100vw - 32px); max-height: min(420px, var(--radix-popover-content-available-height)); overflow-y: auto; margin: 0; padding: 16px; border: 1px solid var(--sc-border); border-radius: 10px; background: var(--sc-surface-elevated); box-shadow: 0 8px 24px var(--sc-overlay); }
+.sc-filter-presets-help { margin: 0 0 12px; }
+.sc-filter-presets-popover form input { min-width: 0; flex: 1; }
+.sc-filter-presets-popover :focus-visible, .sc-filter-presets-trigger:focus-visible { outline: 2px solid var(--sc-focus-ring); outline-offset: 2px; }
 .sc-filter-presets form { margin-top: 8px; }
 .sc-filter-presets input, .sc-filter-presets button, .sc-column-settings button, .sc-workspace-button { min-height: 32px; border: 1px solid var(--sc-border); border-radius: 6px; padding: 4px 10px; background: var(--sc-surface); color: var(--sc-text); font: 500 12px/18px var(--sc-font); }
 .sc-filter-presets button, .sc-column-settings button, .sc-workspace-button { cursor: pointer; }

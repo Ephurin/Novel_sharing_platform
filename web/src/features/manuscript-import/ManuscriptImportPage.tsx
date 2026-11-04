@@ -6,6 +6,8 @@ import { AnimatedProgress } from '../../shared/components/AnimatedProgress';
 import { AnimatedCheckbox } from '../../shared/components/AnimatedCheckIcon';
 import { useToast } from '../../shared/components/ToastProvider';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
+import { authorHomeCrumb } from '../../shared/components/navigation';
 import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -435,27 +437,7 @@ export function ManuscriptImportPage() {
         <div className="max-w-7xl mx-auto px-4 lg:px-8 py-5 flex flex-col gap-5">
           {/* Breadcrumb & Back Link */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
-            <nav
-              aria-label="Breadcrumb"
-              className="flex items-center gap-1.5 text-meta text-stone-500 flex-wrap"
-            >
-              <Link to="/author" className="hover:text-primary-600 transition-colors">
-                Bảng làm việc
-              </Link>
-              <span className="material-symbols-outlined text-[15px] text-stone-400">chevron_right</span>
-              <Link to="/author" className="hover:text-primary-600 transition-colors">
-                Tác phẩm của tôi
-              </Link>
-              <span className="material-symbols-outlined text-[15px] text-stone-400">chevron_right</span>
-              <Link
-                to={`/author/novels/${novelId}`}
-                className="hover:text-primary-600 transition-colors font-medium text-stone-700"
-              >
-                {novel?.title || 'Tác phẩm'}
-              </Link>
-              <span className="material-symbols-outlined text-[15px] text-stone-400">chevron_right</span>
-              <span className="text-primary-600 font-semibold">Nhập bản thảo</span>
-            </nav>
+            <Breadcrumbs items={[authorHomeCrumb, { label: novel?.title || 'Tác phẩm', to: `/author/novels/${novelId}` }, { label: 'Nhập bản thảo' }]} />
             <Link
               to={`/author/novels/${novelId}`}
               className="inline-flex items-center gap-1.5 text-meta text-primary-600 hover:text-primary-700 transition-colors group font-medium"

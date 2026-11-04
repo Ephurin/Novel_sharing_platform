@@ -1,8 +1,9 @@
 import { AnimatedNumber } from '../../shared/components/AuthorAdminMotion';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { navigationLabels } from '../../shared/components/navigation';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   completeMockDeposit,
   createDepositSession,
@@ -42,6 +43,7 @@ export function WalletPage() {
   const queryClient = useQueryClient();
   const user = useAuthStore((state: any) => state.user);
   const animateAuthor = user?.role === 'AUTHOR' || user?.role === 'ADMIN';
+  const pageTitle = animateAuthor ? navigationLabels.authorWallet : navigationLabels.readerWallet;
 
   // Queries
   const walletQuery = useQuery({ queryKey: ['wallet'], queryFn: getWallet });
@@ -267,16 +269,9 @@ export function WalletPage() {
               {/* 1. Page Header Section */}
               <section className="flex flex-col md:flex-row md:items-end justify-between gap-3 pt-1">
                 <div className="flex flex-col gap-0.5">
-                  <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-outline font-label-md text-meta">
-                    <Link to="/author/projects" className="hover:text-primary transition-colors">
-                      Trang chủ
-                    </Link>
-                    <span className="text-outline-variant">/</span>
-                    <span className="text-primary font-medium">Ví &amp; doanh thu</span>
-                  </nav>
                   <div className="flex items-baseline gap-2 mt-0.5">
                     <h1 className="font-headline-lg text-2xl text-on-surface font-serif font-bold tracking-tight">
-                      Ví &amp; Doanh Thu
+                      {pageTitle}
                     </h1>
                   </div>
                 </div>

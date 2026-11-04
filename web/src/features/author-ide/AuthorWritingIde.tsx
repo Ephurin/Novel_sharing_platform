@@ -4,6 +4,8 @@ import { SaveStatus } from '../../shared/components/SaveFeedback';
 import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
 import { StudioWorkbench } from './StudioWorkbench';
 import { StudioNumberField } from './StudioNumberField';
+import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
+import { authorHomeCrumb, navigationLabels } from '../../shared/components/navigation';
 import { AnimatedTooltip } from '../../shared/components/AnimatedTooltip';
 import { useStudioHistory } from './useStudioHistory';
 import { revealStudioSelection } from './studio-tools';
@@ -874,29 +876,16 @@ export function AuthorWritingIde() {
         {/* Left: Return link, Breadcrumb & Autosave indicator */}
         <div className="flex items-center gap-2.5 min-w-0">
           <Link
-            to={activeNovelId ? `/author/novels/${activeNovelId}` : '/author'}
+            to={activeNovelId ? `/author/novels/${activeNovelId}` : authorHomeCrumb.to}
             className="inline-flex items-center gap-1 text-meta font-medium text-stone-500 hover:text-stone-900 transition-colors py-1 px-2 rounded-md hover:bg-stone-200/60 shrink-0"
-            title="Quay lại danh sách tác phẩm"
+            title={activeNovelId ? 'Quay lại quản lý tác phẩm' : `Quay lại ${navigationLabels.authorHome}`}
+            aria-label={activeNovelId ? 'Quay lại quản lý tác phẩm' : `Quay lại ${navigationLabels.authorHome}`}
           >
             <span className="material-symbols-outlined text-[16px]">arrow_back</span>
-            <span className="hidden sm:inline">Tủ truyện</span>
+            <span className="hidden sm:inline">{activeNovelId ? 'Tác phẩm' : navigationLabels.authorHome}</span>
           </Link>
           <div className="h-3.5 w-px bg-stone-300 shrink-0"></div>
-          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-meta text-stone-500 truncate">
-            <span
-              onClick={() => navigate(activeNovelId ? `/author/novels/${activeNovelId}` : '/author')}
-              className="font-medium text-stone-600 hover:text-stone-900 cursor-pointer truncate max-w-[130px] md:max-w-[160px]"
-            >
-              {novelQuery.data?.title || 'Đang tải truyện...'}
-            </span>
-            <span className="text-stone-300">/</span>
-            <span
-              className="font-semibold text-stone-900 truncate max-w-[150px] lg:max-w-[200px]"
-              title={title || 'Chương đang soạn'}
-            >
-              {title || 'Chương mới'}
-            </span>
-          </nav>
+          <Breadcrumbs className="is-compact" items={[{ label: novelQuery.data?.title || 'Tác phẩm', to: activeNovelId ? `/author/novels/${activeNovelId}` : authorHomeCrumb.to }, { label: title || 'Chương mới' }]} />
 
           {/* Autosave Indicator */}
           <SaveStatus className="hidden md:inline-flex shrink-0" status={activeChapterId && chapterQuery.data && loadedChapter.current === activeDraftScope ? autosaveStatus : 'idle'} dirty={persistence.dirty} savedAt={lastSavedTime} />

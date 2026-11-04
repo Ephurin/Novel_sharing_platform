@@ -1,0 +1,7 @@
+.sc-project-library-options { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px 20px; }
+.sc-project-library-options > label { display: inline-flex; align-items: center; gap: 6px; min-height: 26px; cursor: pointer; }
+.sc-project-library-options > .sc-filter-presets { max-width: 100%; margin: 0; }
+.sc-project-library-options > .sc-filter-presets[open] { flex-basis: 100%; }
+.sc-project-library-options .sc-workspace-row { margin-top: 6px; }
+.sc-project-library-options .sc-workspace-button { max-width: 100%; overflow-wrap: anywhere; }
+.sc-project-library > .sc-filter-chips { margin: 0; }

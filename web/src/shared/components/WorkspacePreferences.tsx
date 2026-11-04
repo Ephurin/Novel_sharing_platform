@@ -1,6 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState, type Dispatch, type SetStateAction, type PropsWithChildren } from 'react';
 import { useLocation, useNavigationType, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../../features/auth/useAuthStore';
+import { Popover } from '@animate-ui/react/primitives/radix-ui/popover';
+import { useMediaQuery } from '@mantine/hooks';
 import './workspace-tools.css';
 
 type FilterValue = string | number | boolean;
@@ -61,21 +63,32 @@ export function useUrlFilters<T extends Record<string, FilterValue>>(defaults: T
 
 type Preset = { name: string; query: string };
 const presetsValid = (v: unknown): v is Preset[] => Array.isArray(v) && v.length <= 20 && v.every(p => typeof p?.name === 'string' && p.name.length <= 50 && typeof p?.query === 'string' && p.query.length <= 4000);
-export function FilterPresets({ name, fields }: { name: string; fields: string[] }) {
+export function FilterPresets({ name, fields, presentation = 'inline' }: { name: string; fields: string[]; presentation?: 'inline' | 'popover' }) {
   const [params, setParams] = useSearchParams();
   const [presets, setPresets] = useWorkspacePreference<Preset[]>(`filters:${name}`, [], presetsValid);
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
-  return <details className="sc-filter-presets"><summary>Bộ lọc đã lưu{presets.length ? ` (${presets.length})` : ''}</summary>
+  const [opened, setOpened] = useState(false);
+  const compact = useMediaQuery('(max-width: 767px)');
+  const label = `Bộ lọc đã lưu${presets.length ? ` (${presets.length})` : ''}`;
+  const content = <>
     <div className="sc-workspace-row">{presets.map(preset => <span className="sc-preset" key={preset.name}>
-      <button type="button" onClick={() => { const next = new URLSearchParams(params); fields.forEach(key => next.delete(key)); next.delete('page'); const saved = new URLSearchParams(preset.query); fields.forEach(key => { if (saved.has(key)) next.set(key, saved.get(key)!); }); setParams(next, { replace: true, preventScrollReset: true }); }}>{preset.name}</button>
+      <button type="button" onClick={() => { const next = new URLSearchParams(params); fields.forEach(key => next.delete(key)); next.delete('page'); const saved = new URLSearchParams(preset.query); fields.forEach(key => { if (saved.has(key)) next.set(key, saved.get(key)!); }); setParams(next, { replace: true, preventScrollReset: true }); setOpened(false); }}>{preset.name}</button>
       <button type="button" aria-label={`Xóa bộ lọc đã lưu ${preset.name}`} onClick={() => setPresets(old => old.filter(p => p.name !== preset.name))}>×</button>
     </span>)}</div>
     <form className="sc-workspace-row" onSubmit={event => { event.preventDefault(); const label = title.trim(); if (!label) return; if (presets.length >= 20 && !presets.some(p => p.name === label)) { setMessage('Tối đa 20 bộ lọc. Hãy xóa một bộ lọc trước.'); return; } const query = new URLSearchParams(); fields.forEach(key => { if (params.has(key)) query.set(key, params.get(key)!); }); setPresets(old => [...old.filter(p => p.name !== label), { name: label, query: query.toString() }]); setTitle(''); setMessage('Đã lưu bộ lọc trên trình duyệt này.'); }}>
       <input aria-label="Tên bộ lọc" placeholder="Tên bộ lọc" maxLength={50} value={title} onChange={e => setTitle(e.target.value)} />
       <button type="submit" disabled={!title.trim()}>Lưu bộ lọc</button>
     </form><span role="status" className="text-meta">{message}</span>
-  </details>;
+  </>;
+  if (presentation === 'popover') return <Popover.Root open={opened} onOpenChange={setOpened}>
+    <Popover.Trigger asChild><button type="button" className="sc-filter-presets-trigger"><span className="material-symbols-outlined" aria-hidden="true">chevron_right</span>{label}</button></Popover.Trigger>
+    <Popover.Portal>{opened && <Popover.Content className="sc-filter-presets sc-filter-presets-popover" side={compact ? 'bottom' : 'right'} align="start" alignOffset={compact ? 0 : 32} sideOffset={8} collisionPadding={16} aria-label="Bộ lọc đã lưu">
+      <p className="sc-filter-presets-help">Lưu các điều kiện lọc và thứ tự sắp xếp hiện tại để dùng lại.</p>
+      {content}
+    </Popover.Content>}</Popover.Portal>
+  </Popover.Root>;
+  return <details className="sc-filter-presets"><summary>{label}</summary>{content}</details>;
 }
 
 export function useListScroll(ready: boolean) {

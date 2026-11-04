@@ -9,6 +9,8 @@ import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
 import { chapterSortOptions, sortChapters, type ChapterSort } from './chapter-sorting';
 import { getNovelStatistics } from '../novels/novel-statistics-api';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
+import { authorHomeCrumb, navigationLabels } from '../../shared/components/navigation';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -283,10 +285,10 @@ export function AuthorNovelMetadataPage() {
           Có thể tác phẩm không tồn tại hoặc bạn không có quyền tác giả đối với dự án này.
         </p>
         <Link
-          to="/author"
+          to={authorHomeCrumb.to}
           className="mt-4 px-4 py-2 rounded-lg bg-primary-600 text-white text-meta font-semibold hover:bg-primary-700 transition-colors"
         >
-          Quay lại Bàn làm việc
+          Quay lại {navigationLabels.authorHome}
         </Link>
       </div>
     );
@@ -307,21 +309,7 @@ export function AuthorNovelMetadataPage() {
           {/* Top Breadcrumb & Quick Action Bar (Compact Scale) */}
           <div className="w-full bg-surface-container-lowest border-b border-stone-200/80 shadow-2xs">
             <div className="max-w-7xl mx-auto px-4 lg:px-8 py-1.5 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-1.5 text-meta text-stone-500 min-w-0">
-                <Link
-                  to="/author"
-                  className="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 font-medium shrink-0 transition-colors py-0.5 px-1.5 rounded hover:bg-stone-100"
-                >
-                  <span className="material-symbols-outlined text-[15px]">arrow_back</span>
-                  <span>Bàn làm việc</span>
-                </Link>
-                <span className="text-stone-300">/</span>
-                <Link to="/author" className="hover:text-stone-900 cursor-pointer truncate max-w-[120px] sm:max-w-none text-stone-500">
-                  Tác phẩm của tôi
-                </Link>
-                <span className="text-stone-300">/</span>
-                <span className="text-stone-900 font-semibold truncate max-w-[160px] sm:max-w-[280px] md:max-w-md">{novel.title}</span>
-              </div>
+              <Breadcrumbs items={[authorHomeCrumb, { label: novel.title }]} />
               <div className="flex items-center gap-1.5 shrink-0">
                 <Link to={`/author/novels/${novelId}/comments`} className="sc-button sc-button-soft" title="Bình luận độc giả"><span className="material-symbols-outlined" aria-hidden="true">forum</span><span className="hidden sm:inline">Bình luận</span></Link>
                 <Link

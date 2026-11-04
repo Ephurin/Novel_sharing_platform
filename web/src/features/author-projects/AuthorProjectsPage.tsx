@@ -5,9 +5,11 @@ import { useToast } from '../../shared/components/ToastProvider';
 import { LoadingState } from '../../shared/components/PageStates';
 import { uploadImage } from '../../shared/components/ImageUpload';
 import { CoverCropEditor } from '../../shared/components/CoverCropEditor';
+import { prepareCoverImage } from '../../shared/components/cover-image';
 import { WorkspacePreview } from '../../shared/components/WorkspacePreview';
 import { ReactionIcon } from '../../shared/components/InteractionWidgets';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { navigationLabels } from '../../shared/components/navigation';
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
@@ -16,6 +18,7 @@ import { writeAuthorContext } from '../author-ide/author-context';
 import { createNovel, listGenres, listMyNovels } from '../novels/novel-api';
 import { sortProjects, type ProjectSort } from './project-sorting';
 import type { Novel, NovelStatus } from '../novels/novel-types';
+import './author-projects.css';
 
 function ProjectPin({ title, active, onClick }: { title: string; active: boolean; onClick: () => void }) {
   return <button type="button" className="sc-project-pin" aria-pressed={active} aria-label={`${active ? 'Bỏ ghim' : 'Ghim'} ${title}`} title={active ? 'Bỏ ghim' : 'Ghim lên đầu'} onClick={onClick}><ReactionIcon icon="push_pin" active={active} /></button>;
@@ -63,6 +66,7 @@ export function AuthorProjectsPage() {
   const [newSynopsis, setNewSynopsis] = useState('');
   const [newCoverUrl, setNewCoverUrl] = useState('');
   const [coverToCrop, setCoverToCrop] = useState<File | null>(null);
+  const [coverSource, setCoverSource] = useState<File | null>(null);
   useEffect(() => { if (!createModalOpen) setCoverToCrop(null); }, [createModalOpen]);
   const [isGenreDropdownOpen, setIsGenreDropdownOpen] = useState(false);
   const [isCoverDragging, setIsCoverDragging] = useState(false);
@@ -163,7 +167,11 @@ export function AuthorProjectsPage() {
   }, [projects]);
 
   // Create Project Mutation
-  const coverUpload = useMutation({ mutationFn: uploadImage, onSuccess: setNewCoverUrl, onError: (error: Error) => showToast(error.message) });
+  const coverUpload = useMutation({
+    mutationFn: async ({ file, cropped }: { file: File; cropped?: boolean }) => uploadImage(cropped ? file : await prepareCoverImage(file)),
+    onSuccess: (url, input) => { setNewCoverUrl(url); if (!input.cropped) setCoverSource(input.file); },
+    onError: (error: Error) => showToast(error.message)
+  });
   const createProjectMutation = useMutation({
     mutationFn: async () => {
       const trimmedTitle = newTitle.trim();
@@ -190,6 +198,7 @@ export function AuthorProjectsPage() {
       setNewGenre('');
       setNewSynopsis('');
       setNewCoverUrl('');
+      setCoverSource(null);
       setIsGenreDropdownOpen(false);
       showToast('Đã tạo tác phẩm mới thành công!');
       navigate(`/author/novels/${novel.novelId}`);
@@ -201,6 +210,10 @@ export function AuthorProjectsPage() {
 
   const openIde = (novelId: string) => {
     navigate(`/author/ide?novelId=${novelId}`);
+  };
+  const selectCover = (file: File) => {
+    if (coverUpload.isPending || createProjectMutation.isPending) return;
+    setCoverToCrop(null); coverUpload.mutate({ file });
   };
 
   return (
@@ -218,16 +231,8 @@ export function AuthorProjectsPage() {
           {/* Page Header & Main Title */}
           <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="flex flex-col gap-1">
-              <nav
-                aria-label="Breadcrumb"
-                className="flex items-center gap-1 text-meta text-stone-500 tracking-wider uppercase font-medium"
-              >
-                <span>Trang chủ</span>
-                <span className="material-symbols-outlined text-body">chevron_right</span>
-                <span className="text-primary-600 font-semibold">Bảng làm việc</span>
-              </nav>
               <h1 className="font-headline-sm text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">
-                Bảng làm việc
+                {navigationLabels.authorHome}
               </h1>
             </div>
 
@@ -304,7 +309,7 @@ export function AuthorProjectsPage() {
           </section>
 
           {/* Main Section: Tác phẩm của tôi */}
-          <section className="flex flex-col gap-4">
+          <section className="sc-project-library flex flex-col gap-3">
             {/* Section Header with Count Badge */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -442,11 +447,11 @@ export function AuthorProjectsPage() {
               </div>
             </div>
 
-            <div className="sc-workspace-row">
+            <div className="sc-project-library-options">
               <label className="text-meta"><input type="checkbox" checked={onlyPinned} onChange={e => setOnlyPinned(e.target.checked)} /> Chỉ tác phẩm đã ghim</label>
-              <FilterPresets name="author-projects" fields={['q', 'status', 'sort', 'genre', 'pinned']} />
+              <FilterPresets name="author-projects" fields={['q', 'status', 'sort', 'genre', 'pinned']} presentation="popover" />
+              {recentIds.some(id => projects.some(p => p.novelId === id)) && <details className="sc-filter-presets"><summary>Vừa làm việc</summary><div className="sc-workspace-row">{recentIds.map(id => projects.find(p => p.novelId === id)).filter((p): p is Novel => Boolean(p)).slice(0, 5).map(project => <Link className="sc-workspace-button" key={project.novelId} to={`/author/novels/${project.novelId}`}>{project.title}</Link>)}</div></details>}
             </div>
-            {recentIds.some(id => projects.some(p => p.novelId === id)) && <details className="sc-filter-presets"><summary>Vừa làm việc</summary><div className="sc-workspace-row">{recentIds.map(id => projects.find(p => p.novelId === id)).filter((p): p is Novel => Boolean(p)).slice(0, 5).map(project => <Link className="sc-workspace-button" key={project.novelId} to={`/author/novels/${project.novelId}`}>{project.title}</Link>)}</div></details>}
             <ActiveFilterChips items={[
               ...(onlyPinned ? [{ id: 'pinned', label: 'Đã ghim', onRemove: () => setOnlyPinned(false) }] : []),
               ...(searchQuery.trim() ? [{ id: 'q', label: `Tìm: ${searchQuery.trim()}`, onRemove: () => setSearchQuery('') }] : []),
@@ -893,7 +898,7 @@ export function AuthorProjectsPage() {
                     setIsCoverDragging(false);
                     const file = e.dataTransfer.files?.[0];
                     if (file && file.type.startsWith('image/')) {
-                      setCoverToCrop(file);
+                      selectCover(file);
                     }
                   }}
                   className={`rounded-xl p-3 flex items-center justify-between gap-3 transition-colors ${
@@ -928,7 +933,7 @@ export function AuthorProjectsPage() {
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        setCoverToCrop(file);
+                        selectCover(file);
                       }
                       e.target.value = '';
                     }}
@@ -937,7 +942,8 @@ export function AuthorProjectsPage() {
                     {newCoverUrl && (
                       <button
                         type="button"
-                        onClick={() => setNewCoverUrl('')}
+                        onClick={() => { setNewCoverUrl(''); setCoverSource(null); setCoverToCrop(null); }}
+                        disabled={coverUpload.isPending}
                         title="Xóa ảnh"
                         className="p-1 rounded text-stone-400 hover:text-rose-500 hover:bg-stone-200/50 transition cursor-pointer"
                       >
@@ -947,15 +953,20 @@ export function AuthorProjectsPage() {
                     <button
                       type="button"
                       onClick={() => coverInputRef.current?.click()}
+                      disabled={coverUpload.isPending || createProjectMutation.isPending}
                       className="px-3.5 py-1.5 rounded-lg bg-surface-container-lowest hover:bg-stone-50 border border-stone-200/80 text-stone-700 text-meta font-medium shadow-2xs transition-colors cursor-pointer"
                     >
                       Chọn ảnh
                     </button>
                   </div>
                 </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-meta text-stone-500">Ảnh lớn tự căn giữa về khung 600 × 900. Có thể chỉnh vùng cắt nếu cần.</p>
+                  {coverSource && !coverToCrop && <button type="button" className="sc-workspace-button" disabled={coverUpload.isPending} onClick={() => setCoverToCrop(coverSource)}>Cắt ảnh</button>}
+                </div>
               </div>
 
-              {coverToCrop && <CoverCropEditor file={coverToCrop} onCancel={() => setCoverToCrop(null)} onConfirm={async file => { await coverUpload.mutateAsync(file); setCoverToCrop(null); }} />}
+              {coverToCrop && <CoverCropEditor file={coverToCrop} onCancel={() => setCoverToCrop(null)} onConfirm={async file => { await coverUpload.mutateAsync({ file, cropped: true }); setCoverToCrop(null); }} />}
               {/* Info Notice Box */}
               <div className="rounded-xl bg-primary-50 p-2.5 flex items-start gap-2.5">
                 <span className="material-symbols-outlined text-primary-600 text-[18px] shrink-0 mt-0.5">

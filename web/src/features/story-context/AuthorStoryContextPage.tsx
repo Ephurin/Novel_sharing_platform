@@ -1,4 +1,6 @@
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
+import { authorHomeCrumb } from '../../shared/components/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -499,22 +501,11 @@ export function AuthorStoryContextPage() {
         <div className="flex flex-col gap-2 pb-5 border-b border-stone-200/70 mb-5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="flex flex-col gap-1">
-              <nav className="flex items-center gap-1.5 text-stone-500 text-meta">
-                <Link to="/author" className="hover:text-primary-600 flex items-center gap-1 transition-colors">
-                  <span className="material-symbols-outlined text-body">dashboard</span>
-                  <span>Tác phẩm</span>
-                </Link>
-                <span className="text-stone-300 font-light">/</span>
-                <Link to={`/author/novels/${novelId}`} className="hover:text-primary-600 transition-colors truncate max-w-[200px]">
-                  {novelQuery.data?.title || 'Đang tải...'}
-                </Link>
-                <span className="text-stone-300 font-light">/</span>
-                <span className="text-primary-600 font-semibold">Cẩm nang thế giới</span>
-              </nav>
+              <Breadcrumbs items={[authorHomeCrumb, { label: novelQuery.data?.title || 'Tác phẩm', to: `/author/novels/${novelId}` }, { label: 'Cẩm nang tác phẩm' }]} />
 
               <div className="flex items-center gap-3 pt-0.5">
                 <h1 className="text-xl md:text-2xl font-bold text-stone-900 font-serif tracking-tight">
-                  Cẩm nang thế giới
+                  Cẩm nang tác phẩm
                 </h1>
                 <Link
                   to={`/author/novels/${novelId}`}

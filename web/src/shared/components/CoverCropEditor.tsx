@@ -1,14 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Button, Group, Stack, Text } from '@mantine/core';
 import { AnimatedProgress } from './AnimatedProgress';
+import { coverCrop, renderCoverImage, validateCoverImage } from './cover-image';
 import './workspace-tools.css';
-
-export function coverCrop(width: number, height: number, zoom: number, x: number, y: number) {
-  const baseWidth = Math.min(width, height * 2 / 3);
-  const cropWidth = baseWidth / Math.max(1, Math.min(3, zoom));
-  const cropHeight = cropWidth * 3 / 2;
-  return { x: (width - cropWidth) * Math.max(0, Math.min(1, x)), y: (height - cropHeight) * Math.max(0, Math.min(1, y)), width: cropWidth, height: cropHeight };
-}
 
 /** Inline editor also works inside existing author dialogs without nesting focus traps. */
 export function CoverCropEditor({ file, onConfirm, onCancel }: { file: File; onConfirm: (file: File) => Promise<unknown>; onCancel: () => void }) {
@@ -19,8 +13,7 @@ export function CoverCropEditor({ file, onConfirm, onCancel }: { file: File; onC
   useEffect(() => {
     generation.current++;
     setSource(''); setSize({ width: 0, height: 0 }); setZoom(1); setX(0.5); setY(0.5); setError(''); setBusy(false);
-    if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) { setError('Chọn ảnh PNG, JPEG hoặc WebP.'); return; }
-    if (file.size > 10 * 1024 * 1024) { setError('Ảnh gốc tối đa 10 MB.'); return; }
+    try { validateCoverImage(file); } catch (reason) { setError((reason as Error).message); return; }
     const url = URL.createObjectURL(file); setSource(url);
     return () => { generation.current++; URL.revokeObjectURL(url); };
   }, [file]);
@@ -29,18 +22,9 @@ export function CoverCropEditor({ file, onConfirm, onCancel }: { file: File; onC
     if (!image.current || !size.width || busy) return;
     const version = generation.current; setBusy(true); setError('');
     try {
-      const canvas = document.createElement('canvas'); canvas.width = 600; canvas.height = 900;
-      const context = canvas.getContext('2d'); if (!context) throw new Error('Trình duyệt không hỗ trợ cắt ảnh.');
-      context.fillStyle = '#ffffff'; context.fillRect(0, 0, 600, 900);
-      context.drawImage(image.current, crop.x, crop.y, crop.width, crop.height, 0, 0, 600, 900);
-      let blob: Blob | null = null;
-      for (const quality of [0.92, 0.8, 0.65, 0.5]) {
-        blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/jpeg', quality));
-        if (blob && blob.size <= 1024 * 1024) break;
-      }
-      if (!blob || blob.size > 1024 * 1024) throw new Error('Không xuất được ảnh dưới 1 MB. Hãy chọn ảnh khác.');
+      const fileToUpload = await renderCoverImage(image.current, file.name, crop);
       if (version !== generation.current) return;
-      await onConfirm(new File([blob], `${file.name.replace(/\.[^.]+$/, '')}-cover.jpg`, { type: 'image/jpeg' }));
+      await onConfirm(fileToUpload);
     } catch (reason) { if (version === generation.current) setError(reason instanceof Error ? reason.message : 'Không lưu được ảnh.'); }
     finally { if (version === generation.current) setBusy(false); }
   };

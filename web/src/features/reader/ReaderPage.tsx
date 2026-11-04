@@ -12,6 +12,8 @@ import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { Breadcrumbs, type BreadcrumbItem } from '../../shared/components/Breadcrumbs';
+import { navigationLabels, readerHomeCrumb } from '../../shared/components/navigation';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
 import {
   addToLibrary,
@@ -81,7 +83,7 @@ export function ReaderPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader crumbs={['Trang chủ', 'Khám phá']} title="Khám phá truyện" />
+      <PageHeader title={navigationLabels.readerHome} />
 
       <section className="flex flex-col gap-4">
         <ResponsiveFilters className="flex flex-col gap-4">
@@ -180,8 +182,7 @@ export function PublicReaderPage() {
   return (
     <PublicLayout>
       <PageHeader
-        crumbs={['Trang chủ', 'Thư viện công khai']}
-        title="Thư viện công khai"
+        title={navigationLabels.publicHome}
         description="Đọc thử truyện đã xuất bản. Đăng nhập để lưu truyện, bình luận, mở khóa chương VIP hoặc báo cáo."
       />
       <ResponsiveFilters>
@@ -270,7 +271,7 @@ export function ReaderNovelDetailPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Breadcrumb back={{ to: '/reader', label: 'Khám phá' }} current={novel?.title ?? 'Chi tiết truyện'}>
+      <Breadcrumb back={readerHomeCrumb} current={novel?.title ?? 'Chi tiết truyện'}>
         <button
           type="button"
           onClick={() => reportMutation.mutate()}
@@ -573,7 +574,7 @@ export function ReaderLibraryPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader crumbs={['Trang chủ', 'Thư viện']} title="Thư viện của tôi" />
+      <PageHeader crumbs={[readerHomeCrumb, { label: 'Thư viện của tôi' }]} title="Thư viện của tôi" />
       <section className="flex flex-col gap-4">
         <SectionHeading title="Truyện đã lưu" count={libraryQuery.isSuccess ? `${novels.length} truyện` : undefined} />
         <QueryStates
@@ -617,7 +618,7 @@ export function ReaderHistoryPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader crumbs={['Trang chủ', 'Lịch sử đọc']} title="Lịch sử đọc" />
+      <PageHeader crumbs={[readerHomeCrumb, { label: 'Lịch sử đọc' }]} title="Lịch sử đọc" />
       <section className="flex flex-col gap-4">
         <SectionHeading title="Đọc gần đây" count={historyQuery.isSuccess ? `${items.length} truyện` : undefined} />
         <QueryStates
@@ -682,18 +683,11 @@ function PublicLayout({ children }: { children: ReactNode }) {
   );
 }
 
-function PageHeader({ crumbs, title, description, actions }: { crumbs: string[]; title: string; description?: string; actions?: ReactNode }) {
+function PageHeader({ crumbs = [], title, description, actions }: { crumbs?: BreadcrumbItem[]; title: string; description?: string; actions?: ReactNode }) {
   return (
     <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
       <div className="flex flex-col gap-1">
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-meta text-stone-500 tracking-wider uppercase font-medium">
-          {crumbs.map((crumb, index) => (
-            <span key={crumb} className="flex items-center gap-1">
-              {index > 0 ? <span className="material-symbols-outlined text-body" aria-hidden="true">chevron_right</span> : null}
-              <span className={index === crumbs.length - 1 ? 'text-primary-600 font-semibold' : undefined}>{crumb}</span>
-            </span>
-          ))}
-        </nav>
+        <Breadcrumbs items={crumbs} />
         <h1 className="font-headline-sm text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">{title}</h1>
         {description ? <p className="text-body text-stone-500">{description}</p> : null}
       </div>
@@ -717,17 +711,7 @@ function SectionHeading({ title, count, children }: { title: string; count?: str
 function Breadcrumb({ back, current, children }: { back: { to: string; label: string }; current: string; children?: ReactNode }) {
   return (
     <div className={`${card} px-3 py-1.5 flex items-center justify-between gap-3`}>
-      <div className="flex items-center gap-1.5 text-meta text-stone-500 min-w-0">
-        <Link
-          to={back.to}
-          className="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 font-medium shrink-0 transition-colors py-0.5 px-1.5 rounded hover:bg-stone-100 max-w-[200px]"
-        >
-          <span className="material-symbols-outlined text-[15px]" aria-hidden="true">arrow_back</span>
-          <span className="truncate">{back.label}</span>
-        </Link>
-        <span className="text-stone-300">/</span>
-        <span className="text-stone-900 font-semibold truncate">{current}</span>
-      </div>
+      <Breadcrumbs items={[back, { label: current }]} />
       {children ? <div className="flex items-center gap-1.5 shrink-0">{children}</div> : null}
     </div>
   );

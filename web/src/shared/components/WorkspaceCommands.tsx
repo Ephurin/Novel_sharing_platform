@@ -54,7 +54,7 @@ export function WorkspaceCommands({ commands, author = false }: { commands: Work
       <p className="sc-command-help">{author ? 'Gõ tên tác phẩm để mở quản lý, Studio hoặc cẩm nang. ' : ''}↑ ↓ để chọn · Enter để mở · Esc để đóng</p>
     </AnimatedModal>
     <AnimatedModal opened={help} onClose={() => setHelp(false)} title="Phím tắt" centered>
-      <dl><dt>Ctrl / Cmd + K</dt><dd>Mở lệnh nhanh</dd><dt>?</dt><dd>Xem phím tắt</dd>{author && <><dt>/</dt><dd>Tìm tác phẩm tại bảng làm việc</dd><dt>N</dt><dd>Tạo tác phẩm tại bảng làm việc</dd></>}<dt>Esc</dt><dd>Đóng hộp thoại</dd></dl>
+      <dl><dt>Ctrl / Cmd + K</dt><dd>Mở lệnh nhanh</dd><dt>?</dt><dd>Xem phím tắt</dd>{author && <><dt>/</dt><dd>Focus ô tìm kiếm tác phẩm</dd><dt>N</dt><dd>Tạo tác phẩm mới</dd></>}<dt>Esc</dt><dd>Đóng hộp thoại</dd></dl>
       <p className="sc-command-help">Phím tắt điều hướng không chạy khi bạn đang nhập văn bản hoặc mở hộp thoại khác.</p>
     </AnimatedModal>
   </div>;

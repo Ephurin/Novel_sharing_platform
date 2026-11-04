@@ -133,7 +133,6 @@ export function AuthorProfilePage() {
   const isOwnProfile = Boolean(currentUser?.userId && currentUser.userId === targetAuthorId);
   // Guests reach this page from the public library, so links must not lead into login-only routes.
   const isGuest = !currentUser;
-  const homePath = isGuest ? '/public' : currentUser.role === 'AUTHOR' || currentUser.role === 'ADMIN' ? '/author/projects' : '/reader';
 
   const handleShare = async () => {
     try {
@@ -158,17 +157,6 @@ export function AuthorProfilePage() {
 
       {/* Main Container */}
       <main className="max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-6 flex-1">
-        {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-meta text-stone-500">
-          <Link to={homePath} className="hover:text-stone-900 transition-colors">
-            Trang chủ
-          </Link>
-          <span className="text-stone-300">/</span>
-          <span className="text-stone-500">Tác giả</span>
-          <span className="text-stone-300">/</span>
-          <span className="font-semibold text-stone-800">{authorName}</span>
-        </nav>
-
         <AuthorProfileHeader
           author={author}
           isOwnProfile={isOwnProfile}
