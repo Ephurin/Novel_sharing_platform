@@ -10,6 +10,7 @@
     "typecheck": "tsc -b --noEmit",
     "test:contrast": "node --test tests/contrast.test.mjs",
     "test:main-ui": "npm run build && node --test tests/main-ui-integration.browser.test.mjs",
+    "test:author-notes": "tsx --test tests/author-notes.test.mjs && npm run build && node --test tests/author-notes.browser.test.mjs",
     "test:wallet": "node --experimental-strip-types --test tests/wallet-earnings.test.mjs",
     "test:draft-browser": "node --test tests/draft-persistence.browser.test.mjs",
     "test:author-ide-browser": "node --test tests/author-ide.browser.test.mjs",

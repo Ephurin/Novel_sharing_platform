@@ -74,6 +74,7 @@ export function StudioSelectionTools({ editor, disabled, onFormat, onLookup, onA
       <button type="button" aria-label="Gạch chân vùng chọn" onClick={() => act(() => onFormat('underline'))}><u>U</u></button>
       <span className="sc-selection-divider" aria-hidden="true" />
       <button type="button" aria-label="Ghi chú vùng chọn" onClick={() => act(() => editor.current?.dispatchEvent(new CustomEvent('studio-add-note')))}><span className="material-symbols-outlined" aria-hidden="true">add_comment</span></button>
+      <button type="button" aria-label="Chú thích vùng chọn cho độc giả" title="Chú thích cho độc giả" onClick={() => act(() => editor.current?.dispatchEvent(new CustomEvent('studio-add-reader-note')))}><span className="material-symbols-outlined" aria-hidden="true">speaker_notes</span></button>
       <button type="button" aria-label="Đánh dấu vùng chọn" onClick={() => act(() => editor.current?.dispatchEvent(new CustomEvent('studio-add-bookmark')))}><span className="material-symbols-outlined" aria-hidden="true">bookmark_add</span></button>
       <button type="button" aria-label="Tra cứu vùng chọn trong cẩm nang" onClick={() => act(() => onLookup(selectedStudioText(selection.value, selection.start, selection.end)))}><span className="material-symbols-outlined" aria-hidden="true">menu_book</span></button>
       <button type="button" aria-label="Hỏi AI về vùng chọn" onClick={() => act(onAi)}><span className="material-symbols-outlined" aria-hidden="true">auto_awesome</span></button>

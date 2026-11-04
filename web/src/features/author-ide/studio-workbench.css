@@ -59,9 +59,18 @@ html:has(.sc-writing-studio) { scrollbar-gutter: auto; overflow: hidden; }
 .sc-studio-notes-sidebar button:hover:not(:disabled) { background: var(--sc-primary-soft); }
 .sc-studio-notes-sidebar button:disabled { opacity: .5; cursor: default; }
 .sc-studio-notes-sidebar :focus-visible { outline: 2px solid var(--sc-focus-ring); outline-offset: 2px; }
-.sc-studio-note-tabs { display: flex; border-bottom: 1px solid var(--sc-border); padding-inline: 8px; }
+.sc-studio-note-tabs { display: flex; overflow-x: auto; border-bottom: 1px solid var(--sc-border); padding-inline: 8px; }
 .sc-studio-note-tabs button { flex: 1; border-radius: 0; border-bottom: 2px solid transparent; }
 .sc-studio-note-tabs [aria-selected="true"] { border-color: var(--sc-primary); color: var(--sc-primary-text); }
+.sc-reader-notes-panel > .text-meta { color: var(--sc-text-muted); line-height: 1.7; }
+.sc-reader-notes-panel h3 { margin: 0 0 8px; font: 600 13px/20px var(--sc-font); }
+.sc-reader-note-composer label { display: block; font: 500 13px/20px var(--sc-font); }
+.sc-reader-note-body { white-space: pre-wrap; overflow-wrap: anywhere; font: 400 14px/22px var(--sc-font); }
+.sc-reader-note-publication { margin-block: 12px; padding: 12px; border: 1px solid var(--sc-border); border-radius: 8px; background: var(--sc-warning-bg); color: var(--sc-text); }
+.sc-reader-note-publication[data-published="true"] { background: var(--sc-success-bg); }
+.sc-reader-note-publication p { margin: 0 0 8px; font: 400 13px/20px var(--sc-font); }
+.sc-rich-author-note-ref { display: inline; color: var(--sc-primary-text); font-size: .75em; font-weight: 600; vertical-align: super; user-select: all; }
+.sc-rich-author-note-definition { display: block; white-space: normal; margin-block: 8px; padding: 8px 12px; border-left: 2px solid var(--sc-primary); background: var(--sc-primary-soft); color: var(--sc-primary-text); font: 400 12px/20px var(--sc-font); text-indent: 0; }
 .sc-studio-notes-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 12px; overscroll-behavior: contain; }
 .sc-studio-notes-sidebar textarea, .sc-note-filters input, .sc-note-filters select { display: block; width: 100%; min-width: 0; padding: 8px; border: 1px solid var(--sc-border); border-radius: 6px; background: var(--sc-surface); color: var(--sc-text); font: 400 14px/22px var(--sc-font); }
 .sc-studio-notes-sidebar textarea { min-height: 90px; margin-block: 8px; resize: vertical; }

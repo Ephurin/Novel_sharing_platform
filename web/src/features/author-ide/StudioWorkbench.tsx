@@ -13,6 +13,7 @@ import { downloadStudioFile, findText, plainStudioText, isStudioEditorTarget, ma
 import { PassageNotes } from './PassageNotes';
 import { StudioBookmarks } from './StudioBookmarks';
 import { StudioProofreader } from './StudioProofreader';
+import { ReaderNotesPanel } from './ReaderNotesPanel';
 import { rememberAnnotationEdits } from './studio-annotations';
 import { transformStudioRange } from './studio-formatting';
 import './studio-workbench.css';
@@ -27,8 +28,9 @@ type Props = {
   onLookup?: (query: string) => void;
   onSearchNovel?: () => void;
   notesOpen: boolean; onNotesOpenChange: (open: boolean) => void;
+  publishedContent?: string | null; chapterStatus?: string; onPublish?: () => void;
 };
-export function StudioWorkbench({ scope, title, content, editor, disabled, apply, undo, redo, canUndo, canRedo, save, onError, exportOpen, onExportClose, chapterSettings, fileActions, formatToolbarVisible, onLookup, onSearchNovel, notesOpen, onNotesOpenChange }: Props) {
+export function StudioWorkbench({ scope, title, content, editor, disabled, apply, undo, redo, canUndo, canRedo, save, onError, exportOpen, onExportClose, chapterSettings, fileActions, formatToolbarVisible, onLookup, onSearchNovel, notesOpen, onNotesOpenChange, publishedContent, chapterStatus, onPublish }: Props) {
   const [panel, setPanel] = useState<'search' | 'replace' | 'scenes' | null>(null);
   const [preview, setPreview] = useState(false), [statistics, setStatistics] = useState(false), [help, setHelp] = useState(false);
   const [query, setQuery] = useState(''), [replacement, setReplacement] = useState('');
@@ -39,8 +41,9 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
   const [activeScene, setActiveScene] = useState(0), [exporting, setExporting] = useState(false);
   const exportLock = useRef(false);
   const [noteRequest, setNoteRequest] = useState(0);
+  const [readerNoteRequest, setReaderNoteRequest] = useState(0);
   const [bookmarkRequest, setBookmarkRequest] = useState(0), [proofreading, setProofreading] = useState(false);
-  const [noteTab, setNoteTab] = useState<'passages' | 'private' | 'bookmarks'>('passages');
+  const [noteTab, setNoteTab] = useState<'passages' | 'private' | 'bookmarks' | 'reader'>('passages');
   const [notesHost, setNotesHost] = useState<HTMLElement | null>(null);
   const editorIntent = useRef(false);
   const preserveNextMenu = (event: Event) => {
@@ -131,6 +134,8 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
   const setNoteValue = (value: string) => { setNote(value); try { localStorage.setItem(noteKey, value); setNoteError(''); } catch { setNoteError('Không lưu được ghi chú trên máy. Hãy tải ghi chú về trước khi rời trang.'); } };
   const openNotes = () => { setPanel(null); onNotesOpenChange(true); };
   const addNote = () => { openNotes(); setNoteTab('passages'); setNoteRequest(value => value + 1); };
+  const addReaderNote = () => { openNotes(); setNoteTab('reader'); setReaderNoteRequest(value => value + 1); };
+  useEffect(() => { const el = editor.current; el?.addEventListener('studio-add-reader-note', addReaderNote); return () => el?.removeEventListener('studio-add-reader-note', addReaderNote); }, [editor]);
   const addBookmark = () => { openNotes(); setNoteTab('bookmarks'); setBookmarkRequest(value => value + 1); };
   useEffect(() => { const el = editor.current; el?.addEventListener('studio-add-bookmark', addBookmark); return () => el?.removeEventListener('studio-add-bookmark', addBookmark); }, [editor]);
   useEffect(() => { setNotesHost(editor.current?.closest<HTMLElement>('.sc-studio-editor-region') ?? null); const el = editor.current; el?.addEventListener('studio-add-note', addNote); return () => el?.removeEventListener('studio-add-note', addNote); }, [editor]);
@@ -197,6 +202,8 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
         <Menu.Item disabled={disabled} onClick={quoteSelection}>Ngoặc thoại</Menu.Item>
         <Menu.Item disabled={disabled} onClick={() => insert('…')}>Dấu chấm lửng</Menu.Item>
         <Menu.Item disabled={disabled} onClick={() => insert('\n\n> Trích dẫn\n\n')}>Khối trích dẫn</Menu.Item>
+        <Menu.Divider />
+        <Menu.Item disabled={disabled} onClick={addReaderNote}>Chú thích cho độc giả</Menu.Item>
       </Menu.Dropdown></Menu>
       <AnimatedTooltip label="Hoàn tác nội dung · Ctrl/Cmd + Z"><button type="button" aria-label="Hoàn tác nội dung" disabled={disabled || !canUndo} onClick={undo}>↶</button></AnimatedTooltip>
       <AnimatedTooltip label="Làm lại · Ctrl/Cmd + Shift + Z"><button type="button" aria-label="Làm lại nội dung" disabled={disabled || !canRedo} onClick={redo}>↷</button></AnimatedTooltip>
@@ -237,12 +244,13 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
     </motion.section>
     {notesHost && createPortal(<aside id="studio-notes-sidebar" data-open={notesOpen} inert={!notesOpen} aria-hidden={!notesOpen} className="sc-studio-notes-sidebar" aria-label="Ghi chú chương">
       <header><h2>Ghi chú</h2><button type="button" aria-label="Đóng công cụ" onClick={closeTools}>×</button></header>
-      <div role="tablist" aria-label="Loại ghi chú" className="sc-studio-note-tabs">{(['passages','private','bookmarks'] as const).map((tab, index, tabs) => <button key={tab} id={`studio-note-tab-${tab}`} type="button" role="tab" aria-selected={noteTab === tab} aria-controls={`studio-note-panel-${tab}`} tabIndex={noteTab === tab ? 0 : -1} onClick={() => setNoteTab(tab)} onKeyDown={event => { if (['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) { event.preventDefault(); const next = event.key === 'Home' ? tabs[0] : event.key === 'End' ? tabs[tabs.length - 1] : tabs[(index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length]; setNoteTab(next); document.getElementById(`studio-note-tab-${next}`)?.focus(); } }}>{tab === 'passages' ? 'Theo đoạn' : tab === 'private' ? 'Sổ tay chương' : 'Đánh dấu'}</button>)}</div>
+      <div role="tablist" aria-label="Loại ghi chú" className="sc-studio-note-tabs">{(['passages','private','bookmarks','reader'] as const).map((tab, index, tabs) => <button key={tab} id={`studio-note-tab-${tab}`} type="button" role="tab" aria-selected={noteTab === tab} aria-controls={`studio-note-panel-${tab}`} tabIndex={noteTab === tab ? 0 : -1} onClick={() => setNoteTab(tab)} onKeyDown={event => { if (['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) { event.preventDefault(); const next = event.key === 'Home' ? tabs[0] : event.key === 'End' ? tabs[tabs.length - 1] : tabs[(index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length]; setNoteTab(next); document.getElementById(`studio-note-tab-${next}`)?.focus(); } }}>{tab === 'passages' ? 'Theo đoạn' : tab === 'private' ? 'Sổ tay chương' : tab === 'reader' ? 'Cho độc giả' : 'Đánh dấu'}</button>)}</div>
       <div className="sc-studio-notes-scroll">
+        <div role="tabpanel" id="studio-note-panel-reader" aria-labelledby="studio-note-tab-reader" hidden={noteTab !== 'reader'}><ReaderNotesPanel editor={editor} content={content} ready={!disabled} request={readerNoteRequest} getSelection={() => ({ start: editor.current?.selectionStart ?? 0, end: editor.current?.selectionEnd ?? 0 })} apply={apply} onJump={select} publishedContent={publishedContent} chapterStatus={chapterStatus} onPreview={() => setPreview(true)} onPublish={onPublish} /></div>
         <div role="tabpanel" id="studio-note-panel-passages" aria-labelledby="studio-note-tab-passages" hidden={noteTab !== 'passages'}><PassageNotes editor={editor} request={noteRequest} scope={scope} content={content} ready={!disabled} getSelection={() => ({ start: editor.current?.selectionStart ?? 0, end: editor.current?.selectionEnd ?? 0 })} onJump={jumpToNote} /></div>
         <div role="tabpanel" id="studio-note-panel-bookmarks" aria-labelledby="studio-note-tab-bookmarks" hidden={noteTab !== 'bookmarks'}><StudioBookmarks scope={scope} content={content} ready={!disabled} editor={editor} request={bookmarkRequest} onJump={jumpToNote} /></div>
         <div role="tabpanel" id="studio-note-panel-private" aria-labelledby="studio-note-tab-private" hidden={noteTab !== 'private'}><label className="text-meta" htmlFor="studio-private-note">Ý tưởng và việc cần sửa cho chương này</label><textarea id="studio-private-note" aria-label="Ghi chú riêng" value={note} maxLength={20000} onChange={e => setNoteValue(e.target.value)} /><div className="sc-studio-tool-row"><button type="button" onClick={() => downloadStudioFile(title + '-ghi-chu', note, 'txt', 'text/plain')}>Tải ghi chú</button><span>{note.length.toLocaleString('vi-VN')}/20.000 ký tự</span></div>{noteError && <p role="alert">{noteError}</p>}</div>
-      </div><footer>Lưu trên trình duyệt này · chỉ dành cho bạn, không xuất bản cùng chương.</footer>
+      </div><footer>{noteTab === 'reader' ? 'Lưu cùng bản nháp · độc giả thấy chú thích khi phiên bản chương này được xuất bản.' : 'Lưu trên trình duyệt này · chỉ dành cho bạn, không xuất bản cùng chương.'}</footer>
     </aside>, notesHost)}
     <span className="sc-motion-sr-only" role="status">{announcement}</span>
     {proofreading && <StudioProofreader content={content} disabled={disabled} onClose={() => setProofreading(false)} onApply={(before, after, issues) => {

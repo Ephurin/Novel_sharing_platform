@@ -4,6 +4,7 @@ import { AnimatedModal } from '../../shared/components/AnimatedModal';
 import { CopyTextButton, FeedbackIcon, FeedbackReveal } from '../../shared/components/ActionFeedback';
 import { AnimatedProgress } from '../../shared/components/AnimatedProgress';
 import { validPassageNotes } from './studio-annotations';
+import { parseAuthorNotes } from '../../shared/lib/author-notes';
 import { plainStudioText } from './studio-tools';
 import type { CharacterProfile, PlotSummary, StoryTimelineEvent } from '../story-context/story-context-types';
 
@@ -38,17 +39,19 @@ export function PublishChecklist({ scope, title, content, isVip, price, saved, s
   scope: string; title: string; content: string; isVip: boolean; price: number; saved: boolean; saving: boolean; error: boolean; scheduledAt?: string;
 }) {
   const [notes] = useState(() => { try { const value: unknown = JSON.parse(localStorage.getItem(`storycraft-passage-notes:${scope}`) ?? '[]'); return validPassageNotes(value) ? { open: value.filter(item => !item.resolved).length, unavailable: false } : { open: 0, unavailable: true }; } catch { return { open: 0, unavailable: true }; } });
+  const publicNotes = parseAuthorNotes(content), unlinked = publicNotes.all.filter(note => !note.references.length).length;
   const checks = [
     { label: title.trim() ? 'Đã có tiêu đề chương' : 'Chưa đặt tiêu đề chương', ok: !!title.trim() },
     { label: plainStudioText(content).trim() ? 'Bản thảo có nội dung' : 'Bản thảo đang trống', ok: !!plainStudioText(content).trim() },
     { label: error ? 'Lưu thất bại · cần thử lưu lại' : saving ? 'Đang lưu bản nháp…' : saved ? 'Bản nháp đã được lưu' : 'Có thay đổi chưa lưu · hệ thống sẽ lưu trước khi gửi', ok: saved, pending: saving },
     { label: isVip ? `Chương VIP · ${price} Xu${price > 0 ? '' : ' · kiểm tra lại giá'}` : 'Chương miễn phí', ok: !isVip || Number.isFinite(price) && price > 0 },
-    { label: notes.unavailable ? 'Không đọc được ghi chú trên trình duyệt này' : notes.open ? `${notes.open} ghi chú chưa xử lý · nên rà lại trước khi gửi` : 'Không có ghi chú đang mở trên trình duyệt này', ok: !notes.unavailable && notes.open === 0 }
+    { label: notes.unavailable ? 'Không đọc được ghi chú trên trình duyệt này' : notes.open ? `${notes.open} ghi chú chưa xử lý · nên rà lại trước khi gửi` : 'Không có ghi chú đang mở trên trình duyệt này', ok: !notes.unavailable && notes.open === 0 },
+    { label: unlinked ? `${unlinked} chú thích cho độc giả chưa gắn vào lời văn · cần gắn lại vị trí` : `${publicNotes.notes.length} chú thích cho độc giả đi cùng phiên bản chương`, ok: unlinked === 0 }
   ];
   return <section className="sc-publish-checklist" aria-label="Kiểm tra trước xuất bản"><h4>Kiểm tra trước xuất bản</h4>
     <ul>{checks.map((item, index) => <li key={index} data-state={item.ok ? 'ok' : item.pending ? 'pending' : 'review'}><FeedbackIcon icon={item.ok ? 'check_circle' : item.pending ? 'sync' : 'info'} busy={item.pending} /><span>{item.label}</span></li>)}</ul>
     {scheduledAt && <p className="text-meta">Đã có lịch đăng: {new Date(scheduledAt).toLocaleString('vi-VN', { timeZone: 'Asia/Bangkok' })} (Asia/Bangkok). Kiểm tra lịch trước khi gửi duyệt ngay.</p>}
-    <p className="text-meta">Ghi chú là nhắc việc riêng; không được gửi cùng nội dung chương. Máy chủ vẫn kiểm tra điều kiện xuất bản.</p>
+    <p className="text-meta">Ghi chú riêng không được xuất bản. Chú thích trong mục “Cho độc giả” đi cùng nội dung chương và chỉ hiện khi phiên bản này được xuất bản. Máy chủ vẫn kiểm tra điều kiện xuất bản.</p>
   </section>;
 }
 

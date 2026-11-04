@@ -1,14 +1,23 @@
 import { useLayoutEffect, useRef, type CSSProperties, type KeyboardEvent, type RefObject } from 'react';
+import { authorNoteDefinitions, parseAuthorNotes } from '../../shared/lib/author-notes';
 
-type Segment = { node: Text; start: number; end: number };
+type Segment = { node: Text | HTMLElement; start: number; end: number; atomic?: boolean };
 function renderSource(root: HTMLElement, source: string) {
   const fragment = document.createDocumentFragment();
+  const notes = parseAuthorNotes(source).byId;
   const append = (target: Node, text: string, depth = 0) => {
     if (depth > 8) { target.appendChild(document.createTextNode(text)); return; }
-    const regex = /(\*\*\*([^*\n]+?)\*\*\*|\*\*([^\n]+?)\*\*|~~([^\n]+?)~~|<u>([^\n]+?)<\/u>|\*([^*\n]+?)\*)/g;
+    const regex = /(\*\*\*([^*\n]+?)\*\*\*|\*\*([^\n]+?)\*\*|~~([^\n]+?)~~|<u>([^\n]+?)<\/u>|\*([^*\n]+?)\*|\[\^(author-[a-zA-Z0-9-]{1,80})\](?!:))/g;
     let cursor = 0;
     for (const match of text.matchAll(regex)) {
       target.appendChild(document.createTextNode(text.slice(cursor, match.index)));
+      if (match[7]) {
+        const marker = document.createElement('span');
+        marker.dataset.studioNoteSource = match[0]; marker.dataset.authorNoteId = match[7]; marker.contentEditable = 'false';
+        marker.className = 'sc-rich-author-note-ref'; marker.textContent = `[${notes.get(match[7])?.number ?? '?'}]`;
+        marker.title = notes.get(match[7])?.body ?? 'Chú thích chưa có nội dung'; target.appendChild(marker);
+        cursor = match.index! + match[0].length; continue;
+      }
       const element = document.createElement(match[2] !== undefined || match[3] !== undefined ? 'strong' : match[4] !== undefined ? 's' : match[5] !== undefined ? 'u' : 'em');
       if (match[2] !== undefined) { const italic = document.createElement('em'); append(italic, match[2], depth + 1); element.append(italic); }
       else append(element, match[3] ?? match[4] ?? match[5] ?? match[6], depth + 1);
@@ -16,7 +25,16 @@ function renderSource(root: HTMLElement, source: string) {
     }
     target.appendChild(document.createTextNode(text.slice(cursor)));
   };
-  append(fragment, source); root.replaceChildren(fragment);
+  let cursor = 0;
+  for (const match of source.matchAll(authorNoteDefinitions())) {
+    append(fragment, source.slice(cursor, match.index));
+    const note = notes.get(match[1]), definition = document.createElement('span');
+    definition.dataset.studioNoteSource = match[0]; definition.contentEditable = 'false';
+    definition.className = 'sc-rich-author-note-definition';
+    definition.textContent = `Chú thích ${note?.number ?? 'chưa gắn'} cho độc giả: ${note?.body ?? ''}`;
+    fragment.append(definition); cursor = match.index! + match[0].length;
+  }
+  append(fragment, source.slice(cursor)); root.replaceChildren(fragment);
 }
 
 /** Only supported inline marks are serialized. Clipboard HTML never enters this tree. */
@@ -27,6 +45,10 @@ export function readRichSource(root: HTMLElement) {
     if (node.nodeType === Node.TEXT_NODE) { const start = text.length; text += node.textContent ?? ''; segments.push({ node: node as Text, start, end: text.length }); return; }
     if (!(node instanceof HTMLElement) && node !== root) return;
     const element = node as HTMLElement;
+    if (element.dataset?.studioNoteSource !== undefined) {
+      const start = text.length; text += element.dataset.studioNoteSource;
+      segments.push({ node: element, start, end: text.length, atomic: true }); return;
+    }
     if (element.tagName === 'BR') { text += '\n'; return; }
     const block = node !== root && ['DIV','P'].includes(element.tagName);
     if (block && text && !text.endsWith('\n')) text += '\n';
@@ -38,6 +60,8 @@ export function readRichSource(root: HTMLElement) {
   };
   walk(root);
   const offset = (node: Node | null, position: number) => {
+    const atom = segments.find(part => part.atomic && node && part.node.contains(node));
+    if (atom) return position > 0 ? atom.end : atom.start;
     const segment = segments.find(part => part.node === node);
     return segment ? segment.start + Math.min(position, segment.end - segment.start) : boundaries.get(node!)?.[Math.min(position, (node?.childNodes.length ?? 0))] ?? text.length;
   };
@@ -79,6 +103,10 @@ export function RichManuscriptEditor({ value, source, disabled, style, onChange,
       const parsed = readRichSource(element);
       const point = (offset: number) => {
         const segment = parsed.segments.find(part => offset >= part.start && offset <= part.end) ?? parsed.segments.find(part => part.start > offset) ?? parsed.segments.at(-1);
+        if (segment?.atomic && segment.node.parentNode) {
+          const index = Array.from(segment.node.parentNode.childNodes).indexOf(segment.node as ChildNode);
+          return { node: segment.node.parentNode, offset: index + Number(offset > segment.start) };
+        }
         return segment ? { node: segment.node as Node, offset: Math.max(0, Math.min(segment.end - segment.start, offset - segment.start)) } : { node: element as Node, offset: 0 };
       };
       const start = point(request.start), end = point(request.end), range = document.createRange();

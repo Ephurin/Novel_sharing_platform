@@ -1,4 +1,5 @@
 import type { AnchorEdit } from './studio-annotations';
+import { authorNoteDefinitions } from '../../shared/lib/author-notes';
 
 export const proofRules = { beforePunctuation: 'Khoảng trắng trước dấu câu', repeatedSpace: 'Khoảng trắng lặp', trailingSpace: 'Khoảng trắng cuối dòng', afterPunctuation: 'Thiếu khoảng trắng sau dấu câu', ellipsis: 'Dấu chấm lửng' } as const;
 export type ProofIssue = AnchorEdit & { id: string; rule: keyof typeof proofRules; original: string };
@@ -6,6 +7,7 @@ export type ProofIssue = AnchorEdit & { id: string; rule: keyof typeof proofRule
 /** Conservative suggestions only. Preserve line breaks, Markdown marks, URLs and code. */
 export function inspectPunctuation(source: string, limit = 500) {
   const protectedRanges = Array.from(source.matchAll(/```[\s\S]*?(?:```|$)|`[^`\n]*`|https?:\/\/\S+|www\.\S+|[\w.+-]+@[\w.-]+\.[\p{L}]{2,}|<[^>\n]*>/gu), match => ({ start: match.index!, end: match.index! + match[0].length }));
+  protectedRanges.push(...Array.from(source.matchAll(authorNoteDefinitions()), match => ({ start: match.index!, end: match.index! + match[0].length })));
   const candidates: ProofIssue[] = [];
   const add = (rule: keyof typeof proofRules, pattern: RegExp, replacement: (value: string) => string) => {
     for (const match of source.matchAll(pattern)) {

@@ -10,6 +10,7 @@ import { StudioContextMenu } from './StudioContextMenu';
 import { StudioSelectionTools } from './StudioSelectionTools';
 import { StudioNovelSearch, type ChapterSearchHit } from './StudioNovelSearch';
 import { locateAnchor } from './studio-annotations';
+import { authorNoteDefinitions } from '../../shared/lib/author-notes';
 import { useStudioPosition } from './useStudioPosition';
 import { PublishChecklist, StoryReferenceLookup, TextComparison } from './StudioReviewTools';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
@@ -440,6 +441,11 @@ export function AuthorWritingIde() {
     const end = textarea.selectionEnd;
     const currentVal = textarea.value;
 
+    if (Array.from(currentVal.matchAll(authorNoteDefinitions())).some(note => start < note.index! + note[0].length && end > note.index! || start === end && start >= note.index! && start < note.index! + note[0].length)) {
+      showToast('Chọn lời văn để định dạng. Chỉnh sửa lời chú thích trong Ghi chú → Cho độc giả.', 'error');
+      return;
+    }
+
     let newContent = '';
     let newCursorStart = start;
     let newCursorEnd = end;
@@ -595,6 +601,10 @@ export function AuthorWritingIde() {
       setPublishModalOpen(false);
       queryClient.invalidateQueries({ queryKey: ['author', 'chapter', activeChapterId] });
       queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] });
+      queryClient.invalidateQueries({ queryKey: ['reader-chapter', activeChapterId] });
+      queryClient.invalidateQueries({ queryKey: ['public-reader-chapter', activeChapterId] });
+      queryClient.invalidateQueries({ queryKey: ['reader-novel', activeNovelId] });
+      queryClient.invalidateQueries({ queryKey: ['public-reader-novel', activeNovelId] });
       showToast(
         res.moderationRequired
           ? 'Chương đã gửi duyệt kiểm duyệt thành công!'
@@ -989,6 +999,7 @@ export function AuthorWritingIde() {
       {persistence.blocker.state === 'blocked' && <AuthorDialog onClose={() => persistence.blocker.reset?.()}><div className="fixed inset-0 flex items-center justify-center p-4"><div className="w-full max-w-md p-6"><h2 className="text-section">Bản nháp chưa lưu xong</h2><p className="text-body">Bạn có thể lưu trước khi rời trang hoặc giữ bản dự phòng trên máy để khôi phục sau.</p><Group mt="md"><Button onClick={async () => { try { await persistence.flush(); persistence.blocker.proceed?.(); } catch {} }}>Lưu và rời trang</Button><Button variant="default" onClick={() => persistence.blocker.reset?.()}>Ở lại</Button><Button variant="subtle" onClick={() => { persistence.abandon(); persistence.blocker.proceed?.(); }}>Rời trang</Button></Group></div></div></AuthorDialog>}
       <StudioNovelSearch key={searchScope} opened={novelSearchOpen} chapters={chaptersQuery.data ?? []} activeChapterId={activeChapterId} content={content} onClose={() => setNovelSearchOpen(false)} onNavigate={navigateSearchHit} />
       <StudioWorkbench onSearchNovel={() => setNovelSearchOpen(true)} notesOpen={rightPanel === 'notes'} onNotesOpenChange={changeNotesOpen} onLookup={setReferenceQuery} formatToolbarVisible={formatToolbarVisible} chapterSettings={chapterSettings} fileActions={manuscriptActions} key={activeDraftScope} scope={activeDraftScope} title={title} content={content} editor={editorRef} disabled={!studioReady || isAcceptingAi} exportOpen={exportOpen} onExportClose={() => setExportOpen(false)}
+        publishedContent={chapterQuery.data?.status === 'PUBLISHED' ? chapterQuery.data.content : undefined} chapterStatus={chapterQuery.data?.status} onPublish={() => setPublishModalOpen(true)}
         apply={applyStudioEdit} undo={() => moveStudioHistory()} redo={() => moveStudioHistory(true)} canUndo={studioHistory.canUndo} canRedo={studioHistory.canRedo}
         save={async () => { await persistence.flush(); }} onError={message => showToast(message, 'error')} />
       <StudioSelectionTools key={`selection:${activeDraftScope}`} editor={editorRef} disabled={!studioReady || isAcceptingAi}

@@ -38,6 +38,7 @@ export function StudioContextMenu({ children, editor, disabled, apply, onError, 
       {item('Xóa vùng chọn', 'Delete', () => replace(''), disabled || !hasSelection)}
       <ContextMenu.Separator className="sc-animated-menu-divider" />
       {item('Thêm ghi chú đoạn', 'Ctrl+Alt+M', () => { const el = editor.current; if (!el) return; noteFocus.current = true; el.setSelectionRange(captured.current.start, captured.current.end); el.dispatchEvent(new CustomEvent('studio-add-note')); }, disabled)}
+      {item('Chú thích cho độc giả', '', () => { const el = editor.current; if (!el) return; noteFocus.current = true; el.setSelectionRange(captured.current.start, captured.current.end); el.dispatchEvent(new CustomEvent('studio-add-reader-note')); }, disabled)}
       {item('Đánh dấu đoạn văn', '', () => { const el = editor.current; if (!el) return; noteFocus.current = true; el.setSelectionRange(captured.current.start, captured.current.end); el.dispatchEvent(new CustomEvent('studio-add-bookmark')); }, disabled)}
       {onLookup && item('Tra cứu trong cẩm nang', '', () => { const {text,start,end} = captured.current; noteFocus.current = true; onLookup(selectedStudioText(text, start, end)); }, !hasSelection)}
       {onAi && item('Hỏi AI về vùng chọn', '', () => { const el = editor.current; if (!el) return; el.setSelectionRange(captured.current.start, captured.current.end); noteFocus.current = true; onAi(); }, disabled || !hasSelection)}
