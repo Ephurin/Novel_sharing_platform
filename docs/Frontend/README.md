@@ -15,7 +15,8 @@ The goal is not to finalize visual design. The goal is to make screen structure,
 | `wireframes-mobile.md` | Mobile app ASCII wireframes for reader-first mobile flows. |
 | `screen-specs.md` | Screen purpose, primary data, and related APIs. |
 | `routes-and-guards.md` | Web/mobile route map and role-based access rules. |
-| `design-system.md` | MVP visual tokens, layout rules, components, and interaction standards. |
+| `ui-conventions.md` | Current StoryCraft web UI conventions (buttons, controls, navbar, shared components). Read before changing screens. |
+| `design-system.md` | MVP visual tokens from the earlier dark theme; superseded by `ui-conventions.md`. |
 | `screen-details-web.md` | Implementation-ready web screen details for Author, Reader, Wallet, Notifications, Profile, and Admin. |
 | `screen-details-mobile.md` | Implementation-ready mobile reader screen details for Phase 9. |
 | `frontend-state-model.md` | Frontend session, server state, UI state, and query key conventions. |

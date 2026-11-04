@@ -12,6 +12,7 @@ import { ToastProvider } from '../../src/shared/components/ToastProvider';
 import '@mantine/core/styles.css';
 import '../../src/theme/storycraft.css';
 import '../../src/theme/color-mode.css';
+import '../../src/theme/refinements.css';
 
 const config = (window as any).testConfig;
 if (config?.base) {

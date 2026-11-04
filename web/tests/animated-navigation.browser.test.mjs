@@ -30,7 +30,7 @@ test('navigation enhancements: filters, reorder, highlights, images, reactions a
             import { ReaderChapterPage, PublicReaderChapterPage } from '/src/features/reader/ReaderPage.tsx';
             import { useAuthStore } from '/src/features/auth/useAuthStore.ts';
             import '@fontsource/be-vietnam-pro/400.css'; import '@fontsource/be-vietnam-pro/500.css';
-            import '@fontsource-variable/material-symbols-outlined/full.css'; import '/src/styles.css'; import '/src/theme/color-mode.css';
+            import '@fontsource-variable/material-symbols-outlined/full.css'; import '/src/styles.css'; import '/src/theme/color-mode.css'; import '/src/theme/refinements.css';
             const h=React.createElement;
             const image='data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="150"%3E%3Crect width="100" height="150" fill="%23dd8567"/%3E%3C/svg%3E';
             const chapters=[1,2,3].map(n=>({chapterId:'c-'+n,novelId:'novel-test',title:'Chương '+n,chapterNumber:n,status:'DRAFT',isVip:false,priceCoins:0}));
@@ -138,10 +138,10 @@ test('navigation enhancements: filters, reorder, highlights, images, reactions a
         await page.getByRole('button',{name:'Tùy chỉnh đọc',exact:true}).click();
         const settings=page.getByRole('dialog',{name:'Tùy chỉnh đọc',exact:true});await expect(settings).toBeVisible();
         await expect.poll(()=>settings.evaluate(el=>el.contains(document.activeElement))).toBe(true);
-        await settings.getByRole('textbox',{name:'Font size',exact:true}).fill('22');
+        await settings.getByRole('textbox',{name:'Cỡ chữ',exact:true}).fill('22');
         await page.keyboard.press('Escape');await expect(settings).not.toBeVisible();
-        await page.getByRole('button',{name:'Tùy chỉnh đọc',exact:true}).click();await expect(settings.getByRole('textbox',{name:'Font size',exact:true})).toHaveValue('22');
-        await settings.getByRole('button',{name:'Save preferences',exact:true}).click();await expect.poll(()=>preferences.fontSize).toBe(22);
+        await page.getByRole('button',{name:'Tùy chỉnh đọc',exact:true}).click();await expect(settings.getByRole('textbox',{name:'Cỡ chữ',exact:true})).toHaveValue('22');
+        await settings.getByRole('button',{name:'Lưu tùy chỉnh',exact:true}).click();await expect.poll(()=>preferences.fontSize).toBe(22);
         const bounds=await settings.boundingBox();assert.ok(bounds.x>=0&&bounds.x+bounds.width<=page.viewportSize().width);
         await expect.poll(()=>settings.evaluate(el=>getComputedStyle(el).opacity)).toBe('1');
         assert.equal(await page.locator('.chapter-prose').evaluate(el=>getComputedStyle(el).color),'rgb(17, 24, 39)','a light reading surface must retain dark text even in the dark app theme');

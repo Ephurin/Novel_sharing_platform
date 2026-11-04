@@ -7,7 +7,8 @@ import type { UserRole } from './auth-types';
 import { useAuthStore } from './useAuthStore';
 import { LoadingState, PermissionState } from '../../shared/components/PageStates';
 
-export function AuthGate({ children }: PropsWithChildren) {
+// Restores the signed-in user from a stored access token; a rejected token clears the session.
+function useSessionRestore() {
   const accessToken = useAuthStore((state) => state.accessToken);
   const user = useAuthStore((state) => state.user);
   const sessionStatus = useAuthStore((state) => state.sessionStatus);
@@ -40,6 +41,12 @@ export function AuthGate({ children }: PropsWithChildren) {
     }
   }, [clearSession, currentUserQuery.isError]);
 
+  return { accessToken, user, clearSession };
+}
+
+export function AuthGate({ children }: PropsWithChildren) {
+  const { accessToken, user, clearSession } = useSessionRestore();
+
   if (!accessToken) {
     return <Navigate to="/login" replace />;
   }
@@ -50,6 +57,18 @@ export function AuthGate({ children }: PropsWithChildren) {
 
   if (user.status === 'LOCKED') {
     return <PermissionState requiredRole="Unlocked account" onBack={clearSession} />;
+  }
+
+  return children;
+}
+
+// Public pages: guests see them without logging in, while a stored session is still restored so
+// signed-in users keep their navigation and per-user state. Mutations stay protected by the API.
+export function OptionalSession({ children }: PropsWithChildren) {
+  const { accessToken, user } = useSessionRestore();
+
+  if (accessToken && !user) {
+    return <LoadingState label="Restoring session..." />;
   }
 
   return children;

@@ -3,19 +3,29 @@ Real Browser E2E Automation for Reader Discovery and Reading State
 Gate: READER-DISCOVERY-READING-STATE-E2E
 Checkpoints: Reader-A through Reader-H + Phase C negative invariants
 
-Drives real DOM interactions via Microsoft Edge CDP over WebSocket,
-captures network responses, performs database correlation, records full-resolution
-screenshots, executes validation manifest, and outputs canonical evidence JSON and report.
+Drives real DOM interactions via Microsoft Edge CDP over WebSocket against a disposable stack
+(scripts/e2e_isolated_stack.py): its own PostgreSQL and MongoDB databases, migrated and seeded,
+with the API and a production web build on dedicated ports. The shared development databases
+are never written; their fingerprint is taken before and after the run and must be unchanged.
+
+Usage (repo root):
+  EPHURIN_ALLOW_TEST_DB_MUTATIONS=1 EPHURIN_E2E_DEMO_PASSWORD=... python scripts/run_reader_discovery_reading_state_e2e.py
+Optional: EPHURIN_E2E_TEST_DB_NAME, EPHURIN_E2E_BACKEND_PORT (4312), EPHURIN_E2E_WEB_PORT (5312),
+EPHURIN_E2E_EVIDENCE_DIR (default: a temp folder; canonical docs/development evidence is not overwritten).
+Exit codes: 0 PASS, 1 FAIL, 3 REFUSED (nothing was written).
+Windows-only (taskkill, Microsoft Edge under Program Files); see scripts/e2e_isolated_stack.py.
 """
 
 import asyncio
 import base64
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
 import time
+import traceback
 import uuid
 from typing import Any, Callable, Dict, List, Optional
 
@@ -26,29 +36,44 @@ import httpx
 import psycopg
 import websockets
 
-BACKEND_URL = "http://localhost:4000/api/v1"
-WEB_URL = "http://127.0.0.1:5173"
-DB_URL = "postgresql://postgres:postgres@localhost:5432/ephurin"
+from e2e_isolated_stack import (
+    REFUSED_EXIT_CODE,
+    IsolatedStack,
+    RefusedError,
+    config_from_env,
+    diff_fingerprints,
+    fingerprint_shared,
+)
+
+# Set from the disposable stack in run(); nothing points at the shared development stack.
+BACKEND_URL = ""
+WEB_URL = ""
+DB_URL = ""
+STACK_DB_ENV: Dict[str, str] = {}
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-EVIDENCE_DIR = os.path.join(REPO_ROOT, "docs", "development", "READER-DISCOVERY-READING-STATE-E2E")
-REPORT_PATH = os.path.join(REPO_ROOT, "docs", "development", "READER-DISCOVERY-READING-STATE-E2E-report.md")
-os.makedirs(EVIDENCE_DIR, exist_ok=True)
+EVIDENCE_DIR = ""
+REPORT_PATH = ""
 
 EDGE_PATH = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 if not os.path.exists(EDGE_PATH):
     EDGE_PATH = r"C:\Program Files\Microsoft\Edge\Application\msedge.exe"
 
-# Credentials from environment variable (hygiene discipline: no committed secrets)
-DEMO_PASSWORD = os.environ.get("EPHURIN_E2E_DEMO_PASSWORD")
-if not DEMO_PASSWORD:
-    raise RuntimeError(
-        "Missing required environment variable EPHURIN_E2E_DEMO_PASSWORD. "
-        "Please set EPHURIN_E2E_DEMO_PASSWORD before running this E2E runner."
-    )
-
 READER_EMAIL = "reader04@example.com"
-READER_PASSWORD = DEMO_PASSWORD
-READER_USER_ID = "077e20a2-e26d-466a-bf3a-1811d037df50"
+READER_PASSWORD = ""  # EPHURIN_E2E_DEMO_PASSWORD, read in run()
+READER_USER_ID = ""  # resolved from the freshly seeded database
+
+# Signed-in role from the shell's stable session hook; falls back to the legacy topbar text so the
+# runner works on both the StoryCraft shell and the older WebAppShell.
+SESSION_ROLE_JS = r"""(() => {
+  const marker = document.querySelector('[data-testid="shell-session"]');
+  if (marker) return marker.dataset.userRole || '';
+  const text = document.querySelector('.web-topbar')?.innerText || '';
+  const match = text.match(/\b(READER|AUTHOR|ADMIN)\b/);
+  return match ? match[1] : '';
+})()"""
+
+# The add-to-library notice is localized in the StoryCraft reader UI.
+LIBRARY_ADDED_MESSAGES = ["Novel added to your library.", "Đã thêm truyện vào thư viện của bạn."]
 
 TARGET_NOVEL_ID = "81b923d7-5507-48ea-9a84-5303fd1de5f4"
 TARGET_NOVEL_TITLE = "Ashenhold - Sample Story"
@@ -249,21 +274,25 @@ class CDPBrowser:
             await self.ws.close()
 
 
-def get_git_info() -> Dict[str, str]:
+def get_git_info() -> Dict[str, Any]:
+    git = os.environ.get("GIT_EXECUTABLE") or shutil.which("git") or "git"
+
     def run_git(cmd: str) -> str:
-        res = subprocess.run(f"git {cmd}", shell=True, capture_output=True, text=True, cwd=REPO_ROOT)
+        res = subprocess.run(f'"{git}" {cmd}', shell=True, capture_output=True, text=True, cwd=REPO_ROOT)
         return res.stdout.strip()
     return {
         "head_sha": run_git("rev-parse HEAD"),
         "base_main_sha": run_git("rev-parse origin/main"),
-        "branch": run_git("rev-parse --abbrev-ref HEAD")
+        "branch": run_git("rev-parse --abbrev-ref HEAD"),
+        "working_tree_dirty": bool(run_git("status --porcelain --untracked-files=no"))
     }
 
 
-def run_command(name: str, cmd: str, cwd: str) -> Dict[str, Any]:
+def run_command(name: str, cmd: str, cwd: str, extra_env: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
     print(f"\n[Validation] Running '{name}': {cmd}...")
     start_t = time.time()
-    res = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=cwd)
+    res = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=cwd, env={**os.environ, **(extra_env or {})},
+                         encoding="utf-8", errors="replace")
     duration = round(time.time() - start_t, 2)
     output = res.stdout + ("\n" + res.stderr if res.stderr else "")
 
@@ -306,7 +335,9 @@ def run_negative_suite() -> Dict[str, Any]:
     print("=" * 60)
     cmd = "npx tsx --test --test-reporter=tap src/modules/reading/reading-lifecycle.postgres.test.ts"
     backend_dir = os.path.join(REPO_ROOT, "backend")
-    res = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=backend_dir)
+    # The suite writes its own rows, so it runs against the disposable database only.
+    res = subprocess.run(cmd, shell=True, capture_output=True, text=True, cwd=backend_dir, env={**os.environ, **STACK_DB_ENV},
+                         encoding="utf-8", errors="replace")
     print(f"Exit code: {res.returncode}")
     print(res.stdout)
     if res.stderr:
@@ -360,22 +391,18 @@ async def main():
     web_dir = os.path.join(REPO_ROOT, "web")
     backend_dir = os.path.join(REPO_ROOT, "backend")
 
+    # The production web build is made by the disposable stack; the full backend suite runs in CI.
     validation_records.append(run_command("web_typecheck", "npm run typecheck", web_dir))
-    validation_records.append(run_command("web_build", "npm run build", web_dir))
     validation_records.append(run_command("backend_typecheck", "npm run typecheck", backend_dir))
     validation_records.append(run_command(
         "reading_lifecycle_postgres_test",
         "npx tsx --test --test-reporter=tap src/modules/reading/reading-lifecycle.postgres.test.ts",
-        backend_dir
-    ))
-    validation_records.append(run_command(
-        "backend_all_unit_and_integration_tests",
-        "npm test",
-        backend_dir
+        backend_dir,
+        STACK_DB_ENV
     ))
 
-    # 2. Pre-run check & deterministic fixture cleanup for reader04
-    print("\n[Pre-check] Cleaning fixture test state for reader04 in PostgreSQL...")
+    # 2. Pre-run check: the freshly seeded database must already be pristine for reader04
+    print("\n[Pre-check] Verifying fixture state for reader04 in the disposable database...")
     with psycopg.connect(DB_URL) as conn:
         with conn.cursor() as cur:
             # Verify novel and chapter fixtures
@@ -396,17 +423,13 @@ async def main():
             assert chap_row[2] == "PUBLISHED", f"Chapter status is {chap_row[2]}, expected PUBLISHED!"
             assert chap_row[3] is False, f"Chapter is_vip is {chap_row[3]}, expected False!"
 
-            # Clean any existing bookmark and history for reader04 on this target novel
-            cur.execute(
-                "DELETE FROM bookmarks WHERE user_id = %s AND novel_id = %s",
-                (READER_USER_ID, TARGET_NOVEL_ID)
-            )
-            cur.execute(
-                "DELETE FROM reading_histories WHERE user_id = %s AND novel_id = %s",
-                (READER_USER_ID, TARGET_NOVEL_ID)
-            )
-            conn.commit()
-            print(f"  Pristine state confirmed: novel='{novel_row[1]}', chapter='{chap_row[1]}', bookmarks/histories cleaned.")
+            # Nothing is deleted to reach a pristine state; a fresh database must already be pristine.
+            cur.execute("SELECT count(*) FROM bookmarks WHERE user_id = %s AND novel_id = %s", (READER_USER_ID, TARGET_NOVEL_ID))
+            bookmarks = cur.fetchone()[0]
+            cur.execute("SELECT count(*) FROM reading_histories WHERE user_id = %s AND novel_id = %s", (READER_USER_ID, TARGET_NOVEL_ID))
+            histories = cur.fetchone()[0]
+            assert (bookmarks, histories) == (0, 0), f"Seeded state is not pristine: bookmarks={bookmarks}, histories={histories}"
+            print(f"  Pristine state confirmed: novel='{novel_row[1]}', chapter='{chap_row[1]}', no bookmark or history.")
 
     # 3. Launch Edge headless on dedicated port 9336
     DEBUG_PORT = 9336
@@ -474,9 +497,10 @@ async def main():
         await browser.wait_for_condition("window.location.pathname === '/reader'", 15.0)
         await asyncio.sleep(1.0)
 
-        # Verify reader role and username in shell
-        role_text = await browser.evaluate("document.querySelector('.web-topbar')?.innerText || ''")
-        assert "READER" in role_text, f"Expected READER in topbar, got: {role_text}"
+        # Verify the signed-in role through the shell session hook
+        await browser.wait_for_condition(f"{SESSION_ROLE_JS} === 'READER'", 10.0)
+        role_text = await browser.evaluate(SESSION_ROLE_JS)
+        assert role_text == "READER", f"Expected READER session role, got: {role_text}"
 
         img_a = await browser.screenshot("reader-a-login.png")
 
@@ -585,7 +609,10 @@ async def main():
             print(f"  Captured client POST body: {post_payload}")
 
         # Wait for feedback alert in DOM
-        await browser.wait_for_condition("document.body.innerText.includes('Novel added to your library.')", 10.0)
+        await browser.wait_for_condition(
+            f"{json.dumps(LIBRARY_ADDED_MESSAGES)}.some(message => document.body.innerText.includes(message))",
+            10.0
+        )
 
         # Correlate in PostgreSQL
         with psycopg.connect(DB_URL) as conn:
@@ -963,21 +990,73 @@ async def main():
         "result": "PASS"
     })
     evidence["validation"] = validation_records
-    evidence["verdict"] = "READER_DISCOVERY_READING_STATE_PASS"
+    evidence["working_tree_dirty"] = git_info["working_tree_dirty"]
+    return evidence
 
-    # 6. Save Evidence JSON
-    evidence_json_path = os.path.join(EVIDENCE_DIR, "reader-discovery-reading-state-e2e-evidence.json")
-    with open(evidence_json_path, "w", encoding="utf-8") as f:
+
+def run() -> int:
+    """Runs main() on a disposable stack; refuses before any write when the target is unsafe."""
+    global BACKEND_URL, WEB_URL, DB_URL, STACK_DB_ENV, EVIDENCE_DIR, REPORT_PATH, READER_PASSWORD, READER_USER_ID
+    stack = IsolatedStack(config_from_env("discovery", default_backend_port=4312, default_web_port=5312))
+    try:
+        stack.preflight()
+    except RefusedError as error:
+        print(f"REFUSED: {error}. Nothing was written.")
+        return REFUSED_EXIT_CODE
+    READER_PASSWORD = os.environ.get("EPHURIN_E2E_DEMO_PASSWORD", "")
+    if not READER_PASSWORD:
+        print("REFUSED: missing EPHURIN_E2E_DEMO_PASSWORD. Nothing was written.")
+        return REFUSED_EXIT_CODE
+
+    EVIDENCE_DIR = os.environ.get("EPHURIN_E2E_EVIDENCE_DIR") or os.path.join(tempfile.gettempdir(), "ephurin-e2e", stack.config.db_name)
+    REPORT_PATH = os.path.join(EVIDENCE_DIR, "report.md")
+    os.makedirs(EVIDENCE_DIR, exist_ok=True)
+    shared_before = fingerprint_shared()
+    evidence: Dict[str, Any] = {"checkpoints": {}}
+    failure: Optional[str] = None
+    try:
+        stack.start()
+        BACKEND_URL, WEB_URL, DB_URL, STACK_DB_ENV = stack.api_url, stack.web_url, stack.pg_url, stack.db_env()
+        with psycopg.connect(DB_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT user_id FROM users WHERE email = %s AND role = 'READER'", (READER_EMAIL,))
+                READER_USER_ID = str(cur.fetchone()[0])
+        evidence = asyncio.run(main())
+    except Exception as error:
+        failure = f"{type(error).__name__}: {error}"
+        traceback.print_exc()
+    finally:
+        stack.stop()
+
+    shared_after = fingerprint_shared()
+    evidence.update({
+        "disposable_database": stack.config.db_name,
+        "stack_steps": stack.steps,
+        "db_ownership": stack.ownership,
+        "teardown_ok": stack.teardown_ok,
+        "shared_fingerprint_before": shared_before["sha256"],
+        "shared_fingerprint_after": shared_after["sha256"],
+        "shared_changes": diff_fingerprints(shared_before, shared_after),
+        "stack_logs": stack.config.work_dir,
+        "failure": failure,
+    })
+    expected = [f"reader_{letter}" for letter in "abcdefgh"]
+    passed = all(evidence["checkpoints"].get(key, {}).get("result") == "PASS" for key in expected)
+    ok = failure is None and passed and stack.teardown_ok and not evidence["shared_changes"]
+    evidence["verdict"] = "READER_DISCOVERY_READING_STATE_PASS" if ok else "FAIL"
+
+    with open(os.path.join(EVIDENCE_DIR, "reader-discovery-reading-state-e2e-evidence.json"), "w", encoding="utf-8") as f:
         json.dump(evidence, f, indent=2, ensure_ascii=False)
-    print(f"\n[Evidence] Saved evidence JSON to: {evidence_json_path}")
-
-    # 7. Generate Acceptance Report
-    generate_markdown_report(evidence)
-    print(f"[Report] Generated markdown report at: {REPORT_PATH}")
+    if ok:
+        generate_markdown_report(evidence)
 
     print("\n" + "=" * 80)
-    print("GATE READER-DISCOVERY-READING-STATE-E2E: VERDICT = READER_DISCOVERY_READING_STATE_PASS")
+    for key in expected:
+        print(f"  {key}: {evidence['checkpoints'].get(key, {}).get('result', 'NOT RUN')}")
+    print(f"  disposable DB: {stack.config.db_name} teardown_ok={stack.teardown_ok} shared_changes={evidence['shared_changes'] or 'none'} failure={failure or 'none'}")
+    print(f"VERDICT = {evidence['verdict']}  (evidence: {EVIDENCE_DIR})")
     print("=" * 80)
+    return 0 if ok else 1
 
 
 def generate_markdown_report(ev: Dict[str, Any]):
@@ -1091,30 +1170,18 @@ Covered Invariants:
 
 ## 6. Artifact Inventory
 
-All screenshots captured at 1440x900 viewport via Microsoft Edge CDP:
-
-- `Reader-A`: `docs/development/READER-DISCOVERY-READING-STATE-E2E/reader-a-login.png`
-- `Reader-B`: `docs/development/READER-DISCOVERY-READING-STATE-E2E/reader-b-search-detail.png`
-- `Reader-C`: `docs/development/READER-DISCOVERY-READING-STATE-E2E/reader-c-add-library.png`
-- `Reader-D`: `docs/development/READER-DISCOVERY-READING-STATE-E2E/reader-d-library-persisted.png`
-- `Reader-E`: `docs/development/READER-DISCOVERY-READING-STATE-E2E/reader-e-chapter-reading.png`
-- `Reader-F`: `docs/development/READER-DISCOVERY-READING-STATE-E2E/reader-f-history-sync.png`
-- `Reader-G`: `docs/development/READER-DISCOVERY-READING-STATE-E2E/reader-g-history-continue.png`
-- `Reader-H`: `docs/development/READER-DISCOVERY-READING-STATE-E2E/reader-h-library-removed.png`
-
-Canonical evidence JSON:
-- `docs/development/READER-DISCOVERY-READING-STATE-E2E/reader-discovery-reading-state-e2e-evidence.json`
+Screenshots (1440x900, Microsoft Edge CDP) and the evidence JSON are in `{EVIDENCE_DIR}`:
+`reader-a-login.png`, `reader-b-search-detail.png`, `reader-c-add-library.png`, `reader-d-library-persisted.png`,
+`reader-e-chapter-reading.png`, `reader-f-history-sync.png`, `reader-g-history-continue.png`,
+`reader-h-library-removed.png`, `reader-discovery-reading-state-e2e-evidence.json`.
 
 ---
 
-## 7. Stop Boundary State
+## 7. Isolation and State
 
-- **Gate Status**: `LOCAL_PASS_CI_PENDING`
-- **Branch**: `{ev['branch']}`
-- **Working Tree**: Clean (`git status --porcelain` is empty)
-- **Tested Code Commit**: `{ev['tested_code_sha']}`
-- **Evidence Push**: Complete
-- **No PR or merge to main attempted** (owned by ChatGPT).
+- **Branch**: `{ev['branch']}`; tested code commit `{ev['tested_code_sha']}`; uncommitted tracked changes: {ev['working_tree_dirty']}
+- **Disposable database** (PostgreSQL + MongoDB): `{ev['disposable_database']}`; dropped after the run: {ev['teardown_ok']}
+- **Shared database fingerprint**: before `{ev['shared_fingerprint_before'][:16]}`, after `{ev['shared_fingerprint_after'][:16]}`, changed: {ev['shared_changes'] or 'none'}
 """
 
     with open(REPORT_PATH, "w", encoding="utf-8") as f:
@@ -1122,4 +1189,4 @@ Canonical evidence JSON:
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    sys.exit(run())
