@@ -143,6 +143,12 @@ Các bài kiểm tra trên không dùng chương đang viết của người dù
 
 ## Công cụ sửa bản thảo tham khảo từ Docs
 
+- Thanh vùng chọn hiện tên chức năng khi rê chuột hoặc focus bằng bàn phím, gồm định dạng chữ, ghi chú riêng, chú thích cho độc giả, đánh dấu, cẩm nang và AI.
+- Cỡ chữ và giãn dòng có ô nhập trực tiếp trên thanh định dạng; Enter hoặc rời ô xác nhận giá trị. Giữ phạm vi hiện có: cỡ chữ 13–28, giãn dòng 1.2–3. Các nút tăng/giảm và mức giãn dòng có sẵn vẫn dùng được, lựa chọn còn sau khi tải lại.
+- **Chèn → Ký tự đặc biệt**, hoặc nút **Ω**, mở kho có tìm kiếm theo tên/ký tự: ngoặc `「」『』【】《》`, dấu câu, dấu ngắt cảnh, mũi tên và ký hiệu. Cặp ngoặc bọc phần chữ đang chọn; nếu không chọn, đặt con trỏ giữa cặp. Chèn ký tự đi qua lịch sử và autosave, giữ vị trí ghi chú riêng.
+- **Xem trước như độc giả** có ngay trên hàng menu, kể cả chương chưa có chú thích. Phần phạm vi ngữ cảnh AI dùng nhãn ở trên và ô chọn toàn chiều rộng bên dưới để tên Story Bible không ép nhãn xuống dòng.
+- Kiểm tra các thao tác này bằng `npm run test:studio-polish`; browser test chạy cả Soạn thảo/Ký hiệu định dạng, desktop/mobile và sáng/tối.
+
 - **Chỉnh sửa → Xóa định dạng vùng chọn** (Ctrl/Cmd+\): bỏ in đậm, nghiêng, gạch chân và gạch ngang trong phần chọn, giữ định dạng phần trước/sau. Có cả trong menu chuột phải. Không đổi phông, cỡ chữ hoặc bố cục chung.
 - **Chỉnh sửa → Đổi vùng chọn thành CHỮ HOA / chữ thường** giữ các dấu định dạng; hỗ trợ tiếng Việt và có thể hoàn tác.
 - **Chèn → Ngoặc thoại** bao vùng chọn bằng “…”; nếu chưa chọn, đặt con trỏ giữa hai dấu. **Dấu chấm lửng** chèn ký tự ….

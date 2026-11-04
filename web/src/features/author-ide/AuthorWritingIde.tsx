@@ -3,6 +3,8 @@ import { useToast } from '../../shared/components/ToastProvider';
 import { SaveStatus } from '../../shared/components/SaveFeedback';
 import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
 import { StudioWorkbench } from './StudioWorkbench';
+import { StudioNumberField } from './StudioNumberField';
+import { AnimatedTooltip } from '../../shared/components/AnimatedTooltip';
 import { useStudioHistory } from './useStudioHistory';
 import { revealStudioSelection } from './studio-tools';
 import { RichManuscriptEditor } from './RichManuscriptEditor';
@@ -966,6 +968,7 @@ export function AuthorWritingIde() {
             aria-controls="studio-ai-panel"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-meta font-semibold rounded-lg bg-primary-50 text-primary-600 hover:bg-primary-100 border border-primary-200/90 transition-all shadow-2xs "
             title="Mở trợ lý sáng tác AI"
+            aria-label="AI Hỗ trợ viết"
             type="button"
           >
             <span className="material-symbols-outlined text-primary-600 text-[16px] fill-icon">auto_awesome</span>
@@ -1151,9 +1154,7 @@ export function AuthorWritingIde() {
                   >
                     A-
                   </button>
-                  <span className="w-8 text-center font-mono font-semibold text-meta text-stone-700 select-none">
-                    {fontSize}
-                  </span>
+                  <StudioNumberField value={fontSize} onChange={setFontSize} min={13} max={28} step={1} label="Cỡ chữ" />
                   <button
                     onClick={() => setFontSize((prev) => Math.min(28, prev + 1))}
                     disabled={fontSize >= 28}
@@ -1214,9 +1215,11 @@ export function AuthorWritingIde() {
                 <div className="h-4 w-px bg-stone-200 mx-1"></div>
 
                 {/* 4. Line Spacing & Indent */}
-                <Menu position="bottom-start" onCloseAutoFocus={preserveNextToolbarMenu}><Menu.Target><button className="h-7 px-2 flex items-center gap-1" title="Khoảng cách giãn dòng (Line-height)" type="button">
-                  <span className="material-symbols-outlined text-[15px]">format_line_spacing</span><span>{lineHeight}x</span><span className="material-symbols-outlined text-[15px]">expand_more</span>
-                </button></Menu.Target><Menu.Dropdown><Menu.Label>Giãn dòng bản thảo</Menu.Label>{[{val:1.8,label:'1.8x • Gọn gàng'},{val:2.15,label:'2.15x • Chuẩn tiểu thuyết'},{val:2.5,label:'2.5x • Rộng rãi, thoáng'}].map(option => <Menu.Item key={option.val} onClick={() => setLineHeight(option.val)} leftSection={lineHeight === option.val ? '✓' : ' '}>{option.label}</Menu.Item>)}</Menu.Dropdown></Menu>
+                <div className="sc-studio-spacing-control">
+                  <span className="material-symbols-outlined" aria-hidden="true">format_line_spacing</span>
+                  <StudioNumberField value={lineHeight} onChange={setLineHeight} min={1.2} max={3} step={0.05} label="Giãn dòng" /><span aria-hidden="true">x</span>
+                  <Menu position="bottom-start" onCloseAutoFocus={preserveNextToolbarMenu}><Menu.Target><button title="Khoảng cách giãn dòng (Line-height)" aria-label="Chọn mức giãn dòng" type="button"><span className="material-symbols-outlined" aria-hidden="true">expand_more</span></button></Menu.Target><Menu.Dropdown><Menu.Label>Giãn dòng bản thảo</Menu.Label>{[{val:1.8,label:'1.8x • Gọn gàng'},{val:2.15,label:'2.15x • Chuẩn tiểu thuyết'},{val:2.5,label:'2.5x • Rộng rãi, thoáng'}].map(option => <Menu.Item key={option.val} onClick={() => setLineHeight(option.val)} leftSection={lineHeight === option.val ? '✓' : ' '}>{option.label}</Menu.Item>)}</Menu.Dropdown></Menu>
+                </div>
 
                 {/* First-line Indent Toggle */}
                 <button
@@ -1297,8 +1300,7 @@ export function AuthorWritingIde() {
                 >
                   —
                 </button>
-
-
+                <AnimatedTooltip label="Chèn ký tự đặc biệt"><button type="button" className="sc-studio-symbol-trigger" aria-label="Chèn ký tự đặc biệt" onMouseDown={event => event.preventDefault()} onClick={() => editorRef.current?.dispatchEvent(new CustomEvent('studio-open-symbols'))}>Ω</button></AnimatedTooltip>
               </div>
             </div>
           )}
@@ -1390,16 +1392,16 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Context Scope Selector */}
-            <div className="px-3 py-2 border-b border-stone-100 bg-surface-container-lowest flex items-center justify-between text-meta">
-              <span className="text-stone-500 font-medium">Phạm vi ngữ cảnh:</span>
+            <div className="sc-ai-context-scope">
+              <label htmlFor="studio-ai-context-scope">Phạm vi ngữ cảnh</label>
               <select
+                id="studio-ai-context-scope"
                 value={aiScope}
-                onChange={(e) => setAiScope(e.target.value as any)}
-                className="text-meta py-0.5 px-2 rounded-md border-stone-200 bg-stone-50 text-stone-700 focus:ring-primary-500 focus:border-primary-500 font-medium"
+                onChange={(e) => setAiScope(e.target.value as typeof aiScope)}
               >
                 <option value="selection">Đoạn văn vừa viết</option>
                 <option value="full">Toàn bộ chương hiện tại</option>
-                <option value="bible">Story Bible (Nhân vật & Sự kiện)</option>
+                <option value="bible">Story Bible · Nhân vật &amp; sự kiện</option>
               </select>
             </div>
 

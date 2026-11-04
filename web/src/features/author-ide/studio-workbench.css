@@ -5,8 +5,33 @@ html:has(.sc-writing-studio) { scrollbar-gutter: auto; overflow: hidden; }
 .sc-studio-command-row .sc-studio-settings { flex: 1; min-width: 0; min-height: 36px; padding-block: 2px; padding-inline: 8px; border: 0; gap: 8px; background: transparent; }
 .sc-studio-command-row .sc-studio-settings-controls { gap: 8px; }
 .sc-writing-studio .sc-format-toolbar { padding-block: 4px; margin-bottom: 8px; }
-.sc-writing-studio .sc-format-toolbar .sc-format-controls { width: min(100%, var(--sc-studio-reading-width, 760px)); max-width: 100%; overflow-x: auto; flex-wrap: nowrap; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.sc-writing-studio .sc-format-toolbar .sc-format-controls { width: min(100%, var(--sc-studio-reading-width, 760px)); max-width: 100%; overflow-x: auto; flex-wrap: nowrap; gap: 2px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
 .sc-format-controls > * { flex-shrink: 0; }
+.sc-writing-studio .sc-format-controls .sc-studio-number-field { width: 32px; height: 26px; min-height: 0; padding: 0 2px; border: 0; border-radius: 4px; background: transparent; color: var(--sc-text); font: 600 13px/20px var(--sc-font); text-align: center; appearance: textfield; }
+.sc-studio-number-field::-webkit-inner-spin-button, .sc-studio-number-field::-webkit-outer-spin-button { appearance: none; margin: 0; }
+.sc-writing-studio .sc-format-controls .sc-studio-number-field:focus { outline: 2px solid var(--sc-focus-ring); outline-offset: -2px; box-shadow: none; }
+.sc-studio-spacing-control { display: inline-flex; align-items: center; gap: 1px; padding-inline: 2px; }
+.sc-studio-spacing-control > .material-symbols-outlined, .sc-studio-spacing-control button .material-symbols-outlined { font-size: 16px; }
+.sc-writing-studio .sc-format-controls .sc-studio-spacing-control input { width: 40px; }
+.sc-studio-spacing-control button { display: inline-flex; align-items: center; padding: 0; height: 26px; border: 0; border-radius: 4px; color: inherit; background: transparent; cursor: pointer; }
+.sc-studio-symbol-trigger { display: inline-flex; align-items: center; justify-content: center; height: 28px; width: 28px; border: 0; border-radius: 6px; background: transparent; color: var(--sc-text); font: 500 18px/1 var(--sc-font); cursor: pointer; }
+.sc-studio-symbol-trigger:hover { background: var(--sc-primary-soft); }
+.sc-studio-workbench-bar .sc-studio-preview-button { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.sc-studio-preview-button .material-symbols-outlined { font-size: 18px; }
+.sc-ai-context-scope { display: grid; gap: 6px; min-width: 0; padding: 10px 12px; border-bottom: 1px solid var(--sc-border); background: var(--sc-surface); }
+.sc-ai-context-scope label { color: var(--sc-text-muted); font: 500 12px/18px var(--sc-font); }
+.sc-writing-studio .sc-ai-context-scope select { display: block; width: 100%; min-width: 0; height: 36px; padding: 6px 8px; border: 1px solid var(--sc-border); border-radius: 6px; background: var(--sc-surface-subtle); color: var(--sc-text); font: 500 13px/20px var(--sc-font); }
+.sc-symbol-search { display: block; width: 100%; padding: 9px 12px; border: 1px solid var(--sc-border); border-radius: 8px; background: var(--sc-surface-subtle); color: var(--sc-text); font: 400 14px/20px var(--sc-font); }
+.sc-symbol-selection { color: var(--sc-text-muted); font: 400 13px/20px var(--sc-font); overflow-wrap: anywhere; }
+.sc-symbol-selection span { color: var(--sc-text); }
+.sc-symbol-group { margin-block: 20px; }
+.sc-symbol-group h3 { margin: 0 0 10px; font: 600 14px/20px var(--sc-font); }
+.sc-symbol-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+.sc-symbol-grid button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 80px; padding: 8px; border: 1px solid var(--sc-border); border-radius: 8px; background: var(--sc-surface-subtle); color: var(--sc-text); cursor: pointer; }
+.sc-symbol-grid button:hover, .sc-symbol-grid button:focus-visible { border-color: var(--sc-primary); background: var(--sc-primary-soft); }
+.sc-symbol-grid .sc-symbol-glyph { font: 400 26px/32px var(--sc-font); }
+.sc-symbol-grid small { font: 400 11px/16px var(--sc-font); text-align: center; }
+@media(max-width:600px) { .sc-studio-preview-label { display: none; } .sc-studio-workbench-bar .sc-studio-preview-button { order: -1; } }
 .sc-writing-studio .sc-manuscript-page { padding-top: 20px; padding-inline: var(--sc-studio-page-padding, 64px); max-width: var(--sc-studio-reading-width, 760px); }
 .sc-studio-editor-region { --sc-studio-canvas-gutter: 32px; --sc-studio-notes-width: 336px; display: grid; grid-template-columns: minmax(0, 1fr); position: relative; flex: 1; min-width: 0; min-height: 0; overflow: hidden; }
 .sc-writing-studio .sc-editor-workspace { grid-column: 1; grid-row: 1; min-width: 0; scrollbar-gutter: stable; }

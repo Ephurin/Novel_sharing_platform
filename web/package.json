@@ -26,6 +26,7 @@
     "test:studio-tools": "tsx --test tests/studio-tools.test.mjs && node --test tests/studio-workbench.browser.test.mjs",
     "test:studio-notes-layout": "node --test tests/studio-notes-layout.browser.test.mjs",
     "test:studio-enhancements": "node --test tests/studio-enhancements.browser.test.mjs",
+    "test:studio-polish": "tsx --test tests/studio-polish.test.mjs && node --test tests/studio-polish.browser.test.mjs",
     "test:studio-assistance": "tsx --test tests/studio-writing-assistance.test.mjs && node --test tests/studio-writing-assistance.browser.test.mjs"
   },
   "dependencies": {

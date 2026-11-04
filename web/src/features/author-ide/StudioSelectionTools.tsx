@@ -3,6 +3,7 @@ import { autoUpdate, flip, FloatingPortal, offset, shift, useFloating } from '@f
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { selectedStudioText } from './studio-formatting';
 import { revealStudioSelection } from './studio-tools';
+import { AnimatedTooltip } from '../../shared/components/AnimatedTooltip';
 
 type Selection = { start: number; end: number; value: string; rect: DOMRect; context: HTMLElement; below: boolean };
 
@@ -69,14 +70,14 @@ export function StudioSelectionTools({ editor, disabled, onFormat, onLookup, onA
   return <FloatingPortal><AnimatePresence>{selection && !disabled && <div ref={refs.setFloating} style={floatingStyles} className="sc-studio-selection-position">
     <motion.div className="sc-studio-selection-tools" role="toolbar" aria-label="Công cụ vùng chọn" initial={{ opacity: 0, scale: reduce ? 1 : .97 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduce ? 0 : .16 }} onPointerDown={event => event.preventDefault()}
       onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); const el = editor.current; if (el) revealStudioSelection(el, selection.start, selection.end, false); setSelection(null); } if (['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) { event.preventDefault(); const controls = Array.from(event.currentTarget.querySelectorAll('button')), at = controls.indexOf(document.activeElement as HTMLButtonElement); controls[event.key === 'Home' ? 0 : event.key === 'End' ? controls.length - 1 : (at + (event.key === 'ArrowLeft' ? -1 : 1) + controls.length) % controls.length]?.focus(); } }}>
-      <button type="button" aria-label="In đậm vùng chọn" onClick={() => act(() => onFormat('bold'))}><b>B</b></button>
-      <button type="button" aria-label="In nghiêng vùng chọn" onClick={() => act(() => onFormat('italic'))}><i>I</i></button>
-      <button type="button" aria-label="Gạch chân vùng chọn" onClick={() => act(() => onFormat('underline'))}><u>U</u></button>
+      <AnimatedTooltip label="In đậm"><button type="button" aria-label="In đậm vùng chọn" onClick={() => act(() => onFormat('bold'))}><b>B</b></button></AnimatedTooltip>
+      <AnimatedTooltip label="In nghiêng"><button type="button" aria-label="In nghiêng vùng chọn" onClick={() => act(() => onFormat('italic'))}><i>I</i></button></AnimatedTooltip>
+      <AnimatedTooltip label="Gạch chân"><button type="button" aria-label="Gạch chân vùng chọn" onClick={() => act(() => onFormat('underline'))}><u>U</u></button></AnimatedTooltip>
       <span className="sc-selection-divider" aria-hidden="true" />
-      <button type="button" aria-label="Ghi chú vùng chọn" onClick={() => act(() => editor.current?.dispatchEvent(new CustomEvent('studio-add-note')))}><span className="material-symbols-outlined" aria-hidden="true">add_comment</span></button>
-      <button type="button" aria-label="Chú thích vùng chọn cho độc giả" title="Chú thích cho độc giả" onClick={() => act(() => editor.current?.dispatchEvent(new CustomEvent('studio-add-reader-note')))}><span className="material-symbols-outlined" aria-hidden="true">speaker_notes</span></button>
-      <button type="button" aria-label="Đánh dấu vùng chọn" onClick={() => act(() => editor.current?.dispatchEvent(new CustomEvent('studio-add-bookmark')))}><span className="material-symbols-outlined" aria-hidden="true">bookmark_add</span></button>
-      <button type="button" aria-label="Tra cứu vùng chọn trong cẩm nang" onClick={() => act(() => onLookup(selectedStudioText(selection.value, selection.start, selection.end)))}><span className="material-symbols-outlined" aria-hidden="true">menu_book</span></button>
-      <button type="button" aria-label="Hỏi AI về vùng chọn" onClick={() => act(onAi)}><span className="material-symbols-outlined" aria-hidden="true">auto_awesome</span></button>
+      <AnimatedTooltip label="Ghi chú riêng"><button type="button" aria-label="Ghi chú vùng chọn" onClick={() => act(() => editor.current?.dispatchEvent(new CustomEvent('studio-add-note')))}><span className="material-symbols-outlined" aria-hidden="true">add_comment</span></button></AnimatedTooltip>
+      <AnimatedTooltip label="Chú thích cho độc giả"><button type="button" aria-label="Chú thích vùng chọn cho độc giả" onClick={() => act(() => editor.current?.dispatchEvent(new CustomEvent('studio-add-reader-note')))}><span className="material-symbols-outlined" aria-hidden="true">speaker_notes</span></button></AnimatedTooltip>
+      <AnimatedTooltip label="Đánh dấu đoạn"><button type="button" aria-label="Đánh dấu vùng chọn" onClick={() => act(() => editor.current?.dispatchEvent(new CustomEvent('studio-add-bookmark')))}><span className="material-symbols-outlined" aria-hidden="true">bookmark_add</span></button></AnimatedTooltip>
+      <AnimatedTooltip label="Tra cứu cẩm nang"><button type="button" aria-label="Tra cứu vùng chọn trong cẩm nang" onClick={() => act(() => onLookup(selectedStudioText(selection.value, selection.start, selection.end)))}><span className="material-symbols-outlined" aria-hidden="true">menu_book</span></button></AnimatedTooltip>
+      <AnimatedTooltip label="Hỏi AI về vùng chọn"><button type="button" aria-label="Hỏi AI về vùng chọn" onClick={() => act(onAi)}><span className="material-symbols-outlined" aria-hidden="true">auto_awesome</span></button></AnimatedTooltip>
     </motion.div></div>}</AnimatePresence></FloatingPortal>;
 }

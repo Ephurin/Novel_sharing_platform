@@ -14,6 +14,8 @@ import { PassageNotes } from './PassageNotes';
 import { StudioBookmarks } from './StudioBookmarks';
 import { StudioProofreader } from './StudioProofreader';
 import { ReaderNotesPanel } from './ReaderNotesPanel';
+import { StudioSpecialCharacters } from './StudioSpecialCharacters';
+import { insertStudioSymbol, type StudioSymbol } from './studio-symbols';
 import { rememberAnnotationEdits } from './studio-annotations';
 import { transformStudioRange } from './studio-formatting';
 import './studio-workbench.css';
@@ -33,6 +35,8 @@ type Props = {
 export function StudioWorkbench({ scope, title, content, editor, disabled, apply, undo, redo, canUndo, canRedo, save, onError, exportOpen, onExportClose, chapterSettings, fileActions, formatToolbarVisible, onLookup, onSearchNovel, notesOpen, onNotesOpenChange, publishedContent, chapterStatus, onPublish }: Props) {
   const [panel, setPanel] = useState<'search' | 'replace' | 'scenes' | null>(null);
   const [preview, setPreview] = useState(false), [statistics, setStatistics] = useState(false), [help, setHelp] = useState(false);
+  const [symbolsOpen, setSymbolsOpen] = useState(false);
+  const symbolRange = useRef({ text: content, start: 0, end: 0 });
   const [query, setQuery] = useState(''), [replacement, setReplacement] = useState('');
   const [caseSensitive, setCaseSensitive] = useState(false), [wholeWord, setWholeWord] = useState(false);
   const [matchIndex, setMatchIndex] = useState(-1), [announcement, setAnnouncement] = useState(''), [saving, setSaving] = useState(false);
@@ -89,6 +93,20 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
     }
   };
   const closeTools = () => { setPanel(null); onNotesOpenChange(false); const el = editor.current; if (el) revealStudioSelection(el, el.selectionStart, el.selectionEnd, false); };
+  const openSymbols = () => {
+    const el = editor.current; if (!el || disabled) return;
+    symbolRange.current = { text: el.value, start: el.selectionStart, end: el.selectionEnd };
+    setSymbolsOpen(true);
+  };
+  const insertSymbol = (symbol: StudioSymbol) => {
+    const el = editor.current, range = symbolRange.current;
+    if (!el || disabled || el.value !== range.text) { onError('Bản thảo đã thay đổi. Chọn lại vị trí để chèn ký tự.'); return; }
+    const next = insertStudioSymbol(range.text, range.start, range.end, symbol);
+    rememberAnnotationEdits(el, range.text, next.text, next.edits);
+    symbolRange.current = { text: next.text, start: next.start, end: next.end };
+    setSymbolsOpen(false); apply(next.text, next.start, next.end);
+  };
+  useEffect(() => { const el = editor.current; el?.addEventListener('studio-open-symbols', openSymbols); return () => el?.removeEventListener('studio-open-symbols', openSymbols); }, [editor, disabled]);
   const nextMatch = (direction = 1) => {
     if (!found.matches.length) return;
     const next = matchIndex < 0 ? (direction > 0 ? 0 : found.matches.length - 1) : (matchIndex + direction + found.matches.length) % found.matches.length;
@@ -202,6 +220,7 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
         <Menu.Item disabled={disabled} onClick={quoteSelection}>Ngoặc thoại</Menu.Item>
         <Menu.Item disabled={disabled} onClick={() => insert('…')}>Dấu chấm lửng</Menu.Item>
         <Menu.Item disabled={disabled} onClick={() => insert('\n\n> Trích dẫn\n\n')}>Khối trích dẫn</Menu.Item>
+        <Menu.Item disabled={disabled} onClick={openSymbols}>Ký tự đặc biệt</Menu.Item>
         <Menu.Divider />
         <Menu.Item disabled={disabled} onClick={addReaderNote}>Chú thích cho độc giả</Menu.Item>
       </Menu.Dropdown></Menu>
@@ -232,6 +251,7 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
         {(['narrow','standard','wide'] as const).map(option => <Menu.Item key={option} onClick={() => setWidth(option)} leftSection={width === option ? '✓' : ' '}>{option === 'narrow' ? 'Hẹp · dòng ngắn' : option === 'standard' ? 'Vừa · mặc định' : 'Rộng · tận dụng màn hình'}</Menu.Item>)}
       </Menu.Dropdown></Menu>
       <button type="button" aria-expanded={notesOpen} aria-controls="studio-notes-sidebar" onMouseDown={event => event.preventDefault()} onClick={() => notesOpen ? closeTools() : openNotes()}>Ghi chú</button>
+      <AnimatedTooltip label="Xem trước như độc giả"><button type="button" className="sc-studio-preview-button" aria-label="Xem trước như độc giả" onClick={() => setPreview(true)}><span className="material-symbols-outlined" aria-hidden="true">visibility</span><span className="sc-studio-preview-label">Xem trước như độc giả</span></button></AnimatedTooltip>
       {!online && <span role="status" className="sc-studio-offline">Ngoại tuyến · kiểm tra trạng thái lưu trước khi rời trang</span>}
     </div>{chapterSettings}</div>
     <motion.section hidden={!panel} ref={panelRef} className="sc-studio-tool-panel" aria-label={panel === 'search' ? 'Tìm kiếm bản thảo' : panel === 'replace' ? 'Thay thế bản thảo' : 'Điều hướng cảnh'} initial={false} animate={{ opacity: 1, height: 'auto' }} transition={{ duration: reduce ? 0 : 0.16 }}>
@@ -263,6 +283,7 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
       <p className="text-meta">Xuất nội dung đang viết. Ghi chú riêng không đi vào bản xuất.</p>
       <button type="button" className="sc-button sc-button-primary" disabled={exporting} aria-busy={exporting} onClick={() => void exportFile(exportType, true)}><FeedbackIcon icon={exporting ? 'sync' : 'download'} busy={exporting} />{exporting ? 'Đang tạo tệp…' : 'Xuất tệp'}</button>
     </AnimatedModal>
+    {symbolsOpen && <StudioSpecialCharacters opened selected={plainStudioText(symbolRange.current.text.slice(symbolRange.current.start, symbolRange.current.end))} onInsert={insertSymbol} onClose={() => setSymbolsOpen(false)} onRestoreFocus={() => { const el = editor.current, range = symbolRange.current; if (el && el.value === range.text && !document.querySelector('[role="dialog"][data-state="open"], [role="menu"][data-state="open"]')) revealStudioSelection(el, range.start, range.end, false); }} />}
     <AnimatedModal opened={preview} onClose={() => setPreview(false)} title="Xem bản định dạng" size="xl" centered><p className="text-meta">Xem nội dung đang viết, kể cả thay đổi chưa đồng bộ. Định dạng hiển thị theo các ký hiệu đang hỗ trợ.</p><CopyTextButton value={plainStudioText(content)} label="Sao chép văn bản" /><article className="sc-studio-reading-preview"><h1>{title}</h1><ManuscriptContent content={content} /></article></AnimatedModal>
     <AnimatedModal opened={statistics} onClose={() => setStatistics(false)} title="Thống kê & mục tiêu chương" centered><dl className="sc-studio-statistics"><dt>Số từ</dt><dd><AnimatedNumber value={stats.words} /></dd><dt>Ký tự / không khoảng trắng</dt><dd><AnimatedNumber value={stats.characters} /> / <AnimatedNumber value={stats.withoutSpaces} /></dd><dt>Đoạn văn</dt><dd><AnimatedNumber value={stats.paragraphs} /></dd><dt>Thời gian đọc ước tính</dt><dd>{Math.max(1, Math.ceil(stats.words / 350))} phút</dd>{selected && <><dt>Vùng đang chọn</dt><dd>{studioStatistics(selected).words} từ · {Array.from(selected).length} ký tự</dd></>}</dl><label className="sc-studio-goal">Mục tiêu số từ<input type="number" aria-label="Mục tiêu số từ" min={100} max={100000} step={100} value={goalDraft} onChange={e => { setGoalDraft(e.target.value); const next = Number(e.target.value); if (next >= 100 && next <= 100000 && Number.isInteger(next)) setGoal(next); }} onBlur={() => setGoalDraft(String(goal))} /></label><WritingGoalFeedback words={stats.words} goal={goal} /></AnimatedModal>
     <AnimatedModal opened={help} onClose={() => setHelp(false)} title="Phím tắt Studio" centered><dl><dt>Alt + Shift + T</dt><dd>Focus thanh công cụ vùng chọn (khi đang hiện)</dd><dt>Ctrl/Cmd + S</dt><dd>Lưu ngay</dd><dt>Ctrl/Cmd + F</dt><dd>Tìm trong bản thảo</dd><dt>Ctrl/Cmd + Shift + F</dt><dd>Tìm xuyên chương trong tác phẩm</dd><dt>Ctrl/Cmd + H</dt><dd>Thay thế trong bản thảo</dd><dt>Ctrl/Cmd + Alt + M</dt><dd>Ghi chú vùng chọn hoặc dòng hiện tại</dd><dt>Ctrl/Cmd + \</dt><dd>Xóa định dạng vùng chọn</dd><dt>Ctrl/Cmd + Shift + C</dt><dd>Thống kê vùng chọn và mục tiêu</dd><dt>Ctrl/Cmd + Z</dt><dd>Hoàn tác nội dung</dd><dt>Ctrl/Cmd + Shift + Z hoặc Ctrl + Y</dt><dd>Làm lại nội dung</dd><dt>Enter / Shift + Enter trong ô tìm</dt><dd>Kết quả tiếp / trước</dd><dt>Esc</dt><dd>Đóng công cụ hoặc hộp thoại</dd></dl><p className="text-meta">Hoàn tác/làm lại chỉ áp dụng trong nội dung chương hiện tại. Ghi chú và ô nhập khác giữ phím tắt riêng của trình duyệt.</p></AnimatedModal>
