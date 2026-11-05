@@ -538,6 +538,12 @@ export function AuthorWritingIde() {
   }, [aiDrawerOpen]);
   const studioHistory = useStudioHistory(activeDraftScope, content, studioReady, handleContentChange);
   const studioCaret = useRef<{ scope: string; start: number; end: number; text: string } | null>(null);
+  const changeEditorMode = (visual: boolean) => {
+    if (visual === visualEditor) return;
+    const editor = editorRef.current;
+    if (editor) studioCaret.current = { scope: activeDraftScope, start: editor.selectionStart, end: editor.selectionEnd, text: content };
+    setVisualEditor(visual); writeEditorSetting('storycraft-studio-editor-mode', visual ? 'visual' : 'source');
+  };
   const applyStudioEdit = (value: string, start: number, end: number) => {
     if (!studioReady || isAcceptingAi) return;
     studioCaret.current = { scope: activeDraftScope, start, end, text: value };
@@ -555,7 +561,7 @@ export function AuthorWritingIde() {
     if (caret && caret.scope === activeDraftScope && caret.text === content && editorRef.current && studioReady) {
       studioCaret.current = null; adjustHeight(); revealStudioSelection(editorRef.current, caret.start, caret.end); rememberEditorSelection();
     } else if (caret?.scope !== activeDraftScope) studioCaret.current = null;
-  }, [content, activeDraftScope, studioReady]);
+  }, [content, activeDraftScope, studioReady, visualEditor]);
 
   const handleAccessChange = (mode: AccessMode) => {
     if (isAcceptingAi) return;
@@ -1318,7 +1324,7 @@ export function AuthorWritingIde() {
 
             {/* Prose Editor Textarea: Auto-grow without internal scrollbar */}
             <StudioContextMenu key={activeDraftScope} editor={editorRef} disabled={!studioReady || isAcceptingAi} apply={applyStudioEdit} onError={message => showToast(message, 'error')} onLookup={setReferenceQuery} onAi={() => { rememberEditorSelection(); openAiDrawer(); }} onCopied={() => showToast('Đã sao chép vùng chọn.')}><div className="sc-manuscript-input w-full min-h-[500px]">
-              <div className="sc-studio-editor-mode" role="group" aria-label="Chế độ soạn thảo"><button type="button" aria-pressed={visualEditor} onClick={() => { setVisualEditor(true); writeEditorSetting('storycraft-studio-editor-mode', 'visual'); }}>Soạn thảo</button><button type="button" aria-pressed={!visualEditor} onClick={() => { setVisualEditor(false); writeEditorSetting('storycraft-studio-editor-mode', 'source'); }}>Ký hiệu định dạng</button></div>
+              <div className="sc-studio-editor-mode" role="group" aria-label="Chế độ soạn thảo"><button type="button" aria-pressed={visualEditor} onMouseDown={event => event.preventDefault()} onClick={() => changeEditorMode(true)}>Soạn thảo</button><button type="button" aria-pressed={!visualEditor} onMouseDown={event => event.preventDefault()} onClick={() => changeEditorMode(false)}>Ký hiệu định dạng</button></div>
               {visualEditor && <RichManuscriptEditor value={content} source={editorRef} disabled={!studioReady || isAcceptingAi}
                 style={{ fontFamily: currentFontConfig.fontFamily, fontSize: `${fontSize}px`, lineHeight, textAlign, textIndent: paragraphIndent ? '2.5rem' : '0' }}
                 onChange={(next, start, end) => studioHistory.edit(next, start, end, true)} onSelection={(start, end) => { editorSelectionRef.current = { scope: activeDraftScope, start, end }; studioHistory.remember(start, end); }}

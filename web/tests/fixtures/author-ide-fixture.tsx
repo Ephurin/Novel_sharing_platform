@@ -43,6 +43,7 @@ const queryClient = new QueryClient({
 function App() {
   const [mode, setMode] = useState<'light' | 'dark'>('light');
   const [generation, setGeneration] = useState(0);
+  const [accountIndex, setAccountIndex] = useState(0);
 
   useEffect(() => {
     document.documentElement.dataset.theme = mode;
@@ -54,8 +55,13 @@ function App() {
     setGeneration((v) => v + 1);
   };
 
-  const novelId = config?.accounts?.[0]?.novelId ?? '';
-  const chapterId = config?.accounts?.[0]?.chapterIds?.[0] ?? '';
+  (window as any).selectTestAccount = (index: number) => {
+    const account = config.accounts[index];
+    useAuthStore.getState().setSession({ accessToken: account.token, user: { userId: account.userId, role: 'AUTHOR', username: 'author_tester', email: 'author_tester@test.invalid' } });
+    queryClient.clear(); setAccountIndex(index); setGeneration(value => value + 1);
+  };
+  const novelId = config?.accounts?.[accountIndex]?.novelId ?? '';
+  const chapterId = config?.accounts?.[accountIndex]?.chapterIds?.[0] ?? '';
   const initialUrl = `/author/ide?novelId=${novelId}&chapterId=${chapterId}`;
 
   const router = React.useMemo(() => {
@@ -75,6 +81,7 @@ function App() {
       }
     );
   }, [generation, initialUrl]);
+  (window as any).navigateTestChapter = (id: string) => router.navigate(`/author/ide?novelId=${novelId}&chapterId=${id}`);
 
   return (
     <QueryClientProvider client={queryClient}>

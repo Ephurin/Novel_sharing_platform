@@ -47,7 +47,7 @@ export function StudioSelectionTools({ editor, disabled, onFormat, onLookup, onA
         }
         const workspace = el.closest('.sc-editor-workspace')?.getBoundingClientRect();
         if (!workspace || rect.bottom < workspace.top + 60 || rect.top > workspace.bottom || rect.right < workspace.left || rect.left > workspace.right) { setSelection(null); return; }
-        const formatBottom = el.closest('.sc-editor-workspace')?.querySelector('.sc-format-toolbar')?.getBoundingClientRect().bottom ?? workspace.top;
+        const formatBottom = Math.max(el.closest('.sc-editor-workspace')?.querySelector('.sc-format-toolbar')?.getBoundingClientRect().bottom ?? workspace.top, el.closest('.sc-manuscript-input')?.querySelector('.sc-studio-editor-mode')?.getBoundingClientRect().bottom ?? workspace.top);
         setSelection({ start: el.selectionStart, end: el.selectionEnd, value: el.value, rect, context, below: rect.top - 56 < formatBottom });
       });
     };

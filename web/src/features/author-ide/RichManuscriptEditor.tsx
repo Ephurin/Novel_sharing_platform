@@ -2,15 +2,21 @@ import { useLayoutEffect, useRef, type CSSProperties, type KeyboardEvent, type R
 import { authorNoteDefinitions, parseAuthorNotes } from '../../shared/lib/author-notes';
 
 type Segment = { node: Text | HTMLElement; start: number; end: number; atomic?: boolean };
+function appendPlainText(target: Node, text: string) {
+  text.split('\n').forEach((line, index) => {
+    if (index) target.appendChild(document.createElement('br'));
+    target.appendChild(document.createTextNode(line));
+  });
+}
 export function renderSource(root: HTMLElement, source: string) {
   const fragment = document.createDocumentFragment();
   const notes = parseAuthorNotes(source).byId;
   const append = (target: Node, text: string, depth = 0) => {
-    if (depth > 8) { target.appendChild(document.createTextNode(text)); return; }
+    if (depth > 8) { appendPlainText(target, text); return; }
     const regex = /(\*\*\*([^*\n]+?)\*\*\*|\*\*([^\n]+?)\*\*|~~([^\n]+?)~~|<u>([^\n]+?)<\/u>|\*([^*\n]+?)\*|\[\^(author-[a-zA-Z0-9-]{1,80})\](?!:))/g;
     let cursor = 0;
     for (const match of text.matchAll(regex)) {
-      target.appendChild(document.createTextNode(text.slice(cursor, match.index)));
+      appendPlainText(target, text.slice(cursor, match.index));
       if (match[7]) {
         const marker = document.createElement('span');
         marker.dataset.studioNoteSource = match[0]; marker.dataset.authorNoteId = match[7]; marker.contentEditable = 'false';
@@ -23,7 +29,7 @@ export function renderSource(root: HTMLElement, source: string) {
       else append(element, match[3] ?? match[4] ?? match[5] ?? match[6], depth + 1);
       target.appendChild(element); cursor = match.index! + match[0].length;
     }
-    target.appendChild(document.createTextNode(text.slice(cursor)));
+    appendPlainText(target, text.slice(cursor));
   };
   let cursor = 0;
   for (const match of source.matchAll(authorNoteDefinitions())) {
@@ -34,7 +40,10 @@ export function renderSource(root: HTMLElement, source: string) {
     definition.textContent = `Chú thích ${note?.number ?? 'chưa gắn'} cho độc giả: ${note?.body ?? ''}`;
     fragment.append(definition); cursor = match.index! + match[0].length;
   }
-  append(fragment, source.slice(cursor)); root.replaceChildren(fragment);
+  append(fragment, source.slice(cursor));
+  // A separate terminal caret placeholder keeps trailing source newlines real
+  // when Chromium normalizes the DOM on the next keystroke after undo/reload.
+  fragment.appendChild(document.createElement('br')); root.replaceChildren(fragment);
 }
 
 /** Only supported inline marks are serialized. Clipboard HTML never enters this tree. */
@@ -49,12 +58,28 @@ export function readRichSource(root: HTMLElement) {
       const start = text.length; text += element.dataset.studioNoteSource;
       segments.push({ node: element, start, end: text.length, atomic: true }); return;
     }
-    if (element.tagName === 'BR') { text += '\n'; return; }
-    const block = node !== root && ['DIV','P'].includes(element.tagName);
-    if (block && text && !text.endsWith('\n')) text += '\n';
+    if (element.tagName === 'BR') {
+      const parent = element.parentElement;
+      // Browsers keep a final BR as the caret placeholder of an editing line.
+      // Its block boundary already accounts for Enter; it is not another line.
+      const placeholder = element === parent?.lastChild && (parent === root || ['DIV','P'].includes(parent?.tagName ?? ''));
+      const start = text.length;
+      if (placeholder && parent) segments.push({ node: parent, start, end: start });
+      else { text += '\n'; segments.push({ node: element, start, end: text.length, atomic: true }); }
+      boundaries.set(node, [start]); return;
+    }
     const mark = marks[element.tagName]; if (mark) text += mark[0];
     const positions = [text.length];
-    for (const child of Array.from(node.childNodes)) { walk(child); positions.push(text.length); }
+    let hasPrevious = false, previousBreak = false;
+    for (const child of Array.from(node.childNodes)) {
+      const block = child instanceof HTMLElement && ['DIV','P'].includes(child.tagName) && child.dataset.studioNoteSource === undefined;
+      // Native Enter can leave either a BR or a block boundary between lines.
+      // Count that boundary once, while retaining consecutive empty blocks.
+      if (block && hasPrevious && !previousBreak) text += '\n';
+      const before = text.length; walk(child); positions.push(text.length);
+      if (block || text.length > before) { hasPrevious = true; previousBreak = child instanceof HTMLElement && child.tagName === 'BR'; }
+    }
+    if (node !== root && !node.childNodes.length) segments.push({ node: element, start: text.length, end: text.length });
     boundaries.set(node, positions);
     if (mark) text += mark[1];
   };
@@ -62,8 +87,10 @@ export function readRichSource(root: HTMLElement) {
   const offset = (node: Node | null, position: number) => {
     const atom = segments.find(part => part.atomic && node && part.node.contains(node));
     if (atom) return position > 0 ? atom.end : atom.start;
+    const positions = boundaries.get(node!);
+    if (positions) return positions[Math.min(position, node?.childNodes.length ?? 0)];
     const segment = segments.find(part => part.node === node);
-    return segment ? segment.start + Math.min(position, segment.end - segment.start) : boundaries.get(node!)?.[Math.min(position, (node?.childNodes.length ?? 0))] ?? text.length;
+    return segment ? segment.start + Math.min(position, segment.end - segment.start) : text.length;
   };
   return { text, segments, offset };
 }
@@ -81,11 +108,13 @@ export function RichManuscriptEditor({ value, source, disabled, style, onChange,
     return { ...parsed, start: Math.min(anchor, focus), end: Math.max(anchor, focus) };
   };
   const remember = () => {
+    if (composing.current) return;
     const selection = readSelection(); if (!selection) return;
     pending.current = selection;
     source.current?.setSelectionRange(selection.start, selection.end); onSelection(selection.start, selection.end);
   };
   const emit = () => {
+    if (composing.current) return;
     const selection = readSelection(); if (!selection || disabled) return;
     lastEmitted.current = selection.text; pending.current = selection;
     onChange(selection.text, selection.start, selection.end);
@@ -122,7 +151,7 @@ export function RichManuscriptEditor({ value, source, disabled, style, onChange,
   const insertPlain = (text: string) => {
     if (disabled || !text) return;
     const selection = window.getSelection(); if (!selection?.rangeCount || !root.current?.contains(selection.anchorNode)) return;
-    const range = selection.getRangeAt(0); range.deleteContents(); const node = document.createTextNode(text); range.insertNode(node); range.setStartAfter(node); range.collapse(true); selection.removeAllRanges(); selection.addRange(range); emit();
+    const range = selection.getRangeAt(0); range.deleteContents(); const fragment = document.createDocumentFragment(); appendPlainText(fragment, text); const last = fragment.lastChild!; range.insertNode(fragment); range.setStartAfter(last); range.collapse(true); selection.removeAllRanges(); selection.addRange(range); emit();
   };
   return <div ref={root} data-studio-rich-editor role="textbox" aria-label="Nội dung bản thảo" aria-multiline="true" aria-readonly={disabled} contentEditable={!disabled} suppressContentEditableWarning spellCheck style={style}
     className="sc-manuscript sc-rich-manuscript" onInput={emit} onMouseUp={remember} onKeyUp={remember} onBlur={remember} onKeyDown={onKeyDown}
