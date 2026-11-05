@@ -1,19 +1,19 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile } from 'node:fs/promises';
-import os from 'node:os';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
 import { chromium, expect } from '@playwright/test';
+import { evidenceDirectory, sanitizedTrace } from './helpers/evidence-output.mjs';
 
 test('author footnotes survive edits, undo, autosave and reload, then appear to guests only in the published chapter', { timeout: 180000 }, async () => {
-  const output = await mkdtemp(path.join(os.tmpdir(), 'storycraft-author-notes-'));
+  const evidence = await evidenceDirectory('author-notes'), output = fileURLToPath(evidence);
   const server = process.env.AUTHOR_NOTES_TEST_BASE_URL ? null : await preview({ root: fileURLToPath(new URL('../', import.meta.url)), preview: { host: '127.0.0.1', port: 0 } });
   const base = process.env.AUTHOR_NOTES_TEST_BASE_URL || `http://127.0.0.1:${server.httpServer.address().port}`;
   const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome', headless: true });
   try {
-    for (const profile of [{ width: 1440, theme: 'light', mode: 'visual' }, { width: 390, theme: 'dark', mode: 'source' }]) {
+    for (const profile of [{ width: 1440, theme: 'light', mode: 'visual' }, { width: 375, theme: 'dark', mode: 'visual' }, { width: 390, theme: 'dark', mode: 'source' }]) {
       const initial = '“Huynh cứ yên tâm”, nàng khẽ nói.\n\nMột câu chuyện mới bắt đầu.';
       let saved = initial, published = initial, version = 1, patches = 0, publications = 0;
       const noteBody = '“Huynh” là cách gọi anh kết nghĩa, không phải anh ruột.\nCách xưng hô này thể hiện sự kính trọng.';
@@ -38,6 +38,7 @@ test('author footnotes survive edits, undo, autosave and reload, then appear to 
         await route.fulfill({ json: { success: true, data, meta: { totalPages: 1, totalItems: Array.isArray(data) ? data.length : 1 } } });
       };
       const context = await browser.newContext({ viewport: { width: profile.width, height: 1000 }, reducedMotion: profile.theme === 'dark' ? 'reduce' : 'no-preference' });
+      await context.tracing.start({ screenshots: true, snapshots: true });
       const page = await context.newPage(), errors = [];
       page.on('pageerror', error => errors.push(error.message));
       await page.addInitScript(profile => { localStorage.setItem('ephurin_access_token', 'fixture-token'); localStorage.setItem('storycraft-theme', profile.theme); localStorage.setItem('storycraft-studio-editor-mode', profile.mode); }, profile);
@@ -106,6 +107,7 @@ test('author footnotes survive edits, undo, autosave and reload, then appear to 
         assert.ok(exported.includes('&lt;script&gt;window.noteExecuted = true&lt;/script&gt;'));
         assert.equal(exported.includes(`[^${id}]`), false);
         const guest = await browser.newContext({ viewport: { width: profile.width, height: 900 } });
+        await guest.tracing.start({ screenshots: true, snapshots: true });
         const reader = await guest.newPage();
         reader.on('pageerror', error => errors.push(error.message));
         await reader.addInitScript(theme => localStorage.setItem('storycraft-theme', theme), profile.theme);
@@ -133,10 +135,10 @@ test('author footnotes survive edits, undo, autosave and reload, then appear to 
           assert.equal(await reader.evaluate(() => window.noteExecuted), undefined);
           await reader.screenshot({ path: path.join(output, `${profile.width}-reader.png`) });
           await reader.keyboard.press('Escape'); await expect(popup).toHaveCount(0); await expect(reference).toBeFocused();
-        } finally { await guest.close(); }
+        } finally { await sanitizedTrace(guest, evidence, `${profile.width}-reader-trace`); await guest.close(); }
         assert.ok(patches > 0); assert.deepEqual(errors, []);
       } catch (error) { await page.screenshot({ path: path.join(output, `${profile.width}-failure.png`) }); console.log(`Author note failure screenshots: ${output}`); throw error; }
-      finally { await context.close(); }
+      finally { await sanitizedTrace(context, evidence, `${profile.width}-studio-trace`); await context.close(); }
     }
     console.log(`Author note screenshots: ${output}`);
   } finally { await browser.close(); if (server) await new Promise(resolve => server.httpServer.close(resolve)); }
