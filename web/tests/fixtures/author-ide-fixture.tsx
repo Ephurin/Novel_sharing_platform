@@ -8,6 +8,7 @@ import { apiClient } from '../../src/shared/api/api-client';
 import { useAuthStore } from '../../src/features/auth/useAuthStore';
 import { AuthorWritingIde } from '../../src/features/author-ide/AuthorWritingIde';
 import { ToastProvider } from '../../src/shared/components/ToastProvider';
+import { AuthorTheme } from '../../src/shared/components/AuthorTheme';
 
 import '@mantine/core/styles.css';
 import '../../src/theme/storycraft.css';
@@ -41,7 +42,7 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const [mode, setMode] = useState<'light' | 'dark'>('light');
+  const [mode, setMode] = useState<'light' | 'dark'>(() => localStorage.getItem('storycraft-theme') === 'dark' ? 'dark' : 'light');
   const [generation, setGeneration] = useState(0);
   const [accountIndex, setAccountIndex] = useState(0);
 
@@ -49,7 +50,7 @@ function App() {
     document.documentElement.dataset.theme = mode;
   }, [mode]);
 
-  (window as any).setTheme = setMode;
+  (window as any).setTheme = (value: 'light' | 'dark') => { localStorage.setItem('storycraft-theme', value); setMode(value); };
   (window as any).remount = () => {
     queryClient.clear();
     setGeneration((v) => v + 1);
@@ -86,7 +87,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <MantineProvider theme={theme} cssVariablesResolver={cssVariablesResolver} forceColorScheme={mode}>
-        <ToastProvider><RouterProvider key={generation} router={router} /></ToastProvider>
+        <ToastProvider><AuthorTheme><RouterProvider key={generation} router={router} /></AuthorTheme></ToastProvider>
       </MantineProvider>
     </QueryClientProvider>
   );

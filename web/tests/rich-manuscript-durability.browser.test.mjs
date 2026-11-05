@@ -86,8 +86,8 @@ test('S09 real AuthorWritingIde: rich/source durability, IME, notes isolation an
         await tab.keyboard.insertText('\nTab thứ hai còn bản nháp.'); await tab.locator('[data-studio-rich-editor]').press('Control+s');
         await expect(tab.getByText('Có thay đổi từ phiên khác. Bản trên máy được giữ lại; chưa ghi đè bản máy chủ.')).toBeVisible(); assert.equal((await readback(chapter)).draft.content, winner);
         assert.ok(await tab.evaluate(key => localStorage.getItem(key)?.includes('Tab thứ hai còn bản nháp.'), `storycraft-draft:${first.userId}:${chapter}`));
-        await tab.screenshot({ path: fileURLToPath(new URL(`${name}-409-conflict.png`, evidence)) }); await tab.close();
-        await page.reload(); await expect(canonical).toHaveValue(winner); assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+        await tab.evaluate(() => document.fonts.ready); await expect(tab.locator('html')).toHaveAttribute('data-theme', profile.theme); await tab.screenshot({ path: fileURLToPath(new URL(`${name}-409-conflict.png`, evidence)) }); await tab.close();
+        await page.reload(); await expect(canonical).toHaveValue(winner); await page.evaluate(() => document.fonts.ready); await expect(page.locator('html')).toHaveAttribute('data-theme', profile.theme); assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
         await page.screenshot({ path: fileURLToPath(new URL(`${name}-durable-rich.png`, evidence)) }); assert.deepEqual(errors, []);
         console.log(JSON.stringify({ profile, enterUndoReload: true, imeComposition: true, paste: true, chapterAccountIsolation: true, privateNotesIsolation: true, previewExport: true, actualTwoTab409: true }));
       } catch (error) { await page.screenshot({ path: fileURLToPath(new URL(`${name}-failure.png`, evidence)) }); throw error; }
