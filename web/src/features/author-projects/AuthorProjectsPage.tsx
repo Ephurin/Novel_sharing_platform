@@ -450,7 +450,7 @@ export function AuthorProjectsPage() {
             <div className="sc-project-library-options">
               <label className="text-meta"><input type="checkbox" checked={onlyPinned} onChange={e => setOnlyPinned(e.target.checked)} /> Chỉ tác phẩm đã ghim</label>
               <FilterPresets name="author-projects" fields={['q', 'status', 'sort', 'genre', 'pinned']} presentation="popover" />
-              {recentIds.some(id => projects.some(p => p.novelId === id)) && <details className="sc-filter-presets"><summary>Vừa làm việc</summary><div className="sc-workspace-row">{recentIds.map(id => projects.find(p => p.novelId === id)).filter((p): p is Novel => Boolean(p)).slice(0, 5).map(project => <Link className="sc-workspace-button" key={project.novelId} to={`/author/novels/${project.novelId}`}>{project.title}</Link>)}</div></details>}
+              {recentIds.some(id => projects.some(p => p.novelId === id)) && <details className="sc-filter-presets"><summary><span className="material-symbols-outlined" aria-hidden="true">chevron_right</span><span>Vừa làm việc</span></summary><div className="sc-workspace-row">{recentIds.map(id => projects.find(p => p.novelId === id)).filter((p): p is Novel => Boolean(p)).slice(0, 5).map(project => <Link className="sc-workspace-button" key={project.novelId} to={`/author/novels/${project.novelId}`}>{project.title}</Link>)}</div></details>}
             </div>
             <ActiveFilterChips items={[
               ...(onlyPinned ? [{ id: 'pinned', label: 'Đã ghim', onRemove: () => setOnlyPinned(false) }] : []),
