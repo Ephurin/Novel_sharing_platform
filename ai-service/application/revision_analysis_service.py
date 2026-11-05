@@ -110,6 +110,19 @@ class RevisionAnalysisService:
         approved_entities: list[dict[str, str]] = [
             {"normalized_name": e.name, "raw_name": e.name, "type": e.entity_type}
             for e in brain.entities]
+        identities = {e.entity_id: e for e in brain.entities}
+        references: dict[str, set[str]] = {}
+        for entity in brain.entities:
+            references.setdefault(entity.name.casefold(), set()).add(entity.entity_id)
+        for alias in brain.aliases:
+            if alias.entity_id in identities:
+                references.setdefault(alias.alias.casefold(), set()).add(alias.entity_id)
+                approved_entities.append({"normalized_name": alias.alias, "raw_name": alias.alias,
+                                          "type": identities[alias.entity_id].entity_type})
+
+        def canonical_name(name: str) -> str:
+            matches = references.get(name.casefold(), set())
+            return identities[next(iter(matches))].name if len(matches) == 1 else name
 
         if options.get("extract_entities", True):
             raw_entities = self._entity_pipeline.run(
@@ -117,6 +130,8 @@ class RevisionAnalysisService:
             )
             for index, item in enumerate(raw_entities):
                 name = str(item["phrase"]).strip()
+                if len(references.get(name.casefold(), set())) == 1:
+                    continue  # An approved name or explicit alias is already one identity.
                 start = revision.content.casefold().find(name.casefold())
                 if start < 0:
                     continue
@@ -138,7 +153,7 @@ class RevisionAnalysisService:
                         "entity",
                         payload,
                         evidence,
-                        float(item["score"]),
+                        float(item["score"]) / 10.0,
                         brain_version,
                         index,
                     )
@@ -192,11 +207,11 @@ class RevisionAnalysisService:
             for index, event in enumerate(events, start=len(proposals)):
                 payload = {
                     "event_type": event.event_type,
-                    "participants": event.participants,
+                    "participants": list(dict.fromkeys(canonical_name(name) for name in event.participants)),
                     "summary": event.summary,
                     "chapter": chapter_number,
                     "chapter_number": chapter_number,
-                    "locations": event.locations,
+                    "locations": list(dict.fromkeys(canonical_name(name) for name in event.locations)),
                     "consequences": event.consequences,
                 }
                 evidence = {

@@ -271,6 +271,16 @@ describe('Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)', () =>
     );
   });
 
+  test('rejects raw JSON envelopes even if an old generation claims validation passed', async () => {
+    const genId = 'gen-malformed-envelope';
+    setupMockAi({ job_id: genId, patch: { start: baseContent.length, end: baseContent.length,
+      replacement: '{"draft_text":"\\n"Mahiru..." Amane says."}' } });
+    await assert.rejects(() => acceptDraft({ userId: authorId, role: 'AUTHOR' } as any, chapterId, { generationId: genId }),
+      (error: any) => error instanceof AppError && error.code === 'INVALID_WRITING_OUTPUT');
+    const saved = await getPostgresPool().query('select revision_id from chapter_revisions where source_generation_id=$1', [genId]);
+    assert.equal(saved.rowCount, 0);
+  });
+
   test('rejects with 400 CHAPTER_MISMATCH if generation chapter does not match target chapter', async () => {
     const genId = 'gen-chap-mismatch';
     setupMockAi({ job_id: genId, chapter_id: crypto.randomUUID() });

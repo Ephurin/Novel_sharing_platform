@@ -6,6 +6,7 @@ import re
 import uuid
 from dataclasses import replace
 from typing import Any
+from core.writing_output import is_writing_envelope
 
 import json
 from application.context_budget import ContextBudgetPacker
@@ -681,6 +682,9 @@ class WritingService:
     ) -> list[ValidationResult]:
         """Run deterministic schema, upper bounds, and narrative consistency checks."""
         results: list[ValidationResult] = []
+        if is_writing_envelope(draft_text) or is_writing_envelope(patch.replacement):
+            results.append(ValidationResult(validator='draft_format', passed=False,
+                code='INVALID_WRITING_OUTPUT', message='Đề xuất chứa JSON thay vì đoạn văn. Vui lòng tạo lại đề xuất.'))
 
         # 1. Patch offset sanity and upper bounds
         if patch.start < 0 or patch.end < patch.start:

@@ -405,9 +405,15 @@ class ManuscriptBootstrapService:
             proposal_id for group in duplicates for proposal_id in group["proposal_ids"]
         }
         queue = []
+        from domain.proposal_dependencies import can_reject_individually
+        groups = {}
+        for proposal in proposals:
+            groups.setdefault(proposal.dependency_group_id or proposal.proposal_id, []).append(proposal)
         for proposal in proposals:
             priority, reason = self._priority(proposal, proposal.proposal_id in duplicate_ids)
-            queue.append({**asdict(proposal), "review_priority": priority, "review_reason": reason})
+            queue.append({**asdict(proposal), "review_priority": priority, "review_reason": reason,
+                          "can_reject_individually": can_reject_individually(
+                              proposal, groups[proposal.dependency_group_id or proposal.proposal_id])})
         return sorted(queue, key=lambda item: (-item["review_priority"], item["materialization_order"]))
 
     def activate_baseline(self, novel_id: str, job_id: str) -> dict[str, Any]:

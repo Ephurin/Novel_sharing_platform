@@ -2,7 +2,11 @@ import json
 import logging
 import os
 import re
+from contextvars import ContextVar
 from typing import Any
+from core.writing_output import parse_writing_output
+
+_writing_response: ContextVar[bool] = ContextVar('writing_response', default=False)
 
 
 class LLMServiceError(RuntimeError):
@@ -218,20 +222,40 @@ class LLMService:
         except Exception as exc:
             raise LLMServiceError("google-genai is not installed") from exc
 
-        client = genai.Client(api_key=self.api_key)
+        # Retry only transient provider failures, with a bounded request timeout.
+        client = genai.Client(
+            api_key=self.api_key,
+            http_options={
+                "timeout": self.timeout_seconds * 1000,
+                "retry_options": {
+                    "attempts": 3,
+                    "initial_delay": 1,
+                    "max_delay": 4,
+                    "http_status_codes": [408, 429, 500, 502, 503, 504],
+                },
+            },
+        )
         last_error: Exception | None = None
         merged_prompt = f"{system_prompt}\n\n{user_prompt}".strip()
+        config = {"temperature": self.temperature, "max_output_tokens": self.max_tokens}
+        if _writing_response.get():
+            config.update(max_output_tokens=max(self.max_tokens, 4096), response_mime_type="application/json",
+                response_json_schema={"type": "object", "properties": {
+                    "draft_text": {"type": "string"}, "explanation": {"type": "string"}},
+                    "required": ["draft_text"], "additionalProperties": False})
 
         for model_name in self._gemini_model_candidates():
             try:
                 response = client.models.generate_content(
                     model=model_name,
                     contents=merged_prompt,
-                    config={
-                        "temperature": self.temperature,
-                        "max_output_tokens": self.max_tokens,
-                    },
+                    config=config,
                 )
+                candidates = getattr(response, 'candidates', None) or []
+                if _writing_response.get() and candidates:
+                    reason = getattr(candidates[0], 'finish_reason', None)
+                    if getattr(reason, 'value', reason) == 'MAX_TOKENS':
+                        raise LLMServiceError('Bản thảo bị cắt do vượt giới hạn độ dài. Vui lòng yêu cầu đoạn ngắn hơn.')
                 text = self._extract_gemini_text(response)
                 if text:
                     self.model = model_name
@@ -240,6 +264,11 @@ class LLMService:
                 last_error = RuntimeError("Gemini returned empty response")
             except Exception as exc:
                 last_error = exc
+                if getattr(exc, "code", None) in {408, 429, 500, 502, 503, 504}:
+                    raise LLMServiceError(
+                        f"Gemini tạm thời quá tải hoặc bị giới hạn yêu cầu (HTTP {exc.code}). "
+                        "Hệ thống đã thử lại 3 lần; vui lòng thử lại sau ít phút."
+                    ) from exc
                 message = str(exc).lower()
                 # Retry other model aliases when configured model is deprecated or unavailable.
                 if "not found" in message or "not supported" in message:
@@ -306,13 +335,15 @@ class LLMService:
             response = client.chat.completions.create(
                 model=model_name,
                 temperature=self.temperature,
-                max_tokens=self.max_tokens,
+                max_tokens=max(self.max_tokens, 4096) if _writing_response.get() else self.max_tokens,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt},
                 ],
                 response_format={"type": "json_object"},
             )
+            if _writing_response.get() and response.choices[0].finish_reason == 'length':
+                raise LLMServiceError('Bản thảo bị cắt do vượt giới hạn độ dài. Vui lòng yêu cầu đoạn ngắn hơn.')
             return response.choices[0].message.content or ""
         except Exception as exc:
             raise LLMServiceError(f"OpenAI request failed: {exc}") from exc
@@ -492,23 +523,22 @@ class LLMService:
         patch_end = end_offset if end_offset is not None else cursor_offset
 
         try:
-            raw_output = self._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
-            cleaned = raw_output.strip()
-            if cleaned.startswith("```"):
-                cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
-                cleaned = re.sub(r"\s*```$", "", cleaned)
-            parsed = self._parse_json_like_output(cleaned)
-            draft_text = ""
-            if isinstance(parsed, dict):
-                draft_text = parsed.get("draft_text") or parsed.get("draft") or ""
-            if not draft_text:
-                draft_text = cleaned
+            token = _writing_response.set(True)
+            try:
+                raw_output = self._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
+            finally:
+                _writing_response.reset(token)
         except Exception as exc:
             if self._local_fallback_enabled():
                 logger.warning("LLM generation failed, using local draft fallback: %s", exc)
                 draft_text = f"Đoạn văn tự động bổ sung dựa trên hướng dẫn: {instruction.strip() or 'Tiếp diễn mạch truyện'}"
             else:
                 raise LLMServiceError(f"Writing generation failed: {exc}") from exc
+        else:
+            try:
+                draft_text = parse_writing_output(raw_output)
+            except ValueError as exc:
+                raise LLMServiceError(str(exc)) from exc
 
         return {
             "draft_text": draft_text,

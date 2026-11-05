@@ -81,6 +81,8 @@ export async function listCharactersByNovelId(novelId: string) {
       select *
       from character_profiles
       where novel_id = $1 and deleted_at is null
+        and not exists(select 1 from story_brain_bible_links l where l.novel_id=$1
+          and l.artifact_kind='entity' and l.bible_id=character_id and l.owns_bible_row and not l.is_active)
       order by name asc
     `,
     [novelId]
@@ -187,6 +189,11 @@ export async function listRelationshipsByNovelId(novelId: string) {
       join character_profiles source_character on source_character.character_id = cr.source_character_id
       join character_profiles target_character on target_character.character_id = cr.target_character_id
       where cr.novel_id = $1
+        and source_character.deleted_at is null and target_character.deleted_at is null
+        and not exists(select 1 from story_brain_bible_links l where l.novel_id=$1
+          and l.artifact_kind='relation' and l.bible_id=cr.relationship_id and l.owns_bible_row and not l.is_active
+          and not exists(select 1 from story_brain_bible_links active where active.novel_id=$1
+            and active.artifact_kind='relation' and active.bible_id=cr.relationship_id and active.is_active))
       order by source_character.name asc, target_character.name asc, cr.relationship_type asc
     `,
     [novelId]
@@ -278,6 +285,8 @@ export async function listTimelineEventsByNovelId(novelId: string) {
       from story_timeline_events ste
       left join chapters c on c.chapter_id = ste.chapter_id
       where ste.novel_id = $1 and ste.deleted_at is null
+        and not exists(select 1 from story_brain_bible_links l where l.novel_id=$1
+          and l.artifact_kind='event' and l.bible_id=ste.event_id and l.owns_bible_row and not l.is_active)
       order by ste.event_order asc, c.chapter_number asc nulls last, ste.created_at asc
     `,
     [novelId]

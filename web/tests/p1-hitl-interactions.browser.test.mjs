@@ -274,7 +274,7 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
       });
     }
 
-    // Guard: single proposal rejection inside multi-item groups must NEVER be called
+    // Individual rejection is allowed only when the server advertises the capability.
     if (url.includes('/proposals/') && url.includes('/reject') && method === 'POST') {
       const body = route.request().postDataJSON();
       singleProposalRejectRequests.push({ url, body });
@@ -517,14 +517,16 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
       const groupRejectBtn = page.locator('[data-testid="btn-reject-group-group-multi-1"]');
       assert.equal(await groupRejectBtn.isDisabled(), false, 'Atomic group reject button must be enabled');
 
-      // Single rejection buttons inside the multi-member group must be DISABLED
+      // Each card offers the explicit group action, which requires confirmation.
       const multiGroupCard = page.locator('[data-testid="dependency-group-group-multi-1"]');
-      const singleRejectBtns = multiGroupCard.locator('button:has-text("Loại đề xuất")');
-      assert.equal(await singleRejectBtns.nth(0).isDisabled(), true, 'Single reject inside multi-member group must be disabled');
-      assert.equal(await singleRejectBtns.nth(1).isDisabled(), true, 'Single reject inside multi-member group must be disabled');
+      assert.equal(await multiGroupCard.locator('button:has-text("Loại đề xuất")').count(), 0);
+      const cardRejectBtns = multiGroupCard.locator('button:has-text("Loại toàn bộ nhóm")');
+      assert.equal(await cardRejectBtns.count(), 3);
+      assert.equal(await cardRejectBtns.nth(1).isEnabled(), true);
+      assert.equal(await cardRejectBtns.nth(2).isEnabled(), true);
 
       // Click "Loại toàn bộ nhóm" -> opens confirmation modal (FE-07)
-      await groupRejectBtn.click();
+      await cardRejectBtns.nth(1).click();
       await page.waitForSelector('text=Xác nhận loại toàn bộ nhóm đề xuất');
       await page.waitForSelector('[data-testid="input-reject-group-reason"]');
       await page.waitForSelector('text=Bạn có chắc chắn muốn loại bỏ toàn bộ nhóm đề xuất gồm 2 phần tử?');
@@ -558,6 +560,33 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
     });
 
     // ──────────────────────────────────────────
+    await t.test('Unused entity can be rejected alone within a multi-proposal group', async () => {
+      mockReviewQueue.push({
+        proposal_id: 'prop-unused-tre', dependency_group_id: 'group-multi-1',
+        proposal_type: 'entity', can_reject_individually: true,
+        payload: { canonical_name: 'Tre', normalized_name: 'tre', entity_type: 'PER' }
+      });
+      try {
+        singleProposalRejectRequests = [];
+        groupRejectRequests = [];
+        await page.goto(`${baseUrl}/?scenario=memory-panel`);
+        const group = page.locator('[data-testid="dependency-group-group-multi-1"]');
+        const reject = group.getByRole('button', { name: 'Loại đề xuất', exact: true });
+        await reject.waitFor();
+        assert.equal(await reject.isEnabled(), true);
+        await Promise.all([
+          page.waitForResponse(r => r.url().includes('/proposals/prop-unused-tre/reject')),
+          reject.click()
+        ]);
+        assert.equal(singleProposalRejectRequests.length, 1);
+        assert.ok(singleProposalRejectRequests[0].url.includes('/proposals/prop-unused-tre/reject'));
+        assert.equal(groupRejectRequests.length, 0);
+        assert.equal(await page.getByRole('button', { name: 'Xác nhận loại toàn bộ nhóm', exact: true }).isVisible(), false);
+      } finally {
+        mockReviewQueue.pop();
+      }
+    });
+
     // Test 6: Whitelist of editable fields & typed values (FE-04)
     // ──────────────────────────────────────────
     await t.test('FE-04: Entity proposal exposes only canonical_name (no initial_status) & typed facts preserved', async () => {
