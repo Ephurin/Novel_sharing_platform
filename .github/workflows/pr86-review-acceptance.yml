@@ -36,7 +36,6 @@ jobs:
           --health-interval 5s --health-timeout 5s --health-retries 20
     env:
       PLAYWRIGHT_CHANNEL: chromium
-      P1_EVIDENCE_DIR: ${{ runner.temp }}/pr86-review-acceptance
       EXPECTED_REVIEW_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       CURSOR_POSTGRES_CONTROL_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
       ADMIN_TEST_POSTGRES_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
@@ -60,6 +59,8 @@ jobs:
       - run: npx playwright install --with-deps chromium
         working-directory: web
       - name: Run acceptance against the PR head using disposable databases and fake providers
+        env:
+          P1_EVIDENCE_DIR: ${{ runner.temp }}/pr86-review-acceptance
         run: node scripts/run_pr86_review_acceptance.mjs
       - name: Publish SHA, commands, exits, screenshots and sanitized traces
         if: always()
