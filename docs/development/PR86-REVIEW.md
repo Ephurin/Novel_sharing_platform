@@ -15,11 +15,22 @@ Captured outputs: [AI red run](pr86-review/red-ai.log), [rich editor red run](pr
 | --- | --- | --- |
 | `rewrite` | Exactly `[selection.start, selection.end)` | Replaced |
 | `continue`, `describe`, `dialogue` | Exactly `[cursor, cursor)` | Context only; never deleted |
+| Historical P3 `continuation` | Exactly `[cursor, cursor)` | Alias of `continue`; context is never deleted |
 | Unknown operation | Validation fails | Not accepted |
 
 The policy runs both when generation completes and when a completed job is read. Legacy completed rows retain their original stored history, but mismatched suggestions are returned as failed and must be regenerated. Regression cases use a selected range `[2,8)` and cursor `8`, and reload jobs through the actual SQLAlchemy repository. The same cases run on SQLite and opt-in real PostgreSQL in a newly created disposable database.
 
 The Backend accept-contract suite checks that a rejected rewrite does not change the draft, latest revision, revision rows, or outbox event identities. No real provider is called.
+
+### P3 compatibility follow-up
+
+The re-review of `b102053feb4fce77c1e1f0890db01a041d4bae5a` caught the existing P3 controller's `continuation` alias being rejected by the new allowlist. P8 run `41990297129` reproduced the production-path failure at checkpoint 08; the specialized Studio acceptance workflow did not cover it.
+
+The controller now sends the canonical operation `continue`. Persisted `continuation` jobs remain readable and processable: their provider call uses `continue`, and their patches must still match the persisted cursor exactly. Stored operation and idempotency hashes are preserved. No arbitrary operation aliases are admitted.
+
+The shared SQLite/PostgreSQL regression matrix now covers the historical alias, invalid range replacements, unknown operations, and legacy queued/completed jobs. Before the fix, these additions produce 3 failures, 9 passes and 22 passing subtests ([red log](pr86-review/red-p3-alias.log)). After the fix, the cursor and golden validation suites pass, including rejection of rewrite `[8,8)` for selection `[2,8)`.
+
+The production P3 runner additionally asserts canonical operation and validation status, insertion bounds, and a completed transactional outbox for the accepted immutable revision. Its existing crash/resume, rejected-generation, retry and controller-intent protections remain required. Run the entire P8 workflow after pushing the new commit; the earlier Studio acceptance result alone does not close this integration gate.
 
 ## P1: rich editor newline and composition durability
 

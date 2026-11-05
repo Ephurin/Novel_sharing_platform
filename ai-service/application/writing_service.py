@@ -342,9 +342,10 @@ class WritingService:
         cursor = selection.get("cursor", end)
         if operation == "rewrite":
             return (patch.start, patch.end) == (start, end)
-        if operation in {"continue", "describe", "dialogue"}:
+        if operation in {"continue", "continuation", "describe", "dialogue"}:
             # A selected passage supplies context; insertion operations must
             # never replace it. The persisted cursor is the insertion point.
+            # 'continuation' is the historical P3 alias; no other aliases pass.
             return (patch.start, patch.end) == (cursor, cursor)
         return False
 
@@ -503,7 +504,7 @@ class WritingService:
         # Call LLM service with style and constraints
         try:
             llm_result = self._llm_service.generate_writing_draft(
-                operation=job.operation,
+                operation="continue" if job.operation == "continuation" else job.operation,
                 selected_text=selected_text,
                 cursor_offset=job.selection.get("cursor", job.selection.get("end", 0)),
                 start_offset=job.selection.get("start"),
