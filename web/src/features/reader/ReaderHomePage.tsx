@@ -3,6 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
+import { AnimatedChoiceGroup } from '../../shared/components/AnimatedChoiceGroup';
+import { FeedbackReveal } from '../../shared/components/ActionFeedback';
 import { useAuthStore } from '../auth/useAuthStore';
 import { getReadingFilters, searchPublishedNovels, type ReaderNovel } from './reader-api';
 import './reader-home.css';
@@ -62,34 +64,39 @@ export function ReaderHomePage() {
     <AuthorNavbar />
     <main className="sc-shell-content sc-reader-home">
       <header className="sc-home-intro">
-        <div><p className="sc-home-eyebrow">STORYCRAFT · VĂN HOA</p><h1>Góc đọc truyện</h1><p>Tìm câu chuyện tiếp theo của bạn.</p></div>
-        <form className="sc-home-search" role="search" onSubmit={event => {
+        <h1 className="text-page-title">Góc đọc truyện</h1>
+        <form className="sc-home-search-form" role="search" onSubmit={event => {
           event.preventDefault();
           navigate(`${catalogPath}${search.trim() ? `?q=${encodeURIComponent(search.trim())}` : ''}`);
         }}>
-          <Icon name="search" />
-          <input aria-label="Tìm truyện trên trang chủ" placeholder="Bạn muốn đọc truyện gì?" value={search} onChange={event => setSearch(event.target.value)} />
-          <button type="submit" aria-label="Tìm truyện"><Icon name="arrow_forward" /></button>
+          <label className="text-form-label" htmlFor="home-search">Tìm truyện</label>
+          <div className="sc-home-search"><Icon name="search" />
+            <input id="home-search" aria-label="Tìm truyện trên trang chủ" placeholder="Bạn muốn đọc truyện gì?" value={search} onChange={event => setSearch(event.target.value)} />
+            <button type="submit" aria-label="Tìm truyện"><Icon name="arrow_forward" /></button>
+          </div>
         </form>
       </header>
 
       <div className="sc-home-top">
         <section className="sc-home-featured" aria-label="Truyện nổi bật">
           <div className="sc-home-feature-heading">
-            <div className="sc-home-feature-tabs" role="group" aria-label="Chọn truyện nổi bật">
-              {featureTabs.map(tab => <button key={tab.value} type="button" aria-pressed={featureSort === tab.value} onClick={() => { setFeatureSort(tab.value); setFeaturePage(0); }}><Icon name={tab.icon} />{tab.label}</button>)}
-            </div>
+            <AnimatedChoiceGroup className="sc-home-feature-tabs" label="Chọn truyện nổi bật" controls="home-feature-results" value={featureSort}
+              onChange={value => { setFeatureSort(value); setFeaturePage(0); }}
+              options={featureTabs.map(tab => ({ value: tab.value, label: <><Icon name={tab.icon} />{tab.label}</> }))} />
             <Link className="sc-home-more" to={catalogPath}>Danh sách <Icon name="arrow_forward" /></Link>
           </div>
+          <div id="home-feature-results" aria-busy={featured.isFetching}>
           <SectionState query={featured} empty="Chưa có truyện nổi bật" />
-          <div className="sc-home-feature-grid">
+          <FeedbackReveal key={`${featureSort}-${currentPage}`} className="sc-home-feature-grid">
             {featureNovels.slice(currentPage * 4, currentPage * 4 + 4).map(novel => <Link key={novel.novelId} className="sc-home-feature-cover sc-cover-hover" to={novelPath(novel)} aria-label={`Đọc truyện: ${novel.title}`}>
-              <HomeCover novel={novel} />
+              <div className="sc-home-feature-artwork"><HomeCover novel={novel} /></div>
               <div className="sc-home-feature-caption"><span>{statusLabels[novel.serialStatus ?? novel.status ?? ''] ?? 'Đang ra'}</span><h2>{novel.title}</h2></div>
             </Link>)}
+          </FeedbackReveal>
           </div>
           {featureNovels.length > 4 && <div className="sc-home-carousel-controls">
             <button type="button" className="sc-icon-button" aria-label="Truyện nổi bật trước" disabled={currentPage === 0} onClick={() => setFeaturePage(page => page - 1)}><Icon name="chevron_left" /></button>
+            <span className="sc-home-page-label" role="status" aria-atomic="true">Trang {currentPage + 1} / {featurePages}</span>
             {Array.from({ length: featurePages }, (_, page) => <button key={page} type="button" className="sc-home-carousel-dot" aria-label={`Trang nổi bật ${page + 1}`} aria-pressed={page === currentPage} onClick={() => setFeaturePage(page)} />)}
             <button type="button" className="sc-icon-button" aria-label="Truyện nổi bật tiếp theo" disabled={currentPage === featurePages - 1} onClick={() => setFeaturePage(page => page + 1)}><Icon name="chevron_right" /></button>
           </div>}
@@ -109,16 +116,18 @@ export function ReaderHomePage() {
 
       <section className="sc-home-panel sc-home-discovery" aria-label="Khám phá truyện">
         <div className="sc-home-discovery-heading">
-          <HomeHeading title="Khám phá" icon="explore"><button className="sc-home-shuffle" type="button" onClick={() => setSeed(value => value + 1)}><Icon name="shuffle" />Đổi gợi ý</button></HomeHeading>
-          <div className="sc-home-genres" role="group" aria-label="Khám phá theo thể loại">
-            <button type="button" aria-pressed={!genre} onClick={() => setGenre('')}>Tất cả</button>
-            {(filters.data?.genres ?? []).map(name => <button key={name} type="button" aria-pressed={genre === name} onClick={() => setGenre(name)}>{name}</button>)}
-          </div>
+          <HomeHeading title="Khám phá" icon="explore"><button className="sc-home-shuffle" type="button" disabled={discovery.isPending || discovery.isError || suggestions.length < 2} onClick={() => setSeed(value => value + 1)}><Icon name="shuffle" />Đổi gợi ý</button></HomeHeading>
+          <AnimatedChoiceGroup className="sc-home-genres" label="Khám phá theo thể loại" controls="home-discovery-results"
+            value={genre ? `genre:${genre}` : 'all'} onChange={value => setGenre(value === 'all' ? '' : value.slice(6))}
+            options={[{ value: 'all', label: 'Tất cả' }, ...(filters.data?.genres ?? []).map(name => ({ value: `genre:${name}`, label: name }))]} />
         </div>
         {filters.isError && <button type="button" className="sc-home-more" onClick={() => void filters.refetch()}>Tải lại thể loại</button>}
+        <p className="sc-home-results-summary text-meta" role="status" aria-atomic="true">{discovery.isPending ? `Đang tìm truyện${genre ? ` ${genre}` : ''}…` : discovery.isError ? '' : `${suggestions.length} gợi ý${genre ? ` cho thể loại ${genre}` : ' dành cho bạn'}`}</p>
+        <div id="home-discovery-results" aria-busy={discovery.isFetching}>
         <SectionState query={discovery} empty="Chưa có truyện thuộc thể loại này" />
-        <div className="sc-home-discovery-grid">
+        <FeedbackReveal key={`${genre}-${seed}`} className="sc-home-discovery-grid">
           {suggestions.map(novel => <CompactNovel key={novel.novelId} novel={novel} to={novelPath(novel)} />)}
+        </FeedbackReveal>
         </div>
         {genre && <Link className="sc-home-genre-link" to={`${catalogPath}?genre=${encodeURIComponent(genre)}`}>Tất cả truyện {genre}<Icon name="arrow_forward" /></Link>}
       </section>
@@ -159,7 +168,7 @@ function HomeCover({ novel }: { novel: ReaderNovel }) {
   const [failed, setFailed] = useState(false);
   return novel.coverImageUrl && !failed
     ? <img src={novel.coverImageUrl} alt={novel.title} loading="lazy" onError={() => setFailed(true)} />
-    : <span className="sc-home-cover-placeholder"><Icon name="auto_stories" /><span>{novel.title}</span></span>;
+    : <span className="sc-home-cover-placeholder" aria-hidden="true"><Icon name="auto_stories" /></span>;
 }
 
 function HomeHeading({ title, icon, children }: { title: string; icon: string; children?: ReactNode }) {
