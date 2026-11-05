@@ -12,7 +12,7 @@ Mở `http://localhost:8080`, nhấn **Ctrl + Shift + R**, đăng nhập đúng 
 | --- | --- | --- |
 | Nhớ kiểu hiển thị | Tác phẩm → Danh sách → tải lại | Vẫn là danh sách. Lựa chọn riêng cho từng tài khoản trên trình duyệt. |
 | Bộ lọc trong URL | Tìm truyện, đổi trạng thái/thể loại/sắp xếp → tải lại hoặc mở URL ở tab khác | Điều kiện vẫn giữ nguyên. Bảng admin lưu thêm trang hiện tại. |
-| Bộ lọc đã lưu | Mở mục **Bộ lọc đã lưu**, đặt tên, lưu → thay điều kiện → bấm tên đã lưu | Khôi phục các điều kiện của trang; không giữ trang phân trang cũ. Tên trùng ghi đè mẫu cũ; nút × xóa mẫu. |
+| Bộ lọc đã lưu | Mở mục **Bộ lọc đã lưu**, đặt tên, lưu → thay điều kiện → bấm tên đã lưu | Khôi phục các điều kiện của trang; không giữ trang phân trang cũ. Tên trùng ghi đè mẫu cũ; nút × xóa mẫu. Ở trang Tác phẩm, hộp mở bên phải và tự điều chỉnh vị trí khi màn hình hẹp; không đẩy mục Vừa làm việc xuống dưới. |
 | Ghim truyện | Bấm biểu tượng ghim trên thẻ hoặc hàng truyện | Truyện lên đầu trong nhóm kết quả đang lọc; giữ sau tải lại. |
 | Chỉ truyện đã ghim | Chọn **Chỉ tác phẩm đã ghim** | Hiện các truyện đã ghim và vẫn tuân theo các bộ lọc khác. |
 | Vừa làm việc | Mở quản lý một truyện → quay lại Tác phẩm → mở **Vừa làm việc** | Có liên kết đến truyện vừa mở; chỉ hiển thị truyện có trong danh sách của tài khoản hiện tại. |
@@ -31,7 +31,7 @@ Mở `http://localhost:8080`, nhấn **Ctrl + Shift + R**, đăng nhập đúng 
 | Lọc chương cần sửa | Bật **Chỉ chương cần sửa** | Bảng và phân trang chỉ hiển thị chương không hợp lệ. Sửa hết lỗi sẽ hiện trạng thái trống. Việc lọc không tự thay đổi danh sách chương đã chọn. |
 | Tổng kết nhập | Nhập nhiều chương; có thể mô phỏng lỗi request snapshot trong môi trường test | Báo chính xác số chương hoàn tất, chương dừng và số chưa xử lý. Nếu đã tạo chương nhưng snapshot lỗi thì nêu rõ; có liên kết kiểm tra chương. |
 | Giờ đăng | Quản lý chương → lên lịch → đổi ngày giờ | Hiện thời điểm tương ứng tại Asia/Bangkok trước khi lưu. Giá trị gửi API vẫn là thời điểm UTC từ lựa chọn ngày giờ hiện có. |
-| Cắt ảnh bìa | Tạo tác phẩm hoặc sửa thông tin → chọn/tải ảnh bìa → chỉnh phóng to và vị trí → **Dùng ảnh đã cắt** | Xem trước tỷ lệ 2:3. Chỉ tải ảnh đã cắt sau khi xác nhận; hủy sẽ giữ ảnh trước đó. Tệp gửi lên là JPEG 600×900, tối đa 1 MB. |
+| Ảnh bìa và cắt tùy chọn | Tạo tác phẩm hoặc sửa thông tin → chọn ảnh; bấm **Cắt ảnh** nếu muốn chỉnh phóng to và vị trí | Ảnh nhỏ được dùng ngay, giữ nguyên tệp nếu không quá 1 MB. Ảnh rộng hơn 600px hoặc cao hơn 900px tự cắt giữa về JPEG 600×900. Trình cắt thủ công chỉ mở khi bấm Cắt ảnh; **Dùng ảnh đã cắt** tải kết quả mới, **Hủy cắt ảnh** giữ ảnh đã tải. |
 | Tìm truyện trong lệnh nhanh | Ctrl/Cmd + K → nhập ít nhất hai ký tự trong tên truyện, có thể không dấu | Hiện lệnh quản lý, viết tiếp và cẩm nang cho các tác phẩm của tài khoản. Hiện tối đa năm truyện phù hợp; gõ thêm tên để thu hẹp. |
 | Chương trùng nội dung | Nhập tệp có hai chương khác tiêu đề nhưng cùng nội dung | Có cảnh báo nhóm trùng. **Xem chương trùng** lọc bảng. **Bỏ chọn bản trùng** giữ bản đầu tiên đang được chọn trong từng nhóm, không xóa hoặc tự sửa chương. |
 | Xem trước chuẩn hóa | Nhập tệp có dấu ngoặc kép thẳng, ba dấu chấm hoặc nhiều dòng trống → Cấu hình nâng cao → **Xem trước chuẩn hóa** | Hai cột hiện văn bản thực trước/sau và số ký tự. Với tệp dài, dùng **Đoạn trước/Đoạn sau**; mỗi bên hiển thị tối đa 6.000 ký tự một đoạn. |
@@ -46,10 +46,16 @@ Kiểm tra thêm ở sáng/tối, desktop và điện thoại khoảng 390px. D�
 - Vị trí cuộn trang và vị trí hai trục bên trong bảng lưu trong sessionStorage theo tài khoản và URL.
 - Mẫu tách chương lưu Regex và các tùy chọn chuẩn hóa trong localStorage, tối đa 20 mẫu mỗi tài khoản trên trình duyệt; không lưu nội dung bản thảo.
 - Phát hiện trùng so sánh các chương trong tệp đang nhập, bỏ qua khác biệt khoảng trắng và cách tổ hợp Unicode. Giữ phân biệt hoa/thường và dấu câu; không đối chiếu với nội dung chương đã lưu trên máy chủ.
-- Công cụ cắt ảnh nhận PNG/JPEG/WebP gốc tối đa 10 MB. Kết quả là JPEG; vùng trong suốt có nền trắng. Công cụ không sửa tệp gốc trên máy.
+- Ảnh bìa nhận PNG/JPEG/WebP gốc tối đa 10 MB. Ảnh nhỏ không quá 1 MB giữ nguyên; ảnh nhỏ vượt giới hạn này được nén ở kích thước gốc. Ảnh lớn tự cắt giữa và trình cắt thủ công xuất JPEG 600×900, tối đa 1 MB; vùng trong suốt có nền trắng. Công cụ không sửa tệp gốc trên máy.
 - Xóa dữ liệu trình duyệt sẽ xóa các tùy chọn trên; hiện chưa đồng bộ sang thiết bị khác.
 - Bộ lọc trong URL có thể chia sẻ, nhưng người mở vẫn cần quyền truy cập và chỉ nhận dữ liệu API cho phép.
 - Nhập bản thảo dừng khi gặp lỗi. Không tự nhập lại phần thất bại vì một chương có thể đã được tạo trước khi request snapshot lỗi. Cần kiểm tra danh sách chương trước khi thử lại.
+
+## Điều hướng và tạo tác phẩm
+
+- Trang gốc của tác giả có tên **Tác phẩm** trên menu và breadcrumb. Breadcrumb của trang con chỉ có các trang đích thực tế, không lặp lại cùng một đường dẫn; trang Ví và doanh thu và Trang tác giả không có breadcrumb.
+- Hàng **Chỉ tác phẩm đã ghim / Bộ lọc đã lưu / Vừa làm việc** dùng cùng chiều cao, cỡ chữ và mũi tên; tự xuống hàng trên màn hình hẹp.
+- Khi tạo hoặc chỉnh sửa tác phẩm, thể loại đã tồn tại được dùng lại theo tên hoặc slug, kể cả thể loại seed có slug khác tên. Không đổi tên thể loại có sẵn; các yêu cầu đồng thời không tạo bản trùng. Kiểm tra PostgreSQL và POST tạo tác phẩm ở `backend/src/modules/novels/novels-genre.postgres.test.ts` chạy trong schema riêng.
 
 ## Kiểm thử tự động
 
