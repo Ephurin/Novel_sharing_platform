@@ -115,6 +115,32 @@ class WritingCursorPersistenceTests(unittest.TestCase):
         self.assertTrue(any(item.code == 'PATCH_SELECTION_MISMATCH' for item in checked.validations))
         self.assertEqual(self.repository.get_writing_job(job.job_id).validation_status, 'passed')
 
+    def test_operation_semantics_survive_database_roundtrip(self):
+        for operation in ('rewrite', 'continue', 'describe', 'dialogue'):
+            for bounds in ((2, 8), (8, 8)):
+                with self.subTest(operation=operation, bounds=bounds):
+                    queued = self.queued({'start': 2, 'end': 8, 'cursor': 8}, operation)
+                    original = FakeDeterministicLLMService().generate_writing_draft
+
+                    def provider(**kwargs):
+                        result = original(**kwargs)
+                        result['patch']['start'], result['patch']['end'] = bounds
+                        return result
+
+                    self.llm.generate_writing_draft = provider
+                    completed = self.service.process_generation(queued.job_id)
+                    expected = bounds == ((2, 8) if operation == 'rewrite' else (8, 8))
+                    self.assertEqual(completed.validation_status, 'passed' if expected else 'failed')
+                    restored = self.service.get_generation(queued.job_id)
+                    self.assertEqual(restored.validation_status, completed.validation_status)
+                    self.assertEqual((restored.patch.start, restored.patch.end), bounds)
+
+    def test_legacy_rewrite_insertion_is_rejected_without_mutating_stored_history(self):
+        job = self.queued({'start': 2, 'end': 8, 'cursor': 8}, 'rewrite')
+        self.repository.save_writing_job(replace(job, status='completed', validation_status='passed', patch=WritingPatch(start=8, end=8, replacement='Sai vị trí')))
+        self.assertEqual(self.service.get_generation(job.job_id).validation_status, 'failed')
+        self.assertEqual(self.repository.get_writing_job(job.job_id).validation_status, 'passed')
+
 
 if __name__ == '__main__':
     unittest.main()

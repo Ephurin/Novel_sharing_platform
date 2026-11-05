@@ -2,7 +2,7 @@ import { useLayoutEffect, useRef, type CSSProperties, type KeyboardEvent, type R
 import { authorNoteDefinitions, parseAuthorNotes } from '../../shared/lib/author-notes';
 
 type Segment = { node: Text | HTMLElement; start: number; end: number; atomic?: boolean };
-function renderSource(root: HTMLElement, source: string) {
+export function renderSource(root: HTMLElement, source: string) {
   const fragment = document.createDocumentFragment();
   const notes = parseAuthorNotes(source).byId;
   const append = (target: Node, text: string, depth = 0) => {
