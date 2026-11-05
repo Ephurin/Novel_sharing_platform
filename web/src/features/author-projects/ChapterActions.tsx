@@ -1,6 +1,9 @@
 import { ChapterSchedule } from './ChapterSchedule';
 import { useEffect, useRef, useState } from 'react';
-import { ActionIcon, Alert, Button, Group, Menu, Modal, NumberInput, Select, Stack, Switch, Text } from '@mantine/core';
+import { ActionIcon, Alert, Button, Group, NumberInput, Select, Stack, Switch, Text } from '@mantine/core';
+import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
+import { AnimatedModal as Modal } from '../../shared/components/AnimatedModal';
+import { motion, useReducedMotion } from 'motion/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient, getApiErrorMessage } from '../../shared/api/api-client';
 import { getChapter, submitChapterPublish, updateChapter } from '../novels/novel-api';
@@ -78,6 +81,7 @@ export function ChapterActions({ chapter }: { chapter: Chapter }) {
 }
 
 export function ChapterOrder({ novelId, chapters, onClose }: { novelId: string; chapters: Chapter[]; onClose: () => void }) {
+  const reduce = useReducedMotion();
   const [items, setItems] = useState(() => sortChapters(chapters, 'number-asc'));
   const listRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ id: string; x: number; y: number } | null>(null);
@@ -141,7 +145,7 @@ export function ChapterOrder({ novelId, chapters, onClose }: { novelId: string; 
         <Text size="sm" c="dimmed">Kéo tay nắm hoặc dùng nút mũi tên để đổi vị trí.</Text>
         <div ref={listRef} className="sc-chapter-order-list" role="list" aria-label="Thứ tự chương">
           {items.map((item, index) => (
-            <div key={item.chapterId} role="listitem" data-order-chapter={item.chapterId}
+            <motion.div layout={reduce ? false : 'position'} transition={{ duration: 0.18 }} key={item.chapterId} role="listitem" data-order-chapter={item.chapterId}
               className={`sc-chapter-order-row${draggedId === item.chapterId ? ' is-dragging' : ''}${dropTarget === item.chapterId && draggedId !== item.chapterId ? ' is-drop-target' : ''}`}>
               <ActionIcon variant="subtle" className="sc-chapter-drag-handle" disabled={save.isPending}
                 aria-label={`Kéo để di chuyển: ${item.title}`} title="Kéo để di chuyển"
@@ -179,7 +183,7 @@ export function ChapterOrder({ novelId, chapters, onClose }: { novelId: string; 
               <Text className="sc-chapter-order-title" title={item.title}>{index + 1}. {item.title}</Text>
               <ActionIcon variant="default" disabled={index === 0 || save.isPending || Boolean(draggedId)} aria-label={`Đưa lên: ${item.title}`} onClick={() => moveTo(index, index - 1)}>↑</ActionIcon>
               <ActionIcon variant="default" disabled={index === items.length - 1 || save.isPending || Boolean(draggedId)} aria-label={`Đưa xuống: ${item.title}`} onClick={() => moveTo(index, index + 1)}>↓</ActionIcon>
-            </div>
+            </motion.div>
           ))}
         </div>
         <span className="sr-only" role="status">{announcement}</span>

@@ -514,6 +514,8 @@ async def run_browser_flow(stack: IsolatedStack, fx: Dict[str, Any], password: s
         print("\n[Interact-E] Reading preferences: Georgia, 20, SEPIA, 1.9")
         await browser.navigate(f"{web_url}/reader/chapters/{chapter_id}")
         await browser.wait_for_condition("document.querySelector('[data-testid=\"reader-save-preferences-btn\"]') !== null", 10.0)
+        await browser.click_button_by_text("Tùy chỉnh đọc")
+        await browser.wait_for_condition("document.querySelector('.sc-reading-settings[data-state=\"open\"]') !== null", 10.0)
         await browser.select_mantine_option("[data-testid='reader-pref-font-family']", "Serif")
         await browser.set_input("[data-testid='reader-pref-font-size']", "20")
         await browser.select_mantine_option("[data-testid='reader-pref-background']", "Sepia")

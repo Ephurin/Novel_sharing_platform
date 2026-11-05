@@ -1,3 +1,5 @@
+import { SuggestionReveal } from '../../shared/components/AuthorAdminMotion';
+import { StateComparison } from '../../shared/components/StateComparison';
 import { useEffect, useMemo, useState } from 'react';
 import { EntityExtractionReview } from './EntityExtractionReview';
 import { AuthorRelationshipLocks } from './AuthorRelationshipLocks';
@@ -17,12 +19,12 @@ import {
   Paper,
   Select,
   Stack,
-  Tabs,
   Text,
   Textarea,
   TextInput,
   ThemeIcon
 } from '@mantine/core';
+import { AnimatedTabs as Tabs } from '../../shared/components/AnimatedTabs';
 import { IconAlertTriangle, IconCheck, IconEdit, IconLock, IconRefresh, IconRotate, IconX } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getApiErrorMessage, ApiClientError } from '../../shared/api/api-client';
@@ -562,8 +564,8 @@ export function AuthorMemoryPanel({
                       )}
 
                       {/* Proposals list in group */}
-                      {proposals.map(p => (
-                        <ProposalReview
+                      {proposals.map((p, proposalIndex) => (
+                        <SuggestionReveal key={p.proposal_id} index={proposalIndex}><ProposalReview
                           key={p.proposal_id}
                           proposal={p}
                           editedPayload={edits[p.proposal_id]}
@@ -580,7 +582,7 @@ export function AuthorMemoryPanel({
                             })
                           }
                           onReject={() => perform(() => rejectProposal(p.proposal_id))}
-                        />
+                        /></SuggestionReveal>
                       ))}
 
                       {/* Group accept button */}
@@ -1265,6 +1267,7 @@ function ProposalReview({
           </Group>
         </Group>
 
+        {isEdited && <StateComparison before={original} after={currentPayload} beforeLabel="Đề xuất AI" afterLabel="Bạn đã chỉnh sửa" />}
         {p.supersedes_id ? (
           <Alert color="blue">
             {p.is_retired

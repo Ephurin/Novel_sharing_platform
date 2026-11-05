@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button, Select, Alert } from '@mantine/core';
 import { useAdminAccess } from './admin-operations-api';
@@ -139,8 +140,7 @@ export function AdminModerationDetailPage() {
               </div>
             ))}
             {review.reportDescriptions?.some((item) => item.description) && (
-              <details>
-                <summary>Mô tả từ người báo cáo</summary>
+              <AnimatedDisclosure summary="Mô tả từ người báo cáo">
                 {review.reportDescriptions
                   .filter((item) => item.description)
                   .map((item, index) => (
@@ -149,7 +149,7 @@ export function AdminModerationDetailPage() {
                       {item.description}
                     </p>
                   ))}
-              </details>
+              </AnimatedDisclosure>
             )}
             {!!review.evidenceSummary.matchedRules.length && (
               <ul className="admin-evidence-list">
@@ -229,8 +229,7 @@ export function AdminModerationDetailPage() {
           </AdminPanel>
         </div>
       </div>
-      <details className="admin-metadata">
-        <summary>Thông tin kiểm duyệt</summary>
+      <AnimatedDisclosure className="admin-metadata" summary="Thông tin kiểm duyệt">
         <dl>
           <dt>Mã kiểm duyệt</dt>
           <dd>
@@ -249,7 +248,7 @@ export function AdminModerationDetailPage() {
             </>
           )}
         </dl>
-      </details>
+      </AnimatedDisclosure>
       <AdminConfirm
         destructive={decision === 'REJECTED' || commentReport}
         opened={!!decision}

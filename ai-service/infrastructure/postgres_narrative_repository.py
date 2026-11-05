@@ -1557,6 +1557,9 @@ class PostgresNarrativeRepository:
             for v in (record.validations or [])
         )
         ctx_summary = dict(record.context_summary or {})
+        # The original table has range columns but no cursor column. Keep the
+        # cursor in persisted metadata and hide that metadata from API context.
+        cursor = ctx_summary.pop("_selection_cursor", record.selection_end)
         brain_version_used = ctx_summary.get("brain_version_used", record.brain_version)
         context_hash = ctx_summary.get("context_hash", "")
         chapter_number = ctx_summary.get("chapter_number")
@@ -1568,7 +1571,7 @@ class PostgresNarrativeRepository:
             content_hash=record.base_content_hash,
             tenant_id=str(record.tenant_id),
             operation=record.operation,
-            selection={"start": record.selection_start, "end": record.selection_end},
+            selection={"start": record.selection_start, "end": record.selection_end, "cursor": cursor},
             instruction=record.instruction,
             constraints=tuple(record.constraints or []),
             style=dict(record.style or {}),
@@ -1611,6 +1614,7 @@ class PostgresNarrativeRepository:
                     return self._to_writing_job(existing)
 
             ctx_summary = dict(job.context_summary or {})
+            ctx_summary["_selection_cursor"] = job.selection.get("cursor", job.selection.get("end", 0))
             if job.brain_version_used is not None:
                 ctx_summary["brain_version_used"] = job.brain_version_used
             if job.context_hash:
@@ -1628,8 +1632,8 @@ class PostgresNarrativeRepository:
                 base_content_hash=job.content_hash,
                 brain_version=job.brain_version_used or job.expected_brain_version,
                 operation=job.operation,
-                selection_start=job.selection.get("start", 0),
-                selection_end=job.selection.get("end", 0),
+                selection_start=job.selection.get("start", job.selection.get("cursor", 0)),
+                selection_end=job.selection.get("end", job.selection.get("cursor", 0)),
                 instruction=job.instruction,
                 constraints=list(job.constraints),
                 style=dict(job.style),
@@ -1682,6 +1686,7 @@ class PostgresNarrativeRepository:
             record.validation_status = job.validation_status
             record.validations = [asdict(v) for v in job.validations]
             ctx_summary = dict(job.context_summary or {})
+            ctx_summary["_selection_cursor"] = job.selection.get("cursor", job.selection.get("end", 0))
             if job.brain_version_used is not None:
                 ctx_summary["brain_version_used"] = job.brain_version_used
                 record.brain_version = job.brain_version_used

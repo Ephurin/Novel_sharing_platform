@@ -6,12 +6,14 @@ import {
   Button,
   CopyButton,
   Group,
-  Modal,
   Pagination,
   Textarea,
-  Tooltip
+  VisuallyHidden
 } from '@mantine/core';
 import { AdminIcon } from './AdminShell';
+import { AnimatedTooltip } from '../../shared/components/AnimatedTooltip';
+import { FeedbackIcon } from '../../shared/components/ActionFeedback';
+import { AnimatedModal as Modal } from '../../shared/components/AnimatedModal';
 
 export const number = (value: number) => value.toLocaleString('vi-VN');
 export const dateTime = (value?: string | null) =>
@@ -80,11 +82,14 @@ export function AdminId({
       <span title={value}>{abbreviated}</span>
       <CopyButton value={value}>
         {({ copied, copy }) => (
-          <Tooltip label={copied ? 'Đã sao chép' : value} withArrow>
-            <ActionIcon variant="subtle" size={28} onClick={copy} aria-label={`Sao chép ${label}`}>
-              <AdminIcon name={copied ? 'check' : 'content_copy'} />
-            </ActionIcon>
-          </Tooltip>
+          <>
+            <AnimatedTooltip label={copied ? 'Đã sao chép' : value}>
+              <ActionIcon variant="subtle" size={28} onClick={copy} aria-label={`Sao chép ${label}`}>
+                <FeedbackIcon icon={copied ? 'check' : 'content_copy'} />
+              </ActionIcon>
+            </AnimatedTooltip>
+            <VisuallyHidden role="status">{copied ? 'Đã sao chép' : ''}</VisuallyHidden>
+          </>
         )}
       </CopyButton>
     </span>

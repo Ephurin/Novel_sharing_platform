@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../auth/useAuthStore';
 import { followNovel, getNovelStatistics, listNovelReviews, rateNovel, type NovelStatistics } from '../novels/novel-statistics-api';
 import { getApiErrorMessage } from '../../shared/api/api-client';
+import { ReactionIcon } from '../../shared/components/InteractionWidgets';
 
 export function NovelEngagement({ novelId, authorId }: { novelId: string; authorId: string }) {
   const user = useAuthStore(state => state.user);
@@ -51,7 +52,7 @@ export function NovelEngagement({ novelId, authorId }: { novelId: string; author
       <Text size="sm">{stats.followersCount.toLocaleString('vi-VN')} người theo dõi truyện</Text>
       <Text size="sm">{stats.totalWords.toLocaleString('vi-VN')} {user?.userId === authorId || user?.role === 'ADMIN' ? 'từ toàn bộ chương' : 'từ đã xuất bản'}</Text>
     </Group>
-    <Button variant="default" disabled={disabled} loading={follow.isPending} onClick={() => follow.mutate()} style={{ alignSelf: 'flex-start' }}>{stats.isFollowing ? 'Bỏ theo dõi truyện' : 'Theo dõi truyện'}</Button>
+    <Button variant="default" disabled={disabled} loading={follow.isPending} onClick={() => follow.mutate()} style={{ alignSelf: 'flex-start' }} leftSection={<ReactionIcon icon={stats.isFollowing ? 'check' : 'add'} active={stats.isFollowing} />}>{stats.isFollowing ? 'Bỏ theo dõi truyện' : 'Theo dõi truyện'}</Button>
     {!disabled ? <form onSubmit={event => { event.preventDefault(); if (score !== null) rating.mutate({ score: Number(score), review: review.trim() || null }); }}>
       <Stack gap="xs">
         <Select label="Điểm của bạn /10" placeholder="Chọn điểm" required disabled={rating.isPending} value={score}

@@ -1,3 +1,4 @@
+import { AnimatedNumber } from '../../shared/components/AuthorAdminMotion';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { getDashboardStats } from './admin-api';
@@ -45,7 +46,7 @@ export function AdminOverviewPage() {
             ].map(([label, value, note]) => (
               <div className="admin-metric" key={label}>
                 <span>{label}</span>
-                <strong>{number(value as number)}</strong>
+                <strong><AnimatedNumber value={value as number} /></strong>
                 <small>{note}</small>
               </div>
             ))}
@@ -75,7 +76,7 @@ export function AdminOverviewPage() {
                       {day.date}: {day.users} người dùng, {day.novels} tác phẩm
                     </title>
                     <rect
-                      className="admin-chart-users"
+                      className="admin-chart-users sc-author-chart-bar"
                       x={60 + i * 70}
                       y={200 - (day.users / max) * 180}
                       width="18"
@@ -83,7 +84,7 @@ export function AdminOverviewPage() {
                       rx="3"
                     />
                     <rect
-                      className="admin-chart-novels"
+                      className="admin-chart-novels sc-author-chart-bar"
                       x={82 + i * 70}
                       y={200 - (day.novels / max) * 180}
                       width="18"

@@ -1,0 +1,16 @@
+.sc-animated-tooltip {
+  z-index: 1000;
+  max-width: min(360px, calc(100vw - 24px));
+  padding: 6px 10px;
+  border: 1px solid var(--sc-border);
+  border-radius: 6px;
+  background: var(--sc-surface-elevated);
+  color: var(--sc-text);
+  font: 400 12px/18px var(--sc-font);
+  overflow-wrap: anywhere;
+  box-shadow: 0 2px 8px var(--sc-overlay);
+}
+
+.sc-animated-tooltip-arrow {
+  fill: var(--sc-surface-elevated);
+}

@@ -34,7 +34,7 @@
   padding: 12px;
   border-radius: 6px;
 }
-.admin-audit-detail summary {
+.admin-audit-detail :is(summary, .sc-disclosure-trigger) {
   cursor: pointer;
   color: var(--sc-primary-text);
 }
@@ -361,7 +361,7 @@
   line-height: 18px;
   padding: 16px 0;
 }
-.admin-metadata summary {
+.admin-metadata :is(summary, .sc-disclosure-trigger) {
   cursor: pointer;
   font-weight: 600;
   width: fit-content;

@@ -1,6 +1,8 @@
 import { NotificationBell } from '../../features/notifications/NotificationBell';
 import { ThemeControl } from './ThemeControl';
-import { FocusTrap, Menu, useComputedColorScheme } from '@mantine/core';
+import { WorkspaceCommands } from './WorkspaceCommands';
+import { FocusTrap, useComputedColorScheme } from '@mantine/core';
+import { AnimatedMenu as Menu } from './AnimatedMenu';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, type PropsWithChildren } from 'react';
 import { Link, NavLink, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -8,6 +10,7 @@ import { logout } from '../../features/auth/auth-api';
 import { useAuthStore } from '../../features/auth/useAuthStore';
 import { readAuthorContext } from '../../features/author-ide/author-context';
 import '../../theme/storycraft.css';
+import { navigationLabels } from './navigation';
 
 export function AuthorTheme({ children, className = '' }: PropsWithChildren<{ className?: string }>) {
   const colorScheme = useComputedColorScheme('light', { getInitialValueInEffect: false });
@@ -88,30 +91,38 @@ export function AuthorNavbar() {
   return (
     <header className="sc-navbar">
       <div className="sc-navbar-inner">
-        <Link to={isWriter ? '/author' : user ? '/reader' : '/public'} className="sc-brand" aria-label={isWriter ? 'StoryCraft — Bàn làm việc' : 'StoryCraft — Khám phá truyện'}>
+        <Link to={isWriter ? '/author/projects' : user ? '/reader' : '/public'} className="sc-brand" aria-label={`StoryCraft — ${isWriter ? navigationLabels.authorHome : user ? navigationLabels.readerHome : navigationLabels.publicHome}`}>
           <span className="material-symbols-outlined">menu_book</span>
           <span>StoryCraft</span><span className="sc-brand-edition">Văn Hoa</span>
         </Link>
         {isWriter ? (
           <nav className="sc-global-nav" aria-label="Điều hướng chính">
-            <NavLink to="/author/projects" className={(path === '/author' || path.startsWith('/author/')) && path !== '/author/profile' ? 'sc-nav-link is-active' : 'sc-nav-link'}>Tác phẩm</NavLink>
-            <NavLink to="/reader" end className="sc-nav-link">Đọc truyện</NavLink>
-            <NavLink to="/wallet" className="sc-nav-link">Ví &amp; doanh thu</NavLink>
-            <NavLink to="/author/profile" className="sc-nav-link">Trang tác giả</NavLink>
+            <NavLink to="/author/projects" className={(path === '/author' || path.startsWith('/author/')) && path !== '/author/profile' ? 'sc-nav-link is-active' : 'sc-nav-link'}>{navigationLabels.authorHome}</NavLink>
+            <NavLink to="/reader" end className="sc-nav-link">{navigationLabels.readerHome}</NavLink>
+            <NavLink to="/wallet" className="sc-nav-link">{navigationLabels.authorWallet}</NavLink>
+            <NavLink to="/author/profile" className="sc-nav-link">{navigationLabels.authorProfile}</NavLink>
           </nav>
         ) : user ? (
           <nav className="sc-global-nav" aria-label="Điều hướng chính">
-            <Link to="/reader" className={readerLink(path === '/reader' || path.startsWith('/reader/novels') || path.startsWith('/reader/chapters') || path.startsWith('/authors/'))}>Khám phá</Link>
-            <Link to="/reader/library" className={readerLink(path.startsWith('/reader/library'))}>Thư viện</Link>
+            <Link to="/reader" className={readerLink(path === '/reader' || path.startsWith('/reader/novels') || path.startsWith('/reader/chapters') || path.startsWith('/authors/'))}>{navigationLabels.readerHome}</Link>
+            <Link to="/reader/library" className={readerLink(path.startsWith('/reader/library'))}>Thư viện của tôi</Link>
             <Link to="/reader/history" className={readerLink(path.startsWith('/reader/history'))}>Lịch sử đọc</Link>
-            <Link to="/wallet" className={readerLink(path.startsWith('/wallet'))}>Ví xu</Link>
+            <Link to="/wallet" className={readerLink(path.startsWith('/wallet'))}>{navigationLabels.readerWallet}</Link>
           </nav>
         ) : (
           <nav className="sc-global-nav" aria-label="Điều hướng chính">
-            <Link to="/public" className={readerLink(path.startsWith('/public'))}>Thư viện công khai</Link>
+            <Link to="/public" className={readerLink(path.startsWith('/public'))}>{navigationLabels.publicHome}</Link>
           </nav>
         )}
         <div className="sc-navbar-actions">
+          {isWriter && <WorkspaceCommands author commands={[
+            { label: navigationLabels.authorHome, to: '/author/projects', icon: 'menu_book' },
+            { label: 'Viết tiếp', to: writingUrl, icon: 'edit_note' },
+            ...(novelId ? [{ label: 'Quản lý tác phẩm đang viết', to: `/author/novels/${novelId}` }, { label: 'Nhập bản thảo', to: `/author/import/${novelId}` }, { label: 'Cẩm nang tác phẩm', to: `/author/context/${novelId}` }] : []),
+            { label: navigationLabels.authorWallet, to: '/wallet', icon: 'payments' },
+            { label: navigationLabels.authorProfile, to: '/author/profile', icon: 'person' },
+            { label: 'Hồ sơ và cài đặt', to: '/profile/me' }
+          ]} />}
           <ThemeControl />
           {isWriter && location.pathname !== '/author/ide' && <Link to={writingUrl} className="sc-button sc-button-primary sc-continue"><span className="material-symbols-outlined">edit_note</span><span>Viết tiếp</span></Link>}
           {!user && <Link to="/login" className="sc-button sc-button-primary"><span className="material-symbols-outlined">login</span><span>Đăng nhập</span></Link>}

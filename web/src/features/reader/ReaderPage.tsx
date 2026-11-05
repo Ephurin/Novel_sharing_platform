@@ -1,3 +1,7 @@
+import { ResponsiveFilters, ReactionIcon } from '../../shared/components/InteractionWidgets';
+import { ChapterToc, ReadingSettings } from '../../shared/components/ReaderTools';
+import { ReadingProgress } from '../../shared/components/ReadingProgress';
+import { AnimatedSaveButton } from '../../shared/components/SaveFeedback';
 import { ManuscriptContent } from '../../shared/components/ManuscriptContent';
 import { CommentsSection } from './CommentsSection';
 import { NovelEngagement } from './NovelEngagement';
@@ -8,6 +12,8 @@ import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { Breadcrumbs, type BreadcrumbItem } from '../../shared/components/Breadcrumbs';
+import { navigationLabels, readerHomeCrumb } from '../../shared/components/navigation';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
 import {
   addToLibrary,
@@ -77,63 +83,65 @@ export function ReaderPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader crumbs={['Trang chủ', 'Khám phá']} title="Khám phá truyện" />
+      <PageHeader title={navigationLabels.readerHome} />
 
       <section className="flex flex-col gap-4">
-        <SectionHeading title="Truyện đã xuất bản" count={novelsQuery.isSuccess ? `${novels.length} truyện` : undefined}>
-          <label htmlFor="reader-sort" className="text-form-label text-stone-500">Sắp xếp</label>
-          <select
-            id="reader-sort"
-            value={sortFilter}
-            onChange={(event) => setSortFilter(event.target.value as SortKey)}
-            className="bg-surface-container-lowest border border-stone-200 rounded-lg px-3 py-2 text-body text-stone-700"
-          >
-            <option value="updatedAt">Mới cập nhật</option>
-            <option value="views">Lượt đọc</option>
-            <option value="likes">Lượt thích</option>
-            <option value="relevance">Liên quan nhất</option>
-          </select>
-          <select
-            aria-label="Thứ tự sắp xếp"
-            value={orderFilter}
-            onChange={(event) => setOrderFilter(event.target.value as 'desc' | 'asc')}
-            className="bg-surface-container-lowest border border-stone-200 rounded-lg px-3 py-2 text-body text-stone-700"
-          >
-            <option value="desc">Giảm dần</option>
-            <option value="asc">Tăng dần</option>
-          </select>
-        </SectionHeading>
+        <ResponsiveFilters className="flex flex-col gap-4">
+          <SectionHeading title="Truyện đã xuất bản" count={novelsQuery.isSuccess ? `${novels.length} truyện` : undefined}>
+            <label htmlFor="reader-sort" className="text-form-label text-stone-500">Sắp xếp</label>
+            <select
+              id="reader-sort"
+              value={sortFilter}
+              onChange={(event) => setSortFilter(event.target.value as SortKey)}
+              className="bg-surface-container-lowest border border-stone-200 rounded-lg px-3 py-2 text-body text-stone-700"
+            >
+              <option value="updatedAt">Mới cập nhật</option>
+              <option value="views">Lượt đọc</option>
+              <option value="likes">Lượt thích</option>
+              <option value="relevance">Liên quan nhất</option>
+            </select>
+            <select
+              aria-label="Thứ tự sắp xếp"
+              value={orderFilter}
+              onChange={(event) => setOrderFilter(event.target.value as 'desc' | 'asc')}
+              className="bg-surface-container-lowest border border-stone-200 rounded-lg px-3 py-2 text-body text-stone-700"
+            >
+              <option value="desc">Giảm dần</option>
+              <option value="asc">Tăng dần</option>
+            </select>
+          </SectionHeading>
 
-        <div className={`${card} px-3 py-2.5 flex flex-col gap-2.5`}>
-          <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-            <SearchInput
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder="Tìm theo tên truyện, giới thiệu, thể loại..."
-              testId="reader-search-input"
-            />
-            <div className="sc-filter-tabs flex items-center bg-stone-100 p-0.5 rounded-lg text-meta font-medium">
-              {statusTabs.map((tab) => (
-                <button
-                  key={tab.value || 'all'}
-                  type="button"
-                  onClick={() => setStatusFilter(tab.value)}
-                  aria-pressed={statusFilter === tab.value}
-                  className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
-                    statusFilter === tab.value ? 'bg-primary-600 text-white shadow-xs font-semibold' : 'text-stone-600 hover:text-stone-900'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+          <div className={`${card} px-3 py-2.5 flex flex-col gap-2.5`}>
+            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+              <SearchInput
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Tìm theo tên truyện, giới thiệu, thể loại..."
+                testId="reader-search-input"
+              />
+              <div className="sc-filter-tabs flex items-center bg-stone-100 p-0.5 rounded-lg text-meta font-medium">
+                {statusTabs.map((tab) => (
+                  <button
+                    key={tab.value || 'all'}
+                    type="button"
+                    onClick={() => setStatusFilter(tab.value)}
+                    aria-pressed={statusFilter === tab.value}
+                    className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
+                      statusFilter === tab.value ? 'bg-primary-600 text-white shadow-xs font-semibold' : 'text-stone-600 hover:text-stone-900'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2.5">
+              <FilterInput value={genreFilter} onChange={setGenreFilter} placeholder="Lọc theo thể loại" icon="category" />
+              <FilterInput value={tagFilter} onChange={setTagFilter} placeholder="Lọc theo thẻ" icon="sell" />
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row gap-2.5">
-            <FilterInput value={genreFilter} onChange={setGenreFilter} placeholder="Lọc theo thể loại" icon="category" />
-            <FilterInput value={tagFilter} onChange={setTagFilter} placeholder="Lọc theo thẻ" icon="sell" />
-          </div>
-        </div>
 
+        </ResponsiveFilters>
         <QueryStates
           loading={novelsQuery.isLoading}
           error={novelsQuery.isError ? novelsQuery.error : null}
@@ -174,15 +182,16 @@ export function PublicReaderPage() {
   return (
     <PublicLayout>
       <PageHeader
-        crumbs={['Trang chủ', 'Thư viện công khai']}
-        title="Thư viện công khai"
+        title={navigationLabels.publicHome}
         description="Đọc thử truyện đã xuất bản. Đăng nhập để lưu truyện, bình luận, mở khóa chương VIP hoặc báo cáo."
       />
-      <div className={`${card} px-3 py-2.5 flex flex-col md:flex-row gap-2.5`}>
-        <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Tìm theo tên truyện, giới thiệu..." />
-        <FilterInput value={genreFilter} onChange={setGenreFilter} placeholder="Thể loại" icon="category" />
-        <FilterInput value={tagFilter} onChange={setTagFilter} placeholder="Thẻ" icon="sell" />
-      </div>
+      <ResponsiveFilters>
+        <div className={`${card} px-3 py-2.5 flex flex-col md:flex-row gap-2.5`}>
+          <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Tìm theo tên truyện, giới thiệu..." />
+          <FilterInput value={genreFilter} onChange={setGenreFilter} placeholder="Thể loại" icon="category" />
+          <FilterInput value={tagFilter} onChange={setTagFilter} placeholder="Thẻ" icon="sell" />
+        </div>
+      </ResponsiveFilters>
       <QueryStates
         loading={novelsQuery.isLoading}
         error={novelsQuery.isError ? novelsQuery.error : null}
@@ -262,7 +271,7 @@ export function ReaderNovelDetailPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Breadcrumb back={{ to: '/reader', label: 'Khám phá' }} current={novel?.title ?? 'Chi tiết truyện'}>
+      <Breadcrumb back={readerHomeCrumb} current={novel?.title ?? 'Chi tiết truyện'}>
         <button
           type="button"
           onClick={() => reportMutation.mutate()}
@@ -301,7 +310,7 @@ export function ReaderNovelDetailPage() {
                 Thêm vào thư viện
               </button>
               <button type="button" onClick={() => likeMutation.mutate()} disabled={likeMutation.isPending} className="sc-button" data-testid="reader-like-btn">
-                <span className="material-symbols-outlined" aria-hidden="true">favorite</span>
+                <ReactionIcon icon="favorite" successVersion={likeMutation.isSuccess ? likeMutation.submittedAt : 0} />
                 Thích
               </button>
               <button type="button" onClick={() => unlikeMutation.mutate()} disabled={unlikeMutation.isPending} className="sc-button" data-testid="reader-unlike-btn">
@@ -314,7 +323,7 @@ export function ReaderNovelDetailPage() {
                 className="sc-button"
                 data-testid="reader-follow-btn"
               >
-                <span className="material-symbols-outlined" aria-hidden="true">person_add</span>
+                <ReactionIcon icon="person_add" successVersion={followMutation.isSuccess ? followMutation.submittedAt : 0} />
                 Theo dõi tác giả
               </button>
               <button
@@ -497,23 +506,13 @@ export function ReaderChapterPage() {
         </button>
       </Breadcrumb>
 
-      <ChapterHeader chapter={chapter} navigation={navigation} />
+      <ChapterHeader chapter={chapter} navigation={<div className="flex flex-wrap items-center gap-2">
+        {navigation}
+        <ChapterToc chapters={chapterList} currentId={chapterId} />
+        {preferences && <ReadingSettings><ReadingPreferencesPanel preferences={preferences} onSave={next => preferencesMutation.mutate(next)} saving={preferencesMutation.isPending} saved={preferencesMutation.isSuccess} /></ReadingSettings>}
+      </div>} />
 
-      <section className={`${card} p-4`} aria-label="Tùy chỉnh đọc">
-        <div className="flex items-center justify-between gap-3 mb-3">
-          <h2 className="text-section-title text-stone-900">Tùy chỉnh đọc</h2>
-          <span className="sc-novel-status">{preferencesQuery.isLoading ? 'Đang tải' : 'Đã đồng bộ'}</span>
-        </div>
-        {preferences ? (
-          <ReadingPreferencesPanel
-            preferences={preferences}
-            onSave={(next) => preferencesMutation.mutate(next)}
-            saving={preferencesMutation.isPending}
-          />
-        ) : null}
-      </section>
-
-      <ChapterProse content={chapter?.content ?? ''} style={buildReaderStyle(preferences)} />
+      <ChapterProse key={chapterId} content={chapter?.content ?? ''} style={buildReaderStyle(preferences)} />
       <div className="flex justify-center">{navigation}</div>
       <CommentsSection kind="chapter" id={chapterId} />
     </div>
@@ -527,6 +526,11 @@ export function PublicReaderChapterPage() {
     queryFn: () => getReaderChapter(chapterId),
     enabled: Boolean(chapterId),
     retry: false
+  });
+  const tocQuery = useQuery({
+    queryKey: ['public-reader-novel', chapterQuery.data?.novelId],
+    queryFn: () => getReaderNovel(chapterQuery.data?.novelId ?? ''),
+    enabled: Boolean(chapterQuery.data?.novelId)
   });
   const isLockedVip = chapterQuery.error instanceof ApiClientError && chapterQuery.error.code === 'PAYMENT_002';
   const chapter = chapterQuery.data;
@@ -548,8 +552,8 @@ export function PublicReaderChapterPage() {
       {chapter ? (
         <>
           <Breadcrumb back={{ to: novelPath, label: 'Chi tiết truyện' }} current={`Chương ${chapter.chapterNumber}`} />
-          <ChapterHeader chapter={chapter} navigation={<ChapterNavigation indexTo={novelPath} />} />
-          <ChapterProse content={chapter.content ?? ''} style={buildReaderStyle()} />
+          <ChapterHeader chapter={chapter} navigation={<div className="flex flex-wrap items-center gap-2"><ChapterNavigation indexTo={novelPath} /><ChapterToc chapters={tocQuery.data?.chapters ?? []} currentId={chapterId} publicMode /></div>} />
+          <ChapterProse key={chapterId} content={chapter.content ?? ''} style={buildReaderStyle()} />
           <CommentsSection kind="chapter" id={chapterId} />
         </>
       ) : null}
@@ -570,7 +574,7 @@ export function ReaderLibraryPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader crumbs={['Trang chủ', 'Thư viện']} title="Thư viện của tôi" />
+      <PageHeader crumbs={[readerHomeCrumb, { label: 'Thư viện của tôi' }]} title="Thư viện của tôi" />
       <section className="flex flex-col gap-4">
         <SectionHeading title="Truyện đã lưu" count={libraryQuery.isSuccess ? `${novels.length} truyện` : undefined} />
         <QueryStates
@@ -614,7 +618,7 @@ export function ReaderHistoryPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader crumbs={['Trang chủ', 'Lịch sử đọc']} title="Lịch sử đọc" />
+      <PageHeader crumbs={[readerHomeCrumb, { label: 'Lịch sử đọc' }]} title="Lịch sử đọc" />
       <section className="flex flex-col gap-4">
         <SectionHeading title="Đọc gần đây" count={historyQuery.isSuccess ? `${items.length} truyện` : undefined} />
         <QueryStates
@@ -679,18 +683,11 @@ function PublicLayout({ children }: { children: ReactNode }) {
   );
 }
 
-function PageHeader({ crumbs, title, description, actions }: { crumbs: string[]; title: string; description?: string; actions?: ReactNode }) {
+function PageHeader({ crumbs = [], title, description, actions }: { crumbs?: BreadcrumbItem[]; title: string; description?: string; actions?: ReactNode }) {
   return (
     <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
       <div className="flex flex-col gap-1">
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-meta text-stone-500 tracking-wider uppercase font-medium">
-          {crumbs.map((crumb, index) => (
-            <span key={crumb} className="flex items-center gap-1">
-              {index > 0 ? <span className="material-symbols-outlined text-body" aria-hidden="true">chevron_right</span> : null}
-              <span className={index === crumbs.length - 1 ? 'text-primary-600 font-semibold' : undefined}>{crumb}</span>
-            </span>
-          ))}
-        </nav>
+        <Breadcrumbs items={crumbs} />
         <h1 className="font-headline-sm text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">{title}</h1>
         {description ? <p className="text-body text-stone-500">{description}</p> : null}
       </div>
@@ -714,17 +711,7 @@ function SectionHeading({ title, count, children }: { title: string; count?: str
 function Breadcrumb({ back, current, children }: { back: { to: string; label: string }; current: string; children?: ReactNode }) {
   return (
     <div className={`${card} px-3 py-1.5 flex items-center justify-between gap-3`}>
-      <div className="flex items-center gap-1.5 text-meta text-stone-500 min-w-0">
-        <Link
-          to={back.to}
-          className="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 font-medium shrink-0 transition-colors py-0.5 px-1.5 rounded hover:bg-stone-100 max-w-[200px]"
-        >
-          <span className="material-symbols-outlined text-[15px]" aria-hidden="true">arrow_back</span>
-          <span className="truncate">{back.label}</span>
-        </Link>
-        <span className="text-stone-300">/</span>
-        <span className="text-stone-900 font-semibold truncate">{current}</span>
-      </div>
+      <Breadcrumbs items={[back, { label: current }]} />
       {children ? <div className="flex items-center gap-1.5 shrink-0">{children}</div> : null}
     </div>
   );
@@ -809,7 +796,7 @@ function NovelCard({ novel, extraAction, publicMode = false }: { novel: ReaderNo
       <div className="flex gap-3.5 items-start">
         <Link
           to={detailPath}
-          className="relative w-[96px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-stone-100 border border-stone-200/70 block group-hover:opacity-95 transition-opacity"
+          className="sc-cover-hover relative w-[96px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-stone-100 border border-stone-200/70 block group-hover:opacity-95 transition-opacity"
         >
           <Cover url={novel.coverImageUrl} title={novel.title} />
         </Link>
@@ -1035,7 +1022,7 @@ function ChapterProse({ content, style }: { content: string; style: ReturnType<t
   return (
     <article className="sc-reading-surface rounded-xl border border-stone-200/80 shadow-2xs px-5 sm:px-12 py-8 sm:py-10" style={style}>
       <div className="max-w-[720px] mx-auto">
-        <ManuscriptContent content={content} />
+        <ReadingProgress><ManuscriptContent content={content} /></ReadingProgress>
       </div>
     </article>
   );
@@ -1057,11 +1044,13 @@ function LockedChapter({ message, children }: { message: string; children: React
 function ReadingPreferencesPanel({
   preferences,
   onSave,
-  saving
+  saving,
+  saved
 }: {
   preferences: ReadingPreferences;
   onSave: (preferences: ReadingPreferences) => void;
   saving: boolean;
+  saved: boolean;
 }) {
   const [draft, setDraft] = useState(preferences);
 
@@ -1070,8 +1059,8 @@ function ReadingPreferencesPanel({
   }, [preferences]);
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
-      <Select
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+      <Select comboboxProps={{ withinPortal: false }}
         label="Phông chữ"
         data={[
           { value: 'system-ui', label: 'Hệ thống' },
@@ -1091,7 +1080,7 @@ function ReadingPreferencesPanel({
         onChange={(value) => setDraft((current) => ({ ...current, fontSize: Number(value) || current.fontSize }))}
         data-testid="reader-pref-font-size"
       />
-      <Select
+      <Select comboboxProps={{ withinPortal: false }}
         label="Màu nền"
         data={[
           { value: 'LIGHT', label: 'Sáng' },
@@ -1112,10 +1101,9 @@ function ReadingPreferencesPanel({
         onChange={(value) => setDraft((current) => ({ ...current, lineHeight: Number(value) || current.lineHeight }))}
         data-testid="reader-pref-line-height"
       />
-      <button type="button" onClick={() => onSave(draft)} disabled={saving} className="sc-button sc-button-primary" data-testid="reader-save-preferences-btn">
-        <span className="material-symbols-outlined" aria-hidden="true">save</span>
-        {saving ? 'Đang lưu...' : 'Lưu tùy chỉnh'}
-      </button>
+      <AnimatedSaveButton onClick={() => onSave(draft)} loading={saving} saved={saved} className="sc-button sc-button-primary" data-testid="reader-save-preferences-btn">
+        Lưu tùy chỉnh
+      </AnimatedSaveButton>
     </div>
   );
 }

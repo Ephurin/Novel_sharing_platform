@@ -7,10 +7,13 @@ import { theme, cssVariablesResolver } from '../../src/theme';
 import { apiClient } from '../../src/shared/api/api-client';
 import { useAuthStore } from '../../src/features/auth/useAuthStore';
 import { AuthorWritingIde } from '../../src/features/author-ide/AuthorWritingIde';
+import { ToastProvider } from '../../src/shared/components/ToastProvider';
+import { AuthorTheme } from '../../src/shared/components/AuthorTheme';
 
 import '@mantine/core/styles.css';
 import '../../src/theme/storycraft.css';
 import '../../src/theme/color-mode.css';
+import '../../src/theme/refinements.css';
 
 const config = (window as any).testConfig;
 if (config?.base) {
@@ -39,21 +42,27 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  const [mode, setMode] = useState<'light' | 'dark'>('light');
+  const [mode, setMode] = useState<'light' | 'dark'>(() => localStorage.getItem('storycraft-theme') === 'dark' ? 'dark' : 'light');
   const [generation, setGeneration] = useState(0);
+  const [accountIndex, setAccountIndex] = useState(0);
 
   useEffect(() => {
     document.documentElement.dataset.theme = mode;
   }, [mode]);
 
-  (window as any).setTheme = setMode;
+  (window as any).setTheme = (value: 'light' | 'dark') => { localStorage.setItem('storycraft-theme', value); setMode(value); };
   (window as any).remount = () => {
     queryClient.clear();
     setGeneration((v) => v + 1);
   };
 
-  const novelId = config?.accounts?.[0]?.novelId ?? '';
-  const chapterId = config?.accounts?.[0]?.chapterIds?.[0] ?? '';
+  (window as any).selectTestAccount = (index: number) => {
+    const account = config.accounts[index];
+    useAuthStore.getState().setSession({ accessToken: account.token, user: { userId: account.userId, role: 'AUTHOR', username: 'author_tester', email: 'author_tester@test.invalid' } });
+    queryClient.clear(); setAccountIndex(index); setGeneration(value => value + 1);
+  };
+  const novelId = config?.accounts?.[accountIndex]?.novelId ?? '';
+  const chapterId = config?.accounts?.[accountIndex]?.chapterIds?.[0] ?? '';
   const initialUrl = `/author/ide?novelId=${novelId}&chapterId=${chapterId}`;
 
   const router = React.useMemo(() => {
@@ -73,11 +82,12 @@ function App() {
       }
     );
   }, [generation, initialUrl]);
+  (window as any).navigateTestChapter = (id: string) => router.navigate(`/author/ide?novelId=${novelId}&chapterId=${id}`);
 
   return (
     <QueryClientProvider client={queryClient}>
       <MantineProvider theme={theme} cssVariablesResolver={cssVariablesResolver} forceColorScheme={mode}>
-        <RouterProvider key={generation} router={router} />
+        <ToastProvider><AuthorTheme><RouterProvider key={generation} router={router} /></AuthorTheme></ToastProvider>
       </MantineProvider>
     </QueryClientProvider>
   );

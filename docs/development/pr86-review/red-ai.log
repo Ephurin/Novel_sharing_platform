@@ -1,0 +1,122 @@
+.....F..                                                [100%]
+================================== FAILURES ===================================
+_ WritingCursorPersistenceTests.test_legacy_rewrite_insertion_is_rejected_without_mutating_stored_history _
+
+self = <tests.test_writing_cursor_persistence.WritingCursorPersistenceTests testMethod=test_legacy_rewrite_insertion_is_rejected_without_mutating_stored_history>
+
+    def test_legacy_rewrite_insertion_is_rejected_without_mutating_stored_history(self):
+        job = self.queued({'start': 2, 'end': 8, 'cursor': 8}, 'rewrite')
+        self.repository.save_writing_job(replace(job, status='completed', validation_status='passed', patch=WritingPatch(start=8, end=8, replacement='Sai v\u1ecb tr\xed')))
+>       self.assertEqual(self.service.get_generation(job.job_id).validation_status, 'failed')
+E       AssertionError: 'passed' != 'failed'
+E       - passed
+E       + failed
+
+tests\test_writing_cursor_persistence.py:141: AssertionError
+_ WritingCursorPersistenceTests.test_operation_semantics_survive_database_roundtrip (operation='rewrite', bounds=(8, 8)) _
+
+self = <tests.test_writing_cursor_persistence.WritingCursorPersistenceTests testMethod=test_operation_semantics_survive_database_roundtrip>
+
+    def test_operation_semantics_survive_database_roundtrip(self):
+        for operation in ('rewrite', 'continue', 'describe', 'dialogue'):
+            for bounds in ((2, 8), (8, 8)):
+                with self.subTest(operation=operation, bounds=bounds):
+                    queued = self.queued({'start': 2, 'end': 8, 'cursor': 8}, operation)
+                    original = FakeDeterministicLLMService().generate_writing_draft
+
+                    def provider(**kwargs):
+                        result = original(**kwargs)
+                        result['patch']['start'], result['patch']['end'] = bounds
+                        return result
+
+                    self.llm.generate_writing_draft = provider
+                    completed = self.service.process_generation(queued.job_id)
+                    expected = bounds == ((2, 8) if operation == 'rewrite' else (8, 8))
+>                   self.assertEqual(completed.validation_status, 'passed' if expected else 'failed')
+E                   AssertionError: 'passed' != 'failed'
+E                   - passed
+E                   + failed
+
+tests\test_writing_cursor_persistence.py:133: AssertionError
+_ WritingCursorPersistenceTests.test_operation_semantics_survive_database_roundtrip (operation='continue', bounds=(2, 8)) _
+
+self = <tests.test_writing_cursor_persistence.WritingCursorPersistenceTests testMethod=test_operation_semantics_survive_database_roundtrip>
+
+    def test_operation_semantics_survive_database_roundtrip(self):
+        for operation in ('rewrite', 'continue', 'describe', 'dialogue'):
+            for bounds in ((2, 8), (8, 8)):
+                with self.subTest(operation=operation, bounds=bounds):
+                    queued = self.queued({'start': 2, 'end': 8, 'cursor': 8}, operation)
+                    original = FakeDeterministicLLMService().generate_writing_draft
+
+                    def provider(**kwargs):
+                        result = original(**kwargs)
+                        result['patch']['start'], result['patch']['end'] = bounds
+                        return result
+
+                    self.llm.generate_writing_draft = provider
+                    completed = self.service.process_generation(queued.job_id)
+                    expected = bounds == ((2, 8) if operation == 'rewrite' else (8, 8))
+>                   self.assertEqual(completed.validation_status, 'passed' if expected else 'failed')
+E                   AssertionError: 'passed' != 'failed'
+E                   - passed
+E                   + failed
+
+tests\test_writing_cursor_persistence.py:133: AssertionError
+_ WritingCursorPersistenceTests.test_operation_semantics_survive_database_roundtrip (operation='describe', bounds=(2, 8)) _
+
+self = <tests.test_writing_cursor_persistence.WritingCursorPersistenceTests testMethod=test_operation_semantics_survive_database_roundtrip>
+
+    def test_operation_semantics_survive_database_roundtrip(self):
+        for operation in ('rewrite', 'continue', 'describe', 'dialogue'):
+            for bounds in ((2, 8), (8, 8)):
+                with self.subTest(operation=operation, bounds=bounds):
+                    queued = self.queued({'start': 2, 'end': 8, 'cursor': 8}, operation)
+                    original = FakeDeterministicLLMService().generate_writing_draft
+
+                    def provider(**kwargs):
+                        result = original(**kwargs)
+                        result['patch']['start'], result['patch']['end'] = bounds
+                        return result
+
+                    self.llm.generate_writing_draft = provider
+                    completed = self.service.process_generation(queued.job_id)
+                    expected = bounds == ((2, 8) if operation == 'rewrite' else (8, 8))
+>                   self.assertEqual(completed.validation_status, 'passed' if expected else 'failed')
+E                   AssertionError: 'passed' != 'failed'
+E                   - passed
+E                   + failed
+
+tests\test_writing_cursor_persistence.py:133: AssertionError
+_ WritingCursorPersistenceTests.test_operation_semantics_survive_database_roundtrip (operation='dialogue', bounds=(2, 8)) _
+
+self = <tests.test_writing_cursor_persistence.WritingCursorPersistenceTests testMethod=test_operation_semantics_survive_database_roundtrip>
+
+    def test_operation_semantics_survive_database_roundtrip(self):
+        for operation in ('rewrite', 'continue', 'describe', 'dialogue'):
+            for bounds in ((2, 8), (8, 8)):
+                with self.subTest(operation=operation, bounds=bounds):
+                    queued = self.queued({'start': 2, 'end': 8, 'cursor': 8}, operation)
+                    original = FakeDeterministicLLMService().generate_writing_draft
+
+                    def provider(**kwargs):
+                        result = original(**kwargs)
+                        result['patch']['start'], result['patch']['end'] = bounds
+                        return result
+
+                    self.llm.generate_writing_draft = provider
+                    completed = self.service.process_generation(queued.job_id)
+                    expected = bounds == ((2, 8) if operation == 'rewrite' else (8, 8))
+>                   self.assertEqual(completed.validation_status, 'passed' if expected else 'failed')
+E                   AssertionError: 'passed' != 'failed'
+E                   - passed
+E                   + failed
+
+tests\test_writing_cursor_persistence.py:133: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_writing_cursor_persistence.py::WritingCursorPersistenceTests::test_legacy_rewrite_insertion_is_rejected_without_mutating_stored_history
+SUBFAILED(operation='rewrite', bounds=(8, 8)) tests/test_writing_cursor_persistence.py::WritingCursorPersistenceTests::test_operation_semantics_survive_database_roundtrip
+SUBFAILED(operation='continue', bounds=(2, 8)) tests/test_writing_cursor_persistence.py::WritingCursorPersistenceTests::test_operation_semantics_survive_database_roundtrip
+SUBFAILED(operation='describe', bounds=(2, 8)) tests/test_writing_cursor_persistence.py::WritingCursorPersistenceTests::test_operation_semantics_survive_database_roundtrip
+SUBFAILED(operation='dialogue', bounds=(2, 8)) tests/test_writing_cursor_persistence.py::WritingCursorPersistenceTests::test_operation_semantics_survive_database_roundtrip
+5 failed, 7 passed, 13 subtests passed in 1.28s

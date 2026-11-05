@@ -1,3 +1,8 @@
+import { FilterPresets, useUrlFilters, useListScroll, WorkspaceTable } from '../../shared/components/WorkspacePreferences';
+import { WorkspacePreview } from '../../shared/components/WorkspacePreview';
+import { ActiveFilterChips, AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
+import { labels as filterLabels } from './AdminShared';
+import { ResponsiveFilters, useUpdatedItems } from '../../shared/components/InteractionWidgets';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../auth/useAuthStore';
 import { useState } from 'react';
@@ -13,17 +18,19 @@ import {
   options,
   Status
 } from './AdminShared';
-import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
+import { ErrorState, LoadingState } from '../../shared/components/PageStates';
 import { AdminIcon } from './AdminShell';
 
 export function AdminUsersPage() {
+  const [previewId, setPreviewId] = useState<string | null>(null);
   const cache = useQueryClient();
   const currentUser = useAuthStore((s) => s.user);
   const [reason, setReason] = useState('');
-  const [q, setQ] = useState('');
-  const [role, setRole] = useState('');
-  const [status, setStatus] = useState('');
-  const [page, setPage] = useState(1);
+  const urlFilters = useUrlFilters({ q: '', role: '', status: '', page: 1 }, { role: ['', 'ADMIN', 'AUTHOR', 'READER'], status: ['', 'ACTIVE', 'LOCKED'] });
+  const [q, setQ] = urlFilters.field('q');
+  const [role, setRole] = urlFilters.field('role');
+  const [status, setStatus] = urlFilters.field('status');
+  const [page, setPage] = urlFilters.field('page');
   const [selected, setSelected] = useState<AdminUser | null>(null);
   const query = useQuery({
     queryKey: ['admin-users', q, role, status, page],
@@ -50,6 +57,8 @@ export function AdminUsersPage() {
     setStatus('');
     setPage(1);
   };
+  const updated = useUpdatedItems(query.data?.items.map(item => ({ id: item.userId, version: JSON.stringify(item) })), [q, role, status, page].join('|'));
+  useListScroll(!query.isPending);
   return (
     <>
       <AdminHeader
@@ -62,7 +71,7 @@ export function AdminUsersPage() {
         </span>
       </AdminHeader>
       <AdminPanel>
-        <div className="admin-toolbar">
+        <ResponsiveFilters className="admin-toolbar">
           <TextInput
             className="admin-search"
             label="Tìm kiếm"
@@ -74,8 +83,7 @@ export function AdminUsersPage() {
               setPage(1);
             }}
           />
-          <Select
-            label="Trạng thái"
+          <Select comboboxProps={{ withinPortal: false }}             label="Trạng thái"
             data={options(['ACTIVE', 'LOCKED'], 'Tất cả trạng thái')}
             value={status}
             onChange={(v) => {
@@ -83,8 +91,7 @@ export function AdminUsersPage() {
               setPage(1);
             }}
           />
-          <Select
-            label="Vai trò"
+          <Select comboboxProps={{ withinPortal: false }}             label="Vai trò"
             data={options(['ADMIN', 'AUTHOR', 'READER'], 'Tất cả vai trò')}
             value={role}
             onChange={(v) => {
@@ -95,14 +102,20 @@ export function AdminUsersPage() {
           <Button variant="subtle" onClick={reset}>
             Đặt lại
           </Button>
-        </div>
-        {query.isLoading && <LoadingState label="Đang tải người dùng..." />}
+        </ResponsiveFilters>
+        <FilterPresets name={'AdminUsersPage'} fields={["q", "role", "status"]} />
+        <ActiveFilterChips items={[
+          ...(q.trim() ? [{ id: 'q', label: `Tìm: ${q.trim()}`, onRemove: () => { setQ(''); setPage(1); } }] : []),
+          ...(role ? [{ id: 'role', label: role === 'ADMIN' ? 'Quản trị viên' : role === 'AUTHOR' ? 'Tác giả' : 'Độc giả', onRemove: () => { setRole(''); setPage(1); } }] : []),
+          ...(status ? [{ id: 'status', label: filterLabels[status] || status, onRemove: () => { setStatus(''); setPage(1); } }] : [])
+        ]} />
+        <ResultsSurface identity={String(query.dataUpdatedAt)} busy={query.isFetching} retain={Boolean(q.trim() || role || status)}>{query.isLoading && <LoadingState variant="table" label="Đang tải người dùng..." />}
         {query.isError && <ErrorState error={query.error} onRetry={() => void query.refetch()} />}
         {query.data && !query.data.items.length && (
           <EmptyState description="Không tìm thấy người dùng phù hợp." />
         )}
         {!!query.data?.items.length && (
-          <div className="admin-table-scroll">
+          <WorkspaceTable name="adminuserspage" columns={['Người dùng', 'Vai trò', 'Trạng thái', 'Thao tác']}>
             <table>
               <thead>
                 <tr>
@@ -114,7 +127,7 @@ export function AdminUsersPage() {
               </thead>
               <tbody>
                 {query.data.items.map((user) => (
-                  <tr key={user.userId}>
+                  <tr key={user.userId} className={updated.has(user.userId) ? 'sc-item-updated' : undefined}>
                     <td>
                       <div className="admin-person">
                         <span className="admin-avatar">
@@ -138,6 +151,7 @@ export function AdminUsersPage() {
                       <Status value={user.status} />
                     </td>
                     <td>
+                      <Button variant="subtle" size="xs" onClick={() => setPreviewId(user.userId)}>Xem nhanh</Button>
                       <Button
                         disabled={user.userId === currentUser?.userId || user.status === 'DELETED'}
                         variant="light"
@@ -160,10 +174,12 @@ export function AdminUsersPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </WorkspaceTable>
         )}
         <AdminPagination meta={query.data?.meta} onChange={setPage} />
+      </ResultsSurface>
       </AdminPanel>
+      <WorkspacePreview selected={previewId} onSelect={setPreviewId} records={(query.data?.items ?? []).map(user => ({ id: user.userId, title: user.displayName || user.username, to: `/admin/users/${user.userId}`, fields: [['Tài khoản', `@${user.username}`], ['Email', user.email], ['Vai trò', user.role === 'ADMIN' ? 'Quản trị viên' : user.role === 'AUTHOR' ? 'Tác giả' : 'Độc giả'], ['Trạng thái', filterLabels[user.status] || user.status]] }))} />
       <AdminConfirm
         reason={reason}
         setReason={setReason}

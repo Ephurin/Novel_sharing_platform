@@ -1,14 +1,28 @@
+import { FilterPresets, useUrlFilters, useWorkspacePreference, stringArray, useListScroll } from '../../shared/components/WorkspacePreferences';
+import { ActiveFilterChips, AnimatedCollection, AnimatedNumber, LoadedImage, ProjectLayout, ProjectMotionCard, ResultsSurface, SuggestionReveal } from '../../shared/components/AuthorAdminMotion';
+import { ImageLightbox, useUpdatedItems } from '../../shared/components/InteractionWidgets';
+import { useToast } from '../../shared/components/ToastProvider';
+import { LoadingState } from '../../shared/components/PageStates';
 import { uploadImage } from '../../shared/components/ImageUpload';
+import { CoverCropEditor } from '../../shared/components/CoverCropEditor';
+import { prepareCoverImage } from '../../shared/components/cover-image';
+import { WorkspacePreview } from '../../shared/components/WorkspacePreview';
+import { ReactionIcon } from '../../shared/components/InteractionWidgets';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { navigationLabels } from '../../shared/components/navigation';
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../auth/useAuthStore';
 import { writeAuthorContext } from '../author-ide/author-context';
 import { createNovel, listGenres, listMyNovels } from '../novels/novel-api';
-import { RetainedHeight } from '../../shared/components/RetainedHeight';
 import { sortProjects, type ProjectSort } from './project-sorting';
 import type { Novel, NovelStatus } from '../novels/novel-types';
+import './author-projects.css';
+
+function ProjectPin({ title, active, onClick }: { title: string; active: boolean; onClick: () => void }) {
+  return <button type="button" className="sc-project-pin" aria-pressed={active} aria-label={`${active ? 'Bỏ ghim' : 'Ghim'} ${title}`} title={active ? 'Bỏ ghim' : 'Ghim lên đầu'} onClick={onClick}><ReactionIcon icon="push_pin" active={active} /></button>;
+}
 
 function formatTimeAgo(dateStr?: string) {
   if (!dateStr) return 'Mới cập nhật';
@@ -32,12 +46,18 @@ export function AuthorProjectsPage() {
   const user = useAuthStore((state: any) => state.user);
 
   // Search & Filter State
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedStatusTab, setSelectedStatusTab] = useState<'ALL' | 'ONGOING' | 'COMPLETED' | 'DRAFT'>('ALL');
-  const [sortOrder, setSortOrder] = useState<ProjectSort>('updated');
-  const [selectedGenre, setSelectedGenre] = useState<string>('ALL');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const filters = useUrlFilters({ q: '', status: 'ALL' as 'ALL' | 'ONGOING' | 'COMPLETED' | 'DRAFT', sort: 'updated' as ProjectSort, genre: 'ALL', pinned: false as boolean }, { status: ['ALL','ONGOING','COMPLETED','DRAFT'], sort: ['updated','created-desc','created-asc','title-asc','title-desc','views','chapters'] });
+  const [searchQuery, setSearchQuery] = filters.field('q');
+  const [selectedStatusTab, setSelectedStatusTab] = filters.field('status');
+  const [sortOrder, setSortOrder] = filters.field('sort');
+  const [selectedGenre, setSelectedGenre] = filters.field('genre');
+  const [onlyPinned, setOnlyPinned] = filters.field('pinned');
+  const [viewMode, setViewMode] = useWorkspacePreference<'grid' | 'list'>('project-view', 'grid', (v): v is 'grid' | 'list' => v === 'grid' || v === 'list');
+  const [pinnedIds, setPinnedIds] = useWorkspacePreference<string[]>('pinned-projects', [], stringArray);
+  const [recentIds] = useWorkspacePreference<string[]>('recent-projects', [], stringArray);
+  const togglePin = (id: string) => setPinnedIds(ids => ids.includes(id) ? ids.filter(item => item !== id) : [id, ...ids].slice(0, 200));
   const [activeMenuNovelId, setActiveMenuNovelId] = useState<string | null>(null);
+  const [previewId, setPreviewId] = useState<string | null>(null);
 
   // Modal State for New Project
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -45,6 +65,9 @@ export function AuthorProjectsPage() {
   const [newGenre, setNewGenre] = useState('');
   const [newSynopsis, setNewSynopsis] = useState('');
   const [newCoverUrl, setNewCoverUrl] = useState('');
+  const [coverToCrop, setCoverToCrop] = useState<File | null>(null);
+  const [coverSource, setCoverSource] = useState<File | null>(null);
+  useEffect(() => { if (!createModalOpen) setCoverToCrop(null); }, [createModalOpen]);
   const [isGenreDropdownOpen, setIsGenreDropdownOpen] = useState(false);
   const [isCoverDragging, setIsCoverDragging] = useState(false);
 
@@ -66,25 +89,24 @@ export function AuthorProjectsPage() {
   }, [isGenreDropdownOpen]);
 
   // Toast State
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
-  };
+  const { showToast } = useToast();
 
   // Queries
   const projectsQuery = useQuery({
-    queryKey: ['author-projects'],
+    queryKey: ['author-projects', user?.userId],
     queryFn: () => listMyNovels()
   });
+  useListScroll(!projectsQuery.isPending);
   const genresQuery = useQuery({ queryKey: ['novel-genres'], queryFn: listGenres });
   const genres = genresQuery.data ?? [];
 
   const projects: Novel[] = projectsQuery.data ?? [];
+  const updated = useUpdatedItems(projectsQuery.data?.map(project => ({ id: project.novelId, version: [project.updatedAt, project.status, project.title, project.chaptersCount, project.coverImageUrl, project.serialStatus].join('|') })));
 
   // Filtered Projects
   const filteredProjects = useMemo(() => {
     return sortProjects(projects.filter((project) => {
+      if (onlyPinned && !pinnedIds.includes(project.novelId)) return false;
       // 1. Text Search
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
@@ -108,8 +130,8 @@ export function AuthorProjectsPage() {
       }
 
       return true;
-    }), sortOrder);
-  }, [projects, searchQuery, selectedStatusTab, selectedGenre, sortOrder]);
+    }), sortOrder).sort((a, b) => Number(pinnedIds.includes(b.novelId)) - Number(pinnedIds.includes(a.novelId)));
+  }, [projects, searchQuery, selectedStatusTab, selectedGenre, sortOrder, pinnedIds, onlyPinned]);
 
   // Status Counts for Pills
   const counts = useMemo(() => {
@@ -145,7 +167,11 @@ export function AuthorProjectsPage() {
   }, [projects]);
 
   // Create Project Mutation
-  const coverUpload = useMutation({ mutationFn: uploadImage, onSuccess: setNewCoverUrl, onError: (error: Error) => showToast(error.message) });
+  const coverUpload = useMutation({
+    mutationFn: async ({ file, cropped }: { file: File; cropped?: boolean }) => uploadImage(cropped ? file : await prepareCoverImage(file)),
+    onSuccess: (url, input) => { setNewCoverUrl(url); if (!input.cropped) setCoverSource(input.file); },
+    onError: (error: Error) => showToast(error.message)
+  });
   const createProjectMutation = useMutation({
     mutationFn: async () => {
       const trimmedTitle = newTitle.trim();
@@ -172,6 +198,7 @@ export function AuthorProjectsPage() {
       setNewGenre('');
       setNewSynopsis('');
       setNewCoverUrl('');
+      setCoverSource(null);
       setIsGenreDropdownOpen(false);
       showToast('Đã tạo tác phẩm mới thành công!');
       navigate(`/author/novels/${novel.novelId}`);
@@ -183,6 +210,10 @@ export function AuthorProjectsPage() {
 
   const openIde = (novelId: string) => {
     navigate(`/author/ide?novelId=${novelId}`);
+  };
+  const selectCover = (file: File) => {
+    if (coverUpload.isPending || createProjectMutation.isPending) return;
+    setCoverToCrop(null); coverUpload.mutate({ file });
   };
 
   return (
@@ -200,16 +231,8 @@ export function AuthorProjectsPage() {
           {/* Page Header & Main Title */}
           <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="flex flex-col gap-1">
-              <nav
-                aria-label="Breadcrumb"
-                className="flex items-center gap-1 text-meta text-stone-500 tracking-wider uppercase font-medium"
-              >
-                <span>Trang chủ</span>
-                <span className="material-symbols-outlined text-body">chevron_right</span>
-                <span className="text-primary-600 font-semibold">Bảng làm việc</span>
-              </nav>
               <h1 className="font-headline-sm text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">
-                Bảng làm việc
+                {navigationLabels.authorHome}
               </h1>
             </div>
 
@@ -217,7 +240,7 @@ export function AuthorProjectsPage() {
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => setCreateModalOpen(true)}
+                data-workspace-create onClick={() => setCreateModalOpen(true)}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-label-md text-meta font-semibold shadow-2xs transition-all transform  cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[18px]">add_circle</span>
@@ -235,7 +258,7 @@ export function AuthorProjectsPage() {
                   Tổng tác phẩm
                 </span>
                 <span className="font-headline-sm text-2xl font-bold text-stone-900 leading-none">
-                  {counts.all}
+                  <AnimatedNumber value={counts.all} ready={Boolean(projectsQuery.data)} />
                 </span>
                 <span className="text-meta text-stone-500 flex items-center gap-1 mt-0.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary-600 inline-block"></span>
@@ -255,7 +278,7 @@ export function AuthorProjectsPage() {
                 </span>
                 <div className="flex items-baseline gap-1.5">
                   <span className="font-headline-sm text-2xl font-bold text-stone-900 leading-none">
-                    {totalReads >= 1000 ? `${(totalReads / 1000).toFixed(1)}K` : totalReads}
+                    <AnimatedNumber value={totalReads} ready={Boolean(projectsQuery.data)} format={value => value >= 1000 ? `${(value / 1000).toFixed(1)}K` : String(value)} />
                   </span>
                 </div>
                 <span className="text-meta text-stone-500 mt-0.5">Lượt đọc tích lũy từ các tác phẩm</span>
@@ -272,7 +295,7 @@ export function AuthorProjectsPage() {
                   Chương đã xuất bản
                 </span>
                 <span className="font-headline-sm text-2xl font-bold text-stone-900 leading-none">
-                  {totalChapters}
+                  <AnimatedNumber value={totalChapters} ready={Boolean(projectsQuery.data)} />
                 </span>
                 <span className="text-meta text-stone-500 flex items-center gap-1 mt-0.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
@@ -286,7 +309,7 @@ export function AuthorProjectsPage() {
           </section>
 
           {/* Main Section: Tác phẩm của tôi */}
-          <section className="flex flex-col gap-4">
+          <section className="sc-project-library flex flex-col gap-3">
             {/* Section Header with Count Badge */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -320,7 +343,7 @@ export function AuthorProjectsPage() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Tìm kiếm tác phẩm theo tên..."
+                  data-workspace-search placeholder="Tìm kiếm tác phẩm theo tên..."
                   className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-stone-50/80 text-meta text-stone-900 placeholder:text-stone-400 border border-stone-200/80 focus:outline-none focus:bg-surface-container-lowest focus:border-primary-600 focus:ring-1 focus:ring-primary-600 transition-colors"
                 />
               </div>
@@ -424,12 +447,20 @@ export function AuthorProjectsPage() {
               </div>
             </div>
 
+            <div className="sc-project-library-options">
+              <label className="text-meta"><input type="checkbox" checked={onlyPinned} onChange={e => setOnlyPinned(e.target.checked)} /> Chỉ tác phẩm đã ghim</label>
+              <FilterPresets name="author-projects" fields={['q', 'status', 'sort', 'genre', 'pinned']} presentation="popover" />
+              {recentIds.some(id => projects.some(p => p.novelId === id)) && <details className="sc-filter-presets"><summary><span className="material-symbols-outlined" aria-hidden="true">chevron_right</span><span>Vừa làm việc</span></summary><div className="sc-workspace-row">{recentIds.map(id => projects.find(p => p.novelId === id)).filter((p): p is Novel => Boolean(p)).slice(0, 5).map(project => <Link className="sc-workspace-button" key={project.novelId} to={`/author/novels/${project.novelId}`}>{project.title}</Link>)}</div></details>}
+            </div>
+            <ActiveFilterChips items={[
+              ...(onlyPinned ? [{ id: 'pinned', label: 'Đã ghim', onRemove: () => setOnlyPinned(false) }] : []),
+              ...(searchQuery.trim() ? [{ id: 'q', label: `Tìm: ${searchQuery.trim()}`, onRemove: () => setSearchQuery('') }] : []),
+              ...(selectedStatusTab !== 'ALL' ? [{ id: 'status', label: selectedStatusTab === 'DRAFT' ? 'Bản nháp' : selectedStatusTab === 'COMPLETED' ? 'Hoàn thành' : 'Đang sáng tác', onRemove: () => setSelectedStatusTab('ALL') }] : []),
+              ...(selectedGenre !== 'ALL' ? [{ id: 'genre', label: `Thể loại: ${selectedGenre}`, onRemove: () => setSelectedGenre('ALL') }] : [])
+            ]} />
             {/* Loading / Error States */}
             {projectsQuery.isLoading && (
-              <div className="p-12 bg-surface-container-lowest rounded-xl border border-stone-200/80 flex flex-col items-center justify-center gap-3">
-                <div className="w-7 h-7 border-3 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-meta text-stone-500">Đang tải danh sách tác phẩm...</p>
-              </div>
+              <LoadingState label="Đang tải danh sách tác phẩm…" variant="cards" />
             )}
 
             {projectsQuery.isError && (
@@ -446,10 +477,10 @@ export function AuthorProjectsPage() {
               </div>
             )}
 
-            <RetainedHeight key={viewMode} retain={Boolean(searchQuery.trim() || selectedStatusTab !== 'ALL' || selectedGenre !== 'ALL')}>
+            <ResultsSurface identity={[searchQuery, selectedStatusTab, selectedGenre, sortOrder, projectsQuery.dataUpdatedAt].join('|')} retain={Boolean(searchQuery.trim() || selectedStatusTab !== 'ALL' || selectedGenre !== 'ALL')} busy={projectsQuery.isFetching}>
             {/* Empty State */}
             {!projectsQuery.isLoading && !projectsQuery.isError && filteredProjects.length === 0 && (
-              <div className="p-12 bg-surface-container-lowest rounded-xl border border-stone-200/80 flex flex-col items-center justify-center text-center gap-3">
+              <SuggestionReveal><div className="p-12 bg-surface-container-lowest rounded-xl border border-stone-200/80 flex flex-col items-center justify-center text-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-stone-400">
                   <span className="material-symbols-outlined text-[28px]">menu_book</span>
                 </div>
@@ -468,12 +499,13 @@ export function AuthorProjectsPage() {
                 >
                   Tạo tác phẩm đầu tiên
                 </button>
-              </div>
+              </div></SuggestionReveal>
             )}
 
             {/* Novel Cards: Grid View (Strict 3 columns on desktop) */}
+            <ProjectLayout>
             {viewMode === 'grid' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-4.5">
+              <AnimatedCollection key="grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-4.5">
                 {filteredProjects.map((project) => {
                   const cover = project.coverImageUrl;
                   const statusLabel =
@@ -490,17 +522,17 @@ export function AuthorProjectsPage() {
                   const readsFormatted = (project.viewsCount ?? 0).toLocaleString('vi-VN');
 
                   return (
-                    <article
+                    <ProjectMotionCard id={project.novelId}
                       key={project.novelId}
-                      className="sc-novel-card bg-surface-container-lowest rounded-xl p-3.5 shadow-2xs hover:shadow-sm border border-stone-200/90 transition-all flex flex-col justify-between h-full group"
+                      className={`sc-novel-card bg-surface-container-lowest rounded-xl p-3.5 shadow-2xs hover:shadow-sm border border-stone-200/90 transition-all flex flex-col justify-between h-full group ${updated.has(project.novelId) ? 'sc-item-updated' : ''}`}
                     >
                       <div className="flex gap-3.5 items-start">
                         {/* Left: Compact vertical novel cover (approx 96px wide, fixed 2:3 aspect ratio) */}
                         <Link
                           to={`/author/novels/${project.novelId}`}
-                          className="relative w-[96px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-stone-100 border border-stone-200/70 block group-hover:opacity-95 transition-opacity"
+                          className="sc-cover-hover relative w-[96px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-stone-100 border border-stone-200/70 block group-hover:opacity-95 transition-opacity"
                         >
-                          {cover ? <img src={cover} alt={project.title} className="w-full h-full object-cover  transition-transform duration-300" /> : <span className="flex h-full items-center justify-center p-2 text-center text-meta text-stone-500">{project.title}</span>}
+                          {cover ? <LoadedImage src={cover} alt={project.title} className="w-full h-full object-cover  transition-transform duration-300" /> : <span className="flex h-full items-center justify-center p-2 text-center text-meta text-stone-500">{project.title}</span>}
                         </Link>
 
                         {/* Right: Novel Info (Title, Status, Genre, Stats, Updated time) */}
@@ -553,6 +585,8 @@ export function AuthorProjectsPage() {
 
                       {/* Bottom Action Footer */}
                       <div className="mt-3.5 pt-2.5 border-t border-stone-100 flex items-center justify-between gap-1.5 relative">
+                        <ProjectPin title={project.title} active={pinnedIds.includes(project.novelId)} onClick={() => togglePin(project.novelId)} />
+                        <button type="button" className="sc-project-pin" aria-label={`Xem nhanh ${project.title}`} title="Xem nhanh tác phẩm" onClick={() => setPreviewId(project.novelId)}><span className="material-symbols-outlined" aria-hidden="true">visibility</span></button>
                         <div className="flex items-center gap-1.5 flex-1">
                           <Link
                             to={`/author/novels/${project.novelId}`}
@@ -628,15 +662,15 @@ export function AuthorProjectsPage() {
                           )}
                         </div>
                       </div>
-                    </article>
+                    </ProjectMotionCard>
                   );
                 })}
-              </div>
+              </AnimatedCollection>
             )}
 
             {/* Novel Cards: List View */}
             {viewMode === 'list' && (
-              <div className="bg-surface-container-lowest rounded-xl shadow-2xs border border-stone-200/80 overflow-hidden divide-y divide-stone-100">
+              <AnimatedCollection key="list" className="bg-surface-container-lowest rounded-xl shadow-2xs border border-stone-200/80 overflow-hidden divide-y divide-stone-100">
                 {filteredProjects.map((project) => {
                   const cover = project.coverImageUrl;
                   const statusLabel =
@@ -649,16 +683,16 @@ export function AuthorProjectsPage() {
                       : 'Đang sáng tác';
 
                   return (
-                    <div
+                    <ProjectMotionCard id={project.novelId} as="div"
                       key={project.novelId}
                       className="p-3.5 hover:bg-stone-50/70 transition-colors flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
                     >
                       <div className="flex items-center gap-3.5 min-w-0 flex-1">
                         <Link
                           to={`/author/novels/${project.novelId}`}
-                          className="relative w-12 aspect-[2/3] shrink-0 rounded overflow-hidden bg-stone-100 border border-stone-200/60 block"
+                          className="sc-cover-hover relative w-12 aspect-[2/3] shrink-0 rounded overflow-hidden bg-stone-100 border border-stone-200/60 block"
                         >
-                          {cover ? <img src={cover} alt={project.title} className="w-full h-full object-cover" /> : <span className="flex h-full items-center justify-center text-meta text-stone-500">{project.title.slice(0, 1)}</span>}
+                          {cover ? <LoadedImage src={cover} alt={project.title} className="w-full h-full object-cover" /> : <span className="flex h-full items-center justify-center text-meta text-stone-500">{project.title.slice(0, 1)}</span>}
                         </Link>
                         <div className="flex flex-col min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
@@ -698,6 +732,8 @@ export function AuthorProjectsPage() {
                       </div>
 
                       <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                        <ProjectPin title={project.title} active={pinnedIds.includes(project.novelId)} onClick={() => togglePin(project.novelId)} />
+                        <button type="button" className="sc-project-pin" aria-label={`Xem nhanh ${project.title}`} title="Xem nhanh tác phẩm" onClick={() => setPreviewId(project.novelId)}><span className="material-symbols-outlined" aria-hidden="true">visibility</span></button>
                         <Link
                           to={`/author/novels/${project.novelId}`}
                           className="px-2.5 py-1 rounded-lg bg-stone-50 hover:bg-stone-100 border border-stone-200/80 text-meta font-medium text-stone-700 shadow-2xs transition-colors"
@@ -721,16 +757,18 @@ export function AuthorProjectsPage() {
                           </button>
                         )}
                       </div>
-                    </div>
+                    </ProjectMotionCard>
                   );
                 })}
-              </div>
+              </AnimatedCollection>
             )}
-            </RetainedHeight>
+            </ProjectLayout>
+            </ResultsSurface>
           </section>
 
         </div>
       </main>
+      <WorkspacePreview selected={previewId} onSelect={setPreviewId} records={filteredProjects.map(project => ({ id: project.novelId, title: project.title, to: `/author/novels/${project.novelId}`, fields: [['Giới thiệu', project.synopsis || 'Chưa có giới thiệu'], ['Thể loại', project.genres?.join(', ') || project.genre || 'Chưa phân loại'], ['Chương', String(project.chaptersCount ?? 0)], ['Lượt đọc', (project.viewsCount ?? 0).toLocaleString('vi-VN')], ['Cập nhật', formatTimeAgo(project.latestChapter?.updatedAt ?? project.updatedAt)]] }))} />
 
       {/* ──────────────────────────────────────────
           3. Create Novel Modal Dialog
@@ -757,7 +795,7 @@ export function AuthorProjectsPage() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                if (!coverUpload.isPending) createProjectMutation.mutate();
+                if (!coverUpload.isPending && !coverToCrop) createProjectMutation.mutate();
               }}
               className="p-5 flex flex-col gap-4"
             >
@@ -860,7 +898,7 @@ export function AuthorProjectsPage() {
                     setIsCoverDragging(false);
                     const file = e.dataTransfer.files?.[0];
                     if (file && file.type.startsWith('image/')) {
-                      coverUpload.mutate(file);
+                      selectCover(file);
                     }
                   }}
                   className={`rounded-xl p-3 flex items-center justify-between gap-3 transition-colors ${
@@ -872,7 +910,7 @@ export function AuthorProjectsPage() {
                   <div className="flex items-center gap-3 overflow-hidden">
                     <div className="w-12 h-12 rounded-lg bg-surface-container text-primary-600 flex items-center justify-center shrink-0 overflow-hidden">
                       {newCoverUrl ? (
-                        <img src={newCoverUrl} alt="Cover Preview" className="w-full h-full object-cover" />
+                        <ImageLightbox src={newCoverUrl} alt="Ảnh bìa tác phẩm" className="sc-image-preview-fill"><LoadedImage src={newCoverUrl} alt="Cover Preview" className="w-full h-full object-cover" /></ImageLightbox>
                       ) : (
                         <span className="material-symbols-outlined text-[24px]">photo_library</span>
                       )}
@@ -895,15 +933,17 @@ export function AuthorProjectsPage() {
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        coverUpload.mutate(file);
+                        selectCover(file);
                       }
+                      e.target.value = '';
                     }}
                   />
                   <div className="flex items-center gap-1.5 shrink-0">
                     {newCoverUrl && (
                       <button
                         type="button"
-                        onClick={() => setNewCoverUrl('')}
+                        onClick={() => { setNewCoverUrl(''); setCoverSource(null); setCoverToCrop(null); }}
+                        disabled={coverUpload.isPending}
                         title="Xóa ảnh"
                         className="p-1 rounded text-stone-400 hover:text-rose-500 hover:bg-stone-200/50 transition cursor-pointer"
                       >
@@ -913,14 +953,20 @@ export function AuthorProjectsPage() {
                     <button
                       type="button"
                       onClick={() => coverInputRef.current?.click()}
+                      disabled={coverUpload.isPending || createProjectMutation.isPending}
                       className="px-3.5 py-1.5 rounded-lg bg-surface-container-lowest hover:bg-stone-50 border border-stone-200/80 text-stone-700 text-meta font-medium shadow-2xs transition-colors cursor-pointer"
                     >
                       Chọn ảnh
                     </button>
                   </div>
                 </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-meta text-stone-500">Ảnh lớn tự căn giữa về khung 600 × 900. Có thể chỉnh vùng cắt nếu cần.</p>
+                  {coverSource && !coverToCrop && <button type="button" className="sc-workspace-button" disabled={coverUpload.isPending} onClick={() => setCoverToCrop(coverSource)}>Cắt ảnh</button>}
+                </div>
               </div>
 
+              {coverToCrop && <CoverCropEditor file={coverToCrop} onCancel={() => setCoverToCrop(null)} onConfirm={async file => { await coverUpload.mutateAsync({ file, cropped: true }); setCoverToCrop(null); }} />}
               {/* Info Notice Box */}
               <div className="rounded-xl bg-primary-50 p-2.5 flex items-start gap-2.5">
                 <span className="material-symbols-outlined text-primary-600 text-[18px] shrink-0 mt-0.5">
@@ -942,7 +988,7 @@ export function AuthorProjectsPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={createProjectMutation.isPending || coverUpload.isPending || newTitle.trim().length < 2}
+                  disabled={createProjectMutation.isPending || coverUpload.isPending || !!coverToCrop || newTitle.trim().length < 2}
                   className="px-5 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 disabled:opacity-50 text-white font-semibold text-meta shadow-2xs transition-colors cursor-pointer flex items-center gap-1.5"
                 >
                   {createProjectMutation.isPending && (
@@ -959,12 +1005,6 @@ export function AuthorProjectsPage() {
       {/* ──────────────────────────────────────────
           Toast Notification
          ────────────────────────────────────────── */}
-      {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 bg-cover-fallback text-white text-meta font-medium px-4 py-2.5 rounded-lg shadow-sm animate-in  duration-200">
-          <span className="material-symbols-outlined text-[17px] text-emerald-400">check_circle</span>
-          <span>{toastMessage}</span>
-        </div>
-      )}
     </div>
   );
 }
