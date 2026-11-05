@@ -62,6 +62,8 @@ Save current reader display preferences.
 
 Search and filter public novels.
 
+Each result includes `latestChapter` (or `null`), containing the latest published, non-deleted chapter's `chapterId`, `chapterNumber`, `title`, and `publishedAt`. This supports direct chapter links on the public homepage.
+
 **Auth:** Optional  
 **Roles:** Guest, Reader, Author, Admin
 
@@ -70,10 +72,10 @@ Search and filter public novels.
 | Query | Description |
 | :--- | :--- |
 | `q` | Keyword. |
-| `genre` | Genre filter. |
+| `genre` | Genre name or slug, including secondary genres. |
 | `tag` | Tag filter. |
 | `status` | Story status filter. |
-| `sort` | `relevance`, `views`, `likes`, `updatedAt`. |
+| `sort` | `relevance`, `views`, `likes`, `updatedAt`, `wordCount`, `title`. `wordCount` sums only published, non-deleted chapters; `title` sorts case-insensitively. |
 | `page`, `limit`, `order` | Pagination conventions. |
 
 **Response**
@@ -101,6 +103,14 @@ Search and filter public novels.
   }
 }
 ```
+
+### GET /reading/filters
+
+Get the complete genre and tag lists for searchable catalog dropdowns. Choices are independent of the current search and pagination.
+
+**Auth:** Not required
+
+**Response data:** `{ "genres": ["Fantasy"], "tags": ["magic", "academy"] }`
 
 ### GET /reading/novels/{novelId}
 

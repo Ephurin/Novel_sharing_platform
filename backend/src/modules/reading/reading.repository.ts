@@ -30,6 +30,7 @@ function mapNovelSummary(row: QueryResultRow) {
     likesCount: row.likes_count,
     viewsCount: row.views_count,
     chaptersCount: row.chapters_count,
+    latestChapter: row.latest_chapter ?? null,
     updatedAt: row.updated_at
   };
 }
@@ -98,6 +99,15 @@ export async function updateReadingPreference(userId: string, input: ReadingPref
   return mapPreference(result.rows[0]);
 }
 
+export async function listReadingFilters() {
+  const result = await getPostgresPool().query(`
+    select
+      coalesce((select json_agg(name order by name) from genres), '[]'::json) as genres,
+      coalesce((select json_agg(name order by name) from tags), '[]'::json) as tags
+  `);
+  return result.rows[0] as { genres: string[]; tags: string[] };
+}
+
 export async function searchPublishedNovels(input: SearchNovelsInput) {
   const offset = (input.page - 1) * input.limit;
   const search = input.q ? `%${input.q}%` : null;
@@ -109,7 +119,12 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
       ? 'n.views_count'
       : input.sort === 'likes'
         ? 'n.likes_count'
-        : 'n.updated_at';
+        : input.sort === 'title'
+          ? 'lower(n.title)'
+          : input.sort === 'wordCount'
+            ? `(select coalesce(sum(c.word_count), 0) from chapters c
+                where c.novel_id = n.novel_id and c.status = 'PUBLISHED' and c.deleted_at is null)`
+            : 'n.updated_at';
 
   const dataResult = await getPostgresPool().query(
     `
@@ -117,6 +132,13 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
         n.*,
         coalesce(up.display_name, u.username) as author_name,
         g.name as genre_name,
+        (select json_build_object(
+          'chapterId', c.chapter_id, 'chapterNumber', c.chapter_number,
+          'title', c.title, 'publishedAt', c.published_at
+        ) from chapters c
+          where c.novel_id = n.novel_id and c.status = 'PUBLISHED' and c.deleted_at is null
+          order by c.published_at desc nulls last, c.chapter_number desc
+          limit 1) as latest_chapter,
         coalesce(
           json_agg(t.name order by t.name) filter (where t.tag_id is not null),
           '[]'::json
@@ -130,8 +152,12 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
       where n.deleted_at is null
         and n.status = 'PUBLISHED'
         and ($1::text is null or n.title ilike $1 or n.synopsis ilike $1)
-        and ($2::text is null or lower(g.slug) = $2 or lower(g.name) = $2)
-        and ($3::text is null or lower(t.slug) = $3 or lower(t.name) = $3)
+        and ($2::text is null or lower(g.slug) = $2 or lower(g.name) = $2 or exists (
+          select 1 from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
+          where ng.novel_id = n.novel_id and (lower(gg.slug) = $2 or lower(gg.name) = $2)))
+        and ($3::text is null or exists (
+          select 1 from novel_tags ntf join tags tf on tf.tag_id = ntf.tag_id
+          where ntf.novel_id = n.novel_id and (lower(tf.slug) = $3 or lower(tf.name) = $3)))
         and ($4::novel_serial_status is null or n.serial_status = $4)
       group by n.novel_id, up.display_name, u.username, g.name
       order by ${sortExpression} ${orderDirection}, n.novel_id asc
@@ -150,8 +176,12 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
       where n.deleted_at is null
         and n.status = 'PUBLISHED'
         and ($1::text is null or n.title ilike $1 or n.synopsis ilike $1)
-        and ($2::text is null or lower(g.slug) = $2 or lower(g.name) = $2)
-        and ($3::text is null or lower(t.slug) = $3 or lower(t.name) = $3)
+        and ($2::text is null or lower(g.slug) = $2 or lower(g.name) = $2 or exists (
+          select 1 from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
+          where ng.novel_id = n.novel_id and (lower(gg.slug) = $2 or lower(gg.name) = $2)))
+        and ($3::text is null or exists (
+          select 1 from novel_tags ntf join tags tf on tf.tag_id = ntf.tag_id
+          where ntf.novel_id = n.novel_id and (lower(tf.slug) = $3 or lower(tf.name) = $3)))
         and ($4::novel_serial_status is null or n.serial_status = $4)
     `,
     [search, genre, tag, input.status ?? null]

@@ -15,6 +15,7 @@ export type ReaderNovel = {
   viewsCount?: number;
   chaptersCount?: number;
   updatedAt?: string;
+  latestChapter?: { chapterId: string; chapterNumber: number; title: string; publishedAt: string | null } | null;
 };
 
 export type ReaderChapter = {
@@ -79,9 +80,14 @@ export type SearchPublishedNovelsInput = {
   genre?: string;
   tag?: string;
   status?: 'ONGOING' | 'COMPLETED' | 'HIATUS' | '';
-  sort?: 'relevance' | 'views' | 'likes' | 'updatedAt';
+  sort?: 'relevance' | 'views' | 'likes' | 'updatedAt' | 'wordCount' | 'title';
   order?: 'asc' | 'desc';
 };
+
+export async function getReadingFilters() {
+  const response = await apiClient.get<ApiEnvelope<{ genres: string[]; tags: string[] }>>('/reading/filters');
+  return response.data.data;
+}
 
 export async function searchPublishedNovels(input: SearchPublishedNovelsInput) {
   const response = await apiClient.get<ApiEnvelope<ReaderNovel[]>>('/reading/search', {

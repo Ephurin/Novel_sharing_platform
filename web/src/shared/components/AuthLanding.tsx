@@ -79,5 +79,5 @@ export function AuthLanding() {
 function getRoleHome(role: 'READER' | 'AUTHOR' | 'ADMIN') {
   if (role === 'ADMIN') return '/admin';
   if (role === 'AUTHOR') return '/author';
-  return '/reader';
+  return '/';
 }

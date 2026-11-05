@@ -1,5 +1,12 @@
 # Frontend User Flows
 
+## Web Homepage and Catalog
+
+- `/` is the public StoryCraft homepage, available to guests and signed-in users. It contains featured novels (views/likes/recent updates), a most-read list, genre discovery, recent updates with direct published-chapter links, and completed novels.
+- `/reader` remains the signed-in catalog with search, sorting, genre/tag dropdowns and story-status filters. Guests use `/public` for the public catalog.
+- Homepage search and genre links pass `q` or `genre` to the appropriate catalog. Reader sign-in lands on `/`; author/admin sign-in retains its workspace destination.
+- All homepage sections use published catalog data from `/reading/search` and `/reading/filters`. There is no separate placeholder forum or curated ranking data.
+
 ## 1. Reader Reads and Comments
 
 ```mermaid

@@ -7,7 +7,7 @@ import { CommentsSection } from './CommentsSection';
 import { NovelEngagement } from './NovelEngagement';
 import { NumberInput, Select } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
@@ -22,6 +22,7 @@ import {
   getReadingPreferences,
   getReaderChapter,
   getReaderNovel,
+  getReadingFilters,
   likeNovel,
   listHistory,
   listLibrary,
@@ -42,7 +43,19 @@ import {
 // sc-novel-card/sc-novel-overview/sc-novel-metrics for novels and sc-button for actions.
 
 type StoryStatus = 'ONGOING' | 'COMPLETED' | 'HIATUS' | '';
-type SortKey = 'updatedAt' | 'views' | 'likes' | 'relevance';
+const sortOptions = [
+  { value: 'updatedAt:desc', label: 'Mới cập nhật' },
+  { value: 'updatedAt:asc', label: 'Cập nhật cũ nhất' },
+  { value: 'views:desc', label: 'Lượt đọc: nhiều đến ít' },
+  { value: 'views:asc', label: 'Lượt đọc: ít đến nhiều' },
+  { value: 'likes:desc', label: 'Lượt thích: nhiều đến ít' },
+  { value: 'likes:asc', label: 'Lượt thích: ít đến nhiều' },
+  { value: 'wordCount:desc', label: 'Số từ: nhiều đến ít' },
+  { value: 'wordCount:asc', label: 'Số từ: ít đến nhiều' },
+  { value: 'title:asc', label: 'Tên truyện: A–Z' },
+  { value: 'title:desc', label: 'Tên truyện: Z–A' }
+] as const;
+type SortOption = typeof sortOptions[number]['value'];
 
 const card = 'bg-surface-container-lowest rounded-xl border border-stone-200/80 shadow-2xs';
 const statusTabs: Array<{ value: StoryStatus; label: string }> = [
@@ -61,12 +74,13 @@ const serialLabels: Record<string, string> = {
 // ─── Discovery ──────────────────────────────────────────────────────────────
 
 export function ReaderPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [genreFilter, setGenreFilter] = useState('');
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') ?? '');
+  const [genreFilter, setGenreFilter] = useState(() => searchParams.get('genre') ?? '');
   const [tagFilter, setTagFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState<StoryStatus>('');
-  const [sortFilter, setSortFilter] = useState<SortKey>('updatedAt');
-  const [orderFilter, setOrderFilter] = useState<'desc' | 'asc'>('desc');
+  const [sortOption, setSortOption] = useState<SortOption>('updatedAt:desc');
+  const [sortFilter, orderFilter] = sortOption.split(':') as ['updatedAt' | 'views' | 'likes' | 'wordCount' | 'title', 'asc' | 'desc'];
   const novelsQuery = useQuery({
     queryKey: ['reader-search', searchQuery, genreFilter, tagFilter, statusFilter, sortFilter, orderFilter],
     queryFn: () =>
@@ -91,23 +105,11 @@ export function ReaderPage() {
             <label htmlFor="reader-sort" className="text-form-label text-stone-500">Sắp xếp</label>
             <select
               id="reader-sort"
-              value={sortFilter}
-              onChange={(event) => setSortFilter(event.target.value as SortKey)}
+              value={sortOption}
+              onChange={(event) => setSortOption(event.target.value as SortOption)}
               className="bg-surface-container-lowest border border-stone-200 rounded-lg px-3 py-2 text-body text-stone-700"
             >
-              <option value="updatedAt">Mới cập nhật</option>
-              <option value="views">Lượt đọc</option>
-              <option value="likes">Lượt thích</option>
-              <option value="relevance">Liên quan nhất</option>
-            </select>
-            <select
-              aria-label="Thứ tự sắp xếp"
-              value={orderFilter}
-              onChange={(event) => setOrderFilter(event.target.value as 'desc' | 'asc')}
-              className="bg-surface-container-lowest border border-stone-200 rounded-lg px-3 py-2 text-body text-stone-700"
-            >
-              <option value="desc">Giảm dần</option>
-              <option value="asc">Tăng dần</option>
+              {sortOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
             </select>
           </SectionHeading>
 
@@ -136,8 +138,7 @@ export function ReaderPage() {
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-2.5">
-              <FilterInput value={genreFilter} onChange={setGenreFilter} placeholder="Lọc theo thể loại" icon="category" />
-              <FilterInput value={tagFilter} onChange={setTagFilter} placeholder="Lọc theo thẻ" icon="sell" />
+              <CatalogFilters genre={genreFilter} onGenreChange={setGenreFilter} tag={tagFilter} onTagChange={setTagFilter} />
             </div>
           </div>
 
@@ -163,8 +164,9 @@ export function ReaderPage() {
 }
 
 export function PublicReaderPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [genreFilter, setGenreFilter] = useState('');
+  const [searchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') ?? '');
+  const [genreFilter, setGenreFilter] = useState(() => searchParams.get('genre') ?? '');
   const [tagFilter, setTagFilter] = useState('');
   const novelsQuery = useQuery({
     queryKey: ['public-reader-search', searchQuery, genreFilter, tagFilter],
@@ -188,8 +190,7 @@ export function PublicReaderPage() {
       <ResponsiveFilters>
         <div className={`${card} px-3 py-2.5 flex flex-col md:flex-row gap-2.5`}>
           <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Tìm theo tên truyện, giới thiệu..." />
-          <FilterInput value={genreFilter} onChange={setGenreFilter} placeholder="Thể loại" icon="category" />
-          <FilterInput value={tagFilter} onChange={setTagFilter} placeholder="Thẻ" icon="sell" />
+          <CatalogFilters genre={genreFilter} onGenreChange={setGenreFilter} tag={tagFilter} onTagChange={setTagFilter} />
         </div>
       </ResponsiveFilters>
       <QueryStates
@@ -585,7 +586,7 @@ export function ReaderLibraryPage() {
           loadingLabel="Đang tải thư viện..."
           emptyTitle="Thư viện đang trống"
           emptyDescription="Bấm “Thêm vào thư viện” ở trang chi tiết truyện để lưu truyện tại đây."
-          emptyAction={<Link to="/reader" className="sc-button sc-button-primary">Khám phá truyện</Link>}
+          emptyAction={<Link to="/reader" className="sc-button sc-button-primary">Danh sách truyện</Link>}
         />
         <NovelGrid>
           {novels.map((novel) => (
@@ -734,17 +735,34 @@ function SearchInput({ value, onChange, placeholder, testId }: { value: string; 
   );
 }
 
-function FilterInput({ value, onChange, placeholder, icon }: { value: string; onChange: (value: string) => void; placeholder: string; icon: string }) {
+function CatalogFilters({ genre, onGenreChange, tag, onTagChange }: {
+  genre: string; onGenreChange: (value: string) => void; tag: string; onTagChange: (value: string) => void;
+}) {
+  const filters = useQuery({ queryKey: ['reading-filters'], queryFn: getReadingFilters, staleTime: 60_000 });
+  return <>
+    <FilterSelect value={genre} onChange={onGenreChange} placeholder="Lọc theo thể loại" icon="category" options={filters.data?.genres ?? []} loading={filters.isLoading} />
+    <FilterSelect value={tag} onChange={onTagChange} placeholder="Lọc theo thẻ" icon="sell" options={filters.data?.tags ?? []} loading={filters.isLoading} />
+    {filters.isError && <button type="button" className="sc-button" onClick={() => void filters.refetch()}>Tải lại bộ lọc</button>}
+  </>;
+}
+
+function FilterSelect({ value, onChange, placeholder, icon, options, loading }: {
+  value: string; onChange: (value: string) => void; placeholder: string; icon: string; options: string[]; loading: boolean;
+}) {
   return (
-    <div className="relative flex-1 sm:max-w-[240px]">
-      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-[16px]" aria-hidden="true">{icon}</span>
-      <input
-        type="text"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
+    <div className="flex-1 min-w-0 sm:max-w-[260px]">
+      <Select
+        value={value || null}
+        onChange={(selected) => onChange(selected ?? '')}
+        data={options}
         placeholder={placeholder}
         aria-label={placeholder}
-        className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-stone-50/80 text-meta text-stone-900 placeholder:text-stone-400 border border-stone-200/80 focus:outline-none focus:bg-surface-container-lowest focus:border-primary-600 focus:ring-1 focus:ring-primary-600 transition-colors"
+        leftSection={<span className="material-symbols-outlined text-[16px]" aria-hidden="true">{icon}</span>}
+        searchable
+        clearable
+        clearButtonProps={{ 'aria-label': `Bỏ ${placeholder.toLowerCase()}`, 'aria-hidden': false, tabIndex: 0 }}
+        nothingFoundMessage={loading ? 'Đang tải...' : 'Không có lựa chọn phù hợp'}
+        comboboxProps={{ withinPortal: false }}
       />
     </div>
   );
@@ -776,14 +794,14 @@ function QueryStates({
 }
 
 function NovelGrid({ children }: { children: ReactNode }) {
-  return <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">{children}</div>;
+  return <div className="sc-novel-grid">{children}</div>;
 }
 
 function Cover({ url, title }: { url?: string | null; title: string }) {
   return url ? (
     <img src={url} alt={title} className="w-full h-full object-cover" />
   ) : (
-    <span className="flex h-full items-center justify-center p-2 text-center text-meta text-stone-500">{title}</span>
+    <span className="sc-cover-placeholder flex h-full items-center justify-center p-2 text-center text-meta text-stone-500">{title}</span>
   );
 }
 
@@ -792,61 +810,30 @@ function NovelCard({ novel, extraAction, publicMode = false }: { novel: ReaderNo
   const statusLabel = serialLabels[novel.serialStatus ?? novel.status ?? ''] ?? 'Đã xuất bản';
 
   return (
-    <article className="sc-novel-card bg-surface-container-lowest rounded-xl p-3.5 shadow-2xs hover:shadow-sm border border-stone-200/90 transition-all flex flex-col justify-between h-full group">
-      <div className="flex gap-3.5 items-start">
+    <article className="sc-novel-card sc-reader-book">
         <Link
           to={detailPath}
-          className="sc-cover-hover relative w-[96px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-stone-100 border border-stone-200/70 block group-hover:opacity-95 transition-opacity"
+          className="sc-cover-hover sc-book-cover"
+          aria-label={`Đọc truyện: ${novel.title}`}
+          data-testid={`novel-open-detail-${novel.novelId}`}
         >
           <Cover url={novel.coverImageUrl} title={novel.title} />
+          <span className="sc-book-status" data-completed={(novel.serialStatus ?? novel.status) === 'COMPLETED'}>{statusLabel}</span>
         </Link>
-        <div className="flex flex-col flex-1 min-w-0 justify-between self-stretch py-0.5">
-          <div>
-            <div className="flex items-center justify-between gap-1 mb-1">
-              <span className="text-meta font-medium text-stone-500 truncate">{novel.genre || 'Chưa phân loại'}</span>
-              <span
-                className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-meta font-semibold whitespace-nowrap ${
-                  novel.serialStatus === 'COMPLETED'
-                    ? 'bg-blue-50 text-blue-700 border border-blue-200/60'
-                    : 'bg-primary-50 text-primary-700 border border-primary-200/60'
-                }`}
-              >
-                {statusLabel}
-              </span>
-            </div>
+        <div className="sc-book-info">
             <Link
               to={detailPath}
-              className="text-body font-bold text-stone-900 line-clamp-2 leading-snug group-hover:text-primary-600 transition-colors"
+              className="sc-book-title"
               title={novel.title}
             >
               {novel.title}
             </Link>
-            {novel.authorName ? <p className="text-meta text-stone-500 truncate mt-0.5">{novel.authorName}</p> : null}
-            <p className="text-meta text-stone-600 line-clamp-2 mt-1">{novel.synopsis || 'Chưa có lời giới thiệu.'}</p>
-          </div>
-          <div className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-meta text-stone-600">
-            <span className="material-symbols-outlined text-[15px] text-primary-600" aria-hidden="true">menu_book</span>
-            <span><strong>{novel.chaptersCount ?? 0}</strong> chương</span>
-            <span className="text-stone-300">•</span>
-            <span className="material-symbols-outlined text-[15px] text-stone-400" aria-hidden="true">visibility</span>
-            <span><strong>{(novel.viewsCount ?? 0).toLocaleString('vi-VN')}</strong> đọc</span>
-            <span className="text-stone-300">•</span>
-            <span className="material-symbols-outlined text-[15px] text-stone-400" aria-hidden="true">favorite</span>
-            <span><strong>{(novel.likesCount ?? 0).toLocaleString('vi-VN')}</strong></span>
+          <div className="sc-book-metrics">
+            <span><span className="material-symbols-outlined" aria-hidden="true">menu_book</span>{novel.chaptersCount ?? 0} chương</span>
+            <span><span className="material-symbols-outlined" aria-hidden="true">visibility</span>{(novel.viewsCount ?? 0).toLocaleString('vi-VN')} lượt đọc</span>
           </div>
         </div>
-      </div>
-      <div className="mt-3.5 pt-2.5 border-t border-stone-100 flex items-center gap-1.5">
-        <Link
-          to={detailPath}
-          className="inline-flex items-center justify-center gap-1 flex-1 py-1 px-2.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-meta font-semibold shadow-2xs transition-colors"
-          data-testid={`novel-open-detail-${novel.novelId}`}
-        >
-          <span className="material-symbols-outlined text-[15px]" aria-hidden="true">auto_stories</span>
-          <span>Xem truyện</span>
-        </Link>
-        {extraAction}
-      </div>
+        {extraAction ? <div className="mt-auto flex gap-2">{extraAction}</div> : null}
     </article>
   );
 }

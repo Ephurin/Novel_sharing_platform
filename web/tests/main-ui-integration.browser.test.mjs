@@ -71,7 +71,7 @@ test('main reader UI retains animated tools, themes and guest author profiles', 
 
         await page.evaluate(() => localStorage.setItem('ephurin_access_token', 'fixture-token'));
         await page.goto(`${base}/reader`);
-        await expect(page.getByRole('heading', { name: 'Khám phá truyện', exact: true })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Danh sách truyện', exact: true })).toBeVisible();
         await expect(page.locator('.sc-novel-card')).toHaveCount(1);
         await noOverflow();
         await page.screenshot({ path: path.join(output, `${width}-${theme}-reader.png`), fullPage: true });

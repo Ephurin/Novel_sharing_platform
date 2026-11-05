@@ -19,6 +19,7 @@ import {
   listBookmarks,
   listPublishedChaptersForNovel,
   listReadingHistories,
+  listReadingFilters,
   removeBookmark,
   searchPublishedNovels,
   updateReadingPreference,
@@ -41,6 +42,10 @@ export async function getPreferences(auth: AuthContext) {
 
 export async function savePreferences(auth: AuthContext, input: ReadingPreferencesInput) {
   return updateReadingPreference(auth.userId, input);
+}
+
+export async function getReadingFilters() {
+  return listReadingFilters();
 }
 
 export async function searchNovels(input: SearchNovelsInput) {

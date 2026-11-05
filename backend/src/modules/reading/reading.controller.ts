@@ -7,6 +7,7 @@ import {
   getPreferences,
   getReaderChapter,
   getReaderNovel,
+  getReadingFilters,
   listHistory,
   listLibrary,
   removeFromLibrary,
@@ -34,6 +35,14 @@ export const getPreferencesController: RequestHandler = async (request, response
 export const savePreferencesController: RequestHandler = async (request, response, next) => {
   try {
     response.json(successResponse(await savePreferences(requireRequestAuth(request), request.body)));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getReadingFiltersController: RequestHandler = async (_request, response, next) => {
+  try {
+    response.json(successResponse(await getReadingFilters()));
   } catch (error) {
     next(error);
   }

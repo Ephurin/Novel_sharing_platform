@@ -27,7 +27,7 @@ export const searchNovelsSchema = z.object({
     genre: z.string().optional(),
     tag: z.string().optional(),
     status: z.enum(['ONGOING', 'COMPLETED', 'HIATUS']).optional(),
-    sort: z.enum(['relevance', 'views', 'likes', 'updatedAt']).default('updatedAt'),
+    sort: z.enum(['relevance', 'views', 'likes', 'updatedAt', 'wordCount', 'title']).default('updatedAt'),
     order: z.enum(['asc', 'desc']).default('desc'),
     page: z.coerce.number().int().positive().default(1),
     limit: z.coerce.number().int().positive().max(100).default(20)

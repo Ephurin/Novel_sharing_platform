@@ -7,6 +7,7 @@ import {
   getPreferencesController,
   getReaderChapterController,
   getReaderNovelController,
+  getReadingFiltersController,
   listHistoryController,
   listLibraryController,
   removeFromLibraryController,
@@ -29,6 +30,7 @@ export const readingRoutes = Router();
 readingRoutes.get('/preferences/me', requireAuth, getPreferencesController);
 readingRoutes.put('/preferences/me', requireAuth, validateRequest(readingPreferencesSchema), savePreferencesController);
 readingRoutes.get('/search', validateRequest(searchNovelsSchema), searchNovelsController);
+readingRoutes.get('/filters', getReadingFiltersController);
 readingRoutes.get('/novels/:novelId', validateRequest(novelIdParamSchema), getReaderNovelController);
 readingRoutes.get('/chapters/:chapterId', optionalAuth, validateRequest(chapterIdParamSchema), getReaderChapterController);
 readingRoutes.put('/history/me', requireAuth, validateRequest(syncReadingHistorySchema), syncHistoryController);
