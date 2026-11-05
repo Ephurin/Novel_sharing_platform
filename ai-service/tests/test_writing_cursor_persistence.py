@@ -19,13 +19,16 @@ from infrastructure.revision_content_provider import InMemoryRevisionContentProv
 
 
 class WritingCursorPersistenceTests(unittest.TestCase):
-    def setUp(self):
-        self.engine = create_engine(
+    def make_engine(self):
+        return create_engine(
             'sqlite+pysqlite:///:memory:',
             connect_args={'check_same_thread': False},
             poolclass=StaticPool,
             execution_options={'schema_translate_map': {SCHEMA: None}},
         )
+
+    def setUp(self):
+        self.engine = self.make_engine()
         Base.metadata.create_all(self.engine)
         self.factory = sessionmaker(bind=self.engine, expire_on_commit=False)
         self.tenant = str(uuid.uuid4())

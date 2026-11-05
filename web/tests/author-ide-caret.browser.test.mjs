@@ -27,7 +27,7 @@ for (const mode of ['source', 'visual']) test('Writing studio preserves insertio
     let generationCount = 0;
     const replacement = 'Bản thảo mới ✨';
     const chapter = () => ({ chapterId: 'chapter-1', novelId: 'novel-1', title: 'Chương thử', chapterNumber: 1, status: 'DRAFT', content, isVip: false, priceCoins: 0 });
-    const job = () => ({ job_id: 'job-1', chapter_id: 'chapter-1', status: 'completed', validation_status: 'passed', draft: replacement, patch: { start: selection.start, end: selection.end, replacement } });
+    const job = () => ({ job_id: 'job-1', chapter_id: 'chapter-1', status: 'completed', validation_status: 'passed', draft: replacement, patch: { start: selection.cursor, end: selection.cursor, replacement } });
     await page.addInitScript(mode => { localStorage.setItem('storycraft-studio-editor-mode', mode);
       window.testConfig = { accounts: [{ token: 'test', userId: 'author-1', novelId: 'novel-1', chapterIds: ['chapter-1'] }] };
     }, mode);
@@ -49,7 +49,7 @@ for (const mode of ['source', 'visual']) test('Writing studio preserves insertio
       } else if (path.endsWith('/jobs/job-1')) data = job();
       else if (path.endsWith('/accept-draft')) {
         const points = Array.from(content);
-        content = points.slice(0, selection.start).join('') + replacement + points.slice(selection.end).join('');
+        content = points.slice(0, selection.cursor).join('') + replacement + points.slice(selection.cursor).join('');
         data = { chapterId: 'chapter-1', revision: { content } };
       } else if (path.endsWith('/chapters/chapter-1')) data = chapter();
       await route.fulfill({ json: { data, meta: { totalPages: 1 } } });
@@ -74,8 +74,8 @@ for (const mode of ['source', 'visual']) test('Writing studio preserves insertio
       await page.waitForFunction(expected => {
         const el = document.querySelector('textarea.sc-manuscript');
         return el.value === expected.content && el.selectionStart === expected.caret && (el.hidden ? document.activeElement?.matches('[data-studio-rich-editor]') : document.activeElement === el) && !el.readOnly;
-      }, { content: before.slice(0, start) + replacement + before.slice(end), caret: start + replacement.length });
-      assert.equal(await editor.inputValue(), before.slice(0, start) + replacement + before.slice(end));
+      }, { content: before.slice(0, end) + replacement + before.slice(end), caret: end + replacement.length });
+      assert.equal(await editor.inputValue(), before.slice(0, end) + replacement + before.slice(end));
     }
     assert.equal(generationCount, 3);
   } finally {

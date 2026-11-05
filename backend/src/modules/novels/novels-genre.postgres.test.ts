@@ -32,7 +32,7 @@ test('novel creation reuses seeded genre names and handles concurrent genre crea
     await pool.query("insert into users(user_id,email,username,role) values($1,'genre-test@example.invalid','genre-test','AUTHOR')", [author]);
     const seeded = (await pool.query("insert into genres(name,slug) values('Đời thường','admin-seed-genre-2') returning genre_id")).rows[0].genre_id;
     const auth = { userId: author, role: 'AUTHOR' as const };
-    const input = { title: 'Thiên sứ nhà bên', synopsis: 'Giới thiệu truyện thử nghiệm.', genre: 'Đời thường', tags: [], coverImageUrl: 'http://localhost:8080/uploads/test-cover.jpg' };
+    const input = { title: 'Thiên sứ nhà bên', synopsis: 'Giới thiệu truyện thử nghiệm. '.repeat(25), genre: 'Đời thường', tags: [], coverImageUrl: 'http://localhost:8080/uploads/test-cover.jpg' };
     const novels = await Promise.all(Array.from({ length: 6 }, () => createNovel(auth, input)));
     assert.equal(new Set(novels.map(novel => novel.novelId)).size, 6);
     assert.ok(novels.every(novel => novel.genre === input.genre && novel.status === 'DRAFT' && novel.coverImageUrl === input.coverImageUrl));

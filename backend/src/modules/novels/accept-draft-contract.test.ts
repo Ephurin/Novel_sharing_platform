@@ -327,6 +327,20 @@ describe('Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)', () =>
     );
   });
 
+  test('rejects a failed rewrite insertion without creating a revision, outbox event or draft mutation', async () => {
+    const pool = getPostgresPool();
+    const state = async () => ({
+      revisions: (await pool.query('select revision_id from chapter_revisions where chapter_id=$1 order by revision_id', [chapterId])).rows,
+      outbox: (await pool.query('select event_id from revision_outbox_events where chapter_id=$1 order by event_id', [chapterId])).rows,
+      chapter: (await pool.query('select latest_revision_id from chapters where chapter_id=$1', [chapterId])).rows,
+      draft: await getMongoDatabase().collection('draft_chapters').findOne({ chapterId })
+    });
+    const before = await state();
+    setupMockAi({ job_id: 'rewrite-wrong-insertion', operation: 'rewrite', validation_status: 'failed', patch: { start: 8, end: 8, replacement: 'Must replace the selected passage, not append.' }, validations: [{ validator: 'patch_selection', passed: false, code: 'PATCH_SELECTION_MISMATCH' }] });
+    await assert.rejects(() => acceptDraft({ userId: authorId, role: 'AUTHOR' }, chapterId, { generationId: 'rewrite-wrong-insertion' }), (error: any) => error instanceof AppError && error.httpStatus === 422 && error.code === 'GENERATION_VALIDATION_FAILED');
+    assert.deepEqual(await state(), before);
+  });
+
   test('rejects with 422 INVALID_PATCH if patch structure is missing or malformed', async () => {
     const genId = 'gen-bad-patch';
     setupMockAi({ job_id: genId, patch: null });

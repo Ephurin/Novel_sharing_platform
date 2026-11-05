@@ -336,11 +336,17 @@ class WritingService:
         return saved_job
 
     @staticmethod
-    def _patch_matches_selection(patch: WritingPatch, selection: dict[str, int]) -> bool:
+    def _patch_matches_selection(patch: WritingPatch, selection: dict[str, int], *, operation: str) -> bool:
         start = selection.get("start", 0)
         end = selection.get("end", start)
         cursor = selection.get("cursor", end)
-        return (patch.start, patch.end) in {(start, end), (cursor, cursor)}
+        if operation == "rewrite":
+            return (patch.start, patch.end) == (start, end)
+        if operation in {"continue", "describe", "dialogue"}:
+            # A selected passage supplies context; insertion operations must
+            # never replace it. The persisted cursor is the insertion point.
+            return (patch.start, patch.end) == (cursor, cursor)
+        return False
 
     @staticmethod
     def _selection_mismatch() -> ValidationResult:
@@ -353,7 +359,7 @@ class WritingService:
         job = self._repository.get_writing_job(job_id)
         # Recheck old completed jobs too, so an already-open suggestion cannot
         # apply an offset produced by the former cursor-loss bug.
-        if job.status == "completed" and job.patch and not self._patch_matches_selection(job.patch, job.selection):
+        if job.status == "completed" and job.patch and not self._patch_matches_selection(job.patch, job.selection, operation=job.operation):
             validations = job.validations
             if not any(item.code == "PATCH_SELECTION_MISMATCH" for item in validations):
                 validations += (self._selection_mismatch(),)
@@ -566,7 +572,7 @@ class WritingService:
             base_content_length=base_len,
         )
 
-        if not self._patch_matches_selection(patch, job.selection):
+        if not self._patch_matches_selection(patch, job.selection, operation=job.operation):
             validations.append(self._selection_mismatch())
 
         validation_status = "passed" if all(v.passed for v in validations) else "failed"
