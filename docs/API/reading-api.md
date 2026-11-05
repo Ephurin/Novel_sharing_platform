@@ -74,7 +74,7 @@ Each result includes `latestChapter` (or `null`), containing the latest publishe
 | `q` | Keyword. |
 | `genre` | Genre name or slug, including secondary genres. |
 | `tag` | Tag filter. |
-| `status` | Story status filter. |
+| `status` | Story status: `ONGOING`, `COMPLETED` or `HIATUS`. Can be combined with genre/tag filters. |
 | `sort` | `relevance`, `views`, `likes`, `updatedAt`, `wordCount`, `title`. `wordCount` sums only published, non-deleted chapters; `title` sorts case-insensitively. |
 | `page`, `limit`, `order` | Pagination conventions. |
 
@@ -115,6 +115,8 @@ Get the complete genre and tag lists for searchable catalog dropdowns. Choices a
 ### GET /reading/novels/{novelId}
 
 Get a published novel detail with its published chapter list.
+
+Detail metadata includes `genres`, `authorNote`, and `lastUpdatedAt`. The last update is the most recent `updated_at` among published, non-deleted chapters, falling back to the novel's publication/creation time when none exist. View-count updates and draft/deleted chapters do not affect this timestamp.
 
 **Auth:** Optional  
 **Roles:** Guest, Reader, Author, Admin
@@ -237,7 +239,7 @@ Get current user's latest reading position for one novel.
 
 ### GET /reading/library/me
 
-List bookmarked novels.
+List novels in the reader's unified following/library state. Existing bookmarks, novel follows and legacy likes are merged and deduplicated, with published/non-deleted visibility checks applied before pagination.
 
 **Auth:** Required  
 **Roles:** Reader, Author, Admin
@@ -261,7 +263,7 @@ Add a novel to personal library.
 
 ### DELETE /reading/library/me/{novelId}
 
-Remove a novel from personal library.
+Remove a novel from personal library and following. Existing bookmark, novel-follow and legacy-like records for that reader/novel are removed atomically; legacy like counts are adjusted once.
 
 **Auth:** Required  
 **Roles:** Reader, Author, Admin

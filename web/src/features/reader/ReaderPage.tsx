@@ -1,10 +1,13 @@
-import { ResponsiveFilters, ReactionIcon } from '../../shared/components/InteractionWidgets';
+import { ResponsiveFilters } from '../../shared/components/InteractionWidgets';
 import { ChapterToc, ReadingSettings } from '../../shared/components/ReaderTools';
 import { ReadingProgress } from '../../shared/components/ReadingProgress';
 import { AnimatedSaveButton } from '../../shared/components/SaveFeedback';
 import { ManuscriptContent } from '../../shared/components/ManuscriptContent';
 import { CommentsSection } from './CommentsSection';
-import { NovelEngagement } from './NovelEngagement';
+import { NovelOverview } from './ReaderNovelOverview';
+import { NovelReviews } from './NovelReviews';
+import { useAuthStore } from '../auth/useAuthStore';
+import { followNovel } from '../novels/novel-statistics-api';
 import { NumberInput, Select } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -15,15 +18,13 @@ import { AuthorNavbar } from '../../shared/components/AuthorTheme';
 import { Breadcrumbs, type BreadcrumbItem } from '../../shared/components/Breadcrumbs';
 import { navigationLabels, readerHomeCrumb } from '../../shared/components/navigation';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
+import { useToast } from '../../shared/components/ToastProvider';
 import {
-  addToLibrary,
-  followAuthor,
   getHistoryForNovel,
   getReadingPreferences,
   getReaderChapter,
   getReaderNovel,
   getReadingFilters,
-  likeNovel,
   listHistory,
   listLibrary,
   removeFromLibrary,
@@ -31,9 +32,7 @@ import {
   saveReadingPreferences,
   searchPublishedNovels,
   syncHistory,
-  unlikeNovel,
   unlockVipChapter,
-  unfollowAuthor,
   type ReadingPreferences,
   type ReaderChapter,
   type ReaderNovel
@@ -71,14 +70,24 @@ const serialLabels: Record<string, string> = {
   PUBLISHED: 'Đã xuất bản'
 };
 
+function storyStatusFromParam(value: string | null): StoryStatus {
+  return statusTabs.some(tab => tab.value === value) ? value as StoryStatus : '';
+}
+
 // ─── Discovery ──────────────────────────────────────────────────────────────
 
 export function ReaderPage() {
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') ?? '');
   const [genreFilter, setGenreFilter] = useState(() => searchParams.get('genre') ?? '');
-  const [tagFilter, setTagFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState<StoryStatus>('');
+  const [tagFilter, setTagFilter] = useState(() => searchParams.get('tag') ?? '');
+  const [statusFilter, setStatusFilter] = useState<StoryStatus>(() => storyStatusFromParam(searchParams.get('status')));
+  useEffect(() => {
+    setSearchQuery(searchParams.get('q') ?? '');
+    setGenreFilter(searchParams.get('genre') ?? '');
+    setTagFilter(searchParams.get('tag') ?? '');
+    setStatusFilter(storyStatusFromParam(searchParams.get('status')));
+  }, [searchParams]);
   const [sortOption, setSortOption] = useState<SortOption>('updatedAt:desc');
   const [sortFilter, orderFilter] = sortOption.split(':') as ['updatedAt' | 'views' | 'likes' | 'wordCount' | 'title', 'asc' | 'desc'];
   const novelsQuery = useQuery({
@@ -121,21 +130,7 @@ export function ReaderPage() {
                 placeholder="Tìm theo tên truyện, giới thiệu, thể loại..."
                 testId="reader-search-input"
               />
-              <div className="sc-filter-tabs flex items-center bg-stone-100 p-0.5 rounded-lg text-meta font-medium">
-                {statusTabs.map((tab) => (
-                  <button
-                    key={tab.value || 'all'}
-                    type="button"
-                    onClick={() => setStatusFilter(tab.value)}
-                    aria-pressed={statusFilter === tab.value}
-                    className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
-                      statusFilter === tab.value ? 'bg-primary-600 text-white shadow-xs font-semibold' : 'text-stone-600 hover:text-stone-900'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
+              <StoryStatusFilters value={statusFilter} onChange={setStatusFilter} />
             </div>
             <div className="flex flex-col sm:flex-row gap-2.5">
               <CatalogFilters genre={genreFilter} onGenreChange={setGenreFilter} tag={tagFilter} onTagChange={setTagFilter} />
@@ -167,14 +162,22 @@ export function PublicReaderPage() {
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') ?? '');
   const [genreFilter, setGenreFilter] = useState(() => searchParams.get('genre') ?? '');
-  const [tagFilter, setTagFilter] = useState('');
+  const [tagFilter, setTagFilter] = useState(() => searchParams.get('tag') ?? '');
+  const [statusFilter, setStatusFilter] = useState<StoryStatus>(() => storyStatusFromParam(searchParams.get('status')));
+  useEffect(() => {
+    setSearchQuery(searchParams.get('q') ?? '');
+    setGenreFilter(searchParams.get('genre') ?? '');
+    setTagFilter(searchParams.get('tag') ?? '');
+    setStatusFilter(storyStatusFromParam(searchParams.get('status')));
+  }, [searchParams]);
   const novelsQuery = useQuery({
-    queryKey: ['public-reader-search', searchQuery, genreFilter, tagFilter],
+    queryKey: ['public-reader-search', searchQuery, genreFilter, tagFilter, statusFilter],
     queryFn: () =>
       searchPublishedNovels({
         q: searchQuery,
         genre: genreFilter,
         tag: tagFilter,
+        status: statusFilter,
         sort: 'updatedAt',
         order: 'desc'
       })
@@ -188,9 +191,12 @@ export function PublicReaderPage() {
         description="Đọc thử truyện đã xuất bản. Đăng nhập để lưu truyện, bình luận, mở khóa chương VIP hoặc báo cáo."
       />
       <ResponsiveFilters>
-        <div className={`${card} px-3 py-2.5 flex flex-col md:flex-row gap-2.5`}>
-          <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Tìm theo tên truyện, giới thiệu..." />
-          <CatalogFilters genre={genreFilter} onGenreChange={setGenreFilter} tag={tagFilter} onTagChange={setTagFilter} />
+        <div className={`${card} px-3 py-2.5 flex flex-col gap-2.5`}>
+          <div className="flex flex-col md:flex-row gap-2.5">
+            <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Tìm theo tên truyện, giới thiệu..." />
+            <CatalogFilters genre={genreFilter} onGenreChange={setGenreFilter} tag={tagFilter} onTagChange={setTagFilter} />
+          </div>
+          <StoryStatusFilters value={statusFilter} onChange={setStatusFilter} />
         </div>
       </ResponsiveFilters>
       <QueryStates
@@ -215,7 +221,6 @@ export function PublicReaderPage() {
 
 export function ReaderNovelDetailPage() {
   const { novelId = '' } = useParams();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const novelQuery = useQuery({
     queryKey: ['reader-novel', novelId],
@@ -229,34 +234,6 @@ export function ReaderNovelDetailPage() {
     retry: false
   });
   const [interactionNotice, setInteractionNotice] = useState<string | null>(null);
-  const addLibraryMutation = useMutation({
-    mutationFn: () => addToLibrary(novelId),
-    onSuccess: async () => {
-      setInteractionNotice('Đã thêm truyện vào thư viện của bạn.');
-      await queryClient.invalidateQueries({ queryKey: ['reader-library'] });
-    },
-    onError: (error) => setInteractionNotice(formatInteractionError(error, 'Truyện này đã có trong thư viện của bạn.'))
-  });
-  const likeMutation = useMutation({
-    mutationFn: () => likeNovel(novelId),
-    onSuccess: () => setInteractionNotice('Bạn đã thích truyện này.'),
-    onError: (error) => setInteractionNotice(formatInteractionError(error, 'Bạn đã thích truyện này rồi.'))
-  });
-  const unlikeMutation = useMutation({
-    mutationFn: () => unlikeNovel(novelId),
-    onSuccess: () => setInteractionNotice('Đã bỏ thích truyện.'),
-    onError: (error) => setInteractionNotice(formatInteractionError(error, 'Bạn chưa thích truyện này.'))
-  });
-  const followMutation = useMutation({
-    mutationFn: () => followAuthor(novelQuery.data?.authorId ?? ''),
-    onSuccess: () => setInteractionNotice('Bạn đang theo dõi tác giả này.'),
-    onError: (error) => setInteractionNotice(formatInteractionError(error, 'Bạn đã theo dõi tác giả này rồi.'))
-  });
-  const unfollowMutation = useMutation({
-    mutationFn: () => unfollowAuthor(novelQuery.data?.authorId ?? ''),
-    onSuccess: () => setInteractionNotice('Đã bỏ theo dõi tác giả.'),
-    onError: (error) => setInteractionNotice(formatInteractionError(error, 'Bạn chưa theo dõi tác giả này.'))
-  });
   const reportMutation = useMutation({
     mutationFn: () => reportContent({ targetType: 'NOVEL', targetId: novelId, reason: 'Reader report' }),
     onSuccess: () => setInteractionNotice('Đã gửi báo cáo truyện tới quản trị viên.'),
@@ -289,7 +266,7 @@ export function ReaderNovelDetailPage() {
       {novel ? (
         <NovelOverview
           novel={novel}
-          chapterCount={novel.chaptersCount ?? chapters.length}
+          chapters={chapters}
           authorLink={novel.authorId ? `/authors/${novel.authorId}` : undefined}
           notice={interactionNotice}
           actions={
@@ -300,54 +277,18 @@ export function ReaderNovelDetailPage() {
                   {continueQuery.data ? `Đọc tiếp · Chương ${continueQuery.data.chapter.chapterNumber}` : 'Bắt đầu đọc'}
                 </button>
               ) : null}
-              <button
-                type="button"
-                onClick={() => addLibraryMutation.mutate()}
-                disabled={addLibraryMutation.isPending}
-                className="sc-button sc-button-soft"
-                data-testid="reader-add-library-btn"
-              >
-                <span className="material-symbols-outlined" aria-hidden="true">bookmark_add</span>
-                Thêm vào thư viện
-              </button>
-              <button type="button" onClick={() => likeMutation.mutate()} disabled={likeMutation.isPending} className="sc-button" data-testid="reader-like-btn">
-                <ReactionIcon icon="favorite" successVersion={likeMutation.isSuccess ? likeMutation.submittedAt : 0} />
-                Thích
-              </button>
-              <button type="button" onClick={() => unlikeMutation.mutate()} disabled={unlikeMutation.isPending} className="sc-button" data-testid="reader-unlike-btn">
-                Bỏ thích
-              </button>
-              <button
-                type="button"
-                onClick={() => followMutation.mutate()}
-                disabled={followMutation.isPending || !novel.authorId}
-                className="sc-button"
-                data-testid="reader-follow-btn"
-              >
-                <ReactionIcon icon="person_add" successVersion={followMutation.isSuccess ? followMutation.submittedAt : 0} />
-                Theo dõi tác giả
-              </button>
-              <button
-                type="button"
-                onClick={() => unfollowMutation.mutate()}
-                disabled={unfollowMutation.isPending || !novel.authorId}
-                className="sc-button"
-                data-testid="reader-unfollow-btn"
-              >
-                Bỏ theo dõi
-              </button>
+
             </>
           }
-        >
-          <NovelEngagement novelId={novelId} authorId={novel.authorId} />
-        </NovelOverview>
+        />
       ) : null}
 
+      <section id="reader-reviews" className="sc-reader-detail-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact /></section>
       <ChapterTable
         chapters={chapters}
         onReadFirst={chapters.length ? () => navigate(`/reader/chapters/${chapters[0].chapterId}`) : undefined}
       />
-      <CommentsSection kind="novel" id={novelId} />
+      <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} /></section>
     </div>
   );
 }
@@ -373,9 +314,9 @@ export function PublicReaderNovelDetailPage() {
           <Breadcrumb back={{ to: '/public', label: 'Thư viện công khai' }} current={novel.title} />
           <NovelOverview
             novel={novel}
-            chapterCount={novel.chaptersCount ?? chapters.length}
+            chapters={chapters}
             authorLink={novel.authorId ? `/authors/${novel.authorId}` : undefined}
-            notice="Thêm vào thư viện, thích, theo dõi, bình luận, báo cáo, lưu tiến độ và mở khóa chương VIP cần đăng nhập."
+            notice="Đăng nhập để theo dõi truyện, đánh giá và bình luận."
             actions={
               <>
                 {chapters.length ? (
@@ -384,15 +325,12 @@ export function PublicReaderNovelDetailPage() {
                     Đọc chương đầu
                   </button>
                 ) : null}
-                <Link to="/login" className="sc-button sc-button-soft">
-                  <span className="material-symbols-outlined" aria-hidden="true">login</span>
-                  Đăng nhập để tương tác
-                </Link>
               </>
             }
           />
+          <section id="reader-reviews" className="sc-reader-detail-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact /></section>
           <ChapterTable chapters={chapters} publicMode />
-          <CommentsSection kind="novel" id={novelId} />
+          <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} /></section>
         </>
       ) : null}
     </PublicLayout>
@@ -566,10 +504,22 @@ export function PublicReaderChapterPage() {
 
 export function ReaderLibraryPage() {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  const user = useAuthStore(state => state.user);
   const libraryQuery = useQuery({ queryKey: ['reader-library'], queryFn: listLibrary });
   const removeMutation = useMutation({
-    mutationFn: removeFromLibrary,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reader-library'] })
+    mutationFn: async (novelId: string) => {
+      if (user?.role === 'READER') await followNovel(novelId, false);
+      else await removeFromLibrary(novelId);
+    },
+    onSuccess: async () => {
+      showToast('Đã bỏ theo dõi truyện.', 'success');
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['reader-library'] }),
+        queryClient.invalidateQueries({ queryKey: ['novel-statistics'] })
+      ]);
+    },
+    onError: error => showToast(getApiErrorMessage(error), 'error')
   });
   const novels = libraryQuery.data ?? [];
 
@@ -577,7 +527,7 @@ export function ReaderLibraryPage() {
     <div className="flex flex-col gap-6">
       <PageHeader crumbs={[readerHomeCrumb, { label: 'Thư viện của tôi' }]} title="Thư viện của tôi" />
       <section className="flex flex-col gap-4">
-        <SectionHeading title="Truyện đã lưu" count={libraryQuery.isSuccess ? `${novels.length} truyện` : undefined} />
+        <SectionHeading title="Truyện đang theo dõi" count={libraryQuery.isSuccess ? `${novels.length} truyện` : undefined} />
         <QueryStates
           loading={libraryQuery.isLoading}
           error={libraryQuery.isError ? libraryQuery.error : null}
@@ -585,7 +535,7 @@ export function ReaderLibraryPage() {
           empty={libraryQuery.isSuccess && !novels.length}
           loadingLabel="Đang tải thư viện..."
           emptyTitle="Thư viện đang trống"
-          emptyDescription="Bấm “Thêm vào thư viện” ở trang chi tiết truyện để lưu truyện tại đây."
+          emptyDescription="Bấm biểu tượng trái tim ở trang chi tiết để theo dõi truyện tại đây."
           emptyAction={<Link to="/reader" className="sc-button sc-button-primary">Danh sách truyện</Link>}
         />
         <NovelGrid>
@@ -601,8 +551,8 @@ export function ReaderLibraryPage() {
                   className={`${cardButton} text-red-700`}
                   data-testid={`reader-remove-library-${novel.novelId}`}
                 >
-                  <span className="material-symbols-outlined text-[15px]" aria-hidden="true">bookmark_remove</span>
-                  <span>Bỏ lưu</span>
+                  <span className="material-symbols-outlined text-[15px]" aria-hidden="true">favorite</span>
+                  <span>Bỏ theo dõi</span>
                 </button>
               }
             />
@@ -735,6 +685,13 @@ function SearchInput({ value, onChange, placeholder, testId }: { value: string; 
   );
 }
 
+function StoryStatusFilters({ value, onChange }: { value: StoryStatus; onChange: (value: StoryStatus) => void }) {
+  return <div className="sc-filter-tabs flex flex-wrap items-center bg-stone-100 p-0.5 rounded-lg text-meta font-medium" role="group" aria-label="Lọc theo trạng thái">
+    {statusTabs.map(tab => <button key={tab.value || 'all'} type="button" aria-pressed={value === tab.value} onClick={() => onChange(tab.value)}
+      className={`px-3 py-1 rounded-md transition-all cursor-pointer ${value === tab.value ? 'bg-primary-600 text-white shadow-xs font-semibold' : 'text-stone-600 hover:text-stone-900'}`}>{tab.label}</button>)}
+  </div>;
+}
+
 function CatalogFilters({ genre, onGenreChange, tag, onTagChange }: {
   genre: string; onGenreChange: (value: string) => void; tag: string; onTagChange: (value: string) => void;
 }) {
@@ -838,79 +795,12 @@ function NovelCard({ novel, extraAction, publicMode = false }: { novel: ReaderNo
   );
 }
 
-function NovelOverview({
-  novel,
-  chapterCount,
-  authorLink,
-  notice,
-  actions,
-  children
-}: {
-  novel: ReaderNovel;
-  chapterCount: number;
-  authorLink?: string;
-  notice?: string | null;
-  actions?: ReactNode;
-  children?: ReactNode;
-}) {
-  const statusLabel = serialLabels[novel.serialStatus ?? novel.status ?? ''] ?? 'Đã xuất bản';
-  return (
-    <section className="sc-novel-overview" aria-label="Thông tin truyện">
-      <div className="sc-novel-identity">
-        <div className="sc-novel-cover">
-          {novel.coverImageUrl ? <img src={novel.coverImageUrl} alt={novel.title} /> : <span>{novel.title}</span>}
-        </div>
-        <div className="sc-novel-description">
-          <div className="flex flex-wrap items-center gap-2 mb-2">
-            <span className={`sc-novel-status ${novel.serialStatus === 'COMPLETED' ? '' : 'sc-novel-status-public'}`}>{statusLabel}</span>
-          </div>
-          <h1 className="text-page-title text-stone-900 mb-2">{novel.title}</h1>
-          <div className="flex flex-wrap items-center gap-2 mb-2 text-body">
-            <span className="text-stone-500">Thể loại:</span>
-            {novel.genre ? <span className="sc-genre-tag">{novel.genre}</span> : <span className="text-stone-500">Chưa phân loại</span>}
-            {(novel.tags ?? []).map((tag) => (
-              <span key={tag} className="sc-genre-tag">#{tag}</span>
-            ))}
-          </div>
-          {novel.authorName ? (
-            <p className="text-body text-stone-500 mb-2">
-              Tác giả:{' '}
-              {authorLink ? (
-                <Link className="text-stone-800 font-medium hover:underline" to={authorLink}>{novel.authorName}</Link>
-              ) : (
-                <span className="text-stone-800 font-medium">{novel.authorName}</span>
-              )}
-            </p>
-          ) : null}
-          <p className="sc-novel-synopsis text-body text-stone-600">{novel.synopsis || 'Chưa có lời giới thiệu.'}</p>
-          {actions ? <div className="flex flex-wrap items-center gap-2 mt-3">{actions}</div> : null}
-          {notice ? (
-            <p className="text-meta text-stone-600 mt-2 flex items-center gap-1" role="status" data-testid="reader-interaction-notice">
-              <span className="material-symbols-outlined text-primary-600" aria-hidden="true">info</span>
-              {notice}
-            </p>
-          ) : null}
-        </div>
-      </div>
-      {/* sc-novel-metrics lays out six author metrics; readers see three, so spread them evenly. */}
-      <dl className="sc-novel-metrics" style={{ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
-        <div><dt>Tổng chương</dt><dd>{chapterCount.toLocaleString('vi-VN')}</dd></div>
-        <div><dt>Lượt đọc</dt><dd>{(novel.viewsCount ?? 0).toLocaleString('vi-VN')}</dd></div>
-        <div><dt>Lượt thích</dt><dd>{(novel.likesCount ?? 0).toLocaleString('vi-VN')}</dd></div>
-      </dl>
-      {children ? (
-        <div className="sc-author-note">
-          <h2 className="text-section-title mb-2">Đánh giá &amp; theo dõi</h2>
-          {children}
-        </div>
-      ) : null}
-    </section>
-  );
-}
-
 function ChapterTable({ chapters, publicMode = false, onReadFirst }: { chapters: ReaderChapter[]; publicMode?: boolean; onReadFirst?: () => void }) {
+  const [expanded, setExpanded] = useState(false);
+  useEffect(() => setExpanded(false), [chapters]);
+  const visibleChapters = expanded ? chapters : chapters.slice(0, 5);
   return (
-    <section className={`${card} overflow-hidden flex flex-col`} aria-label="Danh sách chương">
+    <section id="reader-chapters" className={`${card} overflow-hidden flex flex-col`} aria-label="Danh sách chương">
       <div className="flex items-center justify-between gap-3 px-6 border-b border-stone-200/80">
         <div className="py-3 flex items-center gap-2 text-primary-600 font-semibold border-b-2 border-primary-600">
           <span>Danh sách chương</span>
@@ -929,22 +819,24 @@ function ChapterTable({ chapters, publicMode = false, onReadFirst }: { chapters:
             <thead>
               <tr className="border-b border-stone-200">
                 <th className="px-4 py-2.5">Chương</th>
-                <th className="px-4 py-2.5 text-right hidden sm:table-cell">Số chữ</th>
+                <th className="px-4 py-2.5 text-right hidden md:table-cell">Số từ</th>
+                <th className="px-4 py-2.5 text-right hidden sm:table-cell">Ngày đăng</th>
                 <th className="px-4 py-2.5">Quyền đọc</th>
                 <th className="px-4 py-2.5 text-right"><span className="sr-only">Thao tác</span></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
-              {chapters.map((chapter) => {
+              {visibleChapters.map((chapter) => {
                 const chapterPath = `${publicMode ? '/public' : '/reader'}/chapters/${chapter.chapterId}`;
                 return (
                   <tr key={chapter.chapterId} className="hover:bg-stone-50 transition-colors">
                     <td className="px-4">
-                      <Link to={chapterPath} className="py-1 font-medium text-stone-900 hover:text-primary-600 transition-colors line-clamp-1">
+                      <Link to={chapterPath} title={formatChapterTitle(chapter.chapterNumber, chapter.title)} className="sc-reader-chapter-title font-medium text-stone-900 hover:text-primary-600 transition-colors">
                         {formatChapterTitle(chapter.chapterNumber, chapter.title)}
                       </Link>
                     </td>
-                    <td className="px-4 text-right text-stone-600 hidden sm:table-cell">{(chapter.wordCount ?? 0).toLocaleString('vi-VN')}</td>
+                    <td className="px-4 text-right text-stone-600 hidden md:table-cell">{(chapter.wordCount ?? 0).toLocaleString('vi-VN')}</td>
+                    <td className="px-4 text-right hidden sm:table-cell"><time className="sc-reader-chapter-date" dateTime={chapter.publishedAt}>{chapter.publishedAt ? new Date(chapter.publishedAt).toLocaleDateString('vi-VN') : '—'}</time></td>
                     <td className="px-4">
                       {chapter.isVip ? (
                         <span className="inline-flex items-center rounded-full bg-amber-50 text-amber-700">VIP • {chapter.priceCoins} xu</span>
@@ -964,6 +856,7 @@ function ChapterTable({ chapters, publicMode = false, onReadFirst }: { chapters:
           </table>
         </div>
       )}
+      {chapters.length > 5 && <div className="sc-reader-chapters-toggle"><button type="button" className="sc-button sc-button-soft" aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>{expanded ? 'Thu gọn mục lục' : `Xem toàn bộ ${chapters.length} chương`}</button></div>}
     </section>
   );
 }
@@ -1118,12 +1011,4 @@ function buildReaderStyle(preferences?: ReadingPreferences) {
 function formatChapterTitle(chapterNumber: number, title: string) {
   const cleanTitle = title.replace(/^\s*(Chương|Chapter|Ch\.)\s*\d+\s*[:.\-–—]?\s*/i, '');
   return cleanTitle ? `Chương ${chapterNumber}: ${cleanTitle}` : `Chương ${chapterNumber}`;
-}
-
-function formatInteractionError(error: unknown, conflictMessage: string) {
-  if (error instanceof ApiClientError && error.status === 409) {
-    return conflictMessage;
-  }
-
-  return getApiErrorMessage(error);
 }

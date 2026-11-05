@@ -22,6 +22,7 @@ author or an admin may read statistics/reviews; other callers receive 404.
 | GET | `/novels/:novelId/statistics` | Aggregate words, followers and score, plus the viewer's saved state |
 | PUT | `/novels/:novelId/follow` | Follow a novel; repeated calls do not increment twice |
 | DELETE | `/novels/:novelId/follow` | Unfollow; safe to repeat |
+| PUT | `/novels/:novelId/notifications` | Set independent chapter-notification preference with `{ "enabled": true/false }` |
 | PUT | `/novels/:novelId/rating` | Create/update the caller's score and optional review |
 | DELETE | `/novels/:novelId/rating` | Remove the caller's score and text together |
 | GET | `/novels/:novelId/reviews?page=1&limit=10` | List reader reviews, newest update first |
@@ -47,6 +48,7 @@ envelope:
   "ratingAverage": 8.5,
   "ratingsCount": 2,
   "isFollowing": true,
+  "notificationsEnabled": false,
   "myRating": 8,
   "myReview": "Good pacing and memorable characters."
 }
@@ -69,7 +71,13 @@ breaker. Reviews contain plain text, which clients should render as text.
 Schema: migrations `012_novel_engagement.sql` and `013_novel_review_text.sql`.
 Each reader has at most one follow and one score/review per novel.
 
+The reader UI exposes one Follow heart in place of separate like, bookmark and follow actions. `isFollowing` and `followersCount` include deduplicated legacy saved/liked entries. PUT follow atomically ensures both follow and library membership; DELETE clears the viewer's follow/bookmark/legacy-like records together. Repeated/concurrent toggles do not create duplicates or leave follow and library writes partially committed.
+
+Chapter notifications are off by default and independent of following/library membership. Migration `021_novel_notification_subscriptions.sql` stores preferences and queues idempotent `NOVEL_CHAPTER_PUBLISHED` events in the publication transaction, covering immediate publication, moderation approval and schedules. Only active readers who opted in receive events for published, visible novels/chapters. Delivery rechecks eligibility; opting out removes pending events. Existing delivered notifications remain in history.
+
 ### Reader reviews page
+
+Readers write and manage their review at `/reader/novels/:novelId/reviews`. Guests can view `/public/novels/:novelId/reviews` and are prompted to sign in to write. The score can be typed or selected with a slider, using the existing integer 1–10 API contract.
 
 The author route is `/author/novels/:novelId/reviews`. Only the novel owner or
 an admin can access its management view; it has no reader-review edit actions.

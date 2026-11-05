@@ -1,5 +1,7 @@
 import type { QueryResultRow } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
+import { readerFollowingSql } from './reader-following.sql.js';
+import { withPostgresTransaction } from '../../core/database/transaction.js';
 import type {
   HistoryListInput,
   ReadingPreferencesInput,
@@ -200,6 +202,11 @@ export async function findPublishedNovelDetail(novelId: string) {
         n.*,
         coalesce(up.display_name, u.username) as author_name,
         g.name as genre_name,
+        (select array_agg(gg.name order by (ng.genre_id = n.genre_id) desc, gg.name)
+          from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
+          where ng.novel_id = n.novel_id) as genres,
+        (select max(c.updated_at) from chapters c
+          where c.novel_id = n.novel_id and c.status = 'PUBLISHED' and c.deleted_at is null) as last_updated_at,
         coalesce(
           json_agg(distinct t.name) filter (where t.tag_id is not null),
           '[]'::json
@@ -219,7 +226,13 @@ export async function findPublishedNovelDetail(novelId: string) {
     [novelId]
   );
 
-  return result.rows[0] ? mapNovelSummary(result.rows[0]) : null;
+  const row = result.rows[0];
+  return row ? {
+    ...mapNovelSummary(row),
+    genres: row.genres?.length ? row.genres as string[] : row.genre_name ? [row.genre_name as string] : [],
+    authorNote: (row.author_note as string | null) ?? null,
+    lastUpdatedAt: row.last_updated_at ?? row.published_at ?? row.created_at
+  } : null;
 }
 
 export async function listPublishedChaptersForNovel(novelId: string) {
@@ -342,12 +355,14 @@ export async function addBookmark(userId: string, novelId: string) {
 }
 
 export async function removeBookmark(userId: string, novelId: string) {
-  const result = await getPostgresPool().query(
-    'delete from bookmarks where user_id = $1 and novel_id = $2',
-    [userId, novelId]
-  );
-
-  return result.rowCount === 1;
+  return withPostgresTransaction(async client => {
+    await client.query("select pg_advisory_xact_lock(hashtextextended($1::text || ':' || $2::text, 0))", [novelId, userId]);
+    const follow = await client.query('delete from novel_follows where novel_id = $1 and user_id = $2', [novelId, userId]);
+    const bookmark = await client.query('delete from bookmarks where novel_id = $1 and user_id = $2', [novelId, userId]);
+    const like = await client.query('delete from likes where novel_id = $1 and user_id = $2 returning novel_id', [novelId, userId]);
+    if (like.rowCount) await client.query('update novels set likes_count = greatest(likes_count - 1, 0) where novel_id = $1', [novelId]);
+    return Boolean(follow.rowCount || bookmark.rowCount || like.rowCount);
+  });
 }
 
 export async function listBookmarks(userId: string, input: HistoryListInput) {
@@ -363,7 +378,7 @@ export async function listBookmarks(userId: string, input: HistoryListInput) {
           '[]'::json
         ) as tags,
         b.created_at as bookmarked_at
-      from bookmarks b
+      from (${readerFollowingSql}) b
       join novels n on n.novel_id = b.novel_id
       join users u on u.user_id = n.author_id
       left join user_profiles up on up.user_id = u.user_id
@@ -374,7 +389,7 @@ export async function listBookmarks(userId: string, input: HistoryListInput) {
         and n.deleted_at is null
         and n.status = 'PUBLISHED'
       group by n.novel_id, up.display_name, u.username, g.name, b.created_at
-      order by b.created_at desc
+      order by b.created_at desc, n.novel_id asc
       limit $2 offset $3
     `,
     [userId, input.limit, offset]
@@ -382,7 +397,7 @@ export async function listBookmarks(userId: string, input: HistoryListInput) {
   const countResult = await getPostgresPool().query(
     `
       select count(*)::int as total
-      from bookmarks b
+      from (${readerFollowingSql}) b
       join novels n on n.novel_id = b.novel_id
       where b.user_id = $1
         and n.deleted_at is null

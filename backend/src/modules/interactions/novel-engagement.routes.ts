@@ -16,6 +16,7 @@ export const listReviewsSchema = novelIdParamSchema.extend({ query: z.object({
   limit: z.coerce.number().int().positive().max(50).default(10),
   sort: z.enum(['newest', 'oldest', 'highest', 'lowest']).default('newest')
 }) });
+export const novelNotificationsSchema = novelIdParamSchema.extend({ body: z.object({ enabled: z.boolean() }) });
 export const novelEngagementRoutes = Router();
 
 const read: RequestHandler = async (request, response, next) => {
@@ -25,7 +26,7 @@ const read: RequestHandler = async (request, response, next) => {
 const change: RequestHandler = async (request, response, next) => {
   try {
     const removing = request.method === 'DELETE';
-    const input = request.path.endsWith('/follow') ? { following: !removing } : { score: removing ? null : request.body.score, review: request.body?.review };
+    const input = request.path.endsWith('/follow') ? { following: !removing } : request.path.endsWith('/notifications') ? { notificationsEnabled: request.body.enabled as boolean } : { score: removing ? null : request.body.score, review: request.body?.review };
     response.json(successResponse(await updateNovelEngagement(request.auth!, String(request.params.novelId), input)));
   } catch (error) { next(error); }
 };
@@ -41,5 +42,6 @@ novelEngagementRoutes.get('/novels/:novelId/reviews', optionalAuth, validateRequ
 const requireReader = [requireAuth, requireRoles(['READER'])];
 novelEngagementRoutes.put('/novels/:novelId/follow', ...requireReader, validateRequest(novelIdParamSchema), change);
 novelEngagementRoutes.delete('/novels/:novelId/follow', ...requireReader, validateRequest(novelIdParamSchema), change);
+novelEngagementRoutes.put('/novels/:novelId/notifications', ...requireReader, validateRequest(novelNotificationsSchema), change);
 novelEngagementRoutes.put('/novels/:novelId/rating', ...requireReader, validateRequest(novelRatingSchema), change);
 novelEngagementRoutes.delete('/novels/:novelId/rating', ...requireReader, validateRequest(novelIdParamSchema), change);

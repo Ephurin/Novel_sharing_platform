@@ -24,6 +24,7 @@ import { AuthorProjectsPage } from '../features/author-projects/AuthorProjectsPa
 import { AuthorStoryContextPage } from '../features/story-context/AuthorStoryContextPage';
 import { AuthGate, OptionalSession, RoleGuard } from '../features/auth/AuthGate';
 import { ReaderHomePage } from '../features/reader/ReaderHomePage';
+import { ReaderNovelReviewsPage } from '../features/reader/ReaderNovelReviewsPage';
 import { NotificationsPage } from '../features/notifications/NotificationsPage';
 import { AuthorProfilePage, MyProfilePage } from '../features/profile/ProfilePage';
 import {
@@ -53,6 +54,10 @@ export const router = createBrowserRouter([
   {
     path: '/public',
     element: <AuthorTheme><PublicReaderPage /></AuthorTheme>
+  },
+  {
+    path: '/public/novels/:novelId/reviews',
+    element: <OptionalSession><AuthorTheme><ReaderNovelReviewsPage publicMode /></AuthorTheme></OptionalSession>
   },
   {
     path: '/public/novels/:novelId',
@@ -209,6 +214,10 @@ export const router = createBrowserRouter([
       {
         path: '/reader',
         element: <ReaderPage />
+      },
+      {
+        path: '/reader/novels/:novelId/reviews',
+        element: <ReaderNovelReviewsPage />
       },
       {
         path: '/reader/novels/:novelId',

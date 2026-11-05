@@ -8,6 +8,9 @@ export type ReaderNovel = {
   synopsis?: string;
   coverImageUrl?: string | null;
   genre?: string | null;
+  genres?: string[];
+  authorNote?: string | null;
+  lastUpdatedAt?: string | null;
   tags?: string[];
   status?: string;
   serialStatus?: string;
