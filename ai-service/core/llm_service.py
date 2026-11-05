@@ -519,8 +519,13 @@ class LLMService:
         if constraints_str:
             user_prompt += f"Ràng buộc bắt buộc (Constraints): {constraints_str}\n"
 
-        patch_start = start_offset if start_offset is not None else cursor_offset
-        patch_end = end_offset if end_offset is not None else cursor_offset
+        if operation == 'rewrite':
+            patch_start = start_offset if start_offset is not None else cursor_offset
+            patch_end = end_offset if end_offset is not None else cursor_offset
+        elif operation in {'continue', 'continuation', 'describe', 'dialogue'}:
+            patch_start = patch_end = cursor_offset
+        else:
+            raise LLMServiceError(f'Unsupported writing operation: {operation}')
 
         try:
             token = _writing_response.set(True)

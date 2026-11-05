@@ -36,7 +36,7 @@ def test_writing_uses_json_schema_and_separate_budget_without_leaking_options_to
     client = SimpleNamespace(models=SimpleNamespace(generate_content=generate))
     service = LLMService(provider='gemini', api_key='test-key', max_tokens=512)
     with patch('google.genai.Client', return_value=client):
-        result = service.generate_writing_draft(operation='continue', start_offset=7, end_offset=7)
+        result = service.generate_writing_draft(operation='continue', start_offset=7, end_offset=7, cursor_offset=7)
         assert result['draft_text'] == prose and result['patch'] == {'start': 7, 'end': 7, 'replacement': prose}
         config = generate.call_args.kwargs['config']
         assert config['response_mime_type'] == 'application/json'
@@ -61,3 +61,23 @@ def test_validation_blocks_wrapped_json_from_alternative_adapters():
         patch=WritingPatch(start=0, end=0, replacement=raw), context_package=WritingContextPackage(brain_version=1),
         constraints=(), instruction='', base_content_length=0)
     assert any(c.code == 'INVALID_WRITING_OUTPUT' and not c.passed for c in checks)
+
+
+@pytest.mark.parametrize('operation,bounds', [
+    ('rewrite', (2, 8)), ('continue', (8, 8)), ('continuation', (8, 8)),
+    ('describe', (8, 8)), ('dialogue', (8, 8))
+])
+def test_real_provider_adapter_respects_pr86_operation_bounds(operation, bounds):
+    service = LLMService(provider='gemini', api_key='test-key')
+    with patch.object(service, '_call_llm', return_value='{"draft_text":"Valid prose"}'):
+        result = service.generate_writing_draft(operation=operation, selected_text='source',
+            start_offset=2, end_offset=8, cursor_offset=8)
+    assert (result['patch']['start'], result['patch']['end']) == bounds
+
+
+def test_unknown_operation_cannot_call_provider_or_produce_a_patch():
+    service = LLMService(provider='gemini', api_key='test-key')
+    with patch.object(service, '_call_llm') as call:
+        with pytest.raises(LLMServiceError, match='Unsupported writing operation'):
+            service.generate_writing_draft(operation='unknown')
+        call.assert_not_called()
