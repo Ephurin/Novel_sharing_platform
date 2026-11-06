@@ -80,17 +80,23 @@ export async function getReaderChapter(chapterId: string, auth?: AuthContext) {
     throw new AppError(404, 'CONTENT_001', 'Content not found');
   }
 
-  const owner = auth && (auth.userId === chapter.authorId || isContentAdmin(auth));
-  if (auth && chapter.isVip) await assertActiveAccount(auth);
-  if (chapter.isVip && !owner && (!auth || !(await userHasChapterUnlock(auth.userId, chapterId)))) {
-    throw new AppError(402, 'PAYMENT_002', 'Chapter unlock required');
-  }
+  const owner = await assertChapterAccess(chapter, auth);
 
   if (auth) await recordChapterRead(auth.userId, chapter.novelId, chapterId);
 
   if (!owner) await incrementNovelViews(chapter.novelId);
   const { authorId: _authorId, ...readable } = chapter;
   return readable;
+}
+
+/** History writes must satisfy the same access policy as content reads. */
+async function assertChapterAccess(chapter: { chapterId: string; authorId: string; isVip: boolean }, auth?: AuthContext) {
+  const owner = Boolean(auth && (auth.userId === chapter.authorId || isContentAdmin(auth)));
+  if (auth) await assertActiveAccount(auth);
+  if (chapter.isVip && !owner && (!auth || !(await userHasChapterUnlock(auth.userId, chapter.chapterId)))) {
+    throw new AppError(402, 'PAYMENT_002', 'Chapter unlock required');
+  }
+  return owner;
 }
 
 export async function syncHistory(auth: AuthContext, input: SyncReadingHistoryInput) {
@@ -101,6 +107,7 @@ export async function syncHistory(auth: AuthContext, input: SyncReadingHistoryIn
     throw new AppError(404, 'CONTENT_001', 'Content not found');
   }
 
+  await assertChapterAccess(chapter, auth);
   await upsertReadingHistory(auth.userId, input);
 
   return {

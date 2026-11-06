@@ -10,7 +10,7 @@ const isolated = expected.startsWith('ephurin_test_') && process.env.EPHURIN_ALL
 test('chapter reads record successful access, preserve skipped chapters and isolate accounts', { skip: !isolated }, async () => {
   const { getPostgresPool, disconnectPostgres } = await import('../../core/database/postgres.js');
   const { listReadChapterIds } = await import('./reading.repository.js');
-  const { getReaderChapter, syncHistory, getHistoryForNovel } = await import('./reading.service.js');
+  const { getReaderChapter, syncHistory, getHistoryForNovel, listHistory } = await import('./reading.service.js');
   const pool = getPostgresPool();
   const author = randomUUID(), reader = randomUUID(), other = randomUUID(), novel = randomUUID();
   const ids = Array.from({ length: 5 }, () => randomUUID());
@@ -31,16 +31,39 @@ test('chapter reads record successful access, preserve skipped chapters and isol
     assert.deepEqual((await listReadChapterIds(reader, novel)).sort(), [ids[0], ids[2]].sort());
     assert.deepEqual(await listReadChapterIds(other, novel), []);
     await syncHistory(auth, { novelId: novel, chapterId: ids[2], paragraphIndex: 0 });
-    assert.deepEqual((await getHistoryForNovel(auth, novel)).readChapterIds.sort(), [ids[0], ids[2]].sort());
+    const before = await getHistoryForNovel(auth, novel);
+    await assert.rejects(syncHistory(auth, { novelId: novel, chapterId: ids[3], paragraphIndex: 42 }), { httpStatus: 402 });
+    assert.deepEqual(await getHistoryForNovel(auth, novel), before, 'Locked VIP sync must not change the previous position or read flags');
+    await assert.rejects(syncHistory({ userId: other, role: 'READER' }, { novelId: novel, chapterId: ids[3], paragraphIndex: 0 }), { httpStatus: 402 });
+    await assert.rejects(getHistoryForNovel({ userId: other, role: 'READER' }, novel), { httpStatus: 404 });
+    assert.deepEqual((await listHistory(auth, { page: 1, limit: 20 })).data[0].readChapterIds.sort(), [ids[0], ids[2]].sort());
+    await pool.query("update users set status = 'LOCKED' where user_id = $1", [reader]);
+    await assert.rejects(syncHistory(auth, { novelId: novel, chapterId: ids[0], paragraphIndex: 0 }), { httpStatus: 403 });
+    await assert.rejects(getReaderChapter(ids[0], auth), { httpStatus: 403 });
+    assert.deepEqual(await getHistoryForNovel(auth, novel), before);
+    await pool.query("update users set status = 'ACTIVE' where user_id = $1", [reader]);
+    const wallet = (await pool.query('insert into wallets (user_id) values ($1) on conflict (user_id) do update set user_id = excluded.user_id returning wallet_id', [reader])).rows[0].wallet_id;
+    const tx = (await pool.query("insert into transactions (wallet_id, type, status, amount_coins) values ($1, 'UNLOCK', 'SUCCESS', 10) returning transaction_id", [wallet])).rows[0].transaction_id;
+    await pool.query('insert into chapter_unlocks (user_id, chapter_id, transaction_id) values ($1, $2, $3)', [reader, ids[3], tx]);
+    await syncHistory(auth, { novelId: novel, chapterId: ids[3], paragraphIndex: 0 });
+    assert.deepEqual((await getHistoryForNovel(auth, novel)).readChapterIds.sort(), [ids[0], ids[2]].sort(), 'Even entitled resume writes are not evidence of a content GET');
+    await getReaderChapter(ids[3], auth);
+    assert.deepEqual((await listReadChapterIds(reader, novel)).sort(), [ids[0], ids[2], ids[3]].sort());
     await getReaderChapter(ids[1], { userId: other, role: 'READER' });
     assert.deepEqual(await listReadChapterIds(other, novel), [ids[1]]);
     await syncHistory({ userId: other, role: 'READER' }, { novelId: novel, chapterId: ids[1], paragraphIndex: 0 });
     await pool.query('delete from chapter_reads where user_id = $1', [other]);
     await pool.query(await readFile(new URL('../../core/database/migrations/022_chapter_reads.sql', import.meta.url), 'utf8'));
-    assert.deepEqual(await listReadChapterIds(other, novel), [ids[1]], 'Backfill restores the known chapter without inferring earlier reads');
-    assert.deepEqual((await listReadChapterIds(reader, novel)).sort(), [ids[0], ids[2]].sort());
+    assert.deepEqual(await listReadChapterIds(other, novel), [], 'Resume history must not be backfilled as proof of a read');
+    await pool.query('insert into chapter_reads (user_id, novel_id, chapter_id) values ($1, $2, $3)', [other, novel, ids[1]]);
+    await pool.query(await readFile(new URL('../../core/database/migrations/023_verified_chapter_reads.sql', import.meta.url), 'utf8'));
+    assert.deepEqual(await listReadChapterIds(other, novel), [], 'Rows seeded by earlier builds remain unverified');
+    await getReaderChapter(ids[1], { userId: other, role: 'READER' });
+    assert.deepEqual(await listReadChapterIds(other, novel), [ids[1]]);
+    assert.deepEqual((await listReadChapterIds(reader, novel)).sort(), [ids[0], ids[2], ids[3]].sort());
   } finally {
     await pool.query('delete from novels where novel_id = $1', [novel]);
+    await pool.query('delete from transactions where wallet_id in (select wallet_id from wallets where user_id = any($1::uuid[]))', [[author, reader, other]]);
     await pool.query('delete from users where user_id = any($1::uuid[])', [[author, reader, other]]);
     await disconnectPostgres();
   }

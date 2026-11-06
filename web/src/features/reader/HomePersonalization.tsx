@@ -51,14 +51,15 @@ export function ContinueReading() {
   if (history.isError) return <div className="sc-home-resume-error"><span>Chưa tải được lịch sử đọc.</span><button type="button" onClick={() => void history.refetch()}>Thử lại lịch sử đọc</button></div>;
   if (!item) return null;
   const chapters = detail.data?.chapters ?? [];
-  const index = chapters.findIndex(chapter => chapter.chapterId === item.chapterId);
+  const publishedIndex = chapters.findIndex(chapter => chapter.chapterId === item.chapterId);
+  const index = item.readChapterIds?.includes(item.chapterId) ? publishedIndex : -1;
   const position = index >= 0 ? (index + 1) / chapters.length * 100 : null;
   return <section className="sc-home-resume" aria-label="Đọc tiếp">
     <div><h2>Đọc tiếp</h2><Link className="sc-home-novel-title" to={`/reader/novels/${item.novelId}`}>{item.novel.title}</Link>
       <p>{/^\s*(?:chương|chapter)\s*\d+/iu.test(item.chapter.title) ? item.chapter.title : `Chương ${item.chapter.chapterNumber}: ${item.chapter.title}`}</p>
       {position !== null && <AnimatedProgress value={position} label={`Vị trí chương ${index + 1} / ${chapters.length}`} />}
       {detail.isError && <button type="button" className="sc-home-resume-retry" onClick={() => void detail.refetch()}>Tải lại thông tin chương</button>}
-      {detail.isSuccess && index < 0 && <p>Chương đọc gần đây không còn khả dụng.</p>}
+      {detail.isSuccess && publishedIndex < 0 && <p>Chương đọc gần đây không còn khả dụng.</p>}
     </div>
     <Link className="sc-home-preview-link" to={index >= 0 ? `/reader/chapters/${item.chapterId}` : `/reader/novels/${item.novelId}`}>
       {index >= 0 ? 'Đọc tiếp' : 'Xem truyện'}

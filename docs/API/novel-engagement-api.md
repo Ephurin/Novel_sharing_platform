@@ -75,6 +75,8 @@ The reader UI exposes one Follow heart in place of separate like, bookmark and f
 
 Chapter notifications are off by default and independent of following/library membership. Migration `021_novel_notification_subscriptions.sql` stores preferences and queues idempotent `NOVEL_CHAPTER_PUBLISHED` events in the publication transaction, covering immediate publication, moderation approval and schedules. Only active readers who opted in receive events for published, visible novels/chapters. Delivery rechecks eligibility; opting out removes pending events. Existing delivered notifications remain in history.
 
+Unfollowing a novel or removing it from the library does not turn off an existing chapter-notification subscription. Disable notifications separately using the notification toggle/API; following again does not change that preference.
+
 ### Reader reviews page
 
 Readers write and manage their review at `/reader/novels/:novelId/reviews`. Guests can view `/public/novels/:novelId/reviews` and are prompted to sign in to write. The score can be typed or selected with a slider, using the existing integer 1–10 API contract.

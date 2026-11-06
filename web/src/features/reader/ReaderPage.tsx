@@ -67,7 +67,6 @@ export function ReaderNovelDetailPage() {
   const { novelId = '' } = useParams();
   const navigate = useNavigate();
   const userId = useAuthStore(state => state.user?.userId);
-  const localReadIds = useReadChapterIds(novelId);
   const novelQuery = useQuery({
     queryKey: ['reader-novel', novelId],
     queryFn: () => getReaderNovel(novelId),
@@ -87,7 +86,8 @@ export function ReaderNovelDetailPage() {
   const novel = novelQuery.data;
   const chapters = novel?.chapters ?? [];
   const firstChapter = [...chapters].sort((a, b) => a.chapterNumber - b.chapterNumber)[0];
-  const currentChapter = chapters.find(chapter => chapter.chapterId === continueQuery.data?.chapterId);
+  const readChapterIds = continueQuery.data?.readChapterIds ?? [];
+  const currentChapter = chapters.find(chapter => chapter.chapterId === continueQuery.data?.chapterId && readChapterIds.includes(chapter.chapterId));
   const continueChapterId = currentChapter?.chapterId ?? firstChapter?.chapterId;
 
   return (
@@ -116,7 +116,7 @@ export function ReaderNovelDetailPage() {
       <section id="reader-reviews" className="sc-reader-detail-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact /></section>
       <NovelChapterCatalog
         chapters={chapters}
-        readChapterIds={[...localReadIds, ...(continueQuery.data?.readChapterIds ?? []), ...(currentChapter ? [currentChapter.chapterId] : [])]}
+        readChapterIds={readChapterIds}
         onReadFirst={firstChapter ? () => navigate(`/reader/chapters/${firstChapter.chapterId}`) : undefined}
       />
       <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} /></section>

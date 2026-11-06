@@ -52,6 +52,7 @@ function mapChapterSummary(row: QueryResultRow) {
 
 function mapHistory(row: QueryResultRow) {
   return {
+    readChapterIds: (row.read_chapter_ids ?? []) as string[],
     novelId: row.novel_id,
     chapterId: row.chapter_id,
     paragraphIndex: row.paragraph_index,
@@ -303,7 +304,9 @@ export async function listReadingHistories(userId: string, input: HistoryListInp
   const offset = (input.page - 1) * input.limit;
   const dataResult = await getPostgresPool().query(
     `
-      select rh.*, n.title as novel_title, n.cover_image_url, c.title as chapter_title, c.chapter_number
+      select rh.*, n.title as novel_title, n.cover_image_url, c.title as chapter_title, c.chapter_number,
+        array(select cr.chapter_id from chapter_reads cr
+          where cr.user_id = rh.user_id and cr.novel_id = rh.novel_id and cr.verified_at is not null) as read_chapter_ids
       from reading_histories rh
       join novels n on n.novel_id = rh.novel_id
       join chapters c on c.chapter_id = rh.chapter_id
@@ -342,13 +345,14 @@ export async function findReadingHistory(userId: string, novelId: string) {
 
 export async function recordChapterRead(userId: string, novelId: string, chapterId: string) {
   await getPostgresPool().query(
-    'insert into chapter_reads (user_id, novel_id, chapter_id) values ($1, $2, $3) on conflict do nothing',
+    `insert into chapter_reads (user_id, novel_id, chapter_id, verified_at) values ($1, $2, $3, now())
+      on conflict (user_id, chapter_id) do update set verified_at = excluded.verified_at`,
     [userId, novelId, chapterId]
   );
 }
 
 export async function listReadChapterIds(userId: string, novelId: string): Promise<string[]> {
-  const result = await getPostgresPool().query('select chapter_id from chapter_reads where user_id = $1 and novel_id = $2 order by chapter_id', [userId, novelId]);
+  const result = await getPostgresPool().query('select chapter_id from chapter_reads where user_id = $1 and novel_id = $2 and verified_at is not null order by chapter_id', [userId, novelId]);
   return result.rows.map(row => row.chapter_id as string);
 }
 

@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp } from 'node:fs/promises';
-import os from 'node:os';
+import { readerEvidence } from './reader-browser-evidence.mjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
@@ -9,11 +8,11 @@ import { chromium, expect } from '@playwright/test';
 
 const novels = Array.from({ length: 8 }, (_, i) => ({ novelId: `n-${i}`, authorId: 'writer', authorName: 'Tác giả thử', title: `Truyện mới ${i + 1}`, synopsis: 'Giới thiệu truyện.', genre: 'Fantasy', chaptersCount: 4, viewsCount: 120, serialStatus: 'ONGOING' }));
 const chapters = [1, 3, 7, 9].map((number, index) => ({ chapterId: `c-${index}`, novelId: 'n-0', chapterNumber: number, title: `Chương ${number}: Hành trình`, isVip: false, priceCoins: 0 }));
-const history = [{ novelId: 'n-0', chapterId: 'c-1', readAt: '2026-11-06T00:00:00Z', paragraphIndex: 3, pageOffset: 120, novel: { title: novels[0].title, coverImageUrl: null }, chapter: { title: chapters[1].title, chapterNumber: 3 } }];
+const history = [{ novelId: 'n-0', chapterId: 'c-1', readChapterIds: ['c-1'], readAt: '2026-11-06T00:00:00Z', paragraphIndex: 3, pageOffset: 120, novel: { title: novels[0].title, coverImageUrl: null }, chapter: { title: chapters[1].title, chapterNumber: 3 } }];
 const statistics = { novelId: 'n-0', totalWords: 1000, followersCount: 1, ratingAverage: null, ratingsCount: 0, isFollowing: false, notificationsEnabled: false, myRating: null, myReview: null };
 
 test('home supports search cancellation, keyboard suggestions, URL restoration and compact mobile filters', { timeout: 120000 }, async () => {
-  const output = await mkdtemp(path.join(os.tmpdir(), 'storycraft-home-personalization-'));
+  const output = await readerEvidence('storycraft-home-personalization-');
   const server = await preview({ root: fileURLToPath(new URL('../', import.meta.url)), preview: { host: '127.0.0.1', port: 0 } });
   const browser = await chromium.launch({ headless: true, channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome' });
   const base = `http://127.0.0.1:${server.httpServer.address().port}`;
@@ -114,7 +113,7 @@ test('home supports search cancellation, keyboard suggestions, URL restoration a
 });
 
 test('reader saves from preview with feedback, resumes real chapter position and isolates accounts', { timeout: 90000 }, async () => {
-  const output = await mkdtemp(path.join(os.tmpdir(), 'storycraft-home-reader-'));
+  const output = await readerEvidence('storycraft-home-reader-');
   const server = await preview({ root: fileURLToPath(new URL('../', import.meta.url)), preview: { host: '127.0.0.1', port: 0 } });
   const browser = await chromium.launch({ headless: true, channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome' });
   const base = `http://127.0.0.1:${server.httpServer.address().port}`;
@@ -125,14 +124,14 @@ test('reader saves from preview with feedback, resumes real chapter position and
       const errors = [];
       page.on('pageerror', error => errors.push(error.message));
       await page.addInitScript(theme => { localStorage.setItem('storycraft-theme', theme); localStorage.setItem('ephurin_access_token', 'reader-a'); }, theme);
-      let saved = false, failSave = false, account = 'reader-a', changes = 0;
+      let saved = false, failSave = false, account = 'reader-a', changes = 0, verifiedHistory = true;
       await page.route('**/api/v1/**', async route => {
         const url = new URL(route.request().url());
         let data = [];
         if (url.pathname.endsWith('/auth/me')) data = { userId: account, username: account, email: `${account}@example.invalid`, role: 'READER', status: 'ACTIVE' };
         else if (url.pathname.endsWith('/reading/filters')) data = { genres: ['Fantasy'], tags: [] };
         else if (url.pathname.endsWith('/reading/search')) data = novels;
-        else if (url.pathname.endsWith('/reading/history/me')) data = account === 'reader-a' ? history : [];
+        else if (url.pathname.endsWith('/reading/history/me')) data = account === 'reader-a' ? history.map(item => ({ ...item, readChapterIds: verifiedHistory ? item.readChapterIds : [] })) : [];
         else if (url.pathname.includes('/reading/novels/')) data = { ...novels[0], chapters };
         else if (url.pathname.endsWith('/statistics')) data = { ...statistics, isFollowing: saved };
         else if (url.pathname.endsWith('/follow')) {
@@ -169,6 +168,9 @@ test('reader saves from preview with feedback, resumes real chapter position and
         assert.equal(changes, 3);
         await page.keyboard.press('Escape');
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
+        verifiedHistory = false; await page.reload();
+        await expect(resume.getByRole('link', { name: 'Xem truyện', exact: true })).toHaveAttribute('href', '/reader/novels/n-0');
+        await expect(resume.getByRole('progressbar')).toHaveCount(0);
         // Exercise the app's SPA logout so old private cache cannot appear for another account.
         await page.getByTestId('shell-avatar-btn').click();
         await page.getByTestId('shell-logout-btn').click();

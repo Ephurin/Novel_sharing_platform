@@ -1,14 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp } from 'node:fs/promises';
-import os from 'node:os';
+import { readerEvidence } from './reader-browser-evidence.mjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
 import { chromium, expect } from '@playwright/test';
 
 test('detail: simple chapter list, accurate read flags, mobile read action and deliberate reports', { timeout: 150000 }, async () => {
-  const output = await mkdtemp(path.join(os.tmpdir(), 'storycraft-detail-enhancements-'));
+  const output = await readerEvidence('storycraft-detail-enhancements-');
   const server = await preview({ root: fileURLToPath(new URL('../', import.meta.url)), preview: { host: '127.0.0.1', port: 0 } });
   const browser = await chromium.launch({ headless: true, channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome' });
   const base = `http://127.0.0.1:${server.httpServer.address().port}`;
@@ -24,7 +23,10 @@ test('detail: simple chapter list, accurate read flags, mobile read action and d
       page.on('pageerror', error => errors.push(error.message));
       await page.addInitScript(({ role, theme }) => {
         localStorage.setItem('storycraft-theme', theme);
-        if (role === 'READER') localStorage.setItem('ephurin_access_token', 'fixture-token');
+        if (role === 'READER') {
+          localStorage.setItem('ephurin_access_token', 'fixture-token');
+          localStorage.setItem('storycraft-workspace:reader:read-chapters:novel-1', JSON.stringify(['c-2']));
+        }
       }, { role, theme });
       await page.route('**/api/v1/**', async route => {
         const url = new URL(route.request().url());
@@ -62,6 +64,7 @@ test('detail: simple chapter list, accurate read flags, mobile read action and d
         await expect(page.getByRole('navigation', { name: 'Phân trang chương' })).toHaveCount(0);
         await expect(page.locator('.sc-chapter-position')).toHaveCount(0);
         if (role === 'READER') {
+          await expect(page.getByTestId('read-chapter-c-2').locator('xpath=ancestor::tr')).not.toHaveAttribute('data-read');
           await expect(main).toHaveText('menu_bookĐọc tiếp · Chương 52');
           await expect(page.locator('#reader-chapters tr[data-read]')).toHaveCount(2);
           const readColor = await table.nth(0).locator('.sc-reader-chapter-title').evaluate(node => getComputedStyle(node).color);
@@ -124,6 +127,10 @@ test('detail: simple chapter list, accurate read flags, mobile read action and d
           activeUser = 'reader-2'; await page.reload();
           await expect(page.locator('#reader-chapters tr[data-read]')).toHaveCount(0);
           activeUser = 'reader';
+          currentChapterId = 'c-2'; await page.reload();
+          await expect(main).toHaveText('menu_bookBắt đầu đọc');
+          await expect(main).toHaveAttribute('href', '/reader/chapters/c-1');
+          await expect(page.getByTestId('read-chapter-c-2').locator('xpath=ancestor::tr')).not.toHaveAttribute('data-read');
           invalidHistory = true; await page.reload();
           await expect(main).toHaveText('menu_bookBắt đầu đọc');
           await expect(main).toHaveAttribute('href', '/reader/chapters/c-1');

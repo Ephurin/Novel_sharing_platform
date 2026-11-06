@@ -74,6 +74,7 @@ Each result includes `latestChapter` (or `null`), containing the latest publishe
 | `q` | Keyword. |
 | `genre` | Genre name or slug, including secondary genres. |
 | `tag` | Tag filter. |
+| `genres`, `tags` | Repeat each parameter to select multiple names/slugs; the novel must match every selected genre and tag. Legacy `genre`/`tag` may be combined with them. |
 | `status` | Story status: `ONGOING`, `COMPLETED` or `HIATUS`. Can be combined with genre/tag filters. |
 | `sort` | `relevance`, `views`, `likes`, `updatedAt`, `wordCount`, `title`. `wordCount` sums only published, non-deleted chapters; `title` sorts case-insensitively. |
 | `page`, `limit`, `order` | Pagination conventions. |
@@ -191,6 +192,8 @@ Get published chapter reading content.
 
 ### PUT /reading/history/me
 
+The chapter must belong to the published novel and the authenticated account must be active. VIP writes require the same entitlement as reading the content (unlock, owning author, or entitled content admin). A rejected write leaves history unchanged. Saving a position never marks a chapter as read.
+
 Sync latest reading position.
 
 **Auth:** Required  
@@ -221,11 +224,13 @@ Sync latest reading position.
 }
 ```
 
-**Errors:** `CONTENT_001`, `VALIDATION_001`
+**Errors:** `CONTENT_001`, `VALIDATION_001`, `PAYMENT_002` (402: locked VIP), `AUTH_008` (403: inactive/stale account role)
 
 ### GET /reading/history/me
 
 List current user's reading history.
+
+Each item includes `readChapterIds`, containing only that user's chapters verified by successful authorized content GETs. Resume pointers and browser storage are not proof of a read.
 
 **Auth:** Required  
 **Roles:** Reader, Author, Admin
@@ -233,6 +238,8 @@ List current user's reading history.
 ### GET /reading/history/me/{novelId}
 
 Get current user's latest reading position for one novel.
+
+The response also includes verified `readChapterIds` for the novel. Migration `023_verified_chapter_reads.sql` leaves rows created by earlier unverified-history backfills unverified; opening their content successfully verifies them. Existing positions remain available, but the UI must not infer read markers or a direct resume target from them alone.
 
 **Auth:** Required  
 **Roles:** Reader, Author, Admin

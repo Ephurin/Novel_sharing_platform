@@ -1,14 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp } from 'node:fs/promises';
-import os from 'node:os';
+import { readerEvidence } from './reader-browser-evidence.mjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
 import { chromium, expect } from '@playwright/test';
 
 test('public homepage keeps root URL, uses live catalog sections and links guests/readers to their catalog', { timeout: 180000 }, async () => {
-  const output = await mkdtemp(path.join(os.tmpdir(), 'storycraft-reader-home-'));
+  const output = await readerEvidence('storycraft-reader-home-');
   const server = await preview({ root: fileURLToPath(new URL('../', import.meta.url)), preview: { host: '127.0.0.1', port: 0 } });
   const browser = await chromium.launch({ headless: true, channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome' });
   const base = `http://127.0.0.1:${server.httpServer.address().port}`;

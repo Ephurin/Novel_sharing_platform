@@ -1,7 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp } from 'node:fs/promises';
-import os from 'node:os';
+import { readerEvidence } from './reader-browser-evidence.mjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
@@ -45,7 +44,7 @@ async function toggleWithStableLayout(page, button, pressed, message) {
 }
 
 test('reader detail: unified follow/library, five-line synopsis and dedicated 10-point review page', { timeout: 180000 }, async () => {
-  const output = await mkdtemp(path.join(os.tmpdir(), 'storycraft-reader-detail-'));
+  const output = await readerEvidence('storycraft-reader-detail-');
   const server = await preview({ root: fileURLToPath(new URL('../', import.meta.url)), preview: { host: '127.0.0.1', port: 0 } });
   const browser = await chromium.launch({ headless: true, channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome' });
   const base = `http://127.0.0.1:${server.httpServer.address().port}`;
