@@ -24,7 +24,7 @@ export function NovelQuickPreview({ novel, to }: { novel: ReaderNovel; to: strin
           <Popover.Close asChild><button type="button" className="sc-home-preview-close" aria-label="Đóng xem nhanh"><span className="material-symbols-outlined" aria-hidden="true">close</span></button></Popover.Close>
         </header>
         {novel.authorName && <Link className="sc-home-preview-author" to={`/authors/${novel.authorId}`}>{novel.authorName}</Link>}
-        {genres.length > 0 && <p className="sc-home-preview-meta">{genres.join(' · ')}</p>}
+        {genres.length > 0 && <p className="sc-home-preview-meta" translate="no">{genres.join(' · ')}</p>}
         <p className="sc-home-preview-synopsis">{novel.synopsis?.trim() || 'Chưa có giới thiệu.'}</p>
         {(novel.chaptersCount != null || novel.viewsCount != null) && <p className="sc-home-preview-meta">{[
           novel.chaptersCount != null ? `${novel.chaptersCount.toLocaleString('vi-VN')} chương` : null,

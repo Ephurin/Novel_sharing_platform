@@ -113,8 +113,8 @@ export async function listReadingFilters() {
 export async function searchPublishedNovels(input: SearchNovelsInput) {
   const offset = (input.page - 1) * input.limit;
   const search = input.q ? `%${input.q}%` : null;
-  const genre = input.genre ? input.genre.toLowerCase() : null;
-  const tag = input.tag ? input.tag.toLowerCase() : null;
+  const genres = [...new Set([input.genre, ...(input.genres ?? [])].filter((value): value is string => Boolean(value)).map(value => value.toLowerCase()))];
+  const tags = [...new Set([input.tag, ...(input.tags ?? [])].filter((value): value is string => Boolean(value)).map(value => value.toLowerCase()))];
   const orderDirection = input.order === 'asc' ? 'asc' : 'desc';
   const sortExpression =
     input.sort === 'views'
@@ -154,18 +154,18 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
       where n.deleted_at is null
         and n.status = 'PUBLISHED'
         and ($1::text is null or n.title ilike $1 or n.synopsis ilike $1)
-        and ($2::text is null or lower(g.slug) = $2 or lower(g.name) = $2 or exists (
+        and not exists (select 1 from unnest($2::text[]) as selected(value) where not (coalesce(lower(g.slug) = selected.value or lower(g.name) = selected.value, false) or exists (
           select 1 from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
-          where ng.novel_id = n.novel_id and (lower(gg.slug) = $2 or lower(gg.name) = $2)))
-        and ($3::text is null or exists (
+          where ng.novel_id = n.novel_id and (lower(gg.slug) = selected.value or lower(gg.name) = selected.value))))
+        and not exists (select 1 from unnest($3::text[]) as selected(value) where not exists (
           select 1 from novel_tags ntf join tags tf on tf.tag_id = ntf.tag_id
-          where ntf.novel_id = n.novel_id and (lower(tf.slug) = $3 or lower(tf.name) = $3)))
+          where ntf.novel_id = n.novel_id and (lower(tf.slug) = selected.value or lower(tf.name) = selected.value)))
         and ($4::novel_serial_status is null or n.serial_status = $4)
       group by n.novel_id, up.display_name, u.username, g.name
       order by ${sortExpression} ${orderDirection}, n.novel_id asc
       limit $5 offset $6
     `,
-    [search, genre, tag, input.status ?? null, input.limit, offset]
+    [search, genres, tags, input.status ?? null, input.limit, offset]
   );
 
   const countResult = await getPostgresPool().query(
@@ -178,15 +178,15 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
       where n.deleted_at is null
         and n.status = 'PUBLISHED'
         and ($1::text is null or n.title ilike $1 or n.synopsis ilike $1)
-        and ($2::text is null or lower(g.slug) = $2 or lower(g.name) = $2 or exists (
+        and not exists (select 1 from unnest($2::text[]) as selected(value) where not (coalesce(lower(g.slug) = selected.value or lower(g.name) = selected.value, false) or exists (
           select 1 from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
-          where ng.novel_id = n.novel_id and (lower(gg.slug) = $2 or lower(gg.name) = $2)))
-        and ($3::text is null or exists (
+          where ng.novel_id = n.novel_id and (lower(gg.slug) = selected.value or lower(gg.name) = selected.value))))
+        and not exists (select 1 from unnest($3::text[]) as selected(value) where not exists (
           select 1 from novel_tags ntf join tags tf on tf.tag_id = ntf.tag_id
-          where ntf.novel_id = n.novel_id and (lower(tf.slug) = $3 or lower(tf.name) = $3)))
+          where ntf.novel_id = n.novel_id and (lower(tf.slug) = selected.value or lower(tf.name) = selected.value)))
         and ($4::novel_serial_status is null or n.serial_status = $4)
     `,
-    [search, genre, tag, input.status ?? null]
+    [search, genres, tags, input.status ?? null]
   );
 
   return {

@@ -74,7 +74,7 @@ export function NovelOverview({ novel, chapters, authorLink, notice, actions }: 
       <div className="sc-novel-description">
         <Link to={`${catalogPath}?status=${encodeURIComponent(labels[statusCode] ? statusCode : 'ONGOING')}`} className="sc-reader-status" title={`Tìm truyện ${status.toLocaleLowerCase('vi-VN')}`}>{status}</Link>
         <h1 className="text-page-title">{novel.title}</h1>
-        <div className="sc-reader-taxonomy" aria-label="Thể loại và thẻ">
+        <div className="sc-reader-taxonomy" aria-label="Thể loại và thẻ" translate="no">
           {!!genres.length && <div className="sc-reader-genres" aria-label="Thể loại">{genres.map(genre => <Link key={genre} to={`${catalogPath}?genre=${encodeURIComponent(genre)}`} className="sc-genre-tag">{genre}</Link>)}</div>}
           {!!novel.tags?.length && <div className="sc-reader-tags" aria-label="Thẻ">{novel.tags.map(tag => <Link key={tag} to={`${catalogPath}?tag=${encodeURIComponent(tag)}`} className="sc-reader-tag">#{tag}</Link>)}</div>}
         </div>

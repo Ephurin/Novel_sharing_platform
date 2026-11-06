@@ -126,8 +126,8 @@ test('reader detail: unified follow/library, five-line synopsis and dedicated 10
         await page.locator('.sc-reader-genres').getByRole('link', { name: 'Fantasy', exact: true }).click();
         await expect(page).toHaveURL(`${base}${prefix}?genre=Fantasy`);
         if (width < 768) await page.getByRole('button', { name: 'Bộ lọc', exact: true }).click();
-        await expect(page.getByRole('textbox', { name: 'Lọc theo thể loại', exact: true })).toHaveValue('Fantasy');
-        await expect.poll(() => searchParams?.get('genre')).toBe('Fantasy');
+        await expect(page.locator('.mantine-MultiSelect-pill').filter({ hasText: 'Fantasy' })).toBeVisible();
+        await expect.poll(() => searchParams?.get('genres')).toBe('Fantasy');
         await page.goto(detail);
         await page.locator('.sc-reader-status').click();
         await expect(page).toHaveURL(`${base}${prefix}?status=ONGOING`);
@@ -138,8 +138,8 @@ test('reader detail: unified follow/library, five-line synopsis and dedicated 10
         await page.locator('.sc-reader-tags').getByRole('link', { name: '#Adventure', exact: true }).click();
         await expect(page).toHaveURL(`${base}${prefix}?tag=Adventure`);
         if (width < 768) await page.getByRole('button', { name: 'Bộ lọc', exact: true }).click();
-        await expect(page.getByRole('textbox', { name: 'Lọc theo thẻ', exact: true })).toHaveValue('Adventure');
-        await expect.poll(() => searchParams?.get('tag')).toBe('Adventure');
+        await expect(page.locator('.mantine-MultiSelect-pill').filter({ hasText: 'Adventure' })).toBeVisible();
+        await expect.poll(() => searchParams?.get('tags')).toBe('Adventure');
         await page.goto(detail);
         if (role === 'READER') {
           const bell = page.getByTestId('reader-notifications-btn');

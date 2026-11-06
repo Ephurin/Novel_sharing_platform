@@ -82,6 +82,8 @@ export type SearchPublishedNovelsInput = {
   q?: string;
   genre?: string;
   tag?: string;
+  genres?: string[];
+  tags?: string[];
   status?: 'ONGOING' | 'COMPLETED' | 'HIATUS' | '';
   sort?: 'relevance' | 'views' | 'likes' | 'updatedAt' | 'wordCount' | 'title';
   order?: 'asc' | 'desc';
@@ -99,10 +101,13 @@ export async function searchPublishedNovels(input: SearchPublishedNovelsInput, s
 export async function searchPublishedNovelPage(input: SearchPublishedNovelsInput & { page?: number; limit?: number }, signal?: AbortSignal) {
   const response = await apiClient.get<ApiEnvelope<ReaderNovel[]>>('/reading/search', {
     signal,
+    paramsSerializer: { indexes: null },
     params: {
       q: input.q || undefined,
       genre: input.genre || undefined,
       tag: input.tag || undefined,
+      genres: input.genres?.length ? input.genres : undefined,
+      tags: input.tags?.length ? input.tags : undefined,
       status: input.status || undefined,
       page: input.page ?? 1,
       limit: input.limit ?? 20,

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDebouncedValue } from '@mantine/hooks';
-import { Pagination, Select, TextInput } from '@mantine/core';
+import { MultiSelect, NativeSelect, Pagination, TextInput } from '@mantine/core';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { ResponsiveFilters } from '../../shared/components/InteractionWidgets';
@@ -19,7 +19,7 @@ const sorts = [
   ['title:asc', 'Tên truyện: A–Z'], ['title:desc', 'Tên truyện: Z–A']
 ];
 const statuses = [['', 'Tất cả'], ['ONGOING', 'Đang ra'], ['COMPLETED', 'Hoàn thành'], ['HIATUS', 'Tạm ngưng']];
-const defaults = { q: '', genre: '', tag: '', status: '', sort: 'updatedAt:desc', page: 1 };
+const defaults = { q: '', genre: [] as string[], tag: [] as string[], status: '', sort: 'updatedAt:desc', page: 1 };
 
 export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) {
   const client = useQueryClient();
@@ -30,7 +30,7 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
   const [sortField, order] = sort.split(':');
   const key = ['reader-catalog', publicMode, debounced, genre, tag, status, sort, page];
   const result = useQuery({ queryKey: key, queryFn: ({ signal }) => searchPublishedNovelPage({
-    q: debounced.trim(), genre, tag, status: status as SearchPublishedNovelsInput['status'],
+    q: debounced.trim(), genres: genre, tags: tag, status: status as SearchPublishedNovelsInput['status'],
     sort: sortField as SearchPublishedNovelsInput['sort'], order: order as 'asc' | 'desc', page, limit: 20
   }, signal), enabled: !waiting });
   useEffect(() => { if (waiting) void client.cancelQueries({ queryKey: key, exact: true }); }, [waiting, client, JSON.stringify(key)]);
@@ -43,18 +43,19 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
   const reset = () => filters.update(defaults);
   const active = [
     ...(q ? [{ id: 'q', label: `Tìm: ${q}`, onRemove: () => change({ q: '' }) }] : []),
-    ...(genre ? [{ id: 'genre', label: `Thể loại: ${genre}`, onRemove: () => change({ genre: '' }) }] : []),
-    ...(tag ? [{ id: 'tag', label: `Thẻ: ${tag}`, onRemove: () => change({ tag: '' }) }] : []),
+    ...genre.map(name => ({ id: `genre:${name}`, label: `Thể loại: ${name}`, onRemove: () => change({ genre: genre.filter(item => item !== name) }) })),
+    ...tag.map(name => ({ id: `tag:${name}`, label: `Thẻ: ${name}`, onRemove: () => change({ tag: tag.filter(item => item !== name) }) })),
     ...(status ? [{ id: 'status', label: `Trạng thái: ${statuses.find(item => item[0] === status)?.[1]}`, onRemove: () => change({ status: '' }) }] : []),
     ...(sort !== defaults.sort ? [{ id: 'sort', label: `Sắp xếp: ${sorts.find(item => item[0] === sort)?.[1]}`, onRemove: () => change({ sort: defaults.sort }) }] : [])
   ];
   const taxonomy = useQuery({ queryKey: ['reading-filters'], queryFn: getReadingFilters, staleTime: 60_000 });
   const items = busy ? [] : result.data?.items ?? [];
   const base = publicMode ? '/public' : '/reader';
-  const select = (field: 'genre' | 'tag', label: string, data: string[]) => <Select value={filters.values[field] || null}
-    aria-label={label} placeholder={label} searchable clearable data={data}
-    onChange={value => change({ [field]: value ?? '' })} nothingFoundMessage="Không có lựa chọn phù hợp"
-    clearButtonProps={{ 'aria-label': `Bỏ ${label.toLowerCase()}`, 'aria-hidden': false, tabIndex: 0 }} comboboxProps={{ withinPortal: false }} />;
+  const select = (field: 'genre' | 'tag', label: string, data: string[]) => <div translate="no"><MultiSelect value={filters.values[field]}
+    label={field === 'genre' ? 'Thể loại' : 'Thẻ'} aria-label={label} placeholder={filters.values[field].length ? undefined : label}
+    searchable clearable hidePickedOptions data={[...new Set([...data, ...filters.values[field]])].map(name => ({ value: name, label: name }))}
+    onChange={value => change({ [field]: value })} nothingFoundMessage="Không có lựa chọn phù hợp"
+    clearButtonProps={{ 'aria-label': `Bỏ ${label.toLowerCase()}`, 'aria-hidden': false, tabIndex: 0 }} comboboxProps={{ withinPortal: false }} /></div>;
 
   return <div className="sc-catalog">
     <h1 className="text-page-title">{publicMode ? 'Thư viện công khai' : 'Danh sách truyện'}</h1>
@@ -64,16 +65,14 @@ export function ReaderCatalog({ publicMode = false }: { publicMode?: boolean }) 
       <div className="sc-catalog-filter-row">
         {select('genre', 'Lọc theo thể loại', taxonomy.data?.genres ?? [])}
         {select('tag', 'Lọc theo thẻ', taxonomy.data?.tags ?? [])}
-        <label className="sc-catalog-sort" htmlFor="reader-sort">Sắp xếp<select id="reader-sort" value={sort} onChange={event => change({ sort: event.target.value })}>
-          {sorts.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-        </select></label>
+        <NativeSelect label="Sắp xếp" id="reader-sort" value={sort} onChange={event => change({ sort: event.target.value })} data={sorts.map(([value, label]) => ({ value, label }))} />
       </div>
       <div className="sc-catalog-status" role="group" aria-label="Lọc theo trạng thái">
         {statuses.map(([value, label]) => <button key={value} type="button" aria-pressed={status === value} onClick={() => change({ status: value })}>{label}</button>)}
       </div>
       {taxonomy.isError && <button type="button" className="sc-button" onClick={() => void taxonomy.refetch()}>Tải lại bộ lọc</button>}
     </ResponsiveFilters>
-    {active.length > 0 && <div className="sc-catalog-active"><ActiveFilterChips items={active} /><button type="button" className="sc-button" onClick={reset}>Xóa tất cả bộ lọc</button></div>}
+    {active.length > 0 && <div className="sc-catalog-active" translate="no"><ActiveFilterChips items={active} /><button type="button" className="sc-button" onClick={reset}>Xóa tất cả bộ lọc</button></div>}
     <p className="sc-catalog-summary" role="status" aria-atomic="true">{busy ? 'Đang tải danh sách truyện…' : result.isError ? '' : `${result.data?.totalItems ?? 0} truyện · Trang ${page} / ${result.data?.totalPages ?? 1}`}</p>
     <section aria-label="Kết quả truyện" aria-busy={busy || result.isFetching}>
       <HomeSectionState query={{ isPending: busy, isError: !busy && result.isError, data: busy ? undefined : items, refetch: result.refetch }}

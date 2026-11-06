@@ -56,12 +56,12 @@ test('reader catalog: cover cards, unified sorting, selectable filters and scrol
         await expect.poll(() => `${searchParams?.get('sort')}:${searchParams?.get('order')}`).toBe('title:asc');
         await page.getByRole('textbox', { name: 'Lọc theo thể loại', exact: true }).click();
         await page.getByRole('option', { name: 'Fantasy', exact: true }).click();
-        await expect.poll(() => searchParams?.get('genre')).toBe('Fantasy');
+        await expect.poll(() => searchParams?.get('genres')).toBe('Fantasy');
         await page.getByRole('textbox', { name: 'Lọc theo thẻ', exact: true }).fill('Mag');
         await page.getByRole('option', { name: 'Magic', exact: true }).click();
-        await expect.poll(() => searchParams?.get('tag')).toBe('Magic');
+        await expect.poll(() => searchParams?.get('tags')).toBe('Magic');
         await page.getByRole('button', { name: 'Bỏ lọc theo thể loại', exact: true }).click();
-        await expect.poll(() => searchParams?.get('genre')).toBe(null);
+        await expect.poll(() => searchParams?.get('genres')).toBe(null);
         if (width === 390) {
           await page.getByRole('button', { name: 'Xem kết quả', exact: true }).click();
           await expect(page.getByRole('dialog', { name: 'Bộ lọc', exact: true })).toHaveCount(0);
