@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import { Link, useLocation } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
@@ -123,15 +124,20 @@ function ExpandableSynopsis({ text, id }: { text: string; id: string }) {
   const element = useRef<HTMLParagraphElement>(null);
   const [expanded, setExpanded] = useState(false);
   const [overflows, setOverflows] = useState(false);
+  const [height, setHeight] = useState<number>();
+  const reduce = useReducedMotion();
   useLayoutEffect(() => setExpanded(false), [text]);
   useLayoutEffect(() => {
     const paragraph = element.current;
     if (!paragraph) return;
-    const measure = () => { if (!expanded) setOverflows(paragraph.scrollHeight > paragraph.clientHeight + 1); };
+    const measure = () => {
+      if (!expanded) setOverflows(paragraph.scrollHeight > paragraph.clientHeight + 1);
+      setHeight(paragraph.getBoundingClientRect().height);
+    };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(paragraph);
     return () => observer.disconnect();
   }, [text, expanded]);
-  return <><p id={id} ref={element} className={expanded ? undefined : 'sc-reader-synopsis-collapsed'}>{text}</p>{overflows && <button type="button" className="sc-reader-synopsis-toggle" aria-expanded={expanded} aria-controls={id} onClick={() => setExpanded(value => !value)}>{expanded ? 'Ẩn bớt' : 'Xem thêm'}</button>}</>;
+  return <><motion.div initial={false} animate={{ height: height ?? 'auto' }} style={{ overflow: 'hidden' }} transition={{ duration: reduce ? 0 : .18 }}><p id={id} ref={element} className={expanded ? undefined : 'sc-reader-synopsis-collapsed'}>{text}</p></motion.div>{overflows && <button type="button" className="sc-reader-synopsis-toggle" aria-expanded={expanded} aria-controls={id} onClick={() => setExpanded(value => !value)}>{expanded ? 'Ẩn bớt' : 'Xem thêm'}</button>}</>;
 }
