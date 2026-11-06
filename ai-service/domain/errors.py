@@ -70,3 +70,9 @@ class AnalysisOutputError(ValueError):
     def __init__(self, code, message, *, attempts=0):
         super().__init__(message)
         self.code, self.attempts = code, attempts
+
+
+class BootstrapConflictError(NarrativeRepositoryError):
+    def __init__(self, code: str):
+        self.code = code
+        super().__init__(code)

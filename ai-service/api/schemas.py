@@ -1,22 +1,22 @@
 """
-Pydantic schemas cho tất cả API endpoints.
+Pydantic schemas cho táº¥t cáº£ API endpoints.
 
-Tập trung toàn bộ request/response models tại đây để:
-- routes.py chỉ chứa logic xử lý
-- Dễ tìm kiếm và chỉnh sửa cấu trúc dữ liệu
-- Tái sử dụng models giữa các router
+Táº­p trung toÃ n bá»™ request/response models táº¡i Ä‘Ã¢y Ä‘á»ƒ:
+- routes.py chá»‰ chá»©a logic xá»­ lÃ½
+- Dá»… tÃ¬m kiáº¿m vÃ  chá»‰nh sá»­a cáº¥u trÃºc dá»¯ liá»‡u
+- TÃ¡i sá»­ dá»¥ng models giá»¯a cÃ¡c router
 """
 
-from typing import Any
+from typing import Literal, Any
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from core.candidate_processor import Candidate
 from core.story_kb_manager import EventHistoryEntry, CurrentWorldState
 
 
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 #  Shared / Reusable schemas
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class ConsistencyWarning(BaseModel):
     code: str
@@ -100,6 +100,7 @@ class BootstrapOptions(BaseModel):
 
 
 class ManuscriptBootstrapRequest(BaseModel):
+    idempotency_key: str | None = Field(default=None, min_length=1, max_length=128)
     novel_id: str = Field(min_length=1)
     revisions: list[BootstrapRevisionInput] = Field(min_length=1)
     locale: str = "vi-VN"
@@ -107,12 +108,16 @@ class ManuscriptBootstrapRequest(BaseModel):
 
 
 class IdeaBootstrapPreferences(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     genre: list[str] = Field(default_factory=list)
     tone: str = "neutral"
     target_length: str = "long_form"
 
 
 class IdeaBootstrapRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    mode: Literal["extract", "blueprint"] = "blueprint"
+    idempotency_key: str | None = Field(default=None, min_length=1, max_length=128)
     novel_id: str = Field(min_length=1)
     idea: str = Field(min_length=1)
     outline: str | None = None
@@ -174,9 +179,9 @@ class EntityMergeRequest(ProposalDecisionRequest):
     target_entity_id: str = Field(min_length=1)
 
 
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 #  /extract-entities
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class ExtractEntitiesRequest(BaseModel):
     text: str = Field(..., min_length=1, description="Raw paragraph text")
@@ -201,9 +206,9 @@ class ExtractEntitiesResponse(BaseModel):
     processing_ms: float
 
 
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 #  /graph/related
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class GraphLookupRequest(BaseModel):
     entity: str = Field(..., min_length=1)
@@ -220,9 +225,9 @@ class GraphLookupResponse(BaseModel):
     related: list[GraphRelationOut]
 
 
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 #  /llm/generate
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class LLMGenerateRequest(BaseModel):
     prompt: str = Field(..., min_length=1)
@@ -235,9 +240,9 @@ class LLMGenerateResponse(BaseModel):
     output: str
 
 
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 #  /suggest-next
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class SuggestNextRequest(BaseModel):
     character_name: str = Field(..., min_length=1)
@@ -273,9 +278,9 @@ class SuggestNextResponse(BaseModel):
     processing_ms: float
 
 
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 #  /sync-story
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class SyncStoryRequest(BaseModel):
     story_id: str = Field(..., min_length=1)
@@ -312,9 +317,9 @@ class SyncStoryResponse(BaseModel):
     processing_ms: float
 
 
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 #  /analyze/chapter
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class AnalyzeChapterRequest(BaseModel):
     story_id: str = Field(..., min_length=1)
@@ -327,9 +332,9 @@ class AnalyzeChapterResponse(BaseModel):
     processing_ms: float
 
 
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 #  /kb/confirm
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class ConfirmKBRequest(BaseModel):
     story_id: str = Field(..., min_length=1)
@@ -345,9 +350,9 @@ class ConfirmKBResponse(BaseModel):
     processing_ms: float
 
 
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 #  /enhanced/process-interactions  (interactions.py)
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class ProcessInteractionsRequest(BaseModel):
     story_id: str = Field(..., min_length=1)
@@ -362,9 +367,9 @@ class RelationOverrideRequest(BaseModel):
     object: str = Field(..., min_length=1)
 
 
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 #  Writing Generation & Context Preview Schemas
-# ──────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 class WritingGenerationSelection(BaseModel):
     start: int | None = None
