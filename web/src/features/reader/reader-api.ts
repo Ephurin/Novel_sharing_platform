@@ -92,8 +92,9 @@ export async function getReadingFilters() {
   return response.data.data;
 }
 
-export async function searchPublishedNovels(input: SearchPublishedNovelsInput) {
+export async function searchPublishedNovels(input: SearchPublishedNovelsInput, signal?: AbortSignal) {
   const response = await apiClient.get<ApiEnvelope<ReaderNovel[]>>('/reading/search', {
+    signal,
     params: {
       q: input.q || undefined,
       genre: input.genre || undefined,
@@ -118,8 +119,8 @@ export async function saveReadingPreferences(input: ReadingPreferences) {
   return response.data.data;
 }
 
-export async function getReaderNovel(novelId: string) {
-  const response = await apiClient.get<ApiEnvelope<ReaderNovel & { chapters?: ReaderChapter[] }>>(`/reading/novels/${novelId}`);
+export async function getReaderNovel(novelId: string, signal?: AbortSignal) {
+  const response = await apiClient.get<ApiEnvelope<ReaderNovel & { chapters?: ReaderChapter[] }>>(`/reading/novels/${novelId}`, { signal });
   return response.data.data;
 }
 

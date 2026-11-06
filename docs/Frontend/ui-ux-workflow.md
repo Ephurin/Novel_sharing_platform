@@ -29,6 +29,15 @@ Giữ các phiên bản đã có trong `web/package.json`. Dùng primitive Anima
 - `HomeResults` dùng Motion cho chuyển trang nổi bật theo hướng trước/sau; các gợi ý giữ key để đổi vị trí mềm hơn. Reduced motion cập nhật ngay, thao tác nhanh không chờ animation.
 - `HomeSectionState` dùng skeleton theo card/danh sách, lỗi có nút Thử lại và thể loại rỗng có nút Bỏ bộ lọc. Vùng khám phá dùng một thông báo tải cho screen reader.
 
+### Tìm kiếm và cá nhân hóa
+
+- `HomeSearch`: combobox + Popover Animate UI, debounce 250ms, tối thiểu 2 ký tự, tối đa 5 gợi ý; hủy request cũ qua AbortSignal. Mũi tên chọn, Enter mở truyện, Escape đóng; Enter khi chưa chọn mở danh sách kết quả. Khi tên dài, lựa chọn bằng bàn phím được cuộn vào vùng nhìn thấy.
+- Xem nhanh: độc giả có nút Theo dõi/Bỏ theo dõi truyện qua API theo dõi thống nhất hiện có; truyện được theo dõi xuất hiện trong thư viện. Trạng thái lấy từ statistics theo truyện và tài khoản. Toast xác nhận hoặc báo lỗi; lỗi không đổi trạng thái cũ. Khách được dẫn tới đăng nhập, không gọi API riêng tư.
+- URL trang chủ: `featured=views|likes|updatedAt`, `genre=<tên>`, `page=<số trang từ 1>`. Tái sử dụng `useUrlFilters` để Back/refresh khôi phục điều kiện; dùng `useListScroll` cho vị trí cuộn. Các thay đổi bộ lọc thay thế entry trang chủ, không tạo lịch sử cho mỗi lần bấm.
+- Mobile: Collapsible thu gọn danh sách thể loại dài. Thể loại đang chọn vẫn xuất hiện khi thu gọn; nhóm ẩn không nhận focus hay xuất hiện trong accessibility tree.
+- `ContinueReading`: chỉ đọc lịch sử của độc giả đã đăng nhập; cache lịch sử/detail tách theo userId. Lấy danh sách chương công khai để tính **vị trí chương**, không suy diễn phần trăm đã đọc nội dung chương. Chương không còn khả dụng dẫn về trang truyện.
+- Accessibility: skip link, focus rõ, kiểm tra tương phản chữ chính/metadata, dấu phân trang, 320px, zoom 200%, reduced motion và luồng bàn phím. Đây là kiểm tra phạm vi trang chủ, không phải chứng nhận WCAG cho toàn sản phẩm.
+
 ## Màn hình thử nghiệm: trang chủ `/`
 
 Mục tiêu chính: tìm truyện để đọc.
@@ -52,7 +61,7 @@ Tại `web/`:
 npm run typecheck
 npm run build
 npm run test:contrast
-node --test --test-concurrency=1 tests/reader-home.browser.test.mjs tests/reader-home-recovery.browser.test.mjs tests/reader-catalog.browser.test.mjs
+node --test --test-concurrency=1 tests/reader-home-personalization.browser.test.mjs tests/reader-home-accessibility.browser.test.mjs tests/reader-home.browser.test.mjs tests/reader-home-recovery.browser.test.mjs tests/reader-catalog.browser.test.mjs
 ```
 
 Kiểm thử trang chủ sử dụng API giả lập, không ghi dữ liệu thật. Bao gồm khách/độc giả, sáng/tối, 375/768/1024/1440px, ảnh chụp giao diện, điều hướng, chọn bằng bàn phím, chọn lại mục hiện tại, trạng thái tải/rỗng và reduced motion ở 375px.

@@ -1,12 +1,16 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'motion/react';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
 import { AnimatedChoiceGroup } from '../../shared/components/AnimatedChoiceGroup';
 import { HomeResults, HomeSectionState, NovelQuickPreview } from './HomeEnhancements';
 import { useAuthStore } from '../auth/useAuthStore';
 import { getReadingFilters, searchPublishedNovels, type ReaderNovel } from './reader-api';
+import { useListScroll, useUrlFilters } from '../../shared/components/WorkspacePreferences';
+import { HomeSearch } from './HomeSearch';
+import { HomeGenres } from './HomeGenres';
+import { ContinueReading } from './HomePersonalization';
 import './reader-home.css';
 
 const featureTabs = [
@@ -41,13 +45,12 @@ function relativeTime(date?: string | null) {
 
 export function ReaderHomePage() {
   const user = useAuthStore(state => state.user);
-  const navigate = useNavigate();
   const catalogPath = user && user.role !== 'ADMIN' ? '/reader' : '/public';
-  const [search, setSearch] = useState('');
-  const [featureSort, setFeatureSort] = useState<typeof featureTabs[number]['value']>('views');
-  const [featurePage, setFeaturePage] = useState(0);
+  const homeFilters = useUrlFilters({ featured: 'views' as typeof featureTabs[number]['value'], genre: '', page: 1 }, { featured: ['views', 'likes', 'updatedAt'] });
+  const { featured: featureSort, genre, page } = homeFilters.values;
+  const featurePage = page - 1;
+  const setGenre = (next: string) => homeFilters.update({ genre: next });
   const [featureDirection, setFeatureDirection] = useState(0);
-  const [genre, setGenre] = useState('');
   const [seed, setSeed] = useState(() => Date.now());
   const featured = useQuery({ queryKey: ['reader-home-featured', featureSort], queryFn: () => searchPublishedNovels({ sort: featureSort, order: 'desc' }) });
   const popular = useQuery({ queryKey: ['reader-home-featured', 'views'], queryFn: () => searchPublishedNovels({ sort: 'views', order: 'desc' }) });
@@ -55,38 +58,33 @@ export function ReaderHomePage() {
   const completed = useQuery({ queryKey: ['reader-home-completed'], queryFn: () => searchPublishedNovels({ status: 'COMPLETED', sort: 'views', order: 'desc' }) });
   const filters = useQuery({ queryKey: ['reading-filters'], queryFn: getReadingFilters, staleTime: 60_000 });
   const discovery = useQuery({ queryKey: ['reader-home-discovery', genre], queryFn: () => searchPublishedNovels({ genre, sort: 'updatedAt', order: 'desc' }) });
+  useListScroll(!featured.isPending && !discovery.isPending);
   const suggestions = useMemo(() => shuffled(discovery.data ?? [], seed).slice(0, 6), [discovery.data, seed]);
   const featureNovels = (featured.data ?? []).slice(0, 8);
   const featurePages = Math.max(1, Math.ceil(featureNovels.length / 4));
   const currentPage = Math.min(featurePage, featurePages - 1);
   const changeFeaturePage = (page: number) => {
     setFeatureDirection(Math.sign(page - currentPage));
-    setFeaturePage(page);
+    homeFilters.update({ page: page + 1 });
   };
   const novelPath = (novel: ReaderNovel) => `${catalogPath}/novels/${novel.novelId}`;
 
   return <>
+    <a className="sc-home-skip-link" href="#home-main">Đến nội dung chính</a>
     <AuthorNavbar />
-    <main className="sc-shell-content sc-reader-home">
+    <main id="home-main" tabIndex={-1} className="sc-shell-content sc-reader-home">
       <header className="sc-home-intro">
         <h1 className="text-page-title">Góc đọc truyện</h1>
-        <form className="sc-home-search-form" role="search" onSubmit={event => {
-          event.preventDefault();
-          navigate(`${catalogPath}${search.trim() ? `?q=${encodeURIComponent(search.trim())}` : ''}`);
-        }}>
-          <label className="text-form-label" htmlFor="home-search">Tìm truyện</label>
-          <div className="sc-home-search"><Icon name="search" />
-            <input id="home-search" aria-label="Tìm truyện trên trang chủ" placeholder="Bạn muốn đọc truyện gì?" value={search} onChange={event => setSearch(event.target.value)} />
-            <button type="submit" aria-label="Tìm truyện"><Icon name="arrow_forward" /></button>
-          </div>
-        </form>
+        <HomeSearch catalogPath={catalogPath} />
       </header>
+
+      <ContinueReading />
 
       <div className="sc-home-top">
         <section className="sc-home-featured" aria-label="Truyện nổi bật">
           <div className="sc-home-feature-heading">
             <AnimatedChoiceGroup className="sc-home-feature-tabs" label="Chọn truyện nổi bật" controls="home-feature-results" value={featureSort}
-              onChange={value => { setFeatureDirection(0); setFeatureSort(value); setFeaturePage(0); }}
+              onChange={value => { setFeatureDirection(0); homeFilters.update({ featured: value, page: 1 }); }}
               options={featureTabs.map(tab => ({ value: tab.value, label: <><Icon name={tab.icon} />{tab.label}</> }))} />
             <Link className="sc-home-more" to={catalogPath}>Danh sách <Icon name="arrow_forward" /></Link>
           </div>
@@ -122,9 +120,7 @@ export function ReaderHomePage() {
       <section className="sc-home-panel sc-home-discovery" aria-label="Khám phá truyện">
         <div className="sc-home-discovery-heading">
           <HomeHeading title="Khám phá" icon="explore"><button className="sc-home-shuffle" type="button" disabled={discovery.isPending || discovery.isError || suggestions.length < 2} onClick={() => setSeed(value => value + 1)}><Icon name="shuffle" />Đổi gợi ý</button></HomeHeading>
-          <AnimatedChoiceGroup className="sc-home-genres" label="Khám phá theo thể loại" controls="home-discovery-results"
-            value={genre ? `genre:${genre}` : 'all'} onChange={value => setGenre(value === 'all' ? '' : value.slice(6))}
-            options={[{ value: 'all', label: 'Tất cả' }, ...(filters.data?.genres ?? []).map(name => ({ value: `genre:${name}`, label: name }))]} />
+          <HomeGenres genres={filters.data?.genres ?? []} genre={genre} onChange={setGenre} />
         </div>
         {filters.isError && <button type="button" className="sc-home-more" onClick={() => void filters.refetch()}>Tải lại thể loại</button>}
         <p className="sc-home-results-summary text-meta" role="status" aria-atomic="true">{discovery.isPending ? `Đang tìm truyện${genre ? ` ${genre}` : ''}…` : discovery.isError ? '' : `${suggestions.length} gợi ý${genre ? ` cho thể loại ${genre}` : ' dành cho bạn'}`}</p>

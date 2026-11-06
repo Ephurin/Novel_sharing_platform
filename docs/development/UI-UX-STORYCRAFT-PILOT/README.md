@@ -71,3 +71,30 @@ docker compose up -d --no-deps --build web
 5. Chọn Offline rồi chọn thể loại chưa xem; đợi báo lỗi. Chuyển lại Online và bấm Thử lại. Trường hợp thể loại không có truyện có nút Bỏ bộ lọc; kiểm thử tự động đã bao phủ tình huống này.
 
 Đã cập nhật riêng container web và kiểm tra trực tiếp `http://127.0.0.1:8080/` bằng Chrome: có 10 nút xem nhanh, mở/đóng popover thành công, không ghi nhận lỗi JavaScript. Dữ liệu truyện công khai thật được đọc để kiểm tra; không thực hiện thao tác ghi dữ liệu.
+
+## Sáu cải tiến tìm kiếm và cá nhân hóa
+
+1. Gợi ý tìm kiếm bằng Popover, debounce 250ms, ít nhất 2 ký tự. Request cũ bị hủy; mũi tên chọn, Enter mở truyện, Escape đóng. Gợi ý dài tự cuộn vào vùng nhìn thấy khi chọn bằng bàn phím.
+2. Độc giả Theo dõi/Bỏ theo dõi truyện ngay trong xem nhanh, qua API theo dõi hiện có. Truyện theo dõi xuất hiện trong thư viện. Có Toast và trạng thái chờ; lỗi giữ trạng thái cũ. Khách có link đăng nhập.
+3. `featured`, `genre`, `page` trong URL trang chủ giữ bộ lọc qua Back/refresh; tái sử dụng cơ chế lưu vị trí cuộn theo tài khoản của project.
+4. Collapsible thu gọn thể loại trên mobile khi có nhiều lựa chọn; lựa chọn đang dùng vẫn hiện khi đóng. Các nhóm bị ẩn có aria-hidden/inert.
+5. Đọc tiếp dùng lịch sử thật của độc giả, với cache tách theo userId. Progress biểu thị thứ tự chương trong các chương công khai hiện tại, **không** phải tỷ lệ nội dung đã đọc. Chương không còn khả dụng dẫn về trang truyện.
+6. Kiểm tra accessibility: skip link, focus/keyboard, các vai trò chữ chính và metadata đạt 4,5:1 trên nền thực tế, dấu phân trang rõ hơn, reflow 320px, zoom 200% và reduced motion. Phạm vi là trang chủ, không phải chứng nhận WCAG toàn ứng dụng.
+
+Ảnh chụp từ fixture kiểm thử, tổng cộng khoảng 40 KB:
+
+- [Gợi ý tìm kiếm](search-suggestions.png)
+- [Đọc tiếp trên điện thoại](continue-reading.png)
+- [Theo dõi truyện](library-action.png)
+
+Kết quả cuối: typecheck/build qua, 18 kiểm tra token contrast qua, 6 bài browser trong 5 file đều qua (chạy tuần tự):
+
+```powershell
+node --test --test-concurrency=1 tests/reader-home-personalization.browser.test.mjs tests/reader-home-accessibility.browser.test.mjs tests/reader-home.browser.test.mjs tests/reader-home-recovery.browser.test.mjs tests/reader-catalog.browser.test.mjs
+```
+
+Các bài mới bao phủ request bị hủy/kết quả cũ không xuất hiện, bàn phím, tên dài, Back giữ bộ lọc, mobile thu gọn, lưu/bỏ lưu/lưu lỗi, logout và tài khoản khác không thấy lịch sử cũ. Mọi thao tác ghi trong kiểm thử đều dùng API giả lập, không ghi DB thật.
+
+Cách thử sau Ctrl+F5 ở `http://localhost:8080/`: gõ ít nhất 2 ký tự trong tìm kiếm; đổi bộ lọc rồi mở truyện và bấm Back; thu nhỏ dưới 540px để thử Xem thêm thể loại. Đăng nhập bằng tài khoản **READER** để thử Theo dõi truyện; đọc một chương rồi quay về trang chủ để thấy Đọc tiếp.
+
+Đã build lại riêng Docker web và kiểm tra bản đang chạy ở cổng 8080 với dữ liệu công khai thật: gợi ý trả kết quả, lựa chọn sắp xếp xuất hiện trong URL, khách thấy link đăng nhập để lưu truyện; không có request lịch sử/thư viện riêng tư của khách và không có lỗi JavaScript. Kiểm tra trực tiếp này không ghi DB.

@@ -3,6 +3,7 @@ import { Popover } from '@animate-ui/react/primitives/radix-ui/popover';
 import { motion, useAnimationControls, useReducedMotion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import type { ReaderNovel } from './reader-api';
+import { PreviewLibraryAction } from './HomePersonalization';
 
 export function NovelQuickPreview({ novel, to }: { novel: ReaderNovel; to: string }) {
   const titleId = useId();
@@ -26,6 +27,7 @@ export function NovelQuickPreview({ novel, to }: { novel: ReaderNovel; to: strin
           novel.viewsCount != null ? `${novel.viewsCount.toLocaleString('vi-VN')} lượt đọc` : null
         ].filter(Boolean).join(' · ')}</p>}
         <Popover.Close asChild><Link className="sc-home-preview-link" to={to}>Đọc truyện<span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span></Link></Popover.Close>
+        <PreviewLibraryAction novelId={novel.novelId} authorId={novel.authorId} />
       </Popover.Content>
     </Popover.Portal>
   </Popover.Root>;

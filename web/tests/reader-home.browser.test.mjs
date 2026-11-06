@@ -121,7 +121,7 @@ test('public homepage keeps root URL, uses live catalog sections and links guest
         if (width === 375) await page.getByRole('button', { name: 'Bộ lọc', exact: true }).click();
         await expect(page.getByRole('textbox', { name: 'Lọc theo thể loại', exact: true })).toHaveValue('Đời thường');
         await page.goto(base);
-        await page.getByRole('textbox', { name: 'Tìm truyện trên trang chủ', exact: true }).fill('Hành trình');
+        await page.getByRole('combobox', { name: 'Tìm truyện trên trang chủ', exact: true }).fill('Hành trình');
         await page.getByRole('search').getByRole('button', { name: 'Tìm truyện', exact: true }).click();
         await expect(page).toHaveURL(new RegExp(`${catalog}\\?q=`));
         if (width === 375) await page.getByRole('button', { name: 'Bộ lọc', exact: true }).click();
