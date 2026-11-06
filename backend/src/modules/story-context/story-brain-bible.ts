@@ -86,6 +86,11 @@ export async function applyApprovedMemoryToBible(novelId: string, userId: string
         where novel_id=$1 and character_id=$2`, [novelId, targetId,
         target.role === 'MINOR' ? source.role : target.role, target.personality || source.personality,
         target.description || source.description, notes, userId]);
+      if (!old.owns_bible_row) {
+        // An explicit merge transfers author ownership along with the source's enrichment.
+        await client.query(`update story_brain_bible_links set owns_bible_row=false
+          where novel_id=$1 and artifact_kind='entity' and bible_id=$2`, [novelId, targetId]);
+      }
       const relationships = (await client.query(`select * from character_relationships where novel_id=$1
         and (source_character_id=$2 or target_character_id=$2) for update`, [novelId, old.bible_id])).rows;
       for (const relation of relationships) {

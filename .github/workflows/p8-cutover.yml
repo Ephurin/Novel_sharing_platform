@@ -223,6 +223,8 @@ jobs:
         run: npx tsx --test src/core/database/test-db-guard.test.ts
       - name: Run Accept Draft trust-contract integration suite
         run: npx tsx --test src/modules/novels/accept-draft-contract.test.ts
+      - name: Run Story Bible author ownership and Canon lifecycle regressions
+        run: npx tsx --test src/modules/story-context/story-brain-bible.postgres.test.ts
       - name: Run PostgreSQL production persistence integration suite
         run: npx tsx --test --test-force-exit src/modules/novels/p1-production-persistence.postgres.test.ts
       - name: Run Fixture lifecycle and teardown resilience integration suite

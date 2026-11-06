@@ -11,6 +11,31 @@ import type {
   UpdateTimelineEventInput
 } from './story-context.schemas.js';
 
+/** Author edits take ownership atomically, using the same novel lock as Canon sync. */
+async function updateAuthorBibleRow(kind: 'entity' | 'event', id: string, sql: string, values: unknown[]) {
+  const [table, key] = kind === 'entity'
+    ? ['character_profiles', 'character_id'] : ['story_timeline_events', 'event_id'];
+  const client = await getPostgresPool().connect();
+  try {
+    await client.query('begin');
+    const row = (await client.query(`select novel_id from ${table} where ${key}=$1`, [id])).rows[0];
+    if (row) {
+      await client.query('select pg_advisory_xact_lock(hashtextextended($1, 0))', [`bible:${row.novel_id}`]);
+    }
+    const result = await client.query(sql, values);
+    if (row && result.rowCount) {
+      // Keep the stable identity link and tombstone behavior, but relinquish projection ownership.
+      await client.query(`update story_brain_bible_links set owns_bible_row=false
+        where novel_id=$1 and artifact_kind=$2 and bible_id=$3`, [row.novel_id, kind, id]);
+    }
+    await client.query('commit');
+    return result;
+  } catch (error) {
+    await client.query('rollback');
+    throw error;
+  } finally { client.release(); }
+}
+
 function mapCharacter(row: QueryResultRow) {
   return {
     characterId: row.character_id,
@@ -134,7 +159,7 @@ export async function createCharacterProfile(
 }
 
 export async function updateCharacterProfile(characterId: string, userId: string, input: UpdateCharacterInput) {
-  const result = await getPostgresPool().query(
+  const result = await updateAuthorBibleRow('entity', characterId,
     `
       update character_profiles
       set
@@ -329,7 +354,7 @@ export async function createTimelineEvent(novelId: string, userId: string, input
 }
 
 export async function updateTimelineEvent(eventId: string, userId: string, input: UpdateTimelineEventInput) {
-  const result = await getPostgresPool().query(
+  const result = await updateAuthorBibleRow('event', eventId,
     `
       update story_timeline_events
       set

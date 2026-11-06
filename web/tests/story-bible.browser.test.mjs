@@ -21,20 +21,23 @@ test('Cẩm nang shows approved knowledge, preserves author enrichment and perfo
     const page = await browser.newPage({ viewport: { width: 1365, height: 900 } });
     let syncs = 0;
     let merged = false;
+    let retired = false;
     let mergePayload;
     await page.route('**/api/v1/**', async route => {
       const path = new URL(route.request().url()).pathname;
       let data = [];
       if (path.endsWith('/novels/novel-bible')) data = { novelId: 'novel-bible', title: 'Approved novel' };
       if (path.endsWith('/characters')) data = [{ characterId: merged ? 'char-2' : 'char-1', name: merged ? 'Fujiyama Amane' : 'Amane', role: 'PROTAGONIST',
-        personality: 'Kind', description: 'Author biography remains', notes: 'My personal notes', source: 'AUTHOR_MANUAL' }];
-      if (path.endsWith('/memory')) data = { brain_version: merged ? 4 : 3, entities: [
+        personality: 'Kind', description: 'Author biography remains', notes: 'My personal notes', source: 'AICOPILOT_SUGGESTION' }];
+      if (path.endsWith('/timeline-events')) data = [{ eventId: 'event-edited', title: 'Author event title',
+        summary: 'Author event summary', chapterId: null, eventOrder: 9, source: 'AICOPILOT_SUGGESTION' }];
+      if (path.endsWith('/memory')) data = { brain_version: retired ? 5 : merged ? 4 : 3, entities: retired ? [] : [
         ...(!merged ? [{ entity_id: 'char-1', name: 'Amane', entity_type: 'PER' }] : []),
         { entity_id: 'char-2', name: 'Fujiyama Amane', entity_type: 'PER' },
         { entity_id: 'location-1', name: 'Hà Nội', entity_type: 'LOC' }],
         facts: [{ fact_id: 'fact-1', subject_entity_id: 'location-1', fact_key: 'Quy tắc thế giới', fact_value: 'Magic is forbidden' }],
         aliases: [], events: [], transitions: [] };
-      if (path.endsWith('/story-bible/sync')) { syncs++; data = { brainVersion: 3 }; }
+      if (path.endsWith('/story-bible/sync')) { syncs++; if (syncs === 2) retired = true; data = { brainVersion: retired ? 5 : 3 }; }
       if (path.endsWith('/entities/merge')) {
         mergePayload = route.request().postDataJSON(); merged = true;
         data = { status: 'merged', brain_version: 4 };
@@ -62,5 +65,28 @@ test('Cẩm nang shows approved knowledge, preserves author enrichment and perfo
     await confirm.click();
     await page.getByText('Đã gộp “Amane” vào “Fujiyama Amane”. Tên cũ được giữ làm tên gọi khác.', { exact: true }).waitFor();
     assert.deepEqual(mergePayload, { source_entity_id: 'char-1', target_entity_id: 'char-2', expected_brain_version: 3 });
+    // The backend retains author-edited projected rows after their Canon sources retire.
+    // Verify the actual export consumes those GET results, rather than filtering by active Canon IDs.
+    const refreshed = page.waitForResponse(async response => response.url().endsWith('/memory')
+      && (await response.json()).data.brain_version === 5);
+    await page.getByRole('button', { name: 'Cập nhật từ Story Brain', exact: true }).click();
+    await refreshed;
+    await page.getByRole('button', { name: 'Địa danh & dữ kiện', exact: true }).click();
+    await page.getByRole('heading', { name: 'Hà Nội', exact: true }).waitFor({ state: 'detached' });
+    const downloading = page.waitForEvent('download');
+    await page.getByRole('button', { name: /Xuất file Bible/ }).click();
+    const download = await downloading;
+    const chunks = [];
+    for await (const chunk of await download.createReadStream()) chunks.push(chunk);
+    const exported = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+    assert.deepEqual(exported.approvedMemory.entities, []);
+    assert.equal(exported.characters.length, 1);
+    assert.equal(exported.characters[0].description, 'Author biography remains');
+    assert.equal(exported.characters[0].notes, 'My personal notes');
+    assert.equal(exported.timelineEvents.length, 1);
+    assert.equal(exported.timelineEvents[0].title, 'Author event title');
+    assert.equal(exported.timelineEvents[0].summary, 'Author event summary');
+    assert.equal(exported.timelineEvents[0].chapterId, null);
+    assert.equal(exported.timelineEvents[0].eventOrder, 9);
   } finally { await browser.close(); await new Promise(resolve => server.close(resolve)); }
 });

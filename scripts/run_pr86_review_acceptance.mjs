@@ -22,7 +22,7 @@ const steps = [
   ['ai-cursor-postgres', 'ai-service', python, ['-m', 'pytest', '-o', 'addopts=', '-m', 'postgres_integration', 'tests/test_writing_cursor_postgres.py', '-q', '--basetemp', path.join(output, 'pytest-postgres')]],
   ['backend-accept-rejection', 'backend', process.execPath, ['scripts/run-isolated-tests.mjs', 'src/modules/novels/accept-draft-contract.test.ts']],
   ['backend-create-genre', 'backend', process.execPath, ['scripts/run-isolated-tests.mjs', 'src/modules/novels/novels-genre.postgres.test.ts']],
-  ['browser-acceptance', 'web', process.execPath, ['--test', '--test-concurrency=1', 'tests/rich-manuscript-serialization.browser.test.mjs', 'tests/rich-manuscript-durability.browser.test.mjs', 'tests/author-ide-caret.browser.test.mjs', 'tests/author-notes.browser.test.mjs', 'tests/studio-notes-layout.browser.test.mjs', 'tests/studio-polish.browser.test.mjs']],
+  ['browser-acceptance', 'web', process.execPath, ['--test', '--test-concurrency=1', 'tests/rich-manuscript-serialization.browser.test.mjs', 'tests/rich-manuscript-durability.browser.test.mjs', 'tests/author-ide-caret.browser.test.mjs', 'tests/author-notes.browser.test.mjs', 'tests/studio-notes-layout.browser.test.mjs', 'tests/studio-polish.browser.test.mjs', 'tests/story-bible.browser.test.mjs']],
   ['main-reader-ui', 'web', process.execPath, ['--test', 'tests/main-ui-integration.browser.test.mjs']]
 ];
 const manifest = { testedSha: sha, sourceTree: git(['rev-parse', 'HEAD^{tree}']), cleanSource: !status, startedAt: new Date().toISOString(), node: process.version, python: execFileSync(python, ['--version'], { encoding: 'utf8' }).trim(), llm: 'fake; provider-free fixtures only', steps: [] };
