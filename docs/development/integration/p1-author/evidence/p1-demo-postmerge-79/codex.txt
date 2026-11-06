@@ -1,0 +1,15 @@
+TAP version 13
+# Subtest: P1 AX-01 + AX-02 Integrated Acceptance Suite (8 Scenarios)
+ok 1 - P1 AX-01 + AX-02 Integrated Acceptance Suite (8 Scenarios)
+  ---
+  duration_ms: 26075.7575
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 26780.6108

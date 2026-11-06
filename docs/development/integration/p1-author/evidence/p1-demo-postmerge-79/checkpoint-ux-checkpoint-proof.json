@@ -1,0 +1,74 @@
+{
+  "setup": "Public API registration/onboarding/novel/chapter fixture; UI manuscript bootstrap, checkpoint and Canon decisions",
+  "flag": true,
+  "bootstrap_job_id": "6f34c4ce-387d-543a-9c5e-cffbe6f09f91",
+  "novel_id": "0c771657-3c24-4dc4-b9dc-0f207a8319df",
+  "analysis_run_id": "22a17087-5525-4c49-92d1-40eacb12cf39",
+  "loc_candidate_ids": [
+    "e9e97db1820ed3bf823d0e69",
+    "b530a172152bf81d226138f0"
+  ],
+  "cancel_server_unchanged": true,
+  "partial_reload_loc": true,
+  "partial_reload_quotes": true,
+  "real_cas_status": 409,
+  "dirty_retained": true,
+  "conflict_server_unchanged": true,
+  "quote_hashes_by_candidate": {
+    "e9e97db1820ed3bf823d0e69": "cc20a337425f162e394a8115814ce8c7e4d102007b6f91c5a37fff3931153267",
+    "b530a172152bf81d226138f0": "5713d91c8fb3364e0fe359eeb3f37c24a5cead1e6559744fdbca2964a2a6b9f1"
+  },
+  "postgres_freeze_quotes_preserved": true,
+  "machine_and_source_projection_unchanged": true,
+  "freeze_expected_version": 4,
+  "freeze_entities": [
+    {
+      "entity_id": "afbfa16d-c752-44d7-9bcf-a8602d5aa8f5",
+      "name": "Lâm Phong",
+      "type": "PER",
+      "candidate_ids": [
+        "ddc4557566e10aa8ca1da2f7"
+      ]
+    },
+    {
+      "entity_id": "2ed7bcba-f602-48ce-ab48-a4c2b60ed102",
+      "name": "Diệp Linh Nhi",
+      "type": "PER",
+      "candidate_ids": [
+        "5edd4f8dcc02a8d18d213881"
+      ]
+    },
+    {
+      "entity_id": "b958a267-38a4-4046-a140-6b2dd331a2ae",
+      "name": "Cồn Vân",
+      "type": "LOC",
+      "candidate_ids": [
+        "e9e97db1820ed3bf823d0e69",
+        "b530a172152bf81d226138f0"
+      ]
+    }
+  ],
+  "hitl_source_spans_verified": true,
+  "immutable_revision_unchanged": true,
+  "approved_entities": [
+    {
+      "id": "b958a267-38a4-4046-a140-6b2dd331a2ae",
+      "canonical_name": "Cồn Vân",
+      "entity_type": "LOC",
+      "confirmation_status": "confirmed"
+    },
+    {
+      "id": "2ed7bcba-f602-48ce-ab48-a4c2b60ed102",
+      "canonical_name": "Diệp Linh Nhi",
+      "entity_type": "PER",
+      "confirmation_status": "confirmed"
+    },
+    {
+      "id": "afbfa16d-c752-44d7-9bcf-a8602d5aa8f5",
+      "canonical_name": "Lâm Phong",
+      "entity_type": "PER",
+      "confirmation_status": "confirmed"
+    }
+  ],
+  "uuid_preserved": true
+}

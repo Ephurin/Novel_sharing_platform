@@ -1,0 +1,50 @@
+[
+  {
+    "name": "AX-E2E-01: Author and Story Brain Setup via Real Production APIs",
+    "started": "2026-10-29T17:16:02.782Z",
+    "status": "PASS",
+    "finished": "2026-10-29T17:16:05.688Z"
+  },
+  {
+    "name": "AX-E2E-02: Edit Canon Profile Through Browser",
+    "started": "2026-10-29T17:16:05.690Z",
+    "status": "PASS",
+    "finished": "2026-10-29T17:16:11.195Z"
+  },
+  {
+    "name": "AX-E2E-03: Private Author Notes Isolation and Secrecy",
+    "started": "2026-10-29T17:16:11.197Z",
+    "status": "PASS",
+    "finished": "2026-10-29T17:16:11.773Z"
+  },
+  {
+    "name": "AX-E2E-04: Homonymous Characters UUID Isolation & Domain Contract Verification",
+    "started": "2026-10-29T17:16:11.774Z",
+    "status": "PASS",
+    "finished": "2026-10-29T17:16:13.819Z"
+  },
+  {
+    "name": "AX-E2E-05: Concurrent Editing on Two Real Browser Contexts, CAS Conflict (409), and Reconcile",
+    "started": "2026-10-29T17:16:13.820Z",
+    "status": "PASS",
+    "finished": "2026-10-29T17:16:18.021Z"
+  },
+  {
+    "name": "AX-E2E-06: Temporal Cutoff (Chapter 9 excluded, Chapter 10 included)",
+    "started": "2026-10-29T17:16:18.026Z",
+    "status": "PASS",
+    "finished": "2026-10-29T17:16:22.236Z"
+  },
+  {
+    "name": "AX-E2E-07: Actual Writing Generation Context & Canonical Context Integrity Verification",
+    "started": "2026-10-29T17:16:22.242Z",
+    "status": "PASS",
+    "finished": "2026-10-29T17:16:25.906Z"
+  },
+  {
+    "name": "AX-E2E-08: Real Cross-Author Ownership & Security Boundaries",
+    "started": "2026-10-29T17:16:25.913Z",
+    "status": "PASS",
+    "finished": "2026-10-29T17:16:26.670Z"
+  }
+]

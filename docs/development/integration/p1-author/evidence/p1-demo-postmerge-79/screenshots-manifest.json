@@ -1,0 +1,20 @@
+[
+  {
+    "path": "checkpoint-summary.png",
+    "sha256": "c66db00654011b324dba67907c63ee32efbb58577a22833f48581a70d2381f54",
+    "visually_inspected": true,
+    "private_note_or_credentials_visible": false
+  },
+  {
+    "path": "codex-profile-saved.png",
+    "sha256": "8aa912369d057aa3f395151ed9d929845ecfb1f2ce2cf9c7c036c7036e893be5",
+    "visually_inspected": true,
+    "private_note_or_credentials_visible": false
+  },
+  {
+    "path": "ui-writing-fake-result.png",
+    "sha256": "716579faba9e7a88913165c5dd00cd6f2eb4581040cfbba5ce70044f22592286",
+    "visually_inspected": true,
+    "private_note_or_credentials_visible": false
+  }
+]

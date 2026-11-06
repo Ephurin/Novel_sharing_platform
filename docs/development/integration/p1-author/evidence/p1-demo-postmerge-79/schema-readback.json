@@ -1,0 +1,32 @@
+{
+  "head": "0016_entity_profile_audit_timestamp",
+  "mapped_tables": 22,
+  "mapped_columns_checked": 291,
+  "missing": [],
+  "nullability_mismatches": [],
+  "target_timestamp_columns": [
+    {
+      "table_name": "entity_profile_audits",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "revision_provenances",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    }
+  ],
+  "version_column_width": 35,
+  "isolated_counts": {
+    "revision_provenances": {
+      "total_rows": 0,
+      "null_rows": 0
+    },
+    "entity_profile_audits": {
+      "total_rows": 0,
+      "null_rows": 0
+    }
+  },
+  "defaults_checked": "two timestamp columns only",
+  "global_constraints_indexes_equivalence_claimed": false
+}

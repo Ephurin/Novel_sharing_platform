@@ -1,0 +1,137 @@
+{
+  "project": "codex-p1-final-9a053a2830",
+  "actual_ai_env_allowlist": {
+    "ENTITY_CANDIDATE_VERIFICATION_ENABLED": "true",
+    "LLM_PROVIDER": "openai",
+    "LLM_BASE_URL": "http://budget-gateway:18090/v1",
+    "LLM_FALLBACK_PROVIDER": "disabled",
+    "EMBEDDING_PROVIDER": "none",
+    "SEMANTIC_RETRIEVAL_ENABLED": "false"
+  },
+  "fake_received_count": 20,
+  "fake_requests": [
+    {
+      "request_sha256": "9cf037f66fd335fc990c437dd6ce16c241ac1a8f0afccebcbe277791c16e6a30",
+      "operation": "discovery",
+      "received_at": 1793294140.0556507,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "adf052d5485b733c60fc8b935a2fb14feee5c2c5282a9072f486eeeb8427f2eb",
+      "operation": "discovery",
+      "received_at": 1793294140.1143537,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "c1956b592f2bf883543670bf80acd0018751802d4af508da7bac1fe92f212c07",
+      "operation": "discovery",
+      "received_at": 1793294155.2778194,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "1e8072a3f552e742ed4b751c59b8e11b5ec3dce8c77370213e227729224fe075",
+      "operation": "discovery",
+      "received_at": 1793294155.3310075,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "ef49acffbf9bcaf245432b0f810880312339c0721a13ab3c19717a8885017072",
+      "operation": "discovery",
+      "received_at": 1793294155.3830678,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "df3beaae5d8d8d9c805d03fa8bdf69b9233e565223e9101d934f34a3d99ee35c",
+      "operation": "discovery",
+      "received_at": 1793294164.3319733,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "a0bbbada7e57656c98a88d08c7facf7b952b18d51e33e65ad238807ef96b4e55",
+      "operation": "discovery",
+      "received_at": 1793294164.3966243,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "745093d94de65cea38b33839c1845ed0578a37c32bf4290c04c83a3c21d74d6f",
+      "operation": "discovery",
+      "received_at": 1793294164.4572594,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "b7b7357284bdc9c29fde48a89f5e1560cf1ce5693cfb230661a62ba7df8a1edf",
+      "operation": "discovery",
+      "received_at": 1793294165.0721798,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "e151bb8fed01d7d43b810577e2d21eb8f71956deee58f1e206f7850369af1768",
+      "operation": "discovery",
+      "received_at": 1793294165.1271403,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "b53f43b42df3152e0e6694df73803e7f1db80e0f7778d982980c59199a7bb7b5",
+      "operation": "discovery",
+      "received_at": 1793294165.180505,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "aae3638bca1b00ab619650b973cca349cb7f80c0b04f0d0b9d21181816341164",
+      "operation": "discovery",
+      "received_at": 1793294165.5718985,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "e29cc4b8ae75588ad9463554b6c92ac00eb89ef27f3973fc138520ac9a490b0f",
+      "operation": "discovery",
+      "received_at": 1793294165.7578838,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "ff71c1058b17c11f17e76e10877daf6a5dbabc35eb84b7f9a81c46b23de77d22",
+      "operation": "discovery",
+      "received_at": 1793294165.8294048,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "bcd98fedf9ee8e38ca0466772ef322bd7620bb4c6ae9839d5f7f9a7b9d66cdd4",
+      "operation": "discovery",
+      "received_at": 1793294167.2554553,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "998db9f9d0b934ff8dea4676d2680deefde9244c981f588aa0e9cfbb258bc42e",
+      "operation": "discovery",
+      "received_at": 1793294167.3226538,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "67571c252fea635393ce00ef137b22104baa3bc5f11786942129731473581236",
+      "operation": "discovery",
+      "received_at": 1793294167.449815,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "d08161991dd60efc2ad34af8946202d91bb69ce9eb4af30da7333b5a491cff45",
+      "operation": "discovery",
+      "received_at": 1793294167.507689,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "018ceb84b74abf53ad4e9bdb73cd333c1ec99ecdba8b0a99f6cc5321d08b49b9",
+      "operation": "writing_generation",
+      "received_at": 1793294182.4939487,
+      "upstream_auth_valid": true
+    },
+    {
+      "request_sha256": "e808501f3d570fcdace1a2e674ae1b3ddc85def2054e7c3a89b5ff40db9b7edf",
+      "operation": "writing_generation",
+      "received_at": 1793294689.0598547,
+      "upstream_auth_valid": true
+    }
+  ],
+  "known_private_note_absent_from_all_prompts": true,
+  "live_provider_calls": 0,
+  "commands_exit": 0
+}
