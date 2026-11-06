@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { preview } from 'vite';
 import { chromium, expect } from '@playwright/test';
 
-test('detail: long chapter lists, actual reading position, mobile read action and deliberate reports', { timeout: 150000 }, async () => {
+test('detail: simple chapter list, accurate read flags, mobile read action and deliberate reports', { timeout: 150000 }, async () => {
   const output = await mkdtemp(path.join(os.tmpdir(), 'storycraft-detail-enhancements-'));
   const server = await preview({ root: fileURLToPath(new URL('../', import.meta.url)), preview: { host: '127.0.0.1', port: 0 } });
   const browser = await chromium.launch({ headless: true, channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome' });
@@ -19,6 +19,8 @@ test('detail: long chapter lists, actual reading position, mobile read action an
       const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: width === 390 ? 'reduce' : 'no-preference' });
       const page = await context.newPage(), errors = [], reports = [];
       let invalidHistory = false, empty = false, rejectReport = true;
+      let activeUser = 'reader', currentChapterId = 'c-26';
+      const readIds = new Set(['c-1', 'c-3', 'c-26']);
       page.on('pageerror', error => errors.push(error.message));
       await page.addInitScript(({ role, theme }) => {
         localStorage.setItem('storycraft-theme', theme);
@@ -27,9 +29,18 @@ test('detail: long chapter lists, actual reading position, mobile read action an
       await page.route('**/api/v1/**', async route => {
         const url = new URL(route.request().url());
         let data = [], status = 200;
-        if (url.pathname.endsWith('/auth/me')) data = { userId: 'reader', username: 'reader', email: 'r@example.invalid', role: 'READER', status: 'ACTIVE' };
+        if (url.pathname.endsWith('/auth/me')) data = { userId: activeUser, username: activeUser, email: 'r@example.invalid', role: 'READER', status: 'ACTIVE' };
         else if (url.pathname.endsWith('/reading/novels/novel-1')) data = { ...novel, chapters: empty ? [] : chapters };
-        else if (url.pathname.endsWith('/reading/history/me/novel-1')) data = { chapterId: invalidHistory ? 'deleted' : 'c-26', chapter: { chapterNumber: 999, title: 'Old chapter metadata' } };
+        else if (url.pathname.endsWith('/reading/history/me/novel-1')) data = activeUser === 'reader-2' ? null : { chapterId: invalidHistory ? 'deleted' : currentChapterId, readChapterIds: [...readIds], chapter: { chapterNumber: 999, title: 'Old chapter metadata' } };
+        else if (url.pathname.includes('/reading/chapters/')) {
+          const chapter = chapters.find(item => url.pathname.endsWith('/' + item.chapterId));
+          if (chapter.isVip) return route.fulfill({ status: 402, json: { success: false, error: { code: 'PAYMENT_002', message: 'Chapter unlock required' } } });
+          data = { ...chapter, novelId: 'novel-1', content: '<p>Chapter content</p>' };
+          if (role === 'READER') readIds.add(chapter.chapterId);
+        } else if (url.pathname.endsWith('/reading/history/me') && route.request().method() === 'PUT') {
+          currentChapterId = route.request().postDataJSON().chapterId;
+          data = { synced: true };
+        }
         else if (url.pathname.endsWith('/statistics')) data = { isFollowing: false, notificationsEnabled: false, ratingAverage: null, ratingsCount: 0 };
         else if (url.pathname.endsWith('/reports')) {
           reports.push(route.request().postDataJSON());
@@ -47,38 +58,47 @@ test('detail: long chapter lists, actual reading position, mobile read action an
         await expect(page.getByTestId('novel-floating-read')).not.toBeVisible();
         await expect(table).toHaveCount(5);
         await expect(table.first()).toContainText('Chương 2:');
+        await expect(page.locator('.sc-chapter-filters')).toHaveCount(0);
+        await expect(page.getByRole('navigation', { name: 'Phân trang chương' })).toHaveCount(0);
+        await expect(page.locator('.sc-chapter-position')).toHaveCount(0);
         if (role === 'READER') {
           await expect(main).toHaveText('menu_bookĐọc tiếp · Chương 52');
-          await expect(page.getByRole('progressbar', { name: 'Vị trí chương đang đọc' })).toHaveAttribute('value', '26');
-          await page.getByRole('button', { name: 'Tới chương đang đọc' }).click();
-          await expect(table).toHaveCount(20);
-          await expect(page.locator('[aria-current="location"]')).toHaveAttribute('href', '/reader/chapters/c-26');
-          await expect(page.locator('[aria-current="location"]')).toBeFocused();
+          await expect(page.locator('#reader-chapters tr[data-read]')).toHaveCount(2);
+          const readColor = await table.nth(0).locator('.sc-reader-chapter-title').evaluate(node => getComputedStyle(node).color);
+          const unreadColor = await table.nth(1).locator('.sc-reader-chapter-title').evaluate(node => getComputedStyle(node).color);
+          assert.notEqual(readColor, unreadColor, 'Read chapter titles should appear muted');
+          const readLink = table.nth(0).locator('.sc-reader-chapter-title');
+          await readLink.hover();
+          await expect(readLink).not.toHaveCSS('color', readColor);
+          await expect(readLink).toHaveCSS('text-decoration-line', 'none');
+        } else await expect(page.locator('#reader-chapters tr[data-read]')).toHaveCount(0);
+        await page.getByRole('button', { name: 'Xem toàn bộ 47 chương' }).click();
+        await expect(table).toHaveCount(47);
+        await expect(page.getByTestId('read-chapter-c-47')).toHaveAttribute('href', `${prefix}/chapters/c-47`);
+        if (role === 'READER') {
+          await expect(page.locator('#reader-chapters tr[data-read]')).toHaveCount(3);
           await expect(page.getByTestId('novel-floating-read')).toBeVisible();
           const floating = await page.getByTestId('novel-floating-read').boundingBox();
           const top = await page.getByRole('button', { name: 'Về đầu trang', exact: true }).boundingBox();
           assert.ok(top.y + top.height <= floating.y, 'Back-to-top must stay above the read action');
-        } else await page.getByRole('button', { name: 'Xem toàn bộ 47 chương' }).click();
-        await expect(table).toHaveCount(20);
-        await page.getByRole('textbox', { name: 'Tìm chương', exact: true }).fill('chuong 94');
-        await expect(table).toHaveCount(1);
-        await expect(table).toContainText('Chương 94:');
-        await page.getByRole('textbox', { name: 'Quyền đọc', exact: true }).click();
-        await page.getByRole('option', { name: 'VIP', exact: true }).click();
-        await expect(table).toHaveCount(0);
-        await expect(page.getByText('Không tìm thấy chương.', { exact: true })).toBeVisible();
-        await page.getByRole('button', { name: 'Bỏ bộ lọc chương' }).click();
-        await page.getByRole('textbox', { name: 'Thứ tự chương' }).click();
-        await page.getByRole('option', { name: 'Chương mới trước', exact: true }).click();
-        await expect(table.first()).toContainText('Chương 94:');
-        await page.getByRole('navigation', { name: 'Phân trang chương' }).getByRole('button', { name: 'Trang chương 3', exact: true }).click();
-        await expect(table).toHaveCount(7);
-        await expect(table.first()).toContainText('Chương 14:');
+        }
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
-        await page.screenshot({ path: path.join(output, `${role}-${width}-${theme}.png`), fullPage: true });
+        await page.locator('#reader-chapters').scrollIntoViewIfNeeded();
+        await page.screenshot({ path: path.join(output, `${role}-${width}-${theme}.png`) });
         await page.getByRole('button', { name: 'Thu gọn mục lục' }).click();
         await expect(table).toHaveCount(5);
         await expect(page.getByRole('textbox', { name: 'Tìm chương', exact: true })).not.toBeVisible();
+        const opened = role === 'READER' ? 'c-5' : 'c-3';
+        await page.getByTestId(`read-chapter-${opened}`).click();
+        await expect(page.locator('.chapter-prose')).toBeVisible();
+        await page.goBack();
+        await expect(page.getByTestId(`read-chapter-${opened}`).locator('xpath=ancestor::tr')).toHaveAttribute('data-read', 'true');
+        await page.getByTestId('read-chapter-c-2').click();
+        await expect(page.getByRole('heading', { name: 'Chương VIP đang khóa', exact: true })).toBeVisible();
+        await page.goBack();
+        await expect(page.getByTestId('read-chapter-c-2').locator('xpath=ancestor::tr')).not.toHaveAttribute('data-read');
+        await page.reload();
+        await expect(page.getByTestId(`read-chapter-${opened}`).locator('xpath=ancestor::tr')).toHaveAttribute('data-read', 'true');
         await page.evaluate(() => window.scrollTo(0, 0));
         await expect(page.getByTestId('novel-floating-read')).not.toBeVisible();
         if (role === 'READER') {
@@ -101,6 +121,9 @@ test('detail: long chapter lists, actual reading position, mobile read action an
           await expect(dialog).toHaveCount(0);
           await expect(page.getByTestId('reader-interaction-notice')).toHaveText('Đã gửi báo cáo truyện tới quản trị viên.');
           assert.deepEqual(reports.at(-1), { targetType: 'NOVEL', targetId: 'novel-1', reason: 'Lý do khác', description: 'Nội dung cần được kiểm tra.' });
+          activeUser = 'reader-2'; await page.reload();
+          await expect(page.locator('#reader-chapters tr[data-read]')).toHaveCount(0);
+          activeUser = 'reader';
           invalidHistory = true; await page.reload();
           await expect(main).toHaveText('menu_bookBắt đầu đọc');
           await expect(main).toHaveAttribute('href', '/reader/chapters/c-1');

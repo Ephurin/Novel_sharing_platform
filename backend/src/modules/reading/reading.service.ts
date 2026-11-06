@@ -23,7 +23,8 @@ import {
   removeBookmark,
   searchPublishedNovels,
   updateReadingPreference,
-  upsertReadingHistory
+  upsertReadingHistory,
+  recordChapterRead
 } from './reading.repository.js';
 import { userHasChapterUnlock } from '../wallet/wallet.repository.js';
 
@@ -84,6 +85,8 @@ export async function getReaderChapter(chapterId: string, auth?: AuthContext) {
   if (chapter.isVip && !owner && (!auth || !(await userHasChapterUnlock(auth.userId, chapterId)))) {
     throw new AppError(402, 'PAYMENT_002', 'Chapter unlock required');
   }
+
+  if (auth) await recordChapterRead(auth.userId, chapter.novelId, chapterId);
 
   if (!owner) await incrementNovelViews(chapter.novelId);
   const { authorId: _authorId, ...readable } = chapter;

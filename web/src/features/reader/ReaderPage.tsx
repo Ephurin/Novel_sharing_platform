@@ -8,6 +8,7 @@ import { NovelOverview } from './ReaderNovelOverview';
 import { NovelChapterCatalog } from './NovelChapterCatalog';
 import { NovelReadAction } from './NovelReadAction';
 import { NovelReportDialog } from './NovelReportDialog';
+import { useReadChapterIds } from './useReadChapterIds';
 import { NovelReviews } from './NovelReviews';
 import { useAuthStore } from '../auth/useAuthStore';
 import { followNovel } from '../novels/novel-statistics-api';
@@ -66,6 +67,7 @@ export function ReaderNovelDetailPage() {
   const { novelId = '' } = useParams();
   const navigate = useNavigate();
   const userId = useAuthStore(state => state.user?.userId);
+  const localReadIds = useReadChapterIds(novelId);
   const novelQuery = useQuery({
     queryKey: ['reader-novel', novelId],
     queryFn: () => getReaderNovel(novelId),
@@ -114,7 +116,7 @@ export function ReaderNovelDetailPage() {
       <section id="reader-reviews" className="sc-reader-detail-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact /></section>
       <NovelChapterCatalog
         chapters={chapters}
-        currentChapterId={currentChapter?.chapterId}
+        readChapterIds={[...localReadIds, ...(continueQuery.data?.readChapterIds ?? []), ...(currentChapter ? [currentChapter.chapterId] : [])]}
         onReadFirst={firstChapter ? () => navigate(`/reader/chapters/${firstChapter.chapterId}`) : undefined}
       />
       <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} /></section>
@@ -124,6 +126,7 @@ export function ReaderNovelDetailPage() {
 
 export function PublicReaderNovelDetailPage() {
   const { novelId = '' } = useParams();
+  const readChapterIds = useReadChapterIds(novelId);
   const novelQuery = useQuery({
     queryKey: ['public-reader-novel', novelId],
     queryFn: () => getReaderNovel(novelId),
@@ -155,7 +158,7 @@ export function PublicReaderNovelDetailPage() {
             }
           />
           <section id="reader-reviews" className="sc-reader-detail-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact /></section>
-          <NovelChapterCatalog chapters={chapters} publicMode />
+          <NovelChapterCatalog chapters={chapters} publicMode readChapterIds={readChapterIds} />
           <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} /></section>
         </>
       ) : null}
@@ -167,10 +170,11 @@ export function PublicReaderNovelDetailPage() {
 
 export function ReaderChapterPage() {
   const { chapterId = '' } = useParams();
+  const userId = useAuthStore(state => state.user?.userId);
   const queryClient = useQueryClient();
   const preferencesQuery = useQuery({ queryKey: ['reading-preferences'], queryFn: getReadingPreferences });
   const chapterQuery = useQuery({
-    queryKey: ['reader-chapter', chapterId],
+    queryKey: ['reader-chapter', chapterId, userId],
     queryFn: () => getReaderChapter(chapterId),
     enabled: Boolean(chapterId),
     retry: false
@@ -182,7 +186,10 @@ export function ReaderChapterPage() {
   });
   const syncHistoryMutation = useMutation({
     mutationFn: (input: { novelId: string; chapterId: string }) => syncHistory(input),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reader-history'] })
+    onSuccess: () => Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['reader-history'] }),
+      queryClient.invalidateQueries({ queryKey: ['reader-history-novel'] })
+    ])
   });
   const unlockMutation = useMutation({
     mutationFn: () => unlockVipChapter(chapterId),
@@ -202,6 +209,7 @@ export function ReaderChapterPage() {
 
   const isLockedVip = chapterQuery.error instanceof ApiClientError && chapterQuery.error.code === 'PAYMENT_002';
   const chapter = chapterQuery.data;
+  useReadChapterIds(chapter?.novelId ?? '', chapter?.chapterId);
 
   useEffect(() => {
     if (chapter?.novelId) {
@@ -286,8 +294,9 @@ export function ReaderChapterPage() {
 
 export function PublicReaderChapterPage() {
   const { chapterId = '' } = useParams();
+  const userId = useAuthStore(state => state.user?.userId ?? 'guest');
   const chapterQuery = useQuery({
-    queryKey: ['public-reader-chapter', chapterId],
+    queryKey: ['public-reader-chapter', chapterId, userId],
     queryFn: () => getReaderChapter(chapterId),
     enabled: Boolean(chapterId),
     retry: false
@@ -299,6 +308,7 @@ export function PublicReaderChapterPage() {
   });
   const isLockedVip = chapterQuery.error instanceof ApiClientError && chapterQuery.error.code === 'PAYMENT_002';
   const chapter = chapterQuery.data;
+  useReadChapterIds(chapter?.novelId ?? '', chapter?.chapterId);
   const novelPath = `/public/novels/${chapter?.novelId ?? ''}`;
 
   return (

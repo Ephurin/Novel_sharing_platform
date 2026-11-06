@@ -35,6 +35,7 @@ export type ReaderChapter = {
 };
 
 export type ReadingHistoryItem = {
+  readChapterIds?: string[];
   novelId: string;
   chapterId: string;
   paragraphIndex: number;

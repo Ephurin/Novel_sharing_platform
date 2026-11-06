@@ -337,7 +337,19 @@ export async function findReadingHistory(userId: string, novelId: string) {
     [userId, novelId]
   );
 
-  return result.rows[0] ? mapHistory(result.rows[0]) : null;
+  return result.rows[0] ? { ...mapHistory(result.rows[0]), readChapterIds: await listReadChapterIds(userId, novelId) } : null;
+}
+
+export async function recordChapterRead(userId: string, novelId: string, chapterId: string) {
+  await getPostgresPool().query(
+    'insert into chapter_reads (user_id, novel_id, chapter_id) values ($1, $2, $3) on conflict do nothing',
+    [userId, novelId, chapterId]
+  );
+}
+
+export async function listReadChapterIds(userId: string, novelId: string): Promise<string[]> {
+  const result = await getPostgresPool().query('select chapter_id from chapter_reads where user_id = $1 and novel_id = $2 order by chapter_id', [userId, novelId]);
+  return result.rows.map(row => row.chapter_id as string);
 }
 
 export async function addBookmark(userId: string, novelId: string) {
