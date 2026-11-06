@@ -22,6 +22,19 @@ export async function deliverDomainNotifications() {
     const pool = getPostgresPool();
     const events = await pool.query('select * from notification_events where delivered_at is null order by created_at limit 100');
     for (const event of events.rows) {
+      if (event.type === 'NOVEL_CHAPTER_PUBLISHED') {
+        const eligible = await pool.query(`select 1 from novel_notification_subscriptions s
+          join users u on u.user_id=s.user_id join novels n on n.novel_id=s.novel_id
+          join chapters c on c.novel_id=n.novel_id and c.chapter_id=$3
+          where s.novel_id=$1 and s.user_id=$2 and s.enabled
+            and u.role='READER' and u.status='ACTIVE' and u.deleted_at is null
+            and n.status='PUBLISHED' and n.deleted_at is null and c.status='PUBLISHED' and c.deleted_at is null`,
+        [event.payload.novelId,event.user_id,event.payload.chapterId]);
+        if (!eligible.rowCount) {
+          await pool.query('update notification_events set delivered_at=now() where event_key=$1', [event.event_key]);
+          continue;
+        }
+      }
       await createNotification({ eventKey: event.event_key, userId: event.user_id, type: event.type, title: event.title, content: event.content, payload: event.payload });
       await pool.query('update notification_events set delivered_at = now() where event_key = $1', [event.event_key]);
     }

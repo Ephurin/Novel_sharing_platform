@@ -1,0 +1,25 @@
+.sc-catalog { display: flex; flex-direction: column; gap: 20px; }
+.sc-catalog h1 { margin: 0; }
+.sc-catalog-filters { display: flex; flex-direction: column; gap: 16px; padding: 16px; border: 1px solid var(--sc-border); border-radius: var(--sc-radius-card); background: var(--sc-surface); }
+.sc-catalog-filter-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.sc-catalog-filter-row .mantine-Input-wrapper { min-width: 0; }
+.sc-catalog-filter-row :is(.mantine-MultiSelect-input, .mantine-NativeSelect-input) { min-height: 40px; }
+.sc-author-theme .sc-catalog-filter-row .mantine-MultiSelect-root input.mantine-MultiSelect-inputField { min-height: 24px; height: 24px; line-height: 24px; }
+.sc-author-theme .sc-catalog-filter-row .mantine-Pill-remove { min-height: 0; }
+.sc-author-theme .sc-catalog-filter-row select.mantine-NativeSelect-input:not([multiple]):not([size]) { min-height: 40px; height: 40px; }
+.sc-catalog-status { display: flex; flex-wrap: wrap; gap: 8px; }
+.sc-catalog-status button { padding: 6px 12px; min-height: 36px; border: 1px solid var(--sc-border); border-radius: var(--sc-radius-control); color: var(--sc-text); background: transparent; transition: background-color .16s ease-out; }
+.sc-catalog-status button[aria-pressed="true"] { background: var(--sc-primary-soft); color: var(--sc-primary-text); border-color: var(--sc-primary-text); }
+.sc-catalog-active { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.sc-catalog-active .sc-filter-chips { margin: 0; align-items: center; }
+.sc-catalog-active .sc-filter-chips button { min-height: 36px; }
+.sc-catalog-summary { margin: 0; color: var(--sc-text); font-size: 13px; }
+.sc-catalog-card { position: relative; }
+.sc-catalog-card > .sc-home-preview-trigger { position: absolute; right: 8px; top: 8px; }
+.sc-catalog .sc-book-cover .sc-cover-placeholder { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding-top: 48px; padding-bottom: 48px; font-family: var(--sc-font); background: var(--sc-surface-subtle); box-shadow: none; overflow-wrap: anywhere; }
+.sc-catalog .sc-book-status { font-size: 12px; box-shadow: none; }
+.sc-catalog-pagination { display: flex; justify-content: center; }
+.sc-catalog :is(button, a, input, select):focus-visible { outline: 2px solid var(--sc-focus-ring); outline-offset: 3px; }
+@media (max-width: 767px) { .sc-catalog-filter-row { grid-template-columns: minmax(0, 1fr); } }
+@media (pointer: coarse) { .sc-catalog-status button { min-height: 44px; } }
+@media (prefers-reduced-motion: reduce) { .sc-catalog-status button { transition: none; } }

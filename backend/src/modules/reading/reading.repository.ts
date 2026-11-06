@@ -1,5 +1,7 @@
 import type { QueryResultRow } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
+import { readerFollowingSql } from './reader-following.sql.js';
+import { withPostgresTransaction } from '../../core/database/transaction.js';
 import type {
   HistoryListInput,
   ReadingPreferencesInput,
@@ -30,6 +32,7 @@ function mapNovelSummary(row: QueryResultRow) {
     likesCount: row.likes_count,
     viewsCount: row.views_count,
     chaptersCount: row.chapters_count,
+    latestChapter: row.latest_chapter ?? null,
     updatedAt: row.updated_at
   };
 }
@@ -49,6 +52,7 @@ function mapChapterSummary(row: QueryResultRow) {
 
 function mapHistory(row: QueryResultRow) {
   return {
+    readChapterIds: (row.read_chapter_ids ?? []) as string[],
     novelId: row.novel_id,
     chapterId: row.chapter_id,
     paragraphIndex: row.paragraph_index,
@@ -98,18 +102,32 @@ export async function updateReadingPreference(userId: string, input: ReadingPref
   return mapPreference(result.rows[0]);
 }
 
+export async function listReadingFilters() {
+  const result = await getPostgresPool().query(`
+    select
+      coalesce((select json_agg(name order by name) from genres), '[]'::json) as genres,
+      coalesce((select json_agg(name order by name) from tags), '[]'::json) as tags
+  `);
+  return result.rows[0] as { genres: string[]; tags: string[] };
+}
+
 export async function searchPublishedNovels(input: SearchNovelsInput) {
   const offset = (input.page - 1) * input.limit;
   const search = input.q ? `%${input.q}%` : null;
-  const genre = input.genre ? input.genre.toLowerCase() : null;
-  const tag = input.tag ? input.tag.toLowerCase() : null;
+  const genres = [...new Set([input.genre, ...(input.genres ?? [])].filter((value): value is string => Boolean(value)).map(value => value.toLowerCase()))];
+  const tags = [...new Set([input.tag, ...(input.tags ?? [])].filter((value): value is string => Boolean(value)).map(value => value.toLowerCase()))];
   const orderDirection = input.order === 'asc' ? 'asc' : 'desc';
   const sortExpression =
     input.sort === 'views'
       ? 'n.views_count'
       : input.sort === 'likes'
         ? 'n.likes_count'
-        : 'n.updated_at';
+        : input.sort === 'title'
+          ? 'lower(n.title)'
+          : input.sort === 'wordCount'
+            ? `(select coalesce(sum(c.word_count), 0) from chapters c
+                where c.novel_id = n.novel_id and c.status = 'PUBLISHED' and c.deleted_at is null)`
+            : 'n.updated_at';
 
   const dataResult = await getPostgresPool().query(
     `
@@ -117,6 +135,13 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
         n.*,
         coalesce(up.display_name, u.username) as author_name,
         g.name as genre_name,
+        (select json_build_object(
+          'chapterId', c.chapter_id, 'chapterNumber', c.chapter_number,
+          'title', c.title, 'publishedAt', c.published_at
+        ) from chapters c
+          where c.novel_id = n.novel_id and c.status = 'PUBLISHED' and c.deleted_at is null
+          order by c.published_at desc nulls last, c.chapter_number desc
+          limit 1) as latest_chapter,
         coalesce(
           json_agg(t.name order by t.name) filter (where t.tag_id is not null),
           '[]'::json
@@ -130,14 +155,18 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
       where n.deleted_at is null
         and n.status = 'PUBLISHED'
         and ($1::text is null or n.title ilike $1 or n.synopsis ilike $1)
-        and ($2::text is null or lower(g.slug) = $2 or lower(g.name) = $2)
-        and ($3::text is null or lower(t.slug) = $3 or lower(t.name) = $3)
+        and not exists (select 1 from unnest($2::text[]) as selected(value) where not (coalesce(lower(g.slug) = selected.value or lower(g.name) = selected.value, false) or exists (
+          select 1 from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
+          where ng.novel_id = n.novel_id and (lower(gg.slug) = selected.value or lower(gg.name) = selected.value))))
+        and not exists (select 1 from unnest($3::text[]) as selected(value) where not exists (
+          select 1 from novel_tags ntf join tags tf on tf.tag_id = ntf.tag_id
+          where ntf.novel_id = n.novel_id and (lower(tf.slug) = selected.value or lower(tf.name) = selected.value)))
         and ($4::novel_serial_status is null or n.serial_status = $4)
       group by n.novel_id, up.display_name, u.username, g.name
       order by ${sortExpression} ${orderDirection}, n.novel_id asc
       limit $5 offset $6
     `,
-    [search, genre, tag, input.status ?? null, input.limit, offset]
+    [search, genres, tags, input.status ?? null, input.limit, offset]
   );
 
   const countResult = await getPostgresPool().query(
@@ -150,11 +179,15 @@ export async function searchPublishedNovels(input: SearchNovelsInput) {
       where n.deleted_at is null
         and n.status = 'PUBLISHED'
         and ($1::text is null or n.title ilike $1 or n.synopsis ilike $1)
-        and ($2::text is null or lower(g.slug) = $2 or lower(g.name) = $2)
-        and ($3::text is null or lower(t.slug) = $3 or lower(t.name) = $3)
+        and not exists (select 1 from unnest($2::text[]) as selected(value) where not (coalesce(lower(g.slug) = selected.value or lower(g.name) = selected.value, false) or exists (
+          select 1 from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
+          where ng.novel_id = n.novel_id and (lower(gg.slug) = selected.value or lower(gg.name) = selected.value))))
+        and not exists (select 1 from unnest($3::text[]) as selected(value) where not exists (
+          select 1 from novel_tags ntf join tags tf on tf.tag_id = ntf.tag_id
+          where ntf.novel_id = n.novel_id and (lower(tf.slug) = selected.value or lower(tf.name) = selected.value)))
         and ($4::novel_serial_status is null or n.serial_status = $4)
     `,
-    [search, genre, tag, input.status ?? null]
+    [search, genres, tags, input.status ?? null]
   );
 
   return {
@@ -170,6 +203,11 @@ export async function findPublishedNovelDetail(novelId: string) {
         n.*,
         coalesce(up.display_name, u.username) as author_name,
         g.name as genre_name,
+        (select array_agg(gg.name order by (ng.genre_id = n.genre_id) desc, gg.name)
+          from novel_genres ng join genres gg on gg.genre_id = ng.genre_id
+          where ng.novel_id = n.novel_id) as genres,
+        (select max(c.updated_at) from chapters c
+          where c.novel_id = n.novel_id and c.status = 'PUBLISHED' and c.deleted_at is null) as last_updated_at,
         coalesce(
           json_agg(distinct t.name) filter (where t.tag_id is not null),
           '[]'::json
@@ -189,7 +227,13 @@ export async function findPublishedNovelDetail(novelId: string) {
     [novelId]
   );
 
-  return result.rows[0] ? mapNovelSummary(result.rows[0]) : null;
+  const row = result.rows[0];
+  return row ? {
+    ...mapNovelSummary(row),
+    genres: row.genres?.length ? row.genres as string[] : row.genre_name ? [row.genre_name as string] : [],
+    authorNote: (row.author_note as string | null) ?? null,
+    lastUpdatedAt: row.last_updated_at ?? row.published_at ?? row.created_at
+  } : null;
 }
 
 export async function listPublishedChaptersForNovel(novelId: string) {
@@ -260,7 +304,9 @@ export async function listReadingHistories(userId: string, input: HistoryListInp
   const offset = (input.page - 1) * input.limit;
   const dataResult = await getPostgresPool().query(
     `
-      select rh.*, n.title as novel_title, n.cover_image_url, c.title as chapter_title, c.chapter_number
+      select rh.*, n.title as novel_title, n.cover_image_url, c.title as chapter_title, c.chapter_number,
+        array(select cr.chapter_id from chapter_reads cr
+          where cr.user_id = rh.user_id and cr.novel_id = rh.novel_id and cr.verified_at is not null) as read_chapter_ids
       from reading_histories rh
       join novels n on n.novel_id = rh.novel_id
       join chapters c on c.chapter_id = rh.chapter_id
@@ -294,7 +340,20 @@ export async function findReadingHistory(userId: string, novelId: string) {
     [userId, novelId]
   );
 
-  return result.rows[0] ? mapHistory(result.rows[0]) : null;
+  return result.rows[0] ? { ...mapHistory(result.rows[0]), readChapterIds: await listReadChapterIds(userId, novelId) } : null;
+}
+
+export async function recordChapterRead(userId: string, novelId: string, chapterId: string) {
+  await getPostgresPool().query(
+    `insert into chapter_reads (user_id, novel_id, chapter_id, verified_at) values ($1, $2, $3, now())
+      on conflict (user_id, chapter_id) do update set verified_at = excluded.verified_at`,
+    [userId, novelId, chapterId]
+  );
+}
+
+export async function listReadChapterIds(userId: string, novelId: string): Promise<string[]> {
+  const result = await getPostgresPool().query('select chapter_id from chapter_reads where user_id = $1 and novel_id = $2 and verified_at is not null order by chapter_id', [userId, novelId]);
+  return result.rows.map(row => row.chapter_id as string);
 }
 
 export async function addBookmark(userId: string, novelId: string) {
@@ -312,12 +371,14 @@ export async function addBookmark(userId: string, novelId: string) {
 }
 
 export async function removeBookmark(userId: string, novelId: string) {
-  const result = await getPostgresPool().query(
-    'delete from bookmarks where user_id = $1 and novel_id = $2',
-    [userId, novelId]
-  );
-
-  return result.rowCount === 1;
+  return withPostgresTransaction(async client => {
+    await client.query("select pg_advisory_xact_lock(hashtextextended($1::text || ':' || $2::text, 0))", [novelId, userId]);
+    const follow = await client.query('delete from novel_follows where novel_id = $1 and user_id = $2', [novelId, userId]);
+    const bookmark = await client.query('delete from bookmarks where novel_id = $1 and user_id = $2', [novelId, userId]);
+    const like = await client.query('delete from likes where novel_id = $1 and user_id = $2 returning novel_id', [novelId, userId]);
+    if (like.rowCount) await client.query('update novels set likes_count = greatest(likes_count - 1, 0) where novel_id = $1', [novelId]);
+    return Boolean(follow.rowCount || bookmark.rowCount || like.rowCount);
+  });
 }
 
 export async function listBookmarks(userId: string, input: HistoryListInput) {
@@ -333,7 +394,7 @@ export async function listBookmarks(userId: string, input: HistoryListInput) {
           '[]'::json
         ) as tags,
         b.created_at as bookmarked_at
-      from bookmarks b
+      from (${readerFollowingSql}) b
       join novels n on n.novel_id = b.novel_id
       join users u on u.user_id = n.author_id
       left join user_profiles up on up.user_id = u.user_id
@@ -344,7 +405,7 @@ export async function listBookmarks(userId: string, input: HistoryListInput) {
         and n.deleted_at is null
         and n.status = 'PUBLISHED'
       group by n.novel_id, up.display_name, u.username, g.name, b.created_at
-      order by b.created_at desc
+      order by b.created_at desc, n.novel_id asc
       limit $2 offset $3
     `,
     [userId, input.limit, offset]
@@ -352,7 +413,7 @@ export async function listBookmarks(userId: string, input: HistoryListInput) {
   const countResult = await getPostgresPool().query(
     `
       select count(*)::int as total
-      from bookmarks b
+      from (${readerFollowingSql}) b
       join novels n on n.novel_id = b.novel_id
       where b.user_id = $1
         and n.deleted_at is null

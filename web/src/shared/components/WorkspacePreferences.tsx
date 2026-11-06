@@ -5,7 +5,7 @@ import { Popover } from '@animate-ui/react/primitives/radix-ui/popover';
 import { useMediaQuery } from '@mantine/hooks';
 import './workspace-tools.css';
 
-type FilterValue = string | number | boolean;
+type FilterValue = string | number | boolean | string[];
 function read<T>(key: string, fallback: T): T {
   try { const value = JSON.parse(localStorage.getItem(key) ?? 'null'); return value ?? fallback; } catch { return fallback; }
 }
@@ -39,7 +39,7 @@ export function useUrlFilters<T extends Record<string, FilterValue>>(defaults: T
     for (const name of Object.keys(defaults) as (keyof T & string)[]) {
       const raw = source.get(name); if (raw === null) continue;
       const initial = defaults[name];
-      const parsed = typeof initial === 'number' ? (/^\d+$/.test(raw) ? Math.min(100000, Math.max(1, Number(raw))) : initial) : typeof initial === 'boolean' ? raw === 'true' : raw.slice(0, 500);
+      const parsed = Array.isArray(initial) ? [...new Set(source.getAll(name).map(value => value.slice(0, 100)).filter(Boolean))].slice(0, 30) : typeof initial === 'number' ? (/^\d+$/.test(raw) ? Math.min(100000, Math.max(1, Number(raw))) : initial) : typeof initial === 'boolean' ? raw === 'true' : raw.slice(0, 500);
       if (!choices[name] || choices[name]!.includes(String(parsed))) result[name] = parsed as T[typeof name];
     }
     return result;
@@ -51,7 +51,8 @@ export function useUrlFilters<T extends Record<string, FilterValue>>(defaults: T
   const update = (patch: Partial<T>) => {
     const next = new URLSearchParams(latest.current.params);
     for (const [key, value] of Object.entries(patch)) {
-      if (value === defaults[key]) next.delete(key); else next.set(key, String(value));
+      if (Array.isArray(value)) { next.delete(key); value.forEach(item => next.append(key, item)); }
+      else if (value === defaults[key]) next.delete(key); else next.set(key, String(value));
     }
     latest.current.params = next;
     setOptimistic({ search: location.search, values: parse(next) });

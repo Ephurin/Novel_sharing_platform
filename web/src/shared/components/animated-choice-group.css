@@ -1,0 +1,8 @@
+.sc-choice-group { display: flex; flex-wrap: wrap; position: relative; gap: 8px; min-width: 0; }
+.sc-choice-group .sc-choice-item { position: relative; display: inline-flex; justify-content: center; align-items: center; gap: 6px; min-height: 36px; max-width: 100%; padding: 6px 12px; border: 1px solid var(--sc-border); border-radius: var(--sc-radius-control); background: var(--sc-surface); color: var(--sc-text); font: 600 14px/20px var(--sc-font); overflow-wrap: anywhere; cursor: pointer; transition: color .16s ease-out, border-color .16s ease-out; }
+.sc-choice-group .sc-choice-item[data-state="on"] { background: var(--sc-primary-soft); border-color: var(--sc-primary-text); color: var(--sc-primary-text); box-shadow: inset 0 -2px var(--sc-primary-text); }
+.sc-choice-group .sc-choice-item:hover { border-color: var(--sc-primary-text); color: var(--sc-primary-text); }
+.sc-choice-group .sc-choice-item:focus-visible { outline: 2px solid var(--sc-focus-ring); outline-offset: 3px; }
+.sc-choice-group .sc-choice-item:disabled { cursor: default; opacity: .6; }
+@media (pointer: coarse) { .sc-choice-group .sc-choice-item { min-height: 44px; } }
+@media (prefers-reduced-motion: reduce) { .sc-choice-group .sc-choice-item { transition: none; } }

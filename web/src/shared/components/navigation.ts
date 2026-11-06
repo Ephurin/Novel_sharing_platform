@@ -1,6 +1,7 @@
 export const navigationLabels = {
+  home: 'Trang chủ',
   authorHome: 'Tác phẩm',
-  readerHome: 'Khám phá truyện',
+  readerHome: 'Danh sách truyện',
   publicHome: 'Thư viện công khai',
   authorProfile: 'Trang tác giả',
   authorWallet: 'Ví và doanh thu',

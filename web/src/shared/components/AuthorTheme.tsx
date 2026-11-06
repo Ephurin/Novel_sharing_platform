@@ -4,7 +4,7 @@ import { WorkspaceCommands } from './WorkspaceCommands';
 import { FocusTrap, useComputedColorScheme } from '@mantine/core';
 import { AnimatedMenu as Menu } from './AnimatedMenu';
 import { useQueryClient } from '@tanstack/react-query';
-import { useEffect, useRef, type PropsWithChildren } from 'react';
+import { useEffect, useRef, useState, type PropsWithChildren } from 'react';
 import { Link, NavLink, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { logout } from '../../features/auth/auth-api';
 import { useAuthStore } from '../../features/auth/useAuthStore';
@@ -76,6 +76,29 @@ export function AuthorNavbar() {
   // admins get the writing workspace links.
   const isWriter = user?.role === 'AUTHOR' || user?.role === 'ADMIN';
   const path = location.pathname;
+  const [navbarHidden, setNavbarHidden] = useState(false);
+  const navbarRef = useRef<HTMLElement>(null);
+  const autoHide = !isWriter;
+  useEffect(() => {
+    setNavbarHidden(false);
+    if (!autoHide) return;
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const nextY = Math.max(0, window.scrollY);
+      if (nextY <= 64) {
+        setNavbarHidden(false);
+        lastY = nextY;
+      } else if (Math.abs(nextY - lastY) >= 6) {
+        const focused = document.activeElement;
+        const interacting = navbarRef.current?.querySelector('[aria-expanded="true"]') ||
+          (focused?.matches(':focus-visible') && navbarRef.current?.contains(focused));
+        setNavbarHidden(nextY > lastY && !interacting);
+        lastY = nextY;
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [autoHide, path]);
   const readerLink = (active: boolean) => (active ? 'sc-nav-link is-active' : 'sc-nav-link');
 
   async function handleLogout() {
@@ -89,9 +112,9 @@ export function AuthorNavbar() {
   }
 
   return (
-    <header className="sc-navbar">
+    <header ref={navbarRef} className={`sc-navbar${navbarHidden ? ' sc-navbar-hidden' : ''}`} inert={navbarHidden} onFocusCapture={() => setNavbarHidden(false)}>
       <div className="sc-navbar-inner">
-        <Link to={isWriter ? '/author/projects' : user ? '/reader' : '/public'} className="sc-brand" aria-label={`StoryCraft — ${isWriter ? navigationLabels.authorHome : user ? navigationLabels.readerHome : navigationLabels.publicHome}`}>
+        <Link to="/" className="sc-brand" aria-label={`StoryCraft — ${navigationLabels.home}`}>
           <span className="material-symbols-outlined">menu_book</span>
           <span>StoryCraft</span><span className="sc-brand-edition">Văn Hoa</span>
         </Link>
@@ -104,6 +127,7 @@ export function AuthorNavbar() {
           </nav>
         ) : user ? (
           <nav className="sc-global-nav" aria-label="Điều hướng chính">
+            <Link to="/" className={readerLink(path === '/')}>{navigationLabels.home}</Link>
             <Link to="/reader" className={readerLink(path === '/reader' || path.startsWith('/reader/novels') || path.startsWith('/reader/chapters') || path.startsWith('/authors/'))}>{navigationLabels.readerHome}</Link>
             <Link to="/reader/library" className={readerLink(path.startsWith('/reader/library'))}>Thư viện của tôi</Link>
             <Link to="/reader/history" className={readerLink(path.startsWith('/reader/history'))}>Lịch sử đọc</Link>
@@ -111,7 +135,8 @@ export function AuthorNavbar() {
           </nav>
         ) : (
           <nav className="sc-global-nav" aria-label="Điều hướng chính">
-            <Link to="/public" className={readerLink(path.startsWith('/public'))}>{navigationLabels.publicHome}</Link>
+            <Link to="/" className={readerLink(path === '/')}>{navigationLabels.home}</Link>
+            <Link to="/public" className={readerLink(path.startsWith('/public'))}>{navigationLabels.readerHome}</Link>
           </nav>
         )}
         <div className="sc-navbar-actions">

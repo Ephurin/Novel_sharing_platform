@@ -41,7 +41,11 @@ export function AnimatedModal({ opened, onClose, title, children, size = 'md', c
       </Dialog.Overlay>}
       {opened && <motion.div key="dialog" className={`sc-animated-modal-position ${centered ? 'is-centered' : ''} ${side ? 'is-drawer' : ''}`}>
         <Dialog.Content forceMount asChild aria-describedby={undefined}
-          onEscapeKeyDown={(event) => { if (!closeOnEscape) event.preventDefault(); }}
+          onEscapeKeyDown={(event) => {
+            // Escape closes the active combobox before dismissing its parent dialog.
+            const choosing = event.target instanceof Element && event.target.closest('[aria-expanded="true"][aria-haspopup="listbox"], [data-expanded="true"][aria-haspopup="listbox"]');
+            if (!closeOnEscape || choosing) event.preventDefault();
+          }}
           onPointerDownOutside={(event) => { if (!closeOnClickOutside) event.preventDefault(); }}
           onCloseAutoFocus={(event) => {
             onCloseAutoFocus?.(event);

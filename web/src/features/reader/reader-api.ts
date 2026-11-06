@@ -8,6 +8,9 @@ export type ReaderNovel = {
   synopsis?: string;
   coverImageUrl?: string | null;
   genre?: string | null;
+  genres?: string[];
+  authorNote?: string | null;
+  lastUpdatedAt?: string | null;
   tags?: string[];
   status?: string;
   serialStatus?: string;
@@ -15,6 +18,7 @@ export type ReaderNovel = {
   viewsCount?: number;
   chaptersCount?: number;
   updatedAt?: string;
+  latestChapter?: { chapterId: string; chapterNumber: number; title: string; publishedAt: string | null } | null;
 };
 
 export type ReaderChapter = {
@@ -31,6 +35,7 @@ export type ReaderChapter = {
 };
 
 export type ReadingHistoryItem = {
+  readChapterIds?: string[];
   novelId: string;
   chapterId: string;
   paragraphIndex: number;
@@ -78,25 +83,45 @@ export type SearchPublishedNovelsInput = {
   q?: string;
   genre?: string;
   tag?: string;
+  genres?: string[];
+  tags?: string[];
   status?: 'ONGOING' | 'COMPLETED' | 'HIATUS' | '';
-  sort?: 'relevance' | 'views' | 'likes' | 'updatedAt';
+  sort?: 'relevance' | 'views' | 'likes' | 'updatedAt' | 'wordCount' | 'title';
   order?: 'asc' | 'desc';
 };
 
-export async function searchPublishedNovels(input: SearchPublishedNovelsInput) {
+export async function getReadingFilters() {
+  const response = await apiClient.get<ApiEnvelope<{ genres: string[]; tags: string[] }>>('/reading/filters');
+  return response.data.data;
+}
+
+export async function searchPublishedNovels(input: SearchPublishedNovelsInput, signal?: AbortSignal) {
+  return (await searchPublishedNovelPage(input, signal)).items;
+}
+
+export async function searchPublishedNovelPage(input: SearchPublishedNovelsInput & { page?: number; limit?: number }, signal?: AbortSignal) {
   const response = await apiClient.get<ApiEnvelope<ReaderNovel[]>>('/reading/search', {
+    signal,
+    paramsSerializer: { indexes: null },
     params: {
       q: input.q || undefined,
       genre: input.genre || undefined,
       tag: input.tag || undefined,
+      genres: input.genres?.length ? input.genres : undefined,
+      tags: input.tags?.length ? input.tags : undefined,
       status: input.status || undefined,
-      page: 1,
-      limit: 20,
+      page: input.page ?? 1,
+      limit: input.limit ?? 20,
       sort: input.sort ?? 'updatedAt',
       order: input.order ?? 'desc'
     }
   });
-  return response.data.data;
+  const items = response.data.data;
+  const meta = response.data.meta ?? {};
+  const totalItems = Number(meta.totalItems ?? items.length);
+  const totalPages = Math.max(1, Number(meta.totalPages ?? Math.ceil(totalItems / (input.limit ?? 20))));
+  if (!Number.isSafeInteger(totalItems) || totalItems < 0 || !Number.isSafeInteger(totalPages)) throw new Error('Invalid catalog pagination');
+  return { items, totalItems, totalPages };
 }
 
 export async function getReadingPreferences() {
@@ -109,8 +134,8 @@ export async function saveReadingPreferences(input: ReadingPreferences) {
   return response.data.data;
 }
 
-export async function getReaderNovel(novelId: string) {
-  const response = await apiClient.get<ApiEnvelope<ReaderNovel & { chapters?: ReaderChapter[] }>>(`/reading/novels/${novelId}`);
+export async function getReaderNovel(novelId: string, signal?: AbortSignal) {
+  const response = await apiClient.get<ApiEnvelope<ReaderNovel & { chapters?: ReaderChapter[] }>>(`/reading/novels/${novelId}`, { signal });
   return response.data.data;
 }
 

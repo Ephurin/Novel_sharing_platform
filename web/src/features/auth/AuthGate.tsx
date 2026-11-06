@@ -98,5 +98,5 @@ export function RoleHomeRedirect() {
 function getRoleHomePath(role?: UserRole) {
   if (role === 'ADMIN') return '/admin';
   if (role === 'AUTHOR') return '/author';
-  return '/reader';
+  return '/';
 }

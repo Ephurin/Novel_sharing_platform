@@ -1,0 +1,67 @@
+name: Reader acceptance
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reader-acceptance-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  reader-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+      mongo:
+        image: mongo:7
+        ports: ['27017:27017']
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ping:1}).ok'"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      EXPECTED_REVIEW_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      PLAYWRIGHT_CHANNEL: chromium
+      RUN_READER_DISCOVERY_TESTS: '1'
+      EPHURIN_ALLOW_TEST_DB_MUTATIONS: '1'
+      ADMIN_TEST_POSTGRES_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+      ADMIN_TEST_MONGO_URL: mongodb://127.0.0.1:27017
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            web/package-lock.json
+            backend/package-lock.json
+      - run: npm ci --prefix backend && npm ci --prefix web
+      - run: npx playwright install --with-deps chromium
+        working-directory: web
+      - name: Test the PR head with disposable databases and provider-free browser fixtures
+        env:
+          READER_EVIDENCE_DIR: ${{ runner.temp }}/reader-acceptance
+        run: node scripts/run_reader_acceptance.mjs
+      - name: Upload tested SHA, results, teardown proof and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reader-acceptance-${{ github.event.pull_request.head.sha || github.sha }}
+          path: ${{ runner.temp }}/reader-acceptance
+          if-no-files-found: error
+          retention-days: 14
