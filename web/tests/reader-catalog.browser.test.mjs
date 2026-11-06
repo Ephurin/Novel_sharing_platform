@@ -68,7 +68,16 @@ test('reader catalog: cover cards, unified sorting, selectable filters and scrol
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
         await page.screenshot({ path: path.join(output, `${width}-${theme}-catalog.png`) });
         await page.getByRole('navigation', { name: 'Điều hướng chính' }).getByRole('link', { name: 'Danh sách truyện', exact: true }).click();
+        // Clearing the URL filters refetches the catalog. Wait for its final height
+        // before scrolling; a transient skeleton can otherwise clamp scrollY to zero.
+        await expect(page.locator('.sc-reader-book')).toHaveCount(novels.length);
+        await expect(page.getByRole('region', { name: 'Kết quả truyện' })).toHaveAttribute('aria-busy', 'false');
+        await page.evaluate(() => document.fonts.ready);
+        await page.getByRole('heading', { name: 'Danh sách truyện', exact: true }).click();
+        await page.evaluate(() => window.scrollTo(0, 0));
+        await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
         await page.evaluate(() => window.scrollTo(0, 700));
+        await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(600);
         await expect(page.locator('.sc-navbar')).toHaveClass(/sc-navbar-hidden/);
         await expect.poll(async () => (await page.locator('.sc-navbar').boundingBox()).y).toBeLessThan(0);
         await page.evaluate(() => window.scrollTo(0, 500));
