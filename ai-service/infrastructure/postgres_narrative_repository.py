@@ -857,7 +857,16 @@ class PostgresNarrativeRepository:
             if not members:
                 raise KeyError(group_id)
             if single_proposal_id is not None and len(members) != 1:
-                raise ProjectionError('Reject the complete dependency group using the group rejection endpoint')
+                from domain.proposal_dependencies import can_reject_individually
+                if not can_reject_individually(self._to_proposal(selected),
+                                              [self._to_proposal(p) for p in members]):
+                    raise ProjectionError('Reject the complete dependency group using the group rejection endpoint')
+                # Detach only the rejected, unused entity. The remaining pending
+                # group can still be approved in full without a decided member.
+                if any(p.status != ProposalStatus.PENDING.value for p in members):
+                    raise ProposalAlreadyDecidedError('Proposal group contains a decided proposal')
+                selected.dependency_group_id = self._stable_uuid('proposal-group', f'rejected:{selected.id}')
+                members = [selected]
             if any(p.status != ProposalStatus.PENDING.value for p in members):
                 raise ProposalAlreadyDecidedError('Proposal group contains a decided proposal')
             for proposal in members:
@@ -1337,8 +1346,11 @@ class PostgresNarrativeRepository:
             target = session.scalar(select(EntityRecord).where(EntityRecord.id == target_id, *self._scope(EntityRecord, novel_id)))
             if source is None or target is None:
                 raise KeyError("Entity not found")
+            if source.entity_type != target.entity_type:
+                raise ValueError("Only entities of the same type can be merged")
 
             aliases = session.scalars(select(EntityAliasRecord).where(EntityAliasRecord.entity_id == source_id)).all()
+            source_names = {source.canonical_name.casefold(), *[a.normalized_alias.casefold() for a in aliases]}
             alias_values = [(source.canonical_name, source.normalized_name), *[(a.alias, a.normalized_alias) for a in aliases]]
             for alias, normalized in alias_values:
                 exists = session.scalar(select(EntityAliasRecord).where(
@@ -1372,13 +1384,21 @@ class PostgresNarrativeRepository:
             session.execute(update(StateTransitionRecord).where(StateTransitionRecord.entity_id == source_id).values(entity_id=target_id))
             session.execute(update(FactRecord).where(FactRecord.subject_entity_id == source_id).values(subject_entity_id=target_id))
             session.execute(delete(CurrentEntityStateRecord).where(CurrentEntityStateRecord.entity_id == source_id))
+            from domain.entity_identity import remap_identity
             for event in session.scalars(select(EventRecord).where(*self._scope(EventRecord, novel_id))).all():
-                event.participants = [target.canonical_name if name.casefold() == source.canonical_name.casefold() else name for name in event.participants]
+                event.participants = list(dict.fromkeys(
+                    target.canonical_name if name.casefold() in source_names else name
+                    for name in event.participants))
+                event.event_metadata = remap_identity(event.event_metadata, str(source_id), str(target_id))
             for relation in session.scalars(select(RelationshipRecord).where(*self._scope(RelationshipRecord, novel_id))).all():
                 if relation.subject_name.casefold() == source.canonical_name.casefold():
                     relation.subject_name = target.canonical_name
                 if relation.object_name.casefold() == source.canonical_name.casefold():
                     relation.object_name = target.canonical_name
+                relation.relation_metadata = remap_identity(relation.relation_metadata, str(source_id), str(target_id))
+            for transition in session.scalars(select(StateTransitionRecord).where(
+                *self._scope(StateTransitionRecord, novel_id))).all():
+                transition.new_value = remap_identity(transition.new_value, str(source_id), str(target_id))
             session.delete(source)
             session.flush()
             brain.brain_version += 1

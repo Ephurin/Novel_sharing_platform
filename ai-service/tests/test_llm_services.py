@@ -1,4 +1,8 @@
 import unittest
+from unittest.mock import patch
+
+import httpx
+from google import genai
 
 from core.llm_client import LLMClient, LLMClientError
 from core.llm_service import LLMService, LLMServiceError
@@ -32,6 +36,49 @@ class LLMClientTests(unittest.TestCase):
 
         with self.assertRaisesRegex(LLMClientError, "disabled"):
             client.generate("Write a sentence")
+
+
+class GeminiRetryTests(unittest.TestCase):
+    def call_with_statuses(self, statuses: list[int]) -> tuple[str, int]:
+        calls = []
+
+        def handle(request: httpx.Request) -> httpx.Response:
+            status = statuses[min(len(calls), len(statuses) - 1)]
+            calls.append(request)
+            if status != 200:
+                return httpx.Response(status, json={"error": {"code": status, "message": "provider error"}})
+            return httpx.Response(200, json={"candidates": [{"content": {"parts": [{"text": "[]"}]}}]})
+
+        real_client = genai.Client
+
+        def create_client(**kwargs):
+            options = kwargs["http_options"]
+            self.assertEqual(options["timeout"], 30000)
+            options["httpx_client"] = httpx.Client(transport=httpx.MockTransport(handle))
+            client = real_client(**kwargs)
+            self.addCleanup(client.close)
+            return client
+
+        self.calls = calls
+        service = LLMService(provider="gemini", api_key="test-key")
+        with patch("google.genai.Client", side_effect=create_client), patch("time.sleep"):
+            result = service._call_gemini("Extract entities", "Minh met Lan.")
+        return result, len(calls)
+
+    def test_transient_overload_recovers(self) -> None:
+        result, calls = self.call_with_statuses([503, 503, 200])
+        self.assertEqual(result, "[]")
+        self.assertEqual(calls, 3)
+
+    def test_persistent_overload_stops_after_three_attempts(self) -> None:
+        with self.assertRaisesRegex(LLMServiceError, "đã thử lại 3 lần"):
+            self.call_with_statuses([503])
+        self.assertEqual(len(self.calls), 3)
+
+    def test_invalid_key_is_not_retried(self) -> None:
+        with self.assertRaises(LLMServiceError):
+            self.call_with_statuses([403])
+        self.assertEqual(len(self.calls), 1)
 
 
 class InteractionExtractionTests(unittest.TestCase):

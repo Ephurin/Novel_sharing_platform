@@ -24,6 +24,7 @@ export type ReviewProposal = {
   confidence: number | null;
   review_priority: number;
   review_reason: string;
+  can_reject_individually?: boolean;
 };
 
 export type StoryBrainSummary = {

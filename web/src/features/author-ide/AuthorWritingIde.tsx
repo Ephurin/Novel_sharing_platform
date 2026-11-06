@@ -716,6 +716,10 @@ export function AuthorWritingIde() {
       if (status === 'completed') {
         setIsGeneratingAi(false);
         const draftText = updated.draft || (updated.patch?.replacement ?? '');
+        if (/^\s*(?:```(?:json)?\s*)?\{\s*"(?:draft_text|draft|explanation)"\s*:/i.test(draftText)) {
+          setAiSuggestion('');
+          throw new Error('Đề xuất AI sai định dạng. Vui lòng tạo lại đề xuất.');
+        }
         setAiSuggestion(draftText);
         setAiSuggestionTone(
           updated.validation_status === 'passed' ? 'Đã kiểm định nhất quán • P1 Loop' : 'Hoàn thành'

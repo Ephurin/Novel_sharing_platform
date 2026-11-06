@@ -390,6 +390,16 @@ class InMemoryNarrativeRepository:
         for index, proposal in enumerate(proposals):
             if proposal.proposal_id != proposal_id:
                 continue
+            if not accepted:
+                from domain.proposal_dependencies import can_reject_individually
+                members = [p for p in proposals if p.dependency_group_id == proposal.dependency_group_id]
+                if not can_reject_individually(proposal, members):
+                    raise ProjectionError('Reject the complete dependency group using the group rejection endpoint')
+                if any(p.status != ProposalStatus.PENDING for p in members):
+                    raise ProposalAlreadyDecidedError('Proposal group contains a decided proposal')
+                if len(members) > 1:
+                    proposal = replace(proposal, dependency_group_id=str(uuid.uuid5(
+                        uuid.NAMESPACE_URL, f'rejected:{proposal.proposal_id}')))
             updated = replace(
                 proposal,
                 status=ProposalStatus.ACCEPTED if accepted else ProposalStatus.REJECTED,
@@ -578,6 +588,8 @@ class InMemoryNarrativeRepository:
         target = next((item for item in brain.entities if item.entity_id == target_entity_id), None)
         if source is None or target is None:
             raise KeyError("Entity not found")
+        if source.entity_type != target.entity_type:
+            raise ValueError("Only entities of the same type can be merged")
         aliases = {
             (item.entity_id, item.normalized_alias): item for item in brain.aliases
             if item.entity_id != source_entity_id
@@ -608,8 +620,20 @@ class InMemoryNarrativeRepository:
             if item.get("subject_entity_id") == source_entity_id else item
             for item in brain.facts
         )
+        from domain.entity_identity import remap_identity
+        transitions = tuple({**item, 'new_value': remap_identity(item.get('new_value'), source_entity_id, target_entity_id)}
+            for item in transitions)
+        source_names = {source.name.casefold(), *[a.normalized_alias.casefold() for a in brain.aliases if a.entity_id == source_entity_id]}
+        events = tuple(replace(event, participants=tuple(dict.fromkeys(
+            target.name if name.casefold() in source_names else name for name in event.participants)),
+            metadata=remap_identity(event.metadata, source_entity_id, target_entity_id))
+            for event in brain.events)
+        relations = tuple(replace(relation,
+            subject=target.name if relation.subject.casefold() == source.name.casefold() else relation.subject,
+            object=target.name if relation.object.casefold() == source.name.casefold() else relation.object,
+            metadata=remap_identity(relation.metadata, source_entity_id, target_entity_id)) for relation in brain.relations)
         entities = tuple(item for item in brain.entities if item.entity_id != source_entity_id)
-        state = project(entities, facts, brain.events, transitions)
+        state = project(entities, facts, events, transitions)
         self._brains[story_id] = replace(
             brain,
             entities=entities,
@@ -617,6 +641,8 @@ class InMemoryNarrativeRepository:
             mentions=mentions,
             facts=facts,
             transitions=transitions,
+            events=events,
+            relations=project_relations(entities, relations, state),
             current_state=state,
             metadata={**brain.metadata, "brain_version": str(current_version + 1)},
         )
