@@ -4,6 +4,9 @@
 .sc-catalog-filter-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: start; }
 .sc-catalog-filter-row .mantine-Input-wrapper { min-width: 0; }
 .sc-catalog-filter-row :is(.mantine-MultiSelect-input, .mantine-NativeSelect-input) { min-height: 40px; }
+.sc-author-theme .sc-catalog-filter-row .mantine-MultiSelect-root input.mantine-MultiSelect-inputField { min-height: 24px; height: 24px; line-height: 24px; }
+.sc-author-theme .sc-catalog-filter-row .mantine-Pill-remove { min-height: 0; }
+.sc-author-theme .sc-catalog-filter-row select.mantine-NativeSelect-input:not([multiple]):not([size]) { min-height: 40px; height: 40px; }
 .sc-catalog-status { display: flex; flex-wrap: wrap; gap: 8px; }
 .sc-catalog-status button { padding: 6px 12px; min-height: 36px; border: 1px solid var(--sc-border); border-radius: var(--sc-radius-control); color: var(--sc-text); background: transparent; transition: background-color .16s ease-out; }
 .sc-catalog-status button[aria-pressed="true"] { background: var(--sc-primary-soft); color: var(--sc-primary-text); border-color: var(--sc-primary-text); }

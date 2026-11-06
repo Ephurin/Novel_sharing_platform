@@ -75,6 +75,8 @@ test('catalog paginates real totals, remembers filters and exposes quick preview
           await page.keyboard.press('Escape');
           const controls = await page.locator('.sc-catalog-filter-row .mantine-Input-input').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().top));
           assert.ok(Math.max(...controls) - Math.min(...controls) < 1, 'Filter controls must align');
+          const heights = await page.locator('.sc-catalog-filter-row .mantine-Input-input').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().height));
+          assert.ok(heights.every(height => Math.abs(height - 40) < 1), 'Desktop filter controls must share the 40px height');
           const chip = await page.getByRole('button', { name: 'Bỏ bộ lọc Thể loại: Fantasy', exact: true }).boundingBox();
           const reset = await page.getByRole('button', { name: 'Xóa tất cả bộ lọc', exact: true }).boundingBox();
           assert.ok(Math.abs(chip.y + chip.height / 2 - reset.y - reset.height / 2) < 1, 'Reset must align with chips');
