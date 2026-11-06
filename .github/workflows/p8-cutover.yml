@@ -500,14 +500,20 @@ jobs:
       - name: Backup source database
         run: |
           set -euo pipefail
-          pg_dump             --format=custom             --no-owner             --no-acl             --dbname=postgresql://postgres:postgres@localhost:5432/p8_rehearsal             --file=/tmp/p8-rehearsal.dump
+          # Use the server image's clients; a newer runner pg_dump can emit settings PG16 cannot restore.
+          docker exec "${{ job.services.postgres.id }}" pg_dump --version
+          docker exec "${{ job.services.postgres.id }}" pg_dump \
+            --format=custom --no-owner --no-acl --username=postgres --dbname=p8_rehearsal \
+            > /tmp/p8-rehearsal.dump
           test -s /tmp/p8-rehearsal.dump
           sha256sum /tmp/p8-rehearsal.dump > /tmp/p8-rehearsal.dump.sha256
       - name: Restore into isolated verification database
         run: |
           set -euo pipefail
           psql postgresql://postgres:postgres@localhost:5432/postgres -v ON_ERROR_STOP=1             -c "CREATE DATABASE p8_restore_verify"
-          pg_restore             --exit-on-error             --no-owner             --no-acl             --dbname=postgresql://postgres:postgres@localhost:5432/p8_restore_verify             /tmp/p8-rehearsal.dump
+          docker exec -i "${{ job.services.postgres.id }}" pg_restore \
+            --exit-on-error --no-owner --no-acl --username=postgres --dbname=p8_restore_verify \
+            < /tmp/p8-rehearsal.dump
       - name: Verify restored migration state and canonical parity
         working-directory: ai-service
         env:

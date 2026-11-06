@@ -28,3 +28,5 @@ Local validation on the resulting source, before this documentation-only additio
 - Every disposable database was removed after its run. No application data or live provider calls were used for these checks.
 
 The P8 backend integration workflow now runs the Bible PostgreSQL suite. The Studio browser acceptance runner now includes the Bible export regression. GitHub checks must pass on the final PR head targeting `main`; this document does not substitute for that CI result.
+
+The first final-base CI run exposed a runner/client mismatch in the existing rollback rehearsal: its dump included `SET transaction_timeout`, which the PostgreSQL 16 restore server rejected. Backup and restore now use the clients inside the PostgreSQL service image, retaining the same checksum, canonical parity and unchanged-source assertions.
