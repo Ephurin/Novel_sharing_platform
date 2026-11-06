@@ -23,6 +23,12 @@ Giữ các phiên bản đã có trong `web/package.json`. Dùng primitive Anima
 - Nội dung đổi theo bộ lọc: `FeedbackReveal`, fade ngắn và tôn trọng reduced motion. Trạng thái nghiệp vụ cập nhật trực tiếp, không chờ animation kết thúc.
 - Vùng bấm được mở rộng trên thiết bị trỏ cảm ứng; kích thước chữ và bố cục thống nhất giữa hai theme.
 
+### Bổ sung trên trang chủ
+
+- `NovelQuickPreview` dùng Popover của Animate UI: mở bằng nút riêng, xem giới thiệu/tác giả/thể loại theo nhu cầu, Escape đóng và trả focus. Dùng dữ liệu công khai đã có trong danh sách, không gọi thêm API hay tự sinh nội dung.
+- `HomeResults` dùng Motion cho chuyển trang nổi bật theo hướng trước/sau; các gợi ý giữ key để đổi vị trí mềm hơn. Reduced motion cập nhật ngay, thao tác nhanh không chờ animation.
+- `HomeSectionState` dùng skeleton theo card/danh sách, lỗi có nút Thử lại và thể loại rỗng có nút Bỏ bộ lọc. Vùng khám phá dùng một thông báo tải cho screen reader.
+
 ## Màn hình thử nghiệm: trang chủ `/`
 
 Mục tiêu chính: tìm truyện để đọc.
@@ -46,7 +52,7 @@ Tại `web/`:
 npm run typecheck
 npm run build
 npm run test:contrast
-node --test tests/reader-home.browser.test.mjs tests/reader-catalog.browser.test.mjs
+node --test --test-concurrency=1 tests/reader-home.browser.test.mjs tests/reader-home-recovery.browser.test.mjs tests/reader-catalog.browser.test.mjs
 ```
 
 Kiểm thử trang chủ sử dụng API giả lập, không ghi dữ liệu thật. Bao gồm khách/độc giả, sáng/tối, 375/768/1024/1440px, ảnh chụp giao diện, điều hướng, chọn bằng bàn phím, chọn lại mục hiện tại, trạng thái tải/rỗng và reduced motion ở 375px.

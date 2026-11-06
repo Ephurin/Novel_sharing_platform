@@ -15,6 +15,8 @@ test('public homepage keeps root URL, uses live catalog sections and links guest
   const image = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="300"><rect width="200" height="300" fill="#775f55"/><circle cx="100" cy="110" r="60" fill="#e9c899"/><text x="100" y="225" text-anchor="middle" fill="white" font-size="20">StoryCraft</text></svg>');
   const novels = Array.from({ length: 16 }, (_, index) => ({ novelId: `novel-${index}`, authorId: 'author-1', title: `Hành trình qua những mùa gió ${index + 1}`, coverImageUrl: index % 3 ? image : null, genre: index % 2 ? 'Đời thường' : 'Fantasy', status: index < 5 ? 'COMPLETED' : 'ONGOING', chaptersCount: 12, viewsCount: 1250 - index, likesCount: index, updatedAt: '2026-11-01T10:00:00Z', latestChapter: { chapterId: `chapter-${index}`, chapterNumber: 12, title: 'Ngày trở về', publishedAt: '2026-11-01T10:00:00Z' } }));
   novels[0].latestChapter.title = 'Chương 12: Ngày trở về';
+  novels[0].authorName = 'Tác giả thử';
+  novels[0].synopsis = 'Một chuyến hành trình qua những miền ký ức.';
   try {
     for (const role of ['GUEST', 'READER']) for (const width of [1440, 1024, 768, 375]) for (const theme of ['light', 'dark']) {
       const context = await browser.newContext({ viewport: { width, height: 900 }, hasTouch: width === 375,
@@ -71,6 +73,25 @@ test('public homepage keeps root URL, uses live catalog sections and links guest
         await page.getByRole('radio', { name: 'Nổi bật', exact: true }).click();
         await expect(first).toHaveAttribute('href', `${catalog}/novels/novel-0`);
         await expect(page.locator('.sc-home-feature-grid')).toHaveCSS('opacity', '1');
+        const previewTrigger = page.locator('.sc-home-feature-card .sc-home-preview-trigger').first();
+        await previewTrigger.focus();
+        await page.keyboard.press('Enter');
+        const quickPreview = page.getByRole('dialog', { name: novels[0].title, exact: true });
+        await expect(quickPreview).toBeVisible();
+        await expect(quickPreview).toHaveCSS('opacity', '1');
+        await expect(quickPreview).toContainText(novels[0].synopsis);
+        await expect(quickPreview.getByRole('link', { name: 'Tác giả thử', exact: true })).toHaveAttribute('href', '/authors/author-1');
+        await expect(quickPreview.getByRole('link', { name: 'Đọc truyện', exact: true })).toHaveAttribute('href', `${catalog}/novels/novel-0`);
+        await expect(page).toHaveURL(`${base}/`);
+        const previewBounds = await quickPreview.boundingBox();
+        assert.ok(previewBounds.x >= 0 && previewBounds.x + previewBounds.width <= width);
+        if (width === 375 || width === 1440) {
+          await page.screenshot({ path: path.join(output, `${role}-${width}-${theme}-preview.png`), fullPage: true });
+          if (role === 'GUEST') await quickPreview.screenshot({ path: path.join(output, `${width}-${theme}-preview-panel.png`) });
+        }
+        await page.keyboard.press('Escape');
+        await expect(quickPreview).toHaveCount(0);
+        await expect(previewTrigger).toBeFocused();
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
         await page.screenshot({ path: path.join(output, `${role}-${width}-${theme}.png`), fullPage: true });
         const genres = page.getByRole('radiogroup', { name: 'Khám phá theo thể loại' });
@@ -79,10 +100,14 @@ test('public homepage keeps root URL, uses live catalog sections and links guest
           await expect.poll(() => typeof releaseEmpty).toBe('function');
           await expect(page.locator('#home-discovery-results')).toHaveAttribute('aria-busy', 'true');
           await expect(page.locator('.sc-home-results-summary')).toHaveText('Đang tìm truyện Trống…');
+          await expect(page.locator('#home-discovery-results .sc-home-loading-compact')).toBeVisible();
           await expect(page.getByRole('button', { name: 'Đổi gợi ý', exact: true })).toBeDisabled();
         } finally { releaseEmpty?.(); }
         await expect(page.getByRole('heading', { name: 'Chưa có truyện thuộc thể loại này', exact: true })).toBeVisible();
         await expect(page.locator('.sc-home-results-summary')).toHaveText('0 gợi ý cho thể loại Trống');
+        await page.getByRole('button', { name: 'Bỏ bộ lọc', exact: true }).click();
+        await expect(genres.getByRole('radio', { name: 'Tất cả', exact: true })).toBeChecked();
+        await expect(page.locator('.sc-home-discovery .sc-home-compact')).toHaveCount(6);
         await genres.getByRole('radio', { name: 'Đời thường', exact: true }).click();
         await expect.poll(() => lastGenre).toBe('Đời thường');
         await expect(page.locator('.sc-home-discovery .sc-home-compact')).toHaveCount(6);
