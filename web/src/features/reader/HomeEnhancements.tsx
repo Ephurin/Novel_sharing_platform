@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, type PropsWithChildren } from 'react';
+import { useEffect, useId, useRef, useState, type PropsWithChildren } from 'react';
 import { Popover } from '@animate-ui/react/primitives/radix-ui/popover';
 import { motion, useAnimationControls, useReducedMotion } from 'motion/react';
 import { Link } from 'react-router-dom';
@@ -7,15 +7,19 @@ import { PreviewLibraryAction } from './HomePersonalization';
 
 export function NovelQuickPreview({ novel, to }: { novel: ReaderNovel; to: string }) {
   const titleId = useId();
+  const [open, setOpen] = useState(false);
+  const trigger = useRef<HTMLButtonElement>(null);
   const genres = novel.genres?.length ? novel.genres : novel.genre ? [novel.genre] : [];
-  return <Popover.Root>
+  return <Popover.Root open={open} onOpenChange={setOpen}>
     <Popover.Trigger asChild>
-      <button type="button" className="sc-home-preview-trigger" aria-label={`Xem nhanh: ${novel.title}`} title="Xem nhanh">
+      <button ref={trigger} type="button" className="sc-home-preview-trigger" aria-label={`Xem nhanh: ${novel.title}`} title="Xem nhanh">
         <span className="material-symbols-outlined" aria-hidden="true">visibility</span>
       </button>
     </Popover.Trigger>
     <Popover.Portal>
-      <Popover.Content className="sc-home-preview" side="bottom" align="end" sideOffset={8} collisionPadding={16} aria-labelledby={titleId}>
+      <Popover.Content className="sc-home-preview" side="bottom" align="end" sideOffset={8} collisionPadding={16} aria-labelledby={titleId}
+        onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); setOpen(false); } }}
+        onCloseAutoFocus={event => { event.preventDefault(); trigger.current?.focus({ preventScroll: true }); }}>
         <header><h3 id={titleId}>{novel.title}</h3>
           <Popover.Close asChild><button type="button" className="sc-home-preview-close" aria-label="Đóng xem nhanh"><span className="material-symbols-outlined" aria-hidden="true">close</span></button></Popover.Close>
         </header>

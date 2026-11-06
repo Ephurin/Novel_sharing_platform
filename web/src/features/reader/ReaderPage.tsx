@@ -1,3 +1,4 @@
+import { ReaderCatalog } from './ReaderCatalog';
 import { ResponsiveFilters } from '../../shared/components/InteractionWidgets';
 import { ChapterToc, ReadingSettings } from '../../shared/components/ReaderTools';
 import { ReadingProgress } from '../../shared/components/ReadingProgress';
@@ -10,7 +11,7 @@ import { useAuthStore } from '../auth/useAuthStore';
 import { followNovel } from '../novels/novel-statistics-api';
 import { NumberInput, Select } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
@@ -24,13 +25,11 @@ import {
   getReadingPreferences,
   getReaderChapter,
   getReaderNovel,
-  getReadingFilters,
   listHistory,
   listLibrary,
   removeFromLibrary,
   reportContent,
   saveReadingPreferences,
-  searchPublishedNovels,
   syncHistory,
   unlockVipChapter,
   type ReadingPreferences,
@@ -41,28 +40,7 @@ import {
 // Reader screens reuse the StoryCraft author vocabulary: sc-navbar/sc-shell-content for layout,
 // sc-novel-card/sc-novel-overview/sc-novel-metrics for novels and sc-button for actions.
 
-type StoryStatus = 'ONGOING' | 'COMPLETED' | 'HIATUS' | '';
-const sortOptions = [
-  { value: 'updatedAt:desc', label: 'Mới cập nhật' },
-  { value: 'updatedAt:asc', label: 'Cập nhật cũ nhất' },
-  { value: 'views:desc', label: 'Lượt đọc: nhiều đến ít' },
-  { value: 'views:asc', label: 'Lượt đọc: ít đến nhiều' },
-  { value: 'likes:desc', label: 'Lượt thích: nhiều đến ít' },
-  { value: 'likes:asc', label: 'Lượt thích: ít đến nhiều' },
-  { value: 'wordCount:desc', label: 'Số từ: nhiều đến ít' },
-  { value: 'wordCount:asc', label: 'Số từ: ít đến nhiều' },
-  { value: 'title:asc', label: 'Tên truyện: A–Z' },
-  { value: 'title:desc', label: 'Tên truyện: Z–A' }
-] as const;
-type SortOption = typeof sortOptions[number]['value'];
-
 const card = 'bg-surface-container-lowest rounded-xl border border-stone-200/80 shadow-2xs';
-const statusTabs: Array<{ value: StoryStatus; label: string }> = [
-  { value: '', label: 'Tất cả' },
-  { value: 'ONGOING', label: 'Đang ra' },
-  { value: 'COMPLETED', label: 'Hoàn thành' },
-  { value: 'HIATUS', label: 'Tạm ngưng' }
-];
 const serialLabels: Record<string, string> = {
   ONGOING: 'Đang ra',
   COMPLETED: 'Hoàn thành',
@@ -70,151 +48,14 @@ const serialLabels: Record<string, string> = {
   PUBLISHED: 'Đã xuất bản'
 };
 
-function storyStatusFromParam(value: string | null): StoryStatus {
-  return statusTabs.some(tab => tab.value === value) ? value as StoryStatus : '';
-}
-
 // ─── Discovery ──────────────────────────────────────────────────────────────
 
 export function ReaderPage() {
-  const [searchParams] = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') ?? '');
-  const [genreFilter, setGenreFilter] = useState(() => searchParams.get('genre') ?? '');
-  const [tagFilter, setTagFilter] = useState(() => searchParams.get('tag') ?? '');
-  const [statusFilter, setStatusFilter] = useState<StoryStatus>(() => storyStatusFromParam(searchParams.get('status')));
-  useEffect(() => {
-    setSearchQuery(searchParams.get('q') ?? '');
-    setGenreFilter(searchParams.get('genre') ?? '');
-    setTagFilter(searchParams.get('tag') ?? '');
-    setStatusFilter(storyStatusFromParam(searchParams.get('status')));
-  }, [searchParams]);
-  const [sortOption, setSortOption] = useState<SortOption>('updatedAt:desc');
-  const [sortFilter, orderFilter] = sortOption.split(':') as ['updatedAt' | 'views' | 'likes' | 'wordCount' | 'title', 'asc' | 'desc'];
-  const novelsQuery = useQuery({
-    queryKey: ['reader-search', searchQuery, genreFilter, tagFilter, statusFilter, sortFilter, orderFilter],
-    queryFn: () =>
-      searchPublishedNovels({
-        q: searchQuery,
-        genre: genreFilter,
-        tag: tagFilter,
-        status: statusFilter,
-        sort: sortFilter,
-        order: orderFilter
-      })
-  });
-  const novels = novelsQuery.data ?? [];
-
-  return (
-    <div className="flex flex-col gap-6">
-      <PageHeader title={navigationLabels.readerHome} />
-
-      <section className="flex flex-col gap-4">
-        <ResponsiveFilters className="flex flex-col gap-4">
-          <SectionHeading title="Truyện đã xuất bản" count={novelsQuery.isSuccess ? `${novels.length} truyện` : undefined}>
-            <label htmlFor="reader-sort" className="text-form-label text-stone-500">Sắp xếp</label>
-            <select
-              id="reader-sort"
-              value={sortOption}
-              onChange={(event) => setSortOption(event.target.value as SortOption)}
-              className="bg-surface-container-lowest border border-stone-200 rounded-lg px-3 py-2 text-body text-stone-700"
-            >
-              {sortOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-            </select>
-          </SectionHeading>
-
-          <div className={`${card} px-3 py-2.5 flex flex-col gap-2.5`}>
-            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-              <SearchInput
-                value={searchQuery}
-                onChange={setSearchQuery}
-                placeholder="Tìm theo tên truyện, giới thiệu, thể loại..."
-                testId="reader-search-input"
-              />
-              <StoryStatusFilters value={statusFilter} onChange={setStatusFilter} />
-            </div>
-            <div className="flex flex-col sm:flex-row gap-2.5">
-              <CatalogFilters genre={genreFilter} onGenreChange={setGenreFilter} tag={tagFilter} onTagChange={setTagFilter} />
-            </div>
-          </div>
-
-        </ResponsiveFilters>
-        <QueryStates
-          loading={novelsQuery.isLoading}
-          error={novelsQuery.isError ? novelsQuery.error : null}
-          onRetry={() => void novelsQuery.refetch()}
-          empty={novelsQuery.isSuccess && !novels.length}
-          loadingLabel="Đang tải danh sách truyện..."
-          emptyTitle="Không tìm thấy truyện"
-          emptyDescription="Không có truyện nào khớp với bộ lọc hiện tại."
-        />
-
-        <NovelGrid>
-          {novels.map((novel) => (
-            <NovelCard key={novel.novelId} novel={novel} />
-          ))}
-        </NovelGrid>
-      </section>
-    </div>
-  );
+  return <ReaderCatalog />;
 }
 
 export function PublicReaderPage() {
-  const [searchParams] = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') ?? '');
-  const [genreFilter, setGenreFilter] = useState(() => searchParams.get('genre') ?? '');
-  const [tagFilter, setTagFilter] = useState(() => searchParams.get('tag') ?? '');
-  const [statusFilter, setStatusFilter] = useState<StoryStatus>(() => storyStatusFromParam(searchParams.get('status')));
-  useEffect(() => {
-    setSearchQuery(searchParams.get('q') ?? '');
-    setGenreFilter(searchParams.get('genre') ?? '');
-    setTagFilter(searchParams.get('tag') ?? '');
-    setStatusFilter(storyStatusFromParam(searchParams.get('status')));
-  }, [searchParams]);
-  const novelsQuery = useQuery({
-    queryKey: ['public-reader-search', searchQuery, genreFilter, tagFilter, statusFilter],
-    queryFn: () =>
-      searchPublishedNovels({
-        q: searchQuery,
-        genre: genreFilter,
-        tag: tagFilter,
-        status: statusFilter,
-        sort: 'updatedAt',
-        order: 'desc'
-      })
-  });
-  const novels = novelsQuery.data ?? [];
-
-  return (
-    <PublicLayout>
-      <PageHeader
-        title={navigationLabels.publicHome}
-        description="Đọc thử truyện đã xuất bản. Đăng nhập để lưu truyện, bình luận, mở khóa chương VIP hoặc báo cáo."
-      />
-      <ResponsiveFilters>
-        <div className={`${card} px-3 py-2.5 flex flex-col gap-2.5`}>
-          <div className="flex flex-col md:flex-row gap-2.5">
-            <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Tìm theo tên truyện, giới thiệu..." />
-            <CatalogFilters genre={genreFilter} onGenreChange={setGenreFilter} tag={tagFilter} onTagChange={setTagFilter} />
-          </div>
-          <StoryStatusFilters value={statusFilter} onChange={setStatusFilter} />
-        </div>
-      </ResponsiveFilters>
-      <QueryStates
-        loading={novelsQuery.isLoading}
-        error={novelsQuery.isError ? novelsQuery.error : null}
-        onRetry={() => void novelsQuery.refetch()}
-        empty={novelsQuery.isSuccess && !novels.length}
-        loadingLabel="Đang tải truyện công khai..."
-        emptyTitle="Không tìm thấy truyện"
-        emptyDescription="Không có truyện công khai nào khớp với tìm kiếm."
-      />
-      <NovelGrid>
-        {novels.map((novel) => (
-          <NovelCard key={novel.novelId} novel={novel} publicMode />
-        ))}
-      </NovelGrid>
-    </PublicLayout>
-  );
+  return <PublicLayout><ReaderCatalog publicMode /></PublicLayout>;
 }
 
 // ─── Novel detail ───────────────────────────────────────────────────────────
@@ -664,63 +505,6 @@ function Breadcrumb({ back, current, children }: { back: { to: string; label: st
     <div className={`${card} px-3 py-1.5 flex items-center justify-between gap-3`}>
       <Breadcrumbs items={[back, { label: current }]} />
       {children ? <div className="flex items-center gap-1.5 shrink-0">{children}</div> : null}
-    </div>
-  );
-}
-
-function SearchInput({ value, onChange, placeholder, testId }: { value: string; onChange: (value: string) => void; placeholder: string; testId?: string }) {
-  return (
-    <div className="relative flex-1 min-w-[220px]">
-      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-[18px]" aria-hidden="true">search</span>
-      <input
-        type="text"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={placeholder}
-        aria-label="Tìm truyện"
-        data-testid={testId}
-        className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-stone-50/80 text-meta text-stone-900 placeholder:text-stone-400 border border-stone-200/80 focus:outline-none focus:bg-surface-container-lowest focus:border-primary-600 focus:ring-1 focus:ring-primary-600 transition-colors"
-      />
-    </div>
-  );
-}
-
-function StoryStatusFilters({ value, onChange }: { value: StoryStatus; onChange: (value: StoryStatus) => void }) {
-  return <div className="sc-filter-tabs flex flex-wrap items-center bg-stone-100 p-0.5 rounded-lg text-meta font-medium" role="group" aria-label="Lọc theo trạng thái">
-    {statusTabs.map(tab => <button key={tab.value || 'all'} type="button" aria-pressed={value === tab.value} onClick={() => onChange(tab.value)}
-      className={`px-3 py-1 rounded-md transition-all cursor-pointer ${value === tab.value ? 'bg-primary-600 text-white shadow-xs font-semibold' : 'text-stone-600 hover:text-stone-900'}`}>{tab.label}</button>)}
-  </div>;
-}
-
-function CatalogFilters({ genre, onGenreChange, tag, onTagChange }: {
-  genre: string; onGenreChange: (value: string) => void; tag: string; onTagChange: (value: string) => void;
-}) {
-  const filters = useQuery({ queryKey: ['reading-filters'], queryFn: getReadingFilters, staleTime: 60_000 });
-  return <>
-    <FilterSelect value={genre} onChange={onGenreChange} placeholder="Lọc theo thể loại" icon="category" options={filters.data?.genres ?? []} loading={filters.isLoading} />
-    <FilterSelect value={tag} onChange={onTagChange} placeholder="Lọc theo thẻ" icon="sell" options={filters.data?.tags ?? []} loading={filters.isLoading} />
-    {filters.isError && <button type="button" className="sc-button" onClick={() => void filters.refetch()}>Tải lại bộ lọc</button>}
-  </>;
-}
-
-function FilterSelect({ value, onChange, placeholder, icon, options, loading }: {
-  value: string; onChange: (value: string) => void; placeholder: string; icon: string; options: string[]; loading: boolean;
-}) {
-  return (
-    <div className="flex-1 min-w-0 sm:max-w-[260px]">
-      <Select
-        value={value || null}
-        onChange={(selected) => onChange(selected ?? '')}
-        data={options}
-        placeholder={placeholder}
-        aria-label={placeholder}
-        leftSection={<span className="material-symbols-outlined text-[16px]" aria-hidden="true">{icon}</span>}
-        searchable
-        clearable
-        clearButtonProps={{ 'aria-label': `Bỏ ${placeholder.toLowerCase()}`, 'aria-hidden': false, tabIndex: 0 }}
-        nothingFoundMessage={loading ? 'Đang tải...' : 'Không có lựa chọn phù hợp'}
-        comboboxProps={{ withinPortal: false }}
-      />
     </div>
   );
 }

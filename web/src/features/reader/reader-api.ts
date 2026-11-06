@@ -93,6 +93,10 @@ export async function getReadingFilters() {
 }
 
 export async function searchPublishedNovels(input: SearchPublishedNovelsInput, signal?: AbortSignal) {
+  return (await searchPublishedNovelPage(input, signal)).items;
+}
+
+export async function searchPublishedNovelPage(input: SearchPublishedNovelsInput & { page?: number; limit?: number }, signal?: AbortSignal) {
   const response = await apiClient.get<ApiEnvelope<ReaderNovel[]>>('/reading/search', {
     signal,
     params: {
@@ -100,13 +104,18 @@ export async function searchPublishedNovels(input: SearchPublishedNovelsInput, s
       genre: input.genre || undefined,
       tag: input.tag || undefined,
       status: input.status || undefined,
-      page: 1,
-      limit: 20,
+      page: input.page ?? 1,
+      limit: input.limit ?? 20,
       sort: input.sort ?? 'updatedAt',
       order: input.order ?? 'desc'
     }
   });
-  return response.data.data;
+  const items = response.data.data;
+  const meta = response.data.meta ?? {};
+  const totalItems = Number(meta.totalItems ?? items.length);
+  const totalPages = Math.max(1, Number(meta.totalPages ?? Math.ceil(totalItems / (input.limit ?? 20))));
+  if (!Number.isSafeInteger(totalItems) || totalItems < 0 || !Number.isSafeInteger(totalPages)) throw new Error('Invalid catalog pagination');
+  return { items, totalItems, totalPages };
 }
 
 export async function getReadingPreferences() {
