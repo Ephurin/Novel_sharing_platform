@@ -135,11 +135,12 @@ def test_validation_errors_do_not_echo_private_input_or_protected_sources(f,capl
     headers={**f.headers,'X-Author-Id':ACTOR}
     before=state(f,'private-error-before')
     data=request_data(f.src.novel_id);data['idea']='ambiguous';data['status']='accepted'
-    response=f.client.post('/v1/story-brains/bootstrap/from-idea',headers=headers,json=data)
-    assert response.status_code==422
-    assert response.json()=={'detail':{'code':'INVALID_SETUP_REQUEST'}}
-    for private in ['PrivateOnly','ConstraintOnly','private_author_notes','author_constraints']:
-        assert private not in response.text and private not in caplog.text
+    for invalid in [data, [data], {'wrapper':data}]:
+        response=f.client.post('/v1/story-brains/bootstrap/from-idea',headers=headers,json=invalid)
+        assert response.status_code==422
+        assert response.json()=={'detail':{'code':'INVALID_SETUP_REQUEST'}}
+        for private in ['PrivateOnly','ConstraintOnly','private_author_notes','author_constraints']:
+            assert private not in response.text and private not in caplog.text
     assert state(f,'private-error-after')==before and f.llm.calls==0
     print('SETUP_SCOPE_PROVIDER_CALLS 0')
 

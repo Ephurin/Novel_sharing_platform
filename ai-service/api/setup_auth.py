@@ -51,6 +51,19 @@ from fastapi.routing import APIRoute
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
+def contains_setup_input(body):
+    pending = [body]
+    while pending:
+        item = pending.pop()
+        if isinstance(item, dict):
+            if any(k in item for k in ('setup', 'contract_version', 'private_author_notes', 'author_constraints')):
+                return True
+            pending.extend(item.values())
+        elif isinstance(item, list):
+            pending.extend(item)
+    return False
+
+
 class SetupValidationRoute(APIRoute):
     def get_route_handler(self):
         original = super().get_route_handler()
@@ -59,7 +72,7 @@ class SetupValidationRoute(APIRoute):
                 return await original(request)
             except RequestValidationError as exc:
                 body = exc.body
-                versioned = isinstance(body, dict) and any(k in body for k in ('setup','contract_version','private_author_notes'))
+                versioned = contains_setup_input(body)
                 if self.path.endswith('/bootstrap/from-idea') and versioned:
                     return JSONResponse(status_code=422, content={'detail':{'code':'INVALID_SETUP_REQUEST'}})
                 raise
