@@ -5,10 +5,32 @@ import argparse
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 
 import psycopg
 from psycopg import sql
+
+
+
+# PG16 deparses an array-level varchar->text cast differently after pg_dump's
+# DDL is parsed on restore. These casts are equivalent because each source
+# element is explicitly varchar; never normalize arbitrary casts or row data.
+_VARCHAR = r"'(?:[^']|'')*'::character varying"
+_ARRAY_TEXT_CAST = re.compile(r"\(ARRAY\[(" + _VARCHAR + r"(?:, " + _VARCHAR + r")*)\]\)::text\[\]")
+
+
+def comparable(data: dict) -> dict:
+    result = json.loads(json.dumps(data))
+    for table in result["tables"].values():
+        for kind in ("constraints", "indexes"):
+            for member in table[kind]:
+                member[1] = _ARRAY_TEXT_CAST.sub(
+                    lambda match: "ARRAY[" + ", ".join(
+                        f"({value})::text" for value in re.findall(_VARCHAR, match[1])
+                    ) + "]", member[1],
+                )
+    return result
 
 
 def readback(url: str) -> tuple[str, dict]:
@@ -53,14 +75,17 @@ def main() -> None:
     parser.add_argument("--expected", type=Path)
     args = parser.parse_args()
     database, data = readback(os.environ[args.database_env])
-    canonical = json.dumps(data, sort_keys=True, separators=(",", ":"))
-    data = json.loads(canonical)  # Compare JSON arrays, not driver tuples, after reload.
+    canonical = json.dumps(comparable(data), sort_keys=True, separators=(",", ":"))
+    data = json.loads(json.dumps(data))  # Preserve raw definitions in the artifact.
     digest = hashlib.sha256(canonical.encode()).hexdigest()
     args.output.write_text(json.dumps(data, sort_keys=True, indent=2) + "\n", encoding="utf-8")
     if args.expected:
-        assert data == json.loads(args.expected.read_text(encoding="utf-8")), "rollback schema/data parity mismatch"
+        expected = json.loads(args.expected.read_text(encoding="utf-8"))
+        assert comparable(data) == comparable(expected), "rollback schema/data parity mismatch"
     print(json.dumps(dict(database=database, sha256=digest, tables=len(data["tables"]),
         rows={key:len(value["rows"]) for key,value in data["tables"].items()},
+        raw_sha256=hashlib.sha256(json.dumps(data, sort_keys=True, separators=(",", ":")).encode()).hexdigest(),
+        schema_normalization="explicit varchar array to text element casts only",
         pgvector_distance=data["vector_distance"], comparison="PASS" if args.expected else "CAPTURED"), sort_keys=True))
 
 

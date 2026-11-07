@@ -519,6 +519,8 @@ jobs:
           PY
           psql postgresql://postgres:postgres@localhost:5432/p8_rehearsal -Atc             "SELECT version_num FROM alembic_version ORDER BY version_num" > /tmp/source-alembic.txt
           psql postgresql://postgres:postgres@localhost:5432/p8_rehearsal -Atc             "SELECT extname || ':' || extversion FROM pg_extension WHERE extname='vector'" > /tmp/source-vector.txt
+      - name: Verify catalog comparison rejects real schema and data changes
+        run: python -m unittest discover -s scripts/tests -p test_p8_rollback_readback.py -v
       - name: Capture complete source schema and data
         run: |
           set -euo pipefail
