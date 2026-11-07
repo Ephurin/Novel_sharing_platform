@@ -1,0 +1,12 @@
+2026-11-07T04:06:35.4690527Z
+2026-11-07T04:06:35.4691330Z HEAD is now at 938d5f9 Merge 2b365505551c51c71884ee7c340ada5273a5fe3c into 3adab5c73636bd4e7c3dbc6578d4ece0a54b5627
+2026-11-07T04:06:35.4731932Z ##[endgroup]
+2026-11-07T04:06:36.8060577Z Cache restored from key: setup-python-Linux-x64-26.04-Ubuntu-python-3.12.16-pip-f7da6d93e4faad6b8637515034852b1b8d532f341deb38ec9f73df3baf4accfc
+2026-11-07T04:06:36.8316397Z ##[group]Run pip install -r requirements.txt pytest httpx
+2026-11-07T04:06:36.8316904Z pip install -r requirements.txt pytest httpx
+2026-11-07T04:06:49.0399005Z [notice] To update, run: pip install --upgrade pip
+2026-11-07T04:06:49.1706441Z ##[group]Run pytest -o addopts= -q -m postgres_integration
+2026-11-07T04:06:49.1706944Z pytest -o addopts= -q -m postgres_integration
+2026-11-07T04:07:48.8827473Z -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2026-11-07T04:07:48.8828290Z 198 passed, 8 skipped, 405 deselected, 5 warnings in 58.80s
+2026-11-07T04:07:49.6487321Z Post job cleanup.
