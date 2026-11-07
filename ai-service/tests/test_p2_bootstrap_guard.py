@@ -96,7 +96,11 @@ def test_failed_blueprint_replay_does_not_dispatch_again():
     with pytest.raises(RuntimeError, match='fake provider failure'):
         service.start_from_idea(**args)
     job = service.start_from_idea(**args)
-    assert service.resume(job.job_id).status == 'failed'
+    from domain.errors import BootstrapConflictError
+    before = asdict(repo.get_bootstrap_job(job.job_id))
+    with pytest.raises(BootstrapConflictError, match='IDEA_BOOTSTRAP_RETRY_UNSUPPORTED'):
+        service.resume(job.job_id)
+    assert asdict(repo.get_bootstrap_job(job.job_id)) == before
     assert llm.calls == 1
     assert not repo._analysis_runs
     assert not repo.list_proposals(src.novel_id)
@@ -112,3 +116,41 @@ def test_activation_requires_every_persisted_required_decision():
         service.activate_baseline(src.novel_id, job.job_id)
     assert repo.get_story_brain(src.novel_id).metadata['status'] == 'importing'
     assert repo.get_bootstrap_job(job.job_id).status == 'waiting_review'
+
+
+def test_failed_idea_resume_http_does_not_enqueue():
+    from api.narrative_routes import resume_job
+    from fastapi import BackgroundTasks, HTTPException
+    repo, service, llm, src = fixture()
+    def fail(**kwargs):
+        llm.calls += 1
+        raise RuntimeError('fake failure')
+    llm.generate_story_blueprint = fail
+    args = dict(tenant_id=TENANT, novel_id=src.novel_id, idea='source', idempotency_key='resume')
+    with pytest.raises(RuntimeError):
+        service.start_from_idea(**args)
+    job = service.start_from_idea(**args)
+    before = asdict(job)
+    tasks = BackgroundTasks()
+    with pytest.raises(HTTPException) as error:
+        resume_job(job.job_id, tasks, 'request-id', service)
+    assert error.value.status_code == 409
+    assert error.value.detail == {'code': 'IDEA_BOOTSTRAP_RETRY_UNSUPPORTED'}
+    assert not tasks.tasks and llm.calls == 1
+    assert asdict(repo.get_bootstrap_job(job.job_id)) == before
+    assert not repo._analysis_runs and not repo.list_proposals(src.novel_id)
+
+
+@pytest.mark.parametrize('status', ['waiting_review', 'completed'])
+def test_finished_idea_resume_is_side_effect_free(status):
+    from api.narrative_routes import resume_job
+    from fastapi import BackgroundTasks
+    repo, service, llm, src = fixture()
+    job = service.start_from_idea(tenant_id=TENANT, novel_id=src.novel_id, idea='source')
+    repo.save_bootstrap_job(replace(job, status=status))
+    before = asdict(repo.get_bootstrap_job(job.job_id))
+    tasks = BackgroundTasks()
+    result = resume_job(job.job_id, tasks, 'request-id', service)
+    assert result['data']['status'] == status
+    assert not tasks.tasks and llm.calls == 1
+    assert asdict(service.resume(job.job_id)) == before

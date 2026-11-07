@@ -72,6 +72,9 @@ export type ApiEnvelope<TData> = {
 
 export function getApiErrorMessage(error: unknown) {
   if (error instanceof ApiClientError) {
+    if (error.code === 'IDEA_BOOTSTRAP_RETRY_UNSUPPORTED') {
+      return 'Không thể thử lại tác vụ tạo ý tưởng đã thất bại. Hãy bắt đầu một tác vụ mới.';
+    }
     return `${error.code}: ${error.message}`;
   }
 
