@@ -1,0 +1,7 @@
+2026-11-07T05:16:27.7126077Z HEAD is now at 14e493f Merge 4b86a3b810436f4714442a97634cfd430b8178dc into 3adab5c73636bd4e7c3dbc6578d4ece0a54b5627
+2026-11-07T05:16:56.1598281Z FAILED tests/test_idea_bootstrap_routes.py::IdeaBootstrapRouteTests::test_bootstrap_from_idea_creates_proposals_and_activates_baseline - AssertionError: 401 != 202 : {"detail":{"code":"SERVICE_AUTH_REQUIRED","message":"Service token required"}}
+2026-11-07T05:16:56.1601016Z FAILED tests/test_idea_bootstrap_routes.py::IdeaBootstrapRouteTests::test_bootstrap_from_idea_idempotency - AssertionError: 401 != 202
+2026-11-07T05:16:56.1603333Z FAILED tests/test_idea_bootstrap_routes.py::IdeaBootstrapRouteTests::test_bootstrap_locale_distinct_jobs - AssertionError: 401 != 202
+2026-11-07T05:16:56.1605709Z FAILED tests/test_manuscript_bootstrap_routes.py::ManuscriptBootstrapRouteTests::test_import_rejects_content_hash_mismatch_before_job_creation - AssertionError: 401 != 422
+2026-11-07T05:16:56.1607992Z FAILED tests/test_manuscript_bootstrap_routes.py::ManuscriptBootstrapRouteTests::test_import_review_and_activate_baseline - AssertionError: 401 != 202
+2026-11-07T05:16:56.1609458Z 5 failed, 26 passed, 4 warnings in 1.87s

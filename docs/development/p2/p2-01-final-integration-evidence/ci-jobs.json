@@ -1,0 +1,88 @@
+{
+  "source_sha": "4829acd7ce6403d34bc0eb819c9d50059fd4d5a2",
+  "ci_checkout": "2ff9f237915b7f58b0825b5c8eef0e470624b43d",
+  "tree": "74ede9a05f9e8926b20d940cd44181fdc3af41d4",
+  "runs": [
+    {
+      "id": 42342208852,
+      "jobs": [
+        {
+          "id": 128312152659,
+          "name": "root-compose-smoke",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128312152859,
+          "name": "unit",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128312152899,
+          "name": "pgvector-integration",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 42342208899,
+      "jobs": [
+        {
+          "id": 128312152779,
+          "name": "rollback-rehearsal",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128312152977,
+          "name": "backend-integration",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128312153000,
+          "name": "final-cleanup-gate",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128312153001,
+          "name": "frontend-api-cutover",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128312153007,
+          "name": "unit",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128312153010,
+          "name": "root-compose-cutover-smoke",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128312153040,
+          "name": "postgres-integration",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 42342208880,
+      "jobs": [
+        {
+          "id": 128312152690,
+          "name": "isolated-p2-a16-gateway",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "head_sha": "4829acd7ce6403d34bc0eb819c9d50059fd4d5a2",
+  "ci_checkout": "2ff9f237915b7f58b0825b5c8eef0e470624b43d",
+  "tree": "74ede9a05f9e8926b20d940cd44181fdc3af41d4",
+  "artifact_sha256": {
+    "runtime": "59b4e502f44d6065deaedaa5632936b0b653c4bdcd8bd4b8bdf331b36c563c22",
+    "rollback": "4508f647d555b9dfd18ff5dc297fe311bfb82522124d6b4e6d73565bb4f4a486"
+  },
+  "focused_pass": 23,
+  "a16_pass": 15,
+  "postgres": {
+    "database": "p2a",
+    "version": "PostgreSQL 16.15 (Debian 16.15-1.pgdg12+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit"
+  },
+  "mongo": {
+    "database": "p2a",
+    "version": "7.0.45"
+  },
+  "a16_readbacks": 28,
+  "a16_exact_negative_pairs": 12,
+  "setup_events": 0,
+  "gateway_status_counts": {
+    "200": 1,
+    "401": 4,
+    "403": 4,
+    "404": 4,
+    "409": 4
+  },
+  "immutable_original_preserved": true,
+  "revision_hash_verified": "2820f3c28370c94c08a19fc3793b806da75fd53a6f5d33e656b9091e61e78dc1",
+  "outbox_revision_link_verified": true,
+  "approved_canon_unchanged": true,
+  "gateway_exact_negative_pairs": 4,
+  "revisions_after": 2,
+  "outbox_after": 1,
+  "mongo_version_after": 2,
+  "canon_version_after": 5,
+  "rollback_raw_source_unchanged": true,
+  "rollback_tables": 23,
+  "rollback_backup_sha256": "f7cd71fc91e77d95f9a32a8b622e46883c35b0f6462636fb3327f52af5158185",
+  "rollback_raw_sha256": "21f582be5859ddccf53a654a11f3905cafc03ec73005ae817ee096e209fd2ff6",
+  "rollback_normalized_sha256": "e9e42e22f658a2a5172de76c0126738bb492d31bfc786848b521af95a8e9fa33",
+  "rollback_migration": "0016_entity_profile_audit_timestamp",
+  "rollback_vector": "vector:0.8.7"
+}
