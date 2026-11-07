@@ -610,7 +610,7 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/p8_rollback_readback.py --database-env RESTORE_DATABASE_URL --output /tmp/p8-rollback-evidence/restore-readback.json --expected /tmp/p8-rollback-evidence/source-readback.json | tee /tmp/p8-rollback-evidence/restore-readback-summary.json
-          python scripts/p8_rollback_readback.py --database-env SOURCE_DATABASE_URL --output /tmp/p8-rollback-evidence/source-after-readback.json --expected /tmp/p8-rollback-evidence/source-readback.json | tee /tmp/p8-rollback-evidence/source-after-summary.json
+          python scripts/p8_rollback_readback.py --database-env SOURCE_DATABASE_URL --output /tmp/p8-rollback-evidence/source-after-readback.json --expected /tmp/p8-rollback-evidence/source-readback.json --require-raw-equality | tee /tmp/p8-rollback-evidence/source-after-summary.json
           cp /tmp/p8-rehearsal.dump /tmp/p8-rehearsal.dump.sha256 /tmp/source-alembic.txt /tmp/restore-alembic.txt /tmp/source-vector.txt /tmp/restore-vector.txt /tmp/source-snapshot.json /tmp/p8-rollback-evidence/
           sha256sum /tmp/p8-rollback-evidence/*.json > /tmp/p8-rollback-evidence/readbacks.sha256
       - name: Upload rollback versions and authoritative readbacks

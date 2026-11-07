@@ -48,6 +48,18 @@ class SchemaComparisonTests(unittest.TestCase):
             changed["tables"]["narrative.fixture"]["constraints"],
         )
 
+    def test_source_after_requires_exact_raw_catalog(self):
+        module.verify_readback(self.source, copy.deepcopy(self.source), require_raw=True)
+        with self.assertRaisesRegex(AssertionError, "raw source"):
+            module.verify_readback(self.restored, self.source, require_raw=True)
+
+    def test_restore_comparison_still_rejects_changed_rows(self):
+        module.verify_readback(self.restored, self.source)
+        changed = copy.deepcopy(self.restored)
+        changed["tables"]["narrative.fixture"]["rows"][0]["status"] = "completed"
+        with self.assertRaisesRegex(AssertionError, "parity mismatch"):
+            module.verify_readback(changed, self.source)
+
 
 if __name__ == "__main__":
     unittest.main()

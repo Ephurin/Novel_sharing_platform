@@ -33,6 +33,12 @@ def comparable(data: dict) -> dict:
     return result
 
 
+def verify_readback(data: dict, expected: dict, *, require_raw: bool = False) -> None:
+    assert comparable(data) == comparable(expected), "rollback schema/data parity mismatch"
+    if require_raw:
+        assert data == expected, "raw source schema/data changed during restore rehearsal"
+
+
 def readback(url: str) -> tuple[str, dict]:
     with psycopg.connect(url.replace("postgresql+psycopg://", "postgresql://")) as conn:
         with conn.transaction():
@@ -73,7 +79,10 @@ def main() -> None:
     parser.add_argument("--database-env", required=True, choices=["SOURCE_DATABASE_URL", "RESTORE_DATABASE_URL"])
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--expected", type=Path)
+    parser.add_argument("--require-raw-equality", action="store_true")
     args = parser.parse_args()
+    if args.require_raw_equality and (not args.expected or args.database_env != "SOURCE_DATABASE_URL"):
+        parser.error("raw equality requires the source database and --expected")
     database, data = readback(os.environ[args.database_env])
     canonical = json.dumps(comparable(data), sort_keys=True, separators=(",", ":"))
     data = json.loads(json.dumps(data))  # Preserve raw definitions in the artifact.
@@ -81,11 +90,12 @@ def main() -> None:
     args.output.write_text(json.dumps(data, sort_keys=True, indent=2) + "\n", encoding="utf-8")
     if args.expected:
         expected = json.loads(args.expected.read_text(encoding="utf-8"))
-        assert comparable(data) == comparable(expected), "rollback schema/data parity mismatch"
+        verify_readback(data, expected, require_raw=args.require_raw_equality)
     print(json.dumps(dict(database=database, sha256=digest, tables=len(data["tables"]),
         rows={key:len(value["rows"]) for key,value in data["tables"].items()},
         raw_sha256=hashlib.sha256(json.dumps(data, sort_keys=True, separators=(",", ":")).encode()).hexdigest(),
         schema_normalization="explicit varchar array to text element casts only",
+        raw_comparison="PASS" if args.require_raw_equality else "NOT_REQUESTED",
         pgvector_distance=data["vector_distance"], comparison="PASS" if args.expected else "CAPTURED"), sort_keys=True))
 
 
