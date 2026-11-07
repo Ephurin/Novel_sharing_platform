@@ -135,7 +135,7 @@ def bootstrap_from_idea(
             mode=payload.mode,
             outline=payload.outline,
             locale=payload.locale,
-            preferences=payload.preferences.model_dump(),
+            preferences=payload.preferences.model_dump(exclude_none=True),
             author_constraints=payload.author_constraints,
         )
     except BootstrapConflictError as exc:

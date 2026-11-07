@@ -208,3 +208,20 @@ def test_a16_manuscript_hash_survives_processing_and_active_replay(f):
     with pytest.raises(IdempotencyConflictError):
         f.service.start(**{**args,'revisions':[{**source,'content_hash':'0'*64}]})
     assert snapshot(f,'manuscript-replay-after')==before
+
+
+@pytest.mark.parametrize('review_state', ['pending', 'missing'])
+def test_activation_review_gate_preserves_all_durable_state(f, review_state):
+    job = idea(f)
+    if review_state == 'missing':
+        proposals = f.repo.list_proposals(f.src.novel_id)
+        f.repo.reject_proposal_group(f.src.novel_id, proposals[0].dependency_group_id, 1)
+        f.repo.save_bootstrap_job(replace(job, result={
+            **job.result, 'required_proposal_ids': [str(uuid.uuid4())],
+        }))
+    before = snapshot(f, 'review-gate-before-' + review_state)
+    response = f.client.post(f'/v1/story-brains/{f.src.novel_id}/baseline/activate',
+                             headers=f.headers, json={'job_id': job.job_id})
+    assert response.status_code == 409
+    assert response.json()['detail']['code'] == 'BASELINE_REVIEW_REQUIRED'
+    assert snapshot(f, 'review-gate-after-' + review_state) == before

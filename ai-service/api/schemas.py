@@ -112,6 +112,7 @@ class IdeaBootstrapPreferences(BaseModel):
     genre: list[str] = Field(default_factory=list)
     tone: str = "neutral"
     target_length: str = "long_form"
+    pacing: str | None = Field(default=None, min_length=1)
 
 
 class IdeaBootstrapRequest(BaseModel):
