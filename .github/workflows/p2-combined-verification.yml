@@ -1,0 +1,137 @@
+name: P2 Combined Verification (temporary)
+
+on:
+  pull_request:
+    branches: [integration/p2-planning-studio]
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-p2-a16-gateway:
+    if: github.head_ref == 'codex/p2-01-combined-verification'
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16@sha256:0dd3149a06e4579a0d70d8fef9945636cd514005e7237deb27f9b67886f8dc4f
+        env:
+          POSTGRES_DB: p2a
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U postgres -d p2a"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+      mongodb:
+        image: mongo:7
+        ports: [27017:27017]
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ping:1})'"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/p2a
+      TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p2a
+      MONGODB_URI: mongodb://localhost:27017/p2a
+      NODE_ENV: test
+      APP_ENV: test
+      LLM_PROVIDER: fake
+      LLM_ENABLED: "true"
+      EMBEDDING_PROVIDER: fake
+      ACTIVE_EMBEDDING_VERSION: fake-embedding-768-v1
+      SEMANTIC_RETRIEVAL_ENABLED: "false"
+      ENTITY_CANDIDATE_VERIFICATION_ENABLED: "false"
+      NARRATIVE_REPOSITORY: postgres
+      SERVICE_AUTH_DISABLED: "false"
+      PLATFORM_SERVICE_TOKEN: p2-combined-offline-token
+      PLATFORM_API_BASE_URL: http://127.0.0.1:57114
+      AI_SERVICE_URL: http://127.0.0.1:58001
+      JWT_ACCESS_SECRET: p2-combined-offline-access-secret
+      JWT_REFRESH_SECRET: p2-combined-offline-refresh-secret
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install fake-only test runtime dependencies
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/p2-combined"
+          pip install -r ai-service/requirements.txt pytest httpx
+          npm ci --prefix backend
+      - name: Pin combined source and disposable service identities
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD > "$RUNNER_TEMP/p2-combined/source-sha.txt"
+          git rev-parse 'HEAD^{tree}' > "$RUNNER_TEMP/p2-combined/source-tree.txt"
+          docker inspect --format '{{.Config.Image}} {{.Image}}' "${{ job.services.postgres.id }}" "${{ job.services.mongodb.id }}" > "$RUNNER_TEMP/p2-combined/service-images.txt"
+          python - <<'PY' > "$RUNNER_TEMP/p2-combined/postgres-identity.json"
+          import psycopg, json
+          with psycopg.connect('postgresql://postgres:postgres@localhost:5432/p2a') as c:
+              name, version = c.execute('SELECT current_database(), version()').fetchone()
+              assert name == 'p2a'
+              print(json.dumps(dict(database=name, version=version)))
+          PY
+          (cd backend && node --input-type=module <<'JS') > "$RUNNER_TEMP/p2-combined/mongo-identity.json"
+          import {MongoClient} from 'mongodb';
+          const c = new MongoClient(process.env.MONGODB_URI);
+          await c.connect();
+          const db = c.db();
+          if (db.databaseName !== 'p2a') throw new Error('Wrong isolated database');
+          console.log(JSON.stringify({database:db.databaseName,version:(await db.admin().serverInfo()).version}));
+          await c.close();
+          JS
+          printf 'LLM_PROVIDER=fake\nEMBEDDING_PROVIDER=fake\nSERVICE_AUTH_DISABLED=false\nNo paid-provider secrets supplied\n' > "$RUNNER_TEMP/p2-combined/provider-config.txt"
+      - name: Apply existing backend and narrative migrations
+        run: |
+          set -euo pipefail
+          (cd backend && npm run db:migrate) 2>&1 | tee "$RUNNER_TEMP/p2-combined/node-migrations.log"
+          (cd ai-service && DATABASE_URL="$TEST_DATABASE_URL" python -m alembic upgrade head) 2>&1 | tee "$RUNNER_TEMP/p2-combined/alembic.log"
+      - name: Focused P2 HTTP guard pacing and P1 manuscript regression
+        working-directory: ai-service
+        run: |
+          set -euo pipefail
+          pytest -q -o addopts= -p no:cacheprovider --basetemp="$RUNNER_TEMP/p2-focused" --junitxml="$RUNNER_TEMP/p2-combined/focused.xml" tests/test_p2_bootstrap_guard.py tests/test_p2_bootstrap_pacing_compat.py tests/test_p2_json_bootstrap_compat.py tests/test_idea_bootstrap_routes.py tests/test_manuscript_bootstrap.py tests/test_manuscript_bootstrap_routes.py 2>&1 | tee "$RUNNER_TEMP/p2-combined/focused.log"
+      - name: Real PostgreSQL A16 with durable before and after readbacks
+        working-directory: ai-service
+        env:
+          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p2a
+        run: |
+          set -euo pipefail
+          pytest -o addopts= -vv -s -m postgres_integration --basetemp="$RUNNER_TEMP/p2-a16" --junitxml="$RUNNER_TEMP/p2-combined/a16.xml" tests/test_p2_bootstrap_postgres.py 2>&1 | tee "$RUNNER_TEMP/p2-combined/a16.log"
+      - name: Start real AI service with fake providers
+        working-directory: ai-service
+        env:
+          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p2a
+        run: |
+          set -euo pipefail
+          python -m uvicorn main:app --host 127.0.0.1 --port 58001 > "$RUNNER_TEMP/p2-combined/ai-service.log" 2>&1 &
+          echo "$!" > "$RUNNER_TEMP/p2-combined/ai.pid"
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:58001/health; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Gateway forwarding contracts and P1 save revision outbox acceptance
+        working-directory: backend
+        env:
+          TEST_P2A_LIVE: "1"
+        run: |
+          set -euo pipefail
+          npx tsx --test src/modules/ai/ai-gateway.test.ts src/modules/ai/p1-closed-loop-gateway.test.ts 2>&1 | tee "$RUNNER_TEMP/p2-combined/gateway-forwarding.log"
+          P2A_EVIDENCE_FILE="$RUNNER_TEMP/p2-combined/gateway-readbacks.json" npx tsx --test src/modules/ai/p2-bootstrap-guard.live.test.ts 2>&1 | tee "$RUNNER_TEMP/p2-combined/gateway-a16.log"
+      - name: Stop only the task AI process
+        if: always()
+        run: |
+          if test -f "$RUNNER_TEMP/p2-combined/ai.pid"; then
+            kill "$(cat "$RUNNER_TEMP/p2-combined/ai.pid")"
+          fi
+      - name: Upload combined verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p2-combined-runtime-evidence
+          path: ${{ runner.temp }}/p2-combined/
+          if-no-files-found: error
