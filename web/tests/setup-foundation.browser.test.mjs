@@ -83,7 +83,10 @@ test('setup account/novel switches clear sources, operation keys and late replie
     const req=route.request(),actor=req.headers().authorization;
     if(req.method()==='POST') {
       submissions.push({actor,body:req.postDataJSON()});
-      if(actor==='Bearer token-author-A') await postGate;
+      if(actor==='Bearer token-author-A') {
+        await postGate;
+        return route.fulfill({status:202,contentType:'application/json',body:JSON.stringify({data:{job_id:'late-owner-A-job',status:'waiting_review'}})});
+      }
       return route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:{code:'SETUP_EXTRACT_PROVIDER_UNAVAILABLE',message:'Offline fixture'}})});
     }
     reads.push({actor,url:req.url()});
@@ -99,6 +102,7 @@ test('setup account/novel switches clear sources, operation keys and late replie
   try {
     await page.goto('http://127.0.0.1:'+server.address().port);
     await expect(page.getByLabel('Thiết lập rõ ràng (tùy chọn)')).toHaveValue('Owner A source');
+    const latePostResponse=page.waitForResponse(r=>r.request().method()==='POST'&&r.request().headers().authorization==='Bearer token-author-A');
     await page.getByRole('button',{name:'Lưu và xử lý thiết lập'}).click();
     await expect.poll(()=>submissions.length).toBe(1);
     await page.getByRole('button',{name:'Account B',exact:true}).click();
@@ -112,7 +116,7 @@ test('setup account/novel switches clear sources, operation keys and late replie
     assert.notEqual(submissions[1].body.idempotency_key,submissions[0].body.idempotency_key);
     assert.ok(!JSON.stringify(submissions[1]).includes('Owner A'));
     await expect(page.getByRole('alert').filter({hasText:'SETUP_EXTRACT_PROVIDER_UNAVAILABLE'})).toBeVisible();
-    const count=reads.length;releasePost();
+    const count=reads.length;releasePost();await (await latePostResponse).finished();
     await page.getByRole('button',{name:'Novel B',exact:true}).click();
     await expect(page.getByLabel('Thiết lập rõ ràng (tùy chọn)')).toHaveValue('');
     await expect.poll(()=>reads.length).toBeGreaterThan(count);
