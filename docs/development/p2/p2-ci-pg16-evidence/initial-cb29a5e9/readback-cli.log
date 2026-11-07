@@ -1,0 +1,11 @@
+usage: p8_rollback_readback.py [-h] --database-env
+                               {SOURCE_DATABASE_URL,RESTORE_DATABASE_URL}
+                               --output OUTPUT [--expected EXPECTED]
+
+Full CI fixture schema/data readback; never connects to a shared database.
+
+options:
+  -h, --help            show this help message and exit
+  --database-env {SOURCE_DATABASE_URL,RESTORE_DATABASE_URL}
+  --output OUTPUT
+  --expected EXPECTED
