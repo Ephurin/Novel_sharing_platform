@@ -50,8 +50,8 @@ export function SetupFoundationPanel({novelId}: {novelId: string}) {
   }
   return <Stack gap="xs">
     <Text fw={600}>Thiết lập thế giới trước khi viết</Text>
-    <Alert color="blue">Bản thiết lập được lưu riêng với dàn ý tương lai. P2-02A chỉ lưu đề xuất chờ duyệt; duyệt, sửa và kích hoạt sẽ được bổ sung ở P2-02B. Chưa có dữ liệu nào trở thành Canon.</Alert>
-    <Select label="Cách xử lý" value={mode} onChange={v=>setMode(v as typeof mode)} data={[{value:'extract',label:'Chỉ trích xuất điều đã khai báo'},{value:'blueprint',label:'Yêu cầu gợi ý sáng tạo (provider fake khi chạy offline)'}]} allowDeselect={false}/>
+    <Alert color="blue">Bản thiết lập được lưu riêng với dàn ý tương lai. Hiện chỉ lưu đề xuất chờ duyệt; chức năng duyệt, sửa và kích hoạt chưa khả dụng. Chưa có dữ liệu nào trở thành Canon.</Alert>
+    <Select label="Cách xử lý" value={mode} onChange={v=>setMode(v as typeof mode)} data={[{value:'extract',label:'Chỉ trích xuất điều đã khai báo'},{value:'blueprint',label:'Yêu cầu gợi ý sáng tạo (mẫu thử offline)'}]} allowDeselect={false}/>
     <Textarea label="Thiết lập rõ ràng (tùy chọn)" value={text} onChange={e=>setText(e.currentTarget.value)} minRows={3}
       description="Offline: nhập tên qua các thẻ bên dưới. Bộ trích xuất fake chỉ hiểu [character:Minh], [location:An Thành]; văn xuôi khác báo provider chưa hỗ trợ."/>
     {declarations.map((d,i)=><Group key={d.declaration_id} align="end">
@@ -65,7 +65,7 @@ export function SetupFoundationPanel({novelId}: {novelId: string}) {
     <Group><Button onClick={submit} loading={pending} disabled={declarations.some(d=>!d.display_name.trim())}>Lưu và xử lý thiết lập</Button>
       <Button variant="default" onClick={reload} disabled={pending}>Tải bản đã lưu</Button></Group>
     {message && <Alert role="alert">{message}</Alert>}
-    {snapshot && <><Text size="sm">Bản {snapshot.setup_version} · {snapshot.job_status} · {snapshot.proposals.length} đề xuất · {snapshot.snapshot_id}</Text>
+    {snapshot && <><Text size="sm">Bản {snapshot.setup_version} · {snapshot.job_status==='waiting_review'?'Chờ duyệt':snapshot.job_status==='failed'?'Thất bại':'Đang xử lý'} · {snapshot.proposals.length} đề xuất</Text>
       {snapshot.proposals.map(card=><Card withBorder key={card.proposal_id}>
         <Group><Badge>{card.origin==='author_declared'?'Tác giả khai báo':card.origin==='extracted_explicit'?'Từ nguồn rõ ràng':'Provider gợi ý'}</Badge><Badge color="yellow">Chờ duyệt</Badge></Group>
         <Text>{String(card.payload.canonical_name ?? card.payload.fact_value ?? card.payload.attribute_key ?? '')}</Text>
