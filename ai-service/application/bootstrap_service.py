@@ -479,6 +479,8 @@ class ManuscriptBootstrapService:
         job = self._repository.get_bootstrap_job(job_id)
         if job.novel_id != novel_id:
             raise KeyError(job_id)
+        if (job.result or {}).get('contract_version') == 'setup-v1':
+            raise BootstrapConflictError('SETUP_ACTIVATION_NOT_AVAILABLE')
         required = set((job.result or {}).get("required_proposal_ids", []))
         pending = {
             item.proposal_id
