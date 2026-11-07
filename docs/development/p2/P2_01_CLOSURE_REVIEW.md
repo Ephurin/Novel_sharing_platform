@@ -70,7 +70,7 @@ No additional concrete source defect was demonstrated in these boundaries during
 
 Production: `ai-service/api/schemas.py` and `api/narrative_routes.py` only (typed pacing, omit null serialization). Tests: new `tests/test_p2_bootstrap_pacing_compat.py`; two pending/missing review cases added to existing `test_p2_bootstrap_postgres.py`. Contract: additive compatibility note. No migration/Writer/Canon/Plan Store changes.
 
-Documentation/evidence: this report, Argon runtime handoff + standalone compose, P2-02 preparation plan, focused-check runner and `p2-01-closure-evidence/` (JUnit, local commands, base/head reproduction, CI excerpts/status/identity). Prior handoff and historical logs remain intact; its status is superseded by this report, not retroactively rewritten.
+Documentation/evidence: this report, Argon runtime handoff + standalone compose, P2-02 preparation plan, focused-check runner and `p2-01-closure-evidence/` (JUnit, local commands, base/head reproduction, CI excerpts/status/identity). The new closure manifest hashes committed Git blob bytes (checkout CRLF conversion can change filesystem byte hashes). Prior handoff and historical logs remain intact; its status is superseded by this report, not retroactively rewritten.
 
 ## Commands and results
 
