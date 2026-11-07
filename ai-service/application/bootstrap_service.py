@@ -464,6 +464,7 @@ class ManuscriptBootstrapService:
 
     def review_queue(self, novel_id: str) -> list[dict[str, Any]]:
         proposals = self._repository.list_proposals(novel_id, status="pending")
+        proposals = [p for p in proposals if not any(e.get('setup_snapshot_id') for e in p.evidence)]
         duplicates = self._duplicate_groups(proposals)
         duplicate_ids = {
             proposal_id for group in duplicates for proposal_id in group["proposal_ids"]
@@ -479,6 +480,8 @@ class ManuscriptBootstrapService:
         job = self._repository.get_bootstrap_job(job_id)
         if job.novel_id != novel_id:
             raise KeyError(job_id)
+        if (job.result or {}).get('contract_version') == 'setup-v1':
+            raise BootstrapConflictError('SETUP_ACTIVATION_NOT_AVAILABLE')
         required = set((job.result or {}).get("required_proposal_ids", []))
         pending = {
             item.proposal_id

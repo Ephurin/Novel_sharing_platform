@@ -6,7 +6,7 @@ import json
 import uuid
 from dataclasses import asdict, replace
 
-from fastapi import APIRouter, BackgroundTasks, Body, Depends, Header, HTTPException, Query, Request
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, Header, HTTPException, Query, Request, Response
 from fastapi.responses import StreamingResponse
 
 from api.deps import (
@@ -19,6 +19,9 @@ from api.deps import (
     get_writing_service,
     require_service_token,
 )
+from api.setup_schemas import SetupRequest
+from api.setup_auth import setup_principal, identity_headers, SetupValidationRoute
+from application.setup_service import SetupService, SetupFailure, public_job
 from api.schemas import (
     EventCorrectionRequest,
     BaselineActivationRequest,
@@ -60,7 +63,7 @@ from domain.errors import (
 from domain.projection import ProjectionError
 
 
-router = APIRouter(prefix="/v1", tags=["narrative-memory"], dependencies=[Depends(require_service_token)])
+router = APIRouter(prefix="/v1", tags=["narrative-memory"], dependencies=[Depends(require_service_token)], route_class=SetupValidationRoute)
 internal_router = APIRouter(prefix="/internal/v1", tags=["internal-writing"], dependencies=[Depends(require_service_token)])
 
 
@@ -121,23 +124,33 @@ def bootstrap_from_manuscript(
 
 @router.post("/story-brains/bootstrap/from-idea", status_code=202)
 def bootstrap_from_idea(
-    payload: IdeaBootstrapRequest,
+    payload: SetupRequest | IdeaBootstrapRequest,
     tenant_id: str = Header(..., alias="X-Tenant-Id"),
     request_id: str = Header(..., alias="X-Request-Id"),
+    author_id: str | None = Header(None, alias="X-Author-Id"),
     service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+    request: Request = None,
 ):
     try:
-        job = service.start_from_idea(
-            tenant_id=tenant_id,
-            idempotency_key=payload.idempotency_key,
-            novel_id=payload.novel_id,
-            idea=payload.idea,
-            mode=payload.mode,
-            outline=payload.outline,
-            locale=payload.locale,
-            preferences=payload.preferences.model_dump(exclude_none=True),
-            author_constraints=payload.author_constraints,
-        )
+        if isinstance(payload, SetupRequest):
+            tenant_id, author_id = setup_principal(request, service)
+            job = SetupService(service).start(payload, tenant_id=tenant_id, actor_id=author_id)
+        else:
+            job = service.start_from_idea(
+                tenant_id=tenant_id,
+                idempotency_key=payload.idempotency_key,
+                novel_id=payload.novel_id,
+                idea=payload.idea,
+                mode=payload.mode,
+                outline=payload.outline,
+                locale=payload.locale,
+                preferences=payload.preferences.model_dump(exclude_none=True),
+                author_constraints=payload.author_constraints,
+            )
+    except KeyError:
+        raise HTTPException(404, detail={'code':'SETUP_NOT_FOUND'}) from None
+    except SetupFailure as exc:
+        raise HTTPException(exc.status, detail={'code':exc.code}) from None
     except BootstrapConflictError as exc:
         raise HTTPException(503 if exc.code == 'BOOTSTRAP_REQUIRES_POSTGRES' else 409, detail={'code': exc.code}) from exc
     except PermissionError as exc:
@@ -482,16 +495,62 @@ def stop_autonomous_run(
     }
 
 
+@router.get('/story-brains/{novel_id}/setup')
+def get_setup_snapshot(
+    novel_id: uuid.UUID,
+    tenant_id: str | None = Header(None, alias='X-Tenant-Id'),
+    author_id: str | None = Header(None, alias='X-Author-Id'),
+    request_id: str = Header(..., alias='X-Request-Id'),
+    snapshot_id: uuid.UUID | None = Query(None),
+    service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+    request: Request = None,
+    response: Response = None,
+):
+    if response is not None:
+        response.headers['Cache-Control'] = 'no-store'
+    try:
+        tenant_id, author_id = setup_principal(request, service)
+        data = SetupService(service).readback(str(novel_id), tenant_id=str(tenant_id), actor_id=author_id,
+                                            snapshot_id=str(snapshot_id) if snapshot_id else None)
+    except SetupFailure as exc:
+        raise HTTPException(exc.status, detail={'code':exc.code}) from None
+    except PermissionError:
+        raise HTTPException(403, detail={'code':'TENANT_SCOPE_MISMATCH'}) from None
+    except KeyError:
+        raise HTTPException(404, detail={'code':'SETUP_NOT_FOUND'}) from None
+    return {'data':data, 'meta':{'request_id':request_id, 'schema_version':1}}
+
+
+def authorized_bootstrap_job(service, job_id, request):
+    # Worker lookup is privileged/internal; never serialize or stream a setup
+    # result until the separate author-scoped repository query succeeds.
+    identity_headers(request, service, optional=True)
+    job = service.get_job(job_id)
+    if (job.result or {}).get('contract_version') == 'setup-v1':
+        if request is None or not request.headers.get('X-Author-Id'):
+            raise HTTPException(404, detail={'code':'JOB_NOT_FOUND'})
+        tenant, author = setup_principal(request, service)
+        try:
+            job = SetupService(service).get_job(job_id, tenant_id=tenant, actor_id=author)
+        except KeyError:
+            raise HTTPException(404, detail={'code':'JOB_NOT_FOUND'}) from None
+    return job
+
+
 @router.get("/jobs/{job_id}")
 def get_job(
     job_id: str,
     request_id: str = Header(..., alias="X-Request-Id"),
     bootstrap_service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
     writing_service: WritingService = Depends(get_writing_service),
+    request: Request = None,
+    response: Response = None,
 ):
+    if response is not None:
+        response.headers['Cache-Control'] = 'no-store'
     try:
-        job = bootstrap_service.get_job(job_id)
-        data = asdict(job)
+        job = authorized_bootstrap_job(bootstrap_service, job_id, request)
+        data = asdict(public_job(job))
         data["type"] = "bootstrap"
         data["progress"] = {
             "current": job.progress_current,
@@ -500,6 +559,8 @@ def get_job(
             "stage": job.stage,
         }
         return {"data": data, "meta": {"request_id": request_id, "schema_version": 1}}
+    except HTTPException:
+        raise
     except Exception:
         pass
 
@@ -521,7 +582,17 @@ async def stream_job_events(
     job_id: str,
     writing_service: WritingService = Depends(get_writing_service),
     bootstrap_service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+    request: Request = None,
 ):
+    # Authorize before SSE headers/first byte, including waiting-review jobs.
+    try:
+        authorized_bootstrap_job(bootstrap_service, job_id, request)
+    except KeyError:
+        try:
+            writing_service._repository.get_writing_job(job_id)
+        except Exception:
+            raise HTTPException(404, detail={'code':'JOB_NOT_FOUND'}) from None
+
     async def event_generator():
         for _ in range(60):
             try:
@@ -539,7 +610,7 @@ async def stream_job_events(
                     break
             except Exception:
                 try:
-                    b_job = bootstrap_service.get_job(job_id)
+                    b_job = authorized_bootstrap_job(bootstrap_service, job_id, request)
                     payload = {
                         "job_id": b_job.job_id,
                         "type": "bootstrap",
@@ -555,7 +626,7 @@ async def stream_job_events(
                     break
             await asyncio.sleep(0.5)
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    return StreamingResponse(event_generator(), media_type="text/event-stream", headers={"Cache-Control":"no-store"})
 
 
 @router.post("/jobs/{job_id}/resume", status_code=202)
@@ -564,9 +635,10 @@ def resume_job(
     background_tasks: BackgroundTasks,
     request_id: str = Header(..., alias="X-Request-Id"),
     service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+    request: Request = None,
 ):
     try:
-        job = service.get_job(job_id)
+        job = authorized_bootstrap_job(service, job_id, request)
         service.validate_resume(job)
     except BootstrapConflictError as exc:
         raise HTTPException(503 if exc.code == 'BOOTSTRAP_REQUIRES_POSTGRES' else 409, detail={'code': exc.code}) from exc
@@ -595,8 +667,11 @@ def activate_baseline(
     payload: BaselineActivationRequest,
     request_id: str = Header(..., alias="X-Request-Id"),
     service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+    request: Request = None,
 ):
     try:
+        service._require_lifecycle()
+        authorized_bootstrap_job(service, payload.job_id, request)
         result = service.activate_baseline(brain_id, payload.job_id)
     except BootstrapConflictError as exc:
         raise HTTPException(503 if exc.code == 'BOOTSTRAP_REQUIRES_POSTGRES' else 409, detail={'code': exc.code}) from exc
@@ -800,7 +875,7 @@ def list_proposals(
         brain_id, status=status, proposal_type=proposal_type
     )
     return {
-        "data": [asdict(item) for item in proposals],
+        "data": [asdict(item) for item in proposals if not any(e.get('setup_snapshot_id') for e in item.evidence)],
         "meta": {"request_id": request_id, "next_cursor": None},
     }
 
@@ -845,6 +920,8 @@ def reject_proposal(
 ):
     try:
         result = service.reject_proposal_by_id(proposal_id, payload.reason)
+    except BootstrapConflictError as exc:
+        raise HTTPException(409, detail={'code':exc.code}) from exc
     except KeyError as exc:
         raise HTTPException(status_code=404, detail={"code": "PROPOSAL_NOT_FOUND"}) from exc
     except ProjectionError as exc:
@@ -874,6 +951,8 @@ def reject_proposal_group(
     try:
         result = service.reject_proposal_group_by_id(str(group_id), payload.expected_brain_version,
             reason=payload.reason, actor_id=str(author_id))
+    except BootstrapConflictError as exc:
+        raise HTTPException(409, detail={'code':exc.code}) from exc
     except KeyError as exc:
         raise HTTPException(404, detail={'code': 'PROPOSAL_GROUP_NOT_FOUND'}) from exc
     except OptimisticLockError as exc:
@@ -902,6 +981,8 @@ def edit_and_accept_proposal(
             edited_payload=payload.edited_payload,
             reason=payload.reason,
         )
+    except BootstrapConflictError as exc:
+        raise HTTPException(409, detail={'code':exc.code}) from exc
     except KeyError as exc:
         raise HTTPException(status_code=404, detail={"code": "PROPOSAL_NOT_FOUND"}) from exc
     except OptimisticLockError as exc:
@@ -937,6 +1018,8 @@ def accept_proposal_group(
             payload.reason,
             edited_payloads=payload.edited_payloads,
         )
+    except BootstrapConflictError as exc:
+        raise HTTPException(409, detail={'code':exc.code}) from exc
     except KeyError as exc:
         raise HTTPException(status_code=404, detail={"code": "PROPOSAL_NOT_FOUND"}) from exc
     except OptimisticLockError as exc:

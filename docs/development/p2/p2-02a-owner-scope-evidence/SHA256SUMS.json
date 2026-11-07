@@ -1,0 +1,12 @@
+{
+  "docs/development/p2/P2_02A_SETUP_PROVENANCE_HANDOFF.md": "2c9c5a9a5f7ddfc0d3c8467cf0cdb3b342ba50c38300953a37d6f99163895bee",
+  "docs/development/p2/p2-02a-owner-scope-evidence/README.md": "30f7289afee1da7c9320a4c5b565eac8c8db7dcac8c23afdf3163bea0eed7a84",
+  "docs/development/p2/p2-02a-owner-scope-evidence/ci-jobs.json": "b130a10023898141f94c2f44a7d6d699f6093493a43f70918510e73de75171a0",
+  "docs/development/p2/p2-02a-owner-scope-evidence/initial-edf1397e.zip": "17cca518556416365d6a43b21e7dc5d8ac39e67696d22287244ddb1d1aee60d2",
+  "docs/development/p2/p2-02a-owner-scope-evidence/rollback-11d35d47.zip": "f67ef2ffc937df028c15ecbb3e355aa1327f194a3b0f1e738afcb19ed4781637",
+  "docs/development/p2/p2-02a-owner-scope-evidence/rollback-2f8ce3ac.zip": "cebf2096b47eb2fa12038f1029c187490eb814e813f8be6438b9b20288c9faea",
+  "docs/development/p2/p2-02a-owner-scope-evidence/source-11d35d47.zip": "3bb2d62e7c8a54d055e1b1acbee0e90d5ab348f272f850a6f4cd48e8dcc17071",
+  "docs/development/p2/p2-02a-owner-scope-evidence/source-2f8ce3ac.zip": "4128af20a94577cde7eeca60b162b0ff3d1f20ea178f3a38667c2a3c4deb4a7f",
+  "docs/development/p2/p2-02a-owner-scope-evidence/verified-summary.json": "bf86bec2fc12545879cccaaf2c5fe0b59512176a534feef64b6adffe8b65ea55",
+  "docs/development/p2/p2-02a-owner-scope-evidence/verify_artifacts.py": "41e7ede5e3a00ea0e28bd13e40442253a70bbc8ea88b7aec68c007bfae03eab0"
+}
