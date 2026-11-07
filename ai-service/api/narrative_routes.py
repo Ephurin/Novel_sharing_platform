@@ -567,6 +567,7 @@ def resume_job(
 ):
     try:
         job = service.get_job(job_id)
+        service.validate_resume(job)
     except BootstrapConflictError as exc:
         raise HTTPException(503 if exc.code == 'BOOTSTRAP_REQUIRES_POSTGRES' else 409, detail={'code': exc.code}) from exc
     except KeyError as exc:

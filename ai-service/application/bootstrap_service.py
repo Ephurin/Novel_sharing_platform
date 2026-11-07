@@ -450,8 +450,13 @@ class ManuscriptBootstrapService:
     def get_job(self, job_id: str) -> BootstrapJob:
         return self._repository.get_bootstrap_job(job_id)
 
+    def validate_resume(self, job: BootstrapJob) -> None:
+        if job.options.get('from_idea') and job.status == 'failed':
+            raise BootstrapConflictError('IDEA_BOOTSTRAP_RETRY_UNSUPPORTED')
+
     def resume(self, job_id: str) -> BootstrapJob:
         job = self._repository.get_bootstrap_job(job_id)
+        self.validate_resume(job)
         if job.options.get('from_idea'):
             # Exact replay returns its persisted failure; a new operation is explicit.
             return job

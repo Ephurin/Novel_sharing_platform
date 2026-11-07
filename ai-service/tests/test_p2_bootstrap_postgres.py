@@ -225,3 +225,20 @@ def test_activation_review_gate_preserves_all_durable_state(f, review_state):
     assert response.status_code == 409
     assert response.json()['detail']['code'] == 'BASELINE_REVIEW_REQUIRED'
     assert snapshot(f, 'review-gate-after-' + review_state) == before
+
+
+def test_failed_idea_resume_preserves_durable_database(f):
+    def fail(**kw):
+        f.llm.calls += 1
+        raise RuntimeError('fake resume failure')
+    f.llm.generate_story_blueprint = fail
+    with pytest.raises(RuntimeError):
+        idea(f, idempotency_key='failed-resume')
+    job = idea(f, idempotency_key='failed-resume')
+    before = snapshot(f, 'failed-idea-resume-before')
+    response = f.client.post(f'/v1/jobs/{job.job_id}/resume', headers=f.headers)
+    assert response.status_code == 409
+    assert response.json()['detail']['code'] == 'IDEA_BOOTSTRAP_RETRY_UNSUPPORTED'
+    assert snapshot(f, 'failed-idea-resume-after') == before
+    assert f.llm.calls == 1
+    assert f.repo.get_bootstrap_job(job.job_id).status == 'failed'

@@ -381,3 +381,17 @@ describe('Node.js AI Gateway Service (P6.5 Hardening)', () => {
   });
 });
 
+
+
+test('failed idea resume preserves upstream 409 code instead of success', async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (async () => new Response(JSON.stringify({detail: {
+    code: 'IDEA_BOOTSTRAP_RETRY_UNSUPPORTED'
+  }}), {status: 409, headers: {'Content-Type': 'application/json'}})) as typeof fetch;
+  try {
+    await assert.rejects(new AIGatewayService().forwardRequest({
+      method: 'POST', path: '/v1/jobs/failed-idea/resume', userId: 'author',
+    }), (error: unknown) => error instanceof AppError && error.httpStatus === 409
+      && error.code === 'IDEA_BOOTSTRAP_RETRY_UNSUPPORTED');
+  } finally { globalThis.fetch = originalFetch; }
+});
