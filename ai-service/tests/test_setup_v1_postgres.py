@@ -6,7 +6,7 @@ from types import SimpleNamespace
 import pytest
 from sqlalchemy import text
 from api.setup_schemas import SetupRequest
-from application.setup_service import SetupService, SetupFailure
+from application.setup_service import SetupService, SetupFailure, digest
 from domain.errors import BootstrapConflictError, IdempotencyConflictError
 from tests.test_p2_bootstrap_postgres import engine, f, TENANT, ACTOR
 from tests.test_setup_v1 import request_data
@@ -25,7 +25,7 @@ def state(f, stage):
         for name in names:
             value[name]=[dict(r) for r in connection.execute(text(f'SELECT * FROM narrative.{name} WHERE tenant_id=:t AND novel_id=:n ORDER BY 1'),{'t':TENANT,'n':f.src.novel_id}).mappings()]
     payload=json.dumps(value,default=str,sort_keys=True)
-    print('SETUP_DB_READBACK '+json.dumps(dict(stage=stage,novel_id=f.src.novel_id,sha256=hashlib.sha256(payload.encode()).hexdigest(),counts={k:len(v) for k,v in value.items()})))
+    print('SETUP_DB_READBACK '+json.dumps(dict(stage=stage,novel_id=f.src.novel_id,sha256=hashlib.sha256(payload.encode()).hexdigest(),counts={k:len(v) for k,v in value.items()}, snapshots=[dict(snapshot_id=str(j['id']),setup_version=j['result'].get('setup_version'),setup_hash=j['result'].get('setup_hash'),text_hash=j['result'].get('text_hash'),status=j['status']) for j in value['bootstrap_jobs']])))
     return value
 
 
@@ -35,6 +35,8 @@ def test_snapshot_replay_versions_homonyms_and_no_history(f):
     readback=svc.readback(f.src.novel_id,tenant_id=TENANT)
     assert readback['setup_version']==1 and readback['snapshot_id']==job.job_id
     assert readback['snapshot']==request_data(f.src.novel_id)['setup']
+    assert readback['setup_hash']==digest(readback['snapshot'])
+    assert readback['text_hash']==hashlib.sha256(readback['snapshot']['text'].encode()).hexdigest()
     assert len({c['payload']['entity_id'] for c in readback['proposals'] if c['card_type']=='entity'})==2
     assert len({c['proposal_id'] for c in readback['proposals']})==3
     assert 'private_author_notes' not in readback and 'author_constraints' not in readback
