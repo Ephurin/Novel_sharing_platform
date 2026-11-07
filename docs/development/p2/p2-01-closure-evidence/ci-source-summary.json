@@ -1,0 +1,78 @@
+{
+  "source_sha": "a4e602a5b59dad74d112efd188155aefdaed5323",
+  "synthetic_merge": "e99ae84da42786d0ce7195dc1b4ebb6ab4169e33",
+  "runs": [
+    {
+      "run_id": 42330565819,
+      "jobs": [
+        {
+          "id": 128275887015,
+          "name": "unit",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128275887189,
+          "name": "backend-integration",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128275887209,
+          "name": "frontend-api-cutover",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128275887244,
+          "name": "root-compose-cutover-smoke",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128275887257,
+          "name": "rollback-rehearsal",
+          "status": "completed",
+          "conclusion": "failure"
+        },
+        {
+          "id": 128275887333,
+          "name": "postgres-integration",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128275887334,
+          "name": "final-cleanup-gate",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "run_id": 42330565878,
+      "jobs": [
+        {
+          "id": 128275887076,
+          "name": "pgvector-integration",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128275887224,
+          "name": "root-compose-smoke",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128275887251,
+          "name": "unit",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "source_tree": "1988e9094dd3b069a0d02532b75d36b6bb5313c4",
+  "synthetic_tree": "1988e9094dd3b069a0d02532b75d36b6bb5313c4"
+}

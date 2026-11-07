@@ -1,0 +1,11 @@
+2026-11-07T02:42:57.8625189Z
+2026-11-07T02:42:57.8626041Z HEAD is now at e99ae84 Merge a4e602a5b59dad74d112efd188155aefdaed5323 into 3adab5c73636bd4e7c3dbc6578d4ece0a54b5627
+2026-11-07T02:42:57.8658391Z ##[endgroup]
+2026-11-07T02:43:15.6812923Z CREATE DATABASE
+2026-11-07T02:43:15.7094136Z pg_restore: error: could not execute query: ERROR:  unrecognized configuration parameter "transaction_timeout"
+2026-11-07T02:43:15.7106801Z Command was: SET transaction_timeout = 0;
+2026-11-07T02:43:15.7125257Z ##[error]Process completed with exit code 1.
+2026-11-07T02:43:15.9448455Z  2026-11-07 02:42:46.674 UTC [1] LOG:  database system is ready to accept connections
+2026-11-07T02:43:15.9448915Z  2026-11-07 02:43:15.709 UTC [112] ERROR:  unrecognized configuration parameter "transaction_timeout"
+2026-11-07T02:43:15.9449364Z  2026-11-07 02:43:15.709 UTC [112] STATEMENT:  SET transaction_timeout = 0;
+2026-11-07T02:43:15.9449695Z

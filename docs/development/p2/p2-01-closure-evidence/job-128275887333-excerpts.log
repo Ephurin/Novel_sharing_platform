@@ -1,0 +1,9 @@
+2026-11-07T02:42:58.5964691Z
+2026-11-07T02:42:58.5967199Z HEAD is now at e99ae84 Merge a4e602a5b59dad74d112efd188155aefdaed5323 into 3adab5c73636bd4e7c3dbc6578d4ece0a54b5627
+2026-11-07T02:42:58.6007258Z ##[endgroup]
+2026-11-07T02:43:08.6290394Z [notice] To update, run: pip install --upgrade pip
+2026-11-07T02:43:08.8318575Z ##[group]Run pytest -o addopts= -q -m postgres_integration
+2026-11-07T02:43:08.8318863Z [36;1mpytest -o addopts= -q -m postgres_integration[0m
+2026-11-07T02:43:55.4323255Z -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2026-11-07T02:43:55.4323765Z 213 passed, 8 skipped, 424 deselected, 5 warnings in 45.62s
+2026-11-07T02:43:56.6397006Z Post job cleanup.
