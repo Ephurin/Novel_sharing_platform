@@ -7,7 +7,7 @@ on:
       - 'ai-service/**'
       - 'backend/**'
       - 'web/**'
-      - '.github/workflows/p2-setup-provenance.yml' 
+      - '.github/workflows/p2-setup-provenance.yml'
 
 permissions:
   contents: read
