@@ -1,0 +1,20 @@
+{
+  "ai-offline.log": "429967bd4814e06e24fee31e52266dfeda74eda4aee54b9427c2e1d24f581241",
+  "ai-offline.xml": "89eb2aeb47c3f1a9a86101ad10351236a4047475a47be4964a672562b7042b02",
+  "commands.json": "4e78b74c0e6f71a9bf8ffe3b2c75115be283e4089af6838aeffa061feabb9e01",
+  "diff-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "docker.log": "3216681c4686143c13e47b9721fedbd7b60b052b41c969fbd83fa5ee4c3a30bb",
+  "gateway.log": "f845a065b206af46b78ca6ef9c9382d4d6cb6bbef0549e2cc83ecbd5e6e26b2a",
+  "initial-0fdacf39\\ai-offline.log": "5f3e7f0a9c46eba6122ed18852b60832e2332400968af1c3ce9d78ef4b58871a",
+  "initial-0fdacf39\\ai-offline.xml": "3ab9127390cf204bd963ba49353112ccebb4f2112b4b268543145e4b6ad098bb",
+  "initial-0fdacf39\\commands.json": "d987c71d6548a63c1292d6bd2240f11de173c41210a6aa6bfe1b85ac47a033a1",
+  "initial-0fdacf39\\diff-check.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "initial-0fdacf39\\docker.log": "3216681c4686143c13e47b9721fedbd7b60b052b41c969fbd83fa5ee4c3a30bb",
+  "initial-0fdacf39\\gateway.log": "c92d91fdc28506d6c799bd5f23e9fb5b737a383c766fc237d391c07b3ede7c4c",
+  "initial-0fdacf39\\json-readbacks.log": "0601beb210b2eb448b2443ff1e239cb95bc4a7255b4db3c46eab9afda029ec02",
+  "initial-0fdacf39\\python-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "initial-0fdacf39\\typecheck.log": "c92d91fdc28506d6c799bd5f23e9fb5b737a383c766fc237d391c07b3ede7c4c",
+  "json-readbacks.log": "d593d7b9adfd4e014b63367007edd1551aceb7ea1c0b30aab992e46ce65cccd1",
+  "python-compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

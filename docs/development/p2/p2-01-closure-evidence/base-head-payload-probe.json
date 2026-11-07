@@ -1,0 +1,30 @@
+[
+  {
+    "ref": "3adab5c73636bd4e7c3dbc6578d4ece0a54b5627",
+    "accepted": true,
+    "preferences": {
+      "genre": [
+        "fantasy"
+      ],
+      "tone": "neutral",
+      "target_length": "long_form"
+    }
+  },
+  {
+    "ref": "ad5c9c92c163c43c94d1dbd346aec326d705b19e",
+    "accepted": false,
+    "error": "1 validation error for IdeaBootstrapRequest\npreferences.pacing\n  Extra inputs are not permitted [type=extra_forbidden, input_value='fast', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
+  },
+  {
+    "ref": "a4e602a5b59dad74d112efd188155aefdaed5323",
+    "accepted": true,
+    "preferences": {
+      "genre": [
+        "fantasy"
+      ],
+      "tone": "neutral",
+      "target_length": "long_form",
+      "pacing": "fast"
+    }
+  }
+]

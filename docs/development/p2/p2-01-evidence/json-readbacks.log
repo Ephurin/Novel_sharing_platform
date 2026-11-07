@@ -1,0 +1,6 @@
+JSON_COMPAT_READBACK {"entry": "idea", "seeded": false, "http_status": 503, "before_files": {}, "after_files": {}, "jobs_unchanged": true, "runs_unchanged": true, "provider_calls": 0}
+.JSON_COMPAT_READBACK {"entry": "manuscript", "seeded": false, "http_status": 503, "before_files": {}, "after_files": {}, "jobs_unchanged": true, "runs_unchanged": true, "provider_calls": 0}
+.JSON_COMPAT_READBACK {"entry": "idea", "seeded": true, "http_status": 503, "before_files": {"4259bd2a-d3f4-42cf-a31b-8c4313cebad9.json": "ad571a06b015954db2aff477d1777e04910e9ee643e72ad96eefc38704f76e88"}, "after_files": {"4259bd2a-d3f4-42cf-a31b-8c4313cebad9.json": "ad571a06b015954db2aff477d1777e04910e9ee643e72ad96eefc38704f76e88"}, "jobs_unchanged": true, "runs_unchanged": true, "provider_calls": 0}
+.JSON_COMPAT_READBACK {"entry": "manuscript", "seeded": true, "http_status": 503, "before_files": {"a6dc8518-aa3a-4768-9198-5677d6571566.json": "40813dbc2e524cd81c4f89645973fbd2e5b4f646298c55db377050f7d30255ab"}, "after_files": {"a6dc8518-aa3a-4768-9198-5677d6571566.json": "40813dbc2e524cd81c4f89645973fbd2e5b4f646298c55db377050f7d30255ab"}, "jobs_unchanged": true, "runs_unchanged": true, "provider_calls": 0}
+...
+6 passed in 1.61s

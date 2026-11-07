@@ -1,0 +1,27 @@
+[
+  {
+    "command": [
+      "docker",
+      "compose",
+      "-p",
+      "p2-01-argon-validation",
+      "-f",
+      "docs/development/p2/p2-01-argon.compose.yml",
+      "config",
+      "--quiet"
+    ],
+    "exit_code": 1,
+    "result": "Compose plugin unavailable: unknown shorthand flag p; also fails outside sandbox",
+    "verdict": "NOT_RUN_ENVIRONMENT"
+  },
+  {
+    "command": "Python yaml.safe_load; assert two services pg/mongo and no service volumes",
+    "exit_code": 0,
+    "verdict": "YAML_STRUCTURE_ONLY_PASS"
+  },
+  {
+    "command": "sandbox focused HTTP tests; diagnostic pytest -vv -o faulthandler_timeout=15 test_p2_bootstrap_pacing_compat.py",
+    "exit_code": 1,
+    "result": "Interrupted stalled TestClient startup; socket._fallback_socketpair in asyncio before assertions. Unchanged source passed outside sandbox."
+  }
+]

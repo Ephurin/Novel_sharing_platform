@@ -1,0 +1,30 @@
+2026-11-06T18:31:09.4668045Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-06T18:31:09.4668415Z
+2026-11-06T18:31:09.4668847Z HEAD is now at 69072d3 Merge ad5c9c92c163c43c94d1dbd346aec326d705b19e into 3adab5c73636bd4e7c3dbc6578d4ece0a54b5627
+2026-11-06T18:31:09.4716292Z ##[endgroup]
+2026-11-06T18:31:09.4773108Z [command]/usr/bin/git log -1 --format=%H
+2026-11-06T18:31:09.4794125Z 69072d3d54eb68cd09bbad47b29670fccfe70c23
+2026-11-06T18:31:09.5030592Z ##[group]Run actions/setup-python@v5
+2026-11-06T18:31:30.3417838Z ##[group]Run set -euo pipefail
+2026-11-06T18:31:30.3418225Z [36;1mset -euo pipefail[0m
+2026-11-06T18:31:30.3419252Z [36;1mpg_dump             --format=custom             --no-owner             --no-acl             --dbname=***localhost:5432/p8_rehearsal             --file=/tmp/p8-rehearsal.dump[0m
+2026-11-06T18:31:30.3420072Z [36;1mtest -s /tmp/p8-rehearsal.dump[0m
+2026-11-06T18:31:30.3420573Z [36;1msha256sum /tmp/p8-rehearsal.dump > /tmp/p8-rehearsal.dump.sha256[0m
+2026-11-06T18:31:30.4973275Z [36;1mset -euo pipefail[0m
+2026-11-06T18:31:30.4973888Z [36;1mpsql ***localhost:5432/postgres -v ON_ERROR_STOP=1             -c "CREATE DATABASE p8_restore_verify"[0m
+2026-11-06T18:31:30.4974664Z [36;1mpg_restore             --exit-on-error             --no-owner             --no-acl             --dbname=***localhost:5432/p8_restore_verify             /tmp/p8-rehearsal.dump[0m
+2026-11-06T18:31:30.5018182Z shell: /usr/bin/bash -e {0}
+2026-11-06T18:31:30.5018394Z env:
+2026-11-06T18:31:30.5021472Z ##[endgroup]
+2026-11-06T18:31:30.5949867Z CREATE DATABASE
+2026-11-06T18:31:30.6588137Z pg_restore: error: could not execute query: ERROR:  unrecognized configuration parameter "transaction_timeout"
+2026-11-06T18:31:30.6597387Z Command was: SET transaction_timeout = 0;
+2026-11-06T18:31:30.6616615Z ##[error]Process completed with exit code 1.
+2026-11-06T18:31:30.6725276Z Post job cleanup.
+2026-11-06T18:31:30.9398863Z  2026-11-06 18:31:00.354 UTC [1] LOG:  database system is ready to accept connections
+2026-11-06T18:31:30.9399309Z
+2026-11-06T18:31:30.9399829Z  2026-11-06 18:31:30.658 UTC [122] ERROR:  unrecognized configuration parameter "transaction_timeout"
+2026-11-06T18:31:30.9400602Z  fixing permissions on existing directory /var/lib/postgresql/data ... ok
+2026-11-06T18:31:30.9401137Z  2026-11-06 18:31:30.658 UTC [122] STATEMENT:  SET transaction_timeout = 0;
+2026-11-06T18:31:30.9401594Z  creating subdirectories ... ok
+2026-11-06T18:31:30.9401958Z

@@ -46,6 +46,7 @@ from application.writing_service import WritingService
 from application.ports import ContentHashMismatchError, RevisionNotFoundError
 from application.revision_analysis_service import RevisionAnalysisService
 from domain.errors import (
+    BootstrapConflictError,
     ActiveRunConflictError,
     ContextRoutingUnresolvedError,
     IdempotencyConflictError,
@@ -86,11 +87,18 @@ def bootstrap_from_manuscript(
     try:
         job = service.start(
             tenant_id=tenant_id,
+            idempotency_key=payload.idempotency_key,
             novel_id=payload.novel_id,
             revisions=[item.model_dump() for item in payload.revisions],
             locale=payload.locale,
             options=payload.options.model_dump(),
         )
+    except BootstrapConflictError as exc:
+        raise HTTPException(503 if exc.code == 'BOOTSTRAP_REQUIRES_POSTGRES' else 409, detail={'code': exc.code}) from exc
+    except PermissionError as exc:
+        raise HTTPException(403, detail={'code': str(exc)}) from exc
+    except IdempotencyConflictError as exc:
+        raise HTTPException(409, detail={'code': 'IDEMPOTENCY_CONFLICT'}) from exc
     except RevisionNotFoundError as exc:
         raise HTTPException(404, detail={"code": "REVISION_NOT_FOUND"}) from exc
     except ContentHashMismatchError as exc:
@@ -99,7 +107,7 @@ def bootstrap_from_manuscript(
         raise HTTPException(
             422, detail={"code": "BOOTSTRAP_LIMIT_EXCEEDED", "details": exc.details}
         ) from exc
-    if job.status not in {"waiting_review", "completed"}:
+    if job.status == "queued":
         background_tasks.add_task(service.process, job.job_id)
     return {
         "data": {
@@ -121,15 +129,25 @@ def bootstrap_from_idea(
     try:
         job = service.start_from_idea(
             tenant_id=tenant_id,
+            idempotency_key=payload.idempotency_key,
             novel_id=payload.novel_id,
             idea=payload.idea,
+            mode=payload.mode,
             outline=payload.outline,
             locale=payload.locale,
-            preferences=payload.preferences.model_dump(),
+            preferences=payload.preferences.model_dump(exclude_none=True),
             author_constraints=payload.author_constraints,
         )
+    except BootstrapConflictError as exc:
+        raise HTTPException(503 if exc.code == 'BOOTSTRAP_REQUIRES_POSTGRES' else 409, detail={'code': exc.code}) from exc
+    except PermissionError as exc:
+        raise HTTPException(403, detail={'code': str(exc)}) from exc
+    except IdempotencyConflictError as exc:
+        raise HTTPException(409, detail={'code': 'IDEMPOTENCY_CONFLICT'}) from exc
+    except OptimisticLockError as exc:
+        raise HTTPException(409, detail={'code': 'BRAIN_VERSION_CONFLICT'}) from exc
     except ValueError as exc:
-        raise HTTPException(422, detail={"code": "INVALID_IDEA", "message": str(exc)}) from exc
+        raise HTTPException(422, detail={"code": "EXTRACT_NOT_IMPLEMENTED" if str(exc) == "EXTRACT_NOT_IMPLEMENTED" else "INVALID_IDEA", "message": str(exc)}) from exc
     return {
         "data": {
             "job_id": job.job_id,
@@ -549,6 +567,9 @@ def resume_job(
 ):
     try:
         job = service.get_job(job_id)
+        service.validate_resume(job)
+    except BootstrapConflictError as exc:
+        raise HTTPException(503 if exc.code == 'BOOTSTRAP_REQUIRES_POSTGRES' else 409, detail={'code': exc.code}) from exc
     except KeyError as exc:
         raise HTTPException(404, detail={"code": "JOB_NOT_FOUND"}) from exc
     if job.status not in {"waiting_review", "completed"}:
@@ -577,6 +598,8 @@ def activate_baseline(
 ):
     try:
         result = service.activate_baseline(brain_id, payload.job_id)
+    except BootstrapConflictError as exc:
+        raise HTTPException(503 if exc.code == 'BOOTSTRAP_REQUIRES_POSTGRES' else 409, detail={'code': exc.code}) from exc
     except KeyError as exc:
         raise HTTPException(404, detail={"code": "JOB_NOT_FOUND"}) from exc
     except BaselineReviewRequiredError as exc:

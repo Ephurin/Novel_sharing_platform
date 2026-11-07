@@ -1,0 +1,115 @@
+[
+  {
+    "name": "ai-offline",
+    "source_sha": "4fdf44c25a5d8bae87ab9935c3d66918515a3e42",
+    "command": [
+      "C:\\Users\\Laptop\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-m",
+      "pytest",
+      "-q",
+      "-rs",
+      "-p",
+      "no:cacheprovider",
+      "--basetemp=C:\\Users\\Laptop\\AppData\\Local\\Temp\\ephurin-p2-01-3h2xx8tt",
+      "--junitxml=C:\\Users\\Laptop\\.codex\\worktrees\\p2-01-bootstrap-foundation\\testproject\\docs\\development\\p2\\p2-01-evidence\\ai-offline.xml"
+    ],
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "seconds": 22.56
+  },
+  {
+    "name": "json-readbacks",
+    "source_sha": "4fdf44c25a5d8bae87ab9935c3d66918515a3e42",
+    "command": [
+      "C:\\Users\\Laptop\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-m",
+      "pytest",
+      "-q",
+      "-s",
+      "tests/test_p2_json_bootstrap_compat.py",
+      "-p",
+      "no:cacheprovider",
+      "--basetemp=C:\\Users\\Laptop\\AppData\\Local\\Temp\\ephurin-p2-json-djdfwuvw"
+    ],
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "seconds": 2.94
+  },
+  {
+    "name": "python-compile",
+    "source_sha": "4fdf44c25a5d8bae87ab9935c3d66918515a3e42",
+    "command": [
+      "C:\\Users\\Laptop\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+      "-m",
+      "compileall",
+      "-q",
+      "api",
+      "application",
+      "domain",
+      "infrastructure"
+    ],
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "seconds": 0.16
+  },
+  {
+    "name": "gateway",
+    "source_sha": "4fdf44c25a5d8bae87ab9935c3d66918515a3e42",
+    "command": [
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p2-01-bootstrap-foundation\\testproject\\backend\\node_modules\\.bin\\tsx.cmd",
+      "--test",
+      "backend/src/modules/ai/ai-gateway.test.ts",
+      "backend/src/modules/ai/p1-closed-loop-gateway.test.ts",
+      "backend/src/modules/ai/manuscript-import-contract.test.ts"
+    ],
+    "cwd": ".",
+    "exit_code": 0,
+    "seconds": 1.24
+  },
+  {
+    "name": "typecheck",
+    "source_sha": "4fdf44c25a5d8bae87ab9935c3d66918515a3e42",
+    "command": [
+      "C:\\Users\\Laptop\\.codex\\worktrees\\p2-01-bootstrap-foundation\\testproject\\backend\\node_modules\\.bin\\tsc.cmd",
+      "-p",
+      "backend/tsconfig.json",
+      "--noEmit"
+    ],
+    "cwd": ".",
+    "exit_code": 0,
+    "seconds": 3.34
+  },
+  {
+    "name": "docker",
+    "source_sha": "4fdf44c25a5d8bae87ab9935c3d66918515a3e42",
+    "command": [
+      "docker",
+      "version",
+      "--format",
+      "{{.Server.Version}}"
+    ],
+    "cwd": ".",
+    "exit_code": 1,
+    "seconds": 0.14
+  },
+  {
+    "name": "diff-check",
+    "source_sha": "4fdf44c25a5d8bae87ab9935c3d66918515a3e42",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "3adab5c73636bd4e7c3dbc6578d4ece0a54b5627",
+      "HEAD"
+    ],
+    "cwd": ".",
+    "exit_code": 0,
+    "seconds": 0.06
+  },
+  {
+    "name": "source-integrity",
+    "before": "4fdf44c25a5d8bae87ab9935c3d66918515a3e42",
+    "after": "4fdf44c25a5d8bae87ab9935c3d66918515a3e42",
+    "tracked_diff": ""
+  }
+]
