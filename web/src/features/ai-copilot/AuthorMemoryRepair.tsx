@@ -1,3 +1,4 @@
+import { useAuthStore } from '../auth/useAuthStore';
 import { useState } from 'react';
 import { Button, Select, Stack, Text, TextInput, Textarea } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
@@ -9,6 +10,7 @@ export function AuthorMemoryRepair({ novelId, version, entities, disabled, perfo
   novelId: string; version: number; entities: MemoryEntity[]; disabled: boolean;
   perform: (fn: () => Promise<unknown>) => void;
 }) {
+  const accountScope = useAuthStore(state => state.user?.userId ?? 'guest');
   const [chapterId, setChapterId] = useState<string | null>(null);
   const [kind, setKind] = useState<string | null>('fact');
   const [quote, setQuote] = useState('');
@@ -19,8 +21,8 @@ export function AuthorMemoryRepair({ novelId, version, entities, disabled, perfo
   const [locations, setLocations] = useState('');
   const [participants, setParticipants] = useState('');
   const [entityType, setEntityType] = useState<string | null>('PER');
-  const chapters = useQuery({ queryKey: ['repair-chapters', novelId], queryFn: () => listChapters(novelId) });
-  const revisions = useQuery({ queryKey: ['repair-revisions', chapterId], enabled: Boolean(chapterId),
+  const chapters = useQuery({ queryKey: ['repair-chapters', novelId, accountScope], queryFn: () => listChapters(novelId) });
+  const revisions = useQuery({ queryKey: ['repair-revisions', chapterId, accountScope], enabled: Boolean(chapterId),
     queryFn: () => listChapterRevisions(chapterId!) });
   const revision = revisions.data?.[0];
   const split = (text: string) => text.split(',').map(x => x.trim()).filter(Boolean);

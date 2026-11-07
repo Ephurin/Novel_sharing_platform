@@ -145,7 +145,7 @@ function ScopedAuthorMemoryPanel({
   });
 
   const extraction = useQuery({
-    queryKey: ['memory-extraction', novelId],
+    queryKey: ['memory-extraction', novelId, accountScope],
     enabled,
     refetchInterval: enabled ? 3000 : false,
     queryFn: () =>

@@ -1,3 +1,4 @@
+import { useAuthStore } from '../auth/useAuthStore';
 import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
@@ -62,14 +63,15 @@ export function EntityExtractionReview({
   perform: (fn: () => Promise<unknown>) => void;
   onContinued: () => Promise<unknown>;
 }) {
+  const accountScope = useAuthStore(state => state.user?.userId ?? 'guest');
   const guidance = useQuery<GuidanceData>({
-    queryKey: ['entity-guidance', novelId],
+    queryKey: ['entity-guidance', novelId, accountScope],
     queryFn: () => getEntityGuidance(novelId),
     enabled: Boolean(novelId)
   });
 
   const reviews = useQuery<EntityReview[]>({
-    queryKey: ['entity-reviews', novelId],
+    queryKey: ['entity-reviews', novelId, accountScope],
     queryFn: () => getEntityReviews(novelId),
     enabled: Boolean(novelId),
     refetchInterval: 3000

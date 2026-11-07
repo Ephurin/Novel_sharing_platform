@@ -1239,8 +1239,8 @@ class PostgresNarrativeRepository:
             query = select(BootstrapJobRecord).where(
                 BootstrapJobRecord.tenant_id == self._tenant_id,
                 BootstrapJobRecord.id == self._stable_uuid('bootstrap-job', job_id),
-                BootstrapJobRecord.result['contract_version'].astext == 'setup-v1',
-                BootstrapJobRecord.result['author_id'].astext == author)
+                BootstrapJobRecord.result['contract_version'].as_string() == 'setup-v1',
+                BootstrapJobRecord.result['author_id'].as_string() == author)
             if novel_id is not None:
                 query = query.where(BootstrapJobRecord.novel_id == self._novel_id(novel_id))
             record = session.scalar(query)
@@ -1256,7 +1256,7 @@ class PostgresNarrativeRepository:
             if brain is None:
                 raise KeyError(story_id)
             query = select(BootstrapJobRecord).where(*self._scope(BootstrapJobRecord, novel_id),
-                BootstrapJobRecord.result['author_id'].astext == str(uuid.UUID(actor_id)))
+                BootstrapJobRecord.result['author_id'].as_string() == str(uuid.UUID(actor_id)))
             if snapshot_id is not None:
                 query = query.where(BootstrapJobRecord.id == uuid.UUID(snapshot_id))
             jobs = [j for j in session.scalars(query).all()
@@ -1291,9 +1291,9 @@ class PostgresNarrativeRepository:
                     raise IdempotencyConflictError(job.job_id)
                 return self._to_bootstrap_job(existing)
             if (job.result or {}).get('contract_version') == 'setup-v1':
-                owners = session.scalars(select(BootstrapJobRecord.result['author_id'].astext).where(
+                owners = session.scalars(select(BootstrapJobRecord.result['author_id'].as_string()).where(
                     *self._scope(BootstrapJobRecord, novel_id),
-                    BootstrapJobRecord.result['contract_version'].astext == 'setup-v1')).all()
+                    BootstrapJobRecord.result['contract_version'].as_string() == 'setup-v1')).all()
                 if any(owner != job.result.get('author_id') for owner in owners):
                     raise KeyError('SETUP_NOT_FOUND')
             if brain.status == 'active':
