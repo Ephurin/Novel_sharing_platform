@@ -51,6 +51,8 @@ test('setup-v1 live owner Gateway -> Python -> PostgreSQL immutable readback', {
       outline:'FutureOnly betrays someone in chapter 8',hints:[{name:'HintOnly'}],private_author_notes:['PrivateOnly'],author_constraints:['ConstraintOnly']};
     const path='/story-brains/bootstrap/from-idea';
     await request(path,401,body,null);await request(path,403,body,foreignToken);
+    await request(path,422,{...body,novel_id:'invalid-uuid'});
+    await request('/story-brains/invalid-uuid/setup',422);
     const created=await request(path,202,body);
     const loaded=await request(`/story-brains/${novel}/setup`,200);
     assert.equal(loaded.data.setup_version,1);assert.equal(loaded.data.snapshot_id,created.data.job_id);

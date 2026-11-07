@@ -398,6 +398,10 @@ export async function startIdeaBootstrapController(
       throw new AppError(400, 'INVALID_REQUEST', 'idea is required');
     }
 
+    if (req.body.contract_version === 'setup-v1' && (typeof req.body.novel_id !== 'string' ||
+        !/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(req.body.novel_id))) {
+      throw new AppError(422, 'INVALID_NOVEL_ID', 'novel_id must be a UUID');
+    }
     await assertNovelOwnership(userId, userRole, req.body.novel_id);
 
     const data = await aiGatewayService.forwardRequest({
@@ -784,6 +788,9 @@ export async function updateStoryPlanObjectiveController(
 export async function getSetupSnapshotController(req: Request, res: Response, next: NextFunction) {
   try {
     const novelId = String(req.params.novelId);
+    if (!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(novelId)) {
+      throw new AppError(422, 'INVALID_NOVEL_ID', 'novel_id must be a UUID');
+    }
     await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
     const snapshotId = req.query.snapshot_id;
     if (snapshotId !== undefined && (typeof snapshotId !== 'string' ||
