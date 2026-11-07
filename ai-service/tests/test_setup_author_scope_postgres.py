@@ -78,6 +78,8 @@ def test_internal_http_setup_and_job_identity_matrix(f,caplog):
         response=f.client.post(path,headers=owner) if path.endswith('/resume') else f.client.get(path,headers=owner)
         assert response.status_code==(202 if path.endswith('/resume') else 200)
         assert 'PrivateOnly' not in response.text and 'ConstraintOnly' not in response.text
+        if not path.endswith('/resume'):
+            assert response.headers['cache-control']=='no-store'
         assert 'reservation_token' not in response.text and 'original_model_output' not in response.text
     for path in [f'/v1/story-brains/not-a-uuid/setup',f'/v1/story-brains/{f.src.novel_id}/setup?snapshot_id=invalid']:
         assert f.client.get(path,headers=owner).status_code==422

@@ -159,10 +159,10 @@ jobs:
           checked = []
           for name in ('ai-service.log', 'setup-gateway.log'):
               path = root / name
-              if path.exists():
-                  value = path.read_text()
-                  assert all(marker not in value for marker in ('PrivateOnly', 'ConstraintOnly', 'private_author_notes', 'author_constraints')), name
-                  checked.append(name)
+              assert path.exists(), 'Missing operational log: ' + name
+              value = path.read_text()
+              assert all(marker not in value for marker in ('PrivateOnly', 'ConstraintOnly', 'private_author_notes', 'author_constraints')), name
+              checked.append(name)
           (root / 'private-log-scan.json').write_text(json.dumps({'checked':checked,'private_markers_absent':True}))
           PY
       - name: Upload setup foundation evidence

@@ -6,7 +6,7 @@ import json
 import uuid
 from dataclasses import asdict, replace
 
-from fastapi import APIRouter, BackgroundTasks, Body, Depends, Header, HTTPException, Query, Request
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, Header, HTTPException, Query, Request, Response
 from fastapi.responses import StreamingResponse
 
 from api.deps import (
@@ -504,7 +504,10 @@ def get_setup_snapshot(
     snapshot_id: uuid.UUID | None = Query(None),
     service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
     request: Request = None,
+    response: Response = None,
 ):
+    if response is not None:
+        response.headers['Cache-Control'] = 'no-store'
     try:
         tenant_id, author_id = setup_principal(request, service)
         data = SetupService(service).readback(str(novel_id), tenant_id=str(tenant_id), actor_id=author_id,
@@ -538,7 +541,10 @@ def get_job(
     bootstrap_service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
     writing_service: WritingService = Depends(get_writing_service),
     request: Request = None,
+    response: Response = None,
 ):
+    if response is not None:
+        response.headers['Cache-Control'] = 'no-store'
     try:
         job = authorized_bootstrap_job(bootstrap_service, job_id, request)
         data = asdict(public_job(job))
@@ -614,7 +620,7 @@ async def stream_job_events(
                     break
             await asyncio.sleep(0.5)
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    return StreamingResponse(event_generator(), media_type="text/event-stream", headers={"Cache-Control":"no-store"})
 
 
 @router.post("/jobs/{job_id}/resume", status_code=202)

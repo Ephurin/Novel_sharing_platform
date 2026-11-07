@@ -15,7 +15,7 @@ test('setup-v1 live owner Gateway -> Python -> PostgreSQL immutable readback', {
   const pg=getPostgresPool(), mongo=getMongoDatabase();
   assert.equal((await pg.query('select current_database() as name')).rows[0].name,'p2a');
   assert.equal(mongo.databaseName,'p2a');
-  const [owner,foreign,novel,other,foreignNovel,admin]=Array.from({length:6},()=>randomUUID());
+  const [owner,foreign,novel,other,foreignNovel,admin,adminNovel]=Array.from({length:7},()=>randomUUID());
   const token=jwt.sign({sub:owner,role:'AUTHOR'},env.JWT_ACCESS_SECRET);
   const adminToken=jwt.sign({sub:admin,role:'ADMIN'},env.JWT_ACCESS_SECRET);
   const foreignToken=jwt.sign({sub:foreign,role:'AUTHOR'},env.JWT_ACCESS_SECRET);
@@ -47,6 +47,7 @@ test('setup-v1 live owner Gateway -> Python -> PostgreSQL immutable readback', {
     for(const user of [owner,foreign]) await pg.query("INSERT INTO users(user_id,email,username,password_hash,role,status) VALUES($1,$2,$3,'test-only','AUTHOR','ACTIVE')",[user,user+'@example.test','p202-'+user]);
     await pg.query("INSERT INTO users(user_id,email,username,password_hash,role,status) VALUES($1,$2,$3,'test-only','ADMIN','ACTIVE')",[admin,admin+'@example.test','p202-'+admin]);
     await pg.query("INSERT INTO novels(novel_id,author_id,title,slug,synopsis) VALUES($1,$2,'foreign setup',$3,'isolated')",[foreignNovel,foreign,'p202-'+foreignNovel]);
+    await pg.query("INSERT INTO novels(novel_id,author_id,title,slug,synopsis) VALUES($1,$2,'admin owned',$3,'isolated')",[adminNovel,admin,'p202-'+adminNovel]);
     for(const id of [novel,other]) await pg.query("INSERT INTO novels(novel_id,author_id,title,slug,synopsis) VALUES($1,$2,'setup test',$3,'isolated')",[id,owner,'p202-'+id]);
     const body={contract_version:'setup-v1',novel_id:novel,mode:'extract',idempotency_key:'source-one',expected_setup_version:0,
       setup:{text:'',declarations:[{declaration_id:'one',entity_type:'character',display_name:'Minh'},
@@ -63,6 +64,9 @@ test('setup-v1 live owner Gateway -> Python -> PostgreSQL immutable readback', {
     assert.equal(new Set(loaded.data.proposals.filter((p:any)=>p.card_type==='entity').map((p:any)=>p.payload.entity_id)).size,2);
     assert.ok(!JSON.stringify(loaded).includes('PrivateOnly'));
     assert.ok(!JSON.stringify(loaded).includes('ConstraintOnly'));
+    const adminSource=await request(path,202,{...body,novel_id:adminNovel},adminToken);
+    await request(`/story-brains/${adminNovel}/setup`,200,undefined,adminToken);
+    await request(`/jobs/${adminSource.data.job_id}`,200,undefined,adminToken);
     const otherSource=await request(path,202,{...body,novel_id:foreignNovel},foreignToken);
     await request(`/story-brains/${foreignNovel}/setup`,200,undefined,foreignToken);
     await request(`/story-brains/${foreignNovel}/setup`,403);

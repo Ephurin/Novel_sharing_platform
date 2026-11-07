@@ -327,6 +327,7 @@ export async function getJobStatusController(
   res: Response,
   next: NextFunction
 ) {
+  res.set('Cache-Control', 'no-store');
   try {
     res.json(successResponse(await getAuthorizedJob(req)));
   } catch (error) {
@@ -339,6 +340,7 @@ export async function resumeJobController(
   res: Response,
   next: NextFunction
 ) {
+  res.set('Cache-Control', 'no-store');
   try {
     await getAuthorizedJob(req);
     const data = await aiGatewayService.forwardRequest({
