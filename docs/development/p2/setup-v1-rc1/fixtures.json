@@ -1,0 +1,911 @@
+{
+  "contract_revision": "setup-v1-rc1",
+  "production_implemented": false,
+  "schema_cases": [
+    {
+      "name": "explicit-setup-with-separated-noise",
+      "dto": "request",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "mode": "extract",
+        "idempotency_key": "setup-op-1",
+        "expected_setup_version": 0,
+        "setup": {
+          "text": "Minh là người giữ thư viện ở An Thành.",
+          "declarations": [],
+          "world_rules": [],
+          "initial_conditions": []
+        },
+        "hints": [
+          {
+            "name": "Lan"
+          }
+        ],
+        "outline": "Chương 8: Kha phản bội Minh.",
+        "preferences": {
+          "genre": [
+            "fantasy"
+          ],
+          "tone": "neutral"
+        },
+        "author_constraints": [
+          "Không gửi tên Hà cho provider."
+        ],
+        "private_author_notes": [
+          "Bí mật: Bảo là người kế vị."
+        ],
+        "locale": "vi-VN"
+      },
+      "valid": true
+    },
+    {
+      "name": "no-plan-entry",
+      "dto": "request",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "mode": "extract",
+        "idempotency_key": "setup-op-1",
+        "expected_setup_version": 0,
+        "setup": {
+          "text": "Minh là người giữ thư viện ở An Thành.",
+          "declarations": [],
+          "world_rules": [],
+          "initial_conditions": []
+        },
+        "hints": [],
+        "outline": "",
+        "preferences": {
+          "genre": [
+            "fantasy"
+          ],
+          "tone": "neutral"
+        },
+        "author_constraints": [
+          "Không gửi tên Hà cho provider."
+        ],
+        "private_author_notes": [
+          "Bí mật: Bảo là người kế vị."
+        ]
+      },
+      "valid": true
+    },
+    {
+      "name": "explicit-blueprint",
+      "dto": "request",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "mode": "blueprint",
+        "idempotency_key": "setup-op-1",
+        "expected_setup_version": 0,
+        "setup": {
+          "text": "Minh là người giữ thư viện ở An Thành.",
+          "declarations": [],
+          "world_rules": [],
+          "initial_conditions": []
+        },
+        "hints": [
+          {
+            "name": "Lan"
+          }
+        ],
+        "outline": "Chương 8: Kha phản bội Minh.",
+        "preferences": {
+          "genre": [
+            "fantasy"
+          ],
+          "tone": "neutral"
+        },
+        "author_constraints": [
+          "Không gửi tên Hà cho provider."
+        ],
+        "private_author_notes": [
+          "Bí mật: Bảo là người kế vị."
+        ]
+      },
+      "valid": true
+    },
+    {
+      "name": "homonyms-distinct-declarations",
+      "dto": "request",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "mode": "extract",
+        "idempotency_key": "setup-op-1",
+        "expected_setup_version": 0,
+        "setup": {
+          "text": "",
+          "declarations": [
+            {
+              "declaration_id": "minh-healer",
+              "display_name": "Minh",
+              "entity_type": "character"
+            },
+            {
+              "declaration_id": "minh-guard",
+              "display_name": "Minh",
+              "entity_type": "character"
+            }
+          ],
+          "world_rules": [],
+          "initial_conditions": []
+        },
+        "hints": [],
+        "outline": "",
+        "preferences": {
+          "genre": [
+            "fantasy"
+          ],
+          "tone": "neutral"
+        },
+        "author_constraints": [
+          "Không gửi tên Hà cho provider."
+        ],
+        "private_author_notes": [
+          "Bí mật: Bảo là người kế vị."
+        ]
+      },
+      "valid": true
+    },
+    {
+      "name": "rules-and-initial-conditions",
+      "dto": "request",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "mode": "extract",
+        "idempotency_key": "setup-op-1",
+        "expected_setup_version": 0,
+        "setup": {
+          "text": "Minh là người giữ thư viện ở An Thành.",
+          "declarations": [
+            {
+              "declaration_id": "minh",
+              "entity_type": "character",
+              "display_name": "Minh"
+            }
+          ],
+          "world_rules": [
+            {
+              "declaration_id": "no-resurrection",
+              "text": "Người chết không thể hồi sinh."
+            }
+          ],
+          "initial_conditions": [
+            {
+              "declaration_id": "minh-personality",
+              "subject_declaration_id": "minh",
+              "attribute_key": "personality",
+              "value": "thận trọng"
+            }
+          ]
+        },
+        "hints": [],
+        "outline": "",
+        "preferences": {
+          "genre": [
+            "fantasy"
+          ],
+          "tone": "neutral"
+        },
+        "author_constraints": [
+          "Không gửi tên Hà cho provider."
+        ],
+        "private_author_notes": [
+          "Bí mật: Bảo là người kế vị."
+        ]
+      },
+      "valid": true
+    },
+    {
+      "name": "unknown-mode",
+      "dto": "request",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "mode": "creative-auto-canon",
+        "idempotency_key": "setup-op-1",
+        "expected_setup_version": 0,
+        "setup": {
+          "text": "Minh là người giữ thư viện ở An Thành.",
+          "declarations": [],
+          "world_rules": [],
+          "initial_conditions": []
+        },
+        "hints": [
+          {
+            "name": "Lan"
+          }
+        ],
+        "outline": "Chương 8: Kha phản bội Minh.",
+        "preferences": {
+          "genre": [
+            "fantasy"
+          ],
+          "tone": "neutral"
+        },
+        "author_constraints": [
+          "Không gửi tên Hà cho provider."
+        ],
+        "private_author_notes": [
+          "Bí mật: Bảo là người kế vị."
+        ]
+      },
+      "valid": false
+    },
+    {
+      "name": "client-authority",
+      "dto": "request",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "mode": "extract",
+        "idempotency_key": "setup-op-1",
+        "expected_setup_version": 0,
+        "setup": {
+          "text": "Minh là người giữ thư viện ở An Thành.",
+          "declarations": [],
+          "world_rules": [],
+          "initial_conditions": []
+        },
+        "hints": [
+          {
+            "name": "Lan"
+          }
+        ],
+        "outline": "Chương 8: Kha phản bội Minh.",
+        "preferences": {
+          "genre": [
+            "fantasy"
+          ],
+          "tone": "neutral"
+        },
+        "author_constraints": [
+          "Không gửi tên Hà cho provider."
+        ],
+        "private_author_notes": [
+          "Bí mật: Bảo là người kế vị."
+        ],
+        "status": "accepted"
+      },
+      "valid": false
+    },
+    {
+      "name": "ambiguous-idea-alias",
+      "dto": "request",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "mode": "extract",
+        "idempotency_key": "setup-op-1",
+        "expected_setup_version": 0,
+        "setup": {
+          "text": "Minh là người giữ thư viện ở An Thành.",
+          "declarations": [],
+          "world_rules": [],
+          "initial_conditions": []
+        },
+        "hints": [
+          {
+            "name": "Lan"
+          }
+        ],
+        "outline": "Chương 8: Kha phản bội Minh.",
+        "preferences": {
+          "genre": [
+            "fantasy"
+          ],
+          "tone": "neutral"
+        },
+        "author_constraints": [
+          "Không gửi tên Hà cho provider."
+        ],
+        "private_author_notes": [
+          "Bí mật: Bảo là người kế vị."
+        ],
+        "idea": "Different source"
+      },
+      "valid": false
+    },
+    {
+      "name": "missing-key",
+      "dto": "request",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "mode": "extract",
+        "expected_setup_version": 0,
+        "setup": {
+          "text": "Minh là người giữ thư viện ở An Thành.",
+          "declarations": [],
+          "world_rules": [],
+          "initial_conditions": []
+        },
+        "hints": [
+          {
+            "name": "Lan"
+          }
+        ],
+        "outline": "Chương 8: Kha phản bội Minh.",
+        "preferences": {
+          "genre": [
+            "fantasy"
+          ],
+          "tone": "neutral"
+        },
+        "author_constraints": [
+          "Không gửi tên Hà cho provider."
+        ],
+        "private_author_notes": [
+          "Bí mật: Bảo là người kế vị."
+        ]
+      },
+      "valid": false
+    },
+    {
+      "name": "stale-shape",
+      "dto": "request",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "mode": "extract",
+        "idempotency_key": "setup-op-1",
+        "expected_setup_version": -1,
+        "setup": {
+          "text": "Minh là người giữ thư viện ở An Thành.",
+          "declarations": [],
+          "world_rules": [],
+          "initial_conditions": []
+        },
+        "hints": [
+          {
+            "name": "Lan"
+          }
+        ],
+        "outline": "Chương 8: Kha phản bội Minh.",
+        "preferences": {
+          "genre": [
+            "fantasy"
+          ],
+          "tone": "neutral"
+        },
+        "author_constraints": [
+          "Không gửi tên Hà cho provider."
+        ],
+        "private_author_notes": [
+          "Bí mật: Bảo là người kế vị."
+        ]
+      },
+      "valid": false
+    },
+    {
+      "name": "unsupported-declaration-type",
+      "dto": "request",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "mode": "extract",
+        "idempotency_key": "setup-op-1",
+        "expected_setup_version": 0,
+        "setup": {
+          "text": "Minh là người giữ thư viện ở An Thành.",
+          "declarations": [
+            {
+              "declaration_id": "minh",
+              "display_name": "Minh",
+              "entity_type": "event"
+            }
+          ],
+          "world_rules": [],
+          "initial_conditions": []
+        },
+        "hints": [
+          {
+            "name": "Lan"
+          }
+        ],
+        "outline": "Chương 8: Kha phản bội Minh.",
+        "preferences": {
+          "genre": [
+            "fantasy"
+          ],
+          "tone": "neutral"
+        },
+        "author_constraints": [
+          "Không gửi tên Hà cho provider."
+        ],
+        "private_author_notes": [
+          "Bí mật: Bảo là người kế vị."
+        ]
+      },
+      "valid": false
+    },
+    {
+      "name": "unknown-nested-authority",
+      "dto": "request",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "mode": "extract",
+        "idempotency_key": "setup-op-1",
+        "expected_setup_version": 0,
+        "setup": {
+          "text": "Minh là người giữ thư viện ở An Thành.",
+          "declarations": [],
+          "world_rules": [],
+          "initial_conditions": []
+        },
+        "hints": [
+          {
+            "name": "Lan"
+          }
+        ],
+        "outline": "Chương 8: Kha phản bội Minh.",
+        "preferences": {
+          "genre": [
+            "fantasy"
+          ],
+          "tone": "neutral",
+          "auto_approve": true
+        },
+        "author_constraints": [
+          "Không gửi tên Hà cho provider."
+        ],
+        "private_author_notes": [
+          "Bí mật: Bảo là người kế vị."
+        ]
+      },
+      "valid": false
+    },
+    {
+      "name": "owner-readback-pending-extract",
+      "dto": "readback",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "job_id": "20000000-0000-0000-0000-000000000001",
+        "snapshot_id": "20000000-0000-0000-0000-000000000001",
+        "setup_version": 1,
+        "brain_version": 1,
+        "review_version": 0,
+        "setup_hash": "ee7e194953280b7a65e57406b8e527dd366f5d5a67eff852515ecfb0d2e076c4",
+        "text_hash": "c2cd05d8f508482992b9c4474b8c01c148cb25b9576c05c316baad46bc0e6f3e",
+        "mode": "extract",
+        "job_status": "waiting_review",
+        "snapshot": {
+          "text": "Minh là người giữ thư viện ở An Thành.",
+          "declarations": [],
+          "world_rules": [],
+          "initial_conditions": []
+        },
+        "proposals": [
+          {
+            "proposal_id": "30000000-0000-0000-0000-000000000001",
+            "dependency_group_id": "40000000-0000-0000-0000-000000000001",
+            "card_type": "entity",
+            "status": "pending",
+            "origin": "extracted_explicit",
+            "source_kind": "author_setup",
+            "source_refs": [
+              {
+                "kind": "setup_span",
+                "field_path": "/setup/text",
+                "offset_kind": "unicode_codepoints",
+                "start": 0,
+                "end": 4,
+                "quote": "Minh"
+              }
+            ],
+            "payload": {
+              "canonical_name": "Minh",
+              "entity_type": "character"
+            },
+            "expected_brain_version": 1
+          }
+        ]
+      },
+      "valid": true
+    },
+    {
+      "name": "bad-source-hash-shape",
+      "dto": "readback",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "job_id": "20000000-0000-0000-0000-000000000001",
+        "snapshot_id": "20000000-0000-0000-0000-000000000001",
+        "setup_version": 1,
+        "brain_version": 1,
+        "review_version": 0,
+        "setup_hash": "client-guessed",
+        "text_hash": "c2cd05d8f508482992b9c4474b8c01c148cb25b9576c05c316baad46bc0e6f3e",
+        "mode": "extract",
+        "job_status": "waiting_review",
+        "snapshot": {
+          "text": "Minh là người giữ thư viện ở An Thành.",
+          "declarations": [],
+          "world_rules": [],
+          "initial_conditions": []
+        },
+        "proposals": [
+          {
+            "proposal_id": "30000000-0000-0000-0000-000000000001",
+            "dependency_group_id": "40000000-0000-0000-0000-000000000001",
+            "card_type": "entity",
+            "status": "pending",
+            "origin": "extracted_explicit",
+            "source_kind": "author_setup",
+            "source_refs": [
+              {
+                "kind": "setup_span",
+                "field_path": "/setup/text",
+                "offset_kind": "unicode_codepoints",
+                "start": 0,
+                "end": 4,
+                "quote": "Minh"
+              }
+            ],
+            "payload": {
+              "canonical_name": "Minh",
+              "entity_type": "character"
+            },
+            "expected_brain_version": 1
+          }
+        ]
+      },
+      "valid": false
+    },
+    {
+      "name": "explicit-group-rejection",
+      "dto": "review",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "snapshot_id": "20000000-0000-0000-0000-000000000001",
+        "idempotency_key": "review-op-1",
+        "expected_setup_version": 1,
+        "expected_brain_version": 1,
+        "expected_review_version": 0,
+        "dependency_group_id": "40000000-0000-0000-0000-000000000001",
+        "proposal_ids": [
+          "30000000-0000-0000-0000-000000000001"
+        ],
+        "action": "reject_group",
+        "reason": "Tác giả loại đề xuất."
+      },
+      "valid": true
+    },
+    {
+      "name": "complete-edited-group",
+      "dto": "review",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "snapshot_id": "20000000-0000-0000-0000-000000000001",
+        "idempotency_key": "review-op-1",
+        "expected_setup_version": 1,
+        "expected_brain_version": 1,
+        "expected_review_version": 0,
+        "dependency_group_id": "40000000-0000-0000-0000-000000000001",
+        "proposal_ids": [
+          "30000000-0000-0000-0000-000000000001"
+        ],
+        "action": "accept_group",
+        "reason": "Tác giả loại đề xuất.",
+        "edited_payloads": {
+          "30000000-0000-0000-0000-000000000001": {
+            "canonical_name": "Minh",
+            "entity_type": "character"
+          }
+        },
+        "identity_decisions": [
+          {
+            "proposal_id": "30000000-0000-0000-0000-000000000001",
+            "selection": {
+              "provisional_identity_key": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/minh-healer"
+            }
+          }
+        ]
+      },
+      "valid": true
+    },
+    {
+      "name": "duplicate-review-member",
+      "dto": "review",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "snapshot_id": "20000000-0000-0000-0000-000000000001",
+        "idempotency_key": "review-op-1",
+        "expected_setup_version": 1,
+        "expected_brain_version": 1,
+        "expected_review_version": 0,
+        "dependency_group_id": "40000000-0000-0000-0000-000000000001",
+        "proposal_ids": [
+          "30000000-0000-0000-0000-000000000001",
+          "30000000-0000-0000-0000-000000000001"
+        ],
+        "action": "reject_group",
+        "reason": "Tác giả loại đề xuất."
+      },
+      "valid": false
+    },
+    {
+      "name": "missing-review-CAS",
+      "dto": "review",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "snapshot_id": "20000000-0000-0000-0000-000000000001",
+        "idempotency_key": "review-op-1",
+        "expected_setup_version": 1,
+        "expected_review_version": 0,
+        "dependency_group_id": "40000000-0000-0000-0000-000000000001",
+        "proposal_ids": [
+          "30000000-0000-0000-0000-000000000001"
+        ],
+        "action": "reject_group",
+        "reason": "Tác giả loại đề xuất."
+      },
+      "valid": false
+    },
+    {
+      "name": "creative-blueprint-pending",
+      "dto": "readback",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "job_id": "20000000-0000-0000-0000-000000000001",
+        "snapshot_id": "20000000-0000-0000-0000-000000000001",
+        "setup_version": 1,
+        "brain_version": 1,
+        "review_version": 0,
+        "setup_hash": "ee7e194953280b7a65e57406b8e527dd366f5d5a67eff852515ecfb0d2e076c4",
+        "text_hash": "c2cd05d8f508482992b9c4474b8c01c148cb25b9576c05c316baad46bc0e6f3e",
+        "mode": "blueprint",
+        "job_status": "waiting_review",
+        "snapshot": {
+          "text": "Minh là người giữ thư viện ở An Thành.",
+          "declarations": [],
+          "world_rules": [],
+          "initial_conditions": []
+        },
+        "proposals": [
+          {
+            "proposal_id": "30000000-0000-0000-0000-000000000001",
+            "dependency_group_id": "40000000-0000-0000-0000-000000000001",
+            "card_type": "entity",
+            "status": "pending",
+            "origin": "model_proposed",
+            "source_kind": "model_suggestion",
+            "source_refs": [
+              {
+                "kind": "model_suggestion"
+              }
+            ],
+            "payload": {
+              "canonical_name": "Minh",
+              "entity_type": "character"
+            },
+            "expected_brain_version": 1
+          }
+        ]
+      },
+      "valid": true
+    },
+    {
+      "name": "creative-origin-in-extract",
+      "dto": "readback",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "job_id": "20000000-0000-0000-0000-000000000001",
+        "snapshot_id": "20000000-0000-0000-0000-000000000001",
+        "setup_version": 1,
+        "brain_version": 1,
+        "review_version": 0,
+        "setup_hash": "ee7e194953280b7a65e57406b8e527dd366f5d5a67eff852515ecfb0d2e076c4",
+        "text_hash": "c2cd05d8f508482992b9c4474b8c01c148cb25b9576c05c316baad46bc0e6f3e",
+        "mode": "extract",
+        "job_status": "waiting_review",
+        "snapshot": {
+          "text": "Minh là người giữ thư viện ở An Thành.",
+          "declarations": [],
+          "world_rules": [],
+          "initial_conditions": []
+        },
+        "proposals": [
+          {
+            "proposal_id": "30000000-0000-0000-0000-000000000001",
+            "dependency_group_id": "40000000-0000-0000-0000-000000000001",
+            "card_type": "entity",
+            "status": "pending",
+            "origin": "model_proposed",
+            "source_kind": "model_suggestion",
+            "source_refs": [
+              {
+                "kind": "model_suggestion"
+              }
+            ],
+            "payload": {
+              "canonical_name": "Minh",
+              "entity_type": "character"
+            },
+            "expected_brain_version": 1
+          }
+        ]
+      },
+      "valid": false
+    },
+    {
+      "name": "ambiguous-identity-selection",
+      "dto": "review",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "snapshot_id": "20000000-0000-0000-0000-000000000001",
+        "idempotency_key": "review-op-1",
+        "expected_setup_version": 1,
+        "expected_brain_version": 1,
+        "expected_review_version": 0,
+        "dependency_group_id": "40000000-0000-0000-0000-000000000001",
+        "proposal_ids": [
+          "30000000-0000-0000-0000-000000000001"
+        ],
+        "action": "accept_group",
+        "reason": "Tác giả loại đề xuất.",
+        "edited_payloads": {
+          "30000000-0000-0000-0000-000000000001": {
+            "canonical_name": "Minh",
+            "entity_type": "character"
+          }
+        },
+        "identity_decisions": [
+          {
+            "proposal_id": "30000000-0000-0000-0000-000000000001",
+            "selection": {
+              "provisional_identity_key": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/minh-healer",
+              "canonical_entity_id": "50000000-0000-0000-0000-000000000001"
+            }
+          }
+        ]
+      },
+      "valid": false
+    },
+    {
+      "name": "reject-cannot-apply-edited-payload",
+      "dto": "review",
+      "value": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "snapshot_id": "20000000-0000-0000-0000-000000000001",
+        "idempotency_key": "review-op-1",
+        "expected_setup_version": 1,
+        "expected_brain_version": 1,
+        "expected_review_version": 0,
+        "dependency_group_id": "40000000-0000-0000-0000-000000000001",
+        "proposal_ids": [
+          "30000000-0000-0000-0000-000000000001"
+        ],
+        "action": "reject_group",
+        "reason": "Tác giả loại đề xuất.",
+        "edited_payloads": {
+          "30000000-0000-0000-0000-000000000001": {
+            "canonical_name": "Minh",
+            "entity_type": "character"
+          }
+        },
+        "identity_decisions": [
+          {
+            "proposal_id": "30000000-0000-0000-0000-000000000001",
+            "selection": {
+              "provisional_identity_key": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/minh-healer"
+            }
+          }
+        ]
+      },
+      "valid": false
+    }
+  ],
+  "reference_vectors": [
+    {
+      "setup": {
+        "text": "Minh là người giữ thư viện ở An Thành.",
+        "declarations": [],
+        "world_rules": [],
+        "initial_conditions": []
+      },
+      "setup_hash": "ee7e194953280b7a65e57406b8e527dd366f5d5a67eff852515ecfb0d2e076c4",
+      "text_hash": "c2cd05d8f508482992b9c4474b8c01c148cb25b9576c05c316baad46bc0e6f3e",
+      "spans": [
+        {
+          "start": 0,
+          "end": 4,
+          "quote": "Minh"
+        },
+        {
+          "start": 29,
+          "end": 37,
+          "quote": "An Thành"
+        }
+      ]
+    }
+  ],
+  "runtime_cases": [
+    {
+      "id": "T01",
+      "trigger": "Extract explicit Minh/An Thành only",
+      "expected": "No Lan/Kha/Hà/Bảo from hints/outline/private fields; exact setup spans; 0 history rows",
+      "verdict": "NOT_RUN_NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T02",
+      "trigger": "Provider invents name or wrong quote/offset",
+      "expected": "422 or explicit unresolved; zero accepted materialization",
+      "verdict": "NOT_RUN_NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T03",
+      "trigger": "Blueprint proposes a new character",
+      "expected": "pending/model_proposed; raw model output retained; 0 Canon/history until author review",
+      "verdict": "NOT_RUN_NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T04",
+      "trigger": "Author edits/rejects a complete group",
+      "expected": "edited full payload validated; rejected suggestions absent from approved memory; full-group atomicity",
+      "verdict": "NOT_RUN_NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T05",
+      "trigger": "Two Minh declarations become distinct identities",
+      "expected": "opaque distinct scoped IDs selected by author; replay retains IDs; no name upsert",
+      "verdict": "NOT_RUN_NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T06",
+      "trigger": "Same operation sequential/concurrent; changed source/mode",
+      "expected": "one reserved result/provider path; changed keyed request 409; no duplicates",
+      "verdict": "NOT_RUN_NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T07",
+      "trigger": "Two clients change expected setup version 0",
+      "expected": "one version-1 reservation; stale writer 409 before provider; immutable old snapshot",
+      "verdict": "NOT_RUN_NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T08",
+      "trigger": "Activation with pending/missing/foreign/stale decisions",
+      "expected": "409/404 under existing scope/version gates; exact durable before/after equality",
+      "verdict": "NOT_RUN_NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T09",
+      "trigger": "Approve author world rule/initial condition",
+      "expected": "reviewed setup authority only; no events, mentions, state transitions or fake chapter revision",
+      "verdict": "NOT_RUN_NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T10",
+      "trigger": "Unrelated owner/tenant reads persisted setup",
+      "expected": "401/403/404; no private fields or mutation; correct owner reload matches source/version",
+      "verdict": "NOT_RUN_NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T11",
+      "trigger": "Old P1 manuscript bootstrap/review/writer path",
+      "expected": "unchanged legacy DTO/hash/revisions/outbox/HITL contracts",
+      "verdict": "NOT_RUN_NOT_IMPLEMENTED"
+    },
+    {
+      "id": "T12",
+      "trigger": "Author chooses no outline/no plan",
+      "expected": "setup accepted without plan requirement; real writing bridge tested later in P2-04, never fake M-FIRST",
+      "verdict": "NOT_RUN_NOT_IMPLEMENTED"
+    }
+  ]
+}
