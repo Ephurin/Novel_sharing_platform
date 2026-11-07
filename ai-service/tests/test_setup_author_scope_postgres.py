@@ -67,13 +67,21 @@ def test_internal_http_setup_and_job_identity_matrix(f,caplog):
     for path in paths:
         for name,headers,status in cases:
             response=f.client.post(path,headers=headers) if path.endswith('/resume') else f.client.get(path,headers=headers)
-            assert response.status_code==status,(path,name,response.status_code)
+            expected=404 if name=='missing-author' and '/jobs/' in path else status
+            assert response.status_code==expected,(path,name,response.status_code)
             assert all(marker not in response.text for marker in ['PrivateOnly','ConstraintOnly','ExplicitSourceSecret'])
-            print('SETUP_SCOPE_HTTP '+json.dumps(dict(path=path,case=name,status=status)))
+            print('SETUP_SCOPE_HTTP '+json.dumps(dict(path=path,case=name,status=expected)))
     # A wrong valid author gets the same body for an existing and missing snapshot/job.
     foreign_headers=cases[0][1]
     for prefix in [f'/v1/story-brains/{f.src.novel_id}/setup?snapshot_id=', '/v1/jobs/']:
         assert f.client.get(prefix+first.job_id,headers=foreign_headers).json()==f.client.get(prefix+str(uuid.uuid4()),headers=foreign_headers).json()
+    for suffix in ['', '/events', '/resume']:
+        method=f.client.post if suffix=='/resume' else f.client.get
+        for name,headers,status in cases[:7]:
+            existing=method('/v1/jobs/'+first.job_id+suffix,headers=headers)
+            absent=method('/v1/jobs/'+str(uuid.uuid4())+suffix,headers=headers)
+            assert existing.status_code==absent.status_code
+            assert existing.json()==absent.json()
     for path in paths:
         response=f.client.post(path,headers=owner) if path.endswith('/resume') else f.client.get(path,headers=owner)
         assert response.status_code==(202 if path.endswith('/resume') else 200)

@@ -20,7 +20,7 @@ from api.deps import (
     require_service_token,
 )
 from api.setup_schemas import SetupRequest
-from api.setup_auth import setup_principal, SetupValidationRoute
+from api.setup_auth import setup_principal, identity_headers, SetupValidationRoute
 from application.setup_service import SetupService, SetupFailure, public_job
 from api.schemas import (
     EventCorrectionRequest,
@@ -524,8 +524,11 @@ def get_setup_snapshot(
 def authorized_bootstrap_job(service, job_id, request):
     # Worker lookup is privileged/internal; never serialize or stream a setup
     # result until the separate author-scoped repository query succeeds.
+    identity_headers(request, service, optional=True)
     job = service.get_job(job_id)
     if (job.result or {}).get('contract_version') == 'setup-v1':
+        if request is None or not request.headers.get('X-Author-Id'):
+            raise HTTPException(404, detail={'code':'JOB_NOT_FOUND'})
         tenant, author = setup_principal(request, service)
         try:
             job = SetupService(service).get_job(job_id, tenant_id=tenant, actor_id=author)
@@ -585,7 +588,10 @@ async def stream_job_events(
     try:
         authorized_bootstrap_job(bootstrap_service, job_id, request)
     except KeyError:
-        pass  # Legacy writing IDs keep their established lookup path.
+        try:
+            writing_service._repository.get_writing_job(job_id)
+        except Exception:
+            raise HTTPException(404, detail={'code':'JOB_NOT_FOUND'}) from None
 
     async def event_generator():
         for _ in range(60):

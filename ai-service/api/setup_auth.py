@@ -17,6 +17,14 @@ def setup_principal(request, service):
         raise HTTPException(401, detail={'code':'SERVICE_AUTH_REQUIRED'})
     if not hmac.compare_digest(token, expected):
         raise HTTPException(403, detail={'code':'SERVICE_AUTH_INVALID'})
+    return identity_headers(request, service)
+
+
+def identity_headers(request, service, *, optional=False):
+    if request is None:
+        return None
+    if optional and not any(request.headers.get(k) is not None for k in ('X-Author-Id','X-User-Id','X-Actor-Id')):
+        return None
     author, tenant = request.headers.get('X-Author-Id'), request.headers.get('X-Tenant-Id')
     if not author or not tenant:
         raise HTTPException(401, detail={'code':'SETUP_IDENTITY_REQUIRED'})
