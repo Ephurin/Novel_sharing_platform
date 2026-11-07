@@ -402,7 +402,7 @@ export async function startIdeaBootstrapController(
         !/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(req.body.novel_id))) {
       throw new AppError(422, 'INVALID_NOVEL_ID', 'novel_id must be a UUID');
     }
-    await assertNovelOwnership(userId, userRole, req.body.novel_id);
+    await assertNovelOwnership(userId, req.body.contract_version === 'setup-v1' ? 'AUTHOR' : userRole, req.body.novel_id);
 
     const data = await aiGatewayService.forwardRequest({
       method: 'POST',
@@ -791,7 +791,8 @@ export async function getSetupSnapshotController(req: Request, res: Response, ne
     if (!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(novelId)) {
       throw new AppError(422, 'INVALID_NOVEL_ID', 'novel_id must be a UUID');
     }
-    await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+    // Setup has no cross-owner ADMIN delegation in this contract.
+    await assertNovelOwnership(req.auth!.userId, 'AUTHOR', novelId);
     const snapshotId = req.query.snapshot_id;
     if (snapshotId !== undefined && (typeof snapshotId !== 'string' ||
         !/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(snapshotId))) {

@@ -106,7 +106,7 @@ jobs:
           DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p2a
         run: |
           set -euo pipefail
-          pytest -o addopts= -vv -s -m postgres_integration --basetemp="$RUNNER_TEMP/p2-a16" --junitxml="$RUNNER_TEMP/p202/a16.xml" tests/test_p2_bootstrap_postgres.py tests/test_setup_v1_postgres.py 2>&1 | tee "$RUNNER_TEMP/p202/a16.log"
+          pytest -o addopts= -vv -s -m postgres_integration --basetemp="$RUNNER_TEMP/p2-a16" --junitxml="$RUNNER_TEMP/p202/a16.xml" tests/test_p2_bootstrap_postgres.py tests/test_setup_v1_postgres.py tests/test_setup_author_scope_postgres.py 2>&1 | tee "$RUNNER_TEMP/p202/a16.log"
       - name: Start real AI service with fake providers
         working-directory: ai-service
         env:
@@ -149,6 +149,22 @@ jobs:
           if test -f "$RUNNER_TEMP/p202/ai.pid"; then
             kill "$(cat "$RUNNER_TEMP/p202/ai.pid")"
           fi
+      - name: Verify setup operational logs exclude private input
+        if: always()
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['RUNNER_TEMP']) / 'p202'
+          checked = []
+          for name in ('ai-service.log', 'setup-gateway.log'):
+              path = root / name
+              if path.exists():
+                  value = path.read_text()
+                  assert all(marker not in value for marker in ('PrivateOnly', 'ConstraintOnly', 'private_author_notes', 'author_constraints')), name
+                  checked.append(name)
+          (root / 'private-log-scan.json').write_text(json.dumps({'checked':checked,'private_markers_absent':True}))
+          PY
       - name: Upload setup foundation evidence
         if: always()
         uses: actions/upload-artifact@v4

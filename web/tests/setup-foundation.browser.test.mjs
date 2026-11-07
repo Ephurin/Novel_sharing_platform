@@ -58,3 +58,77 @@ test('setup mounted form: real browser, mocked HTTP submit/reload/conflict/unava
     await expect(page.getByText('Đã lưu bản thiết lập chờ duyệt.',{exact:true})).toHaveCount(0);
   } finally {await browser.close();await new Promise(resolve=>server.close(resolve));}
 });
+
+
+test('setup account/novel switches clear sources, operation keys and late replies (mocked HTTP)', {timeout:180000}, async () => {
+  const bundle=await build({entryPoints:[fileURLToPath(new URL('fixtures/setup-foundation-fixture.tsx',import.meta.url))],
+    bundle:true,write:false,outfile:'app.js',format:'iife',jsx:'automatic',
+    define:{'import.meta.env.VITE_API_BASE_URL':'"/api/v1"','process.env.NODE_ENV':'"test"'}});
+  const server=createServer((req,res)=>{
+    if(req.url==='/app.js'||req.url==='/app.css') {
+      res.setHeader('Content-Type',req.url.endsWith('.css')?'text/css':'text/javascript');
+      return res.end(bundle.outputFiles.find(f=>f.path.endsWith(req.url==='/app.css'?'.css':'.js'))?.contents);
+    }
+    res.end('<html><head><link rel="stylesheet" href="/app.css"></head><body><div id="root"></div><script src="/app.js"></script></body></html>');
+  });
+  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+  const browser=await chromium.launch({channel:process.env.PLAYWRIGHT_CHANNEL||'msedge',headless:true});
+  const page=await browser.newPage();
+  const novelA='10000000-0000-0000-0000-000000000001', novelB='10000000-0000-0000-0000-000000000002';
+  const submissions=[], reads=[];let releasePost,releaseRead;
+  const postGate=new Promise(resolve=>{releasePost=resolve;});
+  const readGate=new Promise(resolve=>{releaseRead=resolve;});
+  let delayA=false;
+  await page.route('**/api/v1/**',async route=>{
+    const req=route.request(),actor=req.headers().authorization;
+    if(req.method()==='POST') {
+      submissions.push({actor,body:req.postDataJSON()});
+      if(actor==='Bearer token-author-A') await postGate;
+      return route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:{code:'SETUP_EXTRACT_PROVIDER_UNAVAILABLE',message:'Offline fixture'}})});
+    }
+    reads.push({actor,url:req.url()});
+    if(actor==='Bearer token-author-A' && req.url().includes(novelA)) {
+      if(delayA) await readGate;
+      return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data:{
+        contract_version:'setup-v1',novel_id:novelA,job_id:'snapshot-A',snapshot_id:'snapshot-A',setup_version:3,brain_version:1,review_version:0,
+        setup_hash:'a'.repeat(64),text_hash:'b'.repeat(64),mode:'extract',job_status:'waiting_review',
+        snapshot:{text:'Owner A source',declarations:[{declaration_id:'a',entity_type:'character',display_name:'Owner A Name'}],world_rules:[],initial_conditions:[]},outline:'Owner A future',proposals:[]}})});
+    }
+    return route.fulfill({status:404,contentType:'application/json',body:JSON.stringify({error:{code:'SETUP_NOT_FOUND',message:'Not found'}})});
+  });
+  try {
+    await page.goto('http://127.0.0.1:'+server.address().port);
+    await expect(page.getByLabel('Thiết lập rõ ràng (tùy chọn)')).toHaveValue('Owner A source');
+    await page.getByRole('button',{name:'Lưu và xử lý thiết lập'}).click();
+    await expect.poll(()=>submissions.length).toBe(1);
+    await page.getByRole('button',{name:'Account B',exact:true}).click();
+    await expect(page.getByLabel('Thiết lập rõ ràng (tùy chọn)')).toHaveValue('');
+    await expect(page.getByLabel('Tên',{exact:true})).toHaveCount(0);
+    await page.getByLabel('Thiết lập rõ ràng (tùy chọn)').fill('Owner B source');
+    await page.getByRole('button',{name:'Lưu và xử lý thiết lập'}).click();
+    await expect.poll(()=>submissions.length).toBe(2);
+    assert.equal(submissions[1].actor,'Bearer token-author-B');
+    assert.equal(submissions[1].body.expected_setup_version,0);
+    assert.notEqual(submissions[1].body.idempotency_key,submissions[0].body.idempotency_key);
+    assert.ok(!JSON.stringify(submissions[1]).includes('Owner A'));
+    await expect(page.getByRole('alert').filter({hasText:'SETUP_EXTRACT_PROVIDER_UNAVAILABLE'})).toBeVisible();
+    const count=reads.length;releasePost();
+    await page.getByRole('button',{name:'Novel B',exact:true}).click();
+    await expect(page.getByLabel('Thiết lập rõ ràng (tùy chọn)')).toHaveValue('');
+    await expect.poll(()=>reads.length).toBeGreaterThan(count);
+    assert.ok(reads.slice(count).every(r=>r.url.includes(novelB)));
+    // A late GET from a previous account/novel cannot repopulate B's empty form.
+    delayA=true;
+    const oldReadCount=reads.length;
+    const lateResponse=page.waitForResponse(r=>r.request().method()==='GET'&&r.url().includes(novelA)&&r.request().headers().authorization==='Bearer token-author-A');
+    await page.getByRole('button',{name:'Account A',exact:true}).click();
+    await page.getByRole('button',{name:'Novel A',exact:true}).click();
+    await expect.poll(()=>reads.slice(oldReadCount).some(r=>r.actor==='Bearer token-author-A'&&r.url.includes(novelA))).toBeTruthy();
+    await page.getByRole('button',{name:'Account B',exact:true}).click();
+    await page.getByRole('button',{name:'Novel B',exact:true}).click();
+    releaseRead();await lateResponse;
+    await expect(page.getByLabel('Thiết lập rõ ràng (tùy chọn)')).toHaveValue('');
+    await expect(page.getByLabel('Dàn ý tương lai (có thể bỏ trống)')).toHaveValue('');
+    await expect(page.getByLabel('Tên',{exact:true})).toHaveCount(0);
+  } finally {releasePost();releaseRead();await browser.close();await new Promise(resolve=>server.close(resolve));}
+});

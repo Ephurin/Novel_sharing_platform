@@ -32,11 +32,19 @@ class SetupService:
         if not getattr(self.repository, 'supports_setup_v1', False):
             raise SetupFailure('SETUP_REQUIRES_POSTGRES', 503)
 
-    def start(self, request: SetupRequest, *, tenant_id, actor_id):
-        tenant_id = str(uuid.UUID(tenant_id))
+    def principal(self, tenant_id, actor_id):
+        if not tenant_id or not actor_id:
+            raise SetupFailure('SETUP_IDENTITY_REQUIRED', 401)
+        try:
+            tenant_id, actor_id = str(uuid.UUID(tenant_id)), str(uuid.UUID(actor_id))
+        except (ValueError, TypeError, AttributeError):
+            raise SetupFailure('INVALID_SCOPE_HEADER', 422) from None
         self.bootstrap._scope(tenant_id)
         self.require_adapter()
-        actor_id = str(uuid.UUID(actor_id))
+        return tenant_id, actor_id
+
+    def start(self, request: SetupRequest, *, tenant_id, actor_id):
+        tenant_id, actor_id = self.principal(tenant_id, actor_id)
         data = request.model_dump(exclude_none=True)
         # Preserve the exact structured setup object: absent aliases stay absent,
         # and explicit null initial values stay null. Optional envelope defaults
@@ -44,8 +52,13 @@ class SetupService:
         data['setup'] = request.setup.model_dump(exclude_unset=True)
         job_id = self.bootstrap._key(tenant_id, request.novel_id, 'setup-v1', request.idempotency_key)
         input_hash = digest({'request': data, 'actor_id': actor_id, 'tenant_id': tenant_id})
-        replay = self.bootstrap._replay(job_id, tenant_id, request.novel_id, input_hash)
+        try:
+            replay = self.repository.get_setup_job(job_id, actor_id=actor_id, novel_id=request.novel_id)
+        except KeyError:
+            replay = None
         if replay:
+            if replay.result.get('bootstrap_input_hash') != input_hash:
+                raise IdempotencyConflictError(job_id)
             return replay
         token = str(uuid.uuid4())
         setup = data['setup']
@@ -178,15 +191,19 @@ class SetupService:
         if not (0 <= ref['start'] < ref['end'] <= len(text)) or text[ref['start']:ref['end']] != ref['quote']:
             raise SetupFailure('SETUP_INVALID_SOURCE_SPAN')
 
-    def readback(self, novel_id, *, tenant_id, snapshot_id=None):
-        self.bootstrap._scope(tenant_id)
-        self.require_adapter()
-        return self.repository.get_setup_snapshot(novel_id, snapshot_id=snapshot_id)
+    def get_job(self, job_id, *, tenant_id, actor_id=None):
+        tenant_id, actor_id = self.principal(tenant_id, actor_id)
+        return self.repository.get_setup_job(job_id, actor_id=actor_id)
+
+    def readback(self, novel_id, *, tenant_id, actor_id=None, snapshot_id=None):
+        tenant_id, actor_id = self.principal(tenant_id, actor_id)
+        return self.repository.get_setup_snapshot(novel_id, actor_id=actor_id, snapshot_id=snapshot_id)
 
 
 def public_job(job):
     """Generic job endpoints must not expose private setup notes or constraints."""
     if (job.result or {}).get('contract_version') != 'setup-v1':
         return job
-    result = {k:v for k,v in job.result.items() if k not in ('setup_source','original_model_output')}
+    allowed = {'contract_version','mode','setup_version','setup_hash','text_hash','review_version','proposal_count'}
+    result = {k:v for k,v in job.result.items() if k in allowed}
     return replace(job, result=result)

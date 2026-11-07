@@ -32,7 +32,7 @@ def state(f, stage):
 def test_snapshot_replay_versions_homonyms_and_no_history(f):
     job=submit(f)
     svc=SetupService(f.service)
-    readback=svc.readback(f.src.novel_id,tenant_id=TENANT)
+    readback=svc.readback(f.src.novel_id,tenant_id=TENANT,actor_id=ACTOR)
     assert readback['setup_version']==1 and readback['snapshot_id']==job.job_id
     assert readback['snapshot']==request_data(f.src.novel_id)['setup']
     assert readback['setup_hash']==digest(readback['snapshot'])
@@ -48,7 +48,7 @@ def test_snapshot_replay_versions_homonyms_and_no_history(f):
         submit(f,idempotency_key='stale',expected_setup_version=0)
     second=submit(f,idempotency_key='next',expected_setup_version=1)
     assert second.result['setup_version']==2
-    assert svc.readback(f.src.novel_id,tenant_id=TENANT,snapshot_id=job.job_id)==readback
+    assert svc.readback(f.src.novel_id,tenant_id=TENANT,actor_id=ACTOR,snapshot_id=job.job_id)==readback
     durable=state(f,'two-versions')
     for table in ['events','entities','facts','state_transitions','entity_mentions','revision_provenances']:
         assert not durable[table]

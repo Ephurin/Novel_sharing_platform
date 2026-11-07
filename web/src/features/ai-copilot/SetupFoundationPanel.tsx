@@ -1,9 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { Alert, Badge, Button, Card, Group, Select, Stack, Text, Textarea, TextInput } from '@mantine/core';
+import { useAuthStore } from '../auth/useAuthStore';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
 import { getSetup, submitSetup, type SetupDeclaration, type SetupSnapshot } from './setup-api';
 
 export function SetupFoundationPanel({novelId}: {novelId: string}) {
+  const account = useAuthStore(state => state.user?.userId ?? 'guest');
+  return <ScopedSetupPanel key={JSON.stringify([account, novelId])} novelId={novelId}/>;
+}
+
+function ScopedSetupPanel({novelId}: {novelId: string}) {
   const [text, setText] = useState('');
   const [outline, setOutline] = useState('');
   const [rules, setRules] = useState('');
@@ -12,6 +18,8 @@ export function SetupFoundationPanel({novelId}: {novelId: string}) {
   const [snapshot, setSnapshot] = useState<SetupSnapshot | null>(null);
   const [message, setMessage] = useState('');
   const [pending, setPending] = useState(false);
+  const active = useRef(true);
+  useEffect(() => {active.current=true;return () => {active.current=false;};}, []);
   const operation = useRef<{fingerprint: string; key: string} | null>(null);
   function hydrate(value: SetupSnapshot) {
     setText(value.snapshot.text); setOutline(value.outline ?? ''); setMode(value.mode);
@@ -28,8 +36,8 @@ export function SetupFoundationPanel({novelId}: {novelId: string}) {
   }, [novelId]);
   async function reload() {
     setPending(true); setMessage('');
-    try {const value = await getSetup(novelId); setSnapshot(value); hydrate(value);}
-    catch(e) {setMessage(getApiErrorMessage(e));} finally {setPending(false);}
+    try {const value = await getSetup(novelId); if (active.current) {setSnapshot(value); hydrate(value);}}
+    catch(e) {if (active.current) setMessage(getApiErrorMessage(e));} finally {if (active.current) setPending(false);}
   }
   async function submit() {
     setPending(true); setMessage('');
@@ -41,12 +49,16 @@ export function SetupFoundationPanel({novelId}: {novelId: string}) {
     if (operation.current?.fingerprint !== fingerprint) operation.current={fingerprint,key:crypto.randomUUID()};
     try {
       await submitSetup({...body,idempotency_key:operation.current!.key});
-      const value = await getSetup(novelId); setSnapshot(value);
+      if (!active.current) return;
+      const value = await getSetup(novelId);
+      if (!active.current) return;
+      setSnapshot(value);
       setMessage(value.job_status==='failed' ? 'Tác vụ đã thất bại. Bản nguồn vẫn được lưu; không có dữ liệu nào được duyệt.' : 'Đã lưu bản thiết lập chờ duyệt.');
     } catch(e) {
+      if (!active.current) return;
       setMessage(e instanceof ApiClientError && e.status===409
         ? `${getApiErrorMessage(e)}. Hãy tải bản đã lưu để đối chiếu trước khi gửi lại.` : getApiErrorMessage(e));
-    } finally {setPending(false);}
+    } finally {if (active.current) setPending(false);}
   }
   return <Stack gap="xs">
     <Text fw={600}>Thiết lập thế giới trước khi viết</Text>

@@ -15,8 +15,9 @@ test('setup-v1 live owner Gateway -> Python -> PostgreSQL immutable readback', {
   const pg=getPostgresPool(), mongo=getMongoDatabase();
   assert.equal((await pg.query('select current_database() as name')).rows[0].name,'p2a');
   assert.equal(mongo.databaseName,'p2a');
-  const [owner,foreign,novel,other]=Array.from({length:4},()=>randomUUID());
+  const [owner,foreign,novel,other,foreignNovel,admin]=Array.from({length:6},()=>randomUUID());
   const token=jwt.sign({sub:owner,role:'AUTHOR'},env.JWT_ACCESS_SECRET);
+  const adminToken=jwt.sign({sub:admin,role:'ADMIN'},env.JWT_ACCESS_SECRET);
   const foreignToken=jwt.sign({sub:foreign,role:'AUTHOR'},env.JWT_ACCESS_SECRET);
   const server=createApp().listen(57114,'127.0.0.1');
   await new Promise<void>(resolve=>server.once('listening',resolve));
@@ -44,6 +45,8 @@ test('setup-v1 live owner Gateway -> Python -> PostgreSQL immutable readback', {
   }
   try {
     for(const user of [owner,foreign]) await pg.query("INSERT INTO users(user_id,email,username,password_hash,role,status) VALUES($1,$2,$3,'test-only','AUTHOR','ACTIVE')",[user,user+'@example.test','p202-'+user]);
+    await pg.query("INSERT INTO users(user_id,email,username,password_hash,role,status) VALUES($1,$2,$3,'test-only','ADMIN','ACTIVE')",[admin,admin+'@example.test','p202-'+admin]);
+    await pg.query("INSERT INTO novels(novel_id,author_id,title,slug,synopsis) VALUES($1,$2,'foreign setup',$3,'isolated')",[foreignNovel,foreign,'p202-'+foreignNovel]);
     for(const id of [novel,other]) await pg.query("INSERT INTO novels(novel_id,author_id,title,slug,synopsis) VALUES($1,$2,'setup test',$3,'isolated')",[id,owner,'p202-'+id]);
     const body={contract_version:'setup-v1',novel_id:novel,mode:'extract',idempotency_key:'source-one',expected_setup_version:0,
       setup:{text:'',declarations:[{declaration_id:'one',entity_type:'character',display_name:'Minh'},
@@ -60,6 +63,16 @@ test('setup-v1 live owner Gateway -> Python -> PostgreSQL immutable readback', {
     assert.equal(new Set(loaded.data.proposals.filter((p:any)=>p.card_type==='entity').map((p:any)=>p.payload.entity_id)).size,2);
     assert.ok(!JSON.stringify(loaded).includes('PrivateOnly'));
     assert.ok(!JSON.stringify(loaded).includes('ConstraintOnly'));
+    const otherSource=await request(path,202,{...body,novel_id:foreignNovel},foreignToken);
+    await request(`/story-brains/${foreignNovel}/setup`,200,undefined,foreignToken);
+    await request(`/story-brains/${foreignNovel}/setup`,403);
+    await request(`/story-brains/${novel}/setup`,403,undefined,adminToken);
+    await request(path,403,{...body,idempotency_key:'admin-forgery'},adminToken);
+    await request(`/jobs/${created.data.job_id}`,404,undefined,foreignToken);
+    await request(`/jobs/${created.data.job_id}/resume`,404,{},foreignToken);
+    await request(`/jobs/${created.data.job_id}`,404,undefined,adminToken);
+    await request(`/jobs/${otherSource.data.job_id}`,404);
+    await request(`/story-brains/${novel}/setup?snapshot_id=${otherSource.data.job_id}`,404);
     const before=await snapshot('accepted-snapshot-before-rejections');
     assert.equal((await request(path,202,body)).data.job_id,created.data.job_id);
     await request(path,409,{...body,mode:'blueprint'});
@@ -69,6 +82,10 @@ test('setup-v1 live owner Gateway -> Python -> PostgreSQL immutable readback', {
     await request(`/story-brains/${other}/setup?snapshot_id=${created.data.job_id}`,404);
     const job=await request('/jobs/'+created.data.job_id,200);
     assert.ok(!JSON.stringify(job).includes('PrivateOnly'));
+    assert.ok(!JSON.stringify(job).includes('ConstraintOnly'));
+    assert.ok(!JSON.stringify(job).includes('setup_cards'));
+    assert.ok(!JSON.stringify(job).includes('reservation_token'));
+    await request(`/jobs/${created.data.job_id}/resume`,202,{});
     const card=loaded.data.proposals[0];
     await request(`/proposal-groups/${card.dependency_group_id}/accept`,409,{expected_brain_version:1,
       proposal_ids:loaded.data.proposals.map((p:any)=>p.proposal_id)});

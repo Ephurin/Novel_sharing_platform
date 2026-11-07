@@ -464,6 +464,7 @@ class ManuscriptBootstrapService:
 
     def review_queue(self, novel_id: str) -> list[dict[str, Any]]:
         proposals = self._repository.list_proposals(novel_id, status="pending")
+        proposals = [p for p in proposals if not any(e.get('setup_snapshot_id') for e in p.evidence)]
         duplicates = self._duplicate_groups(proposals)
         duplicate_ids = {
             proposal_id for group in duplicates for proposal_id in group["proposal_ids"]

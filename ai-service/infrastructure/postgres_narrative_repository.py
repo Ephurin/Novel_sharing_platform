@@ -1232,14 +1232,31 @@ class PostgresNarrativeRepository:
                 AnalysisRunRecord.operation == 'bootstrap_setup').limit(1)):
             raise BootstrapConflictError('SETUP_REVIEW_NOT_AVAILABLE')
 
-    def get_setup_snapshot(self, story_id, *, snapshot_id=None):
+    def get_setup_job(self, job_id, *, actor_id, novel_id=None):
+        """Author-scoped access; worker get_bootstrap_job is not an HTTP authority."""
+        author = str(uuid.UUID(actor_id))
+        with session_scope(self._session_factory) as session:
+            query = select(BootstrapJobRecord).where(
+                BootstrapJobRecord.tenant_id == self._tenant_id,
+                BootstrapJobRecord.id == self._stable_uuid('bootstrap-job', job_id),
+                BootstrapJobRecord.result['contract_version'].astext == 'setup-v1',
+                BootstrapJobRecord.result['author_id'].astext == author)
+            if novel_id is not None:
+                query = query.where(BootstrapJobRecord.novel_id == self._novel_id(novel_id))
+            record = session.scalar(query)
+            if record is None:
+                raise KeyError('SETUP_NOT_FOUND')
+            return self._to_bootstrap_job(record)
+
+    def get_setup_snapshot(self, story_id, *, actor_id, snapshot_id=None):
         novel_id = self._novel_id(story_id)
         with session_scope(self._session_factory) as session:
             brain = session.scalar(select(StoryBrainRecord).where(
                 *self._scope(StoryBrainRecord, novel_id)).with_for_update(read=True))
             if brain is None:
                 raise KeyError(story_id)
-            query = select(BootstrapJobRecord).where(*self._scope(BootstrapJobRecord, novel_id))
+            query = select(BootstrapJobRecord).where(*self._scope(BootstrapJobRecord, novel_id),
+                BootstrapJobRecord.result['author_id'].astext == str(uuid.UUID(actor_id)))
             if snapshot_id is not None:
                 query = query.where(BootstrapJobRecord.id == uuid.UUID(snapshot_id))
             jobs = [j for j in session.scalars(query).all()
@@ -1265,10 +1282,20 @@ class PostgresNarrativeRepository:
             existing = session.scalar(select(BootstrapJobRecord).where(
                 BootstrapJobRecord.id == job_id, *self._scope(BootstrapJobRecord, novel_id)))
             if existing is not None:
+                if (existing.result or {}).get('contract_version') == 'setup-v1' and (
+                        (job.result or {}).get('contract_version') != 'setup-v1' or
+                        existing.result.get('author_id') != (job.result or {}).get('author_id')):
+                    raise KeyError('SETUP_NOT_FOUND')
                 stored = (existing.result or {}).get('bootstrap_input_hash')
                 if stored is not None and stored != (job.result or {}).get('bootstrap_input_hash'):
                     raise IdempotencyConflictError(job.job_id)
                 return self._to_bootstrap_job(existing)
+            if (job.result or {}).get('contract_version') == 'setup-v1':
+                owners = session.scalars(select(BootstrapJobRecord.result['author_id'].astext).where(
+                    *self._scope(BootstrapJobRecord, novel_id),
+                    BootstrapJobRecord.result['contract_version'].astext == 'setup-v1')).all()
+                if any(owner != job.result.get('author_id') for owner in owners):
+                    raise KeyError('SETUP_NOT_FOUND')
             if brain.status == 'active':
                 raise BootstrapConflictError('ALREADY_ACTIVE')
             if (job.result or {}).get('contract_version') == 'setup-v1':

@@ -1,3 +1,4 @@
+import { useAuthStore } from '../auth/useAuthStore';
 import { SetupFoundationPanel } from './SetupFoundationPanel';
 import { useEffect, useMemo, useState } from 'react';
 import { EntityProfileEditor } from './EntityProfileEditor';
@@ -67,13 +68,21 @@ import {
   type GroupApproval
 } from './author-memory-api';
 
-export function AuthorMemoryPanel({
+export function AuthorMemoryPanel(props: {
+  novelId: string; chapterId: string; content: string; opened: boolean; onClose: () => void; saved: boolean;
+}) {
+  const account = useAuthStore(state => state.user?.userId ?? 'guest');
+  return <ScopedAuthorMemoryPanel key={JSON.stringify([account, props.novelId])} {...props} accountScope={account}/>;
+}
+
+function ScopedAuthorMemoryPanel({
   novelId,
   chapterId,
   content,
   opened,
   onClose,
-  saved
+  saved,
+  accountScope
 }: {
   novelId: string;
   chapterId: string;
@@ -81,6 +90,7 @@ export function AuthorMemoryPanel({
   opened: boolean;
   onClose: () => void;
   saved: boolean;
+  accountScope: string;
 }) {
   const qc = useQueryClient();
   const [profileTabOpened, setProfileTabOpened] = useState(false);
@@ -114,21 +124,21 @@ export function AuthorMemoryPanel({
   const enabled = opened && Boolean(novelId);
 
   const brain = useQuery({
-    queryKey: ['story-brain-summary', novelId],
+    queryKey: ['story-brain-summary', novelId, accountScope],
     queryFn: () => getStoryBrainSummary(novelId),
     enabled,
     refetchInterval: enabled ? 3000 : false
   });
 
   const memory = useQuery({
-    queryKey: ['approved-memory', novelId],
+    queryKey: ['approved-memory', novelId, accountScope],
     queryFn: () => getApprovedMemory(novelId),
     enabled,
     refetchInterval: enabled ? 3000 : false
   });
 
   const queue = useQuery({
-    queryKey: ['memory-review', novelId],
+    queryKey: ['memory-review', novelId, accountScope],
     queryFn: () => getReviewQueue(novelId),
     enabled,
     refetchInterval: enabled ? 3000 : false
@@ -145,14 +155,14 @@ export function AuthorMemoryPanel({
   });
 
   const job = useQuery({
-    queryKey: ['memory-job', jobId],
+    queryKey: ['memory-job', jobId, accountScope],
     queryFn: () => getBootstrapJob(jobId!),
     enabled: enabled && Boolean(jobId),
     refetchInterval: q => (['queued', 'running'].includes(q.state.data?.status ?? '') ? 1500 : false)
   });
 
   const plan = useQuery({
-    queryKey: ['author-plan', novelId],
+    queryKey: ['author-plan', novelId, accountScope],
     queryFn: async () => {
       try {
         return await memoryGet<AuthorPlan>(`/ai/story-plans/by-novel/${novelId}/active`);
@@ -165,7 +175,7 @@ export function AuthorMemoryPanel({
   });
 
   const auto = useQuery({
-    queryKey: ['author-auto', novelId],
+    queryKey: ['author-auto', novelId, accountScope],
     queryFn: async () => {
       try {
         const lastRun = localStorage.getItem(`ephurin-auto-${novelId}`);
