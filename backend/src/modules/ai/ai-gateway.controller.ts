@@ -318,7 +318,9 @@ async function getAuthorizedJob(req: Request) {
       !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(novelId)) {
     throw new AppError(403, 'JOB_SCOPE_INVALID', 'Job has no valid novel scope');
   }
-  await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+  const result = (data as Record<string, unknown>).result;
+  const setup = result && typeof result === 'object' && (result as Record<string, unknown>).contract_version === 'setup-v1';
+  await assertNovelOwnership(req.auth!.userId, setup ? 'AUTHOR' : req.auth!.role, novelId);
   return data;
 }
 

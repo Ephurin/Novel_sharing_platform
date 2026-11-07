@@ -67,6 +67,14 @@ test('setup-v1 live owner Gateway -> Python -> PostgreSQL immutable readback', {
     const adminSource=await request(path,202,{...body,novel_id:adminNovel},adminToken);
     await request(`/story-brains/${adminNovel}/setup`,200,undefined,adminToken);
     await request(`/jobs/${adminSource.data.job_id}`,200,undefined,adminToken);
+    // Snapshot creator and current novel owner are separate fences, even for ADMIN.
+    await pg.query('UPDATE novels SET author_id=$1 WHERE novel_id=$2',[foreign,adminNovel]);
+    await request(`/story-brains/${adminNovel}/setup`,403,undefined,adminToken);
+    await request(`/jobs/${adminSource.data.job_id}`,403,undefined,adminToken);
+    await request(`/story-brains/${adminNovel}/setup`,404,undefined,foreignToken);
+    await request(`/jobs/${adminSource.data.job_id}`,404,undefined,foreignToken);
+    await pg.query('UPDATE novels SET author_id=$1 WHERE novel_id=$2',[admin,adminNovel]);
+    await request(`/story-brains/${adminNovel}/setup`,200,undefined,adminToken);
     const otherSource=await request(path,202,{...body,novel_id:foreignNovel},foreignToken);
     await request(`/story-brains/${foreignNovel}/setup`,200,undefined,foreignToken);
     await request(`/story-brains/${foreignNovel}/setup`,403);
