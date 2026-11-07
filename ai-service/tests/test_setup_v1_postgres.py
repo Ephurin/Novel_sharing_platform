@@ -130,3 +130,47 @@ def test_immutable_source_and_active_guard(f):
     with pytest.raises(BootstrapConflictError,match='ALREADY_ACTIVE'):
         submit(f,idempotency_key='active',expected_setup_version=1)
     assert state(f,'active-after')==before
+
+
+def test_real_extract_provider_replay_and_invalid_output_rollback(f):
+    calls=[]
+    def extract(**kw):
+        calls.append(kw)
+        assert kw==dict(text='😀 Minh ở An Thành.',locale='vi-VN')
+        return dict(entities=[dict(entity_type='character',display_name='Minh',source_ref=dict(
+            kind='setup_span',field_path='/setup/text',offset_kind='unicode_codepoints',start=2,end=6,quote='Minh'))],world_rules=[])
+    f.service._llm_service=SimpleNamespace(extract_setup_text=extract)
+    source=request_data(f.src.novel_id)['setup'];source['text']='😀 Minh ở An Thành.'
+    job=submit(f,setup=source)
+    assert submit(f,setup=source).job_id==job.job_id and len(calls)==1
+    assert job.result['setup_cards'][-1]['origin']=='extracted_explicit'
+    with pytest.raises(IdempotencyConflictError):submit(f,setup=source,outline='Changed future outline')
+    assert len(calls)==1
+    before=state(f,'provider-before-stale')
+    with pytest.raises(BootstrapConflictError):submit(f,setup=source,idempotency_key='stale-provider')
+    assert len(calls)==1 and state(f,'provider-after-stale')==before
+    f.service._llm_service=SimpleNamespace(extract_setup_text=lambda **kw:dict(entities=[dict(entity_type='character',
+        display_name='Fabricated',source_ref=dict(kind='setup_span',field_path='/setup/text',
+            offset_kind='unicode_codepoints',start=2,end=6,quote='Minh'))],world_rules=[]))
+    with pytest.raises(SetupFailure,match='SETUP_ENTITY_NAME_NOT_GROUNDED'):
+        submit(f,setup=source,idempotency_key='invalid-provider',expected_setup_version=1)
+    after=state(f,'provider-invalid-after')
+    assert len(after['proposals'])==len(before['proposals'])
+    assert len(after['analysis_runs'])==len(before['analysis_runs'])
+    assert len(after['bootstrap_jobs'])==2
+
+
+def test_production_fake_blueprint_preserves_raw_pending_suggestions(f):
+    from core.fake_llm import FakeDeterministicLLMService
+    provider=FakeDeterministicLLMService()
+    f.service._llm_service=provider
+    job=submit(f,mode='blueprint')
+    cards=job.result['setup_cards']
+    suggestions=[c for c in cards if c['origin']=='model_proposed']
+    assert suggestions and all(c['status']=='pending' for c in suggestions)
+    assert job.result['original_model_output']['entities']
+    assert not any(secret in json.dumps(provider.last_call) for secret in ['PrivateOnly','ConstraintOnly','HintOnly'])
+    assert submit(f,mode='blueprint').job_id==job.job_id
+    assert [c['proposal_id'] for c in submit(f,mode='blueprint').result['setup_cards']]==[c['proposal_id'] for c in cards]
+    data=state(f,'blueprint-pending')
+    assert not data['entities'] and not data['facts'] and not data['events']
