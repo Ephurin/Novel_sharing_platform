@@ -174,3 +174,32 @@ def test_production_fake_blueprint_preserves_raw_pending_suggestions(f):
     assert [c['proposal_id'] for c in submit(f,mode='blueprint').result['setup_cards']]==[c['proposal_id'] for c in cards]
     data=state(f,'blueprint-pending')
     assert not data['entities'] and not data['facts'] and not data['events']
+
+
+def test_running_setup_same_key_replay_calls_provider_once_without_db_locks(f):
+    import threading
+    entered,release=threading.Event(),threading.Event()
+    calls=[]
+    def extract(**kw):
+        calls.append(kw);entered.set();assert release.wait(15)
+        return dict(entities=[dict(entity_type='character',display_name='Minh',source_ref=dict(kind='setup_span',
+            field_path='/setup/text',offset_kind='unicode_codepoints',start=0,end=4,quote='Minh'))],world_rules=[])
+    f.service._llm_service=SimpleNamespace(extract_setup_text=extract)
+    source=request_data(f.src.novel_id)['setup'];source['text']='Minh'
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        worker=pool.submit(submit,f,setup=source)
+        assert entered.wait(10)
+        try:
+            replay=submit(f,setup=source)
+            assert replay.status=='running'
+            with f.engine.begin() as connection:
+                # The provider is blocked in another thread; its reservation
+                # transaction must already have released the Brain lock.
+                connection.execute(text('SELECT id FROM narrative.story_brains WHERE novel_id=:n FOR UPDATE NOWAIT'),{'n':f.src.novel_id}).all()
+            before=state(f,'running-before-conflict')
+            with pytest.raises(BootstrapConflictError):submit(f,setup=source,idempotency_key='competitor')
+            assert state(f,'running-after-conflict')==before
+        finally:release.set()
+        finished=worker.result(timeout=15)
+    assert finished.job_id==replay.job_id and len(calls)==1
+    assert len(state(f,'running-final')['bootstrap_jobs'])==1
