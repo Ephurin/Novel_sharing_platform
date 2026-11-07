@@ -1,0 +1,24 @@
+2026-11-07T04:06:37.0677887Z
+2026-11-07T04:06:37.0678390Z HEAD is now at 938d5f9 Merge 2b365505551c51c71884ee7c340ada5273a5fe3c into 3adab5c73636bd4e7c3dbc6578d4ece0a54b5627
+2026-11-07T04:06:37.0713334Z ##[endgroup]
+2026-11-07T04:06:38.6477412Z Cache restored from key: setup-python-Linux-x64-26.04-Ubuntu-python-3.12.16-pip-f7da6d93e4faad6b8637515034852b1b8d532f341deb38ec9f73df3baf4accfc
+2026-11-07T04:06:38.6669940Z ##[group]Run pip install -r requirements.txt pytest httpx
+2026-11-07T04:06:38.6670222Z pip install -r requirements.txt pytest httpx
+2026-11-07T04:06:45.5980776Z [notice] To update, run: pip install --upgrade pip
+2026-11-07T04:06:45.7169140Z ##[group]Run pytest -o addopts= -q -m postgres_integration tests/test_semantic_memory_postgres_integration.py tests/test_semantic_retriever_postgres_integration.py
+2026-11-07T04:06:45.7169741Z pytest -o addopts= -q -m postgres_integration tests/test_semantic_memory_postgres_integration.py tests/test_semantic_retriever_postgres_integration.py
+2026-11-07T04:06:47.2144130Z ...........                                                              [100%]
+2026-11-07T04:06:47.2144817Z 11 passed in 1.07s
+2026-11-07T04:06:47.3166918Z ##[group]Run pytest -o addopts= -q -m postgres_integration tests/test_postgres_integration.py::test_chapter_25_event_and_state_isolation_from_chapter_5 tests/test_postgres_integration.py::test_recent_scope_participants_exclude_superseded_event_entities
+2026-11-07T04:06:47.3168405Z pytest -o addopts= -q -m postgres_integration tests/test_postgres_integration.py::test_chapter_25_event_and_state_isolation_from_chapter_5 tests/test_postgres_integration.py::test_recent_scope_participants_exclude_superseded_event_entities
+2026-11-07T04:06:48.1025329Z ..                                                                       [100%]
+2026-11-07T04:06:48.1034753Z 2 passed in 0.58s
+2026-11-07T04:06:48.2430049Z ##[group]Run pytest -o addopts= -q -m postgres_integration tests/test_p1_memory_entity_hitl.py tests/test_p1_entity_semantics.py tests/test_p1_identity_final.py tests/test_p1_contract_alignment.py tests/test_c01_canon_group.py tests/test_atomic_group_rejection.py tests/test_p1_fe_final_contracts.py
+2026-11-07T04:06:48.2431681Z pytest -o addopts= -q -m postgres_integration tests/test_p1_memory_entity_hitl.py tests/test_p1_entity_semantics.py tests/test_p1_identity_final.py tests/test_p1_contract_alignment.py tests/test_c01_canon_group.py tests/test_atomic_group_rejection.py tests/test_p1_fe_final_contracts.py
+2026-11-07T04:07:22.7871143Z .                                                                        [100%]
+2026-11-07T04:07:22.7871560Z 145 passed, 110 deselected in 34.09s
+2026-11-07T04:07:23.1864755Z ##[group]Run pytest -o addopts= -q -m postgres_integration tests/test_unadapted_narrative_postgres_integration.py
+2026-11-07T04:07:23.1865443Z pytest -o addopts= -q -m postgres_integration tests/test_unadapted_narrative_postgres_integration.py
+2026-11-07T04:07:23.9802970Z ......                                                                   [100%]
+2026-11-07T04:07:23.9803309Z 6 passed in 0.54s
+2026-11-07T04:07:24.0919520Z Post job cleanup.

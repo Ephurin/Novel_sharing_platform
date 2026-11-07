@@ -418,7 +418,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: pgvector/pgvector:pg16
+        image: pgvector/pgvector:pg16@sha256:0dd3149a06e4579a0d70d8fef9945636cd514005e7237deb27f9b67886f8dc4f
         env:
           POSTGRES_DB: p8_rehearsal
           POSTGRES_USER: postgres
@@ -431,6 +431,7 @@ jobs:
           --health-timeout 5s
           --health-retries 20
     env:
+      P8_INCOMPATIBLE_CLIENT: postgres:17-bookworm@sha256:665dc7b37ac52a17e298511414c21d23ffa4e6a6ef6225b3e5d59c7afb35e994
       SOURCE_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p8_rehearsal
       RESTORE_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p8_restore_verify
     steps:
@@ -440,6 +441,29 @@ jobs:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: ai-service/requirements.txt
+      - name: Record runner clients and select pinned PG16 service clients
+        env:
+          P8_PG_CONTAINER: ${{ job.services.postgres.id }}
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/p8-rollback-evidence "$RUNNER_TEMP/p8-pg16-bin"
+          for tool in pg_dump pg_restore psql; do
+            if command -v "$tool" >/dev/null; then
+              "$tool" --version
+            else
+              echo "runner $tool: not installed"
+            fi
+            ln -s "$GITHUB_WORKSPACE/scripts/p8_pg16_client.sh" "$RUNNER_TEMP/p8-pg16-bin/$tool"
+            version="$(docker exec "$P8_PG_CONTAINER" "$tool" --version)"
+            echo "matched $version"
+            [[ "$version" =~ PostgreSQL\)\ 16\. ]]
+          done | tee /tmp/p8-rollback-evidence/client-versions.txt
+          docker inspect --format '{{.Image}}' "$P8_PG_CONTAINER" | tee /tmp/p8-rollback-evidence/server-image.txt
+          docker exec "$P8_PG_CONTAINER" psql -U postgres -d p8_rehearsal -Atc 'SHOW server_version; SHOW server_version_num;' | tee /tmp/p8-rollback-evidence/server-versions.txt
+          major="$(docker exec "$P8_PG_CONTAINER" psql -U postgres -d p8_rehearsal -Atc 'SHOW server_version_num')"
+          test "$((major / 10000))" -eq 16
+          echo "P8_PG_CONTAINER=$P8_PG_CONTAINER" >> "$GITHUB_ENV"
+          echo "$RUNNER_TEMP/p8-pg16-bin" >> "$GITHUB_PATH"
       - name: Install AI-service dependencies
         working-directory: ai-service
         run: pip install -r requirements.txt pytest httpx
@@ -495,17 +519,41 @@ jobs:
           PY
           psql postgresql://postgres:postgres@localhost:5432/p8_rehearsal -Atc             "SELECT version_num FROM alembic_version ORDER BY version_num" > /tmp/source-alembic.txt
           psql postgresql://postgres:postgres@localhost:5432/p8_rehearsal -Atc             "SELECT extname || ':' || extversion FROM pg_extension WHERE extname='vector'" > /tmp/source-vector.txt
+      - name: Verify catalog comparison rejects real schema and data changes
+        run: python -m unittest discover -s scripts/tests -p test_p8_rollback_readback.py -v
+      - name: Capture complete source schema and data
+        run: |
+          set -euo pipefail
+          python scripts/p8_rollback_readback.py --database-env SOURCE_DATABASE_URL --output /tmp/p8-rollback-evidence/source-readback.json | tee /tmp/p8-rollback-evidence/source-readback-summary.json
+      - name: Reproduce incompatible PG17 restore against the same PG16 fixture
+        run: |
+          set -euo pipefail
+          for tool in pg_dump pg_restore psql; do
+            docker run --rm "$P8_INCOMPATIBLE_CLIENT" "$tool" --version
+          done | tee /tmp/p8-rollback-evidence/incompatible-client-versions.txt
+          psql postgresql://postgres:postgres@localhost:5432/postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE p8_incompatible_verify'
+          docker run --rm --network host "$P8_INCOMPATIBLE_CLIENT" pg_dump --format=custom --no-owner --no-acl --dbname=postgresql://postgres:postgres@localhost:5432/p8_rehearsal > /tmp/p8-rollback-evidence/incompatible.dump
+          if docker run --rm -i --network host "$P8_INCOMPATIBLE_CLIENT" pg_restore --exit-on-error --no-owner --no-acl --dbname=postgresql://postgres:postgres@localhost:5432/p8_incompatible_verify < /tmp/p8-rollback-evidence/incompatible.dump > /tmp/p8-rollback-evidence/incompatible-restore.log 2>&1; then
+            echo 'Incompatible restore unexpectedly succeeded' >&2
+            exit 1
+          else
+            code=$?
+            echo "$code" > /tmp/p8-rollback-evidence/incompatible-exit.txt
+            test "$code" -eq 1
+            grep -F 'unrecognized configuration parameter "transaction_timeout"' /tmp/p8-rollback-evidence/incompatible-restore.log
+            grep -F 'SET transaction_timeout = 0;' /tmp/p8-rollback-evidence/incompatible-restore.log
+          fi
       - name: Backup source database
         run: |
           set -euo pipefail
-          pg_dump             --format=custom             --no-owner             --no-acl             --dbname=postgresql://postgres:postgres@localhost:5432/p8_rehearsal             --file=/tmp/p8-rehearsal.dump
+          pg_dump --format=custom --no-owner --no-acl --dbname=postgresql://postgres:postgres@localhost:5432/p8_rehearsal > /tmp/p8-rehearsal.dump
           test -s /tmp/p8-rehearsal.dump
           sha256sum /tmp/p8-rehearsal.dump > /tmp/p8-rehearsal.dump.sha256
       - name: Restore into isolated verification database
         run: |
           set -euo pipefail
           psql postgresql://postgres:postgres@localhost:5432/postgres -v ON_ERROR_STOP=1             -c "CREATE DATABASE p8_restore_verify"
-          pg_restore             --exit-on-error             --no-owner             --no-acl             --dbname=postgresql://postgres:postgres@localhost:5432/p8_restore_verify             /tmp/p8-rehearsal.dump
+          pg_restore --exit-on-error --no-owner --no-acl --dbname=postgresql://postgres:postgres@localhost:5432/p8_restore_verify < /tmp/p8-rehearsal.dump
       - name: Verify restored migration state and canonical parity
         working-directory: ai-service
         env:
@@ -557,6 +605,21 @@ jobs:
           print("source database unchanged: PASS")
           PY
 
+
+      - name: Verify full restored schema/data and unchanged source hashes
+        run: |
+          set -euo pipefail
+          python scripts/p8_rollback_readback.py --database-env RESTORE_DATABASE_URL --output /tmp/p8-rollback-evidence/restore-readback.json --expected /tmp/p8-rollback-evidence/source-readback.json | tee /tmp/p8-rollback-evidence/restore-readback-summary.json
+          python scripts/p8_rollback_readback.py --database-env SOURCE_DATABASE_URL --output /tmp/p8-rollback-evidence/source-after-readback.json --expected /tmp/p8-rollback-evidence/source-readback.json --require-raw-equality | tee /tmp/p8-rollback-evidence/source-after-summary.json
+          cp /tmp/p8-rehearsal.dump /tmp/p8-rehearsal.dump.sha256 /tmp/source-alembic.txt /tmp/restore-alembic.txt /tmp/source-vector.txt /tmp/restore-vector.txt /tmp/source-snapshot.json /tmp/p8-rollback-evidence/
+          sha256sum /tmp/p8-rollback-evidence/*.json > /tmp/p8-rollback-evidence/readbacks.sha256
+      - name: Upload rollback versions and authoritative readbacks
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p8-rollback-evidence
+          path: /tmp/p8-rollback-evidence/
+          if-no-files-found: error
 
   final-cleanup-gate:
     runs-on: ubuntu-latest
