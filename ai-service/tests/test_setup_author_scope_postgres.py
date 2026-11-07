@@ -142,3 +142,20 @@ def test_validation_errors_do_not_echo_private_input_or_protected_sources(f,capl
         assert private not in response.text and private not in caplog.text
     assert state(f,'private-error-after')==before and f.llm.calls==0
     print('SETUP_SCOPE_PROVIDER_CALLS 0')
+
+
+def test_setup_activation_checks_author_before_unsupported_status(f):
+    first,second,foreign=pair(f)
+    owner={**f.headers,'X-Author-Id':ACTOR}
+    other={**f.headers,'X-Author-Id':FOREIGN}
+    path=f'/v1/story-brains/{f.src.novel_id}/baseline/activate'
+    before=state(f,'owner-activation-before')
+    existing=f.client.post(path,headers=other,json={'job_id':first.job_id})
+    unknown=f.client.post(path,headers=other,json={'job_id':str(uuid.uuid4())})
+    assert existing.status_code==unknown.status_code==404
+    assert existing.json()==unknown.json()
+    assert f.client.post(path,headers=f.headers,json={'job_id':first.job_id}).status_code==404
+    assert f.client.post(path,headers=owner,json={'job_id':first.job_id}).json()['detail']['code']=='SETUP_ACTIVATION_NOT_AVAILABLE'
+    assert state(f,'owner-activation-after')==before
+    assert f.llm.calls==0
+    print('SETUP_SCOPE_PROVIDER_CALLS 0')

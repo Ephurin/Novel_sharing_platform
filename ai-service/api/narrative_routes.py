@@ -667,8 +667,11 @@ def activate_baseline(
     payload: BaselineActivationRequest,
     request_id: str = Header(..., alias="X-Request-Id"),
     service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+    request: Request = None,
 ):
     try:
+        service._require_lifecycle()
+        authorized_bootstrap_job(service, payload.job_id, request)
         result = service.activate_baseline(brain_id, payload.job_id)
     except BootstrapConflictError as exc:
         raise HTTPException(503 if exc.code == 'BOOTSTRAP_REQUIRES_POSTGRES' else 409, detail={'code': exc.code}) from exc
