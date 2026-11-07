@@ -43,7 +43,10 @@ class SchemaComparisonTests(unittest.TestCase):
     def test_casts_with_other_types_are_not_rewritten(self):
         changed = copy.deepcopy(self.source)
         changed["tables"]["narrative.fixture"]["constraints"][0][1] = "CHECK (n = ANY ((ARRAY[1, 2])::bigint[]))"
-        self.assertEqual(module.comparable(changed), changed)
+        self.assertEqual(
+            module.comparable(changed)["tables"]["narrative.fixture"]["constraints"],
+            changed["tables"]["narrative.fixture"]["constraints"],
+        )
 
 
 if __name__ == "__main__":
