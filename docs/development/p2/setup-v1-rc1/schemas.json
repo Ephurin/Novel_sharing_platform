@@ -1,0 +1,761 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ephurin:p2:setup-v1:rc1",
+  "title": "PROPOSED setup-v1 RC1 DTOs; not active API",
+  "$defs": {
+    "preferences": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "genre": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        },
+        "tone": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "target_length": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "pacing": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": []
+    },
+    "declaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "declaration_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,64}$"
+        },
+        "entity_type": {
+          "enum": [
+            "character",
+            "location"
+          ]
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "aliases": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "declaration_id",
+        "entity_type",
+        "display_name"
+      ]
+    },
+    "world_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "declaration_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,64}$"
+        },
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "declaration_id",
+        "text"
+      ]
+    },
+    "initial_condition": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "declaration_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,64}$"
+        },
+        "subject_declaration_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_-]{1,64}$"
+        },
+        "attribute_key": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "value": {
+          "type": [
+            "string",
+            "number",
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "declaration_id",
+        "subject_declaration_id",
+        "attribute_key",
+        "value"
+      ]
+    },
+    "setup": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "declarations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/declaration"
+          }
+        },
+        "world_rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/world_rule"
+          }
+        },
+        "initial_conditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/initial_condition"
+          }
+        }
+      },
+      "required": [
+        "text",
+        "declarations",
+        "world_rules",
+        "initial_conditions"
+      ]
+    },
+    "hint": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        },
+        "entity_type": {
+          "enum": [
+            "character",
+            "location"
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "setup-v1"
+        },
+        "novel_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "mode": {
+          "enum": [
+            "extract",
+            "blueprint"
+          ]
+        },
+        "idempotency_key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "expected_setup_version": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "setup": {
+          "$ref": "#/$defs/setup"
+        },
+        "hints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/hint"
+          }
+        },
+        "outline": {
+          "type": "string"
+        },
+        "preferences": {
+          "$ref": "#/$defs/preferences"
+        },
+        "author_constraints": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        },
+        "private_author_notes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        },
+        "locale": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S"
+        }
+      },
+      "required": [
+        "contract_version",
+        "novel_id",
+        "mode",
+        "idempotency_key",
+        "expected_setup_version",
+        "setup"
+      ]
+    },
+    "source_ref": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "setup_span"
+            },
+            "field_path": {
+              "const": "/setup/text"
+            },
+            "offset_kind": {
+              "const": "unicode_codepoints"
+            },
+            "start": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "end": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "quote": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          },
+          "required": [
+            "kind",
+            "field_path",
+            "offset_kind",
+            "start",
+            "end",
+            "quote"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "setup_declaration"
+            },
+            "field_path": {
+              "type": "string",
+              "pattern": "^/setup/(declarations|world_rules|initial_conditions)/[0-9]+$"
+            },
+            "declaration_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_-]{1,64}$"
+            }
+          },
+          "required": [
+            "kind",
+            "field_path",
+            "declaration_id"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "model_suggestion"
+            }
+          },
+          "required": [
+            "kind"
+          ]
+        }
+      ]
+    },
+    "proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "proposal_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "dependency_group_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "card_type": {
+          "enum": [
+            "entity",
+            "world_rule",
+            "initial_condition"
+          ]
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "accepted",
+            "rejected"
+          ]
+        },
+        "origin": {
+          "enum": [
+            "author_declared",
+            "extracted_explicit",
+            "model_proposed"
+          ]
+        },
+        "source_kind": {
+          "enum": [
+            "author_setup",
+            "model_suggestion"
+          ]
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source_ref"
+          },
+          "minItems": 1
+        },
+        "payload": {
+          "type": "object"
+        },
+        "expected_brain_version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "proposal_id",
+        "dependency_group_id",
+        "card_type",
+        "status",
+        "origin",
+        "source_kind",
+        "source_refs",
+        "payload",
+        "expected_brain_version"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "author_declared"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_kind": {
+                "const": "author_setup"
+              },
+              "source_refs": {
+                "items": {
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "setup_declaration"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "extracted_explicit"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_kind": {
+                "const": "author_setup"
+              },
+              "source_refs": {
+                "items": {
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "setup_span",
+                        "setup_declaration"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "const": "model_proposed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "source_kind": {
+                "const": "model_suggestion"
+              },
+              "source_refs": {
+                "items": {
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "model_suggestion"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "readback": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "setup-v1"
+        },
+        "novel_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "job_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "snapshot_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "setup_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "brain_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "review_version": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "setup_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "text_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "mode": {
+          "enum": [
+            "extract",
+            "blueprint"
+          ]
+        },
+        "job_status": {
+          "enum": [
+            "queued",
+            "running",
+            "waiting_review",
+            "completed",
+            "failed",
+            "cancelled"
+          ]
+        },
+        "snapshot": {
+          "$ref": "#/$defs/setup"
+        },
+        "hints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/hint"
+          }
+        },
+        "outline": {
+          "type": "string"
+        },
+        "preferences": {
+          "$ref": "#/$defs/preferences"
+        },
+        "author_constraints": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        },
+        "private_author_notes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "\\S"
+          }
+        },
+        "proposals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/proposal"
+          }
+        }
+      },
+      "required": [
+        "contract_version",
+        "novel_id",
+        "job_id",
+        "snapshot_id",
+        "setup_version",
+        "brain_version",
+        "review_version",
+        "setup_hash",
+        "text_hash",
+        "mode",
+        "job_status",
+        "snapshot",
+        "proposals"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "extract"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "proposals": {
+                "items": {
+                  "properties": {
+                    "origin": {
+                      "enum": [
+                        "author_declared",
+                        "extracted_explicit"
+                      ]
+                    },
+                    "source_kind": {
+                      "const": "author_setup"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "contract_version": {
+          "const": "setup-v1"
+        },
+        "novel_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "snapshot_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "idempotency_key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "expected_setup_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "expected_brain_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "expected_review_version": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "dependency_group_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "proposal_ids": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "action": {
+          "enum": [
+            "accept_group",
+            "reject_group"
+          ]
+        },
+        "edited_payloads": {
+          "type": "object",
+          "propertyNames": {
+            "format": "uuid"
+          },
+          "additionalProperties": {
+            "type": "object"
+          }
+        },
+        "reason": {
+          "type": "string"
+        },
+        "identity_decisions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/identity_decision"
+          }
+        }
+      },
+      "required": [
+        "contract_version",
+        "novel_id",
+        "snapshot_id",
+        "idempotency_key",
+        "expected_setup_version",
+        "expected_brain_version",
+        "expected_review_version",
+        "dependency_group_id",
+        "proposal_ids",
+        "action"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "action": {
+                "const": "reject_group"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "edited_payloads": {
+                "maxProperties": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "identity_selection": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "canonical_entity_id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": [
+            "canonical_entity_id"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "provisional_identity_key": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}/[A-Za-z0-9_-]{1,64}$"
+            }
+          },
+          "required": [
+            "provisional_identity_key"
+          ]
+        }
+      ]
+    },
+    "identity_decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "proposal_id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "selection": {
+          "$ref": "#/$defs/identity_selection"
+        }
+      },
+      "required": [
+        "proposal_id",
+        "selection"
+      ]
+    }
+  },
+  "$ref": "#/$defs/request"
+}

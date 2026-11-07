@@ -394,7 +394,7 @@ export async function startIdeaBootstrapController(
     if (!req.body.novel_id) {
       throw new AppError(400, 'INVALID_REQUEST', 'novel_id is required');
     }
-    if (!req.body.idea || typeof req.body.idea !== 'string') {
+    if (req.body.contract_version === undefined && (!req.body.idea || typeof req.body.idea !== 'string')) {
       throw new AppError(400, 'INVALID_REQUEST', 'idea is required');
     }
 
@@ -408,6 +408,7 @@ export async function startIdeaBootstrapController(
       requestId: req.header('x-request-id'),
     });
 
+    res.set('Cache-Control', 'no-store');
     res.status(202).json(successResponse(data));
   } catch (error) {
     next(error);
@@ -778,3 +779,21 @@ export async function updateStoryPlanObjectiveController(
   }
 }
 
+
+
+export async function getSetupSnapshotController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+    const snapshotId = req.query.snapshot_id;
+    if (snapshotId !== undefined && (typeof snapshotId !== 'string' ||
+        !/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(snapshotId))) {
+      throw new AppError(422, 'INVALID_SNAPSHOT_ID', 'snapshot_id must be a UUID');
+    }
+    const data = await aiGatewayService.forwardRequest({method:'GET',
+      path: `/v1/story-brains/${novelId}/setup`, userId:req.auth!.userId,
+      requestId:req.header('x-request-id'), queryParams:{snapshot_id: snapshotId as string | undefined}});
+    res.set('Cache-Control', 'no-store');
+    res.json(successResponse(data));
+  } catch (error) { next(error); }
+}

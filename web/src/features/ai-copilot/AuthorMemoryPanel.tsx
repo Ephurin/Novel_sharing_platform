@@ -1,3 +1,4 @@
+import { SetupFoundationPanel } from './SetupFoundationPanel';
 import { useEffect, useMemo, useState } from 'react';
 import { EntityProfileEditor } from './EntityProfileEditor';
 import { EntityExtractionReview } from './EntityExtractionReview';
@@ -83,7 +84,6 @@ export function AuthorMemoryPanel({
 }) {
   const qc = useQueryClient();
   const [profileTabOpened, setProfileTabOpened] = useState(false);
-  const [setup, setSetup] = useState('');
   const [direction, setDirection] = useState('');
   const [events, setEvents] = useState<FutureEvent[]>([]);
   const [findings, setFindings] = useState<ConsistencyFinding[] | null>(null);
@@ -847,26 +847,7 @@ export function AuthorMemoryPanel({
               >
                 Trích xuất dữ liệu tiểu thuyết từ các chương đã lưu
               </Button>
-              <Textarea
-                label="Ý tưởng / thiết lập ban đầu"
-                value={setup}
-                onChange={e => setSetup(e.currentTarget.value)}
-                minRows={5}
-              />
-              <Button
-                disabled={pending || !setup.trim()}
-                onClick={() =>
-                  perform(async () => {
-                    const result = await memoryPost<{ job_id: string }>(
-                      '/ai/story-brains/bootstrap/from-idea',
-                      { novel_id: novelId, idea: setup, mode: 'extract' }
-                    );
-                    rememberJob(result.job_id);
-                  })
-                }
-              >
-                Trích xuất nhân vật và địa danh
-              </Button>
+              <SetupFoundationPanel key={novelId} novelId={novelId} />
               {job.data && (
                 <Alert>
                   Trích xuất: {job.data.status} {job.data.error?.message ?? ''}

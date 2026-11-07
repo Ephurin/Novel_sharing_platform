@@ -19,6 +19,8 @@ from api.deps import (
     get_writing_service,
     require_service_token,
 )
+from api.setup_schemas import SetupRequest
+from application.setup_service import SetupService, SetupFailure, public_job
 from api.schemas import (
     EventCorrectionRequest,
     BaselineActivationRequest,
@@ -121,23 +123,36 @@ def bootstrap_from_manuscript(
 
 @router.post("/story-brains/bootstrap/from-idea", status_code=202)
 def bootstrap_from_idea(
-    payload: IdeaBootstrapRequest,
+    payload: SetupRequest | IdeaBootstrapRequest,
     tenant_id: str = Header(..., alias="X-Tenant-Id"),
     request_id: str = Header(..., alias="X-Request-Id"),
+    author_id: str | None = Header(None, alias="X-Author-Id"),
     service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
 ):
     try:
-        job = service.start_from_idea(
-            tenant_id=tenant_id,
-            idempotency_key=payload.idempotency_key,
-            novel_id=payload.novel_id,
-            idea=payload.idea,
-            mode=payload.mode,
-            outline=payload.outline,
-            locale=payload.locale,
-            preferences=payload.preferences.model_dump(exclude_none=True),
-            author_constraints=payload.author_constraints,
-        )
+        if isinstance(payload, SetupRequest):
+            if author_id is None:
+                raise HTTPException(422, detail={'code':'AUTHOR_HEADER_REQUIRED'})
+            try:
+                uuid.UUID(author_id)
+                uuid.UUID(tenant_id)
+            except ValueError:
+                raise HTTPException(422, detail={'code':'INVALID_SCOPE_HEADER'}) from None
+            job = SetupService(service).start(payload, tenant_id=tenant_id, actor_id=author_id)
+        else:
+            job = service.start_from_idea(
+                tenant_id=tenant_id,
+                idempotency_key=payload.idempotency_key,
+                novel_id=payload.novel_id,
+                idea=payload.idea,
+                mode=payload.mode,
+                outline=payload.outline,
+                locale=payload.locale,
+                preferences=payload.preferences.model_dump(exclude_none=True),
+                author_constraints=payload.author_constraints,
+            )
+    except SetupFailure as exc:
+        raise HTTPException(exc.status, detail={'code':exc.code}) from None
     except BootstrapConflictError as exc:
         raise HTTPException(503 if exc.code == 'BOOTSTRAP_REQUIRES_POSTGRES' else 409, detail={'code': exc.code}) from exc
     except PermissionError as exc:
@@ -482,6 +497,27 @@ def stop_autonomous_run(
     }
 
 
+@router.get('/story-brains/{novel_id}/setup')
+def get_setup_snapshot(
+    novel_id: uuid.UUID,
+    tenant_id: uuid.UUID = Header(..., alias='X-Tenant-Id'),
+    author_id: uuid.UUID = Header(..., alias='X-Author-Id'),
+    request_id: str = Header(..., alias='X-Request-Id'),
+    snapshot_id: uuid.UUID | None = Query(None),
+    service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+):
+    try:
+        data = SetupService(service).readback(str(novel_id), tenant_id=str(tenant_id),
+                                            snapshot_id=str(snapshot_id) if snapshot_id else None)
+    except SetupFailure as exc:
+        raise HTTPException(exc.status, detail={'code':exc.code}) from None
+    except PermissionError:
+        raise HTTPException(403, detail={'code':'TENANT_SCOPE_MISMATCH'}) from None
+    except KeyError:
+        raise HTTPException(404, detail={'code':'SETUP_NOT_FOUND'}) from None
+    return {'data':data, 'meta':{'request_id':request_id, 'schema_version':1}}
+
+
 @router.get("/jobs/{job_id}")
 def get_job(
     job_id: str,
@@ -491,7 +527,7 @@ def get_job(
 ):
     try:
         job = bootstrap_service.get_job(job_id)
-        data = asdict(job)
+        data = asdict(public_job(job))
         data["type"] = "bootstrap"
         data["progress"] = {
             "current": job.progress_current,
@@ -845,6 +881,8 @@ def reject_proposal(
 ):
     try:
         result = service.reject_proposal_by_id(proposal_id, payload.reason)
+    except BootstrapConflictError as exc:
+        raise HTTPException(409, detail={'code':exc.code}) from exc
     except KeyError as exc:
         raise HTTPException(status_code=404, detail={"code": "PROPOSAL_NOT_FOUND"}) from exc
     except ProjectionError as exc:
@@ -874,6 +912,8 @@ def reject_proposal_group(
     try:
         result = service.reject_proposal_group_by_id(str(group_id), payload.expected_brain_version,
             reason=payload.reason, actor_id=str(author_id))
+    except BootstrapConflictError as exc:
+        raise HTTPException(409, detail={'code':exc.code}) from exc
     except KeyError as exc:
         raise HTTPException(404, detail={'code': 'PROPOSAL_GROUP_NOT_FOUND'}) from exc
     except OptimisticLockError as exc:
@@ -902,6 +942,8 @@ def edit_and_accept_proposal(
             edited_payload=payload.edited_payload,
             reason=payload.reason,
         )
+    except BootstrapConflictError as exc:
+        raise HTTPException(409, detail={'code':exc.code}) from exc
     except KeyError as exc:
         raise HTTPException(status_code=404, detail={"code": "PROPOSAL_NOT_FOUND"}) from exc
     except OptimisticLockError as exc:
@@ -937,6 +979,8 @@ def accept_proposal_group(
             payload.reason,
             edited_payloads=payload.edited_payloads,
         )
+    except BootstrapConflictError as exc:
+        raise HTTPException(409, detail={'code':exc.code}) from exc
     except KeyError as exc:
         raise HTTPException(status_code=404, detail={"code": "PROPOSAL_NOT_FOUND"}) from exc
     except OptimisticLockError as exc:

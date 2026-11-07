@@ -5,7 +5,7 @@ import hashlib
 import json
 import logging
 import uuid
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from decimal import Decimal
 from typing import Any
 
@@ -67,6 +67,7 @@ from infrastructure.orm_models import (
 
 class PostgresNarrativeRepository:
     supports_bootstrap_lifecycle = True
+    supports_setup_v1 = True
     def complete_entity_review(self, story_id, run_id, audit, proposals):
         """CAS and proposals commit together, including a valid empty extraction."""
         from copy import deepcopy
@@ -626,6 +627,7 @@ class PostgresNarrativeRepository:
             ).all()
             if len(proposals) != len(set(proposal_uuids)):
                 raise KeyError("Proposal group is incomplete")
+            self._guard_setup_review(session, proposals, novel_id)
             if any(item.status != ProposalStatus.PENDING.value for item in proposals):
                 raise ProposalAlreadyDecidedError("Proposal group contains a decided proposal")
             groups = {item.dependency_group_id for item in proposals}
@@ -932,6 +934,7 @@ class PostgresNarrativeRepository:
                 raise KeyError(group_id)
             if single_proposal_id is not None and len(members) != 1:
                 raise ProjectionError('Reject the complete dependency group using the group rejection endpoint')
+            self._guard_setup_review(session, members, novel_id)
             if any(p.status != ProposalStatus.PENDING.value for p in members):
                 raise ProposalAlreadyDecidedError('Proposal group contains a decided proposal')
             for proposal in members:
@@ -1214,6 +1217,44 @@ class PostgresNarrativeRepository:
         session.refresh(brain, with_for_update=True)
         return brain
 
+    @staticmethod
+    def _assert_setup_source_unchanged(record, job):
+        if (record.result or {}).get('contract_version') == 'setup-v1':
+            frozen = ('setup_source', 'author_id', 'contract_version', 'setup_hash', 'text_hash',
+                      'setup_version', 'bootstrap_input_hash', 'mode', 'expected_setup_version')
+            if any(record.result.get(key) != (job.result or {}).get(key) for key in frozen):
+                raise BootstrapConflictError('SETUP_SOURCE_IMMUTABLE')
+
+    def _guard_setup_review(self, session, proposals, novel_id):
+        ids = {p.analysis_run_id for p in proposals if p.analysis_run_id}
+        if ids and session.scalar(select(AnalysisRunRecord.id).where(
+                *self._scope(AnalysisRunRecord, novel_id), AnalysisRunRecord.id.in_(ids),
+                AnalysisRunRecord.operation == 'bootstrap_setup').limit(1)):
+            raise BootstrapConflictError('SETUP_REVIEW_NOT_AVAILABLE')
+
+    def get_setup_snapshot(self, story_id, *, snapshot_id=None):
+        novel_id = self._novel_id(story_id)
+        with session_scope(self._session_factory) as session:
+            brain = session.scalar(select(StoryBrainRecord).where(
+                *self._scope(StoryBrainRecord, novel_id)).with_for_update(read=True))
+            if brain is None:
+                raise KeyError(story_id)
+            query = select(BootstrapJobRecord).where(*self._scope(BootstrapJobRecord, novel_id))
+            if snapshot_id is not None:
+                query = query.where(BootstrapJobRecord.id == uuid.UUID(snapshot_id))
+            jobs = [j for j in session.scalars(query).all()
+                    if (j.result or {}).get('contract_version') == 'setup-v1']
+            if not jobs:
+                raise KeyError(snapshot_id or story_id)
+            job = max(jobs, key=lambda j:j.result['setup_version'])
+            result, source = job.result, job.result['setup_source']
+            return dict(contract_version='setup-v1', novel_id=str(novel_id), job_id=str(job.id),
+                snapshot_id=str(job.id), setup_version=result['setup_version'], brain_version=brain.brain_version,
+                review_version=result['review_version'], setup_hash=result['setup_hash'],
+                text_hash=result['text_hash'], mode=result['mode'], job_status=job.status,
+                snapshot=source['setup'], hints=source['hints'], outline=source['outline'],
+                preferences=source['preferences'], proposals=result.get('setup_cards', []))
+
     def create_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob:
         novel_id = self._novel_id(job.novel_id)
         job_id = self._stable_uuid("bootstrap-job", job.job_id)
@@ -1230,6 +1271,15 @@ class PostgresNarrativeRepository:
                 return self._to_bootstrap_job(existing)
             if brain.status == 'active':
                 raise BootstrapConflictError('ALREADY_ACTIVE')
+            if (job.result or {}).get('contract_version') == 'setup-v1':
+                versions = session.scalars(select(BootstrapJobRecord.result).where(
+                    *self._scope(BootstrapJobRecord, novel_id))).all()
+                latest = max((r.get('setup_version', 0) for r in versions
+                    if r and r.get('contract_version') == 'setup-v1'), default=0)
+                if job.result.get('expected_setup_version') != latest:
+                    raise BootstrapConflictError('SETUP_VERSION_CONFLICT')
+                job = replace(job, result={**job.result, 'setup_version':latest+1,
+                                          'brain_version':brain.brain_version})
             competing = session.scalar(select(BootstrapJobRecord.id).where(
                 *self._scope(BootstrapJobRecord, novel_id),
                 BootstrapJobRecord.status.in_(['queued', 'running', 'waiting_entity_review'])))
@@ -1306,7 +1356,7 @@ class PostgresNarrativeRepository:
                 BootstrapJobRecord.id == self._stable_uuid('bootstrap-job', job.job_id),
                 *self._scope(BootstrapJobRecord, self._novel_id(job.novel_id))).with_for_update())
             if record and record.status == 'running' and (record.result or {}).get('reservation_token') == (job.result or {}).get('reservation_token'):
-                record.status, record.stage, record.error = 'failed', 'failed', {'code': 'BOOTSTRAP_FAILED'}
+                record.status, record.stage, record.error = 'failed', 'failed', job.error or {'code': 'BOOTSTRAP_FAILED'}
 
     def finalize_idea_bootstrap(self, job, proposals, run):
         novel_id = self._novel_id(job.novel_id)
@@ -1317,6 +1367,7 @@ class PostgresNarrativeRepository:
                 *self._scope(BootstrapJobRecord, novel_id)).with_for_update())
             if record is None:
                 raise KeyError(job.job_id)
+            self._assert_setup_source_unchanged(record, job)
             if brain.status == 'active':
                 raise BootstrapConflictError('ALREADY_ACTIVE')
             if record.status != 'running' or (record.result or {}).get('reservation_token') != (job.result or {}).get('reservation_token'):
@@ -1357,6 +1408,7 @@ class PostgresNarrativeRepository:
             )
             if record is None:
                 raise KeyError(f"Bootstrap job not found: {job.job_id}")
+            self._assert_setup_source_unchanged(record, job)
             record.status = job.status
             record.stage = job.stage
             record.revisions = [asdict(item) for item in job.revisions]
@@ -1377,6 +1429,8 @@ class PostgresNarrativeRepository:
                 *self._scope(BootstrapJobRecord, novel_id)).with_for_update())
             if job is None:
                 raise KeyError(job_id)
+            if (job.result or {}).get('contract_version') == 'setup-v1':
+                raise BootstrapConflictError('SETUP_ACTIVATION_NOT_AVAILABLE')
             if brain.status == 'active':
                 if job.status == 'completed':
                     return {'story_brain_id': str(brain.id), 'status': brain.status,

@@ -13,6 +13,30 @@ logger = logging.getLogger("fake-llm")
 
 
 class FakeDeterministicLLMService:
+    def extract_setup_text(self, *, text, locale):
+        """Offline fixture grammar only; unsupported natural prose fails visibly.
+
+        This is not an NLP quality implementation or a paid-provider fallback.
+        """
+        import re
+        entities = []
+        for match in re.finditer(r"\[(character|location):([^\]\n]+)\]", text):
+            name = match.group(2)
+            entities.append(dict(entity_type=match.group(1), display_name=name,
+                source_ref=dict(kind='setup_span', field_path='/setup/text',
+                    offset_kind='unicode_codepoints', start=match.start(2), end=match.end(2), quote=name)))
+        if not entities:
+            raise ValueError('Fake fixture grammar unavailable for this prose')
+        return dict(entities=entities, world_rules=[])
+
+    def suggest_setup_blueprint(self, *, setup, outline, preferences, locale):
+        """Use the existing explicitly fake generator, with no private settings."""
+        value = self.generate_story_blueprint(idea=setup['text'], outline=outline,
+                                             preferences=preferences, author_constraints=[])
+        return dict(entities=[dict(entity_type=e.get('entity_type', e.get('type')),
+                                  display_name=e['name']) for e in value['entities']],
+                    world_rules=value['world_rules'])
+
     def _call_structured(self, *, operation, system_prompt, user_prompt):
         if operation == 'entity_candidate_verification':
             data = json.loads(user_prompt)
