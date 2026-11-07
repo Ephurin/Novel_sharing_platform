@@ -12,11 +12,21 @@ pytestmark=pytest.mark.postgres_integration
 FOREIGN='00000000-0000-0000-0000-000000000099'
 
 
+def arm_provider_tripwire(f):
+    def forbidden(**kwargs):
+        f.llm.calls += 1
+        raise AssertionError('Provider dispatched during an authorization rejection')
+    # Both new setup provider interfaces really exist, so the observed counter
+    # measures dispatch attempts rather than an unavailable-provider fallback.
+    f.service._llm_service=SimpleNamespace(extract_setup_text=forbidden,suggest_setup_blueprint=forbidden)
+
+
 def pair(f):
     first=submit(f)
     second=submit(f,idempotency_key='historical-next',expected_setup_version=1)
     foreign_novel=str(uuid.uuid4())
     foreign=SetupService(f.service).start(SetupRequest.model_validate(request_data(foreign_novel)),tenant_id=TENANT,actor_id=FOREIGN)
+    arm_provider_tripwire(f)
     return first,second,foreign
 
 
@@ -43,6 +53,7 @@ def test_repository_and_service_same_tenant_historical_scope(f):
         service.start(SetupRequest.model_validate(request_data(f.src.novel_id,idempotency_key='foreign-blueprint',expected_setup_version=2,mode='blueprint')),tenant_id=TENANT,actor_id=FOREIGN)
     assert state(f,'owner-service-after')==before
     assert f.llm.calls==0
+    print('SETUP_SCOPE_PROVIDER_CALLS 0')
 
 
 def test_internal_http_setup_and_job_identity_matrix(f,caplog):
@@ -93,19 +104,21 @@ def test_internal_http_setup_and_job_identity_matrix(f,caplog):
         assert f.client.get(path,headers=owner).status_code==422
     assert state(f,'owner-http-after')==before
     assert f.llm.calls==0
+    print('SETUP_SCOPE_PROVIDER_CALLS 0')
     assert 'PrivateOnly' not in caplog.text and 'ConstraintOnly' not in caplog.text
 
 
 def test_setup_auth_cannot_use_development_service_auth_bypass(f):
-    job=submit(f);f.client.app.state.settings.service_auth_disabled=True
+    job=submit(f);arm_provider_tripwire(f);f.client.app.state.settings.service_auth_disabled=True
     headers={'X-Tenant-Id':TENANT,'X-Author-Id':ACTOR,'X-Request-Id':'scope-test'}
     for path in [f'/v1/story-brains/{f.src.novel_id}/setup']:
         assert f.client.get(path,headers=headers).status_code==401
     before=state(f,'dev-auth-before')
-    response=f.client.post('/v1/story-brains/bootstrap/from-idea',headers=headers,json=request_data(f.src.novel_id,idempotency_key='forged-dev',expected_setup_version=1))
+    response=f.client.post('/v1/story-brains/bootstrap/from-idea',headers=headers,json=request_data(f.src.novel_id,idempotency_key='forged-dev',expected_setup_version=1,mode='blueprint'))
     assert response.status_code==401
     assert state(f,'dev-auth-after')==before
     assert f.llm.calls==0
+    print('SETUP_SCOPE_PROVIDER_CALLS 0')
 
 
 def test_setup_cards_have_no_legacy_read_side_channel(f):
@@ -115,6 +128,7 @@ def test_setup_cards_have_no_legacy_read_side_channel(f):
         response=f.client.get(path,headers=headers)
         assert response.status_code==200 and response.json()['data']==[]
     assert f.llm.calls==0
+    print('SETUP_SCOPE_PROVIDER_CALLS 0')
 
 
 def test_validation_errors_do_not_echo_private_input_or_protected_sources(f,caplog):
@@ -127,3 +141,4 @@ def test_validation_errors_do_not_echo_private_input_or_protected_sources(f,capl
     for private in ['PrivateOnly','ConstraintOnly','private_author_notes','author_constraints']:
         assert private not in response.text and private not in caplog.text
     assert state(f,'private-error-after')==before and f.llm.calls==0
+    print('SETUP_SCOPE_PROVIDER_CALLS 0')
