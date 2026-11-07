@@ -1,3 +1,55 @@
+# PR #94 owner-scope hardening — current review handoff
+
+**Verdict: READY_FOR_OWNER_REVIEW for bounded P2-02A.** No merge, deployment, live provider call, or P2-02B implementation. The original handoff below remains historical evidence.
+
+## Exact source and CI
+
+- Base: `9a8032dfe17ed42cd4935c09240760c23035eeb8`; previous delivery: `264e99d2e5f6e17abe4d94553664fcfea5af2c08`.
+- Branch: `codex/p2-02-setup-provenance`; tested source: `2f8ce3ac82a1c438a3d5ae402a32f394af70b8e5`.
+- Actual CI checkout: `76fb22105f633dbd6ab22fa6293269ad37a5cb9c`; identical source/checkout tree: `d05da2742635df48e0842d3aaf26fa795c8aa39f`.
+- Delivery adds documentation/evidence only; its SHA is recorded in PR metadata. Do not pool intermediate-source results.
+- [P7: 3/3 SUCCESS](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42376170960), [P8: 7/7 SUCCESS](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42376170966), [feature: 1/1 SUCCESS](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42376170948).
+- Feature focused tests: 46 PASS. Real SQL selection: 31 PASS, zero SKIP (16 existing A16, 9 setup, 6 author-scope). Full AI non-PostgreSQL: 415 PASS/32 SKIP/237 deselected. Full PostgreSQL: 229 PASS/8 SKIP/447 deselected. These are separate overlapping suites, not additive totals.
+- Gateway forwarding: 19 PASS; real P1 save: 1 PASS; real setup Gateway: 1 PASS with 37 HTTP outcomes; browser: 3 PASS with mocked HTTP. P8 backend guard/accept/persistence/lifecycle suites: 11/15/5/25 PASS respectively. Typechecks/build and P7/P8 required jobs succeeded.
+
+## Security contract and changed paths
+
+Gateway derives identity from verified JWT and active account, overwrites browser identity headers, and requires actual current novel ownership even for ADMIN. Python setup requests independently require a configured service credential, canonical UUID tenant/author, configured tenant match and consistent actor/user headers. Setup-specific auth remains enforced when generic service auth is disabled. There is no Python/repository ADMIN override.
+
+The immutable source creator is `bootstrap_jobs.result.author_id`. Repository queries bind source creator, tenant, novel and source/job ID. Replay and admission check author before version/input conflicts and before provider dispatch; cross-author appends to an existing source chain fail closed. Gateway supplies current novel authority; the AI database does not duplicate public users/novels. Trusted service credential holders remain trusted internal callers: this does not defend against a compromised Gateway credential. Ownership transfer grants neither party automatic source delegation: the former creator fails current ownership, the new owner fails creator scope.
+
+Affected paths: new `api/setup_auth.py`; narrative setup/create/readback, generic job GET/SSE/resume/activation; SetupService public DTO and repository scoped reads/admission; legacy proposal/review list filtering; Gateway ownership and no-store; keyed setup/AuthorMemoryPanel state and nested account-scoped query caches; PostgreSQL/Gateway/browser regressions and feature workflow log scan. No migration or Canon materialization was added.
+
+Readback requires the scoped source query; generic jobs expose only an allowlisted setup result. SSE authorizes before sending bytes, resume before scheduling, and activation before its existing disabled response. Unknown and unauthorized jobs return equivalent status/body for GET/SSE/resume. Setup cards are excluded from legacy generic proposal/review queues. The raw repository `get_bootstrap_job` remains a privileged worker/internal port, not a new user-facing source readback. Setup review/materialization/activation stay unavailable.
+
+Malformed setup dictionaries, arrays and nested bodies return a generic 422 without Pydantic rejected input/context. Responses use no-store where private setup/job content could be returned. Private notes and author constraints remain persisted source fields, excluded from readback/public jobs and extraction provider input. Tests scan actual service and Gateway logs for seeded private markers; this is evidence for tested paths, not a universal proof about every possible log/input.
+
+## Runtime evidence and limitations
+
+Disposable PostgreSQL 16.15 and MongoDB 7.0.45, database `p2a`, fake/offline providers only. No P1 QA or shared production database. Final artifact verifier confirms 30 durable setup readbacks, 12 exact before/after negative-state hash pairs, 18 immutable snapshot metadata records, and zero setup historical events. Six real PostgreSQL author-scope cases exercise 45 negative HTTP requests across five route paths and nine identity cases; additional activation, historical source, malformed-body, and known/unknown equivalence assertions run in the same suite. Six zero-dispatch markers and armed provider tripwires validate denial before generation.
+
+Gateway tests include same-tenant author A/B, spoofed browser identity headers, ADMIN own versus foreign novels, generic setup jobs, and a reversible disposable novel ownership transfer. Browser tests mount the real parent and nested components: account/novel changes clear source/cards/operation keys and private guidance caches; late successful POST/GET results are discarded. Reload and 409 behavior remain covered. Browser HTTP is mocked: this is not browser-to-database E2E.
+
+P1 readbacks preserve the original immutable revision, create the changed AUTHOR_MANUAL revision with hash `2820f3c28370c94c08a19fc3793b806da75fd53a6f5d33e656b9091e61e78dc1`, link the completed outbox, persist Mongo v2 and leave approved Canon/Brain unchanged. Rollback verifies 23 tables, exact restored source parity and unchanged original source; migration `0016_entity_profile_audit_timestamp`, vector 0.8.7. PG17 mismatch is deliberately reproduced with exit 1; matched PG16 backup/restore succeeds.
+
+Historical failures retained: source edf1397e had 13 SQL failures/17 passes because generic JSON comparator lacked `.astext`; `.as_string()` fixed the query without weakening scope or changing schema. Its privacy scan reached zero files and is NOT a privacy PASS. One local browser fixture initially returned the wrong unrelated guidance DTO; corrected fixture now tests the actual parent. Local sandbox TestClient hung during Windows asyncio socketpair initialization before route execution (NOT_RUN_ENVIRONMENT); an authorized host run passed 52 affected Python tests. No sandbox result is substituted for PostgreSQL CI acceptance.
+
+## Reproduce and inspect
+
+See [evidence index](p2-02a-owner-scope-evidence/README.md), [verified readbacks](p2-02a-owner-scope-evidence/verified-summary.json), [CI jobs](p2-02a-owner-scope-evidence/ci-jobs.json), and [artifact verifier](p2-02a-owner-scope-evidence/verify_artifacts.py). The workflow at tested SHA contains exact service environment, fixture lifecycle, commands and exit propagation. `python docs/development/p2/p2-02a-owner-scope-evidence/verify_artifacts.py` exits 0. Original evidence below is not rewritten.
+
+## P2-02B checklist — only after PR #94 approval AND merge
+
+- Design author-bound review endpoint and full setup/review/Brain optimistic concurrency inside the authoritative PostgreSQL transaction.
+- Reuse P1 identity/HITL and homonym protection; preserve raw proposal versus edited/accepted audit evidence.
+- Resolve pending initial conditions with explicit author authority; no accepted-but-unmaterialized status.
+- Keep WORLD SETUP, FUTURE STORY PLAN and narrative history separate; no synthetic chapter revisions or historical events.
+- Add real PostgreSQL negative/concurrent review tests, account-switch UI coverage and P1 regression before activation/M0 claims.
+
+---
+
+# Historical initial delivery (unchanged below)
+
 # P2-02A — setup extraction, immutable provenance and readback
 
 **Verdict: READY_FOR_REVIEW for the bounded P2-02A foundation. P2-02 as a whole is not complete.** Draft PR #94 targets integration/p2-planning-studio. Stop for independent review; no self-merge/deploy/live provider call. Owner explicitly authorized P2-02 after merging #89; the historical P2-01 Argon gate is not inferred to block this newly authorized work.
