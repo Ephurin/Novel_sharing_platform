@@ -1,0 +1,33 @@
+# RED: review P1 tests run against bc0cad6e^ (fix not applied yet). npm run test:isolated -- src/modules/novels/srs-backend-rules.postgres.test.ts
+  ✔ AUTH-02: a malformed email on register is AUTH_001; other bad fields stay VALIDATION_001 (525.085ms)
+  ✔ NOV-02/03: title must be under 255 characters and synopsis at least 500; a 254-character title gets a valid slug (10.9012ms)
+  ✔ NOV-04: a novel with fewer than five valid chapters cannot be submitted for publishing (51.9815ms)
+  ✖ NOV-04 (review P1): archived chapters do not count toward the five-chapter rule (61.7065ms)
+  ✖ NOV-04 (review P1): archiving a chapter while the novel is submitted cannot slip past the rule (418.5143ms)
+  ✔ NOV-06: a chapter under 500 characters is not published (8.1509ms)
+  ✔ SOC-12: a published chapter reaches each author follower once, without doubling the novel bell (PR #88) (24.6383ms)
+  ✔ SOC-12: a chapter of a novel that is not public yet notifies nobody (12.3251ms)
+  ✔ ADM-03/08: removing a novel hides its chapters and drafts, tells the author, and restore brings back only those (91.9316ms)
+  ✔ PAY-15: the payment limiter answers 429 RATE_LIMIT_001 with Retry-After once a user exceeds the budget (0.4426ms)
+  ✔ AI-06: without an LLM the copilot answers AI_001 at once instead of a canned suggestion (2.601ms)
+  ✔ AI-06: a provider that answers 5xx, hangs past the timeout or is down gives AI_001 with the reason (522.811ms)
+✖ SRS backend rules (1790.8069ms)
+ℹ tests 12
+ℹ suites 1
+ℹ pass 10
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2797.278
+✖ failing tests:
+✖ NOV-04 (review P1): archived chapters do not count toward the five-chapter rule (61.7065ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+    actual: undefined,
+✖ NOV-04 (review P1): archiving a chapter while the novel is submitted cannot slip past the rule (418.5143ms)
+  AssertionError [ERR_ASSERTION]: the archive committed first, so only 4 chapters remain
+  + actual - expected
+      at TestContext.<anonymous> (<repo>\backend\src\modules\novels\srs-backend-rules.postgres.test.ts:158:14)
+    actual: 'admitted',
+    expected: 'VALIDATION_002',
+{"isolatedDatabase":"ephurin_test_admin_backend_1794160673582","cleanedUp":true,"exitCode":1}

@@ -16,6 +16,8 @@ Nhãn phân loại:
 | `main`, runner cũ | `06ecfbb` | 60/71 × 2 | `docs/development/PR73-REVIEW-R3/main-baseline/` |
 | `main`, runner đã chỉnh `TC-AI-06` và `TC-ADM-03/06` | `06ecfbb` | 60/71 × 2 | `docs/development/SRS-BACKEND-R1/main-baseline/` |
 | Nhánh sửa `fix/srs-backend-rules` | `4d89f0a` | 71/71 × 2 | `docs/development/SRS-BACKEND-R1/pr-head/` |
+| `main` sau #86–#88 | `7b2ad2e` | 60/71 × 2 | `docs/development/SRS-BACKEND-R2/main-baseline/` |
+| Nhánh sửa sau review và gộp `main` | `4534d50` | 71/71 × 2 | `docs/development/SRS-BACKEND-R2/pr-head/` |
 
 ## Bảng phân loại
 
