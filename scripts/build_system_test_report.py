@@ -306,12 +306,26 @@ def fmt_detail(detail: Any) -> str:
 
 
 class Evidence:
-    def __init__(self, manifest: Dict[str, Any], baseline: List[Dict[str, Any]]):
+    def __init__(self, manifest: Dict[str, Any], baseline: List[Dict[str, Any]], browser: Optional[Dict[str, Any]] = None):
         self.manifest = manifest
         self.steps = {step["name"]: step for step in manifest["steps"]}
         self.baseline = [{r["id"]: r for r in run.get("results", [])} for run in baseline]
         self.baseline_sha = baseline[0].get("tested_code_sha", "")[:8] if baseline else ""
         self.fixed: set = set()  # SRS checks that fail on every baseline run but pass here
+        # Browser runners run once on main (smoke / social / discovery evidence JSON), to tell inherited Fails apart.
+        self.browser = browser or {}
+        self.browser_sha = next((run.get("tested_code_sha", "")[:8] for run in self.browser.values() if run.get("tested_code_sha")), "")
+        self.fail_origin: List[str] = []  # one entry per Fail row: "main" (fails on main too), "flaky" or "new"
+
+    def browser_origin(self, failed_on_main: bool, flaky: bool = False) -> str:
+        self.fail_origin.append("main" if failed_on_main else "flaky" if flaky else "new")
+        if not self.browser:
+            return ""
+        if failed_on_main:
+            return f" Cùng script chạy trên main {self.browser_sha} cũng FAIL ở bước này, nên không do {PR_LABEL}."
+        if flaky:
+            return f" Lượt còn lại và main {self.browser_sha} đều PASS ở bước này → lỗi chập chờn, không lặp lại."
+        return f" Trên main {self.browser_sha} bước này PASS → lỗi mới, cần xem lại."
 
     def runs(self, prefix: str) -> List[Dict[str, Any]]:
         return [step.get("evidence") or {} for name, step in self.steps.items() if name.startswith(prefix)]
@@ -334,6 +348,7 @@ class Evidence:
                     self.fixed.add(source[1])
                     fixed = f" Trên main {self.baseline_sha} cả {len(base)}/{len(base)} lần baseline đều FAIL; đã sửa trong {PR_LABEL}."
                 return "Pass", f"Đạt {len(outcomes)}/{len(outcomes)} lần chạy. Thực tế: {detail}.{fixed}"
+            self.fail_origin.append("main" if base and all(b == "FAIL" for b in base) else "new")
             if base and all(b == "FAIL" for b in base):
                 origin = f"Có sẵn trên main {self.baseline_sha} ({len(base)}/{len(base)} lần baseline cũng FAIL), không do {PR_LABEL}."
             elif base:
@@ -344,13 +359,20 @@ class Evidence:
             return "Fail", f"Thực tế: {detail}.{stability} {origin}".strip()
         if kind in ("social", "discovery"):
             prefix = "social_run" if kind == "social" else "discovery_run"
-            outcomes = [(run.get("checkpoints") or {}).get(source[1]) for run in self.runs(prefix)]
+            runs = self.runs(prefix)
+            outcomes = [(run.get("checkpoints") or {}).get(source[1]) for run in runs]
             outcomes = [o for o in outcomes if o]
-            if not outcomes:
+            stopped = [run.get("failure") for run in runs if run.get("failure")]
+            if not outcomes and not stopped:
                 return "N/A", "Không có kết quả chạy."
-            if all(o == "PASS" for o in outcomes):
+            if outcomes and all(o == "PASS" for o in outcomes) and len(outcomes) == len(runs):
                 return "Pass", f"Đạt {len(outcomes)}/{len(outcomes)} lần chạy trên trình duyệt thật (DB tạm, đã xoá sau khi chạy)."
-            return "Fail", f"Kết quả các lần chạy: {'/'.join(outcomes)}."
+            main_run = self.browser.get(kind) or {}
+            main_failed = bool(main_run) and ((main_run.get("checkpoints") or {}).get(source[1]) != "PASS")
+            if not outcomes:
+                reason = str(stopped[0]).splitlines()[0][:160]
+                return "Fail", f"Script dừng trước bước này ở cả {len(stopped)} lần chạy: {reason}.{self.browser_origin(main_failed)}"
+            return "Fail", f"Kết quả các lần chạy: {'/'.join(outcomes)}.{self.browser_origin(main_failed)}"
         if kind == "smoke":
             role, step = source[1], source[2]
             checks = []
@@ -364,7 +386,18 @@ class Evidence:
             if not failed:
                 return "Pass", f"Đạt {len(checks)}/{len(checks)} lần kiểm ({ALL_COMBOS}, 2 lượt)."
             sample = "; ".join(f"{c['combo']} {c['role']}/{c['step']}: {', '.join(c.get('problems') or [])[:120]}" for c in failed[:3])
-            return "Fail", f"Đạt {len(checks) - len(failed)}/{len(checks)}. Lỗi: {sample}"
+            main_results = [r for r in (self.browser.get("smoke") or {}).get("results", [])
+                            if (role == "*" or r.get("role") == role) and (not step or r.get("step", "").startswith(step))]
+            main_failed = {(r.get("combo"), r.get("step")) for r in main_results if r.get("result") != "PASS"}
+            only_here = [c for c in failed if (c.get("combo"), c.get("step")) not in main_failed]
+            flaky, only_flaky = "", False
+            if self.browser and only_here:
+                runs_total = len(self.runs("smoke_matrix"))
+                repeats = {(c.get("combo"), c.get("step")): sum(1 for f in failed if (f.get("combo"), f.get("step")) == (c.get("combo"), c.get("step"))) for c in only_here}
+                only_flaky = all(count < runs_total for count in repeats.values())
+                described = ", ".join(f"{combo} {name} ({count}/{runs_total} lượt)" for (combo, name), count in list(repeats.items())[:3])
+                flaky = f" Lỗi không có trên main: {described}."
+            return "Fail", f"Đạt {len(checks) - len(failed)}/{len(checks)}. Lỗi: {sample}.{flaky}{self.browser_origin(bool(main_failed), only_flaky)}"
         if kind == "step":
             step = self.steps.get(source[1])
             if not step:
@@ -584,6 +617,7 @@ def main() -> int:
     parser.add_argument("--group", default="(điền số nhóm)")
     parser.add_argument("--tester", default="Minh Sơn")
     parser.add_argument("--pr-label", default="PR #73", help="name of the change under test, used in the Evaluation text")
+    parser.add_argument("--browser-baseline", help="folder with smoke.json / social.json / discovery.json from the same runners on main")
     args = parser.parse_args()
     global PR_LABEL
     PR_LABEL = args.pr_label
@@ -593,15 +627,32 @@ def main() -> int:
     for path in args.baseline:
         with open(path, encoding="utf-8") as handle:
             baseline_runs.append(json.load(handle))
-    ev = Evidence(manifest, baseline_runs)
+    browser = {}
+    if args.browser_baseline:
+        for kind in ("smoke", "social", "discovery"):
+            path = os.path.join(args.browser_baseline, f"{kind}.json")
+            if os.path.exists(path):
+                with open(path, encoding="utf-8") as handle:
+                    browser[kind] = json.load(handle)
+    ev = Evidence(manifest, baseline_runs, browser)
     wb = Workbook()
     totals = {}
     for feature in FEATURES:
         totals[feature["sheet"]] = build_feature(wb, feature, ev)
     pass_n = sum(t["Pass"] for t in totals.values()); fail_n = sum(t["Fail"] for t in totals.values()); na_n = sum(t["N/A"] for t in totals.values())
     env = manifest["environment"]
-    fail_text = (f"Toàn bộ Fail đã chạy lại trên main {ev.baseline_sha} và cho cùng kết quả, nên không do {PR_LABEL}: đó là chỗ code lệch SRS. "
-                 if fail_n else "Không còn test case Fail. ")
+    on_main, flaky_n, new_n = (ev.fail_origin.count(kind) for kind in ("main", "flaky", "new"))
+    if not fail_n:
+        fail_text = "Không còn test case Fail. "
+    elif ev.browser:
+        fail_text = (f"{on_main} Fail cũng xảy ra khi chạy cùng script trên main {ev.browser_sha}, nên không do {PR_LABEL}: "
+                     "script E2E trình duyệt phía độc giả chưa theo kịp giao diện độc giả mới trên main (đăng nhập về '/', menu mới, nút thích mới). "
+                     + (f"{flaky_n} Fail chập chờn: lỗi ở 1 lượt, lượt còn lại và main đều PASS. " if flaky_n else "")
+                     + (f"{new_n} Fail mới so với main, cần xem lại. " if new_n else ""))
+    elif not new_n:
+        fail_text = f"Toàn bộ Fail đã chạy lại trên main {ev.baseline_sha} và cho cùng kết quả, nên không do {PR_LABEL}: đó là chỗ code lệch SRS. "
+    else:
+        fail_text = "Có Fail không xảy ra trên main: xem cột Evaluation của từng dòng. "
     fixed_text = (f"{len(ev.fixed)} kiểm tra SRS ({', '.join(sorted(ev.fixed))}) Fail ở mọi lần chạy baseline trên main {ev.baseline_sha} "
                   "(mã lỗi, giới hạn độ dài, điều kiện 5 chương, thông báo theo dõi, giới hạn tần suất, fallback AI, gỡ truyện) "
                   f"và đã được sửa trong {PR_LABEL}. " if ev.fixed else "")
