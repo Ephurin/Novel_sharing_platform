@@ -87,9 +87,10 @@ test('mounted /author/ide planning journey, recoverable CAS drafts, real Writer 
   await expect(page.getByText('Đã duyệt',{exact:true})).toHaveCount(2);
   const activate=button('Kích hoạt thiết lập để bắt đầu viết');await expect(activate).toBeEnabled();await activate.click();await expect(page.getByRole('alert').filter({hasText:'Thiết lập đã thay đổi.'})).toBeVisible();
   m0Conflict=false;await button('Tải bản đã lưu').click();await activate.click();await expect(page.getByText(/Thiết lập đã được kích hoạt/)).toBeVisible();
-  if(out)await page.screenshot({path:join(out,'planning-wide.png'),fullPage:true});
+  await step('Ý tưởng').click();if(out)await page.screenshot({path:join(out,'planning-wide.png'),fullPage:true});
   await step('Dàn ý chương').click();await button('Lưu bản nháp dàn ý').click();await expect(page.getByText(/Đã lưu phiên bản dàn ý/)).toBeVisible();
   assert.equal(writes.filter(w=>w.path.includes('edit-v1')).at(-1).body.objectives.length,0);
+  for(const size of [5,10,20]){await button('Dàn ý mới').click();await choose('Số chương khởi đầu',String(size));await button(`Thêm ${size} thẻ chương`).click();await button('Lưu bản nháp dàn ý').click();await expect(page.getByText(/Đã lưu phiên bản dàn ý/)).toBeVisible();assert.equal(writes.filter(w=>w.path.includes('edit-v1')).at(-1).body.objectives.length,size);}
   await button('Dàn ý mới').click();await choose('Số chương khởi đầu','20');await button('Thêm 20 thẻ chương').click();await choose('Số chương khởi đầu','5');await button('Thêm 5 thẻ chương').click();
   await page.getByLabel('Tiêu đề chương 1',{exact:true}).fill('Gặp Minh');await button('Thêm sự kiện chương 1').click();await page.getByLabel('Sự kiện 1 chương 1',{exact:true}).fill('Tương lai gặp nhau');await button('Thêm người tham gia sự kiện 1 chương 1').click();await page.getByLabel('Người tham gia 1 sự kiện 1 chương 1',{exact:true}).fill('Minh chưa xác định');
   const count=writes.length;await page.waitForTimeout(1300);assert.equal(writes.length,count,'no per-keystroke POST');
@@ -112,7 +113,15 @@ test('mounted /author/ide planning journey, recoverable CAS drafts, real Writer 
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'mobile horizontal overflow');
   await page.keyboard.press('Tab');assert.notEqual(await page.evaluate(()=>document.activeElement.tagName),'BODY');
   if(out)await page.screenshot({path:join(out,'planning-mobile.png'),fullPage:true});
-  // Logout/login remount through the actual AuthGate, no cross-account drafts.
+  // Same author, different novel: local private plan edits are scoped and recoverable.
+  await step('Dàn ý chương').click();await page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true}).fill('DevicePrivateOnly');
+  await page.evaluate(async id=>{const {router}=await import('/src/app/router.tsx');await router.navigate('/author/ide?novelId='+id);},B);
+  await expect(page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true})).toHaveValue('');
+  await page.evaluate(async id=>{const {router}=await import('/src/app/router.tsx');await router.navigate('/author/ide?novelId='+id);},A);
+  await button('Khôi phục bản sửa dàn ý').click();await expect(page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true})).toHaveValue('DevicePrivateOnly');
+  assert.ok(!writes.some(w=>JSON.stringify(w.body).includes('DevicePrivateOnly')),'local private edits never dispatched without Save');
+  // Account switching uses actual AuthGate/store; old local edits never populate B.
+
   await page.evaluate(async()=>{const {useAuthStore}=await import('/src/features/auth/useAuthStore.ts');useAuthStore.getState().setSession({accessToken:'token-author-B',user:{userId:'author-B',role:'AUTHOR',username:'B',email:'b@example.test',status:'ACTIVE'}});});
   await step('Ý tưởng').click();await expect(page.getByLabel('Ý tưởng & hướng đi (tương lai)',{exact:true})).toHaveValue('');await step('Dàn ý chương').click();await expect(page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true})).toHaveValue('');
   assert.equal(errors.length,0,errors.join('\n'));

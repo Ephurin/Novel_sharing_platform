@@ -15,7 +15,7 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
  const [snapshot,setSnapshot]=useState<SetupSnapshot|null>(null),[message,setMessage]=useState(''),[pending,setPending]=useState(false),[loaded,setLoaded]=useState(false);
  function fromServer(v:SetupSnapshot|null):Draft{return{base:v?.setup_version??0,text:v?.snapshot.text??'',outline:v?.outline??'',rules:v?.snapshot.world_rules??[],declarations:v?.snapshot.declarations??[],mode:v?.mode??'extract'};}
  async function reload(replace=false){
-  const signal=scope.signal;scope.assertCurrent();setPending(true);
+  const signal=scope.signal;scope.assertCurrent();setPending(true);setMessage('');
   try{let value:SetupSnapshot|null=null;try{value=await getSetup(novelId,undefined,signal);}catch(e){if(!(e instanceof ApiClientError&&e.status===404))throw e;}
    if(signal.aborted)return;setSnapshot(value);setLoaded(true);
    if(replace)local.accept(fromServer(value));else if(!local.dirtyRef.current)local.hydrate(fromServer(value));else setMessage('Đã đọc bản máy chủ. Bản sửa của bạn vẫn được giữ; chọn bỏ bản sửa nếu muốn dùng bản máy chủ.');
@@ -33,7 +33,8 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
    setMessage(value.job_status==='failed'?'Tác vụ thất bại. Nguồn đã lưu, chưa được duyệt.':value.proposals.length?'Đã lưu bản thiết lập chờ duyệt.':'Đã đọc lại ý tưởng. Chưa có thẻ thế giới để duyệt.');
   }catch(e){if(!signal.aborted)setMessage(getApiErrorMessage(e)+(e instanceof ApiClientError&&e.status===409?'. Giữ bản sửa để đối chiếu; không tự gửi lại.':''));}finally{if(!signal.aborted)setPending(false);}
  }
- const locked=pending||(!allowOfflineBlueprint&&!!snapshot?.proposals.length)||!!local.backup;
+ const sourceLocked=!allowOfflineBlueprint&&!!snapshot?.proposals.length;
+ const locked=pending||sourceLocked||!!local.backup;
  const idea=!planningStep||planningStep==='idea',world=!planningStep||planningStep==='rules',people=!planningStep||planningStep==='characters';
  return <Stack gap="sm">
   <Text fw={600}>Thiết lập thế giới trước khi viết</Text>
@@ -61,7 +62,7 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
     <Button disabled={locked} variant="subtle" onClick={()=>local.edit(old=>({...old,declarations:old.declarations.filter(x=>x.declaration_id!==d.declaration_id)}))}>Bỏ thẻ {i+1}</Button></Stack></Card>)}
    <Button variant="light" disabled={!loaded||locked} onClick={()=>local.edit(old=>({...old,declarations:[...old.declarations,{declaration_id:'decl_'+crypto.randomUUID().replaceAll('-',''),display_name:'',entity_type:'character'}]}))}>Thêm nhân vật hoặc địa danh</Button>
   </Stack></div>
-  {locked&&<Alert>Đã gửi nguồn để duyệt. Sửa nội dung trong nhóm duyệt bên dưới; dữ liệu đã chấp nhận chỉ đọc tại đây. Hiệu chỉnh dữ liệu đã duyệt qua Bộ nhớ truyện, không gửi lại nguồn để ghi đè.</Alert>}
+  {sourceLocked&&<Alert>Đã gửi nguồn để duyệt. Sửa nội dung trong nhóm duyệt bên dưới; dữ liệu đã chấp nhận chỉ đọc tại đây. Hiệu chỉnh dữ liệu đã duyệt qua Bộ nhớ truyện, không gửi lại nguồn để ghi đè.</Alert>}
   <Group><Button onClick={submit} loading={pending} disabled={!loaded||locked||!!local.backup||declarations.some(d=>!d.display_name.trim())||rules.some(r=>!r.text.trim())||(!outline.trim()&&!declarations.length&&!rules.length&&!(allowOfflineBlueprint&&text.trim()))}>Lưu và xử lý thiết lập</Button>
    <Button variant="default" disabled={pending} onClick={()=>void reload()}>Tải bản đã lưu</Button>
    {local.dirty&&<><Button variant="subtle" onClick={()=>void reload(true)}>Bỏ bản sửa, dùng thiết lập máy chủ</Button><Button variant="subtle" onClick={local.exportDraft}>Xuất bản sửa thiết lập</Button></>}</Group>

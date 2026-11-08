@@ -10,7 +10,8 @@ export type PlanningStep='idea'|'rules'|'characters'|'chapters'|'write';
 const steps:{id:PlanningStep;label:string}[]=[{id:'idea',label:'Ý tưởng'},{id:'rules',label:'Thế giới'},{id:'characters',label:'Nhân vật'},{id:'chapters',label:'Dàn ý chương'},{id:'write',label:'Bắt đầu viết'}];
 type Props={novelId:string;title:string;step:PlanningStep;onStep:(s:PlanningStep)=>void;chapters:{chapterId:string;title:string}[];onWrite:(chapterId?:string)=>void;onCreate:()=>void;creating:boolean;onMemory:()=>void};
 export function PlanningStudio({novelId,title,step,onStep,chapters,onWrite,onCreate,creating,onMemory}:Props){
- const scope=usePlanningScope(),readSequence=useRef(0);
+ const scope=usePlanningScope(),readSequence=useRef(0),panel=useRef<HTMLElement>(null);
+ useEffect(()=>{panel.current?.scrollTo({top:0});},[step]);
  const [extraction,setExtraction]=useState<{chapter_id:string;chapter_number:number;status:string|null}[]|null>(null);
  const [snapshot,setSnapshot]=useState<SetupSnapshot|null>(null),[m0,setM0]=useState<SetupM0Readiness|null>(null),[brain,setBrain]=useState<StoryBrainSummary|null>(null),[error,setError]=useState(''),[read,setRead]=useState(false);
  async function refresh(){const request=++readSequence.current;const signal=scope.signal;scope.assertCurrent();setError('');
@@ -23,10 +24,10 @@ export function PlanningStudio({novelId,title,step,onStep,chapters,onWrite,onCre
  }
  useEffect(()=>{void refresh();},[novelId,step]);
  const active=read&&(!!m0?.activation||(brain?.status==='active'&&!!brain.baseline_revision_id));
- return <section aria-label="Planning Studio" style={{flex:1,minHeight:0,overflowY:'auto',padding:'clamp(12px,3vw,32px)',userSelect:'text'}}>
+ return <section ref={panel} aria-label="Planning Studio" style={{flex:1,minHeight:0,overflowY:'auto',padding:'clamp(12px,3vw,32px)',userSelect:'text'}}>
  <Stack maw={960} mx="auto" gap="lg">
   <Group justify="space-between"><div><Text size="sm" c="dimmed">Phòng lập kế hoạch · {title}</Text><Title order={2}>Từ ý tưởng đến trang viết đầu tiên</Title></div><Button variant="default" onClick={()=>void refresh()}>Đọc trạng thái mới</Button></Group>
-  <nav aria-label="Các bước lập kế hoạch"><Group gap="xs">{steps.map((s,i)=><Button key={s.id} variant={step===s.id?'filled':'light'} aria-current={step===s.id?'step':undefined} onClick={()=>onStep(s.id)}>{i+1}. {s.label}</Button>)}</Group></nav>
+  <nav aria-label="Các bước lập kế hoạch" style={{position:"sticky",top:0,zIndex:5,background:"var(--mantine-color-body)",paddingBlock:8}}><Group gap="xs">{steps.map((s,i)=><Button key={s.id} variant={step===s.id?'filled':'light'} aria-current={step===s.id?'step':undefined} onClick={()=>onStep(s.id)}>{i+1}. {s.label}</Button>)}</Group></nav>
   <Card withBorder><Stack gap="xs"><Group><Badge color={active?'green':'gray'}>{read?(active?'Bộ nhớ truyện đang hoạt động':'Chưa kích hoạt thiết lập'):'Chưa xác minh trạng thái'}</Badge><Badge variant="light">{snapshot?.review?'Đã đọc quyết định thiết lập':snapshot?'Thiết lập đang chờ duyệt':'Chưa có bản thiết lập'}</Badge></Group>
   <Text size="sm">{active?'Chương đã lưu dùng luồng phân tích và duyệt hiện có. Sự kiện tương lai vẫn chỉ là kế hoạch.':'Bạn vẫn có thể viết bản nháp. Trước khi bộ nhớ truyện được kích hoạt, lưu bản nháp không tự tạo lịch sử hay tự phân tích.'}</Text>
   {m0?.first_saved_revision&&<Text size="sm">Đã xác minh bản lưu đầu tiên: {m0.first_saved_revision.revision_id}</Text>}

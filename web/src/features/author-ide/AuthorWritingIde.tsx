@@ -523,9 +523,11 @@ export function AuthorWritingIde() {
 
   // Keep one creation key through an uncertain response; never redirect a new scope.
   const creation=useRef<{scope:string;key:string}|null>(null);
+  const creationAttempt=useRef<{actor:string|undefined;session:object}|null>(null);
   const createChapterMutation=useMutation({
     mutationFn:async()=>{
       const actor=useAuthStore.getState().user?.userId,novel=activeNovelId,session=writingSession.current;
+      creationAttempt.current={actor,session};
       if(!actor||!novel)throw Error('Chưa chọn tiểu thuyết');
       await persistence.flush();
       if(actor!==useAuthStore.getState().user?.userId||session!==writingSession.current)throw Error('Phiên làm việc đã thay đổi');
@@ -545,7 +547,7 @@ export function AuthorWritingIde() {
       if(actor!==useAuthStore.getState().user?.userId||session!==writingSession.current)return;
       queryClient.invalidateQueries({queryKey:['author','chapters',novel,actor]});
       setSearchParams({novelId:novel,chapterId:newChap.chapterId});setPlanning(false);showToast(`Đã tạo ${newChap.title}`);
-    },onError:(err:unknown)=>showToast(`Lỗi: ${getApiErrorMessage(err)}`)
+    },onError:(err:unknown)=>{const attempt=creationAttempt.current;if(attempt?.actor===useAuthStore.getState().user?.userId&&attempt?.session===writingSession.current)showToast(`Lỗi: ${getApiErrorMessage(err)}`);}
   });
 
   // Publish Chapter Mutation
@@ -805,7 +807,7 @@ export function AuthorWritingIde() {
           </nav>
 
           {/* Autosave Indicator */}
-          <div className="hidden md:flex items-center gap-1.5 ml-1.5 px-2 py-0.5 rounded-full bg-emerald-50/80 border border-emerald-200/60 text-meta text-emerald-700 font-medium shrink-0">
+          <div style={planning?{display:"none"}:undefined} className="hidden md:flex items-center gap-1.5 ml-1.5 px-2 py-0.5 rounded-full bg-emerald-50/80 border border-emerald-200/60 text-meta text-emerald-700 font-medium shrink-0">
             {autosaveStatus === 'saving' ? (
               <>
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
@@ -996,7 +998,7 @@ export function AuthorWritingIde() {
       {persistence.recovery && <Alert title="Có bản lưu trên máy chưa đồng bộ" color="orange"><Text size="sm">Bản lưu lúc {new Date(persistence.recovery.savedAt).toLocaleString('vi-VN')}. Nội dung máy chủ vẫn được giữ nguyên.</Text><Group mt="xs"><Button size="xs" onClick={() => { const value = persistence.recovery!.value; setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); persistence.dismissRecovery(); triggerAutosave(value.title, value.content, value.isVip, value.priceCoins); }}>Khôi phục vào trình soạn thảo</Button><Button size="xs" variant="default" onClick={persistence.dismissRecovery}>Bỏ bản lưu trên máy</Button></Group></Alert>}
       {persistence.blocker.state === 'blocked' && <AuthorDialog onClose={() => persistence.blocker.reset?.()}><div className="fixed inset-0 flex items-center justify-center p-4"><div className="w-full max-w-md p-6"><h2 className="text-section">Bản nháp chưa lưu xong</h2><p className="text-body">Bạn có thể lưu trước khi rời trang hoặc giữ bản dự phòng trên máy để khôi phục sau.</p><Group mt="md"><Button onClick={async () => { try { await persistence.flush(); persistence.blocker.proceed?.(); } catch {} }}>Lưu và rời trang</Button><Button variant="default" onClick={() => persistence.blocker.reset?.()}>Ở lại</Button><Button variant="subtle" onClick={() => { persistence.abandon(); persistence.blocker.proceed?.(); }}>Rời trang</Button></Group></div></div></AuthorDialog>}
       {focusMode && !planning && <div className="flex justify-end px-4">{manuscriptActions}</div>}
-      <Group px="md" py="xs" gap="xs" aria-label="Chế độ Author IDE"><Button size="xs" variant={planning?'filled':'light'} onClick={()=>void openPlanning()}>Lập kế hoạch</Button><Button size="xs" variant={!planning?'filled':'light'} onClick={()=>setPlanning(false)}>Viết bản thảo</Button></Group>
+      <Group px="md" py="xs" gap="xs" aria-label="Chế độ Author IDE"><Button size="xs" aria-pressed={planning} variant={planning?'filled':'light'} onClick={()=>void openPlanning()}>Lập kế hoạch</Button><Button size="xs" aria-pressed={!planning} variant={!planning?'filled':'light'} onClick={()=>setPlanning(false)}>Viết bản thảo</Button></Group>
       {novelQuery.data&&<div key={JSON.stringify([user?.userId,activeNovelId])} style={{display:planning?'flex':'none',flex:1,minHeight:0}}><PlanningStudio novelId={activeNovelId} title={novelQuery.data.title} step={planningStep} onStep={setPlanningStep} chapters={chaptersQuery.data??[]} onWrite={id=>{if(id)setSearchParams({novelId:activeNovelId,chapterId:id});setPlanning(false);}} onCreate={()=>createChapterMutation.mutate()} creating={createChapterMutation.isPending} onMemory={()=>setMemoryPanelOpen(true)}/></div>}
       <div className="sc-studio-body flex-1 min-h-0 flex overflow-hidden relative" style={planning?{display:'none'}:undefined}>
         {/* Left Sidebar Chapters Outline Rail */}
