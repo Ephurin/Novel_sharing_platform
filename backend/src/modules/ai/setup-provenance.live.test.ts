@@ -43,6 +43,7 @@ test('setup-v1 live owner Gateway -> Python -> PostgreSQL immutable readback', {
     result.mongo=await mongo.collection('draft_chapters').find({novelId:novel}).toArray();
     const value=JSON.parse(JSON.stringify(result));
     evidence.push({stage,sha256:createHash('sha256').update(JSON.stringify(value)).digest('hex'),
+      canonical_sha256:createHash('sha256').update(JSON.stringify(Object.fromEntries(Object.entries(value).filter(([k])=>k!=='plans'&&k!=='objectives')))).digest('hex'),
       counts:Object.fromEntries(Object.entries(value).map(([key,rows])=>[key,(rows as unknown[]).length]))});
     return value;
   }
