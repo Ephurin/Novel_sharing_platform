@@ -64,12 +64,12 @@ export function applyPatchToContent(
   return before + patch.replacement + after;
 }
 
-async function checkStoryBrainActive(novelId: string, actorId: string): Promise<boolean> {
+async function checkStoryBrainActive(novelId: string, actorId: string, protectAnyActive=false): Promise<boolean> {
   const pool = getPostgresPool();
   try {
     const res = await pool.query(
       `SELECT b.status, b.baseline_revision_id,
-        (EXISTS (SELECT 1 FROM chapter_revisions r
+        ($4::boolean OR EXISTS (SELECT 1 FROM chapter_revisions r
           WHERE r.revision_id=b.baseline_revision_id AND r.novel_id=b.novel_id)
         OR (b.baseline_revision_id IS NULL AND EXISTS (
           SELECT 1 FROM narrative.bootstrap_jobs j JOIN novels n ON n.novel_id=j.novel_id
@@ -101,7 +101,7 @@ async function checkStoryBrainActive(novelId: string, actorId: string): Promise<
         ))) AS active_baseline
         FROM narrative.story_brains b
         WHERE b.novel_id=$1 AND b.tenant_id IN ($2::uuid,$3::uuid)`,
-      [novelId,'00000000-0000-0000-0000-000000000001',actorId]
+      [novelId,'00000000-0000-0000-0000-000000000001',actorId,protectAnyActive]
     );
     if (res.rows.length === 0) {
       return false;
@@ -145,7 +145,9 @@ async function createSnapshotUnderLease(
   const purpose = input?.purpose ?? 'AUTHOR_SNAPSHOT';
 
   if (purpose === 'MANUSCRIPT_BOOTSTRAP') {
-    const isBrainActive = await checkStoryBrainActive(chapter.novelId,auth.userId);
+    // Protect every active baseline from a bootstrap checkpoint, even when
+    // its provenance is insufficient for automatic author snapshots.
+    const isBrainActive = await checkStoryBrainActive(chapter.novelId,auth.userId,true);
     if (isBrainActive) {
       throw new AppError(
         409,

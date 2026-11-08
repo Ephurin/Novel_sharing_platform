@@ -14,8 +14,9 @@ test('P2 M0 -> genuine Core create/PATCH/revision/outbox -> existing P1 HITL',{
 },async()=>{
  const pg=getPostgresPool(),mongo=getMongoDatabase();
  assert.equal((await pg.query('select current_database() name')).rows[0].name,'p2a');assert.equal(mongo.databaseName,'p2a');
- const [owner,foreign,novel,createNovel]=Array.from({length:4},()=>randomUUID());
+ const [owner,foreign,novel,createNovel,admin]=Array.from({length:5},()=>randomUUID());
  const token=jwt.sign({sub:owner,role:'AUTHOR'},env.JWT_ACCESS_SECRET),foreignToken=jwt.sign({sub:foreign,role:'AUTHOR'},env.JWT_ACCESS_SECRET);
+ const adminToken=jwt.sign({sub:admin,role:'ADMIN'},env.JWT_ACCESS_SECRET);
  const server=createApp().listen(57114,'127.0.0.1');await new Promise<void>(r=>server.once('listening',r));
  const requests:any[]=[],readbacks:any[]=[];
  async function http(path:string,method='GET',body?:unknown,expected=200,auth:string|null=token){
@@ -46,6 +47,7 @@ test('P2 M0 -> genuine Core create/PATCH/revision/outbox -> existing P1 HITL',{
   const activate={contract_version:'setup-m0-v1',idempotency_key:randomUUID(),setup_hash:s.setup_hash,expected_setup_version:s.setup_version,expected_review_version:review.review_version,expected_brain_version:review.brain_version};
   const before=await durable('reviewed-before-activation',n);
   await http(path,'POST',activate,401,null);await http(path,'POST',activate,403,foreignToken);
+  await http(path,'POST',activate,403,adminToken);
   assert.deepEqual(await durable('denied-activation-unchanged',n),before);
   assert.equal((await http(path)).eligible,true);
   const receipt=await http(path,'POST',activate);
@@ -60,10 +62,13 @@ test('P2 M0 -> genuine Core create/PATCH/revision/outbox -> existing P1 HITL',{
  let failureTrigger=false;
  try{
   for(const a of [owner,foreign])await pg.query("INSERT INTO users(user_id,email,username,password_hash,role,status) VALUES($1,$2,$3,'offline','AUTHOR','ACTIVE')",[a,a+'@example.test','m0-'+a]);
+  await pg.query("INSERT INTO users(user_id,email,username,password_hash,role,status) VALUES($1,$2,$3,'offline','ADMIN','ACTIVE')",[admin,admin+'@example.test','m0-'+admin]);
   for(const n of [novel,createNovel])await pg.query("INSERT INTO novels(novel_id,author_id,title,slug,synopsis) VALUES($1,$2,'M0 novel',$3,'isolated')",[n,owner,'m0-'+n]);
   await setup(novel);
   const empty=await http(`/novels/${novel}/chapters`,'POST',{title:'First chapter',content:'',clientRequestId:randomUUID()},201);
   assert.equal(empty.analysisRevisionId,null);
+  await http(`/chapters/${empty.chapterId}/revisions/snapshot`,'POST',{purpose:'MANUSCRIPT_BOOTSTRAP'},409);
+  await http(`/chapters/${empty.chapterId}/revisions/snapshot`,'POST',{purpose:'MANUSCRIPT_BOOTSTRAP'},409,adminToken);
   await http(`/chapters/${empty.chapterId}`,'PATCH',{content:'   ',expectedVersion:1},200);
   assert.equal((await durable('empty-not-history')).revisions.length,0);
   const content='Minh gặp Minh. lan.';
