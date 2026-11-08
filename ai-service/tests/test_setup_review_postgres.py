@@ -65,7 +65,7 @@ def test_review_homonyms_edits_rules_replay_and_audit(f):
     assert 'PrivateOnly' not in json.dumps(result) and 'ConstraintOnly' not in json.dumps(data)
 
 
-@pytest.mark.parametrize('kind',['missing','wrong-group','wrong-hash','stale-setup','stale-review','stale-brain','foreign-proposal','forged-id','unapproved','invalid-edit','rule-collision','rule-subject'])
+@pytest.mark.parametrize('kind',['missing','wrong-group','wrong-hash','stale-setup','stale-review','stale-brain','foreign-proposal','forged-id','unapproved','invalid-edit','rule-collision','rule-subject','normalized-overflow'])
 def test_atomic_negative_matrix(f,kind):
     job=submit(f);body=envelope(f,job)
     if kind=='missing':body['decisions'].pop()
@@ -82,6 +82,7 @@ def test_atomic_negative_matrix(f,kind):
             identity=c.execute(text('SELECT id FROM narrative.entities WHERE novel_id=:novel'),{'novel':f.src.novel_id}).scalar()
         body['decisions'][0]['identity']={'kind':'existing','approved_entity_id':str(identity)}
     elif kind=='invalid-edit':body['decisions'][0]['edited_rule']={'fact_key':'illegal','fact_value':'type mismatch'}
+    elif kind=='normalized-overflow':body['decisions'][0]['edited_entity']={'canonical_name':'ß'*255,'aliases':[]}
     elif kind=='rule-subject':body['decisions'][-1]['edited_rule']={'fact_key':'rule','fact_value':'value','subject_entity_id':str(uuid.uuid4())}
     elif kind=='rule-collision':
         key=job.result['setup_cards'][-1]['payload']['fact_key']

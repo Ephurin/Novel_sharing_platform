@@ -98,6 +98,8 @@ def review_setup(repo, story_id, snapshot_id, request, *, actor_id):
                     conflict('SETUP_ENTITY_TYPE_INVALID')
                 edit = decision.edited_entity or SetupEntityEdit(canonical_name=payload['canonical_name'], aliases=payload.get('aliases', []))
                 payload.update(canonical_name=edit.canonical_name, normalized_name=edit.canonical_name.casefold(), aliases=edit.aliases)
+                if len(edit.canonical_name.casefold()) > 255 or any(len(a.casefold()) > 255 for a in edit.aliases):
+                    conflict('SETUP_LABEL_TOO_LONG')
                 if len(set(a.casefold() for a in edit.aliases)) != len(edit.aliases):
                     conflict('SETUP_ALIAS_COLLISION')
                 if decision.identity.kind == 'existing':

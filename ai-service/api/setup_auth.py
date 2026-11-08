@@ -46,7 +46,7 @@ def identity_headers(request, service, *, optional=False):
 
 
 # Pydantic's default error includes the rejected input object (and private
-# notes). Redact only versioned setup admission errors; P1 DTOs stay unchanged.
+# notes). Redact versioned setup admission and review errors; P1 DTOs stay unchanged.
 from fastapi.routing import APIRoute
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
