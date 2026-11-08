@@ -809,3 +809,19 @@ export async function getSetupSnapshotController(req: Request, res: Response, ne
     res.json(successResponse(data));
   } catch (error) { next(error); }
 }
+
+
+export async function reviewSetupSnapshotController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    const snapshotId = String(req.params.snapshotId);
+    const uuid = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+    if (!uuid.test(novelId) || !uuid.test(snapshotId)) throw new AppError(422, 'INVALID_SETUP_ID', 'Invalid setup ID');
+    await assertNovelOwnership(req.auth!.userId, 'AUTHOR', novelId);
+    const data = await aiGatewayService.forwardRequest({method:'POST',
+      path:`/v1/story-brains/${novelId}/setup/${snapshotId}/review`, userId:req.auth!.userId,
+      requestId:req.header('x-request-id'), body:req.body});
+    res.set('Cache-Control', 'no-store');
+    res.json(successResponse(data));
+  } catch (error) { next(error); }
+}

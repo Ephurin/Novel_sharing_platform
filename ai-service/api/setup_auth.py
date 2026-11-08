@@ -73,7 +73,7 @@ class SetupValidationRoute(APIRoute):
             except RequestValidationError as exc:
                 body = exc.body
                 versioned = contains_setup_input(body)
-                if self.path.endswith('/bootstrap/from-idea') and versioned:
+                if (self.path.endswith('/bootstrap/from-idea') and versioned) or self.path.endswith('/setup/{snapshot_id}/review'):
                     return JSONResponse(status_code=422, content={'detail':{'code':'INVALID_SETUP_REQUEST'}})
                 raise
         return handler

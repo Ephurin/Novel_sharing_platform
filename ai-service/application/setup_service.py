@@ -1,6 +1,6 @@
 """Setup-v1 foundation over existing bootstrap jobs and proposal store.
 
-P2-02A deliberately has no Canon review/materialization authority.
+Setup review uses the existing PostgreSQL entity/fact/decision authority.
 """
 import hashlib
 import json
@@ -190,6 +190,13 @@ class SetupService:
     def validate_span(text, ref):
         if not (0 <= ref['start'] < ref['end'] <= len(text)) or text[ref['start']:ref['end']] != ref['quote']:
             raise SetupFailure('SETUP_INVALID_SOURCE_SPAN')
+
+    def review(self, novel_id, snapshot_id, request, *, tenant_id, actor_id):
+        tenant_id, actor_id = self.principal(tenant_id, actor_id)
+        try:
+            return self.repository.review_setup(novel_id, snapshot_id, request, actor_id=actor_id)
+        except ValidationError:
+            raise SetupFailure('SETUP_REVIEW_INVALID_PAYLOAD') from None
 
     def get_job(self, job_id, *, tenant_id, actor_id=None):
         tenant_id, actor_id = self.principal(tenant_id, actor_id)
