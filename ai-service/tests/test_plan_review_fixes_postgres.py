@@ -96,6 +96,7 @@ def seed_legacy(f,creator,status='draft'):
     plan=str(uuid.uuid4())
     with f.engine.begin() as c:
         c.execute(text("INSERT INTO narrative.story_plans (id,tenant_id,novel_id,plan_version,status,source_outline,source_outline_hash,input_hash,created_by,edit_metadata) VALUES (:id,:t,:n,1,:s,'LegacyOutlinePrivate','','',:actor,CAST(:metadata AS jsonb))"),dict(id=plan,t=TENANT,n=f.src.novel_id,s=status,actor=creator,metadata='{"private_notes":"LegacyPrivateOnly"}'))
+        c.execute(text("INSERT INTO narrative.story_plan_objectives (id,plan_id,tenant_id,novel_id,order_index,target_chapter,objective_type,title,description,status,objective_metadata) VALUES (:id,:plan,:t,:n,1,1,'chapter_goal','LegacyTitlePrivate','LegacyDescriptionPrivate','pending',CAST(:metadata AS jsonb))"),dict(id=str(uuid.uuid4()),plan=plan,t=TENANT,n=f.src.novel_id,metadata='{"events":"LegacyPrivateOnly"}'))
     return plan
 
 
@@ -113,6 +114,7 @@ def test_legacy_coexists_without_disclosing_or_adopting_rows(f,creator):
     with pytest.raises((KeyError,BootstrapConflictError)):command(f,invalid)
     after=snapshot(f,'fix-legacy-after-'+str(creator))
     assert next(p for p in after['story_plans'] if p['id']==legacy)==before['story_plans'][0]
+    assert [o for o in after['story_plan_objectives'] if o['plan_id']==legacy]==before['story_plan_objectives']
     assert canonical(after)==canonical(before)
     assert all('LegacyPrivateOnly' not in str(p) and 'LegacyOutlinePrivate' not in str(p) for p in read(f)['plans'])
     with pytest.raises(KeyError):read(f,actor=FOREIGN if creator!=FOREIGN else str(uuid.uuid4()))
@@ -126,7 +128,7 @@ def test_hidden_legacy_active_requires_handoff_without_blocking_new_draft(f):
     for action in ['activate','skip']:
         with pytest.raises(BootstrapConflictError,match='LEGACY_ACTIVE_PLAN_HANDOFF_REQUIRED'):command(f,life(source,action))
     assert snapshot(f,'fix-legacy-active-after')==before
-    assert before['story_plans'][0]['id']==legacy
+    assert next(p for p in before['story_plans'] if p['id']==legacy)['status']=='active'
 
 
 def test_foreign_p2_history_still_requires_explicit_author_handoff(f):
