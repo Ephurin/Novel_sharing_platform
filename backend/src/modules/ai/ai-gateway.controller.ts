@@ -712,13 +712,15 @@ export async function getStoryPlanController(
     // Never fetch a foreign outline from Python before authorization.
     if (!/^[0-9a-f-]{36}$/i.test(String(planId))) throw new AppError(422,'INVALID_PLAN_ID','Invalid plan ID');
     const scoped = await getPostgresPool().query(
-      `SELECT p.novel_id FROM narrative.story_plans p JOIN novels n ON n.novel_id=p.novel_id
-       WHERE p.id=$1 AND p.created_by=$2 AND n.author_id=$2 AND p.tenant_id=$3`,
-      [planId,userId,'00000000-0000-0000-0000-000000000001']);
+      `SELECT p.novel_id,p.edit_metadata->>'contract_version' AS contract_version FROM narrative.story_plans p JOIN novels n ON n.novel_id=p.novel_id
+       WHERE p.id=$1 AND p.tenant_id=$3 AND ((p.created_by=$2 AND n.author_id=$2) OR ($4 AND coalesce(p.edit_metadata->>'contract_version','')<>'plan-edit-v1'))`,
+      [planId,userId,'00000000-0000-0000-0000-000000000001',userRole==='ADMIN']);
     if (!scoped.rows[0]) throw new AppError(404,'PLAN_NOT_FOUND','Plan not found');
-    await assertNovelOwnership(userId,'AUTHOR',String(scoped.rows[0].novel_id));
+    const legacyAdmin=userRole==='ADMIN'&&scoped.rows[0].contract_version!=='plan-edit-v1';
+    await assertNovelOwnership(userId,legacyAdmin?'ADMIN':'AUTHOR',String(scoped.rows[0].novel_id));
     const data = await aiGatewayService.forwardRequest({
       method: 'GET',
+      legacyPlanRead:legacyAdmin,
       path: `/v1/story-plans/${planId}`,
       userId,
       requestId: req.header('x-request-id'),

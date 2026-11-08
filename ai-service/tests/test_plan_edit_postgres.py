@@ -9,6 +9,15 @@ from tests.test_p2_bootstrap_postgres import engine,f,TENANT,ACTOR,snapshot
 from domain.errors import BootstrapConflictError
 pytestmark=pytest.mark.postgres_integration
 
+@pytest.fixture(autouse=True)
+def cleanup_plan_fixtures(f):
+    yield
+    # Only this test's random novel in the disposable TEST_DATABASE_URL.
+    with f.engine.begin() as c:
+        count=c.execute(text('DELETE FROM narrative.story_plans WHERE tenant_id=:t AND novel_id=:n'),dict(t=TENANT,n=f.src.novel_id)).rowcount
+    print('PLAN_FIXTURE_CLEANUP '+json.dumps(dict(novel_id=f.src.novel_id,plans=count)))
+
+
 def body(n=5,head=0,**changes):
     return dict(contract_version='plan-edit-v1',action='save',idempotency_key=str(uuid.uuid4()),expected_plan_version=head,
         source_outline='Dàn ý tương lai chương 8: phản bội',private_notes='PlanPrivateOnly',

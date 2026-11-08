@@ -39,7 +39,8 @@ def legacy_scope(request,repo,novel_id=None,plan_id=None):
         if novel_id is not None:query=query.where(StoryPlanRecord.novel_id==repo._novel_id(novel_id))
         if plan_id is not None:query=query.where(StoryPlanRecord.id==uuid.UUID(plan_id))
         rows=session.scalars(query).all()
-        if (plan_id is not None and not rows) or any(str(r.created_by)!=author for r in rows):raise HTTPException(404,detail={'code':'PLAN_NOT_FOUND'})
+        delegated = request.method=='GET' and request.headers.get('X-Gateway-Legacy-Plan-Read')=='admin' and rows and all((r.edit_metadata or {}).get('contract_version')!='plan-edit-v1' for r in rows)
+        if (plan_id is not None and not rows) or (not delegated and any(str(r.created_by)!=author for r in rows)):raise HTTPException(404,detail={'code':'PLAN_NOT_FOUND'})
         if request.method in ('POST','PATCH') and any((r.edit_metadata or {}).get('contract_version')=='plan-edit-v1' for r in rows):raise HTTPException(409,detail={'code':'PLAN_EDIT_REQUIRES_CAS'})
 
 class PlanValidationRoute(APIRoute):
