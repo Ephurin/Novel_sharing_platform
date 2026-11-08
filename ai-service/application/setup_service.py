@@ -100,7 +100,7 @@ class SetupService:
                                    'origin':card['origin'], 'source_refs':card['source_refs']},)))
             result.update(setup_cards=cards, original_model_output=raw, provisional_scope=scope,
                           proposal_count=len(proposals), required_proposal_ids=[p.proposal_id for p in proposals])
-            finished = replace(reserved, status='waiting_review', stage='setup_review_unavailable', result=result)
+            finished = replace(reserved, status='waiting_review', stage='setup_review_pending', result=result)
             run = AnalysisRun(run_id=run_id, idempotency_key=f'{tenant_id}:setup-v1:{job_id}',
                 input_hash=input_hash, operation='bootstrap_setup', status='pending', pipeline_version='setup-v1')
             return self.repository.finalize_idea_bootstrap(finished, proposals, run)

@@ -215,7 +215,7 @@ test('mounted review group edits, explicit identities, rejection, 409 and persis
     await page.goto('http://127.0.0.1:'+server.address().port);
     const button=page.getByRole('button',{name:'Lưu quyết định toàn nhóm'});
     await expect(button).toBeDisabled();
-    async function select(label,option) {await page.getByLabel(label,{exact:true}).click();await page.getByRole('option',{name:option,exact:true}).click();}
+    async function select(label,option) {await page.getByRole('textbox',{name:label,exact:true}).click();await page.getByRole('option',{name:option,exact:true}).click();}
     await select('Quyết định thẻ 1','Duyệt');await select('Danh tính thẻ 1','Tạo danh tính mới (ID server)');
     await page.getByLabel('Nội dung thẻ 1',{exact:true}).fill('Minh reviewed');
     await select('Quyết định thẻ 2','Loại');

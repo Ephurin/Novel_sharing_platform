@@ -173,3 +173,43 @@ def test_newer_snapshot_invalidates_old_review(f):
     before=snapshot(f,'review-superseded-before')
     with pytest.raises(BootstrapConflictError):review(f,old,body)
     assert snapshot(f,'review-superseded-after')==before
+
+def test_character_location_blueprint_sources_and_subject_rules(f):
+    from tests.test_setup_v1 import request_data
+    source=request_data(f.src.novel_id)['setup']
+    source['declarations'][1]['entity_type']='location'
+    job=submit(f,setup=source)
+    body=envelope(f,job)
+    reserved=job.result['setup_cards'][0]['payload']['entity_id']
+    body['decisions'][-1]['edited_rule']={'fact_key':'flight_rule','fact_value':'Cannot fly','subject_entity_id':reserved}
+    review(f,job,body)
+    durable=snapshot(f,'review-location-subject')
+    assert {e['entity_type'] for e in durable['entities']}=={'character','location'}
+    assert durable['facts'][0]['subject_entity_id']==reserved
+    no_history(durable)
+
+
+def test_blueprint_acceptance_preserves_model_origin(f):
+    from types import SimpleNamespace
+    f.service._llm_service=SimpleNamespace(suggest_setup_blueprint=lambda **kw:dict(entities=[dict(entity_type='location',display_name='Suggested City')],world_rules=['Suggested Rule']))
+    source=dict(text='',declarations=[],world_rules=[],initial_conditions=[])
+    job=submit(f,mode='blueprint',setup=source)
+    body=envelope(f,job);review(f,job,body)
+    durable=snapshot(f,'review-blueprint-origin')
+    assert durable['entities'][0]['source_type']=='model_suggestion'
+    assert durable['entities'][0]['static_attributes']['mentions']==0
+    assert durable['facts'][0]['source_type']=='model_suggestion'
+    assert durable['bootstrap_jobs'][0]['result']['original_model_output']==job.result['original_model_output']
+    no_history(durable)
+
+
+def test_empty_source_no_review_or_activation_consent(f):
+    job=submit(f,setup=dict(text='',declarations=[],world_rules=[],initial_conditions=[]))
+    before=snapshot(f,'review-empty-before')
+    headers={**f.headers,'X-Author-Id':ACTOR}
+    r=f.client.post(f'/v1/story-brains/{f.src.novel_id}/setup/{job.job_id}/review',json={
+        'idempotency_key':'empty','dependency_group_id':str(uuid.uuid4()),'setup_hash':job.result['setup_hash'],
+        'expected_setup_version':1,'expected_review_version':0,'expected_brain_version':1,'decisions':[]},headers=headers)
+    assert r.status_code==422
+    with pytest.raises(BootstrapConflictError,match='SETUP_ACTIVATION_NOT_AVAILABLE'):f.service.activate_baseline(f.src.novel_id,job.job_id)
+    assert snapshot(f,'review-empty-after')==before
