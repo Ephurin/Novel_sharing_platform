@@ -228,5 +228,6 @@ test('mounted review group edits, explicit identities, rejection, 409 and persis
     await page.reload();await expect(page.getByText('Minh reviewed',{exact:true})).toBeVisible();
     await expect(page.getByText('Đã loại',{exact:true})).toBeVisible();
     await expect(page.getByRole('button',{name:'Lưu quyết định toàn nhóm'})).toHaveCount(0);
+    if(process.env.P202_REVIEW_SCREENSHOT) await page.screenshot({path:process.env.P202_REVIEW_SCREENSHOT,fullPage:true});
   } finally {await browser.close();await new Promise(resolve=>server.close(resolve));}
 });

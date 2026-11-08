@@ -258,3 +258,13 @@ def test_concurrent_exact_review_replay_commits_once(f):
     assert len(data['decisions'])==3 and len(data['entities'])==2 and len(data['facts'])==1
     assert data['bootstrap_jobs'][0]['result']['review_version']==1
     no_history(data)
+
+
+def test_cross_tenant_approved_identity_rejected(f):
+    job=submit(f);body=envelope(f,job);foreign=str(uuid.uuid4())
+    with f.engine.begin() as c:
+        c.execute(text("INSERT INTO narrative.entities (id,story_brain_id,tenant_id,novel_id,entity_type,canonical_name,normalized_name,source_type,confirmation_status,is_locked) SELECT :id,id,:tenant,novel_id,'character','Minh','minh','author_setup','confirmed',true FROM narrative.story_brains WHERE novel_id=:novel"),{'id':foreign,'tenant':str(uuid.uuid4()),'novel':f.src.novel_id})
+    body['decisions'][0]['identity']={'kind':'existing','approved_entity_id':foreign}
+    before=snapshot(f,'review-cross-tenant-id-before')
+    with pytest.raises(BootstrapConflictError,match='SETUP_APPROVED_ID_INVALID'):review(f,job,body)
+    assert snapshot(f,'review-cross-tenant-id-after')==before
