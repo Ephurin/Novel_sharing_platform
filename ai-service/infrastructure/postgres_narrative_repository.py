@@ -1283,7 +1283,9 @@ class PostgresNarrativeRepository:
                                 reviewed_payload=decision['edited_payload'], decision_audit=decision)
                 if card['card_type'] == 'initial_condition':
                     card['unresolved'] = True
-            approved = [dict(entity_id=str(e.id), canonical_name=e.canonical_name, entity_type=e.entity_type)
+            from application.entity_review_service import TYPE_MAP
+            approved = [dict(entity_id=str(e.id), canonical_name=e.canonical_name,
+                entity_type={'PER':'character', 'LOC':'location'}.get(TYPE_MAP.get(e.entity_type.lower(), e.entity_type.upper()), e.entity_type))
                 for e in session.scalars(select(EntityRecord).where(*self._scope(EntityRecord, novel_id),
                     EntityRecord.confirmation_status == 'confirmed').order_by(EntityRecord.id)).all()]
             return dict(contract_version='setup-v1', novel_id=str(novel_id), job_id=str(job.id),

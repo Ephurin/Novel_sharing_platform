@@ -268,3 +268,19 @@ def test_cross_tenant_approved_identity_rejected(f):
     before=snapshot(f,'review-cross-tenant-id-before')
     with pytest.raises(BootstrapConflictError,match='SETUP_APPROVED_ID_INVALID'):review(f,job,body)
     assert snapshot(f,'review-cross-tenant-id-after')==before
+
+
+def test_existing_p1_per_identity_is_reused_without_retyping(f):
+    job=submit(f);body=envelope(f,job);existing=str(uuid.uuid4())
+    with f.engine.begin() as c:
+        c.execute(text("INSERT INTO narrative.entities (id,story_brain_id,tenant_id,novel_id,entity_type,canonical_name,normalized_name,source_type,confirmation_status,is_locked) SELECT :id,id,tenant_id,novel_id,'PER','P1 Minh','p1 minh','AI','confirmed',true FROM narrative.story_brains WHERE novel_id=:novel"),{'id':existing,'novel':f.src.novel_id})
+    body['decisions'][0]['identity']={'kind':'existing','approved_entity_id':existing}
+    for i in range(1,len(body['decisions'])):body['decisions'][i]={'proposal_id':body['decisions'][i]['proposal_id'],'decision':'reject'}
+    identities=SetupService(f.service).readback(f.src.novel_id,tenant_id=TENANT,actor_id=ACTOR)['approved_identities']
+    assert identities==[{'entity_id':existing,'canonical_name':'P1 Minh','entity_type':'character'}]
+    result=review(f,job,body)
+    assert result['canonical_artifact_ids']==[existing]
+    durable=snapshot(f,'review-p1-type-reuse')
+    assert len(durable['entities'])==1 and durable['entities'][0]['entity_type']=='PER'
+    assert durable['entities'][0]['source_type']=='AI' and durable['entities'][0]['is_locked']
+    no_history(durable)

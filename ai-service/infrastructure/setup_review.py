@@ -12,6 +12,7 @@ from infrastructure.orm_models import (BootstrapJobRecord, ProposalRecord, Analy
 from domain.errors import BootstrapConflictError
 from api.setup_schemas import SetupEntityEdit, SetupRuleEdit
 from application.setup_service import digest
+from application.entity_review_service import TYPE_MAP
 
 
 def conflict(code='SETUP_REVIEW_CONFLICT'):
@@ -104,7 +105,7 @@ def review_setup(repo, story_id, snapshot_id, request, *, actor_id):
                     conflict('SETUP_ALIAS_COLLISION')
                 if decision.identity.kind == 'existing':
                     target = confirmed.get(decision.identity.approved_entity_id)
-                    if target is None or target.entity_type != payload['entity_type']:
+                    if target is None or TYPE_MAP.get(target.entity_type.lower(), target.entity_type.upper()) != TYPE_MAP[payload['entity_type']]:
                         conflict('SETUP_APPROVED_ID_INVALID')
                     # Selecting an identity never silently renames/rewrites locked or approved records.
                     if decision.edited_entity is not None and (edit.canonical_name != target.canonical_name or edit.aliases):
