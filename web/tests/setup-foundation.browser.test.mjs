@@ -5,6 +5,47 @@ import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { chromium, expect } from '@playwright/test';
 
+test('P2-04 mounted M0 requires real activation POST, handles 409/reload and isolates accounts (mocked HTTP)',{timeout:180000},async()=>{
+ const bundle=await build({entryPoints:[fileURLToPath(new URL('fixtures/setup-foundation-fixture.tsx',import.meta.url))],bundle:true,write:false,outfile:'app.js',format:'iife',jsx:'automatic',define:{'import.meta.env.VITE_API_BASE_URL':'"/api/v1"','process.env.NODE_ENV':'"test"'}});
+ const server=createServer((req,res)=>{
+  if(req.url==='/app.js'||req.url==='/app.css'){res.setHeader('Content-Type',req.url.endsWith('.css')?'text/css':'text/javascript');return res.end(bundle.outputFiles.find(f=>f.path.endsWith(req.url==='/app.css'?'.css':'.js'))?.contents);}
+  res.setHeader('Content-Type','text/html');res.end('<div id="root"></div><link rel="stylesheet" href="/app.css"><script src="/app.js"></script>');
+ }).listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));
+ const browser=await chromium.launch({channel:process.env.PLAYWRIGHT_CHANNEL||'msedge',headless:true}),page=await browser.newPage();
+ const novel='10000000-0000-0000-0000-000000000001',id='20000000-0000-0000-0000-000000000001';
+ const saved={contract_version:'setup-v1',novel_id:novel,job_id:id,snapshot_id:id,setup_version:1,review_version:1,brain_version:2,setup_hash:'a'.repeat(64),text_hash:'b'.repeat(64),mode:'extract',job_status:'waiting_review',snapshot:{text:'Reviewed setup',declarations:[],world_rules:[],initial_conditions:[]},proposals:[],review:{status:'review_complete',activation_available:false}};
+ let conflict=true,activated=false,body=null;const submissions=[];
+ await page.route('**/api/v1/**',async route=>{
+  const request=route.request();
+  if(request.headers().authorization==='Bearer token-author-B')return route.fulfill({status:404,contentType:'application/json',body:JSON.stringify({error:{code:'SETUP_NOT_FOUND',message:'No setup'}})});
+  if(request.url().endsWith('/activate')){
+   if(request.method()==='POST'){
+    body=request.postDataJSON();submissions.push(body);
+    if(conflict)return route.fulfill({status:409,contentType:'application/json',body:JSON.stringify({error:{code:'M0_VERSION_CONFLICT',message:'Reload required'}})});
+    activated=true;saved.job_status='completed';saved.brain_version+=1;
+    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data:{status:'active',baseline_kind:'M0'}})});
+   }
+   return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data:activated?{contract_version:'setup-m0-v1',eligible:false,reason:'M0_ALREADY_ACTIVE',activation:{status:'active',baseline_kind:'M0',brain_version:saved.brain_version}}:{contract_version:'setup-m0-v1',eligible:true,reason:null,setup_hash:saved.setup_hash,expected_setup_version:1,expected_review_version:1,expected_brain_version:saved.brain_version}})});
+  }
+  return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data:saved})});
+ });
+ try{
+  await page.goto('http://127.0.0.1:'+server.address().port);
+  const activate=page.getByRole('button',{name:'Kích hoạt thiết lập để bắt đầu viết'});
+  await expect(activate).toBeEnabled();assert.equal(submissions.length,0);
+  await activate.click();await expect(page.getByRole('alert').filter({hasText:'Tải bản đã lưu rồi kiểm tra lại'})).toBeVisible();
+  assert.equal(body.contract_version,'setup-m0-v1');assert.equal(body.expected_review_version,1);assert.equal(body.expected_brain_version,2);
+  saved.brain_version=3;await page.getByRole('button',{name:'Tải bản đã lưu',exact:true}).click();
+  await expect(activate).toBeEnabled();conflict=false;await activate.click();
+  await expect(page.getByText('Thiết lập đã được kích hoạt.',{exact:false})).toBeVisible();
+  assert.equal(submissions.length,2);assert.equal(submissions[1].expected_brain_version,3);
+  await page.reload();await expect(page.getByText('Thiết lập đã được kích hoạt.',{exact:false})).toBeVisible();
+  await page.getByRole('button',{name:'Account B',exact:true}).click();
+  await expect(page.getByText('Thiết lập đã được kích hoạt.',{exact:false})).toHaveCount(0);await expect(activate).toHaveCount(0);
+  if(process.env.P204_M0_SCREENSHOT){await page.getByRole('button',{name:'Account A',exact:true}).click();await expect(page.getByText('Thiết lập đã được kích hoạt.',{exact:false})).toBeVisible();await page.screenshot({path:process.env.P204_M0_SCREENSHOT,fullPage:true});}
+ }finally{await browser.close();await new Promise(r=>server.close(r));}
+});
+
 test('setup mounted form: real browser, mocked HTTP submit/reload/conflict/unavailable', {timeout:180000}, async () => {
   const bundle=await build({entryPoints:[fileURLToPath(new URL('fixtures/setup-foundation-fixture.tsx',import.meta.url))],
     bundle:true,write:false,outfile:'app.js',format:'iife',jsx:'automatic',

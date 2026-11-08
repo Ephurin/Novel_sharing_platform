@@ -124,7 +124,7 @@ function SetupReviewGroup({snapshot, onReload}:{snapshot:SetupSnapshot; onReload
   function choice(id:string, field:string, value:string) {
     setChoices(all=>({...all,[id]:{...(all[id]??{decision:'',identity:'',value:''}),[field]:value}}));
   }
-  if(snapshot.review) return <Alert color="green">Đã lưu quyết định duyệt. Thiết lập vẫn chưa được kích hoạt. {snapshot.review.status==='reviewed_with_unresolved'?'Còn điều kiện chưa hỗ trợ.':''}</Alert>;
+  if(snapshot.review) return <Alert color="green">Đã lưu quyết định duyệt. Kích hoạt thiết lập là bước riêng bên dưới. {snapshot.review.status==='reviewed_with_unresolved'?'Còn điều kiện chưa hỗ trợ.':''}</Alert>;
   if(!cards.length || snapshot.job_status!=='waiting_review') return null;
   const ready=cards.every(c=>choices[c.proposal_id]?.decision && (choices[c.proposal_id].decision==='reject' ||
     (choices[c.proposal_id].value.trim() && (c.card_type!=='entity'||choices[c.proposal_id].identity))));
