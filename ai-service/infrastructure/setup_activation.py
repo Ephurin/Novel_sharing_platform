@@ -107,6 +107,19 @@ def activate(repo,novel_id,snapshot_id,actor_id,request=None):
             if previous['idempotency_key']==request.idempotency_key and previous['request_hash']==fingerprint:return deepcopy(previous['response'])
             deny('M0_IDEMPOTENCY_CONFLICT')
         if previous:
+            receipt=previous.get('response',{})
+            reviewed=(r.get('setup_review') or {}).get('response',{})
+            version=receipt.get('brain_version')
+            if (brain.status!='active' or brain.baseline_revision_id is not None
+                    or job.status!='completed' or job.stage!='m0_active'
+                    or previous.get('contract_version')!='setup-m0-v1'
+                    or receipt.get('contract_version')!='setup-m0-v1' or receipt.get('baseline_kind')!='M0'
+                    or receipt.get('brain_id')!=str(brain.id) or receipt.get('snapshot_id')!=str(job.id)
+                    or receipt.get('activated_by')!=actor or receipt.get('setup_hash')!=r['setup_hash']
+                    or receipt.get('setup_version')!=r['setup_version'] or receipt.get('review_version')!=r['review_version']
+                    or type(version) is not int or version!=reviewed.get('brain_version',-2)+1
+                    or brain.brain_version<version or not receipt.get('canonical_artifact_ids')):
+                return dict(contract_version='setup-m0-v1',eligible=False,reason='M0_PROVENANCE_INVALID')
             first=session.execute(text("SELECT r.revision_id,r.chapter_id,r.content_hash,c.chapter_number FROM chapter_revisions r JOIN chapters c ON c.chapter_id=r.chapter_id AND c.novel_id=r.novel_id WHERE r.novel_id=:n AND r.created_by=:a AND r.source_type IN ('AUTHOR_MANUAL','AI_DRAFT_ACCEPT') AND r.content ~ '[^[:space:]]' ORDER BY r.created_at,r.revision_id LIMIT 1"),dict(n=novel,a=uuid.UUID(actor))).mappings().first()
             saved=dict(revision_id=str(first['revision_id']),chapter_id=str(first['chapter_id']),content_hash=first['content_hash'],chapter_number=first['chapter_number']) if first else None
             return dict(contract_version='setup-m0-v1',eligible=False,reason='M0_ALREADY_ACTIVE',activation=previous['response'],first_saved_revision=saved)

@@ -170,7 +170,7 @@ jobs:
         run: |
           set -euo pipefail
           npx playwright install --with-deps chromium
-          P203_FIX_EVENT_SCREENSHOT="$RUNNER_TEMP/p202/fix-events-ui.png" P203_FIX_ARCHIVE_SCREENSHOT="$RUNNER_TEMP/p202/fix-archive-ui.png" P203_SCREENSHOT="$RUNNER_TEMP/p202/plan-ui.png" P202_REVIEW_SCREENSHOT="$RUNNER_TEMP/p202/review-ui.png" node --test tests/setup-foundation.browser.test.mjs 2>&1 | tee "$RUNNER_TEMP/p202/setup-browser.log"
+          P204_M0_SCREENSHOT="$RUNNER_TEMP/p202/m0-ui.png" P203_FIX_EVENT_SCREENSHOT="$RUNNER_TEMP/p202/fix-events-ui.png" P203_FIX_ARCHIVE_SCREENSHOT="$RUNNER_TEMP/p202/fix-archive-ui.png" P203_SCREENSHOT="$RUNNER_TEMP/p202/plan-ui.png" P202_REVIEW_SCREENSHOT="$RUNNER_TEMP/p202/review-ui.png" node --test tests/setup-foundation.browser.test.mjs 2>&1 | tee "$RUNNER_TEMP/p202/setup-browser.log"
       - name: Stop only the task AI process
         if: always()
         run: |
