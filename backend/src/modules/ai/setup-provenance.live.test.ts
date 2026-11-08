@@ -36,6 +36,8 @@ test('setup-v1 live owner Gateway -> Python -> PostgreSQL immutable readback', {
     for(const table of ['bootstrap_jobs','proposals','analysis_runs','entities','facts','events','state_transitions','revision_provenances']) {
       result[table]=(await pg.query(`SELECT * FROM narrative.${table} WHERE novel_id=$1 ORDER BY id`,[novel])).rows;
     }
+    result.plans=(await pg.query('SELECT * FROM narrative.story_plans WHERE novel_id=$1 ORDER BY plan_version',[novel])).rows;
+    result.objectives=(await pg.query('SELECT * FROM narrative.story_plan_objectives WHERE novel_id=$1 ORDER BY id',[novel])).rows;
     result.outbox=(await pg.query('SELECT * FROM revision_outbox_events WHERE novel_id=$1 ORDER BY event_id',[novel])).rows;
     result.revisions=(await pg.query('SELECT * FROM chapter_revisions WHERE novel_id=$1',[novel])).rows;
     result.mongo=await mongo.collection('draft_chapters').find({novelId:novel}).toArray();
@@ -134,6 +136,32 @@ test('setup-v1 live owner Gateway -> Python -> PostgreSQL immutable readback', {
     assert.equal(reviewedLoaded.data.proposals[0].reviewed_payload.canonical_name,'Reviewed Minh');
     assert.equal(reviewedLoaded.data.proposals[1].status,'rejected');
     assert.ok(!JSON.stringify(reviewedLoaded).includes('PrivateOnly'));
+    const planPath=`/story-plans/edit-v1/${novel}`;
+    const planBody={contract_version:'plan-edit-v1',action:'save',idempotency_key:'future-plan',expected_plan_version:0,
+      source_outline:'Future chapter 8 betrayal',private_notes:'PlanPrivateOnly',objectives:Array.from({length:25},(_,i)=>({
+        objective_id:randomUUID(),expected_intent_version:0,target_chapter:i+1,title:`Chapter ${i+1}`,description:'Future goal',
+        events:[{event_id:randomUUID(),text:'Planned event',participants:[{name_hint:'Minh'}]}]}))};
+    const canonBefore=await snapshot('plan-canon-before');
+    assert.equal((await request(planPath,200)).data.head_version,0);
+    await request(planPath,403,planBody,foreignToken);await request(planPath,403,planBody,adminToken);
+    const planned=(await request(planPath,200,planBody)).data;
+    assert.equal(planned.objectives.length,25);assert.ok(!JSON.stringify(planned).includes('PlanPrivateOnly'));
+    assert.deepEqual((await request(planPath,200,planBody)).data,planned);
+    await request(`/story-plans/${planned.plan_id}`,404,undefined,foreignToken);
+    await request(`/story-plans/${planned.plan_id}`,404,undefined,adminToken);
+    const legacy=(await request(`/story-plans/${planned.plan_id}`,200)).data;
+    assert.ok(!JSON.stringify(legacy).includes('PlanPrivateOnly'));
+    await request(`/story-plans/${planned.plan_id}/activate?novel_id=${novel}`,409,{});
+    await request(planPath,409,{...planBody,idempotency_key:'stale-plan'});
+    const activePlan=(await request(planPath,200,{contract_version:'plan-edit-v1',action:'activate',idempotency_key:'activate-plan',
+      expected_plan_version:planned.plan_version,source_plan_id:planned.plan_id})).data;
+    assert.equal(activePlan.status,'active');
+    const listed=(await request(planPath,200)).data;
+    assert.equal(listed.active_plan_id,activePlan.plan_id);assert.equal(listed.plans[0].private_notes,'PlanPrivateOnly');
+    const canonAfter=await snapshot('plan-canon-after');
+    for(const key of Object.keys(canonBefore))if(key!=='plans'&&key!=='objectives')assert.deepEqual(canonAfter[key],canonBefore[key]);
+    assert.equal(canonAfter.plans.filter((p:any)=>p.status==='active').length,1);
+    evidence.push({plan_25_objectives:true,plan_private_legacy_redacted:true,plan_canon_unchanged:true});
     // Unsupported free prose fails visibly and stores an auditable failed version.
     const failed=await request(path,503,{...body,idempotency_key:'unsupported',expected_setup_version:1,
       setup:{...body.setup,text:'Natural prose unsupported by the offline fixture grammar'}});

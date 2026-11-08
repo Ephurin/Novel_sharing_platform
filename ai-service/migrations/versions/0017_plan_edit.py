@@ -21,7 +21,8 @@ def upgrade():
     indexes={i['name']:i for i in inspector.get_indexes('story_plans',schema=schema)}
     existing=indexes.get('uq_story_plan_active')
     if existing:
-        where=str(existing.get('dialect_options',{}).get('postgresql_where') or existing.get('dialect_options',{}).get('sqlite_where') or '')
+        options=existing.get('dialect_options',{})
+        where=str(options.get('postgresql_where') if options.get('postgresql_where') is not None else options.get('sqlite_where',''))
         normalized=where.replace('::text','').translate(str.maketrans('','','() '))
         if not existing['unique'] or existing['column_names']!=['tenant_id','novel_id'] or normalized!="status='active'":
             raise RuntimeError('Unexpected active plan index')

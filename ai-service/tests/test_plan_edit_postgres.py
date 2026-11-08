@@ -136,13 +136,26 @@ def test_plan_migration_up_down_isolated_database(engine,monkeypatch):
     proof=create_engine(url)
     try:
         migrate.upgrade(cfg,'0016_entity_profile_audit_timestamp')
+        # Reconstruct a genuine pre-0017 schema: 0008 fresh install uses current ORM.
+        with proof.begin() as c:
+            c.execute(text('DROP INDEX IF EXISTS narrative.uq_story_plan_active'))
+            c.execute(text('ALTER TABLE narrative.story_plans DROP COLUMN IF EXISTS edit_metadata'))
+            for version in [1,2]:
+                c.execute(text("INSERT INTO narrative.story_plans (id,tenant_id,novel_id,plan_version,status,source_outline,source_outline_hash,input_hash) VALUES (:id,:t,:n,:v,'active','preserved outline','','')"),dict(id=str(uuid.uuid4()),t=TENANT,n='10000000-0000-0000-0000-000000000097',v=version))
+        from sqlalchemy.exc import IntegrityError
+        with pytest.raises(IntegrityError):migrate.upgrade(cfg,'head')
+        with proof.begin() as c:
+            assert c.execute(text('SELECT count(*) FROM narrative.story_plans')).scalar()==2
+            assert c.execute(text('SELECT version_num FROM alembic_version')).scalar()=='0016_entity_profile_audit_timestamp'
+            c.execute(text("UPDATE narrative.story_plans SET status='superseded' WHERE plan_version=1"))
         migrate.upgrade(cfg,'head')
         with proof.connect() as c:
             assert c.execute(text("SELECT indexdef FROM pg_indexes WHERE schemaname='narrative' AND indexname='uq_story_plan_active'")).scalar()
         migrate.downgrade(cfg,'0016_entity_profile_audit_timestamp')
         with proof.connect() as c:assert not c.execute(text("SELECT 1 FROM information_schema.columns WHERE table_schema='narrative' AND table_name='story_plans' AND column_name='edit_metadata'")).scalar()
         migrate.upgrade(cfg,'head')
-        print('PLAN_MIGRATION_PROOF '+json.dumps(dict(database=name,upgrade=True,downgrade=True,reupgrade=True)))
+        with proof.connect() as c:assert c.execute(text("SELECT count(*) FROM narrative.story_plans WHERE source_outline='preserved outline'")).scalar()==2
+        print('PLAN_MIGRATION_PROOF '+json.dumps(dict(database=name,upgrade=True,downgrade=True,reupgrade=True,duplicate_active_upgrade_rejected=True,legacy_rows_preserved=2)))
     finally:
         proof.dispose()
         with admin.connect() as c:c.execute(text('DROP DATABASE '+name+' WITH (FORCE)'))

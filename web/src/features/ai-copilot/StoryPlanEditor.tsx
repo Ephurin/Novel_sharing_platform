@@ -41,16 +41,16 @@ function Editor({novelId}:{novelId:string}) {
   <Alert>Dàn ý tương lai — chưa phải Canon đã viết. Có thể bỏ qua kế hoạch; thao tác này không kích hoạt Story Brain hoặc tự viết chương.</Alert>
   <Group><Button variant="default" onClick={()=>hydrate(undefined)} disabled={pending}>Dàn ý mới</Button><Button variant="default" onClick={()=>reload()} disabled={pending}>Tải lại dàn ý</Button><Button variant="subtle" onClick={()=>send('skip')} disabled={pending}>Không dùng kế hoạch</Button></Group>
   <Text size="sm">{list.active_plan_id?'Đang dùng một phiên bản kế hoạch tương lai':'Không có kế hoạch đang dùng'} · Version {list.head_version}</Text>
-  <Select label="Phiên bản đã lưu" value={selected} data={list.plans.map(p=>({value:p.plan_id,label:`v${p.plan_version} · ${p.status}`}))} onChange={id=>hydrate(list.plans.find(p=>p.plan_id===id))}/>
-  <Textarea label="Dán hoặc nhập dàn ý tương lai" value={outline} onChange={e=>setOutline(e.currentTarget.value)} minRows={3}/>
-  <Textarea label="Ghi chú kế hoạch riêng tư" description="Không gửi tới provider hoặc ngữ cảnh viết." value={notes} onChange={e=>setNotes(e.currentTarget.value)}/>
+  <Select label="Phiên bản đã lưu" disabled={pending} value={selected} data={list.plans.map(p=>({value:p.plan_id,label:`v${p.plan_version} · ${p.status}`}))} onChange={id=>hydrate(list.plans.find(p=>p.plan_id===id))}/>
+  <Textarea label="Dán hoặc nhập dàn ý tương lai" disabled={pending} value={outline} onChange={e=>setOutline(e.currentTarget.value)} minRows={3}/>
+  <Textarea label="Ghi chú kế hoạch riêng tư" disabled={pending} description="Không gửi tới provider hoặc ngữ cảnh viết." value={notes} onChange={e=>setNotes(e.currentTarget.value)}/>
   {chapters.map((o,i)=><Card withBorder key={o.objective_id}><Stack gap="xs">
-   <Text>Chương {i+1}</Text><TextInput label={`Tiêu đề chương ${i+1}`} value={o.title} onChange={e=>patch(i,{title:e.currentTarget.value})}/>
-   <Textarea label={`Mục tiêu chương ${i+1}`} value={o.description} onChange={e=>patch(i,{description:e.currentTarget.value})}/>
-   <Textarea label={`Sự kiện dự kiến chương ${i+1}`} value={o.events.map(e=>e.text).join('\n')} onChange={e=>{const lines=e.currentTarget.value.split('\n');patch(i,{events:lines.filter(Boolean).map((text,j)=>({...o.events[j],event_id:o.events[j]?.event_id??crypto.randomUUID(),text,participants:o.events[j]?.participants??[]}))});}}/>
-   <Group><Button size="xs" variant="default" disabled={i===0} onClick={()=>move(i,-1)}>Lên chương {i+1}</Button><Button size="xs" variant="default" disabled={i===chapters.length-1} onClick={()=>move(i,1)}>Xuống chương {i+1}</Button><Button size="xs" color="red" onClick={()=>setChapters(all=>all.filter((_,j)=>j!==i))}>Xóa chương {i+1}</Button></Group>
+   <Text>Chương {i+1}</Text><TextInput label={`Tiêu đề chương ${i+1}`} disabled={pending} value={o.title} onChange={e=>patch(i,{title:e.currentTarget.value})}/>
+   <Textarea label={`Mục tiêu chương ${i+1}`} disabled={pending} value={o.description} onChange={e=>patch(i,{description:e.currentTarget.value})}/>
+   <Textarea label={`Sự kiện dự kiến chương ${i+1}`} disabled={pending} value={o.events.map(e=>e.text).join('\n')} onChange={e=>{const lines=e.currentTarget.value.split('\n');patch(i,{events:lines.filter(Boolean).map((text,j)=>({...o.events[j],event_id:o.events[j]?.event_id??crypto.randomUUID(),text,participants:o.events[j]?.participants??[]}))});}}/>
+   <Group><Button size="xs" variant="default" disabled={pending||i===0} onClick={()=>move(i,-1)}>Lên chương {i+1}</Button><Button size="xs" variant="default" disabled={pending||i===chapters.length-1} onClick={()=>move(i,1)}>Xuống chương {i+1}</Button><Button size="xs" disabled={pending} color="red" onClick={()=>setChapters(all=>all.filter((_,j)=>j!==i).map(x=>({...x,dependencies:x.dependencies.filter(d=>d!==o.objective_id)})))}>Xóa chương {i+1}</Button></Group>
   </Stack></Card>)}
-  <Button variant="light" onClick={()=>setChapters(all=>[...all,{objective_id:crypto.randomUUID(),intent_version:0,target_chapter:all.length+1,title:`Chương ${all.length+1}`,description:'',events:[],dependencies:[]}])}>Thêm chương dự kiến</Button>
+  <Button variant="light" disabled={pending} onClick={()=>setChapters(all=>[...all,{objective_id:crypto.randomUUID(),intent_version:0,target_chapter:all.length+1,title:`Chương ${all.length+1}`,description:'',events:[],dependencies:[]}])}>Thêm chương dự kiến</Button>
   <Group><Button onClick={()=>send('save')} loading={pending}>Lưu bản nháp dàn ý</Button>
    {selected&&<><Button variant="light" onClick={()=>send('fork')} disabled={pending}>Tạo phiên bản từ bản đã chọn</Button><Button onClick={()=>send('activate')} disabled={pending||!chapters.length}>Dùng bản đã lưu</Button><Button color="red" variant="subtle" onClick={()=>send('delete')} disabled={pending}>Gỡ bản kế hoạch</Button></>}
   </Group>{message&&<Alert role="alert">{message}</Alert>}

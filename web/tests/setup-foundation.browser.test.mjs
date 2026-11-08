@@ -231,3 +231,44 @@ test('mounted review group edits, explicit identities, rejection, 409 and persis
     if(process.env.P202_REVIEW_SCREENSHOT) await page.screenshot({path:process.env.P202_REVIEW_SCREENSHOT,fullPage:true});
   } finally {await browser.close();await new Promise(resolve=>server.close(resolve));}
 });
+
+test('manual future plan editor: 25 chapters, CAS, activation and account isolation (mocked HTTP)',{timeout:180000},async()=>{
+ const bundle=await build({entryPoints:[fileURLToPath(new URL('fixtures/setup-foundation-fixture.tsx',import.meta.url))],bundle:true,write:false,outfile:'app.js',format:'iife',jsx:'automatic',define:{'import.meta.env.VITE_API_BASE_URL':'"/api/v1"','process.env.NODE_ENV':'"test"'}});
+ const server=createServer((req,res)=>{if(req.url==='/app.js'||req.url==='/app.css'){res.setHeader('Content-Type',req.url.endsWith('.css')?'text/css':'text/javascript');return res.end(bundle.outputFiles.find(f=>f.path.endsWith(req.url==='/app.css'?'.css':'.js'))?.contents);}res.end('<html><head><link rel="stylesheet" href="/app.css"></head><body><div id="root"></div><script src="/app.js"></script></body></html>');});
+ await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await chromium.launch({channel:process.env.PLAYWRIGHT_CHANNEL||'msedge',headless:true});const page=await browser.newPage();
+ const state={head_version:0,active_plan_id:null,plans:[]};let conflict=false,submitted=null,requests=0,release,delay=false;
+ const gate=new Promise(r=>{release=r;});
+ await page.route('**/api/v1/**',async route=>{
+  const req=route.request();
+  if(req.method()==='POST'){
+   requests++;submitted=req.postDataJSON();if(delay)await gate;
+   if(conflict)return route.fulfill({status:409,contentType:'application/json',body:JSON.stringify({error:{code:'PLAN_VERSION_CONFLICT',message:'Changed'}})});
+   state.head_version++;const source=state.plans.find(p=>p.plan_id===submitted.source_plan_id);
+   const plan={plan_id:'plan-'+state.head_version,plan_version:state.head_version,status:submitted.action==='activate'?'active':submitted.action==='skip'?'skipped':'draft',source_outline:submitted.source_outline??source?.source_outline??'',private_notes:submitted.private_notes??source?.private_notes??'',objectives:submitted.objectives?.map(o=>{const {expected_intent_version,...v}=o;return {...v,intent_version:expected_intent_version+1};})??(submitted.action==='activate'?source.objectives:[]),action:submitted.action};
+   if(submitted.action==='activate'){state.plans.forEach(p=>{if(p.status==='active')p.status='superseded';});state.active_plan_id=plan.plan_id;}
+   if(submitted.action==='skip')state.active_plan_id=null;
+   state.plans.push(plan);return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data:plan})});
+  }
+  return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data:req.headers().authorization==='Bearer token-author-B'?{head_version:0,active_plan_id:null,plans:[]}:state})});
+ });
+ try{
+  await page.goto('http://127.0.0.1:'+server.address().port+'/?plan');
+  await page.getByRole('button',{name:'Không dùng kế hoạch',exact:true}).click();await expect(page.getByText(/Không có kế hoạch đang dùng · Version 1/)).toBeVisible();
+  await page.getByRole('button',{name:'Dàn ý mới',exact:true}).click();
+  for(let i=0;i<25;i++)await page.getByRole('button',{name:'Thêm chương dự kiến'}).click();
+  await page.getByLabel('Dán hoặc nhập dàn ý tương lai',{exact:true}).fill('Future outline only');
+  await page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true}).fill('PlanPrivateOnly');
+  await page.getByLabel('Mục tiêu chương 1',{exact:true}).fill('Find Minh');await page.getByLabel('Sự kiện dự kiến chương 8',{exact:true}).fill('Planned betrayal');
+  await page.getByRole('button',{name:'Lưu bản nháp dàn ý',exact:true}).click();await expect(page.getByText(/Đã lưu phiên bản dàn ý/)).toBeVisible();
+  assert.equal(submitted.objectives.length,25);const first=submitted.objectives[0].objective_id;
+  await page.getByRole('button',{name:'Xuống chương 1',exact:true}).click();await page.getByRole('button',{name:'Xóa chương 25',exact:true}).click();
+  conflict=true;await page.getByRole('button',{name:'Lưu bản nháp dàn ý',exact:true}).click();await expect(page.getByRole('alert').filter({hasText:'PLAN_VERSION_CONFLICT'})).toBeVisible();
+  assert.equal(submitted.objectives[1].objective_id,first);const count=requests;await page.waitForTimeout(150);assert.equal(requests,count);
+  conflict=false;await page.getByRole('button',{name:'Tải lại dàn ý',exact:true}).click();await expect(page.getByLabel('Mục tiêu chương 1',{exact:true})).toHaveValue('Find Minh');
+  await page.getByRole('button',{name:'Dùng bản đã lưu',exact:true}).click();await expect(page.getByText(/Đang dùng một phiên bản/)).toBeVisible();
+  if(process.env.P203_SCREENSHOT)await page.screenshot({path:process.env.P203_SCREENSHOT,fullPage:true});
+  delay=true;await page.getByRole('button',{name:'Lưu bản nháp dàn ý',exact:true}).click();await page.getByRole('button',{name:'Account B',exact:true}).click();
+  await expect(page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true})).toHaveValue('');release();await page.waitForTimeout(200);
+  await expect(page.getByLabel('Dán hoặc nhập dàn ý tương lai',{exact:true})).toHaveValue('');await expect(page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true})).toHaveValue('');
+ }finally{release();await browser.close();await new Promise(r=>server.close(r));}
+});
