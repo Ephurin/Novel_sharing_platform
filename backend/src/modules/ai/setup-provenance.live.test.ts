@@ -104,13 +104,42 @@ test('setup-v1 live owner Gateway -> Python -> PostgreSQL immutable readback', {
     await request(`/story-brains/${novel}/baseline/activate`,409,{job_id:created.data.job_id});
     assert.deepEqual(await snapshot('after-rejections'),before);
     for(const table of ['entities','facts','events','state_transitions','revision_provenances','revisions','mongo']) assert.deepEqual(before[table],[]);
+    const reviewBody={idempotency_key:'group-review',dependency_group_id:card.dependency_group_id,
+      setup_hash:loaded.data.setup_hash,expected_setup_version:1,expected_review_version:0,
+      expected_brain_version:loaded.data.brain_version,
+      decisions:loaded.data.proposals.map((p:any,i:number)=>({proposal_id:p.proposal_id,
+        decision:i===1?'reject':'accept',...(p.card_type==='entity'&&i!==1?{identity:{kind:'new'},
+          edited_entity:{canonical_name:'Reviewed Minh',aliases:[]}}:{})}))};
+    const reviewPath=`/story-brains/${novel}/setup/${created.data.job_id}/review`;
+    await request(reviewPath,401,reviewBody,null);
+    await request(reviewPath,403,reviewBody,foreignToken);
+    await request(reviewPath,403,reviewBody,adminToken);
+    await request(`/story-brains/${other}/setup/${created.data.job_id}/review`,404,reviewBody);
+    await request(reviewPath,409,{...reviewBody,decisions:reviewBody.decisions.slice(1)});
+    assert.deepEqual(await snapshot('review-negative-after'),before);
+    const reviewed=await request(reviewPath,200,reviewBody);
+    assert.equal(reviewed.data.status,'review_complete');
+    const reviewedSnapshot=await snapshot('review-materialized');
+    assert.equal(reviewedSnapshot.entities.length,1);assert.equal(reviewedSnapshot.facts.length,1);
+    assert.equal(reviewedSnapshot.entities[0].source_type,'author_setup');
+    assert.equal(reviewedSnapshot.entities[0].static_attributes.mentions,0);
+    assert.equal(reviewedSnapshot.facts[0].chapter_number,null);
+    for(const table of ['events','state_transitions','revision_provenances','revisions','mongo']) assert.deepEqual(reviewedSnapshot[table],[]);
+    assert.deepEqual((await request(reviewPath,200,reviewBody)).data,reviewed.data);
+    await request(reviewPath,409,{...reviewBody,expected_brain_version:999});
+    assert.deepEqual(await snapshot('review-idempotent-after'),reviewedSnapshot);
+    const reviewedLoaded=await request(`/story-brains/${novel}/setup`,200);
+    assert.equal(reviewedLoaded.data.proposals[0].status,'accepted');
+    assert.equal(reviewedLoaded.data.proposals[0].reviewed_payload.canonical_name,'Reviewed Minh');
+    assert.equal(reviewedLoaded.data.proposals[1].status,'rejected');
+    assert.ok(!JSON.stringify(reviewedLoaded).includes('PrivateOnly'));
     // Unsupported free prose fails visibly and stores an auditable failed version.
     const failed=await request(path,503,{...body,idempotency_key:'unsupported',expected_setup_version:1,
       setup:{...body.setup,text:'Natural prose unsupported by the offline fixture grammar'}});
     assert.equal(failed.error.code,'SETUP_EXTRACT_PROVIDER_UNAVAILABLE');
     const latest=await request(`/story-brains/${novel}/setup`,200);
     assert.equal(latest.data.setup_version,2);assert.equal(latest.data.job_status,'failed');
-    assert.deepEqual((await request(`/story-brains/${novel}/setup?snapshot_id=${created.data.job_id}`,200)).data,loaded.data);
+    assert.deepEqual((await request(`/story-brains/${novel}/setup?snapshot_id=${created.data.job_id}`,200)).data,reviewedLoaded.data);
     evidence.push({homonym_candidate_ids_distinct:true,private_readbacks_redacted:true,history_unchanged:true,
       failed_source_preserved:true,source_version:2});
   } finally {

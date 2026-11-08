@@ -73,6 +73,7 @@ def review_setup(repo, story_id, snapshot_id, request, *, actor_id):
                 setup_hash=result['setup_hash'], source_kind=card['source_kind'], origin=card['origin'],
                 source_refs=card['source_refs'])
             if (p.status != 'pending' or card['dependency_group_id'] != str(group)
+                    or p.expected_brain_version != request.expected_brain_version
                     or p.payload != card['payload'] or p.evidence != [expected_evidence]
                     or run is None or run.operation != 'bootstrap_setup'
                     or p.proposal_type != ('entity' if card['card_type'] == 'entity' else 'fact')

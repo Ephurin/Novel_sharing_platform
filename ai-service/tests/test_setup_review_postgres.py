@@ -78,14 +78,14 @@ def test_atomic_negative_matrix(f,kind):
     elif kind=='forged-id':body['decisions'][0]['identity']={'kind':'existing','approved_entity_id':str(uuid.uuid4())}
     elif kind=='unapproved':
         with f.engine.begin() as c:
-            c.execute(text("INSERT INTO narrative.entities (id,story_brain_id,tenant_id,novel_id,entity_type,canonical_name,normalized_name,source_type,confirmation_status) SELECT :id,id,tenant_id,novel_id,'character','Unapproved','unapproved','AI','proposed' FROM narrative.story_brains WHERE novel_id=:novel"),{'id':str(uuid.uuid4()),'novel':f.src.novel_id})
+            c.execute(text("INSERT INTO narrative.entities (id,story_brain_id,tenant_id,novel_id,entity_type,canonical_name,normalized_name,source_type,confirmation_status,is_locked) SELECT :id,id,tenant_id,novel_id,'character','Unapproved','unapproved','AI','proposed',false FROM narrative.story_brains WHERE novel_id=:novel"),{'id':str(uuid.uuid4()),'novel':f.src.novel_id})
             identity=c.execute(text('SELECT id FROM narrative.entities WHERE novel_id=:novel'),{'novel':f.src.novel_id}).scalar()
         body['decisions'][0]['identity']={'kind':'existing','approved_entity_id':str(identity)}
     elif kind=='invalid-edit':body['decisions'][0]['edited_rule']={'fact_key':'illegal','fact_value':'type mismatch'}
     elif kind=='rule-subject':body['decisions'][-1]['edited_rule']={'fact_key':'rule','fact_value':'value','subject_entity_id':str(uuid.uuid4())}
     elif kind=='rule-collision':
         key=job.result['setup_cards'][-1]['payload']['fact_key']
-        with f.engine.begin() as c:c.execute(text("INSERT INTO narrative.facts (id,story_brain_id,tenant_id,novel_id,fact_type,fact_key,fact_value,source_type,confirmation_status) SELECT :id,id,tenant_id,novel_id,'world_rule',:key,'\"locked\"'::jsonb,'author','confirmed' FROM narrative.story_brains WHERE novel_id=:novel"),{'id':str(uuid.uuid4()),'key':key,'novel':f.src.novel_id})
+        with f.engine.begin() as c:c.execute(text("INSERT INTO narrative.facts (id,story_brain_id,tenant_id,novel_id,fact_type,fact_key,fact_value,source_type,confirmation_status,is_locked,priority) SELECT :id,id,tenant_id,novel_id,'world_rule',:key,'\"locked\"'::jsonb,'author','confirmed',true,0 FROM narrative.story_brains WHERE novel_id=:novel"),{'id':str(uuid.uuid4()),'key':key,'novel':f.src.novel_id})
     before=snapshot(f,'review-negative-before-'+kind)
     with pytest.raises(BootstrapConflictError):review(f,job,body)
     assert snapshot(f,'review-negative-after-'+kind)==before
@@ -160,7 +160,7 @@ def test_existing_identity_explicit_only_and_foreign_rejected(f):
     body=envelope(f,third)
     foreign=str(uuid.uuid4())
     with f.engine.begin() as c:
-        c.execute(text("INSERT INTO narrative.entities (id,story_brain_id,tenant_id,novel_id,entity_type,canonical_name,normalized_name,source_type,confirmation_status) SELECT :id,id,tenant_id,:foreign_novel,'character','Minh','minh','author_setup','confirmed' FROM narrative.story_brains WHERE novel_id=:novel"),{'id':foreign,'foreign_novel':str(uuid.uuid4()),'novel':f.src.novel_id})
+        c.execute(text("INSERT INTO narrative.entities (id,story_brain_id,tenant_id,novel_id,entity_type,canonical_name,normalized_name,source_type,confirmation_status,is_locked) SELECT :id,id,tenant_id,:foreign_novel,'character','Minh','minh','author_setup','confirmed',false FROM narrative.story_brains WHERE novel_id=:novel"),{'id':foreign,'foreign_novel':str(uuid.uuid4()),'novel':f.src.novel_id})
     body['decisions'][0]['identity']={'kind':'existing','approved_entity_id':foreign}
     before=snapshot(f,'review-foreign-id-before')
     with pytest.raises(BootstrapConflictError):review(f,third,body)

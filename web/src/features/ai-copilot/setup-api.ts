@@ -10,14 +10,24 @@ export type SetupRequest = { contract_version: 'setup-v1'; novel_id: string; mod
 export type SetupCard = {proposal_id: string; dependency_group_id: string; card_type: 'entity' | 'world_rule' | 'initial_condition';
   status: 'pending' | 'accepted' | 'rejected'; origin: 'author_declared' | 'extracted_explicit' | 'model_proposed';
   source_kind: 'author_setup' | 'model_suggestion'; source_refs: Record<string, unknown>[]; payload: Record<string, unknown>;
-  expected_brain_version: number};
+  expected_brain_version: number; unresolved?: boolean; reviewed_payload?: Record<string, unknown>; decision_audit?: Record<string, unknown>};
 export type SetupSnapshot = {contract_version: 'setup-v1'; novel_id: string; job_id: string; snapshot_id: string;
   setup_version: number; brain_version: number; review_version: number; setup_hash: string; text_hash: string;
   mode: 'extract' | 'blueprint'; job_status: string; snapshot: SetupSource; hints?: SetupRequest['hints'];
-  outline?: string; preferences?: SetupRequest['preferences']; proposals: SetupCard[]};
+  outline?: string; preferences?: SetupRequest['preferences']; proposals: SetupCard[]; review?: {status: string; activation_available: false} | null; approved_identities?: {entity_id:string; canonical_name:string; entity_type:string}[]};
 export async function submitSetup(body: SetupRequest) {
   return (await apiClient.post<ApiEnvelope<{job_id: string; story_brain_id: string; status: string}>>('/ai/story-brains/bootstrap/from-idea', body)).data.data;
 }
 export async function getSetup(novelId: string, snapshotId?: string) {
   return (await apiClient.get<ApiEnvelope<SetupSnapshot>>(`/ai/story-brains/${novelId}/setup`, {params: {snapshot_id:snapshotId}})).data.data;
+}
+
+export type SetupReviewDecision = {proposal_id:string; decision:'accept'|'reject'; reason?:string;
+  identity?:{kind:'new'|'existing'; approved_entity_id?:string};
+  edited_entity?:{canonical_name:string; aliases:string[]}; edited_rule?:{fact_key:string; fact_value:string; subject_entity_id?:string|null}};
+export type SetupReviewRequest = {idempotency_key:string; dependency_group_id:string; setup_hash:string;
+  expected_setup_version:number; expected_review_version:number; expected_brain_version:number; decisions:SetupReviewDecision[]};
+export async function reviewSetup(novelId:string, snapshotId:string, body:SetupReviewRequest) {
+  return (await apiClient.post<ApiEnvelope<{status:string; review_version:number; brain_version:number}>>(
+    `/ai/story-brains/${novelId}/setup/${snapshotId}/review`,body)).data.data;
 }
