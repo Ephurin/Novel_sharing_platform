@@ -17,8 +17,9 @@ def read(f,plan=None,actor=ACTOR):return f.repo.read_plans(f.src.novel_id,actor,
 
 @pytest.mark.parametrize('kind',['draft','active','historical'])
 def test_archival_effective_readback_restore_and_replay(f,kind):
-    source=command(f,body(3));head=source
-    if kind=='active':source=head=command(f,life(source,'activate'))
+    source=command(f,body(3));head=source;activation=None
+    if kind=='active':
+        activation=life(source,'activate');source=head=command(f,activation)
     if kind=='historical':
         head=command(f,changed(source));head=command(f,life(head,'activate'))
     delete=life(source,'delete');delete['expected_plan_version']=head['plan_version']
@@ -38,6 +39,10 @@ def test_archival_effective_readback_restore_and_replay(f,kind):
         assert archived[field]==original[field]
     assert canonical(after)==canonical(before)
     assert command(f,delete)==deleted
+    if activation:
+        assert command(f,activation)==source
+        assert read(f)['active_plan_id'] is None
+        assert read(f,source['plan_id'])['effective_status']=='archived'
     with pytest.raises(BootstrapConflictError,match='PLAN_IDEMPOTENCY_CONFLICT'):
         command(f,{**delete,'expected_plan_version':deleted['plan_version']})
     for action in ['save','activate','delete']:
