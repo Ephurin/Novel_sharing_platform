@@ -1,3 +1,4 @@
+import type {PlanningStep} from './PlanningStudio';
 import {StoryPlanEditor} from './StoryPlanEditor';
 import { useAuthStore } from '../auth/useAuthStore';
 import { SetupFoundationPanel } from './SetupFoundationPanel';
@@ -70,7 +71,7 @@ import {
 } from './author-memory-api';
 
 export function AuthorMemoryPanel(props: {
-  novelId: string; chapterId: string; content: string; opened: boolean; onClose: () => void; saved: boolean;
+  novelId: string; chapterId: string; content: string; opened: boolean; onClose: () => void; saved: boolean; onOpenPlanning?:(step:PlanningStep)=>void; allowOfflineSetupTest?:boolean;
 }) {
   const account = useAuthStore(state => state.user?.userId ?? 'guest');
   return <ScopedAuthorMemoryPanel key={JSON.stringify([account, props.novelId])} {...props} accountScope={account}/>;
@@ -83,7 +84,9 @@ function ScopedAuthorMemoryPanel({
   opened,
   onClose,
   saved,
-  accountScope
+  accountScope,
+  onOpenPlanning,
+  allowOfflineSetupTest
 }: {
   novelId: string;
   chapterId: string;
@@ -92,6 +95,7 @@ function ScopedAuthorMemoryPanel({
   onClose: () => void;
   saved: boolean;
   accountScope: string;
+  onOpenPlanning?:(step:PlanningStep)=>void; allowOfflineSetupTest?:boolean;
 }) {
   const qc = useQueryClient();
   const [profileTabOpened, setProfileTabOpened] = useState(false);
@@ -858,7 +862,7 @@ function ScopedAuthorMemoryPanel({
               >
                 Trích xuất dữ liệu tiểu thuyết từ các chương đã lưu
               </Button>
-              <SetupFoundationPanel key={novelId} novelId={novelId} />
+              <>{onOpenPlanning?<Button onClick={()=>onOpenPlanning("idea")}>Mở thiết lập trong Planning Studio</Button>:<SetupFoundationPanel key={novelId} novelId={novelId} allowOfflineBlueprint={allowOfflineSetupTest}/>}</>
               {job.data && (
                 <Alert>
                   Trích xuất: {job.data.status} {job.data.error?.message ?? ''}
@@ -885,7 +889,7 @@ function ScopedAuthorMemoryPanel({
               Tab 9: Plan
              ────────────────────────────────────────── */}
           <Tabs.Panel value="plan" pt="md">
-            <StoryPlanEditor novelId={novelId}/>
+            <>{onOpenPlanning?<Button onClick={()=>onOpenPlanning("chapters")}>Mở dàn ý trong Planning Studio</Button>:<StoryPlanEditor novelId={novelId}/>}</>
           </Tabs.Panel>
 
           {/* ──────────────────────────────────────────

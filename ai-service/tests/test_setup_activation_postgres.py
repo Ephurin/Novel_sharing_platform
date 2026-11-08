@@ -199,3 +199,44 @@ def test_current_owner_change_does_not_adopt_old_setup(owned):
         response=f.client.post(path,json=body,headers={**f.headers,'X-Author-Id':actor})
         assert response.status_code==404 and 'PrivateOnly' not in response.text
     assert state(f,'m0-transfer-after')==before
+
+
+def test_idea_only_source_then_reviewed_cards_can_activate(owned):
+    """Planning saves an outline before any reviewable setup card exists."""
+    f=owned
+    first=submit(f,setup=dict(text='',declarations=[],world_rules=[],initial_conditions=[]),outline='Private future direction, not history')
+    before=state(f,'planning-idea-only')
+    assert not first.result['required_proposal_ids']
+    job=submit(f,idempotency_key='add-explicit-cards',expected_setup_version=1)
+    decided=review(f,job,envelope(f,job))
+    body=dict(contract_version='setup-m0-v1',idempotency_key='planning-consent',setup_hash=job.result['setup_hash'],expected_setup_version=decided['setup_version'],expected_review_version=decided['review_version'],expected_brain_version=decided['brain_version'])
+    result=activate(f,job,body)
+    assert result['baseline_kind']=='M0'
+    after=state(f,'planning-idea-then-reviewed-m0')
+    no_history(after)
+    assert not after['chapters'] and not after['chapter_revisions'] and not after['revision_outbox_events']
+    old=next(j for j in after['bootstrap_jobs'] if str(j['id'])==first.job_id)
+    assert old==next(j for j in before['bootstrap_jobs'] if str(j['id'])==first.job_id)
+    assert f.llm.calls==0
+
+
+@pytest.mark.parametrize('prior',['pending-cards','running','foreign-author','altered-hash','nonempty-text','blueprint'])
+def test_prior_non_idea_sources_still_block_m0(owned,prior):
+    f=owned
+    first=submit(f,**({} if prior=='pending-cards' else dict(setup=dict(text='',declarations=[],world_rules=[],initial_conditions=[]))))
+    job=submit(f,idempotency_key='latest-cards',expected_setup_version=1)
+    decided=review(f,job,envelope(f,job))
+    with f.engine.begin() as c:
+        if prior=='running':c.execute(text("UPDATE narrative.bootstrap_jobs SET status='running' WHERE id=:id"),dict(id=first.job_id))
+        elif prior not in ('pending-cards',):
+            result=deepcopy(first.result)
+            if prior=='foreign-author':result['author_id']=str(uuid.uuid4())
+            if prior=='altered-hash':result['setup_hash']='0'*64
+            if prior=='nonempty-text':result['setup_source']['setup']['text']='Not a saved empty idea'
+            if prior=='blueprint':result['setup_source']['mode']='blueprint'
+            c.execute(text('UPDATE narrative.bootstrap_jobs SET result=CAST(:r AS jsonb) WHERE id=:id'),dict(id=first.job_id,r=json.dumps(result)))
+    body=dict(contract_version='setup-m0-v1',idempotency_key='deny-prior',setup_hash=job.result['setup_hash'],expected_setup_version=decided['setup_version'],expected_review_version=decided['review_version'],expected_brain_version=decided['brain_version'])
+    before=state(f,'planning-prior-blocked-before-'+prior)
+    with pytest.raises(BootstrapConflictError,match='M0_BOOTSTRAP_IN_PROGRESS'):activate(f,job,body)
+    assert state(f,'planning-prior-blocked-after-'+prior)==before
+    assert f.llm.calls==0

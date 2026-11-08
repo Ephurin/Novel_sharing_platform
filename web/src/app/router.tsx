@@ -2,7 +2,6 @@ import { AuthorNovelCommentsPage } from '../features/author-projects/AuthorNovel
 import { AuthorNovelReviewsPage } from '../features/author-projects/AuthorNovelReviewsPage';
 import { AuthorTheme } from '../shared/components/AuthorTheme';
 import { createBrowserRouter, Navigate, useParams } from 'react-router-dom';
-import { AuthorIdeShell } from './layout/AuthorIdeShell';
 import { AuthorWritingIde } from '../features/author-ide/AuthorWritingIde';
 import { WebAppShell } from './layout/WebAppShell';
 import {
