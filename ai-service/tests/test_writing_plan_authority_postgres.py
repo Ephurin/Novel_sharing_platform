@@ -57,7 +57,11 @@ def worker(f):
         db.execute(text('UPDATE chapters SET latest_revision_id=:r WHERE chapter_id=:c'),dict(r=r,c=c))
     f.repo.get_story_brain(n)
     with f.engine.begin() as db:
-        db.execute(text("UPDATE narrative.story_brains SET status='active',baseline_revision_id=:r WHERE novel_id=:n AND tenant_id=:t"),dict(r=r,n=n,t=TENANT))
+        brain=db.execute(text("UPDATE narrative.story_brains SET status='active',baseline_revision_id=:r WHERE novel_id=:n AND tenant_id=:t RETURNING id"),dict(r=r,n=n,t=TENANT)).scalar_one()
+        # Nonempty approved author setup, including a private field which must
+        # remain unchanged in SQL and absent from every provider payload.
+        db.execute(text("INSERT INTO narrative.entities(id,story_brain_id,tenant_id,novel_id,entity_type,canonical_name,normalized_name,confirmation_status,static_attributes,source_type,is_locked,private_author_notes) VALUES (:id,:brain,:t,:n,'PER','Setup Keeper','setup keeper','confirmed','{}','author',false,'F04SetupPrivateOnly')"),dict(id=str(uuid.uuid4()),brain=brain,t=TENANT,n=n))
+        db.execute(text("INSERT INTO narrative.facts(id,story_brain_id,tenant_id,novel_id,fact_type,fact_key,fact_value,source_type,confirmation_status,priority,is_locked,created_by) VALUES (:id,:brain,:t,:n,'world_rule','setup_rule','\"Respect the approved world rule\"','author','confirmed',0,false,:a)"),dict(id=str(uuid.uuid4()),brain=brain,t=TENANT,n=n,a=ACTOR))
     provider=RecordingProvider()
     service=WritingService(f.repo,provider,SqlRevisionProvider(f.engine))
     f.client.app.state.writing_service=service
@@ -133,7 +137,7 @@ def assert_blocked(job,provider,caplog):
     assert job.status=='failed' and job.stage=='security_blocked'
     assert job.error==dict(code='WRITING_CONTEXT_AUTHORITY_DENIED',message='Writing context authorization failed')
     assert provider.payloads==[] and not job.context_hash
-    for marker in ('LegacyTitlePrivate','LegacyDescriptionPrivate','LegacyPrivateOnly','LegacyOutlinePrivate'):
+    for marker in ('LegacyTitlePrivate','LegacyDescriptionPrivate','LegacyPrivateOnly','LegacyOutlinePrivate','F04SetupPrivateOnly'):
         assert marker not in json.dumps(asdict(job),default=str)
         assert marker not in caplog.text
 
@@ -164,6 +168,7 @@ def test_async_provider_payload_authority(worker,creator,caplog):
             assert context['current_objective']['authority_lane']=='FUTURE_PLAN'
         assert 'LegacyOutlinePrivate' not in json.dumps(context)
         assert 'F04RootPrivateOnly' not in json.dumps(context)
+        assert 'F04SetupPrivateOnly' not in json.dumps(provider.payloads)
     evidence(f,provider,job,before,str(creator))
 
 
