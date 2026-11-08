@@ -7,6 +7,7 @@ import {getSetup,getSetupM0Readiness,type SetupM0Readiness,type SetupSnapshot} f
 import {usePlanningScope} from './planning-draft';
 import type {StoryBrainSummary} from '../manuscript-import/manuscript-import-api';
 export type PlanningStep='idea'|'rules'|'characters'|'chapters'|'write';
+const extractionLabel=(status:string|null)=>({waiting_entity_review:'Chờ bạn xác nhận nhân vật',pending:'Chờ phân tích bản đã lưu',processing:'Đang phân tích bản đã lưu',running:'Đang phân tích bản đã lưu',completed:'Đã xử lý — kiểm tra đề xuất cần duyệt',failed:'Phân tích thất bại — mở Bộ nhớ để kiểm tra'}[status??'']??'Mở Bộ nhớ để kiểm tra trạng thái');
 const steps:{id:PlanningStep;label:string}[]=[{id:'idea',label:'Ý tưởng'},{id:'rules',label:'Thế giới'},{id:'characters',label:'Nhân vật'},{id:'chapters',label:'Dàn ý chương'},{id:'write',label:'Bắt đầu viết'}];
 type Props={novelId:string;title:string;step:PlanningStep;onStep:(s:PlanningStep)=>void;chapters:{chapterId:string;title:string}[];onWrite:(chapterId?:string)=>void;onCreate:()=>void;creating:boolean;onMemory:()=>void};
 export function PlanningStudio({novelId,title,step,onStep,chapters,onWrite,onCreate,creating,onMemory}:Props){
@@ -28,11 +29,11 @@ export function PlanningStudio({novelId,title,step,onStep,chapters,onWrite,onCre
  <Stack maw={960} mx="auto" gap="lg">
   <Group justify="space-between"><div><Text size="sm" c="dimmed">Phòng lập kế hoạch · {title}</Text><Title order={2}>Từ ý tưởng đến trang viết đầu tiên</Title></div><Button variant="default" onClick={()=>void refresh()}>Đọc trạng thái mới</Button></Group>
   <nav aria-label="Các bước lập kế hoạch" style={{position:"sticky",top:0,zIndex:5,background:"var(--mantine-color-body)",paddingBlock:8}}><Group gap="xs">{steps.map((s,i)=><Button key={s.id} variant={step===s.id?'filled':'light'} aria-current={step===s.id?'step':undefined} onClick={()=>onStep(s.id)}>{i+1}. {s.label}</Button>)}</Group></nav>
-  <Card withBorder><Stack gap="xs"><Group><Badge color={active?'green':'gray'}>{read?(active?'Bộ nhớ truyện đang hoạt động':'Chưa kích hoạt thiết lập'):'Chưa xác minh trạng thái'}</Badge><Badge variant="light">{snapshot?.review?'Đã đọc quyết định thiết lập':snapshot?'Thiết lập đang chờ duyệt':'Chưa có bản thiết lập'}</Badge></Group>
+  <Card withBorder><Stack gap="xs"><Group><Badge color={active?'green':'gray'}>{read?(active?'Bộ nhớ truyện đang hoạt động':'Chưa kích hoạt thiết lập'):'Chưa xác minh trạng thái'}</Badge><Badge variant="light">{!read?'Thiết lập chưa được xác minh':snapshot?.review?'Đã đọc quyết định thiết lập':snapshot?'Thiết lập đang chờ duyệt':'Chưa có bản thiết lập'}</Badge></Group>
   <Text size="sm">{active?'Chương đã lưu dùng luồng phân tích và duyệt hiện có. Sự kiện tương lai vẫn chỉ là kế hoạch.':'Bạn vẫn có thể viết bản nháp. Trước khi bộ nhớ truyện được kích hoạt, lưu bản nháp không tự tạo lịch sử hay tự phân tích.'}</Text>
-  {m0?.first_saved_revision&&<Text size="sm">Đã xác minh bản lưu đầu tiên: {m0.first_saved_revision.revision_id}</Text>}
+  {m0?.first_saved_revision&&<details><summary>Đã xác minh bản lưu đầu tiên · Chương {m0.first_saved_revision.chapter_number}</summary><Text size="xs">Mã bản lưu: {m0.first_saved_revision.revision_id}</Text></details>}
   {brain&&<Text size="sm">Đề xuất chờ duyệt: {brain.counts.pending_proposals}. Sự kiện đã ghi nhận: {brain.counts.events}.</Text>}
-  <Text size="sm">{extraction===null?'Chưa đọc được trạng thái phân tích chương. Mở Bộ nhớ truyện để kiểm tra.':extraction.length?extraction.map(x=>`Chương ${x.chapter_number}: ${x.status??'chưa phân tích'}`).join(' · '):'Chưa có trạng thái phân tích chương. Không tự xác nhận hoàn tất.'}</Text>
+  <Text size="sm">{extraction===null?'Chưa đọc được trạng thái phân tích chương. Mở Bộ nhớ truyện để kiểm tra.':extraction.length?extraction.map(x=>`Chương ${x.chapter_number}: ${extractionLabel(x.status)}`).join(' · '):'Chưa có trạng thái phân tích chương. Không tự xác nhận hoàn tất.'}</Text>
   <Button variant="subtle" onClick={onMemory}>Mở Bộ nhớ truyện & duyệt diễn biến</Button></Stack></Card>
   {error&&<Alert color="red" role="alert">Không xác minh được trạng thái: {error}</Alert>}
   <div hidden={!['idea','rules','characters'].includes(step)}><SetupFoundationPanel novelId={novelId} planningStep={['idea','rules','characters'].includes(step)?step as 'idea'|'rules'|'characters':'characters'} onServerChange={()=>void refresh()}/></div>
