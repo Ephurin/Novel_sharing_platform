@@ -226,8 +226,6 @@ class WritingService:
 
         # 1. Canonical request hash for idempotency integrity
         canonical_dict = {
-            "actor_id": actor_id,
-            "tenant_id": tenant_id,
             "novel_id": novel_id,
             "chapter_id": chapter_id,
             "revision_id": revision_id,
@@ -357,7 +355,7 @@ class WritingService:
         job = self._repository.get_writing_job(job_id)
         if job.status == "completed":
             return job
-        if job.status == 'failed':
+        if job.status == 'failed' and (job.error or {}).get('code') == 'WRITING_CONTEXT_AUTHORITY_DENIED':
             return job
 
         authority = getattr(self._repository, 'writing_authority_snapshot', None)

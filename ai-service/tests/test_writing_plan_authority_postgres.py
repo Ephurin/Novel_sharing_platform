@@ -141,6 +141,8 @@ def test_async_provider_payload_authority(worker,creator,caplog):
     job=f.repo.get_writing_job(response.json()['data']['job_id'])
     if creator in (None,FOREIGN,'foreign-manual'):
         assert_blocked(job,provider,caplog)
+        assert service.process_generation(job.job_id)==job
+        assert provider.payloads==[]
         for path in (f'/v1/jobs/{job.job_id}',f'/v1/jobs/{job.job_id}/events',f'/internal/v1/writing/generations/{job.job_id}'):
             result=f.client.get(path,headers={**f.headers,'X-Author-Id':ACTOR})
             assert result.status_code==200,result.text
