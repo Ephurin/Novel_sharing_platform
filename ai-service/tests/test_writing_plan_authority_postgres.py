@@ -58,10 +58,15 @@ def worker(f):
     return f,service,provider,h
 
 
-@pytest.mark.parametrize('creator',[None,FOREIGN,ACTOR,'no-plan'])
+@pytest.mark.parametrize('creator',[None,FOREIGN,ACTOR,'no-plan','owned-manual','foreign-manual'])
 def test_baseline_async_provider_payload(worker,creator):
     f,service,provider,h=worker
-    if creator!='no-plan':seed_legacy(f,creator,status='active')
+    if creator!='no-plan':
+        source_actor=ACTOR if creator=='owned-manual' else FOREIGN if creator=='foreign-manual' else creator
+        plan=seed_legacy(f,source_actor,status='active')
+        if creator in ('owned-manual','foreign-manual'):
+            with f.engine.begin() as db:
+                db.execute(text("UPDATE narrative.story_plans SET edit_metadata='{"+'"contract_version":"plan-edit-v1","private_notes":"LegacyPrivateOnly"'+"}'::jsonb WHERE id=:p"),dict(p=plan))
     before=snapshot(f,'f04-baseline-before-'+str(creator))
     response=f.client.post('/v1/writing/generations',headers={**f.headers,'X-Author-Id':ACTOR},json=dict(novel_id=f.src.novel_id,chapter_id=f.src.chapter_id,revision_id=f.src.revision_id,content_hash=h,operation='continue',selection=dict(start=0,end=0,cursor=0),instruction='Continue safely',expected_brain_version=1,chapter_number=1,actor_id=ACTOR,idempotency_key=str(uuid.uuid4())))
     assert response.status_code==202,response.text
