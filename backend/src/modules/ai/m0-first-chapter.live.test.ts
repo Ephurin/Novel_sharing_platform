@@ -150,7 +150,8 @@ test('P2 M0 -> genuine Core create/PATCH/revision/outbox -> existing P1 HITL',{
   assert.equal((await durable('create-after-provenance-restored',createNovel)).revisions.length,3);
   // Mongo can fail after SQL chapter creation; the same import key must safely
   // reconcile that partial creation through the existing lease on retry.
-  const options=(await mongo.listCollections({name:'draft_chapters'}).toArray())[0]?.options??{};
+  const collectionInfo=(await mongo.listCollections({name:'draft_chapters'},{nameOnly:false}).toArray())[0];
+  const options=collectionInfo&&'options' in collectionInfo?collectionInfo.options??{}:{};
   const mongoFailureBody={title:'Mongo failure recovery',content:'Minh returns.',clientRequestId:randomUUID()};
   await mongo.command({collMod:'draft_chapters',validator:{$nor:[{novelId:createNovel,title:mongoFailureBody.title}]},validationLevel:'strict',validationAction:'error'});
   try{
