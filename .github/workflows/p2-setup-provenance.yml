@@ -103,10 +103,11 @@ jobs:
       - name: Real PostgreSQL A16 with durable before and after readbacks
         working-directory: ai-service
         env:
+          F04_MONGO_EVIDENCE: "1"
           DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p2a
         run: |
           set -euo pipefail
-          pytest -o addopts= -vv -s -m postgres_integration --basetemp="$RUNNER_TEMP/p2-a16" --junitxml="$RUNNER_TEMP/p202/a16.xml" tests/test_p2_bootstrap_postgres.py tests/test_setup_v1_postgres.py tests/test_setup_author_scope_postgres.py tests/test_setup_review_postgres.py 2>&1 | tee "$RUNNER_TEMP/p202/a16.log"
+          pytest -o addopts= -vv -s -m postgres_integration --basetemp="$RUNNER_TEMP/p2-a16" --junitxml="$RUNNER_TEMP/p202/a16.xml" tests/test_p2_bootstrap_postgres.py tests/test_setup_v1_postgres.py tests/test_setup_author_scope_postgres.py tests/test_setup_review_postgres.py tests/test_plan_edit_postgres.py tests/test_plan_review_fixes_postgres.py tests/test_writing_plan_authority_postgres.py 2>&1 | tee "$RUNNER_TEMP/p202/a16.log"
       - name: Start real AI service with fake providers
         working-directory: ai-service
         env:
@@ -142,7 +143,7 @@ jobs:
         run: |
           set -euo pipefail
           npx playwright install --with-deps chromium
-          P202_REVIEW_SCREENSHOT="$RUNNER_TEMP/p202/review-ui.png" node --test tests/setup-foundation.browser.test.mjs 2>&1 | tee "$RUNNER_TEMP/p202/setup-browser.log"
+          P203_FIX_EVENT_SCREENSHOT="$RUNNER_TEMP/p202/fix-events-ui.png" P203_FIX_ARCHIVE_SCREENSHOT="$RUNNER_TEMP/p202/fix-archive-ui.png" P203_SCREENSHOT="$RUNNER_TEMP/p202/plan-ui.png" P202_REVIEW_SCREENSHOT="$RUNNER_TEMP/p202/review-ui.png" node --test tests/setup-foundation.browser.test.mjs 2>&1 | tee "$RUNNER_TEMP/p202/setup-browser.log"
       - name: Stop only the task AI process
         if: always()
         run: |

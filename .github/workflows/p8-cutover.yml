@@ -136,6 +136,24 @@ jobs:
           cache: pip
           cache-dependency-path: ai-service/requirements.txt
       - run: pip install -r requirements.txt pytest httpx
+      # F04 worker tests validate the existing Platform owner/revision tables
+      # as well as narrative migrations. Use the real migration runner.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Apply Platform schema for worker authority integration
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/p8_cutover
+          NODE_ENV: test
+          # Required by shared config parsing; this SQL migration command does
+          # not connect to Mongo. Real Mongo evidence is in the P2 feature job.
+          MONGODB_URI: mongodb://localhost:27017/p8_cutover
+          JWT_ACCESS_SECRET: p8-f04-offline-access-secret
+          JWT_REFRESH_SECRET: p8-f04-offline-refresh-secret
+        run: |
+          npm ci
+          npm run db:migrate
       - name: Live PostgreSQL integration suite
         run: pytest -o addopts= -q -m postgres_integration
 

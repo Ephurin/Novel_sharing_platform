@@ -1,0 +1,24 @@
+[
+  {
+    "source": "3bd9cb042a4e01ac8028f3ebeec2fbd91ae6dd83",
+    "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42461497650",
+    "excerpts": [
+      "2026-11-08T08:07:53.2197410Z E       AssertionError: assert [{'event_id': '2e966188-d447-4145-bc9b-f57c04b213c2', 'text': 'Edited third', 'participants': [{'entity_id': None, 'name_hint': 'Minh 2'}]}, {'event_id': 'e73b0bd3-8c14-4fe2-9c22-302b5378c164', 'text': 'Event 1', 'participants': [{'entity_id': None, 'name_hint': 'Minh 1'}]}] == [{'event_id': '2e966188-d447-4145-bc9b-f57c04b213c2', 'text': 'Edited third', 'participants': [{'name_hint': 'Minh 2'}]}, {'event_id': 'e73b0bd3-8c14-4fe2-9c22-302b5378c164', 'text': 'Event 1', 'participants': [{'name_hint': 'Minh 1'}]}]",
+      "2026-11-08T08:07:53.2226636Z FAILED tests/test_plan_review_fixes_postgres.py::test_future_events_keep_ids_participants_and_removed_ids_cannot_be_reused - AssertionError: assert [{'event_id': '2e966188-d447-4145-bc9b-f57c04b213c2', 'text': 'Edited third', 'participants': [{'entity_id': None, 'name_hint': 'Minh 2'}]}, {'event_id': 'e73b0bd3-8c14-4fe2-9c22-302b5378c164', 'text': 'Event 1', 'participants': [{'entity_id': None, 'name_hint': 'Minh 1'}]}] == [{'event_id': '2e966188-d447-4145-bc9b-f57c04b213c2', 'text': 'Edited third', 'participants': [{'name_hint': 'Minh 2'}]}, {'event_id': 'e73b0bd3-8c14-4fe2-9c22-302b5378c164', 'text': 'Event 1', 'participants': [{'name_hint': 'Minh 1'}]}]",
+      "2026-11-08T08:07:53.2246128Z ======================== 1 failed, 82 passed in 12.88s =========================",
+      "2026-11-08T08:07:53.2606686Z \u001b[36;1m    assert path.exists(), 'Missing operational log: ' + name\u001b[0m",
+      "2026-11-08T08:07:53.3264871Z AssertionError: Missing operational log: ai-service.log"
+    ]
+  },
+  {
+    "source": "7aa7d2907713ce7c73ae430af73458d13446a258",
+    "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42461875731",
+    "excerpts": [
+      "2026-11-08T08:13:00.6068065Z E       IndexError: list index out of range",
+      "2026-11-08T08:13:00.6071028Z FAILED tests/test_plan_review_fixes_postgres.py::test_future_events_keep_ids_participants_and_removed_ids_cannot_be_reused - IndexError: list index out of range",
+      "2026-11-08T08:13:00.6073697Z ========================= 1 failed, 82 passed in 8.46s =========================",
+      "2026-11-08T08:13:01.0996496Z \u001b[36;1m    assert path.exists(), 'Missing operational log: ' + name\u001b[0m",
+      "2026-11-08T08:13:01.1339916Z AssertionError: Missing operational log: ai-service.log"
+    ]
+  }
+]

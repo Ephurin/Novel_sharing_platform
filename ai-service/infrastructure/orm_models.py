@@ -537,9 +537,11 @@ class WritingGenerationRecord(Base):
 
 
 class StoryPlanRecord(Base):
+    edit_metadata: Mapped[dict[str, Any]] = mapped_column(JSON_TYPE, nullable=False, default=dict, server_default=text("'{}'"))
     __tablename__ = "story_plans"
     __table_args__ = (
         UniqueConstraint("tenant_id", "novel_id", "plan_version", name="uq_story_plan_tenant_novel_version"),
+        Index("uq_story_plan_active", "tenant_id", "novel_id", unique=True, postgresql_where=text("status = 'active'"), sqlite_where=text("status = 'active'")),
         {"schema": SCHEMA},
     )
 

@@ -6,6 +6,7 @@ import {
   activateBaselineController,
   activateStoryPlanController,
   createStoryPlanController,
+  editStoryPlansController,
   editAndAcceptProposalController,
   getActiveStoryPlanController,
   getContextPreviewController,
@@ -131,6 +132,10 @@ aiGatewayRoutes.post(
 );
 
 // Story Plans
+aiGatewayRoutes.get('/story-plans/edit-v1/:novelId',editStoryPlansController);
+aiGatewayRoutes.post('/story-plans/edit-v1/:novelId',editStoryPlansController);
+aiGatewayRoutes.get('/story-plans/edit-v1/:novelId/:planId',editStoryPlansController);
+
 aiGatewayRoutes.post(
   '/story-plans',
   createStoryPlanController

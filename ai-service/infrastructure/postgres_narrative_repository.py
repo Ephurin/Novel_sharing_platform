@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 from domain.entity_profile import EntityProfilePatch, PROFILE_FIELDS, approved_profile
 from domain.projection import ProjectionError, validate_payload, project, resolve_entity, transition_from_payload
-from domain.errors import BootstrapConflictError, BaselineReviewRequiredError, ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError
+from domain.errors import BootstrapConflictError, BaselineReviewRequiredError, ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError, WritingContextAuthorityError
 from domain.models import (
     EntityReviewCompletion,
     AnalysisRun,
@@ -68,6 +68,7 @@ from infrastructure.orm_models import (
 class PostgresNarrativeRepository:
     supports_bootstrap_lifecycle = True
     supports_setup_v1 = True
+    supports_plan_edit_v1 = True
     def complete_entity_review(self, story_id, run_id, audit, proposals):
         """CAS and proposals commit together, including a valid empty extraction."""
         from copy import deepcopy
@@ -1969,6 +1970,52 @@ class PostgresNarrativeRepository:
             story_id, query_text=query_text, chapter_number=chapter_number,
         ).query_entity_ids
 
+    def writing_authority_snapshot(self, job: WritingGenerationJob) -> tuple[StoryPlan, ...]:
+        """Current Platform ownership + canonical revision + source provenance.
+
+        These are reads of the existing authoritative Platform tables, not a
+        replicated owner store. A repeatable-read snapshot freezes the selected
+        plan/objectives; the worker rechecks it immediately before dispatch.
+        No connection/lock escapes this method or spans a provider request.
+        """
+        try:
+            actor = uuid.UUID(job.actor_id or '')
+            tenant = uuid.UUID(job.tenant_id)
+            novel = uuid.UUID(job.novel_id)
+            chapter = uuid.UUID(job.chapter_id)
+            revision = uuid.UUID(job.revision_id)
+        except (ValueError, TypeError, AttributeError):
+            raise WritingContextAuthorityError() from None
+        if tenant != self._tenant_id:
+            raise WritingContextAuthorityError()
+        with session_scope(self._session_factory) as session:
+            session.connection(execution_options={'isolation_level': 'REPEATABLE READ'})
+            persisted = session.scalar(select(WritingGenerationRecord).where(
+                WritingGenerationRecord.job_id==uuid.UUID(job.job_id),
+                *self._scope(WritingGenerationRecord,novel)))
+            if (persisted is None or persisted.actor_id != actor
+                    or persisted.chapter_id != chapter or persisted.revision_id != revision
+                    or persisted.base_content_hash != job.content_hash
+                    or (persisted.context_summary or {}).get('chapter_number') != job.chapter_number):
+                raise WritingContextAuthorityError()
+            row = session.execute(text('''
+                SELECT r.content, r.content_hash, c.chapter_number
+                FROM novels n JOIN chapters c ON c.novel_id=n.novel_id
+                JOIN chapter_revisions r ON r.chapter_id=c.chapter_id AND r.novel_id=n.novel_id
+                WHERE n.novel_id=:n AND n.author_id=:a AND c.chapter_id=:c
+                  AND r.revision_id=:r
+            '''),dict(n=novel,a=actor,c=chapter,r=revision)).mappings().first()
+            if (row is None or row['chapter_number'] != job.chapter_number
+                    or row['content_hash'] != job.content_hash
+                    or hashlib.sha256(row['content'].encode('utf-8')).hexdigest() != job.content_hash):
+                raise WritingContextAuthorityError()
+            plans = session.scalars(select(StoryPlanRecord).where(
+                *self._scope(StoryPlanRecord,novel),StoryPlanRecord.status=='active')).all()
+            if len(plans)>1 or any(p.created_by != actor for p in plans):
+                raise WritingContextAuthorityError()
+            return tuple(self._to_story_plan(p,session.scalars(select(StoryPlanObjectiveRecord).where(
+                *self._scope(StoryPlanObjectiveRecord,novel),StoryPlanObjectiveRecord.plan_id==p.id)).all()) for p in plans)
+
     def get_structured_context(
         self,
         story_id: str,
@@ -1979,6 +2026,7 @@ class PostgresNarrativeRepository:
         token_budget: int | None = None,
         enforce_token_budget: bool = True,
         profile_entity_ids: tuple[str, ...] | None = None,
+        author_plan_snapshot: tuple[StoryPlan, ...] | None = None,
     ) -> WritingContextPackage:
         novel_id = self._novel_id(story_id)
         with session_scope(self._session_factory) as session:
@@ -2344,7 +2392,10 @@ class PostgresNarrativeRepository:
                 ],
             }
 
-            active_plan = self.get_active_story_plan(story_id)
+            # None preserves privileged internal retrieval. Author workers pass
+            # the exact authorized snapshot (empty tuple means no active plan),
+            # never a fresh unscoped lookup after authorization.
+            active_plan = (author_plan_snapshot[0] if author_plan_snapshot else None) if author_plan_snapshot is not None else self.get_active_story_plan(story_id)
             planning_context = None
             current_objective = None
             if active_plan:
@@ -2354,23 +2405,26 @@ class PostgresNarrativeRepository:
                         if obj.target_chapter == chapter_number:
                             matching_obj = obj
                             break
-                if not matching_obj:
+                if not matching_obj and chapter_number is None:
                     for obj in active_plan.objectives:
                         if obj.status in ("in_progress", "pending"):
                             matching_obj = obj
                             break
 
                 planning_context = {
+                    "authority_lane": "FUTURE_PLAN",
                     "plan_id": active_plan.plan_id,
                     "plan_version": active_plan.plan_version,
                     "status": active_plan.status,
                     "source_outline_hash": active_plan.source_outline_hash,
                     "total_objectives": len(active_plan.objectives),
-                    "active_objective_id": matching_obj.objective_id if matching_obj else None,
+                    "active_objective_id": matching_obj.metadata.get("logical_id", matching_obj.objective_id) if matching_obj else None,
                 }
                 if matching_obj:
                     current_objective = {
-                        "objective_id": matching_obj.objective_id,
+                        "authority_lane": "FUTURE_PLAN",
+                        "planned_events": matching_obj.metadata.get("events", []),
+                        "objective_id": matching_obj.metadata.get("logical_id", matching_obj.objective_id),
                         "order_index": matching_obj.order_index,
                         "target_chapter": matching_obj.target_chapter,
                         "objective_type": matching_obj.objective_type,
@@ -2381,7 +2435,7 @@ class PostgresNarrativeRepository:
                 context_summary["plan_id"] = [active_plan.plan_id]
                 context_summary["plan_version"] = [str(active_plan.plan_version)]
                 if matching_obj:
-                    context_summary["active_objective_id"] = [matching_obj.objective_id]
+                    context_summary["active_objective_id"] = [matching_obj.metadata.get("logical_id", matching_obj.objective_id)]
                     context_summary["active_objective_title"] = [matching_obj.title]
 
             package = WritingContextPackage(
@@ -2430,15 +2484,30 @@ class PostgresNarrativeRepository:
             objectives=objectives,
             source_outline=record.source_outline,
             source_outline_hash=record.source_outline_hash,
-            idempotency_key=record.idempotency_key,
-            input_hash=record.input_hash,
+            idempotency_key=None if (record.edit_metadata or {}).get("contract_version")=="plan-edit-v1" else record.idempotency_key,
+            input_hash="" if (record.edit_metadata or {}).get("contract_version")=="plan-edit-v1" else record.input_hash,
             created_by=str(record.created_by) if record.created_by else None,
         )
+
+    def edit_plan(self, novel_id, actor_id, body):
+        from infrastructure.plan_edit import command
+        try:
+            return command(self, novel_id, actor_id, body)
+        except IntegrityError:
+            raise BootstrapConflictError('PLAN_COLLISION') from None
+
+    def read_plans(self, novel_id, actor_id, plan_id=None):
+        from infrastructure.plan_edit import read
+        return read(self, novel_id, actor_id, plan_id)
 
     def create_story_plan(self, plan: StoryPlan) -> StoryPlan:
         novel_id = self._novel_id(plan.novel_id)
         plan_uuid = uuid.UUID(plan.plan_id) if plan.plan_id else uuid.uuid4()
         with session_scope(self._session_factory) as session:
+            from infrastructure.plan_edit import lock
+            lock(self, session, novel_id)
+            if session.scalar(select(StoryPlanRecord.id).where(*self._scope(StoryPlanRecord,novel_id),StoryPlanRecord.edit_metadata['contract_version'].as_string()=='plan-edit-v1').limit(1)):
+                raise BootstrapConflictError('PLAN_EDIT_REQUIRES_CAS')
             if plan.idempotency_key:
                 existing = session.scalar(
                     select(StoryPlanRecord).where(
@@ -2558,6 +2627,12 @@ class PostgresNarrativeRepository:
         n_id = self._novel_id(novel_id)
         p_uuid = uuid.UUID(plan_id)
         with session_scope(self._session_factory) as session:
+            from infrastructure.plan_edit import lock
+            lock(self, session, n_id)
+            target = session.scalar(select(StoryPlanRecord).where(*self._scope(StoryPlanRecord,n_id), StoryPlanRecord.id==p_uuid).with_for_update())
+            if target is None:raise KeyError('PLAN_NOT_FOUND')
+            if session.scalar(select(StoryPlanRecord.id).where(*self._scope(StoryPlanRecord,n_id),StoryPlanRecord.edit_metadata['contract_version'].as_string()=='plan-edit-v1').limit(1)):
+                raise BootstrapConflictError('PLAN_EDIT_REQUIRES_CAS')
             session.execute(
                 update(StoryPlanRecord)
                 .where(
@@ -2604,6 +2679,8 @@ class PostgresNarrativeRepository:
             )
             if not plan:
                 raise KeyError(f"StoryPlan {plan_id} not found for novel {novel_id}")
+            if (plan.edit_metadata or {}).get('contract_version')=='plan-edit-v1':
+                raise BootstrapConflictError('PLAN_EDIT_REQUIRES_CAS')
             obj = session.scalar(
                 select(StoryPlanObjectiveRecord).where(
                     StoryPlanObjectiveRecord.id == o_uuid,

@@ -1,0 +1,28 @@
+{
+  "contract_version": "plan-edit-v1",
+  "action": "save",
+  "idempotency_key": "author-plan-1",
+  "expected_plan_version": 0,
+  "source_outline": "Chương 8 dự kiến: Minh phản bội. Đây chưa phải lịch sử.",
+  "private_notes": "Owner-only planning note",
+  "objectives": [
+    {
+      "objective_id": "10000000-0000-0000-0000-000000000097",
+      "expected_intent_version": 0,
+      "target_chapter": 8,
+      "title": "Lựa chọn của Minh",
+      "description": "Dự kiến phản bội",
+      "events": [
+        {
+          "event_id": "20000000-0000-0000-0000-000000000097",
+          "text": "Future betrayal",
+          "participants": [
+            {
+              "name_hint": "Minh"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

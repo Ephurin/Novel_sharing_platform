@@ -1,0 +1,17 @@
+{
+  "docs/development/p2/P2_03_STORY_PLAN_REVIEW_HANDOFF.md": "444aee7dedc11b706c7cc392c12286f4ae0449b8f1565f00da814be2829c87c9",
+  "docs/development/p2/p2-03-review-fixes-evidence/README.md": "ed896e94788ac7ae8912e32f67259a084239567ca1fc52f12a19f8710248bcd1",
+  "docs/development/p2/p2-03-review-fixes-evidence/ci-jobs.json": "5c9aa215efbed3833c3fc2450ad1d17d841f8d618da2467082b6589062fcb709",
+  "docs/development/p2/p2-03-review-fixes-evidence/fix-archive-ui.png": "b933d893a65328649942874df7d9031bf7b04153da5d7f5aa933793befb402ef",
+  "docs/development/p2/p2-03-review-fixes-evidence/fix-events-ui.png": "49299e9c4e5235d64bdf50cd5db27b651544a39a7f8cb3a5359bb6eca9dffabd",
+  "docs/development/p2/p2-03-review-fixes-evidence/fix-readback-hashes.json": "4b3e24462112c4a90080727b8a1e03fe382b74e25701a182f3b8d1d12fb73273",
+  "docs/development/p2/p2-03-review-fixes-evidence/fixture-7aa7d290.zip": "1ad40edd3880d322c071c49e17f8f9ccb3ec5223b4c96909f0895d13b0b95868",
+  "docs/development/p2/p2-03-review-fixes-evidence/historical-failures.json": "94f5a7eaf84c9c58233b80bab9a4504d9b9ffe81236e370bd6651e7e92737c83",
+  "docs/development/p2/p2-03-review-fixes-evidence/initial-3bd9cb04.zip": "fa6a052b1ca86ab428b7e03ec71427da9186816a4fde11e9eae5c37588828282",
+  "docs/development/p2/p2-03-review-fixes-evidence/plan-readback-hashes.json": "b8cfcd42532b60972ad63aece229699b503ae8f49897ccc89b1785d5288e1bcb",
+  "docs/development/p2/p2-03-review-fixes-evidence/review-readback-hashes.json": "5624b5cd8380a3465cf37fec6a02eee4f12b9a91e3dd84752791e99163bca6f7",
+  "docs/development/p2/p2-03-review-fixes-evidence/rollback-caacaf67.zip": "627a6ebf372490e58c850cb8090d799f27b79d4038a20984b6b933de03e23219",
+  "docs/development/p2/p2-03-review-fixes-evidence/source-caacaf67.zip": "c3bba1389811076e87f21ff11ece30c85e039adff33f6d049b7cb4eee1633259",
+  "docs/development/p2/p2-03-review-fixes-evidence/verified-summary.json": "f5924d45b3e1714b7d5f25dc1da948d5d6b390d3424492aad5c7a1126e47adb6",
+  "docs/development/p2/p2-03-review-fixes-evidence/verify_artifacts.py": "f442564bc042b8a9e7118ba2d6ddc3198b73c802f830eede8a3eaa2dd920eebc"
+}
