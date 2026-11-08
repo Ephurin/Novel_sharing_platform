@@ -95,6 +95,11 @@ def test_plan_http_legacy_scope_private_validation_and_bypass(f):
         for endpoint in [path,f"/v1/story-plans/{saved['plan_id']}",f"/v1/story-plans/by-novel/{f.src.novel_id}",f"/v1/story-plans/by-novel/{f.src.novel_id}/active"]:
             r=f.client.get(endpoint,headers=headers);assert r.status_code==code,(endpoint,r.status_code,r.text)
             assert 'PlanPrivateOnly' not in r.text
+    foreign={**owner,'X-Author-Id':str(uuid.uuid4()),'X-Gateway-Legacy-Plan-Read':'admin'}
+    assert f.client.get(f"/v1/story-plans/{saved['plan_id']}",headers=foreign).status_code==404
+    assert f.client.get('/v1/story-plans/not-a-uuid',headers=owner).status_code==422
+    malformed=f.client.post('/v1/story-plans',json={'private_notes':'PlanPrivateOnly'},headers=owner)
+    assert malformed.status_code==422 and 'PlanPrivateOnly' not in malformed.text
     invalid=deepcopy(data);invalid['objectives'][0]['canon_status']='PlanPrivateOnly'
     r=f.client.post(path,json=invalid,headers=owner);assert r.status_code==422 and 'PlanPrivateOnly' not in r.text
     for endpoint in [f"/v1/story-plans/{saved['plan_id']}/activate?novel_id={f.src.novel_id}"]:
