@@ -6,10 +6,14 @@ import pytest
 from sqlalchemy import text
 from domain.errors import BootstrapConflictError
 from tests.test_p2_bootstrap_postgres import engine,f,TENANT,ACTOR,snapshot
-from tests.test_plan_edit_postgres import cleanup_plan_fixtures,body,changed,life,command,canonical
+from tests.test_plan_edit_postgres import cleanup_plan_fixtures,body,changed as _changed,life,command,canonical
 
 pytestmark=pytest.mark.postgres_integration
 FOREIGN='00000000-0000-0000-0000-000000000099'
+
+def changed(result):
+    # HTTP request bodies must not alias nested lists in a prior command receipt.
+    return deepcopy(_changed(result))
 
 
 def read(f,plan=None,actor=ACTOR):return f.repo.read_plans(f.src.novel_id,actor,plan)
