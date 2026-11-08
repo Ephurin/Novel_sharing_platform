@@ -1,5 +1,6 @@
 import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/errors/app-error.js';
+import { logger } from '../../core/logger/logger.js';
 
 export type CopilotLlmContext = {
   instruction: string;
@@ -37,10 +38,22 @@ export function isLlmConfigured() {
   return Boolean(env.AI_LLM_BASE_URL);
 }
 
+// Provider responses are untrusted: they can echo prompts, request headers or keys. Keep a trimmed,
+// masked copy for the server log only.
+function maskUpstream(detail: unknown) {
+  const text = typeof detail === 'string' ? detail : detail instanceof Error ? detail.message : JSON.stringify(detail) ?? '';
+  return text
+    .slice(0, 500)
+    .replace(/(bearer\s+)[^\s"']+/gi, '$1[redacted]')
+    .replace(/\b(sk|pk|key|token|secret)([-_][A-Za-z0-9._-]{4,})/gi, '$1-[redacted]');
+}
+
 // SRS appendix A / docs/API/error-codes.md: a timeout or an unavailable provider is AI_001 (503), so the
-// client can drop the suggestion and let the author keep writing by hand. `reason` tells the causes apart.
-export function aiUnavailable(reason: string, message = 'AI tạm thời không khả dụng. Có thể tiếp tục viết thủ công hoặc thử lại sau.', detail?: unknown) {
-  return new AppError(503, 'AI_001', message, detail === undefined ? { reason } : { reason, detail });
+// client can drop the suggestion and let the author keep writing by hand. The client only ever gets the
+// stable `reason`; whatever the provider said goes to the server log.
+export function aiUnavailable(reason: string, message = 'AI tạm thời không khả dụng. Có thể tiếp tục viết thủ công hoặc thử lại sau.', upstream?: unknown) {
+  if (upstream !== undefined) logger.warn({ reason, upstream: maskUpstream(upstream) }, 'AI provider unavailable');
+  return new AppError(503, 'AI_001', message, { reason });
 }
 
 export async function checkLlmProviderHealth() {

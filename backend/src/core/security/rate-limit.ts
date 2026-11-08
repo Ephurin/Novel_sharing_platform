@@ -1,19 +1,23 @@
-import type { RequestHandler } from 'express';
+import type { Request, RequestHandler } from 'express';
 import { AppError } from '../errors/app-error.js';
 
 type Bucket = { count: number; resetAt: number };
 
 const PRUNE_THRESHOLD = 10_000;
 
-// Fixed-window limiter kept in process memory, keyed by the signed-in user (or the client IP for
-// unauthenticated callbacks). It covers a single API instance; a multi-instance deployment still needs
-// the gateway-level limit described in SRS payment-wallet-service §1.
-export function rateLimit(options: { scope: string; max: number; windowMs: number }): RequestHandler {
+const userOrIp = (request: Request) =>
+  request.auth?.userId ? `user:${request.auth.userId}` : `ip:${request.ip ?? 'unknown'}`;
+
+// Fixed-window limiter kept in process memory, keyed by the signed-in user (or the client IP) unless the
+// route supplies its own key. Release limit: it covers one API instance only and is not a replay defense;
+// a multi-instance or public deployment needs the gateway-level limit of SRS payment-wallet-service §1.
+export function rateLimit(options: { scope: string; max: number; windowMs: number; key?: (request: Request) => string }): RequestHandler {
   const buckets = new Map<string, Bucket>();
+  const keyOf = options.key ?? userOrIp;
 
   return (request, response, next) => {
     const now = Date.now();
-    const key = request.auth?.userId ? `user:${request.auth.userId}` : `ip:${request.ip ?? 'unknown'}`;
+    const key = keyOf(request);
     let bucket = buckets.get(key);
     if (!bucket || bucket.resetAt <= now) {
       if (buckets.size >= PRUNE_THRESHOLD) {
