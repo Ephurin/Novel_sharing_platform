@@ -67,7 +67,7 @@ def test_verified_m0_optional_plan_and_exact_replay(owned,chapters):
     assert f.llm.calls==0
 
 
-@pytest.mark.parametrize('kind',['unreviewed','all-rejected','stale-setup','stale-review','stale-brain','hash','artifact-deleted','decision-deleted','proposal-pending','wrong-snapshot','active-null','active-p1'])
+@pytest.mark.parametrize('kind',['unreviewed','all-rejected','stale-setup','stale-review','stale-brain','hash','artifact-deleted','decision-deleted','proposal-pending','wrong-snapshot','active-null','active-p1','failed-job','entity-type','rule-subject'])
 def test_m0_denials_have_no_mutation(owned,kind):
     f=owned
     if kind in ('unreviewed','all-rejected'):
@@ -86,6 +86,9 @@ def test_m0_denials_have_no_mutation(owned,kind):
         if kind=='artifact-deleted':c.execute(text('DELETE FROM narrative.facts WHERE novel_id=:n'),dict(n=f.src.novel_id))
         if kind=='decision-deleted':c.execute(text('DELETE FROM narrative.proposal_decisions WHERE proposal_id IN (SELECT id FROM narrative.proposals WHERE novel_id=:n)'),dict(n=f.src.novel_id))
         if kind=='proposal-pending':c.execute(text("UPDATE narrative.proposals SET status='pending' WHERE novel_id=:n"),dict(n=f.src.novel_id))
+        if kind=='failed-job':c.execute(text("UPDATE narrative.bootstrap_jobs SET status='failed' WHERE id=:id"),dict(id=job.job_id))
+        if kind=='entity-type':c.execute(text("UPDATE narrative.entities SET entity_type='ORG' WHERE novel_id=:n"),dict(n=f.src.novel_id))
+        if kind=='rule-subject':c.execute(text('UPDATE narrative.facts SET subject_entity_id=(SELECT id FROM narrative.entities WHERE novel_id=:n LIMIT 1) WHERE novel_id=:n'),dict(n=f.src.novel_id))
         if kind in ('active-null','active-p1'):c.execute(text("UPDATE narrative.story_brains SET status='active',baseline_revision_id=:r WHERE novel_id=:n"),dict(n=f.src.novel_id,r=str(uuid.uuid4()) if kind=='active-p1' else None))
     before=state(f,'m0-denied-before-'+kind)
     if kind=='wrong-snapshot':job=replace(job,job_id=str(uuid.uuid4()))

@@ -87,6 +87,14 @@ async function checkStoryBrainActive(novelId: string, actorId: string): Promise<
             AND j.result#>'{setup_activation,response,setup_version}'=j.result->'setup_version'
             AND j.result#>'{setup_activation,response,review_version}'=j.result->'review_version'
             AND j.result#>>'{setup_activation,response,status}'='active'
+            AND j.revisions='[]'::jsonb
+            AND j.result#>>'{setup_activation,request_hash}' ~ '^[0-9a-f]{64}$'
+            AND j.result#>>'{setup_review,response,status}' IN ('review_complete','reviewed_with_unresolved')
+            AND CASE WHEN j.result#>>'{setup_activation,response,brain_version}' ~ '^[0-9]{1,9}$'
+              AND j.result#>>'{setup_review,response,brain_version}' ~ '^[0-9]{1,9}$'
+              THEN (j.result#>>'{setup_activation,response,brain_version}')::bigint=(j.result#>>'{setup_review,response,brain_version}')::bigint+1
+                AND b.brain_version >= (j.result#>>'{setup_activation,response,brain_version}')::bigint
+              ELSE false END
             AND j.result#>'{setup_activation,response,baseline_revision_id}'='null'::jsonb
             AND CASE WHEN jsonb_typeof(j.result#>'{setup_activation,response,canonical_artifact_ids}')='array'
               THEN jsonb_array_length(j.result#>'{setup_activation,response,canonical_artifact_ids}') ELSE 0 END>0

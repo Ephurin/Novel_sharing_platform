@@ -127,6 +127,14 @@ test('P2 M0 -> genuine Core create/PATCH/revision/outbox -> existing P1 HITL',{
   const repeatedAccept=await http(`/chapters/${created.chapterId}/revisions/accept-draft`,'POST',{generationId:generation.job_id});
   assert.equal(repeatedAccept.revision.revisionId,accepted.revision.revisionId);
   assert.equal((await durable('AI-accept-exact-retry',createNovel)).revisions.length,2);
+  const activationJob=(await pg.query("SELECT id,result FROM narrative.bootstrap_jobs WHERE novel_id=$1 AND stage='m0_active'",[createNovel])).rows[0];
+  await pg.query("UPDATE narrative.bootstrap_jobs SET result=result #- '{setup_activation,response,brain_version}' WHERE id=$1",[activationJob.id]);
+  const partialBody={title:'Partial provenance guard',content:'Minh opens a door.',clientRequestId:randomUUID()};
+  const partial=await http(`/novels/${createNovel}/chapters`,'POST',partialBody,201);assert.equal(partial.analysisRevisionId,null);
+  assert.equal((await durable('partial-provenance-no-auto-revision',createNovel)).revisions.length,2);
+  await pg.query('UPDATE narrative.bootstrap_jobs SET result=$1::jsonb WHERE id=$2',[JSON.stringify(activationJob.result),activationJob.id]);
+  const reconciledCreate=await http(`/novels/${createNovel}/chapters`,'POST',partialBody,201);assert.ok(reconciledCreate.analysisRevisionId);await poll(createNovel);
+  assert.equal((await durable('create-after-provenance-restored',createNovel)).revisions.length,3);
  }finally{
   if(failureTrigger){await pg.query('DROP TRIGGER IF EXISTS m0_outbox_fail ON revision_outbox_events');await pg.query('DROP FUNCTION IF EXISTS public.m0_outbox_fail()');}
   if(process.env.P204_EVIDENCE_FILE)await writeFile(process.env.P204_EVIDENCE_FILE,JSON.stringify({providers:'fake only',requests,readbacks},null,2));

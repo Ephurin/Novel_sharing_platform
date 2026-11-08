@@ -13,6 +13,7 @@ from infrastructure.orm_models import (BootstrapJobRecord as Job, ProposalRecord
     FactRecord as Fact, EventRecord, EntityMentionRecord, StateTransitionRecord)
 from domain.errors import BootstrapConflictError
 from application.setup_service import digest
+from application.entity_review_service import TYPE_MAP
 
 
 def deny(code):
@@ -22,6 +23,7 @@ def deny(code):
 def eligibility(repo, session, novel, brain, job, actor):
     r=job.result
     if brain.status=='active':deny('M0_ALREADY_ACTIVE')
+    if brain.baseline_revision_id is not None or job.story_brain_id!=brain.id:deny('M0_HISTORY_EXISTS')
     if job.status!='waiting_review':deny('M0_SETUP_NOT_REVIEWED')
     sources=session.scalars(select(Job).where(*repo._scope(Job,novel))).all()
     latest=max((j.result.get('setup_version',0) for j in sources if (j.result or {}).get('contract_version')=='setup-v1'),default=0)
@@ -54,6 +56,7 @@ def eligibility(repo, session, novel, brain, job, actor):
         if (run is None or run.operation!='bootstrap_setup' or p.status!=expected_status
                 or str(p.dependency_group_id)!=card['dependency_group_id'] or p.payload!=card['payload']
                 or p.evidence!=[evidence] or len(rows)!=1 or str(rows[0].actor_id)!=actor
+                or p.expected_brain_version!=r['brain_version']
                 or rows[0].edited_payload!=audit or rows[0].decision not in (('accept','edit_accept') if expected_status=='accepted' else ('reject',))
                 or audit.get('actor_id')!=actor or audit.get('novel_id')!=str(novel)
                 or audit.get('tenant_id')!=str(repo._tenant_id)):
@@ -67,13 +70,16 @@ def eligibility(repo, session, novel, brain, job, actor):
         if card['card_type']=='entity':
             entity=session.scalar(select(Entity).where(*repo._scope(Entity,novel),Entity.id==target).with_for_update(read=True))
             if (p.proposal_type!='entity' or entity is None or entity.confirmation_status!='confirmed'
-                    or entity.canonical_name!=payload['canonical_name'] or str(target)!=payload['entity_id']):deny('M0_ARTIFACT_INCONSISTENT')
+                    or entity.canonical_name!=payload['canonical_name'] or str(target)!=payload['entity_id']
+                    or payload.get('entity_type') not in ('character','location')
+                    or TYPE_MAP.get(entity.entity_type.lower(),entity.entity_type.upper())!=TYPE_MAP[payload['entity_type']]):deny('M0_ARTIFACT_INCONSISTENT')
         elif card['card_type']=='world_rule':
             fact=session.scalar(select(Fact).where(*repo._scope(Fact,novel),Fact.id==target).with_for_update(read=True))
             if (p.proposal_type!='fact' or fact is None or fact.confirmation_status!='confirmed'
                     or fact.is_retired or fact.fact_type!='world_rule' or fact.fact_key!=payload['fact_key']
                     or fact.fact_value!=payload['fact_value'] or fact.source_revision_id is not None
-                    or fact.chapter_number is not None or str(fact.created_by)!=actor):deny('M0_ARTIFACT_INCONSISTENT')
+                    or fact.chapter_number is not None or str(fact.created_by)!=actor
+                    or (str(fact.subject_entity_id) if fact.subject_entity_id else None)!=payload.get('subject_entity_id')):deny('M0_ARTIFACT_INCONSISTENT')
         else:deny('M0_UNSUPPORTED_ARTIFACT')
         artifacts.extend(ids)
     if not artifacts or sorted(artifacts)!=sorted(review['canonical_artifact_ids']):deny('M0_NO_ACCEPTED_ARTIFACT')
