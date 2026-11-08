@@ -1,0 +1,220 @@
+{
+  "$defs": {
+    "SetupDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "proposal_id": {
+          "title": "Proposal Id",
+          "type": "string"
+        },
+        "decision": {
+          "enum": [
+            "accept",
+            "reject"
+          ],
+          "title": "Decision",
+          "type": "string"
+        },
+        "identity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SetupIdentityChoice"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "edited_entity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SetupEntityEdit"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "edited_rule": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SetupRuleEdit"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "proposal_id",
+        "decision"
+      ],
+      "title": "SetupDecision",
+      "type": "object"
+    },
+    "SetupEntityEdit": {
+      "additionalProperties": false,
+      "properties": {
+        "canonical_name": {
+          "maxLength": 255,
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Canonical Name",
+          "type": "string"
+        },
+        "aliases": {
+          "items": {
+            "maxLength": 255,
+            "minLength": 1,
+            "pattern": "\\S",
+            "type": "string"
+          },
+          "title": "Aliases",
+          "type": "array"
+        }
+      },
+      "required": [
+        "canonical_name"
+      ],
+      "title": "SetupEntityEdit",
+      "type": "object"
+    },
+    "SetupIdentityChoice": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "new",
+            "existing"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "approved_entity_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Approved Entity Id"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "SetupIdentityChoice",
+      "type": "object"
+    },
+    "SetupRuleEdit": {
+      "additionalProperties": false,
+      "properties": {
+        "fact_key": {
+          "maxLength": 100,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_-]+$",
+          "title": "Fact Key",
+          "type": "string"
+        },
+        "fact_value": {
+          "maxLength": 10000,
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Fact Value",
+          "type": "string"
+        },
+        "subject_entity_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Subject Entity Id"
+        }
+      },
+      "required": [
+        "fact_key",
+        "fact_value"
+      ],
+      "title": "SetupRuleEdit",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "idempotency_key": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "dependency_group_id": {
+      "title": "Dependency Group Id",
+      "type": "string"
+    },
+    "setup_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Setup Hash",
+      "type": "string"
+    },
+    "expected_setup_version": {
+      "minimum": 1,
+      "title": "Expected Setup Version",
+      "type": "integer"
+    },
+    "expected_review_version": {
+      "minimum": 0,
+      "title": "Expected Review Version",
+      "type": "integer"
+    },
+    "expected_brain_version": {
+      "minimum": 0,
+      "title": "Expected Brain Version",
+      "type": "integer"
+    },
+    "decisions": {
+      "items": {
+        "$ref": "#/$defs/SetupDecision"
+      },
+      "maxItems": 500,
+      "minItems": 1,
+      "title": "Decisions",
+      "type": "array"
+    }
+  },
+  "required": [
+    "idempotency_key",
+    "dependency_group_id",
+    "setup_hash",
+    "expected_setup_version",
+    "expected_review_version",
+    "expected_brain_version",
+    "decisions"
+  ],
+  "title": "SetupReviewRequest",
+  "type": "object"
+}
