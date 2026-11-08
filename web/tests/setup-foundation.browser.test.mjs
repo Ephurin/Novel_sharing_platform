@@ -319,6 +319,7 @@ test('F-01 event cards preserve exact IDs/participants through removal/edit/move
   assert.deepEqual(saved.objectives[0].dependencies,[chapter]);
   assert.deepEqual(h.reads.at(-1).plans.at(-1).objectives.find(o=>o.objective_id===chapter).events,events);
   await page.reload();await expect(page.getByLabel('Sự kiện 3 chương 2',{exact:true})).toHaveValue('New D');
+  if(process.env.P203_FIX_EVENT_SCREENSHOT)await page.screenshot({path:process.env.P203_FIX_EVENT_SCREENSHOT,fullPage:true});
   await button('Xóa sự kiện 2 chương 2').click();await button('Thêm sự kiện chương 2').click();await page.getByLabel('Sự kiện 3 chương 2',{exact:true}).fill('Discarded E');
   h.setConflict(true);await button('Lưu bản nháp dàn ý').click();await expect(page.getByRole('alert').filter({hasText:'PLAN_VERSION_CONFLICT'})).toBeVisible();
   const discarded=h.calls.at(-1).objectives.find(o=>o.objective_id===chapter).events[2].event_id;
@@ -345,6 +346,7 @@ test('F-02 archived source is read-only and restore requires an explicit fork AP
   await expect(page.getByText(/Bản đã lưu trữ · chỉ đọc/)).toBeVisible();await expect(page.getByLabel('Dán hoặc nhập dàn ý tương lai',{exact:true})).toBeDisabled();
   await expect(page.getByRole('button',{name:'Dùng bản đã lưu',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'Lưu bản nháp dàn ý',exact:true})).toBeDisabled();
   await expect(page.getByRole('button',{name:'Lưu trữ bản kế hoạch',exact:true})).toHaveCount(0);
+  if(process.env.P203_FIX_ARCHIVE_SCREENSHOT)await page.screenshot({path:process.env.P203_FIX_ARCHIVE_SCREENSHOT,fullPage:true});
   const count=h.calls.length;await page.getByRole('button',{name:'Khôi phục thành bản nháp mới',exact:true}).click();
   await expect(page.getByRole('alert').filter({hasText:'Đã lưu phiên bản dàn ý'})).toBeVisible();assert.equal(h.calls.length,count+1);
   assert.equal(h.calls.at(-1).action,'fork');assert.equal(h.calls.at(-1).expected_plan_version,2);assert.equal(h.calls.at(-1).source_plan_id,'source-1');
