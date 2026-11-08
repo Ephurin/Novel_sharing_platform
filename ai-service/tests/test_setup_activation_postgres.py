@@ -12,6 +12,7 @@ from tests.test_p2_bootstrap_postgres import engine,f,TENANT,ACTOR,snapshot
 from tests.test_setup_v1_postgres import submit
 from tests.test_setup_review_postgres import envelope,review,no_history
 from tests.test_plan_edit_postgres import body as plan_body,command,life
+from tests.test_setup_v1 import request_data
 
 pytestmark=pytest.mark.postgres_integration
 
@@ -122,3 +123,62 @@ def test_m0_http_authority_readiness_and_privacy(owned):
     response=f.client.post(path,json=body,headers=headers)
     assert response.status_code==200,response.text
     assert 'PrivateOnly' not in response.text and 'OutlineOnly' not in response.text
+
+
+@pytest.mark.parametrize('kind',['empty','initial-only','supported-with-unresolved'])
+def test_initial_conditions_never_stand_in_for_supported_setup(owned,kind):
+    f=owned;data=request_data(f.src.novel_id)['setup']
+    data['initial_conditions']=[dict(declaration_id='condition',subject_declaration_id='one',attribute_key='rank',value=3)]
+    if kind in ('empty','initial-only'):
+        data['declarations']=data['declarations'][:1] if kind=='initial-only' else []
+        data['world_rules']=[]
+        if kind=='empty':data['initial_conditions']=[]
+    job=submit(f,setup=data)
+    if kind=='initial-only':
+        rejected=envelope(f,job)
+        rejected['decisions']=[dict(proposal_id=d['proposal_id'],decision='reject') for d in rejected['decisions']]
+        review(f,job,rejected)
+    if kind=='supported-with-unresolved':
+        result=review(f,job,envelope(f,job))
+        assert result['status']=='reviewed_with_unresolved'
+        body=dict(contract_version='setup-m0-v1',idempotency_key='activate',setup_hash=job.result['setup_hash'],expected_setup_version=1,expected_review_version=1,expected_brain_version=2)
+        receipt=activate(f,job,body)
+        assert len(receipt['unresolved_proposal_ids'])==1
+        after=state(f,'m0-unresolved-nonblocking');no_history(after)
+        assert len(after['facts'])==1 and after['facts'][0]['fact_type']=='world_rule'
+    else:
+        body=dict(contract_version='setup-m0-v1',idempotency_key='activate',setup_hash=job.result['setup_hash'],expected_setup_version=1,expected_review_version=1,expected_brain_version=2 if kind=='initial-only' else 1)
+        before=state(f,'m0-unsupported-before-'+kind)
+        with pytest.raises(BootstrapConflictError):activate(f,job,body)
+        assert state(f,'m0-unsupported-after-'+kind)==before
+
+
+def test_activation_failure_rolls_back_marker_brain_and_job(owned):
+    f=owned;job,body=ready(f)
+    with f.engine.begin() as c:
+        c.execute(text("CREATE FUNCTION public.m0_activation_fail() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.status='active' THEN RAISE EXCEPTION 'isolated M0 activation failure'; END IF; RETURN NEW; END $$"))
+        c.execute(text('CREATE TRIGGER m0_activation_fail BEFORE UPDATE ON narrative.story_brains FOR EACH ROW EXECUTE FUNCTION public.m0_activation_fail()'))
+    before=state(f,'m0-rollback-before')
+    try:
+        with pytest.raises(Exception,match='isolated M0 activation failure'):activate(f,job,body)
+        assert state(f,'m0-rollback-after')==before
+    finally:
+        with f.engine.begin() as c:
+            c.execute(text('DROP TRIGGER m0_activation_fail ON narrative.story_brains'));c.execute(text('DROP FUNCTION public.m0_activation_fail()'))
+    assert activate(f,job,body)['status']=='active'
+
+
+def test_newer_source_competes_with_activation_under_shared_lock(owned):
+    f=owned;job,body=ready(f)
+    def attempt(action):
+        try:
+            return activate(f,job,body) if action=='activate' else submit(f,idempotency_key='new-source',expected_setup_version=1)
+        except BootstrapConflictError as error:return error.code
+    with ThreadPoolExecutor(2) as pool:results=list(pool.map(attempt,['activate','bootstrap']))
+    after=state(f,'m0-bootstrap-race')
+    if after['story_brains'][0]['status']=='active':
+        assert isinstance(results[0],dict) and results[1]=='ALREADY_ACTIVE'
+    else:
+        assert results[0] in ('M0_STALE_SETUP','M0_BOOTSTRAP_IN_PROGRESS')
+        assert not any(j['result'].get('setup_activation') for j in after['bootstrap_jobs'])
+    no_history(after)

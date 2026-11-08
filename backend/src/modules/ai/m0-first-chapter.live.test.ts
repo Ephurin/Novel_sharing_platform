@@ -106,6 +106,27 @@ test('P2 M0 -> genuine Core create/PATCH/revision/outbox -> existing P1 HITL',{
   const created=await http(`/novels/${createNovel}/chapters`,'POST',createBody,201);assert.ok(created.analysisRevisionId);await poll(createNovel);
   const retried=await http(`/novels/${createNovel}/chapters`,'POST',createBody,201);assert.equal(retried.chapterId,created.chapterId);assert.equal(retried.analysisRevisionId,created.analysisRevisionId);
   const createdState=await durable('meaningful-create-and-retry',createNovel);assert.equal(createdState.revisions.length,1);assert.equal(createdState.outbox.length,1);assert.equal(createdState.mongo[0].version,1);
+  // A real fake-provider generation is based on the genuine saved revision;
+  // no synthetic writing job or source revision is inserted by the fixture.
+  const revision=createdState.revisions[0];
+  const brainVersion=Number(createdState.story_brains[0].brain_version);
+  const genBody={novel_id:createNovel,chapter_id:created.chapterId,revision_id:revision.revision_id,content_hash:revision.content_hash,operation:'continuation',selection:{start:Array.from(createBody.content).length,end:Array.from(createBody.content).length,cursor:Array.from(createBody.content).length},instruction:'Continue the scene.',expected_brain_version:brainVersion,idempotency_key:randomUUID()};
+  const generation=await http('/ai/writing/generations','POST',genBody,202);
+  let completed:any;
+  for(let i=0;i<100;i++){
+    completed=await http('/ai/jobs/'+generation.job_id);
+    if(['completed','failed'].includes(completed.status))break;
+    await new Promise(r=>setTimeout(r,100));
+  }
+  assert.equal(completed.status,'completed');assert.equal(completed.validation_status,'passed');
+  const accepted=await http(`/chapters/${created.chapterId}/revisions/accept-draft`,'POST',{generationId:generation.job_id});
+  await poll(createNovel);
+  const acceptedState=await durable('real-AI-accept-after-genuine-base',createNovel);
+  assert.equal(acceptedState.revisions.length,2);assert.equal(acceptedState.revisions[1].source_type,'AI_DRAFT_ACCEPT');assert.equal(acceptedState.revisions[1].parent_revision_id,revision.revision_id);
+  // P1's exact-generation retry is an idempotent receipt, not a second accept.
+  const repeatedAccept=await http(`/chapters/${created.chapterId}/revisions/accept-draft`,'POST',{generationId:generation.job_id});
+  assert.equal(repeatedAccept.revision.revisionId,accepted.revision.revisionId);
+  assert.equal((await durable('AI-accept-exact-retry',createNovel)).revisions.length,2);
  }finally{
   if(failureTrigger){await pg.query('DROP TRIGGER IF EXISTS m0_outbox_fail ON revision_outbox_events');await pg.query('DROP FUNCTION IF EXISTS public.m0_outbox_fail()');}
   if(process.env.P204_EVIDENCE_FILE)await writeFile(process.env.P204_EVIDENCE_FILE,JSON.stringify({providers:'fake only',requests,readbacks},null,2));

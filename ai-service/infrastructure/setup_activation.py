@@ -26,7 +26,7 @@ def eligibility(repo, session, novel, brain, job, actor):
     sources=session.scalars(select(Job).where(*repo._scope(Job,novel))).all()
     latest=max((j.result.get('setup_version',0) for j in sources if (j.result or {}).get('contract_version')=='setup-v1'),default=0)
     if r['setup_version']!=latest:deny('M0_STALE_SETUP')
-    if any(j.id!=job.id and (j.status in ('running','queued','importing') or
+    if any(j.id!=job.id and (j.status in ('running','queued','importing','waiting_entity_review') or
             (j.status=='waiting_review' and not (j.result or {}).get('setup_review')))
             for j in sources):deny('M0_BOOTSTRAP_IN_PROGRESS')
     if digest(r['setup_source']['setup'])!=r['setup_hash']:deny('M0_SOURCE_INVALID')
