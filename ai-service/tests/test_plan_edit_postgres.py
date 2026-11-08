@@ -47,7 +47,10 @@ def test_plan_sizes_versions_edit_reorder_fork_skip_and_history(f):
     fork=changed(result);fork.update(action='fork',expected_plan_version=active['plan_version'])
     restored=command(f,fork);assert restored['objectives']==result['objectives']
     active2=command(f,life(restored,'activate'))
-    skipped=command(f,life(active2,'skip'))
+    deleted=command(f,life(active2,'delete'))
+    assert deleted['status']=='deleted' and not deleted['objectives']
+    assert f.repo.read_plans(f.src.novel_id,ACTOR)['active_plan_id'] is None
+    skipped=command(f,life(deleted,'skip'))
     assert f.repo.read_plans(f.src.novel_id,ACTOR)['active_plan_id'] is None
     assert canonical(snapshot(f,'plan-canon-after'))==canonical(before)
     assert f.llm.calls==0
