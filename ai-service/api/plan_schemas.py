@@ -36,6 +36,7 @@ class PlanEditCommand(StrictDTO):
     objectives: list[PlanObjectiveEdit]=Field(default_factory=list,max_length=500)
     @model_validator(mode='after')
     def graph(self):
+        if len(self.model_dump_json().encode('utf-8'))>1048576:raise ValueError('Plan payload exceeds existing Gateway limit')
         ids=[o.objective_id for o in self.objectives]
         chapters=[o.target_chapter for o in self.objectives]
         events=[e.event_id for o in self.objectives for e in o.events]

@@ -169,3 +169,22 @@ def test_plan_migration_up_down_isolated_database(engine,monkeypatch):
         proof.dispose()
         with admin.connect() as c:c.execute(text('DROP DATABASE '+name+' WITH (FORCE)'))
         admin.dispose()
+
+
+def test_rolling_twelve_edits_and_rejected_activation_preserve_active(f):
+    current=command(f,body(25));first=current
+    for i in range(12):
+        request=changed(current);request['objectives'][0]['description']='Revision '+str(i)
+        current=command(f,request)
+    assert current['objectives'][0]['objective_id']==first['objectives'][0]['objective_id']
+    assert current['objectives'][0]['intent_version']==13
+    active=command(f,life(current,'activate'))
+    before=snapshot(f,'plan-activation-negative-before')
+    bad=life(active,'activate');bad['source_plan_id']=str(uuid.uuid4())
+    with pytest.raises(KeyError):command(f,bad)
+    stale=life(active,'activate');stale['expected_plan_version']-=1
+    with pytest.raises(BootstrapConflictError):command(f,stale)
+    assert snapshot(f,'plan-activation-negative-after')==before
+    with pytest.raises(BootstrapConflictError):f.repo.activate_story_plan(f.src.novel_id,first['plan_id'])
+    assert snapshot(f,'plan-legacy-bypass-after')==before
+    assert f.repo.read_plans(f.src.novel_id,ACTOR,first['plan_id'])['objectives']==first['objectives']
