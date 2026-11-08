@@ -2368,13 +2368,13 @@ class PostgresNarrativeRepository:
                     "status": active_plan.status,
                     "source_outline_hash": active_plan.source_outline_hash,
                     "total_objectives": len(active_plan.objectives),
-                    "active_objective_id": matching_obj.objective_id if matching_obj else None,
+                    "active_objective_id": matching_obj.metadata.get("logical_id", matching_obj.objective_id) if matching_obj else None,
                 }
                 if matching_obj:
                     current_objective = {
                         "authority_lane": "FUTURE_PLAN",
                         "planned_events": matching_obj.metadata.get("events", []),
-                        "objective_id": matching_obj.objective_id,
+                        "objective_id": matching_obj.metadata.get("logical_id", matching_obj.objective_id),
                         "order_index": matching_obj.order_index,
                         "target_chapter": matching_obj.target_chapter,
                         "objective_type": matching_obj.objective_type,
@@ -2385,7 +2385,7 @@ class PostgresNarrativeRepository:
                 context_summary["plan_id"] = [active_plan.plan_id]
                 context_summary["plan_version"] = [str(active_plan.plan_version)]
                 if matching_obj:
-                    context_summary["active_objective_id"] = [matching_obj.objective_id]
+                    context_summary["active_objective_id"] = [matching_obj.metadata.get("logical_id", matching_obj.objective_id)]
                     context_summary["active_objective_title"] = [matching_obj.title]
 
             package = WritingContextPackage(

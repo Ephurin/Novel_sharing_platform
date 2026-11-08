@@ -123,6 +123,7 @@ def test_plan_context_chapter_scope_no_notes_or_history(f):
     assert context3.planning_context['authority_lane']=='FUTURE_PLAN'
     assert context3.current_objective['target_chapter']==3
     assert context8.current_objective['target_chapter']==8
+    assert context8.current_objective['objective_id']==first['objectives'][7]['objective_id']
     assert context8.current_objective['planned_events'][0]['text']=='Planned betrayal'
     assert 'PlanPrivateOnly' not in json.dumps(__import__('dataclasses').asdict(context8))
     assert not context8.recent_events
