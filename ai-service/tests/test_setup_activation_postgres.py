@@ -185,3 +185,17 @@ def test_newer_source_competes_with_activation_under_shared_lock(owned):
         assert results[0] in ('M0_STALE_SETUP','M0_BOOTSTRAP_IN_PROGRESS')
         assert not any(j['result'].get('setup_activation') for j in after['bootstrap_jobs'])
     no_history(after)
+
+
+def test_current_owner_change_does_not_adopt_old_setup(owned):
+    f=owned;job,body=ready(f);other=str(uuid.uuid4())
+    with f.engine.begin() as c:
+        c.execute(text("INSERT INTO users(user_id,email,username,password_hash,role,status) VALUES (:a,:email,:name,'offline','AUTHOR','ACTIVE')"),dict(a=other,email=other+'@example.test',name='m0-'+other))
+        c.execute(text('UPDATE novels SET author_id=:a WHERE novel_id=:n'),dict(a=other,n=f.src.novel_id))
+    before=state(f,'m0-transfer-before')
+    with pytest.raises(KeyError):activate(f,job,body)
+    path=f'/v1/story-brains/{f.src.novel_id}/setup/{job.job_id}/activate'
+    for actor in (ACTOR,other):
+        response=f.client.post(path,json=body,headers={**f.headers,'X-Author-Id':actor})
+        assert response.status_code==404 and 'PrivateOnly' not in response.text
+    assert state(f,'m0-transfer-after')==before

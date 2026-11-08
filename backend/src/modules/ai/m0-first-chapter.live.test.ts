@@ -75,6 +75,8 @@ test('P2 M0 -> genuine Core create/PATCH/revision/outbox -> existing P1 HITL',{
   const saved=await http(`/chapters/${empty.chapterId}`,'PATCH',{content,expectedVersion:2},200);
   assert.ok(saved.analysisRevisionId);await poll();
   const first=await durable('M-FIRST-saved');
+  const firstReadiness=await http(`/ai/story-brains/${novel}/setup/${first.bootstrap_jobs[0].id}/activate`);
+  assert.equal(firstReadiness.first_saved_revision.revision_id,saved.analysisRevisionId);assert.equal(firstReadiness.first_saved_revision.chapter_number,1);
   assert.equal(first.revisions.length,1);assert.equal(first.outbox.length,1);assert.equal(first.revisions[0].content_hash,createHash('sha256').update(content).digest('hex'));
   assert.equal(first.revisions[0].created_by,owner);assert.equal(first.revisions[0].parent_revision_id,null);assert.equal(first.revisions[0].source_type,'AUTHOR_MANUAL');
   assert.equal(first.story_brains[0].baseline_revision_id,null);assert.equal(first.events.length,0);

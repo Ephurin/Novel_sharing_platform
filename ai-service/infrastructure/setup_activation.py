@@ -107,7 +107,9 @@ def activate(repo,novel_id,snapshot_id,actor_id,request=None):
             if previous['idempotency_key']==request.idempotency_key and previous['request_hash']==fingerprint:return deepcopy(previous['response'])
             deny('M0_IDEMPOTENCY_CONFLICT')
         if previous:
-            return dict(contract_version='setup-m0-v1',eligible=False,reason='M0_ALREADY_ACTIVE',activation=previous['response'])
+            first=session.execute(text("SELECT r.revision_id,r.chapter_id,r.content_hash,c.chapter_number FROM chapter_revisions r JOIN chapters c ON c.chapter_id=r.chapter_id AND c.novel_id=r.novel_id WHERE r.novel_id=:n AND r.created_by=:a AND r.source_type IN ('AUTHOR_MANUAL','AI_DRAFT_ACCEPT') AND r.content ~ '[^[:space:]]' ORDER BY r.created_at,r.revision_id LIMIT 1"),dict(n=novel,a=uuid.UUID(actor))).mappings().first()
+            saved=dict(revision_id=str(first['revision_id']),chapter_id=str(first['chapter_id']),content_hash=first['content_hash'],chapter_number=first['chapter_number']) if first else None
+            return dict(contract_version='setup-m0-v1',eligible=False,reason='M0_ALREADY_ACTIVE',activation=previous['response'],first_saved_revision=saved)
         try:
             artifacts,unresolved=eligibility(repo,session,novel,brain,job,actor)
         except BootstrapConflictError as exc:

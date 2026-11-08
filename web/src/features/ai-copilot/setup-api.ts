@@ -34,7 +34,8 @@ export async function reviewSetup(novelId:string, snapshotId:string, body:SetupR
 
 export type SetupM0Readiness={contract_version:'setup-m0-v1';eligible:boolean;reason:string|null;
   setup_hash?:string;expected_setup_version?:number;expected_review_version?:number;expected_brain_version?:number;
-  activation?:{status:'active';baseline_kind:'M0';brain_version:number}};
+  activation?:{status:'active';baseline_kind:'M0';brain_version:number};
+  first_saved_revision?:{revision_id:string;chapter_id:string;content_hash:string;chapter_number:number}|null};
 export async function getSetupM0Readiness(novelId:string,snapshotId:string){
   return (await apiClient.get<ApiEnvelope<SetupM0Readiness>>(`/ai/story-brains/${novelId}/setup/${snapshotId}/activate`)).data.data;
 }

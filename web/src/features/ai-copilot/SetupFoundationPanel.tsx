@@ -105,7 +105,7 @@ function SetupM0Activation({snapshot,onReload}:{snapshot:SetupSnapshot;onReload:
     finally{if(active.current)setPending(false);}
   }
   return <Stack gap="xs">
-    {readiness?.activation?<Alert color="green">Thiết lập đã được kích hoạt. Bạn có thể viết và lưu chương đầu tiên; không cần có dàn ý. Diễn biến mới vẫn cần tác giả duyệt.</Alert>:
+    {readiness?.activation?<Alert color="green">{readiness.first_saved_revision?'Đã lưu chương đầu tiên vào bản lưu bất biến.':'Thiết lập đã được kích hoạt. Bạn có thể viết và lưu chương đầu tiên; không cần có dàn ý.'} Diễn biến mới vẫn cần tác giả duyệt.</Alert>:
       <><Text size="sm">Kích hoạt riêng thiết lập đã duyệt trước khi viết. Thao tác này không tạo chương hay lịch sử truyện.</Text>
       <Button onClick={activate} disabled={!readiness?.eligible} loading={pending}>Kích hoạt thiết lập để bắt đầu viết</Button>
       {readiness&&!readiness.eligible&&<Text size="sm">Chưa thể kích hoạt: hãy hoàn tất duyệt bản thiết lập mới nhất với ít nhất một nhân vật hoặc quy tắc được chấp nhận.</Text>}</>}
