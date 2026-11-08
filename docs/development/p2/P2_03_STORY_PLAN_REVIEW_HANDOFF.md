@@ -1,3 +1,78 @@
+# PR #98 — F-04 async worker provenance
+
+Review request: [comment6721552556](https://github.com/Ephurin/Novel_sharing_platform/pull/98#issuecomment-6721552556). This section supersedes the prior merge-readiness verdict. Historical F-01/F-02/F-03 text and archives below are retained.
+
+- Branch: `codex/p2-03-story-plan-core`, same Draft PR98; base reverified `f20d0df38a90f5a61d1ac6472c0152d828697117`.
+- Previous delivery/reviewed source: `1b5c4349513126d0df347690ad17ce755590ed47`.
+- Baseline probe source: `53cd695eada15bff3491b197243db1e28051ca52`; runtime confirmed exposure before product changes. Immutable archive and reproducible verifier: [F04 evidence](p2-03-f04-evidence/README.md).
+- Implementation/test source: `f070af660ae1308a189bb56ff8945db33071bc94`. Delivery will add this handoff/evidence only; its exact SHA and independently rerun checks are recorded in PR metadata to avoid a self-referential commit hash.
+- Current source CI: [P2 feature42482967326](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42482967326), [P742482967348](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42482967348), [P842482967410](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42482967410). Results are recorded below after completion.
+
+## Confirmed threat and trust boundary
+
+The HTTP preview guard was not on the worker path. On PostgreSQL16, POST `/v1/writing/generations` persisted a real job and FastAPI background execution reached `WritingService.process_generation()` with a real immutable Platform chapter revision. The recording fake provider received legacy title/description/metadata markers for creator-NULL and foreign-author active legacy plans, and for a foreign tagged P2 active plan. Each job completed with one provider call. Authorized same-owner legacy/manual and no-plan controls also completed. This is provider-bound payload evidence, not an inference from a404 or an unrelated revision failure. The baseline source creates only test fixtures; the production fix follows it in Git history.
+
+The authority source remains the existing Platform `novels.author_id`, `chapters` and `chapter_revisions`, joined by exact novel/chapter/revision IDs; no owner replica or new store was added. Trusted Gateway still authenticates users, asserts chapter/novel ownership, overwrites body actor/chapter cutoff and sends authenticated identity headers. On PostgreSQL the Python POST also validates the service token and consistent author/user/actor headers, derives the actor from that principal and rejects a conflicting body actor. ADMIN does not override the worker's owner/source-creator policy.
+
+At worker execution, `writing_authority_snapshot()` verifies configured tenant, persisted job actor/scope/hash/chapter cutoff, current Platform owner, canonical revision membership/content hash and active plan source creator. Missing actor, foreign/NULL creator and scope mismatches fail closed. It reads ownership, active plan and objectives in one repeatable-read transaction, returning a detached authorized snapshot. The context builder consumes that exact snapshot; an empty tuple means explicitly no plan and cannot trigger a fresh unscoped active-plan lookup. Default privileged repository/context retrieval remains available to trusted internal consumers.
+
+After context packing and the generating-stage job save, the worker obtains a fresh authority snapshot immediately before calling the provider. A changed current owner, persisted actor, active source, objective content or plan version blocks dispatch. Both transactions are closed before provider I/O; no database lock or connection spans model calls. The dispatch authorization point is the final committed read: no claim of atomic database revocation and remote-network dispatch is made. The frozen snapshot ensures an intervening newly selected foreign plan is never substituted into a prepared payload. A transfer committed before the final read fails closed; a revocation after dispatch authorization cannot retroactively retract a network request.
+
+Blocked jobs have `status=failed`, `stage=security_blocked`, validation failed and the fixed public code `WRITING_CONTEXT_AUTHORITY_DENIED`. They contain no draft/patch or context hash; generated-stage context summaries are withheld before dispatch. Identical blocked worker retries remain terminal with zero provider calls. P1 canonical idempotency hashes and ordinary provider-error retry behavior remain unchanged; replay additionally rejects an actor/tenant/novel mismatch. Protected internal job lookup requires a configured, valid service token even if generic dev router authentication is disabled. Existing public job/SSE shapes remain compatible; marker scans exercise those actual responses.
+
+## Data and API effects
+
+- `ai-service/api/narrative_routes.py`: trusted actor binding for generation POST; strict privileged internal job-read authentication. No Gateway route or public request schema change.
+- `ai-service/api/plan_routes.py`: extracted shared strict service-token verification; author-plan principal behavior is retained, and privileged P1 lookup does not acquire author-route header requirements.
+- `ai-service/application/writing_service.py`: author snapshot and pre-dispatch fence, terminal security block and scoped replay check. HTTP preview alone is not used as the security boundary.
+- `ai-service/infrastructure/postgres_narrative_repository.py`: read-only current Platform/job/plan authority checks and optional internal `author_plan_snapshot` context argument.
+- `ai-service/domain/errors.py`: nonleaking authority error distinct from model/provider errors.
+- `ai-service/tests/test_writing_plan_authority_postgres.py`:29 real PG cases, real immutable revision, recording fake provider, queued changes, dispatch changes, authenticated DTO/SSE reads and independent Mongo readbacks. Nonempty approved setup entity/rule rows, including a private-author-notes marker, are preserved and private notes are absent from provider payloads. Positive manual plans use actual edit/activate transactions; foreign creator changes simulate transfer.
+- `.github/workflows/p2-setup-provenance.yml`: executes the worker tests with disposable PG16/Mongo7 and raw evidence. `.github/workflows/p8-cutover.yml`: the formerly narrative-only PG job now runs existing Platform migrations as a prerequisite, with offline config. It still executes the complete PostgreSQL suite.
+- No migration/schema/business-state write was added to generation. WORLD SETUP, FUTURE PLAN and CANON HISTORY remain separate; no entity/HITL bypass, event projection, synthetic revision, M0 activation or outbox creation is performed by this fix. New readback pairs compare every existing narrative lane except the expected writing-job receipt, plus actual revisions/outbox/chapters and Mongo drafts.
+
+## Commands and evidence
+
+Exact workflow commands remain executable in the two changed workflow files. The source feature job runs existing backend `npm ci && npm run db:migrate`, AI `python -m alembic upgrade head`, and:
+
+```text
+pytest -o addopts= -vv -s -m postgres_integration --basetemp="$RUNNER_TEMP/p2-a16" --junitxml="$RUNNER_TEMP/p202/a16.xml" tests/test_p2_bootstrap_postgres.py tests/test_setup_v1_postgres.py tests/test_setup_author_scope_postgres.py tests/test_setup_review_postgres.py tests/test_plan_edit_postgres.py tests/test_plan_review_fixes_postgres.py tests/test_writing_plan_authority_postgres.py
+```
+
+P8 PG runs `pytest -o addopts= -q -m postgres_integration` after real backend migrations. P7/P8 retain full non-PG suites, root Compose gates, pgvector, frontend build/typechecks and real P1 persistence integration. The feature job retains real Gateway forwarding/save-revision-outbox/setup-plan readbacks and seven mounted Chromium tests with mocked HTTP; those browser tests are not claimed as real Gateway/database browser E2E.
+
+Local offline command (source0fee14df, exit0,33 PASS; supplemental, not pooled into a different SHA's CI results; earlier275a8cb7 result retained separately):
+
+```text
+python -m pytest -q -o addopts= tests/test_writing_validation_golden.py tests/test_ai_pipe_01_p1_closed_loop.py tests/test_context_budget.py tests/test_context_routing.py
+```
+
+Local Docker/TestClient sandbox limitations and intermediate fixture/CI failures are documented with exact run/job IDs in [evidence README](p2-03-f04-evidence/README.md). No mock or source inspection is counted as real PostgreSQL PASS. All providers used by acceptance are fake/offline; live model calls=0. PR remains Draft, no merge/deployment/P2-04/PR93 work.
+
+## F-04 final source results
+
+All results below belong to implementation source `f070af660ae1308a189bb56ff8945db33071bc94` (CI feature checkout `6b39e03f11525e9ea84d7c4998c322c622706e31`, identical tree `bb9f671cb1e1fdca427ff62b736744602259c9a6`). No result is pooled with an earlier SHA.
+
+| Verification | Result / exit |
+| --- | --- |
+| P2 Feature |1/1 job PASS;113 SQL PASS, including29 F04;46 focused PASS; exit0 |
+| Recording worker + durable readbacks |20 pairs verified;17 security blocks/zero provider calls,3 authorized calls; unchanged approved setup/Canon/revisions/outbox/Mongo; verifier exit0 |
+| Gateway + real P1 persistence |19 forwarding tests PASS; one P1 PG/Mongo save/outbox test PASS; one setup/plan Gateway test PASS; exit0 |
+| Chromium mounted UI (mocked HTTP) |7 PASS,0 SKIP; exit0 |
+| P7 |3/3 jobs PASS, including Compose/auth/pgvector/P1 HITL; exit0 |
+| P8 |7/7 jobs PASS, including real generate/Accept Draft/outline/controller root gates; exit0 |
+| Full PostgreSQL suite |311 PASS,8 SKIP,447 deselected; exit0 |
+| Full non-PostgreSQL suite |415 PASS,32 SKIP,319 deselected,6 subtests PASS; exit0 |
+| Web/backend/mobile checks |Build/typechecks PASS; deterministic Node suite145 PASS,3 SKIP of148; exit0 |
+| Migration/restore |0017 upgrade/down/restore tests retained; PG16 backup/restore/source parity and pgvector0.8.7 PASS; exit0 |
+| Local real PG/Mongo |NOT_RUN_ENVIRONMENT; Docker engine unavailable; CI DB runtime above is real |
+
+PG16.15/Mongo7.0.45 feature services use independent `p2a` databases. Artifact verification reconstructs every Canon/Platform/Mongo digest from raw rows, verifies nonempty approved setup/private-note preservation and scans provider payloads. One creator-NULL blocked job's before/after digest is `3b366cd948ea2ad9a4156a3828ae1335b49eb380858c03cb8eaf7d27f7b2413f`. The separate real P1 save produced2 immutable revisions, one COMPLETED outbox item and Mongo version2 while keeping the approved active Brain version5. No future objective was materialized as a narrative event.
+
+Archives, SHA256 values, exact CI job URLs, commands, historical failures/skips and offline verifier are in [F04 evidence](p2-03-f04-evidence/README.md) and `source-ci.json`. The source archive verifier exits0. Remaining readiness work is only the independent rerun on the documentation/evidence delivery HEAD and GPT-6 review; those exact delivery links are recorded in PR metadata after the commit. No unresolved product regression is known. **Verdict: READY_FOR_OWNER_REVIEW subject to exact delivery CI and independent review; not approval to merge.**
+
+---
+
 # PR #98 — F-01 / F-02 / F-03 review closure
 
 Current review request: [comment6718792330](https://github.com/Ephurin/Novel_sharing_platform/pull/98#issuecomment-6718792330). This section supersedes the initial policy/results below; historical handoff and evidence remain unchanged.
