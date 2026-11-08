@@ -47,7 +47,9 @@ function Editor({novelId,onServerChange}:{novelId:string;onServerChange?:()=>voi
  const canFork=stored&&(stored.can_fork??!['deleted','skipped'].includes(stored.status));
  const canActivate=stored&&(stored.can_activate??(!archived&&!!stored.objectives.length));
  const canArchive=stored&&(stored.can_archive??(!archived&&!['deleted','skipped'].includes(stored.status)));
- const readOnly=!!stored&&!canSave&&!local.dirty;
+ const awaitingRecovery=!!local.backup;
+ const serverReadOnly=!!stored&&!canSave&&!local.dirty;
+ const readOnly=serverReadOnly||awaitingRecovery;
  const invalid=chapters.some(o=>!o.title.trim()||o.target_chapter<1||o.events.some(e=>e.participants.some(p=>p.entity_id?!uuid.test(p.entity_id):!p.name_hint?.trim())))||new Set(chapters.map(o=>o.target_chapter)).size!==chapters.length;
  async function send(action:'save'|'fork'|'activate'|'skip'|'delete',expected=head){
   scope.assertCurrent();if(local.backup)return;const signal=scope.signal;setPending(true);setMessage('');
@@ -73,14 +75,14 @@ function Editor({novelId,onServerChange}:{novelId:string;onServerChange?:()=>voi
   <Text role="status" aria-live="polite" size="sm">{local.dirty?'Bản sửa trên thiết bị · chưa xác nhận với máy chủ':loaded?'Đang xem bản đã đọc từ máy chủ':'Đang tải dàn ý…'}</Text>
   {local.error&&<Alert color="red">{local.error}</Alert>}
   {loaded&&local.backup&&<Alert color="orange" title="Có bản sửa dàn ý trên thiết bị"><Text>Bản máy chủ vẫn nguyên vẹn. Chỉ khôi phục khi bạn muốn tiếp tục bản sửa này.</Text><Group><Button onClick={local.recover}>Khôi phục bản sửa dàn ý</Button><Button variant="default" onClick={()=>local.clear()}>Bỏ bản sửa dàn ý trên thiết bị</Button></Group></Alert>}
-  <Group><Button variant="default" onClick={()=>{if(!local.dirty){local.hydrate(draft(undefined));remember(null);}}} disabled={pending||local.dirty||!loaded}>Dàn ý mới</Button><Button variant="default" onClick={()=>reload()} disabled={pending}>Tải lại dàn ý</Button><Button variant="subtle" onClick={()=>send('skip')} disabled={pending||local.dirty||!loaded}>Không dùng kế hoạch</Button></Group>
+  <Group><Button variant="default" onClick={()=>{if(!local.dirty){local.hydrate(draft(undefined));remember(null);}}} disabled={pending||local.dirty||!loaded||awaitingRecovery}>Dàn ý mới</Button><Button variant="default" onClick={()=>reload()} disabled={pending}>Tải lại dàn ý</Button><Button variant="subtle" onClick={()=>send('skip')} disabled={pending||local.dirty||!loaded||awaitingRecovery}>Không dùng kế hoạch</Button></Group>
   <Text size="sm">{!loaded?'Chưa đọc được kế hoạch máy chủ':list.active_plan_unavailable?'Có kế hoạch legacy ngoài phạm vi hiển thị; không tự nhận quyền với dữ liệu cũ':list.active_plan_id?'Đang dùng một phiên bản kế hoạch tương lai':'Không có kế hoạch đang dùng'} · Version {list.head_version}</Text>
-  <Select label="Phiên bản đã lưu" disabled={pending||local.dirty} value={selected} data={list.plans.map(p=>({value:p.plan_id,label:`v${p.plan_version} · ${p.effective_status??p.status}${p.is_historical?' · lịch sử':''}`}))} onChange={id=>{local.hydrate(draft(list.plans.find(p=>p.plan_id===id)));remember(id);}}/>
+  <Select allowDeselect={false} label="Phiên bản đã lưu" disabled={pending||local.dirty||awaitingRecovery} value={selected} data={list.plans.map(p=>({value:p.plan_id,label:`v${p.plan_version} · ${p.effective_status??p.status}${p.is_historical?' · lịch sử':''}`}))} onChange={id=>{local.hydrate(draft(list.plans.find(p=>p.plan_id===id)));remember(id);}}/>
   {local.dirty&&<Alert color="orange">Bản sửa chưa được xác nhận. Chuyển bước vẫn giữ bản sửa; lưu hoặc xuất trước khi đổi phiên bản.<Group mt="xs"><Button variant="default" onClick={local.exportDraft}>Xuất bản sửa dàn ý</Button><Button variant="default" disabled={pending} onClick={()=>reload(selected??undefined,true)}>Dùng bản máy chủ, bỏ bản sửa</Button>{head!==list.head_version&&canFork&&<Button disabled={pending||invalid} onClick={()=>send('fork',list.head_version)}>Giữ nội dung, tạo phiên bản từ bản nguồn</Button>}</Group></Alert>}
-  {readOnly&&<Alert>{archived?'Bản đã lưu trữ · chỉ đọc. Nội dung lịch sử được giữ; chỉ khôi phục bằng một bản nháp mới.':stored?.effective_status==='tombstone'?'Biên nhận lưu trữ · chỉ đọc. Chọn bản gốc trong lịch sử để xem hoặc khôi phục.':'Bản lịch sử hoặc biên nhận · chỉ đọc. Tạo một phiên bản mới để chỉnh sửa.'}</Alert>}
+  {serverReadOnly&&<Alert>{archived?'Bản đã lưu trữ · chỉ đọc. Nội dung lịch sử được giữ; chỉ khôi phục bằng một bản nháp mới.':stored?.effective_status==='tombstone'?'Biên nhận lưu trữ · chỉ đọc. Chọn bản gốc trong lịch sử để xem hoặc khôi phục.':'Bản lịch sử hoặc biên nhận · chỉ đọc. Tạo một phiên bản mới để chỉnh sửa.'}</Alert>}
   {stored&&<Text size="xs">Trạng thái khi lưu: {stored.snapshot_status??stored.status} · Hiện tại: {stored.effective_status??stored.status}</Text>}
   <Textarea label="Dán hoặc nhập dàn ý tương lai" disabled={pending||readOnly||!loaded} value={outline} onChange={e=>local.edit({outline:e.currentTarget.value})} minRows={3}/>
-  <Group><Select allowDeselect={false} label="Số chương khởi đầu" value={size} onChange={n=>setSize(n??'0')} data={['0','5','10','15','20']}/><Button variant="light" disabled={pending||readOnly||!loaded||size==='0'} onClick={()=>add(Number(size))}>Thêm {size} thẻ chương</Button><Button variant="default" disabled={pending||readOnly||!!chapters.length||!outline.trim()} onClick={()=>add(outline.split('\n').filter(s=>s.trim()).length,outline.split('\n').filter(s=>s.trim()))}>Tách dàn ý thành thẻ theo dòng</Button></Group>
+  <Group><Select disabled={pending||readOnly||!loaded} allowDeselect={false} label="Số chương khởi đầu" value={size} onChange={n=>setSize(n??'0')} data={['0','5','10','15','20']}/><Button variant="light" disabled={pending||readOnly||!loaded||size==='0'} onClick={()=>add(Number(size))}>Thêm {size} thẻ chương</Button><Button variant="default" disabled={pending||readOnly||!!chapters.length||!outline.trim()} onClick={()=>add(outline.split('\n').filter(s=>s.trim()).length,outline.split('\n').filter(s=>s.trim()))}>Tách dàn ý thành thẻ theo dòng</Button></Group>
   <Text size="xs">Tự nhập, không dùng AI. Mục tiêu và kết quả mong muốn được giữ trong nội dung mục tiêu. Có thể thêm hơn 20 chương; thứ tự thẻ và chương dự kiến là hai lựa chọn riêng.</Text>
   <Textarea label="Ghi chú kế hoạch riêng tư" disabled={pending||readOnly||!loaded} description="Không gửi tới provider hoặc ngữ cảnh viết." value={notes} onChange={e=>local.edit({notes:e.currentTarget.value})}/>
   {chapters.map((o,i)=><Card withBorder key={o.objective_id}><Stack gap="xs">
@@ -99,10 +101,10 @@ function Editor({novelId,onServerChange}:{novelId:string;onServerChange?:()=>voi
   </Stack></Card>)}
   <Button variant="light" disabled={pending||readOnly||!loaded} onClick={()=>add(1)}>Thêm chương dự kiến</Button>
   {invalid&&<Text c="red" size="sm">Kiểm tra tiêu đề, số chương trùng hoặc tên/ID người tham gia chưa đầy đủ trước khi lưu.</Text>}
-  <Group><Button onClick={()=>send('save')} loading={pending} disabled={!loaded||!canSave||invalid}>Lưu bản nháp dàn ý</Button>
-   {canFork&&<Button variant="light" onClick={()=>send('fork')} disabled={pending||invalid}>{archived?'Khôi phục thành bản nháp mới':'Tạo phiên bản từ bản đã chọn'}</Button>}
-   {stored&&<Button onClick={()=>send('activate')} disabled={pending||local.dirty||!canActivate}>Dùng bản đã lưu</Button>}
-   {canArchive&&<Button color="red" variant="subtle" onClick={()=>send('delete')} disabled={pending||local.dirty}>Lưu trữ bản kế hoạch</Button>}
+  <Group><Button onClick={()=>send('save')} loading={pending} disabled={!loaded||!canSave||invalid||awaitingRecovery}>Lưu bản nháp dàn ý</Button>
+   {canFork&&<Button variant="light" onClick={()=>send('fork')} disabled={pending||invalid||awaitingRecovery}>{archived?'Khôi phục thành bản nháp mới':'Tạo phiên bản từ bản đã chọn'}</Button>}
+   {stored&&<Button onClick={()=>send('activate')} disabled={pending||local.dirty||!canActivate||awaitingRecovery}>Dùng bản đã lưu</Button>}
+   {canArchive&&<Button color="red" variant="subtle" onClick={()=>send('delete')} disabled={pending||local.dirty||awaitingRecovery}>Lưu trữ bản kế hoạch</Button>}
   </Group>{message&&<Alert role="alert">{message}</Alert>}
  </Stack>;
 }
