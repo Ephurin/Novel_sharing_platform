@@ -12,6 +12,8 @@ import { createCopilotSuggestion } from '../ai-copilot/ai-copilot.service.js';
 import { generateCopilotSuggestionWithLlm, isLlmConfigured } from '../ai-copilot/llm-provider.js';
 import { env } from '../../core/config/env.js';
 import { createServer } from 'node:http';
+import { randomUUID } from 'node:crypto';
+import { WEBHOOK_CALLS_PER_SESSION } from '../wallet/wallet.routes.js';
 import { notifyFollowersOfPublishedChapter } from '../interactions/new-chapter-notifications.js';
 import { submitChapterPublish } from './chapters.service.js';
 import { createNovelSchema } from './novels.schemas.js';
@@ -42,12 +44,23 @@ describe('SRS backend rules', () => {
     )).rows[0].novel_id as string;
   }
 
-  async function chapter(novelId: string, number: number, content: string, extra: { deleted?: boolean } = {}) {
+  async function chapter(novelId: string, number: number, content: string, extra: { deleted?: boolean; status?: string } = {}) {
     return (await pool.query(
       `insert into chapters (novel_id, title, chapter_number, content, status, deleted_at)
-       values ($1, $2, $3, $4, 'DRAFT', $5) returning chapter_id`,
-      [novelId, `Chương ${number}`, number, content, extra.deleted ? new Date('2026-01-01') : null]
+       values ($1, $2, $3, $4, $5, $6) returning chapter_id`,
+      [novelId, `Chương ${number}`, number, content, extra.status ?? 'DRAFT', extra.deleted ? new Date('2026-01-01') : null]
     )).rows[0].chapter_id as string;
+  }
+
+  async function expectNotReady(novelId: string, readyChapters: number) {
+    await assert.rejects(submitPublish(authorAuth, novelId), (error: unknown) => {
+      assert.ok(error instanceof AppError);
+      assert.equal(error.httpStatus, 422);
+      assert.equal(error.code, 'VALIDATION_002');
+      assert.deepEqual(error.details, { readyChapters, requiredChapters: 5 });
+      return true;
+    });
+    assert.equal((await pool.query('select status from novels where novel_id = $1', [novelId])).rows[0].status, 'DRAFT');
   }
 
   before(async () => {
@@ -115,6 +128,42 @@ describe('SRS backend rules', () => {
     assert.ok(['PUBLISHED', 'PENDING_MODERATION'].includes(submitted.status));
   });
 
+  test('NOV-04 (review P1): archived chapters do not count toward the five-chapter rule', async () => {
+    const allArchived = await novel('DRAFT');
+    for (let number = 1; number <= 5; number++) await chapter(allArchived, number, longText, { status: 'ARCHIVED' });
+    await expectNotReady(allArchived, 0);
+
+    const fourAndArchived = await novel('DRAFT');
+    for (let number = 1; number <= 4; number++) await chapter(fourAndArchived, number, longText);
+    await chapter(fourAndArchived, 5, longText, { status: 'ARCHIVED' });
+    await expectNotReady(fourAndArchived, 4);
+
+    const five = await novel('DRAFT');
+    for (let number = 1; number <= 5; number++) await chapter(five, number, longText);
+    assert.ok(['PUBLISHED', 'PENDING_MODERATION'].includes((await submitPublish(authorAuth, five)).status));
+  });
+
+  test('NOV-04 (review P1): archiving a chapter while the novel is submitted cannot slip past the rule', async () => {
+    // Admission locks the counted chapter rows, so an archive racing the submission either lands first
+    // (and is counted out) or waits until the submission has committed.
+    const novelId = await novel('DRAFT');
+    const ids: string[] = [];
+    for (let number = 1; number <= 5; number++) ids.push(await chapter(novelId, number, longText));
+    const archive = pool.connect();
+    const blocker = await archive;
+    try {
+      await blocker.query('begin');
+      await blocker.query("update chapters set status = 'ARCHIVED' where chapter_id = $1", [ids[0]]);
+      const submission = submitPublish(authorAuth, novelId).then(() => 'admitted', (error) => (error as AppError).code);
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      await blocker.query('commit');
+      assert.equal(await submission, 'VALIDATION_002', 'the archive committed first, so only 4 chapters remain');
+    } finally {
+      blocker.release();
+    }
+    assert.equal((await pool.query('select status from novels where novel_id = $1', [novelId])).rows[0].status, 'DRAFT');
+  });
+
   test('NOV-06: a chapter under 500 characters is not published', async () => {
     const novelId = await novel('PUBLISHED');
     const chapterId = await chapter(novelId, 1, 'Nội dung quá ngắn.');
@@ -127,28 +176,36 @@ describe('SRS backend rules', () => {
     assert.equal((await pool.query('select status from chapters where chapter_id = $1', [chapterId])).rows[0].status, 'DRAFT');
   });
 
-  test('SOC-12: publishing a chapter notifies author and novel followers once each', async () => {
+  test('SOC-12: a published chapter reaches each author follower once, without doubling the novel bell (PR #88)', async () => {
     const novelId = await novel('PUBLISHED');
-    await pool.query('insert into follows (follower_id, author_id) values ($1, $2)', [followerId, authorAuth.userId]);
-    await pool.query('insert into novel_follows (novel_id, user_id) values ($1, $2), ($1, $3)', [novelId, novelFollowerId, followerId]);
+    const subscriberId = await user('READER', `srs_bell_${Math.random().toString(36).slice(2, 8)}`);
+    // follower: follows the author. subscriber: follows the author and turned on the novel bell.
+    // novelFollower: follows the novel only, bell off. stranger: nothing.
+    await pool.query('insert into follows (follower_id, author_id) values ($1, $3), ($2, $3) on conflict do nothing', [followerId, subscriberId, authorAuth.userId]);
+    await pool.query('insert into novel_follows (novel_id, user_id) values ($1, $2) on conflict do nothing', [novelId, novelFollowerId]);
+    await pool.query('insert into novel_notification_subscriptions (novel_id, user_id, enabled) values ($1, $2, true)', [novelId, subscriberId]);
     const chapterId = await chapter(novelId, 1, longText);
     const published = await submitChapterPublish(authorAuth, chapterId);
     assert.equal(published.status, 'PUBLISHED');
-    const recipients = async () => (await pool.query(
-      "select user_id, title, payload from notification_events where type = 'NEW_CHAPTER' and payload->>'chapterId' = $1 order by user_id",
+    const events = async () => (await pool.query(
+      "select user_id, type, payload from notification_events where payload->>'chapterId' = $1 and type in ('NEW_CHAPTER', 'NOVEL_CHAPTER_PUBLISHED')",
       [chapterId]
     )).rows;
-    const first = await recipients();
-    assert.deepEqual(first.map((row) => row.user_id).sort(), [followerId, novelFollowerId].sort());
-    assert.ok(!first.some((row) => row.user_id === strangerId || row.user_id === authorAuth.userId));
-    assert.equal(first[0].payload.href, `/reader/chapters/${chapterId}`);
+    const first = await events();
+    const byUser = (id: string) => first.filter((row) => row.user_id === id).map((row) => row.type);
+    assert.deepEqual(byUser(followerId), ['NEW_CHAPTER']);
+    assert.deepEqual(byUser(subscriberId), ['NOVEL_CHAPTER_PUBLISHED'], 'the novel bell (PR #88 trigger) serves the subscriber; no second event');
+    assert.deepEqual(byUser(novelFollowerId), [], 'following the novel without the bell does not notify (PR #88 design)');
+    assert.deepEqual(byUser(strangerId), []);
+    assert.deepEqual(byUser(authorAuth.userId), []);
+    assert.equal(first.find((row) => row.user_id === followerId)?.payload.href, `/reader/chapters/${chapterId}`);
     await notifyFollowersOfPublishedChapter(pool, chapterId);
-    assert.equal((await recipients()).length, 2);
+    assert.equal((await events()).length, first.length, 'publishing again adds nothing');
   });
 
   test('SOC-12: a chapter of a novel that is not public yet notifies nobody', async () => {
     const novelId = await novel('DRAFT');
-    await pool.query('insert into novel_follows (novel_id, user_id) values ($1, $2)', [novelId, novelFollowerId]);
+    await pool.query('insert into follows (follower_id, author_id) values ($1, $2) on conflict do nothing', [followerId, authorAuth.userId]);
     const chapterId = await chapter(novelId, 1, longText);
     await submitChapterPublish(authorAuth, chapterId);
     const count = (await pool.query("select count(*)::int as n from notification_events where type = 'NEW_CHAPTER' and payload->>'chapterId' = $1", [chapterId])).rows[0].n;
@@ -257,5 +314,67 @@ describe('SRS backend rules', () => {
       env.AI_LLM_BASE_URL = saved.baseUrl;
       env.AI_LLM_TIMEOUT_MS = saved.timeout;
     }
+  });
+
+  async function withApi(run: (base: string, token: (userId: string, role: string) => string) => Promise<void>) {
+    const { createApp } = await import('../../app.js');
+    const jwt = (await import('jsonwebtoken')).default;
+    const server = createApp().listen(0);
+    await new Promise<void>((resolve) => server.once('listening', () => resolve()));
+    try {
+      await run(`http://127.0.0.1:${(server.address() as AddressInfo).port}/api/v1`,
+        (userId, role) => jwt.sign({ sub: userId, role }, env.JWT_ACCESS_SECRET));
+    } finally {
+      server.closeAllConnections();
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+    }
+  }
+
+  test('AI-06 (review P2): what the provider says never reaches the client', async () => {
+    const secret = 'sk-srs-SYNTHETIC-SECRET-0123456789';
+    const provider = createServer((_request, response) => {
+      response.writeHead(503, { 'Content-Type': 'application/json' })
+        .end(JSON.stringify({ error: `upstream failed for Authorization: Bearer ${secret}`, prompt: 'internal prompt text' }));
+    });
+    await new Promise<void>((resolve) => provider.listen(0, '127.0.0.1', () => resolve()));
+    const saved = env.AI_LLM_BASE_URL;
+    env.AI_LLM_BASE_URL = `http://127.0.0.1:${(provider.address() as AddressInfo).port}/v1`;
+    try {
+      const novelId = await novel('DRAFT');
+      await withApi(async (base, token) => {
+        const response = await fetch(`${base}/ai/copilot/suggestions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token(authorAuth.userId, 'AUTHOR')}` },
+          body: JSON.stringify({ novelId, instruction: 'Viết tiếp' })
+        });
+        const text = await response.text();
+        assert.equal(response.status, 503);
+        assert.equal(JSON.parse(text).error.code, 'AI_001');
+        assert.deepEqual(JSON.parse(text).error.details, { reason: 'provider_http_503' });
+        assert.ok(!text.includes(secret), 'the provider secret must not be returned');
+        assert.ok(!text.includes('internal prompt text'));
+      });
+    } finally {
+      provider.closeAllConnections();
+      await new Promise<void>((resolve) => provider.close(() => resolve()));
+      env.AI_LLM_BASE_URL = saved;
+    }
+  });
+
+  test('PAY-15 (review P2): the mock webhook counts per deposit session, after validation', async () => {
+    await withApi(async (base) => {
+      const webhook = (body: unknown) => fetch(`${base}/wallet/mock-webhook/deposit-success`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+      }).then((response) => response.status);
+      const malformed = [];
+      for (let index = 0; index < 35; index++) malformed.push(await webhook({ depositSessionId: 'not-a-uuid', mockResult: 'SUCCESS' }));
+      assert.deepEqual([...new Set(malformed)], [400], 'malformed calls are rejected and do not use the budget');
+      const session = randomUUID();
+      const statuses = [];
+      for (let index = 0; index < WEBHOOK_CALLS_PER_SESSION + 1; index++) statuses.push(await webhook({ depositSessionId: session, mockResult: 'SUCCESS' }));
+      assert.ok(statuses.slice(0, WEBHOOK_CALLS_PER_SESSION).every((status) => status !== 429), JSON.stringify(statuses));
+      assert.equal(statuses.at(-1), 429);
+      assert.notEqual(await webhook({ depositSessionId: randomUUID(), mockResult: 'SUCCESS' }), 429, 'another session from the same address is not throttled');
+    });
   });
 });
