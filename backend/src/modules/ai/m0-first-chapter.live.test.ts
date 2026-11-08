@@ -124,6 +124,12 @@ test('P2 M0 -> genuine Core create/PATCH/revision/outbox -> existing P1 HITL',{
     await new Promise(r=>setTimeout(r,100));
   }
   assert.equal(completed.status,'completed');assert.equal(completed.validation_status,'passed');
+  const staleGeneration=await http('/ai/writing/generations','POST',{...genBody,idempotency_key:randomUUID()},202);
+  for(let i=0;i<100;i++){
+    const job=await http('/ai/jobs/'+staleGeneration.job_id);
+    if(job.status==='completed'){assert.equal(job.validation_status,'passed');break;}
+    assert.notEqual(job.status,'failed');await new Promise(r=>setTimeout(r,100));
+  }
   const accepted=await http(`/chapters/${created.chapterId}/revisions/accept-draft`,'POST',{generationId:generation.job_id});
   await poll(createNovel);
   const acceptedState=await durable('real-AI-accept-after-genuine-base',createNovel);
@@ -132,6 +138,8 @@ test('P2 M0 -> genuine Core create/PATCH/revision/outbox -> existing P1 HITL',{
   const repeatedAccept=await http(`/chapters/${created.chapterId}/revisions/accept-draft`,'POST',{generationId:generation.job_id});
   assert.equal(repeatedAccept.revision.revisionId,accepted.revision.revisionId);
   assert.equal((await durable('AI-accept-exact-retry',createNovel)).revisions.length,2);
+  await http(`/chapters/${created.chapterId}/revisions/accept-draft`,'POST',{generationId:staleGeneration.job_id},409);
+  assert.equal((await durable('AI-stale-accept-no-write',createNovel)).revisions.length,2);
   const activationJob=(await pg.query("SELECT id,result FROM narrative.bootstrap_jobs WHERE novel_id=$1 AND stage='m0_active'",[createNovel])).rows[0];
   await pg.query("UPDATE narrative.bootstrap_jobs SET result=result #- '{setup_activation,response,brain_version}' WHERE id=$1",[activationJob.id]);
   const partialBody={title:'Partial provenance guard',content:'Minh opens a door.',clientRequestId:randomUUID()};
@@ -140,6 +148,18 @@ test('P2 M0 -> genuine Core create/PATCH/revision/outbox -> existing P1 HITL',{
   await pg.query('UPDATE narrative.bootstrap_jobs SET result=$1::jsonb WHERE id=$2',[JSON.stringify(activationJob.result),activationJob.id]);
   const reconciledCreate=await http(`/novels/${createNovel}/chapters`,'POST',partialBody,201);assert.ok(reconciledCreate.analysisRevisionId);await poll(createNovel);
   assert.equal((await durable('create-after-provenance-restored',createNovel)).revisions.length,3);
+  // Mongo can fail after SQL chapter creation; the same import key must safely
+  // reconcile that partial creation through the existing lease on retry.
+  const options=(await mongo.listCollections({name:'draft_chapters'}).toArray())[0]?.options??{};
+  const mongoFailureBody={title:'Mongo failure recovery',content:'Minh returns.',clientRequestId:randomUUID()};
+  await mongo.command({collMod:'draft_chapters',validator:{$nor:[{novelId:createNovel,title:mongoFailureBody.title}]},validationLevel:'strict',validationAction:'error'});
+  try{
+    await http(`/novels/${createNovel}/chapters`,'POST',mongoFailureBody,500);
+    const failed=await durable('create-Mongo-failure',createNovel);
+    assert.equal(failed.revisions.length,3);assert.equal(failed.chapters.length,3);assert.equal(failed.mongo.length,2);
+  }finally{await mongo.command({collMod:'draft_chapters',validator:options.validator??{},validationLevel:options.validationLevel??'strict',validationAction:options.validationAction??'error'});}
+  const mongoRecovered=await http(`/novels/${createNovel}/chapters`,'POST',mongoFailureBody,201);assert.ok(mongoRecovered.analysisRevisionId);await poll(createNovel);
+  const recovered=await durable('create-Mongo-reconciled',createNovel);assert.equal(recovered.chapters.length,3);assert.equal(recovered.revisions.length,4);assert.equal(recovered.mongo.length,3);
  }finally{
   if(failureTrigger){await pg.query('DROP TRIGGER IF EXISTS m0_outbox_fail ON revision_outbox_events');await pg.query('DROP FUNCTION IF EXISTS public.m0_outbox_fail()');}
   if(process.env.P204_EVIDENCE_FILE)await writeFile(process.env.P204_EVIDENCE_FILE,JSON.stringify({providers:'fake only',requests,readbacks},null,2));
