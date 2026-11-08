@@ -1,0 +1,122 @@
+{
+  "source": "caacaf67dfc06e4709d42e0c87219f33d86ba6f4",
+  "checkout": "3b5a7da356d68c80f80f005de621e8074986eef6",
+  "tree": "071b2c1e0dee9ed18bcfed62ca0a8764f0675682",
+  "runs": [
+    {
+      "id": 42462486729,
+      "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42462486729",
+      "jobs": [
+        {
+          "id": 128674565740,
+          "name": "unit",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128674565927,
+          "name": "root-compose-smoke",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128674565940,
+          "name": "pgvector-integration",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 42462486679,
+      "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42462486679",
+      "jobs": [
+        {
+          "id": 128674565359,
+          "name": "root-compose-cutover-smoke",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128674565518,
+          "name": "frontend-api-cutover",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128674565580,
+          "name": "final-cleanup-gate",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128674565586,
+          "name": "rollback-rehearsal",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128674565643,
+          "name": "backend-integration",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128674565649,
+          "name": "unit",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128674565659,
+          "name": "postgres-integration",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 42462486620,
+      "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42462486620",
+      "jobs": [
+        {
+          "id": 128674565546,
+          "name": "setup-postgres-gateway-browser",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "logs": [
+    {
+      "name": "unit",
+      "lines": [
+        "2026-11-08T08:20:47.0174741Z 415 passed, 32 skipped, 290 deselected, 4 warnings, 6 subtests passed in 13.97s"
+      ]
+    },
+    {
+      "name": "postgres",
+      "lines": [
+        "2026-11-08T08:21:45.1991532Z 282 passed, 8 skipped, 447 deselected, 5 warnings in 57.11s"
+      ]
+    },
+    {
+      "name": "backend",
+      "lines": [
+        "2026-11-08T08:21:03.2402654Z # pass 11",
+        "2026-11-08T08:21:03.2403065Z # fail 0",
+        "2026-11-08T08:21:03.2448931Z # skipped 0",
+        "2026-11-08T08:21:04.1949634Z # pass 15",
+        "2026-11-08T08:21:04.1949963Z # fail 0",
+        "2026-11-08T08:21:04.1950892Z # skipped 0",
+        "2026-11-08T08:21:04.9737784Z # pass 5",
+        "2026-11-08T08:21:04.9738103Z # fail 0",
+        "2026-11-08T08:21:04.9738732Z # skipped 0",
+        "2026-11-08T08:21:09.0146752Z # pass 25",
+        "2026-11-08T08:21:09.0147076Z # fail 0",
+        "2026-11-08T08:21:09.0147751Z # skipped 0"
+      ]
+    }
+  ]
+}
