@@ -17,6 +17,7 @@ from application.ports import RevisionContent
 from application.writing_service import WritingService
 from tests.test_p2_bootstrap_postgres import engine, f, TENANT, ACTOR, snapshot
 from tests.test_plan_review_fixes_postgres import seed_legacy, FOREIGN
+from tests.test_plan_edit_postgres import body as plan_body, command, life
 
 pytestmark = pytest.mark.postgres_integration
 
@@ -95,13 +96,18 @@ def request_body(worker,**changes):
 
 
 def seed_plan(f,creator):
-    if creator!='no-plan':
-        source_actor=ACTOR if creator=='owned-manual' else FOREIGN if creator=='foreign-manual' else creator
-        plan=seed_legacy(f,source_actor,status='active')
-        if creator in ('owned-manual','foreign-manual'):
+    if creator in ('owned-manual','foreign-manual'):
+        data=plan_body(1,source_outline='LegacyOutlinePrivate',private_notes='F04RootPrivateOnly')
+        data['objectives'][0].update(title='LegacyTitlePrivate',description='LegacyDescriptionPrivate')
+        data['objectives'][0]['events'][0]['text']='F04PlannedOnly'
+        saved=command(f,data)
+        active=command(f,life(saved,'activate'))
+        if creator=='foreign-manual':
             with f.engine.begin() as db:
-                db.execute(text("UPDATE narrative.story_plans SET edit_metadata='{"+'"contract_version":"plan-edit-v1","private_notes":"F04RootPrivateOnly"'+"}'::jsonb WHERE id=:p"),dict(p=plan))
-        return plan
+                db.execute(text('UPDATE narrative.story_plans SET created_by=:a WHERE id=:p'),dict(a=FOREIGN,p=active['plan_id']))
+        return active['plan_id']
+    if creator!='no-plan':
+        return seed_legacy(f,creator,status='active')
 
 
 def durable(f,stage):
