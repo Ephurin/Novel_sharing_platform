@@ -62,7 +62,7 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
     <Button disabled={locked} variant="subtle" onClick={()=>local.edit(old=>({...old,declarations:old.declarations.filter(x=>x.declaration_id!==d.declaration_id)}))}>Bỏ thẻ {i+1}</Button></Stack></Card>)}
    <Button variant="light" disabled={!loaded||locked} onClick={()=>local.edit(old=>({...old,declarations:[...old.declarations,{declaration_id:'decl_'+crypto.randomUUID().replaceAll('-',''),display_name:'',entity_type:'character'}]}))}>Thêm nhân vật hoặc địa danh</Button>
   </Stack></div>
-  {sourceLocked&&<Alert>Đã gửi nguồn để duyệt. Sửa nội dung trong nhóm duyệt bên dưới; dữ liệu đã chấp nhận chỉ đọc tại đây. Hiệu chỉnh dữ liệu đã duyệt qua Bộ nhớ truyện, không gửi lại nguồn để ghi đè.</Alert>}
+  {sourceLocked&&<Alert>Đã gửi nguồn để duyệt. Sửa nội dung trong nhóm duyệt bên dưới; dữ liệu đã chấp nhận chỉ đọc tại đây. Nhân vật đã duyệt có thể hiệu chỉnh qua Hồ sơ trong Bộ nhớ truyện. Quy tắc đã duyệt chỉ đọc; màn hình này chưa hỗ trợ hiệu chỉnh quy tắc. Không gửi lại nguồn để ghi đè.</Alert>}
   <Group><Button onClick={submit} loading={pending} disabled={!loaded||locked||!!local.backup||declarations.some(d=>!d.display_name.trim())||rules.some(r=>!r.text.trim())||(!outline.trim()&&!declarations.length&&!rules.length&&!(allowOfflineBlueprint&&text.trim()))}>Lưu và xử lý thiết lập</Button>
    <Button variant="default" disabled={pending} onClick={()=>void reload()}>Tải bản đã lưu</Button>
    {local.dirty&&<><Button variant="subtle" onClick={()=>void reload(true)}>Bỏ bản sửa, dùng thiết lập máy chủ</Button><Button variant="subtle" onClick={local.exportDraft}>Xuất bản sửa thiết lập</Button></>}</Group>
