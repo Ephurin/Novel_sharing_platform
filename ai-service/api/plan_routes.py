@@ -83,8 +83,9 @@ def snapshot(novel_id:uuid.UUID,plan_id:uuid.UUID,request:Request,response:Respo
 def guard_manual_autonomy(request,repo,novel_id,plan_id):
     if not getattr(repo,'supports_plan_edit_v1',False):return
     with session_scope(repo._session_factory) as session:
-        metadata=session.scalar(select(StoryPlanRecord.edit_metadata).where(
-            *repo._scope(StoryPlanRecord,repo._novel_id(novel_id)),StoryPlanRecord.id==uuid.UUID(plan_id)))
-    if (metadata or {}).get('contract_version')=='plan-edit-v1':
-        legacy_scope(request,repo,novel_id=novel_id,plan_id=plan_id)
+        row=session.execute(select(StoryPlanRecord.edit_metadata,StoryPlanRecord.created_by).where(
+            *repo._scope(StoryPlanRecord,repo._novel_id(novel_id)),StoryPlanRecord.id==uuid.UUID(plan_id))).first()
+    if row and (row[0] or {}).get('contract_version')=='plan-edit-v1':
+        actor=principal(request,repo)
+        if str(row[1])!=actor:raise HTTPException(404,detail={'code':'PLAN_NOT_FOUND'})
         raise HTTPException(409,detail={'code':'MANUAL_PLAN_AUTONOMY_NOT_AVAILABLE'})
