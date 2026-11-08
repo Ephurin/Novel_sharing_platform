@@ -177,3 +177,12 @@ class SetupReviewRequest(StrictDTO):
         if len({d.proposal_id for d in self.decisions}) != len(self.decisions):
             raise ValueError('Duplicate proposal')
         return self
+
+
+class SetupActivationRequest(StrictDTO):
+    contract_version: Literal['setup-m0-v1']
+    idempotency_key: Annotated[str, Field(min_length=1, max_length=128)]
+    setup_hash: Annotated[str, Field(pattern=r"^[0-9a-f]{64}$")]
+    expected_setup_version: Annotated[int, Field(ge=1)]
+    expected_review_version: Annotated[int, Field(ge=1)]
+    expected_brain_version: Annotated[int, Field(ge=0)]

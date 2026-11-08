@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert, Badge, Button, Card, Group, Select, Stack, Text, Textarea, TextInput } from '@mantine/core';
 import { useAuthStore } from '../auth/useAuthStore';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
-import { getSetup, submitSetup, reviewSetup, type SetupReviewDecision, type SetupDeclaration, type SetupSnapshot } from './setup-api';
+import { getSetup, submitSetup, reviewSetup, getSetupM0Readiness, activateSetupM0, type SetupM0Readiness, type SetupReviewDecision, type SetupDeclaration, type SetupSnapshot } from './setup-api';
 
 export function SetupFoundationPanel({novelId}: {novelId: string}) {
   const account = useAuthStore(state => state.user?.userId ?? 'guest');
@@ -79,11 +79,38 @@ function ScopedSetupPanel({novelId}: {novelId: string}) {
     {message && <Alert role="alert">{message}</Alert>}
     {snapshot && <><Text size="sm">Bản {snapshot.setup_version} · {snapshot.review?'Đã lưu quyết định':snapshot.job_status==='waiting_review'?'Chờ duyệt':snapshot.job_status==='failed'?'Thất bại':'Đang xử lý'} · {snapshot.proposals.length} đề xuất</Text>
       <SetupReviewGroup key={`${snapshot.snapshot_id}:${snapshot.review_version}`} snapshot={snapshot} onReload={reload}/>
+      {snapshot.review && <SetupM0Activation key={`${snapshot.snapshot_id}:${snapshot.brain_version}`} snapshot={snapshot} onReload={reload}/>}
       {snapshot.proposals.map(card=><Card withBorder key={card.proposal_id}>
         <Group><Badge>{card.origin==='author_declared'?'Tác giả khai báo':card.origin==='extracted_explicit'?'Từ nguồn rõ ràng':'Provider gợi ý'}</Badge><Badge color={card.status==='accepted'?'green':card.status==='rejected'?'red':'yellow'}>{card.unresolved?'Chưa hỗ trợ · Chờ xử lý':card.status==='accepted'?'Đã duyệt':card.status==='rejected'?'Đã loại':'Chờ duyệt'}</Badge></Group>
         <Text>{String(card.reviewed_payload?.canonical_name ?? card.reviewed_payload?.fact_value ?? card.payload.canonical_name ?? card.payload.fact_value ?? card.payload.attribute_key ?? '')}</Text>
         <Text size="xs" c="dimmed">{card.source_refs.map(ref=>String(ref.field_path ?? 'Gợi ý sáng tạo')).join(', ')}</Text>
       </Card>)}</>}
+  </Stack>;
+}
+
+function SetupM0Activation({snapshot,onReload}:{snapshot:SetupSnapshot;onReload:()=>Promise<void>}){
+  const [readiness,setReadiness]=useState<SetupM0Readiness|null>(null),[error,setError]=useState(''),[pending,setPending]=useState(false);
+  const active=useRef(true),key=useRef(crypto.randomUUID());
+  useEffect(()=>{active.current=true;return()=>{active.current=false;};},[]);
+  useEffect(()=>{let cancelled=false;setReadiness(null);setError('');getSetupM0Readiness(snapshot.novel_id,snapshot.snapshot_id)
+    .then(value=>{if(!cancelled&&active.current)setReadiness(value);}).catch(e=>{if(!cancelled&&active.current)setError(getApiErrorMessage(e));});
+    return()=>{cancelled=true;};},[snapshot]);
+  async function activate(){
+    if(!readiness?.eligible)return;
+    setPending(true);setError('');
+    try{
+      await activateSetupM0(snapshot.novel_id,snapshot.snapshot_id,{contract_version:'setup-m0-v1',idempotency_key:key.current,
+        setup_hash:readiness.setup_hash!,expected_setup_version:readiness.expected_setup_version!,expected_review_version:readiness.expected_review_version!,expected_brain_version:readiness.expected_brain_version!});
+      if(active.current)await onReload();
+    }catch(e){if(active.current)setError(e instanceof ApiClientError&&e.status===409?'Thiết lập đã thay đổi. Tải bản đã lưu rồi kiểm tra lại trước khi kích hoạt.':getApiErrorMessage(e));}
+    finally{if(active.current)setPending(false);}
+  }
+  return <Stack gap="xs">
+    {readiness?.activation?<Alert color="green">{readiness.first_saved_revision?'Đã lưu chương đầu tiên vào bản lưu bất biến.':'Thiết lập đã được kích hoạt. Bạn có thể viết và lưu chương đầu tiên; không cần có dàn ý.'} Diễn biến mới vẫn cần tác giả duyệt.</Alert>:
+      <><Text size="sm">Kích hoạt riêng thiết lập đã duyệt trước khi viết. Thao tác này không tạo chương hay lịch sử truyện.</Text>
+      <Button onClick={activate} disabled={!readiness?.eligible} loading={pending}>Kích hoạt thiết lập để bắt đầu viết</Button>
+      {readiness&&!readiness.eligible&&<Text size="sm">Chưa thể kích hoạt: hãy hoàn tất duyệt bản thiết lập mới nhất với ít nhất một nhân vật hoặc quy tắc được chấp nhận.</Text>}</>}
+    {error&&<Alert role="alert">{error}</Alert>}
   </Stack>;
 }
 
@@ -98,7 +125,7 @@ function SetupReviewGroup({snapshot, onReload}:{snapshot:SetupSnapshot; onReload
   function choice(id:string, field:string, value:string) {
     setChoices(all=>({...all,[id]:{...(all[id]??{decision:'',identity:'',value:''}),[field]:value}}));
   }
-  if(snapshot.review) return <Alert color="green">Đã lưu quyết định duyệt. Thiết lập vẫn chưa được kích hoạt. {snapshot.review.status==='reviewed_with_unresolved'?'Còn điều kiện chưa hỗ trợ.':''}</Alert>;
+  if(snapshot.review) return <Alert color="green">Đã lưu quyết định duyệt. Kích hoạt thiết lập là bước riêng bên dưới. {snapshot.review.status==='reviewed_with_unresolved'?'Còn điều kiện chưa hỗ trợ.':''}</Alert>;
   if(!cards.length || snapshot.job_status!=='waiting_review') return null;
   const ready=cards.every(c=>choices[c.proposal_id]?.decision && (choices[c.proposal_id].decision==='reject' ||
     (choices[c.proposal_id].value.trim() && (c.card_type!=='entity'||choices[c.proposal_id].identity))));

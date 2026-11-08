@@ -64,17 +64,49 @@ export function applyPatchToContent(
   return before + patch.replacement + after;
 }
 
-async function checkStoryBrainActive(novelId: string): Promise<boolean> {
+async function checkStoryBrainActive(novelId: string, actorId: string, protectAnyActive=false): Promise<boolean> {
   const pool = getPostgresPool();
   try {
     const res = await pool.query(
-      `SELECT status, baseline_revision_id FROM narrative.story_brains WHERE novel_id = $1`,
-      [novelId]
+      `SELECT b.status, b.baseline_revision_id,
+        ($4::boolean OR EXISTS (SELECT 1 FROM chapter_revisions r
+          WHERE r.revision_id=b.baseline_revision_id AND r.novel_id=b.novel_id)
+        OR (b.baseline_revision_id IS NULL AND EXISTS (
+          SELECT 1 FROM narrative.bootstrap_jobs j JOIN novels n ON n.novel_id=j.novel_id
+          WHERE j.tenant_id=b.tenant_id AND j.novel_id=b.novel_id AND j.story_brain_id=b.id
+            AND n.author_id=$3::uuid AND j.status='completed' AND j.stage='m0_active'
+            AND j.result->>'contract_version'='setup-v1'
+            AND j.result->>'author_id'=$3::text
+            AND j.result#>>'{setup_activation,contract_version}'='setup-m0-v1'
+            AND j.result#>>'{setup_activation,response,contract_version}'='setup-m0-v1'
+            AND j.result#>>'{setup_activation,response,baseline_kind}'='M0'
+            AND j.result#>>'{setup_activation,response,brain_id}'=b.id::text
+            AND j.result#>>'{setup_activation,response,snapshot_id}'=j.id::text
+            AND j.result#>>'{setup_activation,response,activated_by}'=$3::text
+            AND j.result#>>'{setup_activation,response,setup_hash}'=j.result->>'setup_hash'
+            AND j.result#>'{setup_activation,response,setup_version}'=j.result->'setup_version'
+            AND j.result#>'{setup_activation,response,review_version}'=j.result->'review_version'
+            AND j.result#>>'{setup_activation,response,status}'='active'
+            AND j.revisions='[]'::jsonb
+            AND j.result#>>'{setup_activation,request_hash}' ~ '^[0-9a-f]{64}$'
+            AND j.result#>>'{setup_review,response,status}' IN ('review_complete','reviewed_with_unresolved')
+            AND CASE WHEN j.result#>>'{setup_activation,response,brain_version}' ~ '^[0-9]{1,9}$'
+              AND j.result#>>'{setup_review,response,brain_version}' ~ '^[0-9]{1,9}$'
+              THEN (j.result#>>'{setup_activation,response,brain_version}')::bigint=(j.result#>>'{setup_review,response,brain_version}')::bigint+1
+                AND b.brain_version >= (j.result#>>'{setup_activation,response,brain_version}')::bigint
+              ELSE false END
+            AND j.result#>'{setup_activation,response,baseline_revision_id}'='null'::jsonb
+            AND CASE WHEN jsonb_typeof(j.result#>'{setup_activation,response,canonical_artifact_ids}')='array'
+              THEN jsonb_array_length(j.result#>'{setup_activation,response,canonical_artifact_ids}') ELSE 0 END>0
+        ))) AS active_baseline
+        FROM narrative.story_brains b
+        WHERE b.novel_id=$1 AND b.tenant_id IN ($2::uuid,$3::uuid)`,
+      [novelId,'00000000-0000-0000-0000-000000000001',actorId,protectAnyActive]
     );
     if (res.rows.length === 0) {
       return false;
     }
-    return res.rows[0].status === 'active' && Boolean(res.rows[0].baseline_revision_id);
+    return res.rows.some(row=>row.status==='active' && row.active_baseline===true);
   } catch (err: any) {
     if (err?.code === '42P01') {
       return false;
@@ -113,7 +145,9 @@ async function createSnapshotUnderLease(
   const purpose = input?.purpose ?? 'AUTHOR_SNAPSHOT';
 
   if (purpose === 'MANUSCRIPT_BOOTSTRAP') {
-    const isBrainActive = await checkStoryBrainActive(chapter.novelId);
+    // Protect every active baseline from a bootstrap checkpoint, even when
+    // its provenance is insufficient for automatic author snapshots.
+    const isBrainActive = await checkStoryBrainActive(chapter.novelId,auth.userId,true);
     if (isBrainActive) {
       throw new AppError(
         409,
@@ -186,7 +220,8 @@ async function createSnapshotUnderLease(
 // analysis outbox event.
 export async function snapshotSavedChapter(auth: AuthContext, chapterId: string, content: string, lease?: ChapterWriterLease) {
   const chapter = await findChapterById(chapterId);
-  if (!chapter || !(await checkStoryBrainActive(chapter.novelId))) return null;
+  if (!chapter || !(await checkStoryBrainActive(chapter.novelId,auth.userId))) return null;
+  if (!content.trim() && !await findLatestRevisionByChapterId(undefined,chapterId)) return null;
   return createSnapshot(auth, chapterId, { content, purpose: 'AUTHOR_SNAPSHOT' }, lease);
 }
 

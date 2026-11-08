@@ -107,7 +107,7 @@ jobs:
           DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p2a
         run: |
           set -euo pipefail
-          pytest -o addopts= -vv -s -m postgres_integration --basetemp="$RUNNER_TEMP/p2-a16" --junitxml="$RUNNER_TEMP/p202/a16.xml" tests/test_p2_bootstrap_postgres.py tests/test_setup_v1_postgres.py tests/test_setup_author_scope_postgres.py tests/test_setup_review_postgres.py tests/test_plan_edit_postgres.py tests/test_plan_review_fixes_postgres.py tests/test_writing_plan_authority_postgres.py 2>&1 | tee "$RUNNER_TEMP/p202/a16.log"
+          pytest -o addopts= -vv -s -m postgres_integration --basetemp="$RUNNER_TEMP/p2-a16" --junitxml="$RUNNER_TEMP/p202/a16.xml" tests/test_p2_bootstrap_postgres.py tests/test_setup_v1_postgres.py tests/test_setup_author_scope_postgres.py tests/test_setup_review_postgres.py tests/test_plan_edit_postgres.py tests/test_plan_review_fixes_postgres.py tests/test_writing_plan_authority_postgres.py tests/test_setup_activation_postgres.py 2>&1 | tee "$RUNNER_TEMP/p202/a16.log"
       - name: Start real AI service with fake providers
         working-directory: ai-service
         env:
@@ -136,6 +136,33 @@ jobs:
         run: |
           set -euo pipefail
           P202_EVIDENCE_FILE="$RUNNER_TEMP/p202/setup-gateway-readbacks.json" npx tsx --test src/modules/ai/setup-provenance.live.test.ts 2>&1 | tee "$RUNNER_TEMP/p202/setup-gateway.log"
+      - name: Restart task AI service with existing P1 entity HITL enabled
+        working-directory: ai-service
+        env:
+          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p2a
+          ENTITY_CANDIDATE_VERIFICATION_ENABLED: "true"
+          ENTITY_PIPELINE_VERSION: entity-human-review-v1
+        run: |
+          set -euo pipefail
+          kill "$(cat "$RUNNER_TEMP/p202/ai.pid")"
+          for i in {1..30}; do
+            if ! curl -fsS http://127.0.0.1:58001/health; then break; fi
+            sleep 1
+          done
+          python -m uvicorn main:app --host 127.0.0.1 --port 58001 > "$RUNNER_TEMP/p202/m0-ai-service.log" 2>&1 &
+          echo "$!" > "$RUNNER_TEMP/p202/ai.pid"
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:58001/health; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Verified M0 and genuine first chapter Gateway PG Mongo P1 HITL bridge
+        working-directory: backend
+        env:
+          TEST_P2A_LIVE: "1"
+        run: |
+          set -euo pipefail
+          P204_EVIDENCE_FILE="$RUNNER_TEMP/p202/m0-writer-readbacks.json" npx tsx --test src/modules/ai/m0-first-chapter.live.test.ts 2>&1 | tee "$RUNNER_TEMP/p202/m0-writer.log"
       - name: Mounted setup UI browser interactions (mocked HTTP)
         working-directory: web
         env:
@@ -143,7 +170,7 @@ jobs:
         run: |
           set -euo pipefail
           npx playwright install --with-deps chromium
-          P203_FIX_EVENT_SCREENSHOT="$RUNNER_TEMP/p202/fix-events-ui.png" P203_FIX_ARCHIVE_SCREENSHOT="$RUNNER_TEMP/p202/fix-archive-ui.png" P203_SCREENSHOT="$RUNNER_TEMP/p202/plan-ui.png" P202_REVIEW_SCREENSHOT="$RUNNER_TEMP/p202/review-ui.png" node --test tests/setup-foundation.browser.test.mjs 2>&1 | tee "$RUNNER_TEMP/p202/setup-browser.log"
+          P204_M0_SCREENSHOT="$RUNNER_TEMP/p202/m0-ui.png" P203_FIX_EVENT_SCREENSHOT="$RUNNER_TEMP/p202/fix-events-ui.png" P203_FIX_ARCHIVE_SCREENSHOT="$RUNNER_TEMP/p202/fix-archive-ui.png" P203_SCREENSHOT="$RUNNER_TEMP/p202/plan-ui.png" P202_REVIEW_SCREENSHOT="$RUNNER_TEMP/p202/review-ui.png" node --test tests/setup-foundation.browser.test.mjs 2>&1 | tee "$RUNNER_TEMP/p202/setup-browser.log"
       - name: Stop only the task AI process
         if: always()
         run: |
@@ -158,11 +185,11 @@ jobs:
           from pathlib import Path
           root = Path(os.environ['RUNNER_TEMP']) / 'p202'
           checked = []
-          for name in ('ai-service.log', 'setup-gateway.log'):
+          for name in ('ai-service.log', 'setup-gateway.log', 'm0-ai-service.log', 'm0-writer.log'):
               path = root / name
               assert path.exists(), 'Missing operational log: ' + name
               value = path.read_text()
-              assert all(marker not in value for marker in ('PrivateOnly', 'ConstraintOnly', 'private_author_notes', 'author_constraints')), name
+              assert all(marker not in value for marker in ('PrivateOnly', 'ConstraintOnly', 'M0PrivateOnly', 'private_author_notes', 'author_constraints')), name
               checked.append(name)
           (root / 'private-log-scan.json').write_text(json.dumps({'checked':checked,'private_markers_absent':True}))
           PY
