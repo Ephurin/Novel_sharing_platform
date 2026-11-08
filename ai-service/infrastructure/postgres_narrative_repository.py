@@ -68,6 +68,7 @@ from infrastructure.orm_models import (
 class PostgresNarrativeRepository:
     supports_bootstrap_lifecycle = True
     supports_setup_v1 = True
+    supports_plan_edit_v1 = True
     def complete_entity_review(self, story_id, run_id, audit, proposals):
         """CAS and proposals commit together, including a valid empty extraction."""
         from copy import deepcopy
@@ -2354,13 +2355,14 @@ class PostgresNarrativeRepository:
                         if obj.target_chapter == chapter_number:
                             matching_obj = obj
                             break
-                if not matching_obj:
+                if not matching_obj and chapter_number is None:
                     for obj in active_plan.objectives:
                         if obj.status in ("in_progress", "pending"):
                             matching_obj = obj
                             break
 
                 planning_context = {
+                    "authority_lane": "FUTURE_PLAN",
                     "plan_id": active_plan.plan_id,
                     "plan_version": active_plan.plan_version,
                     "status": active_plan.status,
@@ -2370,6 +2372,8 @@ class PostgresNarrativeRepository:
                 }
                 if matching_obj:
                     current_objective = {
+                        "authority_lane": "FUTURE_PLAN",
+                        "planned_events": matching_obj.metadata.get("events", []),
                         "objective_id": matching_obj.objective_id,
                         "order_index": matching_obj.order_index,
                         "target_chapter": matching_obj.target_chapter,
@@ -2435,10 +2439,23 @@ class PostgresNarrativeRepository:
             created_by=str(record.created_by) if record.created_by else None,
         )
 
+    def edit_plan(self, novel_id, actor_id, body):
+        from infrastructure.plan_edit import command
+        try:
+            return command(self, novel_id, actor_id, body)
+        except IntegrityError:
+            raise BootstrapConflictError('PLAN_COLLISION') from None
+
+    def read_plans(self, novel_id, actor_id, plan_id=None):
+        from infrastructure.plan_edit import read
+        return read(self, novel_id, actor_id, plan_id)
+
     def create_story_plan(self, plan: StoryPlan) -> StoryPlan:
         novel_id = self._novel_id(plan.novel_id)
         plan_uuid = uuid.UUID(plan.plan_id) if plan.plan_id else uuid.uuid4()
         with session_scope(self._session_factory) as session:
+            from infrastructure.plan_edit import lock
+            lock(self, session, novel_id)
             if plan.idempotency_key:
                 existing = session.scalar(
                     select(StoryPlanRecord).where(
@@ -2558,6 +2575,12 @@ class PostgresNarrativeRepository:
         n_id = self._novel_id(novel_id)
         p_uuid = uuid.UUID(plan_id)
         with session_scope(self._session_factory) as session:
+            from infrastructure.plan_edit import lock
+            lock(self, session, n_id)
+            target = session.scalar(select(StoryPlanRecord).where(*self._scope(StoryPlanRecord,n_id), StoryPlanRecord.id==p_uuid).with_for_update())
+            if target is None:raise KeyError('PLAN_NOT_FOUND')
+            if (target.edit_metadata or {}).get('contract_version')=='plan-edit-v1':
+                raise BootstrapConflictError('PLAN_EDIT_REQUIRES_CAS')
             session.execute(
                 update(StoryPlanRecord)
                 .where(
@@ -2604,6 +2627,8 @@ class PostgresNarrativeRepository:
             )
             if not plan:
                 raise KeyError(f"StoryPlan {plan_id} not found for novel {novel_id}")
+            if (plan.edit_metadata or {}).get('contract_version')=='plan-edit-v1':
+                raise BootstrapConflictError('PLAN_EDIT_REQUIRES_CAS')
             obj = session.scalar(
                 select(StoryPlanObjectiveRecord).where(
                     StoryPlanObjectiveRecord.id == o_uuid,

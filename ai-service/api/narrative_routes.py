@@ -19,6 +19,7 @@ from api.deps import (
     get_writing_service,
     require_service_token,
 )
+from api.plan_routes import router as plan_router, legacy_scope
 from api.setup_schemas import SetupRequest, SetupReviewRequest
 from api.setup_auth import setup_principal, identity_headers, SetupValidationRoute
 from application.setup_service import SetupService, SetupFailure, public_job
@@ -196,14 +197,20 @@ def compute_plan_input_hash(
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
+router.include_router(plan_router)
+
 @router.post("/story-plans", status_code=201)
 def create_story_plan(
     payload: StoryPlanCreateRequest,
     tenant_id: str = Header(..., alias="X-Tenant-Id"),
     request_id: str = Header(..., alias="X-Request-Id"),
     author_id: str | None = Header(None, alias="X-Author-Id"),
+    request: Request = None,
+    response: Response = None,
     repository = Depends(get_narrative_repository),
 ):
+    legacy_scope(request,repository,novel_id=payload.novel_id)
+    if response is not None:response.headers['Cache-Control']='no-store'
     source_outline = (payload.source_outline or "").strip()
     outline_hash = hashlib.sha256(source_outline.encode("utf-8")).hexdigest() if source_outline else ""
     input_hash = compute_plan_input_hash(payload.novel_id, source_outline, payload.objectives)
@@ -253,8 +260,12 @@ def create_story_plan(
 def get_active_story_plan(
     novel_id: str,
     request_id: str = Header(..., alias="X-Request-Id"),
+    request: Request = None,
+    response: Response = None,
     repository = Depends(get_narrative_repository),
 ):
+    legacy_scope(request,repository,novel_id=novel_id)
+    if response is not None:response.headers['Cache-Control']='no-store'
     plan = repository.get_active_story_plan(novel_id)
     if not plan:
         raise HTTPException(404, detail={"code": "PLAN_NOT_FOUND", "message": "No active story plan found"})
@@ -268,8 +279,12 @@ def get_active_story_plan(
 def list_story_plans(
     novel_id: str,
     request_id: str = Header(..., alias="X-Request-Id"),
+    request: Request = None,
+    response: Response = None,
     repository = Depends(get_narrative_repository),
 ):
+    legacy_scope(request,repository,novel_id=novel_id)
+    if response is not None:response.headers['Cache-Control']='no-store'
     plans = repository.list_story_plans(novel_id)
     return {
         "data": [asdict(p) for p in plans],
@@ -281,8 +296,12 @@ def list_story_plans(
 def get_story_plan(
     plan_id: str,
     request_id: str = Header(..., alias="X-Request-Id"),
+    request: Request = None,
+    response: Response = None,
     repository = Depends(get_narrative_repository),
 ):
+    legacy_scope(request,repository,plan_id=plan_id)
+    if response is not None:response.headers['Cache-Control']='no-store'
     plan = repository.get_story_plan(plan_id)
     if not plan:
         raise HTTPException(404, detail={"code": "PLAN_NOT_FOUND", "message": f"StoryPlan {plan_id} not found"})
@@ -297,10 +316,16 @@ def activate_story_plan(
     plan_id: str,
     novel_id: str = Query(..., description="Target novel id"),
     request_id: str = Header(..., alias="X-Request-Id"),
+    request: Request = None,
+    response: Response = None,
     repository = Depends(get_narrative_repository),
 ):
+    legacy_scope(request,repository,novel_id=novel_id,plan_id=plan_id)
+    if response is not None:response.headers['Cache-Control']='no-store'
     try:
         plan = repository.activate_story_plan(novel_id, plan_id)
+    except BootstrapConflictError as exc:
+        raise HTTPException(409,detail={'code':exc.code}) from None
     except KeyError as exc:
         raise HTTPException(404, detail={"code": "PLAN_NOT_FOUND", "message": str(exc)}) from exc
     return {
@@ -316,8 +341,12 @@ def update_story_plan_objective(
     payload: StoryPlanObjectiveUpdateRequest,
     novel_id: str = Query(..., description="Target novel id"),
     request_id: str = Header(..., alias="X-Request-Id"),
+    request: Request = None,
+    response: Response = None,
     repository = Depends(get_narrative_repository),
 ):
+    legacy_scope(request,repository,novel_id=novel_id,plan_id=plan_id)
+    if response is not None:response.headers['Cache-Control']='no-store'
     try:
         obj = repository.update_objective_status(
             novel_id=novel_id,
@@ -325,6 +354,8 @@ def update_story_plan_objective(
             objective_id=objective_id,
             status=payload.status,
         )
+    except BootstrapConflictError as exc:
+        raise HTTPException(409,detail={'code':exc.code}) from None
     except KeyError as exc:
         raise HTTPException(404, detail={"code": "OBJECTIVE_NOT_FOUND", "message": str(exc)}) from exc
     return {
@@ -1073,7 +1104,9 @@ def preview_writing_context(
     tenant_id: str = Header(..., alias="X-Tenant-Id"),
     request_id: str = Header(..., alias="X-Request-Id"),
     service: WritingService = Depends(get_writing_service),
+    request: Request = None,
 ):
+    legacy_scope(request,service._repository,novel_id=brain_id)
     try:
         package = service.preview_context(
             tenant_id=tenant_id,

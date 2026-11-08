@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 import { createHash, randomUUID } from 'node:crypto';
+import { getPostgresPool } from '../../core/database/postgres.js';
 import { aiGatewayService } from './ai-gateway.service.js';
 import { recoverWritingDraft, dismissWritingDraft } from './writing-drafts.service.js';
 import { successResponse } from '../../core/response/response.js';
@@ -656,7 +657,7 @@ export async function createStoryPlanController(
       throw new AppError(400, 'INVALID_REQUEST', 'novel_id is required');
     }
 
-    await assertNovelOwnership(userId, userRole, String(novelId));
+    await assertNovelOwnership(userId, 'AUTHOR', String(novelId));
 
     const data = await aiGatewayService.forwardRequest({
       method: 'POST',
@@ -682,7 +683,7 @@ export async function getActiveStoryPlanController(
     const userId = req.auth!.userId;
     const userRole = req.auth!.role;
 
-    await assertNovelOwnership(userId, userRole, String(novelId));
+    await assertNovelOwnership(userId, 'AUTHOR', String(novelId));
 
     const data = await aiGatewayService.forwardRequest({
       method: 'GET',
@@ -707,6 +708,15 @@ export async function getStoryPlanController(
     const userId = req.auth!.userId;
     const userRole = req.auth!.role;
 
+    // Resolve only scope metadata locally, with current owner + immutable creator.
+    // Never fetch a foreign outline from Python before authorization.
+    if (!/^[0-9a-f-]{36}$/i.test(String(planId))) throw new AppError(422,'INVALID_PLAN_ID','Invalid plan ID');
+    const scoped = await getPostgresPool().query(
+      `SELECT p.novel_id FROM narrative.story_plans p JOIN novels n ON n.novel_id=p.novel_id
+       WHERE p.id=$1 AND p.created_by=$2 AND n.author_id=$2 AND p.tenant_id=$3`,
+      [planId,userId,'00000000-0000-0000-0000-000000000001']);
+    if (!scoped.rows[0]) throw new AppError(404,'PLAN_NOT_FOUND','Plan not found');
+    await assertNovelOwnership(userId,'AUTHOR',String(scoped.rows[0].novel_id));
     const data = await aiGatewayService.forwardRequest({
       method: 'GET',
       path: `/v1/story-plans/${planId}`,
@@ -715,7 +725,7 @@ export async function getStoryPlanController(
     });
 
     if (data?.novel_id) {
-      await assertNovelOwnership(userId, userRole, data.novel_id);
+      await assertNovelOwnership(userId, 'AUTHOR', data.novel_id);
     }
 
     res.json(successResponse(data));
@@ -739,7 +749,7 @@ export async function activateStoryPlanController(
       throw new AppError(400, 'INVALID_REQUEST', 'novel_id is required');
     }
 
-    await assertNovelOwnership(userId, userRole, String(novelId));
+    await assertNovelOwnership(userId, 'AUTHOR', String(novelId));
 
     const data = await aiGatewayService.forwardRequest({
       method: 'POST',
@@ -770,7 +780,7 @@ export async function updateStoryPlanObjectiveController(
       throw new AppError(400, 'INVALID_REQUEST', 'novel_id is required');
     }
 
-    await assertNovelOwnership(userId, userRole, String(novelId));
+    await assertNovelOwnership(userId, 'AUTHOR', String(novelId));
 
     const data = await aiGatewayService.forwardRequest({
       method: 'PATCH',
@@ -824,4 +834,18 @@ export async function reviewSetupSnapshotController(req: Request, res: Response,
     res.set('Cache-Control', 'no-store');
     res.json(successResponse(data));
   } catch (error) { next(error); }
+}
+
+
+export async function editStoryPlansController(req:Request,res:Response,next:NextFunction) {
+  try {
+    const novel=String(req.params.novelId);
+    const id=req.params.planId;
+    if(!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(novel) || (id&&!/^[0-9a-f-]{36}$/i.test(String(id)))) throw new AppError(422,'INVALID_PLAN_ID','Invalid plan scope');
+    await assertNovelOwnership(req.auth!.userId,'AUTHOR',novel);
+    const data=await aiGatewayService.forwardRequest({method:req.method==='POST'?'POST':'GET',
+      path:`/v1/story-plans/edit-v1/${novel}${id?'/'+id:''}`,userId:req.auth!.userId,
+      requestId:req.header('x-request-id'),...(req.method==='POST'?{body:req.body}:{})});
+    res.set('Cache-Control','no-store');res.json(successResponse(data));
+  } catch(e){next(e);}
 }
