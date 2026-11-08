@@ -11,7 +11,7 @@ This document extends the SRS appendix error codes into API-ready groups.
 | `VALIDATION_002` | 422 | Business rule violation | Request is syntactically valid but violates business rules (e.g. novel submitted with fewer than 5 valid chapters; `details.readyChapters`). |
 | `NOT_FOUND_001` | 404 | Resource not found | Requested resource does not exist or is not visible. |
 | `CONFLICT_001` | 409 | Resource conflict | Duplicate resource or invalid state transition. |
-| `RATE_LIMIT_001` | 429 | Too many requests | Rate limit exceeded. Payment routes allow `PAYMENT_RATE_LIMIT_MAX` calls per user per `PAYMENT_RATE_LIMIT_WINDOW_MS` (default 30/min); the response carries `Retry-After`. |
+| `RATE_LIMIT_001` | 429 | Too many requests | Rate limit exceeded. Payment routes allow `PAYMENT_RATE_LIMIT_MAX` calls per user per `PAYMENT_RATE_LIMIT_WINDOW_MS` (default 30/min); the mock deposit webhook allows 5 calls per deposit session, counted after body validation. The response carries `Retry-After`. In-process counters: single-instance demo only, not a distributed or replay-proof limit. |
 
 ## Authentication & User
 
@@ -41,7 +41,7 @@ This document extends the SRS appendix error codes into API-ready groups.
 
 | Code | HTTP | Message | Condition |
 | :--- | :---: | :--- | :--- |
-| `AI_001` | 503 | AI Service Unavailable | Timeout or service down. `details.reason`: `not_configured`, `timeout`, `unreachable`, `provider_http_<status>`, `empty_response`, `token_limit`. |
+| `AI_001` | 503 | AI Service Unavailable | Timeout or service down. `details.reason`: `not_configured`, `timeout`, `unreachable`, `provider_http_<status>`, `empty_response`, `token_limit`. Provider response text is never returned; it is logged server-side, trimmed and masked. |
 | `AI_002` | 422 | Insufficient context | Not enough text/context to generate reliable result. |
 | `AI_003` | 409 | Proposal already resolved | Context proposal has already been approved/rejected. |
 | `AI_004` | 403 | Context proposal ownership required | User cannot approve/reject this proposal. |
