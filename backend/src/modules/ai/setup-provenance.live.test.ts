@@ -141,7 +141,7 @@ test('setup-v1 live owner Gateway -> Python -> PostgreSQL immutable readback', {
     const planBody={contract_version:'plan-edit-v1',action:'save',idempotency_key:'future-plan',expected_plan_version:0,
       source_outline:'Future chapter 8 betrayal',private_notes:'PlanPrivateOnly',objectives:Array.from({length:25},(_,i)=>({
         objective_id:randomUUID(),expected_intent_version:0,target_chapter:i+1,title:`Chapter ${i+1}`,description:'Future goal',
-        events:[{event_id:randomUUID(),text:'Planned event',participants:[{name_hint:'Minh'}]}]}))};
+        events:[{event_id:randomUUID(),text:'Planned event',participants:i===0?[{entity_id:String(reviewedSnapshot.entities[0].id)}]:[{name_hint:'Minh'}]}]}))};
     const canonBefore=await snapshot('plan-canon-before');
     assert.equal((await request(planPath,200)).data.head_version,0);
     await request(planPath,403,planBody,foreignToken);await request(planPath,403,planBody,adminToken);
@@ -175,6 +175,7 @@ test('setup-v1 live owner Gateway -> Python -> PostgreSQL immutable readback', {
       objectives:activePlan.objectives.map((o:any)=>{const {intent_version,...fields}=o;return {...fields,expected_intent_version:intent_version};})};
     const restored=(await request(planPath,200,restoreBody)).data;
     assert.equal(restored.status,'draft');assert.notEqual(restored.plan_id,activePlan.plan_id);
+    assert.deepEqual(restored.objectives[0].events,activePlan.objectives[0].events);
     assert.equal((await request(`${planPath}/${activePlan.plan_id}`,200)).data.effective_status,'archived');
     const archiveAfter=await snapshot('fix-gateway-archive-after');
     for(const key of Object.keys(archiveBefore))if(key!=='plans'&&key!=='objectives')assert.deepEqual(archiveAfter[key],archiveBefore[key]);
@@ -187,7 +188,7 @@ test('setup-v1 live owner Gateway -> Python -> PostgreSQL immutable readback', {
     await request(`/story-plans/${legacyId}`,404);
     await request(`/story-plans/${legacyId}`,200,undefined,adminToken); // Pinned legacy read-only ADMIN exception.
     const coexistBody={...planBody,idempotency_key:'coexist',expected_plan_version:1,
-      objectives:planBody.objectives.map((o:any)=>({...o,objective_id:randomUUID(),events:o.events.map((e:any)=>({...e,event_id:randomUUID()}))}))};
+      objectives:planBody.objectives.map((o:any)=>({...o,objective_id:randomUUID(),events:o.events.map((e:any)=>({...e,event_id:randomUUID(),participants:[{name_hint:'Minh unresolved'}]}))}))};
     const coexist=(await request(coexistPath,200,coexistBody)).data;
     assert.equal(coexist.plan_version,2);
     await request(coexistPath,403,undefined,foreignToken);await request(coexistPath,403,undefined,adminToken);

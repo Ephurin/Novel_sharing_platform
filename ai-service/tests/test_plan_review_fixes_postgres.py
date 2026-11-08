@@ -85,9 +85,18 @@ def test_future_events_keep_ids_participants_and_removed_ids_cannot_be_reused(f)
     saved=command(f,request)
     assert saved['objectives'][1]['events']==request['objectives'][1]['events']
     assert read(f,saved['plan_id'])['objectives']==saved['objectives']
+    add=changed(saved);add['objectives'][1]['events'].append(dict(event_id=str(uuid.uuid4()),text='New fourth',participants=[dict(name_hint='Minh D')]))
+    three=command(f,add)
+    remove_middle=changed(three);middle=remove_middle['objectives'][1]['events'].pop(1)
+    remove_middle['objectives'][1]['events'][1]['text']='New fourth edited'
+    final=command(f,remove_middle)
+    assert read(f,final['plan_id'])['objectives'][1]['events']==final['objectives'][1]['events']
+    assert final['objectives'][1]['events'][1]['event_id']==three['objectives'][1]['events'][2]['event_id']
+    assert final['objectives'][1]['events'][1]['participants']==three['objectives'][1]['events'][2]['participants']
     before=snapshot(f,'fix-events-before-reuse')
-    reuse=changed(saved);reuse['objectives'][1]['events'].append(events[0])
-    with pytest.raises(BootstrapConflictError,match='FUTURE_EVENT_ID_REUSED'):command(f,reuse)
+    for removed in [events[0],middle]:
+        reuse=changed(final);reuse['objectives'][1]['events'].append(removed)
+        with pytest.raises(BootstrapConflictError,match='FUTURE_EVENT_ID_REUSED'):command(f,reuse)
     assert snapshot(f,'fix-events-after-reuse')==before
     assert read(f,source['plan_id'])['objectives'][0]['events']==events
     assert canonical(before)==canonical(snapshot(f,'fix-events-canon-after'))
