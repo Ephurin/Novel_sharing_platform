@@ -36,13 +36,14 @@ def principal(request,repo,*,missing_scope_probe=False):
     return author
 
 
-def legacy_scope(request,repo,novel_id=None,plan_id=None):
+def legacy_scope(request,repo,novel_id=None,plan_id=None,active_only=False):
     # Legacy in-memory test/internal adapters have no P2 plan store; keep their contract.
     if not getattr(repo,'supports_plan_edit_v1',False):return
     author=principal(request,repo,missing_scope_probe=True)
     with session_scope(repo._session_factory) as session:
         query=select(StoryPlanRecord).where(StoryPlanRecord.tenant_id==repo._tenant_id)
         if novel_id is not None:query=query.where(StoryPlanRecord.novel_id==repo._novel_id(novel_id))
+        if active_only:query=query.where(StoryPlanRecord.status=='active')
         if plan_id is not None:
             try:parsed_id=uuid.UUID(plan_id)
             except ValueError:raise HTTPException(422,detail={'code':'INVALID_PLAN_ID'}) from None

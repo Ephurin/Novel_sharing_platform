@@ -264,7 +264,7 @@ def get_active_story_plan(
     response: Response = None,
     repository = Depends(get_narrative_repository),
 ):
-    legacy_scope(request,repository,novel_id=novel_id)
+    legacy_scope(request,repository,novel_id=novel_id,active_only=True)
     if response is not None:response.headers['Cache-Control']='no-store'
     plan = repository.get_active_story_plan(novel_id)
     if not plan:
@@ -1111,7 +1111,7 @@ def preview_writing_context(
 ):
     active = service._repository.get_active_story_plan(brain_id)
     if active and any(o.metadata.get('contract_version')=='plan-edit-v1' for o in active.objectives):
-        legacy_scope(request,service._repository,novel_id=brain_id)
+        legacy_scope(request,service._repository,novel_id=brain_id,plan_id=active.plan_id)
     try:
         package = service.preview_context(
             tenant_id=tenant_id,
