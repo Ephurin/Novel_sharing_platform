@@ -710,7 +710,7 @@ export async function getStoryPlanController(
 
     // Resolve only scope metadata locally, with current owner + immutable creator.
     // Never fetch a foreign outline from Python before authorization.
-    if (!/^[0-9a-f-]{36}$/i.test(String(planId))) throw new AppError(422,'INVALID_PLAN_ID','Invalid plan ID');
+    if (!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(String(planId))) throw new AppError(422,'INVALID_PLAN_ID','Invalid plan ID');
     const scoped = await getPostgresPool().query(
       `SELECT p.novel_id,p.edit_metadata->>'contract_version' AS contract_version FROM narrative.story_plans p JOIN novels n ON n.novel_id=p.novel_id
        WHERE p.id=$1 AND p.tenant_id=$3 AND ((p.created_by=$2 AND n.author_id=$2) OR ($4 AND coalesce(p.edit_metadata->>'contract_version','')<>'plan-edit-v1'))`,
@@ -843,7 +843,7 @@ export async function editStoryPlansController(req:Request,res:Response,next:Nex
   try {
     const novel=String(req.params.novelId);
     const id=req.params.planId;
-    if(!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(novel) || (id&&!/^[0-9a-f-]{36}$/i.test(String(id)))) throw new AppError(422,'INVALID_PLAN_ID','Invalid plan scope');
+    if(!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(novel) || (id&&!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(String(id)))) throw new AppError(422,'INVALID_PLAN_ID','Invalid plan scope');
     await assertNovelOwnership(req.auth!.userId,'AUTHOR',novel);
     const data=await aiGatewayService.forwardRequest({method:req.method==='POST'?'POST':'GET',
       path:`/v1/story-plans/edit-v1/${novel}${id?'/'+id:''}`,userId:req.auth!.userId,

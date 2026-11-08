@@ -43,7 +43,10 @@ def legacy_scope(request,repo,novel_id=None,plan_id=None):
     with session_scope(repo._session_factory) as session:
         query=select(StoryPlanRecord).where(StoryPlanRecord.tenant_id==repo._tenant_id)
         if novel_id is not None:query=query.where(StoryPlanRecord.novel_id==repo._novel_id(novel_id))
-        if plan_id is not None:query=query.where(StoryPlanRecord.id==uuid.UUID(plan_id))
+        if plan_id is not None:
+            try:parsed_id=uuid.UUID(plan_id)
+            except ValueError:raise HTTPException(422,detail={'code':'INVALID_PLAN_ID'}) from None
+            query=query.where(StoryPlanRecord.id==parsed_id)
         rows=session.scalars(query).all()
         if author is None:
             if request.method=='PATCH' and plan_id is not None and not rows:raise HTTPException(404,detail={'code':'PLAN_NOT_FOUND'})
