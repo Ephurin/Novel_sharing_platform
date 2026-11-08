@@ -146,6 +146,11 @@ jobs:
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/p8_cutover
           NODE_ENV: test
+          # Required by shared config parsing; this SQL migration command does
+          # not connect to Mongo. Real Mongo evidence is in the P2 feature job.
+          MONGODB_URI: mongodb://localhost:27017/p8_cutover
+          JWT_ACCESS_SECRET: p8-f04-offline-access-secret
+          JWT_REFRESH_SECRET: p8-f04-offline-refresh-secret
         run: |
           npm ci
           npm run db:migrate
