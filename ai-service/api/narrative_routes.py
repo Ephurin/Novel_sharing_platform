@@ -19,7 +19,7 @@ from api.deps import (
     get_writing_service,
     require_service_token,
 )
-from api.plan_routes import router as plan_router, legacy_scope, guard_manual_autonomy, principal as plan_principal
+from api.plan_routes import router as plan_router, legacy_scope, guard_manual_autonomy, principal as plan_principal, service_principal
 from api.setup_schemas import SetupRequest, SetupReviewRequest
 from api.setup_auth import setup_principal, identity_headers, SetupValidationRoute
 from application.setup_service import SetupService, SetupFailure, public_job
@@ -1232,7 +1232,9 @@ def get_internal_writing_generation(
     if getattr(service._repository,'supports_plan_edit_v1',False):
         # Privileged job lookup still requires real service credentials even in
         # a dev environment which disables generic router authentication.
-        plan_principal(request,service._repository,missing_scope_probe=True)
+        # Privileged lookup preserves P1 Accept Draft's user-tenant headers;
+        # the Platform caller checks returned actor/tenant/chapter/revision.
+        service_principal(request)
     try:
         job = service._repository.get_writing_job(generation_id)
     except Exception as exc:

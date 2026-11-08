@@ -12,7 +12,8 @@ from infrastructure.database import session_scope
 from infrastructure.orm_models import StoryPlanRecord
 
 
-def principal(request,repo,*,missing_scope_probe=False):
+def service_principal(request):
+    """Strict credentials shared by author routes and privileged P1 job reads."""
     settings=request.app.state.settings
     token=getattr(settings,'platform_service_token','')
     supplied=request.headers.get('Authorization','')
@@ -20,6 +21,10 @@ def principal(request,repo,*,missing_scope_probe=False):
     if not token:raise HTTPException(503,detail={'code':'SERVICE_AUTH_NOT_CONFIGURED'})
     if not supplied:raise HTTPException(401,detail={'code':'SERVICE_AUTH_REQUIRED'})
     if not hmac.compare_digest(token,supplied):raise HTTPException(403,detail={'code':'SERVICE_AUTH_INVALID'})
+
+
+def principal(request,repo,*,missing_scope_probe=False):
+    service_principal(request)
     if missing_scope_probe and not any(request.headers.get(k) for k in ('X-Author-Id','X-User-Id','X-Actor-Id')):
         try:tenant=str(uuid.UUID(request.headers['X-Tenant-Id']))
         except KeyError:raise HTTPException(401,detail={'code':'PLAN_IDENTITY_REQUIRED'}) from None

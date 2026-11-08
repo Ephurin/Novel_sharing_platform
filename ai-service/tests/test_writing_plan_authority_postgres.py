@@ -248,7 +248,8 @@ def test_internal_job_read_requires_service_token_even_when_dev_auth_disabled(wo
     job=queue(worker)
     f.client.app.state.settings.service_auth_disabled=True
     path=f'/internal/v1/writing/generations/{job.job_id}'
-    for headers,expected in [({'X-Tenant-Id':TENANT},401),({'X-Tenant-Id':TENANT,'X-Service-Token':'forged'},403),(f.headers,200)]:
+    p1_headers={'X-Service-Token':'p2a-isolated','X-User-Id':ACTOR,'X-Tenant-Id':ACTOR}
+    for headers,expected in [({'X-Tenant-Id':TENANT},401),({'X-Tenant-Id':TENANT,'X-Service-Token':'forged'},403),(f.headers,200),(p1_headers,200)]:
         result=f.client.get(path,headers=headers)
         assert result.status_code==expected,result.text
     assert provider.payloads==[]
