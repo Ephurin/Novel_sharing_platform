@@ -60,6 +60,8 @@ def worker(f):
     provider=RecordingProvider()
     service=WritingService(f.repo,provider,SqlRevisionProvider(f.engine))
     f.client.app.state.writing_service=service
+    from api.narrative_routes import internal_router
+    f.client.app.include_router(internal_router)
     if os.environ.get('F04_MONGO_EVIDENCE')=='1':
         mongo(f,'seed')
     return f,service,provider,h
@@ -98,7 +100,7 @@ def seed_plan(f,creator):
         plan=seed_legacy(f,source_actor,status='active')
         if creator in ('owned-manual','foreign-manual'):
             with f.engine.begin() as db:
-                db.execute(text("UPDATE narrative.story_plans SET edit_metadata='{"+'"contract_version":"plan-edit-v1","private_notes":"LegacyPrivateOnly"'+"}'::jsonb WHERE id=:p"),dict(p=plan))
+                db.execute(text("UPDATE narrative.story_plans SET edit_metadata='{"+'"contract_version":"plan-edit-v1","private_notes":"F04RootPrivateOnly"'+"}'::jsonb WHERE id=:p"),dict(p=plan))
         return plan
 
 
@@ -139,6 +141,11 @@ def test_async_provider_payload_authority(worker,creator,caplog):
     job=f.repo.get_writing_job(response.json()['data']['job_id'])
     if creator in (None,FOREIGN,'foreign-manual'):
         assert_blocked(job,provider,caplog)
+        for path in (f'/v1/jobs/{job.job_id}',f'/v1/jobs/{job.job_id}/events',f'/internal/v1/writing/generations/{job.job_id}'):
+            result=f.client.get(path,headers={**f.headers,'X-Author-Id':ACTOR})
+            assert result.status_code==200,result.text
+            for marker in ('LegacyTitlePrivate','LegacyDescriptionPrivate','LegacyPrivateOnly','LegacyOutlinePrivate','F04RootPrivateOnly'):
+                assert marker not in result.text
     else:
         assert job.status=='completed' and len(provider.payloads)==1
         context=provider.payloads[0]['context_package']
@@ -147,6 +154,7 @@ def test_async_provider_payload_authority(worker,creator,caplog):
             assert context['current_objective']['title']=='LegacyTitlePrivate'
             assert context['current_objective']['authority_lane']=='FUTURE_PLAN'
         assert 'LegacyOutlinePrivate' not in json.dumps(context)
+        assert 'F04RootPrivateOnly' not in json.dumps(context)
     evidence(f,provider,job,before,str(creator))
 
 
@@ -181,7 +189,7 @@ def test_queued_job_revalidates_current_authority(worker,change,caplog):
     evidence(f,provider,result,before,'queued-'+change)
 
 
-@pytest.mark.parametrize('change',['owner','active-plan','objective-content','no-plan-to-foreign','same-owner-version'])
+@pytest.mark.parametrize('change',['owner','active-plan','objective-content','no-plan-to-foreign','same-owner-version','persisted-actor'])
 def test_context_to_dispatch_fence(worker,change,caplog):
     f,service,provider,_=worker
     plan=seed_plan(f,ACTOR) if change!='no-plan-to-foreign' else None
@@ -196,6 +204,7 @@ def test_context_to_dispatch_fence(worker,change,caplog):
                 if change=='owner':db.execute(text('UPDATE novels SET author_id=:a WHERE novel_id=:n'),dict(a=FOREIGN,n=f.src.novel_id))
                 elif change=='active-plan':db.execute(text('UPDATE narrative.story_plans SET created_by=:a WHERE id=:p'),dict(a=FOREIGN,p=plan))
                 elif change=='objective-content':db.execute(text("UPDATE narrative.story_plan_objectives SET title='Changed during packing' WHERE plan_id=:p"),dict(p=plan))
+                elif change=='persisted-actor':db.execute(text('UPDATE narrative.writing_generations SET actor_id=:a WHERE job_id=:j'),dict(a=FOREIGN,j=job.job_id))
                 else:db.execute(text('UPDATE narrative.story_plans SET plan_version=plan_version+1 WHERE id=:p'),dict(p=plan))
         unchanged.update(durable(f,'f04-dispatch-before-'+change))
         return package
@@ -223,3 +232,14 @@ def test_http_identity_boundary(worker,case,caplog):
     assert response.status_code==expected,response.text
     assert provider.payloads==[]
     if expected==202:assert_blocked(f.repo.get_writing_job(response.json()['data']['job_id']),provider,caplog)
+
+
+def test_internal_job_read_requires_service_token_even_when_dev_auth_disabled(worker):
+    f,_,provider,_=worker
+    job=queue(worker)
+    f.client.app.state.settings.service_auth_disabled=True
+    path=f'/internal/v1/writing/generations/{job.job_id}'
+    for headers,expected in [({'X-Tenant-Id':TENANT},401),({'X-Tenant-Id':TENANT,'X-Service-Token':'forged'},403),(f.headers,200)]:
+        result=f.client.get(path,headers=headers)
+        assert result.status_code==expected,result.text
+    assert provider.payloads==[]

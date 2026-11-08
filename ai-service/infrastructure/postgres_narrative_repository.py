@@ -1990,6 +1990,14 @@ class PostgresNarrativeRepository:
             raise WritingContextAuthorityError()
         with session_scope(self._session_factory) as session:
             session.connection(execution_options={'isolation_level': 'REPEATABLE READ'})
+            persisted = session.scalar(select(WritingGenerationRecord).where(
+                WritingGenerationRecord.job_id==uuid.UUID(job.job_id),
+                *self._scope(WritingGenerationRecord,novel)))
+            if (persisted is None or persisted.actor_id != actor
+                    or persisted.chapter_id != chapter or persisted.revision_id != revision
+                    or persisted.base_content_hash != job.content_hash
+                    or (persisted.context_summary or {}).get('chapter_number') != job.chapter_number):
+                raise WritingContextAuthorityError()
             row = session.execute(text('''
                 SELECT r.content, r.content_hash, c.chapter_number
                 FROM novels n JOIN chapters c ON c.novel_id=n.novel_id

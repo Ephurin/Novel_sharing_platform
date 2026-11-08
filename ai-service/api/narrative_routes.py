@@ -1226,8 +1226,13 @@ def rebuild_semantic_memory(
 @internal_router.get("/writing/generations/{generation_id}")
 def get_internal_writing_generation(
     generation_id: str,
+    request: Request,
     service: WritingService = Depends(get_writing_service),
 ):
+    if getattr(service._repository,'supports_plan_edit_v1',False):
+        # Privileged job lookup still requires real service credentials even in
+        # a dev environment which disables generic router authentication.
+        plan_principal(request,service._repository,missing_scope_probe=True)
     try:
         job = service._repository.get_writing_job(generation_id)
     except Exception as exc:
