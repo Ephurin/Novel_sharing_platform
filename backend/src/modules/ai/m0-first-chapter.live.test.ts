@@ -71,6 +71,8 @@ test('P2 M0 -> genuine Core create/PATCH/revision/outbox -> existing P1 HITL',{
   await http(`/chapters/${empty.chapterId}/revisions/snapshot`,'POST',{purpose:'MANUSCRIPT_BOOTSTRAP'},409,adminToken);
   await http(`/chapters/${empty.chapterId}`,'PATCH',{content:'   ',expectedVersion:1},200);
   assert.equal((await durable('empty-not-history')).revisions.length,0);
+  const planned=await http(`/ai/story-plans/edit-v1/${novel}`,'POST',{contract_version:'plan-edit-v1',action:'save',idempotency_key:randomUUID(),expected_plan_version:0,source_outline:'FutureOnlyBetrayal at chapter 8',objectives:[{objective_id:randomUUID(),expected_intent_version:0,target_chapter:8,title:'Future betrayal',description:'FutureOnlyBetrayal',events:[{event_id:randomUUID(),text:'FutureOnlyBetrayal',participants:[{name_hint:'Minh'}]}],dependencies:[]}]});
+  await http(`/ai/story-plans/edit-v1/${novel}`,'POST',{contract_version:'plan-edit-v1',action:'activate',idempotency_key:randomUUID(),expected_plan_version:planned.plan_version,source_plan_id:planned.plan_id});
   const content='Minh gặp Minh. lan.';
   const saved=await http(`/chapters/${empty.chapterId}`,'PATCH',{content,expectedVersion:2},200);
   assert.ok(saved.analysisRevisionId);await poll();
@@ -149,9 +151,13 @@ test('P2 M0 -> genuine Core create/PATCH/revision/outbox -> existing P1 HITL',{
   const partialBody={title:'Partial provenance guard',content:'Minh opens a door.',clientRequestId:randomUUID()};
   const partial=await http(`/novels/${createNovel}/chapters`,'POST',partialBody,201);assert.equal(partial.analysisRevisionId,null);
   assert.equal((await durable('partial-provenance-no-auto-revision',createNovel)).revisions.length,2);
+  await pg.query("UPDATE narrative.bootstrap_jobs SET result=result-'setup_activation' WHERE id=$1",[activationJob.id]);
+  const editedPartial=partialBody.content+' The author revises it.';
+  const unverified=await http(`/chapters/${partial.chapterId}`,'PATCH',{content:editedPartial,expectedVersion:1});assert.equal(unverified.analysisRevisionId,null);
+  assert.equal((await durable('legacy-active-null-no-marker',createNovel)).revisions.length,2);
   await pg.query('UPDATE narrative.bootstrap_jobs SET result=$1::jsonb WHERE id=$2',[JSON.stringify(activationJob.result),activationJob.id]);
   const reconciledCreate=await http(`/novels/${createNovel}/chapters`,'POST',partialBody,201);assert.ok(reconciledCreate.analysisRevisionId);await poll(createNovel);
-  assert.equal((await durable('create-after-provenance-restored',createNovel)).revisions.length,3);
+  const afterRestore=await durable('create-after-provenance-restored',createNovel);assert.equal(afterRestore.revisions.length,3);assert.equal(afterRestore.revisions[2].content,editedPartial);
   // Mongo can fail after SQL chapter creation; the same import key must safely
   // reconcile that partial creation through the existing lease on retry.
   const collectionInfo=(await mongo.listCollections({name:'draft_chapters'},{nameOnly:false}).toArray())[0];
