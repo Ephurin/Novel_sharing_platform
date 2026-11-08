@@ -76,13 +76,13 @@ async function checkStoryBrainActive(novelId: string, actorId: string): Promise<
           WHERE j.tenant_id=b.tenant_id AND j.novel_id=b.novel_id AND j.story_brain_id=b.id
             AND n.author_id=$3::uuid AND j.status='completed' AND j.stage='m0_active'
             AND j.result->>'contract_version'='setup-v1'
-            AND j.result->>'author_id'=$3
+            AND j.result->>'author_id'=$3::text
             AND j.result#>>'{setup_activation,contract_version}'='setup-m0-v1'
             AND j.result#>>'{setup_activation,response,contract_version}'='setup-m0-v1'
             AND j.result#>>'{setup_activation,response,baseline_kind}'='M0'
             AND j.result#>>'{setup_activation,response,brain_id}'=b.id::text
             AND j.result#>>'{setup_activation,response,snapshot_id}'=j.id::text
-            AND j.result#>>'{setup_activation,response,activated_by}'=$3
+            AND j.result#>>'{setup_activation,response,activated_by}'=$3::text
             AND j.result#>>'{setup_activation,response,setup_hash}'=j.result->>'setup_hash'
             AND j.result#>'{setup_activation,response,setup_version}'=j.result->'setup_version'
             AND j.result#>'{setup_activation,response,review_version}'=j.result->'review_version'

@@ -136,6 +136,33 @@ jobs:
         run: |
           set -euo pipefail
           P202_EVIDENCE_FILE="$RUNNER_TEMP/p202/setup-gateway-readbacks.json" npx tsx --test src/modules/ai/setup-provenance.live.test.ts 2>&1 | tee "$RUNNER_TEMP/p202/setup-gateway.log"
+      - name: Restart task AI service with existing P1 entity HITL enabled
+        working-directory: ai-service
+        env:
+          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p2a
+          ENTITY_CANDIDATE_VERIFICATION_ENABLED: "true"
+          ENTITY_PIPELINE_VERSION: entity-human-review-v1
+        run: |
+          set -euo pipefail
+          kill "$(cat "$RUNNER_TEMP/p202/ai.pid")"
+          for i in {1..30}; do
+            if ! curl -fsS http://127.0.0.1:58001/health; then break; fi
+            sleep 1
+          done
+          python -m uvicorn main:app --host 127.0.0.1 --port 58001 > "$RUNNER_TEMP/p202/m0-ai-service.log" 2>&1 &
+          echo "$!" > "$RUNNER_TEMP/p202/ai.pid"
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:58001/health; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Verified M0 and genuine first chapter Gateway PG Mongo P1 HITL bridge
+        working-directory: backend
+        env:
+          TEST_P2A_LIVE: "1"
+        run: |
+          set -euo pipefail
+          P204_EVIDENCE_FILE="$RUNNER_TEMP/p202/m0-writer-readbacks.json" npx tsx --test src/modules/ai/m0-first-chapter.live.test.ts 2>&1 | tee "$RUNNER_TEMP/p202/m0-writer.log"
       - name: Mounted setup UI browser interactions (mocked HTTP)
         working-directory: web
         env:
