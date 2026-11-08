@@ -2434,8 +2434,8 @@ class PostgresNarrativeRepository:
             objectives=objectives,
             source_outline=record.source_outline,
             source_outline_hash=record.source_outline_hash,
-            idempotency_key=record.idempotency_key,
-            input_hash=record.input_hash,
+            idempotency_key=None if (record.edit_metadata or {}).get("contract_version")=="plan-edit-v1" else record.idempotency_key,
+            input_hash="" if (record.edit_metadata or {}).get("contract_version")=="plan-edit-v1" else record.input_hash,
             created_by=str(record.created_by) if record.created_by else None,
         )
 
@@ -2456,6 +2456,8 @@ class PostgresNarrativeRepository:
         with session_scope(self._session_factory) as session:
             from infrastructure.plan_edit import lock
             lock(self, session, novel_id)
+            if session.scalar(select(StoryPlanRecord.id).where(*self._scope(StoryPlanRecord,novel_id),StoryPlanRecord.edit_metadata['contract_version'].as_string()=='plan-edit-v1').limit(1)):
+                raise BootstrapConflictError('PLAN_EDIT_REQUIRES_CAS')
             if plan.idempotency_key:
                 existing = session.scalar(
                     select(StoryPlanRecord).where(
@@ -2579,7 +2581,7 @@ class PostgresNarrativeRepository:
             lock(self, session, n_id)
             target = session.scalar(select(StoryPlanRecord).where(*self._scope(StoryPlanRecord,n_id), StoryPlanRecord.id==p_uuid).with_for_update())
             if target is None:raise KeyError('PLAN_NOT_FOUND')
-            if (target.edit_metadata or {}).get('contract_version')=='plan-edit-v1':
+            if session.scalar(select(StoryPlanRecord.id).where(*self._scope(StoryPlanRecord,n_id),StoryPlanRecord.edit_metadata['contract_version'].as_string()=='plan-edit-v1').limit(1)):
                 raise BootstrapConflictError('PLAN_EDIT_REQUIRES_CAS')
             session.execute(
                 update(StoryPlanRecord)

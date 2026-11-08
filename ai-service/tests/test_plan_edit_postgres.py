@@ -95,3 +95,55 @@ def test_plan_http_legacy_scope_private_validation_and_bypass(f):
     assert read.json()['data']['plans'][0]['private_notes']=='PlanPrivateOnly'
     legacy=f.client.get(f"/v1/story-plans/{saved['plan_id']}",headers=owner)
     assert legacy.status_code==200 and 'PlanPrivateOnly' not in legacy.text
+
+def test_plan_context_chapter_scope_no_notes_or_history(f):
+    data=body(10);first=command(f,data);active=command(f,life(first,'activate'))
+    before=snapshot(f,'plan-context-before')
+    context3=f.repo.get_structured_context(f.src.novel_id,chapter_number=3)
+    context8=f.repo.get_structured_context(f.src.novel_id,chapter_number=8)
+    assert context3.planning_context['authority_lane']=='FUTURE_PLAN'
+    assert context3.current_objective['target_chapter']==3
+    assert context8.current_objective['target_chapter']==8
+    assert context8.current_objective['planned_events'][0]['text']=='Planned betrayal'
+    assert 'PlanPrivateOnly' not in json.dumps(__import__('dataclasses').asdict(context8))
+    assert not context8.recent_events
+    command(f,life(active,'skip'))
+    assert f.repo.get_structured_context(f.src.novel_id,chapter_number=8).planning_context is None
+    assert canonical(snapshot(f,'plan-context-after'))==canonical(before)
+
+
+def test_plan_index_rejects_second_active_and_keeps_source(f):
+    from sqlalchemy.exc import IntegrityError
+    first=command(f,body());active=command(f,life(first,'activate'))
+    before=snapshot(f,'plan-index-before')
+    with pytest.raises(IntegrityError):
+        with f.engine.begin() as c:
+            c.execute(text("INSERT INTO narrative.story_plans (id,tenant_id,novel_id,plan_version,status,source_outline_hash,input_hash) VALUES (:id,:t,:n,999,'active','','')"),dict(id=str(uuid.uuid4()),t=TENANT,n=f.src.novel_id))
+    assert snapshot(f,'plan-index-after')==before
+
+
+def test_plan_migration_up_down_isolated_database(engine,monkeypatch):
+    import os
+    from sqlalchemy import create_engine
+    from alembic.config import Config
+    from alembic import command as migrate
+    name='p203_migration_'+uuid.uuid4().hex
+    admin=create_engine(engine.url,isolation_level='AUTOCOMMIT')
+    with admin.connect() as c:c.execute(text('CREATE DATABASE '+name))
+    url=engine.url.set(database=name)
+    cfg=Config('alembic.ini');cfg.set_main_option('sqlalchemy.url',url.render_as_string(hide_password=False))
+    monkeypatch.setenv('DATABASE_URL',url.render_as_string(hide_password=False))
+    proof=create_engine(url)
+    try:
+        migrate.upgrade(cfg,'0016_entity_profile_audit_timestamp')
+        migrate.upgrade(cfg,'head')
+        with proof.connect() as c:
+            assert c.execute(text("SELECT indexdef FROM pg_indexes WHERE schemaname='narrative' AND indexname='uq_story_plan_active'")).scalar()
+        migrate.downgrade(cfg,'0016_entity_profile_audit_timestamp')
+        with proof.connect() as c:assert not c.execute(text("SELECT 1 FROM information_schema.columns WHERE table_schema='narrative' AND table_name='story_plans' AND column_name='edit_metadata'")).scalar()
+        migrate.upgrade(cfg,'head')
+        print('PLAN_MIGRATION_PROOF '+json.dumps(dict(database=name,upgrade=True,downgrade=True,reupgrade=True)))
+    finally:
+        proof.dispose()
+        with admin.connect() as c:c.execute(text('DROP DATABASE '+name+' WITH (FORCE)'))
+        admin.dispose()
