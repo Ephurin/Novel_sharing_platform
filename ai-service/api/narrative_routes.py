@@ -19,7 +19,7 @@ from api.deps import (
     get_writing_service,
     require_service_token,
 )
-from api.plan_routes import router as plan_router, legacy_scope
+from api.plan_routes import router as plan_router, legacy_scope, guard_manual_autonomy
 from api.setup_schemas import SetupRequest, SetupReviewRequest
 from api.setup_auth import setup_principal, identity_headers, SetupValidationRoute
 from application.setup_service import SetupService, SetupFailure, public_job
@@ -386,6 +386,7 @@ def create_autonomous_run(
     tenant_id: str = Header(..., alias="X-Tenant-Id"),
     request_id: str = Header(..., alias="X-Request-Id"),
     author_id: str | None = Header(None, alias="X-Author-Id"),
+    request: Request = None,
     repository = Depends(get_narrative_repository),
 ):
     # 1. Resolve Story Plan
@@ -397,6 +398,8 @@ def create_autonomous_run(
         plan = repository.get_active_story_plan(payload.novel_id)
         if not plan:
             raise HTTPException(400, detail={"code": "NO_ACTIVE_PLAN", "message": "Novel does not have an active story plan"})
+
+    guard_manual_autonomy(request,repository,payload.novel_id,plan.plan_id)
 
     # 2. Get current brain version
     brain = repository.get_story_brain(payload.novel_id)

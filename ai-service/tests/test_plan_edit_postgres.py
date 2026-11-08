@@ -99,6 +99,8 @@ def test_plan_http_legacy_scope_private_validation_and_bypass(f):
     r=f.client.post(path,json=invalid,headers=owner);assert r.status_code==422 and 'PlanPrivateOnly' not in r.text
     for endpoint in [f"/v1/story-plans/{saved['plan_id']}/activate?novel_id={f.src.novel_id}"]:
         r=f.client.post(endpoint,headers=owner);assert r.status_code==409,r.text
+    r=f.client.post('/v1/autonomous/runs',json={'novel_id':f.src.novel_id,'plan_id':saved['plan_id']},headers=owner)
+    assert r.status_code==409,r.text
     assert snapshot(f,'plan-http-negative-after')==before
     read=f.client.get(path,headers=owner);assert read.headers['cache-control']=='no-store'
     assert read.json()['data']['plans'][0]['private_notes']=='PlanPrivateOnly'

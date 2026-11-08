@@ -78,3 +78,13 @@ def snapshot(novel_id:uuid.UUID,plan_id:uuid.UUID,request:Request,response:Respo
     actor=principal(request,repo);response.headers['Cache-Control']='no-store'
     try:return {'data':repo.read_plans(str(novel_id),actor,str(plan_id))}
     except KeyError:raise HTTPException(404,detail={'code':'PLAN_NOT_FOUND'}) from None
+
+
+def guard_manual_autonomy(request,repo,novel_id,plan_id):
+    if not getattr(repo,'supports_plan_edit_v1',False):return
+    with session_scope(repo._session_factory) as session:
+        metadata=session.scalar(select(StoryPlanRecord.edit_metadata).where(
+            *repo._scope(StoryPlanRecord,repo._novel_id(novel_id)),StoryPlanRecord.id==uuid.UUID(plan_id)))
+    if (metadata or {}).get('contract_version')=='plan-edit-v1':
+        legacy_scope(request,repo,novel_id=novel_id,plan_id=plan_id)
+        raise HTTPException(409,detail={'code':'MANUAL_PLAN_AUTONOMY_NOT_AVAILABLE'})
