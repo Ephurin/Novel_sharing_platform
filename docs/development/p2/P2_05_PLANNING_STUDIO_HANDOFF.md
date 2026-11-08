@@ -127,7 +127,7 @@ Browser evidence is **actual mounted Vite application + HTTP mocks**, not browse
 - [Mobile Studio](evidence/p2-05/browser/planning-mobile.png),390px.
 - [Mobile Chapter Board](evidence/p2-05/browser/planning-board-mobile.png),390px; the test also checks the actual scroll container for overflow.
 - [Mounted request/response journey](evidence/p2-05/browser/mounted-readback.json), fake HTTP clearly labelled.
-- [Manifest](evidence/p2-05/manifest.json): source tree, application/test/workflow hashes, artifact identity and evidence hashes.
+- [Manifest](evidence/p2-05/manifest.json): source tree, application/test/workflow hashes, artifact identity and evidence hashes. Versioned file hashes use canonical Git blob bytes, avoiding Windows autocrlf differences; raw CI archive/file hashes retain original bytes.
 
 ## Changed files / independent review focus
 
