@@ -19,7 +19,7 @@ from api.deps import (
     get_writing_service,
     require_service_token,
 )
-from api.plan_routes import router as plan_router, legacy_scope, guard_manual_autonomy
+from api.plan_routes import router as plan_router, legacy_scope, guard_manual_autonomy, principal as plan_principal
 from api.setup_schemas import SetupRequest, SetupReviewRequest
 from api.setup_auth import setup_principal, identity_headers, SetupValidationRoute
 from application.setup_service import SetupService, SetupFailure, public_job
@@ -1142,10 +1142,17 @@ def preview_writing_context(
 def create_writing_generation(
     payload: WritingGenerationRequest,
     background_tasks: BackgroundTasks,
+    request: Request,
     tenant_id: str = Header(..., alias="X-Tenant-Id"),
     request_id: str = Header(..., alias="X-Request-Id"),
     service: WritingService = Depends(get_writing_service),
 ):
+    actor_id = payload.actor_id
+    if getattr(service._repository,'supports_plan_edit_v1',False):
+        # Authenticated Gateway identity, never a caller-controlled body actor.
+        actor_id = plan_principal(request,service._repository)
+        if payload.actor_id is not None and payload.actor_id != actor_id:
+            raise HTTPException(403,detail={'code':'WRITING_IDENTITY_MISMATCH'})
     try:
         selection_dict = payload.selection.model_dump()
         job = service.start_generation(
@@ -1161,7 +1168,7 @@ def create_writing_generation(
             style=payload.style,
             expected_brain_version=payload.expected_brain_version,
             chapter_number=payload.chapter_number,
-            actor_id=payload.actor_id,
+            actor_id=actor_id,
             idempotency_key=payload.idempotency_key,
             process_inline=False,
         )

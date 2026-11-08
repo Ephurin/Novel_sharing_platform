@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 from domain.entity_profile import EntityProfilePatch, PROFILE_FIELDS, approved_profile
 from domain.projection import ProjectionError, validate_payload, project, resolve_entity, transition_from_payload
-from domain.errors import BootstrapConflictError, BaselineReviewRequiredError, ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError
+from domain.errors import BootstrapConflictError, BaselineReviewRequiredError, ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError, WritingContextAuthorityError
 from domain.models import (
     EntityReviewCompletion,
     AnalysisRun,
@@ -1970,6 +1970,44 @@ class PostgresNarrativeRepository:
             story_id, query_text=query_text, chapter_number=chapter_number,
         ).query_entity_ids
 
+    def writing_authority_snapshot(self, job: WritingGenerationJob) -> tuple[StoryPlan, ...]:
+        """Current Platform ownership + canonical revision + source provenance.
+
+        These are reads of the existing authoritative Platform tables, not a
+        replicated owner store. A repeatable-read snapshot freezes the selected
+        plan/objectives; the worker rechecks it immediately before dispatch.
+        No connection/lock escapes this method or spans a provider request.
+        """
+        try:
+            actor = uuid.UUID(job.actor_id or '')
+            tenant = uuid.UUID(job.tenant_id)
+            novel = uuid.UUID(job.novel_id)
+            chapter = uuid.UUID(job.chapter_id)
+            revision = uuid.UUID(job.revision_id)
+        except (ValueError, TypeError, AttributeError):
+            raise WritingContextAuthorityError() from None
+        if tenant != self._tenant_id:
+            raise WritingContextAuthorityError()
+        with session_scope(self._session_factory) as session:
+            session.connection(execution_options={'isolation_level': 'REPEATABLE READ'})
+            row = session.execute(text('''
+                SELECT r.content, r.content_hash, c.chapter_number
+                FROM novels n JOIN chapters c ON c.novel_id=n.novel_id
+                JOIN chapter_revisions r ON r.chapter_id=c.chapter_id AND r.novel_id=n.novel_id
+                WHERE n.novel_id=:n AND n.author_id=:a AND c.chapter_id=:c
+                  AND r.revision_id=:r
+            '''),dict(n=novel,a=actor,c=chapter,r=revision)).mappings().first()
+            if (row is None or row['chapter_number'] != job.chapter_number
+                    or row['content_hash'] != job.content_hash
+                    or hashlib.sha256(row['content'].encode('utf-8')).hexdigest() != job.content_hash):
+                raise WritingContextAuthorityError()
+            plans = session.scalars(select(StoryPlanRecord).where(
+                *self._scope(StoryPlanRecord,novel),StoryPlanRecord.status=='active')).all()
+            if len(plans)>1 or any(p.created_by != actor for p in plans):
+                raise WritingContextAuthorityError()
+            return tuple(self._to_story_plan(p,session.scalars(select(StoryPlanObjectiveRecord).where(
+                *self._scope(StoryPlanObjectiveRecord,novel),StoryPlanObjectiveRecord.plan_id==p.id)).all()) for p in plans)
+
     def get_structured_context(
         self,
         story_id: str,
@@ -1980,6 +2018,7 @@ class PostgresNarrativeRepository:
         token_budget: int | None = None,
         enforce_token_budget: bool = True,
         profile_entity_ids: tuple[str, ...] | None = None,
+        author_plan_snapshot: tuple[StoryPlan, ...] | None = None,
     ) -> WritingContextPackage:
         novel_id = self._novel_id(story_id)
         with session_scope(self._session_factory) as session:
@@ -2345,7 +2384,10 @@ class PostgresNarrativeRepository:
                 ],
             }
 
-            active_plan = self.get_active_story_plan(story_id)
+            # None preserves privileged internal retrieval. Author workers pass
+            # the exact authorized snapshot (empty tuple means no active plan),
+            # never a fresh unscoped lookup after authorization.
+            active_plan = (author_plan_snapshot[0] if author_plan_snapshot else None) if author_plan_snapshot is not None else self.get_active_story_plan(story_id)
             planning_context = None
             current_objective = None
             if active_plan:

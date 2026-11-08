@@ -103,6 +103,7 @@ jobs:
       - name: Real PostgreSQL A16 with durable before and after readbacks
         working-directory: ai-service
         env:
+          F04_MONGO_EVIDENCE: "1"
           DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p2a
         run: |
           set -euo pipefail

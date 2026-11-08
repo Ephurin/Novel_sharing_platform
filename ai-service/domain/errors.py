@@ -76,3 +76,9 @@ class BootstrapConflictError(NarrativeRepositoryError):
     def __init__(self, code: str):
         self.code = code
         super().__init__(code)
+
+
+class WritingContextAuthorityError(NarrativeRepositoryError):
+    """Public error deliberately contains no source data or scope identifiers."""
+    def __init__(self):
+        super().__init__('Writing context authorization failed')

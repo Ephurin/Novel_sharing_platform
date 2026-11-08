@@ -21,12 +21,14 @@ from domain.errors import (
     SelectionOutOfBoundsError,
     ValidationFailedError,
     WritingGenerationNotFoundError,
+    WritingContextAuthorityError,
 )
 from domain.models import (
     ValidationResult,
     WritingContextPackage,
     WritingGenerationJob,
     WritingPatch,
+    StoryPlan,
 )
 from domain.repositories import NarrativeRepository
 
@@ -73,6 +75,7 @@ class WritingService:
         token_budget: int | None = None,
         semantic_query: str | None = None,
         semantic_limit: int | None = None,
+        author_plan_snapshot: tuple[StoryPlan, ...] | None = None,
     ) -> WritingContextPackage:
         """Fetch and structure narrative context for writing assistance."""
         retrieval_result = None
@@ -82,6 +85,8 @@ class WritingService:
                 limit=semantic_limit, tenant_id=tenant_id,
             )
         profile_selection = {}
+        if author_plan_snapshot is not None:
+            profile_selection['author_plan_snapshot'] = author_plan_snapshot
         if retrieval_result is not None and getattr(retrieval_result, "hybrid_signals_resolved", False):
             # Resolved canonical query IDs, never all similarity matches.
             profile_selection['profile_entity_ids'] = tuple(retrieval_result.query_entity_ids)
@@ -221,6 +226,8 @@ class WritingService:
 
         # 1. Canonical request hash for idempotency integrity
         canonical_dict = {
+            "actor_id": actor_id,
+            "tenant_id": tenant_id,
             "novel_id": novel_id,
             "chapter_id": chapter_id,
             "revision_id": revision_id,
@@ -249,6 +256,8 @@ class WritingService:
             try:
                 existing = self._repository.get_writing_job(job_id)
                 if existing:
+                    if existing.actor_id != actor_id or existing.tenant_id != tenant_id or existing.novel_id != novel_id:
+                        raise IdempotencyConflictError('Writing job scope mismatch')
                     if existing.input_hash and existing.input_hash != input_hash:
                         raise IdempotencyConflictError(
                             f"Idempotency key '{idempotency_key}' reused with conflicting parameters"
@@ -348,6 +357,20 @@ class WritingService:
         job = self._repository.get_writing_job(job_id)
         if job.status == "completed":
             return job
+        if job.status == 'failed':
+            return job
+
+        authority = getattr(self._repository, 'writing_authority_snapshot', None)
+        def blocked():
+            return self._repository.save_writing_job(replace(
+                job,status='failed',stage='security_blocked',validation_status='failed',
+                context_summary={},context_hash='',draft=None,patch=None,
+                error={'code':'WRITING_CONTEXT_AUTHORITY_DENIED','message':'Writing context authorization failed'},
+            ))
+        try:
+            plan_snapshot = authority(job) if authority is not None else None
+        except WritingContextAuthorityError:
+            return blocked()
 
         # 1. Pinned Story Brain Version Recheck (Invariant: do not silently use newer brain version)
         brain = self._repository.get_story_brain(job.novel_id)
@@ -422,6 +445,7 @@ class WritingService:
                 story_id=job.novel_id,
                 chapter_number=job.chapter_number,
                 semantic_query=semantic_query,
+                author_plan_snapshot=plan_snapshot,
             )
         except ContextRoutingUnresolvedError as exc:
             failed_job = replace(
@@ -466,9 +490,10 @@ class WritingService:
             input_hash=job.input_hash,
             status="generating",
             stage="generating",
-            context_summary=context_package.context_summary,
+            # Do not publish context/its hash until the dispatch fence passes.
+            context_summary={},
             brain_version_used=brain_version_used,
-            context_hash=context_hash,
+            context_hash='',
             chapter_number=job.chapter_number,
         )
         self._repository.save_writing_job(job)
@@ -478,6 +503,12 @@ class WritingService:
 
 
         # Call LLM service with style and constraints
+        if authority is not None:
+            try:
+                if authority(job) != plan_snapshot:
+                    return blocked()
+            except WritingContextAuthorityError:
+                return blocked()
         try:
             llm_result = self._llm_service.generate_writing_draft(
                 operation=job.operation,
