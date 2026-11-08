@@ -2,7 +2,7 @@ import {useEffect,useRef,useState} from 'react';
 import {Alert,Button,Card,Group,Select,Stack,Text,Textarea,TextInput} from '@mantine/core';
 import {useAuthStore} from '../auth/useAuthStore';
 import {apiClient,type ApiEnvelope,getApiErrorMessage,ApiClientError} from '../../shared/api/api-client';
-type Objective={objective_id:string;intent_version:number;target_chapter:number;title:string;description:string;events:{event_id:string;text:string;participants:({name_hint:string}|{entity_id:string})[]}[];dependencies:string[]};
+type Objective={objective_id:string;intent_version:number;target_chapter:number;title:string;description:string;events:{event_id:string;text:string;participants:{name_hint?:string|null;entity_id?:string|null}[]}[];dependencies:string[]};
 type Plan={plan_id:string;plan_version:number;status:string;source_outline:string;private_notes?:string;objectives:Objective[];action:string;effective_status?:string;snapshot_status?:string;is_historical?:boolean;can_save?:boolean;can_activate?:boolean;can_fork?:boolean;can_archive?:boolean};
 type Plans={head_version:number;active_plan_id:string|null;active_plan_unavailable?:boolean;plans:Plan[]};
 export function StoryPlanEditor({novelId}:{novelId:string}) {
@@ -66,7 +66,7 @@ function Editor({novelId}:{novelId:string}) {
    {o.events.map((event,j)=><Card withBorder key={event.event_id}>
     <Textarea label={`Sự kiện ${j+1} chương ${i+1}`} disabled={pending||readOnly} value={event.text}
       onChange={e=>editEvent(o.objective_id,event.event_id,e.currentTarget.value)}/>
-    <Text size="xs">{event.participants.map(p=>'entity_id' in p?`ID: ${p.entity_id}`:`Chưa xác định: ${p.name_hint}`).join(', ')}</Text>
+    <Text size="xs">{event.participants.map(p=>p.entity_id?`ID: ${p.entity_id}`:`Chưa xác định: ${p.name_hint??''}`).join(', ')}</Text>
     <Group><Button size="xs" variant="default" disabled={pending||readOnly||j===0} onClick={()=>moveEvent(o.objective_id,event.event_id,-1)}>Lên sự kiện {j+1} chương {i+1}</Button>
      <Button size="xs" variant="default" disabled={pending||readOnly||j===o.events.length-1} onClick={()=>moveEvent(o.objective_id,event.event_id,1)}>Xuống sự kiện {j+1} chương {i+1}</Button>
      <Button size="xs" color="red" disabled={pending||readOnly} onClick={()=>removeEvent(o.objective_id,event.event_id)}>Xóa sự kiện {j+1} chương {i+1}</Button></Group>

@@ -78,6 +78,7 @@ def test_future_events_keep_ids_participants_and_removed_ids_cannot_be_reused(f)
     events=[dict(event_id=str(uuid.uuid4()),text='Event '+str(i),participants=[dict(name_hint='Minh '+str(i))]) for i in range(3)]
     initial['objectives'][0]['events']=events
     source=command(f,initial)
+    events=deepcopy(source['objectives'][0]['events'])  # Pydantic canonical optional-null shape.
     request=changed(source)
     request['objectives'][0]['events']=[{**events[2],'text':'Edited third'},events[1]]
     request['objectives'].reverse()

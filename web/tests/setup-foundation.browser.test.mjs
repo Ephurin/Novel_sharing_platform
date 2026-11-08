@@ -296,7 +296,7 @@ async function planReviewHarness(seed) {
 
 function eventReviewSeed(){
  const ids=['10000000-0000-0000-0000-000000000001','10000000-0000-0000-0000-000000000002'];
- const events=[0,1,2].map(i=>({event_id:`20000000-0000-0000-0000-00000000000${i+1}`,text:['First','Middle','Last'][i],participants:i===1?[{entity_id:'30000000-0000-0000-0000-000000000001'}]:[{name_hint:'Minh '+i}]}));
+ const events=[0,1,2].map(i=>({event_id:`20000000-0000-0000-0000-00000000000${i+1}`,text:['First','Middle','Last'][i],participants:i===1?[{entity_id:'30000000-0000-0000-0000-000000000001',name_hint:null}]:[{entity_id:null,name_hint:'Minh '+i}]}));
  return {head_version:1,active_plan_id:null,plans:[{plan_id:'source-1',plan_version:1,status:'draft',source_outline:'Future only',private_notes:'',action:'save',objectives:ids.map((id,i)=>({objective_id:id,intent_version:1,target_chapter:i+1,title:'Goal '+i,description:'',events:i===0?events:[],dependencies:i===1?[ids[0]]:[]}))}]};
 }
 
@@ -307,6 +307,7 @@ test('F-01 event cards preserve exact IDs/participants through removal/edit/move
  async function save(){const n=h.calls.length;await button('Lưu bản nháp dàn ý').click();await expect(page.getByRole('alert').filter({hasText:'Đã lưu phiên bản dàn ý'})).toBeVisible();assert.equal(h.calls.length,n+1);}
  try{
   await expect(page.getByLabel('Sự kiện 1 chương 1',{exact:true})).toHaveValue('First');
+  await expect(page.getByText('Chưa xác định: Minh 0',{exact:true})).toBeVisible();
   await button('Xóa sự kiện 1 chương 1').click();
   await page.getByLabel('Sự kiện 2 chương 1',{exact:true}).fill('Last edited');
   await button('Lên sự kiện 2 chương 1').click();await button('Xuống sự kiện 1 chương 1').click();await button('Lên sự kiện 2 chương 1').click();
