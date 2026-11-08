@@ -20,6 +20,7 @@ import {
   startIdeaBootstrapController,
   getSetupSnapshotController,
   reviewSetupSnapshotController,
+  activateSetupM0Controller,
   startManuscriptBootstrapController,
   startWritingGenerationController,
   writingDraftReviewController,
@@ -90,6 +91,8 @@ aiGatewayRoutes.post(
 
 aiGatewayRoutes.get('/story-brains/:novelId/setup', getSetupSnapshotController);
 aiGatewayRoutes.post('/story-brains/:novelId/setup/:snapshotId/review', reviewSetupSnapshotController);
+aiGatewayRoutes.get('/story-brains/:novelId/setup/:snapshotId/activate', activateSetupM0Controller);
+aiGatewayRoutes.post('/story-brains/:novelId/setup/:snapshotId/activate', activateSetupM0Controller);
 
 // Bootstrap
 aiGatewayRoutes.post(

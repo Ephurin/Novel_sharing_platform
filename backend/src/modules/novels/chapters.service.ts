@@ -92,6 +92,8 @@ export async function createChapter(auth: AuthContext, novelId: string, input: C
     });
   });
 
+  return withChapterWriter(chapter.chapterId,async lease=>{
+  assertOwner(await getNovel(novelId),auth);
   const draft = await findDraftChapterByChapterId(chapter.chapterId) ?? await upsertDraftChapter({
     chapterId: chapter.chapterId,
     expectedVersion: 0,
@@ -103,10 +105,14 @@ export async function createChapter(auth: AuthContext, novelId: string, input: C
     autosave: false
   });
 
+  const revision=await snapshotSavedChapter(auth,chapter.chapterId,draft.content,lease);
+  const currentChapter=await findChapterById(chapter.chapterId);
   return {
-    ...chapter,
-    draftVersion: draft?.version ?? 1
+    ...(currentChapter??chapter),
+    draftVersion: draft?.version ?? 1,
+    analysisRevisionId:revision?.revisionId??null
   };
+  });
 }
 
 export async function listChapters(novelId: string, auth?: AuthContext) {

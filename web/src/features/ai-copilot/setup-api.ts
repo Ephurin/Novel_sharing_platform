@@ -31,3 +31,13 @@ export async function reviewSetup(novelId:string, snapshotId:string, body:SetupR
   return (await apiClient.post<ApiEnvelope<{status:string; review_version:number; brain_version:number}>>(
     `/ai/story-brains/${novelId}/setup/${snapshotId}/review`,body)).data.data;
 }
+
+export type SetupM0Readiness={contract_version:'setup-m0-v1';eligible:boolean;reason:string|null;
+  setup_hash?:string;expected_setup_version?:number;expected_review_version?:number;expected_brain_version?:number;
+  activation?:{status:'active';baseline_kind:'M0';brain_version:number}};
+export async function getSetupM0Readiness(novelId:string,snapshotId:string){
+  return (await apiClient.get<ApiEnvelope<SetupM0Readiness>>(`/ai/story-brains/${novelId}/setup/${snapshotId}/activate`)).data.data;
+}
+export async function activateSetupM0(novelId:string,snapshotId:string,body:{contract_version:'setup-m0-v1';idempotency_key:string;setup_hash:string;expected_setup_version:number;expected_review_version:number;expected_brain_version:number}){
+  return (await apiClient.post<ApiEnvelope<{status:'active';baseline_kind:'M0';brain_version:number}>>(`/ai/story-brains/${novelId}/setup/${snapshotId}/activate`,body)).data.data;
+}

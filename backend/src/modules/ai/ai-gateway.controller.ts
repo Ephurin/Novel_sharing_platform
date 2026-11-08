@@ -838,6 +838,19 @@ export async function reviewSetupSnapshotController(req: Request, res: Response,
   } catch (error) { next(error); }
 }
 
+export async function activateSetupM0Controller(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId=String(req.params.novelId), snapshotId=String(req.params.snapshotId);
+    const uuid=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+    if(!uuid.test(novelId)||!uuid.test(snapshotId))throw new AppError(422,'INVALID_SETUP_ID','Invalid setup ID');
+    await assertNovelOwnership(req.auth!.userId,'AUTHOR',novelId);
+    const data=await aiGatewayService.forwardRequest({method:req.method==='POST'?'POST':'GET',
+      path:`/v1/story-brains/${novelId}/setup/${snapshotId}/activate`,userId:req.auth!.userId,
+      requestId:req.header('x-request-id'),...(req.method==='POST'?{body:req.body}:{})});
+    res.set('Cache-Control','no-store');res.json(successResponse(data));
+  }catch(error){next(error);}
+}
+
 
 export async function editStoryPlansController(req:Request,res:Response,next:NextFunction) {
   try {

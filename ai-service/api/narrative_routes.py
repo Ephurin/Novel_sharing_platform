@@ -20,7 +20,7 @@ from api.deps import (
     require_service_token,
 )
 from api.plan_routes import router as plan_router, legacy_scope, guard_manual_autonomy, principal as plan_principal, service_principal
-from api.setup_schemas import SetupRequest, SetupReviewRequest
+from api.setup_schemas import SetupRequest, SetupReviewRequest, SetupActivationRequest
 from api.setup_auth import setup_principal, identity_headers, SetupValidationRoute
 from application.setup_service import SetupService, SetupFailure, public_job
 from api.schemas import (
@@ -548,6 +548,23 @@ def review_setup_snapshot(
     except (BootstrapConflictError, OptimisticLockError) as exc:
         raise HTTPException(409, detail={'code':getattr(exc, 'code', 'SETUP_REVIEW_CONFLICT')}) from None
     return {'data':data, 'meta':{'request_id':request_id, 'schema_version':1}}
+
+
+@router.api_route('/story-brains/{novel_id}/setup/{snapshot_id}/activate',methods=['GET','POST'])
+def activate_setup_m0(
+    novel_id: uuid.UUID, snapshot_id: uuid.UUID, request: Request, response: Response,
+    body: SetupActivationRequest | None = None,
+    service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+):
+    response.headers['Cache-Control']='no-store'
+    tenant,author=setup_principal(request,service)
+    if request.method=='POST' and body is None:raise HTTPException(422,detail={'code':'M0_ACTIVATION_REQUEST_REQUIRED'})
+    try:
+        data=SetupService(service).activate(str(novel_id),str(snapshot_id),body if request.method=='POST' else None,tenant_id=tenant,actor_id=author)
+    except SetupFailure as exc:raise HTTPException(exc.status,detail={'code':exc.code}) from None
+    except KeyError:raise HTTPException(404,detail={'code':'SETUP_NOT_FOUND'}) from None
+    except BootstrapConflictError as exc:raise HTTPException(409,detail={'code':exc.code}) from None
+    return {'data':data}
 
 
 @router.get('/story-brains/{novel_id}/setup')

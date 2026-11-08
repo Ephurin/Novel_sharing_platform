@@ -202,6 +202,11 @@ class SetupService:
         tenant_id, actor_id = self.principal(tenant_id, actor_id)
         return self.repository.get_setup_job(job_id, actor_id=actor_id)
 
+    def activate(self, novel_id, snapshot_id, request, *, tenant_id, actor_id):
+        self.principal(tenant_id, actor_id)
+        from infrastructure.setup_activation import activate
+        return activate(self.repository,novel_id,snapshot_id,actor_id,request)
+
     def readback(self, novel_id, *, tenant_id, actor_id=None, snapshot_id=None):
         tenant_id, actor_id = self.principal(tenant_id, actor_id)
         return self.repository.get_setup_snapshot(novel_id, actor_id=actor_id, snapshot_id=snapshot_id)
