@@ -1,4 +1,8 @@
-import { useState } from 'react';
+import { FilterPresets, useUrlFilters, useListScroll, WorkspaceTable } from '../../shared/components/WorkspacePreferences';
+import { ActiveFilterChips, AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
+import { StateComparison } from '../../shared/components/StateComparison';
+import { ResponsiveFilters } from '../../shared/components/InteractionWidgets';
+import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
 import { Button, TextInput, Alert } from '@mantine/core';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import {
@@ -9,13 +13,13 @@ import {
   AdminError,
   dateTime
 } from './AdminShared';
-import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
+import { ErrorState, LoadingState } from '../../shared/components/PageStates';
 import { getAdminList } from './admin-api';
 import { adminGet, adminSend, useAdminAccess, type AuditEntry } from './admin-operations-api';
 
 export function AuditRows({ items }: { items: AuditEntry[] }) {
   return (
-    <div className="admin-table-scroll">
+    <WorkspaceTable name="adminauditpage" columns={['Thời gian / Admin', 'Thao tác', 'Đối tượng', 'Lý do / Thay đổi']}>
       <table>
         <thead>
           <tr>
@@ -39,8 +43,8 @@ export function AuditRows({ items }: { items: AuditEntry[] }) {
               </td>
               <td>
                 {item.reason || '—'}
-                <details className="admin-audit-detail">
-                  <summary>Xem trước / sau</summary>
+                <StateComparison before={item.before_state} after={item.after_state} />
+                <AnimatedDisclosure className="admin-audit-detail" summary="Xem trước / sau">
                   <pre>
                     {JSON.stringify(
                       { before: item.before_state, after: item.after_state },
@@ -48,19 +52,20 @@ export function AuditRows({ items }: { items: AuditEntry[] }) {
                       2
                     )}
                   </pre>
-                </details>
+                </AnimatedDisclosure>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-    </div>
+    </WorkspaceTable>
   );
 }
 export function AdminAuditPage() {
-  const [q, setQ] = useState('');
-  const [action, setAction] = useState('');
-  const [page, setPage] = useState(1);
+  const urlFilters = useUrlFilters({ q: '', action: '', page: 1 });
+  const [q, setQ] = urlFilters.field('q');
+  const [action, setAction] = urlFilters.field('action');
+  const [page, setPage] = urlFilters.field('page');
   const access = useAdminAccess();
   const query = useQuery({
     queryKey: ['admin-audit', q, action, page],
@@ -87,6 +92,7 @@ export function AdminAuditPage() {
       adminSend('post', jobId ? `/admin/jobs/${jobId}/retry` : '/admin/jobs/retry', {}),
     onSuccess: () => jobs.refetch()
   });
+  useListScroll(!query.isPending);
   return (
     <>
       <AdminHeader
@@ -105,8 +111,7 @@ export function AdminAuditPage() {
         <Alert color="yellow" mb="md">
           <strong>{jobs.data.length} tác vụ chưa hoàn tất</strong>
           <p>Tác vụ lỗi được thử lại giãn dần; sau nhiều lần lỗi sẽ dừng để kiểm tra.</p>
-          <details>
-            <summary>Chi tiết tác vụ</summary>
+          <AnimatedDisclosure summary="Chi tiết tác vụ">
             {jobs.data.map((j) => (
               <div className="admin-case" key={j.job_id}>
                 <strong>
@@ -130,7 +135,7 @@ export function AdminAuditPage() {
                 )}
               </div>
             ))}
-          </details>
+          </AnimatedDisclosure>
           <Button
             mt="sm"
             variant="default"
@@ -143,7 +148,7 @@ export function AdminAuditPage() {
         </Alert>
       )}
       <AdminPanel>
-        <div className="admin-toolbar">
+        <ResponsiveFilters className="admin-toolbar">
           <TextInput
             label="Tìm kiếm"
             placeholder="Admin, mã đối tượng hoặc lý do"
@@ -162,14 +167,20 @@ export function AdminAuditPage() {
               setPage(1);
             }}
           />
-        </div>
-        {query.isLoading && <LoadingState label="Đang tải nhật ký..." />}
+        </ResponsiveFilters>
+        <FilterPresets name={'AdminAuditPage'} fields={["q", "action"]} />
+        <ActiveFilterChips items={[
+          ...(q.trim() ? [{ id: 'q', label: `Tìm: ${q.trim()}`, onRemove: () => { setQ(''); setPage(1); } }] : []),
+          ...(action.trim() ? [{ id: 'action', label: `Thao tác: ${action.trim()}`, onRemove: () => { setAction(''); setPage(1); } }] : [])
+        ]} />
+        <ResultsSurface identity={String(query.dataUpdatedAt)} busy={query.isFetching} retain={Boolean(q.trim() || action.trim())}>{query.isLoading && <LoadingState variant="table" label="Đang tải nhật ký..." />}
         {query.isError && <ErrorState error={query.error} onRetry={() => void query.refetch()} />}
         {query.data && !query.data.items.length && (
           <EmptyState description="Chưa có thao tác phù hợp." />
         )}
         {!!query.data?.items.length && <AuditRows items={query.data.items} />}
         <AdminPagination meta={query.data?.meta} onChange={setPage} />
+      </ResultsSurface>
       </AdminPanel>
     </>
   );

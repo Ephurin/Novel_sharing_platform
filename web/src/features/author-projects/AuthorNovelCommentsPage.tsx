@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
+import { authorHomeCrumb } from '../../shared/components/navigation';
 import { EmptyState, ErrorState, LoadingState, PermissionState } from '../../shared/components/PageStates';
 import { getNovel, listChapters } from '../novels/novel-api';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -25,6 +27,7 @@ function AuthorComments({ novelId }: { novelId: string }) {
   const comments = useQuery({ queryKey: ['author-comments', novelId, user?.userId, filter, page], queryFn: () => listAuthorComments(novelId, page, scope, scope === 'CHAPTER' ? filter : undefined), enabled: canManage });
   const options = [{ value: 'ALL', label: 'Tất cả bình luận' }, { value: 'NOVEL', label: 'Bình luận tác phẩm' }, ...(chapters.data ?? []).map(chapter => ({ value: chapter.chapterId, label: `Chương ${chapter.chapterNumber}: ${chapter.title}` }))];
   return <><AuthorNavbar /><main className="sc-shell-content sc-reviews-main">
+    <Breadcrumbs className="mb-4" items={[authorHomeCrumb, { label: novel.data?.title || 'Tác phẩm', to: `/author/novels/${novelId}` }, { label: 'Bình luận độc giả' }]} />
     <div className="sc-reviews-panel">
       <header className="sc-reviews-header"><Link to={`/author/novels/${novelId}`} className="sc-icon-button" aria-label="Quay lại quản lý tác phẩm"><span className="material-symbols-outlined" aria-hidden="true">arrow_back</span></Link><div><h1 className="text-page">Bình luận độc giả</h1>{novel.data && <p>{novel.data.title}</p>}</div></header>
       <div className="sc-reviews-body">

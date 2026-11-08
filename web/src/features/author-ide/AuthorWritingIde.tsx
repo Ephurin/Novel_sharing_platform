@@ -1,3 +1,24 @@
+import { motion, useReducedMotion } from 'motion/react';
+import { useToast } from '../../shared/components/ToastProvider';
+import { SaveStatus } from '../../shared/components/SaveFeedback';
+import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
+import { StudioWorkbench } from './StudioWorkbench';
+import { StudioNumberField } from './StudioNumberField';
+import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
+import { authorHomeCrumb, navigationLabels } from '../../shared/components/navigation';
+import { AnimatedTooltip } from '../../shared/components/AnimatedTooltip';
+import { useStudioHistory } from './useStudioHistory';
+import { revealStudioSelection } from './studio-tools';
+import { RichManuscriptEditor } from './RichManuscriptEditor';
+import { StudioContextMenu } from './StudioContextMenu';
+import { StudioSelectionTools } from './StudioSelectionTools';
+import { StudioNovelSearch, type ChapterSearchHit } from './StudioNovelSearch';
+import { locateAnchor } from './studio-annotations';
+import { authorNoteDefinitions } from '../../shared/lib/author-notes';
+import { useStudioPosition } from './useStudioPosition';
+import { PublishChecklist, StoryReferenceLookup, TextComparison } from './StudioReviewTools';
+import { AnimatedModal } from '../../shared/components/AnimatedModal';
+import { CopyTextButton, FeedbackReveal } from '../../shared/components/ActionFeedback';
 import { ChapterSchedule } from '../author-projects/ChapterSchedule';
 import { RevisionHistory, snapshotDraft } from './RevisionHistory';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -7,7 +28,7 @@ import { Alert, Button, Group, Text } from '@mantine/core';
 import { ThemeControl } from '../../shared/components/ThemeControl';
 import { AuthorDialog } from '../../shared/components/AuthorTheme';
 import { AuthorMemoryPanel } from '../ai-copilot/AuthorMemoryPanel';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -42,6 +63,7 @@ import {
   fetchContextPreview,
   listChapterRevisions,
   utf16OffsetToCodePoint,
+  codePointToUtf16Offset,
   type WritingGenerationJob
 } from '../ai-copilot/ai-copilot-api';
 import { getApiErrorMessage } from '../../shared/api/api-client';
@@ -123,6 +145,8 @@ function parseIdeCharacterDesc(rawDesc: string | null | undefined): { customTitl
 
 type AccessMode = 'free' | 'vip';
 type StoryBibleTab = 'characters' | 'relationships' | 'timeline' | 'summaries';
+function readEditorSetting(key: string) { try { return localStorage.getItem(key); } catch { return null; } }
+function writeEditorSetting(key: string, value: string) { try { localStorage.setItem(key, value); } catch { /* Presentation preferences must never block writing. */ } }
 
 export function AuthorWritingIde() {
   const user = useAuthStore(state => state.user);
@@ -143,10 +167,19 @@ export function AuthorWritingIde() {
 
   // UI Interactive Panels & Modals State
   const [sidebarOpen, setSidebarOpen] = useState(() => window.matchMedia('(min-width: 901px)').matches);
-  const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
+  const [rightPanel, setRightPanel] = useState<'ai' | 'notes' | null>(null);
+  const aiDrawerOpen = rightPanel === 'ai';
+  const reducePanelMotion = useReducedMotion();
+  const openAiDrawer = () => {
+    if (window.matchMedia('(max-width: 900px)').matches) setSidebarOpen(false);
+    setRightPanel('ai');
+  };
   const toggleAiDrawer = () => {
-    if (!aiDrawerOpen && window.matchMedia('(max-width: 1200px)').matches) setSidebarOpen(false);
-    setAiDrawerOpen(open => !open);
+    if (aiDrawerOpen) setRightPanel(null); else openAiDrawer();
+  };
+  const changeNotesOpen = (open: boolean) => {
+    if (open && window.matchMedia('(max-width: 900px)').matches) setSidebarOpen(false);
+    setRightPanel(current => open ? 'notes' : current === 'notes' ? null : current);
   };
   const [storyBibleOpen, setStoryBibleOpen] = useState(false);
   const [memoryPanelOpen, setMemoryPanelOpen] = useState(false);
@@ -157,31 +190,36 @@ export function AuthorWritingIde() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [focusMode, setFocusMode] = useState(false);
   const [formatToolbarVisible, setFormatToolbarVisible] = useState(true);
+  const [visualEditor, setVisualEditor] = useState(() => readEditorSetting('storycraft-studio-editor-mode') !== 'source');
+  const [exportOpen, setExportOpen] = useState(false);
+  const [referenceQuery, setReferenceQuery] = useState<string | null>(null);
+  const [novelSearchOpen, setNovelSearchOpen] = useState(false);
+  const pendingSearchJump = useRef<{ scope: string; hit: ChapterSearchHit } | null>(null);
+  const [aiComparisonOpen, setAiComparisonOpen] = useState(false);
+  const aiBaseRef = useRef({ scope: '', content: '' });
 
   // Rich Typography & Manuscript Formatting State
   const [fontOption, setFontOption] = useState<FontOption>(() => {
-    return (localStorage.getItem('ephurin_editor_font') as FontOption) || 'vietnam';
+    const value = readEditorSetting('ephurin_editor_font');
+    return AVAILABLE_FONTS.some(font => font.id === value) ? value as FontOption : 'vietnam';
   });
   const [fontSize, setFontSize] = useState<number>(() => {
-    const saved = localStorage.getItem('ephurin_editor_font_size');
-    return saved ? Math.min(28, Math.max(13, Number(saved))) : 17;
+    const saved = Number(readEditorSetting('ephurin_editor_font_size'));
+    return Number.isFinite(saved) && saved >= 13 && saved <= 28 ? saved : 17;
   });
   const [lineHeight, setLineHeight] = useState<number>(() => {
-    const saved = localStorage.getItem('ephurin_editor_line_height');
-    return saved ? Number(saved) : 2.15;
+    const saved = Number(readEditorSetting('ephurin_editor_line_height'));
+    return Number.isFinite(saved) && saved >= 1.2 && saved <= 3 ? saved : 2.15;
   });
   const [textAlign, setTextAlign] = useState<TextAlignment>(() => {
-    return (localStorage.getItem('ephurin_editor_text_align') as TextAlignment) || 'justify';
+    const value = readEditorSetting('ephurin_editor_text_align');
+    return ['justify','left','center','right'].includes(value ?? '') ? value as TextAlignment : 'justify';
   });
   const [paragraphIndent, setParagraphIndent] = useState<boolean>(() => {
-    const saved = localStorage.getItem('ephurin_editor_indent');
-    return saved !== null ? saved === 'true' : true;
+    return readEditorSetting('ephurin_editor_indent') !== 'false';
   });
 
-  const [fontDropdownOpen, setFontDropdownOpen] = useState(false);
-  const [spacingDropdownOpen, setSpacingDropdownOpen] = useState(false);
-  const fontDropdownRef = useRef<HTMLDivElement>(null);
-  const spacingDropdownRef = useRef<HTMLDivElement>(null);
+
 
   const [storyBibleTab, setStoryBibleTab] = useState<StoryBibleTab>('characters');
   const [chapterSearch, setChapterSearch] = useState('');
@@ -194,19 +232,21 @@ export function AuthorWritingIde() {
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
   const [isAcceptingAi, setIsAcceptingAi] = useState(false);
   const [currentJob, setCurrentJob] = useState<WritingGenerationJob | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const pollTimerRef = useRef<number | null>(null);
 
   // References for tracking changes
   const editorRef = useRef<HTMLTextAreaElement>(null);
+  const editorSelectionRef = useRef<{ scope: string; start: number; end: number } | null>(null);
+  const acceptedCaretRef = useRef<{ scope: string; position: number; scrollTop: number } | null>(null);
+  const rememberEditorSelection = () => {
+    const editor = editorRef.current;
+    if (editor) editorSelectionRef.current = {
+      scope: activeDraftScope, start: editor.selectionStart, end: editor.selectionEnd
+    };
+  };
 
   // Toast Helper
-  const showToast = (message: string) => {
-    setToastMessage(message);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 3800);
-  };
+  const { showToast } = useToast();
 
   // Queries
   const novelsQuery = useQuery({
@@ -248,7 +288,7 @@ export function AuthorWritingIde() {
   const charactersQuery = useQuery({
     queryKey: ['author', 'story-context', 'characters', activeNovelId],
     queryFn: () => listCharacters(activeNovelId),
-    enabled: storyBibleOpen && Boolean(activeNovelId)
+    enabled: (storyBibleOpen || referenceQuery !== null) && Boolean(activeNovelId)
   });
 
   const relationshipsQuery = useQuery({
@@ -260,13 +300,13 @@ export function AuthorWritingIde() {
   const timelineQuery = useQuery({
     queryKey: ['author', 'story-context', 'timeline', activeNovelId],
     queryFn: () => listTimelineEvents(activeNovelId),
-    enabled: storyBibleOpen && Boolean(activeNovelId)
+    enabled: (storyBibleOpen || referenceQuery !== null) && Boolean(activeNovelId)
   });
 
   const plotSummariesQuery = useQuery({
     queryKey: ['author', 'story-context', 'summaries', activeNovelId],
     queryFn: () => listPlotSummaries(activeNovelId),
-    enabled: storyBibleOpen && Boolean(activeNovelId)
+    enabled: (storyBibleOpen || referenceQuery !== null) && Boolean(activeNovelId)
   });
 
   // Keep search params in sync
@@ -297,6 +337,8 @@ export function AuthorWritingIde() {
     setIsAcceptingAi(false);
     setCurrentJob(null);
     setAiSuggestion(null);
+    setAiComparisonOpen(false);
+    setReferenceQuery(null);
   }, [activeChapterId]);
 
   // Load chapter data into editor when chapter changes
@@ -321,7 +363,7 @@ export function AuthorWritingIde() {
   // The outer workspace scrolls; the manuscript and textarea keep their full height.
   const adjustHeight = () => {
     const el = editorRef.current;
-    if (!el) return;
+    if (!el || el.hidden) return;
     const viewport = el.closest<HTMLElement>('.sc-editor-workspace');
     const scrollTop = viewport?.scrollTop ?? 0;
     el.style.height = 'auto';
@@ -332,6 +374,19 @@ export function AuthorWritingIde() {
   useEffect(() => {
     adjustHeight();
   }, [content, fontOption, fontSize, lineHeight, textAlign, paragraphIndent]);
+
+  useLayoutEffect(() => {
+    const caret = acceptedCaretRef.current;
+    if (!caret || isAcceptingAi) return;
+    acceptedCaretRef.current = null;
+    const editor = editorRef.current;
+    if (!editor || caret.scope !== activeDraftScope) return;
+    adjustHeight();
+    revealStudioSelection(editor, caret.position, caret.position);
+    rememberEditorSelection();
+    const viewport = editor.closest<HTMLElement>('.sc-editor-workspace');
+    if (viewport) viewport.scrollTop = caret.scrollTop;
+  }, [content, isAcceptingAi, activeDraftScope]);
 
   useEffect(() => {
     const editor = editorRef.current;
@@ -354,44 +409,33 @@ export function AuthorWritingIde() {
 
   // Persist formatting preferences in localStorage
   useEffect(() => {
-    localStorage.setItem('ephurin_editor_font', fontOption);
+    writeEditorSetting('ephurin_editor_font', fontOption);
   }, [fontOption]);
 
   useEffect(() => {
-    localStorage.setItem('ephurin_editor_font_size', String(fontSize));
+    writeEditorSetting('ephurin_editor_font_size', String(fontSize));
   }, [fontSize]);
 
   useEffect(() => {
-    localStorage.setItem('ephurin_editor_line_height', String(lineHeight));
+    writeEditorSetting('ephurin_editor_line_height', String(lineHeight));
   }, [lineHeight]);
 
   useEffect(() => {
-    localStorage.setItem('ephurin_editor_text_align', textAlign);
+    writeEditorSetting('ephurin_editor_text_align', textAlign);
   }, [textAlign]);
 
   useEffect(() => {
-    localStorage.setItem('ephurin_editor_indent', String(paragraphIndent));
+    writeEditorSetting('ephurin_editor_indent', String(paragraphIndent));
   }, [paragraphIndent]);
 
-  // Close dropdowns on outside click
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (fontDropdownRef.current && !fontDropdownRef.current.contains(event.target as Node)) {
-        setFontDropdownOpen(false);
-      }
-      if (spacingDropdownRef.current && !spacingDropdownRef.current.contains(event.target as Node)) {
-        setSpacingDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
   const currentFontConfig = useMemo(() => {
     return AVAILABLE_FONTS.find((f) => f.id === fontOption) || AVAILABLE_FONTS[0];
   }, [fontOption]);
+  const preserveNextToolbarMenu = (event: Event) => {
+    // An exiting font menu must not steal focus from the spacing menu just opened.
+    if (document.querySelector('[role="menu"][data-state="open"]') || document.activeElement?.getAttribute('aria-expanded') === 'true') event.preventDefault();
+  };
 
   // Selection & prose formatting helpers
   const wrapSelection = (prefix: string, suffix: string = prefix, placeholder: string = 'văn bản') => {
@@ -403,29 +447,36 @@ export function AuthorWritingIde() {
     const end = textarea.selectionEnd;
     const currentVal = textarea.value;
 
+    if (Array.from(currentVal.matchAll(authorNoteDefinitions())).some(note => start < note.index! + note[0].length && end > note.index! || start === end && start >= note.index! && start < note.index! + note[0].length)) {
+      showToast('Chọn lời văn để định dạng. Chỉnh sửa lời chú thích trong Ghi chú → Cho độc giả.', 'error');
+      return;
+    }
+
     let newContent = '';
     let newCursorStart = start;
     let newCursorEnd = end;
 
     if (start !== end) {
       const selected = currentVal.substring(start, end);
-      newContent = currentVal.substring(0, start) + prefix + selected + suffix + currentVal.substring(end);
-      newCursorStart = start + prefix.length;
-      newCursorEnd = end + prefix.length;
+      const italicBoundary = prefix !== '*' || ((currentVal.slice(0, start).match(/\*+$/)?.[0].length ?? 0) % 2 === 1 && (currentVal.slice(end).match(/^\*+/)?.[0].length ?? 0) % 2 === 1);
+      const selectedItalic = prefix !== '*' || ((selected.match(/^\*+/)?.[0].length ?? 0) % 2 === 1 && (selected.match(/\*+$/)?.[0].length ?? 0) % 2 === 1);
+      if (italicBoundary && start >= prefix.length && currentVal.slice(start - prefix.length, start) === prefix && currentVal.slice(end, end + suffix.length) === suffix) {
+        newContent = currentVal.slice(0, start - prefix.length) + selected + currentVal.slice(end + suffix.length);
+        newCursorStart = start - prefix.length; newCursorEnd = end - prefix.length;
+      } else if (selectedItalic && selected.startsWith(prefix) && selected.endsWith(suffix) && selected.length >= prefix.length + suffix.length) {
+        const plain = selected.slice(prefix.length, -suffix.length);
+        newContent = currentVal.slice(0, start) + plain + currentVal.slice(end); newCursorStart = start; newCursorEnd = start + plain.length;
+      } else {
+        newContent = currentVal.substring(0, start) + prefix + selected + suffix + currentVal.substring(end);
+        newCursorStart = start + prefix.length; newCursorEnd = end + prefix.length;
+      }
     } else {
       newContent = currentVal.substring(0, start) + prefix + placeholder + suffix + currentVal.substring(end);
       newCursorStart = start + prefix.length;
       newCursorEnd = start + prefix.length + placeholder.length;
     }
 
-    setContent(newContent);
-    triggerAutosave(title, newContent, isVip, priceCoins);
-
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(newCursorStart, newCursorEnd);
-      adjustHeight();
-    }, 10);
+    applyStudioEdit(newContent, newCursorStart, newCursorEnd);
   };
 
   const insertDialogueDash = () => {
@@ -436,16 +487,8 @@ export function AuthorWritingIde() {
     const start = textarea.selectionStart;
     const currentVal = textarea.value;
     const prefix = '— ';
-    const newContent = currentVal.substring(0, start) + prefix + currentVal.substring(start);
-    setContent(newContent);
-    triggerAutosave(title, newContent, isVip, priceCoins);
-
-    setTimeout(() => {
-      textarea.focus();
-      const pos = start + prefix.length;
-      textarea.setSelectionRange(pos, pos);
-      adjustHeight();
-    }, 10);
+    const newContent = currentVal.substring(0, start) + prefix + currentVal.substring(textarea.selectionEnd);
+    applyStudioEdit(newContent, start + prefix.length, start + prefix.length);
   };
 
   useEffect(() => { setAutosaveStatus(persistence.status); if (persistence.status === 'saved') setLastSavedTime(new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })); }, [persistence.status]);
@@ -461,6 +504,66 @@ export function AuthorWritingIde() {
     setContent(val);
     triggerAutosave(title, val, isVip, priceCoins);
   };
+
+  const studioReady = Boolean(chapterQuery.data) && loadedChapter.current === activeDraftScope;
+  useStudioPosition(activeDraftScope, content, studioReady, editorRef);
+  useLayoutEffect(() => {
+    const pending = pendingSearchJump.current, source = editorRef.current;
+    if (!pending || pending.scope !== activeDraftScope || !studioReady || !source) return;
+    pendingSearchJump.current = null;
+    const anchor = locateAnchor(pending.hit.anchor, content);
+    if (anchor.detached) { showToast('Đoạn tìm thấy đã thay đổi. Hãy tìm lại trong chương.', 'error'); return; }
+    revealStudioSelection(source, anchor.start, anchor.end);
+  }, [activeDraftScope, content, studioReady]);
+  const searchScope = `${user?.userId}:${activeNovelId}`, currentSearchScope = useRef(searchScope); currentSearchScope.current = searchScope;
+  const navigateSearchHit = (hit: ChapterSearchHit) => {
+    if (currentSearchScope.current !== searchScope || !chaptersQuery.data?.some(chapter => chapter.chapterId === hit.chapterId)) return;
+    if (window.matchMedia('(max-width: 900px)').matches) setSidebarOpen(false);
+    if (editorRef.current?.closest('.sc-studio-body')?.getAttribute('data-panel-layout') === 'drawer') setRightPanel(null);
+    if (hit.chapterId === activeChapterId) {
+      const anchor = locateAnchor(hit.anchor, content); if (anchor.detached) { showToast('Nội dung đã thay đổi. Hãy tìm lại.', 'error'); return; }
+      if (editorRef.current) revealStudioSelection(editorRef.current, anchor.start, anchor.end);
+    } else { pendingSearchJump.current = { scope: `${user?.userId}:${hit.chapterId}`, hit }; setSearchParams({ novelId: activeNovelId, chapterId: hit.chapterId }); }
+  };
+  const searchNavigationBlocked = useRef(false);
+  useEffect(() => {
+    if (searchNavigationBlocked.current && persistence.blocker.state === 'unblocked' && pendingSearchJump.current?.scope !== activeDraftScope) pendingSearchJump.current = null;
+    searchNavigationBlocked.current = persistence.blocker.state === 'blocked';
+  }, [persistence.blocker.state, activeDraftScope]);
+  useEffect(() => {
+    if (!aiDrawerOpen) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || event.defaultPrevented || document.querySelector('[role="dialog"], [role="menu"][data-state="open"]')) return;
+      setRightPanel(null); const source = editorRef.current; if (source) revealStudioSelection(source, source.selectionStart, source.selectionEnd, false);
+    };
+    document.addEventListener('keydown', close); return () => document.removeEventListener('keydown', close);
+  }, [aiDrawerOpen]);
+  const studioHistory = useStudioHistory(activeDraftScope, content, studioReady, handleContentChange);
+  const studioCaret = useRef<{ scope: string; start: number; end: number; text: string } | null>(null);
+  const changeEditorMode = (visual: boolean) => {
+    if (visual === visualEditor) return;
+    const editor = editorRef.current;
+    if (editor) studioCaret.current = { scope: activeDraftScope, start: editor.selectionStart, end: editor.selectionEnd, text: content };
+    setVisualEditor(visual); writeEditorSetting('storycraft-studio-editor-mode', visual ? 'visual' : 'source');
+  };
+  const applyStudioEdit = (value: string, start: number, end: number) => {
+    if (!studioReady || isAcceptingAi) return;
+    studioCaret.current = { scope: activeDraftScope, start, end, text: value };
+    studioHistory.edit(value, start, end);
+    if (value === content && editorRef.current) { revealStudioSelection(editorRef.current, start, end); studioCaret.current = null; }
+  };
+  const moveStudioHistory = (redo = false) => {
+    if (!studioReady || isAcceptingAi) return;
+    const entry = redo ? studioHistory.redo() : studioHistory.undo();
+    if (entry) studioCaret.current = { scope: activeDraftScope, start: entry.start, end: entry.end, text: entry.text };
+  };
+  const rememberStudioSelection = () => { rememberEditorSelection(); const editor = editorRef.current; if (editor) studioHistory.remember(editor.selectionStart, editor.selectionEnd); };
+  useLayoutEffect(() => {
+    const caret = studioCaret.current;
+    if (caret && caret.scope === activeDraftScope && caret.text === content && editorRef.current && studioReady) {
+      studioCaret.current = null; adjustHeight(); revealStudioSelection(editorRef.current, caret.start, caret.end); rememberEditorSelection();
+    } else if (caret?.scope !== activeDraftScope) studioCaret.current = null;
+  }, [content, activeDraftScope, studioReady, visualEditor]);
 
   const handleAccessChange = (mode: AccessMode) => {
     if (isAcceptingAi) return;
@@ -510,6 +613,10 @@ export function AuthorWritingIde() {
       setPublishModalOpen(false);
       queryClient.invalidateQueries({ queryKey: ['author', 'chapter', activeChapterId] });
       queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] });
+      queryClient.invalidateQueries({ queryKey: ['reader-chapter', activeChapterId] });
+      queryClient.invalidateQueries({ queryKey: ['public-reader-chapter', activeChapterId] });
+      queryClient.invalidateQueries({ queryKey: ['reader-novel', activeNovelId] });
+      queryClient.invalidateQueries({ queryKey: ['public-reader-novel', activeNovelId] });
       showToast(
         res.moderationRequired
           ? 'Chương đã gửi duyệt kiểm duyệt thành công!'
@@ -533,12 +640,21 @@ export function AuthorWritingIde() {
     const finalInstruction = instructionText || aiInstruction;
     if (!finalInstruction.trim()) return;
 
+    // Capture before async preparation or focus changes in the assistant panel.
+    const savedSelection = editorSelectionRef.current;
+    const selStart = savedSelection?.scope === activeDraftScope ? savedSelection.start : content.length;
+    const selEnd = savedSelection?.scope === activeDraftScope ? savedSelection.end : content.length;
+    const codePointStart = utf16OffsetToCodePoint(content, selStart);
+    const codePointEnd = utf16OffsetToCodePoint(content, selEnd);
+
     if (pollTimerRef.current) {
       window.clearTimeout(pollTimerRef.current);
       pollTimerRef.current = null;
     }
 
     setIsGeneratingAi(true);
+    aiBaseRef.current = { scope: activeDraftScope, content };
+    setAiComparisonOpen(false);
     setCurrentJob(null);
     setAiSuggestion(null);
 
@@ -568,13 +684,6 @@ export function AuthorWritingIde() {
       } catch {
         brainVer = 1;
       }
-
-      // 3. Selection offsets in Unicode code points
-      const textarea = editorRef.current;
-      const selStart = textarea ? textarea.selectionStart : 0;
-      const selEnd = textarea ? textarea.selectionEnd : 0;
-      const codePointStart = utf16OffsetToCodePoint(content, selStart);
-      const codePointEnd = utf16OffsetToCodePoint(content, selEnd);
 
       // 4. Start writing generation job
       const initiatedJob = await startWritingGeneration({
@@ -609,6 +718,10 @@ export function AuthorWritingIde() {
       if (status === 'completed') {
         setIsGeneratingAi(false);
         const draftText = updated.draft || (updated.patch?.replacement ?? '');
+        if (/^\s*(?:```(?:json)?\s*)?\{\s*"(?:draft_text|draft|explanation)"\s*:/i.test(draftText)) {
+          setAiSuggestion('');
+          throw new Error('Đề xuất AI sai định dạng. Vui lòng tạo lại đề xuất.');
+        }
         setAiSuggestion(draftText);
         setAiSuggestionTone(
           updated.validation_status === 'passed' ? 'Đã kiểm định nhất quán • P1 Loop' : 'Hoàn thành'
@@ -630,6 +743,7 @@ export function AuthorWritingIde() {
   // Canonical Accept Draft: creates immutable revision & emits INCREMENTAL_ANALYSIS outbox event
   const handleAcceptDraft = async () => {
     if (!activeChapterId || !currentJob) return;
+    const scrollTop = editorRef.current?.closest<HTMLElement>('.sc-editor-workspace')?.scrollTop ?? 0;
     setIsAcceptingAi(true);
     try {
       await persistence.flush();
@@ -641,9 +755,17 @@ export function AuthorWritingIde() {
         setContent(value.content);
         setIsVip(value.isVip);
         setPriceCoins(value.priceCoins);
+        if (currentJob.patch) {
+          acceptedCaretRef.current = {
+            scope: activeDraftScope,
+            position: codePointToUtf16Offset(value.content, currentJob.patch.start) + currentJob.patch.replacement.length,
+            scrollTop
+          };
+        }
       }
       setCurrentJob(null);
       setAiSuggestion(null);
+      setAiComparisonOpen(false);
       queryClient.invalidateQueries({ queryKey: ['author', 'chapter', activeChapterId] });
       queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] });
       showToast('Đã chấp nhận bản thảo AI và kích hoạt cập nhật Story Brain!');
@@ -656,6 +778,7 @@ export function AuthorWritingIde() {
 
   // Canonical Discard Draft: leaves canon, revision pointer, and Story Brain unchanged
   const handleDiscardDraft = () => {
+    setAiComparisonOpen(false);
     setCurrentJob(null);
     setAiSuggestion(null);
     showToast('Đã từ chối gợi ý AI.');
@@ -681,9 +804,83 @@ export function AuthorWritingIde() {
     return list.filter((ch: Chapter) => ch.title.toLowerCase().includes(q) || String(ch.chapterNumber).includes(q));
   }, [chaptersQuery.data, chapterSearch]);
 
-  const manuscriptActions = (
-    <div className="sc-studio-manuscript-actions">{['DRAFT','REJECTED'].includes(chapterQuery.data?.status ?? '') && <button type="button" className="sc-button sc-button-ghost" onClick={async () => { try { await persistence.flush(); setScheduleOpen(true); } catch { showToast('Lưu bản nháp thành công trước khi đặt lịch.'); } }}>Lên lịch</button>}<button type="button" className="sc-button sc-button-ghost" onClick={() => setHistoryOpen(true)} disabled={!chapterQuery.data}>Lịch sử bản thảo</button><button type="button" className="sc-button sc-button-ghost" onClick={() => { const url = URL.createObjectURL(new Blob([title + '\n\n' + content], { type: 'text/markdown;charset=utf-8' })); const a = document.createElement('a'); a.href = url; a.download = 'ban-thao.md'; a.click(); URL.revokeObjectURL(url); }}>Xuất bản thảo</button></div>
-  );
+  const canSchedule = ['DRAFT','REJECTED'].includes(chapterQuery.data?.status ?? '');
+  const openSchedule = async () => { try { await persistence.flush(); setScheduleOpen(true); } catch { showToast('Lưu bản nháp thành công trước khi đặt lịch.'); } };
+  const manuscriptActions = <>{focusMode && <>{canSchedule && <Menu.Item onClick={openSchedule}>Lên lịch</Menu.Item>}<Menu.Item onClick={() => setHistoryOpen(true)} disabled={!chapterQuery.data}>Lịch sử bản thảo</Menu.Item></>}<Menu.Item onClick={() => setExportOpen(true)}>Xuất bản thảo</Menu.Item></>;
+
+  const chapterSettings = !focusMode && (
+        <section className="sc-studio-settings border-b border-stone-200/80 bg-surface-container-lowest/90 backdrop-blur-sm px-4 flex items-center justify-between shrink-0 z-20 text-meta">
+          {/* Left: Sidebar toggle & Publication Status */}
+          <div className="sc-studio-settings-context flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen((prev: boolean) => !prev)}
+              className="p-1 rounded text-stone-500 hover:text-stone-800 hover:bg-stone-100 transition-colors flex items-center"
+              title="Đóng/Mở thanh danh sách chương"
+              type="button"
+            >
+              <span className="material-symbols-outlined text-[18px]">view_sidebar</span>
+            </button>
+            <div className="h-3.5 w-px bg-stone-200"></div>
+            <div className="flex items-center gap-2">
+              <span className="text-stone-500 font-medium hidden sm:inline">Trạng thái:</span>
+              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-amber-200 bg-amber-50 text-amber-800 text-meta font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                <span>{chapterQuery.data?.status || 'Bản nháp'}</span>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Manuscript actions and chapter access share one toolbar. */}
+          <div className="sc-studio-settings-controls">
+            {canSchedule && <button type="button" className="sc-button sc-button-ghost" onClick={openSchedule}>Lên lịch</button>}
+            <button type="button" className="sc-button sc-button-ghost" aria-label="Lịch sử bản thảo" title="Lịch sử bản thảo" onClick={() => setHistoryOpen(true)} disabled={!chapterQuery.data}><span className="material-symbols-outlined" aria-hidden="true">history</span></button>
+            <div className="flex items-center bg-stone-100 p-0.5 rounded-lg border border-stone-200">
+              <button
+                onClick={() => handleAccessChange('free')}
+                className={`px-2.5 py-1 rounded-md text-meta transition-colors ${
+                  !isVip
+                    ? 'font-semibold bg-surface-container-lowest text-stone-900 shadow-2xs border border-stone-200/60'
+                    : 'font-medium text-stone-600 hover:text-stone-900'
+                }`}
+                type="button"
+              >
+                Miễn phí
+              </button>
+              <button
+                onClick={() => handleAccessChange('vip')}
+                className={`px-2.5 py-1 rounded-md text-meta flex items-center gap-1 transition-all ${
+                  isVip
+                    ? 'font-semibold bg-surface-container-lowest text-primary-700 shadow-2xs border border-stone-200/60'
+                    : 'font-medium text-stone-600 hover:text-stone-900'
+                }`}
+                type="button"
+              >
+                <span className="material-symbols-outlined text-table text-amber-500 fill-icon">stars</span>
+                <span>Chương VIP ✦</span>
+              </button>
+            </div>
+
+            {/* Dynamic Unlock Coin Price */}
+            {isVip && (
+              <div className="flex items-center gap-1.5 text-stone-600 text-meta bg-amber-50/70 border border-amber-200/80 px-2 py-0.5 rounded-md">
+                <span className="text-meta font-medium text-amber-900">Giá mở khóa:</span>
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    min={1}
+                    max={999}
+                    value={priceCoins}
+                    onChange={(e) => handlePriceChange(parseInt(e.target.value, 10))}
+                    className="w-12 h-6 text-center text-meta font-semibold rounded border-stone-300 bg-surface-container-lowest py-0 px-1 focus:ring-primary-500 focus:border-primary-500 text-stone-800"
+                  />
+                  <span className="text-meta font-semibold text-amber-700">Xu</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      );
 
   return (
     <div className="sc-writing-studio h-screen flex flex-col text-stone-800 antialiased overflow-hidden select-none bg-surface">
@@ -694,49 +891,19 @@ export function AuthorWritingIde() {
         {/* Left: Return link, Breadcrumb & Autosave indicator */}
         <div className="flex items-center gap-2.5 min-w-0">
           <Link
-            to={activeNovelId ? `/author/novels/${activeNovelId}` : '/author'}
+            to={activeNovelId ? `/author/novels/${activeNovelId}` : authorHomeCrumb.to}
             className="inline-flex items-center gap-1 text-meta font-medium text-stone-500 hover:text-stone-900 transition-colors py-1 px-2 rounded-md hover:bg-stone-200/60 shrink-0"
-            title="Quay lại danh sách tác phẩm"
+            title={activeNovelId ? 'Quay lại quản lý tác phẩm' : `Quay lại ${navigationLabels.authorHome}`}
+            aria-label={activeNovelId ? 'Quay lại quản lý tác phẩm' : `Quay lại ${navigationLabels.authorHome}`}
           >
             <span className="material-symbols-outlined text-[16px]">arrow_back</span>
-            <span className="hidden sm:inline">Tủ truyện</span>
+            <span className="hidden sm:inline">{activeNovelId ? 'Tác phẩm' : navigationLabels.authorHome}</span>
           </Link>
           <div className="h-3.5 w-px bg-stone-300 shrink-0"></div>
-          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-meta text-stone-500 truncate">
-            <span
-              onClick={() => navigate(activeNovelId ? `/author/novels/${activeNovelId}` : '/author')}
-              className="font-medium text-stone-600 hover:text-stone-900 cursor-pointer truncate max-w-[130px] md:max-w-[160px]"
-            >
-              {novelQuery.data?.title || 'Đang tải truyện...'}
-            </span>
-            <span className="text-stone-300">/</span>
-            <span
-              className="font-semibold text-stone-900 truncate max-w-[150px] lg:max-w-[200px]"
-              title={title || 'Chương đang soạn'}
-            >
-              {title || 'Chương mới'}
-            </span>
-          </nav>
+          <Breadcrumbs className="is-compact" items={[{ label: novelQuery.data?.title || 'Tác phẩm', to: activeNovelId ? `/author/novels/${activeNovelId}` : authorHomeCrumb.to }, { label: title || 'Chương mới' }]} />
 
           {/* Autosave Indicator */}
-          <div className="hidden md:flex items-center gap-1.5 ml-1.5 px-2 py-0.5 rounded-full bg-emerald-50/80 border border-emerald-200/60 text-meta text-emerald-700 font-medium shrink-0">
-            {autosaveStatus === 'saving' ? (
-              <>
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
-                <span>Đang lưu...</span>
-              </>
-            ) : autosaveStatus === 'error' ? (
-              <>
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                <span className="text-red-600">Lỗi lưu đám mây</span>
-              </>
-            ) : (
-              <>
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                <span>Đã lưu • {lastSavedTime || 'Mới nhất'}</span>
-              </>
-            )}
-          </div>
+          <SaveStatus className="hidden md:inline-flex shrink-0" status={activeChapterId && chapterQuery.data && loadedChapter.current === activeDraftScope ? autosaveStatus : 'idle'} dirty={persistence.dirty} savedAt={lastSavedTime} />
         </div>
 
         {/* Center/Right Primary Actions */}
@@ -805,6 +972,7 @@ export function AuthorWritingIde() {
             aria-controls="studio-ai-panel"
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-meta font-semibold rounded-lg bg-primary-50 text-primary-600 hover:bg-primary-100 border border-primary-200/90 transition-all shadow-2xs "
             title="Mở trợ lý sáng tác AI"
+            aria-label="AI Hỗ trợ viết"
             type="button"
           >
             <span className="material-symbols-outlined text-primary-600 text-[16px] fill-icon">auto_awesome</span>
@@ -826,91 +994,25 @@ export function AuthorWritingIde() {
       {/* ──────────────────────────────────────────
           BEGIN: Chapter Settings Subheader Bar
          ────────────────────────────────────────── */}
-      {!focusMode && (
-        <section className="sc-studio-settings border-b border-stone-200/80 bg-surface-container-lowest/90 backdrop-blur-sm px-4 flex items-center justify-between shrink-0 z-20 text-meta">
-          {/* Left: Sidebar toggle & Publication Status */}
-          <div className="sc-studio-settings-context flex items-center gap-3">
-            <button
-              onClick={() => setSidebarOpen((prev: boolean) => !prev)}
-              className="p-1 rounded text-stone-500 hover:text-stone-800 hover:bg-stone-100 transition-colors flex items-center"
-              title="Đóng/Mở thanh danh sách chương"
-              type="button"
-            >
-              <span className="material-symbols-outlined text-[18px]">view_sidebar</span>
-            </button>
-            <div className="h-3.5 w-px bg-stone-200"></div>
-            <div className="flex items-center gap-2">
-              <span className="text-stone-500 font-medium hidden sm:inline">Trạng thái:</span>
-              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-amber-200 bg-amber-50 text-amber-800 text-meta font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                <span>{chapterQuery.data?.status || 'Bản nháp'}</span>
-              </div>
-              <div className="sc-studio-settings-novel text-meta text-stone-400 hidden lg:inline">
-                • Tác phẩm: <strong className="text-stone-600 font-medium">{novelQuery.data?.title || '...'}</strong>
-              </div>
-            </div>
-          </div>
 
-          {/* Manuscript actions and chapter access share one toolbar. */}
-          <div className="sc-studio-settings-controls">
-            {manuscriptActions}
-            <div className="flex items-center bg-stone-100 p-0.5 rounded-lg border border-stone-200">
-              <button
-                onClick={() => handleAccessChange('free')}
-                className={`px-2.5 py-1 rounded-md text-meta transition-colors ${
-                  !isVip
-                    ? 'font-semibold bg-surface-container-lowest text-stone-900 shadow-2xs border border-stone-200/60'
-                    : 'font-medium text-stone-600 hover:text-stone-900'
-                }`}
-                type="button"
-              >
-                Miễn phí
-              </button>
-              <button
-                onClick={() => handleAccessChange('vip')}
-                className={`px-2.5 py-1 rounded-md text-meta flex items-center gap-1 transition-all ${
-                  isVip
-                    ? 'font-semibold bg-surface-container-lowest text-primary-700 shadow-2xs border border-stone-200/60'
-                    : 'font-medium text-stone-600 hover:text-stone-900'
-                }`}
-                type="button"
-              >
-                <span className="material-symbols-outlined text-table text-amber-500 fill-icon">stars</span>
-                <span>Chương VIP ✦</span>
-              </button>
-            </div>
-
-            {/* Dynamic Unlock Coin Price */}
-            {isVip && (
-              <div className="flex items-center gap-1.5 text-stone-600 text-meta bg-amber-50/70 border border-amber-200/80 px-2 py-0.5 rounded-md">
-                <span className="text-meta font-medium text-amber-900">Giá mở khóa:</span>
-                <div className="flex items-center gap-1">
-                  <input
-                    type="number"
-                    min={1}
-                    max={999}
-                    value={priceCoins}
-                    onChange={(e) => handlePriceChange(parseInt(e.target.value, 10))}
-                    className="w-12 h-6 text-center text-meta font-semibold rounded border-stone-300 bg-surface-container-lowest py-0 px-1 focus:ring-primary-500 focus:border-primary-500 text-stone-800"
-                  />
-                  <span className="text-meta font-semibold text-amber-700">Xu</span>
-                </div>
-              </div>
-            )}
-          </div>
-        </section>
-      )}
 
       {/* ──────────────────────────────────────────
           BEGIN: MainWorkspace
          ────────────────────────────────────────── */}
       {scheduleOpen && <ChapterSchedule chapterId={activeChapterId} novelId={activeNovelId} onClose={() => setScheduleOpen(false)} />}
-      {historyOpen && <RevisionHistory chapterId={activeChapterId} content={content} onClose={() => setHistoryOpen(false)} onRestore={async next => { await persistence.flush(); setContent(next); triggerAutosave(title, next, isVip, priceCoins); await persistence.flush(); }} />}
+      {historyOpen && <RevisionHistory chapterId={activeChapterId} content={content} onClose={() => setHistoryOpen(false)} onRestore={async next => { await persistence.flush(); setContent(next); triggerAutosave(title, next, isVip, priceCoins); await persistence.flush(); showToast('Đã khôi phục và lưu phiên bản bản thảo.'); }} />}
       {persistence.error && <Alert color="red" title="Bản nháp chưa được lưu">{persistence.error}<Group mt="xs"><Button size="xs" variant="light" onClick={() => void persistence.flush().catch(() => {})}>Thử lưu lại</Button><Button size="xs" variant="default" onClick={async () => { const result = await chapterQuery.refetch(); if (result.data) { const value = persistence.initialize(result.data, true); if (value) { setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); } } }}>Tải bản máy chủ</Button></Group></Alert>}
       {persistence.recovery && <Alert title="Có bản lưu trên máy chưa đồng bộ" color="orange"><Text size="sm">Bản lưu lúc {new Date(persistence.recovery.savedAt).toLocaleString('vi-VN')}. Nội dung máy chủ vẫn được giữ nguyên.</Text><Group mt="xs"><Button size="xs" onClick={() => { const value = persistence.recovery!.value; setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); persistence.dismissRecovery(); triggerAutosave(value.title, value.content, value.isVip, value.priceCoins); }}>Khôi phục vào trình soạn thảo</Button><Button size="xs" variant="default" onClick={persistence.dismissRecovery}>Bỏ bản lưu trên máy</Button></Group></Alert>}
       {persistence.blocker.state === 'blocked' && <AuthorDialog onClose={() => persistence.blocker.reset?.()}><div className="fixed inset-0 flex items-center justify-center p-4"><div className="w-full max-w-md p-6"><h2 className="text-section">Bản nháp chưa lưu xong</h2><p className="text-body">Bạn có thể lưu trước khi rời trang hoặc giữ bản dự phòng trên máy để khôi phục sau.</p><Group mt="md"><Button onClick={async () => { try { await persistence.flush(); persistence.blocker.proceed?.(); } catch {} }}>Lưu và rời trang</Button><Button variant="default" onClick={() => persistence.blocker.reset?.()}>Ở lại</Button><Button variant="subtle" onClick={() => { persistence.abandon(); persistence.blocker.proceed?.(); }}>Rời trang</Button></Group></div></div></AuthorDialog>}
-      {focusMode && <div className="flex justify-end px-4">{manuscriptActions}</div>}
-      <div className="sc-studio-body flex-1 min-h-0 flex overflow-hidden relative">
+      <StudioNovelSearch key={searchScope} opened={novelSearchOpen} chapters={chaptersQuery.data ?? []} activeChapterId={activeChapterId} content={content} onClose={() => setNovelSearchOpen(false)} onNavigate={navigateSearchHit} />
+      <StudioWorkbench onSearchNovel={() => setNovelSearchOpen(true)} notesOpen={rightPanel === 'notes'} onNotesOpenChange={changeNotesOpen} onLookup={setReferenceQuery} formatToolbarVisible={formatToolbarVisible} chapterSettings={chapterSettings} fileActions={manuscriptActions} key={activeDraftScope} scope={activeDraftScope} title={title} content={content} editor={editorRef} disabled={!studioReady || isAcceptingAi} exportOpen={exportOpen} onExportClose={() => setExportOpen(false)}
+        publishedContent={chapterQuery.data?.status === 'PUBLISHED' ? chapterQuery.data.content : undefined} chapterStatus={chapterQuery.data?.status} onPublish={() => setPublishModalOpen(true)}
+        apply={applyStudioEdit} undo={() => moveStudioHistory()} redo={() => moveStudioHistory(true)} canUndo={studioHistory.canUndo} canRedo={studioHistory.canRedo}
+        save={async () => { await persistence.flush(); }} onError={message => showToast(message, 'error')} />
+      <StudioSelectionTools key={`selection:${activeDraftScope}`} editor={editorRef} disabled={!studioReady || isAcceptingAi}
+        onFormat={format => format === 'bold' ? wrapSelection('**') : format === 'italic' ? wrapSelection('*') : wrapSelection('<u>', '</u>')}
+        onLookup={setReferenceQuery} onAi={() => { rememberEditorSelection(); openAiDrawer(); }} />
+      <div data-right-panel={rightPanel ?? 'none'} className="sc-studio-body flex-1 min-h-0 flex overflow-hidden relative">
         {/* Left Sidebar Chapters Outline Rail */}
         {sidebarOpen && !focusMode && (
           <aside className="sc-studio-sidebar w-[280px] shrink-0 border-r border-stone-200/90 bg-surface-subtle flex flex-col h-full z-10 select-none relative">
@@ -1033,102 +1135,15 @@ export function AuthorWritingIde() {
         {/* ──────────────────────────────────────────
             BEGIN: ManuscriptWritingArea
            ────────────────────────────────────────── */}
-        <main className="sc-editor-workspace flex-1 min-h-0 overflow-y-auto flex flex-col items-center bg-surface relative select-text">
+        <div className="sc-studio-editor-region"><main className="sc-editor-workspace flex-1 min-h-0 overflow-y-auto flex flex-col items-center bg-surface relative select-text">
           {/* Sticky Formatting Toolbar with Frosted-Glass Backdrop */}
           {formatToolbarVisible && (
-            <div id="studio-format-toolbar" className="sc-format-toolbar sticky top-0 z-20 w-full py-2 px-3 sm:px-4 bg-surface/95 backdrop-blur-md border-b border-stone-200/60 flex items-center justify-center mb-6 shrink-0 shadow-2xs">
-              <div className="bg-surface-container-lowest/95 border border-stone-200/90 rounded-xl shadow-xs py-1 px-2.5 flex items-center flex-wrap gap-1 max-w-4xl text-meta text-stone-700 select-none">
-                {/* 1. Font Family Dropdown */}
-                <div className="relative" ref={fontDropdownRef}>
-                  <button
-                    onClick={() => setFontDropdownOpen((prev) => !prev)}
-                    className="font-medium flex items-center gap-1.5 hover:text-stone-900 px-2 py-1 rounded-lg hover:bg-stone-100 transition-colors border border-transparent hover:border-stone-200 text-stone-800"
-                    title="Đổi kiểu chữ (7 phông chữ Việt hóa)"
-                    type="button"
-                  >
-                    <span className="material-symbols-outlined text-[16px] text-stone-500">text_fields</span>
-                    <span className="font-semibold text-meta tracking-tight" style={{ fontFamily: currentFontConfig.fontFamily }}>
-                      {currentFontConfig.name}
-                    </span>
-                    <span className="material-symbols-outlined text-[15px] text-stone-400">
-                      {fontDropdownOpen ? 'expand_less' : 'expand_more'}
-                    </span>
-                  </button>
-
-                  {/* Dropdown Menu */}
-                  {fontDropdownOpen && (
-                    <div className="absolute top-full left-0 mt-1.5 w-80 bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200 py-2 px-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
-                      <div className="px-2.5 py-1 mb-1 border-b border-stone-100 flex items-center justify-between">
-                        <span className="text-meta font-bold uppercase tracking-wider text-stone-400">
-                          Phông chữ soạn thảo ({AVAILABLE_FONTS.length})
-                        </span>
-                        <span className="text-meta text-primary-600 font-medium">Hỗ trợ tiếng Việt</span>
-                      </div>
-
-                      <div className="max-h-72 overflow-y-auto space-y-0.5 py-1">
-                        {/* Serif category */}
-                        <div className="px-2.5 pt-1.5 pb-0.5 text-meta font-bold text-stone-400 uppercase tracking-wider">
-                          Chữ có chân (Serif)
-                        </div>
-                        {AVAILABLE_FONTS.filter((f) => f.category === 'Serif (Có chân)').map((f) => (
-                          <button
-                            key={f.id}
-                            onClick={() => {
-                              setFontOption(f.id);
-                              setFontDropdownOpen(false);
-                            }}
-                            type="button"
-                            className={`w-full text-left px-2.5 py-2 rounded-lg flex items-center justify-between transition-colors ${
-                              fontOption === f.id
-                                ? 'bg-primary-50/80 text-primary-700 font-semibold border border-primary-100'
-                                : 'hover:bg-stone-50 text-stone-800'
-                            }`}
-                          >
-                            <div>
-                              <div className="text-body font-medium" style={{ fontFamily: f.fontFamily }}>
-                                {f.name}
-                              </div>
-                              <div className="text-meta text-stone-400 leading-tight mt-0.5">{f.tagline}</div>
-                            </div>
-                            {fontOption === f.id && (
-                              <span className="material-symbols-outlined text-[16px] text-primary-600 shrink-0">check</span>
-                            )}
-                          </button>
-                        ))}
-
-                        {/* Sans category */}
-                        <div className="px-2.5 pt-2 pb-0.5 text-meta font-bold text-stone-400 uppercase tracking-wider">
-                          Chữ không chân (Sans-serif)
-                        </div>
-                        {AVAILABLE_FONTS.filter((f) => f.category === 'Sans-serif (Không chân)').map((f) => (
-                          <button
-                            key={f.id}
-                            onClick={() => {
-                              setFontOption(f.id);
-                              setFontDropdownOpen(false);
-                            }}
-                            type="button"
-                            className={`w-full text-left px-2.5 py-2 rounded-lg flex items-center justify-between transition-colors ${
-                              fontOption === f.id
-                                ? 'bg-primary-50/80 text-primary-700 font-semibold border border-primary-100'
-                                : 'hover:bg-stone-50 text-stone-800'
-                            }`}
-                          >
-                            <div>
-                              <div className="text-body font-medium" style={{ fontFamily: f.fontFamily }}>
-                                {f.name}
-                              </div>
-                              <div className="text-meta text-stone-400 leading-tight mt-0.5">{f.tagline}</div>
-                            </div>
-                            {fontOption === f.id && (
-                              <span className="material-symbols-outlined text-[16px] text-primary-600 shrink-0">check</span>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+            <div id="studio-format-toolbar" className="sc-format-toolbar sticky top-0 z-20 w-full py-2 px-3 sm:px-4 bg-surface/95 backdrop-blur-md border-b border-stone-200/60 flex items-center justify-center mb-2 shrink-0">
+              <div className="sc-format-controls py-0 px-1 flex items-center gap-1 max-w-4xl text-meta text-stone-700 select-none">
+                {/* Portalled menus remain usable inside the horizontally scrolling toolbar. */}
+                <Menu position="bottom-start" onCloseAutoFocus={preserveNextToolbarMenu}><Menu.Target><button className="font-medium flex items-center gap-1.5 px-2 py-1" title="Đổi kiểu chữ (7 phông chữ Việt hóa)" type="button">
+                  <span className="material-symbols-outlined text-[16px]">text_fields</span><span>{currentFontConfig.name}</span><span className="material-symbols-outlined text-[15px]">expand_more</span>
+                </button></Menu.Target><Menu.Dropdown><Menu.Label>Phông chữ soạn thảo</Menu.Label>{AVAILABLE_FONTS.map(font => <Menu.Item key={font.id} onClick={() => setFontOption(font.id)} leftSection={fontOption === font.id ? '✓' : ' '}><span style={{fontFamily:font.fontFamily}}>{font.name}</span><span className="block text-meta text-stone-500">{font.tagline}</span></Menu.Item>)}</Menu.Dropdown></Menu>
 
                 <div className="h-4 w-px bg-stone-200 mx-1"></div>
 
@@ -1143,9 +1158,7 @@ export function AuthorWritingIde() {
                   >
                     A-
                   </button>
-                  <span className="w-8 text-center font-mono font-semibold text-meta text-stone-700 select-none">
-                    {fontSize}
-                  </span>
+                  <StudioNumberField value={fontSize} onChange={setFontSize} min={13} max={28} step={1} label="Cỡ chữ" />
                   <button
                     onClick={() => setFontSize((prev) => Math.min(28, prev + 1))}
                     disabled={fontSize >= 28}
@@ -1206,49 +1219,10 @@ export function AuthorWritingIde() {
                 <div className="h-4 w-px bg-stone-200 mx-1"></div>
 
                 {/* 4. Line Spacing & Indent */}
-                <div className="relative" ref={spacingDropdownRef}>
-                  <button
-                    onClick={() => setSpacingDropdownOpen((prev) => !prev)}
-                    className="h-7 px-2 flex items-center gap-1 rounded-lg hover:bg-stone-100 text-stone-600 hover:text-stone-900 text-meta transition-colors border border-transparent hover:border-stone-200"
-                    title="Khoảng cách giãn dòng (Line-height)"
-                    type="button"
-                  >
-                    <span className="material-symbols-outlined text-[15px] text-stone-500">format_line_spacing</span>
-                    <span className="font-mono text-meta font-medium">{lineHeight}x</span>
-                    <span className="material-symbols-outlined text-body text-stone-400">expand_more</span>
-                  </button>
-
-                  {spacingDropdownOpen && (
-                    <div className="absolute top-full left-0 mt-1.5 w-48 bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200 p-1.5 z-50 animate-in fade-in duration-100">
-                      <div className="px-2 py-1 text-meta font-bold text-stone-400 uppercase tracking-wider">
-                        Giãn dòng bản thảo
-                      </div>
-                      {[
-                        { val: 1.8, label: '1.8x • Gọn gàng' },
-                        { val: 2.15, label: '2.15x • Chuẩn tiểu thuyết' },
-                        { val: 2.5, label: '2.5x • Rộng rãi, thoáng' }
-                      ].map((opt) => (
-                        <button
-                          key={opt.val}
-                          onClick={() => {
-                            setLineHeight(opt.val);
-                            setSpacingDropdownOpen(false);
-                          }}
-                          type="button"
-                          className={`w-full text-left px-2.5 py-1.5 rounded-lg text-meta flex items-center justify-between transition-colors ${
-                            lineHeight === opt.val
-                              ? 'bg-primary-50 text-primary-700 font-semibold'
-                              : 'hover:bg-stone-50 text-stone-700'
-                          }`}
-                        >
-                          <span>{opt.label}</span>
-                          {lineHeight === opt.val && (
-                            <span className="material-symbols-outlined text-[15px] text-primary-600">check</span>
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                <div className="sc-studio-spacing-control">
+                  <span className="material-symbols-outlined" aria-hidden="true">format_line_spacing</span>
+                  <StudioNumberField value={lineHeight} onChange={setLineHeight} min={1.2} max={3} step={0.05} label="Giãn dòng" /><span aria-hidden="true">x</span>
+                  <Menu position="bottom-start" onCloseAutoFocus={preserveNextToolbarMenu}><Menu.Target><button title="Khoảng cách giãn dòng (Line-height)" aria-label="Chọn mức giãn dòng" type="button"><span className="material-symbols-outlined" aria-hidden="true">expand_more</span></button></Menu.Target><Menu.Dropdown><Menu.Label>Giãn dòng bản thảo</Menu.Label>{[{val:1.8,label:'1.8x • Gọn gàng'},{val:2.15,label:'2.15x • Chuẩn tiểu thuyết'},{val:2.5,label:'2.5x • Rộng rãi, thoáng'}].map(option => <Menu.Item key={option.val} onClick={() => setLineHeight(option.val)} leftSection={lineHeight === option.val ? '✓' : ' '}>{option.label}</Menu.Item>)}</Menu.Dropdown></Menu>
                 </div>
 
                 {/* First-line Indent Toggle */}
@@ -1260,16 +1234,19 @@ export function AuthorWritingIde() {
                       : 'border-transparent hover:bg-stone-100 text-stone-500 hover:text-stone-800'
                   }`}
                   title="Thụt đầu dòng đoạn văn (~2.5rem - Quy chuẩn tiểu thuyết)"
+                  aria-label="Thụt đầu dòng"
+                  aria-pressed={paragraphIndent}
                   type="button"
                 >
                   <span className="material-symbols-outlined text-[15px]">format_indent_increase</span>
-                  <span className="text-meta hidden md:inline">Thụt dòng</span>
+                  <span className="sr-only">Thụt dòng</span>
                 </button>
 
                 <div className="h-4 w-px bg-stone-200 mx-1"></div>
 
                 {/* 5. Inline Formatting Tools */}
                 <button
+                  onMouseDown={event => event.preventDefault()}
                   onClick={() => wrapSelection('**', '**', 'văn bản in đậm')}
                   className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors font-bold text-meta"
                   title="In đậm (**văn bản**)"
@@ -1279,6 +1256,7 @@ export function AuthorWritingIde() {
                 </button>
 
                 <button
+                  onMouseDown={event => event.preventDefault()}
                   onClick={() => wrapSelection('*', '*', 'văn bản in nghiêng')}
                   className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors italic text-meta"
                   title="In nghiêng (*văn bản*)"
@@ -1288,6 +1266,7 @@ export function AuthorWritingIde() {
                 </button>
 
                 <button
+                  onMouseDown={event => event.preventDefault()}
                   onClick={() => wrapSelection('<u>', '</u>', 'văn bản gạch chân')}
                   className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors text-meta"
                   title="Gạch chân (<u>văn bản</u>)"
@@ -1297,6 +1276,7 @@ export function AuthorWritingIde() {
                 </button>
 
                 <button
+                  onMouseDown={event => event.preventDefault()}
                   onClick={() => wrapSelection('~~', '~~', 'văn bản gạch ngang')}
                   className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 transition-colors text-meta"
                   title="Gạch ngang (~~văn bản~~)"
@@ -1306,6 +1286,7 @@ export function AuthorWritingIde() {
                 </button>
 
                 <button
+                  onMouseDown={event => event.preventDefault()}
                   onClick={() => wrapSelection('“', '”', 'lời thoại nhân vật')}
                   className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 font-serif text-body transition-colors"
                   title="Trích dẫn lời thoại “...”"
@@ -1315,6 +1296,7 @@ export function AuthorWritingIde() {
                 </button>
 
                 <button
+                  onMouseDown={event => event.preventDefault()}
                   onClick={insertDialogueDash}
                   className="px-1.5 h-7 flex items-center justify-center rounded-md hover:bg-stone-100 text-stone-700 hover:text-stone-900 font-serif text-meta transition-colors"
                   title="Gạch đầu dòng lời thoại (— )"
@@ -1322,8 +1304,7 @@ export function AuthorWritingIde() {
                 >
                   —
                 </button>
-
-
+                <AnimatedTooltip label="Chèn ký tự đặc biệt"><button type="button" className="sc-studio-symbol-trigger" aria-label="Chèn ký tự đặc biệt" onMouseDown={event => event.preventDefault()} onClick={() => editorRef.current?.dispatchEvent(new CustomEvent('studio-open-symbols'))}>Ω</button></AnimatedTooltip>
               </div>
             </div>
           )}
@@ -1331,7 +1312,7 @@ export function AuthorWritingIde() {
           {/* Centered Manuscript Page */}
           <article className="sc-manuscript-page w-full max-w-3xl shrink-0 bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200/70">
             {/* Editable Chapter Title Header */}
-            <div className="mb-8 pb-5 border-b border-stone-100">
+            <div className="sc-studio-title-header mb-4 pb-3 border-b border-stone-100">
               <input
                 type="text"
                 value={title}
@@ -1352,12 +1333,26 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Prose Editor Textarea: Auto-grow without internal scrollbar */}
-            <div className="w-full min-h-[500px]">
+            <StudioContextMenu key={activeDraftScope} editor={editorRef} disabled={!studioReady || isAcceptingAi} apply={applyStudioEdit} onError={message => showToast(message, 'error')} onLookup={setReferenceQuery} onAi={() => { rememberEditorSelection(); openAiDrawer(); }} onCopied={() => showToast('Đã sao chép vùng chọn.')}><div className="sc-manuscript-input w-full min-h-[500px]">
+              <div className="sc-studio-editor-mode" role="group" aria-label="Chế độ soạn thảo"><button type="button" aria-pressed={visualEditor} onMouseDown={event => event.preventDefault()} onClick={() => changeEditorMode(true)}>Soạn thảo</button><button type="button" aria-pressed={!visualEditor} onMouseDown={event => event.preventDefault()} onClick={() => changeEditorMode(false)}>Ký hiệu định dạng</button></div>
+              {visualEditor && <RichManuscriptEditor value={content} source={editorRef} disabled={!studioReady || isAcceptingAi}
+                style={{ fontFamily: currentFontConfig.fontFamily, fontSize: `${fontSize}px`, lineHeight, textAlign, textIndent: paragraphIndent ? '2.5rem' : '0' }}
+                onChange={(next, start, end) => studioHistory.edit(next, start, end, true)} onSelection={(start, end) => { editorSelectionRef.current = { scope: activeDraftScope, start, end }; studioHistory.remember(start, end); }}
+                onKeyDown={e => { if (e.nativeEvent.isComposing || !(e.ctrlKey || e.metaKey) || isAcceptingAi) return; const key = e.key.toLowerCase(); if (['b','i','u'].includes(key)) { e.preventDefault(); if (key === 'b') wrapSelection('**'); else if (key === 'i') wrapSelection('*'); else wrapSelection('<u>', '</u>'); } }} />}
               <textarea
                 ref={editorRef}
+                hidden={visualEditor}
                 readOnly={isAcceptingAi || !chapterQuery.data || loadedChapter.current !== activeDraftScope}
                 value={content}
-                onChange={(e) => handleContentChange(e.target.value)}
+                onChange={(e) => studioHistory.edit(e.target.value, e.currentTarget.selectionStart, e.currentTarget.selectionEnd, true)}
+                onBeforeInput={e => studioHistory.remember(e.currentTarget.selectionStart, e.currentTarget.selectionEnd)}
+                onSelect={rememberStudioSelection}
+                onClick={rememberStudioSelection}
+                onKeyUp={rememberStudioSelection}
+                onBlur={rememberStudioSelection}
+                onKeyDown={e => { if (e.nativeEvent.isComposing || !(e.ctrlKey || e.metaKey) || isAcceptingAi) return; const key = e.key.toLowerCase(); if (['b','i','u'].includes(key)) { e.preventDefault(); if (key === 'b') wrapSelection('**'); else if (key === 'i') wrapSelection('*'); else wrapSelection('<u>', '</u>'); } }}
+                aria-label="Nội dung bản thảo"
+                spellCheck
                 placeholder="Bắt đầu câu từ chương truyện của bạn tại đây..."
                 style={{
                   overflow: 'hidden',
@@ -1371,15 +1366,15 @@ export function AuthorWritingIde() {
                 }}
                 className="sc-manuscript w-full border-none p-0 text-stone-800 bg-transparent focus:ring-0 focus:outline-none placeholder-stone-300 selection:bg-primary-100 selection:text-primary-900"
               />
-            </div>
+            </div></StudioContextMenu>
           </article>
-        </main>
+        </main></div>
 
         {/* ──────────────────────────────────────────
             BEGIN: Docked AI Assistant
            ────────────────────────────────────────── */}
         {aiDrawerOpen && (
-          <aside id="studio-ai-panel" aria-label="Trợ lý sáng tác AI" className="sc-ai-panel bg-surface-container-lowest border-l border-stone-200 flex flex-col select-none">
+          <motion.aside initial={{ opacity: 0, x: reducePanelMotion ? 0 : 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: reducePanelMotion ? 0 : 12 }} transition={{ duration: 0.18 }} id="studio-ai-panel" aria-label="Trợ lý sáng tác AI" className="sc-ai-panel bg-surface-container-lowest border-l border-stone-200 flex flex-col select-none">
             {/* Drawer Header */}
             <div className="h-14 border-b border-stone-200 px-4 flex items-center justify-between bg-stone-50/80">
               <div className="flex items-center gap-2">
@@ -1392,7 +1387,7 @@ export function AuthorWritingIde() {
                 </div>
               </div>
               <button
-                onClick={() => setAiDrawerOpen(false)}
+                onClick={() => setRightPanel(null)}
                 className="p-1 rounded text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 transition-colors"
                 title="Đóng trợ lý"
                 type="button"
@@ -1402,16 +1397,16 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Context Scope Selector */}
-            <div className="px-3 py-2 border-b border-stone-100 bg-surface-container-lowest flex items-center justify-between text-meta">
-              <span className="text-stone-500 font-medium">Phạm vi ngữ cảnh:</span>
+            <div className="sc-ai-context-scope">
+              <label htmlFor="studio-ai-context-scope">Phạm vi ngữ cảnh</label>
               <select
+                id="studio-ai-context-scope"
                 value={aiScope}
-                onChange={(e) => setAiScope(e.target.value as any)}
-                className="text-meta py-0.5 px-2 rounded-md border-stone-200 bg-stone-50 text-stone-700 focus:ring-primary-500 focus:border-primary-500 font-medium"
+                onChange={(e) => setAiScope(e.target.value as typeof aiScope)}
               >
                 <option value="selection">Đoạn văn vừa viết</option>
                 <option value="full">Toàn bộ chương hiện tại</option>
-                <option value="bible">Story Bible (Nhân vật & Sự kiện)</option>
+                <option value="bible">Story Bible · Nhân vật &amp; sự kiện</option>
               </select>
             </div>
 
@@ -1466,7 +1461,7 @@ export function AuthorWritingIde() {
               )}
 
               {aiSuggestion && !isGeneratingAi && (
-                <div className="bg-primary-50/70 border border-primary-100 rounded-xl p-3.5 text-stone-800 shadow-2xs">
+                <FeedbackReveal className="bg-primary-50/70 border border-primary-100 rounded-xl p-3.5 text-stone-800 shadow-2xs">
                   <div className="flex items-center justify-between mb-2 text-meta font-semibold text-primary-700">
                     <span className="uppercase tracking-wide">Gợi ý từ AI Copilot</span>
                     <span className="bg-primary-100 px-1.5 py-0.2 rounded text-meta">{aiSuggestionTone}</span>
@@ -1474,6 +1469,7 @@ export function AuthorWritingIde() {
                   <p className="font-serif text-table leading-relaxed italic text-stone-700 bg-surface-container-lowest/70 p-2.5 rounded-lg border border-primary-100/60 whitespace-pre-wrap">
                     {aiSuggestion}
                   </p>
+                  <div className="sc-studio-tool-row"><button type="button" className="sc-feedback-button" onClick={() => setAiComparisonOpen(true)}>So sánh trước khi áp dụng</button><CopyTextButton value={aiSuggestion} label="Sao chép gợi ý" onError={message => showToast(message, 'error')} /></div>
                   <div className="mt-3 grid grid-cols-2 gap-1.5 font-sans pt-1">
                     <button
                       onClick={() => handleAcceptDraft()}
@@ -1492,7 +1488,7 @@ export function AuthorWritingIde() {
                       Từ chối / Bỏ qua
                     </button>
                   </div>
-                </div>
+                </FeedbackReveal>
               )}
 
               {!aiSuggestion && !isGeneratingAi && (
@@ -1535,13 +1531,24 @@ export function AuthorWritingIde() {
                 </button>
               </div>
             </div>
-          </aside>
+          </motion.aside>
         )}
       </div>
 
       {/* ──────────────────────────────────────────
           BEGIN: Story Bible Modal
          ────────────────────────────────────────── */}
+      {referenceQuery !== null && <StoryReferenceLookup key={`${activeNovelId}:${referenceQuery}`} novelId={activeNovelId} initialQuery={referenceQuery}
+        characters={charactersQuery.data ?? []} timeline={timelineQuery.data ?? []} summaries={plotSummariesQuery.data ?? []}
+        loading={charactersQuery.isFetching || timelineQuery.isFetching || plotSummariesQuery.isFetching}
+        failed={charactersQuery.isError || timelineQuery.isError || plotSummariesQuery.isError}
+        onRetry={() => { void charactersQuery.refetch(); void timelineQuery.refetch(); void plotSummariesQuery.refetch(); }} onClose={() => setReferenceQuery(null)} />}
+      <AnimatedModal opened={aiComparisonOpen && !!aiSuggestion && aiBaseRef.current.scope === activeDraftScope} onClose={() => !isAcceptingAi && setAiComparisonOpen(false)} title="So sánh đề xuất AI" size="xl" centered closeOnEscape={!isAcceptingAi} closeOnClickOutside={!isAcceptingAi} withCloseButton={!isAcceptingAi}>
+        <p className="text-meta">{currentJob?.patch ? 'So sánh vùng văn bản AI đề xuất thay thế. Phần được tô là vùng khác nhau; nội dung chưa được áp dụng.' : 'Đối chiếu bản gốc lúc yêu cầu với gợi ý AI. Nội dung chưa được áp dụng.'}</p>
+        {content !== aiBaseRef.current.content && <p role="status" className="text-meta">Bạn đã sửa bản thảo sau khi yêu cầu AI. Máy chủ sẽ kiểm tra phiên bản trước khi chấp nhận.</p>}
+        <TextComparison before={currentJob?.patch ? aiBaseRef.current.content.slice(codePointToUtf16Offset(aiBaseRef.current.content, currentJob.patch.start), codePointToUtf16Offset(aiBaseRef.current.content, currentJob.patch.end)) : aiBaseRef.current.content} after={currentJob?.patch?.replacement ?? aiSuggestion ?? ''} />
+        <div className="sc-ai-comparison-actions"><button type="button" className="sc-feedback-button" disabled={isAcceptingAi} onClick={() => setAiComparisonOpen(false)}>Quay lại gợi ý</button><button type="button" className="sc-feedback-button" disabled={isAcceptingAi} onClick={() => void handleAcceptDraft()}>{isAcceptingAi ? 'Đang xác nhận…' : 'Chấp nhận bản thảo'}</button></div>
+      </AnimatedModal>
       {storyBibleOpen && (
         <AuthorDialog onClose={() => setStoryBibleOpen(false)}><div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <div
@@ -1888,26 +1895,8 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Validation Checklist */}
-            <div className="mb-4">
-              <span className="text-meta font-bold uppercase tracking-wider text-stone-400 block mb-2">
-                Kiểm tra tiêu chuẩn xuất bản
-              </span>
-              <div className="space-y-1.5 text-meta">
-                {[
-                  { ok: titleReady, text: `Tiêu đề chương có nội dung và dưới ${CHAPTER_TITLE_MAX + 1} ký tự` },
-                  { ok: contentReady, text: `Nội dung từ ${CHAPTER_CONTENT_MIN} ký tự trở lên (hiện có ${contentLength})` }
-                ].map(check => (
-                  <div key={check.text} className={`flex items-center gap-2 px-2.5 py-1.5 rounded-md border ${check.ok ? 'text-emerald-700 bg-emerald-50/70 border-emerald-200/70' : 'text-red-700 bg-red-50/70 border-red-200/70'}`}>
-                    <span className={`material-symbols-outlined text-[16px] ${check.ok ? 'text-emerald-600' : 'text-red-600'}`}>{check.ok ? 'check_circle' : 'error'}</span>
-                    <span>{check.text}</span>
-                  </div>
-                ))}
-                <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50/70 border border-emerald-200/70 px-2.5 py-1.5 rounded-md">
-                  <span className="material-symbols-outlined text-[16px] text-emerald-600">check_circle</span>
-                  <span>Bản thảo đã được lưu trữ tự động trên đám mây</span>
-                </div>
-              </div>
-            </div>
+            <PublishChecklist scope={activeDraftScope} title={title} content={content} isVip={isVip} price={priceCoins}
+              saved={autosaveStatus === 'saved' && !persistence.dirty} saving={autosaveStatus === 'saving'} error={autosaveStatus === 'error'} scheduledAt={chapterQuery.data?.publicationSchedule?.status === 'PENDING' ? chapterQuery.data.publicationSchedule.scheduledAt : undefined} />
 
             {/* Moderation Notice */}
             <div className="p-2.5 rounded-lg bg-primary-50/60 border border-primary-100 text-meta text-stone-600 leading-relaxed mb-5 flex items-start gap-2">
@@ -1942,14 +1931,6 @@ export function AuthorWritingIde() {
       {/* ──────────────────────────────────────────
           BEGIN: Toast Notification
          ────────────────────────────────────────── */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 animate-in fade-in  duration-300">
-          <div className="flex items-center gap-2.5 bg-cover-fallback text-white px-4 py-2.5 rounded-xl shadow-sm text-meta font-medium border border-stone-800">
-            <span className="material-symbols-outlined text-emerald-400 text-[18px]">check_circle</span>
-            <span>{toastMessage}</span>
-          </div>
-        </div>
-      )}
 
       {/* ──────────────────────────────────────────
           BEGIN: Author Memory & Consistency Drawer

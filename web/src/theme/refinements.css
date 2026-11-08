@@ -2,6 +2,7 @@
  * Visual refinements shared by author and reader screens: lighter control borders, one chevron
  * per select, and a softer orange for filled buttons.
  * Loaded after storycraft.css and color-mode.css so these values win.
+ * Studio keeps its existing control geometry; shared color tokens still apply there.
  *
  * Contrast: label colors must reach 4.5:1 against their background (WCAG AA, normal text).
  * White on this orange is only 2.8:1, so filled buttons keep storycraft's dark --sc-on-primary.
@@ -26,7 +27,7 @@
 }
 
 /* Native selects: one chevron, compact height, light border. */
-.sc-author-theme select:not([multiple]):not([size]) {
+.sc-author-theme:not(:has(.sc-writing-studio)) select:not([multiple]):not([size]) {
   appearance: none;
   -webkit-appearance: none;
   min-height: 34px;
@@ -47,16 +48,16 @@
 }
 
 /* Author screens draw their own expand_more icon next to the select; the chevron above replaces it. */
-.sc-author-theme select + .material-symbols-outlined { display: none; }
+.sc-author-theme:not(:has(.sc-writing-studio)) select + .material-symbols-outlined { display: none; }
 
-.sc-author-theme select:not([multiple]):not([size]):hover { border-color: var(--sc-control-border-hover); }
+.sc-author-theme:not(:has(.sc-writing-studio)) select:not([multiple]):not([size]):hover { border-color: var(--sc-control-border-hover); }
 
 /* Text fields share the same quiet border and focus ring. */
-.sc-author-theme :is(input:not([type="checkbox"]):not([type="radio"]), textarea) {
+.sc-author-theme:not(:has(.sc-writing-studio)) :is(input:not([type="checkbox"]):not([type="radio"]), textarea) {
   border-color: var(--sc-control-border);
 }
 
-.sc-author-theme :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea):focus,
+.sc-author-theme:not(:has(.sc-writing-studio)) :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea):focus,
 :root :is(.mantine-Input-input, .mantine-PasswordInput-innerInput):focus {
   border-color: rgb(var(--sc-primary-rgb));
   box-shadow: 0 0 0 3px rgb(var(--sc-primary-rgb) / .15);
@@ -69,12 +70,12 @@
 /* ─── Buttons: compact and flat; secondary actions stay quiet ─────────────── */
 
 /* Every button-like control on StoryCraft screens: 34px tall, 13px semibold, no drop shadow. */
-.sc-author-theme :is(button, a[class*="inline-flex"]) { font-size: 13px; min-height: 34px; }
-.sc-author-theme :is(button, a)[class*="shadow"] { box-shadow: none; }
+.sc-author-theme:not(:has(.sc-writing-studio)) :is(button, a[class*="inline-flex"]) { font-size: 13px; min-height: 34px; }
+.sc-author-theme:not(:has(.sc-writing-studio)) :is(button, a)[class*="shadow"] { box-shadow: none; }
 /* Buttons inside a field (number steppers, clear/reveal icons) keep the field's own sizing. */
-.sc-author-theme :is(.mantine-Input-section, .mantine-NumberInput-controls) button { min-height: 0; }
+.sc-author-theme:not(:has(.sc-writing-studio)) :is(.mantine-Input-section, .mantine-NumberInput-controls) button { min-height: 0; }
 
-.sc-author-theme :is(a, button, span).sc-button {
+.sc-author-theme:not(:has(.sc-writing-studio)) :is(a, button, span).sc-button {
   min-height: 34px;
   padding: 6px 14px;
   gap: 6px;
@@ -84,45 +85,45 @@
   line-height: 20px;
   transition: background-color .15s ease, border-color .15s ease, color .15s ease;
 }
-.sc-author-theme .sc-button .material-symbols-outlined { font-size: 17px; }
+.sc-author-theme:not(:has(.sc-writing-studio)) .sc-button .material-symbols-outlined { font-size: 17px; }
 
 /* Primary: solid orange, white label, slightly deeper on hover. */
-.sc-author-theme :is(a, button).sc-button-primary { background: rgb(var(--sc-primary-rgb)); border-color: transparent; color: var(--sc-on-primary); }
-.sc-author-theme :is(a, button).sc-button-primary:hover { background: rgb(var(--sc-primary-hover-rgb)); color: var(--sc-on-primary); }
+.sc-author-theme:not(:has(.sc-writing-studio)) :is(a, button).sc-button-primary { background: rgb(var(--sc-primary-rgb)); border-color: transparent; color: var(--sc-on-primary); }
+.sc-author-theme:not(:has(.sc-writing-studio)) :is(a, button).sc-button-primary:hover { background: rgb(var(--sc-primary-hover-rgb)); color: var(--sc-on-primary); }
 
 /* Soft: orange tint without an outline; hover deepens the tint instead of flipping to solid. */
-.sc-author-theme :is(a, button).sc-button-soft { background: var(--sc-primary-soft); border-color: transparent; color: var(--sc-primary-text); }
-.sc-author-theme :is(a, button).sc-button-soft:hover { background: rgb(var(--sc-primary-rgb) / .16); color: rgb(var(--sc-primary-text-strong-rgb)); }
+.sc-author-theme:not(:has(.sc-writing-studio)) :is(a, button).sc-button-soft { background: var(--sc-primary-soft); border-color: transparent; color: var(--sc-primary-text); }
+.sc-author-theme:not(:has(.sc-writing-studio)) :is(a, button).sc-button-soft:hover { background: rgb(var(--sc-primary-rgb) / .16); color: rgb(var(--sc-primary-text-strong-rgb)); }
 
 /* Any filled-orange surface (count badges, avatars, tabs) uses the dark label, even if the markup says text-white. */
-.sc-author-theme :is(.bg-primary, .bg-primary-500, .bg-primary-600, .bg-primary-700) { color: var(--sc-on-primary); }
+.sc-author-theme:not(:has(.sc-writing-studio)) :is(.bg-primary, .bg-primary-500, .bg-primary-600, .bg-primary-700) { color: var(--sc-on-primary); }
 
 /* Neutral: white with a hairline border. */
-.sc-author-theme :is(a, button, span).sc-button:not(.sc-button-primary):not(.sc-button-soft) {
+.sc-author-theme:not(:has(.sc-writing-studio)) :is(a, button, span).sc-button:not(.sc-button-primary):not(.sc-button-soft) {
   background: var(--sc-surface);
   border-color: var(--sc-control-border);
   color: var(--sc-text);
 }
-.sc-author-theme :is(a, button).sc-button:not(.sc-button-primary):not(.sc-button-soft):hover {
+.sc-author-theme:not(:has(.sc-writing-studio)) :is(a, button).sc-button:not(.sc-button-primary):not(.sc-button-soft):hover {
   background: var(--sc-surface-subtle);
   border-color: var(--sc-control-border-hover);
 }
-.sc-author-theme :is(a, button).sc-button:not(.sc-button-primary):not(.sc-button-soft)[class*="text-red"] { color: var(--sc-danger); }
+.sc-author-theme:not(:has(.sc-writing-studio)) :is(a, button).sc-button:not(.sc-button-primary):not(.sc-button-soft)[class*="text-red"] { color: var(--sc-danger); }
 
 /* Card footers: the secondary action ("Quản lý") is a plain icon + label next to the primary one. */
-.sc-author-theme .sc-novel-card :is(a, button)[class*="bg-stone-50"]:not([class*="text-red"]) {
+.sc-author-theme:not(:has(.sc-writing-studio)) .sc-novel-card :is(a, button)[class*="bg-stone-50"]:not([class*="text-red"]) {
   background: transparent;
   border-color: transparent;
   color: var(--sc-text-muted);
 }
-.sc-author-theme .sc-novel-card :is(a, button)[class*="bg-stone-50"]:hover { background: var(--sc-neutral-bg); color: var(--sc-text); }
-.sc-author-theme .sc-novel-card :is(a, button)[class*="bg-stone-50"][class*="text-red"] { background: transparent; border-color: transparent; }
-.sc-author-theme .sc-novel-card :is(a, button)[class*="bg-stone-50"][class*="text-red"]:hover { background: var(--sc-danger-bg); }
+.sc-author-theme:not(:has(.sc-writing-studio)) .sc-novel-card :is(a, button)[class*="bg-stone-50"]:hover { background: var(--sc-neutral-bg); color: var(--sc-text); }
+.sc-author-theme:not(:has(.sc-writing-studio)) .sc-novel-card :is(a, button)[class*="bg-stone-50"][class*="text-red"] { background: transparent; border-color: transparent; }
+.sc-author-theme:not(:has(.sc-writing-studio)) .sc-novel-card :is(a, button)[class*="bg-stone-50"][class*="text-red"]:hover { background: var(--sc-danger-bg); }
 
 /* Icon-only and support variants used on the author profile. */
-.sc-author-theme :is(a, button).sc-button.sc-button-icon { width: 34px; padding: 0; }
-.sc-author-theme :is(a, button).sc-button.sc-button-support:not(.sc-button-primary):not(.sc-button-soft) { background: var(--sc-warning-bg); border-color: transparent; color: var(--sc-warning); }
-.sc-author-theme :is(a, button).sc-button.sc-button-support:not(.sc-button-primary):not(.sc-button-soft):hover { background: var(--sc-warning-bg); border-color: rgb(148 96 26 / .35); }
+.sc-author-theme:not(:has(.sc-writing-studio)) :is(a, button).sc-button.sc-button-icon { width: 34px; padding: 0; }
+.sc-author-theme:not(:has(.sc-writing-studio)) :is(a, button).sc-button.sc-button-support:not(.sc-button-primary):not(.sc-button-soft) { background: var(--sc-warning-bg); border-color: transparent; color: var(--sc-warning); }
+.sc-author-theme:not(:has(.sc-writing-studio)) :is(a, button).sc-button.sc-button-support:not(.sc-button-primary):not(.sc-button-soft):hover { background: var(--sc-warning-bg); border-color: rgb(148 96 26 / .35); }
 
 /* ─── Author profile ──────────────────────────────────────────────────────── */
 .sc-profile-banner {
@@ -134,7 +135,7 @@
 }
 .sc-profile-banner img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .sc-profile-heading { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 20px; margin-top: -48px; }
-.sc-author-theme .sc-profile-avatar {
+.sc-author-theme:not(:has(.sc-writing-studio)) .sc-profile-avatar {
   flex-shrink: 0;
   align-self: flex-start;
   width: 112px;
@@ -168,7 +169,7 @@
   .sc-profile-banner { height: 96px; }
   .sc-profile-heading { margin-top: -40px; }
   .sc-profile-heading > .min-w-0 { padding-top: 40px; }
-  .sc-author-theme .sc-profile-avatar { width: 88px; height: 88px; font-size: 28px; }
+  .sc-author-theme:not(:has(.sc-writing-studio)) .sc-profile-avatar { width: 88px; height: 88px; font-size: 28px; }
   .sc-profile-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 12px; }
   .sc-profile-stats > div:nth-child(3) { border-left: 0; }
 }
@@ -178,11 +179,14 @@
 .sc-reading-surface .chapter-prose { color: inherit; }
 
 /* Segmented filters are a smaller control than page buttons. */
-.sc-author-theme .sc-filter-tabs > button { min-height: 28px; padding: 4px 12px; font-size: 12.5px; }
+.sc-author-theme:not(:has(.sc-writing-studio)) .sc-filter-tabs > button { min-height: 28px; padding: 4px 12px; font-size: 12.5px; }
 
 /* Mantine buttons inside the theme follow the same shape and quiet secondary style. */
-.sc-author-theme .mantine-Button-root { --button-radius: var(--sc-radius-control); font-weight: 600; }
-.sc-author-theme .mantine-Button-root[data-variant="default"] { background: var(--sc-surface); border-color: var(--sc-control-border); color: var(--sc-text); }
-.sc-author-theme .mantine-Button-root[data-variant="default"]:hover:not([data-disabled]) { background: var(--sc-surface-subtle); border-color: var(--sc-control-border-hover); }
-.sc-author-theme .mantine-Button-root[data-variant="subtle"]:not([data-disabled]) { color: var(--sc-primary-text); }
-.sc-author-theme .mantine-Button-root[data-variant="subtle"]:hover:not([data-disabled]) { background: var(--sc-primary-soft); }
+.sc-author-theme:not(:has(.sc-writing-studio)) .mantine-Button-root { --button-radius: var(--sc-radius-control); font-weight: 600; }
+.sc-author-theme:not(:has(.sc-writing-studio)) .mantine-Button-root[data-variant="default"] { background: var(--sc-surface); border-color: var(--sc-control-border); color: var(--sc-text); }
+.sc-author-theme:not(:has(.sc-writing-studio)) .mantine-Button-root[data-variant="default"]:hover:not([data-disabled]) { background: var(--sc-surface-subtle); border-color: var(--sc-control-border-hover); }
+.sc-author-theme:not(:has(.sc-writing-studio)) .mantine-Button-root[data-variant="subtle"]:not([data-disabled]) { color: var(--sc-primary-text); }
+.sc-author-theme:not(:has(.sc-writing-studio)) .mantine-Button-root[data-variant="subtle"]:hover:not([data-disabled]) { background: var(--sc-primary-soft); }
+
+/* Preserve avatar geometry around its lightbox trigger. */
+.sc-profile-heading > .sc-profile-avatar-preview { flex-shrink: 0; align-self: flex-start; border-radius: 50%; }

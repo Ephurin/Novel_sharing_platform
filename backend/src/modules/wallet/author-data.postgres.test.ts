@@ -22,7 +22,7 @@ test('author ledger, public profile and project summaries', {
     const { getPostgresPool, disconnectPostgres } = await import('../../core/database/postgres.js');
     disconnect = disconnectPostgres;
     const pool = getPostgresPool();
-    for (const name of ['001_auth_user_wallet', '002_novels', '003_chapters', '004_content_control', '005_reports_description', '006_reading_interactions', '007_wallet_transactions', '012_reports_unique_open','012_novel_engagement', '013_novel_review_text', '014_novel_editorial_metadata','015_author_workflow','016_author_launch_checklist','017_transactional_moderation_evidence','018_admin_operations','019_admin_job_retries']) {
+    for (const name of ['001_auth_user_wallet', '002_novels', '003_chapters', '004_content_control', '005_reports_description', '006_reading_interactions', '007_wallet_transactions', '012_reports_unique_open','012_novel_engagement', '013_novel_review_text', '014_novel_editorial_metadata','015_author_workflow','016_author_launch_checklist','017_transactional_moderation_evidence','021_novel_notification_subscriptions','018_admin_operations','019_admin_job_retries']) {
       const sql = await readFile(new URL(`../../core/database/migrations/${name}.sql`, import.meta.url), 'utf8');
       await pool.query(sql);
     }

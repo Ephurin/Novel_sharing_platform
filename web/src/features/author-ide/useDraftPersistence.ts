@@ -111,5 +111,13 @@ export function useDraftPersistence(userId: string, chapterId: string) {
     return () => { mounted.current = false; if (timer.current) clearTimeout(timer.current); window.removeEventListener('beforeunload', beforeUnload); };
   }, []);
   const blocker = useBlocker(({ currentLocation, nextLocation }) => dirty && currentLocation.pathname + currentLocation.search !== nextLocation.pathname + nextLocation.search);
+  useEffect(() => {
+    const resume = () => {
+      if (account.current !== session || !mounted.current) return;
+      for (const [id, slot] of slots.current) if (slot.pending && !slot.conflict && !slot.retired) void drain(id).catch(() => {});
+    };
+    window.addEventListener('online', resume);
+    return () => window.removeEventListener('online', resume);
+  }, [userId]);
   return { initialize, queue, flush, status, error, recovery, dismissRecovery, abandon, blocker, dirty };
 }

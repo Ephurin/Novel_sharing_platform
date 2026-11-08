@@ -7,6 +7,7 @@ from application.bootstrap_service import ManuscriptBootstrapService
 from application.ports import RevisionContent
 from application.revision_analysis_service import RevisionAnalysisService
 from domain.errors import BaselineReviewRequiredError
+from domain.projection import ProjectionError
 from infrastructure.in_memory_narrative_repository import InMemoryNarrativeRepository
 from services.entity_pipeline.pipeline import EntityPipeline
 from tests.harness.fake_llm import FakeDeterministicLLMService
@@ -166,8 +167,15 @@ def test_review_priority_and_baseline_gate():
 
     with pytest.raises(BaselineReviewRequiredError):
         service.activate_baseline(NOVEL, job.job_id)
-    for proposal in repository.list_proposals(NOVEL, status="pending"):
-        repository.decide_proposal(NOVEL, proposal.proposal_id, accepted=False, reason="reviewed")
+    proposals = repository.list_proposals(NOVEL, status="pending")
+    with pytest.raises(ProjectionError, match='complete dependency group'):
+        repository.decide_proposal(NOVEL, world_rules[0]['proposal_id'], accepted=False, reason='partial review')
+    assert repository.list_proposals(NOVEL, status='pending') == proposals
+    version = 1
+    for group_id in dict.fromkeys(p.dependency_group_id for p in proposals):
+        result = repository.accept_proposal_group(NOVEL,
+            [p.proposal_id for p in proposals if p.dependency_group_id == group_id], version)
+        version = result['brain_version']
     activated = service.activate_baseline(NOVEL, job.job_id)
     assert activated["status"] == "active"
     assert repository.get_bootstrap_job(job.job_id).status == "completed"

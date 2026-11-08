@@ -271,6 +271,16 @@ describe('Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)', () =>
     );
   });
 
+  test('rejects raw JSON envelopes even if an old generation claims validation passed', async () => {
+    const genId = 'gen-malformed-envelope';
+    setupMockAi({ job_id: genId, patch: { start: baseContent.length, end: baseContent.length,
+      replacement: '{"draft_text":"\\n"Mahiru..." Amane says."}' } });
+    await assert.rejects(() => acceptDraft({ userId: authorId, role: 'AUTHOR' } as any, chapterId, { generationId: genId }),
+      (error: any) => error instanceof AppError && error.code === 'INVALID_WRITING_OUTPUT');
+    const saved = await getPostgresPool().query('select revision_id from chapter_revisions where source_generation_id=$1', [genId]);
+    assert.equal(saved.rowCount, 0);
+  });
+
   test('rejects with 400 CHAPTER_MISMATCH if generation chapter does not match target chapter', async () => {
     const genId = 'gen-chap-mismatch';
     setupMockAi({ job_id: genId, chapter_id: crypto.randomUUID() });
@@ -325,6 +335,20 @@ describe('Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)', () =>
       ),
       (err: any) => err instanceof AppError && err.code === 'GENERATION_VALIDATION_FAILED'
     );
+  });
+
+  test('rejects a failed rewrite insertion without creating a revision, outbox event or draft mutation', async () => {
+    const pool = getPostgresPool();
+    const state = async () => ({
+      revisions: (await pool.query('select revision_id from chapter_revisions where chapter_id=$1 order by revision_id', [chapterId])).rows,
+      outbox: (await pool.query('select event_id from revision_outbox_events where chapter_id=$1 order by event_id', [chapterId])).rows,
+      chapter: (await pool.query('select latest_revision_id from chapters where chapter_id=$1', [chapterId])).rows,
+      draft: await getMongoDatabase().collection('draft_chapters').findOne({ chapterId })
+    });
+    const before = await state();
+    setupMockAi({ job_id: 'rewrite-wrong-insertion', operation: 'rewrite', validation_status: 'failed', patch: { start: 8, end: 8, replacement: 'Must replace the selected passage, not append.' }, validations: [{ validator: 'patch_selection', passed: false, code: 'PATCH_SELECTION_MISMATCH' }] });
+    await assert.rejects(() => acceptDraft({ userId: authorId, role: 'AUTHOR' }, chapterId, { generationId: 'rewrite-wrong-insertion' }), (error: any) => error instanceof AppError && error.httpStatus === 422 && error.code === 'GENERATION_VALIDATION_FAILED');
+    assert.deepEqual(await state(), before);
   });
 
   test('rejects with 422 INVALID_PATCH if patch structure is missing or malformed', async () => {

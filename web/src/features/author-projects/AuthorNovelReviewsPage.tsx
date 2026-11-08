@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
+import { authorHomeCrumb } from '../../shared/components/navigation';
 import { ErrorState, LoadingState, PermissionState } from '../../shared/components/PageStates';
 import { getNovel } from '../novels/novel-api';
 import { NovelReviews } from '../reader/NovelReviews';
@@ -14,6 +16,7 @@ export function AuthorNovelReviewsPage() {
   return <>
     <AuthorNavbar />
     <main className="sc-shell-content sc-reviews-main">
+      <Breadcrumbs className="mb-4" items={[authorHomeCrumb, { label: novel.data?.title || 'Tác phẩm', to: `/author/novels/${novelId}` }, { label: 'Đánh giá độc giả' }]} />
       <div className="sc-reviews-panel">
         <header className="sc-reviews-header">
           <Link to={`/author/novels/${novelId}`} className="sc-icon-button" aria-label="Quay lại quản lý tác phẩm" title="Quay lại quản lý tác phẩm">

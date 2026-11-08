@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
 import { Link, useParams } from 'react-router-dom';
 import { Button, Select, TextInput } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -132,8 +133,7 @@ export function AdminNovelDetailPage() {
             {expanded ? 'Thu gọn' : 'Xem thêm'}
           </Button>
         )}
-        <details className="admin-metadata">
-          <summary>Thông tin bổ sung</summary>
+        <AnimatedDisclosure className="admin-metadata" summary="Thông tin bổ sung">
           <dl>
             <dt>Mã truyện</dt>
             <dd>
@@ -142,7 +142,7 @@ export function AdminNovelDetailPage() {
             <dt>Email tác giả</dt>
             <dd>{novel.authorEmail}</dd>
           </dl>
-        </details>
+        </AnimatedDisclosure>
       </AdminPanel>
       <AdminPanel>
         <h2>Danh sách chương</h2>

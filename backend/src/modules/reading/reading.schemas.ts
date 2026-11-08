@@ -26,8 +26,10 @@ export const searchNovelsSchema = z.object({
     q: z.string().optional(),
     genre: z.string().optional(),
     tag: z.string().optional(),
+    genres: z.union([z.string().max(100), z.array(z.string().max(100)).max(30)]).transform(value => typeof value === 'string' ? [value] : value).optional(),
+    tags: z.union([z.string().max(100), z.array(z.string().max(100)).max(30)]).transform(value => typeof value === 'string' ? [value] : value).optional(),
     status: z.enum(['ONGOING', 'COMPLETED', 'HIATUS']).optional(),
-    sort: z.enum(['relevance', 'views', 'likes', 'updatedAt']).default('updatedAt'),
+    sort: z.enum(['relevance', 'views', 'likes', 'updatedAt', 'wordCount', 'title']).default('updatedAt'),
     order: z.enum(['asc', 'desc']).default('desc'),
     page: z.coerce.number().int().positive().default(1),
     limit: z.coerce.number().int().positive().max(100).default(20)

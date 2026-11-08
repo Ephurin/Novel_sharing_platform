@@ -22,7 +22,9 @@ import { WebAppShell } from './layout/WebAppShell';
 import { AuthorNovelMetadataPage } from '../features/author-projects/AuthorNovelMetadataPage';
 import { AuthorProjectsPage } from '../features/author-projects/AuthorProjectsPage';
 import { AuthorStoryContextPage } from '../features/story-context/AuthorStoryContextPage';
-import { AuthGate, OptionalSession, RoleGuard, RoleHomeRedirect } from '../features/auth/AuthGate';
+import { AuthGate, OptionalSession, RoleGuard } from '../features/auth/AuthGate';
+import { ReaderHomePage } from '../features/reader/ReaderHomePage';
+import { ReaderNovelReviewsPage } from '../features/reader/ReaderNovelReviewsPage';
 import { NotificationsPage } from '../features/notifications/NotificationsPage';
 import { AuthorProfilePage, MyProfilePage } from '../features/profile/ProfilePage';
 import {
@@ -40,6 +42,10 @@ import { WalletPage } from '../features/wallet/WalletPage';
 import { ManuscriptImportPage } from '../features/manuscript-import/ManuscriptImportPage';
 
 export const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <OptionalSession><AuthorTheme><ReaderHomePage /></AuthorTheme></OptionalSession>
+  },
   { path: '/appeals', element: <AccountAppealsPage /> },
   {
     path: '/login',
@@ -48,6 +54,10 @@ export const router = createBrowserRouter([
   {
     path: '/public',
     element: <AuthorTheme><PublicReaderPage /></AuthorTheme>
+  },
+  {
+    path: '/public/novels/:novelId/reviews',
+    element: <OptionalSession><AuthorTheme><ReaderNovelReviewsPage publicMode /></AuthorTheme></OptionalSession>
   },
   {
     path: '/public/novels/:novelId',
@@ -195,7 +205,6 @@ export const router = createBrowserRouter([
     )
   },
   {
-    path: '/',
     element: (
       <AuthGate>
         <WebAppShell />
@@ -203,12 +212,12 @@ export const router = createBrowserRouter([
     ),
     children: [
       {
-        index: true,
-        element: <RoleHomeRedirect />
-      },
-      {
         path: '/reader',
         element: <ReaderPage />
+      },
+      {
+        path: '/reader/novels/:novelId/reviews',
+        element: <ReaderNovelReviewsPage />
       },
       {
         path: '/reader/novels/:novelId',

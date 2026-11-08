@@ -1,8 +1,13 @@
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { getApprovedMemory } from '../ai-copilot/author-memory-api';
+import { StoryBibleKnowledge } from './StoryBibleKnowledge';
+import { EntityMergeControl } from '../ai-copilot/EntityMergeControl';
+import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
+import { authorHomeCrumb } from '../../shared/components/navigation';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { getApiErrorMessage } from '../../shared/api/api-client';
+import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
 import { getNovel, listChapters } from '../novels/novel-api';
 import type { Chapter } from '../novels/novel-types';
 import {
@@ -22,6 +27,7 @@ import {
   updateCharacterRelationship,
   updatePlotSummary,
   updateTimelineEvent,
+  syncStoryBible,
   type CreateCharacterPayload,
   type CreatePlotSummaryPayload,
   type CreateRelationshipPayload,
@@ -36,7 +42,7 @@ import type {
   StoryTimelineEvent
 } from './story-context-types';
 
-type StoryTab = 'characters' | 'relationships' | 'timeline' | 'summaries';
+type StoryTab = 'characters' | 'relationships' | 'timeline' | 'summaries' | 'knowledge';
 type RoleFilter = 'ALL' | 'PROTAGONIST' | 'SUPPORTING' | 'ANTAGONIST' | 'MINOR';
 
 const characterRoles: { value: CharacterRole; label: string; badgeClass: string }[] = [
@@ -146,6 +152,16 @@ export function AuthorStoryContextPage() {
   };
 
   // Queries
+  const approvedMemoryQuery = useQuery({
+    queryKey: ['approved-memory', novelId], queryFn: async () => {
+      try { return await getApprovedMemory(novelId); }
+      catch (error) {
+        if (error instanceof ApiClientError && error.status === 404)
+          return { brain_version: 0, entities: [], events: [], facts: [], transitions: [] };
+        throw error;
+      }
+    }, enabled: Boolean(novelId), retry: false
+  });
   const novelQuery = useQuery({
     queryKey: ['novel', novelId],
     queryFn: () => getNovel(novelId),
@@ -439,13 +455,18 @@ export function AuthorStoryContextPage() {
 
   // Export Bible as JSON File
   const handleExportBible = () => {
+    if (approvedMemoryQuery.isLoading || approvedMemoryQuery.isError) {
+      showToast('Chưa tải đủ dữ liệu đã duyệt để xuất Cẩm nang. Vui lòng thử cập nhật lại.', 'error');
+      return;
+    }
     const data = {
       novel: novelQuery.data?.title || 'Unknown Novel',
       exportedAt: new Date().toISOString(),
       characters,
       relationships,
       timelineEvents,
-      plotSummaries
+      plotSummaries,
+      approvedMemory: approvedMemoryQuery.data ?? null
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -457,10 +478,16 @@ export function AuthorStoryContextPage() {
     showToast('Đã xuất file Story Bible thành công!');
   };
 
-  const handleSyncCopilot = async () => {
-    await invalidateContext();
-    showToast(`Đã đồng bộ ${characters.length} nhân vật & bối cảnh vào AI Copilot!`);
-  };
+  const syncMutation = useMutation({
+    mutationFn: () => syncStoryBible(novelId),
+    onSuccess: async (result) => {
+      await Promise.all([invalidateContext(), approvedMemoryQuery.refetch()]);
+      showToast(result.brainVersion === null ? 'Chưa có Story Brain để cập nhật. Hãy duyệt các đề xuất trước.'
+        : 'Đã cập nhật Cẩm nang từ dữ liệu đã duyệt trong Story Brain.');
+    },
+    onError: error => showToast(getApiErrorMessage(error), 'error')
+  });
+  const handleSyncCopilot = () => syncMutation.mutate();
 
   const selectedCharacter = characters.find((c) => c.characterId === selectedCharacterId);
 
@@ -499,22 +526,11 @@ export function AuthorStoryContextPage() {
         <div className="flex flex-col gap-2 pb-5 border-b border-stone-200/70 mb-5">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="flex flex-col gap-1">
-              <nav className="flex items-center gap-1.5 text-stone-500 text-meta">
-                <Link to="/author" className="hover:text-primary-600 flex items-center gap-1 transition-colors">
-                  <span className="material-symbols-outlined text-body">dashboard</span>
-                  <span>Tác phẩm</span>
-                </Link>
-                <span className="text-stone-300 font-light">/</span>
-                <Link to={`/author/novels/${novelId}`} className="hover:text-primary-600 transition-colors truncate max-w-[200px]">
-                  {novelQuery.data?.title || 'Đang tải...'}
-                </Link>
-                <span className="text-stone-300 font-light">/</span>
-                <span className="text-primary-600 font-semibold">Cẩm nang thế giới</span>
-              </nav>
+              <Breadcrumbs items={[authorHomeCrumb, { label: novelQuery.data?.title || 'Tác phẩm', to: `/author/novels/${novelId}` }, { label: 'Cẩm nang tác phẩm' }]} />
 
               <div className="flex items-center gap-3 pt-0.5">
                 <h1 className="text-xl md:text-2xl font-bold text-stone-900 font-serif tracking-tight">
-                  Cẩm nang thế giới
+                  Cẩm nang tác phẩm
                 </h1>
                 <Link
                   to={`/author/novels/${novelId}`}
@@ -530,7 +546,7 @@ export function AuthorStoryContextPage() {
             <div className="flex items-center gap-2 shrink-0 flex-wrap">
               <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-primary-50/80 text-primary-700 text-meta font-semibold border border-primary-100">
                 <span className="material-symbols-outlined text-[15px] text-primary-600">auto_awesome</span>
-                <span>{characters.length} hồ sơ đã nạp vào AI Copilot</span>
+                <span>{characters.length} hồ sơ nhân vật</span>
               </div>
               <button
                 onClick={handleExportBible}
@@ -543,11 +559,12 @@ export function AuthorStoryContextPage() {
               </button>
               <button
                 onClick={handleSyncCopilot}
+                disabled={syncMutation.isPending}
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-medium text-meta shadow-xs transition-all "
                 type="button"
               >
-                <span className="material-symbols-outlined text-[15px]">sync</span>
-                <span>✦ Đồng bộ AI Copilot</span>
+                <span className="material-symbols-outlined text-[15px]" aria-hidden="true">sync</span>
+                <span>{syncMutation.isPending ? 'Đang cập nhật…' : 'Cập nhật từ Story Brain'}</span>
               </button>
             </div>
           </div>
@@ -620,11 +637,22 @@ export function AuthorStoryContextPage() {
               {plotSummaries.length}
             </span>
           </button>
+          <button type="button" onClick={() => setActiveTab('knowledge')}
+            className={`flex items-center gap-2 py-2 px-3.5 rounded-lg text-meta font-semibold whitespace-nowrap ${activeTab === 'knowledge' ? 'bg-white text-primary-700 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}>
+            <span className="material-symbols-outlined text-[17px]" aria-hidden="true">public</span>Địa danh &amp; dữ kiện
+          </button>
         </div>
 
         {/* ──────────────────────────────────────────
             TAB 1: CHARACTERS WORKSPACE (Two Columns)
            ────────────────────────────────────────── */}
+        {activeTab === 'knowledge' && <StoryBibleKnowledge memory={approvedMemoryQuery.data}
+          loading={approvedMemoryQuery.isLoading} failed={approvedMemoryQuery.isError}
+          retry={() => void approvedMemoryQuery.refetch()} />}
+        {activeTab === 'characters' && (
+          <div className="mb-4"><EntityMergeControl novelId={novelId} version={approvedMemoryQuery.data?.brain_version ?? 0}
+            entities={approvedMemoryQuery.data?.entities ?? []} disabled={approvedMemoryQuery.isFetching} /></div>
+        )}
         {activeTab === 'characters' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Left Rail: Character Directory List (lg: col-span-4) */}

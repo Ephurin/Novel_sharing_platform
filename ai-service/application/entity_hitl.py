@@ -9,6 +9,7 @@ from application.entity_review_service import registry, review_entities
 from application.revision_analysis_service import RevisionAnalysisResult
 from core.structured_call import call_structured
 from core.exceptions import StateExtractionError
+from core.output_language import VIETNAMESE_EVENT_OUTPUT
 from domain.errors import OptimisticLockError
 from services.source_grounding import quote_span
 
@@ -211,7 +212,7 @@ def continue_review(service, novel_id, run_id, tenant_id):
     # Do not reuse the legacy fuzzy participant matcher in the verified path.
     if audit['request']['options'].get('extract_events', True) and inventory:
         raw = call_structured(service._llm_service, operation='hitl_event_extraction',
-            system_prompt='Extract narrative events only from this source and the reviewed inventory. Return JSON {"events":[{"event_type":"...","summary":"...","participants":["exact reviewed entity_id"],"locations":[],"consequences":[],"quote":"exact unique source quote"}]}. No predictions or invented identities.',
+            system_prompt=VIETNAMESE_EVENT_OUTPUT + 'Extract narrative events only from this source and the reviewed inventory. Return JSON {"events":[{"event_type":"...","summary":"...","participants":["exact reviewed entity_id"],"locations":[],"consequences":[],"quote":"exact unique source quote"}]}. No predictions or invented identities.',
             user_prompt=json.dumps({'source_text': revision.content, 'known_entities': inventory.items, 'aliases': audit['aliases']}, ensure_ascii=False))
         from pydantic import BaseModel, ConfigDict, Field
         class Event(BaseModel):

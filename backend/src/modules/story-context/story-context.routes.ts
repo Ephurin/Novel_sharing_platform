@@ -14,6 +14,7 @@ import {
   listPlotSummariesController,
   listRelationshipsController,
   listTimelineEventsController,
+  syncStoryBibleController,
   updateCharacterController,
   updatePlotSummaryController,
   updateRelationshipController,
@@ -38,6 +39,9 @@ import {
 export const storyContextRoutes = Router();
 
 const requireAuthor = [requireAuth, requireRoles(['AUTHOR', 'ADMIN'])];
+
+storyContextRoutes.post('/novels/:novelId/story-bible/sync', ...requireAuthor,
+  validateRequest(novelIdParamSchema), syncStoryBibleController);
 
 storyContextRoutes.get(
   '/novels/:novelId/characters',

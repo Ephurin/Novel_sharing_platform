@@ -107,13 +107,19 @@ class ManuscriptBootstrapRouteTests(unittest.TestCase):
         self.assertEqual(blocked.status_code, 409)
         self.assertEqual(blocked.json()["detail"]["code"], "BASELINE_REVIEW_REQUIRED")
 
-        for proposal in proposals:
-            rejected = self.client.post(
-                f"/v1/proposals/{proposal['proposal_id']}/reject",
-                headers=self.headers,
-                json={"reason": "reviewed during onboarding"},
-            )
-            self.assertEqual(rejected.status_code, 200)
+        fact = next(p for p in proposals if p['proposal_type'] == 'fact')
+        rejected = self.client.post(f"/v1/proposals/{fact['proposal_id']}/reject",
+            headers=self.headers, json={'reason': 'partial review'})
+        self.assertEqual(rejected.status_code, 422)
+        unchanged = self.client.get(f'/v1/story-brains/{self.novel_id}/review-queue', headers=self.headers)
+        self.assertEqual(unchanged.json()['data'], proposals)
+        version = 1
+        for group_id in dict.fromkeys(p['dependency_group_id'] for p in proposals):
+            accepted = self.client.post(f'/v1/proposal-groups/{group_id}/accept', headers=self.headers,
+                json={'proposal_ids': [p['proposal_id'] for p in proposals if p['dependency_group_id'] == group_id],
+                      'expected_brain_version': version})
+            self.assertEqual(accepted.status_code, 200, accepted.text)
+            version = accepted.json()['data']['brain_version']
 
         activated = self.client.post(
             f"/v1/story-brains/{self.novel_id}/baseline/activate",

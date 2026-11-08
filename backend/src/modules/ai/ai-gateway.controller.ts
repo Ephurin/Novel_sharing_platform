@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import { createHash, randomUUID } from 'node:crypto';
 import { aiGatewayService } from './ai-gateway.service.js';
+import { refreshStoryBibleSafely } from '../story-context/story-brain-bible.js';
 import { successResponse } from '../../core/response/response.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { findNovelById, type NovelRecord } from '../novels/novels.repository.js';
@@ -16,6 +17,18 @@ export async function entityGuidanceController(req: Request, res: Response, next
     const data = await aiGatewayService.forwardRequest({ method: req.method === 'GET' ? 'GET' : 'POST',
       path: `/v1/story-brains/${novelId}/entity-guidance`, userId: req.auth!.userId,
       ...(req.method === 'GET' ? {} : { body: req.body }) });
+    res.json(successResponse(data));
+  } catch (error) { next(error); }
+}
+
+export async function mergeEntitiesController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+    const data = await aiGatewayService.forwardRequest({ method: 'POST',
+      path: `/v1/story-brains/${novelId}/entities/merge`, body: req.body,
+      userId: req.auth!.userId, requestId: req.header('x-request-id') });
+    await refreshStoryBibleSafely(novelId, req.auth!.userId);
     res.json(successResponse(data));
   } catch (error) { next(error); }
 }
@@ -456,7 +469,7 @@ export async function acceptProposalGroupController(
       userId,
       requestId: req.header('x-request-id'),
     });
-
+    await refreshStoryBibleSafely(trustedNovelId, userId);
     res.json(successResponse(data));
   } catch (error) {
     next(error);
@@ -558,7 +571,7 @@ export async function editAndAcceptProposalController(
       userId,
       requestId: req.header('x-request-id'),
     });
-
+    await refreshStoryBibleSafely(trustedNovelId, userId);
     res.json(successResponse(data));
   } catch (error) {
     next(error);

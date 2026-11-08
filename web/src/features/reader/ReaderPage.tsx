@@ -1,6 +1,17 @@
+import { ReaderCatalog } from './ReaderCatalog';
+import { ChapterToc, ReadingSettings } from '../../shared/components/ReaderTools';
+import { ReadingProgress } from '../../shared/components/ReadingProgress';
+import { AnimatedSaveButton } from '../../shared/components/SaveFeedback';
 import { ManuscriptContent } from '../../shared/components/ManuscriptContent';
 import { CommentsSection } from './CommentsSection';
-import { NovelEngagement } from './NovelEngagement';
+import { NovelOverview } from './ReaderNovelOverview';
+import { NovelChapterCatalog } from './NovelChapterCatalog';
+import { NovelReadAction } from './NovelReadAction';
+import { NovelReportDialog } from './NovelReportDialog';
+import { useReadChapterIds } from './useReadChapterIds';
+import { NovelReviews } from './NovelReviews';
+import { useAuthStore } from '../auth/useAuthStore';
+import { followNovel } from '../novels/novel-statistics-api';
 import { NumberInput, Select } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -8,25 +19,22 @@ import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { Breadcrumbs, type BreadcrumbItem } from '../../shared/components/Breadcrumbs';
+import { navigationLabels, readerHomeCrumb } from '../../shared/components/navigation';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
+import { useToast } from '../../shared/components/ToastProvider';
 import {
-  addToLibrary,
-  followAuthor,
   getHistoryForNovel,
   getReadingPreferences,
   getReaderChapter,
   getReaderNovel,
-  likeNovel,
   listHistory,
   listLibrary,
   removeFromLibrary,
   reportContent,
   saveReadingPreferences,
-  searchPublishedNovels,
   syncHistory,
-  unlikeNovel,
   unlockVipChapter,
-  unfollowAuthor,
   type ReadingPreferences,
   type ReaderChapter,
   type ReaderNovel
@@ -35,16 +43,7 @@ import {
 // Reader screens reuse the StoryCraft author vocabulary: sc-navbar/sc-shell-content for layout,
 // sc-novel-card/sc-novel-overview/sc-novel-metrics for novels and sc-button for actions.
 
-type StoryStatus = 'ONGOING' | 'COMPLETED' | 'HIATUS' | '';
-type SortKey = 'updatedAt' | 'views' | 'likes' | 'relevance';
-
 const card = 'bg-surface-container-lowest rounded-xl border border-stone-200/80 shadow-2xs';
-const statusTabs: Array<{ value: StoryStatus; label: string }> = [
-  { value: '', label: 'Tất cả' },
-  { value: 'ONGOING', label: 'Đang ra' },
-  { value: 'COMPLETED', label: 'Hoàn thành' },
-  { value: 'HIATUS', label: 'Tạm ngưng' }
-];
 const serialLabels: Record<string, string> = {
   ONGOING: 'Đang ra',
   COMPLETED: 'Hoàn thành',
@@ -55,296 +54,79 @@ const serialLabels: Record<string, string> = {
 // ─── Discovery ──────────────────────────────────────────────────────────────
 
 export function ReaderPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [genreFilter, setGenreFilter] = useState('');
-  const [tagFilter, setTagFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState<StoryStatus>('');
-  const [sortFilter, setSortFilter] = useState<SortKey>('updatedAt');
-  const [orderFilter, setOrderFilter] = useState<'desc' | 'asc'>('desc');
-  const novelsQuery = useQuery({
-    queryKey: ['reader-search', searchQuery, genreFilter, tagFilter, statusFilter, sortFilter, orderFilter],
-    queryFn: () =>
-      searchPublishedNovels({
-        q: searchQuery,
-        genre: genreFilter,
-        tag: tagFilter,
-        status: statusFilter,
-        sort: sortFilter,
-        order: orderFilter
-      })
-  });
-  const novels = novelsQuery.data ?? [];
-
-  return (
-    <div className="flex flex-col gap-6">
-      <PageHeader crumbs={['Trang chủ', 'Khám phá']} title="Khám phá truyện" />
-
-      <section className="flex flex-col gap-4">
-        <SectionHeading title="Truyện đã xuất bản" count={novelsQuery.isSuccess ? `${novels.length} truyện` : undefined}>
-          <label htmlFor="reader-sort" className="text-form-label text-stone-500">Sắp xếp</label>
-          <select
-            id="reader-sort"
-            value={sortFilter}
-            onChange={(event) => setSortFilter(event.target.value as SortKey)}
-            className="bg-surface-container-lowest border border-stone-200 rounded-lg px-3 py-2 text-body text-stone-700"
-          >
-            <option value="updatedAt">Mới cập nhật</option>
-            <option value="views">Lượt đọc</option>
-            <option value="likes">Lượt thích</option>
-            <option value="relevance">Liên quan nhất</option>
-          </select>
-          <select
-            aria-label="Thứ tự sắp xếp"
-            value={orderFilter}
-            onChange={(event) => setOrderFilter(event.target.value as 'desc' | 'asc')}
-            className="bg-surface-container-lowest border border-stone-200 rounded-lg px-3 py-2 text-body text-stone-700"
-          >
-            <option value="desc">Giảm dần</option>
-            <option value="asc">Tăng dần</option>
-          </select>
-        </SectionHeading>
-
-        <div className={`${card} px-3 py-2.5 flex flex-col gap-2.5`}>
-          <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-            <SearchInput
-              value={searchQuery}
-              onChange={setSearchQuery}
-              placeholder="Tìm theo tên truyện, giới thiệu, thể loại..."
-              testId="reader-search-input"
-            />
-            <div className="sc-filter-tabs flex items-center bg-stone-100 p-0.5 rounded-lg text-meta font-medium">
-              {statusTabs.map((tab) => (
-                <button
-                  key={tab.value || 'all'}
-                  type="button"
-                  onClick={() => setStatusFilter(tab.value)}
-                  aria-pressed={statusFilter === tab.value}
-                  className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
-                    statusFilter === tab.value ? 'bg-primary-600 text-white shadow-xs font-semibold' : 'text-stone-600 hover:text-stone-900'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-2.5">
-            <FilterInput value={genreFilter} onChange={setGenreFilter} placeholder="Lọc theo thể loại" icon="category" />
-            <FilterInput value={tagFilter} onChange={setTagFilter} placeholder="Lọc theo thẻ" icon="sell" />
-          </div>
-        </div>
-
-        <QueryStates
-          loading={novelsQuery.isLoading}
-          error={novelsQuery.isError ? novelsQuery.error : null}
-          onRetry={() => void novelsQuery.refetch()}
-          empty={novelsQuery.isSuccess && !novels.length}
-          loadingLabel="Đang tải danh sách truyện..."
-          emptyTitle="Không tìm thấy truyện"
-          emptyDescription="Không có truyện nào khớp với bộ lọc hiện tại."
-        />
-
-        <NovelGrid>
-          {novels.map((novel) => (
-            <NovelCard key={novel.novelId} novel={novel} />
-          ))}
-        </NovelGrid>
-      </section>
-    </div>
-  );
+  return <ReaderCatalog />;
 }
 
 export function PublicReaderPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [genreFilter, setGenreFilter] = useState('');
-  const [tagFilter, setTagFilter] = useState('');
-  const novelsQuery = useQuery({
-    queryKey: ['public-reader-search', searchQuery, genreFilter, tagFilter],
-    queryFn: () =>
-      searchPublishedNovels({
-        q: searchQuery,
-        genre: genreFilter,
-        tag: tagFilter,
-        sort: 'updatedAt',
-        order: 'desc'
-      })
-  });
-  const novels = novelsQuery.data ?? [];
-
-  return (
-    <PublicLayout>
-      <PageHeader
-        crumbs={['Trang chủ', 'Thư viện công khai']}
-        title="Thư viện công khai"
-        description="Đọc thử truyện đã xuất bản. Đăng nhập để lưu truyện, bình luận, mở khóa chương VIP hoặc báo cáo."
-      />
-      <div className={`${card} px-3 py-2.5 flex flex-col md:flex-row gap-2.5`}>
-        <SearchInput value={searchQuery} onChange={setSearchQuery} placeholder="Tìm theo tên truyện, giới thiệu..." />
-        <FilterInput value={genreFilter} onChange={setGenreFilter} placeholder="Thể loại" icon="category" />
-        <FilterInput value={tagFilter} onChange={setTagFilter} placeholder="Thẻ" icon="sell" />
-      </div>
-      <QueryStates
-        loading={novelsQuery.isLoading}
-        error={novelsQuery.isError ? novelsQuery.error : null}
-        onRetry={() => void novelsQuery.refetch()}
-        empty={novelsQuery.isSuccess && !novels.length}
-        loadingLabel="Đang tải truyện công khai..."
-        emptyTitle="Không tìm thấy truyện"
-        emptyDescription="Không có truyện công khai nào khớp với tìm kiếm."
-      />
-      <NovelGrid>
-        {novels.map((novel) => (
-          <NovelCard key={novel.novelId} novel={novel} publicMode />
-        ))}
-      </NovelGrid>
-    </PublicLayout>
-  );
+  return <PublicLayout><ReaderCatalog publicMode /></PublicLayout>;
 }
 
 // ─── Novel detail ───────────────────────────────────────────────────────────
 
 export function ReaderNovelDetailPage() {
   const { novelId = '' } = useParams();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const userId = useAuthStore(state => state.user?.userId);
   const novelQuery = useQuery({
     queryKey: ['reader-novel', novelId],
     queryFn: () => getReaderNovel(novelId),
     enabled: Boolean(novelId)
   });
   const continueQuery = useQuery({
-    queryKey: ['reader-history-novel', novelId],
+    queryKey: ['reader-history-novel', novelId, userId],
     queryFn: () => getHistoryForNovel(novelId),
-    enabled: Boolean(novelId),
+    enabled: Boolean(novelId && userId),
     retry: false
   });
   const [interactionNotice, setInteractionNotice] = useState<string | null>(null);
-  const addLibraryMutation = useMutation({
-    mutationFn: () => addToLibrary(novelId),
-    onSuccess: async () => {
-      setInteractionNotice('Đã thêm truyện vào thư viện của bạn.');
-      await queryClient.invalidateQueries({ queryKey: ['reader-library'] });
-    },
-    onError: (error) => setInteractionNotice(formatInteractionError(error, 'Truyện này đã có trong thư viện của bạn.'))
-  });
-  const likeMutation = useMutation({
-    mutationFn: () => likeNovel(novelId),
-    onSuccess: () => setInteractionNotice('Bạn đã thích truyện này.'),
-    onError: (error) => setInteractionNotice(formatInteractionError(error, 'Bạn đã thích truyện này rồi.'))
-  });
-  const unlikeMutation = useMutation({
-    mutationFn: () => unlikeNovel(novelId),
-    onSuccess: () => setInteractionNotice('Đã bỏ thích truyện.'),
-    onError: (error) => setInteractionNotice(formatInteractionError(error, 'Bạn chưa thích truyện này.'))
-  });
-  const followMutation = useMutation({
-    mutationFn: () => followAuthor(novelQuery.data?.authorId ?? ''),
-    onSuccess: () => setInteractionNotice('Bạn đang theo dõi tác giả này.'),
-    onError: (error) => setInteractionNotice(formatInteractionError(error, 'Bạn đã theo dõi tác giả này rồi.'))
-  });
-  const unfollowMutation = useMutation({
-    mutationFn: () => unfollowAuthor(novelQuery.data?.authorId ?? ''),
-    onSuccess: () => setInteractionNotice('Đã bỏ theo dõi tác giả.'),
-    onError: (error) => setInteractionNotice(formatInteractionError(error, 'Bạn chưa theo dõi tác giả này.'))
-  });
-  const reportMutation = useMutation({
-    mutationFn: () => reportContent({ targetType: 'NOVEL', targetId: novelId, reason: 'Reader report' }),
-    onSuccess: () => setInteractionNotice('Đã gửi báo cáo truyện tới quản trị viên.'),
-    onError: (error) => setInteractionNotice(getApiErrorMessage(error))
-  });
 
   if (novelQuery.isLoading) return <LoadingState label="Đang tải thông tin truyện..." />;
   if (novelQuery.isError) return <ErrorState error={novelQuery.error} onRetry={() => void novelQuery.refetch()} />;
 
   const novel = novelQuery.data;
   const chapters = novel?.chapters ?? [];
-  const continueChapterId = continueQuery.data?.chapterId ?? chapters[0]?.chapterId;
+  const firstChapter = [...chapters].sort((a, b) => a.chapterNumber - b.chapterNumber)[0];
+  const readChapterIds = continueQuery.data?.readChapterIds ?? [];
+  const currentChapter = chapters.find(chapter => chapter.chapterId === continueQuery.data?.chapterId && readChapterIds.includes(chapter.chapterId));
+  const continueChapterId = currentChapter?.chapterId ?? firstChapter?.chapterId;
 
   return (
     <div className="flex flex-col gap-4">
-      <Breadcrumb back={{ to: '/reader', label: 'Khám phá' }} current={novel?.title ?? 'Chi tiết truyện'}>
-        <button
-          type="button"
-          onClick={() => reportMutation.mutate()}
-          disabled={reportMutation.isPending}
-          className="sc-button text-red-700"
-          aria-label="Báo cáo truyện"
-          title="Báo cáo truyện"
-        >
-          <span className="material-symbols-outlined" aria-hidden="true">flag</span>
-          <span className="hidden sm:inline" aria-hidden="true">Báo cáo</span>
-        </button>
+      <Breadcrumb back={readerHomeCrumb} current={novel?.title ?? 'Chi tiết truyện'}>
+        <NovelReportDialog key={novelId} novelId={novelId} onSuccess={() => setInteractionNotice('Đã gửi báo cáo truyện tới quản trị viên.')} />
       </Breadcrumb>
 
       {novel ? (
         <NovelOverview
           novel={novel}
-          chapterCount={novel.chaptersCount ?? chapters.length}
+          chapters={chapters}
           authorLink={novel.authorId ? `/authors/${novel.authorId}` : undefined}
           notice={interactionNotice}
           actions={
             <>
               {continueChapterId ? (
-                <button type="button" onClick={() => navigate(`/reader/chapters/${continueChapterId}`)} className="sc-button sc-button-primary">
-                  <span className="material-symbols-outlined" aria-hidden="true">menu_book</span>
-                  {continueQuery.data ? `Đọc tiếp · Chương ${continueQuery.data.chapter.chapterNumber}` : 'Bắt đầu đọc'}
-                </button>
+                <NovelReadAction to={`/reader/chapters/${continueChapterId}`} label={currentChapter ? `Đọc tiếp · Chương ${currentChapter.chapterNumber}` : 'Bắt đầu đọc'} />
               ) : null}
-              <button
-                type="button"
-                onClick={() => addLibraryMutation.mutate()}
-                disabled={addLibraryMutation.isPending}
-                className="sc-button sc-button-soft"
-                data-testid="reader-add-library-btn"
-              >
-                <span className="material-symbols-outlined" aria-hidden="true">bookmark_add</span>
-                Thêm vào thư viện
-              </button>
-              <button type="button" onClick={() => likeMutation.mutate()} disabled={likeMutation.isPending} className="sc-button" data-testid="reader-like-btn">
-                <span className="material-symbols-outlined" aria-hidden="true">favorite</span>
-                Thích
-              </button>
-              <button type="button" onClick={() => unlikeMutation.mutate()} disabled={unlikeMutation.isPending} className="sc-button" data-testid="reader-unlike-btn">
-                Bỏ thích
-              </button>
-              <button
-                type="button"
-                onClick={() => followMutation.mutate()}
-                disabled={followMutation.isPending || !novel.authorId}
-                className="sc-button"
-                data-testid="reader-follow-btn"
-              >
-                <span className="material-symbols-outlined" aria-hidden="true">person_add</span>
-                Theo dõi tác giả
-              </button>
-              <button
-                type="button"
-                onClick={() => unfollowMutation.mutate()}
-                disabled={unfollowMutation.isPending || !novel.authorId}
-                className="sc-button"
-                data-testid="reader-unfollow-btn"
-              >
-                Bỏ theo dõi
-              </button>
+
             </>
           }
-        >
-          <NovelEngagement novelId={novelId} authorId={novel.authorId} />
-        </NovelOverview>
+        />
       ) : null}
 
-      <ChapterTable
+      <section id="reader-reviews" className="sc-reader-detail-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact /></section>
+      <NovelChapterCatalog
         chapters={chapters}
-        onReadFirst={chapters.length ? () => navigate(`/reader/chapters/${chapters[0].chapterId}`) : undefined}
+        readChapterIds={readChapterIds}
+        onReadFirst={firstChapter ? () => navigate(`/reader/chapters/${firstChapter.chapterId}`) : undefined}
       />
-      <CommentsSection kind="novel" id={novelId} />
+      <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} /></section>
     </div>
   );
 }
 
 export function PublicReaderNovelDetailPage() {
   const { novelId = '' } = useParams();
-  const navigate = useNavigate();
+  const readChapterIds = useReadChapterIds(novelId);
   const novelQuery = useQuery({
     queryKey: ['public-reader-novel', novelId],
     queryFn: () => getReaderNovel(novelId),
@@ -353,6 +135,7 @@ export function PublicReaderNovelDetailPage() {
 
   const novel = novelQuery.data;
   const chapters = novel?.chapters ?? [];
+  const firstChapter = [...chapters].sort((a, b) => a.chapterNumber - b.chapterNumber)[0];
 
   return (
     <PublicLayout>
@@ -363,26 +146,20 @@ export function PublicReaderNovelDetailPage() {
           <Breadcrumb back={{ to: '/public', label: 'Thư viện công khai' }} current={novel.title} />
           <NovelOverview
             novel={novel}
-            chapterCount={novel.chaptersCount ?? chapters.length}
+            chapters={chapters}
             authorLink={novel.authorId ? `/authors/${novel.authorId}` : undefined}
-            notice="Thêm vào thư viện, thích, theo dõi, bình luận, báo cáo, lưu tiến độ và mở khóa chương VIP cần đăng nhập."
+            notice="Đăng nhập để theo dõi truyện, đánh giá và bình luận."
             actions={
               <>
-                {chapters.length ? (
-                  <button type="button" onClick={() => navigate(`/public/chapters/${chapters[0].chapterId}`)} className="sc-button sc-button-primary">
-                    <span className="material-symbols-outlined" aria-hidden="true">menu_book</span>
-                    Đọc chương đầu
-                  </button>
+                {firstChapter ? (
+                  <NovelReadAction to={`/public/chapters/${firstChapter.chapterId}`} label="Đọc chương đầu" />
                 ) : null}
-                <Link to="/login" className="sc-button sc-button-soft">
-                  <span className="material-symbols-outlined" aria-hidden="true">login</span>
-                  Đăng nhập để tương tác
-                </Link>
               </>
             }
           />
-          <ChapterTable chapters={chapters} publicMode />
-          <CommentsSection kind="novel" id={novelId} />
+          <section id="reader-reviews" className="sc-reader-detail-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact /></section>
+          <NovelChapterCatalog chapters={chapters} publicMode readChapterIds={readChapterIds} />
+          <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} /></section>
         </>
       ) : null}
     </PublicLayout>
@@ -393,10 +170,11 @@ export function PublicReaderNovelDetailPage() {
 
 export function ReaderChapterPage() {
   const { chapterId = '' } = useParams();
+  const userId = useAuthStore(state => state.user?.userId);
   const queryClient = useQueryClient();
   const preferencesQuery = useQuery({ queryKey: ['reading-preferences'], queryFn: getReadingPreferences });
   const chapterQuery = useQuery({
-    queryKey: ['reader-chapter', chapterId],
+    queryKey: ['reader-chapter', chapterId, userId],
     queryFn: () => getReaderChapter(chapterId),
     enabled: Boolean(chapterId),
     retry: false
@@ -408,7 +186,10 @@ export function ReaderChapterPage() {
   });
   const syncHistoryMutation = useMutation({
     mutationFn: (input: { novelId: string; chapterId: string }) => syncHistory(input),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reader-history'] })
+    onSuccess: () => Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['reader-history'] }),
+      queryClient.invalidateQueries({ queryKey: ['reader-history-novel'] })
+    ])
   });
   const unlockMutation = useMutation({
     mutationFn: () => unlockVipChapter(chapterId),
@@ -428,6 +209,7 @@ export function ReaderChapterPage() {
 
   const isLockedVip = chapterQuery.error instanceof ApiClientError && chapterQuery.error.code === 'PAYMENT_002';
   const chapter = chapterQuery.data;
+  useReadChapterIds(chapter?.novelId ?? '', chapter?.chapterId);
 
   useEffect(() => {
     if (chapter?.novelId) {
@@ -497,23 +279,13 @@ export function ReaderChapterPage() {
         </button>
       </Breadcrumb>
 
-      <ChapterHeader chapter={chapter} navigation={navigation} />
+      <ChapterHeader chapter={chapter} navigation={<div className="flex flex-wrap items-center gap-2">
+        {navigation}
+        <ChapterToc chapters={chapterList} currentId={chapterId} />
+        {preferences && <ReadingSettings><ReadingPreferencesPanel preferences={preferences} onSave={next => preferencesMutation.mutate(next)} saving={preferencesMutation.isPending} saved={preferencesMutation.isSuccess} /></ReadingSettings>}
+      </div>} />
 
-      <section className={`${card} p-4`} aria-label="Tùy chỉnh đọc">
-        <div className="flex items-center justify-between gap-3 mb-3">
-          <h2 className="text-section-title text-stone-900">Tùy chỉnh đọc</h2>
-          <span className="sc-novel-status">{preferencesQuery.isLoading ? 'Đang tải' : 'Đã đồng bộ'}</span>
-        </div>
-        {preferences ? (
-          <ReadingPreferencesPanel
-            preferences={preferences}
-            onSave={(next) => preferencesMutation.mutate(next)}
-            saving={preferencesMutation.isPending}
-          />
-        ) : null}
-      </section>
-
-      <ChapterProse content={chapter?.content ?? ''} style={buildReaderStyle(preferences)} />
+      <ChapterProse key={chapterId} content={chapter?.content ?? ''} style={buildReaderStyle(preferences)} />
       <div className="flex justify-center">{navigation}</div>
       <CommentsSection kind="chapter" id={chapterId} />
     </div>
@@ -522,14 +294,21 @@ export function ReaderChapterPage() {
 
 export function PublicReaderChapterPage() {
   const { chapterId = '' } = useParams();
+  const userId = useAuthStore(state => state.user?.userId ?? 'guest');
   const chapterQuery = useQuery({
-    queryKey: ['public-reader-chapter', chapterId],
+    queryKey: ['public-reader-chapter', chapterId, userId],
     queryFn: () => getReaderChapter(chapterId),
     enabled: Boolean(chapterId),
     retry: false
   });
+  const tocQuery = useQuery({
+    queryKey: ['public-reader-novel', chapterQuery.data?.novelId],
+    queryFn: () => getReaderNovel(chapterQuery.data?.novelId ?? ''),
+    enabled: Boolean(chapterQuery.data?.novelId)
+  });
   const isLockedVip = chapterQuery.error instanceof ApiClientError && chapterQuery.error.code === 'PAYMENT_002';
   const chapter = chapterQuery.data;
+  useReadChapterIds(chapter?.novelId ?? '', chapter?.chapterId);
   const novelPath = `/public/novels/${chapter?.novelId ?? ''}`;
 
   return (
@@ -548,8 +327,8 @@ export function PublicReaderChapterPage() {
       {chapter ? (
         <>
           <Breadcrumb back={{ to: novelPath, label: 'Chi tiết truyện' }} current={`Chương ${chapter.chapterNumber}`} />
-          <ChapterHeader chapter={chapter} navigation={<ChapterNavigation indexTo={novelPath} />} />
-          <ChapterProse content={chapter.content ?? ''} style={buildReaderStyle()} />
+          <ChapterHeader chapter={chapter} navigation={<div className="flex flex-wrap items-center gap-2"><ChapterNavigation indexTo={novelPath} /><ChapterToc chapters={tocQuery.data?.chapters ?? []} currentId={chapterId} publicMode /></div>} />
+          <ChapterProse key={chapterId} content={chapter.content ?? ''} style={buildReaderStyle()} />
           <CommentsSection kind="chapter" id={chapterId} />
         </>
       ) : null}
@@ -561,18 +340,30 @@ export function PublicReaderChapterPage() {
 
 export function ReaderLibraryPage() {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  const user = useAuthStore(state => state.user);
   const libraryQuery = useQuery({ queryKey: ['reader-library'], queryFn: listLibrary });
   const removeMutation = useMutation({
-    mutationFn: removeFromLibrary,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reader-library'] })
+    mutationFn: async (novelId: string) => {
+      if (user?.role === 'READER') await followNovel(novelId, false);
+      else await removeFromLibrary(novelId);
+    },
+    onSuccess: async () => {
+      showToast('Đã bỏ theo dõi truyện.', 'success');
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['reader-library'] }),
+        queryClient.invalidateQueries({ queryKey: ['novel-statistics'] })
+      ]);
+    },
+    onError: error => showToast(getApiErrorMessage(error), 'error')
   });
   const novels = libraryQuery.data ?? [];
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader crumbs={['Trang chủ', 'Thư viện']} title="Thư viện của tôi" />
+      <PageHeader crumbs={[readerHomeCrumb, { label: 'Thư viện của tôi' }]} title="Thư viện của tôi" />
       <section className="flex flex-col gap-4">
-        <SectionHeading title="Truyện đã lưu" count={libraryQuery.isSuccess ? `${novels.length} truyện` : undefined} />
+        <SectionHeading title="Truyện đang theo dõi" count={libraryQuery.isSuccess ? `${novels.length} truyện` : undefined} />
         <QueryStates
           loading={libraryQuery.isLoading}
           error={libraryQuery.isError ? libraryQuery.error : null}
@@ -580,8 +371,8 @@ export function ReaderLibraryPage() {
           empty={libraryQuery.isSuccess && !novels.length}
           loadingLabel="Đang tải thư viện..."
           emptyTitle="Thư viện đang trống"
-          emptyDescription="Bấm “Thêm vào thư viện” ở trang chi tiết truyện để lưu truyện tại đây."
-          emptyAction={<Link to="/reader" className="sc-button sc-button-primary">Khám phá truyện</Link>}
+          emptyDescription="Bấm biểu tượng trái tim ở trang chi tiết để theo dõi truyện tại đây."
+          emptyAction={<Link to="/reader" className="sc-button sc-button-primary">Danh sách truyện</Link>}
         />
         <NovelGrid>
           {novels.map((novel) => (
@@ -596,8 +387,8 @@ export function ReaderLibraryPage() {
                   className={`${cardButton} text-red-700`}
                   data-testid={`reader-remove-library-${novel.novelId}`}
                 >
-                  <span className="material-symbols-outlined text-[15px]" aria-hidden="true">bookmark_remove</span>
-                  <span>Bỏ lưu</span>
+                  <span className="material-symbols-outlined text-[15px]" aria-hidden="true">favorite</span>
+                  <span>Bỏ theo dõi</span>
                 </button>
               }
             />
@@ -614,7 +405,7 @@ export function ReaderHistoryPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader crumbs={['Trang chủ', 'Lịch sử đọc']} title="Lịch sử đọc" />
+      <PageHeader crumbs={[readerHomeCrumb, { label: 'Lịch sử đọc' }]} title="Lịch sử đọc" />
       <section className="flex flex-col gap-4">
         <SectionHeading title="Đọc gần đây" count={historyQuery.isSuccess ? `${items.length} truyện` : undefined} />
         <QueryStates
@@ -679,18 +470,11 @@ function PublicLayout({ children }: { children: ReactNode }) {
   );
 }
 
-function PageHeader({ crumbs, title, description, actions }: { crumbs: string[]; title: string; description?: string; actions?: ReactNode }) {
+function PageHeader({ crumbs = [], title, description, actions }: { crumbs?: BreadcrumbItem[]; title: string; description?: string; actions?: ReactNode }) {
   return (
     <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
       <div className="flex flex-col gap-1">
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-meta text-stone-500 tracking-wider uppercase font-medium">
-          {crumbs.map((crumb, index) => (
-            <span key={crumb} className="flex items-center gap-1">
-              {index > 0 ? <span className="material-symbols-outlined text-body" aria-hidden="true">chevron_right</span> : null}
-              <span className={index === crumbs.length - 1 ? 'text-primary-600 font-semibold' : undefined}>{crumb}</span>
-            </span>
-          ))}
-        </nav>
+        <Breadcrumbs items={crumbs} />
         <h1 className="font-headline-sm text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">{title}</h1>
         {description ? <p className="text-body text-stone-500">{description}</p> : null}
       </div>
@@ -714,51 +498,8 @@ function SectionHeading({ title, count, children }: { title: string; count?: str
 function Breadcrumb({ back, current, children }: { back: { to: string; label: string }; current: string; children?: ReactNode }) {
   return (
     <div className={`${card} px-3 py-1.5 flex items-center justify-between gap-3`}>
-      <div className="flex items-center gap-1.5 text-meta text-stone-500 min-w-0">
-        <Link
-          to={back.to}
-          className="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 font-medium shrink-0 transition-colors py-0.5 px-1.5 rounded hover:bg-stone-100 max-w-[200px]"
-        >
-          <span className="material-symbols-outlined text-[15px]" aria-hidden="true">arrow_back</span>
-          <span className="truncate">{back.label}</span>
-        </Link>
-        <span className="text-stone-300">/</span>
-        <span className="text-stone-900 font-semibold truncate">{current}</span>
-      </div>
+      <Breadcrumbs items={[back, { label: current }]} />
       {children ? <div className="flex items-center gap-1.5 shrink-0">{children}</div> : null}
-    </div>
-  );
-}
-
-function SearchInput({ value, onChange, placeholder, testId }: { value: string; onChange: (value: string) => void; placeholder: string; testId?: string }) {
-  return (
-    <div className="relative flex-1 min-w-[220px]">
-      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-[18px]" aria-hidden="true">search</span>
-      <input
-        type="text"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={placeholder}
-        aria-label="Tìm truyện"
-        data-testid={testId}
-        className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-stone-50/80 text-meta text-stone-900 placeholder:text-stone-400 border border-stone-200/80 focus:outline-none focus:bg-surface-container-lowest focus:border-primary-600 focus:ring-1 focus:ring-primary-600 transition-colors"
-      />
-    </div>
-  );
-}
-
-function FilterInput({ value, onChange, placeholder, icon }: { value: string; onChange: (value: string) => void; placeholder: string; icon: string }) {
-  return (
-    <div className="relative flex-1 sm:max-w-[240px]">
-      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 text-[16px]" aria-hidden="true">{icon}</span>
-      <input
-        type="text"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder={placeholder}
-        aria-label={placeholder}
-        className="w-full pl-9 pr-3 py-1.5 rounded-lg bg-stone-50/80 text-meta text-stone-900 placeholder:text-stone-400 border border-stone-200/80 focus:outline-none focus:bg-surface-container-lowest focus:border-primary-600 focus:ring-1 focus:ring-primary-600 transition-colors"
-      />
     </div>
   );
 }
@@ -789,14 +530,14 @@ function QueryStates({
 }
 
 function NovelGrid({ children }: { children: ReactNode }) {
-  return <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">{children}</div>;
+  return <div className="sc-novel-grid">{children}</div>;
 }
 
 function Cover({ url, title }: { url?: string | null; title: string }) {
   return url ? (
     <img src={url} alt={title} className="w-full h-full object-cover" />
   ) : (
-    <span className="flex h-full items-center justify-center p-2 text-center text-meta text-stone-500">{title}</span>
+    <span className="sc-cover-placeholder flex h-full items-center justify-center p-2 text-center text-meta text-stone-500">{title}</span>
   );
 }
 
@@ -805,192 +546,31 @@ function NovelCard({ novel, extraAction, publicMode = false }: { novel: ReaderNo
   const statusLabel = serialLabels[novel.serialStatus ?? novel.status ?? ''] ?? 'Đã xuất bản';
 
   return (
-    <article className="sc-novel-card bg-surface-container-lowest rounded-xl p-3.5 shadow-2xs hover:shadow-sm border border-stone-200/90 transition-all flex flex-col justify-between h-full group">
-      <div className="flex gap-3.5 items-start">
+    <article className="sc-novel-card sc-reader-book">
         <Link
           to={detailPath}
-          className="relative w-[96px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-stone-100 border border-stone-200/70 block group-hover:opacity-95 transition-opacity"
+          className="sc-cover-hover sc-book-cover"
+          aria-label={`Đọc truyện: ${novel.title}`}
+          data-testid={`novel-open-detail-${novel.novelId}`}
         >
           <Cover url={novel.coverImageUrl} title={novel.title} />
+          <span className="sc-book-status" data-completed={(novel.serialStatus ?? novel.status) === 'COMPLETED'}>{statusLabel}</span>
         </Link>
-        <div className="flex flex-col flex-1 min-w-0 justify-between self-stretch py-0.5">
-          <div>
-            <div className="flex items-center justify-between gap-1 mb-1">
-              <span className="text-meta font-medium text-stone-500 truncate">{novel.genre || 'Chưa phân loại'}</span>
-              <span
-                className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-meta font-semibold whitespace-nowrap ${
-                  novel.serialStatus === 'COMPLETED'
-                    ? 'bg-blue-50 text-blue-700 border border-blue-200/60'
-                    : 'bg-primary-50 text-primary-700 border border-primary-200/60'
-                }`}
-              >
-                {statusLabel}
-              </span>
-            </div>
+        <div className="sc-book-info">
             <Link
               to={detailPath}
-              className="text-body font-bold text-stone-900 line-clamp-2 leading-snug group-hover:text-primary-600 transition-colors"
+              className="sc-book-title"
               title={novel.title}
             >
               {novel.title}
             </Link>
-            {novel.authorName ? <p className="text-meta text-stone-500 truncate mt-0.5">{novel.authorName}</p> : null}
-            <p className="text-meta text-stone-600 line-clamp-2 mt-1">{novel.synopsis || 'Chưa có lời giới thiệu.'}</p>
-          </div>
-          <div className="mt-2 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-meta text-stone-600">
-            <span className="material-symbols-outlined text-[15px] text-primary-600" aria-hidden="true">menu_book</span>
-            <span><strong>{novel.chaptersCount ?? 0}</strong> chương</span>
-            <span className="text-stone-300">•</span>
-            <span className="material-symbols-outlined text-[15px] text-stone-400" aria-hidden="true">visibility</span>
-            <span><strong>{(novel.viewsCount ?? 0).toLocaleString('vi-VN')}</strong> đọc</span>
-            <span className="text-stone-300">•</span>
-            <span className="material-symbols-outlined text-[15px] text-stone-400" aria-hidden="true">favorite</span>
-            <span><strong>{(novel.likesCount ?? 0).toLocaleString('vi-VN')}</strong></span>
+          <div className="sc-book-metrics">
+            <span><span className="material-symbols-outlined" aria-hidden="true">menu_book</span>{novel.chaptersCount ?? 0} chương</span>
+            <span><span className="material-symbols-outlined" aria-hidden="true">visibility</span>{(novel.viewsCount ?? 0).toLocaleString('vi-VN')} lượt đọc</span>
           </div>
         </div>
-      </div>
-      <div className="mt-3.5 pt-2.5 border-t border-stone-100 flex items-center gap-1.5">
-        <Link
-          to={detailPath}
-          className="inline-flex items-center justify-center gap-1 flex-1 py-1 px-2.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-meta font-semibold shadow-2xs transition-colors"
-          data-testid={`novel-open-detail-${novel.novelId}`}
-        >
-          <span className="material-symbols-outlined text-[15px]" aria-hidden="true">auto_stories</span>
-          <span>Xem truyện</span>
-        </Link>
-        {extraAction}
-      </div>
+        {extraAction ? <div className="mt-auto flex gap-2">{extraAction}</div> : null}
     </article>
-  );
-}
-
-function NovelOverview({
-  novel,
-  chapterCount,
-  authorLink,
-  notice,
-  actions,
-  children
-}: {
-  novel: ReaderNovel;
-  chapterCount: number;
-  authorLink?: string;
-  notice?: string | null;
-  actions?: ReactNode;
-  children?: ReactNode;
-}) {
-  const statusLabel = serialLabels[novel.serialStatus ?? novel.status ?? ''] ?? 'Đã xuất bản';
-  return (
-    <section className="sc-novel-overview" aria-label="Thông tin truyện">
-      <div className="sc-novel-identity">
-        <div className="sc-novel-cover">
-          {novel.coverImageUrl ? <img src={novel.coverImageUrl} alt={novel.title} /> : <span>{novel.title}</span>}
-        </div>
-        <div className="sc-novel-description">
-          <div className="flex flex-wrap items-center gap-2 mb-2">
-            <span className={`sc-novel-status ${novel.serialStatus === 'COMPLETED' ? '' : 'sc-novel-status-public'}`}>{statusLabel}</span>
-          </div>
-          <h1 className="text-page-title text-stone-900 mb-2">{novel.title}</h1>
-          <div className="flex flex-wrap items-center gap-2 mb-2 text-body">
-            <span className="text-stone-500">Thể loại:</span>
-            {novel.genre ? <span className="sc-genre-tag">{novel.genre}</span> : <span className="text-stone-500">Chưa phân loại</span>}
-            {(novel.tags ?? []).map((tag) => (
-              <span key={tag} className="sc-genre-tag">#{tag}</span>
-            ))}
-          </div>
-          {novel.authorName ? (
-            <p className="text-body text-stone-500 mb-2">
-              Tác giả:{' '}
-              {authorLink ? (
-                <Link className="text-stone-800 font-medium hover:underline" to={authorLink}>{novel.authorName}</Link>
-              ) : (
-                <span className="text-stone-800 font-medium">{novel.authorName}</span>
-              )}
-            </p>
-          ) : null}
-          <p className="sc-novel-synopsis text-body text-stone-600">{novel.synopsis || 'Chưa có lời giới thiệu.'}</p>
-          {actions ? <div className="flex flex-wrap items-center gap-2 mt-3">{actions}</div> : null}
-          {notice ? (
-            <p className="text-meta text-stone-600 mt-2 flex items-center gap-1" role="status" data-testid="reader-interaction-notice">
-              <span className="material-symbols-outlined text-primary-600" aria-hidden="true">info</span>
-              {notice}
-            </p>
-          ) : null}
-        </div>
-      </div>
-      {/* sc-novel-metrics lays out six author metrics; readers see three, so spread them evenly. */}
-      <dl className="sc-novel-metrics" style={{ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
-        <div><dt>Tổng chương</dt><dd>{chapterCount.toLocaleString('vi-VN')}</dd></div>
-        <div><dt>Lượt đọc</dt><dd>{(novel.viewsCount ?? 0).toLocaleString('vi-VN')}</dd></div>
-        <div><dt>Lượt thích</dt><dd>{(novel.likesCount ?? 0).toLocaleString('vi-VN')}</dd></div>
-      </dl>
-      {children ? (
-        <div className="sc-author-note">
-          <h2 className="text-section-title mb-2">Đánh giá &amp; theo dõi</h2>
-          {children}
-        </div>
-      ) : null}
-    </section>
-  );
-}
-
-function ChapterTable({ chapters, publicMode = false, onReadFirst }: { chapters: ReaderChapter[]; publicMode?: boolean; onReadFirst?: () => void }) {
-  return (
-    <section className={`${card} overflow-hidden flex flex-col`} aria-label="Danh sách chương">
-      <div className="flex items-center justify-between gap-3 px-6 border-b border-stone-200/80">
-        <div className="py-3 flex items-center gap-2 text-primary-600 font-semibold border-b-2 border-primary-600">
-          <span>Danh sách chương</span>
-          <span className="text-meta bg-primary-600 text-white px-2 py-0.5 rounded-full font-bold">{chapters.length}</span>
-        </div>
-        {onReadFirst ? (
-          <button type="button" onClick={onReadFirst} className="sc-button sc-button-soft" aria-label="Đọc từ chương đầu" title="Đọc từ chương đầu">
-            <span className="material-symbols-outlined" aria-hidden="true">first_page</span>
-            <span className="hidden sm:inline" aria-hidden="true">Đọc từ đầu</span>
-          </button>
-        ) : null}
-      </div>
-      {!chapters.length ? <p className="text-body text-stone-500 text-center py-10">Truyện chưa có chương nào được xuất bản.</p> : (
-        <div className="w-full overflow-x-auto">
-          <table className="sc-chapter-table w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-stone-200">
-                <th className="px-4 py-2.5">Chương</th>
-                <th className="px-4 py-2.5 text-right hidden sm:table-cell">Số chữ</th>
-                <th className="px-4 py-2.5">Quyền đọc</th>
-                <th className="px-4 py-2.5 text-right"><span className="sr-only">Thao tác</span></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-stone-100">
-              {chapters.map((chapter) => {
-                const chapterPath = `${publicMode ? '/public' : '/reader'}/chapters/${chapter.chapterId}`;
-                return (
-                  <tr key={chapter.chapterId} className="hover:bg-stone-50 transition-colors">
-                    <td className="px-4">
-                      <Link to={chapterPath} className="py-1 font-medium text-stone-900 hover:text-primary-600 transition-colors line-clamp-1">
-                        {formatChapterTitle(chapter.chapterNumber, chapter.title)}
-                      </Link>
-                    </td>
-                    <td className="px-4 text-right text-stone-600 hidden sm:table-cell">{(chapter.wordCount ?? 0).toLocaleString('vi-VN')}</td>
-                    <td className="px-4">
-                      {chapter.isVip ? (
-                        <span className="inline-flex items-center rounded-full bg-amber-50 text-amber-700">VIP • {chapter.priceCoins} xu</span>
-                      ) : (
-                        <span className="inline-flex items-center rounded-full bg-stone-100 text-stone-600">Miễn phí</span>
-                      )}
-                    </td>
-                    <td className="px-4 text-right">
-                      <Link to={chapterPath} className="sc-button sc-button-soft" data-testid={`read-chapter-${chapter.chapterId}`}>
-                        Đọc
-                      </Link>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </section>
   );
 }
 
@@ -1035,7 +615,7 @@ function ChapterProse({ content, style }: { content: string; style: ReturnType<t
   return (
     <article className="sc-reading-surface rounded-xl border border-stone-200/80 shadow-2xs px-5 sm:px-12 py-8 sm:py-10" style={style}>
       <div className="max-w-[720px] mx-auto">
-        <ManuscriptContent content={content} />
+        <ReadingProgress><ManuscriptContent content={content} /></ReadingProgress>
       </div>
     </article>
   );
@@ -1057,11 +637,13 @@ function LockedChapter({ message, children }: { message: string; children: React
 function ReadingPreferencesPanel({
   preferences,
   onSave,
-  saving
+  saving,
+  saved
 }: {
   preferences: ReadingPreferences;
   onSave: (preferences: ReadingPreferences) => void;
   saving: boolean;
+  saved: boolean;
 }) {
   const [draft, setDraft] = useState(preferences);
 
@@ -1070,8 +652,8 @@ function ReadingPreferencesPanel({
   }, [preferences]);
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
-      <Select
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+      <Select comboboxProps={{ withinPortal: false }}
         label="Phông chữ"
         data={[
           { value: 'system-ui', label: 'Hệ thống' },
@@ -1091,7 +673,7 @@ function ReadingPreferencesPanel({
         onChange={(value) => setDraft((current) => ({ ...current, fontSize: Number(value) || current.fontSize }))}
         data-testid="reader-pref-font-size"
       />
-      <Select
+      <Select comboboxProps={{ withinPortal: false }}
         label="Màu nền"
         data={[
           { value: 'LIGHT', label: 'Sáng' },
@@ -1112,10 +694,9 @@ function ReadingPreferencesPanel({
         onChange={(value) => setDraft((current) => ({ ...current, lineHeight: Number(value) || current.lineHeight }))}
         data-testid="reader-pref-line-height"
       />
-      <button type="button" onClick={() => onSave(draft)} disabled={saving} className="sc-button sc-button-primary" data-testid="reader-save-preferences-btn">
-        <span className="material-symbols-outlined" aria-hidden="true">save</span>
-        {saving ? 'Đang lưu...' : 'Lưu tùy chỉnh'}
-      </button>
+      <AnimatedSaveButton onClick={() => onSave(draft)} loading={saving} saved={saved} className="sc-button sc-button-primary" data-testid="reader-save-preferences-btn">
+        Lưu tùy chỉnh
+      </AnimatedSaveButton>
     </div>
   );
 }
@@ -1143,12 +724,4 @@ function buildReaderStyle(preferences?: ReadingPreferences) {
 function formatChapterTitle(chapterNumber: number, title: string) {
   const cleanTitle = title.replace(/^\s*(Chương|Chapter|Ch\.)\s*\d+\s*[:.\-–—]?\s*/i, '');
   return cleanTitle ? `Chương ${chapterNumber}: ${cleanTitle}` : `Chương ${chapterNumber}`;
-}
-
-function formatInteractionError(error: unknown, conflictMessage: string) {
-  if (error instanceof ApiClientError && error.status === 409) {
-    return conflictMessage;
-  }
-
-  return getApiErrorMessage(error);
 }

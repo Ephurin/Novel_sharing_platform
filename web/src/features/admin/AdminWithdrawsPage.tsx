@@ -1,3 +1,7 @@
+import { FilterPresets, useUrlFilters, useListScroll, WorkspaceTable } from '../../shared/components/WorkspacePreferences';
+import { ActiveFilterChips, AnimatedEmptyState as EmptyState, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
+import { labels as filterLabels } from './AdminShared';
+import { ResponsiveFilters, useUpdatedItems } from '../../shared/components/InteractionWidgets';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { Alert, Button, Select } from '@mantine/core';
@@ -18,13 +22,14 @@ import {
   options,
   Status
 } from './AdminShared';
-import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
+import { ErrorState, LoadingState } from '../../shared/components/PageStates';
 import { ApiClientError } from '../../shared/api/api-client';
 
 export function AdminWithdrawsPage() {
   const cache = useQueryClient();
-  const [page, setPage] = useState(1);
-  const [status, setStatus] = useState('PENDING');
+  const urlFilters = useUrlFilters({ status: 'PENDING', page: 1 }, { status: ['', 'PENDING', 'SUCCESS', 'FAILED'] });
+  const [page, setPage] = urlFilters.field('page');
+  const [status, setStatus] = urlFilters.field('status');
   const [reason, setReason] = useState('');
   const [success, setSuccess] = useState('');
   const [action, setAction] = useState<{
@@ -65,6 +70,8 @@ export function AdminWithdrawsPage() {
       }
     }
   });
+  const updated = useUpdatedItems(query.data?.items.map(item => ({ id: item.withdrawRequestId, version: JSON.stringify(item) })), [status, page].join('|'));
+  useListScroll(!query.isPending);
   return (
     <>
       <AdminHeader
@@ -82,9 +89,8 @@ export function AdminWithdrawsPage() {
         </Alert>
       )}
       <AdminPanel>
-        <div className="admin-toolbar">
-          <Select
-            label="Trạng thái"
+        <ResponsiveFilters className="admin-toolbar">
+          <Select comboboxProps={{ withinPortal: false }}             label="Trạng thái"
             data={options(['PENDING', 'SUCCESS', 'FAILED'], 'Tất cả trạng thái').map((option) =>
               option.value === 'SUCCESS' ? { ...option, label: 'Đã duyệt' } : option
             )}
@@ -94,14 +100,16 @@ export function AdminWithdrawsPage() {
               setPage(1);
             }}
           />
-        </div>
-        {query.isLoading && <LoadingState label="Đang tải yêu cầu rút tiền..." />}
+        </ResponsiveFilters>
+        <FilterPresets name={'AdminWithdrawsPage'} fields={["status"]} />
+        <ActiveFilterChips items={status ? [{ id: 'status', label: status === 'SUCCESS' ? 'Đã duyệt' : filterLabels[status] || status, onRemove: () => { setStatus(''); setPage(1); } }] : []} />
+        <ResultsSurface identity={String(query.dataUpdatedAt)} busy={query.isFetching} retain={Boolean(status)}>{query.isLoading && <LoadingState variant="table" label="Đang tải yêu cầu rút tiền..." />}
         {query.isError && <ErrorState error={query.error} onRetry={() => void query.refetch()} />}
         {query.data && !query.data.items.length && (
           <EmptyState description="Không có yêu cầu rút tiền phù hợp." />
         )}
         {!!query.data?.items.length && (
-          <div className="admin-table-scroll">
+          <WorkspaceTable name="adminwithdrawspage" columns={['Người yêu cầu', 'Số coin yêu cầu rút', 'Trạng thái', 'Thao tác']}>
             <table>
               <thead>
                 <tr>
@@ -113,7 +121,7 @@ export function AdminWithdrawsPage() {
               </thead>
               <tbody>
                 {query.data.items.map((request) => (
-                  <tr key={request.withdrawRequestId}>
+                  <tr key={request.withdrawRequestId} className={updated.has(request.withdrawRequestId) ? 'sc-item-updated' : undefined}>
                     <td>
                       <strong>@{request.username}</strong>
                       <small>{dateTime(request.createdAt)}</small>
@@ -174,9 +182,10 @@ export function AdminWithdrawsPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </WorkspaceTable>
         )}
         <AdminPagination meta={query.data?.meta} onChange={setPage} />
+      </ResultsSurface>
       </AdminPanel>
       <AdminConfirm
         destructive={!action?.approve}

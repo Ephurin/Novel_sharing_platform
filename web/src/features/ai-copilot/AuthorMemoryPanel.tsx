@@ -1,3 +1,5 @@
+import { SuggestionReveal } from '../../shared/components/AuthorAdminMotion';
+import { StateComparison } from '../../shared/components/StateComparison';
 import { useEffect, useMemo, useState } from 'react';
 import { EntityExtractionReview } from './EntityExtractionReview';
 import { AuthorRelationshipLocks } from './AuthorRelationshipLocks';
@@ -17,18 +19,20 @@ import {
   Paper,
   Select,
   Stack,
-  Tabs,
   Text,
   Textarea,
   TextInput,
   ThemeIcon
 } from '@mantine/core';
+import { AnimatedTabs as Tabs } from '../../shared/components/AnimatedTabs';
 import { IconAlertTriangle, IconCheck, IconEdit, IconLock, IconRefresh, IconRotate, IconX } from '@tabler/icons-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getApiErrorMessage, ApiClientError } from '../../shared/api/api-client';
 import { getChapter, listChapters } from '../novels/novel-api';
 import { createChapterSnapshot, listChapterRevisions } from './ai-copilot-api';
 import { AuthorMemoryRepair } from './AuthorMemoryRepair';
+import { EntityMergeControl } from './EntityMergeControl';
+import { eventTypeLabel } from './event-labels';
 import {
   activateBaseline,
   getBootstrapJob,
@@ -190,6 +194,8 @@ export function AuthorMemoryPanel({
       qc.invalidateQueries({ queryKey: ['approved-memory', novelId] }),
       qc.invalidateQueries({ queryKey: ['story-brain-summary', novelId] }),
       qc.invalidateQueries({ queryKey: ['memory-review', novelId] }),
+      qc.invalidateQueries({ queryKey: ['story-context', novelId] }),
+      qc.invalidateQueries({ queryKey: ['author', 'story-context'] }),
       qc.invalidateQueries({ queryKey: ['author-plan', novelId] }),
       qc.invalidateQueries({ queryKey: ['author-auto', novelId] })
     ]);
@@ -552,7 +558,7 @@ export function AuthorMemoryPanel({
                       {proposals.length > 1 ? (
                         <Alert color="blue" icon={<IconAlertTriangle size={14} />} p="xs">
                           <Text size="xs">
-                            Nhóm phụ thuộc nguyên tử ({proposals.length} phần tử): Việc duyệt hoặc loại bỏ sẽ áp dụng cho toàn bộ nhóm một cách nhất quán (C-01 / FE-07).
+                            Nhóm có {proposals.length} đề xuất. “Loại đề xuất” chỉ bỏ mục đó khi không có đề xuất khác sử dụng nó. “Loại toàn bộ nhóm” bỏ tất cả các mục trong nhóm. Các mục còn lại được duyệt cùng nhau.
                           </Text>
                         </Alert>
                       ) : (
@@ -562,15 +568,14 @@ export function AuthorMemoryPanel({
                       )}
 
                       {/* Proposals list in group */}
-                      {proposals.map(p => (
-                        <ProposalReview
+                      {proposals.map((p, proposalIndex) => (
+                        <SuggestionReveal key={p.proposal_id} index={proposalIndex}><ProposalReview
                           key={p.proposal_id}
                           proposal={p}
                           editedPayload={edits[p.proposal_id]}
                           entities={memory.data?.entities ?? []}
                           disabled={pending}
-                          canReject={proposals.length === 1}
-                          rejectDisabledReason="Đề xuất này thuộc nhóm phụ thuộc nhiều phần tử. Vui lòng sử dụng 'Loại toàn bộ nhóm' ở đầu nhóm để đảm bảo tính toàn vẹn (C-01 / FE-07)."
+                          rejectAsGroup={proposals.length > 1 && !p.can_reject_individually}
                           onEdit={newPayload => setEdits(prev => ({ ...prev, [p.proposal_id]: newPayload }))}
                           onRevertEdit={() =>
                             setEdits(prev => {
@@ -579,8 +584,10 @@ export function AuthorMemoryPanel({
                               return updated;
                             })
                           }
-                          onReject={() => perform(() => rejectProposal(p.proposal_id))}
-                        />
+                          onReject={() => proposals.length > 1 && !p.can_reject_individually
+                            ? setConfirmRejectGroup({ groupId, count: proposals.length })
+                            : perform(() => rejectProposal(p.proposal_id))}
+                        /></SuggestionReveal>
                       ))}
 
                       {/* Group accept button */}
@@ -647,6 +654,7 @@ export function AuthorMemoryPanel({
              ────────────────────────────────────────── */}
           <Tabs.Panel value="characters" pt="md">
             <Stack gap="xs">
+              <EntityMergeControl novelId={novelId} version={currentBrainVersion} entities={memory.data?.entities ?? []} disabled={pending} />
               {category(['character', 'per', 'person']).map(e => (
                 <Card withBorder key={e.entity_id} p="xs">
                   <Group justify="space-between">
@@ -657,6 +665,9 @@ export function AuthorMemoryPanel({
                       <Text size="xs" c="dimmed">
                         {e.status} · {e.location || 'Chưa rõ vị trí'}
                       </Text>
+                      {(memory.data?.aliases ?? []).some(a => a.entity_id === e.entity_id) && <Text size="xs" c="dimmed">
+                        Tên khác: {(memory.data?.aliases ?? []).filter(a => a.entity_id === e.entity_id).map(a => a.alias).join(', ')}
+                      </Text>}
                     </div>
                     <Text size="xs" ff="monospace" c="dimmed">
                       UUID: {e.entity_id.slice(0, 8)}...
@@ -1138,8 +1149,7 @@ function ProposalReview({
   editedPayload,
   entities,
   disabled,
-  canReject = true,
-  rejectDisabledReason,
+  rejectAsGroup = false,
   onEdit,
   onRevertEdit,
   onReject
@@ -1148,8 +1158,7 @@ function ProposalReview({
   editedPayload?: Record<string, unknown>;
   entities: MemoryEntity[];
   disabled: boolean;
-  canReject?: boolean;
-  rejectDisabledReason?: string;
+  rejectAsGroup?: boolean;
   onEdit: (payload: Record<string, unknown>) => void;
   onRevertEdit: () => void;
   onReject: () => void;
@@ -1175,11 +1184,10 @@ function ProposalReview({
               variant="subtle"
               size="compact-xs"
               color="red"
-              disabled={disabled || !canReject}
-              title={!canReject ? rejectDisabledReason : undefined}
+              disabled={disabled}
               onClick={onReject}
             >
-              Loại đề xuất
+              {rejectAsGroup ? 'Loại toàn bộ nhóm' : 'Loại đề xuất'}
             </Button>
           </Group>
           <Text fw={600} size="sm">
@@ -1208,11 +1216,10 @@ function ProposalReview({
               variant="subtle"
               size="compact-xs"
               color="red"
-              disabled={disabled || !canReject}
-              title={!canReject ? rejectDisabledReason : undefined}
+              disabled={disabled}
               onClick={onReject}
             >
-              Loại đề xuất
+              {rejectAsGroup ? 'Loại toàn bộ nhóm' : 'Loại đề xuất'}
             </Button>
           </Group>
           <Text size="sm">
@@ -1256,15 +1263,15 @@ function ProposalReview({
               variant="subtle"
               size="compact-xs"
               color="red"
-              disabled={disabled || !canReject}
-              title={!canReject ? rejectDisabledReason : undefined}
+              disabled={disabled}
               onClick={onReject}
             >
-              Loại đề xuất
+              {rejectAsGroup ? 'Loại toàn bộ nhóm' : 'Loại đề xuất'}
             </Button>
           </Group>
         </Group>
 
+        {isEdited && <StateComparison before={original} after={currentPayload} beforeLabel="Đề xuất AI" afterLabel="Bạn đã chỉnh sửa" />}
         {p.supersedes_id ? (
           <Alert color="blue">
             {p.is_retired
@@ -1279,14 +1286,14 @@ function ProposalReview({
           <Stack gap="xs">
             <TextInput
               size="xs"
-              label="Loại sự kiện (event_type)"
-              value={String(p.event_type ?? '')}
+              label="Loại sự kiện"
+              value={eventTypeLabel(String(p.event_type ?? ''))}
               onChange={e => onEdit({ ...p, event_type: e.currentTarget.value })}
               disabled={disabled}
             />
             <Textarea
               size="xs"
-              label="Tóm tắt sự kiện (summary)"
+              label="Tóm tắt sự kiện"
               value={String(p.summary ?? '')}
               onChange={e => onEdit({ ...p, summary: e.currentTarget.value })}
               disabled={disabled}
@@ -1603,7 +1610,7 @@ function EventItem({
               Chương {event.chapter}
             </Badge>
             <Badge variant="outline" size="xs">
-              {event.event_type}
+              {eventTypeLabel(event.event_type)}
             </Badge>
           </Group>
           <Button
@@ -1737,8 +1744,8 @@ function EventItem({
 
               <TextInput
                 size="xs"
-                label="Loại sự kiện (event_type)"
-                value={eventType}
+                label="Loại sự kiện"
+                value={eventTypeLabel(eventType)}
                 onChange={e => setEventType(e.currentTarget.value)}
                 disabled={disabled || isSubmitting}
               />

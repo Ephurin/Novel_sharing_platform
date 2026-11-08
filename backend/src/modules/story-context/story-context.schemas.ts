@@ -37,7 +37,7 @@ export const plotSummaryIdParamSchema = z.object({
 export const createCharacterSchema = z.object({
   params: novelIdParamSchema.shape.params,
   body: z.object({
-    name: z.string().min(1).max(120),
+    name: z.string().min(1).max(255),
     role: characterRoleSchema,
     personality: z.string().max(5000).nullable().optional(),
     description: z.string().max(5000).nullable().optional(),
@@ -50,7 +50,7 @@ export const updateCharacterSchema = z.object({
   params: characterIdParamSchema.shape.params,
   body: z
     .object({
-      name: z.string().min(1).max(120).optional(),
+      name: z.string().min(1).max(255).optional(),
       role: characterRoleSchema.optional(),
       personality: z.string().max(5000).nullable().optional(),
       description: z.string().max(5000).nullable().optional(),

@@ -1,3 +1,4 @@
+import { EvidencePreview } from '../../shared/components/InteractionWidgets';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Alert, Button, Select, TextInput } from '@mantine/core';
@@ -123,6 +124,7 @@ export function AdminReconciliationPage() {
               Mở chứng từ ↗
             </a>
           )}
+          {state.evidence_url && <EvidencePreview url={state.evidence_url} />}
           {request.status === 'SUCCESS' && transitions[state.status]?.length > 0 && (
             <form
               className="admin-form-stack"

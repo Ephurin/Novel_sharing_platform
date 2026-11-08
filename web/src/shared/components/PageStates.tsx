@@ -1,15 +1,17 @@
-import { Alert, Button, Group, Loader, Paper, Stack, Text, Title } from '@mantine/core';
+import { Alert, Button, Paper, Stack, Text, Title } from '@mantine/core';
 import { IconAlertTriangle, IconLock, IconMoodEmpty } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
 import { getApiErrorMessage } from '../api/api-client';
 
-export function LoadingState({ label = 'Loading...' }: { label?: string }) {
+export function LoadingState({ label = 'Đang tải…', variant = 'detail' }: { label?: string; variant?: 'detail' | 'table' | 'cards' }) {
   return (
-    <Paper p="lg" withBorder>
-      <Group gap="sm">
-        <Loader size="sm" />
-        <Text>{label}</Text>
-      </Group>
+    <Paper p="lg" withBorder aria-busy="true" role="status">
+      <Text>{label}</Text>
+      <div className="sc-loading-skeleton" aria-hidden="true" data-variant={variant}>
+        {Array.from({ length: variant === 'table' ? 5 : 3 }, (_, index) => <div className="sc-skeleton-row" key={index}>
+          {Array.from({ length: variant === 'detail' ? 1 : 3 }, (_, cell) => <span key={cell} className="sc-skeleton-block" style={variant === 'cards' ? { height: 100 } : undefined} />)}
+        </div>)}
+      </div>
     </Paper>
   );
 }

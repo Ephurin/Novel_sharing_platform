@@ -1,13 +1,15 @@
 import { SessionMarker } from '../../shared/components/AuthorTheme';
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
-import { Button, Menu } from '@mantine/core';
+import { Button } from '@mantine/core';
+import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
 import { useAuthStore } from '../auth/useAuthStore';
 import { Navigate } from 'react-router-dom';
 import { useAdminAccess, scopeLabels, type Permission } from './admin-operations-api';
 import { LoadingState, ErrorState } from '../../shared/components/PageStates';
 import { NotificationBell } from '../notifications/NotificationBell';
 import { ThemeControl } from '../../shared/components/ThemeControl';
+import { WorkspaceCommands } from '../../shared/components/WorkspaceCommands';
 import './admin.css';
 
 const navigation = [
@@ -125,6 +127,7 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
           <strong>{title}</strong>
         </div>
         <div className="admin-account">
+          <WorkspaceCommands commands={access.data ? navigation.filter(([path]) => can(path)).map(([to, icon, label]) => ({ to, icon, label })) : []} />
           <ThemeControl />
           <NotificationBell />
           <Menu position="bottom-end">

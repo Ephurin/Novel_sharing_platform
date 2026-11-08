@@ -30,6 +30,7 @@ import {
   entityGuidanceController,
   entityReviewController,
   authorEntityController,
+  mergeEntitiesController,
 } from './ai-gateway.controller.js';
 import {
   createAutonomousRunController,
@@ -45,6 +46,7 @@ export const aiGatewayRoutes = Router();
 // All AI operations require AUTHOR or ADMIN role with active account
 aiGatewayRoutes.use(requireAuth, requireActiveAccount, requireRoles(['AUTHOR', 'ADMIN']));
 aiGatewayRoutes.get('/story-brains/:novelId/memory', getApprovedMemoryController);
+aiGatewayRoutes.post('/story-brains/:novelId/entities/merge', mergeEntitiesController);
 aiGatewayRoutes.get('/story-brains/:novelId/entity-guidance', entityGuidanceController);
 aiGatewayRoutes.post('/story-brains/:novelId/entity-guidance', entityGuidanceController);
 aiGatewayRoutes.post('/story-brains/:novelId/author-entities', authorEntityController);

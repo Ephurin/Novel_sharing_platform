@@ -77,8 +77,8 @@ export async function listChapters(novelId: string) {
   return response.data.data;
 }
 
-export async function getChapter(chapterId: string) {
-  const response = await apiClient.get<ApiEnvelope<Chapter>>(`/chapters/${chapterId}`);
+export async function getChapter(chapterId: string, signal?: AbortSignal) {
+  const response = await apiClient.get<ApiEnvelope<Chapter>>(`/chapters/${chapterId}`, { signal });
   return response.data.data;
 }
 

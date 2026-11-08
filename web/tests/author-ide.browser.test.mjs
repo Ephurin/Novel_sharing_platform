@@ -185,7 +185,7 @@ test('Real AuthorWritingIde: editor typing, autosave, S10 consistency checking &
       return route.fallback();
     });
 
-    await page.addInitScript(cfg => window.testConfig = cfg, config);
+    await page.addInitScript(cfg => { localStorage.setItem('storycraft-studio-editor-mode', 'source'); window.testConfig = cfg; }, config);
     const origin = 'http://127.0.0.1:' + server.address().port;
     await page.goto(origin);
 

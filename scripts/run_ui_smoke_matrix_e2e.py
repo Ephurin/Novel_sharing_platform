@@ -373,7 +373,10 @@ class Matrix:
                     await self.page.goto(f"{web}/reader/chapters/{fx['chapter_id']}", "document.querySelector('.chapter-prose') !== null && document.querySelector('[data-testid=\"reader-save-preferences-btn\"]') !== null")
                     prose = await self.page.evaluate(PROSE_CONTRAST_JS)
                     assert prose["textLength"] > 200 and prose["ratio"] >= 4.5, f"prose not readable on {background}: {prose}"
+                    await self.page.evaluate("[...document.querySelectorAll('button')].find(button => button.innerText.trim() === 'Tùy chỉnh đọc').click()")
+                    await self.page.wait_for("document.querySelector('.sc-reading-settings[data-state=\"open\"]') !== null")
                     assert await self.page.evaluate(NUMBER_STEPPERS_FIT_JS), "number stepper buttons overflow their field"
+                    await self.page.evaluate("[...document.querySelectorAll('.sc-reading-settings button')].find(button => button.innerText.trim() === 'Đóng').click()")
                     return {"background": background, "prose": prose}
                 await self.check("reader", f"chapter-prose-{background.lower()}", chapter_prose, "/reader/chapters/")
 

@@ -315,6 +315,9 @@ async function acceptDraftUnderLease(
     throw new AppError(422, 'INVALID_PATCH', 'AI generation contains an invalid or missing patch');
   }
   const patch = generation.patch;
+  if (/^\s*(?:```(?:json)?\s*)?\{\s*"(?:draft_text|draft|explanation)"\s*:/i.test(patch.replacement)) {
+    throw new AppError(422, 'INVALID_WRITING_OUTPUT', 'Đề xuất chứa JSON thay vì đoạn văn. Vui lòng tạo lại đề xuất.');
+  }
 
   // Guard: Story Brain version drift
   if (generation.brain_version_used !== undefined && generation.brain_version_used !== null) {
