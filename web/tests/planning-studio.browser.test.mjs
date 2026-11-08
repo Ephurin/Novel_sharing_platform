@@ -17,6 +17,7 @@ test('mounted /author/ide planning journey, recoverable CAS drafts, real Writer 
  const out=process.env.P205_EVIDENCE_DIR; if(out)await mkdir(out,{recursive:true});
  const A='10000000-0000-0000-0000-000000000001',B='10000000-0000-0000-0000-000000000002',C='20000000-0000-0000-0000-000000000001';
  let setup=null,active=false,m0Conflict=true,first=null,planConflict=false,createFailure=true;
+ let gateSummary=false,summaryWaiting=false,releaseSummary;const summaryGate=new Promise(resolve=>{releaseSummary=resolve;});
  let plans={head_version:0,active_plan_id:null,plans:[]},chapter=null;
  const writes=[],errors=[],recoveryTrace=[];page.on('pageerror',e=>errors.push(e.message));
  const novel=id=>({novelId:id,authorId:'author-A',title:id===A?'Bầu trời An Thành':'Other novel',slug:'offline',synopsis:'',status:'DRAFT',genres:[],chaptersCount:chapter?1:0});
@@ -60,7 +61,7 @@ test('mounted /author/ide planning journey, recoverable CAS drafts, real Writer 
    const id=crypto.randomUUID();const p={plan_id:id,plan_version:++plans.head_version,status:body.action==='activate'?'active':body.action==='skip'?'skipped':body.action==='delete'?'deleted':'draft',effective_status:body.action==='delete'?'tombstone':body.action==='skip'?'skipped':'draft',source_outline:body.source_outline??'',private_notes:body.private_notes??'',objectives:(body.objectives??[]).map(o=>({...o,intent_version:(o.expected_intent_version??0)+1})),action:body.action,can_save:body.action==='save'||body.action==='fork',can_fork:body.action==='save'||body.action==='fork',can_activate:body.action==='save'||body.action==='fork',can_archive:body.action==='save'||body.action==='fork'};
    plans.plans=plans.plans.map(old=>({...old,can_save:false,is_historical:true}));plans.plans.push(p);if(body.action==='activate')plans.active_plan_id=id;if(body.action==='skip')plans.active_plan_id=null;return send(p);
   }
-  if(path.includes('extraction-status'))return send(first?[{chapter_id:C,chapter_number:1,status:'waiting_entity_review'}]:[]);
+  if(path.includes('extraction-status')){if(gateSummary){summaryWaiting=true;await summaryGate;}return send(first?[{chapter_id:C,chapter_number:1,status:'waiting_entity_review'}]:[]);}
   return send([]);
  });
  const button=name=>page.getByRole('button',{name,exact:true});
@@ -118,10 +119,17 @@ test('mounted /author/ide planning journey, recoverable CAS drafts, real Writer 
   async function probe(phase){const state=await page.evaluate(key=>{const d=JSON.parse(localStorage.getItem(key)??'null');return {url:location.href,cached:!!d,cachedNoteMatches:d?.value?.notes==='DevicePrivateOnly',cachedHead:d?.value?.head};},`ephurin-planning:author-A:${A}:plan`);recoveryTrace.push({phase,...state});return state;}
   assert.equal((await probe('before-leave-A')).cachedNoteMatches,true,'note must be backed up before navigating');
   await page.evaluate(async id=>{const {router}=await import('/src/app/router.tsx');await router.navigate('/author/ide?novelId='+id);},B);
+  await expect(page.getByText('Phòng lập kế hoạch · Other novel',{exact:true})).toBeVisible();
+  await expect(page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true})).toBeEnabled();
   await expect(page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true})).toHaveValue('');
-  await probe('in-B');
+  await probe('in-B');gateSummary=true;
   await page.evaluate(async id=>{const {router}=await import('/src/app/router.tsx');await router.navigate('/author/ide?novelId='+id);},A);
-  await probe('back-A-before-recovery');await button('Khôi phục bản sửa dàn ý').click();await probe('after-recovery');await expect(page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true})).toHaveValue('DevicePrivateOnly');
+  await expect(page.getByText('Phòng lập kế hoạch · Bầu trời An Thành',{exact:true})).toBeVisible();
+  assert.equal((await probe('back-A-before-recovery')).cachedNoteMatches,true);
+  await expect.poll(()=>summaryWaiting).toBe(true);
+  await expect(page.getByRole('region',{name:'Planning Studio',exact:true})).toHaveAttribute('aria-busy','true');
+  assert.equal(await button('Khôi phục bản sửa dàn ý').evaluate(b=>!!b.closest('[inert]')),true,'recovery must wait for initial owner-scoped summary');
+  releaseSummary();await button('Khôi phục bản sửa dàn ý').click();await probe('after-recovery');await expect(page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true})).toHaveValue('DevicePrivateOnly');
   assert.ok(!writes.some(w=>JSON.stringify(w.body).includes('DevicePrivateOnly')),'local private edits never dispatched without Save');
   // Account switching uses actual AuthGate/store; old local edits never populate B.
 
@@ -129,5 +137,5 @@ test('mounted /author/ide planning journey, recoverable CAS drafts, real Writer 
   await step('Ý tưởng').click();await expect(page.getByLabel('Ý tưởng & hướng đi (tương lai)',{exact:true})).toHaveValue('');await step('Dàn ý chương').click();await expect(page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true})).toHaveValue('');
   assert.equal(errors.length,0,errors.join('\n'));
   if(out)await writeFile(join(out,'mounted-readback.json'),JSON.stringify({route:page.url(),label:'Chromium actual app + HTTP mocks, not DB E2E',writes,errors},null,2));
- }catch(e){console.error('UI_DIAGNOSTIC',{url:page.url(),errors,recoveryTrace});if(out)await page.screenshot({path:join(out,'failure.png'),fullPage:true});throw e;}finally{await browser.close();await server.close();}
+ }catch(e){console.error('UI_DIAGNOSTIC',{url:page.url(),errors,recoveryTrace});if(out)await page.screenshot({path:join(out,'failure.png'),fullPage:true});throw e;}finally{releaseSummary();await browser.close();await server.close();}
 });

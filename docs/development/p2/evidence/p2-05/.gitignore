@@ -1,3 +1,7 @@
 *.log
 *.xml
 browser/failure.png
+ci-*/
+*.zip
+p1-source/
+p1-final-source/
