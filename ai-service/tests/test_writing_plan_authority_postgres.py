@@ -97,7 +97,8 @@ def request_body(worker,**changes):
 
 def seed_plan(f,creator):
     if creator in ('owned-manual','foreign-manual'):
-        data=plan_body(1,source_outline='LegacyOutlinePrivate',private_notes='F04RootPrivateOnly')
+        data=plan_body(1)
+        data.update(source_outline='LegacyOutlinePrivate',private_notes='F04RootPrivateOnly')
         data['objectives'][0].update(title='LegacyTitlePrivate',description='LegacyDescriptionPrivate')
         data['objectives'][0]['events'][0]['text']='F04PlannedOnly'
         saved=command(f,data)
