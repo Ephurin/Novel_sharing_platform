@@ -182,3 +182,21 @@ def test_legacy_coexistence_http_scope_and_archive_enforcement(f):
     response=f.client.get(path+'/'+legacy,headers=owner)
     assert response.status_code==404
     assert snapshot(f,'fix-http-after')==before
+
+
+def test_owned_legacy_active_switches_without_adopting_content(f):
+    legacy=seed_legacy(f,ACTOR,status='active')
+    source=command(f,body(3,head=1))
+    before=snapshot(f,'fix-owned-legacy-active-before')
+    active=command(f,life(source,'activate'))
+    projection=read(f)
+    assert projection['active_plan_id']==active['plan_id'] and not projection['active_plan_unavailable']
+    assert all(p['plan_id']!=legacy for p in projection['plans'])
+    after=snapshot(f,'fix-owned-legacy-active-after')
+    old=next(p for p in before['story_plans'] if p['id']==legacy)
+    current=next(p for p in after['story_plans'] if p['id']==legacy)
+    assert current['status']=='superseded'
+    for field in ['source_outline','source_outline_hash','created_by','edit_metadata']:
+        assert current[field]==old[field]
+    assert [o for o in after['story_plan_objectives'] if o['plan_id']==legacy]==[o for o in before['story_plan_objectives'] if o['plan_id']==legacy]
+    assert canonical(before)==canonical(after)
