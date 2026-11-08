@@ -27,7 +27,8 @@ test('mounted /author/ide planning journey, recoverable CAS drafts, real Writer 
   const send=(data,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify({data,meta:{totalPages:1}})});
   const fail=(code,status=409)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify({error:{code,message:code}})});
   const body=method==='POST'||method==='PATCH'?req.postDataJSON():null;
-  if(body)writes.push({path,method,actor,body});
+  if(body)writes.push({path,method,actor,body:path.startsWith('/auth/')?{redacted:true}:body});
+  if(path==='/auth/login')return send({accessToken:'token-author-A',user:{userId:'author-A',username:'A',email:'a@example.test',role:'AUTHOR',status:'ACTIVE'}});
   if(path==='/auth/me')return send({userId:'author-A',username:'offline',email:'offline@example.test',role:'AUTHOR',status:'ACTIVE'});
   if(path==='/novels/me')return send([novel(A),novel(B)]);
   if(path===`/novels/${A}`||path===`/novels/${B}`)return send(novel(path.endsWith(A)?A:B));
@@ -65,7 +66,7 @@ test('mounted /author/ide planning journey, recoverable CAS drafts, real Writer 
   return send([]);
  });
  const button=name=>page.getByRole('button',{name,exact:true});
- const step=name=>page.getByRole('navigation',{name:'Các bước lập kế hoạch'}).getByRole('button',{name:new RegExp(name)});
+ const step=name=>({click:async()=>{const target=page.getByRole('navigation',{name:'Các bước lập kế hoạch'}).getByRole('button',{name:new RegExp(name)});await target.click();await expect(target).toHaveAttribute('aria-current','step');await expect(page.getByRole('region',{name:'Planning Studio',exact:true})).toHaveAttribute('aria-busy','false');}});
  const choose=async(label,value)=>{await page.getByRole('textbox',{name:label,exact:true}).click();await page.getByRole('option',{name:value,exact:true}).click();};
  try{
   await page.goto(origin+'author/ide?novelId='+A,{waitUntil:'domcontentloaded',timeout:90000});
@@ -115,7 +116,7 @@ test('mounted /author/ide planning journey, recoverable CAS drafts, real Writer 
   await page.keyboard.press('Tab');assert.notEqual(await page.evaluate(()=>document.activeElement.tagName),'BODY');
   if(out)await page.screenshot({path:join(out,'planning-mobile.png'),fullPage:true});
   // Same author, different novel: local private plan edits are scoped and recoverable.
-  await step('Dàn ý chương').click();await page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true}).fill('DevicePrivateOnly');
+  await step('Dàn ý chương').click();assert.ok(await page.getByRole('region',{name:'Planning Studio',exact:true}).evaluate(el=>el.scrollWidth<=el.clientWidth+1),'mobile Chapter Board must fit its scroll container');if(out)await page.screenshot({path:join(out,'planning-board-mobile.png'),fullPage:true});await page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true}).fill('DevicePrivateOnly');
   async function probe(phase){const state=await page.evaluate(key=>{const d=JSON.parse(localStorage.getItem(key)??'null');return {url:location.href,cached:!!d,cachedNoteMatches:d?.value?.notes==='DevicePrivateOnly',cachedHead:d?.value?.head};},`ephurin-planning:author-A:${A}:plan`);recoveryTrace.push({phase,...state});return state;}
   assert.equal((await probe('before-leave-A')).cachedNoteMatches,true,'note must be backed up before navigating');
   await page.evaluate(async id=>{const {router}=await import('/src/app/router.tsx');await router.navigate('/author/ide?novelId='+id);},B);
@@ -135,6 +136,10 @@ test('mounted /author/ide planning journey, recoverable CAS drafts, real Writer 
 
   await page.evaluate(async()=>{const {useAuthStore}=await import('/src/features/auth/useAuthStore.ts');useAuthStore.getState().setSession({accessToken:'token-author-B',user:{userId:'author-B',role:'AUTHOR',username:'B',email:'b@example.test',status:'ACTIVE'}});});
   await step('Ý tưởng').click();await expect(page.getByLabel('Ý tưởng & hướng đi (tương lai)',{exact:true})).toHaveValue('');await step('Dàn ý chương').click();await expect(page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true})).toHaveValue('');
+  await page.evaluate(async()=>{const {useAuthStore}=await import('/src/features/auth/useAuthStore.ts');useAuthStore.getState().clearSession();});await expect(page).toHaveURL(/\/login/);
+  await page.getByLabel('Email or username',{exact:true}).fill('offline-author');await page.getByLabel('Password',{exact:true}).fill('offline-test-only');await button('Login').click();await expect(page).toHaveURL(/\/author$/);
+  await page.evaluate(async id=>{const {router}=await import('/src/app/router.tsx');await router.navigate('/author/ide?novelId='+id);},A);
+  await button('Lập kế hoạch').click();await step('Dàn ý chương').click();await button('Khôi phục bản sửa dàn ý').click();await expect(page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true})).toHaveValue('DevicePrivateOnly');
   assert.equal(errors.length,0,errors.join('\n'));
   if(out)await writeFile(join(out,'mounted-readback.json'),JSON.stringify({route:page.url(),label:'Chromium actual app + HTTP mocks, not DB E2E',writes,errors},null,2));
  }catch(e){console.error('UI_DIAGNOSTIC',{url:page.url(),errors,recoveryTrace});if(out)await page.screenshot({path:join(out,'failure.png'),fullPage:true});throw e;}finally{releaseSummary();await browser.close();await server.close();}
