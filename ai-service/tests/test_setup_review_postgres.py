@@ -213,3 +213,35 @@ def test_empty_source_no_review_or_activation_consent(f):
     assert r.status_code==422
     with pytest.raises(BootstrapConflictError,match='SETUP_ACTIVATION_NOT_AVAILABLE'):f.service.activate_baseline(f.src.novel_id,job.job_id)
     assert snapshot(f,'review-empty-after')==before
+
+def test_reused_identity_and_edit_type_collisions_rollback(f):
+    first=submit(f);review(f,first,envelope(f,first))
+    target=SetupService(f.service).readback(f.src.novel_id,tenant_id=TENANT,actor_id=ACTOR)['approved_identities'][0]['entity_id']
+    with f.engine.begin() as c:c.execute(text('UPDATE narrative.entities SET is_locked=true WHERE id=:id'),{'id':target})
+    second=submit(f,idempotency_key='reuse-conflicts',expected_setup_version=1)
+    body=envelope(f,second)
+    body['decisions'][-1]={'proposal_id':body['decisions'][-1]['proposal_id'],'decision':'reject'}
+    for d in body['decisions'][:2]:d['identity']={'kind':'existing','approved_entity_id':target}
+    before=snapshot(f,'review-reused-id-before')
+    with pytest.raises(BootstrapConflictError,match='SETUP_IDENTITY_REUSED'):review(f,second,body)
+    assert snapshot(f,'review-reused-id-after')==before
+    body['decisions'][1]={'proposal_id':body['decisions'][1]['proposal_id'],'decision':'reject'}
+    body['decisions'][0]['edited_entity']={'canonical_name':'Overwrite approved identity','aliases':[]}
+    with pytest.raises(BootstrapConflictError,match='SETUP_EXISTING_ID_EDIT_CONFLICT'):review(f,second,body)
+    assert snapshot(f,'review-locked-edit-after')==before
+
+
+def test_review_http_duplicate_forged_fields_and_wrong_novel(f):
+    job=submit(f);body=envelope(f,job);owner={**f.headers,'X-Author-Id':ACTOR}
+    path=f'/v1/story-brains/{f.src.novel_id}/setup/{job.job_id}/review'
+    before=snapshot(f,'review-shape-before')
+    invalid=deepcopy(body);invalid['decisions'].append(invalid['decisions'][0])
+    assert f.client.post(path,json=invalid,headers=owner).status_code==422
+    invalid=deepcopy(body);invalid['decisions'][0]['edited_entity']={'canonical_name':'Name','aliases':[],'entity_id':str(uuid.uuid4())}
+    assert f.client.post(path,json=invalid,headers=owner).status_code==422
+    invalid=deepcopy(body);invalid['decisions'][0]['source_refs']=[{'kind':'future_outline'}]
+    assert f.client.post(path,json=invalid,headers=owner).status_code==422
+    assert f.client.post(path.replace(f.src.novel_id,str(uuid.uuid4())),json=body,headers=owner).status_code==404
+    admin={**owner,'X-Author-Id':str(uuid.uuid4()),'X-Role':'ADMIN'}
+    assert f.client.post(path,json=body,headers=admin).status_code==404
+    assert snapshot(f,'review-shape-after')==before
