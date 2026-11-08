@@ -36,6 +36,7 @@ test('setup-v1 live owner Gateway -> Python -> PostgreSQL immutable readback', {
     for(const table of ['bootstrap_jobs','proposals','analysis_runs','entities','facts','events','state_transitions','revision_provenances']) {
       result[table]=(await pg.query(`SELECT * FROM narrative.${table} WHERE novel_id=$1 ORDER BY id`,[novel])).rows;
     }
+    result.outbox=(await pg.query('SELECT * FROM revision_outbox_events WHERE novel_id=$1 ORDER BY event_id',[novel])).rows;
     result.revisions=(await pg.query('SELECT * FROM chapter_revisions WHERE novel_id=$1',[novel])).rows;
     result.mongo=await mongo.collection('draft_chapters').find({novelId:novel}).toArray();
     const value=JSON.parse(JSON.stringify(result));
@@ -124,7 +125,7 @@ test('setup-v1 live owner Gateway -> Python -> PostgreSQL immutable readback', {
     assert.equal(reviewedSnapshot.entities[0].source_type,'author_setup');
     assert.equal(reviewedSnapshot.entities[0].static_attributes.mentions,0);
     assert.equal(reviewedSnapshot.facts[0].chapter_number,null);
-    for(const table of ['events','state_transitions','revision_provenances','revisions','mongo']) assert.deepEqual(reviewedSnapshot[table],[]);
+    for(const table of ['events','state_transitions','revision_provenances','revisions','mongo','outbox']) assert.deepEqual(reviewedSnapshot[table],[]);
     assert.deepEqual((await request(reviewPath,200,reviewBody)).data,reviewed.data);
     await request(reviewPath,409,{...reviewBody,expected_brain_version:999});
     assert.deepEqual(await snapshot('review-idempotent-after'),reviewedSnapshot);

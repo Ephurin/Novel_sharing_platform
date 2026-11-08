@@ -30,7 +30,7 @@ def review(f, job, body, actor=ACTOR):
 
 
 def no_history(state):
-    for table in ['events','state_transitions','entity_mentions','revision_provenances']:
+    for table in ['events','state_transitions','entity_mentions','revision_provenances','current_entity_states']:
         assert not state[table], table
 
 
@@ -103,6 +103,7 @@ def test_review_concurrency_one_winner(f):
     assert sorted(results)==['conflict','review_complete']
     data=snapshot(f,'review-concurrent-final')
     assert len(data['decisions'])==3 and len(data['entities'])==2 and len(data['facts'])==1
+    assert {e['canonical_name'] for e in data['entities']}=={'Minh'}
     no_history(data)
 
 
@@ -243,6 +244,17 @@ def test_review_http_duplicate_forged_fields_and_wrong_novel(f):
     invalid=deepcopy(body);invalid['decisions'][0]['source_refs']=[{'kind':'future_outline'}]
     assert f.client.post(path,json=invalid,headers=owner).status_code==422
     assert f.client.post(path.replace(f.src.novel_id,str(uuid.uuid4())),json=body,headers=owner).status_code==404
+    assert f.client.post(path.replace(job.job_id,str(uuid.uuid4())),json=body,headers=owner).status_code==404
     admin={**owner,'X-Author-Id':str(uuid.uuid4()),'X-Role':'ADMIN'}
     assert f.client.post(path,json=body,headers=admin).status_code==404
     assert snapshot(f,'review-shape-after')==before
+
+
+def test_concurrent_exact_review_replay_commits_once(f):
+    job=submit(f);body=envelope(f,job)
+    with ThreadPoolExecutor(max_workers=2) as pool:results=list(pool.map(lambda _:review(f,job,body),range(2)))
+    assert results[0]==results[1]
+    data=snapshot(f,'review-concurrent-exact-replay')
+    assert len(data['decisions'])==3 and len(data['entities'])==2 and len(data['facts'])==1
+    assert data['bootstrap_jobs'][0]['result']['review_version']==1
+    no_history(data)
