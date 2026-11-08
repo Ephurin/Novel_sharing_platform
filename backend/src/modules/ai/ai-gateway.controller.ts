@@ -726,8 +726,8 @@ export async function getStoryPlanController(
       requestId: req.header('x-request-id'),
     });
 
-    if (data?.novel_id) {
-      await assertNovelOwnership(userId, 'AUTHOR', data.novel_id);
+    if (data?.novel_id !== String(scoped.rows[0].novel_id)) {
+      throw new AppError(502,'PLAN_SCOPE_MISMATCH','Invalid upstream plan scope');
     }
 
     res.json(successResponse(data));
