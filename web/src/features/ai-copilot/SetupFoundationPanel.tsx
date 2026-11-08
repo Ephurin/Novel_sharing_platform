@@ -91,9 +91,10 @@ function ScopedSetupPanel({novelId}: {novelId: string}) {
 function SetupM0Activation({snapshot,onReload}:{snapshot:SetupSnapshot;onReload:()=>Promise<void>}){
   const [readiness,setReadiness]=useState<SetupM0Readiness|null>(null),[error,setError]=useState(''),[pending,setPending]=useState(false);
   const active=useRef(true),key=useRef(crypto.randomUUID());
-  useEffect(()=>{active.current=true;getSetupM0Readiness(snapshot.novel_id,snapshot.snapshot_id)
-    .then(value=>{if(active.current)setReadiness(value);}).catch(e=>{if(active.current)setError(getApiErrorMessage(e));});
-    return()=>{active.current=false;};},[snapshot.novel_id,snapshot.snapshot_id]);
+  useEffect(()=>{active.current=true;return()=>{active.current=false;};},[]);
+  useEffect(()=>{let cancelled=false;setReadiness(null);setError('');getSetupM0Readiness(snapshot.novel_id,snapshot.snapshot_id)
+    .then(value=>{if(!cancelled&&active.current)setReadiness(value);}).catch(e=>{if(!cancelled&&active.current)setError(getApiErrorMessage(e));});
+    return()=>{cancelled=true;};},[snapshot]);
   async function activate(){
     if(!readiness?.eligible)return;
     setPending(true);setError('');
