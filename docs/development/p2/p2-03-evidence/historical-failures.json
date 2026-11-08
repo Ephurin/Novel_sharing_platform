@@ -1,0 +1,40 @@
+[
+  {
+    "source": "e4308852",
+    "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42455271336",
+    "excerpts": [
+      "2026-11-08T06:35:25.0429539Z psycopg.errors.DuplicateColumn: column \"edit_metadata\" of relation \"story_plans\" already exists",
+      "2026-11-08T06:35:25.0499806Z sqlalchemy.exc.ProgrammingError: (psycopg.errors.DuplicateColumn) column \"edit_metadata\" of relation \"story_plans\" already exists",
+      "2026-11-08T06:35:25.2750665Z AssertionError: Missing operational log: ai-service.log"
+    ]
+  },
+  {
+    "source": "91356db2",
+    "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42455476977",
+    "excerpts": [
+      "2026-11-08T06:37:46.0902484Z E       TypeError: Boolean value of this clause is not defined",
+      "2026-11-08T06:37:46.0947056Z FAILED tests/test_migrations.py::MigrationTests::test_upgrade_and_downgrade_clean_database - TypeError: Boolean value of this clause is not defined",
+      "2026-11-08T06:37:46.0948110Z 1 failed, 414 passed, 32 skipped, 277 deselected, 4 warnings, 6 subtests passed in 15.91s"
+    ]
+  },
+  {
+    "source": "91356db2",
+    "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42455477006",
+    "excerpts": [
+      "2026-11-08T06:38:26.8781884Z E           RuntimeError: Cannot discard plan-edit history during downgrade",
+      "2026-11-08T06:38:26.8816167Z E           RuntimeError: Cannot discard plan-edit history during downgrade",
+      "2026-11-08T06:38:27.4600153Z E           RuntimeError: Cannot discard plan-edit history during downgrade",
+      "2026-11-08T06:38:27.4619698Z FAILED tests/test_postgres_integration.py::test_alembic_migrations_lifecycle - RuntimeError: Cannot discard plan-edit history during downgrade",
+      "2026-11-08T06:38:27.4620632Z FAILED tests/test_postgres_integration.py::test_migration_upgrade_from_legacy_0005_schema - RuntimeError: Cannot discard plan-edit history during downgrade",
+      "2026-11-08T06:38:27.4621727Z FAILED tests/test_semantic_memory_postgres_integration.py::test_migration_downgrade_reupgrade_preserves_canonical_data - RuntimeError: Cannot discard plan-edit history during downgrade",
+      "2026-11-08T06:38:27.4622530Z 3 failed, 266 passed, 8 skipped, 447 deselected, 5 warnings in 51.45s"
+    ]
+  },
+  {
+    "source": "c8de1fae",
+    "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42455845979",
+    "excerpts": [
+      "2026-11-08T06:44:49.2465293Z AssertionError: Expected 200 for admin read, got 403: {\"success\":false,\"data\":null,\"error\":{\"code\":\"FORBIDDEN\",\"message\":\"You do not have permission to access this novel\"},\"meta\":{}}"
+    ]
+  }
+]
