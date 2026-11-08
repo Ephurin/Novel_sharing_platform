@@ -1,6 +1,6 @@
 """Setup-v1 foundation over existing bootstrap jobs and proposal store.
 
-P2-02A deliberately has no Canon review/materialization authority.
+Setup review uses the existing PostgreSQL entity/fact/decision authority.
 """
 import hashlib
 import json
@@ -100,7 +100,7 @@ class SetupService:
                                    'origin':card['origin'], 'source_refs':card['source_refs']},)))
             result.update(setup_cards=cards, original_model_output=raw, provisional_scope=scope,
                           proposal_count=len(proposals), required_proposal_ids=[p.proposal_id for p in proposals])
-            finished = replace(reserved, status='waiting_review', stage='setup_review_unavailable', result=result)
+            finished = replace(reserved, status='waiting_review', stage='setup_review_pending', result=result)
             run = AnalysisRun(run_id=run_id, idempotency_key=f'{tenant_id}:setup-v1:{job_id}',
                 input_hash=input_hash, operation='bootstrap_setup', status='pending', pipeline_version='setup-v1')
             return self.repository.finalize_idea_bootstrap(finished, proposals, run)
@@ -190,6 +190,13 @@ class SetupService:
     def validate_span(text, ref):
         if not (0 <= ref['start'] < ref['end'] <= len(text)) or text[ref['start']:ref['end']] != ref['quote']:
             raise SetupFailure('SETUP_INVALID_SOURCE_SPAN')
+
+    def review(self, novel_id, snapshot_id, request, *, tenant_id, actor_id):
+        tenant_id, actor_id = self.principal(tenant_id, actor_id)
+        try:
+            return self.repository.review_setup(novel_id, snapshot_id, request, actor_id=actor_id)
+        except ValidationError:
+            raise SetupFailure('SETUP_REVIEW_INVALID_PAYLOAD') from None
 
     def get_job(self, job_id, *, tenant_id, actor_id=None):
         tenant_id, actor_id = self.principal(tenant_id, actor_id)

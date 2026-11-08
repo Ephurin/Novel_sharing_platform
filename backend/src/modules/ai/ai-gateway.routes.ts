@@ -18,6 +18,7 @@ import {
   rejectProposalGroupController,
   startIdeaBootstrapController,
   getSetupSnapshotController,
+  reviewSetupSnapshotController,
   startManuscriptBootstrapController,
   startWritingGenerationController,
   writingDraftReviewController,
@@ -87,6 +88,7 @@ aiGatewayRoutes.post(
 );
 
 aiGatewayRoutes.get('/story-brains/:novelId/setup', getSetupSnapshotController);
+aiGatewayRoutes.post('/story-brains/:novelId/setup/:snapshotId/review', reviewSetupSnapshotController);
 
 // Bootstrap
 aiGatewayRoutes.post(

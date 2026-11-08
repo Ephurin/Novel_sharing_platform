@@ -1232,6 +1232,13 @@ class PostgresNarrativeRepository:
                 AnalysisRunRecord.operation == 'bootstrap_setup').limit(1)):
             raise BootstrapConflictError('SETUP_REVIEW_NOT_AVAILABLE')
 
+    def review_setup(self, story_id, snapshot_id, request, *, actor_id):
+        from infrastructure.setup_review import review_setup
+        try:
+            return review_setup(self, story_id, snapshot_id, request, actor_id=actor_id)
+        except IntegrityError:
+            raise BootstrapConflictError('SETUP_REVIEW_COLLISION') from None
+
     def get_setup_job(self, job_id, *, actor_id, novel_id=None):
         """Author-scoped access; worker get_bootstrap_job is not an HTTP authority."""
         author = str(uuid.UUID(actor_id))
@@ -1264,13 +1271,29 @@ class PostgresNarrativeRepository:
             if not jobs:
                 raise KeyError(snapshot_id or story_id)
             job = max(jobs, key=lambda j:j.result['setup_version'])
+            from copy import deepcopy
             result, source = job.result, job.result['setup_source']
+            review = (result.get('setup_review') or {}).get('response')
+            cards = deepcopy(result.get('setup_cards', []))
+            decisions = {d['proposal_id']: d for d in review['decisions']} if review else {}
+            for card in cards:
+                if card['proposal_id'] in decisions:
+                    decision = decisions[card['proposal_id']]
+                    card.update(status='accepted' if decision['decision'] == 'accept' else 'rejected',
+                                reviewed_payload=decision['edited_payload'], decision_audit=decision)
+                if card['card_type'] == 'initial_condition':
+                    card['unresolved'] = True
+            from application.entity_review_service import TYPE_MAP
+            approved = [dict(entity_id=str(e.id), canonical_name=e.canonical_name,
+                entity_type={'PER':'character', 'LOC':'location'}.get(TYPE_MAP.get(e.entity_type.lower(), e.entity_type.upper()), e.entity_type))
+                for e in session.scalars(select(EntityRecord).where(*self._scope(EntityRecord, novel_id),
+                    EntityRecord.confirmation_status == 'confirmed').order_by(EntityRecord.id)).all()]
             return dict(contract_version='setup-v1', novel_id=str(novel_id), job_id=str(job.id),
                 snapshot_id=str(job.id), setup_version=result['setup_version'], brain_version=brain.brain_version,
                 review_version=result['review_version'], setup_hash=result['setup_hash'],
                 text_hash=result['text_hash'], mode=result['mode'], job_status=job.status,
                 snapshot=source['setup'], hints=source['hints'], outline=source['outline'],
-                preferences=source['preferences'], proposals=result.get('setup_cards', []))
+                preferences=source['preferences'], proposals=cards, review=review, approved_identities=approved)
 
     def create_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob:
         novel_id = self._novel_id(job.novel_id)

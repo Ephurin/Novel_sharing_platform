@@ -19,7 +19,7 @@ from api.deps import (
     get_writing_service,
     require_service_token,
 )
-from api.setup_schemas import SetupRequest
+from api.setup_schemas import SetupRequest, SetupReviewRequest
 from api.setup_auth import setup_principal, identity_headers, SetupValidationRoute
 from application.setup_service import SetupService, SetupFailure, public_job
 from api.schemas import (
@@ -493,6 +493,27 @@ def stop_autonomous_run(
         "data": asdict(saved),
         "meta": {"request_id": request_id, "schema_version": 1},
     }
+
+
+@router.post('/story-brains/{novel_id}/setup/{snapshot_id}/review')
+def review_setup_snapshot(
+    novel_id: uuid.UUID, snapshot_id: uuid.UUID, body: SetupReviewRequest,
+    request: Request, response: Response,
+    request_id: str = Header(..., alias='X-Request-Id'),
+    service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+):
+    response.headers['Cache-Control'] = 'no-store'
+    try:
+        tenant, author = setup_principal(request, service)
+        data = SetupService(service).review(str(novel_id), str(snapshot_id), body,
+                                            tenant_id=tenant, actor_id=author)
+    except SetupFailure as exc:
+        raise HTTPException(exc.status, detail={'code':exc.code}) from None
+    except KeyError:
+        raise HTTPException(404, detail={'code':'SETUP_NOT_FOUND'}) from None
+    except (BootstrapConflictError, OptimisticLockError) as exc:
+        raise HTTPException(409, detail={'code':getattr(exc, 'code', 'SETUP_REVIEW_CONFLICT')}) from None
+    return {'data':data, 'meta':{'request_id':request_id, 'schema_version':1}}
 
 
 @router.get('/story-brains/{novel_id}/setup')

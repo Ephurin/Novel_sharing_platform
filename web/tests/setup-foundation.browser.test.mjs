@@ -186,3 +186,48 @@ test('mounted AuthorMemoryPanel isolates accounts and novels (mocked HTTP)', {ti
     assert.deepEqual(errors,[]);
   } finally {await browser.close();await new Promise(resolve=>server.close(resolve));}
 });
+
+test('mounted review group edits, explicit identities, rejection, 409 and persisted reload (mocked HTTP)', {timeout:180000}, async()=>{
+  const bundle=await build({entryPoints:[fileURLToPath(new URL('fixtures/setup-foundation-fixture.tsx',import.meta.url))],bundle:true,write:false,outfile:'app.js',format:'iife',jsx:'automatic',define:{'import.meta.env.VITE_API_BASE_URL':'"/api/v1"','process.env.NODE_ENV':'"test"'}});
+  const server=createServer((req,res)=>{
+    if(req.url==='/app.js'||req.url==='/app.css') {res.setHeader('Content-Type',req.url.endsWith('.css')?'text/css':'text/javascript');return res.end(bundle.outputFiles.find(f=>f.path.endsWith(req.url==='/app.css'?'.css':'.js'))?.contents);}
+    res.end('<html><head><link rel="stylesheet" href="/app.css"></head><body><div id="root"></div><script src="/app.js"></script></body></html>');
+  });
+  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
+  const browser=await chromium.launch({channel:process.env.PLAYWRIGHT_CHANNEL||'msedge',headless:true});
+  const page=await browser.newPage();let submitted=null,conflict=true;
+  const saved={contract_version:'setup-v1',novel_id:'10000000-0000-0000-0000-000000000001',snapshot_id:'snapshot',job_id:'snapshot',setup_version:1,review_version:0,brain_version:1,setup_hash:'a'.repeat(64),text_hash:'b'.repeat(64),mode:'extract',job_status:'waiting_review',snapshot:{text:'',declarations:[],world_rules:[],initial_conditions:[]},outline:'Chapter 8 planned betrayal',approved_identities:[],proposals:[
+    {proposal_id:'one',dependency_group_id:'group',card_type:'entity',origin:'author_declared',source_kind:'author_setup',status:'pending',source_refs:[],payload:{canonical_name:'Minh',entity_type:'character'}},
+    {proposal_id:'two',dependency_group_id:'group',card_type:'entity',origin:'author_declared',source_kind:'author_setup',status:'pending',source_refs:[],payload:{canonical_name:'Minh',entity_type:'character'}},
+    {proposal_id:'rule',dependency_group_id:'group',card_type:'world_rule',origin:'author_declared',source_kind:'author_setup',status:'pending',source_refs:[],payload:{fact_key:'gravity',fact_value:'No flight'}}]};
+  await page.route('**/api/v1/**',async route=>{
+    if(route.request().method()==='POST') {
+      assert.ok(route.request().url().endsWith('/setup/snapshot/review'));
+      submitted=route.request().postDataJSON();
+      if(conflict)return route.fulfill({status:409,contentType:'application/json',body:JSON.stringify({error:{code:'SETUP_REVIEW_VERSION_CONFLICT',message:'Changed'}})});
+      saved.review={status:'review_complete',activation_available:false};saved.review_version=1;saved.brain_version=2;
+      saved.proposals=saved.proposals.map(c=>{const d=submitted.decisions.find(d=>d.proposal_id===c.proposal_id);return {...c,status:d.decision==='accept'?'accepted':'rejected',reviewed_payload:d.edited_entity??d.edited_rule??c.payload};});
+      return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data:saved.review})});
+    }
+    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data:saved})});
+  });
+  try {
+    await page.goto('http://127.0.0.1:'+server.address().port);
+    const button=page.getByRole('button',{name:'Lưu quyết định toàn nhóm'});
+    await expect(button).toBeDisabled();
+    async function select(label,option) {await page.getByRole('textbox',{name:label,exact:true}).click();await page.getByRole('option',{name:option,exact:true}).click();}
+    await select('Quyết định thẻ 1','Duyệt');await select('Danh tính thẻ 1','Tạo danh tính mới (ID server)');
+    await page.getByLabel('Nội dung thẻ 1',{exact:true}).fill('Minh reviewed');
+    await select('Quyết định thẻ 2','Loại');
+    await select('Quyết định thẻ 3','Duyệt');await page.getByLabel('Nội dung thẻ 3',{exact:true}).fill('No flight without wings');
+    await button.click();await expect(page.getByRole('alert').filter({hasText:'SETUP_REVIEW_VERSION_CONFLICT'})).toBeVisible();
+    const key=submitted.idempotency_key;assert.equal(submitted.expected_review_version,0);assert.equal(submitted.decisions.length,3);
+    assert.equal(submitted.decisions[0].identity.kind,'new');assert.equal(submitted.decisions[1].decision,'reject');
+    conflict=false;await button.click();await expect(page.getByText('Đã duyệt',{exact:true})).toHaveCount(2);
+    assert.equal(submitted.idempotency_key,key);
+    await page.reload();await expect(page.getByText('Minh reviewed',{exact:true})).toBeVisible();
+    await expect(page.getByText('Đã loại',{exact:true})).toBeVisible();
+    await expect(page.getByRole('button',{name:'Lưu quyết định toàn nhóm'})).toHaveCount(0);
+    if(process.env.P202_REVIEW_SCREENSHOT) await page.screenshot({path:process.env.P202_REVIEW_SCREENSHOT,fullPage:true});
+  } finally {await browser.close();await new Promise(resolve=>server.close(resolve));}
+});

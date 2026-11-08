@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Alert, Badge, Button, Card, Group, Select, Stack, Text, Textarea, TextInput } from '@mantine/core';
 import { useAuthStore } from '../auth/useAuthStore';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
-import { getSetup, submitSetup, type SetupDeclaration, type SetupSnapshot } from './setup-api';
+import { getSetup, submitSetup, reviewSetup, type SetupReviewDecision, type SetupDeclaration, type SetupSnapshot } from './setup-api';
 
 export function SetupFoundationPanel({novelId}: {novelId: string}) {
   const account = useAuthStore(state => state.user?.userId ?? 'guest');
@@ -62,7 +62,7 @@ function ScopedSetupPanel({novelId}: {novelId: string}) {
   }
   return <Stack gap="xs">
     <Text fw={600}>Thiết lập thế giới trước khi viết</Text>
-    <Alert color="blue">Bản thiết lập được lưu riêng với dàn ý tương lai. Hiện chỉ lưu đề xuất chờ duyệt; chức năng duyệt, sửa và kích hoạt chưa khả dụng. Chưa có dữ liệu nào trở thành Canon.</Alert>
+    <Alert color="blue">Bản thiết lập được lưu riêng với dàn ý tương lai. Duyệt trọn nhóm để ghi nhân vật, địa danh và quy tắc vào thiết lập thế giới. Điều kiện ban đầu chưa hỗ trợ vẫn chờ xử lý. Duyệt không kích hoạt Story Brain và không tạo lịch sử chương.</Alert>
     <Select label="Cách xử lý" value={mode} onChange={v=>setMode(v as typeof mode)} data={[{value:'extract',label:'Chỉ trích xuất điều đã khai báo'},{value:'blueprint',label:'Yêu cầu gợi ý sáng tạo (mẫu thử offline)'}]} allowDeselect={false}/>
     <Textarea label="Thiết lập rõ ràng (tùy chọn)" value={text} onChange={e=>setText(e.currentTarget.value)} minRows={3}
       description="Offline: nhập tên qua các thẻ bên dưới. Bộ trích xuất fake chỉ hiểu [character:Minh], [location:An Thành]; văn xuôi khác báo provider chưa hỗ trợ."/>
@@ -77,11 +77,73 @@ function ScopedSetupPanel({novelId}: {novelId: string}) {
     <Group><Button onClick={submit} loading={pending} disabled={declarations.some(d=>!d.display_name.trim())}>Lưu và xử lý thiết lập</Button>
       <Button variant="default" onClick={reload} disabled={pending}>Tải bản đã lưu</Button></Group>
     {message && <Alert role="alert">{message}</Alert>}
-    {snapshot && <><Text size="sm">Bản {snapshot.setup_version} · {snapshot.job_status==='waiting_review'?'Chờ duyệt':snapshot.job_status==='failed'?'Thất bại':'Đang xử lý'} · {snapshot.proposals.length} đề xuất</Text>
+    {snapshot && <><Text size="sm">Bản {snapshot.setup_version} · {snapshot.review?'Đã lưu quyết định':snapshot.job_status==='waiting_review'?'Chờ duyệt':snapshot.job_status==='failed'?'Thất bại':'Đang xử lý'} · {snapshot.proposals.length} đề xuất</Text>
+      <SetupReviewGroup key={`${snapshot.snapshot_id}:${snapshot.review_version}`} snapshot={snapshot} onReload={reload}/>
       {snapshot.proposals.map(card=><Card withBorder key={card.proposal_id}>
-        <Group><Badge>{card.origin==='author_declared'?'Tác giả khai báo':card.origin==='extracted_explicit'?'Từ nguồn rõ ràng':'Provider gợi ý'}</Badge><Badge color="yellow">Chờ duyệt</Badge></Group>
-        <Text>{String(card.payload.canonical_name ?? card.payload.fact_value ?? card.payload.attribute_key ?? '')}</Text>
+        <Group><Badge>{card.origin==='author_declared'?'Tác giả khai báo':card.origin==='extracted_explicit'?'Từ nguồn rõ ràng':'Provider gợi ý'}</Badge><Badge color={card.status==='accepted'?'green':card.status==='rejected'?'red':'yellow'}>{card.unresolved?'Chưa hỗ trợ · Chờ xử lý':card.status==='accepted'?'Đã duyệt':card.status==='rejected'?'Đã loại':'Chờ duyệt'}</Badge></Group>
+        <Text>{String(card.reviewed_payload?.canonical_name ?? card.reviewed_payload?.fact_value ?? card.payload.canonical_name ?? card.payload.fact_value ?? card.payload.attribute_key ?? '')}</Text>
         <Text size="xs" c="dimmed">{card.source_refs.map(ref=>String(ref.field_path ?? 'Gợi ý sáng tạo')).join(', ')}</Text>
       </Card>)}</>}
   </Stack>;
+}
+
+
+function SetupReviewGroup({snapshot, onReload}:{snapshot:SetupSnapshot; onReload:()=>Promise<void>}) {
+  const cards=snapshot.proposals.filter(c=>c.card_type!=='initial_condition');
+  const [choices,setChoices]=useState<Record<string,{decision:string; identity:string; value:string}>>({});
+  const [pending,setPending]=useState(false), [error,setError]=useState('');
+  const operation=useRef<{fingerprint:string; key:string}|null>(null);
+  const active=useRef(true);
+  useEffect(()=>{active.current=true;return()=>{active.current=false;};},[]);
+  function choice(id:string, field:string, value:string) {
+    setChoices(all=>({...all,[id]:{...(all[id]??{decision:'',identity:'',value:''}),[field]:value}}));
+  }
+  if(snapshot.review) return <Alert color="green">Đã lưu quyết định duyệt. Thiết lập vẫn chưa được kích hoạt. {snapshot.review.status==='reviewed_with_unresolved'?'Còn điều kiện chưa hỗ trợ.':''}</Alert>;
+  if(!cards.length || snapshot.job_status!=='waiting_review') return null;
+  const ready=cards.every(c=>choices[c.proposal_id]?.decision && (choices[c.proposal_id].decision==='reject' ||
+    (choices[c.proposal_id].value.trim() && (c.card_type!=='entity'||choices[c.proposal_id].identity))));
+  async function decide() {
+    setPending(true);setError('');
+    const decisions:SetupReviewDecision[]=cards.map(c=>{
+      const v=choices[c.proposal_id];
+      if(v.decision==='reject') return {proposal_id:c.proposal_id,decision:'reject'};
+      if(c.card_type==='entity') return {proposal_id:c.proposal_id,decision:'accept',
+        identity:v.identity==='new'?{kind:'new'}:{kind:'existing',approved_entity_id:v.identity},
+        ...(v.identity==='new'?{edited_entity:{canonical_name:v.value,aliases:(c.payload.aliases as string[]|undefined)??[]}}:{})};
+      return {proposal_id:c.proposal_id,decision:'accept',edited_rule:{fact_key:String(c.payload.fact_key),fact_value:v.value}};
+    });
+    const body={dependency_group_id:cards[0].dependency_group_id,setup_hash:snapshot.setup_hash,
+      expected_setup_version:snapshot.setup_version,expected_review_version:snapshot.review_version,
+      expected_brain_version:snapshot.brain_version,decisions};
+    const fingerprint=JSON.stringify(body);
+    if(operation.current?.fingerprint!==fingerprint) operation.current={fingerprint,key:crypto.randomUUID()};
+    try {
+      await reviewSetup(snapshot.novel_id,snapshot.snapshot_id,{...body,idempotency_key:operation.current!.key});
+      if(active.current) await onReload();
+    } catch(e) {if(active.current) setError(e instanceof ApiClientError && e.status===409
+      ? `${getApiErrorMessage(e)}. Hãy tải bản đã lưu và đối chiếu; không tự gửi lại bản cũ.`:getApiErrorMessage(e));}
+    finally {if(active.current)setPending(false);}
+  }
+  return <Card withBorder><Stack>
+    <Text fw={600}>Duyệt toàn bộ nhóm thiết lập</Text>
+    <Text size="sm">Chọn duyệt hoặc loại cho từng thẻ. Toàn bộ nhóm được lưu cùng lúc. Tên giống nhau không có nghĩa là cùng nhân vật.</Text>
+    {cards.map((c,i)=>{
+      const id=c.proposal_id,v=choices[id];
+      const value=String(c.payload.canonical_name??c.payload.fact_value??'');
+      return <Stack gap="xs" key={id}>
+        <Text>{i+1}. {value}</Text>
+        <Select label={`Quyết định thẻ ${i+1}`} value={v?.decision||null} allowDeselect={false}
+          data={[{value:'accept',label:'Duyệt'},{value:'reject',label:'Loại'}]}
+          onChange={d=>{choice(id,'decision',d??'');if(!v?.value)choice(id,'value',value);}}/>
+        {v?.decision==='accept' && <>
+          <TextInput label={`Nội dung thẻ ${i+1}`} value={v.value} disabled={c.card_type==='entity'&&!!v.identity&&v.identity!=='new'} onChange={e=>choice(id,'value',e.currentTarget.value)}/>
+          {c.card_type==='entity' && <Select label={`Danh tính thẻ ${i+1}`} value={v.identity||null} allowDeselect={false}
+            data={[{value:'new',label:'Tạo danh tính mới (ID server)'},...(snapshot.approved_identities??[]).filter(e=>e.entity_type===c.payload.entity_type).map(e=>({value:e.entity_id,label:`${e.canonical_name} · ${e.entity_id}`}))]}
+            onChange={identity=>choice(id,'identity',identity??'')}/>}
+        </>}
+      </Stack>;
+    })}
+    <Button onClick={decide} disabled={!ready} loading={pending}>Lưu quyết định toàn nhóm</Button>
+    {error&&<Alert color="red" role="alert">{error}</Alert>}
+  </Stack></Card>;
 }

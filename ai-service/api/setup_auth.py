@@ -46,7 +46,7 @@ def identity_headers(request, service, *, optional=False):
 
 
 # Pydantic's default error includes the rejected input object (and private
-# notes). Redact only versioned setup admission errors; P1 DTOs stay unchanged.
+# notes). Redact versioned setup admission and review errors; P1 DTOs stay unchanged.
 from fastapi.routing import APIRoute
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -73,7 +73,7 @@ class SetupValidationRoute(APIRoute):
             except RequestValidationError as exc:
                 body = exc.body
                 versioned = contains_setup_input(body)
-                if self.path.endswith('/bootstrap/from-idea') and versioned:
+                if (self.path.endswith('/bootstrap/from-idea') and versioned) or self.path.endswith('/setup/{snapshot_id}/review'):
                     return JSONResponse(status_code=422, content={'detail':{'code':'INVALID_SETUP_REQUEST'}})
                 raise
         return handler
