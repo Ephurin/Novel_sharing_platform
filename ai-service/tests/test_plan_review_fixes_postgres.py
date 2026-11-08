@@ -144,6 +144,13 @@ def test_hidden_legacy_active_requires_handoff_without_blocking_new_draft(f):
     source=command(f,body(3,head=1))
     assert read(f)['active_plan_id'] is None and read(f)['active_plan_unavailable']
     before=snapshot(f,'fix-legacy-active-before')
+    from types import SimpleNamespace
+    def forbidden_preview(**kwargs):raise AssertionError('Foreign legacy planning context reached writer')
+    f.client.app.state.writing_service=SimpleNamespace(_repository=f.repo,preview_context=forbidden_preview)
+    headers={**f.headers,'X-Author-Id':ACTOR}
+    response=f.client.get(f'/v1/story-brains/{f.src.novel_id}/context-preview?chapter_number=1',headers=headers)
+    assert response.status_code==404,response.text
+    assert 'LegacyPrivateOnly' not in response.text and 'LegacyTitlePrivate' not in response.text
     for action in ['activate','skip']:
         with pytest.raises(BootstrapConflictError,match='LEGACY_ACTIVE_PLAN_HANDOFF_REQUIRED'):command(f,life(source,action))
     assert snapshot(f,'fix-legacy-active-after')==before
