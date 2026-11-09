@@ -74,7 +74,7 @@ Thái (chủ sản phẩm) đã chốt D1–D7 ngày 09/11/2026. D2 và D3 đư�
   - Sanction `HIDE` ẩn toàn bộ truyện và các chương đang hiện, đồng bộ bản nháp Mongo bằng job có retry.
   - Khôi phục chỉ trả lại dữ liệu mà chính sanction đó đã ẩn, không hồi sinh chương tác giả đã xoá. Audit và thông báo giữ nguyên.
   - Về kỹ thuật, **vẫn cần @karasunosu (người phụ trách #74) xác nhận** phần khôi phục/retry, dữ liệu sanction cũ và trường hợp lỗi/rollback. Sign-off sản phẩm không có nghĩa D6 đã PASS.
-  - Migration `025_admin_novel_draft_sync.sql`. Đã đổi số 2 lần: trùng `020_story_brain_bible` của #87, rồi trùng `024_chapter_reader_workspace` trên `main`.
+  - Migration `025_admin_novel_draft_sync.sql`. Đã đổi số 2 lần: trùng `020_story_brain_bible` của #87, rồi trùng `024_chapter_reader_workspace` trên `main`. #116 đã revert migration `024` đó, nhưng file này vẫn giữ số `025` để không trùng nếu `024` được đưa lại.
 - **D7. Mỗi độc giả nhận đúng 1 thông báo cho mỗi chương.**
   - Theo dõi tác giả → `NEW_CHAPTER` (nhánh này).
   - Bật chuông truyện → `NOVEL_CHAPTER_PUBLISHED` (trigger của #88).

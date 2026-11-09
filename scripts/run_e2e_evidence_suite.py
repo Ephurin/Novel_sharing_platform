@@ -110,6 +110,7 @@ def load_evidence(step: Dict[str, Any], name: str) -> Optional[Dict[str, Any]]:
     if "checkpoints" in data:
         summary["checkpoints"] = {key: value.get("result") for key, value in data["checkpoints"].items()}
     if name == "srs":
+        summary["policy_version"] = data.get("policy_version")
         summary["results"] = [{k: r.get(k) for k in ("id", "title", "result", "detail")} for r in data.get("results", [])]
     if name == "smoke":
         summary["results"] = [{k: r.get(k) for k in ("combo", "role", "step", "result", "problems", "screenshot")} for r in data.get("results", [])]
