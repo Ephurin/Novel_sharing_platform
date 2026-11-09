@@ -4,6 +4,7 @@
 **Người thực hiện:** Frontend Developer (Gemini)  
 **Pull Request:** [#106 (Draft)](https://github.com/Ephurin/Novel_sharing_platform/pull/106)  
 **Nhánh nguồn (Head Branch):** `gemini/p2-07a-ux01-ux04-navigation`  
+**Head Commit SHA:** `7c9a63a14c695717e2352cfa7fe8b840f18f20ae`  
 **Nhánh đích (Target Base):** `integration/p2-planning-studio`  
 **Base Commit SHA:** `717ef6e7fa7b8a443a2fb37f7a6fa2fcd31c0c89` (Merge PR #105)  
 **Tham chiếu Issue:** [#104](https://github.com/Ephurin/Novel_sharing_platform/issues/104)  
@@ -118,10 +119,10 @@
   - Base Branch: Đã chuyển đổi thành công sang **`integration/p2-planning-studio`**.
   - Draft State: Đã chuyển đổi sang **Draft PR** để sẵn sàng cho GPT-6 review độc lập.
   - Diff Scope: Giữ nguyên vẹn đúng **13 files** liên quan đến UX-01/UX-04, không lẫn bất kỳ thay đổi ngoài phạm vi nào.
-- **Tình trạng CI Pipeline:**
-  - **P2 Setup Provenance Foundation (`.github/workflows/p2-setup-provenance.yml`):** Kích hoạt trên PR nhắm vào nhánh `integration/p2-planning-studio` với thay đổi tại `web/**`. Đã tích hợp bài test hồi quy `tests/p2-07a-ux01-ux04-regression.browser.test.mjs`.
-  - **P8 Cutover and Migration (`.github/workflows/p8-cutover.yml`):** Kích hoạt trên PR có thay đổi tại `web/**`.
-  - **P7 Semantic Memory Foundation (`.github/workflows/p7-semantic-memory.yml`):** Không kích hoạt do path filters chỉ bao gồm `ai-service/**` và scripts liên quan (PR này hoàn toàn thuộc frontend `web/**`).
+- **Tình trạng CI Pipeline (Đã xác minh trên Commit `7c9a63a1`):**
+  - **P2 Setup Provenance Foundation:** [Run #42576824188](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42576824188) — **SUCCESS** (Bao gồm build, migration, AI service, planning journey, P2-07A UX-01 & UX-04 regression suite, và P1 Writer autosave recovery).
+  - **P8 Cutover and Migration:** [Run #42576824047](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42576824047) — **SUCCESS** (7/7 jobs completed: backend-integration, frontend-api-cutover, final-cleanup-gate, rollback-rehearsal, postgres-integration, unit, root-compose-cutover-smoke).
+  - **P7 Semantic Memory Foundation:** Không kích hoạt (Path filters chỉ bao gồm `ai-service/**` và test scripts liên quan; PR này là pure frontend `web/**`).
 
 ---
 
