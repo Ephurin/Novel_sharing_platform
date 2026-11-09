@@ -4,12 +4,13 @@
     "size_bytes": 738705,
     "total_entries": 96,
     "scanned_text_entries": 29,
-    "binary_entries": 67,
+    "skipped_binary_entries": 67,
     "unreadable_entries": 0,
     "entry_errors": [],
     "emails_synthetic": [],
     "emails_potential_real": [],
     "jwt_count": 23,
+    "undecodable_jwt_count": 0,
     "jwt_contexts": [
       {
         "iss": "none",
@@ -29,7 +30,7 @@
     "size_bytes": 10309159,
     "total_entries": 311,
     "scanned_text_entries": 48,
-    "binary_entries": 263,
+    "skipped_binary_entries": 263,
     "unreadable_entries": 0,
     "entry_errors": [],
     "emails_synthetic": [
@@ -37,6 +38,7 @@
     ],
     "emails_potential_real": [],
     "jwt_count": 62,
+    "undecodable_jwt_count": 0,
     "jwt_contexts": [
       {
         "iss": "ephurin-api",
@@ -56,7 +58,7 @@
     "size_bytes": 84589930,
     "total_entries": 2867,
     "scanned_text_entries": 193,
-    "binary_entries": 2674,
+    "skipped_binary_entries": 2674,
     "unreadable_entries": 0,
     "entry_errors": [],
     "emails_synthetic": [
@@ -91,6 +93,7 @@
     ],
     "emails_potential_real": [],
     "jwt_count": 0,
+    "undecodable_jwt_count": 0,
     "jwt_contexts": [],
     "passwords_count": 4,
     "passwords_redacted_or_fixture": 4,
@@ -101,12 +104,13 @@
     "size_bytes": 838811,
     "total_entries": 104,
     "scanned_text_entries": 29,
-    "binary_entries": 75,
+    "skipped_binary_entries": 75,
     "unreadable_entries": 0,
     "entry_errors": [],
     "emails_synthetic": [],
     "emails_potential_real": [],
     "jwt_count": 0,
+    "undecodable_jwt_count": 0,
     "jwt_contexts": [],
     "passwords_count": 0,
     "passwords_redacted_or_fixture": 0,

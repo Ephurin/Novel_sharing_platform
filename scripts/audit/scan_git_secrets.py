@@ -1,8 +1,12 @@
-"""Full-history Git secret and credential scanner for public readiness audit.
+"""Full-history Git diff secret and credential scanner for public readiness audit.
 
 Scans added/modified diff lines across all reachable refs (git log -p --all --full-history).
-Outputs strictly redacted and anonymized findings with zero author email/PII data.
-Fails closed (non-zero exit) if git subprocess encounters an error.
+SCOPE AND BOUNDARIES:
+- Scans text diffs of added lines; does NOT scan raw uncommitted Git blobs, binary objects,
+  or calculate Shannon entropy. (Offline tool 'detect-secrets' is available for ad-hoc inspection,
+  while this script provides the committed, deterministic diff scan).
+- Outputs strictly redacted and anonymized findings with zero author email/PII data.
+- Fails closed (non-zero exit) if git subprocess encounters an error.
 """
 
 import subprocess

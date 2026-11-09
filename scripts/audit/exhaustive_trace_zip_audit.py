@@ -1,8 +1,9 @@
-"""Exhaustive stream audit of Playwright trace ZIP archives for public readiness.
+"""Stream audit of eligible text/JSON members in Playwright trace ZIP archives.
 
-Scans text/JSON members across all 4 tracked trace archives.
-Fails closed (non-zero exit) if any archive is missing, corrupted, or unreadable.
-Explicitly records unreadable entries, binary media counts, and parsing errors.
+Scans 299 eligible text/JSON members across all 4 tracked trace archives.
+NOTE: 3,079 binary image/zip members (screencast JPEG frames) are skipped without OCR.
+Fails closed (non-zero exit) if any archive is missing, corrupted, or has unreadable text entries.
+Explicitly records unreadable text entries, skipped binary entries, and undecodable JWT matches.
 """
 
 import zipfile
@@ -55,12 +56,13 @@ def audit_zip(zip_rel_path, base_dir=Path(".")):
         'size_bytes': zip_full_path.stat().st_size,
         'total_entries': 0,
         'scanned_text_entries': 0,
-        'binary_entries': 0,
+        'skipped_binary_entries': 0,
         'unreadable_entries': 0,
         'entry_errors': [],
         'emails_synthetic': set(),
         'emails_potential_real': set(),
         'jwt_count': 0,
+        'undecodable_jwt_count': 0,
         'jwt_contexts': [],
         'passwords_count': 0,
         'passwords_redacted_or_fixture': 0,
@@ -75,7 +77,7 @@ def audit_zip(zip_rel_path, base_dir=Path(".")):
             for entry in infolist:
                 name = entry.filename.lower()
                 if any(name.endswith(ext) for ext in ['.png', '.jpeg', '.jpg', '.webp', '.gif', '.zip']):
-                    stats['binary_entries'] += 1
+                    stats['skipped_binary_entries'] += 1
                     continue
                     
                 try:
@@ -101,8 +103,11 @@ def audit_zip(zip_rel_path, base_dir=Path(".")):
                     for m in JWT_RE.findall(text):
                         stats['jwt_count'] += 1
                         ctx = decode_jwt_safe(m)
-                        if ctx and ctx not in stats['jwt_contexts']:
-                            stats['jwt_contexts'].append(ctx)
+                        if ctx:
+                            if ctx not in stats['jwt_contexts']:
+                                stats['jwt_contexts'].append(ctx)
+                        else:
+                            stats['undecodable_jwt_count'] += 1
                             
                     # Scan Passwords
                     for m in PASSWORD_RE.finditer(text):
@@ -134,7 +139,7 @@ def run():
         if res.get('status') in ['NOT_FOUND', 'CORRUPTED'] or res.get('unreadable_entries', 0) > 0:
             has_error = True
         results[tz] = res
-        print(f"  Finished {tz}: {res.get('total_entries')} entries ({res.get('scanned_text_entries')} text, {res.get('binary_entries')} binary, {res.get('unreadable_entries', 0)} unreadable)")
+        print(f"  Finished {tz}: {res.get('total_entries')} entries ({res.get('scanned_text_entries')} text scanned, {res.get('skipped_binary_entries')} binary skipped, {res.get('unreadable_entries', 0)} unreadable text)")
         
     if has_error:
         print("ERROR: One or more ZIP archives had read errors or were missing!", file=sys.stderr)
