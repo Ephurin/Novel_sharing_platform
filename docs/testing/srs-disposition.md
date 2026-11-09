@@ -18,6 +18,8 @@ Nhãn phân loại:
 | Nhánh sửa `fix/srs-backend-rules` | `4d89f0a` | 71/71 × 2 | `docs/development/SRS-BACKEND-R1/pr-head/` |
 | `main` sau #86–#88 | `7b2ad2e` | 60/71 × 2 | `docs/development/SRS-BACKEND-R2/main-baseline/` |
 | Nhánh sửa sau review và gộp `main` | `4534d50` | 71/71 × 2 | `docs/development/SRS-BACKEND-R2/pr-head/` |
+| `main` sau #116 | `c47c87a` | 60/71 × 2 | `docs/development/SRS-BACKEND-R3/main-baseline/` |
+| Nhánh sửa, hợp đồng D1–D7 ngày 2026-11-09 | `08217a6` | 71/71 × 2 | `docs/development/SRS-BACKEND-R3/pr-head/` |
 
 ## Bảng phân loại
 
