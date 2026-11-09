@@ -16,8 +16,8 @@ import { randomUUID } from 'node:crypto';
 import { WEBHOOK_CALLS_PER_SESSION } from '../wallet/wallet.routes.js';
 import { notifyFollowersOfPublishedChapter } from '../interactions/new-chapter-notifications.js';
 import { submitChapterPublish } from './chapters.service.js';
-import { createNovelSchema } from './novels.schemas.js';
-import { createNovel, submitPublish } from './novels.service.js';
+import { createNovelSchema, NOVEL_SYNOPSIS_MIN } from './novels.schemas.js';
+import { createNovel, INITIAL_PUBLISH_MIN_CHAPTERS, submitPublish, updateNovel } from './novels.service.js';
 
 // Backend rules from docs/SRS that the SRS acceptance runner (scripts/run_srs_acceptance_e2e.py) found missing.
 describe('SRS backend rules', () => {
@@ -37,18 +37,18 @@ describe('SRS backend rules', () => {
     )).rows[0].user_id as string;
   }
 
-  async function novel(status: 'DRAFT' | 'PUBLISHED', title = `SRS rules ${stamp} ${Math.random()}`) {
+  async function novel(status: 'DRAFT' | 'PUBLISHED', title = `SRS rules ${stamp} ${Math.random()}`, synopsis = longText) {
     return (await pool.query(
       `insert into novels (author_id, title, slug, synopsis, status) values ($1, $2, $3, $4, $5) returning novel_id`,
-      [authorAuth.userId, title, `srs-rules-${stamp}-${Math.random().toString(36).slice(2)}`, longText, status]
+      [authorAuth.userId, title, `srs-rules-${stamp}-${Math.random().toString(36).slice(2)}`, synopsis, status]
     )).rows[0].novel_id as string;
   }
 
-  async function chapter(novelId: string, number: number, content: string, extra: { deleted?: boolean; status?: string } = {}) {
+  async function chapter(novelId: string, number: number, content: string, extra: { deleted?: boolean; status?: string; title?: string } = {}) {
     return (await pool.query(
       `insert into chapters (novel_id, title, chapter_number, content, status, deleted_at)
        values ($1, $2, $3, $4, $5, $6) returning chapter_id`,
-      [novelId, `Chương ${number}`, number, content, extra.status ?? 'DRAFT', extra.deleted ? new Date('2026-01-01') : null]
+      [novelId, extra.title ?? `Chương ${number}`, number, content, extra.status ?? 'DRAFT', extra.deleted ? new Date('2026-01-01') : null]
     )).rows[0].chapter_id as string;
   }
 
@@ -57,7 +57,7 @@ describe('SRS backend rules', () => {
       assert.ok(error instanceof AppError);
       assert.equal(error.httpStatus, 422);
       assert.equal(error.code, 'VALIDATION_002');
-      assert.deepEqual(error.details, { readyChapters, requiredChapters: 5 });
+      assert.deepEqual(error.details, { readyChapters, requiredChapters: INITIAL_PUBLISH_MIN_CHAPTERS });
       return true;
     });
     assert.equal((await pool.query('select status from novels where novel_id = $1', [novelId])).rows[0].status, 'DRAFT');
@@ -101,69 +101,123 @@ describe('SRS backend rules', () => {
     }
   });
 
-  test('NOV-02/03: title must be under 255 characters and synopsis at least 500; a 254-character title gets a valid slug', async () => {
+  test('NOV-02: title must be under 255 characters; a 254-character title gets a valid slug', async () => {
     const body = { title: 'T'.repeat(254), synopsis: longText, tags: [] };
     assert.equal(createNovelSchema.safeParse({ body }).success, true);
     assert.equal(createNovelSchema.safeParse({ body: { ...body, title: 'T'.repeat(255) } }).success, false);
-    assert.equal(createNovelSchema.safeParse({ body: { ...body, synopsis: 'Ngắn.' } }).success, false);
     const created = await createNovel(authorAuth, { ...body, tags: [] });
     assert.ok(created.slug.length <= 255);
   });
 
-  test('NOV-04: a novel with fewer than five valid chapters cannot be submitted for publishing', async () => {
-    const novelId = await novel('DRAFT');
-    for (let number = 1; number <= 4; number++) await chapter(novelId, number, longText);
-    await chapter(novelId, 5, 'Quá ngắn.');
-    await chapter(novelId, 6, longText, { deleted: true });
-    await assert.rejects(submitPublish(authorAuth, novelId), (error: unknown) => {
+  test('NOV-03 (D3): a new synopsis needs 50 characters after trimming', async () => {
+    const accepts = (synopsis: string) => createNovelSchema.safeParse({ body: { title: 'Synopsis rule', synopsis, tags: [] } }).success;
+    assert.equal(NOVEL_SYNOPSIS_MIN, 50);
+    assert.equal(accepts('x'.repeat(49)), false, '49 characters');
+    assert.equal(accepts('x'.repeat(50)), true, '50 characters');
+    assert.equal(accepts('x'.repeat(500)), true, '500 characters');
+    assert.equal(accepts(' '.repeat(80)), false, 'blank');
+    assert.equal(accepts(`   ${'x'.repeat(49)}   `), false, '49 characters padded with spaces');
+  });
+
+  test('NOV-03 (D3): creating a project needs no Story Bible setup', async () => {
+    const created = await createNovel(authorAuth, { title: `Ý tưởng mới ${stamp}`, synopsis: 'Một giới thiệu ngắn đủ năm mươi ký tự cho dự án mới.', tags: [] });
+    assert.equal(created.status, 'DRAFT');
+    const bible = await pool.query(
+      `select (select count(*)::int from character_profiles where novel_id = $1) as characters,
+              (select count(*)::int from story_timeline_events where novel_id = $1) as events`, [created.novelId]);
+    assert.deepEqual(bible.rows[0], { characters: 0, events: 0 });
+  });
+
+  test('NOV-03 (D3): an unchanged legacy synopsis does not block other metadata; a changed one must meet the minimum', async () => {
+    const legacy = await novel('DRAFT', undefined, 'Ngắn.');
+    const updated = await updateNovel(authorAuth, legacy, { synopsis: 'Ngắn.', coverImageUrl: 'https://example.com/cover.png' });
+    assert.equal(updated.coverImageUrl, 'https://example.com/cover.png');
+    await assert.rejects(updateNovel(authorAuth, legacy, { synopsis: 'Vẫn còn ngắn.' }), (error: unknown) => {
       assert.ok(error instanceof AppError);
-      assert.equal(error.httpStatus, 422);
-      assert.equal(error.code, 'VALIDATION_002');
-      assert.deepEqual(error.details, { readyChapters: 4, requiredChapters: 5 });
+      assert.equal(error.httpStatus, 400);
+      assert.equal(error.code, 'VALIDATION_001');
       return true;
     });
-    assert.equal((await pool.query('select status from novels where novel_id = $1', [novelId])).rows[0].status, 'DRAFT');
-    await chapter(novelId, 7, longText);
-    const submitted = await submitPublish(authorAuth, novelId);
-    assert.ok(['PUBLISHED', 'PENDING_MODERATION'].includes(submitted.status));
+    assert.equal((await updateNovel(authorAuth, legacy, { synopsis: 'y'.repeat(50) })).synopsis, 'y'.repeat(50));
   });
 
-  test('NOV-04 (review P1): archived chapters do not count toward the five-chapter rule', async () => {
-    const allArchived = await novel('DRAFT');
-    for (let number = 1; number <= 5; number++) await chapter(allArchived, number, longText, { status: 'ARCHIVED' });
-    await expectNotReady(allArchived, 0);
+  test('NOV-04 (D2): two valid chapters are needed; ARCHIVED, short or over-long-title chapters do not count', async () => {
+    assert.equal(INITIAL_PUBLISH_MIN_CHAPTERS, 2);
+    const admitted = async (novelId: string) => assert.ok(['PUBLISHED', 'PENDING_MODERATION'].includes((await submitPublish(authorAuth, novelId)).status));
 
-    const fourAndArchived = await novel('DRAFT');
-    for (let number = 1; number <= 4; number++) await chapter(fourAndArchived, number, longText);
-    await chapter(fourAndArchived, 5, longText, { status: 'ARCHIVED' });
-    await expectNotReady(fourAndArchived, 4);
+    await expectNotReady(await novel('DRAFT'), 0);
 
-    const five = await novel('DRAFT');
-    for (let number = 1; number <= 5; number++) await chapter(five, number, longText);
-    assert.ok(['PUBLISHED', 'PENDING_MODERATION'].includes((await submitPublish(authorAuth, five)).status));
+    const one = await novel('DRAFT');
+    await chapter(one, 1, longText);
+    await expectNotReady(one, 1);
+
+    const two = await novel('DRAFT');
+    await chapter(two, 1, longText);
+    await chapter(two, 2, longText);
+    await admitted(two);
+
+    const oneAndArchived = await novel('DRAFT');
+    await chapter(oneAndArchived, 1, longText);
+    await chapter(oneAndArchived, 2, longText, { status: 'ARCHIVED' });
+    await expectNotReady(oneAndArchived, 1);
+
+    const twoArchived = await novel('DRAFT');
+    await chapter(twoArchived, 1, longText, { status: 'ARCHIVED' });
+    await chapter(twoArchived, 2, longText, { status: 'ARCHIVED' });
+    await expectNotReady(twoArchived, 0);
+
+    const twoAndArchived = await novel('DRAFT');
+    await chapter(twoAndArchived, 1, longText);
+    await chapter(twoAndArchived, 2, longText);
+    await chapter(twoAndArchived, 3, longText, { status: 'ARCHIVED' });
+    await admitted(twoAndArchived);
+
+    const oneShort = await novel('DRAFT');
+    await chapter(oneShort, 1, longText);
+    await chapter(oneShort, 2, 'Quá ngắn.');
+    await expectNotReady(oneShort, 1);
+
+    const oneLongTitle = await novel('DRAFT');
+    await chapter(oneLongTitle, 1, longText);
+    await chapter(oneLongTitle, 2, longText, { title: 'T'.repeat(100) });
+    await expectNotReady(oneLongTitle, 1);
+
+    const withDeleted = await novel('DRAFT');
+    await chapter(withDeleted, 1, longText);
+    await chapter(withDeleted, 2, longText, { deleted: true });
+    await expectNotReady(withDeleted, 1);
   });
 
-  test('NOV-04 (review P1): archiving a chapter while the novel is submitted cannot slip past the rule', async () => {
+  test('NOV-04 (D2): archiving a chapter while the novel is submitted cannot slip past the rule', async () => {
     // Admission locks the counted chapter rows, so an archive racing the submission either lands first
     // (and is counted out) or waits until the submission has committed.
     const novelId = await novel('DRAFT');
-    const ids: string[] = [];
-    for (let number = 1; number <= 5; number++) ids.push(await chapter(novelId, number, longText));
-    const archive = pool.connect();
-    const blocker = await archive;
+    const ids = [await chapter(novelId, 1, longText), await chapter(novelId, 2, longText)];
+    const blocker = await pool.connect();
     try {
       await blocker.query('begin');
       await blocker.query("update chapters set status = 'ARCHIVED' where chapter_id = $1", [ids[0]]);
       const submission = submitPublish(authorAuth, novelId).then(() => 'admitted', (error) => (error as AppError).code);
       await new Promise((resolve) => setTimeout(resolve, 300));
       await blocker.query('commit');
-      assert.equal(await submission, 'VALIDATION_002', 'the archive committed first, so only 4 chapters remain');
+      assert.equal(await submission, 'VALIDATION_002', 'the archive committed first, so only 1 chapter remains');
     } finally {
       blocker.release();
     }
     assert.equal((await pool.query('select status from novels where novel_id = $1', [novelId])).rows[0].status, 'DRAFT');
   });
 
+  test('NOV-04 (D2): a novel that is already PUBLISHED is not held back by the first-publish rule', async () => {
+    const published = await novel('PUBLISHED');
+    const chapterId = await chapter(published, 1, longText);
+    assert.equal((await submitChapterPublish(authorAuth, chapterId)).status, 'PUBLISHED', 'a lone chapter of a published novel still publishes');
+    await assert.rejects(submitPublish(authorAuth, published), (error: unknown) => {
+      assert.ok(error instanceof AppError);
+      assert.equal(error.code, 'CONTENT_004', 'a published novel is never re-admitted, so the chapter count is not applied');
+      return true;
+    });
+    assert.equal((await pool.query('select status from novels where novel_id = $1', [published])).rows[0].status, 'PUBLISHED');
+  });
   test('NOV-06: a chapter under 500 characters is not published', async () => {
     const novelId = await novel('PUBLISHED');
     const chapterId = await chapter(novelId, 1, 'Nội dung quá ngắn.');
