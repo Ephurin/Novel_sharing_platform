@@ -16,8 +16,10 @@ export const readingPreferencesSchema = z.object({
   body: z.object({
     fontFamily: z.string().min(1).max(80).nullable().optional(),
     fontSize: z.number().int().min(10).max(40),
-    background: z.enum(['LIGHT', 'DARK', 'SEPIA']),
-    lineHeight: z.number().min(1).max(3)
+    background: z.enum(['LIGHT', 'DARK', 'SEPIA', 'MINT', 'BLUE', 'ROSE', 'BLACK']),
+    lineHeight: z.number().min(1).max(3),
+    margin: z.number().int().min(0).max(80).optional(),
+    textAlign: z.enum(['LEFT', 'CENTER', 'RIGHT', 'JUSTIFY']).optional()
   })
 });
 
@@ -57,6 +59,17 @@ export const addLibraryItemSchema = z.object({
     novelId: z.string().uuid()
   })
 });
+
+export const readingBookmarkSchema = z.object({
+  params: novelIdParamSchema.shape.params,
+  body: z.object({
+    chapterId: z.string().uuid(),
+    paragraphIndex: z.number().int().min(0).max(1000000).default(0),
+    pageOffset: z.number().min(0).max(1).default(0)
+  })
+});
+
+export type ReadingBookmarkInput = z.infer<typeof readingBookmarkSchema>['body'];
 
 export type ReadingPreferencesInput = z.infer<typeof readingPreferencesSchema>['body'];
 export type SearchNovelsInput = z.infer<typeof searchNovelsSchema>['query'];

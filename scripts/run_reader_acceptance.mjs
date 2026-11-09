@@ -21,6 +21,7 @@ const env = { ...process.env, READER_EVIDENCE_DIR: output,
   ADMIN_TEST_MONGO_URL: process.env.ADMIN_TEST_MONGO_URL || 'mongodb://127.0.0.1:27017' };
 for (const key of Object.keys(env)) if (/(?:API_KEY|PROVIDER_TOKEN)$/.test(key)) env[key] = '';
 const requiredBrowsers = [
+  'reader-chapter-workspace.browser.test.mjs',
   'reader-catalog-pagination.browser.test.mjs', 'reader-catalog.browser.test.mjs',
   'reader-detail-enhancements.browser.test.mjs', 'reader-detail.browser.test.mjs',
   'reader-home-accessibility.browser.test.mjs', 'reader-home-personalization.browser.test.mjs',
@@ -58,7 +59,7 @@ const steps = [
   ['backend-typecheck', 'backend', 'npm', ['run', 'typecheck']],
   ['web-build', 'web', 'npm', ['run', 'build']],
   ['reader-postgres', 'backend', process.execPath, ['scripts/run-isolated-tests.mjs',
-    'src/modules/reading/chapter-reads.postgres.test.ts', 'src/modules/reading/reader-discovery.postgres.test.ts', 'src/modules/reading/reading-lifecycle.postgres.test.ts']],
+    'src/modules/reading/chapter-reads.postgres.test.ts', 'src/modules/reading/reader-discovery.postgres.test.ts', 'src/modules/reading/reading-lifecycle.postgres.test.ts', 'src/modules/reading/reader-workspace.postgres.test.ts']],
   ['reader-browsers', 'web', process.execPath, ['--test', '--test-concurrency=1', ...browserFiles.map(name => `tests/${name}`)]],
   ['reader-contrast', 'web', process.execPath, ['--test', 'tests/contrast.test.mjs']]
 ];
