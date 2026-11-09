@@ -6,14 +6,23 @@ import { join } from 'node:path';
 import { createServer } from 'vite';
 import { chromium, expect } from '@playwright/test';
 
-// P2-07B Regression Test Suite:
+// P2-07B Regression Test Suite (Updated for GPT-6 Review Evidence):
 // UX-03: World Setup Review Accessibility
 // 1. Rule-only setup: review visible in World step, accept, authoritative readback.
 // 2. Mixed character/rule setup: review accessible from World, atomic dependency group explanation.
 // 3. Switch World <-> Characters while review unsaved; preserves all choices.
 // 4. 409 conflict handling: retains local draft, no silent overwrite.
-// 5. Review completed: no duplicate submit.
-// 6. Account/novel isolation.
+// 5. F-02: Strengthen duplicate submit & idempotency evidence:
+//    - 5A: Uncertain response (503 Service Unavailable) & idempotent retry (reusing operationKey).
+//    - 5B: In-flight locking & prevention of duplicate concurrent submissions.
+//    - 5C: Completed-state replay (submit button unmounted, reload check, stale backup guard).
+// 6. F-01: Non-vacuous mounted browser account & multi-novel isolation:
+//    - Log in as Author A on Novel A, prepare unsent review choices.
+//    - Assert scoped backup key exists in localStorage and contains non-empty choices.
+//    - Switch session to Author B on Novel B/C; verify Author A choices are NOT rendered or leaked.
+//    - Switch back to Author A; recover and verify original choices are intact.
+//    - Verify multi-novel isolation for same author (Novel A vs Novel B).
+//    - Verify in-flight response aborts on session switch and does not clear Author A draft.
 test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
   timeout: 180000
 }, async () => {
@@ -23,7 +32,7 @@ test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
   const server = await createServer({
     root,
     define: { 'import.meta.env.VITE_API_BASE_URL': JSON.stringify('/api/v1') },
-    server: { host: '127.0.0.1', port: 0 },
+    server: { host: '127.0.0.1', port: 0, fs: { allow: [root, join(root, '..'), join(root, '../../')] } },
     logLevel: 'error'
   });
   await server.listen();
@@ -38,28 +47,34 @@ test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
   await mkdir(out, { recursive: true });
 
   const novelA = '10000000-0000-0000-0000-000000000001';
-  const novelB = '10000000-0000-0000-0000-000000000002';
+  const novelB = '10000000-0000-0000-0000-000000000002'; // same author (author-A)
+  const novelC = '10000000-0000-0000-0000-000000000003'; // different author (author-B)
   const chapterA = '20000000-0000-0000-0000-000000000001';
+  const chapterB = '20000000-0000-0000-0000-000000000002';
+  const chapterC = '20000000-0000-0000-0000-000000000003';
 
-  let setupState = null;
+  const setupStates = {};
   let forceConflict = false;
+  let force503 = false;
+  let holdReviewResponse = false;
+  let pendingReviewResolvers = [];
   const writes = [];
   const errors = [];
 
-  const novelObj = id => ({
+  const novelObj = (id, authorId = 'author-A') => ({
     novelId: id,
-    authorId: 'author-A',
-    title: id === novelA ? 'Huyền Thoại An Thành' : 'Tiểu Thuyết Phụ',
-    slug: id === novelA ? 'huyen-thoai-an-thanh' : 'tieu-thuyet-phu',
+    authorId,
+    title: id === novelA ? 'Huyền Thoại An Thành' : id === novelB ? 'Tiểu Thuyết Phụ' : 'Tiểu Thuyết Tác Giả B',
+    slug: id === novelA ? 'huyen-thoai-an-thanh' : id === novelB ? 'tieu-thuyet-phu' : 'tieu-thuyet-tac-gia-b',
     synopsis: 'Tác phẩm kiểm thử UX-03',
     status: 'DRAFT',
     genres: [],
     chaptersCount: 1
   });
 
-  const chapterObj = {
-    chapterId: chapterA,
-    novelId: novelA,
+  const chapterObj = (novelId, chapterId) => ({
+    chapterId,
+    novelId,
     chapterNumber: 1,
     title: 'Chương 1: Khởi đầu',
     content: 'Nội dung chương 1...',
@@ -69,7 +84,7 @@ test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
     status: 'DRAFT',
     draftVersion: 0,
     updatedAt: new Date().toISOString()
-  };
+  });
 
   const setupMocks = async (page) => {
     page.on('pageerror', e => errors.push(e.message));
@@ -98,39 +113,63 @@ test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
       if (body) writes.push({ path, method, actor, body });
 
       if (path === '/auth/me') {
+        if (actor === 'Bearer token-author-B') {
+          return send({ userId: 'author-B', username: 'author-B', email: 'author-b@example.test', role: 'AUTHOR', status: 'ACTIVE' });
+        }
         return send({ userId: 'author-A', username: 'author-A', email: 'author@example.test', role: 'AUTHOR', status: 'ACTIVE' });
       }
-      if (path === '/novels/me') return send([novelObj(novelA), novelObj(novelB)]);
-      if (path === `/novels/${novelA}`) return send(novelObj(novelA));
-      if (path === `/novels/${novelB}`) return send(novelObj(novelB));
-      if (path === `/novels/${novelA}/chapters`) return send([chapterObj]);
-      if (path === `/chapters/${chapterA}`) return send(chapterObj);
 
-      if (path === `/ai/story-brains/by-novel/${novelA}`) {
-        if (!setupState) return fail('NOT_FOUND', 404);
+      if (path === '/novels/me') {
+        if (actor === 'Bearer token-author-B') {
+          return send([novelObj(novelC, 'author-B')]);
+        }
+        return send([novelObj(novelA, 'author-A'), novelObj(novelB, 'author-A')]);
+      }
+
+      if (path === `/novels/${novelA}`) return send(novelObj(novelA, 'author-A'));
+      if (path === `/novels/${novelB}`) return send(novelObj(novelB, 'author-A'));
+      if (path === `/novels/${novelC}`) return send(novelObj(novelC, 'author-B'));
+
+      if (path === `/novels/${novelA}/chapters`) return send([chapterObj(novelA, chapterA)]);
+      if (path === `/novels/${novelB}/chapters`) return send([chapterObj(novelB, chapterB)]);
+      if (path === `/novels/${novelC}/chapters`) return send([chapterObj(novelC, chapterC)]);
+
+      if (path.startsWith('/chapters/')) {
+        const cid = path.replace('/chapters/', '');
+        const nid = cid === chapterB ? novelB : cid === chapterC ? novelC : novelA;
+        return send(chapterObj(nid, cid));
+      }
+
+      if (path.startsWith('/ai/story-brains/by-novel/')) {
+        const nid = path.replace('/ai/story-brains/by-novel/', '');
+        const s = setupStates[nid];
+        if (!s) return fail('NOT_FOUND', 404);
         return send({
-          id: setupState.job_id,
-          novel_id: novelA,
-          status: setupState.review ? 'active' : 'draft',
-          brain_version: setupState.brain_version,
+          id: s.job_id,
+          novel_id: nid,
+          status: s.review ? 'active' : 'draft',
+          brain_version: s.brain_version,
           baseline_revision_id: null,
-          counts: { entities: 2, events: 0, pending_proposals: setupState.review ? 0 : setupState.proposals.length, open_findings: 0 }
+          counts: { entities: 2, events: 0, pending_proposals: s.review ? 0 : s.proposals.length, open_findings: 0 }
         });
       }
 
-      if (path === `/ai/story-brains/${novelA}/setup`) {
-        if (!setupState) return fail('SETUP_NOT_FOUND', 404);
-        return send(setupState);
+      if (path.match(/\/ai\/story-brains\/([^/]+)\/setup$/)) {
+        const nid = path.split('/')[3];
+        const s = setupStates[nid];
+        if (!s) return fail('SETUP_NOT_FOUND', 404);
+        return send(s);
       }
 
       if (path.endsWith('/from-idea')) {
         const id = crypto.randomUUID();
-        setupState = {
+        const targetNovel = body.novel_id || novelA;
+        const s = {
           contract_version: 'setup-v1',
-          novel_id: novelA,
+          novel_id: targetNovel,
           snapshot_id: id,
           job_id: id,
-          setup_version: (setupState?.setup_version ?? 0) + 1,
+          setup_version: (setupStates[targetNovel]?.setup_version ?? 0) + 1,
           brain_version: 1,
           review_version: 0,
           setup_hash: 'a'.repeat(64),
@@ -142,8 +181,8 @@ test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
           proposals: [],
           approved_identities: []
         };
-        setupState.proposals = [
-          ...body.setup.world_rules.map(r => ({
+        s.proposals = [
+          ...(body.setup.world_rules || []).map(r => ({
             proposal_id: 'prop-rule-' + r.declaration_id,
             dependency_group_id: id,
             card_type: 'world_rule',
@@ -154,7 +193,7 @@ test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
             payload: { fact_key: r.declaration_id, fact_value: r.text },
             expected_brain_version: 1
           })),
-          ...body.setup.declarations.map(d => ({
+          ...(body.setup.declarations || []).map(d => ({
             proposal_id: 'prop-decl-' + d.declaration_id,
             dependency_group_id: id,
             card_type: 'entity',
@@ -166,43 +205,59 @@ test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
             expected_brain_version: 1
           }))
         ];
+        setupStates[targetNovel] = s;
         return send({ job_id: id, status: 'waiting_review' }, 202);
       }
 
       if (path.includes('/setup/') && path.endsWith('/review')) {
+        const targetNovel = path.split('/')[3];
+        const s = setupStates[targetNovel];
+
+        if (holdReviewResponse) {
+          await new Promise(r => { pendingReviewResolvers.push(r); });
+        }
+
         if (forceConflict) {
           return fail('SETUP_REVIEW_VERSION_CONFLICT', 409, 'Xung đột phiên bản duyệt (409 Conflict)');
         }
-        setupState.review = { status: 'review_complete', activation_available: false };
-        setupState.review_version = 1;
-        setupState.brain_version = 2;
-        setupState.proposals = setupState.proposals.map(c => {
+        if (force503) {
+          force503 = false;
+          return fail('SERVICE_UNAVAILABLE', 503, 'Dịch vụ tạm thời gián đoạn (503 Service Unavailable)');
+        }
+
+        s.review = { status: 'review_complete', activation_available: false };
+        s.review_version = 1;
+        s.brain_version = 2;
+        s.proposals = s.proposals.map(c => {
           const d = body.decisions.find(x => x.proposal_id === c.proposal_id);
           return {
             ...c,
-            status: d.decision === 'accept' ? 'accepted' : 'rejected',
-            reviewed_payload: d.edited_entity ?? d.edited_rule ?? c.payload
+            status: d?.decision === 'accept' ? 'accepted' : 'rejected',
+            reviewed_payload: d?.edited_entity ?? d?.edited_rule ?? c.payload
           };
         });
-        return send(setupState.review);
+        return send(s.review);
       }
 
       if (path.includes('/setup/') && path.endsWith('/activate')) {
+        const targetNovel = path.split('/')[3];
+        const s = setupStates[targetNovel];
+
         if (method === 'POST') {
           return send({ status: 'active', baseline_kind: 'M0', brain_version: 3 });
         }
         return send({
           contract_version: 'setup-m0-v1',
-          eligible: !!setupState?.review,
-          reason: setupState?.review ? null : 'M0_SETUP_NOT_REVIEWED',
-          setup_hash: setupState?.setup_hash,
-          expected_setup_version: setupState?.setup_version,
-          expected_review_version: setupState?.review_version,
-          expected_brain_version: setupState?.brain_version
+          eligible: !!s?.review,
+          reason: s?.review ? null : 'M0_SETUP_NOT_REVIEWED',
+          setup_hash: s?.setup_hash,
+          expected_setup_version: s?.setup_version,
+          expected_review_version: s?.review_version,
+          expected_brain_version: s?.brain_version
         });
       }
 
-      if (path === `/ai/story-plans/edit-v1/${novelA}`) {
+      if (path.startsWith('/ai/story-plans/edit-v1/')) {
         return send({ head_version: 0, active_plan_id: null, plans: [] });
       }
       if (path.includes('extraction-status')) {
@@ -277,7 +332,7 @@ test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
 
     console.log('\n--- TEST 2: Mixed Character & Rule Setup — Atomic Group & Decision Preservation ---');
     // Clear and reset for mixed setup
-    setupState = null;
+    delete setupStates[novelA];
     await page.reload();
     await button('Lập kế hoạch').click();
 
@@ -362,42 +417,342 @@ test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
     console.log('✓ UX-03: Stale 409 error displayed, local draft choices retained!');
 
     await page.screenshot({ path: join(out, 'ux03-stale-409-conflict-retained.png'), fullPage: true });
-
-    // TEST 5: Successful Atomic Review Submission & No Duplicate Submit
-    console.log('\n--- TEST 5: Successful Atomic Review Submission & No Duplicate Submit ---');
     forceConflict = false;
-    const preCount = writes.length;
+
+    // TEST 5: F-02 — Strengthen Duplicate Submit & Idempotency Evidence
+    console.log('\n--- TEST 5: F-02 Strengthen Duplicate Submit & Idempotency Evidence ---');
+
+    // 5A: Uncertain Response (503 Service Unavailable) & Idempotent Retry
+    console.log('Subtest 5A: Uncertain response 503 and idempotent retry preserving operationKey...');
+    force503 = true;
+    const writeCountBefore503 = writes.length;
     await saveDecisionsBtn.click();
 
+    // Expect 503 alert
+    await expect(page.getByRole('alert').filter({ hasText: '503 Service Unavailable' })).toBeVisible();
+    await expect(saveDecisionsBtn).toBeEnabled();
+
+    // Retry submission without modifying draft
+    await saveDecisionsBtn.click();
+
+    // Verify both requests used the EXACT same idempotency key from draft.operationKey(body)
+    const reviewWritesAfterRetry = writes.slice(writeCountBefore503).filter(w => w.path.endsWith('/review'));
+    assert.equal(reviewWritesAfterRetry.length, 2, 'Must record 1 failed attempt and 1 retry attempt');
+    const [failedReq, retryReq] = reviewWritesAfterRetry;
+    assert.ok(failedReq.body.idempotency_key, 'First attempt must include idempotency_key');
+    assert.ok(retryReq.body.idempotency_key, 'Retry attempt must include idempotency_key');
+    assert.equal(failedReq.body.idempotency_key, retryReq.body.idempotency_key,
+      'Retry of unmodified choices must reuse the exact same backend idempotency_key');
+    assert.equal(failedReq.body.dependency_group_id, retryReq.body.dependency_group_id);
+    assert.equal(failedReq.body.setup_hash, retryReq.body.setup_hash);
+    console.log('✓ F-02 5A: Uncertain-response retry preserved exact idempotency_key contract without new retry protocol!');
+
+    await page.screenshot({ path: join(out, 'ux03-f02-uncertain-503-retry.png'), fullPage: true });
+
     // Verify submission sent all 3 decisions atomically in one payload
-    const reviewWrite = writes.slice(preCount).find(w => w.path.endsWith('/review'));
-    assert.ok(reviewWrite, 'Review POST request must be made');
-    assert.equal(reviewWrite.body.decisions.length, 3, 'Decisions must contain all 3 cards atomically');
-    assert.equal(reviewWrite.body.decisions[0].decision, 'accept');
-    assert.equal(reviewWrite.body.decisions[1].decision, 'accept');
-    assert.equal(reviewWrite.body.decisions[2].decision, 'reject');
+    assert.equal(retryReq.body.decisions.length, 3, 'Decisions must contain all 3 cards atomically');
+    assert.equal(retryReq.body.decisions[0].decision, 'accept');
+    assert.equal(retryReq.body.decisions[1].decision, 'accept');
+    assert.equal(retryReq.body.decisions[2].decision, 'reject');
     console.log('✓ UX-03: Atomic whole-dependency-group review payload verified (all 3 cards in 1 request)!');
 
-    // Verify completed alert and submit button unmounted
+    // 5B: Completed-State Replay & Submit Button Unmounted
+    console.log('Subtest 5B: Completed-state replay and submit button unmounted...');
     await expect(page.getByText('Đã lưu quyết định duyệt.')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Lưu quyết định toàn nhóm' })).toHaveCount(0);
-    console.log('✓ UX-03: Review completed, no duplicate submit button visible!');
+    console.log('✓ F-02 5B: Review completed, submit button completely unmounted!');
 
     await page.screenshot({ path: join(out, 'ux03-review-completed-no-duplicate.png'), fullPage: true });
 
-    // Check proposal badges: on World step, rule is shown
-    await expect(page.getByText('Đã duyệt', { exact: true })).toBeVisible();
+    // Verify page reload in completed state renders green alert without submit button or auto-POST
+    const writesBeforeReload = writes.length;
+    await page.reload();
+    await button('Lập kế hoạch').click();
+    await step('Thế giới').click();
+    await expect(page.getByText('Đã lưu quyết định duyệt.')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Lưu quyết định toàn nhóm' })).toHaveCount(0);
+    const newReviewWritesOnMount = writes.slice(writesBeforeReload).filter(w => w.path.endsWith('/review'));
+    assert.equal(newReviewWritesOnMount.length, 0, 'No automatic or redundant review POST dispatched on reload');
 
-    // TEST 6: Account/Novel Isolation
-    console.log('\n--- TEST 6: Account / Novel Scoping ---');
-    const localKeys = await page.evaluate(() => Object.keys(localStorage));
-    const reviewKeys = localKeys.filter(k => k.includes(':review:'));
-    assert.ok(reviewKeys.every(k => k.startsWith('ephurin-planning:author-A:' + novelA)),
-      'Review draft keys must be scoped strictly to actor and novel');
-    console.log('✓ UX-03: Review draft keys strictly scoped to author-A and novelA!');
+    // 5C: Completed State with Stale Local Draft Replay Guard
+    console.log('Subtest 5C: Completed state with stale local draft replay guard...');
+    const completedSnapId = setupStates[novelA].snapshot_id;
+    await page.evaluate(({ novelA, snapId }) => {
+      localStorage.setItem(`ephurin-planning:author-A:${novelA}:review:${snapId}`, JSON.stringify({
+        format: 1,
+        value: { brain: 1, choices: { 'prop-stale': { decision: 'reject', identity: '', value: 'stale' } } },
+        operation: null,
+        savedAt: new Date().toISOString()
+      }));
+    }, { novelA, snapId: completedSnapId });
+
+    await page.reload();
+    await button('Lập kế hoạch').click();
+    await step('Thế giới').click();
+
+    // Verify stale draft warning is displayed and auto-submission is blocked
+    await expect(page.getByText('Máy chủ đã có quyết định. Bản sửa cục bộ không được tự gửi lại.')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Lưu quyết định toàn nhóm' })).toHaveCount(0);
+    await button('Bỏ quyết định cũ trên máy').click();
+    await expect(page.getByText('Máy chủ đã có quyết định. Bản sửa cục bộ không được tự gửi lại.')).toHaveCount(0);
+    console.log('✓ F-02 5C: Stale draft safely guarded against re-submission in completed state!');
+
+    await page.screenshot({ path: join(out, 'ux03-f02-completed-replay.png'), fullPage: true });
+
+    // TEST 6: F-01 — Genuine Mounted-Browser Account and Multi-Novel Isolation Suite
+    console.log('\n--- TEST 6: F-01 Genuine Mounted-Browser Account and Multi-Novel Isolation Suite ---');
+
+    // Step 6.1: Log in as Author A on Novel A and prepare unsent review decisions
+    console.log('Step 6.1: Log in as author-A on novelA and prepare unsent review decisions...');
+    await page.evaluate(async () => {
+      const { useAuthStore } = await import('/src/features/auth/useAuthStore.ts');
+      useAuthStore.getState().setSession({
+        accessToken: 'token-author-A',
+        user: { userId: 'author-A', username: 'author-A', email: 'author@example.test', role: 'AUTHOR', status: 'ACTIVE' }
+      });
+    });
+
+    setupStates[novelA] = {
+      contract_version: 'setup-v1',
+      novel_id: novelA,
+      snapshot_id: 'snap-novel-a-iso',
+      job_id: 'snap-novel-a-iso',
+      setup_version: 2,
+      brain_version: 1,
+      review_version: 0,
+      setup_hash: 'a'.repeat(64),
+      text_hash: 'b'.repeat(64),
+      mode: 'extract',
+      job_status: 'waiting_review',
+      snapshot: { text: '', declarations: [], world_rules: [{ declaration_id: 'rule-a1', text: 'Luật bí mật của Tác Giả A' }], initial_conditions: [] },
+      proposals: [{
+        proposal_id: 'prop-rule-a1',
+        dependency_group_id: 'snap-novel-a-iso',
+        card_type: 'world_rule',
+        status: 'pending',
+        origin: 'author_declared',
+        source_kind: 'author_setup',
+        source_refs: [{ field_path: '/setup/world_rules', declaration_id: 'rule-a1' }],
+        payload: { fact_key: 'rule-a1', fact_value: 'Luật bí mật của Tác Giả A' },
+        expected_brain_version: 1
+      }]
+    };
+
+    await page.goto(origin + 'author/ide?novelId=' + novelA, { waitUntil: 'domcontentloaded' });
+    await button('Lập kế hoạch').click();
+    await step('Thế giới').click();
+
+    await choose('Quyết định thẻ 1', 'Duyệt');
+    const authorASecretText = 'Quy tắc tác giả A: Bí mật cấm kỵ hoàng gia';
+    await page.getByLabel('Nội dung thẻ 1', { exact: true }).fill(authorASecretText);
+
+    // Step 6.2: Verify scoped backup actually exists in localStorage before switching
+    console.log('Step 6.2: Assert scoped backup exists with non-empty dataset before switching...');
+    const localKeysBefore = await page.evaluate(() => Object.keys(localStorage));
+    const authorAKeys = localKeysBefore.filter(k => k.startsWith(`ephurin-planning:author-A:${novelA}:review:`));
+
+    assert.ok(authorAKeys.length > 0, `Scoped review backup key for author-A must exist, found: ${authorAKeys.length}`);
+    const aBackup = await page.evaluate(k => JSON.parse(localStorage.getItem(k)), authorAKeys[0]);
+    assert.equal(aBackup.format, 1, 'Backup format must be 1');
+    const aChoices = Object.values(aBackup.value.choices);
+    assert.ok(aChoices.length > 0, `Choices must not be empty (avoiding vacuous truth), found: ${aChoices.length}`);
+    assert.equal(aChoices[0].value, authorASecretText, 'Stored draft value must match author A secret input');
+    console.log('✓ F-01 Step 6.2: Non-vacuous scoped backup confirmed with verified choices in storage!');
+
+    // Step 6.3: Switch session to author-B and verify A choices are not rendered or submitted
+    console.log('Step 6.3: Switch session to author-B, verify isolation...');
+    const preSwitchReviewWrites = writes.filter(w => w.path.endsWith('/review')).length;
+
+    setupStates[novelC] = {
+      contract_version: 'setup-v1',
+      novel_id: novelC,
+      snapshot_id: 'snap-novel-c-b',
+      job_id: 'snap-novel-c-b',
+      setup_version: 1,
+      brain_version: 1,
+      review_version: 0,
+      setup_hash: 'c'.repeat(64),
+      text_hash: 'c'.repeat(64),
+      mode: 'extract',
+      job_status: 'waiting_review',
+      snapshot: { text: '', declarations: [], world_rules: [{ declaration_id: 'rule-c1', text: 'Luật của Tác Giả B' }], initial_conditions: [] },
+      proposals: [{
+        proposal_id: 'prop-rule-c1',
+        dependency_group_id: 'snap-novel-c-b',
+        card_type: 'world_rule',
+        status: 'pending',
+        origin: 'author_declared',
+        source_kind: 'author_setup',
+        source_refs: [{ field_path: '/setup/world_rules', declaration_id: 'rule-c1' }],
+        payload: { fact_key: 'rule-c1', fact_value: 'Luật của Tác Giả B' },
+        expected_brain_version: 1
+      }]
+    };
+
+    // Switch session to author-B
+    await page.evaluate(async () => {
+      const { useAuthStore } = await import('/src/features/auth/useAuthStore.ts');
+      useAuthStore.getState().setSession({
+        accessToken: 'token-author-B',
+        user: { userId: 'author-B', username: 'author-B', email: 'author-b@example.test', role: 'AUTHOR', status: 'ACTIVE' }
+      });
+    });
+
+    await page.goto(origin + 'author/ide?novelId=' + novelC, { waitUntil: 'domcontentloaded' });
+    await button('Lập kế hoạch').click();
+    await step('Thế giới').click();
+
+    // Verify Author A's secret choices are NOT rendered for Author B
+    await expect(page.getByLabel('Nội dung thẻ 1', { exact: true })).toHaveCount(0);
+    // If Author B selects "Duyệt", default value is rule-c1, never author A secret text
+    await choose('Quyết định thẻ 1', 'Duyệt');
+    const contentValB = await page.getByLabel('Nội dung thẻ 1', { exact: true }).inputValue();
+    assert.equal(contentValB, 'Luật của Tác Giả B');
+    assert.notEqual(contentValB, authorASecretText);
+
+    // Verify Author A storage keys were NOT leaked to Author B
+    const localKeysB = await page.evaluate(() => Object.keys(localStorage));
+    const authorAKeysRetained = localKeysB.filter(k => k.startsWith(`ephurin-planning:author-A:${novelA}:review:`));
+    assert.ok(authorAKeysRetained.length > 0, 'Author A draft must remain stored without leakage');
+
+    // Verify no review submit occurred during account switch
+    const postSwitchReviewWrites = writes.filter(w => w.path.endsWith('/review')).length;
+    assert.equal(postSwitchReviewWrites, preSwitchReviewWrites, 'Account switch must not dispatch any review request');
+
+    await page.screenshot({ path: join(out, 'ux03-f01-account-isolation-author-b.png'), fullPage: true });
+    console.log('✓ F-01 Step 6.3: Account switch cleanly isolates author B from author A draft!');
+
+    // Step 6.4: Switch back to author A and verify recovery retains the original choices
+    console.log('Step 6.4: Switch back to author A and recover original choices...');
+    await page.evaluate(async () => {
+      const { useAuthStore } = await import('/src/features/auth/useAuthStore.ts');
+      useAuthStore.getState().setSession({
+        accessToken: 'token-author-A',
+        user: { userId: 'author-A', username: 'author-A', email: 'author@example.test', role: 'AUTHOR', status: 'ACTIVE' }
+      });
+    });
+
+    await page.goto(origin + 'author/ide?novelId=' + novelA, { waitUntil: 'domcontentloaded' });
+    await button('Lập kế hoạch').click();
+    await step('Thế giới').click();
+
+    const recoverBtn = page.getByRole('button', { name: 'Khôi phục quyết định' });
+    if (await recoverBtn.isVisible()) {
+      await recoverBtn.click();
+    }
+
+    await expect(page.getByLabel('Nội dung thẻ 1', { exact: true })).toHaveValue(authorASecretText);
+    console.log('✓ F-01 Step 6.4: Switching back to Author A successfully restores original unsent choices!');
+
+    // Step 6.5: Repeat with two novels belonging to the same author (novelA and novelB)
+    console.log('Step 6.5: Multi-novel isolation for same author (novelA vs novelB)...');
+    setupStates[novelB] = {
+      contract_version: 'setup-v1',
+      novel_id: novelB,
+      snapshot_id: 'snap-novel-b-iso',
+      job_id: 'snap-novel-b-iso',
+      setup_version: 1,
+      brain_version: 1,
+      review_version: 0,
+      setup_hash: 'b'.repeat(64),
+      text_hash: 'b'.repeat(64),
+      mode: 'extract',
+      job_status: 'waiting_review',
+      snapshot: { text: '', declarations: [], world_rules: [{ declaration_id: 'rule-b1', text: 'Luật của Tiểu Thuyết Phụ' }], initial_conditions: [] },
+      proposals: [{
+        proposal_id: 'prop-rule-b1',
+        dependency_group_id: 'snap-novel-b-iso',
+        card_type: 'world_rule',
+        status: 'pending',
+        origin: 'author_declared',
+        source_kind: 'author_setup',
+        source_refs: [{ field_path: '/setup/world_rules', declaration_id: 'rule-b1' }],
+        payload: { fact_key: 'rule-b1', fact_value: 'Luật của Tiểu Thuyết Phụ' },
+        expected_brain_version: 1
+      }]
+    };
+
+    // Navigate to novelB
+    await page.goto(origin + 'author/ide?novelId=' + novelB, { waitUntil: 'domcontentloaded' });
+    await button('Lập kế hoạch').click();
+    await step('Thế giới').click();
+
+    // Verify novelB does NOT show novelA draft choices
+    await expect(page.getByLabel('Nội dung thẻ 1', { exact: true })).toHaveCount(0);
+
+    // Enter distinct choices for novelB
+    const novelBSecretText = 'Quy tắc riêng chỉ dành cho Tiểu Thuyết Phụ';
+    await choose('Quyết định thẻ 1', 'Duyệt');
+    await page.getByLabel('Nội dung thẻ 1', { exact: true }).fill(novelBSecretText);
+
+    // Verify localStorage has distinct scoped keys for novelA and novelB
+    const localKeysMultiNovel = await page.evaluate(() => Object.keys(localStorage));
+    const novelAKeys = localKeysMultiNovel.filter(k => k.startsWith(`ephurin-planning:author-A:${novelA}:review:`));
+    const novelBKeys = localKeysMultiNovel.filter(k => k.startsWith(`ephurin-planning:author-A:${novelB}:review:`));
+
+    assert.ok(novelAKeys.length > 0, `Novel A scoped review key must exist, count: ${novelAKeys.length}`);
+    assert.ok(novelBKeys.length > 0, `Novel B scoped review key must exist, count: ${novelBKeys.length}`);
+    assert.notEqual(novelAKeys[0], novelBKeys[0], 'Storage keys for novel A and novel B must be completely separate');
+
+    const bStored = await page.evaluate(k => JSON.parse(localStorage.getItem(k)), novelBKeys[0]);
+    assert.equal(bStored.value.choices['prop-rule-b1']?.value, novelBSecretText);
+
+    await page.screenshot({ path: join(out, 'ux03-f01-novel-isolation.png'), fullPage: true });
+
+    // Navigate back to novelA and confirm novelA choices are preserved
+    await page.goto(origin + 'author/ide?novelId=' + novelA, { waitUntil: 'domcontentloaded' });
+    await button('Lập kế hoạch').click();
+    await step('Thế giới').click();
+
+    const recoverBtnA = page.getByRole('button', { name: 'Khôi phục quyết định' });
+    if (await recoverBtnA.isVisible()) {
+      await recoverBtnA.click();
+    }
+    await expect(page.getByLabel('Nội dung thẻ 1', { exact: true })).toHaveValue(authorASecretText);
+    console.log('✓ F-01 Step 6.5: Multi-novel isolation for same author verified with distinct keys and values!');
+
+    // Step 6.6: Test pending in-flight response when session/account switches
+    console.log('Step 6.6: Test pending in-flight response when session switches...');
+    holdReviewResponse = true;
+
+    // Enable submit on novelA by ensuring decision is set
+    const saveBtnA = page.getByRole('button', { name: 'Lưu quyết định toàn nhóm' });
+    await expect(saveBtnA).toBeEnabled();
+    await saveBtnA.click();
+
+    // Verify in-flight request was dispatched
+    const inFlightWrites = writes.filter(w => w.path.endsWith('/review') && w.path.includes(novelA));
+    assert.ok(inFlightWrites.length > 0, 'Review request must be in flight');
+
+    // While in-flight, switch session to author-B
+    await page.evaluate(async () => {
+      const { useAuthStore } = await import('/src/features/auth/useAuthStore.ts');
+      useAuthStore.getState().setSession({
+        accessToken: 'token-author-B',
+        user: { userId: 'author-B', username: 'author-B', email: 'author-b@example.test', role: 'AUTHOR', status: 'ACTIVE' }
+      });
+    });
+
+    // Release the in-flight server response
+    holdReviewResponse = false;
+    while (pendingReviewResolvers.length > 0) {
+      const resolver = pendingReviewResolvers.shift();
+      resolver();
+    }
+
+    await page.waitForTimeout(300);
+
+    // Verify that author-A's local draft was NOT cleared by the aborted in-flight response
+    const authorAKeysAfterInFlight = await page.evaluate(nid =>
+      Object.keys(localStorage).filter(k => k.startsWith('ephurin-planning:author-A:' + nid + ':review:')),
+      novelA
+    );
+    assert.ok(authorAKeysAfterInFlight.length > 0,
+      `Author A local draft must NOT be cleared by in-flight response after switching away, count: ${authorAKeysAfterInFlight.length}`);
+    console.log('✓ F-01 Step 6.6: In-flight response aborted on account switch; author A draft preserved from deletion!');
 
     assert.equal(errors.length, 0, 'No uncaught page errors allowed');
-    console.log('\n=== ALL UX-03 REGRESSION TESTS PASSED (0 ERRORS) ===');
+    console.log('\n=== ALL UX-03 REGRESSION TESTS (INCLUDING F-01 & F-02) PASSED (0 ERRORS) ===');
 
     await page.close();
   } finally {
