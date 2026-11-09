@@ -1,8 +1,5 @@
 import { ReaderCatalog } from './ReaderCatalog';
-import { ChapterToc, ReadingSettings } from '../../shared/components/ReaderTools';
-import { ReadingProgress } from '../../shared/components/ReadingProgress';
-import { AnimatedSaveButton } from '../../shared/components/SaveFeedback';
-import { ManuscriptContent } from '../../shared/components/ManuscriptContent';
+import { ChapterReader } from './ChapterReader';
 import { CommentsSection } from './CommentsSection';
 import { NovelOverview } from './ReaderNovelOverview';
 import { NovelChapterCatalog } from './NovelChapterCatalog';
@@ -12,12 +9,11 @@ import { useReadChapterIds } from './useReadChapterIds';
 import { NovelReviews } from './NovelReviews';
 import { useAuthStore } from '../auth/useAuthStore';
 import { followNovel } from '../novels/novel-statistics-api';
-import { NumberInput, Select } from '@mantine/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { ReactNode } from 'react';
-import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
+import { getApiErrorMessage } from '../../shared/api/api-client';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
 import { Breadcrumbs, type BreadcrumbItem } from '../../shared/components/Breadcrumbs';
 import { navigationLabels, readerHomeCrumb } from '../../shared/components/navigation';
@@ -25,18 +21,10 @@ import { EmptyState, ErrorState, LoadingState } from '../../shared/components/Pa
 import { useToast } from '../../shared/components/ToastProvider';
 import {
   getHistoryForNovel,
-  getReadingPreferences,
-  getReaderChapter,
   getReaderNovel,
   listHistory,
   listLibrary,
   removeFromLibrary,
-  reportContent,
-  saveReadingPreferences,
-  syncHistory,
-  unlockVipChapter,
-  type ReadingPreferences,
-  type ReaderChapter,
   type ReaderNovel
 } from './reader-api';
 
@@ -124,6 +112,11 @@ export function ReaderNovelDetailPage() {
   );
 }
 
+function formatChapterTitle(chapterNumber: number, title: string) {
+  const cleanTitle = title.replace(/^\s*(Chương|Chapter|Ch\.)\s*\d+\s*[:.\-–—]?\s*/i, '');
+  return cleanTitle ? `Chương ${chapterNumber}: ${cleanTitle}` : `Chương ${chapterNumber}`;
+}
+
 export function PublicReaderNovelDetailPage() {
   const { novelId = '' } = useParams();
   const readChapterIds = useReadChapterIds(novelId);
@@ -169,171 +162,11 @@ export function PublicReaderNovelDetailPage() {
 // ─── Chapter reading ────────────────────────────────────────────────────────
 
 export function ReaderChapterPage() {
-  const { chapterId = '' } = useParams();
-  const userId = useAuthStore(state => state.user?.userId);
-  const queryClient = useQueryClient();
-  const preferencesQuery = useQuery({ queryKey: ['reading-preferences'], queryFn: getReadingPreferences });
-  const chapterQuery = useQuery({
-    queryKey: ['reader-chapter', chapterId, userId],
-    queryFn: () => getReaderChapter(chapterId),
-    enabled: Boolean(chapterId),
-    retry: false
-  });
-  const chapterNovelQuery = useQuery({
-    queryKey: ['reader-novel', chapterQuery.data?.novelId],
-    queryFn: () => getReaderNovel(chapterQuery.data?.novelId ?? ''),
-    enabled: Boolean(chapterQuery.data?.novelId)
-  });
-  const syncHistoryMutation = useMutation({
-    mutationFn: (input: { novelId: string; chapterId: string }) => syncHistory(input),
-    onSuccess: () => Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['reader-history'] }),
-      queryClient.invalidateQueries({ queryKey: ['reader-history-novel'] })
-    ])
-  });
-  const unlockMutation = useMutation({
-    mutationFn: () => unlockVipChapter(chapterId),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['reader-chapter', chapterId] });
-    }
-  });
-  const reportMutation = useMutation({
-    mutationFn: () => reportContent({ targetType: 'CHAPTER', targetId: chapterId, reason: 'Reader report' })
-  });
-  const preferencesMutation = useMutation({
-    mutationFn: saveReadingPreferences,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['reading-preferences'] });
-    }
-  });
-
-  const isLockedVip = chapterQuery.error instanceof ApiClientError && chapterQuery.error.code === 'PAYMENT_002';
-  const chapter = chapterQuery.data;
-  useReadChapterIds(chapter?.novelId ?? '', chapter?.chapterId);
-
-  useEffect(() => {
-    if (chapter?.novelId) {
-      syncHistoryMutation.mutate({ novelId: chapter.novelId, chapterId });
-    }
-  }, [chapter?.novelId, chapterId]);
-
-  if (chapterQuery.isLoading) return <LoadingState label="Đang tải chương..." />;
-
-  if (isLockedVip) {
-    return (
-      <LockedChapter message={getApiErrorMessage(chapterQuery.error)}>
-        <button type="button" onClick={() => unlockMutation.mutate()} disabled={unlockMutation.isPending} className="sc-button sc-button-primary">
-          <span className="material-symbols-outlined" aria-hidden="true">lock_open</span>
-          {unlockMutation.isPending ? 'Đang mở khóa...' : 'Mở khóa chương'}
-        </button>
-        <Link to="/wallet" className="sc-button">
-          <span className="material-symbols-outlined" aria-hidden="true">account_balance_wallet</span>
-          Đến ví xu
-        </Link>
-        {unlockMutation.isError ? <p className="w-full text-meta text-red-700 mt-1">{getApiErrorMessage(unlockMutation.error)}</p> : null}
-      </LockedChapter>
-    );
-  }
-
-  if (chapterQuery.isError) return <ErrorState error={chapterQuery.error} onRetry={() => void chapterQuery.refetch()} />;
-
-  const novel = chapterNovelQuery.data;
-  const chapterList = novel?.chapters ?? [];
-  const currentChapterIndex = chapterList.findIndex((item) => item.chapterId === chapterId);
-  const previousChapter = currentChapterIndex > 0 ? chapterList[currentChapterIndex - 1] : null;
-  const nextChapter = currentChapterIndex >= 0 ? chapterList[currentChapterIndex + 1] ?? null : null;
-  const preferences = preferencesQuery.data;
-  const novelPath = `/reader/novels/${chapter?.novelId ?? ''}`;
-  const navigation = (
-    <ChapterNavigation
-      previousTo={previousChapter ? `/reader/chapters/${previousChapter.chapterId}` : undefined}
-      nextTo={nextChapter ? `/reader/chapters/${nextChapter.chapterId}` : undefined}
-      indexTo={chapter?.novelId ? novelPath : undefined}
-    />
-  );
-
-  return (
-    <div className="flex flex-col gap-4">
-      <Breadcrumb back={{ to: chapter?.novelId ? novelPath : '/reader', label: novel?.title ?? 'Truyện' }} current={chapter ? `Chương ${chapter.chapterNumber}` : 'Chương'}>
-        <button
-          type="button"
-          onClick={() => chapter?.novelId && syncHistoryMutation.mutate({ novelId: chapter.novelId, chapterId })}
-          disabled={!chapter || syncHistoryMutation.isPending}
-          className="sc-button"
-          aria-label={syncHistoryMutation.isPending ? 'Đang lưu tiến độ đọc' : 'Lưu tiến độ đọc'}
-          title="Lưu tiến độ đọc"
-        >
-          <span className="material-symbols-outlined" aria-hidden="true">sync</span>
-          <span className="hidden sm:inline" aria-hidden="true">{syncHistoryMutation.isPending ? 'Đang lưu...' : 'Lưu tiến độ'}</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => reportMutation.mutate()}
-          disabled={reportMutation.isPending}
-          className="sc-button text-red-700"
-          aria-label={reportMutation.isSuccess ? 'Đã báo cáo chương' : 'Báo cáo chương'}
-          title="Báo cáo chương"
-        >
-          <span className="material-symbols-outlined" aria-hidden="true">flag</span>
-          <span className="hidden sm:inline" aria-hidden="true">{reportMutation.isSuccess ? 'Đã báo cáo' : 'Báo cáo'}</span>
-        </button>
-      </Breadcrumb>
-
-      <ChapterHeader chapter={chapter} navigation={<div className="flex flex-wrap items-center gap-2">
-        {navigation}
-        <ChapterToc chapters={chapterList} currentId={chapterId} />
-        {preferences && <ReadingSettings><ReadingPreferencesPanel preferences={preferences} onSave={next => preferencesMutation.mutate(next)} saving={preferencesMutation.isPending} saved={preferencesMutation.isSuccess} /></ReadingSettings>}
-      </div>} />
-
-      <ChapterProse key={chapterId} content={chapter?.content ?? ''} style={buildReaderStyle(preferences)} />
-      <div className="flex justify-center">{navigation}</div>
-      <CommentsSection kind="chapter" id={chapterId} />
-    </div>
-  );
+  return <ChapterReader />;
 }
 
 export function PublicReaderChapterPage() {
-  const { chapterId = '' } = useParams();
-  const userId = useAuthStore(state => state.user?.userId ?? 'guest');
-  const chapterQuery = useQuery({
-    queryKey: ['public-reader-chapter', chapterId, userId],
-    queryFn: () => getReaderChapter(chapterId),
-    enabled: Boolean(chapterId),
-    retry: false
-  });
-  const tocQuery = useQuery({
-    queryKey: ['public-reader-novel', chapterQuery.data?.novelId],
-    queryFn: () => getReaderNovel(chapterQuery.data?.novelId ?? ''),
-    enabled: Boolean(chapterQuery.data?.novelId)
-  });
-  const isLockedVip = chapterQuery.error instanceof ApiClientError && chapterQuery.error.code === 'PAYMENT_002';
-  const chapter = chapterQuery.data;
-  useReadChapterIds(chapter?.novelId ?? '', chapter?.chapterId);
-  const novelPath = `/public/novels/${chapter?.novelId ?? ''}`;
-
-  return (
-    <PublicLayout>
-      {chapterQuery.isLoading ? <LoadingState label="Đang tải chương..." /> : null}
-      {isLockedVip ? (
-        <LockedChapter message="Khách có thể xem thông tin truyện, nhưng cần đăng nhập để mở khóa chương VIP.">
-          <Link to="/login" className="sc-button sc-button-primary">
-            <span className="material-symbols-outlined" aria-hidden="true">login</span>
-            Đăng nhập để mở khóa
-          </Link>
-          <Link to="/public" className="sc-button">Thư viện công khai</Link>
-        </LockedChapter>
-      ) : null}
-      {chapterQuery.isError && !isLockedVip ? <ErrorState error={chapterQuery.error} onRetry={() => void chapterQuery.refetch()} /> : null}
-      {chapter ? (
-        <>
-          <Breadcrumb back={{ to: novelPath, label: 'Chi tiết truyện' }} current={`Chương ${chapter.chapterNumber}`} />
-          <ChapterHeader chapter={chapter} navigation={<div className="flex flex-wrap items-center gap-2"><ChapterNavigation indexTo={novelPath} /><ChapterToc chapters={tocQuery.data?.chapters ?? []} currentId={chapterId} publicMode /></div>} />
-          <ChapterProse key={chapterId} content={chapter.content ?? ''} style={buildReaderStyle()} />
-          <CommentsSection kind="chapter" id={chapterId} />
-        </>
-      ) : null}
-    </PublicLayout>
-  );
+  return <PublicLayout><ChapterReader publicMode /></PublicLayout>;
 }
 
 // ─── Library & history ──────────────────────────────────────────────────────
@@ -572,156 +405,4 @@ function NovelCard({ novel, extraAction, publicMode = false }: { novel: ReaderNo
         {extraAction ? <div className="mt-auto flex gap-2">{extraAction}</div> : null}
     </article>
   );
-}
-
-function ChapterHeader({ chapter, navigation }: { chapter: ReaderChapter | undefined; navigation: ReactNode }) {
-  return (
-    <section className={`${card} p-5 flex flex-col gap-4`}>
-      <div>
-        <div className="flex flex-wrap items-center gap-2 mb-2">
-          <span className={`sc-novel-status ${chapter?.isVip ? '' : 'sc-novel-status-public'}`}>
-            {chapter?.isVip ? `VIP • ${chapter.priceCoins} xu` : 'Miễn phí'}
-          </span>
-          {chapter?.wordCount ? <span className="text-meta text-stone-500">{chapter.wordCount.toLocaleString('vi-VN')} chữ</span> : null}
-        </div>
-        <h1 className="text-page-title text-stone-900">{chapter ? formatChapterTitle(chapter.chapterNumber, chapter.title) : 'Chương'}</h1>
-      </div>
-      {navigation}
-    </section>
-  );
-}
-
-function ChapterNavigation({ previousTo, nextTo, indexTo }: { previousTo?: string; nextTo?: string; indexTo?: string }) {
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      {previousTo ? (
-        <Link to={previousTo} className="sc-button"><span className="material-symbols-outlined" aria-hidden="true">chevron_left</span>Chương trước</Link>
-      ) : (
-        <span className="sc-button opacity-50" aria-disabled="true"><span className="material-symbols-outlined" aria-hidden="true">chevron_left</span>Chương trước</span>
-      )}
-      {indexTo ? (
-        <Link to={indexTo} className="sc-button"><span className="material-symbols-outlined" aria-hidden="true">format_list_bulleted</span>Mục lục</Link>
-      ) : null}
-      {nextTo ? (
-        <Link to={nextTo} className="sc-button sc-button-primary">Chương sau<span className="material-symbols-outlined" aria-hidden="true">chevron_right</span></Link>
-      ) : (
-        <span className="sc-button opacity-50" aria-disabled="true">Chương sau<span className="material-symbols-outlined" aria-hidden="true">chevron_right</span></span>
-      )}
-    </div>
-  );
-}
-
-function ChapterProse({ content, style }: { content: string; style: ReturnType<typeof buildReaderStyle> }) {
-  return (
-    <article className="sc-reading-surface rounded-xl border border-stone-200/80 shadow-2xs px-5 sm:px-12 py-8 sm:py-10" style={style}>
-      <div className="max-w-[720px] mx-auto">
-        <ReadingProgress><ManuscriptContent content={content} /></ReadingProgress>
-      </div>
-    </article>
-  );
-}
-
-function LockedChapter({ message, children }: { message: string; children: ReactNode }) {
-  return (
-    <section className={`${card} p-8 flex flex-col items-center text-center`}>
-      <span className="w-12 h-12 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center mb-3">
-        <span className="material-symbols-outlined text-[24px]" aria-hidden="true">lock</span>
-      </span>
-      <h1 className="text-section-title text-stone-900">Chương VIP đang khóa</h1>
-      <p className="text-body text-stone-500 mt-1 max-w-md">{message}</p>
-      <div className="flex flex-wrap items-center justify-center gap-2 mt-5">{children}</div>
-    </section>
-  );
-}
-
-function ReadingPreferencesPanel({
-  preferences,
-  onSave,
-  saving,
-  saved
-}: {
-  preferences: ReadingPreferences;
-  onSave: (preferences: ReadingPreferences) => void;
-  saving: boolean;
-  saved: boolean;
-}) {
-  const [draft, setDraft] = useState(preferences);
-
-  useEffect(() => {
-    setDraft(preferences);
-  }, [preferences]);
-
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
-      <Select comboboxProps={{ withinPortal: false }}
-        label="Phông chữ"
-        data={[
-          { value: 'system-ui', label: 'Hệ thống' },
-          { value: 'Georgia', label: 'Serif' },
-          { value: 'Arial', label: 'Sans' }
-        ]}
-        value={draft.fontFamily ?? 'system-ui'}
-        allowDeselect={false}
-        onChange={(value) => setDraft((current) => ({ ...current, fontFamily: value }))}
-        data-testid="reader-pref-font-family"
-      />
-      <NumberInput
-        label="Cỡ chữ"
-        min={10}
-        max={40}
-        value={draft.fontSize}
-        onChange={(value) => setDraft((current) => ({ ...current, fontSize: Number(value) || current.fontSize }))}
-        data-testid="reader-pref-font-size"
-      />
-      <Select comboboxProps={{ withinPortal: false }}
-        label="Màu nền"
-        data={[
-          { value: 'LIGHT', label: 'Sáng' },
-          { value: 'DARK', label: 'Tối' },
-          { value: 'SEPIA', label: 'Sepia' }
-        ]}
-        value={draft.background}
-        allowDeselect={false}
-        onChange={(value) => setDraft((current) => ({ ...current, background: (value ?? 'DARK') as ReadingPreferences['background'] }))}
-        data-testid="reader-pref-background"
-      />
-      <NumberInput
-        label="Giãn dòng"
-        min={1}
-        max={3}
-        step={0.1}
-        value={draft.lineHeight}
-        onChange={(value) => setDraft((current) => ({ ...current, lineHeight: Number(value) || current.lineHeight }))}
-        data-testid="reader-pref-line-height"
-      />
-      <AnimatedSaveButton onClick={() => onSave(draft)} loading={saving} saved={saved} className="sc-button sc-button-primary" data-testid="reader-save-preferences-btn">
-        Lưu tùy chỉnh
-      </AnimatedSaveButton>
-    </div>
-  );
-}
-
-// ─── Helpers ────────────────────────────────────────────────────────────────
-
-function buildReaderStyle(preferences?: ReadingPreferences) {
-  const background =
-    preferences?.background === 'LIGHT'
-      ? '#f8fafc'
-      : preferences?.background === 'SEPIA'
-        ? '#2f261c'
-        : preferences?.background === 'DARK' ? 'var(--sc-reader-dark-bg)' : 'var(--sc-surface)';
-  const color = preferences?.background === 'LIGHT' ? '#111827' : preferences?.background === 'SEPIA' ? '#f5e6c8' : preferences?.background === 'DARK' ? 'var(--sc-reader-dark-text)' : 'var(--sc-text)';
-
-  return {
-    background,
-    color,
-    fontFamily: preferences?.fontFamily ?? 'system-ui',
-    fontSize: preferences?.fontSize ?? 18,
-    lineHeight: preferences?.lineHeight ?? 1.8
-  };
-}
-
-function formatChapterTitle(chapterNumber: number, title: string) {
-  const cleanTitle = title.replace(/^\s*(Chương|Chapter|Ch\.)\s*\d+\s*[:.\-–—]?\s*/i, '');
-  return cleanTitle ? `Chương ${chapterNumber}: ${cleanTitle}` : `Chương ${chapterNumber}`;
 }

@@ -54,11 +54,27 @@ export type ReadingHistoryItem = {
 export type ReadingPreferences = {
   fontFamily: string | null;
   fontSize: number;
-  background: 'LIGHT' | 'DARK' | 'SEPIA';
+  background: 'LIGHT' | 'DARK' | 'SEPIA' | 'MINT' | 'BLUE' | 'ROSE' | 'BLACK';
   lineHeight: number;
+  margin?: number;
+  textAlign?: 'LEFT' | 'CENTER' | 'RIGHT' | 'JUSTIFY';
+};
+
+export type ReadingBookmark = {
+  novelId: string;
+  chapterId: string;
+  paragraphIndex: number;
+  pageOffset: number;
+  updatedAt: string;
 };
 
 export type ReaderComment = {
+  isSpoiler?: boolean;
+  imageUrl?: string | null;
+  gifId?: string | null;
+  likesCount?: number;
+  dislikesCount?: number;
+  myReaction?: 'LIKE' | 'DISLIKE' | null;
   parentCommentId: string | null;
   repliesCount: number;
   isAuthor: boolean;
@@ -132,6 +148,21 @@ export async function getReadingPreferences() {
 export async function saveReadingPreferences(input: ReadingPreferences) {
   const response = await apiClient.put<ApiEnvelope<ReadingPreferences>>('/reading/preferences/me', input);
   return response.data.data;
+}
+
+export async function getReadingBookmark(novelId: string) {
+  const response = await apiClient.get<ApiEnvelope<ReadingBookmark | null>>(`/reading/bookmarks/me/${novelId}`);
+  return response.data.data;
+}
+
+export async function saveReadingBookmark(input: Omit<ReadingBookmark, 'updatedAt'>) {
+  const { novelId, chapterId, paragraphIndex, pageOffset } = input;
+  const response = await apiClient.put<ApiEnvelope<ReadingBookmark>>(`/reading/bookmarks/me/${novelId}`, { chapterId, paragraphIndex, pageOffset });
+  return response.data.data;
+}
+
+export async function removeReadingBookmark(novelId: string) {
+  await apiClient.delete(`/reading/bookmarks/me/${novelId}`);
 }
 
 export async function getReaderNovel(novelId: string, signal?: AbortSignal) {
@@ -213,10 +244,13 @@ export async function createComment(chapterId: string, content: string) {
   return response.data.data;
 }
 
-export async function updateComment(input: { commentId: string; content: string }) {
+export type CommentInput = { content: string; isSpoiler?: boolean; imageUrl?: string | null; gifId?: string | null };
+
+export async function updateComment(input: CommentInput & { commentId: string }) {
+  const { commentId, ...body } = input;
   const response = await apiClient.patch<ApiEnvelope<{ commentId: string; status: string; moderationReviewId?: string | null }>>(
-    `/comments/${input.commentId}`,
-    { content: input.content }
+    `/comments/${commentId}`,
+    body
   );
   return response.data.data;
 }

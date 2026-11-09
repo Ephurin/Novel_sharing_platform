@@ -8,6 +8,7 @@ Related SRS: `docs/SRS/reading-experience-service.md`
 | :--- | :--- |
 | `ReadingPreference` | Font, size, background, and display settings. |
 | `ReadingHistory` | Last read chapter/paragraph position. |
+| `ReadingPositionBookmark` | One explicit saved reading position per user and novel. |
 | `Bookmark` | Reader's personal library item. |
 | `SearchResult` | Public novel discovery/search result. |
 | `ReaderNovelDetail` | Published novel metadata and published chapter list. |
@@ -31,7 +32,9 @@ Get current reader display preferences.
     "fontFamily": "serif",
     "fontSize": 18,
     "background": "DARK",
-    "lineHeight": 1.6
+    "lineHeight": 1.6,
+    "margin": 24,
+    "textAlign": "LEFT"
   },
   "error": null,
   "meta": {}
@@ -52,11 +55,37 @@ Save current reader display preferences.
   "fontFamily": "serif",
   "fontSize": 18,
   "background": "DARK",
-  "lineHeight": 1.6
+  "lineHeight": 1.6,
+  "margin": 24,
+  "textAlign": "LEFT"
 }
 ```
 
 **Errors:** `VALIDATION_001`
+
+`background` accepts `LIGHT`, `SEPIA`, `MINT`, `BLUE`, `ROSE`, `DARK`, and `BLACK`. `margin` is an integer from 0 to 80 pixels. `textAlign` accepts `LEFT`, `CENTER`, `RIGHT`, and `JUSTIFY`. Omitting the two new fields preserves existing values, with defaults of 24 and `LEFT` for new accounts.
+
+### GET /reading/bookmarks/me/:novelId
+
+Requires an active authenticated account. Returns the saved position or `null` when absent or when the chapter/novel is no longer published. The position contains `novelId`, `chapterId`, `paragraphIndex`, `pageOffset`, and `updatedAt`.
+
+### PUT /reading/bookmarks/me/:novelId
+
+Requires an active authenticated account and access to the published chapter, including VIP unlock checks. Replaces that account's explicit position for this novel and returns the saved position.
+
+```json
+{
+  "chapterId": "a-valid-chapter-uuid",
+  "paragraphIndex": 8,
+  "pageOffset": 0.35
+}
+```
+
+`paragraphIndex` is zero-based and ranges from 0 to 1000000. `pageOffset` ranges from 0 to 1 and represents the fractional position within the paragraph. Both default to 0. Saving a position leaves automatic reading history and verified chapter-read markers independent.
+
+### DELETE /reading/bookmarks/me/:novelId
+
+Requires an active authenticated account. Idempotently removes the account's saved position and returns `{ "removed": true }` or `{ "removed": false }`.
 
 ### GET /reading/search
 
