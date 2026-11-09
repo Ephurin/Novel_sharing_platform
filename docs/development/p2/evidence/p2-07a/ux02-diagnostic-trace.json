@@ -1,0 +1,129 @@
+{
+  "resultA": {
+    "beforeBlockers": [],
+    "syncPathname": "/author/ide",
+    "syncRouterPath": "/author/ide",
+    "syncBlockers": [],
+    "after100msPathname": "/login",
+    "after100msRouterPath": "/login",
+    "after100msBlockers": []
+  },
+  "resultB": {
+    "beforeBlockers": [],
+    "syncPathname": "/author/ide",
+    "syncRouterPath": "/author/ide",
+    "syncBlockers": [],
+    "after100msPathname": "/login",
+    "after100msRouterPath": "/login",
+    "after100msBlockers": []
+  },
+  "resultC": {
+    "beforeBlockers": [
+      [
+        "6",
+        {
+          "state": "blocked",
+          "location": {
+            "pathname": "/author/novels/10000000-0000-0000-0000-000000000001",
+            "search": "",
+            "hash": "",
+            "state": null,
+            "key": "gqug2o1i"
+          }
+        }
+      ]
+    ],
+    "syncPathname": "/author/ide",
+    "syncRouterPath": "/author/ide",
+    "syncBlockers": [
+      [
+        "6",
+        {
+          "state": "blocked",
+          "location": {
+            "pathname": "/author/novels/10000000-0000-0000-0000-000000000001",
+            "search": "",
+            "hash": "",
+            "state": null,
+            "key": "gqug2o1i"
+          }
+        }
+      ]
+    ],
+    "after100msPathname": "/login",
+    "after100msRouterPath": "/login",
+    "after100msBlockers": [],
+    "bodyOverflow": ""
+  },
+  "resultD": {
+    "pathname": "/author/ide",
+    "routerPath": "/author/ide",
+    "blockers": [
+      [
+        "8",
+        {
+          "state": "blocked",
+          "location": {
+            "pathname": "/author/novels/10000000-0000-0000-0000-000000000001",
+            "search": "",
+            "hash": "",
+            "state": null,
+            "key": "4p1dnc9v"
+          }
+        }
+      ]
+    ],
+    "dialogOpen": true
+  },
+  "resultE": {
+    "pathname": "/author/ide",
+    "routerPath": "/author/ide",
+    "blockers": [
+      [
+        "8",
+        {
+          "state": "blocked",
+          "location": {
+            "pathname": "/login",
+            "search": "",
+            "hash": "",
+            "state": null,
+            "key": "0k3ykvkh"
+          }
+        }
+      ]
+    ],
+    "dialogOpen": true,
+    "dialogText": "Bản nháp chưa lưu xongBạn có thể lưu trước khi rời trang hoặc giữ bản dự phòng trên máy để khôi phục sau.Lưu và rời trangỞ lạiRời trang"
+  },
+  "resultF": {
+    "syncRouterPath": "/author/ide",
+    "syncBlockers": [
+      [
+        "8",
+        {
+          "state": "blocked",
+          "location": {
+            "pathname": "/login",
+            "search": "",
+            "hash": "",
+            "state": null,
+            "key": "i1cd0wwm"
+          }
+        }
+      ]
+    ],
+    "after200msPathname": "/login",
+    "after200msRouterPath": "/login",
+    "after200msBlockers": [],
+    "dialogOpen": false,
+    "bodyText": "Ephurin Web\nEmail or username\nPassword\nLogin\nSwitch to register\nBrowse public library as guest\n\nOAuth callback is intentionally not wired in this MVP phase."
+  },
+  "resultG": {
+    "syncAuditCheck": true,
+    "syncBlockerCount": 0,
+    "postEffectPathname": "/login",
+    "postEffectRouterPath": "/login",
+    "postEffectBlockerCount": 0
+  }
+}
