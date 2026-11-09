@@ -4,9 +4,9 @@ import { CoverCropEditor } from './CoverCropEditor';
 import { prepareCoverImage } from './cover-image';
 import { FileButton, Button, Stack, Text } from '@mantine/core';
 import { apiClient, type ApiEnvelope, getApiErrorMessage } from '../api/api-client';
-export async function uploadImage(file: File, allowedTypes = ['image/png', 'image/jpeg', 'image/webp']) {
+export async function uploadImage(file: File) {
   if (file.size > 1024 * 1024) throw new Error('Ảnh tối đa 1 MB');
-  if (!allowedTypes.includes(file.type)) throw new Error(allowedTypes.includes('image/gif') ? 'Chọn tệp GIF' : 'Chọn ảnh PNG, JPEG hoặc WebP');
+  if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) throw new Error('Chọn ảnh PNG, JPEG hoặc WebP');
   const data = await new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onerror = () => reject(new Error('Không đọc được ảnh')); reader.onload = () => resolve(String(reader.result).split(',')[1]); reader.readAsDataURL(file); });
   const result = await apiClient.post<ApiEnvelope<{ path: string }>>('/media', { data });
   return new URL(result.data.data.path, window.location.origin).href;
