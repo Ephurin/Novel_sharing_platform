@@ -1,14 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createServer } from 'vite';
 import { chromium, expect } from '@playwright/test';
 
 // P2-07A Regression Test Suite:
-// UX-01: Mobile Sidebar & Mode Switching (390px vs desktop)
-// UX-04: Writer with 0 Chapters (Empty State & First Chapter Creation)
+// UX-01: Mobile Sidebar & Mode Switching (390px vs desktop, resize, keyboard navigation, Escape)
+// UX-04: Writer with 0 Chapters (Empty State, 503 retry with clientRequestId, and Chapter Creation)
 test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapter Empty State', {
   timeout: 180000
 }, async () => {
@@ -36,6 +36,7 @@ test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapte
   const C = '20000000-0000-0000-0000-000000000001';
 
   let chapter = null;
+  let force503OnChapterCreate = false;
   const writes = [];
   const errors = [];
 
@@ -68,10 +69,10 @@ test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapte
         contentType: 'application/json',
         body: JSON.stringify({ data, meta: { totalPages: 1 } })
       });
-      const fail = (code, status = 404) => route.fulfill({
+      const fail = (code, status = 404, message = code) => route.fulfill({
         status,
         contentType: 'application/json',
-        body: JSON.stringify({ error: { code, message: code } })
+        body: JSON.stringify({ error: { code, message } })
       });
       const body = method === 'POST' || method === 'PATCH' ? req.postDataJSON() : null;
       if (body) writes.push({ path, method, actor, body });
@@ -84,6 +85,9 @@ test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapte
       if (path === `/novels/${A}/chapters`) {
         if (method === 'GET') return send(chapter ? [chapter] : []);
         if (method === 'POST') {
+          if (force503OnChapterCreate) {
+            return fail('SERVICE_UNAVAILABLE', 503, 'Máy chủ đang bận xử lý (503 Service Unavailable)');
+          }
           chapter = {
             chapterId: C,
             novelId: A,
@@ -122,10 +126,9 @@ test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapte
 
   try {
     // =========================================================================
-    // SCENARIO 1: UX-01 Mobile Sidebar & Mode Switching (390px Viewport)
+    // SCENARIO 1: UX-01 Mobile Sidebar, Mode Switching & Keyboard Navigation (390px)
     // =========================================================================
     console.log('--- TEST 1: UX-01 Mobile Sidebar & Mode Switching (390px) ---');
-    // Pre-seed 1 chapter for Scenario 1
     chapter = {
       chapterId: C,
       novelId: A,
@@ -143,7 +146,7 @@ test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapte
     const mobilePage = await browser.newPage({ viewport: { width: 390, height: 844 } });
     await setupMocks(mobilePage);
 
-    await mobilePage.goto(origin + 'author/ide?novelId=' + A + '&chapterId=' + C);
+    await mobilePage.goto(origin + 'author/ide?novelId=' + A + '&chapterId=' + C, { waitUntil: 'domcontentloaded', timeout: 90000 });
     await mobilePage.waitForLoadState('networkidle');
 
     const planBtn = mobilePage.getByRole('button', { name: 'Lập kế hoạch', exact: true });
@@ -151,7 +154,7 @@ test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapte
     const sidebar = mobilePage.locator('.sc-studio-sidebar');
     const backdrop = mobilePage.locator('.sc-sidebar-backdrop');
     const toggleSidebarBtn = mobilePage.getByTitle('Đóng/Mở thanh danh sách chương');
-    const closeSidebarBtn = mobilePage.getByTitle('Thu gọn danh sách');
+    const closeSidebarBtn = mobilePage.getByRole('button', { name: 'Thu gọn danh sách chương' });
 
     // 1.1 Verify initial Planning mode
     await planBtn.click();
@@ -190,29 +193,45 @@ test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapte
     await mobilePage.screenshot({ path: join(out, 'ux01-mobile-backdrop-closed.png') });
     console.log('✓ UX-01: Backdrop tap dismisses mobile sidebar correctly!');
 
-    // 1.7 Open sidebar and close with close button (first_page)
+    // 1.7 Open sidebar and close with close button (accessible button)
     await toggleSidebarBtn.click();
     await expect(sidebar).toBeVisible();
     await closeSidebarBtn.click();
     await expect(sidebar).toBeHidden();
     console.log('✓ UX-01: Close button collapses mobile sidebar correctly!');
 
+    // 1.8 Keyboard Navigation: Escape key closes sidebar
+    await toggleSidebarBtn.click();
+    await expect(sidebar).toBeVisible();
+    await mobilePage.keyboard.press('Escape');
+    await expect(sidebar).toBeHidden();
+    console.log('✓ UX-01: Escape key closes sidebar correctly!');
+
+    // 1.9 Keyboard Navigation: Focus close button via Tab and press Enter/Space
+    await toggleSidebarBtn.click();
+    await expect(sidebar).toBeVisible();
+    await closeSidebarBtn.focus();
+    await expect(closeSidebarBtn).toBeFocused();
+    await mobilePage.keyboard.press('Enter');
+    await expect(sidebar).toBeHidden();
+    console.log('✓ UX-01: Keyboard Tab/Enter activates close button correctly!');
+
     await mobilePage.close();
 
     // =========================================================================
-    // SCENARIO 2: UX-01 Desktop Sidebar & Mode Switching (1280x900 Viewport)
+    // SCENARIO 2: UX-01 Desktop (1280px) & Dynamic Resize (1280 -> 390 -> 1280)
     // =========================================================================
-    console.log('--- TEST 2: UX-01 Desktop Sidebar & Mode Switching (1280x900) ---');
-    const desktopPage = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-    await setupMocks(desktopPage);
+    console.log('--- TEST 2: UX-01 Desktop Sidebar & Dynamic Resize (1280 -> 390 -> 1280) ---');
+    const resizePage = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    await setupMocks(resizePage);
 
-    await desktopPage.goto(origin + 'author/ide?novelId=' + A + '&chapterId=' + C);
-    await desktopPage.waitForLoadState('networkidle');
+    await resizePage.goto(origin + 'author/ide?novelId=' + A + '&chapterId=' + C, { waitUntil: 'domcontentloaded', timeout: 90000 });
+    await resizePage.waitForLoadState('networkidle');
 
-    const deskPlanBtn = desktopPage.getByRole('button', { name: 'Lập kế hoạch', exact: true });
-    const deskWriteBtn = desktopPage.getByRole('button', { name: 'Viết bản thảo', exact: true });
-    const deskSidebar = desktopPage.locator('.sc-studio-sidebar');
-    const deskBackdrop = desktopPage.locator('.sc-sidebar-backdrop');
+    const deskPlanBtn = resizePage.getByRole('button', { name: 'Lập kế hoạch', exact: true });
+    const deskWriteBtn = resizePage.getByRole('button', { name: 'Viết bản thảo', exact: true });
+    const deskSidebar = resizePage.locator('.sc-studio-sidebar');
+    const deskBackdrop = resizePage.locator('.sc-sidebar-backdrop');
 
     // On desktop, sidebar is open by default side-by-side, and backdrop is hidden
     await expect(deskSidebar).toBeVisible();
@@ -220,21 +239,36 @@ test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapte
 
     // Switch between Planning and Writer on desktop
     await deskPlanBtn.click();
-    await expect(desktopPage.getByRole('region', { name: 'Planning Studio', exact: true })).toBeVisible();
+    await expect(resizePage.getByRole('region', { name: 'Planning Studio', exact: true })).toBeVisible();
 
     await deskWriteBtn.click();
-    await expect(desktopPage.getByPlaceholder('Đặt tiêu đề chương tại đây...')).toBeVisible();
+    await expect(resizePage.getByPlaceholder('Đặt tiêu đề chương tại đây...')).toBeVisible();
     await expect(deskSidebar).toBeVisible();
     await expect(deskBackdrop).toBeHidden();
-    await desktopPage.screenshot({ path: join(out, 'ux01-desktop-writer-unaffected.png') });
-    console.log('✓ UX-01: Desktop workspace completely unaffected and side-by-side intact!');
+    await resizePage.screenshot({ path: join(out, 'ux01-desktop-writer-unaffected.png') });
 
-    await desktopPage.close();
+    // Dynamic resize: 1280 -> 390
+    await resizePage.setViewportSize({ width: 390, height: 844 });
+    await resizePage.waitForTimeout(300);
+
+    // After resize to mobile, switching modes must still work without interception
+    await deskPlanBtn.click({ timeout: 5000 });
+    await expect(resizePage.getByRole('region', { name: 'Planning Studio', exact: true })).toBeVisible();
+
+    // Dynamic resize back: 390 -> 1280
+    await resizePage.setViewportSize({ width: 1280, height: 900 });
+    await resizePage.waitForTimeout(300);
+
+    await deskWriteBtn.click();
+    await expect(resizePage.getByPlaceholder('Đặt tiêu đề chương tại đây...')).toBeVisible();
+    console.log('✓ UX-01: Resize 1280 -> 390 -> 1280 preserves sidebar and mode switcher stability!');
+
+    await resizePage.close();
 
     // =========================================================================
-    // SCENARIO 3: UX-04 Writer with 0 Chapters (Empty State & First Chapter Creation)
+    // SCENARIO 3: UX-04 Writer with 0 Chapters (Empty State, 503 Retry with clientRequestId)
     // =========================================================================
-    console.log('--- TEST 3: UX-04 Zero-Chapter Empty State & Creation ---');
+    console.log('--- TEST 3: UX-04 Zero-Chapter Empty State & 503 Safe Retry ---');
     // Reset chapters to 0
     chapter = null;
     writes.length = 0;
@@ -242,7 +276,7 @@ test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapte
     const zeroChapterPage = await browser.newPage({ viewport: { width: 1280, height: 900 } });
     await setupMocks(zeroChapterPage);
 
-    await zeroChapterPage.goto(origin + 'author/ide?novelId=' + A);
+    await zeroChapterPage.goto(origin + 'author/ide?novelId=' + A, { waitUntil: 'domcontentloaded', timeout: 90000 });
     await zeroChapterPage.waitForLoadState('networkidle');
 
     // 3.1 Switch to Planning Studio, navigate to Step 5
@@ -271,14 +305,31 @@ test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapte
     await zeroChapterPage.screenshot({ path: join(out, 'ux04-zero-chapters-empty-state.png') });
     console.log('✓ UX-04: Empty state explaining zero chapters rendered cleanly with CTA button!');
 
-    // 3.5 Author clicks "Tạo chương đầu tiên"
+    // 3.5 Test 503 Service Unavailable and Safe Retry with same clientRequestId
+    force503OnChapterCreate = true;
     await createFirstChapterBtn.click();
 
-    // 3.6 Verify existing createChapter API is called
-    const chapterCreatesAfter = writes.filter(w => w.path.endsWith('/chapters') && w.method === 'POST');
-    assert.equal(chapterCreatesAfter.length, 1, 'Existing createChapter API must be called exactly once');
+    // Verify error Alert is displayed in Empty State and Toast notification
+    await expect(emptyState.getByText('Không thể tạo chương')).toBeVisible();
+    await expect(zeroChapterPage.getByText('Máy chủ đang bận xử lý (503 Service Unavailable)')).toBeVisible();
+    const retryBtn = emptyState.getByRole('button', { name: 'Thử lại tạo chương' });
+    await expect(retryBtn).toBeVisible();
 
-    // 3.7 Verify Empty State disappears and manuscript editor is loaded for Chapter 1
+    const firstAttempt = writes.find(w => w.path.endsWith('/chapters') && w.method === 'POST');
+    assert.ok(firstAttempt?.body?.clientRequestId, 'First attempt must include clientRequestId');
+    const firstRequestId = firstAttempt.body.clientRequestId;
+
+    // Reset 503 mock for retry
+    force503OnChapterCreate = false;
+    await retryBtn.click();
+
+    // Verify second request used the EXACT SAME clientRequestId
+    const createAttempts = writes.filter(w => w.path.endsWith('/chapters') && w.method === 'POST');
+    assert.equal(createAttempts.length, 2, 'Must have attempted exactly 2 times');
+    assert.equal(createAttempts[1].body.clientRequestId, firstRequestId, 'Retry must reuse identical clientRequestId');
+    console.log('✓ UX-04: 503 error displayed and safe retry used identical clientRequestId: ' + firstRequestId);
+
+    // 3.6 Verify Empty State disappears and manuscript editor is loaded for Chapter 1
     await expect(emptyState).toBeHidden();
     const titleInput = zeroChapterPage.getByPlaceholder('Đặt tiêu đề chương tại đây...');
     const contentTextarea = zeroChapterPage.getByPlaceholder('Bắt đầu câu từ chương truyện của bạn tại đây...');

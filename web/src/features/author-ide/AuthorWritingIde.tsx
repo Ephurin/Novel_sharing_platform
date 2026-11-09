@@ -144,6 +144,16 @@ export function AuthorWritingIde() {
 
   // UI Interactive Panels & Modals State
   const [sidebarOpen, setSidebarOpen] = useState(() => window.matchMedia('(min-width: 901px)').matches);
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSidebarOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [sidebarOpen]);
   const [aiDrawerOpen, setAiDrawerOpen] = useState(false);
   const toggleAiDrawer = () => {
     if (!aiDrawerOpen && window.matchMedia('(max-width: 1200px)').matches) setSidebarOpen(false);
@@ -1010,7 +1020,7 @@ export function AuthorWritingIde() {
               role="presentation"
               aria-label="Đóng danh sách chương"
             />
-            <aside className="sc-studio-sidebar w-[280px] shrink-0 border-r border-stone-200/90 bg-surface-subtle flex flex-col h-full z-20 select-none relative">
+            <aside className="sc-studio-sidebar w-[280px] shrink-0 border-r border-stone-200/90 bg-surface-subtle flex flex-col h-full z-20 select-none relative" aria-label="Danh sách chương">
             {/* Rail Header */}
             <div className="p-3 border-b border-stone-200 flex items-center justify-between bg-stone-50/50">
               <div>
@@ -1025,6 +1035,7 @@ export function AuthorWritingIde() {
                 onClick={() => setSidebarOpen(false)}
                 className="p-1 rounded text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 transition-colors"
                 title="Thu gọn danh sách"
+                aria-label="Thu gọn danh sách chương"
                 type="button"
               >
                 <span className="material-symbols-outlined text-[17px]">first_page</span>
@@ -1153,6 +1164,21 @@ export function AuthorWritingIde() {
               <p className="text-body text-stone-600 mb-6 leading-relaxed">
                 Tác phẩm của bạn chưa có chương nào. Bạn có thể bắt đầu sáng tác ngay bằng cách tạo chương đầu tiên.
               </p>
+              {createChapterMutation.isError && (
+                <Alert
+                  color="red"
+                  title="Không thể tạo chương"
+                  mb="md"
+                  w="100%"
+                  withCloseButton
+                  onClose={() => createChapterMutation.reset()}
+                >
+                  <Text size="sm">Đã xảy ra lỗi trong quá trình tạo chương mới. Hãy kiểm tra thông báo và thử lại.</Text>
+                  <Text size="xs" c="dimmed" mt={4}>
+                    Bạn có thể thử lại để tiếp tục tạo chương an toàn với cùng mã yêu cầu.
+                  </Text>
+                </Alert>
+              )}
               <Button
                 size="md"
                 variant="filled"
@@ -1160,7 +1186,7 @@ export function AuthorWritingIde() {
                 loading={createChapterMutation.isPending}
                 leftSection={<span className="material-symbols-outlined text-[18px]">add_circle</span>}
               >
-                Tạo chương đầu tiên
+                {createChapterMutation.isError ? 'Thử lại tạo chương' : 'Tạo chương đầu tiên'}
               </Button>
             </div>
           ) : (

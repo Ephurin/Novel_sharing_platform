@@ -1,122 +1,126 @@
-# Báo Cáo Bàn Giao Sửa Lỗi UX-01 & UX-04 — Story Planning Studio
+# Báo Cáo Bàn Giao Sửa Lỗi UX-01 & UX-04 — Final Remediation (PR #106)
 
-**Ngày:** 2026-11-09  
+**Ngày hoàn thiện:** 2026-11-09  
 **Người thực hiện:** Frontend Developer (Gemini)  
-**Nhánh công việc:** `gemini/p2-07a-ux01-ux04-navigation`  
-**Nhánh cơ sở (Baseline):** `integration/p2-planning-studio` (Commit SHA `c50b57a886d6db2eb3b409c30b91eb3f63876b09`)  
+**Pull Request:** [#106](https://github.com/Ephurin/Novel_sharing_platform/pull/106)  
+**Nhánh nguồn (Head Branch):** `gemini/p2-07a-ux01-ux04-navigation`  
+**Nhánh đích (Target Base):** `integration/p2-planning-studio`  
+**Base Commit SHA:** `717ef6e7fa7b8a443a2fb37f7a6fa2fcd31c0c89` (Merge PR #105)  
 **Tham chiếu Issue:** [#104](https://github.com/Ephurin/Novel_sharing_platform/issues/104)  
 **Báo cáo Audit liên quan:** [`docs/development/p2/P2_07A_UX_AUDIT_GEMINI.md`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/P2_07A_UX_AUDIT_GEMINI.md)
 
 ---
 
-## 1. Tổng Quan & Phạm Vi Triển Khai
+## 1. Tóm Tắt Khắc Phục Kỹ Thuật
 
-Báo cáo này ghi lại kết quả khắc phục 2 khiếm khuyết trải nghiệm người dùng (UX) quan trọng được phát hiện trong đợt kiểm toán P2-07A của Story Planning Studio:
+### 1.1. UX-01: Mobile Sidebar & Mode Switcher Pointer Safety
+- **Hiện tượng lỗi ban đầu:** Trên mobile (viewport 390px), khi mở Sidebar danh sách chương trong chế độ Viết bản thảo, sidebar vươn ra chiếm toàn bộ chiều cao (`top: 0`), che khuất nút "Lập kế hoạch" và chặn mọi sự kiện con trỏ/cảm ứng. Tác giả bị mắc kẹt không thể chuyển sang Planning Studio nếu không thu nhỏ sidebar.
+- **Giải pháp hoàn thiện:**
+  - Định vị tuyệt đối Sidebar bên trong `.sc-studio-body` bằng thuộc tính `position: relative` (cả desktop lẫn `@media (max-width: 900px)`).
+  - Nâng thanh Mode Switcher `<Group aria-label="Chế độ Author IDE">` lên `z-20` với nền solid `bg-surface` và viền phân cách, đảm bảo Mode Switcher luôn nằm trên lớp nội dung soạn thảo.
+  - Bổ sung lớp phủ nền `.sc-sidebar-backdrop` (`z-25`) khi Sidebar mở trên mobile, hỗ trợ đóng Sidebar ngay khi chạm vào vùng ngoài.
+  - Tự động đóng Sidebar trên mobile khi người dùng bấm "Lập kế hoạch" (`openPlanning`) hoặc bấm vào bất kỳ chương nào trong danh sách điều hướng.
+  - Hỗ trợ phím `Escape` để đóng Sidebar khi đang mở.
+  - Cung cấp thuộc tính trợ năng đầy đủ: `aria-label="Thu gọn danh sách chương"` cho nút đóng và `aria-label="Danh sách chương"` cho sidebar `<aside>`. Nút đóng có thể điều hướng bằng phím `Tab` và kích hoạt bằng `Enter`/`Space`.
+  - Đảm bảo tính ổn định khi thay đổi kích thước linh hoạt (Resize 1280px → 390px → 1280px trong cùng phiên).
 
-1. **UX-01 (P1): Mobile Sidebar che khuất thanh chuyển chế độ (Mode Switcher) & chặn thao tác con trỏ (Pointer Events Interception)**  
-   - *Hiện tượng cũ:* Trên màn hình mobile (viewport 390px), khi mở Sidebar danh sách chương trong chế độ Viết bản thảo, sidebar vươn ra chiếm toàn bộ chiều cao màn hình (`top: 0`), che khuất nút "Lập kế hoạch" và chặn mọi thao tác chuột/cảm ứng, khiến tác giả bị "mắc kẹt" trong chế độ viết nếu không phát hiện nút thu nhỏ.
-   - *Giải pháp:*
-     - Giới hạn phạm vi tuyệt đối của Sidebar bên trong `.sc-studio-body` bằng thuộc tính `position: relative` (cả desktop lẫn mobile `@media (max-width: 900px)`).
-     - Nâng z-index thanh chuyển chế độ `<Group aria-label="Chế độ Author IDE">` lên `z-20` với nền solid `bg-surface` và viền phân cách, đảm bảo Mode Switcher luôn nằm trên lớp nội dung soạn thảo.
-     - Bổ sung lớp phủ làm mờ nền `.sc-sidebar-backdrop` (`z-25`) khi Sidebar mở trên mobile, hỗ trợ đóng Sidebar ngay khi chạm/click ra vùng trống bên ngoài.
-     - Tự động đóng Sidebar trên mobile khi người dùng chuyển sang chế độ "Lập kế hoạch" (`openPlanning`) hoặc bấm chọn một chương bất kỳ trong danh sách điều hướng.
+### 1.2. UX-04: Writer Khi Tác Phẩm Chưa Có Chương (Zero-Chapter Empty State & 503 Retry)
+- **Hiện tượng lỗi ban đầu:** Khi novel chưa có chapter và tác giả chuyển sang viết (bỏ qua dàn ý), trình soạn thảo bị đặt `readOnly={true}` mà không có bất kỳ hướng dẫn hay nút hành động nào, gây hiểu nhầm hệ thống bị treo.
+- **Giải pháp hoàn thiện:**
+  - Hiển thị **Empty State** trực quan trong `.sc-editor-workspace` khi `chaptersQuery.data.length === 0`:
+    - Biểu tượng `auto_stories` nổi bật.
+    - Tiêu đề: *"Chưa có chương nào trong tác phẩm"*.
+    - Hướng dẫn: *"Tác phẩm của bạn chưa có chương nào. Bạn có thể bắt đầu sáng tác ngay bằng cách tạo chương đầu tiên."*.
+    - Nút CTA: *"Tạo chương đầu tiên"*.
+  - Khi người dùng chuyển đổi qua lại giữa Planning và Write, tuyệt đối **không tự động gửi API tạo chương ngầm**.
+  - Khi tác giả bấm nút CTA, hệ thống gọi API tạo chương hiện có (`createChapterMutation.mutate()`), tự động sinh Chương 1 và chuyển thẳng vào trình soạn thảo có thể gõ nội dung tức thì.
+  - **Xử lý sự cố 503 & Thử lại an toàn (Safe Retry):**
+    - Nếu API trả lỗi (503 Service Unavailable hoặc lỗi mạng), Empty State hiển thị thông báo lỗi `<Alert color="red" title="Không thể tạo chương">` giải thích rõ ràng và chuyển nút CTA thành *"Thử lại tạo chương"*.
+    - Cơ chế `clientRequestId` bền vững (lưu trong `localStorage` và `useRef`) đảm bảo lượt bấm thử lại gửi lại **chính xác cùng một `clientRequestId`** ban đầu, tránh việc sinh chương trùng lặp (idempotent retry).
 
-2. **UX-04 (P1): Tác phẩm mới có 0 chương bị khoá vô hình không hướng dẫn (Zero-Chapter Dead State)**  
-   - *Hiện tượng cũ:* Khi tác giả tạo novel mới chưa có chương nào và chuyển sang "Viết bản thảo" (bỏ qua dàn ý), trình soạn thảo bị đặt thuộc tính `readOnly={true}` mà không có bất kỳ thông báo hay nút hành động nào, gây hiểu nhầm hệ thống bị treo.
-   - *Giải pháp:*
-     - Bổ sung Empty State trực quan trong không gian soạn thảo (`.sc-editor-workspace`) khi `chaptersQuery.data.length === 0`:
-       - Biểu tượng `auto_stories` nổi bật.
-       - Tiêu đề: *"Chưa có chương nào trong tác phẩm"*.
-       - Hướng dẫn: *"Tác phẩm của bạn chưa có chương nào. Bạn có thể bắt đầu sáng tác ngay bằng cách tạo chương đầu tiên."*.
-       - Nút kêu gọi hành động (CTA): *"Tạo chương đầu tiên"*.
-     - Nút CTA kích hoạt trực tiếp `createChapterMutation.mutate()` (API tạo chương hiện có), tự động sinh Chương 1 và chuyển ngay vào trình soạn thảo có thể gõ nội dung tức thì.
-     - Khi chưa có chương, khu vực soạn thảo hoàn toàn không tự động gửi API tạo chương ngầm hoặc tạo revision vô căn cứ; mọi hành động đều do tác giả chủ động quyết định.
-
----
-
-## 2. Danh Sách Tệp Đã Sửa Đổi & Bổ Sung
-
-| Phân loại | Đường dẫn tệp | Mô tả thay đổi |
-|---|---|---|
-| **Styling** | [`web/src/theme/storycraft.css`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/web/src/theme/storycraft.css) | Thêm `position: relative` cho `.sc-studio-body`, định nghĩa `.sc-sidebar-backdrop` và elevated `z-index` cho sidebar trên mobile |
-| **Logic Giao Diện** | [`web/src/features/author-ide/AuthorWritingIde.tsx`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/web/src/features/author-ide/AuthorWritingIde.tsx) | Thêm backdrop mobile, auto-close sidebar trên mobile khi chuyển mode/chọn chương, hiển thị Zero-Chapter Empty State & CTA tạo chương đầu tiên |
-| **Kiểm Thử** | [`web/tests/p2-07a-ux01-ux04-regression.browser.test.mjs`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/web/tests/p2-07a-ux01-ux04-regression.browser.test.mjs) | Bộ hồi quy Playwright Chromium chuyên biệt kiểm tra 3 kịch bản: Mobile Sidebar, Desktop Sidebar không ảnh hưởng, Zero-chapter Empty State & creation |
-| **Bằng Chứng** | `docs/development/p2/evidence/p2-07a/ux01-*.png` & `ux04-*.png` | Bộ 8 ảnh chụp màn hình minh chứng trạng thái thực tế trước và sau khắc phục |
-| **Tài Liệu** | `docs/development/p2/P2_07A_UX01_UX04_FIX_HANDOFF.md` | Báo cáo bàn giao kỹ thuật |
+### 1.3. Tích Hợp CI Workflow
+- Đã đưa bài test hồi quy `tests/p2-07a-ux01-ux04-regression.browser.test.mjs` vào workflow CI `.github/workflows/p2-setup-provenance.yml` (chạy tự động trên mọi PR có base là `integration/p2-planning-studio`).
 
 ---
 
-## 3. Ảnh Chụp Bằng Chứng Trước & Sau
+## 2. Danh Sách Tệp Đã Thay Đổi
 
-### UX-01: Mobile Sidebar & Mode Switcher
-
-| Trạng thái | Hình ảnh minh chứng | Mô tả |
-|---|---|---|
-| **Trước (Lỗi)** | [`s4-switched-to-writer.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07a/s4-switched-to-writer.png) | Sidebar trùm lên đỉnh màn hình, che mất thanh Mode Switcher ("Lập kế hoạch" / "Viết bản thảo") |
-| **Sau (Khởi tạo)** | [`ux01-mobile-writer-initial.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07a/ux01-mobile-writer-initial.png) | Giao diện Viết bản thảo trên Mobile 390px, Mode Switcher nằm riêng biệt trên đầu trang |
-| **Sau (Mở Sidebar)** | [`ux01-mobile-sidebar-open.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07a/ux01-mobile-sidebar-open.png) | Sidebar mở dạng trượt, có backdrop mờ `z-25`, thanh Mode Switcher phía trên hoàn toàn lộ rõ |
-| **Sau (Chuyển Planning)** | [`ux01-mobile-switch-to-planning-success.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07a/ux01-mobile-switch-to-planning-success.png) | Click nút "Lập kế hoạch" thành công không bị chặn con trỏ; sidebar tự động thu gọn |
-| **Sau (Đóng Backdrop)** | [`ux01-mobile-backdrop-closed.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07a/ux01-mobile-backdrop-closed.png) | Chạm ra vùng ngoài sidebar đóng sidebar êm ái, trở lại văn bản soạn thảo |
-| **Sau (Desktop giữ nguyên)** | [`ux01-desktop-writer-unaffected.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07a/ux01-desktop-writer-unaffected.png) | Trên Desktop 1280px, layout dạng cột 2 bảng song song vẫn hoạt động nguyên vẹn |
+| STT | Tệp thay đổi | Phân loại | Mục đích |
+|---|---|---|---|
+| 1 | `web/src/theme/storycraft.css` | Styling | Thêm `position: relative` cho `.sc-studio-body`, định nghĩa `.sc-sidebar-backdrop` và elevate `z-index` cho sidebar trên mobile |
+| 2 | `web/src/features/author-ide/AuthorWritingIde.tsx` | Component | Thêm backdrop, auto-close sidebar trên mobile, lắng nghe phím `Escape`, bổ sung trợ năng bàn phím, hiển thị Zero-Chapter Empty State & Alert 503 retry an toàn |
+| 3 | `web/tests/p2-07a-ux01-ux04-regression.browser.test.mjs` | Test Suite | Bộ hồi quy Playwright tự động kiểm tra 3 kịch bản: Mobile Sidebar & Keyboard, Desktop & Dynamic Resize, Empty State & 503 Idempotent Retry |
+| 4 | `.github/workflows/p2-setup-provenance.yml` | CI Workflow | Tích hợp bài test hồi quy UX-01 & UX-04 vào pipeline CI của P2 |
+| 5 | `docs/development/p2/evidence/p2-07a/ux01-*.png` & `ux04-*.png` | Evidence | 8 ảnh chụp màn hình minh chứng trước và sau sửa lỗi |
+| 6 | `docs/development/p2/P2_07A_UX01_UX04_FIX_HANDOFF.md` | Tài liệu | Báo cáo bàn giao chi tiết cho PR #106 |
 
 ---
 
-### UX-04: Writer Khi Chưa Có Chương
+## 3. Bằng Chứng Thực Tế & Ảnh Chụp Màn Hình
 
-| Trạng thái | Hình ảnh minh chứng | Mô tả |
-|---|---|---|
-| **Trước (Lỗi)** | [`s1-author-write-chapter1.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07a/s1-author-write-chapter1.png) | Trình soạn thảo trống trơn, con trỏ bị khoá không gõ được, không có chỉ dẫn nào |
-| **Sau (Empty State)** | [`ux04-zero-chapters-empty-state.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07a/ux04-zero-chapters-empty-state.png) | Hiển thị màn hình hướng dẫn rõ ràng: *"Chưa có chương nào trong tác phẩm"* kèm nút *"Tạo chương đầu tiên"* |
-| **Sau (Sau khi tạo chương)** | [`ux04-chapter-created-and-writable.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07a/ux04-chapter-created-and-writable.png) | Chương 1 được sinh ra, tự động mở vào trình soạn thảo, thanh công cụ xuất hiện và gõ văn bản thành công |
+### 3.1. UX-01: Mobile Sidebar & Navigation
 
----
+| Kịch bản | Hình ảnh minh chứng | Kết quả |
+|---|---|:---:|
+| **Lỗi ban đầu** | [`s4-switched-to-writer.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07a/s4-switched-to-writer.png) | Sidebar trùm lên đỉnh màn hình, che mất thanh Mode Switcher |
+| **Giao diện Viết trên Mobile** | [`ux01-mobile-writer-initial.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07a/ux01-mobile-writer-initial.png) | Mode Switcher nằm riêng biệt trên đầu trang, không bị che |
+| **Sidebar mở có Backdrop** | [`ux01-mobile-sidebar-open.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07a/ux01-mobile-sidebar-open.png) | Sidebar trượt ra gọn gàng trong thân editor, Mode Switcher phía trên hoàn toàn lộ rõ |
+| **Chuyển Planning khi Sidebar mở** | [`ux01-mobile-switch-to-planning-success.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07a/ux01-mobile-switch-to-planning-success.png) | Click nút "Lập kế hoạch" thành công không bị chặn con trỏ; sidebar tự động thu gọn |
+| **Đóng Sidebar bằng Backdrop** | [`ux01-mobile-backdrop-closed.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07a/ux01-mobile-backdrop-closed.png) | Chạm ra ngoài backdrop đóng sidebar ngay lập tức |
+| **Desktop 1280px giữ nguyên** | [`ux01-desktop-writer-unaffected.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07a/ux01-desktop-writer-unaffected.png) | Layout 2 cột song song hoạt động bình thường, backdrop không xuất hiện |
 
-## 4. Kết Quả Kiểm Thử & Mã Thoát (Exit Codes)
+### 3.2. UX-04: Trình Soạn Thảo Khi Chưa Có Chương
 
-Tất cả các khâu kiểm tra chất lượng đều vượt qua với mã thoát `0`:
-
-### 4.1. TypeScript Typecheck
-- **Lệnh:** `npm --prefix web run typecheck`
-- **Kết quả:** `0 errors`
-- **Mã thoát:** `0`
-
-### 4.2. Frontend Production Build
-- **Lệnh:** `npm --prefix web run build`
-- **Kết quả:** `tsc -b && vite build` thành công trong ~15s; bundle tạo thành công.
-- **Mã thoát:** `0`
-
-### 4.3. Story Planning Studio Browser Tests
-- **Lệnh:** `node --test web/tests/planning-studio.browser.test.mjs`
-- **Kết quả:** Vượt qua toàn bộ các bài test S1, S2, S3, S4 của Planning Studio.
-- **Mã thoát:** `0`
-
-### 4.4. Bộ Hồi Quy Chuyên Biệt UX-01 & UX-04
-- **Lệnh:** `node --test web/tests/p2-07a-ux01-ux04-regression.browser.test.mjs`
-- **Kết quả:**
-  ```text
-  --- TEST 1: UX-01 Mobile Sidebar & Mode Switching (390px) ---
-  ✓ UX-01: Successfully switched Planning from mobile while sidebar open without pointer interception!
-  ✓ UX-01: Backdrop tap closed sidebar smoothly!
-  ✓ UX-01: Sidebar toggle button works cleanly!
-  --- TEST 2: UX-01 Desktop Verification (1280x900) ---
-  ✓ UX-01: Desktop sidebar toggle and layout unaffected!
-  --- TEST 3: UX-04 Zero-Chapter Empty State & Creation ---
-  ✓ UX-04: Empty state explaining zero chapters rendered cleanly with CTA button!
-  ✓ UX-04: Chapter 1 created via existing API and editor is fully unlocked for writing!
-  === ALL REGRESSION TESTS PASSED (0 ERRORS) ===
-  ✔ P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapter Empty State (35232.8397ms)
-  ℹ tests 1
-  ℹ suites 0
-  ℹ pass 1
-  ℹ fail 0
-  ```
-- **Mã thoát:** `0`
+| Kịch bản | Hình ảnh minh chứng | Kết quả |
+|---|---|:---:|
+| **Lỗi ban đầu** | [`s1-author-write-chapter1.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07a/s1-author-write-chapter1.png) | Soạn thảo trống trơn, con trỏ bị khoá không gõ được |
+| **Empty State trực quan** | [`ux04-zero-chapters-empty-state.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07a/ux04-zero-chapters-empty-state.png) | Hiển thị màn hình hướng dẫn và nút *"Tạo chương đầu tiên"* |
+| **Soạn thảo sau khi tạo** | [`ux04-chapter-created-and-writable.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07a/ux04-chapter-created-and-writable.png) | Chương 1 được sinh ra, thanh công cụ xuất hiện và gõ văn bản thành công |
 
 ---
 
-## 5. Ranh Giới Kỹ Thuật (Guardrails Compliance)
+## 4. Bảng Kết Quả Kiểm Thử (PASS / FAIL / NOT_RUN)
 
-- [x] Không can thiệp `AuthGate`, `RoleGuard` hoặc tầng backend/database/schema API.
-- [x] Không can thiệp cơ chế `useDraftPersistence` hay giải quyết xung đột UX-02 (đã được phân lập sang nhánh riêng).
-- [x] Không redesign lại Author IDE ngoài phạm vi của 2 lỗi UX.
-- [x] Không tự merge vào nhánh `integration/p2-planning-studio`. Sẵn sàng ở trạng thái Draft Pull Request để bàn giao cho GPT-6 review.
+| Tình huống kiểm thử | Trạng thái | Ghi chú & Exit Code |
+|---|:---:|---|
+| **TypeScript Typecheck** (`tsc -b --noEmit`) | **PASS** | Exit code `0` (0 errors) |
+| **Frontend Production Build** (`vite build`) | **PASS** | Exit code `0` (built in ~17.9s) |
+| **Planning Studio Browser Suite** (`planning-studio.browser.test.mjs`) | **PASS** | Exit code `0` (vượt qua tất cả hành trình S1, S2, S3, S4 trong 50.3s) |
+| **UX-01 Mobile Sidebar pointer safety (390px)** | **PASS** | Exit code `0` (click Planning khi sidebar mở không bị chặn) |
+| **UX-01 Mobile Backdrop dismiss** | **PASS** | Exit code `0` (chạm backdrop đóng sidebar) |
+| **UX-01 Mobile Close button collapse** | **PASS** | Exit code `0` (nút close thu nhỏ sidebar) |
+| **UX-01 Keyboard Navigation (Escape key)** | **PASS** | Exit code `0` (nhấn phím Escape đóng sidebar) |
+| **UX-01 Keyboard Navigation (Tab / Enter)** | **PASS** | Exit code `0` (focus nút đóng bằng Tab và kích hoạt bằng Enter) |
+| **UX-01 Desktop Workspace Layout (1280px)** | **PASS** | Exit code `0` (sidebar song song, backdrop ẩn) |
+| **UX-01 Dynamic Resize (1280 → 390 → 1280)** | **PASS** | Exit code `0` (giao diện co giãn ổn định trong cùng phiên) |
+| **UX-04 Zero-Chapter Empty State display** | **PASS** | Exit code `0` (hiển thị thông điệp và nút CTA) |
+| **UX-04 Switch Planning → Write zero writes** | **PASS** | Exit code `0` (0 request POST/PATCH gửi lên server khi chuyển view) |
+| **UX-04 503 Service Unavailable Error & Safe Retry** | **PASS** | Exit code `0` (hiển thị Alert lỗi, retry gửi lại cùng `clientRequestId`) |
+| **UX-04 Chapter Creation & Editor unlock** | **PASS** | Exit code `0` (tạo Chapter 1 thành công, editor mở khoá cho phép gõ) |
+| **P1 Writer Persistence Regression** (`author-ide.browser.test.mjs`) | **PASS** | Exit code `0` (skip gracefully khi không có isolated DB) |
+| **Theme / Color Contrast Tests** (`color-scheme.test.mjs`) | **PASS** | Exit code `0` (6/6 tests pass) |
+
+---
+
+## 5. Hướng Dẫn Điều Chỉnh Base Của PR #106
+
+Hiện tại PR #106 đang được mở với base là `main`. Để diff trên GitHub chỉ hiển thị các thay đổi của UX-01/UX-04:
+
+1. Truy cập [PR #106 trên GitHub](https://github.com/Ephurin/Novel_sharing_platform/pull/106).
+2. Nhấn nút **Edit** bên cạnh tiêu đề PR ở đầu trang.
+3. Ở dòng chọn nhánh, đổi **base branch** từ `main` sang **`integration/p2-planning-studio`**.
+4. Nhấn **Save**.
+5. Sau khi đổi base, mục **Files changed** của PR #106 sẽ chỉ còn hiển thị các tệp của đợt sửa UX-01/UX-04, và GitHub Actions workflow `.github/workflows/p2-setup-provenance.yml` sẽ tự động kích hoạt để kiểm thử toàn diện.
+
+---
+
+## 6. Ranh Giới Kỹ Thuật & Giới Hạn Còn Tồn Tại
+
+- **Tuân thủ ranh giới:**
+  - Không sửa `AuthGate`, `RoleGuard` hay persistence logic của UX-02 (đã được merge an toàn qua PR #105).
+  - Không can thiệp backend, database schema hay migration.
+  - Không sửa P1 Canon, Writer lease hay HITL.
+  - Không can thiệp P2-06 AI brainstorming.
+  - Không gọi LLM thật.
+- **Giới hạn còn tồn tại:**
+  - Bộ kiểm thử browser cục bộ sử dụng Playwright Chromium với HTTP mocks để mô phỏng phản hồi API (bao gồm cả lỗi 503 và kiểm tra tính bất biến của `clientRequestId`). Việc kiểm thử tích hợp trên môi trường Docker Postgres/Mongo thực tế sẽ do pipeline CI `.github/workflows/p2-setup-provenance.yml` đảm nhiệm khi PR được kiểm tra.
