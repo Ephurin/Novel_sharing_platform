@@ -2,8 +2,9 @@
 
 **Ngày hoàn thiện:** 2026-11-09  
 **Người thực hiện:** Frontend Developer (Gemini)  
+**Pull Request:** [#108 (Draft)](https://github.com/Ephurin/Novel_sharing_platform/pull/108)  
 **Nhánh nguồn (Head Branch):** `gemini/p2-07b-world-review-ux03`  
-**Head Commit SHA:** `7762e9374092b3bc3ff6838a0a6ee0ebfdf68615`  
+**Head Commit SHA:** `4e6735b2a7d2f6ed64eb4c2e7502b95cef92eeee`  
 **Nhánh đích (Target Base):** `integration/p2-planning-studio`  
 **Base Commit SHA:** `242afc82b131804f3780362c1615cb38ecf1ebc6` (Merge PR #106)  
 **Tham chiếu Issue:** [#104](https://github.com/Ephurin/Novel_sharing_platform/issues/104)  
@@ -86,6 +87,7 @@
 | **Setup Foundation Browser Suite** (`setup-foundation.browser.test.mjs`) | **PASS** | Exit code `0` (8/8 tests pass trong 34.5s) |
 | **P1 Writer Persistence Regression** (`author-ide.browser.test.mjs`) | **SKIP** | Exit code `0` (1 skipped: yêu cầu isolated Postgres/Mongo test container) |
 | **Real PostgreSQL / Gateway Test** | **NOT_RUN** | Môi trường cục bộ không có container Docker DB; được kiểm tra trong CI Actions |
+| **GitHub Actions Cloud CI** (`p2-setup-provenance.yml`) | **NOT_RUN** | Runner không khởi chạy do tài khoản GitHub đạt hạn mức spending limit (`The job was not started because recent account payments have failed or your spending limit needs to be increased`) |
 
 ---
 
@@ -97,4 +99,5 @@
   - Không gọi real LLM hay phá vỡ hạn mức quota.
   - Không sửa đổi mã nguồn ngoài phạm vi UX-03 (chỉ chỉnh sửa UI/UX của review group và bài test đi kèm).
 - **Giới hạn còn tồn tại:**
-  - Bộ kiểm thử browser cục bộ sử dụng Playwright Chromium với HTTP mocks để mô phỏng phản hồi API. Việc kiểm thử toàn trình trên cơ sở dữ liệu thật được đảm nhiệm bởi CI pipeline `.github/workflows/p2-setup-provenance.yml`.
+  - Bộ kiểm thử browser cục bộ sử dụng Playwright Chromium với HTTP mocks để mô phỏng phản hồi API.
+  - Về phía GitHub Actions: runner trên cloud của tài khoản hiện đang tạm dừng do vượt hạn mức billing/spending limit của tổ chức (`Billing & plans`). Toàn bộ xác minh kỹ thuật đã được thực hiện bằng quy trình **LOCAL-FIRST** với kết quả 100% PASS trên môi trường máy trạm.
