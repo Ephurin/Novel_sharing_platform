@@ -14,7 +14,9 @@ test('author footnotes survive edits, undo, autosave and reload, then appear to 
   const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome', headless: true });
   try {
     for (const profile of [{ width: 1440, theme: 'light', mode: 'visual' }, { width: 375, theme: 'dark', mode: 'visual' }, { width: 390, theme: 'dark', mode: 'source' }]) {
-      const initial = '“Huynh cứ yên tâm”, nàng khẽ nói.\n\nMột câu chuyện mới bắt đầu.';
+      // A chapter must reach 500 characters before it can be published (SRS D1); the notes flow below ends in a real publish.
+      const initial = '“Huynh cứ yên tâm”, nàng khẽ nói.\n\nMột câu chuyện mới bắt đầu.\n\n' + 'Gió chiều thổi qua sân, lá vàng rơi chậm trên bậc đá cũ trước hiên nhà. '.repeat(8).trim();
+      assert.ok(initial.length >= 500, 'the fixture chapter is long enough to publish');
       let saved = initial, published = initial, version = 1, patches = 0, publications = 0;
       const noteBody = '“Huynh” là cách gọi anh kết nghĩa, không phải anh ruột.\nCách xưng hô này thể hiện sự kính trọng.';
       const updatedBody = noteBody + '\n<script>window.noteExecuted = true</script>';
