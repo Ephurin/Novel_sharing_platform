@@ -54,7 +54,10 @@ NOVEL_SLUG = "sample-ashenhold-test-story"
 FILTER_WORD = "srs-blocked-term"
 STRONG_PASSWORD = "Srs-Check-2026"  # throwaway accounts created inside the disposable database only
 re_llm = re.compile(r"(ai-copilot|ai-gateway|llm|openai|anthropic|story-brain)", re.I)
-# SRS ai-intelligence-service §1: an LLM call must not hang longer than 5 seconds. The stack's API gets this timeout.
+# Business rules checked here follow the product-owner decisions D1–D7 of 2026-11-09 (docs/testing/srs-disposition.md):
+# first publish needs 2 valid chapters, synopsis >= 50 characters, chapter content >= 500 characters to publish.
+POLICY_VERSION = "D1-D7 2026-11-09 (2 chapters, synopsis 50, chapter 500)"
+# The stack's API gets a 3-second LLM timeout, so TC-AI-06 checks AI_001 well within 5 seconds.
 AI_TIMEOUT_MS = 3000
 
 
@@ -465,7 +468,7 @@ class Suite:
 
     # NOVELS / CHAPTERS -------------------------------------------------------
     def novel_cases(self) -> None:
-        synopsis = "Tóm tắt kiểm thử SRS. " * 30  # > 500 characters
+        synopsis = "Tóm tắt kiểm thử SRS. " * 30  # well above the 50-character minimum (D3)
 
         def create_novel():
             response = self.author.call("POST", "/novels", {"title": f"SRS Novel {uuid.uuid4().hex[:6]}", "synopsis": synopsis, "genre": "Fantasy", "tags": []})
@@ -479,9 +482,13 @@ class Suite:
         self.record("TC-NOV-02", "Tiêu đề 255 ký tự bị từ chối", title_255)
 
         def synopsis_short():
-            response = self.author.call("POST", "/novels", {"title": "Short synopsis", "synopsis": "Ngắn hơn 500 ký tự.", "genre": "Fantasy", "tags": []})
-            return 400 <= response.status < 500, {"response": response.brief(), "srs": "tóm tắt phải >= 500 ký tự"}
-        self.record("TC-NOV-03", "Tóm tắt dưới 500 ký tự bị từ chối", synopsis_short)
+            # D3 (product owner, 2026-11-09): synopsis >= 50 characters after trimming.
+            below = self.author.call("POST", "/novels", {"title": "Short synopsis", "synopsis": "x" * 49, "genre": "Fantasy", "tags": []})
+            blank = self.author.call("POST", "/novels", {"title": "Blank synopsis", "synopsis": " " * 80, "genre": "Fantasy", "tags": []})
+            at_min = self.author.call("POST", "/novels", {"title": f"Min synopsis {uuid.uuid4().hex[:6]}", "synopsis": "x" * 50, "genre": "Fantasy", "tags": []})
+            ok = 400 <= below.status < 500 and 400 <= blank.status < 500 and at_min.status in (200, 201)
+            return ok, {"49_chars": below.brief(), "blank": blank.brief(), "50_chars": at_min.brief(), "srs": "tóm tắt phải >= 50 ký tự (D3)"}
+        self.record("TC-NOV-03", "Tóm tắt dưới 50 ký tự (hoặc chỉ có khoảng trắng) bị từ chối, đúng 50 ký tự được nhận", synopsis_short)
 
         novel_id = (getattr(self, "test_novel", {}) or {}).get("novelId")
 
@@ -512,21 +519,25 @@ class Suite:
             status = self.wait(lambda: (lambda s: s if s in final_states else None)(chapter_status(chapter_id)), timeout=20) or chapter_status(chapter_id)
             return submit, chapter_id, status
 
-        def publish_below_five():
+        def publish_below_minimum():
+            # D2 (product owner, 2026-11-09): two valid chapters; an ARCHIVED chapter does not count.
             self.author.call("POST", f"/novels/{novel_id}/chapters", {"title": "Chương 1", "content": long_text})
-            drafts = self.sql("SELECT count(*) FROM chapters WHERE novel_id = %s AND deleted_at IS NULL", (novel_id,))[0][0]
+            second = self.author.call("POST", f"/novels/{novel_id}/chapters", {"title": "Chương 2", "content": long_text})
+            archived = self.author.call("POST", f"/chapters/{(second.data or {}).get('chapterId')}/archive", {})
+            counts = self.sql("SELECT status, count(*) FROM chapters WHERE novel_id = %s AND deleted_at IS NULL GROUP BY status", (novel_id,))
             submit = self.author.call("POST", f"/novels/{novel_id}/submit-publish")
             time.sleep(2)
             status = novel_status(novel_id)
-            return not (200 <= submit.status < 300) and status != "PUBLISHED", {
-                "submit": submit.brief(), "novel_status": status, "draft_chapters": drafts, "srs": "cần >= 5 chương nháp trước khi xuất bản"}
-        self.record("TC-NOV-04", "Truyện dưới 5 chương nháp không gửi xuất bản được", publish_below_five)
+            ok = submit.status == 422 and submit.code == "VALIDATION_002" and status != "PUBLISHED" and archived.status in (200, 204)
+            return ok, {"submit": submit.brief(), "novel_status": status, "chapters_by_status": {str(s): n for s, n in counts},
+                        "archive": archived.brief(), "srs": "cần >= 2 chương hợp lệ trước khi xuất bản (D2); chương ARCHIVED không tính"}
+        self.record("TC-NOV-04", "Truyện có 1 chương hợp lệ + 1 chương đã lưu trữ không gửi xuất bản được", publish_below_minimum)
 
-        def publish_novel_with_five():
+        def publish_novel_with_two():
             self.pipeline_title = f"SRS Pipeline {uuid.uuid4().hex[:6]}"
             created = self.author.call("POST", "/novels", {"title": self.pipeline_title, "synopsis": synopsis, "genre": "Fantasy", "tags": []})
             self.pipeline_novel = (created.data or {}).get("novelId")
-            for index in range(1, 6):
+            for index in range(1, 3):
                 self.author.call("POST", f"/novels/{self.pipeline_novel}/chapters", {"title": f"Chương {index}", "content": long_text})
             submit = self.author.call("POST", f"/novels/{self.pipeline_novel}/submit-publish")
             status = self.wait(lambda: (lambda s: s if s in final_states else None)(novel_status(self.pipeline_novel)), timeout=20) or novel_status(self.pipeline_novel)
@@ -537,7 +548,7 @@ class Suite:
             public = self.guest.call("GET", f"/reading/novels/{self.pipeline_novel}")
             return status == "PUBLISHED" and public.status == 200, {
                 "submit": submit.brief(), "final_status": status, "admin_approval": approved.brief() if approved else None, "public_detail": public.brief()}
-        self.record("TC-NOV-14", "Truyện đủ 5 chương hợp lệ gửi duyệt thì được xuất bản công khai", publish_novel_with_five)
+        self.record("TC-NOV-14", "Truyện đủ 2 chương hợp lệ gửi duyệt thì được xuất bản công khai", publish_novel_with_two)
 
         pipeline = getattr(self, "pipeline_novel", None)
 
@@ -896,7 +907,7 @@ def main() -> int:
     evidence_dir = os.environ.get("EPHURIN_E2E_EVIDENCE_DIR") or os.path.join(tempfile.gettempdir(), "ephurin-e2e", stack.config.db_name)
     os.makedirs(evidence_dir, exist_ok=True)
     info = git_info()
-    print(f"SRS ACCEPTANCE  branch={info['branch']} head={info['head_sha']} db={stack.config.db_name}")
+    print(f"SRS ACCEPTANCE  branch={info['branch']} head={info['head_sha']} db={stack.config.db_name} policy={POLICY_VERSION}")
     shared_before = fingerprint_shared()
     suite: Optional[Suite] = None
     failure = None
@@ -918,7 +929,7 @@ def main() -> int:
     results = suite.results if suite else []
     failed = [r for r in results if r["result"] != "PASS"]
     evidence = {
-        "gate": "SRS-ACCEPTANCE", "tested_code_sha": info["head_sha"], "branch": info["branch"],
+        "gate": "SRS-ACCEPTANCE", "policy_version": POLICY_VERSION, "tested_code_sha": info["head_sha"], "branch": info["branch"],
         "working_tree_dirty": info["working_tree_dirty"], "disposable_database": stack.config.db_name,
         "stack_steps": stack.steps, "db_ownership": stack.ownership, "teardown_ok": stack.teardown_ok,
         "shared_fingerprint_before": shared_before["sha256"], "shared_fingerprint_after": shared_after["sha256"],

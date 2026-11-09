@@ -140,14 +140,14 @@ FEATURES: List[Dict[str, Any]] = [
             ("Chức năng", [
                 ("NOV_03", "Tạo truyện (TC-NOV-01)", "Gửi tạo truyện hợp lệ", "Trạng thái DRAFT", "tiêu đề SRS Novel *, tóm tắt > 500 ký tự", ("srs", "TC-NOV-01")),
                 ("NOV_04", "Tiêu đề 255 ký tự (TC-NOV-02)", "Tạo truyện với tiêu đề 255 ký tự", "Từ chối (SRS: tiêu đề < 255 ký tự)", "title = 'T' × 255", ("srs", "TC-NOV-02")),
-                ("NOV_05", "Tóm tắt dưới 500 ký tự (TC-NOV-03)", "Tạo truyện với tóm tắt ngắn", "Từ chối", "synopsis 18 ký tự", ("srs", "TC-NOV-03")),
-                ("NOV_06", "Gửi xuất bản khi dưới 5 chương (TC-NOV-04)", "Truyện có 1 chương nháp hợp lệ → submit-publish", "Bị chặn (422), truyện giữ DRAFT", "1 chương nháp ≥ 500 ký tự", ("srs", "TC-NOV-04")),
+                ("NOV_05", "Tóm tắt dưới 50 ký tự (TC-NOV-03, D3)", "Tạo truyện với tóm tắt 49 ký tự, chỉ khoảng trắng, và đúng 50 ký tự", "49 ký tự và khoảng trắng bị từ chối; 50 ký tự được nhận", "synopsis 49 / 80 dấu cách / 50 ký tự", ("srs", "TC-NOV-03")),
+                ("NOV_06", "Gửi xuất bản khi dưới 2 chương hợp lệ (TC-NOV-04, D2)", "Truyện có 1 chương hợp lệ + 1 chương đã lưu trữ → submit-publish", "Bị chặn (422 VALIDATION_002), truyện giữ DRAFT", "1 chương ≥ 500 ký tự + 1 chương ARCHIVED", ("srs", "TC-NOV-04")),
                 ("NOV_07", "Tiêu đề chương 100 ký tự (TC-NOV-05)", "Tạo chương với tiêu đề 100 ký tự", "Từ chối (SRS: < 100 ký tự)", "title = 'C' × 100", ("srs", "TC-NOV-05")),
                 ("NOV_08", "Chương dưới 500 ký tự (TC-NOV-06)", "Tạo chương ngắn → submit-publish", "Không được xuất bản", "nội dung 18 ký tự", ("srs", "TC-NOV-06")),
                 ("NOV_09", "Độc giả tạo truyện (TC-NOV-13)", "reader04 gửi tạo truyện", "403", "reader04", ("srs", "TC-NOV-13")),
             ]),
             ("Luồng", [
-                ("NOV_10", "Xuất bản truyện đủ 5 chương (TC-NOV-14)", "Tạo truyện + 5 chương hợp lệ → submit-publish", "PUBLISHED, khách xem được", "5 chương > 500 ký tự", ("srs", "TC-NOV-14")),
+                ("NOV_10", "Xuất bản truyện đủ 2 chương (TC-NOV-14, D2)", "Tạo truyện + 2 chương hợp lệ → submit-publish", "PUBLISHED, khách xem được", "2 chương > 500 ký tự", ("srs", "TC-NOV-14")),
                 ("NOV_11", "Xuất bản chương hợp lệ (TC-NOV-07)", "Tạo chương → submit-publish", "PUBLISHED, khách đọc được", "chương > 500 ký tự", ("srs", "TC-NOV-07")),
                 ("NOV_12", "Chương dính từ khoá (TC-NOV-08)", "Chương chứa từ khoá → submit-publish", "PENDING_MODERATION, chưa công khai", "srs-blocked-term", ("srs", "TC-NOV-08")),
                 ("NOV_13", "Admin duyệt chương (TC-NOV-09)", "Admin resolve APPROVED", "PUBLISHED", "decision APPROVED", ("srs", "TC-NOV-09")),
@@ -570,6 +570,7 @@ def build_run_info(wb: Workbook, ev: Evidence, baseline_runs: List[Dict[str, Any
         ("Python / Node / npm", f"{env['python']} / {env['node']} / {env['npm']}"),
         ("Trình duyệt", env["browser"]),
         ("PostgreSQL / MongoDB", f"{env['postgres']} / {env['mongodb']} tại {env.get('mongo_base_uri', '')}"),
+        ("Phiên bản chính sách (SRS runner)", ", ".join(sorted({run.get("policy_version") or "trước 2026-11-09 (5 chương, tóm tắt 500)" for run in ev.runs("srs_acceptance")})) or "không có"),
         ("Baseline main", ", ".join(f"{run.get('tested_code_sha', '')[:8]} {run.get('checks_total', 0) - run.get('checks_failed', 0)}/{run.get('checks_total', 0)} ({run.get('disposable_database')})" for run in baseline_runs) or "không có"),
         ("Ghi chú", "Mọi kết quả lấy từ lần chạy thật trên DB tạm ephurin_test_*; DB dùng chung chỉ được đọc để lấy fingerprint và phải giữ nguyên."),
     ]
@@ -654,7 +655,7 @@ def main() -> int:
     else:
         fail_text = "Có Fail không xảy ra trên main: xem cột Evaluation của từng dòng. "
     fixed_text = (f"{len(ev.fixed)} kiểm tra SRS ({', '.join(sorted(ev.fixed))}) Fail ở mọi lần chạy baseline trên main {ev.baseline_sha} "
-                  "(mã lỗi, giới hạn độ dài, điều kiện 5 chương, thông báo theo dõi, giới hạn tần suất, fallback AI, gỡ truyện) "
+                  "(mã lỗi, giới hạn độ dài, điều kiện số chương, thông báo theo dõi, giới hạn tần suất, fallback AI, gỡ truyện) "
                   f"và đã được sửa trong {PR_LABEL}. " if ev.fixed else "")
     comment = (f"Kiểm thử hệ thống theo SRS (docs/SRS) và chương 6.2: {pass_n + fail_n + na_n} test case, {pass_n} Pass, {fail_n} Fail, {na_n} N/A. "
                f"Mọi kết quả lấy từ lần chạy thật tại {env['git_sha'][:8]} trên môi trường tạm, mỗi script chạy 2 lần; DB dùng chung không đổi. "
