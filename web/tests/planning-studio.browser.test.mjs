@@ -87,8 +87,11 @@ test('mounted /author/ide planning journey, recoverable CAS drafts, real Writer 
   for(let i=1;i<=3;i++){await choose('Quyết định thẻ '+i,'Duyệt');if(i<3)await choose('Danh tính thẻ '+i,'Tạo danh tính mới (ID server)');}
   await page.getByLabel('Nội dung thẻ 1',{exact:true}).fill('Minh phía Đông');await button('Lưu quyết định toàn nhóm').click();
   await expect(page.getByText('Đã duyệt',{exact:true})).toHaveCount(2);
+  // UX-05 remains blocked: accepted source cannot be reprocessed as an amendment.
+  await step('Thế giới').click();await expect(page.getByLabel('Quy tắc 1',{exact:true})).toBeDisabled();await expect(button('Thêm quy tắc')).toBeDisabled();await expect(page.getByRole('button',{name:'Đề xuất sửa quy tắc',exact:true})).toHaveCount(0);
   const activate=button('Kích hoạt thiết lập để bắt đầu viết');await expect(activate).toBeEnabled();await activate.click();await expect(page.getByRole('alert').filter({hasText:'Thiết lập đã thay đổi.'})).toBeVisible();
   m0Conflict=false;await button('Tải bản đã lưu').click();await activate.click();await expect(page.getByText(/Thiết lập đã được kích hoạt/)).toBeVisible();
+  await expect(page.getByLabel('Quy tắc 1',{exact:true})).toHaveValue('Không ai bay được');await expect(button('Thêm quy tắc')).toBeDisabled();if(out)await page.screenshot({path:join(out,'accepted-rule-readonly.png'),fullPage:true});
   await step('Ý tưởng').click();if(out)await page.screenshot({path:join(out,'planning-wide.png'),fullPage:true});
   await step('Dàn ý chương').click();await button('Lưu bản nháp dàn ý').click();await expect(page.getByText(/Đã lưu phiên bản dàn ý/)).toBeVisible();
   assert.equal(writes.filter(w=>w.path.includes('edit-v1')).at(-1).body.objectives.length,0);
