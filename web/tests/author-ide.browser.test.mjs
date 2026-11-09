@@ -409,6 +409,71 @@ test('Real AuthorWritingIde: editor typing, autosave, S10 consistency checking &
     // Capture S11 continuity screenshot
     await page.screenshot({ path: fileURLToPath(new URL('s11-continuity-reload.png', evidenceDir)) });
 
+    // 9. UX-02 Regression: Session expiry / logout with dirty draft exits cleanly to /login without useBlocker deadlock
+    await page.evaluate(
+      ([userId, chId]) => localStorage.removeItem(`storycraft-draft:${userId}:${chId}`),
+      [config.accounts[0].userId, chapterId]
+    );
+    await page.evaluate(() => window.remount());
+    const finalEditor = page.locator('textarea.sc-manuscript');
+    await finalEditor.waitFor({ timeout: 15000 });
+    await page.waitForFunction(
+      () => document.querySelector('textarea.sc-manuscript')?.value === 'Remote second-tab winner prose',
+      null,
+      { timeout: 10000 }
+    );
+    await finalEditor.focus();
+    const unsavedBeforeLogout = 'Bản nháp chưa lưu trước khi hết phiên đăng nhập (UX-02 verification).';
+    await finalEditor.fill(unsavedBeforeLogout);
+
+    // Immediately trigger session expiry / logout before the 1200ms autosave debounce fires
+    await page.evaluate(() => window.logout());
+    await page.getByTestId('login-page').waitFor({ timeout: 5000 });
+
+    const logoutState = await page.evaluate(([authorAId, authorBId, chId]) => ({
+      pathname: window.router.state.location.pathname,
+      blockerCount: window.router.state.blockers.size,
+      authorABackup: localStorage.getItem(`storycraft-draft:${authorAId}:${chId}`),
+      authorBBackup: localStorage.getItem(`storycraft-draft:${authorBId}:${chId}`)
+    }), [config.accounts[0].userId, config.accounts[1].userId, chapterId]);
+
+    assert.equal(logoutState.pathname, '/login', 'AuthGate must redirect cleanly to /login on session exit');
+    assert.equal(logoutState.blockerCount, 0, 'useBlocker must unregister on unmount without deadlocking /login redirect');
+    assert.ok(logoutState.authorABackup?.includes(unsavedBeforeLogout), 'Unsaved draft must remain preserved in author-scoped localStorage');
+    assert.equal(logoutState.authorBBackup, null, 'Another account must never inherit the previous author draft');
+
+    // Switch to Author 2 and verify Author 2 never sees Author 1's local draft
+    await page.evaluate(
+      ([accountB, novelBId, chapterBId]) => window.loginAuthor(accountB, novelBId, chapterBId),
+      [config.accounts[1], config.accounts[1].novelId, config.accounts[1].chapterIds[0]]
+    );
+    const author2Editor = page.locator('textarea.sc-manuscript');
+    await author2Editor.waitFor({ timeout: 15000 });
+    await page.waitForFunction(
+      () => document.querySelector('textarea.sc-manuscript')?.value === 'B',
+      null,
+      { timeout: 10000 }
+    );
+    assert.equal(await author2Editor.inputValue(), 'B', 'Author 2 must only see Author 2 chapter content');
+    assert.equal(await page.getByText('Có bản lưu trên máy chưa đồng bộ').count(), 0, 'Author 2 must not see Author 1 local recovery banner');
+
+    // Log Author 1 back in and confirm Author 1 recovers the unsaved local draft via recovery banner
+    await page.evaluate(
+      ([accountA, novelAId, chapterAId]) => window.loginAuthor(accountA, novelAId, chapterAId),
+      [config.accounts[0], config.accounts[0].novelId, chapterId]
+    );
+    await page.getByText('Có bản lưu trên máy chưa đồng bộ').waitFor({ timeout: 10000 });
+    await page.getByRole('button', { name: 'Khôi phục vào trình soạn thảo' }).click();
+    const recoveredEditor = page.locator('textarea.sc-manuscript');
+    await page.waitForFunction(
+      expected => document.querySelector('textarea.sc-manuscript')?.value === expected,
+      unsavedBeforeLogout,
+      { timeout: 10000 }
+    );
+    assert.equal(await recoveredEditor.inputValue(), unsavedBeforeLogout, 'Author 1 must recover unsaved local draft after re-login');
+    await page.waitForTimeout(1500);
+    await page.getByText(/Đã lưu/i).first().waitFor({ timeout: 10000 });
+
     assert.equal(pageErrors.length, 0, 'No unexpected browser console/page errors');
   } finally {
     if (browser) await browser.close();
