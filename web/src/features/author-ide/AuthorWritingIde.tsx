@@ -246,7 +246,7 @@ export function AuthorWritingIde() {
   const persistence = useDraftPersistence(user?.userId ?? '', activeChapterId);
   const [planning,setPlanning]=useState(false);
   const [planningStep,setPlanningStep]=useState<PlanningStep>('idea');
-  async function openPlanning(step:PlanningStep='idea'){const session=writingSession.current;try{await persistence.flush();if(session!==writingSession.current)return;setAiDrawerOpen(false);setPlanningStep(step);setPlanning(true);setMemoryPanelOpen(false);setStoryBibleOpen(false);}catch{showToast('Bản nháp chưa lưu xong. Hãy thử lưu trước khi mở lập kế hoạch.');}}
+  async function openPlanning(step:PlanningStep='idea'){const session=writingSession.current;try{await persistence.flush();if(session!==writingSession.current)return;if(window.matchMedia('(max-width: 900px)').matches)setSidebarOpen(false);setAiDrawerOpen(false);setPlanningStep(step);setPlanning(true);setMemoryPanelOpen(false);setStoryBibleOpen(false);}catch{showToast('Bản nháp chưa lưu xong. Hãy thử lưu trước khi mở lập kế hoạch.');}}
   const activeDraftScope = `${user?.userId}:${activeChapterId}`;
   const writingScope = `${user?.userId}:${activeNovelId}:${activeChapterId}`;
   const writingSession = useRef<object>({});
@@ -998,12 +998,19 @@ export function AuthorWritingIde() {
       {persistence.recovery && <Alert title="Có bản lưu trên máy chưa đồng bộ" color="orange"><Text size="sm">Bản lưu lúc {new Date(persistence.recovery.savedAt).toLocaleString('vi-VN')}. Nội dung máy chủ vẫn được giữ nguyên.</Text><Group mt="xs"><Button size="xs" onClick={() => { const value = persistence.recovery!.value; setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); persistence.dismissRecovery(); triggerAutosave(value.title, value.content, value.isVip, value.priceCoins); }}>Khôi phục vào trình soạn thảo</Button><Button size="xs" variant="default" onClick={persistence.dismissRecovery}>Bỏ bản lưu trên máy</Button></Group></Alert>}
       {persistence.blocker.state === 'blocked' && <AuthorDialog onClose={() => persistence.blocker.reset?.()}><div className="fixed inset-0 flex items-center justify-center p-4"><div className="w-full max-w-md p-6"><h2 className="text-section">Bản nháp chưa lưu xong</h2><p className="text-body">Bạn có thể lưu trước khi rời trang hoặc giữ bản dự phòng trên máy để khôi phục sau.</p><Group mt="md"><Button onClick={async () => { try { await persistence.flush(); persistence.blocker.proceed?.(); } catch {} }}>Lưu và rời trang</Button><Button variant="default" onClick={() => persistence.blocker.reset?.()}>Ở lại</Button><Button variant="subtle" onClick={() => { persistence.abandon(); persistence.blocker.proceed?.(); }}>Rời trang</Button></Group></div></div></AuthorDialog>}
       {focusMode && !planning && <div className="flex justify-end px-4">{manuscriptActions}</div>}
-      <Group px="md" py="xs" gap="xs" aria-label="Chế độ Author IDE"><Button size="xs" aria-pressed={planning} variant={planning?'filled':'light'} onClick={()=>void openPlanning()}>Lập kế hoạch</Button><Button size="xs" aria-pressed={!planning} variant={!planning?'filled':'light'} onClick={()=>setPlanning(false)}>Viết bản thảo</Button></Group>
+      <Group px="md" py="xs" gap="xs" aria-label="Chế độ Author IDE" className="relative z-20 shrink-0 bg-surface border-b border-stone-200/60"><Button size="xs" aria-pressed={planning} variant={planning?'filled':'light'} onClick={()=>void openPlanning()}>Lập kế hoạch</Button><Button size="xs" aria-pressed={!planning} variant={!planning?'filled':'light'} onClick={()=>setPlanning(false)}>Viết bản thảo</Button></Group>
       {novelQuery.data&&<div key={JSON.stringify([user?.userId,activeNovelId])} style={{display:planning?'flex':'none',flex:1,minHeight:0}}><PlanningStudio novelId={activeNovelId} title={novelQuery.data.title} step={planningStep} onStep={setPlanningStep} chapters={chaptersQuery.data??[]} onWrite={id=>{if(id)setSearchParams({novelId:activeNovelId,chapterId:id});setPlanning(false);}} onCreate={()=>createChapterMutation.mutate()} creating={createChapterMutation.isPending} onMemory={()=>setMemoryPanelOpen(true)}/></div>}
       <div className="sc-studio-body flex-1 min-h-0 flex overflow-hidden relative" style={planning?{display:'none'}:undefined}>
         {/* Left Sidebar Chapters Outline Rail */}
         {sidebarOpen && !focusMode && (
-          <aside className="sc-studio-sidebar w-[280px] shrink-0 border-r border-stone-200/90 bg-surface-subtle flex flex-col h-full z-10 select-none relative">
+          <>
+            <div
+              className="sc-sidebar-backdrop"
+              onClick={() => setSidebarOpen(false)}
+              role="presentation"
+              aria-label="Đóng danh sách chương"
+            />
+            <aside className="sc-studio-sidebar w-[280px] shrink-0 border-r border-stone-200/90 bg-surface-subtle flex flex-col h-full z-20 select-none relative">
             {/* Rail Header */}
             <div className="p-3 border-b border-stone-200 flex items-center justify-between bg-stone-50/50">
               <div>
@@ -1057,6 +1064,11 @@ export function AuthorWritingIde() {
 
             {/* Chapter List Navigation */}
             <nav className="flex-1 overflow-y-auto px-2 pb-6 space-y-1.5 text-meta">
+              {filteredChapters.length === 0 && (
+                <div className="p-4 text-center text-meta text-stone-400">
+                  {chaptersQuery.data && chaptersQuery.data.length === 0 ? 'Chưa có chương nào' : 'Không tìm thấy chương'}
+                </div>
+              )}
               {filteredChapters.map((ch: Chapter, idx: number) => {
                 const isActive = ch.chapterId === activeChapterId;
                 return (
@@ -1066,6 +1078,9 @@ export function AuthorWritingIde() {
                     onClick={() => {
                       if (!isActive) {
                         setSearchParams({ novelId: activeNovelId, chapterId: ch.chapterId });
+                      }
+                      if (window.matchMedia('(max-width: 900px)').matches) {
+                        setSidebarOpen(false);
                       }
                     }}
                     className={`block w-full text-left p-2 rounded-lg border transition-all cursor-pointer relative ${
@@ -1118,14 +1133,40 @@ export function AuthorWritingIde() {
               })}
             </nav>
           </aside>
-        )}
+        </>
+      )}
 
         {/* ──────────────────────────────────────────
             BEGIN: ManuscriptWritingArea
            ────────────────────────────────────────── */}
         <main className="sc-editor-workspace flex-1 min-h-0 overflow-y-auto flex flex-col items-center bg-surface relative select-text">
-          {/* Sticky Formatting Toolbar with Frosted-Glass Backdrop */}
-          {formatToolbarVisible && (
+          {chaptersQuery.isLoading ? (
+            <div className="flex-1 flex items-center justify-center p-8 my-auto">
+              <Text size="sm" c="dimmed">Đang nạp danh sách chương...</Text>
+            </div>
+          ) : chaptersQuery.data && chaptersQuery.data.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 text-center max-w-md my-auto" data-testid="writer-empty-state">
+              <div className="w-16 h-16 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center mb-5 border border-primary-100/80 shadow-xs">
+                <span className="material-symbols-outlined text-[32px]">auto_stories</span>
+              </div>
+              <h3 className="text-xl font-bold text-stone-900 mb-2">Chưa có chương nào trong tác phẩm</h3>
+              <p className="text-body text-stone-600 mb-6 leading-relaxed">
+                Tác phẩm của bạn chưa có chương nào. Bạn có thể bắt đầu sáng tác ngay bằng cách tạo chương đầu tiên.
+              </p>
+              <Button
+                size="md"
+                variant="filled"
+                onClick={() => createChapterMutation.mutate()}
+                loading={createChapterMutation.isPending}
+                leftSection={<span className="material-symbols-outlined text-[18px]">add_circle</span>}
+              >
+                Tạo chương đầu tiên
+              </Button>
+            </div>
+          ) : (
+            <>
+              {/* Sticky Formatting Toolbar with Frosted-Glass Backdrop */}
+              {formatToolbarVisible && (
             <div id="studio-format-toolbar" className="sc-format-toolbar sticky top-0 z-20 w-full py-2 px-3 sm:px-4 bg-surface/95 backdrop-blur-md border-b border-stone-200/60 flex items-center justify-center mb-6 shrink-0 shadow-2xs">
               <div className="bg-surface-container-lowest/95 border border-stone-200/90 rounded-xl shadow-xs py-1 px-2.5 flex items-center flex-wrap gap-1 max-w-4xl text-meta text-stone-700 select-none">
                 {/* 1. Font Family Dropdown */}
@@ -1462,7 +1503,9 @@ export function AuthorWritingIde() {
               />
             </div>
           </article>
-        </main>
+        </>
+      )}
+    </main>
 
         {/* ──────────────────────────────────────────
             BEGIN: Docked AI Assistant
