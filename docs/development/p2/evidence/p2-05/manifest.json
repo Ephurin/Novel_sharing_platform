@@ -1,0 +1,69 @@
+{
+  "source_sha": "5f2a950298c22cf089819ae887055e6c88d6e715",
+  "base_sha": "ac9d070b2b3e6b368e41e84735b8a3dde5740f99",
+  "source_tree": "9c3dffeeb932b983fa06c4b2235ffd16797183a0",
+  "application_test_workflow_sha256": {
+    ".github/workflows/p2-setup-provenance.yml": "f6542139182fe10335fd153b645f64aa30e8812ecc0ab78ea733ab274d768285",
+    ".github/workflows/p7-semantic-memory.yml": "6523a8916c2bca282e561119d8a0c2aa89214859c99819a185e21ffa45d3f66f",
+    ".github/workflows/p8-cutover.yml": "02d3481e39cc2f680d846a7d94a87b55b52494da829fb4f4636e8d29be50f46f",
+    "ai-service/infrastructure/setup_activation.py": "06bd08195e5696e6a208587cfa320f7512680ecb18fd13056ff1fc4347cf35f1",
+    "ai-service/tests/test_setup_activation_postgres.py": "75a34f2ddc3f33d21fdf72ab300c4b346c877dc8e6706b486ea35c9d9f5b4512",
+    "web/src/app/router.tsx": "7f359f06f468dfef97c529aa5fc4979361a314f50a2a9e43eaa3fa639152777c",
+    "web/src/features/ai-copilot/AuthorMemoryPanel.tsx": "bcf395cd4971fc7ccfa5d85d181784fc030f70f61332db4d5580154c12fc3089",
+    "web/src/features/ai-copilot/PlanningStudio.tsx": "534ccc04dd9298a77e89c497375ec7e31c523701a323f4f57f51253be1e04af3",
+    "web/src/features/ai-copilot/SetupFoundationPanel.tsx": "472c5480c4ed824b6154d37c298068d20d7f8982a4447974b2d89ac4c451843f",
+    "web/src/features/ai-copilot/StoryPlanEditor.tsx": "c722c8b388da49582c2e407499159a53fa512434b8d198bd09917b1b4f3cd8dc",
+    "web/src/features/ai-copilot/planning-draft.ts": "8dc0b310010aff152058169e1989698b90ff7fc507e6bc072b3dac49d12e99d7",
+    "web/src/features/ai-copilot/setup-api.ts": "e597edc22c82af759b9d33f37b5303b37c8e641cce8df8f30466f04d4cbe072e",
+    "web/src/features/author-ide/AuthorWritingIde.tsx": "e9cb0ea88ce44a90bba72e6de44a076981715dde74639222959aa96d122b17c0",
+    "web/src/features/novels/novel-api.ts": "9b12caf6135d4e5cf0006a72821189bf30dddf66fdaf2d7ab1d3395aeb0aabc4",
+    "web/tests/fixtures/setup-foundation-fixture.tsx": "c1f3e6a10f77b7c7629f3c31d69435d85e0fd8fa5e51dba9927ddb7e18ba26ab",
+    "web/tests/planning-studio.browser.test.mjs": "4bacab3fc4cdfd52b5a494c337140468e785dc022b5142a86e12e3b835864c35",
+    "web/tests/setup-foundation.browser.test.mjs": "1e4fe510d07d14767c87c3c3cd9b6543128b1c50e572f13009b0cf96c3aa1038"
+  },
+  "evidence_sha256": {
+    ".gitignore": "3080d9f82d99c670e39e927ff8171a7b114b691211e1ab67ceb41d11d2d1f2e2",
+    "backup-choice-reproduction.json": "dddc09adf7ef9c13f646565ac72d77da45e9e81e133eb334bc72ba9d589d4fec",
+    "baseline-reproduction.json": "119cbc1c4f9ba043040fe66e371f67edb3721a4b8c5154ff2b0fdd0e0f92c678",
+    "local-browser-receipt.json": "725ead32c59739de988c226b36f0fd77ae1e07c651b0662bb03ee7d6883e7875",
+    "mobile-recovery-reproduction.json": "881b9a8c1f0cb853fd755aefd73abb7066d80ba72679eae8f6f722fba552296f",
+    "mongo-identity.json": "8a1d3590da4530aed9c68e8a05eeb65a867035b1db32caa56a7d506556ae3cd1",
+    "p1-writer-readback.json": "8b1b1a830e9dc613361746bea48bbd4af135c3bc7a8128abe83544ef3074401a",
+    "postgres-identity.json": "9fd43f214e808b6280c02835159bb143b1018122527166fda364b0ddab47b124",
+    "private-log-scan.json": "8d5f39216f193e814a9bc350761e0bfe46f6310bab9cdeff4b0402b71f396721",
+    "source-ci-receipt.json": "fc6f6a53c74cb1e945ece97fdf37dfa2b13a8cb580585bf8988fa69bd9578437",
+    "source-db-readbacks.json": "6e21cc288bd35aaa0e99403bfe16ad7298f906324f54042ed0e9a401246190ef",
+    "source-test-results.json": "e43095e24efde2ff7b394d14908b05450efbdaf4715d48983272a46ee8d36a4c",
+    "browser/mounted-readback.json": "39b9d5f6bd7c092a79e4d964cc771e5e7a51ca792549b95e8c64a650d4d3f380",
+    "browser/planning-board-mobile.png": "7f2895d6631d2246cf81f6454d3b4d9111e9db6c07148088ec45f659772158c6",
+    "browser/planning-mobile.png": "1a84cb4359ad19ef175528ae470b42b90df8433ce64fa0700d71bb136c905bdd",
+    "browser/planning-wide.png": "7692a352d0b1f248404f9eec2997c3eef427c9aa9e14d833a7d1d70fac371aab",
+    "history/source-356-local-test-results.json": "2b978c321828ff34463bcaa6ed30ab3ce6a3cd7593cf659cc47d5610eea13396",
+    "history/source-356-p1-writer-readback.json": "d408f1ecbf17a92791289004e93bd3940b1e45db0d007cd4eae3746a0a8a4039",
+    "history/source-356-postgres-planning-readbacks.json": "90be8122a9451dea569ce0e900058a239cdae89170104dfdcbda86c83770f59b",
+    "history/source-356-source-ci-receipt.json": "56e8ab627748824788e9f0070aab9e16bad699d0a97961ec1696d3d0c400005d"
+  },
+  "screenshots": {
+    "planning-wide.png": {
+      "width": 1280,
+      "height": 900,
+      "sha256": "7692a352d0b1f248404f9eec2997c3eef427c9aa9e14d833a7d1d70fac371aab"
+    },
+    "planning-mobile.png": {
+      "width": 390,
+      "height": 844,
+      "sha256": "1a84cb4359ad19ef175528ae470b42b90df8433ce64fa0700d71bb136c905bdd"
+    },
+    "planning-board-mobile.png": {
+      "width": 390,
+      "height": 844,
+      "sha256": "7f2895d6631d2246cf81f6454d3b4d9111e9db6c07148088ec45f659772158c6"
+    }
+  },
+  "ci_source_artifact": {
+    "id": 13630182747,
+    "sha256": "56c4443898bf90f3889fb54c26108db9a65c29d3310b85d7d12740989de22ff0"
+  },
+  "note": "Delivery is documentation/evidence only. Verify all application hashes unchanged; exact delivery HEAD and fresh 11-job results pinned in final PR receipt.",
+  "hash_convention": "SHA-256 of canonical Git blob bytes for versioned source/evidence (text line endings as stored in Git). Original CI archive/raw-file hashes retain their original byte convention. Do not compare Windows autocrlf working-tree bytes directly."
+}

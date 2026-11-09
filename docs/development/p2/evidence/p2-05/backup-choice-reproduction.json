@@ -1,0 +1,10 @@
+{
+  "original_component_sha": "3560e1a73112999e0b7e0d19006834a65338e711",
+  "mode": "Actual Vite /author/ide with HTTP mocks; new regression assertion applied to old plan component, restored in finally.",
+  "baseline_exit_code": 1,
+  "fixed_exit_code": 0,
+  "symptom": "Pending cached backup did not disable title input, Save, Skip and version selection. New edits could replace the device backup before an explicit choice.",
+  "regression": "Reload a dirty plan; require disabled inputs/lifecycle/version controls, then Recover and verify the exact original title/event IDs.",
+  "fix_commit": "5f2a950298c22cf089819ae887055e6c88d6e715",
+  "raw_baseline_sha256": "ca04ed3626788800e5ebaceb3dd9a41590f0eae7e061213f154a5154dbce2936"
+}

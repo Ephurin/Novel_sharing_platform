@@ -1,0 +1,6 @@
+*.log
+*.xml
+browser/failure.png
+ci-*/
+*.zip
+p1-*/

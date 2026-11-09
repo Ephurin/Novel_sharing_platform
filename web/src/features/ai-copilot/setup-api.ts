@@ -15,11 +15,11 @@ export type SetupSnapshot = {contract_version: 'setup-v1'; novel_id: string; job
   setup_version: number; brain_version: number; review_version: number; setup_hash: string; text_hash: string;
   mode: 'extract' | 'blueprint'; job_status: string; snapshot: SetupSource; hints?: SetupRequest['hints'];
   outline?: string; preferences?: SetupRequest['preferences']; proposals: SetupCard[]; review?: {status: string; activation_available: false} | null; approved_identities?: {entity_id:string; canonical_name:string; entity_type:string}[]};
-export async function submitSetup(body: SetupRequest) {
-  return (await apiClient.post<ApiEnvelope<{job_id: string; story_brain_id: string; status: string}>>('/ai/story-brains/bootstrap/from-idea', body)).data.data;
+export async function submitSetup(body: SetupRequest, signal?:AbortSignal) {
+  return (await apiClient.post<ApiEnvelope<{job_id: string; story_brain_id: string; status: string}>>('/ai/story-brains/bootstrap/from-idea', body, {signal})).data.data;
 }
-export async function getSetup(novelId: string, snapshotId?: string) {
-  return (await apiClient.get<ApiEnvelope<SetupSnapshot>>(`/ai/story-brains/${novelId}/setup`, {params: {snapshot_id:snapshotId}})).data.data;
+export async function getSetup(novelId: string, snapshotId?: string, signal?:AbortSignal) {
+  return (await apiClient.get<ApiEnvelope<SetupSnapshot>>(`/ai/story-brains/${novelId}/setup`, {params: {snapshot_id:snapshotId},signal})).data.data;
 }
 
 export type SetupReviewDecision = {proposal_id:string; decision:'accept'|'reject'; reason?:string;
@@ -27,18 +27,18 @@ export type SetupReviewDecision = {proposal_id:string; decision:'accept'|'reject
   edited_entity?:{canonical_name:string; aliases:string[]}; edited_rule?:{fact_key:string; fact_value:string; subject_entity_id?:string|null}};
 export type SetupReviewRequest = {idempotency_key:string; dependency_group_id:string; setup_hash:string;
   expected_setup_version:number; expected_review_version:number; expected_brain_version:number; decisions:SetupReviewDecision[]};
-export async function reviewSetup(novelId:string, snapshotId:string, body:SetupReviewRequest) {
+export async function reviewSetup(novelId:string, snapshotId:string, body:SetupReviewRequest, signal?:AbortSignal) {
   return (await apiClient.post<ApiEnvelope<{status:string; review_version:number; brain_version:number}>>(
-    `/ai/story-brains/${novelId}/setup/${snapshotId}/review`,body)).data.data;
+    `/ai/story-brains/${novelId}/setup/${snapshotId}/review`,body,{signal})).data.data;
 }
 
 export type SetupM0Readiness={contract_version:'setup-m0-v1';eligible:boolean;reason:string|null;
   setup_hash?:string;expected_setup_version?:number;expected_review_version?:number;expected_brain_version?:number;
   activation?:{status:'active';baseline_kind:'M0';brain_version:number};
   first_saved_revision?:{revision_id:string;chapter_id:string;content_hash:string;chapter_number:number}|null};
-export async function getSetupM0Readiness(novelId:string,snapshotId:string){
-  return (await apiClient.get<ApiEnvelope<SetupM0Readiness>>(`/ai/story-brains/${novelId}/setup/${snapshotId}/activate`)).data.data;
+export async function getSetupM0Readiness(novelId:string,snapshotId:string,signal?:AbortSignal){
+  return (await apiClient.get<ApiEnvelope<SetupM0Readiness>>(`/ai/story-brains/${novelId}/setup/${snapshotId}/activate`,{signal})).data.data;
 }
-export async function activateSetupM0(novelId:string,snapshotId:string,body:{contract_version:'setup-m0-v1';idempotency_key:string;setup_hash:string;expected_setup_version:number;expected_review_version:number;expected_brain_version:number}){
-  return (await apiClient.post<ApiEnvelope<{status:'active';baseline_kind:'M0';brain_version:number}>>(`/ai/story-brains/${novelId}/setup/${snapshotId}/activate`,body)).data.data;
+export async function activateSetupM0(novelId:string,snapshotId:string,body:{contract_version:'setup-m0-v1';idempotency_key:string;setup_hash:string;expected_setup_version:number;expected_review_version:number;expected_brain_version:number},signal?:AbortSignal){
+  return (await apiClient.post<ApiEnvelope<{status:'active';baseline_kind:'M0';brain_version:number}>>(`/ai/story-brains/${novelId}/setup/${snapshotId}/activate`,body,{signal})).data.data;
 }

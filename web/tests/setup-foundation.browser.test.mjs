@@ -147,7 +147,7 @@ test('setup account/novel switches clear sources, operation keys and late replie
   try {
     await page.goto('http://127.0.0.1:'+server.address().port);
     await expect(page.getByLabel('Thiết lập rõ ràng (tùy chọn)')).toHaveValue('Owner A source');
-    const latePostResponse=page.waitForResponse(r=>r.request().method()==='POST'&&r.request().headers().authorization==='Bearer token-author-A');
+    const latePostFailure=page.waitForEvent('requestfailed',r=>r.method()==='POST'&&r.headers().authorization==='Bearer token-author-A');
     await page.getByRole('button',{name:'Lưu và xử lý thiết lập'}).click();
     await expect.poll(()=>submissions.length).toBe(1);
     await page.getByRole('button',{name:'Account B',exact:true}).click();
@@ -161,7 +161,7 @@ test('setup account/novel switches clear sources, operation keys and late replie
     assert.notEqual(submissions[1].body.idempotency_key,submissions[0].body.idempotency_key);
     assert.ok(!JSON.stringify(submissions[1]).includes('Owner A'));
     await expect(page.getByRole('alert').filter({hasText:'SETUP_EXTRACT_PROVIDER_UNAVAILABLE'})).toBeVisible();
-    const count=reads.length;releasePost();await (await latePostResponse).finished();
+    const count=reads.length;releasePost();await latePostFailure;
     await page.getByRole('button',{name:'Novel B',exact:true}).click();
     await expect(page.getByLabel('Thiết lập rõ ràng (tùy chọn)')).toHaveValue('');
     await expect.poll(()=>reads.length).toBeGreaterThan(count);
@@ -169,7 +169,7 @@ test('setup account/novel switches clear sources, operation keys and late replie
     // A late GET from a previous account/novel cannot repopulate B's empty form.
     delayA=true;
     const oldReadCount=reads.length;
-    const lateResponse=page.waitForResponse(r=>r.request().method()==='GET'&&r.url().includes(novelA)&&r.request().headers().authorization==='Bearer token-author-A');
+    const lateResponse=page.waitForEvent('requestfailed',r=>r.method()==='GET'&&r.url().includes(novelA)&&r.headers().authorization==='Bearer token-author-A');
     await page.getByRole('button',{name:'Account A',exact:true}).click();
     await page.getByRole('button',{name:'Novel A',exact:true}).click();
     await expect.poll(()=>reads.slice(oldReadCount).some(r=>r.actor==='Bearer token-author-A'&&r.url.includes(novelA))).toBeTruthy();
@@ -309,7 +309,7 @@ test('manual future plan editor: 25 chapters, CAS, activation and account isolat
   await page.getByRole('button',{name:'Xuống chương 1',exact:true}).click();await page.getByRole('button',{name:'Xóa chương 25',exact:true}).click();
   conflict=true;await page.getByRole('button',{name:'Lưu bản nháp dàn ý',exact:true}).click();await expect(page.getByRole('alert').filter({hasText:'PLAN_VERSION_CONFLICT'})).toBeVisible();
   assert.equal(submitted.objectives[1].objective_id,first);const count=requests;await page.waitForTimeout(150);assert.equal(requests,count);
-  conflict=false;await page.getByRole('button',{name:'Tải lại dàn ý',exact:true}).click();await expect(page.getByLabel('Mục tiêu chương 1',{exact:true})).toHaveValue('Find Minh');
+  conflict=false;await page.getByRole('button',{name:'Tải lại dàn ý',exact:true}).click();await expect(page.getByLabel('Mục tiêu chương 2',{exact:true})).toHaveValue('Find Minh');await page.getByRole('button',{name:'Dùng bản máy chủ, bỏ bản sửa',exact:true}).click();await expect(page.getByLabel('Mục tiêu chương 1',{exact:true})).toHaveValue('Find Minh');
   await page.getByRole('button',{name:'Dùng bản đã lưu',exact:true}).click();await expect(page.getByText(/Đang dùng một phiên bản/)).toBeVisible();
   if(process.env.P203_SCREENSHOT)await page.screenshot({path:process.env.P203_SCREENSHOT,fullPage:true});
   delay=true;await page.getByRole('button',{name:'Lưu bản nháp dàn ý',exact:true}).click();await page.getByRole('button',{name:'Account B',exact:true}).click();
@@ -368,7 +368,7 @@ test('F-01 event cards preserve exact IDs/participants through removal/edit/move
   await button('Xóa sự kiện 2 chương 2').click();await button('Thêm sự kiện chương 2').click();await page.getByLabel('Sự kiện 3 chương 2',{exact:true}).fill('Discarded E');
   h.setConflict(true);await button('Lưu bản nháp dàn ý').click();await expect(page.getByRole('alert').filter({hasText:'PLAN_VERSION_CONFLICT'})).toBeVisible();
   const discarded=h.calls.at(-1).objectives.find(o=>o.objective_id===chapter).events[2].event_id;
-  h.setConflict(false);await button('Tải lại dàn ý').click();await expect(page.getByLabel('Sự kiện 2 chương 2',{exact:true})).toHaveValue('Middle');
+  h.setConflict(false);await button('Tải lại dàn ý').click();await expect(page.getByLabel('Sự kiện 3 chương 2',{exact:true})).toHaveValue('Discarded E');await button('Dùng bản máy chủ, bỏ bản sửa').click();await expect(page.getByLabel('Sự kiện 2 chương 2',{exact:true})).toHaveValue('Middle');
   await button('Xóa sự kiện 2 chương 2').click();await page.getByLabel('Sự kiện 2 chương 2',{exact:true}).fill('New D edited');
   await button('Thêm sự kiện chương 2').click();await page.getByLabel('Sự kiện 3 chương 2',{exact:true}).fill('New F');await save();
   const final=h.calls.at(-1).objectives.find(o=>o.objective_id===chapter).events;

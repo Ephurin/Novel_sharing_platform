@@ -53,6 +53,8 @@ jobs:
       JWT_REFRESH_SECRET: p202-offline-refresh-secret
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -177,6 +179,26 @@ jobs:
           if test -f "$RUNNER_TEMP/p202/ai.pid"; then
             kill "$(cat "$RUNNER_TEMP/p202/ai.pid")"
           fi
+      - name: Build mounted Author IDE and Planning Studio
+        working-directory: web
+        run: npm run build
+      - name: Actual author IDE planning journey (Chromium HTTP mocks)
+        working-directory: web
+        env:
+          PLAYWRIGHT_CHANNEL: chromium
+          P205_EVIDENCE_DIR: ${{ runner.temp }}/p202/planning-studio
+        run: |
+          set -euo pipefail
+          node --test tests/planning-studio.browser.test.mjs 2>&1 | tee "$RUNNER_TEMP/p202/planning-studio-browser.log"
+      - name: Mounted P1 Writer autosave recovery on isolated PG Mongo
+        working-directory: web
+        env:
+          RUN_DRAFT_BROWSER_TESTS: "1"
+          PLAYWRIGHT_CHANNEL: chromium
+          P1_EVIDENCE_DIR: ${{ runner.temp }}/p202/p1-writer-browser
+        run: |
+          set -euo pipefail
+          node --test tests/author-ide.browser.test.mjs tests/draft-persistence.browser.test.mjs 2>&1 | tee "$RUNNER_TEMP/p202/p1-writer-browser.log"
       - name: Verify setup operational logs exclude private input
         if: always()
         run: |

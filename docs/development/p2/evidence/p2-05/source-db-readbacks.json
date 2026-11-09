@@ -1,0 +1,2051 @@
+{
+  "source_sha": "5f2a950298c22cf089819ae887055e6c88d6e715",
+  "mode": "Real disposable Gateway/Python/PG16/Mongo7; fake providers only",
+  "artifact_id": 13630182747,
+  "artifact_digest": "sha256:56c4443898bf90f3889fb54c26108db9a65c29d3310b85d7d12740989de22ff0",
+  "artifact_url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42512637762/artifacts/13630182747",
+  "raw_m0_file_sha256": "7b978a385433165ec5f7d7defb0797322fb28d43597a86398f7720e9533c82fd",
+  "readbacks": [
+    {
+      "stage": "reviewed-before-activation",
+      "novel_id": "de2db08b-cfa1-4e1d-b33c-ac42087d45be",
+      "raw_state_sha256": "65c1e5a50a7f644b7523e37cc5859b78619e4ec50711fba8676261fd2a3b8d2c",
+      "counts": {
+        "analysis_runs": 1,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0,
+        "chapters": 0,
+        "revisions": 0,
+        "outbox": 0,
+        "decisions": 2,
+        "mongo": 0
+      },
+      "brains": [
+        {
+          "status": "importing",
+          "brain_version": "2",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [],
+      "outbox": [],
+      "mongo": []
+    },
+    {
+      "stage": "denied-activation-unchanged",
+      "novel_id": "de2db08b-cfa1-4e1d-b33c-ac42087d45be",
+      "raw_state_sha256": "65c1e5a50a7f644b7523e37cc5859b78619e4ec50711fba8676261fd2a3b8d2c",
+      "counts": {
+        "analysis_runs": 1,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0,
+        "chapters": 0,
+        "revisions": 0,
+        "outbox": 0,
+        "decisions": 2,
+        "mongo": 0
+      },
+      "brains": [
+        {
+          "status": "importing",
+          "brain_version": "2",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [],
+      "outbox": [],
+      "mongo": []
+    },
+    {
+      "stage": "M0-active",
+      "novel_id": "de2db08b-cfa1-4e1d-b33c-ac42087d45be",
+      "raw_state_sha256": "116c4c4c57dc07914b80b5a8c18c9a3bb089b9589411d36fe3534ce109d84a91",
+      "counts": {
+        "analysis_runs": 1,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0,
+        "chapters": 0,
+        "revisions": 0,
+        "outbox": 0,
+        "decisions": 2,
+        "mongo": 0
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "3",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [],
+      "outbox": [],
+      "mongo": []
+    },
+    {
+      "stage": "M0-replay",
+      "novel_id": "de2db08b-cfa1-4e1d-b33c-ac42087d45be",
+      "raw_state_sha256": "116c4c4c57dc07914b80b5a8c18c9a3bb089b9589411d36fe3534ce109d84a91",
+      "counts": {
+        "analysis_runs": 1,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0,
+        "chapters": 0,
+        "revisions": 0,
+        "outbox": 0,
+        "decisions": 2,
+        "mongo": 0
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "3",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [],
+      "outbox": [],
+      "mongo": []
+    },
+    {
+      "stage": "empty-not-history",
+      "novel_id": "de2db08b-cfa1-4e1d-b33c-ac42087d45be",
+      "raw_state_sha256": "7a846efb5ce7ebf524c0ee0ea32f99d3e5f3aa98beb8b279cc05e107cd83e921",
+      "counts": {
+        "analysis_runs": 1,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0,
+        "chapters": 1,
+        "revisions": 0,
+        "outbox": 0,
+        "decisions": 2,
+        "mongo": 1
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "3",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [],
+      "outbox": [],
+      "mongo": [
+        {
+          "chapterId": "f5faf41c-98a6-44c7-897a-270eecdbee1c",
+          "version": 2,
+          "content_sha256": "0aad7da77d2ed59c396c99a74e49f3a4524dcdbcb5163251b1433d640247aeb4"
+        }
+      ]
+    },
+    {
+      "stage": "M-FIRST-saved",
+      "novel_id": "de2db08b-cfa1-4e1d-b33c-ac42087d45be",
+      "raw_state_sha256": "fed9a0b25ca8e1f0dd1b5614758c392d1dd2008ccf8ef70f18804ca89d40240b",
+      "counts": {
+        "analysis_runs": 2,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 2,
+        "story_plans": 2,
+        "writing_generations": 0,
+        "chapters": 1,
+        "revisions": 1,
+        "outbox": 1,
+        "decisions": 2,
+        "mongo": 1
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "3",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [
+        {
+          "revision_id": "d8966f7e-c80f-4a91-b3b0-d3e2c33d9529",
+          "chapter_id": "f5faf41c-98a6-44c7-897a-270eecdbee1c",
+          "parent_revision_id": null,
+          "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "source_type": "AUTHOR_MANUAL"
+        }
+      ],
+      "outbox": [
+        {
+          "revision_id": "d8966f7e-c80f-4a91-b3b0-d3e2c33d9529",
+          "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "status": "COMPLETED"
+        }
+      ],
+      "mongo": [
+        {
+          "chapterId": "f5faf41c-98a6-44c7-897a-270eecdbee1c",
+          "version": 3,
+          "content_sha256": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9"
+        }
+      ]
+    },
+    {
+      "stage": "M-FIRST-identical-retry",
+      "novel_id": "de2db08b-cfa1-4e1d-b33c-ac42087d45be",
+      "raw_state_sha256": "fed9a0b25ca8e1f0dd1b5614758c392d1dd2008ccf8ef70f18804ca89d40240b",
+      "counts": {
+        "analysis_runs": 2,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 2,
+        "story_plans": 2,
+        "writing_generations": 0,
+        "chapters": 1,
+        "revisions": 1,
+        "outbox": 1,
+        "decisions": 2,
+        "mongo": 1
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "3",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [
+        {
+          "revision_id": "d8966f7e-c80f-4a91-b3b0-d3e2c33d9529",
+          "chapter_id": "f5faf41c-98a6-44c7-897a-270eecdbee1c",
+          "parent_revision_id": null,
+          "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "source_type": "AUTHOR_MANUAL"
+        }
+      ],
+      "outbox": [
+        {
+          "revision_id": "d8966f7e-c80f-4a91-b3b0-d3e2c33d9529",
+          "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "status": "COMPLETED"
+        }
+      ],
+      "mongo": [
+        {
+          "chapterId": "f5faf41c-98a6-44c7-897a-270eecdbee1c",
+          "version": 3,
+          "content_sha256": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9"
+        }
+      ]
+    },
+    {
+      "stage": "M-FIRST-before-author-Canon",
+      "novel_id": "de2db08b-cfa1-4e1d-b33c-ac42087d45be",
+      "raw_state_sha256": "565a7be86e8be13556c498a2b7185dcee7d114c7074d09fea402a65ea6d97229",
+      "counts": {
+        "analysis_runs": 2,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 3,
+        "relationships": 0,
+        "revision_provenances": 1,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 2,
+        "story_plans": 2,
+        "writing_generations": 0,
+        "chapters": 1,
+        "revisions": 1,
+        "outbox": 1,
+        "decisions": 2,
+        "mongo": 1
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "3",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [
+        {
+          "revision_id": "d8966f7e-c80f-4a91-b3b0-d3e2c33d9529",
+          "chapter_id": "f5faf41c-98a6-44c7-897a-270eecdbee1c",
+          "parent_revision_id": null,
+          "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "source_type": "AUTHOR_MANUAL"
+        }
+      ],
+      "outbox": [
+        {
+          "revision_id": "d8966f7e-c80f-4a91-b3b0-d3e2c33d9529",
+          "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "status": "COMPLETED"
+        }
+      ],
+      "mongo": [
+        {
+          "chapterId": "f5faf41c-98a6-44c7-897a-270eecdbee1c",
+          "version": 3,
+          "content_sha256": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9"
+        }
+      ]
+    },
+    {
+      "stage": "M-FIRST-author-approved-Canon",
+      "novel_id": "de2db08b-cfa1-4e1d-b33c-ac42087d45be",
+      "raw_state_sha256": "4d7e0ceec74b12535afacbee98928b9035cb19d45d65130d6873a7d20b29cec3",
+      "counts": {
+        "analysis_runs": 2,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 1,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 3,
+        "relationships": 0,
+        "revision_provenances": 1,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 2,
+        "story_plans": 2,
+        "writing_generations": 0,
+        "chapters": 1,
+        "revisions": 1,
+        "outbox": 1,
+        "decisions": 3,
+        "mongo": 1
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "4",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [
+        {
+          "revision_id": "d8966f7e-c80f-4a91-b3b0-d3e2c33d9529",
+          "chapter_id": "f5faf41c-98a6-44c7-897a-270eecdbee1c",
+          "parent_revision_id": null,
+          "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "source_type": "AUTHOR_MANUAL"
+        }
+      ],
+      "outbox": [
+        {
+          "revision_id": "d8966f7e-c80f-4a91-b3b0-d3e2c33d9529",
+          "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "status": "COMPLETED"
+        }
+      ],
+      "mongo": [
+        {
+          "chapterId": "f5faf41c-98a6-44c7-897a-270eecdbee1c",
+          "version": 3,
+          "content_sha256": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9"
+        }
+      ]
+    },
+    {
+      "stage": "failed-outbox-rollback",
+      "novel_id": "de2db08b-cfa1-4e1d-b33c-ac42087d45be",
+      "raw_state_sha256": "5f52fce37edaa8bf5acbc5e7517cd16c55d9cc967f2ccff3b10568726c885b06",
+      "counts": {
+        "analysis_runs": 2,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 1,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 3,
+        "relationships": 0,
+        "revision_provenances": 1,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 2,
+        "story_plans": 2,
+        "writing_generations": 0,
+        "chapters": 1,
+        "revisions": 1,
+        "outbox": 1,
+        "decisions": 3,
+        "mongo": 1
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "4",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [
+        {
+          "revision_id": "d8966f7e-c80f-4a91-b3b0-d3e2c33d9529",
+          "chapter_id": "f5faf41c-98a6-44c7-897a-270eecdbee1c",
+          "parent_revision_id": null,
+          "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "source_type": "AUTHOR_MANUAL"
+        }
+      ],
+      "outbox": [
+        {
+          "revision_id": "d8966f7e-c80f-4a91-b3b0-d3e2c33d9529",
+          "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "status": "COMPLETED"
+        }
+      ],
+      "mongo": [
+        {
+          "chapterId": "f5faf41c-98a6-44c7-897a-270eecdbee1c",
+          "version": 4,
+          "content_sha256": "2e59c48c59a01edf70c281d4308c4dbc0b8a28fe934d3221c8caa64c98d86ed7"
+        }
+      ]
+    },
+    {
+      "stage": "outbox-reconciled",
+      "novel_id": "de2db08b-cfa1-4e1d-b33c-ac42087d45be",
+      "raw_state_sha256": "5034e64dd8dc427acfa2a8fe42f2091a229ef6f31bfcbfee6e764d79c35233ce",
+      "counts": {
+        "analysis_runs": 3,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 1,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 3,
+        "relationships": 0,
+        "revision_provenances": 1,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 2,
+        "story_plans": 2,
+        "writing_generations": 0,
+        "chapters": 1,
+        "revisions": 2,
+        "outbox": 2,
+        "decisions": 3,
+        "mongo": 1
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "4",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [
+        {
+          "revision_id": "d8966f7e-c80f-4a91-b3b0-d3e2c33d9529",
+          "chapter_id": "f5faf41c-98a6-44c7-897a-270eecdbee1c",
+          "parent_revision_id": null,
+          "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "source_type": "AUTHOR_MANUAL"
+        },
+        {
+          "revision_id": "e7295d58-fca1-4469-8431-ba085023520d",
+          "chapter_id": "f5faf41c-98a6-44c7-897a-270eecdbee1c",
+          "parent_revision_id": "d8966f7e-c80f-4a91-b3b0-d3e2c33d9529",
+          "content_hash": "2e59c48c59a01edf70c281d4308c4dbc0b8a28fe934d3221c8caa64c98d86ed7",
+          "source_type": "AUTHOR_MANUAL"
+        }
+      ],
+      "outbox": [
+        {
+          "revision_id": "d8966f7e-c80f-4a91-b3b0-d3e2c33d9529",
+          "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "status": "COMPLETED"
+        },
+        {
+          "revision_id": "e7295d58-fca1-4469-8431-ba085023520d",
+          "content_hash": "2e59c48c59a01edf70c281d4308c4dbc0b8a28fe934d3221c8caa64c98d86ed7",
+          "status": "COMPLETED"
+        }
+      ],
+      "mongo": [
+        {
+          "chapterId": "f5faf41c-98a6-44c7-897a-270eecdbee1c",
+          "version": 4,
+          "content_sha256": "2e59c48c59a01edf70c281d4308c4dbc0b8a28fe934d3221c8caa64c98d86ed7"
+        }
+      ]
+    },
+    {
+      "stage": "concurrent-CAS",
+      "novel_id": "de2db08b-cfa1-4e1d-b33c-ac42087d45be",
+      "raw_state_sha256": "97e8fbb4a22c25c1fcd6524ec9f206daadd0bc1f7d75080718a5fd30d7a7fbaa",
+      "counts": {
+        "analysis_runs": 4,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 1,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 3,
+        "relationships": 0,
+        "revision_provenances": 1,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 2,
+        "story_plans": 2,
+        "writing_generations": 0,
+        "chapters": 1,
+        "revisions": 3,
+        "outbox": 3,
+        "decisions": 3,
+        "mongo": 1
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "4",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [
+        {
+          "revision_id": "d8966f7e-c80f-4a91-b3b0-d3e2c33d9529",
+          "chapter_id": "f5faf41c-98a6-44c7-897a-270eecdbee1c",
+          "parent_revision_id": null,
+          "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "source_type": "AUTHOR_MANUAL"
+        },
+        {
+          "revision_id": "e7295d58-fca1-4469-8431-ba085023520d",
+          "chapter_id": "f5faf41c-98a6-44c7-897a-270eecdbee1c",
+          "parent_revision_id": "d8966f7e-c80f-4a91-b3b0-d3e2c33d9529",
+          "content_hash": "2e59c48c59a01edf70c281d4308c4dbc0b8a28fe934d3221c8caa64c98d86ed7",
+          "source_type": "AUTHOR_MANUAL"
+        },
+        {
+          "revision_id": "bde958ac-dbd1-4728-ba05-a083d08cbc94",
+          "chapter_id": "f5faf41c-98a6-44c7-897a-270eecdbee1c",
+          "parent_revision_id": "e7295d58-fca1-4469-8431-ba085023520d",
+          "content_hash": "b5f720bd0690f2e68c52b731b1b360ee8ce70c7be7736967f1534b7e289aef6a",
+          "source_type": "AUTHOR_MANUAL"
+        }
+      ],
+      "outbox": [
+        {
+          "revision_id": "d8966f7e-c80f-4a91-b3b0-d3e2c33d9529",
+          "content_hash": "6576f30caf49860b86840596c772631c4bff2f6f1697d44997fbc2ad820429b9",
+          "status": "COMPLETED"
+        },
+        {
+          "revision_id": "e7295d58-fca1-4469-8431-ba085023520d",
+          "content_hash": "2e59c48c59a01edf70c281d4308c4dbc0b8a28fe934d3221c8caa64c98d86ed7",
+          "status": "COMPLETED"
+        },
+        {
+          "revision_id": "bde958ac-dbd1-4728-ba05-a083d08cbc94",
+          "content_hash": "b5f720bd0690f2e68c52b731b1b360ee8ce70c7be7736967f1534b7e289aef6a",
+          "status": "COMPLETED"
+        }
+      ],
+      "mongo": [
+        {
+          "chapterId": "f5faf41c-98a6-44c7-897a-270eecdbee1c",
+          "version": 5,
+          "content_sha256": "b5f720bd0690f2e68c52b731b1b360ee8ce70c7be7736967f1534b7e289aef6a"
+        }
+      ]
+    },
+    {
+      "stage": "reviewed-before-activation",
+      "novel_id": "a712391f-174c-41bd-87b7-44a0b43f0dfa",
+      "raw_state_sha256": "ac0bd708cfef02742f0764ca4d2efcff7e05a62fd5a3c877e4efce73aa0736bc",
+      "counts": {
+        "analysis_runs": 1,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0,
+        "chapters": 0,
+        "revisions": 0,
+        "outbox": 0,
+        "decisions": 2,
+        "mongo": 0
+      },
+      "brains": [
+        {
+          "status": "importing",
+          "brain_version": "2",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [],
+      "outbox": [],
+      "mongo": []
+    },
+    {
+      "stage": "denied-activation-unchanged",
+      "novel_id": "a712391f-174c-41bd-87b7-44a0b43f0dfa",
+      "raw_state_sha256": "ac0bd708cfef02742f0764ca4d2efcff7e05a62fd5a3c877e4efce73aa0736bc",
+      "counts": {
+        "analysis_runs": 1,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0,
+        "chapters": 0,
+        "revisions": 0,
+        "outbox": 0,
+        "decisions": 2,
+        "mongo": 0
+      },
+      "brains": [
+        {
+          "status": "importing",
+          "brain_version": "2",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [],
+      "outbox": [],
+      "mongo": []
+    },
+    {
+      "stage": "M0-active",
+      "novel_id": "a712391f-174c-41bd-87b7-44a0b43f0dfa",
+      "raw_state_sha256": "8efcfe038f7911a9e030b67dc0bf18ec7f2804c0143959898e3e70d8dd6a337f",
+      "counts": {
+        "analysis_runs": 1,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0,
+        "chapters": 0,
+        "revisions": 0,
+        "outbox": 0,
+        "decisions": 2,
+        "mongo": 0
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "3",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [],
+      "outbox": [],
+      "mongo": []
+    },
+    {
+      "stage": "M0-replay",
+      "novel_id": "a712391f-174c-41bd-87b7-44a0b43f0dfa",
+      "raw_state_sha256": "8efcfe038f7911a9e030b67dc0bf18ec7f2804c0143959898e3e70d8dd6a337f",
+      "counts": {
+        "analysis_runs": 1,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0,
+        "chapters": 0,
+        "revisions": 0,
+        "outbox": 0,
+        "decisions": 2,
+        "mongo": 0
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "3",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [],
+      "outbox": [],
+      "mongo": []
+    },
+    {
+      "stage": "meaningful-create-and-retry",
+      "novel_id": "a712391f-174c-41bd-87b7-44a0b43f0dfa",
+      "raw_state_sha256": "ce449d1d6912ab846e1a89c881e89e3c3c97d40301fd9e4e204213481364f518",
+      "counts": {
+        "analysis_runs": 2,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0,
+        "chapters": 1,
+        "revisions": 1,
+        "outbox": 1,
+        "decisions": 2,
+        "mongo": 1
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "3",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [
+        {
+          "revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "chapter_id": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "parent_revision_id": null,
+          "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "source_type": "AUTHOR_MANUAL"
+        }
+      ],
+      "outbox": [
+        {
+          "revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "status": "COMPLETED"
+        }
+      ],
+      "mongo": [
+        {
+          "chapterId": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "version": 1,
+          "content_sha256": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20"
+        }
+      ]
+    },
+    {
+      "stage": "real-AI-accept-after-genuine-base",
+      "novel_id": "a712391f-174c-41bd-87b7-44a0b43f0dfa",
+      "raw_state_sha256": "ed71708bfec32116bf0a09ab29e9fdbb783c7e71fd8046e26a25ebba9b240bbd",
+      "counts": {
+        "analysis_runs": 3,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 2,
+        "chapters": 1,
+        "revisions": 2,
+        "outbox": 2,
+        "decisions": 2,
+        "mongo": 1
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "3",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [
+        {
+          "revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "chapter_id": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "parent_revision_id": null,
+          "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "source_type": "AUTHOR_MANUAL"
+        },
+        {
+          "revision_id": "cc0109ea-08b9-44c5-8c7b-e909a95f70ae",
+          "chapter_id": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "parent_revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "content_hash": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67",
+          "source_type": "AI_DRAFT_ACCEPT"
+        }
+      ],
+      "outbox": [
+        {
+          "revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "status": "COMPLETED"
+        },
+        {
+          "revision_id": "cc0109ea-08b9-44c5-8c7b-e909a95f70ae",
+          "content_hash": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67",
+          "status": "COMPLETED"
+        }
+      ],
+      "mongo": [
+        {
+          "chapterId": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "version": 2,
+          "content_sha256": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67"
+        }
+      ]
+    },
+    {
+      "stage": "AI-accept-exact-retry",
+      "novel_id": "a712391f-174c-41bd-87b7-44a0b43f0dfa",
+      "raw_state_sha256": "ed71708bfec32116bf0a09ab29e9fdbb783c7e71fd8046e26a25ebba9b240bbd",
+      "counts": {
+        "analysis_runs": 3,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 2,
+        "chapters": 1,
+        "revisions": 2,
+        "outbox": 2,
+        "decisions": 2,
+        "mongo": 1
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "3",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [
+        {
+          "revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "chapter_id": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "parent_revision_id": null,
+          "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "source_type": "AUTHOR_MANUAL"
+        },
+        {
+          "revision_id": "cc0109ea-08b9-44c5-8c7b-e909a95f70ae",
+          "chapter_id": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "parent_revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "content_hash": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67",
+          "source_type": "AI_DRAFT_ACCEPT"
+        }
+      ],
+      "outbox": [
+        {
+          "revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "status": "COMPLETED"
+        },
+        {
+          "revision_id": "cc0109ea-08b9-44c5-8c7b-e909a95f70ae",
+          "content_hash": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67",
+          "status": "COMPLETED"
+        }
+      ],
+      "mongo": [
+        {
+          "chapterId": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "version": 2,
+          "content_sha256": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67"
+        }
+      ]
+    },
+    {
+      "stage": "AI-stale-accept-no-write",
+      "novel_id": "a712391f-174c-41bd-87b7-44a0b43f0dfa",
+      "raw_state_sha256": "ed71708bfec32116bf0a09ab29e9fdbb783c7e71fd8046e26a25ebba9b240bbd",
+      "counts": {
+        "analysis_runs": 3,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 2,
+        "chapters": 1,
+        "revisions": 2,
+        "outbox": 2,
+        "decisions": 2,
+        "mongo": 1
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "3",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [
+        {
+          "revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "chapter_id": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "parent_revision_id": null,
+          "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "source_type": "AUTHOR_MANUAL"
+        },
+        {
+          "revision_id": "cc0109ea-08b9-44c5-8c7b-e909a95f70ae",
+          "chapter_id": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "parent_revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "content_hash": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67",
+          "source_type": "AI_DRAFT_ACCEPT"
+        }
+      ],
+      "outbox": [
+        {
+          "revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "status": "COMPLETED"
+        },
+        {
+          "revision_id": "cc0109ea-08b9-44c5-8c7b-e909a95f70ae",
+          "content_hash": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67",
+          "status": "COMPLETED"
+        }
+      ],
+      "mongo": [
+        {
+          "chapterId": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "version": 2,
+          "content_sha256": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67"
+        }
+      ]
+    },
+    {
+      "stage": "partial-provenance-no-auto-revision",
+      "novel_id": "a712391f-174c-41bd-87b7-44a0b43f0dfa",
+      "raw_state_sha256": "02d138b9ddd60a2a54fcc9cc2d7e49c0c5c1aa4710299e0947e811edd50db61d",
+      "counts": {
+        "analysis_runs": 3,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 2,
+        "chapters": 2,
+        "revisions": 2,
+        "outbox": 2,
+        "decisions": 2,
+        "mongo": 2
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "3",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [
+        {
+          "revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "chapter_id": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "parent_revision_id": null,
+          "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "source_type": "AUTHOR_MANUAL"
+        },
+        {
+          "revision_id": "cc0109ea-08b9-44c5-8c7b-e909a95f70ae",
+          "chapter_id": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "parent_revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "content_hash": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67",
+          "source_type": "AI_DRAFT_ACCEPT"
+        }
+      ],
+      "outbox": [
+        {
+          "revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "status": "COMPLETED"
+        },
+        {
+          "revision_id": "cc0109ea-08b9-44c5-8c7b-e909a95f70ae",
+          "content_hash": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67",
+          "status": "COMPLETED"
+        }
+      ],
+      "mongo": [
+        {
+          "chapterId": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "version": 2,
+          "content_sha256": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67"
+        },
+        {
+          "chapterId": "d8273258-8c18-4a5e-9e1d-b73142b302b6",
+          "version": 1,
+          "content_sha256": "932e7db97fd6639626717731e00c17ab2cce0d115c40efd6adc84e9a856438c4"
+        }
+      ]
+    },
+    {
+      "stage": "legacy-active-null-no-marker",
+      "novel_id": "a712391f-174c-41bd-87b7-44a0b43f0dfa",
+      "raw_state_sha256": "5e89a9e70c23f4a3ba5a006837bdb758bdfe608e6365f49dc15152f6934486e3",
+      "counts": {
+        "analysis_runs": 3,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 2,
+        "chapters": 2,
+        "revisions": 2,
+        "outbox": 2,
+        "decisions": 2,
+        "mongo": 2
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "3",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [
+        {
+          "revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "chapter_id": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "parent_revision_id": null,
+          "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "source_type": "AUTHOR_MANUAL"
+        },
+        {
+          "revision_id": "cc0109ea-08b9-44c5-8c7b-e909a95f70ae",
+          "chapter_id": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "parent_revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "content_hash": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67",
+          "source_type": "AI_DRAFT_ACCEPT"
+        }
+      ],
+      "outbox": [
+        {
+          "revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "status": "COMPLETED"
+        },
+        {
+          "revision_id": "cc0109ea-08b9-44c5-8c7b-e909a95f70ae",
+          "content_hash": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67",
+          "status": "COMPLETED"
+        }
+      ],
+      "mongo": [
+        {
+          "chapterId": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "version": 2,
+          "content_sha256": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67"
+        },
+        {
+          "chapterId": "d8273258-8c18-4a5e-9e1d-b73142b302b6",
+          "version": 2,
+          "content_sha256": "85048fe4e7ed8ceeebd66601746117b9ed95601363d30a6703a9b428cef70191"
+        }
+      ]
+    },
+    {
+      "stage": "create-after-provenance-restored",
+      "novel_id": "a712391f-174c-41bd-87b7-44a0b43f0dfa",
+      "raw_state_sha256": "ddfd0deaab7d74befead4bab6c456a37ae0e7e168a340aa69e9f4f3002438a42",
+      "counts": {
+        "analysis_runs": 4,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 2,
+        "chapters": 2,
+        "revisions": 3,
+        "outbox": 3,
+        "decisions": 2,
+        "mongo": 2
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "3",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [
+        {
+          "revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "chapter_id": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "parent_revision_id": null,
+          "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "source_type": "AUTHOR_MANUAL"
+        },
+        {
+          "revision_id": "cc0109ea-08b9-44c5-8c7b-e909a95f70ae",
+          "chapter_id": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "parent_revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "content_hash": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67",
+          "source_type": "AI_DRAFT_ACCEPT"
+        },
+        {
+          "revision_id": "b567dae0-ab16-4a58-9fdb-4c52f8ebbba5",
+          "chapter_id": "d8273258-8c18-4a5e-9e1d-b73142b302b6",
+          "parent_revision_id": null,
+          "content_hash": "85048fe4e7ed8ceeebd66601746117b9ed95601363d30a6703a9b428cef70191",
+          "source_type": "AUTHOR_MANUAL"
+        }
+      ],
+      "outbox": [
+        {
+          "revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "status": "COMPLETED"
+        },
+        {
+          "revision_id": "cc0109ea-08b9-44c5-8c7b-e909a95f70ae",
+          "content_hash": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67",
+          "status": "COMPLETED"
+        },
+        {
+          "revision_id": "b567dae0-ab16-4a58-9fdb-4c52f8ebbba5",
+          "content_hash": "85048fe4e7ed8ceeebd66601746117b9ed95601363d30a6703a9b428cef70191",
+          "status": "COMPLETED"
+        }
+      ],
+      "mongo": [
+        {
+          "chapterId": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "version": 2,
+          "content_sha256": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67"
+        },
+        {
+          "chapterId": "d8273258-8c18-4a5e-9e1d-b73142b302b6",
+          "version": 2,
+          "content_sha256": "85048fe4e7ed8ceeebd66601746117b9ed95601363d30a6703a9b428cef70191"
+        }
+      ]
+    },
+    {
+      "stage": "create-Mongo-failure",
+      "novel_id": "a712391f-174c-41bd-87b7-44a0b43f0dfa",
+      "raw_state_sha256": "42d1cbc383a5d5633ff3fa4e08573b896ef2d7ab0e56cf8308f72ba969694718",
+      "counts": {
+        "analysis_runs": 4,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 2,
+        "chapters": 3,
+        "revisions": 3,
+        "outbox": 3,
+        "decisions": 2,
+        "mongo": 2
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "3",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [
+        {
+          "revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "chapter_id": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "parent_revision_id": null,
+          "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "source_type": "AUTHOR_MANUAL"
+        },
+        {
+          "revision_id": "cc0109ea-08b9-44c5-8c7b-e909a95f70ae",
+          "chapter_id": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "parent_revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "content_hash": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67",
+          "source_type": "AI_DRAFT_ACCEPT"
+        },
+        {
+          "revision_id": "b567dae0-ab16-4a58-9fdb-4c52f8ebbba5",
+          "chapter_id": "d8273258-8c18-4a5e-9e1d-b73142b302b6",
+          "parent_revision_id": null,
+          "content_hash": "85048fe4e7ed8ceeebd66601746117b9ed95601363d30a6703a9b428cef70191",
+          "source_type": "AUTHOR_MANUAL"
+        }
+      ],
+      "outbox": [
+        {
+          "revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "status": "COMPLETED"
+        },
+        {
+          "revision_id": "cc0109ea-08b9-44c5-8c7b-e909a95f70ae",
+          "content_hash": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67",
+          "status": "COMPLETED"
+        },
+        {
+          "revision_id": "b567dae0-ab16-4a58-9fdb-4c52f8ebbba5",
+          "content_hash": "85048fe4e7ed8ceeebd66601746117b9ed95601363d30a6703a9b428cef70191",
+          "status": "COMPLETED"
+        }
+      ],
+      "mongo": [
+        {
+          "chapterId": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "version": 2,
+          "content_sha256": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67"
+        },
+        {
+          "chapterId": "d8273258-8c18-4a5e-9e1d-b73142b302b6",
+          "version": 2,
+          "content_sha256": "85048fe4e7ed8ceeebd66601746117b9ed95601363d30a6703a9b428cef70191"
+        }
+      ]
+    },
+    {
+      "stage": "create-Mongo-reconciled",
+      "novel_id": "a712391f-174c-41bd-87b7-44a0b43f0dfa",
+      "raw_state_sha256": "17eda880bee35845bae0226533d1a37e7134929afd770993b87454ef44f8471c",
+      "counts": {
+        "analysis_runs": 5,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "entities": 1,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 2,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 2,
+        "chapters": 3,
+        "revisions": 4,
+        "outbox": 4,
+        "decisions": 2,
+        "mongo": 3
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": "3",
+          "baseline_revision_id": null
+        }
+      ],
+      "revisions": [
+        {
+          "revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "chapter_id": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "parent_revision_id": null,
+          "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "source_type": "AUTHOR_MANUAL"
+        },
+        {
+          "revision_id": "cc0109ea-08b9-44c5-8c7b-e909a95f70ae",
+          "chapter_id": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "parent_revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "content_hash": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67",
+          "source_type": "AI_DRAFT_ACCEPT"
+        },
+        {
+          "revision_id": "b567dae0-ab16-4a58-9fdb-4c52f8ebbba5",
+          "chapter_id": "d8273258-8c18-4a5e-9e1d-b73142b302b6",
+          "parent_revision_id": null,
+          "content_hash": "85048fe4e7ed8ceeebd66601746117b9ed95601363d30a6703a9b428cef70191",
+          "source_type": "AUTHOR_MANUAL"
+        },
+        {
+          "revision_id": "879cbfe2-eaff-4096-9780-2c817238fe12",
+          "chapter_id": "d8d5bc4a-cbea-4a56-b4a0-fff1679b354f",
+          "parent_revision_id": null,
+          "content_hash": "ff2b5e7bf3b53b4d01f335e6beaa00fa03809773f3025c15ca58616f4e247f60",
+          "source_type": "AUTHOR_MANUAL"
+        }
+      ],
+      "outbox": [
+        {
+          "revision_id": "35efdaab-1810-4d52-a5c7-20a067936713",
+          "content_hash": "906e39dd22a1831471f4d11dc0b7017c06fab8e4a641bcdeeab4f9e53ee35d20",
+          "status": "COMPLETED"
+        },
+        {
+          "revision_id": "cc0109ea-08b9-44c5-8c7b-e909a95f70ae",
+          "content_hash": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67",
+          "status": "COMPLETED"
+        },
+        {
+          "revision_id": "b567dae0-ab16-4a58-9fdb-4c52f8ebbba5",
+          "content_hash": "85048fe4e7ed8ceeebd66601746117b9ed95601363d30a6703a9b428cef70191",
+          "status": "COMPLETED"
+        },
+        {
+          "revision_id": "879cbfe2-eaff-4096-9780-2c817238fe12",
+          "content_hash": "ff2b5e7bf3b53b4d01f335e6beaa00fa03809773f3025c15ca58616f4e247f60",
+          "status": "COMPLETED"
+        }
+      ],
+      "mongo": [
+        {
+          "chapterId": "56751e97-3fb5-4e3a-91f9-befc103ac975",
+          "version": 2,
+          "content_sha256": "ba44029a1506fe29a4649a517bd7eca0b15659ed981c14ddf53b86642480ab67"
+        },
+        {
+          "chapterId": "d8273258-8c18-4a5e-9e1d-b73142b302b6",
+          "version": 2,
+          "content_sha256": "85048fe4e7ed8ceeebd66601746117b9ed95601363d30a6703a9b428cef70191"
+        },
+        {
+          "chapterId": "d8d5bc4a-cbea-4a56-b4a0-fff1679b354f",
+          "version": 1,
+          "content_sha256": "ff2b5e7bf3b53b4d01f335e6beaa00fa03809773f3025c15ca58616f4e247f60"
+        }
+      ]
+    }
+  ],
+  "idea_only_and_negative_prior_source_readbacks": [
+    {
+      "stage": "planning-idea-only",
+      "novel_id": "5bce1eae-f103-440d-a920-a2e072d1daf0",
+      "durable_state_sha256": "d7ca8b569ac045d38d8744840c20be642d9732591ffc98de371a0861a478fd28",
+      "counts": {
+        "analysis_runs": 1,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 1,
+        "current_entity_states": 0,
+        "decisions": 0,
+        "entities": 0,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 0,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 0,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0
+      },
+      "brains": [
+        {
+          "status": "importing",
+          "brain_version": 1,
+          "baseline_revision_id": null
+        }
+      ]
+    },
+    {
+      "stage": "planning-idea-then-reviewed-m0",
+      "novel_id": "5bce1eae-f103-440d-a920-a2e072d1daf0",
+      "durable_state_sha256": "48f24dde39ad93491ac17e717efecad65531272134be2f8d8bae48ae7c4b8709",
+      "counts": {
+        "analysis_runs": 2,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 2,
+        "current_entity_states": 0,
+        "decisions": 3,
+        "entities": 2,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 3,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0
+      },
+      "brains": [
+        {
+          "status": "active",
+          "brain_version": 3,
+          "baseline_revision_id": null
+        }
+      ]
+    },
+    {
+      "stage": "planning-prior-blocked-before-pending-cards",
+      "novel_id": "799bd527-10c1-4790-a575-77e23348d71c",
+      "durable_state_sha256": "fe7e79e0cabb5053a9022ba354f5eb821b80cb5472314f67c752de7671e53545",
+      "counts": {
+        "analysis_runs": 2,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 2,
+        "current_entity_states": 0,
+        "decisions": 3,
+        "entities": 2,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 6,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0
+      },
+      "brains": [
+        {
+          "status": "importing",
+          "brain_version": 2,
+          "baseline_revision_id": null
+        }
+      ]
+    },
+    {
+      "stage": "planning-prior-blocked-after-pending-cards",
+      "novel_id": "799bd527-10c1-4790-a575-77e23348d71c",
+      "durable_state_sha256": "fe7e79e0cabb5053a9022ba354f5eb821b80cb5472314f67c752de7671e53545",
+      "counts": {
+        "analysis_runs": 2,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 2,
+        "current_entity_states": 0,
+        "decisions": 3,
+        "entities": 2,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 6,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0
+      },
+      "brains": [
+        {
+          "status": "importing",
+          "brain_version": 2,
+          "baseline_revision_id": null
+        }
+      ]
+    },
+    {
+      "stage": "planning-prior-blocked-before-running",
+      "novel_id": "d221f2ba-0ca6-4539-985c-91e1374c11fe",
+      "durable_state_sha256": "7a4d34054b28a8c91e86366d5e5c02ecd8d6ada4c3cbffa4933da3946c25544d",
+      "counts": {
+        "analysis_runs": 2,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 2,
+        "current_entity_states": 0,
+        "decisions": 3,
+        "entities": 2,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 3,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0
+      },
+      "brains": [
+        {
+          "status": "importing",
+          "brain_version": 2,
+          "baseline_revision_id": null
+        }
+      ]
+    },
+    {
+      "stage": "planning-prior-blocked-after-running",
+      "novel_id": "d221f2ba-0ca6-4539-985c-91e1374c11fe",
+      "durable_state_sha256": "7a4d34054b28a8c91e86366d5e5c02ecd8d6ada4c3cbffa4933da3946c25544d",
+      "counts": {
+        "analysis_runs": 2,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 2,
+        "current_entity_states": 0,
+        "decisions": 3,
+        "entities": 2,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 3,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0
+      },
+      "brains": [
+        {
+          "status": "importing",
+          "brain_version": 2,
+          "baseline_revision_id": null
+        }
+      ]
+    },
+    {
+      "stage": "planning-prior-blocked-before-foreign-author",
+      "novel_id": "55b68348-7fec-4e79-afc5-3752acb6ad5f",
+      "durable_state_sha256": "c40186e880ce0fd053a4fcab9c6548b09a19d9268d366d9eca718a019b1b0682",
+      "counts": {
+        "analysis_runs": 2,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 2,
+        "current_entity_states": 0,
+        "decisions": 3,
+        "entities": 2,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 3,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0
+      },
+      "brains": [
+        {
+          "status": "importing",
+          "brain_version": 2,
+          "baseline_revision_id": null
+        }
+      ]
+    },
+    {
+      "stage": "planning-prior-blocked-after-foreign-author",
+      "novel_id": "55b68348-7fec-4e79-afc5-3752acb6ad5f",
+      "durable_state_sha256": "c40186e880ce0fd053a4fcab9c6548b09a19d9268d366d9eca718a019b1b0682",
+      "counts": {
+        "analysis_runs": 2,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 2,
+        "current_entity_states": 0,
+        "decisions": 3,
+        "entities": 2,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 3,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0
+      },
+      "brains": [
+        {
+          "status": "importing",
+          "brain_version": 2,
+          "baseline_revision_id": null
+        }
+      ]
+    },
+    {
+      "stage": "planning-prior-blocked-before-altered-hash",
+      "novel_id": "96adcd89-2988-460f-a2d8-95c14c8b4131",
+      "durable_state_sha256": "d20bb46ce0242ba2d23ea689bb7b26bef7f5ecd3afc5e81ef884c79d2f73c1ae",
+      "counts": {
+        "analysis_runs": 2,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 2,
+        "current_entity_states": 0,
+        "decisions": 3,
+        "entities": 2,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 3,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0
+      },
+      "brains": [
+        {
+          "status": "importing",
+          "brain_version": 2,
+          "baseline_revision_id": null
+        }
+      ]
+    },
+    {
+      "stage": "planning-prior-blocked-after-altered-hash",
+      "novel_id": "96adcd89-2988-460f-a2d8-95c14c8b4131",
+      "durable_state_sha256": "d20bb46ce0242ba2d23ea689bb7b26bef7f5ecd3afc5e81ef884c79d2f73c1ae",
+      "counts": {
+        "analysis_runs": 2,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 2,
+        "current_entity_states": 0,
+        "decisions": 3,
+        "entities": 2,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 3,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0
+      },
+      "brains": [
+        {
+          "status": "importing",
+          "brain_version": 2,
+          "baseline_revision_id": null
+        }
+      ]
+    },
+    {
+      "stage": "planning-prior-blocked-before-nonempty-text",
+      "novel_id": "7f076caf-1ed6-45e2-b110-5a18e6f0a040",
+      "durable_state_sha256": "510c1fd7aa697cc06ca71eafa34997b04741b7107e39a9958bda2c3807f7efc3",
+      "counts": {
+        "analysis_runs": 2,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 2,
+        "current_entity_states": 0,
+        "decisions": 3,
+        "entities": 2,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 3,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0
+      },
+      "brains": [
+        {
+          "status": "importing",
+          "brain_version": 2,
+          "baseline_revision_id": null
+        }
+      ]
+    },
+    {
+      "stage": "planning-prior-blocked-after-nonempty-text",
+      "novel_id": "7f076caf-1ed6-45e2-b110-5a18e6f0a040",
+      "durable_state_sha256": "510c1fd7aa697cc06ca71eafa34997b04741b7107e39a9958bda2c3807f7efc3",
+      "counts": {
+        "analysis_runs": 2,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 2,
+        "current_entity_states": 0,
+        "decisions": 3,
+        "entities": 2,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 3,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0
+      },
+      "brains": [
+        {
+          "status": "importing",
+          "brain_version": 2,
+          "baseline_revision_id": null
+        }
+      ]
+    },
+    {
+      "stage": "planning-prior-blocked-before-blueprint",
+      "novel_id": "a79dfc85-af48-4ced-b10d-8827e2eb8f97",
+      "durable_state_sha256": "bb5423e84e57b0fc583b1bedd55bf58d4c7c2e62c6892426908c88b9b7746cce",
+      "counts": {
+        "analysis_runs": 2,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 2,
+        "current_entity_states": 0,
+        "decisions": 3,
+        "entities": 2,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 3,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0
+      },
+      "brains": [
+        {
+          "status": "importing",
+          "brain_version": 2,
+          "baseline_revision_id": null
+        }
+      ]
+    },
+    {
+      "stage": "planning-prior-blocked-after-blueprint",
+      "novel_id": "a79dfc85-af48-4ced-b10d-8827e2eb8f97",
+      "durable_state_sha256": "bb5423e84e57b0fc583b1bedd55bf58d4c7c2e62c6892426908c88b9b7746cce",
+      "counts": {
+        "analysis_runs": 2,
+        "autonomous_runs": 0,
+        "bootstrap_jobs": 2,
+        "current_entity_states": 0,
+        "decisions": 3,
+        "entities": 2,
+        "entity_mentions": 0,
+        "entity_profile_audits": 0,
+        "events": 0,
+        "facts": 1,
+        "memory_chunks": 0,
+        "memory_embeddings": 0,
+        "proposals": 3,
+        "relationships": 0,
+        "revision_provenances": 0,
+        "state_transitions": 0,
+        "story_brains": 1,
+        "story_plan_objectives": 0,
+        "story_plans": 0,
+        "writing_generations": 0
+      },
+      "brains": [
+        {
+          "status": "importing",
+          "brain_version": 2,
+          "baseline_revision_id": null
+        }
+      ]
+    }
+  ],
+  "raw_pg_a16_file_sha256": "fa703bb89992d4ce151cbf05962354ff5e7d5265d402a9a6701a0553e3fd9abf",
+  "core_zero_for_idea_journey": "Asserted by real SQL state() reads in passing test_idea_only_source_then_reviewed_cards_can_activate; narrative-only printed snapshot is labelled separately."
+}

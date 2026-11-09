@@ -20,6 +20,24 @@ def deny(code):
     raise BootstrapConflictError(code)
 
 
+def superseded_idea_only(job, current):
+    """An older saved idea has no review group to complete, never a baseline.
+
+    Exempt only an empty manual setup lane, not unfinished extraction, legacy
+    bootstrap, unresolved cards or a pending reviewable group.
+    """
+    r=job.result or {}
+    source=r.get('setup_source') or {}
+    setup=source.get('setup') or {}
+    return (r.get('contract_version')=='setup-v1'
+            and r.get('author_id')==current.result.get('author_id')
+            and source.get('mode')=='extract'
+            and r.get('setup_version',0)<current.result['setup_version']
+            and r.get('setup_cards')==[] and r.get('required_proposal_ids')==[]
+            and setup==dict(text='',declarations=[],world_rules=[],initial_conditions=[])
+            and digest(setup)==r.get('setup_hash'))
+
+
 def eligibility(repo, session, novel, brain, job, actor):
     r=job.result
     if brain.status=='active':deny('M0_ALREADY_ACTIVE')
@@ -29,7 +47,8 @@ def eligibility(repo, session, novel, brain, job, actor):
     latest=max((j.result.get('setup_version',0) for j in sources if (j.result or {}).get('contract_version')=='setup-v1'),default=0)
     if r['setup_version']!=latest:deny('M0_STALE_SETUP')
     if any(j.id!=job.id and (j.status in ('running','queued','importing','waiting_entity_review') or
-            (j.status=='waiting_review' and not (j.result or {}).get('setup_review')))
+            (j.status=='waiting_review' and not (j.result or {}).get('setup_review')
+             and not superseded_idea_only(j,job)))
             for j in sources):deny('M0_BOOTSTRAP_IN_PROGRESS')
     if digest(r['setup_source']['setup'])!=r['setup_hash']:deny('M0_SOURCE_INVALID')
     if r.get('provisional_scope')!=digest(['setup-v1',str(repo._tenant_id),str(novel),str(job.id),r['setup_hash'],r['setup_version']]):deny('M0_SOURCE_INVALID')

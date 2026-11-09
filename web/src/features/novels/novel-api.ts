@@ -77,12 +77,13 @@ export async function getChapter(chapterId: string) {
 }
 
 export async function createChapter(novelId: string, input: {
+  clientRequestId?: string;
   title: string;
   content: string;
   isVip?: boolean;
   priceCoins?: number;
-}) {
-  const response = await apiClient.post<ApiEnvelope<Chapter>>(`/novels/${novelId}/chapters`, input);
+}, signal?:AbortSignal) {
+  const response = await apiClient.post<ApiEnvelope<Chapter>>(`/novels/${novelId}/chapters`, input,{signal});
   return response.data.data;
 }
 
