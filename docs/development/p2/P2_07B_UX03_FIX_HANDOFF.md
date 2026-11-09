@@ -2,19 +2,19 @@
 
 **Ngày hoàn thiện:** 2026-11-09  
 **Người thực hiện:** Frontend Developer (Gemini)  
-**Pull Request:** [#108 (Draft)](https://github.com/Ephurin/Novel_sharing_platform/pull/108)  
+**Pull Request:** [#108](https://github.com/Ephurin/Novel_sharing_platform/pull/108)  
 **Nhánh nguồn (Head Branch):** `gemini/p2-07b-world-review-ux03`  
-**Head Commit SHA:** `20a24eeadf8a096f7598f0fb4788cede99fd56db`  
+**Commit mã nguồn nghiệm thu qua CI (attempt #2):** `b4d4f52f27fa9a59e2aa71888b0922d35124a458`  
 **Nhánh đích (Target Base):** `integration/p2-planning-studio`  
 **Base Commit SHA:** `242afc82b131804f3780362c1615cb38ecf1ebc6` (Merge PR #106)  
 **Tham chiếu Issue:** [#104](https://github.com/Ephurin/Novel_sharing_platform/issues/104)  
-**Báo cáo Audit liên quan:** [`docs/development/p2/P2_07A_UX_AUDIT_GEMINI.md`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/P2_07A_UX_AUDIT_GEMINI.md)
+**Báo cáo Audit liên quan:** [`docs/development/p2/P2_07A_UX_AUDIT_GEMINI.md`](./P2_07A_UX_AUDIT_GEMINI.md)
 
 ---
 
 ## 1. Tóm Tắt Khắc Phục Kỹ Thuật (UX-03 Scope)
 
-Mã nguồn triển khai của UX-03 tại [`SetupFoundationPanel.tsx`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/web/src/features/ai-copilot/SetupFoundationPanel.tsx) đã được chấp thuận tạm thời (provisional acceptance). Đợt cập nhật này tập trung xử lý toàn bộ các yêu cầu bổ sung bằng chứng kiểm thử theo phản hồi review của GPT-6:
+Mã nguồn triển khai của UX-03 tại [`SetupFoundationPanel.tsx`](../../../web/src/features/ai-copilot/SetupFoundationPanel.tsx) đã được chấp thuận tạm thời (provisional acceptance). Đợt cập nhật này tập trung xử lý toàn bộ các yêu cầu bổ sung bằng chứng kiểm thử theo phản hồi review của GPT-6:
 
 1. **Truy cập trực tiếp `SetupReviewGroup` từ Bước Thế giới (`planningStep === 'rules'`):**
    - Điều kiện hiển thị: `<div hidden={!(world || people)}>`.
@@ -104,16 +104,16 @@ Kiểm tra độc lập hành vi hoàn tất duyệt và phản hồi bất đ�
 
 | Kịch bản | Hình ảnh minh chứng | Mô tả chi tiết |
 |---|---|---|
-| **Rule-only review tại Bước Thế giới** | [`ux03-world-step-review-visible.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07b/ux03-world-step-review-visible.png) | `SetupReviewGroup` hiển thị trực tiếp ngay dưới ô nhập quy tắc tại Bước 2 |
-| **Đọc lại kết quả duyệt tại Bước Thế giới** | [`ux03-world-review-accepted-readback.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07b/ux03-world-review-accepted-readback.png) | Thẻ quy tắc hiển thị badge "Đã duyệt", alert hoàn tất và nút kích hoạt M0 sẵn sàng |
-| **Alert nhóm phụ thuộc hỗn hợp** | [`ux03-world-step-mixed-group-alert.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07b/ux03-world-step-mixed-group-alert.png) | Cảnh báo rõ ràng tính nguyên khối khi nhóm có cả nhân vật và quy tắc; nút lưu bị vô hiệu hoá đến khi chọn đủ |
-| **Bảo toàn quyết định khi chuyển bước** | [`ux03-step-switch-preserves-decisions.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07b/ux03-step-switch-preserves-decisions.png) | Chuyển Thế giới ↔ Nhân vật giữ nguyên toàn bộ lựa chọn chưa gửi |
-| **Giữ nguyên draft khi gặp 409 Conflict** | [`ux03-stale-409-conflict-retained.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07b/ux03-stale-409-conflict-retained.png) | Hiển thị thông báo 409, không làm mất các lựa chọn của tác giả |
-| **F-02: Thử lại lỗi 503 giữ nguyên idempotency_key** | [`ux03-f02-uncertain-503-retry.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07b/ux03-f02-uncertain-503-retry.png) | Thông báo lỗi 503 hiển thị, nút bấm mở lại cho phép retry với cùng `idempotency_key` |
-| **F-02: Hoàn tất duyệt, gỡ bỏ nút gửi** | [`ux03-review-completed-no-duplicate.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07b/ux03-review-completed-no-duplicate.png) | Hiển thị alert xanh đã lưu quyết định, nút submit bị unmount hoàn toàn |
-| **F-02: Cảnh báo bản nháp cũ ở trạng thái đã duyệt** | [`ux03-f02-completed-replay.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07b/ux03-f02-completed-replay.png) | Chặn gửi lại, cảnh báo bản sửa trên máy và cung cấp nút bỏ quyết định cũ |
-| **F-01: Cách ly tài khoản giữa Tác giả A và Tác giả B** | [`ux03-f01-account-isolation-author-b.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07b/ux03-f01-account-isolation-author-b.png) | Tác giả B không nhìn thấy bất kỳ nội dung hay khoá lưu trữ nháp nào của Tác giả A |
-| **F-01: Cách ly đa tiểu thuyết của cùng tác giả** | [`ux03-f01-novel-isolation.png`](file:///c:/Users/thaib/Documents/Projects/Novel_sharing_platform/Novel_sharing_platform/docs/development/p2/evidence/p2-07b/ux03-f01-novel-isolation.png) | Tiểu thuyết B lưu trữ khoá và giá trị hoàn toàn tách biệt với Tiểu thuyết A |
+| **Rule-only review tại Bước Thế giới** | [`ux03-world-step-review-visible.png`](./evidence/p2-07b/ux03-world-step-review-visible.png) | `SetupReviewGroup` hiển thị trực tiếp ngay dưới ô nhập quy tắc tại Bước 2 |
+| **Đọc lại kết quả duyệt tại Bước Thế giới** | [`ux03-world-review-accepted-readback.png`](./evidence/p2-07b/ux03-world-review-accepted-readback.png) | Thẻ quy tắc hiển thị badge "Đã duyệt", alert hoàn tất và nút kích hoạt M0 sẵn sàng |
+| **Alert nhóm phụ thuộc hỗn hợp** | [`ux03-world-step-mixed-group-alert.png`](./evidence/p2-07b/ux03-world-step-mixed-group-alert.png) | Cảnh báo rõ ràng tính nguyên khối khi nhóm có cả nhân vật và quy tắc; nút lưu bị vô hiệu hoá đến khi chọn đủ |
+| **Bảo toàn quyết định khi chuyển bước** | [`ux03-step-switch-preserves-decisions.png`](./evidence/p2-07b/ux03-step-switch-preserves-decisions.png) | Chuyển Thế giới ↔ Nhân vật giữ nguyên toàn bộ lựa chọn chưa gửi |
+| **Giữ nguyên draft khi gặp 409 Conflict** | [`ux03-stale-409-conflict-retained.png`](./evidence/p2-07b/ux03-stale-409-conflict-retained.png) | Hiển thị thông báo 409, không làm mất các lựa chọn của tác giả |
+| **F-02: Thử lại lỗi 503 giữ nguyên idempotency_key** | [`ux03-f02-uncertain-503-retry.png`](./evidence/p2-07b/ux03-f02-uncertain-503-retry.png) | Thông báo lỗi 503 hiển thị, nút bấm mở lại cho phép retry với cùng `idempotency_key` |
+| **F-02: Hoàn tất duyệt, gỡ bỏ nút gửi** | [`ux03-review-completed-no-duplicate.png`](./evidence/p2-07b/ux03-review-completed-no-duplicate.png) | Hiển thị alert xanh đã lưu quyết định, nút submit bị unmount hoàn toàn |
+| **F-02: Cảnh báo bản nháp cũ ở trạng thái đã duyệt** | [`ux03-f02-completed-replay.png`](./evidence/p2-07b/ux03-f02-completed-replay.png) | Chặn gửi lại, cảnh báo bản sửa trên máy và cung cấp nút bỏ quyết định cũ |
+| **F-01: Cách ly tài khoản giữa Tác giả A và Tác giả B** | [`ux03-f01-account-isolation-author-b.png`](./evidence/p2-07b/ux03-f01-account-isolation-author-b.png) | Tác giả B không nhìn thấy bất kỳ nội dung hay khoá lưu trữ nháp nào của Tác giả A |
+| **F-01: Cách ly đa tiểu thuyết của cùng tác giả** | [`ux03-f01-novel-isolation.png`](./evidence/p2-07b/ux03-f01-novel-isolation.png) | Tiểu thuyết B lưu trữ khoá và giá trị hoàn toàn tách biệt với Tiểu thuyết A |
 
 ---
 
@@ -124,7 +124,7 @@ Kiểm tra độc lập hành vi hoàn tất duyệt và phản hồi bất đ�
 > - **MOCKED_BROWSER_PASS:** Kiểm thử trình duyệt thực tế mounted Chromium với HTTP API mocks (không khẳng định là database E2E).
 > - **PASS:** Kiểm thử cục bộ thực sự được thực thi và vượt qua.
 > - **SKIP:** Tạm bỏ qua do yêu cầu hạ tầng môi trường đặc biệt (ví dụ Docker DB test container).
-> - **CI_NOT_EXECUTED / INFRA_BLOCKED:** CI trên đám mây không thể chạy do hạn mức thanh toán / spending limit của tài khoản GitHub, không phải lỗi mã nguồn.
+> - **CI_NOT_EXECUTED / INFRA_BLOCKED (lịch sử):** Các lượt chạy trước khi repo public chưa được cấp runner. Sau khi chuyển public, CI đã chạy và PASS tại attempt #2.
 
 | Tình huống kiểm thử | Phân loại kết quả | Thời gian & Lệnh thực thi | Ghi chú & Chi tiết |
 |---|:---:|:---:|---|
@@ -147,7 +147,17 @@ Kiểm tra độc lập hành vi hoàn tất duyệt và phản hồi bất đ�
 | **Setup Foundation Browser Suite** (`setup-foundation.browser.test.mjs`) | **MOCKED_BROWSER_PASS** | 32.7s (`node --test ...`) | Exit code `0` (8/8 tests pass) |
 | **P1 Writer Persistence Regression** (`author-ide.browser.test.mjs`) | **SKIP** | - | Yêu cầu test container PostgreSQL/MongoDB độc lập |
 | **Real PostgreSQL / Gateway Test** | **SKIP** | - | Môi trường máy trạm cục bộ không chạy Docker DB daemon |
-| **GitHub Actions Cloud CI** (`p2-setup-provenance.yml`) | **CI_NOT_EXECUTED / INFRA_BLOCKED** | - | GitHub Actions bị chặn gán runner do tài khoản hết hạn mức chi tiêu (`spending limit reached / billing failure`) |
+| **GitHub Actions P2** (`p2-setup-provenance.yml`) | **PASS** | [Run #42586459283 — attempt #2](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42586459283) | 1/1 job PASS; bao gồm UX-03 browser regression, P2 setup contracts và Gateway/PostgreSQL checks (HTTP mocks ở UI) |
+| **GitHub Actions P8** (`p8-cutover.yml`) | **PASS** | [Run #42586459354 — attempt #2](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42586459354) | 7/7 jobs PASS; unit, integration, build, cutover và rollback rehearsal |
+
+
+### 4.1. Kết quả GitHub Actions sau khi chuyển repository sang Public
+
+- **Checkpoint mã nguồn:** `b4d4f52f27fa9a59e2aa71888b0922d35124a458` (không bao gồm commit chỉ sửa báo cáo bàn giao).
+- **P2 Setup Provenance Foundation:** [run #42586459283](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42586459283), attempt 2, **SUCCESS**, 1/1 job. Bước `Story Planning Studio UX-03 World Setup Review regression (Chromium HTTP mocks)` đã thực thi và PASS; các bước browser, hợp đồng Gateway và PostgreSQL liên quan cũng PASS.
+- **P8 Cutover and Migration:** [run #42586459354](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42586459354), attempt 2, **SUCCESS**, 7/7 jobs.
+- **Ranh giới bằng chứng:** UX-03 đã được kiểm thử bằng mounted Chromium với API mô phỏng; không khẳng định đường đi UX-03 đã được thực thi toàn bộ trên một môi trường production với LLM thật. Các kiểm thử PostgreSQL/Gateway riêng của workflow là kiểm thử tích hợp trong CI.
+- **Trạng thái cũ:** Các dòng `SKIP` trong bảng là kết quả môi trường máy trạm địa phương trước đó; chúng không phủ nhận kết quả CI chạy thành công trên runner GitHub sau khi public.
 
 ---
 
@@ -156,4 +166,4 @@ Kiểm tra độc lập hành vi hoàn tất duyệt và phản hồi bất đ�
 - **Không sửa đổi backend, cơ sở dữ liệu, hay schema hợp đồng:** Mọi thao tác review tuân thủ nghiêm ngặt payload nguyên khối `reviewSetup`.
 - **Không thay đổi cơ chế sinh source hashes, `review_version`, Brain CAS, hay Canon:** Hoàn toàn giữ nguyên logic bảo đảm toàn vẹn dữ liệu.
 - **Không gọi LLM thực tế hoặc vi phạm ranh giới hệ thống:** Toàn bộ test suite chạy trên local HTTP mocks có kiểm soát.
-- **Giữ nguyên trạng thái Pull Request:** PR #108 được duy trì ở chế độ Draft nhắm mục tiêu vào `integration/p2-planning-studio`. Sẵn sàng cho GPT-6 review nghiệm thu (`READY_FOR_REVIEW`).
+- **Review gate:** PR #108 nhắm `integration/p2-planning-studio`; đã nghiệm thu CI trên mã nguồn HEAD `b4d4f52f27fa`. Việc chuyển trạng thái Ready for review không đồng nghĩa tự động merge.
