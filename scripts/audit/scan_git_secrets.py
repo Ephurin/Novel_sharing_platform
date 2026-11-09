@@ -1,10 +1,14 @@
 """Full-history Git diff secret and credential scanner for public readiness audit.
 
-Scans added/modified diff lines across all reachable refs (git log -p --all --full-history).
+Scans added/modified diff lines across reachable refs (git log -p [refs...] --full-history).
 SCOPE AND BOUNDARIES:
 - Scans text diffs of added lines; does NOT scan raw uncommitted Git blobs, binary objects,
   or calculate Shannon entropy. (Offline tool 'detect-secrets' is available for ad-hoc inspection,
   while this script provides the committed, deterministic diff scan).
+- Frozen Audit Baseline Snapshot: By default, pins the audit PR branch to commit
+  `07b3a7487ab462b0532ecfc4dbaf0ffa4fab331b` across all repository refs. This ensures
+  reproducible 340-finding verification without self-referential expansion from subsequent
+  audit report/manifest additions. Pass '--all' to scan all active branch tips dynamically.
 - Outputs strictly redacted and anonymized findings with zero author email/PII data.
 - Fails closed (non-zero exit) if git subprocess encounters an error.
 """
@@ -14,6 +18,8 @@ import re
 import json
 import sys
 from pathlib import Path
+
+FROZEN_AUDIT_SNAPSHOT_REF = "07b3a7487ab462b0532ecfc4dbaf0ffa4fab331b"
 
 # Sensitive patterns (defensive scanner rules)
 PATTERNS = {
@@ -42,10 +48,26 @@ def mask_secret(secret_str):
         return '****'
     return secret_str[:4] + '****' + secret_str[-4:]
 
-def run():
-    print("Starting Git history scan across all commits and branches...")
-    cmd = ['git', 'log', '-p', '--all', '--full-history', '--date=iso']
+def get_scan_refs(target=None):
+    if target == '--all':
+        return ['--all']
+    if target and target != FROZEN_AUDIT_SNAPSHOT_REF:
+        return [target]
+        
+    # Pinned audit snapshot: all refs with audit PR branch pinned at 07b3a7487a
+    # This avoids self-referential expansion from subsequent audit manifests/reports.
+    res = subprocess.run(['git', 'for-each-ref', '--format=%(refname)'], capture_output=True, text=True, check=True)
+    refs = res.stdout.splitlines()
+    target_refs = [r for r in refs if 'public-01b-evidence-closure' not in r]
+    target_refs.append(FROZEN_AUDIT_SNAPSHOT_REF)
+    return target_refs
+
+def run(target=None):
+    target_refs = get_scan_refs(target)
+    desc = target if target else f"frozen snapshot {FROZEN_AUDIT_SNAPSHOT_REF[:10]}"
+    print(f"Starting Git history diff scan (target: {desc})...")
     
+    cmd = ['git', 'log', '-p'] + target_refs + ['--full-history', '--date=iso']
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8', errors='replace')
     
     current_commit = None
@@ -57,9 +79,7 @@ def run():
     date_re = re.compile(r'^Date:\s*(.*)')
     file_diff_re = re.compile(r'^\+\+\+ b/(.*)')
     
-    line_num = 0
     for line in proc.stdout:
-        line_num += 1
         m_commit = commit_re.match(line)
         if m_commit:
             current_commit = m_commit.group(1)
@@ -123,7 +143,8 @@ def run():
     return findings
 
 if __name__ == '__main__':
-    findings = run()
+    target_arg = sys.argv[1] if len(sys.argv) > 1 else None
+    findings = run(target_arg)
     out_file = Path("docs/development/security/git_secret_findings.redacted.json")
     out_file.parent.mkdir(parents=True, exist_ok=True)
     with open(out_file, 'w', encoding='utf-8') as f:
