@@ -66,7 +66,8 @@ export function ChapterReader({ publicMode = false }: { publicMode?: boolean }) 
   return <>
     <ChapterReadingWorkspace key={chapterId} chapter={chapter} novel={novelQuery.data} chapters={chapters} publicMode={publicMode}
       tocPending={novelQuery.isPending} tocFailed={novelQuery.isError} onRetryToc={() => void novelQuery.refetch()}
-      onReport={userId ? () => report.mutate() : undefined} reporting={report.isPending} />
-    <section className="sc-reader-comments" aria-label="Bình luận chương"><CommentsSection kind="chapter" id={chapterId} /></section>
+      onReport={userId ? () => report.mutate() : undefined} reporting={report.isPending}>
+      <section className="sc-reader-comments" aria-label="Bình luận chương"><CommentsSection kind="chapter" id={chapterId} /></section>
+    </ChapterReadingWorkspace>
   </>;
 }

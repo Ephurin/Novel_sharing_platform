@@ -9,11 +9,13 @@ import { AppError } from '../../core/errors/app-error.js';
 import { successResponse } from '../../core/response/response.js';
 export const mediaDirectory = path.resolve(process.env.MEDIA_DIRECTORY || './uploads');
 export const mediaRoutes = Router();
-export function imageExtension(buffer: Buffer): 'png' | 'jpg' | 'webp' {
+export function imageExtension(buffer: Buffer): 'png' | 'jpg' | 'webp' | 'gif' {
   if (buffer.length >= 24 && buffer.subarray(0, 8).equals(Buffer.from([137,80,78,71,13,10,26,10])) && buffer.toString('ascii',12,16) === 'IHDR') return 'png';
   if (buffer.length >= 12 && buffer[0] === 255 && buffer[1] === 216 && buffer[2] === 255 && buffer[buffer.length-2] === 255 && buffer[buffer.length-1] === 217) return 'jpg';
   if (buffer.length >= 20 && buffer.toString('ascii',0,4) === 'RIFF' && buffer.toString('ascii',8,12) === 'WEBP') return 'webp';
-  throw new AppError(400, 'MEDIA_INVALID', 'Chỉ hỗ trợ ảnh PNG, JPEG hoặc WebP hợp lệ');
+  if (buffer.length >= 14 && ['GIF87a', 'GIF89a'].includes(buffer.toString('ascii', 0, 6)) &&
+    buffer.readUInt16LE(6) > 0 && buffer.readUInt16LE(6) <= 4096 && buffer.readUInt16LE(8) > 0 && buffer.readUInt16LE(8) <= 4096 && buffer[buffer.length - 1] === 0x3b) return 'gif';
+  throw new AppError(400, 'MEDIA_INVALID', 'Chỉ hỗ trợ ảnh PNG, JPEG, WebP hoặc GIF hợp lệ');
 }
 mediaRoutes.post('/', requireAuth, requireActiveAccount, json({ limit: '2mb' }), async (req, res, next) => {
   try {
@@ -28,7 +30,7 @@ mediaRoutes.post('/', requireAuth, requireActiveAccount, json({ limit: '2mb' }),
 });
 mediaRoutes.get('/:fileName', (req, res, next) => {
   const fileName = String(req.params.fileName);
-  if (!/^[a-f0-9-]{36}\.(png|jpg|webp)$/.test(fileName)) { next(new AppError(404, 'MEDIA_NOT_FOUND', 'Ảnh không tồn tại')); return; }
+  if (!/^[a-f0-9-]{36}\.(png|jpg|webp|gif)$/.test(fileName)) { next(new AppError(404, 'MEDIA_NOT_FOUND', 'Ảnh không tồn tại')); return; }
   res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
   res.sendFile(fileName, { root: mediaDirectory, dotfiles: 'deny' }, error => { if (error) next(error); });
 });
