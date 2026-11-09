@@ -15,6 +15,7 @@ export type CommentDocument = {
   content: string;
   isSpoiler?: boolean;
   imageUrl?: string | null;
+  gifId?: string | null;
   status: CommentStatus;
   moderationReviewId: string | null;
   createdAt: Date;
@@ -45,6 +46,7 @@ export async function createComment(input: {
   content: string;
   isSpoiler?: boolean;
   imageUrl?: string | null;
+  gifId?: string | null;
 }) {
   const now = new Date();
   const comment: CommentDocument = {
@@ -57,6 +59,7 @@ export async function createComment(input: {
     content: input.content,
     isSpoiler: input.isSpoiler ?? false,
     imageUrl: input.imageUrl ?? null,
+    gifId: input.gifId ?? null,
     status: 'PENDING_MODERATION',
     moderationReviewId: null,
     createdAt: now,
@@ -130,7 +133,7 @@ export async function findCommentRecordById(commentId: string) {
   return collection().findOne({ commentId });
 }
 
-export async function updateCommentContent(commentId: string, content: string, options: { isSpoiler?: boolean; imageUrl?: string | null } = {}) {
+export async function updateCommentContent(commentId: string, content: string, options: { isSpoiler?: boolean; imageUrl?: string | null; gifId?: string | null } = {}) {
   await collection().updateOne(
     { commentId, deletedAt: null },
     {
@@ -138,6 +141,7 @@ export async function updateCommentContent(commentId: string, content: string, o
         content,
         ...(options.isSpoiler !== undefined ? { isSpoiler: options.isSpoiler } : {}),
         ...(options.imageUrl !== undefined ? { imageUrl: options.imageUrl } : {}),
+        ...(options.gifId !== undefined ? { gifId: options.gifId } : {}),
         status: 'PENDING_MODERATION',
         moderationReviewId: null,
         updatedAt: new Date()

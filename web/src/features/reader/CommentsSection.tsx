@@ -10,6 +10,7 @@ import { ManuscriptContent } from '../../shared/components/ManuscriptContent';
 import { createTargetComment, listTargetComments, listCommentReplies, reactToComment, replyToComment, type CommentTarget } from './comments-api';
 import { deleteComment, reportContent, updateComment, type CommentInput, type ReaderComment } from './reader-api';
 import { CommentComposer, CommentIcon, emptyComment } from './CommentComposer';
+import { GiphyMedia } from './CommentGifPicker';
 import './comments.css';
 
 function requireSameAccount(account: string) {
@@ -70,14 +71,14 @@ function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpo
   const own = user?.userId === comment.userId;
   const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)', false, { getInitialValueInEffect: false });
   const [mode, setMode] = useState<'read' | 'edit' | 'delete' | 'report'>('read');
-  const [draft, setDraft] = useState<CommentInput>({ content: comment.content, isSpoiler: comment.isSpoiler ?? false, imageUrl: comment.imageUrl ?? null });
+  const [draft, setDraft] = useState<CommentInput>({ content: comment.content, isSpoiler: comment.isSpoiler ?? false, imageUrl: comment.imageUrl ?? null, gifId: comment.gifId ?? null });
   const [reason, setReason] = useState('');
   const [notice, setNotice] = useState('');
   const [revealed, setRevealed] = useState(false);
   const [playGif, setPlayGif] = useState(false);
   const [failedImage, setFailedImage] = useState(false);
   const [reaction, setReaction] = useState<Pick<ReaderComment, 'likesCount' | 'dislikesCount' | 'myReaction'> | null>(null);
-  useEffect(() => { setRevealed(false); setPlayGif(false); setFailedImage(false); }, [comment.content, comment.isSpoiler, comment.imageUrl, forceSpoiler]);
+  useEffect(() => { setRevealed(false); setPlayGif(false); setFailedImage(false); }, [comment.content, comment.isSpoiler, comment.imageUrl, comment.gifId, forceSpoiler]);
   useEffect(() => setReaction(null), [comment.likesCount, comment.dislikesCount, comment.myReaction]);
   const update = useMutation({
     mutationFn: ({ account, ...draft }: CommentInput & { account: string }) => {
@@ -123,8 +124,8 @@ function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpo
         </button>}
         {(!spoiler || revealed) && <>
           <ManuscriptContent content={comment.content} />
-          {comment.imageUrl && !failedImage && <div className="sc-comment-media">
-            {(!reduceMotion || playGif) ? <><img src={comment.imageUrl} alt="GIF trong bình luận" loading="lazy" onError={() => setFailedImage(true)} />
+          {(comment.imageUrl || comment.gifId) && !failedImage && <div className="sc-comment-media">
+            {(!reduceMotion || playGif) ? <>{comment.gifId ? <GiphyMedia id={comment.gifId} /> : <img src={comment.imageUrl!} alt="GIF trong bình luận" loading="lazy" onError={() => setFailedImage(true)} />}
               {reduceMotion && <button type="button" className="sc-comment-text-action" onClick={() => setPlayGif(false)}>Ẩn GIF</button>}</>
               : <button type="button" className="sc-comment-text-action" onClick={() => setPlayGif(true)}><CommentIcon name="play_arrow" />Xem GIF</button>}
           </div>}
@@ -144,7 +145,7 @@ function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpo
       {active && <>
         {comment.canReply && onReply && <button type="button" className="sc-comment-text-action" onClick={onReply}><CommentIcon name="reply" />Trả lời</button>}
         {own && <button type="button" className="sc-comment-text-action" onClick={() => {
-          setDraft({ content: comment.content, isSpoiler: comment.isSpoiler ?? false, imageUrl: comment.imageUrl ?? null }); setMode('edit');
+          setDraft({ content: comment.content, isSpoiler: comment.isSpoiler ?? false, imageUrl: comment.imageUrl ?? null, gifId: comment.gifId ?? null }); setMode('edit');
         }}>Sửa</button>}
         {comment.canDelete && <button type="button" className="sc-comment-text-action is-danger" onClick={() => setMode('delete')}>Xóa</button>}
         {!own && comment.status === 'APPROVED' && <button type="button" className="sc-comment-text-action" disabled={report.isSuccess} onClick={() => setMode('report')}>Báo cáo</button>}

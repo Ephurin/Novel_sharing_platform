@@ -19,12 +19,34 @@ All paths use the existing `/api/v1` prefix and standard response envelope.
 | GET | /comments/:commentId/replies | Paginated replies in creation order |
 | PUT | /comments/:commentId/reaction | Set `reaction` to `LIKE`, `DISLIKE`, or `null` |
 
-POST/PATCH accepts `content`, optional `isSpoiler`, and optional nullable `imageUrl`.
+POST/PATCH accepts `content`, optional `isSpoiler`, and optional nullable `imageUrl` or `gifId`.
 Content is trimmed and limited to 2,000 characters. An attachment allows empty
 text. Otherwise whitespace-only submissions return 400. GIF URLs use the local
 `/api/v1/media/{uuid}.gif` path returned by the authenticated media upload endpoint.
 Uploads inspect the image signature and accept GIF files up to 1 MB. Emoji use
 ordinary Unicode text. The UI supports bold and italic formatting.
+
+The editor displays formatting while composing and serializes to the existing
+Markdown-compatible content field. The 2,000-character limit includes stored marks.
+GIPHY attachments store an alphanumeric `gifId`, with a maximum length of 80,
+and a null `imageUrl`. An uploaded GIF uses `imageUrl` and a null `gifId`.
+Legacy edits preserve omitted attachment fields. Each comment accepts one GIF.
+
+### GIPHY search configuration
+
+Set `GIPHY_API_KEY` in the root `.env` for Docker Compose or in `backend/.env`
+for local backend development, then recreate/restart the backend. The browser
+reads the public client key from `GET /media/giphy-config`, which returns a
+nullable `apiKey` and disables response caching. Search and media requests go
+directly to GIPHY. Provider responses and URLs remain transient in the browser.
+
+The picker supports Trending, keyword Search, and pagination. GIF lookup by ID
+resolves the current provider URL when displaying a saved attachment. Missing
+configuration produces a setup message. Provider errors offer retry.
+
+The attribution images in `web/public/giphy` are the static marks from the
+[official attribution archive](https://media.giphy.com/giphy-attribution-marks.zip).
+Integration follows the [GIPHY API documentation](https://developers.giphy.com/docs/api/).
 
 Existing comments default to `isSpoiler=false` and `imageUrl=null`. Legacy edits
 that omit these fields preserve their stored values. Replies inherit the parent

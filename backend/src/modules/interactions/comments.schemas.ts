@@ -17,8 +17,10 @@ const commentBodySchema = z.object({
   content: z.string().trim().max(2000),
   isSpoiler: z.boolean().optional(),
   imageUrl: imageUrlSchema,
+  gifId: z.string().regex(/^[a-zA-Z0-9]{1,80}$/).nullable().optional(),
   paragraphOffset: z.number().int().min(0).nullable().optional()
-}).refine(value => value.content.length > 0 || Boolean(value.imageUrl), { message: 'Nhập nội dung hoặc chọn GIF', path: ['content'] });
+}).refine(value => value.content.length > 0 || Boolean(value.imageUrl || value.gifId), { message: 'Nhập nội dung hoặc chọn GIF', path: ['content'] })
+  .refine(value => !(value.imageUrl && value.gifId), { message: 'Chọn một GIF cho bình luận', path: ['gifId'] });
 
 export const createCommentSchema = z.object({
   params: chapterIdParamSchema.shape.params,

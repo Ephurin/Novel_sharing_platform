@@ -7,6 +7,7 @@ import { requireAuth } from '../../core/security/auth.middleware.js';
 import { requireActiveAccount } from '../../core/security/active-account.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { successResponse } from '../../core/response/response.js';
+import { env } from '../../core/config/env.js';
 export const mediaDirectory = path.resolve(process.env.MEDIA_DIRECTORY || './uploads');
 export const mediaRoutes = Router();
 export function imageExtension(buffer: Buffer): 'png' | 'jpg' | 'webp' | 'gif' {
@@ -27,6 +28,11 @@ mediaRoutes.post('/', requireAuth, requireActiveAccount, json({ limit: '2mb' }),
     await writeFile(path.join(mediaDirectory, fileName), buffer, { flag: 'wx' });
     res.status(201).json(successResponse({ path: '/api/v1/media/' + fileName }));
   } catch (error) { next(error); }
+});
+// GIPHY's browser integration uses a client key and makes provider requests directly.
+mediaRoutes.get('/giphy-config', (_req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  res.json(successResponse({ apiKey: env.GIPHY_API_KEY ?? null }));
 });
 mediaRoutes.get('/:fileName', (req, res, next) => {
   const fileName = String(req.params.fileName);

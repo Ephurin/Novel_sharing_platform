@@ -71,6 +71,7 @@ export type ReadingBookmark = {
 export type ReaderComment = {
   isSpoiler?: boolean;
   imageUrl?: string | null;
+  gifId?: string | null;
   likesCount?: number;
   dislikesCount?: number;
   myReaction?: 'LIKE' | 'DISLIKE' | null;
@@ -243,7 +244,7 @@ export async function createComment(chapterId: string, content: string) {
   return response.data.data;
 }
 
-export type CommentInput = { content: string; isSpoiler?: boolean; imageUrl?: string | null };
+export type CommentInput = { content: string; isSpoiler?: boolean; imageUrl?: string | null; gifId?: string | null };
 
 export async function updateComment(input: CommentInput & { commentId: string }) {
   const { commentId, ...body } = input;
