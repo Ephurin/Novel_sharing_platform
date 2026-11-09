@@ -198,6 +198,14 @@ jobs:
         run: |
           set -euo pipefail
           node --test tests/p2-07a-ux01-ux04-regression.browser.test.mjs 2>&1 | tee "$RUNNER_TEMP/p202/p2-07a-regression.log"
+      - name: Story Planning Studio UX-03 World Setup Review regression (Chromium HTTP mocks)
+        working-directory: web
+        env:
+          PLAYWRIGHT_CHANNEL: chromium
+          P207B_EVIDENCE_DIR: ${{ runner.temp }}/p202/p2-07b-regression
+        run: |
+          set -euo pipefail
+          node --test tests/p2-07b-ux03-world-review.browser.test.mjs 2>&1 | tee "$RUNNER_TEMP/p202/p2-07b-regression.log"
       - name: Mounted P1 Writer autosave recovery on isolated PG Mongo
         working-directory: web
         env:
