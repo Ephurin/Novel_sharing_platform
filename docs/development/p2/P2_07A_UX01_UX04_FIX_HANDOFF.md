@@ -2,7 +2,7 @@
 
 **Ngày hoàn thiện:** 2026-11-09  
 **Người thực hiện:** Frontend Developer (Gemini)  
-**Pull Request:** [#106](https://github.com/Ephurin/Novel_sharing_platform/pull/106)  
+**Pull Request:** [#106 (Draft)](https://github.com/Ephurin/Novel_sharing_platform/pull/106)  
 **Nhánh nguồn (Head Branch):** `gemini/p2-07a-ux01-ux04-navigation`  
 **Nhánh đích (Target Base):** `integration/p2-planning-studio`  
 **Base Commit SHA:** `717ef6e7fa7b8a443a2fb37f7a6fa2fcd31c0c89` (Merge PR #105)  
@@ -20,8 +20,13 @@
   - Nâng thanh Mode Switcher `<Group aria-label="Chế độ Author IDE">` lên `z-20` với nền solid `bg-surface` và viền phân cách, đảm bảo Mode Switcher luôn nằm trên lớp nội dung soạn thảo.
   - Bổ sung lớp phủ nền `.sc-sidebar-backdrop` (`z-25`) khi Sidebar mở trên mobile, hỗ trợ đóng Sidebar ngay khi chạm vào vùng ngoài.
   - Tự động đóng Sidebar trên mobile khi người dùng bấm "Lập kế hoạch" (`openPlanning`) hoặc bấm vào bất kỳ chương nào trong danh sách điều hướng.
-  - Hỗ trợ phím `Escape` để đóng Sidebar khi đang mở.
-  - Cung cấp thuộc tính trợ năng đầy đủ: `aria-label="Thu gọn danh sách chương"` cho nút đóng và `aria-label="Danh sách chương"` cho sidebar `<aside>`. Nút đóng có thể điều hướng bằng phím `Tab` và kích hoạt bằng `Enter`/`Space`.
+  - Hỗ trợ phím `Escape` toàn cục để đóng Sidebar khi đang mở.
+  - Cung cấp thuộc tính trợ năng đầy đủ: `aria-label="Thu gọn danh sách chương"` cho nút đóng và `aria-label="Danh sách chương"` cho sidebar `<aside>`.
+  - **Điều hướng phím Tab thực tế (Real Keyboard Navigation):**
+    - Kiểm thử tuần tự chuỗi phím `Tab` qua toàn bộ 4 điều khiển trong sidebar: Nút đóng → Ô tìm kiếm chương (`Tìm kiếm chương...`) → Nút "Thêm chương mới" → Mục chương đầu tiên trong danh sách (`Chương 1`).
+    - Kiểm thử chuỗi quay lui bằng tổ hợp phím `Shift+Tab` đảo ngược chính xác thứ tự focus.
+    - Kích hoạt đóng sidebar bằng phím `Enter` trên nút đóng.
+    - Chọn chương và tự động đóng sidebar mobile bằng phím `Enter` trên nút chương.
   - Đảm bảo tính ổn định khi thay đổi kích thước linh hoạt (Resize 1280px → 390px → 1280px trong cùng phiên).
 
 ### 1.2. UX-04: Writer Khi Tác Phẩm Chưa Có Chương (Zero-Chapter Empty State & 503 Retry)
@@ -35,7 +40,7 @@
   - Khi người dùng chuyển đổi qua lại giữa Planning và Write, tuyệt đối **không tự động gửi API tạo chương ngầm**.
   - Khi tác giả bấm nút CTA, hệ thống gọi API tạo chương hiện có (`createChapterMutation.mutate()`), tự động sinh Chương 1 và chuyển thẳng vào trình soạn thảo có thể gõ nội dung tức thì.
   - **Xử lý sự cố 503 & Thử lại an toàn (Safe Retry):**
-    - Nếu API trả lỗi (503 Service Unavailable hoặc lỗi mạng), Empty State hiển thị thông báo lỗi `<Alert color="red" title="Không thể tạo chương">` giải thích rõ ràng và chuyển nút CTA thành *"Thử lại tạo chương"*.
+    - Nếu API trả lỗi (503 Service Unavailable hoặc mất kết nối mạng), Empty State hiển thị thông báo lỗi `<Alert color="red" title="Không thể tạo chương">` giải thích rõ ràng và chuyển nút CTA thành *"Thử lại tạo chương"*.
     - Cơ chế `clientRequestId` bền vững (lưu trong `localStorage` và `useRef`) đảm bảo lượt bấm thử lại gửi lại **chính xác cùng một `clientRequestId`** ban đầu, tránh việc sinh chương trùng lặp (idempotent retry).
 
 ### 1.3. Tích Hợp CI Workflow
@@ -43,20 +48,20 @@
 
 ---
 
-## 2. Danh Sách Tệp Đã Thay Đổi
+## 2. Danh Sách Tệp Đã Thay Đổi (13 files diff)
 
 | STT | Tệp thay đổi | Phân loại | Mục đích |
 |---|---|---|---|
 | 1 | `web/src/theme/storycraft.css` | Styling | Thêm `position: relative` cho `.sc-studio-body`, định nghĩa `.sc-sidebar-backdrop` và elevate `z-index` cho sidebar trên mobile |
 | 2 | `web/src/features/author-ide/AuthorWritingIde.tsx` | Component | Thêm backdrop, auto-close sidebar trên mobile, lắng nghe phím `Escape`, bổ sung trợ năng bàn phím, hiển thị Zero-Chapter Empty State & Alert 503 retry an toàn |
-| 3 | `web/tests/p2-07a-ux01-ux04-regression.browser.test.mjs` | Test Suite | Bộ hồi quy Playwright tự động kiểm tra 3 kịch bản: Mobile Sidebar & Keyboard, Desktop & Dynamic Resize, Empty State & 503 Idempotent Retry |
+| 3 | `web/tests/p2-07a-ux01-ux04-regression.browser.test.mjs` | Test Suite | Bộ hồi quy Playwright tự động kiểm tra 3 kịch bản: Mobile Sidebar & Real Tab Navigation, Desktop & Dynamic Resize, Empty State & 503 Idempotent Retry |
 | 4 | `.github/workflows/p2-setup-provenance.yml` | CI Workflow | Tích hợp bài test hồi quy UX-01 & UX-04 vào pipeline CI của P2 |
-| 5 | `docs/development/p2/evidence/p2-07a/ux01-*.png` & `ux04-*.png` | Evidence | 8 ảnh chụp màn hình minh chứng trước và sau sửa lỗi |
-| 6 | `docs/development/p2/P2_07A_UX01_UX04_FIX_HANDOFF.md` | Tài liệu | Báo cáo bàn giao chi tiết cho PR #106 |
+| 5-12 | `docs/development/p2/evidence/p2-07a/ux01-*.png` & `ux04-*.png` | Evidence | 8 ảnh chụp màn hình minh chứng trước và sau sửa lỗi |
+| 13 | `docs/development/p2/P2_07A_UX01_UX04_FIX_HANDOFF.md` | Tài liệu | Báo cáo bàn giao chi tiết cho PR #106 |
 
 ---
 
-## 3. Bằng Chứng Thực Tế & Ảnh Chụp Màn Hình
+## 3. Bằng Báo Minh Chứng Thực Tế & Ảnh Chụp Màn Hình
 
 ### 3.1. UX-01: Mobile Sidebar & Navigation
 
@@ -79,7 +84,9 @@
 
 ---
 
-## 4. Bảng Kết Quả Kiểm Thử (PASS / FAIL / NOT_RUN)
+## 4. Bảng Kết Quả Kiểm Thử (PASS / SKIP / FAIL)
+
+> **Lưu ý phân loại:** Các bài test trình duyệt yêu cầu kết nối Docker cơ sở dữ liệu thật (Postgres/Mongo) khi chạy cục bộ mà không có container sẽ được đánh dấu rõ ràng là **SKIP** (không đánh đồng thành PASS) theo đúng quy chuẩn QA.
 
 | Tình huống kiểm thử | Trạng thái | Ghi chú & Exit Code |
 |---|:---:|---|
@@ -90,27 +97,31 @@
 | **UX-01 Mobile Backdrop dismiss** | **PASS** | Exit code `0` (chạm backdrop đóng sidebar) |
 | **UX-01 Mobile Close button collapse** | **PASS** | Exit code `0` (nút close thu nhỏ sidebar) |
 | **UX-01 Keyboard Navigation (Escape key)** | **PASS** | Exit code `0` (nhấn phím Escape đóng sidebar) |
-| **UX-01 Keyboard Navigation (Tab / Enter)** | **PASS** | Exit code `0` (focus nút đóng bằng Tab và kích hoạt bằng Enter) |
+| **UX-01 Real Tab & Shift+Tab Navigation** | **PASS** | Exit code `0` (chuỗi Tab tuần tự qua Close → Search → Add → Chapter và Shift+Tab quay lui) |
+| **UX-01 Enter Key Activation** | **PASS** | Exit code `0` (nhấn Enter trên Close button để đóng, nhấn Enter trên Chapter để chọn và auto-close) |
 | **UX-01 Desktop Workspace Layout (1280px)** | **PASS** | Exit code `0` (sidebar song song, backdrop ẩn) |
 | **UX-01 Dynamic Resize (1280 → 390 → 1280)** | **PASS** | Exit code `0` (giao diện co giãn ổn định trong cùng phiên) |
 | **UX-04 Zero-Chapter Empty State display** | **PASS** | Exit code `0` (hiển thị thông điệp và nút CTA) |
 | **UX-04 Switch Planning → Write zero writes** | **PASS** | Exit code `0` (0 request POST/PATCH gửi lên server khi chuyển view) |
 | **UX-04 503 Service Unavailable Error & Safe Retry** | **PASS** | Exit code `0` (hiển thị Alert lỗi, retry gửi lại cùng `clientRequestId`) |
 | **UX-04 Chapter Creation & Editor unlock** | **PASS** | Exit code `0` (tạo Chapter 1 thành công, editor mở khoá cho phép gõ) |
-| **P1 Writer Persistence Regression** (`author-ide.browser.test.mjs`) | **PASS** | Exit code `0` (skip gracefully khi không có isolated DB) |
 | **Theme / Color Contrast Tests** (`color-scheme.test.mjs`) | **PASS** | Exit code `0` (6/6 tests pass) |
+| **P1 Writer Persistence Regression** (`author-ide.browser.test.mjs`) | **SKIP** | Exit code `0` (1 skipped: yêu cầu isolated Postgres/Mongo test container) |
+| **Writing Recovery Browser Test** (`writing-recovery.browser.test.mjs`) | **SKIP** | Exit code `0` (1 skipped: yêu cầu isolated Postgres/Mongo test container) |
+| **Draft Hook Browser Test** (`draft-persistence.browser.test.mjs`) | **SKIP** | Exit code `0` (1 skipped: yêu cầu isolated Postgres/Mongo test container) |
 
 ---
 
-## 5. Hướng Dẫn Điều Chỉnh Base Của PR #106
+## 5. Trạng Thái PR #106 & Tích Hợp CI
 
-Hiện tại PR #106 đang được mở với base là `main`. Để diff trên GitHub chỉ hiển thị các thay đổi của UX-01/UX-04:
-
-1. Truy cập [PR #106 trên GitHub](https://github.com/Ephurin/Novel_sharing_platform/pull/106).
-2. Nhấn nút **Edit** bên cạnh tiêu đề PR ở đầu trang.
-3. Ở dòng chọn nhánh, đổi **base branch** từ `main` sang **`integration/p2-planning-studio`**.
-4. Nhấn **Save**.
-5. Sau khi đổi base, mục **Files changed** của PR #106 sẽ chỉ còn hiển thị các tệp của đợt sửa UX-01/UX-04, và GitHub Actions workflow `.github/workflows/p2-setup-provenance.yml` sẽ tự động kích hoạt để kiểm thử toàn diện.
+- **Trạng thái PR #106:**
+  - Base Branch: Đã chuyển đổi thành công sang **`integration/p2-planning-studio`**.
+  - Draft State: Đã chuyển đổi sang **Draft PR** để sẵn sàng cho GPT-6 review độc lập.
+  - Diff Scope: Giữ nguyên vẹn đúng **13 files** liên quan đến UX-01/UX-04, không lẫn bất kỳ thay đổi ngoài phạm vi nào.
+- **Tình trạng CI Pipeline:**
+  - **P2 Setup Provenance Foundation (`.github/workflows/p2-setup-provenance.yml`):** Kích hoạt trên PR nhắm vào nhánh `integration/p2-planning-studio` với thay đổi tại `web/**`. Đã tích hợp bài test hồi quy `tests/p2-07a-ux01-ux04-regression.browser.test.mjs`.
+  - **P8 Cutover and Migration (`.github/workflows/p8-cutover.yml`):** Kích hoạt trên PR có thay đổi tại `web/**`.
+  - **P7 Semantic Memory Foundation (`.github/workflows/p7-semantic-memory.yml`):** Không kích hoạt do path filters chỉ bao gồm `ai-service/**` và scripts liên quan (PR này hoàn toàn thuộc frontend `web/**`).
 
 ---
 
@@ -123,4 +134,4 @@ Hiện tại PR #106 đang được mở với base là `main`. Để diff trên
   - Không can thiệp P2-06 AI brainstorming.
   - Không gọi LLM thật.
 - **Giới hạn còn tồn tại:**
-  - Bộ kiểm thử browser cục bộ sử dụng Playwright Chromium với HTTP mocks để mô phỏng phản hồi API (bao gồm cả lỗi 503 và kiểm tra tính bất biến của `clientRequestId`). Việc kiểm thử tích hợp trên môi trường Docker Postgres/Mongo thực tế sẽ do pipeline CI `.github/workflows/p2-setup-provenance.yml` đảm nhiệm khi PR được kiểm tra.
+  - Bộ kiểm thử browser cục bộ sử dụng Playwright Chromium với HTTP mocks để mô phỏng phản hồi API (bao gồm cả lỗi 503 và kiểm tra tính bất biến của `clientRequestId`). Việc kiểm thử tích hợp trên môi trường Docker Postgres/Mongo thực tế được quản lý bởi pipeline CI `.github/workflows/p2-setup-provenance.yml` trên GitHub Actions.

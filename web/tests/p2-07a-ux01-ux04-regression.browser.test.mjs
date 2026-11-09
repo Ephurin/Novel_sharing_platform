@@ -207,14 +207,56 @@ test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapte
     await expect(sidebar).toBeHidden();
     console.log('✓ UX-01: Escape key closes sidebar correctly!');
 
-    // 1.9 Keyboard Navigation: Focus close button via Tab and press Enter/Space
+    // 1.9 Real Tab navigation into and across sidebar controls
+    await toggleSidebarBtn.click();
+    await expect(sidebar).toBeVisible();
+
+    const searchInput = sidebar.getByPlaceholder('Tìm kiếm chương...');
+    const addChapterBtn = sidebar.getByRole('button', { name: /Thêm chương mới/ });
+    const firstChapterItem = sidebar.getByRole('button', { name: /Chương 1/ });
+
+    // Focus close button as entry point
+    await closeSidebarBtn.focus();
+    await expect(closeSidebarBtn).toBeFocused();
+
+    // Tab 1: from close button to search input
+    await mobilePage.keyboard.press('Tab');
+    await expect(searchInput).toBeFocused();
+
+    // Tab 2: from search input to "Thêm chương mới" button
+    await mobilePage.keyboard.press('Tab');
+    await expect(addChapterBtn).toBeFocused();
+
+    // Tab 3: from "Thêm chương mới" to first chapter item
+    await mobilePage.keyboard.press('Tab');
+    await expect(firstChapterItem).toBeFocused();
+
+    // Shift+Tab backward sequence:
+    await mobilePage.keyboard.press('Shift+Tab');
+    await expect(addChapterBtn).toBeFocused();
+
+    await mobilePage.keyboard.press('Shift+Tab');
+    await expect(searchInput).toBeFocused();
+
+    await mobilePage.keyboard.press('Shift+Tab');
+    await expect(closeSidebarBtn).toBeFocused();
+
+    // Press Enter on close button to collapse sidebar
+    await mobilePage.keyboard.press('Enter');
+    await expect(sidebar).toBeHidden();
+    console.log('✓ UX-01: Real keyboard Tab / Shift+Tab and Enter navigation verified across all sidebar controls!');
+
+    // 1.10 Keyboard Navigation: Tab to chapter item and activate with Enter
     await toggleSidebarBtn.click();
     await expect(sidebar).toBeVisible();
     await closeSidebarBtn.focus();
-    await expect(closeSidebarBtn).toBeFocused();
+    await mobilePage.keyboard.press('Tab'); // search
+    await mobilePage.keyboard.press('Tab'); // add chapter
+    await mobilePage.keyboard.press('Tab'); // chapter 1
+    await expect(firstChapterItem).toBeFocused();
     await mobilePage.keyboard.press('Enter');
-    await expect(sidebar).toBeHidden();
-    console.log('✓ UX-01: Keyboard Tab/Enter activates close button correctly!');
+    await expect(sidebar).toBeHidden(); // auto-closes on mobile chapter selection
+    console.log('✓ UX-01: Real Tab navigation to chapter item and Enter activation verified!');
 
     await mobilePage.close();
 
