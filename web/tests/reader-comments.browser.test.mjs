@@ -133,8 +133,10 @@ test('comments keep application surfaces over reading paper and support GIF, emo
           await input.fill('Rất thích chương này.'); await input.selectText();
           await bold.click();
           await expect(input.locator('strong')).toHaveText('Rất thích chương này.');
-          await input.press('End');
+          await input.press('ArrowRight');
+          await expect.poll(() => input.evaluate(() => window.getSelection()?.isCollapsed)).toBe(true);
           await bold.click();
+          await expect(input.locator('strong')).toHaveText('Rất thích chương này.');
           await form.getByRole('button', { name: 'Chèn emoji', exact: true }).click();
           const emojiPicker = form.getByRole('dialog', { name: 'Chọn emoji', exact: true });
           await expect(emojiPicker.getByLabel('Tìm emoji', { exact: true })).toBeVisible();

@@ -47,6 +47,7 @@ test('chapter tools support persistent preferences, precise bookmarks, navigatio
         else if (url.pathname.endsWith('/chapters/c-3/unlock')) { unlocked = true; data = { unlocked: true }; }
         else if (url.pathname.includes('/reading/chapters/')) {
           const chapter = chapters.find(item => url.pathname.endsWith('/' + item.chapterId));
+          if (chapter.chapterId === 'c-2') await new Promise(resolve => setTimeout(resolve, 150));
           if (chapter.isVip && !unlocked) return route.fulfill({ status: 402, json: { success: false, error: { code: 'PAYMENT_002', message: 'Chapter unlock required' } } });
           data = { ...chapter, content };
         } else if (url.pathname.endsWith('/statistics')) data = { isFollowing: false, notificationsEnabled: false, ratingsCount: 0, ratingAverage: null };
@@ -135,6 +136,7 @@ test('chapter tools support persistent preferences, precise bookmarks, navigatio
         assert.ok(saved.pageOffset >= 0 && saved.pageOffset <= 1);
         await rail.getByRole('link', { name: 'Chương sau', exact: true }).click();
         await expect(page).toHaveURL(`${base}${prefix}/chapters/c-2`);
+        await expect(page.getByRole('heading', { name: chapters[1].title, exact: true })).toBeVisible();
         await expect(prose).toBeVisible(); await showTools();
         await rail.getByRole('button', { name: 'Mục lục', exact: true }).click();
         const toc = page.getByRole('dialog', { name: 'Mục lục chương', exact: true });
@@ -143,6 +145,7 @@ test('chapter tools support persistent preferences, precise bookmarks, navigatio
         await toc.screenshot({ path: path.join(output, `${role}-${width}-${theme}-toc.png`) });
         await toc.getByRole('link', { name: 'Tới dấu trang · Chương 1', exact: true }).click();
         await expect(page).toHaveURL(`${base}${prefix}/chapters/c-1?bookmark=1`);
+        await expect(page.getByRole('heading', { name: chapters[0].title, exact: true })).toBeVisible();
         await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(600);
         await showTools();
         await rail.getByRole('button', { name: 'Bỏ dấu trang', exact: true }).click();
