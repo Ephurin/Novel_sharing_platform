@@ -75,6 +75,8 @@ for (const theme of ['light', 'dark']) {
     ['body text on surface', color('--sc-text-rgb'), surface],
     ['body text on page background', color('--sc-text-rgb'), color('--sc-bg-rgb')],
     ['danger label on surface', color('--sc-danger'), surface],
+    ['library unfollow label', color('--sc-danger'), color('--sc-danger-bg')],
+    ['library unfollow label (hover)', surface, color('--sc-danger')],
     ['support button label', color('--sc-warning'), color('--sc-warning-bg')]
   ];
 

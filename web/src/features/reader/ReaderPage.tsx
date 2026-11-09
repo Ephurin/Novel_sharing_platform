@@ -217,11 +217,12 @@ export function ReaderLibraryPage() {
                   type="button"
                   onClick={() => removeMutation.mutate(novel.novelId)}
                   disabled={removeMutation.isPending}
-                  className={`${cardButton} text-red-700`}
+                  className="sc-button sc-button-soft sc-library-unfollow"
+                  aria-busy={removeMutation.isPending && removeMutation.variables === novel.novelId}
                   data-testid={`reader-remove-library-${novel.novelId}`}
                 >
                   <span className="material-symbols-outlined text-[15px]" aria-hidden="true">favorite</span>
-                  <span>Bỏ theo dõi</span>
+                  <span>{removeMutation.isPending && removeMutation.variables === novel.novelId ? 'Đang bỏ theo dõi…' : 'Bỏ theo dõi'}</span>
                 </button>
               }
             />
