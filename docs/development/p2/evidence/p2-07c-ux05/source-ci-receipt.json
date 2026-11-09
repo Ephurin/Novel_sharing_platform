@@ -1,0 +1,212 @@
+{
+  "source_sha": "1b4802b4c23dec66792a5d77efbf09edaa2e5695",
+  "base_sha": "30dc39e1ee8c9f683f41301825ccc1294159375f",
+  "verdict": "CONTRACT_BLOCKED",
+  "label": "Regression/diagnostic CI PASS is NOT amendment acceptance PASS; no amendment API implemented.",
+  "jobs": [
+    {
+      "workflow": "P2",
+      "run_id": 42711804618,
+      "job_id": 129482987085,
+      "name": "setup-postgres-gateway-browser",
+      "status": "completed",
+      "conclusion": "success",
+      "checkout_sha_confirmed": true,
+      "summaries": [
+        "2026-11-09T22:27:33.4765036Z # tests 19",
+        "2026-11-09T22:27:33.4765840Z # pass 19",
+        "2026-11-09T22:27:33.4766267Z # fail 0",
+        "2026-11-09T22:27:33.4767087Z # skipped 0",
+        "2026-11-09T22:27:35.0438389Z # tests 1",
+        "2026-11-09T22:27:35.0439354Z # pass 1",
+        "2026-11-09T22:27:35.0439702Z # fail 0",
+        "2026-11-09T22:27:35.0441631Z # skipped 0",
+        "2026-11-09T22:27:36.8450671Z # tests 1",
+        "2026-11-09T22:27:36.8451422Z # pass 1",
+        "2026-11-09T22:27:36.8451919Z # fail 0",
+        "2026-11-09T22:27:36.8453637Z # skipped 0",
+        "2026-11-09T22:27:41.3925652Z # tests 1",
+        "2026-11-09T22:27:41.3926164Z # pass 1",
+        "2026-11-09T22:27:41.3926424Z # fail 0",
+        "2026-11-09T22:27:41.3927415Z # skipped 0",
+        "2026-11-09T22:28:25.6067948Z # tests 8",
+        "2026-11-09T22:28:25.6068450Z # pass 8",
+        "2026-11-09T22:28:25.6068797Z # fail 0",
+        "2026-11-09T22:28:25.6069606Z # skipped 0",
+        "2026-11-09T22:29:08.0534351Z # tests 1",
+        "2026-11-09T22:29:08.0539523Z # pass 1",
+        "2026-11-09T22:29:08.0539786Z # fail 0",
+        "2026-11-09T22:29:08.0540338Z # skipped 0",
+        "2026-11-09T22:29:18.3455107Z # tests 1",
+        "2026-11-09T22:29:18.3459867Z # pass 1",
+        "2026-11-09T22:29:18.3460176Z # fail 0",
+        "2026-11-09T22:29:18.3460721Z # skipped 0",
+        "2026-11-09T22:29:33.3202521Z # tests 1",
+        "2026-11-09T22:29:33.3209669Z # pass 1",
+        "2026-11-09T22:29:33.3209865Z # fail 0",
+        "2026-11-09T22:29:33.3210223Z # skipped 0",
+        "2026-11-09T22:29:53.3936300Z # tests 2",
+        "2026-11-09T22:29:53.3936921Z # pass 2",
+        "2026-11-09T22:29:53.3937248Z # fail 0",
+        "2026-11-09T22:29:53.3937866Z # skipped 0"
+      ]
+    },
+    {
+      "workflow": "P7",
+      "run_id": 42711804440,
+      "job_id": 129482986218,
+      "name": "unit",
+      "status": "completed",
+      "conclusion": "success",
+      "checkout_sha_confirmed": true,
+      "summaries": [
+        "2026-11-09T22:26:14.7691981Z 64 passed in 0.78s",
+        "2026-11-09T22:26:15.7225006Z 5 passed, 3 subtests passed in 0.31s",
+        "2026-11-09T22:26:16.3705760Z 14 passed, 3 subtests passed in 0.33s",
+        "2026-11-09T22:26:16.7236107Z 1 passed in 0.06s",
+        "2026-11-09T22:26:17.0256861Z 6 passed in 0.02s",
+        "2026-11-09T22:26:18.0197063Z 25 passed, 4 warnings in 0.73s",
+        "2026-11-09T22:26:30.9817466Z 415 passed, 32 skipped, 355 deselected, 4 warnings, 6 subtests passed in 12.49s"
+      ]
+    },
+    {
+      "workflow": "P7",
+      "run_id": 42711804440,
+      "job_id": 129482986618,
+      "name": "root-compose-smoke",
+      "status": "completed",
+      "conclusion": "success",
+      "checkout_sha_confirmed": true,
+      "summaries": []
+    },
+    {
+      "workflow": "P7",
+      "run_id": 42711804440,
+      "job_id": 129482988433,
+      "name": "pgvector-integration",
+      "status": "completed",
+      "conclusion": "success",
+      "checkout_sha_confirmed": true,
+      "summaries": [
+        "2026-11-09T22:26:35.0113302Z 11 passed in 1.70s",
+        "2026-11-09T22:26:36.5900181Z 2 passed in 0.94s",
+        "2026-11-09T22:27:29.2064275Z 145 passed, 110 deselected in 51.74s",
+        "2026-11-09T22:27:31.1273864Z 6 passed in 0.87s"
+      ]
+    },
+    {
+      "workflow": "P8",
+      "run_id": 42711804373,
+      "job_id": 129482986647,
+      "name": "backend-integration",
+      "status": "completed",
+      "conclusion": "success",
+      "checkout_sha_confirmed": true,
+      "summaries": [
+        "2026-11-09T22:26:42.9564103Z # tests 11",
+        "2026-11-09T22:26:42.9564675Z # pass 11",
+        "2026-11-09T22:26:42.9567009Z # fail 0",
+        "2026-11-09T22:26:42.9567875Z # skipped 0",
+        "2026-11-09T22:26:43.8776223Z # tests 15",
+        "2026-11-09T22:26:43.8776774Z # pass 15",
+        "2026-11-09T22:26:43.8777138Z # fail 0",
+        "2026-11-09T22:26:43.8777942Z # skipped 0",
+        "2026-11-09T22:26:44.7010343Z # tests 5",
+        "2026-11-09T22:26:44.7011022Z # pass 5",
+        "2026-11-09T22:26:44.7011294Z # fail 0",
+        "2026-11-09T22:26:44.7011958Z # skipped 0",
+        "2026-11-09T22:26:45.8737137Z # tests 25",
+        "2026-11-09T22:26:45.8737639Z # pass 25",
+        "2026-11-09T22:26:45.8737936Z # fail 0",
+        "2026-11-09T22:26:45.8738572Z # skipped 0"
+      ]
+    },
+    {
+      "workflow": "P8",
+      "run_id": 42711804373,
+      "job_id": 129482987171,
+      "name": "final-cleanup-gate",
+      "status": "completed",
+      "conclusion": "success",
+      "checkout_sha_confirmed": true,
+      "summaries": []
+    },
+    {
+      "workflow": "P8",
+      "run_id": 42711804373,
+      "job_id": 129482987228,
+      "name": "frontend-api-cutover",
+      "status": "completed",
+      "conclusion": "success",
+      "checkout_sha_confirmed": true,
+      "summaries": [
+        "2026-11-09T22:26:51.2067568Z # tests 4",
+        "2026-11-09T22:26:51.2069491Z # pass 4",
+        "2026-11-09T22:26:51.2070122Z # fail 0",
+        "2026-11-09T22:26:51.2071452Z # skipped 0",
+        "2026-11-09T22:26:53.4365185Z # tests 2",
+        "2026-11-09T22:26:53.4367170Z # pass 2",
+        "2026-11-09T22:26:53.4368075Z # fail 0",
+        "2026-11-09T22:26:53.4370181Z # skipped 0",
+        "2026-11-09T22:27:09.0684886Z # tests 148",
+        "2026-11-09T22:27:09.0685545Z # pass 145",
+        "2026-11-09T22:27:09.0685879Z # fail 0",
+        "2026-11-09T22:27:09.0686528Z # skipped 3"
+      ]
+    },
+    {
+      "workflow": "P8",
+      "run_id": 42711804373,
+      "job_id": 129482987270,
+      "name": "postgres-integration",
+      "status": "completed",
+      "conclusion": "success",
+      "checkout_sha_confirmed": true,
+      "summaries": [
+        "2026-11-09T22:27:46.6698073Z 347 passed, 8 skipped, 447 deselected, 5 warnings in 75.73s (0:01:15)"
+      ]
+    },
+    {
+      "workflow": "P8",
+      "run_id": 42711804373,
+      "job_id": 129482987376,
+      "name": "root-compose-cutover-smoke",
+      "status": "completed",
+      "conclusion": "success",
+      "checkout_sha_confirmed": true,
+      "summaries": [
+        "2026-11-09T22:27:52.4740507Z        Checkpoints: 13/13 passed",
+        "2026-11-09T22:27:54.8593005Z 6 passed, 4 warnings in 1.40s",
+        "2026-11-09T22:28:00.4786530Z        Checkpoints: 16/16 passed",
+        "2026-11-09T22:28:02.7508137Z 5 passed, 4 warnings in 1.34s",
+        "2026-11-09T22:28:24.9190723Z 6 passed, 4 warnings in 1.46s",
+        "2026-11-09T22:28:26.2258028Z # tests 6",
+        "2026-11-09T22:28:26.2258954Z # pass 6",
+        "2026-11-09T22:28:26.2259144Z # fail 0",
+        "2026-11-09T22:28:26.2260186Z # skipped 0"
+      ]
+    },
+    {
+      "workflow": "P8",
+      "run_id": 42711804373,
+      "job_id": 129482987436,
+      "name": "unit",
+      "status": "completed",
+      "conclusion": "success",
+      "checkout_sha_confirmed": true,
+      "summaries": [
+        "2026-11-09T22:26:39.0214151Z 415 passed, 32 skipped, 355 deselected, 4 warnings, 6 subtests passed in 20.75s"
+      ]
+    },
+    {
+      "workflow": "P8",
+      "run_id": 42711804373,
+      "job_id": 129482987503,
+      "name": "rollback-rehearsal",
+      "status": "completed",
+      "conclusion": "success",
+      "checkout_sha_confirmed": true,
+      "summaries": []
+    }
+  ]
+}

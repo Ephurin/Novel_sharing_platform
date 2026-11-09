@@ -1,0 +1,59 @@
+{
+  "source_sha": "1b4802b4c23dec66792a5d77efbf09edaa2e5695",
+  "base_sha": "30dc39e1ee8c9f683f41301825ccc1294159375f",
+  "verdict": "CONTRACT_BLOCKED",
+  "mode": "Real isolated PostgreSQL16; diagnostic hypothetical chain inserts only; not amendment acceptance",
+  "command": "python -m pytest -o addopts= -vv -s tests/test_setup_amendment_contract_postgres.py --junitxml=../docs/development/p2/evidence/p2-07c-ux05/probes-source.xml",
+  "exit_code": 0,
+  "blocker_observations": [
+    {
+      "accepted_row_updates": 0,
+      "classification": "BLOCKER_CONFIRMED_NOT_FEATURE_PASS",
+      "fabricated_history": 0,
+      "leaf_id": "fd552e13-938c-4ff1-97df-02dca0123054",
+      "locked": false,
+      "memory_ids": [
+        "fd552e13-938c-4ff1-97df-02dca0123054"
+      ],
+      "novel_id": "7b25faf7-958a-457b-9500-d37ff7c85a4d",
+      "parent_id": "0e082ec2-98cc-4c4e-a730-ef0a90242c22",
+      "provider_calls": 0,
+      "retired_parent_reaches_writing_context": true,
+      "stage": "reader-disagreement",
+      "writer_ids": [
+        "0e082ec2-98cc-4c4e-a730-ef0a90242c22",
+        "fd552e13-938c-4ff1-97df-02dca0123054"
+      ]
+    },
+    {
+      "accepted_row_updates": 0,
+      "classification": "BLOCKER_CONFIRMED_NOT_FEATURE_PASS",
+      "fabricated_history": 0,
+      "leaf_id": "fbb04275-1430-4138-b497-22355ad6553a",
+      "locked": true,
+      "memory_ids": [
+        "fbb04275-1430-4138-b497-22355ad6553a"
+      ],
+      "novel_id": "3dd49e95-5ea2-465b-b9e4-32575a578354",
+      "parent_id": "fee12053-4b36-426a-a828-e991315fffe1",
+      "provider_calls": 0,
+      "retired_parent_reaches_writing_context": true,
+      "stage": "reader-disagreement",
+      "writer_ids": [
+        "fbb04275-1430-4138-b497-22355ad6553a",
+        "fee12053-4b36-426a-a828-e991315fffe1"
+      ]
+    },
+    {
+      "accepted_row_updates": 0,
+      "activation_mutations": 0,
+      "classification": "BLOCKER_CONFIRMED_NOT_FEATURE_PASS",
+      "fresh_expected_brain_version": 3,
+      "novel_id": "f6d9dc35-5ae4-4273-a840-f1111aef7a5c",
+      "provider_calls": 0,
+      "reason": "M0_REVIEW_STALE",
+      "stage": "pre-m0-audit-rebase-missing"
+    }
+  ],
+  "log_sha256": "5be2b978974d069cc2c2616b05f9e59b0cb6cdd2c4193a3257ec0645000b3d46"
+}
