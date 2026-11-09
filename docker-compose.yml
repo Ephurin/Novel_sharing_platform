@@ -70,7 +70,6 @@ services:
       NODE_ENV: production
       PORT: 4000
       API_PREFIX: /api/v1
-      GIPHY_API_KEY: ${GIPHY_API_KEY:-}
       WEB_ORIGIN: http://localhost:8080
       DB_CONNECT_ON_START: "true"
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ephurin
