@@ -34,9 +34,9 @@ export async function getNovelEarnings(novelId: string) {
   return response.data.data;
 }
 
-// Mirrors the backend limits from SRS novel-chapter-service §1 so forms can warn before the API rejects.
+// Mirrors the backend limits from SRS novel-chapter-service §1 (D1–D3, 2026-11-09) so forms can warn before the API rejects.
 export const NOVEL_TITLE_MAX = 254;
-export const NOVEL_SYNOPSIS_MIN = 500;
+export const NOVEL_SYNOPSIS_MIN = 50;
 export const CHAPTER_TITLE_MAX = 99;
 export const CHAPTER_CONTENT_MIN = 500;
 

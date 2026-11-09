@@ -15,9 +15,10 @@ export const listNovelsSchema = z.object({
   })
 });
 
-// SRS novel-chapter-service §1: title < 255 characters, synopsis >= 500 characters.
+// SRS novel-chapter-service §1 (product-owner decision D3, 2026-11-09): title < 255 characters and a synopsis of
+// at least 50 characters. The synopsis is a short introduction; story setup lives in the Story Bible.
 export const NOVEL_TITLE_MAX = 254;
-export const NOVEL_SYNOPSIS_MIN = 500;
+export const NOVEL_SYNOPSIS_MIN = 50;
 
 export const createNovelSchema = z.object({
   body: z.object({
@@ -35,7 +36,8 @@ export const updateNovelSchema = z.object({
   params: novelIdParamSchema.shape.params,
   body: z.object({
     title: z.string().trim().min(1).max(NOVEL_TITLE_MAX).optional(),
-    synopsis: z.string().trim().min(NOVEL_SYNOPSIS_MIN).optional(),
+    // Length is checked in updateNovel against the stored synopsis: an unchanged legacy synopsis is accepted.
+    synopsis: z.string().trim().optional(),
     authorNote: z.string().trim().max(5000).nullable().optional(),
     genres: z.array(z.string().trim().min(1).max(100)).max(5).optional(),
     genre: z.string().max(100).nullable().optional(),

@@ -6,7 +6,7 @@ import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { slugify } from '../../core/utils/slug.js';
 import { checkContent } from '../content-control/content-control.service.js';
-import type { CreateNovelInput, ListNovelsInput, UpdateNovelInput } from './novels.schemas.js';
+import { NOVEL_SYNOPSIS_MIN, type CreateNovelInput, type ListNovelsInput, type UpdateNovelInput } from './novels.schemas.js';
 import type { PoolClient } from 'pg';
 import { CHAPTER_CONTENT_MIN, CHAPTER_TITLE_MAX } from './chapters.schemas.js';
 import { findDraftChapterByChapterId } from './draft-chapters.repository.js';
@@ -105,6 +105,13 @@ export async function updateNovel(auth: AuthContext, novelId: string, input: Upd
   const novel = await getNovel(novelId);
   assertNovelOwner(novel, auth);
 
+  // D3: only a synopsis that actually changes must meet the minimum, so legacy novels with a short synopsis can
+  // still update their cover or genres even when a client sends the unchanged synopsis back.
+  if (input.synopsis !== undefined && input.synopsis !== (novel.synopsis ?? '').trim() && input.synopsis.length < NOVEL_SYNOPSIS_MIN) {
+    throw new AppError(400, 'VALIDATION_001', `Giới thiệu cần tối thiểu ${NOVEL_SYNOPSIS_MIN} ký tự.`,
+      { field: 'synopsis', minLength: NOVEL_SYNOPSIS_MIN, length: input.synopsis.length });
+  }
+
   const updatedNovel = await updateNovelRow(novelId, input);
   if (!updatedNovel) {
     throw new AppError(404, 'CONTENT_001', 'Content not found');
@@ -119,8 +126,9 @@ export async function deleteNovel(auth: AuthContext, novelId: string) {
   await softDeleteNovel(novelId);
 }
 
-// SRS novel-chapter-service §1: a novel needs five valid chapters before its publish request.
-export const INITIAL_PUBLISH_MIN_CHAPTERS = 5;
+// SRS novel-chapter-service §1 (product-owner decision D2, 2026-11-09): a novel needs two valid chapters before
+// its first publish request.
+export const INITIAL_PUBLISH_MIN_CHAPTERS = 2;
 // Chapters an author is still working on or has published. ARCHIVED chapters are set aside by the author
 // (chapter-lifecycle.ts) without deleted_at, so they must not count toward the rule.
 const PUBLISH_ELIGIBLE_CHAPTER_STATUSES = ['DRAFT', 'REJECTED', 'PENDING_MODERATION', 'PUBLISHED'];
