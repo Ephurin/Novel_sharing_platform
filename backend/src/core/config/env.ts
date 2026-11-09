@@ -55,7 +55,6 @@ const envSchema = z.object({
   AI_SERVICE_URL: z.string().default('http://localhost:8000'),
   PAYMENT_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(30),
   PAYMENT_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60000),
-  GIPHY_API_KEY: optionalStringSchema,
   PLATFORM_SERVICE_TOKEN: optionalStringSchema
 });
 

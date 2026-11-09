@@ -6,8 +6,7 @@ import type {
   HistoryListInput,
   ReadingPreferencesInput,
   SearchNovelsInput,
-  SyncReadingHistoryInput,
-  ReadingBookmarkInput
+  SyncReadingHistoryInput
 } from './reading.schemas.js';
 
 function mapPreference(row: QueryResultRow) {
@@ -15,9 +14,7 @@ function mapPreference(row: QueryResultRow) {
     fontFamily: row.font_family,
     fontSize: row.font_size,
     background: row.background,
-    lineHeight: Number(row.line_height),
-    margin: row.margin_size ?? 24,
-    textAlign: row.text_align ?? 'LEFT'
+    lineHeight: Number(row.line_height)
   };
 }
 
@@ -89,59 +86,20 @@ export async function findOrCreateReadingPreference(userId: string) {
 export async function updateReadingPreference(userId: string, input: ReadingPreferencesInput) {
   const result = await getPostgresPool().query(
     `
-      insert into reading_preferences (user_id, font_family, font_size, background, line_height, margin_size, text_align)
-      values ($1, $2, $3, $4, $5, coalesce($6, 24), coalesce($7, 'LEFT'))
+      insert into reading_preferences (user_id, font_family, font_size, background, line_height)
+      values ($1, $2, $3, $4, $5)
       on conflict (user_id) do update
       set font_family = excluded.font_family,
           font_size = excluded.font_size,
           background = excluded.background,
           line_height = excluded.line_height,
-          margin_size = coalesce($6, reading_preferences.margin_size),
-          text_align = coalesce($7, reading_preferences.text_align),
           updated_at = now()
       returning *
     `,
-    [userId, input.fontFamily ?? null, input.fontSize, input.background, input.lineHeight, input.margin ?? null, input.textAlign ?? null]
+    [userId, input.fontFamily ?? null, input.fontSize, input.background, input.lineHeight]
   );
 
   return mapPreference(result.rows[0]);
-}
-
-export async function findReadingBookmark(userId: string, novelId: string) {
-  const result = await getPostgresPool().query(`
-    select b.* from reading_position_bookmarks b
-    join novels n on n.novel_id = b.novel_id
-    join chapters c on c.chapter_id = b.chapter_id and c.novel_id = b.novel_id
-    where b.user_id = $1 and b.novel_id = $2
-      and n.status = 'PUBLISHED' and n.deleted_at is null
-      and c.status = 'PUBLISHED' and c.deleted_at is null
-  `, [userId, novelId]);
-  const row = result.rows[0];
-  return row ? {
-    novelId: row.novel_id as string,
-    chapterId: row.chapter_id as string,
-    paragraphIndex: Number(row.paragraph_index),
-    pageOffset: Number(row.page_offset),
-    updatedAt: row.updated_at as Date
-  } : null;
-}
-
-export async function upsertReadingBookmark(userId: string, novelId: string, input: ReadingBookmarkInput) {
-  await getPostgresPool().query(`
-    insert into reading_position_bookmarks (user_id, novel_id, chapter_id, paragraph_index, page_offset)
-    values ($1, $2, $3, $4, $5)
-    on conflict (user_id, novel_id) do update set
-      chapter_id = excluded.chapter_id,
-      paragraph_index = excluded.paragraph_index,
-      page_offset = excluded.page_offset,
-      updated_at = now()
-  `, [userId, novelId, input.chapterId, input.paragraphIndex, input.pageOffset]);
-  return findReadingBookmark(userId, novelId);
-}
-
-export async function deleteReadingBookmark(userId: string, novelId: string) {
-  const result = await getPostgresPool().query('delete from reading_position_bookmarks where user_id = $1 and novel_id = $2', [userId, novelId]);
-  return { removed: Boolean(result.rowCount) };
 }
 
 export async function listReadingFilters() {

@@ -7,8 +7,7 @@ import type {
   HistoryListInput,
   ReadingPreferencesInput,
   SearchNovelsInput,
-  SyncReadingHistoryInput,
-  ReadingBookmarkInput
+  SyncReadingHistoryInput
 } from './reading.schemas.js';
 import {
   addBookmark,
@@ -25,10 +24,7 @@ import {
   searchPublishedNovels,
   updateReadingPreference,
   upsertReadingHistory,
-  recordChapterRead,
-  findReadingBookmark,
-  upsertReadingBookmark,
-  deleteReadingBookmark
+  recordChapterRead
 } from './reading.repository.js';
 import { userHasChapterUnlock } from '../wallet/wallet.repository.js';
 
@@ -118,23 +114,6 @@ export async function syncHistory(auth: AuthContext, input: SyncReadingHistoryIn
     synced: true,
     cached: false
   };
-}
-
-export async function getReadingBookmark(auth: AuthContext, novelId: string) {
-  await assertActiveAccount(auth);
-  return findReadingBookmark(auth.userId, novelId);
-}
-
-export async function saveReadingBookmark(auth: AuthContext, novelId: string, input: ReadingBookmarkInput) {
-  const chapter = await findReadableChapter(input.chapterId);
-  if (!chapter || chapter.novelId !== novelId) throw new AppError(404, 'CONTENT_001', 'Content not found');
-  await assertChapterAccess(chapter, auth);
-  return upsertReadingBookmark(auth.userId, novelId, input);
-}
-
-export async function removeReadingBookmark(auth: AuthContext, novelId: string) {
-  await assertActiveAccount(auth);
-  return deleteReadingBookmark(auth.userId, novelId);
 }
 
 export async function listHistory(auth: AuthContext, input: HistoryListInput) {
