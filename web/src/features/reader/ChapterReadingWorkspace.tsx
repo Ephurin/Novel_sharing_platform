@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { NumberInput, Select } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
@@ -23,9 +23,10 @@ export function chapterDisplayTitle(chapter: ReaderChapter) {
   return title ? `Chương ${chapter.chapterNumber}: ${title}` : `Chương ${chapter.chapterNumber}`;
 }
 
-export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, tocPending, tocFailed, onRetryToc, onReport, reporting }: {
+export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, tocPending, tocFailed, onRetryToc, onReport, reporting, children }: {
   chapter: ReaderChapter; novel?: ReaderNovel; chapters: ReaderChapter[]; publicMode: boolean;
   tocPending: boolean; tocFailed: boolean; onRetryToc: () => void; onReport?: () => void; reporting?: boolean;
+  children?: ReactNode;
 }) {
   const location = useLocation();
   const mobile = useMediaQuery('(max-width: 767px)', undefined, { getInitialValueInEffect: false });
@@ -148,6 +149,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
       {previous && <Link to={`${base}/chapters/${previous.chapterId}`} className="sc-button"><Icon name="chevron_left" />Chương trước</Link>}
       {next && <Link to={`${base}/chapters/${next.chapterId}`} className="sc-button sc-button-primary">Chương sau<Icon name="chevron_right" /></Link>}
     </footer>
+    {children}
     <AnimatedModal opened={panel !== null} onClose={() => setPanel(null)} side="right" title={panel === 'toc' ? 'Mục lục chương' : 'Tùy chỉnh đọc'} className="sc-reader-tool-panel"
       onCloseAutoFocus={event => {
         if (!jumpAfterClose.current) return;

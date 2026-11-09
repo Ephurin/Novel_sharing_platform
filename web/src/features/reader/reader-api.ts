@@ -69,6 +69,11 @@ export type ReadingBookmark = {
 };
 
 export type ReaderComment = {
+  isSpoiler?: boolean;
+  imageUrl?: string | null;
+  likesCount?: number;
+  dislikesCount?: number;
+  myReaction?: 'LIKE' | 'DISLIKE' | null;
   parentCommentId: string | null;
   repliesCount: number;
   isAuthor: boolean;
@@ -238,10 +243,13 @@ export async function createComment(chapterId: string, content: string) {
   return response.data.data;
 }
 
-export async function updateComment(input: { commentId: string; content: string }) {
+export type CommentInput = { content: string; isSpoiler?: boolean; imageUrl?: string | null };
+
+export async function updateComment(input: CommentInput & { commentId: string }) {
+  const { commentId, ...body } = input;
   const response = await apiClient.patch<ApiEnvelope<{ commentId: string; status: string; moderationReviewId?: string | null }>>(
-    `/comments/${input.commentId}`,
-    { content: input.content }
+    `/comments/${commentId}`,
+    body
   );
   return response.data.data;
 }
