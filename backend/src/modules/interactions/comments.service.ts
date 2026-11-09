@@ -31,7 +31,7 @@ async function create(auth: AuthContext, id: string, kind: 'chapter' | 'novel', 
   await activeAccount(auth);
   const target = await publishedTarget(id, kind);
   const comment = await createCommentRow({ ...target, userId: auth.userId, paragraphOffset: kind === 'chapter' ? input.paragraphOffset : null,
-    content: input.content, isSpoiler: input.isSpoiler, imageUrl: input.imageUrl });
+    content: input.content, isSpoiler: input.isSpoiler, imageUrl: input.imageUrl, gifId: input.gifId });
   const moderated = await moderateComment(comment.commentId, input.content, auth.userId);
   return { commentId: comment.commentId, ...target, status: moderated?.status ?? 'PENDING_MODERATION', moderationReviewId: moderated?.moderationReviewId ?? null };
 }
@@ -77,7 +77,7 @@ async function present(result: { items: CommentDocument[]; totalItems: number },
         canReply: Boolean(auth) && !comment.parentCommentId && comment.status === 'APPROVED' && novel.status === 'PUBLISHED' && (!comment.chapterId || (chapter?.status === 'PUBLISHED' && !chapter.deleted_at)),
         chapterTitle: chapter?.title ?? null, chapterNumber: chapter?.chapter_number ?? null,
         paragraphOffset: comment.paragraphOffset, content: comment.content, status: comment.status,
-        isSpoiler: comment.isSpoiler ?? false, imageUrl: comment.imageUrl ?? null,
+        isSpoiler: comment.isSpoiler ?? false, imageUrl: comment.imageUrl ?? null, gifId: comment.gifId ?? null,
         likesCount: reactionCounts.get(comment.commentId)?.likesCount ?? 0,
         dislikesCount: reactionCounts.get(comment.commentId)?.dislikesCount ?? 0,
         myReaction: reactionCounts.get(comment.commentId)?.myReaction ?? null,
@@ -108,7 +108,7 @@ export async function createCommentReply(auth: AuthContext, parentId: string, in
   if (!parent || parent.parentCommentId || parent.status !== 'APPROVED') throw new AppError(404, 'CONTENT_001', 'Comment not found');
   await publishedTarget(parent.chapterId ?? parent.novelId, parent.chapterId ? 'chapter' : 'novel');
   const reply = await createCommentRow({ novelId: parent.novelId, chapterId: parent.chapterId, parentCommentId: parentId, userId: auth.userId,
-    content: input.content, imageUrl: input.imageUrl, isSpoiler: Boolean(parent.isSpoiler || input.isSpoiler) });
+    content: input.content, imageUrl: input.imageUrl, gifId: input.gifId, isSpoiler: Boolean(parent.isSpoiler || input.isSpoiler) });
   if (!await findCommentById(parentId)) { await softDeleteComment(reply.commentId); throw new AppError(404, 'CONTENT_001', 'Comment not found'); }
   const moderated = await moderateComment(reply.commentId, input.content, auth.userId);
   return { commentId: reply.commentId, parentCommentId: parentId, status: moderated?.status ?? 'PENDING_MODERATION' };
@@ -134,7 +134,10 @@ export async function updateComment(auth: AuthContext, commentId: string, input:
   if (!comment) throw new AppError(404, 'CONTENT_001', 'Content not found');
   if (comment.userId !== auth.userId) throw new AppError(403, 'AUTH_008', 'Chỉ được sửa bình luận của chính mình');
   await publishedTarget(comment.chapterId ?? comment.novelId, comment.chapterId ? 'chapter' : 'novel');
-  await updateCommentContent(commentId, input.content, input);
+  const changes = { ...input };
+  if (input.imageUrl) changes.gifId = null;
+  if (input.gifId) changes.imageUrl = null;
+  await updateCommentContent(commentId, input.content, changes);
   const moderated = await moderateComment(commentId, input.content, auth.userId);
   return { commentId, status: moderated?.status ?? 'PENDING_MODERATION', moderationReviewId: moderated?.moderationReviewId ?? null };
 }
