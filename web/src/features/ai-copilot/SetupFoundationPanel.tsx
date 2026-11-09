@@ -53,7 +53,7 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
    <Text fw={600}>Quy tắc thế giới</Text>
    {rules.map((r,i)=><Card withBorder key={r.declaration_id}><Textarea label={`Quy tắc ${i+1}`} value={r.text} disabled={!loaded||locked} onChange={e=>{const text=e.currentTarget.value;local.edit(d=>({...d,rules:d.rules.map(x=>x.declaration_id===r.declaration_id?{...x,text}:x)}));}}/><Button disabled={locked} variant="subtle" onClick={()=>local.edit(d=>({...d,rules:d.rules.filter(x=>x.declaration_id!==r.declaration_id)}))}>Bỏ quy tắc {i+1}</Button></Card>)}
    <Button disabled={!loaded||locked} variant="light" onClick={()=>local.edit(d=>({...d,rules:[...d.rules,{declaration_id:'rule_'+crypto.randomUUID().replaceAll('-',''),text:''}]}))}>Thêm quy tắc</Button>
-   <Text size="sm">Bạn có thể để trống. Sau khi lưu, duyệt toàn nhóm ở bước Nhân vật, kể cả khi chỉ có quy tắc.</Text>
+   <Text size="sm">Bạn có thể để trống. Sau khi lưu và xử lý, bạn có thể duyệt quy tắc trực tiếp tại đây hoặc ở bước Nhân vật.</Text>
   </Stack></div>
   <div hidden={!people}><Stack>
    <Text fw={600}>Nhân vật & địa danh</Text>
@@ -69,7 +69,7 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
   <Text size="sm" c="dimmed">{local.dirty?'Bản sửa trên thiết bị — chưa lưu máy chủ.':loaded?'Đã đọc trạng thái máy chủ.':''}</Text>
   {message&&<Alert role="alert">{message}</Alert>}
   {snapshot&&<><Text size="sm">Bản {snapshot.setup_version} · {snapshot.review?'Đã lưu quyết định':snapshot.job_status==='waiting_review'?'Chờ duyệt':snapshot.job_status} · {snapshot.proposals.length} đề xuất</Text>
-   <div hidden={!people}><SetupReviewGroup key={`${snapshot.snapshot_id}:${snapshot.review_version}`} snapshot={snapshot} onReload={()=>reload()}/></div>
+   <div hidden={!(world || people)}><SetupReviewGroup key={`${snapshot.snapshot_id}:${snapshot.review_version}`} snapshot={snapshot} onReload={()=>reload()}/></div>
    {snapshot.review&&<SetupM0Activation key={`${snapshot.snapshot_id}:${snapshot.brain_version}`} snapshot={snapshot} onReload={()=>reload()}/>}
    {snapshot.proposals.filter(c=>!planningStep||(world?c.card_type==='world_rule':people?c.card_type!=='world_rule':false)).map(c=><Card withBorder key={c.proposal_id}><Group><Badge>{c.origin==='author_declared'?'Tác giả khai báo':c.origin==='extracted_explicit'?'Từ nguồn rõ ràng':'AI đề xuất'}</Badge><Badge>{c.unresolved?'Chưa hỗ trợ':c.status==='accepted'?'Đã duyệt':c.status==='rejected'?'Đã loại':'Chờ duyệt'}</Badge></Group><Text>{String(c.reviewed_payload?.canonical_name??c.reviewed_payload?.fact_value??c.payload.canonical_name??c.payload.fact_value??'')}</Text><Text size="sm" c="dimmed">Ban đầu: {String(c.payload.canonical_name??c.payload.fact_value??c.payload.attribute_key??"")}</Text><Text size="xs">Nguồn: {c.source_refs.map(r=>String(r.field_path??'gợi ý')).join(', ')}</Text></Card>)}</>}
  </Stack>;
@@ -141,14 +141,31 @@ function SetupReviewGroup({snapshot, onReload}:{snapshot:SetupSnapshot; onReload
       ? `${getApiErrorMessage(e)}. Hãy tải bản đã lưu và đối chiếu; không tự gửi lại bản cũ.`:getApiErrorMessage(e));}
     finally {if(active.current)setPending(false);}
   }
+  const hasRules = cards.some(c=>c.card_type==='world_rule');
+  const hasEntities = cards.some(c=>c.card_type==='entity');
+  const isMixed = hasRules && hasEntities;
+
   return <Card withBorder><Stack>
     <Text fw={600}>Duyệt toàn bộ nhóm thiết lập</Text>{draft.backup&&<Alert title="Có quyết định chưa gửi"><Button onClick={draft.recover}>Khôi phục quyết định</Button><Button variant="subtle" onClick={draft.clear}>Bỏ quyết định trên máy</Button></Alert>}{draft.error&&<Alert color="red">{draft.error}</Alert>}
-    <Text size="sm">Chọn duyệt hoặc loại cho từng thẻ. Toàn bộ nhóm được lưu cùng lúc. Tên giống nhau không có nghĩa là cùng nhân vật.</Text>
+    {isMixed ? (
+      <Alert color="blue" title="Nhóm phụ thuộc hỗn hợp (Quy tắc & Nhân vật)">
+        Nhóm thiết lập này bao gồm cả quy tắc thế giới và nhân vật/địa danh. Theo quy chuẩn nguyên khối (atomic dependency group), quyết định duyệt áp dụng đồng thời cho toàn bộ nhóm; bạn cần chọn duyệt hoặc loại cho tất cả các thẻ trước khi lưu.
+      </Alert>
+    ) : hasRules ? (
+      <Text size="sm">Nhóm thiết lập chỉ bao gồm quy tắc thế giới. Chọn duyệt hoặc loại cho từng thẻ; toàn bộ nhóm được lưu cùng lúc.</Text>
+    ) : (
+      <Text size="sm">Chọn duyệt hoặc loại cho từng thẻ. Toàn bộ nhóm được lưu cùng lúc. Tên giống nhau không có nghĩa là cùng nhân vật.</Text>
+    )}
     {cards.map((c,i)=>{
       const id=c.proposal_id,v=choices[id];
       const value=String(c.payload.canonical_name??c.payload.fact_value??'');
       return <Stack gap="xs" key={id}>
-        <Text>{i+1}. {value}</Text>
+        <Group justify="space-between">
+          <Text fw={500}>{i+1}. {value}</Text>
+          <Badge size="xs" variant="light" color={c.card_type==='world_rule'?'teal':'blue'}>
+            {c.card_type==='world_rule'?'Quy tắc thế giới':'Nhân vật / Địa danh'}
+          </Badge>
+        </Group>
         <Select label={`Quyết định thẻ ${i+1}`} value={v?.decision||null} allowDeselect={false} disabled={pending||!!draft.backup}
           data={[{value:'accept',label:'Duyệt'},{value:'reject',label:'Loại'}]}
           onChange={d=>{choice(id,'decision',d??'');if(!v?.value)choice(id,'value',value);}}/>
