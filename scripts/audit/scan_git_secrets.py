@@ -1,7 +1,8 @@
 """Full-history Git secret and credential scanner for public readiness audit.
 
-Scans all commits, trees, and diffs across all reachable refs.
-All findings are emitted in redacted / masked form.
+Scans added/modified diff lines across all reachable refs (git log -p --all --full-history).
+Outputs strictly redacted and anonymized findings with zero author email/PII data.
+Fails closed (non-zero exit) if git subprocess encounters an error.
 """
 
 import subprocess
@@ -44,13 +45,11 @@ def run():
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8', errors='replace')
     
     current_commit = None
-    current_author = None
     current_date = None
     current_file = None
     findings = []
     
     commit_re = re.compile(r'^commit ([0-9a-f]{40})')
-    author_re = re.compile(r'^Author:\s*(.*)')
     date_re = re.compile(r'^Date:\s*(.*)')
     file_diff_re = re.compile(r'^\+\+\+ b/(.*)')
     
@@ -61,11 +60,6 @@ def run():
         if m_commit:
             current_commit = m_commit.group(1)
             current_file = None
-            continue
-            
-        m_auth = author_re.match(line)
-        if m_auth:
-            current_author = m_auth.group(1).strip()
             continue
             
         m_date = date_re.match(line)
@@ -100,9 +94,10 @@ def run():
                             
                     masked = mask_secret(matched_val)
                     
+                    # Privacy preservation: omit author name and email completely
                     findings.append({
                         'commit': current_commit,
-                        'author': current_author,
+                        'commit_short': current_commit[:10] if current_commit else None,
                         'date': current_date,
                         'file': current_file,
                         'type': pattern_name,
@@ -111,8 +106,15 @@ def run():
                     })
 
     proc.stdout.close()
+    stderr_output = proc.stderr.read()
+    proc.stderr.close()
     proc.wait()
     
+    if proc.returncode != 0:
+        print(f"ERROR: git log exited with non-zero code {proc.returncode}", file=sys.stderr)
+        print(f"Stderr: {stderr_output}", file=sys.stderr)
+        sys.exit(proc.returncode)
+        
     print(f"Scan complete. Total findings: {len(findings)}")
     return findings
 

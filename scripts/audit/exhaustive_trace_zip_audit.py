@@ -1,13 +1,15 @@
 """Exhaustive stream audit of Playwright trace ZIP archives for public readiness.
 
-Scans all members across all 4 tracked trace archives.
-Redacts all sensitive items and outputs safe aggregate claims.
+Scans text/JSON members across all 4 tracked trace archives.
+Fails closed (non-zero exit) if any archive is missing, corrupted, or unreadable.
+Explicitly records unreadable entries, binary media counts, and parsing errors.
 """
 
 import zipfile
 import json
 import base64
 import re
+import sys
 from pathlib import Path
 
 TARGET_ZIPS = [
@@ -18,7 +20,7 @@ TARGET_ZIPS = [
 ]
 
 EMAIL_RE = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b')
-JWT_RE = re.compile(r'eyJ[A-Za-z0-9_\-]{15,}\.[A-Za-z0-9_\-]{15,}\.[A-Za-z0-9_\-]+')
+JWT_RE = re.compile(r'\beyJ[A-Za-z0-9_\-]{15,}\.[A-Za-z0-9_\-]{15,}\.[A-Za-z0-9_\-]+\b')
 PASSWORD_RE = re.compile(r'(?i)"password"\s*:\s*"([^"]+)"')
 PHONE_RE = re.compile(r'(?:\+84|0)(?:3[2-9]|5[689]|7[06-9]|8[1-9]|9[0-9])[0-9]{7}\b')
 
@@ -45,7 +47,8 @@ def decode_jwt_safe(token):
 def audit_zip(zip_rel_path, base_dir=Path(".")):
     zip_full_path = base_dir / zip_rel_path
     if not zip_full_path.exists():
-        return {'status': 'NOT_FOUND'}
+        print(f"FATAL: Target zip not found: {zip_full_path}", file=sys.stderr)
+        return {'status': 'NOT_FOUND', 'error': 'File not found'}
         
     stats = {
         'path': zip_rel_path,
@@ -53,6 +56,8 @@ def audit_zip(zip_rel_path, base_dir=Path(".")):
         'total_entries': 0,
         'scanned_text_entries': 0,
         'binary_entries': 0,
+        'unreadable_entries': 0,
+        'entry_errors': [],
         'emails_synthetic': set(),
         'emails_potential_real': set(),
         'jwt_count': 0,
@@ -62,54 +67,59 @@ def audit_zip(zip_rel_path, base_dir=Path(".")):
         'phone_numbers_found': []
     }
     
-    with zipfile.ZipFile(zip_full_path, 'r') as z:
-        infolist = z.infolist()
-        stats['total_entries'] = len(infolist)
-        
-        for entry in infolist:
-            name = entry.filename.lower()
-            if any(name.endswith(ext) for ext in ['.png', '.jpeg', '.jpg', '.webp', '.gif', '.zip']):
-                stats['binary_entries'] += 1
-                continue
-                
-            try:
-                raw = z.read(entry)
-                try:
-                    text = raw.decode('utf-8')
-                except UnicodeDecodeError:
-                    text = raw.decode('latin-1', errors='replace')
+    try:
+        with zipfile.ZipFile(zip_full_path, 'r') as z:
+            infolist = z.infolist()
+            stats['total_entries'] = len(infolist)
+            
+            for entry in infolist:
+                name = entry.filename.lower()
+                if any(name.endswith(ext) for ext in ['.png', '.jpeg', '.jpg', '.webp', '.gif', '.zip']):
+                    stats['binary_entries'] += 1
+                    continue
                     
-                stats['scanned_text_entries'] += 1
-                
-                # Scan Emails
-                for m in EMAIL_RE.findall(text):
-                    if m.endswith('.jpeg') or m.endswith('.jpg') or m.endswith('.png'):
-                        continue
-                    domain = m.split('@')[-1].lower()
-                    if domain in TEST_DOMAINS:
-                        stats['emails_synthetic'].add(m)
-                    else:
-                        stats['emails_potential_real'].add(m[:2] + '****@' + domain)
+                try:
+                    raw = z.read(entry)
+                    try:
+                        text = raw.decode('utf-8')
+                    except UnicodeDecodeError:
+                        text = raw.decode('latin-1', errors='replace')
                         
-                # Scan JWTs
-                for m in JWT_RE.findall(text):
-                    stats['jwt_count'] += 1
-                    ctx = decode_jwt_safe(m)
-                    if ctx and ctx not in stats['jwt_contexts']:
-                        stats['jwt_contexts'].append(ctx)
-                        
-                # Scan Passwords
-                for m in PASSWORD_RE.finditer(text):
-                    stats['passwords_count'] += 1
-                    pw_val = m.group(1)
-                    if pw_val in ['[REDACTED]', '****', 'password123', 'test', 'Test1234!', 'secret']:
-                        stats['passwords_redacted_or_fixture'] += 1
-                        
-                # Scan phone numbers
-                for p in PHONE_RE.findall(text):
-                    stats['phone_numbers_found'].append(p[:3] + '****' + p[-2:])
-            except Exception:
-                pass
+                    stats['scanned_text_entries'] += 1
+                    
+                    # Scan Emails
+                    for m in EMAIL_RE.findall(text):
+                        if m.endswith('.jpeg') or m.endswith('.jpg') or m.endswith('.png'):
+                            continue
+                        domain = m.split('@')[-1].lower()
+                        if domain in TEST_DOMAINS:
+                            stats['emails_synthetic'].add(m)
+                        else:
+                            stats['emails_potential_real'].add(m[:2] + '****@' + domain)
+                            
+                    # Scan JWTs
+                    for m in JWT_RE.findall(text):
+                        stats['jwt_count'] += 1
+                        ctx = decode_jwt_safe(m)
+                        if ctx and ctx not in stats['jwt_contexts']:
+                            stats['jwt_contexts'].append(ctx)
+                            
+                    # Scan Passwords
+                    for m in PASSWORD_RE.finditer(text):
+                        stats['passwords_count'] += 1
+                        pw_val = m.group(1)
+                        if pw_val in ['[REDACTED]', '****', 'password123', 'test', 'Test1234!', 'secret']:
+                            stats['passwords_redacted_or_fixture'] += 1
+                            
+                    # Scan phone numbers
+                    for p in PHONE_RE.findall(text):
+                        stats['phone_numbers_found'].append(p[:3] + '****' + p[-2:])
+                except (zipfile.BadZipFile, OSError, KeyError) as e:
+                    stats['unreadable_entries'] += 1
+                    stats['entry_errors'].append(f"{entry.filename}: {type(e).__name__} {e}")
+    except zipfile.BadZipFile as e:
+        print(f"FATAL: Corrupted ZIP archive {zip_full_path}: {e}", file=sys.stderr)
+        return {'status': 'CORRUPTED', 'error': str(e)}
 
     stats['emails_synthetic'] = sorted(list(stats['emails_synthetic']))
     stats['emails_potential_real'] = sorted(list(stats['emails_potential_real']))
@@ -117,11 +127,18 @@ def audit_zip(zip_rel_path, base_dir=Path(".")):
 
 def run():
     results = {}
+    has_error = False
     for tz in TARGET_ZIPS:
         print(f"Auditing {tz}...")
         res = audit_zip(tz)
+        if res.get('status') in ['NOT_FOUND', 'CORRUPTED'] or res.get('unreadable_entries', 0) > 0:
+            has_error = True
         results[tz] = res
-        print(f"  Finished {tz}: {res.get('total_entries')} entries ({res.get('scanned_text_entries')} text, {res.get('binary_entries')} binary)")
+        print(f"  Finished {tz}: {res.get('total_entries')} entries ({res.get('scanned_text_entries')} text, {res.get('binary_entries')} binary, {res.get('unreadable_entries', 0)} unreadable)")
+        
+    if has_error:
+        print("ERROR: One or more ZIP archives had read errors or were missing!", file=sys.stderr)
+        sys.exit(1)
     return results
 
 if __name__ == '__main__':
