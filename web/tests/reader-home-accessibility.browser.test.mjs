@@ -22,6 +22,16 @@ test('home maintains contrast, focus, reduced motion and reflow at narrow widths
         await page.goto(base);
         await expect(page.locator('.sc-home-feature-cover')).toHaveCount(4);
         await expect(page.locator('.sc-home-feature-grid')).toHaveCSS('opacity', '1');
+        const featuredCover = page.locator('.sc-home-feature-cover').first();
+        const featuredTitle = featuredCover.locator('h2');
+        const normalColor = await featuredTitle.evaluate(title => getComputedStyle(title).color);
+        const accentColor = await page.locator('.sc-home-more').first().evaluate(link => getComputedStyle(link).color);
+        await featuredCover.hover();
+        await expect(featuredTitle).toHaveCSS('color', accentColor);
+        await expect(featuredTitle).toHaveCSS('text-decoration-line', 'none');
+        await expect(featuredCover).toHaveCSS('text-decoration-line', 'none');
+        assert.notEqual(normalColor, accentColor);
+        await page.mouse.move(0, 0);
         const pairs = await page.evaluate(() => {
           const rgba = value => { const values = value.match(/[\d.]+/g).map(Number); return [...values.slice(0, 3), values[3] ?? 1]; };
           const background = element => {
