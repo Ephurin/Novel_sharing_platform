@@ -21,7 +21,7 @@ We inspected `web/src/features/auth/AuthGate.tsx`, `web/src/features/author-ide/
 
 **Finding**: Across every tested scenario, **logging out or expiring the session (`useAuthStore.getState().clearSession()`) while `useDraftPersistence.dirty === true` never deadlocks React Router or strands the user on `/author/ide`**. Furthermore, we traced the original `P2_07A_UX_AUDIT_GEMINI.md` script that logged UX-02 and proved that its failure check was a **synchronous-evaluation false positive**.
 
-In strict compliance with the P2-07A boundaries, **zero production files (`AuthGate.tsx`, `useDraftPersistence.ts`, `AuthorWritingIde.tsx`) were modified**.
+In strict compliance with the P2-07A boundaries, **zero production files (`AuthGate.tsx`, `useDraftPersistence.ts`, `AuthorWritingIde.tsx`) were modified**. To permanently guard this contract in CI, we added Step 9 (`UX-02 Regression`) to `web/tests/author-ide.browser.test.mjs` and mounted `<AuthGate>` + `/login` in `web/tests/fixtures/author-ide-fixture.tsx`.
 
 ---
 
@@ -107,7 +107,7 @@ Using the real Fastify backend + PostgreSQL 16 + MongoDB 7 fixture (`author-ide.
 2. **`author-2` (`11111111-1111-4111-8111-111111111102`)** logged in on the same browser context:
    - `localStorage.getItem("storycraft-draft:11111111-1111-4111-8111-111111111102:33333333-3333-4333-8333-333333333301")` was `null` (`author-2` never inherited `author-1`'s draft).
 3. **`author-1`** logged back in and navigated to `/author/ide?novelId=22222222-2222-4222-8222-222222222201`:
-   - `AuthorWritingIde` restored `"Đoạn nháp chưa lưu trước khi hết phiên đăng nhập."` from `author-1`'s local backup and displayed `"Đã khôi phục bản nháp trên máy"`.
+   - `AuthorWritingIde` displayed `"Có bản lưu trên máy chưa đồng bộ"`, and clicking `"Khôi phục vào trình soạn thảo"` restored `"Bản nháp chưa lưu trước khi hết phiên đăng nhập (UX-02 verification)."` from `author-1`'s local backup into the editor and persisted it to PostgreSQL.
 
 ### Evidence Artifacts
 
@@ -138,3 +138,4 @@ All required verification suites were executed on branch `gemini/p2-07a-ux02-ses
 - Backend / PostgreSQL / MongoDB / P1 Canon: **Untouched**.
 - Live LLM usage: **None** (offline / fake provider only).
 - Secrets / JWTs / API keys / private notes in report or evidence: **None**.
+
