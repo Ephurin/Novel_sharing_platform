@@ -209,6 +209,13 @@
 }
 .sc-novel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 16px; }
 .sc-author-theme .sc-novel-card.sc-reader-book { padding: 0; border: 0; background: transparent; box-shadow: none; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+.sc-author-theme .sc-reader-book .sc-button.sc-library-unfollow {
+  width: 100%; min-height: 40px; gap: 8px;
+  border: 1px solid var(--sc-danger); background: var(--sc-danger-bg); color: var(--sc-danger);
+}
+.sc-author-theme .sc-reader-book .sc-button.sc-library-unfollow:hover:not(:disabled) { background: var(--sc-danger); color: var(--sc-surface); }
+.sc-author-theme .sc-reader-book .sc-button.sc-library-unfollow:disabled { opacity: .65; cursor: wait; }
+@media (max-width: 767px) { .sc-author-theme .sc-reader-book .sc-button.sc-library-unfollow { min-height: 44px; } }
 .sc-book-cover { position: relative; display: block; aspect-ratio: 2 / 3; overflow: hidden; border-radius: 10px; background: var(--sc-surface); border: 1px solid var(--sc-border); box-shadow: 0 4px 12px rgb(var(--sc-text-rgb) / .08); }
 .sc-book-cover img { width: 100%; height: 100%; object-fit: cover; }
 .sc-book-cover .sc-cover-placeholder { padding: 24px 16px; border-left: 8px solid rgb(var(--sc-primary-rgb) / .25); background: linear-gradient(135deg, var(--sc-primary-soft), var(--sc-neutral-bg)); color: var(--sc-text); font-family: Literata, Georgia, serif; font-size: 17px; line-height: 1.6; box-shadow: inset 4px 0 8px rgb(var(--sc-text-rgb) / .06); }
