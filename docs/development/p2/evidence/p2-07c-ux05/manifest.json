@@ -1,0 +1,25 @@
+{
+  "base_sha": "30dc39e1ee8c9f683f41301825ccc1294159375f",
+  "source_sha": "1b4802b4c23dec66792a5d77efbf09edaa2e5695",
+  "verdict": "CONTRACT_BLOCKED",
+  "production_code_changed": false,
+  "source_test_workflow_sha256": {
+    ".github/workflows/p2-setup-provenance.yml": "5430cdbe1b63bc061b8f121aaedcc2f63eaa0283345adc635a42211b64cca83c",
+    "ai-service/tests/test_setup_amendment_contract_postgres.py": "5f4e8f6b60c207778739ad517cf619503a0dc720f3b940eb13a4b3f75a13ceb6",
+    "web/tests/planning-studio.browser.test.mjs": "511e5964f1add8a719b8fc541bce4dce86eb3807b0db8bd56d8ee01600c6d212"
+  },
+  "evidence_sha256": {
+    ".gitignore": "4382a096ea611484112e1eb378b62e1697d62baaa40d0678df4b7f58f02fcf05",
+    "accepted-rule-readonly.png": "2ad7cdf32616f33372c54cade81020c31122e1abce706d6f657432fc90f5a9d7",
+    "ci-contract-probes.json": "b33ec613ce738adb650b301fbd1dfe56f3bda1dfad02bc7b41c3bb226bbf5bca",
+    "local-contract-probes.json": "23656ba6dd0228fb39d418e49e2a38ec866bbb19d318741e195e3d356e169be3",
+    "source-ci-receipt.json": "810187df69087840d687334b907ffc2f7af90e480a9fae5447942257afc0ad04"
+  },
+  "hash_convention": "Canonical Git blob bytes for versioned files, original raw bytes for CI artifact digest. No Windows autocrlf assumptions.",
+  "amendment_acceptance": "NOT_RUN_CONTRACT_BLOCKED",
+  "ci_source_artifact": {
+    "id": 13715499874,
+    "sha256": "352cdc3384b88cfafdc9330ab500f03b43e385715b6af96c1b039a68c518cdf4"
+  },
+  "delivery_note": "Final documentation-only HEAD and CI results pinned in PR119 final Conversation receipt."
+}

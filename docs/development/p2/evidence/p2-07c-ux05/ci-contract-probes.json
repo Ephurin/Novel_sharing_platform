@@ -1,0 +1,75 @@
+{
+  "source_sha": "1b4802b4c23dec66792a5d77efbf09edaa2e5695",
+  "verdict": "CONTRACT_BLOCKED",
+  "classification": "Diagnostic observations, NOT amendment acceptance",
+  "artifact": {
+    "id": 13715499874,
+    "url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42711804618/artifacts/13715499874",
+    "sha256": "352cdc3384b88cfafdc9330ab500f03b43e385715b6af96c1b039a68c518cdf4"
+  },
+  "p2_pg_cases": {
+    "regression": 146,
+    "characterization": 3,
+    "total": 149,
+    "failures": 0
+  },
+  "blocker_observations": [
+    {
+      "accepted_row_updates": 0,
+      "classification": "BLOCKER_CONFIRMED_NOT_FEATURE_PASS",
+      "fabricated_history": 0,
+      "leaf_id": "be0b3388-45ce-4b16-860c-fd9d3423e26d",
+      "locked": false,
+      "memory_ids": [
+        "be0b3388-45ce-4b16-860c-fd9d3423e26d"
+      ],
+      "novel_id": "02332046-79ca-4ba6-909c-e1fb96e70f0e",
+      "parent_id": "22054fe3-5fd4-4756-a4be-d7aaf25830cc",
+      "provider_calls": 0,
+      "retired_parent_reaches_writing_context": true,
+      "stage": "reader-disagreement",
+      "writer_ids": [
+        "22054fe3-5fd4-4756-a4be-d7aaf25830cc",
+        "be0b3388-45ce-4b16-860c-fd9d3423e26d"
+      ]
+    },
+    {
+      "accepted_row_updates": 0,
+      "classification": "BLOCKER_CONFIRMED_NOT_FEATURE_PASS",
+      "fabricated_history": 0,
+      "leaf_id": "10544072-a4d4-49e4-9ca8-a257cbd9e552",
+      "locked": true,
+      "memory_ids": [
+        "10544072-a4d4-49e4-9ca8-a257cbd9e552"
+      ],
+      "novel_id": "0ab771b6-d2e9-48a9-bd61-5e7602a93a68",
+      "parent_id": "ef007de2-ea04-4ab4-a935-b918d069f5b9",
+      "provider_calls": 0,
+      "retired_parent_reaches_writing_context": true,
+      "stage": "reader-disagreement",
+      "writer_ids": [
+        "10544072-a4d4-49e4-9ca8-a257cbd9e552",
+        "ef007de2-ea04-4ab4-a935-b918d069f5b9"
+      ]
+    },
+    {
+      "accepted_row_updates": 0,
+      "activation_mutations": 0,
+      "classification": "BLOCKER_CONFIRMED_NOT_FEATURE_PASS",
+      "fresh_expected_brain_version": 3,
+      "novel_id": "2647c65d-2948-48e4-a703-11bb713fc19b",
+      "provider_calls": 0,
+      "reason": "M0_REVIEW_STALE",
+      "stage": "pre-m0-audit-rebase-missing"
+    }
+  ],
+  "private_operational_logs": {
+    "checked": [
+      "ai-service.log",
+      "setup-gateway.log",
+      "m0-ai-service.log",
+      "m0-writer.log"
+    ],
+    "private_markers_absent": true
+  }
+}
