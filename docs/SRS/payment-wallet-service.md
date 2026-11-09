@@ -22,7 +22,7 @@
     *   **In-app Mock Payment System (Cơ chế ví nội bộ giả lập):** Để phục vụ mục tiêu demo và chạy thử nghiệm đồ án tốt nghiệp, hệ thống không kết nối với cổng thanh toán tiền thật. Mọi giao dịch nạp/rút sẽ được định tuyến thông qua **Cổng thanh toán giả lập nội bộ (Mock Gateway)** do hệ thống tự phát triển, đảm bảo an toàn, không phát sinh chi phí và mượt mà khi báo cáo.
     *   **Transaction Atomicity (ACID):** Mọi giao dịch chuyển Coin (Ví dụ: Unlock Chapter trừ Coin người đọc và cộng phần trăm Coin cho tác giả) phải được bọc trong một Database Transaction duy nhất. Nếu bất kỳ bước nào thất bại, toàn bộ giao dịch phải được rollback.
     *   **Locked Balance Rule (Quy tắc đóng băng số dư):** Khi tác giả gửi yêu cầu rút tiền, số Coin yêu cầu rút phải bị chuyển ngay từ `CoinsBalance` sang `LockedCoins`. Tác giả không thể tiêu dùng số Coin này trong thời gian chờ Admin phê duyệt.
-    *   **Rate Limiting:** Áp dụng rate limiting nghiêm ngặt tại API Gateway đối với mọi API thanh toán để ngăn chặn tấn công spam hoặc lặp lại giao dịch (Replay attacks).
+    *   **Rate Limiting:** Áp dụng rate limiting nghiêm ngặt tại API Gateway đối với mọi API thanh toán để ngăn chặn tấn công spam hoặc lặp lại giao dịch (Replay attacks). *Bản demo (D4, 2026-11-09): giới hạn trong bộ nhớ một tiến trình, 30 lượt/phút/người cho API chuyển tiền và 5 lượt cho mỗi phiên nạp ở webhook giả lập. Đây không phải giới hạn phân tán, không xác thực webhook và không chống replay; chưa được mở thanh toán production hay chạy nhiều instance trước khi có gateway/Redis, xác thực callback, idempotency và kiểm thử bảo mật.*
 
 ---
 

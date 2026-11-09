@@ -99,8 +99,8 @@ Nếu máy có hai MongoDB cùng nghe cổng 27017 (ví dụ dịch vụ MongoDB
 | :--- | :--- | :--- | :--- | :--- |
 | TC-NOV-01 | §3.1 bước 1–2 | Tác giả tạo truyện | Trạng thái `DRAFT` | SRS |
 | TC-NOV-02 | §1, §3.1 2a | Tiêu đề 255 ký tự | Từ chối (SRS: < 255 ký tự) | SRS |
-| TC-NOV-03 | §1, §3.1 2a | Tóm tắt dưới 500 ký tự | Từ chối | SRS |
-| TC-NOV-04 | §1 Initial Publish, §3.1 bước 3 | Gửi xuất bản truyện có dưới 5 chương nháp | Bị chặn | SRS |
+| TC-NOV-03 | §1, §3.1 2a (sửa 2026-11-09, D3) | Tóm tắt 49 ký tự, chỉ có khoảng trắng, và đúng 50 ký tự | 49 ký tự và khoảng trắng bị từ chối; 50 ký tự được nhận | SRS |
+| TC-NOV-04 | §1 Initial Publish, §3.1 bước 3 (sửa 2026-11-09, D2) | Gửi xuất bản truyện có 1 chương hợp lệ + 1 chương đã lưu trữ | 422 `VALIDATION_002`, truyện giữ `DRAFT` | SRS |
 | TC-NOV-05 | §1 Chapter Validation | Tiêu đề chương 100 ký tự | Từ chối (SRS: < 100 ký tự) | SRS |
 | TC-NOV-06 | §1, §3.2 bước 4 | Gửi xuất bản chương dưới 500 ký tự | Không được xuất bản | SRS |
 | TC-NOV-07 | §2.2, §3.2 bước 5–8 | Gửi xuất bản chương hợp lệ | `PUBLISHED`, khách đọc được | SRS |
@@ -110,7 +110,7 @@ Nếu máy có hai MongoDB cùng nghe cổng 27017 (ví dụ dịch vụ MongoDB
 | TC-NOV-11 | §3.3 bước 1–7 | Quản lý nhân vật/timeline, quyền sở hữu | Lưu kèm nguồn; người không sở hữu bị chặn | NOT_RUN (thuộc luồng Writing Copilot, ngoài phạm vi PR #73) |
 | TC-NOV-12 | README §3.2 (Chapters: Guest R Free) | Khách mở chương VIP | Không nhận nội dung (402) | SRS; SMOKE (khách chỉ đọc chương miễn phí) |
 | TC-NOV-13 | README §3.2 | Độc giả tạo truyện | 403 | SRS |
-| TC-NOV-14 | §2.1, §3.1 bước 3–7 | Truyện đủ 5 chương hợp lệ gửi xuất bản | `PUBLISHED`, công khai | SRS |
+| TC-NOV-14 | §2.1, §3.1 bước 3–7 (sửa 2026-11-09, D2) | Truyện đủ 2 chương hợp lệ gửi xuất bản | `PUBLISHED`, công khai | SRS |
 
 ## 6. Payment & Wallet Service (`payment-wallet-service.md`)
 

@@ -8,7 +8,7 @@ This document extends the SRS appendix error codes into API-ready groups.
 | :--- | :---: | :--- | :--- |
 | `SYS_001` | 500 | Internal Server Error | Unhandled server error. |
 | `VALIDATION_001` | 400 | Invalid request payload | Missing or malformed body/query fields. |
-| `VALIDATION_002` | 422 | Business rule violation | Request is syntactically valid but violates business rules (e.g. novel submitted with fewer than 5 valid chapters; `details.readyChapters`). |
+| `VALIDATION_002` | 422 | Business rule violation | Request is syntactically valid but violates business rules (e.g. a novel submitted for its first publication with fewer than 2 valid chapters; ARCHIVED chapters do not count; `details.readyChapters`, `details.requiredChapters`). |
 | `NOT_FOUND_001` | 404 | Resource not found | Requested resource does not exist or is not visible. |
 | `CONFLICT_001` | 409 | Resource conflict | Duplicate resource or invalid state transition. |
 | `RATE_LIMIT_001` | 429 | Too many requests | Rate limit exceeded. Payment routes allow `PAYMENT_RATE_LIMIT_MAX` calls per user per `PAYMENT_RATE_LIMIT_WINDOW_MS` (default 30/min); the mock deposit webhook allows 5 calls per deposit session, counted after body validation. The response carries `Retry-After`. In-process counters: single-instance demo only, not a distributed or replay-proof limit. |
