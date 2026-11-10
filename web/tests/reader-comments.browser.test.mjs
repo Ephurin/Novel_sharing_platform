@@ -116,7 +116,9 @@ test('comments keep application surfaces over reading paper and support GIF, emo
           const input = form.getByRole('textbox', { name: 'Bình luận của bạn', exact: true });
           const bold = form.getByRole('button', { name: 'Chữ đậm', exact: true });
           const italic = form.getByRole('button', { name: 'Chữ nghiêng', exact: true });
-          await bold.click(); await expect(input).toHaveText('');
+          await bold.press('Enter');
+          await expect(input).toBeFocused();
+          await expect(input).toHaveText('');
           await input.pressSequentially('Đậm');
           await italic.click(); await input.pressSequentially(' nghiêng');
           await expect(input.locator('strong em')).toHaveText(' nghiêng');
@@ -130,10 +132,12 @@ test('comments keep application surfaces over reading paper and support GIF, emo
           if (await italic.getAttribute('aria-pressed') === 'true') await italic.click();
           await input.fill('Rất thích chương này.'); await input.selectText();
           await bold.click();
+          await expect(input).toBeFocused();
           await expect(input.locator('strong')).toHaveText('Rất thích chương này.');
           await input.press('ArrowRight');
           await expect.poll(() => input.evaluate(() => window.getSelection()?.isCollapsed)).toBe(true);
           await bold.click();
+          await expect(input).toBeFocused();
           await expect(input.locator('strong')).toHaveText('Rất thích chương này.');
           await form.getByRole('button', { name: 'Chèn emoji', exact: true }).click();
           const emojiPicker = form.getByRole('dialog', { name: 'Chọn emoji', exact: true });
@@ -172,7 +176,7 @@ test('comments keep application surfaces over reading paper and support GIF, emo
             await expect(form.locator('.sc-comment-giphy-media > img')).toHaveAttribute('src', 'https://media.giphy.com/media/gif3/giphy.gif?cid=fixture');
             assert.ok(providerRequests.some(url => new URL(url).searchParams.get('q') === 'meme'));
           } else {
-            await expect(gifPicker.getByRole('status')).toContainText('API key GIPHY');
+            await expect(gifPicker.getByRole('status')).toContainText('Kho GIF chưa được cấu hình.');
             await expect(gifPicker.getByRole('textbox')).toBeDisabled();
             await page.keyboard.press('Escape');
           }

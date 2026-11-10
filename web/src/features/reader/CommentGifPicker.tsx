@@ -61,7 +61,7 @@ export default function CommentGifPicker({ onSelect }: { onSelect: (id: string) 
       disabled={!apiKey} onChange={event => setKeyword(event.currentTarget.value)} />
     {config.isPending && <p role="status">Đang mở kho GIF…</p>}
     {config.isError && <div role="alert"><p>Không tải được cấu hình kho GIF.</p><Button variant="subtle" onClick={() => void config.refetch()}>Thử lại</Button></div>}
-    {config.isSuccess && !apiKey && <p role="status">Kho GIF cần API key GIPHY để hoạt động. Thêm GIPHY_API_KEY vào cấu hình máy chủ để bật tìm kiếm.</p>}
+    {config.isSuccess && !apiKey && <p role="status">Kho GIF chưa được cấu hình. Vui lòng liên hệ quản trị viên để bật tìm kiếm.</p>}
     {apiKey && (results.isPending || searching) && <p role="status">Đang tìm GIF…</p>}
     {apiKey && results.isError && <div role="alert"><p>{results.error.message}</p><Button variant="subtle" onClick={() => void results.refetch()}>Thử lại</Button></div>}
     {apiKey && !searching && results.isSuccess && gifs.length === 0 && <p role="status">Không tìm thấy GIF. Thử từ khóa khác.</p>}
