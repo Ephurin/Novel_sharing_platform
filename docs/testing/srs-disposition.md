@@ -23,7 +23,7 @@ Nhãn phân loại:
 
 ## Bảng phân loại
 
-Người làm: Minh Sơn (@Beomup31). Chủ sản phẩm: Thái (@Ephurin), đã chốt D1–D7 ngày 2026-11-09. Phần gỡ truyện chạm vào code của #74 nên vẫn cần @karasunosu xác nhận kỹ thuật (D6).
+Người làm: Minh Sơn (@Beomup31). Chủ sản phẩm: Thái (@Ephurin), đã chốt D1–D7 ngày 2026-11-09. D6 được chủ sản phẩm sign-off ngày 2026-11-10; nghiệm thu cuối thuộc chủ dự án.
 
 | Kiểm tra | Trên `main` (bằng chứng FAIL) | Phân loại | Mức | Xử lý trên nhánh sửa |
 |---|---|---|---|---|
@@ -45,7 +45,7 @@ Chưa tạo issue trên GitHub. PR `fix/srs-backend-rules` là nơi theo dõi; k
 
 ## Quyết định chính sách (chủ sản phẩm đã chốt 2026-11-09)
 
-Thái (chủ sản phẩm) đã chốt D1–D7 ngày 09/11/2026. D2 và D3 được **đổi** so với bản trước; các quyết định khác được chấp thuận kèm giới hạn phát hành ghi bên dưới. Đây là quyết định nghiệp vụ, không phải duyệt merge code. SRS gốc (`docs/SRS/novel-chapter-service.md`, `ai-intelligence-service.md`, `payment-wallet-service.md`) đã được sửa theo, có ghi ngày và lý do. Bằng chứng R1/R2 được giữ nguyên và thuộc **hợp đồng cũ** (5 chương, tóm tắt 500 ký tự).
+Thái (chủ sản phẩm) đã chốt D1–D7 ngày 09/11/2026. D2 và D3 được **đổi** so với bản trước; các quyết định khác được chấp thuận kèm giới hạn phát hành ghi bên dưới. D6 được sign-off riêng ngày 10/11/2026. Đây là quyết định nghiệp vụ, không phải duyệt merge code. SRS gốc (`docs/SRS/novel-chapter-service.md`, `ai-intelligence-service.md`, `payment-wallet-service.md`) đã được sửa theo, có ghi ngày và lý do. Bằng chứng R1/R2 được giữ nguyên và thuộc **hợp đồng cũ** (5 chương, tóm tắt 500 ký tự).
 
 - **D1. Chương phải có ít nhất 500 ký tự khi xuất bản**, gồm gửi trực tiếp, đặt lịch, và xuất bản lại chương đã sửa.
   - Không chặn tạo nháp, autosave, chỉnh sửa hay tạo chương bằng AI.
@@ -72,11 +72,21 @@ Thái (chủ sản phẩm) đã chốt D1–D7 ngày 09/11/2026. D2 và D3 đư�
 - **D5. Copilot không khả dụng thì trả HTTP 503 `AI_001`** kèm `reason` cố định, không trả nội dung chẩn đoán của provider. Soạn thảo và autosave không phụ thuộc provider.
   - Ngoại lệ so với mốc 5 giây của SRS **được chấp thuận** cho Copilot: code mặc định 30 giây; môi trường LLM local/chậm có thể đặt 120 giây theo `.env.example`. SRS đã sửa để không ghi 5 giây.
   - 120 giây là cấu hình có chủ đích, không phải cam kết độ trễ production. Log không được lộ nội dung nhạy cảm: nội dung provider được cắt ngắn và che khoá trước khi ghi log.
-- **D6. Gỡ truyện (chấp thuận về nguyên tắc).**
-  - Sanction `HIDE` ẩn toàn bộ truyện và các chương đang hiện, đồng bộ bản nháp Mongo bằng job có retry.
-  - Khôi phục chỉ trả lại dữ liệu mà chính sanction đó đã ẩn, không hồi sinh chương tác giả đã xoá. Audit và thông báo giữ nguyên.
-  - Về kỹ thuật, **vẫn cần @karasunosu (người phụ trách #74) xác nhận** phần khôi phục/retry, dữ liệu sanction cũ và trường hợp lỗi/rollback. Sign-off sản phẩm không có nghĩa D6 đã PASS.
-  - Migration `025_admin_novel_draft_sync.sql`. Đã đổi số 2 lần: trùng `020_story_brain_bible` của #87, rồi trùng `024_chapter_reader_workspace` trên `main`. #116 đã revert migration `024` đó, nhưng file này vẫn giữ số `025` để không trùng nếu `024` được đưa lại.
+- **D6. Gỡ truyện (chủ sản phẩm đã sign-off chính sách ngày 2026-11-10).** Người nghiệm thu cuối là chủ dự án (@Ephurin); không cần chờ người khác duyệt.
+  - **HIDE:** sanction `HIDE` ẩn truyện, các chương đang hiện lúc gỡ và bản nháp Mongo của đúng các chương đó. Sanction, audit và thông báo cho tác giả giữ nguyên.
+  - **RESTORE:** chỉ trả lại chương và bản nháp do chính sanction đó ẩn (`previous_state.chapterIds`).
+    - Không hồi sinh nội dung tác giả đã xoá, kể cả khi xoá trước lúc HIDE.
+    - Sanction cũ thiếu `chapterIds` không có danh sách để khôi phục, nên không chương hay bản nháp nào bị đụng tới (giữ nguyên, không đoán).
+    - Truyện bị gỡ theo kiểu cũ, từ trước khi có sanction: chỉ khôi phục chương có `deleted_at` trùng đúng `deleted_at` của truyện (lần gỡ đó ghi cùng một mốc thời gian trong một transaction). Chương tác giả xoá trước đó giữ nguyên.
+  - **Đồng bộ Mongo:** job `NOVEL_DRAFT_SYNC` luôn đưa bản nháp về trạng thái sanction **hiện tại** của truyện, bất kể job do sanction nào tạo. Nhờ vậy job cũ chạy trễ không làm hiện lại hay ẩn lại sai. Job chạy lặp lại không đổi kết quả.
+  - **Phạm vi demo 1 instance:** PostgreSQL và MongoDB nhất quán sau cùng (eventual consistency) qua job.
+    - Job tự thử lại tối đa 6 lần, giãn cách tăng dần. Sau đó chuyển `FAILED` và admin thử lại bằng tay; thao tác này có ghi audit.
+    - Lỗi Mongo nằm lại trên job (`error`, `attempts`, `failed_at`) và hiện ở trang admin jobs.
+    - Trong lúc job đang chờ hoặc đã `FAILED`, khách và tác giả vẫn không đọc được truyện, vì quyền đọc đi qua PostgreSQL.
+    - Đây **không** phải giao dịch nguyên tử giữa hai DB, không phải cam kết sẵn sàng production, và không thay cho các kiểm tra an toàn trước khi triển khai.
+  - Trong lúc truyện bị ẩn, tác giả không xoá/lưu trữ được chương bên trong (404) và admin không sanction riêng được chương (409), nên không có đường API nào xoá riêng nội dung khi sanction đang hiệu lực.
+  - Test: `backend/src/modules/admin/novel-removal-d6.postgres.test.ts` tiêm lỗi ghi Mongo thật bằng validator của collection. Bằng chứng RED → GREEN ở `docs/development/SRS-BACKEND-R4/`.
+  - Migration `025_admin_novel_draft_sync.sql`.
 - **D7. Mỗi độc giả nhận đúng 1 thông báo cho mỗi chương.**
   - Theo dõi tác giả → `NEW_CHAPTER` (nhánh này).
   - Bật chuông truyện → `NOVEL_CHAPTER_PUBLISHED` (trigger của #88).

@@ -1,0 +1,19 @@
+# RED: novel-removal-d6.postgres.test.ts against 704afd09 (before the D6 fixes). npm run test:isolated -- src/modules/admin/novel-removal-d6.postgres.test.ts
+  ✖ transient Mongo failure: the job retries, converges, repeats are idempotent, unrelated drafts never change (129.3931ms)
+  ✔ terminal FAILED job: stays observable, access stays denied, admin manual retry recovers it (60.617ms)
+  ✔ RESTORE while the HIDE sync is still pending: Mongo ends in the restored state (47.8035ms)
+  ✖ an old pending restore job cannot un-hide drafts of a novel that was hidden again (62.3667ms)
+  ✔ legacy sanction without chapterIds: restore guesses nothing (44.3823ms)
+  ✖ removal from before sanctions existed: restore brings back only what the removal hid (34.6475ms)
+  ✔ while a novel is hidden nothing inside it can be deleted or sanctioned separately; an earlier chapter sanction survives the novel restore (565.1949ms)
+✖ D6: admin novel hide/restore with Mongo draft sync (990.589ms)
+ℹ tests 7
+ℹ pass 4
+ℹ fail 3
+✖ failing tests:
+✖ transient Mongo failure: the job retries, converges, repeats are idempotent, unrelated drafts never change (129.3931ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+✖ an old pending restore job cannot un-hide drafts of a novel that was hidden again (62.3667ms)
+  AssertionError [ERR_ASSERTION]: the draft stays hidden: the latest sanction is active
+✖ removal from before sanctions existed: restore brings back only what the removal hid (34.6475ms)
+  AssertionError [ERR_ASSERTION]: a chapter deleted by the author earlier is not resurrected
