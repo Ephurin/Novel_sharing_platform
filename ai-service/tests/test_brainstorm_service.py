@@ -17,6 +17,7 @@ Verifies:
 """
 import hashlib
 import json
+import os
 import unittest
 import uuid
 from types import SimpleNamespace
@@ -38,11 +39,23 @@ class BrainstormFoundationTests(unittest.TestCase):
         self.novel_id = str(uuid.uuid4())
         self.tenant_id = "00000000-0000-0000-0000-000000000001"
         self.author_id = str(uuid.uuid4())
+        self.service_token = (
+            getattr(getattr(app.state, "settings", None), "platform_service_token", None)
+            or os.getenv("PLATFORM_SERVICE_TOKEN", "p202-offline-token")
+        )
+        self.orig_settings = getattr(app.state, "settings", None)
+        if hasattr(app.state, "settings") and app.state.settings is not None:
+            if not getattr(app.state.settings, "platform_service_token", None):
+                from dataclasses import replace
+                app.state.settings = replace(app.state.settings, platform_service_token=self.service_token)
+
         self.headers = {
             "X-Tenant-Id": self.tenant_id,
             "X-Author-Id": self.author_id,
             "X-User-Id": self.author_id,
             "X-Actor-Id": self.author_id,
+            "Authorization": f"Bearer {self.service_token}",
+            "X-Service-Token": self.service_token,
         }
 
         self.repo = InMemoryNarrativeRepository()
@@ -91,6 +104,8 @@ class BrainstormFoundationTests(unittest.TestCase):
 
     def tearDown(self):
         app.dependency_overrides.clear()
+        if self.orig_settings is not None:
+            app.state.settings = self.orig_settings
         if self.orig_repo is not None:
             app.state.narrative_repository = self.orig_repo
         app.state.llm_service = self.orig_llm
@@ -221,12 +236,28 @@ class BrainstormFoundationTests(unittest.TestCase):
         body = {"contract_version": "brainstorm-v1"}
 
         # 1. Missing tenant header -> 401
-        res = self.client.post(url, headers={}, json=body)
+        res = self.client.post(
+            url,
+            headers={
+                "Authorization": f"Bearer {self.service_token}",
+                "X-Service-Token": self.service_token,
+                "X-Author-Id": self.author_id,
+                "X-User-Id": self.author_id,
+            },
+            json=body,
+        )
         self.assertEqual(res.status_code, 401)
         self.assertEqual(res.json()["detail"]["code"], "BRAINSTORM_IDENTITY_REQUIRED")
 
         # 2. Invalid UUID in tenant header -> 422
-        res = self.client.post(url, headers={"X-Tenant-Id": "invalid-uuid"}, json=body)
+        res = self.client.post(
+            url,
+            headers={
+                **self.headers,
+                "X-Tenant-Id": "invalid-uuid",
+            },
+            json=body,
+        )
         self.assertEqual(res.status_code, 422)
         self.assertEqual(res.json()["detail"]["code"], "INVALID_SCOPE_HEADER")
 
@@ -235,8 +266,7 @@ class BrainstormFoundationTests(unittest.TestCase):
         res = self.client.post(
             url,
             headers={
-                "X-Tenant-Id": self.tenant_id,
-                "X-Author-Id": self.author_id,
+                **self.headers,
                 "X-User-Id": foreign_id,
             },
             json=body,
@@ -250,8 +280,8 @@ class BrainstormFoundationTests(unittest.TestCase):
         res = self.client.post(
             url,
             headers={
+                **self.headers,
                 "X-Tenant-Id": other_tenant,
-                "X-Author-Id": self.author_id,
             },
             json=body,
         )

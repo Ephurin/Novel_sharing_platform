@@ -220,3 +220,4 @@ def test_brainstorm_postgres_private_notes_redacted(brainstorm_env):
     assert res.status_code == 200
     assert secret not in res.text
     assert secret not in json.dumps(f.fake_llm.last_call)
+

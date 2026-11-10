@@ -112,3 +112,4 @@ class BrainstormResponse(StrictDTO):
     future_events: list[ProposedFutureEvent] = Field(default_factory=list)
     events: list[ProposedFutureEvent] = Field(default_factory=list)
     provenance: BrainstormProvenance
+
