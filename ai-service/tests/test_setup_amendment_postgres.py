@@ -1344,7 +1344,22 @@ def test_f05_tampered_decision_receipt_fields_fail_closed(amendment_env):
         verified = f.repo._load_verified_amendment_edges(s, novel_id)
         assert (fact_id, succ_id) in verified
 
-    # Test tampering fields one by one in edited_payload
+    from application.writing_service import WritingService
+    from tests.test_world_rule_effective_head_postgres import TeleportDraftProvider
+    from tests.test_writing_plan_authority_postgres import SqlRevisionProvider
+
+    provider = TeleportDraftProvider()
+    writing_service = WritingService(f.repo, provider, SqlRevisionProvider(f.engine))
+
+    with f.engine.connect() as db:
+        orig_row = db.execute(
+            text("SELECT id, edited_payload FROM narrative.proposal_decisions WHERE proposal_id=:p"),
+            {"p": decision_id},
+        ).mappings().one()
+        orig_payload = dict(orig_row["edited_payload"])
+        rec_id = orig_row["id"]
+
+    # Test tampering fields one by one in edited_payload (including fact_value, fact_key, is_locked)
     tamper_cases = [
         ("proposal_id", str(uuid.uuid4())),
         ("actor_id", str(uuid.uuid4())),
@@ -1356,15 +1371,10 @@ def test_f05_tampered_decision_receipt_fields_fail_closed(amendment_env):
         ("expected_brain_version", 999),
         ("resulting_brain_version", 999),
         ("root_fact_id", str(uuid.uuid4())),
+        ("fact_value", "tampered_receipt_fact_value"),
+        ("fact_key", "tampered_receipt_fact_key"),
+        ("is_locked", not orig_payload.get("is_locked", False)),
     ]
-
-    with f.engine.connect() as db:
-        orig_row = db.execute(
-            text("SELECT id, edited_payload FROM narrative.proposal_decisions WHERE proposal_id=:p"),
-            {"p": decision_id},
-        ).mappings().one()
-        orig_payload = dict(orig_row["edited_payload"])
-        rec_id = orig_row["id"]
 
     for field_name, bad_value in tamper_cases:
         tampered_payload = dict(orig_payload)
@@ -1377,7 +1387,16 @@ def test_f05_tampered_decision_receipt_fields_fail_closed(amendment_env):
 
         with session_scope(f.repo._session_factory) as s:
             verified = f.repo._load_verified_amendment_edges(s, novel_id)
-            assert (fact_id, succ_id) not in verified, f"Field {field_name} tampering was not rejected!"
+            assert (fact_id, succ_id) not in verified, f"Field {field_name} tampering was not rejected by edge loader!"
+
+        with pytest.raises(WorldRuleLineageError) as exc:
+            f.repo.get_structured_context(novel_id)
+        assert exc.value.code == "WORLD_RULE_SUCCESSOR_UNVERIFIED", (
+            f"Field {field_name} tampering did not fail closed with WORLD_RULE_SUCCESSOR_UNVERIFIED in get_structured_context!"
+        )
+
+    # Verify zero provider calls were made during all fail-closed resolutions
+    assert len(provider.payloads) == 0
 
     # Restore valid payload
     with f.engine.begin() as db:

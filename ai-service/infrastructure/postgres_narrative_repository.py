@@ -377,17 +377,42 @@ class PostgresNarrativeRepository:
                 continue
             if successor.supersedes_id != parent.id:
                 continue
-            if successor.fact_key != parent.fact_key or successor.fact_key != p_payload.get("fact_key"):
-                continue
-            if successor.fact_value != p_payload.get("replacement_text"):
-                continue
-            if successor.is_locked != parent.is_locked or successor.is_locked != p_payload.get("is_locked"):
-                continue
             if successor.source_type != "author_setup":
                 continue
             if str(successor.created_by) != novel_author:
                 continue
             if not _has_global_world_rule_shape(self._fact_record_to_dict(successor)):
+                continue
+
+            # F-05: Verify fact_key, fact_value, and is_locked bindings across
+            # parent FactRecord, successor FactRecord, ProposalRecord payload, and DecisionRecord edited_payload (receipt)
+            receipt_key = payload.get("fact_key")
+            if (
+                receipt_key != parent.fact_key
+                or receipt_key != successor.fact_key
+                or receipt_key != p_payload.get("fact_key")
+                or successor.fact_key != parent.fact_key
+                or successor.fact_key != p_payload.get("fact_key")
+            ):
+                continue
+
+            receipt_value = payload.get("fact_value")
+            if (
+                receipt_value != successor.fact_value
+                or receipt_value != p_payload.get("replacement_text")
+                or successor.fact_value != p_payload.get("replacement_text")
+            ):
+                continue
+
+            receipt_lock = payload.get("is_locked")
+            if (
+                type(receipt_lock) is not bool
+                or receipt_lock != parent.is_locked
+                or receipt_lock != successor.is_locked
+                or receipt_lock != p_payload.get("is_locked")
+                or successor.is_locked != parent.is_locked
+                or successor.is_locked != p_payload.get("is_locked")
+            ):
                 continue
 
             # 6. Verify root fact belongs to M0 canonical artifacts and binds to payload
