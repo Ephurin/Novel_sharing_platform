@@ -173,6 +173,42 @@ def _insert_fact(
     return fid
 
 
+def _insert_transition(
+    db,
+    *,
+    brain_id: str,
+    tenant_id: str = TENANT,
+    novel_id: str,
+    entity_id: str,
+    attribute_key: str,
+    new_value: object,
+    fact_id: str | None = None,
+    event_id: str | None = None,
+    sequence: int = 1,
+) -> str:
+    tid = str(uuid.uuid4())
+    db.execute(
+        text(
+            "INSERT INTO narrative.state_transitions("
+            "id,story_brain_id,tenant_id,novel_id,entity_id,event_id,fact_id,attribute_key,new_value,sequence"
+            ") VALUES (:id,:brain,:tenant,:novel,:entity,:event,:fact,:key,CAST(:val AS jsonb),:seq)"
+        ),
+        {
+            "id": tid,
+            "brain": brain_id,
+            "tenant": tenant_id,
+            "novel": novel_id,
+            "entity": entity_id,
+            "event": event_id,
+            "fact": fact_id,
+            "key": attribute_key,
+            "val": json.dumps(new_value, ensure_ascii=False),
+            "seq": sequence,
+        },
+    )
+    return tid
+
+
 def _memory_headers(f):
     return {
         **f.headers,
@@ -489,6 +525,159 @@ def test_p1_fact_corrections_standalone_retirement_and_pending_setup_successor_p
     for hidden in ("PENDING_SUCCESSOR", "RETIRED_SETUP", "P1_OLD_RULE", "P1_RETIRED_RULE"):
         assert hidden not in dispatched
     _assert_canon_unchanged(f, before)
+
+
+@pytest.mark.parametrize("is_locked", [False, True])
+def test_p1_state_projection_parity_with_memory_and_writing_context_under_corrections_and_retirement(rule_env, is_locked):
+    """F-03: State projection and rebuild_projection must stay synchronized with Memory and Writing Context."""
+    f, service, provider, h, brain_id = rule_env
+    n = f.src.novel_id
+    with f.engine.connect() as db:
+        entity_id = str(db.execute(
+            text("SELECT id FROM narrative.entities WHERE novel_id=:n LIMIT 1"), {"n": n}
+        ).scalar_one())
+        brain_version = db.execute(
+            text("SELECT brain_version FROM narrative.story_brains WHERE novel_id=:n"), {"n": n}
+        ).scalar_one()
+
+    # 1. Baseline: Fact F1 + State Transition T1
+    with f.engine.begin() as db:
+        f1_id = _insert_fact(
+            db,
+            brain_id=brain_id,
+            novel_id=n,
+            subject_entity_id=entity_id,
+            fact_type="character_trait",
+            fact_key="cultivation_stage",
+            fact_value="Đại Đấu Sư",
+            source_type="AI",
+            is_locked=is_locked,
+            chapter_number=1,
+            source_revision_id=f.src.revision_id,
+        )
+        _insert_transition(
+            db,
+            brain_id=brain_id,
+            novel_id=n,
+            entity_id=entity_id,
+            attribute_key="cultivation_stage",
+            new_value="Đại Đấu Sư",
+            fact_id=f1_id,
+            sequence=10,
+        )
+
+    # Rebuild projection and check strict parity across all consumers
+    rebuilt_state = f.repo.rebuild_projection(n, brain_version)
+    assert rebuilt_state["entities"][entity_id]["cultivation_stage"] == "Đại Đấu Sư"
+
+    mem_resp = f.client.get(f"/v1/story-brains/{n}/memory", headers=_memory_headers(f))
+    assert mem_resp.status_code == 200
+    assert mem_resp.json()["data"]["current_state"]["entities"][entity_id]["cultivation_stage"] == "Đại Đấu Sư"
+
+    def _extract_ctx_states(ctx_pkg):
+        return {s["entity_id"]: s["state"] for s in ctx_pkg.current_states}
+
+    ctx_no_ch = f.repo.get_structured_context(n, chapter_number=None)
+    assert _extract_ctx_states(ctx_no_ch)[entity_id]["cultivation_stage"] == "Đại Đấu Sư"
+
+    ctx_ch1 = f.repo.get_structured_context(n, chapter_number=1)
+    assert _extract_ctx_states(ctx_ch1)[entity_id]["cultivation_stage"] == "Đại Đấu Sư"
+
+    # 2. Fact F2 supersedes F1 with new value "Đấu Vương" and State Transition T2
+    with f.engine.begin() as db:
+        f2_id = _insert_fact(
+            db,
+            brain_id=brain_id,
+            novel_id=n,
+            subject_entity_id=entity_id,
+            fact_type="character_trait",
+            fact_key="cultivation_stage",
+            fact_value="Đấu Vương",
+            source_type="AI",
+            is_locked=is_locked,
+            chapter_number=1,
+            source_revision_id=f.src.revision_id,
+            supersedes_id=f1_id,
+        )
+        _insert_transition(
+            db,
+            brain_id=brain_id,
+            novel_id=n,
+            entity_id=entity_id,
+            attribute_key="cultivation_stage",
+            new_value="Đấu Vương",
+            fact_id=f2_id,
+            sequence=20,
+        )
+
+    # Rebuild projection must succeed without OptimisticLockError, applying only effective F2 and T2
+    rebuilt_state_2 = f.repo.rebuild_projection(n, brain_version)
+    assert rebuilt_state_2["entities"][entity_id]["cultivation_stage"] == "Đấu Vương"
+
+    mem_resp_2 = f.client.get(f"/v1/story-brains/{n}/memory", headers=_memory_headers(f))
+    assert mem_resp_2.status_code == 200
+    assert mem_resp_2.json()["data"]["current_state"]["entities"][entity_id]["cultivation_stage"] == "Đấu Vương"
+
+    ctx_no_ch_2 = f.repo.get_structured_context(n, chapter_number=None)
+    assert _extract_ctx_states(ctx_no_ch_2)[entity_id]["cultivation_stage"] == "Đấu Vương"
+
+    ctx_ch1_2 = f.repo.get_structured_context(n, chapter_number=1)
+    assert _extract_ctx_states(ctx_ch1_2)[entity_id]["cultivation_stage"] == "Đấu Vương"
+
+    # Writing Service generation dispatch receives the updated projected entity state
+    gen_resp = f.client.post(
+        "/v1/writing/generations",
+        headers=_memory_headers(f),
+        json=request_body((f, service, provider, h)),
+    )
+    assert gen_resp.status_code == 202
+    job = f.repo.get_writing_job(gen_resp.json()["data"]["job_id"])
+    assert job.status == "completed" and len(provider.payloads) == 1
+    pkg = provider.payloads[0]["context_package"]
+    dispatched_states = {s["entity_id"]: s.get("state", {}) for s in pkg.get("current_states", [])}
+    assert dispatched_states[entity_id]["cultivation_stage"] == "Đấu Vương"
+
+    # 3. Fact F3 retirement: Fact F3 is retired with state transition T3
+    with f.engine.begin() as db:
+        f3_id = _insert_fact(
+            db,
+            brain_id=brain_id,
+            novel_id=n,
+            subject_entity_id=entity_id,
+            fact_type="character_trait",
+            fact_key="sect",
+            fact_value="Vân Lam Tông",
+            source_type="AI",
+            is_locked=True,
+            is_retired=True,
+            chapter_number=1,
+            source_revision_id=f.src.revision_id,
+        )
+        _insert_transition(
+            db,
+            brain_id=brain_id,
+            novel_id=n,
+            entity_id=entity_id,
+            attribute_key="sect",
+            new_value="Vân Lam Tông",
+            fact_id=f3_id,
+            sequence=30,
+        )
+
+    # Rebuild projection: retired fact F3 and transition T3 must be omitted from projected state
+    rebuilt_state_3 = f.repo.rebuild_projection(n, brain_version)
+    assert "sect" not in rebuilt_state_3["entities"][entity_id]
+    assert rebuilt_state_3["entities"][entity_id]["cultivation_stage"] == "Đấu Vương"
+
+    mem_resp_3 = f.client.get(f"/v1/story-brains/{n}/memory", headers=_memory_headers(f))
+    assert mem_resp_3.status_code == 200
+    assert "sect" not in mem_resp_3.json()["data"]["current_state"]["entities"][entity_id]
+
+    ctx_no_ch_3 = f.repo.get_structured_context(n, chapter_number=None)
+    assert "sect" not in _extract_ctx_states(ctx_no_ch_3).get(entity_id, {})
+
+    ctx_ch1_3 = f.repo.get_structured_context(n, chapter_number=1)
+    assert "sect" not in _extract_ctx_states(ctx_ch1_3).get(entity_id, {})
 
 
 def test_chapter_cutoff_and_tight_token_budget_never_resurrect_retired_locked_rules(rule_env):

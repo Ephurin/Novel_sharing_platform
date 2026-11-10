@@ -412,7 +412,13 @@ class InMemoryNarrativeRepository:
         brain = self.get_story_brain(story_id)
         if int(brain.metadata.get("brain_version", "1")) != expected_brain_version:
             raise OptimisticLockError(story_id)
-        state = project(brain.entities, brain.facts, brain.events, brain.transitions)
+        effective_facts = resolve_effective_facts(brain.facts)
+        effective_fact_ids = {f["fact_id"] for f in effective_facts}
+        transitions = [
+            t for t in brain.transitions
+            if t.get("event_id") is not None or t.get("fact_id") in effective_fact_ids
+        ]
+        state = project(brain.entities, effective_facts, brain.events, transitions)
         self._brains[story_id] = replace(brain, current_state=state,
             relations=project_relations(brain.entities, brain.relations, state))
         return state

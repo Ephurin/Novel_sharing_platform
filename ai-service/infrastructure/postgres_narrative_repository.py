@@ -990,19 +990,40 @@ class PostgresNarrativeRepository:
             return self._persist_projection(session, brain, novel_id)
 
     def _projection_inputs(self, session, novel_id):
+        brain = session.scalar(
+            select(StoryBrainRecord).where(*self._scope(StoryBrainRecord, novel_id))
+        )
         entities = [self._to_entity(e) for e in session.scalars(
             select(EntityRecord).where(*self._scope(EntityRecord, novel_id))).all()]
-        facts = [{"fact_id": str(f.id), "subject_entity_id": str(f.subject_entity_id) if f.subject_entity_id else None,
-                  "fact_key": f.fact_key, "fact_value": f.fact_value, "is_locked": f.is_locked}
-                 for f in session.scalars(select(FactRecord).where(*self._scope(FactRecord, novel_id))).all()]
+        raw_fact_records = session.scalars(
+            select(FactRecord)
+            .where(*self._scope(FactRecord, novel_id))
+            .order_by(FactRecord.created_at.asc(), FactRecord.id.asc())
+        ).all()
+        effective_fact_dicts = resolve_effective_facts(
+            [self._fact_record_to_dict(f) for f in raw_fact_records],
+            tenant_id=str(self._tenant_id),
+            novel_id=str(novel_id),
+            story_brain_id=str(brain.id) if brain else None,
+        )
+        effective_fact_ids = {f["fact_id"] for f in effective_fact_dicts}
+        facts = [
+            {
+                "fact_id": f["fact_id"],
+                "subject_entity_id": f.get("subject_entity_id"),
+                "fact_key": f.get("fact_key"),
+                "fact_value": f.get("fact_value"),
+                "is_locked": bool(f.get("is_locked", False)),
+            }
+            for f in effective_fact_dicts
+        ]
         events = [self._to_event(e) for e in session.scalars(select(EventRecord).where(
             *self._scope(EventRecord, novel_id)).order_by(EventRecord.narrative_order)).all()]
-        transitions = [{"transition_id": str(t.id), "entity_id": str(t.entity_id),
-                        "event_id": str(t.event_id) if t.event_id else None,
-                        "fact_id": str(t.fact_id) if t.fact_id else None,
-                        "attribute_key": t.attribute_key, "new_value": t.new_value}
-                       for t in session.scalars(select(StateTransitionRecord).where(
-                           *self._scope(StateTransitionRecord, novel_id)).order_by(StateTransitionRecord.sequence)).all()]
+        transitions = [
+            t
+            for t in self._load_transitions(session, novel_id)
+            if t.get("event_id") is not None or t.get("fact_id") in effective_fact_ids
+        ]
         return entities, facts, events, transitions
 
     def _persist_projection(self, session, brain, novel_id):

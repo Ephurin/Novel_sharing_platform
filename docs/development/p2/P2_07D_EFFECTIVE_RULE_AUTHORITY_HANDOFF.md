@@ -2,7 +2,7 @@
 
 - **Issue:** #120 (parent #114). Stage-0 diagnostics: PR #119 (not merged, not used as acceptance).
 - **Branch:** `gemini/p2-07d-world-rule-effective-head` → base `integration/p2-planning-studio` (`30dc39e1`).
-- **Revision:** R2, addressing GPT-6 review F-01 / F-02 on PR #121 (`e61e0f3b`).
+- **Revision:** R3, addressing GPT-6 review comments #6758396923 (F-01, F-02) and #6758755619 (F-03).
 
 ## 0. Verdict
 
@@ -10,10 +10,10 @@
 |---|---|
 | **F-01 — approved successor authority** | **`CONTRACT_BLOCKED`** for "replace a World Setup rule with an approved successor". Delivered instead: a conservative, fail-closed gate (review option A). |
 | **F-02 — resolver scope** | **FIXED.** World Setup restrictions apply only to edges touching a global World Setup rule; P1 / non-setup families keep the pre-existing semantics. |
-| Shared resolver across Memory / Context / Writer / dispatch fence | Delivered (unchanged from R1, narrowed policy). |
-| Write-side projection (`_projection_inputs` / `_persist_projection`) | Reverted to baseline (no P1 write-path behavior change). |
+| **F-03 — state projection synchronization** | **FIXED.** `_projection_inputs` in `PostgresNarrativeRepository` and `rebuild_projection` in `InMemoryNarrativeRepository` now resolve effective facts through `resolve_effective_facts` and filter fact-bound `StateTransitionRecord` rows to `effective_fact_ids`. Persisted `CurrentEntityStateRecord`, `/memory`, and `WritingContextPackage` remain 100% synchronized across corrections (unlocked/locked) and retirement. |
+| Shared resolver across Memory / Context / Writer / dispatch fence | Delivered (fail-closed for unverified setup successor). |
 
-R1's claims "CONTRACT SUFFICIENT" and "author-approved successor" are **withdrawn**.
+R1's claims "CONTRACT SUFFICIENT" and "author-approved successor" remain **withdrawn**.
 
 ## 1. Why F-01 is `CONTRACT_BLOCKED`
 
@@ -49,32 +49,48 @@ So an unaudited successor never silently replaces the approved root. The old roo
 
 ## 2. F-02 — Compatibility policy
 
-| Fact family / pattern | Behavior (R2) | Baseline reference |
+| Fact family / pattern | Behavior (R2/R3) | Baseline reference |
 |---|---|---|
 | Non-setup confirmed fact superseded by a non-setup confirmed fact (P1 trait, chapter-scoped rule) | Parent hidden, child effective. No World Setup validation. | Baseline `memory` route: `replaced = {supersedes_id}` filter |
 | Non-setup fact with unknown/legacy `supersedes_id` | Fact kept, no error | Baseline ignored unknown parents |
-| `is_retired=True` standalone fact (any family, incl. setup rule) | Hidden, **no error** (R1 raised) | Baseline `memory` hid retired facts; `test_p1_memory_entity_hitl` retires all facts |
+| `is_retired=True` standalone fact (any family, incl. setup rule) | Hidden, **no error** | Baseline `memory` hid retired facts; `test_p1_memory_entity_hitl` retires all facts |
 | Unconfirmed fact (any family) | Ignored | Baseline filtered to `confirmed` |
 | Any edge touching a global World Setup rule | Fail closed (see §1) | New, required by #120 |
 | Non-setup fact attached to a setup root (P1 trait, entity-/chapter-/revision-bound) | Fail closed | New |
 
-Write paths stay at baseline. `PostgresNarrativeRepository._projection_inputs` and `domain.projection.project` no longer call the resolver, so revision acceptance and projection rebuild behave exactly as before. `project()` only uses facts as entity-attribute locks keyed by `subject_entity_id`, and global setup rules have none.
+## 3. F-03 — State Projection Synchronization with Memory & Writing Context
 
-## 3. Consumers sharing the resolver
+In R2, `_projection_inputs` was reverted to baseline, which loaded all historical facts and fact-bound transitions. As identified by GPT-6 review F-03:
+- If a locked P1 fact was superseded or retired, `project()` in `_persist_projection` could crash with `OptimisticLockError` against stale locks or replay obsolete transitions.
+- `CurrentEntityStateRecord` (persisted state read when `chapter_number is None`) could diverge from `/memory` live state.
 
-- [`entity_hitl_routes.py`](../../../ai-service/api/entity_hitl_routes.py) `memory`: only resolver errors map to 409. `project` errors keep the baseline `invoke` mapping.
-- [`narrative_routes.py`](../../../ai-service/api/narrative_routes.py) `preview_writing_context`: 409 with `reason`.
+**Delivered in R3:**
+1. [`PostgresNarrativeRepository._projection_inputs`](../../../ai-service/infrastructure/postgres_narrative_repository.py):
+   - Loads scoped facts ordered deterministically and passes them to `resolve_effective_facts`.
+   - Passes only effective facts (`{**f, "is_locked": bool(f.get("is_locked", False))}`) to `project`.
+   - Filters `StateTransitionRecord` rows so only transitions where `event_id is not None` OR `str(fact_id) in effective_fact_ids` are replayed.
+2. [`InMemoryNarrativeRepository.rebuild_projection`](../../../ai-service/infrastructure/in_memory_narrative_repository.py):
+   - Synchronized using `effective_facts = resolve_effective_facts(brain.facts)` and identical transition filtering.
+3. **Parity Outcome:**
+   - `rebuild_projection`, `CurrentEntityStateRecord`, `/memory` live state, `get_structured_context(chapter_number=None)`, and `get_structured_context(chapter_number=...)` all agree on identical entity attributes.
+   - Superseded or retired locked facts never cause `OptimisticLockError` during projection rebuilds.
+
+## 4. Consumers sharing the resolver
+
+- [`entity_hitl_routes.py`](../../../ai-service/api/entity_hitl_routes.py) `memory`: resolver errors map to 409 with reason. `project` errors keep the baseline `invoke` mapping.
+- [`narrative_routes.py`](../../../ai-service/api/narrative_routes.py) `preview_writing_context`: 409 with reason.
 - [`postgres_narrative_repository.py`](../../../ai-service/infrastructure/postgres_narrative_repository.py):
-  - `get_structured_context` resolves before the chapter cutoff and the locked/ordinary budget split.
-  - `writing_authority_snapshot` validates with `expected_setup_actor`.
-  - `writing_rule_authority_snapshot` is the REPEATABLE READ pre-provider dispatch fence.
-- [`in_memory_narrative_repository.py`](../../../ai-service/infrastructure/in_memory_narrative_repository.py) `get_structured_context`.
+  - `_projection_inputs`: resolves effective facts and filters transitions for `_persist_projection` and `rebuild_projection`.
+  - `get_structured_context`: resolves before the chapter cutoff and the locked/ordinary budget split.
+  - `writing_authority_snapshot`: validates with `expected_setup_actor`.
+  - `writing_rule_authority_snapshot`: the REPEATABLE READ pre-provider dispatch fence.
+- [`in_memory_narrative_repository.py`](../../../ai-service/infrastructure/in_memory_narrative_repository.py):
+  - `get_structured_context` and `rebuild_projection`.
 - [`writing_service.py`](../../../ai-service/application/writing_service.py) `process_generation`: snapshot before packing, recheck before `generate_writing_draft`.
 
-## 4. Tests
+## 5. Tests
 
 [`test_state_projection.py`](../../../ai-service/tests/test_state_projection.py) (unit):
-
 - independent setup roots + standalone retirement + pending successor ignored;
 - P1 corrections / retirement / unknown-parent preserved;
 - 16 well-formed-but-unaudited successor variants → `WORLD_RULE_SUCCESSOR_UNVERIFIED`;
@@ -83,14 +99,17 @@ Write paths stay at baseline. `PostgresNarrativeRepository._projection_inputs` a
 - 3 cross-scope rows.
 
 [`test_world_rule_effective_head_postgres.py`](../../../ai-service/tests/test_world_rule_effective_head_postgres.py) (real PostgreSQL, fake providers):
-
 - `test_baseline_single_setup_rule_and_p1_extracted_facts_unchanged` (locked / unlocked).
-- `test_well_formed_but_unaudited_successor_chain_never_replaces_root`: 5 variants (2/3 hops, locked/unlocked, retired parent). Each checks that no receipt references the successor, then expects Memory 409, Context 409 and a blocked Writer with 0 provider calls. No root/head text leaks, and canon is unchanged.
-- `test_real_setup_review_root_with_receipt_is_not_replaced_by_unaudited_successor`: the root comes from the **real setup review flow** and has a `proposal_decisions` receipt. A matching unaudited successor fails closed, and canon is unchanged.
-- `test_p1_fact_corrections_standalone_retirement_and_pending_setup_successor_preserved` (F-02): P1 trait and chapter-rule corrections, standalone retired P1 and setup rules, and a pending setup successor. Memory returns 200, Context returns 200, the Writer completes, and old or retired values never leak.
+- `test_well_formed_but_unaudited_successor_chain_never_replaces_root`: 5 variants (2/3 hops, locked/unlocked, retired parent).
+- `test_real_setup_review_root_with_receipt_is_not_replaced_by_unaudited_successor`: genuine setup-review root with receipt; unaudited successor fails closed.
+- `test_p1_fact_corrections_standalone_retirement_and_pending_setup_successor_preserved` (F-02).
+- `test_p1_state_projection_parity_with_memory_and_writing_context_under_corrections_and_retirement` (F-03, locked and unlocked):
+  - Evaluates Phase 1 baseline, Phase 2 supersession (with locked/unlocked fact and transition), and Phase 3 retirement.
+  - Verifies exact attribute parity between `rebuild_projection`, `CurrentEntityStateRecord`, `/memory`, and `WritingContextPackage` (both unconstrained and chapter-scoped).
+  - Verifies zero `OptimisticLockError` and correct state in generation dispatch.
 - `test_chapter_cutoff_and_tight_token_budget_never_resurrect_retired_locked_rules`.
-- `test_malformed_or_unauthorized_rule_lineage_fails_closed`: 17 cases, including cross novel/tenant/brain, fork, cycles, foreign or null actor, and a P1 trait attached to a setup root.
-- `test_rule_lineage_context_to_dispatch_fence`: supersede / retire / mutate / fork during packing → blocked before the provider.
+- `test_malformed_or_unauthorized_rule_lineage_fails_closed`: 17 cases.
+- `test_rule_lineage_context_to_dispatch_fence`: 4 mutation scenarios during packing blocked before provider.
 - `test_m0_activation_remains_strict_when_setup_rule_is_superseded_or_retired_pre_activation`.
 
 Reproduce:
@@ -105,7 +124,7 @@ python -m pytest -q -o addopts= -p no:cacheprovider \
   tests/test_setup_activation_postgres.py tests/test_writing_plan_authority_postgres.py
 ```
 
-## 5. Limits
+## 6. Limits
 
 - Roots are not checked against `proposal_decisions` receipts. Legacy and bootstrap roots without receipts are still served, so this PR adds no new root authority.
 - Hiding a standalone `is_retired` setup rule follows the baseline Memory semantics. No production writer sets `is_retired` on setup rules today. M0 activation still rejects retired accepted rules.
