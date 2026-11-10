@@ -54,6 +54,7 @@ const envSchema = z.object({
   AI_LLM_TEMPERATURE: z.coerce.number().min(0).max(2).default(0.7),
   AI_SERVICE_URL: z.string().default('http://localhost:8000'),
   GIPHY_API_KEY: optionalStringSchema,
+  GIPHY_PUBLIC_API_KEY: optionalStringSchema,
   PLATFORM_SERVICE_TOKEN: optionalStringSchema
 });
 

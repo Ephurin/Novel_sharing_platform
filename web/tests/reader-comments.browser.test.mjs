@@ -7,7 +7,6 @@ import { chromium, expect } from '@playwright/test';
 import { readerEvidence } from './reader-browser-evidence.mjs';
 
 const gif = Buffer.from('R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==', 'base64');
-const mediaPath = '/api/v1/media/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa.gif';
 const chapter = { chapterId: 'c-1', novelId: 'novel-1', title: 'Một buổi sáng mới', chapterNumber: 1, isVip: false, wordCount: 1000,
   content: Array(12).fill('Một hành trình mới bắt đầu trên con đường nhỏ. Người lữ hành dừng lại để lắng nghe những câu chuyện.').join('\n\n') };
 const novel = { novelId: 'novel-1', title: 'Hành trình qua những mùa gió', authorName: 'Người kể chuyện', authorId: 'author-1', synopsis: 'Giới thiệu truyện.', serialStatus: 'ONGOING', chapters: [chapter] };
@@ -55,7 +54,6 @@ test('comments keep application surfaces over reading paper and support GIF, emo
       await page.route('**/api/v1/**', async route => {
         const url = new URL(route.request().url()), method = route.request().method();
         let data = [], meta = { totalItems: 0, totalPages: 0 };
-        if (url.pathname === mediaPath) return route.fulfill({ contentType: 'image/gif', body: gif });
         if (url.pathname.endsWith('/auth/me')) data = { userId: 'reader-1', username: 'reader', email: 'reader@example.invalid', role: 'READER', status: 'ACTIVE' };
         else if (url.pathname.endsWith('/reading/preferences/me')) data = preferences;
         else if (url.pathname.endsWith('/reading/bookmarks/me/novel-1')) data = null;
@@ -63,7 +61,6 @@ test('comments keep application surfaces over reading paper and support GIF, emo
         else if (url.pathname.endsWith('/reading/novels/novel-1')) data = novel;
         else if (url.pathname.endsWith('/reading/chapters/c-1')) data = chapter;
         else if (url.pathname.endsWith('/statistics')) data = { isFollowing: false, ratingsCount: 0, ratingAverage: null };
-        else if (url.pathname.endsWith('/media')) { assert.equal(route.request().postDataJSON().data, gif.toString('base64')); data = { path: mediaPath }; }
         else if (/\/comments\/[^/]+\/reaction$/.test(url.pathname)) {
           if (failVote) return route.fulfill({ status: 503, json: { success: false, error: { message: 'Chưa lưu phản ứng.' } } });
           const comment = comments.find(item => item.commentId === url.pathname.split('/').at(-2));
@@ -89,6 +86,7 @@ test('comments keep application surfaces over reading paper and support GIF, emo
           if (method === 'POST') {
             if (failCreate) return route.fulfill({ status: 503, json: { success: false, error: { message: 'Chưa gửi bình luận.' } } });
             data = { ...makeComment(`new-${++nextId}`, '', url.pathname.includes('/chapters/') ? 'c-1' : null, 'reader-1'), ...route.request().postDataJSON() };
+            if (data.gifId) data.status = 'PENDING_MODERATION';
             comments.push(data);
           } else {
             allScopeRequested ||= url.searchParams.get('scope') === 'ALL';
@@ -173,14 +171,13 @@ test('comments keep application surfaces over reading paper and support GIF, emo
             await gifPicker.getByRole('button', { name: 'Chọn GIF Meme 3', exact: true }).click();
             await expect(form.locator('.sc-comment-giphy-media > img')).toHaveAttribute('src', 'https://media.giphy.com/media/gif3/giphy.gif?cid=fixture');
             assert.ok(providerRequests.some(url => new URL(url).searchParams.get('q') === 'meme'));
-            await form.getByRole('button', { name: 'Bỏ GIF', exact: true }).click();
           } else {
             await expect(gifPicker.getByRole('status')).toContainText('API key GIPHY');
             await expect(gifPicker.getByRole('textbox')).toBeDisabled();
             await page.keyboard.press('Escape');
           }
-          await form.locator('input[type="file"]').setInputFiles({ name: 'hello.gif', mimeType: 'image/gif', buffer: gif });
-          await expect(form.getByRole('img', { name: 'GIF đính kèm', exact: true })).toBeVisible();
+          await expect(form.getByRole('button', { name: 'Tải GIF từ máy', exact: true })).toHaveCount(0);
+          await expect(form.locator('input[type="file"]')).toHaveCount(0);
           await form.getByRole('checkbox', { name: 'Bình luận này chứa spoiler', exact: true }).check();
           failCreate = true;
           await form.getByRole('button', { name: 'Gửi bình luận', exact: true }).click();
@@ -195,8 +192,11 @@ test('comments keep application surfaces over reading paper and support GIF, emo
           await expect(posted.locator('strong')).toHaveText('Rất thích chương này.');
           await expect(posted.locator('.sc-comment-body')).toContainText('👍🇻🇳');
           await expect(posted.locator('.sc-comment-body')).toHaveCSS('font-family', /StoryCraft Flags/);
-          await posted.getByRole('button', { name: 'Xem GIF', exact: true }).click();
-          await expect(posted.getByRole('img', { name: 'GIF trong bình luận', exact: true })).toBeVisible();
+          if (gifEnabled) {
+            await expect(posted.getByText('Chờ duyệt', { exact: true })).toBeVisible();
+            await posted.getByRole('button', { name: 'Xem GIF', exact: true }).click();
+            await expect(posted.locator('.sc-comment-giphy-media > img')).toBeVisible();
+          }
           comments.find(item => item.commentId === 'new-1').content += '\n\n[^author-legacy]\n\n[^author-legacy]: Ghi chú cũ';
           await page.reload();
           await posted.getByRole('button', { name: 'Sửa', exact: true }).click();

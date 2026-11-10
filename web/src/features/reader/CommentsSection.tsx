@@ -76,9 +76,8 @@ function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpo
   const [notice, setNotice] = useState('');
   const [revealed, setRevealed] = useState(false);
   const [playGif, setPlayGif] = useState(false);
-  const [failedImage, setFailedImage] = useState(false);
   const [reaction, setReaction] = useState<Pick<ReaderComment, 'likesCount' | 'dislikesCount' | 'myReaction'> | null>(null);
-  useEffect(() => { setRevealed(false); setPlayGif(false); setFailedImage(false); }, [comment.content, comment.isSpoiler, comment.imageUrl, comment.gifId, forceSpoiler]);
+  useEffect(() => { setRevealed(false); setPlayGif(false); }, [comment.content, comment.isSpoiler, comment.imageUrl, comment.gifId, forceSpoiler]);
   useEffect(() => setReaction(null), [comment.likesCount, comment.dislikesCount, comment.myReaction]);
   const update = useMutation({
     mutationFn: ({ account, ...draft }: CommentInput & { account: string }) => {
@@ -124,12 +123,12 @@ function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpo
         </button>}
         {(!spoiler || revealed) && <>
           <ManuscriptContent content={comment.content} />
-          {(comment.imageUrl || comment.gifId) && !failedImage && <div className="sc-comment-media">
-            {(!reduceMotion || playGif) ? <>{comment.gifId ? <GiphyMedia id={comment.gifId} /> : <img src={comment.imageUrl!} alt="GIF trong bình luận" loading="lazy" onError={() => setFailedImage(true)} />}
+          {comment.gifId && <div className="sc-comment-media">
+            {(!reduceMotion || playGif) ? <><GiphyMedia id={comment.gifId} />
               {reduceMotion && <button type="button" className="sc-comment-text-action" onClick={() => setPlayGif(false)}>Ẩn GIF</button>}</>
               : <button type="button" className="sc-comment-text-action" onClick={() => setPlayGif(true)}><CommentIcon name="play_arrow" />Xem GIF</button>}
           </div>}
-          {failedImage && <Text size="sm" c="dimmed">Không tải được GIF.</Text>}
+          {comment.imageUrl && <Text size="sm" c="dimmed">GIF cá nhân đang tạm ngưng hiển thị.</Text>}
         </>}
       </div>}
     {mode === 'read' && <div className="sc-comment-actions">

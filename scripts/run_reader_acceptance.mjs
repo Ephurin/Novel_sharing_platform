@@ -23,6 +23,7 @@ for (const key of Object.keys(env)) if (/(?:API_KEY|PROVIDER_TOKEN)$/.test(key))
 const requiredBrowsers = [
   'reader-chapter-workspace.browser.test.mjs',
   'reader-comments.browser.test.mjs',
+  'reader-comment-moderation.browser.test.mjs',
   'reader-catalog-pagination.browser.test.mjs', 'reader-catalog.browser.test.mjs',
   'reader-detail-enhancements.browser.test.mjs', 'reader-detail.browser.test.mjs',
   'reader-home-accessibility.browser.test.mjs', 'reader-home-personalization.browser.test.mjs',

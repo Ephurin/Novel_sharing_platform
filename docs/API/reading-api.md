@@ -2,6 +2,14 @@
 
 Related SRS: `docs/SRS/reading-experience-service.md`
 
+## Deployment order
+
+Apply `024_chapter_reader_workspace.sql` through the backend migration runner
+before serving bookmark and expanded reading-preference endpoints. The runner
+tracks complete migration filenames and skips applied files. Run all migrations
+and the integrated Reader checks again after merging changes from main, including
+the separate `025_admin_novel_draft_sync.sql` change when it becomes available.
+
 ## Resource Summary
 
 | Resource | Description |

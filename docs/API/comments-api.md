@@ -21,24 +21,46 @@ All paths use the existing `/api/v1` prefix and standard response envelope.
 
 POST/PATCH accepts `content`, optional `isSpoiler`, and optional nullable `imageUrl` or `gifId`.
 Content is trimmed and limited to 2,000 characters. An attachment allows empty
-text. Otherwise whitespace-only submissions return 400. GIF URLs use the local
-`/api/v1/media/{uuid}.gif` path returned by the authenticated media upload endpoint.
-Uploads inspect the image signature and accept GIF files up to 1 MB. Emoji use
+text. Otherwise whitespace-only submissions return 400. User-uploaded GIFs are
+paused until staged media moderation is available. Uploads and comment writes
+with a local GIF attachment return 400 with `GIF_UPLOAD_DISABLED`; existing local
+GIF URLs return 404 with `Cache-Control: no-store`. Emoji use
 ordinary Unicode text. The UI supports bold and italic formatting.
 
 The editor displays formatting while composing and serializes to the existing
 Markdown-compatible content field. The 2,000-character limit includes stored marks.
 GIPHY attachments store an alphanumeric `gifId`, with a maximum length of 80,
-and a null `imageUrl`. An uploaded GIF uses `imageUrl` and a null `gifId`.
-Legacy edits preserve omitted attachment fields. Each comment accepts one GIF.
+and a null `imageUrl`. The backend verifies the ID through GIPHY's Get GIF by ID
+endpoint and accepts provider ratings `g`, `pg` and `pg-13`. Missing, malformed,
+unrated and restricted GIFs return 400. Provider failures or missing credentials
+return 503. Metadata requests time out after five seconds.
+Legacy edits preserve omitted attachment fields and repeat validation and review.
+Owners of legacy local GIF comments can remove the attachment to edit or repost.
 
 ### GIPHY search configuration
 
-Set `GIPHY_API_KEY` in the root `.env` for Docker Compose or in `backend/.env`
-for local backend development, then recreate/restart the backend. The browser
-reads the public client key from `GET /media/giphy-config`, which returns a
-nullable `apiKey` and disables response caching. Search and media requests go
-directly to GIPHY. Provider responses and URLs remain transient in the browser.
+Set `GIPHY_PUBLIC_API_KEY` in the root `.env` for Docker Compose or in
+`backend/.env` for local development, then restart the backend. This credential is
+explicitly public and is returned by `GET /media/giphy-config` as nullable
+`apiKey` with caching disabled. Use a dedicated browser credential, set provider
+quotas and referrer restrictions where supported, and monitor usage in GIPHY's
+dashboard. Search and display requests go directly from the browser to GIPHY.
+
+`GIPHY_API_KEY` is an optional private credential used only by backend validation.
+It is never included in the configuration response. The backend falls back to the
+public credential when a private credential is absent. Use the private credential
+when browser-key restrictions block server lookups. Each GIF write and manual
+approval performs one metadata lookup, which consumes provider quota. Choose
+dashboard quotas and production access for the expected traffic before release.
+
+Authenticated image uploads are limited to 20 attempts per account per ten
+minutes, including invalid uploads. Responses return 429 and `Retry-After` at the
+limit. GIF writes and approval checks also share a 60-lookups-per-account limit per ten
+minutes and return 429 when exhausted. Quotas count invalid IDs and provider errors.
+Both bounded limiters operate per backend process. A deployment with
+multiple processes needs a shared quota at its gateway. Retained GIF files are
+blocked by the application. Purge previously cached local GIF responses when
+deploying because earlier versions served them with long-lived cache headers.
 
 The picker supports Trending, keyword Search, and pagination. GIF lookup by ID
 resolves the current provider URL when displaying a saved attachment. Missing
@@ -91,10 +113,18 @@ Existing chapter documents remain compatible. Novel comments use the same
 collection with `chapterId: null`. A compound novel/chapter/status/date index
 is ensured during MongoDB startup; no PostgreSQL migration or data reset is needed.
 
-Unflagged text is approved automatically. Filter matches enter the existing
-moderation queue; approval/rejection works for both comment scopes. Editing
-reruns the filter. Older moderation decisions cannot replace a newer clean edit,
-and moderation updates cannot restore soft-deleted comments.
+Unflagged text-only comments are approved automatically. Every GIF comment,
+reply and edit enters the existing moderation queue, including GIF-only posts
+and clean text with a GIF. Administrators see the submitted GIF in review details
+and the server verifies its provider metadata again before approval. Guests and
+other users see the attachment only after manual approval. An internal media
+approval flag also hides legacy attachments that were automatically approved.
+
+Edits and review decisions serialize through a per-comment PostgreSQL advisory
+lock. Attachment edits supersede earlier pending reviews and create a new review
+with a submitted-content snapshot. An older review returns 409, and conditional
+MongoDB updates prevent its result from approving a newly edited attachment.
+Removing an attachment restores the ordinary text moderation policy.
 
 The UI reuses the existing POST /reports endpoint for reporting comments, with a
 required reason. Existing admin decisions can remove reported comments and notify
@@ -106,7 +136,10 @@ The opt-in `comments.integration.test.ts` uses isolated PostgreSQL and MongoDB
 test stores and cleans them up. It verifies HTTP auth, validation, names/avatar
 fields, scope separation, draft exclusion, pagination, locked/deleted/stale-role
 accounts, ownership, pending/rejected visibility, stale moderation, report
-resolution and soft deletion.
+resolution and soft deletion. Media cases use fixture provider metadata and cover
+unsafe/unrated/unknown IDs, provider outages, pending GIF-only posts, reply
+visibility, repeated and concurrent attachment edits, stale approvals and legacy
+file access. Media unit tests also cover private-key handling and upload quotas.
 
 From backend:
 

@@ -1,18 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { readFile, unlink } from 'node:fs/promises';
+import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { Pool } from 'pg';
 import type { AddressInfo } from 'node:net';
 
-test('novel/chapter comments: permissions, moderation, pagination and isolation', { skip: process.env.RUN_COMMENT_TESTS !== '1' }, async () => {
+test('novel/chapter comments: permissions, moderation, pagination and isolation', { skip: process.env.RUN_COMMENT_TESTS !== '1' }, async (t) => {
   const schema = 'comments_' + randomUUID().replaceAll('-', '');
   const adminPool = new Pool({ connectionString: process.env.DATABASE_URL });
   let closePostgres: (() => Promise<void>) | undefined, closeMongo: (() => Promise<void>) | undefined;
   let dropMongo: (() => Promise<boolean>) | undefined;
   let server: import('node:http').Server | undefined;
   let uploadedGif: string | undefined;
+  let restoreGiphyConfig: (() => void) | undefined;
   try {
     await adminPool.query(`create schema "${schema}"`);
     const dbUrl = new URL(process.env.DATABASE_URL!); dbUrl.searchParams.set('options', `-c search_path=${schema},public`); process.env.DATABASE_URL=dbUrl.href;
@@ -34,6 +35,21 @@ test('novel/chapter comments: permissions, moderation, pagination and isolation'
     await pool.query("insert into admin_access (user_id, scope) values ($1, 'MODERATOR') on conflict (user_id) do update set scope='MODERATOR'", [admin]);
     const repo=await import('./comments.repository.js'); await repo.ensureCommentIndexes();
     const {createApp}=await import('../../app.js'),jwt=(await import('jsonwebtoken')).default,{env}=await import('../../core/config/env.js');
+    const originalKeys = { privateKey: env.GIPHY_API_KEY, publicKey: env.GIPHY_PUBLIC_API_KEY };
+    env.GIPHY_API_KEY = 'fixture-private-key';
+    env.GIPHY_PUBLIC_API_KEY = 'fixture-public-key';
+    restoreGiphyConfig = () => { env.GIPHY_API_KEY = originalKeys.privateKey; env.GIPHY_PUBLIC_API_KEY = originalKeys.publicKey; };
+    const originalFetch = globalThis.fetch;
+    let providerUnavailable = false;
+    t.mock.method(globalThis, 'fetch', async (input: Parameters<typeof fetch>[0], init?: RequestInit) => {
+      const url = new URL(input instanceof Request ? input.url : String(input));
+      if (url.origin !== 'https://api.giphy.com') return originalFetch(input, init);
+      assert.equal(url.searchParams.get('api_key'), 'fixture-private-key');
+      if (providerUnavailable) return Response.json({}, { status: 503 });
+      const id = url.pathname.split('/').at(-1)!;
+      if (!['testGifId123', 'testGifId456', 'unsafeGif', 'unratedGif'].includes(id)) return Response.json({}, { status: 404 });
+      return Response.json({ data: { id, type: 'gif', ...(id === 'unratedGif' ? {} : { rating: id === 'unsafeGif' ? 'r' : 'pg' }) } });
+    });
     server=createApp().listen(0);await new Promise<void>(r=>server!.once('listening',r));
     const base='http://127.0.0.1:'+(server.address() as AddressInfo).port+'/api/v1';
     const token=(id:string,role='READER')=>jwt.sign({sub:id,role},env.JWT_ACCESS_SECRET);
@@ -44,39 +60,97 @@ test('novel/chapter comments: permissions, moderation, pagination and isolation'
     for(const content of ['', '   ', 'x'.repeat(2001)])assert.equal((await req(n,'POST',{content},readerToken)).status,400);
     const config = await req('/media/giphy-config');
     assert.equal(config.status, 200);
-    assert.ok(config.body.data.apiKey === null || typeof config.body.data.apiKey === 'string');
+    assert.equal(config.body.data.apiKey, 'fixture-public-key');
+    assert.equal(JSON.stringify(config.body).includes('fixture-private-key'), false);
+    env.GIPHY_PUBLIC_API_KEY = undefined;
+    assert.equal((await req('/media/giphy-config')).body.data.apiKey, null);
+    env.GIPHY_PUBLIC_API_KEY = 'fixture-public-key';
+    for (const gifId of ['arbitraryUnknownId', 'unsafeGif', 'unratedGif', 'https://example.invalid/meme.gif']) {
+      assert.equal((await req(n, 'POST', { content: 'Clean text', gifId }, readerToken)).status, 400);
+    }
+    providerUnavailable = true;
+    assert.equal((await req(n, 'POST', { content: '', gifId: 'testGifId123' }, readerToken)).status, 503);
+    providerUnavailable = false;
+    assert.equal((await req(n)).body.meta.totalItems, 0);
+    const resolve = (reviewId: string) => req('/admin/moderation/reviews/' + reviewId + '/resolve', 'POST', { decision: 'APPROVED' }, adminToken);
     const remoteGif = await req(n, 'POST', { content: '', gifId: 'testGifId123' }, readerToken);
     assert.equal(remoteGif.status, 201);
+    assert.equal(remoteGif.body.data.status, 'PENDING_MODERATION');
+    assert.equal((await req(n)).body.meta.totalItems, 0);
+    assert.equal((await req(n, 'GET', undefined, otherToken)).body.meta.totalItems, 0);
+    assert.equal((await req(n, 'GET', undefined, readerToken)).body.data[0].gifId, 'testGifId123');
+    const firstReview = remoteGif.body.data.moderationReviewId;
+    const reviewDetail = await req('/admin/moderation/reviews/' + firstReview, 'GET', undefined, adminToken);
+    assert.equal(reviewDetail.body.data.target.gifId, 'testGifId123');
+    providerUnavailable = true;
+    assert.equal((await resolve(firstReview)).status, 503);
+    assert.equal((await req(n)).body.meta.totalItems, 0);
+    providerUnavailable = false;
+    assert.equal((await resolve(firstReview)).status, 200);
     assert.equal((await req(n)).body.data[0].gifId, 'testGifId123');
-    await req('/comments/' + remoteGif.body.data.commentId, 'PATCH', { content: 'Legacy edit keeps GIF ID' }, readerToken);
-    assert.equal((await req(n)).body.data[0].gifId, 'testGifId123');
-    assert.equal((await req(n, 'POST', { content: '', gifId: 'https://example.invalid/meme.gif' }, readerToken)).status, 400);
-    await req('/comments/' + remoteGif.body.data.commentId, 'DELETE', undefined, readerToken);
-    assert.equal((await req('/chapters/'+draft+'/comments')).status,404);
+    const remotePath = '/comments/' + remoteGif.body.data.commentId;
+    const editedGif = await req(remotePath, 'PATCH', { content: 'Legacy edit keeps GIF ID' }, readerToken);
+    assert.equal(editedGif.body.data.status, 'PENDING_MODERATION');
+    assert.equal((await req(n)).body.meta.totalItems, 0);
+    const changedGif = await req(remotePath, 'PATCH', { content: '', gifId: 'testGifId456' }, readerToken);
+    assert.equal(changedGif.body.data.status, 'PENDING_MODERATION');
+    assert.notEqual(changedGif.body.data.moderationReviewId, editedGif.body.data.moderationReviewId);
+    assert.equal((await resolve(editedGif.body.data.moderationReviewId)).status, 409);
+    assert.equal((await req(n)).body.meta.totalItems, 0);
+    assert.equal((await resolve(changedGif.body.data.moderationReviewId)).status, 200);
+    assert.equal((await req(n)).body.data[0].gifId, 'testGifId456');
+    const repliesPath = remotePath + '/replies';
+    const gifReply = await req(repliesPath, 'POST', { content: '', gifId: 'testGifId123' }, otherToken);
+    assert.equal(gifReply.body.data.status, 'PENDING_MODERATION');
+    assert.equal((await req(repliesPath)).body.meta.totalItems, 0);
+    assert.equal((await req(n)).body.data[0].repliesCount, 0);
+    const replyRecord = await repo.findCommentById(gifReply.body.data.commentId);
+    assert.equal((await resolve(replyRecord!.moderationReviewId!)).status, 200);
+    assert.equal((await req(repliesPath)).body.meta.totalItems, 1);
+    assert.equal((await req(n)).body.data[0].repliesCount, 1);
+    await mongo.getMongoDatabase().collection('comments').updateOne({ commentId: remoteGif.body.data.commentId }, { $unset: { mediaApproved: '' } });
+    assert.equal((await req(n)).body.meta.totalItems, 0, 'Legacy media approval requires explicit media review');
+    assert.equal((await req(remotePath + '/reaction', 'PUT', { reaction: 'LIKE' }, otherToken)).status, 404);
+    assert.equal((await req(n, 'GET', undefined, readerToken)).body.data[0].status, 'PENDING_MODERATION');
+    const concurrentEdits = await Promise.all(Array.from({ length: 12 }, (_, index) => req(remotePath, 'PATCH', {
+      content: 'Concurrent edit', gifId: index % 2 ? 'testGifId123' : 'testGifId456'
+    }, readerToken)));
+    assert.ok(concurrentEdits.every(result => result.body.data.status === 'PENDING_MODERATION'));
+    const current = await repo.findCommentById(remoteGif.body.data.commentId);
+    const stale = concurrentEdits.find(result => result.body.data.moderationReviewId !== current!.moderationReviewId)!;
+    assert.equal((await resolve(stale.body.data.moderationReviewId)).status, 409);
+    assert.equal((await req(n)).body.meta.totalItems, 0);
+    const approvalRace = await Promise.all([
+      resolve(current!.moderationReviewId!),
+      req(remotePath, 'PATCH', { content: 'Edited during approval', gifId: 'testGifId123' }, readerToken)
+    ]);
+    assert.ok([200, 409].includes(approvalRace[0].status));
+    assert.equal(approvalRace[1].body.data.status, 'PENDING_MODERATION');
+    assert.equal((await req(n)).body.meta.totalItems, 0);
+    const removedGif = await req(remotePath, 'PATCH', { content: 'Text after removing GIF', gifId: null }, readerToken);
+    assert.equal(removedGif.body.data.status, 'APPROVED');
+    await req(remotePath, 'DELETE', undefined, readerToken);
     const gif = Buffer.from('R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==', 'base64');
     const media = await req('/media', 'POST', { data: gif.toString('base64') }, readerToken);
-    assert.equal(media.status, 201);
-    const switchedGif = await req(n, 'POST', { content: '', gifId: 'testGifId123' }, readerToken);
-    const switchedPath = '/comments/' + switchedGif.body.data.commentId;
-    await req(switchedPath, 'PATCH', { content: '', imageUrl: media.body.data.path }, readerToken);
-    assert.equal((await req(n)).body.data[0].gifId, null);
-    assert.equal((await req(n)).body.data[0].imageUrl, media.body.data.path);
-    await req(switchedPath, 'PATCH', { content: '', gifId: 'testGifId456' }, readerToken);
-    assert.equal((await req(n)).body.data[0].imageUrl, null);
-    assert.equal((await req(n)).body.data[0].gifId, 'testGifId456');
-    await req(switchedPath, 'DELETE', undefined, readerToken);
-    assert.equal((await req(n, 'POST', { content: '', gifId: 'testGifId123', imageUrl: media.body.data.path }, readerToken)).status, 400);
-    assert.match(media.body.data.path, /\.gif$/);
-    uploadedGif = path.join((await import('../media/media.routes.js')).mediaDirectory, path.basename(media.body.data.path));
-    assert.equal((await fetch(base.replace('/api/v1', '') + media.body.data.path)).headers.get('content-type'), 'image/gif');
+    assert.equal(media.status, 400);
+    assert.equal(media.body.error.code, 'GIF_UPLOAD_DISABLED');
+    const legacyPath = '/api/v1/media/' + randomUUID() + '.gif';
+    const directory = (await import('../media/media.routes.js')).mediaDirectory;
+    await mkdir(directory, { recursive: true });
+    uploadedGif = path.join(directory, path.basename(legacyPath));
+    await writeFile(uploadedGif, gif);
+    const legacyFile = await fetch(base.replace('/api/v1', '') + legacyPath);
+    assert.equal(legacyFile.status, 404);
+    assert.equal(legacyFile.headers.get('cache-control'), 'no-store');
+    for (const content of ['', 'Clean text']) {
+      assert.equal((await req(n, 'POST', { content, imageUrl: legacyPath }, readerToken)).status, 400);
+    }
     assert.equal((await req(n, 'POST', { content: 'bad media', imageUrl: 'https://example.invalid/test.gif' }, readerToken)).status, 400);
-    const gifOnly = await req(n, 'POST', { content: '', imageUrl: media.body.data.path }, readerToken);
-    assert.equal(gifOnly.status, 201);
-    await req('/comments/' + gifOnly.body.data.commentId, 'DELETE', undefined, readerToken);
-    const created=await req(n,'POST',{content:'  Hello novel  ',isSpoiler:true,imageUrl:media.body.data.path},readerToken);assert.equal(created.status,201);assert.equal(created.body.data.status,'APPROVED');const id=created.body.data.commentId;
+    assert.equal((await req('/chapters/'+draft+'/comments')).status,404);
+    const created=await req(n,'POST',{content:'  Hello novel  ',isSpoiler:true},readerToken);assert.equal(created.status,201);assert.equal(created.body.data.status,'APPROVED');const id=created.body.data.commentId;
     const list=await req(n);assert.equal(list.body.data[0].content,'Hello novel');assert.equal(list.body.data[0].displayName,'Account READER');assert.equal(list.body.data[0].chapterId,null);assert.equal(list.body.data[0].email,undefined);
     assert.equal(list.body.data[0].isSpoiler, true);
-    assert.equal(list.body.data[0].imageUrl, media.body.data.path);
+    assert.equal(list.body.data[0].imageUrl, null);
     assert.equal(list.body.data[0].likesCount, 0);
     const reactionPath = '/comments/' + id + '/reaction';
     assert.equal((await req(reactionPath, 'PUT', { reaction: 'LIKE' })).status, 401);
@@ -155,7 +229,7 @@ test('novel/chapter comments: permissions, moderation, pagination and isolation'
     const review=flagged.body.data.moderationReviewId;
     assert.equal((await req('/comments/'+id,'PATCH',{content:'Clean edit'},readerToken)).body.data.status,'APPROVED');
     assert.equal((await req(n)).body.data[0].isSpoiler, true, 'Legacy edits preserve spoiler and attachment');
-    assert.equal((await req(n)).body.data[0].imageUrl, media.body.data.path);
+    assert.equal((await req(n)).body.data[0].imageUrl, null);
     assert.equal((await req('/admin/moderation/reviews/'+review+'/resolve','POST',{decision:'REJECTED',reason:'Rejected by QA moderator'},adminToken)).status,200);assert.equal((await repo.findCommentById(id))?.status,'APPROVED');
     await req(n,'POST',{content:'Second'},otherToken);
     const p1=await req(n+'?page=1&limit=1'),p2=await req(n+'?page=2&limit=1');assert.equal(p1.body.meta.totalPages,2);assert.notEqual(p1.body.data[0].commentId,p2.body.data[0].commentId);
@@ -183,10 +257,13 @@ test('novel/chapter comments: permissions, moderation, pagination and isolation'
     assert.equal((await req(n)).body.meta.totalItems,0);
     assert.equal((await req(n,'GET',undefined,readerToken)).body.data[0].status,'REJECTED');
     await pool.query("update novels set status='DRAFT' where novel_id=$1",[novel]);assert.equal((await req(c)).status,404);assert.equal((await req(n)).status,404);
+    for (let attempt = 0; attempt < 20; attempt++) assert.equal((await req('/media', 'POST', { data: '' }, outsiderToken)).status, 400);
+    assert.equal((await req('/media', 'POST', { data: '' }, outsiderToken)).status, 429);
   } finally {
     if(server)await new Promise<void>(r=>server!.close(()=>r()));
     if(dropMongo)await dropMongo();if(closeMongo)await closeMongo();if(closePostgres)await closePostgres();
     await adminPool.query(`drop schema if exists "${schema}" cascade`);await adminPool.end();
     if (uploadedGif) await unlink(uploadedGif);
+    restoreGiphyConfig?.();
   }
 });

@@ -8,6 +8,7 @@ import { requireActiveAccount } from '../../core/security/active-account.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { successResponse } from '../../core/response/response.js';
 import { env } from '../../core/config/env.js';
+import { limitMediaUploads } from './media-limits.js';
 export const mediaDirectory = path.resolve(process.env.MEDIA_DIRECTORY || './uploads');
 export const mediaRoutes = Router();
 export function imageExtension(buffer: Buffer): 'png' | 'jpg' | 'webp' | 'gif' {
@@ -18,12 +19,14 @@ export function imageExtension(buffer: Buffer): 'png' | 'jpg' | 'webp' | 'gif' {
     buffer.readUInt16LE(6) > 0 && buffer.readUInt16LE(6) <= 4096 && buffer.readUInt16LE(8) > 0 && buffer.readUInt16LE(8) <= 4096 && buffer[buffer.length - 1] === 0x3b) return 'gif';
   throw new AppError(400, 'MEDIA_INVALID', 'Chỉ hỗ trợ ảnh PNG, JPEG, WebP hoặc GIF hợp lệ');
 }
-mediaRoutes.post('/', requireAuth, requireActiveAccount, json({ limit: '2mb' }), async (req, res, next) => {
+mediaRoutes.post('/', requireAuth, requireActiveAccount, limitMediaUploads, json({ limit: '2mb' }), async (req, res, next) => {
   try {
     const { data } = z.object({ data: z.string().min(1).max(1400000).regex(/^[A-Za-z0-9+/]+={0,2}$/) }).parse(req.body);
     const buffer = Buffer.from(data, 'base64');
     if (buffer.length > 1024*1024) throw new AppError(413, 'MEDIA_TOO_LARGE', 'Ảnh tối đa 1 MB');
-    const fileName = randomUUID() + '.' + imageExtension(buffer);
+    const extension = imageExtension(buffer);
+    if (extension === 'gif') throw new AppError(400, 'GIF_UPLOAD_DISABLED', 'Tạm ngưng tải GIF cá nhân. Hãy chọn GIF từ kho GIPHY.');
+    const fileName = randomUUID() + '.' + extension;
     await mkdir(mediaDirectory, { recursive: true });
     await writeFile(path.join(mediaDirectory, fileName), buffer, { flag: 'wx' });
     res.status(201).json(successResponse({ path: '/api/v1/media/' + fileName }));
@@ -32,10 +35,15 @@ mediaRoutes.post('/', requireAuth, requireActiveAccount, json({ limit: '2mb' }),
 // GIPHY's browser integration uses a client key and makes provider requests directly.
 mediaRoutes.get('/giphy-config', (_req, res) => {
   res.setHeader('Cache-Control', 'no-store');
-  res.json(successResponse({ apiKey: env.GIPHY_API_KEY ?? null }));
+  res.json(successResponse({ apiKey: env.GIPHY_PUBLIC_API_KEY ?? null }));
 });
 mediaRoutes.get('/:fileName', (req, res, next) => {
   const fileName = String(req.params.fileName);
+  if (fileName.endsWith('.gif')) {
+    res.setHeader('Cache-Control', 'no-store');
+    next(new AppError(404, 'MEDIA_NOT_FOUND', 'GIF cá nhân đang tạm ngưng hiển thị.'));
+    return;
+  }
   if (!/^[a-f0-9-]{36}\.(png|jpg|webp|gif)$/.test(fileName)) { next(new AppError(404, 'MEDIA_NOT_FOUND', 'Ảnh không tồn tại')); return; }
   res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
   res.sendFile(fileName, { root: mediaDirectory, dotfiles: 'deny' }, error => { if (error) next(error); });

@@ -47,6 +47,7 @@ import {
   rejectChapterPublication
 } from '../novels/chapters.repository.js';
 import { findDraftChapterByChapterId } from '../novels/draft-chapters.repository.js';
+import { validateGiphyGif } from '../media/giphy.service.js';
 
 function scanContent(content: string, rules: MatchedRule[]) {
   const normalizedContent = content.toLowerCase();
@@ -67,14 +68,15 @@ function highestSeverity(rules: MatchedRule[]) {
 
 export async function checkContent(
   input: ContentControlCheckInput & {
-    publicationSnapshot?: { title: string; content: string; wordCount: number };
+    publicationSnapshot?: { title: string; content: string; wordCount: number; gifId?: string | null };
+    forceReview?: boolean;
   },
   client?: PoolClient
 ) {
   const rules = await listActiveFilterRules(client);
   const matchedRules = scanContent(input.content, rules);
 
-  if (!matchedRules.length) {
+  if (!matchedRules.length && !input.forceReview) {
     return {
       result: 'PASS',
       moderationRequired: false,
@@ -128,7 +130,7 @@ export async function checkContent(
       riskLevel: highestSeverity(matchedRules),
       source: 'KEYWORD_FILTER',
       matchedRules,
-      summary: `${matchedRules.length} content filter rule(s) matched.`
+      summary: input.forceReview ? 'GIF đính kèm cần quản trị viên kiểm duyệt.' : `${matchedRules.length} content filter rule(s) matched.`
     },
     client
   );
@@ -308,6 +310,7 @@ export async function getModerationReview(reviewId: string) {
           ...target,
           title: review.submitted_content.title,
           content: review.submitted_content.content,
+          ...(review.target_type === 'COMMENT' ? { gifId: review.submitted_content.gifId ?? null } : {}),
           isSubmittedVersion: true
         }
       : target,
@@ -363,6 +366,14 @@ export async function resolveModerationReview(
       );
   }
   const resolved = await withPostgresTransaction(async (client) => {
+    if (review.target_type === 'COMMENT') {
+      await client.query("select pg_advisory_xact_lock(hashtextextended('comment:' || $1, 0))", [review.target_id]);
+      const comment = await findCommentRecordById(review.target_id);
+      if (comment?.status === 'PENDING_MODERATION' && comment.moderationReviewId === reviewId && input.decision === 'APPROVED') {
+        if (comment.imageUrl) throw new AppError(409, 'GIF_UPLOAD_DISABLED', 'Remove the uploaded GIF before review.');
+        if (comment.gifId) await validateGiphyGif(comment.gifId, auth.userId);
+      }
+    }
     const row = await resolveReviewRow(
       {
         reviewId,

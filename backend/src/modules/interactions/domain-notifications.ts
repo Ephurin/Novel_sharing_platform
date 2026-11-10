@@ -4,16 +4,17 @@ import { createNotification } from './notifications.repository.js';
 import { findNovelById } from '../novels/novels.repository.js';
 import { findChapterById } from '../novels/chapters.repository.js';
 import { logger } from '../../core/logger/logger.js';
+import { approvedCommentFilter } from './comments.repository.js';
 let running = false;
 // Pending flags live with the originating records. Idempotent IDs allow retry after crashes.
 export async function deliverDomainNotifications() {
   if (running) return; running = true;
   try {
     const comments = getMongoDatabase().collection('comments');
-    for (const comment of await comments.find({ notificationPending: true }).limit(100).toArray()) {
+    for (const comment of await comments.find({ notificationPending: true, ...approvedCommentFilter }).limit(100).toArray()) {
       const novel = await findNovelById(comment.novelId);
       if (novel?.status === 'PUBLISHED' && comment.status === 'APPROVED' && !comment.deletedAt) {
-        const parent = comment.parentCommentId ? await comments.findOne({ commentId: comment.parentCommentId, status: 'APPROVED', deletedAt: null }) : null;
+        const parent = comment.parentCommentId ? await comments.findOne({ commentId: comment.parentCommentId, ...approvedCommentFilter, deletedAt: null }) : null;
         const recipient = comment.parentCommentId ? parent?.userId : novel.authorId;
         const authorReply = Boolean(parent && comment.userId === novel.authorId);
         const replyBase = authorReply ? '/reader' : '/public';

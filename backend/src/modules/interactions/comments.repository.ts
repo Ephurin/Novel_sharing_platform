@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { getMongoDatabase } from '../../core/database/mongo.js';
+import { withPostgresTransaction } from '../../core/database/transaction.js';
+import type { PoolClient } from 'pg';
 
 const collectionName = 'comments';
 
@@ -16,12 +18,29 @@ export type CommentDocument = {
   isSpoiler?: boolean;
   imageUrl?: string | null;
   gifId?: string | null;
+  mediaApproved?: boolean;
   status: CommentStatus;
   moderationReviewId: string | null;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
 };
+
+export const approvedCommentFilter = {
+  status: 'APPROVED', imageUrl: null,
+  $or: [{ gifId: { $in: [null, ''] } }, { mediaApproved: true }]
+};
+
+export function isCommentPublic(comment: Pick<CommentDocument, 'status' | 'imageUrl' | 'gifId' | 'mediaApproved'>) {
+  return comment.status === 'APPROVED' && !comment.imageUrl && (!comment.gifId || comment.mediaApproved === true);
+}
+
+export function withCommentWriteLock<T>(commentId: string, action: (client: PoolClient) => Promise<T>) {
+  return withPostgresTransaction(async client => {
+    await client.query("select pg_advisory_xact_lock(hashtextextended('comment:' || $1, 0))", [commentId]);
+    return action(client);
+  });
+}
 
 function collection() {
   return getMongoDatabase().collection<CommentDocument>(collectionName);
@@ -60,6 +79,7 @@ export async function createComment(input: {
     isSpoiler: input.isSpoiler ?? false,
     imageUrl: input.imageUrl ?? null,
     gifId: input.gifId ?? null,
+    mediaApproved: false,
     status: 'PENDING_MODERATION',
     moderationReviewId: null,
     createdAt: now,
@@ -83,6 +103,7 @@ export async function updateCommentModerationStatus(
       $set: {
         status,
         moderationReviewId,
+        mediaApproved: status === 'APPROVED' && Boolean(expectedReviewId),
         notificationPending: status === 'APPROVED',
         updatedAt: new Date()
       }
@@ -108,7 +129,7 @@ export async function listApprovedComments(input: {
     ...(input.visibleChapterIds ? { chapterId: { $in: [null, ...input.visibleChapterIds] } } : {}),
     parentCommentId: input.parentCommentId ?? null,
     novelId: input.novelId,
-    $or: [{ status: 'APPROVED' }, ...(input.viewerId ? [{ userId: input.viewerId, status: { $in: ['PENDING_MODERATION', 'REJECTED'] } }] : [])],
+    $or: [approvedCommentFilter, ...(input.viewerId ? [{ userId: input.viewerId, status: { $in: ['APPROVED', 'PENDING_MODERATION', 'REJECTED'] } }] : [])],
     deletedAt: null
   };
 
@@ -143,6 +164,7 @@ export async function updateCommentContent(commentId: string, content: string, o
         ...(options.imageUrl !== undefined ? { imageUrl: options.imageUrl } : {}),
         ...(options.gifId !== undefined ? { gifId: options.gifId } : {}),
         status: 'PENDING_MODERATION',
+        mediaApproved: false,
         moderationReviewId: null,
         updatedAt: new Date()
       }
@@ -168,7 +190,7 @@ export async function softDeleteComment(commentId: string) {
 export async function countVisibleReplies(parentIds: string[], viewerId?: string) {
   return collection().aggregate<{ _id: string; total: number }>([
     { $match: { parentCommentId: { $in: parentIds }, deletedAt: null,
-      $or: [{ status: 'APPROVED' }, ...(viewerId ? [{ userId: viewerId, status: { $in: ['PENDING_MODERATION', 'REJECTED'] } }] : [])] } },
+      $or: [approvedCommentFilter, ...(viewerId ? [{ userId: viewerId, status: { $in: ['APPROVED', 'PENDING_MODERATION', 'REJECTED'] } }] : [])] } },
     { $group: { _id: '$parentCommentId', total: { $sum: 1 } } }
   ]).toArray();
 }

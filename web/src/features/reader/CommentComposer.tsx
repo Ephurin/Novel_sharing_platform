@@ -1,10 +1,6 @@
-import { Button, Checkbox, FileButton, Group, Input, Popover } from '@mantine/core';
-import { lazy, Suspense, useEffect, useId, useRef, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { Button, Checkbox, Group, Input, Popover } from '@mantine/core';
+import { lazy, Suspense, useId, useState } from 'react';
 import { EditorContent } from '@tiptap/react';
-import { getApiErrorMessage } from '../../shared/api/api-client';
-import { uploadImage } from '../../shared/components/ImageUpload';
-import { useAuthStore } from '../auth/useAuthStore';
 import type { CommentInput } from './reader-api';
 import { useCommentEditor } from './useCommentEditor';
 import { GiphyMedia } from './CommentGifPicker';
@@ -21,18 +17,9 @@ export function CommentComposer({ value, onChange, onSubmit, label, submitLabel,
   value: CommentInput; onChange: (value: CommentInput) => void; onSubmit: (value: CommentInput) => void;
   label: string; submitLabel: string; pending?: boolean; onCancel?: () => void;
 }) {
-  const account = useAuthStore(state => state.user?.userId);
   const [picker, setPicker] = useState<'emoji' | 'gif' | null>(null);
   const editorId = useId();
-  const mounted = useRef(true);
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
-  const upload = useMutation({
-    mutationFn: async ({ file }: { file: File; account?: string }) => new URL(await uploadImage(file, ['image/gif'])).pathname,
-    onSuccess: (imageUrl, variables) => {
-      if (mounted.current && useAuthStore.getState().user?.userId === variables.account) onChange({ ...value, imageUrl, gifId: null });
-    }
-  });
-  const busy = pending || upload.isPending;
+  const busy = pending;
   const { editor, formatting, limitReached } = useCommentEditor({ value: value.content, id: editorId,
     onChange: content => onChange({ ...value, content }), label, disabled: busy });
   return <form className="sc-comment-composer" onSubmit={event => {
@@ -61,15 +48,10 @@ export function CommentComposer({ value, onChange, onSubmit, label, submitLabel,
           }} /></Suspense>}
         </Popover.Dropdown>
       </Popover>
-      <FileButton accept="image/gif" onChange={file => { if (file && !busy) upload.mutate({ file, account }); }}>
-        {props => <button {...props} type="button" className="sc-comment-tool" aria-label="Tải GIF từ máy" title="Tải GIF tối đa 1 MB" disabled={busy}><CommentIcon name="upload" /></button>}
-      </FileButton>
       <span className="sc-comment-character-count" aria-live="off">{value.content.length.toLocaleString('vi-VN')}/2.000</span>
     </div>
-    {upload.isPending && <p className="sc-comment-feedback" role="status">Đang tải GIF…</p>}
-    {upload.isError && <p className="sc-comment-error" role="alert">{getApiErrorMessage(upload.error)}</p>}
     {(value.imageUrl || value.gifId) && <div className="sc-comment-attachment-preview">
-      {value.gifId ? <GiphyMedia id={value.gifId} /> : <img src={value.imageUrl!} alt="GIF đính kèm" />}
+      {value.gifId ? <GiphyMedia id={value.gifId} /> : <p className="sc-comment-feedback">GIF cá nhân đang tạm ngưng. Hãy bỏ tệp để gửi bình luận.</p>}
       <button type="button" className="sc-comment-tool" aria-label="Bỏ GIF" disabled={busy} onClick={() => onChange({ ...value, imageUrl: null, gifId: null })}><CommentIcon name="close" /></button>
     </div>}
     <div className="sc-comment-composer-footer">
