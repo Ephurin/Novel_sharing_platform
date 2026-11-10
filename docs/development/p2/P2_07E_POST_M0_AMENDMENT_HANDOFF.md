@@ -115,3 +115,37 @@ We reuse the existing transactional tables `narrative.analysis_runs`, `narrative
 - `M0_NOT_ACTIVE` / `M0_PROVENANCE_INVALID` (409)
 - `SETUP_IDENTITY_REQUIRED` (401)
 - `SETUP_IDENTITY_MISMATCH` / `TENANT_SCOPE_MISMATCH` (403)
+
+---
+
+## 6. Implementation & Test Verification Evidence
+
+### 1. Commit & Branch Information
+- **Commit:** `295b9e69a37a3ce22890ca22b51e4e3f97dedae0`
+- **Branch:** `gemini/p2-07e-post-m0-world-rule-amendment`
+- **Base:** `integration/p2-planning-studio` (`02b4e563b12d8482378ad3f1c1811be4bfd064bf`)
+
+### 2. Test Execution Results (Local Environment with Disposable PostgreSQL)
+- **`tests/test_setup_amendment_postgres.py`**: **8/8 PASSED** in 3.32s
+  1. `test_amendment_proposal_contract_and_cas_guard`: PASSED
+  2. `test_amendment_idempotency_and_pending_guard`: PASSED
+  3. `test_amendment_decision_accept_atomic_lineage_and_snapshots`: PASSED
+  4. `test_amendment_decision_reject_preserves_parent_rule`: PASSED
+  5. `test_amendment_full_lifecycle_accept_flow`: PASSED
+  6. `test_amendment_tenant_author_boundary`: PASSED
+  7. `test_amendment_locked_rule_strictly_preserves_lock`: PASSED
+  8. `test_amendment_history_audit_trail`: PASSED
+- **`tests/test_world_rule_effective_head_postgres.py`**: **35/35 PASSED** in 11.87s (Zero regressions on P2-07D resolver and P1 fact isolation)
+- **`tests/test_state_projection.py`**: **67/67 PASSED** in 2.97s
+- **`tests/test_setup_activation_postgres.py` + `test_setup_review_postgres.py` + `test_setup_v1_postgres.py`**: **70/70 PASSED** in 12.46s
+- **AI Gateway tests (`src/modules/ai/ai-gateway.test.ts`)**: **12/12 PASSED** in 249.8ms (including amendment forwarding and author permission enforcement)
+- **AI Service Unit Tests (`pytest -m "not postgres_integration"`):** **448 PASSED, 32 skipped, 0 failed** in 30.87s
+
+### 3. Critical Invariant Verifications
+- **Zero Direct Mutation:** Parent `FactRecord` rows are completely untouched (`UPDATE facts` is never performed on existing rows). Successor rows are append-only with `supersedes_id` referencing parent.
+- **Lock Immutability:** An amendment to a locked rule produces a locked successor (`is_locked=True` inherited). Toggling `is_locked` via request payload is rejected.
+- **Fail-Closed Resolution:** Lookalike successors created without an authoritative `ProposalDecisionRecord(decision='accept')` fail closed with `WORLD_RULE_SUCCESSOR_UNVERIFIED` and 0 AI provider dispatch calls.
+- **Provenance Integrity:** Every accepted amendment produces durable records in `narrative.analysis_runs`, `narrative.proposals`, `narrative.proposal_decisions`, and links directly to verified M0 baseline.
+- **Zero Fake Artifacts:** Zero fake chapters, revisions, events, or outbox records created.
+- **Zero Live LLM Calls:** All test suites run with fake providers (`LLM_PROVIDER=fake`, `EMBEDDING_PROVIDER=fake`).
+
