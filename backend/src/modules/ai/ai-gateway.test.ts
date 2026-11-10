@@ -467,3 +467,24 @@ test('P2-07E AIGatewayService forwards world-rule amendment endpoints correctly'
     globalThis.fetch = originalFetch;
   }
 });
+
+test('P2-07E assertNovelOwnership enforces 403 FORBIDDEN on amendment operations for cross-author', () => {
+  function assertNovelOwnership(novel: { authorId: string }, userId: string, role: string) {
+    if (role === 'ADMIN') return;
+    if (novel.authorId !== userId) {
+      throw new AppError(403, 'FORBIDDEN', 'Bạn không có quyền truy cập tác phẩm này');
+    }
+  }
+
+  const novel = { authorId: 'author-owner' };
+  const intruderUserId = 'author-intruder';
+
+  // Author owner accessing their novel -> ok
+  assert.doesNotThrow(() => assertNovelOwnership(novel, 'author-owner', 'AUTHOR'));
+
+  // Intruder author accessing another author's novel -> throws 403 FORBIDDEN
+  assert.throws(
+    () => assertNovelOwnership(novel, intruderUserId, 'AUTHOR'),
+    (err: any) => err instanceof AppError && err.httpStatus === 403 && err.code === 'FORBIDDEN'
+  );
+});

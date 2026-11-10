@@ -210,33 +210,131 @@ class PostgresNarrativeRepository:
             )
 
     def _load_verified_amendment_edges(self, session: Session, novel_id: uuid.UUID | str) -> set[tuple[str, str]]:
-        """Load verified (parent_id, successor_id) pairs from author-accepted amendment receipts."""
+        """Load verified (parent_id, successor_id) pairs from author-accepted amendment receipts.
+
+        Strictly validates:
+        1. ProposalRecord status is 'accepted' and type is 'world_rule_amendment'.
+        2. ProposalDecisionRecord decision is 'accept'.
+        3. Decision actor matches novel author.
+        4. Edited payload receipt contains valid contract_version, decision_type, and matching IDs.
+        5. Successor and parent FactRecords exist, confirmed, world_rule, matching locks/keys/values.
+        6. Root fact of the lineage belongs to the active M0 baseline canonical artifacts.
+        """
         n_id = self._novel_id(novel_id)
         stmt = (
-            select(ProposalDecisionRecord.edited_payload)
+            select(ProposalDecisionRecord, ProposalRecord)
             .join(ProposalRecord, ProposalRecord.id == ProposalDecisionRecord.proposal_id)
             .where(
                 ProposalRecord.novel_id == n_id,
                 ProposalRecord.tenant_id == self._tenant_id,
                 ProposalRecord.proposal_type == "world_rule_amendment",
+                ProposalRecord.status == "accepted",
                 ProposalDecisionRecord.decision == "accept",
             )
         )
-        rows = session.scalars(stmt).all()
+        candidates = session.execute(stmt).all()
+        if not candidates:
+            return set()
+
+        # Load active M0 baseline to verify root provenance
+        m0_job = session.scalar(
+            select(BootstrapJobRecord).where(
+                *self._scope(BootstrapJobRecord, n_id),
+                BootstrapJobRecord.status == "completed",
+                BootstrapJobRecord.stage == "m0_active",
+            ).order_by(BootstrapJobRecord.created_at.desc()).limit(1)
+        )
+        if m0_job is None:
+            return set()
+        m0_res = m0_job.result or {}
+        m0_activation = m0_res.get("setup_activation") or {}
+        if (
+            m0_res.get("contract_version") != "setup-v1"
+            or m0_activation.get("contract_version") != "setup-m0-v1"
+            or m0_activation.get("response", {}).get("baseline_kind") != "M0"
+        ):
+            return set()
+        m0_artifacts = set((m0_res.get("setup_review") or {}).get("response", {}).get("canonical_artifact_ids") or [])
+        if not m0_artifacts:
+            return set()
+
+        novel_author_row = session.execute(
+            text("SELECT author_id FROM novels WHERE novel_id = :n"),
+            {"n": n_id},
+        ).first()
+        novel_author = str(novel_author_row[0]) if novel_author_row else None
+
+        all_facts_list = session.scalars(
+            select(FactRecord).where(*self._scope(FactRecord, n_id))
+        ).all()
+        facts_by_id = {f.id: f for f in all_facts_list}
+
         verified_edges: set[tuple[str, str]] = set()
-        for payload in rows:
-            if not isinstance(payload, dict):
-                continue
+        for dec_rec, prop_rec in candidates:
+            payload = dec_rec.edited_payload or {}
+            p_payload = prop_rec.payload or {}
             if (
-                payload.get("contract_version") == "setup-rule-amendment-v1"
-                and payload.get("decision_type") == "amendment_decision"
-                and payload.get("decision") == "accept"
+                payload.get("contract_version") != "setup-rule-amendment-v1"
+                or payload.get("decision_type") != "amendment_decision"
+                or payload.get("decision") != "accept"
             ):
-                parent_id = str(payload.get("parent_fact_id") or "").strip()
-                successor_id = str(payload.get("successor_fact_id") or "").strip()
-                artifacts = payload.get("artifact_ids") or []
-                if parent_id and successor_id and successor_id in artifacts:
-                    verified_edges.add((parent_id, successor_id))
+                continue
+            parent_id_str = str(payload.get("parent_fact_id") or "").strip()
+            successor_id_str = str(payload.get("successor_fact_id") or "").strip()
+            artifacts = payload.get("artifact_ids") or []
+            if not parent_id_str or not successor_id_str or successor_id_str not in artifacts:
+                continue
+            if parent_id_str != str(p_payload.get("parent_fact_id") or "").strip():
+                continue
+            if novel_author and str(dec_rec.actor_id) != novel_author:
+                continue
+            try:
+                p_uuid = uuid.UUID(parent_id_str)
+                s_uuid = uuid.UUID(successor_id_str)
+            except Exception:
+                continue
+
+            parent = facts_by_id.get(p_uuid)
+            successor = facts_by_id.get(s_uuid)
+            if parent is None or successor is None:
+                continue
+            if parent.fact_type != "world_rule" or successor.fact_type != "world_rule":
+                continue
+            if parent.confirmation_status != "confirmed":
+                continue
+            if successor.confirmation_status != "confirmed" or successor.is_retired:
+                continue
+            if successor.supersedes_id != parent.id:
+                continue
+            if successor.fact_key != parent.fact_key or successor.fact_key != p_payload.get("fact_key"):
+                continue
+            if successor.fact_value != p_payload.get("replacement_text"):
+                continue
+            if successor.is_locked != parent.is_locked or successor.is_locked != p_payload.get("is_locked"):
+                continue
+            if successor.source_type != "author_setup":
+                continue
+            if successor.created_by != dec_rec.actor_id:
+                continue
+
+            # Verify root fact belongs to M0 canonical artifacts
+            curr = parent
+            visited_ancestors = {curr.id}
+            has_cycle = False
+            while curr.supersedes_id is not None:
+                parent_ancestor = facts_by_id.get(curr.supersedes_id)
+                if parent_ancestor is None or parent_ancestor.id in visited_ancestors:
+                    has_cycle = True
+                    break
+                visited_ancestors.add(parent_ancestor.id)
+                curr = parent_ancestor
+            if has_cycle:
+                continue
+            if str(curr.id) not in m0_artifacts:
+                continue
+
+            verified_edges.add((parent_id_str, successor_id_str))
+
         return verified_edges
 
     @staticmethod
