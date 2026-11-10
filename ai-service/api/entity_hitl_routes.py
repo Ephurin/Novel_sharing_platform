@@ -81,15 +81,21 @@ def memory(novel_id: UUID, service=Depends(get_revision_analysis_service)):
         if not event.metadata.get('is_retired'):
             events.append(asdict(event))
             active_events.append(replace(event, metadata={k: v for k, v in event.metadata.items() if k != 'supersedes_id'}))
-    replaced = {f['supersedes_id'] for f in brain.facts if f.get('supersedes_id')}
-    facts = [f for f in brain.facts if f.get('fact_id') not in replaced and not f.get('is_retired')
-             and f.get('confirmation_status', 'confirmed') == 'confirmed']
+    from domain.projection import ProjectionError, project, project_relations, resolve_effective_facts
+    try:
+        facts = resolve_effective_facts(
+            brain.facts,
+            novel_id=str(novel_id),
+            story_brain_id=brain.metadata.get('brain_id'),
+        )
+    except ProjectionError as exc:
+        raise HTTPException(409, detail={'code': 'INVALID_CANON_HISTORY',
+                                         'reason': getattr(exc, 'code', 'FACT_LINEAGE_INVALID')}) from exc
     fact_ids = {f['fact_id'] for f in facts}
     event_ids = {e.event_id for e in active_events}
     entity_ids = {e.entity_id for e in brain.entities}
     transitions = [t for t in brain.transitions if t['entity_id'] in entity_ids
         and (t.get('fact_id') in fact_ids or t.get('event_id') in event_ids)]
-    from domain.projection import project, project_relations
     state = invoke(project, brain.entities, facts, active_events, transitions)
     relations = invoke(project_relations, brain.entities, brain.relations, state)
     entities = [asdict(e) for e in brain.entities]

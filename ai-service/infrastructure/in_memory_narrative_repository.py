@@ -5,7 +5,7 @@ from typing import Any
 import uuid
 from threading import RLock
 
-from domain.projection import author_relationship, ProjectionError, validate_payload, project, project_relations, resolve_entity, transition_from_payload
+from domain.projection import author_relationship, ProjectionError, validate_payload, project, project_relations, resolve_entity, transition_from_payload, resolve_effective_facts
 from domain.errors import BootstrapConflictError, BaselineReviewRequiredError, ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError, ProposalAlreadyDecidedError
 from domain.models import (
     EntityReviewCompletion,
@@ -412,7 +412,13 @@ class InMemoryNarrativeRepository:
         brain = self.get_story_brain(story_id)
         if int(brain.metadata.get("brain_version", "1")) != expected_brain_version:
             raise OptimisticLockError(story_id)
-        state = project(brain.entities, brain.facts, brain.events, brain.transitions)
+        effective_facts = resolve_effective_facts(brain.facts)
+        effective_fact_ids = {f["fact_id"] for f in effective_facts}
+        transitions = [
+            t for t in brain.transitions
+            if t.get("event_id") is not None or t.get("fact_id") in effective_fact_ids
+        ]
+        state = project(brain.entities, effective_facts, brain.events, transitions)
         self._brains[story_id] = replace(brain, current_state=state,
             relations=project_relations(brain.entities, brain.relations, state))
         return state
@@ -771,7 +777,8 @@ class InMemoryNarrativeRepository:
                 return False
             return True
 
-        active_facts = [f for f in brain.facts if _is_fact_allowed(f)]
+        effective_facts = resolve_effective_facts(brain.facts)
+        active_facts = [f for f in effective_facts if _is_fact_allowed(f)]
 
         # 2. Entity State Resolution (as-of chapter cutoff if chapter_number specified)
         as_of_states: dict[str, dict[str, Any]] = {}
@@ -784,7 +791,12 @@ class InMemoryNarrativeRepository:
                 or (t.get("event_id") and str(t.get("event_id")) in active_event_ids)
             ]
             try:
-                proj = project(brain.entities, active_facts, active_events, active_transitions)
+                proj = project(
+                    brain.entities,
+                    [{**f, "supersedes_id": None} for f in active_facts],
+                    active_events,
+                    active_transitions,
+                )
                 as_of_states = proj.get("entities", {})
             except Exception:
                 as_of_states = {}

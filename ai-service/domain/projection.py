@@ -10,6 +10,145 @@ class ProjectionError(ValueError):
     """Invalid provenance or an ambiguous correction; nothing may be committed."""
 
 
+_GLOBAL_SETUP_WORLD_RULE_ROOT_SOURCES = frozenset({"author_setup", "author", "model_suggestion"})
+
+# Machine-readable reason codes carried by ProjectionError for World Setup lineage.
+WORLD_RULE_SUCCESSOR_UNVERIFIED = "WORLD_RULE_SUCCESSOR_UNVERIFIED"
+WORLD_RULE_LINEAGE_MALFORMED = "WORLD_RULE_LINEAGE_MALFORMED"
+
+
+class WorldRuleLineageError(ProjectionError):
+    """A World Setup rule lineage cannot be proven author-approved; fail closed."""
+
+    def __init__(self, code: str, message: str):
+        super().__init__(f"{code}: {message}")
+        self.code = code
+
+
+def _fact_identity(fact: dict[str, Any]) -> str:
+    raw = fact.get("fact_id") or fact.get("id")
+    if raw is None or not str(raw).strip():
+        raise ProjectionError("Fact requires a canonical fact_id")
+    return str(raw)
+
+
+def _has_global_world_rule_shape(fact: dict[str, Any]) -> bool:
+    """Structural shape of a novel-wide World Setup rule (no subject/chapter/revision scope)."""
+    if (fact.get("fact_type") or fact.get("type", "world_rule")) != "world_rule":
+        return False
+    if fact.get("subject_entity_id") is not None:
+        return False
+    if fact.get("source_revision_id") is not None:
+        return False
+    if fact.get("chapter_number") is not None or fact.get("chapter") is not None:
+        return False
+    if fact.get("source_start") is not None or fact.get("source_end") is not None:
+        return False
+    value = fact.get("fact_value", fact.get("statement"))
+    if isinstance(value, dict) and (
+        value.get("chapter_number") is not None or value.get("chapter") is not None
+    ):
+        return False
+    return True
+
+
+def _is_global_setup_world_rule(fact: dict[str, Any]) -> bool:
+    """A global World Setup rule root as materialized by setup review acceptance."""
+    if not _has_global_world_rule_shape(fact):
+        return False
+    source_type = fact.get("source_type")
+    return source_type is None or source_type in _GLOBAL_SETUP_WORLD_RULE_ROOT_SOURCES
+
+
+def resolve_effective_facts(
+    facts: list[dict[str, Any]] | tuple[dict[str, Any], ...],
+    *,
+    tenant_id: str | None = None,
+    novel_id: str | None = None,
+    story_brain_id: str | None = None,
+    expected_setup_actor: str | None = None,
+) -> list[dict[str, Any]]:
+    """Return the effective confirmed facts shared by Memory, Writing Context and projection.
+
+    Two deliberately different policies apply:
+
+    * **Non-setup families** (P1 chapter facts, character traits, chapter-scoped
+      or entity-scoped rules) keep the pre-existing Approved Memory semantics:
+      unconfirmed facts are ignored, a confirmed fact whose id is referenced by
+      another confirmed fact's ``supersedes_id`` is hidden, and ``is_retired``
+      facts are hidden. No World Setup restriction is applied to them.
+    * **Global World Setup rules** are append-only authority. The current
+      contract has no author-approval receipt binding a successor fact to the
+      parent it replaces (setup review only materializes roots and rejects key
+      collisions; no amendment decision exists yet). A ``supersedes_id`` edge
+      that touches a global World Setup rule therefore cannot be proven
+      author-approved from fact columns alone, so it fails closed with
+      ``WORLD_RULE_SUCCESSOR_UNVERIFIED`` instead of silently replacing the root.
+    """
+    confirmed_by_id: dict[str, dict[str, Any]] = {}
+    ordered_confirmed: list[dict[str, Any]] = []
+    for raw_fact in facts:
+        fact = dict(raw_fact)
+        fact_id = _fact_identity(fact)
+        fact.setdefault("fact_id", fact_id)
+        for scope_key, expected_val in (
+            ("tenant_id", tenant_id),
+            ("novel_id", novel_id),
+            ("story_brain_id", story_brain_id),
+        ):
+            if expected_val is not None and fact.get(scope_key) is not None:
+                if str(fact[scope_key]) != str(expected_val):
+                    raise ProjectionError(f"Fact {scope_key} scope mismatch")
+        if fact.get("confirmation_status", "confirmed") != "confirmed":
+            continue
+        if fact_id in confirmed_by_id:
+            raise ProjectionError("Historical fact IDs are immutable and unique")
+        if (
+            expected_setup_actor is not None
+            and fact.get("supersedes_id") is None
+            and _is_global_setup_world_rule(fact)
+            and fact.get("source_type") is not None
+            and "created_by" in fact
+            and (not fact.get("created_by") or str(fact.get("created_by")) != str(expected_setup_actor))
+        ):
+            raise ProjectionError("World Setup rule actor mismatch")
+        confirmed_by_id[fact_id] = fact
+        ordered_confirmed.append(fact)
+
+    replaced: set[str] = set()
+    for fact in ordered_confirmed:
+        parent_raw = fact.get("supersedes_id")
+        if parent_raw is None:
+            continue
+        child_id = _fact_identity(fact)
+        parent_id = str(parent_raw).strip()
+        parent = confirmed_by_id.get(parent_id)
+        touches_setup_rule = _has_global_world_rule_shape(fact) or (
+            parent is not None
+            and parent.get("supersedes_id") is None
+            and _is_global_setup_world_rule(parent)
+        )
+        if touches_setup_rule:
+            if not parent_id or parent_id == child_id or parent is None:
+                raise WorldRuleLineageError(
+                    WORLD_RULE_LINEAGE_MALFORMED,
+                    "World Setup rule lineage references itself or an unknown/out-of-scope parent",
+                )
+            raise WorldRuleLineageError(
+                WORLD_RULE_SUCCESSOR_UNVERIFIED,
+                "World Setup rule successor has no author-approval receipt; refusing to replace the approved root",
+            )
+        # Non-setup families: preserve the pre-existing generic correction semantics.
+        if parent_id:
+            replaced.add(parent_id)
+
+    return [
+        fact
+        for fact in ordered_confirmed
+        if _fact_identity(fact) not in replaced and not fact.get("is_retired")
+    ]
+
+
 def validate_author_edit(kind, original, edited, entity_ids):
     """Full replacement edits cannot change source authority or reserved identities."""
     editable = {'entity': {'canonical_name', 'normalized_name'},

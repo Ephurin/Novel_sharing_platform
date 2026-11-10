@@ -10,7 +10,13 @@ from application.narrative_service import NarrativeApplicationService
 from core.story_kb_manager import StoryKBManager
 from domain.errors import OptimisticLockError
 from domain.models import NarrativeProposal, ProposalStatus
-from domain.projection import ProjectionError
+from domain.projection import (
+    WORLD_RULE_LINEAGE_MALFORMED,
+    WORLD_RULE_SUCCESSOR_UNVERIFIED,
+    ProjectionError,
+    WorldRuleLineageError,
+    resolve_effective_facts,
+)
 from infrastructure.in_memory_narrative_repository import InMemoryNarrativeRepository
 from infrastructure.json_narrative_repository import JsonNarrativeRepository
 from infrastructure.postgres_narrative_repository import PostgresNarrativeRepository
@@ -204,3 +210,151 @@ def test_sql_tenant_scope_on_state_and_correction(repo):
     assert other.get_current_state("story")["entities"] == {}
     with pytest.raises(KeyError):
         NarrativeApplicationService(other).propose_event_correction("story", proposals[0].proposal_id, {}, [], 1)
+
+
+def _setup_rule(fact_id, key="mana_cap", value="Tier 3", *, supersedes_id=None, is_locked=False,
+                is_retired=False, source_type="author_setup", confirmation_status="confirmed",
+                created_by="00000000-0000-0000-0000-000000000002", tenant_id="00000000-0000-0000-0000-000000000001",
+                novel_id="11111111-1111-1111-1111-111111111111", story_brain_id="22222222-2222-2222-2222-222222222222",
+                **extra):
+    return {
+        "fact_id": fact_id,
+        "story_brain_id": story_brain_id,
+        "tenant_id": tenant_id,
+        "novel_id": novel_id,
+        "subject_entity_id": None,
+        "fact_type": "world_rule",
+        "fact_key": key,
+        "fact_value": value,
+        "source_type": source_type,
+        "confirmation_status": confirmation_status,
+        "is_locked": is_locked,
+        "source_revision_id": None,
+        "chapter_number": None,
+        "source_start": None,
+        "source_end": None,
+        "created_by": created_by,
+        "supersedes_id": supersedes_id,
+        "is_retired": is_retired,
+        **extra,
+    }
+
+
+_SCOPE = dict(
+    tenant_id="00000000-0000-0000-0000-000000000001",
+    novel_id="11111111-1111-1111-1111-111111111111",
+    story_brain_id="22222222-2222-2222-2222-222222222222",
+)
+
+
+def _p1_fact(fact_id, key="hair", value="black", *, supersedes_id=None, is_retired=False,
+             confirmation_status="confirmed", fact_type="character_trait",
+             subject_entity_id="33333333-3333-3333-3333-333333333333", chapter_number=1):
+    return {
+        "fact_id": fact_id, **_SCOPE, "subject_entity_id": subject_entity_id, "fact_type": fact_type,
+        "fact_key": key, "fact_value": value, "source_type": "AI", "confirmation_status": confirmation_status,
+        "is_locked": False, "source_revision_id": "44444444-4444-4444-4444-444444444444",
+        "chapter_number": chapter_number, "source_start": 0, "source_end": 5, "created_by": None,
+        "supersedes_id": supersedes_id, "is_retired": is_retired,
+    }
+
+
+def test_resolve_effective_facts_independent_setup_roots_and_retirement_semantics():
+    a = _setup_rule("a", "teleport_rule", "No teleport in barrier", is_locked=True)
+    b = _setup_rule("b", "alchemy_rule", "Tier 4 requires soul fire", is_locked=True, source_type="model_suggestion")
+    retired = _setup_rule("c", "old_rule", "Retired standalone", is_locked=True, is_retired=True)
+    pending = _setup_rule("d", "teleport_rule", "Pending amendment", supersedes_id="a", confirmation_status="proposed")
+    effective = resolve_effective_facts([a, b, retired, pending], **_SCOPE,
+                                        expected_setup_actor="00000000-0000-0000-0000-000000000002")
+    # Standalone retirement keeps pre-existing Approved Memory semantics (hidden, not an error);
+    # an unconfirmed successor never replaces the approved root.
+    assert [f["fact_id"] for f in effective] == ["a", "b"]
+
+
+def test_resolve_effective_facts_preserves_p1_corrections_and_retirement():
+    trait_v1 = _p1_fact("t1", value="black")
+    trait_v2 = _p1_fact("t2", value="white", supersedes_id="t1")
+    ch_rule_v1 = _p1_fact("w1", "barrier", "sealed", fact_type="world_rule", subject_entity_id=None)
+    ch_rule_v2 = _p1_fact("w2", "barrier", "open", fact_type="world_rule", subject_entity_id=None, supersedes_id="w1")
+    retired_trait = _p1_fact("t3", "eyes", "blue", is_retired=True)
+    unknown_parent = _p1_fact("t4", "height", "tall", supersedes_id="legacy-missing")
+    setup_root = _setup_rule("s1", "gravity", "Standard gravity", is_locked=True)
+    effective = resolve_effective_facts(
+        [trait_v1, trait_v2, ch_rule_v1, ch_rule_v2, retired_trait, unknown_parent, setup_root], **_SCOPE)
+    assert [f["fact_id"] for f in effective] == ["t2", "w2", "t4", "s1"]
+
+
+@pytest.mark.parametrize("successor_kwargs", [
+    {},
+    {"is_locked": True},
+    {"source_type": "author"},
+    {"source_type": "model_suggestion"},
+    {"source_type": "AI"},
+    {"created_by": "99999999-9999-9999-9999-999999999999"},
+    {"created_by": None},
+    {"is_retired": True},
+])
+@pytest.mark.parametrize("root_locked", [False, True])
+def test_well_formed_but_unaudited_setup_successor_fails_closed(successor_kwargs, root_locked):
+    root = _setup_rule("root-1", "gravity", "Standard gravity", is_locked=root_locked)
+    child = _setup_rule("child-1", "gravity", "Amended gravity", supersedes_id="root-1", **successor_kwargs)
+    with pytest.raises(WorldRuleLineageError) as raised:
+        resolve_effective_facts([root, child], **_SCOPE,
+                                expected_setup_actor="00000000-0000-0000-0000-000000000002")
+    assert raised.value.code == WORLD_RULE_SUCCESSOR_UNVERIFIED
+
+
+@pytest.mark.parametrize("attachment", ["entity_bound", "chapter_scoped", "revision_bound", "p1_trait"])
+def test_non_setup_fact_cannot_supersede_setup_root(attachment):
+    root = _setup_rule("root-1", "gravity", "Standard gravity", is_locked=True)
+    if attachment == "p1_trait":
+        child = _p1_fact("child-1", supersedes_id="root-1")
+    else:
+        extra = {"entity_bound": {"subject_entity_id": "33333333-3333-3333-3333-333333333333"},
+                 "chapter_scoped": {"chapter_number": 2},
+                 "revision_bound": {"source_revision_id": "44444444-4444-4444-4444-444444444444"}}[attachment]
+        child = _setup_rule("child-1", "gravity", "Attached", supersedes_id="root-1", **extra)
+    with pytest.raises(WorldRuleLineageError) as raised:
+        resolve_effective_facts([root, child], **_SCOPE)
+    assert raised.value.code == WORLD_RULE_SUCCESSOR_UNVERIFIED
+
+
+@pytest.mark.parametrize("malformed", [
+    "self_loop", "orphan_parent", "cycle_2", "cycle_3", "stem_cycle", "fork",
+    "unconfirmed_parent", "cross_scope_parent_not_loaded",
+])
+def test_malformed_setup_lineage_fails_closed(malformed):
+    root = _setup_rule("root-1", "gravity", "Standard gravity", is_locked=True)
+    if malformed == "self_loop":
+        facts = [_setup_rule("root-1", "gravity", "Self", supersedes_id="root-1")]
+    elif malformed in ("orphan_parent", "cross_scope_parent_not_loaded"):
+        facts = [_setup_rule("child-1", "gravity", "Orphan", supersedes_id="missing-id")]
+    elif malformed == "cycle_2":
+        facts = [_setup_rule("node-a", "gravity", "A", supersedes_id="node-b"),
+                 _setup_rule("node-b", "gravity", "B", supersedes_id="node-a")]
+    elif malformed == "cycle_3":
+        facts = [_setup_rule("node-a", "gravity", "A", supersedes_id="node-c"),
+                 _setup_rule("node-b", "gravity", "B", supersedes_id="node-a"),
+                 _setup_rule("node-c", "gravity", "C", supersedes_id="node-b")]
+    elif malformed == "stem_cycle":
+        facts = [root, _setup_rule("node-a", "gravity", "A", supersedes_id="node-b"),
+                 _setup_rule("node-b", "gravity", "B", supersedes_id="node-a")]
+    elif malformed == "fork":
+        facts = [root, _setup_rule("child-1", "gravity", "Branch 1", supersedes_id="root-1"),
+                 _setup_rule("child-2", "gravity", "Branch 2", supersedes_id="root-1")]
+    elif malformed == "unconfirmed_parent":
+        facts = [_setup_rule("root-1", "gravity", "Proposed parent", confirmation_status="proposed"),
+                 _setup_rule("child-1", "gravity", "Child", supersedes_id="root-1")]
+    else:
+        raise AssertionError(malformed)
+    with pytest.raises(WorldRuleLineageError) as raised:
+        resolve_effective_facts(facts, **_SCOPE)
+    assert raised.value.code in {WORLD_RULE_SUCCESSOR_UNVERIFIED, WORLD_RULE_LINEAGE_MALFORMED}
+
+
+@pytest.mark.parametrize("scope_key", ["tenant_id", "novel_id", "story_brain_id"])
+def test_cross_scope_fact_rows_fail_closed(scope_key):
+    root = _setup_rule("root-1", "gravity", "Standard gravity")
+    foreign = _setup_rule("child-1", "gravity", "Cross", **{scope_key: "99999999-9999-9999-9999-999999999999"})
+    with pytest.raises(ProjectionError):
+        resolve_effective_facts([root, foreign], **_SCOPE)

@@ -30,6 +30,7 @@ from domain.models import (
     WritingPatch,
     StoryPlan,
 )
+from domain.projection import ProjectionError
 from domain.repositories import NarrativeRepository
 
 logger = logging.getLogger(__name__)
@@ -359,6 +360,7 @@ class WritingService:
             return job
 
         authority = getattr(self._repository, 'writing_authority_snapshot', None)
+        rule_authority = getattr(self._repository, 'writing_rule_authority_snapshot', None)
         def blocked():
             return self._repository.save_writing_job(replace(
                 job,status='failed',stage='security_blocked',validation_status='failed',
@@ -367,6 +369,7 @@ class WritingService:
             ))
         try:
             plan_snapshot = authority(job) if authority is not None else None
+            rule_snapshot = rule_authority(job) if rule_authority is not None else None
         except WritingContextAuthorityError:
             return blocked()
 
@@ -445,6 +448,8 @@ class WritingService:
                 semantic_query=semantic_query,
                 author_plan_snapshot=plan_snapshot,
             )
+        except (WritingContextAuthorityError, ProjectionError):
+            return blocked()
         except ContextRoutingUnresolvedError as exc:
             failed_job = replace(
                 job,
@@ -504,6 +509,8 @@ class WritingService:
         if authority is not None:
             try:
                 if authority(job) != plan_snapshot:
+                    return blocked()
+                if rule_authority is not None and rule_authority(job) != rule_snapshot:
                     return blocked()
             except WritingContextAuthorityError:
                 return blocked()
