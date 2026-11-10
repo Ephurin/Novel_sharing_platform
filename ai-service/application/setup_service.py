@@ -211,6 +211,21 @@ class SetupService:
         tenant_id, actor_id = self.principal(tenant_id, actor_id)
         return self.repository.get_setup_snapshot(novel_id, actor_id=actor_id, snapshot_id=snapshot_id)
 
+    def propose_amendment(self, novel_id, fact_id, request, *, tenant_id, actor_id):
+        tenant_id, actor_id = self.principal(tenant_id, actor_id)
+        from infrastructure.setup_amendment import propose_amendment
+        return propose_amendment(self.repository, novel_id, fact_id, actor_id, request)
+
+    def decide_amendment(self, novel_id, proposal_id, request, *, tenant_id, actor_id):
+        tenant_id, actor_id = self.principal(tenant_id, actor_id)
+        from infrastructure.setup_amendment import decide_amendment
+        return decide_amendment(self.repository, novel_id, proposal_id, actor_id, request)
+
+    def get_amendment_history(self, novel_id, fact_id, *, tenant_id, actor_id):
+        tenant_id, actor_id = self.principal(tenant_id, actor_id)
+        from infrastructure.setup_amendment import get_amendment_history
+        return get_amendment_history(self.repository, novel_id, fact_id, actor_id)
+
 
 def public_job(job):
     """Generic job endpoints must not expose private setup notes or constraints."""

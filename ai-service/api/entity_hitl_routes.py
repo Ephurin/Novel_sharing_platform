@@ -87,6 +87,7 @@ def memory(novel_id: UUID, service=Depends(get_revision_analysis_service)):
             brain.facts,
             novel_id=str(novel_id),
             story_brain_id=brain.metadata.get('brain_id'),
+            verified_amendment_edges=set(tuple(e) for e in brain.metadata.get('verified_amendment_edges', ())),
         )
     except ProjectionError as exc:
         raise HTTPException(409, detail={'code': 'INVALID_CANON_HISTORY',

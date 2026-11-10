@@ -864,3 +864,71 @@ export async function editStoryPlansController(req:Request,res:Response,next:Nex
     res.set('Cache-Control','no-store');res.json(successResponse(data));
   } catch(e){next(e);}
 }
+
+export async function proposeWorldRuleAmendmentController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    const factId = String(req.params.factId);
+    const uuidRegex = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(novelId) || !uuidRegex.test(factId)) {
+      throw new AppError(422, 'INVALID_AMENDMENT_ID', 'Invalid novel or fact ID');
+    }
+    await assertNovelOwnership(req.auth!.userId, 'AUTHOR', novelId);
+    const data = await aiGatewayService.forwardRequest({
+      method: 'POST',
+      path: `/v1/story-brains/${novelId}/world-rules/${factId}/amendments`,
+      userId: req.auth!.userId,
+      requestId: req.header('x-request-id'),
+      body: req.body,
+    });
+    res.set('Cache-Control', 'no-store');
+    res.status(201).json(successResponse(data));
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function decideWorldRuleAmendmentController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    const proposalId = String(req.params.proposalId);
+    const uuidRegex = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(novelId) || !uuidRegex.test(proposalId)) {
+      throw new AppError(422, 'INVALID_AMENDMENT_ID', 'Invalid novel or proposal ID');
+    }
+    await assertNovelOwnership(req.auth!.userId, 'AUTHOR', novelId);
+    const data = await aiGatewayService.forwardRequest({
+      method: 'POST',
+      path: `/v1/story-brains/${novelId}/world-rule-amendments/${proposalId}/decision`,
+      userId: req.auth!.userId,
+      requestId: req.header('x-request-id'),
+      body: req.body,
+    });
+    res.set('Cache-Control', 'no-store');
+    res.json(successResponse(data));
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getWorldRuleAmendmentsController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    const factId = String(req.params.factId);
+    const uuidRegex = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(novelId) || !uuidRegex.test(factId)) {
+      throw new AppError(422, 'INVALID_AMENDMENT_ID', 'Invalid novel or fact ID');
+    }
+    await assertNovelOwnership(req.auth!.userId, 'AUTHOR', novelId);
+    const data = await aiGatewayService.forwardRequest({
+      method: 'GET',
+      path: `/v1/story-brains/${novelId}/world-rules/${factId}/amendments`,
+      userId: req.auth!.userId,
+      requestId: req.header('x-request-id'),
+    });
+    res.set('Cache-Control', 'no-store');
+    res.json(successResponse(data));
+  } catch (error) {
+    next(error);
+  }
+}

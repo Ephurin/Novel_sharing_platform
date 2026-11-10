@@ -412,7 +412,8 @@ class InMemoryNarrativeRepository:
         brain = self.get_story_brain(story_id)
         if int(brain.metadata.get("brain_version", "1")) != expected_brain_version:
             raise OptimisticLockError(story_id)
-        effective_facts = resolve_effective_facts(brain.facts)
+        verified_edges = set(tuple(e) for e in brain.metadata.get("verified_amendment_edges", ()))
+        effective_facts = resolve_effective_facts(brain.facts, verified_amendment_edges=verified_edges)
         effective_fact_ids = {f["fact_id"] for f in effective_facts}
         transitions = [
             t for t in brain.transitions
@@ -777,7 +778,8 @@ class InMemoryNarrativeRepository:
                 return False
             return True
 
-        effective_facts = resolve_effective_facts(brain.facts)
+        verified_edges = set(tuple(e) for e in brain.metadata.get("verified_amendment_edges", ()))
+        effective_facts = resolve_effective_facts(brain.facts, verified_amendment_edges=verified_edges)
         active_facts = [f for f in effective_facts if _is_fact_allowed(f)]
 
         # 2. Entity State Resolution (as-of chapter cutoff if chapter_number specified)
