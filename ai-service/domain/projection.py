@@ -114,6 +114,25 @@ def resolve_effective_facts(
         confirmed_by_id[fact_id] = fact
         ordered_confirmed.append(fact)
 
+    # Pre-index root facts that establish a global World Setup rule family
+    setup_rule_family_roots = {
+        fid
+        for fid, f in confirmed_by_id.items()
+        if f.get("supersedes_id") is None and _is_global_setup_world_rule(f)
+    }
+
+    def _belongs_to_setup_rule_family(fid: str) -> bool:
+        curr_id = fid
+        visited_ancestors: set[str] = set()
+        while curr_id and curr_id in confirmed_by_id and curr_id not in visited_ancestors:
+            visited_ancestors.add(curr_id)
+            f = confirmed_by_id[curr_id]
+            p_raw = f.get("supersedes_id")
+            if p_raw is None:
+                return curr_id in setup_rule_family_roots
+            curr_id = str(p_raw).strip()
+        return False
+
     replaced: set[str] = set()
     successor_by_parent: dict[str, str] = {}
     for fact in ordered_confirmed:
@@ -123,16 +142,26 @@ def resolve_effective_facts(
         child_id = _fact_identity(fact)
         parent_id = str(parent_raw).strip()
         parent = confirmed_by_id.get(parent_id)
-        touches_setup_rule = _has_global_world_rule_shape(fact) or (
-            parent is not None
-            and parent.get("supersedes_id") is None
-            and _is_global_setup_world_rule(parent)
+
+        # F-04: Lineage-based classification: any fact claiming global world rule shape
+        # OR attached to any generation of a World Setup rule belongs to the setup rule family.
+        touches_setup_rule = (
+            _has_global_world_rule_shape(fact)
+            or _belongs_to_setup_rule_family(child_id)
+            or (parent_id in confirmed_by_id and _belongs_to_setup_rule_family(parent_id))
         )
         if touches_setup_rule:
             if not parent_id or parent_id == child_id or parent is None:
                 raise WorldRuleLineageError(
                     WORLD_RULE_LINEAGE_MALFORMED,
                     "World Setup rule lineage references itself or an unknown/out-of-scope parent",
+                )
+            # A successor touching a World Setup rule MUST itself have global world rule shape;
+            # non-global facts (e.g. character_trait or chapter-scoped facts) cannot supersede setup rules.
+            if not _has_global_world_rule_shape(fact):
+                raise WorldRuleLineageError(
+                    WORLD_RULE_SUCCESSOR_UNVERIFIED,
+                    "Non-world-rule fact cannot supersede a World Setup rule",
                 )
             edge = (parent_id, child_id)
             if verified_amendment_edges is None or edge not in verified_amendment_edges:

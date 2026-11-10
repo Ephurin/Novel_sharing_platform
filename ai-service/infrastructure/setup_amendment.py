@@ -376,32 +376,13 @@ def decide_amendment(
         if brain.brain_version != request.expected_brain_version:
             raise BootstrapConflictError("AMENDMENT_VERSION_CONFLICT")
 
-        # 8. Parent fact and lineage validation
+        # 8. Complete provenance & effective-head revalidation under transaction locks (F-06)
         parent_fact_id = uuid.UUID(proposal.payload["parent_fact_id"])
-        parent_fact = session.scalar(
-            select(FactRecord).where(
-                *repo._scope(FactRecord, novel_id),
-                FactRecord.id == parent_fact_id,
-            ).with_for_update(read=True)
+        parent_fact, root_fact_id = _find_root_and_chain(
+            session, repo, novel_id, parent_fact_id, m0_artifacts, brain.id
         )
-        if parent_fact is None or parent_fact.confirmation_status != "confirmed" or parent_fact.is_retired:
-            raise SetupFailure("AMENDMENT_TARGET_INELIGIBLE", 422)
-
-        # Verify parent root originates in M0 baseline
-        root_fact_id_str = proposal.payload.get("root_fact_id")
-        if not root_fact_id_str or root_fact_id_str not in m0_artifacts:
-            raise SetupFailure("AMENDMENT_TARGET_INELIGIBLE", 422)
-
-        if request.decision == "accept":
-            curr_successor = session.scalar(
-                select(FactRecord.id).where(
-                    *repo._scope(FactRecord, novel_id),
-                    FactRecord.supersedes_id == parent_fact.id,
-                    FactRecord.confirmation_status == "confirmed",
-                )
-            )
-            if curr_successor is not None:
-                raise BootstrapConflictError("AMENDMENT_PARENT_CONFLICT")
+        if str(root_fact_id) != str(proposal.payload.get("root_fact_id")):
+            raise BootstrapConflictError("AMENDMENT_MALFORMED_LINEAGE")
 
         # 9. Apply Decision
         decided_at_iso = datetime.now(timezone.utc).isoformat()

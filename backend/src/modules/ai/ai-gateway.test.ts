@@ -468,7 +468,7 @@ test('P2-07E AIGatewayService forwards world-rule amendment endpoints correctly'
   }
 });
 
-test('P2-07E assertNovelOwnership enforces 403 FORBIDDEN on amendment operations for cross-author', () => {
+test('P2-07E assertNovelOwnership author access control logic demonstration', () => {
   function assertNovelOwnership(novel: { authorId: string }, userId: string, role: string) {
     if (role === 'ADMIN') return;
     if (novel.authorId !== userId) {

@@ -39,7 +39,7 @@ from domain.models import (
     WritingGenerationJob,
     WritingPatch,
 )
-from domain.projection import project_relations, author_relationship
+from domain.projection import project_relations, author_relationship, _has_global_world_rule_shape
 from infrastructure.database import session_scope
 from infrastructure.orm_models import (
     EntityProfileAuditRecord,
@@ -212,18 +212,24 @@ class PostgresNarrativeRepository:
     def _load_verified_amendment_edges(self, session: Session, novel_id: uuid.UUID | str) -> set[tuple[str, str]]:
         """Load verified (parent_id, successor_id) pairs from author-accepted amendment receipts.
 
-        Strictly validates:
+        Strictly validates (F-01, F-05):
         1. ProposalRecord status is 'accepted' and type is 'world_rule_amendment'.
         2. ProposalDecisionRecord decision is 'accept'.
-        3. Decision actor matches novel author.
-        4. Edited payload receipt contains valid contract_version, decision_type, and matching IDs.
-        5. Successor and parent FactRecords exist, confirmed, world_rule, matching locks/keys/values.
-        6. Root fact of the lineage belongs to the active M0 baseline canonical artifacts.
+        3. Decision actor matches novel author and payload actor_id.
+        4. Edited payload receipt binds proposal_id, actor_id, tenant_id, novel_id, story_brain_id.
+        5. Edited payload binds setup_snapshot_id and setup_hash to the active M0 baseline.
+        6. Edited payload binds expected_brain_version and resulting_brain_version (expected + 1).
+        7. AnalysisRunRecord binds operation ('setup_amendment'), pipeline_version ('setup-rule-amendment-v1'),
+           tenant_id, novel_id, and story_brain_id.
+        8. Successor and parent FactRecords exist, confirmed, world_rule, matching locks/keys/values/brain_id,
+           with successor strictly having global world rule shape.
+        9. Root fact of the lineage belongs to the active M0 baseline canonical artifacts.
         """
         n_id = self._novel_id(novel_id)
         stmt = (
-            select(ProposalDecisionRecord, ProposalRecord)
+            select(ProposalDecisionRecord, ProposalRecord, AnalysisRunRecord)
             .join(ProposalRecord, ProposalRecord.id == ProposalDecisionRecord.proposal_id)
+            .join(AnalysisRunRecord, AnalysisRunRecord.id == ProposalRecord.analysis_run_id)
             .where(
                 ProposalRecord.novel_id == n_id,
                 ProposalRecord.tenant_id == self._tenant_id,
@@ -257,12 +263,23 @@ class PostgresNarrativeRepository:
         m0_artifacts = set((m0_res.get("setup_review") or {}).get("response", {}).get("canonical_artifact_ids") or [])
         if not m0_artifacts:
             return set()
+        m0_snapshot_id_str = str(m0_job.id)
+        m0_setup_hash_str = m0_res.get("setup_hash")
 
         novel_author_row = session.execute(
             text("SELECT author_id FROM novels WHERE novel_id = :n"),
             {"n": n_id},
         ).first()
         novel_author = str(novel_author_row[0]) if novel_author_row else None
+        if not novel_author:
+            return set()
+
+        brain = session.scalar(
+            select(StoryBrainRecord).where(*self._scope(StoryBrainRecord, n_id))
+        )
+        if brain is None:
+            return set()
+        brain_id_str = str(brain.id)
 
         all_facts_list = session.scalars(
             select(FactRecord).where(*self._scope(FactRecord, n_id))
@@ -270,15 +287,67 @@ class PostgresNarrativeRepository:
         facts_by_id = {f.id: f for f in all_facts_list}
 
         verified_edges: set[tuple[str, str]] = set()
-        for dec_rec, prop_rec in candidates:
+        for dec_rec, prop_rec, run_rec in candidates:
+            # 1. Validate AnalysisRunRecord scope and operation
+            if (
+                run_rec.operation != "setup_amendment"
+                or run_rec.pipeline_version != "setup-rule-amendment-v1"
+                or run_rec.tenant_id != self._tenant_id
+                or run_rec.novel_id != n_id
+                or run_rec.story_brain_id != brain.id
+            ):
+                continue
+
+            # 2. Validate ProposalRecord scope
+            if (
+                prop_rec.tenant_id != self._tenant_id
+                or prop_rec.novel_id != n_id
+                or prop_rec.story_brain_id != brain.id
+                or prop_rec.proposal_type != "world_rule_amendment"
+                or prop_rec.status != "accepted"
+            ):
+                continue
+
+            # 3. Validate Decision Record
+            if (
+                dec_rec.decision != "accept"
+                or str(dec_rec.actor_id) != novel_author
+            ):
+                continue
+
+            # 4. Validate Edited Payload (Decision Receipt) bindings
             payload = dec_rec.edited_payload or {}
             p_payload = prop_rec.payload or {}
+            if not isinstance(payload, dict) or not isinstance(p_payload, dict):
+                continue
             if (
                 payload.get("contract_version") != "setup-rule-amendment-v1"
                 or payload.get("decision_type") != "amendment_decision"
                 or payload.get("decision") != "accept"
             ):
                 continue
+            if payload.get("proposal_id") != str(prop_rec.id):
+                continue
+            if (
+                payload.get("actor_id") != novel_author
+                or payload.get("tenant_id") != str(self._tenant_id)
+                or payload.get("novel_id") != str(n_id)
+                or payload.get("story_brain_id") != brain_id_str
+            ):
+                continue
+            if (
+                payload.get("setup_snapshot_id") != m0_snapshot_id_str
+                or not m0_setup_hash_str
+                or payload.get("setup_hash") != m0_setup_hash_str
+            ):
+                continue
+            if (
+                prop_rec.expected_brain_version is None
+                or payload.get("expected_brain_version") != prop_rec.expected_brain_version
+                or payload.get("resulting_brain_version") != prop_rec.expected_brain_version + 1
+            ):
+                continue
+
             parent_id_str = str(payload.get("parent_fact_id") or "").strip()
             successor_id_str = str(payload.get("successor_fact_id") or "").strip()
             artifacts = payload.get("artifact_ids") or []
@@ -286,17 +355,19 @@ class PostgresNarrativeRepository:
                 continue
             if parent_id_str != str(p_payload.get("parent_fact_id") or "").strip():
                 continue
-            if novel_author and str(dec_rec.actor_id) != novel_author:
-                continue
+
             try:
                 p_uuid = uuid.UUID(parent_id_str)
                 s_uuid = uuid.UUID(successor_id_str)
             except Exception:
                 continue
 
+            # 5. Validate Parent and Successor FactRecords
             parent = facts_by_id.get(p_uuid)
             successor = facts_by_id.get(s_uuid)
             if parent is None or successor is None:
+                continue
+            if parent.story_brain_id != brain.id or successor.story_brain_id != brain.id:
                 continue
             if parent.fact_type != "world_rule" or successor.fact_type != "world_rule":
                 continue
@@ -314,10 +385,12 @@ class PostgresNarrativeRepository:
                 continue
             if successor.source_type != "author_setup":
                 continue
-            if successor.created_by != dec_rec.actor_id:
+            if str(successor.created_by) != novel_author:
+                continue
+            if not _has_global_world_rule_shape(self._fact_record_to_dict(successor)):
                 continue
 
-            # Verify root fact belongs to M0 canonical artifacts
+            # 6. Verify root fact belongs to M0 canonical artifacts and binds to payload
             curr = parent
             visited_ancestors = {curr.id}
             has_cycle = False
@@ -330,7 +403,10 @@ class PostgresNarrativeRepository:
                 curr = parent_ancestor
             if has_cycle:
                 continue
-            if str(curr.id) not in m0_artifacts:
+            root_id_str = str(curr.id)
+            if root_id_str not in m0_artifacts:
+                continue
+            if payload.get("root_fact_id") != root_id_str or p_payload.get("root_fact_id") != root_id_str:
                 continue
 
             verified_edges.add((parent_id_str, successor_id_str))

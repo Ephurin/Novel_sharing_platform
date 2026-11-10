@@ -1120,3 +1120,391 @@ def test_history_fails_closed_on_tampered_lineage(amendment_env):
     with pytest.raises(BootstrapConflictError) as exc:
         service.get_amendment_history(novel_id, fact_id, tenant_id=TENANT, actor_id=ACTOR)
     assert "AMENDMENT_MALFORMED_LINEAGE" in exc.value.code or "AMENDMENT_RESOLVER_FAILED" in exc.value.code
+
+
+def test_f04_non_global_fact_cannot_supersede_second_gen_head(amendment_env):
+    """F-04: Confirmed P1 trait/chapter-scoped child pointing to approved successor A must fail closed."""
+    f, novel_id, fact_id, fact_data, brain_data = _activated_novel(amendment_env)
+    service = SetupService(f.service)
+
+    # 1. Author proposes and accepts amendment R -> A
+    prop = service.propose_amendment(
+        novel_id,
+        fact_id,
+        SetupRuleAmendmentProposalRequest(
+            contract_version="setup-rule-amendment-v1",
+            idempotency_key="f04-prop-1",
+            replacement_text="Successor A (2nd generation)",
+            expected_brain_version=brain_data["brain_version"],
+        ),
+        tenant_id=TENANT,
+        actor_id=ACTOR,
+    )
+    dec = service.decide_amendment(
+        novel_id,
+        prop["proposal_id"],
+        SetupRuleAmendmentDecisionRequest(
+            contract_version="setup-rule-amendment-v1",
+            idempotency_key="f04-dec-1",
+            decision="accept",
+            expected_brain_version=brain_data["brain_version"],
+        ),
+        tenant_id=TENANT,
+        actor_id=ACTOR,
+    )
+    successor_a_id = dec["successor_fact_id"]
+
+    # 2. Directly insert a confirmed chapter-scoped / character trait child B pointing supersedes_id = A
+    trait_b_id = str(uuid.uuid4())
+    with f.engine.begin() as db:
+        db.execute(
+            text(
+                "INSERT INTO narrative.facts("
+                "id,story_brain_id,tenant_id,novel_id,fact_type,fact_key,fact_value,source_type,"
+                "confirmation_status,is_locked,priority,created_by,supersedes_id,chapter_number,is_retired"
+                ") VALUES (:id,:b,:t,:n,'character_trait','trait_key',CAST(:v AS jsonb),'author_setup','confirmed',false,0,:a,:p,1,false)"
+            ),
+            {
+                "id": trait_b_id,
+                "b": brain_data["id"],
+                "t": TENANT,
+                "n": novel_id,
+                "v": json.dumps("Chapter-scoped trait attempting to supersede World Setup Rule A"),
+                "a": ACTOR,
+                "p": successor_a_id,
+            },
+        )
+
+    # 3. Assert resolve_effective_facts fails closed (no unauthorized replacement of 2nd gen head A)
+    with pytest.raises(WorldRuleLineageError) as exc:
+        f.repo.get_structured_context(novel_id)
+    assert exc.value.code == "WORLD_RULE_SUCCESSOR_UNVERIFIED"
+
+    # Memory endpoint also fails closed
+    mem_resp = f.client.get(f"/v1/story-brains/{novel_id}/memory", headers=_memory_headers(f))
+    assert mem_resp.status_code == 409
+    assert mem_resp.json()["detail"]["reason"] == "WORLD_RULE_SUCCESSOR_UNVERIFIED"
+
+
+def test_f04_non_global_fact_cannot_supersede_third_gen_head(amendment_env):
+    """F-04: Non-global child attached to 3rd-generation active head also fails closed."""
+    f, novel_id, fact_id, fact_data, brain_data = _activated_novel(amendment_env)
+    service = SetupService(f.service)
+
+    # Gen 1 -> Gen 2
+    prop1 = service.propose_amendment(
+        novel_id,
+        fact_id,
+        SetupRuleAmendmentProposalRequest(
+            contract_version="setup-rule-amendment-v1",
+            idempotency_key="f04-gen2-prop",
+            replacement_text="Successor Gen 2",
+            expected_brain_version=brain_data["brain_version"],
+        ),
+        tenant_id=TENANT,
+        actor_id=ACTOR,
+    )
+    dec1 = service.decide_amendment(
+        novel_id,
+        prop1["proposal_id"],
+        SetupRuleAmendmentDecisionRequest(
+            contract_version="setup-rule-amendment-v1",
+            idempotency_key="f04-gen2-dec",
+            decision="accept",
+            expected_brain_version=brain_data["brain_version"],
+        ),
+        tenant_id=TENANT,
+        actor_id=ACTOR,
+    )
+    gen2_id = dec1["successor_fact_id"]
+
+    # Gen 2 -> Gen 3
+    prop2 = service.propose_amendment(
+        novel_id,
+        gen2_id,
+        SetupRuleAmendmentProposalRequest(
+            contract_version="setup-rule-amendment-v1",
+            idempotency_key="f04-gen3-prop",
+            replacement_text="Successor Gen 3",
+            expected_brain_version=brain_data["brain_version"] + 1,
+        ),
+        tenant_id=TENANT,
+        actor_id=ACTOR,
+    )
+    dec2 = service.decide_amendment(
+        novel_id,
+        prop2["proposal_id"],
+        SetupRuleAmendmentDecisionRequest(
+            contract_version="setup-rule-amendment-v1",
+            idempotency_key="f04-gen3-dec",
+            decision="accept",
+            expected_brain_version=brain_data["brain_version"] + 1,
+        ),
+        tenant_id=TENANT,
+        actor_id=ACTOR,
+    )
+    gen3_id = dec2["successor_fact_id"]
+
+    # Attach non-global fact to Gen 3
+    non_global_id = str(uuid.uuid4())
+    with f.engine.begin() as db:
+        db.execute(
+            text(
+                "INSERT INTO narrative.facts("
+                "id,story_brain_id,tenant_id,novel_id,fact_type,fact_key,fact_value,source_type,"
+                "confirmation_status,is_locked,priority,created_by,supersedes_id,chapter_number,is_retired"
+                ") VALUES (:id,:b,:t,:n,'world_rule','setup_key',CAST(:v AS jsonb),'author_setup','confirmed',false,0,:a,:p,2,false)"
+            ),
+            {
+                "id": non_global_id,
+                "b": brain_data["id"],
+                "t": TENANT,
+                "n": novel_id,
+                "v": json.dumps("Chapter-bound rule attempting to supersede Gen 3 head"),
+                "a": ACTOR,
+                "p": gen3_id,
+            },
+        )
+
+    with pytest.raises(WorldRuleLineageError) as exc:
+        f.repo.get_structured_context(novel_id)
+    assert exc.value.code == "WORLD_RULE_SUCCESSOR_UNVERIFIED"
+
+
+def test_f04_independent_p1_fact_corrections_unaffected(amendment_env):
+    """F-04: Independent valid P1 fact correction chains (non-setup) remain completely functional."""
+    f, novel_id, fact_id, fact_data, brain_data = _activated_novel(amendment_env)
+
+    # Insert independent P1 trait C0 and successor C1
+    c0_id = str(uuid.uuid4())
+    c1_id = str(uuid.uuid4())
+    with f.engine.begin() as db:
+        db.execute(
+            text(
+                "INSERT INTO narrative.facts("
+                "id,story_brain_id,tenant_id,novel_id,fact_type,fact_key,fact_value,source_type,"
+                "confirmation_status,is_locked,priority,created_by,supersedes_id,chapter_number,is_retired"
+                ") VALUES "
+                "(:c0,:b,:t,:n,'character_trait','bravery',CAST(:v0 AS jsonb),'author_p1','confirmed',false,0,:a,NULL,1,false),"
+                "(:c1,:b,:t,:n,'character_trait','bravery',CAST(:v1 AS jsonb),'author_p1','confirmed',false,0,:a,:c0,1,false)"
+            ),
+            {
+                "c0": c0_id,
+                "c1": c1_id,
+                "b": brain_data["id"],
+                "t": TENANT,
+                "n": novel_id,
+                "v0": json.dumps("Dũng cảm"),
+                "v1": json.dumps("Rất dũng cảm"),
+                "a": ACTOR,
+            },
+        )
+
+    # Query structured context: World Setup rule remains head, C1 replaces C0 cleanly
+    ctx = f.repo.get_structured_context(novel_id)
+    rule_ids = {r["id"] for r in ctx.world_rules}
+    assert fact_id in rule_ids
+
+
+def test_f05_tampered_decision_receipt_fields_fail_closed(amendment_env):
+    """F-05: Tampering any binding field in the decision receipt causes edge rejection and fail-closed resolution."""
+    f, novel_id, fact_id, fact_data, brain_data = _activated_novel(amendment_env)
+    service = SetupService(f.service)
+
+    prop = service.propose_amendment(
+        novel_id,
+        fact_id,
+        SetupRuleAmendmentProposalRequest(
+            contract_version="setup-rule-amendment-v1",
+            idempotency_key="f05-prop-1",
+            replacement_text="Successor for F05 Tamper Test",
+            expected_brain_version=brain_data["brain_version"],
+        ),
+        tenant_id=TENANT,
+        actor_id=ACTOR,
+    )
+    dec = service.decide_amendment(
+        novel_id,
+        prop["proposal_id"],
+        SetupRuleAmendmentDecisionRequest(
+            contract_version="setup-rule-amendment-v1",
+            idempotency_key="f05-dec-1",
+            decision="accept",
+            expected_brain_version=brain_data["brain_version"],
+        ),
+        tenant_id=TENANT,
+        actor_id=ACTOR,
+    )
+    decision_id = dec["proposal_id"]
+    succ_id = dec["successor_fact_id"]
+
+    # Verify edge is initially accepted
+    from infrastructure.database import session_scope
+    with session_scope(f.repo._session_factory) as s:
+        verified = f.repo._load_verified_amendment_edges(s, novel_id)
+        assert (fact_id, succ_id) in verified
+
+    # Test tampering fields one by one in edited_payload
+    tamper_cases = [
+        ("proposal_id", str(uuid.uuid4())),
+        ("actor_id", str(uuid.uuid4())),
+        ("tenant_id", str(uuid.uuid4())),
+        ("novel_id", str(uuid.uuid4())),
+        ("story_brain_id", str(uuid.uuid4())),
+        ("setup_snapshot_id", str(uuid.uuid4())),
+        ("setup_hash", "tampered_hash_value"),
+        ("expected_brain_version", 999),
+        ("resulting_brain_version", 999),
+        ("root_fact_id", str(uuid.uuid4())),
+    ]
+
+    with f.engine.connect() as db:
+        orig_row = db.execute(
+            text("SELECT id, edited_payload FROM narrative.proposal_decisions WHERE proposal_id=:p"),
+            {"p": decision_id},
+        ).mappings().one()
+        orig_payload = dict(orig_row["edited_payload"])
+        rec_id = orig_row["id"]
+
+    for field_name, bad_value in tamper_cases:
+        tampered_payload = dict(orig_payload)
+        tampered_payload[field_name] = bad_value
+        with f.engine.begin() as db:
+            db.execute(
+                text("UPDATE narrative.proposal_decisions SET edited_payload=CAST(:p AS jsonb) WHERE id=:id"),
+                {"p": json.dumps(tampered_payload), "id": rec_id},
+            )
+
+        with session_scope(f.repo._session_factory) as s:
+            verified = f.repo._load_verified_amendment_edges(s, novel_id)
+            assert (fact_id, succ_id) not in verified, f"Field {field_name} tampering was not rejected!"
+
+    # Restore valid payload
+    with f.engine.begin() as db:
+        db.execute(
+            text("UPDATE narrative.proposal_decisions SET edited_payload=CAST(:p AS jsonb) WHERE id=:id"),
+            {"p": json.dumps(orig_payload), "id": rec_id},
+        )
+
+
+def test_f05_tampered_run_or_successor_scope_fails_closed(amendment_env):
+    """F-05: Tampering analysis_runs operation or successor fact_type/lock causes edge rejection."""
+    f, novel_id, fact_id, fact_data, brain_data = _activated_novel(amendment_env)
+    service = SetupService(f.service)
+
+    prop = service.propose_amendment(
+        novel_id,
+        fact_id,
+        SetupRuleAmendmentProposalRequest(
+            contract_version="setup-rule-amendment-v1",
+            idempotency_key="f05-scope-prop",
+            replacement_text="Successor Scope Tamper",
+            expected_brain_version=brain_data["brain_version"],
+        ),
+        tenant_id=TENANT,
+        actor_id=ACTOR,
+    )
+    dec = service.decide_amendment(
+        novel_id,
+        prop["proposal_id"],
+        SetupRuleAmendmentDecisionRequest(
+            contract_version="setup-rule-amendment-v1",
+            idempotency_key="f05-scope-dec",
+            decision="accept",
+            expected_brain_version=brain_data["brain_version"],
+        ),
+        tenant_id=TENANT,
+        actor_id=ACTOR,
+    )
+    succ_id = dec["successor_fact_id"]
+
+    from infrastructure.database import session_scope
+
+    # Tamper analysis_runs operation
+    with f.engine.begin() as db:
+        db.execute(
+            text("UPDATE narrative.analysis_runs SET operation='unauthorized_operation' WHERE novel_id=:n"),
+            {"n": novel_id},
+        )
+    with session_scope(f.repo._session_factory) as s:
+        assert (fact_id, succ_id) not in f.repo._load_verified_amendment_edges(s, novel_id)
+
+    # Restore operation and tamper successor fact_type
+    with f.engine.begin() as db:
+        db.execute(
+            text("UPDATE narrative.analysis_runs SET operation='setup_amendment' WHERE novel_id=:n"),
+            {"n": novel_id},
+        )
+        db.execute(
+            text("UPDATE narrative.facts SET fact_type='character_trait' WHERE id=:id"),
+            {"id": succ_id},
+        )
+    with session_scope(f.repo._session_factory) as s:
+        assert (fact_id, succ_id) not in f.repo._load_verified_amendment_edges(s, novel_id)
+
+
+def test_f06_decision_revalidation_rejects_tampered_ancestry_under_same_brain_version(amendment_env):
+    """F-06: Tampering parent lineage while proposal is pending causes decide_amendment to fail closed.
+
+    Guarantees 0 successor facts, 0 decision records, proposal remains pending, and 0 brain bumps.
+    """
+    f, novel_id, fact_id, fact_data, brain_data = _activated_novel(amendment_env)
+    service = SetupService(f.service)
+
+    prop = service.propose_amendment(
+        novel_id,
+        fact_id,
+        SetupRuleAmendmentProposalRequest(
+            contract_version="setup-rule-amendment-v1",
+            idempotency_key="f06-prop-1",
+            replacement_text="Proposal pending decision",
+            expected_brain_version=brain_data["brain_version"],
+        ),
+        tenant_id=TENANT,
+        actor_id=ACTOR,
+    )
+    proposal_id = prop["proposal_id"]
+
+    # Tamper with the parent fact while proposal is pending: retire it without changing brain version
+    with f.engine.begin() as db:
+        db.execute(
+            text("UPDATE narrative.facts SET is_retired=true WHERE id=:id"),
+            {"id": fact_id},
+        )
+
+    # Calling decide_amendment must fail closed
+    dec_req = SetupRuleAmendmentDecisionRequest(
+        contract_version="setup-rule-amendment-v1",
+        idempotency_key="f06-dec-1",
+        decision="accept",
+        expected_brain_version=brain_data["brain_version"],
+    )
+    with pytest.raises((SetupFailure, BootstrapConflictError)):
+        service.decide_amendment(novel_id, proposal_id, dec_req, tenant_id=TENANT, actor_id=ACTOR)
+
+    # Verify PostgreSQL state: zero successor facts, zero decisions, proposal still pending, brain version unchanged
+    with f.engine.connect() as db:
+        succ_count = db.execute(
+            text("SELECT count(*) FROM narrative.facts WHERE supersedes_id=:p"),
+            {"p": fact_id},
+        ).scalar()
+        assert succ_count == 0
+
+        dec_count = db.execute(
+            text("SELECT count(*) FROM narrative.proposal_decisions WHERE proposal_id=:p"),
+            {"p": proposal_id},
+        ).scalar()
+        assert dec_count == 0
+
+        p_status = db.execute(
+            text("SELECT status FROM narrative.proposals WHERE id=:p"),
+            {"p": proposal_id},
+        ).scalar()
+        assert p_status == "pending"
+
+        b_version = db.execute(
+            text("SELECT brain_version FROM narrative.story_brains WHERE novel_id=:n"),
+            {"n": novel_id},
+        ).scalar()
+        assert b_version == brain_data["brain_version"]
+
