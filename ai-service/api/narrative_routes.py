@@ -11,6 +11,7 @@ from fastapi.responses import StreamingResponse
 
 from api.deps import (
     get_bootstrap_service,
+    get_brainstorm_service,
     get_narrative_repository,
     get_narrative_service,
     get_revision_analysis_service,
@@ -48,6 +49,7 @@ from api.schemas import (
     AutonomousRunStopRequest,
     WritingGenerationRequest,
 )
+from api.brainstorm_schemas import BrainstormRequest
 from domain.models import AutonomousRun, StoryPlan, StoryPlanObjective
 from application.narrative_service import NarrativeApplicationService
 from application.semantic_memory_service import refresh_semantic_memory_safely
@@ -954,10 +956,127 @@ def author_operation(
                         })
         return {"data": {"findings": findings}}
 
-    if operation == "suggest_events":
-        return {"data": {"events": []}}
+    if operation in ("suggest_events", "brainstorm"):
+        from api.deps import get_brainstorm_service
+        from api.brainstorm_schemas import BrainstormRequest
+
+        tenant_header = request.headers.get("X-Tenant-Id")
+        if not tenant_header:
+            raise HTTPException(401, detail={"code": "BRAINSTORM_IDENTITY_REQUIRED"})
+        try:
+            tenant_id = str(uuid.UUID(tenant_header))
+        except (ValueError, TypeError):
+            raise HTTPException(422, detail={"code": "INVALID_SCOPE_HEADER"})
+
+        author_header = request.headers.get("X-Author-Id")
+        author_id = None
+        if author_header:
+            try:
+                author_id = str(uuid.UUID(author_header))
+                for name in ("X-User-Id", "X-Actor-Id"):
+                    other = request.headers.get(name)
+                    if other is not None and str(uuid.UUID(other)) != author_id:
+                        raise HTTPException(403, detail={"code": "BRAINSTORM_IDENTITY_MISMATCH"})
+            except ValueError:
+                raise HTTPException(422, detail={"code": "INVALID_SCOPE_HEADER"})
+
+        try:
+            brain_uuid = str(uuid.UUID(brain_id))
+        except (ValueError, TypeError):
+            raise HTTPException(422, detail={"code": "INVALID_BRAIN_ID"})
+
+        target_val = payload.get("target") or ("future_events" if operation == "suggest_events" else "all")
+        if target_val not in ("all", "world_rules", "characters", "future_events"):
+            target_val = "all"
+
+        instruction_val = str(payload.get("instruction") or payload.get("direction") or "")
+        idem_key = request.headers.get("Idempotency-Key") or payload.get("idempotency_key")
+        exp_brain_v = payload.get("expected_brain_version")
+        exp_plan_v = payload.get("expected_plan_version")
+        cur_ch = payload.get("current_chapter")
+        tar_ch = payload.get("target_chapter")
+        priv_notes = str(payload.get("private_notes") or "")
+        priv_notes_list = payload.get("private_author_notes") or []
+        if isinstance(priv_notes_list, str):
+            priv_notes_list = [priv_notes_list]
+
+        b_req = BrainstormRequest(
+            contract_version="brainstorm-v1",
+            target=target_val,
+            instruction=instruction_val,
+            current_chapter=int(cur_ch) if cur_ch is not None else None,
+            target_chapter=int(tar_ch) if tar_ch is not None else None,
+            idempotency_key=str(idem_key) if idem_key else None,
+            expected_brain_version=int(exp_brain_v) if exp_brain_v is not None else None,
+            expected_plan_version=int(exp_plan_v) if exp_plan_v is not None else None,
+            private_notes=priv_notes,
+            private_author_notes=list(priv_notes_list),
+        )
+
+        override = request.app.dependency_overrides.get(get_brainstorm_service)
+        if override:
+            try:
+                brainstorm_svc = override(request)
+            except TypeError:
+                brainstorm_svc = override()
+        else:
+            brainstorm_svc = get_brainstorm_service(request)
+        result = brainstorm_svc.brainstorm(
+            brain_uuid,
+            b_req,
+            tenant_id=tenant_id,
+            actor_id=author_id,
+        )
+        return {"data": result.model_dump()}
 
     return {"data": {}}
+
+
+@router.post("/story-brains/{brain_id}/brainstorm")
+def brainstorm_endpoint(
+    brain_id: str,
+    request: Request,
+    payload: BrainstormRequest = Body(...),
+    service: NarrativeApplicationService = Depends(get_narrative_service),
+    brainstorm_svc=Depends(get_brainstorm_service),
+):
+
+    tenant_header = request.headers.get("X-Tenant-Id")
+    if not tenant_header:
+        raise HTTPException(401, detail={"code": "BRAINSTORM_IDENTITY_REQUIRED"})
+    try:
+        tenant_id = str(uuid.UUID(tenant_header))
+    except (ValueError, TypeError):
+        raise HTTPException(422, detail={"code": "INVALID_SCOPE_HEADER"})
+
+    author_header = request.headers.get("X-Author-Id")
+    author_id = None
+    if author_header:
+        try:
+            author_id = str(uuid.UUID(author_header))
+            for name in ("X-User-Id", "X-Actor-Id"):
+                other = request.headers.get(name)
+                if other is not None and str(uuid.UUID(other)) != author_id:
+                    raise HTTPException(403, detail={"code": "BRAINSTORM_IDENTITY_MISMATCH"})
+        except ValueError:
+            raise HTTPException(422, detail={"code": "INVALID_SCOPE_HEADER"})
+
+    try:
+        brain_uuid = str(uuid.UUID(brain_id))
+    except (ValueError, TypeError):
+        raise HTTPException(422, detail={"code": "INVALID_BRAIN_ID"})
+
+    if not payload.idempotency_key and request.headers.get("Idempotency-Key"):
+        payload = payload.model_copy(update={"idempotency_key": request.headers["Idempotency-Key"]})
+
+    brainstorm_svc = get_brainstorm_service(request)
+    result = brainstorm_svc.brainstorm(
+        brain_uuid,
+        payload,
+        tenant_id=tenant_id,
+        actor_id=author_id,
+    )
+    return {"data": result.model_dump()}
 
 
 @router.post("/story-brains/{brain_id}/events/{event_id}/corrections", status_code=201)

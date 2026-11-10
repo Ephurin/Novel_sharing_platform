@@ -30,6 +30,7 @@ import {
   updateStoryPlanObjectiveController,
   getApprovedMemoryController,
   authorOperationController,
+  brainstormController,
   eventCorrectionController,
   relationshipLockController,
   extractionStatusController,
@@ -68,6 +69,7 @@ aiGatewayRoutes.post('/story-brains/:novelId/author-proposals', authorMemoryProp
 aiGatewayRoutes.post('/story-brains/:novelId/reanalyse', reanalyseSavedChapterController);
 aiGatewayRoutes.get('/story-brains/:novelId/extraction-status', extractionStatusController);
 aiGatewayRoutes.post('/story-brains/:novelId/author-operation', authorOperationController);
+aiGatewayRoutes.post('/story-brains/:novelId/brainstorm', brainstormController);
 aiGatewayRoutes.post('/story-brains/:novelId/events/:eventId/corrections', eventCorrectionController);
 aiGatewayRoutes.post('/story-brains/:novelId/relationship-locks', relationshipLockController);
 

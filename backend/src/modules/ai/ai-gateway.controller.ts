@@ -142,8 +142,28 @@ export async function authorOperationController(req: Request, res: Response, nex
   try {
     const novelId = String(req.params.novelId);
     await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
-    const data = await aiGatewayService.forwardRequest({ method: 'POST',
-      path: `/v1/story-brains/${novelId}/author-operation`, body: req.body, userId: req.auth!.userId });
+    const data = await aiGatewayService.forwardRequest({
+      method: 'POST',
+      path: `/v1/story-brains/${novelId}/author-operation`,
+      body: req.body,
+      userId: req.auth!.userId,
+      idempotencyKey: req.header('Idempotency-Key') || (req.body && req.body.idempotency_key) || undefined,
+    });
+    res.json(successResponse(data));
+  } catch (error) { next(error); }
+}
+
+export async function brainstormController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+    const data = await aiGatewayService.forwardRequest({
+      method: 'POST',
+      path: `/v1/story-brains/${novelId}/brainstorm`,
+      body: req.body,
+      userId: req.auth!.userId,
+      idempotencyKey: req.header('Idempotency-Key') || (req.body && req.body.idempotency_key) || undefined,
+    });
     res.json(successResponse(data));
   } catch (error) { next(error); }
 }
