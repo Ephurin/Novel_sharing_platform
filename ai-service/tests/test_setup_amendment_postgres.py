@@ -1,6 +1,7 @@
 """P2-07E: PostgreSQL integration tests for author-approved World Setup rule amendment backend."""
 from __future__ import annotations
 
+import hashlib
 import json
 import uuid
 import pytest
@@ -1526,4 +1527,185 @@ def test_f06_decision_revalidation_rejects_tampered_ancestry_under_same_brain_ve
             {"n": novel_id},
         ).scalar()
         assert b_version == brain_data["brain_version"]
+
+
+def test_ux05_full_e2e_tampered_receipt_blocks_writing_generation(amendment_env):
+    """UX-05 E2E: Writing generation under a tampered amendment receipt fails closed.
+
+    Guarantees that when an amendment receipt is tampered in PostgreSQL:
+    1. Repository / context resolution fails closed with WORLD_RULE_SUCCESSOR_UNVERIFIED.
+    2. Writing service generation job enters status='failed', stage='security_blocked'.
+    3. Exactly zero (0) AI provider dispatch calls are made to the fake LLM provider.
+    4. Restoring valid receipt allows normal generation to proceed.
+    """
+    f, novel_id, fact_id, fact_data, brain_data = _activated_novel(amendment_env)
+    service = SetupService(f.service)
+
+    # 1. Author proposes amendment
+    prop = service.propose_amendment(
+        novel_id,
+        fact_id,
+        SetupRuleAmendmentProposalRequest(
+            contract_version="setup-rule-amendment-v1",
+            idempotency_key="ux05-e2e-prop-1",
+            replacement_text="Đạo tu vi chân chính yêu cầu linh căn ngũ hành.",
+            expected_brain_version=brain_data["brain_version"],
+        ),
+        tenant_id=TENANT,
+        actor_id=ACTOR,
+    )
+    proposal_id = prop["proposal_id"]
+
+    # 2. Author accepts amendment -> generates successor fact and audit decision receipt
+    dec = service.decide_amendment(
+        novel_id,
+        proposal_id,
+        SetupRuleAmendmentDecisionRequest(
+            contract_version="setup-rule-amendment-v1",
+            idempotency_key="ux05-e2e-dec-1",
+            decision="accept",
+            expected_brain_version=brain_data["brain_version"],
+        ),
+        tenant_id=TENANT,
+        actor_id=ACTOR,
+    )
+    successor_id = dec["successor_fact_id"]
+    decision_id = dec["proposal_id"]
+
+    # 3. Setup real manuscript chapter and revision in database
+    c_id = str(uuid.uuid4())
+    r_id = str(uuid.uuid4())
+    content = "Chương 1: Mở đầu con đường tu tiên đầy gian nan."
+    h = hashlib.sha256(content.encode("utf-8")).hexdigest()
+    with f.engine.begin() as db:
+        db.execute(
+            text(
+                "INSERT INTO chapters(chapter_id,novel_id,chapter_number,title,content,word_count) "
+                "VALUES (:c,:n,1,'Chương 1',:cnt,9)"
+            ),
+            {"c": c_id, "n": novel_id, "cnt": content},
+        )
+        db.execute(
+            text(
+                "INSERT INTO chapter_revisions(revision_id,novel_id,chapter_id,content_hash,content,word_count,source_type,created_by) "
+                "VALUES (:r,:n,:c,:h,:cnt,9,'AUTHOR_MANUAL',:a)"
+            ),
+            {"r": r_id, "n": novel_id, "c": c_id, "h": h, "cnt": content, "a": ACTOR},
+        )
+        db.execute(
+            text("UPDATE chapters SET latest_revision_id=:r WHERE chapter_id=:c"),
+            {"r": r_id, "c": c_id},
+        )
+        db.execute(
+            text("UPDATE narrative.story_brains SET baseline_revision_id=:r WHERE novel_id=:n"),
+            {"r": r_id, "n": novel_id},
+        )
+
+    # 4. Instantiate WritingService with TeleportDraftProvider
+    from application.writing_service import WritingService
+    from tests.test_world_rule_effective_head_postgres import TeleportDraftProvider
+    from tests.test_writing_plan_authority_postgres import SqlRevisionProvider
+
+    provider = TeleportDraftProvider()
+    writing_service = WritingService(f.repo, provider, SqlRevisionProvider(f.engine))
+
+    # Story brain version was bumped by +1 upon accepting amendment
+    current_brain = f.repo.get_story_brain(novel_id)
+    bumped_brain_version = int(current_brain.metadata.get("brain_version", "1"))
+    assert bumped_brain_version == brain_data["brain_version"] + 1
+
+    # 5. Sanity check: writing generation succeeds under valid receipt
+    job_valid = writing_service.start_generation(
+        tenant_id=TENANT,
+        novel_id=novel_id,
+        chapter_id=c_id,
+        revision_id=r_id,
+        content_hash=h,
+        operation="continue",
+        selection={"start": 0, "end": 0, "cursor": 0},
+        instruction="Viết tiếp chương 1",
+        expected_brain_version=bumped_brain_version,
+        chapter_number=1,
+        actor_id=ACTOR,
+        idempotency_key=f"ux05-job-valid-{uuid.uuid4()}",
+        process_inline=True,
+    )
+    assert job_valid.status == "completed"
+    assert len(provider.payloads) == 1
+
+    # 6. Tamper the decision receipt in PostgreSQL
+    with f.engine.connect() as db:
+        orig_row = db.execute(
+            text("SELECT id, edited_payload FROM narrative.proposal_decisions WHERE proposal_id=:p"),
+            {"p": decision_id},
+        ).mappings().one()
+        orig_payload = dict(orig_row["edited_payload"])
+        rec_id = orig_row["id"]
+
+    tampered_payload = dict(orig_payload)
+    tampered_payload["fact_value"] = "tampered_injected_fact_value"
+    with f.engine.begin() as db:
+        db.execute(
+            text("UPDATE narrative.proposal_decisions SET edited_payload=CAST(:p AS jsonb) WHERE id=:id"),
+            {"p": json.dumps(tampered_payload), "id": rec_id},
+        )
+
+    # Reset provider payloads
+    provider.payloads.clear()
+
+    # 7. Writing context preview directly raises WORLD_RULE_SUCCESSOR_UNVERIFIED
+    with pytest.raises(WorldRuleLineageError) as exc:
+        writing_service.preview_context(tenant_id=TENANT, story_id=novel_id, chapter_number=1)
+    assert exc.value.code == "WORLD_RULE_SUCCESSOR_UNVERIFIED"
+
+    # 8. Writing service generation job fails closed with security_blocked and EXACTLY ZERO provider calls
+    job_tampered = writing_service.start_generation(
+        tenant_id=TENANT,
+        novel_id=novel_id,
+        chapter_id=c_id,
+        revision_id=r_id,
+        content_hash=h,
+        operation="continue",
+        selection={"start": 0, "end": 0, "cursor": 0},
+        instruction="Viết tiếp khi receipt bị giả mạo",
+        expected_brain_version=bumped_brain_version,
+        chapter_number=1,
+        actor_id=ACTOR,
+        idempotency_key=f"ux05-job-tampered-{uuid.uuid4()}",
+        process_inline=True,
+    )
+    assert job_tampered.status == "failed"
+    assert job_tampered.stage == "security_blocked"
+    assert job_tampered.error == {
+        "code": "WRITING_CONTEXT_AUTHORITY_DENIED",
+        "message": "Writing context authorization failed",
+    }
+    # Zero provider calls assertion
+    assert len(provider.payloads) == 0, f"Expected 0 provider calls, got {len(provider.payloads)}"
+
+    # 9. Restore valid receipt and verify generation succeeds again
+    with f.engine.begin() as db:
+        db.execute(
+            text("UPDATE narrative.proposal_decisions SET edited_payload=CAST(:p AS jsonb) WHERE id=:id"),
+            {"p": json.dumps(orig_payload), "id": rec_id},
+        )
+
+    job_restored = writing_service.start_generation(
+        tenant_id=TENANT,
+        novel_id=novel_id,
+        chapter_id=c_id,
+        revision_id=r_id,
+        content_hash=h,
+        operation="continue",
+        selection={"start": 0, "end": 0, "cursor": 0},
+        instruction="Viết tiếp sau khi phục hồi receipt hợp lệ",
+        expected_brain_version=bumped_brain_version,
+        chapter_number=1,
+        actor_id=ACTOR,
+        idempotency_key=f"ux05-job-restored-{uuid.uuid4()}",
+        process_inline=True,
+    )
+    assert job_restored.status == "completed"
+    assert len(provider.payloads) == 1
+
 
