@@ -56,6 +56,30 @@ export type ReloadResult =
       error: string;
     };
 
+export interface PreservedProposalDraft {
+  id: string;
+  novelId: string;
+  factId: string;
+  rootFactId?: string;
+  factKey: string;
+  replacement_text: string;
+  private_notes: string;
+  expected_brain_version: number;
+  savedAt: string;
+}
+
+export interface PreservedDecisionDraft {
+  id: string;
+  novelId: string;
+  proposalId: string;
+  factId: string;
+  rootFactId?: string;
+  factKey: string;
+  decision: 'accept' | 'reject';
+  reason: string;
+  savedAt: string;
+}
+
 type ProposalDraft = {
   replacement_text: string;
   private_notes: string;
@@ -104,6 +128,72 @@ function formatFactValue(value: unknown): string {
   return String(value);
 }
 
+function getPreservedProposalDraftsKey(novelId: string, actor: string) {
+  return `ephurin-planning:${actor}:${novelId}:preserved-proposal-drafts-v1`;
+}
+
+function getPreservedDecisionDraftsKey(novelId: string, actor: string) {
+  return `ephurin-planning:${actor}:${novelId}:preserved-decision-drafts-v1`;
+}
+
+function loadPreservedProposalDrafts(novelId: string, actor: string): PreservedProposalDraft[] {
+  try {
+    const raw = localStorage.getItem(getPreservedProposalDraftsKey(novelId, actor));
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function savePreservedProposalDrafts(novelId: string, actor: string, items: PreservedProposalDraft[]) {
+  try {
+    localStorage.setItem(getPreservedProposalDraftsKey(novelId, actor), JSON.stringify(items));
+  } catch {}
+}
+
+function loadPreservedDecisionDrafts(novelId: string, actor: string): PreservedDecisionDraft[] {
+  try {
+    const raw = localStorage.getItem(getPreservedDecisionDraftsKey(novelId, actor));
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function savePreservedDecisionDrafts(novelId: string, actor: string, items: PreservedDecisionDraft[]) {
+  try {
+    localStorage.setItem(getPreservedDecisionDraftsKey(novelId, actor), JSON.stringify(items));
+  } catch {}
+}
+
+function downloadJsonFile(filename: string, data: unknown) {
+  if (typeof window === 'undefined') return;
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+async function handleCopyText(text: string) {
+  try {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      await navigator.clipboard.writeText(text);
+    }
+  } catch {}
+}
+
+function matchesPreservedDraft(rule: WorldRuleFact, draft: { factId: string; rootFactId?: string }) {
+  if (draft.factId === rule.fact_id) return true;
+  if (draft.rootFactId && rule.root_fact_id && draft.rootFactId === rule.root_fact_id) return true;
+  if (rule.supersedes_id && rule.supersedes_id === draft.factId) return true;
+  return false;
+}
+
 interface Props {
   novelId: string;
   brainVersion?: number;
@@ -148,6 +238,69 @@ export function WorldRuleAmendmentManager({
 
   // History load errors map by FACT_ID (UXF-01: do not silently swallow errors)
   const [historyErrors, setHistoryErrors] = useState<Record<string, string>>({});
+
+  // UXF-02d: Preserved drafts across proposal and decision workflows
+  const [preservedProposals, setPreservedProposals] = useState<PreservedProposalDraft[]>(() =>
+    loadPreservedProposalDrafts(novelId, actor)
+  );
+  const [preservedDecisions, setPreservedDecisions] = useState<PreservedDecisionDraft[]>(() =>
+    loadPreservedDecisionDrafts(novelId, actor)
+  );
+  const [draftOverrides, setDraftOverrides] = useState<
+    Record<string, { replacement_text: string; private_notes: string }>
+  >({});
+
+  useEffect(() => {
+    setPreservedProposals(loadPreservedProposalDrafts(novelId, actor));
+    setPreservedDecisions(loadPreservedDecisionDrafts(novelId, actor));
+  }, [novelId, actor]);
+
+  const handlePreserveProposal = (draft: PreservedProposalDraft) => {
+    setPreservedProposals((prev) => {
+      const filtered = prev.filter(
+        (p) => p.factId !== draft.factId && (!draft.rootFactId || p.rootFactId !== draft.rootFactId)
+      );
+      const updated = [draft, ...filtered];
+      savePreservedProposalDrafts(novelId, actor, updated);
+      return updated;
+    });
+  };
+
+  const handleDiscardPreservedProposal = (id: string) => {
+    setPreservedProposals((prev) => {
+      const updated = prev.filter((p) => p.id !== id);
+      savePreservedProposalDrafts(novelId, actor, updated);
+      return updated;
+    });
+  };
+
+  const handlePreserveDecision = (draft: PreservedDecisionDraft) => {
+    setPreservedDecisions((prev) => {
+      const filtered = prev.filter((d) => d.proposalId !== draft.proposalId);
+      const updated = [draft, ...filtered];
+      savePreservedDecisionDrafts(novelId, actor, updated);
+      return updated;
+    });
+  };
+
+  const handleDiscardPreservedDecision = (id: string) => {
+    setPreservedDecisions((prev) => {
+      const updated = prev.filter((d) => d.id !== id);
+      savePreservedDecisionDrafts(novelId, actor, updated);
+      return updated;
+    });
+  };
+
+  const handleApplyPreservedDraftToPropose = (factId: string, draft: PreservedProposalDraft) => {
+    setDraftOverrides((prev) => ({
+      ...prev,
+      [factId]: {
+        replacement_text: draft.replacement_text,
+        private_notes: draft.private_notes,
+      },
+    }));
+    setProposingFactId(factId);
+  };
 
   const isMounted = useRef(true);
   useEffect(() => {
@@ -207,6 +360,7 @@ export function WorldRuleAmendmentManager({
               newIneligibleMap[r.fact_id] = 'Quy tắc không thuộc phả hệ World Setup đã kích hoạt.';
               return;
             }
+            r.root_fact_id = h.root_fact_id;
             // Bind pending proposal strictly to the current effective head fact_id
             const pending = (h.proposals || []).find((p) => p.status === 'pending');
             if (pending) {
@@ -342,6 +496,14 @@ export function WorldRuleAmendmentManager({
           const historyErr = historyErrors[rule.fact_id];
           const isProposing = proposingFactId === rule.fact_id;
 
+          // UXF-02d: Query preserved drafts matching this rule's immutable identity / lineage
+          const matchingPreservedProposals = preservedProposals.filter((p) =>
+            matchesPreservedDraft(rule, p)
+          );
+          const matchingPreservedDecisions = preservedDecisions.filter((d) =>
+            matchesPreservedDraft(rule, d)
+          );
+
           return (
             <Card
               withBorder
@@ -428,6 +590,144 @@ export function WorldRuleAmendmentManager({
                   </Alert>
                 )}
 
+                {/* UXF-02d: Visually Surface Preserved Proposal Drafts for User Recovery */}
+                {matchingPreservedProposals.map((pDraft) => (
+                  <Alert
+                    key={pDraft.id}
+                    color="violet"
+                    title="Bản nháp đề xuất đã được bảo lưu (Chưa gửi)"
+                    data-testid={`preserved-proposal-alert-${rule.fact_id}`}
+                  >
+                    <Stack gap="xs">
+                      <div>
+                        <Text size="xs" fw={700} c="violet.9">
+                          Nội dung bản nháp đã lưu:
+                        </Text>
+                        <Text
+                          size="sm"
+                          style={{ whiteSpace: 'pre-wrap' }}
+                          data-testid={`preserved-draft-text-${rule.fact_id}`}
+                        >
+                          {pDraft.replacement_text}
+                        </Text>
+                        {pDraft.private_notes && (
+                          <Text
+                            size="xs"
+                            c="dimmed"
+                            mt={4}
+                            data-testid={`preserved-draft-notes-${rule.fact_id}`}
+                          >
+                            Ghi chú riêng: {pDraft.private_notes}
+                          </Text>
+                        )}
+                        <Text size="10px" c="dimmed" mt={4}>
+                          Được lưu tự động khi bạn xác nhận yêu cầu trước đó.
+                        </Text>
+                      </div>
+
+                      <Group gap="xs">
+                        <Button
+                          size="xs"
+                          variant="light"
+                          color="violet"
+                          onClick={() =>
+                            downloadJsonFile(`ban-nhap-de-xuat-${pDraft.factKey}.json`, pDraft)
+                          }
+                          data-testid={`export-preserved-draft-btn-${rule.fact_id}`}
+                        >
+                          Tải về bản nháp (.json)
+                        </Button>
+                        <Button
+                          size="xs"
+                          variant="subtle"
+                          onClick={() => void handleCopyText(pDraft.replacement_text)}
+                          data-testid={`copy-preserved-draft-btn-${rule.fact_id}`}
+                        >
+                          Sao chép nội dung
+                        </Button>
+                        {!pendingInfo && isM0Verified && !isIneligible && !isProposing && (
+                          <Button
+                            size="xs"
+                            color="teal"
+                            onClick={() => handleApplyPreservedDraftToPropose(rule.fact_id, pDraft)}
+                            data-testid={`apply-preserved-draft-btn-${rule.fact_id}`}
+                          >
+                            Đưa vào ô đề xuất sửa
+                          </Button>
+                        )}
+                        <Button
+                          size="xs"
+                          color="gray"
+                          variant="subtle"
+                          onClick={() => handleDiscardPreservedProposal(pDraft.id)}
+                          data-testid={`discard-preserved-draft-btn-${rule.fact_id}`}
+                        >
+                          Bỏ bản nháp
+                        </Button>
+                      </Group>
+                    </Stack>
+                  </Alert>
+                ))}
+
+                {/* UXF-02d: Visually Surface Preserved Decision Drafts for User Recovery */}
+                {matchingPreservedDecisions.map((dDraft) => (
+                  <Alert
+                    key={dDraft.id}
+                    color="violet"
+                    title="Ghi chú lý do quyết định đã được bảo lưu (Chưa gửi)"
+                    data-testid={`preserved-decision-alert-${rule.fact_id}`}
+                  >
+                    <Stack gap="xs">
+                      <div>
+                        <Text size="xs" fw={700} c="violet.9">
+                          Ghi chú lý do đã lưu:
+                        </Text>
+                        <Text
+                          size="sm"
+                          style={{ whiteSpace: 'pre-wrap' }}
+                          data-testid={`preserved-decision-reason-${rule.fact_id}`}
+                        >
+                          {dDraft.reason}
+                        </Text>
+                        <Text size="10px" c="dimmed" mt={4}>
+                          Được lưu tự động khi bạn xác nhận quyết định trước đó ({dDraft.decision === 'accept' ? 'Chấp thuận' : 'Từ chối'}).
+                        </Text>
+                      </div>
+
+                      <Group gap="xs">
+                        <Button
+                          size="xs"
+                          variant="light"
+                          color="violet"
+                          onClick={() =>
+                            downloadJsonFile(`ban-nhap-ly-do-${dDraft.factKey}.json`, dDraft)
+                          }
+                          data-testid={`export-preserved-decision-btn-${rule.fact_id}`}
+                        >
+                          Tải về ghi chú (.json)
+                        </Button>
+                        <Button
+                          size="xs"
+                          variant="subtle"
+                          onClick={() => void handleCopyText(dDraft.reason)}
+                          data-testid={`copy-preserved-decision-btn-${rule.fact_id}`}
+                        >
+                          Sao chép lý do
+                        </Button>
+                        <Button
+                          size="xs"
+                          color="gray"
+                          variant="subtle"
+                          onClick={() => handleDiscardPreservedDecision(dDraft.id)}
+                          data-testid={`discard-preserved-decision-btn-${rule.fact_id}`}
+                        >
+                          Bỏ ghi chú
+                        </Button>
+                      </Group>
+                    </Stack>
+                  </Alert>
+                ))}
+
                 {/* Canon Content */}
                 <Card withBorder p="sm" bg="var(--mantine-color-gray-0)">
                   <Text size="xs" fw={600} c="dimmed" mb={4}>
@@ -455,6 +755,7 @@ export function WorldRuleAmendmentManager({
                       await reloadRules(true);
                       onServerChange?.();
                     }}
+                    onPreserveDecision={handlePreserveDecision}
                   />
                 )}
 
@@ -474,6 +775,8 @@ export function WorldRuleAmendmentManager({
                         onServerChange?.();
                       }}
                       onCancel={() => setProposingFactId(null)}
+                      onPreserveDraft={handlePreserveProposal}
+                      initialDraftOverride={draftOverrides[rule.fact_id]}
                     />
                   )}
                 </Collapse>
@@ -626,6 +929,8 @@ interface ProposeFormProps {
   onRefreshLatest: () => Promise<ReloadResult>;
   onSuccess: (message: string) => void;
   onCancel: () => void;
+  onPreserveDraft?: (draft: PreservedProposalDraft) => void;
+  initialDraftOverride?: { replacement_text: string; private_notes: string };
 }
 
 function ProposeAmendmentForm({
@@ -636,6 +941,8 @@ function ProposeAmendmentForm({
   onRefreshLatest,
   onSuccess,
   onCancel,
+  onPreserveDraft,
+  initialDraftOverride,
 }: ProposeFormProps) {
   const scope = usePlanningScope();
   const draftKey = `ephurin-planning:${actor}:${novelId}:amendment-proposal:${rule.fact_id}`;
@@ -661,6 +968,16 @@ function ProposeAmendmentForm({
 
   // UXF-02a: Store immutable in-flight submitted request identity before dispatch
   const lastSubmittedRef = useRef<SubmittedProposeRequest | null>(null);
+
+  // UXF-02d: Apply preserved draft override if user clicks "Đưa vào ô đề xuất sửa"
+  useEffect(() => {
+    if (initialDraftOverride) {
+      draft.edit({
+        replacement_text: initialDraftOverride.replacement_text,
+        private_notes: initialDraftOverride.private_notes,
+      });
+    }
+  }, [initialDraftOverride]);
 
   // Sync expected brain version if parent changes
   useEffect(() => {
@@ -812,12 +1129,25 @@ function ProposeAmendmentForm({
 
       await proposeWorldRuleAmendment(novelId, submitted.factId, body, scope.signal);
       
-      // UXF-02c: DO NOT clear draft B! Draft B remains in storage & memory.
+      // UXF-02d: Register preserved draft with manager so it is immediately visible & actionable in UI!
+      const preserved: PreservedProposalDraft = {
+        id: crypto.randomUUID(),
+        novelId,
+        factId: rule.fact_id,
+        rootFactId: rule.root_fact_id,
+        factKey: rule.fact_key,
+        replacement_text: replacement_text.trim(),
+        private_notes: private_notes.trim(),
+        expected_brain_version: currentExpectedVersion,
+        savedAt: new Date().toISOString(),
+      };
+      onPreserveDraft?.(preserved);
+
       lastSubmittedRef.current = null;
       setIs503Uncertain(false);
       setHasEditedDraftConflict(false);
       onSuccess(
-        `Máy chủ đã xác nhận yêu cầu trước đó (Nội dung cũ đã gửi) đã được tiếp nhận thành công. Bản nháp đã chỉnh sửa mới của bạn được bảo lưu an toàn.`
+        `Máy chủ đã xác nhận yêu cầu trước đó (Nội dung cũ đã gửi) đã được tiếp nhận thành công. Bản nháp đã chỉnh sửa mới của bạn được hiển thị và bảo lưu an toàn bên dưới.`
       );
     } catch (err: unknown) {
       if (err instanceof ApiClientError && (err.status === 503 || err.status === 504)) {
@@ -1125,6 +1455,7 @@ interface PendingDecisionProps {
   brainVersion: number;
   onRefreshLatest: () => Promise<ReloadResult>;
   onDecided: (decision: 'accept' | 'reject', message: string) => void;
+  onPreserveDecision?: (draft: PreservedDecisionDraft) => void;
 }
 
 function PendingProposalDecisionView({
@@ -1134,6 +1465,7 @@ function PendingProposalDecisionView({
   brainVersion,
   onRefreshLatest,
   onDecided,
+  onPreserveDecision,
 }: PendingDecisionProps) {
   const scope = usePlanningScope();
   const actor = useAuthStore((s) => s.user?.userId ?? 'guest');
@@ -1331,14 +1663,27 @@ function PendingProposalDecisionView({
 
       await decideWorldRuleAmendment(novelId, submitted.proposalId, body, scope.signal);
       
-      // UXF-02c: DO NOT call draft.clear()! Preserves newly typed reason!
+      // UXF-02d: Register preserved decision draft with manager so it is immediately visible & actionable in UI!
+      const preserved: PreservedDecisionDraft = {
+        id: crypto.randomUUID(),
+        novelId,
+        proposalId: proposal.proposal_id,
+        factId: rule.fact_id,
+        rootFactId: rule.root_fact_id,
+        factKey: rule.fact_key,
+        decision: submitted.decision,
+        reason: reason.trim(),
+        savedAt: new Date().toISOString(),
+      };
+      onPreserveDecision?.(preserved);
+
       lastSubmittedDecisionRef.current = null;
       setIs503Uncertain(false);
       setHasEditedDecisionConflict(false);
       const actionLabel = submitted.decision === 'accept' ? 'chấp thuận' : 'từ chối';
       onDecided(
         submitted.decision,
-        `Máy chủ đã xác nhận quyết định trước đó (${actionLabel} với lý do ban đầu) đã được tiếp nhận thành công. Ghi chú lý do mới của bạn được bảo lưu.`
+        `Máy chủ đã xác nhận quyết định trước đó (${actionLabel} với lý do ban đầu) đã được tiếp nhận thành công. Ghi chú lý do mới của bạn được hiển thị và bảo lưu an toàn bên dưới.`
       );
     } catch (err: unknown) {
       if (err instanceof ApiClientError && (err.status === 503 || err.status === 504)) {

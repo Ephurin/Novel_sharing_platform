@@ -646,24 +646,32 @@ test('P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle
     await expect(page.getByText(/Bản nháp đã được chỉnh sửa so với yêu cầu trước đó/)).toBeVisible();
     console.log('✓ UXF-02a: Editing draft after 503 properly blocks reconcile with stale snapshot!');
 
-    // 3.6b UXF-02c: Safe retry is also blocked when draft is edited, preserving draft B and preventing stale replay
+    // 3.6b UXF-02c & UXF-02d: Safe retry blocked on edited draft B -> Click reconcile-preserve-draft-btn
     await safeRetryBtn.click();
     await expect(page.getByText(/Thao tác "Thử gửi lại an toàn" bị chặn để bảo vệ bản nháp mới của bạn/)).toBeVisible();
     await expect(replacementInputB).toHaveValue('Trọng lực hư không Bắc Minh dao động (đã sửa nháp B)');
-    await expect(page.getByTestId('reconcile-preserve-draft-btn')).toBeVisible();
-    // Ensure proposals count is unchanged (no replay of A, no submission of B)
+    const reconcilePreserveBtn = page.getByTestId('reconcile-preserve-draft-btn');
+    await expect(reconcilePreserveBtn).toBeVisible();
+    // Ensure proposals count is unchanged before confirming
     assert.strictEqual(proposalsDb.length, proposalsCountAfter503, 'Proposals count must not change when safe retry is blocked');
-    console.log('✓ UXF-02c: Safe retry blocked on edited draft B, draft B preserved intact, no stale replay!');
 
-    // Revert text back to original submitted text
-    await replacementInputB.fill('Trọng lực hư không Bắc Minh dao động theo thủy triều.');
+    // UXF-02d: ACTUALLY CLICK "Xác nhận yêu cầu trước (Bảo lưu bản nháp mới)"!
+    await reconcilePreserveBtn.click();
 
-    // 3.7 UXF-02a: Exact idempotent replay with preserved key -> zero duplicate writes!
-    await safeRetryBtn.click();
+    // Verify UI transitions: proposal A is now pending, ProposeForm unmounts, and pending decision card appears for Root B
     await expect(page.getByTestId(`pending-decision-card-${factGravityB}`)).toBeVisible();
+    await expect(page.getByTestId(`comparison-after-text-${factGravityB}`)).toHaveText('Trọng lực hư không Bắc Minh dao động theo thủy triều.');
+
+    // UXF-02d: VERIFY EXACT PRESERVED DRAFT B IS VISIBLE, READABLE AND EXPORTABLE ON THE UI
+    const preservedProposalAlert = page.getByTestId(`preserved-proposal-alert-${factGravityB}`);
+    await expect(preservedProposalAlert).toBeVisible();
+    const preservedDraftText = page.getByTestId(`preserved-draft-text-${factGravityB}`);
+    await expect(preservedDraftText).toHaveText('Trọng lực hư không Bắc Minh dao động (đã sửa nháp B)');
+    await expect(page.getByTestId(`export-preserved-draft-btn-${factGravityB}`)).toBeVisible();
+    await expect(page.getByTestId(`copy-preserved-draft-btn-${factGravityB}`)).toBeVisible();
     // Verify no duplicate proposal in database!
-    assert.strictEqual(proposalsDb.length, proposalsCountAfter503, 'Proposals count must not increase on idempotent replay');
-    console.log('✓ UXF-02a: Exact idempotent replay verified with zero duplicate writes!');
+    assert.strictEqual(proposalsDb.length, proposalsCountAfter503, 'Proposals count must not increase on idempotent confirmation');
+    console.log('✓ UXF-02d: Clicked reconcile-preserve-draft-btn -> confirmed A, exact draft B visually preserved and recoverable!');
 
     // =========================================================================
     // SCENARIO 4: Competing Decision Conflict, Reject & Final Canon Promotion
@@ -724,20 +732,54 @@ test('P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle
     await expect(page.getByTestId(`canon-text-${factGravityA}`)).toHaveText('Trọng lực đại lục Nam Cực: 1.0G.');
     console.log('✓ Rejection confirmed on server, parent Canon preserved intact on Root A!');
 
-    // 4.2 Accept proposal on Root B
+    // 4.2 UXF-02d: Decision flow on Root B with decision-reconcile-preserve-draft-btn
     await page.getByTestId(`decision-reason-input-${factGravityB}`).fill('Chấp thuận thiết lập thủy triều Bắc Minh.');
+    force503OnDecision = true;
     await page.getByTestId(`accept-amendment-btn-${factGravityB}`).click();
 
-    // Verify accept: Successor promoted to Canon, brain version bumped to v3
-    await expect(page.getByText(/Đã chấp thuận đề xuất sửa đổi.*Fact mới đã trở thành Canon.*Brain v3/)).toBeVisible();
-    await expect(page.getByTestId(`canon-text-${factsDb[factsDb.length - 1].fact_id}`)).toHaveText('Trọng lực hư không Bắc Minh dao động theo thủy triều.');
-    console.log('✓ Accept decision promoted successor to Canon and bumped Brain Version to v3!');
+    await expect(page.getByText('Kết nối gián đoạn (503)')).toBeVisible();
+    const safeRetryDecisionB = page.getByTestId('safe-retry-decision-btn');
+    await expect(safeRetryDecisionB).toBeVisible();
+
+    // Author edits decision reason to B after 503
+    await page.getByTestId(`decision-reason-input-${factGravityB}`).fill('Chấp thuận thiết lập thủy triều Bắc Minh (Ghi chú lý do B mới)');
+    await safeRetryDecisionB.click();
+    await expect(page.getByText(/Thao tác "Thử gửi lại an toàn" bị chặn để bảo vệ ghi chú mới của bạn/)).toBeVisible();
+    const decisionReconcilePreserveBtnB = page.getByTestId('decision-reconcile-preserve-draft-btn');
+    await expect(decisionReconcilePreserveBtnB).toBeVisible();
+
+    // UXF-02d: ACTUALLY CLICK "Xác nhận quyết định trước (Bảo lưu lý do mới)"!
+    await decisionReconcilePreserveBtnB.click();
+
+    // Verify accept confirmed on server, successor promoted to Canon, brain version bumped to v3
+    await expect(page.getByText(/Máy chủ đã xác nhận quyết định trước đó.*chấp thuận/)).toBeVisible();
+    await expect(page.getByText(/Brain v3/).first()).toBeVisible();
+    const latestSuccFactId = factsDb[factsDb.length - 1].fact_id;
+    await expect(page.getByTestId(`canon-text-${latestSuccFactId}`)).toHaveText('Trọng lực hư không Bắc Minh dao động theo thủy triều.');
+
+    // UXF-02d: VERIFY PRESERVED DECISION REASON B SURVIVED HEAD TRANSITION TO SUCCESSOR FACT!
+    const preservedDecisionAlert = page.getByTestId(`preserved-decision-alert-${latestSuccFactId}`);
+    await expect(preservedDecisionAlert).toBeVisible();
+    await expect(page.getByTestId(`preserved-decision-reason-${latestSuccFactId}`)).toHaveText('Chấp thuận thiết lập thủy triều Bắc Minh (Ghi chú lý do B mới)');
+    await expect(page.getByTestId(`export-preserved-decision-btn-${latestSuccFactId}`)).toBeVisible();
+    await expect(page.getByTestId(`copy-preserved-decision-btn-${latestSuccFactId}`)).toBeVisible();
+
+    // UXF-02d: VERIFY PRESERVED PROPOSAL DRAFT B ALSO SURVIVED HEAD TRANSITION TO SUCCESSOR FACT!
+    const preservedProposalOnSucc = page.getByTestId(`preserved-proposal-alert-${latestSuccFactId}`);
+    await expect(preservedProposalOnSucc).toBeVisible();
+    await expect(page.getByTestId(`preserved-draft-text-${latestSuccFactId}`)).toHaveText('Trọng lực hư không Bắc Minh dao động (đã sửa nháp B)');
+
+    // Test author discard affordance on preserved alerts
+    await page.getByTestId(`discard-preserved-draft-btn-${latestSuccFactId}`).click();
+    await expect(preservedProposalOnSucc).toHaveCount(0);
+    await page.getByTestId(`discard-preserved-decision-btn-${latestSuccFactId}`).click();
+    await expect(preservedDecisionAlert).toHaveCount(0);
+    console.log('✓ UXF-02d: Preserved drafts survived successor fact transition, fully verified, exportable and discardable!');
 
     // =========================================================================
     // SCENARIO 5: Full Lineage & History Modal Verification
     // =========================================================================
     console.log('\n--- SCENARIO 5: Lineage & History Modal Inspection ---');
-    const latestSuccFactId = factsDb[factsDb.length - 1].fact_id;
     await page.getByTestId(`history-btn-${latestSuccFactId}`).click();
 
     await expect(page.getByText(/Lịch sử hiệu chỉnh & Phả hệ quy tắc/)).toBeVisible();

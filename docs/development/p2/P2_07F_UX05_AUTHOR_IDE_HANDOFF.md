@@ -174,6 +174,21 @@ Screenshots captured and stored at `docs/development/p2/evidence/p2-07f/`:
   - Hoặc chọn "Xác nhận yêu cầu trước (Bảo lưu bản nháp mới)" (`reconcile-preserve-draft-btn`, `decision-reconcile-preserve-draft-btn`) để thực hiện idempotent replay xác nhận request A trên máy chủ mà **hoàn toàn không xóa bản nháp B**.
 - **Verified Competing Refresh:** Nút `competing-refresh-btn` áp dụng đúng pattern verified-rebase: kiểm tra `res.ok` và `historyErrors` của `ReloadResult`. Nếu quá trình refresh trạng thái máy chủ thất bại (ví dụ 503), hệ thống giữ nguyên cảnh báo xung đột quyết định và bảo toàn bản nháp. Chỉ khi refresh thành công mới xóa cảnh báo.
 
+#### UXF-02d (P1): Trực quan hóa, Khôi phục & Xuất bản nháp B trên giao diện qua các thế hệ Fact (R4 Fix)
+- **Truy cập trực quan bản nháp bảo lưu (Visual Preserved Draft Affordance):**
+  - Khi tác giả xác nhận request A và bảo lưu bản nháp B (cả đề xuất sửa đổi lẫn ghi chú lý do quyết định), bản nháp B không bị giấu kín trong `localStorage` mà được hiển thị nổi bật trực tiếp trên thẻ của quy tắc tương ứng:
+    - `preserved-proposal-alert-${rule.fact_id}` hiển thị đầy đủ `replacement_text` và `private_notes`.
+    - `preserved-decision-alert-${rule.fact_id}` hiển thị đầy đủ `reason`.
+- **Ràng buộc theo danh tính bất biến và phả hệ (Immutable Lineage Binding):**
+  - Bản nháp được liên kết với `root_fact_id` và `supersedes_id`. Kể cả khi đề xuất A chuyển sang trạng thái Pending, hoặc sau đó được Chấp thuận và quy tắc được thăng cấp sang thế hệ kế nhiệm (Successor Fact) với Fact UUID mới, bản nháp bảo lưu B **vẫn tự động hiển thị trên thẻ thế hệ mới**, loại bỏ triệt để hiện tượng orphaned draft.
+- **Bộ công cụ thao tác toàn diện cho tác giả:**
+  1. **Xem trực tiếp:** Toàn bộ nội dung bản nháp/lý do B hiển thị rõ ràng trên giao diện.
+  2. **Tải về bản nháp (.json):** Nút `export-preserved-draft-btn` / `export-preserved-decision-btn` cho phép tải file JSON về máy tính.
+  3. **Sao chép nội dung:** Nút `copy-preserved-draft-btn` / `copy-preserved-decision-btn` sao chép nhanh vào clipboard.
+  4. **Đưa vào ô đề xuất sửa:** Nút `apply-preserved-draft-btn` tự động mở form đề xuất và điền sẵn nội dung B khi quy tắc sẵn sàng.
+  5. **Bỏ bản nháp:** Nút `discard-preserved-draft-btn` / `discard-preserved-decision-btn` cho phép tác giả chủ động dọn dẹp khi không còn nhu cầu.
+- **Kiểm thử hồi quy Browser thực tế:** Bộ kiểm thử tự động thực hiện thao tác click thực tế `reconcile-preserve-draft-btn` và `decision-reconcile-preserve-draft-btn`, kiểm tra chuyển trạng thái từ Pending đến Successor Fact, xác nhận nội dung B hiển thị chính xác và các nút xuất/sao chép/bỏ bản nháp hoạt động hoàn hảo.
+
 ### 4.3 UXF-03: Pre-M0 Guard & Automatic Brain Version Sync (PASS in R1)
 - Pre-M0 banner (`data-testid="m0-not-active-banner"`) informs the author that world rules cannot be amended before M0 activation.
 - Propose buttons are hidden prior to M0 activation.
