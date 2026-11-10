@@ -87,6 +87,7 @@ class FakeDeterministicLLMService:
         self.model = model
         self.provider = "fake"
         self.last_call: dict[str, Any] = {}
+        self.call_count: int = 0
 
     def _call_llm(self, *, system_prompt: str, user_prompt: str) -> str:
         prompt_lower = (system_prompt + " " + user_prompt).lower()
@@ -308,6 +309,7 @@ class FakeDeterministicLLMService:
         target_chapter: int | None = None,
         target: str = "all",
     ) -> dict[str, Any]:
+        self.call_count += 1
         self.last_call = {
             "operation": "suggest_brainstorm",
             "instruction": instruction,
@@ -330,6 +332,34 @@ class FakeDeterministicLLMService:
         # Simulated empty output
         if "test_empty_output" in inst_lower:
             return {"world_rules": [], "characters": [], "future_events": []}
+
+        # Simulated adversarial: item is string not dict
+        if "test_adversarial_string_item" in inst_lower:
+            return {"world_rules": ["just a string instead of dict"], "characters": [], "future_events": []}
+
+        # Simulated adversarial: oversized array (>20 items)
+        if "test_adversarial_oversized_array" in inst_lower:
+            return {
+                "world_rules": [{"text": f"Quy tắc {i}", "fact_key": f"rule_{i}"} for i in range(50)],
+                "characters": [],
+                "future_events": [],
+            }
+
+        # Simulated adversarial: invalid target_chapter (string/malformed)
+        if "test_adversarial_bad_chapter" in inst_lower:
+            return {
+                "world_rules": [],
+                "characters": [],
+                "future_events": [{"title": "Future Event", "target_chapter": "not-an-int"}],
+            }
+
+        # Simulated adversarial: returns mixed categories when requested target is specific
+        if "test_adversarial_mixed_targets" in inst_lower:
+            return {
+                "world_rules": [{"text": "Leaked rule", "fact_key": "world_rule_leaked"}],
+                "characters": [{"name": "Leaked character", "canonical_name": "Leaked character"}],
+                "future_events": [{"title": "Leaked event", "target_chapter": 2, "participants": []}],
+            }
 
         # Simulated fabricated identity: model invents an ungrounded entity_id
         if "test_fabricated_identity" in inst_lower:

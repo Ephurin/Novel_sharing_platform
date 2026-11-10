@@ -20,6 +20,7 @@ import json
 import os
 import unittest
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from types import SimpleNamespace
 from unittest.mock import patch
 
@@ -454,3 +455,272 @@ class BrainstormFoundationTests(unittest.TestCase):
         self.assertEqual(len(data["world_rules"]), 0)
         self.assertGreaterEqual(len(data["characters"]), 1)
         self.assertEqual(len(data["future_events"]), 0)
+
+    def test_bsa01_effective_world_rules_lineage_and_unverified_successor_blocks_llm(self):
+        """BSA-01: Grounding uses verified effective Canon lineage via resolve_effective_facts.
+        Unverified successor fails closed (422) BEFORE provider dispatch (zero LLM calls).
+        """
+        from dataclasses import replace
+        # 1. Unverified successor: rule_A superseded by rule_B with NO receipt edge
+        root_id = str(uuid.uuid4())
+        child_id = str(uuid.uuid4())
+        brain = self.repo.get_story_brain(self.novel_id)
+        self.repo._brains[self.novel_id] = replace(
+            brain,
+            facts=(
+                {
+                    "fact_id": root_id,
+                    "fact_type": "world_rule",
+                    "fact_key": "world_rule_dan_duoc",
+                    "fact_value": "Đan dược có 9 phẩm cấp.",
+                    "confirmation_status": "confirmed",
+                },
+                {
+                    "fact_id": child_id,
+                    "fact_type": "world_rule",
+                    "fact_key": "world_rule_dan_duoc",
+                    "fact_value": "Đan dược có 10 phẩm cấp (Đế Phẩm là cao nhất).",
+                    "confirmation_status": "confirmed",
+                    "supersedes_id": root_id,
+                },
+            ),
+            metadata={
+                **brain.metadata,
+                "verified_amendment_edges": [],  # NO verified edge!
+            },
+        )
+        self.fake_llm.last_call = {}
+
+        res = self.client.post(
+            f"/v1/story-brains/{self.novel_id}/brainstorm",
+            headers=self.headers,
+            json={"contract_version": "brainstorm-v1"},
+        )
+        # Must fail closed with 422
+        self.assertEqual(res.status_code, 422)
+        err = res.json()["detail"]
+        self.assertIn(err["code"], ("WORLD_RULE_SUCCESSOR_UNVERIFIED", "WORLD_RULE_LINEAGE_INVALID"))
+        # ZERO LLM calls!
+        self.assertEqual(self.fake_llm.last_call, {}, "LLM must NOT be dispatched on invalid lineage")
+
+        # 2. Verified successor: add verified amendment edge (root_id, child_id)
+        brain = self.repo.get_story_brain(self.novel_id)
+        self.repo._brains[self.novel_id] = replace(
+            brain,
+            metadata={
+                **brain.metadata,
+                "verified_amendment_edges": [[root_id, child_id]],
+            },
+        )
+        res_ok = self.client.post(
+            f"/v1/story-brains/{self.novel_id}/brainstorm",
+            headers=self.headers,
+            json={"contract_version": "brainstorm-v1"},
+        )
+        self.assertEqual(res_ok.status_code, 200)
+        # Grounding rules must only contain the successor, root must be superseded/hidden
+        rules_in_prompt = self.fake_llm.last_call.get("world_rules", [])
+        self.assertTrue(
+            any("10 phẩm cấp" in r for r in rules_in_prompt),
+            "Successor must be grounded in prompt",
+        )
+        self.assertFalse(
+            any("Đan dược có 9 phẩm cấp." == r for r in rules_in_prompt),
+            "Superseded root must NOT be present in prompt",
+        )
+
+    def test_bsa02_concurrent_requests_single_flight_and_restart(self):
+        """BSA-02: Concurrent calls with same key perform single-flight reservation.
+        New service instance reuses existing receipt without re-dispatching LLM.
+        """
+        idem_key = "idem-concurrency-" + str(uuid.uuid4())
+        body = {
+            "contract_version": "brainstorm-v1",
+            "instruction": "Test concurrency single flight",
+            "idempotency_key": idem_key,
+        }
+
+        # Clear receipts for clean test
+        BrainstormService._in_memory_receipts.clear()
+
+        # Concurrent requests
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            futures = [
+                pool.submit(
+                    self.client.post,
+                    f"/v1/story-brains/{self.novel_id}/brainstorm",
+                    headers=self.headers,
+                    json=body,
+                )
+                for _ in range(2)
+            ]
+            responses = [f.result() for f in futures]
+
+        self.assertEqual(responses[0].status_code, 200)
+        self.assertEqual(responses[1].status_code, 200)
+        # Both responses return the exact same receipt
+        data0 = responses[0].json()["data"]
+        data1 = responses[1].json()["data"]
+        self.assertEqual(data0["provenance"]["timestamp"], data1["provenance"]["timestamp"])
+
+        # Service restart: create new service instance
+        new_svc = BrainstormService(repository=self.repo, llm_service=self.fake_llm)
+        self.fake_llm.last_call = {}
+        res_restart = new_svc.brainstorm(
+            self.novel_id,
+            BrainstormRequest.model_validate(body),
+            tenant_id=self.tenant_id,
+            actor_id=self.author_id,
+        )
+        self.assertEqual(res_restart.provenance.timestamp, data0["provenance"]["timestamp"])
+        self.assertEqual(self.fake_llm.last_call, {}, "Restarted service must read cached receipt without LLM call")
+
+    def test_bsa02_cas_update_intervening_story_brain_exact_retry_succeeds(self):
+        """BSA-02: Legitimate exact retry after intervening Story Brain update returns original result without 409."""
+        from dataclasses import replace
+        idem_key = "idem-brain-update-" + str(uuid.uuid4())
+        body = {
+            "contract_version": "brainstorm-v1",
+            "instruction": "Phát triển tuyến nhân vật phụ",
+            "idempotency_key": idem_key,
+            "expected_brain_version": 1,
+        }
+        res1 = self.client.post(
+            f"/v1/story-brains/{self.novel_id}/brainstorm",
+            headers=self.headers,
+            json=body,
+        )
+        self.assertEqual(res1.status_code, 200)
+        data1 = res1.json()["data"]
+
+        # Intervening update to Story Brain version (version 1 -> 2)
+        brain = self.repo.get_story_brain(self.novel_id)
+        self.repo._brains[self.novel_id] = replace(
+            brain,
+            metadata={**brain.metadata, "brain_version": "2"},
+        )
+
+        # Retry with original body (with expected_brain_version: 1)
+        res2 = self.client.post(
+            f"/v1/story-brains/{self.novel_id}/brainstorm",
+            headers=self.headers,
+            json=body,
+        )
+        self.assertEqual(res2.status_code, 200, "Exact retry must succeed without 409 conflict")
+        self.assertEqual(res2.json()["data"]["provenance"]["timestamp"], data1["provenance"]["timestamp"])
+
+    def test_bsa03_author_identity_required_and_foreign_ownership_forbidden(self):
+        """BSA-03: Author identity required (401), foreign author ownership forbidden (403), zero LLM calls."""
+        url = f"/v1/story-brains/{self.novel_id}/brainstorm"
+        body = {"contract_version": "brainstorm-v1"}
+        self.fake_llm.last_call = {}
+
+        # 1. Missing author header -> 401
+        res_no_author = self.client.post(
+            url,
+            headers={
+                "X-Tenant-Id": self.tenant_id,
+                "Authorization": f"Bearer {self.service_token}",
+                "X-Service-Token": self.service_token,
+            },
+            json=body,
+        )
+        self.assertEqual(res_no_author.status_code, 401)
+        self.assertEqual(res_no_author.json()["detail"]["code"], "BRAINSTORM_IDENTITY_REQUIRED")
+        self.assertEqual(self.fake_llm.last_call, {})
+
+        # 2. Foreign author on novel owned by author_id -> 403
+        if not hasattr(self.repo, "_novel_authors"):
+            self.repo._novel_authors = {}
+        self.repo._novel_authors[self.novel_id] = self.author_id
+
+        foreign_author = str(uuid.uuid4())
+        res_foreign = self.client.post(
+            url,
+            headers={
+                "X-Tenant-Id": self.tenant_id,
+                "X-Author-Id": foreign_author,
+                "X-User-Id": foreign_author,
+                "X-Actor-Id": foreign_author,
+                "Authorization": f"Bearer {self.service_token}",
+                "X-Service-Token": self.service_token,
+            },
+            json=body,
+        )
+        self.assertEqual(res_foreign.status_code, 403)
+        self.assertEqual(res_foreign.json()["detail"]["code"], "NOVEL_OWNERSHIP_MISMATCH")
+        self.assertEqual(self.fake_llm.last_call, {})
+
+    def test_bsa03_plan_cas_fail_closed_on_error_or_missing_plan(self):
+        """BSA-03: Fails closed (409/503) when plan CAS or backend lookup fails, zero LLM calls."""
+        url = f"/v1/story-brains/{self.novel_id}/brainstorm"
+        self.fake_llm.last_call = {}
+
+        # 1. expected_plan_version provided but repo has no plan support -> 409
+        res = self.client.post(
+            url,
+            headers=self.headers,
+            json={"contract_version": "brainstorm-v1", "expected_plan_version": 2},
+        )
+        self.assertEqual(res.status_code, 409)
+        self.assertEqual(res.json()["detail"]["code"], "PLAN_VERSION_CONFLICT")
+        self.assertEqual(self.fake_llm.last_call, {})
+
+        # 2. Plan store throws database exception -> fails closed with 503
+        self.repo.supports_plan_edit_v1 = True
+        self.repo.read_plans = lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("DB plan outage"))
+        res_503 = self.client.post(
+            url,
+            headers=self.headers,
+            json={"contract_version": "brainstorm-v1", "expected_plan_version": 1},
+        )
+        self.assertEqual(res_503.status_code, 503)
+        self.assertEqual(res_503.json()["detail"]["code"], "PLAN_SERVICE_UNAVAILABLE")
+        self.assertEqual(self.fake_llm.last_call, {})
+
+    def test_bsa04_adversarial_provider_output_validation(self):
+        """BSA-04: Strict validation envelope catches string items, oversized arrays, bad chapter types."""
+        url = f"/v1/story-brains/{self.novel_id}/brainstorm"
+
+        # 1. String item instead of dict -> 502
+        res1 = self.client.post(
+            url,
+            headers=self.headers,
+            json={"contract_version": "brainstorm-v1", "instruction": "test_adversarial_string_item"},
+        )
+        self.assertEqual(res1.status_code, 502)
+        self.assertEqual(res1.json()["detail"]["code"], "BRAINSTORM_PROVIDER_ERROR")
+
+        # 2. Oversized array (>20 items) -> 502
+        res2 = self.client.post(
+            url,
+            headers=self.headers,
+            json={"contract_version": "brainstorm-v1", "instruction": "test_adversarial_oversized_array"},
+        )
+        self.assertEqual(res2.status_code, 502)
+        self.assertEqual(res2.json()["detail"]["code"], "BRAINSTORM_PROVIDER_ERROR")
+
+        # 3. Bad target chapter (not an int) -> 502
+        res3 = self.client.post(
+            url,
+            headers=self.headers,
+            json={"contract_version": "brainstorm-v1", "instruction": "test_adversarial_bad_chapter"},
+        )
+        self.assertEqual(res3.status_code, 502)
+        self.assertEqual(res3.json()["detail"]["code"], "BRAINSTORM_PROVIDER_ERROR")
+
+        # 4. Mixed categories when target="characters": server-side filtering strictly isolates target
+        res4 = self.client.post(
+            url,
+            headers=self.headers,
+            json={
+                "contract_version": "brainstorm-v1",
+                "instruction": "test_adversarial_mixed_targets",
+                "target": "characters",
+            },
+        )
+        self.assertEqual(res4.status_code, 200)
+        data = res4.json()["data"]
+        self.assertEqual(len(data["world_rules"]), 0, "Non-requested world_rules must be filtered out")
+        self.assertEqual(len(data["future_events"]), 0, "Non-requested future_events must be filtered out")
+        self.assertGreaterEqual(len(data["characters"]), 1, "Requested characters must be present")

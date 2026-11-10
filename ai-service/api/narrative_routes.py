@@ -969,16 +969,16 @@ def author_operation(
             raise HTTPException(422, detail={"code": "INVALID_SCOPE_HEADER"})
 
         author_header = request.headers.get("X-Author-Id")
-        author_id = None
-        if author_header:
-            try:
-                author_id = str(uuid.UUID(author_header))
-                for name in ("X-User-Id", "X-Actor-Id"):
-                    other = request.headers.get(name)
-                    if other is not None and str(uuid.UUID(other)) != author_id:
-                        raise HTTPException(403, detail={"code": "BRAINSTORM_IDENTITY_MISMATCH"})
-            except ValueError:
-                raise HTTPException(422, detail={"code": "INVALID_SCOPE_HEADER"})
+        if not author_header:
+            raise HTTPException(401, detail={"code": "BRAINSTORM_IDENTITY_REQUIRED", "message": "X-Author-Id header is required"})
+        try:
+            author_id = str(uuid.UUID(author_header))
+            for name in ("X-User-Id", "X-Actor-Id"):
+                other = request.headers.get(name)
+                if other is not None and str(uuid.UUID(other)) != author_id:
+                    raise HTTPException(403, detail={"code": "BRAINSTORM_IDENTITY_MISMATCH"})
+        except ValueError:
+            raise HTTPException(422, detail={"code": "INVALID_SCOPE_HEADER"})
 
         try:
             brain_uuid = str(uuid.UUID(brain_id))
@@ -1050,16 +1050,16 @@ def brainstorm_endpoint(
         raise HTTPException(422, detail={"code": "INVALID_SCOPE_HEADER"})
 
     author_header = request.headers.get("X-Author-Id")
-    author_id = None
-    if author_header:
-        try:
-            author_id = str(uuid.UUID(author_header))
-            for name in ("X-User-Id", "X-Actor-Id"):
-                other = request.headers.get(name)
-                if other is not None and str(uuid.UUID(other)) != author_id:
-                    raise HTTPException(403, detail={"code": "BRAINSTORM_IDENTITY_MISMATCH"})
-        except ValueError:
-            raise HTTPException(422, detail={"code": "INVALID_SCOPE_HEADER"})
+    if not author_header:
+        raise HTTPException(401, detail={"code": "BRAINSTORM_IDENTITY_REQUIRED", "message": "X-Author-Id header is required"})
+    try:
+        author_id = str(uuid.UUID(author_header))
+        for name in ("X-User-Id", "X-Actor-Id"):
+            other = request.headers.get(name)
+            if other is not None and str(uuid.UUID(other)) != author_id:
+                raise HTTPException(403, detail={"code": "BRAINSTORM_IDENTITY_MISMATCH"})
+    except ValueError:
+        raise HTTPException(422, detail={"code": "INVALID_SCOPE_HEADER"})
 
     try:
         brain_uuid = str(uuid.UUID(brain_id))
