@@ -109,7 +109,7 @@ jobs:
           DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/p2a
         run: |
           set -euo pipefail
-          pytest -o addopts= -vv -s -m postgres_integration --basetemp="$RUNNER_TEMP/p2-a16" --junitxml="$RUNNER_TEMP/p202/a16.xml" tests/test_p2_bootstrap_postgres.py tests/test_setup_v1_postgres.py tests/test_setup_author_scope_postgres.py tests/test_setup_review_postgres.py tests/test_plan_edit_postgres.py tests/test_plan_review_fixes_postgres.py tests/test_writing_plan_authority_postgres.py tests/test_setup_activation_postgres.py 2>&1 | tee "$RUNNER_TEMP/p202/a16.log"
+          pytest -o addopts= -vv -s -m postgres_integration --basetemp="$RUNNER_TEMP/p2-a16" --junitxml="$RUNNER_TEMP/p202/a16.xml" tests/test_p2_bootstrap_postgres.py tests/test_setup_v1_postgres.py tests/test_setup_author_scope_postgres.py tests/test_setup_review_postgres.py tests/test_plan_edit_postgres.py tests/test_plan_review_fixes_postgres.py tests/test_writing_plan_authority_postgres.py tests/test_setup_activation_postgres.py tests/test_world_rule_effective_head_postgres.py 2>&1 | tee "$RUNNER_TEMP/p202/a16.log"
       - name: Start real AI service with fake providers
         working-directory: ai-service
         env:

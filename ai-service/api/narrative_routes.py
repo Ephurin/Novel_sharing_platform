@@ -1137,6 +1137,11 @@ def preview_writing_context(
             character_name=character_name,
             token_budget=token_budget,
         )
+    except ProjectionError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={"code": "INVALID_CANON_HISTORY"},
+        ) from exc
     except ContextRoutingUnresolvedError as exc:
         raise HTTPException(
             status_code=422,

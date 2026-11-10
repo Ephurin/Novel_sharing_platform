@@ -10,7 +10,7 @@ from application.narrative_service import NarrativeApplicationService
 from core.story_kb_manager import StoryKBManager
 from domain.errors import OptimisticLockError
 from domain.models import NarrativeProposal, ProposalStatus
-from domain.projection import ProjectionError
+from domain.projection import ProjectionError, resolve_effective_facts
 from infrastructure.in_memory_narrative_repository import InMemoryNarrativeRepository
 from infrastructure.json_narrative_repository import JsonNarrativeRepository
 from infrastructure.postgres_narrative_repository import PostgresNarrativeRepository
@@ -204,3 +204,141 @@ def test_sql_tenant_scope_on_state_and_correction(repo):
     assert other.get_current_state("story")["entities"] == {}
     with pytest.raises(KeyError):
         NarrativeApplicationService(other).propose_event_correction("story", proposals[0].proposal_id, {}, [], 1)
+
+
+def _setup_rule(fact_id, key="mana_cap", value="Tier 3", *, supersedes_id=None, is_locked=False,
+                is_retired=False, source_type="author_setup", confirmation_status="confirmed",
+                created_by="00000000-0000-0000-0000-000000000002", tenant_id="00000000-0000-0000-0000-000000000001",
+                novel_id="11111111-1111-1111-1111-111111111111", story_brain_id="22222222-2222-2222-2222-222222222222",
+                **extra):
+    return {
+        "fact_id": fact_id,
+        "story_brain_id": story_brain_id,
+        "tenant_id": tenant_id,
+        "novel_id": novel_id,
+        "subject_entity_id": None,
+        "fact_type": "world_rule",
+        "fact_key": key,
+        "fact_value": value,
+        "source_type": source_type,
+        "confirmation_status": confirmation_status,
+        "is_locked": is_locked,
+        "source_revision_id": None,
+        "chapter_number": None,
+        "source_start": None,
+        "source_end": None,
+        "created_by": created_by,
+        "supersedes_id": supersedes_id,
+        "is_retired": is_retired,
+        **extra,
+    }
+
+
+def test_resolve_effective_facts_valid_chains_and_independent_rules():
+    r1_root = _setup_rule("r1-root", "teleport_rule", "No teleport in barrier", is_locked=True)
+    r1_mid = _setup_rule("r1-mid", "teleport_rule", "Short-range teleport only", supersedes_id="r1-root", is_locked=True)
+    r1_leaf = _setup_rule("r1-leaf", "teleport_rule", "Teleport allowed with royal seal", supersedes_id="r1-mid", is_locked=False)
+    r2_single = _setup_rule("r2-single", "alchemy_rule", "Tier 4 requires soul fire", is_locked=True)
+    effective = resolve_effective_facts(
+        [r1_root, r1_mid, r1_leaf, r2_single],
+        tenant_id="00000000-0000-0000-0000-000000000001",
+        novel_id="11111111-1111-1111-1111-111111111111",
+        story_brain_id="22222222-2222-2222-2222-222222222222",
+        expected_setup_actor="00000000-0000-0000-0000-000000000002",
+    )
+    assert [f["fact_id"] for f in effective] == ["r1-leaf", "r2-single"]
+    assert effective[0]["fact_value"] == "Teleport allowed with royal seal"
+    assert effective[0]["is_locked"] is False
+
+
+@pytest.mark.parametrize("malformed", [
+    "self_loop",
+    "orphan_parent",
+    "cycle_2",
+    "cycle_3",
+    "stem_cycle",
+    "fork",
+    "cross_tenant",
+    "cross_novel",
+    "cross_brain",
+    "unconfirmed_successor",
+    "unconfirmed_parent",
+    "ai_successor",
+    "model_suggestion_successor",
+    "actor_mismatch",
+    "null_actor",
+    "entity_bound_successor",
+    "chapter_scoped_successor",
+    "retired_standalone_leaf",
+    "retired_chain_leaf",
+])
+def test_resolve_effective_facts_rejects_malformed_lineage(malformed):
+    root = _setup_rule("root-1", "gravity", "Standard gravity", is_locked=True)
+    if malformed == "self_loop":
+        facts = [_setup_rule("root-1", "gravity", "Self", supersedes_id="root-1")]
+    elif malformed == "orphan_parent":
+        facts = [_setup_rule("child-1", "gravity", "Orphan", supersedes_id="missing-id")]
+    elif malformed == "cycle_2":
+        facts = [
+            _setup_rule("node-a", "gravity", "A", supersedes_id="node-b"),
+            _setup_rule("node-b", "gravity", "B", supersedes_id="node-a"),
+        ]
+    elif malformed == "cycle_3":
+        facts = [
+            _setup_rule("node-a", "gravity", "A", supersedes_id="node-c"),
+            _setup_rule("node-b", "gravity", "B", supersedes_id="node-a"),
+            _setup_rule("node-c", "gravity", "C", supersedes_id="node-b"),
+        ]
+    elif malformed == "stem_cycle":
+        facts = [
+            root,
+            _setup_rule("node-a", "gravity", "A", supersedes_id="node-b"),
+            _setup_rule("node-b", "gravity", "B", supersedes_id="node-a"),
+        ]
+    elif malformed == "fork":
+        facts = [
+            root,
+            _setup_rule("child-1", "gravity", "Branch 1", supersedes_id="root-1"),
+            _setup_rule("child-2", "gravity", "Branch 2", supersedes_id="root-1"),
+        ]
+    elif malformed == "cross_tenant":
+        facts = [root, _setup_rule("child-1", "gravity", "Cross", supersedes_id="root-1", tenant_id="99999999-9999-9999-9999-999999999999")]
+    elif malformed == "cross_novel":
+        facts = [root, _setup_rule("child-1", "gravity", "Cross", supersedes_id="root-1", novel_id="99999999-9999-9999-9999-999999999999")]
+    elif malformed == "cross_brain":
+        facts = [root, _setup_rule("child-1", "gravity", "Cross", supersedes_id="root-1", story_brain_id="99999999-9999-9999-9999-999999999999")]
+    elif malformed == "unconfirmed_successor":
+        facts = [root, _setup_rule("child-1", "gravity", "Proposed", supersedes_id="root-1", confirmation_status="proposed")]
+    elif malformed == "unconfirmed_parent":
+        facts = [
+            _setup_rule("root-1", "gravity", "Proposed parent", confirmation_status="proposed"),
+            _setup_rule("child-1", "gravity", "Child", supersedes_id="root-1"),
+        ]
+    elif malformed == "ai_successor":
+        facts = [root, _setup_rule("child-1", "gravity", "AI hijack", supersedes_id="root-1", source_type="AI")]
+    elif malformed == "model_suggestion_successor":
+        facts = [root, _setup_rule("child-1", "gravity", "Model suggestion hijack", supersedes_id="root-1", source_type="model_suggestion")]
+    elif malformed == "actor_mismatch":
+        facts = [root, _setup_rule("child-1", "gravity", "Foreign actor", supersedes_id="root-1", created_by="99999999-9999-9999-9999-999999999999")]
+    elif malformed == "null_actor":
+        facts = [root, _setup_rule("child-1", "gravity", "Null actor", supersedes_id="root-1", created_by=None)]
+    elif malformed == "entity_bound_successor":
+        facts = [root, _setup_rule("child-1", "gravity", "Entity bound", supersedes_id="root-1", subject_entity_id="33333333-3333-3333-3333-333333333333")]
+    elif malformed == "chapter_scoped_successor":
+        facts = [root, _setup_rule("child-1", "gravity", "Chapter scoped", supersedes_id="root-1", chapter_number=2)]
+    elif malformed == "retired_standalone_leaf":
+        facts = [_setup_rule("root-1", "gravity", "Retired leaf", is_retired=True)]
+    elif malformed == "retired_chain_leaf":
+        facts = [root, _setup_rule("child-1", "gravity", "Retired successor", supersedes_id="root-1", is_retired=True)]
+    else:
+        raise AssertionError(malformed)
+
+    with pytest.raises(ProjectionError):
+        resolve_effective_facts(
+            facts,
+            tenant_id="00000000-0000-0000-0000-000000000001",
+            novel_id="11111111-1111-1111-1111-111111111111",
+            story_brain_id="22222222-2222-2222-2222-222222222222",
+            expected_setup_actor="00000000-0000-0000-0000-000000000002",
+        )
+

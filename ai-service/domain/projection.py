@@ -10,6 +10,149 @@ class ProjectionError(ValueError):
     """Invalid provenance or an ambiguous correction; nothing may be committed."""
 
 
+_GLOBAL_SETUP_WORLD_RULE_ROOT_SOURCES = frozenset({"author_setup", "author", "model_suggestion"})
+_GLOBAL_SETUP_WORLD_RULE_SUCCESSOR_SOURCES = frozenset({"author_setup", "author"})
+
+
+def _fact_identity(fact: dict[str, Any]) -> str:
+    raw = fact.get("fact_id") or fact.get("id")
+    if raw is None or not str(raw).strip():
+        raise ProjectionError("Fact requires a canonical fact_id")
+    return str(raw)
+
+
+def _is_global_setup_world_rule(fact: dict[str, Any], *, is_successor: bool = False) -> bool:
+    if (fact.get("fact_type") or fact.get("type", "world_rule")) != "world_rule":
+        return False
+    if fact.get("subject_entity_id") is not None:
+        return False
+    if fact.get("source_revision_id") is not None:
+        return False
+    if fact.get("chapter_number") is not None or fact.get("chapter") is not None:
+        return False
+    if fact.get("source_start") is not None or fact.get("source_end") is not None:
+        return False
+    value = fact.get("fact_value", fact.get("statement"))
+    if isinstance(value, dict) and (
+        value.get("chapter_number") is not None or value.get("chapter") is not None
+    ):
+        return False
+    key = fact.get("fact_key")
+    if not isinstance(key, str) or not key.strip():
+        return False
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return False
+    source_type = fact.get("source_type")
+    if is_successor:
+        return source_type in _GLOBAL_SETUP_WORLD_RULE_SUCCESSOR_SOURCES
+    if source_type is not None and source_type not in _GLOBAL_SETUP_WORLD_RULE_ROOT_SOURCES:
+        return False
+    return True
+
+
+def resolve_effective_facts(
+    facts: list[dict[str, Any]] | tuple[dict[str, Any], ...],
+    *,
+    tenant_id: str | None = None,
+    novel_id: str | None = None,
+    story_brain_id: str | None = None,
+    expected_setup_actor: str | None = None,
+) -> list[dict[str, Any]]:
+    """Resolve one deterministic effective head per global World Setup rule chain.
+
+    Fail closed with ProjectionError on any malformed, cyclic, forked, orphaned,
+    cross-scope, unconfirmed, unapproved, or terminal-retired lineage.
+    """
+    confirmed_by_id: dict[str, dict[str, Any]] = {}
+    ordered_confirmed: list[dict[str, Any]] = []
+    for raw_fact in facts:
+        fact = dict(raw_fact)
+        fact_id = _fact_identity(fact)
+        fact.setdefault("fact_id", fact_id)
+        for scope_key, expected_val in (
+            ("tenant_id", tenant_id),
+            ("novel_id", novel_id),
+            ("story_brain_id", story_brain_id),
+        ):
+            if expected_val is not None and fact.get(scope_key) is not None:
+                if str(fact[scope_key]) != str(expected_val):
+                    raise ProjectionError(f"Fact {scope_key} scope mismatch")
+        status = fact.get("confirmation_status", "confirmed")
+        if status != "confirmed":
+            if fact.get("supersedes_id") is not None:
+                raise ProjectionError("Unconfirmed fact cannot supersede an active World Setup rule")
+            continue
+        if fact_id in confirmed_by_id:
+            raise ProjectionError("Historical fact IDs are immutable and unique")
+        if (
+            expected_setup_actor is not None
+            and _is_global_setup_world_rule(fact)
+            and fact.get("source_type") in _GLOBAL_SETUP_WORLD_RULE_ROOT_SOURCES
+            and "created_by" in fact
+            and (not fact.get("created_by") or str(fact.get("created_by")) != str(expected_setup_actor))
+        ):
+            raise ProjectionError("World Setup rule actor mismatch")
+        confirmed_by_id[fact_id] = fact
+        ordered_confirmed.append(fact)
+
+    successor_by_parent: dict[str, str] = {}
+    for fact in ordered_confirmed:
+        child_id = _fact_identity(fact)
+        parent_raw = fact.get("supersedes_id")
+        if parent_raw is None:
+            continue
+        parent_id = str(parent_raw).strip()
+        if not parent_id or parent_id == child_id:
+            raise ProjectionError("World Setup rule cannot supersede itself")
+        parent = confirmed_by_id.get(parent_id)
+        if parent is None:
+            raise ProjectionError("World Setup rule supersedes an unknown or out-of-scope parent")
+        for scope_key in ("tenant_id", "novel_id", "story_brain_id"):
+            c_val = fact.get(scope_key)
+            p_val = parent.get(scope_key)
+            if (c_val is not None or p_val is not None) and str(c_val or "") != str(p_val or ""):
+                raise ProjectionError(f"World Setup supersession {scope_key} mismatch")
+        if not _is_global_setup_world_rule(parent, is_successor=bool(parent.get("supersedes_id"))):
+            raise ProjectionError("Superseded parent is not a valid global World Setup rule")
+        if not _is_global_setup_world_rule(fact, is_successor=True):
+            raise ProjectionError("Successor is not a valid author-approved global World Setup rule")
+        if "created_by" in fact or "created_by" in parent:
+            child_actor = fact.get("created_by")
+            parent_actor = parent.get("created_by")
+            if not child_actor or not parent_actor or str(child_actor) != str(parent_actor):
+                raise ProjectionError("World Setup rule successor author provenance mismatch")
+            if expected_setup_actor is not None and str(child_actor) != str(expected_setup_actor):
+                raise ProjectionError("World Setup rule successor actor mismatch")
+        if parent_id in successor_by_parent:
+            raise ProjectionError("Ambiguous forked World Setup rule lineage")
+        successor_by_parent[parent_id] = child_id
+
+    for start_id in confirmed_by_id:
+        seen: set[str] = set()
+        cursor: str | None = start_id
+        while cursor is not None:
+            if cursor in seen:
+                raise ProjectionError("Cyclic World Setup rule lineage")
+            seen.add(cursor)
+            cursor = successor_by_parent.get(cursor)
+
+    effective: list[dict[str, Any]] = []
+    for fact in ordered_confirmed:
+        fact_id = _fact_identity(fact)
+        if fact_id in successor_by_parent:
+            continue
+        if fact.get("is_retired"):
+            if (
+                fact.get("supersedes_id") is not None
+                or (fact.get("fact_type") or fact.get("type", "world_rule")) == "world_rule"
+            ):
+                raise ProjectionError("Retired World Setup rule has no active successor")
+            continue
+        effective.append(fact)
+    return effective
+
+
+
 def validate_author_edit(kind, original, edited, entity_ids):
     """Full replacement edits cannot change source authority or reserved identities."""
     editable = {'entity': {'canonical_name', 'normalized_name'},
@@ -103,6 +246,7 @@ def transition_from_payload(transition_id, payload, entities, events, facts):
 
 def project(entities, facts, events, transitions) -> dict[str, Any]:
     """Replay corrections at the original event position, preserving later events."""
+    facts = resolve_effective_facts(facts)
     by_id = {}
     replacements = {}
     for event in events:

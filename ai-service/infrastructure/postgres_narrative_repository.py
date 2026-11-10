@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session, sessionmaker
 logger = logging.getLogger(__name__)
 
 from domain.entity_profile import EntityProfilePatch, PROFILE_FIELDS, approved_profile
-from domain.projection import ProjectionError, validate_payload, project, resolve_entity, transition_from_payload
+from domain.projection import ProjectionError, validate_payload, project, resolve_entity, transition_from_payload, resolve_effective_facts
 from domain.errors import BootstrapConflictError, BaselineReviewRequiredError, ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError, WritingContextAuthorityError
 from domain.models import (
     EntityReviewCompletion,
@@ -140,7 +140,9 @@ class PostgresNarrativeRepository:
                 .order_by(EventRecord.narrative_order)
             ).all()
             facts = session.scalars(
-                select(FactRecord).where(*self._scope(FactRecord, novel_id))
+                select(FactRecord)
+                .where(*self._scope(FactRecord, novel_id))
+                .order_by(FactRecord.created_at.asc(), FactRecord.id.asc())
             ).all()
             proposals = session.scalars(
                 select(ProposalRecord).where(*self._scope(ProposalRecord, novel_id))
@@ -152,7 +154,7 @@ class PostgresNarrativeRepository:
                 aliases = [a for a in aliases if a.confirmation_status == 'confirmed' and a.entity_id in entity_ids]
                 mentions = [m for m in mentions if m.entity_id in entity_ids]
                 events = [e for e in events if e.confirmation_status == 'confirmed']
-                facts = [f for f in facts if f.confirmation_status == 'confirmed']
+                facts = [f for f in facts if f.confirmation_status == 'confirmed' or f.supersedes_id is not None]
                 relations = [r for r in relations if r.subject_name in entity_names and r.object_name in entity_names]
             return StoryBrain(
                 story_id=story_id,
@@ -180,23 +182,7 @@ class PostgresNarrativeRepository:
                     )
                     for item in mentions
                 ),
-                facts=tuple(
-                    {
-                        "fact_id": str(item.id),
-                        "subject_entity_id": str(item.subject_entity_id) if item.subject_entity_id else None,
-                        "fact_type": item.fact_type,
-                        "fact_key": item.fact_key,
-                        "fact_value": item.fact_value,
-                        "is_locked": item.is_locked,
-                        "source_revision_id": str(item.source_revision_id) if item.source_revision_id else None,
-                        "chapter_number": item.chapter_number,
-                        "source_start": item.source_start, "source_end": item.source_end,
-                        "supersedes_id": str(item.supersedes_id) if item.supersedes_id else None,
-                        "is_retired": item.is_retired,
-                        "confirmation_status": item.confirmation_status,
-                    }
-                    for item in facts
-                ),
+                facts=tuple(self._fact_record_to_dict(item) for item in facts),
                 relations=tuple(
                     NarrativeRelation(
                         subject=item.subject_name,
@@ -210,7 +196,7 @@ class PostgresNarrativeRepository:
                 ),
                 events=tuple(self._to_event(item) for item in events),
                 proposals=tuple(self._to_proposal(item) for item in proposals),
-                transitions=tuple(self._projection_inputs(session, novel_id)[3]),
+                transitions=tuple(self._load_transitions(session, novel_id)),
                 current_state=self._read_projection(session, novel_id),
                 metadata={
                     "brain_id": str(brain.id),
@@ -221,6 +207,46 @@ class PostgresNarrativeRepository:
                     ),
                 },
             )
+
+    @staticmethod
+    def _fact_record_to_dict(item: FactRecord) -> dict[str, Any]:
+        return {
+            "fact_id": str(item.id),
+            "story_brain_id": str(item.story_brain_id) if item.story_brain_id else None,
+            "tenant_id": str(item.tenant_id) if item.tenant_id else None,
+            "novel_id": str(item.novel_id) if item.novel_id else None,
+            "subject_entity_id": str(item.subject_entity_id) if item.subject_entity_id else None,
+            "fact_type": item.fact_type,
+            "fact_key": item.fact_key,
+            "fact_value": item.fact_value,
+            "source_type": item.source_type,
+            "is_locked": item.is_locked,
+            "source_revision_id": str(item.source_revision_id) if item.source_revision_id else None,
+            "chapter_number": item.chapter_number,
+            "source_start": item.source_start,
+            "source_end": item.source_end,
+            "created_by": str(item.created_by) if item.created_by else None,
+            "supersedes_id": str(item.supersedes_id) if item.supersedes_id else None,
+            "is_retired": item.is_retired,
+            "confirmation_status": item.confirmation_status,
+        }
+
+    def _load_transitions(self, session: Session, novel_id: uuid.UUID) -> list[dict[str, Any]]:
+        return [
+            {
+                "transition_id": str(t.id),
+                "entity_id": str(t.entity_id),
+                "event_id": str(t.event_id) if t.event_id else None,
+                "fact_id": str(t.fact_id) if t.fact_id else None,
+                "attribute_key": t.attribute_key,
+                "new_value": t.new_value,
+            }
+            for t in session.scalars(
+                select(StateTransitionRecord)
+                .where(*self._scope(StateTransitionRecord, novel_id))
+                .order_by(StateTransitionRecord.sequence)
+            ).all()
+        ]
 
     @staticmethod
     def _profile_dto(entity, brain):
@@ -964,19 +990,31 @@ class PostgresNarrativeRepository:
             return self._persist_projection(session, brain, novel_id)
 
     def _projection_inputs(self, session, novel_id):
+        brain = session.scalar(
+            select(StoryBrainRecord).where(*self._scope(StoryBrainRecord, novel_id))
+        )
         entities = [self._to_entity(e) for e in session.scalars(
             select(EntityRecord).where(*self._scope(EntityRecord, novel_id))).all()]
-        facts = [{"fact_id": str(f.id), "subject_entity_id": str(f.subject_entity_id) if f.subject_entity_id else None,
-                  "fact_key": f.fact_key, "fact_value": f.fact_value, "is_locked": f.is_locked}
-                 for f in session.scalars(select(FactRecord).where(*self._scope(FactRecord, novel_id))).all()]
+        raw_facts = session.scalars(
+            select(FactRecord)
+            .where(*self._scope(FactRecord, novel_id))
+            .order_by(FactRecord.created_at.asc(), FactRecord.id.asc())
+        ).all()
+        effective_facts = resolve_effective_facts(
+            [self._fact_record_to_dict(f) for f in raw_facts],
+            tenant_id=str(self._tenant_id),
+            novel_id=str(novel_id),
+            story_brain_id=str(brain.id) if brain else None,
+        )
+        facts = [{**f, "supersedes_id": None} for f in effective_facts]
+        effective_fact_ids = {f["fact_id"] for f in facts}
         events = [self._to_event(e) for e in session.scalars(select(EventRecord).where(
             *self._scope(EventRecord, novel_id)).order_by(EventRecord.narrative_order)).all()]
-        transitions = [{"transition_id": str(t.id), "entity_id": str(t.entity_id),
-                        "event_id": str(t.event_id) if t.event_id else None,
-                        "fact_id": str(t.fact_id) if t.fact_id else None,
-                        "attribute_key": t.attribute_key, "new_value": t.new_value}
-                       for t in session.scalars(select(StateTransitionRecord).where(
-                           *self._scope(StateTransitionRecord, novel_id)).order_by(StateTransitionRecord.sequence)).all()]
+        transitions = [
+            t
+            for t in self._load_transitions(session, novel_id)
+            if t.get("event_id") is not None or t.get("fact_id") in effective_fact_ids
+        ]
         return entities, facts, events, transitions
 
     def _persist_projection(self, session, brain, novel_id):
@@ -2013,8 +2051,67 @@ class PostgresNarrativeRepository:
                 *self._scope(StoryPlanRecord,novel),StoryPlanRecord.status=='active')).all()
             if len(plans)>1 or any(p.created_by != actor for p in plans):
                 raise WritingContextAuthorityError()
+            brain = session.scalar(select(StoryBrainRecord).where(*self._scope(StoryBrainRecord, novel)))
+            raw_facts = session.scalars(
+                select(FactRecord)
+                .where(*self._scope(FactRecord, novel))
+                .order_by(FactRecord.created_at.asc(), FactRecord.id.asc())
+            ).all()
+            try:
+                resolve_effective_facts(
+                    [self._fact_record_to_dict(f) for f in raw_facts],
+                    tenant_id=str(self._tenant_id),
+                    novel_id=str(novel),
+                    story_brain_id=str(brain.id) if brain else None,
+                    expected_setup_actor=str(actor),
+                )
+            except ProjectionError:
+                raise WritingContextAuthorityError() from None
             return tuple(self._to_story_plan(p,session.scalars(select(StoryPlanObjectiveRecord).where(
                 *self._scope(StoryPlanObjectiveRecord,novel),StoryPlanObjectiveRecord.plan_id==p.id)).all()) for p in plans)
+
+    def writing_rule_authority_snapshot(self, job: WritingGenerationJob) -> tuple[Any, ...]:
+        """Repeatable-read snapshot of effective World Setup rule heads for dispatch fencing."""
+        try:
+            actor = uuid.UUID(job.actor_id or '')
+            tenant = uuid.UUID(job.tenant_id)
+            novel = uuid.UUID(job.novel_id)
+        except (ValueError, TypeError, AttributeError):
+            raise WritingContextAuthorityError() from None
+        if tenant != self._tenant_id:
+            raise WritingContextAuthorityError()
+        with session_scope(self._session_factory) as session:
+            session.connection(execution_options={'isolation_level': 'REPEATABLE READ'})
+            brain = session.scalar(select(StoryBrainRecord).where(*self._scope(StoryBrainRecord, novel)))
+            raw_facts = session.scalars(
+                select(FactRecord)
+                .where(*self._scope(FactRecord, novel))
+                .order_by(FactRecord.created_at.asc(), FactRecord.id.asc())
+            ).all()
+            try:
+                effective = resolve_effective_facts(
+                    [self._fact_record_to_dict(f) for f in raw_facts],
+                    tenant_id=str(self._tenant_id),
+                    novel_id=str(novel),
+                    story_brain_id=str(brain.id) if brain else None,
+                    expected_setup_actor=str(actor),
+                )
+            except ProjectionError:
+                raise WritingContextAuthorityError() from None
+            return (
+                brain.brain_version if brain else 1,
+                tuple(
+                    (
+                        f["fact_id"],
+                        f.get("fact_type"),
+                        f.get("fact_key"),
+                        json.dumps(f.get("fact_value"), sort_keys=True, ensure_ascii=False, default=str),
+                        bool(f.get("is_locked", False)),
+                        f.get("supersedes_id"),
+                    )
+                    for f in effective
+                ),
+            )
 
     def get_structured_context(
         self,
@@ -2083,12 +2180,19 @@ class PostgresNarrativeRepository:
                 for prov in provenances:
                     revision_chapters[prov.revision_id] = prov.chapter_number
 
-            raw_facts = session.scalars(
-                select(FactRecord).where(
-                    FactRecord.confirmation_status == "confirmed",
-                    *self._scope(FactRecord, novel_id),
-                )
+            raw_fact_records = session.scalars(
+                select(FactRecord)
+                .where(*self._scope(FactRecord, novel_id))
+                .order_by(FactRecord.created_at.asc(), FactRecord.id.asc())
             ).all()
+            effective_fact_dicts = resolve_effective_facts(
+                [self._fact_record_to_dict(f) for f in raw_fact_records],
+                tenant_id=str(self._tenant_id),
+                novel_id=str(novel_id),
+                story_brain_id=str(brain.id) if brain else None,
+            )
+            effective_fact_ids = {f["fact_id"] for f in effective_fact_dicts}
+            raw_facts = [f for f in raw_fact_records if str(f.id) in effective_fact_ids]
 
             def _is_fact_allowed(f: FactRecord) -> bool:
                 if chapter_number is None:
