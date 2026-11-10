@@ -343,7 +343,8 @@ def test_brainstorm_postgres_bsa02_durable_idempotency_restart_and_brain_update(
     res1 = f.client.post(f"/v1/story-brains/{novel_id}/brainstorm", headers=headers, json=req_body)
     assert res1.status_code == 200
     assert f.fake_llm.call_count == 1
-    brainstorm_id = res1.json()["data"]["brainstorm_id"]
+    cached_timestamp = res1.json()["data"]["provenance"]["timestamp"]
+    cached_rule_id = res1.json()["data"]["world_rules"][0]["rule_id"]
 
     # 2. Verify durable row in analysis_runs table
     with session_scope(f.repo._session_factory) as session:
@@ -358,7 +359,7 @@ def test_brainstorm_postgres_bsa02_durable_idempotency_restart_and_brain_update(
         assert run_rec.status == "completed"
         assert run_rec.entity_candidate_audit is not None
         cached_resp = run_rec.entity_candidate_audit.get("response", {})
-        assert cached_resp.get("brainstorm_id") == brainstorm_id
+        assert cached_resp.get("provenance", {}).get("timestamp") == cached_timestamp
 
     # 3. Simulate process restart by creating a new BrainstormService instance
     fresh_service = BrainstormService(repository=f.repo, llm_service=f.fake_llm)
@@ -368,7 +369,8 @@ def test_brainstorm_postgres_bsa02_durable_idempotency_restart_and_brain_update(
     f.fake_llm.call_count = 0
     res2 = f.client.post(f"/v1/story-brains/{novel_id}/brainstorm", headers=headers, json=req_body)
     assert res2.status_code == 200
-    assert res2.json()["data"]["brainstorm_id"] == brainstorm_id
+    assert res2.json()["data"]["provenance"]["timestamp"] == cached_timestamp
+    assert res2.json()["data"]["world_rules"][0]["rule_id"] == cached_rule_id
     assert f.fake_llm.call_count == 0, "Restarted service must serve from Postgres without calling LLM"
 
     # 4. Mutate story brain version in PostgreSQL (simulating intervening Brain / Setup update)
@@ -381,7 +383,8 @@ def test_brainstorm_postgres_bsa02_durable_idempotency_restart_and_brain_update(
     # Replay same key and payload again: must still succeed and return original cached response
     res3 = f.client.post(f"/v1/story-brains/{novel_id}/brainstorm", headers=headers, json=req_body)
     assert res3.status_code == 200
-    assert res3.json()["data"]["brainstorm_id"] == brainstorm_id
+    assert res3.json()["data"]["provenance"]["timestamp"] == cached_timestamp
+    assert res3.json()["data"]["world_rules"][0]["rule_id"] == cached_rule_id
     assert f.fake_llm.call_count == 0, "Intervening brain version update must not invalidate exact idempotency replay"
 
 
@@ -410,7 +413,8 @@ def test_brainstorm_postgres_bsa02_concurrent_single_flight(brainstorm_env):
 
     assert res1.status_code == 200
     assert res2.status_code == 200
-    assert res1.json()["data"]["brainstorm_id"] == res2.json()["data"]["brainstorm_id"]
+    assert res1.json()["data"]["provenance"]["timestamp"] == res2.json()["data"]["provenance"]["timestamp"]
+    assert res1.json()["data"]["world_rules"][0]["rule_id"] == res2.json()["data"]["world_rules"][0]["rule_id"]
     assert f.fake_llm.call_count == 1, "Only 1 LLM provider dispatch should occur for concurrent single-flight"
 
 
