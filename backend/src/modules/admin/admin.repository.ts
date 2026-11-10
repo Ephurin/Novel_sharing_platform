@@ -232,7 +232,20 @@ export async function softRemoveNovelAggregate(client: DbClient, novelId: string
   return mapAdminNovel(novelResult.rows[0]);
 }
 
+// Restore of a removal made before sanctions existed. That removal stamped the novel and its then-live chapters
+// with the same transaction time, so only chapters carrying exactly the novel's deleted_at come back; a chapter
+// the author deleted earlier keeps its own, older deleted_at and stays deleted (D6: never resurrect).
 export async function restoreNovelAggregate(client: DbClient, novelId: string) {
+  const restoredChapters = await client.query(
+    `
+      update chapters c
+      set deleted_at = null, updated_at = now()
+      from novels n
+      where n.novel_id = c.novel_id and c.novel_id = $1 and c.deleted_at = n.deleted_at
+      returning c.chapter_id
+    `,
+    [novelId]
+  );
   const novelResult = await client.query(
     `
       update novels
@@ -245,16 +258,10 @@ export async function restoreNovelAggregate(client: DbClient, novelId: string) {
 
   if (!novelResult.rows[0]) return null;
 
-  await client.query(
-    `
-      update chapters
-      set deleted_at = null, updated_at = now()
-      where novel_id = $1
-    `,
-    [novelId]
-  );
-
-  return mapAdminNovel(novelResult.rows[0]);
+  return {
+    novel: mapAdminNovel(novelResult.rows[0]),
+    chapterIds: restoredChapters.rows.map((row) => row.chapter_id as string)
+  };
 }
 
 export async function updateUserStatus(userId: string, status: 'ACTIVE' | 'LOCKED') {

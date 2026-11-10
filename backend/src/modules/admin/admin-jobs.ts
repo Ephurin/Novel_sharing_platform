@@ -33,30 +33,69 @@ export async function queueAdminNotification(
   await client.query("insert into admin_jobs(kind,payload) values('NOTIFY',$1)", [input]);
 }
 
-// Drafts follow the novel sanction: archived while it is active, restored once it is lifted. Only drafts tagged
-// with this sanction come back, so drafts the author had already deleted stay deleted. Both branches are idempotent.
+// Mongo drafts converge on the novel's current sanction state, whichever sanction queued the job (D6). A job
+// never replays "hide" or "restore" for its own sanction: it looks up what is true now, so a stale job that runs
+// late cannot un-hide or re-hide anything. Every branch is idempotent.
+// - Active HIDE: hide the drafts of the chapters that sanction recorded (previous_state.chapterIds) and tag them
+//   with it. Drafts of chapters the author deleted earlier, and other novels, are never touched. A legacy
+//   sanction without chapterIds has no inventory, so nothing is hidden or restored for it.
+// - No active HIDE: drafts still tagged by a sanction come back only if their chapter is live in PostgreSQL.
 async function syncNovelDrafts(client: PoolClient, payload: unknown) {
-  const sanction = (
-    await client.query("select * from admin_sanctions where sanction_id=$1 and target_type='NOVEL'", [
+  const queuedBy = (
+    await client.query("select target_id from admin_sanctions where sanction_id=$1 and target_type='NOVEL'", [
       sanctionPayload.parse(payload).sanctionId
     ])
   ).rows[0];
-  if (!sanction) return;
+  if (!queuedBy) return;
+  const novelId: string = queuedBy.target_id;
+  const active = (
+    await client.query(
+      "select sanction_id,previous_state from admin_sanctions where target_type='NOVEL' and target_id=$1 and action='HIDE' and active order by created_at desc limit 1",
+      [novelId]
+    )
+  ).rows[0];
   const drafts = getMongoDatabase().collection('draft_chapters');
   const now = new Date();
-  if (sanction.active)
+  if (active) {
+    const chapterIds: string[] = active.previous_state?.chapterIds ?? [];
+    if (!chapterIds.length) return;
     await drafts.updateMany(
-      { novelId: sanction.target_id, deletedAt: null },
-      { $set: { deletedAt: now, deletionReason: 'ADMIN_REMOVED', adminSanctionId: sanction.sanction_id, updatedAt: now } }
-    );
-  else
-    await drafts.updateMany(
-      { novelId: sanction.target_id, adminSanctionId: sanction.sanction_id },
       {
-        $set: { deletedAt: null, deletionReason: null, restoredAt: now, updatedAt: now },
-        $unset: { adminSanctionId: '' }
-      }
+        novelId,
+        chapterId: { $in: chapterIds },
+        $or: [{ deletedAt: null }, { adminSanctionId: { $exists: true, $ne: active.sanction_id } }]
+      },
+      [
+        {
+          $set: {
+            deletedAt: { $ifNull: ['$deletedAt', now] },
+            deletionReason: 'ADMIN_REMOVED',
+            adminSanctionId: active.sanction_id,
+            updatedAt: now
+          }
+        }
+      ]
     );
+    return;
+  }
+  const tagged = await drafts
+    .find({ novelId, adminSanctionId: { $exists: true } }, { projection: { chapterId: 1 } })
+    .toArray();
+  if (!tagged.length) return;
+  const live: string[] = (
+    await client.query('select chapter_id from chapters where chapter_id::text=any($1::text[]) and deleted_at is null', [
+      tagged.map((draft) => String(draft.chapterId))
+    ])
+  ).rows.map((row) => row.chapter_id);
+  await drafts.updateMany(
+    { novelId, adminSanctionId: { $exists: true }, chapterId: { $in: live } },
+    { $set: { deletedAt: null, deletionReason: null, restoredAt: now, updatedAt: now }, $unset: { adminSanctionId: '' } }
+  );
+  // The chapter was deleted after its sanction was lifted: the draft stays deleted, without the sanction tag.
+  await drafts.updateMany(
+    { novelId, adminSanctionId: { $exists: true } },
+    { $set: { deletionReason: 'CHAPTER_DELETED', updatedAt: now }, $unset: { adminSanctionId: '' } }
+  );
 }
 // Advisory lock serializes job draining across API workers; updates are idempotent.
 export async function drainAdminJobs() {

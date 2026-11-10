@@ -207,10 +207,11 @@ export async function markDraftChaptersDeletedByNovelId(novelId: string, reason:
   );
 }
 
-export async function restoreDraftChaptersByNovelId(novelId: string) {
+// Only the drafts of the chapters that were restored come back; drafts of chapters that stay deleted are left alone.
+export async function restoreDraftChaptersByNovelId(novelId: string, chapterIds: string[]) {
   const now = new Date();
   return collection().updateMany(
-    { novelId, deletedAt: { $ne: null } },
+    { novelId, chapterId: { $in: chapterIds }, deletedAt: { $ne: null } },
     {
       $set: {
         deletedAt: null,
