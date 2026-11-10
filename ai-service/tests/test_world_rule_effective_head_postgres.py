@@ -15,6 +15,7 @@ from api.entity_hitl_routes import router as hitl_router
 from api.narrative_routes import internal_router
 from application.writing_service import WritingService
 from domain.errors import BootstrapConflictError
+from domain.projection import WorldRuleLineageError
 from tests.test_p2_bootstrap_postgres import ACTOR, TENANT, engine, f, snapshot
 from tests.test_plan_review_fixes_postgres import FOREIGN
 from tests.test_setup_activation_postgres import activate, owned, ready, state as m0_state
@@ -243,6 +244,42 @@ def test_baseline_single_setup_rule_and_p1_extracted_facts_unchanged(rule_env, i
     _assert_canon_unchanged(f, before)
 
 
+def _assert_all_consumers_fail_closed(f, service, provider, h, caplog, before, *, reason=None, leaked=()):
+    n = f.src.novel_id
+    # 1. Approved Memory fails closed with 409 INVALID_CANON_HISTORY
+    mem_resp = f.client.get(f"/v1/story-brains/{n}/memory", headers=_memory_headers(f))
+    assert mem_resp.status_code == 409, mem_resp.text
+    assert mem_resp.json()["detail"]["code"] == "INVALID_CANON_HISTORY"
+    if reason is not None:
+        assert mem_resp.json()["detail"]["reason"] in reason
+    # 2. Context preview fails closed with 409 INVALID_CANON_HISTORY
+    ctx_resp = f.client.get(
+        f"/v1/story-brains/{n}/context-preview?chapter_number=1",
+        headers=_memory_headers(f),
+    )
+    assert ctx_resp.status_code == 409, ctx_resp.text
+    assert ctx_resp.json()["detail"]["code"] == "INVALID_CANON_HISTORY"
+    if reason is not None:
+        assert ctx_resp.json()["detail"]["reason"] in reason
+    for marker in ("P207DPrivateOnly", *leaked):
+        assert marker not in mem_resp.text and marker not in ctx_resp.text
+    # 3. Writing worker fails closed with WRITING_CONTEXT_AUTHORITY_DENIED and zero provider calls
+    gen_resp = f.client.post(
+        "/v1/writing/generations",
+        headers=_memory_headers(f),
+        json=request_body((f, service, provider, h)),
+    )
+    assert gen_resp.status_code == 202, gen_resp.text
+    job = f.repo.get_writing_job(gen_resp.json()["data"]["job_id"])
+    assert_blocked(job, provider, caplog)
+    assert "P207DPrivateOnly" not in json.dumps(asdict(job), default=str)
+    _assert_canon_unchanged(f, before)
+
+
+UNVERIFIED = {"WORLD_RULE_SUCCESSOR_UNVERIFIED"}
+UNVERIFIED_OR_MALFORMED = {"WORLD_RULE_SUCCESSOR_UNVERIFIED", "WORLD_RULE_LINEAGE_MALFORMED"}
+
+
 @pytest.mark.parametrize(
     "hops,parent_locked,head_locked,parent_retired",
     [
@@ -253,9 +290,10 @@ def test_baseline_single_setup_rule_and_p1_extracted_facts_unchanged(rule_env, i
         (3, True, True, True),
     ],
 )
-def test_valid_world_rule_chains_unlocked_and_locked_parity(
-    rule_env, hops, parent_locked, head_locked, parent_retired
+def test_well_formed_but_unaudited_successor_chain_never_replaces_root(
+    rule_env, hops, parent_locked, head_locked, parent_retired, caplog
 ):
+    """F-01: matching source/actor/scope metadata alone is not author approval."""
     f, service, provider, h, brain_id = rule_env
     n = f.src.novel_id
     with f.engine.begin() as db:
@@ -264,131 +302,218 @@ def test_valid_world_rule_chains_unlocked_and_locked_parity(
             brain_id=brain_id,
             novel_id=n,
             fact_key="barrier_teleport",
-            fact_value="OBSOLETE_ROOT: Cấm dịch chuyển trong kết giới phong tỏa",
+            fact_value="ROOT_RULE: Cấm dịch chuyển trong kết giới phong tỏa",
             source_type="model_suggestion",
             is_locked=parent_locked,
             is_retired=parent_retired,
         )
         prev_id = root_id
-        mid_id = None
         if hops == 3:
-            mid_id = _insert_fact(
+            prev_id = _insert_fact(
                 db,
                 brain_id=brain_id,
                 novel_id=n,
                 fact_key="barrier_teleport",
-                fact_value="OBSOLETE_MID: Không thể dịch chuyển trong kết giới cấp cao",
+                fact_value="UNAUDITED_MID: Không thể dịch chuyển trong kết giới cấp cao",
                 source_type="author_setup",
                 is_locked=parent_locked,
                 is_retired=parent_retired,
                 supersedes_id=root_id,
             )
-            prev_id = mid_id
-        head_id = _insert_fact(
+        _insert_fact(
             db,
             brain_id=brain_id,
             novel_id=n,
             fact_key="barrier_teleport",
-            fact_value="EFFECTIVE_HEAD: Trong kết giới phong tỏa cho phép dịch chuyển bằng Phù Ấn Cổ",
+            fact_value="UNAUDITED_HEAD: Trong kết giới phong tỏa cho phép dịch chuyển bằng Phù Ấn Cổ",
             source_type="author_setup",
             is_locked=head_locked,
-            is_retired=False,
             supersedes_id=prev_id,
         )
-        independent_id = _insert_fact(
+        _insert_fact(
             db,
             brain_id=brain_id,
             novel_id=n,
             fact_key="alchemy_fire",
             fact_value="ACTIVE_INDEPENDENT: Luyện đan tam phẩm cần đan hỏa",
-            source_type="author_setup",
             is_locked=True,
-            is_retired=False,
         )
+    with f.engine.connect() as db:
+        successor_ids = {
+            str(r[0]) for r in db.execute(
+                text("SELECT id FROM narrative.facts WHERE novel_id=:n AND supersedes_id IS NOT NULL"), {"n": n}
+            ).all()
+        }
+        payloads = [r[0] for r in db.execute(text("SELECT edited_payload FROM narrative.proposal_decisions")).all()]
+    # No author-approval receipt references any successor in this novel.
+    assert successor_ids and not any(
+        successor_ids & set((payload or {}).get("artifact_ids", [])) for payload in payloads
+    )
+    before = durable(f, f"p207d-unaudited-{hops}-{parent_locked}-{head_locked}-{parent_retired}")
+    with pytest.raises(WorldRuleLineageError) as raised:
+        f.repo.get_structured_context(n, chapter_number=1)
+    assert raised.value.code == "WORLD_RULE_SUCCESSOR_UNVERIFIED"
+    _assert_all_consumers_fail_closed(
+        f, service, provider, h, caplog, before,
+        reason=UNVERIFIED, leaked=("UNAUDITED_HEAD", "UNAUDITED_MID", "ROOT_RULE"),
+    )
 
-    before = durable(f, f"p207d-chain-{hops}-{parent_locked}-{head_locked}-{parent_retired}")
 
-    # 1. Approved Memory readback
+def test_real_setup_review_root_with_receipt_is_not_replaced_by_unaudited_successor(owned):
+    """F-01 with a genuine author-approved root produced by the real setup review flow."""
+    f = owned
+    job, _ = ready(f)
+    n = f.src.novel_id
+    with f.engine.connect() as db:
+        root = db.execute(
+            text(
+                "SELECT id, story_brain_id, fact_key, source_type, created_by, is_locked "
+                "FROM narrative.facts WHERE novel_id=:n AND fact_type='world_rule'"
+            ),
+            {"n": n},
+        ).mappings().one()
+        receipt_artifacts = [
+            row[0]
+            for row in db.execute(
+                text(
+                    "SELECT d.edited_payload FROM narrative.proposal_decisions d "
+                    "JOIN narrative.proposals p ON p.id = d.proposal_id "
+                    "WHERE p.novel_id=:n AND d.decision IN ('accept','edit_accept')"
+                ),
+                {"n": n},
+            ).all()
+        ]
+    root_id = str(root["id"])
+    # The approved root is backed by a durable setup-review decision receipt.
+    assert any(root_id in (payload or {}).get("artifact_ids", []) for payload in receipt_artifacts)
+    baseline = f.repo.get_structured_context(n)
+    assert root_id in {r["id"] for r in baseline.world_rules}
+
+    with f.engine.begin() as db:
+        successor_id = _insert_fact(
+            db,
+            brain_id=str(root["story_brain_id"]),
+            novel_id=n,
+            fact_key=root["fact_key"],
+            fact_value="UNAUDITED_SUCCESSOR: Amended without a decision receipt",
+            source_type="author_setup",
+            created_by=str(root["created_by"]),
+            is_locked=bool(root["is_locked"]),
+            supersedes_id=root_id,
+        )
+    with f.engine.connect() as db:
+        rows = [r[0] for r in db.execute(text("SELECT edited_payload FROM narrative.proposal_decisions")).all()]
+    assert not any(successor_id in (payload or {}).get("artifact_ids", []) for payload in rows)
+    before = snapshot(f, "p207d-receipt-before")
+    with pytest.raises(WorldRuleLineageError) as raised:
+        f.repo.get_structured_context(n)
+    assert raised.value.code == "WORLD_RULE_SUCCESSOR_UNVERIFIED"
+    from domain.projection import resolve_effective_facts
+    with pytest.raises(WorldRuleLineageError):
+        resolve_effective_facts(f.repo.get_story_brain(n, read_only=True).facts)
+    assert snapshot(f, "p207d-receipt-after") == before
+    assert f.llm.calls == 0
+
+
+def test_p1_fact_corrections_standalone_retirement_and_pending_setup_successor_preserved(rule_env):
+    """F-02: World Setup restrictions must not break valid P1 correction / retirement semantics."""
+    f, service, provider, h, brain_id = rule_env
+    n = f.src.novel_id
+    with f.engine.connect() as db:
+        entity_id = str(db.execute(
+            text("SELECT id FROM narrative.entities WHERE novel_id=:n LIMIT 1"), {"n": n}
+        ).scalar_one())
+    p1 = dict(source_type="AI", chapter_number=1, source_revision_id=f.src.revision_id,
+              source_start=0, source_end=15, created_by=None)
+    with f.engine.begin() as db:
+        setup_root = _insert_fact(
+            db, brain_id=brain_id, novel_id=n, fact_key="barrier_teleport",
+            fact_value="SETUP_ROOT: Cấm dịch chuyển trong kết giới phong tỏa", is_locked=True,
+        )
+        # Pending (unapproved) setup successor: ignored, never replaces the approved root.
+        _insert_fact(
+            db, brain_id=brain_id, novel_id=n, fact_key="barrier_teleport",
+            fact_value="PENDING_SUCCESSOR: chưa được duyệt", confirmation_status="proposed",
+            supersedes_id=setup_root,
+        )
+        # Standalone retired setup rule: hidden (pre-existing Approved Memory semantics).
+        _insert_fact(
+            db, brain_id=brain_id, novel_id=n, fact_key="retired_rule",
+            fact_value="RETIRED_SETUP: luật đã bỏ", is_locked=True, is_retired=True,
+        )
+        trait_v1 = _insert_fact(
+            db, brain_id=brain_id, novel_id=n, subject_entity_id=entity_id,
+            fact_type="character_trait", fact_key="hair", fact_value="P1_OLD_TRAIT: tóc đen", **p1,
+        )
+        trait_v2 = _insert_fact(
+            db, brain_id=brain_id, novel_id=n, subject_entity_id=entity_id,
+            fact_type="character_trait", fact_key="hair", fact_value="P1_NEW_TRAIT: tóc bạc",
+            supersedes_id=trait_v1, **p1,
+        )
+        ch_rule_v1 = _insert_fact(
+            db, brain_id=brain_id, novel_id=n, fact_key="forest_herb",
+            fact_value="P1_OLD_RULE: Huyết Liên mọc ven suối", **p1,
+        )
+        ch_rule_v2 = _insert_fact(
+            db, brain_id=brain_id, novel_id=n, fact_key="forest_herb",
+            fact_value="P1_NEW_RULE: Huyết Liên mọc ở tầng sâu đại ngàn", supersedes_id=ch_rule_v1, **p1,
+        )
+        _insert_fact(
+            db, brain_id=brain_id, novel_id=n, fact_key="old_herb",
+            fact_value="P1_RETIRED_RULE: đã bỏ", is_retired=True, **p1,
+        )
+    before = durable(f, "p207d-p1-compat")
     mem_resp = f.client.get(f"/v1/story-brains/{n}/memory", headers=_memory_headers(f))
     assert mem_resp.status_code == 200, mem_resp.text
-    mem_facts = mem_resp.json()["data"]["facts"]
-    assert {item["fact_id"] for item in mem_facts} == {head_id, independent_id}
-    assert len(mem_facts) == 2
-    mem_dump = json.dumps(mem_facts, ensure_ascii=False)
-    assert "OBSOLETE_ROOT" not in mem_dump
-    assert "OBSOLETE_MID" not in mem_dump
-    assert "EFFECTIVE_HEAD" in mem_dump
+    assert {i["fact_id"] for i in mem_resp.json()["data"]["facts"]} == {setup_root, trait_v2, ch_rule_v2}
+    for hidden in ("PENDING_SUCCESSOR", "RETIRED_SETUP", "P1_OLD_TRAIT", "P1_OLD_RULE", "P1_RETIRED_RULE"):
+        assert hidden not in mem_resp.text
 
-    # 2. Repository get_structured_context & WritingService.preview_context HTTP endpoint
-    repo_ctx = f.repo.get_structured_context(n, chapter_number=1)
-    assert {item["id"] for item in repo_ctx.world_rules} == {head_id, independent_id}
-    assert len(repo_ctx.world_rules) == 2
-    if not head_locked:
-        assert [item["id"] for item in repo_ctx.world_rules] == [independent_id, head_id]
     ctx_resp = f.client.get(
-        f"/v1/story-brains/{n}/context-preview?chapter_number=1",
-        headers=_memory_headers(f),
+        f"/v1/story-brains/{n}/context-preview?chapter_number=1", headers=_memory_headers(f)
     )
     assert ctx_resp.status_code == 200, ctx_resp.text
-    ctx_data = ctx_resp.json()["data"]
-    assert {item["id"] for item in ctx_data["world_rules"]} == {head_id, independent_id}
-    assert set(ctx_data["context_summary"]["fact_ids"]) == {head_id, independent_id}
-    assert root_id not in ctx_data["context_summary"]["fact_ids"]
-    if mid_id:
-        assert mid_id not in ctx_data["context_summary"]["fact_ids"]
+    # Context packs every effective confirmed fact family (pre-existing behavior).
+    assert {i["id"] for i in ctx_resp.json()["data"]["world_rules"]} == {setup_root, trait_v2, ch_rule_v2}
+    for hidden in ("PENDING_SUCCESSOR", "RETIRED_SETUP", "P1_OLD_TRAIT", "P1_OLD_RULE", "P1_RETIRED_RULE"):
+        assert hidden not in ctx_resp.text
 
-    # 3. Writing generation worker + RecordingProvider + _validate_draft consistency check
     gen_resp = f.client.post(
-        "/v1/writing/generations",
-        headers=_memory_headers(f),
-        json=request_body((f, service, provider, h)),
+        "/v1/writing/generations", headers=_memory_headers(f), json=request_body((f, service, provider, h))
     )
     assert gen_resp.status_code == 202, gen_resp.text
     job = f.repo.get_writing_job(gen_resp.json()["data"]["job_id"])
-    assert job.status == "completed"
-    # Superseded locked rule ("Cấm dịch chuyển trong kết giới phong tỏa") must NOT trigger WORLD_RULE_VIOLATION!
-    assert job.validation_status == "passed", [asdict(v) for v in job.validations]
-    assert len(provider.payloads) == 1
-    dispatched_str = json.dumps(provider.payloads[0]["context_package"], ensure_ascii=False)
-    assert "OBSOLETE_ROOT" not in dispatched_str
-    assert "OBSOLETE_MID" not in dispatched_str
-    assert "EFFECTIVE_HEAD" in dispatched_str
-    assert "P207DPrivateOnly" not in dispatched_str
-
+    assert job.status == "completed" and len(provider.payloads) == 1
+    dispatched = json.dumps(provider.payloads[0]["context_package"], ensure_ascii=False)
+    assert "SETUP_ROOT" in dispatched and "P1_NEW_RULE" in dispatched
+    for hidden in ("PENDING_SUCCESSOR", "RETIRED_SETUP", "P1_OLD_RULE", "P1_RETIRED_RULE"):
+        assert hidden not in dispatched
     _assert_canon_unchanged(f, before)
 
 
-def test_chapter_cutoff_and_tight_token_budget_never_resurrect_superseded_or_retired_rules(rule_env):
+def test_chapter_cutoff_and_tight_token_budget_never_resurrect_retired_locked_rules(rule_env):
     f, service, _, _, brain_id = rule_env
     n = f.src.novel_id
     with f.engine.begin() as db:
-        # 5 superseded locked predecessors that would overflow a 420-token budget if not excluded
-        prev_id = None
-        superseded_ids = []
-        for idx in range(5):
-            fid = _insert_fact(
+        retired_ids = [
+            _insert_fact(
                 db,
                 brain_id=brain_id,
                 novel_id=n,
-                fact_key="mana_law",
-                fact_value=f"SUPERSEDED_LOCKED_{idx}: Không được dịch chuyển trong kết giới cấp {idx}",
-                source_type="author_setup",
+                fact_key=f"mana_law_{idx}",
+                fact_value=f"RETIRED_LOCKED_{idx}: Không được dịch chuyển trong kết giới cấp {idx}",
                 is_locked=True,
-                is_retired=(idx % 2 == 0),
-                supersedes_id=prev_id,
+                is_retired=True,
             )
-            superseded_ids.append(fid)
-            prev_id = fid
+            for idx in range(5)
+        ]
         head_id = _insert_fact(
             db,
             brain_id=brain_id,
             novel_id=n,
             fact_key="mana_law",
-            fact_value="EFFECTIVE_LOCKED_HEAD: Cho phép dịch chuyển khi có Phù Ấn",
-            source_type="author_setup",
+            fact_value="ACTIVE_LOCKED: Cho phép dịch chuyển khi có Phù Ấn",
             is_locked=True,
-            is_retired=False,
-            supersedes_id=prev_id,
         )
         ch2_fact_id = _insert_fact(
             db,
@@ -398,31 +523,21 @@ def test_chapter_cutoff_and_tight_token_budget_never_resurrect_superseded_or_ret
             fact_value="CH2_FACT: Bí mật chỉ xuất hiện ở chương 2",
             source_type="AI",
             chapter_number=2,
-            is_locked=False,
         )
-
-    # Repo-level tight budget + chapter_number=1 cutoff
     repo_pkg = f.repo.get_structured_context(
         n, chapter_number=1, token_budget=380, enforce_token_budget=True
     )
     assert [r["id"] for r in repo_pkg.world_rules] == [head_id]
     assert repo_pkg.token_budget["locked_overflow"] is False
-    for old_id in superseded_ids:
+    for old_id in retired_ids:
         assert old_id not in repo_pkg.context_summary["fact_ids"]
     assert ch2_fact_id not in repo_pkg.context_summary["fact_ids"]
-
-    # Application-level ContextBudgetPacker preview at chapter 1 and chapter 2
-    preview_ch1 = service.preview_context(
-        tenant_id=TENANT, story_id=n, chapter_number=1, token_budget=380
-    )
+    preview_ch1 = service.preview_context(tenant_id=TENANT, story_id=n, chapter_number=1, token_budget=380)
     assert [r["id"] for r in preview_ch1.world_rules] == [head_id]
-    assert "SUPERSEDED_LOCKED_" not in json.dumps(asdict(preview_ch1), ensure_ascii=False)
-
-    preview_ch2 = service.preview_context(
-        tenant_id=TENANT, story_id=n, chapter_number=2, token_budget=1200
-    )
+    assert "RETIRED_LOCKED_" not in json.dumps(asdict(preview_ch1), ensure_ascii=False)
+    preview_ch2 = service.preview_context(tenant_id=TENANT, story_id=n, chapter_number=2, token_budget=1200)
     assert {r["id"] for r in preview_ch2.world_rules} == {head_id, ch2_fact_id}
-    assert "SUPERSEDED_LOCKED_" not in json.dumps(asdict(preview_ch2), ensure_ascii=False)
+    assert "RETIRED_LOCKED_" not in json.dumps(asdict(preview_ch2), ensure_ascii=False)
 
 
 @pytest.mark.parametrize(
@@ -435,7 +550,6 @@ def test_chapter_cutoff_and_tight_token_budget_never_resurrect_superseded_or_ret
         "cross_novel_parent",
         "cross_tenant_parent",
         "cross_brain_parent",
-        "unconfirmed_successor",
         "unconfirmed_parent",
         "ai_source_successor",
         "model_suggestion_successor",
@@ -444,53 +558,30 @@ def test_chapter_cutoff_and_tight_token_budget_never_resurrect_superseded_or_ret
         "entity_bound_successor",
         "chapter_scoped_successor",
         "revision_bound_successor",
-        "retired_standalone_leaf",
+        "p1_trait_attached_to_setup_root",
         "retired_chain_leaf",
     ],
 )
 def test_malformed_or_unauthorized_rule_lineage_fails_closed(rule_env, case, caplog):
     f, service, provider, h, brain_id = rule_env
     n = f.src.novel_id
+    other_brain = None
     with f.engine.begin() as db:
         if case == "orphan_parent":
-            _insert_fact(
-                db,
-                brain_id=brain_id,
-                novel_id=n,
-                fact_value="Orphan child",
-                supersedes_id=str(uuid.uuid4()),
-            )
-        elif case == "cycle_2":
-            id_a, id_b = str(uuid.uuid4()), str(uuid.uuid4())
-            _insert_fact(db, brain_id=brain_id, novel_id=n, fact_id=id_a, fact_value="Node A")
-            _insert_fact(
-                db, brain_id=brain_id, novel_id=n, fact_id=id_b, fact_value="Node B", supersedes_id=id_a
-            )
-            db.execute(
-                text("UPDATE narrative.facts SET supersedes_id=:b WHERE id=:a"),
-                {"a": id_a, "b": id_b},
-            )
-        elif case == "cycle_3":
-            id_a, id_b, id_c = str(uuid.uuid4()), str(uuid.uuid4()), str(uuid.uuid4())
-            _insert_fact(db, brain_id=brain_id, novel_id=n, fact_id=id_a, fact_value="Node A")
-            _insert_fact(
-                db, brain_id=brain_id, novel_id=n, fact_id=id_b, fact_value="Node B", supersedes_id=id_a
-            )
-            _insert_fact(
-                db, brain_id=brain_id, novel_id=n, fact_id=id_c, fact_value="Node C", supersedes_id=id_b
-            )
-            db.execute(
-                text("UPDATE narrative.facts SET supersedes_id=:c WHERE id=:a"),
-                {"a": id_a, "c": id_c},
-            )
+            _insert_fact(db, brain_id=brain_id, novel_id=n, fact_value="Orphan child",
+                         supersedes_id=str(uuid.uuid4()))
+        elif case in ("cycle_2", "cycle_3"):
+            ids = [str(uuid.uuid4()) for _ in range(2 if case == "cycle_2" else 3)]
+            _insert_fact(db, brain_id=brain_id, novel_id=n, fact_id=ids[0], fact_value="Node 0")
+            for idx in range(1, len(ids)):
+                _insert_fact(db, brain_id=brain_id, novel_id=n, fact_id=ids[idx],
+                             fact_value=f"Node {idx}", supersedes_id=ids[idx - 1])
+            db.execute(text("UPDATE narrative.facts SET supersedes_id=:last WHERE id=:first"),
+                       {"first": ids[0], "last": ids[-1]})
         elif case == "fork":
             root_id = _insert_fact(db, brain_id=brain_id, novel_id=n, fact_value="Root")
-            _insert_fact(
-                db, brain_id=brain_id, novel_id=n, fact_value="Branch 1", supersedes_id=root_id
-            )
-            _insert_fact(
-                db, brain_id=brain_id, novel_id=n, fact_value="Branch 2", supersedes_id=root_id
-            )
+            _insert_fact(db, brain_id=brain_id, novel_id=n, fact_value="Branch 1", supersedes_id=root_id)
+            _insert_fact(db, brain_id=brain_id, novel_id=n, fact_value="Branch 2", supersedes_id=root_id)
         elif case in ("cross_novel_parent", "cross_tenant_parent", "cross_brain_parent"):
             other_tenant = str(uuid.uuid4()) if case == "cross_tenant_parent" else TENANT
             other_novel = str(uuid.uuid4()) if case != "cross_tenant_parent" else n
@@ -502,179 +593,53 @@ def test_malformed_or_unauthorized_rule_lineage_fails_closed(rule_env, case, cap
                 ),
                 {"id": other_brain, "t": other_tenant, "n": other_novel},
             )
-            foreign_parent = _insert_fact(
-                db,
-                brain_id=other_brain,
-                tenant_id=other_tenant,
-                novel_id=other_novel,
-                fact_value="Foreign parent rule",
-            )
-            _insert_fact(
-                db,
-                brain_id=brain_id,
-                novel_id=n,
-                fact_value="Child referencing foreign parent",
-                supersedes_id=foreign_parent,
-            )
-        elif case == "unconfirmed_successor":
-            root_id = _insert_fact(db, brain_id=brain_id, novel_id=n, fact_value="Root")
-            _insert_fact(
-                db,
-                brain_id=brain_id,
-                novel_id=n,
-                fact_value="Proposed child",
-                confirmation_status="proposed",
-                supersedes_id=root_id,
-            )
+            foreign_parent = _insert_fact(db, brain_id=other_brain, tenant_id=other_tenant,
+                                          novel_id=other_novel, fact_value="Foreign parent rule")
+            _insert_fact(db, brain_id=brain_id, novel_id=n, fact_value="Child referencing foreign parent",
+                         supersedes_id=foreign_parent)
         elif case == "unconfirmed_parent":
-            root_id = _insert_fact(
-                db,
-                brain_id=brain_id,
-                novel_id=n,
-                fact_value="Proposed root",
-                confirmation_status="proposed",
-            )
-            _insert_fact(
-                db,
-                brain_id=brain_id,
-                novel_id=n,
-                fact_value="Confirmed child of proposed root",
-                supersedes_id=root_id,
-            )
-        elif case == "ai_source_successor":
-            root_id = _insert_fact(db, brain_id=brain_id, novel_id=n, fact_value="Root")
-            _insert_fact(
-                db,
-                brain_id=brain_id,
-                novel_id=n,
-                fact_value="AI hijack child",
-                source_type="AI",
-                supersedes_id=root_id,
-            )
-        elif case == "model_suggestion_successor":
-            root_id = _insert_fact(db, brain_id=brain_id, novel_id=n, fact_value="Root")
-            _insert_fact(
-                db,
-                brain_id=brain_id,
-                novel_id=n,
-                fact_value="Unreviewed model suggestion child",
-                source_type="model_suggestion",
-                supersedes_id=root_id,
-            )
-        elif case == "foreign_actor_successor":
-            root_id = _insert_fact(db, brain_id=brain_id, novel_id=n, fact_value="Root")
-            _insert_fact(
-                db,
-                brain_id=brain_id,
-                novel_id=n,
-                fact_value="Foreign actor child",
-                created_by=FOREIGN,
-                supersedes_id=root_id,
-            )
-        elif case == "null_actor_successor":
-            root_id = _insert_fact(db, brain_id=brain_id, novel_id=n, fact_value="Root")
-            _insert_fact(
-                db,
-                brain_id=brain_id,
-                novel_id=n,
-                fact_value="Null actor child",
-                created_by=None,
-                supersedes_id=root_id,
-            )
-        elif case == "entity_bound_successor":
-            root_id = _insert_fact(db, brain_id=brain_id, novel_id=n, fact_value="Root")
-            entity_id = db.execute(
-                text("SELECT id FROM narrative.entities WHERE novel_id=:n LIMIT 1"),
-                {"n": n},
-            ).scalar_one()
-            _insert_fact(
-                db,
-                brain_id=brain_id,
-                novel_id=n,
-                subject_entity_id=str(entity_id),
-                fact_value="Entity-bound child",
-                supersedes_id=root_id,
-            )
-        elif case == "chapter_scoped_successor":
-            root_id = _insert_fact(db, brain_id=brain_id, novel_id=n, fact_value="Root")
-            _insert_fact(
-                db,
-                brain_id=brain_id,
-                novel_id=n,
-                chapter_number=1,
-                fact_value="Chapter-scoped child",
-                supersedes_id=root_id,
-            )
-        elif case == "revision_bound_successor":
-            root_id = _insert_fact(db, brain_id=brain_id, novel_id=n, fact_value="Root")
-            _insert_fact(
-                db,
-                brain_id=brain_id,
-                novel_id=n,
-                source_revision_id=f.src.revision_id,
-                fact_value="Revision-bound child",
-                supersedes_id=root_id,
-            )
-        elif case == "retired_standalone_leaf":
-            _insert_fact(
-                db,
-                brain_id=brain_id,
-                novel_id=n,
-                fact_value="Retired standalone rule without successor",
-                is_retired=True,
-            )
-        elif case == "retired_chain_leaf":
-            root_id = _insert_fact(db, brain_id=brain_id, novel_id=n, fact_value="Root")
-            _insert_fact(
-                db,
-                brain_id=brain_id,
-                novel_id=n,
-                fact_value="Retired leaf without successor",
-                supersedes_id=root_id,
-                is_retired=True,
-            )
+            root_id = _insert_fact(db, brain_id=brain_id, novel_id=n, fact_value="Proposed root",
+                                   confirmation_status="proposed")
+            _insert_fact(db, brain_id=brain_id, novel_id=n, fact_value="Confirmed child of proposed root",
+                         supersedes_id=root_id)
         else:
-            raise AssertionError(case)
+            root_id = _insert_fact(db, brain_id=brain_id, novel_id=n, fact_value="Root")
+            child = dict(fact_value=f"Child {case}", supersedes_id=root_id)
+            if case == "ai_source_successor":
+                child["source_type"] = "AI"
+            elif case == "model_suggestion_successor":
+                child["source_type"] = "model_suggestion"
+            elif case == "foreign_actor_successor":
+                child["created_by"] = FOREIGN
+            elif case == "null_actor_successor":
+                child["created_by"] = None
+            elif case in ("entity_bound_successor", "p1_trait_attached_to_setup_root"):
+                child["subject_entity_id"] = str(db.execute(
+                    text("SELECT id FROM narrative.entities WHERE novel_id=:n LIMIT 1"), {"n": n}
+                ).scalar_one())
+                if case == "p1_trait_attached_to_setup_root":
+                    child.update(fact_type="character_trait", source_type="AI", chapter_number=1,
+                                 source_revision_id=f.src.revision_id, created_by=None)
+            elif case == "chapter_scoped_successor":
+                child["chapter_number"] = 1
+            elif case == "revision_bound_successor":
+                child["source_revision_id"] = f.src.revision_id
+            elif case == "retired_chain_leaf":
+                child["is_retired"] = True
+            else:
+                raise AssertionError(case)
+            _insert_fact(db, brain_id=brain_id, novel_id=n, **child)
 
     before = durable(f, f"p207d-malformed-{case}")
-
     try:
-        # 1. Approved Memory fails closed with 409 INVALID_CANON_HISTORY
-        mem_resp = f.client.get(f"/v1/story-brains/{n}/memory", headers=_memory_headers(f))
-        assert mem_resp.status_code == 409, mem_resp.text
-        assert mem_resp.json()["detail"]["code"] == "INVALID_CANON_HISTORY"
-
-        # 2. Context preview fails closed with 409 INVALID_CANON_HISTORY
-        ctx_resp = f.client.get(
-            f"/v1/story-brains/{n}/context-preview?chapter_number=1",
-            headers=_memory_headers(f),
+        _assert_all_consumers_fail_closed(
+            f, service, provider, h, caplog, before, reason=UNVERIFIED_OR_MALFORMED
         )
-        assert ctx_resp.status_code == 409, ctx_resp.text
-        assert ctx_resp.json()["detail"]["code"] == "INVALID_CANON_HISTORY"
-        assert "P207DPrivateOnly" not in ctx_resp.text
-
-        # 3. Writing generation worker fails closed with WRITING_CONTEXT_AUTHORITY_DENIED and 0 LLM calls
-        gen_resp = f.client.post(
-            "/v1/writing/generations",
-            headers=_memory_headers(f),
-            json=request_body((f, service, provider, h)),
-        )
-        assert gen_resp.status_code == 202, gen_resp.text
-        job = f.repo.get_writing_job(gen_resp.json()["data"]["job_id"])
-        assert_blocked(job, provider, caplog)
-        assert "P207DPrivateOnly" not in json.dumps(asdict(job), default=str)
-        _assert_canon_unchanged(f, before)
     finally:
-        if case in ("cross_novel_parent", "cross_tenant_parent", "cross_brain_parent"):
+        if other_brain is not None:
             with f.engine.begin() as db:
-                db.execute(
-                    text("DELETE FROM narrative.facts WHERE novel_id=:n"),
-                    {"n": n},
-                )
-                db.execute(
-                    text("DELETE FROM narrative.story_brains WHERE id=:b"),
-                    {"b": other_brain},
-                )
+                db.execute(text("DELETE FROM narrative.facts WHERE story_brain_id=:b"), {"b": other_brain})
+                db.execute(text("DELETE FROM narrative.story_brains WHERE id=:b"), {"b": other_brain})
 
 
 @pytest.mark.parametrize(

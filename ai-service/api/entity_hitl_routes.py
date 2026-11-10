@@ -88,19 +88,16 @@ def memory(novel_id: UUID, service=Depends(get_revision_analysis_service)):
             novel_id=str(novel_id),
             story_brain_id=brain.metadata.get('brain_id'),
         )
-        fact_ids = {f['fact_id'] for f in facts}
-        event_ids = {e.event_id for e in active_events}
-        entity_ids = {e.entity_id for e in brain.entities}
-        transitions = [t for t in brain.transitions if t['entity_id'] in entity_ids
-            and (t.get('fact_id') in fact_ids or t.get('event_id') in event_ids)]
-        state = project(brain.entities, [{**f, 'supersedes_id': None} for f in facts], active_events, transitions)
-        relations = project_relations(brain.entities, brain.relations, state)
     except ProjectionError as exc:
-        raise HTTPException(409, detail={'code': 'INVALID_CANON_HISTORY'}) from exc
-    except (OptimisticLockError, IdempotencyConflictError) as exc:
-        raise HTTPException(409, detail={'code': 'CHECKPOINT_CONFLICT', 'message': str(exc)}) from exc
-    except ValueError as exc:
-        raise HTTPException(422, detail={'code': 'INVALID_EVIDENCE', 'message': str(exc)}) from exc
+        raise HTTPException(409, detail={'code': 'INVALID_CANON_HISTORY',
+                                         'reason': getattr(exc, 'code', 'FACT_LINEAGE_INVALID')}) from exc
+    fact_ids = {f['fact_id'] for f in facts}
+    event_ids = {e.event_id for e in active_events}
+    entity_ids = {e.entity_id for e in brain.entities}
+    transitions = [t for t in brain.transitions if t['entity_id'] in entity_ids
+        and (t.get('fact_id') in fact_ids or t.get('event_id') in event_ids)]
+    state = invoke(project, brain.entities, facts, active_events, transitions)
+    relations = invoke(project_relations, brain.entities, brain.relations, state)
     entities = [asdict(e) for e in brain.entities]
     for entity in entities:
         attributes = state.get('entities', {}).get(entity['entity_id'], {})

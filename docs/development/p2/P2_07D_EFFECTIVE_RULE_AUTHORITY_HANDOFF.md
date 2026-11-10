@@ -1,118 +1,112 @@
-# P2-07D — Shared Effective World Setup Rule Authority for Memory + Writing Context
+# P2-07D — Shared World Setup rule authority for Memory + Writing Context
 
-- **Issue:** `#120` (`[P2-07D][Gemini 4 Argon][P1] Shared effective World Setup rule authority for Memory + Writing Context`)
-- **Parent:** `#114` (`[P2-07][P1] Amendment-safe Setup & Planning Authority before UX-05`)
-- **Stage-0 Diagnostic Baseline:** PR `#119` (unmerged; diagnostic evidence only)
-- **Target Branch:** `integration/p2-planning-studio`
-- **Deliverable Branch:** `gemini/p2-07d-world-rule-effective-head`
+- **Issue:** #120 (parent #114). Stage-0 diagnostics: PR #119 (not merged, not used as acceptance).
+- **Branch:** `gemini/p2-07d-world-rule-effective-head` → base `integration/p2-planning-studio` (`30dc39e1`).
+- **Revision:** R2, addressing GPT-6 review F-01 / F-02 on PR #121 (`e61e0f3b`).
 
----
+## 0. Verdict
 
-## 1. Contract Sufficiency & Scope Evaluation
+| Item | Status |
+|---|---|
+| **F-01 — approved successor authority** | **`CONTRACT_BLOCKED`** for "replace a World Setup rule with an approved successor". Delivered instead: a conservative, fail-closed gate (review option A). |
+| **F-02 — resolver scope** | **FIXED.** World Setup restrictions apply only to edges touching a global World Setup rule; P1 / non-setup families keep the pre-existing semantics. |
+| Shared resolver across Memory / Context / Writer / dispatch fence | Delivered (unchanged from R1, narrowed policy). |
+| Write-side projection (`_projection_inputs` / `_persist_projection`) | Reverted to baseline (no P1 write-path behavior change). |
 
-Before implementing the shared effective-head resolver, we audited `FactRecord` (`narrative.facts`), `SetupItemProposalRecord` (`narrative.setup_item_proposals`), `SetupDecisionRecord` (`narrative.setup_decisions`), and `StoryBrainRecord` (`narrative.story_brains`) against the P2-07D contract requirements:
+R1's claims "CONTRACT SUFFICIENT" and "author-approved successor" are **withdrawn**.
 
-1. **Unique Fact Identity & Lineage Pointer:**
-   - Every canonized setup rule row in `narrative.facts` has a primary UUID (`id`), a nullable lineage parent UUID (`supersedes_id`), `tenant_id`, `novel_id`, `story_brain_id`, `fact_type`, `fact_key`, `value_json`, `is_locked`, `confirmation_status`, `source_type`, `created_by`, and `created_at`.
-   - Lineage identity is strictly anchored by Fact UUID (`id` and `supersedes_id`), never by `fact_key` or display text (`statement` / `value_json`).
-2. **Global World Setup Rule Family Classification:**
-   - Accepted World Setup rules materialized by `SetupReviewRepository.accept_proposal` (`ai-service/infrastructure/setup_review.py`) have:
-     - `fact_type == "world_rule"`
-     - `subject_entity_id is None`
-     - `source_revision_id is None`, `chapter_number is None`, `source_start is None`, `source_end is None`
-     - `source_type in {"author_setup", "model_suggestion", "author"}` for root rules (`supersedes_id is None`), and `source_type in {"author_setup", "author"}` for amended successor rules (`supersedes_id is not None`)
-     - non-empty `created_by` matching the active setup actor when enforced by writing authority.
-3. **Verdict:** **CONTRACT SUFFICIENT (`PASS`)** for deterministic, fail-closed read-side effective-head resolution across Approved Memory, Writing Context, state projection, context budget packing, pre-provider dispatch fencing, and draft validation. No destructive DDL or loosening of M0 (`M0_REVIEW_STALE`, `M0_ARTIFACT_INCONSISTENT`) is required.
+## 1. Why F-01 is `CONTRACT_BLOCKED`
 
----
+Inventory on the baseline (`git grep supersedes_id|is_retired` over `ai-service/`, excluding tests):
 
-## 2. Shared Effective-Head Resolver Architecture
+- **No production writer sets `narrative.facts.supersedes_id`.** The column exists (migration `0010_fact_supersession`), but nothing creates fact successors.
+- **Setup review only creates roots.** [`setup_review.py`](../../../ai-service/infrastructure/setup_review.py) creates each accepted `world_rule` with a deterministic id (`uuid5(job.id, 'setup-fact:'+proposal_id)`). It writes a receipt in `narrative.proposal_decisions.edited_payload` (`artifact_ids`, `actor_id`, `tenant_id`, `novel_id`, setup provenance). It also **rejects key collisions** (`SETUP_FACT_COLLISION`), so it never writes an amendment.
+- **No decision type, receipt field or audit row links a successor fact to the parent it replaces** under an author decision. That linkage would be the UX-05 amendment contract, which is out of scope here.
 
-Implemented in [`ai-service/domain/projection.py`](../../../ai-service/domain/projection.py) via `resolve_effective_facts(...)`:
+As a result, `confirmation_status`, `source_type`, `created_by`, scope and `supersedes_id` cannot tell an author-approved amendment apart from an unaudited row written directly to the table. The PG tests prove this with a well-formed successor that matches source, actor, scope and brain. Per Issue #120, the result is `CONTRACT_BLOCKED`, and we did not add a workaround.
 
-```python
-def resolve_effective_facts(
-    facts: list[dict],
-    *,
-    tenant_id: str | None = None,
-    novel_id: str | None = None,
-    story_brain_id: str | None = None,
-    expected_setup_actor: str | None = None,
-) -> list[dict]:
-```
+### Conservative policy delivered (fail closed)
 
-### Enforced Invariants (Fail-Closed with `ProjectionError`)
+When a confirmed `supersedes_id` edge touches a global World Setup rule (the child has global world-rule shape, or the parent is a global setup root), [`resolve_effective_facts`](../../../ai-service/domain/projection.py) raises `WorldRuleLineageError`:
 
-| Invariant Category | Rule Enforced | Failure Outcome |
+- `WORLD_RULE_SUCCESSOR_UNVERIFIED`: the edge is well-formed, but no approval receipt contract exists.
+- `WORLD_RULE_LINEAGE_MALFORMED`: self-loop, unknown parent, or out-of-scope parent.
+
+Effect on each consumer:
+
+- `GET /v1/story-brains/{id}/memory` → `409 INVALID_CANON_HISTORY`, `detail.reason` set to the code above.
+- `GET /v1/story-brains/{id}/context-preview` → `409 INVALID_CANON_HISTORY`, with the same `reason`.
+- Writer (`process_generation`) → `WRITING_CONTEXT_AUTHORITY_DENIED`, **0 provider calls**.
+
+So an unaudited successor never silently replaces the approved root. The old root is never served as current while a competing successor exists, and the successor never reaches the AI. Pending or rejected successors are ignored, so the approved root stays effective.
+
+### Minimal contract proposal to unblock (not implemented)
+
+1. An amendment decision row in the proposal/decision audit, e.g. `decision='amend_accept'`. It must carry `parent_fact_id`, `successor_fact_id`, `actor_id`, `tenant_id`, `novel_id`, `story_brain_id`, `expected_brain_version`, `decided_at`. It must be written in the same transaction that inserts the successor (with `supersedes_id = parent_fact_id`) and bumps `brain_version`.
+2. A uniqueness guarantee: at most one accepted amendment per `parent_fact_id`, which makes forks unrepresentable.
+3. A resolver input `verified_successor_ids`, loaded only from (1) by the repository. The resolver would accept a World Setup edge only if the child id is in that set and the actor/scope match the receipt. Every other edge stays fail-closed.
+4. M0 policy decision: does an amendment after activation require re-activation, or does it extend M0? Today M0 stays strict (`M0_REVIEW_STALE` / `M0_ARTIFACT_INCONSISTENT`).
+
+## 2. F-02 — Compatibility policy
+
+| Fact family / pattern | Behavior (R2) | Baseline reference |
 |---|---|---|
-| **Identity & Duplicate Guard** | Every fact must carry a non-empty `id`/`fact_id`; duplicate IDs in the input set are rejected. | `ProjectionError` |
-| **Tenant / Novel / Brain Scope** | If `tenant_id`, `novel_id`, or `story_brain_id` is supplied by the repository/route caller, any fact with a mismatched scope attribute is rejected. | `ProjectionError` |
-| **Confirmation Status** | Active facts must have `confirmation_status == "confirmed"` (or legacy `None` for in-memory fixtures). Any `rejected`/`pending` root or leaf without a valid confirmed successor is rejected; any `retired` leaf without a confirmed successor is rejected. | `ProjectionError` |
-| **Global Setup `world_rule` Family** | A fact is classified as a global setup `world_rule` iff `fact_type == "world_rule"` and `subject_entity_id`, `source_revision_id`, `chapter_number`, `source_start`, and `source_end` are all `None`. | `ProjectionError` on invalid provenance (`source_type` outside allowed set, missing `created_by`, or actor mismatch) |
-| **Supersession Lineage Validity** | For global setup `world_rule` chains: parent (`supersedes_id`) must exist in the loaded novel/brain scope, must also be a valid global setup `world_rule`, must match `(tenant_id, novel_id, story_brain_id)` and `created_by` actor, and must have `confirmation_status in {"confirmed", "retired"}`. | `ProjectionError` on orphan parent, cross-novel/cross-tenant/cross-brain parent, cross-family parent (`character_trait`/chapter-scoped rule), or unapproved parent/child |
-| **Graph Topology** | Exactly one active confirmed head is permitted per lineage chain. Self-loops (`id == supersedes_id`), cycles (`A -> B -> A`), and forks (`B -> A` and `C -> A`) are rejected. | `ProjectionError` |
-| **Independent Rule Preservation** | Multiple distinct global `world_rule` chains with identical or different `fact_key` values coexist independently as long as each chain has its own valid linear `supersedes_id` history. | All independent active heads returned |
-| **Locked Parent Retirement** | When a parent rule (`is_locked=True` or `is_locked=False`) is superseded by a valid successor (`is_locked=True` or `is_locked=False`), the parent is excluded from the returned effective facts and only the head is returned with its own `is_locked` flag. | Superseded locked rule never remains in `locked_rules` or active memory |
+| Non-setup confirmed fact superseded by a non-setup confirmed fact (P1 trait, chapter-scoped rule) | Parent hidden, child effective. No World Setup validation. | Baseline `memory` route: `replaced = {supersedes_id}` filter |
+| Non-setup fact with unknown/legacy `supersedes_id` | Fact kept, no error | Baseline ignored unknown parents |
+| `is_retired=True` standalone fact (any family, incl. setup rule) | Hidden, **no error** (R1 raised) | Baseline `memory` hid retired facts; `test_p1_memory_entity_hitl` retires all facts |
+| Unconfirmed fact (any family) | Ignored | Baseline filtered to `confirmed` |
+| Any edge touching a global World Setup rule | Fail closed (see §1) | New, required by #120 |
+| Non-setup fact attached to a setup root (P1 trait, entity-/chapter-/revision-bound) | Fail closed | New |
 
----
+Write paths stay at baseline. `PostgresNarrativeRepository._projection_inputs` and `domain.projection.project` no longer call the resolver, so revision acceptance and projection rebuild behave exactly as before. `project()` only uses facts as entity-attribute locks keyed by `subject_entity_id`, and global setup rules have none.
 
-## 3. Consumer Synchronization Matrix
+## 3. Consumers sharing the resolver
 
-All read-side consumers now resolve through the same `resolve_effective_facts` authority before filtering, projecting, or packing:
+- [`entity_hitl_routes.py`](../../../ai-service/api/entity_hitl_routes.py) `memory`: only resolver errors map to 409. `project` errors keep the baseline `invoke` mapping.
+- [`narrative_routes.py`](../../../ai-service/api/narrative_routes.py) `preview_writing_context`: 409 with `reason`.
+- [`postgres_narrative_repository.py`](../../../ai-service/infrastructure/postgres_narrative_repository.py):
+  - `get_structured_context` resolves before the chapter cutoff and the locked/ordinary budget split.
+  - `writing_authority_snapshot` validates with `expected_setup_actor`.
+  - `writing_rule_authority_snapshot` is the REPEATABLE READ pre-provider dispatch fence.
+- [`in_memory_narrative_repository.py`](../../../ai-service/infrastructure/in_memory_narrative_repository.py) `get_structured_context`.
+- [`writing_service.py`](../../../ai-service/application/writing_service.py) `process_generation`: snapshot before packing, recheck before `generate_writing_draft`.
 
-1. **Approved Memory Readback (`GET /v1/story-brains/{novel_id}/memory`)**
-   - File: [`ai-service/api/entity_hitl_routes.py`](../../../ai-service/api/entity_hitl_routes.py)
-   - Calls `resolve_effective_facts(brain.facts, novel_id=str(novel_id), story_brain_id=brain.metadata.get("brain_id"))`.
-   - Passes the resolved effective heads (with `supersedes_id` cleared on the projection copy to prevent double-resolution) into `project(...)`.
-   - Converts `ProjectionError` into `HTTP 409` with `detail.code == "INVALID_CANON_HISTORY"`.
-2. **PostgreSQL Story Brain & Projection Inputs**
-   - File: [`ai-service/infrastructure/postgres_narrative_repository.py`](../../../ai-service/infrastructure/postgres_narrative_repository.py)
-   - `get_story_brain` orders `FactRecord` rows deterministically by `(created_at.asc(), id.asc())` and retains lineage ancestors (`confirmation_status == "confirmed" or supersedes_id is not None` plus any referenced parent rows) so `resolve_effective_facts` can verify full chain integrity and reject retired leaves without successors.
-   - `_projection_inputs` resolves `FactRecord` rows via `resolve_effective_facts(...)` and filters `StateTransitionRecord` rows with `fact_id` to only effective head IDs before calling `project(...)`.
-3. **Writing Context & Budget Packing (`get_structured_context`)**
-   - Files: [`ai-service/infrastructure/postgres_narrative_repository.py`](../../../ai-service/infrastructure/postgres_narrative_repository.py), [`ai-service/infrastructure/in_memory_narrative_repository.py`](../../../ai-service/infrastructure/in_memory_narrative_repository.py)
-   - Resolves `active_facts = resolve_effective_facts(...)` **before** applying `_is_fact_allowed(..., up_to_chapter)` and **before** partitioning `locked_rules` vs `other_rules`.
-   - Prevents chapter-cutoff resurrection and prevents superseded `is_locked=True` rules from bypassing `ContextBudgetPacker` token budgets.
-4. **Context Preview Route (`GET /v1/story-brains/{brain_id}/context-preview`)**
-   - File: [`ai-service/api/narrative_routes.py`](../../../ai-service/api/narrative_routes.py)
-   - Catches `ProjectionError` from `writing_service.preview_context(...)` and fails closed with `HTTP 409` (`detail.code == "INVALID_CANON_HISTORY"`).
-5. **Writing Generation Worker & Pre-Provider Dispatch Fence (`process_generation`)**
-   - Files: [`ai-service/application/writing_service.py`](../../../ai-service/application/writing_service.py), [`ai-service/infrastructure/postgres_narrative_repository.py`](../../../ai-service/infrastructure/postgres_narrative_repository.py)
-   - `writing_authority_snapshot` validates all novel facts with `resolve_effective_facts(..., expected_setup_actor=str(actor))` and raises `WritingContextAuthorityError` on `ProjectionError`.
-   - `writing_rule_authority_snapshot` captures a repeatable-read frozen snapshot of `(brain_version, tuple_of_effective_world_rule_heads)` before `preview_context` and re-verifies equality at the pre-provider dispatch fence immediately before `provider.generate_writing_draft(...)`.
-   - Any concurrent supersession, retirement, value/lock mutation, or fork between context packing and provider dispatch aborts the job with `error_code = "WRITING_CONTEXT_AUTHORITY_DENIED"` and **zero** provider calls (`len(provider.calls) == 0`).
+## 4. Tests
 
----
+[`test_state_projection.py`](../../../ai-service/tests/test_state_projection.py) (unit):
 
-## 4. Verification & Test Evidence
+- independent setup roots + standalone retirement + pending successor ignored;
+- P1 corrections / retirement / unknown-parent preserved;
+- 16 well-formed-but-unaudited successor variants → `WORLD_RULE_SUCCESSOR_UNVERIFIED`;
+- 4 non-setup attachments to a setup root;
+- 8 malformed topologies;
+- 3 cross-scope rows.
 
-### Automated Test Suites Added / Updated
+[`test_world_rule_effective_head_postgres.py`](../../../ai-service/tests/test_world_rule_effective_head_postgres.py) (real PostgreSQL, fake providers):
 
-1. **Unit & Domain Projection Tests:** [`ai-service/tests/test_state_projection.py`](../../../ai-service/tests/test_state_projection.py)
-   - `test_resolve_effective_facts_valid_chains_and_independent_rules`: verifies 2-hop/3-hop chains, `is_locked=True -> is_locked=False`, `is_locked=False -> is_locked=True`, retired parent with confirmed head, and independent chains sharing `fact_key`.
-   - `test_resolve_effective_facts_rejects_malformed_lineage`: 19 parametrized malformed lineage cases (missing id, duplicate id, orphan parent, fork, self-loop, 2-node cycle, unconfirmed root/successor, retired leaf without successor, cross-tenant/cross-novel/cross-brain edges, non-global-setup parent/child, invalid `source_type`, missing/mismatched `created_by`).
-2. **Real PostgreSQL Integration Suite:** [`ai-service/tests/test_world_rule_effective_head_postgres.py`](../../../ai-service/tests/test_world_rule_effective_head_postgres.py)
-   - `test_single_setup_rule_and_p1_facts_regression_baseline`: single setup rule + P1 `character_trait` + chapter-scoped `world_rule` baseline.
-   - `test_valid_world_rule_chains_unlocked_and_locked_parity`: 8 parametrized combinations (`hops in {2, 3}`, `parent_locked in {False, True}`, `head_locked in {False, True}`, `retire_parent in {False, True}`) verifying exact parity across `/memory`, `/context-preview`, `ContextBudgetPacker`, `process_generation`, `provider.calls[0].context`, and `_validate_draft`, plus durable snapshot invariance (`novel_chapters`, `chapter_revisions`, `outbox_events`, `entities`, `setup_item_proposals`, `setup_decisions`, `story_brains.m0_status`).
-   - `test_chapter_cutoff_and_tight_budget_do_not_resurrect_superseded_locked_rule`: proves a superseded `is_locked=True` rule is never resurrected under `up_to_chapter=1` and never bypasses `max_tokens=1` budget when replaced by an unlocked successor.
-   - `test_malformed_and_adversarial_world_rule_lineage_fails_closed`: 18 parametrized malformed/adversarial cases across `/memory` (`409 INVALID_CANON_HISTORY`), `/context-preview` (`409 INVALID_CANON_HISTORY`), and `process_generation` (`WRITING_CONTEXT_AUTHORITY_DENIED`, `0` provider calls).
-   - `test_pre_provider_dispatch_fence_blocks_mid_flight_rule_mutation`: 4 concurrent mutation scenarios (`supersede_during_packing`, `retire_during_packing`, `mutate_value_during_packing`, `fork_during_packing`) blocked before `provider.generate_writing_draft`.
-   - `test_m0_activation_remains_strict_under_rule_lineage_changes`: confirms `M0_REVIEW_STALE` and `M0_ARTIFACT_INCONSISTENT` remain strictly enforced.
-3. **CI Workflow Integration:** [`.github/workflows/p2-setup-provenance.yml`](../../../.github/workflows/p2-setup-provenance.yml)
-   - Added `tests/test_world_rule_effective_head_postgres.py` to the real PostgreSQL A16 verification step.
+- `test_baseline_single_setup_rule_and_p1_extracted_facts_unchanged` (locked / unlocked).
+- `test_well_formed_but_unaudited_successor_chain_never_replaces_root`: 5 variants (2/3 hops, locked/unlocked, retired parent). Each checks that no receipt references the successor, then expects Memory 409, Context 409 and a blocked Writer with 0 provider calls. No root/head text leaks, and canon is unchanged.
+- `test_real_setup_review_root_with_receipt_is_not_replaced_by_unaudited_successor`: the root comes from the **real setup review flow** and has a `proposal_decisions` receipt. A matching unaudited successor fails closed, and canon is unchanged.
+- `test_p1_fact_corrections_standalone_retirement_and_pending_setup_successor_preserved` (F-02): P1 trait and chapter-rule corrections, standalone retired P1 and setup rules, and a pending setup successor. Memory returns 200, Context returns 200, the Writer completes, and old or retired values never leak.
+- `test_chapter_cutoff_and_tight_token_budget_never_resurrect_retired_locked_rules`.
+- `test_malformed_or_unauthorized_rule_lineage_fails_closed`: 17 cases, including cross novel/tenant/brain, fork, cycles, foreign or null actor, and a P1 trait attached to a setup root.
+- `test_rule_lineage_context_to_dispatch_fence`: supersede / retire / mutate / fork during packing → blocked before the provider.
+- `test_m0_activation_remains_strict_when_setup_rule_is_superseded_or_retired_pre_activation`.
 
-### Local Reproduction Commands
+Reproduce:
 
 ```bash
 cd ai-service
-export TEST_DATABASE_URL="postgresql+psycopg://p207a_user:p207a-offline-fixture@127.0.0.1:57437/p207a_db"
+export TEST_DATABASE_URL=postgresql+psycopg://<user>:<pw>@127.0.0.1:<port>/<db>
 export DATABASE_URL="$TEST_DATABASE_URL"
-
-python -m pytest -q \
-  tests/test_state_projection.py \
-  tests/test_world_rule_effective_head_postgres.py \
-  tests/test_setup_review_postgres.py \
-  tests/test_setup_activation_postgres.py \
-  tests/test_writing_plan_authority_postgres.py \
-  -o addopts= -p no:cacheprovider
+python -m pytest -q -o addopts= -p no:cacheprovider \
+  tests/test_state_projection.py tests/test_world_rule_effective_head_postgres.py \
+  tests/test_p1_memory_entity_hitl.py tests/test_setup_review_postgres.py \
+  tests/test_setup_activation_postgres.py tests/test_writing_plan_authority_postgres.py
 ```
+
+## 5. Limits
+
+- Roots are not checked against `proposal_decisions` receipts. Legacy and bootstrap roots without receipts are still served, so this PR adds no new root authority.
+- Hiding a standalone `is_retired` setup rule follows the baseline Memory semantics. No production writer sets `is_retired` on setup rules today. M0 activation still rejects retired accepted rules.
+- No UX-05 amendment API/UI, no schema migration, no live LLM.
