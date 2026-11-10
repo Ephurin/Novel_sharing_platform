@@ -162,8 +162,8 @@ export async function listReviews(input: ListReviewsInput) {
   };
 }
 
-export async function findReviewById(reviewId: string) {
-  const result = await getPostgresPool().query(
+export async function findReviewById(reviewId: string, client?: PoolClient) {
+  const result = await (client ?? getPostgresPool()).query(
     'select * from moderation_reviews where review_id = $1 limit 1',
     [reviewId]
   );

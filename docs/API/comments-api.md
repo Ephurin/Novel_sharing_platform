@@ -126,6 +126,19 @@ with a submitted-content snapshot. An older review returns 409, and conditional
 MongoDB updates prevent its result from approving a newly edited attachment.
 Removing an attachment restores the ordinary text moderation policy.
 
+For keyword-filter/GIF comment reviews, PostgreSQL retains the committed decision
+if the subsequent MongoDB update fails. An active content administrator can retry
+`POST /admin/moderation/reviews/{reviewId}/resolve` with the same decision and the
+same review ID to finish that update. The retry preserves the original reviewer,
+reason, timestamp and audit event; it cannot change the committed decision.
+It takes the comment lock, rereads the stored review, and conditionally updates
+only a nondeleted pending comment still linked to that review ID. An edited,
+deleted or superseded comment returns 409. GIF approval retries revalidate provider
+metadata and remain hidden if validation fails. Repeating an already applied
+decision returns success without resetting notifications or comment timestamps.
+This bounded recovery is request-driven; no automatic reconciliation worker is
+added, and other publication/report workflows keep their existing retry rules.
+
 The UI reuses the existing POST /reports endpoint for reporting comments, with a
 required reason. Existing admin decisions can remove reported comments and notify
 the affected accounts. No new moderation workflow or author privilege is added.
@@ -140,6 +153,10 @@ resolution and soft deletion. Media cases use fixture provider metadata and cove
 unsafe/unrated/unknown IDs, provider outages, pending GIF-only posts, reply
 visibility, repeated and concurrent attachment edits, stale approvals and legacy
 file access. Media unit tests also cover private-key handling and upload quotas.
+Failure-injection tests interrupt the MongoDB projection after the PostgreSQL
+decision commits, then recover approval/rejection with the same review ID.
+They also cover simultaneous retries, provider failure during recovery, unchanged
+audit/notification state, and rejection of retries after comment edits or deletion.
 
 From backend:
 

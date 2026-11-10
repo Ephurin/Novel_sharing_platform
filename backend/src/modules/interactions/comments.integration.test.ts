@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { Pool } from 'pg';
+import { Collection } from 'mongodb';
 import type { AddressInfo } from 'node:net';
 
 test('novel/chapter comments: permissions, moderation, pagination and isolation', { skip: process.env.RUN_COMMENT_TESTS !== '1' }, async (t) => {
@@ -73,6 +74,95 @@ test('novel/chapter comments: permissions, moderation, pagination and isolation'
     providerUnavailable = false;
     assert.equal((await req(n)).body.meta.totalItems, 0);
     const resolve = (reviewId: string) => req('/admin/moderation/reviews/' + reviewId + '/resolve', 'POST', { decision: 'APPROVED' }, adminToken);
+    async function failCommentProjection(commentId: string, reviewId: string, decision = 'APPROVED') {
+      const originalUpdate = Collection.prototype.updateOne;
+      let failures = 0;
+      const projection = t.mock.method(Collection.prototype, 'updateOne', async function (this: Collection, ...args: Parameters<Collection['updateOne']>) {
+        if (this.collectionName === 'comments' && args[0].commentId === commentId && !Array.isArray(args[1]) && args[1].$set?.status === decision) {
+          assert.equal((await pool.query('select status from moderation_reviews where review_id=$1', [reviewId])).rows[0].status, decision,
+            'Inject the Mongo failure only after the PostgreSQL decision is committed');
+          failures++;
+          throw new Error('Injected comment projection failure');
+        }
+        return originalUpdate.apply(this, args);
+      });
+      try {
+        const result = await req('/admin/moderation/reviews/' + reviewId + '/resolve', 'POST', {
+          decision, ...(decision === 'REJECTED' ? { reason: 'Fixture rejection' } : {})
+        }, adminToken);
+        assert.equal(result.status, 500);
+        assert.equal(failures, 1);
+        const pending = await repo.findCommentById(commentId);
+        assert.equal(pending?.status, 'PENDING_MODERATION');
+        assert.equal(pending?.moderationReviewId, reviewId);
+        assert.equal(pending?.mediaApproved, false);
+      } finally {
+        projection.mock.restore();
+      }
+    }
+    await t.test('retry the same committed review after Mongo failure without duplicate decisions', async () => {
+      const pending = await req(n, 'POST', { content: 'Recovery fixture', gifId: 'testGifId123' }, readerToken);
+      assert.equal(pending.status, 201);
+      const { commentId, moderationReviewId } = pending.body.data;
+      await failCommentProjection(commentId, moderationReviewId);
+      assert.equal((await req(n)).body.meta.totalItems, 0);
+      assert.equal((await req('/admin/moderation/reviews/' + moderationReviewId + '/resolve', 'POST', {
+        decision: 'REJECTED', reason: 'Cannot change a committed decision'
+      }, adminToken)).status, 409);
+      providerUnavailable = true;
+      try {
+        assert.equal((await resolve(moderationReviewId)).status, 503);
+      } finally {
+        providerUnavailable = false;
+      }
+      assert.equal((await req(n)).body.meta.totalItems, 0);
+      const retries = await Promise.all(Array.from({ length: 4 }, () => resolve(moderationReviewId)));
+      assert.ok(retries.every(result => result.status === 200));
+      assert.ok(retries.every(result => result.body.data.reviewId === moderationReviewId));
+      assert.equal((await repo.findCommentById(commentId))?.mediaApproved, true);
+      assert.equal((await req(n)).body.data[0].commentId, commentId);
+      assert.equal((await pool.query("select count(*)::int as total from admin_audit where target_id=$1 and action='PUBLICATION_APPROVED'", [commentId])).rows[0].total, 1);
+      await mongo.getMongoDatabase().collection('comments').updateOne({ commentId }, { $set: { notificationPending: false } });
+      const beforeRetry = await repo.findCommentById(commentId);
+      assert.equal((await resolve(moderationReviewId)).status, 200);
+      assert.deepEqual(await repo.findCommentById(commentId), beforeRetry, 'An applied decision must not reset timestamps or notifications');
+      await req('/comments/' + commentId, 'DELETE', undefined, readerToken);
+    });
+    await t.test('recovery cannot publish an edited or deleted comment with an old review', async () => {
+      for (const action of ['edit', 'delete']) {
+        const pending = await req(n, 'POST', { content: 'Stale recovery fixture', gifId: 'testGifId123' }, readerToken);
+        assert.equal(pending.status, 201);
+        const { commentId, moderationReviewId } = pending.body.data;
+        await failCommentProjection(commentId, moderationReviewId);
+        if (action === 'edit') {
+          const edited = await req('/comments/' + commentId, 'PATCH', { content: 'Changed after committed decision', gifId: 'testGifId456' }, readerToken);
+          assert.equal(edited.status, 200);
+          assert.notEqual(edited.body.data.moderationReviewId, moderationReviewId);
+        } else {
+          assert.equal((await req('/comments/' + commentId, 'DELETE', undefined, readerToken)).status, 204);
+        }
+        const beforeRetry = await repo.findCommentRecordById(commentId);
+        assert.equal((await resolve(moderationReviewId)).status, 409);
+        assert.deepEqual(await repo.findCommentRecordById(commentId), beforeRetry);
+        assert.equal((await req(n)).body.meta.totalItems, 0);
+        await req('/comments/' + commentId, 'DELETE', undefined, readerToken);
+      }
+    });
+    await t.test('retry a committed rejection after Mongo failure using its original decision', async () => {
+      const pending = await req(n, 'POST', { content: 'Rejection recovery fixture', gifId: 'testGifId123' }, readerToken);
+      assert.equal(pending.status, 201);
+      const { commentId, moderationReviewId } = pending.body.data;
+      await failCommentProjection(commentId, moderationReviewId, 'REJECTED');
+      assert.equal((await resolve(moderationReviewId)).status, 409);
+      const retry = await req('/admin/moderation/reviews/' + moderationReviewId + '/resolve', 'POST', {
+        decision: 'REJECTED', reason: 'Fixture rejection'
+      }, adminToken);
+      assert.equal(retry.status, 200);
+      assert.equal(retry.body.data.reviewId, moderationReviewId);
+      assert.equal((await repo.findCommentById(commentId))?.status, 'REJECTED');
+      assert.equal((await req(n)).body.meta.totalItems, 0);
+      await req('/comments/' + commentId, 'DELETE', undefined, readerToken);
+    });
     const remoteGif = await req(n, 'POST', { content: '', gifId: 'testGifId123' }, readerToken);
     assert.equal(remoteGif.status, 201);
     assert.equal(remoteGif.body.data.status, 'PENDING_MODERATION');
