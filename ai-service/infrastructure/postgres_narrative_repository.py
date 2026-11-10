@@ -205,8 +205,39 @@ class PostgresNarrativeRepository:
                     "baseline_revision_id": (
                         str(brain.baseline_revision_id) if brain.baseline_revision_id else None
                     ),
+                    "verified_amendment_edges": list(self._load_verified_amendment_edges(session, novel_id)),
                 },
             )
+
+    def _load_verified_amendment_edges(self, session: Session, novel_id: uuid.UUID | str) -> set[tuple[str, str]]:
+        """Load verified (parent_id, successor_id) pairs from author-accepted amendment receipts."""
+        n_id = self._novel_id(novel_id)
+        stmt = (
+            select(ProposalDecisionRecord.edited_payload)
+            .join(ProposalRecord, ProposalRecord.id == ProposalDecisionRecord.proposal_id)
+            .where(
+                ProposalRecord.novel_id == n_id,
+                ProposalRecord.tenant_id == self._tenant_id,
+                ProposalRecord.proposal_type == "world_rule_amendment",
+                ProposalDecisionRecord.decision == "accept",
+            )
+        )
+        rows = session.scalars(stmt).all()
+        verified_edges: set[tuple[str, str]] = set()
+        for payload in rows:
+            if not isinstance(payload, dict):
+                continue
+            if (
+                payload.get("contract_version") == "setup-rule-amendment-v1"
+                and payload.get("decision_type") == "amendment_decision"
+                and payload.get("decision") == "accept"
+            ):
+                parent_id = str(payload.get("parent_fact_id") or "").strip()
+                successor_id = str(payload.get("successor_fact_id") or "").strip()
+                artifacts = payload.get("artifact_ids") or []
+                if parent_id and successor_id and successor_id in artifacts:
+                    verified_edges.add((parent_id, successor_id))
+        return verified_edges
 
     @staticmethod
     def _fact_record_to_dict(item: FactRecord) -> dict[str, Any]:
@@ -1005,6 +1036,7 @@ class PostgresNarrativeRepository:
             tenant_id=str(self._tenant_id),
             novel_id=str(novel_id),
             story_brain_id=str(brain.id) if brain else None,
+            verified_amendment_edges=self._load_verified_amendment_edges(session, novel_id),
         )
         effective_fact_ids = {f["fact_id"] for f in effective_fact_dicts}
         facts = [
@@ -1763,9 +1795,11 @@ class PostgresNarrativeRepository:
         return model.tenant_id == self._tenant_id, model.novel_id == novel_id
 
     @staticmethod
-    def _novel_id(story_id: str) -> uuid.UUID:
+    def _novel_id(story_id: str | uuid.UUID) -> uuid.UUID:
+        if isinstance(story_id, uuid.UUID):
+            return story_id
         try:
-            return uuid.UUID(story_id)
+            return uuid.UUID(str(story_id))
         except ValueError:
             return uuid.uuid5(uuid.NAMESPACE_URL, f"novel:{story_id}")
 
@@ -2073,6 +2107,7 @@ class PostgresNarrativeRepository:
                     novel_id=str(novel),
                     story_brain_id=str(brain.id) if brain else None,
                     expected_setup_actor=str(actor),
+                    verified_amendment_edges=self._load_verified_amendment_edges(session, novel),
                 )
             except ProjectionError:
                 raise WritingContextAuthorityError() from None
@@ -2104,6 +2139,7 @@ class PostgresNarrativeRepository:
                     novel_id=str(novel),
                     story_brain_id=str(brain.id) if brain else None,
                     expected_setup_actor=str(actor),
+                    verified_amendment_edges=self._load_verified_amendment_edges(session, novel),
                 )
             except ProjectionError:
                 raise WritingContextAuthorityError() from None
@@ -2199,6 +2235,7 @@ class PostgresNarrativeRepository:
                 tenant_id=str(self._tenant_id),
                 novel_id=str(novel_id),
                 story_brain_id=str(brain.id) if brain else None,
+                verified_amendment_edges=self._load_verified_amendment_edges(session, novel_id),
             )
             effective_fact_ids = {f["fact_id"] for f in effective_fact_dicts}
             raw_facts = [f for f in raw_fact_records if str(f.id) in effective_fact_ids]

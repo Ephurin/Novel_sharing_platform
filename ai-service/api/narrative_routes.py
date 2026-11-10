@@ -20,7 +20,13 @@ from api.deps import (
     require_service_token,
 )
 from api.plan_routes import router as plan_router, legacy_scope, guard_manual_autonomy, principal as plan_principal, service_principal
-from api.setup_schemas import SetupRequest, SetupReviewRequest, SetupActivationRequest
+from api.setup_schemas import (
+    SetupRequest,
+    SetupReviewRequest,
+    SetupActivationRequest,
+    SetupRuleAmendmentProposalRequest,
+    SetupRuleAmendmentDecisionRequest,
+)
 from api.setup_auth import setup_principal, identity_headers, SetupValidationRoute
 from application.setup_service import SetupService, SetupFailure, public_job
 from api.schemas import (
@@ -591,6 +597,80 @@ def get_setup_snapshot(
     except KeyError:
         raise HTTPException(404, detail={'code':'SETUP_NOT_FOUND'}) from None
     return {'data':data, 'meta':{'request_id':request_id, 'schema_version':1}}
+
+
+# ── P2-07E: Post-M0 World Setup Rule Amendment Routes ────────────────────────
+
+@router.post('/story-brains/{novel_id}/world-rules/{fact_id}/amendments', status_code=201)
+def propose_world_rule_amendment(
+    novel_id: uuid.UUID,
+    fact_id: uuid.UUID,
+    body: SetupRuleAmendmentProposalRequest,
+    request: Request,
+    response: Response,
+    service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+):
+    response.headers['Cache-Control'] = 'no-store'
+    tenant, author = setup_principal(request, service)
+    try:
+        data = SetupService(service).propose_amendment(
+            novel_id, fact_id, body, tenant_id=tenant, actor_id=author
+        )
+    except SetupFailure as exc:
+        raise HTTPException(exc.status, detail={'code': exc.code}) from None
+    except KeyError:
+        raise HTTPException(404, detail={'code': 'SETUP_NOT_FOUND'}) from None
+    except BootstrapConflictError as exc:
+        raise HTTPException(409, detail={'code': exc.code}) from exc
+    return {'data': data}
+
+
+@router.post('/story-brains/{novel_id}/world-rule-amendments/{proposal_id}/decision')
+def decide_world_rule_amendment(
+    novel_id: uuid.UUID,
+    proposal_id: uuid.UUID,
+    body: SetupRuleAmendmentDecisionRequest,
+    request: Request,
+    response: Response,
+    service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+):
+    response.headers['Cache-Control'] = 'no-store'
+    tenant, author = setup_principal(request, service)
+    try:
+        data = SetupService(service).decide_amendment(
+            novel_id, proposal_id, body, tenant_id=tenant, actor_id=author
+        )
+    except SetupFailure as exc:
+        raise HTTPException(exc.status, detail={'code': exc.code}) from None
+    except KeyError:
+        raise HTTPException(404, detail={'code': 'SETUP_NOT_FOUND'}) from None
+    except BootstrapConflictError as exc:
+        raise HTTPException(409, detail={'code': exc.code}) from exc
+    return {'data': data}
+
+
+@router.get('/story-brains/{novel_id}/world-rules/{fact_id}/amendments')
+def get_world_rule_amendments(
+    novel_id: uuid.UUID,
+    fact_id: uuid.UUID,
+    request: Request,
+    response: Response,
+    service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+):
+    response.headers['Cache-Control'] = 'no-store'
+    tenant, author = setup_principal(request, service)
+    try:
+        data = SetupService(service).get_amendment_history(
+            novel_id, fact_id, tenant_id=tenant, actor_id=author
+        )
+    except SetupFailure as exc:
+        raise HTTPException(exc.status, detail={'code': exc.code}) from None
+    except KeyError:
+        raise HTTPException(404, detail={'code': 'SETUP_NOT_FOUND'}) from None
+    except BootstrapConflictError as exc:
+        raise HTTPException(409, detail={'code': exc.code}) from exc
+    return {'data': data}
+
 
 
 def authorized_bootstrap_job(service, job_id, request):

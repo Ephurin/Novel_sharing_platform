@@ -186,3 +186,82 @@ class SetupActivationRequest(StrictDTO):
     expected_setup_version: Annotated[int, Field(ge=1)]
     expected_review_version: Annotated[int, Field(ge=1)]
     expected_brain_version: Annotated[int, Field(ge=0)]
+
+
+# ── P2-07E: Post-M0 World Setup Rule Amendment DTOs ──────────────────────────
+
+class SetupRuleAmendmentProposalRequest(StrictDTO):
+    contract_version: Literal['setup-rule-amendment-v1']
+    idempotency_key: Annotated[str, Field(min_length=1, max_length=128, pattern=r"^[A-Za-z0-9_-]{1,128}$")]
+    replacement_text: Annotated[str, Field(min_length=1, max_length=10000, pattern=r"\S")]
+    expected_brain_version: Annotated[int, Field(ge=1)]
+    private_author_notes: list[NonBlank] = Field(default_factory=list)
+
+
+class SetupRuleAmendmentProposalResponse(StrictDTO):
+    contract_version: Literal['setup-rule-amendment-v1']
+    proposal_id: str
+    status: Literal['pending']
+    novel_id: str
+    story_brain_id: str
+    parent_fact_id: str
+    fact_key: str
+    replacement_text: str
+    is_locked: bool
+    brain_version: int
+    created_at: str
+
+
+class SetupRuleAmendmentDecisionRequest(StrictDTO):
+    contract_version: Literal['setup-rule-amendment-v1']
+    idempotency_key: Annotated[str, Field(min_length=1, max_length=128, pattern=r"^[A-Za-z0-9_-]{1,128}$")]
+    decision: Literal['accept', 'reject']
+    expected_brain_version: Annotated[int, Field(ge=1)]
+    reason: Annotated[str, Field(max_length=2000)] | None = None
+
+
+class SetupRuleAmendmentDecisionResponse(StrictDTO):
+    contract_version: Literal['setup-rule-amendment-v1']
+    decision_type: Literal['amendment_decision']
+    decision: Literal['accept', 'reject']
+    proposal_id: str
+    parent_fact_id: str
+    successor_fact_id: str | None
+    fact_key: str
+    is_locked: bool
+    brain_version: int
+    decided_at: str
+    artifact_ids: list[str]
+
+
+class SetupRuleLineageEntry(StrictDTO):
+    fact_id: str
+    fact_value: str
+    is_locked: bool
+    supersedes_id: str | None
+    created_at: str
+    created_by: str | None
+
+
+class SetupRuleAmendmentHistoryItem(StrictDTO):
+    proposal_id: str
+    status: str
+    replacement_text: str
+    decision: str | None
+    decided_at: str | None
+    reason: str | None
+    actor_id: str | None
+    successor_fact_id: str | None
+
+
+class SetupRuleAmendmentHistoryResponse(StrictDTO):
+    contract_version: Literal['setup-rule-amendment-v1']
+    novel_id: str
+    fact_key: str
+    root_fact_id: str
+    effective_head_id: str
+    is_locked: bool
+    brain_version: int
+    lineage: list[SetupRuleLineageEntry]
+    proposals: list[SetupRuleAmendmentHistoryItem]
+

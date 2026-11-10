@@ -21,6 +21,9 @@ import {
   getSetupSnapshotController,
   reviewSetupSnapshotController,
   activateSetupM0Controller,
+  proposeWorldRuleAmendmentController,
+  decideWorldRuleAmendmentController,
+  getWorldRuleAmendmentsController,
   startManuscriptBootstrapController,
   startWritingGenerationController,
   writingDraftReviewController,
@@ -93,6 +96,11 @@ aiGatewayRoutes.get('/story-brains/:novelId/setup', getSetupSnapshotController);
 aiGatewayRoutes.post('/story-brains/:novelId/setup/:snapshotId/review', reviewSetupSnapshotController);
 aiGatewayRoutes.get('/story-brains/:novelId/setup/:snapshotId/activate', activateSetupM0Controller);
 aiGatewayRoutes.post('/story-brains/:novelId/setup/:snapshotId/activate', activateSetupM0Controller);
+
+// P2-07E Post-M0 World Setup Rule Amendment
+aiGatewayRoutes.post('/story-brains/:novelId/world-rules/:factId/amendments', proposeWorldRuleAmendmentController);
+aiGatewayRoutes.post('/story-brains/:novelId/world-rule-amendments/:proposalId/decision', decideWorldRuleAmendmentController);
+aiGatewayRoutes.get('/story-brains/:novelId/world-rules/:factId/amendments', getWorldRuleAmendmentsController);
 
 // Bootstrap
 aiGatewayRoutes.post(

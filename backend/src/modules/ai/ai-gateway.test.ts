@@ -395,3 +395,75 @@ test('failed idea resume preserves upstream 409 code instead of success', async 
       && error.code === 'IDEA_BOOTSTRAP_RETRY_UNSUPPORTED');
   } finally { globalThis.fetch = originalFetch; }
 });
+
+test('P2-07E AIGatewayService forwards world-rule amendment endpoints correctly', async () => {
+  let capturedMethod = '';
+  let capturedUrl = '';
+  let capturedHeaders: Record<string, string> = {};
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (async (url: any, init: any) => {
+    capturedMethod = init?.method || 'GET';
+    capturedUrl = String(url);
+    capturedHeaders = init?.headers || {};
+    return new Response(
+      JSON.stringify({
+        data: {
+          contract_version: 'setup-rule-amendment-v1',
+          status: 'pending',
+        },
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
+  }) as typeof fetch;
+
+  try {
+    const gateway = new AIGatewayService();
+    const novelId = '11111111-1111-1111-1111-111111111111';
+    const factId = '22222222-2222-2222-2222-222222222222';
+    const proposalId = '33333333-3333-3333-3333-333333333333';
+
+    // 1. Propose amendment
+    const proposeRes = await gateway.forwardRequest({
+      method: 'POST',
+      path: `/v1/story-brains/${novelId}/world-rules/${factId}/amendments`,
+      userId: 'author-uuid',
+      body: {
+        contract_version: 'setup-rule-amendment-v1',
+        idempotency_key: 'key-1',
+        replacement_text: 'Amended rule text',
+        expected_brain_version: 1,
+      },
+    });
+    assert.equal(proposeRes.contract_version, 'setup-rule-amendment-v1');
+    assert.equal(capturedMethod, 'POST');
+    assert.match(capturedUrl, new RegExp(`/v1/story-brains/${novelId}/world-rules/${factId}/amendments$`));
+    assert.equal(capturedHeaders['X-Author-Id'], 'author-uuid');
+
+    // 2. Decide amendment
+    await gateway.forwardRequest({
+      method: 'POST',
+      path: `/v1/story-brains/${novelId}/world-rule-amendments/${proposalId}/decision`,
+      userId: 'author-uuid',
+      body: {
+        contract_version: 'setup-rule-amendment-v1',
+        idempotency_key: 'key-decide-1',
+        decision: 'accept',
+        expected_brain_version: 1,
+      },
+    });
+    assert.equal(capturedMethod, 'POST');
+    assert.match(capturedUrl, new RegExp(`/v1/story-brains/${novelId}/world-rule-amendments/${proposalId}/decision$`));
+
+    // 3. Readback amendment history
+    await gateway.forwardRequest({
+      method: 'GET',
+      path: `/v1/story-brains/${novelId}/world-rules/${factId}/amendments`,
+      userId: 'author-uuid',
+    });
+    assert.equal(capturedMethod, 'GET');
+    assert.match(capturedUrl, new RegExp(`/v1/story-brains/${novelId}/world-rules/${factId}/amendments$`));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
