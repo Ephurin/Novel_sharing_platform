@@ -640,11 +640,20 @@ test('P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle
     await expect(safeRetryBtn).toBeVisible();
     const proposalsCountAfter503 = proposalsDb.length;
 
-    // 3.6 UXF-02a: Editing draft after 503 uncertain response blocks reconcile with stale snapshot
-    await replacementInputB.fill('Trọng lực hư không Bắc Minh dao động (đã sửa nháp)');
+    // 3.6 UXF-02a & UXF-02c: Editing draft after 503 uncertain response blocks reconcile AND safe-retry with stale snapshot
+    await replacementInputB.fill('Trọng lực hư không Bắc Minh dao động (đã sửa nháp B)');
     await reconcileBtn.click();
     await expect(page.getByText(/Bản nháp đã được chỉnh sửa so với yêu cầu trước đó/)).toBeVisible();
     console.log('✓ UXF-02a: Editing draft after 503 properly blocks reconcile with stale snapshot!');
+
+    // 3.6b UXF-02c: Safe retry is also blocked when draft is edited, preserving draft B and preventing stale replay
+    await safeRetryBtn.click();
+    await expect(page.getByText(/Thao tác "Thử gửi lại an toàn" bị chặn để bảo vệ bản nháp mới của bạn/)).toBeVisible();
+    await expect(replacementInputB).toHaveValue('Trọng lực hư không Bắc Minh dao động (đã sửa nháp B)');
+    await expect(page.getByTestId('reconcile-preserve-draft-btn')).toBeVisible();
+    // Ensure proposals count is unchanged (no replay of A, no submission of B)
+    assert.strictEqual(proposalsDb.length, proposalsCountAfter503, 'Proposals count must not change when safe retry is blocked');
+    console.log('✓ UXF-02c: Safe retry blocked on edited draft B, draft B preserved intact, no stale replay!');
 
     // Revert text back to original submitted text
     await replacementInputB.fill('Trọng lực hư không Bắc Minh dao động theo thủy triều.');
@@ -661,14 +670,27 @@ test('P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle
     // =========================================================================
     console.log('\n--- SCENARIO 4: Competing Decision Conflict, Reject & Canon Promotion ---');
 
-    // 4.1 UXF-02a: Lost accept request followed by competing reject decision
+    // 4.1 UXF-02a & UXF-02c: Lost accept request followed by edited reason & competing reject decision
     await page.getByTestId(`decision-reason-input-${factGravityA}`).fill('Chấp thuận Nam Cực');
     force503OnDecision = true;
     await page.getByTestId(`accept-amendment-btn-${factGravityA}`).click();
 
     await expect(page.getByText('Kết nối gián đoạn (503)')).toBeVisible();
     const decisionReconcileBtn = page.getByTestId('decision-reconcile-btn');
+    const safeRetryDecisionBtn = page.getByTestId('safe-retry-decision-btn');
     await expect(decisionReconcileBtn).toBeVisible();
+    await expect(safeRetryDecisionBtn).toBeVisible();
+
+    // 4.1a UXF-02c: Author edits decision reason to B after 503 -> safe-retry-decision is blocked
+    await page.getByTestId(`decision-reason-input-${factGravityA}`).fill('Chấp thuận Nam Cực (Lý do B mới)');
+    await safeRetryDecisionBtn.click();
+    await expect(page.getByText(/Thao tác "Thử gửi lại an toàn" bị chặn để bảo vệ ghi chú mới của bạn/)).toBeVisible();
+    await expect(page.getByTestId(`decision-reason-input-${factGravityA}`)).toHaveValue('Chấp thuận Nam Cực (Lý do B mới)');
+    await expect(page.getByTestId('decision-reconcile-preserve-draft-btn')).toBeVisible();
+    console.log('✓ UXF-02c: Safe retry decision blocked on edited reason B, reason B preserved intact!');
+
+    // Revert reason back to original submitted reason A
+    await page.getByTestId(`decision-reason-input-${factGravityA}`).fill('Chấp thuận Nam Cực');
 
     // In the meantime, another session rejected the proposal on the server
     const propA = proposalsDb.find(p => p.parent_fact_id === factGravityA && p.status === 'pending');
@@ -685,9 +707,18 @@ test('P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle
     await expect(page.getByTestId(`decision-reason-input-${factGravityA}`)).toHaveValue('Chấp thuận Nam Cực');
     console.log('✓ UXF-02a: Competing decision conflict detected, draft preserved, no false success!');
 
-    // Sync to current server state via competing refresh button
+    // 4.1b UXF-02c Nonblocking: Verify competing-refresh-btn does NOT clear alert if refresh fails
     const competingRefreshBtn = page.getByTestId('competing-refresh-btn');
     await expect(competingRefreshBtn).toBeVisible();
+    force503OnMemoryGet = true;
+    await competingRefreshBtn.click();
+    await expect(page.getByText(/Không thể tải lại trạng thái đề xuất từ máy chủ.*Bộ nhớ truyện tạm thời gián đoạn/)).toBeVisible();
+    await expect(competingRefreshBtn).toBeVisible();
+    await expect(page.getByTestId(`decision-reason-input-${factGravityA}`)).toHaveValue('Chấp thuận Nam Cực');
+    force503OnMemoryGet = false;
+    console.log('✓ UXF-02c Nonblocking: Failed competing refresh preserves conflict alert and draft!');
+
+    // Now refresh succeeds when server recovers
     await competingRefreshBtn.click();
     await expect(page.getByTestId(`pending-decision-card-${factGravityA}`)).toHaveCount(0);
     await expect(page.getByTestId(`canon-text-${factGravityA}`)).toHaveText('Trọng lực đại lục Nam Cực: 1.0G.');

@@ -657,6 +657,7 @@ function ProposeAmendmentForm({
   const [error, setError] = useState('');
   const [is409Conflict, setIs409Conflict] = useState(false);
   const [is503Uncertain, setIs503Uncertain] = useState(false);
+  const [hasEditedDraftConflict, setHasEditedDraftConflict] = useState(false);
 
   // UXF-02a: Store immutable in-flight submitted request identity before dispatch
   const lastSubmittedRef = useRef<SubmittedProposeRequest | null>(null);
@@ -729,8 +730,9 @@ function ProposeAmendmentForm({
       private_notes.trim() !== submitted.private_notes;
 
     if (isEdited) {
+      setHasEditedDraftConflict(true);
       setError(
-        'Bản nháp đã được chỉnh sửa so với yêu cầu trước đó đang chờ xác định. Vui lòng bấm "Gửi đề xuất sửa" để gửi bản nháp mới với mã giao dịch mới.'
+        'Bản nháp đã được chỉnh sửa so với yêu cầu trước đó đang chờ xác định. Vui lòng bấm "Gửi đề xuất sửa" để gửi bản nháp mới với mã giao dịch mới, hoặc bấm "Xác nhận yêu cầu trước (Bảo lưu bản nháp mới)" để kiểm tra trạng thái yêu cầu cũ trên máy chủ mà không làm mất bản nháp hiện tại.'
       );
       return;
     }
@@ -751,6 +753,7 @@ function ProposeAmendmentForm({
       draft.clear();
       lastSubmittedRef.current = null;
       setIs503Uncertain(false);
+      setHasEditedDraftConflict(false);
       onSuccess(
         `Máy chủ đã tiếp nhận và xác thực thành công đề xuất của bạn (đối chiếu qua mã giao dịch). Đã đồng bộ an toàn!`
       );
@@ -788,16 +791,80 @@ function ProposeAmendmentForm({
     }
   }
 
+  // UXF-02c: Explicit option to reconcile/confirm previous request A while preserving newly edited draft B
+  async function handleReconcilePreviousPreservingDraft() {
+    if (!lastSubmittedRef.current) {
+      setError('Chưa có thông tin yêu cầu trước đó để xác nhận.');
+      return;
+    }
+    const submitted = lastSubmittedRef.current;
+    setReconciling(true);
+    setError('');
+
+    try {
+      const body = {
+        contract_version: 'setup-rule-amendment-v1' as const,
+        idempotency_key: submitted.idempotency_key,
+        replacement_text: submitted.replacement_text,
+        expected_brain_version: submitted.expected_brain_version,
+        private_author_notes: submitted.private_notes ? [submitted.private_notes] : [],
+      };
+
+      await proposeWorldRuleAmendment(novelId, submitted.factId, body, scope.signal);
+      
+      // UXF-02c: DO NOT clear draft B! Draft B remains in storage & memory.
+      lastSubmittedRef.current = null;
+      setIs503Uncertain(false);
+      setHasEditedDraftConflict(false);
+      onSuccess(
+        `Máy chủ đã xác nhận yêu cầu trước đó (Nội dung cũ đã gửi) đã được tiếp nhận thành công. Bản nháp đã chỉnh sửa mới của bạn được bảo lưu an toàn.`
+      );
+    } catch (err: unknown) {
+      if (err instanceof ApiClientError && (err.status === 503 || err.status === 504)) {
+        setIs503Uncertain(true);
+        setError(
+          `Kết nối máy chủ vẫn gián đoạn (${err.status}). Kết quả chưa xác định (Ambiguous Outcome); bản nháp mới của bạn vẫn được bảo toàn an toàn.`
+        );
+      } else if (err instanceof ApiClientError && err.status === 409) {
+        setIs409Conflict(true);
+        setIs503Uncertain(false);
+        setError(
+          `${getApiErrorMessage(err)}. Xung đột phiên bản bộ nhớ truyện (409): Trạng thái máy chủ đã thay đổi. Bản nháp mới của bạn được giữ nguyên.`
+        );
+      } else {
+        setError(`Không thể xác nhận yêu cầu trước: ${getApiErrorMessage(err)}`);
+      }
+    } finally {
+      setReconciling(false);
+    }
+  }
+
   // Safe retry using exact preserved idempotency key and submitted payload
   async function handleSafeRetry() {
     if (!lastSubmittedRef.current) {
       return handleSubmit();
     }
     const submitted = lastSubmittedRef.current;
+
+    // UXF-02c: Compare normalized draft to submitted snapshot
+    const isEdited =
+      replacement_text.trim() !== submitted.replacement_text ||
+      private_notes.trim() !== submitted.private_notes;
+
+    if (isEdited) {
+      // DO NOT submit request A and DO NOT clear draft B!
+      setHasEditedDraftConflict(true);
+      setError(
+        'Bản nháp đã được chỉnh sửa so với yêu cầu trước đó đang chờ xác định (Nội dung nháp hiện tại khác với nội dung đã gửi). Thao tác "Thử gửi lại an toàn" bị chặn để bảo vệ bản nháp mới của bạn và không gửi nhầm nội dung cũ. Bạn có thể bấm "Gửi đề xuất sửa" để gửi bản nháp mới với mã giao dịch mới, hoặc chọn "Xác nhận yêu cầu trước (Bảo lưu bản nháp mới)".'
+      );
+      return;
+    }
+
     scope.assertCurrent();
     const signal = scope.signal;
     setSubmitting(true);
     setError('');
+    setHasEditedDraftConflict(false);
 
     const body = {
       contract_version: 'setup-rule-amendment-v1' as const,
@@ -813,6 +880,7 @@ function ProposeAmendmentForm({
         draft.clear();
         lastSubmittedRef.current = null;
         setIs503Uncertain(false);
+        setHasEditedDraftConflict(false);
         onSuccess(
           `Đã tạo đề xuất chỉnh sửa quy tắc ${rule.fact_key}. Vui lòng đối chiếu và xác nhận phê duyệt bên dưới.`
         );
@@ -854,6 +922,7 @@ function ProposeAmendmentForm({
     setError('');
     setIs409Conflict(false);
     setIs503Uncertain(false);
+    setHasEditedDraftConflict(false);
 
     // UXF-02: Compute fingerprint of payload without key.
     // draft.operationKey automatically preserves key on identical retries,
@@ -1002,6 +1071,18 @@ function ProposeAmendmentForm({
                 >
                   Thử gửi lại an toàn
                 </Button>
+                {hasEditedDraftConflict && (
+                  <Button
+                    size="xs"
+                    color="teal"
+                    variant="outline"
+                    onClick={handleReconcilePreviousPreservingDraft}
+                    loading={reconciling}
+                    data-testid="reconcile-preserve-draft-btn"
+                  >
+                    Xác nhận yêu cầu trước (Bảo lưu bản nháp mới)
+                  </Button>
+                )}
               </Group>
             )}
           </Alert>
@@ -1075,6 +1156,8 @@ function PendingProposalDecisionView({
   const [is409Conflict, setIs409Conflict] = useState(false);
   const [is503Uncertain, setIs503Uncertain] = useState(false);
   const [isCompetingConflict, setIsCompetingConflict] = useState(false);
+  const [hasEditedDecisionConflict, setHasEditedDecisionConflict] = useState(false);
+  const [refreshingCompeting, setRefreshingCompeting] = useState(false);
 
   // UXF-02a: Store immutable in-flight decision request identity before dispatch
   const lastSubmittedDecisionRef = useRef<SubmittedDecisionRequest | null>(null);
@@ -1130,8 +1213,9 @@ function PendingProposalDecisionView({
     const submitted = lastSubmittedDecisionRef.current;
 
     if (reason.trim() !== submitted.reason) {
+      setHasEditedDecisionConflict(true);
       setError(
-        'Lý do quyết định đã được chỉnh sửa so với yêu cầu trước đó đang chờ xác định. Vui lòng chọn lại Chấp thuận hoặc Từ chối để gửi quyết định mới.'
+        'Lý do quyết định đã được chỉnh sửa so với yêu cầu trước đó đang chờ xác định. Vui lòng chọn lại Chấp thuận hoặc Từ chối để gửi quyết định mới, hoặc bấm "Xác nhận quyết định trước (Bảo lưu lý do mới)" để kiểm tra trạng thái quyết định cũ trên máy chủ mà không làm mất lý do hiện tại.'
       );
       return;
     }
@@ -1163,6 +1247,7 @@ function PendingProposalDecisionView({
         draft.clear();
         lastSubmittedDecisionRef.current = null;
         setIs503Uncertain(false);
+        setHasEditedDecisionConflict(false);
         const actionLabel = submitted.decision === 'accept' ? 'chấp thuận' : 'từ chối';
         onDecided(
           submitted.decision,
@@ -1200,6 +1285,7 @@ function PendingProposalDecisionView({
       draft.clear();
       lastSubmittedDecisionRef.current = null;
       setIs503Uncertain(false);
+      setHasEditedDecisionConflict(false);
       onDecided(
         submitted.decision,
         `Quyết định của bạn đã được máy chủ ghi nhận và xác thực chính xác qua mã giao dịch. Đã đồng bộ thành công!`
@@ -1224,16 +1310,78 @@ function PendingProposalDecisionView({
     }
   }
 
+  // UXF-02c: Explicit option to reconcile/confirm previous decision while preserving newly edited reason
+  async function handleReconcilePreviousDecisionPreservingDraft() {
+    if (!lastSubmittedDecisionRef.current) {
+      setError('Chưa có thông tin quyết định trước đó để xác nhận.');
+      return;
+    }
+    const submitted = lastSubmittedDecisionRef.current;
+    setReconciling(true);
+    setError('');
+
+    try {
+      const body = {
+        contract_version: 'setup-rule-amendment-v1' as const,
+        idempotency_key: submitted.idempotency_key,
+        decision: submitted.decision,
+        expected_brain_version: submitted.expected_brain_version,
+        reason: submitted.reason ? submitted.reason : undefined,
+      };
+
+      await decideWorldRuleAmendment(novelId, submitted.proposalId, body, scope.signal);
+      
+      // UXF-02c: DO NOT call draft.clear()! Preserves newly typed reason!
+      lastSubmittedDecisionRef.current = null;
+      setIs503Uncertain(false);
+      setHasEditedDecisionConflict(false);
+      const actionLabel = submitted.decision === 'accept' ? 'chấp thuận' : 'từ chối';
+      onDecided(
+        submitted.decision,
+        `Máy chủ đã xác nhận quyết định trước đó (${actionLabel} với lý do ban đầu) đã được tiếp nhận thành công. Ghi chú lý do mới của bạn được bảo lưu.`
+      );
+    } catch (err: unknown) {
+      if (err instanceof ApiClientError && (err.status === 503 || err.status === 504)) {
+        setIs503Uncertain(true);
+        setError(
+          `Kết nối máy chủ vẫn gián đoạn (${err.status}). Kết quả chưa xác định (Ambiguous Outcome); ghi chú lý do mới của bạn vẫn được bảo toàn.`
+        );
+      } else if (err instanceof ApiClientError && err.status === 409) {
+        setIs409Conflict(true);
+        setIs503Uncertain(false);
+        setError(
+          `${getApiErrorMessage(err)}. Xung đột phiên bản bộ nhớ truyện (409): Trạng thái đề xuất đã thay đổi trên máy chủ.`
+        );
+      } else {
+        setError(`Không thể xác nhận quyết định trước: ${getApiErrorMessage(err)}`);
+      }
+    } finally {
+      setReconciling(false);
+    }
+  }
+
   // Safe retry using exact preserved submitted decision request
   async function handleSafeRetryDecision() {
     if (!lastSubmittedDecisionRef.current) {
       return handleDecision('accept');
     }
     const submitted = lastSubmittedDecisionRef.current;
+
+    // UXF-02c: Compare normalized reason to submitted snapshot
+    const isEdited = reason.trim() !== submitted.reason;
+    if (isEdited) {
+      setHasEditedDecisionConflict(true);
+      setError(
+        'Lý do quyết định đã được chỉnh sửa so với yêu cầu trước đó đang chờ xác định (Ghi chú lý do hiện tại khác với yêu cầu đã gửi). Thao tác "Thử gửi lại an toàn" bị chặn để bảo vệ ghi chú mới của bạn và không gửi nhầm lý do cũ. Vui lòng bấm "Chấp thuận" hoặc "Từ chối" để gửi quyết định với lý do mới, hoặc chọn "Xác nhận quyết định trước (Bảo lưu lý do mới)".'
+      );
+      return;
+    }
+
     scope.assertCurrent();
     const signal = scope.signal;
     setDeciding(true);
     setError('');
+    setHasEditedDecisionConflict(false);
 
     const body = {
       contract_version: 'setup-rule-amendment-v1' as const,
@@ -1249,6 +1397,7 @@ function PendingProposalDecisionView({
         draft.clear();
         lastSubmittedDecisionRef.current = null;
         setIs503Uncertain(false);
+        setHasEditedDecisionConflict(false);
         const actionLabel = submitted.decision === 'accept' ? 'chấp thuận' : 'từ chối';
         onDecided(
           submitted.decision,
@@ -1284,6 +1433,7 @@ function PendingProposalDecisionView({
     setIs409Conflict(false);
     setIs503Uncertain(false);
     setIsCompetingConflict(false);
+    setHasEditedDecisionConflict(false);
 
     // UXF-02: Distinct fingerprint and operation key for accept vs reject and per reason change
     const bodyForFingerprint = {
@@ -1347,6 +1497,36 @@ function PendingProposalDecisionView({
       }
     } finally {
       if (!signal.aborted) setDeciding(false);
+    }
+  }
+
+  async function handleRefreshCompeting() {
+    setRefreshingCompeting(true);
+    try {
+      const res = await onRefreshLatest();
+      if (!res.ok) {
+        setError(
+          `Không thể tải lại trạng thái đề xuất từ máy chủ (${res.error}). Cảnh báo xung đột quyết định và bản nháp được giữ nguyên; vui lòng thử lại.`
+        );
+        return;
+      }
+
+      if (res.historyErrors[rule.fact_id]) {
+        setError(
+          `Không thể tải lịch sử đề xuất (${res.historyErrors[rule.fact_id]}). Cảnh báo xung đột quyết định và bản nháp được giữ nguyên; vui lòng thử lại.`
+        );
+        return;
+      }
+
+      // Verified fresh state successfully loaded from server!
+      setIsCompetingConflict(false);
+      setError('');
+    } catch (e) {
+      setError(
+        `Không thể tải lại trạng thái đề xuất: ${getApiErrorMessage(e)}. Cảnh báo xung đột quyết định và bản nháp được giữ nguyên.`
+      );
+    } finally {
+      setRefreshingCompeting(false);
     }
   }
 
@@ -1447,6 +1627,18 @@ function PendingProposalDecisionView({
                 >
                   Thử gửi lại an toàn
                 </Button>
+                {hasEditedDecisionConflict && (
+                  <Button
+                    size="xs"
+                    color="teal"
+                    variant="outline"
+                    onClick={handleReconcilePreviousDecisionPreservingDraft}
+                    loading={reconciling}
+                    data-testid="decision-reconcile-preserve-draft-btn"
+                  >
+                    Xác nhận quyết định trước (Bảo lưu lý do mới)
+                  </Button>
+                )}
               </Group>
             )}
             {isCompetingConflict && (
@@ -1455,11 +1647,8 @@ function PendingProposalDecisionView({
                   size="xs"
                   color="orange"
                   variant="light"
-                  onClick={async () => {
-                    await onRefreshLatest();
-                    setIsCompetingConflict(false);
-                    setError('');
-                  }}
+                  onClick={handleRefreshCompeting}
+                  loading={refreshingCompeting}
                   data-testid="competing-refresh-btn"
                 >
                   Tải lại trạng thái đề xuất mới nhất

@@ -166,6 +166,14 @@ Screenshots captured and stored at `docs/development/p2/evidence/p2-07f/`:
   3. Rule/proposal mục tiêu vẫn còn tồn tại và hợp lệ trong trạng thái mới.
   Nếu refresh thất bại, hệ thống hiển thị thông báo lỗi chi tiết, **giữ nguyên cảnh báo 409 và bảo toàn 100% bản nháp của tác giả**.
 
+#### UXF-02c (P1): Ngăn Safe Retry gửi lại Request cũ và xóa bản nháp mới khi đã chỉnh sửa (R3 Fix)
+- **Safe Retry Guard on Edited Draft:** So sánh đối chiếu bản nháp chuẩn hóa hiện tại (`replacement_text` và `private_notes` trong Propose, `reason` trong Decision) với snapshot yêu cầu bất biến đã lưu (`lastSubmittedRef` / `lastSubmittedDecisionRef`).
+- **Chặn gửi nhầm và chặn xóa nháp B:** Nếu tác giả đã chỉnh sửa nội dung sau khi gặp lỗi 503/504, thao tác "Thử gửi lại an toàn" (`safe-retry-btn`, `safe-retry-decision-btn`) bị chặn hoàn toàn. Hệ thống không gửi lại request A, không gọi `draft.clear()`, không xóa bản nháp B, và không đưa ra thông báo gây hiểu lầm là B đã được gửi.
+- **Phân định rõ ràng giữa xác nhận request cũ và gửi request mới:**
+  - Tác giả có thể bấm "Gửi đề xuất sửa" / "Chấp thuận" / "Từ chối" để gửi nội dung B với mã Idempotency Key mới.
+  - Hoặc chọn "Xác nhận yêu cầu trước (Bảo lưu bản nháp mới)" (`reconcile-preserve-draft-btn`, `decision-reconcile-preserve-draft-btn`) để thực hiện idempotent replay xác nhận request A trên máy chủ mà **hoàn toàn không xóa bản nháp B**.
+- **Verified Competing Refresh:** Nút `competing-refresh-btn` áp dụng đúng pattern verified-rebase: kiểm tra `res.ok` và `historyErrors` của `ReloadResult`. Nếu quá trình refresh trạng thái máy chủ thất bại (ví dụ 503), hệ thống giữ nguyên cảnh báo xung đột quyết định và bảo toàn bản nháp. Chỉ khi refresh thành công mới xóa cảnh báo.
+
 ### 4.3 UXF-03: Pre-M0 Guard & Automatic Brain Version Sync (PASS in R1)
 - Pre-M0 banner (`data-testid="m0-not-active-banner"`) informs the author that world rules cannot be amended before M0 activation.
 - Propose buttons are hidden prior to M0 activation.
