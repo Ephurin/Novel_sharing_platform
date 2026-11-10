@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Badge, Button, Card, Group, Select, Stack, Text, Textarea, TextInput } from '@mantine/core';
+import { Alert, Badge, Button, Card, Divider, Group, Select, Stack, Text, Textarea, TextInput } from '@mantine/core';
 import { useAuthStore } from '../auth/useAuthStore';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
 import { usePlanningDraft, usePlanningScope } from './planning-draft';
 import { getSetup, submitSetup, reviewSetup, getSetupM0Readiness, activateSetupM0, type SetupM0Readiness, type SetupReviewDecision, type SetupDeclaration, type SetupSnapshot, type SetupSource } from './setup-api';
+import { WorldRuleAmendmentManager } from './WorldRuleAmendmentManager';
 type Props={novelId:string;planningStep?:'idea'|'rules'|'characters';onServerChange?:()=>void;allowOfflineBlueprint?:boolean};
 type Draft={base:number;text:string;outline:string;rules:SetupSource['world_rules'];declarations:SetupDeclaration[];mode:'extract'|'blueprint'};
 function valid(v:unknown):v is Draft{const d=v as Draft;return !!d&&Number.isInteger(d.base)&&typeof d.text==='string'&&typeof d.outline==='string'&&Array.isArray(d.rules)&&d.rules.every(r=>typeof r.declaration_id==='string'&&typeof r.text==='string')&&Array.isArray(d.declarations)&&d.declarations.every(e=>typeof e.declaration_id==='string'&&typeof e.display_name==='string');}
@@ -62,7 +63,7 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
     <Button disabled={locked} variant="subtle" onClick={()=>local.edit(old=>({...old,declarations:old.declarations.filter(x=>x.declaration_id!==d.declaration_id)}))}>Bỏ thẻ {i+1}</Button></Stack></Card>)}
    <Button variant="light" disabled={!loaded||locked} onClick={()=>local.edit(old=>({...old,declarations:[...old.declarations,{declaration_id:'decl_'+crypto.randomUUID().replaceAll('-',''),display_name:'',entity_type:'character'}]}))}>Thêm nhân vật hoặc địa danh</Button>
   </Stack></div>
-  {sourceLocked&&<Alert>Đã gửi nguồn để duyệt. Sửa nội dung trong nhóm duyệt bên dưới; dữ liệu đã chấp nhận chỉ đọc tại đây. Nhân vật đã duyệt có thể hiệu chỉnh qua Hồ sơ trong Bộ nhớ truyện. Quy tắc đã duyệt chỉ đọc; màn hình này chưa hỗ trợ hiệu chỉnh quy tắc. Không gửi lại nguồn để ghi đè.</Alert>}
+  {sourceLocked&&<Alert color="blue">Đã gửi nguồn để duyệt. Sửa nội dung trong nhóm duyệt bên dưới; dữ liệu đã chấp nhận chỉ đọc tại đây. Nhân vật đã duyệt có thể hiệu chỉnh qua Hồ sơ trong Bộ nhớ truyện. Để hiệu chỉnh quy tắc thế giới sau khi đã duyệt, sử dụng bảng Quản lý Quy tắc Thế giới bên dưới. Không gửi lại nguồn để ghi đè.</Alert>}
   <Group><Button onClick={submit} loading={pending} disabled={!loaded||locked||!!local.backup||declarations.some(d=>!d.display_name.trim())||rules.some(r=>!r.text.trim())||(!outline.trim()&&!declarations.length&&!rules.length&&!(allowOfflineBlueprint&&text.trim()))}>Lưu và xử lý thiết lập</Button>
    <Button variant="default" disabled={pending} onClick={()=>void reload()}>Tải bản đã lưu</Button>
    {local.dirty&&<><Button variant="subtle" onClick={()=>void reload(true)}>Bỏ bản sửa, dùng thiết lập máy chủ</Button><Button variant="subtle" onClick={local.exportDraft}>Xuất bản sửa thiết lập</Button></>}</Group>
@@ -72,6 +73,20 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
    <div hidden={!(world || people)}><SetupReviewGroup key={`${snapshot.snapshot_id}:${snapshot.review_version}`} snapshot={snapshot} onReload={()=>reload()}/></div>
    {snapshot.review&&<SetupM0Activation key={`${snapshot.snapshot_id}:${snapshot.brain_version}`} snapshot={snapshot} onReload={()=>reload()}/>}
    {snapshot.proposals.filter(c=>!planningStep||(world?c.card_type==='world_rule':people?c.card_type!=='world_rule':false)).map(c=><Card withBorder key={c.proposal_id}><Group><Badge>{c.origin==='author_declared'?'Tác giả khai báo':c.origin==='extracted_explicit'?'Từ nguồn rõ ràng':'AI đề xuất'}</Badge><Badge>{c.unresolved?'Chưa hỗ trợ':c.status==='accepted'?'Đã duyệt':c.status==='rejected'?'Đã loại':'Chờ duyệt'}</Badge></Group><Text>{String(c.reviewed_payload?.canonical_name??c.reviewed_payload?.fact_value??c.payload.canonical_name??c.payload.fact_value??'')}</Text><Text size="sm" c="dimmed">Ban đầu: {String(c.payload.canonical_name??c.payload.fact_value??c.payload.attribute_key??"")}</Text><Text size="xs">Nguồn: {c.source_refs.map(r=>String(r.field_path??'gợi ý')).join(', ')}</Text></Card>)}</>}
+  <div hidden={!world}>
+    <Divider my="md" label="Hiệu chỉnh Quy tắc Thế giới sau M0 (UX-05)" labelPosition="center" />
+    <WorldRuleAmendmentManager
+      novelId={novelId}
+      brainVersion={snapshot?.brain_version}
+      m0Active={Boolean(
+        snapshot?.job_status === 'active' ||
+        snapshot?.job_status === 'completed' ||
+        snapshot?.job_status === 'succeeded' ||
+        (snapshot?.review && ['active', 'completed', 'succeeded'].includes(snapshot?.job_status || ''))
+      )}
+      onServerChange={onServerChange}
+    />
+  </div>
  </Stack>;
 }
 

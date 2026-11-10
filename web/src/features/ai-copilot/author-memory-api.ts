@@ -194,6 +194,7 @@ export interface ApprovedMemory {
   story_id?: UUID;
   brain_id?: UUID | null;
   brain_version: number;
+  status?: string;
   entities: MemoryEntity[];
   aliases?: { alias_id: UUID; entity_id: UUID; alias: string; normalized_alias: string }[];
   mentions?: {
