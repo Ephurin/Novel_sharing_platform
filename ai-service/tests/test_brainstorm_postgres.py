@@ -22,7 +22,7 @@ from api.brainstorm_schemas import BrainstormRequest
 from application.brainstorm_service import BrainstormService
 from core.fake_llm import FakeDeterministicLLMService
 from infrastructure.database import session_scope
-from infrastructure.orm_models import NarrativeEventRecord, FactRecord, StoryBrainRecord
+from infrastructure.orm_models import EventRecord, FactRecord, StoryBrainRecord
 from tests.test_p2_bootstrap_postgres import ACTOR, TENANT, engine, f
 from tests.test_plan_review_fixes_postgres import FOREIGN
 from tests.test_setup_activation_postgres import owned, ready, activate
@@ -68,19 +68,10 @@ def test_brainstorm_postgres_grounded_and_leaves_canon_immutable(brainstorm_env)
 
     # Inspect Postgres before brainstorm
     with session_scope(f.repo._session_factory) as session:
-        events_before = session.scalar(
-            text("SELECT count(*) FROM narrative_events WHERE novel_id = :nid"),
-            {"nid": uuid.UUID(novel_id)},
-        )
-        facts_before = session.scalar(
-            text("SELECT count(*) FROM facts WHERE novel_id = :nid"),
-            {"nid": uuid.UUID(novel_id)},
-        )
-        brain_row = session.execute(
-            text("SELECT brain_version FROM story_brains WHERE novel_id = :nid"),
-            {"nid": uuid.UUID(novel_id)},
-        ).first()
-        brain_version_before = brain_row[0]
+        events_before = session.query(EventRecord).filter(EventRecord.novel_id == uuid.UUID(novel_id)).count()
+        facts_before = session.query(FactRecord).filter(FactRecord.novel_id == uuid.UUID(novel_id)).count()
+        brain_rec = session.query(StoryBrainRecord).filter(StoryBrainRecord.novel_id == uuid.UUID(novel_id)).first()
+        brain_version_before = brain_rec.brain_version
 
     # Execute Brainstorming
     res = f.client.post(
@@ -117,19 +108,10 @@ def test_brainstorm_postgres_grounded_and_leaves_canon_immutable(brainstorm_env)
 
     # Verify strict Canon Immutability in PostgreSQL database
     with session_scope(f.repo._session_factory) as session:
-        events_after = session.scalar(
-            text("SELECT count(*) FROM narrative_events WHERE novel_id = :nid"),
-            {"nid": uuid.UUID(novel_id)},
-        )
-        facts_after = session.scalar(
-            text("SELECT count(*) FROM facts WHERE novel_id = :nid"),
-            {"nid": uuid.UUID(novel_id)},
-        )
-        brain_row_after = session.execute(
-            text("SELECT brain_version FROM story_brains WHERE novel_id = :nid"),
-            {"nid": uuid.UUID(novel_id)},
-        ).first()
-        brain_version_after = brain_row_after[0]
+        events_after = session.query(EventRecord).filter(EventRecord.novel_id == uuid.UUID(novel_id)).count()
+        facts_after = session.query(FactRecord).filter(FactRecord.novel_id == uuid.UUID(novel_id)).count()
+        brain_rec_after = session.query(StoryBrainRecord).filter(StoryBrainRecord.novel_id == uuid.UUID(novel_id)).first()
+        brain_version_after = brain_rec_after.brain_version
 
     assert events_after == events_before == 0, "No historical narrative events must be created"
     assert facts_after == facts_before, "No unapproved facts must be materialized into facts table"
