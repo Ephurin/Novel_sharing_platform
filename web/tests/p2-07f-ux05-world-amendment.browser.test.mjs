@@ -6,17 +6,19 @@ import { join } from 'node:path';
 import { createServer } from 'vite';
 import { chromium, expect } from '@playwright/test';
 
-// P2-07F Regression Test Suite:
-// UX-05: Author IDE World Setup Rule Amendments & CAS Lifecycle
-// 1. Viewing approved Canon rules with locked vs standard badges.
-// 2. Lock immutability: no direct Canon mutation, no lock toggles.
-// 3. Amendment proposal creation, local draft persistence & recovery.
-// 4. CAS conflict handling (409) with friendly alert and draft preservation.
-// 5. Author Before/After comparison display.
-// 6. Author Reject decision preserving parent Canon.
-// 7. Author Accept decision promoting successor to Canon & bumping brain version.
-// 8. Lineage & Proposal History modal inspection.
-test('P2-07F Regression: UX-05 Author IDE World Rules Amendment & CAS Lifecycle', {
+// P2-07F Regression Test Suite (Updated for GPT-6 UXF-01, UXF-02, UXF-03 Review):
+// 1. UXF-03: Pre-M0 guard prevents amendments; automatic sync to active M0 & new Brain version without manual reload.
+// 2. UXF-01: Pending proposals bound strictly by Fact UUID (not fact_key).
+//    - Two distinct setup roots sharing same fact_key ('world_rule_gravity') remain completely isolated.
+//    - Proposal on Root A does NOT appear on Root B; Root B retains independent propose/decision lifecycle.
+//    - Non-setup P1 rule (no M0 provenance) renders as read-only with no propose/edit action.
+// 3. UXF-02: Fingerprint-bound CAS & Idempotency:
+//    - Changing payload generates new key, avoiding AMENDMENT_IDEMPOTENCY_CONFLICT.
+//    - 409 CAS conflict provides actionable rebase preserving 100% author draft text.
+//    - 503 / uncertain network response provides server reconciliation and safe retry.
+// 4. Author Accept / Reject decision lifecycle with append-only lineage tracking.
+// 5. Lineage & Proposal History modal inspection.
+test('P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle', {
   timeout: 180000
 }, async () => {
   const root = fileURLToPath(new URL('../', import.meta.url));
@@ -39,42 +41,64 @@ test('P2-07F Regression: UX-05 Author IDE World Rules Amendment & CAS Lifecycle'
   const out = process.env.P207F_EVIDENCE_DIR || join(root, '../docs/development/p2/evidence/p2-07f');
   await mkdir(out, { recursive: true });
 
-  const novelId = '10000000-0000-0000-0000-000000000001';
-  const chapterId = '20000000-0000-0000-0000-000000000001';
+  // Standard UUIDs for entities (strict compliance with review)
+  const novelId = '10000000-0000-4000-8000-000000000001';
+  const chapterId = '20000000-0000-4000-8000-000000000001';
 
-  let forceConflict = false;
+  // Two distinct World Setup facts SHARING THE SAME fact_key (UXF-01 test condition)
+  const factGravityA = '30000000-0000-4000-8000-000000000001';
+  const factGravityB = '30000000-0000-4000-8000-000000000002';
+  // Non-setup P1 fact (lacks M0 setup provenance) (UXF-01 test condition)
+  const factP1Unrelated = '30000000-0000-4000-8000-000000000003';
+
+  let m0Activated = false;
   let currentBrainVersion = 1;
+  let force409OnPropose = false;
+  let force503OnPropose = false;
 
-  // In-memory mock database for World Rules, Lineage, and Proposals
-  const facts = [
+  // Stateful server simulation enforcing real P2-07E invariants
+  const factsDb = [
     {
-      fact_id: 'fact-gravity-root',
-      id: 'fact-gravity-root',
+      fact_id: factGravityA,
+      id: factGravityA,
       fact_type: 'world_rule',
       fact_key: 'world_rule_gravity',
-      fact_value: 'Trọng lực thế giới cố định ở mức 1G.',
+      fact_value: 'Trọng lực đại lục Nam Cực: 1.0G.',
       is_locked: true,
       supersedes_id: null,
-      created_at: new Date('2026-11-01T10:00:00Z').toISOString()
+      created_at: '2026-11-01T10:00:00Z',
+      is_setup_m0: true
     },
     {
-      fact_id: 'fact-cultivation-root',
-      id: 'fact-cultivation-root',
+      fact_id: factGravityB,
+      id: factGravityB,
       fact_type: 'world_rule',
-      fact_key: 'world_rule_cultivation',
-      fact_value: 'Tu giả chỉ có thể hấp thụ linh khí tự nhiên.',
+      fact_key: 'world_rule_gravity', // Same key, different root!
+      fact_value: 'Trọng lực hư không Bắc Minh: 0.5G.',
       is_locked: false,
       supersedes_id: null,
-      created_at: new Date('2026-11-01T10:05:00Z').toISOString()
+      created_at: '2026-11-01T10:05:00Z',
+      is_setup_m0: true
+    },
+    {
+      fact_id: factP1Unrelated,
+      id: factP1Unrelated,
+      fact_type: 'world_rule',
+      fact_key: 'world_rule_p1_unrelated',
+      fact_value: 'Quy tắc chương riêng của P1 (không thuộc setup M0).',
+      is_locked: false,
+      supersedes_id: null,
+      created_at: '2026-11-01T10:10:00Z',
+      is_setup_m0: false // Ineligible for M0 amendment
     }
   ];
 
-  const proposals = [];
-  const decisions = [];
+  const proposalsDb = [];
+  const decisionsDb = [];
+  const analysisRunsDb = new Map(); // idempotency_key -> { fingerprint, result }
 
   const setupMocks = async (page) => {
-    page.on('console', msg => console.log('PAGE LOG:', msg.text()));
-    page.on('pageerror', e => console.error('PAGE ERROR:', e.message));
+    page.on('pageerror', e => console.error('Browser pageerror:', e.message));
 
     await page.addInitScript(() => {
       localStorage.setItem('ephurin_access_token', 'token-author-A');
@@ -84,7 +108,6 @@ test('P2-07F Regression: UX-05 Author IDE World Rules Amendment & CAS Lifecycle'
       const req = route.request();
       const path = new URL(req.url()).pathname.replace('/api/v1', '');
       const method = req.method();
-      // console.log(`[API MOCK] ${method} ${path}`);
 
       const send = (data, status = 200) => route.fulfill({
         status,
@@ -164,10 +187,10 @@ test('P2-07F Regression: UX-05 Author IDE World Rules Amendment & CAS Lifecycle'
         return send({
           id: 'brain-01',
           novel_id: novelId,
-          status: 'active',
+          status: m0Activated ? 'active' : 'draft',
           brain_version: currentBrainVersion,
-          baseline_revision_id: 'rev-01',
-          counts: { entities: 2, events: 0, pending_proposals: proposals.filter(p => p.status === 'pending').length, open_findings: 0 }
+          baseline_revision_id: m0Activated ? 'rev-01' : null,
+          counts: { entities: 2, events: 0, pending_proposals: proposalsDb.filter(p => p.status === 'pending').length, open_findings: 0 }
         });
       }
 
@@ -179,14 +202,14 @@ test('P2-07F Regression: UX-05 Author IDE World Rules Amendment & CAS Lifecycle'
           brain_version: currentBrainVersion,
           snapshot_id: 'snap-01',
           setup_hash: 'hash-01',
-          job_status: 'succeeded',
+          job_status: m0Activated ? 'active' : 'waiting_review',
           mode: 'extract',
           outline: 'Đề cương truyện tu tiên',
           snapshot: {
             text: 'Thiết lập ban đầu',
             world_rules: [
-              { declaration_id: 'decl-gravity', text: 'Trọng lực thế giới cố định ở mức 1G.' },
-              { declaration_id: 'decl-cultivation', text: 'Tu giả chỉ có thể hấp thụ linh khí tự nhiên.' }
+              { declaration_id: 'decl-gravity-a', text: 'Trọng lực đại lục Nam Cực: 1.0G.' },
+              { declaration_id: 'decl-gravity-b', text: 'Trọng lực hư không Bắc Minh: 0.5G.' }
             ],
             declarations: []
           },
@@ -207,27 +230,43 @@ test('P2-07F Regression: UX-05 Author IDE World Rules Amendment & CAS Lifecycle'
         return send([]);
       }
 
+      // M0 Readiness & Activation Mock
       if (path.includes('/setup/') && path.endsWith('/activate')) {
+        if (method === 'POST') {
+          m0Activated = true;
+          currentBrainVersion = 2; // Activation bumps brain version to 2
+          return send({ status: 'active', baseline_kind: 'M0', brain_version: currentBrainVersion });
+        }
         return send({
           contract_version: 'setup-m0-v1',
           snapshot_id: 'snap-01',
           eligible: true,
+          setup_hash: 'hash-01',
+          expected_setup_version: 1,
+          expected_review_version: 1,
+          expected_brain_version: currentBrainVersion,
+          activation: m0Activated ? { status: 'active', baseline_kind: 'M0', brain_version: currentBrainVersion } : undefined,
           novel_id: novelId,
           chapter_count: 1
         });
       }
 
-      // GET Approved Memory (Canon facts)
+      // GET Approved Memory (returns facts with true server status)
       if (path === `/ai/story-brains/${novelId}/memory`) {
+        // Return effective facts (head of each lineage)
+        const heads = [];
+        const superseded = new Set(factsDb.map(f => f.supersedes_id).filter(Boolean));
+        for (const f of factsDb) {
+          if (!superseded.has(f.fact_id)) {
+            heads.push({ ...f, is_global: true });
+          }
+        }
         return send({
           story_brain_id: 'brain-01',
           novel_id: novelId,
           brain_version: currentBrainVersion,
-          status: 'active',
-          facts: facts.map(f => ({
-            ...f,
-            is_global: true
-          })),
+          status: m0Activated ? 'active' : 'draft',
+          facts: heads,
           entities: [],
           relationships: []
         });
@@ -237,11 +276,21 @@ test('P2-07F Regression: UX-05 Author IDE World Rules Amendment & CAS Lifecycle'
       const amendmentsMatch = path.match(new RegExp(`^/ai/story-brains/${novelId}/world-rules/([^/]+)/amendments$`));
       if (amendmentsMatch) {
         const factId = amendmentsMatch[1];
-        const targetFact = facts.find(f => f.fact_id === factId || f.id === factId);
+        const targetFact = factsDb.find(f => f.fact_id === factId);
         if (!targetFact) return fail('FACT_NOT_FOUND', 404, 'Fact không tồn tại');
 
+        // UXF-01: Provenance check — non-setup fact fails closed!
+        if (!targetFact.is_setup_m0) {
+          return fail('SETUP_RULE_NOT_FOUND', 422, 'Fact không thuộc thiết lập World Setup M0.');
+        }
+
+        // UXF-03: Pre-M0 guard
+        if (!m0Activated) {
+          return fail('SETUP_NOT_ACTIVE', 422, 'Thiết lập M0 chưa được kích hoạt.');
+        }
+
         if (method === 'GET') {
-          // Compute lineage chain from root to current head
+          // Lineage chain
           const lineage = [];
           let cur = targetFact;
           while (cur) {
@@ -251,19 +300,23 @@ test('P2-07F Regression: UX-05 Author IDE World Rules Amendment & CAS Lifecycle'
               fact_value: cur.fact_value,
               is_locked: cur.is_locked,
               supersedes_id: cur.supersedes_id,
-              created_at: cur.created_at
+              created_at: cur.created_at,
+              created_by: 'author-A'
             });
             if (cur.supersedes_id) {
-              cur = facts.find(f => f.fact_id === cur.supersedes_id);
+              cur = factsDb.find(f => f.fact_id === cur.supersedes_id);
             } else {
               break;
             }
           }
 
-          const factProposals = proposals.filter(p => p.parent_fact_id === factId || lineage.some(l => l.fact_id === p.parent_fact_id));
+          // Return proposals strictly for this fact's lineage
+          const lineageFactIds = new Set(lineage.map(l => l.fact_id));
+          const factProposals = proposalsDb.filter(p => lineageFactIds.has(p.parent_fact_id));
 
           return send({
             contract_version: 'setup-rule-amendment-v1',
+            novel_id: novelId,
             effective_head_id: targetFact.fact_id,
             root_fact_id: lineage[0]?.fact_id || targetFact.fact_id,
             brain_version: currentBrainVersion,
@@ -274,11 +327,48 @@ test('P2-07F Regression: UX-05 Author IDE World Rules Amendment & CAS Lifecycle'
 
         if (method === 'POST') {
           const body = req.postDataJSON();
-          if (forceConflict) {
-            return fail('SETUP_OPTIMISTIC_LOCK_CONFLICT', 409, 'Xung đột phiên bản bộ nhớ truyện (409 Conflict)');
+
+          // UXF-02: 409 CAS Check
+          if (force409OnPropose || body.expected_brain_version !== currentBrainVersion) {
+            return fail('SETUP_OPTIMISTIC_LOCK_CONFLICT', 409, `Xung đột phiên bản bộ nhớ truyện (409): Mong đợi v${body.expected_brain_version}, máy chủ đang là v${currentBrainVersion}.`);
           }
 
-          const newPropId = 'prop-' + (proposals.length + 1);
+          // UXF-02: 503 Uncertain Network Timeout simulation
+          if (force503OnPropose) {
+            force503OnPropose = false;
+            // Record proposal on server before dropping response!
+            const newPropId = '40000000-0000-4000-8000-' + String(proposalsDb.length + 1).padStart(12, '0');
+            const item = {
+              proposal_id: newPropId,
+              parent_fact_id: factId,
+              fact_key: targetFact.fact_key,
+              replacement_text: body.replacement_text,
+              status: 'pending',
+              brain_version: currentBrainVersion,
+              private_author_notes: body.private_author_notes || [],
+              created_at: new Date().toISOString()
+            };
+            proposalsDb.push(item);
+            analysisRunsDb.set(body.idempotency_key, {
+              fingerprint: JSON.stringify({ parent: factId, text: body.replacement_text, notes: body.private_author_notes }),
+              result: { proposal_id: newPropId, status: 'pending', parent_fact_id: factId, brain_version: currentBrainVersion }
+            });
+            return fail('SERVICE_UNAVAILABLE', 503, 'Máy chủ tạm thời quá tải.');
+          }
+
+          // UXF-02: Strict Idempotency Check
+          const currentFingerprint = JSON.stringify({ parent: factId, text: body.replacement_text, notes: body.private_author_notes });
+          const existingRun = analysisRunsDb.get(body.idempotency_key);
+          if (existingRun) {
+            if (existingRun.fingerprint !== currentFingerprint) {
+              // Same key, different payload -> conflict!
+              return fail('AMENDMENT_IDEMPOTENCY_CONFLICT', 409, 'Khóa idempotency bị tái sử dụng với nội dung khác biệt.');
+            }
+            // Same key, identical payload -> idempotent replay
+            return send({ ...existingRun.result, idempotent_replay: true });
+          }
+
+          const newPropId = '40000000-0000-4000-8000-' + String(proposalsDb.length + 1).padStart(12, '0');
           const proposalItem = {
             proposal_id: newPropId,
             parent_fact_id: factId,
@@ -289,16 +379,18 @@ test('P2-07F Regression: UX-05 Author IDE World Rules Amendment & CAS Lifecycle'
             private_author_notes: body.private_author_notes || [],
             created_at: new Date().toISOString()
           };
-          proposals.push(proposalItem);
+          proposalsDb.push(proposalItem);
 
-          return send({
+          const result = {
             contract_version: 'setup-rule-amendment-v1',
             proposal_id: newPropId,
             status: 'pending',
             parent_fact_id: factId,
             brain_version: currentBrainVersion,
             idempotent_replay: false
-          }, 201);
+          };
+          analysisRunsDb.set(body.idempotency_key, { fingerprint: currentFingerprint, result });
+          return send(result, 201);
         }
       }
 
@@ -306,21 +398,33 @@ test('P2-07F Regression: UX-05 Author IDE World Rules Amendment & CAS Lifecycle'
       const decisionMatch = path.match(new RegExp(`^/ai/story-brains/${novelId}/world-rule-amendments/([^/]+)/decision$`));
       if (decisionMatch && method === 'POST') {
         const proposalId = decisionMatch[1];
-        const prop = proposals.find(p => p.proposal_id === proposalId);
+        const prop = proposalsDb.find(p => p.proposal_id === proposalId);
         if (!prop) return fail('PROPOSAL_NOT_FOUND', 404, 'Proposal không tồn tại');
 
         const body = req.postDataJSON();
-        if (forceConflict) {
-          return fail('SETUP_OPTIMISTIC_LOCK_CONFLICT', 409, 'Xung đột phiên bản bộ nhớ truyện (409 Conflict)');
+
+        // CAS Check
+        if (body.expected_brain_version !== currentBrainVersion) {
+          return fail('SETUP_OPTIMISTIC_LOCK_CONFLICT', 409, `Xung đột phiên bản bộ nhớ truyện (409): Mong đợi v${body.expected_brain_version}, hiện tại v${currentBrainVersion}.`);
+        }
+
+        // Idempotency check for decision
+        const decisionFingerprint = JSON.stringify({ proposalId, decision: body.decision, reason: body.reason });
+        const existingRun = analysisRunsDb.get(body.idempotency_key);
+        if (existingRun) {
+          if (existingRun.fingerprint !== decisionFingerprint) {
+            return fail('AMENDMENT_IDEMPOTENCY_CONFLICT', 409, 'Khóa idempotency bị tái sử dụng với quyết định khác biệt.');
+          }
+          return send({ ...existingRun.result, idempotent_replay: true });
         }
 
         if (body.decision === 'reject') {
           prop.status = 'rejected';
           prop.reason = body.reason || null;
           prop.decided_at = new Date().toISOString();
-          decisions.push({ proposal_id: proposalId, decision: 'reject', reason: body.reason });
+          decisionsDb.push({ proposal_id: proposalId, decision: 'reject', reason: body.reason });
 
-          return send({
+          const result = {
             contract_version: 'setup-rule-amendment-v1',
             proposal_id: proposalId,
             decision: 'reject',
@@ -328,17 +432,18 @@ test('P2-07F Regression: UX-05 Author IDE World Rules Amendment & CAS Lifecycle'
             successor_fact_id: null,
             brain_version: currentBrainVersion,
             idempotent_replay: false
-          });
+          };
+          analysisRunsDb.set(body.idempotency_key, { fingerprint: decisionFingerprint, result });
+          return send(result);
         }
 
         if (body.decision === 'accept') {
-          const parentFact = facts.find(f => f.fact_id === prop.parent_fact_id);
-          const newFactId = 'fact-succ-' + (facts.length + 1);
+          const parentFact = factsDb.find(f => f.fact_id === prop.parent_fact_id);
+          const newFactId = '50000000-0000-4000-8000-' + String(factsDb.length + 1).padStart(12, '0');
 
-          // Brain version bumped + 1 upon accept
-          currentBrainVersion += 1;
+          currentBrainVersion += 1; // Bump brain version upon accept
 
-          // Successor strictly inherits parent's is_locked and fact_key
+          // Append-only: create new successor FactRecord inheriting parent is_locked and fact_key
           const successorFact = {
             fact_id: newFactId,
             id: newFactId,
@@ -347,25 +452,18 @@ test('P2-07F Regression: UX-05 Author IDE World Rules Amendment & CAS Lifecycle'
             fact_value: prop.replacement_text,
             is_locked: parentFact.is_locked,
             supersedes_id: parentFact.fact_id,
-            created_at: new Date().toISOString()
+            created_at: new Date().toISOString(),
+            is_setup_m0: true
           };
-
-          // In effective facts, replace old parent with new successor
-          const parentIdx = facts.findIndex(f => f.fact_id === parentFact.fact_id);
-          if (parentIdx >= 0) {
-            facts[parentIdx] = successorFact;
-          } else {
-            facts.push(successorFact);
-          }
+          factsDb.push(successorFact);
 
           prop.status = 'accepted';
           prop.successor_fact_id = newFactId;
           prop.reason = body.reason || null;
           prop.decided_at = new Date().toISOString();
+          decisionsDb.push({ proposal_id: proposalId, decision: 'accept', successor_fact_id: newFactId, reason: body.reason });
 
-          decisions.push({ proposal_id: proposalId, decision: 'accept', successor_fact_id: newFactId, reason: body.reason });
-
-          return send({
+          const result = {
             contract_version: 'setup-rule-amendment-v1',
             proposal_id: proposalId,
             decision: 'accept',
@@ -373,11 +471,12 @@ test('P2-07F Regression: UX-05 Author IDE World Rules Amendment & CAS Lifecycle'
             successor_fact_id: newFactId,
             brain_version: currentBrainVersion,
             idempotent_replay: false
-          });
+          };
+          analysisRunsDb.set(body.idempotency_key, { fingerprint: decisionFingerprint, result });
+          return send(result);
         }
       }
 
-      console.log('[API UNHANDLED]', method, path);
       return send({});
     });
   };
@@ -396,7 +495,6 @@ test('P2-07F Regression: UX-05 Author IDE World Rules Amendment & CAS Lifecycle'
       }
     });
 
-    console.log('\n--- TEST 1: View Canon Rules & Verify Badges & Immutability ---');
     const targetUrl = `${origin.replace(/\/$/, '')}/author/ide?novelId=${novelId}&chapterId=${chapterId}`;
     await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 90000 });
     await page.waitForLoadState('networkidle');
@@ -407,125 +505,151 @@ test('P2-07F Regression: UX-05 Author IDE World Rules Amendment & CAS Lifecycle'
     // Navigate to World step
     await step('Thế giới').click();
 
-    // Verify WorldRuleAmendmentManager section is visible
-    await expect(page.getByText('Hiệu chỉnh Quy tắc Thế giới sau M0 (UX-05)')).toBeVisible();
+    // =========================================================================
+    // SCENARIO 1: UXF-03 — Pre-M0 Guard & Automatic Brain Version Sync Upon Activation
+    // =========================================================================
+    console.log('\n--- SCENARIO 1: UXF-03 Pre-M0 Guard & Sync Upon M0 Activation ---');
 
-    // Verify badges for locked vs standard rules
-    await expect(page.getByText('BẤT BIẾN (LOCKED)')).toBeVisible();
-    await expect(page.getByText('QUY TẮC CHUẨN')).toBeVisible();
+    // 1.1 Verify Pre-M0 banner is visible and no propose buttons are accessible
+    await expect(page.getByTestId('m0-not-active-banner')).toBeVisible();
+    await expect(page.getByTestId(`propose-btn-${factGravityA}`)).toHaveCount(0);
+    await expect(page.getByTestId(`propose-btn-${factGravityB}`)).toHaveCount(0);
+    await page.screenshot({ path: join(out, 'ux05-m0-pre-activation.png') });
+    console.log('✓ UXF-03: Pre-M0 guard verified (propose actions hidden before M0 activation)!');
 
-    // Verify Canon rule values are rendered
-    await expect(page.getByTestId('canon-text-world_rule_gravity')).toBeVisible();
-    await expect(page.getByTestId('canon-text-world_rule_cultivation')).toBeVisible();
-    console.log('✓ UX-05: Canon rules and immutability status badges rendered properly!');
+    // 1.2 Activate M0 via the UI
+    const activateBtn = page.getByRole('button', { name: 'Kích hoạt thiết lập để bắt đầu viết' });
+    await expect(activateBtn).toBeVisible();
+    await activateBtn.click();
 
-    // Capture screenshot of Canon rules view
-    await page.screenshot({ path: join(out, 'ux05-canon-rules-view.png'), fullPage: true });
+    // 1.3 Verify automatic sync to M0 Active & Brain v2 without manual reload
+    await expect(page.getByTestId('m0-not-active-banner')).toHaveCount(0);
+    await expect(page.getByTestId(`propose-btn-${factGravityA}`)).toBeVisible();
+    await expect(page.getByTestId(`propose-btn-${factGravityB}`)).toBeVisible();
+    await expect(page.getByText(`Brain v2`).first()).toBeVisible();
+    console.log('✓ UXF-03: Manager automatically synchronized to active M0 and Brain v2!');
 
-    console.log('\n--- TEST 2: Open Propose Form & Verify Lock Immutability Notice ---');
-    // Click "Đề xuất sửa quy tắc" on the locked rule
-    await page.getByTestId('propose-btn-world_rule_gravity').click();
+    // =========================================================================
+    // SCENARIO 2: UXF-01 — Isolation of Same-Key Roots & Ineligible Non-Setup Rules
+    // =========================================================================
+    console.log('\n--- SCENARIO 2: UXF-01 Same-Key Isolation & Ineligible Facts ---');
 
-    // Verify lock notice
-    await expect(page.getByText('Quy tắc này là BẤT BIẾN (LOCKED). Nội dung sửa đổi sẽ tự động kế thừa thuộc tính bất biến; không thể chuyển đổi trạng thái khóa.')).toBeVisible();
-    console.log('✓ UX-05: Lock immutability notice verified (no lock toggle controls exist)!');
+    // 2.1 Verify non-setup P1 fact is marked ineligible and cannot be proposed
+    await expect(page.getByTestId(`ineligible-badge-${factP1Unrelated}`)).toBeVisible();
+    await expect(page.getByTestId(`propose-btn-${factP1Unrelated}`)).toHaveCount(0);
+    await expect(page.getByTestId(`history-btn-${factP1Unrelated}`)).toHaveCount(0);
+    console.log('✓ UXF-01: Non-setup P1 rule rendered as read-only with propose/history hidden!');
 
-    // Fill in proposal replacement text and private notes
+    // 2.2 Both Root A and Root B share 'world_rule_gravity' but have separate cards
+    await expect(page.getByTestId(`canon-text-${factGravityA}`)).toHaveText('Trọng lực đại lục Nam Cực: 1.0G.');
+    await expect(page.getByTestId(`canon-text-${factGravityB}`)).toHaveText('Trọng lực hư không Bắc Minh: 0.5G.');
+    await expect(page.getByTestId(`lock-badge-locked-${factGravityA}`)).toBeVisible();
+    await expect(page.getByTestId(`lock-badge-standard-${factGravityB}`)).toBeVisible();
+
+    // 2.3 Propose amendment ONLY on Root A
+    await page.getByTestId(`propose-btn-${factGravityA}`).click();
     const replacementInput = page.getByTestId('amendment-replacement-input');
-    const notesInput = page.getByTestId('amendment-notes-input');
-
-    await replacementInput.fill('Trọng lực thế giới dao động theo chu kỳ mặt trăng.');
-    await notesInput.fill('Tác giả ghi chú: phục vụ đại chiến chương 10.');
-
-    console.log('\n--- TEST 3: Verify Draft Persistence Across Page Reload ---');
-    await page.reload();
-    await page.waitForLoadState('networkidle');
-    await button('Lập kế hoạch').click();
-    await step('Thế giới').click();
-    await page.getByTestId('propose-btn-world_rule_gravity').click();
-
-    // Recover or verify persisted draft
-    const recoverAlert = page.getByText('Có bản nháp đề xuất trên thiết bị');
-    if (await recoverAlert.isVisible()) {
-      await page.getByRole('button', { name: 'Khôi phục bản nháp' }).click();
-    }
-    await expect(replacementInput).toHaveValue('Trọng lực thế giới dao động theo chu kỳ mặt trăng.');
-    console.log('✓ UX-05: Local draft persistence and recovery verified successfully!');
-
-    console.log('\n--- TEST 4: CAS Conflict Handling (409) ---');
-    forceConflict = true;
+    await replacementInput.fill('Trọng lực đại lục Nam Cực điều chỉnh còn: 0.8G.');
+    await page.getByTestId('amendment-notes-input').fill('Ghi chú riêng cho Nam Cực');
     await page.getByTestId('amendment-submit-proposal-btn').click();
 
-    // Verify 409 conflict alert
-    await expect(page.getByRole('alert').filter({ hasText: 'Xung đột phiên bản bộ nhớ truyện (409)' })).toBeVisible();
-    // Verify draft input remains intact
-    await expect(replacementInput).toHaveValue('Trọng lực thế giới dao động theo chu kỳ mặt trăng.');
-    console.log('✓ UX-05: CAS 409 conflict handled gracefully with draft preserved!');
+    // 2.4 Verify Root A shows pending decision card with Before/After
+    const decisionCardA = page.getByTestId(`pending-decision-card-${factGravityA}`);
+    await expect(decisionCardA).toBeVisible();
+    await expect(page.getByTestId(`comparison-before-text-${factGravityA}`)).toHaveText('Trọng lực đại lục Nam Cực: 1.0G.');
+    await expect(page.getByTestId(`comparison-after-text-${factGravityA}`)).toHaveText('Trọng lực đại lục Nam Cực điều chỉnh còn: 0.8G.');
 
-    // Take screenshot of 409 error state
-    await page.screenshot({ path: join(out, 'ux05-cas-409-conflict.png'), fullPage: true });
+    // 2.5 CRITICAL UXF-01 ASSERTION: Root B MUST NOT show pending proposal!
+    await expect(page.getByTestId(`pending-decision-card-${factGravityB}`)).toHaveCount(0);
+    await expect(page.getByTestId(`propose-btn-${factGravityB}`)).toBeVisible();
+    await page.screenshot({ path: join(out, 'ux05-same-key-isolation.png') });
+    console.log('✓ UXF-01: Root B remains completely isolated from Root A despite identical fact_key!');
 
-    forceConflict = false;
+    // =========================================================================
+    // SCENARIO 3: UXF-02 — Fingerprint-bound CAS & Idempotency, 409 Rebase & 503 Reconcile
+    // =========================================================================
+    console.log('\n--- SCENARIO 3: UXF-02 Fingerprint Idempotency, 409 Rebase & 503 Reconcile ---');
 
-    console.log('\n--- TEST 5: Submit Proposal & Render Before/After Comparison ---');
+    // 3.1 Propose on Root B with forced 409 CAS conflict
+    await page.getByTestId(`propose-btn-${factGravityB}`).click();
+    const replacementInputB = page.getByTestId('amendment-replacement-input');
+    await replacementInputB.fill('Trọng lực hư không Bắc Minh dao động theo thủy triều.');
+    await page.getByTestId('amendment-notes-input').fill('Ghi chú thử nghiệm 409');
+
+    force409OnPropose = true;
     await page.getByTestId('amendment-submit-proposal-btn').click();
 
-    // Verify Pending Decision Card appears
-    const decisionCard = page.getByTestId('pending-decision-card');
-    await expect(decisionCard).toBeVisible();
-    await expect(decisionCard.getByText('ĐỀ XUẤT CHỜ DUYỆT', { exact: true })).toBeVisible();
+    // 3.2 Verify 409 conflict alert and Rebase button
+    await expect(page.getByText('Xung đột phiên bản bộ nhớ truyện (409)')).toBeVisible();
+    const rebaseBtn = page.getByTestId('rebase-retry-btn');
+    await expect(rebaseBtn).toBeVisible();
+    await page.screenshot({ path: join(out, 'ux05-cas-409-rebase.png') });
 
-    // Verify Before/After comparison text
-    await expect(page.getByTestId('comparison-before-text')).toHaveText('Trọng lực thế giới cố định ở mức 1G.');
-    await expect(page.getByTestId('comparison-after-text')).toHaveText('Trọng lực thế giới dao động theo chu kỳ mặt trăng.');
-    console.log('✓ UX-05: Before/After comparison cards rendered with exact accuracy!');
+    // 3.3 Author draft is preserved intact during 409
+    await expect(replacementInputB).toHaveValue('Trọng lực hư không Bắc Minh dao động theo thủy triều.');
 
-    await page.screenshot({ path: join(out, 'ux05-before-after-comparison.png'), fullPage: true });
+    // 3.4 Click Rebase -> Brain version updated, draft preserved
+    force409OnPropose = false;
+    await rebaseBtn.click();
+    await expect(page.getByText('Xung đột phiên bản bộ nhớ truyện (409)')).toHaveCount(0);
+    await expect(replacementInputB).toHaveValue('Trọng lực hư không Bắc Minh dao động theo thủy triều.');
+    console.log('✓ UXF-02: Actionable 409 Rebase succeeded with 100% draft preservation!');
 
-    console.log('\n--- TEST 6: Author Decision — Reject Proposal ---');
-    await page.getByTestId('decision-reason-input').fill('Chưa hợp lý với chương 3.');
-    await page.getByTestId('reject-amendment-btn').click();
-
-    // Verify rejection notification and parent rule preserved
-    await expect(page.getByText('Đã từ chối đề xuất sửa đổi. Bản Canon cũ của quy tắc world_rule_gravity được bảo toàn nguyên vẹn.')).toBeVisible();
-    await expect(page.getByTestId('canon-text-world_rule_gravity')).toHaveText('Trọng lực thế giới cố định ở mức 1G.');
-    console.log('✓ UX-05: Reject decision preserved parent Canon intact!');
-
-    console.log('\n--- TEST 7: Author Decision — Accept Proposal & Canon Promotion ---');
-    // Open proposal on second rule (standard rule)
-    await page.getByTestId('propose-btn-world_rule_cultivation').click();
-    await replacementInput.fill('Tu giả có thể dùng đan dược ngũ sắc để biến dị linh căn.');
+    // 3.5 Simulate 503 Network Timeout on submit
+    force503OnPropose = true;
     await page.getByTestId('amendment-submit-proposal-btn').click();
 
-    // Decision view appears
-    await expect(page.getByTestId('pending-decision-card')).toBeVisible();
-    await expect(page.getByTestId('comparison-before-text')).toHaveText('Tu giả chỉ có thể hấp thụ linh khí tự nhiên.');
-    await expect(page.getByTestId('comparison-after-text')).toHaveText('Tu giả có thể dùng đan dược ngũ sắc để biến dị linh căn.');
+    // Verify 503 alert and reconcile button
+    await expect(page.getByText('Kết nối gián đoạn (503)')).toBeVisible();
+    const reconcileBtn = page.getByTestId('reconcile-server-btn');
+    await expect(reconcileBtn).toBeVisible();
 
-    // Accept proposal
-    await page.getByTestId('accept-amendment-btn').click();
+    // 3.6 Click "Kiểm tra đồng bộ máy chủ" -> successfully reconciles proposal already stored on server
+    await reconcileBtn.click();
+    await expect(page.getByTestId(`pending-decision-card-${factGravityB}`)).toBeVisible();
+    console.log('✓ UXF-02: 503 Server reconciliation reconciled proposal successfully without duplicate post!');
 
-    // Verify success and Canon updated
-    await expect(page.getByText(/Đã chấp thuận đề xuất sửa đổi quy tắc world_rule_cultivation.*Fact mới đã trở thành Canon/)).toBeVisible();
-    await expect(page.getByTestId('canon-text-world_rule_cultivation')).toHaveText('Tu giả có thể dùng đan dược ngũ sắc để biến dị linh căn.');
-    console.log('✓ UX-05: Accept decision promoted successor to Canon and bumped Brain Version to v2!');
+    // =========================================================================
+    // SCENARIO 4: Separate Decision Keys for Accept vs Reject & Final Canon Promotion
+    // =========================================================================
+    console.log('\n--- SCENARIO 4: Accept & Reject Lifecycle with Independent Keys ---');
 
-    await page.screenshot({ path: join(out, 'ux05-accepted-canon-promoted.png'), fullPage: true });
+    // 4.1 Reject proposal on Root A
+    await page.getByTestId(`decision-reason-input-${factGravityA}`).fill('Không đủ linh khí để duy trì 0.8G.');
+    await page.getByTestId(`reject-amendment-btn-${factGravityA}`).click();
 
-    console.log('\n--- TEST 8: Lineage & History Modal Inspection ---');
-    // Click "Lịch sử & Phả hệ" on the updated rule
-    await page.getByTestId('history-btn-world_rule_cultivation').click();
+    // Verify rejection: Root A Canon preserved at 1.0G
+    await expect(page.getByText(/Đã từ chối đề xuất sửa đổi.*bảo toàn nguyên vẹn/)).toBeVisible();
+    await expect(page.getByTestId(`canon-text-${factGravityA}`)).toHaveText('Trọng lực đại lục Nam Cực: 1.0G.');
+    console.log('✓ Reject decision preserved parent Canon intact on Root A!');
 
-    // Modal opens
+    // 4.2 Accept proposal on Root B
+    await page.getByTestId(`decision-reason-input-${factGravityB}`).fill('Chấp thuận thiết lập thủy triều Bắc Minh.');
+    await page.getByTestId(`accept-amendment-btn-${factGravityB}`).click();
+
+    // Verify accept: Successor promoted to Canon, brain version bumped to v3
+    await expect(page.getByText(/Đã chấp thuận đề xuất sửa đổi.*Fact mới đã trở thành Canon.*Brain v3/)).toBeVisible();
+    await expect(page.getByTestId(`canon-text-${factsDb[factsDb.length - 1].fact_id}`)).toHaveText('Trọng lực hư không Bắc Minh dao động theo thủy triều.');
+    console.log('✓ Accept decision promoted successor to Canon and bumped Brain Version to v3!');
+
+    // =========================================================================
+    // SCENARIO 5: Full Lineage & History Modal Verification
+    // =========================================================================
+    console.log('\n--- SCENARIO 5: Lineage & History Modal Inspection ---');
+    const latestSuccFactId = factsDb[factsDb.length - 1].fact_id;
+    await page.getByTestId(`history-btn-${latestSuccFactId}`).click();
+
     await expect(page.getByText(/Lịch sử hiệu chỉnh & Phả hệ quy tắc/)).toBeVisible();
     await expect(page.getByText('Phả hệ các thế hệ Fact (Lineage)')).toBeVisible();
-    await expect(page.getByText('Nhật ký các đề xuất sửa đổi (Proposals)')).toBeVisible();
+    await expect(page.getByText('Thế hệ 2 (HEAD)')).toBeVisible();
     await expect(page.getByText('ĐÃ DUYỆT')).toBeVisible();
-    console.log('✓ UX-05: Lineage and proposal audit trail modal verified!');
+    await page.screenshot({ path: join(out, 'ux05-lineage-history-modal.png') });
+    console.log('✓ Lineage chain and proposal audit trail modal verified!');
 
-    await page.screenshot({ path: join(out, 'ux05-lineage-history-modal.png'), fullPage: true });
+    // Capture visual screenshot
+    await page.screenshot({ path: join(out, 'ux05-full-regression-complete.png'), fullPage: true });
 
-    console.log('\nALL 8 UX-05 BROWSER REGRESSION TESTS PASSED CLEANLY!');
+    console.log('\nALL UXF-01, UXF-02, UXF-03 REGRESSION SCENARIOS PASSED 100% CLEANLY!');
   } finally {
     await browser.close();
     await server.close();

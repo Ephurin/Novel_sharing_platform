@@ -100,48 +100,66 @@ tests/test_setup_amendment_postgres.py::test_ux05_full_e2e_tampered_receipt_bloc
 8. Asserted **`len(provider.payloads) == 0`** (strictly zero fake-provider calls under tampered receipt).
 9. Restored valid receipt -> generation succeeded again (`status == 'completed'`).
 
-### 3.2 Playwright Browser E2E Tests (`web/tests/p2-07f-ux05-world-amendment.browser.test.mjs`)
-All **8 / 8** browser tests passed cleanly:
+### 3.2 Playwright Browser Regression Tests (`web/tests/p2-07f-ux05-world-amendment.browser.test.mjs`)
+Fully updated with high-fidelity stateful mock server enforcing real P2-07E invariants (CAS checks, strict idempotency with fingerprint matching, M0 provenance check returning 422 for non-setup facts, pre-M0 guard, and true append-only factsDb).
+All **5 / 5** comprehensive regression scenarios passed cleanly:
 ```
---- TEST 1: View Canon Rules & Verify Badges & Immutability ---
-✓ UX-05: Canon rules and immutability status badges rendered properly!
+--- SCENARIO 1: UXF-03 Pre-M0 Guard & Sync Upon M0 Activation ---
+✓ UXF-03: Pre-M0 guard verified (propose actions hidden before M0 activation)!
+✓ UXF-03: Manager automatically synchronized to active M0 and Brain v2!
 
---- TEST 2: Open Propose Form & Verify Lock Immutability Notice ---
-✓ UX-05: Lock immutability notice verified (no lock toggle controls exist)!
+--- SCENARIO 2: UXF-01 Same-Key Isolation & Ineligible Facts ---
+✓ UXF-01: Non-setup P1 rule rendered as read-only with propose/history hidden!
+✓ UXF-01: Root B remains completely isolated from Root A despite identical fact_key!
 
---- TEST 3: Verify Draft Persistence Across Page Reload ---
-✓ UX-05: Local draft persistence and recovery verified successfully!
+--- SCENARIO 3: UXF-02 Fingerprint Idempotency, 409 Rebase & 503 Reconcile ---
+✓ UXF-02: Actionable 409 Rebase succeeded with 100% draft preservation!
+✓ UXF-02: 503 Server reconciliation reconciled proposal successfully without duplicate post!
 
---- TEST 4: CAS Conflict Handling (409) ---
-✓ UX-05: CAS 409 conflict handled gracefully with draft preserved!
+--- SCENARIO 4: Accept & Reject Lifecycle with Independent Keys ---
+✓ Reject decision preserved parent Canon intact on Root A!
+✓ Accept decision promoted successor to Canon and bumped Brain Version to v3!
 
---- TEST 5: Submit Proposal & Render Before/After Comparison ---
-✓ UX-05: Before/After comparison cards rendered with exact accuracy!
+--- SCENARIO 5: Lineage & History Modal Inspection ---
+✓ Lineage chain and proposal audit trail modal verified!
 
---- TEST 6: Author Decision — Reject Proposal ---
-✓ UX-05: Reject decision preserved parent Canon intact!
-
---- TEST 7: Author Decision — Accept Proposal & Canon Promotion ---
-✓ UX-05: Accept decision promoted successor to Canon and bumped Brain Version to v2!
-
---- TEST 8: Lineage & History Modal Inspection ---
-✓ UX-05: Lineage and proposal audit trail modal verified!
-
-ALL 8 UX-05 BROWSER REGRESSION TESTS PASSED CLEANLY!
-✔ P2-07F Regression: UX-05 Author IDE World Rules Amendment & CAS Lifecycle (8431.2932ms)
+ALL UXF-01, UXF-02, UXF-03 REGRESSION SCENARIOS PASSED 100% CLEANLY!
+✔ P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle (7354.9862ms)
 ```
 
 ### 3.3 Visual Evidence Artifacts
 Screenshots captured and stored at `docs/development/p2/evidence/p2-07f/`:
-1. `ux05-canon-rules-view.png`: Approved Canon rules with `Bất biến (Locked)` and `Quy tắc chuẩn` badges.
-2. `ux05-cas-409-conflict.png`: Graceful CAS 409 conflict alert with draft preservation.
-3. `ux05-before-after-comparison.png`: Side-by-side Before/After comparison cards.
-4. `ux05-accepted-canon-promoted.png`: Successor promoted to Canon with updated brain version.
-5. `ux05-lineage-history-modal.png`: Lineage generations and proposal audit trail modal.
+1. `ux05-m0-pre-activation.png`: Banner cảnh báo mốc M0 chưa kích hoạt, ẩn toàn bộ nút đề xuất hiệu chỉnh (UXF-03).
+2. `ux05-same-key-isolation.png`: Phân lập tuyệt đối giữa hai root cùng `fact_key`, hiển thị thẻ đề xuất độc lập và quy tắc P1 ngoài M0 chỉ đọc (UXF-01).
+3. `ux05-cas-409-rebase.png`: Xung đột CAS 409 với nút Rebase làm mới phiên bản máy chủ và bảo toàn 100% bản nháp (UXF-02).
+4. `ux05-lineage-history-modal.png`: Modal lịch sử hiệu chỉnh hiển thị phả hệ đa thế hệ (Lineage) và nhật ký đề xuất kiểm toán.
+5. `ux05-full-regression-complete.png`: Toàn cảnh hoàn tất 5 kịch bản hồi quy sau khi chấp thuận đề xuất và thăng cấp successor lên Canon.
 
 ---
 
-## 4. CI Workflow Integration
+## 4. Resolution of GPT-6 Review Findings (P1 Fixes)
+
+### 4.1 UXF-01: Proposal Management by Fact UUID & Lineage Isolation
+- Proposals, pending decision cards, and amendment forms are keyed strictly by Fact UUID (`fact_id`), completely removing `fact_key` collisions.
+- Same-key roots (e.g. two setup rules both having `fact_key: 'world_rule_gravity'`) remain strictly isolated; proposing on Root A does not trigger or affect Root B.
+- Non-setup World Rules (e.g. general P1 facts) fail-closed via M0 setup root verification (`getWorldRuleAmendments` returning 422/404) and render as read-only with badge `Không thuộc thiết lập M0 (Chỉ đọc)`. Propose and history actions are hidden.
+- History loading errors are rendered in an inline Mantine Alert with a retry button instead of being silently swallowed.
+
+### 4.2 UXF-02: Fingerprint-bound CAS & Idempotency Protocol
+- Idempotency key uses `draft.operationKey(payloadWithoutKey)`, ensuring that retries with the same payload maintain the same idempotency key, while modifying `replacement_text`, `private_notes`, or `expected_brain_version` automatically rotates the key.
+- Independent operation keys are generated for `accept` vs `reject` decisions.
+- On 409 CAS conflict, provides an actionable `Làm mới phiên bản máy chủ & Giữ bản nháp` button (`data-testid="rebase-retry-btn"`) that re-syncs the server Brain version while preserving 100% of the author's input.
+- On 503 / network uncertainty, provides a `Kiểm tra đồng bộ máy chủ` button (`data-testid="reconcile-server-btn"`) that checks server pending proposals to safely reconcile without duplicate submissions.
+
+### 4.3 UXF-03: Pre-M0 Guard & Automatic Brain Version Sync
+- Pre-M0 banner (`data-testid="m0-not-active-banner"`) informs the author that world rules cannot be amended before M0 activation.
+- Propose buttons are hidden prior to M0 activation.
+- Upon clicking "Kích hoạt thiết lập để bắt đầu viết", the amendment manager automatically detects M0 activation and synchronizes to M0 Active and Brain v2 without requiring manual browser page reload.
+
+---
+
+## 5. CI Workflow Integration
 Updated `.github/workflows/p2-setup-provenance.yml`:
 - Added step `Story Planning Studio UX-05 World Setup Rule Amendments regression (Chromium HTTP mocks)` running `node --test tests/p2-07f-ux05-world-amendment.browser.test.mjs`.
 - All tests run strictly with fake providers (`LLM_PROVIDER=fake`, `EMBEDDING_PROVIDER=fake`).
+

@@ -75,7 +75,17 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
    {snapshot.proposals.filter(c=>!planningStep||(world?c.card_type==='world_rule':people?c.card_type!=='world_rule':false)).map(c=><Card withBorder key={c.proposal_id}><Group><Badge>{c.origin==='author_declared'?'Tác giả khai báo':c.origin==='extracted_explicit'?'Từ nguồn rõ ràng':'AI đề xuất'}</Badge><Badge>{c.unresolved?'Chưa hỗ trợ':c.status==='accepted'?'Đã duyệt':c.status==='rejected'?'Đã loại':'Chờ duyệt'}</Badge></Group><Text>{String(c.reviewed_payload?.canonical_name??c.reviewed_payload?.fact_value??c.payload.canonical_name??c.payload.fact_value??'')}</Text><Text size="sm" c="dimmed">Ban đầu: {String(c.payload.canonical_name??c.payload.fact_value??c.payload.attribute_key??"")}</Text><Text size="xs">Nguồn: {c.source_refs.map(r=>String(r.field_path??'gợi ý')).join(', ')}</Text></Card>)}</>}
   <div hidden={!world}>
     <Divider my="md" label="Hiệu chỉnh Quy tắc Thế giới sau M0 (UX-05)" labelPosition="center" />
-    <WorldRuleAmendmentManager novelId={novelId} brainVersion={snapshot?.brain_version} onServerChange={onServerChange} />
+    <WorldRuleAmendmentManager
+      novelId={novelId}
+      brainVersion={snapshot?.brain_version}
+      m0Active={Boolean(
+        snapshot?.job_status === 'active' ||
+        snapshot?.job_status === 'completed' ||
+        snapshot?.job_status === 'succeeded' ||
+        (snapshot?.review && ['active', 'completed', 'succeeded'].includes(snapshot?.job_status || ''))
+      )}
+      onServerChange={onServerChange}
+    />
   </div>
  </Stack>;
 }
