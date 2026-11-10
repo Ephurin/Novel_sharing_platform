@@ -38,6 +38,24 @@ export type WorldRuleFact = {
   root_fact_id?: string;
 };
 
+export type ReloadResult =
+  | {
+      ok: true;
+      brainVersion: number;
+      rules: WorldRuleFact[];
+      memStatus: string;
+      pendingProposalsByFactId: Record<
+        string,
+        { proposal: WorldRuleAmendmentHistoryItem; history: WorldRuleAmendmentHistory }
+      >;
+      ineligibleFacts: Record<string, string>;
+      historyErrors: Record<string, string>;
+    }
+  | {
+      ok: false;
+      error: string;
+    };
+
 type ProposalDraft = {
   replacement_text: string;
   private_notes: string;
@@ -146,13 +164,15 @@ export function WorldRuleAmendmentManager({
     }
   }, [initialBrainVersion]);
 
-  // Reload approved memory to get current effective World Rules
-  async function reloadRules(silent = false) {
+  // Reload approved memory to get current effective World Rules (UXF-02b: return verified ReloadResult)
+  async function reloadRules(silent = false): Promise<ReloadResult> {
     if (!silent) setLoading(true);
     setGeneralError('');
     try {
       const mem = await getApprovedMemory(novelId);
-      if (!isMounted.current) return;
+      if (!isMounted.current) {
+        return { ok: false, error: 'Component unmounted' };
+      }
       setBrainVersion(mem.brain_version);
       setMemStatus(mem.status || 'draft');
 
@@ -212,14 +232,27 @@ export function WorldRuleAmendmentManager({
         setIneligibleFacts(newIneligibleMap);
         setHistoryErrors(newErrorsMap);
       }
+
+      return {
+        ok: true,
+        brainVersion: mem.brain_version,
+        rules: effectiveRules,
+        memStatus: mem.status || 'draft',
+        pendingProposalsByFactId: newPendingMap,
+        ineligibleFacts: newIneligibleMap,
+        historyErrors: newErrorsMap,
+      };
     } catch (e) {
-      if (!isMounted.current) return;
-      if (e instanceof ApiClientError && e.status === 404) {
-        setRules([]);
-        setMemStatus('draft');
-      } else {
-        setGeneralError(getApiErrorMessage(e));
+      const errorMsg = getApiErrorMessage(e);
+      if (isMounted.current) {
+        if (e instanceof ApiClientError && e.status === 404) {
+          setRules([]);
+          setMemStatus('draft');
+        } else {
+          setGeneralError(errorMsg);
+        }
       }
+      return { ok: false, error: errorMsg };
     } finally {
       if (isMounted.current && !silent) setLoading(false);
     }
@@ -416,9 +449,7 @@ export function WorldRuleAmendmentManager({
                     rule={rule}
                     proposal={pendingInfo.proposal}
                     brainVersion={brainVersion}
-                    onRefreshLatest={async () => {
-                      await reloadRules(true);
-                    }}
+                    onRefreshLatest={() => reloadRules(true)}
                     onDecided={async (decision, message) => {
                       setActionSuccess(message);
                       await reloadRules(true);
@@ -435,9 +466,7 @@ export function WorldRuleAmendmentManager({
                       rule={rule}
                       brainVersion={brainVersion}
                       actor={actor}
-                      onRefreshLatest={async () => {
-                        await reloadRules(true);
-                      }}
+                      onRefreshLatest={() => reloadRules(true)}
                       onSuccess={async (msg) => {
                         setProposingFactId(null);
                         setActionSuccess(msg);
@@ -580,12 +609,21 @@ export function WorldRuleAmendmentManager({
 
 // ── Sub-component: Propose Amendment Form (UXF-02: Fingerprint-bound CAS & Idempotency) ──
 
+interface SubmittedProposeRequest {
+  novelId: string;
+  factId: string;
+  replacement_text: string;
+  private_notes: string;
+  expected_brain_version: number;
+  idempotency_key: string;
+}
+
 interface ProposeFormProps {
   novelId: string;
   rule: WorldRuleFact;
   brainVersion: number;
   actor: string;
-  onRefreshLatest: () => Promise<void>;
+  onRefreshLatest: () => Promise<ReloadResult>;
   onSuccess: (message: string) => void;
   onCancel: () => void;
 }
@@ -620,6 +658,9 @@ function ProposeAmendmentForm({
   const [is409Conflict, setIs409Conflict] = useState(false);
   const [is503Uncertain, setIs503Uncertain] = useState(false);
 
+  // UXF-02a: Store immutable in-flight submitted request identity before dispatch
+  const lastSubmittedRef = useRef<SubmittedProposeRequest | null>(null);
+
   // Sync expected brain version if parent changes
   useEffect(() => {
     setCurrentExpectedVersion(brainVersion);
@@ -630,14 +671,43 @@ function ProposeAmendmentForm({
     ? 'Quy tắc này là BẤT BIẾN (LOCKED). Nội dung sửa đổi sẽ tự động kế thừa thuộc tính bất biến; không thể chuyển đổi trạng thái khóa.'
     : 'Quy tắc này là QUY TẮC CHUẨN. Thuộc tính khóa không thay đổi qua bản sửa.';
 
-  // UXF-02: Rebase expected version on 409 while preserving author draft
+  // UXF-02b: Rebase on 409 must confirm successful refresh of Brain version and target Fact
   async function handleRebaseAndRetry() {
     setSubmitting(true);
     setError('');
     try {
-      await onRefreshLatest();
-      // Memory refreshed, error cleared, author text remains intact in draft
+      const res = await onRefreshLatest();
+      if (!res.ok) {
+        // Refresh failed (e.g. GET /memory 503) -> DO NOT clear 409!
+        setError(
+          `Không thể làm mới phiên bản máy chủ (${res.error}). Cảnh báo xung đột 409 và bản nháp được giữ nguyên; vui lòng thử lại.`
+        );
+        return;
+      }
+
+      if (res.historyErrors[rule.fact_id]) {
+        // History GET for target rule failed -> DO NOT clear 409!
+        setError(
+          `Không thể tải trạng thái quy tắc (${res.historyErrors[rule.fact_id]}). Cảnh báo xung đột 409 và bản nháp được giữ nguyên; vui lòng thử lại.`
+        );
+        return;
+      }
+
+      if (res.ineligibleFacts[rule.fact_id]) {
+        setError(`Quy tắc không còn đủ điều kiện hiệu chỉnh: ${res.ineligibleFacts[rule.fact_id]}`);
+        return;
+      }
+
+      const freshRule = res.rules.find((r) => r.fact_id === rule.fact_id);
+      if (!freshRule) {
+        setError('Quy tắc này không còn tồn tại trong bộ nhớ truyện máy chủ.');
+        return;
+      }
+
+      // Confirmed fresh state
+      setCurrentExpectedVersion(res.brainVersion);
       setIs409Conflict(false);
+      setError('');
     } catch (e) {
       setError(`Không thể làm mới phiên bản máy chủ: ${getApiErrorMessage(e)}`);
     } finally {
@@ -645,28 +715,126 @@ function ProposeAmendmentForm({
     }
   }
 
-  // UXF-02: Check server reconciliation on 503 / network timeout
+  // UXF-02a: Authoritative 503 reconciliation via preserved idempotent request
   async function handleReconcileServer() {
+    if (!lastSubmittedRef.current) {
+      setError('Chưa có thông tin yêu cầu trước đó để đối chiếu.');
+      return;
+    }
+    const submitted = lastSubmittedRef.current;
+
+    // Check if author modified the draft in the form since submitting
+    const isEdited =
+      replacement_text.trim() !== submitted.replacement_text ||
+      private_notes.trim() !== submitted.private_notes;
+
+    if (isEdited) {
+      setError(
+        'Bản nháp đã được chỉnh sửa so với yêu cầu trước đó đang chờ xác định. Vui lòng bấm "Gửi đề xuất sửa" để gửi bản nháp mới với mã giao dịch mới.'
+      );
+      return;
+    }
+
     setReconciling(true);
     setError('');
+
     try {
-      const h = await getWorldRuleAmendments(novelId, rule.fact_id, scope.signal);
-      const matched = (h.proposals || []).find(
-        (p) => p.status === 'pending' && p.replacement_text.trim() === replacement_text.trim()
-      );
-      if (matched) {
-        draft.clear();
-        onSuccess(
-          `Máy chủ đã tiếp nhận đề xuất của bạn (Mã: ${matched.proposal_id.slice(0, 8)}...). Đã đồng bộ thành công!`
-        );
-        return;
-      }
+      const body = {
+        contract_version: 'setup-rule-amendment-v1' as const,
+        idempotency_key: submitted.idempotency_key,
+        replacement_text: submitted.replacement_text,
+        expected_brain_version: submitted.expected_brain_version,
+        private_author_notes: submitted.private_notes ? [submitted.private_notes] : [],
+      };
+
+      await proposeWorldRuleAmendment(novelId, submitted.factId, body, scope.signal);
+      draft.clear();
+      lastSubmittedRef.current = null;
       setIs503Uncertain(false);
-      setError('Máy chủ chưa ghi nhận đề xuất này. Bạn có thể bấm "Gửi đề xuất sửa" để thử lại an toàn.');
-    } catch (e) {
-      setError(`Không thể đối chiếu máy chủ: ${getApiErrorMessage(e)}`);
+      onSuccess(
+        `Máy chủ đã tiếp nhận và xác thực thành công đề xuất của bạn (đối chiếu qua mã giao dịch). Đã đồng bộ an toàn!`
+      );
+    } catch (err: unknown) {
+      if (err instanceof ApiClientError && (err.status === 503 || err.status === 504)) {
+        setIs503Uncertain(true);
+        setError(
+          `Kết nối máy chủ vẫn gián đoạn (${err.status}). Kết quả chưa xác định (Ambiguous Outcome); bản nháp của bạn được bảo toàn an toàn.`
+        );
+      } else if (err instanceof ApiClientError && err.status === 409) {
+        try {
+          const h = await getWorldRuleAmendments(novelId, submitted.factId, scope.signal);
+          const competingPending = (h.proposals || []).find((p) => p.status === 'pending');
+          if (competingPending) {
+            setIs503Uncertain(false);
+            setIs409Conflict(true);
+            setError(
+              `Trạng thái chưa xác định: Máy chủ hiện có đề xuất chờ duyệt (Mã: ${competingPending.proposal_id.slice(0, 8)}...), nhưng không thể chứng minh đề xuất đó thuộc về yêu cầu này (có thể do phiên khác tạo). Bản nháp của bạn được bảo toàn an toàn.`
+            );
+            return;
+          }
+        } catch {
+          // ignore
+        }
+        setIs409Conflict(true);
+        setIs503Uncertain(false);
+        setError(
+          `${getApiErrorMessage(err)}. Xung đột phiên bản bộ nhớ truyện (409): Trạng thái máy chủ đã thay đổi. Bản nháp được giữ nguyên; vui lòng làm mới phiên bản máy chủ.`
+        );
+      } else {
+        setError(`Không thể đối chiếu máy chủ: ${getApiErrorMessage(err)}`);
+      }
     } finally {
       setReconciling(false);
+    }
+  }
+
+  // Safe retry using exact preserved idempotency key and submitted payload
+  async function handleSafeRetry() {
+    if (!lastSubmittedRef.current) {
+      return handleSubmit();
+    }
+    const submitted = lastSubmittedRef.current;
+    scope.assertCurrent();
+    const signal = scope.signal;
+    setSubmitting(true);
+    setError('');
+
+    const body = {
+      contract_version: 'setup-rule-amendment-v1' as const,
+      idempotency_key: submitted.idempotency_key,
+      replacement_text: submitted.replacement_text,
+      expected_brain_version: submitted.expected_brain_version,
+      private_author_notes: submitted.private_notes ? [submitted.private_notes] : [],
+    };
+
+    try {
+      await proposeWorldRuleAmendment(novelId, submitted.factId, body, signal);
+      if (!signal.aborted) {
+        draft.clear();
+        lastSubmittedRef.current = null;
+        setIs503Uncertain(false);
+        onSuccess(
+          `Đã tạo đề xuất chỉnh sửa quy tắc ${rule.fact_key}. Vui lòng đối chiếu và xác nhận phê duyệt bên dưới.`
+        );
+      }
+    } catch (e) {
+      if (signal.aborted) return;
+      if (e instanceof ApiClientError && (e.status === 503 || e.status === 504)) {
+        setIs503Uncertain(true);
+        setError(
+          `${getApiErrorMessage(e)}. Kết nối vẫn bị gián đoạn (${e.status}). Trạng thái chưa xác định (Ambiguous Outcome); bản nháp của bạn được bảo toàn an toàn.`
+        );
+      } else if (e instanceof ApiClientError && e.status === 409) {
+        setIs409Conflict(true);
+        setIs503Uncertain(false);
+        setError(
+          `${getApiErrorMessage(e)}. Xung đột phiên bản bộ nhớ truyện (409): Dữ liệu vừa được cập nhật ở một phiên làm việc khác. Bản nháp của bạn được bảo toàn an toàn; vui lòng làm mới phiên bản máy chủ trước khi gửi lại.`
+        );
+      } else {
+        setError(getApiErrorMessage(e));
+      }
+    } finally {
+      if (!signal.aborted) setSubmitting(false);
     }
   }
 
@@ -699,6 +867,16 @@ function ProposeAmendmentForm({
     };
     const idempotencyKey = draft.operationKey(bodyForFingerprint);
 
+    const submitted: SubmittedProposeRequest = {
+      novelId,
+      factId: rule.fact_id,
+      replacement_text: replacement_text.trim(),
+      private_notes: private_notes.trim(),
+      expected_brain_version: currentExpectedVersion,
+      idempotency_key: idempotencyKey,
+    };
+    lastSubmittedRef.current = submitted;
+
     const body = {
       contract_version: 'setup-rule-amendment-v1' as const,
       idempotency_key: idempotencyKey,
@@ -711,6 +889,7 @@ function ProposeAmendmentForm({
       await proposeWorldRuleAmendment(novelId, rule.fact_id, body, signal);
       if (!signal.aborted) {
         draft.clear();
+        lastSubmittedRef.current = null;
         onSuccess(
           `Đã tạo đề xuất chỉnh sửa quy tắc ${rule.fact_key}. Vui lòng đối chiếu và xác nhận phê duyệt bên dưới.`
         );
@@ -817,7 +996,7 @@ function ProposeAmendmentForm({
                 <Button
                   size="xs"
                   color="blue"
-                  onClick={handleSubmit}
+                  onClick={handleSafeRetry}
                   loading={submitting}
                   data-testid="safe-retry-btn"
                 >
@@ -849,12 +1028,21 @@ function ProposeAmendmentForm({
 
 // ── Sub-component: Pending Proposal Decision View (UXF-02: Fingerprint-bound CAS) ──
 
+interface SubmittedDecisionRequest {
+  novelId: string;
+  proposalId: string;
+  decision: 'accept' | 'reject';
+  reason: string;
+  expected_brain_version: number;
+  idempotency_key: string;
+}
+
 interface PendingDecisionProps {
   novelId: string;
   rule: WorldRuleFact;
   proposal: WorldRuleAmendmentHistoryItem;
   brainVersion: number;
-  onRefreshLatest: () => Promise<void>;
+  onRefreshLatest: () => Promise<ReloadResult>;
   onDecided: (decision: 'accept' | 'reject', message: string) => void;
 }
 
@@ -886,18 +1074,46 @@ function PendingProposalDecisionView({
   const [error, setError] = useState('');
   const [is409Conflict, setIs409Conflict] = useState(false);
   const [is503Uncertain, setIs503Uncertain] = useState(false);
+  const [isCompetingConflict, setIsCompetingConflict] = useState(false);
+
+  // UXF-02a: Store immutable in-flight decision request identity before dispatch
+  const lastSubmittedDecisionRef = useRef<SubmittedDecisionRequest | null>(null);
 
   useEffect(() => {
     setCurrentExpectedVersion(brainVersion);
   }, [brainVersion]);
 
-  // UXF-02: Rebase on 409
+  // UXF-02b: Rebase on 409 for Decision
   async function handleRebaseAndRetry() {
     setDeciding(true);
     setError('');
     try {
-      await onRefreshLatest();
+      const res = await onRefreshLatest();
+      if (!res.ok) {
+        setError(
+          `Không thể làm mới phiên bản máy chủ (${res.error}). Cảnh báo xung đột 409 và quyết định được giữ nguyên; vui lòng thử lại.`
+        );
+        return;
+      }
+
+      if (res.historyErrors[rule.fact_id]) {
+        setError(
+          `Không thể tải trạng thái lịch sử đề xuất (${res.historyErrors[rule.fact_id]}). Cảnh báo xung đột 409 và quyết định được giữ nguyên; vui lòng thử lại.`
+        );
+        return;
+      }
+
+      const pendingInfo = res.pendingProposalsByFactId[rule.fact_id];
+      if (!pendingInfo || pendingInfo.proposal.proposal_id !== proposal.proposal_id) {
+        setError(
+          'Đề xuất này không còn ở trạng thái chờ duyệt trên máy chủ (có thể đã được xử lý bởi phiên khác).'
+        );
+        return;
+      }
+
+      setCurrentExpectedVersion(res.brainVersion);
       setIs409Conflict(false);
+      setError('');
     } catch (e) {
       setError(`Không thể làm mới phiên bản máy chủ: ${getApiErrorMessage(e)}`);
     } finally {
@@ -905,27 +1121,158 @@ function PendingProposalDecisionView({
     }
   }
 
-  // UXF-02: Check server reconciliation on 503
+  // UXF-02a: Check server reconciliation on 503
   async function handleReconcileDecision() {
+    if (!lastSubmittedDecisionRef.current) {
+      setError('Chưa có thông tin quyết định trước đó để đối chiếu.');
+      return;
+    }
+    const submitted = lastSubmittedDecisionRef.current;
+
+    if (reason.trim() !== submitted.reason) {
+      setError(
+        'Lý do quyết định đã được chỉnh sửa so với yêu cầu trước đó đang chờ xác định. Vui lòng chọn lại Chấp thuận hoặc Từ chối để gửi quyết định mới.'
+      );
+      return;
+    }
+
     setReconciling(true);
     setError('');
+    setIsCompetingConflict(false);
+
     try {
       const h = await getWorldRuleAmendments(novelId, rule.fact_id, scope.signal);
-      const target = (h.proposals || []).find((p) => p.proposal_id === proposal.proposal_id);
-      if (target && target.status !== 'pending') {
+      const target = (h.proposals || []).find((p) => p.proposal_id === submitted.proposalId);
+
+      if (!target) {
+        setError('Không tìm thấy đề xuất này trong lịch sử máy chủ.');
+        return;
+      }
+
+      if (target.status === 'pending') {
+        // Proposal is still pending on server -> Previous attempt did not commit.
+        // Safely replay with preserved idempotency key:
+        const body = {
+          contract_version: 'setup-rule-amendment-v1' as const,
+          idempotency_key: submitted.idempotency_key,
+          decision: submitted.decision,
+          expected_brain_version: submitted.expected_brain_version,
+          reason: submitted.reason ? submitted.reason : undefined,
+        };
+        const resp = await decideWorldRuleAmendment(novelId, submitted.proposalId, body, scope.signal);
         draft.clear();
+        lastSubmittedDecisionRef.current = null;
+        setIs503Uncertain(false);
+        const actionLabel = submitted.decision === 'accept' ? 'chấp thuận' : 'từ chối';
         onDecided(
-          target.status as 'accept' | 'reject',
-          `Quyết định cho đề xuất đã được máy chủ ghi nhận trạng thái: ${target.status}. Đã đồng bộ thành công!`
+          submitted.decision,
+          `Đã xác thực và ghi nhận thành công quyết định ${actionLabel} (Mã giao dịch hợp lệ). Đã đồng bộ thành công!`
         );
         return;
       }
+
+      // Terminal status on server ('accepted' or 'rejected')
+      const targetDecision = target.status === 'accepted' ? 'accept' : 'reject';
+      const matchesDecision = targetDecision === submitted.decision;
+      const matchesReason = (target.reason || '') === (submitted.reason || '');
+
+      if (!matchesDecision || !matchesReason) {
+        // COMPETING DECISION CONFLICT!
+        setIsCompetingConflict(true);
+        setIs503Uncertain(false);
+        const targetStatusLabel = target.status === 'accepted' ? 'ĐÃ CHẤP THUẬN' : 'ĐÃ TỪ CHỐI';
+        const myDecisionLabel = submitted.decision === 'accept' ? 'chấp thuận' : 'từ chối';
+        setError(
+          `Xung đột quyết định (Competing Decision): Đề xuất đã được quyết định bởi phiên làm việc khác với trạng thái "${targetStatusLabel}" (Lý do: "${target.reason || 'Không có'}"). Quyết định "${myDecisionLabel}" của bạn không thể áp dụng. Bản nháp quyết định được bảo toàn; vui lòng kiểm tra lại.`
+        );
+        return;
+      }
+
+      // Matches decision and reason: verify via idempotent replay to prove exact attribution
+      const body = {
+        contract_version: 'setup-rule-amendment-v1' as const,
+        idempotency_key: submitted.idempotency_key,
+        decision: submitted.decision,
+        expected_brain_version: submitted.expected_brain_version,
+        reason: submitted.reason ? submitted.reason : undefined,
+      };
+      await decideWorldRuleAmendment(novelId, submitted.proposalId, body, scope.signal);
+      draft.clear();
+      lastSubmittedDecisionRef.current = null;
       setIs503Uncertain(false);
-      setError('Máy chủ chưa ghi nhận quyết định. Bạn có thể chọn phê duyệt hoặc từ chối lại.');
-    } catch (e) {
-      setError(`Không thể đối chiếu máy chủ: ${getApiErrorMessage(e)}`);
+      onDecided(
+        submitted.decision,
+        `Quyết định của bạn đã được máy chủ ghi nhận và xác thực chính xác qua mã giao dịch. Đã đồng bộ thành công!`
+      );
+    } catch (err: unknown) {
+      if (err instanceof ApiClientError && (err.status === 503 || err.status === 504)) {
+        setIs503Uncertain(true);
+        setError(
+          `Kết nối máy chủ vẫn gián đoạn (${err.status}). Kết quả chưa xác định (Ambiguous Outcome); bản nháp của bạn được bảo toàn an toàn.`
+        );
+      } else if (err instanceof ApiClientError && err.status === 409) {
+        setIs409Conflict(true);
+        setIs503Uncertain(false);
+        setError(
+          `${getApiErrorMessage(err)}. Xung đột phiên bản (409): Trạng thái đề xuất đã thay đổi trên máy chủ.`
+        );
+      } else {
+        setError(`Không thể đối chiếu máy chủ: ${getApiErrorMessage(err)}`);
+      }
     } finally {
       setReconciling(false);
+    }
+  }
+
+  // Safe retry using exact preserved submitted decision request
+  async function handleSafeRetryDecision() {
+    if (!lastSubmittedDecisionRef.current) {
+      return handleDecision('accept');
+    }
+    const submitted = lastSubmittedDecisionRef.current;
+    scope.assertCurrent();
+    const signal = scope.signal;
+    setDeciding(true);
+    setError('');
+
+    const body = {
+      contract_version: 'setup-rule-amendment-v1' as const,
+      idempotency_key: submitted.idempotency_key,
+      decision: submitted.decision,
+      expected_brain_version: submitted.expected_brain_version,
+      reason: submitted.reason ? submitted.reason : undefined,
+    };
+
+    try {
+      const resp = await decideWorldRuleAmendment(novelId, submitted.proposalId, body, signal);
+      if (!signal.aborted) {
+        draft.clear();
+        lastSubmittedDecisionRef.current = null;
+        setIs503Uncertain(false);
+        const actionLabel = submitted.decision === 'accept' ? 'chấp thuận' : 'từ chối';
+        onDecided(
+          submitted.decision,
+          `Đã ghi nhận thành công quyết định ${actionLabel} (Mã giao dịch hợp lệ).`
+        );
+      }
+    } catch (e) {
+      if (signal.aborted) return;
+      if (e instanceof ApiClientError && (e.status === 503 || e.status === 504)) {
+        setIs503Uncertain(true);
+        setError(
+          `${getApiErrorMessage(e)}. Kết nối vẫn bị gián đoạn (${e.status}). Trạng thái chưa xác định (Ambiguous Outcome); bản nháp được bảo toàn.`
+        );
+      } else if (e instanceof ApiClientError && e.status === 409) {
+        setIs409Conflict(true);
+        setIs503Uncertain(false);
+        setError(
+          `${getApiErrorMessage(e)}. Xung đột phiên bản bộ nhớ truyện (409): Đề xuất đã thay đổi trạng thái ở phiên khác.`
+        );
+      } else {
+        setError(getApiErrorMessage(e));
+      }
+    } finally {
+      if (!signal.aborted) setDeciding(false);
     }
   }
 
@@ -936,6 +1283,7 @@ function PendingProposalDecisionView({
     setError('');
     setIs409Conflict(false);
     setIs503Uncertain(false);
+    setIsCompetingConflict(false);
 
     // UXF-02: Distinct fingerprint and operation key for accept vs reject and per reason change
     const bodyForFingerprint = {
@@ -946,6 +1294,16 @@ function PendingProposalDecisionView({
       reason: reason.trim() || undefined,
     };
     const idempotencyKey = draft.operationKey(bodyForFingerprint);
+
+    const submitted: SubmittedDecisionRequest = {
+      novelId,
+      proposalId: proposal.proposal_id,
+      decision,
+      reason: reason.trim(),
+      expected_brain_version: currentExpectedVersion,
+      idempotency_key: idempotencyKey,
+    };
+    lastSubmittedDecisionRef.current = submitted;
 
     const body = {
       contract_version: 'setup-rule-amendment-v1' as const,
@@ -959,6 +1317,7 @@ function PendingProposalDecisionView({
       const resp = await decideWorldRuleAmendment(novelId, proposal.proposal_id, body, signal);
       if (!signal.aborted) {
         draft.clear();
+        lastSubmittedDecisionRef.current = null;
         if (resp.decision === 'accept') {
           onDecided(
             'accept',
@@ -1069,7 +1428,7 @@ function PendingProposalDecisionView({
               </Group>
             )}
             {is503Uncertain && (
-              <Group mt="xs">
+              <Group mt="xs" gap="xs">
                 <Button
                   size="xs"
                   variant="light"
@@ -1078,6 +1437,32 @@ function PendingProposalDecisionView({
                   data-testid="decision-reconcile-btn"
                 >
                   Kiểm tra đồng bộ máy chủ
+                </Button>
+                <Button
+                  size="xs"
+                  color="blue"
+                  onClick={handleSafeRetryDecision}
+                  loading={deciding}
+                  data-testid="safe-retry-decision-btn"
+                >
+                  Thử gửi lại an toàn
+                </Button>
+              </Group>
+            )}
+            {isCompetingConflict && (
+              <Group mt="xs">
+                <Button
+                  size="xs"
+                  color="orange"
+                  variant="light"
+                  onClick={async () => {
+                    await onRefreshLatest();
+                    setIsCompetingConflict(false);
+                    setError('');
+                  }}
+                  data-testid="competing-refresh-btn"
+                >
+                  Tải lại trạng thái đề xuất mới nhất
                 </Button>
               </Group>
             )}

@@ -55,6 +55,9 @@ test('P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle
   let currentBrainVersion = 1;
   let force409OnPropose = false;
   let force503OnPropose = false;
+  let force503OnMemoryGet = false;
+  let force503OnHistoryGet = false;
+  let force503OnDecision = false;
 
   // Stateful server simulation enforcing real P2-07E invariants
   const factsDb = [
@@ -253,6 +256,9 @@ test('P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle
 
       // GET Approved Memory (returns facts with true server status)
       if (path === `/ai/story-brains/${novelId}/memory`) {
+        if (force503OnMemoryGet) {
+          return fail('SERVICE_UNAVAILABLE', 503, 'Bộ nhớ truyện tạm thời gián đoạn.');
+        }
         // Return effective facts (head of each lineage)
         const heads = [];
         const superseded = new Set(factsDb.map(f => f.supersedes_id).filter(Boolean));
@@ -290,6 +296,9 @@ test('P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle
         }
 
         if (method === 'GET') {
+          if (force503OnHistoryGet) {
+            return fail('SERVICE_UNAVAILABLE', 503, 'Lịch sử quy tắc tạm thời gián đoạn.');
+          }
           // Lineage chain
           const lineage = [];
           let cur = targetFact;
@@ -402,6 +411,12 @@ test('P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle
         if (!prop) return fail('PROPOSAL_NOT_FOUND', 404, 'Proposal không tồn tại');
 
         const body = req.postDataJSON();
+
+        // UXF-02a: 503 simulation on decision
+        if (force503OnDecision) {
+          force503OnDecision = false;
+          return fail('SERVICE_UNAVAILABLE', 503, 'Máy chủ gián đoạn khi ghi nhận quyết định.');
+        }
 
         // CAS Check
         if (body.expected_brain_version !== currentBrainVersion) {
@@ -588,40 +603,95 @@ test('P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle
     // 3.3 Author draft is preserved intact during 409
     await expect(replacementInputB).toHaveValue('Trọng lực hư không Bắc Minh dao động theo thủy triều.');
 
-    // 3.4 Click Rebase -> Brain version updated, draft preserved
+    // 3.4a UXF-02b: Test Rebase failure when GET /memory fails with 503
+    force503OnMemoryGet = true;
+    await rebaseBtn.click();
+    await expect(page.getByText(/Không thể làm mới phiên bản máy chủ.*Bộ nhớ truyện tạm thời gián đoạn/)).toBeVisible();
+    await expect(rebaseBtn).toBeVisible();
+    await expect(replacementInputB).toHaveValue('Trọng lực hư không Bắc Minh dao động theo thủy triều.');
+    force503OnMemoryGet = false;
+    console.log('✓ UXF-02b: Rebase failure on GET /memory handled cleanly (409 retained, draft intact)!');
+
+    // 3.4b UXF-02b: Test Rebase failure when GET history fails with 503
+    force503OnHistoryGet = true;
+    await rebaseBtn.click();
+    await expect(page.getByText(/Không thể tải trạng thái quy tắc.*Lịch sử quy tắc tạm thời gián đoạn/)).toBeVisible();
+    await expect(rebaseBtn).toBeVisible();
+    await expect(replacementInputB).toHaveValue('Trọng lực hư không Bắc Minh dao động theo thủy triều.');
+    force503OnHistoryGet = false;
+    console.log('✓ UXF-02b: Rebase failure on GET history handled cleanly (409 retained, draft intact)!');
+
+    // 3.4c UXF-02b: Successful Rebase when server recovers
     force409OnPropose = false;
     await rebaseBtn.click();
-    await expect(page.getByText('Xung đột phiên bản bộ nhớ truyện (409)')).toHaveCount(0);
+    await expect(rebaseBtn).toHaveCount(0);
     await expect(replacementInputB).toHaveValue('Trọng lực hư không Bắc Minh dao động theo thủy triều.');
-    console.log('✓ UXF-02: Actionable 409 Rebase succeeded with 100% draft preservation!');
+    console.log('✓ UXF-02b: Rebase succeeded upon recovery with 100% draft preservation!');
 
-    // 3.5 Simulate 503 Network Timeout on submit
+    // 3.5 UXF-02a: Simulate 503 Network Timeout on submit (lost response where proposal reached server)
     force503OnPropose = true;
     await page.getByTestId('amendment-submit-proposal-btn').click();
 
-    // Verify 503 alert and reconcile button
+    // Verify 503 alert, reconcile button and safe retry button
     await expect(page.getByText('Kết nối gián đoạn (503)')).toBeVisible();
     const reconcileBtn = page.getByTestId('reconcile-server-btn');
+    const safeRetryBtn = page.getByTestId('safe-retry-btn');
     await expect(reconcileBtn).toBeVisible();
+    await expect(safeRetryBtn).toBeVisible();
+    const proposalsCountAfter503 = proposalsDb.length;
 
-    // 3.6 Click "Kiểm tra đồng bộ máy chủ" -> successfully reconciles proposal already stored on server
+    // 3.6 UXF-02a: Editing draft after 503 uncertain response blocks reconcile with stale snapshot
+    await replacementInputB.fill('Trọng lực hư không Bắc Minh dao động (đã sửa nháp)');
     await reconcileBtn.click();
+    await expect(page.getByText(/Bản nháp đã được chỉnh sửa so với yêu cầu trước đó/)).toBeVisible();
+    console.log('✓ UXF-02a: Editing draft after 503 properly blocks reconcile with stale snapshot!');
+
+    // Revert text back to original submitted text
+    await replacementInputB.fill('Trọng lực hư không Bắc Minh dao động theo thủy triều.');
+
+    // 3.7 UXF-02a: Exact idempotent replay with preserved key -> zero duplicate writes!
+    await safeRetryBtn.click();
     await expect(page.getByTestId(`pending-decision-card-${factGravityB}`)).toBeVisible();
-    console.log('✓ UXF-02: 503 Server reconciliation reconciled proposal successfully without duplicate post!');
+    // Verify no duplicate proposal in database!
+    assert.strictEqual(proposalsDb.length, proposalsCountAfter503, 'Proposals count must not increase on idempotent replay');
+    console.log('✓ UXF-02a: Exact idempotent replay verified with zero duplicate writes!');
 
     // =========================================================================
-    // SCENARIO 4: Separate Decision Keys for Accept vs Reject & Final Canon Promotion
+    // SCENARIO 4: Competing Decision Conflict, Reject & Final Canon Promotion
     // =========================================================================
-    console.log('\n--- SCENARIO 4: Accept & Reject Lifecycle with Independent Keys ---');
+    console.log('\n--- SCENARIO 4: Competing Decision Conflict, Reject & Canon Promotion ---');
 
-    // 4.1 Reject proposal on Root A
-    await page.getByTestId(`decision-reason-input-${factGravityA}`).fill('Không đủ linh khí để duy trì 0.8G.');
-    await page.getByTestId(`reject-amendment-btn-${factGravityA}`).click();
+    // 4.1 UXF-02a: Lost accept request followed by competing reject decision
+    await page.getByTestId(`decision-reason-input-${factGravityA}`).fill('Chấp thuận Nam Cực');
+    force503OnDecision = true;
+    await page.getByTestId(`accept-amendment-btn-${factGravityA}`).click();
 
-    // Verify rejection: Root A Canon preserved at 1.0G
-    await expect(page.getByText(/Đã từ chối đề xuất sửa đổi.*bảo toàn nguyên vẹn/)).toBeVisible();
+    await expect(page.getByText('Kết nối gián đoạn (503)')).toBeVisible();
+    const decisionReconcileBtn = page.getByTestId('decision-reconcile-btn');
+    await expect(decisionReconcileBtn).toBeVisible();
+
+    // In the meantime, another session rejected the proposal on the server
+    const propA = proposalsDb.find(p => p.parent_fact_id === factGravityA && p.status === 'pending');
+    propA.status = 'rejected';
+    propA.reason = 'Hội đồng tác giả đã phủ quyết đề xuất này.';
+    decisionsDb.push({ proposal_id: propA.proposal_id, decision: 'reject', reason: propA.reason });
+
+    // Client clicks "Kiểm tra đồng bộ máy chủ"
+    await decisionReconcileBtn.click();
+
+    // UXF-02a: Verify Competing Decision Conflict is explicitly displayed and draft is preserved
+    await expect(page.getByText(/Xung đột quyết định \(Competing Decision\)/)).toBeVisible();
+    await expect(page.getByText(/Đề xuất đã được quyết định bởi phiên làm việc khác với trạng thái "ĐÃ TỪ CHỐI"/)).toBeVisible();
+    await expect(page.getByTestId(`decision-reason-input-${factGravityA}`)).toHaveValue('Chấp thuận Nam Cực');
+    console.log('✓ UXF-02a: Competing decision conflict detected, draft preserved, no false success!');
+
+    // Sync to current server state via competing refresh button
+    const competingRefreshBtn = page.getByTestId('competing-refresh-btn');
+    await expect(competingRefreshBtn).toBeVisible();
+    await competingRefreshBtn.click();
+    await expect(page.getByTestId(`pending-decision-card-${factGravityA}`)).toHaveCount(0);
     await expect(page.getByTestId(`canon-text-${factGravityA}`)).toHaveText('Trọng lực đại lục Nam Cực: 1.0G.');
-    console.log('✓ Reject decision preserved parent Canon intact on Root A!');
+    console.log('✓ Rejection confirmed on server, parent Canon preserved intact on Root A!');
 
     // 4.2 Accept proposal on Root B
     await page.getByTestId(`decision-reason-input-${factGravityB}`).fill('Chấp thuận thiết lập thủy triều Bắc Minh.');

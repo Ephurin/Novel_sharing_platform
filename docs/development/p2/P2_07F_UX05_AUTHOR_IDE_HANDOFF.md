@@ -113,18 +113,22 @@ All **5 / 5** comprehensive regression scenarios passed cleanly:
 ✓ UXF-01: Root B remains completely isolated from Root A despite identical fact_key!
 
 --- SCENARIO 3: UXF-02 Fingerprint Idempotency, 409 Rebase & 503 Reconcile ---
-✓ UXF-02: Actionable 409 Rebase succeeded with 100% draft preservation!
-✓ UXF-02: 503 Server reconciliation reconciled proposal successfully without duplicate post!
+✓ UXF-02b: Rebase failure on GET /memory handled cleanly (409 retained, draft intact)!
+✓ UXF-02b: Rebase failure on GET history handled cleanly (409 retained, draft intact)!
+✓ UXF-02b: Rebase succeeded upon recovery with 100% draft preservation!
+✓ UXF-02a: Editing draft after 503 properly blocks reconcile with stale snapshot!
+✓ UXF-02a: Exact idempotent replay verified with zero duplicate writes!
 
---- SCENARIO 4: Accept & Reject Lifecycle with Independent Keys ---
-✓ Reject decision preserved parent Canon intact on Root A!
+--- SCENARIO 4: Competing Decision Conflict, Reject & Canon Promotion ---
+✓ UXF-02a: Competing decision conflict detected, draft preserved, no false success!
+✓ Rejection confirmed on server, parent Canon preserved intact on Root A!
 ✓ Accept decision promoted successor to Canon and bumped Brain Version to v3!
 
 --- SCENARIO 5: Lineage & History Modal Inspection ---
 ✓ Lineage chain and proposal audit trail modal verified!
 
 ALL UXF-01, UXF-02, UXF-03 REGRESSION SCENARIOS PASSED 100% CLEANLY!
-✔ P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle (7354.9862ms)
+✔ P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle (8914.8336ms)
 ```
 
 ### 3.3 Visual Evidence Artifacts
@@ -137,21 +141,32 @@ Screenshots captured and stored at `docs/development/p2/evidence/p2-07f/`:
 
 ---
 
-## 4. Resolution of GPT-6 Review Findings (P1 Fixes)
+## 4. Resolution of GPT-6 Review Findings (R1 & R2)
 
-### 4.1 UXF-01: Proposal Management by Fact UUID & Lineage Isolation
+### 4.1 UXF-01: Proposal Management by Fact UUID & Lineage Isolation (PASS in R1)
 - Proposals, pending decision cards, and amendment forms are keyed strictly by Fact UUID (`fact_id`), completely removing `fact_key` collisions.
 - Same-key roots (e.g. two setup rules both having `fact_key: 'world_rule_gravity'`) remain strictly isolated; proposing on Root A does not trigger or affect Root B.
 - Non-setup World Rules (e.g. general P1 facts) fail-closed via M0 setup root verification (`getWorldRuleAmendments` returning 422/404) and render as read-only with badge `Không thuộc thiết lập M0 (Chỉ đọc)`. Propose and history actions are hidden.
 - History loading errors are rendered in an inline Mantine Alert with a retry button instead of being silently swallowed.
 
-### 4.2 UXF-02: Fingerprint-bound CAS & Idempotency Protocol
-- Idempotency key uses `draft.operationKey(payloadWithoutKey)`, ensuring that retries with the same payload maintain the same idempotency key, while modifying `replacement_text`, `private_notes`, or `expected_brain_version` automatically rotates the key.
-- Independent operation keys are generated for `accept` vs `reject` decisions.
-- On 409 CAS conflict, provides an actionable `Làm mới phiên bản máy chủ & Giữ bản nháp` button (`data-testid="rebase-retry-btn"`) that re-syncs the server Brain version while preserving 100% of the author's input.
-- On 503 / network uncertainty, provides a `Kiểm tra đồng bộ máy chủ` button (`data-testid="reconcile-server-btn"`) that checks server pending proposals to safely reconcile without duplicate submissions.
+### 4.2 UXF-02: Fingerprint-bound CAS & Idempotency Protocol (Updated for R2)
 
-### 4.3 UXF-03: Pre-M0 Guard & Automatic Brain Version Sync
+#### UXF-02a (P1): 503/504 Reconciliation & Competing Decision Conflict
+- **Immutable In-Flight Request Identity:** Trước khi gửi request (propose hoặc decide), client lưu trữ snapshot bất biến của request (`lastSubmittedRef` / `lastSubmittedDecisionRef`) gồm `novelId`, `factId`/`proposalId`, `decision`/`replacement_text`, `reason`/`private_notes`, `expected_brain_version` và `idempotency_key`.
+- **Ràng buộc xác thực theo Idempotency Replay:** Khi gặp 503/504 hoặc khi bấm "Kiểm tra đồng bộ máy chủ", client thực hiện đối chiếu bằng cách tái phát yêu cầu với đúng `idempotency_key` và payload đã lưu. Chỉ khi máy chủ xác thực thành công (200 OK với receipt tương ứng) thì client mới xác nhận đồng bộ. Không bao giờ nhận nhầm proposal của phiên khác chỉ dựa trên text trùng khớp.
+- **Phát hiện chỉnh sửa bản nháp sau 503:** Nếu tác giả chỉnh sửa form sau khi gặp 503, việc bấm "Kiểm tra đồng bộ máy chủ" sẽ cảnh báo bản nháp đã thay đổi và yêu cầu bấm gửi mới với khóa giao dịch mới.
+- **Nhận diện Xung đột Quyết định Cạnh tranh (Competing Decision Conflict):** Trong quá trình quyết định (accept/reject), nếu yêu cầu bị gián đoạn mạng (503) và trong thời gian đó một phiên khác đã đưa ra quyết định khác (ví dụ phiên khác `reject` trong khi client gửi `accept`, hoặc khác lý do), giao diện phát hiện chính xác và hiển thị cảnh báo `Xung đột quyết định (Competing Decision)`. Client **giữ nguyên bản nháp quyết định** và **không bao giờ gọi callback hoàn tất giả mạo**.
+- **Sửa ánh xạ trạng thái terminal:** Sửa lỗi ép kiểu `target.status` (`accepted` &rarr; `'accept'`, `rejected` &rarr; `'reject'`).
+
+#### UXF-02b (P2): Verified Rebase sau Xung đột CAS (409)
+- **Typed `ReloadResult`:** Hàm `reloadRules` trả về đối tượng `ReloadResult` xác định rõ ràng trạng thái thành công (`ok: true` kèm `brainVersion`, `rules`, `pendingProposalsByFactId`, `ineligibleFacts`, `historyErrors`) hoặc thất bại (`ok: false` kèm `error`).
+- **Xác nhận Refresh thành công trước khi xóa cảnh báo 409:** Nút "Làm mới phiên bản máy chủ & Giữ bản nháp" (`rebase-retry-btn`) chỉ xóa cảnh báo 409 khi:
+  1. `getApprovedMemory` thành công (không bị lỗi 503/mạng).
+  2. `getWorldRuleAmendments` cho rule/proposal mục tiêu thành công (không có trong `historyErrors`).
+  3. Rule/proposal mục tiêu vẫn còn tồn tại và hợp lệ trong trạng thái mới.
+  Nếu refresh thất bại, hệ thống hiển thị thông báo lỗi chi tiết, **giữ nguyên cảnh báo 409 và bảo toàn 100% bản nháp của tác giả**.
+
+### 4.3 UXF-03: Pre-M0 Guard & Automatic Brain Version Sync (PASS in R1)
 - Pre-M0 banner (`data-testid="m0-not-active-banner"`) informs the author that world rules cannot be amended before M0 activation.
 - Propose buttons are hidden prior to M0 activation.
 - Upon clicking "Kích hoạt thiết lập để bắt đầu viết", the amendment manager automatically detects M0 activation and synchronizes to M0 Active and Brain v2 without requiring manual browser page reload.
