@@ -21,6 +21,7 @@ from typing import Any
 from fastapi import HTTPException
 from pydantic import ValidationError
 from sqlalchemy import select, text
+from sqlalchemy.exc import IntegrityError
 
 from api.brainstorm_schemas import (
     BrainstormParticipant,
@@ -331,7 +332,11 @@ class BrainstormService:
                             },
                         )
                         session.add(new_rec)
-                        session.flush()
+                        try:
+                            session.flush()
+                        except IntegrityError:
+                            # Concurrent insert won the race; another worker holds the slot
+                            return False, None, None
                         return True, lease_token, None
 
                     # rec already exists: verify input hash
@@ -360,6 +365,9 @@ class BrainstormService:
                         return True, lease_token, None
 
                     return False, None, None
+            except IntegrityError:
+                # Concurrent insert won the race; another worker holds the slot
+                return False, None, None
             except HTTPException:
                 raise
             except Exception as exc:
@@ -645,38 +653,50 @@ class BrainstormService:
 
         # 6. Single-Flight Idempotency Reservation / Takeover
         if scoped_idempotency_key and input_hash:
-            reserved, lease_token, completed_response = self._reserve_or_takeover_receipt(
-                brain, brain_id, scoped_idempotency_key, input_hash, actor_id
-            )
-            if not reserved:
-                if completed_response:
-                    return BrainstormResponse.model_validate(completed_response)
-                # Active worker is running; await it
-                completed_r = self._await_receipt(brain_id, scoped_idempotency_key, timeout_seconds=10.0)
-                if completed_r and completed_r["status"] == "completed" and completed_r.get("response"):
-                    return BrainstormResponse.model_validate(completed_r["response"])
-                # Worker failed or lease expired; attempt takeover
+            try:
                 reserved, lease_token, completed_response = self._reserve_or_takeover_receipt(
                     brain, brain_id, scoped_idempotency_key, input_hash, actor_id
                 )
                 if not reserved:
                     if completed_response:
                         return BrainstormResponse.model_validate(completed_response)
+                    # Active worker is running; await it
+                    completed_r = self._await_receipt(brain_id, scoped_idempotency_key, timeout_seconds=10.0)
+                    if completed_r and completed_r["status"] == "completed" and completed_r.get("response"):
+                        return BrainstormResponse.model_validate(completed_r["response"])
+                    # Worker failed or lease expired; attempt takeover
+                    reserved, lease_token, completed_response = self._reserve_or_takeover_receipt(
+                        brain, brain_id, scoped_idempotency_key, input_hash, actor_id
+                    )
+                    if not reserved:
+                        if completed_response:
+                            return BrainstormResponse.model_validate(completed_response)
+                        raise HTTPException(
+                            409,
+                            detail={
+                                "code": "IDEMPOTENCY_IN_FLIGHT_CONFLICT",
+                                "message": "Concurrent request in-flight failed or timed out",
+                            },
+                        )
+                if not lease_token:
                     raise HTTPException(
-                        409,
+                        503,
                         detail={
-                            "code": "IDEMPOTENCY_IN_FLIGHT_CONFLICT",
-                            "message": "Concurrent request in-flight failed or timed out",
+                            "code": "IDEMPOTENCY_STORE_UNAVAILABLE",
+                            "message": "Failed to acquire valid lease token for reservation",
                         },
                     )
-            if not lease_token:
+            except HTTPException:
+                raise
+            except Exception as exc:
+                logger.error("DB exception during reservation: %s", exc)
                 raise HTTPException(
                     503,
                     detail={
                         "code": "IDEMPOTENCY_STORE_UNAVAILABLE",
-                        "message": "Failed to acquire valid lease token for reservation",
+                        "message": f"Idempotency reservation store unavailable: {exc}",
                     },
-                )
+                ) from exc
 
         try:
             # 7. Grounding in Story Brain: approved entities

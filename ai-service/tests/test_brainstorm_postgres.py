@@ -459,23 +459,26 @@ def test_brainstorm_postgres_bsa03_ownership_and_auth_enforcement(brainstorm_env
 
 def test_brainstorm_postgres_bsa02r_retry_succeeds_after_429_failure(brainstorm_env):
     """BSA-02R: Same-key retry succeeds in PostgreSQL after initial 429 failure, transitioning failed -> completed."""
+    from unittest.mock import patch
     f = brainstorm_env
     novel_id, _ = _activated_brain(f)
     headers = _headers(f)
     idem_key = f"pg-retry-429-{uuid.uuid4()}"
     scoped_key = f"brainstorm:{TENANT}:{ACTOR}:{novel_id}:{idem_key}"[:255]
+    req_body = {
+        "contract_version": "brainstorm-v1",
+        "idempotency_key": idem_key,
+        "instruction": "Khai phá cốt truyện chương 4",
+    }
 
-    # 1. First attempt triggers 429 quota exhaustion
+    # 1. First attempt triggers transient 429 quota exhaustion on provider
     f.fake_llm.call_count = 0
-    res1 = f.client.post(
-        f"/v1/story-brains/{novel_id}/brainstorm",
-        headers=headers,
-        json={
-            "contract_version": "brainstorm-v1",
-            "idempotency_key": idem_key,
-            "instruction": "test_quota_exhausted",
-        },
-    )
+    with patch.object(f.fake_llm, "suggest_brainstorm", side_effect=RuntimeError("429 Resource exhausted")):
+        res1 = f.client.post(
+            f"/v1/story-brains/{novel_id}/brainstorm",
+            headers=headers,
+            json=req_body,
+        )
     assert res1.status_code == 429
     assert res1.json()["detail"]["code"] == "PROVIDER_QUOTA_EXHAUSTED"
 
@@ -490,15 +493,11 @@ def test_brainstorm_postgres_bsa02r_retry_succeeds_after_429_failure(brainstorm_
         assert run_rec is not None
         assert run_rec.status == "failed"
 
-    # 2. Same-key exact retry with non-erroring instruction succeeds with 200
+    # 2. Same-key exact retry with same payload succeeds with 200
     res2 = f.client.post(
         f"/v1/story-brains/{novel_id}/brainstorm",
         headers=headers,
-        json={
-            "contract_version": "brainstorm-v1",
-            "idempotency_key": idem_key,
-            "instruction": "Khai phá cốt truyện chương 4",
-        },
+        json=req_body,
     )
     assert res2.status_code == 200
     cached_timestamp = res2.json()["data"]["provenance"]["timestamp"]
@@ -519,11 +518,7 @@ def test_brainstorm_postgres_bsa02r_retry_succeeds_after_429_failure(brainstorm_
     res3 = f.client.post(
         f"/v1/story-brains/{novel_id}/brainstorm",
         headers=headers,
-        json={
-            "contract_version": "brainstorm-v1",
-            "idempotency_key": idem_key,
-            "instruction": "Khai phá cốt truyện chương 4",
-        },
+        json=req_body,
     )
     assert res3.status_code == 200
     assert res3.json()["data"]["provenance"]["timestamp"] == cached_timestamp
@@ -532,37 +527,29 @@ def test_brainstorm_postgres_bsa02r_retry_succeeds_after_429_failure(brainstorm_
 
 def test_brainstorm_postgres_bsa02r_retry_succeeds_after_502_failure(brainstorm_env):
     """BSA-02R: Same-key retry succeeds in PostgreSQL after initial 502 provider failure."""
+    from unittest.mock import patch
     f = brainstorm_env
     novel_id, _ = _activated_brain(f)
     headers = _headers(f)
     idem_key = f"pg-retry-502-{uuid.uuid4()}"
     scoped_key = f"brainstorm:{TENANT}:{ACTOR}:{novel_id}:{idem_key}"[:255]
+    req_body = {
+        "contract_version": "brainstorm-v1",
+        "idempotency_key": idem_key,
+        "instruction": "Khai phá cốt truyện mới",
+    }
 
     # 1. First attempt triggers 502 provider error
-    res1 = f.client.post(
-        f"/v1/story-brains/{novel_id}/brainstorm",
-        headers=headers,
-        json={
-            "contract_version": "brainstorm-v1",
-            "idempotency_key": idem_key,
-            "instruction": "test_provider_502_error",
-        },
-    )
+    with patch.object(f.fake_llm, "suggest_brainstorm", side_effect=RuntimeError("502 Bad Gateway")):
+        res1 = f.client.post(
+            f"/v1/story-brains/{novel_id}/brainstorm",
+            headers=headers,
+            json=req_body,
+        )
     assert res1.status_code == 502
     assert res1.json()["detail"]["code"] == "BRAINSTORM_PROVIDER_ERROR"
 
-    # 2. Same-key retry succeeds with 200
-    res2 = f.client.post(
-        f"/v1/story-brains/{novel_id}/brainstorm",
-        headers=headers,
-        json={
-            "contract_version": "brainstorm-v1",
-            "idempotency_key": idem_key,
-            "instruction": "Khai phá cốt truyện mới",
-        },
-    )
-    assert res2.status_code == 200
-
+    # Verify status is failed
     with session_scope(f.repo._session_factory) as session:
         run_rec = session.scalar(
             select(AnalysisRunRecord).where(
@@ -571,7 +558,25 @@ def test_brainstorm_postgres_bsa02r_retry_succeeds_after_502_failure(brainstorm_
             )
         )
         assert run_rec is not None
-        assert run_rec.status == "completed"
+        assert run_rec.status == "failed"
+
+    # 2. Same-key exact retry succeeds with 200
+    res2 = f.client.post(
+        f"/v1/story-brains/{novel_id}/brainstorm",
+        headers=headers,
+        json=req_body,
+    )
+    assert res2.status_code == 200
+
+    with session_scope(f.repo._session_factory) as session:
+        run_rec2 = session.scalar(
+            select(AnalysisRunRecord).where(
+                AnalysisRunRecord.idempotency_key == scoped_key,
+                AnalysisRunRecord.novel_id == uuid.UUID(novel_id),
+            )
+        )
+        assert run_rec2 is not None
+        assert run_rec2.status == "completed"
 
 
 def test_brainstorm_postgres_bsa02r_stale_pending_lease_takeover(brainstorm_env):
@@ -666,7 +671,7 @@ def test_brainstorm_postgres_bsa02r_reservation_db_failure_fail_closed(brainstor
     with patch.object(
         f.brainstorm_svc,
         "_reserve_or_takeover_receipt",
-        side_effect=Exception("Database connection timeout"),
+        side_effect=RuntimeError("Database connection timeout"),
     ):
         res = f.client.post(
             f"/v1/story-brains/{novel_id}/brainstorm",
@@ -677,7 +682,8 @@ def test_brainstorm_postgres_bsa02r_reservation_db_failure_fail_closed(brainstor
                 "instruction": "Normal",
             },
         )
-        assert res.status_code in (500, 503)
+        assert res.status_code == 503
+        assert res.json()["detail"]["code"] == "IDEMPOTENCY_STORE_UNAVAILABLE"
         assert f.fake_llm.call_count == 0, "Zero LLM calls must occur when reservation fails"
 
 
@@ -685,7 +691,6 @@ def test_brainstorm_postgres_bsa02r_concurrency_across_separate_instances(brains
     """BSA-02R: Simultaneous requests across separate BrainstormService instances are single-flighted."""
     f = brainstorm_env
     novel_id, _ = _activated_brain(f)
-    headers = _headers(f)
     idem_key = f"pg-multi-inst-{uuid.uuid4()}"
     req_body = {
         "contract_version": "brainstorm-v1",
@@ -693,25 +698,21 @@ def test_brainstorm_postgres_bsa02r_concurrency_across_separate_instances(brains
         "idempotency_key": idem_key,
     }
 
-    # Two separate BrainstormService instances sharing same PostgreSQL DB
+    # Two separate BrainstormService instances sharing same PostgreSQL repository
     svc1 = BrainstormService(repository=f.repo, llm_service=f.fake_llm)
     svc2 = BrainstormService(repository=f.repo, llm_service=f.fake_llm)
 
     f.fake_llm.call_count = 0
-
-    def _call(svc):
-        f.client.app.state.brainstorm_service = svc
-        return f.client.post(f"/v1/story-brains/{novel_id}/brainstorm", headers=headers, json=req_body)
+    req_dto = BrainstormRequest.model_validate(req_body)
 
     with ThreadPoolExecutor(max_workers=2) as executor:
-        t1 = executor.submit(_call, svc1)
-        t2 = executor.submit(_call, svc2)
+        t1 = executor.submit(svc1.brainstorm, novel_id, req_dto, tenant_id=str(TENANT), actor_id=str(ACTOR))
+        t2 = executor.submit(svc2.brainstorm, novel_id, req_dto, tenant_id=str(TENANT), actor_id=str(ACTOR))
         res1 = t1.result()
         res2 = t2.result()
 
-    assert res1.status_code == 200
-    assert res2.status_code == 200
-    assert res1.json()["data"]["provenance"]["timestamp"] == res2.json()["data"]["provenance"]["timestamp"]
+    assert res1.provenance.timestamp == res2.provenance.timestamp
+    assert res1.world_rules[0].rule_id == res2.world_rules[0].rule_id
     assert f.fake_llm.call_count == 1, "Only 1 LLM dispatch across separate service instances"
 
 
