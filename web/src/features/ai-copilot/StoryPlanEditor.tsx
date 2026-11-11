@@ -3,6 +3,7 @@ import {Alert,Button,Card,Group,MultiSelect,NumberInput,Select,Stack,Text,Textar
 import {useAuthStore} from '../auth/useAuthStore';
 import {apiClient,type ApiEnvelope,getApiErrorMessage,ApiClientError} from '../../shared/api/api-client';
 import {usePlanningDraft,usePlanningScope} from './planning-draft';
+import {BrainstormingModal} from './BrainstormingModal';
 type Participant={name_hint?:string|null;entity_id?:string|null};
 type FutureEvent={event_id:string;text:string;participants:Participant[]};
 type Objective={objective_id:string;intent_version:number;target_chapter:number;title:string;description:string;events:FutureEvent[];dependencies:string[]};
@@ -24,6 +25,9 @@ function Editor({novelId,onServerChange}:{novelId:string;onServerChange?:()=>voi
  const {selected,outline,notes,chapters,head}=local.value;
  const [list,setList]=useState<Plans>({head_version:0,active_plan_id:null,plans:[]});
  const [message,setMessage]=useState(''),[pending,setPending]=useState(false),[loaded,setLoaded]=useState(false),[size,setSize]=useState('5');
+ const [brainstormModalOpen,setBrainstormModalOpen]=useState(false);
+ const [brainstormTargetChapter,setBrainstormTargetChapter]=useState(1);
+ const [brainstormTargetObjectiveId,setBrainstormTargetObjectiveId]=useState<string|null>(null);
  const path=`/ai/story-plans/edit-v1/${novelId}`;
  function draft(p:Plan|undefined,data=list):Draft{return{selected:p?.plan_id??null,head:data.head_version,outline:p?.source_outline??'',notes:p?.private_notes??'',chapters:p?.objectives??[]};}
  function remember(id:string|null){try{localStorage.setItem(key+':selection',id??'');}catch{}}
@@ -82,7 +86,7 @@ function Editor({novelId,onServerChange}:{novelId:string;onServerChange?:()=>voi
   {serverReadOnly&&<Alert>{archived?'Bản đã lưu trữ · chỉ đọc. Nội dung lịch sử được giữ; chỉ khôi phục bằng một bản nháp mới.':stored?.effective_status==='tombstone'?'Biên nhận lưu trữ · chỉ đọc. Chọn bản gốc trong lịch sử để xem hoặc khôi phục.':'Bản lịch sử hoặc biên nhận · chỉ đọc. Tạo một phiên bản mới để chỉnh sửa.'}</Alert>}
   {stored&&<Text size="xs">Trạng thái khi lưu: {stored.snapshot_status??stored.status} · Hiện tại: {stored.effective_status??stored.status}</Text>}
   <Textarea label="Dán hoặc nhập dàn ý tương lai" disabled={pending||readOnly||!loaded} value={outline} onChange={e=>local.edit({outline:e.currentTarget.value})} minRows={3}/>
-  <Group><Select disabled={pending||readOnly||!loaded} allowDeselect={false} label="Số chương khởi đầu" value={size} onChange={n=>setSize(n??'0')} data={['0','5','10','15','20']}/><Button variant="light" disabled={pending||readOnly||!loaded||size==='0'} onClick={()=>add(Number(size))}>Thêm {size} thẻ chương</Button><Button variant="default" disabled={pending||readOnly||!!chapters.length||!outline.trim()} onClick={()=>add(outline.split('\n').filter(s=>s.trim()).length,outline.split('\n').filter(s=>s.trim()))}>Tách dàn ý thành thẻ theo dòng</Button></Group>
+  <Group><Select disabled={pending||readOnly||!loaded} allowDeselect={false} label="Số chương khởi đầu" value={size} onChange={n=>setSize(n??'0')} data={['0','5','10','15','20']}/><Button variant="light" disabled={pending||readOnly||!loaded||size==='0'} onClick={()=>add(Number(size))}>Thêm {size} thẻ chương</Button><Button variant="default" disabled={pending||readOnly||!!chapters.length||!outline.trim()} onClick={()=>add(outline.split('\n').filter(s=>s.trim()).length,outline.split('\n').filter(s=>s.trim()))}>Tách dàn ý thành thẻ theo dòng</Button><Button variant="light" disabled={pending||readOnly||!loaded} onClick={()=>{setBrainstormTargetChapter(chapters[0]?.target_chapter??1);setBrainstormTargetObjectiveId(null);setBrainstormModalOpen(true);}} data-testid="brainstorm-open-plan-btn">AI gợi ý sự kiện tương lai</Button></Group>
   <Text size="xs">Tự nhập, không dùng AI. Mục tiêu và kết quả mong muốn được giữ trong nội dung mục tiêu. Có thể thêm hơn 20 chương; thứ tự thẻ và chương dự kiến là hai lựa chọn riêng.</Text>
   <Textarea label="Ghi chú kế hoạch riêng tư" disabled={pending||readOnly||!loaded} description="Không gửi tới provider hoặc ngữ cảnh viết." value={notes} onChange={e=>local.edit({notes:e.currentTarget.value})}/>
   {chapters.map((o,i)=><Card withBorder key={o.objective_id}><Stack gap="xs">
@@ -96,7 +100,7 @@ function Editor({novelId,onServerChange}:{novelId:string;onServerChange?:()=>voi
     {event.participants.map((p,k)=><Group key={k} align="end"><Select label={`Loại người tham gia ${k+1} sự kiện ${j+1} chương ${i+1}`} disabled={pending||readOnly} value={p.entity_id!==undefined&&p.entity_id!==null?'id':'hint'} data={[{value:'hint',label:'Tên gợi nhớ, chưa xác định'},{value:'id',label:'ID danh tính đã xác nhận'}]} onChange={kind=>events(o.objective_id,all=>all.map(e=>e.event_id===event.event_id?{...e,participants:e.participants.map((x,n)=>n===k?(kind==='id'?{entity_id:''}:{name_hint:''}):x)}:e))}/><TextInput label={`Người tham gia ${k+1} sự kiện ${j+1} chương ${i+1}`} disabled={pending||readOnly} value={p.entity_id??p.name_hint??''} onChange={ev=>{const value=ev.currentTarget.value;events(o.objective_id,all=>all.map(e=>e.event_id===event.event_id?{...e,participants:e.participants.map((x,n)=>n===k?(x.entity_id!==undefined&&x.entity_id!==null?{entity_id:value}:{name_hint:value}):x)}:e));}}/><Button color="red" variant="subtle" disabled={pending||readOnly} onClick={()=>events(o.objective_id,all=>all.map(e=>e.event_id===event.event_id?{...e,participants:e.participants.filter((_,n)=>n!==k)}:e))}>Bỏ người tham gia {k+1} sự kiện {j+1} chương {i+1}</Button></Group>)}
     <Group><Button size="xs" variant="light" disabled={pending||readOnly} onClick={()=>events(o.objective_id,all=>all.map(e=>e.event_id===event.event_id?{...e,participants:[...e.participants,{name_hint:''}]}:e))}>Thêm người tham gia sự kiện {j+1} chương {i+1}</Button><Button size="xs" variant="default" disabled={pending||readOnly||j===0} onClick={()=>moveEvent(o.objective_id,event.event_id,-1)}>Lên sự kiện {j+1} chương {i+1}</Button><Button size="xs" variant="default" disabled={pending||readOnly||j===o.events.length-1} onClick={()=>moveEvent(o.objective_id,event.event_id,1)}>Xuống sự kiện {j+1} chương {i+1}</Button><Button size="xs" color="red" disabled={pending||readOnly} onClick={()=>events(o.objective_id,all=>all.filter(e=>e.event_id!==event.event_id))}>Xóa sự kiện {j+1} chương {i+1}</Button></Group>
    </Card>)}
-   <Button variant="light" disabled={pending||readOnly} onClick={()=>events(o.objective_id,all=>[...all,{event_id:crypto.randomUUID(),text:'',participants:[]}])}>Thêm sự kiện chương {i+1}</Button>
+   <Group><Button variant="light" disabled={pending||readOnly} onClick={()=>events(o.objective_id,all=>[...all,{event_id:crypto.randomUUID(),text:'',participants:[]}])}>Thêm sự kiện chương {i+1}</Button><Button size="xs" variant="default" disabled={pending||readOnly} onClick={()=>{setBrainstormTargetChapter(o.target_chapter);setBrainstormTargetObjectiveId(o.objective_id);setBrainstormModalOpen(true);}} data-testid={`brainstorm-chapter-btn-${i}`}>AI gợi ý sự kiện</Button></Group>
    <Group><Button size="xs" variant="default" disabled={pending||readOnly||i===0} onClick={()=>move(i,-1)}>Lên chương {i+1}</Button><Button size="xs" variant="default" disabled={pending||readOnly||i===chapters.length-1} onClick={()=>move(i,1)}>Xuống chương {i+1}</Button><Button size="xs" disabled={pending||readOnly} color="red" onClick={()=>local.edit(d=>({...d,chapters:d.chapters.filter((_,n)=>n!==i).map(x=>({...x,dependencies:x.dependencies.filter(id=>id!==o.objective_id)}))}))}>Xóa chương {i+1}</Button></Group>
   </Stack></Card>)}
   <Button variant="light" disabled={pending||readOnly||!loaded} onClick={()=>add(1)}>Thêm chương dự kiến</Button>
@@ -106,5 +110,54 @@ function Editor({novelId,onServerChange}:{novelId:string;onServerChange?:()=>voi
    {stored&&<Button onClick={()=>send('activate')} disabled={pending||local.dirty||!canActivate||awaitingRecovery}>Dùng bản đã lưu</Button>}
    {canArchive&&<Button color="red" variant="subtle" onClick={()=>send('delete')} disabled={pending||local.dirty||awaitingRecovery}>Lưu trữ bản kế hoạch</Button>}
   </Group>{message&&<Alert role="alert">{message}</Alert>}
+  <BrainstormingModal
+    opened={brainstormModalOpen}
+    onClose={()=>setBrainstormModalOpen(false)}
+    novelId={novelId}
+    defaultTarget="future_events"
+    targetChapter={brainstormTargetChapter}
+    expectedPlanVersion={head}
+    onAdoptFutureEvent={ev=>{
+      const targetObj = (brainstormTargetObjectiveId ? chapters.find(o=>o.objective_id===brainstormTargetObjectiveId) : null)
+        || chapters.find(o=>o.target_chapter===ev.target_chapter)
+        || chapters[0];
+      if (targetObj) {
+        events(targetObj.objective_id, all => [
+          ...all,
+          {
+            event_id: ev.event_id || crypto.randomUUID(),
+            text: ev.text || ev.title,
+            participants: (ev.participants || []).map(p => ({
+              entity_id: p.entity_id ?? null,
+              name_hint: p.name_hint ?? null,
+            })),
+          },
+        ]);
+      } else {
+        local.edit(d => ({
+          ...d,
+          chapters: [
+            ...d.chapters,
+            {
+              objective_id: crypto.randomUUID(),
+              intent_version: 0,
+              target_chapter: ev.target_chapter,
+              title: ev.title || `Chương ${ev.target_chapter}`,
+              description: ev.text || '',
+              events: [{
+                event_id: ev.event_id || crypto.randomUUID(),
+                text: ev.text || ev.title,
+                participants: (ev.participants || []).map(p => ({
+                  entity_id: p.entity_id ?? null,
+                  name_hint: p.name_hint ?? null,
+                })),
+              }],
+              dependencies: [],
+            },
+          ],
+        }));
+      }
+    }}
+  />
  </Stack>;
 }
