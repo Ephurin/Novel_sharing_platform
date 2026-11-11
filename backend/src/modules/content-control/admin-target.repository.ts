@@ -13,6 +13,7 @@ export async function getAdminReviewTarget(type: string, targetId: string) {
     return {
       title: 'Bình luận độc giả',
       content: comment.content,
+      gifId: comment.gifId ?? null,
       username: result.rows[0]?.username,
       novelTitle: result.rows[0]?.novel_title,
       chapterTitle: result.rows[0]?.chapter_title,

@@ -4,18 +4,27 @@ import { createNotification } from './notifications.repository.js';
 import { findNovelById } from '../novels/novels.repository.js';
 import { findChapterById } from '../novels/chapters.repository.js';
 import { logger } from '../../core/logger/logger.js';
+import { approvedCommentFilter } from './comments.repository.js';
 let running = false;
 // Pending flags live with the originating records. Idempotent IDs allow retry after crashes.
 export async function deliverDomainNotifications() {
   if (running) return; running = true;
   try {
     const comments = getMongoDatabase().collection('comments');
-    for (const comment of await comments.find({ notificationPending: true }).limit(100).toArray()) {
+    for (const comment of await comments.find({ notificationPending: true, ...approvedCommentFilter }).limit(100).toArray()) {
       const novel = await findNovelById(comment.novelId);
       if (novel?.status === 'PUBLISHED' && comment.status === 'APPROVED' && !comment.deletedAt) {
-        const parent = comment.parentCommentId ? await comments.findOne({ commentId: comment.parentCommentId, status: 'APPROVED', deletedAt: null }) : null;
+        const parent = comment.parentCommentId ? await comments.findOne({ commentId: comment.parentCommentId, ...approvedCommentFilter, deletedAt: null }) : null;
         const recipient = comment.parentCommentId ? parent?.userId : novel.authorId;
-        if (recipient && recipient !== comment.userId) await createNotification({ eventKey: 'comment:' + comment.commentId, userId: recipient, type: parent ? 'AUTHOR_REPLY' : 'READER_COMMENT', title: parent ? 'Tác giả đã trả lời bình luận' : 'Có bình luận mới', content: novel.title, payload: { href: parent ? (comment.chapterId ? '/reader/chapters/' + comment.chapterId : '/reader/novels/' + novel.novelId) : '/author/novels/' + novel.novelId + '/comments', commentId: comment.commentId } });
+        const authorReply = Boolean(parent && comment.userId === novel.authorId);
+        const replyBase = authorReply ? '/reader' : '/public';
+        if (recipient && recipient !== comment.userId) await createNotification({
+          eventKey: 'comment:' + comment.commentId, userId: recipient,
+          type: parent ? (authorReply ? 'AUTHOR_REPLY' : 'COMMENT_REPLY') : 'READER_COMMENT',
+          title: parent ? (authorReply ? 'Tác giả đã trả lời bình luận' : 'Có trả lời bình luận mới') : 'Có bình luận mới',
+          content: novel.title,
+          payload: { href: parent ? (comment.chapterId ? replyBase + '/chapters/' + comment.chapterId : replyBase + '/novels/' + novel.novelId) : '/author/novels/' + novel.novelId + '/comments', commentId: comment.commentId }
+        });
       }
       await comments.updateOne({ _id: comment._id }, { $set: { notificationPending: false } });
     }

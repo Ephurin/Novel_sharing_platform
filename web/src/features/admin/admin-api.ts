@@ -60,6 +60,7 @@ export type ModerationReviewDetail = ModerationReview & {
   reportDescriptions?: Array<{ reason: string; description: string | null }>;
   reviewedAt?: string | null;
   target?: {
+    gifId?: string | null;
     title?: string;
     content?: string | null;
     username?: string;

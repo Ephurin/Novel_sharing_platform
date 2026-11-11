@@ -13,7 +13,10 @@ import {
   removeFromLibraryController,
   savePreferencesController,
   searchNovelsController,
-  syncHistoryController
+  syncHistoryController,
+  getReadingBookmarkController,
+  saveReadingBookmarkController,
+  removeReadingBookmarkController
 } from './reading.controller.js';
 import {
   addLibraryItemSchema,
@@ -22,13 +25,17 @@ import {
   novelIdParamSchema,
   readingPreferencesSchema,
   searchNovelsSchema,
-  syncReadingHistorySchema
+  syncReadingHistorySchema,
+  readingBookmarkSchema
 } from './reading.schemas.js';
 
 export const readingRoutes = Router();
 
 readingRoutes.get('/preferences/me', requireAuth, getPreferencesController);
 readingRoutes.put('/preferences/me', requireAuth, validateRequest(readingPreferencesSchema), savePreferencesController);
+readingRoutes.get('/bookmarks/me/:novelId', requireAuth, validateRequest(novelIdParamSchema), getReadingBookmarkController);
+readingRoutes.put('/bookmarks/me/:novelId', requireAuth, validateRequest(readingBookmarkSchema), saveReadingBookmarkController);
+readingRoutes.delete('/bookmarks/me/:novelId', requireAuth, validateRequest(novelIdParamSchema), removeReadingBookmarkController);
 readingRoutes.get('/search', validateRequest(searchNovelsSchema), searchNovelsController);
 readingRoutes.get('/filters', getReadingFiltersController);
 readingRoutes.get('/novels/:novelId', validateRequest(novelIdParamSchema), getReaderNovelController);

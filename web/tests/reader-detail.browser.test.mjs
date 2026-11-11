@@ -154,7 +154,17 @@ test('reader detail: unified follow/library, five-line synopsis and dedicated 10
           await expect(page.getByTestId('reader-follow-novel-btn')).toHaveAttribute('aria-pressed', 'true');
           await page.goto(`${base}/reader/library`);
           await expect(page.locator('.sc-novel-card')).toHaveCount(1);
-          await page.getByRole('button', { name: 'Bỏ theo dõi', exact: true }).click();
+          const unfollow = page.getByRole('button', { name: 'Bỏ theo dõi', exact: true });
+          const unfollowStyle = await unfollow.evaluate(button => {
+            const style = getComputedStyle(button);
+            return { background: style.backgroundColor, border: style.borderTopColor, borderWidth: style.borderTopWidth, color: style.color, height: button.getBoundingClientRect().height };
+          });
+          assert.notEqual(unfollowStyle.background, 'rgba(0, 0, 0, 0)');
+          assert.equal(unfollowStyle.border, unfollowStyle.color);
+          assert.equal(unfollowStyle.borderWidth, '1px');
+          assert.ok(unfollowStyle.height >= (width < 768 ? 44 : 40));
+          await page.screenshot({ path: path.join(output, `${role}-${width}-${theme}-library.png`), fullPage: true });
+          await unfollow.click();
           await expect(page.locator('.sc-novel-card')).toHaveCount(0);
           await expect(page.locator('.sc-toast').filter({ hasText: 'Đã bỏ theo dõi truyện.' }).last()).toBeVisible();
           await page.goto(detail);

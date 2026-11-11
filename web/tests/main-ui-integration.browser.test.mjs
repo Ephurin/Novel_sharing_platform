@@ -78,16 +78,17 @@ test('main reader UI retains animated tools, themes and guest author profiles', 
 
         await page.goto(`${base}/reader/chapters/c-1`);
         await expect(page.locator('.chapter-prose')).toBeVisible();
+        if (width === 390) await page.locator('.chapter-prose > p').first().click();
         await page.getByRole('button', { name: 'Mục lục', exact: true }).click();
         const toc = page.getByRole('dialog', { name: 'Mục lục chương' });
-        await toc.getByRole('link', { name: /2\. Chương 2/ }).click();
+        await toc.getByRole('link', { name: 'Chương 2', exact: true }).click();
         await expect(page).toHaveURL(/\/reader\/chapters\/c-2$/);
+        if (width === 390) await page.locator('.chapter-prose > p').first().click();
         await page.getByRole('button', { name: 'Tùy chỉnh đọc', exact: true }).click();
         const settings = page.getByRole('dialog', { name: 'Tùy chỉnh đọc', exact: true });
-        for (const [background, label, color] of [['LIGHT', 'Sáng', 'rgb(17, 24, 39)'], ['SEPIA', 'Sepia', 'rgb(245, 230, 200)'], ['DARK', 'Tối', 'rgb(242, 239, 234)']]) {
-          await settings.getByRole('textbox', { name: 'Màu nền', exact: true }).click();
-          await settings.getByRole('option', { name: label, exact: true }).click();
-          await settings.getByTestId('reader-save-preferences-btn').click();
+        for (const [background, label, color] of [['LIGHT', 'Sáng', 'rgb(41, 45, 43)'], ['SEPIA', 'Giấy ngà', 'rgb(48, 44, 37)'], ['DARK', 'Tối', 'rgb(238, 233, 225)']]) {
+          await settings.getByRole('button', { name: label, exact: true }).click();
+          await expect(settings.getByRole('status')).toHaveText('Đã lưu tùy chỉnh.');
           await expect.poll(() => preferences.background).toBe(background);
           await expect(page.locator('.chapter-prose')).toHaveCSS('color', color);
         }

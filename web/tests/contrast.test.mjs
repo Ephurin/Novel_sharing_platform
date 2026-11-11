@@ -13,7 +13,7 @@ function readBlock(source, selector) {
   if (start < 0) return {};
   const body = source.slice(start, source.indexOf('}', start));
   const tokens = {};
-  for (const match of body.matchAll(/(--sc-[\w-]+)\s*:\s*([^;]+);/g)) tokens[match[1]] = match[2].trim();
+  for (const match of body.matchAll(/(--(?:sc|reader)-[\w-]+)\s*:\s*([^;]+);/g)) tokens[match[1]] = match[2].trim();
   return tokens;
 }
 
@@ -51,6 +51,17 @@ function contrast(a, b) {
 
 const blend = (top, bottom, alpha) => top.map((value, index) => Math.round(value * alpha + bottom[index] * (1 - alpha)));
 
+const readerCss = readFileSync(new URL('../src/features/reader/chapter-reading-workspace.css', import.meta.url), 'utf8');
+for (const background of ['LIGHT', 'SEPIA', 'MINT', 'BLUE', 'ROSE', 'DARK', 'BLACK']) {
+  const tokens = readBlock(readerCss, `[data-reader-background="${background}"]`);
+  for (const foreground of ['--reader-ink', '--reader-muted', '--reader-accent']) {
+    test(`reader ${background}: ${foreground} reaches 4.5:1`, () => {
+      const ratio = contrast(rgb(tokens, foreground), rgb(tokens, '--reader-page'));
+      assert.ok(ratio >= 4.5, `${background} ${foreground} is ${ratio.toFixed(2)}:1`);
+    });
+  }
+}
+
 for (const theme of ['light', 'dark']) {
   const tokens = tokensFor(theme);
   const color = (name) => rgb(tokens, name);
@@ -64,6 +75,8 @@ for (const theme of ['light', 'dark']) {
     ['body text on surface', color('--sc-text-rgb'), surface],
     ['body text on page background', color('--sc-text-rgb'), color('--sc-bg-rgb')],
     ['danger label on surface', color('--sc-danger'), surface],
+    ['library unfollow label', color('--sc-danger'), color('--sc-danger-bg')],
+    ['library unfollow label (hover)', surface, color('--sc-danger')],
     ['support button label', color('--sc-warning'), color('--sc-warning-bg')]
   ];
 
