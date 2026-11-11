@@ -3,7 +3,8 @@
 - **Task:** P2-06B AI Brainstorming UI (Interactive brainstorming assistant for World Rules, Characters, and Future Events within Planning Studio)
 - **Baseline:** HEAD of `integration/p2-planning-studio` after PR #126 merge (`f1ed34cd76582e8a1d641ef54fe57f28523e2114`)
 - **Branch:** `gemini/p2-06b-ai-brainstorming-ui`
-- **Target:** `integration/p2-planning-studio` (Draft PR, do **NOT** merge)
+- **Implementation SHA:** `9293ffffb039e09328c7de81f352d524f5fbdde7`
+- **Final Target / Draft PR:** `integration/p2-planning-studio` (Draft PR, do **NOT** merge)
 - **Reviewer:** GPT-6 Review Team
 
 ---
