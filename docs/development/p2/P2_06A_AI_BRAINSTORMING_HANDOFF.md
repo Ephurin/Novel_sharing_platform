@@ -3,6 +3,7 @@
 - **Task:** P2-06A AI Brainstorming Foundation (Backend structured suggestions for World Rules, Characters, and Future Chapter Events)
 - **Baseline:** HEAD of `integration/p2-planning-studio` after PR #125 merge (`10c9dea0f74e5f86b8fbea63b055c64b27100282`)
 - **Branch:** `gemini/p2-06a-ai-brainstorming-foundation`
+- **HEAD SHA:** `9596e7207df3621ca6892529d3e35c4195e66ec4`
 - **Target:** `integration/p2-planning-studio` (Draft PR #126, do **NOT** merge)
 - **Review History:** GPT-6 R1 & R2 Addressed; Ready for GPT-6 R3 Review
 
@@ -13,7 +14,7 @@
 | Issue ID | Severity | Description | Fix Implementation |
 |---|---|---|---|
 | **BSA-01** (R1) | **P1** | Grounding must use verified effective Canon World Rules only via `resolve_effective_facts` with verified receipts | Brainstorm service resolves Canon World Rules using `resolve_effective_facts` with `verified_amendment_edges` from `brain.metadata`. Any unverified successor or lineage failure fails closed before provider dispatch with HTTP 422 (`WORLD_RULE_SUCCESSOR_UNVERIFIED` / `WORLD_RULE_LINEAGE_INVALID`), guaranteeing zero LLM calls on lineage violations. *(Verified PASS by GPT-6 R2)* |
-| **BSA-02R** (R2) | **P1** | Durable idempotency retry recovery after 429/502/503 and crash recovery / stale lease takeover; fail-closed reservation | Replaced simple binary reservation with an atomic, lease-based state machine (`pending` with `lease_token` and `lease_expires_at`, `completed`, `failed`) under per-key row lock (`with_for_update()`). Slots marked `failed` or with expired leases can be safely re-reserved/taken over on same-key exact retries. Completed receipts are immutable and exact-replayed. Any non-unique DB error during reservation fails closed with HTTP 503 (`IDEMPOTENCY_STORE_UNAVAILABLE`), guaranteeing **zero provider calls** without an actively held lease. |
+| **BSA-02R** (R2) | **P1** | Durable idempotency retry recovery after 429/502/503 and crash recovery / stale lease takeover; fail-closed reservation | Replaced simple binary reservation with an atomic, lease-based state machine (`pending` with `lease_token` and `lease_expires_at`, `completed`, `failed`) under per-key row lock (`with_for_update()`). Slots marked `failed` or with expired leases can be safely re-reserved/taken over on same-key exact retries. Completed receipts are immutable and exact-replayed. Any non-unique DB error during reservation fails closed with HTTP 503 (`IDEMPOTENCY_STORE_UNAVAILABLE`), guaranteeing **zero provider calls** without an actively held lease. Handled concurrent insert races (`IntegrityError`) cleanly via session rollback so racing workers single-flight and await the winner without `PendingRollbackError`. |
 | **BSA-03R** (R2) | **P1** | Owner gate fails closed if Core `novels` row is missing or deleted; no fallback to `StoryBrainRecord` existence | Authoritative novel ownership check executes `SELECT author_id, deleted_at FROM novels WHERE novel_id = :n`. Missing novel rows immediately return HTTP 404 (`NOVEL_NOT_FOUND`). Soft-deleted novel rows (`deleted_at IS NOT NULL`) return HTTP 404 (`NOVEL_DELETED`). Mismatched author returns HTTP 403 (`NOVEL_OWNERSHIP_MISMATCH`). The unsafe fallback to `StoryBrainRecord` existence has been completely eliminated. |
 | **BSA-04R** (R2) | **P2** | Strict scalar type validation preventing unhandled `AttributeError` / HTTP 500 on malformed provider types | Added defensive scalar type checks (`isinstance`) for all returned fields (`world_rules.text`, `characters.name`, `characters.aliases`, `future_events.title`, `future_events.target_chapter`, `participants.*`) prior to any string transformations (`.strip()`) or conversions. Disallows booleans for integer fields (e.g. `target_chapter: true`). All malformed items map to structured HTTP 502 (`BRAINSTORM_PROVIDER_ERROR`), guaranteeing zero HTTP 500 errors. |
 
@@ -97,13 +98,18 @@
 
 ---
 
-## 4. Reproducible Commands
+## 4. Reproducible Commands & CI Run Evidence
+
+### GitHub Actions Workflows (100% PASS on HEAD `9596e720`):
+- **P2 Setup Provenance Foundation:** [Run 42937005862](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42937005862) (**SUCCESS**)
+- **P7 Semantic Memory Foundation:** [Run 42937005842](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42937005842) (**SUCCESS**)
+- **P8 Cutover and Migration:** [Run 42937005843](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42937005843) (**SUCCESS** - all 7 jobs including postgres-integration)
 
 ### AI Service Unit & Contract Tests:
 ```powershell
 Set-Location "ai-service"
 python -m pytest -q tests/test_setup_v1.py tests/test_p2_bootstrap_guard.py tests/test_p2_bootstrap_pacing_compat.py tests/test_p2_json_bootstrap_compat.py tests/test_manuscript_bootstrap.py tests/test_brainstorm_service.py
-# Result: 71 passed in 2.45s
+# Result: 71 passed in 2.46s
 ```
 
 ### Node.js Backend Gateway Tests:
@@ -114,7 +120,7 @@ $env:MONGODB_URI="mongodb://localhost:27017/p2a"
 $env:JWT_ACCESS_SECRET="test-access-secret-16chars"
 $env:JWT_REFRESH_SECRET="test-refresh-secret-16chars"
 npx tsx --test src/modules/ai/ai-gateway.test.ts src/modules/ai/p1-closed-loop-gateway.test.ts
-# Result: 22 passed in 1.65s
+# Result: 22 passed in 2.45s
 ```
 
 ---
