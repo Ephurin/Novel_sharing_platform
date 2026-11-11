@@ -869,3 +869,62 @@ class LLMService:
             },
             "model_info": {"model": self.model, "provider": self.provider},
         }
+
+    def suggest_brainstorm(
+        self,
+        *,
+        instruction: str = "",
+        known_entities: list[dict[str, Any]] | None = None,
+        world_rules: list[str] | None = None,
+        current_chapter: int = 1,
+        target_chapter: int | None = None,
+        target: str = "all",
+    ) -> dict[str, Any]:
+        system_prompt = (
+            "You are an expert creative writing assistant and novel architect. "
+            "Generate structured brainstorm suggestions for a story based on confirmed world rules, "
+            "known characters, and the author's instructions.\n"
+            "Return ONLY valid JSON matching this schema:\n"
+            "{\n"
+            '  "world_rules": [\n'
+            '    {"fact_key": "world_rule_<slug>", "text": "<rule text>", "category": "magic_system|geography|faction|law|cosmology|general"}\n'
+            "  ],\n"
+            '  "characters": [\n'
+            '    {"name": "<name>", "canonical_name": "<name>", "entity_type": "character", "role": "protagonist|antagonist|ally|mentor|bystander|rival|other", "description": "<desc>", "archetype": "<archetype>", "aliases": ["<alias>"]}\n'
+            "  ],\n"
+            '  "future_events": [\n'
+            '    {"title": "<title>", "description": "<desc>", "target_chapter": <int>, "ending": <bool>, "min_words": 1500, "participants": [{"entity_id": "<uuid>", "name_hint": null}, {"entity_id": null, "name_hint": "<name>"}]}\n'
+            "  ]\n"
+            "}\n"
+            "IMPORTANT: If referencing an existing known character, you MUST use their exact entity_id with name_hint=null. "
+            "If introducing a new character, entity_id MUST be null and name_hint MUST be their name. Do NOT fabricate entity UUIDs."
+        )
+        user_prompt = (
+            f"Instruction: {instruction}\n"
+            f"Target suggestions: {target}\n"
+            f"Current chapter: {current_chapter}\n"
+            f"Target chapter: {target_chapter or (current_chapter + 1)}\n"
+            f"Known entities: {json.dumps(known_entities or [])}\n"
+            f"Confirmed world rules: {json.dumps(world_rules or [])}\n"
+        )
+        try:
+            raw = self._call_structured(
+                operation="brainstorm_suggestions",
+                system_prompt=system_prompt,
+                user_prompt=user_prompt,
+            )
+            cleaned = raw.strip()
+            if cleaned.startswith("```"):
+                cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
+                cleaned = re.sub(r"\s*```$", "", cleaned)
+            parsed = self._parse_json_like_output(cleaned)
+            if not isinstance(parsed, dict):
+                raise LLMServiceError("Brainstorm output is not a JSON object")
+            return parsed
+        except LLMServiceError:
+            raise
+        except Exception as exc:
+            if self._is_quota_error(exc):
+                raise LLMServiceError(f"429 Quota exhausted: {exc}") from exc
+            raise LLMServiceError(f"Brainstorm generation failed: {exc}") from exc
+

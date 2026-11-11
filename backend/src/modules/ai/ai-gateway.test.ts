@@ -488,3 +488,46 @@ test('P2-07E assertNovelOwnership author access control logic demonstration', ()
     (err: any) => err instanceof AppError && err.httpStatus === 403 && err.code === 'FORBIDDEN'
   );
 });
+
+test('P2-06A AIGatewayService forwards brainstorming endpoint correctly', async () => {
+  const originalFetch = globalThis.fetch;
+  let capturedUrl = '';
+  let capturedMethod = '';
+  let capturedHeaders: Record<string, string> = {};
+
+  globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) => {
+    capturedUrl = String(input);
+    capturedMethod = init?.method || 'GET';
+    capturedHeaders = (init?.headers as Record<string, string>) || {};
+    return new Response(JSON.stringify({
+      contract_version: 'brainstorm-v1',
+      novel_id: '00000000-0000-0000-0000-000000000001',
+      world_rules: [],
+      characters: [],
+      future_events: [],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }) as any;
+
+  try {
+    const gateway = new AIGatewayService();
+    const novelId = '00000000-0000-0000-0000-000000000001';
+
+    await gateway.forwardRequest({
+      method: 'POST',
+      path: `/v1/story-brains/${novelId}/brainstorm`,
+      userId: 'author-uuid-1',
+      idempotencyKey: 'idem-brainstorm-1',
+      body: {
+        contract_version: 'brainstorm-v1',
+        instruction: 'Gợi ý bí cảnh mới',
+      },
+    });
+
+    assert.equal(capturedMethod, 'POST');
+    assert.match(capturedUrl, new RegExp(`/v1/story-brains/${novelId}/brainstorm$`));
+    assert.equal(capturedHeaders['X-Author-Id'], 'author-uuid-1');
+    assert.equal(capturedHeaders['Idempotency-Key'], 'idem-brainstorm-1');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

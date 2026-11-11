@@ -64,11 +64,30 @@ class FakeDeterministicLLMService:
             return json.dumps({'facts': [{'fact_key': 'source_observation',
                 'fact_value': data['source_text'], 'subject': '', 'certainty': 'confirmed',
                 'quote': data['source_text'], 'confidence': 1.0}]})
+        if operation == 'brainstorm_suggestions':
+            data = json.loads(user_prompt)
+            instruction = data.get("instruction", "")
+            known = data.get("known_entities", [])
+            rules = data.get("world_rules", [])
+            curr_ch = data.get("current_chapter", 1)
+            target_ch = data.get("target_chapter") or (curr_ch + 1)
+            target = data.get("target", "all")
+            res = self.suggest_brainstorm(
+                instruction=instruction,
+                known_entities=known,
+                world_rules=rules,
+                current_chapter=curr_ch,
+                target_chapter=target_ch,
+                target=target,
+            )
+            return json.dumps(res) if isinstance(res, (dict, list)) else str(res)
         return self._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
 
     def __init__(self, model: str = "fake-p4-model") -> None:
         self.model = model
+        self.provider = "fake"
         self.last_call: dict[str, Any] = {}
+        self.call_count: int = 0
 
     def _call_llm(self, *, system_prompt: str, user_prompt: str) -> str:
         prompt_lower = (system_prompt + " " + user_prompt).lower()
@@ -279,3 +298,229 @@ class FakeDeterministicLLMService:
             },
             "model_info": {"model": self.model, "provider": "fake"},
         }
+
+    def suggest_brainstorm(
+        self,
+        *,
+        instruction: str = "",
+        known_entities: list[dict[str, Any]] | None = None,
+        world_rules: list[str] | None = None,
+        current_chapter: int = 1,
+        target_chapter: int | None = None,
+        target: str = "all",
+    ) -> dict[str, Any]:
+        self.call_count += 1
+        self.last_call = {
+            "operation": "suggest_brainstorm",
+            "instruction": instruction,
+            "known_entities": known_entities,
+            "world_rules": world_rules,
+            "current_chapter": current_chapter,
+            "target_chapter": target_chapter,
+            "target": target,
+        }
+        inst_lower = (instruction or "").lower()
+
+        # Simulated provider quota exhaustion (429 / resource exhausted)
+        if "test_quota_exhausted" in inst_lower or "test_429" in inst_lower:
+            raise RuntimeError("429 Resource exhausted: Quota exceeded for model fake-model")
+
+        # Simulated malformed JSON / corrupted output
+        if "test_malformed_json" in inst_lower:
+            return "MALFORMED_OUTPUT_{invalid_json"  # type: ignore
+
+        # Simulated empty output
+        if "test_empty_output" in inst_lower:
+            return {"world_rules": [], "characters": [], "future_events": []}
+
+        # Simulated adversarial: item is string not dict
+        if "test_adversarial_string_item" in inst_lower:
+            return {"world_rules": ["just a string instead of dict"], "characters": [], "future_events": []}
+
+        # Simulated adversarial: oversized array (>20 items)
+        if "test_adversarial_oversized_array" in inst_lower:
+            return {
+                "world_rules": [{"text": f"Quy tắc {i}", "fact_key": f"rule_{i}"} for i in range(50)],
+                "characters": [],
+                "future_events": [],
+            }
+
+        # Simulated adversarial: invalid target_chapter (string/malformed)
+        if "test_adversarial_bad_chapter" in inst_lower:
+            return {
+                "world_rules": [],
+                "characters": [],
+                "future_events": [{"title": "Future Event", "target_chapter": "not-an-int"}],
+            }
+
+        # Simulated adversarial: scalar type errors (BSA-04R)
+        if "test_adversarial_scalar_rule_text" in inst_lower:
+            return {
+                "world_rules": [{"text": 123}],
+                "characters": [],
+                "future_events": [],
+            }
+
+        if "test_adversarial_scalar_char_name" in inst_lower:
+            return {
+                "world_rules": [],
+                "characters": [{"name": ["InvalidList"]}],
+                "future_events": [],
+            }
+
+        if "test_adversarial_scalar_event_title" in inst_lower:
+            return {
+                "world_rules": [],
+                "characters": [],
+                "future_events": [{"title": {"not": "string"}, "target_chapter": 2}],
+            }
+
+        if "test_adversarial_bad_aliases_string" in inst_lower:
+            return {
+                "world_rules": [],
+                "characters": [{"name": "Hero", "aliases": "not-a-list"}],
+                "future_events": [],
+            }
+
+        if "test_adversarial_bad_aliases_int" in inst_lower:
+            return {
+                "world_rules": [],
+                "characters": [{"name": "Hero", "aliases": [123]}],
+                "future_events": [],
+            }
+
+        if "test_adversarial_bad_participant_int" in inst_lower:
+            return {
+                "world_rules": [],
+                "characters": [],
+                "future_events": [{"title": "War", "target_chapter": 2, "participants": [{"entity_id": 999}]}],
+            }
+
+        if "test_adversarial_bad_participant_hint_int" in inst_lower:
+            return {
+                "world_rules": [],
+                "characters": [],
+                "future_events": [{"title": "War", "target_chapter": 2, "participants": [{"name_hint": 999}]}],
+            }
+
+        if "test_adversarial_bool_chapter" in inst_lower:
+            return {
+                "world_rules": [],
+                "characters": [],
+                "future_events": [{"title": "War", "target_chapter": True}],
+            }
+
+        if "test_adversarial_bool_min_words" in inst_lower:
+            return {
+                "world_rules": [],
+                "characters": [],
+                "future_events": [{"title": "War", "target_chapter": 2, "min_words": True}],
+            }
+
+        if "test_provider_502_error" in inst_lower:
+            raise RuntimeError("Provider connection reset by peer")
+
+        # Simulated adversarial: returns mixed categories when requested target is specific
+        if "test_adversarial_mixed_targets" in inst_lower:
+            return {
+                "world_rules": [{"text": "Leaked rule", "fact_key": "world_rule_leaked"}],
+                "characters": [{"name": "Leaked character", "canonical_name": "Leaked character"}],
+                "future_events": [{"title": "Leaked event", "target_chapter": 2, "participants": []}],
+            }
+
+        # Simulated fabricated identity: model invents an ungrounded entity_id
+        if "test_fabricated_identity" in inst_lower:
+            return {
+                "world_rules": [],
+                "characters": [],
+                "future_events": [
+                    {
+                        "title": "Bí mật phản bội",
+                        "description": "Một kẻ bí ẩn mang thân phận giả mạo xuất hiện.",
+                        "target_chapter": target_chapter or (current_chapter + 1),
+                        "ending": False,
+                        "min_words": 1500,
+                        "participants": [
+                            {"entity_id": "00000000-0000-0000-0000-ffffffffffff", "name_hint": None}
+                        ],
+                    }
+                ],
+            }
+
+        # Standard deterministic suggestions
+        rules = [
+            {
+                "fact_key": "world_rule_tinh_than_luc",
+                "text": "Tinh Thần Lực đạt tới Cảnh giới Linh Cảnh mới có thể luyện chế đan dược Lục Phẩm.",
+                "category": "magic_system",
+            },
+            {
+                "fact_key": "world_rule_dia_ma_lac",
+                "text": "Địa Ma Lạc là cấm địa cổ xưa thuộc Hắc Giác Vực, nơi không gian thường xuyên vặn vẹo.",
+                "category": "geography",
+            },
+        ]
+
+        chars = [
+            {
+                "name": "Mộc Lan Tam Trưởng Lão",
+                "canonical_name": "Mộc Lan Tam Trưởng Lão",
+                "entity_type": "character",
+                "role": "antagonist",
+                "description": "Ba vị trưởng lão của Mộc Lan Cốc, tu luyện Tam Thú Đao Pháp phối hợp hoàn hảo.",
+                "archetype": "Tam vị nhất thể",
+                "aliases": ["Mộc Lan Trưởng Lão"],
+            },
+            {
+                "name": "Bạch Vân Tiên Tử",
+                "canonical_name": "Bạch Vân Tiên Tử",
+                "entity_type": "character",
+                "role": "ally",
+                "description": "Luyện dược sư ngũ phẩm thanh nhã, quen biết Hải Ba Đông từ thời trẻ.",
+                "archetype": "Ẩn sĩ",
+                "aliases": ["Bạch Vân"],
+            },
+        ]
+
+        first_entity_id = None
+        if known_entities:
+            first_entity_id = known_entities[0].get("entity_id")
+
+        events = [
+            {
+                "title": "Hội ngộ tại Hắc Giác Vực",
+                "description": "Tiêu Viêm bí mật thâm nhập Hắc Giác Vực để tìm kiếm Dược liệu quý hiếm.",
+                "target_chapter": target_chapter or (current_chapter + 1),
+                "ending": False,
+                "min_words": 2000,
+                "participants": [
+                    {"entity_id": first_entity_id, "name_hint": None}
+                    if first_entity_id
+                    else {"entity_id": None, "name_hint": "Tiêu Viêm"},
+                    {"entity_id": None, "name_hint": "Mộc Lan Tam Trưởng Lão"},
+                ],
+            },
+            {
+                "title": "Đại chiến tại Địa Ma Lạc",
+                "description": "Cuộc chạm trán bất ngờ giữa các phe phái tranh đoạt bí bảo.",
+                "target_chapter": (target_chapter or (current_chapter + 1)) + 1,
+                "ending": False,
+                "min_words": 2500,
+                "participants": [
+                    {"entity_id": None, "name_hint": "Bạch Vân Tiên Tử"},
+                ],
+            },
+        ]
+
+        result: dict[str, Any] = {}
+        if target in ("all", "world_rules"):
+            result["world_rules"] = rules
+        if target in ("all", "characters"):
+            result["characters"] = chars
+            result["character_seeds"] = chars
+        if target in ("all", "future_events"):
+            result["future_events"] = events
+            result["events"] = events
+
+        return result
+
