@@ -44,6 +44,55 @@ MAX_TEXT_LENGTH = 4000
 MAX_SHORT_TEXT_LENGTH = 256
 
 
+class _LeaseHeartbeat:
+    """Background heartbeat loop extending idempotency lease while provider generation is running."""
+
+    def __init__(
+        self,
+        service: Any,
+        novel_id: str,
+        scoped_key: str,
+        lease_token: str,
+        interval_seconds: float = 5.0,
+        extension_seconds: float = 30.0,
+    ) -> None:
+        self._service = service
+        self._novel_id = novel_id
+        self._scoped_key = scoped_key
+        self._lease_token = lease_token
+        self._interval = max(0.005, float(interval_seconds))
+        self._extension = float(extension_seconds)
+        self._stop_event = threading.Event()
+        self._thread: threading.Thread | None = None
+
+    def start(self) -> None:
+        self._thread = threading.Thread(
+            target=self._run,
+            name=f"lease-hb-{self._lease_token[:8]}",
+            daemon=True,
+        )
+        self._thread.start()
+
+    def _run(self) -> None:
+        while not self._stop_event.wait(timeout=self._interval):
+            try:
+                renewed = self._service._renew_lease(
+                    self._novel_id,
+                    self._scoped_key,
+                    self._lease_token,
+                    extension_seconds=self._extension,
+                )
+                if not renewed:
+                    break
+            except Exception as exc:
+                logger.warning("Lease heartbeat iteration failed for %s: %s", self._scoped_key, exc)
+
+    def stop(self) -> None:
+        self._stop_event.set()
+        if self._thread and self._thread.is_alive():
+            self._thread.join(timeout=1.0)
+
+
 class BrainstormService:
     """Orchestrates structured brainstorming suggestions without mutating Canon."""
 
@@ -52,9 +101,53 @@ class BrainstormService:
     _in_memory_lock = threading.Lock()
     _in_memory_condition = threading.Condition(_in_memory_lock)
 
-    def __init__(self, repository: Any, llm_service: Any = None) -> None:
+    # Class-level registry of active in-flight leases across instances/threads
+    _active_local_leases: dict[str, dict[str, Any]] = {}
+    _active_local_leases_lock = threading.Lock()
+
+    @classmethod
+    def _register_active_lease(
+        cls, scoped_key: str, lease_token: str, thread: threading.Thread | None = None
+    ) -> None:
+        with cls._active_local_leases_lock:
+            cls._active_local_leases[scoped_key] = {
+                "lease_token": lease_token,
+                "thread": thread or threading.current_thread(),
+            }
+
+    @classmethod
+    def _unregister_active_lease(cls, scoped_key: str, lease_token: str) -> None:
+        with cls._active_local_leases_lock:
+            existing = cls._active_local_leases.get(scoped_key)
+            if existing and existing.get("lease_token") == lease_token:
+                cls._active_local_leases.pop(scoped_key, None)
+
+    @classmethod
+    def _is_local_worker_alive(cls, scoped_key: str, lease_token: str) -> bool:
+        with cls._active_local_leases_lock:
+            existing = cls._active_local_leases.get(scoped_key)
+            if not existing or existing.get("lease_token") != lease_token:
+                return False
+            thread = existing.get("thread")
+            return bool(thread is not None and thread.is_alive())
+
+    def __init__(
+        self,
+        repository: Any,
+        llm_service: Any = None,
+        *,
+        lease_duration: float = 30.0,
+        heartbeat_interval: float = 5.0,
+        time_provider: Any = None,
+    ) -> None:
         self._repository = repository
         self._llm_service = llm_service
+        self._lease_duration = lease_duration
+        self._heartbeat_interval = heartbeat_interval
+        self._time_provider = time_provider or time.time
+
+    def _now(self) -> float:
+        return float(self._time_provider())
 
     def _scope(self, tenant_id: str) -> None:
         configured = getattr(self._repository, "_tenant_id", None)
@@ -124,6 +217,23 @@ class BrainstormService:
                         "message": f"Author '{author_id}' does not own novel '{novel_id}'",
                     },
                 )
+        else:
+            # BSA-03S: Any repository adapter that cannot authoritatively verify novel ownership
+            # MUST fail closed immediately before reading Story Brain or dispatching to provider.
+            logger.warning(
+                "Repository adapter '%s' does not support authoritative novel ownership verification",
+                type(self._repository).__name__,
+            )
+            raise HTTPException(
+                503,
+                detail={
+                    "code": "OWNERSHIP_VERIFICATION_UNAVAILABLE",
+                    "message": (
+                        f"Repository adapter '{type(self._repository).__name__}' does not support "
+                        "authoritative novel ownership verification"
+                    ),
+                },
+            )
 
     def _get_active_plan_info(
         self, novel_id: str, actor_id: str | None, expected_plan_version: int | None
@@ -281,8 +391,8 @@ class BrainstormService:
             (False, None, completed_response) if already completed.
             (False, None, None) if actively pending under valid lease held by another worker.
         """
-        now = time.time()
-        lease_expires_at = now + 30.0
+        now = self._now()
+        lease_expires_at = now + self._lease_duration
         lease_token = str(uuid.uuid4())
 
         if hasattr(self._repository, "_session_factory"):
@@ -350,8 +460,11 @@ class BrainstormService:
                         return False, None, audit["response"]
 
                     rec_lease_exp = audit.get("lease_expires_at", 0)
-                    # Safe re-reservation / takeover if failed or lease expired
-                    if rec.status == "failed" or (rec.status == "pending" and now > rec_lease_exp):
+                    rec_lease_token = audit.get("lease_token")
+                    is_worker_alive = rec_lease_token and self._is_local_worker_alive(scoped_key, rec_lease_token)
+
+                    # Safe re-reservation / takeover if failed or (lease expired AND worker is not actively alive)
+                    if rec.status == "failed" or (rec.status == "pending" and now > rec_lease_exp and not is_worker_alive):
                         rec.status = "pending"
                         audit["lease_token"] = lease_token
                         audit["lease_expires_at"] = lease_expires_at
@@ -361,9 +474,22 @@ class BrainstormService:
                         return True, lease_token, None
 
                     return False, None, None
-            except IntegrityError:
+            except IntegrityError as exc:
                 # Concurrent insert won the race; another worker holds the slot
-                return False, None, None
+                # Distinguish unique key collision from unrelated integrity failures
+                err_msg = str(exc).lower()
+                orig = getattr(exc, "orig", None)
+                pgcode = getattr(orig, "pgcode", None)
+                if pgcode == "23505" or "unique" in err_msg or "duplicate key" in err_msg:
+                    return False, None, None
+                logger.error("Non-unique IntegrityError during idempotency reservation: %s", exc)
+                raise HTTPException(
+                    503,
+                    detail={
+                        "code": "IDEMPOTENCY_STORE_UNAVAILABLE",
+                        "message": f"Idempotency storage integrity constraint failure: {exc}",
+                    },
+                ) from exc
             except HTTPException:
                 raise
             except Exception as exc:
@@ -402,7 +528,10 @@ class BrainstormService:
                     return False, None, rec["response"]
 
                 rec_lease_exp = rec.get("lease_expires_at", 0)
-                if rec["status"] == "failed" or (rec["status"] == "pending" and now > rec_lease_exp):
+                rec_lease_token = rec.get("lease_token")
+                is_worker_alive = rec_lease_token and self._is_local_worker_alive(scoped_key, rec_lease_token)
+
+                if rec["status"] == "failed" or (rec["status"] == "pending" and now > rec_lease_exp and not is_worker_alive):
                     rec["status"] = "pending"
                     rec["lease_token"] = lease_token
                     rec["lease_expires_at"] = lease_expires_at
@@ -410,6 +539,52 @@ class BrainstormService:
                     return True, lease_token, None
 
                 return False, None, None
+
+    def _renew_lease(
+        self,
+        novel_id: str,
+        scoped_key: str,
+        lease_token: str,
+        extension_seconds: float | None = None,
+    ) -> bool:
+        """Extend lease expiry for an active pending reservation under fencing token check."""
+        duration = extension_seconds if extension_seconds is not None else self._lease_duration
+        new_expiry = self._now() + duration
+
+        if hasattr(self._repository, "_session_factory"):
+            try:
+                with session_scope(self._repository._session_factory) as session:
+                    n_id = self._repository._novel_id(novel_id)
+                    rec = session.scalar(
+                        select(AnalysisRunRecord)
+                        .where(
+                            AnalysisRunRecord.idempotency_key == scoped_key,
+                            AnalysisRunRecord.tenant_id == self._repository._tenant_id,
+                            AnalysisRunRecord.novel_id == n_id,
+                        )
+                        .with_for_update()
+                    )
+                    if rec is None or rec.status != "pending":
+                        return False
+                    audit = dict(rec.entity_candidate_audit or {})
+                    if audit.get("lease_token") != lease_token:
+                        return False
+                    audit["lease_expires_at"] = new_expiry
+                    rec.entity_candidate_audit = audit
+                    session.flush()
+                    return True
+            except Exception as exc:
+                logger.warning("Failed to renew DB lease for %s: %s", scoped_key, exc)
+                return False
+        else:
+            with BrainstormService._in_memory_lock:
+                rec = BrainstormService._in_memory_receipts.get(scoped_key)
+                if rec is None or rec.get("status") != "pending":
+                    return False
+                if rec.get("lease_token") != lease_token:
+                    return False
+                rec["lease_expires_at"] = new_expiry
+                return True
 
     def _complete_receipt(
         self, novel_id: str, scoped_key: str, lease_token: str, response: dict[str, Any]
@@ -523,14 +698,17 @@ class BrainstormService:
         self, novel_id: str, scoped_key: str, timeout_seconds: float = 10.0
     ) -> dict[str, Any] | None:
         """Wait for an in-flight single-flight concurrent receipt to complete or expire."""
-        deadline = time.time() + timeout_seconds
+        deadline = self._now() + timeout_seconds
         if hasattr(self._repository, "_session_factory"):
-            while time.time() < deadline:
+            while self._now() < deadline:
                 try:
                     r = self._get_receipt(novel_id, scoped_key)
                     if r is not None and r["status"] != "pending":
                         return r
-                    if r is not None and r["status"] == "pending" and time.time() > r.get("lease_expires_at", 0):
+                    rec_lease_exp = r.get("lease_expires_at", 0) if r else 0
+                    rec_lease_token = r.get("lease_token") if r else None
+                    is_worker_alive = rec_lease_token and self._is_local_worker_alive(scoped_key, rec_lease_token)
+                    if r is not None and r["status"] == "pending" and self._now() > rec_lease_exp and not is_worker_alive:
                         return r
                 except Exception:
                     pass
@@ -538,11 +716,14 @@ class BrainstormService:
             return None
         else:
             with BrainstormService._in_memory_condition:
-                while time.time() < deadline:
+                while self._now() < deadline:
                     r = BrainstormService._in_memory_receipts.get(scoped_key)
                     if r is not None and r["status"] != "pending":
                         return dict(r)
-                    if r is not None and r["status"] == "pending" and time.time() > r.get("lease_expires_at", 0):
+                    rec_lease_exp = r.get("lease_expires_at", 0) if r else 0
+                    rec_lease_token = r.get("lease_token") if r else None
+                    is_worker_alive = rec_lease_token and self._is_local_worker_alive(scoped_key, rec_lease_token)
+                    if r is not None and r["status"] == "pending" and self._now() > rec_lease_exp and not is_worker_alive:
                         return dict(r)
                     BrainstormService._in_memory_condition.wait(timeout=0.2)
             return None
@@ -613,11 +794,15 @@ class BrainstormService:
                     )
                 if receipt["status"] == "completed" and receipt.get("response"):
                     return BrainstormResponse.model_validate(receipt["response"])
-                elif receipt["status"] == "pending" and time.time() <= receipt.get("lease_expires_at", 0):
-                    # In-flight concurrent request with identical payload
-                    completed_r = self._await_receipt(brain_id, scoped_idempotency_key, timeout_seconds=10.0)
-                    if completed_r and completed_r["status"] == "completed" and completed_r.get("response"):
-                        return BrainstormResponse.model_validate(completed_r["response"])
+                elif receipt["status"] == "pending":
+                    rec_lease_exp = receipt.get("lease_expires_at", 0)
+                    rec_lease_token = receipt.get("lease_token")
+                    is_worker_alive = rec_lease_token and self._is_local_worker_alive(scoped_idempotency_key, rec_lease_token)
+                    if self._now() <= rec_lease_exp or is_worker_alive:
+                        # In-flight concurrent request with identical payload
+                        completed_r = self._await_receipt(brain_id, scoped_idempotency_key, timeout_seconds=10.0)
+                        if completed_r and completed_r["status"] == "completed" and completed_r.get("response"):
+                            return BrainstormResponse.model_validate(completed_r["response"])
                 # If receipt status is 'failed' or pending lease expired, fall through to CAS and takeover!
 
         # 3. Fetch Story Brain (read-only)
@@ -693,6 +878,19 @@ class BrainstormService:
                         "message": f"Idempotency reservation store unavailable: {exc}",
                     },
                 ) from exc
+
+        heartbeat: _LeaseHeartbeat | None = None
+        if scoped_idempotency_key and lease_token:
+            self._register_active_lease(scoped_idempotency_key, lease_token)
+            heartbeat = _LeaseHeartbeat(
+                service=self,
+                novel_id=brain_id,
+                scoped_key=scoped_idempotency_key,
+                lease_token=lease_token,
+                interval_seconds=self._heartbeat_interval,
+                extension_seconds=self._lease_duration,
+            )
+            heartbeat.start()
 
         try:
             # 7. Grounding in Story Brain: approved entities
@@ -1311,3 +1509,8 @@ class BrainstormService:
             if scoped_idempotency_key and lease_token:
                 self._fail_receipt(brain_id, scoped_idempotency_key, lease_token, error_detail=str(exc))
             raise
+        finally:
+            if heartbeat is not None:
+                heartbeat.stop()
+            if scoped_idempotency_key and lease_token:
+                self._unregister_active_lease(scoped_idempotency_key, lease_token)

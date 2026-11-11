@@ -15,11 +15,16 @@ from __future__ import annotations
 from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import json
+import threading
+import time
 import uuid
 import pytest
 from sqlalchemy import select, text
+from sqlalchemy.exc import IntegrityError
+from fastapi import HTTPException
 
 from api.brainstorm_schemas import BrainstormRequest
+from api.deps import get_narrative_repository
 from api.setup_schemas import SetupRuleAmendmentDecisionRequest, SetupRuleAmendmentProposalRequest
 from application.brainstorm_service import BrainstormService
 from application.setup_service import SetupService
@@ -801,4 +806,307 @@ def test_brainstorm_postgres_bsa04r_scalar_type_errors_return_502(brainstorm_env
         )
         assert res.status_code == 502, f"Expected 502 for trigger {trigger}, got {res.status_code}: {res.text}"
         assert res.json()["detail"]["code"] == "BRAINSTORM_PROVIDER_ERROR"
+
+
+def test_brainstorm_postgres_bsa02s_slow_provider_lease_renewal_prevents_duplicate_dispatch(brainstorm_env):
+    """BSA-02S: Worker A runs longer than lease timeout while LLM provider is processing.
+    Background lease renewal updates PostgreSQL lease_expires_at, preventing Worker B from
+    taking over or issuing duplicate LLM calls.
+    """
+    f = brainstorm_env
+    novel_id, _ = _activated_brain(f)
+    idem_key = f"pg-slow-provider-{uuid.uuid4()}"
+    req_body = {
+        "contract_version": "brainstorm-v1",
+        "instruction": "Test postgres slow provider renewal",
+        "idempotency_key": idem_key,
+    }
+
+    class SlowPgLLM(FakeDeterministicLLMService):
+        def __init__(self):
+            super().__init__()
+            self.entered_event = threading.Event()
+            self.release_event = threading.Event()
+            self.dispatches: int = 0
+
+        def suggest_brainstorm(self, **kwargs):
+            self.dispatches += 1
+            self.entered_event.set()
+            self.release_event.wait(timeout=5.0)
+            return super().suggest_brainstorm(**kwargs)
+
+    slow_llm = SlowPgLLM()
+    # Fast lease in test: lease_duration = 0.4s, heartbeat_interval = 0.08s
+    svc1 = BrainstormService(
+        repository=f.repo,
+        llm_service=slow_llm,
+        lease_duration=0.4,
+        heartbeat_interval=0.08,
+    )
+    svc2 = BrainstormService(
+        repository=f.repo,
+        llm_service=slow_llm,
+        lease_duration=0.4,
+        heartbeat_interval=0.08,
+    )
+
+    req_dto = BrainstormRequest.model_validate(req_body)
+
+    res_a_holder: list[Any] = []
+    err_a_holder: list[Any] = []
+
+    def worker_a():
+        try:
+            r = svc1.brainstorm(novel_id, req_dto, tenant_id=str(TENANT), actor_id=str(ACTOR))
+            res_a_holder.append(r)
+        except Exception as e:
+            err_a_holder.append(e)
+
+    thread_a = threading.Thread(target=worker_a)
+    thread_a.start()
+
+    assert slow_llm.entered_event.wait(timeout=3.0), "Worker A must enter provider"
+
+    # Sleep 0.6s: strictly exceeds Worker A's initial 0.4s lease_duration.
+    # PostgreSQL row must have been renewed by the background heartbeat.
+    time.sleep(0.6)
+
+    # Verify that in PostgreSQL, lease_expires_at was renewed into the future
+    scoped_key = f"brainstorm:{TENANT}:{ACTOR}:{novel_id}:{idem_key}"[:255]
+    with session_scope(f.repo._session_factory) as session:
+        run_rec = session.scalar(
+            select(AnalysisRunRecord).where(
+                AnalysisRunRecord.idempotency_key == scoped_key,
+                AnalysisRunRecord.novel_id == uuid.UUID(novel_id),
+            )
+        )
+        assert run_rec is not None
+        assert run_rec.status == "pending"
+        exp = (run_rec.entity_candidate_audit or {}).get("lease_expires_at", 0)
+        assert exp > time.time(), "Lease in PostgreSQL must have been renewed past current time"
+
+    # Worker B calls brainstorm with identical key
+    res_b_holder: list[Any] = []
+    err_b_holder: list[Any] = []
+
+    def worker_b():
+        try:
+            r = svc2.brainstorm(novel_id, req_dto, tenant_id=str(TENANT), actor_id=str(ACTOR))
+            res_b_holder.append(r)
+        except Exception as e:
+            err_b_holder.append(e)
+
+    thread_b = threading.Thread(target=worker_b)
+    thread_b.start()
+
+    time.sleep(0.1)
+
+    # At this point, exactly 1 LLM dispatch must exist across separate service instances
+    assert slow_llm.dispatches == 1, "No concurrent second provider dispatch while A is alive"
+
+    # Release Worker A
+    slow_llm.release_event.set()
+    thread_a.join(timeout=3.0)
+    thread_b.join(timeout=3.0)
+
+    assert len(err_a_holder) == 0, f"Worker A failed: {err_a_holder}"
+    assert len(res_a_holder) == 1
+    assert len(res_b_holder) == 1
+    assert slow_llm.dispatches == 1, "Total LLM dispatches across separate instances must remain 1"
+    assert slow_llm.call_count == 1, "Completed LLM calls must remain 1"
+    assert res_a_holder[0].provenance.timestamp == res_b_holder[0].provenance.timestamp
+
+
+def test_brainstorm_postgres_bsa02s_crashed_worker_safe_takeover(brainstorm_env):
+    """BSA-02S: Worker A crashes in PostgreSQL (lease expired in DB, no active thread).
+    Worker B safely takes over the slot in PostgreSQL and completes successfully.
+    """
+    f = brainstorm_env
+    novel_id, _ = _activated_brain(f)
+    headers = _headers(f)
+    idem_key = f"pg-crash-recovery-{uuid.uuid4()}"
+    scoped_key = f"brainstorm:{TENANT}:{ACTOR}:{novel_id}:{idem_key}"[:255]
+
+    req = BrainstormRequest(
+        contract_version="brainstorm-v1",
+        idempotency_key=idem_key,
+        instruction="Test crash takeover in PG",
+    )
+    canonical_input = {
+        "tenant_id": str(TENANT),
+        "author_id": str(ACTOR),
+        "novel_id": str(novel_id),
+        "idempotency_key": req.idempotency_key,
+        "target": req.target,
+        "instruction": req.instruction,
+        "current_chapter": req.current_chapter,
+        "target_chapter": req.target_chapter,
+        "expected_brain_version": req.expected_brain_version,
+        "expected_plan_version": req.expected_plan_version,
+        "private_notes": req.private_notes,
+        "private_author_notes": req.private_author_notes,
+    }
+    input_hash = hashlib.sha256(
+        json.dumps(canonical_input, sort_keys=True, ensure_ascii=False).encode("utf-8")
+    ).hexdigest()
+
+    # Insert a crashed worker's pending record into PostgreSQL (expired 45s ago)
+    with session_scope(f.repo._session_factory) as session:
+        brain_rec = session.scalar(
+            select(StoryBrainRecord).where(*f.repo._scope(StoryBrainRecord, uuid.UUID(novel_id)))
+        )
+        crashed_run = AnalysisRunRecord(
+            id=uuid.uuid4(),
+            story_brain_id=brain_rec.id,
+            tenant_id=f.repo._tenant_id,
+            novel_id=uuid.UUID(novel_id),
+            operation="brainstorm",
+            status="pending",
+            idempotency_key=scoped_key,
+            input_hash=input_hash,
+            pipeline_version="brainstorm-v1",
+            entity_candidate_audit={
+                "author_id": str(ACTOR),
+                "input_hash": input_hash,
+                "lease_token": "dead-worker-token-pg",
+                "lease_expires_at": time.time() - 45.0,
+            },
+        )
+        session.add(crashed_run)
+
+    f.fake_llm.call_count = 0
+
+    # Worker B calls brainstorm: must detect expired lease without active thread, takeover, and succeed
+    res = f.client.post(
+        f"/v1/story-brains/{novel_id}/brainstorm",
+        headers=headers,
+        json={
+            "contract_version": "brainstorm-v1",
+            "idempotency_key": idem_key,
+            "instruction": "Test crash takeover in PG",
+        },
+    )
+    assert res.status_code == 200
+    assert f.fake_llm.call_count == 1, "Worker B must execute exactly 1 LLM call"
+
+    with session_scope(f.repo._session_factory) as session:
+        updated_run = session.scalar(
+            select(AnalysisRunRecord).where(
+                AnalysisRunRecord.idempotency_key == scoped_key,
+                AnalysisRunRecord.novel_id == uuid.UUID(novel_id),
+            )
+        )
+        assert updated_run.status == "completed"
+        audit = updated_run.entity_candidate_audit or {}
+        assert audit.get("lease_token") != "dead-worker-token-pg", "New lease token must have been assigned"
+
+
+def test_brainstorm_postgres_bsa03s_json_adapter_ownership_fail_closed_zero_llm_calls(brainstorm_env):
+    """BSA-03S: When narrative repository is JsonNarrativeRepository, ownership verification fails closed.
+    Neither author A nor author B can read Story Brain or invoke LLM provider.
+    Zero provider calls must occur.
+    """
+    import tempfile
+    from core.story_kb_manager import KBEntity, StoryKBManager
+    from infrastructure.json_narrative_repository import JsonNarrativeRepository
+
+    f = brainstorm_env
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        json_mgr = StoryKBManager(storage_dir=tmpdir)
+        json_novel_id = str(uuid.uuid4())
+
+        # Seed KB data
+        kb = json_mgr.load_kb(json_novel_id)
+        kb.entities["Tiêu Viêm"] = KBEntity(name="Tiêu Viêm", entity_type="character", status="Alive")
+        json_mgr.save_narrative_kb(json_novel_id, kb)
+
+        json_repo = JsonNarrativeRepository(json_mgr)
+        json_svc = BrainstormService(repository=json_repo, llm_service=f.fake_llm)
+
+        f.fake_llm.call_count = 0
+        req = BrainstormRequest(
+            contract_version="brainstorm-v1",
+            instruction="Test json repo fail-closed",
+        )
+
+        # 1. Author A (ACTOR) fails closed
+        with pytest.raises(HTTPException) as exc_a:
+            json_svc.brainstorm(json_novel_id, req, tenant_id=str(TENANT), actor_id=str(ACTOR))
+        assert exc_a.value.status_code == 503
+        assert exc_a.value.detail["code"] == "OWNERSHIP_VERIFICATION_UNAVAILABLE"
+        assert f.fake_llm.call_count == 0, "Zero LLM calls on author A verification failure"
+
+        # 2. Author B (FOREIGN) fails closed
+        with pytest.raises(HTTPException) as exc_b:
+            json_svc.brainstorm(json_novel_id, req, tenant_id=str(TENANT), actor_id=str(FOREIGN))
+        assert exc_b.value.status_code == 503
+        assert exc_b.value.detail["code"] == "OWNERSHIP_VERIFICATION_UNAVAILABLE"
+        assert f.fake_llm.call_count == 0, "Zero LLM calls on author B verification failure"
+
+        # 3. Via HTTP endpoint with app dependency override
+        f.client.app.dependency_overrides[get_narrative_repository] = lambda: json_repo
+        f.client.app.state.brainstorm_service = json_svc
+        try:
+            headers_a = _headers(f, author_id=ACTOR)
+            res_a = f.client.post(
+                f"/v1/story-brains/{json_novel_id}/brainstorm",
+                headers=headers_a,
+                json={"contract_version": "brainstorm-v1", "instruction": "HTTP JSON test A"},
+            )
+            assert res_a.status_code == 503
+            assert res_a.json()["detail"]["code"] == "OWNERSHIP_VERIFICATION_UNAVAILABLE"
+            assert f.fake_llm.call_count == 0
+
+            headers_b = _headers(f, author_id=FOREIGN)
+            res_b = f.client.post(
+                f"/v1/story-brains/{json_novel_id}/brainstorm",
+                headers=headers_b,
+                json={"contract_version": "brainstorm-v1", "instruction": "HTTP JSON test B"},
+            )
+            assert res_b.status_code == 503
+            assert res_b.json()["detail"]["code"] == "OWNERSHIP_VERIFICATION_UNAVAILABLE"
+            assert f.fake_llm.call_count == 0
+        finally:
+            f.client.app.dependency_overrides.pop(get_narrative_repository, None)
+            f.client.app.state.brainstorm_service = f.brainstorm_svc
+
+
+def test_brainstorm_postgres_bsa02s_non_unique_integrity_error_fails_closed_503(brainstorm_env):
+    """BSA-02S Nonblocking Maintenance: Distinguish unique key collisions from unrelated IntegrityErrors.
+    Unrelated integrity errors (e.g. check constraint or foreign key) immediately raise HTTP 503,
+    rather than waiting 10s and returning 409.
+    """
+    from unittest.mock import patch
+    f = brainstorm_env
+    novel_id, _ = _activated_brain(f)
+    headers = _headers(f)
+    idem_key = f"pg-non-unique-err-{uuid.uuid4()}"
+
+    f.fake_llm.call_count = 0
+    # Simulate an IntegrityError that is NOT a unique violation (no pgcode 23505 and no 'unique' in msg)
+    non_unique_exc = IntegrityError(
+        statement="INSERT INTO analysis_runs ...",
+        params={},
+        orig=Exception("check constraint 'analysis_runs_status_check' failed"),
+    )
+
+    with patch.object(
+        f.brainstorm_svc,
+        "_reserve_or_takeover_receipt",
+        side_effect=non_unique_exc,
+    ):
+        res = f.client.post(
+            f"/v1/story-brains/{novel_id}/brainstorm",
+            headers=headers,
+            json={
+                "contract_version": "brainstorm-v1",
+                "idempotency_key": idem_key,
+                "instruction": "Test non unique integrity error",
+            },
+        )
+        # Fast fail-closed: must NOT wait 10 seconds, returns 503
+        assert res.status_code == 503
+        assert res.json()["detail"]["code"] == "IDEMPOTENCY_STORE_UNAVAILABLE"
+        assert f.fake_llm.call_count == 0
 

@@ -18,12 +18,15 @@ Verifies:
 import hashlib
 import json
 import os
+import threading
+import time
 import unittest
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
 from api.brainstorm_schemas import BrainstormRequest, BrainstormResponse
@@ -920,3 +923,311 @@ class BrainstormFoundationTests(unittest.TestCase):
                 f"Trigger '{trigger}' ({label}) returned {res.status_code}: {res.text}",
             )
             self.assertEqual(res.json()["detail"]["code"], "BRAINSTORM_PROVIDER_ERROR")
+
+    def test_bsa03s_json_narrative_repository_ownership_fails_closed_zero_provider_calls(self):
+        """BSA-03S: JsonNarrativeRepository lacks authoritative novel ownership verification and must fail-closed.
+        Requests with different author identities are denied with 503 OWNERSHIP_VERIFICATION_UNAVAILABLE
+        before reading Story Brain or dispatching to provider. Zero provider calls must occur.
+        """
+        import tempfile
+        from core.story_kb_manager import KBEntity, StoryKBManager
+        from infrastructure.json_narrative_repository import JsonNarrativeRepository
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            json_mgr = StoryKBManager(storage_dir=tmpdir)
+            json_novel_id = str(uuid.uuid4())
+
+            # Seed existing story data into the JSON repository
+            kb = json_mgr.load_kb(json_novel_id)
+            kb.entities["Dược Lão"] = KBEntity(name="Dược Lão", entity_type="character", status="Alive")
+            json_mgr.save_narrative_kb(json_novel_id, kb)
+
+            json_repo = JsonNarrativeRepository(json_mgr)
+            test_llm = FakeDeterministicLLMService()
+            svc = BrainstormService(repository=json_repo, llm_service=test_llm)
+
+            req = BrainstormRequest(
+                contract_version="brainstorm-v1",
+                instruction="Brainstorm with JSON repository",
+            )
+
+            # 1. Author A asserts ownership
+            author_a = str(uuid.uuid4())
+            with self.assertRaises(HTTPException) as ctx_a:
+                svc.brainstorm(json_novel_id, req, tenant_id=self.tenant_id, actor_id=author_a)
+            self.assertEqual(ctx_a.exception.status_code, 503)
+            self.assertEqual(ctx_a.exception.detail.get("code"), "OWNERSHIP_VERIFICATION_UNAVAILABLE")
+            self.assertEqual(test_llm.call_count, 0, "Zero provider calls on author A verification failure")
+
+            # 2. Author B asserts ownership
+            author_b = str(uuid.uuid4())
+            with self.assertRaises(HTTPException) as ctx_b:
+                svc.brainstorm(json_novel_id, req, tenant_id=self.tenant_id, actor_id=author_b)
+            self.assertEqual(ctx_b.exception.status_code, 503)
+            self.assertEqual(ctx_b.exception.detail.get("code"), "OWNERSHIP_VERIFICATION_UNAVAILABLE")
+            self.assertEqual(test_llm.call_count, 0, "Zero provider calls on author B verification failure")
+
+            # 3. Via FastAPI route with JSON repository override
+            app.dependency_overrides[get_narrative_repository] = lambda: json_repo
+            app.state.brainstorm_service = svc
+            try:
+                headers_a = {**self.headers, "X-Author-Id": author_a, "X-User-Id": author_a, "X-Actor-Id": author_a}
+                res_a = self.client.post(
+                    f"/v1/story-brains/{json_novel_id}/brainstorm",
+                    headers=headers_a,
+                    json={"contract_version": "brainstorm-v1", "instruction": "Test via HTTP"},
+                )
+                self.assertEqual(res_a.status_code, 503)
+                self.assertEqual(res_a.json()["detail"]["code"], "OWNERSHIP_VERIFICATION_UNAVAILABLE")
+                self.assertEqual(test_llm.call_count, 0, "Zero provider calls via HTTP endpoint")
+
+                headers_b = {**self.headers, "X-Author-Id": author_b, "X-User-Id": author_b, "X-Actor-Id": author_b}
+                res_b = self.client.post(
+                    f"/v1/story-brains/{json_novel_id}/brainstorm",
+                    headers=headers_b,
+                    json={"contract_version": "brainstorm-v1", "instruction": "Test via HTTP author B"},
+                )
+                self.assertEqual(res_b.status_code, 503)
+                self.assertEqual(res_b.json()["detail"]["code"], "OWNERSHIP_VERIFICATION_UNAVAILABLE")
+                self.assertEqual(test_llm.call_count, 0, "Zero provider calls for author B via HTTP endpoint")
+            finally:
+                app.dependency_overrides[get_narrative_repository] = lambda: self.repo
+                app.state.brainstorm_service = self.brainstorm_svc
+
+    def test_bsa02s_slow_provider_lease_renewal_prevents_duplicate_dispatch(self):
+        """BSA-02S: Worker A runs longer than lease timeout while LLM is processing.
+        Active lease renewal prevents Worker B from taking over or issuing a duplicate LLM dispatch.
+        """
+        idem_key = f"slow-provider-renew-{uuid.uuid4()}"
+        req_body = {
+            "contract_version": "brainstorm-v1",
+            "instruction": "Test slow provider renewal",
+            "idempotency_key": idem_key,
+        }
+        BrainstormService._in_memory_receipts.clear()
+
+        # Custom Fake LLM that sleeps longer than lease_duration
+        class SlowLLMService(FakeDeterministicLLMService):
+            def __init__(self):
+                super().__init__()
+                self.entered_event = threading.Event()
+                self.release_event = threading.Event()
+                self.dispatches: int = 0
+
+            def suggest_brainstorm(self, **kwargs):
+                self.dispatches += 1
+                self.entered_event.set()
+                # Wait until test signals release
+                self.release_event.wait(timeout=5.0)
+                return super().suggest_brainstorm(**kwargs)
+
+        slow_llm = SlowLLMService()
+        # Fast lease: duration = 0.25s, heartbeat interval = 0.05s
+        svc = BrainstormService(
+            repository=self.repo,
+            llm_service=slow_llm,
+            lease_duration=0.25,
+            heartbeat_interval=0.05,
+        )
+
+        req_dto = BrainstormRequest.model_validate(req_body)
+
+        # Worker A starts in background thread
+        res_a_holder: list[Any] = []
+        err_a_holder: list[Any] = []
+
+        def worker_a():
+            try:
+                r = svc.brainstorm(self.novel_id, req_dto, tenant_id=self.tenant_id, actor_id=self.author_id)
+                res_a_holder.append(r)
+            except Exception as e:
+                err_a_holder.append(e)
+
+        thread_a = threading.Thread(target=worker_a)
+        thread_a.start()
+
+        # Wait until Worker A is inside the provider
+        self.assertTrue(slow_llm.entered_event.wait(timeout=2.0), "Worker A must enter provider")
+
+        # Sleep 0.4s: this strictly exceeds Worker A's initial 0.25s lease_duration!
+        # With active heartbeat, the lease is continuously extended.
+        time.sleep(0.4)
+
+        # Worker B invokes brainstorm with identical key after lease_duration has elapsed
+        # Worker B must NOT take over and must NOT invoke the provider a second time.
+        res_b_holder: list[Any] = []
+        err_b_holder: list[Any] = []
+
+        def worker_b():
+            try:
+                r = svc.brainstorm(self.novel_id, req_dto, tenant_id=self.tenant_id, actor_id=self.author_id)
+                res_b_holder.append(r)
+            except Exception as e:
+                err_b_holder.append(e)
+
+        thread_b = threading.Thread(target=worker_b)
+        thread_b.start()
+
+        # Small delay to let Worker B check receipt and enter _await_receipt
+        time.sleep(0.1)
+
+        # At this point, only 1 LLM dispatch must have occurred
+        self.assertEqual(slow_llm.dispatches, 1, "Only 1 LLM call while Worker A is in-flight past lease expiry")
+
+        # Now release Worker A
+        slow_llm.release_event.set()
+        thread_a.join(timeout=3.0)
+        thread_b.join(timeout=3.0)
+
+        self.assertEqual(len(err_a_holder), 0, f"Worker A failed: {err_a_holder}")
+        self.assertEqual(len(res_a_holder), 1, "Worker A must succeed")
+        self.assertEqual(len(res_b_holder), 1, "Worker B must succeed with completed response")
+        # Exactly 1 provider call across both workers
+        self.assertEqual(slow_llm.dispatches, 1, "Zero duplicate LLM calls across concurrent workers")
+        self.assertEqual(slow_llm.call_count, 1, "Base LLM call_count must be exactly 1")
+        # Both return identical response
+        self.assertEqual(res_a_holder[0].provenance.timestamp, res_b_holder[0].provenance.timestamp)
+
+    def test_bsa02s_controlled_clock_worker_alive_prevents_takeover(self):
+        """BSA-02S: Deterministic 2-worker test with controlled clock.
+        Worker A pauses inside fake provider; clock advances beyond 30s; Worker B is invoked.
+        Verify no concurrent second provider dispatch while A is alive.
+        """
+        idem_key = f"controlled-clock-{uuid.uuid4()}"
+        req_body = {
+            "contract_version": "brainstorm-v1",
+            "instruction": "Test controlled clock",
+            "idempotency_key": idem_key,
+        }
+        BrainstormService._in_memory_receipts.clear()
+
+        class ControlledClock:
+            def __init__(self, start: float = 1000.0):
+                self.current = start
+
+            def time(self) -> float:
+                return self.current
+
+            def advance(self, seconds: float) -> None:
+                self.current += seconds
+
+        clock = ControlledClock(start=1000.0)
+
+        class PausingLLM(FakeDeterministicLLMService):
+            def __init__(self):
+                super().__init__()
+                self.in_provider = threading.Event()
+                self.can_exit = threading.Event()
+                self.dispatches: int = 0
+
+            def suggest_brainstorm(self, **kwargs):
+                self.dispatches += 1
+                self.in_provider.set()
+                self.can_exit.wait(timeout=5.0)
+                return super().suggest_brainstorm(**kwargs)
+
+        pausing_llm = PausingLLM()
+        svc = BrainstormService(
+            repository=self.repo,
+            llm_service=pausing_llm,
+            lease_duration=30.0,
+            heartbeat_interval=5.0,
+            time_provider=clock.time,
+        )
+
+        req_dto = BrainstormRequest.model_validate(req_body)
+
+        # Worker A starts
+        res_a: list[Any] = []
+        def worker_a():
+            r = svc.brainstorm(self.novel_id, req_dto, tenant_id=self.tenant_id, actor_id=self.author_id)
+            res_a.append(r)
+
+        t_a = threading.Thread(target=worker_a)
+        t_a.start()
+
+        # Wait until A is inside provider
+        self.assertTrue(pausing_llm.in_provider.wait(timeout=2.0))
+
+        # Advance controlled clock beyond 30s lease (e.g. +45 seconds)
+        clock.advance(45.0)
+
+        # Worker B attempts reservation under separate invocation
+        res_b: list[Any] = []
+        err_b: list[Any] = []
+        def worker_b():
+            try:
+                # With timeout_seconds small so B finishes awaiting quickly if A stays paused
+                r = svc.brainstorm(self.novel_id, req_dto, tenant_id=self.tenant_id, actor_id=self.author_id)
+                res_b.append(r)
+            except Exception as e:
+                err_b.append(e)
+
+        t_b = threading.Thread(target=worker_b)
+        t_b.start()
+
+        time.sleep(0.1)
+
+        # Verify no concurrent second provider dispatch occurred
+        self.assertEqual(pausing_llm.dispatches, 1, "LLM must NOT be dispatched a second time while A is alive")
+
+        # Now let Worker A finish
+        pausing_llm.can_exit.set()
+        t_a.join(timeout=3.0)
+        t_b.join(timeout=3.0)
+
+        self.assertEqual(len(res_a), 1)
+        self.assertEqual(pausing_llm.dispatches, 1, "Total LLM dispatches must remain exactly 1")
+        self.assertEqual(pausing_llm.call_count, 1, "Completed LLM call_count must remain exactly 1")
+
+    def test_bsa02s_crashed_worker_takeover_recovers_safely(self):
+        """BSA-02S: Genuine crashed worker (no active live thread, expired lease) is safely taken over by Worker B."""
+        idem_key = f"crashed-worker-{uuid.uuid4()}"
+        req_body = {
+            "contract_version": "brainstorm-v1",
+            "instruction": "Test crash recovery",
+            "idempotency_key": idem_key,
+        }
+        scoped_key = f"brainstorm:{self.tenant_id}:{self.author_id}:{self.novel_id}:{idem_key}"[:255]
+
+        req = BrainstormRequest.model_validate(req_body)
+        canonical_input = {
+            "tenant_id": self.tenant_id,
+            "author_id": self.author_id,
+            "novel_id": self.novel_id,
+            "idempotency_key": req.idempotency_key,
+            "target": req.target,
+            "instruction": req.instruction,
+            "current_chapter": req.current_chapter,
+            "target_chapter": req.target_chapter,
+            "expected_brain_version": req.expected_brain_version,
+            "expected_plan_version": req.expected_plan_version,
+            "private_notes": req.private_notes,
+            "private_author_notes": req.private_author_notes,
+        }
+        input_hash = hashlib.sha256(
+            json.dumps(canonical_input, sort_keys=True, ensure_ascii=False).encode("utf-8")
+        ).hexdigest()
+
+        # Seed in-memory receipt simulating a crashed worker (expired lease, no active thread)
+        BrainstormService._in_memory_receipts[scoped_key] = {
+            "status": "pending",
+            "input_hash": input_hash,
+            "author_id": self.author_id,
+            "response": None,
+            "lease_token": "crashed-worker-dead-token",
+            "lease_expires_at": time.time() - 15.0,  # 15s in the past
+        }
+
+        test_llm = FakeDeterministicLLMService()
+        svc = BrainstormService(repository=self.repo, llm_service=test_llm)
+
+        # Worker B arrives: detects expired lease with no active live thread, takes over, and succeeds
+        res = svc.brainstorm(self.novel_id, req, tenant_id=self.tenant_id, actor_id=self.author_id)
+        self.assertIsNotNone(res)
+        self.assertEqual(test_llm.call_count, 1, "Worker B took over crashed worker and dispatched LLM once")
+
+        # Verify receipt is now completed
+        receipt = BrainstormService._in_memory_receipts.get(scoped_key)
+        self.assertEqual(receipt["status"], "completed")
+        self.assertIsNotNone(receipt["response"])
