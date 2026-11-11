@@ -456,3 +456,348 @@ def test_brainstorm_postgres_bsa03_ownership_and_auth_enforcement(brainstorm_env
     assert res_plan_conflict.json()["detail"]["code"] == "PLAN_VERSION_CONFLICT"
     assert f.fake_llm.call_count == 0
 
+
+def test_brainstorm_postgres_bsa02r_retry_succeeds_after_429_failure(brainstorm_env):
+    """BSA-02R: Same-key retry succeeds in PostgreSQL after initial 429 failure, transitioning failed -> completed."""
+    f = brainstorm_env
+    novel_id, _ = _activated_brain(f)
+    headers = _headers(f)
+    idem_key = f"pg-retry-429-{uuid.uuid4()}"
+    scoped_key = f"brainstorm:{TENANT}:{ACTOR}:{novel_id}:{idem_key}"[:255]
+
+    # 1. First attempt triggers 429 quota exhaustion
+    f.fake_llm.call_count = 0
+    res1 = f.client.post(
+        f"/v1/story-brains/{novel_id}/brainstorm",
+        headers=headers,
+        json={
+            "contract_version": "brainstorm-v1",
+            "idempotency_key": idem_key,
+            "instruction": "test_quota_exhausted",
+        },
+    )
+    assert res1.status_code == 429
+    assert res1.json()["detail"]["code"] == "PROVIDER_QUOTA_EXHAUSTED"
+
+    # Verify AnalysisRunRecord is marked as "failed" in PostgreSQL
+    with session_scope(f.repo._session_factory) as session:
+        run_rec = session.scalar(
+            select(AnalysisRunRecord).where(
+                AnalysisRunRecord.idempotency_key == scoped_key,
+                AnalysisRunRecord.novel_id == uuid.UUID(novel_id),
+            )
+        )
+        assert run_rec is not None
+        assert run_rec.status == "failed"
+
+    # 2. Same-key exact retry with non-erroring instruction succeeds with 200
+    res2 = f.client.post(
+        f"/v1/story-brains/{novel_id}/brainstorm",
+        headers=headers,
+        json={
+            "contract_version": "brainstorm-v1",
+            "idempotency_key": idem_key,
+            "instruction": "Khai phá cốt truyện chương 4",
+        },
+    )
+    assert res2.status_code == 200
+    cached_timestamp = res2.json()["data"]["provenance"]["timestamp"]
+
+    # Verify AnalysisRunRecord transitioned to "completed" in PostgreSQL
+    with session_scope(f.repo._session_factory) as session:
+        run_rec2 = session.scalar(
+            select(AnalysisRunRecord).where(
+                AnalysisRunRecord.idempotency_key == scoped_key,
+                AnalysisRunRecord.novel_id == uuid.UUID(novel_id),
+            )
+        )
+        assert run_rec2 is not None
+        assert run_rec2.status == "completed"
+
+    # 3. Third call with same key is replayed from PostgreSQL without provider call
+    f.fake_llm.call_count = 0
+    res3 = f.client.post(
+        f"/v1/story-brains/{novel_id}/brainstorm",
+        headers=headers,
+        json={
+            "contract_version": "brainstorm-v1",
+            "idempotency_key": idem_key,
+            "instruction": "Khai phá cốt truyện chương 4",
+        },
+    )
+    assert res3.status_code == 200
+    assert res3.json()["data"]["provenance"]["timestamp"] == cached_timestamp
+    assert f.fake_llm.call_count == 0, "Exact replay must be served from cache without LLM call"
+
+
+def test_brainstorm_postgres_bsa02r_retry_succeeds_after_502_failure(brainstorm_env):
+    """BSA-02R: Same-key retry succeeds in PostgreSQL after initial 502 provider failure."""
+    f = brainstorm_env
+    novel_id, _ = _activated_brain(f)
+    headers = _headers(f)
+    idem_key = f"pg-retry-502-{uuid.uuid4()}"
+    scoped_key = f"brainstorm:{TENANT}:{ACTOR}:{novel_id}:{idem_key}"[:255]
+
+    # 1. First attempt triggers 502 provider error
+    res1 = f.client.post(
+        f"/v1/story-brains/{novel_id}/brainstorm",
+        headers=headers,
+        json={
+            "contract_version": "brainstorm-v1",
+            "idempotency_key": idem_key,
+            "instruction": "test_provider_502_error",
+        },
+    )
+    assert res1.status_code == 502
+    assert res1.json()["detail"]["code"] == "BRAINSTORM_PROVIDER_ERROR"
+
+    # 2. Same-key retry succeeds with 200
+    res2 = f.client.post(
+        f"/v1/story-brains/{novel_id}/brainstorm",
+        headers=headers,
+        json={
+            "contract_version": "brainstorm-v1",
+            "idempotency_key": idem_key,
+            "instruction": "Khai phá cốt truyện mới",
+        },
+    )
+    assert res2.status_code == 200
+
+    with session_scope(f.repo._session_factory) as session:
+        run_rec = session.scalar(
+            select(AnalysisRunRecord).where(
+                AnalysisRunRecord.idempotency_key == scoped_key,
+                AnalysisRunRecord.novel_id == uuid.UUID(novel_id),
+            )
+        )
+        assert run_rec is not None
+        assert run_rec.status == "completed"
+
+
+def test_brainstorm_postgres_bsa02r_stale_pending_lease_takeover(brainstorm_env):
+    """BSA-02R: Expired pending lease (e.g. from crashed worker) is safely taken over in PostgreSQL."""
+    import time
+    f = brainstorm_env
+    novel_id, _ = _activated_brain(f)
+    headers = _headers(f)
+    idem_key = f"pg-stale-takeover-{uuid.uuid4()}"
+    scoped_key = f"brainstorm:{TENANT}:{ACTOR}:{novel_id}:{idem_key}"[:255]
+
+    req = BrainstormRequest(
+        contract_version="brainstorm-v1",
+        idempotency_key=idem_key,
+        instruction="Stale lease recovery",
+    )
+    canonical_input = {
+        "tenant_id": str(TENANT),
+        "author_id": str(ACTOR),
+        "novel_id": str(novel_id),
+        "idempotency_key": req.idempotency_key,
+        "target": req.target,
+        "instruction": req.instruction,
+        "current_chapter": req.current_chapter,
+        "target_chapter": req.target_chapter,
+        "expected_brain_version": req.expected_brain_version,
+        "expected_plan_version": req.expected_plan_version,
+        "private_notes": req.private_notes,
+        "private_author_notes": req.private_author_notes,
+    }
+    input_hash = hashlib.sha256(
+        json.dumps(canonical_input, sort_keys=True, ensure_ascii=False).encode("utf-8")
+    ).hexdigest()
+
+    # Insert a stale pending run into PostgreSQL with expired lease
+    with session_scope(f.repo._session_factory) as session:
+        brain_rec = session.scalar(
+            select(StoryBrainRecord).where(*f.repo._scope(StoryBrainRecord, uuid.UUID(novel_id)))
+        )
+        stale_run = AnalysisRunRecord(
+            id=uuid.uuid4(),
+            story_brain_id=brain_rec.id,
+            tenant_id=f.repo._tenant_id,
+            novel_id=uuid.UUID(novel_id),
+            operation="brainstorm",
+            status="pending",
+            idempotency_key=scoped_key,
+            input_hash=input_hash,
+            pipeline_version="brainstorm-v1",
+            entity_candidate_audit={
+                "author_id": str(ACTOR),
+                "input_hash": input_hash,
+                "lease_token": "crashed-worker-token",
+                "lease_expires_at": time.time() - 60.0,  # Expired 60s ago
+            },
+        )
+        session.add(stale_run)
+
+    # Next brainstorm request with same key detects expired lease, takes over, and succeeds
+    res = f.client.post(
+        f"/v1/story-brains/{novel_id}/brainstorm",
+        headers=headers,
+        json={
+            "contract_version": "brainstorm-v1",
+            "idempotency_key": idem_key,
+            "instruction": "Stale lease recovery",
+        },
+    )
+    assert res.status_code == 200
+
+    # Verify status in PostgreSQL transitioned to completed
+    with session_scope(f.repo._session_factory) as session:
+        updated_run = session.scalar(
+            select(AnalysisRunRecord).where(
+                AnalysisRunRecord.idempotency_key == scoped_key,
+                AnalysisRunRecord.novel_id == uuid.UUID(novel_id),
+            )
+        )
+        assert updated_run is not None
+        assert updated_run.status == "completed"
+
+
+def test_brainstorm_postgres_bsa02r_reservation_db_failure_fail_closed(brainstorm_env):
+    """BSA-02R: If DB reservation throws an error, fail closed with 503 and zero LLM calls."""
+    from unittest.mock import patch
+    f = brainstorm_env
+    novel_id, _ = _activated_brain(f)
+    headers = _headers(f)
+    idem_key = f"pg-db-fail-{uuid.uuid4()}"
+
+    f.fake_llm.call_count = 0
+    with patch.object(
+        f.brainstorm_svc,
+        "_reserve_or_takeover_receipt",
+        side_effect=Exception("Database connection timeout"),
+    ):
+        res = f.client.post(
+            f"/v1/story-brains/{novel_id}/brainstorm",
+            headers=headers,
+            json={
+                "contract_version": "brainstorm-v1",
+                "idempotency_key": idem_key,
+                "instruction": "Normal",
+            },
+        )
+        assert res.status_code in (500, 503)
+        assert f.fake_llm.call_count == 0, "Zero LLM calls must occur when reservation fails"
+
+
+def test_brainstorm_postgres_bsa02r_concurrency_across_separate_instances(brainstorm_env):
+    """BSA-02R: Simultaneous requests across separate BrainstormService instances are single-flighted."""
+    f = brainstorm_env
+    novel_id, _ = _activated_brain(f)
+    headers = _headers(f)
+    idem_key = f"pg-multi-inst-{uuid.uuid4()}"
+    req_body = {
+        "contract_version": "brainstorm-v1",
+        "instruction": "Đại hội liên minh đa server",
+        "idempotency_key": idem_key,
+    }
+
+    # Two separate BrainstormService instances sharing same PostgreSQL DB
+    svc1 = BrainstormService(repository=f.repo, llm_service=f.fake_llm)
+    svc2 = BrainstormService(repository=f.repo, llm_service=f.fake_llm)
+
+    f.fake_llm.call_count = 0
+
+    def _call(svc):
+        f.client.app.state.brainstorm_service = svc
+        return f.client.post(f"/v1/story-brains/{novel_id}/brainstorm", headers=headers, json=req_body)
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        t1 = executor.submit(_call, svc1)
+        t2 = executor.submit(_call, svc2)
+        res1 = t1.result()
+        res2 = t2.result()
+
+    assert res1.status_code == 200
+    assert res2.status_code == 200
+    assert res1.json()["data"]["provenance"]["timestamp"] == res2.json()["data"]["provenance"]["timestamp"]
+    assert f.fake_llm.call_count == 1, "Only 1 LLM dispatch across separate service instances"
+
+
+def test_brainstorm_postgres_bsa03r_ownership_denied_when_core_novel_absent(brainstorm_env):
+    """BSA-03R: Story Brain exists in PostgreSQL, but absent or soft-deleted Core novel row fails closed."""
+    f = brainstorm_env
+    novel_id, _ = _activated_brain(f)
+    headers = _headers(f)
+
+    # 1. Delete Core novels row from PostgreSQL
+    with f.engine.begin() as db:
+        db.execute(text("DELETE FROM novels WHERE novel_id = :n"), {"n": novel_id})
+
+    # Verify Story Brain still exists
+    with session_scope(f.repo._session_factory) as session:
+        brain_rec = session.scalar(
+            select(StoryBrainRecord).where(*f.repo._scope(StoryBrainRecord, uuid.UUID(novel_id)))
+        )
+        assert brain_rec is not None
+
+    f.fake_llm.call_count = 0
+    # Brainstorm call must fail closed with 404 NOVEL_NOT_FOUND, even with valid service token
+    res_absent = f.client.post(
+        f"/v1/story-brains/{novel_id}/brainstorm",
+        headers=headers,
+        json={"contract_version": "brainstorm-v1"},
+    )
+    assert res_absent.status_code == 404
+    assert res_absent.json()["detail"]["code"] == "NOVEL_NOT_FOUND"
+    assert f.fake_llm.call_count == 0, "Zero LLM calls when Core novel row is absent"
+
+    # 2. Foreign author also denied when novel row absent
+    foreign_headers = _headers(f, author_id=FOREIGN)
+    res_foreign = f.client.post(
+        f"/v1/story-brains/{novel_id}/brainstorm",
+        headers=foreign_headers,
+        json={"contract_version": "brainstorm-v1"},
+    )
+    assert res_foreign.status_code == 404
+    assert f.fake_llm.call_count == 0
+
+    # 3. Soft-deleted novel: re-insert with deleted_at set
+    with f.engine.begin() as db:
+        db.execute(
+            text(
+                "INSERT INTO novels(novel_id, author_id, title, slug, synopsis, deleted_at) "
+                "VALUES (:n, :a, 'Soft Deleted', :slug, 'synopsis', NOW())"
+            ),
+            {"n": novel_id, "a": ACTOR, "slug": f"deleted-{novel_id}"},
+        )
+
+    res_deleted = f.client.post(
+        f"/v1/story-brains/{novel_id}/brainstorm",
+        headers=headers,
+        json={"contract_version": "brainstorm-v1"},
+    )
+    assert res_deleted.status_code == 404
+    assert res_deleted.json()["detail"]["code"] == "NOVEL_DELETED"
+    assert f.fake_llm.call_count == 0, "Zero LLM calls when novel is soft-deleted"
+
+
+def test_brainstorm_postgres_bsa04r_scalar_type_errors_return_502(brainstorm_env):
+    """BSA-04R: Provider returning malformed scalar types in real PostgreSQL returns 502, never 500."""
+    f = brainstorm_env
+    novel_id, _ = _activated_brain(f)
+    headers = _headers(f)
+    url = f"/v1/story-brains/{novel_id}/brainstorm"
+
+    cases = [
+        "test_adversarial_scalar_rule_text",
+        "test_adversarial_scalar_char_name",
+        "test_adversarial_scalar_event_title",
+        "test_adversarial_bad_aliases_string",
+        "test_adversarial_bad_aliases_int",
+        "test_adversarial_bad_participant_int",
+        "test_adversarial_bad_participant_hint_int",
+        "test_adversarial_bool_chapter",
+        "test_adversarial_bool_min_words",
+    ]
+
+    for trigger in cases:
+        res = f.client.post(
+            url,
+            headers=headers,
+            json={"contract_version": "brainstorm-v1", "instruction": trigger},
+        )
+        assert res.status_code == 502, f"Expected 502 for trigger {trigger}, got {res.status_code}: {res.text}"
+        assert res.json()["detail"]["code"] == "BRAINSTORM_PROVIDER_ERROR"
+

@@ -353,6 +353,73 @@ class FakeDeterministicLLMService:
                 "future_events": [{"title": "Future Event", "target_chapter": "not-an-int"}],
             }
 
+        # Simulated adversarial: scalar type errors (BSA-04R)
+        if "test_adversarial_scalar_rule_text" in inst_lower:
+            return {
+                "world_rules": [{"text": 123}],
+                "characters": [],
+                "future_events": [],
+            }
+
+        if "test_adversarial_scalar_char_name" in inst_lower:
+            return {
+                "world_rules": [],
+                "characters": [{"name": ["InvalidList"]}],
+                "future_events": [],
+            }
+
+        if "test_adversarial_scalar_event_title" in inst_lower:
+            return {
+                "world_rules": [],
+                "characters": [],
+                "future_events": [{"title": {"not": "string"}, "target_chapter": 2}],
+            }
+
+        if "test_adversarial_bad_aliases_string" in inst_lower:
+            return {
+                "world_rules": [],
+                "characters": [{"name": "Hero", "aliases": "not-a-list"}],
+                "future_events": [],
+            }
+
+        if "test_adversarial_bad_aliases_int" in inst_lower:
+            return {
+                "world_rules": [],
+                "characters": [{"name": "Hero", "aliases": [123]}],
+                "future_events": [],
+            }
+
+        if "test_adversarial_bad_participant_int" in inst_lower:
+            return {
+                "world_rules": [],
+                "characters": [],
+                "future_events": [{"title": "War", "target_chapter": 2, "participants": [{"entity_id": 999}]}],
+            }
+
+        if "test_adversarial_bad_participant_hint_int" in inst_lower:
+            return {
+                "world_rules": [],
+                "characters": [],
+                "future_events": [{"title": "War", "target_chapter": 2, "participants": [{"name_hint": 999}]}],
+            }
+
+        if "test_adversarial_bool_chapter" in inst_lower:
+            return {
+                "world_rules": [],
+                "characters": [],
+                "future_events": [{"title": "War", "target_chapter": True}],
+            }
+
+        if "test_adversarial_bool_min_words" in inst_lower:
+            return {
+                "world_rules": [],
+                "characters": [],
+                "future_events": [{"title": "War", "target_chapter": 2, "min_words": True}],
+            }
+
+        if "test_provider_502_error" in inst_lower:
+            raise RuntimeError("Provider connection reset by peer")
+
         # Simulated adversarial: returns mixed categories when requested target is specific
         if "test_adversarial_mixed_targets" in inst_lower:
             return {

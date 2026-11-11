@@ -54,6 +54,7 @@ class InMemoryNarrativeRepository:
         self._revision_provenance: dict[tuple[str, str], int] = {}
         self._story_plans: dict[str, StoryPlan] = {}
         self._autonomous_runs: dict[str, AutonomousRun] = {}
+        self._novel_authors: dict[str, str] = {}
 
     def get_story_brain(self, story_id: str, *, read_only: bool = False) -> StoryBrain:
         if read_only and story_id not in self._brains:

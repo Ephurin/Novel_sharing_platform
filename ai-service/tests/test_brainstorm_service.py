@@ -60,6 +60,7 @@ class BrainstormFoundationTests(unittest.TestCase):
         }
 
         self.repo = InMemoryNarrativeRepository()
+        self.repo._novel_authors[self.novel_id] = self.author_id
         self.fake_llm = FakeDeterministicLLMService()
         self.service = NarrativeApplicationService(repository=self.repo)
         self.brainstorm_svc = BrainstormService(repository=self.repo, llm_service=self.fake_llm)
@@ -209,7 +210,7 @@ class BrainstormFoundationTests(unittest.TestCase):
                 "target": "future_events",
             },
         )
-        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, 200, res.text)
         events = res.json()["data"]["future_events"]
         participants = events[0]["participants"]
         approved_p = next((p for p in participants if p["entity_id"] == self.entity_id), None)
@@ -349,7 +350,7 @@ class BrainstormFoundationTests(unittest.TestCase):
                 "private_author_notes": [private_list_marker],
             },
         )
-        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, 200, res.text)
         raw_response_text = res.text
 
         # 1. Response body must NOT contain the secret notes
@@ -438,7 +439,7 @@ class BrainstormFoundationTests(unittest.TestCase):
             headers=self.headers,
             json={"contract_version": "brainstorm-v1", "target": "world_rules"},
         )
-        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, 200, res.text)
         data = res.json()["data"]
         self.assertGreaterEqual(len(data["world_rules"]), 1)
         self.assertEqual(len(data["characters"]), 0)
@@ -450,7 +451,7 @@ class BrainstormFoundationTests(unittest.TestCase):
             headers=self.headers,
             json={"contract_version": "brainstorm-v1", "target": "characters"},
         )
-        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, 200, res.text)
         data = res.json()["data"]
         self.assertEqual(len(data["world_rules"]), 0)
         self.assertGreaterEqual(len(data["characters"]), 1)
@@ -724,3 +725,198 @@ class BrainstormFoundationTests(unittest.TestCase):
         self.assertEqual(len(data["world_rules"]), 0, "Non-requested world_rules must be filtered out")
         self.assertEqual(len(data["future_events"]), 0, "Non-requested future_events must be filtered out")
         self.assertGreaterEqual(len(data["characters"]), 1, "Requested characters must be present")
+
+    def test_bsa02r_retry_succeeds_after_429_quota_failure(self):
+        """BSA-02R: Same-key retry succeeds after initial 429 quota exhaustion."""
+        url = f"/v1/story-brains/{self.novel_id}/brainstorm"
+        idem_key = f"retry-429-{uuid.uuid4()}"
+
+        # 1. Initial request fails with 429
+        res1 = self.client.post(
+            url,
+            headers=self.headers,
+            json={
+                "contract_version": "brainstorm-v1",
+                "instruction": "test_quota_exhausted",
+                "idempotency_key": idem_key,
+            },
+        )
+        self.assertEqual(res1.status_code, 429)
+        self.assertEqual(res1.json()["detail"]["code"], "PROVIDER_QUOTA_EXHAUSTED")
+
+        # 2. Retry with same idempotency key and successful instruction must succeed
+        res2 = self.client.post(
+            url,
+            headers=self.headers,
+            json={
+                "contract_version": "brainstorm-v1",
+                "instruction": "test_quota_exhausted",  # Same payload
+                "idempotency_key": idem_key,
+            },
+        )
+        # Note: In test environment, if payload instruction triggers quota, it fails again,
+        # but the key is re-reservable! Let's test with a successful retry payload or clear trigger:
+        # According to BSA-02R, if provider error clears on retry, same-key exact retry succeeds:
+        # Let's verify by patching fake_llm or toggling trigger:
+        # Actually, let's test retry when provider succeeds on second attempt:
+        idem_key2 = f"retry-transient-{uuid.uuid4()}"
+        with patch.object(self.fake_llm, "suggest_brainstorm", side_effect=[RuntimeError("429 Resource exhausted"), None]):
+            # First attempt fails with 429
+            r1 = self.client.post(
+                url,
+                headers=self.headers,
+                json={"contract_version": "brainstorm-v1", "idempotency_key": idem_key2, "instruction": "Normal"},
+            )
+            self.assertEqual(r1.status_code, 429)
+
+            # Second attempt with exact same payload succeeds with 200
+            # Reset side effect to return normal output
+            self.fake_llm.suggest_brainstorm = FakeDeterministicLLMService().suggest_brainstorm
+            r2 = self.client.post(
+                url,
+                headers=self.headers,
+                json={"contract_version": "brainstorm-v1", "idempotency_key": idem_key2, "instruction": "Normal"},
+            )
+            self.assertEqual(r2.status_code, 200)
+
+            # Third attempt: exact replay served from cache
+            self.fake_llm.call_count = 0
+            r3 = self.client.post(
+                url,
+                headers=self.headers,
+                json={"contract_version": "brainstorm-v1", "idempotency_key": idem_key2, "instruction": "Normal"},
+            )
+            self.assertEqual(r3.status_code, 200)
+            self.assertEqual(self.fake_llm.call_count, 0)
+
+    def test_bsa02r_retry_succeeds_after_502_provider_failure(self):
+        """BSA-02R: Same-key retry succeeds after initial 502 provider error."""
+        url = f"/v1/story-brains/{self.novel_id}/brainstorm"
+        idem_key = f"retry-502-{uuid.uuid4()}"
+
+        with patch.object(self.fake_llm, "suggest_brainstorm", side_effect=[RuntimeError("502 Bad Gateway"), None]):
+            r1 = self.client.post(
+                url,
+                headers=self.headers,
+                json={"contract_version": "brainstorm-v1", "idempotency_key": idem_key, "instruction": "Normal"},
+            )
+            self.assertEqual(r1.status_code, 502)
+
+            self.fake_llm.suggest_brainstorm = FakeDeterministicLLMService().suggest_brainstorm
+            r2 = self.client.post(
+                url,
+                headers=self.headers,
+                json={"contract_version": "brainstorm-v1", "idempotency_key": idem_key, "instruction": "Normal"},
+            )
+            self.assertEqual(r2.status_code, 200)
+
+    def test_bsa02r_stale_pending_lease_takeover(self):
+        """BSA-02R: Expired pending lease is safely taken over on subsequent request."""
+        url = f"/v1/story-brains/{self.novel_id}/brainstorm"
+        idem_key = f"stale-lease-{uuid.uuid4()}"
+        scoped_key = f"brainstorm:{self.tenant_id}:{self.author_id}:{self.novel_id}:{idem_key}"[:255]
+
+        req = BrainstormRequest(
+            contract_version="brainstorm-v1",
+            idempotency_key=idem_key,
+            instruction="Test stale takeover",
+        )
+        canonical_input = {
+            "tenant_id": self.tenant_id,
+            "author_id": self.author_id,
+            "novel_id": self.novel_id,
+            "idempotency_key": req.idempotency_key,
+            "target": req.target,
+            "instruction": req.instruction,
+            "current_chapter": req.current_chapter,
+            "target_chapter": req.target_chapter,
+            "expected_brain_version": req.expected_brain_version,
+            "expected_plan_version": req.expected_plan_version,
+            "private_notes": req.private_notes,
+            "private_author_notes": req.private_author_notes,
+        }
+        input_hash = hashlib.sha256(
+            json.dumps(canonical_input, sort_keys=True, ensure_ascii=False).encode("utf-8")
+        ).hexdigest()
+
+        # Inject stale pending record into in-memory receipts
+        import time
+        BrainstormService._in_memory_receipts[scoped_key] = {
+            "status": "pending",
+            "input_hash": input_hash,
+            "author_id": self.author_id,
+            "response": None,
+            "lease_token": "expired-token",
+            "lease_expires_at": time.time() - 10.0,  # 10s in the past
+        }
+
+        # Request with same key takes over expired lease and succeeds
+        res = self.client.post(
+            url,
+            headers=self.headers,
+            json={
+                "contract_version": "brainstorm-v1",
+                "idempotency_key": idem_key,
+                "instruction": "Test stale takeover",
+            },
+        )
+        self.assertEqual(res.status_code, 200, res.text)
+        self.assertEqual(BrainstormService._in_memory_receipts[scoped_key]["status"], "completed")
+
+    def test_bsa03r_novel_not_found_when_unregistered(self):
+        """BSA-03R: Missing novel in novel ownership store fails closed with 404 NOVEL_NOT_FOUND."""
+        other_novel_id = str(uuid.uuid4())
+        # Story Brain exists in repository, but novel is NOT registered in _novel_authors
+        self.repo.get_story_brain(other_novel_id)
+
+        res = self.client.post(
+            f"/v1/story-brains/{other_novel_id}/brainstorm",
+            headers=self.headers,
+            json={"contract_version": "brainstorm-v1", "instruction": "Normal"},
+        )
+        self.assertEqual(res.status_code, 404)
+        self.assertEqual(res.json()["detail"]["code"], "NOVEL_NOT_FOUND")
+
+    def test_bsa03r_novel_ownership_mismatch_denied(self):
+        """BSA-03R: Foreign author calling brainstorm is rejected with 403 NOVEL_OWNERSHIP_MISMATCH."""
+        other_novel_id = str(uuid.uuid4())
+        self.repo.get_story_brain(other_novel_id)
+        # Registered to a different author
+        self.repo._novel_authors[other_novel_id] = str(uuid.uuid4())
+
+        res = self.client.post(
+            f"/v1/story-brains/{other_novel_id}/brainstorm",
+            headers=self.headers,
+            json={"contract_version": "brainstorm-v1", "instruction": "Normal"},
+        )
+        self.assertEqual(res.status_code, 403)
+        self.assertEqual(res.json()["detail"]["code"], "NOVEL_OWNERSHIP_MISMATCH")
+
+    def test_bsa04r_scalar_type_errors_map_to_502(self):
+        """BSA-04R: Provider returning invalid scalar types returns 502, never 500."""
+        url = f"/v1/story-brains/{self.novel_id}/brainstorm"
+
+        adversarial_cases = [
+            ("test_adversarial_scalar_rule_text", "world_rules: text must be string"),
+            ("test_adversarial_scalar_char_name", "characters: name must be string"),
+            ("test_adversarial_scalar_event_title", "future_events: title must be string"),
+            ("test_adversarial_bad_aliases_string", "characters: aliases must be list"),
+            ("test_adversarial_bad_aliases_int", "characters: alias items must be string"),
+            ("test_adversarial_bad_participant_int", "future_events: participant entity_id must be string"),
+            ("test_adversarial_bad_participant_hint_int", "future_events: participant name_hint must be string"),
+            ("test_adversarial_bool_chapter", "future_events: target_chapter cannot be bool"),
+            ("test_adversarial_bool_min_words", "future_events: min_words cannot be bool"),
+        ]
+
+        for trigger, label in adversarial_cases:
+            res = self.client.post(
+                url,
+                headers=self.headers,
+                json={"contract_version": "brainstorm-v1", "instruction": trigger},
+            )
+            self.assertEqual(
+                res.status_code,
+                502,
+                f"Trigger '{trigger}' ({label}) returned {res.status_code}: {res.text}",
+            )
+            self.assertEqual(res.json()["detail"]["code"], "BRAINSTORM_PROVIDER_ERROR")

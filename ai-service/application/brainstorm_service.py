@@ -61,37 +61,61 @@ class BrainstormService:
             raise HTTPException(403, detail={"code": "TENANT_SCOPE_MISMATCH"})
 
     def _verify_novel_ownership(self, novel_id: str, author_id: str) -> None:
-        """Verify that the caller author owns the novel, failing closed if mismatched."""
+        """Verify that the caller author owns the novel, failing closed if mismatched, deleted, or missing."""
         if hasattr(self._repository, "_session_factory"):
-            with session_scope(self._repository._session_factory) as session:
-                n_id = self._repository._novel_id(novel_id)
-                novel_row = session.execute(
-                    text("SELECT author_id FROM novels WHERE novel_id = :n"),
-                    {"n": n_id},
-                ).first()
-                if novel_row is not None:
-                    db_author = str(novel_row[0])
-                    if db_author != str(author_id):
-                        raise HTTPException(
-                            403,
-                            detail={
-                                "code": "NOVEL_OWNERSHIP_MISMATCH",
-                                "message": f"Author '{author_id}' does not own novel '{novel_id}'",
-                            },
-                        )
-                else:
-                    # If novel row not present in novels table, verify StoryBrain existence
-                    brain_rec = session.scalar(
-                        select(StoryBrainRecord).where(*self._repository._scope(StoryBrainRecord, n_id))
-                    )
-                    if brain_rec is None:
-                        raise HTTPException(
-                            404,
-                            detail={"code": "BRAIN_NOT_FOUND", "message": f"Story brain {novel_id} not found"},
-                        )
+            try:
+                with session_scope(self._repository._session_factory) as session:
+                    n_id = self._repository._novel_id(novel_id)
+                    novel_row = session.execute(
+                        text("SELECT author_id, deleted_at FROM novels WHERE novel_id = :n"),
+                        {"n": n_id},
+                    ).first()
+            except Exception as exc:
+                raise HTTPException(
+                    503,
+                    detail={
+                        "code": "OWNERSHIP_STORE_UNAVAILABLE",
+                        "message": f"Novel ownership lookup failed: {exc}",
+                    },
+                ) from exc
+
+            if novel_row is None:
+                raise HTTPException(
+                    404,
+                    detail={
+                        "code": "NOVEL_NOT_FOUND",
+                        "message": f"Novel '{novel_id}' not found",
+                    },
+                )
+            db_author = str(novel_row[0])
+            deleted_at = novel_row[1]
+            if deleted_at is not None:
+                raise HTTPException(
+                    404,
+                    detail={
+                        "code": "NOVEL_DELETED",
+                        "message": f"Novel '{novel_id}' has been deleted",
+                    },
+                )
+            if db_author != str(author_id):
+                raise HTTPException(
+                    403,
+                    detail={
+                        "code": "NOVEL_OWNERSHIP_MISMATCH",
+                        "message": f"Author '{author_id}' does not own novel '{novel_id}'",
+                    },
+                )
         elif hasattr(self._repository, "_novel_authors"):
-            expected_author = self._repository._novel_authors.get(str(novel_id))
-            if expected_author is not None and str(expected_author) != str(author_id):
+            if str(novel_id) not in self._repository._novel_authors:
+                raise HTTPException(
+                    404,
+                    detail={
+                        "code": "NOVEL_NOT_FOUND",
+                        "message": f"Novel '{novel_id}' not found",
+                    },
+                )
+            expected_author = self._repository._novel_authors[str(novel_id)]
+            if str(expected_author) != str(author_id):
                 raise HTTPException(
                     403,
                     detail={
@@ -212,120 +236,6 @@ class BrainstormService:
     def _get_receipt(self, novel_id: str, scoped_key: str) -> dict[str, Any] | None:
         """Lookup an idempotency receipt from durable store (PostgreSQL) or in-memory."""
         if hasattr(self._repository, "_session_factory"):
-            with session_scope(self._repository._session_factory) as session:
-                n_id = self._repository._novel_id(novel_id)
-                rec = session.scalar(
-                    select(AnalysisRunRecord).where(
-                        AnalysisRunRecord.idempotency_key == scoped_key,
-                        AnalysisRunRecord.tenant_id == self._repository._tenant_id,
-                        AnalysisRunRecord.novel_id == n_id,
-                    )
-                )
-                if rec is not None:
-                    audit = rec.entity_candidate_audit or {}
-                    return {
-                        "status": rec.status,
-                        "input_hash": rec.input_hash,
-                        "response": audit.get("response"),
-                        "author_id": audit.get("author_id"),
-                    }
-                return None
-        else:
-            with BrainstormService._in_memory_lock:
-                rec = BrainstormService._in_memory_receipts.get(scoped_key)
-                return dict(rec) if rec is not None else None
-
-    def _reserve_receipt(
-        self, brain: Any, novel_id: str, scoped_key: str, input_hash: str, author_id: str
-    ) -> bool:
-        """Atomically reserve an idempotency slot. Returns True if reserved, False if already exists."""
-        if hasattr(self._repository, "_session_factory"):
-            try:
-                with session_scope(self._repository._session_factory) as session:
-                    n_id = self._repository._novel_id(novel_id)
-                    # Check if already exists in this transaction
-                    existing = session.scalar(
-                        select(AnalysisRunRecord).where(
-                            AnalysisRunRecord.idempotency_key == scoped_key,
-                            AnalysisRunRecord.tenant_id == self._repository._tenant_id,
-                            AnalysisRunRecord.novel_id == n_id,
-                        )
-                    )
-                    if existing is not None:
-                        return False
-
-                    b_id = None
-                    if hasattr(brain, "metadata") and isinstance(brain.metadata, dict):
-                        m_id = brain.metadata.get("brain_id")
-                        if m_id:
-                            try:
-                                b_id = uuid.UUID(str(m_id))
-                            except (ValueError, TypeError):
-                                pass
-                    if b_id is None:
-                        b_id = session.scalar(
-                            select(StoryBrainRecord.id).where(*self._repository._scope(StoryBrainRecord, n_id))
-                        )
-                    if b_id is None:
-                        b_id = n_id
-
-                    rec = AnalysisRunRecord(
-                        id=uuid.uuid4(),
-                        story_brain_id=b_id,
-                        tenant_id=self._repository._tenant_id,
-                        novel_id=n_id,
-                        operation="brainstorm",
-                        status="pending",
-                        idempotency_key=scoped_key,
-                        input_hash=input_hash,
-                        pipeline_version="brainstorm-v1",
-                        entity_candidate_audit={"author_id": author_id, "input_hash": input_hash},
-                    )
-                    session.add(rec)
-                    session.flush()
-                return True
-            except Exception:
-                # Concurrent insert hit unique constraint
-                return False
-        else:
-            with BrainstormService._in_memory_lock:
-                if scoped_key in BrainstormService._in_memory_receipts:
-                    return False
-                BrainstormService._in_memory_receipts[scoped_key] = {
-                    "status": "pending",
-                    "input_hash": input_hash,
-                    "author_id": author_id,
-                    "response": None,
-                }
-                return True
-
-    def _complete_receipt(self, novel_id: str, scoped_key: str, response: dict[str, Any]) -> None:
-        """Mark an idempotency receipt as completed with the response payload."""
-        if hasattr(self._repository, "_session_factory"):
-            with session_scope(self._repository._session_factory) as session:
-                n_id = self._repository._novel_id(novel_id)
-                rec = session.scalar(
-                    select(AnalysisRunRecord).where(
-                        AnalysisRunRecord.idempotency_key == scoped_key,
-                        AnalysisRunRecord.tenant_id == self._repository._tenant_id,
-                        AnalysisRunRecord.novel_id == n_id,
-                    ).with_for_update()
-                )
-                if rec is not None:
-                    rec.status = "completed"
-                    audit = dict(rec.entity_candidate_audit or {})
-                    audit["response"] = response
-                    rec.entity_candidate_audit = audit
-        else:
-            with BrainstormService._in_memory_lock:
-                if scoped_key in BrainstormService._in_memory_receipts:
-                    BrainstormService._in_memory_receipts[scoped_key]["status"] = "completed"
-                    BrainstormService._in_memory_receipts[scoped_key]["response"] = response
-                BrainstormService._in_memory_condition.notify_all()
-
-    def _fail_receipt(self, novel_id: str, scoped_key: str) -> None:
-        """Mark a pending receipt as failed so subsequent retries can re-attempt."""
-        if hasattr(self._repository, "_session_factory"):
             try:
                 with session_scope(self._repository._session_factory) as session:
                     n_id = self._repository._novel_id(novel_id)
@@ -336,26 +246,290 @@ class BrainstormService:
                             AnalysisRunRecord.novel_id == n_id,
                         )
                     )
-                    if rec is not None and rec.status == "pending":
-                        rec.status = "failed"
-            except Exception:
-                pass
+                    if rec is not None:
+                        audit = rec.entity_candidate_audit or {}
+                        return {
+                            "status": rec.status,
+                            "input_hash": rec.input_hash,
+                            "response": audit.get("response"),
+                            "author_id": audit.get("author_id"),
+                            "lease_token": audit.get("lease_token"),
+                            "lease_expires_at": audit.get("lease_expires_at", 0),
+                        }
+                    return None
+            except Exception as exc:
+                raise HTTPException(
+                    503,
+                    detail={
+                        "code": "IDEMPOTENCY_STORE_UNAVAILABLE",
+                        "message": f"Idempotency store read failed: {exc}",
+                    },
+                ) from exc
         else:
             with BrainstormService._in_memory_lock:
-                if scoped_key in BrainstormService._in_memory_receipts:
-                    BrainstormService._in_memory_receipts[scoped_key]["status"] = "failed"
+                rec = BrainstormService._in_memory_receipts.get(scoped_key)
+                return dict(rec) if rec is not None else None
+
+    def _reserve_or_takeover_receipt(
+        self, brain: Any, novel_id: str, scoped_key: str, input_hash: str, author_id: str
+    ) -> tuple[bool, str | None, dict[str, Any] | None]:
+        """Atomically reserve or take over an idempotency slot under row-lock.
+
+        Returns:
+            (True, lease_token, None) if reserved or taken over.
+            (False, None, completed_response) if already completed.
+            (False, None, None) if actively pending under valid lease held by another worker.
+        """
+        now = time.time()
+        lease_expires_at = now + 30.0
+        lease_token = str(uuid.uuid4())
+
+        if hasattr(self._repository, "_session_factory"):
+            try:
+                with session_scope(self._repository._session_factory) as session:
+                    n_id = self._repository._novel_id(novel_id)
+                    rec = session.scalar(
+                        select(AnalysisRunRecord)
+                        .where(
+                            AnalysisRunRecord.idempotency_key == scoped_key,
+                            AnalysisRunRecord.tenant_id == self._repository._tenant_id,
+                            AnalysisRunRecord.novel_id == n_id,
+                        )
+                        .with_for_update()
+                    )
+                    if rec is None:
+                        b_id = None
+                        if hasattr(brain, "metadata") and isinstance(brain.metadata, dict):
+                            m_id = brain.metadata.get("brain_id")
+                            if m_id:
+                                try:
+                                    b_id = uuid.UUID(str(m_id))
+                                except (ValueError, TypeError):
+                                    pass
+                        if b_id is None:
+                            b_id = session.scalar(
+                                select(StoryBrainRecord.id).where(*self._repository._scope(StoryBrainRecord, n_id))
+                            )
+                        if b_id is None:
+                            b_id = n_id
+
+                        new_rec = AnalysisRunRecord(
+                            id=uuid.uuid4(),
+                            story_brain_id=b_id,
+                            tenant_id=self._repository._tenant_id,
+                            novel_id=n_id,
+                            operation="brainstorm",
+                            status="pending",
+                            idempotency_key=scoped_key,
+                            input_hash=input_hash,
+                            pipeline_version="brainstorm-v1",
+                            entity_candidate_audit={
+                                "author_id": author_id,
+                                "input_hash": input_hash,
+                                "lease_token": lease_token,
+                                "lease_expires_at": lease_expires_at,
+                            },
+                        )
+                        session.add(new_rec)
+                        session.flush()
+                        return True, lease_token, None
+
+                    # rec already exists: verify input hash
+                    if rec.input_hash != input_hash:
+                        raise HTTPException(
+                            409,
+                            detail={
+                                "code": "IDEMPOTENCY_CONFLICT",
+                                "message": "Idempotency key reused with conflicting payload",
+                            },
+                        )
+
+                    audit = dict(rec.entity_candidate_audit or {})
+                    if rec.status == "completed" and audit.get("response"):
+                        return False, None, audit["response"]
+
+                    rec_lease_exp = audit.get("lease_expires_at", 0)
+                    # Safe re-reservation / takeover if failed or lease expired
+                    if rec.status == "failed" or (rec.status == "pending" and now > rec_lease_exp):
+                        rec.status = "pending"
+                        audit["lease_token"] = lease_token
+                        audit["lease_expires_at"] = lease_expires_at
+                        audit["error"] = None
+                        rec.entity_candidate_audit = audit
+                        session.flush()
+                        return True, lease_token, None
+
+                    return False, None, None
+            except HTTPException:
+                raise
+            except Exception as exc:
+                logger.error("DB exception during idempotency reservation: %s", exc)
+                raise HTTPException(
+                    503,
+                    detail={
+                        "code": "IDEMPOTENCY_STORE_UNAVAILABLE",
+                        "message": f"Idempotency reservation store unavailable: {exc}",
+                    },
+                ) from exc
+        else:
+            with BrainstormService._in_memory_lock:
+                rec = BrainstormService._in_memory_receipts.get(scoped_key)
+                if rec is None:
+                    BrainstormService._in_memory_receipts[scoped_key] = {
+                        "status": "pending",
+                        "input_hash": input_hash,
+                        "author_id": author_id,
+                        "response": None,
+                        "lease_token": lease_token,
+                        "lease_expires_at": lease_expires_at,
+                    }
+                    return True, lease_token, None
+
+                if rec["input_hash"] != input_hash:
+                    raise HTTPException(
+                        409,
+                        detail={
+                            "code": "IDEMPOTENCY_CONFLICT",
+                            "message": "Idempotency key reused with conflicting payload",
+                        },
+                    )
+
+                if rec["status"] == "completed" and rec.get("response"):
+                    return False, None, rec["response"]
+
+                rec_lease_exp = rec.get("lease_expires_at", 0)
+                if rec["status"] == "failed" or (rec["status"] == "pending" and now > rec_lease_exp):
+                    rec["status"] = "pending"
+                    rec["lease_token"] = lease_token
+                    rec["lease_expires_at"] = lease_expires_at
+                    rec["error"] = None
+                    return True, lease_token, None
+
+                return False, None, None
+
+    def _complete_receipt(
+        self, novel_id: str, scoped_key: str, lease_token: str, response: dict[str, Any]
+    ) -> None:
+        """Mark an idempotency receipt as completed under lease token validation."""
+        if hasattr(self._repository, "_session_factory"):
+            try:
+                with session_scope(self._repository._session_factory) as session:
+                    n_id = self._repository._novel_id(novel_id)
+                    rec = session.scalar(
+                        select(AnalysisRunRecord)
+                        .where(
+                            AnalysisRunRecord.idempotency_key == scoped_key,
+                            AnalysisRunRecord.tenant_id == self._repository._tenant_id,
+                            AnalysisRunRecord.novel_id == n_id,
+                        )
+                        .with_for_update()
+                    )
+                    if rec is None:
+                        raise HTTPException(
+                            503,
+                            detail={
+                                "code": "IDEMPOTENCY_STORE_UNAVAILABLE",
+                                "message": "Idempotency record vanished during completion",
+                            },
+                        )
+                    audit = dict(rec.entity_candidate_audit or {})
+                    if audit.get("lease_token") != lease_token:
+                        logger.warning(
+                            "Lease token mismatch on completion: expected %s, got %s",
+                            audit.get("lease_token"),
+                            lease_token,
+                        )
+                        raise HTTPException(
+                            409,
+                            detail={
+                                "code": "IDEMPOTENCY_LEASE_EXPIRED",
+                                "message": "Idempotency lease expired or taken over by another worker",
+                            },
+                        )
+                    rec.status = "completed"
+                    audit["response"] = response
+                    audit["lease_expires_at"] = 0
+                    rec.entity_candidate_audit = audit
+                    session.flush()
+            except HTTPException:
+                raise
+            except Exception as exc:
+                logger.error("DB exception during receipt completion: %s", exc)
+                raise HTTPException(
+                    503,
+                    detail={
+                        "code": "IDEMPOTENCY_STORE_UNAVAILABLE",
+                        "message": f"Failed to persist brainstorm completion: {exc}",
+                    },
+                ) from exc
+        else:
+            with BrainstormService._in_memory_lock:
+                rec = BrainstormService._in_memory_receipts.get(scoped_key)
+                if rec is not None:
+                    if rec.get("lease_token") != lease_token:
+                        raise HTTPException(
+                            409,
+                            detail={
+                                "code": "IDEMPOTENCY_LEASE_EXPIRED",
+                                "message": "Idempotency lease expired or taken over by another worker",
+                            },
+                        )
+                    rec["status"] = "completed"
+                    rec["response"] = response
+                    rec["lease_expires_at"] = 0
+                BrainstormService._in_memory_condition.notify_all()
+
+    def _fail_receipt(
+        self, novel_id: str, scoped_key: str, lease_token: str, error_detail: str | None = None
+    ) -> None:
+        """Mark a pending receipt as failed and clear lease so subsequent retries can re-attempt."""
+        if hasattr(self._repository, "_session_factory"):
+            try:
+                with session_scope(self._repository._session_factory) as session:
+                    n_id = self._repository._novel_id(novel_id)
+                    rec = session.scalar(
+                        select(AnalysisRunRecord)
+                        .where(
+                            AnalysisRunRecord.idempotency_key == scoped_key,
+                            AnalysisRunRecord.tenant_id == self._repository._tenant_id,
+                            AnalysisRunRecord.novel_id == n_id,
+                        )
+                        .with_for_update()
+                    )
+                    if rec is not None:
+                        audit = dict(rec.entity_candidate_audit or {})
+                        if audit.get("lease_token") == lease_token:
+                            rec.status = "failed"
+                            audit["error"] = error_detail
+                            audit["lease_expires_at"] = 0  # Expire lease immediately so retries take over instantly
+                            rec.entity_candidate_audit = audit
+                            session.flush()
+            except Exception as exc:
+                logger.warning("Failed to record failure status for receipt: %s", exc)
+        else:
+            with BrainstormService._in_memory_lock:
+                rec = BrainstormService._in_memory_receipts.get(scoped_key)
+                if rec is not None and rec.get("lease_token") == lease_token:
+                    rec["status"] = "failed"
+                    rec["error"] = error_detail
+                    rec["lease_expires_at"] = 0
                 BrainstormService._in_memory_condition.notify_all()
 
     def _await_receipt(
         self, novel_id: str, scoped_key: str, timeout_seconds: float = 10.0
     ) -> dict[str, Any] | None:
-        """Wait for an in-flight single-flight concurrent receipt to complete."""
+        """Wait for an in-flight single-flight concurrent receipt to complete or expire."""
         deadline = time.time() + timeout_seconds
         if hasattr(self._repository, "_session_factory"):
             while time.time() < deadline:
-                r = self._get_receipt(novel_id, scoped_key)
-                if r is not None and r["status"] != "pending":
-                    return r
+                try:
+                    r = self._get_receipt(novel_id, scoped_key)
+                    if r is not None and r["status"] != "pending":
+                        return r
+                    if r is not None and r["status"] == "pending" and time.time() > r.get("lease_expires_at", 0):
+                        return r
+                except Exception:
+                    pass
                 time.sleep(0.1)
             return None
         else:
@@ -363,6 +537,8 @@ class BrainstormService:
                 while time.time() < deadline:
                     r = BrainstormService._in_memory_receipts.get(scoped_key)
                     if r is not None and r["status"] != "pending":
+                        return dict(r)
+                    if r is not None and r["status"] == "pending" and time.time() > r.get("lease_expires_at", 0):
                         return dict(r)
                     BrainstormService._in_memory_condition.wait(timeout=0.2)
             return None
@@ -396,6 +572,7 @@ class BrainstormService:
         # Fingerprint strictly binds tenant, author, novel, key, payload, and expected versions
         scoped_idempotency_key: str | None = None
         input_hash: str | None = None
+        lease_token: str | None = None
         if request.idempotency_key:
             scoped_idempotency_key = (
                 f"brainstorm:{tenant_id}:{actor_id}:{brain_id}:{request.idempotency_key}"[:255]
@@ -432,18 +609,12 @@ class BrainstormService:
                     )
                 if receipt["status"] == "completed" and receipt.get("response"):
                     return BrainstormResponse.model_validate(receipt["response"])
-                elif receipt["status"] == "pending":
+                elif receipt["status"] == "pending" and time.time() <= receipt.get("lease_expires_at", 0):
                     # In-flight concurrent request with identical payload
                     completed_r = self._await_receipt(brain_id, scoped_idempotency_key, timeout_seconds=10.0)
                     if completed_r and completed_r["status"] == "completed" and completed_r.get("response"):
                         return BrainstormResponse.model_validate(completed_r["response"])
-                    raise HTTPException(
-                        409,
-                        detail={
-                            "code": "IDEMPOTENCY_IN_FLIGHT_CONFLICT",
-                            "message": "Concurrent request in-flight failed or timed out",
-                        },
-                    )
+                # If receipt status is 'failed' or pending lease expired, fall through to CAS and takeover!
 
         # 3. Fetch Story Brain (read-only)
         try:
@@ -472,28 +643,25 @@ class BrainstormService:
             brain_id, actor_id, request.expected_plan_version
         )
 
-        # 6. Single-Flight Idempotency Reservation
-        reserved = False
+        # 6. Single-Flight Idempotency Reservation / Takeover
         if scoped_idempotency_key and input_hash:
-            reserved = self._reserve_receipt(brain, brain_id, scoped_idempotency_key, input_hash, actor_id)
+            reserved, lease_token, completed_response = self._reserve_or_takeover_receipt(
+                brain, brain_id, scoped_idempotency_key, input_hash, actor_id
+            )
             if not reserved:
-                # Caught in race condition with concurrent thread
-                receipt = self._get_receipt(brain_id, scoped_idempotency_key)
-                if receipt is not None:
-                    if receipt["input_hash"] != input_hash:
-                        raise HTTPException(
-                            409,
-                            detail={
-                                "code": "IDEMPOTENCY_CONFLICT",
-                                "message": f"Idempotency key {request.idempotency_key} reused with conflicting payload",
-                            },
-                        )
-                    if receipt["status"] == "completed" and receipt.get("response"):
-                        return BrainstormResponse.model_validate(receipt["response"])
-                    # Await concurrent in-flight
-                    completed_r = self._await_receipt(brain_id, scoped_idempotency_key, timeout_seconds=10.0)
-                    if completed_r and completed_r["status"] == "completed" and completed_r.get("response"):
-                        return BrainstormResponse.model_validate(completed_r["response"])
+                if completed_response:
+                    return BrainstormResponse.model_validate(completed_response)
+                # Active worker is running; await it
+                completed_r = self._await_receipt(brain_id, scoped_idempotency_key, timeout_seconds=10.0)
+                if completed_r and completed_r["status"] == "completed" and completed_r.get("response"):
+                    return BrainstormResponse.model_validate(completed_r["response"])
+                # Worker failed or lease expired; attempt takeover
+                reserved, lease_token, completed_response = self._reserve_or_takeover_receipt(
+                    brain, brain_id, scoped_idempotency_key, input_hash, actor_id
+                )
+                if not reserved:
+                    if completed_response:
+                        return BrainstormResponse.model_validate(completed_response)
                     raise HTTPException(
                         409,
                         detail={
@@ -501,6 +669,14 @@ class BrainstormService:
                             "message": "Concurrent request in-flight failed or timed out",
                         },
                     )
+            if not lease_token:
+                raise HTTPException(
+                    503,
+                    detail={
+                        "code": "IDEMPOTENCY_STORE_UNAVAILABLE",
+                        "message": "Failed to acquire valid lease token for reservation",
+                    },
+                )
 
         try:
             # 7. Grounding in Story Brain: approved entities
@@ -718,7 +894,16 @@ class BrainstormService:
                             "message": "Malformed world rule item: expected dictionary",
                         },
                     )
-                text_val = (r.get("text") or r.get("fact_value") or r.get("rule_content") or "").strip()
+                raw_text_val = r.get("text") or r.get("fact_value") or r.get("rule_content")
+                if raw_text_val is None or not isinstance(raw_text_val, str):
+                    raise HTTPException(
+                        502,
+                        detail={
+                            "code": "BRAINSTORM_PROVIDER_ERROR",
+                            "message": "Malformed world rule: text must be a string",
+                        },
+                    )
+                text_val = raw_text_val.strip()
                 if not text_val:
                     raise HTTPException(
                         502,
@@ -729,9 +914,27 @@ class BrainstormService:
                     )
                 text_val = text_val[:MAX_TEXT_LENGTH]
                 rule_id = str(uuid.uuid4())
-                fact_key = r.get("fact_key") or f"world_rule_{hashlib.sha256(text_val.encode('utf-8')).hexdigest()[:12]}"
-                fact_key = str(fact_key)[:MAX_SHORT_TEXT_LENGTH]
-                cat = str(r.get("category", "general"))[:MAX_SHORT_TEXT_LENGTH]
+                raw_fact_key = r.get("fact_key")
+                if raw_fact_key is not None and not isinstance(raw_fact_key, str):
+                    raise HTTPException(
+                        502,
+                        detail={
+                            "code": "BRAINSTORM_PROVIDER_ERROR",
+                            "message": "Malformed world rule: fact_key must be a string",
+                        },
+                    )
+                fact_key = raw_fact_key or f"world_rule_{hashlib.sha256(text_val.encode('utf-8')).hexdigest()[:12]}"
+                fact_key = fact_key[:MAX_SHORT_TEXT_LENGTH]
+                raw_cat = r.get("category")
+                if raw_cat is not None and not isinstance(raw_cat, str):
+                    raise HTTPException(
+                        502,
+                        detail={
+                            "code": "BRAINSTORM_PROVIDER_ERROR",
+                            "message": "Malformed world rule: category must be a string",
+                        },
+                    )
+                cat = (raw_cat or "general")[:MAX_SHORT_TEXT_LENGTH]
                 try:
                     world_rules.append(
                         ProposedWorldRule(
@@ -762,7 +965,16 @@ class BrainstormService:
                             "message": "Malformed character item: expected dictionary",
                         },
                     )
-                name = (c.get("name") or c.get("canonical_name") or "").strip()
+                raw_name = c.get("name") or c.get("canonical_name")
+                if raw_name is None or not isinstance(raw_name, str):
+                    raise HTTPException(
+                        502,
+                        detail={
+                            "code": "BRAINSTORM_PROVIDER_ERROR",
+                            "message": "Malformed character: name must be a string",
+                        },
+                    )
+                name = raw_name.strip()
                 if not name:
                     raise HTTPException(
                         502,
@@ -773,11 +985,62 @@ class BrainstormService:
                     )
                 name = name[:MAX_SHORT_TEXT_LENGTH]
                 char_id = str(uuid.uuid4())
-                role = str(c.get("role", "other"))[:MAX_SHORT_TEXT_LENGTH]
-                desc = str(c.get("description", ""))[:MAX_TEXT_LENGTH]
-                arch = str(c.get("archetype", ""))[:MAX_SHORT_TEXT_LENGTH]
-                raw_aliases = c.get("aliases", [])
-                aliases = [str(a)[:MAX_SHORT_TEXT_LENGTH] for a in raw_aliases if isinstance(a, str)]
+
+                raw_role = c.get("role")
+                if raw_role is not None and not isinstance(raw_role, str):
+                    raise HTTPException(
+                        502,
+                        detail={
+                            "code": "BRAINSTORM_PROVIDER_ERROR",
+                            "message": "Malformed character: role must be a string",
+                        },
+                    )
+                role = (raw_role or "other")[:MAX_SHORT_TEXT_LENGTH]
+
+                raw_desc = c.get("description")
+                if raw_desc is not None and not isinstance(raw_desc, str):
+                    raise HTTPException(
+                        502,
+                        detail={
+                            "code": "BRAINSTORM_PROVIDER_ERROR",
+                            "message": "Malformed character: description must be a string",
+                        },
+                    )
+                desc = (raw_desc or "")[:MAX_TEXT_LENGTH]
+
+                raw_arch = c.get("archetype")
+                if raw_arch is not None and not isinstance(raw_arch, str):
+                    raise HTTPException(
+                        502,
+                        detail={
+                            "code": "BRAINSTORM_PROVIDER_ERROR",
+                            "message": "Malformed character: archetype must be a string",
+                        },
+                    )
+                arch = (raw_arch or "")[:MAX_SHORT_TEXT_LENGTH]
+
+                raw_aliases = c.get("aliases")
+                aliases: list[str] = []
+                if raw_aliases is not None:
+                    if not isinstance(raw_aliases, list):
+                        raise HTTPException(
+                            502,
+                            detail={
+                                "code": "BRAINSTORM_PROVIDER_ERROR",
+                                "message": "Malformed character: aliases must be a list of strings",
+                            },
+                        )
+                    for a in raw_aliases:
+                        if not isinstance(a, str):
+                            raise HTTPException(
+                                502,
+                                detail={
+                                    "code": "BRAINSTORM_PROVIDER_ERROR",
+                                    "message": "Malformed character: alias items must be strings",
+                                },
+                            )
+                        aliases.append(a[:MAX_SHORT_TEXT_LENGTH])
+
                 try:
                     characters.append(
                         ProposedCharacter(
@@ -812,7 +1075,16 @@ class BrainstormService:
                             "message": "Malformed future event item: expected dictionary",
                         },
                     )
-                title = (e.get("title") or "").strip()
+                raw_title = e.get("title")
+                if raw_title is None or not isinstance(raw_title, str):
+                    raise HTTPException(
+                        502,
+                        detail={
+                            "code": "BRAINSTORM_PROVIDER_ERROR",
+                            "message": "Malformed future event: title must be a string",
+                        },
+                    )
+                title = raw_title.strip()
                 if not title:
                     raise HTTPException(
                         502,
@@ -828,16 +1100,16 @@ class BrainstormService:
                 if raw_ch is None:
                     ev_target_ch = target_ch
                 else:
-                    try:
-                        ev_target_ch = int(raw_ch)
-                    except (ValueError, TypeError):
+                    if isinstance(raw_ch, bool) or not isinstance(raw_ch, int):
                         raise HTTPException(
                             502,
                             detail={
                                 "code": "BRAINSTORM_PROVIDER_ERROR",
-                                "message": f"Malformed target_chapter in future event: {raw_ch}",
+                                "message": f"Malformed target_chapter in future event: expected integer, got {type(raw_ch).__name__}",
                             },
                         )
+                    ev_target_ch = raw_ch
+
                 if ev_target_ch < 1 or ev_target_ch > 10000:
                     raise HTTPException(
                         502,
@@ -847,7 +1119,38 @@ class BrainstormService:
                         },
                     )
 
-                desc = str(e.get("description") or e.get("text") or "")[:MAX_TEXT_LENGTH]
+                raw_desc = e.get("description") or e.get("text")
+                if raw_desc is not None and not isinstance(raw_desc, str):
+                    raise HTTPException(
+                        502,
+                        detail={
+                            "code": "BRAINSTORM_PROVIDER_ERROR",
+                            "message": "Malformed future event: description must be a string",
+                        },
+                    )
+                desc = (raw_desc or "")[:MAX_TEXT_LENGTH]
+
+                raw_ending = e.get("ending")
+                if raw_ending is not None and not isinstance(raw_ending, bool):
+                    raise HTTPException(
+                        502,
+                        detail={
+                            "code": "BRAINSTORM_PROVIDER_ERROR",
+                            "message": "Malformed future event: ending must be a boolean",
+                        },
+                    )
+                ending = bool(raw_ending) if raw_ending is not None else False
+
+                raw_min_words = e.get("min_words")
+                if raw_min_words is not None and (isinstance(raw_min_words, bool) or not isinstance(raw_min_words, int)):
+                    raise HTTPException(
+                        502,
+                        detail={
+                            "code": "BRAINSTORM_PROVIDER_ERROR",
+                            "message": "Malformed future event: min_words must be an integer",
+                        },
+                    )
+                min_words_int = int(raw_min_words) if raw_min_words is not None else 1500
 
                 raw_participants = e.get("participants", [])
                 if not isinstance(raw_participants, list):
@@ -872,6 +1175,23 @@ class BrainstormService:
                     ent_id = p.get("entity_id")
                     hint = p.get("name_hint")
 
+                    if ent_id is not None and not isinstance(ent_id, str):
+                        raise HTTPException(
+                            502,
+                            detail={
+                                "code": "BRAINSTORM_PROVIDER_ERROR",
+                                "message": "Malformed participant: entity_id must be a string",
+                            },
+                        )
+                    if hint is not None and not isinstance(hint, str):
+                        raise HTTPException(
+                            502,
+                            detail={
+                                "code": "BRAINSTORM_PROVIDER_ERROR",
+                                "message": "Malformed participant: name_hint must be a string",
+                            },
+                        )
+
                     if ent_id and hint:
                         raise HTTPException(
                             422,
@@ -890,7 +1210,7 @@ class BrainstormService:
                         )
 
                     if ent_id:
-                        ent_id_str = str(ent_id).strip()
+                        ent_id_str = ent_id.strip()
                         try:
                             uuid.UUID(ent_id_str)
                         except (ValueError, TypeError):
@@ -914,14 +1234,8 @@ class BrainstormService:
                             )
                         participants.append(BrainstormParticipant(entity_id=ent_id_str, name_hint=None))
                     else:
-                        hint_str = str(hint).strip()[:MAX_SHORT_TEXT_LENGTH]
+                        hint_str = hint.strip()[:MAX_SHORT_TEXT_LENGTH]
                         participants.append(BrainstormParticipant(entity_id=None, name_hint=hint_str))
-
-                try:
-                    raw_min_words = e.get("min_words", 1500)
-                    min_words_int = int(raw_min_words) if raw_min_words is not None else 1500
-                except (ValueError, TypeError):
-                    min_words_int = 1500
 
                 try:
                     future_events.append(
@@ -931,7 +1245,7 @@ class BrainstormService:
                             title=title,
                             description=desc,
                             text=desc,
-                            ending=bool(e.get("ending", False)),
+                            ending=ending,
                             min_words=min_words_int,
                             participants=participants,
                             origin="model_proposed",
@@ -972,12 +1286,12 @@ class BrainstormService:
             )
 
             # 13. Complete durable idempotency receipt
-            if scoped_idempotency_key:
-                self._complete_receipt(brain_id, scoped_idempotency_key, response.model_dump())
+            if scoped_idempotency_key and lease_token:
+                self._complete_receipt(brain_id, scoped_idempotency_key, lease_token, response.model_dump())
 
             return response
-        except Exception:
+        except Exception as exc:
             # Mark reservation as failed on any error so future retries can proceed
-            if scoped_idempotency_key:
-                self._fail_receipt(brain_id, scoped_idempotency_key)
+            if scoped_idempotency_key and lease_token:
+                self._fail_receipt(brain_id, scoped_idempotency_key, lease_token, error_detail=str(exc))
             raise
