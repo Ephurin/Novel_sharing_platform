@@ -3,6 +3,7 @@
 - **Task:** P2-06A AI Brainstorming Foundation (Backend structured suggestions for World Rules, Characters, and Future Chapter Events)
 - **Baseline:** HEAD of `integration/p2-planning-studio` after PR #125 merge (`10c9dea0f74e5f86b8fbea63b055c64b27100282`)
 - **Branch:** `gemini/p2-06a-ai-brainstorming-foundation`
+- **HEAD SHA:** `d20b11ee8b308ccbfb8cb4239dad26efe4cf1a8f`
 - **Target:** `integration/p2-planning-studio` (Draft PR #126, do **NOT** merge)
 - **Review History:** GPT-6 R1, R2, R3 Addressed; Ready for GPT-6 R4 Review
 
@@ -108,6 +109,11 @@
 ---
 
 ## 4. Reproducible Commands & CI Run Evidence
+
+### GitHub Actions Workflows (HEAD):
+- **P2 Setup Provenance Foundation:** [Run 42948119203](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42948119203)
+- **P7 Semantic Memory Foundation:** [Run 42948118867](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42948118867)
+- **P8 Cutover and Migration:** [Run 42948118965](https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42948118965)
 
 ### AI Service Unit & Contract Tests:
 ```powershell
