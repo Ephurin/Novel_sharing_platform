@@ -1,0 +1,87 @@
+{
+  "gate": "READER-SOCIAL-COMMENT-PREFERENCES-E2E",
+  "tested_code_sha": "25fa0fd95a8a9f5cda2b92faf0a49a6a14428682",
+  "tested_main_sha": "25fa0fd95a8a9f5cda2b92faf0a49a6a14428682",
+  "branch": "HEAD",
+  "working_tree_dirty": true,
+  "disposable_database": "ephurin_test_social_6951180442b9",
+  "web_url": "http://127.0.0.1:5311",
+  "api_url": "http://127.0.0.1:4311/api/v1",
+  "checkpoints": {},
+  "validation": [
+    {
+      "name": "web_typecheck",
+      "command": "npm run typecheck",
+      "cwd": "web",
+      "exit_code": 0,
+      "duration_seconds": 7.39,
+      "result": "PASS"
+    },
+    {
+      "name": "backend_typecheck",
+      "command": "npm run typecheck",
+      "cwd": "backend",
+      "exit_code": 0,
+      "duration_seconds": 3.26,
+      "result": "PASS"
+    },
+    {
+      "name": "reader_social_comment_preferences_postgres_test",
+      "command": "npx tsx --test --test-reporter=tap src/modules/interactions/reader-social-comment-preferences.postgres.test.ts",
+      "cwd": "backend",
+      "exit_code": 0,
+      "duration_seconds": 1.56,
+      "result": "PASS",
+      "tests_passed": 10,
+      "tests_failed": 0
+    }
+  ],
+  "verdict": "FAIL",
+  "stack_steps": [
+    {
+      "name": "backend_db_migrate",
+      "command": "npm run db:migrate",
+      "cwd": "backend",
+      "exit_code": 0,
+      "duration_seconds": 1.8
+    },
+    {
+      "name": "backend_db_seed_demo",
+      "command": "npm run db:seed:demo",
+      "cwd": "backend",
+      "exit_code": 0,
+      "duration_seconds": 1.4
+    },
+    {
+      "name": "web_production_build",
+      "command": "npx vite build --outDir \"%TEMP%\\ephurin-e2e-d13xlp9l\\web-dist\" --emptyOutDir",
+      "cwd": "web",
+      "exit_code": 0,
+      "duration_seconds": 14.2
+    }
+  ],
+  "fixture": {
+    "reader_user_id": "efa2e0da-63f3-4c00-8f50-dfa0cdcee4ea",
+    "novel_id": "81b923d7-5507-48ea-9a84-5303fd1de5f4",
+    "novel_title": "Ashenhold - Sample Story",
+    "author_id": "7630e903-0279-41d5-9161-81347293dfe9",
+    "chapter_id": "c660bede-0493-4a46-97f2-6d01c8ddd3db",
+    "chapter_title": "Chương 1: Tàn Tro Của Ashenhold"
+  },
+  "db_ownership": {
+    "database": "ephurin_test_social_6951180442b9",
+    "pg_created_by_run": true,
+    "mongo_created_by_run": true,
+    "pg_dropped": true,
+    "mongo_dropped": true,
+    "errors": [],
+    "backend_connections_to_test_db": 3
+  },
+  "teardown_ok": true,
+  "leftover_disposable_databases": [],
+  "shared_fingerprint_before": "686d5ca351f2c4b138ba017095a867e2de4b1f1a53727506e68f587dcf6a9dad",
+  "shared_fingerprint_after": "686d5ca351f2c4b138ba017095a867e2de4b1f1a53727506e68f587dcf6a9dad",
+  "shared_changes": [],
+  "stack_logs": "%TEMP%\\ephurin-e2e-d13xlp9l",
+  "failure": "TimeoutError: Condition timed out after 15.0s: window.location.pathname === '/reader'\nCurrent URL: http://127.0.0.1:5311/\nBody snippet: Đến nội dung chính\nmenu_book\nStoryCraft\nVĂN HOA\nTrang chủ\nDanh sách truyện\nThư viện của tôi\nLịch sử đọc\nVí xu\nnotifications\nR\nGóc đọc truyện\nTìm truyện\nsearch\narrow_forward\nlocal_fire_department\nNổi bật\nfavorite\nĐược yêu thích\nupdate\nMới cập nhật\nDanh sách\narrow_forward\nauto_stories\nĐang ra\nThanh Van Sword Path - Sample Story\nvisibility\nauto_stories\nĐang ra\nAshenhold - Sample Story\nvisibility\ntren"
+}

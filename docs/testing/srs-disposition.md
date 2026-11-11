@@ -20,6 +20,8 @@ Nhãn phân loại:
 | Nhánh sửa sau review và gộp `main` | `4534d50` | 71/71 × 2 | `docs/development/SRS-BACKEND-R2/pr-head/` |
 | `main` sau #116 | `c47c87a` | 60/71 × 2 | `docs/development/SRS-BACKEND-R3/main-baseline/` |
 | Nhánh sửa, hợp đồng D1–D7 ngày 2026-11-09 | `08217a6` | 71/71 × 2 | `docs/development/SRS-BACKEND-R3/pr-head/` |
+| `main` sau #118 | `25fa0fd` | 60/71 × 2 | `docs/development/SRS-BACKEND-R4/main-baseline/` |
+| Nhánh sửa, D6 đóng kỹ thuật, gộp #118 | `0c235df` | 71/71 × 2 | `docs/development/SRS-BACKEND-R4/pr-head/` |
 
 ## Bảng phân loại
 
