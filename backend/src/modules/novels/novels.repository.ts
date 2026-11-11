@@ -104,8 +104,8 @@ export async function createNovel(
   return { ...mapNovel(result.rows[0]), genre: metadata.genres[0] ?? null, genres: metadata.genres };
 }
 
-export async function findNovelById(novelId: string) {
-  const result = await getPostgresPool().query(
+export async function findNovelById(novelId: string, client?: PoolClient) {
+  const result = await (client ?? getPostgresPool()).query(
     `
       select n.*, g.name as genre, ${genresProjection} as genres
       from novels n

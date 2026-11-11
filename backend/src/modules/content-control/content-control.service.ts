@@ -36,6 +36,7 @@ import type {
 import {
   findCommentRecordById,
   updateCommentModerationStatus,
+  withCommentWriteLock,
   type CommentStatus
 } from '../interactions/comments.repository.js';
 import { findReadableChapter } from '../reading/reading.repository.js';
@@ -48,6 +49,7 @@ import {
 } from '../novels/chapters.repository.js';
 import { findDraftChapterByChapterId } from '../novels/draft-chapters.repository.js';
 import { notifyFollowersOfPublishedChapter } from '../interactions/new-chapter-notifications.js';
+import { validateGiphyGif } from '../media/giphy.service.js';
 
 function scanContent(content: string, rules: MatchedRule[]) {
   const normalizedContent = content.toLowerCase();
@@ -68,14 +70,15 @@ function highestSeverity(rules: MatchedRule[]) {
 
 export async function checkContent(
   input: ContentControlCheckInput & {
-    publicationSnapshot?: { title: string; content: string; wordCount: number };
+    publicationSnapshot?: { title: string; content: string; wordCount: number; gifId?: string | null };
+    forceReview?: boolean;
   },
   client?: PoolClient
 ) {
   const rules = await listActiveFilterRules(client);
   const matchedRules = scanContent(input.content, rules);
 
-  if (!matchedRules.length) {
+  if (!matchedRules.length && !input.forceReview) {
     return {
       result: 'PASS',
       moderationRequired: false,
@@ -129,7 +132,7 @@ export async function checkContent(
       riskLevel: highestSeverity(matchedRules),
       source: 'KEYWORD_FILTER',
       matchedRules,
-      summary: `${matchedRules.length} content filter rule(s) matched.`
+      summary: input.forceReview ? 'GIF đính kèm cần quản trị viên kiểm duyệt.' : `${matchedRules.length} content filter rule(s) matched.`
     },
     client
   );
@@ -309,6 +312,7 @@ export async function getModerationReview(reviewId: string) {
           ...target,
           title: review.submitted_content.title,
           content: review.submitted_content.content,
+          ...(review.target_type === 'COMMENT' ? { gifId: review.submitted_content.gifId ?? null } : {}),
           isSubmittedVersion: true
         }
       : target,
@@ -328,6 +332,52 @@ export async function getModerationReview(reviewId: string) {
   };
 }
 
+// PostgreSQL is the durable decision record. A retry may finish its MongoDB
+// projection only while the comment still carries that exact review/version.
+async function recoverResolvedCommentReview(
+  auth: AuthContext,
+  reviewId: string,
+  commentId: string,
+  decision: ResolveReviewInput['decision']
+) {
+  return withCommentWriteLock(commentId, async (client) => {
+    const review = await findReviewById(reviewId, client);
+    if (
+      !review || review.source !== 'KEYWORD_FILTER' || review.target_type !== 'COMMENT' ||
+      review.target_id !== commentId || !review.reviewed_by || review.status !== decision
+    ) {
+      throw new AppError(409, 'ADMIN_002', 'Review item already resolved');
+    }
+    const comment = await findCommentRecordById(commentId);
+    if (!comment || comment.deletedAt !== null || comment.moderationReviewId !== reviewId) {
+      throw new AppError(409, 'CONTENT_REVIEW_STALE', 'Comment no longer matches the reviewed version');
+    }
+    const commentStatus: CommentStatus = review.status === 'APPROVED' ? 'APPROVED' : 'REJECTED';
+    const result = {
+      reviewId: review.review_id,
+      status: review.status,
+      targetType: 'COMMENT' as const,
+      targetId: commentId
+    };
+    if (
+      comment.status === commentStatus &&
+      (commentStatus !== 'APPROVED' || (!comment.imageUrl && (!comment.gifId || comment.mediaApproved === true)))
+    ) return result; // Already applied: preserve timestamps and notification state.
+    if (comment.status !== 'PENDING_MODERATION') {
+      throw new AppError(409, 'CONTENT_REVIEW_STALE', 'Comment no longer awaits this decision');
+    }
+    if (commentStatus === 'APPROVED') {
+      if (comment.imageUrl) throw new AppError(409, 'GIF_UPLOAD_DISABLED', 'Remove the uploaded GIF before review.');
+      if (comment.gifId) await validateGiphyGif(comment.gifId, auth.userId);
+    }
+    const applied = await updateCommentModerationStatus(commentId, commentStatus, reviewId, reviewId);
+    if (!applied || applied.status !== commentStatus || applied.moderationReviewId !== reviewId) {
+      throw new AppError(409, 'CONTENT_REVIEW_STALE', 'Comment changed while applying this decision');
+    }
+    return result;
+  });
+}
+
 export async function resolveModerationReview(
   auth: AuthContext,
   reviewId: string,
@@ -343,6 +393,9 @@ export async function resolveModerationReview(
   if (review.source === 'USER_REPORT') return resolveUserReport(auth, reviewId, input);
 
   if (review.status !== 'PENDING') {
+    if (review.target_type === 'COMMENT' && review.source === 'KEYWORD_FILTER' && review.status === input.decision) {
+      return recoverResolvedCommentReview(auth, reviewId, review.target_id, input.decision);
+    }
     throw new AppError(409, 'ADMIN_002', 'Review item already resolved');
   }
 
@@ -364,6 +417,14 @@ export async function resolveModerationReview(
       );
   }
   const resolved = await withPostgresTransaction(async (client) => {
+    if (review.target_type === 'COMMENT') {
+      await client.query("select pg_advisory_xact_lock(hashtextextended('comment:' || $1, 0))", [review.target_id]);
+      const comment = await findCommentRecordById(review.target_id);
+      if (comment?.status === 'PENDING_MODERATION' && comment.moderationReviewId === reviewId && input.decision === 'APPROVED') {
+        if (comment.imageUrl) throw new AppError(409, 'GIF_UPLOAD_DISABLED', 'Remove the uploaded GIF before review.');
+        if (comment.gifId) await validateGiphyGif(comment.gifId, auth.userId);
+      }
+    }
     const row = await resolveReviewRow(
       {
         reviewId,

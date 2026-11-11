@@ -16,11 +16,14 @@ assert.equal(process.env.EPHURIN_ALLOW_TEST_DB_MUTATIONS, '1', 'Disposable datab
 const output = process.env.READER_EVIDENCE_DIR || await mkdtemp(path.join(tmpdir(), 'reader-acceptance-'));
 await mkdir(output, { recursive: true });
 const env = { ...process.env, READER_EVIDENCE_DIR: output,
-  PLAYWRIGHT_CHANNEL: process.env.PLAYWRIGHT_CHANNEL || 'chrome', LLM_PROVIDER: 'fake', LLM_ENABLED: 'false',
+  PLAYWRIGHT_CHANNEL: process.env.PLAYWRIGHT_CHANNEL || 'chrome', LLM_PROVIDER: 'fake', LLM_ENABLED: 'false', RUN_COMMENT_TESTS: '1',
   ADMIN_TEST_POSTGRES_URL: process.env.ADMIN_TEST_POSTGRES_URL || 'postgresql://postgres:postgres@127.0.0.1:5432/postgres',
   ADMIN_TEST_MONGO_URL: process.env.ADMIN_TEST_MONGO_URL || 'mongodb://127.0.0.1:27017' };
 for (const key of Object.keys(env)) if (/(?:API_KEY|PROVIDER_TOKEN)$/.test(key)) env[key] = '';
 const requiredBrowsers = [
+  'reader-chapter-workspace.browser.test.mjs',
+  'reader-comments.browser.test.mjs',
+  'reader-comment-moderation.browser.test.mjs',
   'reader-catalog-pagination.browser.test.mjs', 'reader-catalog.browser.test.mjs',
   'reader-detail-enhancements.browser.test.mjs', 'reader-detail.browser.test.mjs',
   'reader-home-accessibility.browser.test.mjs', 'reader-home-personalization.browser.test.mjs',
@@ -58,7 +61,8 @@ const steps = [
   ['backend-typecheck', 'backend', 'npm', ['run', 'typecheck']],
   ['web-build', 'web', 'npm', ['run', 'build']],
   ['reader-postgres', 'backend', process.execPath, ['scripts/run-isolated-tests.mjs',
-    'src/modules/reading/chapter-reads.postgres.test.ts', 'src/modules/reading/reader-discovery.postgres.test.ts', 'src/modules/reading/reading-lifecycle.postgres.test.ts']],
+    'src/modules/reading/chapter-reads.postgres.test.ts', 'src/modules/reading/reader-discovery.postgres.test.ts', 'src/modules/reading/reading-lifecycle.postgres.test.ts', 'src/modules/reading/reader-workspace.postgres.test.ts',
+    'src/modules/interactions/comments.integration.test.ts', 'src/modules/media/media.test.ts']],
   ['reader-browsers', 'web', process.execPath, ['--test', '--test-concurrency=1', ...browserFiles.map(name => `tests/${name}`)]],
   ['reader-contrast', 'web', process.execPath, ['--test', 'tests/contrast.test.mjs']]
 ];

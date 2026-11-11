@@ -37,7 +37,7 @@ export async function createModerationReview(
     targetId: string;
     source: ModerationSource;
     evidenceId?: string | null;
-    submittedContent?: { title: string; content: string; wordCount: number };
+    submittedContent?: { title: string; content: string; wordCount: number; gifId?: string | null };
   },
   client?: PoolClient
 ) {
@@ -162,8 +162,8 @@ export async function listReviews(input: ListReviewsInput) {
   };
 }
 
-export async function findReviewById(reviewId: string) {
-  const result = await getPostgresPool().query(
+export async function findReviewById(reviewId: string, client?: PoolClient) {
+  const result = await (client ?? getPostgresPool()).query(
     'select * from moderation_reviews where review_id = $1 limit 1',
     [reviewId]
   );

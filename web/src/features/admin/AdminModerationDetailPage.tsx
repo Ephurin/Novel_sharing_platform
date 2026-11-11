@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { GiphyMedia } from '../reader/CommentGifPicker';
 import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button, Select, Alert } from '@mantine/core';
@@ -102,6 +103,7 @@ export function AdminModerationDetailPage() {
                   ? content || 'Đối tượng chưa có nội dung văn bản.'
                   : `${content.slice(0, 800)}…`}
               </div>
+              {review.target.gifId && <div className="admin-review-gif"><GiphyMedia id={review.target.gifId} /></div>}
               {content.length > 800 && (
                 <Button
                   variant="subtle"
