@@ -332,11 +332,7 @@ class BrainstormService:
                             },
                         )
                         session.add(new_rec)
-                        try:
-                            session.flush()
-                        except IntegrityError:
-                            # Concurrent insert won the race; another worker holds the slot
-                            return False, None, None
+                        session.flush()
                         return True, lease_token, None
 
                     # rec already exists: verify input hash
