@@ -9,6 +9,7 @@ import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { getChapter } from '../novels/chapters.service.js';
+import { markDraftChaptersDeletedByNovelId } from '../novels/draft-chapters.repository.js';
 import { readNovel } from '../novels/novels.service.js';
 import { drainAdminJobs, retryAdminJob } from './admin-jobs.js';
 import { applySanction } from './admin-sanctions.js';
@@ -104,8 +105,11 @@ describe('D6: admin novel hide/restore with Mongo draft sync', () => {
     const live = await chapter(target, 1);
     const authorDeleted = await chapter(target, 2, { deletedAt: old, draftDeletedAt: old });
     const authorDeletedLiveDraft = await chapter(target, 3, { deletedAt: old });
+    const liveWithDeletedDraft = await chapter(target, 4, { draftDeletedAt: old });
     const unrelated = await chapter(other, 1);
-    const untouched = async () => [await draft(authorDeleted), await draft(authorDeletedLiveDraft), await draft(unrelated)];
+    const untouched = async () => [
+      await draft(authorDeleted), await draft(authorDeletedLiveDraft), await draft(liveWithDeletedDraft), await draft(unrelated)
+    ];
     const baseline = await untouched();
 
     await mongoFault(true);
@@ -142,6 +146,7 @@ describe('D6: admin novel hide/restore with Mongo draft sync', () => {
     assert.equal(await chapterDeleted(live), false);
     assert.equal(await chapterDeleted(authorDeleted), true, 'a chapter the author deleted before HIDE stays deleted');
     assert.equal(await chapterDeleted(authorDeletedLiveDraft), true);
+    assert.equal(await chapterDeleted(liveWithDeletedDraft), false, 'a chapter live at HIDE comes back, its earlier deleted draft does not');
     await pool.query("insert into admin_jobs(kind, payload) values ('NOVEL_DRAFT_SYNC', $1)", [{ sanctionId: sanction.sanction_id }]);
     await drainAdminJobs();
     assert.deepEqual(await draft(live), restored);
@@ -257,19 +262,26 @@ describe('D6: admin novel hide/restore with Mongo draft sync', () => {
     const target = await novel();
     const removedWithNovel = await chapter(target, 1);
     const authorDeleted = await chapter(target, 2, { deletedAt: old, draftDeletedAt: old });
-    // The pre-sanction removal stamped the novel and its then-live chapters in one transaction.
+    // Review R5 (P1): the chapter was live when the novel was removed, but its draft had been deleted earlier.
+    const liveWithDeletedDraft = await chapter(target, 3, { draftDeletedAt: old });
+    // The pre-sanction removal stamped the novel and its then-live chapters in one transaction, then marked the
+    // drafts that were still live, with the same helper that removal used.
     await withPostgresTransaction(async (client) => {
       await client.query('update novels set deleted_at = now() where novel_id = $1', [target]);
       await client.query('update chapters set deleted_at = coalesce(deleted_at, now()) where novel_id = $1', [target]);
+      await markDraftChaptersDeletedByNovelId(target, 'removed');
     });
-    await drafts().updateOne({ chapterId: removedWithNovel }, { $set: { deletedAt: new Date(), deletionReason: 'removed' } });
     const authorDraft = await draft(authorDeleted);
+    const earlierDeletedDraft = await draft(liveWithDeletedDraft);
+    assert.deepEqual(earlierDeletedDraft?.deletedAt, old, 'the old removal left an already deleted draft alone');
 
     await restoreNovel(adminAuth, target, { reason: 'D6 pre-sanction restore' });
     assert.equal(await chapterDeleted(removedWithNovel), false);
-    assert.equal((await draft(removedWithNovel))?.deletedAt, null);
+    assert.equal((await draft(removedWithNovel))?.deletedAt, null, 'the draft the removal hid comes back');
     assert.equal(await chapterDeleted(authorDeleted), true, 'a chapter deleted by the author earlier is not resurrected');
     assert.deepEqual(await draft(authorDeleted), authorDraft);
+    assert.equal(await chapterDeleted(liveWithDeletedDraft), false, 'the chapter itself was live at removal and comes back');
+    assert.deepEqual(await draft(liveWithDeletedDraft), earlierDeletedDraft, 'its draft deleted before the removal stays deleted, byte for byte');
   });
 
   test('while a novel is hidden nothing inside it can be deleted or sanctioned separately; an earlier chapter sanction survives the novel restore', async () => {
