@@ -1,8 +1,8 @@
-import {useEffect,useRef,useState} from 'react';
+import {useCallback,useEffect,useRef,useState} from 'react';
 import {Alert,Badge,Button,Card,Group,Stack,Text,Title} from '@mantine/core';
 import {apiClient,ApiClientError,getApiErrorMessage,type ApiEnvelope} from '../../shared/api/api-client';
 import {SetupFoundationPanel} from './SetupFoundationPanel';
-import {StoryPlanEditor} from './StoryPlanEditor';
+import {StoryPlanEditor,type FutureEventAdopter} from './StoryPlanEditor';
 import {getSetup,getSetupM0Readiness,type SetupM0Readiness,type SetupSnapshot} from './setup-api';
 import {usePlanningScope} from './planning-draft';
 import type {StoryBrainSummary} from '../manuscript-import/manuscript-import-api';
@@ -12,6 +12,10 @@ const steps:{id:PlanningStep;label:string}[]=[{id:'idea',label:'Ý tưởng'},{i
 type Props={novelId:string;title:string;step:PlanningStep;onStep:(s:PlanningStep)=>void;chapters:{chapterId:string;title:string}[];onWrite:(chapterId?:string)=>void;onCreate:()=>void;creating:boolean;onMemory:()=>void};
 export function PlanningStudio({novelId,title,step,onStep,chapters,onWrite,onCreate,creating,onMemory}:Props){
  const scope=usePlanningScope(),readSequence=useRef(0),panel=useRef<HTMLElement>(null);
+ // BUI-02: Setup "all" brainstorm hands future events to the mounted Story Plan editor's local draft.
+ const eventAdopter=useRef<FutureEventAdopter|null>(null);
+ const registerEventAdopter=useCallback((a:FutureEventAdopter|null)=>{eventAdopter.current=a;},[]);
+ const adoptFutureEvent=useCallback<FutureEventAdopter>(ev=>eventAdopter.current?eventAdopter.current(ev):'Dàn ý chương chưa sẵn sàng. Mở bước Dàn ý chương rồi thử lại.',[]);
  useEffect(()=>{panel.current?.scrollTo({top:0});},[step]);
  const [extraction,setExtraction]=useState<{chapter_id:string;chapter_number:number;status:string|null}[]|null>(null);
  const [settled,setSettled]=useState(false);
@@ -38,8 +42,8 @@ export function PlanningStudio({novelId,title,step,onStep,chapters,onWrite,onCre
   <Button variant="subtle" onClick={onMemory}>Mở Bộ nhớ truyện & duyệt diễn biến</Button></Stack></Card>
   {error&&<Alert color="red" role="alert">Không xác minh được trạng thái: {error}</Alert>}
   {!settled&&<Text role="status">Đang đọc trạng thái tiểu thuyết trước khi mở các thẻ. Bạn vẫn có thể chuyển sang viết bản nháp.</Text>}
-  <div inert={!settled} hidden={!['idea','rules','characters'].includes(step)}><SetupFoundationPanel novelId={novelId} planningStep={['idea','rules','characters'].includes(step)?step as 'idea'|'rules'|'characters':'characters'} onServerChange={()=>void refresh()}/></div>
-  <div inert={!settled} hidden={step!=='chapters'}><StoryPlanEditor novelId={novelId}/></div>
+  <div inert={!settled} hidden={!['idea','rules','characters'].includes(step)}><SetupFoundationPanel novelId={novelId} planningStep={['idea','rules','characters'].includes(step)?step as 'idea'|'rules'|'characters':'characters'} onServerChange={()=>void refresh()} onAdoptFutureEvent={adoptFutureEvent}/></div>
+  <div inert={!settled} hidden={step!=='chapters'}><StoryPlanEditor novelId={novelId} onRegisterEventAdopter={registerEventAdopter}/></div>
   <div hidden={step!=='write'}><Stack><Title order={3}>Viết khi bạn sẵn sàng</Title><Text>Không bắt buộc có dàn ý. Mở chương có sẵn hoặc chủ động tạo một bản nháp trong trình soạn thảo hiện tại.</Text>
   {chapters.map(c=><Button key={c.chapterId} variant="default" onClick={()=>onWrite(c.chapterId)} style={{height:'auto',minHeight:36,whiteSpace:'normal'}}>{c.title}</Button>)}
   <Button onClick={onCreate} loading={creating}>Tạo bản nháp chương mới</Button><Button variant="subtle" onClick={()=>onWrite()}>Bỏ qua dàn ý, mở trang viết</Button>
