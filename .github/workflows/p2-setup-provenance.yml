@@ -214,6 +214,16 @@ jobs:
         run: |
           set -euo pipefail
           node --test tests/p2-07f-ux05-world-amendment.browser.test.mjs 2>&1 | tee "$RUNNER_TEMP/p202/p2-07f-regression.log"
+      - name: Story Planning Studio P2-06B AI Brainstorming UI regressions (Chromium HTTP mocks, fake provider)
+        working-directory: web
+        env:
+          PLAYWRIGHT_CHANNEL: chromium
+          P206B_EVIDENCE_DIR: ${{ runner.temp }}/p202/p2-06b-regression
+          P206B_BUI_EVIDENCE_DIR: ${{ runner.temp }}/p202/p2-06b-bui-regression
+        run: |
+          set -euo pipefail
+          node --test tests/p2-06b-brainstorming.browser.test.mjs 2>&1 | tee "$RUNNER_TEMP/p202/p2-06b-regression.log"
+          node --test tests/p2-06b-bui-regressions.browser.test.mjs 2>&1 | tee "$RUNNER_TEMP/p202/p2-06b-bui-regression.log"
       - name: Mounted P1 Writer autosave recovery on isolated PG Mongo
         working-directory: web
         env:

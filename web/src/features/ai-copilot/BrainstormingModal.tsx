@@ -35,16 +35,48 @@ export type BrainstormModalProps = {
   targetChapter?: number;
   expectedBrainVersion?: number;
   expectedPlanVersion?: number;
-  onAdoptWorldRule?: (rule: { declaration_id: string; text: string; fact_key?: string }) => void;
-  onAdoptCharacter?: (char: { declaration_id: string; display_name: string; entity_type: 'character' }) => void;
-  onAdoptFutureEvent?: (ev: {
-    event_id: string;
-    target_chapter: number;
-    text: string;
-    title: string;
-    participants: BrainstormParticipant[];
-  }) => void;
+  /** Called when the server reports a CAS conflict (409); the host re-reads its authoritative state. */
+  onReloadRequested?: () => void | Promise<void>;
+  // Adopt handlers return null on success or a user-facing reason why nothing was adopted.
+  // A scope without a handler is not offered and its cards have no adopt button.
+  onAdoptWorldRule?: (rule: AdoptedWorldRule) => AdoptResult;
+  onAdoptCharacter?: (char: AdoptedCharacter) => AdoptResult;
+  onAdoptFutureEvent?: (ev: AdoptedFutureEvent) => AdoptResult;
 };
+
+export type AdoptResult = string | null | void;
+export type AdoptedWorldRule = { text: string; fact_key?: string };
+export type AdoptedCharacter = {
+  display_name: string;
+  entity_type: 'character';
+  role: ProposedCharacter['role'];
+  description: string;
+  archetype: string;
+  aliases: string[];
+};
+export type AdoptedFutureEvent = {
+  target_chapter: number;
+  text: string;
+  title: string;
+  participants: BrainstormParticipant[];
+};
+
+const RETRYABLE_STATUSES = new Set([0, 429, 502, 503, 504]);
+const TARGET_LABELS: Record<BrainstormTarget, string> = {
+  all: 'Tất cả (Quy tắc, Nhân vật, Sự kiện)',
+  world_rules: 'Quy tắc thế giới (World Rules)',
+  characters: 'Nhân vật & Hạt giống danh tính',
+  future_events: 'Sự kiện tương lai (Future Events)',
+};
+
+/** Merge title and summary so neither is silently dropped when a plan event only stores text. */
+export function futureEventText(ev: { title?: string; text?: string; description?: string }) {
+  const title = ev.title?.trim() ?? '';
+  const body = (ev.text || ev.description || '').trim();
+  if (!title) return body;
+  if (!body || body === title || body.startsWith(title)) return body || title;
+  return `${title}: ${body}`;
+}
 
 export function BrainstormingModal({
   opened,
@@ -55,11 +87,19 @@ export function BrainstormingModal({
   targetChapter = 1,
   expectedBrainVersion,
   expectedPlanVersion,
+  onReloadRequested,
   onAdoptWorldRule,
   onAdoptCharacter,
   onAdoptFutureEvent,
 }: BrainstormModalProps) {
-  const [target, setTarget] = useState<BrainstormTarget>(defaultTarget);
+  const allowedTargets: BrainstormTarget[] = [
+    ...(onAdoptWorldRule && onAdoptCharacter && onAdoptFutureEvent ? ['all' as const] : []),
+    ...(onAdoptWorldRule ? ['world_rules' as const] : []),
+    ...(onAdoptCharacter ? ['characters' as const] : []),
+    ...(onAdoptFutureEvent ? ['future_events' as const] : []),
+  ];
+  const pickTarget = (t: BrainstormTarget) => (allowedTargets.includes(t) ? t : allowedTargets[0] ?? t);
+  const [target, setTarget] = useState<BrainstormTarget>(() => pickTarget(defaultTarget));
   const [instruction, setInstruction] = useState('');
   const [targetChap, setTargetChap] = useState<number | ''>(targetChapter || 1);
   const [currentChap, setCurrentChap] = useState<number | ''>(currentChapter ?? '');
@@ -67,6 +107,9 @@ export function BrainstormingModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [errorCode, setErrorCode] = useState<string | null>(null);
+  const [errorKind, setErrorKind] = useState<'retryable' | 'conflict' | 'other' | null>(null);
+  const [adoptError, setAdoptError] = useState('');
+  const [reloading, setReloading] = useState(false);
 
   // Suggestions state
   const [rules, setRules] = useState<ProposedWorldRule[]>([]);
@@ -85,7 +128,7 @@ export function BrainstormingModal({
   // Sync default target and chapters on opened
   useEffect(() => {
     if (opened) {
-      setTarget(defaultTarget);
+      setTarget(pickTarget(defaultTarget));
       if (targetChapter) setTargetChap(targetChapter);
       if (currentChapter !== undefined) setCurrentChap(currentChapter);
     } else {
@@ -105,6 +148,8 @@ export function BrainstormingModal({
     setLoading(true);
     setError('');
     setErrorCode(null);
+    setErrorKind(null);
+    setAdoptError('');
 
     try {
       const response = await requestBrainstorm(novelId, { ...req, idempotency_key: idemKey }, controller.signal);
@@ -120,8 +165,10 @@ export function BrainstormingModal({
       if (controller.signal.aborted) return;
       if (err instanceof ApiClientError) {
         setErrorCode(err.code);
+        // 409 = CAS / idempotency conflict: re-read server state, never blind-retry.
+        setErrorKind(err.status === 409 ? 'conflict' : RETRYABLE_STATUSES.has(err.status) ? 'retryable' : 'other');
         if (err.status === 409) {
-          setError(`Xung đột phiên bản (${err.code}). Trạng thái Story Brain hoặc Dàn ý đã thay đổi trên máy chủ.`);
+          setError(`Xung đột phiên bản (${err.code}). Trạng thái Story Brain hoặc Dàn ý đã thay đổi trên máy chủ. Đọc lại trạng thái máy chủ rồi tạo yêu cầu mới; không thử lại yêu cầu cũ.`);
         } else if (err.status === 429) {
           setError(`Đã chạm giới hạn yêu cầu AI (${err.code}). Nhấn "Thử lại an toàn" sau ít phút.`);
         } else if (err.status === 502) {
@@ -132,6 +179,7 @@ export function BrainstormingModal({
           setError(getApiErrorMessage(err));
         }
       } else {
+        setErrorKind('other');
         setError(getApiErrorMessage(err));
       }
     } finally {
@@ -141,70 +189,97 @@ export function BrainstormingModal({
     }
   }
 
-  function handleStartBrainstorm() {
-    const idemKey = generateIdempotencyKey();
-    activeIdempotencyKeyRef.current = idemKey;
-
+  /** The exact request the current form and host versions would send (without idempotency key). */
+  function buildPayload(): BrainstormRequest {
     const payload: BrainstormRequest = {
       contract_version: 'brainstorm-v1',
       target,
       instruction: instruction.trim(),
-      expected_brain_version: expectedBrainVersion,
-      expected_plan_version: expectedPlanVersion,
     };
-
+    if (expectedBrainVersion !== undefined) payload.expected_brain_version = expectedBrainVersion;
+    if (expectedPlanVersion !== undefined) payload.expected_plan_version = expectedPlanVersion;
     if (target === 'future_events' || target === 'all') {
-      if (typeof targetChap === 'number' && targetChap >= 1) {
-        payload.target_chapter = targetChap;
-      }
-      if (typeof currentChap === 'number' && currentChap >= 1) {
-        payload.current_chapter = currentChap;
-      }
+      if (typeof targetChap === 'number' && targetChap >= 1) payload.target_chapter = targetChap;
+      if (typeof currentChap === 'number' && currentChap >= 1) payload.current_chapter = currentChap;
     }
+    return payload;
+  }
 
+  function handleStartBrainstorm() {
+    const idemKey = generateIdempotencyKey();
+    activeIdempotencyKeyRef.current = idemKey;
+    const payload = buildPayload();
     lastRequestRef.current = payload;
     void executeBrainstorm(payload, idemKey);
   }
 
+  // A retry may reuse the idempotency key only for the byte-identical request.
+  const retrySnapshot = lastRequestRef.current;
+  const retryMatchesForm = !!retrySnapshot && JSON.stringify(retrySnapshot) === JSON.stringify(buildPayload());
+
   function handleSafeRetry() {
-    if (!lastRequestRef.current || !activeIdempotencyKeyRef.current) {
-      handleStartBrainstorm();
-      return;
-    }
+    if (errorKind !== 'retryable' || !lastRequestRef.current || !activeIdempotencyKeyRef.current) return;
+    if (JSON.stringify(lastRequestRef.current) !== JSON.stringify(buildPayload())) return;
     void executeBrainstorm(lastRequestRef.current, activeIdempotencyKeyRef.current);
   }
 
-  // Adopt Actions
+  async function handleReload() {
+    if (!onReloadRequested) return;
+    setReloading(true);
+    try {
+      await onReloadRequested();
+      setError('');
+      setErrorCode(null);
+      setErrorKind(null);
+      lastRequestRef.current = null;
+      activeIdempotencyKeyRef.current = '';
+    } catch (err) {
+      setError(getApiErrorMessage(err));
+    } finally {
+      setReloading(false);
+    }
+  }
+
+  // Adopt Actions: mark as adopted only when the host confirms the draft changed.
+  function adopt(id: string, run: () => AdoptResult) {
+    const reason = run();
+    if (reason) {
+      setAdoptError(reason);
+      return;
+    }
+    setAdoptError('');
+    setAdoptedIds(prev => new Set([...prev, id]));
+  }
+
   function handleAdoptRule(rule: ProposedWorldRule) {
     if (!onAdoptWorldRule) return;
-    onAdoptWorldRule({
-      declaration_id: rule.rule_id || ('rule_' + crypto.randomUUID().replaceAll('-', '')),
-      text: rule.text,
-      fact_key: rule.fact_key,
-    });
-    setAdoptedIds(prev => new Set([...prev, rule.rule_id]));
+    adopt(rule.rule_id, () => onAdoptWorldRule({ text: rule.text, fact_key: rule.fact_key }));
   }
 
   function handleAdoptCharacter(char: ProposedCharacter) {
     if (!onAdoptCharacter) return;
-    onAdoptCharacter({
-      declaration_id: char.character_id || ('decl_' + crypto.randomUUID().replaceAll('-', '')),
-      display_name: char.name || char.canonical_name,
-      entity_type: 'character',
-    });
-    setAdoptedIds(prev => new Set([...prev, char.character_id]));
+    adopt(char.character_id, () =>
+      onAdoptCharacter({
+        display_name: char.name || char.canonical_name,
+        entity_type: 'character',
+        role: char.role,
+        description: char.description ?? '',
+        archetype: char.archetype ?? '',
+        aliases: char.aliases ?? [],
+      })
+    );
   }
 
   function handleAdoptEvent(ev: ProposedFutureEvent) {
     if (!onAdoptFutureEvent) return;
-    onAdoptFutureEvent({
-      event_id: ev.event_id || crypto.randomUUID(),
-      target_chapter: ev.target_chapter,
-      title: ev.title,
-      text: ev.text || ev.description || ev.title,
-      participants: ev.participants || [],
-    });
-    setAdoptedIds(prev => new Set([...prev, ev.event_id]));
+    adopt(ev.event_id, () =>
+      onAdoptFutureEvent({
+        target_chapter: ev.target_chapter,
+        title: ev.title,
+        text: futureEventText(ev),
+        participants: ev.participants || [],
+      })
+    );
   }
 
   // Dismiss Actions
@@ -247,13 +322,8 @@ export function BrainstormingModal({
             label="Phạm vi gợi ý"
             value={target}
             allowDeselect={false}
-            data={[
-              { value: 'all', label: 'Tất cả (Quy tắc, Nhân vật, Sự kiện)' },
-              { value: 'world_rules', label: 'Quy tắc thế giới (World Rules)' },
-              { value: 'characters', label: 'Nhân vật & Hạt giống danh tính' },
-              { value: 'future_events', label: 'Sự kiện tương lai (Future Events)' },
-            ]}
-            onChange={v => setTarget((v as BrainstormTarget) || 'all')}
+            data={allowedTargets.map(value => ({ value, label: TARGET_LABELS[value] }))}
+            onChange={v => setTarget(pickTarget((v as BrainstormTarget) || target))}
             disabled={loading}
             aria-label="Phạm vi gợi ý"
           />
@@ -299,19 +369,48 @@ export function BrainstormingModal({
             <Stack gap="xs">
               <Text size="sm">{error}</Text>
               {errorCode && <Text size="xs" c="dimmed">Mã lỗi: {errorCode}</Text>}
-              <Group>
-                <Button
-                  size="xs"
-                  variant="outline"
-                  color="red"
-                  onClick={handleSafeRetry}
-                  disabled={loading}
-                  data-testid="brainstorm-safe-retry-btn"
-                >
-                  Thử lại an toàn (Safe Retry)
-                </Button>
-              </Group>
+              {errorKind === 'retryable' && (
+                <>
+                  {!retryMatchesForm && (
+                    <Text size="sm" c="orange" data-testid="brainstorm-retry-stale-warning">
+                      Yêu cầu đã thay đổi so với lần bị lỗi. "Thử lại an toàn" chỉ gửi lại đúng yêu cầu cũ; nhấn "Tạo gợi ý AI" để gửi yêu cầu mới.
+                    </Text>
+                  )}
+                  <Group>
+                    <Button
+                      size="xs"
+                      variant="outline"
+                      color="red"
+                      onClick={handleSafeRetry}
+                      disabled={loading || !retryMatchesForm}
+                      data-testid="brainstorm-safe-retry-btn"
+                    >
+                      Thử lại an toàn (Safe Retry)
+                    </Button>
+                  </Group>
+                </>
+              )}
+              {errorKind === 'conflict' && onReloadRequested && (
+                <Group>
+                  <Button
+                    size="xs"
+                    variant="outline"
+                    onClick={() => void handleReload()}
+                    loading={reloading}
+                    disabled={loading}
+                    data-testid="brainstorm-reload-btn"
+                  >
+                    Đọc lại trạng thái máy chủ
+                  </Button>
+                </Group>
+              )}
             </Stack>
+          </Alert>
+        )}
+
+        {adoptError && (
+          <Alert color="orange" title="Chưa đưa gợi ý vào bản nháp" data-testid="brainstorm-adopt-error">
+            {adoptError}
           </Alert>
         )}
 
@@ -386,7 +485,7 @@ export function BrainstormingModal({
                             <Badge color="green" size="md" data-testid={`rule-adopted-badge-${idx}`}>
                               Đã thêm vào bản nháp
                             </Badge>
-                          ) : (
+                          ) : onAdoptWorldRule ? (
                             <Button
                               size="xs"
                               variant="filled"
@@ -397,7 +496,7 @@ export function BrainstormingModal({
                             >
                               Chọn dùng vào bản nháp
                             </Button>
-                          )}
+                          ) : null}
                         </Group>
                       </Stack>
                     </Card>
@@ -461,7 +560,7 @@ export function BrainstormingModal({
                             <Badge color="green" size="md" data-testid={`character-adopted-badge-${idx}`}>
                               Đã thêm vào bản nháp
                             </Badge>
-                          ) : (
+                          ) : onAdoptCharacter ? (
                             <Button
                               size="xs"
                               variant="filled"
@@ -472,7 +571,7 @@ export function BrainstormingModal({
                             >
                               Chọn dùng vào bản nháp
                             </Button>
-                          )}
+                          ) : null}
                         </Group>
                       </Stack>
                     </Card>
@@ -555,7 +654,7 @@ export function BrainstormingModal({
                             <Badge color="green" size="md" data-testid={`event-adopted-badge-${idx}`}>
                               Đã thêm vào bản nháp
                             </Badge>
-                          ) : (
+                          ) : onAdoptFutureEvent ? (
                             <Button
                               size="xs"
                               variant="filled"
@@ -566,7 +665,7 @@ export function BrainstormingModal({
                             >
                               Chọn dùng vào bản nháp
                             </Button>
-                          )}
+                          ) : null}
                         </Group>
                       </Stack>
                     </Card>

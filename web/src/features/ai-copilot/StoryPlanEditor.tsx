@@ -1,9 +1,11 @@
-import {useEffect,useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
 import {Alert,Button,Card,Group,MultiSelect,NumberInput,Select,Stack,Text,Textarea,TextInput} from '@mantine/core';
 import {useAuthStore} from '../auth/useAuthStore';
 import {apiClient,type ApiEnvelope,getApiErrorMessage,ApiClientError} from '../../shared/api/api-client';
 import {usePlanningDraft,usePlanningScope} from './planning-draft';
-import {BrainstormingModal} from './BrainstormingModal';
+import {BrainstormingModal,type AdoptedFutureEvent,type AdoptResult} from './BrainstormingModal';
+/** Lets a sibling panel (Setup "all" brainstorm) put an AI future event into this editor's local plan draft. */
+export type FutureEventAdopter=(ev:AdoptedFutureEvent)=>AdoptResult;
 type Participant={name_hint?:string|null;entity_id?:string|null};
 type FutureEvent={event_id:string;text:string;participants:Participant[]};
 type Objective={objective_id:string;intent_version:number;target_chapter:number;title:string;description:string;events:FutureEvent[];dependencies:string[]};
@@ -15,11 +17,12 @@ function valid(value:unknown):value is Draft{
  const d=value as Draft;
  return !!d&&typeof d.outline==='string'&&typeof d.notes==='string'&&Number.isInteger(d.head)&&Array.isArray(d.chapters)&&d.chapters.every(o=>typeof o.objective_id==='string'&&typeof o.title==='string'&&typeof o.description==='string'&&Array.isArray(o.dependencies)&&Array.isArray(o.events)&&o.events.every(e=>typeof e.event_id==='string'&&typeof e.text==='string'&&Array.isArray(e.participants)&&e.participants.every(p=>!!p&&(typeof p.entity_id==='string'||typeof p.name_hint==='string'))));
 }
-export function StoryPlanEditor({novelId,onServerChange}:{novelId:string;onServerChange?:()=>void}){
+type EditorProps={novelId:string;onServerChange?:()=>void;onRegisterEventAdopter?:(adopter:FutureEventAdopter|null)=>void};
+export function StoryPlanEditor(props:EditorProps){
  const account=useAuthStore(s=>s.user?.userId??'guest');
- return <Editor key={JSON.stringify([account,novelId])} novelId={novelId} onServerChange={onServerChange}/>;
+ return <Editor key={JSON.stringify([account,props.novelId])} {...props}/>;
 }
-function Editor({novelId,onServerChange}:{novelId:string;onServerChange?:()=>void}){
+function Editor({novelId,onServerChange,onRegisterEventAdopter}:EditorProps){
  const scope=usePlanningScope(),key=`ephurin-planning:${scope.actor}:${novelId}:plan`;
  const local=usePlanningDraft<Draft>(key,{selected:null,head:0,outline:'',notes:'',chapters:[]},valid);
  const {selected,outline,notes,chapters,head}=local.value;
@@ -54,6 +57,30 @@ function Editor({novelId,onServerChange}:{novelId:string;onServerChange?:()=>voi
  const awaitingRecovery=!!local.backup;
  const serverReadOnly=!!stored&&!canSave&&!local.dirty;
  const readOnly=serverReadOnly||awaitingRecovery;
+ // brainstorm-v1 compares expected_plan_version with the ACTIVE plan's plan_version (not head_version).
+ // Only send it when the server readback names an active plan; with none there is nothing to compare.
+ const activePlan=loaded&&list.active_plan_id?list.plans.find(p=>p.plan_id===list.active_plan_id):undefined;
+ const brainstormPlanVersion=activePlan?.plan_version;
+ /** Put an AI future event into the local draft only; returns why it could not, never writes the server. */
+ function adoptFutureEvent(ev:AdoptedFutureEvent,objectiveId:string|null=null):AdoptResult{
+  if(!loaded)return 'Dàn ý chưa đọc xong từ máy chủ. Mở bước Dàn ý chương rồi thử lại.';
+  if(awaitingRecovery)return 'Có bản sửa dàn ý trên thiết bị chưa khôi phục. Khôi phục hoặc bỏ bản sửa ở bước Dàn ý chương trước.';
+  if(serverReadOnly)return 'Bản dàn ý đang xem chỉ đọc. Ở bước Dàn ý chương, chọn "Dàn ý mới" hoặc tạo phiên bản mới trước khi thêm sự kiện.';
+  const target=Math.max(1,Math.trunc(ev.target_chapter)||1);
+  const event:FutureEvent={event_id:crypto.randomUUID(),text:ev.text||ev.title,
+   participants:(ev.participants||[]).flatMap<Participant>(p=>p.entity_id?[{entity_id:p.entity_id}]:p.name_hint?.trim()?[{name_hint:p.name_hint}]:[])};
+  local.edit(d=>{
+   // The card the author opened wins only while the event still targets its chapter.
+   const byId=objectiveId?d.chapters.find(o=>o.objective_id===objectiveId&&o.target_chapter===target):undefined;
+   const host=byId??d.chapters.find(o=>o.target_chapter===target);
+   if(host)return{...d,chapters:d.chapters.map(o=>o.objective_id===host.objective_id?{...o,events:[...o.events,event]}:o)};
+   return{...d,chapters:[...d.chapters,{objective_id:crypto.randomUUID(),intent_version:0,target_chapter:target,
+    title:(ev.title||`Chương ${target}`).slice(0,255),description:'',events:[event],dependencies:[]}]};
+  });
+  return null;
+ }
+ const adopterRef=useRef(adoptFutureEvent);adopterRef.current=adoptFutureEvent;
+ useEffect(()=>{if(!onRegisterEventAdopter)return;onRegisterEventAdopter(ev=>adopterRef.current(ev));return()=>onRegisterEventAdopter(null);},[onRegisterEventAdopter]);
  const invalid=chapters.some(o=>!o.title.trim()||o.target_chapter<1||o.events.some(e=>e.participants.some(p=>p.entity_id?!uuid.test(p.entity_id):!p.name_hint?.trim())))||new Set(chapters.map(o=>o.target_chapter)).size!==chapters.length;
  async function send(action:'save'|'fork'|'activate'|'skip'|'delete',expected=head){
   scope.assertCurrent();if(local.backup)return;const signal=scope.signal;setPending(true);setMessage('');
@@ -116,48 +143,9 @@ function Editor({novelId,onServerChange}:{novelId:string;onServerChange?:()=>voi
     novelId={novelId}
     defaultTarget="future_events"
     targetChapter={brainstormTargetChapter}
-    expectedPlanVersion={head}
-    onAdoptFutureEvent={ev=>{
-      const targetObj = (brainstormTargetObjectiveId ? chapters.find(o=>o.objective_id===brainstormTargetObjectiveId) : null)
-        || chapters.find(o=>o.target_chapter===ev.target_chapter)
-        || chapters[0];
-      if (targetObj) {
-        events(targetObj.objective_id, all => [
-          ...all,
-          {
-            event_id: ev.event_id || crypto.randomUUID(),
-            text: ev.text || ev.title,
-            participants: (ev.participants || []).map(p => ({
-              entity_id: p.entity_id ?? null,
-              name_hint: p.name_hint ?? null,
-            })),
-          },
-        ]);
-      } else {
-        local.edit(d => ({
-          ...d,
-          chapters: [
-            ...d.chapters,
-            {
-              objective_id: crypto.randomUUID(),
-              intent_version: 0,
-              target_chapter: ev.target_chapter,
-              title: ev.title || `Chương ${ev.target_chapter}`,
-              description: ev.text || '',
-              events: [{
-                event_id: ev.event_id || crypto.randomUUID(),
-                text: ev.text || ev.title,
-                participants: (ev.participants || []).map(p => ({
-                  entity_id: p.entity_id ?? null,
-                  name_hint: p.name_hint ?? null,
-                })),
-              }],
-              dependencies: [],
-            },
-          ],
-        }));
-      }
-    }}
+    expectedPlanVersion={brainstormPlanVersion}
+    onReloadRequested={()=>reload()}
+    onAdoptFutureEvent={ev=>adoptFutureEvent(ev,brainstormTargetObjectiveId)}
   />
  </Stack>;
 }

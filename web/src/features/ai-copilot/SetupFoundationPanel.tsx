@@ -7,12 +7,17 @@ import { getSetup, submitSetup, reviewSetup, getSetupM0Readiness, activateSetupM
 import { WorldRuleAmendmentManager } from './WorldRuleAmendmentManager';
 import { BrainstormingModal } from './BrainstormingModal';
 import type { BrainstormTarget } from './brainstorm-api';
-type Props={novelId:string;planningStep?:'idea'|'rules'|'characters';onServerChange?:()=>void;allowOfflineBlueprint?:boolean};
+import type { FutureEventAdopter } from './StoryPlanEditor';
+import { characterNoteText, useCharacterNotes } from './character-notes';
+type Props={novelId:string;planningStep?:'idea'|'rules'|'characters';onServerChange?:()=>void;allowOfflineBlueprint?:boolean;
+ // Routes an adopted AI future event into the Story Plan draft (Planning Studio). Without it events are not offered.
+ onAdoptFutureEvent?:FutureEventAdopter};
 type Draft={base:number;text:string;outline:string;rules:SetupSource['world_rules'];declarations:SetupDeclaration[];mode:'extract'|'blueprint'};
 function valid(v:unknown):v is Draft{const d=v as Draft;return !!d&&Number.isInteger(d.base)&&typeof d.text==='string'&&typeof d.outline==='string'&&Array.isArray(d.rules)&&d.rules.every(r=>typeof r.declaration_id==='string'&&typeof r.text==='string')&&Array.isArray(d.declarations)&&d.declarations.every(e=>typeof e.declaration_id==='string'&&typeof e.display_name==='string');}
 export function SetupFoundationPanel(props:Props){const actor=useAuthStore(s=>s.user?.userId??'guest');return <ScopedSetupPanel key={JSON.stringify([actor,props.novelId])} {...props}/>;}
-function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBlueprint=false}:Props){
+function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBlueprint=false,onAdoptFutureEvent}:Props){
  const scope=usePlanningScope();
+ const characterNotes=useCharacterNotes(scope.actor,novelId);
  const local=usePlanningDraft<Draft>(`ephurin-planning:${scope.actor}:${novelId}:setup`,{base:0,text:'',outline:'',rules:[],declarations:[],mode:'extract'},valid);
  const {text,outline,rules,declarations,mode}=local.value;
  const [snapshot,setSnapshot]=useState<SetupSnapshot|null>(null),[message,setMessage]=useState(''),[pending,setPending]=useState(false),[loaded,setLoaded]=useState(false);
@@ -61,9 +66,12 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
   </Stack></div>
   <div hidden={!people}><Stack>
    <Text fw={600}>Nhân vật & địa danh</Text>
+   {declarations.some(d=>characterNotes.notes[d.declaration_id])&&<Alert color="yellow" data-testid="character-note-warning">Ghi chú nhân vật (vai trò, mô tả, bí danh do AI gợi ý) chỉ lưu trên thiết bị này. Thiết lập setup-v1 chưa có trường cho các thông tin này nên chúng không được gửi lên máy chủ, không vào Canon và không gửi cho AI. Xóa dữ liệu trình duyệt hoặc đổi thiết bị sẽ mất ghi chú.</Alert>}
+   {characterNotes.error&&<Alert color="red">{characterNotes.error}</Alert>}
    {declarations.map((d,i)=><Card withBorder key={d.declaration_id}><Stack><TextInput label={allowOfflineBlueprint?"Tên":`Tên ${i+1}`} value={d.display_name} disabled={!loaded||locked} onChange={e=>{const name=e.currentTarget.value;local.edit(old=>({...old,declarations:old.declarations.map(x=>x.declaration_id===d.declaration_id?{...x,display_name:name}:x)}));}}/>
     <Select label={`Loại ${i+1}`} value={d.entity_type} disabled={locked} allowDeselect={false} data={[{value:'character',label:'Nhân vật'},{value:'location',label:'Địa danh'}]} onChange={v=>local.edit(old=>({...old,declarations:old.declarations.map(x=>x.declaration_id===d.declaration_id?{...x,entity_type:v as SetupDeclaration['entity_type']}:x)}))}/>
-    <Button disabled={locked} variant="subtle" onClick={()=>local.edit(old=>({...old,declarations:old.declarations.filter(x=>x.declaration_id!==d.declaration_id)}))}>Bỏ thẻ {i+1}</Button></Stack></Card>)}
+    {characterNotes.notes[d.declaration_id]&&<Textarea label={`Ghi chú nhân vật ${i+1} (chỉ trên thiết bị)`} value={characterNotes.notes[d.declaration_id].text} autosize minRows={2} onChange={e=>characterNotes.set(d.declaration_id,e.currentTarget.value)} data-testid={`character-note-${i}`}/>}
+    <Button disabled={locked} variant="subtle" onClick={()=>{local.edit(old=>({...old,declarations:old.declarations.filter(x=>x.declaration_id!==d.declaration_id)}));characterNotes.remove(d.declaration_id);}}>Bỏ thẻ {i+1}</Button></Stack></Card>)}
    <Group><Button variant="light" disabled={!loaded||locked} onClick={()=>local.edit(old=>({...old,declarations:[...old.declarations,{declaration_id:'decl_'+crypto.randomUUID().replaceAll('-',''),display_name:'',entity_type:'character'}]}))}>Thêm nhân vật hoặc địa danh</Button><Button variant="default" disabled={!loaded||locked} onClick={()=>setBrainstormTarget('characters')} data-testid="brainstorm-open-characters-btn">AI gợi ý nhân vật</Button></Group>
   </Stack></div>
   {sourceLocked&&<Alert color="blue">Đã gửi nguồn để duyệt. Sửa nội dung trong nhóm duyệt bên dưới; dữ liệu đã chấp nhận chỉ đọc tại đây. Nhân vật đã duyệt có thể hiệu chỉnh qua Hồ sơ trong Bộ nhớ truyện. Để hiệu chỉnh quy tắc thế giới sau khi đã duyệt, sử dụng bảng Quản lý Quy tắc Thế giới bên dưới. Không gửi lại nguồn để ghi đè.</Alert>}
@@ -96,31 +104,22 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
     novelId={novelId}
     defaultTarget={brainstormTarget ?? 'all'}
     expectedBrainVersion={snapshot?.brain_version}
+    onReloadRequested={()=>reload()}
     onAdoptWorldRule={rule=>{
-      local.edit(d=>({
-        ...d,
-        rules:[
-          ...d.rules,
-          {
-            declaration_id: rule.declaration_id || ('rule_' + crypto.randomUUID().replaceAll('-', '')),
-            text: rule.text
-          }
-        ]
-      }));
+      if(locked)return 'Thiết lập đang khóa hoặc chờ khôi phục; không thể thêm vào bản nháp.';
+      // Fresh setup-v1 label each time: re-adopting a replayed suggestion must not duplicate declaration IDs.
+      local.edit(d=>({...d,rules:[...d.rules,{declaration_id:'rule_'+crypto.randomUUID().replaceAll('-',''),text:rule.text}]}));
+      return null;
     }}
     onAdoptCharacter={char=>{
-      local.edit(old=>({
-        ...old,
-        declarations:[
-          ...old.declarations,
-          {
-            declaration_id: char.declaration_id || ('decl_' + crypto.randomUUID().replaceAll('-', '')),
-            display_name: char.display_name,
-            entity_type: 'character'
-          }
-        ]
-      }));
+      if(locked)return 'Thiết lập đang khóa hoặc chờ khôi phục; không thể thêm vào bản nháp.';
+      const declaration_id='decl_'+crypto.randomUUID().replaceAll('-','');
+      local.edit(old=>({...old,declarations:[...old.declarations,{declaration_id,display_name:char.display_name,entity_type:'character'}]}));
+      const note=characterNoteText(char);
+      if(note)characterNotes.set(declaration_id,note);
+      return null;
     }}
+    onAdoptFutureEvent={onAdoptFutureEvent}
   />
  </Stack>;
 }
