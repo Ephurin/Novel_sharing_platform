@@ -34,10 +34,10 @@ function Editor({novelId,onServerChange,onRegisterEventAdopter}:EditorProps){
  const path=`/ai/story-plans/edit-v1/${novelId}`;
  function draft(p:Plan|undefined,data=list):Draft{return{selected:p?.plan_id??null,head:data.head_version,outline:p?.source_outline??'',notes:p?.private_notes??'',chapters:p?.objectives??[]};}
  function remember(id:string|null){try{localStorage.setItem(key+':selection',id??'');}catch{}}
- async function reload(id?:string,replace=false){
+ async function reload(id?:string,replace=false):Promise<boolean>{
   scope.assertCurrent();const signal=scope.signal;setPending(true);
   try{
-   const data=(await apiClient.get<ApiEnvelope<Plans>>(path,{signal})).data.data;if(signal.aborted)return;
+   const data=(await apiClient.get<ApiEnvelope<Plans>>(path,{signal})).data.data;if(signal.aborted)return false;
    scope.assertCurrent();setList(data);setLoaded(true);
    let preferred=id;
    if(preferred===undefined)try{preferred=localStorage.getItem(key+':selection')??undefined;}catch{}
@@ -45,7 +45,8 @@ function Editor({novelId,onServerChange,onRegisterEventAdopter}:EditorProps){
    if(replace){local.accept(draft(p,data));remember(p?.plan_id??null);}
    else if(!local.dirtyRef.current)local.hydrate(draft(p,data));
    else setMessage('Đã đọc phiên bản máy chủ mới. Bản sửa trên máy vẫn được giữ để đối chiếu.');
-  }catch(e){if(!signal.aborted)setMessage(getApiErrorMessage(e));}
+   return true;
+  }catch(e){if(!signal.aborted)setMessage(getApiErrorMessage(e));return false;}
   finally{if(!signal.aborted)setPending(false);}
  }
  useEffect(()=>{void reload();},[novelId]);

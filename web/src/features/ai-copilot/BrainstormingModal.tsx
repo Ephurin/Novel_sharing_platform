@@ -35,8 +35,8 @@ export type BrainstormModalProps = {
   targetChapter?: number;
   expectedBrainVersion?: number;
   expectedPlanVersion?: number;
-  /** Called when the server reports a CAS conflict (409); the host re-reads its authoritative state. */
-  onReloadRequested?: () => void | Promise<void>;
+  /** Called after a CAS conflict (409); the host re-reads its authoritative state and resolves true only if that read succeeded. */
+  onReloadRequested?: () => boolean | Promise<boolean>;
   // Adopt handlers return null on success or a user-facing reason why nothing was adopted.
   // A scope without a handler is not offered and its cards have no adopt button.
   onAdoptWorldRule?: (rule: AdoptedWorldRule) => AdoptResult;
@@ -62,6 +62,19 @@ export type AdoptedFutureEvent = {
 };
 
 const RETRYABLE_STATUSES = new Set([0, 429, 502, 503, 504]);
+// brainstorm-v1 409s that mean "the same keyed request is still owned by a worker": retrying with the
+// SAME key returns that request's result; a new key would start a second provider generation.
+const SAME_KEY_RETRY_CODES = new Set(['IDEMPOTENCY_IN_FLIGHT_CONFLICT', 'IDEMPOTENCY_LEASE_EXPIRED']);
+
+/** retryable = resend the identical keyed request; conflict = re-read server state first; other = new request. */
+export function classifyBrainstormError(status: number, code: string): 'retryable' | 'conflict' | 'other' {
+  if (status === 409) {
+    if (SAME_KEY_RETRY_CODES.has(code)) return 'retryable';
+    if (code === 'IDEMPOTENCY_CONFLICT') return 'other';
+    return 'conflict';
+  }
+  return RETRYABLE_STATUSES.has(status) ? 'retryable' : 'other';
+}
 const TARGET_LABELS: Record<BrainstormTarget, string> = {
   all: 'Tất cả (Quy tắc, Nhân vật, Sự kiện)',
   world_rules: 'Quy tắc thế giới (World Rules)',
@@ -124,10 +137,28 @@ export function BrainstormingModal({
   const activeIdempotencyKeyRef = useRef<string>('');
   const lastRequestRef = useRef<BrainstormRequest | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const openContextRef = useRef<string | null>(null);
 
   // Sync default target and chapters on opened
   useEffect(() => {
     if (opened) {
+      // An error or retry snapshot from an earlier opening is never shown as if it were current.
+      setError('');
+      setErrorCode(null);
+      setErrorKind(null);
+      setAdoptError('');
+      lastRequestRef.current = null;
+      activeIdempotencyKeyRef.current = '';
+      // Suggestions are kept only when reopened for the same scope and chapter.
+      const context = JSON.stringify([defaultTarget, targetChapter]);
+      if (openContextRef.current !== context) {
+        setRules([]);
+        setCharacters([]);
+        setEvents([]);
+        setProvenance(null);
+        setAdoptedIds(new Set());
+      }
+      openContextRef.current = context;
       setTarget(pickTarget(defaultTarget));
       if (targetChapter) setTargetChap(targetChapter);
       if (currentChapter !== undefined) setCurrentChap(currentChapter);
@@ -165,9 +196,13 @@ export function BrainstormingModal({
       if (controller.signal.aborted) return;
       if (err instanceof ApiClientError) {
         setErrorCode(err.code);
-        // 409 = CAS / idempotency conflict: re-read server state, never blind-retry.
-        setErrorKind(err.status === 409 ? 'conflict' : RETRYABLE_STATUSES.has(err.status) ? 'retryable' : 'other');
-        if (err.status === 409) {
+        const kind = classifyBrainstormError(err.status, err.code);
+        setErrorKind(kind);
+        if (kind === 'retryable' && err.status === 409) {
+          setError(`Yêu cầu này vẫn đang được máy chủ xử lý (${err.code}). Nhấn "Thử lại an toàn" để nhận kết quả của chính yêu cầu đó; không tạo yêu cầu mới.`);
+        } else if (err.code === 'IDEMPOTENCY_CONFLICT') {
+          setError(`Khóa yêu cầu đã dùng cho nội dung khác (${err.code}). Nhấn "Tạo gợi ý AI" để gửi yêu cầu mới.`);
+        } else if (err.status === 409) {
           setError(`Xung đột phiên bản (${err.code}). Trạng thái Story Brain hoặc Dàn ý đã thay đổi trên máy chủ. Đọc lại trạng thái máy chủ rồi tạo yêu cầu mới; không thử lại yêu cầu cũ.`);
         } else if (err.status === 429) {
           setError(`Đã chạm giới hạn yêu cầu AI (${err.code}). Nhấn "Thử lại an toàn" sau ít phút.`);
@@ -227,7 +262,12 @@ export function BrainstormingModal({
     if (!onReloadRequested) return;
     setReloading(true);
     try {
-      await onReloadRequested();
+      // Hosts report whether the authoritative re-read actually succeeded; only then is the conflict cleared.
+      const ok = await onReloadRequested();
+      if (!ok) {
+        setError('Không đọc lại được trạng thái máy chủ. Kiểm tra kết nối rồi nhấn "Đọc lại trạng thái máy chủ" lần nữa; yêu cầu cũ chưa được gửi lại.');
+        return;
+      }
       setError('');
       setErrorCode(null);
       setErrorKind(null);

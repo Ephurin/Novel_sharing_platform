@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
+import { tmpdir } from 'node:os';
 import { createServer } from 'vite';
 import { chromium, expect } from '@playwright/test';
 
@@ -35,7 +36,9 @@ test('P2-06B Regression: AI Brainstorming UI Draft-Only Adoption & Invariant Lif
   });
 
   const origin = server.resolvedUrls.local[0];
-  const out = process.env.P206B_EVIDENCE_DIR || join(root, '../docs/development/p2/evidence/p2-06b');
+  // Default to a temp dir so local runs never overwrite the committed evidence screenshot;
+  // set P206B_EVIDENCE_DIR to docs/development/p2/evidence/p2-06b only when recording new evidence.
+  const out = process.env.P206B_EVIDENCE_DIR || join(tmpdir(), 'p2-06b-evidence');
   await mkdir(out, { recursive: true });
 
   const novelId = '10000000-0000-4000-8000-000000000001';

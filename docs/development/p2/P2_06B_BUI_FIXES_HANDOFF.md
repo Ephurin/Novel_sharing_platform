@@ -82,3 +82,21 @@ node --test tests/author-ide.browser.test.mjs tests/draft-persistence.browser.te
 
 CI: `.github/workflows/p2-setup-provenance.yml` now runs both P2-06B browser suites
 (Chromium) on PRs into `integration/p2-planning-studio`.
+
+## Review round 1 (2026-11-12) — Claude code review, all 7 findings fixed
+
+Roles changed on 2026-11-12: Claude is developer + primary reviewer, the owner decides and merges (the GPT-6 reviewer is no longer available).
+
+| # | Finding | Fix | Test |
+|---|---|---|---|
+| 1 | 409 `IDEMPOTENCY_IN_FLIGHT_CONFLICT` / `IDEMPOTENCY_LEASE_EXPIRED` treated as CAS conflict → new key, second provider generation | `classifyBrainstormError`: these are same-key retryable; `IDEMPOTENCY_CONFLICT` → new request; other 409 → reload | `rv-retry-reload` |
+| 2 | "Đọc lại trạng thái máy chủ" cleared the conflict even when the host re-read failed | hosts' `reload()` return `true` only on a successful read; modal keeps the error otherwise | `rv-retry-reload` |
+| 3 | `character-notes` wrote storage / set state inside a setState updater | ref-based pure update, side effects outside the updater | build + `bui03` |
+| 4 | stale suggestions, errors and retry snapshot survived close/reopen | errors + retry snapshot reset on every open; suggestions kept only for the same scope + chapter | `rv-reopen-prune` |
+| 5 | notes orphaned when a draft was discarded | `retainOnly` prunes notes not in the visible draft (skipped while a device backup awaits recovery) | `rv-reopen-prune` |
+| 6 | `npm run test:p2-06b` overwrote the committed evidence PNG | legacy suite defaults to a temp dir; set `P206B_EVIDENCE_DIR` to record evidence | local run leaves `docs/` clean |
+| 7 | no coverage for refused adopt / idempotency 409 | new scenarios `rv-adopt-refused`, `rv-retry-reload` | — |
+
+Local re-run after fixes: `tsc -b`, `npm run build`, `p2-06b-bui-regressions` (8 scenarios), `p2-06b-brainstorming`, `planning-studio`, `p2-07a`, `p2-07b`, `p2-07f` — all exit 0. P1 writer suites and CI: see the PR checks on the new HEAD.
+
+Note: the P2-07a/b/f suites still write their screenshots into the committed `docs/.../evidence` folders by default (pre-existing, out of scope here); restore them after local runs.

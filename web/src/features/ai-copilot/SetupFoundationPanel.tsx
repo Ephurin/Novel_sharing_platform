@@ -23,15 +23,19 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
  const [snapshot,setSnapshot]=useState<SetupSnapshot|null>(null),[message,setMessage]=useState(''),[pending,setPending]=useState(false),[loaded,setLoaded]=useState(false);
  const [brainstormTarget,setBrainstormTarget]=useState<BrainstormTarget|null>(null);
  function fromServer(v:SetupSnapshot|null):Draft{return{base:v?.setup_version??0,text:v?.snapshot.text??'',outline:v?.outline??'',rules:v?.snapshot.world_rules??[],declarations:v?.snapshot.declarations??[],mode:v?.mode??'extract'};}
- async function reload(replace=false){
+ async function reload(replace=false):Promise<boolean>{
   const signal=scope.signal;scope.assertCurrent();setPending(true);setMessage('');
   try{let value:SetupSnapshot|null=null;try{value=await getSetup(novelId,undefined,signal);}catch(e){if(!(e instanceof ApiClientError&&e.status===404))throw e;}
-   if(signal.aborted)return;setSnapshot(value);setLoaded(true);
+   if(signal.aborted)return false;setSnapshot(value);setLoaded(true);
    if(replace)local.accept(fromServer(value));else if(!local.dirtyRef.current)local.hydrate(fromServer(value));else setMessage('Đã đọc bản máy chủ. Bản sửa của bạn vẫn được giữ; chọn bỏ bản sửa nếu muốn dùng bản máy chủ.');
    onServerChange?.();
-  }catch(e){if(!signal.aborted)setMessage(getApiErrorMessage(e));}finally{if(!signal.aborted)setPending(false);}
+   return true;
+  }catch(e){if(!signal.aborted)setMessage(getApiErrorMessage(e));return false;}finally{if(!signal.aborted)setPending(false);}
  }
  useEffect(()=>{void reload();},[novelId]);
+ // Notes belong to declarations in the visible draft. While a device backup awaits recovery its
+ // declarations are not visible yet, so nothing is pruned until the author recovers or discards it.
+ useEffect(()=>{if(loaded&&!local.backup)characterNotes.retainOnly(declarations.map(d=>d.declaration_id));},[loaded,local.backup,declarations]);
  async function submit(){
   scope.assertCurrent();const signal=scope.signal;setPending(true);setMessage('');
   const body={contract_version:'setup-v1' as const,novel_id:novelId,mode:allowOfflineBlueprint?mode:'extract' as const,expected_setup_version:local.value.base,
@@ -81,8 +85,8 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
   <Text size="sm" c="dimmed">{local.dirty?'Bản sửa trên thiết bị — chưa lưu máy chủ.':loaded?'Đã đọc trạng thái máy chủ.':''}</Text>
   {message&&<Alert role="alert">{message}</Alert>}
   {snapshot&&<><Text size="sm">Bản {snapshot.setup_version} · {snapshot.review?'Đã lưu quyết định':snapshot.job_status==='waiting_review'?'Chờ duyệt':snapshot.job_status} · {snapshot.proposals.length} đề xuất</Text>
-   <div hidden={!(world || people)}><SetupReviewGroup key={`${snapshot.snapshot_id}:${snapshot.review_version}`} snapshot={snapshot} onReload={()=>reload()}/></div>
-   {snapshot.review&&<SetupM0Activation key={`${snapshot.snapshot_id}:${snapshot.brain_version}`} snapshot={snapshot} onReload={()=>reload()}/>}
+   <div hidden={!(world || people)}><SetupReviewGroup key={`${snapshot.snapshot_id}:${snapshot.review_version}`} snapshot={snapshot} onReload={async()=>{await reload();}}/></div>
+   {snapshot.review&&<SetupM0Activation key={`${snapshot.snapshot_id}:${snapshot.brain_version}`} snapshot={snapshot} onReload={async()=>{await reload();}}/>}
    {snapshot.proposals.filter(c=>!planningStep||(world?c.card_type==='world_rule':people?c.card_type!=='world_rule':false)).map(c=><Card withBorder key={c.proposal_id}><Group><Badge>{c.origin==='author_declared'?'Tác giả khai báo':c.origin==='extracted_explicit'?'Từ nguồn rõ ràng':'AI đề xuất'}</Badge><Badge>{c.unresolved?'Chưa hỗ trợ':c.status==='accepted'?'Đã duyệt':c.status==='rejected'?'Đã loại':'Chờ duyệt'}</Badge></Group><Text>{String(c.reviewed_payload?.canonical_name??c.reviewed_payload?.fact_value??c.payload.canonical_name??c.payload.fact_value??'')}</Text><Text size="sm" c="dimmed">Ban đầu: {String(c.payload.canonical_name??c.payload.fact_value??c.payload.attribute_key??"")}</Text><Text size="xs">Nguồn: {c.source_refs.map(r=>String(r.field_path??'gợi ý')).join(', ')}</Text></Card>)}</>}
   <div hidden={!world}>
     <Divider my="md" label="Hiệu chỉnh Quy tắc Thế giới sau M0 (UX-05)" labelPosition="center" />

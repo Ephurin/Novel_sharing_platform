@@ -41,6 +41,7 @@ function freshState(overrides = {}) {
     },
     plans: { head_version: 0, active_plan_id: null, plans: [] },
     fail: null, // { status, code } for the next brainstorm calls while set
+    failSetupGet: false, // setup GET answers 503 while set (reload failure)
     ...overrides,
   };
 }
@@ -96,7 +97,7 @@ test('P2-06B BUI-01..04 regressions against contract-enforcing mocks', { timeout
       if (path === `/ai/story-brains/${novelId}/extraction-status`) return send([]);
       if (path === `/ai/story-brains/${novelId}/memory`) return send({ brain_version: state.brainVersion, entities: [], relationships: [], facts: [], recent_events: [] });
 
-      if (path === `/ai/story-brains/${novelId}/setup` && method === 'GET') return send(state.setupSnapshot);
+      if (path === `/ai/story-brains/${novelId}/setup` && method === 'GET') return state.failSetupGet ? fail('SETUP_SERVICE_UNAVAILABLE', 503) : send(state.setupSnapshot);
       if (path === '/ai/story-brains/bootstrap/from-idea' && method === 'POST') {
         // setup-v1 strict DTO: Declaration has extra='forbid'.
         const setup = body.setup;
@@ -333,6 +334,92 @@ test('P2-06B BUI-01..04 regressions against contract-enforcing mocks', { timeout
       await expect(page.getByTestId('brainstorm-rule-card-0')).toBeVisible({ timeout: 5000 });
       assert.equal(brainstorms.at(-1).expected_brain_version, 2, 'Fresh request must carry the reloaded brain version');
       await page.screenshot({ path: join(out, 'p2-06b-bui-final-state.png') }).catch(() => {});
+      await context.close();
+    }
+
+    // ---------------------------------------------------------------------
+    // Review findings 1 + 2: in-flight 409 retries with the SAME key; a
+    // failed server re-read keeps the conflict visible instead of clearing it.
+    // ---------------------------------------------------------------------
+    if (run('rv-retry-reload')) {
+      const state = freshState();
+      const { context, page, brainstorms, step, modal } = await open(state);
+      await step('Thế giới');
+      await page.getByTestId('brainstorm-open-rules-btn').click();
+      await expect(modal).toBeVisible();
+      state.fail = { status: 409, code: 'IDEMPOTENCY_IN_FLIGHT_CONFLICT' };
+      await page.getByTestId('brainstorm-submit-btn').click();
+      await expect(page.getByTestId('brainstorm-safe-retry-btn')).toBeEnabled({ timeout: 5000 });
+      await expect(page.getByTestId('brainstorm-reload-btn')).toHaveCount(0);
+      const key = brainstorms.at(-1).idempotency_key;
+      state.fail = null;
+      await page.getByTestId('brainstorm-safe-retry-btn').click();
+      await expect(page.getByTestId('brainstorm-rule-card-0')).toBeVisible({ timeout: 5000 });
+      assert.equal(brainstorms.at(-1).idempotency_key, key, 'In-flight 409 must be retried with the same key');
+
+      state.brainVersion = 2;
+      state.setupSnapshot = { ...state.setupSnapshot, brain_version: 2 };
+      state.failSetupGet = true;
+      await page.getByTestId('brainstorm-submit-btn').click();
+      await expect(page.getByTestId('brainstorm-reload-btn')).toBeVisible({ timeout: 5000 });
+      await page.getByTestId('brainstorm-reload-btn').click();
+      await expect(page.getByTestId('brainstorm-error-alert')).toContainText('Không đọc lại được', { timeout: 5000 });
+      state.failSetupGet = false;
+      await page.getByTestId('brainstorm-reload-btn').click();
+      await expect(page.getByTestId('brainstorm-error-alert')).toHaveCount(0, { timeout: 5000 });
+      await page.getByTestId('brainstorm-submit-btn').click();
+      await expect(page.getByTestId('brainstorm-rule-card-0')).toBeVisible({ timeout: 5000 });
+      assert.equal(brainstorms.at(-1).expected_brain_version, 2);
+      await context.close();
+    }
+
+    // ---------------------------------------------------------------------
+    // Review finding 7: adopt refused (plan shown read-only) is reported and
+    // nothing is marked adopted or written.
+    // ---------------------------------------------------------------------
+    if (run('rv-adopt-refused')) {
+      const state = freshState({
+        plans: {
+          head_version: 1, active_plan_id: null,
+          plans: [{ plan_id: '80000000-0000-4000-8000-000000000009', plan_version: 1, status: 'draft', effective_status: 'archived', source_outline: '', objectives: [{ objective_id: '90000000-0000-4000-8000-000000000009', intent_version: 1, target_chapter: 1, title: 'Chương 1', description: '', events: [], dependencies: [] }], action: 'save', can_save: false, can_fork: true, can_activate: false, can_archive: false }],
+        },
+      });
+      const { context, page, modal } = await open(state);
+      await page.getByTestId('brainstorm-open-idea-btn').click();
+      await expect(modal).toBeVisible();
+      await page.getByTestId('brainstorm-submit-btn').click();
+      await expect(page.getByTestId('brainstorm-event-card-0')).toBeVisible({ timeout: 5000 });
+      await page.getByTestId('adopt-event-btn-0').click();
+      await expect(page.getByTestId('brainstorm-adopt-error')).toContainText('chỉ đọc');
+      await expect(page.getByTestId('event-adopted-badge-0')).toHaveCount(0);
+      await context.close();
+    }
+
+    // ---------------------------------------------------------------------
+    // Review findings 4 + 5: reopening for another scope starts clean; notes
+    // of a discarded draft are removed from the device.
+    // ---------------------------------------------------------------------
+    if (run('rv-reopen-prune')) {
+      const state = freshState();
+      const { context, page, step, modal } = await open(state);
+      await step('Thế giới');
+      await page.getByTestId('brainstorm-open-rules-btn').click();
+      await page.getByTestId('brainstorm-submit-btn').click();
+      await expect(page.getByTestId('brainstorm-rule-card-0')).toBeVisible({ timeout: 5000 });
+      await page.getByTestId('brainstorm-close-btn').click();
+      await step('Nhân vật');
+      await page.getByTestId('brainstorm-open-characters-btn').click();
+      await expect(modal).toBeVisible();
+      await expect(page.getByTestId('brainstorm-rule-card-0')).toHaveCount(0);
+      await page.getByTestId('brainstorm-submit-btn').click();
+      await page.getByTestId('adopt-character-btn-0').click();
+      await page.getByTestId('brainstorm-close-btn').click();
+      const notesKey = `ephurin-planning:author-101:${novelId}:character-notes`;
+      const countNotes = () => page.evaluate(k => Object.keys(JSON.parse(localStorage.getItem(k) ?? '{"notes":{}}').notes).length, notesKey);
+      assert.equal(await countNotes(), 1);
+      await page.getByRole('button', { name: 'Bỏ bản sửa, dùng thiết lập máy chủ' }).click();
+      await expect(page.getByRole('textbox', { name: 'Tên 1' })).toHaveCount(0, { timeout: 5000 });
+      await expect.poll(countNotes).toBe(0);
       await context.close();
     }
 
