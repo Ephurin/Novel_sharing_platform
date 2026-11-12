@@ -235,7 +235,10 @@ export async function softRemoveNovelAggregate(client: DbClient, novelId: string
 // Restore of a removal made before sanctions existed. That removal stamped the novel and its then-live chapters
 // with the same transaction time, so only chapters carrying exactly the novel's deleted_at come back; a chapter
 // the author deleted earlier keeps its own, older deleted_at and stays deleted (D6: never resurrect).
+// removedAt is that removal's time, for the Mongo draft restore.
 export async function restoreNovelAggregate(client: DbClient, novelId: string) {
+  const removedAt: Date | null =
+    (await client.query('select deleted_at from novels where novel_id = $1 for update', [novelId])).rows[0]?.deleted_at ?? null;
   const restoredChapters = await client.query(
     `
       update chapters c
@@ -260,7 +263,8 @@ export async function restoreNovelAggregate(client: DbClient, novelId: string) {
 
   return {
     novel: mapAdminNovel(novelResult.rows[0]),
-    chapterIds: restoredChapters.rows.map((row) => row.chapter_id as string)
+    chapterIds: restoredChapters.rows.map((row) => row.chapter_id as string),
+    removedAt
   };
 }
 

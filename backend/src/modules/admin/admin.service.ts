@@ -91,7 +91,7 @@ export async function restoreNovel(auth: AuthContext, novelId: string, input: Re
       if (!before?.deletedAt)
         throw new AppError(409, 'ADMIN_NOT_REMOVED', 'Content is not removed');
       const restored = await restoreNovelAggregate(client, novelId);
-      await restoreDraftChaptersByNovelId(novelId, restored?.chapterIds ?? []);
+      await restoreDraftChaptersByNovelId(novelId, restored?.chapterIds ?? [], restored?.removedAt ?? null);
       await audit(client, auth, {
         action: 'NOVEL_RESTORED',
         targetType: 'NOVEL',
