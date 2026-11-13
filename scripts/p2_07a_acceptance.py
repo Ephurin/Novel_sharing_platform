@@ -17,7 +17,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, required=True,
                         help="New directory outside the checkout")
-    parser.add_argument("--suite", choices=("p2-07a", "p2-08a"), default="p2-07a")
+    parser.add_argument("--suite", choices=("p2-07a", "p2-08a", "p2-08b"), default="p2-07a")
     options = parser.parse_args()
     output = options.output.resolve()
     if output.is_relative_to(ROOT):
@@ -33,9 +33,12 @@ def main():
     parent = next(line.split()[1] for line in commit.splitlines() if line.startswith("parent "))
     receipt = {"sha": sha, "parent_sha": parent, "commands": [], "scenarios": {}}
     scenarios = ("S1", "S2")
-    if options.suite == "p2-08a":
+    if options.suite in ("p2-08a", "p2-08b"):
         receipt["base_sha"] = "c68da683f4e5ee312a364e2d4a8dec4a7fbfcd97"
         scenarios += ("S3-5", "S3-10", "S3-21", "S4")
+    if options.suite == "p2-08b":
+        receipt["base_sha"] = "7a01fa8650b14e889f3a631bee19b66940711b6b"
+        scenarios += ("S5", "S6", "S7")
     if os.getenv("GITHUB_RUN_ID"):
         receipt["ci_url"] = f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/actions/runs/{os.environ['GITHUB_RUN_ID']}"
 
@@ -77,7 +80,8 @@ def main():
         assert all(topology["networks"][name]["internal"] for name in ai["networks"])
         for scenario in scenarios:
             result = run(["node", "--test", "--test-reporter=tap",
-                          "web/tests/p2-07a-integrated.browser.test.mjs"], {
+                          "web/tests/p2-08b-integrated.browser.test.mjs" if scenario in ("S5", "S6", "S7")
+                          else "web/tests/p2-07a-integrated.browser.test.mjs"], {
                 **os.environ, "NODE_OPTIONS": "",
                 "P207A_SCENARIO": scenario,
                 "P1_ACCEPTANCE_CONFIG": str(private / "private-stack.json"),

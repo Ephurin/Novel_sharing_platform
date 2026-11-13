@@ -130,7 +130,11 @@ def evidence(f,provider,job,before,case):
     canon_after={k:v for k,v in after.items() if k!='writing_generations'}
     assert canon_before==canon_after
     digest=lambda data:hashlib.sha256(json.dumps(data,sort_keys=True).encode()).hexdigest()
-    print('F04_WORKER '+json.dumps(dict(case=case,job=asdict(job),provider_calls=len(provider.payloads),payloads=provider.payloads,canonical_before_sha256=digest(canon_before),canonical_after_sha256=digest(canon_after),platform_before={k:before[k] for k in ('chapter_revisions','revision_outbox_events','chapters','mongo')},platform_after={k:after[k] for k in ('chapter_revisions','revision_outbox_events','chapters','mongo')}),default=str))
+    print('F04_WORKER '+json.dumps(dict(case=case,revision_id=f.src.revision_id,
+        source_sha256=hashlib.sha256(before['chapter_revisions'][0]['content'].encode()).hexdigest(),
+        provider_calls=len(provider.payloads),payload_fields=[sorted(p) for p in provider.payloads],
+        context_fields=[sorted(p['context_package']) for p in provider.payloads],
+        canonical_before_sha256=digest(canon_before),canonical_after_sha256=digest(canon_after)),default=str))
 
 
 def assert_blocked(job,provider,caplog):
@@ -169,6 +173,12 @@ def test_async_provider_payload_authority(worker,creator,caplog):
         assert 'LegacyOutlinePrivate' not in json.dumps(context)
         assert 'F04RootPrivateOnly' not in json.dumps(context)
         assert 'F04SetupPrivateOnly' not in json.dumps(provider.payloads)
+        if creator == 'owned-manual':
+            assert 'Respect the approved world rule' in json.dumps(context['world_rules'])
+            assert 'Setup Keeper' in json.dumps(context['entities'])
+            assert 'F04PlannedOnly' not in json.dumps(context['recent_events'])
+            assert all(marker not in json.dumps(provider.payloads) + response.text + caplog.text
+                       for marker in ('LegacyOutlinePrivate', 'F04RootPrivateOnly', 'F04SetupPrivateOnly'))
     evidence(f,provider,job,before,str(creator))
 
 

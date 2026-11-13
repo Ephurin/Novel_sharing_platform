@@ -5,8 +5,8 @@ export function fixtures(h) {
   const { api, sql, page } = h;
   const editor = () => page.locator('textarea.sc-manuscript');
   const ide = (novel, chapter) => `${h.origin}/author/ide?novelId=${novel}${chapter ? '&chapterId=' + chapter : ''}`;
-  const login = async account => {
-    await page.goto(h.origin + '/login');
+  const login = async (account, { alreadyOnLogin = false } = {}) => {
+    if (!alreadyOnLogin) await page.goto(h.origin + '/login');
     await page.getByLabel('Email or username', { exact: true }).fill(account.email);
     await page.getByLabel('Password', { exact: true }).fill(account.password);
     const response = page.waitForResponse(r => r.url().endsWith('/api/v1/auth/login') && r.request().method() === 'POST');
