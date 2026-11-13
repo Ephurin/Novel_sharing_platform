@@ -365,8 +365,11 @@ test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapte
     force503OnChapterCreate = false;
     await retryBtn.click();
 
-    // Verify second request used the EXACT SAME clientRequestId
-    const createAttempts = writes.filter(w => w.path.endsWith('/chapters') && w.method === 'POST');
+    // Verify second request used the EXACT SAME clientRequestId.
+    // Wait for the retry to reach the network: the click returns before axios dispatches it.
+    const chapterCreates = () => writes.filter(w => w.path.endsWith('/chapters') && w.method === 'POST');
+    await expect.poll(() => chapterCreates().length, { timeout: 5000 }).toBe(2);
+    const createAttempts = chapterCreates();
     assert.equal(createAttempts.length, 2, 'Must have attempted exactly 2 times');
     assert.equal(createAttempts[1].body.clientRequestId, firstRequestId, 'Retry must reuse identical clientRequestId');
     console.log('✓ UX-04: 503 error displayed and safe retry used identical clientRequestId: ' + firstRequestId);

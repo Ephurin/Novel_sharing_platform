@@ -434,6 +434,8 @@ test('P2-07B Regression: UX-03 World Setup Review Accessibility', {
 
     // Retry submission without modifying draft
     await saveDecisionsBtn.click();
+    // The click resolves before the retried request reaches the mock; wait for it.
+    await expect.poll(() => writes.slice(writeCountBefore503).filter(w => w.path.endsWith('/review')).length, { timeout: 5000 }).toBe(2);
 
     // Verify both requests used the EXACT same idempotency key from draft.operationKey(body)
     const reviewWritesAfterRetry = writes.slice(writeCountBefore503).filter(w => w.path.endsWith('/review'));
