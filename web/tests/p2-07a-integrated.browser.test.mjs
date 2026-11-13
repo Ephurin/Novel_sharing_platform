@@ -27,6 +27,7 @@ test(`${scenario} first chapter through the real Gateway`, {
     let persistedPlan;
     let chapterOne;
     let homonyms;
+    let confirmedMinh;
     const planPath = `/ai/story-plans/edit-v1/${novelId}`;
     function planRows(state) {
       const active = state['narrative.story_plans'].filter(row => row.status === 'active');
@@ -315,8 +316,10 @@ test(`${scenario} first chapter through the real Gateway`, {
         assert.equal(minhs.length, 3);
         const existing = pending['narrative.entities'].find(e => e.canonical_name === 'Minh');
         assert.ok(existing);
+        confirmedMinh = existing.id;
         const selected = new Map(minhs.map((c, i) => [c.candidate_id, {
-          candidate_id: c.candidate_id, verdict: 'entity', entity_type: 'PER',
+          candidate_id: c.candidate_id, verdict: 'entity', entity_type: 'PER', canonical_name: 'Minh',
+          reason: i === 1 ? 'Author identifies the driver as a distinct person' : 'Author identifies the doctor',
           ...(i === 1 ? { provisional_identity_key: `${audit.provisional_identity_scope}/driver` }
             : { canonical_entity_id: existing.id }),
         }]));
@@ -360,17 +363,17 @@ test(`${scenario} first chapter through the real Gateway`, {
         homonyms = after['narrative.entities'].filter(e => e.canonical_name === 'Minh');
         assert.equal(homonyms.length, 2);
         assert.equal(new Set(homonyms.map(e => e.id)).size, 2);
-        const mentions = after['narrative.entity_mentions'].filter(row => row.revision_id === chapterOne.revision_id);
-        assert.deepEqual(mentions.filter(row => row.surface_text === 'Minh')
-          .reduce((counts, row) => counts.set(row.entity_id, (counts.get(row.entity_id) ?? 0) + 1), new Map())
-          .size, 2);
+        const mentions = after['narrative.entity_mentions'].filter(row =>
+          row.revision_id === chapterOne.revision_id && row.surface_text === 'Minh');
+        assert.equal(mentions.filter(row => row.entity_id === confirmedMinh).length, 2);
+        assert.equal(mentions.filter(row => row.entity_id !== confirmedMinh).length, 1);
         assert.ok(!JSON.stringify(after['narrative.entity_mentions']).includes('Unverified Vesper'));
       }
       assert.ok(!JSON.stringify(after['narrative.events']).includes('FutureOnlyBetrayal'));
     });
     if (scenario === 'S4') {
       await h.step('Second genuine revision links a confirmed identity across chapters', async () => {
-        const existing = homonyms.find(row => row.static_attributes?.mentions === 0) ?? homonyms[0];
+        const existing = homonyms.find(row => row.id === confirmedMinh);
         const { data: chapter } = await h.api('POST', `/novels/${novelId}/chapters`, {
           title: 'Second chapter', content: '', clientRequestId: randomUUID(),
         }, author.token);
