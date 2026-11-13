@@ -269,6 +269,10 @@ jobs:
           EMBEDDING_PROVIDER: fake
           SEMANTIC_RETRIEVAL_ENABLED: "true"
           ACTIVE_EMBEDDING_VERSION: fake-embedding-768-v1
+          # The P8 AI-PIPE gates below validate the legacy entity-v1 persistence path. Root compose
+          # now enables the entity-first checkpoint by default (#132); that path is covered by the
+          # P2 integrated jobs in p2-setup-provenance.yml.
+          ENTITY_CANDIDATE_VERIFICATION_ENABLED: "false"
         run: docker compose up -d --build postgres mongodb ai-service backend web
       - name: Wait for health
         run: |

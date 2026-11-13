@@ -482,12 +482,23 @@ class ManuscriptBootstrapService:
             raise KeyError(job_id)
         if (job.result or {}).get('contract_version') == 'setup-v1':
             raise BootstrapConflictError('SETUP_ACTIVATION_NOT_AVAILABLE')
+        # With the entity-first checkpoint on, a bootstrap chapter pauses for the author's entity
+        # review and its proposals only exist after "continue". The baseline is activated after
+        # review, so it waits for those reviews and for every proposal the job's runs produced.
+        run_ids = {item.analysis_run_id for item in job.revisions if item.analysis_run_id}
+        list_reviews = getattr(self._repository, "list_entity_reviews", None)
+        if run_ids and callable(list_reviews):
+            try:
+                reviews = list_reviews(novel_id)
+            except BootstrapConflictError:
+                reviews = []
+            if any(r.get("analysis_run_id") in run_ids for r in reviews):
+                raise BootstrapConflictError("BOOTSTRAP_ENTITY_REVIEW_PENDING")
         required = set((job.result or {}).get("required_proposal_ids", []))
-        pending = {
-            item.proposal_id
-            for item in self._repository.list_proposals(novel_id, status="pending")
-        }
-        unresolved = sorted(required & pending)
+        pending_items = self._repository.list_proposals(novel_id, status="pending")
+        pending = {item.proposal_id for item in pending_items}
+        produced = {item.proposal_id for item in pending_items if item.analysis_run_id in run_ids}
+        unresolved = sorted((required & pending) | produced)
         if unresolved:
             raise BaselineReviewRequiredError(unresolved)
         baseline_revision_id = job.revisions[-1].revision_id if job.revisions else None

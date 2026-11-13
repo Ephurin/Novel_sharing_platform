@@ -7,6 +7,7 @@ import { getNovel, listChapters } from '../novels/novel-api';
 import {
   acceptProposalGroup,
   activateBaseline,
+  baselineActivationBlockedMessage,
   getBootstrapJob,
   getReviewQueue,
   getStoryBrainSummary,
@@ -287,7 +288,7 @@ export function ManuscriptImportPage() {
       showToast('Đã kích hoạt Story Brain baseline thành công! Sẵn sàng trong Studio.');
       queryClient.invalidateQueries({ queryKey: ['story-brain-summary', novelId] });
     },
-    onError: (err: any) => showToast('Lỗi kích hoạt baseline: ' + (err?.message || 'Thất bại'))
+    onError: (err: any) => showToast(baselineActivationBlockedMessage(err) ?? 'Lỗi kích hoạt baseline: ' + (err?.message || 'Thất bại'))
   });
 
   // Main Action: Confirm Import Chapters to Novel

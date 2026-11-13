@@ -27,6 +27,7 @@ import {
   type WorldRuleLineageEntry,
 } from './setup-api';
 import { getApprovedMemory, type ApprovedMemory, type MemoryFact } from './author-memory-api';
+import { useMemoryChanged } from './memory-events';
 
 export type WorldRuleFact = {
   fact_id: string;
@@ -417,6 +418,9 @@ export function WorldRuleAmendmentManager({
     void reloadRules();
   }, [novelId, initialBrainVersion, m0Active]);
 
+  // #137: Canon approvals elsewhere advance the Brain version; re-read it so the next submit is not a stale 409.
+  useMemoryChanged(novelId, () => void reloadRules(true));
+
   // Load history modal
   async function openHistory(factId: string) {
     setHistoryFactId(factId);
@@ -562,6 +566,8 @@ export function WorldRuleAmendmentManager({
                         onClick={() => {
                           setActionSuccess('');
                           setProposingFactId(rule.fact_id);
+                          // #137: open the form on the current Brain version, not the one read at mount.
+                          void reloadRules(true);
                         }}
                         data-testid={`propose-btn-${rule.fact_id}`}
                       >

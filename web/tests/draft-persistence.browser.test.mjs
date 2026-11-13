@@ -158,6 +158,20 @@ test('mounted draft hook: Undo, serial saves, chapter/account isolation, 409 and
     await edit('Remount recovery'); await page.evaluate(() => window.remount()); await ready();
     assert.equal(await page.getByTestId('recovery').textContent(), 'Remount recovery');
     await page.waitForTimeout(1400); assert.equal((await readback(x)).draft.content, beforeRemount);
+    // #136: a transient failure (store down) retries on its own with backoff; no keystroke or click needed.
+    let failNext = true;
+    await page.route(config.base + '/chapters/' + x, async route => {
+      if (route.request().method() === 'PATCH' && failNext) {
+        failNext = false;
+        return route.fulfill({ status: 500, contentType: 'application/json', body: JSON.stringify({ error: { code: 'INTERNAL_ERROR', message: 'store unavailable' } }) });
+      }
+      return route.fallback();
+    });
+    await edit('Auto retry after outage');
+    await page.waitForFunction(() => window.draft.status === 'error');
+    assert.match(await page.getByTestId('error').textContent(), /tự thử lưu lại sau 2 giây/);
+    await page.waitForFunction(() => window.draft.status === 'saved' && !window.draft.dirty, null, { timeout: 15000 });
+    assert.equal((await readback(x)).draft.content, 'Auto retry after outage');
     assert.deepEqual(pageErrors, []);
     await page.screenshot({ path: fileURLToPath(new URL('draft-persistence.png', evidence)), fullPage: true });
     const sourceHashes = {};
@@ -169,7 +183,7 @@ test('mounted draft hook: Undo, serial saves, chapter/account isolation, 409 and
       sourceState: 'working tree; hashes identify tested frontend source', sourceHashes,
       rapidUndo: { writes: 0, initialHash: initial.revisions[0].content_hash, unchangedRevisionsAndOutbox: true },
       finalSnapshot: { contentHash: finalRevision.contentHash, revisionHashes: finalState.revisions.map(row => row.content_hash), outboxHashes: finalState.outbox.map(row => row.content_hash) },
-      passed: ['rapid Undo', 'latest full buffer', 'in-flight serial save', 'chapter isolation', 'route blocker', 'same chapter account switch', 'account-scoped recovery', '409 recovery', 'immutable revision/outbox hash', 'in-flight account switch', 'router remount recovery', 'React Strict Mode', 'review labels with score-only rating', 'light desktop', 'dark mobile']
+      passed: ['rapid Undo', 'latest full buffer', 'in-flight serial save', 'chapter isolation', 'route blocker', 'same chapter account switch', 'account-scoped recovery', '409 recovery', 'immutable revision/outbox hash', 'in-flight account switch', 'router remount recovery', 'transient failure auto-retry', 'React Strict Mode', 'review labels with score-only rating', 'light desktop', 'dark mobile']
     }, null, 2) + '\n');
   } finally {
     if (browser) await sanitizedTrace(browser.contexts()[0], evidence, 'draft-trace');

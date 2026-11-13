@@ -270,6 +270,13 @@ jobs:
           set -euo pipefail
           node --test tests/p2-06b-brainstorming.browser.test.mjs 2>&1 | tee "$RUNNER_TEMP/p202/p2-06b-regression.log"
           node --test tests/p2-06b-bui-regressions.browser.test.mjs 2>&1 | tee "$RUNNER_TEMP/p202/p2-06b-bui-regression.log"
+      - name: P2-10 completion regressions (#133 memory entry, #134 future target, #135 cross-tab backup)
+        working-directory: web
+        env:
+          PLAYWRIGHT_CHANNEL: chromium
+        run: |
+          set -euo pipefail
+          node --test tests/p2-10-completion.browser.test.mjs 2>&1 | tee "$RUNNER_TEMP/p202/p2-10-completion.log"
       - name: Mounted P1 Writer autosave recovery on isolated PG Mongo
         working-directory: web
         env:

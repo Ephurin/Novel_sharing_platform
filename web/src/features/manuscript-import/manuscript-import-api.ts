@@ -284,3 +284,13 @@ export async function importChaptersBatch(
   }
   return results;
 }
+
+/** User-facing reason a manuscript baseline cannot be activated yet, or null for other errors. */
+export function baselineActivationBlockedMessage(error: unknown): string | null {
+  const code = (error as { code?: string } | null)?.code;
+  if (code === 'BOOTSTRAP_ENTITY_REVIEW_PENDING')
+    return 'Chưa thể kích hoạt bộ nhớ: còn chương đang chờ bạn xác nhận nhân vật. Hãy hoàn tất duyệt nhân vật, rồi duyệt các đề xuất sinh ra, sau đó kích hoạt lại.';
+  if (code === 'BASELINE_REVIEW_REQUIRED')
+    return 'Chưa thể kích hoạt bộ nhớ: còn đề xuất từ các chương đã trích xuất đang chờ duyệt ở tab “Chờ duyệt”.';
+  return null;
+}

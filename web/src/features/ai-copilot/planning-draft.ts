@@ -33,9 +33,20 @@ export function usePlanningDraft<T>(key:string,empty:T,valid:(value:unknown)=>va
    initial.current=candidate?.format===1&&valid(candidate.value)?candidate as Backup<T>:null;
   }catch{initial.current=null;}
  }
- const [value,setValue]=useState(empty),[backup,setBackup]=useState(initial.current),[dirty,setDirty]=useState(false),[error,setError]=useState('');
+ const [value,setValue]=useState(empty),[backup,setBackup]=useState(initial.current),[dirty,setDirty]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
  const dirtyRef=useRef(false);
  const current=useRef(empty),operation=useRef<Operation|null>(initial.current?.operation??null);
+ // #135: tabs of the same author/novel share this key. When another tab discards or accepts it while
+ // this tab still has unsaved edits, put this tab's copy back at once and tell the author.
+ useEffect(()=>{
+  const onStorage=(e:StorageEvent)=>{
+   if(e.storageArea!==localStorage||e.key!==key||!dirtyRef.current)return;
+   if(e.newValue===null){persist(current.current);setNotice('Một tab khác vừa bỏ bản dự phòng trên thiết bị. Bản sửa chưa lưu của tab này đã được ghi lại; hãy lưu lên máy chủ.');}
+   else setNotice('Một tab khác cũng đang sửa nội dung này. Thiết bị chỉ giữ một bản dự phòng; hãy lưu lên máy chủ từ một tab.');
+  };
+  window.addEventListener('storage',onStorage);
+  return()=>window.removeEventListener('storage',onStorage);
+ },[key]);
  function persist(next:T){
   const record:Backup<T>={format:1,value:next,operation:operation.current,savedAt:new Date().toISOString()};
   memory.set(key,record);guardUnload();
@@ -46,7 +57,7 @@ export function usePlanningDraft<T>(key:string,empty:T,valid:(value:unknown)=>va
   const next=typeof change==='function'?change(current.current):{...current.current,...change};
   current.current=next;setValue(next);setDirty(true);dirtyRef.current=true;persist(next);
  }
- function hydrate(next:T){current.current=next;setValue(next);setDirty(false);dirtyRef.current=false;}
+ function hydrate(next:T){current.current=next;setValue(next);setDirty(false);dirtyRef.current=false;setNotice('');}
  function clear(){memory.delete(key);try{localStorage.removeItem(key);}catch{}setBackup(null);operation.current=null;setError('');}
  function accept(next:T){clear();hydrate(next);}
  function recover(){if(backup){hydrate(backup.value);setDirty(true);dirtyRef.current=true;persist(backup.value);setBackup(null);}}
@@ -59,5 +70,5 @@ export function usePlanningDraft<T>(key:string,empty:T,valid:(value:unknown)=>va
   const url=URL.createObjectURL(new Blob([JSON.stringify(current.current,null,2)],{type:'application/json'}));
   const link=document.createElement('a');link.href=url;link.download='ban-sua-ke-hoach.json';link.click();URL.revokeObjectURL(url);
  }
- return{value,current,backup,dirty,dirtyRef,error,edit,hydrate,accept,clear,recover,operationKey,exportDraft};
+ return{value,current,backup,dirty,dirtyRef,error,notice,edit,hydrate,accept,clear,recover,operationKey,exportDraft};
 }
