@@ -57,6 +57,8 @@ No `package.json` ranges changed; only lockfiles. `npm ci` reproduces the tree. 
 | P2 browser regressions (`p2-06b-bui-regressions`, `p2-06b-brainstorming`, `planning-studio`, `p2-07f-ux05-world-amendment`) | all exit 0 (Edge, mocked HTTP) |
 | Audits after | backend high 1 (`zod`, mitigated); web 0 |
 
+CI round 1 (`eff5696e`): `setup-postgres-gateway-browser` failed in `p2-07a-ux01-ux04-regression` ("Must have attempted exactly 2 times", 1 !== 2). Reproduced locally 2/3 with the updated axios: the test counted POSTs right after clicking retry, before the request was dispatched. Fixed in the test by waiting for the second POST (`expect.poll`); product behaviour unchanged (retry still reuses the same `clientRequestId`). Local re-run 5/5 pass.
+
 Not re-run locally: DB-backed `*.postgres.test.ts`/`*.live.test.ts`, P1 writer browser suites and the integrated S1–S7 runner — they run in P2/P8 CI on this PR. Gateway/auth code is unchanged; the dependency changes touch request parsing (body-parser, qs), which those CI suites exercise.
 
 ## Remaining Critical/High
