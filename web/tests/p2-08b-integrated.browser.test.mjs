@@ -557,7 +557,9 @@ async function isolation(h, author, id, api) {
       const cards = h.page.getByTestId('brainstorm-event-card-0');
       const priorSuggestions = await cards.allTextContents();
       assert.equal(priorSuggestions.length, 1);
-      await h.page.getByLabel('Yêu cầu định hướng cho AI').fill('test_empty_output');
+      const summary = h.page.getByTestId('event-text-input-0');
+      await summary.fill('Local edit to previously received suggestion.');
+      await h.page.getByLabel('Yêu cầu định hướng cho AI').fill('Suggest a different future scene.');
       await h.page.getByTestId('brainstorm-submit-btn').click();
       assert.equal(await ready, 200);
       const before = await h.snapshot('s7-cancel-before-release', [id]);
@@ -566,6 +568,7 @@ async function isolation(h, author, id, api) {
       await h.page.unrouteAll({ behavior: 'wait' });
       await h.page.getByTestId('brainstorm-open-plan-btn').click();
       assert.deepEqual(await cards.allTextContents(), priorSuggestions);
+      await expect(summary).toHaveValue('Local edit to previously received suggestion.');
       await expect(h.page.getByTestId('brainstorm-error-alert')).toHaveCount(0);
       await h.page.getByTestId('brainstorm-close-btn').click();
       await expect(outline).toHaveValue(draft);
