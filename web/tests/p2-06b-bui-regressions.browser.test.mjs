@@ -300,7 +300,10 @@ test('P2-06B BUI-01..04 regressions against contract-enforcing mocks', { timeout
       await expect(page.getByTestId('brainstorm-safe-retry-btn')).toBeVisible({ timeout: 5000 });
       const k1 = brainstorms.at(-1).idempotency_key;
       state.fail = null;
+      const beforeRetry = brainstorms.length;
       await page.getByTestId('brainstorm-safe-retry-btn').click();
+      // Earlier cards may still be shown, so wait for the request itself rather than a card.
+      await expect.poll(() => brainstorms.length, { timeout: 5000 }).toBeGreaterThan(beforeRetry);
       await expect(page.getByTestId('brainstorm-rule-card-0')).toBeVisible({ timeout: 5000 });
       assert.equal(brainstorms.at(-1).idempotency_key, k1);
       assert.equal(brainstorms.at(-1).instruction, 'Hệ thống tu luyện A');
@@ -317,8 +320,8 @@ test('P2-06B BUI-01..04 regressions against contract-enforcing mocks', { timeout
       state.fail = null;
       const before = brainstorms.length;
       await page.getByTestId('brainstorm-submit-btn').click();
+      await expect.poll(() => brainstorms.length, { timeout: 5000 }).toBe(before + 1);
       await expect(page.getByTestId('brainstorm-rule-card-0')).toBeVisible({ timeout: 5000 });
-      assert.equal(brainstorms.length, before + 1);
       assert.equal(brainstorms.at(-1).instruction, 'Hệ thống tu luyện B');
       assert.notEqual(brainstorms.at(-1).idempotency_key, k2, 'Changed payload must use a new key');
 
@@ -330,8 +333,10 @@ test('P2-06B BUI-01..04 regressions against contract-enforcing mocks', { timeout
       await expect(page.getByTestId('brainstorm-safe-retry-btn')).toHaveCount(0);
       await page.getByTestId('brainstorm-reload-btn').click();
       await expect(page.getByTestId('brainstorm-error-alert')).toHaveCount(0, { timeout: 5000 });
+      const beforeFresh = brainstorms.length;
       await page.getByTestId('brainstorm-submit-btn').click();
-      await expect(page.getByTestId('brainstorm-rule-card-0')).toBeVisible({ timeout: 5000 });
+      await expect.poll(() => brainstorms.length, { timeout: 5000 }).toBeGreaterThan(beforeFresh);
+      await expect(page.getByTestId('brainstorm-error-alert')).toHaveCount(0, { timeout: 5000 });
       assert.equal(brainstorms.at(-1).expected_brain_version, 2, 'Fresh request must carry the reloaded brain version');
       await page.screenshot({ path: join(out, 'p2-06b-bui-final-state.png') }).catch(() => {});
       await context.close();
@@ -353,7 +358,9 @@ test('P2-06B BUI-01..04 regressions against contract-enforcing mocks', { timeout
       await expect(page.getByTestId('brainstorm-reload-btn')).toHaveCount(0);
       const key = brainstorms.at(-1).idempotency_key;
       state.fail = null;
+      const beforeInFlightRetry = brainstorms.length;
       await page.getByTestId('brainstorm-safe-retry-btn').click();
+      await expect.poll(() => brainstorms.length, { timeout: 5000 }).toBeGreaterThan(beforeInFlightRetry);
       await expect(page.getByTestId('brainstorm-rule-card-0')).toBeVisible({ timeout: 5000 });
       assert.equal(brainstorms.at(-1).idempotency_key, key, 'In-flight 409 must be retried with the same key');
 
