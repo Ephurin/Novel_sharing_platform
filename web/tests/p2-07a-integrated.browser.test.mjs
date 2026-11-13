@@ -3,11 +3,10 @@ import test from 'node:test';
 import { expect } from '@playwright/test';
 import { createHarness, hash, until } from './helpers/p1-real-stack.mjs';
 
-const scenario = process.env.P207A_SCENARIO || 'S1';
-assert.ok(['S1', 'S2'].includes(scenario));
+const scenario = process.env.P207A_SCENARIO;
+assert.ok(['S1', 'S2'].includes(scenario), 'Set P207A_SCENARIO to S1 or S2');
 
 test(`${scenario} first chapter through the real Gateway`, {
-  skip: !process.env.P1_ACCEPTANCE_CONFIG,
   timeout: 180000,
 }, async () => {
   const h = await createHarness();
@@ -21,6 +20,26 @@ test(`${scenario} first chapter through the real Gateway`, {
     const novelId = novel.novelId;
     const brainPath = '/ai/story-brains';
     const base = `${brainPath}/${novelId}`;
+    let adopted;
+    function assertFuturePlan(state) {
+      if (scenario !== 'S2') return;
+      const active = state['narrative.story_plans'].filter(plan => plan.status === 'active');
+      assert.deepEqual(active.map(plan => plan.id), [adopted.planId]);
+      assert.equal(active[0].plan_version, adopted.planVersion);
+      const objectives = state['narrative.story_plan_objectives'].filter(row => row.plan_id === adopted.planId);
+      const matches = objectives.flatMap(row => row.objective_metadata.events
+        .filter(event => event.event_id === adopted.eventId)
+        .map(event => ({ chapter: row.target_chapter, logicalId: row.objective_metadata.logical_id, event })));
+      assert.deepEqual(matches, [{
+        chapter: 2,
+        logicalId: adopted.logicalId,
+        event: { event_id: adopted.eventId, text: adopted.text, participants: adopted.participants },
+      }]);
+      const history = JSON.stringify(state['narrative.events']);
+      for (const marker of [adopted.eventId, adopted.text, 'FutureOnlyBetrayal']) {
+        assert.ok(!history.includes(marker), 'Future Plan leaked into Historical Events');
+      }
+    }
     const nav = page.getByRole('navigation', { name: 'Các bước lập kế hoạch' });
     const go = async name => {
       await nav.getByRole('button', { name }).click();
@@ -67,6 +86,7 @@ test(`${scenario} first chapter through the real Gateway`, {
           await button.click();
           const result = await response;
           assert.ok(result.ok(), JSON.stringify(await result.json()));
+          return (await result.json()).data;
         };
         await write(save);
         const successfulSave = h.requests.findLast(r => r.body?.action === 'save');
@@ -74,16 +94,48 @@ test(`${scenario} first chapter through the real Gateway`, {
           ...successfulSave.body, idempotency_key: 'p207a-stale-plan',
         }, author.token, [409]);
         await page.getByTestId('brainstorm-chapter-btn-1').click();
+        const brainstorm = page.waitForResponse(r =>
+          r.url().endsWith('/brainstorm') && r.request().method() === 'POST');
         await page.getByTestId('brainstorm-submit-btn').click();
+        const suggestion = (await (await brainstorm).json()).data.future_events[0];
+        assert.equal(suggestion.target_chapter, 2);
         await expect(page.getByTestId('brainstorm-event-card-0')).toBeVisible();
         await page.getByTestId('adopt-event-btn-0').click();
         await expect(page.getByTestId('event-adopted-badge-0')).toBeVisible();
         await page.getByTestId('brainstorm-close-btn').click();
         await expect(page.getByLabel('Sự kiện 1 chương 2', { exact: true })).toBeVisible();
         await write(save);
-        await write(page.getByRole('button', { name: 'Dùng bản đã lưu' }));
+        const { plan_id: planId, plan_version: planVersion } =
+          await write(page.getByRole('button', { name: 'Dùng bản đã lưu' }));
+        const savedObjective = h.requests.findLast(r => r.body?.action === 'save')
+          .body.objectives.find(row => row.target_chapter === 2);
+        assert.equal(savedObjective.events.length, 1);
+        assert.ok(suggestion.participants.length);
+        adopted = {
+          planId,
+          planVersion,
+          logicalId: savedObjective.objective_id,
+          eventId: savedObjective.events[0].event_id,
+          text: suggestion.text || suggestion.title,
+          participants: suggestion.participants.map(p => ({
+            entity_id: p.entity_id ?? null,
+            name_hint: p.entity_id ? null : p.name_hint,
+          })),
+        };
+        await h.save('selected-future-event.json', adopted);
         const state = await h.snapshot('s2-plan-before-m0', [novelId]);
-        assert.ok(state['narrative.story_plans'].length);
+        assertFuturePlan(state);
+        const activeRequest = {
+          target: 'future_events', target_chapter: 2, expected_plan_version: planVersion,
+        };
+        const stale = await h.api('POST', `${base}/brainstorm`, {
+          ...activeRequest, expected_plan_version: planVersion - 1, idempotency_key: 'p207a-stale-brainstorm',
+        }, author.token, [409]);
+        assert.equal(stale.json.error.code, 'PLAN_VERSION_CONFLICT');
+        const current = await h.api('POST', `${base}/brainstorm`, {
+          ...activeRequest, idempotency_key: 'p207a-active-brainstorm',
+        }, author.token);
+        assert.equal(current.data.plan_version, planVersion);
         const generation = h.requests.findLast(r => r.path.endsWith('/brainstorm'));
         assert.ok(!JSON.stringify(generation).includes(privateNote));
         assert.deepEqual(state['narrative.events'], []);
@@ -120,6 +172,7 @@ test(`${scenario} first chapter through the real Gateway`, {
         assert.deepEqual(state[key], [], key);
       }
       if (scenario === 'S1') assert.deepEqual(state['narrative.story_plans'], []);
+      assertFuturePlan(state);
       assert.equal(state['narrative.facts'].length, 1);
       assert.equal(state['narrative.entities'].length, 1);
       const [rule] = state['narrative.facts'];
@@ -180,6 +233,7 @@ test(`${scenario} first chapter through the real Gateway`, {
       const { data: queue } = await h.api('GET', `${base}/review-queue`, undefined, author.token);
       const proposals = queue.filter(p => p.analysis_run_id === run.id);
       const before = await h.snapshot(scenario + '-before-canon-approval', [novelId]);
+      assertFuturePlan(before);
       assert.deepEqual(before['narrative.events'], []);
       assert.ok(proposals.some(p => p.proposal_type === 'event'));
       await h.api('POST', `/ai/proposal-groups/${proposals[0].dependency_group_id}/accept`, {
@@ -187,7 +241,9 @@ test(`${scenario} first chapter through the real Gateway`, {
         expected_brain_version: Number(before['narrative.story_brains'][0].brain_version),
       }, author.token);
       const after = await h.snapshot(scenario + '-canon-approved', [novelId]);
+      assertFuturePlan(after);
       assert.ok(after['narrative.events'].length);
+      assert.equal(after['narrative.events'][0].summary, 'Minh gặp Minh. lan.');
       assert.ok(!JSON.stringify(after['narrative.events']).includes('FutureOnlyBetrayal'));
     });
   } finally {
