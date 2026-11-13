@@ -1,0 +1,167 @@
+{
+  "checked_date": "2026-11-07",
+  "base": "3adab5c73636bd4e7c3dbc6578d4ece0a54b5627",
+  "prs": [
+    {
+      "number": 89,
+      "head": "a2aeb9a0cf74d2ec21b5993574ee8e03b621a181",
+      "base": "3adab5c73636bd4e7c3dbc6578d4ece0a54b5627",
+      "merged": false,
+      "draft": true,
+      "mergeable": true
+    },
+    {
+      "number": 92,
+      "head": "6ef2333058e2cc2f16bff44abb654f0a988dfe54",
+      "base": "3adab5c73636bd4e7c3dbc6578d4ece0a54b5627",
+      "merged": false,
+      "draft": true,
+      "mergeable": true
+    },
+    {
+      "number": 93,
+      "head": "f6f911b6cfbaf3a36728b666330d855f7caf5ad0",
+      "base": "3adab5c73636bd4e7c3dbc6578d4ece0a54b5627",
+      "merged": false,
+      "draft": true,
+      "mergeable": true
+    }
+  ],
+  "issue91": {
+    "state": "open",
+    "argon_evidence": "ARGON_PENDING",
+    "comments": 0
+  },
+  "runs": [
+    {
+      "id": 42341774664,
+      "jobs": [
+        {
+          "name": "root-compose-cutover-smoke",
+          "conclusion": "success",
+          "status": "completed"
+        },
+        {
+          "name": "unit",
+          "conclusion": "success",
+          "status": "completed"
+        },
+        {
+          "name": "frontend-api-cutover",
+          "conclusion": "success",
+          "status": "completed"
+        },
+        {
+          "name": "rollback-rehearsal",
+          "conclusion": "success",
+          "status": "completed"
+        },
+        {
+          "name": "final-cleanup-gate",
+          "conclusion": "success",
+          "status": "completed"
+        },
+        {
+          "name": "backend-integration",
+          "conclusion": "success",
+          "status": "completed"
+        },
+        {
+          "name": "postgres-integration",
+          "conclusion": "success",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "id": 42341774673,
+      "jobs": [
+        {
+          "name": "pgvector-integration",
+          "conclusion": "success",
+          "status": "completed"
+        },
+        {
+          "name": "unit",
+          "conclusion": "success",
+          "status": "completed"
+        },
+        {
+          "name": "root-compose-smoke",
+          "conclusion": "success",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "id": 42342964345,
+      "jobs": [
+        {
+          "name": "unit",
+          "conclusion": "success",
+          "status": "completed"
+        },
+        {
+          "name": "frontend-api-cutover",
+          "conclusion": "success",
+          "status": "completed"
+        },
+        {
+          "name": "postgres-integration",
+          "conclusion": "success",
+          "status": "completed"
+        },
+        {
+          "name": "backend-integration",
+          "conclusion": "success",
+          "status": "completed"
+        },
+        {
+          "name": "final-cleanup-gate",
+          "conclusion": "success",
+          "status": "completed"
+        },
+        {
+          "name": "rollback-rehearsal",
+          "conclusion": "success",
+          "status": "completed"
+        },
+        {
+          "name": "root-compose-cutover-smoke",
+          "conclusion": "success",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "id": 42342964366,
+      "jobs": [
+        {
+          "name": "isolated-p2-a16-gateway",
+          "conclusion": "success",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "id": 42342964396,
+      "jobs": [
+        {
+          "name": "pgvector-integration",
+          "conclusion": "success",
+          "status": "completed"
+        },
+        {
+          "name": "unit",
+          "conclusion": "success",
+          "status": "completed"
+        },
+        {
+          "name": "root-compose-smoke",
+          "conclusion": "success",
+          "status": "completed"
+        }
+      ]
+    }
+  ]
+}

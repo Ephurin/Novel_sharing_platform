@@ -1,0 +1,58 @@
+[
+  {
+    "step": "Install fake-only test runtime dependencies",
+    "command": "set -euo pipefail\nmkdir -p \"$RUNNER_TEMP/p2-combined\"\npip install -r ai-service/requirements.txt pytest httpx\nnpm ci --prefix backend\n",
+    "cwd": ".",
+    "exit_code": 0,
+    "evidence": "final combined workflow step conclusion success"
+  },
+  {
+    "step": "Pin combined source and disposable service identities",
+    "command": "set -euo pipefail\ngit rev-parse HEAD > \"$RUNNER_TEMP/p2-combined/source-sha.txt\"\ngit rev-parse 'HEAD^{tree}' > \"$RUNNER_TEMP/p2-combined/source-tree.txt\"\ndocker inspect --format '{{.Config.Image}} {{.Image}}' \"${{ job.services.postgres.id }}\" \"${{ job.services.mongodb.id }}\" > \"$RUNNER_TEMP/p2-combined/service-images.txt\"\npython - <<'PY' > \"$RUNNER_TEMP/p2-combined/postgres-identity.json\"\nimport psycopg, json\nwith psycopg.connect('postgresql://postgres:postgres@localhost:5432/p2a') as c:\n    name, version = c.execute('SELECT current_database(), version()').fetchone()\n    assert name == 'p2a'\n    print(json.dumps(dict(database=name, version=version)))\nPY\n(cd backend && node --input-type=module <<'JS') > \"$RUNNER_TEMP/p2-combined/mongo-identity.json\"\nimport {MongoClient} from 'mongodb';\nconst c = new MongoClient(process.env.MONGODB_URI);\nawait c.connect();\nconst db = c.db();\nif (db.databaseName !== 'p2a') throw new Error('Wrong isolated database');\nconsole.log(JSON.stringify({database:db.databaseName,version:(await db.admin().serverInfo()).version}));\nawait c.close();\nJS\nprintf 'LLM_PROVIDER=fake\\nEMBEDDING_PROVIDER=fake\\nSERVICE_AUTH_DISABLED=false\\nNo paid-provider secrets supplied\\n' > \"$RUNNER_TEMP/p2-combined/provider-config.txt\"\n",
+    "cwd": ".",
+    "exit_code": 0,
+    "evidence": "final combined workflow step conclusion success"
+  },
+  {
+    "step": "Apply existing backend and narrative migrations",
+    "command": "set -euo pipefail\n(cd backend && npm run db:migrate) 2>&1 | tee \"$RUNNER_TEMP/p2-combined/node-migrations.log\"\n(cd ai-service && DATABASE_URL=\"$TEST_DATABASE_URL\" python -m alembic upgrade head) 2>&1 | tee \"$RUNNER_TEMP/p2-combined/alembic.log\"\n",
+    "cwd": ".",
+    "exit_code": 0,
+    "evidence": "final combined workflow step conclusion success"
+  },
+  {
+    "step": "Focused P2 HTTP guards and P1 manuscript service regression",
+    "command": "set -euo pipefail\npytest -q -o addopts= -p no:cacheprovider --basetemp=\"$RUNNER_TEMP/p2-focused\" --junitxml=\"$RUNNER_TEMP/p2-combined/focused.xml\" tests/test_p2_bootstrap_guard.py tests/test_p2_bootstrap_pacing_compat.py tests/test_p2_json_bootstrap_compat.py tests/test_manuscript_bootstrap.py 2>&1 | tee \"$RUNNER_TEMP/p2-combined/focused.log\"\n",
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "evidence": "final combined workflow step conclusion success"
+  },
+  {
+    "step": "Real PostgreSQL A16 with durable before and after readbacks",
+    "command": "set -euo pipefail\npytest -o addopts= -vv -s -m postgres_integration --basetemp=\"$RUNNER_TEMP/p2-a16\" --junitxml=\"$RUNNER_TEMP/p2-combined/a16.xml\" tests/test_p2_bootstrap_postgres.py 2>&1 | tee \"$RUNNER_TEMP/p2-combined/a16.log\"\n",
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "evidence": "final combined workflow step conclusion success"
+  },
+  {
+    "step": "Start real AI service with fake providers",
+    "command": "set -euo pipefail\npython -m uvicorn main:app --host 127.0.0.1 --port 58001 > \"$RUNNER_TEMP/p2-combined/ai-service.log\" 2>&1 &\necho \"$!\" > \"$RUNNER_TEMP/p2-combined/ai.pid\"\nfor i in {1..30}; do\n  if curl -fsS http://127.0.0.1:58001/health; then exit 0; fi\n  sleep 1\ndone\nexit 1\n",
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "evidence": "final combined workflow step conclusion success"
+  },
+  {
+    "step": "Gateway forwarding contracts and P1 save revision outbox acceptance",
+    "command": "set -euo pipefail\nnpx tsx --test src/modules/ai/ai-gateway.test.ts src/modules/ai/p1-closed-loop-gateway.test.ts 2>&1 | tee \"$RUNNER_TEMP/p2-combined/gateway-forwarding.log\"\nP2A_EVIDENCE_FILE=\"$RUNNER_TEMP/p2-combined/gateway-readbacks.json\" npx tsx --test src/modules/ai/p2-bootstrap-guard.live.test.ts 2>&1 | tee \"$RUNNER_TEMP/p2-combined/gateway-a16.log\"\n",
+    "cwd": "backend",
+    "exit_code": 0,
+    "evidence": "final combined workflow step conclusion success"
+  },
+  {
+    "step": "Stop only the task AI process",
+    "command": "if test -f \"$RUNNER_TEMP/p2-combined/ai.pid\"; then\n  kill \"$(cat \"$RUNNER_TEMP/p2-combined/ai.pid\")\"\nfi\n",
+    "cwd": ".",
+    "exit_code": 0,
+    "evidence": "final combined workflow step conclusion success"
+  }
+]

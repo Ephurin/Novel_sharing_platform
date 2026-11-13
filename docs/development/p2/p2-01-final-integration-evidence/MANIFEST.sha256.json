@@ -1,0 +1,24 @@
+{
+  "basis": "committed Git blob bytes",
+  "files": {
+    "backend-job.log": "8beab54cb463eb270f40d2caa241e3a8777b9e623bebe466abe1dcc82baab3ab",
+    "ci-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "ci-jobs.json": "9d6dd82f40700e485755eb398f89fc2ba62f92283628e6a6736f3d491f3e778c",
+    "combined-4829acd7/rollback.zip": "4508f647d555b9dfd18ff5dc297fe311bfb82522124d6b4e6d73565bb4f4a486",
+    "combined-4829acd7/runtime.zip": "59b4e502f44d6065deaedaa5632936b0b653c4bdcd8bd4b8bdf331b36c563c22",
+    "combined-4829acd7/verified-summary.json": "ca8e1952bdbafaf5e50e6c35e20069b0e497aab96fb98aa905bcbc538494922a",
+    "initial-4b86a3b8-failure.log": "091d40bd8f268eab152f44721352c715ac56c2487f52eee06258e33601ef5bb9",
+    "local-commands.json": "131596c75a63c15bedf0eb4f7a1233f98047c9a9e17cebb79b71966ccbbad957",
+    "local-docker.log": "4e3ca55325231f3bfab2cbde7b62d68fa677f87f3823977c320ca3efb13e1cf4",
+    "postgres-job.log": "61865e95698538b6f64831c3aafb825bb0b1664d4dbebe9ee714aa62660bd987",
+    "product-diff.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rollback-job.log": "012322434340a06a586ae351d676dc9247b409f5e6246b53989f67d30da44e61",
+    "rollback-tests.log": "56aa1e0d521a9e95929d29484def9a53aaf2826884bea8d79d1840c3cf359bd6",
+    "root-smoke-job.log": "0daf5a4210a0c50502a412f1e1cf5c9ff671f54afcb9aa92d30bade51420d73c",
+    "runtime-command-exits.json": "28a40a5e663ff29707574a34d66cb2dbced211913509cc08191c1730a5fe164f",
+    "runtime-job.log": "eeb3e36882fd8ac645c4663a6b816e077695302f748c01458e2fe0d8ba5504a1",
+    "unit-job.log": "b3308ce6f4267e61573559ee9fa57b1e823e1e9fde5a8b9e92a0be939a37e6e7",
+    "verify_artifacts.py": "ae321f3051e924b69c79e037a77614d81e056b831915f4870441b70e0795cdb7",
+    "workflow-syntax.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

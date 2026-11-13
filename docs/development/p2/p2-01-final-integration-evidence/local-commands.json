@@ -1,0 +1,70 @@
+[
+  {
+    "name": "workflow-syntax",
+    "command": [
+      "C:\\Program Files\\Git\\bin\\bash.exe",
+      "-n",
+      "C:\\Users\\Laptop\\AppData\\Local\\Temp\\tmpci6_w9kf.sh"
+    ],
+    "source_sha": "4829acd7ce6403d34bc0eb819c9d50059fd4d5a2",
+    "exit_code": 0
+  },
+  {
+    "name": "rollback-tests",
+    "command": [
+      "python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts/tests",
+      "-p",
+      "test_p8_rollback_readback.py",
+      "-v"
+    ],
+    "source_sha": "4829acd7ce6403d34bc0eb819c9d50059fd4d5a2",
+    "exit_code": 0
+  },
+  {
+    "name": "product-diff",
+    "command": [
+      "git",
+      "diff",
+      "--exit-code",
+      "a2aeb9a0",
+      "4829acd7ce6403d34bc0eb819c9d50059fd4d5a2",
+      "--",
+      "ai-service",
+      "backend",
+      "web"
+    ],
+    "source_sha": "4829acd7ce6403d34bc0eb819c9d50059fd4d5a2",
+    "exit_code": 0
+  },
+  {
+    "name": "ci-diff",
+    "command": [
+      "git",
+      "diff",
+      "--exit-code",
+      "6ef23330",
+      "4829acd7ce6403d34bc0eb819c9d50059fd4d5a2",
+      "--",
+      "scripts",
+      ".github/workflows/p8-cutover.yml"
+    ],
+    "source_sha": "4829acd7ce6403d34bc0eb819c9d50059fd4d5a2",
+    "exit_code": 0
+  },
+  {
+    "name": "local-docker",
+    "command": [
+      "docker",
+      "version",
+      "--format",
+      "{{.Server.Version}}"
+    ],
+    "source_sha": "4829acd7ce6403d34bc0eb819c9d50059fd4d5a2",
+    "exit_code": 1
+  }
+]
