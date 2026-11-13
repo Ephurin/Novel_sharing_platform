@@ -193,3 +193,37 @@ def test_merge_duplicate_entity_is_versioned_and_preserves_alias():
     alias_id = repository.add_entity_alias(NOVEL, target.entity_id, "Hai Ba Dong")
     assert repository.add_entity_alias(NOVEL, target.entity_id, "Hai Ba Dong") == alias_id
     assert len(repository.get_story_brain(NOVEL).aliases) == alias_count
+
+
+def test_baseline_waits_for_entity_review_and_its_later_proposals():
+    """#140 follow-up: with the entity-first checkpoint a bootstrap chapter pauses for the
+    author's entity review and its proposals only appear after "continue", so the job's
+    required list is empty. Activation must still wait for both."""
+    from dataclasses import replace
+    from domain.errors import BootstrapConflictError
+
+    items = [revision(1, "Luật: Người chết không thể hồi sinh.\nTiêu Viêm đối đầu Hải Ba Đông tại sa mạc.")]
+    repository = InMemoryNarrativeRepository()
+    service = build_service(repository, RevisionProvider(items))
+    job = service.start(tenant_id=TENANT, novel_id=NOVEL, revisions=request_revisions(items),
+                        locale="vi-VN", options={"require_review_for_all": True})
+    job = service.process(job.job_id)
+    run_id = job.revisions[0].analysis_run_id
+    assert run_id and repository.list_proposals(NOVEL, status="pending")
+    # Entity-first shape: no required ids recorded at the end of processing.
+    job = repository.save_bootstrap_job(replace(job, result={**job.result, "required_proposal_ids": []}))
+
+    repository.save_entity_candidate_audit(NOVEL, run_id, {"analysis_run_id": run_id, "status": "waiting_entity_review", "review_version": 1})
+    with pytest.raises(BootstrapConflictError) as blocked:
+        service.activate_baseline(NOVEL, job.job_id)
+    assert blocked.value.code == "BOOTSTRAP_ENTITY_REVIEW_PENDING"
+    assert repository.get_story_brain(NOVEL).metadata.get("status") != "active"
+
+    repository.save_entity_candidate_audit(NOVEL, run_id, {"analysis_run_id": run_id, "status": "completed", "review_version": 3})
+    with pytest.raises(BaselineReviewRequiredError) as pending:
+        service.activate_baseline(NOVEL, job.job_id)
+    assert set(pending.value.pending_proposal_ids) == {p.proposal_id for p in repository.list_proposals(NOVEL, status="pending")}
+
+    for proposal in repository.list_proposals(NOVEL, status="pending"):
+        repository.decide_proposal(NOVEL, proposal.proposal_id, accepted=False, reason="reviewed")
+    assert service.activate_baseline(NOVEL, job.job_id)["status"] == "active"

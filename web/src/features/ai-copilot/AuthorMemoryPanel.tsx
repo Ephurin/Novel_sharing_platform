@@ -1,3 +1,4 @@
+import { baselineActivationBlockedMessage } from '../manuscript-import/manuscript-import-api';
 import { notifyMemoryChanged } from './memory-events';
 import type {PlanningStep} from './PlanningStudio';
 import {StoryPlanEditor} from './StoryPlanEditor';
@@ -228,6 +229,11 @@ function ScopedAuthorMemoryPanel({
     onSuccess: refresh,
     onError: e => {
       setMessageType('error');
+      const blocked = baselineActivationBlockedMessage(e);
+      if (blocked) {
+        setMessage(blocked);
+        return;
+      }
       if (e instanceof ApiClientError) {
         if (e.status === 409) {
           setMessage(
