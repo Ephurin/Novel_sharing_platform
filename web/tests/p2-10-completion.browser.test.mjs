@@ -132,6 +132,22 @@ test('P2-10 completion: #133 memory entry, #134 future target, #135 cross-tab ba
       await empty.close();
     }
 
+    if (run('c133b')) {
+      // Final acceptance finding: the chapter list was read once, so text written after the IDE
+      // loaded did not count as "written" in Planning until a full page reload.
+      const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+      const page = await context.newPage();
+      const state = freshState({ chapters: [{ n: 1, wordCount: 0 }] });
+      await mock(page, state);
+      await openPlanning(page);
+      await expect(page.getByTestId('planning-memory-from-chapters')).toHaveCount(0);
+      state.chapters = [{ n: 1, wordCount: 30 }]; // the author writes ch.1 and autosave stores it
+      await page.getByRole('button', { name: 'Viết bản thảo', exact: true }).click();
+      await page.getByRole('button', { name: 'Lập kế hoạch', exact: true }).click();
+      await expect(page.getByTestId('planning-memory-from-chapters')).toBeVisible({ timeout: 10000 });
+      await context.close();
+    }
+
     if (run('c134')) {
       const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
       const page = await context.newPage();

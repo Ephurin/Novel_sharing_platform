@@ -10,8 +10,8 @@ export type MemoryTab='review'|'setup';
 export type PlanningStep='idea'|'rules'|'characters'|'chapters'|'write';
 const extractionLabel=(status:string|null)=>({waiting_entity_review:'Chờ bạn xác nhận nhân vật',pending:'Chờ phân tích bản đã lưu',processing:'Đang phân tích bản đã lưu',running:'Đang phân tích bản đã lưu',completed:'Đã xử lý — kiểm tra đề xuất cần duyệt',failed:'Phân tích thất bại — mở Bộ nhớ để kiểm tra'}[status??'']??'Mở Bộ nhớ để kiểm tra trạng thái');
 const steps:{id:PlanningStep;label:string}[]=[{id:'idea',label:'Ý tưởng'},{id:'rules',label:'Thế giới'},{id:'characters',label:'Nhân vật'},{id:'chapters',label:'Dàn ý chương'},{id:'write',label:'Bắt đầu viết'}];
-type Props={novelId:string;title:string;step:PlanningStep;onStep:(s:PlanningStep)=>void;chapters:{chapterId:string;title:string;chapterNumber?:number;wordCount?:number}[];onWrite:(chapterId?:string)=>void;onCreate:()=>void;creating:boolean;onMemory:(tab?:MemoryTab)=>void};
-export function PlanningStudio({novelId,title,step,onStep,chapters,onWrite,onCreate,creating,onMemory}:Props){
+type Props={novelId:string;title:string;step:PlanningStep;onStep:(s:PlanningStep)=>void;chapters:{chapterId:string;title:string;chapterNumber?:number;wordCount?:number}[];onWrite:(chapterId?:string)=>void;onCreate:()=>void;creating:boolean;onMemory:(tab?:MemoryTab)=>void;onRefreshChapters?:()=>void};
+export function PlanningStudio({novelId,title,step,onStep,chapters,onWrite,onCreate,creating,onMemory,onRefreshChapters}:Props){
  const scope=usePlanningScope(),readSequence=useRef(0),panel=useRef<HTMLElement>(null);
  // BUI-02: Setup "all" brainstorm hands future events to the mounted Story Plan editor's local draft.
  const eventAdopter=useRef<FutureEventAdopter|null>(null);
@@ -21,7 +21,7 @@ export function PlanningStudio({novelId,title,step,onStep,chapters,onWrite,onCre
  const [extraction,setExtraction]=useState<{chapter_id:string;chapter_number:number;status:string|null}[]|null>(null);
  const [settled,setSettled]=useState(false);
  const [snapshot,setSnapshot]=useState<SetupSnapshot|null>(null),[m0,setM0]=useState<SetupM0Readiness|null>(null),[brain,setBrain]=useState<StoryBrainSummary|null>(null),[error,setError]=useState(''),[read,setRead]=useState(false);
- async function refresh(){const request=++readSequence.current;const signal=scope.signal;scope.assertCurrent();setSettled(false);setError('');
+ async function refresh(){onRefreshChapters?.();const request=++readSequence.current;const signal=scope.signal;scope.assertCurrent();setSettled(false);setError('');
   try{
    const [s,b]=await Promise.all([getSetup(novelId,undefined,signal).catch(e=>{if(e instanceof ApiClientError&&e.status===404)return null;throw e;}),apiClient.get<ApiEnvelope<StoryBrainSummary>>(`/ai/story-brains/by-novel/${novelId}`,{signal}).then(r=>r.data.data).catch(e=>{if(e instanceof ApiClientError&&e.status===404)return null;throw e;})]);
    const a=s?await getSetupM0Readiness(novelId,s.snapshot_id,signal):null;
