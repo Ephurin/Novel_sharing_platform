@@ -300,6 +300,72 @@ def test_verified_mentions_concurrent_replacement_has_one_winner(flow, monkeypat
     assert after['story_brains'][0]['brain_version'] == frozen['brain_version']
 
 
+def test_refresh_wins_against_inflight_finalization(flow, monkeypatch):
+    if not flow.engine:
+        pytest.skip('PostgreSQL CAS required')
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event
+    from application.entity_hitl import review
+    from tests.test_p1_entity_semantics import add_hint, refresh
+    f = prepare(flow, 'Minh gặp Minh.')
+    run, audit = discover(f)
+    entered, release = Event(), Event()
+    original = f.repo.save_entity_candidate_audit
+
+    def hold_finalize(story, run_id, value, **kwargs):
+        if value['status'] == 'entities_reviewed':
+            entered.set()
+            assert release.wait(10)
+        return original(story, run_id, value, **kwargs)
+
+    monkeypatch.setattr(f.repo, 'save_entity_candidate_audit', hold_finalize)
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        stale = pool.submit(review, f.service, f.revision.novel_id, run, TENANT,
+                            choices(audit), audit['review_version'])
+        try:
+            assert entered.wait(10)
+            add_hint(f)
+            winner = refresh(f, run, audit['review_version'])
+            before = snapshot(f, 'R5-refresh-winner')
+        finally:
+            release.set()
+        with pytest.raises(OptimisticLockError):
+            stale.result(timeout=10)
+    assert winner['review_version'] == audit['review_version'] + 1
+    assert winner['status'] == 'waiting_entity_review'
+    assert before['entity_mentions'] == before['events'] == []
+    assert snapshot(f, 'R5-stale-finalize-unchanged') == before
+
+
+def test_refresh_preserves_other_revision_and_independent_analysis_links(flow):
+    if not flow.engine:
+        pytest.skip('PostgreSQL mention readback required')
+    from tests.test_p1_entity_semantics import add_hint, refresh
+    f = flow
+    run, frozen = homonyms(f)
+    original_revision = f.revision
+    initial = snapshot(f, 'R5-original-links')['entity_mentions']
+
+    def finalize_analysis(identity):
+        f.headers['Idempotency-Key'] = str(uuid.uuid4())
+        analysis, audit = discover(f)
+        decisions = [{**d, 'canonical_entity_id': identity} if d['verdict'] == 'entity' else d
+                     for d in audit['decisions']]
+        submit(f, analysis, audit, decisions)
+
+    finalize_analysis(f.llm.ids[1])
+    f.revision = replace(original_revision, revision_id=str(uuid.uuid4()))
+    f.provider._revisions[(f.revision.novel_id, f.revision.chapter_id, f.revision.revision_id)] = f.revision
+    finalize_analysis(f.llm.ids[0])
+    before = snapshot(f, 'R5-independent-and-cross-revision-links')['entity_mentions']
+    assert len(before) == 5
+    add_hint(f)
+    refresh(f, run, frozen['review_version'])
+    after = snapshot(f, 'R5-scoped-refresh')['entity_mentions']
+    withdrawn = next(row for row in initial if str(row['entity_id']) == f.llm.ids[0])
+    assert after == [row for row in before if row != withdrawn]
+
+
 def pending_relationship(f, subject, target, relation='enemy'):
     group, event = str(uuid.uuid4()), str(uuid.uuid4())
     proposals = [NarrativeProposal(event, 'event', {'event_id':event, 'event_type':'meeting',
