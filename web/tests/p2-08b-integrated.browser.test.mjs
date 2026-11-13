@@ -293,14 +293,24 @@ async function concurrency(h, author, id, api) {
     try {
       await h.page.getByRole('button', { name: 'Tải lại dàn ý', exact: true }).click();
       await ready;
-      await h.page.evaluate(nextId => {
-        history.pushState(null, '', `/author/ide?novelId=${nextId}`);
-        dispatchEvent(new PopStateEvent('popstate'));
-      }, otherId);
+      await h.page.getByRole('link', { name: /Tủ truyện/ }).click();
+      await h.page.getByRole('link', { name: 'Tác phẩm của tôi', exact: true }).click();
+      const project = h.page.locator('article').filter({ hasText: 'Concurrent second lighthouse' });
+      const hydrated = h.page.waitForResponse(r => r.url().endsWith(`/ai/story-plans/edit-v1/${otherId}`)
+        && r.request().method() === 'GET' && r.ok());
+      await project.getByRole('button', { name: /Viết tiếp/ }).click();
+      await expect(h.page).toHaveURL(new RegExp(`novelId=${otherId}`));
+      await h.page.getByRole('button', { name: 'Lập kế hoạch', exact: true }).click();
+      await h.page.getByRole('navigation', { name: 'Các bước lập kế hoạch' })
+        .getByRole('button', { name: /Dàn ý chương/ }).click();
+      await hydrated;
       const studio = h.page.getByRole('region', { name: 'Planning Studio' });
       await expect(studio).toContainText('Concurrent second lighthouse');
+      await expect(studio).toHaveAttribute('aria-busy', 'false');
       const outline = h.page.getByLabel('Dán hoặc nhập dàn ý tương lai');
       await outline.fill('Local buffer for the second novel.');
+      await expect(outline).toHaveValue('Local buffer for the second novel.');
+      await h.shot('s6-before-release');
       release();
       await h.page.unrouteAll({ behavior: 'wait' });
       await expect(outline).toHaveValue('Local buffer for the second novel.');
