@@ -126,7 +126,7 @@ async function temporal(h, author, id, api) {
     await h.step(`Save and review immutable chapter ${number}`, async () => {
       const content = number === 8 ? 'Minh refuses to betray Lan and keeps the promise.' : `Minh visits the lighthouse, day ${number}.`;
       const revision = await chapter(h, api, author, id, number, content);
-      if (number >= 4 && number <= 7) {
+      if (number >= 5 && number <= 7) {
         const state = await h.snapshot(`s5-sequential-revision-${number}`, [id]);
         assertHistory(state, approved);
         return;
@@ -137,7 +137,7 @@ async function temporal(h, author, id, api) {
       const group = `/ai/proposal-groups/${queue[0].dependency_group_id}`;
       const version = Number(pending['narrative.story_brains'][0].brain_version);
       const body = { proposal_ids: queue.map(p => p.proposal_id), expected_brain_version: version };
-      if (number === 2) {
+      if (number === 4) {
         await api('POST', `${group}/reject`, { expected_brain_version: version, reason: 'Author rejects this group' });
       } else {
         await api('POST', `${group}/accept`, body);
@@ -146,6 +146,12 @@ async function temporal(h, author, id, api) {
       }
       const after = await h.snapshot(`s5-decided-${number}`, [id]);
       assertHistory(after, approved);
+      if (number !== 4) {
+        const event = after['narrative.events'].find(row => row.summary === content);
+        assert.equal(event.event_metadata.evidence[0].revision_id, revision.revision_id);
+        assert.equal(event.event_metadata.evidence[0].text_hash, revision.content_hash);
+        assert.equal(event.event_metadata.evidence[0].quote, content);
+      }
       assert.ok(after['narrative.revision_provenances'].some(p => p.revision_id === revision.revision_id && p.chapter_number === number));
       assert.deepEqual(after['narrative.story_plan_objectives'].find(o => o.plan_id === active.plan_id).objective_metadata.events,
         [{ ...future, participants: [{ entity_id: null, name_hint: 'UnwrittenLan' }] }]);
@@ -236,10 +242,22 @@ async function isolation(h, author, id, api) {
     }
     await h.api('GET', plan, undefined, undefined, [401]);
     assert.deepEqual(await h.snapshot('s7-foreign-access-rejected', [id, otherId]), before);
-    await h.page.addInitScript(token => localStorage.setItem('ephurin_access_token', token), foreign.token);
-    await h.page.goto(`${h.origin}/author/ide?novelId=${id}`);
-    await expect(h.page.getByText(betrayal, { exact: true })).toHaveCount(0);
-    await h.shot('s7-foreign-ide');
+    const context = await h.browser.newContext();
+    try {
+      await context.route('**/*', route => new URL(route.request().url()).origin === h.origin
+        ? route.continue() : route.abort());
+      const page = await context.newPage();
+      await page.addInitScript(token => localStorage.setItem('ephurin_access_token', token), foreign.token);
+      await page.goto(`${h.origin}/author/ide?novelId=${id}`);
+      await expect(page.getByText('Acceptance S7', { exact: true })).toHaveCount(0);
+      await openPlan(page, h, foreign, otherId);
+      await expect(page.getByRole('region', { name: 'Planning Studio' })).toContainText('Foreign lighthouse');
+      await expect(page.getByLabel('Dán hoặc nhập dàn ý tương lai')).toHaveValue('');
+      await expect(page.getByText(betrayal, { exact: true })).toHaveCount(0);
+      await h.shot('s7-foreign-ide', page);
+    } finally {
+      await context.close();
+    }
   });
 }
 
