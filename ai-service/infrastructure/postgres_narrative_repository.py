@@ -15,6 +15,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
 logger = logging.getLogger(__name__)
+VERIFIED_MENTION_VERSION = 'author-verified-v1'
 
 from domain.entity_profile import EntityProfilePatch, PROFILE_FIELDS, approved_profile
 from domain.projection import ProjectionError, validate_payload, project, resolve_entity, transition_from_payload, resolve_effective_facts
@@ -3293,7 +3294,7 @@ class PostgresNarrativeRepository:
                 entity_id=entity.id, chapter_id=uuid.UUID(audit['chapter_id']),
                 revision_id=uuid.UUID(audit['revision_id']), surface_text=quote,
                 source_start=start, source_end=end, source_text_hash=audit['source_hash'],
-                extractor_version='author-verified-v1',
+                extractor_version=VERIFIED_MENTION_VERSION,
             ).on_conflict_do_nothing(constraint='uq_entity_mention_evidence'))
 
     def save_entity_candidate_audit(self, story_id: str, run_id: str, audit: dict, *, expected_version: int | None = None) -> None:
@@ -3312,6 +3313,45 @@ class PostgresNarrativeRepository:
                 raise KeyError(run_id)
             if expected_version is not None and (record.entity_candidate_audit or {}).get('review_version', 0) != expected_version:
                 raise OptimisticLockError('Entity checkpoint changed')
+            previous = record.entity_candidate_audit or {}
+            history = deepcopy(previous.get('superseded_occurrence_reviews', []))
+            if (previous.get('status') == 'entities_reviewed'
+                    and previous.get('identity_inventory_version') == 2
+                    and audit['status'] == 'waiting_entity_review'
+                    and audit.get('refresh_input_version') == previous['review_version']):
+                history.append({key: deepcopy(previous[key]) for key in (
+                    'revision_id', 'source_hash', 'review_version', 'guidance_version',
+                    'entities', 'reviewed_decisions',
+                )})
+                other_audits = session.scalars(select(AnalysisRunRecord.entity_candidate_audit).where(
+                    *self._scope(AnalysisRunRecord, brain.novel_id),
+                    AnalysisRunRecord.id != record.id,
+                    AnalysisRunRecord.entity_candidate_audit['revision_id'].as_string() == previous['revision_id'],
+                    AnalysisRunRecord.entity_candidate_audit['status'].as_string().in_(
+                        ('entities_reviewed', 'completed')),
+                )).all()
+                for frozen in previous['entities']:
+                    if not frozen['canonical_entity_id']:
+                        continue
+                    for occurrence in frozen['occurrences']:
+                        if any(other['canonical_entity_id'] == frozen['canonical_entity_id']
+                               and any(all(o[key] == occurrence[key] for key in ('start', 'end', 'text_hash'))
+                                       for o in other.get('occurrences', []))
+                               for other_audit in other_audits for other in other_audit.get('entities', [])):
+                            continue
+                        session.execute(delete(EntityMentionRecord).where(
+                            *self._scope(EntityMentionRecord, brain.novel_id),
+                            EntityMentionRecord.story_brain_id == brain.id,
+                            EntityMentionRecord.chapter_id == uuid.UUID(previous['chapter_id']),
+                            EntityMentionRecord.revision_id == uuid.UUID(previous['revision_id']),
+                            EntityMentionRecord.entity_id == uuid.UUID(frozen['canonical_entity_id']),
+                            EntityMentionRecord.source_start == occurrence['start'],
+                            EntityMentionRecord.source_end == occurrence['end'],
+                            EntityMentionRecord.source_text_hash == previous['source_hash'],
+                            EntityMentionRecord.extractor_version == VERIFIED_MENTION_VERSION,
+                        ))
+            if history:
+                audit['superseded_occurrence_reviews'] = history
             if audit['status'] == 'entities_reviewed' and audit.get('identity_inventory_version') == 2:
                 for frozen in audit['entities']:
                     if frozen['canonical_entity_id']:
