@@ -276,8 +276,10 @@ async function concurrency(h, author, id, api) {
     assert.deepEqual(after['narrative.entity_mentions'], pending['narrative.entity_mentions']);
     await h.shot('s6-canon-winner');
   });
-  await h.step('Late plan response cannot replace the selected novel or its local buffer', async () => {
-    const otherId = await novel(h, author, 'Concurrent second lighthouse');
+  for (const status of [200, 503]) await h.step(`Late plan response (${status}) cannot replace the selected novel or its local buffer`, async () => {
+    const title = `Concurrent lighthouse ${status}`;
+    const otherId = await novel(h, author, title);
+    let outcome;
     let release;
     let received;
     const held = new Promise(resolve => { release = resolve; });
@@ -288,14 +290,21 @@ async function concurrency(h, author, id, api) {
       const response = await route.fetch();
       received();
       await held;
-      await route.fulfill({ response }).catch(() => {});
+      try {
+        if (status === 200) await route.fulfill({ response });
+        else await route.fulfill({ status, json: { error: { code: 'LATE_TEST_ERROR', message: 'Abandoned plan response' } } });
+        outcome = 'fulfilled';
+      } catch (error) {
+        outcome = 'route closed';
+        assert.match(error.message, /cancel|abort|closed|handled|Invalid Interception/i);
+      }
     }, { times: 1 });
     try {
       await h.page.getByRole('button', { name: 'Tải lại dàn ý', exact: true }).click();
       await ready;
       await h.page.getByRole('link', { name: /Tủ truyện/ }).click();
       await h.page.getByRole('link', { name: 'Tác phẩm của tôi', exact: true }).click();
-      const project = h.page.locator('article').filter({ hasText: 'Concurrent second lighthouse' });
+      const project = h.page.locator('article').filter({ hasText: title });
       const hydrated = h.page.waitForResponse(r => r.url().endsWith(`/ai/story-plans/edit-v1/${otherId}`)
         && r.request().method() === 'GET' && r.ok());
       await project.getByRole('button', { name: /Viết tiếp/ }).click();
@@ -305,17 +314,23 @@ async function concurrency(h, author, id, api) {
         .getByRole('button', { name: /Dàn ý chương/ }).click();
       await hydrated;
       const studio = h.page.getByRole('region', { name: 'Planning Studio' });
-      await expect(studio).toContainText('Concurrent second lighthouse');
+      await expect(studio).toContainText(title);
       await expect(studio).toHaveAttribute('aria-busy', 'false');
       const outline = h.page.getByLabel('Dán hoặc nhập dàn ý tương lai');
       await outline.fill('Local buffer for the second novel.');
       await expect(outline).toHaveValue('Local buffer for the second novel.');
-      await h.shot('s6-before-release');
+      const before = await h.snapshot(`s6-before-release-${status}`, [id, otherId]);
+      await h.shot(`s6-before-release-${status}`);
       release();
       await h.page.unrouteAll({ behavior: 'wait' });
       await expect(outline).toHaveValue('Local buffer for the second novel.');
       await expect(studio).not.toContainText('Winner retains the original future event.');
-      await h.shot('s6-late-response-isolated');
+      await expect(h.page.getByText('Abandoned plan response', { exact: false })).toHaveCount(0);
+      await expect(h.page).toHaveURL(new RegExp(`novelId=${otherId}`));
+      assert.ok(outcome);
+      await h.save(`s6-release-${status}.json`, { status, outcome, source: id, destination: otherId });
+      assert.deepEqual(await h.snapshot(`s6-after-release-${status}`, [id, otherId]), before);
+      await h.shot(`s6-late-response-isolated-${status}`);
     } finally {
       release();
       await h.page.unrouteAll({ behavior: 'wait' });
@@ -353,6 +368,24 @@ async function isolation(h, author, id, api) {
     const ownerRead = await h.api('GET', plan, undefined, author.token);
     const claimedRead = await h.api('GET', plan, undefined, author.token, [200], claimedScope);
     assert.deepEqual(claimedRead.data, ownerRead.data);
+    const foreignPlan = `/ai/story-plans/edit-v1/${otherId}`;
+    const activeSource = ownerRead.data.active_plan_id;
+    const setupSource = await api('GET', `${brain}/setup`);
+    const crossScope = [
+      ['POST', foreignPlan, { contract_version: 'plan-edit-v1', action: 'fork', expected_plan_version: 0,
+        source_plan_id: activeSource, idempotency_key: randomUUID() }, foreign.token, [404, 422]],
+      ['POST', `${brain}/setup/${setupSource.snapshot_id}/activate`, {}, foreign.token, [403, 404]],
+      ['POST', `${brain}/setup/${setupSource.snapshot_id}/review`, {}, foreign.token, [403, 404]],
+      ['POST', `${brain}/entity-reviews/${queue[0].analysis_run_id}/continue`, {}, foreign.token, [403, 404]],
+      ['PATCH', `/chapters/${revision.chapter_id}`, { content: 'Foreign write', expectedVersion: 1 }, foreign.token, [403, 404]],
+      ['POST', plan, { ...planBody(), expected_plan_version: ownerRead.data.head_version,
+        author_id: foreign.userId }, author.token, [422]],
+    ];
+    for (const [method, route, body, token, statuses] of crossScope) {
+      const rejected = await h.api(method, route, body, token, statuses, claimedScope);
+      assert.doesNotMatch(JSON.stringify(rejected.json), /UnwrittenBetrayal|Minh opens the lighthouse door/);
+      assert.deepEqual(await h.snapshot(`s7-denied-${h.readbacks.length}`, [id, otherId]), before);
+    }
     assert.deepEqual(await h.snapshot('s7-foreign-access-rejected', [id, otherId]), before);
     const context = await h.browser.newContext();
     try {
@@ -386,13 +419,39 @@ async function isolation(h, author, id, api) {
       await expect(h.page.getByTestId('brainstorm-event-card-0')).toHaveCount(0);
       await h.shot(`s7-provider-${status}`);
     }
+    const endpoint = `**/api/v1/ai/story-brains/${id}/brainstorm`;
+    await h.page.getByLabel('Yêu cầu định hướng cho AI').fill('Suggest one future event.');
+    await h.page.route(endpoint, async route => {
+      const receipt = await route.fetch();
+      assert.equal(receipt.status(), 200);
+      await route.fulfill({ status: 503, json: { error: {
+        code: 'SERVICE_UNAVAILABLE', message: 'Injected lost response after fake-provider success',
+      } } });
+    }, { times: 1 });
+    const next = () => h.page.waitForResponse(r => r.url().endsWith('/brainstorm') && r.request().method() === 'POST');
+    const unavailable = next();
+    await h.page.getByTestId('brainstorm-submit-btn').click();
+    const failed = await unavailable;
+    assert.equal(failed.status(), 503);
+    await expect(h.page.getByTestId('brainstorm-error-alert')).toBeVisible();
+    await expect(h.page.getByTestId('brainstorm-event-card-0')).toHaveCount(0);
+    const uncertain = await h.snapshot('s7-lost-response-before-retry', [id]);
+    const replay = next();
+    await h.page.getByTestId('brainstorm-safe-retry-btn').click();
+    const recovered = await replay;
+    assert.equal(recovered.status(), 200);
+    assert.equal(recovered.request().postData(), failed.request().postData());
+    await expect(h.page.getByTestId('brainstorm-event-card-0')).toBeVisible();
+    assert.deepEqual(await h.snapshot('s7-lost-response-recovered', [id]), uncertain);
+    await h.save('s7-uncertain-response.json', { transportFailure: failed.status(), retry: recovered.status(), samePayload: true });
     await h.page.getByTestId('brainstorm-close-btn').click();
     await expect(outline).toHaveValue('Local author draft through provider failures.');
     const after = await h.snapshot('s7-after-provider-errors', [id]);
     const priorRuns = before['narrative.analysis_runs'];
     const newRuns = after['narrative.analysis_runs'].filter(run => !priorRuns.some(prior => prior.id === run.id));
-    assert.equal(newRuns.length, 2);
-    assert.ok(newRuns.every(run => run.operation === 'brainstorm' && run.status === 'failed'));
+    assert.equal(newRuns.length, 3);
+    assert.equal(newRuns.filter(run => run.status === 'failed').length, 2);
+    assert.ok(newRuns.every(run => run.operation === 'brainstorm'));
     assert.deepEqual({ ...after, 'narrative.analysis_runs': after['narrative.analysis_runs']
       .filter(run => !newRuns.includes(run)) }, before);
   });
