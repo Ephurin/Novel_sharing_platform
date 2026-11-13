@@ -31,7 +31,6 @@ async function accountSwitch(h, author, foreign, id, otherId, status) {
   let release, captured, outcome;
   const held = new Promise(resolve => { release = resolve; });
   const ready = new Promise(resolve => { captured = resolve; });
-  const before = await h.snapshot(`s7-account-before-${status}`, [id, otherId]);
   try {
     await login(author);
     await page.goto(`${h.origin}/author/ide?novelId=${id}`);
@@ -66,6 +65,7 @@ async function accountSwitch(h, author, foreign, id, otherId, status) {
     await expect(outline).toHaveValue('');
     const value = `Foreign account local outline ${status}`;
     await outline.fill(value);
+    const before = await h.snapshot(`s7-account-before-release-${status}`, [id, otherId]);
     release();
     await page.unrouteAll({ behavior: 'wait' });
     await expect(outline).toHaveValue(value);
