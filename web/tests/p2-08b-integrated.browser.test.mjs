@@ -404,11 +404,25 @@ async function concurrency(h, author, id, api) {
 async function isolation(h, author, id, api) {
   const foreign = await h.account('AUTHOR');
   const otherId = await novel(h, foreign, 'Foreign lighthouse');
-  await setup(api, id);
+  let activation;
+  await setup(async (method, path, body) => {
+    if (method === 'POST' && path.endsWith('/activate')) activation = { path, body };
+    return api(method, path, body);
+  }, id);
   const originalPlan = planBody();
   await activatePlan(api, id, originalPlan);
   const revision = await chapter(h, api, author, id, 1, 'Minh opens the lighthouse door.');
   const queue = await pendingGroup(api, id, revision);
+  await h.step('Setup activation replay cannot escape source or owner scope', async () => {
+    const before = await h.snapshot('s7-setup-replay-before', [id, otherId]);
+    const { path, body } = activation;
+    assert.equal((await api('POST', path, body)).baseline_revision_id, null);
+    const forged = { 'X-Author-Id': author.userId, 'X-Tenant-Id': randomUUID() };
+    await h.api('POST', path, body, foreign.token, [403, 404], forged);
+    await h.api('POST', path.replace(id, otherId), body, foreign.token, [404, 409, 422], forged);
+    await api('POST', path, { ...body, expected_brain_version: body.expected_brain_version + 1 }, [409, 422]);
+    assert.deepEqual(await h.snapshot('s7-setup-replay-after', [id, otherId]), before);
+  });
   await h.step('Foreign author cannot read or mutate the owner workspace', async () => {
     const before = await h.snapshot('s7-before-foreign-access', [id, otherId]);
     const brain = `/ai/story-brains/${id}`;
@@ -585,6 +599,65 @@ async function isolation(h, author, id, api) {
     await h.step(`Account switch isolates held ${status} plan response`,
       () => accountSwitch(h, author, foreign, id, target, status));
   }
+  await h.step('Canon terminal replay preserves the approved group and provenance', async () => {
+    const path = `/ai/proposal-groups/${queue[0].dependency_group_id}/accept`;
+    const pending = await h.snapshot('s7-canon-before-owner-approval', [id, otherId]);
+    const body = { proposal_ids: queue.map(p => p.proposal_id),
+      expected_brain_version: Number(pending['narrative.story_brains'].find(b => b.novel_id === id).brain_version) };
+    await api('POST', path, body);
+    const approved = await h.snapshot('s7-canon-approved', [id, otherId]);
+    assert.equal(approved['narrative.events'].length, 1);
+    await api('POST', path, body, [409]);
+    await h.api('POST', path, body, foreign.token, [403, 404],
+      { 'X-Author-Id': author.userId, 'X-Tenant-Id': randomUUID() });
+    await api('POST', path, { ...body, expected_brain_version: body.expected_brain_version + 1 }, [409]);
+    assert.deepEqual(await h.snapshot('s7-canon-terminal-replay', [id, otherId]), approved);
+  });
+  await h.step('Mounted Writer previews, accepts and dismisses distinct AI drafts', async () => {
+    const page = h.page;
+    await page.goto(`${h.origin}/author/ide?novelId=${id}&chapterId=${revision.chapter_id}`);
+    const editor = page.locator('textarea.sc-manuscript');
+    await expect(editor).toHaveValue('Minh opens the lighthouse door.');
+    const toggle = page.getByTitle('Mở trợ lý sáng tác AI');
+    await toggle.click();
+    const panel = page.locator('#studio-ai-panel');
+    const generate = () => panel.getByRole('button', { name: 'Viết tiếp', exact: false }).click();
+    const accept = panel.getByRole('button', { name: 'Chấp nhận bản thảo', exact: true });
+    const before = await h.snapshot('s7-writing-original', [id]);
+    await generate();
+    await expect(accept).toBeEnabled({ timeout: 30000 });
+    await expect(editor).toHaveValue('Minh opens the lighthouse door.');
+    const preview = await h.snapshot('s7-writing-preview', [id]);
+    assert.deepEqual(preview['public.chapter_revisions'], before['public.chapter_revisions']);
+    await h.shot('s7-writing-preview');
+    const accepted = page.waitForResponse(r => r.url().endsWith('/revisions/accept-draft') && r.request().method() === 'POST');
+    await accept.click();
+    assert.equal((await accepted).status(), 200);
+    await expect(accept).toHaveCount(0);
+    const written = await h.snapshot('s7-writing-accepted', [id]);
+    assert.equal(written['public.chapter_revisions'].length, before['public.chapter_revisions'].length + 1);
+    const added = written['public.chapter_revisions'].find(row => row.revision_id !== revision.revision_id);
+    assert.equal(added.parent_revision_id, revision.revision_id);
+    assert.equal(added.content_hash, hash(await editor.inputValue()));
+    assert.equal(added.created_by, author.userId);
+    assert.ok(written['public.revision_outbox_events'].some(row => row.revision_id === added.revision_id));
+    assert.deepEqual(written['narrative.events'], before['narrative.events']);
+    await generate();
+    const dismiss = panel.getByRole('button', { name: 'Từ chối / Bỏ qua' });
+    await expect(dismiss).toBeVisible({ timeout: 30000 });
+    const discarded = page.waitForResponse(r => r.url().endsWith('/dismiss') && r.request().method() === 'POST');
+    await dismiss.click();
+    assert.ok((await discarded).ok());
+    await page.reload();
+    await expect(editor).not.toHaveValue('Minh opens the lighthouse door.');
+    assert.equal(hash(await editor.inputValue()), added.content_hash);
+    const after = await h.snapshot('s7-writing-dismissed-reloaded', [id]);
+    assert.deepEqual(after['public.chapter_revisions'], written['public.chapter_revisions']);
+    assert.deepEqual(after['mongo.draft_chapters'], written['mongo.draft_chapters']);
+    assert.deepEqual(after['narrative.events'], written['narrative.events']);
+    assert.ok(after['narrative.writing_generations'].some(row => row.status === 'dismissed'));
+    await h.shot('s7-writing-dismissed-reloaded');
+  });
 }
 
 test(`${scenario} real-stack acceptance`, { timeout: 240000 }, async () => {
