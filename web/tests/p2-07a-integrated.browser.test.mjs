@@ -323,7 +323,11 @@ test(`${scenario} first chapter through the real Gateway`, {
           ...(i === 1 ? { provisional_identity_key: `${audit.provisional_identity_scope}/driver` }
             : { canonical_entity_id: existing.id }),
         }]));
-        decisions = decisions.map(d => selected.get(d.candidate_id) ?? d);
+        decisions = audit.candidates.map(candidate => selected.get(candidate.candidate_id) ?? {
+          candidate_id: candidate.candidate_id, verdict: 'not_entity',
+          reason: 'Author excludes the overlapping extraction span',
+        });
+        await h.save('chapter-1-occurrence-decisions.json', { candidates: audit.candidates, decisions });
         await h.api('POST', `${base}/entity-reviews/${run.id}/continue`, {}, author.token, [409]);
         await h.api('POST', `${base}/entity-reviews/${run.id}/review`, {
           expected_version: audit.review_version,
@@ -331,9 +335,14 @@ test(`${scenario} first chapter through the real Gateway`, {
             ? { ...d, canonical_entity_id: randomUUID() } : d),
         }, author.token, [409, 422]);
       }
-      await h.api('POST', `${base}/entity-reviews/${run.id}/review`, {
+      const { data: frozen } = await h.api('POST', `${base}/entity-reviews/${run.id}/review`, {
         expected_version: audit.review_version, decisions,
       }, author.token);
+      if (scenario === 'S4') {
+        await h.save('chapter-1-frozen-inventory.json', frozen);
+        assert.equal(frozen.entities.length, 2);
+        assert.ok(frozen.entities.some(entity => entity.entity_id === confirmedMinh));
+      }
       await h.api('POST', `${base}/entity-reviews/${run.id}/continue`, {}, author.token);
       const { data: queue } = await h.api('GET', `${base}/review-queue`, undefined, author.token);
       const proposals = queue.filter(p => p.analysis_run_id === run.id);
@@ -362,6 +371,10 @@ test(`${scenario} first chapter through the real Gateway`, {
       if (scenario === 'S4') {
         homonyms = after['narrative.entities'].filter(e => e.canonical_name === 'Minh');
         assert.equal(homonyms.length, 2);
+        assert.equal(after['narrative.entities'].length, 2, 'An excluded overlap must not create a third identity');
+        const eventId = after['narrative.events'][0].id;
+        assert.deepEqual(after['narrative.event_participants'].filter(row => row.event_id === eventId)
+          .map(row => row.entity_id).sort(), homonyms.map(row => row.id).sort());
         assert.equal(new Set(homonyms.map(e => e.id)).size, 2);
         const mentions = after['narrative.entity_mentions'].filter(row =>
           row.revision_id === chapterOne.revision_id && row.surface_text === 'Minh');
