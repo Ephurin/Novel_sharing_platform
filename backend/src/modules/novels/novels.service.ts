@@ -6,7 +6,10 @@ import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
 import { slugify } from '../../core/utils/slug.js';
 import { checkContent } from '../content-control/content-control.service.js';
-import type { CreateNovelInput, ListNovelsInput, UpdateNovelInput } from './novels.schemas.js';
+import { NOVEL_SYNOPSIS_MIN, type CreateNovelInput, type ListNovelsInput, type UpdateNovelInput } from './novels.schemas.js';
+import type { PoolClient } from 'pg';
+import { CHAPTER_CONTENT_MIN, CHAPTER_TITLE_MAX } from './chapters.schemas.js';
+import { findDraftChapterByChapterId } from './draft-chapters.repository.js';
 import {
   createNovel as createNovelRow,
   findNovelById,
@@ -30,8 +33,11 @@ function assertNovelOwner(novel: { authorId: string }, auth: AuthContext) {
   }
 }
 
+// novels.slug is varchar(255); keep room for the 9-character suffix so a long title cannot overflow it.
+const SLUG_BASE_MAX = 200;
+
 function makeUniqueSlug(title: string) {
-  const baseSlug = slugify(title) || 'novel';
+  const baseSlug = slugify(title).slice(0, SLUG_BASE_MAX).replace(/-+$/, '') || 'novel';
   return `${baseSlug}-${randomUUID().slice(0, 8)}`;
 }
 
@@ -99,6 +105,13 @@ export async function updateNovel(auth: AuthContext, novelId: string, input: Upd
   const novel = await getNovel(novelId);
   assertNovelOwner(novel, auth);
 
+  // D3: only a synopsis that actually changes must meet the minimum, so legacy novels with a short synopsis can
+  // still update their cover or genres even when a client sends the unchanged synopsis back.
+  if (input.synopsis !== undefined && input.synopsis !== (novel.synopsis ?? '').trim() && input.synopsis.length < NOVEL_SYNOPSIS_MIN) {
+    throw new AppError(400, 'VALIDATION_001', `Giới thiệu cần tối thiểu ${NOVEL_SYNOPSIS_MIN} ký tự.`,
+      { field: 'synopsis', minLength: NOVEL_SYNOPSIS_MIN, length: input.synopsis.length });
+  }
+
   const updatedNovel = await updateNovelRow(novelId, input);
   if (!updatedNovel) {
     throw new AppError(404, 'CONTENT_001', 'Content not found');
@@ -113,12 +126,51 @@ export async function deleteNovel(auth: AuthContext, novelId: string) {
   await softDeleteNovel(novelId);
 }
 
+// SRS novel-chapter-service §1 (product-owner decision D2, 2026-11-09): a novel needs two valid chapters before
+// its first publish request.
+export const INITIAL_PUBLISH_MIN_CHAPTERS = 2;
+// Chapters an author is still working on or has published. ARCHIVED chapters are set aside by the author
+// (chapter-lifecycle.ts) without deleted_at, so they must not count toward the rule.
+const PUBLISH_ELIGIBLE_CHAPTER_STATUSES = ['DRAFT', 'REJECTED', 'PENDING_MODERATION', 'PUBLISHED'];
+
+// FOR SHARE holds the counted rows until the publish request commits: an archive racing the submission
+// either lands first (and is counted out) or waits for it.
+async function countPublishReadyChapters(client: PoolClient, novelId: string) {
+  const chapters = (await client.query(
+    `select chapter_id, title, content from chapters
+     where novel_id = $1 and deleted_at is null and status = any($2::chapter_status[])
+     for share`,
+    [novelId, PUBLISH_ELIGIBLE_CHAPTER_STATUSES]
+  )).rows;
+  let ready = 0;
+  for (const chapter of chapters) {
+    const draft = await findDraftChapterByChapterId(chapter.chapter_id);
+    const title: string = draft?.title ?? chapter.title;
+    const content: string = draft?.content ?? chapter.content ?? '';
+    if (title.length <= CHAPTER_TITLE_MAX && content.trim().length >= CHAPTER_CONTENT_MIN) ready += 1;
+  }
+  return ready;
+}
+
 export async function submitPublish(auth: AuthContext, novelId: string) {
+  const owned = await getNovel(novelId);
+  assertNovelOwner(owned, auth);
+  return withPostgresTransaction(client => submitPublishLocked(auth, novelId, client));
+}
+
+async function submitPublishLocked(auth: AuthContext, novelId: string, client: PoolClient) {
+  await client.query('select novel_id from novels where novel_id = $1 for update', [novelId]);
   const novel = await getNovel(novelId);
-  assertNovelOwner(novel, auth);
 
   if (!['DRAFT', 'REJECTED', 'PENDING_MODERATION'].includes(novel.status)) {
     throw new AppError(409, 'CONTENT_004', 'Invalid content state');
+  }
+
+  const readyChapters = await countPublishReadyChapters(client, novelId);
+  if (readyChapters < INITIAL_PUBLISH_MIN_CHAPTERS) {
+    throw new AppError(422, 'VALIDATION_002',
+      `Truyện cần ít nhất ${INITIAL_PUBLISH_MIN_CHAPTERS} chương hợp lệ (tiêu đề dưới ${CHAPTER_TITLE_MAX + 1} ký tự, nội dung từ ${CHAPTER_CONTENT_MIN} ký tự) trước khi gửi xuất bản.`,
+      { readyChapters, requiredChapters: INITIAL_PUBLISH_MIN_CHAPTERS });
   }
 
   const moderation = await checkContent({
@@ -126,10 +178,10 @@ export async function submitPublish(auth: AuthContext, novelId: string) {
     targetId: novel.novelId,
     content: `${novel.title}\n\n${novel.synopsis}`,
     submittedBy: auth.userId
-  });
+  }, client);
 
   if (!moderation.moderationRequired) {
-    const publishedNovel = await publishNovel(novelId);
+    const publishedNovel = await publishNovel(novelId, client);
     if (!publishedNovel) {
       throw new AppError(409, 'CONTENT_004', 'Invalid content state');
     }
@@ -142,7 +194,7 @@ export async function submitPublish(auth: AuthContext, novelId: string) {
     };
   }
 
-  const updatedNovel = novel.status === 'PENDING_MODERATION' ? novel : await submitNovelForPublish(novelId);
+  const updatedNovel = novel.status === 'PENDING_MODERATION' ? novel : await submitNovelForPublish(novelId, client);
   if (!updatedNovel) {
     throw new AppError(409, 'CONTENT_004', 'Invalid content state');
   }

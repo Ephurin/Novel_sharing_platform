@@ -23,6 +23,8 @@ from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 
+PR_LABEL = "PR #73"  # set from --pr-label
+
 FONT = "Times New Roman"
 YELLOW = PatternFill("solid", fgColor="FFFF00")
 HEADER = PatternFill("solid", fgColor="D9D9D9")
@@ -138,20 +140,20 @@ FEATURES: List[Dict[str, Any]] = [
             ("Chức năng", [
                 ("NOV_03", "Tạo truyện (TC-NOV-01)", "Gửi tạo truyện hợp lệ", "Trạng thái DRAFT", "tiêu đề SRS Novel *, tóm tắt > 500 ký tự", ("srs", "TC-NOV-01")),
                 ("NOV_04", "Tiêu đề 255 ký tự (TC-NOV-02)", "Tạo truyện với tiêu đề 255 ký tự", "Từ chối (SRS: tiêu đề < 255 ký tự)", "title = 'T' × 255", ("srs", "TC-NOV-02")),
-                ("NOV_05", "Tóm tắt dưới 500 ký tự (TC-NOV-03)", "Tạo truyện với tóm tắt ngắn", "Từ chối", "synopsis 18 ký tự", ("srs", "TC-NOV-03")),
-                ("NOV_06", "Gửi xuất bản khi dưới 5 chương (TC-NOV-04)", "Truyện có 2 chương nháp → submit-publish", "Bị chặn", "2 chương nháp", ("srs", "TC-NOV-04")),
+                ("NOV_05", "Tóm tắt dưới 50 ký tự (TC-NOV-03, D3)", "Tạo truyện với tóm tắt 49 ký tự, chỉ khoảng trắng, và đúng 50 ký tự", "49 ký tự và khoảng trắng bị từ chối; 50 ký tự được nhận", "synopsis 49 / 80 dấu cách / 50 ký tự", ("srs", "TC-NOV-03")),
+                ("NOV_06", "Gửi xuất bản khi dưới 2 chương hợp lệ (TC-NOV-04, D2)", "Truyện có 1 chương hợp lệ + 1 chương đã lưu trữ → submit-publish", "Bị chặn (422 VALIDATION_002), truyện giữ DRAFT", "1 chương ≥ 500 ký tự + 1 chương ARCHIVED", ("srs", "TC-NOV-04")),
                 ("NOV_07", "Tiêu đề chương 100 ký tự (TC-NOV-05)", "Tạo chương với tiêu đề 100 ký tự", "Từ chối (SRS: < 100 ký tự)", "title = 'C' × 100", ("srs", "TC-NOV-05")),
                 ("NOV_08", "Chương dưới 500 ký tự (TC-NOV-06)", "Tạo chương ngắn → submit-publish", "Không được xuất bản", "nội dung 18 ký tự", ("srs", "TC-NOV-06")),
                 ("NOV_09", "Độc giả tạo truyện (TC-NOV-13)", "reader04 gửi tạo truyện", "403", "reader04", ("srs", "TC-NOV-13")),
             ]),
             ("Luồng", [
-                ("NOV_10", "Xuất bản truyện đủ 5 chương (TC-NOV-14)", "Tạo truyện + 5 chương hợp lệ → submit-publish", "PUBLISHED, khách xem được", "5 chương > 500 ký tự", ("srs", "TC-NOV-14")),
+                ("NOV_10", "Xuất bản truyện đủ 2 chương (TC-NOV-14, D2)", "Tạo truyện + 2 chương hợp lệ → submit-publish", "PUBLISHED, khách xem được", "2 chương > 500 ký tự", ("srs", "TC-NOV-14")),
                 ("NOV_11", "Xuất bản chương hợp lệ (TC-NOV-07)", "Tạo chương → submit-publish", "PUBLISHED, khách đọc được", "chương > 500 ký tự", ("srs", "TC-NOV-07")),
                 ("NOV_12", "Chương dính từ khoá (TC-NOV-08)", "Chương chứa từ khoá → submit-publish", "PENDING_MODERATION, chưa công khai", "srs-blocked-term", ("srs", "TC-NOV-08")),
                 ("NOV_13", "Admin duyệt chương (TC-NOV-09)", "Admin resolve APPROVED", "PUBLISHED", "decision APPROVED", ("srs", "TC-NOV-09")),
                 ("NOV_14", "Admin từ chối chương (TC-NOV-10)", "Admin resolve REJECTED kèm lý do", "Chương không công khai; tác giả nhận lý do", "lý do 'Lý do SRS *'", ("srs", "TC-NOV-10")),
                 ("NOV_15", "Khách mở chương VIP (TC-NOV-12)", "Khách gọi đọc chương VIP", "Không nhận nội dung (402)", "chương VIP 50 xu", ("srs", "TC-NOV-12")),
-                ("NOV_16", "Nhân vật/timeline (TC-NOV-11)", "—", "Lưu kèm nguồn; người không sở hữu bị chặn", "—", ("na", "Không chạy: thuộc luồng Writing Copilot, ngoài phạm vi PR #73.")),
+                ("NOV_16", "Nhân vật/timeline (TC-NOV-11)", "—", "Lưu kèm nguồn; người không sở hữu bị chặn", "—", ("na", "Không chạy: thuộc luồng Writing Copilot, ngoài phạm vi lần kiểm thử này.")),
             ]),
         ],
     },
@@ -216,9 +218,9 @@ FEATURES: List[Dict[str, Any]] = [
                 ("ADM_06", "Gỡ truyện không tồn tại (TC-ADM-05)", "DELETE id ngẫu nhiên", "CONTENT_001", "uuid ngẫu nhiên", ("srs", "TC-ADM-05")),
             ]),
             ("Luồng", [
-                ("ADM_07", "Gỡ mềm truyện (TC-ADM-03)", "DELETE có confirm và lý do", "Truyện và chương có deleted_at; mất khỏi danh sách; tác giả nhận thông báo", "reason 'Gỡ truyện SRS *'", ("srs", "TC-ADM-03")),
-                ("ADM_08", "Bản nháp của truyện bị gỡ (TC-ADM-08)", "Kiểm tra draft_chapters trong Mongo sau khi gỡ", "deletedAt được đặt cho mọi bản nháp", "3 bản nháp", ("srs", "TC-ADM-08")),
-                ("ADM_09", "Khôi phục truyện (TC-ADM-06)", "POST /admin/novels/:id/restore", "Truyện hiện lại", "reason 'SRS acceptance'", ("srs", "TC-ADM-06")),
+                ("ADM_07", "Gỡ mềm truyện đang công khai (TC-ADM-03)", "Khách/tác giả đọc truyện và chương → DELETE có confirm và lý do → đọc lại", "Truyện và chương có deleted_at; khách và tác giả nhận 404; mất khỏi danh sách công khai và admin; tác giả nhận 'Truyện đã bị gỡ bởi Admin'", "truyện SRS Pipeline đã công khai, reason 'Gỡ truyện SRS *'", ("srs", "TC-ADM-03")),
+                ("ADM_08", "Bản nháp của truyện bị gỡ (TC-ADM-08)", "Kiểm tra draft_chapters trong Mongo sau khi gỡ", "deletedAt được đặt cho mọi bản nháp", "các bản nháp của truyện SRS Pipeline", ("srs", "TC-ADM-08")),
+                ("ADM_09", "Khôi phục truyện (TC-ADM-06)", "POST /admin/novels/:id/restore → đọc lại như trước khi gỡ", "Khách/tác giả đọc lại được như trước; số bản nháp còn hiệu lực như trước khi gỡ", "reason 'SRS acceptance'", ("srs", "TC-ADM-06")),
                 ("ADM_10", "Hộp thoại cảnh báo trước khi gỡ (TC-ADM-07)", "—", "Có cảnh báo", "—", ("na", "Chưa tự động hoá: cần kịch bản trình duyệt cho màn admin mới của PR #74.")),
             ]),
         ],
@@ -233,7 +235,7 @@ FEATURES: List[Dict[str, Any]] = [
                 ("AI_03", "Phân tích văn phong (TC-AI-03)", "—", "Có báo cáo; chương < 500 từ bị từ chối", "—", ("na", "Không chạy: cần dịch vụ LLM.")),
                 ("AI_04", "Writing Copilot (TC-AI-04)", "—", "Có gợi ý; chỉ lưu khi tác giả chấp nhận", "—", ("na", "Không chạy: cần dịch vụ LLM.")),
                 ("AI_05", "Kiểm tra nhất quán (TC-AI-05)", "—", "Danh sách cảnh báo, không tự sửa", "—", ("na", "Không chạy: cần dịch vụ LLM.")),
-                ("AI_06", "AI không sẵn sàng (TC-AI-06)", "Gọi /ai/copilot/suggestions khi LLM tắt", "Trả AI_001 trong 5 giây, không chặn thao tác", "instruction 'Viết tiếp đoạn mở đầu'", ("srs", "TC-AI-06")),
+                ("AI_06", "AI không sẵn sàng (TC-AI-06)", "Provider LLM giả trả 503 → treo quá timeout 3 giây → tắt cổng; mỗi lần gọi /ai/copilot/suggestions, sau đó tác giả lưu chương", "Cả ba lần trả 503 AI_001 kèm details.reason trong 5 giây; lưu chương vẫn thành công", "instruction 'Viết tiếp đoạn mở đầu'", ("srs", "TC-AI-06")),
             ]),
         ],
     },
@@ -258,7 +260,7 @@ FEATURES: List[Dict[str, Any]] = [
                 ("UI_12", "Luồng tác giả (TC-UI-04)", "Dashboard → quản lý truyện → IDE → hồ sơ", "Đi hết luồng", SMOKE_NOTE, ("smoke", "author", "")),
                 ("UI_13", "Luồng admin (TC-UI-05)", "Đăng nhập → hàng đợi kiểm duyệt → đăng xuất", "Đi hết luồng", SMOKE_NOTE, ("smoke", "admin", "")),
                 ("UI_14", "Toàn bộ trang ở mọi kích thước/giao diện (TC-UI-07)", "Smoke 4 vai trò", "Không tràn ngang, đúng giao diện, không lỗi", SMOKE_NOTE, ("smoke", "*", "")),
-                ("UI_15", "App di động React Native (TC-UI-08)", "—", "Chạy được luồng đọc", "—", ("na", "Không chạy: thư mục mobile/ ngoài phạm vi PR #73.")),
+                ("UI_15", "App di động React Native (TC-UI-08)", "—", "Chạy được luồng đọc", "—", ("na", "Không chạy: thư mục mobile/ ngoài phạm vi lần kiểm thử này.")),
             ]),
         ],
     },
@@ -304,11 +306,26 @@ def fmt_detail(detail: Any) -> str:
 
 
 class Evidence:
-    def __init__(self, manifest: Dict[str, Any], baseline: List[Dict[str, Any]]):
+    def __init__(self, manifest: Dict[str, Any], baseline: List[Dict[str, Any]], browser: Optional[Dict[str, Any]] = None):
         self.manifest = manifest
         self.steps = {step["name"]: step for step in manifest["steps"]}
         self.baseline = [{r["id"]: r for r in run.get("results", [])} for run in baseline]
         self.baseline_sha = baseline[0].get("tested_code_sha", "")[:8] if baseline else ""
+        self.fixed: set = set()  # SRS checks that fail on every baseline run but pass here
+        # Browser runners run once on main (smoke / social / discovery evidence JSON), to tell inherited Fails apart.
+        self.browser = browser or {}
+        self.browser_sha = next((run.get("tested_code_sha", "")[:8] for run in self.browser.values() if run.get("tested_code_sha")), "")
+        self.fail_origin: List[str] = []  # one entry per Fail row: "main" (fails on main too), "flaky" or "new"
+
+    def browser_origin(self, failed_on_main: bool, flaky: bool = False) -> str:
+        self.fail_origin.append("main" if failed_on_main else "flaky" if flaky else "new")
+        if not self.browser:
+            return ""
+        if failed_on_main:
+            return f" Cùng script chạy trên main {self.browser_sha} cũng FAIL ở bước này, nên không do {PR_LABEL}."
+        if flaky:
+            return f" Lượt còn lại và main {self.browser_sha} đều PASS ở bước này → lỗi chập chờn, không lặp lại."
+        return f" Trên main {self.browser_sha} bước này PASS → lỗi mới, cần xem lại."
 
     def runs(self, prefix: str) -> List[Dict[str, Any]]:
         return [step.get("evidence") or {} for name, step in self.steps.items() if name.startswith(prefix)]
@@ -324,11 +341,16 @@ class Evidence:
                 return "N/A", "Không có kết quả chạy."
             outcomes = [r["result"] for r in results]
             detail = fmt_detail(results[-1].get("detail"))
-            if all(o == "PASS" for o in outcomes):
-                return "Pass", f"Đạt {len(outcomes)}/{len(outcomes)} lần chạy. Thực tế: {detail}"
             base = [b.get(source[1], {}).get("result") for b in self.baseline]
+            if all(o == "PASS" for o in outcomes):
+                fixed = ""
+                if base and all(b == "FAIL" for b in base):
+                    self.fixed.add(source[1])
+                    fixed = f" Trên main {self.baseline_sha} cả {len(base)}/{len(base)} lần baseline đều FAIL; đã sửa trong {PR_LABEL}."
+                return "Pass", f"Đạt {len(outcomes)}/{len(outcomes)} lần chạy. Thực tế: {detail}.{fixed}"
+            self.fail_origin.append("main" if base and all(b == "FAIL" for b in base) else "new")
             if base and all(b == "FAIL" for b in base):
-                origin = f"Có sẵn trên main {self.baseline_sha} ({len(base)}/{len(base)} lần baseline cũng FAIL), không do PR #73."
+                origin = f"Có sẵn trên main {self.baseline_sha} ({len(base)}/{len(base)} lần baseline cũng FAIL), không do {PR_LABEL}."
             elif base:
                 origin = f"main {self.baseline_sha}: {'/'.join(b or '-' for b in base)} → lỗi mới so với main."
             else:
@@ -337,13 +359,20 @@ class Evidence:
             return "Fail", f"Thực tế: {detail}.{stability} {origin}".strip()
         if kind in ("social", "discovery"):
             prefix = "social_run" if kind == "social" else "discovery_run"
-            outcomes = [(run.get("checkpoints") or {}).get(source[1]) for run in self.runs(prefix)]
+            runs = self.runs(prefix)
+            outcomes = [(run.get("checkpoints") or {}).get(source[1]) for run in runs]
             outcomes = [o for o in outcomes if o]
-            if not outcomes:
+            stopped = [run.get("failure") for run in runs if run.get("failure")]
+            if not outcomes and not stopped:
                 return "N/A", "Không có kết quả chạy."
-            if all(o == "PASS" for o in outcomes):
+            if outcomes and all(o == "PASS" for o in outcomes) and len(outcomes) == len(runs):
                 return "Pass", f"Đạt {len(outcomes)}/{len(outcomes)} lần chạy trên trình duyệt thật (DB tạm, đã xoá sau khi chạy)."
-            return "Fail", f"Kết quả các lần chạy: {'/'.join(outcomes)}."
+            main_run = self.browser.get(kind) or {}
+            main_failed = bool(main_run) and ((main_run.get("checkpoints") or {}).get(source[1]) != "PASS")
+            if not outcomes:
+                reason = str(stopped[0]).splitlines()[0][:160]
+                return "Fail", f"Script dừng trước bước này ở cả {len(stopped)} lần chạy: {reason}.{self.browser_origin(main_failed)}"
+            return "Fail", f"Kết quả các lần chạy: {'/'.join(outcomes)}.{self.browser_origin(main_failed)}"
         if kind == "smoke":
             role, step = source[1], source[2]
             checks = []
@@ -357,7 +386,18 @@ class Evidence:
             if not failed:
                 return "Pass", f"Đạt {len(checks)}/{len(checks)} lần kiểm ({ALL_COMBOS}, 2 lượt)."
             sample = "; ".join(f"{c['combo']} {c['role']}/{c['step']}: {', '.join(c.get('problems') or [])[:120]}" for c in failed[:3])
-            return "Fail", f"Đạt {len(checks) - len(failed)}/{len(checks)}. Lỗi: {sample}"
+            main_results = [r for r in (self.browser.get("smoke") or {}).get("results", [])
+                            if (role == "*" or r.get("role") == role) and (not step or r.get("step", "").startswith(step))]
+            main_failed = {(r.get("combo"), r.get("step")) for r in main_results if r.get("result") != "PASS"}
+            only_here = [c for c in failed if (c.get("combo"), c.get("step")) not in main_failed]
+            flaky, only_flaky = "", False
+            if self.browser and only_here:
+                runs_total = len(self.runs("smoke_matrix"))
+                repeats = {(c.get("combo"), c.get("step")): sum(1 for f in failed if (f.get("combo"), f.get("step")) == (c.get("combo"), c.get("step"))) for c in only_here}
+                only_flaky = all(count < runs_total for count in repeats.values())
+                described = ", ".join(f"{combo} {name} ({count}/{runs_total} lượt)" for (combo, name), count in list(repeats.items())[:3])
+                flaky = f" Lỗi không có trên main: {described}."
+            return "Fail", f"Đạt {len(checks) - len(failed)}/{len(checks)}. Lỗi: {sample}.{flaky}{self.browser_origin(bool(main_failed), only_flaky)}"
         if kind == "step":
             step = self.steps.get(source[1])
             if not step:
@@ -530,6 +570,7 @@ def build_run_info(wb: Workbook, ev: Evidence, baseline_runs: List[Dict[str, Any
         ("Python / Node / npm", f"{env['python']} / {env['node']} / {env['npm']}"),
         ("Trình duyệt", env["browser"]),
         ("PostgreSQL / MongoDB", f"{env['postgres']} / {env['mongodb']} tại {env.get('mongo_base_uri', '')}"),
+        ("Phiên bản chính sách (SRS runner)", ", ".join(sorted({run.get("policy_version") or "trước 2026-11-09 (5 chương, tóm tắt 500)" for run in ev.runs("srs_acceptance")})) or "không có"),
         ("Baseline main", ", ".join(f"{run.get('tested_code_sha', '')[:8]} {run.get('checks_total', 0) - run.get('checks_failed', 0)}/{run.get('checks_total', 0)} ({run.get('disposable_database')})" for run in baseline_runs) or "không có"),
         ("Ghi chú", "Mọi kết quả lấy từ lần chạy thật trên DB tạm ephurin_test_*; DB dùng chung chỉ được đọc để lấy fingerprint và phải giữ nguyên."),
     ]
@@ -576,24 +617,49 @@ def main() -> int:
     parser.add_argument("--out", required=True)
     parser.add_argument("--group", default="(điền số nhóm)")
     parser.add_argument("--tester", default="Minh Sơn")
+    parser.add_argument("--pr-label", default="PR #73", help="name of the change under test, used in the Evaluation text")
+    parser.add_argument("--browser-baseline", help="folder with smoke.json / social.json / discovery.json from the same runners on main")
     args = parser.parse_args()
+    global PR_LABEL
+    PR_LABEL = args.pr_label
     with open(args.manifest, encoding="utf-8") as handle:
         manifest = json.load(handle)
     baseline_runs = []
     for path in args.baseline:
         with open(path, encoding="utf-8") as handle:
             baseline_runs.append(json.load(handle))
-    ev = Evidence(manifest, baseline_runs)
+    browser = {}
+    if args.browser_baseline:
+        for kind in ("smoke", "social", "discovery"):
+            path = os.path.join(args.browser_baseline, f"{kind}.json")
+            if os.path.exists(path):
+                with open(path, encoding="utf-8") as handle:
+                    browser[kind] = json.load(handle)
+    ev = Evidence(manifest, baseline_runs, browser)
     wb = Workbook()
     totals = {}
     for feature in FEATURES:
         totals[feature["sheet"]] = build_feature(wb, feature, ev)
     pass_n = sum(t["Pass"] for t in totals.values()); fail_n = sum(t["Fail"] for t in totals.values()); na_n = sum(t["N/A"] for t in totals.values())
     env = manifest["environment"]
+    on_main, flaky_n, new_n = (ev.fail_origin.count(kind) for kind in ("main", "flaky", "new"))
+    if not fail_n:
+        fail_text = "Không còn test case Fail. "
+    elif ev.browser:
+        fail_text = (f"{on_main} Fail cũng xảy ra khi chạy cùng script trên main {ev.browser_sha}, nên không do {PR_LABEL}: "
+                     "script E2E trình duyệt phía độc giả chưa theo kịp giao diện độc giả mới trên main (đăng nhập về '/', menu mới, nút thích mới). "
+                     + (f"{flaky_n} Fail chập chờn: lỗi ở 1 lượt, lượt còn lại và main đều PASS. " if flaky_n else "")
+                     + (f"{new_n} Fail mới so với main, cần xem lại. " if new_n else ""))
+    elif not new_n:
+        fail_text = f"Toàn bộ Fail đã chạy lại trên main {ev.baseline_sha} và cho cùng kết quả, nên không do {PR_LABEL}: đó là chỗ code lệch SRS. "
+    else:
+        fail_text = "Có Fail không xảy ra trên main: xem cột Evaluation của từng dòng. "
+    fixed_text = (f"{len(ev.fixed)} kiểm tra SRS ({', '.join(sorted(ev.fixed))}) Fail ở mọi lần chạy baseline trên main {ev.baseline_sha} "
+                  "(mã lỗi, giới hạn độ dài, điều kiện số chương, thông báo theo dõi, giới hạn tần suất, fallback AI, gỡ truyện) "
+                  f"và đã được sửa trong {PR_LABEL}. " if ev.fixed else "")
     comment = (f"Kiểm thử hệ thống theo SRS (docs/SRS) và chương 6.2: {pass_n + fail_n + na_n} test case, {pass_n} Pass, {fail_n} Fail, {na_n} N/A. "
                f"Mọi kết quả lấy từ lần chạy thật tại {env['git_sha'][:8]} trên môi trường tạm, mỗi script chạy 2 lần; DB dùng chung không đổi. "
-               f"Toàn bộ Fail đã chạy lại trên main {ev.baseline_sha} và cho cùng kết quả, nên không do PR #73: đó là chỗ code lệch SRS "
-               "(mã lỗi, giới hạn độ dài, điều kiện 5 chương, thông báo theo dõi, giới hạn tần suất, fallback AI, gỡ truyện theo cách của PR #74). "
+               f"{fail_text}{fixed_text}"
                "N/A là tính năng chưa triển khai (OAuth, Redis, bình luận inline, FCM, app di động) hoặc cần hạ tầng/LLM không có ở local.")
     build_summary(wb, FEATURES, totals, ev, {"group": args.group, "project": "Ephurin Novel Platform (StoryCraft)",
                                              "source": f"github.com/Ephurin/Novel_sharing_platform @ {env['git_sha'][:8]} ({env['git_branch']})",

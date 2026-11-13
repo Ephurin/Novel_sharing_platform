@@ -164,7 +164,7 @@ async def run_manuscript_import_browser_e2e():
             headers={"Authorization": f"Bearer {token}"},
             json={
                 "title": novel_title,
-                "synopsis": "Tác phẩm thử nghiệm import bản thảo và Story Brain closed loop.",
+                "synopsis": "Tác phẩm thử nghiệm import bản thảo và Story Brain closed loop. " * 8,  # SRS: >= 500 characters
                 "genre": "Văn học",
                 "tags": ["Hà Nội", "Ký Sự"]
             }

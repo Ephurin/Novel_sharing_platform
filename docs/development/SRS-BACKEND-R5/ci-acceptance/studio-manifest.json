@@ -1,0 +1,137 @@
+{
+  "testedSha": "24717283c31c91cd8d8ad0608eaec22d4632e035",
+  "sourceTree": "229a046e59bc8bdae8ca9c81d87aec4b7d8de2a1",
+  "cleanSource": true,
+  "startedAt": "2026-11-12T19:31:57.092Z",
+  "node": "v24.21.0",
+  "python": "Python 3.12.15",
+  "llm": "fake; provider-free fixtures only",
+  "steps": [
+    {
+      "name": "web-typecheck",
+      "cwd": ".",
+      "command": [
+        "npm",
+        "run",
+        "typecheck",
+        "--prefix",
+        "web"
+      ],
+      "exit": 0,
+      "durationMs": 7791
+    },
+    {
+      "name": "backend-typecheck",
+      "cwd": ".",
+      "command": [
+        "npm",
+        "run",
+        "typecheck",
+        "--prefix",
+        "backend"
+      ],
+      "exit": 0,
+      "durationMs": 3442
+    },
+    {
+      "name": "web-build",
+      "cwd": ".",
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--prefix",
+        "web"
+      ],
+      "exit": 0,
+      "durationMs": 21473
+    },
+    {
+      "name": "ai-cursor-sqlite",
+      "cwd": "ai-service",
+      "command": [
+        "%TEMP%\\ephurin-ai-venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "tests/test_writing_cursor_persistence.py",
+        "tests/test_writing_validation_golden.py",
+        "-q",
+        "--basetemp",
+        "%TEMP%\\ci6-studio\\pytest-sqlite"
+      ],
+      "exit": 0,
+      "durationMs": 5945
+    },
+    {
+      "name": "ai-cursor-postgres",
+      "cwd": "ai-service",
+      "command": [
+        "%TEMP%\\ephurin-ai-venv\\Scripts\\python.exe",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-m",
+        "postgres_integration",
+        "tests/test_writing_cursor_postgres.py",
+        "-q",
+        "--basetemp",
+        "%TEMP%\\ci6-studio\\pytest-postgres"
+      ],
+      "exit": 0,
+      "durationMs": 9139
+    },
+    {
+      "name": "backend-accept-rejection",
+      "cwd": "backend",
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "scripts/run-isolated-tests.mjs",
+        "src/modules/novels/accept-draft-contract.test.ts"
+      ],
+      "exit": 0,
+      "durationMs": 2230
+    },
+    {
+      "name": "backend-create-genre",
+      "cwd": "backend",
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "scripts/run-isolated-tests.mjs",
+        "src/modules/novels/novels-genre.postgres.test.ts"
+      ],
+      "exit": 0,
+      "durationMs": 2469
+    },
+    {
+      "name": "browser-acceptance",
+      "cwd": "web",
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "--test",
+        "--test-concurrency=1",
+        "tests/rich-manuscript-serialization.browser.test.mjs",
+        "tests/rich-manuscript-durability.browser.test.mjs",
+        "tests/author-ide-caret.browser.test.mjs",
+        "tests/author-notes.browser.test.mjs",
+        "tests/studio-notes-layout.browser.test.mjs",
+        "tests/studio-polish.browser.test.mjs",
+        "tests/story-bible.browser.test.mjs"
+      ],
+      "exit": 0,
+      "durationMs": 180163
+    },
+    {
+      "name": "main-reader-ui",
+      "cwd": "web",
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "--test",
+        "tests/main-ui-integration.browser.test.mjs"
+      ],
+      "exit": 0,
+      "durationMs": 19172
+    }
+  ],
+  "finishedAt": "2026-11-12T19:36:08.953Z"
+}

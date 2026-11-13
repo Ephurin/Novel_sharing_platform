@@ -48,6 +48,7 @@ import {
   rejectChapterPublication
 } from '../novels/chapters.repository.js';
 import { findDraftChapterByChapterId } from '../novels/draft-chapters.repository.js';
+import { notifyFollowersOfPublishedChapter } from '../interactions/new-chapter-notifications.js';
 import { validateGiphyGif } from '../media/giphy.service.js';
 
 function scanContent(content: string, rules: MatchedRule[]) {
@@ -488,6 +489,7 @@ export async function resolveModerationReview(
         content,
         wordCount: resolved.submitted_content?.wordCount ?? draft?.wordCount ?? chapter.wordCount
       });
+      await notifyFollowersOfPublishedChapter(getPostgresPool(), resolved.target_id);
     } else {
       await rejectChapterPublication(resolved.target_id);
     }

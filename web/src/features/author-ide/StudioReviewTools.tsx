@@ -6,6 +6,7 @@ import { AnimatedProgress } from '../../shared/components/AnimatedProgress';
 import { validPassageNotes } from './studio-annotations';
 import { parseAuthorNotes } from '../../shared/lib/author-notes';
 import { plainStudioText } from './studio-tools';
+import { CHAPTER_CONTENT_MIN, CHAPTER_TITLE_MAX } from '../novels/novel-api';
 import type { CharacterProfile, PlotSummary, StoryTimelineEvent } from '../story-context/story-context-types';
 
 const searchable = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').toLocaleLowerCase('vi').trim();
@@ -40,9 +41,11 @@ export function PublishChecklist({ scope, title, content, isVip, price, saved, s
 }) {
   const [notes] = useState(() => { try { const value: unknown = JSON.parse(localStorage.getItem(`storycraft-passage-notes:${scope}`) ?? '[]'); return validPassageNotes(value) ? { open: value.filter(item => !item.resolved).length, unavailable: false } : { open: 0, unavailable: true }; } catch { return { open: 0, unavailable: true }; } });
   const publicNotes = parseAuthorNotes(content), unlinked = publicNotes.all.filter(note => !note.references.length).length;
+  // Same measure as the server publish rule (SRS: title < 100 characters, content >= 500 characters).
+  const contentLength = content.trim().length;
   const checks = [
-    { label: title.trim() ? 'Đã có tiêu đề chương' : 'Chưa đặt tiêu đề chương', ok: !!title.trim() },
-    { label: plainStudioText(content).trim() ? 'Bản thảo có nội dung' : 'Bản thảo đang trống', ok: !!plainStudioText(content).trim() },
+    { label: !title.trim() ? 'Chưa đặt tiêu đề chương' : title.length > CHAPTER_TITLE_MAX ? `Tiêu đề chương cần dưới ${CHAPTER_TITLE_MAX + 1} ký tự` : 'Đã có tiêu đề chương', ok: !!title.trim() && title.length <= CHAPTER_TITLE_MAX },
+    { label: !plainStudioText(content).trim() ? 'Bản thảo đang trống' : contentLength < CHAPTER_CONTENT_MIN ? `Cần ít nhất ${CHAPTER_CONTENT_MIN} ký tự để xuất bản · hiện có ${contentLength}` : 'Bản thảo đủ độ dài để xuất bản', ok: contentLength >= CHAPTER_CONTENT_MIN },
     { label: error ? 'Lưu thất bại · cần thử lưu lại' : saving ? 'Đang lưu bản nháp…' : saved ? 'Bản nháp đã được lưu' : 'Có thay đổi chưa lưu · hệ thống sẽ lưu trước khi gửi', ok: saved, pending: saving },
     { label: isVip ? `Chương VIP · ${price} Xu${price > 0 ? '' : ' · kiểm tra lại giá'}` : 'Chương miễn phí', ok: !isVip || Number.isFinite(price) && price > 0 },
     { label: notes.unavailable ? 'Không đọc được ghi chú trên trình duyệt này' : notes.open ? `${notes.open} ghi chú chưa xử lý · nên rà lại trước khi gửi` : 'Không có ghi chú đang mở trên trình duyệt này', ok: !notes.unavailable && notes.open === 0 },

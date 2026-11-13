@@ -1,0 +1,93 @@
+{
+  "testedSha": "08217a65e1edd9aa346e5f450529439a4ce4b1ca",
+  "sourceTree": "8970c6d0aeaf37e2f8983d0748930092e872752e",
+  "cleanSource": true,
+  "startedAt": "2026-11-09T17:38:44.222Z",
+  "node": "v24.21.0",
+  "provider": "fake; no live credentials",
+  "browserFiles": [
+    "reader-catalog-pagination.browser.test.mjs",
+    "reader-catalog.browser.test.mjs",
+    "reader-detail-enhancements.browser.test.mjs",
+    "reader-detail.browser.test.mjs",
+    "reader-home-accessibility.browser.test.mjs",
+    "reader-home-personalization.browser.test.mjs",
+    "reader-home-recovery.browser.test.mjs",
+    "reader-home.browser.test.mjs"
+  ],
+  "steps": [
+    {
+      "name": "web-typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit": 0,
+      "durationMs": 7078
+    },
+    {
+      "name": "backend-typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit": 0,
+      "durationMs": 3152
+    },
+    {
+      "name": "web-build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit": 0,
+      "durationMs": 18522
+    },
+    {
+      "name": "reader-postgres",
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "scripts/run-isolated-tests.mjs",
+        "src/modules/reading/chapter-reads.postgres.test.ts",
+        "src/modules/reading/reader-discovery.postgres.test.ts",
+        "src/modules/reading/reading-lifecycle.postgres.test.ts"
+      ],
+      "exit": 0,
+      "durationMs": 3426
+    },
+    {
+      "name": "reader-browsers",
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "--test",
+        "--test-concurrency=1",
+        "tests/reader-catalog-pagination.browser.test.mjs",
+        "tests/reader-catalog.browser.test.mjs",
+        "tests/reader-detail-enhancements.browser.test.mjs",
+        "tests/reader-detail.browser.test.mjs",
+        "tests/reader-home-accessibility.browser.test.mjs",
+        "tests/reader-home-personalization.browser.test.mjs",
+        "tests/reader-home-recovery.browser.test.mjs",
+        "tests/reader-home.browser.test.mjs"
+      ],
+      "exit": 0,
+      "durationMs": 161148
+    },
+    {
+      "name": "reader-contrast",
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "--test",
+        "tests/contrast.test.mjs"
+      ],
+      "exit": 0,
+      "durationMs": 153
+    }
+  ],
+  "cleanupVerified": true,
+  "passed": true,
+  "finishedAt": "2026-11-09T17:41:57.891Z"
+}

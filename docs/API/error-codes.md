@@ -8,10 +8,10 @@ This document extends the SRS appendix error codes into API-ready groups.
 | :--- | :---: | :--- | :--- |
 | `SYS_001` | 500 | Internal Server Error | Unhandled server error. |
 | `VALIDATION_001` | 400 | Invalid request payload | Missing or malformed body/query fields. |
-| `VALIDATION_002` | 422 | Business rule violation | Request is syntactically valid but violates business rules. |
+| `VALIDATION_002` | 422 | Business rule violation | Request is syntactically valid but violates business rules (e.g. a novel submitted for its first publication with fewer than 2 valid chapters; ARCHIVED chapters do not count; `details.readyChapters`, `details.requiredChapters`). |
 | `NOT_FOUND_001` | 404 | Resource not found | Requested resource does not exist or is not visible. |
 | `CONFLICT_001` | 409 | Resource conflict | Duplicate resource or invalid state transition. |
-| `RATE_LIMIT_001` | 429 | Too many requests | Rate limit exceeded. |
+| `RATE_LIMIT_001` | 429 | Too many requests | Rate limit exceeded. Payment routes allow `PAYMENT_RATE_LIMIT_MAX` calls per user per `PAYMENT_RATE_LIMIT_WINDOW_MS` (default 30/min); the mock deposit webhook allows 5 calls per deposit session, counted after body validation. The response carries `Retry-After`. In-process counters: single-instance demo only, not a distributed or replay-proof limit. |
 
 ## Authentication & User
 
@@ -33,7 +33,7 @@ This document extends the SRS appendix error codes into API-ready groups.
 | :--- | :---: | :--- | :--- |
 | `CONTENT_001` | 404 | Content not found | Novel/chapter/comment does not exist. |
 | `CONTENT_002` | 422 | Invalid novel metadata | Title, synopsis, genre, or cover validation failed. |
-| `CONTENT_003` | 422 | Invalid chapter content | Chapter title/content validation failed. |
+| `CONTENT_003` | 422 | Invalid chapter content | Chapter title/content validation failed (e.g. publishing a chapter under 500 characters). |
 | `CONTENT_004` | 409 | Invalid content state | Operation is not allowed in the current state. |
 | `CONTENT_005` | 403 | Content ownership required | User is not the owner of the content. |
 
@@ -41,7 +41,7 @@ This document extends the SRS appendix error codes into API-ready groups.
 
 | Code | HTTP | Message | Condition |
 | :--- | :---: | :--- | :--- |
-| `AI_001` | 503 | AI Service Unavailable | Timeout or service down. |
+| `AI_001` | 503 | AI Service Unavailable | Timeout or service down. `details.reason`: `not_configured`, `timeout`, `unreachable`, `provider_http_<status>`, `empty_response`, `token_limit`. Provider response text is never returned; it is logged server-side, trimmed and masked. |
 | `AI_002` | 422 | Insufficient context | Not enough text/context to generate reliable result. |
 | `AI_003` | 409 | Proposal already resolved | Context proposal has already been approved/rejected. |
 | `AI_004` | 403 | Context proposal ownership required | User cannot approve/reject this proposal. |

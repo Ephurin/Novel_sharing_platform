@@ -256,8 +256,8 @@ export async function softDeleteNovel(novelId: string) {
   );
 }
 
-export async function submitNovelForPublish(novelId: string) {
-  const result = await getPostgresPool().query(
+export async function submitNovelForPublish(novelId: string, client?: DbClient) {
+  const result = await (client ?? getPostgresPool()).query(
     `
       update novels
       set status = 'PENDING_MODERATION', updated_at = now()
@@ -270,8 +270,8 @@ export async function submitNovelForPublish(novelId: string) {
   return result.rows[0] ? mapNovel(result.rows[0]) : null;
 }
 
-export async function publishNovel(novelId: string) {
-  const result = await getPostgresPool().query(
+export async function publishNovel(novelId: string, client?: DbClient) {
+  const result = await (client ?? getPostgresPool()).query(
     `
       update novels
       set

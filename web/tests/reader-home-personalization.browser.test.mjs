@@ -42,8 +42,12 @@ test('home supports search cancellation, keyboard suggestions, URL restoration a
       });
       try {
         await page.goto(base);
+        // React commits the home page after the load event; a Tab pressed before that lands nowhere.
+        // Wait until the skip link exists, then check that it is the first stop in the tab order.
+        const skipLink = page.getByRole('link', { name: 'Đến nội dung chính', exact: true });
+        await expect(skipLink).toBeAttached();
         await page.keyboard.press('Tab');
-        await expect(page.getByRole('link', { name: 'Đến nội dung chính', exact: true })).toBeFocused();
+        await expect(skipLink).toBeFocused();
         await page.keyboard.press('Enter');
         await expect(page.locator('#home-main')).toBeFocused();
         await page.getByRole('radio', { name: 'Được yêu thích', exact: true }).click();

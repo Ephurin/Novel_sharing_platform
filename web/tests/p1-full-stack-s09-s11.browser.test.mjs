@@ -101,7 +101,7 @@ test('Full Mounted Author IDE E2E against Real Backend (S09–S11 Gate)', { time
   const novelRes = await fetch(`${GATEWAY_BASE}/novels`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authorToken}` },
-    body: JSON.stringify({ title: `E2E Novel ${authorSuffix}`, synopsis: 'Real full-stack Author IDE verification' })
+    body: JSON.stringify({ title: `E2E Novel ${authorSuffix}`, synopsis: 'Real full-stack Author IDE verification with a synopsis of at least fifty characters' })
   }).then(r => r.json());
   assert.equal(novelRes.success, true, 'Novel creation must succeed');
   const novelId = novelRes.data.novelId;

@@ -38,7 +38,9 @@ import {
   listChapters,
   listMyNovels,
   submitChapterPublish,
-  updateChapter
+  updateChapter,
+  CHAPTER_CONTENT_MIN,
+  CHAPTER_TITLE_MAX
 } from '../novels/novel-api';
 import type { Chapter, Novel } from '../novels/novel-types';
 import {
@@ -790,6 +792,9 @@ export function AuthorWritingIde() {
   }, [content]);
 
   const readMinutes = Math.max(1, Math.ceil(wordCount / 350));
+  const contentLength = content.trim().length;
+  const titleReady = title.trim().length > 0 && title.length <= CHAPTER_TITLE_MAX;
+  const contentReady = contentLength >= CHAPTER_CONTENT_MIN;
 
   // Filtered chapters for search
   const filteredChapters = useMemo(() => {
@@ -1311,6 +1316,7 @@ export function AuthorWritingIde() {
               <input
                 type="text"
                 value={title}
+                maxLength={CHAPTER_TITLE_MAX}
                 readOnly={isAcceptingAi}
                 onChange={(e) => handleTitleChange(e.target.value)}
                 placeholder="Đặt tiêu đề chương tại đây..."
@@ -1911,7 +1917,7 @@ export function AuthorWritingIde() {
               </button>
               <button
                 onClick={() => publishMutation.mutate()}
-                disabled={publishMutation.isPending}
+                disabled={publishMutation.isPending || !titleReady || !contentReady}
                 className="px-4 py-1.5 rounded-lg bg-primary-600 text-white hover:bg-primary-700 font-semibold transition-all shadow-sm shadow-primary-200  disabled:opacity-50"
                 type="button"
               >

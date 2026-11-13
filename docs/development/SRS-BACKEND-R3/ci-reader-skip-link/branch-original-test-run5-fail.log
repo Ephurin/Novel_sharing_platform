@@ -1,0 +1,35 @@
+✖ home supports search cancellation, keyboard suggestions, URL restoration and compact mobile filters (8818.7667ms)
+Reader personalization screenshots: %TEMP%\reader-acc-1741187539\screenshots\storycraft-home-reader-
+✔ reader saves from preview with feedback, resumes real chapter position and isolates accounts (4544.0765ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 1
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14047.6382
+
+✖ failing tests:
+
+test at tests\reader-home-personalization.browser.test.mjs:14:1
+✖ home supports search cancellation, keyboard suggestions, URL restoration and compact mobile filters (8818.7667ms)
+  Error: expect(locator).toBeFocused() failed
+  
+  Locator:  getByRole('link', { name: 'Đến nội dung chính', exact: true })
+  Expected: focused
+  Received: inactive
+  Timeout:  5000ms
+  
+  Call log:
+    - Expect "toBeFocused" getByRole('link', { name: 'Đến nội dung chính', exact: true }) with timeout 5000ms
+    - waiting for getByRole('link', { name: 'Đến nội dung chính', exact: true })
+      13 × locator resolved to <a href="#home-main" class="sc-home-skip-link">Đến nội dung chính</a>
+         - unexpected value "inactive"
+  
+      at captureRawStack (<repo>\web\node_modules\playwright-core\lib\coreBundle.js:9282:17)
+      at callMatcherAsStep (<repo>\web\node_modules\playwright\lib\matchers\expect.js:13316:57)
+      at Object.toBeFocused (<repo>\web\node_modules\playwright\lib\matchers\expect.js:13308:23)
+      at TestContext.<anonymous> (<repo>\web\tests\reader-home-personalization.browser.test.mjs:46:91) {
+    matcherResult: { message: `expect(locator).toBeFocused() failed\n\nLocator:  getByRole('link', { name: 'Đến nội dung chính', exact: true })\nExpected: focused\nReceived: inactive\nTimeout:  5000ms\n\nCall log:\n  - Expect "toBeFocused" getByRole('link', { name: 'Đến nội dung chính', exact: true }) with timeout 5000ms\n  - waiting for getByRole('link', { name: 'Đến nội dung chính', exact: true })\n    13 × locator resolved to <a href="#home-main" class="sc-home-skip-link">Đến nội dung chính</a>\n       - unexpected value "inactive"\n`, pass: false, actual: 'inactive', name: 'toBeFocused', expected: 'focused', log: [ `  - Expect "toBeFocused" getByRole('link', { name: 'Đến nội dung chính', exact: true }) with timeout 5000ms`, "  - waiting for getByRole('link', { name: 'Đến nội dung chính', exact: true })", '    13 × locator resolved to <a href="#home-main" class="sc-home-skip-link">Đến nội dung chính</a>', '       - unexpected value "inactive"' ], timeout: 5000, ariaSnapshot: '- link "Đến nội dung chính":\n  - /url: "#home-main"' }
+  }
