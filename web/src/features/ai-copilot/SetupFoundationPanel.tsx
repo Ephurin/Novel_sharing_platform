@@ -54,7 +54,7 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
   <Alert color="blue">Ý tưởng và dàn ý là dự định tương lai. Nhân vật và quy tắc chỉ trở thành thiết lập sau khi bạn duyệt. Diễn biến chương vẫn qua quy trình duyệt riêng.</Alert>
   {!loaded&&<Text>Đang đọc thiết lập được cấp quyền…</Text>}
   {loaded&&local.backup&&<Alert color="orange" title="Có bản sửa thiết lập trên thiết bị"><Group><Button onClick={local.recover}>Khôi phục thiết lập</Button><Button variant="default" onClick={local.clear}>Bỏ bản dự phòng thiết lập</Button></Group></Alert>}
-  {local.error&&<Alert color="red">{local.error}</Alert>}
+  {local.error&&<Alert color="red">{local.error}</Alert>}{local.notice&&<Alert color="yellow" data-testid="planning-cross-tab-notice">{local.notice}</Alert>}
   <div hidden={!idea}><Stack>
    <Textarea label={allowOfflineBlueprint?"Dàn ý tương lai (có thể bỏ trống)":"Ý tưởng & hướng đi (tương lai)"} value={outline} disabled={!loaded||locked} onChange={e=>local.edit({outline:e.currentTarget.value})} minRows={5} description="Có thể bắt đầu bằng vài câu. Không tự trích xuất thành lịch sử. Lưu ý tưởng hoặc chuyển sang viết bất cứ lúc nào."/>
    <Button disabled={!loaded||locked} variant="light" onClick={()=>setBrainstormTarget('all')} data-testid="brainstorm-open-idea-btn">AI gợi ý ý tưởng & thiết lập</Button>

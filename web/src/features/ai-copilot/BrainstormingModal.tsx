@@ -33,6 +33,8 @@ export type BrainstormModalProps = {
   defaultTarget?: BrainstormTarget;
   currentChapter?: number;
   targetChapter?: number;
+  /** Highest chapter that already exists; future events must target a later chapter (#134). */
+  lastWrittenChapter?: number;
   expectedBrainVersion?: number;
   expectedPlanVersion?: number;
   /** Called after a CAS conflict (409); the host re-reads its authoritative state and resolves true only if that read succeeded. */
@@ -98,6 +100,7 @@ export function BrainstormingModal({
   defaultTarget = 'all',
   currentChapter,
   targetChapter = 1,
+  lastWrittenChapter = 0,
   expectedBrainVersion,
   expectedPlanVersion,
   onReloadRequested,
@@ -391,6 +394,16 @@ export function BrainstormingModal({
             </>
           )}
         </Group>
+
+        {(target === 'future_events' || target === 'all') &&
+          typeof targetChap === 'number' &&
+          lastWrittenChapter > 0 &&
+          targetChap <= lastWrittenChapter && (
+            <Alert color="yellow" data-testid="brainstorm-target-written-warning">
+              Chương {targetChap} đã được viết — đó là lịch sử, không phải tương lai. Gợi ý cho chương này sẽ không thể
+              thêm vào dàn ý. Hãy chọn chương từ {lastWrittenChapter + 1} trở đi.
+            </Alert>
+          )}
 
         <Textarea
           label="Định hướng yêu cầu cho AI (Tùy chọn)"

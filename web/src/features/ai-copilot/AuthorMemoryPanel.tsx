@@ -1,3 +1,4 @@
+import { notifyMemoryChanged } from './memory-events';
 import type {PlanningStep} from './PlanningStudio';
 import {StoryPlanEditor} from './StoryPlanEditor';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -71,7 +72,7 @@ import {
 } from './author-memory-api';
 
 export function AuthorMemoryPanel(props: {
-  novelId: string; chapterId: string; content: string; opened: boolean; onClose: () => void; saved: boolean; onOpenPlanning?:(step:PlanningStep)=>void; allowOfflineSetupTest?:boolean;
+  novelId: string; chapterId: string; content: string; opened: boolean; onClose: () => void; saved: boolean; onOpenPlanning?:(step:PlanningStep)=>void; allowOfflineSetupTest?:boolean; initialTab?:string;
 }) {
   const account = useAuthStore(state => state.user?.userId ?? 'guest');
   return <ScopedAuthorMemoryPanel key={JSON.stringify([account, props.novelId])} {...props} accountScope={account}/>;
@@ -86,7 +87,8 @@ function ScopedAuthorMemoryPanel({
   saved,
   accountScope,
   onOpenPlanning,
-  allowOfflineSetupTest
+  allowOfflineSetupTest,
+  initialTab
 }: {
   novelId: string;
   chapterId: string;
@@ -95,10 +97,18 @@ function ScopedAuthorMemoryPanel({
   onClose: () => void;
   saved: boolean;
   accountScope: string;
-  onOpenPlanning?:(step:PlanningStep)=>void; allowOfflineSetupTest?:boolean;
+  onOpenPlanning?:(step:PlanningStep)=>void; allowOfflineSetupTest?:boolean; initialTab?:string;
 }) {
   const qc = useQueryClient();
   const [profileTabOpened, setProfileTabOpened] = useState(false);
+  // #133: callers (e.g. Planning Studio) can open the drawer on a specific tab.
+  const [tab, setTab] = useState<string>(initialTab ?? 'review');
+  useEffect(() => {
+    if (opened) {
+      setTab(initialTab ?? 'review');
+      setProfileTabOpened(initialTab === 'profiles');
+    }
+  }, [opened, initialTab]);
   const [direction, setDirection] = useState('');
   const [events, setEvents] = useState<FutureEvent[]>([]);
   const [findings, setFindings] = useState<ConsistencyFinding[] | null>(null);
@@ -210,6 +220,7 @@ function ScopedAuthorMemoryPanel({
       qc.invalidateQueries({ queryKey: ['author-plan', novelId] }),
       qc.invalidateQueries({ queryKey: ['author-auto', novelId] })
     ]);
+    notifyMemoryChanged(novelId);
   };
 
   const action = useMutation({
@@ -440,7 +451,7 @@ function ScopedAuthorMemoryPanel({
           </Alert>
         )}
 
-        <Tabs defaultValue="review" onChange={value => setProfileTabOpened(value === 'profiles')}>
+        <Tabs value={tab} onChange={value => { setTab(value ?? 'review'); setProfileTabOpened(value === 'profiles'); }}>
           <Tabs.List>
             <Tabs.Tab value="review">Chờ duyệt ({queue.data?.length ?? 0})</Tabs.Tab>
             <Tabs.Tab value="profiles">Hồ sơ Codex</Tabs.Tab>
@@ -850,7 +861,7 @@ function ScopedAuthorMemoryPanel({
           <Tabs.Panel value="setup" pt="md">
             <Stack gap="xs">
               <Text size="sm">
-                Lần đầu: chọn chương đã lưu hoặc nhập thiết lập. Sau kích hoạt, các lần lưu chương tự tạo đề xuất.
+                Bắt đầu bộ nhớ truyện theo một trong hai cách: trích xuất từ các chương đã lưu (không cần thiết lập thế giới), hoặc hoàn tất thiết lập trong Planning Studio. Với chương đã lưu: bấm trích xuất, duyệt đề xuất ở tab “Chờ duyệt”, rồi bấm “Kích hoạt bộ nhớ sau duyệt”. Sau khi kích hoạt, mỗi lần lưu chương sẽ được phân tích và tạo đề xuất chờ bạn duyệt.
               </Text>
               <Button
                 disabled={

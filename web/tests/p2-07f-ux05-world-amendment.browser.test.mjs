@@ -581,6 +581,21 @@ test('P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle
     console.log('✓ UXF-01: Root B remains completely isolated from Root A despite identical fact_key!');
 
     // =========================================================================
+    // SCENARIO 2b (#137): a Canon approval elsewhere advances the Brain version;
+    // the panel re-reads it instead of keeping the version read at mount.
+    // =========================================================================
+    const staleVersion = currentBrainVersion;
+    await expect(page.getByText(`Mã Fact: ${factGravityB} · Brain v${staleVersion}`)).toBeVisible();
+    currentBrainVersion += 1; // e.g. a P1 proposal group accepted in the Memory panel
+    await page.evaluate(id => window.dispatchEvent(new CustomEvent('ephurin:memory-changed', { detail: { novelId: id } })), novelId);
+    await expect(page.getByText(`Mã Fact: ${factGravityB} · Brain v${currentBrainVersion}`)).toBeVisible();
+    currentBrainVersion += 1; // another change with no same-window signal (e.g. another tab)
+    await page.getByTestId(`propose-btn-${factGravityB}`).click();
+    await page.getByRole('button', { name: 'Hủy', exact: true }).click();
+    await expect(page.getByText(`Mã Fact: ${factGravityB} · Brain v${currentBrainVersion}`)).toBeVisible();
+    console.log('✓ #137: Brain version refreshed after memory change and on opening the proposal form');
+
+    // =========================================================================
     // SCENARIO 3: UXF-02 — Fingerprint-bound CAS & Idempotency, 409 Rebase & 503 Reconcile
     // =========================================================================
     console.log('\n--- SCENARIO 3: UXF-02 Fingerprint Idempotency, 409 Rebase & 503 Reconcile ---');
@@ -753,7 +768,7 @@ test('P2-07F Regression: UXF-01/02/03 Author IDE World Rules Amendment Lifecycle
 
     // Verify accept confirmed on server, successor promoted to Canon, brain version bumped to v3
     await expect(page.getByText(/Máy chủ đã xác nhận quyết định trước đó.*chấp thuận/)).toBeVisible();
-    await expect(page.getByText(/Brain v3/).first()).toBeVisible();
+    await expect(page.getByText(`Brain v${currentBrainVersion}`).first()).toBeVisible();
     const latestSuccFactId = factsDb[factsDb.length - 1].fact_id;
     await expect(page.getByTestId(`canon-text-${latestSuccFactId}`)).toHaveText('Trọng lực hư không Bắc Minh dao động theo thủy triều.');
 

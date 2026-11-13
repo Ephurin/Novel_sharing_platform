@@ -17,12 +17,12 @@ function valid(value:unknown):value is Draft{
  const d=value as Draft;
  return !!d&&typeof d.outline==='string'&&typeof d.notes==='string'&&Number.isInteger(d.head)&&Array.isArray(d.chapters)&&d.chapters.every(o=>typeof o.objective_id==='string'&&typeof o.title==='string'&&typeof o.description==='string'&&Array.isArray(o.dependencies)&&Array.isArray(o.events)&&o.events.every(e=>typeof e.event_id==='string'&&typeof e.text==='string'&&Array.isArray(e.participants)&&e.participants.every(p=>!!p&&(typeof p.entity_id==='string'||typeof p.name_hint==='string'))));
 }
-type EditorProps={novelId:string;onServerChange?:()=>void;onRegisterEventAdopter?:(adopter:FutureEventAdopter|null)=>void};
+type EditorProps={novelId:string;lastWrittenChapter?:number;onServerChange?:()=>void;onRegisterEventAdopter?:(adopter:FutureEventAdopter|null)=>void};
 export function StoryPlanEditor(props:EditorProps){
  const account=useAuthStore(s=>s.user?.userId??'guest');
  return <Editor key={JSON.stringify([account,props.novelId])} {...props}/>;
 }
-function Editor({novelId,onServerChange,onRegisterEventAdopter}:EditorProps){
+function Editor({novelId,lastWrittenChapter=0,onServerChange,onRegisterEventAdopter}:EditorProps){
  const scope=usePlanningScope(),key=`ephurin-planning:${scope.actor}:${novelId}:plan`;
  const local=usePlanningDraft<Draft>(key,{selected:null,head:0,outline:'',notes:'',chapters:[]},valid);
  const {selected,outline,notes,chapters,head}=local.value;
@@ -68,6 +68,8 @@ function Editor({novelId,onServerChange,onRegisterEventAdopter}:EditorProps){
   if(awaitingRecovery)return 'Có bản sửa dàn ý trên thiết bị chưa khôi phục. Khôi phục hoặc bỏ bản sửa ở bước Dàn ý chương trước.';
   if(serverReadOnly)return 'Bản dàn ý đang xem chỉ đọc. Ở bước Dàn ý chương, chọn "Dàn ý mới" hoặc tạo phiên bản mới trước khi thêm sự kiện.';
   const target=Math.max(1,Math.trunc(ev.target_chapter)||1);
+  // #134 / INV-02: a future event never lands on a chapter that is already history.
+  if(target<=lastWrittenChapter)return `Chương ${target} đã được viết nên không nhận sự kiện tương lai. Hãy chọn chương từ ${lastWrittenChapter+1} trở đi.`;
   const event:FutureEvent={event_id:crypto.randomUUID(),text:ev.text||ev.title,
    participants:(ev.participants||[]).flatMap<Participant>(p=>p.entity_id?[{entity_id:p.entity_id}]:p.name_hint?.trim()?[{name_hint:p.name_hint}]:[])};
   local.edit(d=>{
@@ -105,7 +107,7 @@ function Editor({novelId,onServerChange,onRegisterEventAdopter}:EditorProps){
  return <Stack>
   <Alert>Dàn ý tương lai — chưa phải Canon đã viết. Có thể bỏ qua kế hoạch; thao tác này không kích hoạt Story Brain hoặc tự viết chương.</Alert>
   <Text role="status" aria-live="polite" size="sm">{local.dirty?'Bản sửa trên thiết bị · chưa xác nhận với máy chủ':loaded?'Đang xem bản đã đọc từ máy chủ':'Đang tải dàn ý…'}</Text>
-  {local.error&&<Alert color="red">{local.error}</Alert>}
+  {local.error&&<Alert color="red">{local.error}</Alert>}{local.notice&&<Alert color="yellow" data-testid="planning-cross-tab-notice">{local.notice}</Alert>}
   {loaded&&local.backup&&<Alert color="orange" title="Có bản sửa dàn ý trên thiết bị"><Text>Bản máy chủ vẫn nguyên vẹn. Chỉ khôi phục khi bạn muốn tiếp tục bản sửa này.</Text><Group><Button onClick={local.recover}>Khôi phục bản sửa dàn ý</Button><Button variant="default" onClick={()=>local.clear()}>Bỏ bản sửa dàn ý trên thiết bị</Button></Group></Alert>}
   <Group><Button variant="default" onClick={()=>{if(!local.dirty){local.hydrate(draft(undefined));remember(null);}}} disabled={pending||local.dirty||!loaded||awaitingRecovery}>Dàn ý mới</Button><Button variant="default" onClick={()=>reload()} disabled={pending}>Tải lại dàn ý</Button><Button variant="subtle" onClick={()=>send('skip')} disabled={pending||local.dirty||!loaded||awaitingRecovery}>Không dùng kế hoạch</Button></Group>
   <Text size="sm">{!loaded?'Chưa đọc được kế hoạch máy chủ':list.active_plan_unavailable?'Có kế hoạch legacy ngoài phạm vi hiển thị; không tự nhận quyền với dữ liệu cũ':list.active_plan_id?'Đang dùng một phiên bản kế hoạch tương lai':'Không có kế hoạch đang dùng'} · Version {list.head_version}</Text>
@@ -114,7 +116,7 @@ function Editor({novelId,onServerChange,onRegisterEventAdopter}:EditorProps){
   {serverReadOnly&&<Alert>{archived?'Bản đã lưu trữ · chỉ đọc. Nội dung lịch sử được giữ; chỉ khôi phục bằng một bản nháp mới.':stored?.effective_status==='tombstone'?'Biên nhận lưu trữ · chỉ đọc. Chọn bản gốc trong lịch sử để xem hoặc khôi phục.':'Bản lịch sử hoặc biên nhận · chỉ đọc. Tạo một phiên bản mới để chỉnh sửa.'}</Alert>}
   {stored&&<Text size="xs">Trạng thái khi lưu: {stored.snapshot_status??stored.status} · Hiện tại: {stored.effective_status??stored.status}</Text>}
   <Textarea label="Dán hoặc nhập dàn ý tương lai" disabled={pending||readOnly||!loaded} value={outline} onChange={e=>local.edit({outline:e.currentTarget.value})} minRows={3}/>
-  <Group><Select disabled={pending||readOnly||!loaded} allowDeselect={false} label="Số chương khởi đầu" value={size} onChange={n=>setSize(n??'0')} data={['0','5','10','15','20']}/><Button variant="light" disabled={pending||readOnly||!loaded||size==='0'} onClick={()=>add(Number(size))}>Thêm {size} thẻ chương</Button><Button variant="default" disabled={pending||readOnly||!!chapters.length||!outline.trim()} onClick={()=>add(outline.split('\n').filter(s=>s.trim()).length,outline.split('\n').filter(s=>s.trim()))}>Tách dàn ý thành thẻ theo dòng</Button><Button variant="light" disabled={pending||readOnly||!loaded} onClick={()=>{setBrainstormTargetChapter(chapters[0]?.target_chapter??1);setBrainstormTargetObjectiveId(null);setBrainstormModalOpen(true);}} data-testid="brainstorm-open-plan-btn">AI gợi ý sự kiện tương lai</Button></Group>
+  <Group><Select disabled={pending||readOnly||!loaded} allowDeselect={false} label="Số chương khởi đầu" value={size} onChange={n=>setSize(n??'0')} data={['0','5','10','15','20']}/><Button variant="light" disabled={pending||readOnly||!loaded||size==='0'} onClick={()=>add(Number(size))}>Thêm {size} thẻ chương</Button><Button variant="default" disabled={pending||readOnly||!!chapters.length||!outline.trim()} onClick={()=>add(outline.split('\n').filter(s=>s.trim()).length,outline.split('\n').filter(s=>s.trim()))}>Tách dàn ý thành thẻ theo dòng</Button><Button variant="light" disabled={pending||readOnly||!loaded} onClick={()=>{setBrainstormTargetChapter(chapters.find(o=>o.target_chapter>lastWrittenChapter)?.target_chapter??lastWrittenChapter+1);setBrainstormTargetObjectiveId(null);setBrainstormModalOpen(true);}} data-testid="brainstorm-open-plan-btn">AI gợi ý sự kiện tương lai</Button></Group>
   <Text size="xs">Tự nhập, không dùng AI. Mục tiêu và kết quả mong muốn được giữ trong nội dung mục tiêu. Có thể thêm hơn 20 chương; thứ tự thẻ và chương dự kiến là hai lựa chọn riêng.</Text>
   <Textarea label="Ghi chú kế hoạch riêng tư" disabled={pending||readOnly||!loaded} description="Không gửi tới provider hoặc ngữ cảnh viết." value={notes} onChange={e=>local.edit({notes:e.currentTarget.value})}/>
   {chapters.map((o,i)=><Card withBorder key={o.objective_id}><Stack gap="xs">
@@ -144,6 +146,7 @@ function Editor({novelId,onServerChange,onRegisterEventAdopter}:EditorProps){
     novelId={novelId}
     defaultTarget="future_events"
     targetChapter={brainstormTargetChapter}
+    lastWrittenChapter={lastWrittenChapter}
     expectedPlanVersion={brainstormPlanVersion}
     onReloadRequested={()=>reload()}
     onAdoptFutureEvent={ev=>adoptFutureEvent(ev,brainstormTargetObjectiveId)}
