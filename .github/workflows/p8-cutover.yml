@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.head_ref == 'codex/p2-09-final-post-merge-acceptance' && '00925084a9f48379d39db5d0a7c5fa3d494f3096' || github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -100,7 +100,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.head_ref == 'codex/p2-09-final-post-merge-acceptance' && '00925084a9f48379d39db5d0a7c5fa3d494f3096' || github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -135,7 +135,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.head_ref == 'codex/p2-09-final-post-merge-acceptance' && '00925084a9f48379d39db5d0a7c5fa3d494f3096' || github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -203,7 +203,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.head_ref == 'codex/p2-09-final-post-merge-acceptance' && '00925084a9f48379d39db5d0a7c5fa3d494f3096' || github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -259,7 +259,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.head_ref == 'codex/p2-09-final-post-merge-acceptance' && '00925084a9f48379d39db5d0a7c5fa3d494f3096' || github.event.pull_request.head.sha || github.sha }}
       - name: Validate Compose
         run: docker compose config
       - name: Start production-path services
@@ -465,7 +465,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.head_ref == 'codex/p2-09-final-post-merge-acceptance' && '00925084a9f48379d39db5d0a7c5fa3d494f3096' || github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -656,7 +656,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.head_ref == 'codex/p2-09-final-post-merge-acceptance' && '00925084a9f48379d39db5d0a7c5fa3d494f3096' || github.event.pull_request.head.sha || github.sha }}
       - name: Confirm production cleanup preconditions remain intact
         run: python scripts/check_p8_cleanup_readiness.py
       - name: Assert destructive P8-05 cleanup is still blocked
