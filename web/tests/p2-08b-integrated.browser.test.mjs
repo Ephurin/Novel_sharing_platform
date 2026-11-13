@@ -80,10 +80,23 @@ async function chapter(h, api, author, id, number, content) {
   assert.equal(revision.source_type, 'AUTHOR_MANUAL');
   const [row] = await h.sql('SELECT chapter_number FROM chapters WHERE chapter_id=$1', [draft.chapterId]);
   assert.equal(row.chapter_number, number);
+  if (scenario === 'S5' && number === 8) {
+    const request = response.request().postDataJSON();
+    await until(async () => (await h.sql(
+      "SELECT 1 FROM revision_outbox_events WHERE novel_id=$1 AND status IN ('PENDING','PROCESSING')", [id],
+    )).length === 0, 'Writer outbox did not settle');
+    const before = await h.snapshot('s5-before-save-replay', [id]);
+    const replay = await api('PATCH', `/chapters/${draft.chapterId}`, request, [200, 409]);
+    if (replay) assert.equal(replay.analysisRevisionId, revision.revision_id);
+    await api('PATCH', `/chapters/${draft.chapterId}`, {
+      ...request, content: 'Conflicting stale manuscript.',
+    }, [409]);
+    assert.deepEqual(await h.snapshot('s5-after-save-replay', [id]), before);
+  }
   return revision;
 }
 
-async function pendingGroup(api, id, revision) {
+async function pendingGroup(api, id, revision, replayHarness) {
   const base = `/ai/story-brains/${id}`;
   const checkpoint = await until(async () => (await api('GET', `${base}/entity-reviews`))
     .find(r => r.revision_id === revision.revision_id), 'Missing entity review checkpoint');
@@ -92,10 +105,24 @@ async function pendingGroup(api, id, revision) {
   const path = `${base}/entity-reviews/${run}`;
   await api('POST', `${path}/continue`, {}, [409]);
   const audit = await api('GET', `${base}/entity-candidate-audits/${run}`);
-  await api('POST', `${path}/review`, { expected_version: audit.review_version,
+  const body = { expected_version: audit.review_version,
     decisions: audit.decisions.map(d => d.verdict === 'entity' && !d.canonical_entity_id
-      ? { ...d, provisional_identity_key: `${audit.provisional_identity_scope}/${d.candidate_id}` } : d) });
+      ? { ...d, provisional_identity_key: `${audit.provisional_identity_scope}/${d.candidate_id}` } : d) };
+  await api('POST', `${path}/review`, body);
+  if (replayHarness) {
+    const before = await replayHarness.snapshot('s5-before-review-replay', [id]);
+    await api('POST', `${path}/review`, body, [200, 409]);
+    await api('POST', `${path}/review`, { ...body,
+      decisions: body.decisions.map(d => ({ ...d, reason: 'Conflicting review replay' })),
+    }, [409]);
+    assert.deepEqual(await replayHarness.snapshot('s5-after-review-replay', [id]), before);
+  }
   await api('POST', `${path}/continue`, {});
+  if (replayHarness) {
+    const before = await replayHarness.snapshot('s5-before-continue-replay', [id]);
+    await api('POST', `${path}/continue`, {}, [200, 409]);
+    assert.deepEqual(await replayHarness.snapshot('s5-after-continue-replay', [id]), before);
+  }
   const queue = (await api('GET', `${base}/review-queue`)).filter(p => p.analysis_run_id === run);
   assert.equal(new Set(queue.map(p => p.dependency_group_id)).size, 1);
   assert.ok(queue.some(p => p.proposal_type === 'event'));
@@ -131,7 +158,7 @@ async function temporal(h, author, id, api) {
         assertHistory(state, approved);
         return;
       }
-      const queue = await pendingGroup(api, id, revision);
+      const queue = await pendingGroup(api, id, revision, number === 8 ? h : undefined);
       const pending = await h.snapshot(`s5-pending-${number}`, [id]);
       assertHistory(pending, approved);
       const group = `/ai/proposal-groups/${queue[0].dependency_group_id}`;
@@ -161,6 +188,40 @@ async function temporal(h, author, id, api) {
       await h.shot(`s5-chapter-${number}`);
     });
   }
+  await h.step('Fork and activate revised future intent after chapter eight', async () => {
+    const path = `/ai/story-plans/edit-v1/${id}`;
+    const listing = await api('GET', path);
+    assert.equal(listing.active_plan_id, active.plan_id);
+    const before = await h.snapshot('s5-before-plan-fork', [id]);
+    const source = listing.plans.find(plan => plan.plan_id === active.plan_id);
+    const title = 'The keeper chooses loyalty';
+    const body = {
+      contract_version: 'plan-edit-v1', action: 'fork', source_plan_id: source.plan_id,
+      expected_plan_version: listing.head_version, idempotency_key: randomUUID(),
+      source_outline: source.source_outline,
+      objectives: source.objectives.map(({ intent_version, ...objective }) => ({
+        ...objective, expected_intent_version: intent_version, title,
+      })),
+    };
+    const fork = await api('POST', path, body);
+    const updated = await api('POST', path, {
+      contract_version: 'plan-edit-v1', action: 'activate', source_plan_id: fork.plan_id,
+      expected_plan_version: fork.plan_version, idempotency_key: randomUUID(),
+    });
+    const after = await h.snapshot('s5-after-plan-fork', [id]);
+    await api('POST', path, { ...body, idempotency_key: randomUUID() }, [409]);
+    assert.deepEqual(await h.snapshot('s5-stale-plan-fork-denied', [id]), after);
+    for (const key of ['public.chapter_revisions', 'narrative.events', 'narrative.facts',
+      'narrative.state_transitions', 'narrative.entity_mentions', 'narrative.story_brains']) {
+      assert.deepEqual(after[key], before[key], key);
+    }
+    assert.deepEqual(after['narrative.story_plan_objectives'].filter(o => o.plan_id === source.plan_id),
+      before['narrative.story_plan_objectives'].filter(o => o.plan_id === source.plan_id));
+    assert.equal((await api('GET', path)).active_plan_id, updated.plan_id);
+    await openPlan(h.page, h, author, id);
+    await expect(h.page.getByLabel('Tiêu đề chương 1', { exact: true })).toHaveValue(title);
+    await h.shot('s5-updated-future-plan');
+  });
 }
 
 async function concurrency(h, author, id, api) {
@@ -215,6 +276,41 @@ async function concurrency(h, author, id, api) {
     assert.deepEqual(after['narrative.entity_mentions'], pending['narrative.entity_mentions']);
     await h.shot('s6-canon-winner');
   });
+  await h.step('Late plan response cannot replace the selected novel or its local buffer', async () => {
+    const otherId = await novel(h, author, 'Concurrent second lighthouse');
+    let release;
+    let received;
+    const held = new Promise(resolve => { release = resolve; });
+    const ready = new Promise(resolve => { received = resolve; });
+    const pattern = `**/api/v1${path}`;
+    await openPlan(h.page, h, author, id);
+    await h.page.route(pattern, async route => {
+      const response = await route.fetch();
+      received();
+      await held;
+      await route.fulfill({ response }).catch(() => {});
+    }, { times: 1 });
+    try {
+      await h.page.getByRole('button', { name: 'Tải lại dàn ý', exact: true }).click();
+      await ready;
+      await h.page.evaluate(nextId => {
+        history.pushState(null, '', `/author/ide?novelId=${nextId}`);
+        dispatchEvent(new PopStateEvent('popstate'));
+      }, otherId);
+      const studio = h.page.getByRole('region', { name: 'Planning Studio' });
+      await expect(studio).toContainText('Concurrent second lighthouse');
+      const outline = h.page.getByLabel('Dán hoặc nhập dàn ý tương lai');
+      await outline.fill('Local buffer for the second novel.');
+      release();
+      await h.page.unrouteAll({ behavior: 'wait' });
+      await expect(outline).toHaveValue('Local buffer for the second novel.');
+      await expect(studio).not.toContainText('Winner retains the original future event.');
+      await h.shot('s6-late-response-isolated');
+    } finally {
+      release();
+      await h.page.unrouteAll({ behavior: 'wait' });
+    }
+  });
 }
 
 async function isolation(h, author, id, api) {
@@ -241,6 +337,12 @@ async function isolation(h, author, id, api) {
         { proposal_ids: queue.map(p => p.proposal_id), expected_brain_version: 1 }, foreign.token, [403, 404]);
     }
     await h.api('GET', plan, undefined, undefined, [401]);
+    const claimedScope = { 'X-Tenant-Id': randomUUID(), 'X-Author-Id': author.userId };
+    await h.api('GET', plan, undefined, foreign.token, [403, 404], claimedScope);
+    await h.api('GET', `/chapters/${revision.chapter_id}`, undefined, foreign.token, [403, 404], claimedScope);
+    const ownerRead = await h.api('GET', plan, undefined, author.token);
+    const claimedRead = await h.api('GET', plan, undefined, author.token, [200], claimedScope);
+    assert.deepEqual(claimedRead.data, ownerRead.data);
     assert.deepEqual(await h.snapshot('s7-foreign-access-rejected', [id, otherId]), before);
     const context = await h.browser.newContext();
     try {
@@ -258,6 +360,31 @@ async function isolation(h, author, id, api) {
     } finally {
       await context.close();
     }
+  });
+  await h.step('Fake provider errors are visible and leave the local draft intact', async () => {
+    await openPlan(h.page, h, author, id);
+    const outline = h.page.getByLabel('Dán hoặc nhập dàn ý tương lai');
+    await outline.fill('Local author draft through provider failures.');
+    const before = await h.snapshot('s7-before-provider-errors', [id]);
+    await h.page.getByTestId('brainstorm-open-plan-btn').click();
+    for (const [instruction, status] of [['test_429', 429], ['test_malformed_json', 502]]) {
+      await h.page.getByLabel('Yêu cầu định hướng cho AI').fill(instruction);
+      const pending = h.page.waitForResponse(r => r.url().endsWith('/brainstorm') && r.request().method() === 'POST');
+      await h.page.getByTestId('brainstorm-submit-btn').click();
+      assert.equal((await pending).status(), status);
+      await expect(h.page.getByTestId('brainstorm-error-alert')).toBeVisible();
+      await expect(h.page.getByTestId('brainstorm-event-card-0')).toHaveCount(0);
+      await h.shot(`s7-provider-${status}`);
+    }
+    await h.page.getByTestId('brainstorm-close-btn').click();
+    await expect(outline).toHaveValue('Local author draft through provider failures.');
+    const after = await h.snapshot('s7-after-provider-errors', [id]);
+    const priorRuns = before['narrative.analysis_runs'];
+    const newRuns = after['narrative.analysis_runs'].filter(run => !priorRuns.some(prior => prior.id === run.id));
+    assert.equal(newRuns.length, 2);
+    assert.ok(newRuns.every(run => run.operation === 'brainstorm' && run.status === 'failed'));
+    assert.deepEqual({ ...after, 'narrative.analysis_runs': after['narrative.analysis_runs']
+      .filter(run => !newRuns.includes(run)) }, before);
   });
 }
 
