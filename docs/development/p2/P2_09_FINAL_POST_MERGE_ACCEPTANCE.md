@@ -8,7 +8,17 @@
 - Tested merge `00925084a9f48379d39db5d0a7c5fa3d494f3096`, tree `cb8c5b27529b0e912da14c29c80c50c59707d185`.
 - Parents `7a01fa8650b14e889f3a631bee19b66940711b6b` and `333c1e0579ac5b17406d9dd5a080059ea3268f89`. PR #130 merge includes the earlier #128 and #129 acceptance work. Git diff against the second parent is empty.
 - Clean isolated worktree. Backend and web installed with `npm ci`. Git blobs for backend lockfile, web lockfile and AI requirements are `9073e09f4089c0ff7d6254e15edc75a42fd082b1`, `a1ff1c21791df271f6b5f6ed03e7124cf7248893` and `5846445ed481b29c20b73f80312c05c9d038ba26`.
-- Evidence PR CI definition commit `fa3a5eadb1bed92b0417210d848129cdb99fc394`. The report commit is the next commit on [Draft PR #131](https://github.com/Ephurin/Novel_sharing_platform/pull/131). The three workflow changes pin checkout to the merge only for the evidence branch.
+- Evidence PR CI definition commit `fa3a5eadb1bed92b0417210d848129cdb99fc394`. The report commit is the next commit on [Draft PR #131](https://github.com/Ephurin/Novel_sharing_platform/pull/131). The three workflow changes pinned checkout to the merge only for the evidence branch.
+
+### Tested source vs report head
+
+| Item | SHA | Role |
+|---|---|---|
+| Tested product source | `00925084a9f48379d39db5d0a7c5fa3d494f3096` | Immutable integration merge. All acceptance and regression evidence below was produced from this tree. |
+| Temporary CI pin | `fa3a5eadb1bed92b0417210d848129cdb99fc394` | PR head that triggered the pinned runs. Every job log (P2 2 jobs, P7 3 jobs, P8 7 jobs) shows `HEAD is now at 0092508`. |
+| Report PR head | the latest commit of PR #131 | Documentation only. It is **not** itself tested as product source. |
+
+The temporary workflow pins were removed after capturing evidence. The final PR diff against `integration/p2-planning-studio` contains only this report. Because P2/P7/P8 workflows use path filters (`ai-service/**`, `backend/**`, `web/**`, scripts, compose and the workflow files), a documentation-only diff does not trigger product CI. That is expected: the exact-source evidence above stays valid for the immutable merge `00925084` and must not be read as a test of the report commit.
 
 ## Integrated scenarios
 
@@ -54,3 +64,11 @@ The integrated runtime uses built-in FakeLLM, disabled fallback and internal AI 
 - Future enhancement outside P2: none required by functional acceptance.
 
 Functional acceptance is green at the merge. Dependency security disposition remains open. Keep this PR Draft for independent review.
+
+## Functional acceptance vs production readiness
+
+- **Functional acceptance (this report):** the three P2 milestones are READY at `00925084` with fake providers and isolated local/CI topology.
+- **Release disposition:** `P2_FINAL_ACCEPTANCE_PARTIAL`. Production readiness is **not** claimed. Open items: dependency security (tracked separately as SEC-01, not in this PR), no live-provider validation, no production-topology validation.
+- Independent review comments on this PR, including follow-up issues #132–#138 from a separate P2-07 browser run, are not resolved by this report.
+
+Report status: `READY_FOR_INDEPENDENT_REVIEW`. Draft; do not merge without owner decision.
