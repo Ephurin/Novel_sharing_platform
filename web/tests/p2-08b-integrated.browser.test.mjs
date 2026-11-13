@@ -554,7 +554,10 @@ async function isolation(h, author, id, api) {
     }, { times: 1 });
     try {
       await h.page.getByTestId('brainstorm-open-plan-btn').click();
-      await h.page.getByLabel('Yêu cầu định hướng cho AI').fill('Suggest a future scene after the lighthouse visit.');
+      const cards = h.page.getByTestId('brainstorm-event-card-0');
+      const priorSuggestions = await cards.allTextContents();
+      assert.equal(priorSuggestions.length, 1);
+      await h.page.getByLabel('Yêu cầu định hướng cho AI').fill('test_empty_output');
       await h.page.getByTestId('brainstorm-submit-btn').click();
       assert.equal(await ready, 200);
       const before = await h.snapshot('s7-cancel-before-release', [id]);
@@ -562,7 +565,7 @@ async function isolation(h, author, id, api) {
       release();
       await h.page.unrouteAll({ behavior: 'wait' });
       await h.page.getByTestId('brainstorm-open-plan-btn').click();
-      await expect(h.page.getByTestId('brainstorm-event-card-0')).toHaveCount(0);
+      assert.deepEqual(await cards.allTextContents(), priorSuggestions);
       await expect(h.page.getByTestId('brainstorm-error-alert')).toHaveCount(0);
       await h.page.getByTestId('brainstorm-close-btn').click();
       await expect(outline).toHaveValue(draft);
