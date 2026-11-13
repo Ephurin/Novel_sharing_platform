@@ -1,12 +1,13 @@
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
+import { boundedArray } from '../../core/validation/bounded-array.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { AppError } from '../../core/errors/app-error.js';
 import { successResponse } from '../../core/response/response.js';
 import { getNovel } from './novels.service.js';
 import { findChapterById } from './chapters.repository.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
-const orderSchema = z.object({ chapterIds: z.array(z.string().uuid()).min(1).max(10000) });
+const orderSchema = z.object({ chapterIds: boundedArray(z.string().uuid(), 10000, { min: 1 }) });
 function owner(novel: { authorId: string }, auth?: AuthContext) { if (!auth || (auth.role !== 'ADMIN' && novel.authorId !== auth.userId)) throw new AppError(403, 'CONTENT_005', 'Content ownership required'); }
 export const chapterLifecycleController: RequestHandler = async (req, res, next) => {
   try {
