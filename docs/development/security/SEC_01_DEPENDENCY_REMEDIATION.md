@@ -63,7 +63,12 @@ Not re-run locally: DB-backed `*.postgres.test.ts`/`*.live.test.ts`, P1 writer b
 
 ## Remaining Critical/High
 
-- `zod` GHSA-mrhx-c7xc-m3w5 (High): mitigated in code; upstream fix requires zod 4. **Owner decision:** accept the mitigation until a planned zod 4 migration, or schedule that migration now.
+- `zod` GHSA-mrhx-c7xc-m3w5 (High): mitigated in code; upstream fix requires zod 4.
+
+## Owner decisions (2026-11-13)
+
+- `zod`: **mitigation accepted** for now; a zod 4 migration (≥ 4.6.6) is scheduled as separate work after P2. Until then every new request array schema must use `boundedArray`.
+- `tags` limit: **20 per novel confirmed** (`MAX_NOVEL_TAGS`).
 
 ## Rollback
 
