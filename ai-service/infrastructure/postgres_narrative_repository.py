@@ -3289,6 +3289,17 @@ class PostgresNarrativeRepository:
                     or occurrence['revision_id'] != audit['revision_id']
                     or occurrence['text_hash'] != audit['source_hash']):
                 raise ProjectionError('Occurrence evidence differs from the verified candidate')
+            # Both finalized review and group approval hold the scoped Brain row lock.
+            conflict = session.scalar(select(EntityMentionRecord.id).where(
+                *self._scope(EntityMentionRecord, brain.novel_id),
+                EntityMentionRecord.revision_id == uuid.UUID(audit['revision_id']),
+                EntityMentionRecord.source_start == start,
+                EntityMentionRecord.source_end == end,
+                EntityMentionRecord.extractor_version == VERIFIED_MENTION_VERSION,
+                EntityMentionRecord.entity_id != entity.id,
+            ).limit(1))
+            if conflict is not None:
+                raise OptimisticLockError('Occurrence is already verified for a different identity')
             session.execute(insert(EntityMentionRecord).values(
                 story_brain_id=brain.id, tenant_id=brain.tenant_id, novel_id=brain.novel_id,
                 entity_id=entity.id, chapter_id=uuid.UUID(audit['chapter_id']),

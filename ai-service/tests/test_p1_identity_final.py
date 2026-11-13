@@ -337,6 +337,54 @@ def test_refresh_wins_against_inflight_finalization(flow, monkeypatch):
     assert snapshot(f, 'R5-stale-finalize-unchanged') == before
 
 
+def test_independent_analyses_racing_for_same_occurrence_have_one_winner(flow, monkeypatch):
+    if not flow.engine:
+        pytest.skip('PostgreSQL Brain locking required')
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
+    from application.entity_hitl import review
+    f = flow
+    original_run, frozen = homonyms(f)
+    from tests.test_p1_entity_semantics import add_hint, refresh
+    add_hint(f)
+    refresh(f, original_run, frozen['review_version'])
+    attempts = []
+    for identity in f.llm.ids:
+        f.headers['Idempotency-Key'] = str(uuid.uuid4())
+        run, audit = discover(f)
+        decisions = [{**d, 'canonical_entity_id': identity} if d['verdict'] == 'entity' else d
+                     for d in audit['decisions']]
+        attempts.append((run, audit['review_version'], decisions))
+    before = snapshot(f, 'R6-before-race')
+    original = f.repo.save_entity_candidate_audit
+    barrier = Barrier(2)
+
+    def synchronized(*args, **kwargs):
+        barrier.wait(timeout=10)
+        return original(*args, **kwargs)
+
+    def finalize(attempt):
+        run, version, decisions = attempt
+        try:
+            return review(f.service, f.revision.novel_id, run, TENANT, decisions, version)
+        except OptimisticLockError:
+            return None
+
+    monkeypatch.setattr(f.repo, 'save_entity_candidate_audit', synchronized)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        outcomes = list(pool.map(finalize, attempts))
+    winners = [result for result in outcomes if result is not None]
+    assert len(winners) == 1
+    after = snapshot(f, 'R6-after-race')
+    assert len(after['entity_mentions']) == 2
+    assert {str(row['entity_id']) for row in after['entity_mentions']} == {winners[0]['entities'][0]['entity_id']}
+    for table in ('entities', 'events', 'facts', 'story_brains'):
+        assert after[table] == before[table]
+    loser = attempts[outcomes.index(None)][0]
+    assert next(row for row in after['analysis_runs'] if str(row['id']) == loser) == next(
+        row for row in before['analysis_runs'] if str(row['id']) == loser)
+
+
 def test_refresh_preserves_other_revision_and_independent_analysis_links(flow):
     if not flow.engine:
         pytest.skip('PostgreSQL mention readback required')
@@ -346,24 +394,43 @@ def test_refresh_preserves_other_revision_and_independent_analysis_links(flow):
     original_revision = f.revision
     initial = snapshot(f, 'R5-original-links')['entity_mentions']
 
-    def finalize_analysis(identity):
+    def finalize_analysis(identity, expected=200):
         f.headers['Idempotency-Key'] = str(uuid.uuid4())
         analysis, audit = discover(f)
         decisions = [{**d, 'canonical_entity_id': identity} if d['verdict'] == 'entity' else d
                      for d in audit['decisions']]
-        submit(f, analysis, audit, decisions)
+        before = snapshot(f, 'R6-before-independent-finalization')
+        submit(f, analysis, audit, decisions, expected=expected)
+        after = snapshot(f, 'R6-after-independent-finalization')
+        if expected == 409:
+            assert after == before
+        return after
 
-    finalize_analysis(f.llm.ids[1])
+    before_conflict = snapshot(f, 'R6-original-mapping')
+    after_conflict = finalize_analysis(f.llm.ids[1], expected=409)
+    for table in ('entity_mentions', 'entities', 'events', 'story_brains'):
+        assert after_conflict[table] == before_conflict[table]
+    def support_original():
+        f.headers['Idempotency-Key'] = str(uuid.uuid4())
+        analysis, audit = discover(f)
+        by_candidate = {d['candidate_id']: d for d in frozen['reviewed_decisions']}
+        decisions = [by_candidate[c['candidate_id']] for c in audit['candidates']]
+        assert submit(f, analysis, audit, decisions) == submit(f, analysis, audit, decisions)
+    support_original()
+    assert snapshot(f, 'R6-shared-links-deduplicated')['entity_mentions'] == initial
     f.revision = replace(original_revision, revision_id=str(uuid.uuid4()))
     f.provider._revisions[(f.revision.novel_id, f.revision.chapter_id, f.revision.revision_id)] = f.revision
     finalize_analysis(f.llm.ids[0])
     before = snapshot(f, 'R5-independent-and-cross-revision-links')['entity_mentions']
-    assert len(before) == 5
+    assert len(before) == 4
     add_hint(f)
-    refresh(f, run, frozen['review_version'])
-    after = snapshot(f, 'R5-scoped-refresh')['entity_mentions']
-    withdrawn = next(row for row in initial if str(row['entity_id']) == f.llm.ids[0])
-    assert after == [row for row in before if row != withdrawn]
+    refreshed = refresh(f, run, frozen['review_version'])
+    after = snapshot(f, 'R5-scoped-refresh')
+    assert after['entity_mentions'] == before
+    replacement = [{**d, 'canonical_entity_id': f.llm.ids[1]} if d['verdict'] == 'entity' else d
+                   for d in refreshed['reviewed_decisions']]
+    submit(f, run, refreshed, replacement, expected=409)
+    assert snapshot(f, 'R6-supported-link-blocks-reassignment') == after
 
 
 def pending_relationship(f, subject, target, relation='enemy'):
