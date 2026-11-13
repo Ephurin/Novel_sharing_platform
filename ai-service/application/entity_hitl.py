@@ -213,18 +213,8 @@ def continue_review(service, novel_id, run_id, tenant_id):
         raw = call_structured(service._llm_service, operation='hitl_event_extraction',
             system_prompt='Extract narrative events only from this source and the reviewed inventory. Return JSON {"events":[{"event_type":"...","summary":"...","participants":["exact reviewed entity_id"],"locations":[],"consequences":[],"quote":"exact unique source quote"}]}. No predictions or invented identities.',
             user_prompt=json.dumps({'source_text': revision.content, 'known_entities': inventory.items, 'aliases': audit['aliases']}, ensure_ascii=False))
-        from pydantic import BaseModel, ConfigDict, Field
-        class Event(BaseModel):
-            model_config = ConfigDict(extra='forbid')
-            event_type: str = Field(min_length=1)
-            summary: str = Field(min_length=1)
-            participants: list[str]
-            locations: list[str] = []
-            consequences: list[str] = []
-            quote: str = Field(min_length=1)
-        class Events(BaseModel):
-            events: list[Event]
-        for event in Events.model_validate_json(raw).events:
+        from core.structured_outputs import HitlEventBatch
+        for event in HitlEventBatch.model_validate_json(raw).events:
             payload = event.model_dump(exclude={'quote'})
             payload['participants'] = [identity(n) for n in event.participants]
             payload['locations'] = [identity(n) for n in event.locations]
