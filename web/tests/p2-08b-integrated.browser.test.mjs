@@ -650,7 +650,8 @@ async function isolation(h, author, id, api) {
     assert.ok((await discarded).ok());
     await page.reload();
     await expect(editor).not.toHaveValue('Minh opens the lighthouse door.');
-    assert.equal(hash(await editor.inputValue()), added.content_hash);
+    // An empty editor while the chapter loads also satisfies the check above; wait for the accepted body.
+    await expect.poll(async () => hash(await editor.inputValue()), { timeout: 10000 }).toBe(added.content_hash);
     const after = await h.snapshot('s7-writing-dismissed-reloaded', [id]);
     assert.deepEqual(after['public.chapter_revisions'], written['public.chapter_revisions']);
     assert.deepEqual(after['mongo.draft_chapters'], written['mongo.draft_chapters']);
