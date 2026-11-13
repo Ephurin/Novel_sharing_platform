@@ -268,6 +268,14 @@ def _materializable(candidates, decisions, known, text, *, human=False):
                 'provisional', d.get('provisional_identity_key') or d['canonical_name'].casefold())
             groups.setdefault(key, []).append(d)
     entities, aliases = [], []
+    # #145: spans of verified full-name occurrences. A fragment inside one of them ("Lâm" in
+    # "Lâm Phong") is the same occurrence, not evidence of a separate alias.
+    full_spans = [(by_id[d['candidate_id']].start, by_id[d['candidate_id']].end)
+                  for group in groups.values() for d in group
+                  if same_name(by_id[d['candidate_id']].surface, d['canonical_name'])]
+    def inside_full_name(mention):
+        return any(s <= mention.start and mention.end <= e and (s, e) != (mention.start, mention.end)
+                   for s, e in full_spans)
     for group in groups.values():
         # Conflicting identity/type evidence stays visible and fails before downstream extraction.
         if len({(d['canonical_name'], d['entity_type']) for d in group}) != 1:
@@ -294,7 +302,8 @@ def _materializable(candidates, decisions, known, text, *, human=False):
         seen = set()
         for d in group:
             mention = by_id[d['candidate_id']]
-            if same_name(mention.surface, d['canonical_name']) or (mention.surface.casefold(), mention.start, mention.end) in seen:
+            if (same_name(mention.surface, d['canonical_name']) or inside_full_name(mention)
+                    or (mention.surface.casefold(), mention.start, mention.end) in seen):
                 continue
             seen.add((mention.surface.casefold(), mention.start, mention.end))
             # No direct identity mutation: these mappings still require the normal proposal review.

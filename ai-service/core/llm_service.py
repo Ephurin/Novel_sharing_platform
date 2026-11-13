@@ -853,6 +853,24 @@ class LLMService:
             "model_info": {"model": self.model, "provider": self.provider},
         }
 
+    def extract_setup_text(self, *, text: str, locale: str = "vi-VN") -> dict[str, Any]:
+        """#144: grounded World Setup extraction with a real model (author text only)."""
+        from core.setup_extraction import EXTRACT_PROMPT, ground_extraction
+
+        raw = self._call_structured(operation="setup_text_extraction", system_prompt=EXTRACT_PROMPT,
+                                    user_prompt=json.dumps({"text": text, "locale": locale}, ensure_ascii=False))
+        return ground_extraction(text, raw)
+
+    def suggest_setup_blueprint(self, *, setup: dict[str, Any], outline: str | None = None,
+                                preferences: dict[str, Any] | None = None, locale: str = "vi-VN") -> dict[str, Any]:
+        """#144: model-proposed setup ideas. Only the idea text and outline leave the service."""
+        from core.setup_extraction import BLUEPRINT_PROMPT, clean_blueprint
+
+        raw = self._call_structured(operation="setup_blueprint", system_prompt=BLUEPRINT_PROMPT,
+                                    user_prompt=json.dumps({"idea": setup.get("text", ""), "outline": outline or "",
+                                                            "locale": locale}, ensure_ascii=False))
+        return clean_blueprint(raw)
+
     def suggest_brainstorm(
         self,
         *,
@@ -935,10 +953,18 @@ def response_schema_for(operation: str) -> dict[str, Any] | None:
         from services.prose_facts import ProseFacts
 
         return ProseFacts.model_json_schema()
-    if operation == "canon_reconciliation":
-        from services.canon_reconciliation import CanonComparison
+    if operation == "setup_text_extraction":
+        from core.setup_extraction import SetupTextExtraction
 
-        return CanonComparison.model_json_schema()
+        return SetupTextExtraction.model_json_schema()
+    if operation == "setup_blueprint":
+        from core.setup_extraction import BlueprintSuggestion
+
+        return BlueprintSuggestion.model_json_schema()
+    if operation == "rule_consistency":
+        from services.rule_consistency import RuleCheckBatch
+
+        return RuleCheckBatch.model_json_schema()
     if operation == "entity_candidate_verification":
         from services.entity_pipeline.verification import EntityDecisionBatch
 

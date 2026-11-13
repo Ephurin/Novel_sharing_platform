@@ -113,6 +113,7 @@ function ScopedAuthorMemoryPanel({
   const [direction, setDirection] = useState('');
   const [events, setEvents] = useState<FutureEvent[]>([]);
   const [findings, setFindings] = useState<ConsistencyFinding[] | null>(null);
+  const [ruleCheck, setRuleCheck] = useState<string | null>(null);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'info' | 'error' | 'success'>('info');
 
@@ -286,7 +287,7 @@ function ScopedAuthorMemoryPanel({
     if (!revision || revision.content !== content) {
       revision = await createChapterSnapshot(chapterId, content);
     }
-    const result = await runAuthorOperation<{ findings: ConsistencyFinding[] }>(novelId, {
+    const result = await runAuthorOperation<{ findings: ConsistencyFinding[]; rule_check?: string }>(novelId, {
       operation: 'check_consistency',
       content,
       revision_id: revision.revisionId,
@@ -294,6 +295,7 @@ function ScopedAuthorMemoryPanel({
       content_hash: revision.contentHash
     });
     setFindings(result.findings);
+    setRuleCheck(result.rule_check ?? null);
   };
 
   // Event correction submission (B4, FE-01, FE-06)
@@ -786,6 +788,11 @@ function ScopedAuthorMemoryPanel({
                         </Text>
                       ))
                     : 'Không tìm thấy mâu thuẫn trong lần kiểm tra này.'}
+                  {ruleCheck === 'unavailable' && (
+                    <Text size="xs" c="orange" data-testid="rule-check-unavailable">
+                      Chưa kiểm tra được theo quy tắc thế giới (AI tạm thời không khả dụng). Kết quả trên chưa bao gồm quy tắc thế giới.
+                    </Text>
+                  )}
                 </Alert>
               )}
 

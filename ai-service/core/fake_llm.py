@@ -45,6 +45,8 @@ class FakeDeterministicLLMService:
                 verdict='entity', entity_type=known.get(c['surface'], {}).get('entity_type', 'PER'),
                 canonical_name=c['surface'], canonical_entity_id=known.get(c['surface'], {}).get('entity_id', ''),
                 reason='Deterministic fake occurrence for human review') for c in data['candidates']]})
+        if operation == 'rule_consistency':
+            return json.dumps({'findings': []})
         if operation == 'hitl_event_extraction':
             data = json.loads(user_prompt)
             refs = [e['entity_id'] if isinstance(e, dict) else e for e in data['known_entities']]
