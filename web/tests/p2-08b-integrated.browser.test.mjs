@@ -555,10 +555,10 @@ async function isolation(h, author, id, api) {
     try {
       await h.page.getByTestId('brainstorm-open-plan-btn').click();
       const cards = h.page.getByTestId('brainstorm-event-card-0');
-      const priorSuggestions = await cards.allTextContents();
-      assert.equal(priorSuggestions.length, 1);
+      await expect(cards).toHaveCount(1);
       const summary = h.page.getByTestId('event-text-input-0');
       await summary.fill('Local edit to previously received suggestion.');
+      const priorSuggestions = await cards.allTextContents();
       await h.page.getByLabel('Yêu cầu định hướng cho AI').fill('Suggest a different future scene.');
       await h.page.getByTestId('brainstorm-submit-btn').click();
       assert.equal(await ready, 200);
