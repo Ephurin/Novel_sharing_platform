@@ -367,8 +367,11 @@ test('P2-06B BUI-01..04 regressions against contract-enforcing mocks', { timeout
       state.failSetupGet = false;
       await page.getByTestId('brainstorm-reload-btn').click();
       await expect(page.getByTestId('brainstorm-error-alert')).toHaveCount(0, { timeout: 5000 });
+      // Cards from the earlier success stay visible, so wait for the new request itself.
+      const sentBefore = brainstorms.length;
       await page.getByTestId('brainstorm-submit-btn').click();
-      await expect(page.getByTestId('brainstorm-rule-card-0')).toBeVisible({ timeout: 5000 });
+      await expect.poll(() => brainstorms.length, { timeout: 5000 }).toBeGreaterThan(sentBefore);
+      await expect(page.getByTestId('brainstorm-error-alert')).toHaveCount(0, { timeout: 5000 });
       assert.equal(brainstorms.at(-1).expected_brain_version, 2);
       await context.close();
     }
