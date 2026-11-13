@@ -27,7 +27,8 @@ def main():
     sha = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     if subprocess.check_output(["git", "status", "--porcelain"], cwd=ROOT, text=True).strip():
         parser.error("Run from a clean checkout to attest the exact source")
-    parent = subprocess.check_output(["git", "rev-parse", "HEAD^"], cwd=ROOT, text=True).strip()
+    commit = subprocess.check_output(["git", "cat-file", "commit", sha], cwd=ROOT, text=True)
+    parent = next(line.split()[1] for line in commit.splitlines() if line.startswith("parent "))
     receipt = {"sha": sha, "parent_sha": parent, "commands": [], "scenarios": {}}
 
     def run(command, env=None):
