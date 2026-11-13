@@ -197,19 +197,25 @@ def test_brainstorm_postgres_private_notes_redacted(brainstorm_env):
     novel_id, _ = _activated_brain(f)
     headers = _headers(f)
 
-    secret = "PG_SECRET_NOTE_REDACTION_CHECK_112233"
+    markers = [f"private-{uuid.uuid4()}" for _ in range(2)]
+    count = f.fake_llm.call_count
     res = f.client.post(
         f"/v1/story-brains/{novel_id}/brainstorm",
         headers=headers,
         json={
             "contract_version": "brainstorm-v1",
             "instruction": "Gợi ý bình thường",
-            "private_notes": secret,
+            "private_notes": markers[0],
+            "private_author_notes": [markers[1]],
         },
     )
     assert res.status_code == 200
-    assert secret not in res.text
-    assert secret not in json.dumps(f.fake_llm.last_call)
+    assert f.fake_llm.call_count == count + 1
+    payload = f.fake_llm.last_call
+    assert payload["instruction"] == "Gợi ý bình thường"
+    assert all(marker not in res.text and marker not in json.dumps(payload) for marker in markers)
+    print("B08-05 " + json.dumps({"payload_fields": sorted(payload), "protected_fields_absent": True,
+                                 "fake_dispatches": 1}))
 
 
 def test_brainstorm_postgres_bsa01_effective_world_rules_lineage(brainstorm_env):

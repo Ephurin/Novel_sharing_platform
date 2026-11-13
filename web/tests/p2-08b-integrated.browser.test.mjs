@@ -405,7 +405,8 @@ async function isolation(h, author, id, api) {
   const foreign = await h.account('AUTHOR');
   const otherId = await novel(h, foreign, 'Foreign lighthouse');
   await setup(api, id);
-  await activatePlan(api, id);
+  const originalPlan = planBody();
+  await activatePlan(api, id, originalPlan);
   const revision = await chapter(h, api, author, id, 1, 'Minh opens the lighthouse door.');
   const queue = await pendingGroup(api, id, revision);
   await h.step('Foreign author cannot read or mutate the owner workspace', async () => {
@@ -466,6 +467,22 @@ async function isolation(h, author, id, api) {
     } finally {
       await context.close();
     }
+  });
+  await h.step('Plan replay stays bound to its payload and authenticated scope', async () => {
+    const path = `/ai/story-plans/edit-v1/${id}`;
+    const foreignPath = `/ai/story-plans/edit-v1/${otherId}`;
+    const before = await h.snapshot('s7-before-scope-replay', [id, otherId]);
+    const receipt = await api('POST', path, originalPlan);
+    assert.equal(receipt.plan_version, 1);
+    const forged = { 'X-Author-Id': foreign.userId, 'X-Tenant-Id': randomUUID() };
+    const same = await h.api('POST', path, originalPlan, author.token, [200], forged);
+    assert.deepEqual(same.data, receipt);
+    await api('POST', path, { ...originalPlan, source_outline: 'Changed replay payload' }, [409]);
+    await h.api('POST', path, originalPlan, foreign.token, [403, 404], {
+      ...forged, 'X-Author-Id': author.userId,
+    });
+    await h.api('POST', foreignPath, originalPlan, author.token, [403, 404], forged);
+    assert.deepEqual(await h.snapshot('s7-after-scope-replay', [id, otherId]), before);
   });
   await h.step('Fake provider errors are visible and leave the local draft intact', async () => {
     await openPlan(h.page, h, author, id);
