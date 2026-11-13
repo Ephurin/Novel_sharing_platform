@@ -116,7 +116,7 @@ test(`${scenario} first chapter through the real Gateway`, {
           planVersion,
           logicalId: savedObjective.objective_id,
           eventId: savedObjective.events[0].event_id,
-          text: suggestion.text || suggestion.title,
+          text: `${suggestion.title}: ${suggestion.text}`,
           participants: suggestion.participants.map(p => ({
             entity_id: p.entity_id ?? null,
             name_hint: p.entity_id ? null : p.name_hint,
