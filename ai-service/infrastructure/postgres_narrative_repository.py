@@ -10,10 +10,12 @@ from decimal import Decimal
 from typing import Any
 
 from sqlalchemy import delete, func, or_, select, update, text
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
 logger = logging.getLogger(__name__)
+VERIFIED_MENTION_VERSION = 'author-verified-v1'
 
 from domain.entity_profile import EntityProfilePatch, PROFILE_FIELDS, approved_profile
 from domain.projection import ProjectionError, validate_payload, project, resolve_entity, transition_from_payload, resolve_effective_facts
@@ -963,6 +965,22 @@ class PostgresNarrativeRepository:
                         session.add(entity)
                         session.flush()
                     artifact_ids.append(str(entity.id))
+                    if assigned_id and proposal.analysis_run_id:
+                        run = session.scalar(select(AnalysisRunRecord).where(
+                            AnalysisRunRecord.id == proposal.analysis_run_id,
+                            *self._scope(AnalysisRunRecord, novel_id)))
+                        audit = (run.entity_candidate_audit or {}) if run else {}
+                        if audit.get('identity_inventory_version') == 2:
+                            frozen = next((item for item in audit['entities']
+                                           if item['entity_id'] == str(entity.id)
+                                           and not item['canonical_entity_id']), None)
+                            if audit['status'] != 'completed' or frozen is None:
+                                raise ProjectionError('Missing completed identity evidence')
+                            evidence = proposal.evidence[0] if proposal.evidence else {}
+                            if (evidence.get('revision_id'), evidence.get('chapter_id'), evidence.get('text_hash')) != (
+                                    audit['revision_id'], audit['chapter_id'], audit['source_hash']):
+                                raise ProjectionError('Identity proposal source differs from frozen review')
+                            self._persist_reviewed_mentions(session, brain, audit, frozen)
                 elif proposal.proposal_type == "event":
                     event_uuid = self._stable_uuid("event", str(payload.get("event_id") or external_id))
                     if session.scalar(select(EventRecord.id).where(EventRecord.id == event_uuid, *self._scope(EventRecord, novel_id))):
@@ -3247,6 +3265,49 @@ class PostgresNarrativeRepository:
                                   'entity_type': e.entity_type} for e in entities],
                     'aliases': [{'alias': a.alias, 'entity_id': str(a.entity_id)} for a in aliases]}
 
+    def _persist_reviewed_mentions(self, session, brain, audit, frozen):
+        request = audit['request']
+        if (request['tenant_id'], request['novel_id'], request['revision_id'],
+                request['chapter_id'], request['content_hash']) != (
+                str(brain.tenant_id), str(brain.novel_id), audit['revision_id'],
+                audit['chapter_id'], audit['source_hash']):
+            raise ProjectionError('Occurrence source differs from the scoped revision')
+        entity = session.get(EntityRecord, uuid.UUID(frozen['entity_id']))
+        if (entity is None or entity.story_brain_id != brain.id or
+                entity.tenant_id != brain.tenant_id or entity.novel_id != brain.novel_id or
+                entity.confirmation_status != 'confirmed'):
+            raise ProjectionError('Occurrence requires a scoped confirmed identity')
+        candidates = {c['candidate_id']: c for c in audit['candidates']}
+        occurrences = frozen['occurrences']
+        if sorted(o['candidate_id'] for o in occurrences) != sorted(frozen['candidate_ids']):
+            raise ProjectionError('Occurrence inventory differs from frozen candidates')
+        for occurrence in occurrences:
+            candidate = candidates.get(occurrence['candidate_id'])
+            start, end, quote = (occurrence[k] for k in ('start', 'end', 'quote'))
+            if (candidate is None or not 0 <= start < end or end - start != len(quote)
+                    or (start, end, quote) != (candidate['start'], candidate['end'], candidate['surface'])
+                    or occurrence['revision_id'] != audit['revision_id']
+                    or occurrence['text_hash'] != audit['source_hash']):
+                raise ProjectionError('Occurrence evidence differs from the verified candidate')
+            # Both finalized review and group approval hold the scoped Brain row lock.
+            conflict = session.scalar(select(EntityMentionRecord.id).where(
+                *self._scope(EntityMentionRecord, brain.novel_id),
+                EntityMentionRecord.revision_id == uuid.UUID(audit['revision_id']),
+                EntityMentionRecord.source_start == start,
+                EntityMentionRecord.source_end == end,
+                EntityMentionRecord.extractor_version == VERIFIED_MENTION_VERSION,
+                EntityMentionRecord.entity_id != entity.id,
+            ).limit(1))
+            if conflict is not None:
+                raise OptimisticLockError('Occurrence is already verified for a different identity')
+            session.execute(insert(EntityMentionRecord).values(
+                story_brain_id=brain.id, tenant_id=brain.tenant_id, novel_id=brain.novel_id,
+                entity_id=entity.id, chapter_id=uuid.UUID(audit['chapter_id']),
+                revision_id=uuid.UUID(audit['revision_id']), surface_text=quote,
+                source_start=start, source_end=end, source_text_hash=audit['source_hash'],
+                extractor_version=VERIFIED_MENTION_VERSION,
+            ).on_conflict_do_nothing(constraint='uq_entity_mention_evidence'))
+
     def save_entity_candidate_audit(self, story_id: str, run_id: str, audit: dict, *, expected_version: int | None = None) -> None:
         from copy import deepcopy
         with session_scope(self._session_factory) as session:
@@ -3263,6 +3324,51 @@ class PostgresNarrativeRepository:
                 raise KeyError(run_id)
             if expected_version is not None and (record.entity_candidate_audit or {}).get('review_version', 0) != expected_version:
                 raise OptimisticLockError('Entity checkpoint changed')
+            previous = record.entity_candidate_audit or {}
+            history = deepcopy(previous.get('superseded_occurrence_reviews', []))
+            if (previous.get('status') == 'entities_reviewed'
+                    and previous.get('identity_inventory_version') == 2
+                    and audit['status'] == 'waiting_entity_review'
+                    and audit.get('refresh_input_version') == previous['review_version']):
+                history.append({key: deepcopy(previous[key]) for key in (
+                    'revision_id', 'source_hash', 'review_version', 'guidance_version',
+                    'entities', 'reviewed_decisions',
+                )})
+                other_audits = session.scalars(select(AnalysisRunRecord.entity_candidate_audit).where(
+                    *self._scope(AnalysisRunRecord, brain.novel_id),
+                    AnalysisRunRecord.id != record.id,
+                    AnalysisRunRecord.entity_candidate_audit['revision_id'].as_string() == previous['revision_id'],
+                    AnalysisRunRecord.entity_candidate_audit['status'].as_string().in_(
+                        ('entities_reviewed', 'completed')),
+                )).all()
+                for frozen in previous['entities']:
+                    if not frozen['canonical_entity_id']:
+                        continue
+                    for occurrence in frozen['occurrences']:
+                        if any(other['canonical_entity_id'] == frozen['canonical_entity_id']
+                               and any(all(o[key] == occurrence[key] for key in ('start', 'end', 'text_hash'))
+                                       for o in other.get('occurrences', []))
+                               for other_audit in other_audits for other in other_audit.get('entities', [])):
+                            continue
+                        session.execute(delete(EntityMentionRecord).where(
+                            *self._scope(EntityMentionRecord, brain.novel_id),
+                            EntityMentionRecord.story_brain_id == brain.id,
+                            EntityMentionRecord.chapter_id == uuid.UUID(previous['chapter_id']),
+                            EntityMentionRecord.revision_id == uuid.UUID(previous['revision_id']),
+                            EntityMentionRecord.entity_id == uuid.UUID(frozen['canonical_entity_id']),
+                            EntityMentionRecord.source_start == occurrence['start'],
+                            EntityMentionRecord.source_end == occurrence['end'],
+                            EntityMentionRecord.source_text_hash == previous['source_hash'],
+                            EntityMentionRecord.extractor_version == VERIFIED_MENTION_VERSION,
+                        ))
+            if history:
+                audit['superseded_occurrence_reviews'] = history
+            if audit['status'] == 'entities_reviewed' and audit.get('identity_inventory_version') == 2:
+                for frozen in audit['entities']:
+                    if frozen['canonical_entity_id']:
+                        if frozen['canonical_entity_id'] != frozen['entity_id']:
+                            raise ProjectionError('Frozen canonical identity changed')
+                        self._persist_reviewed_mentions(session, brain, audit, frozen)
             record.entity_candidate_audit = deepcopy(audit)
 
     def get_entity_candidate_audit(self, story_id: str, run_id: str) -> dict | None:

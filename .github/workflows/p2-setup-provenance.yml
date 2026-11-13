@@ -30,14 +30,14 @@ jobs:
       - run: npm ci --prefix web
       - run: python -m pip install -r ai-service/requirements.txt
       - run: cd web && npx playwright install --with-deps chromium
-      - run: python scripts/p2_07a_acceptance.py --output "$RUNNER_TEMP/p2-07a"
+      - run: python scripts/p2_07a_acceptance.py --suite p2-08a --output "$RUNNER_TEMP/p2-08a"
         env:
           PLAYWRIGHT_CHANNEL: chromium
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: p2-07a-evidence-${{ github.event.pull_request.head.sha }}
-          path: ${{ runner.temp }}/p2-07a/evidence
+          name: p2-08a-evidence-${{ github.event.pull_request.head.sha }}
+          path: ${{ runner.temp }}/p2-08a/evidence
           if-no-files-found: error
 
   setup-postgres-gateway-browser:
@@ -137,6 +137,25 @@ jobs:
         run: |
           set -euo pipefail
           pytest -o addopts= -vv -s -m postgres_integration --basetemp="$RUNNER_TEMP/p2-a16" --junitxml="$RUNNER_TEMP/p202/a16.xml" tests/test_p2_bootstrap_postgres.py tests/test_setup_v1_postgres.py tests/test_setup_author_scope_postgres.py tests/test_setup_review_postgres.py tests/test_plan_edit_postgres.py tests/test_plan_review_fixes_postgres.py tests/test_writing_plan_authority_postgres.py tests/test_setup_activation_postgres.py tests/test_world_rule_effective_head_postgres.py tests/test_setup_amendment_postgres.py tests/test_brainstorm_postgres.py 2>&1 | tee "$RUNNER_TEMP/p202/a16.log"
+      - name: PostgreSQL entity mention lifecycle gate
+        working-directory: ai-service
+        run: |
+          set -euo pipefail
+          pytest -o addopts= -q -s -m postgres_integration --junitxml="$RUNNER_TEMP/p202/entity-mentions.xml" tests/test_p1_identity_final.py 2>&1 | tee "$RUNNER_TEMP/p202/entity-mentions.log"
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from xml.etree import ElementTree
+
+          root = Path(os.environ["RUNNER_TEMP"]) / "p202"
+          cases = ElementTree.parse(root / "entity-mentions.xml").findall(".//testcase")
+          assert len(cases) >= 40, len(cases)
+          assert all(not list(case) for case in cases), "Skipped, failed or incomplete PostgreSQL case"
+          log = (root / "entity-mentions.log").read_text()
+          for stage in ("R5-refresh-winner", "R5-stale-finalize-unchanged", "R5-scoped-refresh"):
+              assert stage in log, stage
+          (root / "entity-mentions-sha.txt").write_text(os.popen("git rev-parse HEAD").read())
+          PY
       - name: Start real AI service with fake providers
         working-directory: ai-service
         env:

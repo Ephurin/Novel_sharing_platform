@@ -83,7 +83,7 @@ def snapshot(f, stage):
     value = {}
     with f.engine.connect() as c:
         for table in ('story_brains', 'analysis_runs', 'entities', 'relationships', 'events', 'facts',
-                'proposals', 'state_transitions', 'current_entity_states'):
+                'proposals', 'state_transitions', 'current_entity_states', 'entity_mentions'):
             rows = c.execute(text(f'SELECT * FROM narrative.{table} WHERE tenant_id=:t AND novel_id=:n'),
                 {'t':TENANT, 'n':f.revision.novel_id}).mappings()
             value[table] = sorted([dict(r) for r in rows], key=lambda r: str(r.get('id', r.get('entity_id'))))
@@ -183,6 +183,254 @@ def test_h04_concurrent_freeze_reuses_winning_assignment(flow):
     assert len({e['entity_id'] for e in values[0]['entities']}) == 2
     assert f.repo.get_entity_candidate_audit(f.revision.novel_id, run) == values[0]
     snapshot(f, 'H04-E-one-durable-freeze')
+
+
+def test_verified_mentions_follow_refreshed_author_mapping(flow):
+    if not flow.engine:
+        pytest.skip('Durable mention reconciliation requires PostgreSQL')
+    from tests.test_p1_entity_semantics import add_hint, refresh
+    f = flow
+    run, frozen = homonyms(f)
+    before = snapshot(f, 'R4-original-finalized')
+    assert len(before['entity_mentions']) == 2
+    add_hint(f)
+    fresh = refresh(f, run, frozen['review_version'])
+    waiting = snapshot(f, 'R4-refreshed')
+    decisions = [{**d, 'canonical_entity_id': f.llm.ids[1]} if d['verdict'] == 'entity' else d
+                 for d in fresh['reviewed_decisions']]
+    reviewed = submit(f, run, fresh, decisions)
+    after = snapshot(f, 'R4-reassigned')
+    assert {str(row['entity_id']) for row in after['entity_mentions']} == {f.llm.ids[1]}
+    assert len(after['entity_mentions']) == 2
+    assert waiting['entity_mentions'] == []
+    assert before['events'] == after['events'] == []
+    assert reviewed['brain_version'] == frozen['brain_version']
+    assert reviewed['superseded_occurrence_reviews'][0]['entities'] == frozen['entities']
+    submit(f, run, fresh, decisions)
+    assert snapshot(f, 'R4-identical-replay') == after
+    submit(f, run, fresh, frozen['reviewed_decisions'], expected=409)
+    assert snapshot(f, 'R4-conflicting-replay') == after
+
+
+@pytest.mark.parametrize('existing', [True, False])
+def test_verified_mentions_survive_only_authorized_rejection_boundary(flow, existing):
+    if not flow.engine:
+        pytest.skip('Durable mentions require PostgreSQL')
+    f = flow
+    if existing:
+        run, frozen = homonyms(f)
+    else:
+        prepare(f, 'Minh gặp Minh.')
+        run, audit = discover(f)
+        frozen = submit(f, run, audit, choices(audit))
+    assert f.client.post(f'{f.base}/entity-reviews/{run}/continue', headers=f.headers).status_code == 200
+    before = snapshot(f, 'R4-before-rejection')
+    proposals = f.repo.list_proposals(f.revision.novel_id, analysis_run_id=run)
+    assert any(p.proposal_type == 'event' for p in proposals)
+    result = f.repo.reject_proposal_group(f.revision.novel_id, proposals[0].dependency_group_id,
+                                        frozen['brain_version'])
+    after = snapshot(f, 'R4-after-rejection')
+    assert result['brain_version'] == frozen['brain_version']
+    assert len(before['entity_mentions']) == (2 if existing else 0)
+    for table in ('entity_mentions', 'entities', 'events', 'facts', 'story_brains'):
+        assert after[table] == before[table]
+
+
+@pytest.mark.parametrize('field,invalid', [('start', -1), ('quote', 'Fake'), ('text_hash', '0' * 64)])
+def test_verified_mention_failure_rolls_back_refresh_finalization(flow, monkeypatch, field, invalid):
+    if not flow.engine:
+        pytest.skip('Durable mention rollback requires PostgreSQL')
+    from tests.test_p1_entity_semantics import add_hint, refresh
+    f = flow
+    run, frozen = homonyms(f)
+    add_hint(f)
+    fresh = refresh(f, run, frozen['review_version'])
+    before = snapshot(f, 'R4-before-invalid-source')
+    original = f.repo._persist_reviewed_mentions
+    calls = []
+
+    def corrupt_second(session, brain, audit, entity):
+        calls.append(entity['entity_id'])
+        if len(calls) == 2:
+            entity = {**entity, 'occurrences': [{**entity['occurrences'][0], field: invalid}]}
+        original(session, brain, audit, entity)
+
+    monkeypatch.setattr(f.repo, '_persist_reviewed_mentions', corrupt_second)
+    submit(f, run, fresh, fresh['reviewed_decisions'], expected=422)
+    assert len(calls) == 2
+    assert snapshot(f, 'R4-after-invalid-source-rollback') == before
+
+
+def test_verified_mentions_concurrent_replacement_has_one_winner(flow, monkeypatch):
+    if not flow.engine:
+        pytest.skip('Real row-lock concurrency requires PostgreSQL')
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
+    from application.entity_hitl import review
+    from tests.test_p1_entity_semantics import add_hint, refresh
+    f = flow
+    run, frozen = homonyms(f)
+    add_hint(f)
+    fresh = refresh(f, run, frozen['review_version'])
+    original = f.repo.save_entity_candidate_audit
+    barrier = Barrier(2)
+
+    def synchronized(*args, **kwargs):
+        barrier.wait(timeout=10)
+        return original(*args, **kwargs)
+
+    def finalize(identity):
+        decisions = [{**d, 'canonical_entity_id': identity} if d['verdict'] == 'entity' else d
+                     for d in fresh['reviewed_decisions']]
+        try:
+            return review(f.service, f.revision.novel_id, run, TENANT, decisions, fresh['review_version'])
+        except OptimisticLockError:
+            return None
+
+    monkeypatch.setattr(f.repo, 'save_entity_candidate_audit', synchronized)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        winners = [value for value in pool.map(finalize, f.llm.ids) if value is not None]
+    assert len(winners) == 1
+    winner = winners[0]
+    assert winner['review_version'] == fresh['review_version'] + 1
+    after = snapshot(f, 'R4-concurrent-finalization-winner')
+    assert {str(row['entity_id']) for row in after['entity_mentions']} == {winner['entities'][0]['entity_id']}
+    assert len(after['entity_mentions']) == 2
+    assert after['events'] == []
+    assert after['story_brains'][0]['brain_version'] == frozen['brain_version']
+
+
+def test_refresh_wins_against_inflight_finalization(flow, monkeypatch):
+    if not flow.engine:
+        pytest.skip('PostgreSQL CAS required')
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event
+    from application.entity_hitl import review
+    from tests.test_p1_entity_semantics import add_hint, refresh
+    f = prepare(flow, 'Minh gặp Minh.')
+    run, audit = discover(f)
+    entered, release = Event(), Event()
+    original = f.repo.save_entity_candidate_audit
+
+    def hold_finalize(story, run_id, value, **kwargs):
+        if value['status'] == 'entities_reviewed':
+            entered.set()
+            assert release.wait(10)
+        return original(story, run_id, value, **kwargs)
+
+    monkeypatch.setattr(f.repo, 'save_entity_candidate_audit', hold_finalize)
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        stale = pool.submit(review, f.service, f.revision.novel_id, run, TENANT,
+                            choices(audit), audit['review_version'])
+        try:
+            assert entered.wait(10)
+            add_hint(f)
+            winner = refresh(f, run, audit['review_version'])
+            before = snapshot(f, 'R5-refresh-winner')
+        finally:
+            release.set()
+        with pytest.raises(OptimisticLockError):
+            stale.result(timeout=10)
+    assert winner['review_version'] == audit['review_version'] + 1
+    assert winner['status'] == 'waiting_entity_review'
+    assert before['entity_mentions'] == before['events'] == []
+    assert snapshot(f, 'R5-stale-finalize-unchanged') == before
+
+
+def test_independent_analyses_racing_for_same_occurrence_have_one_winner(flow, monkeypatch):
+    if not flow.engine:
+        pytest.skip('PostgreSQL Brain locking required')
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Barrier
+    from application.entity_hitl import review
+    f = flow
+    original_run, frozen = homonyms(f)
+    from tests.test_p1_entity_semantics import add_hint, refresh
+    add_hint(f)
+    refresh(f, original_run, frozen['review_version'])
+    attempts = []
+    for identity in f.llm.ids:
+        f.headers['Idempotency-Key'] = str(uuid.uuid4())
+        run, audit = discover(f)
+        decisions = [{**d, 'canonical_entity_id': identity} if d['verdict'] == 'entity' else d
+                     for d in audit['decisions']]
+        attempts.append((run, audit['review_version'], decisions))
+    before = snapshot(f, 'R6-before-race')
+    original = f.repo.save_entity_candidate_audit
+    barrier = Barrier(2)
+
+    def synchronized(*args, **kwargs):
+        barrier.wait(timeout=10)
+        return original(*args, **kwargs)
+
+    def finalize(attempt):
+        run, version, decisions = attempt
+        try:
+            return review(f.service, f.revision.novel_id, run, TENANT, decisions, version)
+        except OptimisticLockError:
+            return None
+
+    monkeypatch.setattr(f.repo, 'save_entity_candidate_audit', synchronized)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        outcomes = list(pool.map(finalize, attempts))
+    winners = [result for result in outcomes if result is not None]
+    assert len(winners) == 1
+    after = snapshot(f, 'R6-after-race')
+    assert len(after['entity_mentions']) == 2
+    assert {str(row['entity_id']) for row in after['entity_mentions']} == {winners[0]['entities'][0]['entity_id']}
+    for table in ('entities', 'events', 'facts', 'story_brains'):
+        assert after[table] == before[table]
+    loser = attempts[outcomes.index(None)][0]
+    assert next(row for row in after['analysis_runs'] if str(row['id']) == loser) == next(
+        row for row in before['analysis_runs'] if str(row['id']) == loser)
+
+
+def test_refresh_preserves_other_revision_and_independent_analysis_links(flow):
+    if not flow.engine:
+        pytest.skip('PostgreSQL mention readback required')
+    from tests.test_p1_entity_semantics import add_hint, refresh
+    f = flow
+    run, frozen = homonyms(f)
+    original_revision = f.revision
+    initial = snapshot(f, 'R5-original-links')['entity_mentions']
+
+    def finalize_analysis(identity, expected=200):
+        f.headers['Idempotency-Key'] = str(uuid.uuid4())
+        analysis, audit = discover(f)
+        decisions = [{**d, 'canonical_entity_id': identity} if d['verdict'] == 'entity' else d
+                     for d in audit['decisions']]
+        before = snapshot(f, 'R6-before-independent-finalization')
+        submit(f, analysis, audit, decisions, expected=expected)
+        after = snapshot(f, 'R6-after-independent-finalization')
+        if expected == 409:
+            assert after == before
+        return after
+
+    before_conflict = snapshot(f, 'R6-original-mapping')
+    after_conflict = finalize_analysis(f.llm.ids[1], expected=409)
+    for table in ('entity_mentions', 'entities', 'events', 'story_brains'):
+        assert after_conflict[table] == before_conflict[table]
+    def support_original():
+        f.headers['Idempotency-Key'] = str(uuid.uuid4())
+        analysis, audit = discover(f)
+        by_candidate = {d['candidate_id']: d for d in frozen['reviewed_decisions']}
+        decisions = [by_candidate[c['candidate_id']] for c in audit['candidates']]
+        assert submit(f, analysis, audit, decisions) == submit(f, analysis, audit, decisions)
+    support_original()
+    assert snapshot(f, 'R6-shared-links-deduplicated')['entity_mentions'] == initial
+    f.revision = replace(original_revision, revision_id=str(uuid.uuid4()))
+    f.provider._revisions[(f.revision.novel_id, f.revision.chapter_id, f.revision.revision_id)] = f.revision
+    finalize_analysis(f.llm.ids[0])
+    before = snapshot(f, 'R5-independent-and-cross-revision-links')['entity_mentions']
+    assert len(before) == 4
+    add_hint(f)
+    refreshed = refresh(f, run, frozen['review_version'])
+    after = snapshot(f, 'R5-scoped-refresh')
+    assert after['entity_mentions'] == before
+    replacement = [{**d, 'canonical_entity_id': f.llm.ids[1]} if d['verdict'] == 'entity' else d
+                   for d in refreshed['reviewed_decisions']]
+    submit(f, run, refreshed, replacement, expected=409)
+    assert snapshot(f, 'R6-supported-link-blocks-reassignment') == after
 
 
 def pending_relationship(f, subject, target, relation='enemy'):
