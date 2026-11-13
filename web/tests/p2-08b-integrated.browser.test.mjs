@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import test from 'node:test';
 import { expect } from '@playwright/test';
 import { createHarness, hash, until } from './helpers/p1-real-stack.mjs';
+import { fixtures } from './helpers/p1-fixtures.mjs';
 
 const scenario = process.env.P207A_SCENARIO;
 assert.ok(['S5', 'S6', 'S7'].includes(scenario));
@@ -12,12 +13,74 @@ async function novel(h, author, title) {
   return (await h.api('POST', '/novels', { title, synopsis: 'A lighthouse keeper finds a city beneath the tide.' }, author.token)).data.novelId;
 }
 
-async function openPlan(page, h, author, id) {
-  await page.addInitScript(token => localStorage.setItem('ephurin_access_token', token), author.token);
-  await page.goto(`${h.origin}/author/ide?novelId=${id}`);
+async function selectPlan(page) {
   await page.getByRole('button', { name: 'Lập kế hoạch', exact: true }).click();
   await page.getByRole('navigation', { name: 'Các bước lập kế hoạch' }).getByRole('button', { name: /Dàn ý chương/ }).click();
   await expect(page.getByRole('region', { name: 'Planning Studio' })).toHaveAttribute('aria-busy', 'false');
+}
+
+async function openPlan(page, h, author, id) {
+  await page.addInitScript(token => localStorage.setItem('ephurin_access_token', token), author.token);
+  await page.goto(`${h.origin}/author/ide?novelId=${id}`);
+  await selectPlan(page);
+}
+
+async function accountSwitch(h, author, foreign, id, otherId, status) {
+  const page = await h.context.newPage();
+  const { login } = fixtures({ ...h, page });
+  let release, captured, outcome;
+  const held = new Promise(resolve => { release = resolve; });
+  const ready = new Promise(resolve => { captured = resolve; });
+  const before = await h.snapshot(`s7-account-before-${status}`, [id, otherId]);
+  try {
+    await login(author);
+    await page.goto(`${h.origin}/author/ide?novelId=${id}`);
+    await selectPlan(page);
+    const source = `**/api/v1/ai/story-plans/edit-v1/${id}`;
+    await page.route(source, async route => {
+      const response = await route.fetch();
+      captured(response.status());
+      await held;
+      try {
+        if (status === 200) await route.fulfill({ response });
+        else await route.fulfill({ status, json: { error: { code: 'LATE_TEST_ERROR', message: 'Abandoned account response' } } });
+        outcome = 'fulfilled';
+      } catch (error) {
+        assert.match(error.message, /cancel|abort|closed|handled|Invalid Interception/i);
+        outcome = 'cancelled';
+      }
+    }, { times: 1 });
+    await page.getByRole('button', { name: 'Tải lại dàn ý', exact: true }).click();
+    assert.equal(await ready, 200);
+    await page.getByRole('link', { name: /Tủ truyện/ }).click();
+    await page.getByRole('button', { name: /^Tài khoản / }).click();
+    await page.getByRole('menuitem', { name: 'Đăng xuất' }).click();
+    await page.waitForURL('**/login');
+    await login(foreign, { alreadyOnLogin: true });
+    const readback = page.waitForResponse(r => r.url().endsWith(`/ai/story-plans/edit-v1/${otherId}`) && r.ok());
+    await page.locator('article').filter({ hasText: `Account switch target ${status}` })
+      .getByRole('button', { name: /Viết tiếp/ }).click();
+    await selectPlan(page);
+    await readback;
+    const outline = page.getByLabel('Dán hoặc nhập dàn ý tương lai');
+    await expect(outline).toHaveValue('');
+    const value = `Foreign account local outline ${status}`;
+    await outline.fill(value);
+    release();
+    await page.unrouteAll({ behavior: 'wait' });
+    await expect(outline).toHaveValue(value);
+    await expect(page.getByText('Abandoned account response', { exact: false })).toHaveCount(0);
+    await expect(page.getByText(betrayal, { exact: true })).toHaveCount(0);
+    await expect(page).toHaveURL(new RegExp(`novelId=${otherId}`));
+    assert.ok(outcome);
+    await h.save(`s7-account-release-${status}.json`, { status, outcome });
+    assert.deepEqual(await h.snapshot(`s7-account-after-${status}`, [id, otherId]), before);
+    await h.shot(`s7-account-switch-${status}`, page);
+  } finally {
+    release();
+    await page.unrouteAll({ behavior: 'wait' });
+    await page.close();
+  }
 }
 
 async function setup(api, id) {
@@ -455,6 +518,50 @@ async function isolation(h, author, id, api) {
     assert.deepEqual({ ...after, 'narrative.analysis_runs': after['narrative.analysis_runs']
       .filter(run => !newRuns.includes(run)) }, before);
   });
+  await h.step('Closing Brainstorm discards its held UI response and preserves its durable receipt', async () => {
+    const outline = h.page.getByLabel('Dán hoặc nhập dàn ý tương lai');
+    const draft = await outline.inputValue();
+    let release, capture;
+    const held = new Promise(resolve => { release = resolve; });
+    const ready = new Promise(resolve => { capture = resolve; });
+    let outcome;
+    await h.page.route(`**/api/v1/ai/story-brains/${id}/brainstorm`, async route => {
+      const result = await route.fetch();
+      capture(result.status());
+      await held;
+      try { await route.fulfill({ response: result }); outcome = 'fulfilled'; }
+      catch (error) {
+        assert.match(error.message, /cancel|abort|closed|handled|Invalid Interception/i);
+        outcome = 'cancelled';
+      }
+    }, { times: 1 });
+    try {
+      await h.page.getByTestId('brainstorm-open-plan-btn').click();
+      await h.page.getByLabel('Yêu cầu định hướng cho AI').fill('Suggest a future scene after the lighthouse visit.');
+      await h.page.getByTestId('brainstorm-submit-btn').click();
+      assert.equal(await ready, 200);
+      const before = await h.snapshot('s7-cancel-before-release', [id]);
+      await h.page.getByTestId('brainstorm-close-btn').click();
+      release();
+      await h.page.unrouteAll({ behavior: 'wait' });
+      await h.page.getByTestId('brainstorm-open-plan-btn').click();
+      await expect(h.page.getByTestId('brainstorm-event-card-0')).toHaveCount(0);
+      await expect(h.page.getByTestId('brainstorm-error-alert')).toHaveCount(0);
+      await h.page.getByTestId('brainstorm-close-btn').click();
+      await expect(outline).toHaveValue(draft);
+      assert.deepEqual(await h.snapshot('s7-cancel-after-release', [id]), before);
+      assert.ok(outcome);
+      await h.save('s7-cancel-receipt.json', { backendStatus: 200, browserRoute: outcome });
+    } finally {
+      release();
+      await h.page.unrouteAll({ behavior: 'wait' });
+    }
+  });
+  for (const status of [200, 503]) {
+    const target = await novel(h, foreign, `Account switch target ${status}`);
+    await h.step(`Account switch isolates held ${status} plan response`,
+      () => accountSwitch(h, author, foreign, id, target, status));
+  }
 }
 
 test(`${scenario} real-stack acceptance`, { timeout: 240000 }, async () => {
