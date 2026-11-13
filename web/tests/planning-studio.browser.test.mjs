@@ -108,7 +108,9 @@ test('mounted /author/ide planning journey, recoverable CAS drafts, real Writer 
   await expect(page.getByPlaceholder('Bắt đầu câu từ chương truyện của bạn tại đây...')).toBeEditable();
   const creates=writes.filter(w=>w.path.endsWith('/chapters'));assert.equal(creates.length,2);assert.equal(creates[0].body.clientRequestId,creates[1].body.clientRequestId);assert.equal(creates[1].body.content,'');
   await page.getByPlaceholder('Bắt đầu câu từ chương truyện của bạn tại đây...').fill('Minh bước vào An Thành.');
-  await button('Lập kế hoạch').click();assert.ok(writes.some(w=>w.method==='PATCH'&&w.body.content==='Minh bước vào An Thành.'));
+  await button('Lập kế hoạch').click();
+  // Opening Planning flushes the Writer draft; wait for the PATCH to reach the mock instead of counting right after the click.
+  await expect.poll(()=>writes.some(w=>w.method==='PATCH'&&w.body.content==='Minh bước vào An Thành.'),{timeout:5000}).toBe(true);
   await button('Đọc trạng thái mới').click();await expect(page.getByText(/Đã xác minh bản lưu đầu tiên/)).toBeVisible();
   await page.setViewportSize({width:390,height:844});await step('Ý tưởng').click();
   await expect(page.getByRole('navigation',{name:'Các bước lập kế hoạch'})).toBeVisible();
