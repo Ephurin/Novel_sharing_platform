@@ -342,6 +342,17 @@ test(`${scenario} first chapter through the real Gateway`, {
         await h.save('chapter-1-frozen-inventory.json', frozen);
         assert.equal(frozen.entities.length, 2);
         assert.ok(frozen.entities.some(entity => entity.entity_id === confirmedMinh));
+        const reviewed = await h.snapshot('s4-finalized-before-continue', [novelId]);
+        assert.deepEqual(reviewed['narrative.events'], []);
+        assert.equal(reviewed['narrative.story_brains'][0].brain_version, pending['narrative.story_brains'][0].brain_version);
+        const occurrences = reviewed['narrative.entity_mentions'];
+        assert.equal(occurrences.length, 2);
+        for (const mention of occurrences) {
+          assert.equal(mention.entity_id, confirmedMinh);
+          assert.equal(mention.revision_id, chapterOne.revision_id);
+          assert.equal(mention.source_text_hash, chapterOne.content_hash);
+          assert.equal(chapterOne.content.slice(mention.source_start, mention.source_end), mention.surface_text);
+        }
       }
       await h.api('POST', `${base}/entity-reviews/${run.id}/continue`, {}, author.token);
       const { data: queue } = await h.api('GET', `${base}/review-queue`, undefined, author.token);
