@@ -22,6 +22,7 @@ Nhãn phân loại:
 | Nhánh sửa, hợp đồng D1–D7 ngày 2026-11-09 | `08217a6` | 71/71 × 2 | `docs/development/SRS-BACKEND-R3/pr-head/` |
 | `main` sau #118 | `25fa0fd` | 60/71 × 2 | `docs/development/SRS-BACKEND-R4/main-baseline/` |
 | Nhánh sửa, D6 đóng kỹ thuật, gộp #118 | `0c235df` | 71/71 × 2 | `docs/development/SRS-BACKEND-R4/pr-head/` |
+| Nhánh sửa, review R5: bản nháp khi khôi phục truyện gỡ kiểu cũ | `2471728` | 71/71 × 2 | `docs/development/SRS-BACKEND-R5/pr-head/` |
 
 ## Bảng phân loại
 
@@ -80,6 +81,10 @@ Thái (chủ sản phẩm) đã chốt D1–D7 ngày 09/11/2026. D2 và D3 đư�
     - Không hồi sinh nội dung tác giả đã xoá, kể cả khi xoá trước lúc HIDE.
     - Sanction cũ thiếu `chapterIds` không có danh sách để khôi phục, nên không chương hay bản nháp nào bị đụng tới (giữ nguyên, không đoán).
     - Truyện bị gỡ theo kiểu cũ, từ trước khi có sanction: chỉ khôi phục chương có `deleted_at` trùng đúng `deleted_at` của truyện (lần gỡ đó ghi cùng một mốc thời gian trong một transaction). Chương tác giả xoá trước đó giữ nguyên.
+    - Bản nháp Mongo của các chương đó chỉ hiện lại nếu bị xoá từ lúc gỡ trở đi (`deletedAt >= deleted_at` của truyện); không đọc được thời điểm gỡ thì không bản nháp nào hiện lại (review R5).
+      - Lần gỡ cũ chỉ đánh dấu bản nháp còn sống, bằng thời điểm của chính nó. Khi truyện đang bị gỡ, không có gì bên trong bị xoá thêm được.
+      - Bản nháp đã bị xoá trước lúc gỡ giữ nguyên từng byte, kể cả khi chương của nó được khôi phục.
+      - Quy tắc này so thời điểm API ghi vào Mongo với thời điểm của PostgreSQL, nên giả định demo 1 instance dùng chung đồng hồ. Nếu đồng hồ API chậm hơn DB, bản nháp giữ trạng thái đã xoá (chiều an toàn). Nếu nhanh hơn Δ giây, chỉ bản nháp bị xoá trong Δ giây ngay trước lúc gỡ có thể bị nhận nhầm; hiện không có đường code nào xoá riêng bản nháp như vậy.
   - **Đồng bộ Mongo:** job `NOVEL_DRAFT_SYNC` luôn đưa bản nháp về trạng thái sanction **hiện tại** của truyện, bất kể job do sanction nào tạo. Nhờ vậy job cũ chạy trễ không làm hiện lại hay ẩn lại sai. Job chạy lặp lại không đổi kết quả.
   - **Phạm vi demo 1 instance:** PostgreSQL và MongoDB nhất quán sau cùng (eventual consistency) qua job.
     - Job tự thử lại tối đa 6 lần, giãn cách tăng dần. Sau đó chuyển `FAILED` và admin thử lại bằng tay; thao tác này có ghi audit.
@@ -87,7 +92,7 @@ Thái (chủ sản phẩm) đã chốt D1–D7 ngày 09/11/2026. D2 và D3 đư�
     - Trong lúc job đang chờ hoặc đã `FAILED`, khách và tác giả vẫn không đọc được truyện, vì quyền đọc đi qua PostgreSQL.
     - Đây **không** phải giao dịch nguyên tử giữa hai DB, không phải cam kết sẵn sàng production, và không thay cho các kiểm tra an toàn trước khi triển khai.
   - Trong lúc truyện bị ẩn, tác giả không xoá/lưu trữ được chương bên trong (404) và admin không sanction riêng được chương (409), nên không có đường API nào xoá riêng nội dung khi sanction đang hiệu lực.
-  - Test: `backend/src/modules/admin/novel-removal-d6.postgres.test.ts` tiêm lỗi ghi Mongo thật bằng validator của collection. Bằng chứng RED → GREEN ở `docs/development/SRS-BACKEND-R4/`.
+  - Test: `backend/src/modules/admin/novel-removal-d6.postgres.test.ts` tiêm lỗi ghi Mongo thật bằng validator của collection. Bằng chứng RED → GREEN ở `docs/development/SRS-BACKEND-R4/` (3 lỗ hổng đầu) và `docs/development/SRS-BACKEND-R5/` (bản nháp khi khôi phục truyện gỡ kiểu cũ).
   - Migration `025_admin_novel_draft_sync.sql`.
 - **D7. Mỗi độc giả nhận đúng 1 thông báo cho mỗi chương.**
   - Theo dõi tác giả → `NEW_CHAPTER` (nhánh này).
