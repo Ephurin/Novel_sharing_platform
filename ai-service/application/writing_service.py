@@ -9,6 +9,7 @@ from typing import Any
 
 import json
 from application.context_budget import ContextBudgetPacker
+from core.structured_call import priority_scope
 from application.context_routing import ContextBudgetRouter
 from application.context_scope import BalancedRelevanceScopeBuilder
 from application.hybrid_ranker import HYBRID_RANKING_VERSION
@@ -39,6 +40,27 @@ logger = logging.getLogger(__name__)
 
 # Text before the cursor sent when the selection is empty (bounded for token budget).
 PRECEDING_CONTEXT_CHARS = 6000
+
+RATE_LIMIT_MARKERS = ("RPM_LIMIT_EXCEEDED", "TPM_LIMIT_EXCEEDED", "CONCURRENCY_LIMIT_EXCEEDED")
+
+
+def writing_failure_error(exc: Exception) -> dict[str, Any]:
+    """Job error payload. #149: a free-tier rate limit is reported as "busy, retry soon", not a crash."""
+    message = str(exc)
+    if message.startswith("BUDGET_GUARD_DENIED") and any(m in message for m in RATE_LIMIT_MARKERS):
+        match = re.search(r"retry_after=(\d+)", message)
+        seconds = int(match.group(1)) if match else 60
+        return {
+            "code": "AI_RATE_LIMITED",
+            "message": (
+                "AI đang bận vì giới hạn tần suất của gói miễn phí (phân tích nền đang chạy). "
+                f"Vui lòng thử lại sau khoảng {seconds} giây."
+            ),
+            "retry_after": seconds,
+            "detail": message[:200],
+        }
+    return {"message": message}
+
 
 class WritingService:
     """Coordinates context preparation, LLM draft generation, and deterministic validations."""
@@ -519,17 +541,19 @@ class WritingService:
             except WritingContextAuthorityError:
                 return blocked()
         try:
-            llm_result = self._llm_service.generate_writing_draft(
-                operation=job.operation,
-                selected_text=selected_text,
-                cursor_offset=job.selection.get("cursor", 0),
-                start_offset=job.selection.get("start"),
-                end_offset=job.selection.get("end"),
-                instruction=job.instruction,
-                context_package=prompt_context,
-                style=job.style,
-                constraints=job.constraints,
-            )
+            # #149: the author is waiting on this draft; it gets the reserved interactive quota.
+            with priority_scope("interactive"):
+                llm_result = self._llm_service.generate_writing_draft(
+                    operation=job.operation,
+                    selected_text=selected_text,
+                    cursor_offset=job.selection.get("cursor", 0),
+                    start_offset=job.selection.get("start"),
+                    end_offset=job.selection.get("end"),
+                    instruction=job.instruction,
+                    context_package=prompt_context,
+                    style=job.style,
+                    constraints=job.constraints,
+                )
         except Exception as exc:
             logger.error("LLM draft generation failed for job %s: %s", job_id, exc)
             job = WritingGenerationJob(
@@ -550,7 +574,7 @@ class WritingService:
                 input_hash=job.input_hash,
                 status="failed",
                 stage="failed",
-                error={"message": str(exc)},
+                error=writing_failure_error(exc),
                 brain_version_used=brain_version_used,
                 chapter_number=job.chapter_number,
             )

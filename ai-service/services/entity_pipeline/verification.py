@@ -2,6 +2,8 @@
 from collections import Counter
 from dataclasses import dataclass
 import json
+import logging
+import re
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -12,6 +14,13 @@ from domain.errors import AnalysisOutputError
 from services.entity_pipeline.candidates import CandidateInventory, POLICY, chunks, occurrences, same_name
 from services.source_grounding import quote_span
 
+logger = logging.getLogger(__name__)
+MAX_LOGGED_ERROR = 300
+
+
+def _redact(error: str) -> str:
+    """Log-safe error: quoted values (manuscript names/quotes) are removed; the audit keeps detail."""
+    return re.sub(r'"[^"]*"', '"…"', error)[:MAX_LOGGED_ERROR]
 
 class EntityDecision(BaseModel):
     model_config = ConfigDict(extra='forbid')
@@ -169,21 +178,36 @@ def verify_entities(text, llm, discover, *, known_entities=(), known_aliases=(),
                            'Author declarations describe world identities, not chapter presence. '
                            'Do not merge identities or invent source facts from these entries.'}
             last_error = ''
+            parsed = None  # last schema-valid output, kept for per-candidate salvage
             for attempt in range(2):
                 raw = call_structured(llm, operation='entity_candidate_verification', system_prompt=system,
                                       user_prompt=json.dumps(request, ensure_ascii=False))
                 try:
-                    decisions = EntityDecisionBatch.model_validate_json(raw).decisions
-                    _validate(decisions, batch, text, known, all_names)
+                    parsed = EntityDecisionBatch.model_validate_json(raw).decisions
+                    _validate(parsed, batch, text, known, all_names)
+                    decisions = parsed
                     break
                 except ValueError as exc:
                     last_error = str(exc)
+                    # #148: keep the reason; it was previously lost when the batch failed.
+                    audit.setdefault('repair_errors', []).append(
+                        {'batch_start': start, 'attempt': attempt + 1, 'error': last_error[:MAX_LOGGED_ERROR]})
+                    logger.warning('Entity verification batch %d attempt %d invalid: %s',
+                                   start, attempt + 1, _redact(last_error))
                     repair_instruction = _build_repair_instruction(last_error)
                     request.update(previous_result=raw, validation_error=last_error,
                                    repair_instruction=repair_instruction)
             else:
-                raise AnalysisOutputError('ENTITY_VERIFICATION_UNRESOLVED',
-                    'Candidate decisions are incomplete or invalid after bounded repair.', attempts=2)
+                if parsed is None:
+                    raise AnalysisOutputError('ENTITY_VERIFICATION_UNRESOLVED',
+                        'Candidate decisions are incomplete or invalid after bounded repair: '
+                        + last_error[:MAX_LOGGED_ERROR], attempts=2)
+                # #148: one bad decision no longer fails the chapter. Valid decisions are kept; invalid or
+                # missing ones become 'unresolved' (never materialized, left to the author's review).
+                decisions, degraded = _salvage(parsed, batch, text, known, all_names)
+                audit.setdefault('degraded_candidates', []).extend(degraded)
+                logger.warning('Entity verification batch %d: %d candidate(s) left unresolved after bounded repair',
+                               start, len(degraded))
             audit['decisions'].extend(d.model_dump() for d in decisions)
             save('verifying')
         try:
@@ -200,6 +224,26 @@ def verify_entities(text, llm, discover, *, known_entities=(), known_aliases=(),
         save('failed')
         raise
 
+def _salvage(decisions, batch, text, known, allowed):
+    """Per-candidate fallback after bounded repair: keep each valid decision, mark the rest unresolved."""
+    first = {}
+    for d in decisions:
+        first.setdefault(d.candidate_id, d)
+    kept, degraded = [], []
+    for c in batch:
+        d = first.get(c.candidate_id)
+        error = 'missing decision'
+        if d is not None:
+            try:
+                _validate([d], [c], text, known, allowed)
+                kept.append(d)
+                continue
+            except ValueError as exc:
+                error = str(exc)
+        kept.append(EntityDecision(candidate_id=c.candidate_id, verdict='unresolved', confidence=0,
+                                   reason='Model decision invalid after bounded repair; needs author review.'))
+        degraded.append({'candidate_id': c.candidate_id, 'error': error[:MAX_LOGGED_ERROR]})
+    return kept, degraded
 
 def _validate(decisions, batch, text, known, allowed, *, human=False):
     by_id = {c.candidate_id: c for c in batch}

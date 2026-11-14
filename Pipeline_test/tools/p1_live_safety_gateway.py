@@ -1092,25 +1092,29 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
                     op_name = "gemini_generate_content" if native else "chat_completions"
 
                 estimated_tokens = max(10, len(raw_body) // 4)
+                # #149: ai-service marks analysis/retry traffic as background so it cannot use the
+                # quota share kept for an author waiting on a result. Unmarked callers keep full limits.
+                priority = "background" if self.headers.get("X-Request-Priority", "").strip().lower() == "background" else "interactive"
                 try:
                     ticket = self.quota_ledger.reserve(
                         model=normalized_model,
                         estimated_input_tokens=estimated_tokens,
                         client_service=client,
                         operation=op_name,
+                        priority=priority,
                     )
                 except FreeTierStatusUnverifiedError:
                     return self._send_json(503, {"error": "FREE_TIER_STATUS_UNVERIFIED"})
                 except QuotaConfigRequiredError:
                     return self._send_json(503, {"error": "QUOTA_CONFIG_REQUIRED"})
-                except RPMLimitExceeded:
-                    return self._send_json(429, {"error": "RPM_LIMIT_EXCEEDED"})
-                except TPMLimitExceeded:
-                    return self._send_json(429, {"error": "TPM_LIMIT_EXCEEDED"})
-                except RPDLimitExceeded:
-                    return self._send_json(429, {"error": "RPD_LIMIT_EXCEEDED"})
-                except ConcurrencyLimitExceeded:
-                    return self._send_json(429, {"error": "CONCURRENCY_LIMIT_EXCEEDED"})
+                except (RPMLimitExceeded, TPMLimitExceeded, RPDLimitExceeded, ConcurrencyLimitExceeded) as exc:
+                    code = {RPMLimitExceeded: "RPM_LIMIT_EXCEEDED", TPMLimitExceeded: "TPM_LIMIT_EXCEEDED",
+                            RPDLimitExceeded: "RPD_LIMIT_EXCEEDED"}.get(type(exc), "CONCURRENCY_LIMIT_EXCEEDED")
+                    retry_after = getattr(exc, "retry_after", None)
+                    if retry_after is None:
+                        return self._send_json(429, {"error": code})
+                    return self._send_json(429, {"error": code, "retry_after": retry_after},
+                                           extra_headers={"Retry-After": str(retry_after)})
                 except QuotaMeterUnavailableError as exc:
                     return self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE", "detail": str(exc)})
 

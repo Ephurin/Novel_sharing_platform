@@ -84,6 +84,8 @@ class BrainstormProvenance(StrictDTO):
     status: Literal["model_proposed"] = "model_proposed"
     grounding_rules_count: int = 0
     grounding_entities_count: int = 0
+    # #147: model suggestions dropped because they repeat an approved rule or character.
+    duplicates_removed: int = 0
     timestamp: str
 
 

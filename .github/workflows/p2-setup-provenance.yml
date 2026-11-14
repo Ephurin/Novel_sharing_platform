@@ -128,7 +128,7 @@ jobs:
         working-directory: ai-service
         run: |
           set -euo pipefail
-          pytest -q -o addopts= -p no:cacheprovider --basetemp="$RUNNER_TEMP/p2-focused" --junitxml="$RUNNER_TEMP/p202/focused.xml" tests/test_setup_v1.py tests/test_p2_bootstrap_guard.py tests/test_p2_bootstrap_pacing_compat.py tests/test_p2_json_bootstrap_compat.py tests/test_manuscript_bootstrap.py tests/test_brainstorm_service.py 2>&1 | tee "$RUNNER_TEMP/p202/focused.log"
+          pytest -q -o addopts= -p no:cacheprovider --basetemp="$RUNNER_TEMP/p2-focused" --junitxml="$RUNNER_TEMP/p202/focused.xml" tests/test_setup_v1.py tests/test_p2_bootstrap_guard.py tests/test_p2_bootstrap_pacing_compat.py tests/test_p2_json_bootstrap_compat.py tests/test_manuscript_bootstrap.py tests/test_brainstorm_service.py tests/test_live_structured_schemas.py tests/test_writing_preceding_context.py tests/test_rule_consistency.py tests/test_fragment_aliases.py tests/test_setup_extraction_live.py tests/test_entity_verification_salvage.py ../Pipeline_test/tests/test_p2_interactive_priority.py 2>&1 | tee "$RUNNER_TEMP/p202/focused.log"
       - name: Real PostgreSQL A16 with durable before and after readbacks
         working-directory: ai-service
         env:
