@@ -60,7 +60,7 @@ jobs:
           P1_EVIDENCE_DIR: ${{ runner.temp }}/p1-web-contracts
         run: |
           npx playwright install --with-deps chromium
-          npx tsx --test tests/author-context.test.ts tests/entity-casefold-python.test.ts
+          npx tsx --test tests/author-context.test.ts tests/entity-casefold-python.test.ts tests/manuscript-import-labels.test.ts
           node --test tests/api-client-security.browser.test.mjs
       - name: Upload frontend contract evidence
         if: always()

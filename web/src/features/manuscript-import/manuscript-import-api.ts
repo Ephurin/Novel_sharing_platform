@@ -13,7 +13,7 @@ export type BootstrapJob = {
   status: 'queued' | 'running' | 'waiting_entity_review' | 'waiting_review' | 'completed' | 'failed';
   stage: string;
   progress: { current: number; total: number; unit: string; stage: string };
-  result: { proposal_count?: number; required_proposal_ids?: string[]; awaiting_chapter?: number } | null;
+  result: { proposal_count?: number; required_proposal_ids?: string[]; awaiting_chapter?: number; awaiting_analysis_run_id?: string } | null;
   error: { message?: string } | null;
 };
 
@@ -284,6 +284,27 @@ export async function importChaptersBatch(
     }
   }
   return results;
+}
+
+const JOB_STATUS_LABELS: Record<string, string> = {
+  queued: 'Đang xếp hàng', running: 'Đang phân tích', waiting_entity_review: 'Chờ bạn duyệt chương',
+  waiting_review: 'Chờ duyệt đề xuất', completed: 'Hoàn tất', failed: 'Gặp lỗi', cancelled: 'Đã huỷ'
+};
+const JOB_STAGE_LABELS: Record<string, string> = {
+  queued: 'xếp hàng', chapter_analysis: 'phân tích chương', chapter_review: 'duyệt chương',
+  review: 'duyệt đề xuất', failed: 'dừng do lỗi', completed: 'hoàn tất'
+};
+/** Author-facing Vietnamese labels for bootstrap job status and stage (raw values stay in the API). */
+export const jobStatusLabel = (status: string) => JOB_STATUS_LABELS[status] ?? status;
+export const jobStageLabel = (stage: string) => JOB_STAGE_LABELS[stage] ?? stage;
+
+/** Author-facing text for a failed bootstrap job; the raw message stays available in the API. */
+export function jobErrorLabel(message: string): string {
+  if (/RPM_LIMIT|TPM_LIMIT|RPD_LIMIT|CONCURRENCY_LIMIT|PROVIDER_RATE_LIMITED|quota/i.test(message))
+    return 'AI đang chạm giới hạn tần suất của gói miễn phí. Đợi khoảng một phút rồi bấm “Thử lại từ chương còn dở”.';
+  if (/BUDGET_GUARD_DENIED|FREE_TIER_STATUS_UNVERIFIED|PROVIDER_UNAVAILABLE|PROVIDER_TIMEOUT|upstream_status|503|504/i.test(message))
+    return 'AI tạm thời không phản hồi (dịch vụ quá tải hoặc chưa được bật). Các chương đã phân tích vẫn được giữ; bấm “Thử lại từ chương còn dở” sau ít phút.';
+  return message;
 }
 
 /** User-facing reason the next chapter cannot be analysed yet, or null for other errors. */

@@ -193,3 +193,25 @@ Also: a state transition whose subject is not a participant of its event is now 
 - `tests/test_identity_variants.py`: 5 tests.
 - `tests/test_state_transition_proposals.py`: +1 test.
 - ai-service default suite: 510 passed.
+
+## Import page: review in place, auto-advance, retry (branch `claude/p2-import-inline-review`)
+
+This removes bottleneck 1 (review split across two pages, a manual click per chapter) and bottleneck 4 (no way to recover a failed job from the UI).
+- **Review in place:** while a chapter is paused, the import page shows that chapter's entity review (`EntityExtractionReview`) inline, so the author no longer has to switch to the IDE's Memory panel.
+- **Auto-advance:** once the entity review is settled and the chapter's proposal queue is empty, the page resumes the job once per chapter. It only does so when the queue was read *after* the review settled, because before "continue" the queue is empty and an older read would advance too early. "Phân tích chương tiếp theo" stays as a fallback.
+- **Retry:** a failed job shows "Thử lại từ chương còn dở", which resumes from the durable chapter checkpoint.
+- **Vietnamese labels:** job status, stage and common errors (gateway or provider unavailable, rate limits) are shown in Vietnamese with a pointer to the retry button.
+
+**Browser check on the live stack** (30 calls):
+
+| Step | Result |
+|---|---|
+| Paused chapter 1 | Inline review shown; chip "Chờ bạn duyệt chương", "Giai đoạn: duyệt chương"; next button disabled |
+| Entity decisions saved, then "3. Tiếp tục trích xuất" clicked in the page | Inline review disappears; queue shows 1 group; no premature advance |
+| "Chấp nhận" clicked | Exactly one `resume` (202); chapter 2 starts on its own |
+| Live disabled mid-chapter | Job fails; chip "Gặp lỗi"; retry button shown |
+| Live re-enabled, "Thử lại" clicked | Job resumes and pauses at chapter 2 |
+
+Entity decisions were made through the API: the review component still requires one decision per entity candidate (about 45–55 per chapter). That is bottleneck 2, the next step.
+
+Test: `web/tests/manuscript-import-labels.test.ts` (3 tests, added to the p8 web unit step).
