@@ -248,6 +248,13 @@ class WritingService:
         process_inline: bool = True,
         source_text: str | None = None,
     ) -> WritingGenerationJob:
+        # F-LIVE-07: the API sends start/end as null when only a cursor is given; treat a missing or
+        # null offset as the cursor (a caret, not a selection) instead of failing on None < 0.
+        cursor_value = selection.get("cursor")
+        cursor_value = 0 if cursor_value is None else cursor_value
+        selection = {**selection, "cursor": cursor_value,
+                     "start": cursor_value if selection.get("start") is None else selection["start"],
+                     "end": cursor_value if selection.get("end") is None else selection["end"]}
         if chapter_number is None:
             chapter_number = selection.get("chapter_number")
 
