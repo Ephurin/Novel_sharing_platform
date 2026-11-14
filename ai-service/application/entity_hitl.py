@@ -205,8 +205,13 @@ def continue_review(service, novel_id, run_id, tenant_id):
         if key in seen_aliases:
             continue
         seen_aliases.add(key)
+        # A quote equal to the alias occurrence itself (honorific variants, F-LIVE-18) can repeat in
+        # the chapter; anchor it at that occurrence instead of searching for a unique match.
+        start, end = alias.get('start'), alias.get('end')
+        span = (start, end) if (isinstance(start, int) and isinstance(end, int)
+                                and revision.content[start:end] == alias['identity_quote']) else None
         add('alias', {'alias': alias['alias'], 'entity_name': alias['entity_name'],
-            'entity_id': alias['entity_id']}, alias['identity_quote'], alias['confidence'])
+            'entity_id': alias['entity_id']}, alias['identity_quote'], alias['confidence'], span=span)
     identity = inventory.resolve
     # Do not reuse the legacy fuzzy participant matcher in the verified path.
     if audit['request']['options'].get('extract_events', True) and inventory:

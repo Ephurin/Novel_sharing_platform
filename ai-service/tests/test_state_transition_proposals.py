@@ -59,3 +59,23 @@ def test_relationship_inference_is_proposed_with_evidence():
     assert result[0].payload["event_id"] == event.proposal_id
     assert result[0].payload["new_value"] == {"Lan": "ALLY_OF"}
     assert result[0].status.value == "pending"
+
+
+def test_hitl_transition_for_non_participant_is_dropped_not_fatal():
+    """Live round 4: one off-event subject failed a chapter's continue; it is now skipped."""
+    import json as _json
+    from types import SimpleNamespace
+    from services.state_transition_proposals import generate_state_transition_proposals
+
+    event = SimpleNamespace(payload={"participants": ["e1"], "event_id": "ev1"}, proposal_id="p1",
+                            analysis_run_id="r1", dependency_group_id="g1", materialization_order=0,
+                            evidence=(), expected_brain_version=1)
+
+    class LLM:
+        def _call_structured(self, **_kw):
+            return _json.dumps({"transitions": [
+                {"entity": "e2", "attribute_key": "location", "new_value": "bến", "confidence": 0.9},
+                {"entity": "e1", "attribute_key": "location", "new_value": "chợ", "confidence": 0.9}]})
+
+    out = generate_state_transition_proposals(event, LLM(), identity_inventory=[], identity_resolver=lambda x: x)
+    assert [p.payload["entity_id"] for p in out] == ["e1"]

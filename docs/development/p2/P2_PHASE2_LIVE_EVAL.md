@@ -171,3 +171,25 @@ New findings:
 |---|---|---|---|
 | F-LIVE-17 | P2 | Manuscript import never creates world rules from prose. `extract_world_rules` only extracts narrative facts (entity-first path) or lines that start with "Luật:" (legacy path), so an imported novel has 0 world rules and the rule-based consistency check has nothing to check until the author adds rules | Open |
 | F-LIVE-18 | P2 | Identity variants become separate entities: "Hòa" / "ông Hòa" / "Ông Hòa" / "Ông tên Hòa", "Mai" / "Mai Linh" / "Chị Mai Linh", "CV-04" / "mã CV-04". Verification keeps honorifics and descriptive phrases in canonical names and rarely proposes them as aliases. Partly amplified by the simulated author, who accepted every suggestion without merging | Open |
+
+## F-LIVE-18 fix: honorific and label variants (branch `claude/p2-live-identity-variants`)
+
+After all verification batches of a chapter, `_canonicalize` (`services/entity_pipeline/verification.py`) points honorific or label variants at the bare name.
+- **What counts as a variant:** "ông Hòa", "Ông tên Hòa", "Chị Mai Linh" (persons), or "mã CV-04" (other types).
+- **Where the variant points:** first a known entity whose bare name matches (also the other way round, "Sâm" → known "Bà Sâm"); otherwise a name verified as an entity in the same chapter.
+- **Result:** the variant becomes an alias of that identity, with its own occurrence as evidence, instead of a new entity.
+- **Validation:** accepts honorific variants as the same name.
+- **Alias evidence:** anchored at the alias occurrence, because a quote such as "Ông Hòa" can repeat in a chapter.
+- **Not merged:** short-name fragments ("Mai" vs "Mai Linh", "Vũ" vs "Nguyễn Vũ"), because two people can share a short name.
+
+Also: a state transition whose subject is not a participant of its event is now dropped, as in the legacy path. Before, it failed the chapter's `continue` (422), which happened on chapter 5 in this run.
+
+**Live (same 5-chapter fixture, sequential import, 87 calls, no denials)**
+- Activated with **26 entities + 6 aliases**, 13 events. The previous run had 32 entities and 0 aliases.
+- Aliases: Hòa ← "Ông Hòa", "Ông tên Hòa"; Sâm ← "Bà Sâm"; Yên ← "bà Yên"; Mai Linh ← "Chị Mai Linh"; Mai ← "Chị Mai". No honorific duplicate remains.
+- Still separate (by design or model error): "Mai" / "Mai Linh" / "Mai Lâm" / "Linh" / "Lâm", "Vũ" / "Nguyễn Vũ", "Bốn" / "trạm Bốn", and one junk entity "cô hỏi trạm Bốn" that the simulated author accepted.
+
+**Tests:**
+- `tests/test_identity_variants.py`: 5 tests.
+- `tests/test_state_transition_proposals.py`: +1 test.
+- ai-service default suite: 510 passed.
