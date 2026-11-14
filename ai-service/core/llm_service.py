@@ -413,26 +413,9 @@ class LLMService:
                     }
                     if structured:
                         config["response_mime_type"] = "application/json"
-                        if structured["operation"] in {"event_extraction", "hitl_event_extraction"}:
-                            from core.structured_outputs import NarrativeEventOutput
-                            from pydantic import BaseModel
-
-                            class EventBatch(BaseModel):
-                                events: list[NarrativeEventOutput]
-
-                            config["response_json_schema"] = EventBatch.model_json_schema()
-                        elif structured["operation"] in {"prose_fact_extraction", "prose_fact_coverage"}:
-                            from services.prose_facts import ProseFacts
-
-                            config["response_json_schema"] = ProseFacts.model_json_schema()
-                        elif structured["operation"] == "canon_reconciliation":
-                            from services.canon_reconciliation import CanonComparison
-
-                            config["response_json_schema"] = CanonComparison.model_json_schema()
-                        elif structured["operation"] == "entity_candidate_verification":
-                            from services.entity_pipeline.verification import EntityDecisionBatch
-
-                            config["response_json_schema"] = EntityDecisionBatch.model_json_schema()
+                        schema = response_schema_for(structured["operation"])
+                        if schema is not None:
+                            config["response_json_schema"] = schema
                     response = client.models.generate_content(
                         model=model_name,
                         contents=merged_prompt,
@@ -928,3 +911,36 @@ class LLMService:
                 raise LLMServiceError(f"429 Quota exhausted: {exc}") from exc
             raise LLMServiceError(f"Brainstorm generation failed: {exc}") from exc
 
+
+def response_schema_for(operation: str) -> dict[str, Any] | None:
+    """JSON schema Gemini is constrained to for a structured operation (None = free-form JSON).
+
+    It must be the same model the caller validates against. The entity-first (HITL) event path
+    validates ``HitlEventBatch`` strictly (requires ``quote``, forbids legacy scoring fields);
+    constraining it to the legacy event schema made every live HITL extraction fail.
+    """
+    if operation == "hitl_event_extraction":
+        from core.structured_outputs import HitlEventBatch
+
+        return HitlEventBatch.model_json_schema()
+    if operation == "event_extraction":
+        from core.structured_outputs import NarrativeEventOutput
+        from pydantic import BaseModel
+
+        class EventBatch(BaseModel):
+            events: list[NarrativeEventOutput]
+
+        return EventBatch.model_json_schema()
+    if operation in {"prose_fact_extraction", "prose_fact_coverage"}:
+        from services.prose_facts import ProseFacts
+
+        return ProseFacts.model_json_schema()
+    if operation == "canon_reconciliation":
+        from services.canon_reconciliation import CanonComparison
+
+        return CanonComparison.model_json_schema()
+    if operation == "entity_candidate_verification":
+        from services.entity_pipeline.verification import EntityDecisionBatch
+
+        return EntityDecisionBatch.model_json_schema()
+    return None

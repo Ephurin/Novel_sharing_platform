@@ -36,6 +36,10 @@ from domain.repositories import NarrativeRepository
 logger = logging.getLogger(__name__)
 
 
+
+# Text before the cursor sent when the selection is empty (bounded for token budget).
+PRECEDING_CONTEXT_CHARS = 6000
+
 class WritingService:
     """Coordinates context preparation, LLM draft generation, and deterministic validations."""
 
@@ -638,6 +642,10 @@ class WritingService:
                 )
                 start = job.selection.get("start", 0)
                 end = job.selection.get("end", start)
+                if start == end:
+                    # Continue/insert at a cursor: without the text before it the model
+                    # cannot keep the scene (Phase 2 live finding F-LIVE-09).
+                    return revision.content[max(0, start - PRECEDING_CONTEXT_CHARS):start]
                 return revision.content[start:end]
             except Exception:
                 return ""
