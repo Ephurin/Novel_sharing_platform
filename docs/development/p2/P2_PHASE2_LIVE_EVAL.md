@@ -215,3 +215,32 @@ This removes bottleneck 1 (review split across two pages, a manual click per cha
 Entity decisions were made through the API: the review component still requires one decision per entity candidate (about 45–55 per chapter). That is bottleneck 2, the next step.
 
 Test: `web/tests/manuscript-import-labels.test.ts` (3 tests, added to the p8 web unit step).
+
+## Bulk entity review (branch `claude/p2-bulk-entity-review`, F-LIVE-14)
+
+The entity checkpoint now offers **"Chấp nhận mọi gợi ý của AI (N)"**:
+- Links to approved entities stay linked.
+- New identities are grouped by their suggested name, using a stable ASCII group label.
+- "Not entity" verdicts are rejected.
+- If occurrences of one identity disagree on life status, that status falls back to Unknown.
+- Only the candidates the machine left **unresolved** remain for the author. The view switches to "Chưa duyệt".
+
+A **short-name hint** lists pairs such as "Mai" ↔ "Mai Linh" and "Vũ" ↔ "Nguyễn Vũ". These are never merged automatically.
+
+Also fixed: when the model links an honorific variant to a known entity without an identity quote ("Bà Sâm" → known "Sâm"), the alias now uses its own occurrence as evidence. Before, `continue` failed with "An exact source quote is required".
+
+**Live walk-through: 5 chapters entirely in the import page** (73 calls; the pane was hidden, so some buttons were triggered through the same DOM handlers)
+
+| Chapter | Suggestions accepted in one click | Left for the author (machine unresolved) | Hints shown |
+|---|---|---|---|
+| 1 | 168 | 0 | "Mai" ↔ "Mai Linh" / "Mai Lâm", "Linh" ↔ "Mai Linh" |
+| 2 | 138 | 0 | — |
+| 3 | 132 | 8 (one was "Bà Sâm", which a real author would link to "Sâm") | — |
+| 4 | 127 | 6 | "Vũ" ↔ "Nguyễn Vũ" |
+| 5 | 69 | 1 | — |
+
+- **Author effort per chapter:** about 4 clicks plus the unresolved ones (0–8), instead of 70–170 decisions.
+- **Activation:** succeeded from the page, with 20 entities, 9 aliases, 9 events and 0 pending.
+- **Defects found and fixed in the import-page PR:** the page advanced early on stale review data, and the last chapter's entity review was not shown.
+
+**Trade-off:** accepting everything also accepts the model's mistakes. This run kept "Ông" (as an entity and an alias), alias "Khi Linh", "va li" and "nhánh tây". The author can still change any occurrence before freezing, and the canon can be corrected later.

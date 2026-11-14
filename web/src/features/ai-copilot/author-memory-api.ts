@@ -316,6 +316,69 @@ export function knownIdentity(machine: Decision, explicitlySelected: KnownEntity
   };
 }
 
+/** Stable ASCII author-group label for a machine-suggested new identity (same name → same group). */
+export function groupLabelFor(name: string): string {
+  const normalized = name.normalize('NFC').toLocaleLowerCase('vi');
+  let hash = 0x811c9dc5;
+  for (const ch of normalized) {
+    hash ^= ch.codePointAt(0)!;
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  const ascii = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd')
+    .replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40) || 'ten';
+  return `${ascii}_${hash.toString(16).padStart(8, '0')}`;
+}
+
+/**
+ * F-LIVE-14: accept the machine's suggestions in one step. Links to known entities stay linked, new
+ * identities are grouped by their suggested name, "not entity" verdicts are rejected. Candidates the
+ * machine left unresolved, and any candidate the author already decided, are untouched.
+ */
+export function acceptMachineSuggestions(review: EntityReview, machine: Decision[], existing: Record<string, Decision>): Record<string, Decision> {
+  const updates: Record<string, Decision> = {};
+  for (const d of machine) {
+    if (existing[d.candidate_id]) continue;
+    if (d.verdict === 'not_entity') updates[d.candidate_id] = rejectOccurrence(d);
+    else if (d.verdict === 'entity' && d.entity_type) {
+      updates[d.candidate_id] = d.canonical_entity_id
+        ? { ...d, provisional_identity_key: '' }
+        : newIdentity(review, d, groupLabelFor(d.canonical_name));
+    }
+  }
+  // One identity carries one life status; if its occurrences disagree, leave it Unknown for the author.
+  const statuses = new Map<string, Set<string>>();
+  for (const d of Object.values(updates)) {
+    if (d.verdict !== 'entity') continue;
+    const key = d.canonical_entity_id || d.provisional_identity_key;
+    statuses.set(key, (statuses.get(key) ?? new Set()).add(d.initial_status));
+  }
+  for (const [id, d] of Object.entries(updates)) {
+    const key = d.canonical_entity_id || d.provisional_identity_key;
+    if (d.verdict === 'entity' && (statuses.get(key)?.size ?? 0) > 1)
+      updates[id] = { ...d, initial_status: 'Unknown', status_quote: '' };
+  }
+  return updates;
+}
+
+/** Short names that may be the same person as a longer name ("Mai" / "Mai Linh"); shown as hints, never merged. */
+export function shortNameHints(newNames: string[], otherNames: string[] = [], limit = 8): Array<[string, string]> {
+  const tokens = (n: string) => n.normalize('NFC').toLocaleLowerCase('vi').split(/\s+/).filter(Boolean);
+  const pool = Array.from(new Set([...newNames, ...otherNames]));
+  const hints: Array<[string, string]> = [];
+  for (const short of Array.from(new Set(newNames))) {
+    const a = tokens(short);
+    for (const long of pool) {
+      const b = tokens(long);
+      if (b.length <= a.length) continue;
+      const prefix = a.every((t, i) => b[i] === t);
+      const suffix = a.every((t, i) => b[b.length - a.length + i] === t);
+      if ((prefix || suffix) && !hints.some(([s, l]) => s === short && l === long)) hints.push([short, long]);
+      if (hints.length >= limit) return hints;
+    }
+  }
+  return hints;
+}
+
 export function rejectOccurrence(machine: Decision): Decision {
   return {
     ...machine,
