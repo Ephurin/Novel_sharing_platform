@@ -307,11 +307,17 @@ export function ManuscriptImportPage() {
   const entityReviewsQuery = useQuery({
     queryKey: ['import-entity-reviews', novelId],
     queryFn: () => getEntityReviews(novelId),
-    enabled: Boolean(novelId && awaitingRunId),
-    refetchInterval: awaitingRunId ? 4000 : false
+    enabled: Boolean(novelId && (awaitingRunId || jobQuery.data?.status === 'waiting_review')),
+    refetchInterval: awaitingRunId || jobQuery.data?.status === 'waiting_review' ? 4000 : false
   });
+  // The last chapter does not pause the job: it ends in waiting_review with its entity review still open.
+  const finalReviewPending = jobQuery.data?.status === 'waiting_review' &&
+    (!entityReviewsQuery.isSuccess || (entityReviewsQuery.data ?? []).length > 0);
+  // Reads from before this chapter paused (e.g. the previous chapter's empty list) say nothing about it.
+  const pausedAt = useMemo(() => Date.now(), [awaitingRunId]);
   const chapterReviewPending = Boolean(awaitingRunId) &&
-    (!entityReviewsQuery.isSuccess || (entityReviewsQuery.data ?? []).some(r => r.analysis_run_id === awaitingRunId));
+    (!entityReviewsQuery.isSuccess || entityReviewsQuery.dataUpdatedAt < pausedAt ||
+      (entityReviewsQuery.data ?? []).some(r => r.analysis_run_id === awaitingRunId));
   const reviewAction = useMutation({
     mutationFn: async (fn: () => Promise<unknown>) => fn(),
     onSuccess: () => {
@@ -336,6 +342,7 @@ export function ManuscriptImportPage() {
     onSuccess: () => {
       showToast('Đã kích hoạt Story Brain baseline thành công! Sẵn sàng trong Studio.');
       queryClient.invalidateQueries({ queryKey: ['story-brain-summary', novelId] });
+      queryClient.invalidateQueries({ queryKey: ['manuscript-bootstrap-job', jobId] });
     },
     onError: (err: any) => showToast(baselineActivationBlockedMessage(err) ?? 'Lỗi kích hoạt baseline: ' + (err?.message || 'Thất bại'))
   });
@@ -1275,6 +1282,23 @@ export function ManuscriptImportPage() {
                 </div>
               )}
 
+              {job?.status === 'waiting_review' && finalReviewPending && (
+                <div data-testid="import-final-chapter-review" className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-meta text-amber-900 flex flex-col gap-2">
+                  <strong>Chương cuối đang chờ bạn xác nhận nhân vật</strong>
+                  <span>Xác nhận nhân vật bên dưới rồi bấm Tiếp tục, sau đó duyệt các đề xuất và kích hoạt Story Brain.</span>
+                  {(entityReviewsQuery.data ?? []).length > 0 && (
+                    <div data-testid="import-entity-review" className="bg-white rounded-lg p-2 text-stone-900">
+                      <EntityExtractionReview
+                        novelId={novelId}
+                        disabled={reviewAction.isPending}
+                        perform={fn => reviewAction.mutate(fn)}
+                        onContinued={() => queryClient.invalidateQueries({ queryKey: ['manuscript-review-queue', novelId] })}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Priority Review Queue */}
               {(job?.status === 'waiting_review' || job?.status === 'waiting_entity_review') && (
                 <div className="bg-surface-container-lowest rounded-xl p-4 shadow-2xs border border-stone-200 flex flex-col gap-4">
@@ -1288,7 +1312,7 @@ export function ManuscriptImportPage() {
                     {job.status === 'waiting_review' && (
                     <button
                       type="button"
-                      disabled={reviewGroups.length > 0 || activateMutation.isPending}
+                      disabled={finalReviewPending || reviewGroups.length > 0 || activateMutation.isPending}
                       onClick={() => activateMutation.mutate()}
                       className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white text-meta font-semibold shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
                     >
@@ -1302,7 +1326,9 @@ export function ManuscriptImportPage() {
                     <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-center text-meta text-emerald-800">
                       {job.status === 'waiting_entity_review'
                         ? 'Không còn đề xuất chờ duyệt. Nếu đã xác nhận nhân vật của chương này, hãy phân tích chương tiếp theo.'
-                        : 'Tất cả các đề xuất đối chiếu đã được duyệt! Bạn có thể kích hoạt baseline ngay bây giờ.'}
+                        : finalReviewPending
+                          ? 'Hãy xác nhận nhân vật của chương cuối ở phía trên; các đề xuất của chương sẽ hiện ở đây.'
+                          : 'Tất cả các đề xuất đối chiếu đã được duyệt! Bạn có thể kích hoạt baseline ngay bây giờ.'}
                     </div>
                   ) : (
                     <div className="space-y-3">
