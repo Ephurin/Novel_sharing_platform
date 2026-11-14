@@ -1215,9 +1215,9 @@ export function ManuscriptImportPage() {
                         Hàng đợi duyệt đề xuất Story Brain ({reviewGroups.length} nhóm)
                       </h3>
                     </div>
+                    {job.status === 'waiting_review' && (
                     <button
                       type="button"
-                      hidden={job.status !== 'waiting_review'}
                       disabled={reviewGroups.length > 0 || activateMutation.isPending}
                       onClick={() => activateMutation.mutate()}
                       className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white text-meta font-semibold shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
@@ -1225,6 +1225,7 @@ export function ManuscriptImportPage() {
                       <span className="material-symbols-outlined text-[15px]">verified</span>
                       <span>Kích hoạt Story Brain Baseline</span>
                     </button>
+                    )}
                   </div>
 
                   {reviewGroups.length === 0 ? (

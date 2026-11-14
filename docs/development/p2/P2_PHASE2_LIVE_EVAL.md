@@ -154,3 +154,20 @@ Two defects surfaced on the way and are fixed in the same branch:
 Baseline activated: **32 entities, 11 events, 0 pending**, brain v6. Before the change, 71 entity proposals were produced, 0 were linked, and only 1 of 5 chapters could be accepted.
 
 Cost: about 11–14 calls per 1,000 words including the event stage, and 45–65 s of model time per chapter. Review burden is still high: 74–168 candidates per chapter, mostly "not entity" (F-LIVE-14).
+
+### Live round 3: import page in the browser, #149, consistency (26 calls, no denials)
+
+| Check | Result |
+|---|---|
+| Import page while a chapter is paused | Shows "Chương 1/5 đang chờ bạn duyệt", the steps and "Phân tích chương tiếp theo". **Bug found and fixed**: the activate button stayed visible because Tailwind `flex` overrode the `hidden` attribute; it is now rendered only in `waiting_review` |
+| "Phân tích chương tiếp theo" before the chapter is settled | `POST /jobs/{id}/resume` → 409; the page shows the Vietnamese "Chương này chưa duyệt xong…" message |
+| Same button after the chapter is settled | Job resumes and analyses chapter 2; the page updates to "Chương 2/5 đang chờ bạn duyệt" without a reload (5 s polling) |
+| #149: "Viết tiếp" while chapter 2 is analysed in the background | Completed in 4 s, validation passed, draft uses the approved character "Duy" |
+| Consistency check on the imported novel | Runs (466 ms) but returns `rule_check: no_rules` |
+
+New findings:
+
+| ID | Sev | Finding | Status |
+|---|---|---|---|
+| F-LIVE-17 | P2 | Manuscript import never creates world rules from prose. `extract_world_rules` only extracts narrative facts (entity-first path) or lines that start with "Luật:" (legacy path), so an imported novel has 0 world rules and the rule-based consistency check has nothing to check until the author adds rules | Open |
+| F-LIVE-18 | P2 | Identity variants become separate entities: "Hòa" / "ông Hòa" / "Ông Hòa" / "Ông tên Hòa", "Mai" / "Mai Linh" / "Chị Mai Linh", "CV-04" / "mã CV-04". Verification keeps honorifics and descriptive phrases in canonical names and rarely proposes them as aliases. Partly amplified by the simulated author, who accepted every suggestion without merging | Open |
