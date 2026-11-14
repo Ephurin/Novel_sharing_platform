@@ -72,6 +72,9 @@ from domain.errors import (
 from domain.projection import ProjectionError
 
 
+import logging
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/v1", tags=["narrative-memory"], dependencies=[Depends(require_service_token)], route_class=SetupValidationRoute)
 internal_router = APIRouter(prefix="/internal/v1", tags=["internal-writing"], dependencies=[Depends(require_service_token)])
 
@@ -954,7 +957,33 @@ def author_operation(
                             "revision_id": revision_id,
                             "entity_id": entity.entity_id,
                         })
-        return {"data": {"findings": findings}}
+        # #146: check the chapter against the author-approved, effective world rules.
+        rule_check = "no_rules"
+        try:
+            from domain.projection import resolve_effective_facts
+            from services.rule_consistency import check_world_rules, world_rules_from_facts
+            effective = resolve_effective_facts(
+                brain.facts, novel_id=str(brain_id), story_brain_id=brain.metadata.get('brain_id'),
+                verified_amendment_edges=set(tuple(e) for e in brain.metadata.get('verified_amendment_edges', ())))
+            rules = world_rules_from_facts(effective)
+            llm = getattr(analysis, '_llm_service', None)
+            if rules and llm is not None:
+                for item in check_world_rules(revision.content, rules, llm):
+                    findings.append({
+                        "code": "WORLD_RULE_VIOLATION",
+                        "description": f"Có thể vi phạm quy tắc thế giới: {item['rule_text']}"
+                            + (f" — {item['explanation']}" if item['explanation'] else ""),
+                        "evidence": item["quote"],
+                        "revision_id": revision_id,
+                        "rule_fact_id": item["rule_id"],
+                    })
+                rule_check = "checked"
+            elif rules:
+                rule_check = "unavailable"
+        except Exception as exc:  # provider/quota/validation: say so instead of an empty "all clear"
+            logger.warning("rule consistency check unavailable: %s", type(exc).__name__)
+            rule_check = "unavailable"
+        return {"data": {"findings": findings, "rule_check": rule_check}}
 
     if operation in ("suggest_events", "brainstorm"):
         from api.deps import get_brainstorm_service

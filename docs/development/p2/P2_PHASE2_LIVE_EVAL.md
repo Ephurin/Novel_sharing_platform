@@ -58,3 +58,15 @@ Fake-provider CI stays the gating evidence. This run is evaluation only: samples
 ## Not covered
 
 Embeddings/semantic retrieval (off to save quota), the Memory/IDE UI on the live stack (API-driven, same endpoints), a formal Track B (blind multi-sample A/B), long manuscripts and the rate of 429s from the provider itself (none seen).
+
+## Follow-up: P1 fixes #144–#146 (branch `claude/p2-live-p1-fixes`)
+
+These were verified live on the same stack (19 more calls; the session total is 91 calls, ~286k input tokens, $0.00).
+
+| Issue | Fix | Live result |
+|---|---|---|
+| #146 (F-LIVE-05) | `services/rule_consistency.py`: the chapter is checked against the effective, author-approved world rules (`rule_consistency` structured operation, schema-constrained). Only violations with a supplied rule ID and an exact chapter quote are kept. `check_consistency` returns `rule_check` (`checked` / `unavailable` / `no_rules`) instead of a silent all-clear; the Memory panel shows when the rule check could not run | Ch.2: 1 `WORLD_RULE_VIOLATION` (flood-memory rule, quoting "Khi lên bờ, Lâm Phong vẫn nhớ rõ mọi chuyện…"), 1.2 s. Control ch.1: 0 findings |
+| #145 (F-LIVE-04) | `verification._materializable`: a candidate inside a verified full-name occurrence ("Lâm" in "Lâm Phong") is not proposed as an alias; standalone short-name uses still are | New chapter with "Lâm Phong" ×2 and "Lâm Nguyệt" ×2: no `Lâm`/`Nguyệt` fragment aliases; only "Phong" from "Phong chạm tay…" (a real short-name use) |
+| #144 (F-LIVE-01) | `core/setup_extraction.py` + `LLMService.extract_setup_text` / `suggest_setup_blueprint`. The model returns exact names and rule sentences; offsets are computed server-side and non-verbatim items are dropped. The blueprint sends only the idea text and outline. HTML entities that Gemini sometimes returns are decoded | Extract: 6 grounded cards (4 entities, both rules) in 2.1 s. Blueprint: 3 entities and 3 rule suggestions (`model_proposed`); the first run showed `&#xE0;` entities, fixed and rerun clean |
+
+Remaining open: #147, #148, #149, #150. Blueprint wording can contain model typos (flash-lite); the suggestions are labelled `model_proposed` and need author review.
