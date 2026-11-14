@@ -235,6 +235,16 @@ def continue_review(service, novel_id, run_id, tenant_id):
                 identity(fact.subject)
             add('fact', {'fact_type': 'narrative_fact', 'fact_key': fact.fact_key,
                 'fact_value': fact.fact_value, 'subject_entity_id': identity(fact.subject) if fact.subject else None}, fact.quote, fact.confidence)
+        # F-LIVE-17: also propose general world rules the chapter states or shows, so imported
+        # manuscripts get rules for the consistency check (same proposal shape as the legacy path).
+        import hashlib
+        from services.world_rule_extraction import extract_world_rules, known_world_rules
+        approved = known_world_rules(getattr(repo.get_story_brain(novel_id), 'facts', ()))
+        for rule in extract_world_rules(revision.content, service._llm_service, approved):
+            rule_hash = hashlib.sha256(rule['rule'].casefold().encode('utf-8')).hexdigest()[:16]
+            add('fact', {'fact_type': 'world_rule', 'fact_key': f'world_rule_{rule_hash}',
+                'fact_value': rule['rule'], 'priority': 100}, rule['quote'], rule['confidence'],
+                span=(rule['start'], rule['end']))
     if audit['request']['options'].get('extract_state_transitions', False):
         from dataclasses import replace
         from services.state_transition_proposals import generate_state_transition_proposals

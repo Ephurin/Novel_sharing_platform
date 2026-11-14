@@ -244,3 +244,26 @@ Also fixed: when the model links an honorific variant to a known entity without 
 - **Defects found and fixed in the import-page PR:** the page advanced early on stale review data, and the last chapter's entity review was not shown.
 
 **Trade-off:** accepting everything also accepts the model's mistakes. This run kept "Ông" (as an entity and an alias), alias "Khi Linh", "va li" and "nhánh tây". The author can still change any occurrence before freezing, and the canon can be corrected later.
+
+## World rules from manuscript prose (branch `claude/p2-world-rules-from-prose`, F-LIVE-17)
+
+**What changed:** in the entity-first "continue" step (with `extract_world_rules`), each chapter now gets one schema-constrained `world_rule_extraction` call (`services/world_rule_extraction.py`).
+- **Kept:** general rules the chapter states or shows, that have an exact chapter quote and confidence ≥ 0.6. At most 5 per chapter.
+- **Dropped:** restatements of approved rules (same normalized text or ≥ 80% word overlap).
+- **Output:** the rules become `fact` / `world_rule` proposals with the same shape as the legacy path, so the author reviews them with the chapter's other proposals.
+- **Failure handling:** a bad answer is skipped and never fails the chapter.
+- **Fake provider:** turns explicit "Luật:" / "Quy tắc:" lines into rules, which keeps CI deterministic.
+
+**Live** (5-chapter fixture, sequential import, 89 calls; one provider 503 outlasted the retries, and the job was resumed):
+- **4 world rules extracted and accepted:**
+  - the ferry requires lifting luggage over the plank gap;
+  - each touch of the reading head loses more high-frequency material;
+  - the survey permit forbids operating the water gate or entering the sealed hold without maintenance staff;
+  - one non-rule: "Duy's left ear cannot hear", a character trait the author should reject.
+- **Consistency check, chapter 5:** `rule_check: checked`, 0 findings. Before this change it returned `no_rules`.
+- **Consistency check, test chapter** in which a character operates the water gate and enters the sealed hold alone: 1 `WORLD_RULE_VIOLATION` citing the permit rule and quoting the violating sentence. The model's explanation lacked diacritics.
+
+**Tests:**
+- `tests/test_world_rule_extraction.py`: 6 tests, added to the p2 focused CI step together with `test_identity_variants.py`.
+- ai-service default suite: 517 passed.
+- Related suites: 189 passed.
