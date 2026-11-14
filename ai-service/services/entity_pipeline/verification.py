@@ -429,6 +429,8 @@ def _materializable(candidates, decisions, known, text, *, human=False):
             # No direct identity mutation: these mappings still require the normal proposal review.
             aliases.append({'alias': mention.surface, 'entity_name': d['canonical_name'],
                             'entity_id': d['canonical_entity_id'], 'provisional_identity_key': d.get('provisional_identity_key', ''), 'start': mention.start, 'end': mention.end,
-                            'confidence': d['confidence'], 'identity_quote': d['identity_quote']})
+                            'confidence': d['confidence'],
+                            # Honorific variants may carry no quote; the alias occurrence itself is the evidence.
+                            'identity_quote': d['identity_quote'] or mention.surface})
     # Shared aliases retain occurrence-level IDs; downstream rejects ambiguous labels.
     return entities, aliases

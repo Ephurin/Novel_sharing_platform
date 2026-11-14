@@ -36,7 +36,9 @@ import {
   rejectOccurrence,
   saveEntityGuidance,
   saveEntityReview,
-  continueEntityReview
+  continueEntityReview,
+  acceptMachineSuggestions,
+  shortNameHints,
 } from './author-memory-api';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
 
@@ -370,10 +372,32 @@ function EntityCheckpoint({
     identityVariants.set(identity, variants);
   }
   const inconsistentIdentity = Array.from(identityVariants.values()).some(variants => variants.size > 1);
+
+  // F-LIVE-14: what one click can settle, and short names that may belong to a longer one.
+  const suggestible = machineDecisions.filter(d => !choices[d.candidate_id] && (d.verdict === 'not_entity' || (d.verdict === 'entity' && d.entity_type)));
+  const machineUnresolved = machineDecisions.filter(d => !choices[d.candidate_id] && d.verdict === 'unresolved').length;
+  const newIdentityNames = Array.from(new Set(candidates.map(c => choices[c.candidate_id] ?? getMachineDecisionSafe(c.candidate_id))
+    .filter((d): d is Decision => Boolean(d) && d!.verdict === 'entity' && !d!.canonical_entity_id && d!.entity_type === 'PER')
+    .map(d => d.canonical_name)));
+  const nameHints = shortNameHints(newIdentityNames, knownEntities.filter(e => e.entity_type === 'PER').map(e => e.name));
+  const acceptAllSuggestions = () => {
+    const updates = acceptMachineSuggestions(review, machineDecisions, choices);
+    setChoices(previous => ({ ...previous, ...updates }));
+    setDirtyCandidateIds(previous => new Set([...previous, ...Object.keys(updates)]));
+    const labels = Object.values(updates).map(d => d.provisional_identity_key)
+      .filter(Boolean).map(k => k.replace(`${review.provisional_identity_scope}/`, ''));
+    setAuthorGroups(previous => Array.from(new Set([...previous, ...labels])));
+    setFilterMode('pending');
+    setActivePage(1);
+  };
   const clearSavedDraft = (submitted: Decision[]) => setDirtyCandidateIds(previous => new Set(
     [...previous].filter(id => !submitted.some(d => d.candidate_id === id &&
       choicesRef.current[id] && sameHumanDecision(d, choicesRef.current[id])))
   ));
+
+  function getMachineDecisionSafe(candidateId: string): Decision | undefined {
+    return machineDecisions.find(d => d.candidate_id === candidateId);
+  }
 
   // Find candidate helper
   const getMachineDecision = (candidateId: string): Decision => {
@@ -645,6 +669,31 @@ function EntityCheckpoint({
             </Group>
           </Stack>
         </Paper>
+
+        {review.status === 'waiting_entity_review' && suggestible.length > 0 && (
+          <Alert color="indigo" variant="light" data-testid="entity-accept-all-panel">
+            <Stack gap={6}>
+              <Text size="sm">
+                AI đã có gợi ý cho {suggestible.length} vị trí: nối với nhân vật đã duyệt, tạo nhân vật mới theo tên, hoặc loại từ thường.
+                {machineUnresolved > 0 ? ` Còn ${machineUnresolved} vị trí AI chưa chắc, bạn tự quyết định.` : ''}
+              </Text>
+              <Group gap="xs">
+                <Button size="xs" color="indigo" disabled={disabled} onClick={acceptAllSuggestions} data-testid="entity-accept-all">
+                  Chấp nhận mọi gợi ý của AI ({suggestible.length})
+                </Button>
+                <Text size="xs" c="dimmed">Bạn vẫn sửa được từng vị trí trước khi đóng băng.</Text>
+              </Group>
+            </Stack>
+          </Alert>
+        )}
+
+        {nameHints.length > 0 && (
+          <Alert color="yellow" variant="light" title="Có thể là cùng một người?" data-testid="entity-short-name-hints">
+            <Text size="xs">
+              {nameHints.map(([s, l]) => `“${s}” ↔ “${l}”`).join(' · ')}. Nếu đúng là cùng người, chọn cùng nhóm hoặc nhân vật đã duyệt cho các vị trí của tên ngắn.
+            </Text>
+          </Alert>
+        )}
 
         {/* Filter & Batch Actions */}
         <Group justify="space-between" align="center">

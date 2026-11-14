@@ -73,3 +73,26 @@ def test_label_prefix_variant_for_items():
 def test_variant_without_bare_name_stays_as_written():
     result, _ = run("Bà Yên kể chuyện cũ.", ["Bà Yên"])
     assert [e["phrase"] for e in result.entities] == ["Bà Yên"] and not result.aliases
+
+
+def test_model_linked_honorific_variant_without_quote_gets_its_occurrence_as_evidence():
+    """Live: the model linked "Bà Sâm" to known "Sâm" with no identity quote; continue then failed
+    with "An exact source quote is required". The alias now carries its own occurrence."""
+    known = {"entity_id": "22222222-2222-2222-2222-222222222222", "name": "Sâm", "entity_type": "PER"}
+
+    class LinkLLM:
+        def _call_structured(self, *, operation, system_prompt, user_prompt):
+            data = json.loads(user_prompt)
+            return json.dumps({"decisions": [
+                {"candidate_id": c["candidate_id"], "verdict": "entity", "entity_type": "PER",
+                 "canonical_name": "Sâm", "canonical_entity_id": known["entity_id"], "reason": "người bán cháo"}
+                if c["surface"] in ("Bà Sâm", "Sâm") else
+                {"candidate_id": c["candidate_id"], "verdict": "not_entity", "reason": "từ thường"}
+                for c in data["candidates"]]}, ensure_ascii=False)
+
+    text = "Bà Sâm bán cháo. Sâm cười."
+    result = verify_entities(text, LinkLLM(), no_discovery, known_entities=[known],
+                             guidance=[{"name": "Bà Sâm"}, {"name": "Sâm"}])
+    alias = next(a for a in result.aliases if a["alias"] == "Bà Sâm")
+    assert alias["identity_quote"] == "Bà Sâm"
+    assert text[alias["start"]:alias["end"]] == "Bà Sâm"
