@@ -1,0 +1,1729 @@
+[
+  {
+    "data": {
+      "analysis_runs": [],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:16.389229+00:00",
+          "entity_guidance": null,
+          "id": "b7d92421-4be5-468e-b231-b4b83d1eb833",
+          "novel_id": "0a88d74f-65d4-4e18-802e-3796fb20fe75",
+          "schema_version": 1,
+          "status": "active",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:16.389229+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "0a88d74f-65d4-4e18-802e-3796fb20fe75",
+    "stage": "active-before-idea"
+  },
+  {
+    "data": {
+      "analysis_runs": [],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:16.389229+00:00",
+          "entity_guidance": null,
+          "id": "b7d92421-4be5-468e-b231-b4b83d1eb833",
+          "novel_id": "0a88d74f-65d4-4e18-802e-3796fb20fe75",
+          "schema_version": 1,
+          "status": "active",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:16.389229+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "0a88d74f-65d4-4e18-802e-3796fb20fe75",
+    "stage": "active-after-idea"
+  },
+  {
+    "data": {
+      "analysis_runs": [],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:16.715307+00:00",
+          "entity_guidance": null,
+          "id": "04bf562a-91bf-48cf-babd-6d3be13c81cc",
+          "novel_id": "58323151-45f4-4fbf-8395-0b0e5bd55fc3",
+          "schema_version": 1,
+          "status": "active",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:16.715307+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "58323151-45f4-4fbf-8395-0b0e5bd55fc3",
+    "stage": "active-before-manuscript"
+  },
+  {
+    "data": {
+      "analysis_runs": [],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:16.715307+00:00",
+          "entity_guidance": null,
+          "id": "04bf562a-91bf-48cf-babd-6d3be13c81cc",
+          "novel_id": "58323151-45f4-4fbf-8395-0b0e5bd55fc3",
+          "schema_version": 1,
+          "status": "active",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:16.715307+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "58323151-45f4-4fbf-8395-0b0e5bd55fc3",
+    "stage": "active-after-manuscript"
+  },
+  {
+    "data": {
+      "analysis_runs": [],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": "dad00680-2367-4b5a-8f21-d5a6454daea7",
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:17.048127+00:00",
+          "entity_guidance": null,
+          "id": "ccb7f31e-3fd8-4efa-b563-4332156edf35",
+          "novel_id": "bafbb8e4-d698-4abd-bdf1-9102443a9c03",
+          "schema_version": 1,
+          "status": "active",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:17.048127+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "bafbb8e4-d698-4abd-bdf1-9102443a9c03",
+    "stage": "active-before-idea"
+  },
+  {
+    "data": {
+      "analysis_runs": [],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": "dad00680-2367-4b5a-8f21-d5a6454daea7",
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:17.048127+00:00",
+          "entity_guidance": null,
+          "id": "ccb7f31e-3fd8-4efa-b563-4332156edf35",
+          "novel_id": "bafbb8e4-d698-4abd-bdf1-9102443a9c03",
+          "schema_version": 1,
+          "status": "active",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:17.048127+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "bafbb8e4-d698-4abd-bdf1-9102443a9c03",
+    "stage": "active-after-idea"
+  },
+  {
+    "data": {
+      "analysis_runs": [],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": "dad00680-2367-4b5a-8f21-d5a6454daea7",
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:17.384745+00:00",
+          "entity_guidance": null,
+          "id": "ddf6b100-254a-4a1e-9cc4-1a216dddfe8c",
+          "novel_id": "e00be375-3246-400c-84b6-a0a1f5ad7556",
+          "schema_version": 1,
+          "status": "active",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:17.384745+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "e00be375-3246-400c-84b6-a0a1f5ad7556",
+    "stage": "active-before-manuscript"
+  },
+  {
+    "data": {
+      "analysis_runs": [],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": "dad00680-2367-4b5a-8f21-d5a6454daea7",
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:17.384745+00:00",
+          "entity_guidance": null,
+          "id": "ddf6b100-254a-4a1e-9cc4-1a216dddfe8c",
+          "novel_id": "e00be375-3246-400c-84b6-a0a1f5ad7556",
+          "schema_version": 1,
+          "status": "active",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:17.384745+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "e00be375-3246-400c-84b6-a0a1f5ad7556",
+    "stage": "active-after-manuscript"
+  },
+  {
+    "data": {
+      "analysis_runs": [
+        {
+          "created_at": "2026-10-25 05:45:17.650788+00:00",
+          "entity_candidate_audit": null,
+          "id": "5ddd0bf7-8b8c-5a2a-bbc9-e0955554933b",
+          "idempotency_key": "00000000-0000-0000-0000-000000000001:bootstrap-idea:b1eff736-f15d-5768-8ec5-8c31f62b4312",
+          "input_hash": "a4f4e4e14f1775fc3e4bd200c77d4b6b71178aa6e6280119845460ffaa997b01",
+          "model_name": null,
+          "novel_id": "504df583-2e70-4505-83c3-420cdd5af28c",
+          "operation": "bootstrap_idea",
+          "pipeline_version": "idea-bootstrap-v1",
+          "prompt_version": null,
+          "status": "pending",
+          "story_brain_id": "903d9859-cee4-4233-85dd-49882767d8cb",
+          "tenant_id": "00000000-0000-0000-0000-000000000001"
+        }
+      ],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [
+        {
+          "created_at": "2026-10-25 05:45:17.589830+00:00",
+          "error": null,
+          "id": "b1eff736-f15d-5768-8ec5-8c31f62b4312",
+          "locale": "vi-VN",
+          "novel_id": "504df583-2e70-4505-83c3-420cdd5af28c",
+          "options": {
+            "from_idea": true,
+            "require_review_for_all": true
+          },
+          "progress_current": 0,
+          "progress_total": 0,
+          "result": {
+            "bootstrap_input_hash": "a4f4e4e14f1775fc3e4bd200c77d4b6b71178aa6e6280119845460ffaa997b01",
+            "contract_version": "p2-01a-v1",
+            "duplicate_candidate_groups": [],
+            "mode": "blueprint",
+            "origin": "model_proposed",
+            "proposal_count": 1,
+            "required_proposal_ids": [
+              "7096a2ff-014b-548a-897e-c9042b7feb74"
+            ],
+            "reservation_token": "63bb35a6-e56c-45dd-9a9d-5075e4d68b7d",
+            "source_hash": "a4f4e4e14f1775fc3e4bd200c77d4b6b71178aa6e6280119845460ffaa997b01"
+          },
+          "revisions": [],
+          "stage": "completed",
+          "status": "completed",
+          "story_brain_id": "903d9859-cee4-4233-85dd-49882767d8cb",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:17.726619+00:00"
+        }
+      ],
+      "current_entity_states": [],
+      "decisions": [
+        {
+          "actor_id": "00000000-0000-0000-0000-000000000002",
+          "decided_at": "2026-10-25 05:45:17.695846+00:00",
+          "decision": "reject",
+          "edited_payload": null,
+          "id": "87edee99-889d-45e7-bf25-975e4cb9eba7",
+          "proposal_id": "7096a2ff-014b-548a-897e-c9042b7feb74",
+          "reason": null
+        }
+      ],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [
+        {
+          "analysis_run_id": "5ddd0bf7-8b8c-5a2a-bbc9-e0955554933b",
+          "confidence": "1.0000",
+          "created_at": "2026-10-25 05:45:17.650788+00:00",
+          "decision_reason": null,
+          "dependency_group_id": "251e4b33-21b3-5f9d-8193-ab8b27badab4",
+          "evidence": [],
+          "expected_brain_version": 1,
+          "id": "7096a2ff-014b-548a-897e-c9042b7feb74",
+          "materialization_order": 0,
+          "novel_id": "504df583-2e70-4505-83c3-420cdd5af28c",
+          "payload": {
+            "fact_key": "story_premise",
+            "fact_type": "premise",
+            "fact_value": "Explicit setup",
+            "priority": 100
+          },
+          "proposal_type": "fact",
+          "status": "rejected",
+          "story_brain_id": "903d9859-cee4-4233-85dd-49882767d8cb",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:17.695846+00:00"
+        }
+      ],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:17.589830+00:00",
+          "entity_guidance": null,
+          "id": "903d9859-cee4-4233-85dd-49882767d8cb",
+          "novel_id": "504df583-2e70-4505-83c3-420cdd5af28c",
+          "schema_version": 1,
+          "status": "active",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:17.726619+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "504df583-2e70-4505-83c3-420cdd5af28c",
+    "stage": "replay-before"
+  },
+  {
+    "data": {
+      "analysis_runs": [
+        {
+          "created_at": "2026-10-25 05:45:17.650788+00:00",
+          "entity_candidate_audit": null,
+          "id": "5ddd0bf7-8b8c-5a2a-bbc9-e0955554933b",
+          "idempotency_key": "00000000-0000-0000-0000-000000000001:bootstrap-idea:b1eff736-f15d-5768-8ec5-8c31f62b4312",
+          "input_hash": "a4f4e4e14f1775fc3e4bd200c77d4b6b71178aa6e6280119845460ffaa997b01",
+          "model_name": null,
+          "novel_id": "504df583-2e70-4505-83c3-420cdd5af28c",
+          "operation": "bootstrap_idea",
+          "pipeline_version": "idea-bootstrap-v1",
+          "prompt_version": null,
+          "status": "pending",
+          "story_brain_id": "903d9859-cee4-4233-85dd-49882767d8cb",
+          "tenant_id": "00000000-0000-0000-0000-000000000001"
+        }
+      ],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [
+        {
+          "created_at": "2026-10-25 05:45:17.589830+00:00",
+          "error": null,
+          "id": "b1eff736-f15d-5768-8ec5-8c31f62b4312",
+          "locale": "vi-VN",
+          "novel_id": "504df583-2e70-4505-83c3-420cdd5af28c",
+          "options": {
+            "from_idea": true,
+            "require_review_for_all": true
+          },
+          "progress_current": 0,
+          "progress_total": 0,
+          "result": {
+            "bootstrap_input_hash": "a4f4e4e14f1775fc3e4bd200c77d4b6b71178aa6e6280119845460ffaa997b01",
+            "contract_version": "p2-01a-v1",
+            "duplicate_candidate_groups": [],
+            "mode": "blueprint",
+            "origin": "model_proposed",
+            "proposal_count": 1,
+            "required_proposal_ids": [
+              "7096a2ff-014b-548a-897e-c9042b7feb74"
+            ],
+            "reservation_token": "63bb35a6-e56c-45dd-9a9d-5075e4d68b7d",
+            "source_hash": "a4f4e4e14f1775fc3e4bd200c77d4b6b71178aa6e6280119845460ffaa997b01"
+          },
+          "revisions": [],
+          "stage": "completed",
+          "status": "completed",
+          "story_brain_id": "903d9859-cee4-4233-85dd-49882767d8cb",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:17.726619+00:00"
+        }
+      ],
+      "current_entity_states": [],
+      "decisions": [
+        {
+          "actor_id": "00000000-0000-0000-0000-000000000002",
+          "decided_at": "2026-10-25 05:45:17.695846+00:00",
+          "decision": "reject",
+          "edited_payload": null,
+          "id": "87edee99-889d-45e7-bf25-975e4cb9eba7",
+          "proposal_id": "7096a2ff-014b-548a-897e-c9042b7feb74",
+          "reason": null
+        }
+      ],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [
+        {
+          "analysis_run_id": "5ddd0bf7-8b8c-5a2a-bbc9-e0955554933b",
+          "confidence": "1.0000",
+          "created_at": "2026-10-25 05:45:17.650788+00:00",
+          "decision_reason": null,
+          "dependency_group_id": "251e4b33-21b3-5f9d-8193-ab8b27badab4",
+          "evidence": [],
+          "expected_brain_version": 1,
+          "id": "7096a2ff-014b-548a-897e-c9042b7feb74",
+          "materialization_order": 0,
+          "novel_id": "504df583-2e70-4505-83c3-420cdd5af28c",
+          "payload": {
+            "fact_key": "story_premise",
+            "fact_type": "premise",
+            "fact_value": "Explicit setup",
+            "priority": 100
+          },
+          "proposal_type": "fact",
+          "status": "rejected",
+          "story_brain_id": "903d9859-cee4-4233-85dd-49882767d8cb",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:17.695846+00:00"
+        }
+      ],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:17.589830+00:00",
+          "entity_guidance": null,
+          "id": "903d9859-cee4-4233-85dd-49882767d8cb",
+          "novel_id": "504df583-2e70-4505-83c3-420cdd5af28c",
+          "schema_version": 1,
+          "status": "active",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:17.726619+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "504df583-2e70-4505-83c3-420cdd5af28c",
+    "stage": "replay-after"
+  },
+  {
+    "data": {
+      "analysis_runs": [],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [
+        {
+          "created_at": "2026-10-25 05:45:17.951088+00:00",
+          "error": null,
+          "id": "2c92bc9d-be75-5d2f-84ad-74b4d38c0bb7",
+          "locale": "vi-VN",
+          "novel_id": "c9225818-d267-451f-82eb-33194921eac9",
+          "options": {
+            "from_idea": true,
+            "require_review_for_all": true
+          },
+          "progress_current": 0,
+          "progress_total": 0,
+          "result": {
+            "bootstrap_input_hash": "b3d4f139a129ef1642ae7ba825a5ad9dcb419e08ca008726ee46f47d372496ea",
+            "contract_version": "p2-01a-v1",
+            "mode": "blueprint",
+            "origin": "model_proposed",
+            "reservation_token": "aad84b2a-a9a4-429f-9506-4045f86d4935",
+            "source_hash": "b3d4f139a129ef1642ae7ba825a5ad9dcb419e08ca008726ee46f47d372496ea"
+          },
+          "revisions": [],
+          "stage": "blueprint",
+          "status": "running",
+          "story_brain_id": "0ba5fdef-acde-4fdf-b213-8240c54bb94d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:17.951088+00:00"
+        }
+      ],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:17.951088+00:00",
+          "entity_guidance": null,
+          "id": "0ba5fdef-acde-4fdf-b213-8240c54bb94d",
+          "novel_id": "c9225818-d267-451f-82eb-33194921eac9",
+          "schema_version": 1,
+          "status": "importing",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:17.951088+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "c9225818-d267-451f-82eb-33194921eac9",
+    "stage": "racing-before"
+  },
+  {
+    "data": {
+      "analysis_runs": [],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [
+        {
+          "created_at": "2026-10-25 05:45:17.951088+00:00",
+          "error": null,
+          "id": "2c92bc9d-be75-5d2f-84ad-74b4d38c0bb7",
+          "locale": "vi-VN",
+          "novel_id": "c9225818-d267-451f-82eb-33194921eac9",
+          "options": {
+            "from_idea": true,
+            "require_review_for_all": true
+          },
+          "progress_current": 0,
+          "progress_total": 0,
+          "result": {
+            "bootstrap_input_hash": "b3d4f139a129ef1642ae7ba825a5ad9dcb419e08ca008726ee46f47d372496ea",
+            "contract_version": "p2-01a-v1",
+            "mode": "blueprint",
+            "origin": "model_proposed",
+            "reservation_token": "aad84b2a-a9a4-429f-9506-4045f86d4935",
+            "source_hash": "b3d4f139a129ef1642ae7ba825a5ad9dcb419e08ca008726ee46f47d372496ea"
+          },
+          "revisions": [],
+          "stage": "blueprint",
+          "status": "running",
+          "story_brain_id": "0ba5fdef-acde-4fdf-b213-8240c54bb94d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:17.951088+00:00"
+        }
+      ],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:17.951088+00:00",
+          "entity_guidance": null,
+          "id": "0ba5fdef-acde-4fdf-b213-8240c54bb94d",
+          "novel_id": "c9225818-d267-451f-82eb-33194921eac9",
+          "schema_version": 1,
+          "status": "importing",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:17.951088+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "c9225818-d267-451f-82eb-33194921eac9",
+    "stage": "racing-after-rejections"
+  },
+  {
+    "data": {
+      "analysis_runs": [
+        {
+          "created_at": "2026-10-25 05:45:18.191781+00:00",
+          "entity_candidate_audit": null,
+          "id": "d0bbd7bb-933e-576c-8885-d7370fb106df",
+          "idempotency_key": "00000000-0000-0000-0000-000000000001:bootstrap-idea:2c92bc9d-be75-5d2f-84ad-74b4d38c0bb7",
+          "input_hash": "b3d4f139a129ef1642ae7ba825a5ad9dcb419e08ca008726ee46f47d372496ea",
+          "model_name": null,
+          "novel_id": "c9225818-d267-451f-82eb-33194921eac9",
+          "operation": "bootstrap_idea",
+          "pipeline_version": "idea-bootstrap-v1",
+          "prompt_version": null,
+          "status": "pending",
+          "story_brain_id": "0ba5fdef-acde-4fdf-b213-8240c54bb94d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001"
+        }
+      ],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [
+        {
+          "created_at": "2026-10-25 05:45:17.951088+00:00",
+          "error": null,
+          "id": "2c92bc9d-be75-5d2f-84ad-74b4d38c0bb7",
+          "locale": "vi-VN",
+          "novel_id": "c9225818-d267-451f-82eb-33194921eac9",
+          "options": {
+            "from_idea": true,
+            "require_review_for_all": true
+          },
+          "progress_current": 0,
+          "progress_total": 0,
+          "result": {
+            "bootstrap_input_hash": "b3d4f139a129ef1642ae7ba825a5ad9dcb419e08ca008726ee46f47d372496ea",
+            "contract_version": "p2-01a-v1",
+            "duplicate_candidate_groups": [],
+            "mode": "blueprint",
+            "origin": "model_proposed",
+            "proposal_count": 1,
+            "required_proposal_ids": [
+              "cefd840e-5e4d-5261-a49d-caf8861dedaa"
+            ],
+            "reservation_token": "aad84b2a-a9a4-429f-9506-4045f86d4935",
+            "source_hash": "b3d4f139a129ef1642ae7ba825a5ad9dcb419e08ca008726ee46f47d372496ea"
+          },
+          "revisions": [],
+          "stage": "review",
+          "status": "waiting_review",
+          "story_brain_id": "0ba5fdef-acde-4fdf-b213-8240c54bb94d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:18.191781+00:00"
+        }
+      ],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [
+        {
+          "analysis_run_id": "d0bbd7bb-933e-576c-8885-d7370fb106df",
+          "confidence": "1.0000",
+          "created_at": "2026-10-25 05:45:18.191781+00:00",
+          "decision_reason": null,
+          "dependency_group_id": "c050db93-ba19-5f81-b03b-7e455f076944",
+          "evidence": [],
+          "expected_brain_version": 1,
+          "id": "cefd840e-5e4d-5261-a49d-caf8861dedaa",
+          "materialization_order": 0,
+          "novel_id": "c9225818-d267-451f-82eb-33194921eac9",
+          "payload": {
+            "fact_key": "story_premise",
+            "fact_type": "premise",
+            "fact_value": "Explicit setup",
+            "priority": 100
+          },
+          "proposal_type": "fact",
+          "status": "pending",
+          "story_brain_id": "0ba5fdef-acde-4fdf-b213-8240c54bb94d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:18.191781+00:00"
+        }
+      ],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:17.951088+00:00",
+          "entity_guidance": null,
+          "id": "0ba5fdef-acde-4fdf-b213-8240c54bb94d",
+          "novel_id": "c9225818-d267-451f-82eb-33194921eac9",
+          "schema_version": 1,
+          "status": "importing",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:17.951088+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "c9225818-d267-451f-82eb-33194921eac9",
+    "stage": "racing-finalized"
+  },
+  {
+    "data": {
+      "analysis_runs": [],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [
+        {
+          "created_at": "2026-10-25 05:45:18.356805+00:00",
+          "error": {
+            "code": "BOOTSTRAP_FAILED"
+          },
+          "id": "da4e0c5e-0d25-5ab9-84e7-2da537d14c5e",
+          "locale": "vi-VN",
+          "novel_id": "df5b3b39-c040-4d0c-a9ec-d88628e91f8a",
+          "options": {
+            "from_idea": true,
+            "require_review_for_all": true
+          },
+          "progress_current": 0,
+          "progress_total": 0,
+          "result": {
+            "bootstrap_input_hash": "ad9695a0f81bd733ad140017921f57286d1ee185757e85a9104d692a7f9491f3",
+            "contract_version": "p2-01a-v1",
+            "mode": "blueprint",
+            "origin": "model_proposed",
+            "reservation_token": "a8f06838-b8ab-485d-967f-7851d93790da",
+            "source_hash": "ad9695a0f81bd733ad140017921f57286d1ee185757e85a9104d692a7f9491f3"
+          },
+          "revisions": [],
+          "stage": "failed",
+          "status": "failed",
+          "story_brain_id": "364ff01d-f694-41b3-bf1c-1055801055cb",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:18.457447+00:00"
+        }
+      ],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:18.356805+00:00",
+          "entity_guidance": null,
+          "id": "364ff01d-f694-41b3-bf1c-1055801055cb",
+          "novel_id": "df5b3b39-c040-4d0c-a9ec-d88628e91f8a",
+          "schema_version": 1,
+          "status": "active",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:18.356805+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "df5b3b39-c040-4d0c-a9ec-d88628e91f8a",
+    "stage": "forced-late-active"
+  },
+  {
+    "data": {
+      "analysis_runs": [],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "319e9d62-45c2-461f-90b0-6400f69cb3ed",
+    "stage": "scope-before"
+  },
+  {
+    "data": {
+      "analysis_runs": [],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "319e9d62-45c2-461f-90b0-6400f69cb3ed",
+    "stage": "scope-after"
+  },
+  {
+    "data": {
+      "analysis_runs": [],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [
+        {
+          "created_at": "2026-10-25 05:45:18.710143+00:00",
+          "error": {
+            "code": "BOOTSTRAP_FAILED"
+          },
+          "id": "13dba399-30b8-58ad-8dd5-525d9fb14d96",
+          "locale": "vi-VN",
+          "novel_id": "d3c6fbb0-14ce-4787-afcb-cd987057fca6",
+          "options": {
+            "from_idea": true,
+            "require_review_for_all": true
+          },
+          "progress_current": 0,
+          "progress_total": 0,
+          "result": {
+            "bootstrap_input_hash": "f7a828b004e9eedfc0cabd094ade4b2f8bd7ca9fdb94ac1ed17bfc3e4325c26b",
+            "contract_version": "p2-01a-v1",
+            "mode": "blueprint",
+            "origin": "model_proposed",
+            "reservation_token": "7c838584-b236-4c62-a3c4-3524b9071173",
+            "source_hash": "f7a828b004e9eedfc0cabd094ade4b2f8bd7ca9fdb94ac1ed17bfc3e4325c26b"
+          },
+          "revisions": [],
+          "stage": "failed",
+          "status": "failed",
+          "story_brain_id": "0a77be8e-1979-472f-b3fb-94cc1c96166d",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:18.788615+00:00"
+        }
+      ],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:18.710143+00:00",
+          "entity_guidance": null,
+          "id": "0a77be8e-1979-472f-b3fb-94cc1c96166d",
+          "novel_id": "d3c6fbb0-14ce-4787-afcb-cd987057fca6",
+          "schema_version": 1,
+          "status": "importing",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:18.710143+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "d3c6fbb0-14ce-4787-afcb-cd987057fca6",
+    "stage": "rollback-finalization"
+  },
+  {
+    "data": {
+      "analysis_runs": [
+        {
+          "created_at": "2026-10-25 05:45:18.954535+00:00",
+          "entity_candidate_audit": null,
+          "id": "2a56cf90-aadb-5b2c-a522-1c87cadd160c",
+          "idempotency_key": "00000000-0000-0000-0000-000000000001:bootstrap-idea:370bf7ba-1b1c-5339-921b-2df89b315c01",
+          "input_hash": "25b71d1ba6a245f43aedd0f54dba2e597f077d3ea1cc34460d87ecd0e1788806",
+          "model_name": null,
+          "novel_id": "02d3c57e-da06-40a9-9691-a7e7aec32831",
+          "operation": "bootstrap_idea",
+          "pipeline_version": "idea-bootstrap-v1",
+          "prompt_version": null,
+          "status": "pending",
+          "story_brain_id": "2fa0f5bc-6f54-47fb-894e-699fce9dee9f",
+          "tenant_id": "00000000-0000-0000-0000-000000000001"
+        }
+      ],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [
+        {
+          "created_at": "2026-10-25 05:45:18.893402+00:00",
+          "error": null,
+          "id": "370bf7ba-1b1c-5339-921b-2df89b315c01",
+          "locale": "vi-VN",
+          "novel_id": "02d3c57e-da06-40a9-9691-a7e7aec32831",
+          "options": {
+            "from_idea": true,
+            "require_review_for_all": true
+          },
+          "progress_current": 0,
+          "progress_total": 0,
+          "result": {
+            "bootstrap_input_hash": "25b71d1ba6a245f43aedd0f54dba2e597f077d3ea1cc34460d87ecd0e1788806",
+            "contract_version": "p2-01a-v1",
+            "duplicate_candidate_groups": [],
+            "mode": "blueprint",
+            "origin": "model_proposed",
+            "proposal_count": 1,
+            "required_proposal_ids": [
+              "743f3e07-3269-53bf-a18f-e611d15207b6"
+            ],
+            "reservation_token": "42a819e4-3bbe-4549-8633-2c4876697c6d",
+            "source_hash": "25b71d1ba6a245f43aedd0f54dba2e597f077d3ea1cc34460d87ecd0e1788806"
+          },
+          "revisions": [],
+          "stage": "review",
+          "status": "waiting_review",
+          "story_brain_id": "2fa0f5bc-6f54-47fb-894e-699fce9dee9f",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:18.954535+00:00"
+        }
+      ],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [
+        {
+          "analysis_run_id": "2a56cf90-aadb-5b2c-a522-1c87cadd160c",
+          "confidence": "1.0000",
+          "created_at": "2026-10-25 05:45:18.954535+00:00",
+          "decision_reason": null,
+          "dependency_group_id": "dff24877-1c7e-5c26-95e1-21df7eae036d",
+          "evidence": [],
+          "expected_brain_version": 1,
+          "id": "743f3e07-3269-53bf-a18f-e611d15207b6",
+          "materialization_order": 0,
+          "novel_id": "02d3c57e-da06-40a9-9691-a7e7aec32831",
+          "payload": {
+            "fact_key": "story_premise",
+            "fact_type": "premise",
+            "fact_value": "Explicit setup",
+            "priority": 100
+          },
+          "proposal_type": "fact",
+          "status": "pending",
+          "story_brain_id": "2fa0f5bc-6f54-47fb-894e-699fce9dee9f",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:18.954535+00:00"
+        }
+      ],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:18.893402+00:00",
+          "entity_guidance": null,
+          "id": "2fa0f5bc-6f54-47fb-894e-699fce9dee9f",
+          "novel_id": "02d3c57e-da06-40a9-9691-a7e7aec32831",
+          "schema_version": 1,
+          "status": "importing",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:18.893402+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "02d3c57e-da06-40a9-9691-a7e7aec32831",
+    "stage": "unsupported-and-foreign-before"
+  },
+  {
+    "data": {
+      "analysis_runs": [
+        {
+          "created_at": "2026-10-25 05:45:18.954535+00:00",
+          "entity_candidate_audit": null,
+          "id": "2a56cf90-aadb-5b2c-a522-1c87cadd160c",
+          "idempotency_key": "00000000-0000-0000-0000-000000000001:bootstrap-idea:370bf7ba-1b1c-5339-921b-2df89b315c01",
+          "input_hash": "25b71d1ba6a245f43aedd0f54dba2e597f077d3ea1cc34460d87ecd0e1788806",
+          "model_name": null,
+          "novel_id": "02d3c57e-da06-40a9-9691-a7e7aec32831",
+          "operation": "bootstrap_idea",
+          "pipeline_version": "idea-bootstrap-v1",
+          "prompt_version": null,
+          "status": "pending",
+          "story_brain_id": "2fa0f5bc-6f54-47fb-894e-699fce9dee9f",
+          "tenant_id": "00000000-0000-0000-0000-000000000001"
+        }
+      ],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [
+        {
+          "created_at": "2026-10-25 05:45:18.893402+00:00",
+          "error": null,
+          "id": "370bf7ba-1b1c-5339-921b-2df89b315c01",
+          "locale": "vi-VN",
+          "novel_id": "02d3c57e-da06-40a9-9691-a7e7aec32831",
+          "options": {
+            "from_idea": true,
+            "require_review_for_all": true
+          },
+          "progress_current": 0,
+          "progress_total": 0,
+          "result": {
+            "bootstrap_input_hash": "25b71d1ba6a245f43aedd0f54dba2e597f077d3ea1cc34460d87ecd0e1788806",
+            "contract_version": "p2-01a-v1",
+            "duplicate_candidate_groups": [],
+            "mode": "blueprint",
+            "origin": "model_proposed",
+            "proposal_count": 1,
+            "required_proposal_ids": [
+              "743f3e07-3269-53bf-a18f-e611d15207b6"
+            ],
+            "reservation_token": "42a819e4-3bbe-4549-8633-2c4876697c6d",
+            "source_hash": "25b71d1ba6a245f43aedd0f54dba2e597f077d3ea1cc34460d87ecd0e1788806"
+          },
+          "revisions": [],
+          "stage": "review",
+          "status": "waiting_review",
+          "story_brain_id": "2fa0f5bc-6f54-47fb-894e-699fce9dee9f",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:18.954535+00:00"
+        }
+      ],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [
+        {
+          "analysis_run_id": "2a56cf90-aadb-5b2c-a522-1c87cadd160c",
+          "confidence": "1.0000",
+          "created_at": "2026-10-25 05:45:18.954535+00:00",
+          "decision_reason": null,
+          "dependency_group_id": "dff24877-1c7e-5c26-95e1-21df7eae036d",
+          "evidence": [],
+          "expected_brain_version": 1,
+          "id": "743f3e07-3269-53bf-a18f-e611d15207b6",
+          "materialization_order": 0,
+          "novel_id": "02d3c57e-da06-40a9-9691-a7e7aec32831",
+          "payload": {
+            "fact_key": "story_premise",
+            "fact_type": "premise",
+            "fact_value": "Explicit setup",
+            "priority": 100
+          },
+          "proposal_type": "fact",
+          "status": "pending",
+          "story_brain_id": "2fa0f5bc-6f54-47fb-894e-699fce9dee9f",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:18.954535+00:00"
+        }
+      ],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:18.893402+00:00",
+          "entity_guidance": null,
+          "id": "2fa0f5bc-6f54-47fb-894e-699fce9dee9f",
+          "novel_id": "02d3c57e-da06-40a9-9691-a7e7aec32831",
+          "schema_version": 1,
+          "status": "importing",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:18.893402+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "02d3c57e-da06-40a9-9691-a7e7aec32831",
+    "stage": "unsupported-and-foreign-after"
+  },
+  {
+    "data": {
+      "analysis_runs": [
+        {
+          "created_at": "2026-10-25 05:45:19.237526+00:00",
+          "entity_candidate_audit": null,
+          "id": "66d44449-5374-54b4-b648-c05b0424a63d",
+          "idempotency_key": "00000000-0000-0000-0000-000000000001:bootstrap-idea:c371018c-f36e-5944-856d-c30b1a16a4df",
+          "input_hash": "92aaacd1af5675fd08c10dd8d04f016314478e4c8653769f4356cbfe1f6c9a35",
+          "model_name": null,
+          "novel_id": "2c829f7b-4de8-431c-b062-c77de3b313b8",
+          "operation": "bootstrap_idea",
+          "pipeline_version": "idea-bootstrap-v1",
+          "prompt_version": null,
+          "status": "pending",
+          "story_brain_id": "fe2f54db-189f-4331-ace1-11214891723f",
+          "tenant_id": "00000000-0000-0000-0000-000000000001"
+        }
+      ],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [
+        {
+          "created_at": "2026-10-25 05:45:19.173377+00:00",
+          "error": null,
+          "id": "c371018c-f36e-5944-856d-c30b1a16a4df",
+          "locale": "vi-VN",
+          "novel_id": "2c829f7b-4de8-431c-b062-c77de3b313b8",
+          "options": {
+            "from_idea": true,
+            "require_review_for_all": true
+          },
+          "progress_current": 0,
+          "progress_total": 0,
+          "result": {
+            "bootstrap_input_hash": "92aaacd1af5675fd08c10dd8d04f016314478e4c8653769f4356cbfe1f6c9a35",
+            "contract_version": "p2-01a-v1",
+            "duplicate_candidate_groups": [],
+            "mode": "blueprint",
+            "origin": "model_proposed",
+            "proposal_count": 1,
+            "required_proposal_ids": [
+              "d30324a0-9027-51a9-bd9b-c80acd06d46b"
+            ],
+            "reservation_token": "5df84621-6560-420f-9851-ea591cf0f407",
+            "source_hash": "92aaacd1af5675fd08c10dd8d04f016314478e4c8653769f4356cbfe1f6c9a35"
+          },
+          "revisions": [],
+          "stage": "review",
+          "status": "waiting_review",
+          "story_brain_id": "fe2f54db-189f-4331-ace1-11214891723f",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:19.237526+00:00"
+        },
+        {
+          "created_at": "2026-10-25 05:45:19.302945+00:00",
+          "error": null,
+          "id": "d0db6be0-2f17-5322-86a3-f33112733f64",
+          "locale": "vi-VN",
+          "novel_id": "2c829f7b-4de8-431c-b062-c77de3b313b8",
+          "options": {
+            "from_idea": true,
+            "require_review_for_all": true
+          },
+          "progress_current": 0,
+          "progress_total": 0,
+          "result": {
+            "bootstrap_input_hash": "92aaacd1af5675fd08c10dd8d04f016314478e4c8653769f4356cbfe1f6c9a35",
+            "contract_version": "p2-01a-v1",
+            "mode": "blueprint",
+            "origin": "model_proposed",
+            "reservation_token": "666ca30e-7c55-49ef-9d16-643f67dcddcc",
+            "source_hash": "92aaacd1af5675fd08c10dd8d04f016314478e4c8653769f4356cbfe1f6c9a35"
+          },
+          "revisions": [],
+          "stage": "blueprint",
+          "status": "running",
+          "story_brain_id": "fe2f54db-189f-4331-ace1-11214891723f",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:19.302945+00:00"
+        }
+      ],
+      "current_entity_states": [],
+      "decisions": [
+        {
+          "actor_id": "00000000-0000-0000-0000-000000000002",
+          "decided_at": "2026-10-25 05:45:19.280148+00:00",
+          "decision": "reject",
+          "edited_payload": null,
+          "id": "434e7e65-76cc-48c9-b434-f5d7d8398d3c",
+          "proposal_id": "d30324a0-9027-51a9-bd9b-c80acd06d46b",
+          "reason": null
+        }
+      ],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [
+        {
+          "analysis_run_id": "66d44449-5374-54b4-b648-c05b0424a63d",
+          "confidence": "1.0000",
+          "created_at": "2026-10-25 05:45:19.237526+00:00",
+          "decision_reason": null,
+          "dependency_group_id": "fe9ecb4d-5ec8-5caa-b040-a7e0d6c4fe7b",
+          "evidence": [],
+          "expected_brain_version": 1,
+          "id": "d30324a0-9027-51a9-bd9b-c80acd06d46b",
+          "materialization_order": 0,
+          "novel_id": "2c829f7b-4de8-431c-b062-c77de3b313b8",
+          "payload": {
+            "fact_key": "story_premise",
+            "fact_type": "premise",
+            "fact_value": "Explicit setup",
+            "priority": 100
+          },
+          "proposal_type": "fact",
+          "status": "rejected",
+          "story_brain_id": "fe2f54db-189f-4331-ace1-11214891723f",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:19.280148+00:00"
+        }
+      ],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:19.173377+00:00",
+          "entity_guidance": null,
+          "id": "fe2f54db-189f-4331-ace1-11214891723f",
+          "novel_id": "2c829f7b-4de8-431c-b062-c77de3b313b8",
+          "schema_version": 1,
+          "status": "importing",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:19.173377+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "2c829f7b-4de8-431c-b062-c77de3b313b8",
+    "stage": "older-activation-before"
+  },
+  {
+    "data": {
+      "analysis_runs": [
+        {
+          "created_at": "2026-10-25 05:45:19.237526+00:00",
+          "entity_candidate_audit": null,
+          "id": "66d44449-5374-54b4-b648-c05b0424a63d",
+          "idempotency_key": "00000000-0000-0000-0000-000000000001:bootstrap-idea:c371018c-f36e-5944-856d-c30b1a16a4df",
+          "input_hash": "92aaacd1af5675fd08c10dd8d04f016314478e4c8653769f4356cbfe1f6c9a35",
+          "model_name": null,
+          "novel_id": "2c829f7b-4de8-431c-b062-c77de3b313b8",
+          "operation": "bootstrap_idea",
+          "pipeline_version": "idea-bootstrap-v1",
+          "prompt_version": null,
+          "status": "pending",
+          "story_brain_id": "fe2f54db-189f-4331-ace1-11214891723f",
+          "tenant_id": "00000000-0000-0000-0000-000000000001"
+        }
+      ],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [
+        {
+          "created_at": "2026-10-25 05:45:19.173377+00:00",
+          "error": null,
+          "id": "c371018c-f36e-5944-856d-c30b1a16a4df",
+          "locale": "vi-VN",
+          "novel_id": "2c829f7b-4de8-431c-b062-c77de3b313b8",
+          "options": {
+            "from_idea": true,
+            "require_review_for_all": true
+          },
+          "progress_current": 0,
+          "progress_total": 0,
+          "result": {
+            "bootstrap_input_hash": "92aaacd1af5675fd08c10dd8d04f016314478e4c8653769f4356cbfe1f6c9a35",
+            "contract_version": "p2-01a-v1",
+            "duplicate_candidate_groups": [],
+            "mode": "blueprint",
+            "origin": "model_proposed",
+            "proposal_count": 1,
+            "required_proposal_ids": [
+              "d30324a0-9027-51a9-bd9b-c80acd06d46b"
+            ],
+            "reservation_token": "5df84621-6560-420f-9851-ea591cf0f407",
+            "source_hash": "92aaacd1af5675fd08c10dd8d04f016314478e4c8653769f4356cbfe1f6c9a35"
+          },
+          "revisions": [],
+          "stage": "review",
+          "status": "waiting_review",
+          "story_brain_id": "fe2f54db-189f-4331-ace1-11214891723f",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:19.237526+00:00"
+        },
+        {
+          "created_at": "2026-10-25 05:45:19.302945+00:00",
+          "error": null,
+          "id": "d0db6be0-2f17-5322-86a3-f33112733f64",
+          "locale": "vi-VN",
+          "novel_id": "2c829f7b-4de8-431c-b062-c77de3b313b8",
+          "options": {
+            "from_idea": true,
+            "require_review_for_all": true
+          },
+          "progress_current": 0,
+          "progress_total": 0,
+          "result": {
+            "bootstrap_input_hash": "92aaacd1af5675fd08c10dd8d04f016314478e4c8653769f4356cbfe1f6c9a35",
+            "contract_version": "p2-01a-v1",
+            "mode": "blueprint",
+            "origin": "model_proposed",
+            "reservation_token": "666ca30e-7c55-49ef-9d16-643f67dcddcc",
+            "source_hash": "92aaacd1af5675fd08c10dd8d04f016314478e4c8653769f4356cbfe1f6c9a35"
+          },
+          "revisions": [],
+          "stage": "blueprint",
+          "status": "running",
+          "story_brain_id": "fe2f54db-189f-4331-ace1-11214891723f",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:19.302945+00:00"
+        }
+      ],
+      "current_entity_states": [],
+      "decisions": [
+        {
+          "actor_id": "00000000-0000-0000-0000-000000000002",
+          "decided_at": "2026-10-25 05:45:19.280148+00:00",
+          "decision": "reject",
+          "edited_payload": null,
+          "id": "434e7e65-76cc-48c9-b434-f5d7d8398d3c",
+          "proposal_id": "d30324a0-9027-51a9-bd9b-c80acd06d46b",
+          "reason": null
+        }
+      ],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [
+        {
+          "analysis_run_id": "66d44449-5374-54b4-b648-c05b0424a63d",
+          "confidence": "1.0000",
+          "created_at": "2026-10-25 05:45:19.237526+00:00",
+          "decision_reason": null,
+          "dependency_group_id": "fe9ecb4d-5ec8-5caa-b040-a7e0d6c4fe7b",
+          "evidence": [],
+          "expected_brain_version": 1,
+          "id": "d30324a0-9027-51a9-bd9b-c80acd06d46b",
+          "materialization_order": 0,
+          "novel_id": "2c829f7b-4de8-431c-b062-c77de3b313b8",
+          "payload": {
+            "fact_key": "story_premise",
+            "fact_type": "premise",
+            "fact_value": "Explicit setup",
+            "priority": 100
+          },
+          "proposal_type": "fact",
+          "status": "rejected",
+          "story_brain_id": "fe2f54db-189f-4331-ace1-11214891723f",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:19.280148+00:00"
+        }
+      ],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": null,
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:19.173377+00:00",
+          "entity_guidance": null,
+          "id": "fe2f54db-189f-4331-ace1-11214891723f",
+          "novel_id": "2c829f7b-4de8-431c-b062-c77de3b313b8",
+          "schema_version": 1,
+          "status": "importing",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:19.173377+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "2c829f7b-4de8-431c-b062-c77de3b313b8",
+    "stage": "older-activation-after"
+  },
+  {
+    "data": {
+      "analysis_runs": [],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [
+        {
+          "created_at": "2026-10-25 05:45:19.597035+00:00",
+          "error": {
+            "code": "BOOTSTRAP_FAILED"
+          },
+          "id": "f39e3b61-634f-5f5a-b711-8c3579306f4e",
+          "locale": "vi-VN",
+          "novel_id": "f9e409cd-1c8f-41a9-93eb-4c0fb2bc7c9a",
+          "options": {
+            "from_idea": true,
+            "require_review_for_all": true
+          },
+          "progress_current": 0,
+          "progress_total": 0,
+          "result": {
+            "bootstrap_input_hash": "bf71f57e5c2e95d383a1317f17525cefbc1dbe33fdb2ad2df7b9cb528c7df7eb",
+            "contract_version": "p2-01a-v1",
+            "mode": "blueprint",
+            "origin": "model_proposed",
+            "reservation_token": "08086d51-a7f4-4918-898f-a830d505f947",
+            "source_hash": "bf71f57e5c2e95d383a1317f17525cefbc1dbe33fdb2ad2df7b9cb528c7df7eb"
+          },
+          "revisions": [],
+          "stage": "failed",
+          "status": "failed",
+          "story_brain_id": "85aedb79-5e60-46ff-85cb-219a92e36173",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:19.661751+00:00"
+        }
+      ],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [],
+      "relationships": [],
+      "revision_provenances": [],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": null,
+          "brain_version": 2,
+          "created_at": "2026-10-25 05:45:19.597035+00:00",
+          "entity_guidance": null,
+          "id": "85aedb79-5e60-46ff-85cb-219a92e36173",
+          "novel_id": "f9e409cd-1c8f-41a9-93eb-4c0fb2bc7c9a",
+          "schema_version": 1,
+          "status": "importing",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:19.597035+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "f9e409cd-1c8f-41a9-93eb-4c0fb2bc7c9a",
+    "stage": "stale-finalization"
+  },
+  {
+    "data": {
+      "analysis_runs": [],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [
+        {
+          "created_at": "2026-10-25 05:45:19.773073+00:00",
+          "error": null,
+          "id": "909d6166-6b67-52f3-86d2-54580d279192",
+          "locale": "vi-VN",
+          "novel_id": "e97f0ecb-1459-4064-9e82-4577f8a83e65",
+          "options": {},
+          "progress_current": 1,
+          "progress_total": 1,
+          "result": {
+            "bootstrap_input_hash": "e5d2d2c78e4fe7256f948e0271fb367fcde7dc43296f14c272f5ed42403acfb0",
+            "duplicate_candidate_groups": [],
+            "proposal_count": 0,
+            "required_proposal_ids": [],
+            "scene_count": 1
+          },
+          "revisions": [
+            {
+              "analysis_run_id": "24873bcc-ab3c-4547-9c1b-10986936ca88",
+              "chapter_id": "6c0b9085-caa6-4537-bb80-a498d57d6226",
+              "chapter_number": null,
+              "content_hash": "0edeec755223c7652aee32375d7ab8b2277bbcc69f2c723745bd232cd02c15b4",
+              "proposal_count": 0,
+              "revision_id": "101dced4-03db-494c-bfb9-fee0ec04bf9f",
+              "status": "completed"
+            }
+          ],
+          "stage": "completed",
+          "status": "completed",
+          "story_brain_id": "dd5140d8-0dec-4347-b61f-c03d434c7579",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:19.868395+00:00"
+        }
+      ],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [],
+      "relationships": [],
+      "revision_provenances": [
+        {
+          "chapter_id": "6c0b9085-caa6-4537-bb80-a498d57d6226",
+          "chapter_number": 1,
+          "created_at": "2026-10-25 05:45:19.773073+00:00",
+          "id": "c6cf3355-3900-41a7-8654-b8cddcc083b0",
+          "novel_id": "e97f0ecb-1459-4064-9e82-4577f8a83e65",
+          "revision_id": "101dced4-03db-494c-bfb9-fee0ec04bf9f",
+          "story_brain_id": "dd5140d8-0dec-4347-b61f-c03d434c7579",
+          "tenant_id": "00000000-0000-0000-0000-000000000001"
+        }
+      ],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": "101dced4-03db-494c-bfb9-fee0ec04bf9f",
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:19.773073+00:00",
+          "entity_guidance": null,
+          "id": "dd5140d8-0dec-4347-b61f-c03d434c7579",
+          "novel_id": "e97f0ecb-1459-4064-9e82-4577f8a83e65",
+          "schema_version": 1,
+          "status": "active",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:19.868395+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "e97f0ecb-1459-4064-9e82-4577f8a83e65",
+    "stage": "manuscript-replay-before"
+  },
+  {
+    "data": {
+      "analysis_runs": [],
+      "autonomous_runs": [],
+      "bootstrap_jobs": [
+        {
+          "created_at": "2026-10-25 05:45:19.773073+00:00",
+          "error": null,
+          "id": "909d6166-6b67-52f3-86d2-54580d279192",
+          "locale": "vi-VN",
+          "novel_id": "e97f0ecb-1459-4064-9e82-4577f8a83e65",
+          "options": {},
+          "progress_current": 1,
+          "progress_total": 1,
+          "result": {
+            "bootstrap_input_hash": "e5d2d2c78e4fe7256f948e0271fb367fcde7dc43296f14c272f5ed42403acfb0",
+            "duplicate_candidate_groups": [],
+            "proposal_count": 0,
+            "required_proposal_ids": [],
+            "scene_count": 1
+          },
+          "revisions": [
+            {
+              "analysis_run_id": "24873bcc-ab3c-4547-9c1b-10986936ca88",
+              "chapter_id": "6c0b9085-caa6-4537-bb80-a498d57d6226",
+              "chapter_number": null,
+              "content_hash": "0edeec755223c7652aee32375d7ab8b2277bbcc69f2c723745bd232cd02c15b4",
+              "proposal_count": 0,
+              "revision_id": "101dced4-03db-494c-bfb9-fee0ec04bf9f",
+              "status": "completed"
+            }
+          ],
+          "stage": "completed",
+          "status": "completed",
+          "story_brain_id": "dd5140d8-0dec-4347-b61f-c03d434c7579",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:19.868395+00:00"
+        }
+      ],
+      "current_entity_states": [],
+      "decisions": [],
+      "entities": [],
+      "entity_mentions": [],
+      "events": [],
+      "facts": [],
+      "memory_chunks": [],
+      "memory_embeddings": [],
+      "proposals": [],
+      "relationships": [],
+      "revision_provenances": [
+        {
+          "chapter_id": "6c0b9085-caa6-4537-bb80-a498d57d6226",
+          "chapter_number": 1,
+          "created_at": "2026-10-25 05:45:19.773073+00:00",
+          "id": "c6cf3355-3900-41a7-8654-b8cddcc083b0",
+          "novel_id": "e97f0ecb-1459-4064-9e82-4577f8a83e65",
+          "revision_id": "101dced4-03db-494c-bfb9-fee0ec04bf9f",
+          "story_brain_id": "dd5140d8-0dec-4347-b61f-c03d434c7579",
+          "tenant_id": "00000000-0000-0000-0000-000000000001"
+        }
+      ],
+      "state_transitions": [],
+      "story_brains": [
+        {
+          "baseline_revision_id": "101dced4-03db-494c-bfb9-fee0ec04bf9f",
+          "brain_version": 1,
+          "created_at": "2026-10-25 05:45:19.773073+00:00",
+          "entity_guidance": null,
+          "id": "dd5140d8-0dec-4347-b61f-c03d434c7579",
+          "novel_id": "e97f0ecb-1459-4064-9e82-4577f8a83e65",
+          "schema_version": 1,
+          "status": "active",
+          "tenant_id": "00000000-0000-0000-0000-000000000001",
+          "updated_at": "2026-10-25 05:45:19.868395+00:00"
+        }
+      ],
+      "story_plan_objectives": [],
+      "story_plans": [],
+      "writing_generations": []
+    },
+    "novel_id": "e97f0ecb-1459-4064-9e82-4577f8a83e65",
+    "stage": "manuscript-replay-after"
+  }
+]

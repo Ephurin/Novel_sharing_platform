@@ -1,0 +1,117 @@
+FFFFF                                                                    [100%]
+================================== FAILURES ===================================
+____________ test_active_brain_bootstrap_is_nonmutating[None-idea] ____________
+
+entry = 'idea', baseline = None
+
+    @pytest.mark.parametrize('entry', ['idea', 'manuscript'])
+    @pytest.mark.parametrize('baseline', [None, 'existing-p1-revision'])
+    def test_active_brain_bootstrap_is_nonmutating(entry, baseline):
+        repo, service, llm, src = fixture()
+        brain = repo.get_story_brain(src.novel_id)
+        repo._brains[src.novel_id] = replace(brain, metadata={**brain.metadata, 'status':'active', 'baseline_revision_id': baseline})
+        before = asdict(repo.get_story_brain(src.novel_id))
+>       with pytest.raises(Exception, match='(?i)active'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'Exception'>
+
+tests\test_p2_bootstrap_guard.py:36: Failed
+_________ test_active_brain_bootstrap_is_nonmutating[None-manuscript] _________
+
+entry = 'manuscript', baseline = None
+
+    @pytest.mark.parametrize('entry', ['idea', 'manuscript'])
+    @pytest.mark.parametrize('baseline', [None, 'existing-p1-revision'])
+    def test_active_brain_bootstrap_is_nonmutating(entry, baseline):
+        repo, service, llm, src = fixture()
+        brain = repo.get_story_brain(src.novel_id)
+        repo._brains[src.novel_id] = replace(brain, metadata={**brain.metadata, 'status':'active', 'baseline_revision_id': baseline})
+        before = asdict(repo.get_story_brain(src.novel_id))
+>       with pytest.raises(Exception, match='(?i)active'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'Exception'>
+
+tests\test_p2_bootstrap_guard.py:36: Failed
+____ test_active_brain_bootstrap_is_nonmutating[existing-p1-revision-idea] ____
+
+entry = 'idea', baseline = 'existing-p1-revision'
+
+    @pytest.mark.parametrize('entry', ['idea', 'manuscript'])
+    @pytest.mark.parametrize('baseline', [None, 'existing-p1-revision'])
+    def test_active_brain_bootstrap_is_nonmutating(entry, baseline):
+        repo, service, llm, src = fixture()
+        brain = repo.get_story_brain(src.novel_id)
+        repo._brains[src.novel_id] = replace(brain, metadata={**brain.metadata, 'status':'active', 'baseline_revision_id': baseline})
+        before = asdict(repo.get_story_brain(src.novel_id))
+>       with pytest.raises(Exception, match='(?i)active'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'Exception'>
+
+tests\test_p2_bootstrap_guard.py:36: Failed
+_ test_active_brain_bootstrap_is_nonmutating[existing-p1-revision-manuscript] _
+
+entry = 'manuscript', baseline = 'existing-p1-revision'
+
+    @pytest.mark.parametrize('entry', ['idea', 'manuscript'])
+    @pytest.mark.parametrize('baseline', [None, 'existing-p1-revision'])
+    def test_active_brain_bootstrap_is_nonmutating(entry, baseline):
+        repo, service, llm, src = fixture()
+        brain = repo.get_story_brain(src.novel_id)
+        repo._brains[src.novel_id] = replace(brain, metadata={**brain.metadata, 'status':'active', 'baseline_revision_id': baseline})
+        before = asdict(repo.get_story_brain(src.novel_id))
+>       with pytest.raises(Exception, match='(?i)active'):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'Exception'>
+
+tests\test_p2_bootstrap_guard.py:36: Failed
+______________ test_mode_contract_cannot_silently_ignore_extract ______________
+
+    def test_mode_contract_cannot_silently_ignore_extract():
+        payload = IdeaBootstrapRequest(novel_id='n', idea='setup', mode='extract')
+>       assert payload.mode == 'extract'
+               ^^^^^^^^^^^^
+
+tests\test_p2_bootstrap_guard.py:47:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = IdeaBootstrapRequest(novel_id='n', idea='setup', outline=None, locale='vi-VN', preferences=IdeaBootstrapPreferences(genre=[], tone='neutral', target_length='long_form'), author_constraints=[])
+item = 'mode'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'IdeaBootstrapRequest' object has no attribute 'mode'
+
+C:\Users\Laptop\AppData\Local\Programs\Python\Python312\Lib\site-packages\pydantic\main.py:1026: AttributeError
+=========================== short test summary info ===========================
+FAILED tests/test_p2_bootstrap_guard.py::test_active_brain_bootstrap_is_nonmutating[None-idea]
+FAILED tests/test_p2_bootstrap_guard.py::test_active_brain_bootstrap_is_nonmutating[None-manuscript]
+FAILED tests/test_p2_bootstrap_guard.py::test_active_brain_bootstrap_is_nonmutating[existing-p1-revision-idea]
+FAILED tests/test_p2_bootstrap_guard.py::test_active_brain_bootstrap_is_nonmutating[existing-p1-revision-manuscript]
+FAILED tests/test_p2_bootstrap_guard.py::test_mode_contract_cannot_silently_ignore_extract
+5 failed in 1.42s

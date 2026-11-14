@@ -7,7 +7,7 @@ Tập trung toàn bộ request/response models tại đây để:
 - Tái sử dụng models giữa các router
 """
 
-from typing import Any
+from typing import Literal, Any
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from core.candidate_processor import Candidate
@@ -100,6 +100,7 @@ class BootstrapOptions(BaseModel):
 
 
 class ManuscriptBootstrapRequest(BaseModel):
+    idempotency_key: str | None = Field(default=None, min_length=1, max_length=128)
     novel_id: str = Field(min_length=1)
     revisions: list[BootstrapRevisionInput] = Field(min_length=1)
     locale: str = "vi-VN"
@@ -113,6 +114,9 @@ class IdeaBootstrapPreferences(BaseModel):
 
 
 class IdeaBootstrapRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    mode: Literal["extract", "blueprint"] = "blueprint"
+    idempotency_key: str | None = Field(default=None, min_length=1, max_length=128)
     novel_id: str = Field(min_length=1)
     idea: str = Field(min_length=1)
     outline: str | None = None

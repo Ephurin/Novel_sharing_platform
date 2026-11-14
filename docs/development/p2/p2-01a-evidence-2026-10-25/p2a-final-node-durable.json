@@ -1,0 +1,1265 @@
+{
+  "requests": [
+    {
+      "path": "/ai/story-brains/bootstrap/from-idea",
+      "method": "POST",
+      "body": {
+        "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+        "idea": "Distinct new setup"
+      },
+      "status": 401,
+      "response": {
+        "success": false,
+        "data": null,
+        "error": {
+          "code": "AUTH_002",
+          "message": "Missing access token"
+        },
+        "meta": {}
+      },
+      "actor": "anonymous"
+    },
+    {
+      "path": "/ai/story-brains/bootstrap/from-idea",
+      "method": "POST",
+      "body": {
+        "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+        "idea": "Distinct new setup"
+      },
+      "status": 403,
+      "response": {
+        "success": false,
+        "data": null,
+        "error": {
+          "code": "FORBIDDEN",
+          "message": "You do not have permission to access this novel"
+        },
+        "meta": {}
+      },
+      "actor": "foreign"
+    },
+    {
+      "path": "/ai/story-brains/bootstrap/from-idea",
+      "method": "POST",
+      "body": {
+        "novel_id": "9d5294c2-203c-4dfb-a1be-064e29acfcf3",
+        "idea": "Distinct new setup"
+      },
+      "status": 404,
+      "response": {
+        "success": false,
+        "data": null,
+        "error": {
+          "code": "NOVEL_NOT_FOUND",
+          "message": "Novel not found"
+        },
+        "meta": {}
+      },
+      "actor": "owner"
+    },
+    {
+      "path": "/ai/story-brains/bootstrap/from-idea",
+      "method": "POST",
+      "body": {
+        "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+        "idea": "Distinct new setup"
+      },
+      "status": 409,
+      "response": {
+        "success": false,
+        "data": null,
+        "error": {
+          "code": "ALREADY_ACTIVE",
+          "message": "AI Service returned status 409",
+          "details": {
+            "code": "ALREADY_ACTIVE"
+          }
+        },
+        "meta": {}
+      },
+      "actor": "owner"
+    },
+    {
+      "path": "/ai/story-brains/bootstrap/from-manuscript",
+      "method": "POST",
+      "body": {
+        "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+        "revisions": [
+          {
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "content_hash": "6dc6c1efc5267e685665f4e4dbaa906f3a3e8f180d403f2f5a215b454e321e43"
+          }
+        ]
+      },
+      "status": 401,
+      "response": {
+        "success": false,
+        "data": null,
+        "error": {
+          "code": "AUTH_002",
+          "message": "Missing access token"
+        },
+        "meta": {}
+      },
+      "actor": "anonymous"
+    },
+    {
+      "path": "/ai/story-brains/bootstrap/from-manuscript",
+      "method": "POST",
+      "body": {
+        "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+        "revisions": [
+          {
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "content_hash": "6dc6c1efc5267e685665f4e4dbaa906f3a3e8f180d403f2f5a215b454e321e43"
+          }
+        ]
+      },
+      "status": 403,
+      "response": {
+        "success": false,
+        "data": null,
+        "error": {
+          "code": "FORBIDDEN",
+          "message": "You do not have permission to access this novel"
+        },
+        "meta": {}
+      },
+      "actor": "foreign"
+    },
+    {
+      "path": "/ai/story-brains/bootstrap/from-manuscript",
+      "method": "POST",
+      "body": {
+        "novel_id": "1fce2cc3-d7ed-4148-9110-6d2601bc44b4",
+        "revisions": [
+          {
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "content_hash": "6dc6c1efc5267e685665f4e4dbaa906f3a3e8f180d403f2f5a215b454e321e43"
+          }
+        ]
+      },
+      "status": 404,
+      "response": {
+        "success": false,
+        "data": null,
+        "error": {
+          "code": "NOVEL_NOT_FOUND",
+          "message": "Novel not found"
+        },
+        "meta": {}
+      },
+      "actor": "owner"
+    },
+    {
+      "path": "/ai/story-brains/bootstrap/from-manuscript",
+      "method": "POST",
+      "body": {
+        "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+        "revisions": [
+          {
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "content_hash": "6dc6c1efc5267e685665f4e4dbaa906f3a3e8f180d403f2f5a215b454e321e43"
+          }
+        ]
+      },
+      "status": 409,
+      "response": {
+        "success": false,
+        "data": null,
+        "error": {
+          "code": "ALREADY_ACTIVE",
+          "message": "AI Service returned status 409",
+          "details": {
+            "code": "ALREADY_ACTIVE"
+          }
+        },
+        "meta": {}
+      },
+      "actor": "owner"
+    },
+    {
+      "path": "/ai/story-brains/bootstrap/from-idea",
+      "method": "POST",
+      "body": {
+        "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+        "idea": "Distinct new setup"
+      },
+      "status": 401,
+      "response": {
+        "success": false,
+        "data": null,
+        "error": {
+          "code": "AUTH_002",
+          "message": "Missing access token"
+        },
+        "meta": {}
+      },
+      "actor": "anonymous"
+    },
+    {
+      "path": "/ai/story-brains/bootstrap/from-idea",
+      "method": "POST",
+      "body": {
+        "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+        "idea": "Distinct new setup"
+      },
+      "status": 403,
+      "response": {
+        "success": false,
+        "data": null,
+        "error": {
+          "code": "FORBIDDEN",
+          "message": "You do not have permission to access this novel"
+        },
+        "meta": {}
+      },
+      "actor": "foreign"
+    },
+    {
+      "path": "/ai/story-brains/bootstrap/from-idea",
+      "method": "POST",
+      "body": {
+        "novel_id": "5a672025-ea34-44a4-ab11-a8cf9c3293f0",
+        "idea": "Distinct new setup"
+      },
+      "status": 404,
+      "response": {
+        "success": false,
+        "data": null,
+        "error": {
+          "code": "NOVEL_NOT_FOUND",
+          "message": "Novel not found"
+        },
+        "meta": {}
+      },
+      "actor": "owner"
+    },
+    {
+      "path": "/ai/story-brains/bootstrap/from-idea",
+      "method": "POST",
+      "body": {
+        "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+        "idea": "Distinct new setup"
+      },
+      "status": 409,
+      "response": {
+        "success": false,
+        "data": null,
+        "error": {
+          "code": "ALREADY_ACTIVE",
+          "message": "AI Service returned status 409",
+          "details": {
+            "code": "ALREADY_ACTIVE"
+          }
+        },
+        "meta": {}
+      },
+      "actor": "owner"
+    },
+    {
+      "path": "/ai/story-brains/bootstrap/from-manuscript",
+      "method": "POST",
+      "body": {
+        "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+        "revisions": [
+          {
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "content_hash": "6dc6c1efc5267e685665f4e4dbaa906f3a3e8f180d403f2f5a215b454e321e43"
+          }
+        ]
+      },
+      "status": 401,
+      "response": {
+        "success": false,
+        "data": null,
+        "error": {
+          "code": "AUTH_002",
+          "message": "Missing access token"
+        },
+        "meta": {}
+      },
+      "actor": "anonymous"
+    },
+    {
+      "path": "/ai/story-brains/bootstrap/from-manuscript",
+      "method": "POST",
+      "body": {
+        "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+        "revisions": [
+          {
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "content_hash": "6dc6c1efc5267e685665f4e4dbaa906f3a3e8f180d403f2f5a215b454e321e43"
+          }
+        ]
+      },
+      "status": 403,
+      "response": {
+        "success": false,
+        "data": null,
+        "error": {
+          "code": "FORBIDDEN",
+          "message": "You do not have permission to access this novel"
+        },
+        "meta": {}
+      },
+      "actor": "foreign"
+    },
+    {
+      "path": "/ai/story-brains/bootstrap/from-manuscript",
+      "method": "POST",
+      "body": {
+        "novel_id": "a49bebf5-1466-4585-9dbe-97233addbf53",
+        "revisions": [
+          {
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "content_hash": "6dc6c1efc5267e685665f4e4dbaa906f3a3e8f180d403f2f5a215b454e321e43"
+          }
+        ]
+      },
+      "status": 404,
+      "response": {
+        "success": false,
+        "data": null,
+        "error": {
+          "code": "NOVEL_NOT_FOUND",
+          "message": "Novel not found"
+        },
+        "meta": {}
+      },
+      "actor": "owner"
+    },
+    {
+      "path": "/ai/story-brains/bootstrap/from-manuscript",
+      "method": "POST",
+      "body": {
+        "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+        "revisions": [
+          {
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "content_hash": "6dc6c1efc5267e685665f4e4dbaa906f3a3e8f180d403f2f5a215b454e321e43"
+          }
+        ]
+      },
+      "status": 409,
+      "response": {
+        "success": false,
+        "data": null,
+        "error": {
+          "code": "ALREADY_ACTIVE",
+          "message": "AI Service returned status 409",
+          "details": {
+            "code": "ALREADY_ACTIVE"
+          }
+        },
+        "meta": {}
+      },
+      "actor": "owner"
+    },
+    {
+      "path": "/chapters/9fee71ec-f485-4409-a123-0a13dc1e3dea",
+      "method": "PATCH",
+      "body": {
+        "content": "Minh stands here. The door opens.",
+        "expectedVersion": 1,
+        "autosave": true
+      },
+      "status": 200,
+      "response": {
+        "success": true,
+        "data": {
+          "chapterId": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+          "novelId": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+          "title": "Original",
+          "chapterNumber": 1,
+          "content": "Minh stands here.",
+          "wordCount": 6,
+          "isVip": false,
+          "priceCoins": 0,
+          "status": "DRAFT",
+          "publicationSchedule": null,
+          "updatedAt": "2026-10-25T05:45:16.013Z",
+          "draft": {
+            "title": "Original",
+            "content": "Minh stands here. The door opens.",
+            "wordCount": 6,
+            "version": 2,
+            "autosave": true,
+            "updatedAt": "2026-10-25T05:45:15.987Z"
+          },
+          "analysisRevisionId": "da16e1fd-f89b-4a11-86fd-5938e229ad20",
+          "draftVersion": 2
+        },
+        "error": null,
+        "meta": {}
+      },
+      "actor": "owner"
+    }
+  ],
+  "readbacks": [
+    {
+      "stage": "active-P1-before",
+      "data": {
+        "analysis_runs": [],
+        "autonomous_runs": [],
+        "bootstrap_jobs": [],
+        "current_entity_states": [],
+        "entities": [
+          {
+            "id": "2a4f746f-bea3-4801-9efe-daffd8844950",
+            "story_brain_id": "852c17f5-8042-4fca-ae33-c1886b837af9",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "entity_type": "PER",
+            "canonical_name": "Minh",
+            "normalized_name": "minh",
+            "description": null,
+            "static_attributes": {},
+            "source_type": "author",
+            "confirmation_status": "confirmed",
+            "confidence": null,
+            "is_locked": false,
+            "created_by": null,
+            "created_at": "2026-10-25T05:45:14.834Z",
+            "updated_at": "2026-10-25T05:45:14.834Z"
+          }
+        ],
+        "entity_mentions": [],
+        "events": [],
+        "facts": [],
+        "memory_chunks": [],
+        "memory_embeddings": [],
+        "proposals": [],
+        "relationships": [],
+        "revision_provenances": [],
+        "state_transitions": [],
+        "story_brains": [
+          {
+            "entity_guidance": null,
+            "id": "852c17f5-8042-4fca-ae33-c1886b837af9",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "status": "active",
+            "baseline_revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "brain_version": "5",
+            "schema_version": 1,
+            "created_at": "2026-10-25T05:45:14.827Z",
+            "updated_at": "2026-10-25T05:45:14.827Z"
+          }
+        ],
+        "story_plan_objectives": [],
+        "story_plans": [],
+        "writing_generations": [],
+        "decisions": [],
+        "revisions": [
+          {
+            "revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "parent_revision_id": null,
+            "content_hash": "6dc6c1efc5267e685665f4e4dbaa906f3a3e8f180d403f2f5a215b454e321e43",
+            "content": "Minh stands here.",
+            "word_count": 3,
+            "source_type": "AUTHOR_MANUAL",
+            "source_generation_id": null,
+            "created_by": "ccfe9eb4-95b4-4682-800a-04e469d9f4ca",
+            "created_at": "2026-10-25T05:45:14.806Z"
+          }
+        ],
+        "outbox": [],
+        "chapters": [
+          {
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "title": "Original",
+            "chapter_number": 1,
+            "content": "Minh stands here.",
+            "word_count": 3,
+            "is_vip": false,
+            "price_coins": 0,
+            "status": "DRAFT",
+            "published_at": null,
+            "created_at": "2026-10-25T05:45:14.786Z",
+            "updated_at": "2026-10-25T05:45:14.786Z",
+            "deleted_at": null,
+            "latest_revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "import_key": null,
+            "import_hash": null
+          }
+        ],
+        "mongo": [
+          {
+            "_id": "6add976a7ff499e6fd9db8dc",
+            "chapterId": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "novelId": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "authorId": "ccfe9eb4-95b4-4682-800a-04e469d9f4ca",
+            "title": "Original",
+            "content": "Minh stands here.",
+            "wordCount": 3,
+            "version": 1,
+            "autosave": false,
+            "createdAt": "2026-10-25T05:45:14.839Z",
+            "updatedAt": "2026-10-25T05:45:14.839Z"
+          }
+        ]
+      }
+    },
+    {
+      "stage": "rejected-idea-P1",
+      "data": {
+        "analysis_runs": [],
+        "autonomous_runs": [],
+        "bootstrap_jobs": [],
+        "current_entity_states": [],
+        "entities": [
+          {
+            "id": "2a4f746f-bea3-4801-9efe-daffd8844950",
+            "story_brain_id": "852c17f5-8042-4fca-ae33-c1886b837af9",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "entity_type": "PER",
+            "canonical_name": "Minh",
+            "normalized_name": "minh",
+            "description": null,
+            "static_attributes": {},
+            "source_type": "author",
+            "confirmation_status": "confirmed",
+            "confidence": null,
+            "is_locked": false,
+            "created_by": null,
+            "created_at": "2026-10-25T05:45:14.834Z",
+            "updated_at": "2026-10-25T05:45:14.834Z"
+          }
+        ],
+        "entity_mentions": [],
+        "events": [],
+        "facts": [],
+        "memory_chunks": [],
+        "memory_embeddings": [],
+        "proposals": [],
+        "relationships": [],
+        "revision_provenances": [],
+        "state_transitions": [],
+        "story_brains": [
+          {
+            "entity_guidance": null,
+            "id": "852c17f5-8042-4fca-ae33-c1886b837af9",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "status": "active",
+            "baseline_revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "brain_version": "5",
+            "schema_version": 1,
+            "created_at": "2026-10-25T05:45:14.827Z",
+            "updated_at": "2026-10-25T05:45:14.827Z"
+          }
+        ],
+        "story_plan_objectives": [],
+        "story_plans": [],
+        "writing_generations": [],
+        "decisions": [],
+        "revisions": [
+          {
+            "revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "parent_revision_id": null,
+            "content_hash": "6dc6c1efc5267e685665f4e4dbaa906f3a3e8f180d403f2f5a215b454e321e43",
+            "content": "Minh stands here.",
+            "word_count": 3,
+            "source_type": "AUTHOR_MANUAL",
+            "source_generation_id": null,
+            "created_by": "ccfe9eb4-95b4-4682-800a-04e469d9f4ca",
+            "created_at": "2026-10-25T05:45:14.806Z"
+          }
+        ],
+        "outbox": [],
+        "chapters": [
+          {
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "title": "Original",
+            "chapter_number": 1,
+            "content": "Minh stands here.",
+            "word_count": 3,
+            "is_vip": false,
+            "price_coins": 0,
+            "status": "DRAFT",
+            "published_at": null,
+            "created_at": "2026-10-25T05:45:14.786Z",
+            "updated_at": "2026-10-25T05:45:14.786Z",
+            "deleted_at": null,
+            "latest_revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "import_key": null,
+            "import_hash": null
+          }
+        ],
+        "mongo": [
+          {
+            "_id": "6add976a7ff499e6fd9db8dc",
+            "chapterId": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "novelId": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "authorId": "ccfe9eb4-95b4-4682-800a-04e469d9f4ca",
+            "title": "Original",
+            "content": "Minh stands here.",
+            "wordCount": 3,
+            "version": 1,
+            "autosave": false,
+            "createdAt": "2026-10-25T05:45:14.839Z",
+            "updatedAt": "2026-10-25T05:45:14.839Z"
+          }
+        ]
+      }
+    },
+    {
+      "stage": "rejected-manuscript-P1",
+      "data": {
+        "analysis_runs": [],
+        "autonomous_runs": [],
+        "bootstrap_jobs": [],
+        "current_entity_states": [],
+        "entities": [
+          {
+            "id": "2a4f746f-bea3-4801-9efe-daffd8844950",
+            "story_brain_id": "852c17f5-8042-4fca-ae33-c1886b837af9",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "entity_type": "PER",
+            "canonical_name": "Minh",
+            "normalized_name": "minh",
+            "description": null,
+            "static_attributes": {},
+            "source_type": "author",
+            "confirmation_status": "confirmed",
+            "confidence": null,
+            "is_locked": false,
+            "created_by": null,
+            "created_at": "2026-10-25T05:45:14.834Z",
+            "updated_at": "2026-10-25T05:45:14.834Z"
+          }
+        ],
+        "entity_mentions": [],
+        "events": [],
+        "facts": [],
+        "memory_chunks": [],
+        "memory_embeddings": [],
+        "proposals": [],
+        "relationships": [],
+        "revision_provenances": [],
+        "state_transitions": [],
+        "story_brains": [
+          {
+            "entity_guidance": null,
+            "id": "852c17f5-8042-4fca-ae33-c1886b837af9",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "status": "active",
+            "baseline_revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "brain_version": "5",
+            "schema_version": 1,
+            "created_at": "2026-10-25T05:45:14.827Z",
+            "updated_at": "2026-10-25T05:45:14.827Z"
+          }
+        ],
+        "story_plan_objectives": [],
+        "story_plans": [],
+        "writing_generations": [],
+        "decisions": [],
+        "revisions": [
+          {
+            "revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "parent_revision_id": null,
+            "content_hash": "6dc6c1efc5267e685665f4e4dbaa906f3a3e8f180d403f2f5a215b454e321e43",
+            "content": "Minh stands here.",
+            "word_count": 3,
+            "source_type": "AUTHOR_MANUAL",
+            "source_generation_id": null,
+            "created_by": "ccfe9eb4-95b4-4682-800a-04e469d9f4ca",
+            "created_at": "2026-10-25T05:45:14.806Z"
+          }
+        ],
+        "outbox": [],
+        "chapters": [
+          {
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "title": "Original",
+            "chapter_number": 1,
+            "content": "Minh stands here.",
+            "word_count": 3,
+            "is_vip": false,
+            "price_coins": 0,
+            "status": "DRAFT",
+            "published_at": null,
+            "created_at": "2026-10-25T05:45:14.786Z",
+            "updated_at": "2026-10-25T05:45:14.786Z",
+            "deleted_at": null,
+            "latest_revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "import_key": null,
+            "import_hash": null
+          }
+        ],
+        "mongo": [
+          {
+            "_id": "6add976a7ff499e6fd9db8dc",
+            "chapterId": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "novelId": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "authorId": "ccfe9eb4-95b4-4682-800a-04e469d9f4ca",
+            "title": "Original",
+            "content": "Minh stands here.",
+            "wordCount": 3,
+            "version": 1,
+            "autosave": false,
+            "createdAt": "2026-10-25T05:45:14.839Z",
+            "updatedAt": "2026-10-25T05:45:14.839Z"
+          }
+        ]
+      }
+    },
+    {
+      "stage": "active-setup-before",
+      "data": {
+        "analysis_runs": [],
+        "autonomous_runs": [],
+        "bootstrap_jobs": [],
+        "current_entity_states": [],
+        "entities": [
+          {
+            "id": "2a4f746f-bea3-4801-9efe-daffd8844950",
+            "story_brain_id": "852c17f5-8042-4fca-ae33-c1886b837af9",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "entity_type": "PER",
+            "canonical_name": "Minh",
+            "normalized_name": "minh",
+            "description": null,
+            "static_attributes": {},
+            "source_type": "author",
+            "confirmation_status": "confirmed",
+            "confidence": null,
+            "is_locked": false,
+            "created_by": null,
+            "created_at": "2026-10-25T05:45:14.834Z",
+            "updated_at": "2026-10-25T05:45:14.834Z"
+          }
+        ],
+        "entity_mentions": [],
+        "events": [],
+        "facts": [],
+        "memory_chunks": [],
+        "memory_embeddings": [],
+        "proposals": [],
+        "relationships": [],
+        "revision_provenances": [],
+        "state_transitions": [],
+        "story_brains": [
+          {
+            "entity_guidance": null,
+            "id": "852c17f5-8042-4fca-ae33-c1886b837af9",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "status": "active",
+            "baseline_revision_id": null,
+            "brain_version": "5",
+            "schema_version": 1,
+            "created_at": "2026-10-25T05:45:14.827Z",
+            "updated_at": "2026-10-25T05:45:14.827Z"
+          }
+        ],
+        "story_plan_objectives": [],
+        "story_plans": [],
+        "writing_generations": [],
+        "decisions": [],
+        "revisions": [
+          {
+            "revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "parent_revision_id": null,
+            "content_hash": "6dc6c1efc5267e685665f4e4dbaa906f3a3e8f180d403f2f5a215b454e321e43",
+            "content": "Minh stands here.",
+            "word_count": 3,
+            "source_type": "AUTHOR_MANUAL",
+            "source_generation_id": null,
+            "created_by": "ccfe9eb4-95b4-4682-800a-04e469d9f4ca",
+            "created_at": "2026-10-25T05:45:14.806Z"
+          }
+        ],
+        "outbox": [],
+        "chapters": [
+          {
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "title": "Original",
+            "chapter_number": 1,
+            "content": "Minh stands here.",
+            "word_count": 3,
+            "is_vip": false,
+            "price_coins": 0,
+            "status": "DRAFT",
+            "published_at": null,
+            "created_at": "2026-10-25T05:45:14.786Z",
+            "updated_at": "2026-10-25T05:45:14.786Z",
+            "deleted_at": null,
+            "latest_revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "import_key": null,
+            "import_hash": null
+          }
+        ],
+        "mongo": [
+          {
+            "_id": "6add976a7ff499e6fd9db8dc",
+            "chapterId": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "novelId": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "authorId": "ccfe9eb4-95b4-4682-800a-04e469d9f4ca",
+            "title": "Original",
+            "content": "Minh stands here.",
+            "wordCount": 3,
+            "version": 1,
+            "autosave": false,
+            "createdAt": "2026-10-25T05:45:14.839Z",
+            "updatedAt": "2026-10-25T05:45:14.839Z"
+          }
+        ]
+      }
+    },
+    {
+      "stage": "rejected-idea-setup",
+      "data": {
+        "analysis_runs": [],
+        "autonomous_runs": [],
+        "bootstrap_jobs": [],
+        "current_entity_states": [],
+        "entities": [
+          {
+            "id": "2a4f746f-bea3-4801-9efe-daffd8844950",
+            "story_brain_id": "852c17f5-8042-4fca-ae33-c1886b837af9",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "entity_type": "PER",
+            "canonical_name": "Minh",
+            "normalized_name": "minh",
+            "description": null,
+            "static_attributes": {},
+            "source_type": "author",
+            "confirmation_status": "confirmed",
+            "confidence": null,
+            "is_locked": false,
+            "created_by": null,
+            "created_at": "2026-10-25T05:45:14.834Z",
+            "updated_at": "2026-10-25T05:45:14.834Z"
+          }
+        ],
+        "entity_mentions": [],
+        "events": [],
+        "facts": [],
+        "memory_chunks": [],
+        "memory_embeddings": [],
+        "proposals": [],
+        "relationships": [],
+        "revision_provenances": [],
+        "state_transitions": [],
+        "story_brains": [
+          {
+            "entity_guidance": null,
+            "id": "852c17f5-8042-4fca-ae33-c1886b837af9",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "status": "active",
+            "baseline_revision_id": null,
+            "brain_version": "5",
+            "schema_version": 1,
+            "created_at": "2026-10-25T05:45:14.827Z",
+            "updated_at": "2026-10-25T05:45:14.827Z"
+          }
+        ],
+        "story_plan_objectives": [],
+        "story_plans": [],
+        "writing_generations": [],
+        "decisions": [],
+        "revisions": [
+          {
+            "revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "parent_revision_id": null,
+            "content_hash": "6dc6c1efc5267e685665f4e4dbaa906f3a3e8f180d403f2f5a215b454e321e43",
+            "content": "Minh stands here.",
+            "word_count": 3,
+            "source_type": "AUTHOR_MANUAL",
+            "source_generation_id": null,
+            "created_by": "ccfe9eb4-95b4-4682-800a-04e469d9f4ca",
+            "created_at": "2026-10-25T05:45:14.806Z"
+          }
+        ],
+        "outbox": [],
+        "chapters": [
+          {
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "title": "Original",
+            "chapter_number": 1,
+            "content": "Minh stands here.",
+            "word_count": 3,
+            "is_vip": false,
+            "price_coins": 0,
+            "status": "DRAFT",
+            "published_at": null,
+            "created_at": "2026-10-25T05:45:14.786Z",
+            "updated_at": "2026-10-25T05:45:14.786Z",
+            "deleted_at": null,
+            "latest_revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "import_key": null,
+            "import_hash": null
+          }
+        ],
+        "mongo": [
+          {
+            "_id": "6add976a7ff499e6fd9db8dc",
+            "chapterId": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "novelId": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "authorId": "ccfe9eb4-95b4-4682-800a-04e469d9f4ca",
+            "title": "Original",
+            "content": "Minh stands here.",
+            "wordCount": 3,
+            "version": 1,
+            "autosave": false,
+            "createdAt": "2026-10-25T05:45:14.839Z",
+            "updatedAt": "2026-10-25T05:45:14.839Z"
+          }
+        ]
+      }
+    },
+    {
+      "stage": "rejected-manuscript-setup",
+      "data": {
+        "analysis_runs": [],
+        "autonomous_runs": [],
+        "bootstrap_jobs": [],
+        "current_entity_states": [],
+        "entities": [
+          {
+            "id": "2a4f746f-bea3-4801-9efe-daffd8844950",
+            "story_brain_id": "852c17f5-8042-4fca-ae33-c1886b837af9",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "entity_type": "PER",
+            "canonical_name": "Minh",
+            "normalized_name": "minh",
+            "description": null,
+            "static_attributes": {},
+            "source_type": "author",
+            "confirmation_status": "confirmed",
+            "confidence": null,
+            "is_locked": false,
+            "created_by": null,
+            "created_at": "2026-10-25T05:45:14.834Z",
+            "updated_at": "2026-10-25T05:45:14.834Z"
+          }
+        ],
+        "entity_mentions": [],
+        "events": [],
+        "facts": [],
+        "memory_chunks": [],
+        "memory_embeddings": [],
+        "proposals": [],
+        "relationships": [],
+        "revision_provenances": [],
+        "state_transitions": [],
+        "story_brains": [
+          {
+            "entity_guidance": null,
+            "id": "852c17f5-8042-4fca-ae33-c1886b837af9",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "status": "active",
+            "baseline_revision_id": null,
+            "brain_version": "5",
+            "schema_version": 1,
+            "created_at": "2026-10-25T05:45:14.827Z",
+            "updated_at": "2026-10-25T05:45:14.827Z"
+          }
+        ],
+        "story_plan_objectives": [],
+        "story_plans": [],
+        "writing_generations": [],
+        "decisions": [],
+        "revisions": [
+          {
+            "revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "parent_revision_id": null,
+            "content_hash": "6dc6c1efc5267e685665f4e4dbaa906f3a3e8f180d403f2f5a215b454e321e43",
+            "content": "Minh stands here.",
+            "word_count": 3,
+            "source_type": "AUTHOR_MANUAL",
+            "source_generation_id": null,
+            "created_by": "ccfe9eb4-95b4-4682-800a-04e469d9f4ca",
+            "created_at": "2026-10-25T05:45:14.806Z"
+          }
+        ],
+        "outbox": [],
+        "chapters": [
+          {
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "title": "Original",
+            "chapter_number": 1,
+            "content": "Minh stands here.",
+            "word_count": 3,
+            "is_vip": false,
+            "price_coins": 0,
+            "status": "DRAFT",
+            "published_at": null,
+            "created_at": "2026-10-25T05:45:14.786Z",
+            "updated_at": "2026-10-25T05:45:14.786Z",
+            "deleted_at": null,
+            "latest_revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "import_key": null,
+            "import_hash": null
+          }
+        ],
+        "mongo": [
+          {
+            "_id": "6add976a7ff499e6fd9db8dc",
+            "chapterId": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "novelId": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "authorId": "ccfe9eb4-95b4-4682-800a-04e469d9f4ca",
+            "title": "Original",
+            "content": "Minh stands here.",
+            "wordCount": 3,
+            "version": 1,
+            "autosave": false,
+            "createdAt": "2026-10-25T05:45:14.839Z",
+            "updatedAt": "2026-10-25T05:45:14.839Z"
+          }
+        ]
+      }
+    },
+    {
+      "stage": "normal-P1-save-after-rejections",
+      "data": {
+        "analysis_runs": [
+          {
+            "entity_candidate_audit": null,
+            "id": "ddd61ea7-f267-4c86-be5b-fc3800c0688b",
+            "story_brain_id": "852c17f5-8042-4fca-ae33-c1886b837af9",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "operation": "incremental_story_analysis",
+            "status": "pending",
+            "idempotency_key": "00000000-0000-0000-0000-000000000001:analysis-da16e1fd-f89b-4a11-86fd-5938e229ad20",
+            "input_hash": "c0ed93965538232965603ec472ad7527a6a6ff029aa0009f2b7b429c1f0ab9f3",
+            "pipeline_version": "entity-v1",
+            "model_name": null,
+            "prompt_version": null,
+            "created_at": "2026-10-25T05:45:16.184Z"
+          }
+        ],
+        "autonomous_runs": [],
+        "bootstrap_jobs": [],
+        "current_entity_states": [],
+        "entities": [
+          {
+            "id": "2a4f746f-bea3-4801-9efe-daffd8844950",
+            "story_brain_id": "852c17f5-8042-4fca-ae33-c1886b837af9",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "entity_type": "PER",
+            "canonical_name": "Minh",
+            "normalized_name": "minh",
+            "description": null,
+            "static_attributes": {},
+            "source_type": "author",
+            "confirmation_status": "confirmed",
+            "confidence": null,
+            "is_locked": false,
+            "created_by": null,
+            "created_at": "2026-10-25T05:45:14.834Z",
+            "updated_at": "2026-10-25T05:45:14.834Z"
+          }
+        ],
+        "entity_mentions": [],
+        "events": [],
+        "facts": [],
+        "memory_chunks": [],
+        "memory_embeddings": [],
+        "proposals": [
+          {
+            "id": "f70db7f9-e00c-580d-b480-078c09849927",
+            "analysis_run_id": "ddd61ea7-f267-4c86-be5b-fc3800c0688b",
+            "story_brain_id": "852c17f5-8042-4fca-ae33-c1886b837af9",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "dependency_group_id": "4e97b6ff-6464-5baa-a2b0-d1c7f3548782",
+            "materialization_order": 0,
+            "proposal_type": "event",
+            "payload": {
+              "chapter": 1,
+              "summary": "Tiêu Viêm kịch chiến Hải Ba Đông tại sa mạc Tháp Qua Nhĩ",
+              "locations": [
+                "Sa mạc Tháp Qua Nhĩ"
+              ],
+              "event_type": "battle",
+              "consequences": [
+                "Hải Ba Đông bị thương nặng"
+              ],
+              "participants": [
+                "Tiêu Viêm",
+                "Hải Ba Đông"
+              ],
+              "chapter_number": 1
+            },
+            "evidence": [
+              {
+                "end": 33,
+                "start": 0,
+                "text_hash": "2820f3c28370c94c08a19fc3793b806da75fd53a6f5d33e656b9091e61e78dc1",
+                "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+                "revision_id": "da16e1fd-f89b-4a11-86fd-5938e229ad20",
+                "chapter_number": 1
+              }
+            ],
+            "confidence": "0.8500",
+            "status": "pending",
+            "expected_brain_version": "5",
+            "decision_reason": null,
+            "created_at": "2026-10-25T05:45:16.278Z",
+            "updated_at": "2026-10-25T05:45:16.278Z"
+          }
+        ],
+        "relationships": [],
+        "revision_provenances": [
+          {
+            "id": "9d20d709-9c8f-4bac-a744-264f8599270e",
+            "story_brain_id": "852c17f5-8042-4fca-ae33-c1886b837af9",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "chapter_number": 1,
+            "created_at": "2026-10-25T05:45:16.261Z",
+            "revision_id": "da16e1fd-f89b-4a11-86fd-5938e229ad20"
+          }
+        ],
+        "state_transitions": [],
+        "story_brains": [
+          {
+            "entity_guidance": null,
+            "id": "852c17f5-8042-4fca-ae33-c1886b837af9",
+            "tenant_id": "00000000-0000-0000-0000-000000000001",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "status": "active",
+            "baseline_revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "brain_version": "5",
+            "schema_version": 1,
+            "created_at": "2026-10-25T05:45:14.827Z",
+            "updated_at": "2026-10-25T05:45:14.827Z"
+          }
+        ],
+        "story_plan_objectives": [],
+        "story_plans": [],
+        "writing_generations": [],
+        "decisions": [],
+        "revisions": [
+          {
+            "revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "parent_revision_id": null,
+            "content_hash": "6dc6c1efc5267e685665f4e4dbaa906f3a3e8f180d403f2f5a215b454e321e43",
+            "content": "Minh stands here.",
+            "word_count": 3,
+            "source_type": "AUTHOR_MANUAL",
+            "source_generation_id": null,
+            "created_by": "ccfe9eb4-95b4-4682-800a-04e469d9f4ca",
+            "created_at": "2026-10-25T05:45:14.806Z"
+          },
+          {
+            "revision_id": "da16e1fd-f89b-4a11-86fd-5938e229ad20",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "parent_revision_id": "45f91e8e-9d75-4704-b285-d290f75e72d7",
+            "content_hash": "2820f3c28370c94c08a19fc3793b806da75fd53a6f5d33e656b9091e61e78dc1",
+            "content": "Minh stands here. The door opens.",
+            "word_count": 6,
+            "source_type": "AUTHOR_MANUAL",
+            "source_generation_id": null,
+            "created_by": "ccfe9eb4-95b4-4682-800a-04e469d9f4ca",
+            "created_at": "2026-10-25T05:45:16.039Z"
+          }
+        ],
+        "outbox": [
+          {
+            "event_id": "a5851d57-ffdc-4190-8fc2-68cf429e783c",
+            "event_type": "INCREMENTAL_ANALYSIS",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "revision_id": "da16e1fd-f89b-4a11-86fd-5938e229ad20",
+            "content_hash": "2820f3c28370c94c08a19fc3793b806da75fd53a6f5d33e656b9091e61e78dc1",
+            "created_by": "ccfe9eb4-95b4-4682-800a-04e469d9f4ca",
+            "payload": {
+              "operation": "incremental_story_analysis"
+            },
+            "status": "COMPLETED",
+            "retry_count": 0,
+            "max_retries": 5,
+            "next_retry_at": "2026-10-25T05:45:16.039Z",
+            "last_error": null,
+            "created_at": "2026-10-25T05:45:16.039Z",
+            "updated_at": "2026-10-25T05:45:16.300Z",
+            "claim_token": "ab07d049-b478-4aa1-b478-be60b1fa4803"
+          }
+        ],
+        "chapters": [
+          {
+            "chapter_id": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "novel_id": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "title": "Original",
+            "chapter_number": 1,
+            "content": "Minh stands here.",
+            "word_count": 6,
+            "is_vip": false,
+            "price_coins": 0,
+            "status": "DRAFT",
+            "published_at": null,
+            "created_at": "2026-10-25T05:45:14.786Z",
+            "updated_at": "2026-10-25T05:45:16.039Z",
+            "deleted_at": null,
+            "latest_revision_id": "da16e1fd-f89b-4a11-86fd-5938e229ad20",
+            "import_key": null,
+            "import_hash": null
+          }
+        ],
+        "mongo": [
+          {
+            "_id": "6add976a7ff499e6fd9db8dc",
+            "chapterId": "9fee71ec-f485-4409-a123-0a13dc1e3dea",
+            "novelId": "f3f96844-7ac4-4653-b6a4-270922db7a21",
+            "authorId": "ccfe9eb4-95b4-4682-800a-04e469d9f4ca",
+            "title": "Original",
+            "content": "Minh stands here. The door opens.",
+            "wordCount": 6,
+            "version": 2,
+            "autosave": true,
+            "createdAt": "2026-10-25T05:45:14.839Z",
+            "updatedAt": "2026-10-25T05:45:15.987Z",
+            "deletedAt": null,
+            "deletionReason": null
+          }
+        ]
+      }
+    }
+  ],
+  "providers": "none/offline; no live AI"
+}

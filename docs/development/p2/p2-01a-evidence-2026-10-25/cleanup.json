@@ -1,0 +1,24 @@
+[
+  {
+    "command": [
+      "docker",
+      "stop",
+      "771c5af30d829df623aef4a2b60243d8336496f8f0034e0a48ffc774f6226e69"
+    ],
+    "exit": 0,
+    "task_label_verified": true,
+    "volumes": "retained; no delete or prune",
+    "scope": "eph-p2a-pg-20261025"
+  },
+  {
+    "command": [
+      "docker",
+      "stop",
+      "cc00c2b6211cbcb91823f6fb174d21b01c30a417d030e53defbf581037265dfa"
+    ],
+    "exit": 0,
+    "task_label_verified": true,
+    "volumes": "retained; no delete or prune",
+    "scope": "eph-p2a-mongo-20261025"
+  }
+]

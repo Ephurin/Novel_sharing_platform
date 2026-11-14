@@ -1,0 +1,44 @@
+[
+  {
+    "file": "p2a-correct-red.log",
+    "external_raw_sha256": "39e0ee4a54fc78f50eee2a2c0387513fc346b4ec956d156595f02d89fbffd61f",
+    "raw_bytes": 6519,
+    "policy": "display copy: UTF-8 canonical LF, trailing whitespace/blank EOF removed; original external logs retained. PG summary additionally excludes verbose P1 dumps, full parent hash in summary.json."
+  },
+  {
+    "file": "p2a-final-compile.log",
+    "external_raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "raw_bytes": 0,
+    "policy": "display copy: UTF-8 canonical LF, trailing whitespace/blank EOF removed; original external logs retained. PG summary additionally excludes verbose P1 dumps, full parent hash in summary.json."
+  },
+  {
+    "file": "p2a-final-gateway.log",
+    "external_raw_sha256": "c2d22592548c5fa0983320f53b2424c138b5701fd21130d532e46d94625616c1",
+    "raw_bytes": 4635,
+    "policy": "display copy: UTF-8 canonical LF, trailing whitespace/blank EOF removed; original external logs retained. PG summary additionally excludes verbose P1 dumps, full parent hash in summary.json."
+  },
+  {
+    "file": "p2a-final-node.log",
+    "external_raw_sha256": "57b39e697f25882b1f6d2267438aad05454c5be8ec5e59edaf5e4d13a1df1126",
+    "raw_bytes": 588,
+    "policy": "display copy: UTF-8 canonical LF, trailing whitespace/blank EOF removed; original external logs retained. PG summary additionally excludes verbose P1 dumps, full parent hash in summary.json."
+  },
+  {
+    "file": "p2a-final-typecheck.log",
+    "external_raw_sha256": "18fde99b9df834b3db2ae07f028f34be2c7b60251cbd3a3da7a562fe0bd49581",
+    "raw_bytes": 68,
+    "policy": "display copy: UTF-8 canonical LF, trailing whitespace/blank EOF removed; original external logs retained. PG summary additionally excludes verbose P1 dumps, full parent hash in summary.json."
+  },
+  {
+    "file": "p2a-final-unit.log",
+    "external_raw_sha256": "66ffef204718ad2c06b246f4c1f5023c6acd6168baed81b227eac41318004ade",
+    "raw_bytes": 2187,
+    "policy": "display copy: UTF-8 canonical LF, trailing whitespace/blank EOF removed; original external logs retained. PG summary additionally excludes verbose P1 dumps, full parent hash in summary.json."
+  },
+  {
+    "file": "pg-regression-summary.log",
+    "external_raw_sha256": "671a787e84ff8a5bcddf40b9b9f66ce04144e39daf4cf34e860d241dfb1971f1",
+    "raw_bytes": 17936,
+    "policy": "display copy: UTF-8 canonical LF, trailing whitespace/blank EOF removed; original external logs retained. PG summary additionally excludes verbose P1 dumps, full parent hash in summary.json."
+  }
+]

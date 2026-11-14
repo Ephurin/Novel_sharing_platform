@@ -1,0 +1,92 @@
+{
+  "source": "5d3449d4dc75dc9659c054496a713f8d7675b04d",
+  "tree": "2af5781d2e7471775700ad0dd39e367b7fcc42d8",
+  "reviewed_parent": "79389ceb96de9140d310b52c4c20808545fc436a",
+  "review": "https://github.com/Ephurin/Novel_sharing_platform/pull/72#issuecomment-6394175233",
+  "counts": {
+    "JSON": {
+      "pass": 5,
+      "included_in_AI_unit": true
+    },
+    "AI_unit": {
+      "pass": 363,
+      "skip": 10,
+      "PG_deselected": 200
+    },
+    "A16_Postgres": {
+      "pass": 13
+    }
+  },
+  "red": {
+    "source": "79389ceb96de9140d310b52c4c20808545fc436a",
+    "test_overlay_git_blob": "e5461a3958c17d8ee5c0c36b8ffd45e6af5a01af",
+    "exit": 1,
+    "failed": 2,
+    "passed": 3,
+    "meaning": "manuscript500 rather than503 for empty and nonempty JSON; idea and nested-preference baseline assertions already passed"
+  },
+  "normalization": {
+    "policy": "UTF-8 LF; display log trailing whitespace stripped; external original raw files retained",
+    "raw_log_hashes": [
+      {
+        "file": "p72-json-red2.log",
+        "raw_sha256": "4dd76d5a8895bd99aa678e7b3e601788687a609142e108c96deedda91fd97ab0",
+        "raw_bytes": 5916
+      },
+      {
+        "file": "p72-final-json.log",
+        "raw_sha256": "11faa3dbcbcf62135a633d3cd97eb537f92a5fbf6d5025dd3370a3393660f81c",
+        "raw_bytes": 1350
+      },
+      {
+        "file": "p72-final-unit.log",
+        "raw_sha256": "530ef305118d3720a4ff49103b8839d16a503275412cb64e0ed3ba6949205d24",
+        "raw_bytes": 2187
+      },
+      {
+        "file": "p72-final-pg.log",
+        "raw_sha256": "9364f2970d376c3d78120e05232d0eb86a0b0f2744d9f951d840048012379063",
+        "raw_bytes": 49416
+      },
+      {
+        "file": "p72-final-compile.log",
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "raw_bytes": 0
+      }
+    ]
+  },
+  "interrupted_attempt": {
+    "exit": 1,
+    "result": "13 PG setup errors, no PASS claimed",
+    "reason": "Restarted old task container received a changed ephemeral port; previous57110 recorder URI no longer valid. Preserved failed-port-p72-final-pg* externally. Fresh instance actual port46099 verified before successful rerun."
+  },
+  "environment": {
+    "container": "ebd8ef91d59ceefb9887a147182ea6874a74216b077e4ebbe3beab484e4163d5",
+    "name": "eph-p72-compat-pg-20261025",
+    "image": "pgvector/pgvector:pg16",
+    "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+    "ports": {
+      "5432/tcp": [
+        {
+          "HostIp": "127.0.0.1",
+          "HostPort": "46099"
+        }
+      ]
+    },
+    "label": "p72-json-compat",
+    "volume": "eph-p72-compat-pg-20261025",
+    "database": "p72compat",
+    "provider": "none/offline and in-process fake fixtures",
+    "cleanup": {
+      "command": [
+        "docker",
+        "stop",
+        "ebd8ef91d59ceefb9887a147182ea6874a74216b077e4ebbe3beab484e4163d5"
+      ],
+      "exit": 0,
+      "volumes": "retained",
+      "old_stacks": "not restarted"
+    }
+  },
+  "owner_merge_decision": "OPEN: acknowledge current setup UI extract422 or explicitly choose integration hold; no merge authorization inferred"
+}

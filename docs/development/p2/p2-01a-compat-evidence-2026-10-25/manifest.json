@@ -1,0 +1,70 @@
+{
+  "encoding": "canonical LF; raw display-log hashes/policy in summary",
+  "files": [
+    {
+      "file": "a16-postgres-readbacks.json",
+      "bytes": 61261,
+      "sha256": "f2e191c88c81ccf54c548e97f3ba4eaa2227daa2dd43225b51e8b3f3cba67cd0"
+    },
+    {
+      "file": "commands-and-exits.json",
+      "bytes": 4879,
+      "sha256": "5902649bbf34307d1f967dbe16fdb8a9f7e5e7f1b8e8f482479ebded4a18d5e8"
+    },
+    {
+      "file": "json-nonmutation-readbacks.json",
+      "bytes": 1313,
+      "sha256": "c5cbca2ab1d6d2e8d19b6c2ecd14292b2a87f1670d707c1850cfa3324ca9ba41"
+    },
+    {
+      "file": "p72-compat-ci.json",
+      "bytes": 4563,
+      "sha256": "fd5ba6e7b6ab4e6a21fcd833feba7ec6842321dfdc1f088f0b15a84bcdc1de9a"
+    },
+    {
+      "file": "p72-final-compile.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "p72-final-json.log",
+      "bytes": 1343,
+      "sha256": "b17529e515dfff5cc22856b8ca02ecc6e741dff9950412a36571dc780e46b2ee"
+    },
+    {
+      "file": "p72-final-json.xml",
+      "bytes": 971,
+      "sha256": "5db5dbb6118c349e57644f1ecc031d2f687d40e7168912cdef55002c8086f9a4"
+    },
+    {
+      "file": "p72-final-pg.log",
+      "bytes": 49370,
+      "sha256": "c83865c1012e949791e68a1b1fda4ea12497e4f81ac74a3c3aa7ae9226e1833d"
+    },
+    {
+      "file": "p72-final-pg.xml",
+      "bytes": 2047,
+      "sha256": "846c826fa0aa67b7d859a522a5df3751adfd292977ebec5cfba0d7ceb0f250c7"
+    },
+    {
+      "file": "p72-final-unit.log",
+      "bytes": 2110,
+      "sha256": "2bf7760ad3d7ce9644a3d3b67eff92c9ea85e745ed9665de52af0cfff5896cfa"
+    },
+    {
+      "file": "p72-final-unit.xml",
+      "bytes": 56607,
+      "sha256": "7e63160217f5f46d5e4cf1a594277618b45d5102a39099788912de8daa6dc58b"
+    },
+    {
+      "file": "p72-json-red2.log",
+      "bytes": 5836,
+      "sha256": "7d0efd4f95c397acd9913533f346c650ad93278d7b8cbfcaba12686499aadf2c"
+    },
+    {
+      "file": "summary.json",
+      "bytes": 3152,
+      "sha256": "32f2ceab958dc91689a5464874597b3dffee4472bc543b41d79b886d756b85b5"
+    }
+  ]
+}

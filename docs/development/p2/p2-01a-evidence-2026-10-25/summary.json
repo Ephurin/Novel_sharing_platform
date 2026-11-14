@@ -1,0 +1,118 @@
+{
+  "source": "f42194f25cf6548bf65db3d7768489c48ecb5f61",
+  "tree": "32f2c2f92ab8e1fb62940b1a41e858e117ea1382",
+  "baseline": "749b4bf30811f59845a9bdcd0a7cb6d8fa8961bb",
+  "counts": {
+    "unit": {
+      "total": 368,
+      "skipped": 10,
+      "failures": 0,
+      "passed": 358
+    },
+    "pg": {
+      "total": 132,
+      "skipped": 0,
+      "failures": 0,
+      "passed": 132
+    }
+  },
+  "new_a16_pg_cases": 13,
+  "existing_p1_pg_regressions": 119,
+  "gateway_unit_cases": 18,
+  "real_node_scenario": 1,
+  "http_request_count": 17,
+  "http_status_counts": {
+    "200": 1,
+    "401": 4,
+    "403": 4,
+    "404": 4,
+    "409": 4
+  },
+  "negative_equal_pairs": 14,
+  "containers": [
+    {
+      "name": "eph-p2a-pg-20261025",
+      "id": "771c5af30d829df623aef4a2b60243d8336496f8f0034e0a48ffc774f6226e69",
+      "image": "pgvector/pgvector:pg16",
+      "image_id": "sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+      "label": "p2-01a",
+      "ports": {
+        "5432/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "57110"
+          }
+        ]
+      },
+      "volumes": [
+        {
+          "name": "eph-p2a-pg-20261025",
+          "destination": "/var/lib/postgresql/data"
+        }
+      ]
+    },
+    {
+      "name": "eph-p2a-mongo-20261025",
+      "id": "cc00c2b6211cbcb91823f6fb174d21b01c30a417d030e53defbf581037265dfa",
+      "image": "mongo:7",
+      "image_id": "sha256:9bdaeb6dac6e7e762e84e2f84103d1f9bb078fa1ba6bde8bb9d2274f655ad173",
+      "label": "p2-01a",
+      "ports": {
+        "27017/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "57112"
+          }
+        ]
+      },
+      "volumes": [
+        {
+          "name": "eph-p2a-mongo-20261025",
+          "destination": "/data/db"
+        },
+        {
+          "name": "5c5c4ad6c3eb5fdb3e2dfd0e3ccce23a4727d18ad1d832eb5e685a6443e82dc6",
+          "destination": "/data/configdb"
+        }
+      ]
+    }
+  ],
+  "migrations": {
+    "sql": [
+      "001_auth_user_wallet.sql",
+      "002_novels.sql",
+      "003_chapters.sql",
+      "004_content_control.sql",
+      "005_reports_description.sql",
+      "006_reading_interactions.sql",
+      "007_wallet_transactions.sql",
+      "008_authoring_context.sql",
+      "009_chapter_revisions.sql",
+      "010_analysis_outbox.sql",
+      "011_outbox_claim_token.sql",
+      "012_novel_engagement.sql",
+      "012_reports_unique_open.sql",
+      "013_novel_review_text.sql",
+      "014_novel_editorial_metadata.sql",
+      "015_author_workflow.sql",
+      "016_author_launch_checklist.sql",
+      "017_transactional_moderation_evidence.sql"
+    ],
+    "ai": [
+      "0013_objective_intent"
+    ]
+  },
+  "provider_policy": {
+    "live_runtime": "LLM_PROVIDER=fake, LLM_ENABLED=true; core.fake_llm deterministic local implementation",
+    "pytest": "none/offline or local FakeBlueprint",
+    "embeddings": "not enabled in live runtime; deterministic fixtures in PG regression",
+    "live_cloud_calls": 0,
+    "counter_assertions": "FakeBlueprint0 on active rejection; exactly1 on concurrent replay/legitimate setup"
+  },
+  "full_external_pg_log": {
+    "sha256": "fb7bf5094f79b989c790e9d6fc384c1ab4cfeb6aa955a3945874474cacaf6a2c",
+    "bytes": 13080429,
+    "included": "complete A16 snapshots and full JUnit; unchanged P1 verbose dumps retained externally"
+  },
+  "attempt_policy": "Initial fixture signature RED excluded; corrected immutable baseline replay is authoritative. Earlier setup/driver/protocol failures retained externally; only six clean final command records establish GREEN."
+}

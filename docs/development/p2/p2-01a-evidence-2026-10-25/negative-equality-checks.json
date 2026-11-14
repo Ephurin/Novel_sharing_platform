@@ -1,0 +1,86 @@
+[
+  {
+    "before": "active-before-idea",
+    "after": "active-after-idea",
+    "novel_id": "0a88d74f-65d4-4e18-802e-3796fb20fe75",
+    "equal": true
+  },
+  {
+    "before": "active-before-idea",
+    "after": "active-after-idea",
+    "novel_id": "bafbb8e4-d698-4abd-bdf1-9102443a9c03",
+    "equal": true
+  },
+  {
+    "before": "active-before-manuscript",
+    "after": "active-after-manuscript",
+    "novel_id": "58323151-45f4-4fbf-8395-0b0e5bd55fc3",
+    "equal": true
+  },
+  {
+    "before": "active-before-manuscript",
+    "after": "active-after-manuscript",
+    "novel_id": "e00be375-3246-400c-84b6-a0a1f5ad7556",
+    "equal": true
+  },
+  {
+    "before": "replay-before",
+    "after": "replay-after",
+    "novel_id": "504df583-2e70-4505-83c3-420cdd5af28c",
+    "equal": true
+  },
+  {
+    "before": "racing-before",
+    "after": "racing-after-rejections",
+    "novel_id": "c9225818-d267-451f-82eb-33194921eac9",
+    "equal": true
+  },
+  {
+    "before": "scope-before",
+    "after": "scope-after",
+    "novel_id": "319e9d62-45c2-461f-90b0-6400f69cb3ed",
+    "equal": true
+  },
+  {
+    "before": "unsupported-and-foreign-before",
+    "after": "unsupported-and-foreign-after",
+    "novel_id": "02d3c57e-da06-40a9-9691-a7e7aec32831",
+    "equal": true
+  },
+  {
+    "before": "older-activation-before",
+    "after": "older-activation-after",
+    "novel_id": "2c829f7b-4de8-431c-b062-c77de3b313b8",
+    "equal": true
+  },
+  {
+    "before": "manuscript-replay-before",
+    "after": "manuscript-replay-after",
+    "novel_id": "e97f0ecb-1459-4064-9e82-4577f8a83e65",
+    "equal": true
+  },
+  {
+    "before": "active-P1-before",
+    "after": "rejected-idea-P1",
+    "equal": true,
+    "includes": "all scoped narrative/Core tables and Mongo"
+  },
+  {
+    "before": "active-P1-before",
+    "after": "rejected-manuscript-P1",
+    "equal": true,
+    "includes": "all scoped narrative/Core tables and Mongo"
+  },
+  {
+    "before": "active-setup-before",
+    "after": "rejected-idea-setup",
+    "equal": true,
+    "includes": "all scoped narrative/Core tables and Mongo"
+  },
+  {
+    "before": "active-setup-before",
+    "after": "rejected-manuscript-setup",
+    "equal": true,
+    "includes": "all scoped narrative/Core tables and Mongo"
+  }
+]
