@@ -129,3 +129,45 @@ So a chapter costs about 12 calls per 1,000 words, roughly twice the earlier est
 | F-LIVE-14 | P3 | Review burden: 69–167 candidates per chapter, of which 46–115 are "not entity" | Open (quality) |
 
 Not covered in this round: #149 (interactive writing during background analysis) and the cross-chapter consistency check, both blocked behind F-LIVE-12.
+
+## Sequential manuscript import (branch `claude/p2-live-sequential-import`, fixes F-LIVE-12/13)
+
+In entity-first mode the bootstrap job now analyses one chapter, pauses (`status: waiting_entity_review`, `stage: chapter_review`, `result.awaiting_chapter`), and analyses the next chapter only after the author has settled the paused one. Settled means no open entity review and no pending proposal from that chapter's run.
+- `POST /jobs/{id}/resume` returns 409 `BOOTSTRAP_CHAPTER_REVIEW_PENDING` until the chapter is settled.
+- The import page shows the paused chapter, the steps (confirm characters in Memory → Chờ duyệt, accept the chapter's proposals) and a "Phân tích chương tiếp theo" button.
+- Each chapter is therefore analysed against the newest canon: its proposals carry the current brain version, and its characters link to the ones already approved.
+
+Two defects surfaced on the way and are fixed in the same branch:
+- **F-LIVE-15 (P2):** a single transient upstream 503 failed the whole import. The LLM client now retries upstream 5xx and provider timeouts twice (4 s, 10 s). Auth errors (401/403) and quota denials are not retried.
+- **F-LIVE-16 (P1):** once later chapters link to known entities, they can propose an alias that is already approved. Accepting it raised `UniqueViolation` (`uq_entity_alias_normalized`, HTTP 500). Accepting an alias that already exists for the same entity is now a no-op.
+
+**Live result** (same 5-chapter fixture, author accepts the machine's suggestions and rejects unresolved candidates; 84 calls, no denials)
+
+| Chapter | Analysis + continue calls | Candidates | Linked to known entities | Proposals (entity / alias / fact / event) | Accepted |
+|---|---|---|---|---|---|
+| 1 | 6 + 5 (after one resume on a provider 503) | 168 | 0 | 24 / 0 / 3 / 3 | 30/30 |
+| 2 | 8 + 3 | 144 | 34 | 6 / 1 / 5 / 1 | 13/13 |
+| 3 | 9 + 4 | 138 | 47 | 0 / 1 / 2 / 2 | 5/5 (after the alias fix) |
+| 4 | 9 + 5 | 125 (7 unresolved) | 40 | 2 / 1 / 6 / 3 | 12/12 |
+| 5 | 5 + 4 | 74 (3 unresolved) | 26 | 0 / 1 / 9 / 2 | 12/12 |
+
+Baseline activated: **32 entities, 11 events, 0 pending**, brain v6. Before the change, 71 entity proposals were produced, 0 were linked, and only 1 of 5 chapters could be accepted.
+
+Cost: about 11–14 calls per 1,000 words including the event stage, and 45–65 s of model time per chapter. Review burden is still high: 74–168 candidates per chapter, mostly "not entity" (F-LIVE-14).
+
+### Live round 3: import page in the browser, #149, consistency (26 calls, no denials)
+
+| Check | Result |
+|---|---|
+| Import page while a chapter is paused | Shows "Chương 1/5 đang chờ bạn duyệt", the steps and "Phân tích chương tiếp theo". **Bug found and fixed**: the activate button stayed visible because Tailwind `flex` overrode the `hidden` attribute; it is now rendered only in `waiting_review` |
+| "Phân tích chương tiếp theo" before the chapter is settled | `POST /jobs/{id}/resume` → 409; the page shows the Vietnamese "Chương này chưa duyệt xong…" message |
+| Same button after the chapter is settled | Job resumes and analyses chapter 2; the page updates to "Chương 2/5 đang chờ bạn duyệt" without a reload (5 s polling) |
+| #149: "Viết tiếp" while chapter 2 is analysed in the background | Completed in 4 s, validation passed, draft uses the approved character "Duy" |
+| Consistency check on the imported novel | Runs (466 ms) but returns `rule_check: no_rules` |
+
+New findings:
+
+| ID | Sev | Finding | Status |
+|---|---|---|---|
+| F-LIVE-17 | P2 | Manuscript import never creates world rules from prose. `extract_world_rules` only extracts narrative facts (entity-first path) or lines that start with "Luật:" (legacy path), so an imported novel has 0 world rules and the rule-based consistency check has nothing to check until the author adds rules | Open |
+| F-LIVE-18 | P2 | Identity variants become separate entities: "Hòa" / "ông Hòa" / "Ông Hòa" / "Ông tên Hòa", "Mai" / "Mai Linh" / "Chị Mai Linh", "CV-04" / "mã CV-04". Verification keeps honorifics and descriptive phrases in canonical names and rarely proposes them as aliases. Partly amplified by the simulated author, who accepted every suggestion without merging | Open |

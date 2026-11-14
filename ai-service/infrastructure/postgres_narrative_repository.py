@@ -1051,16 +1051,22 @@ class PostgresNarrativeRepository:
                     if not payload.get('entity_id'):
                         entities = [self._to_entity(e) for e in session.scalars(select(EntityRecord).where(*self._scope(EntityRecord, novel_id))).all()]
                         alias_entity_id = resolve_entity(payload.get('entity_name', ''), entities)
-                    alias = EntityAliasRecord(
-                        entity_id=uuid.UUID(str(alias_entity_id)),
-                        alias=str(payload["alias"]),
-                        normalized_alias=str(payload["alias"]).casefold(),
-                        source_type="AI",
-                        confirmation_status="confirmed",
-                        confidence=proposal.confidence,
-                    )
-                    session.add(alias)
-                    session.flush()
+                    # Sequential import links later chapters to known entities, so an alias the
+                    # author already approved can be proposed again: accepting it is a no-op.
+                    alias = session.scalar(select(EntityAliasRecord).where(
+                        EntityAliasRecord.entity_id == uuid.UUID(str(alias_entity_id)),
+                        EntityAliasRecord.normalized_alias == str(payload["alias"]).casefold()))
+                    if alias is None:
+                        alias = EntityAliasRecord(
+                            entity_id=uuid.UUID(str(alias_entity_id)),
+                            alias=str(payload["alias"]),
+                            normalized_alias=str(payload["alias"]).casefold(),
+                            source_type="AI",
+                            confirmation_status="confirmed",
+                            confidence=proposal.confidence,
+                        )
+                        session.add(alias)
+                        session.flush()
                     artifact_ids.append(str(alias.id))
                 elif proposal.proposal_type == "fact":
                     fact_subject_id = payload.get('subject_entity_id')

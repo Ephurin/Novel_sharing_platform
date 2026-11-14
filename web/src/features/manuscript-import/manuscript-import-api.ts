@@ -9,10 +9,11 @@ export type BootstrapRevisionInput = {
 export type BootstrapJob = {
   job_id: string;
   novel_id: string;
-  status: 'queued' | 'running' | 'waiting_review' | 'completed' | 'failed';
+  /** waiting_entity_review: paused after one chapter until the author settles it (sequential import). */
+  status: 'queued' | 'running' | 'waiting_entity_review' | 'waiting_review' | 'completed' | 'failed';
   stage: string;
   progress: { current: number; total: number; unit: string; stage: string };
-  result: { proposal_count?: number; required_proposal_ids?: string[] } | null;
+  result: { proposal_count?: number; required_proposal_ids?: string[]; awaiting_chapter?: number } | null;
   error: { message?: string } | null;
 };
 
@@ -283,6 +284,14 @@ export async function importChaptersBatch(
     }
   }
   return results;
+}
+
+/** User-facing reason the next chapter cannot be analysed yet, or null for other errors. */
+export function nextChapterBlockedMessage(error: unknown): string | null {
+  const code = (error as { code?: string } | null)?.code;
+  if (code === 'BOOTSTRAP_CHAPTER_REVIEW_PENDING')
+    return 'Chương này chưa duyệt xong: hãy xác nhận nhân vật (Bộ nhớ → Chờ duyệt, rồi bấm Tiếp tục) và duyệt hết các đề xuất của chương, sau đó phân tích chương tiếp theo.';
+  return null;
 }
 
 /** User-facing reason a manuscript baseline cannot be activated yet, or null for other errors. */

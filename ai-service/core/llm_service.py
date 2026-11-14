@@ -14,6 +14,10 @@ from core.structured_call import extraction_source, request_priority, structured
 # #149: author-facing structured operations; everything else (analysis, retries) is background work.
 INTERACTIVE_OPERATIONS = frozenset({"brainstorm_suggestions", "setup_text_extraction", "setup_blueprint", "rule_consistency"})
 GUARD_RATE_LIMIT_CODES = ("rpm_limit_exceeded", "tpm_limit_exceeded", "concurrency_limit_exceeded")
+# Transient provider failures relayed by the gateway (overload, upstream 5xx, timeout). Auth errors
+# (upstream 401/403) are not transient and are never retried.
+TRANSIENT_PROVIDER_PATTERN = re.compile(r"upstream_status'?\"?:\s*5\d\d|provider_timeout")
+TRANSIENT_PROVIDER_BACKOFF_SECONDS = (4, 10)
 
 
 def current_request_priority() -> str:
@@ -491,6 +495,13 @@ class LLMService:
                             model=model_name,
                         )
                     message = str(exc).lower()
+                    if guard and attempt < len(TRANSIENT_PROVIDER_BACKOFF_SECONDS) and TRANSIENT_PROVIDER_PATTERN.search(message):
+                        # Live round 2: a single upstream 503 failed a whole manuscript import.
+                        delay = TRANSIENT_PROVIDER_BACKOFF_SECONDS[attempt]
+                        logger.warning("Transient provider failure on %s (attempt %d); retrying in %ds",
+                                       model_name, attempt + 1, delay)
+                        time.sleep(delay)
+                        continue
                     rate_code = next((c for c in GUARD_RATE_LIMIT_CODES if c in message), None) if guard else None
                     if rate_code:
                         retry_after = _retry_after_seconds(message)

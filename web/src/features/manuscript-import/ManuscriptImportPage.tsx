@@ -11,7 +11,9 @@ import {
   getBootstrapJob,
   getReviewQueue,
   getStoryBrainSummary,
+  nextChapterBlockedMessage,
   rejectProposal,
+  resumeBootstrapJob,
   startManuscriptBootstrap,
   parseManuscriptChapters,
   normalizeManuscriptText,
@@ -100,13 +102,14 @@ export function ManuscriptImportPage() {
     queryFn: () => getBootstrapJob(jobId!),
     enabled: Boolean(jobId),
     refetchInterval: (query) =>
-      ['queued', 'running'].includes(query.state.data?.status ?? '') ? 1000 : false
+      ['queued', 'running'].includes(query.state.data?.status ?? '') ? 1000
+        : query.state.data?.status === 'waiting_entity_review' ? 5000 : false
   });
 
   const reviewQuery = useQuery({
     queryKey: ['manuscript-review-queue', novelId],
     queryFn: () => getReviewQueue(novelId),
-    enabled: Boolean(novelId && (jobQuery.data?.status === 'waiting_review' || currentStep === 3))
+    enabled: Boolean(novelId && (['waiting_review', 'waiting_entity_review'].includes(jobQuery.data?.status ?? '') || currentStep === 3))
   });
 
   const brainQuery = useQuery({
@@ -280,6 +283,17 @@ export function ManuscriptImportPage() {
       await queryClient.invalidateQueries({ queryKey: ['manuscript-review-queue', novelId] });
       showToast('Đã từ chối đề xuất AI.');
     }
+  });
+
+  // Sequential import: the next chapter is analysed only after this one is settled, so it sees
+  // the canon (characters, rules) the author just approved.
+  const nextChapterMutation = useMutation({
+    mutationFn: () => resumeBootstrapJob(jobId!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['manuscript-bootstrap-job', jobId] });
+      showToast('Đang phân tích chương tiếp theo…');
+    },
+    onError: (err: any) => showToast(nextChapterBlockedMessage(err) ?? 'Không thể tiếp tục: ' + (err?.message || 'Thất bại'))
   });
 
   const activateMutation = useMutation({
@@ -1171,8 +1185,28 @@ export function ManuscriptImportPage() {
                 </div>
               )}
 
+              {job?.status === 'waiting_entity_review' && (
+                <div data-testid="import-chapter-review" className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-meta text-amber-900 flex flex-col gap-2">
+                  <strong>Chương {job.result?.awaiting_chapter ?? job.progress.current}/{job.progress.total} đang chờ bạn duyệt</strong>
+                  <span>
+                    Các chương được phân tích lần lượt để chương sau dùng đúng nhân vật và quy tắc bạn vừa duyệt.
+                    1) Mở <a className="underline" href={`/author/ide?novelId=${novelId}`}>IDE viết</a> → Bộ nhớ → Chờ duyệt: xác nhận nhân vật của chương này và bấm Tiếp tục.
+                    2) Duyệt các đề xuất của chương ở hàng đợi bên dưới. 3) Bấm “Phân tích chương tiếp theo”.
+                  </span>
+                  <button
+                    type="button"
+                    data-testid="import-next-chapter"
+                    disabled={reviewGroups.length > 0 || nextChapterMutation.isPending}
+                    onClick={() => nextChapterMutation.mutate()}
+                    className="self-start px-3 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 disabled:opacity-40 text-white text-meta font-semibold shadow-2xs cursor-pointer"
+                  >
+                    Phân tích chương tiếp theo
+                  </button>
+                </div>
+              )}
+
               {/* Priority Review Queue */}
-              {job?.status === 'waiting_review' && (
+              {(job?.status === 'waiting_review' || job?.status === 'waiting_entity_review') && (
                 <div className="bg-surface-container-lowest rounded-xl p-4 shadow-2xs border border-stone-200 flex flex-col gap-4">
                   <div className="flex items-center justify-between pb-2 border-b border-stone-100">
                     <div className="flex items-center gap-2">
@@ -1181,6 +1215,7 @@ export function ManuscriptImportPage() {
                         Hàng đợi duyệt đề xuất Story Brain ({reviewGroups.length} nhóm)
                       </h3>
                     </div>
+                    {job.status === 'waiting_review' && (
                     <button
                       type="button"
                       disabled={reviewGroups.length > 0 || activateMutation.isPending}
@@ -1190,11 +1225,14 @@ export function ManuscriptImportPage() {
                       <span className="material-symbols-outlined text-[15px]">verified</span>
                       <span>Kích hoạt Story Brain Baseline</span>
                     </button>
+                    )}
                   </div>
 
                   {reviewGroups.length === 0 ? (
                     <div className="p-4 rounded-lg bg-emerald-50 border border-emerald-200 text-center text-meta text-emerald-800">
-                      Tất cả các đề xuất đối chiếu đã được duyệt! Bạn có thể kích hoạt baseline ngay bây giờ.
+                      {job.status === 'waiting_entity_review'
+                        ? 'Không còn đề xuất chờ duyệt. Nếu đã xác nhận nhân vật của chương này, hãy phân tích chương tiếp theo.'
+                        : 'Tất cả các đề xuất đối chiếu đã được duyệt! Bạn có thể kích hoạt baseline ngay bây giờ.'}
                     </div>
                   ) : (
                     <div className="space-y-3">
