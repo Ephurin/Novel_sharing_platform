@@ -4,6 +4,7 @@ from dataclasses import dataclass
 import json
 import logging
 import re
+import unicodedata
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -18,6 +19,70 @@ from services.source_grounding import quote_span
 logger = logging.getLogger(__name__)
 MAX_LOGGED_ERROR = 300
 
+
+# F-LIVE-18: Vietnamese honorifics and descriptive labels in front of a name ("ông Hòa", "Chị Mai
+# Linh", "Ông tên Hòa", "mã CV-04") refer to the same identity as the bare name. Live imports turned
+# each variant into a separate entity. Only a leading honorific/label is removed, and only when a
+# proper name (capitalised word or code) remains; short-name fragments ("Mai" vs "Mai Linh") are
+# ambiguous and are never merged here.
+PERSON_HONORIFICS = frozenset({
+    'ông', 'bà', 'anh', 'chị', 'em', 'cô', 'chú', 'bác', 'cậu', 'dì', 'thím', 'mợ', 'cụ', 'lão',
+    'thầy', 'ngài', 'nàng', 'chàng', 'bé', 'già', 'bạn', 'cháu', 'con', 'tiểu', 'đại'})
+LABEL_PREFIXES = frozenset({'mã', 'số', 'số hiệu', 'ký hiệu', 'mật danh'})
+
+
+def base_name(name, entity_type=None):
+    """Name without a leading honorific (persons) or label (other types); the name itself if none."""
+    words = unicodedata.normalize('NFC', name or '').split()
+    rest = words
+    if entity_type in (None, 'PER') and len(words) >= 2 and words[0].casefold() in PERSON_HONORIFICS:
+        rest = words[1:]
+        if len(rest) >= 2 and rest[0].casefold() == 'tên':
+            rest = rest[1:]
+    elif entity_type != 'PER':
+        for size in (2, 1):
+            if len(words) > size and ' '.join(words[:size]).casefold() in LABEL_PREFIXES:
+                rest = words[size:]
+                break
+    if rest is words or not rest or not (rest[0][:1].isupper() or rest[0][:1].isdigit()):
+        return ' '.join(words)
+    return ' '.join(rest)
+
+
+def honorific_variant(left, right, entity_type=None):
+    """Different surfaces that name the same identity once honorifics/labels are removed."""
+    return not same_name(left, right) and same_name(base_name(left, entity_type), base_name(right, entity_type))
+
+
+def _canonicalize(decisions, candidates, known):
+    """After all batches: point honorific/label variants at the bare name - a known entity first,
+    else a name verified as an entity in this chapter - so they become aliases of one identity."""
+    by_id = {c.candidate_id: c for c in candidates}
+    known_by_base = {}
+    for entity in known.values():
+        key = (base_name(entity['name'], entity.get('entity_type')).casefold(), entity.get('entity_type'))
+        known_by_base.setdefault(key, []).append(entity)
+    verified = {}
+    for d in decisions:
+        if d['verdict'] == 'entity' and not d['canonical_entity_id'] and d['entity_type']:
+            verified.setdefault((unicodedata.normalize('NFC', d['canonical_name']).casefold(), d['entity_type']), d['canonical_name'])
+    out = []
+    for d in decisions:
+        c = by_id.get(d['candidate_id'])
+        if c is None or d['verdict'] != 'entity' or d['canonical_entity_id'] or d.get('provisional_identity_key') or not d['entity_type']:
+            out.append(d)
+            continue
+        base = base_name(d['canonical_name'], d['entity_type'])
+        matches = known_by_base.get((base.casefold(), d['entity_type']), [])
+        if len(matches) == 1 and not same_name(matches[0]['name'], d['canonical_name']):
+            target = matches[0]
+            d = {**d, 'canonical_entity_id': str(target['entity_id']), 'canonical_name': target['name'],
+                 'identity_quote': c.surface if not same_name(target['name'], c.surface) else ''}
+        elif not same_name(base, d['canonical_name']) and (base.casefold(), d['entity_type']) in verified:
+            name = verified[(base.casefold(), d['entity_type'])]
+            d = {**d, 'canonical_name': name, 'identity_quote': c.surface if not same_name(name, c.surface) else ''}
+        out.append(d)
+    return out
 
 def _redact(error: str) -> str:
     """Log-safe error: quoted values (manuscript names/quotes) are removed; the audit keeps detail."""
@@ -220,6 +285,7 @@ def verify_entities(text, llm, discover, *, known_entities=(), known_aliases=(),
                                start, len(degraded))
             audit['decisions'].extend(d.model_dump() for d in decisions)
             save('verifying')
+        audit['decisions'] = _canonicalize(audit['decisions'], inventory.items, known)
         try:
             result = _materializable(inventory.items, audit['decisions'], known, text)
         except AnalysisOutputError as exc:
@@ -293,7 +359,7 @@ def _validate(decisions, batch, text, known, allowed, *, human=False):
                 raise ValueError('Unknown or mismatched canonical identity')
         elif not d.provisional_identity_key and any(same_name(e['name'], d.canonical_name) for e in known.values()):
             raise ValueError('Use explicit canonical ID for a known entity')
-        if not same_name(d.canonical_name, c.surface):
+        if not same_name(d.canonical_name, c.surface) and not honorific_variant(d.canonical_name, c.surface, d.entity_type):
             if not d.identity_quote:
                 raise ValueError('Alias identity requires an exact source quote')
             identity_start, identity_end = quote_span(text, d.identity_quote)
