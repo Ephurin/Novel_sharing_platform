@@ -10,6 +10,8 @@ import {
   acceptProposalGroup,
   activateBaseline,
   baselineActivationBlockedMessage,
+  describeProposal,
+  summarizeProposalGroup,
   getBootstrapJob,
   getReviewQueue,
   getStoryBrainSummary,
@@ -1346,16 +1348,20 @@ export function ManuscriptImportPage() {
                                 {proposals[0].review_reason}
                               </span>
                             </div>
-                            <span className="text-meta font-semibold text-stone-900">
-                              {proposals.map((p) => p.proposal_type).join(', ')}
+                            <span className="text-meta font-semibold text-stone-900" data-testid="import-proposal-summary">
+                              {summarizeProposalGroup(proposals)}
                             </span>
-                            <pre className="text-meta font-mono bg-surface-container-lowest p-2 rounded border border-stone-200 overflow-x-auto text-stone-700">
-                              {JSON.stringify(
-                                proposals.map((p) => p.payload),
-                                null,
-                                2
-                              )}
-                            </pre>
+                            <ul className="text-meta text-stone-700 list-disc pl-5 space-y-0.5 max-h-72 overflow-y-auto">
+                              {proposals.map((p) => (
+                                <li key={p.proposal_id}>{describeProposal(p)}</li>
+                              ))}
+                            </ul>
+                            <details className="text-meta text-stone-500">
+                              <summary className="cursor-pointer">Chi tiết kỹ thuật</summary>
+                              <pre className="font-mono bg-surface-container-lowest p-2 rounded border border-stone-200 overflow-x-auto text-stone-700">
+                                {JSON.stringify(proposals.map((p) => p.payload), null, 2)}
+                              </pre>
+                            </details>
                           </div>
                           <div className="flex items-center gap-2 self-end sm:self-start shrink-0">
                             <button

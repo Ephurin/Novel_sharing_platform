@@ -337,3 +337,49 @@ def test_memory_and_registry_exclude_unconfirmed_materialized_rows(flow):
     memory = f.client.get(f'{f.base}/memory', headers=f.headers).json()['data']
     assert memory['entities'] == [] and memory['events'] == [] and memory['facts'] == []
     assert f.repo.get_entity_registry(f.revision.novel_id) == {'entities': [], 'aliases': [], 'brain_version': 2}
+
+
+def test_event_with_ungrounded_quote_is_dropped_not_fatal(flow):
+    """Final live acceptance: one event whose quote is not verbatim failed the chapter's continue."""
+    f = flow
+    f.repo.get_story_brain(f.revision.novel_id)
+    run, audit = discover(f)
+    freeze(f, run, audit)
+    original = f.llm._call_structured
+
+    def scripted(*, operation, system_prompt, user_prompt):
+        if operation == 'hitl_event_extraction':
+            data = json.loads(user_prompt)
+            ids = [e['entity_id'] for e in data['known_entities'] if isinstance(e, dict)]
+            return json.dumps({'events': [
+                {'event_type': 'meeting', 'summary': 'Gặp nhau.', 'participants': ids, 'locations': [], 'consequences': [],
+                 'quote': data['source_text']},
+                {'event_type': 'invented', 'summary': 'Không có trong văn bản.', 'participants': ids, 'locations': [],
+                 'consequences': [], 'quote': 'câu này không có trong chương'}]}, ensure_ascii=False)
+        return original(operation=operation, system_prompt=system_prompt, user_prompt=user_prompt)
+
+    f.llm._call_structured = scripted
+    result = f.client.post(f'{f.base}/entity-reviews/{run}/continue', headers=f.headers)
+    assert result.status_code == 200, result.text
+    events = [p for p in f.repo.list_proposals(f.revision.novel_id, analysis_run_id=run) if p.proposal_type == 'event']
+    assert [e.payload['event_type'] for e in events] == ['meeting']
+
+
+def test_alias_with_paraphrased_quote_uses_its_occurrence(flow):
+    """Final live acceptance: an honorific alias carried a paraphrased model quote, so continue
+    failed with "Evidence quote is not present in the source revision"."""
+    f = flow
+    f.repo.get_story_brain(f.revision.novel_id)
+    run, audit = discover(f)
+    freeze(f, run, audit)
+    frozen = f.repo.get_entity_candidate_audit(f.revision.novel_id, run)
+    target = next(e for e in frozen['entities'] if e['phrase'] == 'Tiêu Viêm')
+    start = f.revision.content.index('Tiêu Viêm')
+    frozen = dict(frozen, aliases=list(frozen['aliases']) + [{
+        'alias': 'Tiêu Viêm', 'entity_name': 'Tiêu Viêm', 'entity_id': target['entity_id'], 'confidence': 0.9,
+        'identity_quote': '“Tiêu Viêm gặp gỡ Hải Ba Đông”', 'start': start, 'end': start + len('Tiêu Viêm')}])
+    f.repo.save_entity_candidate_audit(f.revision.novel_id, run, frozen)
+    result = f.client.post(f'{f.base}/entity-reviews/{run}/continue', headers=f.headers)
+    assert result.status_code == 200, result.text
+    aliases = [p for p in f.repo.list_proposals(f.revision.novel_id, analysis_run_id=run) if p.proposal_type == 'alias']
+    assert any(p.evidence[0]['quote'] == 'Tiêu Viêm' for p in aliases)

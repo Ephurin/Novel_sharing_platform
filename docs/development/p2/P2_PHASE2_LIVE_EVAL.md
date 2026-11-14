@@ -275,3 +275,14 @@ Also fixed: when the model links an honorific variant to a known entity without 
 | F-LIVE-07: writing request with `selection: {cursor}` returned 400 with a raw Python message | **Fixed.** Missing or null `start`/`end` default to the cursor, and the normalized selection is stored on the job. Live: a cursor-only "continue" completed in 4 s and passed validation (1 call) |
 | Runbook: operator enable after ledger initialization | **Done.** `docs/development/p2/P2_LIVE_RUNBOOK.md` covers private files, attestation per key, init, the two-step enable, capacity, retries, shutdown and troubleshooting |
 | F-LIVE-10: event extraction recall/precision | **Not changed.** It needs a gold set to measure; moved to Track B instead of tuning the prompt blind |
+
+## Q-1 / Q-4 / Q-6 fixes after the final acceptance (branch `claude/p2-candidate-noise-filter`)
+
+| Item | Fix | Live result (5-chapter fixture) |
+|---|---|---|
+| Q-1: pronoun/title entities, lone surnames, function-word aliases | Before verification, `CandidateInventory.prune` drops single pronoun/kinship/title words ("Anh", "Chị", "Ông"…), phrases that start with a function word ("Khi Linh"), and a lone common surname when a fuller name with it exists ("Nguyễn" next to "Nguyễn Vũ"). Approved names, aliases and author-declared names are always kept. Counts go to the audit (`pruned_candidates`) | Candidates per chapter 124 / 101 / 90 / 88 / 49 (was 168 / 136 / 130 / 125 / 69); 44 pronoun/title candidates pruned in chapter 1; none of "Anh", "Chị", "Nguyễn" in canon |
+| Robustness found while re-running | (a) Every machine decision is re-validated with the author-save rules after canonicalization; invalid ones become unresolved. (b) A new name whose only anchor occurrence is unresolved takes its aliases with it (unresolved together). (c) An honorific occurrence ("Bà Sâm") counts as the source occurrence of its bare name when the bare name never appears alone. (d) An alias whose model quote is not verbatim uses its own occurrence as evidence. (e) An event whose quote is not verbatim is dropped instead of failing `continue` | Each of these had blocked a chapter (422 on save or continue) in this round; after the fixes the full 5-chapter import ran with 0 failures and activated (20 entities, 6 aliases, 13 events, 5 world rules) |
+| Q-4: raw `world_rule` label and raw JSON in the import queue | The queue shows "N đề xuất: …" counts and one Vietnamese line per proposal ("Quy tắc thế giới: …", "Tên gọi khác: “Ông Hòa” → Hòa"); the JSON moved under "Chi tiết kỹ thuật" | Verified in the browser |
+| Q-6 (new): event summaries written in English | The HITL event prompt asks for summary and consequences in the source language | Event summaries are now Vietnamese |
+
+Still open: short-name fragments (by design), one model-made alias ("cô hỏi trạm Bốn"), English `fact_key` names in fact lines, Track B measurement.

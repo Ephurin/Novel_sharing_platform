@@ -218,6 +218,7 @@ def verify_entities(text, llm, discover, *, known_entities=(), known_aliases=(),
                     audit['unanchored_discoveries'].append({'name': item['phrase'], 'chunk_start': chunk.start})
                 inventory.add_name(item['phrase'], 'llm_discovery', chunk=chunk)
             audit['chunks'].append({'start': chunk.start, 'end': chunk.end})
+        audit['pruned_candidates'] = inventory.prune(protected=names + hint_names)
         save('verifying')
         all_names = sorted(set(names + [c.surface for c in inventory.items]))
         system = (
@@ -286,6 +287,39 @@ def verify_entities(text, llm, discover, *, known_entities=(), known_aliases=(),
             audit['decisions'].extend(d.model_dump() for d in decisions)
             save('verifying')
         audit['decisions'] = _canonicalize(audit['decisions'], inventory.items, known)
+        # Every machine decision must pass the same validation the author's save uses; otherwise a
+        # single bad suggestion blocks saving the whole chapter. Invalid ones become unresolved.
+        by_candidate = {c.candidate_id: c for c in inventory.items}
+        checked = []
+        for d in audit['decisions']:
+            c = by_candidate.get(d['candidate_id'])
+            try:
+                if c is not None:
+                    _validate([EntityDecision.model_validate(d)], [c], text, known, all_names)
+                checked.append(d)
+            except ValueError as exc:
+                checked.append(EntityDecision(candidate_id=d['candidate_id'], verdict='unresolved', confidence=0,
+                    reason='Machine suggestion failed validation; needs author review.').model_dump())
+                audit.setdefault('degraded_candidates', []).append(
+                    {'candidate_id': d['candidate_id'], 'error': str(exc)[:MAX_LOGGED_ERROR]})
+        # Group check: a new name whose only anchor occurrence is unresolved would leave its aliases
+        # pointing at nothing ("Mai", "Lâm" -> "Mai Lâm" while "Mai Lâm" is unresolved), and the author's
+        # save would fail. Such groups become unresolved together.
+        anchored = set()
+        for d in checked:
+            c = by_candidate.get(d['candidate_id'])
+            if c is not None and d['verdict'] == 'entity' and not d['canonical_entity_id'] and (
+                    same_name(c.surface, d['canonical_name'])
+                    or honorific_variant(d['canonical_name'], c.surface, d['entity_type'])):
+                anchored.add((d['canonical_name'].casefold(), d['entity_type']))
+        for i, d in enumerate(checked):
+            if (d['verdict'] == 'entity' and not d['canonical_entity_id']
+                    and (d['canonical_name'].casefold(), d['entity_type']) not in anchored):
+                checked[i] = EntityDecision(candidate_id=d['candidate_id'], verdict='unresolved', confidence=0,
+                    reason=f"Suggested as {d['canonical_name']}, whose own occurrence is unresolved; decide together.").model_dump()
+                audit.setdefault('degraded_candidates', []).append(
+                    {'candidate_id': d['candidate_id'], 'error': 'unanchored new identity'})
+        audit['decisions'] = checked
         try:
             result = _materializable(inventory.items, audit['decisions'], known, text)
         except AnalysisOutputError as exc:
@@ -402,8 +436,12 @@ def _materializable(candidates, decisions, known, text, *, human=False):
             raise AnalysisOutputError('ENTITY_IDENTITY_CONFLICT',
                                      'Verified occurrences disagree about entity identity/type.', attempts=0)
         chosen = max(group, key=lambda d: (same_name(by_id[d['candidate_id']].surface, d['canonical_name']), d['confidence']))
+        # An honorific occurrence ("Bà Sâm") is the source occurrence of its bare name ("Sâm") when the
+        # chapter never writes the bare name alone (final live acceptance).
         if not chosen['canonical_entity_id'] and not any(
-                same_name(by_id[d['candidate_id']].surface, d['canonical_name']) for d in group):
+                same_name(by_id[d['candidate_id']].surface, d['canonical_name'])
+                or honorific_variant(d['canonical_name'], by_id[d['candidate_id']].surface, d['entity_type'])
+                for d in group):
             raise AnalysisOutputError('ENTITY_IDENTITY_CONFLICT',
                                      'A new canonical name needs its own verified source occurrence.', attempts=0)
         c = by_id[chosen['candidate_id']]
