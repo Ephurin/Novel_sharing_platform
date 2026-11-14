@@ -374,6 +374,8 @@ class ManuscriptBootstrapService:
         job = self._repository.get_bootstrap_job(job_id)
         if job.status in {"waiting_review", "completed", "cancelled"}:
             return job
+        if job.status == "waiting_entity_review" and not self.chapter_settled(job):
+            return job
         try:
             job = self._repository.start_bootstrap_processing(job_id)
         except BootstrapConflictError as exc:
@@ -426,6 +428,16 @@ class ManuscriptBootstrapService:
                         result={**(job.result or {}), "scene_count": scene_count},
                     )
                 )
+                # Entity-first: the next chapter must be analysed against the canon this chapter's
+                # review produces (accepting proposals moves the brain version, which would make
+                # every chapter analysed earlier unreviewable). Pause until the author settles it.
+                if getattr(result, "status", "completed") == "waiting_entity_review" and any(
+                        r.status != "completed" for r in revisions[index + 1:]):
+                    return self._repository.save_bootstrap_job(replace(
+                        job, status="waiting_entity_review", stage="chapter_review",
+                        result={**(job.result or {}), "scene_count": scene_count,
+                                "awaiting_analysis_run_id": result.analysis_run.run_id,
+                                "awaiting_chapter": index + 1}))
             proposals = self._repository.list_proposals(job.novel_id, status="pending")
             result = {
                 **(job.result or {}),
@@ -453,9 +465,24 @@ class ManuscriptBootstrapService:
     def validate_resume(self, job: BootstrapJob) -> None:
         if job.options.get('from_idea') and job.status == 'failed':
             raise BootstrapConflictError('IDEA_BOOTSTRAP_RETRY_UNSUPPORTED')
+        if job.status == 'waiting_entity_review' and not self.chapter_settled(job):
+            raise BootstrapConflictError('BOOTSTRAP_CHAPTER_REVIEW_PENDING')
+
+    def chapter_settled(self, job: BootstrapJob) -> bool:
+        """The paused chapter has no open entity review and no pending proposals left."""
+        run_id = (job.result or {}).get('awaiting_analysis_run_id')
+        if not run_id:
+            return True
+        list_reviews = getattr(self._repository, 'list_entity_reviews', None)
+        if callable(list_reviews) and any(r.get('analysis_run_id') == run_id for r in list_reviews(job.novel_id)):
+            return False
+        return not any(p.analysis_run_id == run_id
+                       for p in self._repository.list_proposals(job.novel_id, status='pending'))
 
     def resume(self, job_id: str) -> BootstrapJob:
         job = self._repository.get_bootstrap_job(job_id)
+        if job.status == 'waiting_entity_review' and not self.chapter_settled(job):
+            return job
         self.validate_resume(job)
         if job.options.get('from_idea'):
             # Exact replay returns its persisted failure; a new operation is explicit.

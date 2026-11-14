@@ -129,3 +129,28 @@ So a chapter costs about 12 calls per 1,000 words, roughly twice the earlier est
 | F-LIVE-14 | P3 | Review burden: 69–167 candidates per chapter, of which 46–115 are "not entity" | Open (quality) |
 
 Not covered in this round: #149 (interactive writing during background analysis) and the cross-chapter consistency check, both blocked behind F-LIVE-12.
+
+## Sequential manuscript import (branch `claude/p2-live-sequential-import`, fixes F-LIVE-12/13)
+
+In entity-first mode the bootstrap job now analyses one chapter, pauses (`status: waiting_entity_review`, `stage: chapter_review`, `result.awaiting_chapter`), and analyses the next chapter only after the author has settled the paused one. Settled means no open entity review and no pending proposal from that chapter's run.
+- `POST /jobs/{id}/resume` returns 409 `BOOTSTRAP_CHAPTER_REVIEW_PENDING` until the chapter is settled.
+- The import page shows the paused chapter, the steps (confirm characters in Memory → Chờ duyệt, accept the chapter's proposals) and a "Phân tích chương tiếp theo" button.
+- Each chapter is therefore analysed against the newest canon: its proposals carry the current brain version, and its characters link to the ones already approved.
+
+Two defects surfaced on the way and are fixed in the same branch:
+- **F-LIVE-15 (P2):** a single transient upstream 503 failed the whole import. The LLM client now retries upstream 5xx and provider timeouts twice (4 s, 10 s). Auth errors (401/403) and quota denials are not retried.
+- **F-LIVE-16 (P1):** once later chapters link to known entities, they can propose an alias that is already approved. Accepting it raised `UniqueViolation` (`uq_entity_alias_normalized`, HTTP 500). Accepting an alias that already exists for the same entity is now a no-op.
+
+**Live result** (same 5-chapter fixture, author accepts the machine's suggestions and rejects unresolved candidates; 84 calls, no denials)
+
+| Chapter | Analysis + continue calls | Candidates | Linked to known entities | Proposals (entity / alias / fact / event) | Accepted |
+|---|---|---|---|---|---|
+| 1 | 6 + 5 (after one resume on a provider 503) | 168 | 0 | 24 / 0 / 3 / 3 | 30/30 |
+| 2 | 8 + 3 | 144 | 34 | 6 / 1 / 5 / 1 | 13/13 |
+| 3 | 9 + 4 | 138 | 47 | 0 / 1 / 2 / 2 | 5/5 (after the alias fix) |
+| 4 | 9 + 5 | 125 (7 unresolved) | 40 | 2 / 1 / 6 / 3 | 12/12 |
+| 5 | 5 + 4 | 74 (3 unresolved) | 26 | 0 / 1 / 9 / 2 | 12/12 |
+
+Baseline activated: **32 entities, 11 events, 0 pending**, brain v6. Before the change, 71 entity proposals were produced, 0 were linked, and only 1 of 5 chapters could be accepted.
+
+Cost: about 11–14 calls per 1,000 words including the event stage, and 45–65 s of model time per chapter. Review burden is still high: 74–168 candidates per chapter, mostly "not entity" (F-LIVE-14).

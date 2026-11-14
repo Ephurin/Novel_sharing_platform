@@ -227,3 +227,55 @@ def test_baseline_waits_for_entity_review_and_its_later_proposals():
     for proposal in repository.list_proposals(NOVEL, status="pending"):
         repository.decide_proposal(NOVEL, proposal.proposal_id, accepted=False, reason="reviewed")
     assert service.activate_baseline(NOVEL, job.job_id)["status"] == "active"
+
+
+def test_entity_first_import_analyses_chapters_one_at_a_time():
+    """F-LIVE-12: every chapter analysed up front was unreviewable once the first chapter's
+    proposals moved the brain version. The job now pauses after each entity-first chapter and
+    analyses the next one only after the author settles it, against the newest canon."""
+    from types import SimpleNamespace
+    from application.revision_analysis_service import RevisionAnalysisResult
+    from domain.errors import BootstrapConflictError
+
+    items = [revision(1, "Tiêu Viêm tới sa mạc."), revision(2, "Tiêu Viêm gặp Hải Ba Đông."),
+             revision(3, "Hải Ba Đông rời Mạc Gia.")]
+    repository = InMemoryNarrativeRepository()
+    analysed = []
+
+    class EntityFirstAnalysis:
+        def analyze(self, **kwargs):
+            analysed.append(kwargs["revision_id"])
+            run = SimpleNamespace(run_id=f"run-{len(analysed)}")
+            return RevisionAnalysisResult(run, (), False, "waiting_entity_review")
+
+    provider = RevisionProvider(items)
+    service = ManuscriptBootstrapService(repository, provider, EntityFirstAnalysis())
+    job = service.start(tenant_id=TENANT, novel_id=NOVEL, revisions=request_revisions(items), locale="vi-VN", options={})
+    job = service.process(job.job_id)
+    assert (job.status, job.stage, job.result["awaiting_chapter"]) == ("waiting_entity_review", "chapter_review", 1)
+    assert analysed == [items[0].revision_id]
+
+    # Chapter 1's entity review is still open: no next chapter, and the resume route refuses.
+    repository.save_entity_candidate_audit(NOVEL, "run-1", {"analysis_run_id": "run-1", "status": "waiting_entity_review", "review_version": 1})
+    with pytest.raises(BootstrapConflictError) as blocked:
+        service.validate_resume(job)
+    assert blocked.value.code == "BOOTSTRAP_CHAPTER_REVIEW_PENDING"
+    assert service.resume(job.job_id).status == "waiting_entity_review" and len(analysed) == 1
+
+    # Review finished but one of its proposals is still pending: still blocked.
+    repository.save_entity_candidate_audit(NOVEL, "run-1", {"analysis_run_id": "run-1", "status": "completed", "review_version": 3})
+    real_list = repository.list_proposals
+    repository.list_proposals = lambda novel, status=None: [SimpleNamespace(analysis_run_id="run-1", proposal_id="p1")]
+    assert not service.chapter_settled(job)
+    repository.list_proposals = real_list
+
+    # Settled: chapter 2 is analysed now (after chapter 1's canon), then the job pauses again.
+    job = service.resume(job.job_id)
+    assert analysed == [items[0].revision_id, items[1].revision_id]
+    assert (job.status, job.result["awaiting_chapter"], job.progress_current) == ("waiting_entity_review", 2, 2)
+
+    repository.save_entity_candidate_audit(NOVEL, "run-2", {"analysis_run_id": "run-2", "status": "completed", "review_version": 3})
+    job = service.resume(job.job_id)
+    # The last chapter ends in the normal review state; activation still waits for its review.
+    assert analysed == [i.revision_id for i in items]
+    assert (job.status, job.stage) == ("waiting_review", "review")

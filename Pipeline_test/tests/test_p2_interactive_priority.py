@@ -202,3 +202,22 @@ def test_writing_job_error_is_author_facing_for_rate_limits():
     assert err["code"] == "AI_RATE_LIMITED" and err["retry_after"] == 42
     assert "42 giây" in err["message"]
     assert writing_failure_error(RuntimeError("BUDGET_GUARD_DENIED")) == {"message": "BUDGET_GUARD_DENIED"}
+
+
+def test_transient_provider_503_is_retried_with_backoff(monkeypatch):
+    pytest.importorskip("google.genai")
+    upstream_503 = _Denied("503 None. {'error': 'PROVIDER_UNAVAILABLE', 'upstream_status': 503}")
+    svc, models, _h, sleeps = _service(monkeypatch, [upstream_503, "ok"])
+    assert svc._call_gemini("sys", "user") == "ok"
+    assert sleeps == [4] and models.calls == 2
+
+
+def test_provider_auth_error_is_not_retried(monkeypatch):
+    pytest.importorskip("google.genai")
+    from core.llm_service import LLMServiceError
+
+    auth = _Denied("403 None. {'error': 'PROVIDER_UNAVAILABLE', 'upstream_status': 403}")
+    svc, models, _h, sleeps = _service(monkeypatch, [auth])
+    with pytest.raises(LLMServiceError):
+        svc._call_gemini("sys", "user")
+    assert sleeps == [] and models.calls == 1
