@@ -30,6 +30,11 @@ from zoneinfo import ZoneInfo
 class QuotaExceededError(Exception):
     """Base exception for quota admission denials."""
 
+    def __init__(self, *args: Any, retry_after: int | None = None) -> None:
+        super().__init__(*args)
+        # #149: seconds until the limiting window frees a slot (None when unknown).
+        self.retry_after = retry_after
+
 
 class RPMLimitExceeded(QuotaExceededError):
     """Raised when the requests-per-minute ceiling is reached."""
@@ -449,7 +454,12 @@ class FreeTierQuotaLedger:
         client_service: str = "unknown",
         operation: str = "generic",
         now_override: float | None = None,
+        priority: str = "interactive",
     ) -> dict[str, Any]:
+        """Admit one call. #149: calls marked "background" (analysis, retries) cannot use the RPM slots and
+        the last concurrency slot kept for interactive calls (an author waiting on writing/brainstorm).
+        Unmarked callers keep the full limits."""
+        interactive = priority != "background"
         with self._lock:
             self._healthy()
 
@@ -495,11 +505,17 @@ class FreeTierQuotaLedger:
             effective_tpm = max(1, int(math.floor(float(quotas["tpm"]) * (1.0 - headroom))))
             effective_rpd = max(1, int(math.floor(float(quotas["rpd"]) * (1.0 - headroom))))
             max_concurrency = int(quotas.get("max_concurrency", 2))
+            reserve_rpm = int(quotas.get("interactive_reserve_rpm", max(1, effective_rpm // 5)))
+            if not interactive:
+                if effective_rpm > reserve_rpm:
+                    effective_rpm -= reserve_rpm
+                if max_concurrency > 1:
+                    max_concurrency -= 1
 
             # 5. Concurrency check
             if s["current_in_flight"] >= max_concurrency:
                 self.record_denial("CONCURRENCY_LIMIT_EXCEEDED", client_service, operation)
-                raise ConcurrencyLimitExceeded("CONCURRENCY_LIMIT_EXCEEDED")
+                raise ConcurrencyLimitExceeded("CONCURRENCY_LIMIT_EXCEEDED", retry_after=5)
 
             # 6. Daily limit check (RPD)
             if s["rpd_call_count"] >= effective_rpd:
@@ -515,7 +531,11 @@ class FreeTierQuotaLedger:
             ]
             if len(recent_model_calls) >= effective_rpm:
                 self.record_denial("RPM_LIMIT_EXCEEDED", client_service, operation)
-                raise RPMLimitExceeded("RPM_LIMIT_EXCEEDED")
+                # The slot frees when the call that put the window at its limit leaves it.
+                stamps = sorted(float(e.get("timestamp", 0)) for e in recent_model_calls)
+                freeing = stamps[len(stamps) - effective_rpm]
+                raise RPMLimitExceeded("RPM_LIMIT_EXCEEDED",
+                                       retry_after=max(1, int(math.ceil(freeing + window_seconds - now))))
 
             # 8. Sliding-window TPM check (input tokens in last 60s + reserved + estimated)
             consumed_tokens = sum(
@@ -531,7 +551,7 @@ class FreeTierQuotaLedger:
             estimated_tokens = max(1, int(estimated_input_tokens))
             if (consumed_tokens + in_flight_tokens + estimated_tokens) > effective_tpm:
                 self.record_denial("TPM_LIMIT_EXCEEDED", client_service, operation)
-                raise TPMLimitExceeded("TPM_LIMIT_EXCEEDED")
+                raise TPMLimitExceeded("TPM_LIMIT_EXCEEDED", retry_after=int(window_seconds))
 
             # All admission checks passed — create reservation
             ticket_id = uuid.uuid4().hex
@@ -541,6 +561,7 @@ class FreeTierQuotaLedger:
                 "model": normalized_model,
                 "client_service": client_service,
                 "operation": operation,
+                "priority": "interactive" if interactive else "background",
                 "reserved_tokens": estimated_tokens,
                 "start_time": now,
             }

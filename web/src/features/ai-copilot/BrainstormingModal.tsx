@@ -732,6 +732,11 @@ export function BrainstormingModal({
                 <Text size="xs" c="dimmed">
                   Nguồn gốc gợi ý: Nhà cung cấp <strong>{provenance.provider}</strong> · Mô hình <strong>{provenance.model}</strong> · Tham chiếu: {provenance.grounding_rules_count} quy tắc, {provenance.grounding_entities_count} nhân vật đã duyệt · Thời gian: {new Date(provenance.timestamp).toLocaleString('vi-VN')}
                 </Text>
+                {(provenance.duplicates_removed ?? 0) > 0 && (
+                  <Text size="xs" c="dimmed" data-testid="brainstorm-duplicates-removed">
+                    Đã ẩn {provenance.duplicates_removed} gợi ý trùng với quy tắc hoặc nhân vật đã duyệt.
+                  </Text>
+                )}
               </Card>
             )}
           </Stack>

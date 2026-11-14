@@ -55,6 +55,8 @@ export type BrainstormProvenance = {
   status: 'model_proposed';
   grounding_rules_count: number;
   grounding_entities_count: number;
+  /** #147: suggestions dropped because they repeat an approved rule or character. */
+  duplicates_removed?: number;
   timestamp: string;
 };
 

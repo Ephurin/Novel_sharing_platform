@@ -9,7 +9,31 @@ import urllib.request
 import uuid
 from typing import Any
 
-from core.structured_call import extraction_source, structured_request
+from core.structured_call import extraction_source, request_priority, structured_request
+
+# #149: author-facing structured operations; everything else (analysis, retries) is background work.
+INTERACTIVE_OPERATIONS = frozenset({"brainstorm_suggestions", "setup_text_extraction", "setup_blueprint", "rule_consistency"})
+GUARD_RATE_LIMIT_CODES = ("rpm_limit_exceeded", "tpm_limit_exceeded", "concurrency_limit_exceeded")
+
+
+def current_request_priority() -> str:
+    explicit = request_priority.get()
+    if explicit:
+        return explicit
+    operation = (structured_request.get() or {}).get("operation")
+    return "interactive" if operation in INTERACTIVE_OPERATIONS else "background"
+
+
+def interactive_wait_budget_seconds() -> float:
+    try:
+        return max(0.0, float(os.getenv("INTERACTIVE_RATE_LIMIT_MAX_WAIT_SECONDS", "20")))
+    except ValueError:
+        return 20.0
+
+
+def _retry_after_seconds(message: str, default: int = 10) -> int:
+    match = re.search(r"retry[_-]after\W{1,4}(\d{1,4})", message, flags=re.IGNORECASE)
+    return int(match.group(1)) if match else default
 
 
 class LLMServiceError(RuntimeError):
@@ -381,7 +405,7 @@ class LLMService:
                     api_version="v1beta",
                     timeout=timeout_ms,
                     client_args={"trust_env": False},
-                    headers={"Authorization": "Bearer " + guard[1]},
+                    headers={"Authorization": "Bearer " + guard[1], "X-Request-Priority": current_request_priority()},
                     retry_options=types.HttpRetryOptions(attempts=1),
                 ),
             )
@@ -397,6 +421,7 @@ class LLMService:
             )
         last_error: Exception | None = None
         merged_prompt = f"{system_prompt}\n\n{user_prompt}".strip()
+        wait_left = interactive_wait_budget_seconds() if current_request_priority() == "interactive" else 0.0
 
         for model_name in self._gemini_model_candidates():
             for attempt in range(4):
@@ -466,6 +491,18 @@ class LLMService:
                             model=model_name,
                         )
                     message = str(exc).lower()
+                    rate_code = next((c for c in GUARD_RATE_LIMIT_CODES if c in message), None) if guard else None
+                    if rate_code:
+                        retry_after = _retry_after_seconds(message)
+                        if attempt < 3 and 0 < retry_after <= wait_left:
+                            # #149: an author is waiting; a short wait beats failing at once.
+                            logger.warning("Gateway %s for interactive call; retrying in %ds", rate_code, retry_after)
+                            wait_left -= retry_after
+                            time.sleep(retry_after)
+                            continue
+                        raise LLMServiceError(
+                            f"BUDGET_GUARD_DENIED {rate_code.upper()} retry_after={retry_after}"
+                        ) from exc
                     if guard and any(
                         code in message
                         for code in (
@@ -569,7 +606,8 @@ class LLMService:
             model=model_name,
         )
         try:
-            extra_headers = {"ngrok-skip-browser-warning": "true", "X-Client-Service": "ai-service"}
+            extra_headers = {"ngrok-skip-browser-warning": "true", "X-Client-Service": "ai-service",
+                             "X-Request-Priority": current_request_priority()}
             if ticket_id:
                 extra_headers["X-Budget-Ticket"] = ticket_id
             client = OpenAI(
@@ -897,6 +935,8 @@ class LLMService:
             '    {"title": "<title>", "description": "<desc>", "target_chapter": <int>, "ending": <bool>, "min_words": 1500, "participants": [{"entity_id": "<uuid>", "name_hint": null}, {"entity_id": null, "name_hint": "<name>"}]}\n'
             "  ]\n"
             "}\n"
+            "world_rules and characters must be NEW ideas that extend the story: never restate a confirmed world rule "
+            "(even reworded) and never re-suggest a known entity or one of its names; return an empty list instead. "
             "IMPORTANT: If referencing an existing known character, you MUST use their exact entity_id with name_hint=null. "
             "If introducing a new character, entity_id MUST be null and name_hint MUST be their name. Do NOT fabricate entity UUIDs."
         )

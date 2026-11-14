@@ -14,6 +14,7 @@ import json
 import logging
 import threading
 import time
+import unicodedata
 import uuid
 from datetime import datetime, timezone
 from typing import Any
@@ -42,6 +43,32 @@ logger = logging.getLogger("brainstorm-service")
 MAX_SUGGESTIONS_PER_CATEGORY = 20
 MAX_TEXT_LENGTH = 4000
 MAX_SHORT_TEXT_LENGTH = 256
+# #147: a suggested rule whose word set overlaps an approved rule this much is a restatement.
+RULE_DUPLICATE_JACCARD = 0.8
+
+
+def _normalize_text(value: str) -> str:
+    """Case-, accent-form- and punctuation-insensitive comparison key (Vietnamese diacritics kept)."""
+    folded = unicodedata.normalize("NFC", value or "").casefold()
+    cleaned = "".join(ch if ch.isalnum() else " " for ch in folded)
+    return " ".join(cleaned.split())
+
+
+def _is_duplicate_rule(text_value: str, fact_key: str | None, known_texts: list[str], known_keys: set[str]) -> bool:
+    if fact_key and fact_key in known_keys:
+        return True
+    norm = _normalize_text(text_value)
+    if not norm:
+        return False
+    words = set(norm.split())
+    for known in known_texts:
+        if norm == known:
+            return True
+        known_words = set(known.split())
+        union = words | known_words
+        if union and len(words & known_words) / len(union) >= RULE_DUPLICATE_JACCARD:
+            return True
+    return False
 
 
 class _LeaseHeartbeat:
@@ -907,6 +934,12 @@ class BrainstormService:
                         }
                     )
 
+            known_names: set[str] = {_normalize_text(e["name"]) for e in known_entities if e.get("name")}
+            for alias in getattr(brain, "aliases", ()):
+                if str(getattr(alias, "entity_id", "")) in approved_entity_ids and getattr(alias, "alias", None):
+                    known_names.add(_normalize_text(alias.alias))
+            known_names.discard("")
+
             # 8. Grounding in World Rules: BSA-01 Verified Effective Canon Lineage
             raw_facts: list[dict[str, Any]] = []
             for f in getattr(brain, "facts", ()):
@@ -967,6 +1000,12 @@ class BrainstormService:
                         else:
                             confirmed_rules.append(str(val))
 
+            known_rule_texts = [n for n in (_normalize_text(r) for r in confirmed_rules) if n]
+            known_rule_keys = {
+                str(f.get("fact_key")) for f in effective_facts if f.get("fact_type") == "world_rule" and f.get("fact_key")
+            }
+            duplicates_removed = 0
+
             curr_ch = request.current_chapter or max_plan_chapter or 1
             target_ch = request.target_chapter or (curr_ch + 1)
 
@@ -997,6 +1036,7 @@ class BrainstormService:
                         "Generate structured brainstorm suggestions based on confirmed world rules and known characters.\n"
                         "Return ONLY valid JSON matching this schema:\n"
                         '{"world_rules": [...], "characters": [...], "future_events": [...]}\n'
+                        "Suggest only NEW world rules and NEW characters; never restate a confirmed rule or a known character. "
                         "Do NOT fabricate entity UUIDs."
                     )
                     user_prompt = json.dumps(
@@ -1149,6 +1189,10 @@ class BrainstormService:
                         },
                     )
                 cat = (raw_cat or "general")[:MAX_SHORT_TEXT_LENGTH]
+                if _is_duplicate_rule(text_val, raw_fact_key, known_rule_texts, known_rule_keys):
+                    duplicates_removed += 1
+                    continue
+                known_rule_texts.append(_normalize_text(text_val))
                 try:
                     world_rules.append(
                         ProposedWorldRule(
@@ -1198,6 +1242,10 @@ class BrainstormService:
                         },
                     )
                 name = name[:MAX_SHORT_TEXT_LENGTH]
+                if _normalize_text(name) in known_names:
+                    duplicates_removed += 1
+                    continue
+                known_names.add(_normalize_text(name))
                 char_id = str(uuid.uuid4())
 
                 raw_role = c.get("role")
@@ -1474,6 +1522,9 @@ class BrainstormService:
                         detail={"code": "BRAINSTORM_PROVIDER_ERROR", "message": f"Future event validation failed: {ve}"},
                     ) from ve
 
+            if duplicates_removed:
+                logger.info("Brainstorm dropped %d suggestion(s) that repeat approved canon", duplicates_removed)
+
             # 12. Assemble Provenance
             provenance = BrainstormProvenance(
                 contract_version="brainstorm-v1",
@@ -1482,6 +1533,7 @@ class BrainstormService:
                 status="model_proposed",
                 grounding_rules_count=len(confirmed_rules),
                 grounding_entities_count=len(known_entities),
+                duplicates_removed=duplicates_removed,
                 timestamp=datetime.now(timezone.utc).isoformat(),
             )
 

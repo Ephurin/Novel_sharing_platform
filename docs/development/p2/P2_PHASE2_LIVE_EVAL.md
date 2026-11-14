@@ -70,3 +70,15 @@ These were verified live on the same stack (19 more calls; the session total is 
 | #144 (F-LIVE-01) | `core/setup_extraction.py` + `LLMService.extract_setup_text` / `suggest_setup_blueprint`. The model returns exact names and rule sentences; offsets are computed server-side and non-verbatim items are dropped. The blueprint sends only the idea text and outline. HTML entities that Gemini sometimes returns are decoded | Extract: 6 grounded cards (4 entities, both rules) in 2.1 s. Blueprint: 3 entities and 3 rule suggestions (`model_proposed`); the first run showed `&#xE0;` entities, fixed and rerun clean |
 
 Remaining open: #147, #148, #149, #150. Blueprint wording can contain model typos (flash-lite); the suggestions are labelled `model_proposed` and need author review.
+
+## Follow-up: P2 fixes #147–#149 (branch `claude/p2-live-p2-fixes`)
+
+Covered by offline tests only; not re-run against the live model yet.
+
+| Issue | Fix | Tests |
+|---|---|---|
+| #147 (F-LIVE-02) | The brainstorm prompt asks for new rules and characters only. The service then drops suggestions that restate an approved rule (same `fact_key`, same normalized text, or ≥ 80% word overlap) or reuse a known entity name or alias, and duplicates within the batch. `provenance.duplicates_removed` counts them; the modal shows "Đã ẩn N gợi ý trùng…" | `test_brainstorm_service.py` (reworded rule, `fact_key`, case-folded name, in-batch duplicate) |
+| #148 (F-LIVE-06) | Each failed verification attempt is recorded in the audit (`repair_errors`) and logged with quoted manuscript values removed. After the 2 bounded attempts, valid decisions are kept and only the invalid or missing ones become `unresolved` (never materialized; the author reviews them), listed in `degraded_candidates`. Output that cannot be parsed still fails, now with the reason | `test_entity_verification_salvage.py` |
+| #149 (F-LIVE-08) | ai-service marks every gateway call with `X-Request-Priority`: writing drafts, brainstorm, setup extract/blueprint and the rule check are `interactive`; analysis is `background`. Background calls cannot use the RPM slots kept for interactive calls (default `max(1, effective_rpm // 5)`, 2 of 13 on free tier) or the last concurrency slot; unmarked callers keep the full limits. Gateway 429s carry `retry_after`. An interactive call waits up to `INTERACTIVE_RATE_LIMIT_MAX_WAIT_SECONDS` (20 s) and retries; if it still fails, the writing job returns `AI_RATE_LIMITED` with an author-facing "busy, retry in N s" message. Outbox retries after a rate-limit failure wait at least 60 s | `Pipeline_test/tests/test_p2_interactive_priority.py`, `backend/src/jobs/outbox-processor.test.ts` |
+
+Remaining open: #150 (P3), #138 (post-P2).

@@ -1,6 +1,6 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
-import { handleOutboxEvent, processOutboxOnce } from './outbox-processor.js';
+import { handleOutboxEvent, outboxRetryDelaySeconds, processOutboxOnce, RATE_LIMIT_MIN_BACKOFF_SECONDS } from './outbox-processor.js';
 import type { RevisionOutboxEvent } from '../modules/novels/outbox.repository.js';
 
 // WORKFLOW_CONTRACT v1.4: P1 extraction is not an authorized canon decision.
@@ -91,5 +91,16 @@ describe('P1 extraction-only outbox authorization boundary', () => {
    assert.deepEqual(await processOutboxOnce(1,deps),{processed:1,succeeded:1,failed:0});
   });
   assert.deepEqual(failed,[event.eventId]);assert.deepEqual(completed,[event.eventId]);
+ });
+ test('#149: free-tier rate-limit failures back off at least one RPM window', async () => {
+  const backoffs: number[] = [];
+  await usingFetch(async () => new Response('{"detail":"BUDGET_GUARD_DENIED RPM_LIMIT_EXCEEDED retry_after=12"}', {status: 502}), async () => {
+   await processOutboxOnce(1, {claimEvents: async () => [event], markCompleted: async () => true,
+    markFailed: async (_id, _error, backoff) => { backoffs.push(backoff); return true; }});
+  });
+  assert.deepEqual(backoffs, [RATE_LIMIT_MIN_BACKOFF_SECONDS]);
+  assert.equal(outboxRetryDelaySeconds(0, 'AI service returned HTTP 429: busy'), 60);
+  assert.equal(outboxRetryDelaySeconds(5, 'AI service returned HTTP 429: busy'), 300);
+  assert.equal(outboxRetryDelaySeconds(0, 'AI service returned HTTP 503: down'), 10);
  });
 });

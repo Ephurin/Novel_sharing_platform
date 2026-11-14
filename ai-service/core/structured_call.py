@@ -6,6 +6,17 @@ from typing import Any
 
 structured_request: ContextVar[dict[str, Any] | None] = ContextVar("structured_request", default=None)
 extraction_source: ContextVar[dict[str, Any] | None] = ContextVar("extraction_source", default=None)
+# #149: "interactive" while an author waits on the result (writing, brainstorm); None = decide by operation.
+request_priority: ContextVar[str | None] = ContextVar("request_priority", default=None)
+
+
+@contextmanager
+def priority_scope(priority: str):
+    token = request_priority.set(priority)
+    try:
+        yield
+    finally:
+        request_priority.reset(token)
 
 
 @contextmanager

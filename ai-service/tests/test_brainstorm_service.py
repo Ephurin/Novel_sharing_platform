@@ -1231,3 +1231,41 @@ class BrainstormFoundationTests(unittest.TestCase):
         receipt = BrainstormService._in_memory_receipts.get(scoped_key)
         self.assertEqual(receipt["status"], "completed")
         self.assertIsNotNone(receipt["response"])
+
+    def test_brainstorm_drops_suggestions_that_repeat_approved_canon(self):
+        """#147: restated rules (reworded, by fact_key) and known characters are dropped, new ideas kept."""
+        provider_output = {
+            "world_rules": [
+                {"fact_key": "world_rule_x1", "text": "Dị Hỏa là ngọn lửa thần bí sinh ra từ trời đất, có uy lực hủy thiên diệt địa"},
+                {"fact_key": "world_rule_x2", "text": "DỊ HỎA là ngọn lửa thần bí, sinh ra từ trời đất có uy lực hủy diệt thiên địa."},
+                {"fact_key": "world_rule_di_hoa", "text": "Một cách diễn đạt khác hẳn của cùng quy tắc."},
+                {"fact_key": "world_rule_new", "text": "Đan dược luyện quá ba lần sẽ hóa độc."},
+                {"fact_key": "world_rule_new_dup", "text": "Đan dược luyện quá ba lần sẽ hóa độc!"},
+            ],
+            "characters": [
+                {"name": "tiêu viêm", "role": "protagonist"},
+                {"name": "Dược Lão", "role": "mentor"},
+            ],
+            "future_events": [],
+        }
+        with patch.object(self.fake_llm, "suggest_brainstorm", return_value=provider_output):
+            res = self.client.post(
+                f"/v1/story-brains/{self.novel_id}/brainstorm",
+                headers=self.headers,
+                json={"contract_version": "brainstorm-v1", "target": "all", "instruction": "ý tưởng mới"},
+            )
+        self.assertEqual(res.status_code, 200, res.text)
+        data = res.json()["data"]
+        self.assertEqual([r["text"] for r in data["world_rules"]], ["Đan dược luyện quá ba lần sẽ hóa độc."])
+        self.assertEqual([c["name"] for c in data["characters"]], ["Dược Lão"])
+        self.assertEqual(data["provenance"]["duplicates_removed"], 5)
+
+    def test_brainstorm_prompt_asks_for_new_ideas_only(self):
+        """#147: the live prompt tells the model not to restate confirmed rules or known entities."""
+        from core.llm_service import LLMService
+
+        captured = {}
+        svc = LLMService.__new__(LLMService)
+        svc._call_structured = lambda **kw: captured.update(kw) or '{"world_rules": [], "characters": [], "future_events": []}'
+        svc.suggest_brainstorm(world_rules=["r"], known_entities=[])
+        self.assertIn("never restate a confirmed world rule", captured["system_prompt"])
