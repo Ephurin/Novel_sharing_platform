@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../auth/useAuthStore';
 import { getNovel, listChapters } from '../novels/novel-api';
+import { EntityExtractionReview } from '../ai-copilot/EntityExtractionReview';
+import { getEntityReviews } from '../ai-copilot/author-memory-api';
 import {
   acceptProposalGroup,
   activateBaseline,
@@ -11,6 +13,9 @@ import {
   getBootstrapJob,
   getReviewQueue,
   getStoryBrainSummary,
+  jobErrorLabel,
+  jobStageLabel,
+  jobStatusLabel,
   nextChapterBlockedMessage,
   rejectProposal,
   resumeBootstrapJob,
@@ -296,6 +301,36 @@ export function ManuscriptImportPage() {
     onError: (err: any) => showToast(nextChapterBlockedMessage(err) ?? 'Không thể tiếp tục: ' + (err?.message || 'Thất bại'))
   });
 
+  // The paused chapter's entity review is done on this page; the next chapter starts on its own
+  // once that review and the chapter's proposals are settled (the button stays as a fallback).
+  const awaitingRunId = jobQuery.data?.status === 'waiting_entity_review' ? jobQuery.data.result?.awaiting_analysis_run_id : undefined;
+  const entityReviewsQuery = useQuery({
+    queryKey: ['import-entity-reviews', novelId],
+    queryFn: () => getEntityReviews(novelId),
+    enabled: Boolean(novelId && awaitingRunId),
+    refetchInterval: awaitingRunId ? 4000 : false
+  });
+  const chapterReviewPending = Boolean(awaitingRunId) &&
+    (!entityReviewsQuery.isSuccess || (entityReviewsQuery.data ?? []).some(r => r.analysis_run_id === awaitingRunId));
+  const reviewAction = useMutation({
+    mutationFn: async (fn: () => Promise<unknown>) => fn(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['import-entity-reviews', novelId] });
+      queryClient.invalidateQueries({ queryKey: ['manuscript-review-queue', novelId] });
+    },
+    onError: (err: any) => showToast('Không lưu được bước duyệt nhân vật: ' + (err?.message || 'Thất bại'))
+  });
+  const autoAdvancedFor = useRef<string | null>(null);
+
+  const retryMutation = useMutation({
+    mutationFn: () => resumeBootstrapJob(jobId!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['manuscript-bootstrap-job', jobId] });
+      showToast('Đang thử lại từ chương còn dở…');
+    },
+    onError: (err: any) => showToast('Không thể thử lại: ' + (err?.message || 'Thất bại'))
+  });
+
   const activateMutation = useMutation({
     mutationFn: () => activateBaseline(novelId, jobId!),
     onSuccess: () => {
@@ -364,6 +399,20 @@ export function ManuscriptImportPage() {
     }
     return [...grouped.entries()];
   }, [reviewQuery.data]);
+
+  // Auto-advance once per paused chapter, only when the proposal queue was read after the chapter's
+  // entity review settled (before "continue" the queue is empty, so an older read would be wrong).
+  useEffect(() => {
+    if (!awaitingRunId || chapterReviewPending || !reviewQuery.isSuccess || reviewQuery.isFetching) return;
+    if (reviewQuery.dataUpdatedAt <= entityReviewsQuery.dataUpdatedAt) {
+      queryClient.invalidateQueries({ queryKey: ['manuscript-review-queue', novelId] });
+      return;
+    }
+    if (reviewGroups.length > 0 || autoAdvancedFor.current === awaitingRunId || nextChapterMutation.isPending) return;
+    autoAdvancedFor.current = awaitingRunId;
+    nextChapterMutation.mutate();
+  }, [awaitingRunId, chapterReviewPending, reviewQuery.isSuccess, reviewQuery.isFetching, reviewQuery.dataUpdatedAt,
+      entityReviewsQuery.dataUpdatedAt, reviewGroups.length]);
 
   const job = jobQuery.data;
   const jobPercent = job?.progress?.total
@@ -1161,7 +1210,7 @@ export function ManuscriptImportPage() {
                           : 'bg-amber-50 text-amber-700'
                       }`}
                     >
-                      {job.status}
+                      {jobStatusLabel(job.status)}
                     </span>
                   </div>
 
@@ -1175,12 +1224,23 @@ export function ManuscriptImportPage() {
 
                   <span className="text-meta text-stone-500">
                     {job.progress.current}/{job.progress.total} chương • Giai đoạn:{' '}
-                    <strong className="text-stone-700">{job.progress.stage}</strong>
+                    <strong className="text-stone-700">{jobStageLabel(job.progress.stage)}</strong>
                   </span>
                   {job.error?.message && (
                     <div className="p-2.5 rounded-lg bg-rose-50 text-rose-700 text-meta border border-rose-200">
-                      {job.error.message}
+                      {jobErrorLabel(job.error.message)}
                     </div>
+                  )}
+                  {job.status === 'failed' && (
+                    <button
+                      type="button"
+                      data-testid="import-retry"
+                      disabled={retryMutation.isPending}
+                      onClick={() => retryMutation.mutate()}
+                      className="self-start px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 disabled:opacity-40 text-white text-meta font-semibold shadow-2xs cursor-pointer"
+                    >
+                      Thử lại từ chương còn dở
+                    </button>
                   )}
                 </div>
               )}
@@ -1190,13 +1250,23 @@ export function ManuscriptImportPage() {
                   <strong>Chương {job.result?.awaiting_chapter ?? job.progress.current}/{job.progress.total} đang chờ bạn duyệt</strong>
                   <span>
                     Các chương được phân tích lần lượt để chương sau dùng đúng nhân vật và quy tắc bạn vừa duyệt.
-                    1) Mở <a className="underline" href={`/author/ide?novelId=${novelId}`}>IDE viết</a> → Bộ nhớ → Chờ duyệt: xác nhận nhân vật của chương này và bấm Tiếp tục.
-                    2) Duyệt các đề xuất của chương ở hàng đợi bên dưới. 3) Bấm “Phân tích chương tiếp theo”.
+                    1) Xác nhận nhân vật của chương ngay bên dưới rồi bấm Tiếp tục. 2) Duyệt các đề xuất của chương ở hàng đợi.
+                    Khi xong cả hai, chương tiếp theo tự được phân tích.
                   </span>
+                  {chapterReviewPending && (
+                    <div data-testid="import-entity-review" className="bg-white rounded-lg p-2 text-stone-900">
+                      <EntityExtractionReview
+                        novelId={novelId}
+                        disabled={reviewAction.isPending}
+                        perform={fn => reviewAction.mutate(fn)}
+                        onContinued={() => queryClient.invalidateQueries({ queryKey: ['manuscript-review-queue', novelId] })}
+                      />
+                    </div>
+                  )}
                   <button
                     type="button"
                     data-testid="import-next-chapter"
-                    disabled={reviewGroups.length > 0 || nextChapterMutation.isPending}
+                    disabled={chapterReviewPending || reviewGroups.length > 0 || nextChapterMutation.isPending}
                     onClick={() => nextChapterMutation.mutate()}
                     className="self-start px-3 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 disabled:opacity-40 text-white text-meta font-semibold shadow-2xs cursor-pointer"
                   >
