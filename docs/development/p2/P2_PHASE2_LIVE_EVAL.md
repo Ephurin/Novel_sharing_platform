@@ -267,3 +267,11 @@ Also fixed: when the model links an honorific variant to a known entity without 
 - `tests/test_world_rule_extraction.py`: 6 tests, added to the p2 focused CI step together with `test_identity_variants.py`.
 - ai-service default suite: 517 passed.
 - Related suites: 189 passed.
+
+## #150 follow-up (branch `claude/p2-p3-polish`)
+
+| Item | Status |
+|---|---|
+| F-LIVE-07: writing request with `selection: {cursor}` returned 400 with a raw Python message | **Fixed.** Missing or null `start`/`end` default to the cursor, and the normalized selection is stored on the job. Live: a cursor-only "continue" completed in 4 s and passed validation (1 call) |
+| Runbook: operator enable after ledger initialization | **Done.** `docs/development/p2/P2_LIVE_RUNBOOK.md` covers private files, attestation per key, init, the two-step enable, capacity, retries, shutdown and troubleshooting |
+| F-LIVE-10: event extraction recall/precision | **Not changed.** It needs a gold set to measure; moved to Track B instead of tuning the prompt blind |

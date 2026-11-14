@@ -31,3 +31,27 @@ def test_preceding_text_is_bounded_and_ranges_unchanged():
     got = resolve(text, {'start': len(text), 'end': len(text)})
     assert len(got) == PRECEDING_CONTEXT_CHARS and got.endswith('END')
     assert resolve('abcdef', {'start': 1, 'end': 4}) == 'bcd'
+
+
+def test_cursor_only_request_with_null_offsets_is_accepted():
+    """F-LIVE-07: the API sends start/end as null when only a cursor is given; that used to fail
+    with "'<' not supported between 'NoneType' and 'int'"."""
+    import hashlib
+    from application.ports import RevisionContent
+    from infrastructure.in_memory_narrative_repository import InMemoryNarrativeRepository
+    from infrastructure.revision_content_provider import InMemoryRevisionContentProvider
+    from tests.harness.fake_llm import FakeDeterministicLLMService
+
+    text = 'Tiêu Viêm đi vào rừng rậm, bắt đầu thu thập dược liệu quý giá.'
+    ids = dict(novel_id='11111111-1111-1111-1111-111111111111', chapter_id='22222222-2222-2222-2222-222222222222',
+               revision_id='33333333-3333-3333-3333-333333333333')
+    content_hash = hashlib.sha256(text.encode('utf-8')).hexdigest()
+    repo = InMemoryNarrativeRepository()
+    repo.get_story_brain(ids['novel_id'])
+    service = WritingService(repository=repo, llm_service=FakeDeterministicLLMService(),
+                             revision_provider=InMemoryRevisionContentProvider([RevisionContent(content=text, content_hash=content_hash, **ids)]))
+    job = service.start_generation(tenant_id='00000000-0000-0000-0000-000000000001', content_hash=content_hash,
+                                   operation='continue', selection={'start': None, 'end': None, 'cursor': len(text)},
+                                   instruction='Viết tiếp', **ids)
+    assert job.selection['start'] == job.selection['end'] == len(text)
+    assert job.status != 'failed', job.error
