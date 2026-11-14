@@ -47,6 +47,13 @@ class FakeDeterministicLLMService:
                 reason='Deterministic fake occurrence for human review') for c in data['candidates']]})
         if operation == 'rule_consistency':
             return json.dumps({'findings': []})
+        if operation == 'world_rule_extraction':
+            # Deterministic: explicit "Luật:" / "Quy tắc:" lines become rules quoted verbatim.
+            import re as _re
+            text = json.loads(user_prompt).get('chapter_text', '')
+            rules = [{'rule': m.group(1).strip(), 'quote': m.group(1).strip(), 'confidence': 0.9}
+                     for m in _re.finditer(r'(?im)^\s*(?:luật|quy\s*tắc)\s*:\s*([^\r\n]+)', text)]
+            return json.dumps({'rules': rules}, ensure_ascii=False)
         if operation == 'hitl_event_extraction':
             data = json.loads(user_prompt)
             refs = [e['entity_id'] if isinstance(e, dict) else e for e in data['known_entities']]
