@@ -82,3 +82,25 @@ Covered by offline tests only; not re-run against the live model yet.
 | #149 (F-LIVE-08) | ai-service marks every gateway call with `X-Request-Priority`: writing drafts, brainstorm, setup extract/blueprint and the rule check are `interactive`; analysis is `background`. Background calls cannot use the RPM slots kept for interactive calls (default `max(1, effective_rpm // 5)`, 2 of 13 on free tier) or the last concurrency slot; unmarked callers keep the full limits. Gateway 429s carry `retry_after`. An interactive call waits up to `INTERACTIVE_RATE_LIMIT_MAX_WAIT_SECONDS` (20 s) and retries; if it still fails, the writing job returns `AI_RATE_LIMITED` with an author-facing "busy, retry in N s" message. Outbox retries after a rate-limit failure wait at least 60 s | `Pipeline_test/tests/test_p2_interactive_priority.py`, `backend/src/jobs/outbox-processor.test.ts` |
 
 Remaining open: #150 (P3), #138 (post-P2).
+
+## Follow-up: multi-key free-tier pool (branch `claude/p2-live-key-pool`)
+
+The owner has 4 keys, each from a separate free-tier Google project with its own limits. On 2026-11-14 the owner confirmed in chat that all 4 projects are free tier with no billing and the P1 smoke quotas, acknowledged Google's terms, and approved a live check.
+
+**How it works**
+- `Pipeline_test/tools/quota_key_pool.py` gives each key its own durable `FreeTierQuotaLedger` (own state file `*.kN.json`, own attestation). It exposes the single-ledger interface.
+- A call is admitted on the key with the most RPM room. When the provider returns 429, that key cools down for `Retry-After` (default 60 s) and the call moves to the next key.
+- The #149 interactive reserve applies per key.
+- Gateway option `--upstream-api-keys-file` / `UPSTREAM_API_KEYS_FILE`: one key per line, `#` comments. The attestation file can then be a list with one entry per key.
+- One key keeps the old single-ledger behaviour.
+- Summaries and logs show key slots (1–4) and project fingerprints, never key values.
+
+**Live check** (gemini-3.5-flash-lite, 29 calls, $0.00, no provider 429)
+
+| Check | Result |
+|---|---|
+| 2 tiny calls per key | 8/8 OK; every key valid, each slot used twice |
+| Burst of 20 calls, 4 parallel, mixed interactive/background | 20/20 OK in 4.3 s, spread evenly (7/7/7/7 calls in the window). A single key allows 13 per minute |
+| Brainstorm #147 on the eval novel (2 approved rules, 8 entities) | 2 new rules extending the lore, 1 new character, 1 event at ch.8. None repeats approved canon (`duplicates_removed: 0`, the prompt alone was enough this time) |
+
+**Offline tests:** `Pipeline_test/tests/test_p2_key_pool.py` (12 tests) covers the ledger per key, even spread, the daily limit only when every key is out, cooldown/failover on provider 429, the single-key fallback and CLI initialization. The existing free-tier, live-safety and #149 suites pass (83).

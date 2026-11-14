@@ -282,6 +282,11 @@ except ImportError:
         parse_model_quotas_from_env,
     )
 
+try:
+    from Pipeline_test.tools.quota_key_pool import QuotaKeyPool, read_keys_file
+except ImportError:
+    from quota_key_pool import QuotaKeyPool, read_keys_file  # type: ignore[no-redef]
+
 APPROVED_MODEL = "gemini-3.5-flash-lite"
 HARD_MAX_CALLS = 15
 HARD_WINDOW_CALLS = 10
@@ -730,6 +735,12 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
     input_rate = Decimal("0.30") / Decimal("1000000")
     output_rate = Decimal("2.50") / Decimal("1000000")
 
+    def _upstream_key(self, ticket: dict[str, Any]) -> str | None:
+        """The key of the project that admitted this ticket (multi-key pool), else the single key."""
+        if "key_slot" in ticket and hasattr(self.quota_ledger, "key_for"):
+            return self.quota_ledger.key_for(ticket)
+        return self.upstream_api_key
+
     def _send_json(self, status: int, data: dict[str, Any], extra_headers: dict[str, str] | None = None) -> None:
         body = json.dumps(data).encode("utf-8")
         try:
@@ -848,7 +859,7 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
                     request = urllib.request.Request(
                         (self.upstream_base_url or "").rstrip("/") + "/v1/models",
                         headers={
-                            "Authorization": "Bearer " + (self.upstream_api_key or ""),
+                            "Authorization": "Bearer " + (self._upstream_key(ticket) or ""),
                             "X-Gateway-Dispatch-Id": ticket["ticket_id"],
                             "X-Gateway-Client": self.client_tokens[token],
                         },
@@ -1095,80 +1106,88 @@ class LiveSafetyGatewayHandler(BaseHTTPRequestHandler):
                 # #149: ai-service marks analysis/retry traffic as background so it cannot use the
                 # quota share kept for an author waiting on a result. Unmarked callers keep full limits.
                 priority = "background" if self.headers.get("X-Request-Priority", "").strip().lower() == "background" else "interactive"
-                try:
-                    ticket = self.quota_ledger.reserve(
-                        model=normalized_model,
-                        estimated_input_tokens=estimated_tokens,
-                        client_service=client,
-                        operation=op_name,
-                        priority=priority,
-                    )
-                except FreeTierStatusUnverifiedError:
-                    return self._send_json(503, {"error": "FREE_TIER_STATUS_UNVERIFIED"})
-                except QuotaConfigRequiredError:
-                    return self._send_json(503, {"error": "QUOTA_CONFIG_REQUIRED"})
-                except (RPMLimitExceeded, TPMLimitExceeded, RPDLimitExceeded, ConcurrencyLimitExceeded) as exc:
-                    code = {RPMLimitExceeded: "RPM_LIMIT_EXCEEDED", TPMLimitExceeded: "TPM_LIMIT_EXCEEDED",
-                            RPDLimitExceeded: "RPD_LIMIT_EXCEEDED"}.get(type(exc), "CONCURRENCY_LIMIT_EXCEEDED")
-                    retry_after = getattr(exc, "retry_after", None)
-                    if retry_after is None:
-                        return self._send_json(429, {"error": code})
-                    return self._send_json(429, {"error": code, "retry_after": retry_after},
-                                           extra_headers={"Retry-After": str(retry_after)})
-                except QuotaMeterUnavailableError as exc:
-                    return self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE", "detail": str(exc)})
+                # Multi-key pool: a provider 429 on one key (project) moves the call to the next key.
+                hops = getattr(self.quota_ledger, "size", 1)
+                for hop in range(hops):
+                    try:
+                        ticket = self.quota_ledger.reserve(
+                            model=normalized_model,
+                            estimated_input_tokens=estimated_tokens,
+                            client_service=client,
+                            operation=op_name,
+                            priority=priority,
+                        )
+                    except FreeTierStatusUnverifiedError:
+                        return self._send_json(503, {"error": "FREE_TIER_STATUS_UNVERIFIED"})
+                    except QuotaConfigRequiredError:
+                        return self._send_json(503, {"error": "QUOTA_CONFIG_REQUIRED"})
+                    except (RPMLimitExceeded, TPMLimitExceeded, RPDLimitExceeded, ConcurrencyLimitExceeded) as exc:
+                        code = {RPMLimitExceeded: "RPM_LIMIT_EXCEEDED", TPMLimitExceeded: "TPM_LIMIT_EXCEEDED",
+                                RPDLimitExceeded: "RPD_LIMIT_EXCEEDED"}.get(type(exc), "CONCURRENCY_LIMIT_EXCEEDED")
+                        retry_after = getattr(exc, "retry_after", None)
+                        if retry_after is None:
+                            return self._send_json(429, {"error": code})
+                        return self._send_json(429, {"error": code, "retry_after": retry_after},
+                                               extra_headers={"Retry-After": str(retry_after)})
+                    except QuotaMeterUnavailableError as exc:
+                        return self._send_json(503, {"error": "BUDGET_METER_UNAVAILABLE", "detail": str(exc)})
 
-                wire = json.dumps(body, ensure_ascii=False).encode("utf-8")
-                url = (self.upstream_base_url or "").rstrip("/") + self.path
-                headers = {
-                    "Content-Type": "application/json",
-                    "X-Gateway-Dispatch-Id": ticket["ticket_id"],
-                    "X-Gateway-Client": client,
-                }
-                if self.upstream_api_key:
-                    headers["x-goog-api-key" if (native or is_embed) else "Authorization"] = (
-                        "" if (native or is_embed) else "Bearer "
-                    ) + self.upstream_api_key
-                request = urllib.request.Request(url, data=wire, headers=headers, method="POST")
-                try:
-                    status, headers, body_bytes = _execute_bounded_request(
-                        request,
-                        timeout_seconds=self.upstream_timeout,
-                        max_response_bytes=2_000_000,
-                    )
-                    if status == 200:
-                        result = json.loads(body_bytes.decode("utf-8"))
-                        actual_tokens = None
-                        if isinstance(result, dict):
-                            usage = result.get("usageMetadata") or result.get("usage")
-                            if isinstance(usage, dict):
-                                actual_tokens = usage.get("promptTokenCount") or usage.get("prompt_tokens")
-                        self.quota_ledger.finalize(ticket["ticket_id"], "SUCCESS", actual_input_tokens=actual_tokens)
-                        return self._send_json(200, result)
-                    elif status == 429:
-                        self.quota_ledger.finalize(ticket["ticket_id"], "PROVIDER_RATE_LIMITED")
-                        retry_after = headers.get("Retry-After") or headers.get("retry-after")
-                        resp_data: dict[str, Any] = {"error": "PROVIDER_RATE_LIMITED"}
-                        extra_hdrs: dict[str, str] = {}
-                        if retry_after:
-                            resp_data["retry_after"] = str(retry_after)
-                            extra_hdrs["Retry-After"] = str(retry_after)
-                        return self._send_json(429, resp_data, extra_headers=extra_hdrs)
-                    elif status in (401, 403):
-                        self.quota_ledger.finalize(ticket["ticket_id"], "AUTH_ERROR")
-                        return self._send_json(status, {"error": "PROVIDER_UNAVAILABLE", "upstream_status": status})
-                    else:
+                    wire = json.dumps(body, ensure_ascii=False).encode("utf-8")
+                    url = (self.upstream_base_url or "").rstrip("/") + self.path
+                    headers = {
+                        "Content-Type": "application/json",
+                        "X-Gateway-Dispatch-Id": ticket["ticket_id"],
+                        "X-Gateway-Client": client,
+                    }
+                    upstream_key = self._upstream_key(ticket)
+                    if upstream_key:
+                        headers["x-goog-api-key" if (native or is_embed) else "Authorization"] = (
+                            "" if (native or is_embed) else "Bearer "
+                        ) + upstream_key
+                    request = urllib.request.Request(url, data=wire, headers=headers, method="POST")
+                    try:
+                        status, headers, body_bytes = _execute_bounded_request(
+                            request,
+                            timeout_seconds=self.upstream_timeout,
+                            max_response_bytes=2_000_000,
+                        )
+                        if status == 200:
+                            result = json.loads(body_bytes.decode("utf-8"))
+                            actual_tokens = None
+                            if isinstance(result, dict):
+                                usage = result.get("usageMetadata") or result.get("usage")
+                                if isinstance(usage, dict):
+                                    actual_tokens = usage.get("promptTokenCount") or usage.get("prompt_tokens")
+                            self.quota_ledger.finalize(ticket["ticket_id"], "SUCCESS", actual_input_tokens=actual_tokens)
+                            return self._send_json(200, result)
+                        elif status == 429:
+                            self.quota_ledger.finalize(ticket["ticket_id"], "PROVIDER_RATE_LIMITED")
+                            retry_after = headers.get("Retry-After") or headers.get("retry-after")
+                            if hasattr(self.quota_ledger, "cool_down"):
+                                self.quota_ledger.cool_down(ticket, retry_after)
+                                if hop + 1 < hops:
+                                    continue
+                            resp_data: dict[str, Any] = {"error": "PROVIDER_RATE_LIMITED"}
+                            extra_hdrs: dict[str, str] = {}
+                            if retry_after:
+                                resp_data["retry_after"] = str(retry_after)
+                                extra_hdrs["Retry-After"] = str(retry_after)
+                            return self._send_json(429, resp_data, extra_headers=extra_hdrs)
+                        elif status in (401, 403):
+                            self.quota_ledger.finalize(ticket["ticket_id"], "AUTH_ERROR")
+                            return self._send_json(status, {"error": "PROVIDER_UNAVAILABLE", "upstream_status": status})
+                        else:
+                            self.quota_ledger.finalize(ticket["ticket_id"], "FAILED")
+                            return self._send_json(status, {"error": "PROVIDER_UNAVAILABLE", "upstream_status": status})
+                    except RequestDeadlineExceeded:
+                        self.quota_ledger.finalize(ticket["ticket_id"], "TIMEOUT")
+                        return self._send_json(504, {"error": "PROVIDER_TIMEOUT", "detail": "REQUEST_DEADLINE_EXCEEDED"})
+                    except ResponseBoundExceeded:
+                        self.quota_ledger.finalize(ticket["ticket_id"], "OVERSIZED")
+                        return self._send_json(502, {"error": "PROVIDER_UNAVAILABLE", "detail": "RESPONSE_BOUND_EXCEEDED"})
+                    except Exception as exc:
                         self.quota_ledger.finalize(ticket["ticket_id"], "FAILED")
-                        return self._send_json(status, {"error": "PROVIDER_UNAVAILABLE", "upstream_status": status})
-                except RequestDeadlineExceeded:
-                    self.quota_ledger.finalize(ticket["ticket_id"], "TIMEOUT")
-                    return self._send_json(504, {"error": "PROVIDER_TIMEOUT", "detail": "REQUEST_DEADLINE_EXCEEDED"})
-                except ResponseBoundExceeded:
-                    self.quota_ledger.finalize(ticket["ticket_id"], "OVERSIZED")
-                    return self._send_json(502, {"error": "PROVIDER_UNAVAILABLE", "detail": "RESPONSE_BOUND_EXCEEDED"})
-                except Exception as exc:
-                    self.quota_ledger.finalize(ticket["ticket_id"], "FAILED")
-                    return self._send_json(502, {"error": "PROVIDER_UNAVAILABLE", "detail": str(exc)})
+                        return self._send_json(502, {"error": "PROVIDER_UNAVAILABLE", "detail": str(exc)})
 
             wire = json.dumps(body, ensure_ascii=False).encode("utf-8")
             liability = (len(wire) + 4096) * self.input_rate + limit * self.output_rate
@@ -1250,6 +1269,7 @@ def start_live_safety_gateway(
     operator_attestation: dict[str, Any] | None = None,
     enable_live_forwarding: bool = False,
     operator_auth_token: str | None = None,
+    upstream_api_keys: list[str] | None = None,
 ) -> tuple[ThreadingHTTPServer, threading.Thread, Any]:
     class Handler(LiveSafetyGatewayHandler):
         pass
@@ -1265,14 +1285,31 @@ def start_live_safety_gateway(
     Handler.operator_auth_token = (operator_auth_token or os.getenv("OPERATOR_AUTH_TOKEN", "")).strip()
 
     if execution_mode == "live_free_tier":
-        quota_ledger = FreeTierQuotaLedger(
-            state_file,
-            run_id=run_id,
-            live_free_tier_enabled=enable_live_free_tier,
-            model_quotas=model_quotas,
-            operator_attestation=operator_attestation,
-            initialize=initialize,
-        )
+        if upstream_api_keys and len(upstream_api_keys) > 1:
+            # One project per key, each with its own free-tier ledger and attestation.
+            quota_ledger = QuotaKeyPool.open(
+                state_file,
+                upstream_api_keys,
+                attestations=operator_attestation,
+                run_id=run_id,
+                live_free_tier_enabled=enable_live_free_tier,
+                model_quotas=model_quotas,
+                initialize=initialize,
+            )
+            Handler.upstream_api_key = None
+        else:
+            if isinstance(operator_attestation, list):
+                operator_attestation = operator_attestation[0]
+            if upstream_api_keys:
+                Handler.upstream_api_key = upstream_api_keys[0]
+            quota_ledger = FreeTierQuotaLedger(
+                state_file,
+                run_id=run_id,
+                live_free_tier_enabled=enable_live_free_tier,
+                model_quotas=model_quotas,
+                operator_attestation=operator_attestation,
+                initialize=initialize,
+            )
         Handler.quota_ledger = quota_ledger
         Handler.ledger = None
         ledger_ret: Any = quota_ledger
@@ -1308,6 +1345,11 @@ def start_live_safety_gateway(
     return server, thread, ledger_ret
 
 
+def _attestation_expired(attestation: Any) -> bool:
+    items = attestation if isinstance(attestation, list) else [attestation]
+    return any(float((a or {}).get("expires_at", 0)) < time.time() for a in items)
+
+
 def cli_main(argv: list[str] | None = None) -> int:
     import argparse
 
@@ -1332,6 +1374,9 @@ def cli_main(argv: list[str] | None = None) -> int:
     parser.add_argument("--worker-auth-tokens", help="Worker auth tokens JSON string or single token")
     parser.add_argument("--upstream-base-url", help="Upstream API base URL")
     parser.add_argument("--upstream-api-key", help="Upstream API key")
+    parser.add_argument("--upstream-api-keys-file",
+                        help="File with one upstream key per line (one free-tier project each); "
+                             "the attestation file may then hold one attestation per key")
     parser.add_argument("--upstream-timeout", type=float, default=None, help="Upstream socket timeout in seconds")
     args = parser.parse_args(argv)
 
@@ -1440,6 +1485,22 @@ def cli_main(argv: list[str] | None = None) -> int:
 
     run_id = args.run_id or os.getenv("P1_SAFETY_PROJECT") or "run-gateway"
 
+    # 5b. Optional multi-key pool (live_free_tier only): one free-tier project per key.
+    upstream_keys: list[str] = []
+    keys_file = args.upstream_api_keys_file or os.getenv("UPSTREAM_API_KEYS_FILE", "")
+    if keys_file and execution_mode == "live_free_tier":
+        try:
+            upstream_keys = read_keys_file(keys_file)
+        except Exception as exc:
+            sys.stderr.write(f"UPSTREAM_KEYS_FILE_INVALID: {type(exc).__name__}\n")
+            return 1
+        if not upstream_keys:
+            sys.stderr.write("UPSTREAM_KEYS_FILE_INVALID: no keys\n")
+            return 1
+        if isinstance(attestation, list) and len(attestation) != len(upstream_keys):
+            sys.stderr.write("FREE_TIER_STATUS_UNVERIFIED: one attestation per upstream key required\n")
+            return 1
+
     # --- CLI Path A: Initialization ---
     if args.initialize:
         if execution_mode == "live_free_tier":
@@ -1453,18 +1514,29 @@ def cli_main(argv: list[str] | None = None) -> int:
                 if not attestation:
                     sys.stderr.write("FREE_TIER_STATUS_UNVERIFIED: Operator attestation required when live_free_tier_enabled=True\n")
                     return 1
-                if float(attestation.get("expires_at", 0)) < time.time():
+                if _attestation_expired(attestation):
                     sys.stderr.write("FREE_TIER_STATUS_UNVERIFIED: Operator attestation expired\n")
                     return 1
             try:
-                quota_ledger = FreeTierQuotaLedger(
-                    args.state,
-                    run_id=run_id,
-                    live_free_tier_enabled=free_tier_enabled,
-                    model_quotas=model_quotas,
-                    operator_attestation=attestation,
-                    initialize=True,
-                )
+                if len(upstream_keys) > 1:
+                    quota_ledger = QuotaKeyPool.open(
+                        args.state,
+                        upstream_keys,
+                        attestations=attestation,
+                        run_id=run_id,
+                        live_free_tier_enabled=free_tier_enabled,
+                        model_quotas=model_quotas,
+                        initialize=True,
+                    )
+                else:
+                    quota_ledger = FreeTierQuotaLedger(
+                        args.state,
+                        run_id=run_id,
+                        live_free_tier_enabled=free_tier_enabled,
+                        model_quotas=model_quotas,
+                        operator_attestation=attestation[0] if isinstance(attestation, list) else attestation,
+                        initialize=True,
+                    )
                 summary = quota_ledger.get_summary()
                 quota_ledger.close()
                 print(json.dumps({"initialized": True, "mode": execution_mode, "summary": summary}))
@@ -1497,7 +1569,7 @@ def cli_main(argv: list[str] | None = None) -> int:
             if not attestation:
                 sys.stderr.write("FREE_TIER_STATUS_UNVERIFIED: Operator attestation required when live_free_tier_enabled=True\n")
                 return 1
-            if float(attestation.get("expires_at", 0)) < time.time():
+            if _attestation_expired(attestation):
                 sys.stderr.write("FREE_TIER_STATUS_UNVERIFIED: Operator attestation expired\n")
                 return 1
         if live_forwarding:
@@ -1526,6 +1598,7 @@ def cli_main(argv: list[str] | None = None) -> int:
             enable_live_forwarding=live_forwarding,
             operator_auth_token=operator_token,
             initialize=False,
+            upstream_api_keys=upstream_keys or None,
         )
         print(json.dumps({
             "status": "RUNNING",
@@ -1534,6 +1607,7 @@ def cli_main(argv: list[str] | None = None) -> int:
             "mode": execution_mode,
             "live_free_tier_enabled": free_tier_enabled,
             "live_forwarding": live_forwarding,
+            "upstream_key_slots": max(1, len(upstream_keys)),
         }), flush=True)
         thread.join()
         return 0
