@@ -99,3 +99,37 @@ def test_unparseable_output_still_fails_with_reason():
 def test_redact_removes_quoted_values():
     assert _redact('Candidate c1 (surface="Lâm") has canonical_name="Lâm"') == \
         'Candidate c1 (surface="…") has canonical_name="…"'
+
+
+def test_discovery_failure_on_a_chunk_does_not_fail_the_chapter():
+    from core.exceptions import EntityExtractionError
+
+    def broken_discovery(_text, _llm):
+        raise EntityExtractionError("model output is not valid JSON")
+
+    audit = {}
+    result = verify_entities(TEXT, ScriptedLLM(lambda cands, _a: [good(c) for c in cands]), broken_discovery,
+                             audit_sink=lambda a: audit.update(a),
+                             guidance=[{"name": "Lâm Phong"}, {"name": "Thanh Thành"}])
+    assert {e["phrase"] for e in result.entities} == {"Lâm Phong", "Thanh Thành"}
+    assert audit["status"] == "completed"
+    assert audit["discovery_errors"][0]["error"].endswith("not valid JSON")
+
+
+def test_discovery_uses_schema_constrained_structured_call():
+    from core.llm_service import response_schema_for
+    from services.entity_pipeline.pipeline import EntityPipeline
+
+    calls = []
+
+    class LLM:
+        model = "stub"
+
+        def _call_structured(self, *, operation, system_prompt, user_prompt):
+            calls.append(operation)
+            return json.dumps({"entities": [{"phrase": "Lâm Phong", "entity": "PER", "score": 9}]})
+
+    found = EntityPipeline().run(TEXT, llm_service=LLM())
+    assert calls == ["entity_discovery"] and found[0]["phrase"] == "Lâm Phong"
+    schema = response_schema_for("entity_discovery")
+    assert schema["properties"]["entities"]["type"] == "array"

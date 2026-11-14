@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from core.structured_call import call_structured
 from core.structured_outputs import EntityType
+from core.exceptions import EntityExtractionError
 from domain.errors import AnalysisOutputError
 from services.entity_pipeline.candidates import CandidateInventory, POLICY, chunks, occurrences, same_name
 from services.source_grounding import quote_span
@@ -138,7 +139,16 @@ def verify_entities(text, llm, discover, *, known_entities=(), known_aliases=(),
             inventory.add_name(name, 'author_guidance')
         # Discovery is complementary to deterministic collection, not the sole source of candidates.
         for chunk in chunks(text):
-            for item in discover(chunk.text, llm):
+            try:
+                discovered = discover(chunk.text, llm)
+            except EntityExtractionError as exc:
+                # Discovery only adds candidates; known names and author guidance are already
+                # collected. One bad chunk must not fail the chapter (or a whole manuscript import).
+                audit.setdefault('discovery_errors', []).append(
+                    {'chunk_start': chunk.start, 'error': _redact(str(exc))})
+                logger.warning('Entity discovery skipped for chunk at %d: %s', chunk.start, _redact(str(exc)))
+                discovered = []
+            for item in discovered:
                 if not list(occurrences(chunk.text, item['phrase'])):
                     audit['unanchored_discoveries'].append({'name': item['phrase'], 'chunk_start': chunk.start})
                 inventory.add_name(item['phrase'], 'llm_discovery', chunk=chunk)

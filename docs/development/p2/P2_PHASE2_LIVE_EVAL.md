@@ -104,3 +104,28 @@ The owner has 4 keys, each from a separate free-tier Google project with its own
 | Brainstorm #147 on the eval novel (2 approved rules, 8 entities) | 2 new rules extending the lore, 1 new character, 1 event at ch.8. None repeats approved canon (`duplicates_removed: 0`, the prompt alone was enough this time) |
 
 **Offline tests:** `Pipeline_test/tests/test_p2_key_pool.py` (12 tests) covers the ledger per key, even spread, the daily limit only when every key is out, cooldown/failover on provider 429, the single-key fallback and CLI initialization. The existing free-tier, live-safety and #149 suites pass (83).
+
+## Live round 2: manuscript import with the 4-key pool (2026-11-14)
+
+Fixture `PT-CV-001` "Thành phố giữ lại tiếng mưa", 5 chapters, 4,747 words (574–1,216 per chapter), entity-first mode (default). It is the only multi-chapter Vietnamese manuscript in the repo; the 61-chapter Aethelgard source is not on this machine. 114 calls, $0.00, no local or provider denials.
+
+**Calls and time per chapter**
+
+| Stage | Calls | Notes |
+|---|---|---|
+| Entity stage (discovery + verification) | 39 for 5 chapters (11 / 8 / 8 / 10 / 2) | ≈ 8 calls per 1,000 words; 69–167 candidates per chapter; 2 repairs, both fixed on attempt 2, none degraded |
+| Event/fact stage (`continue` after entity review) | 19 for 5 chapters (3–6 each) | 110 proposals: 71 entity, 29 fact, 10 event |
+| Wall time | 3.5 min for the entity stage | latency-bound (one call at a time, ~6–7 s each); no RPM waits with 4 keys |
+
+So a chapter costs about 12 calls per 1,000 words, roughly twice the earlier estimate (a 2,500-word chapter ≈ 25–30 calls). A 50-chapter, 2,500-word manuscript ≈ 1,300–1,500 calls and ≈ 1.5–2 h, which fits the 4-key daily quota (≈ 1,800) but not a single key (450).
+
+**Findings**
+
+| ID | Sev | Finding | Status |
+|---|---|---|---|
+| F-LIVE-11 | P1 | Entity discovery used the plain 512-token text call with no JSON schema. On a 1,216-word chapter the name list was cut mid-JSON and the whole import job failed at chapter 2 ("model output is not valid JSON"). The prompt example was also mojibake | **Fixed** in `claude/p2-live-discovery-fix`: schema-constrained `entity_discovery` structured call (8,192-token budget), prompt fixed, and a failed discovery for one chunk is recorded in the audit (`discovery_errors`) instead of failing the chapter. Rerun: 5/5 chapters analysed |
+| F-LIVE-12 | P1 | A multi-chapter import cannot be completed in entity-first mode. All chapters are analysed against brain v1 and every proposal stores that version. Accepting one chapter's proposals moves the brain to v2, and then (a) the other chapters' entity reviews and refreshes return `CHECKPOINT_CONFLICT` ("Canon changed; start a new analysis") and (b) their already-produced proposal groups return `BRAIN_VERSION_CONFLICT` (`accept_proposal_group` requires every proposal's `expected_brain_version` to equal the current version). Tried both orders: chapter by chapter (stuck at chapter 2) and review-all-then-accept (1 of 5 groups accepted, 93 proposals stuck). The baseline can never be activated for more than one chapter | Open |
+| F-LIVE-13 | P2 | Chapters are reviewed independently, so the same character becomes a new provisional identity in each chapter (71 entity proposals for 5 chapters; 0 candidates linked to a known entity). Linking needs earlier chapters accepted first, which F-LIVE-12 blocks | Open |
+| F-LIVE-14 | P3 | Review burden: 69–167 candidates per chapter, of which 46–115 are "not entity" | Open (quality) |
+
+Not covered in this round: #149 (interactive writing during background analysis) and the cross-chapter consistency check, both blocked behind F-LIVE-12.
