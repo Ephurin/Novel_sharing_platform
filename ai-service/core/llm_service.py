@@ -977,6 +977,10 @@ def response_schema_for(operation: str) -> dict[str, Any] | None:
     validates ``HitlEventBatch`` strictly (requires ``quote``, forbids legacy scoring fields);
     constraining it to the legacy event schema made every live HITL extraction fail.
     """
+    if operation == "entity_discovery":
+        from core.structured_outputs import EntityDiscoveryBatch
+
+        return EntityDiscoveryBatch.model_json_schema()
     if operation == "hitl_event_extraction":
         from core.structured_outputs import HitlEventBatch
 

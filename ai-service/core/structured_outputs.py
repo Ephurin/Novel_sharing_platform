@@ -27,6 +27,11 @@ class EntityExtractionOutput(StrictOutputModel):
     metadata: PipelineMetadata
 
 
+class EntityDiscoveryBatch(StrictOutputModel):
+    """Constrained provider output for named-entity discovery (live schema, see response_schema_for)."""
+    entities: list[ExtractedEntity]
+
+
 class NarrativeEventOutput(StrictOutputModel):
     participants: list[str] = Field(default_factory=list)
     locations: list[str] = Field(default_factory=list)
