@@ -197,6 +197,7 @@ services:
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?required}
       PLATFORM_SERVICE_TOKEN: ${PLATFORM_SERVICE_TOKEN:?required}
       AI_SERVICE_URL: http://ai-service:8000
+      ANALYSIS_QUIET_SECONDS: ${ANALYSIS_QUIET_SECONDS:-120}
       RUN_MIGRATIONS: 'true'
       RUN_DEMO_SEED: 'false'
       AI_LLM_BASE_URL: http://budget-gateway:18090/v1
