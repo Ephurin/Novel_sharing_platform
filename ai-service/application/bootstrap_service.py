@@ -9,6 +9,7 @@ from dataclasses import asdict, replace
 from typing import Any
 
 from application.ports import ContentHashMismatchError, RevisionContentProvider
+from core.output_language import output_language_rule
 from application.revision_analysis_service import RevisionAnalysisService
 from domain.errors import BaselineReviewRequiredError, BootstrapLimitExceededError, BootstrapConflictError
 from domain.models import BootstrapJob, BootstrapRevision, NarrativeProposal, ProposalStatus, AnalysisRun
@@ -183,7 +184,7 @@ class ManuscriptBootstrapService:
         brain_version = int(brain.metadata.get("brain_version", "1"))
         try:
             blueprint = self._generate_blueprint(idea=idea, outline=outline,
-                preferences=preferences, author_constraints=author_constraints)
+                preferences=preferences, author_constraints=author_constraints, locale=locale)
         except Exception:
             self._repository.fail_bootstrap_job(reserved)
             raise
@@ -328,6 +329,7 @@ class ManuscriptBootstrapService:
         outline: str | None = None,
         preferences: dict[str, Any] | None = None,
         author_constraints: list[str] | None = None,
+        locale: str = "vi-VN",
     ) -> dict[str, Any]:
         preferences = preferences or {}
         author_constraints = author_constraints or []
@@ -340,11 +342,12 @@ class ManuscriptBootstrapService:
             )
         if self._llm_service and hasattr(self._llm_service, "_call_llm"):
             system_prompt = (
+                output_language_rule(locale) +
                 "You are an expert novel architect. Generate a structured story blueprint from the premise. "
                 "Return only a JSON object with this schema: "
                 '{"premise": "...", "world_rules": ["..."], "entities": [{"name": "...", "entity_type": "character|location", "score": 9.0}], "author_constraints": ["..."]}'
             )
-            user_prompt = f"Idea:\n{idea}\n\nOutline:\n{outline or ''}\n\nPreferences:\n{json.dumps(preferences)}\n\nConstraints:\n{json.dumps(author_constraints)}"
+            user_prompt = f"Idea:\n{idea}\n\nOutline:\n{outline or ''}\n\nPreferences:\n{json.dumps(preferences, ensure_ascii=False)}\n\nConstraints:\n{json.dumps(author_constraints, ensure_ascii=False)}"
             try:
                 raw = self._llm_service._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
                 data = json.loads(raw)

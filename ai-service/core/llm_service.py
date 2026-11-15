@@ -881,7 +881,10 @@ class LLMService:
         style_str = json.dumps(_strip_private_notes(style or {}), ensure_ascii=False) if style else ""
         constraints_str = "; ".join(str(c) for c in (constraints or [])) if constraints else ""
 
+        from core.output_language import VIETNAMESE_TEXT_OUTPUT
+
         system_prompt = (
+            VIETNAMESE_TEXT_OUTPUT + "\n"
             "Bạn là trợ lý viết tiểu thuyết chuyên nghiệp (Author AI Copilot).\n"
             "Dựa trên bối cảnh thế giới, nhân vật, phong cách và các ràng buộc của tác giả, hãy tạo nội dung viết tiếp hoặc sửa đổi phù hợp.\n"
             "Chỉ trả về định dạng JSON hợp lệ:\n"
@@ -951,7 +954,9 @@ class LLMService:
         """#144: model-proposed setup ideas. Only the idea text and outline leave the service."""
         from core.setup_extraction import BLUEPRINT_PROMPT, clean_blueprint
 
-        raw = self._call_structured(operation="setup_blueprint", system_prompt=BLUEPRINT_PROMPT,
+        from core.output_language import output_language_rule
+
+        raw = self._call_structured(operation="setup_blueprint", system_prompt=output_language_rule(locale) + BLUEPRINT_PROMPT,
                                     user_prompt=json.dumps({"idea": setup.get("text", ""), "outline": outline or "",
                                                             "locale": locale}, ensure_ascii=False))
         return clean_blueprint(raw)
@@ -966,7 +971,10 @@ class LLMService:
         target_chapter: int | None = None,
         target: str = "all",
     ) -> dict[str, Any]:
+        from core.output_language import output_language_rule
+
         system_prompt = (
+            output_language_rule() +
             "You are an expert creative writing assistant and novel architect. "
             "Generate structured brainstorm suggestions for a story based on confirmed world rules, "
             "known characters, and the author's instructions.\n"
@@ -992,8 +1000,8 @@ class LLMService:
             f"Target suggestions: {target}\n"
             f"Current chapter: {current_chapter}\n"
             f"Target chapter: {target_chapter or (current_chapter + 1)}\n"
-            f"Known entities: {json.dumps(known_entities or [])}\n"
-            f"Confirmed world rules: {json.dumps(world_rules or [])}\n"
+            f"Known entities: {json.dumps(known_entities or [], ensure_ascii=False)}\n"
+            f"Confirmed world rules: {json.dumps(world_rules or [], ensure_ascii=False)}\n"
         )
         try:
             raw = self._call_structured(

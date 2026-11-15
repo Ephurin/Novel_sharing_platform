@@ -151,6 +151,9 @@ type AccessMode = 'free' | 'vip';
 type StoryBibleTab = 'characters' | 'relationships' | 'timeline' | 'summaries';
 function readEditorSetting(key: string) { try { return localStorage.getItem(key); } catch { return null; } }
 function writeEditorSetting(key: string, value: string) { try { localStorage.setItem(key, value); } catch { /* Presentation preferences must never block writing. */ } }
+// AI job polling: 30 checks at 1 s, then 90 at 3 s (about 5 minutes in all), then stop.
+const POLL_FAST_ATTEMPTS = 30;
+const POLL_SLOW_ATTEMPTS = 90;
 
 export function AuthorWritingIde() {
   const user = useAuthStore(state => state.user);
@@ -185,6 +188,9 @@ export function AuthorWritingIde() {
   }, [sidebarOpen]);
   const [rightPanel, setRightPanel] = useState<'ai' | 'notes' | null>(null);
   const aiDrawerOpen = rightPanel === 'ai';
+  // Read by job polling, whose callbacks outlive the render that started them.
+  const rightPanelRef = useRef(rightPanel);
+  rightPanelRef.current = rightPanel;
   const reducePanelMotion = useReducedMotion();
   const openAiDrawer = () => {
     if (window.matchMedia('(max-width: 900px)').matches) setSidebarOpen(false);
@@ -392,10 +398,14 @@ export function AuthorWritingIde() {
           setAiRecoveryMessage(job.stale_reason
             ? 'Bản nháp đã cũ: nội dung hoặc Canon đã thay đổi. Không thể chấp nhận; hãy bỏ qua hoặc tạo bản nháp khác.' : null);
           openAiDrawer();
+        } else if (job.status === 'failed' || job.validation_status === 'failed') {
+          setAiRecoveryMessage('Tác vụ AI trước không thành công; không có bản nháp hợp lệ để chấp nhận.');
         } else {
-          setAiRecoveryMessage(job.status === 'failed' || job.validation_status === 'failed'
-            ? 'Tác vụ AI trước không thành công; không có bản nháp hợp lệ để chấp nhận.'
-            : 'Tác vụ AI chưa hoàn tất. Mở lại chương để kiểm tra sau; không tự tạo hoặc tiếp tục tác vụ.');
+          // Issue 15 (long-run live test): a draft still generating when the author left was never
+          // shown. Follow the same job (bounded, see pollJob); never start or retry a generation.
+          setAiRecoveryMessage('Tác vụ AI trước vẫn đang chạy; bản nháp sẽ hiện ở đây khi xong.');
+          setIsGeneratingAi(true);
+          void pollJob(job.job_id, session);
         }
       }).catch(() => {
         if (writingSession.current === session) setAiRecoveryMessage('Chưa tải được bản nháp đã lưu. Tải lại trang để thử đọc lại; không cần tạo AI mới.');
@@ -725,7 +735,17 @@ export function AuthorWritingIde() {
       pollTimerRef.current = null;
     }
 
+    // Issue 15 (long-run live test): the previous draft stayed the newest pending job when the new
+    // request failed, and came back on the next chapter load. Starting over retires it first.
+    const previousJob = currentJob;
     setIsGeneratingAi(true);
+    if (previousJob?.status?.toLowerCase() === 'completed') {
+      try {
+        await dismissWritingDraft(activeNovelId, activeChapterId, previousJob.job_id);
+      } catch {
+        // Not fatal: accept re-checks the job id, so an old draft can never be applied by mistake.
+      }
+    }
     writingSession.current = {};
     const session = writingSession.current;
     setAiRecoveryMessage(null);
@@ -808,13 +828,18 @@ export function AuthorWritingIde() {
         setAiSuggestionTone(
           updated.validation_status === 'passed' ? 'Đã kiểm định nhất quán • P1 Loop' : 'Hoàn thành'
         );
+        setAiRecoveryMessage(null);
+        // The author may have closed the panel while the draft was generating.
+        if (rightPanelRef.current === null) openAiDrawer();
+        else if (rightPanelRef.current !== 'ai') showToast('Bản nháp AI đã sẵn sàng. Mở bảng AI để xem.', 'success');
       } else if (status === 'failed' || status === 'dismissed' || status === 'completed') {
         setIsGeneratingAi(false);
         showToast(`Tác vụ AI thất bại: ${updated.error?.message || 'Không rõ nguyên nhân'}`);
-      } else if (attempt < 59) {
+      } else if (attempt < POLL_FAST_ATTEMPTS + POLL_SLOW_ATTEMPTS) {
+        // Free-tier generations can queue for minutes: poll every second, then every 3 s, up to ~5 min.
         pollTimerRef.current = window.setTimeout(() => {
           if (writingSession.current === session) void pollJob(jobId, session, attempt + 1);
-        }, 1000);
+        }, attempt < POLL_FAST_ATTEMPTS ? 1000 : 3000);
       } else {
         setIsGeneratingAi(false);
         setAiRecoveryMessage('Tác vụ chưa hoàn tất. Mở lại chương để đọc lại trạng thái sau.');

@@ -33,6 +33,7 @@ from api.brainstorm_schemas import (
     ProposedFutureEvent,
     ProposedWorldRule,
 )
+from core.output_language import output_language_rule
 from domain.errors import IdempotencyConflictError
 from domain.projection import ProjectionError, WorldRuleLineageError, resolve_effective_facts
 from infrastructure.database import session_scope
@@ -1032,6 +1033,7 @@ class BrainstormService:
                     )
                 elif hasattr(self._llm_service, "_call_structured"):
                     system_prompt = (
+                        output_language_rule() +
                         "You are an expert creative writing assistant and novel architect. "
                         "Generate structured brainstorm suggestions based on confirmed world rules and known characters.\n"
                         "Return ONLY valid JSON matching this schema:\n"
@@ -1047,7 +1049,8 @@ class BrainstormService:
                             "current_chapter": curr_ch,
                             "target_chapter": target_ch,
                             "target": request.target,
-                        }
+                        },
+                        ensure_ascii=False,
                     )
                     raw_str = self._llm_service._call_structured(
                         operation="brainstorm_suggestions",
