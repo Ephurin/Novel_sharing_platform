@@ -275,6 +275,10 @@ jobs:
           # now enables the entity-first checkpoint by default (#132); that path is covered by the
           # P2 integrated jobs in p2-setup-provenance.yml.
           ENTITY_CANDIDATE_VERIFICATION_ENABLED: "false"
+          # Root compose defers INCREMENTAL_ANALYSIS until a chapter head has been quiet for 120s
+          # (#165). The AI-PIPE gates poll the outbox for ~15s after one accept, so run them without
+          # the quiet period; the deferral itself is covered by outbox-processor.test.ts.
+          ANALYSIS_QUIET_SECONDS: "0"
         run: docker compose up -d --build postgres mongodb ai-service backend web
       - name: Wait for health
         run: |
