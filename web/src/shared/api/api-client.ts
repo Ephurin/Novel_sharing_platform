@@ -75,6 +75,10 @@ export function getApiErrorMessage(error: unknown) {
     if (error.code === 'IDEA_BOOTSTRAP_RETRY_UNSUPPORTED') {
       return 'Không thể thử lại tác vụ tạo ý tưởng đã thất bại. Hãy bắt đầu một tác vụ mới.';
     }
+    // Live test F-A-11: Planning showed the raw code before the world setup was activated.
+    if (error.code === 'M0_NOT_ACTIVE') {
+      return 'Thiết lập thế giới của truyện chưa được kích hoạt. Hãy duyệt và kích hoạt thiết lập trước khi dùng mục này.';
+    }
     return `${error.code}: ${error.message}`;
   }
 

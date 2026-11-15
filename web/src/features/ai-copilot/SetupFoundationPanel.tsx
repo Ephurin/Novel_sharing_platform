@@ -199,7 +199,7 @@ function SetupReviewGroup({snapshot, onReload}:{snapshot:SetupSnapshot; onReload
   const isMixed = hasRules && hasEntities;
 
   return <Card withBorder><Stack>
-    <Text fw={600}>Duyệt toàn bộ nhóm thiết lập</Text>{draft.backup&&<Alert title="Có quyết định chưa gửi"><Button onClick={draft.recover}>Khôi phục quyết định</Button><Button variant="subtle" onClick={draft.clear}>Bỏ quyết định trên máy</Button></Alert>}{draft.error&&<Alert color="red">{draft.error}</Alert>}
+    <Text fw={600}>Duyệt toàn bộ nhóm thiết lập</Text>{draft.backup&&<Alert title="Có quyết định chưa gửi" data-testid="setup-unsent-decisions"><Text size="sm" mb="xs">Thiết bị này còn quyết định duyệt chưa gửi. Các ô quyết định bên dưới tạm khóa cho tới khi bạn chọn khôi phục hoặc bỏ chúng.</Text><Group gap="xs"><Button onClick={draft.recover}>Khôi phục quyết định</Button><Button variant="subtle" onClick={draft.clear}>Bỏ quyết định trên máy</Button></Group></Alert>}{draft.error&&<Alert color="red">{draft.error}</Alert>}
     {isMixed ? (
       <Alert color="blue" title="Nhóm phụ thuộc hỗn hợp (Quy tắc & Nhân vật)">
         Nhóm thiết lập này bao gồm cả quy tắc thế giới và nhân vật/địa danh. Theo quy chuẩn nguyên khối (atomic dependency group), quyết định duyệt áp dụng đồng thời cho toàn bộ nhóm; bạn cần chọn duyệt hoặc loại cho tất cả các thẻ trước khi lưu.

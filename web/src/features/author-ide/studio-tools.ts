@@ -68,3 +68,10 @@ export function focusStudioEditor(editor: HTMLTextAreaElement | null) {
   const rich = editor.closest('.sc-manuscript-input')?.querySelector<HTMLElement>('[data-studio-rich-editor]');
   (rich ?? editor).focus({ preventScroll: true });
 }
+
+/** Live test F-A-08: "~1 phút" read as "-1 phút", and an empty chapter showed 1 minute. */
+export function readingTimeLabel(words: number) {
+  if (words <= 0) return 'chưa có chữ';
+  if (words < 350) return 'dưới 1 phút';
+  return `khoảng ${Math.round(words / 350)} phút`;
+}

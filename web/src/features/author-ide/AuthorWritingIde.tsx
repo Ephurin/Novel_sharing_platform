@@ -8,7 +8,7 @@ import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
 import { authorHomeCrumb, navigationLabels } from '../../shared/components/navigation';
 import { AnimatedTooltip } from '../../shared/components/AnimatedTooltip';
 import { useStudioHistory } from './useStudioHistory';
-import { revealStudioSelection } from './studio-tools';
+import { readingTimeLabel, revealStudioSelection } from './studio-tools';
 import { RichManuscriptEditor } from './RichManuscriptEditor';
 import { StudioContextMenu } from './StudioContextMenu';
 import { StudioSelectionTools } from './StudioSelectionTools';
@@ -928,7 +928,7 @@ export function AuthorWritingIde() {
     return trimmed.split(/\s+/).filter(Boolean).length;
   }, [content]);
 
-  const readMinutes = Math.max(1, Math.ceil(wordCount / 350));
+  const readTime = readingTimeLabel(wordCount);
   const contentLength = content.trim().length;
   const titleReady = title.trim().length > 0 && title.length <= CHAPTER_TITLE_MAX;
   const contentReady = contentLength >= CHAPTER_CONTENT_MIN;
@@ -1050,7 +1050,7 @@ export function AuthorWritingIde() {
             <span className="material-symbols-outlined text-body text-stone-400">description</span>
             <span>{wordCount.toLocaleString()} từ</span>
             <span className="text-stone-300">•</span>
-            <span>~{readMinutes} phút</span>
+            <span>{readTime}</span>
           </div>
 
           {/* Secondary Tools Group */}
@@ -2079,7 +2079,7 @@ export function AuthorWritingIde() {
               <div className="flex justify-between">
                 <span className="text-stone-500">Độ dài:</span>
                 <span className="font-medium text-stone-800">
-                  {wordCount.toLocaleString()} từ (~{readMinutes} phút đọc)
+                  {wordCount.toLocaleString()} từ ({readTime} đọc)
                 </span>
               </div>
               <div className="flex justify-between items-center pt-1 border-t border-stone-200/60">
