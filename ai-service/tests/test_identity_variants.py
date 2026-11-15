@@ -140,7 +140,8 @@ def test_aliases_of_an_unresolved_new_name_become_unresolved_together():
             return json.dumps({"decisions": out}, ensure_ascii=False)
 
     audit = {}
-    result = verify_entities("Mai Lâm, cha cô, là người trực trạm.", LLM(), no_discovery,
+    # Fragments inside "Mai Lâm" are no longer candidates; standalone "Mai"/"Lâm" still reach the check.
+    result = verify_entities("Mai Lâm, cha cô, là người trực trạm. Mai cười. Lâm gật đầu.", LLM(), no_discovery,
                              audit_sink=lambda a: audit.update(a), guidance=[{"name": "Mai Lâm"}])
     entity_verdicts = {d["verdict"] for d in audit["decisions"] if d["canonical_name"] == "Mai Lâm"}
     assert "entity" not in entity_verdicts
