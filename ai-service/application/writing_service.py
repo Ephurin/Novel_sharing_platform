@@ -6,7 +6,7 @@ import re
 import uuid
 from dataclasses import replace
 from typing import Any
-from core.writing_output import fit_spacing, is_writing_envelope
+from core.writing_output import fit_spacing, is_writing_envelope, requested_words
 
 import json
 from application.context_budget import ContextBudgetPacker
@@ -828,6 +828,20 @@ class WritingService:
                     message="Generated draft content and patch replacement cannot both be empty",
                 )
             )
+
+        # 1c. Live retest 2 (R1): a 9-word draft passed for a 500-word request and was accepted.
+        asked = requested_words(instruction)
+        if asked:
+            words = len(re.findall(r"\w+", draft_text or patch.replacement))
+            if words < asked // 2:
+                results.append(
+                    ValidationResult(
+                        validator="draft_length",
+                        passed=False,
+                        code="DRAFT_TOO_SHORT",
+                        message=f"Bản nháp chỉ có {words} chữ, chưa tới một nửa {asked} chữ bạn yêu cầu. Vui lòng tạo lại đề xuất.",
+                    )
+                )
 
         # 2. Dead character action rule
         dead_characters: set[str] = set()

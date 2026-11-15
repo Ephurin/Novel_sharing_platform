@@ -281,7 +281,7 @@ export interface AutoRun {
 }
 
 export interface ConsistencyFinding {
-  code?: 'AMBIGUOUS_ENTITY_REFERENCE';
+  code?: 'AMBIGUOUS_ENTITY_REFERENCE' | 'WORLD_RULE_VIOLATION' | 'CANON_FACT_CONFLICT' | string;
   entity_id?: UUID;
   candidate_entity_ids?: UUID[];
   description: string;
@@ -544,8 +544,8 @@ export async function refreshEntityReview(novelId: string, runId: string, expect
   return memoryPost<EntityReview>(`/ai/story-brains/${novelId}/entity-reviews/${runId}/refresh`, { expected_version: expectedVersion });
 }
 
-export async function continueEntityReview(novelId: string, runId: string): Promise<{ analysis_run_id: string; status: string; proposal_count: number; deduplicated: boolean }> {
-  return memoryPost<{ analysis_run_id: string; status: string; proposal_count: number; deduplicated: boolean }>(`/ai/story-brains/${novelId}/entity-reviews/${runId}/continue`, {});
+export async function continueEntityReview(novelId: string, runId: string): Promise<{ analysis_run_id: string; status: string; proposal_count: number; deduplicated: boolean; dropped_events?: number }> {
+  return memoryPost<{ analysis_run_id: string; status: string; proposal_count: number; deduplicated: boolean; dropped_events?: number }>(`/ai/story-brains/${novelId}/entity-reviews/${runId}/continue`, {});
 }
 
 export async function correctMemoryEvent(novelId: string, eventId: string, correction: EventCorrection): Promise<unknown> {

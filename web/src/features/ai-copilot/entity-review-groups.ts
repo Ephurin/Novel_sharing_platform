@@ -56,7 +56,7 @@ export function applyToGroup(group: SurfaceGroup, choices: Record<string, Decisi
     const keepQuotes = existing && updated.verdict === 'entity';
     return [c.candidate_id, keepQuotes ? {
       ...updated,
-      identity_quote: existing.identity_quote,
+      identity_quote: updated.identity_quote || existing.identity_quote,
       status_quote: existing.status_quote
     } : updated];
   }));
@@ -94,4 +94,33 @@ export function summarizeGroup(group: SurfaceGroup, choices: Record<string, Deci
       .sort((a, b) => b.count - a.count),
     suggestedType
   };
+}
+
+const PERSON_HONORIFICS = new Set(['ông', 'bà', 'anh', 'chị', 'em', 'cô', 'chú', 'bác', 'cậu', 'dì', 'thím', 'mợ',
+  'cụ', 'lão', 'thầy', 'ngài', 'nàng', 'chàng', 'bé', 'già', 'bạn', 'cháu', 'con', 'tiểu', 'đại']);
+
+/** Same name, or the same name behind one honorific ("Chị Mai" / "Mai"): no alias evidence needed. */
+export function needsAliasEvidence(surface: string, canonical: string): boolean {
+  const fold = (s: string) => s.normalize('NFC').toLocaleLowerCase('vi').trim();
+  const bare = (s: string) => {
+    const words = fold(s).split(/\s+/);
+    return words.length > 1 && PERSON_HONORIFICS.has(words[0]) ? words.slice(1).join(' ') : words.join(' ');
+  };
+  return fold(surface) !== fold(canonical) && bare(surface) !== bare(canonical);
+}
+
+/**
+ * Live retest 2 (R3): linking a short name ("Lôi Long") to a known entity ("Thượng cổ Lôi Long")
+ * failed at Freeze because an alias needs an exact quote naming both. Find one sentence of this
+ * occurrence's context that does, or null.
+ */
+export function aliasEvidence(context: string, surface: string, canonical: string): string | null {
+  const fold = (s: string) => s.normalize('NFC').toLocaleLowerCase('vi');
+  for (const match of context.matchAll(/[^.!?…\n]+[.!?…]*/g)) {
+    const sentence = match[0].trim();
+    if (sentence.length >= 8 && fold(sentence).includes(fold(surface)) && fold(sentence).includes(fold(canonical))) {
+      return sentence;
+    }
+  }
+  return null;
 }

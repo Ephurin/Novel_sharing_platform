@@ -76,6 +76,10 @@ export function getApiErrorMessage(error: unknown) {
       return 'Không thể thử lại tác vụ tạo ý tưởng đã thất bại. Hãy bắt đầu một tác vụ mới.';
     }
     // Live test F-A-11: Planning showed the raw code before the world setup was activated.
+    // Live retest 2 (R3): Freeze failed with "INVALID_EVIDENCE: Alias identity requires an exact source quote".
+    if (error.code === 'INVALID_EVIDENCE' && /alias identity/i.test(error.message)) {
+      return 'Một tên gọi khác được nối vào nhân vật đã duyệt nhưng thiếu câu trích trong chương nhắc cả hai tên. Hãy mở vị trí đó để chọn lại, hoặc tạo thực thể mới.';
+    }
     if (error.code === 'M0_NOT_ACTIVE') {
       return 'Thiết lập thế giới của truyện chưa được kích hoạt. Hãy duyệt và kích hoạt thiết lập trước khi dùng mục này.';
     }

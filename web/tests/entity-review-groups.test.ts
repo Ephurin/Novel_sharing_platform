@@ -61,3 +61,13 @@ test('summary shows progress, a shared decision, machine counts and the usual ty
   const [, single] = groupBySurface(candidates);
   assert.equal(summarizeGroup(single, {}, machineFor).suggestedType, 'PER');
 });
+
+test('R3: a short name linked to a known entity gets a sentence naming both as evidence', async () => {
+  const { aliasEvidence, needsAliasEvidence } = await import('../src/features/ai-copilot/entity-review-groups');
+  assert.equal(needsAliasEvidence('Lôi Long', 'Thượng cổ Lôi Long'), true);
+  assert.equal(needsAliasEvidence('Chị Mai', 'Mai'), false);
+  assert.equal(needsAliasEvidence('linh', 'Linh'), false);
+  const context = '… trời tối sầm. Thượng cổ Lôi Long gầm lên giữa mây. Lôi Long quẫy đuôi …';
+  assert.equal(aliasEvidence(context, 'Lôi Long', 'Thượng cổ Lôi Long'), 'Thượng cổ Lôi Long gầm lên giữa mây.');
+  assert.equal(aliasEvidence('Lôi Long quẫy đuôi trên đỉnh núi.', 'Lôi Long', 'Thượng cổ Lôi Long'), null);
+});
