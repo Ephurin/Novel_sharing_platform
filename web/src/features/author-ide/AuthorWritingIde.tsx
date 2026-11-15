@@ -29,6 +29,7 @@ import { Alert, Button, Group, Text } from '@mantine/core';
 import { ThemeControl } from '../../shared/components/ThemeControl';
 import { AuthorDialog } from '../../shared/components/AuthorTheme';
 import { AuthorMemoryPanel } from '../ai-copilot/AuthorMemoryPanel';
+import { usePendingMemoryReviews } from '../ai-copilot/pending-memory-reviews';
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -272,6 +273,7 @@ export function AuthorWritingIde() {
   });
 
   const activeNovelId = novelId || novelsQuery.data?.[0]?.novelId || '';
+  const pendingMemory = usePendingMemoryReviews(activeNovelId);
 
   const novelQuery = useQuery({
     queryKey: ['author', 'novel', activeNovelId, user?.userId],
@@ -866,7 +868,7 @@ export function AuthorWritingIde() {
       setAiRecoveryMessage(null);
       queryClient.invalidateQueries({ queryKey: ['author', 'chapter', activeChapterId] });
       queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] });
-      showToast('Đã chấp nhận bản thảo AI và kích hoạt cập nhật Story Brain!');
+      showToast('Đã chấp nhận bản thảo AI. Story Brain sẽ phân tích chương; bộ nhớ chỉ cập nhật sau khi bạn duyệt trong Story Brain.', 'success');
     } catch (err: unknown) {
       if (writingSession.current !== session) return;
       setAiRecoveryMessage(`Không thể chấp nhận bản nháp: ${getApiErrorMessage(err)}`);
@@ -1052,13 +1054,23 @@ export function AuthorWritingIde() {
             <button
               onClick={() => setMemoryPanelOpen(true)}
               data-testid="btn-story-brain"
-              aria-label="Story Brain & Kiểm tra nhất quán"
+              aria-label={pendingMemory.total > 0
+                ? `Story Brain & Kiểm tra nhất quán: ${pendingMemory.total} mục chờ bạn duyệt`
+                : 'Story Brain & Kiểm tra nhất quán'}
               className="inline-flex items-center gap-1 px-2 py-1 text-meta font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest transition-all"
-              title="Bộ nhớ cốt truyện & Kiểm tra nhất quán (Story Brain)"
+              title={pendingMemory.total > 0
+                ? `Bộ nhớ chỉ cập nhật sau khi bạn duyệt: ${pendingMemory.entityCount} chương chờ duyệt danh tính, ${pendingMemory.proposalCount} đề xuất`
+                : 'Bộ nhớ cốt truyện & Kiểm tra nhất quán (Story Brain)'}
               type="button"
             >
               <span className="material-symbols-outlined text-stone-500 text-[15px]">psychology</span>
               <span className="hidden xl:inline text-meta">Story Brain</span>
+              {pendingMemory.total > 0 && (
+                <span data-testid="story-brain-pending" aria-hidden="true"
+                  className="ml-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-white text-[11px] leading-[18px] text-center font-semibold">
+                  {pendingMemory.total}
+                </span>
+              )}
             </button>
             <button
               onClick={() => setFocusMode((prev: boolean) => !prev)}

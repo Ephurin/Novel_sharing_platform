@@ -61,6 +61,9 @@ test('Identity checkpoint UX: type, bulk, CAS and isolation', { timeout: 180000 
       } else if (path.endsWith('/refresh')) {
         state.requests.push({ path, body: req.postDataJSON() });
         state.review = { ...state.review, review_version: state.review.review_version + 1 }; data = state.review;
+      } else if (path.endsWith('/reanalyse')) {
+        state.requests.push({ path, body: req.postDataJSON() });
+        data = { analysis_run_id: 'run-reanalysed', status: 'waiting_entity_review' };
       } else data = {};
       return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ data }) });
     });
@@ -236,6 +239,23 @@ test('Identity checkpoint UX: type, bulk, CAS and isolation', { timeout: 180000 
         await expect(h.page.getByTestId('entity-freeze-summary')).toContainText('Cồn Vân [PER]');
         await expect(h.page.getByRole('button', { name: /Đóng băng danh sách entity/ })).toBeDisabled();
         assert.equal(h.state.requests.length, 0);
+      } finally { await h.page.close(); }
+    });
+    await t.test('checkpoint made under an older Canon offers re-analysis of its own head revision', async () => {
+      const h = await setup('LOC');
+      try {
+        await expect(h.page.getByTestId('entity-review-canon-stale')).toHaveCount(0);
+        h.state.review = { ...h.state.review, brain_version: 1, registry_brain_version: 3 };
+        await h.page.evaluate(() => window.__queryClient.invalidateQueries({ queryKey: ['entity-reviews'] }));
+        const alert = h.page.getByTestId('entity-review-canon-stale');
+        await expect(alert).toContainText('Bộ nhớ đã thay đổi sau lần phân tích này');
+        const response = h.page.waitForResponse(r => r.url().endsWith('/reanalyse') && r.request().method() === 'POST');
+        await alert.getByRole('button', { name: 'Phân tích lại chương này', exact: true }).click();
+        await response;
+        const sent = h.state.requests.filter(r => r.path.endsWith('/reanalyse'));
+        assert.equal(sent.length, 1);
+        assert.ok(sent[0].path.includes('/novel-test-uuid-1/reanalyse'));
+        assert.equal(sent[0].body.revision_id, 'revision-ux');
       } finally { await h.page.close(); }
     });
     await t.test('novel and analysis changes never reuse foreign dirty decisions', async () => {

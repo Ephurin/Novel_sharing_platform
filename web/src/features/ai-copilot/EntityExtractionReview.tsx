@@ -32,6 +32,7 @@ import {
   knownIdentity,
   memoryPost,
   newIdentity,
+  reanalyseSavedChapter,
   refreshEntityReview,
   rejectOccurrence,
   saveEntityGuidance,
@@ -619,6 +620,27 @@ function EntityCheckpoint({
             onClose={() => setConflictMessage(null)}
           >
             {conflictMessage}
+          </Alert>
+        )}
+
+        {review.registry_brain_version !== undefined && review.registry_brain_version !== review.brain_version && (
+          <Alert color="orange" icon={<IconAlertTriangle size={16} />} title="Bộ nhớ đã thay đổi sau lần phân tích này"
+            data-testid="entity-review-canon-stale">
+            <Stack gap="xs">
+              <Text size="sm">
+                Bạn đã duyệt chương khác nên lần phân tích này không còn khớp với bộ nhớ hiện tại và không thể lưu.
+                Hãy phân tích lại bản lưu mới nhất của chương để tiếp tục.
+              </Text>
+              <Group>
+                <Button size="xs" variant="light" disabled={disabled}
+                  onClick={() => perform(async () => {
+                    await reanalyseSavedChapter(novelId, review.revision_id);
+                    await onContinued();
+                  })}>
+                  Phân tích lại chương này
+                </Button>
+              </Group>
+            </Stack>
           </Alert>
         )}
 

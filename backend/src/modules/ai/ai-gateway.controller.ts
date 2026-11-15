@@ -74,8 +74,8 @@ export async function entityReviewController(req: Request, res: Response, next: 
       const runId = req.params.runId;
       if (runId && !/^[a-f0-9-]{36}$/i.test(String(runId))) throw new AppError(400, 'INVALID_RUN_ID', 'Invalid analysis run');
       const path = runId ? `/v1/story-brains/${novelId}/entity-candidate-audits/${runId}` : base;
-      res.json(successResponse(await aiGatewayService.forwardRequest({ method: 'GET', path,
-        userId: req.auth!.userId })));
+      const data = await aiGatewayService.forwardRequest({ method: 'GET', path, userId: req.auth!.userId });
+      res.json(successResponse(runId ? data : await onlyLatestRevisionReviews(data)));
       return;
     }
     const runId = String(req.params.runId);
@@ -93,6 +93,28 @@ export async function entityReviewController(req: Request, res: Response, next: 
       body: req.body, userId: req.auth!.userId });
     res.json(successResponse(data));
   } catch (error) { next(error); }
+}
+
+// Every saved revision starts its own entity review. Only the chapter head can still be reviewed
+// (POST rejects older ones with STALE_PROPOSAL_EVIDENCE), so older checkpoints are hidden from
+// the author's list instead of piling up as unactionable work.
+export async function onlyLatestRevisionReviews(data: unknown,
+  latestRevisionId: (chapterId: string) => Promise<string | null> = async chapterId =>
+    (await findLatestRevisionByChapterId(undefined, chapterId))?.revisionId ?? null): Promise<unknown> {
+  if (!Array.isArray(data)) return data;
+  type Review = { chapter_id?: string; revision_id?: string; brain_version?: number };
+  const heads = new Map<string, string | null>();
+  const onHead: Review[] = [];
+  const kept: Review[] = [];
+  for (const review of data as Review[]) {
+    if (!review?.chapter_id || !review.revision_id) { kept.push(review); continue; }
+    if (!heads.has(review.chapter_id)) heads.set(review.chapter_id, await latestRevisionId(review.chapter_id));
+    if (heads.get(review.chapter_id) === review.revision_id) onHead.push(review);
+  }
+  // A re-analysis of the same head (after Canon moved) supersedes the older checkpoint.
+  const newest = new Map<string, number>();
+  for (const r of onHead) newest.set(r.chapter_id!, Math.max(newest.get(r.chapter_id!) ?? -Infinity, r.brain_version ?? 0));
+  return [...kept, ...onHead.filter(r => (r.brain_version ?? 0) === newest.get(r.chapter_id!))];
 }
 
 export async function reanalyseSavedChapterController(req: Request, res: Response, next: NextFunction) {
