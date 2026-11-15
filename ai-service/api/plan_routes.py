@@ -89,6 +89,15 @@ def snapshot(novel_id:uuid.UUID,plan_id:uuid.UUID,request:Request,response:Respo
     except KeyError:raise HTTPException(404,detail={'code':'PLAN_NOT_FOUND'}) from None
 
 
+def manual_plan(repo,novel_id,plan_id):
+    """True when the plan was written or edited by the author (plan-edit-v1); Full auto cannot run it."""
+    if not getattr(repo,'supports_plan_edit_v1',False):return False
+    with session_scope(repo._session_factory) as session:
+        meta=session.scalar(select(StoryPlanRecord.edit_metadata).where(
+            *repo._scope(StoryPlanRecord,repo._novel_id(novel_id)),StoryPlanRecord.id==uuid.UUID(plan_id)))
+    return (meta or {}).get('contract_version')=='plan-edit-v1'
+
+
 def guard_manual_autonomy(request,repo,novel_id,plan_id):
     if not getattr(repo,'supports_plan_edit_v1',False):return
     with session_scope(repo._session_factory) as session:

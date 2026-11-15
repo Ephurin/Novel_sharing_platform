@@ -901,8 +901,23 @@ class PostgresNarrativeRepository:
                 .with_for_update()).all()
             if {p.id for p in members} != set(proposal_uuids):
                 raise ProjectionError('Submit the complete dependency group exactly once')
-            if any(item.expected_brain_version != expected_brain_version for item in proposals):
+            from domain.event_duplicates import can_rebase, duplicate_event, duplicate_message
+            if any(item.expected_brain_version != expected_brain_version for item in proposals) \
+                    and not can_rebase(item.proposal_type for item in proposals):
                 raise OptimisticLockError(story_id)
+            event_proposals = [p for p in proposals if p.proposal_type == "event"]
+            if event_proposals:
+                existing = [NarrativeEvent(event_id=str(e.id), event_type=e.event_type, summary=e.summary,
+                                           chapter=e.chapter_number, metadata=e.event_metadata or {})
+                            for e in session.scalars(select(EventRecord).where(
+                                *self._scope(EventRecord, novel_id),
+                                EventRecord.confirmation_status == "confirmed")).all()]
+                for proposal in event_proposals:
+                    external = next(p for p in proposal_ids if self._stable_uuid('proposal', p) == proposal.id)
+                    repeated = duplicate_event(edited_payloads.get(external, proposal.payload),
+                                               proposal.evidence or [], existing)
+                    if repeated is not None:
+                        raise ProjectionError(duplicate_message(repeated))
 
             if edited_payloads:
                 from domain.projection import validate_author_edit

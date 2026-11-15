@@ -20,7 +20,7 @@ from api.deps import (
     get_writing_service,
     require_service_token,
 )
-from api.plan_routes import router as plan_router, legacy_scope, guard_manual_autonomy, principal as plan_principal, service_principal
+from api.plan_routes import router as plan_router, legacy_scope, guard_manual_autonomy, manual_plan, principal as plan_principal, service_principal
 from api.setup_schemas import (
     SetupRequest,
     SetupReviewRequest,
@@ -280,8 +280,10 @@ def get_active_story_plan(
     plan = repository.get_active_story_plan(novel_id)
     if not plan:
         raise HTTPException(404, detail={"code": "PLAN_NOT_FOUND", "message": "No active story plan found"})
+    # Live retest 3 (P3): the web could not tell why Full auto was unavailable.
+    blocked = "MANUAL_PLAN_AUTONOMY_NOT_AVAILABLE" if manual_plan(repository, novel_id, plan.plan_id) else None
     return {
-        "data": asdict(plan),
+        "data": {**asdict(plan), "autonomy_blocked": blocked},
         "meta": {"request_id": request_id, "schema_version": 1},
     }
 

@@ -262,6 +262,7 @@ export interface FutureEvent {
 
 export interface AuthorPlan {
   plan_id: string;
+  autonomy_blocked?: string | null;
   objectives: {
     objective_id: string;
     title: string;

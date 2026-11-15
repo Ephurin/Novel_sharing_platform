@@ -26,7 +26,27 @@ export type ReviewProposal = {
   review_priority: number;
   review_reason: string;
   can_reject_individually?: boolean;
+  /** Made against an older Story Brain and no longer acceptable (live retest 3, P2). */
+  stale?: boolean;
+  /** An approved event this proposal repeats. */
+  duplicate_of_event?: { event_id: string; chapter: number; summary: string } | null;
 };
+
+export type ProposalGroupBlock = { stale: boolean; duplicates: ReviewProposal[]; blocked: boolean; notice: string | null };
+
+// Live retest 3 (P2): a group made before another review, or one repeating approved events, failed
+// on accept with a raw "AI Service returned status 409" and stayed pending for ever.
+export function proposalGroupBlock(proposals: ReviewProposal[]): ProposalGroupBlock {
+  const stale = proposals.some(p => p.stale);
+  const duplicates = proposals.filter(p => p.duplicate_of_event);
+  const notices: string[] = [];
+  if (stale) notices.push('Nhóm này được tạo trước khi bộ nhớ truyện thay đổi nên không thể duyệt nữa. Hãy loại nhóm; nếu nội dung vẫn cần, lưu lại chương để AI phân tích lại.');
+  if (duplicates.length) {
+    const chapters = [...new Set(duplicates.map(p => p.duplicate_of_event!.chapter))].sort((a, b) => a - b).join(', ');
+    notices.push(`${duplicates.length}/${proposals.length} đề xuất lặp lại sự kiện đã duyệt ở chương ${chapters}. Hãy loại các đề xuất trùng.`);
+  }
+  return { stale, duplicates, blocked: stale || duplicates.length > 0, notice: notices.length ? notices.join(' ') : null };
+}
 
 export type StoryBrainSummary = {
   id: string;
