@@ -29,6 +29,11 @@ PERSON_HONORIFICS = frozenset({
     'ông', 'bà', 'anh', 'chị', 'em', 'cô', 'chú', 'bác', 'cậu', 'dì', 'thím', 'mợ', 'cụ', 'lão',
     'thầy', 'ngài', 'nàng', 'chàng', 'bé', 'già', 'bạn', 'cháu', 'con', 'tiểu', 'đại'})
 LABEL_PREFIXES = frozenset({'mã', 'số', 'số hiệu', 'ký hiệu', 'mật danh'})
+# Live retest N6: "Làng Thạch Khê" and "Thạch Khê" became two locations. A location head in front of a
+# proper name names the same place. The merge in _canonicalize only happens when the bare name is
+# itself known or verified, so "Chùa Cầu" is never folded into a lone "Cầu" that is not an entity.
+LOCATION_HEADS = frozenset({'làng', 'thôn', 'xóm', 'xã', 'bản', 'phố', 'thành', 'trấn', 'thị trấn', 'kinh thành',
+                            'núi', 'sông', 'hồ', 'rừng', 'đảo', 'động', 'đèo', 'vực', 'thung lũng', 'cửa ải'})
 
 
 def base_name(name, entity_type=None):
@@ -40,8 +45,9 @@ def base_name(name, entity_type=None):
         if len(rest) >= 2 and rest[0].casefold() == 'tên':
             rest = rest[1:]
     elif entity_type != 'PER':
+        heads = LABEL_PREFIXES | (LOCATION_HEADS if entity_type == 'LOC' else frozenset())
         for size in (2, 1):
-            if len(words) > size and ' '.join(words[:size]).casefold() in LABEL_PREFIXES:
+            if len(words) > size and ' '.join(words[:size]).casefold() in heads:
                 rest = words[size:]
                 break
     if rest is words or not rest or not (rest[0][:1].isupper() or rest[0][:1].isdigit()):

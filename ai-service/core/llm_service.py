@@ -9,7 +9,7 @@ import urllib.request
 import uuid
 from contextvars import ContextVar
 from typing import Any
-from core.writing_output import parse_writing_output
+from core.writing_output import length_requirement, parse_writing_output
 
 _writing_response: ContextVar[bool] = ContextVar('writing_response', default=False)
 WRITING_TRUNCATED_MESSAGE = 'Bản thảo bị cắt do vượt giới hạn độ dài. Vui lòng yêu cầu đoạn ngắn hơn.'
@@ -887,6 +887,7 @@ class LLMService:
             VIETNAMESE_TEXT_OUTPUT + "\n"
             "Bạn là trợ lý viết tiểu thuyết chuyên nghiệp (Author AI Copilot).\n"
             "Dựa trên bối cảnh thế giới, nhân vật, phong cách và các ràng buộc của tác giả, hãy tạo nội dung viết tiếp hoặc sửa đổi phù hợp.\n"
+            "Khi tác giả nêu độ dài, draft_text phải đạt đủ độ dài đó.\n"
             "Chỉ trả về định dạng JSON hợp lệ:\n"
             "{\n"
             '  "draft_text": "Nội dung văn bản được sinh ra",\n'
@@ -898,6 +899,7 @@ class LLMService:
             f"Đoạn văn được chọn: {selected_text}\n"
             f"Vị trí con trỏ: {cursor_offset}\n"
             f"Yêu cầu / Chỉ dẫn: {instruction}\n"
+            f"{length_requirement(instruction)}"
             f"Bối cảnh tiểu thuyết (Story Brain): {context_str}\n"
         )
         if style_str:

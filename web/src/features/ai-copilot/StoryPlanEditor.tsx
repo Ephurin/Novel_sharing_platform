@@ -35,8 +35,10 @@ function Editor({novelId,lastWrittenChapter=0,onServerChange,onRegisterEventAdop
  const path=`/ai/story-plans/edit-v1/${novelId}`;
  // Live test F-A-10: participants showed raw entity IDs. Approved names label them; unknown IDs stay editable.
  const [entities,setEntities]=useState<MemoryEntity[]>([]);
- useEffect(()=>{let live=true;getApprovedMemory(novelId).then(m=>{if(live)setEntities(m?.entities??[]);}).catch(()=>{});return()=>{live=false;};},[novelId]);
  const entityName=(id:string)=>entities.find(e=>e.entity_id===id)?.name;
+ // Live retest N4: names read before activation stayed empty; read again whenever an ID has no name yet.
+ const missingNames=chapters.flatMap(o=>o.events.flatMap(e=>e.participants.map(p=>p.entity_id).filter((id):id is string=>!!id&&!entityName(id)))).sort().join(',');
+ useEffect(()=>{let live=true;getApprovedMemory(novelId).then(m=>{if(live)setEntities(m?.entities??[]);}).catch(()=>{});return()=>{live=false;};},[novelId,missingNames]);
  const participantLabel=(p:Participant)=>p.entity_id?(entityName(p.entity_id)??'Nhân vật đã duyệt (chưa tải được tên)'):`Chưa xác định: ${p.name_hint??''}`;
  function draft(p:Plan|undefined,data=list):Draft{return{selected:p?.plan_id??null,head:data.head_version,outline:p?.source_outline??'',notes:p?.private_notes??'',chapters:p?.objectives??[]};}
  function remember(id:string|null){try{localStorage.setItem(key+':selection',id??'');}catch{}}

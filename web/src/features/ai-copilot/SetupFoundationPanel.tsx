@@ -107,6 +107,7 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
     onClose={()=>setBrainstormTarget(null)}
     novelId={novelId}
     defaultTarget={brainstormTarget ?? 'all'}
+    storyIdea={[text, outline].filter(s => s?.trim()).join('\n\n')}
     expectedBrainVersion={snapshot?.brain_version}
     onReloadRequested={()=>reload()}
     onAdoptWorldRule={rule=>{
@@ -171,17 +172,21 @@ function SetupReviewGroup({snapshot, onReload}:{snapshot:SetupSnapshot; onReload
   }
   if(snapshot.review) return <Alert color="green">{(draft.dirty||draft.backup)&&<Group><Text>Máy chủ đã có quyết định. Bản sửa cục bộ không được tự gửi lại.</Text><Button variant="subtle" onClick={()=>{if(draft.backup)draft.recover();else draft.exportDraft();}}>Khôi phục để xuất bản sửa</Button><Button variant="subtle" onClick={draft.exportDraft}>Xuất quyết định trên máy</Button><Button variant="subtle" onClick={()=>draft.accept({brain:snapshot.brain_version,choices:{}})}>Bỏ quyết định cũ trên máy</Button></Group>}Đã lưu quyết định duyệt. Kích hoạt thiết lập là bước riêng bên dưới. {snapshot.review.status==='reviewed_with_unresolved'?'Còn điều kiện chưa hỗ trợ.':''}</Alert>;
   if(!cards.length || snapshot.job_status!=='waiting_review') return null;
+  // Live retest N5: "Tạo danh tính mới" was the only option, yet had to be picked on every card.
+  const identityOf=(c:typeof cards[number])=>choices[c.proposal_id]?.identity||
+    ((snapshot.approved_identities??[]).some(e=>e.entity_type===c.payload.entity_type)?'':'new');
   const ready=cards.every(c=>choices[c.proposal_id]?.decision && (choices[c.proposal_id].decision==='reject' ||
-    (choices[c.proposal_id].value.trim() && (c.card_type!=='entity'||choices[c.proposal_id].identity))));
+    (choices[c.proposal_id].value.trim() && (c.card_type!=='entity'||identityOf(c)))));
   async function decide() {
     scope.assertCurrent();const signal=scope.signal;
     setPending(true);setError('');
     const decisions:SetupReviewDecision[]=cards.map(c=>{
       const v=choices[c.proposal_id];
       if(v.decision==='reject') return {proposal_id:c.proposal_id,decision:'reject'};
+      const identity=identityOf(c);
       if(c.card_type==='entity') return {proposal_id:c.proposal_id,decision:'accept',
-        identity:v.identity==='new'?{kind:'new'}:{kind:'existing',approved_entity_id:v.identity},
-        ...(v.identity==='new'?{edited_entity:{canonical_name:v.value,aliases:(c.payload.aliases as string[]|undefined)??[]}}:{})};
+        identity:identity==='new'?{kind:'new'}:{kind:'existing',approved_entity_id:identity},
+        ...(identity==='new'?{edited_entity:{canonical_name:v.value,aliases:(c.payload.aliases as string[]|undefined)??[]}}:{})};
       return {proposal_id:c.proposal_id,decision:'accept',edited_rule:{fact_key:String(c.payload.fact_key),fact_value:v.value}};
     });
     const body={dependency_group_id:cards[0].dependency_group_id,setup_hash:snapshot.setup_hash,
@@ -224,7 +229,7 @@ function SetupReviewGroup({snapshot, onReload}:{snapshot:SetupSnapshot; onReload
           onChange={d=>{choice(id,'decision',d??'');if(!v?.value)choice(id,'value',value);}}/>
         {v?.decision==='accept' && <>
           <TextInput label={`Nội dung thẻ ${i+1}`} value={v.value} disabled={pending||!!draft.backup||(c.card_type==='entity'&&!!v.identity&&v.identity!=='new')} onChange={e=>choice(id,'value',e.currentTarget.value)}/>
-          {c.card_type==='entity' && <Select label={`Danh tính thẻ ${i+1}`} value={v.identity||null} allowDeselect={false} disabled={pending||!!draft.backup}
+          {c.card_type==='entity' && <Select label={`Danh tính thẻ ${i+1}`} value={identityOf(c)||null} allowDeselect={false} disabled={pending||!!draft.backup}
             data={[{value:'new',label:'Tạo danh tính mới (ID server)'},...(snapshot.approved_identities??[]).filter(e=>e.entity_type===c.payload.entity_type).map(e=>({value:e.entity_id,label:`${e.canonical_name} · ${e.entity_id}`}))]}
             onChange={identity=>choice(id,'identity',identity??'')}/>}
         </>}

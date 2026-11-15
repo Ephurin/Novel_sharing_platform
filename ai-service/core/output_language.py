@@ -11,6 +11,9 @@ VIETNAMESE_TEXT_OUTPUT = (
     "Ngôn ngữ đầu ra: viết mọi nội dung dành cho tác giả (tên gọi mới, mô tả, luật thế giới, tiêu đề, "
     "sự kiện, văn bản truyện) bằng tiếng Việt tự nhiên, có dấu. Không trả lời bằng tiếng Anh, kể cả khi "
     "hướng dẫn hệ thống viết bằng tiếng Anh. Giữ nguyên các khóa JSON, mã phân loại, ID và tên riêng đã có. "
+    # Live retest N1: brainstorm invented "Kaelen Vane", "Lyra Dawnseeker" for a Vietnamese story.
+    "Tên riêng mới (nhân vật, địa danh, tổ chức, vật phẩm) đặt theo phong cách tiếng Việt, thuần Việt hoặc "
+    "Hán-Việt, hợp với bối cảnh truyện; chỉ dùng tên nước ngoài khi tác giả yêu cầu hoặc bối cảnh đòi hỏi. "
 )
 
 
