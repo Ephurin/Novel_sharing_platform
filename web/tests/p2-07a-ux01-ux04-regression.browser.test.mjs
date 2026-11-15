@@ -316,6 +316,8 @@ test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapte
     writes.length = 0;
 
     const zeroChapterPage = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    // The redesigned Studio defaults to the rich editor; source mode keeps the canonical textarea visible for typing.
+    await zeroChapterPage.addInitScript(() => { try { localStorage.setItem('storycraft-studio-editor-mode', 'source'); } catch {} });
     await setupMocks(zeroChapterPage);
 
     await zeroChapterPage.goto(origin + 'author/ide?novelId=' + A, { waitUntil: 'domcontentloaded', timeout: 90000 });
@@ -353,7 +355,8 @@ test('P2-07A Regression: UX-01 Mobile Sidebar pointer safety & UX-04 Zero-chapte
 
     // Verify error Alert is displayed in Empty State and Toast notification
     await expect(emptyState.getByText('Không thể tạo chương')).toBeVisible();
-    await expect(zeroChapterPage.getByText('Máy chủ đang bận xử lý (503 Service Unavailable)')).toBeVisible();
+    // main's ToastProvider also mirrors the text in an aria-live region; check the visible toast.
+    await expect(zeroChapterPage.locator('.sc-toast-message').getByText('Máy chủ đang bận xử lý (503 Service Unavailable)')).toBeVisible();
     const retryBtn = emptyState.getByRole('button', { name: 'Thử lại tạo chương' });
     await expect(retryBtn).toBeVisible();
 

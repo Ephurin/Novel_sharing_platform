@@ -173,7 +173,9 @@ export function AuthorWritingIde() {
   useEffect(() => {
     if (!sidebarOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      // UX-01: Escape dismisses the sidebar only where it overlays the manuscript (mobile);
+      // on desktop Escape belongs to the open notes/menus.
+      if (e.key === 'Escape' && !e.defaultPrevented && window.matchMedia('(max-width: 900px)').matches) {
         setSidebarOpen(false);
       }
     };
@@ -298,11 +300,13 @@ export function AuthorWritingIde() {
 
   const persistence = useDraftPersistence(user?.userId ?? '', activeChapterId);
   const [planning,setPlanning]=useState(false);
+  // Mounted on first use, then kept (hidden) so Planning keeps its state while the author writes.
+  const [planningMounted,setPlanningMounted]=useState(false);
   const [planningStep,setPlanningStep]=useState<PlanningStep>('idea');
   async function openPlanning(step:PlanningStep='idea'){const session=writingSession.current;try{await persistence.flush();if(session!==writingSession.current)return;
     // The chapter list feeds Planning's "written chapters" (memory entry, future-event target); re-read it after the flush.
     void queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] });
-    if(window.matchMedia('(max-width: 900px)').matches)setSidebarOpen(false);setRightPanel(null);setPlanningStep(step);setPlanning(true);setMemoryPanelOpen(false);setStoryBibleOpen(false);}catch{showToast('Bản nháp chưa lưu xong. Hãy thử lưu trước khi mở lập kế hoạch.');}}
+    if(window.matchMedia('(max-width: 900px)').matches)setSidebarOpen(false);setRightPanel(null);setPlanningStep(step);setPlanningMounted(true);setPlanning(true);setMemoryPanelOpen(false);setStoryBibleOpen(false);}catch{showToast('Bản nháp chưa lưu xong. Hãy thử lưu trước khi mở lập kế hoạch.');}}
   const activeDraftScope = `${user?.userId}:${activeChapterId}`;
   const writingScope = `${user?.userId}:${activeNovelId}:${activeChapterId}`;
   const writingSession = useRef<object>({});
@@ -1112,7 +1116,7 @@ export function AuthorWritingIde() {
       {persistence.blocker.state === 'blocked' && <AuthorDialog onClose={() => persistence.blocker.reset?.()}><div className="fixed inset-0 flex items-center justify-center p-4"><div className="w-full max-w-md p-6"><h2 className="text-section">Bản nháp chưa lưu xong</h2><p className="text-body">Bạn có thể lưu trước khi rời trang hoặc giữ bản dự phòng trên máy để khôi phục sau.</p><Group mt="md"><Button onClick={async () => { try { await persistence.flush(); persistence.blocker.proceed?.(); } catch {} }}>Lưu và rời trang</Button><Button variant="default" onClick={() => persistence.blocker.reset?.()}>Ở lại</Button><Button variant="subtle" onClick={() => { persistence.abandon(); persistence.blocker.proceed?.(); }}>Rời trang</Button></Group></div></div></AuthorDialog>}
       <StudioNovelSearch key={searchScope} opened={novelSearchOpen} chapters={chaptersQuery.data ?? []} activeChapterId={activeChapterId} content={content} onClose={() => setNovelSearchOpen(false)} onNavigate={navigateSearchHit} />
       <Group px="md" py="xs" gap="xs" aria-label="Chế độ Author IDE" className="relative z-20 shrink-0 bg-surface border-b border-stone-200/60"><Button size="xs" aria-pressed={planning} variant={planning?'filled':'light'} onClick={()=>void openPlanning()}>Lập kế hoạch</Button><Button size="xs" aria-pressed={!planning} variant={!planning?'filled':'light'} onClick={()=>setPlanning(false)}>Viết bản thảo</Button></Group>
-      {novelQuery.data&&<div key={JSON.stringify([user?.userId,activeNovelId])} style={{display:planning?'flex':'none',flex:1,minHeight:0}}><PlanningStudio novelId={activeNovelId} title={novelQuery.data.title} step={planningStep} onStep={setPlanningStep} chapters={chaptersQuery.data??[]} onWrite={id=>{if(id)setSearchParams({novelId:activeNovelId,chapterId:id});setPlanning(false);}} onCreate={()=>createChapterMutation.mutate()} creating={createChapterMutation.isPending} onMemory={tab=>{setMemoryTab(tab??'review');setMemoryPanelOpen(true);}} onRefreshChapters={()=>void queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] })}/></div>}
+      {planningMounted&&novelQuery.data&&<div key={JSON.stringify([user?.userId,activeNovelId])} style={{display:planning?'flex':'none',flex:1,minHeight:0}}><PlanningStudio novelId={activeNovelId} title={novelQuery.data.title} step={planningStep} onStep={setPlanningStep} chapters={chaptersQuery.data??[]} onWrite={id=>{if(id)setSearchParams({novelId:activeNovelId,chapterId:id});setPlanning(false);}} onCreate={()=>createChapterMutation.mutate()} creating={createChapterMutation.isPending} onMemory={tab=>{setMemoryTab(tab??'review');setMemoryPanelOpen(true);}} onRefreshChapters={()=>void queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] })}/></div>}
       {!planning && <StudioWorkbench onSearchNovel={() => setNovelSearchOpen(true)} notesOpen={rightPanel === 'notes'} onNotesOpenChange={changeNotesOpen} onLookup={setReferenceQuery} formatToolbarVisible={formatToolbarVisible} chapterSettings={chapterSettings} fileActions={manuscriptActions} key={activeDraftScope} scope={activeDraftScope} title={title} content={content} editor={editorRef} disabled={!studioReady || isAcceptingAi} exportOpen={exportOpen} onExportClose={() => setExportOpen(false)}
         publishedContent={chapterQuery.data?.status === 'PUBLISHED' ? chapterQuery.data.content : undefined} chapterStatus={chapterQuery.data?.status} onPublish={() => setPublishModalOpen(true)}
         apply={applyStudioEdit} undo={() => moveStudioHistory()} redo={() => moveStudioHistory(true)} canUndo={studioHistory.canUndo} canRedo={studioHistory.canRedo}

@@ -31,7 +31,7 @@ test('boundedArray honours min and max', () => {
 });
 
 test('novel genres reject oversized input before element validation', () => {
-  const body = { title: 'T', synopsis: 'Ten or more characters', genres: ONE_MB_OF_INVALID_ITEMS };
+  const body = { title: 'T', synopsis: 'A synopsis long enough for the fifty character minimum rule.', genres: ONE_MB_OF_INVALID_ITEMS };
   const result = createNovelSchema.safeParse({ body });
   assert.equal(result.success, false);
   assert.equal(result.error?.issues.filter(i => i.path.includes('genres')).length, 1);
@@ -39,7 +39,7 @@ test('novel genres reject oversized input before element validation', () => {
 });
 
 test('novel create/update tags are bounded and keep defaults', () => {
-  const body = { title: 'T', synopsis: 'Ten or more characters' };
+  const body = { title: 'T', synopsis: 'A synopsis long enough for the fifty character minimum rule.' };
   assert.deepEqual(createNovelSchema.parse({ body }).body.tags, []);
   assert.equal(createNovelSchema.safeParse({ body: { ...body, tags: Array(MAX_NOVEL_TAGS).fill('x') } }).success, true);
   const tooMany = createNovelSchema.safeParse({ body: { ...body, tags: ONE_MB_OF_INVALID_ITEMS } });

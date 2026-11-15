@@ -42,6 +42,8 @@ for (const mode of ['source', 'visual']) test('Writing studio preserves insertio
         await new Promise(resolve => setTimeout(resolve, 150));
         data = [{ revisionId: 'rev-1', contentHash: 'hash', content }];
       } else if (path.endsWith('/context-preview')) data = { brain_version: 1 };
+      // P2 draft recovery: GET reads the chapter's pending draft (none until one is generated).
+      else if (path.endsWith('/writing/generations') && method === 'GET') data = { job: generationCount ? job() : null };
       else if (path.endsWith('/writing/generations')) {
         selection = route.request().postDataJSON().selection;
         generationCount++;

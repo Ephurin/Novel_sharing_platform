@@ -22,7 +22,7 @@ test('AX01 mounted Gateway: active owner scope, trusted actor, idempotency and u
   let calls: any[] = [];
   let upstreamStatus = 200;
   (pool as any).query = async (sql: string, values: string[]) => {
-    if (sql.includes('from users')) return { rows: [{ role: values[0] === 'admin' ? 'ADMIN' : values[0] === 'reader' ? 'READER' : 'AUTHOR', status: values[0] === 'inactive' ? 'SUSPENDED' : 'ACTIVE' }] };
+    if (sql.includes('from users')) return { rows: [{ role: values[0] === 'admin' ? 'ADMIN' : values[0] === 'reader' ? 'READER' : 'AUTHOR', status: values[0] === 'inactive' ? 'SUSPENDED' : 'ACTIVE', admin_scope: values[0] === 'admin' ? 'SUPER_ADMIN' : null }] };
     return { rows: values[0] === novel ? [{ novel_id: novel, author_id: 'owner' }] : [] };
   };
   globalThis.fetch = (async (url: any, init: any) => {
