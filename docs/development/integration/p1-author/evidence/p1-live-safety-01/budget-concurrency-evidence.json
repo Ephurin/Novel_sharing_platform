@@ -1,0 +1,274 @@
+{
+  "evidence_id": "P1-LIVE-SAFETY-01-EVIDENCE-F03",
+  "task_id": "P1-LIVE-SAFETY-01",
+  "timestamp_iso": "2026-10-31T05:12:32Z",
+  "tested_commit_sha": "cf04e50c9c8ce150bde3cf04ce5d52140643fe50",
+  "base_branch": "integration/p1-demo-20261109",
+  "working_branch": "codex/p1-live-safety-01",
+  "approved_model": "gemini-3.5-flash-lite",
+  "budget_limits": {
+    "hard_max_calls": 15,
+    "hard_window_calls": 10,
+    "window_seconds": 60.0,
+    "max_cost_usd": "0.05",
+    "admission_cost_usd": "0.05"
+  },
+  "accounting_status": {
+    "total_calls": 15,
+    "remaining_calls": 0,
+    "charged_usd": "0.0213468",
+    "outstanding_usd": "0E-7",
+    "call_history_count": 15,
+    "physical_request_admission_history": [
+      {
+        "ticket_id": "250cd108-a0b8-488f-88a9-e4c04a456ef4",
+        "call_index": 1,
+        "client_service": "ai-service",
+        "operation": "chat_completions",
+        "provider": "gemini-openai-compatible",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.0014230",
+        "charged_usd": "0.0014230",
+        "status": "SUCCESS",
+        "timestamp": 1793423485.4345746,
+        "finished": 1793423550.5003273
+      },
+      {
+        "ticket_id": "8db6da64-f2c2-4636-b247-5b33bbe28721",
+        "call_index": 2,
+        "client_service": "ai-service",
+        "operation": "chat_completions",
+        "provider": "gemini-openai-compatible",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.0014230",
+        "charged_usd": "0.0014230",
+        "status": "SUCCESS",
+        "timestamp": 1793423485.5476215,
+        "finished": 1793423550.604695
+      },
+      {
+        "ticket_id": "c2fcf4cf-a358-40b9-946b-55b9e108c282",
+        "call_index": 3,
+        "client_service": "ai-service",
+        "operation": "chat_completions",
+        "provider": "gemini-openai-compatible",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.0014230",
+        "charged_usd": "0.0014230",
+        "status": "SUCCESS",
+        "timestamp": 1793423485.6278172,
+        "finished": 1793423550.6805732
+      },
+      {
+        "ticket_id": "6bc52168-8be9-4a33-b4ac-0cee4e499864",
+        "call_index": 4,
+        "client_service": "ai-service",
+        "operation": "chat_completions",
+        "provider": "gemini-openai-compatible",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.0014230",
+        "charged_usd": "0.0014230",
+        "status": "SUCCESS",
+        "timestamp": 1793423485.6999302,
+        "finished": 1793423550.7471073
+      },
+      {
+        "ticket_id": "5f6107ab-a2f1-4d62-baaa-5d6fb5e078eb",
+        "call_index": 5,
+        "client_service": "ai-service",
+        "operation": "chat_completions",
+        "provider": "gemini-openai-compatible",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.0014230",
+        "charged_usd": "0.0014230",
+        "status": "SUCCESS",
+        "timestamp": 1793423485.768144,
+        "finished": 1793423550.8202074
+      },
+      {
+        "ticket_id": "9be73ba0-3458-4b71-82ed-4352fb69956f",
+        "call_index": 6,
+        "client_service": "backend",
+        "operation": "chat_completions",
+        "provider": "gemini-openai-compatible",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.0014230",
+        "charged_usd": "0.0014230",
+        "status": "SUCCESS",
+        "timestamp": 1793423485.8440533,
+        "finished": 1793423550.8753903
+      },
+      {
+        "ticket_id": "b51b983e-8bff-4e10-97ea-8496c8ceb1d5",
+        "call_index": 7,
+        "client_service": "backend",
+        "operation": "chat_completions",
+        "provider": "gemini-openai-compatible",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.0014230",
+        "charged_usd": "0.0014230",
+        "status": "SUCCESS",
+        "timestamp": 1793423485.916411,
+        "finished": 1793423550.9484835
+      },
+      {
+        "ticket_id": "b4a07af1-4469-4ccc-b1e7-1943a2da4d85",
+        "call_index": 8,
+        "client_service": "backend",
+        "operation": "chat_completions",
+        "provider": "gemini-openai-compatible",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.0014230",
+        "charged_usd": "0.0014230",
+        "status": "SUCCESS",
+        "timestamp": 1793423485.9720294,
+        "finished": 1793423551.003074
+      },
+      {
+        "ticket_id": "38ddb29b-7969-45e8-8d94-b1c336c31db4",
+        "call_index": 9,
+        "client_service": "backend",
+        "operation": "chat_completions",
+        "provider": "gemini-openai-compatible",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.0014230",
+        "charged_usd": "0.0014230",
+        "status": "SUCCESS",
+        "timestamp": 1793423486.0251033,
+        "finished": 1793423551.0864246
+      },
+      {
+        "ticket_id": "c2b1a890-b9a1-44e9-a0d3-1e39d719515a",
+        "call_index": 10,
+        "client_service": "backend",
+        "operation": "chat_completions",
+        "provider": "gemini-openai-compatible",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.0014233",
+        "charged_usd": "0.0014233",
+        "status": "SUCCESS",
+        "timestamp": 1793423486.1172202,
+        "finished": 1793423551.1518707
+      },
+      {
+        "ticket_id": "d31fc327-94ae-46f1-8010-049b5616082d",
+        "call_index": 11,
+        "client_service": "ai-service",
+        "operation": "chat_completions",
+        "provider": "gemini-openai-compatible",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.0014233",
+        "charged_usd": "0.0014233",
+        "status": "SUCCESS",
+        "timestamp": 1793423551.2031672,
+        "finished": 1793423551.2599878
+      },
+      {
+        "ticket_id": "43ecc19a-5487-40bb-9401-2287969582bf",
+        "call_index": 12,
+        "client_service": "backend",
+        "operation": "chat_completions",
+        "provider": "gemini-openai-compatible",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.0014233",
+        "charged_usd": "0.0014233",
+        "status": "SUCCESS",
+        "timestamp": 1793423551.2760155,
+        "finished": 1793423551.3210657
+      },
+      {
+        "ticket_id": "52c116fa-d23c-4906-99a5-8eaa24f29355",
+        "call_index": 13,
+        "client_service": "ai-service",
+        "operation": "chat_completions",
+        "provider": "gemini-openai-compatible",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.0014233",
+        "charged_usd": "0.0014233",
+        "status": "SUCCESS",
+        "timestamp": 1793423551.3446505,
+        "finished": 1793423551.393129
+      },
+      {
+        "ticket_id": "d2683a2a-7eae-4c9b-afaf-40125446c853",
+        "call_index": 14,
+        "client_service": "backend",
+        "operation": "chat_completions",
+        "provider": "gemini-openai-compatible",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.0014233",
+        "charged_usd": "0.0014233",
+        "status": "SUCCESS",
+        "timestamp": 1793423551.420169,
+        "finished": 1793423551.4889288
+      },
+      {
+        "ticket_id": "7c1af9ca-55a1-448e-99a1-079423fbeeb7",
+        "call_index": 15,
+        "client_service": "ai-service",
+        "operation": "chat_completions",
+        "provider": "gemini-openai-compatible",
+        "model": "gemini-3.5-flash-lite",
+        "liability_usd": "0.0014233",
+        "charged_usd": "0.0014233",
+        "status": "SUCCESS",
+        "timestamp": 1793423551.5147452,
+        "finished": 1793423551.5867434
+      }
+    ],
+    "denied_requests_count": 2,
+    "denied_history": [
+      {
+        "denial_index": 1,
+        "timestamp": 1793423551.1724052,
+        "reason": "ROLLING_RATE_LIMIT_EXCEEDED",
+        "client_service": "backend",
+        "operation": "chat_completions"
+      },
+      {
+        "denial_index": 2,
+        "timestamp": 1793423551.6348498,
+        "reason": "MAX_CALLS_REACHED",
+        "client_service": "ai-service",
+        "operation": "chat_completions"
+      }
+    ],
+    "live_authorized": false,
+    "actual_invoice_usd": "0.00"
+  },
+  "gateway_restart_verification": {
+    "counters_before_restart": {
+      "total_calls": 15,
+      "remaining_calls": 0,
+      "charged_usd": "0.0213468"
+    },
+    "counters_after_restart": {
+      "total_calls": 15,
+      "remaining_calls": 0,
+      "charged_usd": "0.0213468"
+    },
+    "ledger_sha256_before": "55bf05cf36f38676b21748d295e2be6324b184f198544dcff87a3e0ebd1b8d08",
+    "ledger_sha256_after": "55bf05cf36f38676b21748d295e2be6324b184f198544dcff87a3e0ebd1b8d08",
+    "hash_identical": true
+  },
+  "fake_upstream_verification": {
+    "fake_upstream_received_count": 15,
+    "agreement_with_dispatched_count": true,
+    "client_distribution": {
+      "ai_service": 8,
+      "backend": 7
+    }
+  },
+  "adversarial_findings_closed": {
+    "F-01": "Serialized private notes in JSON strings and message content blocked with 403 before ledger reservation.",
+    "F-02": "Monotonic clock deadline and BoundedHTTPHandler watchdog timer abort slow trickle, oversized, and hang faults safely.",
+    "F-03": "Durable machine-readable evidence bundle persisted at docs/development/integration/p1-author/evidence/p1-live-safety-01/budget-concurrency-evidence.json.",
+    "F-04": "Run-scoped project naming and label-based resource deletion prevent parallel test interference.",
+    "F-05": "Container network isolation proven with direct-egress RFC 5737 IP socket connection checks and fake-upstream bypass blocks.",
+    "F-06": "Comprehensive remediation report appended to P1_LIVE_SAFETY_01_REVIEW.md with provisional verdict P1_LIVE_SAFETY_OFFLINE_PASS.",
+    "F-07": "Run ownership tracking gates compose teardown; preflight conflict aborts without touching unowned Docker resources.",
+    "F-08": "Ledger health enforcement and transaction rollback prevent recreation of missing ledger or overwriting disk corruption during denial logging.",
+    "F-09": "Docker inspection commands fail closed with DockerInspectionError on nonzero exit codes, preventing false ownership or fabricated cleanup PASS.",
+    "secondary_models_contract": "/v1/models ledger health check moved inside try: block, guaranteeing HTTP 503 BUDGET_METER_UNAVAILABLE on missing or corrupted ledger."
+  }
+}

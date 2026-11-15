@@ -1,0 +1,201 @@
+TAP version 13
+# Subtest: Node.js AI Gateway Service (P6.5 Hardening)
+    # Subtest: AIGatewayService forwards headers with tenant, user, and service token
+    ok 1 - AIGatewayService forwards headers with tenant, user, and service token
+      ---
+      duration_ms: 16.6968
+      ...
+    # Subtest: AIGatewayService builds query parameters correctly for context-preview
+    ok 2 - AIGatewayService builds query parameters correctly for context-preview
+      ---
+      duration_ms: 0.8247
+      ...
+    # Subtest: AIGatewayService propagates remote AI errors as AppError with correct status code
+    ok 3 - AIGatewayService propagates remote AI errors as AppError with correct status code
+      ---
+      duration_ms: 0.7654
+      ...
+    # Subtest: AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE
+    ok 4 - AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE
+      ---
+      duration_ms: 0.2854
+      ...
+    # Subtest: assertNovelOwnership enforces author access control with 403 FORBIDDEN
+    ok 5 - assertNovelOwnership enforces author access control with 403 FORBIDDEN
+      ---
+      duration_ms: 0.2306
+      ...
+    # Subtest: Canonical chapter cutoff derivation from DB record overrides client cutoff
+    ok 6 - Canonical chapter cutoff derivation from DB record overrides client cutoff
+      ---
+      duration_ms: 0.1017
+      ...
+    # Subtest: Cross-author proposal group resolution enforces 403 FORBIDDEN when novel belongs to another author
+    ok 7 - Cross-author proposal group resolution enforces 403 FORBIDDEN when novel belongs to another author
+      ---
+      duration_ms: 0.5226
+      ...
+    # Subtest: Cross-author single proposal resolution enforces 403 FORBIDDEN for reject and edit-and-accept
+    ok 8 - Cross-author single proposal resolution enforces 403 FORBIDDEN for reject and edit-and-accept
+      ---
+      duration_ms: 0.5106
+      ...
+    # Subtest: Cross-author story plan read enforces 403 FORBIDDEN when novel belongs to another author
+    ok 9 - Cross-author story plan read enforces 403 FORBIDDEN when novel belongs to another author
+      ---
+      duration_ms: 0.5743
+      ...
+    # Subtest: Story Brain freshness check fails closed with 503 when AI service is unavailable
+    ok 10 - Story Brain freshness check fails closed with 503 when AI service is unavailable
+      ---
+      duration_ms: 0.3971
+      ...
+    1..10
+ok 1 - Node.js AI Gateway Service (P6.5 Hardening)
+  ---
+  duration_ms: 21.9576
+  type: 'suite'
+  ...
+# Subtest: Phase D: Manuscript Import & Canonical Provenance Contract Tests
+    # Subtest: Checkpoint D1: Import never maps chapterId to revision_id
+    ok 1 - Checkpoint D1: Import never maps chapterId to revision_id
+      ---
+      duration_ms: 1.0587
+      ...
+    # Subtest: Checkpoint D2: Bootstrap never sends placeholder content_hash
+    ok 2 - Checkpoint D2: Bootstrap never sends placeholder content_hash
+      ---
+      duration_ms: 0.2716
+      ...
+    # Subtest: Checkpoint D3: Canonical revision metadata is preserved per chapter
+    ok 3 - Checkpoint D3: Canonical revision metadata is preserved per chapter
+      ---
+      duration_ms: 0.3168
+      ...
+    # Subtest: Checkpoint D4: Malformed/failed revision provenance blocks bootstrap
+    ok 4 - Checkpoint D4: Malformed/failed revision provenance blocks bootstrap
+      ---
+      duration_ms: 0.4848
+      ...
+    # Subtest: Checkpoint D5: Partial chapter import is reported honestly
+    ok 5 - Checkpoint D5: Partial chapter import is reported honestly
+      ---
+      duration_ms: 0.2474
+      ...
+    # Subtest: Checkpoint D6: Story Brain bootstrap receives revisions in correct narrative order
+    ok 6 - Checkpoint D6: Story Brain bootstrap receives revisions in correct narrative order
+      ---
+      duration_ms: 0.2819
+      ...
+    # Subtest: Checkpoint D7: Proposal accept uses current brain_version
+    ok 7 - Checkpoint D7: Proposal accept uses current brain_version
+      ---
+      duration_ms: 0.1584
+      ...
+    # Subtest: Checkpoint D8: Rejected proposal is not materialized into canon
+    ok 8 - Checkpoint D8: Rejected proposal is not materialized into canon
+      ---
+      duration_ms: 0.6864
+      ...
+    # Subtest: Checkpoint D9: Vietnamese Unicode SHA-256 fixture matches backend contract
+    ok 9 - Checkpoint D9: Vietnamese Unicode SHA-256 fixture matches backend contract
+      ---
+      duration_ms: 0.2484
+      ...
+    # Subtest: Checkpoint D10: Requirement A - Ordinary author snapshot creates INCREMENTAL_ANALYSIS outbox
+    ok 10 - Checkpoint D10: Requirement A - Ordinary author snapshot creates INCREMENTAL_ANALYSIS outbox
+      ---
+      duration_ms: 0.31
+      ...
+    # Subtest: Checkpoint D11: Requirement B - Bootstrap-owned snapshot creates BOOTSTRAP revision without competing generic outbox event
+    ok 11 - Checkpoint D11: Requirement B - Bootstrap-owned snapshot creates BOOTSTRAP revision without competing generic outbox event
+      ---
+      duration_ms: 0.1257
+      ...
+    # Subtest: Checkpoint D12: Requirement C - Single bootstrap analysis lineage prevents duplicate proposal groups
+    ok 12 - Checkpoint D12: Requirement C - Single bootstrap analysis lineage prevents duplicate proposal groups
+      ---
+      duration_ms: 0.122
+      ...
+    # Subtest: Checkpoint D13: Requirement D - Pre-baseline bootstrap proposals stay review-controlled and un-materialized by generic outbox
+    ok 13 - Checkpoint D13: Requirement D - Pre-baseline bootstrap proposals stay review-controlled and un-materialized by generic outbox
+      ---
+      duration_ms: 0.0923
+      ...
+    # Subtest: Checkpoint D14: Requirement E - Rejected bootstrap proposal stays rejected/non-canonical and target is not materialized
+    ok 14 - Checkpoint D14: Requirement E - Rejected bootstrap proposal stays rejected/non-canonical and target is not materialized
+      ---
+      duration_ms: 0.0908
+      ...
+    # Subtest: Checkpoint D15: Requirement F - After baseline activation, normal P1 AI_DRAFT_ACCEPT creates outbox and Story Brain advances
+    ok 15 - Checkpoint D15: Requirement F - After baseline activation, normal P1 AI_DRAFT_ACCEPT creates outbox and Story Brain advances
+      ---
+      duration_ms: 0.0993
+      ...
+    # Subtest: Checkpoint D16: Safety constraint - Active Story Brain rejects subsequent MANUSCRIPT_BOOTSTRAP snapshots
+    ok 16 - Checkpoint D16: Safety constraint - Active Story Brain rejects subsequent MANUSCRIPT_BOOTSTRAP snapshots
+      ---
+      duration_ms: 0.1652
+      ...
+    1..16
+ok 2 - Phase D: Manuscript Import & Canonical Provenance Contract Tests
+  ---
+  duration_ms: 5.8626
+  type: 'suite'
+  ...
+# Subtest: AI-PIPE-01 P1 Node Gateway & Acceptance Flow
+    # Subtest: P1-Gateway: Forward manuscript bootstrap with tenant & service authentication
+    ok 1 - P1-Gateway: Forward manuscript bootstrap with tenant & service authentication
+      ---
+      duration_ms: 13.8353
+      ...
+    # Subtest: P1-Gateway: Context preview derives canonical cutoff and returns Story Brain package
+    ok 2 - P1-Gateway: Context preview derives canonical cutoff and returns Story Brain package
+      ---
+      duration_ms: 0.6063
+      ...
+    # Subtest: P1-Gateway: AI Writing generation creates queued job with pinned brain version
+    ok 3 - P1-Gateway: AI Writing generation creates queued job with pinned brain version
+      ---
+      duration_ms: 0.574
+      ...
+    # Subtest: P1-Accept: Patch application and content hash update contract
+    ok 4 - P1-Accept: Patch application and content hash update contract
+      ---
+      duration_ms: 0.1636
+      ...
+    # Subtest: P2-Gateway: Forward bootstrap from idea with tenant & service authentication
+    ok 5 - P2-Gateway: Forward bootstrap from idea with tenant & service authentication
+      ---
+      duration_ms: 0.4966
+      ...
+    # Subtest: P2B-Gateway: Forward Story Plan creation, activation, and objective update
+    ok 6 - P2B-Gateway: Forward Story Plan creation, activation, and objective update
+      ---
+      duration_ms: 0.7332
+      ...
+    # Subtest: P2B-Gateway: Non-owner cannot read another novel plan by UUID (403 FORBIDDEN)
+    ok 7 - P2B-Gateway: Non-owner cannot read another novel plan by UUID (403 FORBIDDEN)
+      ---
+      duration_ms: 0.4386
+      ...
+    # Subtest: P1-Gateway: Author operation consistency check forwards with actor/tenant and returns findings
+    ok 8 - P1-Gateway: Author operation consistency check forwards with actor/tenant and returns findings
+      ---
+      duration_ms: 0.5134
+      ...
+    1..8
+ok 3 - AI-PIPE-01 P1 Node Gateway & Acceptance Flow
+  ---
+  duration_ms: 18.2755
+  type: 'suite'
+  ...
+1..3
+# tests 34
+# suites 3
+# pass 34
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 983.7106

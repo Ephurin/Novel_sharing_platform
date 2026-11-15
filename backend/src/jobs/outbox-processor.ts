@@ -10,6 +10,16 @@ import {
 import { syncDraftFromRevisionConditional } from '../modules/novels/draft-chapters.repository.js';
 
 let isProcessing = false;
+
+// #149: free-tier quota denials from the AI gateway. Retrying inside the same 60 s window only
+// burns the slots an author needs for interactive writing, so these wait at least one window.
+const RATE_LIMIT_PATTERN = /RPM_LIMIT_EXCEEDED|TPM_LIMIT_EXCEEDED|CONCURRENCY_LIMIT_EXCEEDED|PROVIDER_QUOTA_EXHAUSTED|HTTP 429\b/;
+export const RATE_LIMIT_MIN_BACKOFF_SECONDS = 60;
+
+export function outboxRetryDelaySeconds(retryCount: number, errorMessage: string): number {
+  const exponential = Math.min(300, Math.pow(2, retryCount + 1) * 5);
+  return RATE_LIMIT_PATTERN.test(errorMessage) ? Math.max(RATE_LIMIT_MIN_BACKOFF_SECONDS, exponential) : exponential;
+}
 let outboxTimer: NodeJS.Timeout | null = null;
 
 export interface OutboxDependencies {
@@ -71,8 +81,9 @@ export async function processOutboxOnce(
         succeeded++;
       } catch (err: any) {
         failed++;
-        const backoffSeconds = Math.min(300, Math.pow(2, event.retryCount + 1) * 5);
-        await markFailedFn(event.eventId, err?.message || String(err), backoffSeconds, event.claimToken);
+        const errorMessage = err?.message || String(err);
+        const backoffSeconds = outboxRetryDelaySeconds(event.retryCount, errorMessage);
+        await markFailedFn(event.eventId, errorMessage, backoffSeconds, event.claimToken);
         console.warn(
           `[OutboxProcessor] Event ${event.eventId} (${event.eventType}) failed (attempt ${event.retryCount + 1}):`,
           err?.message || err

@@ -19,6 +19,7 @@ import { useStudioPosition } from './useStudioPosition';
 import { PublishChecklist, StoryReferenceLookup, TextComparison } from './StudioReviewTools';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
 import { CopyTextButton, FeedbackReveal } from '../../shared/components/ActionFeedback';
+import {PlanningStudio,type MemoryTab,type PlanningStep} from '../ai-copilot/PlanningStudio';
 import { ChapterSchedule } from '../author-projects/ChapterSchedule';
 import { RevisionHistory, snapshotDraft } from './RevisionHistory';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -58,6 +59,8 @@ import type {
 import {
   startWritingGeneration,
   getJobStatus,
+  recoverWritingDraft,
+  dismissWritingDraft,
   acceptDraftRevision,
   createChapterSnapshot,
   fetchContextPreview,
@@ -167,6 +170,18 @@ export function AuthorWritingIde() {
 
   // UI Interactive Panels & Modals State
   const [sidebarOpen, setSidebarOpen] = useState(() => window.matchMedia('(min-width: 901px)').matches);
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // UX-01: Escape dismisses the sidebar only where it overlays the manuscript (mobile);
+      // on desktop Escape belongs to the open notes/menus.
+      if (e.key === 'Escape' && !e.defaultPrevented && window.matchMedia('(max-width: 900px)').matches) {
+        setSidebarOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [sidebarOpen]);
   const [rightPanel, setRightPanel] = useState<'ai' | 'notes' | null>(null);
   const aiDrawerOpen = rightPanel === 'ai';
   const reducePanelMotion = useReducedMotion();
@@ -183,6 +198,7 @@ export function AuthorWritingIde() {
   };
   const [storyBibleOpen, setStoryBibleOpen] = useState(false);
   const [memoryPanelOpen, setMemoryPanelOpen] = useState(false);
+  const [memoryTab, setMemoryTab] = useState<MemoryTab>('review');
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [chapterToDelete, setChapterToDelete] = useState<Chapter | null>(null);
@@ -232,6 +248,7 @@ export function AuthorWritingIde() {
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
   const [isAcceptingAi, setIsAcceptingAi] = useState(false);
   const [currentJob, setCurrentJob] = useState<WritingGenerationJob | null>(null);
+  const [aiRecoveryMessage, setAiRecoveryMessage] = useState<string | null>(null);
   const pollTimerRef = useRef<number | null>(null);
 
   // References for tracking changes
@@ -282,7 +299,23 @@ export function AuthorWritingIde() {
   });
 
   const persistence = useDraftPersistence(user?.userId ?? '', activeChapterId);
+  const [planning,setPlanning]=useState(false);
+  // Mounted on first use, then kept (hidden) so Planning keeps its state while the author writes.
+  const [planningMounted,setPlanningMounted]=useState(false);
+  const [planningStep,setPlanningStep]=useState<PlanningStep>('idea');
+  async function openPlanning(step:PlanningStep='idea'){const session=writingSession.current;try{await persistence.flush();if(session!==writingSession.current)return;
+    // The chapter list feeds Planning's "written chapters" (memory entry, future-event target); re-read it after the flush.
+    void queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] });
+    if(window.matchMedia('(max-width: 900px)').matches)setSidebarOpen(false);setRightPanel(null);setPlanningStep(step);setPlanningMounted(true);setPlanning(true);setMemoryPanelOpen(false);setStoryBibleOpen(false);}catch{showToast('Bản nháp chưa lưu xong. Hãy thử lưu trước khi mở lập kế hoạch.');}}
   const activeDraftScope = `${user?.userId}:${activeChapterId}`;
+  const writingScope = `${user?.userId}:${activeNovelId}:${activeChapterId}`;
+  const writingSession = useRef<object>({});
+  const writingSessionKey = useRef('');
+  // Change identity during render so even a response racing effect cleanup is ignored.
+  if (writingSessionKey.current !== writingScope) {
+    writingSessionKey.current = writingScope;
+    writingSession.current = {};
+  }
   const loadedChapter = useRef('');
   // Story Bible Queries
   const charactersQuery = useQuery({
@@ -322,6 +355,7 @@ export function AuthorWritingIde() {
   // Clean up AI generation polling timer on unmount and chapter switch
   useEffect(() => {
     return () => {
+      writingSession.current = {};
       if (pollTimerRef.current) {
         window.clearTimeout(pollTimerRef.current);
       }
@@ -339,7 +373,37 @@ export function AuthorWritingIde() {
     setAiSuggestion(null);
     setAiComparisonOpen(false);
     setReferenceQuery(null);
-  }, [activeChapterId]);
+    setAiRecoveryMessage(null);
+    const session = writingSession.current;
+    if (user?.userId && activeNovelId && activeChapterId) {
+      setAiRecoveryMessage('Đang tải bản nháp AI đã lưu…');
+      void recoverWritingDraft(activeNovelId, activeChapterId).then(({ job }) => {
+        if (writingSession.current !== session) return;
+        if (!job) { setAiRecoveryMessage(null); return; }
+        if (job.novel_id !== activeNovelId || job.chapter_id !== activeChapterId) {
+          setAiRecoveryMessage('Không thể khôi phục bản nháp thuộc chương khác.'); return;
+        }
+        setCurrentJob(job);
+        if (job.status === 'completed' && job.validation_status === 'passed') {
+          setAiSuggestion(job.draft || job.patch?.replacement || null);
+          setAiSuggestionTone('Bản nháp đã lưu • Chưa được chấp nhận');
+          setAiRecoveryMessage(job.stale_reason
+            ? 'Bản nháp đã cũ: nội dung hoặc Canon đã thay đổi. Không thể chấp nhận; hãy bỏ qua hoặc tạo bản nháp khác.' : null);
+          openAiDrawer();
+        } else {
+          setAiRecoveryMessage(job.status === 'failed' || job.validation_status === 'failed'
+            ? 'Tác vụ AI trước không thành công; không có bản nháp hợp lệ để chấp nhận.'
+            : 'Tác vụ AI chưa hoàn tất. Mở lại chương để kiểm tra sau; không tự tạo hoặc tiếp tục tác vụ.');
+        }
+      }).catch(() => {
+        if (writingSession.current === session) setAiRecoveryMessage('Chưa tải được bản nháp đã lưu. Tải lại trang để thử đọc lại; không cần tạo AI mới.');
+      });
+    }
+    return () => {
+      if (writingSession.current === session) writingSession.current = {};
+      if (pollTimerRef.current) window.clearTimeout(pollTimerRef.current);
+    };
+  }, [writingScope]);
 
   // Load chapter data into editor when chapter changes
   useEffect(() => {
@@ -579,26 +643,33 @@ export function AuthorWritingIde() {
     triggerAutosave(title, content, isVip, safePrice);
   };
 
-  // Create Chapter Mutation
-  const createChapterMutation = useMutation({
-    mutationFn: async () => {
-      if (!activeNovelId) throw new Error('No novel selected');
-      const count = chaptersQuery.data?.length ?? 0;
-      return createChapter(activeNovelId, {
-        title: `Chương ${count + 1}: Bản thảo mới`,
-        content: '',
-        isVip: false,
-        priceCoins: 0
-      });
+  // Keep one creation key through an uncertain response; never redirect a new scope.
+  const creation=useRef<{scope:string;key:string}|null>(null);
+  const creationAttempt=useRef<{actor:string|undefined;session:object}|null>(null);
+  const createChapterMutation=useMutation({
+    mutationFn:async()=>{
+      const actor=useAuthStore.getState().user?.userId,novel=activeNovelId,session=writingSession.current;
+      creationAttempt.current={actor,session};
+      if(!actor||!novel)throw Error('Chưa chọn tiểu thuyết');
+      await persistence.flush();
+      if(actor!==useAuthStore.getState().user?.userId||session!==writingSession.current)throw Error('Phiên làm việc đã thay đổi');
+      const scope=JSON.stringify([actor,novel]);
+      if(creation.current?.scope!==scope){
+        let key:string|null=null;try{key=localStorage.getItem('ephurin-chapter-create:'+scope);}catch{}
+        creation.current={scope,key:key??crypto.randomUUID()};
+        try{localStorage.setItem('ephurin-chapter-create:'+scope,creation.current.key);}catch{}
+      }
+      const controller=new AbortController();const unsubscribe=useAuthStore.subscribe(s=>{if(s.user?.userId!==actor)controller.abort();});
+      try{const newChap=await createChapter(novel,{title:`Chương ${(chaptersQuery.data?.length??0)+1}: Bản thảo mới`,content:'',isVip:false,priceCoins:0,clientRequestId:creation.current.key},controller.signal);
+      return{newChap,actor,novel,session,scope};}finally{unsubscribe();}
     },
-    onSuccess: (newChap: Chapter) => {
-      queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] });
-      setSearchParams({ novelId: activeNovelId, chapterId: newChap.chapterId });
-      showToast(`Đã tạo ${newChap.title}`);
-    },
-    onError: (err: unknown) => {
-      showToast(`Lỗi: ${getApiErrorMessage(err)}`);
-    }
+    onSuccess:({newChap,actor,novel,session,scope})=>{
+      try{localStorage.removeItem('ephurin-chapter-create:'+scope);}catch{}
+      if(creation.current?.scope===scope)creation.current=null;
+      if(actor!==useAuthStore.getState().user?.userId||session!==writingSession.current)return;
+      queryClient.invalidateQueries({queryKey:['author','chapters',novel,actor]});
+      setSearchParams({novelId:novel,chapterId:newChap.chapterId});setPlanning(false);showToast(`Đã tạo ${newChap.title}`);
+    },onError:(err:unknown)=>{const attempt=creationAttempt.current;if(attempt?.actor===useAuthStore.getState().user?.userId&&attempt?.session===writingSession.current)showToast(`Lỗi: ${getApiErrorMessage(err)}`);}
   });
 
   // Publish Chapter Mutation
@@ -653,6 +724,9 @@ export function AuthorWritingIde() {
     }
 
     setIsGeneratingAi(true);
+    writingSession.current = {};
+    const session = writingSession.current;
+    setAiRecoveryMessage(null);
     aiBaseRef.current = { scope: activeDraftScope, content };
     setAiComparisonOpen(false);
     setCurrentJob(null);
@@ -671,8 +745,10 @@ export function AuthorWritingIde() {
       }
 
       if (!baseRevision || baseRevision.content !== content) {
+        if (writingSession.current !== session) return;
         baseRevision = await createChapterSnapshot(activeChapterId, content);
       }
+      if (writingSession.current !== session) return;
 
       // 2. Retrieve expected Story Brain version
       let brainVer = 1;
@@ -686,6 +762,7 @@ export function AuthorWritingIde() {
       }
 
       // 4. Start writing generation job
+      if (writingSession.current !== session) return;
       const initiatedJob = await startWritingGeneration({
         novelId: activeNovelId,
         chapterId: activeChapterId,
@@ -702,20 +779,23 @@ export function AuthorWritingIde() {
         idempotencyKey: typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `ui-${Date.now()}`
       });
 
+      if (writingSession.current !== session) return;
       setCurrentJob(initiatedJob);
-      pollJob(initiatedJob.job_id);
+      void pollJob(initiatedJob.job_id, session);
     } catch (err: unknown) {
+      if (writingSession.current !== session) return;
       setIsGeneratingAi(false);
       showToast(`Lỗi khởi tạo AI: ${getApiErrorMessage(err)}`);
     }
   };
 
-  const pollJob = async (jobId: string) => {
+  const pollJob = async (jobId: string, session: object, attempt = 0) => {
     try {
       const updated = await getJobStatus(jobId);
+      if (writingSession.current !== session) return;
       setCurrentJob(updated);
       const status = updated.status?.toLowerCase();
-      if (status === 'completed') {
+      if (status === 'completed' && updated.validation_status === 'passed') {
         setIsGeneratingAi(false);
         const draftText = updated.draft || (updated.patch?.replacement ?? '');
         if (/^\s*(?:```(?:json)?\s*)?\{\s*"(?:draft_text|draft|explanation)"\s*:/i.test(draftText)) {
@@ -726,15 +806,19 @@ export function AuthorWritingIde() {
         setAiSuggestionTone(
           updated.validation_status === 'passed' ? 'Đã kiểm định nhất quán • P1 Loop' : 'Hoàn thành'
         );
-      } else if (status === 'failed') {
+      } else if (status === 'failed' || status === 'dismissed' || status === 'completed') {
         setIsGeneratingAi(false);
         showToast(`Tác vụ AI thất bại: ${updated.error?.message || 'Không rõ nguyên nhân'}`);
-      } else {
+      } else if (attempt < 59) {
         pollTimerRef.current = window.setTimeout(() => {
-          void pollJob(jobId);
+          if (writingSession.current === session) void pollJob(jobId, session, attempt + 1);
         }, 1000);
+      } else {
+        setIsGeneratingAi(false);
+        setAiRecoveryMessage('Tác vụ chưa hoàn tất. Mở lại chương để đọc lại trạng thái sau.');
       }
     } catch (err: unknown) {
+      if (writingSession.current !== session) return;
       setIsGeneratingAi(false);
       showToast(`Lỗi kiểm tra tiến trình: ${getApiErrorMessage(err)}`);
     }
@@ -742,13 +826,26 @@ export function AuthorWritingIde() {
 
   // Canonical Accept Draft: creates immutable revision & emits INCREMENTAL_ANALYSIS outbox event
   const handleAcceptDraft = async () => {
-    if (!activeChapterId || !currentJob) return;
+    if (!activeChapterId || !currentJob || currentJob.stale_reason || currentJob.validation_status !== 'passed') return;
+    const session = writingSession.current;
     const scrollTop = editorRef.current?.closest<HTMLElement>('.sc-editor-workspace')?.scrollTop ?? 0;
     setIsAcceptingAi(true);
     try {
       await persistence.flush();
+      if (writingSession.current !== session) return;
+      // A restored draft may become stale while the author edits this session.
+      // Re-read after autosave; the existing accept endpoint remains authoritative.
+      const review = await recoverWritingDraft(activeNovelId, activeChapterId);
+      if (writingSession.current !== session) return;
+      if (!review.job || review.job.job_id !== currentJob.job_id || review.job.status !== 'completed' ||
+          review.job.validation_status !== 'passed' || review.job.stale_reason) {
+        setAiRecoveryMessage('Bản nháp không còn chờ duyệt hoặc đã cũ. Tải lại chương trước khi tiếp tục; bản thảo chính chưa bị thay đổi.');
+        return;
+      }
       await acceptDraftRevision(activeChapterId, currentJob.job_id);
+      if (writingSession.current !== session) return;
       const chapter = await getChapter(activeChapterId);
+      if (writingSession.current !== session) return;
       if (loadedChapter.current === activeDraftScope) {
         const value = persistence.initialize(chapter, true);
         setTitle(value.title);
@@ -766,22 +863,35 @@ export function AuthorWritingIde() {
       setCurrentJob(null);
       setAiSuggestion(null);
       setAiComparisonOpen(false);
+      setAiRecoveryMessage(null);
       queryClient.invalidateQueries({ queryKey: ['author', 'chapter', activeChapterId] });
       queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] });
       showToast('Đã chấp nhận bản thảo AI và kích hoạt cập nhật Story Brain!');
     } catch (err: unknown) {
+      if (writingSession.current !== session) return;
+      setAiRecoveryMessage(`Không thể chấp nhận bản nháp: ${getApiErrorMessage(err)}`);
       showToast(`Chấp nhận bản thảo thất bại: ${getApiErrorMessage(err)}`);
     } finally {
-      setIsAcceptingAi(false);
+      if (writingSession.current === session) setIsAcceptingAi(false);
     }
   };
 
   // Canonical Discard Draft: leaves canon, revision pointer, and Story Brain unchanged
-  const handleDiscardDraft = () => {
-    setAiComparisonOpen(false);
-    setCurrentJob(null);
-    setAiSuggestion(null);
-    showToast('Đã từ chối gợi ý AI.');
+  const handleDiscardDraft = async () => {
+    if (!currentJob || !activeNovelId || !activeChapterId) return;
+    const session = writingSession.current;
+    setIsAcceptingAi(true);
+    try {
+      await dismissWritingDraft(activeNovelId, activeChapterId, currentJob.job_id);
+      if (writingSession.current !== session) return;
+      setAiComparisonOpen(false);
+      setCurrentJob(null); setAiSuggestion(null); setAiRecoveryMessage(null);
+      showToast('Đã từ chối gợi ý AI và lưu quyết định.');
+    } catch (error) {
+      if (writingSession.current === session) setAiRecoveryMessage(`Chưa lưu được quyết định từ chối: ${getApiErrorMessage(error)}`);
+    } finally {
+      if (writingSession.current === session) setIsAcceptingAi(false);
+    }
   };
 
   // Word count & read time calculation
@@ -808,7 +918,7 @@ export function AuthorWritingIde() {
   const openSchedule = async () => { try { await persistence.flush(); setScheduleOpen(true); } catch { showToast('Lưu bản nháp thành công trước khi đặt lịch.'); } };
   const manuscriptActions = <>{focusMode && <>{canSchedule && <Menu.Item onClick={openSchedule}>Lên lịch</Menu.Item>}<Menu.Item onClick={() => setHistoryOpen(true)} disabled={!chapterQuery.data}>Lịch sử bản thảo</Menu.Item></>}<Menu.Item onClick={() => setExportOpen(true)}>Xuất bản thảo</Menu.Item></>;
 
-  const chapterSettings = !focusMode && (
+  const chapterSettings = !focusMode && !planning && (
         <section className="sc-studio-settings border-b border-stone-200/80 bg-surface-container-lowest/90 backdrop-blur-sm px-4 flex items-center justify-between shrink-0 z-20 text-meta">
           {/* Left: Sidebar toggle & Publication Status */}
           <div className="sc-studio-settings-context flex items-center gap-3">
@@ -903,11 +1013,11 @@ export function AuthorWritingIde() {
           <Breadcrumbs className="is-compact" items={[{ label: novelQuery.data?.title || 'Tác phẩm', to: activeNovelId ? `/author/novels/${activeNovelId}` : authorHomeCrumb.to }, { label: title || 'Chương mới' }]} />
 
           {/* Autosave Indicator */}
-          <SaveStatus className="hidden md:inline-flex shrink-0" status={activeChapterId && chapterQuery.data && loadedChapter.current === activeDraftScope ? autosaveStatus : 'idle'} dirty={persistence.dirty} savedAt={lastSavedTime} />
+          {!planning && <SaveStatus className="hidden md:inline-flex shrink-0" status={activeChapterId && chapterQuery.data && loadedChapter.current === activeDraftScope ? autosaveStatus : 'idle'} dirty={persistence.dirty} savedAt={lastSavedTime} />}
         </div>
 
         {/* Center/Right Primary Actions */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-2 shrink-0" style={planning?{display:"none"}:undefined}>
           {/* Word Count Badge */}
           <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-stone-100/80 text-stone-600 text-meta font-medium border border-stone-200/70">
             <span className="material-symbols-outlined text-body text-stone-400">description</span>
@@ -1001,21 +1111,30 @@ export function AuthorWritingIde() {
          ────────────────────────────────────────── */}
       {scheduleOpen && <ChapterSchedule chapterId={activeChapterId} novelId={activeNovelId} onClose={() => setScheduleOpen(false)} />}
       {historyOpen && <RevisionHistory chapterId={activeChapterId} content={content} onClose={() => setHistoryOpen(false)} onRestore={async next => { await persistence.flush(); setContent(next); triggerAutosave(title, next, isVip, priceCoins); await persistence.flush(); showToast('Đã khôi phục và lưu phiên bản bản thảo.'); }} />}
-      {persistence.error && <Alert color="red" title="Bản nháp chưa được lưu">{persistence.error}<Group mt="xs"><Button size="xs" variant="light" onClick={() => void persistence.flush().catch(() => {})}>Thử lưu lại</Button><Button size="xs" variant="default" onClick={async () => { const result = await chapterQuery.refetch(); if (result.data) { const value = persistence.initialize(result.data, true); if (value) { setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); } } }}>Tải bản máy chủ</Button></Group></Alert>}
+      {persistence.error && <Alert color="red" title="Bản nháp chưa được lưu">{persistence.error}<Group mt="xs"><Button size="xs" variant="light" onClick={() => void persistence.flush().catch(() => {})}>Thử lưu lại</Button><Button size="xs" variant="default" onClick={async () => { if (persistence.dirty && !window.confirm('Tải bản máy chủ sẽ thay thế nội dung chưa lưu đang hiển thị. Hãy xuất bản đang viết trước nếu cần giữ. Tiếp tục?')) return; const result = await chapterQuery.refetch(); if (result.data) { const value = persistence.initialize(result.data, true); if (value) { setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); } } }}>Tải bản máy chủ</Button></Group></Alert>}
       {persistence.recovery && <Alert title="Có bản lưu trên máy chưa đồng bộ" color="orange"><Text size="sm">Bản lưu lúc {new Date(persistence.recovery.savedAt).toLocaleString('vi-VN')}. Nội dung máy chủ vẫn được giữ nguyên.</Text><Group mt="xs"><Button size="xs" onClick={() => { const value = persistence.recovery!.value; setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); persistence.dismissRecovery(); triggerAutosave(value.title, value.content, value.isVip, value.priceCoins); }}>Khôi phục vào trình soạn thảo</Button><Button size="xs" variant="default" onClick={persistence.dismissRecovery}>Bỏ bản lưu trên máy</Button></Group></Alert>}
       {persistence.blocker.state === 'blocked' && <AuthorDialog onClose={() => persistence.blocker.reset?.()}><div className="fixed inset-0 flex items-center justify-center p-4"><div className="w-full max-w-md p-6"><h2 className="text-section">Bản nháp chưa lưu xong</h2><p className="text-body">Bạn có thể lưu trước khi rời trang hoặc giữ bản dự phòng trên máy để khôi phục sau.</p><Group mt="md"><Button onClick={async () => { try { await persistence.flush(); persistence.blocker.proceed?.(); } catch {} }}>Lưu và rời trang</Button><Button variant="default" onClick={() => persistence.blocker.reset?.()}>Ở lại</Button><Button variant="subtle" onClick={() => { persistence.abandon(); persistence.blocker.proceed?.(); }}>Rời trang</Button></Group></div></div></AuthorDialog>}
       <StudioNovelSearch key={searchScope} opened={novelSearchOpen} chapters={chaptersQuery.data ?? []} activeChapterId={activeChapterId} content={content} onClose={() => setNovelSearchOpen(false)} onNavigate={navigateSearchHit} />
-      <StudioWorkbench onSearchNovel={() => setNovelSearchOpen(true)} notesOpen={rightPanel === 'notes'} onNotesOpenChange={changeNotesOpen} onLookup={setReferenceQuery} formatToolbarVisible={formatToolbarVisible} chapterSettings={chapterSettings} fileActions={manuscriptActions} key={activeDraftScope} scope={activeDraftScope} title={title} content={content} editor={editorRef} disabled={!studioReady || isAcceptingAi} exportOpen={exportOpen} onExportClose={() => setExportOpen(false)}
+      <Group px="md" py="xs" gap="xs" aria-label="Chế độ Author IDE" className="relative z-20 shrink-0 bg-surface border-b border-stone-200/60"><Button size="xs" aria-pressed={planning} variant={planning?'filled':'light'} onClick={()=>void openPlanning()}>Lập kế hoạch</Button><Button size="xs" aria-pressed={!planning} variant={!planning?'filled':'light'} onClick={()=>setPlanning(false)}>Viết bản thảo</Button></Group>
+      {planningMounted&&novelQuery.data&&<div key={JSON.stringify([user?.userId,activeNovelId])} style={{display:planning?'flex':'none',flex:1,minHeight:0}}><PlanningStudio novelId={activeNovelId} title={novelQuery.data.title} step={planningStep} onStep={setPlanningStep} chapters={chaptersQuery.data??[]} onWrite={id=>{if(id)setSearchParams({novelId:activeNovelId,chapterId:id});setPlanning(false);}} onCreate={()=>createChapterMutation.mutate()} creating={createChapterMutation.isPending} onMemory={tab=>{setMemoryTab(tab??'review');setMemoryPanelOpen(true);}} onRefreshChapters={()=>void queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] })}/></div>}
+      {!planning && <StudioWorkbench onSearchNovel={() => setNovelSearchOpen(true)} notesOpen={rightPanel === 'notes'} onNotesOpenChange={changeNotesOpen} onLookup={setReferenceQuery} formatToolbarVisible={formatToolbarVisible} chapterSettings={chapterSettings} fileActions={manuscriptActions} key={activeDraftScope} scope={activeDraftScope} title={title} content={content} editor={editorRef} disabled={!studioReady || isAcceptingAi} exportOpen={exportOpen} onExportClose={() => setExportOpen(false)}
         publishedContent={chapterQuery.data?.status === 'PUBLISHED' ? chapterQuery.data.content : undefined} chapterStatus={chapterQuery.data?.status} onPublish={() => setPublishModalOpen(true)}
         apply={applyStudioEdit} undo={() => moveStudioHistory()} redo={() => moveStudioHistory(true)} canUndo={studioHistory.canUndo} canRedo={studioHistory.canRedo}
-        save={async () => { await persistence.flush(); }} onError={message => showToast(message, 'error')} />
-      <StudioSelectionTools key={`selection:${activeDraftScope}`} editor={editorRef} disabled={!studioReady || isAcceptingAi}
+        save={async () => { await persistence.flush(); }} onError={message => showToast(message, 'error')} />}
+      {!planning && <StudioSelectionTools key={`selection:${activeDraftScope}`} editor={editorRef} disabled={!studioReady || isAcceptingAi}
         onFormat={format => format === 'bold' ? wrapSelection('**') : format === 'italic' ? wrapSelection('*') : wrapSelection('<u>', '</u>')}
-        onLookup={setReferenceQuery} onAi={() => { rememberEditorSelection(); openAiDrawer(); }} />
-      <div data-right-panel={rightPanel ?? 'none'} className="sc-studio-body flex-1 min-h-0 flex overflow-hidden relative">
+        onLookup={setReferenceQuery} onAi={() => { rememberEditorSelection(); openAiDrawer(); }} />}
+      <div data-right-panel={rightPanel ?? 'none'} className="sc-studio-body flex-1 min-h-0 flex overflow-hidden relative" style={planning?{display:'none'}:undefined}>
         {/* Left Sidebar Chapters Outline Rail */}
         {sidebarOpen && !focusMode && (
-          <aside className="sc-studio-sidebar w-[280px] shrink-0 border-r border-stone-200/90 bg-surface-subtle flex flex-col h-full z-10 select-none relative">
+          <>
+            <div
+              className="sc-sidebar-backdrop"
+              onClick={() => setSidebarOpen(false)}
+              role="presentation"
+              aria-label="Đóng danh sách chương"
+            />
+            <aside className="sc-studio-sidebar w-[280px] shrink-0 border-r border-stone-200/90 bg-surface-subtle flex flex-col h-full z-20 select-none relative" aria-label="Danh sách chương">
             {/* Rail Header */}
             <div className="p-3 border-b border-stone-200 flex items-center justify-between bg-stone-50/50">
               <div>
@@ -1030,6 +1149,7 @@ export function AuthorWritingIde() {
                 onClick={() => setSidebarOpen(false)}
                 className="p-1 rounded text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 transition-colors"
                 title="Thu gọn danh sách"
+                aria-label="Thu gọn danh sách chương"
                 type="button"
               >
                 <span className="material-symbols-outlined text-[17px]">first_page</span>
@@ -1069,6 +1189,11 @@ export function AuthorWritingIde() {
 
             {/* Chapter List Navigation */}
             <nav className="flex-1 overflow-y-auto px-2 pb-6 space-y-1.5 text-meta">
+              {filteredChapters.length === 0 && (
+                <div className="p-4 text-center text-meta text-stone-400">
+                  {chaptersQuery.data && chaptersQuery.data.length === 0 ? 'Chưa có chương nào' : 'Không tìm thấy chương'}
+                </div>
+              )}
               {filteredChapters.map((ch: Chapter, idx: number) => {
                 const isActive = ch.chapterId === activeChapterId;
                 return (
@@ -1078,6 +1203,9 @@ export function AuthorWritingIde() {
                     onClick={() => {
                       if (!isActive) {
                         setSearchParams({ novelId: activeNovelId, chapterId: ch.chapterId });
+                      }
+                      if (window.matchMedia('(max-width: 900px)').matches) {
+                        setSidebarOpen(false);
                       }
                     }}
                     className={`block w-full text-left p-2 rounded-lg border transition-all cursor-pointer relative ${
@@ -1130,12 +1258,53 @@ export function AuthorWritingIde() {
               })}
             </nav>
           </aside>
+          </>
         )}
 
         {/* ──────────────────────────────────────────
             BEGIN: ManuscriptWritingArea
            ────────────────────────────────────────── */}
         <div className="sc-studio-editor-region"><main className="sc-editor-workspace flex-1 min-h-0 overflow-y-auto flex flex-col items-center bg-surface relative select-text">
+          {chaptersQuery.isLoading ? (
+            <div className="flex-1 flex items-center justify-center p-8 my-auto">
+              <Text size="sm" c="dimmed">Đang nạp danh sách chương...</Text>
+            </div>
+          ) : chaptersQuery.data && chaptersQuery.data.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12 text-center max-w-md my-auto" data-testid="writer-empty-state">
+              <div className="w-16 h-16 rounded-2xl bg-primary-50 text-primary-600 flex items-center justify-center mb-5 border border-primary-100/80 shadow-xs">
+                <span className="material-symbols-outlined text-[32px]">auto_stories</span>
+              </div>
+              <h3 className="text-xl font-bold text-stone-900 mb-2">Chưa có chương nào trong tác phẩm</h3>
+              <p className="text-body text-stone-600 mb-6 leading-relaxed">
+                Tác phẩm của bạn chưa có chương nào. Bạn có thể bắt đầu sáng tác ngay bằng cách tạo chương đầu tiên.
+              </p>
+              {createChapterMutation.isError && (
+                <Alert
+                  color="red"
+                  title="Không thể tạo chương"
+                  mb="md"
+                  w="100%"
+                  withCloseButton
+                  onClose={() => createChapterMutation.reset()}
+                >
+                  <Text size="sm">Đã xảy ra lỗi trong quá trình tạo chương mới. Hãy kiểm tra thông báo và thử lại.</Text>
+                  <Text size="xs" c="dimmed" mt={4}>
+                    Bạn có thể thử lại để tiếp tục tạo chương an toàn với cùng mã yêu cầu.
+                  </Text>
+                </Alert>
+              )}
+              <Button
+                size="md"
+                variant="filled"
+                onClick={() => createChapterMutation.mutate()}
+                loading={createChapterMutation.isPending}
+                leftSection={<span className="material-symbols-outlined text-[18px]">add_circle</span>}
+              >
+                {createChapterMutation.isError ? 'Thử lại tạo chương' : 'Tạo chương đầu tiên'}
+              </Button>
+            </div>
+          ) : (
+            <>
           {/* Sticky Formatting Toolbar with Frosted-Glass Backdrop */}
           {formatToolbarVisible && (
             <div id="studio-format-toolbar" className="sc-format-toolbar sticky top-0 z-20 w-full py-2 px-3 sm:px-4 bg-surface/95 backdrop-blur-md border-b border-stone-200/60 flex items-center justify-center mb-2 shrink-0">
@@ -1368,6 +1537,8 @@ export function AuthorWritingIde() {
               />
             </div></StudioContextMenu>
           </article>
+            </>
+          )}
         </main></div>
 
         {/* ──────────────────────────────────────────
@@ -1460,6 +1631,7 @@ export function AuthorWritingIde() {
                 </div>
               )}
 
+              {aiRecoveryMessage && <div role="status" className="mb-3 rounded border p-3 text-sm">{aiRecoveryMessage}</div>}
               {aiSuggestion && !isGeneratingAi && (
                 <FeedbackReveal className="bg-primary-50/70 border border-primary-100 rounded-xl p-3.5 text-stone-800 shadow-2xs">
                   <div className="flex items-center justify-between mb-2 text-meta font-semibold text-primary-700">
@@ -1473,7 +1645,7 @@ export function AuthorWritingIde() {
                   <div className="mt-3 grid grid-cols-2 gap-1.5 font-sans pt-1">
                     <button
                       onClick={() => handleAcceptDraft()}
-                      disabled={isAcceptingAi}
+                      disabled={isAcceptingAi || Boolean(currentJob?.stale_reason) || currentJob?.validation_status !== 'passed'}
                       className="px-2 py-1.5 rounded bg-primary-600 text-white font-medium text-[11px] hover:bg-primary-700 text-center transition-all shadow-2xs active:scale-95 disabled:opacity-50"
                       type="button"
                     >
@@ -1547,7 +1719,7 @@ export function AuthorWritingIde() {
         <p className="text-meta">{currentJob?.patch ? 'So sánh vùng văn bản AI đề xuất thay thế. Phần được tô là vùng khác nhau; nội dung chưa được áp dụng.' : 'Đối chiếu bản gốc lúc yêu cầu với gợi ý AI. Nội dung chưa được áp dụng.'}</p>
         {content !== aiBaseRef.current.content && <p role="status" className="text-meta">Bạn đã sửa bản thảo sau khi yêu cầu AI. Máy chủ sẽ kiểm tra phiên bản trước khi chấp nhận.</p>}
         <TextComparison before={currentJob?.patch ? aiBaseRef.current.content.slice(codePointToUtf16Offset(aiBaseRef.current.content, currentJob.patch.start), codePointToUtf16Offset(aiBaseRef.current.content, currentJob.patch.end)) : aiBaseRef.current.content} after={currentJob?.patch?.replacement ?? aiSuggestion ?? ''} />
-        <div className="sc-ai-comparison-actions"><button type="button" className="sc-feedback-button" disabled={isAcceptingAi} onClick={() => setAiComparisonOpen(false)}>Quay lại gợi ý</button><button type="button" className="sc-feedback-button" disabled={isAcceptingAi} onClick={() => void handleAcceptDraft()}>{isAcceptingAi ? 'Đang xác nhận…' : 'Chấp nhận bản thảo'}</button></div>
+        <div className="sc-ai-comparison-actions"><button type="button" className="sc-feedback-button" disabled={isAcceptingAi} onClick={() => setAiComparisonOpen(false)}>Quay lại gợi ý</button><button type="button" className="sc-feedback-button" disabled={isAcceptingAi || Boolean(currentJob?.stale_reason) || currentJob?.validation_status !== 'passed'} onClick={() => void handleAcceptDraft()}>{isAcceptingAi ? 'Đang xác nhận…' : 'Chấp nhận bản thảo'}</button></div>
       </AnimatedModal>
       {storyBibleOpen && (
         <AuthorDialog onClose={() => setStoryBibleOpen(false)}><div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
@@ -1940,7 +2112,9 @@ export function AuthorWritingIde() {
         chapterId={activeChapterId}
         content={content}
         opened={memoryPanelOpen}
-        onClose={() => setMemoryPanelOpen(false)}
+        initialTab={memoryTab}
+        onClose={() => { setMemoryPanelOpen(false); setMemoryTab('review'); }}
+        onOpenPlanning={step=>void openPlanning(step)}
         saved={autosaveStatus === 'saved'}
       />
     </div>

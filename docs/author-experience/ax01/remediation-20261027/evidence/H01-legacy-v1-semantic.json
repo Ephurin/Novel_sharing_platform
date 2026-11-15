@@ -1,0 +1,58 @@
+{
+  "label": "H01-legacy-v1-semantic",
+  "job_id": "583b74e5-5e7d-54b7-93bb-71967cd96c17",
+  "status": "completed",
+  "error": null,
+  "brain_version_used": 3,
+  "context_hash": "b26a6cfa850b33ffa056ca7134b0f4c3420c2d7929703d23272ea7ce62306c60",
+  "context_summary": {
+    "entity_ids": [
+      "c22654c6-7e1e-49a4-a5ea-d9b44b08c6f1",
+      "ce977cdd-8861-4d03-b18b-f1bf7d0207f0"
+    ],
+    "event_ids": [],
+    "fact_ids": [],
+    "cutoff_chapter": 3,
+    "recent_scope_participant_entity_ids": [],
+    "recent_scope_participant_identity": [
+      "normalized-event-participants-v1"
+    ],
+    "semantic_retrieval_status": [
+      "ok"
+    ],
+    "semantic_embedding_version": [
+      "fake-embedding-768-v1"
+    ],
+    "semantic_ranking_version": [
+      "hybrid-v1"
+    ],
+    "semantic_memory_ids": [],
+    "context_packing_version": [
+      "context-budget-v1"
+    ],
+    "context_token_estimator_version": [
+      "utf8-json-bytes-3-v1"
+    ],
+    "profile_entity_ids": [
+      "ce977cdd-8861-4d03-b18b-f1bf7d0207f0"
+    ],
+    "dropped_profile_entity_ids": [],
+    "dropped_entity_ids": [],
+    "dropped_event_ids": [],
+    "dropped_fact_ids": [],
+    "dropped_semantic_memory_ids": [],
+    "deduplicated_semantic_memory_ids": [],
+    "brain_version_used": 3,
+    "context_hash": "b26a6cfa850b33ffa056ca7134b0f4c3420c2d7929703d23272ea7ce62306c60",
+    "chapter_number": 3
+  },
+  "provider_call_count": 1,
+  "transport_prompts": [
+    {
+      "system": "Bạn là trợ lý viết tiểu thuyết chuyên nghiệp (Author AI Copilot).\nDựa trên bối cảnh thế giới, nhân vật, phong cách và các ràng buộc của tác giả, hãy tạo nội dung viết tiếp hoặc sửa đổi phù hợp.\nChỉ trả về định dạng JSON hợp lệ:\n{\n  \"draft_text\": \"Nội dung văn bản được sinh ra\",\n  \"explanation\": \"Lý giải ngắn gọn về hướng phát triển cốt truyện\"\n}",
+      "user": "Thao tác: continue\nĐoạn văn được chọn: Minh nhìn căn phòng.\nVị trí con trỏ: 0\nYêu cầu / Chỉ dẫn: Write a scene about Minh.\nBối cảnh tiểu thuyết (Story Brain): {\"author_constraints\":[],\"brain_version\":3,\"current_states\":[{\"entity_id\":\"c22654c6-7e1e-49a4-a5ea-d9b44b08c6f1\",\"location\":\"Unknown\",\"name\":\"Lan\",\"state\":{},\"status\":\"Alive\"},{\"entity_id\":\"ce977cdd-8861-4d03-b18b-f1bf7d0207f0\",\"location\":\"Unknown\",\"name\":\"Minh\",\"state\":{},\"status\":\"Alive\"}],\"entities\":[{\"approved_profile\":{},\"entity_id\":\"c22654c6-7e1e-49a4-a5ea-d9b44b08c6f1\",\"entity_type\":\"PER\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Lan\",\"status\":\"Alive\"},{\"approved_profile\":{\"appearance\":\"H01 blue eyes\",\"background\":\"A teacher\",\"description\":\"Author baseline\",\"personality\":\"Patient\"},\"entity_id\":\"ce977cdd-8861-4d03-b18b-f1bf7d0207f0\",\"entity_type\":\"PER\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Minh\",\"status\":\"Alive\"}],\"recent_events\":[],\"semantic_memories\":[],\"world_rules\":[]}\n"
+    }
+  ],
+  "prompt_context_hash": "b26a6cfa850b33ffa056ca7134b0f4c3420c2d7929703d23272ea7ce62306c60",
+  "prompt_context_estimated_tokens": 268
+}

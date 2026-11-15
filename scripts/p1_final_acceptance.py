@@ -4,7 +4,9 @@ ROOT=pathlib.Path(__file__).resolve().parents[1]
 parser=argparse.ArgumentParser(description=__doc__)
 parser.add_argument('stage')
 parser.add_argument('--output',required=True,help='Fresh task-owned directory OUTSIDE the checkout; contains private test credentials.')
+parser.add_argument('--builtin-fake',action='store_true',help='Use the AI Service in-process fake for Brainstorm acceptance (bridge-config only).')
 options=parser.parse_args();MODE=options.stage
+if options.builtin_fake and MODE!='bridge-config':parser.error('--builtin-fake requires bridge-config')
 stages={'provision','bridge-config','db-up','up','rebuild-app','status','fe19-tests','fe19-known-red','fe19-known-green','consistency-red','consistency-green','legacy-consistency','web-build','web-units','web-mounted','web-assets','ai-unit','ai-postgres','backend-regression','runtime-proof','provider-before','provider-after','cleanup-owned'}
 if MODE not in stages and not MODE.startswith('browser-'):parser.error('Unknown stage: '+MODE)
 OUT=pathlib.Path(options.output).resolve()
@@ -83,13 +85,16 @@ if MODE=='bridge-config':
   with socket.socket() as s:
    s.bind(('127.0.0.1',0));v['WAVE1D_'+key+'_PORT']=str(s.getsockname()[1])
  pathlib.Path(cfg['env_file']).write_text('\n'.join(k+'='+val for k,val in v.items())+'\n',encoding='utf8')
- pathlib.Path(cfg['override']).write_text(json.dumps({'services':{'acceptance-bridge':{
+ services={'acceptance-bridge':{
   'image':'python:3.12-slim','command':['python','/tools/p1_acceptance_tcp_bridge.py'],
   'volumes':[str(ROOT/'Pipeline_test/tools').replace('\\','/')+':/tools:ro'],
   'networks':['workers','headless-edge'],'read_only':True,'cap_drop':['ALL'],
   'security_opt':['no-new-privileges:true'],
   'ports':[f"127.0.0.1:{v['WAVE1D_PG_PORT']}:15432",f"127.0.0.1:{v['WAVE1D_MONGO_PORT']}:17017",f"127.0.0.1:{v['WAVE1D_BACKEND_PORT']}:14000"],
-  'depends_on':{'postgres':{'condition':'service_healthy'},'mongodb':{'condition':'service_healthy'}}}}},indent=2))
+  'depends_on':{'postgres':{'condition':'service_healthy'},'mongodb':{'condition':'service_healthy'}}}}
+ if options.builtin_fake:
+  services['ai-service']={'environment':{'LLM_PROVIDER':'fake','OPENAI_API_KEY':'','LLM_BASE_URL':'http://127.0.0.1:9'}}
+ pathlib.Path(cfg['override']).write_text(json.dumps({'services':services},indent=2))
  PRIVATE.write_text(json.dumps(cfg,indent=2))
  (OUT/'environment-bridge.json').write_text(scrub(json.dumps({'project':cfg['project'],'values':v,'bridge_destinations':'fixed postgres/mongodb/backend only; providers have no edge network'},indent=2)))
  print('Configured new fixed-destination bridge ports')

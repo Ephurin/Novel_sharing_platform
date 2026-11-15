@@ -381,3 +381,153 @@ describe('Node.js AI Gateway Service (P6.5 Hardening)', () => {
   });
 });
 
+
+
+test('failed idea resume preserves upstream 409 code instead of success', async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (async () => new Response(JSON.stringify({detail: {
+    code: 'IDEA_BOOTSTRAP_RETRY_UNSUPPORTED'
+  }}), {status: 409, headers: {'Content-Type': 'application/json'}})) as typeof fetch;
+  try {
+    await assert.rejects(new AIGatewayService().forwardRequest({
+      method: 'POST', path: '/v1/jobs/failed-idea/resume', userId: 'author',
+    }), (error: unknown) => error instanceof AppError && error.httpStatus === 409
+      && error.code === 'IDEA_BOOTSTRAP_RETRY_UNSUPPORTED');
+  } finally { globalThis.fetch = originalFetch; }
+});
+
+test('P2-07E AIGatewayService forwards world-rule amendment endpoints correctly', async () => {
+  let capturedMethod = '';
+  let capturedUrl = '';
+  let capturedHeaders: Record<string, string> = {};
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = (async (url: any, init: any) => {
+    capturedMethod = init?.method || 'GET';
+    capturedUrl = String(url);
+    capturedHeaders = init?.headers || {};
+    return new Response(
+      JSON.stringify({
+        data: {
+          contract_version: 'setup-rule-amendment-v1',
+          status: 'pending',
+        },
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } }
+    );
+  }) as typeof fetch;
+
+  try {
+    const gateway = new AIGatewayService();
+    const novelId = '11111111-1111-1111-1111-111111111111';
+    const factId = '22222222-2222-2222-2222-222222222222';
+    const proposalId = '33333333-3333-3333-3333-333333333333';
+
+    // 1. Propose amendment
+    const proposeRes = await gateway.forwardRequest({
+      method: 'POST',
+      path: `/v1/story-brains/${novelId}/world-rules/${factId}/amendments`,
+      userId: 'author-uuid',
+      body: {
+        contract_version: 'setup-rule-amendment-v1',
+        idempotency_key: 'key-1',
+        replacement_text: 'Amended rule text',
+        expected_brain_version: 1,
+      },
+    });
+    assert.equal(proposeRes.contract_version, 'setup-rule-amendment-v1');
+    assert.equal(capturedMethod, 'POST');
+    assert.match(capturedUrl, new RegExp(`/v1/story-brains/${novelId}/world-rules/${factId}/amendments$`));
+    assert.equal(capturedHeaders['X-Author-Id'], 'author-uuid');
+
+    // 2. Decide amendment
+    await gateway.forwardRequest({
+      method: 'POST',
+      path: `/v1/story-brains/${novelId}/world-rule-amendments/${proposalId}/decision`,
+      userId: 'author-uuid',
+      body: {
+        contract_version: 'setup-rule-amendment-v1',
+        idempotency_key: 'key-decide-1',
+        decision: 'accept',
+        expected_brain_version: 1,
+      },
+    });
+    assert.equal(capturedMethod, 'POST');
+    assert.match(capturedUrl, new RegExp(`/v1/story-brains/${novelId}/world-rule-amendments/${proposalId}/decision$`));
+
+    // 3. Readback amendment history
+    await gateway.forwardRequest({
+      method: 'GET',
+      path: `/v1/story-brains/${novelId}/world-rules/${factId}/amendments`,
+      userId: 'author-uuid',
+    });
+    assert.equal(capturedMethod, 'GET');
+    assert.match(capturedUrl, new RegExp(`/v1/story-brains/${novelId}/world-rules/${factId}/amendments$`));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('P2-07E assertNovelOwnership author access control logic demonstration', () => {
+  function assertNovelOwnership(novel: { authorId: string }, userId: string, role: string) {
+    if (role === 'ADMIN') return;
+    if (novel.authorId !== userId) {
+      throw new AppError(403, 'FORBIDDEN', 'Bạn không có quyền truy cập tác phẩm này');
+    }
+  }
+
+  const novel = { authorId: 'author-owner' };
+  const intruderUserId = 'author-intruder';
+
+  // Author owner accessing their novel -> ok
+  assert.doesNotThrow(() => assertNovelOwnership(novel, 'author-owner', 'AUTHOR'));
+
+  // Intruder author accessing another author's novel -> throws 403 FORBIDDEN
+  assert.throws(
+    () => assertNovelOwnership(novel, intruderUserId, 'AUTHOR'),
+    (err: any) => err instanceof AppError && err.httpStatus === 403 && err.code === 'FORBIDDEN'
+  );
+});
+
+test('P2-06A AIGatewayService forwards brainstorming endpoint correctly', async () => {
+  const originalFetch = globalThis.fetch;
+  let capturedUrl = '';
+  let capturedMethod = '';
+  let capturedHeaders: Record<string, string> = {};
+
+  globalThis.fetch = (async (input: string | URL | Request, init?: RequestInit) => {
+    capturedUrl = String(input);
+    capturedMethod = init?.method || 'GET';
+    capturedHeaders = (init?.headers as Record<string, string>) || {};
+    return new Response(JSON.stringify({
+      contract_version: 'brainstorm-v1',
+      novel_id: '00000000-0000-0000-0000-000000000001',
+      world_rules: [],
+      characters: [],
+      future_events: [],
+    }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  }) as any;
+
+  try {
+    const gateway = new AIGatewayService();
+    const novelId = '00000000-0000-0000-0000-000000000001';
+
+    await gateway.forwardRequest({
+      method: 'POST',
+      path: `/v1/story-brains/${novelId}/brainstorm`,
+      userId: 'author-uuid-1',
+      idempotencyKey: 'idem-brainstorm-1',
+      body: {
+        contract_version: 'brainstorm-v1',
+        instruction: 'Gợi ý bí cảnh mới',
+      },
+    });
+
+    assert.equal(capturedMethod, 'POST');
+    assert.match(capturedUrl, new RegExp(`/v1/story-brains/${novelId}/brainstorm$`));
+    assert.equal(capturedHeaders['X-Author-Id'], 'author-uuid-1');
+    assert.equal(capturedHeaders['Idempotency-Key'], 'idem-brainstorm-1');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

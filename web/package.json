@@ -14,7 +14,7 @@
     "test:wallet": "node --experimental-strip-types --test tests/wallet-earnings.test.mjs",
     "test:draft-browser": "node --test tests/draft-persistence.browser.test.mjs",
     "test:author-ide-browser": "node --test tests/author-ide.browser.test.mjs",
-    "test:p1-hitl": "tsx --test tests/p1-author-ide-hitl-integration.test.ts && node --test tests/p1-hitl-interactions.browser.test.mjs",
+    "test:p1-hitl": "tsx --test tests/p1-author-ide-hitl-integration.test.ts && node --test tests/p1-hitl-interactions.browser.test.mjs && node --test tests/p1-entity-checkpoint-ux.browser.test.mjs",
     "test:p1-hitl-interactions": "node --test tests/p1-hitl-interactions.browser.test.mjs",
     "test:admin-browser": "node --test tests/admin-redesign.browser.test.mjs",
     "test:animated-tooltip": "node --test tests/animated-tooltip.browser.test.mjs",
@@ -27,7 +27,12 @@
     "test:studio-notes-layout": "node --test tests/studio-notes-layout.browser.test.mjs",
     "test:studio-enhancements": "node --test tests/studio-enhancements.browser.test.mjs",
     "test:studio-polish": "tsx --test tests/studio-polish.test.mjs && node --test tests/studio-polish.browser.test.mjs",
-    "test:studio-assistance": "tsx --test tests/studio-writing-assistance.test.mjs && node --test tests/studio-writing-assistance.browser.test.mjs"
+    "test:studio-assistance": "tsx --test tests/studio-writing-assistance.test.mjs && node --test tests/studio-writing-assistance.browser.test.mjs",
+    "test:entity-profile": "tsx --test tests/entity-profile.test.ts && node --test tests/entity-profile.browser.test.mjs",
+    "test:p1-checkpoint-real": "node --test tests/p1-entity-checkpoint-real.browser.test.mjs",
+    "test:p2-ux05": "node --test tests/p2-07f-ux05-world-amendment.browser.test.mjs",
+    "test:p2-06b": "node --test tests/p2-06b-brainstorming.browser.test.mjs tests/p2-06b-bui-regressions.browser.test.mjs",
+    "test:p2-10": "node --test tests/p2-10-completion.browser.test.mjs"
   },
   "dependencies": {
     "@animate-ui/react": "2.3.0",

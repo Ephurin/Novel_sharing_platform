@@ -1,0 +1,219 @@
+Source SHA: 595ef1bd0d060a02140f7659560ce6e9bb242aeb
+Tree SHA: f2a9ba4758383d5f135f14b1753bf062eef9a454
+CWD: web
+Command: npm run test:p1-hitl
+
+> ephurin-web@0.1.0 test:p1-hitl
+> tsx --test tests/p1-author-ide-hitl-integration.test.ts && node --test tests/p1-hitl-interactions.browser.test.mjs
+
+TAP version 13
+# Subtest: B1: Empty initial review DTO handles defaults safely
+ok 1 - B1: Empty initial review DTO handles defaults safely
+  ---
+  duration_ms: 0.8433
+  ...
+# Subtest: B2: Two different characters with same display name "Minh" receive distinct provisional identities
+ok 2 - B2: Two different characters with same display name "Minh" receive distinct provisional identities
+  ---
+  duration_ms: 0.2685
+  ...
+# Subtest: B2: Human provisional group label format validation
+ok 3 - B2: Human provisional group label format validation
+  ---
+  duration_ms: 0.4403
+  ...
+# Subtest: B2: Multiple occurrences sharing one provisional group
+ok 4 - B2: Multiple occurrences sharing one provisional group
+  ---
+  duration_ms: 0.0978
+  ...
+# Subtest: B2: Existing canonical UUID selection distinguishes homonymous entities
+ok 5 - B2: Existing canonical UUID selection distinguishes homonymous entities
+  ---
+  duration_ms: 0.1161
+  ...
+# Subtest: B2: Reject occurrence marks not_entity and clears identity
+ok 6 - B2: Reject occurrence marks not_entity and clears identity
+  ---
+  duration_ms: 0.0997
+  ...
+# Subtest: B3: Partial review request sends finalize=false with only resolved decisions
+ok 7 - B3: Partial review request sends finalize=false with only resolved decisions
+  ---
+  duration_ms: 0.1907
+  ...
+# Subtest: B3: Freeze review request requires all candidates resolved with finalize=true
+ok 8 - B3: Freeze review request requires all candidates resolved with finalize=true
+  ---
+  duration_ms: 0.1503
+  ...
+# Subtest: B3: Refresh payload sends expected_version and does not call continue
+ok 9 - B3: Refresh payload sends expected_version and does not call continue
+  ---
+  duration_ms: 0.2076
+  ...
+# Subtest: B5: Full replacement payload preserves immutable provenance and replaces allowed fields
+ok 10 - B5: Full replacement payload preserves immutable provenance and replaces allowed fields
+  ---
+  duration_ms: 0.5687
+  ...
+# Subtest: B5 & C-01: Multi-proposal dependency group must be approved atomically with complete IDs
+ok 11 - B5 & C-01: Multi-proposal dependency group must be approved atomically with complete IDs
+  ---
+  duration_ms: 0.1137
+  ...
+# Subtest: B5 & C-01: Incomplete dependency group submission is prevented
+ok 12 - B5 & C-01: Incomplete dependency group submission is prevented
+  ---
+  duration_ms: 0.0987
+  ...
+# Subtest: B4: Event correction builds valid replacement with canonical entity UUIDs
+ok 13 - B4: Event correction builds valid replacement with canonical entity UUIDs
+  ---
+  duration_ms: 0.2705
+  ...
+# Subtest: B6: Relationship lock requires exact subject and object entity UUIDs
+ok 14 - B6: Relationship lock requires exact subject and object entity UUIDs
+  ---
+  duration_ms: 0.068
+  ...
+# Subtest: B6: Two same-name characters have independent relationship locks
+ok 15 - B6: Two same-name characters have independent relationship locks
+  ---
+  duration_ms: 0.056
+  ...
+# Subtest: B6: Ambiguous legacy lock lacking UUIDs triggers remediation detection
+ok 16 - B6: Ambiguous legacy lock lacking UUIDs triggers remediation detection
+  ---
+  duration_ms: 0.0752
+  ...
+# Subtest: State isolation: Switching novel resets local edits and decisions
+ok 17 - State isolation: Switching novel resets local edits and decisions
+  ---
+  duration_ms: 0.0786
+  ...
+# Subtest: Stale 409: Preserves unsaved local edits when version conflict occurs
+ok 18 - Stale 409: Preserves unsaved local edits when version conflict occurs
+  ---
+  duration_ms: 0.0884
+  ...
+# Subtest: FE-07: Atomic group rejection payload formatting and contract validation
+ok 19 - FE-07: Atomic group rejection payload formatting and contract validation
+  ---
+  duration_ms: 0.0823
+  ...
+# Subtest: FE-08: Mixed exact-ID and legacy participants fails closed until legacy participant is resolved
+ok 20 - FE-08: Mixed exact-ID and legacy participants fails closed until legacy participant is resolved
+  ---
+  duration_ms: 0.1859
+  ...
+# Subtest: FE-09: Unsaved dirty candidate choices survive refresh reconciliation
+ok 21 - FE-09: Unsaved dirty candidate choices survive refresh reconciliation
+  ---
+  duration_ms: 0.1019
+  ...
+# Subtest: FE-10: normalizeEntityName handles German sharp S, Greek sigmas, ligatures, and NFC
+ok 22 - FE-10: normalizeEntityName handles German sharp S, Greek sigmas, ligatures, and NFC
+  ---
+  duration_ms: 1.1732
+  ...
+# Subtest: FE-12: Changing or clearing legacy identity does not leak ghost UUIDs into effective participants
+ok 23 - FE-12: Changing or clearing legacy identity does not leak ghost UUIDs into effective participants
+  ---
+  duration_ms: 0.4365
+  ...
+# Subtest: FE-12: Duplicate legacy occurrences with same name require distinct occurrence mappings
+ok 24 - FE-12: Duplicate legacy occurrences with same name require distinct occurrence mappings
+  ---
+  duration_ms: 0.1969
+  ...
+# Subtest: FE-14: normalizeEntityName matches Python str.casefold() without modifying whitespace independently
+ok 25 - FE-14: normalizeEntityName matches Python str.casefold() without modifying whitespace independently
+  ---
+  duration_ms: 0.1977
+  ...
+1..25
+# tests 25
+# suites 0
+# pass 25
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 370.4803
+TAP version 13
+# Subtest: Mounted React HITL Interaction Tests (FE-01 through FE-06)
+    # Subtest: FE-01 & FE-06: Event correction submits authoritative Brain v3 and awaits async 201
+    ok 1 - FE-01 & FE-06: Event correction submits authoritative Brain v3 and awaits async 201
+      ---
+      duration_ms: 855.8829
+      ...
+# PAGE LOG ERROR: Failed to load resource: the server responded with a status of 409 (Conflict)
+    # Subtest: FE-01 & FE-06: HTTP 409 Conflict preserves editing state and author draft
+    ok 2 - FE-01 & FE-06: HTTP 409 Conflict preserves editing state and author draft
+      ---
+      duration_ms: 706.3951
+      ...
+    # Subtest: FE-02, FE-08 & FE-12: Mixed participants fail closed, prevent ghost UUIDs on re-mapping, and handle clear
+    ok 3 - FE-02, FE-08 & FE-12: Mixed participants fail closed, prevent ghost UUIDs on re-mapping, and handle clear
+      ---
+      duration_ms: 999.5928
+      ...
+    # Subtest: FE-02: Legacy relationship lacking UUIDs requires explicit author selection
+    ok 4 - FE-02: Legacy relationship lacking UUIDs requires explicit author selection
+      ---
+      duration_ms: 294.5798
+      ...
+    # Subtest: FE-03 & FE-07: Atomic group rejection submits expected brain version and guards single rejection
+    ok 5 - FE-03 & FE-07: Atomic group rejection submits expected brain version and guards single rejection
+      ---
+      duration_ms: 2827.9731
+      ...
+    # Subtest: FE-04: Entity proposal exposes only canonical_name (no initial_status) & typed facts preserved
+    ok 6 - FE-04: Entity proposal exposes only canonical_name (no initial_status) & typed facts preserved
+      ---
+      duration_ms: 1278.8651
+      ...
+    # Subtest: FE-05, FE-09 & FE-13: Explicit refresh button click preserves unsaved review decisions and handles server conflict
+    ok 7 - FE-05, FE-09 & FE-13: Explicit refresh button click preserves unsaved review decisions and handles server conflict
+      ---
+      duration_ms: 1754.1823
+      ...
+    # Subtest: FE-05: Novel switch clears draft state of previous novel
+    ok 8 - FE-05: Novel switch clears draft state of previous novel
+      ---
+      duration_ms: 953.1396
+      ...
+    # Subtest: FE-03 & FE-04: Atomic group approval sends complete IDs and edited payloads
+    ok 9 - FE-03 & FE-04: Atomic group approval sends complete IDs and edited payloads
+      ---
+      duration_ms: 1724.9551
+      ...
+# PAGE LOG ERROR: Failed to load resource: the server responded with a status of 409 (Conflict)
+    # Subtest: FE-06: 409 approval failure retains author edits
+    ok 10 - FE-06: 409 approval failure retains author edits
+      ---
+      duration_ms: 2801.1605
+      ...
+# PAGE LOG ERROR: Failed to load resource: the server responded with a status of 409 (Conflict)
+    # Subtest: FE-07: Atomic group reject 409 and 503 errors preserve local edits without sequential fallback
+    ok 11 - FE-07: Atomic group reject 409 and 503 errors preserve local edits without sequential fallback
+      ---
+      duration_ms: 3061.2919
+      ...
+    1..11
+ok 1 - Mounted React HITL Interaction Tests (FE-01 through FE-06)
+  ---
+  duration_ms: 19779.8567
+  ...
+1..1
+# tests 12
+# suites 0
+# pass 12
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 20193.316
+
+EXIT_CODE=0

@@ -1,0 +1,14 @@
+{
+  "docs/development/p2/P2_02B_REVIEW_HANDOFF.md": "63a60310ddd9506e061d3173727a2edd24a85351b524b2213f9ad054725dec17",
+  "docs/development/p2/p2-02b-evidence/README.md": "2ecf0cdb6fd117c892135208ba560fc1c8a718644a854f3e6c782d668f265a9a",
+  "docs/development/p2/p2-02b-evidence/ci-jobs.json": "3d1c1ea00ecfdf9424471f027b987f2fa9a53f376c04b701fa698edac59d8d96",
+  "docs/development/p2/p2-02b-evidence/initial-cf1941ae.zip": "ad7b41328c76cee6138281c733ea979bf526d5f7ce47488d10b15433dbbe0f4a",
+  "docs/development/p2/p2-02b-evidence/review-readback-hashes.json": "2877d0d9fcc0324853db847b8684d8a83cece7e7bc3e75b58e55cbc2fd4ff5e8",
+  "docs/development/p2/p2-02b-evidence/review-ui.png": "1b01872162611db0731619f2c54839edd8975a56c818394d6abf73ea9fc3a5ca",
+  "docs/development/p2/p2-02b-evidence/rollback-b0abca02.zip": "832040fae6798fc28b04f691394067f71c46539c6c06f8b37aa662f2404fb697",
+  "docs/development/p2/p2-02b-evidence/source-b0abca02.zip": "c6a2ffb010beab26c55619116ba4685ab1d1e72dc21beb632da3fa9451e6914c",
+  "docs/development/p2/p2-02b-evidence/verified-summary.json": "cb2086af549520c1522ac8a882d8bbaf0dde8cd6648361cadb3ae00b11c59b3f",
+  "docs/development/p2/p2-02b-evidence/verify_artifacts.py": "e35d920f64b3309581d1b47a5b5f21381443bde5bb25159d54edf496d29c06b6",
+  "docs/development/p2/setup-review-v1/request.json": "1fc557de8cf06693aca5c39020a60e4eba1b341e46c3f0097b6f41608eeb2842",
+  "docs/development/p2/setup-review-v1/schema.json": "008ea25e404f2b803d918b57838939b14302c5a2f3d51554f787d21ca4279cdd"
+}

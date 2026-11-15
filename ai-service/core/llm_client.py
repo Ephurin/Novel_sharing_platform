@@ -39,6 +39,48 @@ class LLMClient:
             return os.getenv("GROQ_API_KEY", "").strip() or os.getenv("LLM_API_KEY", "").strip()
         return os.getenv("LLM_API_KEY", "").strip()
 
+    @staticmethod
+    def _guard_proxy_config() -> tuple[str, str] | None:
+        from urllib.parse import urlparse
+
+        mode = os.getenv("AI_EXECUTION_MODE", "offline_test").lower().strip()
+        url = os.getenv("BUDGET_GUARD_URL", "").rstrip("/")
+        token = os.getenv("BUDGET_GUARD_AUTH_TOKEN", "").strip()
+
+        if mode == "live_free_tier":
+            if not url or not token:
+                raise LLMClientError("GUARD_CONFIGURATION_INVALID")
+            parsed = urlparse(url)
+            if (
+                os.getenv("BUDGET_GUARD_MODE") != "proxy"
+                or parsed.scheme not in {"http", "https"}
+                or parsed.hostname not in {"budget-gateway", "127.0.0.1", "localhost"}
+                or parsed.path
+                or parsed.query
+                or parsed.username
+            ):
+                raise LLMClientError("GUARD_CONFIGURATION_INVALID")
+            return url, token
+
+        if not url:
+            if os.getenv("BUDGET_GUARD_MODE") == "proxy":
+                raise LLMClientError("GUARD_CONFIGURATION_INVALID")
+            if os.getenv("BUDGET_GUARD_FILE"):
+                raise LLMClientError("LEGACY_CLIENT_SIDE_LEDGER_DISABLED")
+            return None
+        parsed = urlparse(url)
+        if (
+            os.getenv("BUDGET_GUARD_MODE") != "proxy"
+            or not token
+            or parsed.scheme != "http"
+            or parsed.hostname not in {"budget-gateway", "127.0.0.1", "localhost"}
+            or parsed.path
+            or parsed.query
+            or parsed.username
+        ):
+            raise LLMClientError("GUARD_CONFIGURATION_INVALID")
+        return url, token
+
     def generate(
         self,
         prompt: str,
@@ -68,7 +110,9 @@ class LLMClient:
         temperature: float,
         max_tokens: int,
     ) -> str:
-        if not self.api_key:
+        guard = self._guard_proxy_config()
+        key = guard[1] if guard else self.api_key
+        if not key:
             raise LLMClientError("Missing API key for OpenAI")
 
         messages: list[dict[str, Any]] = []
@@ -83,13 +127,16 @@ class LLMClient:
             "max_tokens": max_tokens,
         }
         headers = {
-            "Authorization": f"Bearer {self.api_key}",
+            "Authorization": f"Bearer {key}",
             "Content-Type": "application/json",
             "ngrok-skip-browser-warning": "true",
         }
 
-        base_url = self.base_url or (os.getenv("CUSTOM_LLM_URL") or "").rstrip("/")
-        url = f"{base_url}/chat/completions" if base_url else "https://api.openai.com/v1/chat/completions"
+        if guard:
+            url = f"{guard[0]}/v1/chat/completions"
+        else:
+            base_url = self.base_url or (os.getenv("CUSTOM_LLM_URL") or "").rstrip("/")
+            url = f"{base_url}/chat/completions" if base_url else "https://api.openai.com/v1/chat/completions"
 
         try:
             response = self._post_json(
@@ -112,7 +159,9 @@ class LLMClient:
         temperature: float,
         max_tokens: int,
     ) -> str:
-        if not self.api_key:
+        guard = self._guard_proxy_config()
+        key = guard[1] if guard else self.api_key
+        if not key:
             raise LLMClientError("Missing API key for Gemini")
 
         joined_prompt = f"{system_prompt}\n\n{prompt}" if system_prompt else prompt
@@ -128,12 +177,21 @@ class LLMClient:
             },
         }
 
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
+        mode = os.getenv("AI_EXECUTION_MODE", "offline_test").lower().strip()
+        model_id = self.model.removeprefix("models/")
+        if guard:
+            url = f"{guard[0]}/v1beta/models/{model_id}:generateContent"
+            headers = {"Content-Type": "application/json", "Authorization": f"Bearer {key}"}
+        else:
+            if mode == "live_free_tier":
+                raise LLMClientError("GUARD_CONFIGURATION_INVALID")
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateContent?key={key}"
+            headers = {"Content-Type": "application/json"}
         try:
             response = self._post_json(
                 url=url,
                 payload=payload,
-                headers={"Content-Type": "application/json"},
+                headers=headers,
             )
             candidates = response.get("candidates", [])
             if not candidates:
@@ -148,8 +206,9 @@ class LLMClient:
     def _post_json(self, url: str, payload: dict[str, Any], headers: dict[str, str]) -> dict[str, Any]:
         body = json.dumps(payload).encode("utf-8")
         req = request.Request(url=url, data=body, headers=headers, method="POST")
+        opener = request.build_opener(request.ProxyHandler({}))
         try:
-            with request.urlopen(req, timeout=self.timeout_seconds) as resp:
+            with opener.open(req, timeout=self.timeout_seconds) as resp:
                 text = resp.read().decode("utf-8")
                 return json.loads(text)
         except error.HTTPError as exc:

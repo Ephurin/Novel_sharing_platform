@@ -1,4 +1,4 @@
-import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
+import { apiClient, ApiClientError, type ApiEnvelope } from '../../shared/api/api-client';
 
 export type UUID = string;
 export type EntityType = 'PER' | 'LOC' | 'ORG' | 'ITEM' | 'SKILL';
@@ -102,6 +102,33 @@ export interface Evidence {
   chapter_number?: number;
 }
 
+export interface EntityProfileFields {
+  description: string;
+  appearance: string;
+  personality: string;
+  background: string;
+}
+
+export interface EntityProfile {
+  entity_id: UUID;
+  novel_id: UUID;
+  version: number;
+  brain_version: number;
+  profile: EntityProfileFields;
+  effective_from_chapter: number | null;
+  author_notes: string;
+}
+
+type ProfileVersions = { expected_version: number; expected_brain_version: number };
+type CanonicalProfileChanges = {
+  [Key in keyof EntityProfileFields]: Pick<EntityProfileFields, Key> & Partial<EntityProfileFields>
+}[keyof EntityProfileFields];
+export type EntityProfilePatch = ProfileVersions & (
+  (CanonicalProfileChanges & { effective_from_chapter: number; author_notes?: string }) |
+  { author_notes: string; effective_from_chapter?: never; description?: never;
+    appearance?: never; personality?: never; background?: never }
+);
+
 export interface MemoryEntity {
   entity_id: UUID;
   name: string;
@@ -110,6 +137,7 @@ export interface MemoryEntity {
   location: string;
   mentions?: number;
   is_locked?: boolean;
+  approved_profile?: Partial<EntityProfileFields> & { effective_from_chapter?: number };
 }
 
 export interface MemoryEvent {
@@ -166,6 +194,7 @@ export interface ApprovedMemory {
   story_id?: UUID;
   brain_id?: UUID | null;
   brain_version: number;
+  status?: string;
   entities: MemoryEntity[];
   aliases?: { alias_id: UUID; entity_id: UUID; alias: string; normalized_alias: string }[];
   mentions?: {
@@ -287,6 +316,69 @@ export function knownIdentity(machine: Decision, explicitlySelected: KnownEntity
   };
 }
 
+/** Stable ASCII author-group label for a machine-suggested new identity (same name → same group). */
+export function groupLabelFor(name: string): string {
+  const normalized = name.normalize('NFC').toLocaleLowerCase('vi');
+  let hash = 0x811c9dc5;
+  for (const ch of normalized) {
+    hash ^= ch.codePointAt(0)!;
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  const ascii = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd')
+    .replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40) || 'ten';
+  return `${ascii}_${hash.toString(16).padStart(8, '0')}`;
+}
+
+/**
+ * F-LIVE-14: accept the machine's suggestions in one step. Links to known entities stay linked, new
+ * identities are grouped by their suggested name, "not entity" verdicts are rejected. Candidates the
+ * machine left unresolved, and any candidate the author already decided, are untouched.
+ */
+export function acceptMachineSuggestions(review: EntityReview, machine: Decision[], existing: Record<string, Decision>): Record<string, Decision> {
+  const updates: Record<string, Decision> = {};
+  for (const d of machine) {
+    if (existing[d.candidate_id]) continue;
+    if (d.verdict === 'not_entity') updates[d.candidate_id] = rejectOccurrence(d);
+    else if (d.verdict === 'entity' && d.entity_type) {
+      updates[d.candidate_id] = d.canonical_entity_id
+        ? { ...d, provisional_identity_key: '' }
+        : newIdentity(review, d, groupLabelFor(d.canonical_name));
+    }
+  }
+  // One identity carries one life status; if its occurrences disagree, leave it Unknown for the author.
+  const statuses = new Map<string, Set<string>>();
+  for (const d of Object.values(updates)) {
+    if (d.verdict !== 'entity') continue;
+    const key = d.canonical_entity_id || d.provisional_identity_key;
+    statuses.set(key, (statuses.get(key) ?? new Set()).add(d.initial_status));
+  }
+  for (const [id, d] of Object.entries(updates)) {
+    const key = d.canonical_entity_id || d.provisional_identity_key;
+    if (d.verdict === 'entity' && (statuses.get(key)?.size ?? 0) > 1)
+      updates[id] = { ...d, initial_status: 'Unknown', status_quote: '' };
+  }
+  return updates;
+}
+
+/** Short names that may be the same person as a longer name ("Mai" / "Mai Linh"); shown as hints, never merged. */
+export function shortNameHints(newNames: string[], otherNames: string[] = [], limit = 8): Array<[string, string]> {
+  const tokens = (n: string) => n.normalize('NFC').toLocaleLowerCase('vi').split(/\s+/).filter(Boolean);
+  const pool = Array.from(new Set([...newNames, ...otherNames]));
+  const hints: Array<[string, string]> = [];
+  for (const short of Array.from(new Set(newNames))) {
+    const a = tokens(short);
+    for (const long of pool) {
+      const b = tokens(long);
+      if (b.length <= a.length) continue;
+      const prefix = a.every((t, i) => b[i] === t);
+      const suffix = a.every((t, i) => b[b.length - a.length + i] === t);
+      if ((prefix || suffix) && !hints.some(([s, l]) => s === short && l === long)) hints.push([short, long]);
+      if (hints.length >= limit) return hints;
+    }
+  }
+  return hints;
+}
+
 export function rejectOccurrence(machine: Decision): Decision {
   return {
     ...machine,
@@ -389,6 +481,44 @@ export async function memoryPost<T>(path: string, body: unknown): Promise<T> {
 
 export const getApprovedMemory = (novelId: string) =>
   memoryGet<ApprovedMemory>(`/ai/story-brains/${novelId}/memory`);
+
+/** Private readback: never place this DTO in the approved-memory query cache. */
+export async function getEntityProfile(novelId: string, entityId: string): Promise<EntityProfile> {
+  const data = await memoryGet<EntityProfile>(`/ai/story-brains/${encodeURIComponent(novelId)}/entities/${encodeURIComponent(entityId)}/profile`);
+  if (data.entity_id !== entityId || data.novel_id !== novelId) {
+    throw new ApiClientError({ status: 502, code: 'PROFILE_SCOPE_INVALID', message: 'Không xác nhận được phạm vi hồ sơ.' });
+  }
+  if (!Number.isInteger(data.version) || data.version < 0 || !Number.isInteger(data.brain_version) || data.brain_version < 1 ||
+      typeof data.author_notes !== 'string' || !data.profile ||
+      ['description', 'appearance', 'personality', 'background'].some(key => typeof data.profile[key as keyof EntityProfileFields] !== 'string')) {
+    throw new ApiClientError({ status: 502, code: 'PROFILE_RESPONSE_INVALID', message: 'Không đọc được hồ sơ hợp lệ từ máy chủ.' });
+  }
+  return data;
+}
+
+export async function updateEntityProfile(
+  novelId: string, entityId: string, patch: EntityProfilePatch, idempotencyKey: string
+): Promise<EntityProfile> {
+  const allowed = new Set(['expected_version', 'expected_brain_version', 'description', 'appearance',
+    'personality', 'background', 'author_notes', 'effective_from_chapter']);
+  const canonical = ['description', 'appearance', 'personality', 'background'].some(key => key in patch);
+  const valuesInvalid = Object.entries(patch).some(([key, value]) =>
+    ['description', 'appearance', 'personality', 'background', 'author_notes'].includes(key) &&
+    (typeof value !== 'string' || Array.from(value).length > (key === 'author_notes' ? 8000 : 4000) || /[\x00-\x08\x0b\x0c\x0e-\x1f]/.test(value)));
+  if (valuesInvalid || (!canonical && !('author_notes' in patch)) ||
+      (canonical ? (!Number.isInteger(patch.effective_from_chapter) || patch.effective_from_chapter! < 1 || patch.effective_from_chapter! > 1000000) : ('effective_from_chapter' in patch)) ||
+      Object.keys(patch).some(key => !allowed.has(key)) ||
+      Object.values(patch).some(value => value === null || value === undefined) ||
+      !Number.isInteger(patch.expected_version) || patch.expected_version < 0 ||
+      !Number.isInteger(patch.expected_brain_version) || patch.expected_brain_version < 1 ||
+      !/^[A-Za-z0-9_-]{1,128}$/.test(idempotencyKey)) {
+    throw new ApiClientError({ status: 422, code: 'INVALID_PROFILE_REQUEST', message: 'Yêu cầu hồ sơ không hợp lệ.' });
+  }
+  return (await apiClient.patch<ApiEnvelope<EntityProfile>>(
+    `/ai/story-brains/${encodeURIComponent(novelId)}/entities/${encodeURIComponent(entityId)}/profile`, patch,
+    { headers: { 'Idempotency-Key': idempotencyKey } }
+  )).data.data;
+}
 
 export async function getEntityReviews(novelId: string): Promise<EntityReview[]> {
   return memoryGet<EntityReview[]>(`/ai/story-brains/${novelId}/entity-reviews`);

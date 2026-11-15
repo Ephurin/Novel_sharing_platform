@@ -1,0 +1,139 @@
+TAP version 13
+# Subtest: Identity checkpoint UX: type, bulk, CAS and isolation
+    # Subtest: machine LOC is a visible suggestion, not approval; explicit group save preserves LOC
+    not ok 1 - machine LOC is a visible suggestion, not approval; explicit group save preserves LOC
+      ---
+      duration_ms: 1098.6111
+      location: 'C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\26\\01a178b1-4361-75b3-a66b-3bc53990597a\\p1-demo-ux-01\\web\\tests\\p1-entity-checkpoint-ux.browser.test.mjs:84:13'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly equal:
+        
+        'PER' !== 'LOC'
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: 'LOC'
+      actual: 'PER'
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (file:///C:/Users/Laptop/.codex/visualizations/2026/10/26/01a178b1-4361-75b3-a66b-3bc53990597a/p1-demo-ux-01/web/tests/p1-entity-checkpoint-ux.browser.test.mjs:91:16)
+        runNextTicks (node:internal/process/task_queues:65:5)
+        process.processImmediate (node:internal/timers:459:9)
+        process.callbackTrampoline (node:internal/async_hooks:130:17)
+        async Test.run (node:internal/test_runner/test:980:9)
+        async TestContext.<anonymous> (file:///C:/Users/Laptop/.codex/visualizations/2026/10/26/01a178b1-4361-75b3-a66b-3bc53990597a/p1-demo-ux-01/web/tests/p1-entity-checkpoint-ux.browser.test.mjs:84:5)
+        async Test.run (node:internal/test_runner/test:980:9)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: explicit LOC edit is part of checkpoint draft without a second hidden commit
+    not ok 2 - explicit LOC edit is part of checkpoint draft without a second hidden commit
+      ---
+      duration_ms: 1166.7407
+      location: 'C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\26\\01a178b1-4361-75b3-a66b-3bc53990597a\\p1-demo-ux-01\\web\\tests\\p1-entity-checkpoint-ux.browser.test.mjs:94:13'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly equal:
+        
+        'PER' !== 'LOC'
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: 'LOC'
+      actual: 'PER'
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (file:///C:/Users/Laptop/.codex/visualizations/2026/10/26/01a178b1-4361-75b3-a66b-3bc53990597a/p1-demo-ux-01/web/tests/p1-entity-checkpoint-ux.browser.test.mjs:102:16)
+        runNextTicks (node:internal/process/task_queues:65:5)
+        process.processImmediate (node:internal/timers:459:9)
+        process.callbackTrampoline (node:internal/async_hooks:130:17)
+        async Test.run (node:internal/test_runner/test:980:9)
+        async TestContext.<anonymous> (file:///C:/Users/Laptop/.codex/visualizations/2026/10/26/01a178b1-4361-75b3-a66b-3bc53990597a/p1-demo-ux-01/web/tests/p1-entity-checkpoint-ux.browser.test.mjs:94:5)
+        async Test.run (node:internal/test_runner/test:980:9)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: bulk cancel is inert; confirm targets exact matching eligible IDs, preserves other UUID, save/reload/freeze
+    not ok 3 - bulk cancel is inert; confirm targets exact matching eligible IDs, preserves other UUID, save/reload/freeze
+      ---
+      duration_ms: 1059.7768
+      location: 'C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\26\\01a178b1-4361-75b3-a66b-3bc53990597a\\p1-demo-ux-01\\web\\tests\\p1-entity-checkpoint-ux.browser.test.mjs:107:13'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly deep-equal:
+        + actual - expected
+        
+          [
+            'loc-1',
+            'loc-2',
+        +   'loc-other'
+          ]
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+        0: 'loc-1'
+        1: 'loc-2'
+      actual:
+        0: 'loc-1'
+        1: 'loc-2'
+        2: 'loc-other'
+      operator: 'deepStrictEqual'
+      stack: |-
+        TestContext.<anonymous> (file:///C:/Users/Laptop/.codex/visualizations/2026/10/26/01a178b1-4361-75b3-a66b-3bc53990597a/p1-demo-ux-01/web/tests/p1-entity-checkpoint-ux.browser.test.mjs:119:16)
+        runNextTicks (node:internal/process/task_queues:65:5)
+        process.processImmediate (node:internal/timers:459:9)
+        process.callbackTrampoline (node:internal/async_hooks:130:17)
+        async Test.run (node:internal/test_runner/test:980:9)
+        async TestContext.<anonymous> (file:///C:/Users/Laptop/.codex/visualizations/2026/10/26/01a178b1-4361-75b3-a66b-3bc53990597a/p1-demo-ux-01/web/tests/p1-entity-checkpoint-ux.browser.test.mjs:107:5)
+        async Test.run (node:internal/test_runner/test:980:9)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: stale 409 then server refresh preserves dirty LOC draft and warns on type-only conflict
+    not ok 4 - stale 409 then server refresh preserves dirty LOC draft and warns on type-only conflict
+      ---
+      duration_ms: 5945.6738
+      location: 'C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\26\\01a178b1-4361-75b3-a66b-3bc53990597a\\p1-demo-ux-01\\web\\tests\\p1-entity-checkpoint-ux.browser.test.mjs:129:13'
+      failureType: 'testCodeFailure'
+      error: |-
+        expect(locator).toBeVisible() failed
+        
+        Locator: getByText(/Các lựa chọn chưa lưu của bạn vẫn được giữ nguyên/)
+        Expected: visible
+        Timeout: 5000ms
+        Error: element(s) not found
+        
+        Call log:
+          - Expect "toBeVisible" getByText(/Các lựa chọn chưa lưu của bạn vẫn được giữ nguyên/) with timeout 5000ms
+          - waiting for getByText(/Các lựa chọn chưa lưu của bạn vẫn được giữ nguyên/)
+        
+      code: 'ERR_TEST_FAILURE'
+      stack: |-
+        captureRawStack (C:\Users\Laptop\.codex\visualizations\2026\10\26\01a178b1-4361-75b3-a66b-3bc53990597a\ax02-ui-prep\web\node_modules\playwright-core\lib\coreBundle.js:9282:17)
+        callMatcherAsStep (C:\Users\Laptop\.codex\visualizations\2026\10\26\01a178b1-4361-75b3-a66b-3bc53990597a\ax02-ui-prep\web\node_modules\playwright\lib\matchers\expect.js:13316:57)
+        Object.toBeVisible (C:\Users\Laptop\.codex\visualizations\2026\10\26\01a178b1-4361-75b3-a66b-3bc53990597a\ax02-ui-prep\web\node_modules\playwright\lib\matchers\expect.js:13308:23)
+        TestContext.<anonymous> (C:\Users\Laptop\.codex\visualizations\2026\10\26\01a178b1-4361-75b3-a66b-3bc53990597a\p1-demo-ux-01\web\tests\p1-entity-checkpoint-ux.browser.test.mjs:143:93)
+        async TestContext.<anonymous> (C:\Users\Laptop\.codex\visualizations\2026\10\26\01a178b1-4361-75b3-a66b-3bc53990597a\p1-demo-ux-01\web\tests\p1-entity-checkpoint-ux.browser.test.mjs:129:5)
+      ...
+    # Subtest: novel and analysis changes never reuse foreign dirty decisions
+    ok 5 - novel and analysis changes never reuse foreign dirty decisions
+      ---
+      duration_ms: 932.0696
+      ...
+    1..5
+not ok 1 - Identity checkpoint UX: type, bulk, CAS and isolation
+  ---
+  duration_ms: 11599.8699
+  location: 'C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\26\\01a178b1-4361-75b3-a66b-3bc53990597a\\p1-demo-ux-01\\web\\tests\\p1-entity-checkpoint-ux.browser.test.mjs:31:1'
+  failureType: 'subtestsFailed'
+  error: '4 subtests failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 6
+# suites 0
+# pass 1
+# fail 5
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 12004.3574

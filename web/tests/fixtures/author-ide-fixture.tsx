@@ -5,6 +5,7 @@ import { MantineProvider } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { theme, cssVariablesResolver } from '../../src/theme';
 import { apiClient } from '../../src/shared/api/api-client';
+import { AuthGate } from '../../src/features/auth/AuthGate';
 import { useAuthStore } from '../../src/features/auth/useAuthStore';
 import { AuthorWritingIde } from '../../src/features/author-ide/AuthorWritingIde';
 import { ToastProvider } from '../../src/shared/components/ToastProvider';
@@ -70,11 +71,23 @@ function App() {
       [
         {
           path: '/author/ide',
-          element: <AuthorWritingIde />
+          element: (
+            <AuthGate>
+              <AuthorWritingIde />
+            </AuthGate>
+          )
+        },
+        {
+          path: '/login',
+          element: <div data-testid="login-page">Login Page</div>
         },
         {
           path: '*',
-          element: <AuthorWritingIde />
+          element: (
+            <AuthGate>
+              <AuthorWritingIde />
+            </AuthGate>
+          )
         }
       ],
       {
@@ -83,6 +96,25 @@ function App() {
     );
   }, [generation, initialUrl]);
   (window as any).navigateTestChapter = (id: string) => router.navigate(`/author/ide?novelId=${novelId}&chapterId=${id}`);
+
+  (window as any).router = router;
+  (window as any).navigateChapter = (id: string) => router.navigate(`/author/ide?novelId=${novelId}&chapterId=${id}`);
+  (window as any).logout = () => useAuthStore.getState().clearSession();
+  (window as any).loginAuthor = (account: { token: string; userId: string }, targetNovelId?: string, targetChapterId?: string) => {
+    useAuthStore.getState().setSession({
+      accessToken: account.token,
+      user: {
+        userId: account.userId,
+        role: 'AUTHOR',
+        username: 'author_tester',
+        email: 'author_tester@test.invalid'
+      }
+    });
+    return router.navigate(`/author/ide?novelId=${targetNovelId ?? novelId}&chapterId=${targetChapterId ?? chapterId}`);
+  };
+  (window as any).switchAuthor = (id: string) => useAuthStore.getState().setSession({
+    accessToken: 'fixture-token', user: { userId: id, role: 'AUTHOR', username: 'fixture', email: 'fixture@test.invalid' }
+  });
 
   return (
     <QueryClientProvider client={queryClient}>

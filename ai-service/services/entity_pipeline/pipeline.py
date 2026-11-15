@@ -6,6 +6,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from core.exceptions import EntityExtractionError
+from core.structured_call import call_structured
 from core.structured_outputs import EntityExtractionOutput, ExtractedEntity, PipelineMetadata
 
 
@@ -57,14 +58,18 @@ class EntityPipeline:
         system_prompt = (
             "You are an expert fantasy novel analyst. Extract all named entities from the text. "
             "Classify each entity strictly as PER, LOC, ORG, ITEM, or SKILL. "
-            "Return only a JSON array using this schema: "
-            '[{"phrase":"TiÃªu ViÃªm","entity":"PER","score":9.5}]. '
-            "Score must be between 0 and 10. Do not include surrounding conjunctions or stopwords."
+            "Return only JSON using this schema: "
+            '{"entities":[{"phrase":"Lý Thanh Hà","entity":"PER","score":9.5}]}. '
+            "Score must be between 0 and 10. List each distinct name once, copied exactly as written. "
+            "Do not include surrounding conjunctions or stopwords."
         )
         user_prompt = f"Text to analyze:\n\n{normalized_text}"
 
         try:
-            raw_output = llm_service._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
+            # Structured call: schema-constrained and with the structured output budget. The plain
+            # call used the 512-token text budget, so chapters with many names were cut mid-JSON.
+            raw_output = call_structured(llm_service, operation="entity_discovery",
+                                         system_prompt=system_prompt, user_prompt=user_prompt)
         except Exception as exc:
             raise EntityExtractionError(f"provider call failed: {exc}") from exc
 

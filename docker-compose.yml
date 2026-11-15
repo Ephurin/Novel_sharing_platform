@@ -35,6 +35,8 @@ services:
       APP_ENV: production
       PORT: 8000
       NARRATIVE_REPOSITORY: postgres
+      # P1 entity-first checkpoint (entity-human-review-v1). Requires the postgres repository. See #132.
+      ENTITY_CANDIDATE_VERIFICATION_ENABLED: ${ENTITY_CANDIDATE_VERIFICATION_ENABLED:-true}
       LLM_PROVIDER: ${LLM_PROVIDER:-fake}
       DATABASE_URL: postgresql+psycopg://postgres:postgres@postgres:5432/ephurin
       PLATFORM_API_BASE_URL: http://backend:4000

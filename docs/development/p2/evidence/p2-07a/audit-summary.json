@@ -1,0 +1,167 @@
+{
+  "auditLog": [
+    {
+      "step": "S1",
+      "title": "Nhập ý tưởng ngắn",
+      "details": "Filled short premise into Ý tưởng & hướng đi (tương lai)"
+    },
+    {
+      "step": "S1",
+      "title": "Xác nhận thông điệp không bắt buộc dàn ý",
+      "details": "Không bắt buộc có dàn ý. Mở chương có sẵn hoặc chủ động tạo một bản nháp trong trình soạn thảo hiện tại."
+    },
+    {
+      "step": "S1",
+      "title": "Trạng thái Editor khi chưa có chương nào",
+      "details": {
+        "isReadOnly": true,
+        "titlePlaceholder": "Đặt tiêu đề chương tại đây...",
+        "hasWarning": 2
+      }
+    },
+    {
+      "step": "S1",
+      "title": "Tạo bản nháp chương mới thành công",
+      "details": "Editor unlocked and ready to write Chapter 1"
+    },
+    {
+      "step": "S2",
+      "title": "Tách dàn ý thành thẻ theo dòng",
+      "details": "Created 5 cards from 5 lines"
+    },
+    {
+      "step": "S2",
+      "title": "Lưu bản nháp dàn ý",
+      "details": "Saved version 1 with 5 objectives"
+    },
+    {
+      "step": "S2",
+      "title": "Kiểm tra dữ liệu sau reload",
+      "details": {
+        "reloadedGoal": "Nhân vật chính nhận thức được sức mạnh huyền bí của thanh kiếm",
+        "isMatch": true
+      }
+    },
+    {
+      "step": "S3",
+      "title": "Phát hiện bản dự phòng thiết lập đang khóa giao diện",
+      "details": "Clicked Khôi phục thiết lập to unlock panel"
+    },
+    {
+      "step": "S3",
+      "title": "Kiểm tra hiển thị nhóm duyệt ở bước Thế giới",
+      "details": {
+        "hasReviewInWorld": false
+      }
+    },
+    {
+      "step": "S3",
+      "title": "Kiểm tra thẻ đề xuất sau khi lưu",
+      "details": {
+        "proposalCardsCount": 6
+      }
+    },
+    {
+      "step": "S3",
+      "title": "Kiểm tra khóa chỉnh sửa sau duyệt",
+      "details": {
+        "isInputDisabled": true,
+        "alertText": [
+          "Ý tưởng và dàn ý là dự định tương lai. Nhân vật và quy tắc chỉ trở thành thiết lập sau khi bạn duyệt. Diễn biến chương vẫn qua quy trình duyệt riêng.",
+          "Đã gửi nguồn để duyệt. Sửa nội dung trong nhóm duyệt bên dưới; dữ liệu đã chấp nhận chỉ đọc tại đây. Nhân vật đã duyệt có thể hiệu chỉnh qua Hồ sơ trong Bộ nhớ truyện. Quy tắc đã duyệt chỉ đọc; màn hình này chưa hỗ trợ hiệu chỉnh quy tắc. Không gửi lại nguồn để ghi đè.",
+          "Đã lưu quyết định duyệt. Kích hoạt thiết lập là bước riêng bên dưới. ",
+          "Dàn ý tương lai — chưa phải Canon đã viết. Có thể bỏ qua kế hoạch; thao tác này không kích hoạt Story Brain hoặc tự viết chương."
+        ]
+      }
+    },
+    {
+      "step": "S3",
+      "title": "Nút kích hoạt thiết lập M0",
+      "details": {
+        "isEnabled": true
+      }
+    },
+    {
+      "step": "S4",
+      "title": "Đo kích thước thanh điều hướng trên Mobile (390px)",
+      "details": {
+        "navHeight": 98,
+        "ideHeaderHeight": 56,
+        "totalOccupiedTop": 154
+      }
+    },
+    {
+      "step": "S4",
+      "title": "Kiểm tra tràn ngang màn hình mobile",
+      "details": {
+        "hasHorizontalScroll": false
+      }
+    },
+    {
+      "step": "S4",
+      "title": "Kiểm tra Sidebar trên Mobile 390px",
+      "details": {
+        "isSidebarOpenOnMobile": true
+      }
+    },
+    {
+      "step": "S4",
+      "title": "LỖI UX MOBILE: Nút Lập kế hoạch bị Sidebar che khuất / chặn pointer events",
+      "details": {
+        "error": "Sidebar w-[280px] z-10 che khuất / chặn click vào nút Lập kế hoạch trên màn hình 390px",
+        "details": "locator.click: Timeout 2000ms exceeded."
+      }
+    },
+    {
+      "step": "S4",
+      "title": "Đã thu gọn Sidebar",
+      "details": "Sidebar closed to test mobile navigation recovery"
+    },
+    {
+      "step": "S4",
+      "title": "Chuyển qua lại Planning/Write",
+      "details": {
+        "notePreserved": false
+      }
+    },
+    {
+      "step": "S4",
+      "title": "Phản hồi khi gặp lỗi xung đột phiên bản 409",
+      "details": {
+        "alert409": "PLAN_VERSION_CONFLICT: PLAN_VERSION_CONFLICT. Bản sửa được giữ. Đọc máy chủ để đối chiếu; không tự ghi đè."
+      }
+    },
+    {
+      "step": "S4",
+      "title": "Phản hồi khi lỗi mạng / 503",
+      "details": {
+        "error503": "Lỗi: NETWORK_FAILURE_503: NETWORK_FAILURE_503"
+      }
+    },
+    {
+      "step": "S4",
+      "title": "Bắt đầu kiểm tra Đăng xuất",
+      "details": "Kiểm tra xung đột giữa useBlocker của bản nháp và AuthGate khi logout"
+    },
+    {
+      "step": "S4",
+      "title": "Phát hiện lỗi kẹt điều hướng AuthGate khi có bản nháp chưa lưu",
+      "details": {
+        "isBlocked": true
+      }
+    },
+    {
+      "step": "S4",
+      "title": "Đăng nhập lại thành công",
+      "details": "Chuyển về trang /author"
+    },
+    {
+      "step": "S4",
+      "title": "Kiểm tra bản nháp sau relogin",
+      "details": {
+        "hasBackupAlert": true
+      }
+    }
+  ],
+  "pageErrors": []
+}

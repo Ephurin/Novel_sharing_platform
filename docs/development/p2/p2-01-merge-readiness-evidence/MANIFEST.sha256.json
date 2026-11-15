@@ -1,0 +1,7 @@
+{
+  "ci-jobs.json": "a5dc3077fe7f6cb3278c1a98a4eecf73cc69e78e7edca244cbe82a318e754b3d",
+  "rollback.zip": "5f6c5ea07ec0c7c5ea52b16540d0707ed3ad7abf34cbf0382f27e4a1fda86604",
+  "runtime.zip": "8f7ac4d9c03a3d064b8e84fdfc83ed626bc33a8822ec58a8dd8b9aa7dec8c62e",
+  "verified-summary.json": "50fab1d1fa422895b0029e63f86a4a385dd31d9d9cfbb757f381765c95bb44ae",
+  "verify_artifacts.py": "407d3f1ef110fa613193f7db169590177f84acf3a7af3b8928fddff5a928b876"
+}

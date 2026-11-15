@@ -151,6 +151,11 @@ app.state.writing_service = WritingService(
     context_budget_router=app.state.context_budget_router,
     context_routing_policy=settings.context_routing_policy,
 )
+from application.brainstorm_service import BrainstormService
+app.state.brainstorm_service = BrainstormService(
+    app.state.narrative_repository,
+    llm_service=app.state.llm_service,
+)
 
 
 @app.middleware("http")

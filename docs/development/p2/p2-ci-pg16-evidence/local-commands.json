@@ -1,0 +1,61 @@
+[
+  {
+    "name": "workflow-and-python-source-validation",
+    "source_sha": "2b365505551c51c71884ee7c340ada5273a5fe3c",
+    "exit_code": 0,
+    "retained_steps": [
+      "Prepare source database and seed canonical cutover fixture",
+      "Capture source schema/version/snapshot",
+      "Verify restored migration state and canonical parity",
+      "Prove source database was not mutated by rehearsal restore"
+    ]
+  },
+  {
+    "name": "wrapper-syntax",
+    "command": [
+      "C:\\Program Files\\Git\\bin\\bash.exe",
+      "-n",
+      "scripts/p8_pg16_client.sh"
+    ],
+    "source_sha": "2b365505551c51c71884ee7c340ada5273a5fe3c",
+    "exit_code": 0
+  },
+  {
+    "name": "workflow-syntax",
+    "command": [
+      "C:\\Program Files\\Git\\bin\\bash.exe",
+      "-n",
+      "C:\\Users\\Laptop\\AppData\\Local\\Temp\\tmpae3k2vbs.sh"
+    ],
+    "source_sha": "2b365505551c51c71884ee7c340ada5273a5fe3c",
+    "exit_code": 0
+  },
+  {
+    "name": "comparison-tests",
+    "command": [
+      "python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts/tests",
+      "-p",
+      "test_p8_rollback_readback.py",
+      "-v"
+    ],
+    "source_sha": "2b365505551c51c71884ee7c340ada5273a5fe3c",
+    "exit_code": 0
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "3adab5c73636bd4e7c3dbc6578d4ece0a54b5627",
+      "2b365505551c51c71884ee7c340ada5273a5fe3c"
+    ],
+    "source_sha": "2b365505551c51c71884ee7c340ada5273a5fe3c",
+    "exit_code": 0
+  }
+]

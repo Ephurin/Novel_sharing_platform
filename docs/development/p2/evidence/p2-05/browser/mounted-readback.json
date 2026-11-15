@@ -1,0 +1,1035 @@
+{
+  "route": "http://127.0.0.1:5173/author/ide?novelId=10000000-0000-0000-0000-000000000001&chapterId=20000000-0000-0000-0000-000000000001",
+  "label": "Chromium actual app + HTTP mocks, not DB E2E",
+  "writes": [
+    {
+      "path": "/ai/story-brains/bootstrap/from-idea",
+      "method": "POST",
+      "actor": "Bearer token-author-A",
+      "body": {
+        "contract_version": "setup-v1",
+        "novel_id": "10000000-0000-0000-0000-000000000001",
+        "mode": "extract",
+        "expected_setup_version": 0,
+        "setup": {
+          "text": "",
+          "declarations": [
+            {
+              "declaration_id": "decl_78eb3de5245842a186b9a879951bf08b",
+              "display_name": "Minh",
+              "entity_type": "character"
+            },
+            {
+              "declaration_id": "decl_4fd5790d1b244f3c94de6582bb034b28",
+              "display_name": "Minh",
+              "entity_type": "character"
+            }
+          ],
+          "world_rules": [
+            {
+              "declaration_id": "rule_586bbdb5618448e5b073bc08fbd0e531",
+              "text": "Không ai bay được"
+            }
+          ],
+          "initial_conditions": []
+        },
+        "outline": "An Thành và bầu trời bị phong ấn",
+        "hints": [],
+        "preferences": {},
+        "locale": "vi-VN",
+        "idempotency_key": "c0c137f7-9083-4690-a2e5-6f80287b13c2"
+      }
+    },
+    {
+      "path": "/ai/story-brains/10000000-0000-0000-0000-000000000001/setup/e662a43e-35b7-4dab-971b-024a0eabc29f/review",
+      "method": "POST",
+      "actor": "Bearer token-author-A",
+      "body": {
+        "dependency_group_id": "e662a43e-35b7-4dab-971b-024a0eabc29f",
+        "setup_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "expected_setup_version": 1,
+        "expected_review_version": 0,
+        "expected_brain_version": 1,
+        "decisions": [
+          {
+            "proposal_id": "6ff9f8fd-6886-4f35-bd7e-f050510dfef7",
+            "decision": "accept",
+            "identity": {
+              "kind": "new"
+            },
+            "edited_entity": {
+              "canonical_name": "Minh phía Đông",
+              "aliases": []
+            }
+          },
+          {
+            "proposal_id": "b560188b-0313-4b75-ba45-5c4ab8fcefa3",
+            "decision": "accept",
+            "identity": {
+              "kind": "new"
+            },
+            "edited_entity": {
+              "canonical_name": "Minh",
+              "aliases": []
+            }
+          },
+          {
+            "proposal_id": "ee276437-b2b4-4595-a9cb-bccf429eef3b",
+            "decision": "accept",
+            "edited_rule": {
+              "fact_key": "rule_586bbdb5618448e5b073bc08fbd0e531",
+              "fact_value": "Không ai bay được"
+            }
+          }
+        ],
+        "idempotency_key": "c7395893-e40c-4cfa-af29-0758fbbccbb1"
+      }
+    },
+    {
+      "path": "/ai/story-brains/10000000-0000-0000-0000-000000000001/setup/e662a43e-35b7-4dab-971b-024a0eabc29f/activate",
+      "method": "POST",
+      "actor": "Bearer token-author-A",
+      "body": {
+        "contract_version": "setup-m0-v1",
+        "idempotency_key": "4d362a1f-aa4c-4034-a224-39d7058c84f2",
+        "setup_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "expected_setup_version": 1,
+        "expected_review_version": 1,
+        "expected_brain_version": 2
+      }
+    },
+    {
+      "path": "/ai/story-brains/10000000-0000-0000-0000-000000000001/setup/e662a43e-35b7-4dab-971b-024a0eabc29f/activate",
+      "method": "POST",
+      "actor": "Bearer token-author-A",
+      "body": {
+        "contract_version": "setup-m0-v1",
+        "idempotency_key": "4d362a1f-aa4c-4034-a224-39d7058c84f2",
+        "setup_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "expected_setup_version": 1,
+        "expected_review_version": 1,
+        "expected_brain_version": 2
+      }
+    },
+    {
+      "path": "/ai/story-plans/edit-v1/10000000-0000-0000-0000-000000000001",
+      "method": "POST",
+      "actor": "Bearer token-author-A",
+      "body": {
+        "contract_version": "plan-edit-v1",
+        "action": "save",
+        "expected_plan_version": 0,
+        "source_outline": "",
+        "private_notes": "",
+        "objectives": [],
+        "idempotency_key": "6c54a894-08dd-4339-877a-4130ea625f50"
+      }
+    },
+    {
+      "path": "/ai/story-plans/edit-v1/10000000-0000-0000-0000-000000000001",
+      "method": "POST",
+      "actor": "Bearer token-author-A",
+      "body": {
+        "contract_version": "plan-edit-v1",
+        "action": "save",
+        "expected_plan_version": 1,
+        "source_outline": "",
+        "private_notes": "",
+        "objectives": [
+          {
+            "objective_id": "b614334f-e208-4ce9-a35f-32dc22d4c6c1",
+            "target_chapter": 1,
+            "title": "Chương 1",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "959b94fe-5cd0-4e25-a269-26a418c5ed33",
+            "target_chapter": 2,
+            "title": "Chương 2",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "ca7376d5-3eab-4a94-a728-73c1dfa44ad6",
+            "target_chapter": 3,
+            "title": "Chương 3",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "215931ee-e614-4104-942c-fda6cc5d96b3",
+            "target_chapter": 4,
+            "title": "Chương 4",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "f81a77f4-670e-473b-b6c1-f1eba481af4b",
+            "target_chapter": 5,
+            "title": "Chương 5",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          }
+        ],
+        "idempotency_key": "a2117f54-ea95-48a4-a0f2-fa6e8391aef8"
+      }
+    },
+    {
+      "path": "/ai/story-plans/edit-v1/10000000-0000-0000-0000-000000000001",
+      "method": "POST",
+      "actor": "Bearer token-author-A",
+      "body": {
+        "contract_version": "plan-edit-v1",
+        "action": "save",
+        "expected_plan_version": 2,
+        "source_outline": "",
+        "private_notes": "",
+        "objectives": [
+          {
+            "objective_id": "b46ee645-7ddd-4131-a363-368b36f22b1b",
+            "target_chapter": 1,
+            "title": "Chương 1",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "147a78e8-b86d-400b-b8f6-55c464889ce3",
+            "target_chapter": 2,
+            "title": "Chương 2",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "cd02e2bc-bf76-4609-92af-4c186388e70b",
+            "target_chapter": 3,
+            "title": "Chương 3",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "a7f406ac-5f23-4173-b986-a74aa184b10b",
+            "target_chapter": 4,
+            "title": "Chương 4",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "db8e9c1c-4a67-49e7-b6e2-549b5275dee7",
+            "target_chapter": 5,
+            "title": "Chương 5",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "85a348e2-dac4-478a-aa6b-8714675a0f3f",
+            "target_chapter": 6,
+            "title": "Chương 6",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "160cacd1-6e7a-4643-819a-4b5d2b6382cc",
+            "target_chapter": 7,
+            "title": "Chương 7",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "d73edb8d-315e-4bf8-a2c3-30ceea996b48",
+            "target_chapter": 8,
+            "title": "Chương 8",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "499671b5-0229-4596-8834-5dcfe0cbab8f",
+            "target_chapter": 9,
+            "title": "Chương 9",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "0a88341c-fe32-4ea2-a0b9-08e04c72a419",
+            "target_chapter": 10,
+            "title": "Chương 10",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          }
+        ],
+        "idempotency_key": "f0ee112d-c5bf-41cd-9470-12a1b04cda96"
+      }
+    },
+    {
+      "path": "/ai/story-plans/edit-v1/10000000-0000-0000-0000-000000000001",
+      "method": "POST",
+      "actor": "Bearer token-author-A",
+      "body": {
+        "contract_version": "plan-edit-v1",
+        "action": "save",
+        "expected_plan_version": 3,
+        "source_outline": "",
+        "private_notes": "",
+        "objectives": [
+          {
+            "objective_id": "8607895c-1558-4b40-9dba-2e48e8442879",
+            "target_chapter": 1,
+            "title": "Chương 1",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "3a8aaeb6-4473-4e7a-9bf1-d9e552f42104",
+            "target_chapter": 2,
+            "title": "Chương 2",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "7b6ab0d5-7ff1-46be-af05-413f7a0c08a6",
+            "target_chapter": 3,
+            "title": "Chương 3",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "eb866033-d21d-4170-82ea-3ab9868ade93",
+            "target_chapter": 4,
+            "title": "Chương 4",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "a1aae2a4-a3d1-429f-8e62-446be51885d7",
+            "target_chapter": 5,
+            "title": "Chương 5",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "637843dd-5f59-455c-bf70-e4ef92bee0e6",
+            "target_chapter": 6,
+            "title": "Chương 6",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "da4f5f55-565e-412e-9ec8-d405d87e7976",
+            "target_chapter": 7,
+            "title": "Chương 7",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "d17e58b5-3554-4fe5-8797-a44f1b011885",
+            "target_chapter": 8,
+            "title": "Chương 8",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "cc090309-9dad-40a7-9bf8-62b9fac7918d",
+            "target_chapter": 9,
+            "title": "Chương 9",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "4ae3e4d9-9495-42ac-8698-dad78f5c3a81",
+            "target_chapter": 10,
+            "title": "Chương 10",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "cdd3c7f3-f00c-4a4b-9197-9e3318ada99e",
+            "target_chapter": 11,
+            "title": "Chương 11",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "8e0f51d9-a3be-4f27-9302-d9a17ee4e396",
+            "target_chapter": 12,
+            "title": "Chương 12",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "68b6bd69-4ba0-40a0-840c-1b4e94069e0c",
+            "target_chapter": 13,
+            "title": "Chương 13",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "9b73aeb9-ba02-4410-80e8-42720167b0a6",
+            "target_chapter": 14,
+            "title": "Chương 14",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "bd25158e-9970-41d1-a7bc-a52e1952f492",
+            "target_chapter": 15,
+            "title": "Chương 15",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "d640aa2f-2d0b-4757-aab9-ee6bfed4fdc9",
+            "target_chapter": 16,
+            "title": "Chương 16",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "9b2b19f2-1d93-41ee-bf5b-7c1795583038",
+            "target_chapter": 17,
+            "title": "Chương 17",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "129826e5-896b-4783-a3c2-5727002d3993",
+            "target_chapter": 18,
+            "title": "Chương 18",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "daf4836d-2f97-46a8-aceb-0e881168aa77",
+            "target_chapter": 19,
+            "title": "Chương 19",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "ca1a23a6-388e-4eea-af0c-702d2a3ed6c2",
+            "target_chapter": 20,
+            "title": "Chương 20",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          }
+        ],
+        "idempotency_key": "959e880e-faa4-4017-be23-6cfcfc80a751"
+      }
+    },
+    {
+      "path": "/ai/story-plans/edit-v1/10000000-0000-0000-0000-000000000001",
+      "method": "POST",
+      "actor": "Bearer token-author-A",
+      "body": {
+        "contract_version": "plan-edit-v1",
+        "action": "save",
+        "expected_plan_version": 4,
+        "source_outline": "",
+        "private_notes": "",
+        "objectives": [
+          {
+            "objective_id": "c4970062-9d90-4e4c-a95a-980a46e05fe1",
+            "target_chapter": 1,
+            "title": "Gặp Minh",
+            "description": "",
+            "events": [
+              {
+                "event_id": "c9ad0932-a1c5-4cd5-a3eb-be67914cef21",
+                "text": "Tương lai gặp nhau",
+                "participants": [
+                  {
+                    "name_hint": "Minh chưa xác định"
+                  }
+                ]
+              }
+            ],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "cf8c781c-f7cf-4ee6-8fcd-589ade14063c",
+            "target_chapter": 2,
+            "title": "Chương 2",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "9cacd890-ead0-46b3-9412-26dae5899694",
+            "target_chapter": 3,
+            "title": "Chương 3",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "9eb55642-c892-4144-9763-2988bccf9bb8",
+            "target_chapter": 4,
+            "title": "Chương 4",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "7f019275-df6a-4645-a7f7-8cb5ced226a9",
+            "target_chapter": 5,
+            "title": "Chương 5",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "6d2435ed-534f-4e13-a268-eb6ffe92d005",
+            "target_chapter": 6,
+            "title": "Chương 6",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "0891850c-e223-4f8e-bc58-10a08125f9c2",
+            "target_chapter": 7,
+            "title": "Chương 7",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "db371dea-1323-472c-b6b8-8489b024fcdd",
+            "target_chapter": 8,
+            "title": "Chương 8",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "f93f6c2d-fb00-4b60-8eab-19aa6adc1753",
+            "target_chapter": 9,
+            "title": "Chương 9",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "59ff6c20-6e2a-48d3-87ef-86aef0714e6a",
+            "target_chapter": 10,
+            "title": "Chương 10",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "9d1f0acb-e6e1-41d1-a8eb-a5a4e5d23b79",
+            "target_chapter": 11,
+            "title": "Chương 11",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "516b4fab-368d-4f53-a2f0-8c0a86c770ed",
+            "target_chapter": 12,
+            "title": "Chương 12",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "b10988f8-2a08-4a32-9bf9-7abbfadf6cd5",
+            "target_chapter": 13,
+            "title": "Chương 13",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "a1250c19-1205-4759-af2e-1dd88326aa80",
+            "target_chapter": 14,
+            "title": "Chương 14",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "8d00fd99-e40c-4d35-b23e-b1b9cab4e32f",
+            "target_chapter": 15,
+            "title": "Chương 15",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "f04d4bbd-83e7-4dfe-aacf-e73c8e415203",
+            "target_chapter": 16,
+            "title": "Chương 16",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "4d9959bb-7c3c-4b99-baf7-c219ea10afb7",
+            "target_chapter": 17,
+            "title": "Chương 17",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "1c58c041-a2a9-40f2-955c-501fbdb9cef4",
+            "target_chapter": 18,
+            "title": "Chương 18",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "2403ea09-92fa-4c46-8444-b7af05e35eb0",
+            "target_chapter": 19,
+            "title": "Chương 19",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "4490a061-b189-4604-a660-93bb76123560",
+            "target_chapter": 20,
+            "title": "Chương 20",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "11fc42f0-bbe5-4195-8201-091b7dcaf240",
+            "target_chapter": 21,
+            "title": "Chương 21",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "21354708-4944-4480-9cee-6a45b4d508bb",
+            "target_chapter": 22,
+            "title": "Chương 22",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "04f41fe6-51d7-4707-9d8b-75887863ebe4",
+            "target_chapter": 23,
+            "title": "Chương 23",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "f1a62395-97be-4803-85f2-1c4b019628b6",
+            "target_chapter": 24,
+            "title": "Chương 24",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          },
+          {
+            "objective_id": "f3eb3e3f-a638-4f62-b8c0-1b77c1d7da1d",
+            "target_chapter": 25,
+            "title": "Chương 25",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 0
+          }
+        ],
+        "idempotency_key": "cc4d59ce-364f-4a28-a527-3705ee992aab"
+      }
+    },
+    {
+      "path": "/ai/story-plans/edit-v1/10000000-0000-0000-0000-000000000001",
+      "method": "POST",
+      "actor": "Bearer token-author-A",
+      "body": {
+        "contract_version": "plan-edit-v1",
+        "action": "save",
+        "expected_plan_version": 5,
+        "source_plan_id": "66936de6-7063-402d-95b4-1d74da4a77f9",
+        "source_outline": "",
+        "private_notes": "",
+        "objectives": [
+          {
+            "objective_id": "cf8c781c-f7cf-4ee6-8fcd-589ade14063c",
+            "target_chapter": 2,
+            "title": "Chương 2",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "c4970062-9d90-4e4c-a95a-980a46e05fe1",
+            "target_chapter": 1,
+            "title": "Gặp Minh",
+            "description": "",
+            "events": [
+              {
+                "event_id": "c9ad0932-a1c5-4cd5-a3eb-be67914cef21",
+                "text": "Tương lai gặp nhau",
+                "participants": [
+                  {
+                    "name_hint": "Minh chưa xác định"
+                  }
+                ]
+              }
+            ],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "9cacd890-ead0-46b3-9412-26dae5899694",
+            "target_chapter": 3,
+            "title": "Chương 3",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "9eb55642-c892-4144-9763-2988bccf9bb8",
+            "target_chapter": 4,
+            "title": "Chương 4",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "7f019275-df6a-4645-a7f7-8cb5ced226a9",
+            "target_chapter": 5,
+            "title": "Chương 5",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "6d2435ed-534f-4e13-a268-eb6ffe92d005",
+            "target_chapter": 6,
+            "title": "Chương 6",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "0891850c-e223-4f8e-bc58-10a08125f9c2",
+            "target_chapter": 7,
+            "title": "Chương 7",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "db371dea-1323-472c-b6b8-8489b024fcdd",
+            "target_chapter": 8,
+            "title": "Chương 8",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "f93f6c2d-fb00-4b60-8eab-19aa6adc1753",
+            "target_chapter": 9,
+            "title": "Chương 9",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "59ff6c20-6e2a-48d3-87ef-86aef0714e6a",
+            "target_chapter": 10,
+            "title": "Chương 10",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "9d1f0acb-e6e1-41d1-a8eb-a5a4e5d23b79",
+            "target_chapter": 11,
+            "title": "Chương 11",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "516b4fab-368d-4f53-a2f0-8c0a86c770ed",
+            "target_chapter": 12,
+            "title": "Chương 12",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "b10988f8-2a08-4a32-9bf9-7abbfadf6cd5",
+            "target_chapter": 13,
+            "title": "Chương 13",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "a1250c19-1205-4759-af2e-1dd88326aa80",
+            "target_chapter": 14,
+            "title": "Chương 14",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "8d00fd99-e40c-4d35-b23e-b1b9cab4e32f",
+            "target_chapter": 15,
+            "title": "Chương 15",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "f04d4bbd-83e7-4dfe-aacf-e73c8e415203",
+            "target_chapter": 16,
+            "title": "Chương 16",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "4d9959bb-7c3c-4b99-baf7-c219ea10afb7",
+            "target_chapter": 17,
+            "title": "Chương 17",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "1c58c041-a2a9-40f2-955c-501fbdb9cef4",
+            "target_chapter": 18,
+            "title": "Chương 18",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "2403ea09-92fa-4c46-8444-b7af05e35eb0",
+            "target_chapter": 19,
+            "title": "Chương 19",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "4490a061-b189-4604-a660-93bb76123560",
+            "target_chapter": 20,
+            "title": "Chương 20",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "11fc42f0-bbe5-4195-8201-091b7dcaf240",
+            "target_chapter": 21,
+            "title": "Chương 21",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "21354708-4944-4480-9cee-6a45b4d508bb",
+            "target_chapter": 22,
+            "title": "Chương 22",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "04f41fe6-51d7-4707-9d8b-75887863ebe4",
+            "target_chapter": 23,
+            "title": "Chương 23",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "f1a62395-97be-4803-85f2-1c4b019628b6",
+            "target_chapter": 24,
+            "title": "Chương 24",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          },
+          {
+            "objective_id": "f3eb3e3f-a638-4f62-b8c0-1b77c1d7da1d",
+            "target_chapter": 25,
+            "title": "Chương 25",
+            "description": "",
+            "events": [],
+            "dependencies": [],
+            "expected_intent_version": 1
+          }
+        ],
+        "idempotency_key": "6e54d310-7502-40b9-b63f-4a158d7cbe02"
+      }
+    },
+    {
+      "path": "/novels/10000000-0000-0000-0000-000000000001/chapters",
+      "method": "POST",
+      "actor": "Bearer token-author-A",
+      "body": {
+        "title": "Chương 1: Bản thảo mới",
+        "content": "",
+        "isVip": false,
+        "priceCoins": 0,
+        "clientRequestId": "a4e2b1a0-38b1-468b-a06d-acc097afcd49"
+      }
+    },
+    {
+      "path": "/novels/10000000-0000-0000-0000-000000000001/chapters",
+      "method": "POST",
+      "actor": "Bearer token-author-A",
+      "body": {
+        "title": "Chương 1: Bản thảo mới",
+        "content": "",
+        "isVip": false,
+        "priceCoins": 0,
+        "clientRequestId": "a4e2b1a0-38b1-468b-a06d-acc097afcd49"
+      }
+    },
+    {
+      "path": "/chapters/20000000-0000-0000-0000-000000000001",
+      "method": "PATCH",
+      "actor": "Bearer token-author-A",
+      "body": {
+        "title": "Chương 1: Bản thảo mới",
+        "content": "Minh bước vào An Thành.",
+        "isVip": false,
+        "priceCoins": 0,
+        "autosave": true,
+        "expectedVersion": 0
+      }
+    },
+    {
+      "path": "/auth/login",
+      "method": "POST",
+      "body": {
+        "redacted": true
+      }
+    }
+  ],
+  "errors": []
+}

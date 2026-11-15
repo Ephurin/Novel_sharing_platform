@@ -1,0 +1,10 @@
+{
+  "base": "993493704308b53332ab2cd404097a5d6736c531",
+  "head": "0015_provenance_timestamp",
+  "path": "empty ->0015 ->0013 ->0015 (real0014 audit table creation)",
+  "is_nullable": "YES",
+  "default": "now()",
+  "rows": 0,
+  "null_rows": 0,
+  "production_examined": false
+}

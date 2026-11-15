@@ -1,0 +1,8 @@
+test_casts_with_other_types_are_not_rewritten (test_p8_rollback_readback.SchemaComparisonTests.test_casts_with_other_types_are_not_rewritten) ... ok
+test_equivalent_pg16_deparse_retains_raw_evidence (test_p8_rollback_readback.SchemaComparisonTests.test_equivalent_pg16_deparse_retains_raw_evidence) ... ok
+test_real_schema_or_data_changes_are_not_normalized_away (test_p8_rollback_readback.SchemaComparisonTests.test_real_schema_or_data_changes_are_not_normalized_away) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+OK

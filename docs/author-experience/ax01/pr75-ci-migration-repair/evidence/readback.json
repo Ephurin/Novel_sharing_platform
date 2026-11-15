@@ -1,0 +1,12 @@
+{
+  "tested_source_sha": "c55749b6363e84ecaffb20a21dbd43455dd35deb",
+  "tested_tree_sha": "6009abbb14e21ef5fbcdefea9b25b99ed4c3c753",
+  "database": "task-owned pr75_repair, PostgreSQL/pgvector16, host port55441",
+  "readback_command_exit_code": 0,
+  "alembic_version": "0014_entity_profiles",
+  "canonical_fixture_name": "Persistent Canonical Entity",
+  "preserved_fixture_rows_across_red_and_green_runs": 3,
+  "all_fixture_author_profiles_empty": true,
+  "all_fixture_private_notes_empty": true,
+  "all_fixture_profile_versions_zero": true
+}

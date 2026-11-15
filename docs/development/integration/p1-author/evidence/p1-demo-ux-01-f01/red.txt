@@ -1,0 +1,89 @@
+TAP version 13
+# Subtest: Identity checkpoint UX: type, bulk, CAS and isolation
+    # Subtest: machine LOC is a visible suggestion, not approval; explicit group save preserves LOC
+    ok 1 - machine LOC is a visible suggestion, not approval; explicit group save preserves LOC
+      ---
+      duration_ms: 1114.3374
+      ...
+    # Subtest: explicit LOC edit is part of checkpoint draft without a second hidden commit
+    ok 2 - explicit LOC edit is part of checkpoint draft without a second hidden commit
+      ---
+      duration_ms: 2085.5487
+      ...
+    # Subtest: bulk cancel is inert; confirm targets exact matching eligible IDs, preserves other UUID, save/reload/freeze
+    ok 3 - bulk cancel is inert; confirm targets exact matching eligible IDs, preserves other UUID, save/reload/freeze
+      ---
+      duration_ms: 1437.4201
+      ...
+    # Subtest: stale 409 then server refresh preserves dirty LOC draft and warns on type-only conflict
+    ok 4 - stale 409 then server refresh preserves dirty LOC draft and warns on type-only conflict
+      ---
+      duration_ms: 1120.3123
+      ...
+    # Subtest: bulk preserves source and per-occurrence authored quotes through pagination, save, reload and Freeze
+    not ok 5 - bulk preserves source and per-occurrence authored quotes through pagination, save, reload and Freeze
+      ---
+      duration_ms: 1918.3407
+      location: 'C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\26\\01a178b1-4361-75b3-a66b-3bc53990597a\\p1-demo-ux-01\\web\\tests\\p1-entity-checkpoint-ux.browser.test.mjs:157:13'
+      failureType: 'testCodeFailure'
+      error: |-
+        Evidence must stay with loc-1
+        + actual - expected
+        
+          [
+        +   '',
+        +   ''
+        -   'Source identity evidence',
+        -   'Source status evidence'
+          ]
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected:
+        0: 'Source identity evidence'
+        1: 'Source status evidence'
+      actual:
+        0: ''
+        1: ''
+      operator: 'deepStrictEqual'
+      stack: |-
+        assertQuotes (file:///C:/Users/Laptop/.codex/visualizations/2026/10/26/01a178b1-4361-75b3-a66b-3bc53990597a/p1-demo-ux-01/web/tests/p1-entity-checkpoint-ux.browser.test.mjs:170:18)
+        TestContext.<anonymous> (file:///C:/Users/Laptop/.codex/visualizations/2026/10/26/01a178b1-4361-75b3-a66b-3bc53990597a/p1-demo-ux-01/web/tests/p1-entity-checkpoint-ux.browser.test.mjs:192:25)
+        async Test.run (node:internal/test_runner/test:980:9)
+        async TestContext.<anonymous> (file:///C:/Users/Laptop/.codex/visualizations/2026/10/26/01a178b1-4361-75b3-a66b-3bc53990597a/p1-demo-ux-01/web/tests/p1-entity-checkpoint-ux.browser.test.mjs:157:5)
+        async Test.run (node:internal/test_runner/test:980:9)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: bulk never remaps another explicitly selected same-name UUID
+    ok 6 - bulk never remaps another explicitly selected same-name UUID
+      ---
+      duration_ms: 1831.5816
+      ...
+    # Subtest: mixed types in one group are shown and block Freeze until explicitly reconciled
+    ok 7 - mixed types in one group are shown and block Freeze until explicitly reconciled
+      ---
+      duration_ms: 1067.7034
+      ...
+    # Subtest: novel and analysis changes never reuse foreign dirty decisions
+    ok 8 - novel and analysis changes never reuse foreign dirty decisions
+      ---
+      duration_ms: 908.8548
+      ...
+    1..8
+not ok 1 - Identity checkpoint UX: type, bulk, CAS and isolation
+  ---
+  duration_ms: 21114.9999
+  location: 'C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\26\\01a178b1-4361-75b3-a66b-3bc53990597a\\p1-demo-ux-01\\web\\tests\\p1-entity-checkpoint-ux.browser.test.mjs:31:1'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..1
+# tests 9
+# suites 0
+# pass 7
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 23642.6648

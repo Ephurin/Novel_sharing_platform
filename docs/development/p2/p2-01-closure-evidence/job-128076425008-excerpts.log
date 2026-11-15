@@ -1,0 +1,12 @@
+2026-11-06T18:30:47.2950049Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-06T18:30:47.2950687Z
+2026-11-06T18:30:47.2951361Z HEAD is now at 69072d3 Merge ad5c9c92c163c43c94d1dbd346aec326d705b19e into 3adab5c73636bd4e7c3dbc6578d4ece0a54b5627
+2026-11-06T18:30:47.2989222Z ##[endgroup]
+2026-11-06T18:30:47.3044864Z [command]/usr/bin/git log -1 --format=%H
+2026-11-06T18:30:47.3077604Z 69072d3d54eb68cd09bbad47b29670fccfe70c23
+2026-11-06T18:30:47.3342359Z ##[group]Run docker compose config
+2026-11-06T18:33:16.9218941Z     assert bs_res.status_code == 202, f"Bootstrap from idea failed: {bs_res.text}"
+2026-11-06T18:33:16.9219650Z            ^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-06T18:33:16.9221355Z AssertionError: Bootstrap from idea failed: {"success":false,"data":null,"error":{"code":"AI_SERVICE_422","message":"AI Service returned status 422","details":[{"type":"extra_forbidden","loc":["body","preferences","pacing"],"msg":"Extra inputs are not permitted","input":"fast"}]},"meta":{}}
+2026-11-06T18:33:16.9531423Z ##[error]Process completed with exit code 1.
+2026-11-06T18:33:16.9596067Z ##[group]Run docker compose ps

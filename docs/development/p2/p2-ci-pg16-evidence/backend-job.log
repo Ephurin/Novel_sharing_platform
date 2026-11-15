@@ -1,0 +1,51 @@
+2026-11-07T04:06:59.3987410Z
+2026-11-07T04:06:59.3988030Z HEAD is now at 938d5f9 Merge 2b365505551c51c71884ee7c340ada5273a5fe3c into 3adab5c73636bd4e7c3dbc6578d4ece0a54b5627
+2026-11-07T04:06:59.4005451Z ##[endgroup]
+2026-11-07T04:07:18.0528617Z INFO  [alembic.runtime.migration] Running upgrade 0015_provenance_timestamp -> 0016_entity_profile_audit_timestamp, Require real audit timestamps without rewriting historical audit data.
+2026-11-07T04:07:18.1641461Z ##[group]Run npx tsx --test src/core/database/test-db-guard.test.ts
+2026-11-07T04:07:18.1642151Z npx tsx --test src/core/database/test-db-guard.test.ts
+2026-11-07T04:07:18.7008780Z 1..1
+2026-11-07T04:07:18.7023413Z # tests 11
+2026-11-07T04:07:18.7058141Z # suites 1
+2026-11-07T04:07:18.7058791Z # pass 11
+2026-11-07T04:07:18.7060999Z # fail 0
+2026-11-07T04:07:18.7061555Z # cancelled 0
+2026-11-07T04:07:18.7067753Z # skipped 0
+2026-11-07T04:07:18.7069654Z # todo 0
+2026-11-07T04:07:18.7069963Z # duration_ms 217.341678
+2026-11-07T04:07:18.7298581Z ##[group]Run npx tsx --test src/modules/novels/accept-draft-contract.test.ts
+2026-11-07T04:07:18.7299277Z npx tsx --test src/modules/novels/accept-draft-contract.test.ts
+2026-11-07T04:07:19.7583765Z # [OutboxProcessor] Event 59c64102-7895-4f60-9cd4-c966a8bfd2f3 (INCREMENTAL_ANALYSIS) failed (attempt 1): res.text is not a function
+2026-11-07T04:07:19.7585558Z     # Subtest: rejects with 422 GENERATION_VALIDATION_FAILED if validation_status is not passed
+2026-11-07T04:07:19.7587251Z     ok 6 - rejects with 422 GENERATION_VALIDATION_FAILED if validation_status is not passed
+2026-11-07T04:07:19.7588353Z       ---
+2026-11-07T04:07:19.8631387Z 1..1
+2026-11-07T04:07:19.8631731Z # tests 15
+2026-11-07T04:07:19.8633414Z # suites 1
+2026-11-07T04:07:19.8634814Z # pass 15
+2026-11-07T04:07:19.8635495Z # fail 0
+2026-11-07T04:07:19.8637603Z # cancelled 0
+2026-11-07T04:07:19.8650945Z # skipped 0
+2026-11-07T04:07:19.8651242Z # todo 0
+2026-11-07T04:07:19.8651585Z # duration_ms 809.006234
+2026-11-07T04:07:19.8853307Z ##[group]Run npx tsx --test --test-force-exit src/modules/novels/p1-production-persistence.postgres.test.ts
+2026-11-07T04:07:19.8854413Z npx tsx --test --test-force-exit src/modules/novels/p1-production-persistence.postgres.test.ts
+2026-11-07T04:07:21.3890205Z 1..1
+2026-11-07T04:07:21.3891238Z # tests 5
+2026-11-07T04:07:21.3891663Z # suites 1
+2026-11-07T04:07:21.3892968Z # pass 5
+2026-11-07T04:07:21.3893399Z # fail 0
+2026-11-07T04:07:21.3893850Z # cancelled 0
+2026-11-07T04:07:21.3894316Z # skipped 0
+2026-11-07T04:07:21.3894748Z # todo 0
+2026-11-07T04:07:21.3895257Z # duration_ms 1184.506479
+2026-11-07T04:07:21.4154773Z ##[group]Run npx tsx --test --test-force-exit src/modules/novels/fixture-lifecycle-resilience.postgres.test.ts
+2026-11-07T04:07:21.4155860Z npx tsx --test --test-force-exit src/modules/novels/fixture-lifecycle-resilience.postgres.test.ts
+2026-11-07T04:07:24.4411730Z 1..1
+2026-11-07T04:07:24.4412215Z # tests 25
+2026-11-07T04:07:24.4412692Z # suites 1
+2026-11-07T04:07:24.4413244Z # pass 25
+2026-11-07T04:07:24.4413679Z # fail 0
+2026-11-07T04:07:24.4414113Z # cancelled 0
+2026-11-07T04:07:24.4414560Z # skipped 0
+2026-11-07T04:07:24.4415002Z # todo 0

@@ -1,6 +1,13 @@
+import { baselineActivationBlockedMessage } from '../manuscript-import/manuscript-import-api';
+import { notifyMemoryChanged } from './memory-events';
+import type {PlanningStep} from './PlanningStudio';
+import {StoryPlanEditor} from './StoryPlanEditor';
+import { useAuthStore } from '../auth/useAuthStore';
+import { SetupFoundationPanel } from './SetupFoundationPanel';
 import { SuggestionReveal } from '../../shared/components/AuthorAdminMotion';
 import { StateComparison } from '../../shared/components/StateComparison';
 import { useEffect, useMemo, useState } from 'react';
+import { EntityProfileEditor } from './EntityProfileEditor';
 import { EntityExtractionReview } from './EntityExtractionReview';
 import { AuthorRelationshipLocks } from './AuthorRelationshipLocks';
 import {
@@ -69,13 +76,24 @@ import {
   type GroupApproval
 } from './author-memory-api';
 
-export function AuthorMemoryPanel({
+export function AuthorMemoryPanel(props: {
+  novelId: string; chapterId: string; content: string; opened: boolean; onClose: () => void; saved: boolean; onOpenPlanning?:(step:PlanningStep)=>void; allowOfflineSetupTest?:boolean; initialTab?:string;
+}) {
+  const account = useAuthStore(state => state.user?.userId ?? 'guest');
+  return <ScopedAuthorMemoryPanel key={JSON.stringify([account, props.novelId])} {...props} accountScope={account}/>;
+}
+
+function ScopedAuthorMemoryPanel({
   novelId,
   chapterId,
   content,
   opened,
   onClose,
-  saved
+  saved,
+  accountScope,
+  onOpenPlanning,
+  allowOfflineSetupTest,
+  initialTab
 }: {
   novelId: string;
   chapterId: string;
@@ -83,12 +101,23 @@ export function AuthorMemoryPanel({
   opened: boolean;
   onClose: () => void;
   saved: boolean;
+  accountScope: string;
+  onOpenPlanning?:(step:PlanningStep)=>void; allowOfflineSetupTest?:boolean; initialTab?:string;
 }) {
   const qc = useQueryClient();
-  const [setup, setSetup] = useState('');
+  const [profileTabOpened, setProfileTabOpened] = useState(false);
+  // #133: callers (e.g. Planning Studio) can open the drawer on a specific tab.
+  const [tab, setTab] = useState<string>(initialTab ?? 'review');
+  useEffect(() => {
+    if (opened) {
+      setTab(initialTab ?? 'review');
+      setProfileTabOpened(initialTab === 'profiles');
+    }
+  }, [opened, initialTab]);
   const [direction, setDirection] = useState('');
   const [events, setEvents] = useState<FutureEvent[]>([]);
   const [findings, setFindings] = useState<ConsistencyFinding[] | null>(null);
+  const [ruleCheck, setRuleCheck] = useState<string | null>(null);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'info' | 'error' | 'success'>('info');
 
@@ -116,28 +145,28 @@ export function AuthorMemoryPanel({
   const enabled = opened && Boolean(novelId);
 
   const brain = useQuery({
-    queryKey: ['story-brain-summary', novelId],
+    queryKey: ['story-brain-summary', novelId, accountScope],
     queryFn: () => getStoryBrainSummary(novelId),
     enabled,
     refetchInterval: enabled ? 3000 : false
   });
 
   const memory = useQuery({
-    queryKey: ['approved-memory', novelId],
+    queryKey: ['approved-memory', novelId, accountScope],
     queryFn: () => getApprovedMemory(novelId),
     enabled,
     refetchInterval: enabled ? 3000 : false
   });
 
   const queue = useQuery({
-    queryKey: ['memory-review', novelId],
+    queryKey: ['memory-review', novelId, accountScope],
     queryFn: () => getReviewQueue(novelId),
     enabled,
     refetchInterval: enabled ? 3000 : false
   });
 
   const extraction = useQuery({
-    queryKey: ['memory-extraction', novelId],
+    queryKey: ['memory-extraction', novelId, accountScope],
     enabled,
     refetchInterval: enabled ? 3000 : false,
     queryFn: () =>
@@ -147,14 +176,14 @@ export function AuthorMemoryPanel({
   });
 
   const job = useQuery({
-    queryKey: ['memory-job', jobId],
+    queryKey: ['memory-job', jobId, accountScope],
     queryFn: () => getBootstrapJob(jobId!),
     enabled: enabled && Boolean(jobId),
     refetchInterval: q => (['queued', 'running'].includes(q.state.data?.status ?? '') ? 1500 : false)
   });
 
   const plan = useQuery({
-    queryKey: ['author-plan', novelId],
+    queryKey: ['author-plan', novelId, accountScope],
     queryFn: async () => {
       try {
         return await memoryGet<AuthorPlan>(`/ai/story-plans/by-novel/${novelId}/active`);
@@ -167,7 +196,7 @@ export function AuthorMemoryPanel({
   });
 
   const auto = useQuery({
-    queryKey: ['author-auto', novelId],
+    queryKey: ['author-auto', novelId, accountScope],
     queryFn: async () => {
       try {
         const lastRun = localStorage.getItem(`ephurin-auto-${novelId}`);
@@ -199,6 +228,7 @@ export function AuthorMemoryPanel({
       qc.invalidateQueries({ queryKey: ['author-plan', novelId] }),
       qc.invalidateQueries({ queryKey: ['author-auto', novelId] })
     ]);
+    notifyMemoryChanged(novelId);
   };
 
   const action = useMutation({
@@ -206,6 +236,11 @@ export function AuthorMemoryPanel({
     onSuccess: refresh,
     onError: e => {
       setMessageType('error');
+      const blocked = baselineActivationBlockedMessage(e);
+      if (blocked) {
+        setMessage(blocked);
+        return;
+      }
       if (e instanceof ApiClientError) {
         if (e.status === 409) {
           setMessage(
@@ -258,7 +293,7 @@ export function AuthorMemoryPanel({
     if (!revision || revision.content !== content) {
       revision = await createChapterSnapshot(chapterId, content);
     }
-    const result = await runAuthorOperation<{ findings: ConsistencyFinding[] }>(novelId, {
+    const result = await runAuthorOperation<{ findings: ConsistencyFinding[]; rule_check?: string }>(novelId, {
       operation: 'check_consistency',
       content,
       revision_id: revision.revisionId,
@@ -266,6 +301,7 @@ export function AuthorMemoryPanel({
       content_hash: revision.contentHash
     });
     setFindings(result.findings);
+    setRuleCheck(result.rule_check ?? null);
   };
 
   // Event correction submission (B4, FE-01, FE-06)
@@ -429,9 +465,10 @@ export function AuthorMemoryPanel({
           </Alert>
         )}
 
-        <Tabs defaultValue="review">
+        <Tabs value={tab} onValueChange={(value: string) => { setTab(value || 'review'); setProfileTabOpened(value === 'profiles'); }}>
           <Tabs.List>
             <Tabs.Tab value="review">Chờ duyệt ({queue.data?.length ?? 0})</Tabs.Tab>
+            <Tabs.Tab value="profiles">Hồ sơ Codex</Tabs.Tab>
             <Tabs.Tab value="characters">Nhân vật ({category(['character', 'per', 'person']).length})</Tabs.Tab>
             <Tabs.Tab value="relations">
               Quan hệ Canon ({memory.data?.relations?.filter(r => r.locked).length ?? 0} khóa)
@@ -649,6 +686,11 @@ export function AuthorMemoryPanel({
             </Stack>
           </Tabs.Panel>
 
+          <Tabs.Panel value="profiles" pt="md">
+            <EntityProfileEditor novelId={novelId} entities={memory.data?.entities ?? []}
+              active={opened && profileTabOpened} onSaved={refresh} />
+          </Tabs.Panel>
+
           {/* ──────────────────────────────────────────
               Tab 2: Characters
              ────────────────────────────────────────── */}
@@ -757,6 +799,11 @@ export function AuthorMemoryPanel({
                         </Text>
                       ))
                     : 'Không tìm thấy mâu thuẫn trong lần kiểm tra này.'}
+                  {ruleCheck === 'unavailable' && (
+                    <Text size="xs" c="orange" data-testid="rule-check-unavailable">
+                      Chưa kiểm tra được theo quy tắc thế giới (AI tạm thời không khả dụng). Kết quả trên chưa bao gồm quy tắc thế giới.
+                    </Text>
+                  )}
                 </Alert>
               )}
 
@@ -838,7 +885,7 @@ export function AuthorMemoryPanel({
           <Tabs.Panel value="setup" pt="md">
             <Stack gap="xs">
               <Text size="sm">
-                Lần đầu: chọn chương đã lưu hoặc nhập thiết lập. Sau kích hoạt, các lần lưu chương tự tạo đề xuất.
+                Bắt đầu bộ nhớ truyện theo một trong hai cách: trích xuất từ các chương đã lưu (không cần thiết lập thế giới), hoặc hoàn tất thiết lập trong Planning Studio. Với chương đã lưu: bấm trích xuất, duyệt đề xuất ở tab “Chờ duyệt”, rồi bấm “Kích hoạt bộ nhớ sau duyệt”. Sau khi kích hoạt, mỗi lần lưu chương sẽ được phân tích và tạo đề xuất chờ bạn duyệt.
               </Text>
               <Button
                 disabled={
@@ -850,26 +897,7 @@ export function AuthorMemoryPanel({
               >
                 Trích xuất dữ liệu tiểu thuyết từ các chương đã lưu
               </Button>
-              <Textarea
-                label="Ý tưởng / thiết lập ban đầu"
-                value={setup}
-                onChange={e => setSetup(e.currentTarget.value)}
-                minRows={5}
-              />
-              <Button
-                disabled={pending || !setup.trim()}
-                onClick={() =>
-                  perform(async () => {
-                    const result = await memoryPost<{ job_id: string }>(
-                      '/ai/story-brains/bootstrap/from-idea',
-                      { novel_id: novelId, idea: setup, mode: 'extract' }
-                    );
-                    rememberJob(result.job_id);
-                  })
-                }
-              >
-                Trích xuất nhân vật và địa danh
-              </Button>
+              <>{onOpenPlanning?<Button onClick={()=>onOpenPlanning("idea")}>Mở thiết lập trong Planning Studio</Button>:<SetupFoundationPanel key={novelId} novelId={novelId} allowOfflineBlueprint={allowOfflineSetupTest}/>}</>
               {job.data && (
                 <Alert>
                   Trích xuất: {job.data.status} {job.data.error?.message ?? ''}
@@ -896,136 +924,7 @@ export function AuthorMemoryPanel({
               Tab 9: Plan
              ────────────────────────────────────────── */}
           <Tabs.Panel value="plan" pt="md">
-            <Stack gap="xs">
-              <Textarea
-                label="Định hướng mong muốn (tùy chọn)"
-                value={direction}
-                onChange={e => setDirection(e.currentTarget.value)}
-                minRows={4}
-              />
-              <Button
-                disabled={pending}
-                onClick={() =>
-                  perform(async () => {
-                    const result = await runAuthorOperation<{ events: FutureEvent[] }>(novelId, {
-                      operation: 'suggest_events',
-                      instruction: direction
-                    });
-                    setEvents(result.events);
-                  })
-                }
-              >
-                Gợi ý event tiếp theo
-              </Button>
-              <Text size="sm">
-                Đây là kế hoạch tương lai. Chỉnh sửa hoặc bỏ các event trước khi xác nhận; chúng chưa trở thành
-                lịch sử truyện.
-              </Text>
-              {events.map((e, i) => (
-                <Card withBorder key={i} p="xs">
-                  <Stack gap="xs">
-                    <TextInput
-                      label="Sự kiện dự kiến"
-                      value={e.title}
-                      onChange={ev =>
-                        setEvents(events.map((x, n) => (n === i ? { ...x, title: ev.currentTarget.value } : x)))
-                      }
-                    />
-                    <Textarea
-                      label="Diễn biến / tiêu chí đạt"
-                      value={e.description}
-                      onChange={ev =>
-                        setEvents(
-                          events.map((x, n) => (n === i ? { ...x, description: ev.currentTarget.value } : x))
-                        )
-                      }
-                    />
-                    <NumberInput
-                      label="Chương"
-                      min={1}
-                      value={e.target_chapter}
-                      onChange={v =>
-                        setEvents(events.map((x, n) => (n === i ? { ...x, target_chapter: Number(v) } : x)))
-                      }
-                    />
-                    <NumberInput
-                      label="Số từ tối thiểu của chương"
-                      min={1}
-                      value={e.min_words}
-                      onChange={v =>
-                        setEvents(events.map((x, n) => (n === i ? { ...x, min_words: Number(v) } : x)))
-                      }
-                    />
-                    <Checkbox
-                      label="Kết thúc truyện"
-                      checked={e.ending}
-                      onChange={ev =>
-                        setEvents(events.map((x, n) => (n === i ? { ...x, ending: ev.currentTarget.checked } : x)))
-                      }
-                    />
-                    <Button variant="subtle" size="xs" color="red" onClick={() => setEvents(events.filter((_, n) => n !== i))}>
-                      Bỏ gợi ý
-                    </Button>
-                  </Stack>
-                </Card>
-              ))}
-              <Group>
-                <Button
-                  variant="default"
-                  onClick={() =>
-                    setEvents([
-                      ...events,
-                      { title: '', description: '', target_chapter: 1, min_words: 1000, ending: false }
-                    ])
-                  }
-                >
-                  Thêm event
-                </Button>
-                <Button
-                  disabled={
-                    pending ||
-                    !events.length ||
-                    auto.data?.status === 'running' ||
-                    events.some(e => !e.title.trim() || !e.description.trim())
-                  }
-                  onClick={() =>
-                    perform(async () => {
-                      await saveFuturePlan(novelId, events, direction);
-                      setEvents([]);
-                    })
-                  }
-                >
-                  Xác nhận và lưu định hướng
-                </Button>
-              </Group>
-              {(plan.data?.objectives ?? []).map((o, i) => (
-                <Card key={i} withBorder p="xs">
-                  <Badge>{o.status}</Badge>
-                  <Text fw={600} size="sm">
-                    Chương {o.target_chapter}: {o.title}
-                  </Text>
-                  <Text size="xs">{o.description}</Text>
-                </Card>
-              ))}
-              <Button
-                disabled={!plan.data || pending}
-                variant="default"
-                onClick={() =>
-                  setEvents(
-                    plan.data!.objectives
-                      .filter(o => o.status !== 'completed')
-                      .map(o => ({
-                        ...o,
-                        min_words: o.metadata?.min_words ?? 1000,
-                        ending:
-                          o.metadata?.is_terminal === true || ['ending', 'terminal'].includes(o.objective_type)
-                      }))
-                  )
-                }
-              >
-                Điều chỉnh phần định hướng còn lại
-              </Button>
-            </Stack>
+            <>{onOpenPlanning?<Button onClick={()=>onOpenPlanning("chapters")}>Mở dàn ý trong Planning Studio</Button>:<StoryPlanEditor novelId={novelId}/>}</>
           </Tabs.Panel>
 
           {/* ──────────────────────────────────────────

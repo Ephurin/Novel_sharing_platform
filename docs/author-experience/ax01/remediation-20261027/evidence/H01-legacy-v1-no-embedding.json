@@ -1,0 +1,49 @@
+{
+  "label": "H01-legacy-v1-no-embedding",
+  "job_id": "3e9a155f-a220-5e31-aa1d-bc1192188f1c",
+  "status": "completed",
+  "error": null,
+  "brain_version_used": 3,
+  "context_hash": "a19aa7ab66eb572a39a36e47d050518e18abbe8e8b9fe472c63b6a42766d49ac",
+  "context_summary": {
+    "entity_ids": [
+      "886e40cc-d869-4635-90e5-b12bdc98c720",
+      "d751eeeb-05cf-4bd9-977b-210d24e79927"
+    ],
+    "event_ids": [],
+    "fact_ids": [],
+    "cutoff_chapter": 3,
+    "recent_scope_participant_entity_ids": [],
+    "recent_scope_participant_identity": [
+      "normalized-event-participants-v1"
+    ],
+    "semantic_memory_ids": [],
+    "context_packing_version": [
+      "context-budget-v1"
+    ],
+    "context_token_estimator_version": [
+      "utf8-json-bytes-3-v1"
+    ],
+    "profile_entity_ids": [
+      "d751eeeb-05cf-4bd9-977b-210d24e79927"
+    ],
+    "dropped_profile_entity_ids": [],
+    "dropped_entity_ids": [],
+    "dropped_event_ids": [],
+    "dropped_fact_ids": [],
+    "dropped_semantic_memory_ids": [],
+    "deduplicated_semantic_memory_ids": [],
+    "brain_version_used": 3,
+    "context_hash": "a19aa7ab66eb572a39a36e47d050518e18abbe8e8b9fe472c63b6a42766d49ac",
+    "chapter_number": 3
+  },
+  "provider_call_count": 1,
+  "transport_prompts": [
+    {
+      "system": "Bạn là trợ lý viết tiểu thuyết chuyên nghiệp (Author AI Copilot).\nDựa trên bối cảnh thế giới, nhân vật, phong cách và các ràng buộc của tác giả, hãy tạo nội dung viết tiếp hoặc sửa đổi phù hợp.\nChỉ trả về định dạng JSON hợp lệ:\n{\n  \"draft_text\": \"Nội dung văn bản được sinh ra\",\n  \"explanation\": \"Lý giải ngắn gọn về hướng phát triển cốt truyện\"\n}",
+      "user": "Thao tác: continue\nĐoạn văn được chọn: Minh nhìn căn phòng.\nVị trí con trỏ: 0\nYêu cầu / Chỉ dẫn: Write a scene about Minh.\nBối cảnh tiểu thuyết (Story Brain): {\"author_constraints\":[],\"brain_version\":3,\"current_states\":[{\"entity_id\":\"886e40cc-d869-4635-90e5-b12bdc98c720\",\"location\":\"Unknown\",\"name\":\"Lan\",\"state\":{},\"status\":\"Alive\"},{\"entity_id\":\"d751eeeb-05cf-4bd9-977b-210d24e79927\",\"location\":\"Unknown\",\"name\":\"Minh\",\"state\":{},\"status\":\"Alive\"}],\"entities\":[{\"approved_profile\":{},\"entity_id\":\"886e40cc-d869-4635-90e5-b12bdc98c720\",\"entity_type\":\"PER\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Lan\",\"status\":\"Alive\"},{\"approved_profile\":{\"appearance\":\"H01 blue eyes\",\"background\":\"A teacher\",\"description\":\"Author baseline\",\"personality\":\"Patient\"},\"entity_id\":\"d751eeeb-05cf-4bd9-977b-210d24e79927\",\"entity_type\":\"PER\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Minh\",\"status\":\"Alive\"}],\"recent_events\":[],\"semantic_memories\":[],\"world_rules\":[]}\n"
+    }
+  ],
+  "prompt_context_hash": "a19aa7ab66eb572a39a36e47d050518e18abbe8e8b9fe472c63b6a42766d49ac",
+  "prompt_context_estimated_tokens": 268
+}

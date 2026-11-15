@@ -337,6 +337,20 @@ describe('Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)', () =>
     );
   });
 
+  test('dismissed persisted draft cannot be accepted or create a revision/outbox', async () => {
+    const before = await getPostgresPool().query(
+      'SELECT revision_id FROM chapter_revisions WHERE chapter_id = $1', [chapterId]);
+    const outboxBefore = await getPostgresPool().query('SELECT event_id FROM revision_outbox_events WHERE chapter_id = $1 ORDER BY event_id', [chapterId]);
+    setupMockAi({ job_id: 'gen-dismissed', status: 'dismissed' });
+    await assert.rejects(
+      acceptDraft({ userId: authorId, role: 'AUTHOR' } as any, chapterId, { generationId: 'gen-dismissed' }),
+      (err: any) => err instanceof AppError && err.code === 'GENERATION_NOT_COMPLETED');
+    const after = await getPostgresPool().query(
+      'SELECT revision_id FROM chapter_revisions WHERE chapter_id = $1', [chapterId]);
+    assert.deepEqual(after.rows, before.rows);
+    assert.deepEqual((await getPostgresPool().query('SELECT event_id FROM revision_outbox_events WHERE chapter_id = $1 ORDER BY event_id', [chapterId])).rows, outboxBefore.rows);
+  });
+
   test('rejects a failed rewrite insertion without creating a revision, outbox event or draft mutation', async () => {
     const pool = getPostgresPool();
     const state = async () => ({

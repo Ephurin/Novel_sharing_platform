@@ -27,6 +27,11 @@ class EntityExtractionOutput(StrictOutputModel):
     metadata: PipelineMetadata
 
 
+class EntityDiscoveryBatch(StrictOutputModel):
+    """Constrained provider output for named-entity discovery (live schema, see response_schema_for)."""
+    entities: list[ExtractedEntity]
+
+
 class NarrativeEventOutput(StrictOutputModel):
     participants: list[str] = Field(default_factory=list)
     locations: list[str] = Field(default_factory=list)
@@ -35,6 +40,20 @@ class NarrativeEventOutput(StrictOutputModel):
     emotion_tags: list[str] = Field(default_factory=list)
     consequences: list[str] = Field(default_factory=list)
     importance_score: float = Field(default=0.5, ge=0.0, le=1.0)
+
+
+class HitlEventOutput(StrictOutputModel):
+    """Event shape of the entity-first (HITL) path; must match what entity_hitl validates."""
+    event_type: str = Field(min_length=1)
+    summary: str = Field(min_length=1)
+    participants: list[str]
+    locations: list[str] = Field(default_factory=list)
+    consequences: list[str] = Field(default_factory=list)
+    quote: str = Field(min_length=1)
+
+
+class HitlEventBatch(StrictOutputModel):
+    events: list[HitlEventOutput]
 
 
 class EventExtractionOutput(StrictOutputModel):

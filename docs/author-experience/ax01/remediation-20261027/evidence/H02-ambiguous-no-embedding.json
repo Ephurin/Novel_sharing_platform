@@ -1,0 +1,47 @@
+{
+  "label": "H02-ambiguous-no-embedding",
+  "job_id": "858a43c1-3a84-5db8-a41e-1feee36b12a3",
+  "status": "completed",
+  "error": null,
+  "brain_version_used": 3,
+  "context_hash": "08eab432ad5c585bf1d8cca8160a4057d10138ce033c5ffe5ab2b3e16283edab",
+  "context_summary": {
+    "entity_ids": [
+      "8398b851-c7e1-48e2-a437-96f696e677d0",
+      "c78f1de9-1103-4495-9953-03842545787c"
+    ],
+    "event_ids": [],
+    "fact_ids": [],
+    "cutoff_chapter": 3,
+    "recent_scope_participant_entity_ids": [],
+    "recent_scope_participant_identity": [
+      "normalized-event-participants-v1"
+    ],
+    "semantic_memory_ids": [],
+    "context_packing_version": [
+      "context-budget-v1"
+    ],
+    "context_token_estimator_version": [
+      "utf8-json-bytes-3-v1"
+    ],
+    "profile_entity_ids": [],
+    "dropped_profile_entity_ids": [],
+    "dropped_entity_ids": [],
+    "dropped_event_ids": [],
+    "dropped_fact_ids": [],
+    "dropped_semantic_memory_ids": [],
+    "deduplicated_semantic_memory_ids": [],
+    "brain_version_used": 3,
+    "context_hash": "08eab432ad5c585bf1d8cca8160a4057d10138ce033c5ffe5ab2b3e16283edab",
+    "chapter_number": 3
+  },
+  "provider_call_count": 3,
+  "transport_prompts": [
+    {
+      "system": "Bạn là trợ lý viết tiểu thuyết chuyên nghiệp (Author AI Copilot).\nDựa trên bối cảnh thế giới, nhân vật, phong cách và các ràng buộc của tác giả, hãy tạo nội dung viết tiếp hoặc sửa đổi phù hợp.\nChỉ trả về định dạng JSON hợp lệ:\n{\n  \"draft_text\": \"Nội dung văn bản được sinh ra\",\n  \"explanation\": \"Lý giải ngắn gọn về hướng phát triển cốt truyện\"\n}",
+      "user": "Thao tác: continue\nĐoạn văn được chọn: Minh nhìn căn phòng.\nVị trí con trỏ: 0\nYêu cầu / Chỉ dẫn: Write about Minh.\nBối cảnh tiểu thuyết (Story Brain): {\"author_constraints\":[],\"brain_version\":3,\"current_states\":[{\"entity_id\":\"8398b851-c7e1-48e2-a437-96f696e677d0\",\"location\":\"Unknown\",\"name\":\"Minh\",\"state\":{},\"status\":\"Alive\"},{\"entity_id\":\"c78f1de9-1103-4495-9953-03842545787c\",\"location\":\"Unknown\",\"name\":\"Minh\",\"state\":{},\"status\":\"Alive\"}],\"entities\":[{\"approved_profile\":{},\"entity_id\":\"8398b851-c7e1-48e2-a437-96f696e677d0\",\"entity_type\":\"PER\",\"is_locked\":true,\"location\":\"Unknown\",\"name\":\"Minh\",\"status\":\"Alive\"},{\"approved_profile\":{},\"entity_id\":\"c78f1de9-1103-4495-9953-03842545787c\",\"entity_type\":\"PER\",\"is_locked\":false,\"location\":\"Unknown\",\"name\":\"Minh\",\"status\":\"Alive\"}],\"recent_events\":[],\"semantic_memories\":[],\"world_rules\":[]}\n"
+    }
+  ],
+  "prompt_context_hash": "08eab432ad5c585bf1d8cca8160a4057d10138ce033c5ffe5ab2b3e16283edab",
+  "prompt_context_estimated_tokens": 232
+}

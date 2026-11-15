@@ -10,6 +10,36 @@ POLICY = 'entity-candidates-v1'
 MAX_CANDIDATES = 1024
 MAX_CHUNKS = 32
 
+# Q-1 (final live acceptance): with "accept all suggestions", noise candidates the model calls
+# entities reached canon ("Anh", "Chị", a lone "Nguyễn", the alias "Khi Linh"). These are removed
+# before verification unless the exact name is approved, an alias, or declared by the author.
+PRONOUN_TITLE_WORDS = frozenset({
+    'anh', 'chị', 'em', 'ông', 'bà', 'cô', 'chú', 'bác', 'cậu', 'dì', 'thím', 'mợ', 'cụ', 'cháu', 'con',
+    'bố', 'mẹ', 'cha', 'má', 'ba', 'tôi', 'ta', 'mình', 'nó', 'họ', 'hắn', 'thầy', 'ngài', 'nàng',
+    'chàng', 'lão', 'bé', 'người', 'ai', 'gì', 'đây', 'kia', 'ấy', 'chúng', 'các', 'những'})
+LEADING_FUNCTION_WORDS = frozenset({
+    'khi', 'nếu', 'rồi', 'nhưng', 'và', 'còn', 'thì', 'lúc', 'sau', 'trước', 'để', 'vì', 'cho', 'với',
+    'từ', 'ở', 'trong', 'ngoài', 'trên', 'dưới', 'tại', 'theo', 'bởi', 'nên', 'mà', 'là', 'có', 'không',
+    'chỉ', 'cả', 'mỗi', 'những', 'các', 'một', 'này', 'đó', 'hôm', 'đêm', 'sáng', 'chiều', 'tối', 'giờ',
+    'bây', 'vẫn', 'đã', 'đang', 'sẽ', 'cũng', 'lại', 'hãy', 'đừng', 'xin', 'cảm', 'ngay'})
+# Surnames rarely used alone as a given name; dropped only when a fuller name with them exists.
+SURNAME_ONLY = frozenset({'nguyễn', 'trần', 'lê', 'phạm', 'huỳnh', 'phan', 'võ', 'đặng', 'bùi', 'đỗ',
+                          'ngô', 'trịnh', 'đinh'})
+
+
+def noise_reason(surface: str, longer_first_tokens: set[str]) -> str | None:
+    words = unicodedata.normalize('NFC', surface).split()
+    if not words:
+        return None
+    first = words[0].casefold()
+    if len(words) == 1 and first in PRONOUN_TITLE_WORDS:
+        return 'pronoun_or_title'
+    if len(words) > 1 and first in LEADING_FUNCTION_WORDS:
+        return 'leading_function_word'
+    if len(words) == 1 and first in SURNAME_ONLY and first in longer_first_tokens:
+        return 'lone_surname'
+    return None
+
 
 def same_name(left, right):
     return unicodedata.normalize('NFC', left).casefold() == unicodedata.normalize('NFC', right).casefold()
@@ -101,6 +131,21 @@ class CandidateInventory:
         offset = 0 if chunk is None else chunk.start
         for start, end in occurrences(source, name, offset=offset):
             self.add(start, end, origin)
+
+    def prune(self, protected=()):
+        """Drop noise candidates (see noise_reason); protected exact names are always kept."""
+        keep = {unicodedata.normalize('NFC', n).casefold() for n in protected if n}
+        longer = {unicodedata.normalize('NFC', c.surface).split()[0].casefold()
+                  for c in self._items.values() if len(c.surface.split()) > 1}
+        removed = {}
+        for key, cand in list(self._items.items()):
+            if unicodedata.normalize('NFC', cand.surface).casefold() in keep:
+                continue
+            reason = noise_reason(cand.surface, longer)
+            if reason:
+                del self._items[key]
+                removed[reason] = removed.get(reason, 0) + 1
+        return removed
 
     def collect(self, known_names=()):
         for name in known_names:

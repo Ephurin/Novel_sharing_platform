@@ -1,0 +1,19 @@
+
+> ephurin-web@0.1.0 test:p1-checkpoint-real
+> node --test tests/p1-entity-checkpoint-real.browser.test.mjs
+
+TAP version 13
+# Subtest: Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial reload, CAS, Freeze and Canon readback
+ok 1 - Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial reload, CAS, Freeze and Canon readback
+  ---
+  duration_ms: 18826.0877
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 19461.7804

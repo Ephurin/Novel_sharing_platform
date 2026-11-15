@@ -1,0 +1,15 @@
+{
+  "source_sha": "5f2a950298c22cf089819ae887055e6c88d6e715",
+  "command": "node --test web/tests/planning-studio.browser.test.mjs web/tests/setup-foundation.browser.test.mjs",
+  "exit_code": 0,
+  "passed": 9,
+  "failed": 0,
+  "skipped": 0,
+  "label": "Actual Vite main/router/Author IDE on Edge Chromium, HTTP mocks. Not browser-to-real-DB.",
+  "channel": "msedge",
+  "dedicated_typecheck": {
+    "command": "npm --prefix web run typecheck",
+    "exit_code": 0,
+    "application_tree_matches_source": true
+  }
+}

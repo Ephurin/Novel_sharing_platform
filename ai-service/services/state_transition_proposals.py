@@ -1,5 +1,6 @@
 """Generate reviewable state changes; the LLM never mutates canonical state."""
 import json
+import logging
 import uuid
 from typing import Any
 
@@ -8,6 +9,8 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from core.exceptions import StateExtractionError
 from domain.models import NarrativeProposal
 from services.state_extraction import _parse_items
+
+logger = logging.getLogger(__name__)
 
 
 class TransitionOutput(BaseModel):
@@ -47,7 +50,10 @@ def generate_state_transition_proposals(event: NarrativeProposal, llm_service, *
         if identity_resolver is not None:
             identity = identity_resolver(change.entity)
             if identity not in participants:
-                raise ValueError('State transition subject must participate in its source event')
+                # The model sometimes attributes a change to someone outside the event (live round 4).
+                # Like the legacy path, drop that suggestion instead of failing the whole chapter.
+                logger.warning('Dropped state transition whose subject is not an event participant')
+                continue
             if change.attribute_key == 'active_relationships':
                 if not isinstance(change.new_value, dict):
                     raise ValueError('Relationship state must be a mapping')

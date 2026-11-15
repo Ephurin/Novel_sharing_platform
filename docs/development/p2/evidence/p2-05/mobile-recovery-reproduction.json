@@ -1,0 +1,31 @@
+{
+  "failed_pr_head": "b2858b34e53424f0201e353a7bf0cdf9c2964e78",
+  "actual_historical_checkout": "41f1cef064cf1cc9d81190f69fc8c44d8c49966b",
+  "tree": "29fb1c6fa5f8818d41a2b2f453f1d502af4d6451",
+  "run_url": "https://github.com/Ephurin/Novel_sharing_platform/actions/runs/42508943110",
+  "artifact_id": 13628945697,
+  "artifact_sha256": "b83e266e92d5d4b872374ee136aa104a026dcffb46ed197cd0292a26e0e80913",
+  "result": "FAIL; not an acceptance PASS",
+  "symptom": "Mobile Restore click never reached its handler; device backup remained correct.",
+  "diagnostic_mode": "Local working tree with temporary geometry/boolean logging only; instrumentation removed, not acceptance source.",
+  "pointer_trace": [
+    {
+      "event": "pointerdown",
+      "recovery_target": true,
+      "x": 132.42,
+      "y": 477.67,
+      "scroll_top": 429
+    },
+    {
+      "event": "pointerup",
+      "recovery_target": false,
+      "x": 132.42,
+      "y": 477.67,
+      "scroll_top": 471
+    }
+  ],
+  "root_cause": "Delayed summary readback reflowed the scroll container between down/up, shifting the button by 42px.",
+  "fix": "Native inert planning cards during scoped summary readback; synchronous aria-busy on navigation. Keep Writer reachable; failure settles to unknown rather than success.",
+  "regression": "Deterministic delayed summary gate, preserved cached note before/after scope switch, real click after readback, plus logout/login form recovery.",
+  "fixed_source": "3560e1a73112999e0b7e0d19006834a65338e711"
+}

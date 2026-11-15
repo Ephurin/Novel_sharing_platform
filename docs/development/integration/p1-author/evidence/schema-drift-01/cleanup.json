@@ -1,0 +1,9 @@
+{
+  "command": [
+    "docker",
+    "stop",
+    "codex-schema-drift-f9a2df4709"
+  ],
+  "exit_code": 0,
+  "scope": "Only task-owned container; retained stopped for review, no shared resources touched"
+}

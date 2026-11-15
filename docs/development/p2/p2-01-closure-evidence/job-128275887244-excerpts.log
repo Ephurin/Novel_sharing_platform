@@ -1,0 +1,18 @@
+2026-11-07T02:42:40.0304331Z
+2026-11-07T02:42:40.0305111Z HEAD is now at e99ae84 Merge a4e602a5b59dad74d112efd188155aefdaed5323 into 3adab5c73636bd4e7c3dbc6578d4ece0a54b5627
+2026-11-07T02:42:40.0349719Z ##[endgroup]
+2026-11-07T02:44:35.8862489Z ======================================================================
+2026-11-07T02:44:35.8863013Z VERDICT: 15/15 CHECKPOINTS PASSED (0 FAILED)
+2026-11-07T02:44:35.8863394Z GATE AI-PIPE-01A: PASS
+2026-11-07T02:44:40.9119357Z
+2026-11-07T02:44:40.9119573Z Result: 13/13 CHECKPOINTS PASSED (0 FAILED)
+2026-11-07T02:44:40.9639487Z ##[group]Run python scripts/verify_ai_pipe_02a_idea_bootstrap_evidence.py
+2026-11-07T02:44:41.0036008Z        Verdict: P2_IDEA_BOOTSTRAP_PASS
+2026-11-07T02:44:41.0036245Z        Checkpoints: 13/13 passed
+2026-11-07T02:44:41.0131947Z ##[group]Run docker compose exec -T -e APP_ENV=test ai-service pytest tests/test_idea_bootstrap_routes.py -q
+2026-11-07T02:44:47.7197712Z        Verdict: P2_OUTLINE_PLANNING_PASS
+2026-11-07T02:44:47.7198136Z        Checkpoints: 16/16 passed
+2026-11-07T02:44:47.7280466Z ##[group]Run docker compose exec -T -e APP_ENV=test ai-service pytest tests/test_story_plan_routes.py -q
+2026-11-07T02:45:07.7214221Z
+2026-11-07T02:45:07.7214436Z Gate AI-PIPE-03A Verification PASS.
+2026-11-07T02:45:07.7275296Z ##[group]Run docker compose exec -T -e APP_ENV=test ai-service pytest tests/test_autonomous_routes.py -q

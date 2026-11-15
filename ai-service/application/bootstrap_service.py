@@ -10,8 +10,8 @@ from typing import Any
 
 from application.ports import ContentHashMismatchError, RevisionContentProvider
 from application.revision_analysis_service import RevisionAnalysisService
-from domain.errors import BaselineReviewRequiredError, BootstrapLimitExceededError
-from domain.models import BootstrapJob, BootstrapRevision, NarrativeProposal, ProposalStatus
+from domain.errors import BaselineReviewRequiredError, BootstrapLimitExceededError, BootstrapConflictError
+from domain.models import BootstrapJob, BootstrapRevision, NarrativeProposal, ProposalStatus, AnalysisRun
 from domain.repositories import NarrativeRepository
 
 
@@ -35,6 +35,43 @@ class ManuscriptBootstrapService:
         self._max_chapters = max_chapters
         self._max_characters = max_characters
 
+    def _scope(self, tenant_id):
+        configured = getattr(self._repository, '_tenant_id', None)
+        if configured is not None and str(configured) != str(tenant_id):
+            raise PermissionError('TENANT_SCOPE_MISMATCH')
+
+    @staticmethod
+    def _key(tenant, novel, kind, key):
+        return str(uuid.uuid5(uuid.NAMESPACE_URL, f'bootstrap-key:{tenant}:{novel}:{kind}:{key}'))
+
+    def _replay(self, job_id, tenant, novel, input_hash):
+        try:
+            job = self._repository.get_bootstrap_job(job_id)
+        except KeyError:
+            return None
+        if job.tenant_id != tenant or job.novel_id != novel:
+            raise PermissionError('SCOPE_MISMATCH')
+        stored = (job.result or {}).get('bootstrap_input_hash')
+        if stored is not None and stored != input_hash:
+            from domain.errors import IdempotencyConflictError
+            raise IdempotencyConflictError(job_id)
+        return job
+
+    def _preflight_active(self, novel):
+        try:
+            brain = self._repository.get_story_brain(novel, read_only=True)
+        except KeyError:
+            return
+        if brain.metadata.get('status') == 'active':
+            raise BootstrapConflictError('ALREADY_ACTIVE')
+
+    def _require_lifecycle(self):
+        if not getattr(self._repository, 'supports_bootstrap_lifecycle', False):
+            raise BootstrapConflictError('BOOTSTRAP_REQUIRES_POSTGRES')
+    def _reserve(self, job):
+        self._require_lifecycle()
+        return self._repository.create_bootstrap_job(job)
+
     def start(
         self,
         *,
@@ -43,7 +80,18 @@ class ManuscriptBootstrapService:
         revisions: list[dict[str, str]],
         locale: str,
         options: dict[str, bool],
+        idempotency_key: str | None = None,
     ) -> BootstrapJob:
+        self._scope(tenant_id)
+        identity = json.dumps({"tenant_id": tenant_id, "novel_id": novel_id, "revisions": revisions, "options": options}, sort_keys=True)
+        job_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"bootstrap:{identity}")) if not idempotency_key else self._key(tenant_id, novel_id, 'manuscript', idempotency_key)
+        request_hash = hashlib.sha256((identity + (locale if idempotency_key else "")).encode()).hexdigest()
+        replay = self._replay(job_id, tenant_id, novel_id, request_hash)
+        if replay: return replay
+        # Unsupported adapters fail before the read-only port or source work.
+        # Exact persisted replay above remains nonmutating and compatible.
+        self._require_lifecycle()
+        self._preflight_active(novel_id)
         # Preflight immutable content so the HTTP contract can reject bad hash/limits
         # before a durable job is accepted.
         total_characters = 0
@@ -70,7 +118,7 @@ class ManuscriptBootstrapService:
             {"tenant_id": tenant_id, "novel_id": novel_id, "revisions": revisions, "options": options},
             sort_keys=True,
         )
-        job_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"bootstrap:{identity}"))
+        job_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"bootstrap:{identity}")) if not idempotency_key else self._key(tenant_id, novel_id, "manuscript", idempotency_key)
         job = BootstrapJob(
             job_id=job_id,
             novel_id=novel_id,
@@ -78,8 +126,9 @@ class ManuscriptBootstrapService:
             revisions=tuple(BootstrapRevision(**item) for item in revisions),
             locale=locale,
             options=options,
+            result={"bootstrap_input_hash": request_hash},
         )
-        return self._repository.create_bootstrap_job(job)
+        return self._reserve(job)
 
     def start_from_idea(
         self,
@@ -91,7 +140,12 @@ class ManuscriptBootstrapService:
         locale: str = "vi-VN",
         preferences: dict[str, Any] | None = None,
         author_constraints: list[str] | None = None,
+        mode: str = "blueprint",
+        idempotency_key: str | None = None,
     ) -> BootstrapJob:
+        self._scope(tenant_id)
+        if mode != "blueprint":
+            raise ValueError("EXTRACT_NOT_IMPLEMENTED" if mode == "extract" else "INVALID_MODE")
         if not idea or not idea.strip():
             raise ValueError("idea must not be empty")
 
@@ -112,130 +166,46 @@ class ManuscriptBootstrapService:
             },
             sort_keys=True,
         )
-        job_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"bootstrap-idea:{identity}"))
-
-        try:
-            existing_job = self._repository.get_bootstrap_job(job_id)
-            if existing_job:
-                return existing_job
-        except KeyError:
-            pass
-
+        job_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"bootstrap-idea:{identity}")) if not idempotency_key else self._key(tenant_id, novel_id, 'idea', idempotency_key)
+        input_hash = hashlib.sha256(identity.encode("utf-8")).hexdigest()
+        replay = self._replay(job_id, tenant_id, novel_id, input_hash)
+        if replay: return replay
+        token = str(uuid.uuid4())
+        reservation = BootstrapJob(job_id=job_id, tenant_id=tenant_id, novel_id=novel_id,
+            revisions=(), locale=locale, options={"from_idea": True, "require_review_for_all": True},
+            status="running", stage="blueprint", result={"bootstrap_input_hash": input_hash,
+                "reservation_token": token, "mode": "blueprint", "origin": "model_proposed" if self._llm_service else "author_supplied",
+                "source_hash": input_hash, "contract_version": "p2-01a-v1"})
+        reserved = self._reserve(reservation)
+        if (reserved.result or {}).get('reservation_token') != token:
+            return reserved
         brain = self._repository.get_story_brain(novel_id)
         brain_version = int(brain.metadata.get("brain_version", "1"))
+        try:
+            blueprint = self._generate_blueprint(idea=idea, outline=outline,
+                preferences=preferences, author_constraints=author_constraints)
+        except Exception:
+            self._repository.fail_bootstrap_job(reserved)
+            raise
+        try:
+            run = AnalysisRun(run_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"bootstrap-run:{job_id}")),
+                idempotency_key=f"{tenant_id}:bootstrap-idea:{job_id}", input_hash=input_hash,
+                operation="bootstrap_idea", pipeline_version="idea-bootstrap-v1", status="pending")
 
-        blueprint = self._generate_blueprint(
-            idea=idea,
-            outline=outline,
-            preferences=preferences,
-            author_constraints=author_constraints,
-        )
+            group_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"proposal-group:{run.run_id}"))
+            proposals: list[NarrativeProposal] = []
 
-        input_hash = hashlib.sha256(identity.encode("utf-8")).hexdigest()
-        run = self._repository.get_or_create_analysis_run(
-            novel_id,
-            idempotency_key=f"{tenant_id}:bootstrap-idea:{job_id}",
-            input_hash=input_hash,
-            operation="bootstrap_idea",
-            pipeline_version="idea-bootstrap-v1",
-        )
-
-        group_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"proposal-group:{run.run_id}"))
-        proposals: list[NarrativeProposal] = []
-
-        # 1. Premise proposal (fact)
-        premise_text = blueprint.get("premise", idea).strip()
-        premise_hash = hashlib.sha256(premise_text.casefold().encode("utf-8")).hexdigest()[:16]
-        proposals.append(
-            NarrativeProposal(
-                proposal_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"prop:{run.run_id}:premise:{premise_hash}")),
-                proposal_type="fact",
-                payload={
-                    "fact_type": "premise",
-                    "fact_key": "story_premise",
-                    "fact_value": premise_text,
-                    "priority": 100,
-                },
-                analysis_run_id=run.run_id,
-                dependency_group_id=group_id,
-                materialization_order=len(proposals),
-                evidence=(),
-                confidence=1.0,
-                expected_brain_version=brain_version,
-                status=ProposalStatus.PENDING,
-            )
-        )
-
-        # 2. World Rules proposals (fact)
-        for rule in blueprint.get("world_rules", []):
-            rule_str = str(rule).strip()
-            if not rule_str:
-                continue
-            rule_hash = hashlib.sha256(rule_str.casefold().encode("utf-8")).hexdigest()[:16]
+            # 1. Premise proposal (fact)
+            premise_text = blueprint.get("premise", idea).strip()
+            premise_hash = hashlib.sha256(premise_text.casefold().encode("utf-8")).hexdigest()[:16]
             proposals.append(
                 NarrativeProposal(
-                    proposal_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"prop:{run.run_id}:rule:{rule_hash}")),
+                    proposal_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"prop:{run.run_id}:premise:{premise_hash}")),
                     proposal_type="fact",
                     payload={
-                        "fact_type": "world_rule",
-                        "fact_key": f"world_rule_{rule_hash}",
-                        "fact_value": rule_str,
-                        "priority": 100,
-                    },
-                    analysis_run_id=run.run_id,
-                    dependency_group_id=group_id,
-                    materialization_order=len(proposals),
-                    evidence=(),
-                    confidence=0.95,
-                    expected_brain_version=brain_version,
-                    status=ProposalStatus.PENDING,
-                )
-            )
-
-        # 3. Entity proposals (entity)
-        for ent in blueprint.get("entities", []):
-            name = str(ent.get("name", "")).strip()
-            if not name:
-                continue
-            ent_type = str(ent.get("type") or ent.get("entity_type") or "character").lower()
-            if ent_type not in {"character", "location", "organization", "item"}:
-                ent_type = "character"
-            ent_hash = hashlib.sha256(name.casefold().encode("utf-8")).hexdigest()[:16]
-            score_val = float(ent.get("score", 9.0))
-            confidence = score_val / 10.0 if score_val > 1.0 else score_val
-            proposals.append(
-                NarrativeProposal(
-                    proposal_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"prop:{run.run_id}:entity:{ent_hash}")),
-                    proposal_type="entity",
-                    payload={
-                        "canonical_name": name,
-                        "normalized_name": name.casefold(),
-                        "entity_type": ent_type,
-                    },
-                    analysis_run_id=run.run_id,
-                    dependency_group_id=group_id,
-                    materialization_order=len(proposals),
-                    evidence=(),
-                    confidence=confidence,
-                    expected_brain_version=brain_version,
-                    status=ProposalStatus.PENDING,
-                )
-            )
-
-        # 4. Author constraints (fact)
-        for constraint in author_constraints:
-            c_str = str(constraint).strip()
-            if not c_str:
-                continue
-            c_hash = hashlib.sha256(c_str.casefold().encode("utf-8")).hexdigest()[:16]
-            proposals.append(
-                NarrativeProposal(
-                    proposal_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"prop:{run.run_id}:constraint:{c_hash}")),
-                    proposal_type="fact",
-                    payload={
-                        "fact_type": "world_rule",
-                        "fact_key": f"author_constraint_{c_hash}",
-                        "fact_value": c_str,
+                        "fact_type": "premise",
+                        "fact_key": "story_premise",
+                        "fact_value": premise_text,
                         "priority": 100,
                     },
                     analysis_run_id=run.run_id,
@@ -248,24 +218,108 @@ class ManuscriptBootstrapService:
                 )
             )
 
-        self._repository.save_proposals(novel_id, proposals)
+            # 2. World Rules proposals (fact)
+            for rule in blueprint.get("world_rules", []):
+                rule_str = str(rule).strip()
+                if not rule_str:
+                    continue
+                rule_hash = hashlib.sha256(rule_str.casefold().encode("utf-8")).hexdigest()[:16]
+                proposals.append(
+                    NarrativeProposal(
+                        proposal_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"prop:{run.run_id}:rule:{rule_hash}")),
+                        proposal_type="fact",
+                        payload={
+                            "fact_type": "world_rule",
+                            "fact_key": f"world_rule_{rule_hash}",
+                            "fact_value": rule_str,
+                            "priority": 100,
+                        },
+                        analysis_run_id=run.run_id,
+                        dependency_group_id=group_id,
+                        materialization_order=len(proposals),
+                        evidence=(),
+                        confidence=0.95,
+                        expected_brain_version=brain_version,
+                        status=ProposalStatus.PENDING,
+                    )
+                )
 
-        job = BootstrapJob(
-            job_id=job_id,
-            novel_id=novel_id,
-            tenant_id=tenant_id,
-            revisions=(),
-            locale=locale,
-            options={"from_idea": True, "require_review_for_all": True},
-            status="waiting_review",
-            stage="review",
-            result={
-                "proposal_count": len(proposals),
-                "required_proposal_ids": [p.proposal_id for p in proposals],
-                "duplicate_candidate_groups": [],
-            },
-        )
-        return self._repository.create_bootstrap_job(job)
+            # 3. Entity proposals (entity)
+            for ent in blueprint.get("entities", []):
+                name = str(ent.get("name", "")).strip()
+                if not name:
+                    continue
+                ent_type = str(ent.get("type") or ent.get("entity_type") or "character").lower()
+                if ent_type not in {"character", "location", "organization", "item"}:
+                    ent_type = "character"
+                ent_hash = hashlib.sha256(name.casefold().encode("utf-8")).hexdigest()[:16]
+                score_val = float(ent.get("score", 9.0))
+                confidence = score_val / 10.0 if score_val > 1.0 else score_val
+                proposals.append(
+                    NarrativeProposal(
+                        proposal_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"prop:{run.run_id}:entity:{ent_hash}")),
+                        proposal_type="entity",
+                        payload={
+                            "canonical_name": name,
+                            "normalized_name": name.casefold(),
+                            "entity_type": ent_type,
+                        },
+                        analysis_run_id=run.run_id,
+                        dependency_group_id=group_id,
+                        materialization_order=len(proposals),
+                        evidence=(),
+                        confidence=confidence,
+                        expected_brain_version=brain_version,
+                        status=ProposalStatus.PENDING,
+                    )
+                )
+
+            # 4. Author constraints (fact)
+            for constraint in author_constraints:
+                c_str = str(constraint).strip()
+                if not c_str:
+                    continue
+                c_hash = hashlib.sha256(c_str.casefold().encode("utf-8")).hexdigest()[:16]
+                proposals.append(
+                    NarrativeProposal(
+                        proposal_id=str(uuid.uuid5(uuid.NAMESPACE_URL, f"prop:{run.run_id}:constraint:{c_hash}")),
+                        proposal_type="fact",
+                        payload={
+                            "fact_type": "world_rule",
+                            "fact_key": f"author_constraint_{c_hash}",
+                            "fact_value": c_str,
+                            "priority": 100,
+                        },
+                        analysis_run_id=run.run_id,
+                        dependency_group_id=group_id,
+                        materialization_order=len(proposals),
+                        evidence=(),
+                        confidence=1.0,
+                        expected_brain_version=brain_version,
+                        status=ProposalStatus.PENDING,
+                    )
+                )
+
+            job = BootstrapJob(
+                job_id=job_id,
+                novel_id=novel_id,
+                tenant_id=tenant_id,
+                revisions=(),
+                locale=locale,
+                options={"from_idea": True, "require_review_for_all": True},
+                status="waiting_review",
+                stage="review",
+                result={
+                    **(reserved.result or {}),
+                    "proposal_count": len(proposals),
+                    "required_proposal_ids": [p.proposal_id for p in proposals],
+                    "duplicate_candidate_groups": [],
+                },
+            )
+            return self._repository.finalize_idea_bootstrap(job, proposals, run)
+        except Exception:
+            self._repository.fail_bootstrap_job(reserved)
+            raise
 
     def _generate_blueprint(
         self,
@@ -320,7 +374,14 @@ class ManuscriptBootstrapService:
         job = self._repository.get_bootstrap_job(job_id)
         if job.status in {"waiting_review", "completed", "cancelled"}:
             return job
-        job = self._repository.save_bootstrap_job(replace(job, status="running", stage="chapter_analysis"))
+        if job.status == "waiting_entity_review" and not self.chapter_settled(job):
+            return job
+        try:
+            job = self._repository.start_bootstrap_processing(job_id)
+        except BootstrapConflictError as exc:
+            if exc.code == 'BOOTSTRAP_IN_PROGRESS':
+                return self._repository.get_bootstrap_job(job_id)
+            raise
         revisions = list(job.revisions)
         scene_count = int((job.result or {}).get("scene_count", 0))
         try:
@@ -364,11 +425,22 @@ class ManuscriptBootstrapService:
                         job,
                         revisions=tuple(revisions),
                         progress_current=sum(r.status == "completed" for r in revisions),
-                        result={"scene_count": scene_count},
+                        result={**(job.result or {}), "scene_count": scene_count},
                     )
                 )
+                # Entity-first: the next chapter must be analysed against the canon this chapter's
+                # review produces (accepting proposals moves the brain version, which would make
+                # every chapter analysed earlier unreviewable). Pause until the author settles it.
+                if getattr(result, "status", "completed") == "waiting_entity_review" and any(
+                        r.status != "completed" for r in revisions[index + 1:]):
+                    return self._repository.save_bootstrap_job(replace(
+                        job, status="waiting_entity_review", stage="chapter_review",
+                        result={**(job.result or {}), "scene_count": scene_count,
+                                "awaiting_analysis_run_id": result.analysis_run.run_id,
+                                "awaiting_chapter": index + 1}))
             proposals = self._repository.list_proposals(job.novel_id, status="pending")
             result = {
+                **(job.result or {}),
                 "proposal_count": len(proposals),
                 "required_proposal_ids": [
                     item.proposal_id for item in proposals
@@ -390,16 +462,36 @@ class ManuscriptBootstrapService:
     def get_job(self, job_id: str) -> BootstrapJob:
         return self._repository.get_bootstrap_job(job_id)
 
+    def validate_resume(self, job: BootstrapJob) -> None:
+        if job.options.get('from_idea') and job.status == 'failed':
+            raise BootstrapConflictError('IDEA_BOOTSTRAP_RETRY_UNSUPPORTED')
+        if job.status == 'waiting_entity_review' and not self.chapter_settled(job):
+            raise BootstrapConflictError('BOOTSTRAP_CHAPTER_REVIEW_PENDING')
+
+    def chapter_settled(self, job: BootstrapJob) -> bool:
+        """The paused chapter has no open entity review and no pending proposals left."""
+        run_id = (job.result or {}).get('awaiting_analysis_run_id')
+        if not run_id:
+            return True
+        list_reviews = getattr(self._repository, 'list_entity_reviews', None)
+        if callable(list_reviews) and any(r.get('analysis_run_id') == run_id for r in list_reviews(job.novel_id)):
+            return False
+        return not any(p.analysis_run_id == run_id
+                       for p in self._repository.list_proposals(job.novel_id, status='pending'))
+
     def resume(self, job_id: str) -> BootstrapJob:
         job = self._repository.get_bootstrap_job(job_id)
-        if job.status == "failed":
-            job = self._repository.save_bootstrap_job(
-                replace(job, status="queued", stage="queued", error=None)
-            )
+        if job.status == 'waiting_entity_review' and not self.chapter_settled(job):
+            return job
+        self.validate_resume(job)
+        if job.options.get('from_idea'):
+            # Exact replay returns its persisted failure; a new operation is explicit.
+            return job
         return self.process(job.job_id)
 
     def review_queue(self, novel_id: str) -> list[dict[str, Any]]:
         proposals = self._repository.list_proposals(novel_id, status="pending")
+        proposals = [p for p in proposals if not any(e.get('setup_snapshot_id') for e in p.evidence)]
         duplicates = self._duplicate_groups(proposals)
         duplicate_ids = {
             proposal_id for group in duplicates for proposal_id in group["proposal_ids"]
@@ -417,22 +509,33 @@ class ManuscriptBootstrapService:
         return sorted(queue, key=lambda item: (-item["review_priority"], item["materialization_order"]))
 
     def activate_baseline(self, novel_id: str, job_id: str) -> dict[str, Any]:
+        self._require_lifecycle()
         job = self._repository.get_bootstrap_job(job_id)
         if job.novel_id != novel_id:
             raise KeyError(job_id)
+        if (job.result or {}).get('contract_version') == 'setup-v1':
+            raise BootstrapConflictError('SETUP_ACTIVATION_NOT_AVAILABLE')
+        # With the entity-first checkpoint on, a bootstrap chapter pauses for the author's entity
+        # review and its proposals only exist after "continue". The baseline is activated after
+        # review, so it waits for those reviews and for every proposal the job's runs produced.
+        run_ids = {item.analysis_run_id for item in job.revisions if item.analysis_run_id}
+        list_reviews = getattr(self._repository, "list_entity_reviews", None)
+        if run_ids and callable(list_reviews):
+            try:
+                reviews = list_reviews(novel_id)
+            except BootstrapConflictError:
+                reviews = []
+            if any(r.get("analysis_run_id") in run_ids for r in reviews):
+                raise BootstrapConflictError("BOOTSTRAP_ENTITY_REVIEW_PENDING")
         required = set((job.result or {}).get("required_proposal_ids", []))
-        pending = {
-            item.proposal_id
-            for item in self._repository.list_proposals(novel_id, status="pending")
-        }
-        unresolved = sorted(required & pending)
+        pending_items = self._repository.list_proposals(novel_id, status="pending")
+        pending = {item.proposal_id for item in pending_items}
+        produced = {item.proposal_id for item in pending_items if item.analysis_run_id in run_ids}
+        unresolved = sorted((required & pending) | produced)
         if unresolved:
             raise BaselineReviewRequiredError(unresolved)
         baseline_revision_id = job.revisions[-1].revision_id if job.revisions else None
         result = self._repository.activate_baseline(novel_id, job_id, baseline_revision_id)
-        self._repository.save_bootstrap_job(
-            replace(job, status="completed", stage="completed", result={**(job.result or {}), **result})
-        )
         return result
 
     @staticmethod

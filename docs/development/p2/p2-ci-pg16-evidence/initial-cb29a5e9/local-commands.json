@@ -1,0 +1,67 @@
+[
+  {
+    "name": "workflow-structure-and-python-syntax",
+    "exit_code": 0,
+    "source_sha": "cb29a5e9ac94186c0615db2cfe448f4979404002",
+    "retained_safety_steps": [
+      "Prepare source database and seed canonical cutover fixture",
+      "Capture source schema/version/snapshot",
+      "Verify restored migration state and canonical parity",
+      "Prove source database was not mutated by rehearsal restore"
+    ],
+    "other_p8_jobs_unchanged": true
+  },
+  {
+    "name": "wrapper-bash-syntax",
+    "command": [
+      "C:\\Program Files\\Git\\bin\\bash.exe",
+      "-n",
+      "scripts/p8_pg16_client.sh"
+    ],
+    "exit_code": 0,
+    "source_sha": "cb29a5e9ac94186c0615db2cfe448f4979404002"
+  },
+  {
+    "name": "workflow-bash-syntax",
+    "command": [
+      "C:\\Program Files\\Git\\bin\\bash.exe",
+      "-n",
+      "C:\\Users\\Laptop\\AppData\\Local\\Temp\\tmp5uvw6ot7.sh"
+    ],
+    "exit_code": 0,
+    "source_sha": "cb29a5e9ac94186c0615db2cfe448f4979404002"
+  },
+  {
+    "name": "readback-cli",
+    "command": [
+      "python",
+      "scripts/p8_rollback_readback.py",
+      "--help"
+    ],
+    "exit_code": 0,
+    "source_sha": "cb29a5e9ac94186c0615db2cfe448f4979404002"
+  },
+  {
+    "name": "source-diff",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "3adab5c73636bd4e7c3dbc6578d4ece0a54b5627",
+      "cb29a5e9ac94186c0615db2cfe448f4979404002"
+    ],
+    "exit_code": 0,
+    "source_sha": "cb29a5e9ac94186c0615db2cfe448f4979404002"
+  },
+  {
+    "name": "docker",
+    "command": [
+      "docker",
+      "version",
+      "--format",
+      "{{.Server.Version}}"
+    ],
+    "exit_code": 1,
+    "source_sha": "cb29a5e9ac94186c0615db2cfe448f4979404002"
+  }
+]

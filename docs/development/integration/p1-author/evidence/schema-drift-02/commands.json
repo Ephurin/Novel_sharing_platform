@@ -1,0 +1,71 @@
+[
+  {
+    "label": "migration-matrix",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "tests/test_entity_profile_audit_timestamp_migration.py",
+      "tests/test_revision_provenance_timestamp_migration.py"
+    ],
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "sha": "bee3702ad1c600f66fc0ddb2724e16a9d8ec626e",
+    "tree": "6064e288179ac5e84e30f6f3bdd78c6cc8dd8001"
+  },
+  {
+    "label": "upgrade-owned-existing",
+    "command": [
+      "python",
+      "-m",
+      "alembic",
+      "upgrade",
+      "head"
+    ],
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "sha": "bee3702ad1c600f66fc0ddb2724e16a9d8ec626e",
+    "tree": "6064e288179ac5e84e30f6f3bdd78c6cc8dd8001"
+  },
+  {
+    "label": "ax01-functional-fake-generation",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "tests/test_entity_profiles.py",
+      "tests/test_entity_profile_remediation.py"
+    ],
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "sha": "bee3702ad1c600f66fc0ddb2724e16a9d8ec626e",
+    "tree": "6064e288179ac5e84e30f6f3bdd78c6cc8dd8001"
+  },
+  {
+    "label": "existing-canon-rollback",
+    "command": [
+      "python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-ra",
+      "tests/test_semantic_memory_postgres_integration.py",
+      "-k",
+      "migration_downgrade_reupgrade_preserves_canonical_data"
+    ],
+    "cwd": "ai-service",
+    "exit_code": 0,
+    "sha": "bee3702ad1c600f66fc0ddb2724e16a9d8ec626e",
+    "tree": "6064e288179ac5e84e30f6f3bdd78c6cc8dd8001"
+  }
+]

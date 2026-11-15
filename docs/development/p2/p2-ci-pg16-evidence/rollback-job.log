@@ -1,0 +1,56 @@
+2026-11-07T04:06:35.9832169Z
+2026-11-07T04:06:35.9832789Z HEAD is now at 938d5f9 Merge 2b365505551c51c71884ee7c340ada5273a5fe3c into 3adab5c73636bd4e7c3dbc6578d4ece0a54b5627
+2026-11-07T04:06:35.9896738Z ##[endgroup]
+2026-11-07T04:06:38.3365453Z   version="$(docker exec "$P8_PG_CONTAINER" "$tool" --version)"
+2026-11-07T04:06:38.3365850Z   echo "matched $version"
+2026-11-07T04:06:38.3366370Z   [[ "$version" =~ PostgreSQL\)\ 16\. ]]
+2026-11-07T04:06:38.3438739Z ##[endgroup]
+2026-11-07T04:06:38.4701523Z pg_dump (PostgreSQL) 18.6 (Ubuntu 18.6-1.pgdg26.04+2)
+2026-11-07T04:06:38.5893143Z matched pg_dump (PostgreSQL) 16.15 (Debian 16.15-1.pgdg12+2)
+2026-11-07T04:06:38.6491955Z pg_restore (PostgreSQL) 18.6 (Ubuntu 18.6-1.pgdg26.04+2)
+2026-11-07T04:06:38.7415552Z matched pg_restore (PostgreSQL) 16.15 (Debian 16.15-1.pgdg12+2)
+2026-11-07T04:06:38.8044025Z psql (PostgreSQL) 18.6 (Ubuntu 18.6-1.pgdg26.04+2)
+2026-11-07T04:06:38.8971126Z matched psql (PostgreSQL) 16.15 (Debian 16.15-1.pgdg12+2)
+2026-11-07T04:06:38.9142637Z sha256:0dd3149a06e4579a0d70d8fef9945636cd514005e7237deb27f9b67886f8dc4f
+2026-11-07T04:06:39.0047176Z 16.15 (Debian 16.15-1.pgdg12+2)
+2026-11-07T04:06:39.0048087Z 160015
+2026-11-07T04:06:39.1121944Z ##[group]Run pip install -r requirements.txt pytest httpx
+2026-11-07T04:06:39.1122573Z pip install -r requirements.txt pytest httpx
+2026-11-07T04:06:55.3943339Z ##[endgroup]
+2026-11-07T04:06:56.4190275Z ##[group]Run python -m unittest discover -s scripts/tests -p test_p8_rollback_readback.py -v
+2026-11-07T04:06:56.4191512Z python -m unittest discover -s scripts/tests -p test_p8_rollback_readback.py -v
+2026-11-07T04:06:56.7710375Z ##[endgroup]
+2026-11-07T04:06:57.0920773Z {"comparison": "CAPTURED", "database": "p8_rehearsal", "pgvector_distance": 0.0, "raw_sha256": "98ab0fec8ea031d242a7920910456dd9096ad03cce5ff83d63e0b019f256880b", "rows": {"narrative.analysis_runs": 0, "narrative.autonomous_runs": 0, "narrative.bootstrap_jobs": 0, "narrative.current_entity_states": 0, "narrative.entities": 1, "narrative.entity_aliases": 0, "narrative.entity_mentions": 0, "narrative.entity_profile_audits": 0, "narrative.event_participants": 0, "narrative.events": 0, "narrative.facts": 0, "narrative.memory_chunks": 0, "narrative.memory_embeddings": 0, "narrative.proposal_decisions": 0, "narrative.proposals": 0, "narrative.relationships": 0, "narrative.revision_provenances": 0, "narrative.state_transitions": 0, "narrative.story_brains": 1, "narrative.story_plan_objectives": 0, "narrative.story_plans": 0, "narrative.writing_generations": 0, "public.alembic_version": 1}, "schema_normalization": "explicit varchar array to text element casts only", "sha256": "ae2524f1b8c92b429bf5f4a35291229064462210d09b29466865f43903b1b680", "tables": 23}
+2026-11-07T04:06:57.1293776Z ##[group]Run set -euo pipefail
+2026-11-07T04:06:57.1309606Z   test "$code" -eq 1
+2026-11-07T04:06:57.1310653Z   grep -F 'unrecognized configuration parameter "transaction_timeout"' /tmp/p8-rollback-evidence/incompatible-restore.log
+2026-11-07T04:06:57.1312201Z   grep -F 'SET transaction_timeout = 0;' /tmp/p8-rollback-evidence/incompatible-restore.log
+2026-11-07T04:06:57.1313110Z fi
+2026-11-07T04:07:03.4563603Z Status: Downloaded newer image for postgres@sha256:665dc7b37ac52a17e298511414c21d23ffa4e6a6ef6225b3e5d59c7afb35e994
+2026-11-07T04:07:05.5931711Z pg_dump (PostgreSQL) 17.11 (Debian 17.11-1.pgdg12+2)
+2026-11-07T04:07:05.9284616Z pg_restore (PostgreSQL) 17.11 (Debian 17.11-1.pgdg12+2)
+2026-11-07T04:07:06.2527146Z psql (PostgreSQL) 17.11 (Debian 17.11-1.pgdg12+2)
+2026-11-07T04:07:06.4907048Z CREATE DATABASE
+2026-11-07T04:07:07.0948179Z pg_restore: error: could not execute query: ERROR:  unrecognized configuration parameter "transaction_timeout"
+2026-11-07T04:07:07.0963774Z Command was: SET transaction_timeout = 0;
+2026-11-07T04:07:07.1019998Z ##[group]Run set -euo pipefail
+2026-11-07T04:07:07.7711996Z     engine.dispose()
+2026-11-07T04:07:07.7712298Z print("canonical restore parity: PASS")
+2026-11-07T04:07:07.7712646Z PY
+2026-11-07T04:07:07.7774828Z ##[endgroup]
+2026-11-07T04:07:08.4966155Z canonical restore parity: PASS
+2026-11-07T04:07:08.8230473Z ##[group]Run set -euo pipefail
+2026-11-07T04:07:08.8239525Z     engine.dispose()
+2026-11-07T04:07:08.8239821Z print("source database unchanged: PASS")
+2026-11-07T04:07:08.8240125Z PY
+2026-11-07T04:07:08.8297405Z ##[endgroup]
+2026-11-07T04:07:09.5035825Z source database unchanged: PASS
+2026-11-07T04:07:09.6228925Z ##[group]Run set -euo pipefail
+2026-11-07T04:07:09.6323971Z ##[endgroup]
+2026-11-07T04:07:09.8771253Z {"comparison": "PASS", "database": "p8_restore_verify", "pgvector_distance": 0.0, "raw_sha256": "ae2524f1b8c92b429bf5f4a35291229064462210d09b29466865f43903b1b680", "rows": {"narrative.analysis_runs": 0, "narrative.autonomous_runs": 0, "narrative.bootstrap_jobs": 0, "narrative.current_entity_states": 0, "narrative.entities": 1, "narrative.entity_aliases": 0, "narrative.entity_mentions": 0, "narrative.entity_profile_audits": 0, "narrative.event_participants": 0, "narrative.events": 0, "narrative.facts": 0, "narrative.memory_chunks": 0, "narrative.memory_embeddings": 0, "narrative.proposal_decisions": 0, "narrative.proposals": 0, "narrative.relationships": 0, "narrative.revision_provenances": 0, "narrative.state_transitions": 0, "narrative.story_brains": 1, "narrative.story_plan_objectives": 0, "narrative.story_plans": 0, "narrative.writing_generations": 0, "public.alembic_version": 1}, "schema_normalization": "explicit varchar array to text element casts only", "sha256": "ae2524f1b8c92b429bf5f4a35291229064462210d09b29466865f43903b1b680", "tables": 23}
+2026-11-07T04:07:10.1357063Z {"comparison": "PASS", "database": "p8_rehearsal", "pgvector_distance": 0.0, "raw_sha256": "98ab0fec8ea031d242a7920910456dd9096ad03cce5ff83d63e0b019f256880b", "rows": {"narrative.analysis_runs": 0, "narrative.autonomous_runs": 0, "narrative.bootstrap_jobs": 0, "narrative.current_entity_states": 0, "narrative.entities": 1, "narrative.entity_aliases": 0, "narrative.entity_mentions": 0, "narrative.entity_profile_audits": 0, "narrative.event_participants": 0, "narrative.events": 0, "narrative.facts": 0, "narrative.memory_chunks": 0, "narrative.memory_embeddings": 0, "narrative.proposal_decisions": 0, "narrative.proposals": 0, "narrative.relationships": 0, "narrative.revision_provenances": 0, "narrative.state_transitions": 0, "narrative.story_brains": 1, "narrative.story_plan_objectives": 0, "narrative.story_plans": 0, "narrative.writing_generations": 0, "public.alembic_version": 1}, "schema_normalization": "explicit varchar array to text element casts only", "sha256": "ae2524f1b8c92b429bf5f4a35291229064462210d09b29466865f43903b1b680", "tables": 23}
+2026-11-07T04:07:10.1736726Z ##[group]Run actions/upload-artifact@v4
+2026-11-07T04:07:11.7106090Z  2026-11-07 04:06:27.565 UTC [1] LOG:  database system is ready to accept connections
+2026-11-07T04:07:11.7107240Z  2026-11-07 04:07:07.043 UTC [181] ERROR:  unrecognized configuration parameter "transaction_timeout"
+2026-11-07T04:07:11.7108409Z  2026-11-07 04:07:07.043 UTC [181] STATEMENT:  SET transaction_timeout = 0;
+2026-11-07T04:07:11.7109539Z

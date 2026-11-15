@@ -6,11 +6,12 @@ import json
 import uuid
 from dataclasses import asdict, replace
 
-from fastapi import APIRouter, BackgroundTasks, Body, Depends, Header, HTTPException, Query, Request
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, Header, HTTPException, Query, Request, Response
 from fastapi.responses import StreamingResponse
 
 from api.deps import (
     get_bootstrap_service,
+    get_brainstorm_service,
     get_narrative_repository,
     get_narrative_service,
     get_revision_analysis_service,
@@ -19,6 +20,16 @@ from api.deps import (
     get_writing_service,
     require_service_token,
 )
+from api.plan_routes import router as plan_router, legacy_scope, guard_manual_autonomy, principal as plan_principal, service_principal
+from api.setup_schemas import (
+    SetupRequest,
+    SetupReviewRequest,
+    SetupActivationRequest,
+    SetupRuleAmendmentProposalRequest,
+    SetupRuleAmendmentDecisionRequest,
+)
+from api.setup_auth import setup_principal, identity_headers, SetupValidationRoute
+from application.setup_service import SetupService, SetupFailure, public_job
 from api.schemas import (
     EventCorrectionRequest,
     BaselineActivationRequest,
@@ -38,6 +49,7 @@ from api.schemas import (
     AutonomousRunStopRequest,
     WritingGenerationRequest,
 )
+from api.brainstorm_schemas import BrainstormRequest
 from domain.models import AutonomousRun, StoryPlan, StoryPlanObjective
 from application.narrative_service import NarrativeApplicationService
 from application.semantic_memory_service import refresh_semantic_memory_safely
@@ -46,6 +58,7 @@ from application.writing_service import WritingService
 from application.ports import ContentHashMismatchError, RevisionNotFoundError
 from application.revision_analysis_service import RevisionAnalysisService
 from domain.errors import (
+    BootstrapConflictError,
     ActiveRunConflictError,
     ContextRoutingUnresolvedError,
     IdempotencyConflictError,
@@ -59,7 +72,10 @@ from domain.errors import (
 from domain.projection import ProjectionError
 
 
-router = APIRouter(prefix="/v1", tags=["narrative-memory"], dependencies=[Depends(require_service_token)])
+import logging
+logger = logging.getLogger(__name__)
+
+router = APIRouter(prefix="/v1", tags=["narrative-memory"], dependencies=[Depends(require_service_token)], route_class=SetupValidationRoute)
 internal_router = APIRouter(prefix="/internal/v1", tags=["internal-writing"], dependencies=[Depends(require_service_token)])
 
 
@@ -86,11 +102,18 @@ def bootstrap_from_manuscript(
     try:
         job = service.start(
             tenant_id=tenant_id,
+            idempotency_key=payload.idempotency_key,
             novel_id=payload.novel_id,
             revisions=[item.model_dump() for item in payload.revisions],
             locale=payload.locale,
             options=payload.options.model_dump(),
         )
+    except BootstrapConflictError as exc:
+        raise HTTPException(503 if exc.code == 'BOOTSTRAP_REQUIRES_POSTGRES' else 409, detail={'code': exc.code}) from exc
+    except PermissionError as exc:
+        raise HTTPException(403, detail={'code': str(exc)}) from exc
+    except IdempotencyConflictError as exc:
+        raise HTTPException(409, detail={'code': 'IDEMPOTENCY_CONFLICT'}) from exc
     except RevisionNotFoundError as exc:
         raise HTTPException(404, detail={"code": "REVISION_NOT_FOUND"}) from exc
     except ContentHashMismatchError as exc:
@@ -99,7 +122,7 @@ def bootstrap_from_manuscript(
         raise HTTPException(
             422, detail={"code": "BOOTSTRAP_LIMIT_EXCEEDED", "details": exc.details}
         ) from exc
-    if job.status not in {"waiting_review", "completed"}:
+    if job.status == "queued":
         background_tasks.add_task(service.process, job.job_id)
     return {
         "data": {
@@ -113,23 +136,43 @@ def bootstrap_from_manuscript(
 
 @router.post("/story-brains/bootstrap/from-idea", status_code=202)
 def bootstrap_from_idea(
-    payload: IdeaBootstrapRequest,
+    payload: SetupRequest | IdeaBootstrapRequest,
     tenant_id: str = Header(..., alias="X-Tenant-Id"),
     request_id: str = Header(..., alias="X-Request-Id"),
+    author_id: str | None = Header(None, alias="X-Author-Id"),
     service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+    request: Request = None,
 ):
     try:
-        job = service.start_from_idea(
-            tenant_id=tenant_id,
-            novel_id=payload.novel_id,
-            idea=payload.idea,
-            outline=payload.outline,
-            locale=payload.locale,
-            preferences=payload.preferences.model_dump(),
-            author_constraints=payload.author_constraints,
-        )
+        if isinstance(payload, SetupRequest):
+            tenant_id, author_id = setup_principal(request, service)
+            job = SetupService(service).start(payload, tenant_id=tenant_id, actor_id=author_id)
+        else:
+            job = service.start_from_idea(
+                tenant_id=tenant_id,
+                idempotency_key=payload.idempotency_key,
+                novel_id=payload.novel_id,
+                idea=payload.idea,
+                mode=payload.mode,
+                outline=payload.outline,
+                locale=payload.locale,
+                preferences=payload.preferences.model_dump(exclude_none=True),
+                author_constraints=payload.author_constraints,
+            )
+    except KeyError:
+        raise HTTPException(404, detail={'code':'SETUP_NOT_FOUND'}) from None
+    except SetupFailure as exc:
+        raise HTTPException(exc.status, detail={'code':exc.code}) from None
+    except BootstrapConflictError as exc:
+        raise HTTPException(503 if exc.code == 'BOOTSTRAP_REQUIRES_POSTGRES' else 409, detail={'code': exc.code}) from exc
+    except PermissionError as exc:
+        raise HTTPException(403, detail={'code': str(exc)}) from exc
+    except IdempotencyConflictError as exc:
+        raise HTTPException(409, detail={'code': 'IDEMPOTENCY_CONFLICT'}) from exc
+    except OptimisticLockError as exc:
+        raise HTTPException(409, detail={'code': 'BRAIN_VERSION_CONFLICT'}) from exc
     except ValueError as exc:
-        raise HTTPException(422, detail={"code": "INVALID_IDEA", "message": str(exc)}) from exc
+        raise HTTPException(422, detail={"code": "EXTRACT_NOT_IMPLEMENTED" if str(exc) == "EXTRACT_NOT_IMPLEMENTED" else "INVALID_IDEA", "message": str(exc)}) from exc
     return {
         "data": {
             "job_id": job.job_id,
@@ -165,14 +208,20 @@ def compute_plan_input_hash(
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
+router.include_router(plan_router)
+
 @router.post("/story-plans", status_code=201)
 def create_story_plan(
     payload: StoryPlanCreateRequest,
     tenant_id: str = Header(..., alias="X-Tenant-Id"),
     request_id: str = Header(..., alias="X-Request-Id"),
     author_id: str | None = Header(None, alias="X-Author-Id"),
+    request: Request = None,
+    response: Response = None,
     repository = Depends(get_narrative_repository),
 ):
+    legacy_scope(request,repository,novel_id=payload.novel_id)
+    if response is not None:response.headers['Cache-Control']='no-store'
     source_outline = (payload.source_outline or "").strip()
     outline_hash = hashlib.sha256(source_outline.encode("utf-8")).hexdigest() if source_outline else ""
     input_hash = compute_plan_input_hash(payload.novel_id, source_outline, payload.objectives)
@@ -222,8 +271,12 @@ def create_story_plan(
 def get_active_story_plan(
     novel_id: str,
     request_id: str = Header(..., alias="X-Request-Id"),
+    request: Request = None,
+    response: Response = None,
     repository = Depends(get_narrative_repository),
 ):
+    legacy_scope(request,repository,novel_id=novel_id,active_only=True)
+    if response is not None:response.headers['Cache-Control']='no-store'
     plan = repository.get_active_story_plan(novel_id)
     if not plan:
         raise HTTPException(404, detail={"code": "PLAN_NOT_FOUND", "message": "No active story plan found"})
@@ -237,8 +290,12 @@ def get_active_story_plan(
 def list_story_plans(
     novel_id: str,
     request_id: str = Header(..., alias="X-Request-Id"),
+    request: Request = None,
+    response: Response = None,
     repository = Depends(get_narrative_repository),
 ):
+    legacy_scope(request,repository,novel_id=novel_id)
+    if response is not None:response.headers['Cache-Control']='no-store'
     plans = repository.list_story_plans(novel_id)
     return {
         "data": [asdict(p) for p in plans],
@@ -250,8 +307,12 @@ def list_story_plans(
 def get_story_plan(
     plan_id: str,
     request_id: str = Header(..., alias="X-Request-Id"),
+    request: Request = None,
+    response: Response = None,
     repository = Depends(get_narrative_repository),
 ):
+    legacy_scope(request,repository,plan_id=plan_id)
+    if response is not None:response.headers['Cache-Control']='no-store'
     plan = repository.get_story_plan(plan_id)
     if not plan:
         raise HTTPException(404, detail={"code": "PLAN_NOT_FOUND", "message": f"StoryPlan {plan_id} not found"})
@@ -266,10 +327,16 @@ def activate_story_plan(
     plan_id: str,
     novel_id: str = Query(..., description="Target novel id"),
     request_id: str = Header(..., alias="X-Request-Id"),
+    request: Request = None,
+    response: Response = None,
     repository = Depends(get_narrative_repository),
 ):
+    legacy_scope(request,repository,novel_id=novel_id,plan_id=plan_id)
+    if response is not None:response.headers['Cache-Control']='no-store'
     try:
         plan = repository.activate_story_plan(novel_id, plan_id)
+    except BootstrapConflictError as exc:
+        raise HTTPException(409,detail={'code':exc.code}) from None
     except KeyError as exc:
         raise HTTPException(404, detail={"code": "PLAN_NOT_FOUND", "message": str(exc)}) from exc
     return {
@@ -285,8 +352,12 @@ def update_story_plan_objective(
     payload: StoryPlanObjectiveUpdateRequest,
     novel_id: str = Query(..., description="Target novel id"),
     request_id: str = Header(..., alias="X-Request-Id"),
+    request: Request = None,
+    response: Response = None,
     repository = Depends(get_narrative_repository),
 ):
+    legacy_scope(request,repository,novel_id=novel_id,plan_id=plan_id)
+    if response is not None:response.headers['Cache-Control']='no-store'
     try:
         obj = repository.update_objective_status(
             novel_id=novel_id,
@@ -294,6 +365,8 @@ def update_story_plan_objective(
             objective_id=objective_id,
             status=payload.status,
         )
+    except BootstrapConflictError as exc:
+        raise HTTPException(409,detail={'code':exc.code}) from None
     except KeyError as exc:
         raise HTTPException(404, detail={"code": "OBJECTIVE_NOT_FOUND", "message": str(exc)}) from exc
     return {
@@ -324,6 +397,7 @@ def create_autonomous_run(
     tenant_id: str = Header(..., alias="X-Tenant-Id"),
     request_id: str = Header(..., alias="X-Request-Id"),
     author_id: str | None = Header(None, alias="X-Author-Id"),
+    request: Request = None,
     repository = Depends(get_narrative_repository),
 ):
     # 1. Resolve Story Plan
@@ -335,6 +409,8 @@ def create_autonomous_run(
         plan = repository.get_active_story_plan(payload.novel_id)
         if not plan:
             raise HTTPException(400, detail={"code": "NO_ACTIVE_PLAN", "message": "Novel does not have an active story plan"})
+
+    guard_manual_autonomy(request,repository,payload.novel_id,plan.plan_id)
 
     # 2. Get current brain version
     brain = repository.get_story_brain(payload.novel_id)
@@ -464,16 +540,174 @@ def stop_autonomous_run(
     }
 
 
+@router.post('/story-brains/{novel_id}/setup/{snapshot_id}/review')
+def review_setup_snapshot(
+    novel_id: uuid.UUID, snapshot_id: uuid.UUID, body: SetupReviewRequest,
+    request: Request, response: Response,
+    request_id: str = Header(..., alias='X-Request-Id'),
+    service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+):
+    response.headers['Cache-Control'] = 'no-store'
+    try:
+        tenant, author = setup_principal(request, service)
+        data = SetupService(service).review(str(novel_id), str(snapshot_id), body,
+                                            tenant_id=tenant, actor_id=author)
+    except SetupFailure as exc:
+        raise HTTPException(exc.status, detail={'code':exc.code}) from None
+    except KeyError:
+        raise HTTPException(404, detail={'code':'SETUP_NOT_FOUND'}) from None
+    except (BootstrapConflictError, OptimisticLockError) as exc:
+        raise HTTPException(409, detail={'code':getattr(exc, 'code', 'SETUP_REVIEW_CONFLICT')}) from None
+    return {'data':data, 'meta':{'request_id':request_id, 'schema_version':1}}
+
+
+@router.api_route('/story-brains/{novel_id}/setup/{snapshot_id}/activate',methods=['GET','POST'])
+def activate_setup_m0(
+    novel_id: uuid.UUID, snapshot_id: uuid.UUID, request: Request, response: Response,
+    body: SetupActivationRequest | None = None,
+    service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+):
+    response.headers['Cache-Control']='no-store'
+    tenant,author=setup_principal(request,service)
+    if request.method=='POST' and body is None:raise HTTPException(422,detail={'code':'M0_ACTIVATION_REQUEST_REQUIRED'})
+    try:
+        data=SetupService(service).activate(str(novel_id),str(snapshot_id),body if request.method=='POST' else None,tenant_id=tenant,actor_id=author)
+    except SetupFailure as exc:raise HTTPException(exc.status,detail={'code':exc.code}) from None
+    except KeyError:raise HTTPException(404,detail={'code':'SETUP_NOT_FOUND'}) from None
+    except BootstrapConflictError as exc:raise HTTPException(409,detail={'code':exc.code}) from None
+    return {'data':data}
+
+
+@router.get('/story-brains/{novel_id}/setup')
+def get_setup_snapshot(
+    novel_id: uuid.UUID,
+    tenant_id: str | None = Header(None, alias='X-Tenant-Id'),
+    author_id: str | None = Header(None, alias='X-Author-Id'),
+    request_id: str = Header(..., alias='X-Request-Id'),
+    snapshot_id: uuid.UUID | None = Query(None),
+    service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+    request: Request = None,
+    response: Response = None,
+):
+    if response is not None:
+        response.headers['Cache-Control'] = 'no-store'
+    try:
+        tenant_id, author_id = setup_principal(request, service)
+        data = SetupService(service).readback(str(novel_id), tenant_id=str(tenant_id), actor_id=author_id,
+                                            snapshot_id=str(snapshot_id) if snapshot_id else None)
+    except SetupFailure as exc:
+        raise HTTPException(exc.status, detail={'code':exc.code}) from None
+    except PermissionError:
+        raise HTTPException(403, detail={'code':'TENANT_SCOPE_MISMATCH'}) from None
+    except KeyError:
+        raise HTTPException(404, detail={'code':'SETUP_NOT_FOUND'}) from None
+    return {'data':data, 'meta':{'request_id':request_id, 'schema_version':1}}
+
+
+# ── P2-07E: Post-M0 World Setup Rule Amendment Routes ────────────────────────
+
+@router.post('/story-brains/{novel_id}/world-rules/{fact_id}/amendments', status_code=201)
+def propose_world_rule_amendment(
+    novel_id: uuid.UUID,
+    fact_id: uuid.UUID,
+    body: SetupRuleAmendmentProposalRequest,
+    request: Request,
+    response: Response,
+    service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+):
+    response.headers['Cache-Control'] = 'no-store'
+    tenant, author = setup_principal(request, service)
+    try:
+        data = SetupService(service).propose_amendment(
+            novel_id, fact_id, body, tenant_id=tenant, actor_id=author
+        )
+    except SetupFailure as exc:
+        raise HTTPException(exc.status, detail={'code': exc.code}) from None
+    except KeyError:
+        raise HTTPException(404, detail={'code': 'SETUP_NOT_FOUND'}) from None
+    except BootstrapConflictError as exc:
+        raise HTTPException(409, detail={'code': exc.code}) from exc
+    return {'data': data}
+
+
+@router.post('/story-brains/{novel_id}/world-rule-amendments/{proposal_id}/decision')
+def decide_world_rule_amendment(
+    novel_id: uuid.UUID,
+    proposal_id: uuid.UUID,
+    body: SetupRuleAmendmentDecisionRequest,
+    request: Request,
+    response: Response,
+    service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+):
+    response.headers['Cache-Control'] = 'no-store'
+    tenant, author = setup_principal(request, service)
+    try:
+        data = SetupService(service).decide_amendment(
+            novel_id, proposal_id, body, tenant_id=tenant, actor_id=author
+        )
+    except SetupFailure as exc:
+        raise HTTPException(exc.status, detail={'code': exc.code}) from None
+    except KeyError:
+        raise HTTPException(404, detail={'code': 'SETUP_NOT_FOUND'}) from None
+    except BootstrapConflictError as exc:
+        raise HTTPException(409, detail={'code': exc.code}) from exc
+    return {'data': data}
+
+
+@router.get('/story-brains/{novel_id}/world-rules/{fact_id}/amendments')
+def get_world_rule_amendments(
+    novel_id: uuid.UUID,
+    fact_id: uuid.UUID,
+    request: Request,
+    response: Response,
+    service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+):
+    response.headers['Cache-Control'] = 'no-store'
+    tenant, author = setup_principal(request, service)
+    try:
+        data = SetupService(service).get_amendment_history(
+            novel_id, fact_id, tenant_id=tenant, actor_id=author
+        )
+    except SetupFailure as exc:
+        raise HTTPException(exc.status, detail={'code': exc.code}) from None
+    except KeyError:
+        raise HTTPException(404, detail={'code': 'SETUP_NOT_FOUND'}) from None
+    except BootstrapConflictError as exc:
+        raise HTTPException(409, detail={'code': exc.code}) from exc
+    return {'data': data}
+
+
+
+def authorized_bootstrap_job(service, job_id, request):
+    # Worker lookup is privileged/internal; never serialize or stream a setup
+    # result until the separate author-scoped repository query succeeds.
+    identity_headers(request, service, optional=True)
+    job = service.get_job(job_id)
+    if (job.result or {}).get('contract_version') == 'setup-v1':
+        if request is None or not request.headers.get('X-Author-Id'):
+            raise HTTPException(404, detail={'code':'JOB_NOT_FOUND'})
+        tenant, author = setup_principal(request, service)
+        try:
+            job = SetupService(service).get_job(job_id, tenant_id=tenant, actor_id=author)
+        except KeyError:
+            raise HTTPException(404, detail={'code':'JOB_NOT_FOUND'}) from None
+    return job
+
+
 @router.get("/jobs/{job_id}")
 def get_job(
     job_id: str,
     request_id: str = Header(..., alias="X-Request-Id"),
     bootstrap_service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
     writing_service: WritingService = Depends(get_writing_service),
+    request: Request = None,
+    response: Response = None,
 ):
+    if response is not None:
+        response.headers['Cache-Control'] = 'no-store'
     try:
-        job = bootstrap_service.get_job(job_id)
-        data = asdict(job)
+        job = authorized_bootstrap_job(bootstrap_service, job_id, request)
+        data = asdict(public_job(job))
         data["type"] = "bootstrap"
         data["progress"] = {
             "current": job.progress_current,
@@ -482,6 +716,8 @@ def get_job(
             "stage": job.stage,
         }
         return {"data": data, "meta": {"request_id": request_id, "schema_version": 1}}
+    except HTTPException:
+        raise
     except Exception:
         pass
 
@@ -503,7 +739,17 @@ async def stream_job_events(
     job_id: str,
     writing_service: WritingService = Depends(get_writing_service),
     bootstrap_service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+    request: Request = None,
 ):
+    # Authorize before SSE headers/first byte, including waiting-review jobs.
+    try:
+        authorized_bootstrap_job(bootstrap_service, job_id, request)
+    except KeyError:
+        try:
+            writing_service._repository.get_writing_job(job_id)
+        except Exception:
+            raise HTTPException(404, detail={'code':'JOB_NOT_FOUND'}) from None
+
     async def event_generator():
         for _ in range(60):
             try:
@@ -521,7 +767,7 @@ async def stream_job_events(
                     break
             except Exception:
                 try:
-                    b_job = bootstrap_service.get_job(job_id)
+                    b_job = authorized_bootstrap_job(bootstrap_service, job_id, request)
                     payload = {
                         "job_id": b_job.job_id,
                         "type": "bootstrap",
@@ -537,7 +783,7 @@ async def stream_job_events(
                     break
             await asyncio.sleep(0.5)
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    return StreamingResponse(event_generator(), media_type="text/event-stream", headers={"Cache-Control":"no-store"})
 
 
 @router.post("/jobs/{job_id}/resume", status_code=202)
@@ -546,9 +792,13 @@ def resume_job(
     background_tasks: BackgroundTasks,
     request_id: str = Header(..., alias="X-Request-Id"),
     service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+    request: Request = None,
 ):
     try:
-        job = service.get_job(job_id)
+        job = authorized_bootstrap_job(service, job_id, request)
+        service.validate_resume(job)
+    except BootstrapConflictError as exc:
+        raise HTTPException(503 if exc.code == 'BOOTSTRAP_REQUIRES_POSTGRES' else 409, detail={'code': exc.code}) from exc
     except KeyError as exc:
         raise HTTPException(404, detail={"code": "JOB_NOT_FOUND"}) from exc
     if job.status not in {"waiting_review", "completed"}:
@@ -574,9 +824,14 @@ def activate_baseline(
     payload: BaselineActivationRequest,
     request_id: str = Header(..., alias="X-Request-Id"),
     service: ManuscriptBootstrapService = Depends(get_bootstrap_service),
+    request: Request = None,
 ):
     try:
+        service._require_lifecycle()
+        authorized_bootstrap_job(service, payload.job_id, request)
         result = service.activate_baseline(brain_id, payload.job_id)
+    except BootstrapConflictError as exc:
+        raise HTTPException(503 if exc.code == 'BOOTSTRAP_REQUIRES_POSTGRES' else 409, detail={'code': exc.code}) from exc
     except KeyError as exc:
         raise HTTPException(404, detail={"code": "JOB_NOT_FOUND"}) from exc
     except BaselineReviewRequiredError as exc:
@@ -702,12 +957,155 @@ def author_operation(
                             "revision_id": revision_id,
                             "entity_id": entity.entity_id,
                         })
-        return {"data": {"findings": findings}}
+        # #146: check the chapter against the author-approved, effective world rules.
+        rule_check = "no_rules"
+        try:
+            from domain.projection import resolve_effective_facts
+            from services.rule_consistency import check_world_rules, world_rules_from_facts
+            effective = resolve_effective_facts(
+                brain.facts, novel_id=str(brain_id), story_brain_id=brain.metadata.get('brain_id'),
+                verified_amendment_edges=set(tuple(e) for e in brain.metadata.get('verified_amendment_edges', ())))
+            rules = world_rules_from_facts(effective)
+            llm = getattr(analysis, '_llm_service', None)
+            if rules and llm is not None:
+                for item in check_world_rules(revision.content, rules, llm):
+                    findings.append({
+                        "code": "WORLD_RULE_VIOLATION",
+                        "description": f"Có thể vi phạm quy tắc thế giới: {item['rule_text']}"
+                            + (f" — {item['explanation']}" if item['explanation'] else ""),
+                        "evidence": item["quote"],
+                        "revision_id": revision_id,
+                        "rule_fact_id": item["rule_id"],
+                    })
+                rule_check = "checked"
+            elif rules:
+                rule_check = "unavailable"
+        except Exception as exc:  # provider/quota/validation: say so instead of an empty "all clear"
+            logger.warning("rule consistency check unavailable: %s", type(exc).__name__)
+            rule_check = "unavailable"
+        return {"data": {"findings": findings, "rule_check": rule_check}}
 
-    if operation == "suggest_events":
-        return {"data": {"events": []}}
+    if operation in ("suggest_events", "brainstorm"):
+        from api.deps import get_brainstorm_service
+        from api.brainstorm_schemas import BrainstormRequest
+
+        tenant_header = request.headers.get("X-Tenant-Id")
+        if not tenant_header:
+            raise HTTPException(401, detail={"code": "BRAINSTORM_IDENTITY_REQUIRED"})
+        try:
+            tenant_id = str(uuid.UUID(tenant_header))
+        except (ValueError, TypeError):
+            raise HTTPException(422, detail={"code": "INVALID_SCOPE_HEADER"})
+
+        author_header = request.headers.get("X-Author-Id")
+        if not author_header:
+            raise HTTPException(401, detail={"code": "BRAINSTORM_IDENTITY_REQUIRED", "message": "X-Author-Id header is required"})
+        try:
+            author_id = str(uuid.UUID(author_header))
+            for name in ("X-User-Id", "X-Actor-Id"):
+                other = request.headers.get(name)
+                if other is not None and str(uuid.UUID(other)) != author_id:
+                    raise HTTPException(403, detail={"code": "BRAINSTORM_IDENTITY_MISMATCH"})
+        except ValueError:
+            raise HTTPException(422, detail={"code": "INVALID_SCOPE_HEADER"})
+
+        try:
+            brain_uuid = str(uuid.UUID(brain_id))
+        except (ValueError, TypeError):
+            raise HTTPException(422, detail={"code": "INVALID_BRAIN_ID"})
+
+        target_val = payload.get("target") or ("future_events" if operation == "suggest_events" else "all")
+        if target_val not in ("all", "world_rules", "characters", "future_events"):
+            target_val = "all"
+
+        instruction_val = str(payload.get("instruction") or payload.get("direction") or "")
+        idem_key = request.headers.get("Idempotency-Key") or payload.get("idempotency_key")
+        exp_brain_v = payload.get("expected_brain_version")
+        exp_plan_v = payload.get("expected_plan_version")
+        cur_ch = payload.get("current_chapter")
+        tar_ch = payload.get("target_chapter")
+        priv_notes = str(payload.get("private_notes") or "")
+        priv_notes_list = payload.get("private_author_notes") or []
+        if isinstance(priv_notes_list, str):
+            priv_notes_list = [priv_notes_list]
+
+        b_req = BrainstormRequest(
+            contract_version="brainstorm-v1",
+            target=target_val,
+            instruction=instruction_val,
+            current_chapter=int(cur_ch) if cur_ch is not None else None,
+            target_chapter=int(tar_ch) if tar_ch is not None else None,
+            idempotency_key=str(idem_key) if idem_key else None,
+            expected_brain_version=int(exp_brain_v) if exp_brain_v is not None else None,
+            expected_plan_version=int(exp_plan_v) if exp_plan_v is not None else None,
+            private_notes=priv_notes,
+            private_author_notes=list(priv_notes_list),
+        )
+
+        override = request.app.dependency_overrides.get(get_brainstorm_service)
+        if override:
+            try:
+                brainstorm_svc = override(request)
+            except TypeError:
+                brainstorm_svc = override()
+        else:
+            brainstorm_svc = get_brainstorm_service(request)
+        result = brainstorm_svc.brainstorm(
+            brain_uuid,
+            b_req,
+            tenant_id=tenant_id,
+            actor_id=author_id,
+        )
+        return {"data": result.model_dump()}
 
     return {"data": {}}
+
+
+@router.post("/story-brains/{brain_id}/brainstorm")
+def brainstorm_endpoint(
+    brain_id: str,
+    request: Request,
+    payload: BrainstormRequest = Body(...),
+    service: NarrativeApplicationService = Depends(get_narrative_service),
+    brainstorm_svc=Depends(get_brainstorm_service),
+):
+
+    tenant_header = request.headers.get("X-Tenant-Id")
+    if not tenant_header:
+        raise HTTPException(401, detail={"code": "BRAINSTORM_IDENTITY_REQUIRED"})
+    try:
+        tenant_id = str(uuid.UUID(tenant_header))
+    except (ValueError, TypeError):
+        raise HTTPException(422, detail={"code": "INVALID_SCOPE_HEADER"})
+
+    author_header = request.headers.get("X-Author-Id")
+    if not author_header:
+        raise HTTPException(401, detail={"code": "BRAINSTORM_IDENTITY_REQUIRED", "message": "X-Author-Id header is required"})
+    try:
+        author_id = str(uuid.UUID(author_header))
+        for name in ("X-User-Id", "X-Actor-Id"):
+            other = request.headers.get(name)
+            if other is not None and str(uuid.UUID(other)) != author_id:
+                raise HTTPException(403, detail={"code": "BRAINSTORM_IDENTITY_MISMATCH"})
+    except ValueError:
+        raise HTTPException(422, detail={"code": "INVALID_SCOPE_HEADER"})
+
+    try:
+        brain_uuid = str(uuid.UUID(brain_id))
+    except (ValueError, TypeError):
+        raise HTTPException(422, detail={"code": "INVALID_BRAIN_ID"})
+
+    if not payload.idempotency_key and request.headers.get("Idempotency-Key"):
+        payload = payload.model_copy(update={"idempotency_key": request.headers["Idempotency-Key"]})
+
+    brainstorm_svc = get_brainstorm_service(request)
+    result = brainstorm_svc.brainstorm(
+        brain_uuid,
+        payload,
+        tenant_id=tenant_id,
+        actor_id=author_id,
+    )
+    return {"data": result.model_dump()}
 
 
 @router.post("/story-brains/{brain_id}/events/{event_id}/corrections", status_code=201)
@@ -777,7 +1175,7 @@ def list_proposals(
         brain_id, status=status, proposal_type=proposal_type
     )
     return {
-        "data": [asdict(item) for item in proposals],
+        "data": [asdict(item) for item in proposals if not any(e.get('setup_snapshot_id') for e in item.evidence)],
         "meta": {"request_id": request_id, "next_cursor": None},
     }
 
@@ -822,6 +1220,8 @@ def reject_proposal(
 ):
     try:
         result = service.reject_proposal_by_id(proposal_id, payload.reason)
+    except BootstrapConflictError as exc:
+        raise HTTPException(409, detail={'code':exc.code}) from exc
     except KeyError as exc:
         raise HTTPException(status_code=404, detail={"code": "PROPOSAL_NOT_FOUND"}) from exc
     except ProjectionError as exc:
@@ -851,6 +1251,8 @@ def reject_proposal_group(
     try:
         result = service.reject_proposal_group_by_id(str(group_id), payload.expected_brain_version,
             reason=payload.reason, actor_id=str(author_id))
+    except BootstrapConflictError as exc:
+        raise HTTPException(409, detail={'code':exc.code}) from exc
     except KeyError as exc:
         raise HTTPException(404, detail={'code': 'PROPOSAL_GROUP_NOT_FOUND'}) from exc
     except OptimisticLockError as exc:
@@ -879,6 +1281,8 @@ def edit_and_accept_proposal(
             edited_payload=payload.edited_payload,
             reason=payload.reason,
         )
+    except BootstrapConflictError as exc:
+        raise HTTPException(409, detail={'code':exc.code}) from exc
     except KeyError as exc:
         raise HTTPException(status_code=404, detail={"code": "PROPOSAL_NOT_FOUND"}) from exc
     except OptimisticLockError as exc:
@@ -914,6 +1318,8 @@ def accept_proposal_group(
             payload.reason,
             edited_payloads=payload.edited_payloads,
         )
+    except BootstrapConflictError as exc:
+        raise HTTPException(409, detail={'code':exc.code}) from exc
     except KeyError as exc:
         raise HTTPException(status_code=404, detail={"code": "PROPOSAL_NOT_FOUND"}) from exc
     except OptimisticLockError as exc:
@@ -946,7 +1352,11 @@ def preview_writing_context(
     tenant_id: str = Header(..., alias="X-Tenant-Id"),
     request_id: str = Header(..., alias="X-Request-Id"),
     service: WritingService = Depends(get_writing_service),
+    request: Request = None,
 ):
+    active = service._repository.get_active_story_plan(brain_id)
+    if active:
+        legacy_scope(request,service._repository,novel_id=brain_id,plan_id=active.plan_id)
     try:
         package = service.preview_context(
             tenant_id=tenant_id,
@@ -955,6 +1365,14 @@ def preview_writing_context(
             character_name=character_name,
             token_budget=token_budget,
         )
+    except ProjectionError as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "code": "INVALID_CANON_HISTORY",
+                "reason": getattr(exc, "code", "FACT_LINEAGE_INVALID"),
+            },
+        ) from exc
     except ContextRoutingUnresolvedError as exc:
         raise HTTPException(
             status_code=422,
@@ -977,10 +1395,17 @@ def preview_writing_context(
 def create_writing_generation(
     payload: WritingGenerationRequest,
     background_tasks: BackgroundTasks,
+    request: Request,
     tenant_id: str = Header(..., alias="X-Tenant-Id"),
     request_id: str = Header(..., alias="X-Request-Id"),
     service: WritingService = Depends(get_writing_service),
 ):
+    actor_id = payload.actor_id
+    if getattr(service._repository,'supports_plan_edit_v1',False):
+        # Authenticated Gateway identity, never a caller-controlled body actor.
+        actor_id = plan_principal(request,service._repository)
+        if payload.actor_id is not None and payload.actor_id != actor_id:
+            raise HTTPException(403,detail={'code':'WRITING_IDENTITY_MISMATCH'})
     try:
         selection_dict = payload.selection.model_dump()
         job = service.start_generation(
@@ -996,7 +1421,7 @@ def create_writing_generation(
             style=payload.style,
             expected_brain_version=payload.expected_brain_version,
             chapter_number=payload.chapter_number,
-            actor_id=payload.actor_id,
+            actor_id=actor_id,
             idempotency_key=payload.idempotency_key,
             process_inline=False,
         )
@@ -1054,8 +1479,15 @@ def rebuild_semantic_memory(
 @internal_router.get("/writing/generations/{generation_id}")
 def get_internal_writing_generation(
     generation_id: str,
+    request: Request,
     service: WritingService = Depends(get_writing_service),
 ):
+    if getattr(service._repository,'supports_plan_edit_v1',False):
+        # Privileged job lookup still requires real service credentials even in
+        # a dev environment which disables generic router authentication.
+        # Privileged lookup preserves P1 Accept Draft's user-tenant headers;
+        # the Platform caller checks returned actor/tenant/chapter/revision.
+        service_principal(request)
     try:
         job = service.get_generation(generation_id)
     except Exception as exc:

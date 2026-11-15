@@ -42,6 +42,10 @@ class WritingCursorPersistenceTests(unittest.TestCase):
         )])
         self.llm = FakeDeterministicLLMService()
         self.service = WritingService(repository=self.repository, llm_service=self.llm, revision_provider=provider)
+        # These tests cover cursor persistence only. The P2 authority snapshots read Platform
+        # tables (novels, chapters, revisions) that this standalone schema does not create.
+        self.repository.writing_authority_snapshot = lambda job: ()
+        self.repository.writing_rule_authority_snapshot = lambda job: ()
 
     def tearDown(self):
         self.engine.dispose()

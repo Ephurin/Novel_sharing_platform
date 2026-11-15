@@ -10,6 +10,7 @@ from core.writing_output import is_writing_envelope
 
 import json
 from application.context_budget import ContextBudgetPacker
+from core.structured_call import priority_scope
 from application.context_routing import ContextBudgetRouter
 from application.context_scope import BalancedRelevanceScopeBuilder
 from application.hybrid_ranker import HYBRID_RANKING_VERSION
@@ -22,16 +23,44 @@ from domain.errors import (
     SelectionOutOfBoundsError,
     ValidationFailedError,
     WritingGenerationNotFoundError,
+    WritingContextAuthorityError,
 )
 from domain.models import (
     ValidationResult,
     WritingContextPackage,
     WritingGenerationJob,
     WritingPatch,
+    StoryPlan,
 )
+from domain.projection import ProjectionError
 from domain.repositories import NarrativeRepository
 
 logger = logging.getLogger(__name__)
+
+
+
+# Text before the cursor sent when the selection is empty (bounded for token budget).
+PRECEDING_CONTEXT_CHARS = 6000
+
+RATE_LIMIT_MARKERS = ("RPM_LIMIT_EXCEEDED", "TPM_LIMIT_EXCEEDED", "CONCURRENCY_LIMIT_EXCEEDED")
+
+
+def writing_failure_error(exc: Exception) -> dict[str, Any]:
+    """Job error payload. #149: a free-tier rate limit is reported as "busy, retry soon", not a crash."""
+    message = str(exc)
+    if message.startswith("BUDGET_GUARD_DENIED") and any(m in message for m in RATE_LIMIT_MARKERS):
+        match = re.search(r"retry_after=(\d+)", message)
+        seconds = int(match.group(1)) if match else 60
+        return {
+            "code": "AI_RATE_LIMITED",
+            "message": (
+                "AI đang bận vì giới hạn tần suất của gói miễn phí (phân tích nền đang chạy). "
+                f"Vui lòng thử lại sau khoảng {seconds} giây."
+            ),
+            "retry_after": seconds,
+            "detail": message[:200],
+        }
+    return {"message": message}
 
 
 class WritingService:
@@ -74,26 +103,35 @@ class WritingService:
         token_budget: int | None = None,
         semantic_query: str | None = None,
         semantic_limit: int | None = None,
+        author_plan_snapshot: tuple[StoryPlan, ...] | None = None,
     ) -> WritingContextPackage:
         """Fetch and structure narrative context for writing assistance."""
-        package = self._repository.get_structured_context(
-            story_id=story_id,
-            chapter_number=chapter_number,
-            character_name=character_name,
-            limit_recent_events=limit_recent_events,
-            token_budget=None,
-            enforce_token_budget=False,
-        )
-
         retrieval_result = None
         if self._semantic_retriever is not None and semantic_query and semantic_query.strip():
             retrieval_result = self._semantic_retriever.retrieve(
-                story_id,
-                query_text=semantic_query,
-                chapter_number=chapter_number,
-                limit=semantic_limit,
-                tenant_id=tenant_id,
+                story_id, query_text=semantic_query, chapter_number=chapter_number,
+                limit=semantic_limit, tenant_id=tenant_id,
             )
+        profile_selection = {}
+        if author_plan_snapshot is not None:
+            profile_selection['author_plan_snapshot'] = author_plan_snapshot
+        if retrieval_result is not None and getattr(retrieval_result, "hybrid_signals_resolved", False):
+            # Resolved canonical query IDs, never all similarity matches.
+            profile_selection['profile_entity_ids'] = tuple(retrieval_result.query_entity_ids)
+        elif semantic_query and chapter_number is not None:
+            # Author profiles also work without an embedding runtime. Reuse the
+            # exact same scoped UUID resolver; never infer identity from similarity.
+            resolver = getattr(self._repository, 'resolve_profile_query_ids', None)
+            configured_tenant = getattr(self._repository, '_tenant_id', None)
+            if resolver is not None and str(configured_tenant) == str(tenant_id):
+                profile_selection['profile_entity_ids'] = resolver(
+                    story_id, query_text=semantic_query, chapter_number=chapter_number)
+        package = self._repository.get_structured_context(
+            story_id=story_id, chapter_number=chapter_number, character_name=character_name,
+            limit_recent_events=limit_recent_events, token_budget=None,
+            enforce_token_budget=False, **profile_selection,
+        )
+        if retrieval_result is not None:
             semantic_memories = tuple(
                 self._semantic_match_payload(match) for match in retrieval_result.matches
             )
@@ -149,10 +187,12 @@ class WritingService:
             if not package.entities or scope.entity_count_after > 0:
                 return self._context_budget_router.route(scope)
 
-        return self._context_packer.pack(
-            package,
-            maximum=token_budget,
-        )
+        packed = self._context_packer.pack(package, maximum=token_budget)
+        if packed.token_budget.get('protected_overflow') or packed.token_budget.get('budget_overflow'):
+            raise ContextRoutingUnresolvedError(
+                estimated_tokens=packed.token_budget['used'],
+                max_tier=packed.token_budget['maximum'], policy='legacy-v1')
+        return packed
 
     def _balanced_scope_eligible(
         self,
@@ -209,6 +249,13 @@ class WritingService:
         process_inline: bool = True,
         source_text: str | None = None,
     ) -> WritingGenerationJob:
+        # F-LIVE-07: the API sends start/end as null when only a cursor is given; treat a missing or
+        # null offset as the cursor (a caret, not a selection) instead of failing on None < 0.
+        cursor_value = selection.get("cursor")
+        cursor_value = 0 if cursor_value is None else cursor_value
+        selection = {**selection, "cursor": cursor_value,
+                     "start": cursor_value if selection.get("start") is None else selection["start"],
+                     "end": cursor_value if selection.get("end") is None else selection["end"]}
         if chapter_number is None:
             chapter_number = selection.get("chapter_number")
 
@@ -242,6 +289,8 @@ class WritingService:
             try:
                 existing = self.get_generation(job_id)
                 if existing:
+                    if existing.actor_id != actor_id or existing.tenant_id != tenant_id or existing.novel_id != novel_id:
+                        raise IdempotencyConflictError('Writing job scope mismatch')
                     if existing.input_hash and existing.input_hash != input_hash:
                         raise IdempotencyConflictError(
                             f"Idempotency key '{idempotency_key}' reused with conflicting parameters"
@@ -373,6 +422,22 @@ class WritingService:
         job = self.get_generation(job_id)
         if job.status == "completed":
             return job
+        if job.status == 'failed' and (job.error or {}).get('code') == 'WRITING_CONTEXT_AUTHORITY_DENIED':
+            return job
+
+        authority = getattr(self._repository, 'writing_authority_snapshot', None)
+        rule_authority = getattr(self._repository, 'writing_rule_authority_snapshot', None)
+        def blocked():
+            return self._repository.save_writing_job(replace(
+                job,status='failed',stage='security_blocked',validation_status='failed',
+                context_summary={},context_hash='',draft=None,patch=None,
+                error={'code':'WRITING_CONTEXT_AUTHORITY_DENIED','message':'Writing context authorization failed'},
+            ))
+        try:
+            plan_snapshot = authority(job) if authority is not None else None
+            rule_snapshot = rule_authority(job) if rule_authority is not None else None
+        except WritingContextAuthorityError:
+            return blocked()
 
         # 1. Pinned Story Brain Version Recheck (Invariant: do not silently use newer brain version)
         brain = self._repository.get_story_brain(job.novel_id)
@@ -447,7 +512,10 @@ class WritingService:
                 story_id=job.novel_id,
                 chapter_number=job.chapter_number,
                 semantic_query=semantic_query,
+                author_plan_snapshot=plan_snapshot,
             )
+        except (WritingContextAuthorityError, ProjectionError):
+            return blocked()
         except ContextRoutingUnresolvedError as exc:
             failed_job = replace(
                 job,
@@ -491,9 +559,10 @@ class WritingService:
             input_hash=job.input_hash,
             status="generating",
             stage="generating",
-            context_summary=context_package.context_summary,
+            # Do not publish context/its hash until the dispatch fence passes.
+            context_summary={},
             brain_version_used=brain_version_used,
-            context_hash=context_hash,
+            context_hash='',
             chapter_number=job.chapter_number,
         )
         self._repository.save_writing_job(job)
@@ -503,18 +572,28 @@ class WritingService:
 
 
         # Call LLM service with style and constraints
+        if authority is not None:
+            try:
+                if authority(job) != plan_snapshot:
+                    return blocked()
+                if rule_authority is not None and rule_authority(job) != rule_snapshot:
+                    return blocked()
+            except WritingContextAuthorityError:
+                return blocked()
         try:
-            llm_result = self._llm_service.generate_writing_draft(
-                operation="continue" if job.operation == "continuation" else job.operation,
-                selected_text=selected_text,
-                cursor_offset=job.selection.get("cursor", job.selection.get("end", 0)),
-                start_offset=job.selection.get("start"),
-                end_offset=job.selection.get("end"),
-                instruction=job.instruction,
-                context_package=prompt_context,
-                style=job.style,
-                constraints=job.constraints,
-            )
+            # #149: the author is waiting on this draft; it gets the reserved interactive quota.
+            with priority_scope("interactive"):
+                llm_result = self._llm_service.generate_writing_draft(
+                    operation="continue" if job.operation == "continuation" else job.operation,
+                    selected_text=selected_text,
+                    cursor_offset=job.selection.get("cursor", job.selection.get("end", 0)),
+                    start_offset=job.selection.get("start"),
+                    end_offset=job.selection.get("end"),
+                    instruction=job.instruction,
+                    context_package=prompt_context,
+                    style=job.style,
+                    constraints=job.constraints,
+                )
         except Exception as exc:
             logger.error("LLM draft generation failed for job %s: %s", job_id, exc)
             job = WritingGenerationJob(
@@ -535,7 +614,7 @@ class WritingService:
                 input_hash=job.input_hash,
                 status="failed",
                 stage="failed",
-                error={"message": str(exc)},
+                error=writing_failure_error(exc),
                 brain_version_used=brain_version_used,
                 chapter_number=job.chapter_number,
             )
@@ -630,6 +709,10 @@ class WritingService:
                 )
                 start = job.selection.get("start", 0)
                 end = job.selection.get("end", start)
+                if start == end:
+                    # Continue/insert at a cursor: without the text before it the model
+                    # cannot keep the scene (Phase 2 live finding F-LIVE-09).
+                    return revision.content[max(0, start - PRECEDING_CONTEXT_CHARS):start]
                 return revision.content[start:end]
             except Exception:
                 return ""

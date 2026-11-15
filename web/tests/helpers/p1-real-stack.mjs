@@ -64,10 +64,10 @@ export async function createHarness() {
     catch { return 'anonymous'; }
   };
   const parse = raw => { try { return JSON.parse(raw); } catch { return raw; } };
-  async function api(method, path, body, token, expected = [200, 201, 202]) {
+  async function api(method, path, body, token, expected = [200, 201, 202], headers = {}) {
     const started = new Date().toISOString();
     const response = await fetch(gateway + '/api/v1' + path, { method,
-      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      headers: { ...headers, 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       ...(body !== undefined ? { body: JSON.stringify(body) } : {}) });
     const json = parse(await response.text());
     requests.push(clean({ transport: 'fixture-or-negative-api', method, path, body, actor: actor('Bearer ' + token),

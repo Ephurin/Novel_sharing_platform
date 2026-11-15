@@ -1,4 +1,8 @@
 import { z } from 'zod';
+import { boundedArray } from '../../core/validation/bounded-array.js';
+
+// SEC-01: bound tags before element validation (zod 3 memory amplification, GHSA-mrhx-c7xc-m3w5).
+export const MAX_NOVEL_TAGS = 20;
 
 export const novelIdParamSchema = z.object({
   params: z.object({
@@ -25,9 +29,9 @@ export const createNovelSchema = z.object({
     title: z.string().trim().min(1).max(NOVEL_TITLE_MAX),
     synopsis: z.string().trim().min(NOVEL_SYNOPSIS_MIN),
     authorNote: z.string().trim().max(5000).nullable().optional(),
-    genres: z.array(z.string().trim().min(1).max(100)).max(5).optional(),
+    genres: boundedArray(z.string().trim().min(1).max(100), 5).optional(),
     genre: z.string().max(100).optional(),
-    tags: z.array(z.string().min(1).max(100)).default([]),
+    tags: boundedArray(z.string().min(1).max(100), MAX_NOVEL_TAGS).default([]),
     coverImageUrl: z.string().url().nullable().optional()
   })
 });
@@ -39,9 +43,9 @@ export const updateNovelSchema = z.object({
     // Length is checked in updateNovel against the stored synopsis: an unchanged legacy synopsis is accepted.
     synopsis: z.string().trim().optional(),
     authorNote: z.string().trim().max(5000).nullable().optional(),
-    genres: z.array(z.string().trim().min(1).max(100)).max(5).optional(),
+    genres: boundedArray(z.string().trim().min(1).max(100), 5).optional(),
     genre: z.string().max(100).nullable().optional(),
-    tags: z.array(z.string().min(1).max(100)).optional(),
+    tags: boundedArray(z.string().min(1).max(100), MAX_NOVEL_TAGS).optional(),
     coverImageUrl: z.string().url().nullable().optional()
   })
 });

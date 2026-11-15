@@ -1,0 +1,9 @@
+{
+  "base_sha": "ac9d070b2b3e6b368e41e84735b8a3dde5740f99",
+  "added_test": "tests/test_setup_activation_postgres.py::test_idea_only_source_then_reviewed_cards_can_activate",
+  "command": "python -m pytest -q -o addopts= -s tests/test_setup_activation_postgres.py -k idea_only",
+  "exit_code": 1,
+  "error": "M0_BOOTSTRAP_IN_PROGRESS",
+  "raw_log_sha256": "65bf05d8c13de2373f37b22fe313930a17eb125e7fcc60dc7527aaff4cf76e4f",
+  "note": "Unmodified base activation implementation plus the new reproduction test. Original raw log retained locally; not a final-source acceptance run."
+}

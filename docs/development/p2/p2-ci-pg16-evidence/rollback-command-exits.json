@@ -1,0 +1,86 @@
+[
+  {
+    "step": "Record runner clients and select pinned PG16 service clients",
+    "command": "set -euo pipefail\nmkdir -p /tmp/p8-rollback-evidence \"$RUNNER_TEMP/p8-pg16-bin\"\nfor tool in pg_dump pg_restore psql; do\n  if command -v \"$tool\" >/dev/null; then\n    \"$tool\" --version\n  else\n    echo \"runner $tool: not installed\"\n  fi\n  ln -s \"$GITHUB_WORKSPACE/scripts/p8_pg16_client.sh\" \"$RUNNER_TEMP/p8-pg16-bin/$tool\"\n  version=\"$(docker exec \"$P8_PG_CONTAINER\" \"$tool\" --version)\"\n  echo \"matched $version\"\n  [[ \"$version\" =~ PostgreSQL\\)\\ 16\\. ]]\ndone | tee /tmp/p8-rollback-evidence/client-versions.txt\ndocker inspect --format '{{.Image}}' \"$P8_PG_CONTAINER\" | tee /tmp/p8-rollback-evidence/server-image.txt\ndocker exec \"$P8_PG_CONTAINER\" psql -U postgres -d p8_rehearsal -Atc 'SHOW server_version; SHOW server_version_num;' | tee /tmp/p8-rollback-evidence/server-versions.txt\nmajor=\"$(docker exec \"$P8_PG_CONTAINER\" psql -U postgres -d p8_rehearsal -Atc 'SHOW server_version_num')\"\ntest \"$((major / 10000))\" -eq 16\necho \"P8_PG_CONTAINER=$P8_PG_CONTAINER\" >> \"$GITHUB_ENV\"\necho \"$RUNNER_TEMP/p8-pg16-bin\" >> \"$GITHUB_PATH\"\n",
+    "exit_code": 0,
+    "evidence": "GitHub step success with bash errexit/pipefail; normal restore errors are not ignored"
+  },
+  {
+    "step": "Install AI-service dependencies",
+    "command": "pip install -r requirements.txt pytest httpx",
+    "exit_code": 0,
+    "evidence": "GitHub step success with bash errexit/pipefail; normal restore errors are not ignored"
+  },
+  {
+    "step": "Enforce cleanup readiness boundary",
+    "command": "python scripts/check_p8_cleanup_readiness.py",
+    "exit_code": 0,
+    "evidence": "GitHub step success with bash errexit/pipefail; normal restore errors are not ignored"
+  },
+  {
+    "step": "Prepare source database and seed canonical cutover fixture",
+    "command": "set -euo pipefail\npython -m alembic upgrade head\nmkdir -p /tmp/p8-rollback-json\ncat > /tmp/p8-rollback-json/11111111-2222-3333-4444-555555555555.json <<'JSON'\n{\n  \"story_id\": \"11111111-2222-3333-4444-555555555555\",\n  \"metadata\": {\"brain_version\": \"3\", \"status\": \"active\"},\n  \"entities\": {\n    \"elena\": {\n      \"name\": \"Elena\",\n      \"entity_type\": \"character\",\n      \"status\": \"Alive\",\n      \"location\": \"Observatory\",\n      \"mentions\": 4,\n      \"is_locked\": true\n    }\n  }\n}\nJSON\npython -m application.migrate_json_to_postgres             --json-storage /tmp/p8-rollback-json             --story-id 11111111-2222-3333-4444-555555555555             --apply             --output /tmp/p8-rehearsal-seed.json\n",
+    "exit_code": 0,
+    "evidence": "GitHub step success with bash errexit/pipefail; normal restore errors are not ignored"
+  },
+  {
+    "step": "Capture source schema/version/snapshot",
+    "command": "set -euo pipefail\npython - <<'PY'\nimport json\nfrom core.settings import Settings\nfrom core.story_kb_manager import StoryKBManager\nfrom infrastructure.repository_factory import build_narrative_repository\nrepo = build_narrative_repository(Settings.from_env(), StoryKBManager(\"/tmp/p8-unused\"))\ndata = repo.export_snapshot(\"11111111-2222-3333-4444-555555555555\")\nwith open(\"/tmp/source-snapshot.json\", \"w\", encoding=\"utf-8\") as f:\n    json.dump(data, f, ensure_ascii=False, sort_keys=True, indent=2)\nengine = getattr(repo, \"engine\", None)\nif engine is not None:\n    engine.dispose()\nPY\npsql postgresql://postgres:postgres@localhost:5432/p8_rehearsal -Atc             \"SELECT version_num FROM alembic_version ORDER BY version_num\" > /tmp/source-alembic.txt\npsql postgresql://postgres:postgres@localhost:5432/p8_rehearsal -Atc             \"SELECT extname || ':' || extversion FROM pg_extension WHERE extname='vector'\" > /tmp/source-vector.txt\n",
+    "exit_code": 0,
+    "evidence": "GitHub step success with bash errexit/pipefail; normal restore errors are not ignored"
+  },
+  {
+    "step": "Verify catalog comparison rejects real schema and data changes",
+    "command": "python -m unittest discover -s scripts/tests -p test_p8_rollback_readback.py -v",
+    "exit_code": 0,
+    "evidence": "GitHub step success with bash errexit/pipefail; normal restore errors are not ignored"
+  },
+  {
+    "step": "Capture complete source schema and data",
+    "command": "set -euo pipefail\npython scripts/p8_rollback_readback.py --database-env SOURCE_DATABASE_URL --output /tmp/p8-rollback-evidence/source-readback.json | tee /tmp/p8-rollback-evidence/source-readback-summary.json\n",
+    "exit_code": 0,
+    "evidence": "GitHub step success with bash errexit/pipefail; normal restore errors are not ignored"
+  },
+  {
+    "step": "Reproduce incompatible PG17 restore against the same PG16 fixture",
+    "command": "set -euo pipefail\nfor tool in pg_dump pg_restore psql; do\n  docker run --rm \"$P8_INCOMPATIBLE_CLIENT\" \"$tool\" --version\ndone | tee /tmp/p8-rollback-evidence/incompatible-client-versions.txt\npsql postgresql://postgres:postgres@localhost:5432/postgres -v ON_ERROR_STOP=1 -c 'CREATE DATABASE p8_incompatible_verify'\ndocker run --rm --network host \"$P8_INCOMPATIBLE_CLIENT\" pg_dump --format=custom --no-owner --no-acl --dbname=postgresql://postgres:postgres@localhost:5432/p8_rehearsal > /tmp/p8-rollback-evidence/incompatible.dump\nif docker run --rm -i --network host \"$P8_INCOMPATIBLE_CLIENT\" pg_restore --exit-on-error --no-owner --no-acl --dbname=postgresql://postgres:postgres@localhost:5432/p8_incompatible_verify < /tmp/p8-rollback-evidence/incompatible.dump > /tmp/p8-rollback-evidence/incompatible-restore.log 2>&1; then\n  echo 'Incompatible restore unexpectedly succeeded' >&2\n  exit 1\nelse\n  code=$?\n  echo \"$code\" > /tmp/p8-rollback-evidence/incompatible-exit.txt\n  test \"$code\" -eq 1\n  grep -F 'unrecognized configuration parameter \"transaction_timeout\"' /tmp/p8-rollback-evidence/incompatible-restore.log\n  grep -F 'SET transaction_timeout = 0;' /tmp/p8-rollback-evidence/incompatible-restore.log\nfi\n",
+    "exit_code": 0,
+    "evidence": "GitHub step success with bash errexit/pipefail; normal restore errors are not ignored"
+  },
+  {
+    "step": "Backup source database",
+    "command": "set -euo pipefail\npg_dump --format=custom --no-owner --no-acl --dbname=postgresql://postgres:postgres@localhost:5432/p8_rehearsal > /tmp/p8-rehearsal.dump\ntest -s /tmp/p8-rehearsal.dump\nsha256sum /tmp/p8-rehearsal.dump > /tmp/p8-rehearsal.dump.sha256\n",
+    "exit_code": 0,
+    "evidence": "GitHub step success with bash errexit/pipefail; normal restore errors are not ignored"
+  },
+  {
+    "step": "Restore into isolated verification database",
+    "command": "set -euo pipefail\npsql postgresql://postgres:postgres@localhost:5432/postgres -v ON_ERROR_STOP=1             -c \"CREATE DATABASE p8_restore_verify\"\npg_restore --exit-on-error --no-owner --no-acl --dbname=postgresql://postgres:postgres@localhost:5432/p8_restore_verify < /tmp/p8-rehearsal.dump\n",
+    "exit_code": 0,
+    "evidence": "GitHub step success with bash errexit/pipefail; normal restore errors are not ignored"
+  },
+  {
+    "step": "Verify restored migration state and canonical parity",
+    "command": "set -euo pipefail\npython - <<'PY'\nimport json\nfrom core.settings import Settings\nfrom core.story_kb_manager import StoryKBManager\nfrom infrastructure.repository_factory import build_narrative_repository\nrepo = build_narrative_repository(Settings.from_env(), StoryKBManager(\"/tmp/p8-unused-restore\"))\nrestored = repo.export_snapshot(\"11111111-2222-3333-4444-555555555555\")\nwith open(\"/tmp/source-snapshot.json\", encoding=\"utf-8\") as f:\n    source = json.load(f)\nassert restored == source, \"canonical snapshot changed after backup/restore\"\nengine = getattr(repo, \"engine\", None)\nif engine is not None:\n    engine.dispose()\nprint(\"canonical restore parity: PASS\")\nPY\npsql postgresql://postgres:postgres@localhost:5432/p8_restore_verify -Atc             \"SELECT version_num FROM alembic_version ORDER BY version_num\" > /tmp/restore-alembic.txt\npsql postgresql://postgres:postgres@localhost:5432/p8_restore_verify -Atc             \"SELECT extname || ':' || extversion FROM pg_extension WHERE extname='vector'\" > /tmp/restore-vector.txt\ndiff -u /tmp/source-alembic.txt /tmp/restore-alembic.txt\ndiff -u /tmp/source-vector.txt /tmp/restore-vector.txt\n",
+    "exit_code": 0,
+    "evidence": "GitHub step success with bash errexit/pipefail; normal restore errors are not ignored"
+  },
+  {
+    "step": "Prove source database was not mutated by rehearsal restore",
+    "command": "set -euo pipefail\npython - <<'PY'\nimport json\nfrom core.settings import Settings\nfrom core.story_kb_manager import StoryKBManager\nfrom infrastructure.repository_factory import build_narrative_repository\nrepo = build_narrative_repository(Settings.from_env(), StoryKBManager(\"/tmp/p8-unused-final\"))\ncurrent = repo.export_snapshot(\"11111111-2222-3333-4444-555555555555\")\nwith open(\"/tmp/source-snapshot.json\", encoding=\"utf-8\") as f:\n    before = json.load(f)\nassert current == before, \"source database changed during restore rehearsal\"\nengine = getattr(repo, \"engine\", None)\nif engine is not None:\n    engine.dispose()\nprint(\"source database unchanged: PASS\")\nPY\n",
+    "exit_code": 0,
+    "evidence": "GitHub step success with bash errexit/pipefail; normal restore errors are not ignored"
+  },
+  {
+    "step": "Verify full restored schema/data and unchanged source hashes",
+    "command": "set -euo pipefail\npython scripts/p8_rollback_readback.py --database-env RESTORE_DATABASE_URL --output /tmp/p8-rollback-evidence/restore-readback.json --expected /tmp/p8-rollback-evidence/source-readback.json | tee /tmp/p8-rollback-evidence/restore-readback-summary.json\npython scripts/p8_rollback_readback.py --database-env SOURCE_DATABASE_URL --output /tmp/p8-rollback-evidence/source-after-readback.json --expected /tmp/p8-rollback-evidence/source-readback.json | tee /tmp/p8-rollback-evidence/source-after-summary.json\ncp /tmp/p8-rehearsal.dump /tmp/p8-rehearsal.dump.sha256 /tmp/source-alembic.txt /tmp/restore-alembic.txt /tmp/source-vector.txt /tmp/restore-vector.txt /tmp/source-snapshot.json /tmp/p8-rollback-evidence/\nsha256sum /tmp/p8-rollback-evidence/*.json > /tmp/p8-rollback-evidence/readbacks.sha256\n",
+    "exit_code": 0,
+    "evidence": "GitHub step success with bash errexit/pipefail; normal restore errors are not ignored"
+  },
+  {
+    "step": "Intentional incompatible restore",
+    "exit_code": 1,
+    "expected_failure": "transaction_timeout",
+    "evidence": "artifact incompatible-exit.txt; asserted by successful negative-control step"
+  }
+]

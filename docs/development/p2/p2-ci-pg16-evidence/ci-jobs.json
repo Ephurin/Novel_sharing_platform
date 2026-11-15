@@ -1,0 +1,78 @@
+{
+  "base_sha": "3adab5c73636bd4e7c3dbc6578d4ece0a54b5627",
+  "tested_sha": "2b365505551c51c71884ee7c340ada5273a5fe3c",
+  "synthetic_merge_sha": "938d5f953a1c09628498a32123d6ccf1d37faf78",
+  "tree": "567a2c4f0788dda714e1d87f6a6e914e0a1e6816",
+  "runs": [
+    {
+      "id": 42336942401,
+      "jobs": [
+        {
+          "id": 128295872063,
+          "name": "root-compose-cutover-smoke",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128295872130,
+          "name": "postgres-integration",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128295872139,
+          "name": "final-cleanup-gate",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128295872146,
+          "name": "backend-integration",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128295872158,
+          "name": "unit",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128295872174,
+          "name": "rollback-rehearsal",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128295872198,
+          "name": "frontend-api-cutover",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "id": 42336942369,
+      "jobs": [
+        {
+          "id": 128295871205,
+          "name": "pgvector-integration",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128295871211,
+          "name": "unit",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 128295871269,
+          "name": "root-compose-smoke",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ]
+}

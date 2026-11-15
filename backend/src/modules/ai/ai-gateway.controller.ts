@@ -1,6 +1,8 @@
 import type { Request, Response, NextFunction } from 'express';
 import { createHash, randomUUID } from 'node:crypto';
+import { getPostgresPool } from '../../core/database/postgres.js';
 import { aiGatewayService } from './ai-gateway.service.js';
+import { recoverWritingDraft, dismissWritingDraft } from './writing-drafts.service.js';
 import { refreshStoryBibleSafely } from '../story-context/story-brain-bible.js';
 import { successResponse } from '../../core/response/response.js';
 import { AppError } from '../../core/errors/app-error.js';
@@ -9,6 +11,26 @@ import { findChapterById, type ChapterRecord } from '../novels/chapters.reposito
 import { assertCurrentProposalEvidence } from './proposal-evidence.service.js';
 import { listLatestChapterAnalysis } from '../novels/outbox.repository.js';
 import { findRevisionById, findLatestRevisionByChapterId } from '../novels/chapter-revisions.repository.js';
+
+export async function entityProfileController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    const entityId = String(req.params.entityId);
+    if (!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(entityId)) {
+      throw new AppError(422, 'INVALID_ENTITY_ID', 'Entity UUID is required');
+    }
+    await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+    const key = req.get('Idempotency-Key');
+    if (req.method === 'PATCH' && (!key || !/^[A-Za-z0-9_-]{1,128}$/.test(key))) {
+      throw new AppError(422, 'INVALID_IDEMPOTENCY_KEY', 'A stable request identifier is required');
+    }
+    const data = await aiGatewayService.forwardRequest({ method: req.method === 'GET' ? 'GET' : 'PATCH',
+      path: `/v1/story-brains/${novelId}/entities/${entityId}/profile`, userId: req.auth!.userId,
+      ...(req.method === 'GET' ? {} : { body: req.body, idempotencyKey: key }) });
+    res.set('Cache-Control', 'no-store');
+    res.json(successResponse(data));
+  } catch (error) { next(error); }
+}
 
 export async function entityGuidanceController(req: Request, res: Response, next: NextFunction) {
   try {
@@ -133,8 +155,28 @@ export async function authorOperationController(req: Request, res: Response, nex
   try {
     const novelId = String(req.params.novelId);
     await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
-    const data = await aiGatewayService.forwardRequest({ method: 'POST',
-      path: `/v1/story-brains/${novelId}/author-operation`, body: req.body, userId: req.auth!.userId });
+    const data = await aiGatewayService.forwardRequest({
+      method: 'POST',
+      path: `/v1/story-brains/${novelId}/author-operation`,
+      body: req.body,
+      userId: req.auth!.userId,
+      idempotencyKey: req.header('Idempotency-Key') || (req.body && req.body.idempotency_key) || undefined,
+    });
+    res.json(successResponse(data));
+  } catch (error) { next(error); }
+}
+
+export async function brainstormController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+    const data = await aiGatewayService.forwardRequest({
+      method: 'POST',
+      path: `/v1/story-brains/${novelId}/brainstorm`,
+      body: req.body,
+      userId: req.auth!.userId,
+      idempotencyKey: req.header('Idempotency-Key') || (req.body && req.body.idempotency_key) || undefined,
+    });
     res.json(successResponse(data));
   } catch (error) { next(error); }
 }
@@ -236,6 +278,26 @@ export async function getContextPreviewController(
   }
 }
 
+export async function writingDraftReviewController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const chapterId = req.method === 'GET' ? req.query.chapter_id : req.body.chapter_id;
+    const novelId = req.method === 'GET' ? req.query.novel_id : req.body.novel_id;
+    const uuid = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+    if (typeof chapterId !== 'string' || typeof novelId !== 'string' ||
+        !uuid.test(chapterId) || !uuid.test(novelId) ||
+        (req.method !== 'GET' && !uuid.test(String(req.params.jobId)))) {
+      throw new AppError(400, 'INVALID_REQUEST', 'Valid novel_id, chapter_id and job UUIDs are required');
+    }
+    const { chapter } = await assertChapterOwnership(req.auth!.userId, req.auth!.role, chapterId);
+    if (chapter.novelId !== novelId) throw new AppError(400, 'CHAPTER_MISMATCH', 'Chapter belongs to another novel');
+    const scope = { userId: req.auth!.userId, novelId, chapterId };
+    const data = req.method === 'GET' ? await recoverWritingDraft(scope)
+      : await dismissWritingDraft(scope, String(req.params.jobId));
+    res.set('Cache-Control', 'no-store');
+    res.json(successResponse(data));
+  } catch (error) { next(error); }
+}
+
 export async function startWritingGenerationController(
   req: Request,
   res: Response,
@@ -290,7 +352,9 @@ async function getAuthorizedJob(req: Request) {
       !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(novelId)) {
     throw new AppError(403, 'JOB_SCOPE_INVALID', 'Job has no valid novel scope');
   }
-  await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+  const result = (data as Record<string, unknown>).result;
+  const setup = result && typeof result === 'object' && (result as Record<string, unknown>).contract_version === 'setup-v1';
+  await assertNovelOwnership(req.auth!.userId, setup ? 'AUTHOR' : req.auth!.role, novelId);
   return data;
 }
 
@@ -299,6 +363,7 @@ export async function getJobStatusController(
   res: Response,
   next: NextFunction
 ) {
+  res.set('Cache-Control', 'no-store');
   try {
     res.json(successResponse(await getAuthorizedJob(req)));
   } catch (error) {
@@ -311,6 +376,7 @@ export async function resumeJobController(
   res: Response,
   next: NextFunction
 ) {
+  res.set('Cache-Control', 'no-store');
   try {
     await getAuthorizedJob(req);
     const data = await aiGatewayService.forwardRequest({
@@ -366,11 +432,15 @@ export async function startIdeaBootstrapController(
     if (!req.body.novel_id) {
       throw new AppError(400, 'INVALID_REQUEST', 'novel_id is required');
     }
-    if (!req.body.idea || typeof req.body.idea !== 'string') {
+    if (req.body.contract_version === undefined && (!req.body.idea || typeof req.body.idea !== 'string')) {
       throw new AppError(400, 'INVALID_REQUEST', 'idea is required');
     }
 
-    await assertNovelOwnership(userId, userRole, req.body.novel_id);
+    if (req.body.contract_version === 'setup-v1' && (typeof req.body.novel_id !== 'string' ||
+        !/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(req.body.novel_id))) {
+      throw new AppError(422, 'INVALID_NOVEL_ID', 'novel_id must be a UUID');
+    }
+    await assertNovelOwnership(userId, req.body.contract_version === 'setup-v1' ? 'AUTHOR' : userRole, req.body.novel_id);
 
     const data = await aiGatewayService.forwardRequest({
       method: 'POST',
@@ -380,6 +450,7 @@ export async function startIdeaBootstrapController(
       requestId: req.header('x-request-id'),
     });
 
+    res.set('Cache-Control', 'no-store');
     res.status(202).json(successResponse(data));
   } catch (error) {
     next(error);
@@ -619,7 +690,7 @@ export async function createStoryPlanController(
       throw new AppError(400, 'INVALID_REQUEST', 'novel_id is required');
     }
 
-    await assertNovelOwnership(userId, userRole, String(novelId));
+    await assertNovelOwnership(userId, 'AUTHOR', String(novelId));
 
     const data = await aiGatewayService.forwardRequest({
       method: 'POST',
@@ -645,7 +716,7 @@ export async function getActiveStoryPlanController(
     const userId = req.auth!.userId;
     const userRole = req.auth!.role;
 
-    await assertNovelOwnership(userId, userRole, String(novelId));
+    await assertNovelOwnership(userId, 'AUTHOR', String(novelId));
 
     const data = await aiGatewayService.forwardRequest({
       method: 'GET',
@@ -670,15 +741,26 @@ export async function getStoryPlanController(
     const userId = req.auth!.userId;
     const userRole = req.auth!.role;
 
+    // Resolve only scope metadata locally, with current owner + immutable creator.
+    // Never fetch a foreign outline from Python before authorization.
+    if (!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(String(planId))) throw new AppError(422,'INVALID_PLAN_ID','Invalid plan ID');
+    const scoped = await getPostgresPool().query(
+      `SELECT p.novel_id,p.edit_metadata->>'contract_version' AS contract_version FROM narrative.story_plans p JOIN novels n ON n.novel_id=p.novel_id
+       WHERE p.id=$1 AND p.tenant_id=$3 AND ((p.created_by=$2 AND n.author_id=$2) OR ($4 AND coalesce(p.edit_metadata->>'contract_version','')<>'plan-edit-v1'))`,
+      [planId,userId,'00000000-0000-0000-0000-000000000001',userRole==='ADMIN']);
+    if (!scoped.rows[0]) throw new AppError(404,'PLAN_NOT_FOUND','Plan not found');
+    const legacyAdmin=userRole==='ADMIN'&&scoped.rows[0].contract_version!=='plan-edit-v1';
+    await assertNovelOwnership(userId,legacyAdmin?'ADMIN':'AUTHOR',String(scoped.rows[0].novel_id));
     const data = await aiGatewayService.forwardRequest({
       method: 'GET',
+      legacyPlanRead:legacyAdmin,
       path: `/v1/story-plans/${planId}`,
       userId,
       requestId: req.header('x-request-id'),
     });
 
-    if (data?.novel_id) {
-      await assertNovelOwnership(userId, userRole, data.novel_id);
+    if (data?.novel_id !== String(scoped.rows[0].novel_id)) {
+      throw new AppError(502,'PLAN_SCOPE_MISMATCH','Invalid upstream plan scope');
     }
 
     res.json(successResponse(data));
@@ -702,7 +784,7 @@ export async function activateStoryPlanController(
       throw new AppError(400, 'INVALID_REQUEST', 'novel_id is required');
     }
 
-    await assertNovelOwnership(userId, userRole, String(novelId));
+    await assertNovelOwnership(userId, 'AUTHOR', String(novelId));
 
     const data = await aiGatewayService.forwardRequest({
       method: 'POST',
@@ -733,7 +815,7 @@ export async function updateStoryPlanObjectiveController(
       throw new AppError(400, 'INVALID_REQUEST', 'novel_id is required');
     }
 
-    await assertNovelOwnership(userId, userRole, String(novelId));
+    await assertNovelOwnership(userId, 'AUTHOR', String(novelId));
 
     const data = await aiGatewayService.forwardRequest({
       method: 'PATCH',
@@ -750,3 +832,136 @@ export async function updateStoryPlanObjectiveController(
   }
 }
 
+
+
+export async function getSetupSnapshotController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    if (!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(novelId)) {
+      throw new AppError(422, 'INVALID_NOVEL_ID', 'novel_id must be a UUID');
+    }
+    // Setup has no cross-owner ADMIN delegation in this contract.
+    await assertNovelOwnership(req.auth!.userId, 'AUTHOR', novelId);
+    const snapshotId = req.query.snapshot_id;
+    if (snapshotId !== undefined && (typeof snapshotId !== 'string' ||
+        !/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(snapshotId))) {
+      throw new AppError(422, 'INVALID_SNAPSHOT_ID', 'snapshot_id must be a UUID');
+    }
+    const data = await aiGatewayService.forwardRequest({method:'GET',
+      path: `/v1/story-brains/${novelId}/setup`, userId:req.auth!.userId,
+      requestId:req.header('x-request-id'), queryParams:{snapshot_id: snapshotId as string | undefined}});
+    res.set('Cache-Control', 'no-store');
+    res.json(successResponse(data));
+  } catch (error) { next(error); }
+}
+
+
+export async function reviewSetupSnapshotController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    const snapshotId = String(req.params.snapshotId);
+    const uuid = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+    if (!uuid.test(novelId) || !uuid.test(snapshotId)) throw new AppError(422, 'INVALID_SETUP_ID', 'Invalid setup ID');
+    await assertNovelOwnership(req.auth!.userId, 'AUTHOR', novelId);
+    const data = await aiGatewayService.forwardRequest({method:'POST',
+      path:`/v1/story-brains/${novelId}/setup/${snapshotId}/review`, userId:req.auth!.userId,
+      requestId:req.header('x-request-id'), body:req.body});
+    res.set('Cache-Control', 'no-store');
+    res.json(successResponse(data));
+  } catch (error) { next(error); }
+}
+
+export async function activateSetupM0Controller(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId=String(req.params.novelId), snapshotId=String(req.params.snapshotId);
+    const uuid=/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+    if(!uuid.test(novelId)||!uuid.test(snapshotId))throw new AppError(422,'INVALID_SETUP_ID','Invalid setup ID');
+    await assertNovelOwnership(req.auth!.userId,'AUTHOR',novelId);
+    const data=await aiGatewayService.forwardRequest({method:req.method==='POST'?'POST':'GET',
+      path:`/v1/story-brains/${novelId}/setup/${snapshotId}/activate`,userId:req.auth!.userId,
+      requestId:req.header('x-request-id'),...(req.method==='POST'?{body:req.body}:{})});
+    res.set('Cache-Control','no-store');res.json(successResponse(data));
+  }catch(error){next(error);}
+}
+
+
+export async function editStoryPlansController(req:Request,res:Response,next:NextFunction) {
+  try {
+    const novel=String(req.params.novelId);
+    const id=req.params.planId;
+    if(!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(novel) || (id&&!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(String(id)))) throw new AppError(422,'INVALID_PLAN_ID','Invalid plan scope');
+    await assertNovelOwnership(req.auth!.userId,'AUTHOR',novel);
+    const data=await aiGatewayService.forwardRequest({method:req.method==='POST'?'POST':'GET',
+      path:`/v1/story-plans/edit-v1/${novel}${id?'/'+id:''}`,userId:req.auth!.userId,
+      requestId:req.header('x-request-id'),...(req.method==='POST'?{body:req.body}:{})});
+    res.set('Cache-Control','no-store');res.json(successResponse(data));
+  } catch(e){next(e);}
+}
+
+export async function proposeWorldRuleAmendmentController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    const factId = String(req.params.factId);
+    const uuidRegex = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(novelId) || !uuidRegex.test(factId)) {
+      throw new AppError(422, 'INVALID_AMENDMENT_ID', 'Invalid novel or fact ID');
+    }
+    await assertNovelOwnership(req.auth!.userId, 'AUTHOR', novelId);
+    const data = await aiGatewayService.forwardRequest({
+      method: 'POST',
+      path: `/v1/story-brains/${novelId}/world-rules/${factId}/amendments`,
+      userId: req.auth!.userId,
+      requestId: req.header('x-request-id'),
+      body: req.body,
+    });
+    res.set('Cache-Control', 'no-store');
+    res.status(201).json(successResponse(data));
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function decideWorldRuleAmendmentController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    const proposalId = String(req.params.proposalId);
+    const uuidRegex = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(novelId) || !uuidRegex.test(proposalId)) {
+      throw new AppError(422, 'INVALID_AMENDMENT_ID', 'Invalid novel or proposal ID');
+    }
+    await assertNovelOwnership(req.auth!.userId, 'AUTHOR', novelId);
+    const data = await aiGatewayService.forwardRequest({
+      method: 'POST',
+      path: `/v1/story-brains/${novelId}/world-rule-amendments/${proposalId}/decision`,
+      userId: req.auth!.userId,
+      requestId: req.header('x-request-id'),
+      body: req.body,
+    });
+    res.set('Cache-Control', 'no-store');
+    res.json(successResponse(data));
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getWorldRuleAmendmentsController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    const factId = String(req.params.factId);
+    const uuidRegex = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(novelId) || !uuidRegex.test(factId)) {
+      throw new AppError(422, 'INVALID_AMENDMENT_ID', 'Invalid novel or fact ID');
+    }
+    await assertNovelOwnership(req.auth!.userId, 'AUTHOR', novelId);
+    const data = await aiGatewayService.forwardRequest({
+      method: 'GET',
+      path: `/v1/story-brains/${novelId}/world-rules/${factId}/amendments`,
+      userId: req.auth!.userId,
+      requestId: req.header('x-request-id'),
+    });
+    res.set('Cache-Control', 'no-store');
+    res.json(successResponse(data));
+  } catch (error) {
+    next(error);
+  }
+}

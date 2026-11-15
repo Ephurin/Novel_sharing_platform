@@ -95,6 +95,7 @@ export type WritingPatch = {
 };
 
 export type WritingGenerationJob = {
+  stale_reason?: string | null;
   job_id: string;
   novel_id: string;
   chapter_id: string;
@@ -180,6 +181,16 @@ export async function startWritingGeneration(input: {
 export async function getJobStatus(jobId: string): Promise<WritingGenerationJob> {
   const response = await apiClient.get<ApiEnvelope<WritingGenerationJob>>(`/ai/jobs/${jobId}`);
   return response.data.data;
+}
+
+export async function recoverWritingDraft(novelId: string, chapterId: string): Promise<{ job: WritingGenerationJob | null }> {
+  const response = await apiClient.get<ApiEnvelope<{ job: WritingGenerationJob | null }>>('/ai/writing/generations',
+    { params: { novel_id: novelId, chapter_id: chapterId } });
+  return response.data.data;
+}
+
+export async function dismissWritingDraft(novelId: string, chapterId: string, jobId: string) {
+  await apiClient.post(`/ai/writing/generations/${jobId}/dismiss`, { novel_id: novelId, chapter_id: chapterId });
 }
 
 export async function acceptDraftRevision(chapterId: string, generationId: string) {

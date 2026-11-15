@@ -1,0 +1,129 @@
+{
+  "contract_revision": "setup-v1-rc1",
+  "validation_scope": "PROPOSED_DTO_SCHEMA_AND_REFERENCE_VECTORS_ONLY",
+  "validator_version": "4.23.0",
+  "schema_cases": 22,
+  "valid_examples": 9,
+  "invalid_examples": 13,
+  "hash_vectors": 1,
+  "span_vectors": 2,
+  "future_runtime_cases": 12,
+  "runtime_verdict": "NOT_RUN_NOT_IMPLEMENTED",
+  "sha256": {
+    "schemas.json": "8bc9ceea2357192c24c1f81cc5f29cf21efeb2b41e3710dfc910cc4f5b960e8e",
+    "fixtures.json": "460a73aee17e4cdbd1d98837640047a6df730893de55d978248753dd05548611",
+    "validate_fixtures.py": "1858377c6864ca8ae4f9019813caf32b0a3d52d7220969e0d50a9682669353c8"
+  },
+  "cases": [
+    {
+      "case": "explicit-setup-with-separated-noise",
+      "expected_shape_valid": true,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "no-plan-entry",
+      "expected_shape_valid": true,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "explicit-blueprint",
+      "expected_shape_valid": true,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "homonyms-distinct-declarations",
+      "expected_shape_valid": true,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "rules-and-initial-conditions",
+      "expected_shape_valid": true,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "unknown-mode",
+      "expected_shape_valid": false,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "client-authority",
+      "expected_shape_valid": false,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "ambiguous-idea-alias",
+      "expected_shape_valid": false,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "missing-key",
+      "expected_shape_valid": false,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "stale-shape",
+      "expected_shape_valid": false,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "unsupported-declaration-type",
+      "expected_shape_valid": false,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "unknown-nested-authority",
+      "expected_shape_valid": false,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "owner-readback-pending-extract",
+      "expected_shape_valid": true,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "bad-source-hash-shape",
+      "expected_shape_valid": false,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "explicit-group-rejection",
+      "expected_shape_valid": true,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "complete-edited-group",
+      "expected_shape_valid": true,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "duplicate-review-member",
+      "expected_shape_valid": false,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "missing-review-CAS",
+      "expected_shape_valid": false,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "creative-blueprint-pending",
+      "expected_shape_valid": true,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "creative-origin-in-extract",
+      "expected_shape_valid": false,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "ambiguous-identity-selection",
+      "expected_shape_valid": false,
+      "schema_expectation": "PASS"
+    },
+    {
+      "case": "reject-cannot-apply-edited-payload",
+      "expected_shape_valid": false,
+      "schema_expectation": "PASS"
+    }
+  ]
+}

@@ -7,6 +7,10 @@ class Handler(BaseHTTPRequestHandler):
     def forward(self):
         if self.path == "/received" and self.command == "GET":
             target = "http://fake-upstream:18091/received"
+        elif self.path == "/budget-status" and self.command == "GET":
+            target = "http://budget-gateway:18090/status"
+        elif self.path == "/ai-health" and self.command == "GET":
+            target = "http://ai-service:8000/health"
         elif self.path.startswith("/api/v1/"):
             target = "http://backend:4000" + self.path
         else:

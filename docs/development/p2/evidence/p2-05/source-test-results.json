@@ -1,0 +1,46 @@
+{
+  "source_sha": "5f2a950298c22cf089819ae887055e6c88d6e715",
+  "ci": {
+    "p2_required_jobs": "1/1 PASS",
+    "p7_required_jobs": "3/3 PASS",
+    "p8_required_jobs": "7/7 PASS"
+  },
+  "p2": {
+    "focused_passed": 46,
+    "postgres_passed": 146,
+    "postgres_failed": 0,
+    "postgres_skipped": 0,
+    "m0_module_cases": 33,
+    "gateway_contract_passed": 19,
+    "live_bridge_suites": [
+      {
+        "name": "bootstrap/P1 save",
+        "passed": 1
+      },
+      {
+        "name": "setup owner",
+        "passed": 1
+      },
+      {
+        "name": "M0 first save and Canon",
+        "passed": 1
+      }
+    ],
+    "standalone_browser_passed": 8,
+    "actual_route_browser_passed": 1,
+    "p1_pg_mongo_browser_passed": 2,
+    "build_exit": 0,
+    "typecheck_exit": 0
+  },
+  "p8": {
+    "postgres_passed": 344,
+    "postgres_skipped": 8,
+    "postgres_deselected": 447,
+    "non_postgres_passed": 415,
+    "non_postgres_skipped": 32,
+    "non_postgres_deselected": 352,
+    "subtests_passed": 6
+  },
+  "real_llm_calls": 0,
+  "combined_new_planning_browser_to_db_e2e": "NOT_RUN; not claimed"
+}

@@ -1,0 +1,32 @@
+{
+  "source_sha": "595ef1bd0d060a02140f7659560ce6e9bb242aeb",
+  "tree_sha": "f2a9ba4758383d5f135f14b1753bf062eef9a454",
+  "results": [
+    {
+      "command": "npm run typecheck",
+      "exit_code": 0,
+      "log": "typecheck.txt",
+      "seconds": 7.48
+    },
+    {
+      "command": "npm run build",
+      "exit_code": 0,
+      "log": "build.txt",
+      "seconds": 30.35
+    },
+    {
+      "command": "npm run test:entity-profile",
+      "exit_code": 0,
+      "log": "test-entity-profile.txt",
+      "seconds": 19.62
+    },
+    {
+      "command": "npm run test:p1-hitl",
+      "exit_code": 0,
+      "log": "test-p1-hitl.txt",
+      "seconds": 21.18
+    }
+  ],
+  "integrated_browser": "NOT_RUN",
+  "live_provider": "NOT_RUN"
+}

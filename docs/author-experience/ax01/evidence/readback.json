@@ -1,0 +1,26 @@
+{
+  "source_sha": "c193dd1c84c17af367c8b384c9d151ae287cb805",
+  "schema_head": "0014_entity_profiles",
+  "database": "task-owned ax01, fake data only",
+  "counts": {
+    "entities": 105,
+    "entity_profile_audits": 40,
+    "events": 0,
+    "facts": 0
+  },
+  "latest_audit": {
+    "novel_id": "9b583234-098f-412f-b498-9fb1edfbf1e5",
+    "entity_id": "87ad0900-3193-495d-b035-3c109b7cc99c",
+    "actor_id": "00000000-0000-0000-0000-000000000002",
+    "created_at": "2026-10-26 15:11:54.733626+00:00",
+    "before_version": 1,
+    "after_version": 2,
+    "brain_before": 2,
+    "brain_after": 3
+  },
+  "fresh_readback_version": 2,
+  "private_values_omitted": true,
+  "context_prompt_has_no_author_notes_key": true,
+  "context_estimated_tokens": 174,
+  "budget": 4000
+}

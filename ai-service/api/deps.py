@@ -91,6 +91,17 @@ def require_llm_service(request: Request):
     return svc
 
 
+def get_brainstorm_service(request: Request):
+    llm = get_llm_service(request)
+    svc = getattr(request.app.state, "brainstorm_service", None)
+    if svc is None or (getattr(svc, "_llm_service", None) is None and llm is not None):
+        from application.brainstorm_service import BrainstormService
+        repo = get_narrative_repository(request)
+        svc = BrainstormService(repository=repo, llm_service=llm)
+        request.app.state.brainstorm_service = svc
+    return svc
+
+
 def get_settings(request: Request):
     return getattr(request.app.state, "settings", None)
 

@@ -1,0 +1,18 @@
+2026-11-06T18:31:05.2814534Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-06T18:31:05.2824205Z
+2026-11-06T18:31:05.2825217Z HEAD is now at 69072d3 Merge ad5c9c92c163c43c94d1dbd346aec326d705b19e into 3adab5c73636bd4e7c3dbc6578d4ece0a54b5627
+2026-11-06T18:31:05.2856072Z ##[endgroup]
+2026-11-06T18:31:05.2919920Z [command]/usr/bin/git log -1 --format=%H
+2026-11-06T18:31:05.2950482Z 69072d3d54eb68cd09bbad47b29670fccfe70c23
+2026-11-06T18:31:05.3238129Z ##[group]Run actions/setup-python@v5
+2026-11-06T18:31:19.6506203Z [notice] A new release of pip is available: 26.2.2 -> 26.3
+2026-11-06T18:31:19.6507331Z [notice] To update, run: pip install --upgrade pip
+2026-11-06T18:31:19.8530653Z ##[group]Run pytest -o addopts= -q -m postgres_integration
+2026-11-06T18:31:19.8531131Z [36;1mpytest -o addopts= -q -m postgres_integration[0m
+2026-11-06T18:31:19.8583575Z shell: /usr/bin/bash -e {0}
+2026-11-06T18:31:19.8583840Z env:
+2026-11-06T18:32:26.6782992Z
+2026-11-06T18:32:26.6783576Z -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2026-11-06T18:32:26.6784525Z 211 passed, 8 skipped, 419 deselected, 5 warnings in 65.74s (0:01:05)
+2026-11-06T18:32:27.7671884Z Post job cleanup.
+2026-11-06T18:32:27.9015574Z (node:4818) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.

@@ -1,0 +1,281 @@
+name: p1-safety-ed17977d
+services:
+  ai-service:
+    build:
+      context: C:\Users\Laptop\OneDrive\Documents\testproject\.gemini-p1-safety\ai-service
+      dockerfile: Dockerfile
+    cap_drop:
+      - ALL
+    depends_on:
+      budget-gateway:
+        condition: service_healthy
+        required: true
+      postgres:
+        condition: service_healthy
+        required: true
+    environment:
+      ALL_PROXY: ""
+      APP_ENV: production
+      BUDGET_GUARD_AUTH_TOKEN: <REDACTED_TEST_ONLY_CREDENTIAL>
+      BUDGET_GUARD_MODE: proxy
+      BUDGET_GUARD_URL: http://budget-gateway:18090
+      DATABASE_URL: postgresql+psycopg://p1_safety_user:<REDACTED_TEST_ONLY_CREDENTIAL>@postgres:5432/p1_safety_db
+      EMBEDDING_PROVIDER: none
+      ENTITY_CANDIDATE_VERIFICATION_ENABLED: "true"
+      GEMINI_API_KEY: ""
+      GOOGLE_API_KEY: ""
+      HTTP_PROXY: ""
+      HTTPS_PROXY: ""
+      LLM_API_KEY: ""
+      LLM_BASE_URL: ""
+      LLM_ENABLED: "true"
+      LLM_FALLBACK_PROVIDER: disabled
+      LLM_LOCAL_FALLBACK: "false"
+      LLM_MODEL: gemini-3.5-flash-lite
+      LLM_PROVIDER: gemini
+      LLM_STRUCTURED_MAX_TOKENS: "8192"
+      LLM_TIMEOUT_SECONDS: "15"
+      NARRATIVE_REPOSITORY: postgres
+      NO_PROXY: '*'
+      OPENAI_API_KEY: ""
+      PLATFORM_API_BASE_URL: http://backend:4000
+      PLATFORM_SERVICE_TOKEN: <REDACTED_TEST_ONLY_CREDENTIAL>
+      PORT: "8000"
+      SEMANTIC_RETRIEVAL_ENABLED: "false"
+    networks:
+      workers: null
+    security_opt:
+      - no-new-privileges:true
+  api-ingress:
+    cap_drop:
+      - ALL
+    command:
+      - python
+      - /tools/headless_http_ingress.py
+    depends_on:
+      backend:
+        condition: service_started
+        required: true
+    image: python:3.12-slim
+    networks:
+      headless-edge: null
+      upstream: null
+      workers: null
+    ports:
+      - mode: ingress
+        host_ip: 127.0.0.1
+        target: 4000
+        published: "18410"
+        protocol: tcp
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - type: bind
+        source: C:\Users\Laptop\OneDrive\Documents\testproject\.gemini-p1-safety\Pipeline_test\tools
+        target: /tools
+        read_only: true
+        bind:
+          create_host_path: true
+  backend:
+    build:
+      context: C:\Users\Laptop\OneDrive\Documents\testproject\.gemini-p1-safety
+      dockerfile: backend/Dockerfile
+    cap_drop:
+      - ALL
+    depends_on:
+      ai-service:
+        condition: service_started
+        required: true
+      mongodb:
+        condition: service_healthy
+        required: true
+      postgres:
+        condition: service_healthy
+        required: true
+    environment:
+      AI_LLM_API_KEY: ""
+      AI_LLM_BASE_URL: http://budget-gateway:18090/v1
+      AI_LLM_MAX_TOKENS: "512"
+      AI_LLM_MODEL: gemini-3.5-flash-lite
+      AI_SERVICE_URL: http://ai-service:8000
+      ALL_PROXY: ""
+      API_PREFIX: /api/v1
+      BUDGET_GUARD_AUTH_TOKEN: <REDACTED_TEST_ONLY_CREDENTIAL>
+      BUDGET_GUARD_MODE: proxy
+      BUDGET_GUARD_URL: http://budget-gateway:18090
+      DATABASE_URL: postgresql://p1_safety_user:<REDACTED_TEST_ONLY_CREDENTIAL>@postgres:5432/p1_safety_db
+      DB_CONNECT_ON_START: "true"
+      HTTP_PROXY: ""
+      HTTPS_PROXY: ""
+      JWT_ACCESS_SECRET: <REDACTED_TEST_ONLY_CREDENTIAL>
+      JWT_REFRESH_SECRET: <REDACTED_TEST_ONLY_CREDENTIAL>
+      MONGODB_URI: mongodb://mongodb:27017/p1_safety_db
+      NO_PROXY: '*'
+      NODE_ENV: production
+      PLATFORM_SERVICE_TOKEN: <REDACTED_TEST_ONLY_CREDENTIAL>
+      PORT: "4000"
+      RUN_DEMO_SEED: "false"
+      RUN_MIGRATIONS: "true"
+      WAVE1D_AUTHOR_EMAIL: author@test.local
+      WAVE1D_AUTHOR_PASSWORD: <REDACTED_TEST_ONLY_CREDENTIAL>
+      WAVE1D_AUTHOR_USERNAME: test_author
+      WAVE1D_PROJECT: p1-safety-ed17977d
+      WEB_ORIGIN: http://127.0.0.1:18410
+    networks:
+      workers: null
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - type: bind
+        source: C:\Users\Laptop\OneDrive\Documents\testproject\.gemini-p1-safety\Pipeline_test\tools
+        target: /wave-tools
+        read_only: true
+        bind:
+          create_host_path: true
+  budget-gateway:
+    cap_drop:
+      - ALL
+    command:
+      - python
+      - -u
+      - /tools/p1_live_safety_gateway.py
+      - --state
+      - /state/ledger.json
+      - --enable-live-safety-guard
+      - --max-calls
+      - "15"
+      - --max-window-calls
+      - "10"
+      - --window-seconds
+      - "60"
+    depends_on:
+      fake-upstream:
+        condition: service_started
+        required: true
+    environment:
+      GATEWAY_UPSTREAM_TIMEOUT_SECONDS: "5"
+      LIVE_SAFETY_GUARD_ENABLED: "true"
+      OFFLINE_UPSTREAM_KEY: <REDACTED_TEST_ONLY_CREDENTIAL>
+      OFFLINE_UPSTREAM_URL: http://fake-upstream:18091
+      WORKER_AUTH_TOKENS: '{"<REDACTED_TEST_ONLY_CREDENTIAL>":"ai-service","<REDACTED_TEST_ONLY_CREDENTIAL>":"backend"}'
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen("http://localhost:18090/health")
+      timeout: 2s
+      interval: 3s
+      retries: 20
+    image: python:3.12-slim
+    networks:
+      upstream: null
+      workers: null
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - type: bind
+        source: C:\Users\Laptop\OneDrive\Documents\testproject\.gemini-p1-safety\Pipeline_test\tools
+        target: /tools
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: volume
+        source: budget_state
+        target: /state
+        volume: {}
+  fake-upstream:
+    cap_drop:
+      - ALL
+    command:
+      - python
+      - -u
+      - /tools/fake_provider_upstream.py
+    environment:
+      FAKE_REQUEST_LOG: /evidence/requests.jsonl
+      FAKE_SCENARIO: p1-live-safety-v1
+      OFFLINE_UPSTREAM_KEY: <REDACTED_TEST_ONLY_CREDENTIAL>
+    image: python:3.12-slim
+    networks:
+      upstream: null
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - type: bind
+        source: C:\Users\Laptop\OneDrive\Documents\testproject\.gemini-p1-safety\Pipeline_test\tools
+        target: /tools
+        read_only: true
+        bind:
+          create_host_path: true
+      - type: volume
+        source: fake_state
+        target: /evidence
+        volume: {}
+  mongodb:
+    healthcheck:
+      test:
+        - CMD
+        - mongosh
+        - --quiet
+        - --eval
+        - db.adminCommand("ping").ok
+      timeout: 2s
+      interval: 3s
+      retries: 30
+    image: mongo:7
+    networks:
+      workers: null
+    volumes:
+      - type: volume
+        source: mongo_state
+        target: /data/db
+        volume: {}
+  postgres:
+    environment:
+      POSTGRES_DB: p1_safety_db
+      POSTGRES_PASSWORD: <REDACTED_TEST_ONLY_CREDENTIAL>
+      POSTGRES_USER: p1_safety_user
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
+      timeout: 2s
+      interval: 3s
+      retries: 30
+    image: pgvector/pgvector:pg16
+    networks:
+      workers: null
+    volumes:
+      - type: volume
+        source: pg_state
+        target: /var/lib/postgresql/data
+        volume: {}
+networks:
+  headless-edge:
+    name: p1-safety-ed17977d_headless-edge
+    ipam:
+      config:
+        - subnet: 172.31.212.0/24
+  upstream:
+    name: p1-safety-ed17977d_upstream
+    ipam:
+      config:
+        - subnet: 172.31.211.0/24
+    internal: true
+  workers:
+    name: p1-safety-ed17977d_workers
+    ipam:
+      config:
+        - subnet: 172.31.210.0/24
+    internal: true
+volumes:
+  budget_state:
+    name: p1-safety-ed17977d_budget_state
+  fake_state:
+    name: p1-safety-ed17977d_fake_state
+  mongo_state:
+    name: p1-safety-ed17977d_mongo_state
+  pg_state:
+    name: p1-safety-ed17977d_pg_state

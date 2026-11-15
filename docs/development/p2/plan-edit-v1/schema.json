@@ -1,0 +1,196 @@
+{
+  "$defs": {
+    "FutureEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "pattern": "^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$",
+          "title": "Event Id",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 10000,
+          "title": "Text",
+          "type": "string"
+        },
+        "participants": {
+          "items": {
+            "$ref": "#/$defs/PlanParticipant"
+          },
+          "maxItems": 100,
+          "title": "Participants",
+          "type": "array"
+        }
+      },
+      "required": [
+        "event_id",
+        "text"
+      ],
+      "title": "FutureEvent",
+      "type": "object"
+    },
+    "PlanObjectiveEdit": {
+      "additionalProperties": false,
+      "properties": {
+        "objective_id": {
+          "pattern": "^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$",
+          "title": "Objective Id",
+          "type": "string"
+        },
+        "expected_intent_version": {
+          "minimum": 0,
+          "title": "Expected Intent Version",
+          "type": "integer"
+        },
+        "target_chapter": {
+          "minimum": 1,
+          "title": "Target Chapter",
+          "type": "integer"
+        },
+        "title": {
+          "maxLength": 255,
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Title",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "maxLength": 10000,
+          "title": "Description",
+          "type": "string"
+        },
+        "events": {
+          "items": {
+            "$ref": "#/$defs/FutureEvent"
+          },
+          "maxItems": 100,
+          "title": "Events",
+          "type": "array"
+        },
+        "dependencies": {
+          "items": {
+            "pattern": "^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "maxItems": 500,
+          "title": "Dependencies",
+          "type": "array"
+        }
+      },
+      "required": [
+        "objective_id",
+        "expected_intent_version",
+        "target_chapter",
+        "title"
+      ],
+      "title": "PlanObjectiveEdit",
+      "type": "object"
+    },
+    "PlanParticipant": {
+      "additionalProperties": false,
+      "properties": {
+        "entity_id": {
+          "anyOf": [
+            {
+              "pattern": "^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entity Id"
+        },
+        "name_hint": {
+          "anyOf": [
+            {
+              "maxLength": 255,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name Hint"
+        }
+      },
+      "title": "PlanParticipant",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "contract_version": {
+      "const": "plan-edit-v1",
+      "title": "Contract Version",
+      "type": "string"
+    },
+    "action": {
+      "enum": [
+        "save",
+        "fork",
+        "activate",
+        "skip",
+        "delete"
+      ],
+      "title": "Action",
+      "type": "string"
+    },
+    "idempotency_key": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Idempotency Key",
+      "type": "string"
+    },
+    "expected_plan_version": {
+      "minimum": 0,
+      "title": "Expected Plan Version",
+      "type": "integer"
+    },
+    "source_plan_id": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Plan Id"
+    },
+    "source_outline": {
+      "default": "",
+      "maxLength": 200000,
+      "title": "Source Outline",
+      "type": "string"
+    },
+    "private_notes": {
+      "default": "",
+      "maxLength": 10000,
+      "title": "Private Notes",
+      "type": "string"
+    },
+    "objectives": {
+      "items": {
+        "$ref": "#/$defs/PlanObjectiveEdit"
+      },
+      "maxItems": 500,
+      "title": "Objectives",
+      "type": "array"
+    }
+  },
+  "required": [
+    "contract_version",
+    "action",
+    "idempotency_key",
+    "expected_plan_version"
+  ],
+  "title": "PlanEditCommand",
+  "type": "object"
+}

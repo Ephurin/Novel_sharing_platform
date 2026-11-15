@@ -5,7 +5,7 @@ from dataclasses import asdict, replace
 from typing import Any
 
 from core.story_kb_manager import KBRelation, KBEntity, StoryKBManager
-from domain.errors import ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError, ProposalAlreadyDecidedError
+from domain.errors import BootstrapConflictError, ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError, ProposalAlreadyDecidedError
 from domain.models import (
     AnalysisRun,
     BootstrapJob,
@@ -27,6 +27,17 @@ from domain.models import (
 
 
 class JsonNarrativeRepository:
+    supports_bootstrap_lifecycle = False
+
+    def finalize_idea_bootstrap(self, job, proposals, run):
+        raise BootstrapConflictError('BOOTSTRAP_REQUIRES_POSTGRES')
+
+    def start_bootstrap_processing(self, job_id):
+        raise BootstrapConflictError('BOOTSTRAP_REQUIRES_POSTGRES')
+
+    def fail_bootstrap_job(self, job):
+        raise BootstrapConflictError('BOOTSTRAP_REQUIRES_POSTGRES')
+
     def __init__(self, manager: StoryKBManager) -> None:
         self._manager = manager
         self._analysis_runs: dict[str, AnalysisRun] = {}
@@ -541,6 +552,7 @@ class JsonNarrativeRepository:
         limit_recent_events: int = 20,
         token_budget: int | None = None,
         enforce_token_budget: bool = True,
+        profile_entity_ids: tuple[str, ...] | None = None,
     ) -> WritingContextPackage:
         from infrastructure.in_memory_narrative_repository import InMemoryNarrativeRepository
         memory = InMemoryNarrativeRepository()
@@ -552,6 +564,7 @@ class JsonNarrativeRepository:
             limit_recent_events=limit_recent_events,
             token_budget=token_budget,
             enforce_token_budget=enforce_token_budget,
+            profile_entity_ids=profile_entity_ids,
         )
 
     def record_revision_provenance(

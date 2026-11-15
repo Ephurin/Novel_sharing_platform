@@ -6,6 +6,7 @@ import {
   activateBaselineController,
   activateStoryPlanController,
   createStoryPlanController,
+  editStoryPlansController,
   editAndAcceptProposalController,
   getActiveStoryPlanController,
   getContextPreviewController,
@@ -17,16 +18,25 @@ import {
   rejectProposalController,
   rejectProposalGroupController,
   startIdeaBootstrapController,
+  getSetupSnapshotController,
+  reviewSetupSnapshotController,
+  activateSetupM0Controller,
+  proposeWorldRuleAmendmentController,
+  decideWorldRuleAmendmentController,
+  getWorldRuleAmendmentsController,
   startManuscriptBootstrapController,
   startWritingGenerationController,
+  writingDraftReviewController,
   updateStoryPlanObjectiveController,
   getApprovedMemoryController,
   authorOperationController,
+  brainstormController,
   eventCorrectionController,
   relationshipLockController,
   extractionStatusController,
   authorMemoryProposalController,
   reanalyseSavedChapterController,
+  entityProfileController,
   entityGuidanceController,
   entityReviewController,
   authorEntityController,
@@ -45,6 +55,8 @@ export const aiGatewayRoutes = Router();
 
 // All AI operations require AUTHOR or ADMIN role with active account
 aiGatewayRoutes.use(requireAuth, requireActiveAccount, requireRoles(['AUTHOR', 'ADMIN']));
+aiGatewayRoutes.get('/story-brains/:novelId/entities/:entityId/profile', entityProfileController);
+aiGatewayRoutes.patch('/story-brains/:novelId/entities/:entityId/profile', entityProfileController);
 aiGatewayRoutes.get('/story-brains/:novelId/memory', getApprovedMemoryController);
 aiGatewayRoutes.post('/story-brains/:novelId/entities/merge', mergeEntitiesController);
 aiGatewayRoutes.get('/story-brains/:novelId/entity-guidance', entityGuidanceController);
@@ -59,6 +71,7 @@ aiGatewayRoutes.post('/story-brains/:novelId/author-proposals', authorMemoryProp
 aiGatewayRoutes.post('/story-brains/:novelId/reanalyse', reanalyseSavedChapterController);
 aiGatewayRoutes.get('/story-brains/:novelId/extraction-status', extractionStatusController);
 aiGatewayRoutes.post('/story-brains/:novelId/author-operation', authorOperationController);
+aiGatewayRoutes.post('/story-brains/:novelId/brainstorm', brainstormController);
 aiGatewayRoutes.post('/story-brains/:novelId/events/:eventId/corrections', eventCorrectionController);
 aiGatewayRoutes.post('/story-brains/:novelId/relationship-locks', relationshipLockController);
 
@@ -82,6 +95,16 @@ aiGatewayRoutes.post(
   '/story-brains/:novelId/baseline/activate',
   activateBaselineController
 );
+
+aiGatewayRoutes.get('/story-brains/:novelId/setup', getSetupSnapshotController);
+aiGatewayRoutes.post('/story-brains/:novelId/setup/:snapshotId/review', reviewSetupSnapshotController);
+aiGatewayRoutes.get('/story-brains/:novelId/setup/:snapshotId/activate', activateSetupM0Controller);
+aiGatewayRoutes.post('/story-brains/:novelId/setup/:snapshotId/activate', activateSetupM0Controller);
+
+// P2-07E Post-M0 World Setup Rule Amendment
+aiGatewayRoutes.post('/story-brains/:novelId/world-rules/:factId/amendments', proposeWorldRuleAmendmentController);
+aiGatewayRoutes.post('/story-brains/:novelId/world-rule-amendments/:proposalId/decision', decideWorldRuleAmendmentController);
+aiGatewayRoutes.get('/story-brains/:novelId/world-rules/:factId/amendments', getWorldRuleAmendmentsController);
 
 // Bootstrap
 aiGatewayRoutes.post(
@@ -116,12 +139,18 @@ aiGatewayRoutes.post(
 );
 
 // Writing Generations
+aiGatewayRoutes.get('/writing/generations', writingDraftReviewController);
+aiGatewayRoutes.post('/writing/generations/:jobId/dismiss', writingDraftReviewController);
 aiGatewayRoutes.post(
   '/writing/generations',
   startWritingGenerationController
 );
 
 // Story Plans
+aiGatewayRoutes.get('/story-plans/edit-v1/:novelId',editStoryPlansController);
+aiGatewayRoutes.post('/story-plans/edit-v1/:novelId',editStoryPlansController);
+aiGatewayRoutes.get('/story-plans/edit-v1/:novelId/:planId',editStoryPlansController);
+
 aiGatewayRoutes.post(
   '/story-plans',
   createStoryPlanController

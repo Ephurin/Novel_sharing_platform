@@ -1,0 +1,34 @@
+{
+  "idempotency_key": "owner-review-1",
+  "dependency_group_id": "10000000-0000-0000-0000-000000000010",
+  "setup_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "expected_setup_version": 1,
+  "expected_review_version": 0,
+  "expected_brain_version": 1,
+  "decisions": [
+    {
+      "proposal_id": "10000000-0000-0000-0000-000000000011",
+      "decision": "accept",
+      "identity": {
+        "kind": "new"
+      },
+      "edited_entity": {
+        "canonical_name": "Minh",
+        "aliases": []
+      }
+    },
+    {
+      "proposal_id": "10000000-0000-0000-0000-000000000012",
+      "decision": "reject",
+      "reason": "Future intent only"
+    },
+    {
+      "proposal_id": "10000000-0000-0000-0000-000000000013",
+      "decision": "accept",
+      "edited_rule": {
+        "fact_key": "no_flight",
+        "fact_value": "No flight"
+      }
+    }
+  ]
+}

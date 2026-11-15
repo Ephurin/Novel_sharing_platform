@@ -5,18 +5,21 @@ import hashlib
 import json
 import logging
 import uuid
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import delete, func, or_, select, update
+from sqlalchemy import delete, func, or_, select, update, text
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
 logger = logging.getLogger(__name__)
+VERIFIED_MENTION_VERSION = 'author-verified-v1'
 
-from domain.projection import ProjectionError, validate_payload, project, resolve_entity, transition_from_payload
-from domain.errors import ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError
+from domain.entity_profile import EntityProfilePatch, PROFILE_FIELDS, approved_profile
+from domain.projection import ProjectionError, validate_payload, project, resolve_entity, transition_from_payload, resolve_effective_facts
+from domain.errors import BootstrapConflictError, BaselineReviewRequiredError, ActiveRunConflictError, IdempotencyConflictError, OptimisticLockError, WritingContextAuthorityError
 from domain.models import (
     EntityReviewCompletion,
     AnalysisRun,
@@ -38,9 +41,10 @@ from domain.models import (
     WritingGenerationJob,
     WritingPatch,
 )
-from domain.projection import project_relations, author_relationship
+from domain.projection import project_relations, author_relationship, _has_global_world_rule_shape
 from infrastructure.database import session_scope
 from infrastructure.orm_models import (
+    EntityProfileAuditRecord,
     CurrentEntityStateRecord,
     BootstrapJobRecord,
     EventParticipantRecord,
@@ -64,6 +68,9 @@ from infrastructure.orm_models import (
 
 
 class PostgresNarrativeRepository:
+    supports_bootstrap_lifecycle = True
+    supports_setup_v1 = True
+    supports_plan_edit_v1 = True
     def complete_entity_review(self, story_id, run_id, audit, proposals):
         """CAS and proposals commit together, including a valid empty extraction."""
         from copy import deepcopy
@@ -135,7 +142,9 @@ class PostgresNarrativeRepository:
                 .order_by(EventRecord.narrative_order)
             ).all()
             facts = session.scalars(
-                select(FactRecord).where(*self._scope(FactRecord, novel_id))
+                select(FactRecord)
+                .where(*self._scope(FactRecord, novel_id))
+                .order_by(FactRecord.created_at.asc(), FactRecord.id.asc())
             ).all()
             proposals = session.scalars(
                 select(ProposalRecord).where(*self._scope(ProposalRecord, novel_id))
@@ -147,7 +156,7 @@ class PostgresNarrativeRepository:
                 aliases = [a for a in aliases if a.confirmation_status == 'confirmed' and a.entity_id in entity_ids]
                 mentions = [m for m in mentions if m.entity_id in entity_ids]
                 events = [e for e in events if e.confirmation_status == 'confirmed']
-                facts = [f for f in facts if f.confirmation_status == 'confirmed']
+                facts = [f for f in facts if f.confirmation_status == 'confirmed' or f.supersedes_id is not None]
                 relations = [r for r in relations if r.subject_name in entity_names and r.object_name in entity_names]
             return StoryBrain(
                 story_id=story_id,
@@ -175,23 +184,7 @@ class PostgresNarrativeRepository:
                     )
                     for item in mentions
                 ),
-                facts=tuple(
-                    {
-                        "fact_id": str(item.id),
-                        "subject_entity_id": str(item.subject_entity_id) if item.subject_entity_id else None,
-                        "fact_type": item.fact_type,
-                        "fact_key": item.fact_key,
-                        "fact_value": item.fact_value,
-                        "is_locked": item.is_locked,
-                        "source_revision_id": str(item.source_revision_id) if item.source_revision_id else None,
-                        "chapter_number": item.chapter_number,
-                        "source_start": item.source_start, "source_end": item.source_end,
-                        "supersedes_id": str(item.supersedes_id) if item.supersedes_id else None,
-                        "is_retired": item.is_retired,
-                        "confirmation_status": item.confirmation_status,
-                    }
-                    for item in facts
-                ),
+                facts=tuple(self._fact_record_to_dict(item) for item in facts),
                 relations=tuple(
                     NarrativeRelation(
                         subject=item.subject_name,
@@ -205,7 +198,7 @@ class PostgresNarrativeRepository:
                 ),
                 events=tuple(self._to_event(item) for item in events),
                 proposals=tuple(self._to_proposal(item) for item in proposals),
-                transitions=tuple(self._projection_inputs(session, novel_id)[3]),
+                transitions=tuple(self._load_transitions(session, novel_id)),
                 current_state=self._read_projection(session, novel_id),
                 metadata={
                     "brain_id": str(brain.id),
@@ -214,8 +207,349 @@ class PostgresNarrativeRepository:
                     "baseline_revision_id": (
                         str(brain.baseline_revision_id) if brain.baseline_revision_id else None
                     ),
+                    "verified_amendment_edges": list(self._load_verified_amendment_edges(session, novel_id)),
                 },
             )
+
+    def _load_verified_amendment_edges(self, session: Session, novel_id: uuid.UUID | str) -> set[tuple[str, str]]:
+        """Load verified (parent_id, successor_id) pairs from author-accepted amendment receipts.
+
+        Strictly validates (F-01, F-05):
+        1. ProposalRecord status is 'accepted' and type is 'world_rule_amendment'.
+        2. ProposalDecisionRecord decision is 'accept'.
+        3. Decision actor matches novel author and payload actor_id.
+        4. Edited payload receipt binds proposal_id, actor_id, tenant_id, novel_id, story_brain_id.
+        5. Edited payload binds setup_snapshot_id and setup_hash to the active M0 baseline.
+        6. Edited payload binds expected_brain_version and resulting_brain_version (expected + 1).
+        7. AnalysisRunRecord binds operation ('setup_amendment'), pipeline_version ('setup-rule-amendment-v1'),
+           tenant_id, novel_id, and story_brain_id.
+        8. Successor and parent FactRecords exist, confirmed, world_rule, matching locks/keys/values/brain_id,
+           with successor strictly having global world rule shape.
+        9. Root fact of the lineage belongs to the active M0 baseline canonical artifacts.
+        """
+        n_id = self._novel_id(novel_id)
+        stmt = (
+            select(ProposalDecisionRecord, ProposalRecord, AnalysisRunRecord)
+            .join(ProposalRecord, ProposalRecord.id == ProposalDecisionRecord.proposal_id)
+            .join(AnalysisRunRecord, AnalysisRunRecord.id == ProposalRecord.analysis_run_id)
+            .where(
+                ProposalRecord.novel_id == n_id,
+                ProposalRecord.tenant_id == self._tenant_id,
+                ProposalRecord.proposal_type == "world_rule_amendment",
+                ProposalRecord.status == "accepted",
+                ProposalDecisionRecord.decision == "accept",
+            )
+        )
+        candidates = session.execute(stmt).all()
+        if not candidates:
+            return set()
+
+        # Load active M0 baseline to verify root provenance
+        m0_job = session.scalar(
+            select(BootstrapJobRecord).where(
+                *self._scope(BootstrapJobRecord, n_id),
+                BootstrapJobRecord.status == "completed",
+                BootstrapJobRecord.stage == "m0_active",
+            ).order_by(BootstrapJobRecord.created_at.desc()).limit(1)
+        )
+        if m0_job is None:
+            return set()
+        m0_res = m0_job.result or {}
+        m0_activation = m0_res.get("setup_activation") or {}
+        if (
+            m0_res.get("contract_version") != "setup-v1"
+            or m0_activation.get("contract_version") != "setup-m0-v1"
+            or m0_activation.get("response", {}).get("baseline_kind") != "M0"
+        ):
+            return set()
+        m0_artifacts = set((m0_res.get("setup_review") or {}).get("response", {}).get("canonical_artifact_ids") or [])
+        if not m0_artifacts:
+            return set()
+        m0_snapshot_id_str = str(m0_job.id)
+        m0_setup_hash_str = m0_res.get("setup_hash")
+
+        novel_author_row = session.execute(
+            text("SELECT author_id FROM novels WHERE novel_id = :n"),
+            {"n": n_id},
+        ).first()
+        novel_author = str(novel_author_row[0]) if novel_author_row else None
+        if not novel_author:
+            return set()
+
+        brain = session.scalar(
+            select(StoryBrainRecord).where(*self._scope(StoryBrainRecord, n_id))
+        )
+        if brain is None:
+            return set()
+        brain_id_str = str(brain.id)
+
+        all_facts_list = session.scalars(
+            select(FactRecord).where(*self._scope(FactRecord, n_id))
+        ).all()
+        facts_by_id = {f.id: f for f in all_facts_list}
+
+        verified_edges: set[tuple[str, str]] = set()
+        for dec_rec, prop_rec, run_rec in candidates:
+            # 1. Validate AnalysisRunRecord scope and operation
+            if (
+                run_rec.operation != "setup_amendment"
+                or run_rec.pipeline_version != "setup-rule-amendment-v1"
+                or run_rec.tenant_id != self._tenant_id
+                or run_rec.novel_id != n_id
+                or run_rec.story_brain_id != brain.id
+            ):
+                continue
+
+            # 2. Validate ProposalRecord scope
+            if (
+                prop_rec.tenant_id != self._tenant_id
+                or prop_rec.novel_id != n_id
+                or prop_rec.story_brain_id != brain.id
+                or prop_rec.proposal_type != "world_rule_amendment"
+                or prop_rec.status != "accepted"
+            ):
+                continue
+
+            # 3. Validate Decision Record
+            if (
+                dec_rec.decision != "accept"
+                or str(dec_rec.actor_id) != novel_author
+            ):
+                continue
+
+            # 4. Validate Edited Payload (Decision Receipt) bindings
+            payload = dec_rec.edited_payload or {}
+            p_payload = prop_rec.payload or {}
+            if not isinstance(payload, dict) or not isinstance(p_payload, dict):
+                continue
+            if (
+                payload.get("contract_version") != "setup-rule-amendment-v1"
+                or payload.get("decision_type") != "amendment_decision"
+                or payload.get("decision") != "accept"
+            ):
+                continue
+            if payload.get("proposal_id") != str(prop_rec.id):
+                continue
+            if (
+                payload.get("actor_id") != novel_author
+                or payload.get("tenant_id") != str(self._tenant_id)
+                or payload.get("novel_id") != str(n_id)
+                or payload.get("story_brain_id") != brain_id_str
+            ):
+                continue
+            if (
+                payload.get("setup_snapshot_id") != m0_snapshot_id_str
+                or not m0_setup_hash_str
+                or payload.get("setup_hash") != m0_setup_hash_str
+            ):
+                continue
+            if (
+                prop_rec.expected_brain_version is None
+                or payload.get("expected_brain_version") != prop_rec.expected_brain_version
+                or payload.get("resulting_brain_version") != prop_rec.expected_brain_version + 1
+            ):
+                continue
+
+            parent_id_str = str(payload.get("parent_fact_id") or "").strip()
+            successor_id_str = str(payload.get("successor_fact_id") or "").strip()
+            artifacts = payload.get("artifact_ids") or []
+            if not parent_id_str or not successor_id_str or successor_id_str not in artifacts:
+                continue
+            if parent_id_str != str(p_payload.get("parent_fact_id") or "").strip():
+                continue
+
+            try:
+                p_uuid = uuid.UUID(parent_id_str)
+                s_uuid = uuid.UUID(successor_id_str)
+            except Exception:
+                continue
+
+            # 5. Validate Parent and Successor FactRecords
+            parent = facts_by_id.get(p_uuid)
+            successor = facts_by_id.get(s_uuid)
+            if parent is None or successor is None:
+                continue
+            if parent.story_brain_id != brain.id or successor.story_brain_id != brain.id:
+                continue
+            if parent.fact_type != "world_rule" or successor.fact_type != "world_rule":
+                continue
+            if parent.confirmation_status != "confirmed":
+                continue
+            if successor.confirmation_status != "confirmed" or successor.is_retired:
+                continue
+            if successor.supersedes_id != parent.id:
+                continue
+            if successor.source_type != "author_setup":
+                continue
+            if str(successor.created_by) != novel_author:
+                continue
+            if not _has_global_world_rule_shape(self._fact_record_to_dict(successor)):
+                continue
+
+            # F-05: Verify fact_key, fact_value, and is_locked bindings across
+            # parent FactRecord, successor FactRecord, ProposalRecord payload, and DecisionRecord edited_payload (receipt)
+            receipt_key = payload.get("fact_key")
+            if (
+                receipt_key != parent.fact_key
+                or receipt_key != successor.fact_key
+                or receipt_key != p_payload.get("fact_key")
+                or successor.fact_key != parent.fact_key
+                or successor.fact_key != p_payload.get("fact_key")
+            ):
+                continue
+
+            receipt_value = payload.get("fact_value")
+            if (
+                receipt_value != successor.fact_value
+                or receipt_value != p_payload.get("replacement_text")
+                or successor.fact_value != p_payload.get("replacement_text")
+            ):
+                continue
+
+            receipt_lock = payload.get("is_locked")
+            if (
+                type(receipt_lock) is not bool
+                or receipt_lock != parent.is_locked
+                or receipt_lock != successor.is_locked
+                or receipt_lock != p_payload.get("is_locked")
+                or successor.is_locked != parent.is_locked
+                or successor.is_locked != p_payload.get("is_locked")
+            ):
+                continue
+
+            # 6. Verify root fact belongs to M0 canonical artifacts and binds to payload
+            curr = parent
+            visited_ancestors = {curr.id}
+            has_cycle = False
+            while curr.supersedes_id is not None:
+                parent_ancestor = facts_by_id.get(curr.supersedes_id)
+                if parent_ancestor is None or parent_ancestor.id in visited_ancestors:
+                    has_cycle = True
+                    break
+                visited_ancestors.add(parent_ancestor.id)
+                curr = parent_ancestor
+            if has_cycle:
+                continue
+            root_id_str = str(curr.id)
+            if root_id_str not in m0_artifacts:
+                continue
+            if payload.get("root_fact_id") != root_id_str or p_payload.get("root_fact_id") != root_id_str:
+                continue
+
+            verified_edges.add((parent_id_str, successor_id_str))
+
+        return verified_edges
+
+    @staticmethod
+    def _fact_record_to_dict(item: FactRecord) -> dict[str, Any]:
+        return {
+            "fact_id": str(item.id),
+            "story_brain_id": str(item.story_brain_id) if item.story_brain_id else None,
+            "tenant_id": str(item.tenant_id) if item.tenant_id else None,
+            "novel_id": str(item.novel_id) if item.novel_id else None,
+            "subject_entity_id": str(item.subject_entity_id) if item.subject_entity_id else None,
+            "fact_type": item.fact_type,
+            "fact_key": item.fact_key,
+            "fact_value": item.fact_value,
+            "source_type": item.source_type,
+            "is_locked": item.is_locked,
+            "source_revision_id": str(item.source_revision_id) if item.source_revision_id else None,
+            "chapter_number": item.chapter_number,
+            "source_start": item.source_start,
+            "source_end": item.source_end,
+            "created_by": str(item.created_by) if item.created_by else None,
+            "supersedes_id": str(item.supersedes_id) if item.supersedes_id else None,
+            "is_retired": item.is_retired,
+            "confirmation_status": item.confirmation_status,
+        }
+
+    def _load_transitions(self, session: Session, novel_id: uuid.UUID) -> list[dict[str, Any]]:
+        return [
+            {
+                "transition_id": str(t.id),
+                "entity_id": str(t.entity_id),
+                "event_id": str(t.event_id) if t.event_id else None,
+                "fact_id": str(t.fact_id) if t.fact_id else None,
+                "attribute_key": t.attribute_key,
+                "new_value": t.new_value,
+            }
+            for t in session.scalars(
+                select(StateTransitionRecord)
+                .where(*self._scope(StateTransitionRecord, novel_id))
+                .order_by(StateTransitionRecord.sequence)
+            ).all()
+        ]
+
+    @staticmethod
+    def _profile_dto(entity, brain):
+        profile = entity.author_profile or {}
+        return {
+            "entity_id": str(entity.id), "novel_id": str(entity.novel_id),
+            "version": entity.profile_version, "brain_version": brain.brain_version,
+            "profile": {key: profile.get(key, entity.description or "" if key == "description" else "") for key in PROFILE_FIELDS},
+            "effective_from_chapter": profile.get("effective_from_chapter"),
+            "author_notes": entity.private_author_notes,
+        }
+
+    def get_entity_profile(self, story_id: str, entity_id: str):
+        novel_id = self._novel_id(story_id)
+        with session_scope(self._session_factory) as session:
+            brain = session.scalar(select(StoryBrainRecord).where(*self._scope(StoryBrainRecord, novel_id)).with_for_update(read=True))
+            entity = session.scalar(select(EntityRecord).where(*self._scope(EntityRecord, novel_id),
+                EntityRecord.id == uuid.UUID(entity_id), EntityRecord.confirmation_status == "confirmed"))
+            if brain is None or entity is None:
+                raise KeyError(entity_id)
+            return self._profile_dto(entity, brain)
+
+    def update_entity_profile(self, story_id: str, entity_id: str, patch: EntityProfilePatch,
+                              *, actor_id: str, request_key: str):
+        # Revalidate at repository boundary, including callers other than HTTP.
+        patch = EntityProfilePatch.model_validate(patch.model_dump(exclude_unset=True))
+        import re
+        if not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", request_key):
+            raise ValueError("Invalid idempotency key")
+        actor = uuid.UUID(actor_id)
+        novel_id = self._novel_id(story_id)
+        entity_uuid = uuid.UUID(entity_id)
+        digest = hashlib.sha256(json.dumps([str(entity_uuid), patch.model_dump(exclude_unset=True)],
+            sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+        with session_scope(self._session_factory) as session:
+            # Same Brain lock and lock order as Canon acceptance; serializes retries too.
+            brain = session.scalar(select(StoryBrainRecord).where(*self._scope(StoryBrainRecord, novel_id)).with_for_update())
+            entity = session.scalar(select(EntityRecord).where(*self._scope(EntityRecord, novel_id),
+                EntityRecord.id == entity_uuid, EntityRecord.confirmation_status == "confirmed").with_for_update())
+            if brain is None or entity is None:
+                raise KeyError(entity_id)
+            prior = session.scalar(select(EntityProfileAuditRecord).where(
+                *self._scope(EntityProfileAuditRecord, novel_id), EntityProfileAuditRecord.actor_id == actor,
+                EntityProfileAuditRecord.request_key == request_key))
+            if prior:
+                if prior.input_hash != digest or prior.entity_id != entity_uuid:
+                    raise IdempotencyConflictError("Request key was already used")
+                return dict(prior.after)
+            if brain.brain_version != patch.expected_brain_version or entity.profile_version != patch.expected_version:
+                raise OptimisticLockError("Profile or Canon changed; reload before saving")
+            before = self._profile_dto(entity, brain)
+            profile = dict(entity.author_profile or {})
+            canonical_fields = patch.model_fields_set & set(PROFILE_FIELDS)
+            if canonical_fields:
+                # Full resulting snapshot has one explicit applicability cutoff.
+                for key in PROFILE_FIELDS:
+                    profile.setdefault(key, before['profile'][key])
+                for key in canonical_fields:
+                    profile[key] = getattr(patch, key)
+                profile['effective_from_chapter'] = patch.effective_from_chapter
+                entity.author_profile = profile
+                entity.description = profile['description']
+                brain.brain_version += 1
+            if 'author_notes' in patch.model_fields_set:
+                entity.private_author_notes = patch.author_notes
+            entity.profile_version += 1
+            after = self._profile_dto(entity, brain)
+            session.add(EntityProfileAuditRecord(tenant_id=self._tenant_id, novel_id=novel_id,
+                entity_id=entity_uuid, actor_id=actor, request_key=request_key, input_hash=digest,
+                before=before, after=after))
+            return after
 
     def list_entities(self, story_id: str) -> list[NarrativeEntity]:
         novel_id = self._novel_id(story_id)
@@ -552,6 +886,7 @@ class PostgresNarrativeRepository:
             ).all()
             if len(proposals) != len(set(proposal_uuids)):
                 raise KeyError("Proposal group is incomplete")
+            self._guard_setup_review(session, proposals, novel_id)
             if any(item.status != ProposalStatus.PENDING.value for item in proposals):
                 raise ProposalAlreadyDecidedError("Proposal group contains a decided proposal")
             groups = {item.dependency_group_id for item in proposals}
@@ -630,6 +965,22 @@ class PostgresNarrativeRepository:
                         session.add(entity)
                         session.flush()
                     artifact_ids.append(str(entity.id))
+                    if assigned_id and proposal.analysis_run_id:
+                        run = session.scalar(select(AnalysisRunRecord).where(
+                            AnalysisRunRecord.id == proposal.analysis_run_id,
+                            *self._scope(AnalysisRunRecord, novel_id)))
+                        audit = (run.entity_candidate_audit or {}) if run else {}
+                        if audit.get('identity_inventory_version') == 2:
+                            frozen = next((item for item in audit['entities']
+                                           if item['entity_id'] == str(entity.id)
+                                           and not item['canonical_entity_id']), None)
+                            if audit['status'] != 'completed' or frozen is None:
+                                raise ProjectionError('Missing completed identity evidence')
+                            evidence = proposal.evidence[0] if proposal.evidence else {}
+                            if (evidence.get('revision_id'), evidence.get('chapter_id'), evidence.get('text_hash')) != (
+                                    audit['revision_id'], audit['chapter_id'], audit['source_hash']):
+                                raise ProjectionError('Identity proposal source differs from frozen review')
+                            self._persist_reviewed_mentions(session, brain, audit, frozen)
                 elif proposal.proposal_type == "event":
                     event_uuid = self._stable_uuid("event", str(payload.get("event_id") or external_id))
                     if session.scalar(select(EventRecord.id).where(EventRecord.id == event_uuid, *self._scope(EventRecord, novel_id))):
@@ -700,16 +1051,22 @@ class PostgresNarrativeRepository:
                     if not payload.get('entity_id'):
                         entities = [self._to_entity(e) for e in session.scalars(select(EntityRecord).where(*self._scope(EntityRecord, novel_id))).all()]
                         alias_entity_id = resolve_entity(payload.get('entity_name', ''), entities)
-                    alias = EntityAliasRecord(
-                        entity_id=uuid.UUID(str(alias_entity_id)),
-                        alias=str(payload["alias"]),
-                        normalized_alias=str(payload["alias"]).casefold(),
-                        source_type="AI",
-                        confirmation_status="confirmed",
-                        confidence=proposal.confidence,
-                    )
-                    session.add(alias)
-                    session.flush()
+                    # Sequential import links later chapters to known entities, so an alias the
+                    # author already approved can be proposed again: accepting it is a no-op.
+                    alias = session.scalar(select(EntityAliasRecord).where(
+                        EntityAliasRecord.entity_id == uuid.UUID(str(alias_entity_id)),
+                        EntityAliasRecord.normalized_alias == str(payload["alias"]).casefold()))
+                    if alias is None:
+                        alias = EntityAliasRecord(
+                            entity_id=uuid.UUID(str(alias_entity_id)),
+                            alias=str(payload["alias"]),
+                            normalized_alias=str(payload["alias"]).casefold(),
+                            source_type="AI",
+                            confirmation_status="confirmed",
+                            confidence=proposal.confidence,
+                        )
+                        session.add(alias)
+                        session.flush()
                     artifact_ids.append(str(alias.id))
                 elif proposal.proposal_type == "fact":
                     fact_subject_id = payload.get('subject_entity_id')
@@ -867,6 +1224,7 @@ class PostgresNarrativeRepository:
                     raise ProposalAlreadyDecidedError('Proposal group contains a decided proposal')
                 selected.dependency_group_id = self._stable_uuid('proposal-group', f'rejected:{selected.id}')
                 members = [selected]
+            self._guard_setup_review(session, members, novel_id)
             if any(p.status != ProposalStatus.PENDING.value for p in members):
                 raise ProposalAlreadyDecidedError('Proposal group contains a decided proposal')
             for proposal in members:
@@ -895,19 +1253,41 @@ class PostgresNarrativeRepository:
             return self._persist_projection(session, brain, novel_id)
 
     def _projection_inputs(self, session, novel_id):
+        brain = session.scalar(
+            select(StoryBrainRecord).where(*self._scope(StoryBrainRecord, novel_id))
+        )
         entities = [self._to_entity(e) for e in session.scalars(
             select(EntityRecord).where(*self._scope(EntityRecord, novel_id))).all()]
-        facts = [{"fact_id": str(f.id), "subject_entity_id": str(f.subject_entity_id) if f.subject_entity_id else None,
-                  "fact_key": f.fact_key, "fact_value": f.fact_value, "is_locked": f.is_locked}
-                 for f in session.scalars(select(FactRecord).where(*self._scope(FactRecord, novel_id))).all()]
+        raw_fact_records = session.scalars(
+            select(FactRecord)
+            .where(*self._scope(FactRecord, novel_id))
+            .order_by(FactRecord.created_at.asc(), FactRecord.id.asc())
+        ).all()
+        effective_fact_dicts = resolve_effective_facts(
+            [self._fact_record_to_dict(f) for f in raw_fact_records],
+            tenant_id=str(self._tenant_id),
+            novel_id=str(novel_id),
+            story_brain_id=str(brain.id) if brain else None,
+            verified_amendment_edges=self._load_verified_amendment_edges(session, novel_id),
+        )
+        effective_fact_ids = {f["fact_id"] for f in effective_fact_dicts}
+        facts = [
+            {
+                "fact_id": f["fact_id"],
+                "subject_entity_id": f.get("subject_entity_id"),
+                "fact_key": f.get("fact_key"),
+                "fact_value": f.get("fact_value"),
+                "is_locked": bool(f.get("is_locked", False)),
+            }
+            for f in effective_fact_dicts
+        ]
         events = [self._to_event(e) for e in session.scalars(select(EventRecord).where(
             *self._scope(EventRecord, novel_id)).order_by(EventRecord.narrative_order)).all()]
-        transitions = [{"transition_id": str(t.id), "entity_id": str(t.entity_id),
-                        "event_id": str(t.event_id) if t.event_id else None,
-                        "fact_id": str(t.fact_id) if t.fact_id else None,
-                        "attribute_key": t.attribute_key, "new_value": t.new_value}
-                       for t in session.scalars(select(StateTransitionRecord).where(
-                           *self._scope(StateTransitionRecord, novel_id)).order_by(StateTransitionRecord.sequence)).all()]
+        transitions = [
+            t
+            for t in self._load_transitions(session, novel_id)
+            if t.get("event_id") is not None or t.get("fact_id") in effective_fact_ids
+        ]
         return entities, facts, events, transitions
 
     def _persist_projection(self, session, brain, novel_id):
@@ -1140,15 +1520,134 @@ class PostgresNarrativeRepository:
             "state_transitions": list(brain.transitions),
         }
 
+    def _bootstrap_brain(self, session, novel_id):
+        # Serialize first insertion as well as existing-row transitions. Lock order:
+        # scoped advisory admission, Brain, then bootstrap rows. Network work is outside.
+        key = int.from_bytes(hashlib.sha256(f'{self._tenant_id}:{novel_id}:bootstrap'.encode()).digest()[:8], 'big', signed=True)
+        session.execute(text('SELECT pg_advisory_xact_lock(:key)'), {'key': key})
+        brain = self._get_or_create_brain(session, novel_id)
+        session.refresh(brain, with_for_update=True)
+        return brain
+
+    @staticmethod
+    def _assert_setup_source_unchanged(record, job):
+        if (record.result or {}).get('contract_version') == 'setup-v1':
+            frozen = ('setup_source', 'author_id', 'contract_version', 'setup_hash', 'text_hash',
+                      'setup_version', 'bootstrap_input_hash', 'mode', 'expected_setup_version')
+            if any(record.result.get(key) != (job.result or {}).get(key) for key in frozen):
+                raise BootstrapConflictError('SETUP_SOURCE_IMMUTABLE')
+
+    def _guard_setup_review(self, session, proposals, novel_id):
+        ids = {p.analysis_run_id for p in proposals if p.analysis_run_id}
+        if ids and session.scalar(select(AnalysisRunRecord.id).where(
+                *self._scope(AnalysisRunRecord, novel_id), AnalysisRunRecord.id.in_(ids),
+                AnalysisRunRecord.operation == 'bootstrap_setup').limit(1)):
+            raise BootstrapConflictError('SETUP_REVIEW_NOT_AVAILABLE')
+
+    def review_setup(self, story_id, snapshot_id, request, *, actor_id):
+        from infrastructure.setup_review import review_setup
+        try:
+            return review_setup(self, story_id, snapshot_id, request, actor_id=actor_id)
+        except IntegrityError:
+            raise BootstrapConflictError('SETUP_REVIEW_COLLISION') from None
+
+    def get_setup_job(self, job_id, *, actor_id, novel_id=None):
+        """Author-scoped access; worker get_bootstrap_job is not an HTTP authority."""
+        author = str(uuid.UUID(actor_id))
+        with session_scope(self._session_factory) as session:
+            query = select(BootstrapJobRecord).where(
+                BootstrapJobRecord.tenant_id == self._tenant_id,
+                BootstrapJobRecord.id == self._stable_uuid('bootstrap-job', job_id),
+                BootstrapJobRecord.result['contract_version'].as_string() == 'setup-v1',
+                BootstrapJobRecord.result['author_id'].as_string() == author)
+            if novel_id is not None:
+                query = query.where(BootstrapJobRecord.novel_id == self._novel_id(novel_id))
+            record = session.scalar(query)
+            if record is None:
+                raise KeyError('SETUP_NOT_FOUND')
+            return self._to_bootstrap_job(record)
+
+    def get_setup_snapshot(self, story_id, *, actor_id, snapshot_id=None):
+        novel_id = self._novel_id(story_id)
+        with session_scope(self._session_factory) as session:
+            brain = session.scalar(select(StoryBrainRecord).where(
+                *self._scope(StoryBrainRecord, novel_id)).with_for_update(read=True))
+            if brain is None:
+                raise KeyError(story_id)
+            query = select(BootstrapJobRecord).where(*self._scope(BootstrapJobRecord, novel_id),
+                BootstrapJobRecord.result['author_id'].as_string() == str(uuid.UUID(actor_id)))
+            if snapshot_id is not None:
+                query = query.where(BootstrapJobRecord.id == uuid.UUID(snapshot_id))
+            jobs = [j for j in session.scalars(query).all()
+                    if (j.result or {}).get('contract_version') == 'setup-v1']
+            if not jobs:
+                raise KeyError(snapshot_id or story_id)
+            job = max(jobs, key=lambda j:j.result['setup_version'])
+            from copy import deepcopy
+            result, source = job.result, job.result['setup_source']
+            review = (result.get('setup_review') or {}).get('response')
+            cards = deepcopy(result.get('setup_cards', []))
+            decisions = {d['proposal_id']: d for d in review['decisions']} if review else {}
+            for card in cards:
+                if card['proposal_id'] in decisions:
+                    decision = decisions[card['proposal_id']]
+                    card.update(status='accepted' if decision['decision'] == 'accept' else 'rejected',
+                                reviewed_payload=decision['edited_payload'], decision_audit=decision)
+                if card['card_type'] == 'initial_condition':
+                    card['unresolved'] = True
+            from application.entity_review_service import TYPE_MAP
+            approved = [dict(entity_id=str(e.id), canonical_name=e.canonical_name,
+                entity_type={'PER':'character', 'LOC':'location'}.get(TYPE_MAP.get(e.entity_type.lower(), e.entity_type.upper()), e.entity_type))
+                for e in session.scalars(select(EntityRecord).where(*self._scope(EntityRecord, novel_id),
+                    EntityRecord.confirmation_status == 'confirmed').order_by(EntityRecord.id)).all()]
+            return dict(contract_version='setup-v1', novel_id=str(novel_id), job_id=str(job.id),
+                snapshot_id=str(job.id), setup_version=result['setup_version'], brain_version=brain.brain_version,
+                review_version=result['review_version'], setup_hash=result['setup_hash'],
+                text_hash=result['text_hash'], mode=result['mode'], job_status=job.status,
+                snapshot=source['setup'], hints=source['hints'], outline=source['outline'],
+                preferences=source['preferences'], proposals=cards, review=review, approved_identities=approved)
+
     def create_bootstrap_job(self, job: BootstrapJob) -> BootstrapJob:
         novel_id = self._novel_id(job.novel_id)
         job_id = self._stable_uuid("bootstrap-job", job.job_id)
+        if str(job.tenant_id) != str(self._tenant_id):
+            raise PermissionError('TENANT_SCOPE_MISMATCH')
         with session_scope(self._session_factory) as session:
-            existing = session.get(BootstrapJobRecord, job_id)
+            brain = self._bootstrap_brain(session, novel_id)
+            existing = session.scalar(select(BootstrapJobRecord).where(
+                BootstrapJobRecord.id == job_id, *self._scope(BootstrapJobRecord, novel_id)))
             if existing is not None:
+                if (existing.result or {}).get('contract_version') == 'setup-v1' and (
+                        (job.result or {}).get('contract_version') != 'setup-v1' or
+                        existing.result.get('author_id') != (job.result or {}).get('author_id')):
+                    raise KeyError('SETUP_NOT_FOUND')
+                stored = (existing.result or {}).get('bootstrap_input_hash')
+                if stored is not None and stored != (job.result or {}).get('bootstrap_input_hash'):
+                    raise IdempotencyConflictError(job.job_id)
                 return self._to_bootstrap_job(existing)
-            brain = self._get_or_create_brain(session, novel_id)
-            brain.status = "importing"
+            if (job.result or {}).get('contract_version') == 'setup-v1':
+                owners = session.scalars(select(BootstrapJobRecord.result['author_id'].as_string()).where(
+                    *self._scope(BootstrapJobRecord, novel_id),
+                    BootstrapJobRecord.result['contract_version'].as_string() == 'setup-v1')).all()
+                if any(owner != job.result.get('author_id') for owner in owners):
+                    raise KeyError('SETUP_NOT_FOUND')
+            if brain.status == 'active':
+                raise BootstrapConflictError('ALREADY_ACTIVE')
+            if (job.result or {}).get('contract_version') == 'setup-v1':
+                versions = session.scalars(select(BootstrapJobRecord.result).where(
+                    *self._scope(BootstrapJobRecord, novel_id))).all()
+                latest = max((r.get('setup_version', 0) for r in versions
+                    if r and r.get('contract_version') == 'setup-v1'), default=0)
+                if job.result.get('expected_setup_version') != latest:
+                    raise BootstrapConflictError('SETUP_VERSION_CONFLICT')
+                job = replace(job, result={**job.result, 'setup_version':latest+1,
+                                          'brain_version':brain.brain_version})
+            competing = session.scalar(select(BootstrapJobRecord.id).where(
+                *self._scope(BootstrapJobRecord, novel_id),
+                BootstrapJobRecord.status.in_(['queued', 'running', 'waiting_entity_review'])))
+            if competing:
+                raise BootstrapConflictError('BOOTSTRAP_IN_PROGRESS')
+            brain.status = 'importing'
             record = BootstrapJobRecord(
                 id=job_id,
                 story_brain_id=brain.id,
@@ -1194,6 +1693,59 @@ class PostgresNarrativeRepository:
             session.flush()
             return self._to_bootstrap_job(record)
 
+    def start_bootstrap_processing(self, job_id):
+        job = self.get_bootstrap_job(job_id)
+        novel_id = self._novel_id(job.novel_id)
+        with session_scope(self._session_factory) as session:
+            brain = self._bootstrap_brain(session, novel_id)
+            record = session.scalar(select(BootstrapJobRecord).where(
+                BootstrapJobRecord.id == self._stable_uuid('bootstrap-job', job_id),
+                *self._scope(BootstrapJobRecord, novel_id)).with_for_update())
+            if record.status in ('waiting_review','completed','cancelled'):
+                return self._to_bootstrap_job(record)
+            if brain.status == 'active':
+                raise BootstrapConflictError('ALREADY_ACTIVE')
+            if record.status == 'running':
+                raise BootstrapConflictError('BOOTSTRAP_IN_PROGRESS')
+            record.status, record.stage = 'running', 'chapter_analysis'
+            session.flush()
+            return self._to_bootstrap_job(record)
+
+    def fail_bootstrap_job(self, job):
+        with session_scope(self._session_factory) as session:
+            self._bootstrap_brain(session, self._novel_id(job.novel_id))
+            record = session.scalar(select(BootstrapJobRecord).where(
+                BootstrapJobRecord.id == self._stable_uuid('bootstrap-job', job.job_id),
+                *self._scope(BootstrapJobRecord, self._novel_id(job.novel_id))).with_for_update())
+            if record and record.status == 'running' and (record.result or {}).get('reservation_token') == (job.result or {}).get('reservation_token'):
+                record.status, record.stage, record.error = 'failed', 'failed', job.error or {'code': 'BOOTSTRAP_FAILED'}
+
+    def finalize_idea_bootstrap(self, job, proposals, run):
+        novel_id = self._novel_id(job.novel_id)
+        with session_scope(self._session_factory) as session:
+            brain = self._bootstrap_brain(session, novel_id)
+            record = session.scalar(select(BootstrapJobRecord).where(
+                BootstrapJobRecord.id == self._stable_uuid('bootstrap-job', job.job_id),
+                *self._scope(BootstrapJobRecord, novel_id)).with_for_update())
+            if record is None:
+                raise KeyError(job.job_id)
+            self._assert_setup_source_unchanged(record, job)
+            if brain.status == 'active':
+                raise BootstrapConflictError('ALREADY_ACTIVE')
+            if record.status != 'running' or (record.result or {}).get('reservation_token') != (job.result or {}).get('reservation_token'):
+                raise BootstrapConflictError('BOOTSTRAP_RESERVATION_CONFLICT')
+            if any(p.expected_brain_version != brain.brain_version for p in proposals):
+                raise OptimisticLockError(job.novel_id)
+            session.add(AnalysisRunRecord(id=uuid.UUID(run.run_id), story_brain_id=brain.id,
+                tenant_id=self._tenant_id, novel_id=novel_id, operation=run.operation,
+                status=run.status, idempotency_key=run.idempotency_key,
+                input_hash=run.input_hash, pipeline_version=run.pipeline_version))
+            session.flush()
+            self.save_proposals(job.novel_id, proposals, _session=session)
+            record.status, record.stage, record.result = job.status, job.stage, job.result
+            session.flush()
+            return self._to_bootstrap_job(record)
+
     def get_bootstrap_job(self, job_id: str) -> BootstrapJob:
         with session_scope(self._session_factory) as session:
             record = session.scalar(
@@ -1218,6 +1770,7 @@ class PostgresNarrativeRepository:
             )
             if record is None:
                 raise KeyError(f"Bootstrap job not found: {job.job_id}")
+            self._assert_setup_source_unchanged(record, job)
             record.status = job.status
             record.stage = job.stage
             record.revisions = [asdict(item) for item in job.revisions]
@@ -1232,19 +1785,33 @@ class PostgresNarrativeRepository:
     ) -> dict[str, Any]:
         novel_id = self._novel_id(story_id)
         with session_scope(self._session_factory) as session:
-            job = session.scalar(
-                select(BootstrapJobRecord).where(
-                    BootstrapJobRecord.id == self._stable_uuid("bootstrap-job", job_id),
-                    *self._scope(BootstrapJobRecord, novel_id),
-                )
-            )
-            brain = session.scalar(
-                select(StoryBrainRecord)
-                .where(*self._scope(StoryBrainRecord, novel_id))
-                .with_for_update()
-            )
-            if job is None or brain is None:
+            brain = self._bootstrap_brain(session, novel_id)
+            job = session.scalar(select(BootstrapJobRecord).where(
+                BootstrapJobRecord.id == self._stable_uuid('bootstrap-job', job_id),
+                *self._scope(BootstrapJobRecord, novel_id)).with_for_update())
+            if job is None:
                 raise KeyError(job_id)
+            if (job.result or {}).get('contract_version') == 'setup-v1':
+                raise BootstrapConflictError('SETUP_ACTIVATION_NOT_AVAILABLE')
+            if brain.status == 'active':
+                if job.status == 'completed':
+                    return {'story_brain_id': str(brain.id), 'status': brain.status,
+                        'baseline_revision_id': str(brain.baseline_revision_id) if brain.baseline_revision_id else None,
+                        'brain_version': brain.brain_version}
+                raise BootstrapConflictError('ALREADY_ACTIVE')
+            if job.status != 'waiting_review':
+                raise BootstrapConflictError('BOOTSTRAP_NOT_REVIEWABLE')
+            other = session.scalar(select(BootstrapJobRecord.id).where(
+                *self._scope(BootstrapJobRecord, novel_id), BootstrapJobRecord.id != job.id,
+                BootstrapJobRecord.status.in_(['queued','running','waiting_entity_review'])))
+            if other:
+                raise BootstrapConflictError('BOOTSTRAP_IN_PROGRESS')
+            required = {self._stable_uuid('proposal', p) for p in (job.result or {}).get('required_proposal_ids', [])}
+            members = session.scalars(select(ProposalRecord).where(
+                *self._scope(ProposalRecord, novel_id), ProposalRecord.id.in_(required)).with_for_update()).all() if required else []
+            if {p.id for p in members} != required or any(p.status not in ('accepted','rejected') for p in members):
+                raise BaselineReviewRequiredError([str(p) for p in required])
+            job.status, job.stage = 'completed', 'completed'
             brain.status = "active"
             brain.baseline_revision_id = (
                 self._stable_uuid("revision", baseline_revision_id)
@@ -1422,7 +1989,7 @@ class PostgresNarrativeRepository:
                     brain = StoryBrainRecord(
                         tenant_id=self._tenant_id,
                         novel_id=novel_id,
-                        status="active",
+                        status="draft",
                     )
                     session.add(brain)
                     session.flush()
@@ -1471,9 +2038,11 @@ class PostgresNarrativeRepository:
         return model.tenant_id == self._tenant_id, model.novel_id == novel_id
 
     @staticmethod
-    def _novel_id(story_id: str) -> uuid.UUID:
+    def _novel_id(story_id: str | uuid.UUID) -> uuid.UUID:
+        if isinstance(story_id, uuid.UUID):
+            return story_id
         try:
-            return uuid.UUID(story_id)
+            return uuid.UUID(str(story_id))
         except ValueError:
             return uuid.uuid5(uuid.NAMESPACE_URL, f"novel:{story_id}")
 
@@ -1502,6 +2071,7 @@ class PostgresNarrativeRepository:
             location=str(attributes.get("location", "Unknown")),
             mentions=int(attributes.get("mentions", 1)),
             is_locked=record.is_locked,
+            approved_profile={k: v for k, v in (record.author_profile or {}).items() if k in ("description", "appearance", "personality", "background", "effective_from_chapter")},
         )
 
     @staticmethod
@@ -1719,6 +2289,123 @@ class PostgresNarrativeRepository:
             session.flush()
             return self._to_writing_job(record)
 
+    def resolve_profile_query_ids(self, story_id: str, *, query_text: str, chapter_number: int) -> tuple[str, ...]:
+        # Same canonical identity resolver as semantic ranking; no embedding call,
+        # new store, index or separate name-matching policy for the fallback path.
+        from infrastructure.postgres_semantic_memory_repository import PostgresSemanticMemoryRepository
+        return PostgresSemanticMemoryRepository(
+            self._session_factory, tenant_id=self._tenant_id,
+        ).get_hybrid_ranking_signals(
+            story_id, query_text=query_text, chapter_number=chapter_number,
+        ).query_entity_ids
+
+    def writing_authority_snapshot(self, job: WritingGenerationJob) -> tuple[StoryPlan, ...]:
+        """Current Platform ownership + canonical revision + source provenance.
+
+        These are reads of the existing authoritative Platform tables, not a
+        replicated owner store. A repeatable-read snapshot freezes the selected
+        plan/objectives; the worker rechecks it immediately before dispatch.
+        No connection/lock escapes this method or spans a provider request.
+        """
+        try:
+            actor = uuid.UUID(job.actor_id or '')
+            tenant = uuid.UUID(job.tenant_id)
+            novel = uuid.UUID(job.novel_id)
+            chapter = uuid.UUID(job.chapter_id)
+            revision = uuid.UUID(job.revision_id)
+        except (ValueError, TypeError, AttributeError):
+            raise WritingContextAuthorityError() from None
+        if tenant != self._tenant_id:
+            raise WritingContextAuthorityError()
+        with session_scope(self._session_factory) as session:
+            session.connection(execution_options={'isolation_level': 'REPEATABLE READ'})
+            persisted = session.scalar(select(WritingGenerationRecord).where(
+                WritingGenerationRecord.job_id==uuid.UUID(job.job_id),
+                *self._scope(WritingGenerationRecord,novel)))
+            if (persisted is None or persisted.actor_id != actor
+                    or persisted.chapter_id != chapter or persisted.revision_id != revision
+                    or persisted.base_content_hash != job.content_hash
+                    or (persisted.context_summary or {}).get('chapter_number') != job.chapter_number):
+                raise WritingContextAuthorityError()
+            row = session.execute(text('''
+                SELECT r.content, r.content_hash, c.chapter_number
+                FROM novels n JOIN chapters c ON c.novel_id=n.novel_id
+                JOIN chapter_revisions r ON r.chapter_id=c.chapter_id AND r.novel_id=n.novel_id
+                WHERE n.novel_id=:n AND n.author_id=:a AND c.chapter_id=:c
+                  AND r.revision_id=:r
+            '''),dict(n=novel,a=actor,c=chapter,r=revision)).mappings().first()
+            if (row is None or row['chapter_number'] != job.chapter_number
+                    or row['content_hash'] != job.content_hash
+                    or hashlib.sha256(row['content'].encode('utf-8')).hexdigest() != job.content_hash):
+                raise WritingContextAuthorityError()
+            plans = session.scalars(select(StoryPlanRecord).where(
+                *self._scope(StoryPlanRecord,novel),StoryPlanRecord.status=='active')).all()
+            if len(plans)>1 or any(p.created_by != actor for p in plans):
+                raise WritingContextAuthorityError()
+            brain = session.scalar(select(StoryBrainRecord).where(*self._scope(StoryBrainRecord, novel)))
+            raw_facts = session.scalars(
+                select(FactRecord)
+                .where(*self._scope(FactRecord, novel))
+                .order_by(FactRecord.created_at.asc(), FactRecord.id.asc())
+            ).all()
+            try:
+                resolve_effective_facts(
+                    [self._fact_record_to_dict(f) for f in raw_facts],
+                    tenant_id=str(self._tenant_id),
+                    novel_id=str(novel),
+                    story_brain_id=str(brain.id) if brain else None,
+                    expected_setup_actor=str(actor),
+                    verified_amendment_edges=self._load_verified_amendment_edges(session, novel),
+                )
+            except ProjectionError:
+                raise WritingContextAuthorityError() from None
+            return tuple(self._to_story_plan(p,session.scalars(select(StoryPlanObjectiveRecord).where(
+                *self._scope(StoryPlanObjectiveRecord,novel),StoryPlanObjectiveRecord.plan_id==p.id)).all()) for p in plans)
+
+    def writing_rule_authority_snapshot(self, job: WritingGenerationJob) -> tuple[Any, ...]:
+        """Repeatable-read snapshot of effective World Setup rule heads for dispatch fencing."""
+        try:
+            actor = uuid.UUID(job.actor_id or '')
+            tenant = uuid.UUID(job.tenant_id)
+            novel = uuid.UUID(job.novel_id)
+        except (ValueError, TypeError, AttributeError):
+            raise WritingContextAuthorityError() from None
+        if tenant != self._tenant_id:
+            raise WritingContextAuthorityError()
+        with session_scope(self._session_factory) as session:
+            session.connection(execution_options={'isolation_level': 'REPEATABLE READ'})
+            brain = session.scalar(select(StoryBrainRecord).where(*self._scope(StoryBrainRecord, novel)))
+            raw_facts = session.scalars(
+                select(FactRecord)
+                .where(*self._scope(FactRecord, novel))
+                .order_by(FactRecord.created_at.asc(), FactRecord.id.asc())
+            ).all()
+            try:
+                effective = resolve_effective_facts(
+                    [self._fact_record_to_dict(f) for f in raw_facts],
+                    tenant_id=str(self._tenant_id),
+                    novel_id=str(novel),
+                    story_brain_id=str(brain.id) if brain else None,
+                    expected_setup_actor=str(actor),
+                    verified_amendment_edges=self._load_verified_amendment_edges(session, novel),
+                )
+            except ProjectionError:
+                raise WritingContextAuthorityError() from None
+            return (
+                brain.brain_version if brain else 1,
+                tuple(
+                    (
+                        f["fact_id"],
+                        f.get("fact_type"),
+                        f.get("fact_key"),
+                        json.dumps(f.get("fact_value"), sort_keys=True, ensure_ascii=False, default=str),
+                        bool(f.get("is_locked", False)),
+                        f.get("supersedes_id"),
+                    )
+                    for f in effective
+                ),
+            )
+
     def get_structured_context(
         self,
         story_id: str,
@@ -1728,6 +2415,8 @@ class PostgresNarrativeRepository:
         limit_recent_events: int = 20,
         token_budget: int | None = None,
         enforce_token_budget: bool = True,
+        profile_entity_ids: tuple[str, ...] | None = None,
+        author_plan_snapshot: tuple[StoryPlan, ...] | None = None,
     ) -> WritingContextPackage:
         novel_id = self._novel_id(story_id)
         with session_scope(self._session_factory) as session:
@@ -1784,12 +2473,20 @@ class PostgresNarrativeRepository:
                 for prov in provenances:
                     revision_chapters[prov.revision_id] = prov.chapter_number
 
-            raw_facts = session.scalars(
-                select(FactRecord).where(
-                    FactRecord.confirmation_status == "confirmed",
-                    *self._scope(FactRecord, novel_id),
-                )
+            raw_fact_records = session.scalars(
+                select(FactRecord)
+                .where(*self._scope(FactRecord, novel_id))
+                .order_by(FactRecord.created_at.asc(), FactRecord.id.asc())
             ).all()
+            effective_fact_dicts = resolve_effective_facts(
+                [self._fact_record_to_dict(f) for f in raw_fact_records],
+                tenant_id=str(self._tenant_id),
+                novel_id=str(novel_id),
+                story_brain_id=str(brain.id) if brain else None,
+                verified_amendment_edges=self._load_verified_amendment_edges(session, novel_id),
+            )
+            effective_fact_ids = {f["fact_id"] for f in effective_fact_dicts}
+            raw_facts = [f for f in raw_fact_records if str(f.id) in effective_fact_ids]
 
             def _is_fact_allowed(f: FactRecord) -> bool:
                 if chapter_number is None:
@@ -1962,6 +2659,14 @@ class PostgresNarrativeRepository:
                 ),
             )
 
+            # UUID signals are authoritative. A name alone must resolve uniquely
+            # across the confirmed registry, not just the temporally filtered list.
+            named_ids = {str(e.id) for e in raw_entities if character_name
+                         and e.canonical_name.casefold() == character_name.strip().casefold()}
+            explicit_ids = named_ids if len(named_ids) == 1 else set()
+            selected_profile_ids = (set(profile_entity_ids) if profile_entity_ids is not None
+                                    else explicit_ids if character_name else set(recent_scope_participant_entity_ids))
+
             def _all_entity_outputs() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
                 entities_all: list[dict[str, Any]] = []
                 states_all: list[dict[str, Any]] = []
@@ -1978,6 +2683,8 @@ class PostgresNarrativeRepository:
                         "status": status,
                         "location": location,
                         "is_locked": entity.is_locked,
+                        "approved_profile": (approved_profile(entity.author_profile, chapter_number)
+                            if e_id in selected_profile_ids else {}),
                     })
                     states_all.append({
                         "entity_id": e_id,
@@ -2083,7 +2790,10 @@ class PostgresNarrativeRepository:
                 ],
             }
 
-            active_plan = self.get_active_story_plan(story_id)
+            # None preserves privileged internal retrieval. Author workers pass
+            # the exact authorized snapshot (empty tuple means no active plan),
+            # never a fresh unscoped lookup after authorization.
+            active_plan = (author_plan_snapshot[0] if author_plan_snapshot else None) if author_plan_snapshot is not None else self.get_active_story_plan(story_id)
             planning_context = None
             current_objective = None
             if active_plan:
@@ -2093,23 +2803,26 @@ class PostgresNarrativeRepository:
                         if obj.target_chapter == chapter_number:
                             matching_obj = obj
                             break
-                if not matching_obj:
+                if not matching_obj and chapter_number is None:
                     for obj in active_plan.objectives:
                         if obj.status in ("in_progress", "pending"):
                             matching_obj = obj
                             break
 
                 planning_context = {
+                    "authority_lane": "FUTURE_PLAN",
                     "plan_id": active_plan.plan_id,
                     "plan_version": active_plan.plan_version,
                     "status": active_plan.status,
                     "source_outline_hash": active_plan.source_outline_hash,
                     "total_objectives": len(active_plan.objectives),
-                    "active_objective_id": matching_obj.objective_id if matching_obj else None,
+                    "active_objective_id": matching_obj.metadata.get("logical_id", matching_obj.objective_id) if matching_obj else None,
                 }
                 if matching_obj:
                     current_objective = {
-                        "objective_id": matching_obj.objective_id,
+                        "authority_lane": "FUTURE_PLAN",
+                        "planned_events": matching_obj.metadata.get("events", []),
+                        "objective_id": matching_obj.metadata.get("logical_id", matching_obj.objective_id),
                         "order_index": matching_obj.order_index,
                         "target_chapter": matching_obj.target_chapter,
                         "objective_type": matching_obj.objective_type,
@@ -2120,10 +2833,10 @@ class PostgresNarrativeRepository:
                 context_summary["plan_id"] = [active_plan.plan_id]
                 context_summary["plan_version"] = [str(active_plan.plan_version)]
                 if matching_obj:
-                    context_summary["active_objective_id"] = [matching_obj.objective_id]
+                    context_summary["active_objective_id"] = [matching_obj.metadata.get("logical_id", matching_obj.objective_id)]
                     context_summary["active_objective_title"] = [matching_obj.title]
 
-            return WritingContextPackage(
+            package = WritingContextPackage(
                 brain_version=brain_version,
                 entities=tuple(entities_out),
                 current_states=tuple(states_out),
@@ -2135,6 +2848,10 @@ class PostgresNarrativeRepository:
                 planning_context=planning_context,
                 current_objective=current_objective,
             )
+            if enforce_token_budget and any(e.get("approved_profile") for e in package.entities):
+                from application.context_budget import ContextBudgetPacker
+                return ContextBudgetPacker().pack(package, maximum=target_maximum)
+            return package
 
     def _to_story_plan(
         self,
@@ -2165,15 +2882,30 @@ class PostgresNarrativeRepository:
             objectives=objectives,
             source_outline=record.source_outline,
             source_outline_hash=record.source_outline_hash,
-            idempotency_key=record.idempotency_key,
-            input_hash=record.input_hash,
+            idempotency_key=None if (record.edit_metadata or {}).get("contract_version")=="plan-edit-v1" else record.idempotency_key,
+            input_hash="" if (record.edit_metadata or {}).get("contract_version")=="plan-edit-v1" else record.input_hash,
             created_by=str(record.created_by) if record.created_by else None,
         )
+
+    def edit_plan(self, novel_id, actor_id, body):
+        from infrastructure.plan_edit import command
+        try:
+            return command(self, novel_id, actor_id, body)
+        except IntegrityError:
+            raise BootstrapConflictError('PLAN_COLLISION') from None
+
+    def read_plans(self, novel_id, actor_id, plan_id=None):
+        from infrastructure.plan_edit import read
+        return read(self, novel_id, actor_id, plan_id)
 
     def create_story_plan(self, plan: StoryPlan) -> StoryPlan:
         novel_id = self._novel_id(plan.novel_id)
         plan_uuid = uuid.UUID(plan.plan_id) if plan.plan_id else uuid.uuid4()
         with session_scope(self._session_factory) as session:
+            from infrastructure.plan_edit import lock
+            lock(self, session, novel_id)
+            if session.scalar(select(StoryPlanRecord.id).where(*self._scope(StoryPlanRecord,novel_id),StoryPlanRecord.edit_metadata['contract_version'].as_string()=='plan-edit-v1').limit(1)):
+                raise BootstrapConflictError('PLAN_EDIT_REQUIRES_CAS')
             if plan.idempotency_key:
                 existing = session.scalar(
                     select(StoryPlanRecord).where(
@@ -2293,6 +3025,12 @@ class PostgresNarrativeRepository:
         n_id = self._novel_id(novel_id)
         p_uuid = uuid.UUID(plan_id)
         with session_scope(self._session_factory) as session:
+            from infrastructure.plan_edit import lock
+            lock(self, session, n_id)
+            target = session.scalar(select(StoryPlanRecord).where(*self._scope(StoryPlanRecord,n_id), StoryPlanRecord.id==p_uuid).with_for_update())
+            if target is None:raise KeyError('PLAN_NOT_FOUND')
+            if session.scalar(select(StoryPlanRecord.id).where(*self._scope(StoryPlanRecord,n_id),StoryPlanRecord.edit_metadata['contract_version'].as_string()=='plan-edit-v1').limit(1)):
+                raise BootstrapConflictError('PLAN_EDIT_REQUIRES_CAS')
             session.execute(
                 update(StoryPlanRecord)
                 .where(
@@ -2339,6 +3077,8 @@ class PostgresNarrativeRepository:
             )
             if not plan:
                 raise KeyError(f"StoryPlan {plan_id} not found for novel {novel_id}")
+            if (plan.edit_metadata or {}).get('contract_version')=='plan-edit-v1':
+                raise BootstrapConflictError('PLAN_EDIT_REQUIRES_CAS')
             obj = session.scalar(
                 select(StoryPlanObjectiveRecord).where(
                     StoryPlanObjectiveRecord.id == o_uuid,
@@ -2556,6 +3296,49 @@ class PostgresNarrativeRepository:
                                   'entity_type': e.entity_type} for e in entities],
                     'aliases': [{'alias': a.alias, 'entity_id': str(a.entity_id)} for a in aliases]}
 
+    def _persist_reviewed_mentions(self, session, brain, audit, frozen):
+        request = audit['request']
+        if (request['tenant_id'], request['novel_id'], request['revision_id'],
+                request['chapter_id'], request['content_hash']) != (
+                str(brain.tenant_id), str(brain.novel_id), audit['revision_id'],
+                audit['chapter_id'], audit['source_hash']):
+            raise ProjectionError('Occurrence source differs from the scoped revision')
+        entity = session.get(EntityRecord, uuid.UUID(frozen['entity_id']))
+        if (entity is None or entity.story_brain_id != brain.id or
+                entity.tenant_id != brain.tenant_id or entity.novel_id != brain.novel_id or
+                entity.confirmation_status != 'confirmed'):
+            raise ProjectionError('Occurrence requires a scoped confirmed identity')
+        candidates = {c['candidate_id']: c for c in audit['candidates']}
+        occurrences = frozen['occurrences']
+        if sorted(o['candidate_id'] for o in occurrences) != sorted(frozen['candidate_ids']):
+            raise ProjectionError('Occurrence inventory differs from frozen candidates')
+        for occurrence in occurrences:
+            candidate = candidates.get(occurrence['candidate_id'])
+            start, end, quote = (occurrence[k] for k in ('start', 'end', 'quote'))
+            if (candidate is None or not 0 <= start < end or end - start != len(quote)
+                    or (start, end, quote) != (candidate['start'], candidate['end'], candidate['surface'])
+                    or occurrence['revision_id'] != audit['revision_id']
+                    or occurrence['text_hash'] != audit['source_hash']):
+                raise ProjectionError('Occurrence evidence differs from the verified candidate')
+            # Both finalized review and group approval hold the scoped Brain row lock.
+            conflict = session.scalar(select(EntityMentionRecord.id).where(
+                *self._scope(EntityMentionRecord, brain.novel_id),
+                EntityMentionRecord.revision_id == uuid.UUID(audit['revision_id']),
+                EntityMentionRecord.source_start == start,
+                EntityMentionRecord.source_end == end,
+                EntityMentionRecord.extractor_version == VERIFIED_MENTION_VERSION,
+                EntityMentionRecord.entity_id != entity.id,
+            ).limit(1))
+            if conflict is not None:
+                raise OptimisticLockError('Occurrence is already verified for a different identity')
+            session.execute(insert(EntityMentionRecord).values(
+                story_brain_id=brain.id, tenant_id=brain.tenant_id, novel_id=brain.novel_id,
+                entity_id=entity.id, chapter_id=uuid.UUID(audit['chapter_id']),
+                revision_id=uuid.UUID(audit['revision_id']), surface_text=quote,
+                source_start=start, source_end=end, source_text_hash=audit['source_hash'],
+                extractor_version=VERIFIED_MENTION_VERSION,
+            ).on_conflict_do_nothing(constraint='uq_entity_mention_evidence'))
+
     def save_entity_candidate_audit(self, story_id: str, run_id: str, audit: dict, *, expected_version: int | None = None) -> None:
         from copy import deepcopy
         with session_scope(self._session_factory) as session:
@@ -2572,6 +3355,51 @@ class PostgresNarrativeRepository:
                 raise KeyError(run_id)
             if expected_version is not None and (record.entity_candidate_audit or {}).get('review_version', 0) != expected_version:
                 raise OptimisticLockError('Entity checkpoint changed')
+            previous = record.entity_candidate_audit or {}
+            history = deepcopy(previous.get('superseded_occurrence_reviews', []))
+            if (previous.get('status') == 'entities_reviewed'
+                    and previous.get('identity_inventory_version') == 2
+                    and audit['status'] == 'waiting_entity_review'
+                    and audit.get('refresh_input_version') == previous['review_version']):
+                history.append({key: deepcopy(previous[key]) for key in (
+                    'revision_id', 'source_hash', 'review_version', 'guidance_version',
+                    'entities', 'reviewed_decisions',
+                )})
+                other_audits = session.scalars(select(AnalysisRunRecord.entity_candidate_audit).where(
+                    *self._scope(AnalysisRunRecord, brain.novel_id),
+                    AnalysisRunRecord.id != record.id,
+                    AnalysisRunRecord.entity_candidate_audit['revision_id'].as_string() == previous['revision_id'],
+                    AnalysisRunRecord.entity_candidate_audit['status'].as_string().in_(
+                        ('entities_reviewed', 'completed')),
+                )).all()
+                for frozen in previous['entities']:
+                    if not frozen['canonical_entity_id']:
+                        continue
+                    for occurrence in frozen['occurrences']:
+                        if any(other['canonical_entity_id'] == frozen['canonical_entity_id']
+                               and any(all(o[key] == occurrence[key] for key in ('start', 'end', 'text_hash'))
+                                       for o in other.get('occurrences', []))
+                               for other_audit in other_audits for other in other_audit.get('entities', [])):
+                            continue
+                        session.execute(delete(EntityMentionRecord).where(
+                            *self._scope(EntityMentionRecord, brain.novel_id),
+                            EntityMentionRecord.story_brain_id == brain.id,
+                            EntityMentionRecord.chapter_id == uuid.UUID(previous['chapter_id']),
+                            EntityMentionRecord.revision_id == uuid.UUID(previous['revision_id']),
+                            EntityMentionRecord.entity_id == uuid.UUID(frozen['canonical_entity_id']),
+                            EntityMentionRecord.source_start == occurrence['start'],
+                            EntityMentionRecord.source_end == occurrence['end'],
+                            EntityMentionRecord.source_text_hash == previous['source_hash'],
+                            EntityMentionRecord.extractor_version == VERIFIED_MENTION_VERSION,
+                        ))
+            if history:
+                audit['superseded_occurrence_reviews'] = history
+            if audit['status'] == 'entities_reviewed' and audit.get('identity_inventory_version') == 2:
+                for frozen in audit['entities']:
+                    if frozen['canonical_entity_id']:
+                        if frozen['canonical_entity_id'] != frozen['entity_id']:
+                            raise ProjectionError('Frozen canonical identity changed')
+                        self._persist_reviewed_mentions(session, brain, audit, frozen)
             record.entity_candidate_audit = deepcopy(audit)
 
     def get_entity_candidate_audit(self, story_id: str, run_id: str) -> dict | None:

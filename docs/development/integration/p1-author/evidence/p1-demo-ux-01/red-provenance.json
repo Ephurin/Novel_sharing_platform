@@ -1,0 +1,14 @@
+{
+  "base_sha": "e8f44dfbad7950b5a6b6835ec239ba45b4fb7e6f",
+  "component_blob": "609f7c3a44d2621c1a2d32a939f6d81251849e4d",
+  "command": [
+    "node",
+    "--test",
+    "tests/p1-entity-checkpoint-ux.browser.test.mjs"
+  ],
+  "exit_code": 1,
+  "initial_subcases": 5,
+  "failing_subcases": 4,
+  "initial_tests_later_expanded_to_seven": true,
+  "phase": "before application component changes"
+}

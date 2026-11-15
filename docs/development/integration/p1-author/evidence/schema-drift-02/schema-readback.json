@@ -1,0 +1,95 @@
+{
+  "head": "0016_entity_profile_audit_timestamp",
+  "orm_tables_checked": 22,
+  "orm_columns_checked": 291,
+  "missing_tables_columns": [],
+  "nullable_mismatches": [],
+  "defaults_checked": "Only two timestamp defaults, both ORM func.now() and PostgreSQL now()",
+  "timestamp_columns": [
+    {
+      "table_name": "entity_profile_audits",
+      "column_name": "created_at",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "table_name": "revision_provenances",
+      "column_name": "created_at",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "data_type": "timestamp with time zone"
+    }
+  ],
+  "audit_counts": {
+    "total_rows": 2,
+    "null_rows": 0
+  },
+  "audit_constraints_indexes": {
+    "unique": [
+      {
+        "column_names": [
+          "tenant_id",
+          "novel_id",
+          "actor_id",
+          "request_key"
+        ],
+        "name": "uq_entity_profile_request",
+        "comment": null,
+        "dialect_options": {
+          "postgresql_include": [],
+          "postgresql_nulls_not_distinct": false
+        }
+      }
+    ],
+    "indexes": [
+      {
+        "name": "uq_entity_profile_request",
+        "unique": true,
+        "column_names": [
+          "tenant_id",
+          "novel_id",
+          "actor_id",
+          "request_key"
+        ],
+        "duplicates_constraint": "uq_entity_profile_request",
+        "include_columns": [],
+        "dialect_options": {
+          "postgresql_include": []
+        }
+      }
+    ],
+    "foreign_keys": [
+      {
+        "name": "entity_profile_audits_entity_id_fkey",
+        "constrained_columns": [
+          "entity_id"
+        ],
+        "referred_schema": "narrative",
+        "referred_table": "entities",
+        "referred_columns": [
+          "id"
+        ],
+        "options": {
+          "ondelete": "CASCADE"
+        },
+        "comment": null
+      }
+    ],
+    "pk": {
+      "constrained_columns": [
+        "id"
+      ],
+      "name": "entity_profile_audits_pkey",
+      "comment": null,
+      "dialect_options": {
+        "postgresql_include": []
+      }
+    }
+  },
+  "constraints_indexes_scope": "Audit PK, entity FK/CASCADE, request uniqueness and reflected indexes checked; not global equivalence",
+  "alembic_version_width": 35,
+  "global_default_index_equivalence_claimed": false,
+  "production_examined": false,
+  "audit_count_readback_stage": "after repository smoke; prior historical rollback intentionally drops0014 audit table only in owned DB"
+}

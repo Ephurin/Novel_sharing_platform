@@ -1,0 +1,45 @@
+{
+  "source_sha": "3560e1a73112999e0b7e0d19006834a65338e711",
+  "source_tree": "15991fd4895e0b5f71b65a71d688d9de7a33420c",
+  "tracked_tree_clean_at_start": true,
+  "provider_calls_real": 0,
+  "results": [
+    {
+      "command": "npm --prefix web run build",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "npm --prefix web run typecheck",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "cwd": "web",
+      "command": "node --test tests/planning-studio.browser.test.mjs tests/setup-foundation.browser.test.mjs",
+      "exit_code": 0,
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0,
+      "mode": "Chromium/Edge actual Vite route + HTTP mocks"
+    },
+    {
+      "cwd": "ai-service",
+      "command": "python -m pytest -q -o addopts= -s tests/test_setup_activation_postgres.py --junitxml=../docs/development/p2/evidence/p2-05/m0-356-source.xml",
+      "exit_code": 0,
+      "passed": 33,
+      "failed": 0,
+      "skipped": 0,
+      "mode": "real isolated PostgreSQL16/pgvector"
+    },
+    {
+      "cwd": "web",
+      "command": "node --test tests/author-ide.browser.test.mjs tests/draft-persistence.browser.test.mjs",
+      "exit_code": 0,
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "mode": "real isolated Core PG/Mongo + fake AI"
+    }
+  ]
+}

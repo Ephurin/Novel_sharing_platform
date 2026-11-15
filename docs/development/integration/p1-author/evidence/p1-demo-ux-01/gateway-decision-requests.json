@@ -1,0 +1,371 @@
+[
+  {
+    "transport": "production-spa-browser",
+    "method": "POST",
+    "path": "/api/v1/ai/story-brains/58c7e625-6d3b-44b5-8ada-1f693ee2005c/entity-reviews/5faefab7-e1ce-4993-ab96-e006e93f9d29/review",
+    "status": 200,
+    "request": {
+      "expected_version": 1,
+      "finalize": false,
+      "decisions": [
+        {
+          "candidate_id": "ddc4557566e10aa8ca1da2f7",
+          "verdict": "entity",
+          "canonical_name": "LÃ¢m Phong",
+          "entity_type": "PER",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/lam-phong"
+        },
+        {
+          "candidate_id": "5edd4f8dcc02a8d18d213881",
+          "verdict": "entity",
+          "canonical_name": "Diá»‡p Linh Nhi",
+          "entity_type": "PER",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/diep-linh-nhi"
+        },
+        {
+          "candidate_id": "e9e97db1820ed3bf823d0e69",
+          "verdict": "entity",
+          "canonical_name": "Cá»“n VÃ¢n",
+          "entity_type": "LOC",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/con-van"
+        },
+        {
+          "candidate_id": "b530a172152bf81d226138f0",
+          "verdict": "entity",
+          "canonical_name": "Cá»“n VÃ¢n",
+          "entity_type": "LOC",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/con-van"
+        }
+      ]
+    }
+  },
+  {
+    "transport": "production-spa-browser",
+    "method": "POST",
+    "path": "/api/v1/ai/story-brains/58c7e625-6d3b-44b5-8ada-1f693ee2005c/entity-reviews/5faefab7-e1ce-4993-ab96-e006e93f9d29/review",
+    "status": 200,
+    "request": {
+      "expected_version": 2,
+      "finalize": false,
+      "decisions": [
+        {
+          "candidate_id": "ddc4557566e10aa8ca1da2f7",
+          "verdict": "entity",
+          "canonical_name": "LÃ¢m Phong",
+          "entity_type": "PER",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/lam-phong"
+        },
+        {
+          "candidate_id": "6666c5300c83eed680bd4a7e",
+          "verdict": "not_entity",
+          "canonical_name": "",
+          "entity_type": null,
+          "canonical_entity_id": "",
+          "provisional_identity_key": ""
+        },
+        {
+          "candidate_id": "5edd4f8dcc02a8d18d213881",
+          "verdict": "entity",
+          "canonical_name": "Diá»‡p Linh Nhi",
+          "entity_type": "PER",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/diep-linh-nhi"
+        },
+        {
+          "candidate_id": "e9e97db1820ed3bf823d0e69",
+          "verdict": "entity",
+          "canonical_name": "Cá»“n VÃ¢n",
+          "entity_type": "LOC",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/con-van"
+        },
+        {
+          "candidate_id": "b530a172152bf81d226138f0",
+          "verdict": "entity",
+          "canonical_name": "Cá»“n VÃ¢n",
+          "entity_type": "LOC",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/con-van"
+        }
+      ]
+    }
+  },
+  {
+    "transport": "production-spa-browser",
+    "method": "POST",
+    "path": "/api/v1/ai/story-brains/58c7e625-6d3b-44b5-8ada-1f693ee2005c/entity-reviews/5faefab7-e1ce-4993-ab96-e006e93f9d29/review",
+    "status": 409,
+    "request": {
+      "expected_version": 2,
+      "finalize": false,
+      "decisions": [
+        {
+          "candidate_id": "56ecadc64f06a0db6457c13a",
+          "verdict": "not_entity",
+          "canonical_name": "",
+          "entity_type": null,
+          "canonical_entity_id": "",
+          "provisional_identity_key": ""
+        },
+        {
+          "candidate_id": "ddc4557566e10aa8ca1da2f7",
+          "verdict": "entity",
+          "canonical_name": "LÃ¢m Phong",
+          "entity_type": "PER",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/lam-phong"
+        },
+        {
+          "candidate_id": "5edd4f8dcc02a8d18d213881",
+          "verdict": "entity",
+          "canonical_name": "Diá»‡p Linh Nhi",
+          "entity_type": "PER",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/diep-linh-nhi"
+        },
+        {
+          "candidate_id": "e9e97db1820ed3bf823d0e69",
+          "verdict": "entity",
+          "canonical_name": "Cá»“n VÃ¢n",
+          "entity_type": "LOC",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/con-van"
+        },
+        {
+          "candidate_id": "b530a172152bf81d226138f0",
+          "verdict": "entity",
+          "canonical_name": "Cá»“n VÃ¢n",
+          "entity_type": "LOC",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/con-van"
+        }
+      ]
+    }
+  },
+  {
+    "transport": "production-spa-browser",
+    "method": "POST",
+    "path": "/api/v1/ai/story-brains/58c7e625-6d3b-44b5-8ada-1f693ee2005c/entity-reviews/5faefab7-e1ce-4993-ab96-e006e93f9d29/review",
+    "status": 200,
+    "request": {
+      "expected_version": 3,
+      "finalize": false,
+      "decisions": [
+        {
+          "candidate_id": "56ecadc64f06a0db6457c13a",
+          "verdict": "not_entity",
+          "canonical_name": "",
+          "entity_type": null,
+          "canonical_entity_id": "",
+          "provisional_identity_key": ""
+        },
+        {
+          "candidate_id": "ddc4557566e10aa8ca1da2f7",
+          "verdict": "entity",
+          "canonical_name": "LÃ¢m Phong",
+          "entity_type": "PER",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/lam-phong"
+        },
+        {
+          "candidate_id": "6666c5300c83eed680bd4a7e",
+          "verdict": "not_entity",
+          "canonical_name": "",
+          "entity_type": null,
+          "canonical_entity_id": "",
+          "provisional_identity_key": ""
+        },
+        {
+          "candidate_id": "5edd4f8dcc02a8d18d213881",
+          "verdict": "entity",
+          "canonical_name": "Diá»‡p Linh Nhi",
+          "entity_type": "PER",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/diep-linh-nhi"
+        },
+        {
+          "candidate_id": "e9e97db1820ed3bf823d0e69",
+          "verdict": "entity",
+          "canonical_name": "Cá»“n VÃ¢n",
+          "entity_type": "LOC",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/con-van"
+        },
+        {
+          "candidate_id": "b530a172152bf81d226138f0",
+          "verdict": "entity",
+          "canonical_name": "Cá»“n VÃ¢n",
+          "entity_type": "LOC",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/con-van"
+        }
+      ]
+    }
+  },
+  {
+    "transport": "production-spa-browser",
+    "method": "POST",
+    "path": "/api/v1/ai/story-brains/58c7e625-6d3b-44b5-8ada-1f693ee2005c/entity-reviews/5faefab7-e1ce-4993-ab96-e006e93f9d29/review",
+    "status": 200,
+    "request": {
+      "expected_version": 4,
+      "finalize": true,
+      "decisions": [
+        {
+          "candidate_id": "56ecadc64f06a0db6457c13a",
+          "verdict": "not_entity",
+          "canonical_name": "",
+          "entity_type": null,
+          "canonical_entity_id": "",
+          "provisional_identity_key": ""
+        },
+        {
+          "candidate_id": "ddc4557566e10aa8ca1da2f7",
+          "verdict": "entity",
+          "canonical_name": "LÃ¢m Phong",
+          "entity_type": "PER",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/lam-phong"
+        },
+        {
+          "candidate_id": "6666c5300c83eed680bd4a7e",
+          "verdict": "not_entity",
+          "canonical_name": "",
+          "entity_type": null,
+          "canonical_entity_id": "",
+          "provisional_identity_key": ""
+        },
+        {
+          "candidate_id": "0ed2bd7a88c3c1f3fd024197",
+          "verdict": "not_entity",
+          "canonical_name": "",
+          "entity_type": null,
+          "canonical_entity_id": "",
+          "provisional_identity_key": ""
+        },
+        {
+          "candidate_id": "e3888cb9538d708249fb514a",
+          "verdict": "not_entity",
+          "canonical_name": "",
+          "entity_type": null,
+          "canonical_entity_id": "",
+          "provisional_identity_key": ""
+        },
+        {
+          "candidate_id": "5edd4f8dcc02a8d18d213881",
+          "verdict": "entity",
+          "canonical_name": "Diá»‡p Linh Nhi",
+          "entity_type": "PER",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/diep-linh-nhi"
+        },
+        {
+          "candidate_id": "cb6d7aa815c841168b4bb741",
+          "verdict": "not_entity",
+          "canonical_name": "",
+          "entity_type": null,
+          "canonical_entity_id": "",
+          "provisional_identity_key": ""
+        },
+        {
+          "candidate_id": "34a31b619a3b88a174a63a2f",
+          "verdict": "not_entity",
+          "canonical_name": "",
+          "entity_type": null,
+          "canonical_entity_id": "",
+          "provisional_identity_key": ""
+        },
+        {
+          "candidate_id": "4a6747b0f3eb1799e4b7b03d",
+          "verdict": "not_entity",
+          "canonical_name": "",
+          "entity_type": null,
+          "canonical_entity_id": "",
+          "provisional_identity_key": ""
+        },
+        {
+          "candidate_id": "d182cc727ddb64722d06c8b8",
+          "verdict": "not_entity",
+          "canonical_name": "",
+          "entity_type": null,
+          "canonical_entity_id": "",
+          "provisional_identity_key": ""
+        },
+        {
+          "candidate_id": "e9e97db1820ed3bf823d0e69",
+          "verdict": "entity",
+          "canonical_name": "Cá»“n VÃ¢n",
+          "entity_type": "LOC",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/con-van"
+        },
+        {
+          "candidate_id": "1cee11af1abd524f10be03d2",
+          "verdict": "not_entity",
+          "canonical_name": "",
+          "entity_type": null,
+          "canonical_entity_id": "",
+          "provisional_identity_key": ""
+        },
+        {
+          "candidate_id": "9a026c77eb38557bfa4aa633",
+          "verdict": "not_entity",
+          "canonical_name": "",
+          "entity_type": null,
+          "canonical_entity_id": "",
+          "provisional_identity_key": ""
+        },
+        {
+          "candidate_id": "b530a172152bf81d226138f0",
+          "verdict": "entity",
+          "canonical_name": "Cá»“n VÃ¢n",
+          "entity_type": "LOC",
+          "canonical_entity_id": "",
+          "provisional_identity_key": "cd814b7b204acc47f2b3e7df20fca2b0f213d7bca4e74352615579bd32982f81/con-van"
+        },
+        {
+          "candidate_id": "17af292ed7e75571b9c7e9a7",
+          "verdict": "not_entity",
+          "canonical_name": "",
+          "entity_type": null,
+          "canonical_entity_id": "",
+          "provisional_identity_key": ""
+        }
+      ]
+    }
+  },
+  {
+    "transport": "production-spa-browser",
+    "method": "POST",
+    "path": "/api/v1/ai/story-brains/58c7e625-6d3b-44b5-8ada-1f693ee2005c/entity-reviews/5faefab7-e1ce-4993-ab96-e006e93f9d29/continue",
+    "status": 200,
+    "request": {}
+  },
+  {
+    "transport": "production-spa-browser",
+    "method": "POST",
+    "path": "/api/v1/ai/proposal-groups/6d9a8992-bf6e-59ff-8214-855d84e0dcba/accept",
+    "status": 200,
+    "request": {
+      "expected_brain_version": 1,
+      "proposal_ids": [
+        "ca2f6de5-4427-5de1-8ecd-c6e8ee77aaae",
+        "ab2dcfeb-cfdb-5f4d-b50a-25353946ad20",
+        "b3d8f032-96fc-51ca-ae3b-ab6ba2d5a3aa",
+        "afc825ea-6d07-5804-99e8-5f2c96dbde28"
+      ]
+    }
+  },
+  {
+    "transport": "production-spa-browser",
+    "method": "POST",
+    "path": "/api/v1/ai/story-brains/58c7e625-6d3b-44b5-8ada-1f693ee2005c/baseline/activate",
+    "status": 200,
+    "request": {}
+  }
+]

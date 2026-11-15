@@ -1,0 +1,16 @@
+{
+  "reviewed_head": "0e7ede8e7cd17aa537e37bceff5d40c39df8860c",
+  "tested_source_sha": "e603aa692b23e52ce22e2107036fabb552f7608b",
+  "tested_tree": "36b8c5827d48c3b088ac74aa669fd4f2d45a1ae7",
+  "red_component_blob": "80fe748d2f60a63882c14212a3a0292f1d6258f3",
+  "red_command": [
+    "node",
+    "--test",
+    "web/tests/p1-entity-checkpoint-ux.browser.test.mjs"
+  ],
+  "red_exit": 1,
+  "red_product_failures": 1,
+  "gateway_freeze_and_postgres_quote_hashes_match": true,
+  "quote_hash_encoding": "SHA256(UTF8(JSON.stringify([identity_quote,status_quote])))",
+  "component_sha256": "a749d78ca6de4d728c428ec925b3e10a4725e3f2e48e55e7f80ff237dbb79944"
+}

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npm.cmd",
+    "--prefix",
+    "web",
+    "run",
+    "test:p1-checkpoint-real"
+  ],
+  "cwd": "C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\26\\01a178b1-4361-75b3-a66b-3bc53990597a\\p1-demo-ux-01",
+  "source_sha": "e603aa692b23e52ce22e2107036fabb552f7608b",
+  "exit_code": 0
+}

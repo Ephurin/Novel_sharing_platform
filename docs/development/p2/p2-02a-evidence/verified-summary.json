@@ -1,0 +1,58 @@
+{
+  "source": "1780aaf2619e83a5d0896ef4daa655df65069da2",
+  "checkout": "3d8479c6d7285b7a69d5469a0fa12c4568ba1619",
+  "tree": "4144e442657ebb9ac3cace827323bd5c83d864ec",
+  "sha256": {
+    "source-1780aaf2.zip": "2800a01b38068ff65001dfb45e607e86296b32793b5af10d2903b8fbc32557b8",
+    "rollback-1780aaf2.zip": "767a715c812d52cfb15c0370f6d71ccdcec5981f7ca2e72f8ddf5f4b1cf5a5b6",
+    "initial-252a8e1e.zip": "d4e5b518fda65265981ddc6d03eb847c34dabb04adafb0958cc287eb3aea6f8c"
+  },
+  "focused_pass": 46,
+  "a16_pass": 25,
+  "setup_sql_pass": 9,
+  "postgres": {
+    "database": "p2a",
+    "version": "PostgreSQL 16.15 (Debian 16.15-1.pgdg12+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14+deb12u1) 12.2.0, 64-bit"
+  },
+  "mongo": {
+    "database": "p2a",
+    "version": "7.0.45"
+  },
+  "setup_readbacks": 20,
+  "setup_exact_negative_pairs": 7,
+  "immutable_snapshot_metadata": 11,
+  "setup_history_rows": 0,
+  "setup_gateway_statuses": [
+    401,
+    403,
+    422,
+    422,
+    202,
+    200,
+    202,
+    409,
+    409,
+    422,
+    403,
+    404,
+    200,
+    409,
+    409,
+    503,
+    200,
+    200
+  ],
+  "gateway-forwarding_pass": 19,
+  "gateway-a16_pass": 1,
+  "setup-gateway_pass": 1,
+  "setup-browser_pass": 1,
+  "p1_revision_hash": "2820f3c28370c94c08a19fc3793b806da75fd53a6f5d33e656b9091e61e78dc1",
+  "p1_immutable_original_unchanged": true,
+  "p1_outbox_linked": true,
+  "approved_canon_unchanged": true,
+  "rollback_raw_source_unchanged": true,
+  "rollback_tables": 23,
+  "rollback_backup_sha256": "5b7c964ae47681e002ef38e7c5f40564655a5c37058cd6708c23b28a066a7f38",
+  "migration": "0016_entity_profile_audit_timestamp",
+  "vector": "vector:0.8.7"
+}

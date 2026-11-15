@@ -1,0 +1,9 @@
+{
+  "audit_count": 2,
+  "null_count": 0,
+  "same_key_retry_unchanged": true,
+  "audit_projection_sha256": "a52b051e312c1eb739469a0bfedd205d3edf21848c5c5984bc92b12d4b91fd63",
+  "private_profile_readback_sha256": "9aca339a0d3e8adf4a2478b21dfba3b510bb0abd36452fbea2d9c54bc00a6bc7",
+  "profile_version": 2,
+  "origin": "new repository mutations after disposable historical rollback test"
+}

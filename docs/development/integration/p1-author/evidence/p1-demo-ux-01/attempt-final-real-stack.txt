@@ -1,0 +1,25 @@
+
+> ephurin-web@0.1.0 test:p1-checkpoint-real
+> node --test tests/p1-entity-checkpoint-real.browser.test.mjs
+
+TAP version 13
+# Subtest: Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial reload, CAS, Freeze and Canon readback
+not ok 1 - Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial reload, CAS, Freeze and Canon readback
+  ---
+  duration_ms: 11507.6552
+  location: 'C:\\Users\\Laptop\\.codex\\visualizations\\2026\\10\\26\\01a178b1-4361-75b3-a66b-3bc53990597a\\p1-demo-ux-01\\web\\tests\\p1-entity-checkpoint-real.browser.test.mjs:8:1'
+  failureType: 'unhandledRejection'
+  error: 'route.continue: Route is already handled!'
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    C:\Users\Laptop\.codex\visualizations\2026\10\26\01a178b1-4361-75b3-a66b-3bc53990597a\p1-demo-ux-01\web\tests\p1-entity-checkpoint-real.browser.test.mjs:118:82
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 0
+# fail 1
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 17842.2494

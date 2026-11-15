@@ -17,6 +17,7 @@ export class AIGatewayService {
     tenantId?: string;
     requestId?: string;
     idempotencyKey?: string;
+    legacyPlanRead?: boolean;
     queryParams?: Record<string, string | number | undefined | null>;
     body?: unknown;
   }): Promise<T> {
@@ -44,6 +45,8 @@ export class AIGatewayService {
       headers['X-Service-Token'] = this.serviceToken;
       headers['Authorization'] = `Bearer ${this.serviceToken}`;
     }
+
+    if (options.legacyPlanRead) headers['X-Gateway-Legacy-Plan-Read']='admin';
 
     if (options.userId) {
       headers['X-User-Id'] = options.userId;

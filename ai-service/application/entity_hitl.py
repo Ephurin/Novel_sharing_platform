@@ -206,31 +206,39 @@ def continue_review(service, novel_id, run_id, tenant_id):
         if key in seen_aliases:
             continue
         seen_aliases.add(key)
+        # A quote equal to the alias occurrence itself (honorific variants, F-LIVE-18) can repeat in
+        # the chapter; anchor it at that occurrence instead of searching for a unique match.
+        start, end = alias.get('start'), alias.get('end')
+        has_span = isinstance(start, int) and isinstance(end, int) and 0 <= start < end <= len(revision.content)
+        quote = alias['identity_quote']
+        if (not quote or quote not in revision.content) and has_span:
+            # Honorific variants skip the identity-quote check, so a paraphrased model quote can reach
+            # here (final live acceptance, chapter 5); the alias occurrence itself is exact evidence.
+            quote = revision.content[start:end]
+        span = (start, end) if has_span and revision.content[start:end] == quote else None
         add('alias', {'alias': alias['alias'], 'entity_name': alias['entity_name'],
-            'entity_id': alias['entity_id']}, alias['identity_quote'], alias['confidence'])
+            'entity_id': alias['entity_id']}, quote, alias['confidence'], span=span)
     identity = inventory.resolve
     # Do not reuse the legacy fuzzy participant matcher in the verified path.
     if audit['request']['options'].get('extract_events', True) and inventory:
         raw = call_structured(service._llm_service, operation='hitl_event_extraction',
             system_prompt=VIETNAMESE_EVENT_OUTPUT + 'Extract narrative events only from this source and the reviewed inventory. Return JSON {"events":[{"event_type":"...","summary":"...","participants":["exact reviewed entity_id"],"locations":[],"consequences":[],"quote":"exact unique source quote"}]}. No predictions or invented identities.',
             user_prompt=json.dumps({'source_text': revision.content, 'known_entities': inventory.items, 'aliases': audit['aliases']}, ensure_ascii=False))
-        from pydantic import BaseModel, ConfigDict, Field
-        class Event(BaseModel):
-            model_config = ConfigDict(extra='forbid')
-            event_type: str = Field(min_length=1)
-            summary: str = Field(min_length=1)
-            participants: list[str]
-            locations: list[str] = []
-            consequences: list[str] = []
-            quote: str = Field(min_length=1)
-        class Events(BaseModel):
-            events: list[Event]
-        for event in Events.model_validate_json(raw).events:
+        from core.structured_outputs import HitlEventBatch
+        for event in HitlEventBatch.model_validate_json(raw).events:
             payload = event.model_dump(exclude={'quote'})
             payload['participants'] = [identity(n) for n in event.participants]
             payload['locations'] = [identity(n) for n in event.locations]
             payload['chapter'] = revision.chapter_number
-            add('event', payload, event.quote)
+            try:
+                add('event', payload, event.quote)
+            except ValueError as exc:
+                # One event whose quote is not verbatim (final live acceptance, chapter 5) must not
+                # fail the chapter; identity errors above still fail closed.
+                if 'quote' not in str(exc).lower() and 'offsets' not in str(exc).lower():
+                    raise
+                import logging
+                logging.getLogger(__name__).warning('Dropped event with an ungrounded quote: %s', str(exc)[:120])
     if audit['request']['options'].get('extract_world_rules', False):
         from services.prose_facts import extract_prose_facts
         for fact in extract_prose_facts(revision.content, service._llm_service, inventory.items):
@@ -240,6 +248,16 @@ def continue_review(service, novel_id, run_id, tenant_id):
                 identity(fact.subject)
             add('fact', {'fact_type': 'narrative_fact', 'fact_key': fact.fact_key,
                 'fact_value': fact.fact_value, 'subject_entity_id': identity(fact.subject) if fact.subject else None}, fact.quote, fact.confidence)
+        # F-LIVE-17: also propose general world rules the chapter states or shows, so imported
+        # manuscripts get rules for the consistency check (same proposal shape as the legacy path).
+        import hashlib
+        from services.world_rule_extraction import extract_world_rules, known_world_rules
+        approved = known_world_rules(getattr(repo.get_story_brain(novel_id), 'facts', ()))
+        for rule in extract_world_rules(revision.content, service._llm_service, approved):
+            rule_hash = hashlib.sha256(rule['rule'].casefold().encode('utf-8')).hexdigest()[:16]
+            add('fact', {'fact_type': 'world_rule', 'fact_key': f'world_rule_{rule_hash}',
+                'fact_value': rule['rule'], 'priority': 100}, rule['quote'], rule['confidence'],
+                span=(rule['start'], rule['end']))
     if audit['request']['options'].get('extract_state_transitions', False):
         from dataclasses import replace
         from services.state_transition_proposals import generate_state_transition_proposals
