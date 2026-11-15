@@ -315,6 +315,13 @@ export function proposalKind(p: Pick<ReviewProposal, 'proposal_type' | 'payload'
   return p.proposal_type === 'fact' && p.payload?.fact_type === 'world_rule' ? 'world_rule' : p.proposal_type;
 }
 
+/** Q-4: Vietnamese name of a proposal's kind ("quy tắc thế giới", not the raw `world_rule`). */
+export function proposalKindLabel(p: Pick<ReviewProposal, 'proposal_type' | 'payload'>): string {
+  const kind = proposalKind(p);
+  const label = PROPOSAL_KIND_LABELS[kind] ?? kind;
+  return label.charAt(0).toLocaleUpperCase('vi') + label.slice(1);
+}
+
 /** One readable Vietnamese line per proposal instead of the raw payload. */
 export function describeProposal(p: Pick<ReviewProposal, 'proposal_type' | 'payload'>): string {
   const d = (p.payload ?? {}) as Record<string, unknown>;

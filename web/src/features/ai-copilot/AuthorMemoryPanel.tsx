@@ -46,6 +46,7 @@ import {
   getBootstrapJob,
   getReviewQueue,
   getStoryBrainSummary,
+  proposalKindLabel,
   rejectProposal,
   resumeBootstrapJob,
   startManuscriptBootstrap,
@@ -1142,7 +1143,7 @@ function ProposalReview({
       <Stack gap="xs">
         <Group justify="space-between" align="center">
           <Group gap="xs">
-            <Badge color="blue">{proposal.proposal_type}</Badge>
+            <Badge color="blue">{proposalKindLabel(proposal)}</Badge>
             {isEdited && (
               <Badge color="orange" size="xs" leftSection={<IconEdit size={10} />}>
                 Đã chỉnh sửa bởi tác giả
