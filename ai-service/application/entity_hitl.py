@@ -209,7 +209,11 @@ def continue_review(service, novel_id, run_id, tenant_id):
         # the chapter; anchor it at that occurrence instead of searching for a unique match.
         start, end = alias.get('start'), alias.get('end')
         has_span = isinstance(start, int) and isinstance(end, int) and 0 <= start < end <= len(revision.content)
-        quote = alias['identity_quote'] or (revision.content[start:end] if has_span else '')
+        quote = alias['identity_quote']
+        if (not quote or quote not in revision.content) and has_span:
+            # Honorific variants skip the identity-quote check, so a paraphrased model quote can reach
+            # here (final live acceptance, chapter 5); the alias occurrence itself is exact evidence.
+            quote = revision.content[start:end]
         span = (start, end) if has_span and revision.content[start:end] == quote else None
         add('alias', {'alias': alias['alias'], 'entity_name': alias['entity_name'],
             'entity_id': alias['entity_id']}, quote, alias['confidence'], span=span)
@@ -217,7 +221,7 @@ def continue_review(service, novel_id, run_id, tenant_id):
     # Do not reuse the legacy fuzzy participant matcher in the verified path.
     if audit['request']['options'].get('extract_events', True) and inventory:
         raw = call_structured(service._llm_service, operation='hitl_event_extraction',
-            system_prompt='Extract narrative events only from this source and the reviewed inventory. Return JSON {"events":[{"event_type":"...","summary":"...","participants":["exact reviewed entity_id"],"locations":[],"consequences":[],"quote":"exact unique source quote"}]}. No predictions or invented identities.',
+            system_prompt='Extract narrative events only from this source and the reviewed inventory. Return JSON {"events":[{"event_type":"...","summary":"...","participants":["exact reviewed entity_id"],"locations":[],"consequences":[],"quote":"exact unique source quote"}]}. No predictions or invented identities. Write summary and consequences in the same language as the source text (Vietnamese for a Vietnamese chapter).',
             user_prompt=json.dumps({'source_text': revision.content, 'known_entities': inventory.items, 'aliases': audit['aliases']}, ensure_ascii=False))
         from core.structured_outputs import HitlEventBatch
         for event in HitlEventBatch.model_validate_json(raw).events:
@@ -225,7 +229,15 @@ def continue_review(service, novel_id, run_id, tenant_id):
             payload['participants'] = [identity(n) for n in event.participants]
             payload['locations'] = [identity(n) for n in event.locations]
             payload['chapter'] = revision.chapter_number
-            add('event', payload, event.quote)
+            try:
+                add('event', payload, event.quote)
+            except ValueError as exc:
+                # One event whose quote is not verbatim (final live acceptance, chapter 5) must not
+                # fail the chapter; identity errors above still fail closed.
+                if 'quote' not in str(exc).lower() and 'offsets' not in str(exc).lower():
+                    raise
+                import logging
+                logging.getLogger(__name__).warning('Dropped event with an ungrounded quote: %s', str(exc)[:120])
     if audit['request']['options'].get('extract_world_rules', False):
         from services.prose_facts import extract_prose_facts
         for fact in extract_prose_facts(revision.content, service._llm_service, inventory.items):

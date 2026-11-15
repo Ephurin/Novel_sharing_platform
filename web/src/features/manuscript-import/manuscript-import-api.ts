@@ -298,6 +298,47 @@ const JOB_STAGE_LABELS: Record<string, string> = {
 export const jobStatusLabel = (status: string) => JOB_STATUS_LABELS[status] ?? status;
 export const jobStageLabel = (stage: string) => JOB_STAGE_LABELS[stage] ?? stage;
 
+const ENTITY_TYPE_LABELS: Record<string, string> = { PER: 'nhân vật', LOC: 'địa danh', ORG: 'tổ chức', ITEM: 'vật phẩm', SKILL: 'kỹ năng' };
+const PROPOSAL_KIND_LABELS: Record<string, string> = {
+  entity: 'thực thể mới', alias: 'tên gọi khác', event: 'sự kiện', world_rule: 'quy tắc thế giới',
+  fact: 'dữ kiện', state_transition: 'thay đổi trạng thái', relationship: 'quan hệ'
+};
+const text = (value: unknown) => (typeof value === 'string' ? value : value === undefined || value === null ? '' : JSON.stringify(value));
+
+/** Q-4: kind of a proposal for counting and labels (world rules are facts with fact_type world_rule). */
+export function proposalKind(p: Pick<ReviewProposal, 'proposal_type' | 'payload'>): string {
+  return p.proposal_type === 'fact' && p.payload?.fact_type === 'world_rule' ? 'world_rule' : p.proposal_type;
+}
+
+/** One readable Vietnamese line per proposal instead of the raw payload. */
+export function describeProposal(p: Pick<ReviewProposal, 'proposal_type' | 'payload'>): string {
+  const d = (p.payload ?? {}) as Record<string, unknown>;
+  switch (proposalKind(p)) {
+    case 'entity':
+      return `${ENTITY_TYPE_LABELS[text(d.entity_type)] ?? 'thực thể'} mới: ${text(d.canonical_name ?? d.name)}`;
+    case 'alias':
+      return `Tên gọi khác: “${text(d.alias)}” → ${text(d.entity_name)}`;
+    case 'event':
+      return `Sự kiện: ${text(d.summary ?? d.title)}`;
+    case 'world_rule':
+      return `Quy tắc thế giới: ${text(d.fact_value)}`;
+    case 'fact':
+      return `Dữ kiện: ${text(d.fact_key)} = ${text(d.fact_value)}`;
+    case 'state_transition':
+      return `Thay đổi trạng thái: ${text(d.attribute_key)} → ${text(d.new_value)}`;
+    default:
+      return `${p.proposal_type}: ${text(d).slice(0, 120)}`;
+  }
+}
+
+/** "12 đề xuất: 4 thực thể mới, 1 tên gọi khác, …" for a proposal group. */
+export function summarizeProposalGroup(proposals: Array<Pick<ReviewProposal, 'proposal_type' | 'payload'>>): string {
+  const counts = new Map<string, number>();
+  for (const p of proposals) counts.set(proposalKind(p), (counts.get(proposalKind(p)) ?? 0) + 1);
+  const parts = [...counts.entries()].map(([kind, n]) => `${n} ${PROPOSAL_KIND_LABELS[kind] ?? kind}`);
+  return `${proposals.length} đề xuất: ${parts.join(', ')}`;
+}
+
 /** Author-facing text for a failed bootstrap job; the raw message stays available in the API. */
 export function jobErrorLabel(message: string): string {
   if (/RPM_LIMIT|TPM_LIMIT|RPD_LIMIT|CONCURRENCY_LIMIT|PROVIDER_RATE_LIMITED|quota/i.test(message))
