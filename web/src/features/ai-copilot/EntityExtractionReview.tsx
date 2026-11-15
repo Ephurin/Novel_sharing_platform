@@ -1,5 +1,5 @@
 import { useAuthStore } from '../auth/useAuthStore';
-import { useEffect, useRef, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Badge,
@@ -11,6 +11,7 @@ import {
   Pagination,
   Paper,
   Radio,
+  SegmentedControl,
   Select,
   Stack,
   Text,
@@ -40,7 +41,17 @@ import {
   continueEntityReview,
   acceptMachineSuggestions,
   shortNameHints,
+  groupLabelFor,
 } from './author-memory-api';
+import {
+  type SurfaceGroup,
+  GROUPED_VIEW_THRESHOLD,
+  applyToGroup,
+  conflictingOccurrences,
+  groupBySurface,
+  isResolved,
+  summarizeGroup
+} from './entity-review-groups';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
 
 const ENTITY_TYPES: EntityType[] = ['PER', 'LOC', 'ORG', 'ITEM', 'SKILL'];
@@ -319,7 +330,10 @@ function EntityCheckpoint({
   // Filter state for occurrences: 'all' | 'pending' | 'resolved'
   const [filterMode, setFilterMode] = useState<'all' | 'pending' | 'resolved'>('all');
   const [activePage, setActivePage] = useState(1);
-  const pageSize = 5;
+  // Issue 5 (long-run live test): one review item per mention. Large checkpoints open grouped by name.
+  const [viewMode, setViewMode] = useState<'grouped' | 'occurrences'>(
+    () => candidates.length > GROUPED_VIEW_THRESHOLD ? 'grouped' : 'occurrences');
+  const pageSize = viewMode === 'grouped' ? 8 : 5;
 
   // Stale guidance check
   const staleGuidance = guidanceVersion !== undefined && guidanceVersion !== review.guidance_version;
@@ -558,8 +572,41 @@ function EntityCheckpoint({
     return true;
   });
 
-  const totalPages = Math.max(1, Math.ceil(filteredCandidates.length / pageSize));
+  const surfaceGroups = groupBySurface(candidates).filter(g => {
+    const resolved = g.candidates.every(c => isResolved(choices[c.candidate_id]));
+    if (filterMode === 'pending') return !resolved;
+    if (filterMode === 'resolved') return resolved;
+    return true;
+  });
+  const listLength = viewMode === 'grouped' ? surfaceGroups.length : filteredCandidates.length;
+  const totalPages = Math.max(1, Math.ceil(listLength / pageSize));
   const pageCandidates = filteredCandidates.slice((activePage - 1) * pageSize, activePage * pageSize);
+  const pageGroups = surfaceGroups.slice((activePage - 1) * pageSize, activePage * pageSize);
+  const applyGroupUpdates = (updates: Record<string, Decision>) => {
+    setChoices(previous => ({ ...previous, ...updates }));
+    setDirtyCandidateIds(previous => new Set([...previous, ...Object.keys(updates)]));
+  };
+  const addAuthorGroup = (label: string) =>
+    setAuthorGroups(previous => previous.includes(label) ? previous : [...previous, label]);
+  const renderOccurrence = (c: EntityReview['candidates'][number]) => {
+    const decision = choices[c.candidate_id];
+    return (
+      <OccurrenceCard
+        key={c.candidate_id}
+        candidate={c}
+        machine={getMachineDecision(c.candidate_id)}
+        decision={decision}
+        isPending={pendingIds.has(c.candidate_id)}
+        knownEntities={knownEntities}
+        authorGroups={authorGroups}
+        review={review}
+        disabled={disabled || review.status !== 'waiting_entity_review'}
+        onChange={d => setCandidateDecision(c.candidate_id, d)}
+        bulkCandidates={decision ? bulkTargets(c.surface, decision) : []}
+        onApplyToAllSurface={template => decision && applyToMatchingSurface(c.surface, decision, template)}
+      />
+    );
+  };
 
   return (
     <Card withBorder radius="md" p="md" data-testid={`entity-checkpoint-${review.analysis_run_id}`}>
@@ -717,7 +764,20 @@ function EntityCheckpoint({
           </Alert>
         )}
 
-        {/* Filter & Batch Actions */}
+        {/* View, Filter & Batch Actions */}
+        <Group gap="xs" align="center">
+          <Text size="xs" c="dimmed">Xem theo:</Text>
+          <SegmentedControl
+            size="xs"
+            value={viewMode}
+            onChange={value => { setViewMode(value as 'grouped' | 'occurrences'); setActivePage(1); }}
+            data={[
+              { value: 'grouped', label: `Tên (${groupBySurface(candidates).length})` },
+              { value: 'occurrences', label: `Từng vị trí (${candidates.length})` }
+            ]}
+            data-testid="entity-review-view-mode"
+          />
+        </Group>
         <Group justify="space-between" align="center">
           <Group gap="xs">
             <Button
@@ -776,33 +836,32 @@ function EntityCheckpoint({
 
         {/* Occurrence Cards */}
         <Stack gap="xs">
-          {pageCandidates.length === 0 ? (
+          {viewMode === 'grouped' ? (
+            pageGroups.length === 0 ? (
+              <Text size="xs" c="dimmed" ta="center" py="md">
+                Không có tên nào theo bộ lọc này.
+              </Text>
+            ) : pageGroups.map(group => (
+              <SurfaceGroupCard
+                key={group.key}
+                group={group}
+                choices={choices}
+                machineFor={getMachineDecision}
+                knownEntities={knownEntities}
+                authorGroups={authorGroups}
+                review={review}
+                disabled={disabled || review.status !== 'waiting_entity_review'}
+                onApply={applyGroupUpdates}
+                onAddGroup={addAuthorGroup}
+                renderOccurrence={renderOccurrence}
+              />
+            ))
+          ) : pageCandidates.length === 0 ? (
             <Text size="xs" c="dimmed" ta="center" py="md">
               Không có vị trí trích xuất nào theo bộ lọc này.
             </Text>
           ) : (
-            pageCandidates.map(c => {
-              const machine = getMachineDecision(c.candidate_id);
-              const decision = choices[c.candidate_id];
-              const isPending = pendingIds.has(c.candidate_id);
-
-              return (
-                <OccurrenceCard
-                  key={c.candidate_id}
-                  candidate={c}
-                  machine={machine}
-                  decision={decision}
-                  isPending={isPending}
-                  knownEntities={knownEntities}
-                  authorGroups={authorGroups}
-                  review={review}
-                  disabled={disabled || review.status !== 'waiting_entity_review'}
-                  onChange={d => setCandidateDecision(c.candidate_id, d)}
-                  bulkCandidates={decision ? bulkTargets(c.surface, decision) : []}
-                  onApplyToAllSurface={template => decision && applyToMatchingSurface(c.surface, decision, template)}
-                />
-              );
-            })
+            pageCandidates.map(renderOccurrence)
           )}
         </Stack>
 
@@ -1222,6 +1281,199 @@ function OccurrenceCard({
             </Stack>
           )}
         </Stack>
+      </Stack>
+    </Paper>
+  );
+}
+
+// ──────────────────────────────────────────────
+// One card per surface: decide every occurrence of a name at once
+// ──────────────────────────────────────────────
+
+function SurfaceGroupCard({
+  group,
+  choices,
+  machineFor,
+  knownEntities,
+  authorGroups,
+  review,
+  disabled,
+  onApply,
+  onAddGroup,
+  renderOccurrence
+}: {
+  group: SurfaceGroup;
+  choices: Record<string, Decision>;
+  machineFor: (candidateId: string) => Decision;
+  knownEntities: KnownEntity[];
+  authorGroups: string[];
+  review: EntityReview;
+  disabled: boolean;
+  onApply: (updates: Record<string, Decision>) => void;
+  onAddGroup: (label: string) => void;
+  renderOccurrence: (candidate: EntityReview['candidates'][number]) => ReactNode;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const summary = summarizeGroup(group, choices, machineFor);
+  const [newType, setNewType] = useState<EntityType>(summary.suggestedType);
+  const [pending, setPending] = useState<{
+    updates: Record<string, Decision>; replaced: number; label: string; addGroup?: string;
+  } | null>(null);
+  const count = group.candidates.length;
+  const shared = summary.shared;
+  const scope = review.provisional_identity_scope;
+  const sharedGroup = shared?.provisional_identity_key
+    ? (scope ? shared.provisional_identity_key.replace(`${scope}/`, '') : shared.provisional_identity_key) : '';
+
+  // A group action replaces an occurrence's different identity only after the author confirms.
+  const act = (label: string, template: (machine: Decision) => Decision, addGroup?: string) => {
+    const updates = applyToGroup(group, choices, machineFor, template);
+    const preview = template(machineFor(group.candidates[0].candidate_id));
+    const replaced = conflictingOccurrences(group, choices, preview).length;
+    if (replaced > 0) {
+      setPending({ updates, replaced, label, addGroup });
+      return;
+    }
+    if (addGroup) onAddGroup(addGroup);
+    onApply(updates);
+  };
+
+  const asNewIdentity = (label: string) => (m: Decision): Decision => ({
+    ...newIdentity(review, m, label),
+    canonical_name: group.surface,
+    entity_type: newType,
+    initial_status: 'Unknown',
+    identity_quote: '',
+    status_quote: ''
+  });
+
+  const knownOptions = knownEntities.map(e => ({
+    value: e.entity_id,
+    label: `${e.name} [${e.entity_type}] · ID: ${e.entity_id.slice(0, 8)}...`
+  }));
+
+  return (
+    <Paper p="xs" withBorder radius="sm" data-testid={`entity-surface-group-${group.key}`}>
+      <Stack gap="xs">
+        <Group justify="space-between" align="center">
+          <Group gap="xs">
+            <Text fw={600} size="sm">&ldquo;{group.surface}&rdquo;</Text>
+            <Badge size="xs" variant="outline" color="gray">{count} vị trí</Badge>
+            {shared?.verdict === 'not_entity' ? (
+              <Badge color="red" size="xs" leftSection={<IconX size={10} />}>Đã loại cả nhóm</Badge>
+            ) : shared?.canonical_entity_id ? (
+              <Badge color="teal" size="xs" leftSection={<IconCheck size={10} />}>Canon: {shared.canonical_name}</Badge>
+            ) : shared ? (
+              <Badge color="blue" size="xs" leftSection={<IconUserCheck size={10} />}>
+                Mới: {shared.canonical_name} [{shared.entity_type}] · {sharedGroup}
+              </Badge>
+            ) : (
+              <Badge color={summary.resolved === count ? 'grape' : 'gray'} size="xs">
+                {summary.resolved === count ? 'Quyết định khác nhau' : `${summary.resolved}/${count} đã quyết định`}
+              </Badge>
+            )}
+          </Group>
+          <Text size="xs" c="dimmed">
+            Gợi ý máy: {summary.machine.map(m => `${m.label} ×${m.count}`).join(', ')}
+          </Text>
+        </Group>
+
+        <Paper p="xs" bg="var(--mantine-color-gray-1)" radius="xs">
+          <Text size="xs" style={{ whiteSpace: 'pre-wrap' }} lineClamp={3}>
+            &ldquo;{group.candidates[0].context}&rdquo;
+          </Text>
+        </Paper>
+
+        <Group gap="md" align="flex-end">
+          <Select
+            size="xs"
+            label="Cả nhóm là thực thể Canon đã có"
+            placeholder="Chọn theo tên & UUID..."
+            data={knownOptions}
+            value={shared?.canonical_entity_id || null}
+            onChange={id => {
+              const target = knownEntities.find(e => e.entity_id === id);
+              if (target) act(`nối với ${target.name}`, m => knownIdentity(m, target));
+            }}
+            searchable
+            disabled={disabled || knownEntities.length === 0}
+            style={{ flex: 1, minWidth: 200 }}
+          />
+          <Select
+            size="xs"
+            label="Loại"
+            data={ENTITY_TYPES}
+            value={newType}
+            onChange={v => { if (v) setNewType(v as EntityType); }}
+            disabled={disabled}
+            style={{ width: 90 }}
+          />
+          <Button
+            size="xs"
+            variant="light"
+            disabled={disabled}
+            onClick={() => {
+              const label = groupLabelFor(group.surface);
+              act(`tạo thực thể mới “${group.surface}”`, asNewIdentity(label), label);
+            }}
+          >
+            Thực thể mới &ldquo;{group.surface}&rdquo;
+          </Button>
+          {authorGroups.length > 0 && (
+            <Select
+              size="xs"
+              label="Hoặc gán vào nhóm"
+              placeholder="Chọn nhóm tạm..."
+              data={authorGroups.map(g => ({ value: g, label: g }))}
+              value={sharedGroup || null}
+              onChange={g => { if (g) act(`gán vào nhóm ${g}`, asNewIdentity(g)); }}
+              disabled={disabled}
+              style={{ width: 180 }}
+            />
+          )}
+          <Button
+            size="xs"
+            variant={shared?.verdict === 'not_entity' ? 'filled' : 'light'}
+            color="red"
+            disabled={disabled}
+            onClick={() => act('loại cả nhóm', m => rejectOccurrence(m))}
+          >
+            Loại cả nhóm
+          </Button>
+        </Group>
+
+        {pending && (
+          <Paper p="xs" withBorder radius="xs" bg="var(--mantine-color-orange-0)">
+            <Stack gap="xs">
+              <Text size="xs" fw={500} c="orange.9">
+                {pending.replaced}/{count} vị trí &ldquo;{group.surface}&rdquo; đang gán cho danh tính khác.
+              </Text>
+              <Text size="xs">
+                Hai nhân vật khác nhau có thể trùng tên. Nếu vẫn {pending.label} cho cả {count} vị trí, các quyết định đó sẽ bị thay.
+                Muốn giữ riêng, hãy mở từng vị trí bên dưới.
+              </Text>
+              <Group justify="flex-end" gap="xs">
+                <Button size="compact-xs" variant="default" onClick={() => setPending(null)}>Hủy</Button>
+                <Button size="compact-xs" color="orange" disabled={disabled} onClick={() => {
+                  if (pending.addGroup) onAddGroup(pending.addGroup);
+                  onApply(pending.updates);
+                  setPending(null);
+                }}>
+                  Thay cả {count} vị trí
+                </Button>
+              </Group>
+            </Stack>
+          </Paper>
+        )}
+
+        <Group justify="flex-end">
+          <Button size="compact-xs" variant="subtle" onClick={() => setExpanded(v => !v)}>
+            {expanded ? 'Ẩn từng vị trí' : `Xem từng vị trí (${count})`}
+          </Button>
+        </Group>
+        <Collapse in={expanded}>
+          <Stack gap="xs">{expanded && group.candidates.map(renderOccurrence)}</Stack>
+        </Collapse>
       </Stack>
     </Paper>
   );

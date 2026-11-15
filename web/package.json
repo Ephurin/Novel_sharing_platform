@@ -29,6 +29,7 @@
     "test:studio-polish": "tsx --test tests/studio-polish.test.mjs && node --test tests/studio-polish.browser.test.mjs",
     "test:studio-assistance": "tsx --test tests/studio-writing-assistance.test.mjs && node --test tests/studio-writing-assistance.browser.test.mjs",
     "test:entity-profile": "tsx --test tests/entity-profile.test.ts && node --test tests/entity-profile.browser.test.mjs",
+    "test:entity-review-grouped": "tsx --test tests/entity-review-groups.test.ts && node --test tests/entity-review-grouped.browser.test.mjs",
     "test:p1-checkpoint-real": "node --test tests/p1-entity-checkpoint-real.browser.test.mjs",
     "test:p2-ux05": "node --test tests/p2-07f-ux05-world-amendment.browser.test.mjs",
     "test:p2-06b": "node --test tests/p2-06b-brainstorming.browser.test.mjs tests/p2-06b-bui-regressions.browser.test.mjs",
