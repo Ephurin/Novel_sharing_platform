@@ -38,6 +38,7 @@ import { getApiErrorMessage, ApiClientError } from '../../shared/api/api-client'
 import { getChapter, listChapters } from '../novels/novel-api';
 import { createChapterSnapshot, listChapterRevisions } from './ai-copilot-api';
 import { AuthorMemoryRepair } from './AuthorMemoryRepair';
+import { usePendingMemoryReviews } from './pending-memory-reviews';
 import { EntityMergeControl } from './EntityMergeControl';
 import { eventTypeLabel } from './event-labels';
 import {
@@ -164,6 +165,7 @@ function ScopedAuthorMemoryPanel({
     enabled,
     refetchInterval: enabled ? 3000 : false
   });
+  const pendingReviews = usePendingMemoryReviews(novelId, { enabled, intervalMs: 3000 });
 
   const extraction = useQuery({
     queryKey: ['memory-extraction', novelId, accountScope],
@@ -467,7 +469,9 @@ function ScopedAuthorMemoryPanel({
 
         <Tabs value={tab} onValueChange={(value: string) => { setTab(value || 'review'); setProfileTabOpened(value === 'profiles'); }}>
           <Tabs.List>
-            <Tabs.Tab value="review">Chờ duyệt ({queue.data?.length ?? 0})</Tabs.Tab>
+            <Tabs.Tab value="review" aria-label={`Chờ duyệt: ${pendingReviews.entityCount} chương chờ duyệt danh tính, ${queue.data?.length ?? 0} đề xuất`}>
+              Chờ duyệt ({pendingReviews.entityCount + (queue.data?.length ?? 0)})
+            </Tabs.Tab>
             <Tabs.Tab value="profiles">Hồ sơ Codex</Tabs.Tab>
             <Tabs.Tab value="characters">Nhân vật ({category(['character', 'per', 'person']).length})</Tabs.Tab>
             <Tabs.Tab value="relations">
