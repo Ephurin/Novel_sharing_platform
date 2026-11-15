@@ -43,3 +43,11 @@ test('P4/P5: the publish dialog says what happens and warns when readers cannot 
   assert.match(publishedToast(false, 'DRAFT'), /sau khi truyện được công khai/);
   assert.match(publishedToast(true, 'PUBLISHED'), /chờ kiểm duyệt/);
 });
+
+test('N8: a place taken from the latest event says so', async () => {
+  const { entityPlaceLabel } = await import('../src/features/ai-copilot/author-memory-api');
+  assert.equal(entityPlaceLabel({ location: 'Unknown' }), 'Chưa rõ vị trí');
+  assert.equal(entityPlaceLabel({ location: 'Kinh thành' }), 'Kinh thành');
+  assert.equal(entityPlaceLabel({ location: 'Thạch Khê', location_source: 'last_event', location_chapter: 2 }),
+    'Thạch Khê (xuất hiện gần nhất, chương 2)');
+});

@@ -100,11 +100,19 @@ def memory(novel_id: UUID, service=Depends(get_revision_analysis_service)):
     state = invoke(project, brain.entities, facts, active_events, transitions)
     relations = invoke(project_relations, brain.entities, brain.relations, state)
     entities = [asdict(e) for e in brain.entities]
+    from domain.last_seen import from_brain, is_unknown
+    last_seen = from_brain(brain)
     for entity in entities:
         attributes = state.get('entities', {}).get(entity['entity_id'], {})
         for key in ('status', 'location'):
             if key in attributes:
                 entity[key] = attributes[key]
+        seen = last_seen.get(entity['entity_id'])
+        if seen and is_unknown(entity.get('location')):
+            # N8: fill an unknown place from the latest approved event, and say so.
+            entity['location'] = seen['location']
+            entity['location_source'] = 'last_event'
+            entity['location_chapter'] = seen['chapter']
     dto = ApprovedMemory(story_id=str(novel_id), brain_id=brain.metadata.get('brain_id'),
         brain_version=int(brain.metadata.get('brain_version', 1)), entities=entities,
         aliases=[asdict(a) for a in brain.aliases], mentions=[asdict(m) for m in brain.mentions],
