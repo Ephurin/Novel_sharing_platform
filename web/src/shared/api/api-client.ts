@@ -83,6 +83,14 @@ export function getApiErrorMessage(error: unknown) {
     if (error.code === 'M0_NOT_ACTIVE') {
       return 'Thiết lập thế giới của truyện chưa được kích hoạt. Hãy duyệt và kích hoạt thiết lập trước khi dùng mục này.';
     }
+    // Live retest 3 (P2): accepting an old proposal group showed "AI Service returned status 409".
+    if (error.code === 'BRAIN_VERSION_CONFLICT') {
+      return 'Bộ nhớ truyện đã thay đổi sau khi mục này được tạo nên không thể duyệt nữa. Hãy tải lại; nếu đề xuất được đánh dấu "Đã cũ", hãy từ chối nó rồi lưu lại chương để AI phân tích lại.';
+    }
+    // The AI service explains this one in Vietnamese (for example a repeated event).
+    if (error.code === 'INVALID_PROJECTION' && /[À-ỹ]/.test(error.message)) {
+      return error.message;
+    }
     return `${error.code}: ${error.message}`;
   }
 

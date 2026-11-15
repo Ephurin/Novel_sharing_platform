@@ -71,6 +71,7 @@ import {
   type WritingGenerationJob
 } from '../ai-copilot/ai-copilot-api';
 import { getApiErrorMessage } from '../../shared/api/api-client';
+import { publishCopy, publishedToast } from './publish-copy';
 
 export type FontOption = 'merriweather' | 'lora' | 'literata' | 'playfair' | 'roboto-slab' | 'vietnam' | 'jakarta';
 export type TextAlignment = 'justify' | 'left' | 'center' | 'right';
@@ -700,11 +701,7 @@ export function AuthorWritingIde() {
       queryClient.invalidateQueries({ queryKey: ['public-reader-chapter', activeChapterId] });
       queryClient.invalidateQueries({ queryKey: ['reader-novel', activeNovelId] });
       queryClient.invalidateQueries({ queryKey: ['public-reader-novel', activeNovelId] });
-      showToast(
-        res.moderationRequired
-          ? 'Chương đã gửi duyệt kiểm duyệt thành công!'
-          : 'Chương đã được xuất bản công khai thành công!'
-      );
+      showToast(publishedToast(res.moderationRequired, novelQuery.data?.status));
     },
     onError: (err: unknown) => {
       showToast(`Lỗi xuất bản: ${getApiErrorMessage(err)}`);
@@ -2112,10 +2109,13 @@ export function AuthorWritingIde() {
             {/* Moderation Notice */}
             <div className="p-2.5 rounded-lg bg-primary-50/60 border border-primary-100 text-meta text-stone-600 leading-relaxed mb-5 flex items-start gap-2">
               <span className="material-symbols-outlined text-primary-600 text-[16px] shrink-0 mt-0.5">info</span>
-              <span>
-                Hệ thống sẽ tự động quét từ khóa nhạy cảm và kiểm tra kiểm duyệt nội dung trước khi chương được độc giả đọc công khai.
-              </span>
+              <span>{publishCopy(novelQuery.data?.status).notice}</span>
             </div>
+            {publishCopy(novelQuery.data?.status).readerNotice && (
+              <div role="note" data-testid="publish-reader-notice" className="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-meta text-amber-800 leading-relaxed mb-5">
+                {publishCopy(novelQuery.data?.status).readerNotice}
+              </div>
+            )}
 
             {/* Action Buttons */}
             <div className="flex items-center justify-end gap-2 text-meta">
@@ -2132,7 +2132,7 @@ export function AuthorWritingIde() {
                 className="px-4 py-1.5 rounded-lg bg-primary-600 text-white hover:bg-primary-700 font-semibold transition-all shadow-sm shadow-primary-200  disabled:opacity-50"
                 type="button"
               >
-                {publishMutation.isPending ? 'Đang gửi duyệt...' : 'Xác nhận gửi duyệt'}
+                {publishMutation.isPending ? publishCopy(novelQuery.data?.status).pending : publishCopy(novelQuery.data?.status).confirm}
               </button>
             </div>
           </div>

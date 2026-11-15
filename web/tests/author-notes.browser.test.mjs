@@ -120,7 +120,7 @@ test('author footnotes survive edits, undo, autosave and reload, then appear to 
           await expect(reader.locator('.sc-author-note-reference')).toHaveCount(0);
           assert.equal(publications, 0, 'saving and previewing a note must not publish the draft');
           await notes.getByRole('button', { name: 'Xuất bản phiên bản mới', exact: true }).click();
-          await page.getByRole('button', { name: 'Xác nhận gửi duyệt', exact: true }).click();
+          await page.getByRole('button', { name: 'Xuất bản chương', exact: true }).click();
           await expect.poll(() => publications).toBe(1);
           await expect(notes.getByRole('status', { name: 'Trạng thái công khai chú thích', exact: true })).toHaveAttribute('data-published', 'true');
           await reader.reload();

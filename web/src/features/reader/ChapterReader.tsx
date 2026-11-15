@@ -9,6 +9,7 @@ import { CommentsSection } from './CommentsSection';
 import { ChapterReadingWorkspace } from './ChapterReadingWorkspace';
 import { getReaderChapter, getReaderNovel, reportContent, syncHistory, unlockVipChapter } from './reader-api';
 import { useReadChapterIds } from './useReadChapterIds';
+import { ReaderNotFound, isReaderNotFound } from './ReaderNotFound';
 
 export function ChapterReader({ publicMode = false }: { publicMode?: boolean }) {
   const { chapterId = '' } = useParams();
@@ -61,6 +62,7 @@ export function ChapterReader({ publicMode = false }: { publicMode?: boolean }) 
       {unlock.isError && <p role="alert">{getApiErrorMessage(unlock.error)}</p>}
     </section>;
   }
+  if (chapterQuery.isError && isReaderNotFound(chapterQuery.error)) return <ReaderNotFound publicMode={publicMode} />;
   if (chapterQuery.isError) return <ErrorState error={chapterQuery.error} onRetry={() => void chapterQuery.refetch()} />;
   if (!chapter) return null;
   return <>

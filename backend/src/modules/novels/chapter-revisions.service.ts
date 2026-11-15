@@ -131,6 +131,15 @@ export async function createSnapshot(
   return withChapterWriter(chapterId, lease => createSnapshotUnderLease(auth, chapterId, input, lease), parent);
 }
 
+export function reusesLatestRevision(
+  latest: Pick<ChapterRevisionRecord, 'contentHash' | 'sourceType'> | null | undefined,
+  contentHash: string,
+  sourceType: ChapterRevisionRecord['sourceType']
+): boolean {
+  if (!latest || latest.contentHash !== contentHash) return false;
+  return latest.sourceType === sourceType || (sourceType === 'AUTHOR_MANUAL' && latest.sourceType !== 'BOOTSTRAP');
+}
+
 async function createSnapshotUnderLease(
   auth: AuthContext,
   chapterId: string,
@@ -173,9 +182,13 @@ async function createSnapshotUnderLease(
 
     const latest = await findLatestRevisionByChapterId(client, chapterId);
 
-    // Repeated saves of the same body must not create duplicate analysis work.
-    if (latest?.contentHash === contentHash && latest.sourceType === sourceType) {
-      return latest;
+    // Repeated saves of the same body must not create duplicate analysis work. An author snapshot
+    // of a body that an accepted AI draft already produced is the same text too: publishing such a
+    // chapter used to add an AUTHOR_MANUAL copy that re-analysed the whole reviewed chapter and
+    // re-proposed its approved events (live retest 3, P1). Bootstrap revisions are pre-baseline and
+    // never analysed incrementally, so they are only reused by another bootstrap.
+    if (reusesLatestRevision(latest, contentHash, sourceType)) {
+      return latest!;
     }
 
     const record = await insertRevision(client, {

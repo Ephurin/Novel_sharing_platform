@@ -41,12 +41,14 @@ import { AuthorMemoryRepair } from './AuthorMemoryRepair';
 import { usePendingMemoryReviews } from './pending-memory-reviews';
 import { EntityMergeControl } from './EntityMergeControl';
 import { eventTypeLabel } from './event-labels';
+import { fullAutoBlockReason } from './full-auto-gate';
 import {
   activateBaseline,
   getBootstrapJob,
   getReviewQueue,
   getStoryBrainSummary,
   proposalKindLabel,
+  proposalGroupBlock,
   rejectProposal,
   resumeBootstrapJob,
   startManuscriptBootstrap,
@@ -428,6 +430,8 @@ function ScopedAuthorMemoryPanel({
     memory.data?.entities.filter(e => types.includes(e.entity_type.toLowerCase())) ?? [];
 
   const currentBrainVersion = memory.data?.brain_version ?? brain.data?.brain_version ?? 1;
+  const autoBlock = auto.data?.status === 'running' ? null
+    : fullAutoBlockReason({ brainStatus: brain.data?.status, plan: plan.data, planLoading: plan.isLoading });
 
   return (
     <Drawer
@@ -551,6 +555,7 @@ function ScopedAuthorMemoryPanel({
               {[...grouped].map(([groupId, proposals]) => {
                 const hasEdits = proposals.some(p => edits[p.proposal_id] !== undefined);
                 const editedCount = proposals.filter(p => edits[p.proposal_id] !== undefined).length;
+                const block = proposalGroupBlock(proposals);
 
                 return (
                   <Card withBorder key={groupId} p="sm" radius="md" data-testid={`dependency-group-${groupId}`}>
@@ -568,6 +573,8 @@ function ScopedAuthorMemoryPanel({
                               Đã chỉnh sửa {editedCount}/{proposals.length}
                             </Badge>
                           )}
+                          {block.stale && <Badge color="gray" size="xs">Đã cũ</Badge>}
+                          {block.duplicates.length > 0 && <Badge color="yellow" size="xs">Trùng sự kiện đã duyệt</Badge>}
                         </Group>
 
                         <Group gap="xs">
@@ -609,6 +616,12 @@ function ScopedAuthorMemoryPanel({
                         </Text>
                       )}
 
+                      {block.notice && (
+                        <Alert color="yellow" icon={<IconAlertTriangle size={14} />} p="xs" data-testid={`group-block-${groupId}`}>
+                          <Text size="xs">{block.notice}</Text>
+                        </Alert>
+                      )}
+
                       {/* Proposals list in group */}
                       {proposals.map((p, proposalIndex) => (
                         <SuggestionReveal key={p.proposal_id} index={proposalIndex}><ProposalReview
@@ -636,7 +649,7 @@ function ScopedAuthorMemoryPanel({
                       <Button
                         color="teal"
                         size="sm"
-                        disabled={pending}
+                        disabled={pending || block.blocked}
                         data-testid={`btn-accept-group-${groupId}`}
                         onClick={() => handleAcceptGroup(groupId, proposals)}
                       >
@@ -938,16 +951,20 @@ function ScopedAuthorMemoryPanel({
           <Tabs.Panel value="auto" pt="md">
             <Stack gap="xs">
               <Alert>
-                AI được tự duyệt bộ nhớ và viết/lưu chương nháp. Xuất bản vẫn do bạn quyết định. Khuyến cáo
-                chuẩn bị định hướng; nếu chưa có, hệ thống sẽ tự lập kế hoạch.
+                AI được tự duyệt bộ nhớ và viết/lưu chương nháp theo dàn ý đang dùng. Xuất bản vẫn do bạn quyết định.
               </Alert>
+              {autoBlock && (
+                <Text size="xs" c="dimmed" data-testid="full-auto-block">
+                  {autoBlock}
+                </Text>
+              )}
               {auto.data && (
                 <Text size="xs">
                   {auto.data.status} · lượt {auto.data.current_iteration} · {auto.data.stop_reason}
                 </Text>
               )}
               <Button
-                disabled={pending || !brain.data?.baseline_revision_id || auto.data?.status === 'running'}
+                disabled={pending || Boolean(autoBlock) || auto.data?.status === 'running'}
                 onClick={() =>
                   perform(async () => {
                     if (auto.data?.status !== 'running') {

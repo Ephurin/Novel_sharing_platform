@@ -18,6 +18,7 @@ import { AuthorNavbar } from '../../shared/components/AuthorTheme';
 import { Breadcrumbs, type BreadcrumbItem } from '../../shared/components/Breadcrumbs';
 import { navigationLabels, readerHomeCrumb } from '../../shared/components/navigation';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
+import { ReaderNotFound, isReaderNotFound } from './ReaderNotFound';
 import { useToast } from '../../shared/components/ToastProvider';
 import {
   getHistoryForNovel,
@@ -69,6 +70,7 @@ export function ReaderNovelDetailPage() {
   const [interactionNotice, setInteractionNotice] = useState<string | null>(null);
 
   if (novelQuery.isLoading) return <LoadingState label="Đang tải thông tin truyện..." />;
+  if (novelQuery.isError && isReaderNotFound(novelQuery.error)) return <ReaderNotFound kind="novel" />;
   if (novelQuery.isError) return <ErrorState error={novelQuery.error} onRetry={() => void novelQuery.refetch()} />;
 
   const novel = novelQuery.data;
