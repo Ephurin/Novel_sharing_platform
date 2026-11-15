@@ -638,7 +638,7 @@ def run_pipeline(
 
         cur.execute(
             """
-            SELECT id, status, validation_status, chapter_id
+            SELECT id, status, validation_status, chapter_id, operation, patch
             FROM narrative.writing_generations
             WHERE id = %s OR job_id = %s
             """,
@@ -647,6 +647,9 @@ def run_pipeline(
         g1_row = cur.fetchone()
         assert g1_row is not None
         assert g1_row[1] == "completed"
+        assert g1_row[4] == "continue", f"Controller must use the canonical operation: {g1_row[4]}"
+        assert g1_row[2] == "passed", f"Cursor insertion failed validation: {g1_row[2]}"
+        assert g1_row[5]["start"] == g1_row[5]["end"], "Continuation must insert, never replace context"
 
         record_cp(
             7,
@@ -657,6 +660,8 @@ def run_pipeline(
                 "generation_id": g1_id,
                 "status": g1_row[1],
                 "validation_status": g1_row[2],
+                "operation": g1_row[4],
+                "patch_bounds": [g1_row[5]["start"], g1_row[5]["end"]],
             },
         )
 
@@ -716,6 +721,14 @@ def run_pipeline(
         )
         brain_v1 = int(cur.fetchone()[0])
         assert brain_v1 >= 2, f"Story brain version did not advance: {brain_v1}"
+        cur.execute(
+            "SELECT status FROM revision_outbox_events WHERE revision_id = %s",
+            (rev1_id,),
+        )
+        outbox_rows = cur.fetchall()
+        assert outbox_rows and all(row[0] == "COMPLETED" for row in outbox_rows), (
+            f"Accepted continuation must create and complete its transactional outbox: {outbox_rows}"
+        )
 
         # Verify unrelated proposal was NOT auto-accepted (Blocker 4)
         cur.execute("SELECT status FROM narrative.proposals WHERE id = %s", (unrelated_prop_id,))
@@ -732,6 +745,7 @@ def run_pipeline(
                 "brain_version": brain_v1,
                 "novel_id": novel_id,
                 "unrelated_proposal_isolated": True,
+                "accepted_revision_outbox_completed": True,
             },
         )
 

@@ -1,0 +1,79 @@
+name: Studio durability and patch placement acceptance
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'web/**'
+      - 'backend/**'
+      - 'ai-service/**'
+      - 'scripts/run_pr86_review_acceptance.mjs'
+      - '.github/workflows/pr86-review-acceptance.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  exact-head-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+      mongo:
+        image: mongo:7
+        ports: ['27017:27017']
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ping:1}).ok'"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      PLAYWRIGHT_CHANNEL: chromium
+      EXPECTED_REVIEW_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      CURSOR_POSTGRES_CONTROL_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+      ADMIN_TEST_POSTGRES_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+      ADMIN_TEST_MONGO_URL: mongodb://127.0.0.1:27017
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            web/package-lock.json
+            backend/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci --prefix web && npm ci --prefix backend
+      - run: python -m pip install -r ai-service/requirements.txt pytest
+      - run: npx playwright install --with-deps chromium
+        working-directory: web
+      - name: Run acceptance against the PR head using disposable databases and fake providers
+        env:
+          P1_EVIDENCE_DIR: ${{ runner.temp }}/pr86-review-acceptance
+        run: node scripts/run_pr86_review_acceptance.mjs
+      - name: Publish SHA, commands, exits, screenshots and sanitized traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr86-review-${{ github.event.pull_request.head.sha || github.sha }}
+          path: |
+            ${{ runner.temp }}/pr86-review-acceptance/manifest.json
+            ${{ runner.temp }}/pr86-review-acceptance/tested-sha.txt
+            ${{ runner.temp }}/pr86-review-acceptance/*.log
+            ${{ runner.temp }}/pr86-review-acceptance/**/*.png
+            ${{ runner.temp }}/pr86-review-acceptance/**/*.zip
+            ${{ runner.temp }}/pr86-review-acceptance/**/*sanitization.json
+            !${{ runner.temp }}/pr86-review-acceptance/**/*.private.zip
+          if-no-files-found: error
+          retention-days: 14

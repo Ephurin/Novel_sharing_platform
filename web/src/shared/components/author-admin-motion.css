@@ -1,0 +1,27 @@
+.sc-results-surface { position: relative; }
+.sc-motion-project { transition-property: background-color, border-color, box-shadow !important; }
+.sc-filter-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.sc-filter-chips:empty { display: none; }
+.sc-filter-chips button { display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px; min-height: 30px; border: 1px solid var(--sc-border); border-radius: 6px; background: var(--sc-primary-soft); color: var(--sc-primary-text); font: 500 12px/18px var(--sc-font); cursor: pointer; }
+.sc-filter-chips button > span { font-size: 18px; line-height: 18px; }
+.sc-loaded-image { position: relative; display: block; width: 100%; height: 100%; overflow: hidden; border-radius: inherit; }
+.sc-loaded-image > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.sc-image-placeholder, .sc-image-fallback { position: absolute; inset: 0; background: var(--sc-neutral-bg); display: flex; align-items: center; justify-content: center; color: var(--sc-text-muted); }
+.sc-image-placeholder { background: linear-gradient(100deg, var(--sc-neutral-bg) 30%, var(--sc-surface-subtle) 50%, var(--sc-neutral-bg) 70%); background-size: 200% 100%; animation: sc-author-image-load 1.5s ease-in-out infinite; }
+.sc-animated-number { display: inline-grid; position: relative; font-variant-numeric: tabular-nums; }
+.sc-animated-number > span { grid-area: 1 / 1; }
+.sc-number-reserve { visibility: hidden; }
+.sc-motion-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.sc-import-stepper { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 8px; border: 1px solid var(--sc-border); border-radius: 12px; background: var(--sc-surface); }
+.sc-import-stepper button { position: relative; isolation: isolate; display: flex; align-items: center; gap: 10px; min-width: 0; padding: 8px 12px; border: 0; border-radius: 8px; background: var(--sc-surface-subtle); color: var(--sc-text); text-align: left; cursor: pointer; font: 400 12px/18px var(--sc-font); }
+.sc-import-stepper button[aria-current="step"] { color: var(--sc-on-primary); background: transparent; }
+.sc-import-step-highlight { position: absolute; inset: 0; z-index: -1; background: var(--sc-primary); border-radius: 8px; }
+.sc-import-step-number { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; flex-shrink: 0; border: 1px solid currentColor; border-radius: 50%; font-weight: 600; }
+.sc-import-step-text { display: flex; flex-direction: column; min-width: 0; }
+.sc-import-step-text strong { font-weight: 600; }
+.sc-import-step-text > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sc-author-chart-bar { transform-box: fill-box; transform-origin: center bottom; animation: sc-author-chart-grow .28s ease-out both; }
+@keyframes sc-author-chart-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes sc-author-image-load { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@media (max-width: 767px) { .sc-import-stepper { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .sc-image-placeholder, .sc-author-chart-bar { animation: none; } }

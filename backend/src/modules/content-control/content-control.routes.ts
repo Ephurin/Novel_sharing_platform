@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { requireAdminPermission } from '../admin/admin-access.js';
 import { requireAuth, requireRoles } from '../../core/security/auth.middleware.js';
 import { validateRequest } from '../../core/validation/validate.js';
 import {
@@ -19,11 +20,13 @@ import {
 export const contentControlRoutes = Router();
 export const reportsRoutes = Router();
 export const adminModerationRoutes = Router();
+adminModerationRoutes.use(requireAuth, requireAdminPermission('content'));
 
 contentControlRoutes.post(
   '/check',
   requireAuth,
   requireRoles(['ADMIN']),
+  requireAdminPermission('content'),
   validateRequest(contentControlCheckSchema),
   checkContentController
 );

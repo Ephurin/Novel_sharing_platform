@@ -1,6 +1,8 @@
 import hashlib
 import json
 import unittest
+from dataclasses import replace
+from domain.models import NarrativeAlias
 
 from application.narrative_service import NarrativeApplicationService
 from application.ports import RevisionContent
@@ -88,6 +90,25 @@ class RevisionAnalysisWorkflowTests(unittest.TestCase):
         evidence = entity.evidence[0]
         self.assertEqual(self.content[evidence["start"] : evidence["end"]], "Minh")
         self.assertEqual(evidence["text_hash"], self.content_hash)
+
+    def test_entity_scores_are_normalized_before_saving_proposals(self) -> None:
+        self.llm.responses[0] = json.dumps([
+            {"phrase": "Minh", "entity": "PER", "score": 10.0},
+        ])
+        result = self._analyze()
+        self.assertEqual(result.proposals[0].confidence, 1.0)
+        self.assertEqual(self.repository.list_proposals("novel-1")[0].confidence, 1.0)
+        self.assertEqual(result.proposals[1].confidence, 0.7)
+
+    def test_known_alias_is_reused_and_event_participant_uses_canonical_name(self) -> None:
+        self.repository.upsert_entity('novel-1', {'name': 'Nguyen Minh', 'type': 'PER'})
+        brain = self.repository.get_story_brain('novel-1')
+        self.repository._brains['novel-1'] = replace(brain, aliases=(
+            NarrativeAlias('alias-minh', brain.entities[0].entity_id, 'Minh', 'minh'),))
+        result = self._analyze()
+        assert not any(p.proposal_type == 'entity' and p.payload['canonical_name'] == 'Minh' for p in result.proposals)
+        event = next(p for p in result.proposals if p.proposal_type == 'event')
+        self.assertEqual(event.payload['participants'], ['Nguyen Minh'])
 
     def test_same_revision_and_idempotency_key_does_not_duplicate_or_recall_llm(self) -> None:
         first = self._analyze()

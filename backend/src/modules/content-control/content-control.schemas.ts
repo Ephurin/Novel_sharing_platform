@@ -40,7 +40,7 @@ export const resolveReviewSchema = z.object({
   params: reviewIdParamSchema.shape.params,
   body: z.object({
     decision: z.enum(['APPROVED', 'REJECTED', 'REVISION_REQUIRED']),
-    reason: z.string().max(2000).optional(),
+    reason: z.string().trim().max(2000).optional(),
     action: z.string().max(100).optional()
   })
 });

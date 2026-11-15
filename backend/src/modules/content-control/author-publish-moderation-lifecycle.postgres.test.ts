@@ -1,3 +1,5 @@
+import { getMongoDatabase } from '../../core/database/mongo.js';
+import { validateTestDatabaseIsolation } from '../../core/database/test-db-guard.js';
 import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { getPostgresPool, disconnectPostgres } from '../../core/database/postgres.js';
@@ -18,7 +20,17 @@ describe('Phase C: Author Publish -> Admin Moderation Lifecycle Invariants', () 
   let adminAuth: AuthContext;
   let readerAuth: AuthContext;
 
+  // SRS novel-chapter-service §1: a novel needs five valid chapters (content >= 500 characters) before its publish request.
+  async function addPublishableChapters(targetNovelId: string) {
+    for (let number = 1; number <= 5; number++)
+      await pool.query(
+        `insert into chapters (novel_id, title, chapter_number, content, status) values ($1, $2, $3, $4, 'DRAFT')`,
+        [targetNovelId, `Chapter ${number}`, number, 'Publishable chapter body for the lifecycle test. '.repeat(12)]
+      );
+  }
+
   before(async () => {
+    await validateTestDatabaseIsolation(pool,getMongoDatabase());
     const timestamp = Date.now();
     // 1. Create Author
     const authorRes = await pool.query(
@@ -38,7 +50,8 @@ describe('Phase C: Author Publish -> Admin Moderation Lifecycle Invariants', () 
       [`admin-test-${timestamp}@ephurin.com`, `admin_${timestamp}`]
     );
     adminId = adminRes.rows[0].user_id;
-    adminAuth = { userId: adminId, role: 'ADMIN' };
+    await pool.query("insert into admin_access(user_id,scope) values($1,'SUPER_ADMIN')",[adminId]);
+    adminAuth = { userId: adminId, role: 'ADMIN',adminScope:'SUPER_ADMIN' };
 
     // 3. Create Reader
     const readerRes = await pool.query(
@@ -63,6 +76,7 @@ describe('Phase C: Author Publish -> Admin Moderation Lifecycle Invariants', () 
       ]
     );
     novelId = novelRes.rows[0].novel_id;
+    await addPublishableChapters(novelId);
   });
 
   after(async () => {
@@ -144,6 +158,7 @@ describe('Phase C: Author Publish -> Admin Moderation Lifecycle Invariants', () 
       ]
     );
     const otherNovelId = otherNovelRes.rows[0].novel_id;
+    await addPublishableChapters(otherNovelId);
     const otherSubmit = await submitPublish(authorAuth, otherNovelId);
     assert.ok(otherSubmit.moderationReviewId);
 

@@ -1,5 +1,6 @@
 import { env } from '../../core/config/env.js';
 import { AppError } from '../../core/errors/app-error.js';
+import { logger } from '../../core/logger/logger.js';
 
 export type CopilotLlmCharacter = {
   name: string;
@@ -103,6 +104,24 @@ export function isLlmConfigured() {
   return Boolean(env.AI_LLM_BASE_URL || process.env.BUDGET_GUARD_URL);
 }
 
+// Provider responses are untrusted: they can echo prompts, request headers or keys. Keep a trimmed,
+// masked copy for the server log only.
+function maskUpstream(detail: unknown) {
+  const text = typeof detail === 'string' ? detail : detail instanceof Error ? detail.message : JSON.stringify(detail) ?? '';
+  return text
+    .slice(0, 500)
+    .replace(/(bearer\s+)[^\s"']+/gi, '$1[redacted]')
+    .replace(/\b(sk|pk|key|token|secret)([-_][A-Za-z0-9._-]{4,})/gi, '$1-[redacted]');
+}
+
+// SRS appendix A / docs/API/error-codes.md: a timeout or an unavailable provider is AI_001 (503), so the
+// client can drop the suggestion and let the author keep writing by hand. The client only ever gets the
+// stable `reason`; whatever the provider said goes to the server log.
+export function aiUnavailable(reason: string, message = 'AI tạm thời không khả dụng. Có thể tiếp tục viết thủ công hoặc thử lại sau.', upstream?: unknown) {
+  if (upstream !== undefined) logger.warn({ reason, upstream: maskUpstream(upstream) }, 'AI provider unavailable');
+  return new AppError(503, 'AI_001', message, { reason });
+}
+
 export async function checkLlmProviderHealth() {
   const settings = providerSettings();
   if (!settings.baseUrl) {
@@ -179,7 +198,7 @@ export async function checkLlmProviderHealth() {
 export async function generateCopilotSuggestionWithLlm(context: CopilotLlmContext) {
   const settings = providerSettings();
   if (!settings.baseUrl) {
-    throw new AppError(500, 'AI_001', 'AI LLM base URL is not configured');
+    throw aiUnavailable('not_configured');
   }
 
   const sanitizedCharacters = sanitizeCopilotCharactersForPrompt(
@@ -233,7 +252,7 @@ export async function generateCopilotSuggestionWithLlm(context: CopilotLlmContex
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new AppError(response.status, 'AI_002', 'AI provider request failed', errorText.slice(0, 1000));
+      throw aiUnavailable(`provider_http_${response.status}`, undefined, errorText.slice(0, 1000));
     }
 
     const payload = (await response.json()) as ChatCompletionResponse;
@@ -242,14 +261,13 @@ export async function generateCopilotSuggestionWithLlm(context: CopilotLlmContex
 
     if (!content) {
       if (choice?.finish_reason === 'length') {
-        throw new AppError(
-          502,
-          'AI_005',
+        throw aiUnavailable(
+          'token_limit',
           'AI provider used all completion tokens before returning final content. Increase AI_LLM_MAX_TOKENS or use a non-thinking model.'
         );
       }
 
-      throw new AppError(502, 'AI_003', 'AI provider returned an empty response');
+      throw aiUnavailable('empty_response');
     }
 
     return content;
@@ -259,10 +277,10 @@ export async function generateCopilotSuggestionWithLlm(context: CopilotLlmContex
     }
 
     if (error instanceof Error && error.name === 'AbortError') {
-      throw new AppError(504, 'AI_004', 'AI provider request timed out');
+      throw aiUnavailable('timeout');
     }
 
-    throw new AppError(502, 'AI_002', 'AI provider request failed', error instanceof Error ? error.message : error);
+    throw aiUnavailable('unreachable', undefined, error instanceof Error ? error.message : error);
   } finally {
     clearTimeout(timeout);
   }

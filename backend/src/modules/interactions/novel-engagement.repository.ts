@@ -2,18 +2,21 @@ import { randomUUID } from 'node:crypto';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import { enqueueNotification } from './notification-events.js';
 import { getPostgresPool } from '../../core/database/postgres.js';
+import { readerFollowingSql } from '../reading/reader-following.sql.js';
+import { removeBookmark } from '../reading/reading.repository.js';
 
 export async function getNovelStatistics(novelId: string, viewerId?: string, includeDrafts = false) {
   const result = await getPostgresPool().query(`
     select
       (select coalesce(sum(c.word_count), 0)::bigint from chapters c
        where c.novel_id = $1 and c.deleted_at is null and ($3 or c.status = 'PUBLISHED')) as total_words,
-      (select count(*)::int from novel_follows f join users u on u.user_id = f.user_id
+      (select count(*)::int from (${readerFollowingSql}) f join users u on u.user_id = f.user_id
        where f.novel_id = $1 and u.role = 'READER' and u.status = 'ACTIVE' and u.deleted_at is null) as followers_count,
       (select json_build_object('average', avg(r.score)::float8, 'count', count(*)::int)
        from novel_ratings r join users u on u.user_id = r.user_id
        where r.novel_id = $1 and u.role = 'READER' and u.status = 'ACTIVE' and u.deleted_at is null) as rating,
-      exists(select 1 from novel_follows where novel_id = $1 and user_id = $2::uuid) as is_following,
+      exists(select 1 from (${readerFollowingSql}) f where novel_id = $1 and user_id = $2::uuid) as is_following,
+      exists(select 1 from novel_notification_subscriptions where novel_id = $1 and user_id = $2::uuid and enabled) as notifications_enabled,
       (select score from novel_ratings where novel_id = $1 and user_id = $2::uuid) as my_rating,
       (select review_text from novel_ratings where novel_id = $1 and user_id = $2::uuid) as my_review
   `, [novelId, viewerId ?? null, includeDrafts]);
@@ -25,6 +28,7 @@ export async function getNovelStatistics(novelId: string, viewerId?: string, inc
     ratingAverage: row.rating.average as number | null,
     ratingsCount: row.rating.count as number,
     isFollowing: row.is_following as boolean,
+    notificationsEnabled: row.notifications_enabled as boolean,
     myRating: row.my_rating as number | null,
     myReview: row.my_review as string | null
   };
@@ -33,6 +37,8 @@ export async function getNovelStatistics(novelId: string, viewerId?: string, inc
 export async function setNovelFollow(novelId: string, userId: string, following: boolean) {
   if (following) {
     await withPostgresTransaction(async client => {
+      await client.query("select pg_advisory_xact_lock(hashtextextended($1::text || ':' || $2::text, 0))", [novelId, userId]);
+      await client.query('insert into bookmarks (novel_id, user_id) values ($1, $2) on conflict do nothing', [novelId, userId]);
       const inserted = await client.query('insert into novel_follows (novel_id, user_id) values ($1, $2) on conflict do nothing returning novel_id', [novelId, userId]);
       if (inserted.rowCount) {
         const novel = (await client.query('select author_id,title from novels where novel_id=$1', [novelId])).rows[0];
@@ -40,8 +46,17 @@ export async function setNovelFollow(novelId: string, userId: string, following:
       }
     });
   } else {
-    await getPostgresPool().query('delete from novel_follows where novel_id = $1 and user_id = $2', [novelId, userId]);
+    await removeBookmark(userId, novelId);
   }
+}
+
+export async function setNovelNotifications(novelId: string, userId: string, enabled: boolean) {
+  await withPostgresTransaction(async client => {
+    await client.query(`insert into novel_notification_subscriptions (novel_id,user_id,enabled) values ($1,$2,$3)
+      on conflict (novel_id,user_id) do update set enabled=excluded.enabled,updated_at=now()`, [novelId,userId,enabled]);
+    if (!enabled) await client.query(`delete from notification_events where user_id=$2 and type='NOVEL_CHAPTER_PUBLISHED'
+      and delivered_at is null and payload->>'novelId'=$1::text`, [novelId,userId]);
+  });
 }
 
 export async function setNovelRating(novelId: string, userId: string, score: number | null, review?: string | null) {

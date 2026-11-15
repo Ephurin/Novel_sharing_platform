@@ -1,0 +1,30 @@
+✖ rich serialization preserves source bytes, empty paragraphs and selection boundaries (486.9168ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 826.324
+
+✖ failing tests:
+
+test at tests\rich-manuscript-serialization.browser.test.mjs:8:1
+✖ rich serialization preserves source bytes, empty paragraphs and selection boundaries (486.9168ms)
+  AssertionError [ERR_ASSERTION]: <div>a</div><div><br></div>
+
+  'a\n\n' !== 'a\n'
+
+      at TestContext.<anonymous> (file:///<worktree>/web/tests/rich-manuscript-serialization.browser.test.mjs:25:14)
+      at runNextTicks (node:internal/process/task_queues:65:5)
+      at process.processImmediate (node:internal/timers:541:9)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'a\n\n',
+    expected: 'a\n',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

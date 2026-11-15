@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { getMongoDatabase } from '../../core/database/mongo.js';
+import { withPostgresTransaction } from '../../core/database/transaction.js';
+import type { PoolClient } from 'pg';
 
 const collectionName = 'comments';
 
@@ -13,12 +15,32 @@ export type CommentDocument = {
   parentCommentId?: string | null;
   paragraphOffset: number | null;
   content: string;
+  isSpoiler?: boolean;
+  imageUrl?: string | null;
+  gifId?: string | null;
+  mediaApproved?: boolean;
   status: CommentStatus;
   moderationReviewId: string | null;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
 };
+
+export const approvedCommentFilter = {
+  status: 'APPROVED', imageUrl: null,
+  $or: [{ gifId: { $in: [null, ''] } }, { mediaApproved: true }]
+};
+
+export function isCommentPublic(comment: Pick<CommentDocument, 'status' | 'imageUrl' | 'gifId' | 'mediaApproved'>) {
+  return comment.status === 'APPROVED' && !comment.imageUrl && (!comment.gifId || comment.mediaApproved === true);
+}
+
+export function withCommentWriteLock<T>(commentId: string, action: (client: PoolClient) => Promise<T>) {
+  return withPostgresTransaction(async client => {
+    await client.query("select pg_advisory_xact_lock(hashtextextended('comment:' || $1, 0))", [commentId]);
+    return action(client);
+  });
+}
 
 function collection() {
   return getMongoDatabase().collection<CommentDocument>(collectionName);
@@ -31,6 +53,7 @@ export async function ensureCommentIndexes() {
   await collection().createIndex({ parentCommentId: 1, status: 1, createdAt: 1, commentId: 1 });
   await collection().createIndex({ userId: 1, createdAt: -1 });
   await collection().createIndex({ status: 1, createdAt: -1 });
+  await reactions().createIndex({ commentId: 1, userId: 1 }, { unique: true });
 }
 
 export async function createComment(input: {
@@ -40,6 +63,9 @@ export async function createComment(input: {
   parentCommentId?: string | null;
   paragraphOffset?: number | null;
   content: string;
+  isSpoiler?: boolean;
+  imageUrl?: string | null;
+  gifId?: string | null;
 }) {
   const now = new Date();
   const comment: CommentDocument = {
@@ -50,6 +76,10 @@ export async function createComment(input: {
     parentCommentId: input.parentCommentId ?? null,
     paragraphOffset: input.paragraphOffset ?? null,
     content: input.content,
+    isSpoiler: input.isSpoiler ?? false,
+    imageUrl: input.imageUrl ?? null,
+    gifId: input.gifId ?? null,
+    mediaApproved: false,
     status: 'PENDING_MODERATION',
     moderationReviewId: null,
     createdAt: now,
@@ -73,6 +103,7 @@ export async function updateCommentModerationStatus(
       $set: {
         status,
         moderationReviewId,
+        mediaApproved: status === 'APPROVED' && Boolean(expectedReviewId),
         notificationPending: status === 'APPROVED',
         updatedAt: new Date()
       }
@@ -88,15 +119,17 @@ export async function listApprovedComments(input: {
   viewerId?: string;
   parentCommentId?: string;
   allChapters?: boolean;
+  visibleChapterIds?: string[];
   paragraphOffset?: number;
   page: number;
   limit: number;
 }) {
   const filter: Record<string, unknown> = {
     ...(input.allChapters ? {} : { chapterId: input.chapterId }),
+    ...(input.visibleChapterIds ? { chapterId: { $in: [null, ...input.visibleChapterIds] } } : {}),
     parentCommentId: input.parentCommentId ?? null,
     novelId: input.novelId,
-    $or: [{ status: 'APPROVED' }, ...(input.viewerId ? [{ userId: input.viewerId, status: { $in: ['PENDING_MODERATION', 'REJECTED'] } }] : [])],
+    $or: [approvedCommentFilter, ...(input.viewerId ? [{ userId: input.viewerId, status: { $in: ['APPROVED', 'PENDING_MODERATION', 'REJECTED'] } }] : [])],
     deletedAt: null
   };
 
@@ -121,13 +154,17 @@ export async function findCommentRecordById(commentId: string) {
   return collection().findOne({ commentId });
 }
 
-export async function updateCommentContent(commentId: string, content: string) {
+export async function updateCommentContent(commentId: string, content: string, options: { isSpoiler?: boolean; imageUrl?: string | null; gifId?: string | null } = {}) {
   await collection().updateOne(
     { commentId, deletedAt: null },
     {
       $set: {
         content,
+        ...(options.isSpoiler !== undefined ? { isSpoiler: options.isSpoiler } : {}),
+        ...(options.imageUrl !== undefined ? { imageUrl: options.imageUrl } : {}),
+        ...(options.gifId !== undefined ? { gifId: options.gifId } : {}),
         status: 'PENDING_MODERATION',
+        mediaApproved: false,
         moderationReviewId: null,
         updatedAt: new Date()
       }
@@ -153,7 +190,40 @@ export async function softDeleteComment(commentId: string) {
 export async function countVisibleReplies(parentIds: string[], viewerId?: string) {
   return collection().aggregate<{ _id: string; total: number }>([
     { $match: { parentCommentId: { $in: parentIds }, deletedAt: null,
-      $or: [{ status: 'APPROVED' }, ...(viewerId ? [{ userId: viewerId, status: { $in: ['PENDING_MODERATION', 'REJECTED'] } }] : [])] } },
+      $or: [approvedCommentFilter, ...(viewerId ? [{ userId: viewerId, status: { $in: ['APPROVED', 'PENDING_MODERATION', 'REJECTED'] } }] : [])] } },
     { $group: { _id: '$parentCommentId', total: { $sum: 1 } } }
+  ]).toArray();
+}
+
+export type CommentReaction = 'LIKE' | 'DISLIKE';
+type ReactionDocument = { commentId: string; userId: string; reaction: CommentReaction; updatedAt: Date };
+function reactions() {
+  return getMongoDatabase().collection<ReactionDocument>('comment_reactions');
+}
+
+export async function setCommentReaction(commentId: string, userId: string, reaction: CommentReaction | null) {
+  if (!reaction) {
+    await reactions().deleteOne({ commentId, userId });
+    return;
+  }
+  const update = { $set: { reaction, updatedAt: new Date() } };
+  try {
+    await reactions().updateOne({ commentId, userId }, update, { upsert: true });
+  } catch (error) {
+    if ((error as { code?: number }).code !== 11000) throw error;
+    await reactions().updateOne({ commentId, userId }, update);
+  }
+}
+
+export async function commentReactionCounts(commentIds: string[], viewerId?: string) {
+  if (!commentIds.length) return [];
+  return reactions().aggregate<{ _id: string; likesCount: number; dislikesCount: number; myReaction: CommentReaction | null }>([
+    { $match: { commentId: { $in: commentIds } } },
+    { $group: {
+      _id: '$commentId',
+      likesCount: { $sum: { $cond: [{ $eq: ['$reaction', 'LIKE'] }, 1, 0] } },
+      dislikesCount: { $sum: { $cond: [{ $eq: ['$reaction', 'DISLIKE'] }, 1, 0] } },
+      myReaction: { $max: { $cond: [{ $eq: ['$userId', viewerId ?? ''] }, '$reaction', null] } }
+    } }
   ]).toArray();
 }

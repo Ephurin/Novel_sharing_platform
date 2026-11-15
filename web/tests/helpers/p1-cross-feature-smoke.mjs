@@ -13,7 +13,7 @@ export async function crossFeatureSmoke(h, f, x) {
   }
   await h.step('G4 fixture only: local published reader rows, separate private Mongo drafts; no publish endpoint', async () => {
     reader = await h.account('READER'); admin = await h.account('ADMIN');
-    novel = (await h.api('POST', '/novels', { title: 'Offline reader fixture ' + reader.userId.slice(0, 8), synopsis: 'Disposable local-only reader fixture' }, x.a.token)).data.novelId;
+    novel = (await h.api('POST', '/novels', { title: 'Offline reader fixture ' + reader.userId.slice(0, 8), synopsis: 'Disposable local-only reader fixture with a synopsis of at least fifty characters' }, x.a.token)).data.novelId;
     free = (await h.api('POST', `/novels/${novel}/chapters`, { title: 'Free fixture', content: 'PRIVATE_FREE_AUTHOR_DRAFT' }, x.a.token)).data.chapterId;
     vip = (await h.api('POST', `/novels/${novel}/chapters`, { title: 'VIP fixture', content: 'PRIVATE_VIP_AUTHOR_DRAFT', isVip: true, priceCoins: 10 }, x.a.token)).data.chapterId;
     // Test data preparation only. No publication API, scheduler or external service is invoked.

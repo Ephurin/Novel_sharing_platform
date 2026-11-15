@@ -1,9 +1,14 @@
-import { createTheme, type CSSVariablesResolver } from '@mantine/core';
+import { Checkbox, Switch, createTheme, type CSSVariablesResolver } from '@mantine/core';
+import { AnimatedCheckIcon } from '../shared/components/AnimatedCheckIcon';
 
 export const theme = createTheme({
   primaryColor: 'terracotta',
   fontFamily: '"Be Vietnam Pro", system-ui, sans-serif',
   defaultRadius: 'md',
+  components: {
+    Checkbox: Checkbox.extend({ defaultProps: { icon: AnimatedCheckIcon, iconColor: 'var(--sc-on-primary)' } }),
+    Switch: Switch.extend({ classNames: { root: 'sc-animated-switch' } })
+  },
   colors: {
     terracotta: ['#fff1ea', '#fce1d5', '#f6c8b5', '#eeac91', '#e69b7f', '#dd8567', '#c96f52', '#ad583c', '#9b4930', '#773623'],
     dark: ['#f2efea', '#d9d3ca', '#bdb6ad', '#a2998d', '#746a60', '#45403a', '#322e2a', '#24221f', '#1c1b18', '#171715']

@@ -7,7 +7,13 @@ import time
 import urllib.error
 import urllib.request
 import uuid
+from contextvars import ContextVar
 from typing import Any
+from core.writing_output import parse_writing_output
+
+_writing_response: ContextVar[bool] = ContextVar('writing_response', default=False)
+WRITING_TRUNCATED_MESSAGE = 'Bản thảo bị cắt do vượt giới hạn độ dài. Vui lòng yêu cầu đoạn ngắn hơn.'
+DIRECT_TRANSIENT_HTTP_CODES = (408, 429, 500, 502, 503, 504)
 
 from core.structured_call import extraction_source, request_priority, structured_request
 
@@ -416,12 +422,18 @@ class LLMService:
         else:
             if mode == "live_free_tier":
                 raise LLMServiceError("GUARD_CONFIGURATION_INVALID")
+            # Direct key (no gateway): the SDK retries transient provider failures, bounded timeout.
             client = genai.Client(
                 api_key=self.api_key,
-                http_options=types.HttpOptions(
-                    timeout=timeout_ms,
-                    retry_options=types.HttpRetryOptions(attempts=1),
-                ),
+                http_options={
+                    "timeout": timeout_ms,
+                    "retry_options": {
+                        "attempts": 3,
+                        "initial_delay": 1,
+                        "max_delay": 4,
+                        "http_status_codes": list(DIRECT_TRANSIENT_HTTP_CODES),
+                    },
+                },
             )
         last_error: Exception | None = None
         merged_prompt = f"{system_prompt}\n\n{user_prompt}".strip()
@@ -445,6 +457,11 @@ class LLMService:
                         schema = response_schema_for(structured["operation"])
                         if schema is not None:
                             config["response_json_schema"] = schema
+                    elif _writing_response.get():
+                        config.update(max_output_tokens=max(self.max_tokens, 4096), response_mime_type="application/json",
+                            response_json_schema={"type": "object", "properties": {
+                                "draft_text": {"type": "string"}, "explanation": {"type": "string"}},
+                                "required": ["draft_text"], "additionalProperties": False})
                     response = client.models.generate_content(
                         model=model_name,
                         contents=merged_prompt,
@@ -459,6 +476,10 @@ class LLMService:
                         model=model_name,
                         finish=getattr(candidates[0], "finish_reason", None) if candidates else None,
                     )
+                    if _writing_response.get() and candidates:
+                        reason = getattr(candidates[0], "finish_reason", None)
+                        if getattr(reason, "value", reason) == "MAX_TOKENS":
+                            raise LLMServiceError(WRITING_TRUNCATED_MESSAGE)
                     if text:
                         if ticket_id:
                             usage = getattr(response, "usage_metadata", None) or getattr(response, "usage", None)
@@ -494,6 +515,14 @@ class LLMService:
                             provider="gemini",
                             model=model_name,
                         )
+                    if isinstance(exc, LLMServiceError) and str(exc) == WRITING_TRUNCATED_MESSAGE:
+                        raise
+                    if not guard and getattr(exc, "code", None) in DIRECT_TRANSIENT_HTTP_CODES:
+                        # The SDK already retried this transient failure.
+                        raise LLMServiceError(
+                            f"Gemini tạm thời quá tải hoặc bị giới hạn yêu cầu (HTTP {exc.code}). "
+                            "Hệ thống đã thử lại 3 lần; vui lòng thử lại sau ít phút."
+                        ) from exc
                     message = str(exc).lower()
                     if guard and attempt < len(TRANSIENT_PROVIDER_BACKOFF_SECONDS) and TRANSIENT_PROVIDER_PATTERN.search(message):
                         # Live round 2: a single upstream 503 failed a whole manuscript import.
@@ -631,13 +660,16 @@ class LLMService:
             response = client.chat.completions.create(
                 model=model_name,
                 temperature=self.temperature,
-                max_tokens=(structured_request.get() or {}).get("max_output_tokens", self.max_tokens),
+                max_tokens=max(self.max_tokens, 4096) if _writing_response.get() and not structured_request.get()
+                else (structured_request.get() or {}).get("max_output_tokens", self.max_tokens),
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt},
                 ],
                 response_format={"type": "json_object"},
             )
+            if _writing_response.get() and response.choices[0].finish_reason == 'length':
+                raise LLMServiceError(WRITING_TRUNCATED_MESSAGE)
             text = response.choices[0].message.content or ""
             self._record_structured_response(
                 response,
@@ -870,27 +902,31 @@ class LLMService:
         if constraints_str:
             user_prompt += f"Ràng buộc bắt buộc (Constraints): {constraints_str}\n"
 
-        patch_start = start_offset if start_offset is not None else cursor_offset
-        patch_end = end_offset if end_offset is not None else cursor_offset
+        if operation == 'rewrite':
+            patch_start = start_offset if start_offset is not None else cursor_offset
+            patch_end = end_offset if end_offset is not None else cursor_offset
+        elif operation in {'continue', 'continuation', 'describe', 'dialogue'}:
+            patch_start = patch_end = cursor_offset
+        else:
+            raise LLMServiceError(f'Unsupported writing operation: {operation}')
 
         try:
-            raw_output = self._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
-            cleaned = raw_output.strip()
-            if cleaned.startswith("```"):
-                cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
-                cleaned = re.sub(r"\s*```$", "", cleaned)
-            parsed = self._parse_json_like_output(cleaned)
-            draft_text = ""
-            if isinstance(parsed, dict):
-                draft_text = parsed.get("draft_text") or parsed.get("draft") or ""
-            if not draft_text:
-                draft_text = cleaned
+            token = _writing_response.set(True)
+            try:
+                raw_output = self._call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
+            finally:
+                _writing_response.reset(token)
         except Exception as exc:
             if self._local_fallback_enabled():
                 logger.warning("LLM generation failed, using local draft fallback: %s", exc)
                 draft_text = f"Đoạn văn tự động bổ sung dựa trên hướng dẫn: {instruction.strip() or 'Tiếp diễn mạch truyện'}"
             else:
                 raise LLMServiceError(f"Writing generation failed: {exc}") from exc
+        else:
+            try:
+                draft_text = parse_writing_output(raw_output)
+            except ValueError as exc:
+                raise LLMServiceError(str(exc)) from exc
 
         return {
             "draft_text": draft_text,

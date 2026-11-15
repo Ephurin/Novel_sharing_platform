@@ -1,5 +1,6 @@
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
+import { refreshStoryBibleSafely, synchronizeStoryBible } from './story-brain-bible.js';
 import { findChapterById } from '../novels/chapters.repository.js';
 import { findNovelById } from '../novels/novels.repository.js';
 import {
@@ -89,7 +90,13 @@ function validatePlotSummaryInput(input: {
 
 export async function listCharacters(auth: AuthContext, novelId: string) {
   await assertNovelContextAccess(auth, novelId);
+  await refreshStoryBibleSafely(novelId, auth.userId);
   return listCharactersByNovelId(novelId);
+}
+
+export async function syncStoryBible(auth: AuthContext, novelId: string) {
+  await assertNovelContextAccess(auth, novelId);
+  return synchronizeStoryBible(novelId, auth.userId);
 }
 
 export async function createCharacter(auth: AuthContext, novelId: string, input: CreateCharacterInput) {
@@ -119,6 +126,7 @@ export async function deleteCharacter(auth: AuthContext, characterId: string) {
 
 export async function listRelationships(auth: AuthContext, novelId: string) {
   await assertNovelContextAccess(auth, novelId);
+  await refreshStoryBibleSafely(novelId, auth.userId);
   return listRelationshipsByNovelId(novelId);
 }
 
@@ -157,6 +165,7 @@ export async function deleteRelationship(auth: AuthContext, relationshipId: stri
 
 export async function listTimelineEvents(auth: AuthContext, novelId: string) {
   await assertNovelContextAccess(auth, novelId);
+  await refreshStoryBibleSafely(novelId, auth.userId);
   return listTimelineEventsByNovelId(novelId);
 }
 

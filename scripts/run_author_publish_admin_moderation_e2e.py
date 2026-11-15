@@ -479,7 +479,8 @@ async def main():
 
         unique_suffix = uuid.uuid4().hex[:8]
         unique_novel_title = f"E2E Moderation Lifecycle {unique_suffix}"
-        target_synopsis = f"Tác phẩm thử nghiệm quy trình xuất bản và kiểm duyệt tự động chứa từ khóa {MODERATION_TRIGGER} cho cổng E2E."
+        target_synopsis = (f"Tác phẩm thử nghiệm quy trình xuất bản và kiểm duyệt tự động chứa từ khóa {MODERATION_TRIGGER} cho cổng E2E. "
+                           + "Mô tả bổ sung cho đủ độ dài tóm tắt theo SRS. " * 10)  # SRS: >= 500 characters
 
         # Navigate to author metadata page
         await browser.navigate(f"{WEB_URL}/author/novels/{created_novel_id}")
@@ -549,6 +550,15 @@ async def main():
         print("\n" + "=" * 60)
         print("[Publish-C] Author clicks 'Gửi duyệt'; capturing submit-publish request & response")
         print("=" * 60)
+
+        # SRS novel-chapter-service §1: the publish request needs five chapters of 500+ characters.
+        with psycopg.connect(DB_URL) as conn:
+            with conn.cursor() as cur:
+                for number in range(1, 6):
+                    cur.execute(
+                        "INSERT INTO chapters (novel_id, title, chapter_number, content, status) VALUES (%s, %s, %s, %s, 'DRAFT')",
+                        (created_novel_id, f"Chương {number}", number, "Nội dung chương đủ dài cho luật xuất bản. " * 15),
+                    )
 
         browser.network_events.clear()
         print("  Clicking 'Gửi duyệt' button...")

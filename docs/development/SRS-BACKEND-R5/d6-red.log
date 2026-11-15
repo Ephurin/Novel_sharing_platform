@@ -1,0 +1,70 @@
+# RED: the new pre-sanction case against abc89fbb (test only; backend code = ddf184c0). npm run test:isolated -- src/modules/admin/novel-removal-d6.postgres.test.ts src/modules/novels/srs-backend-rules.postgres.test.ts
+▶ D6: admin novel hide/restore with Mongo draft sync
+  ✔ transient Mongo failure: the job retries, converges, repeats are idempotent, unrelated drafts never change (189.1248ms)
+  ✔ terminal FAILED job: stays observable, access stays denied, admin manual retry recovers it (60.9776ms)
+  ✔ RESTORE while the HIDE sync is still pending: Mongo ends in the restored state (51.3045ms)
+  ✔ an old pending restore job cannot un-hide drafts of a novel that was hidden again (95.8902ms)
+  ✔ legacy sanction without chapterIds: restore guesses nothing (43.6111ms)
+  ✖ removal from before sanctions existed: restore brings back only what the removal hid (47.0392ms)
+  ✔ while a novel is hidden nothing inside it can be deleted or sanctioned separately; an earlier chapter sanction survives the novel restore (449.6212ms)
+✖ D6: admin novel hide/restore with Mongo draft sync (986.2454ms)
+▶ SRS backend rules
+  ✔ AUTH-02: a malformed email on register is AUTH_001; other bad fields stay VALIDATION_001 (154.2904ms)
+  ✔ NOV-02: title must be under 255 characters; a 254-character title gets a valid slug (9.2065ms)
+  ✔ NOV-03 (D3): a new synopsis needs 50 characters after trimming (0.4604ms)
+  ✔ NOV-03 (D3): creating a project needs no Story Bible setup (6.4176ms)
+  ✔ NOV-03 (D3): an unchanged legacy synopsis does not block other metadata; a changed one must meet the minimum (15.7889ms)
+  ✔ NOV-04 (D2): two valid chapters are needed; ARCHIVED, short or over-long-title chapters do not count (122.6898ms)
+  ✔ NOV-04 (D2): archiving a chapter while the novel is submitted cannot slip past the rule (312.4555ms)
+  ✔ NOV-04 (D2): a novel that is already PUBLISHED is not held back by the first-publish rule (19.4951ms)
+  ✔ NOV-06: a chapter under 500 characters is not published (7.6074ms)
+  ✔ SOC-12: a published chapter reaches each author follower once, without doubling the novel bell (PR #88) (22.1746ms)
+  ✔ SOC-12: a chapter of a novel that is not public yet notifies nobody (12.341ms)
+  ✔ ADM-03/08: removing a novel hides its chapters and drafts, tells the author, and restore brings back only those (65.8661ms)
+  ✔ PAY-15: the payment limiter answers 429 RATE_LIMIT_001 with Retry-After once a user exceeds the budget (0.3717ms)
+  ✔ AI-06: without an LLM the copilot answers AI_001 at once instead of a canned suggestion (2.4847ms)
+  ✔ AI-06: a provider that answers 5xx, hangs past the timeout or is down gives AI_001 with the reason (520.5966ms)
+  ✔ AI-06 (review P2): what the provider says never reaches the client (15.9997ms)
+  ✔ PAY-15 (review P2): the mock webhook counts per deposit session, after validation (58.0738ms)
+✔ SRS backend rules (1398.5759ms)
+ℹ tests 24
+ℹ suites 2
+ℹ pass 23
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3842.5957
+✖ failing tests:
+test at src\modules\admin\novel-removal-d6.postgres.test.ts:2:10195
+✖ removal from before sanctions existed: restore brings back only what the removal hid (47.0392ms)
+  AssertionError [ERR_ASSERTION]: its draft deleted before the removal stays deleted, byte for byte
+  + actual - expected
+  ... Skipped lines
+    {
+      _id: ObjectId {
+        buffer: Buffer(12) [Uint8Array] [
+          106,
+          246,
+  ...
+      createdAt: 2026-01-01T00:00:00.000Z,
+  +   deletedAt: null,
+  +   deletionReason: null,
+  -   deletedAt: 2026-01-01T00:00:00.000Z,
+  -   deletionReason: 'AUTHOR_DELETED',
+      novelId: 'db80586b-eccf-4dc2-a36a-60dcf86fd70f',
+  +   restoredAt: 2026-11-12T18:28:56.214Z,
+      title: 'Chương 3',
+  +   updatedAt: 2026-11-12T18:28:56.214Z,
+  -   updatedAt: 2026-01-01T00:00:00.000Z,
+      version: 1,
+      wordCount: 100
+    }
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { _id: { buffer: <Buffer 6a f6 05 68 3e 2e 48 c9 e1 b6 0c 17> }, chapterId: '98cf4f1e-01b4-48dc-bdb1-47305592e8cf', novelId: 'db80586b-eccf-4dc2-a36a-60dcf86fd70f', authorId: '6b643d06-8896-4c5b-90dc-97d77836b28a', title: 'Chương 3', content: 'Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. ', wordCount: 100, version: 1, autosave: false, createdAt: 2026-01-01T00:00:00.000Z, updatedAt: 2026-11-12T18:28:56.214Z, deletedAt: null, deletionReason: null, restoredAt: 2026-11-12T18:28:56.214Z },
+    expected: { _id: { buffer: <Buffer 6a f6 05 68 3e 2e 48 c9 e1 b6 0c 17> }, chapterId: '98cf4f1e-01b4-48dc-bdb1-47305592e8cf', novelId: 'db80586b-eccf-4dc2-a36a-60dcf86fd70f', authorId: '6b643d06-8896-4c5b-90dc-97d77836b28a', title: 'Chương 3', content: 'Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. Nội dung chương đủ dài cho kiểm thử gỡ và khôi phục truyện. ', wordCount: 100, version: 1, autosave: false, createdAt: 2026-01-01T00:00:00.000Z, updatedAt: 2026-01-01T00:00:00.000Z, deletedAt: 2026-01-01T00:00:00.000Z, deletionReason: 'AUTHOR_DELETED' },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+{"isolatedDatabase":"ephurin_test_admin_backend_1794508133699","cleanedUp":true,"exitCode":1}

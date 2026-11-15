@@ -1,0 +1,15 @@
+{
+  "checks": [
+    "API authorization, server filters/pagination, idempotent seed and real report evidence",
+    "9 routes x light desktop/dark mobile; Be Vietnam Pro 24px headings; no document overflow",
+    "Browser lock/unlock and empty search",
+    "Taxonomy persistent creation and duplicate validation",
+    "Admin chapter preview and confirmed novel removal/restore",
+    "Comment report accept removes comment; reject preserves comment; reasons persisted",
+    "Withdrawal approval/rejection, ledger hold release, duplicate decision blocked",
+    "Mobile navigation and real theme menu with preference restored on new document"
+  ],
+  "errors": [],
+  "isolatedDatabase": "ephurin_test_admin_ui_1793002567132",
+  "cleanedUp": true
+}

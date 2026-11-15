@@ -1,0 +1,44 @@
+.sc-animated-tabs-list { display: flex; position: relative; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--sc-border); }
+.sc-animated-tab { position: relative; z-index: 1; padding: 8px 12px; min-height: 36px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--sc-text-muted); font: 500 14px/20px var(--sc-font); cursor: pointer; }
+.sc-animated-tab[data-state="active"] { color: var(--sc-primary-text); border-bottom-color: var(--sc-primary); }
+.sc-animated-tab:disabled { opacity: .6; cursor: default; }
+.sc-animated-tab-panel[hidden] { display: none; }
+.sc-toast-viewport { position: fixed; bottom: 16px; right: 16px; z-index: 1200; display: flex; flex-direction: column; gap: 8px; width: min(380px, calc(100% - 32px)); max-height: 90dvh; margin: 0; padding: 0; list-style: none; outline: none; }
+.sc-toast { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border: 1px solid var(--sc-border); border-radius: 10px; background: var(--sc-surface-elevated); color: var(--sc-text); box-shadow: 0 4px 12px var(--sc-overlay); font: 400 14px/22px var(--sc-font); }
+.sc-toast-icon { color: var(--sc-primary-text); flex-shrink: 0; }
+.sc-toast[data-tone="success"] .sc-toast-icon { color: var(--sc-success); }
+.sc-toast[data-tone="error"] .sc-toast-icon { color: var(--sc-danger); }
+.sc-toast-message { flex: 1; overflow-wrap: anywhere; }
+.sc-toast-close { background: transparent; border: 0; color: var(--sc-text-muted); font-size: 22px; min-width: 30px; min-height: 30px; cursor: pointer; }
+.sc-save-button-label { display: grid; }
+.sc-save-button-label > span { grid-area: 1 / 1; }
+.sc-save-button-reserve { visibility: hidden; }
+.sc-save-button-icon { width: 18px; font-size: 18px; }
+.sc-save-status { display: inline-flex; align-items: center; min-width: 168px; color: var(--sc-success); font: 500 12px/18px var(--sc-font); }
+.sc-save-status > span { display: inline-flex; align-items: center; gap: 6px; }
+.sc-save-status .material-symbols-outlined { font-size: 16px; }
+.sc-save-status[data-status="saving"], .sc-save-status[data-status="idle"] { color: var(--sc-text-muted); }
+.sc-save-status[data-status="error"] { color: var(--sc-danger); }
+.sc-saving-icon { animation: sc-feedback-spin 1s linear infinite; }
+.sc-task-progress { width: 100%; }
+.sc-task-progress-label { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; font: 400 12px/18px var(--sc-font); color: var(--sc-text-muted); }
+.sc-task-progress-track { height: 8px; width: 100%; overflow: hidden; border-radius: 999px; background: var(--sc-neutral-bg); }
+.sc-task-progress-indicator { width: 100%; height: 100%; background: var(--sc-primary); }
+.sc-task-progress-track[data-state="indeterminate"] .sc-task-progress-indicator { width: 35%; animation: sc-feedback-progress 1s ease-in-out infinite alternate; }
+.sc-reading-progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 180; pointer-events: none; background: transparent; }
+.sc-reading-progress > div { height: 100%; background: var(--sc-primary); transform-origin: left; }
+.sc-checkbox-stroke { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.mantine-Checkbox-input:checked + svg .sc-checkbox-stroke, .mantine-Checkbox-input[data-indeterminate] + svg .sc-checkbox-stroke { stroke-dashoffset: 0; transition: stroke-dashoffset .18s ease-out; }
+.sc-animated-switch .mantine-Switch-thumb { transition: inset-inline-start .18s ease-out, background-color .18s ease-out; }
+.sc-animated-switch .mantine-Switch-track { transition: background-color .18s ease-out, border-color .18s ease-out; }
+.sc-loading-skeleton { display: grid; gap: 12px; margin-top: 16px; }
+.sc-skeleton-row { display: flex; gap: 16px; }
+.sc-skeleton-block { flex: 1; min-width: 0; height: 14px; border-radius: 5px; background: linear-gradient(100deg, var(--sc-neutral-bg) 30%, var(--sc-surface-subtle) 50%, var(--sc-neutral-bg) 70%); background-size: 200% 100%; animation: sc-feedback-shimmer 1.5s ease-in-out infinite; }
+.sc-skeleton-row:nth-child(2n) .sc-skeleton-block:last-child { flex-grow: .65; }
+@keyframes sc-feedback-spin { to { transform: rotate(360deg); } }
+@keyframes sc-feedback-progress { from { transform: translateX(0); } to { transform: translateX(185%); } }
+@keyframes sc-feedback-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .sc-saving-icon, .sc-skeleton-block, .sc-task-progress-track[data-state="indeterminate"] .sc-task-progress-indicator { animation: none; }
+  .sc-checkbox-stroke, .sc-animated-switch .mantine-Switch-thumb, .sc-animated-switch .mantine-Switch-track { transition: none !important; }
+}

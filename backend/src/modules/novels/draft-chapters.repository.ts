@@ -207,10 +207,16 @@ export async function markDraftChaptersDeletedByNovelId(novelId: string, reason:
   );
 }
 
-export async function restoreDraftChaptersByNovelId(novelId: string) {
+// Restore of a removal made before sanctions existed (D6). That removal marked only drafts that were still live,
+// stamping them with its own time, and nothing in the novel can be deleted while it is removed. So a draft comes
+// back only if its chapter came back and it was deleted at or after removedAt. A draft deleted before the removal
+// was deleted on its own and stays exactly as it is. Without removedAt nothing comes back. Like D4-D6, this assumes
+// one demo instance where the API and the database share a clock; if the API clock is behind, drafts stay deleted.
+export async function restoreDraftChaptersByNovelId(novelId: string, chapterIds: string[], removedAt: Date | null) {
+  if (!removedAt || !chapterIds.length) return;
   const now = new Date();
-  return collection().updateMany(
-    { novelId, deletedAt: { $ne: null } },
+  await collection().updateMany(
+    { novelId, chapterId: { $in: chapterIds }, deletedAt: { $ne: null, $gte: removedAt } },
     {
       $set: {
         deletedAt: null,

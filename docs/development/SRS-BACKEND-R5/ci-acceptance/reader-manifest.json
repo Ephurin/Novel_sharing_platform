@@ -1,0 +1,102 @@
+{
+  "testedSha": "24717283c31c91cd8d8ad0608eaec22d4632e035",
+  "sourceTree": "229a046e59bc8bdae8ca9c81d87aec4b7d8de2a1",
+  "cleanSource": true,
+  "startedAt": "2026-11-13T12:21:52.325Z",
+  "node": "v24.21.0",
+  "provider": "fake; no live credentials",
+  "browserFiles": [
+    "reader-catalog-pagination.browser.test.mjs",
+    "reader-catalog.browser.test.mjs",
+    "reader-chapter-workspace.browser.test.mjs",
+    "reader-comment-moderation.browser.test.mjs",
+    "reader-comments.browser.test.mjs",
+    "reader-detail-enhancements.browser.test.mjs",
+    "reader-detail.browser.test.mjs",
+    "reader-home-accessibility.browser.test.mjs",
+    "reader-home-personalization.browser.test.mjs",
+    "reader-home-recovery.browser.test.mjs",
+    "reader-home.browser.test.mjs"
+  ],
+  "steps": [
+    {
+      "name": "web-typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit": 0,
+      "durationMs": 8074
+    },
+    {
+      "name": "backend-typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exit": 0,
+      "durationMs": 3569
+    },
+    {
+      "name": "web-build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exit": 0,
+      "durationMs": 22171
+    },
+    {
+      "name": "reader-postgres",
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "scripts/run-isolated-tests.mjs",
+        "src/modules/reading/chapter-reads.postgres.test.ts",
+        "src/modules/reading/reader-discovery.postgres.test.ts",
+        "src/modules/reading/reading-lifecycle.postgres.test.ts",
+        "src/modules/reading/reader-workspace.postgres.test.ts",
+        "src/modules/interactions/comments.integration.test.ts",
+        "src/modules/media/media.test.ts"
+      ],
+      "exit": 0,
+      "durationMs": 7210
+    },
+    {
+      "name": "reader-browsers",
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "--test",
+        "--test-concurrency=1",
+        "tests/reader-catalog-pagination.browser.test.mjs",
+        "tests/reader-catalog.browser.test.mjs",
+        "tests/reader-chapter-workspace.browser.test.mjs",
+        "tests/reader-comment-moderation.browser.test.mjs",
+        "tests/reader-comments.browser.test.mjs",
+        "tests/reader-detail-enhancements.browser.test.mjs",
+        "tests/reader-detail.browser.test.mjs",
+        "tests/reader-home-accessibility.browser.test.mjs",
+        "tests/reader-home-personalization.browser.test.mjs",
+        "tests/reader-home-recovery.browser.test.mjs",
+        "tests/reader-home.browser.test.mjs"
+      ],
+      "exit": 0,
+      "durationMs": 204476
+    },
+    {
+      "name": "reader-contrast",
+      "command": [
+        "C:\\Program Files\\nodejs\\node.exe",
+        "--test",
+        "tests/contrast.test.mjs"
+      ],
+      "exit": 0,
+      "durationMs": 150
+    }
+  ],
+  "cleanupVerified": true,
+  "passed": true,
+  "finishedAt": "2026-11-13T12:25:58.186Z"
+}

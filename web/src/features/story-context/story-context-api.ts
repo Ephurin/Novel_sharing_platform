@@ -1,4 +1,9 @@
 import { apiClient, type ApiEnvelope } from '../../shared/api/api-client';
+
+export async function syncStoryBible(novelId: string) {
+  const response = await apiClient.post<ApiEnvelope<{ brainVersion: number | null }>>(`/novels/${novelId}/story-bible/sync`);
+  return response.data.data;
+}
 import type {
   CharacterRole,
   CharacterProfile,

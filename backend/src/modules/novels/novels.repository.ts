@@ -104,8 +104,8 @@ export async function createNovel(
   return { ...mapNovel(result.rows[0]), genre: metadata.genres[0] ?? null, genres: metadata.genres };
 }
 
-export async function findNovelById(novelId: string) {
-  const result = await getPostgresPool().query(
+export async function findNovelById(novelId: string, client?: PoolClient) {
+  const result = await (client ?? getPostgresPool()).query(
     `
       select n.*, g.name as genre, ${genresProjection} as genres
       from novels n
@@ -256,8 +256,8 @@ export async function softDeleteNovel(novelId: string) {
   );
 }
 
-export async function submitNovelForPublish(novelId: string) {
-  const result = await getPostgresPool().query(
+export async function submitNovelForPublish(novelId: string, client?: DbClient) {
+  const result = await (client ?? getPostgresPool()).query(
     `
       update novels
       set status = 'PENDING_MODERATION', updated_at = now()
@@ -270,8 +270,8 @@ export async function submitNovelForPublish(novelId: string) {
   return result.rows[0] ? mapNovel(result.rows[0]) : null;
 }
 
-export async function publishNovel(novelId: string) {
-  const result = await getPostgresPool().query(
+export async function publishNovel(novelId: string, client?: DbClient) {
+  const result = await (client ?? getPostgresPool()).query(
     `
       update novels
       set
@@ -302,20 +302,33 @@ export async function rejectNovelPublication(novelId: string) {
 }
 
 export async function upsertGenre(client: DbClient, genreName: string | undefined) {
-  if (!genreName) {
+  const name = genreName?.trim();
+  if (!name) {
     return null;
   }
 
-  const slug = slugify(genreName);
+  const slug = slugify(name);
+  // Seeded/admin genres may have a slug different from the name's current slug.
+  // Reuse their identity without renaming taxonomy as a side effect of authoring.
+  const findExisting = () => client.query(
+    'select genre_id from genres where name = $1 or slug = $2 order by (name = $1) desc limit 1',
+    [name, slug]
+  );
+  const existing = await findExisting();
+  if (existing.rows[0]) return existing.rows[0].genre_id as string;
   const result = await client.query(
     `
       insert into genres (name, slug)
       values ($1, $2)
-      on conflict (slug) do update set name = excluded.name
+      on conflict do nothing
       returning genre_id
     `,
-    [genreName, slug]
+    [name, slug]
   );
 
-  return result.rows[0].genre_id as string;
+  // A concurrent request can insert either the name or slug while we wait.
+  // Read again in a fresh statement snapshot after ON CONFLICT has completed.
+  const row = result.rows[0] ?? (await findExisting()).rows[0];
+  if (!row) throw new Error('Không tìm thấy thể loại vừa tạo. Vui lòng thử lại.');
+  return row.genre_id as string;
 }

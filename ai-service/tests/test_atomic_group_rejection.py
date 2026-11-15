@@ -12,6 +12,9 @@ from tests.test_p1_memory_entity_hitl import flow, TENANT, ACTOR
 from tests.test_c01_canon_group import group, single
 from tests.test_p1_contract_alignment import accept, snapshot as contract_snapshot
 from domain.projection import ProjectionError
+from application.bootstrap_service import ManuscriptBootstrapService
+from domain.errors import BaselineReviewRequiredError
+from domain.models import BootstrapJob, BootstrapRevision
 
 pytestmark = [pytest.mark.postgres_integration,
     pytest.mark.parametrize('flow', ['postgres'], indirect=True)]
@@ -84,6 +87,26 @@ def test_group_reject_is_atomic_audited_and_no_canon_version_change(flow):
     assert snapshot(f, 'reject-retry-after') == after
     assert accept(f, proposals).status_code == 409
     assert snapshot(f, 'reject-then-accept-after') == after
+
+
+def test_complete_group_rejection_resolves_bootstrap_baseline_gate(flow):
+    f = flow
+    proposals = group(f)
+    job = BootstrapJob(job_id=str(uuid.uuid4()), novel_id=f.revision.novel_id, tenant_id=TENANT,
+        revisions=(BootstrapRevision(f.revision.chapter_id, f.revision.revision_id, f.revision.content_hash),),
+        status='waiting_review', result={'required_proposal_ids': [p.proposal_id for p in proposals]})
+    f.repo.create_bootstrap_job(job)
+    bootstrap = ManuscriptBootstrapService(f.repo, f.provider, f.service, f.llm)
+    with pytest.raises(BaselineReviewRequiredError):
+        bootstrap.activate_baseline(f.revision.novel_id, job.job_id)
+    response = reject(f, proposals)
+    assert response.status_code == 200, response.text
+    result = bootstrap.activate_baseline(f.revision.novel_id, job.job_id)
+    assert result['status'] == 'active'
+    assert f.repo.get_bootstrap_job(job.job_id).status == 'completed'
+    assert f.repo.get_story_brain(f.revision.novel_id).metadata['baseline_revision_id'] == f.revision.revision_id
+    assert not f.repo.list_proposals(f.revision.novel_id, status='pending')
+    assert not f.repo.list_entities(f.revision.novel_id)
 
 
 def test_true_singleton_reject_keeps_existing_request(flow):

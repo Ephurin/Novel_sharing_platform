@@ -1,0 +1,29 @@
+# GREEN: same tests after the P1 fix (bc0cad6e), with the moderation lifecycle test. npm run test:isolated -- src/modules/novels/srs-backend-rules.postgres.test.ts src/modules/content-control/author-publish-moderation-lifecycle.postgres.test.ts
+  ✔ Checkpoint 1: Reader/Author cannot access Admin moderation resolve route (403) (0.8692ms)
+  ✔ Checkpoint 2 & 4: Submitting novel triggers moderation, returns reviewId, and does not produce duplicate open reviews (45.7046ms)
+  ✔ Checkpoint 5: An unrelated pending review cannot satisfy approval of target novel (29.6199ms)
+  ✔ Checkpoint 2: Resolving review approves novel; duplicate resolve fails closed with 409 (8.7229ms)
+  ✔ Checkpoint 3: Already-PUBLISHED novel cannot be resubmitted through normal author publish flow (409) (3.4736ms)
+✔ Phase C: Author Publish -> Admin Moderation Lifecycle Invariants (138.739ms)
+  ✔ AUTH-02: a malformed email on register is AUTH_001; other bad fields stay VALIDATION_001 (300.1901ms)
+  ✔ NOV-02/03: title must be under 255 characters and synopsis at least 500; a 254-character title gets a valid slug (10.017ms)
+  ✔ NOV-04: a novel with fewer than five valid chapters cannot be submitted for publishing (66.2468ms)
+  ✔ NOV-04 (review P1): archived chapters do not count toward the five-chapter rule (48.6299ms)
+  ✔ NOV-04 (review P1): archiving a chapter while the novel is submitted cannot slip past the rule (325.363ms)
+  ✔ NOV-06: a chapter under 500 characters is not published (8.5939ms)
+  ✔ SOC-12: a published chapter reaches each author follower once, without doubling the novel bell (PR #88) (23.2901ms)
+  ✔ SOC-12: a chapter of a novel that is not public yet notifies nobody (12.2168ms)
+  ✔ ADM-03/08: removing a novel hides its chapters and drafts, tells the author, and restore brings back only those (82.5271ms)
+  ✔ PAY-15: the payment limiter answers 429 RATE_LIMIT_001 with Retry-After once a user exceeds the budget (0.4497ms)
+  ✔ AI-06: without an LLM the copilot answers AI_001 at once instead of a canned suggestion (2.5985ms)
+  ✔ AI-06: a provider that answers 5xx, hangs past the timeout or is down gives AI_001 with the reason (521.3989ms)
+✔ SRS backend rules (1452.5795ms)
+ℹ tests 17
+ℹ suites 2
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2623.1878
+{"isolatedDatabase":"ephurin_test_admin_backend_1794160741733","cleanedUp":true,"exitCode":0}

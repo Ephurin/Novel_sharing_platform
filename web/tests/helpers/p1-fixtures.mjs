@@ -45,7 +45,7 @@ export function fixtures(h) {
   async function seed() {
     await api('GET', '/health');
     const a = await h.account('AUTHOR'), b = await h.account('AUTHOR');
-    const novel = async (title, account) => (await api('POST', '/novels', { title, synopsis: 'Owned offline fixture' }, account.token)).data.novelId;
+    const novel = async (title, account) => (await api('POST', '/novels', { title, synopsis: 'Owned offline fixture with a synopsis long enough for the 50-character rule' }, account.token)).data.novelId;
     const novelA = await novel('P1 primary manuscript ' + a.userId.slice(0, 8), a);
     const novelOther = await novel('P1 other manuscript ' + a.userId.slice(0, 8), a);
     const novelB = await novel('P1 foreign manuscript ' + b.userId.slice(0, 8), b);

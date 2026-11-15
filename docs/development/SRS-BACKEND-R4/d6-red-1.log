@@ -1,0 +1,16 @@
+# RED: first run of novel-removal-d6.postgres.test.ts against 704afd09 (before the D6 fixes).
+# Real gap in test 1: the HIDE sync also tagged the Mongo draft of a chapter the author had deleted before HIDE.
+# Tests 3-7 in this run were not yet meaningful: test 3 asserted a wrong pending count and left the injected Mongo fault on.
+# See d6-red-2.log for the clean RED run of the corrected tests.
+  ✖ transient Mongo failure: the job retries, converges, repeats are idempotent, unrelated drafts never change (131.9697ms)
+  ✔ terminal FAILED job: stays observable, access stays denied, admin manual retry recovers it (69.6134ms)
+  ✖ RESTORE while the HIDE sync is still pending: Mongo ends in the restored state (49.9686ms)
+  ✖ an old pending restore job cannot un-hide drafts of a novel that was hidden again (4.975ms)
+  ✖ legacy sanction without chapterIds: restore guesses nothing (6.1571ms)
+  ✖ removal from before sanctions existed: restore brings back only what the removal hid (4.5868ms)
+  ✖ while a novel is hidden nothing inside it can be deleted or sanctioned separately; an earlier chapter sanction survives the novel restore (4.1781ms)
+✖ D6: admin novel hide/restore with Mongo draft sync (337.2489ms)
+ℹ tests 7
+ℹ pass 1
+ℹ fail 6
+✖ failing tests:

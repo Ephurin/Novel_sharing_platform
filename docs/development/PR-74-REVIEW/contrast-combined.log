@@ -1,0 +1,30 @@
+
+> ephurin-web@0.1.0 test:contrast
+> node --test tests/contrast.test.mjs
+
+✔ light: filled button label reaches 4.5:1 (0.8054ms)
+✔ light: filled button label (hover) reaches 4.5:1 (0.1182ms)
+✔ light: orange text on surface reaches 4.5:1 (0.0779ms)
+✔ light: soft button / active nav label reaches 4.5:1 (0.0622ms)
+✔ light: soft button label (hover) reaches 4.5:1 (0.0805ms)
+✔ light: body text on surface reaches 4.5:1 (0.0549ms)
+✔ light: body text on page background reaches 4.5:1 (0.0684ms)
+✔ light: danger label on surface reaches 4.5:1 (0.0568ms)
+✔ light: support button label reaches 4.5:1 (0.0682ms)
+✔ dark: filled button label reaches 4.5:1 (0.6717ms)
+✔ dark: filled button label (hover) reaches 4.5:1 (0.0921ms)
+✔ dark: orange text on surface reaches 4.5:1 (0.0707ms)
+✔ dark: soft button / active nav label reaches 4.5:1 (0.0393ms)
+✔ dark: soft button label (hover) reaches 4.5:1 (0.0338ms)
+✔ dark: body text on surface reaches 4.5:1 (0.0593ms)
+✔ dark: body text on page background reaches 4.5:1 (0.0335ms)
+✔ dark: danger label on surface reaches 4.5:1 (0.046ms)
+✔ dark: support button label reaches 4.5:1 (0.0454ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 70.1632

@@ -1,0 +1,49 @@
+{
+  "result": "PASS",
+  "sourceSha": "68d2248daaef4e4efb84d6ec1cdd9425db5531f8",
+  "baselineSeedSha": "6b5a58fdcb777ad43a5fcfb34237235e1243276b",
+  "isolatedDatabase": "ephurin_test_pr74_upgrade_1793261937322",
+  "legacyAdminsPreserved": 2,
+  "existingJobsPreserved": 2,
+  "before": {
+    "users": {
+      "count": 26,
+      "fingerprint": "abe9fe9a9b94c8d1aa10cfb4a24e2111"
+    },
+    "user_profiles": {
+      "count": 25,
+      "fingerprint": "6607f0612f22632a99bea2ac59c191db"
+    },
+    "wallets": {
+      "count": 25,
+      "fingerprint": "6d23b608c1e3c0edd3807cbb65ed109d"
+    },
+    "novels": {
+      "count": 12,
+      "fingerprint": "794556b4dc061bf14880318f57d04168"
+    },
+    "chapters": {
+      "count": 144,
+      "fingerprint": "eb067d011b09ce9e083bdfa42edbd0a2"
+    },
+    "withdraw_requests": {
+      "count": 12,
+      "fingerprint": "8ace5630a10ca5b3feb4c9e55d363618"
+    },
+    "transactions": {
+      "count": 12,
+      "fingerprint": "2308e831080711f5caa5612cc656ecb7"
+    },
+    "reports": {
+      "count": 18,
+      "fingerprint": "61667ab80107ee6f0d993464e8d88c9c"
+    },
+    "moderation_reviews": {
+      "count": 12,
+      "fingerprint": "cd5020a228393ce34bf9290929eff98f"
+    }
+  },
+  "applicationFingerprintUnchanged": true,
+  "httpChecks": "legacy-active=200 legacy-locked=403 post-upgrade-missing-scope=403\n{\"level\":30,\"time\":1793261943779,\"pid\":18028,\"hostname\":\"TrungTo-PC\",\"msg\":\"PostgreSQL connection closed\"}"
+}
+{"isolatedDatabase":"ephurin_test_pr74_upgrade_1793261937322","cleanedUp":true}

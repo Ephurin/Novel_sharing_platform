@@ -15,6 +15,7 @@ process.env.DATABASE_URL = url.href;
 const mongoUrl = new URL(process.env.MONGODB_URI!);
 mongoUrl.pathname = '/' + schema;
 process.env.MONGODB_URI = mongoUrl.href;
+process.send?.({ isolation: { postgresSchema: schema, mongoDatabase: schema } });
 process.env.AI_SERVICE_URL = 'http://127.0.0.1:9';
 const pg = await import('../src/core/database/postgres.js');
 const mongo = await import('../src/core/database/mongo.js');

@@ -8,6 +8,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from core.exceptions import EventExtractionError
+from core.output_language import VIETNAMESE_EVENT_OUTPUT
 from core.story_kb_manager import EventHistoryEntry
 from core.structured_outputs import EventExtractionOutput, NarrativeEventOutput, PipelineMetadata
 
@@ -21,7 +22,7 @@ def extract_narrative_events(
     llm_service: Any,
     chapter_num: int = 1,
     pipeline_version: str = "event-v1",
-    prompt_version: str = "event-extraction-v1",
+    prompt_version: str = "event-extraction-v2-vi",
 ) -> list[EventHistoryEntry]:
     if not text or not text.strip():
         return []
@@ -41,14 +42,21 @@ def extract_narrative_events(
 
     system_prompt = (
         "You are a narrative event extractor. Only extract significant events involving the supplied known entities. "
+        + VIETNAMESE_EVENT_OUTPUT +
         "Return only valid JSON with an 'events' array. Every event must contain participants, locations, summary, "
-        "event_type, emotion_tags, importance_score between 0 and 1, and consequences. Return an empty array when "
-        "there is no significant event."
+        "event_type, emotion_tags, importance_score between 0 and 1, and consequences. "
+        "participants, locations, emotion_tags, and consequences must each be arrays of strings, "
+        "even when there is only one item; use [] when there are none. "
+        "summary and event_type must be strings. Do not add other fields. "
+        'Example: {"events":[{"participants":["Minh"],"locations":[],"summary":"Minh rời đi.",'
+        '"event_type":"movement","emotion_tags":[],"importance_score":0.5,'
+        '"consequences":["Minh không còn ở đây."]}]}. '
+        'Return {"events":[]} when there is no significant event.'
     )
     user_prompt = (
         f"Text passage: {text.strip()}\n"
         f"Known entities: {', '.join(entity_names)}\n"
-        "Extract narrative events."
+        "Trích xuất sự kiện; viết tóm tắt và hệ quả bằng tiếng Việt."
     )
 
     try:
@@ -57,6 +65,17 @@ def extract_narrative_events(
         raise EventExtractionError(f"provider call failed: {exc}") from exc
 
     raw_events = _parse_items(raw_output, "events")
+    # A single consequence is sometimes returned as prose. Preserve it as one
+    # item at the provider boundary, while retaining strict validation otherwise.
+    raw_events = [
+        {
+            **item,
+            "consequences": [item["consequences"].strip()] if item["consequences"].strip() else [],
+        }
+        if isinstance(item, dict) and isinstance(item.get("consequences"), str)
+        else item
+        for item in raw_events
+    ]
     try:
         extraction = EventExtractionOutput(
             events=[NarrativeEventOutput.model_validate(item) for item in raw_events],

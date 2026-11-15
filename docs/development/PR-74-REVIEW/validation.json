@@ -1,0 +1,95 @@
+{
+  "date": "2026-10-29",
+  "baselineSha": "6b5a58fdcb777ad43a5fcfb34237235e1243276b",
+  "sourceSha": "68d2248daaef4e4efb84d6ec1cdd9425db5531f8",
+  "combinedSha": "fa287072c52ec29e9b681aa0a602effd78029caa",
+  "readerSha": "1def52f3c0a5ad665c62c1e0de1f5d88340ce888",
+  "combinedTree": "662a62d6239ec162f18ce4faddc5cc398176b4af",
+  "red": {
+    "tests": 8,
+    "pass": 2,
+    "fail": 6,
+    "skipped": 0
+  },
+  "source": {
+    "backend": {
+      "tests": 242,
+      "pass": 238,
+      "fail": 0,
+      "skipped": 4
+    },
+    "browser": {
+      "tests": 25,
+      "pass": 25,
+      "fail": 0,
+      "skipped": 0
+    },
+    "wallet": {
+      "tests": 4,
+      "pass": 4,
+      "fail": 0,
+      "skipped": 0
+    },
+    "populatedUpgrade": "PASS"
+  },
+  "combined": {
+    "backend": {
+      "tests": 242,
+      "pass": 238,
+      "fail": 0,
+      "skipped": 4
+    },
+    "browser": {
+      "tests": 25,
+      "pass": 25,
+      "fail": 0,
+      "skipped": 0
+    },
+    "wallet": {
+      "tests": 4,
+      "pass": 4,
+      "fail": 0,
+      "skipped": 0
+    },
+    "contrast": {
+      "tests": 18,
+      "pass": 18,
+      "fail": 0,
+      "skipped": 0
+    },
+    "populatedUpgrade": "PASS",
+    "readerFilesMatchPR73": true
+  },
+  "animate": {
+    "baseSha": "68d2248daaef4e4efb84d6ec1cdd9425db5531f8",
+    "typecheck": "PASS",
+    "navigation": {
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0
+    },
+    "motion": {
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0
+    },
+    "unaffectedTrackedPreserved": 36,
+    "untrackedPreserved": 43,
+    "sharedFilesMerged": [
+      "web/src/features/admin/AdminAuditPage.tsx",
+      "web/src/features/admin/AdminShell.tsx",
+      "web/src/shared/components/AuthorTheme.tsx"
+    ],
+    "wipRemainsUncommitted": true,
+    "backupStashRetained": true
+  },
+  "p8CI": {
+    "status": "NOT_RUN_AT_CAPTURE",
+    "checksUrl": "https://github.com/Ephurin/Novel_sharing_platform/pull/74/checks",
+    "combinedGitHubCI": "NOT_RUN"
+  },
+  "demoDatabaseMutated": false,
+  "mergedIntoMain": false
+}

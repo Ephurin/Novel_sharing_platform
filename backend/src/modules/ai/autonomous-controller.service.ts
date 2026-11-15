@@ -239,7 +239,7 @@ export class AutonomousControllerService {
         chapter_id: targetChapter.chapterId,
         revision_id: latestRev.revisionId,
         content_hash: latestRev.contentHash,
-        operation: 'continuation',
+        operation: 'continue',
         selection: {
           start: latestRev.content.length,
           end: latestRev.content.length,

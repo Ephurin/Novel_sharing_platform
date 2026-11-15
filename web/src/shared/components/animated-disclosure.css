@@ -1,0 +1,28 @@
+.sc-disclosure-trigger {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.sc-disclosure-trigger::before {
+  content: '';
+  flex-shrink: 0;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 5px solid currentColor;
+  transition: transform .18s ease-out;
+}
+.sc-disclosure-trigger[data-state="open"]::before { transform: rotate(90deg); }
+.sc-disclosure-content { min-width: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .sc-disclosure-trigger::before { transition: none; }
+}

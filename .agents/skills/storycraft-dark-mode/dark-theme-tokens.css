@@ -1,0 +1,62 @@
+/* Optional starter: merge into StoryCraft's existing central theme file.
+   These are suggested colors, not screenshots' exact sampled colors. */
+:root,
+:root[data-theme="light"] {
+  color-scheme: light;
+  --sc-bg: #F8F7F4;
+  --sc-surface: #FFFFFF;
+  --sc-surface-subtle: #FCFBF8;
+  --sc-surface-elevated: #FFFFFF;
+  --sc-primary: #DD8567;
+  --sc-primary-hover: #C96F52;
+  --sc-primary-soft: #FFF1EA;
+  --sc-on-primary: #241915;
+  --sc-text: #252B2A;
+  --sc-text-muted: #77736F;
+  --sc-border: #E8E5DF;
+  --sc-success: #247F68;
+  --sc-success-bg: #DDF7EB;
+  --sc-warning: #9A641B;
+  --sc-warning-bg: #FFF1DA;
+  --sc-danger: #B84D49;
+  --sc-danger-bg: #FFF0EF;
+  --sc-neutral-bg: #F1F0ED;
+  --sc-overlay: rgba(30,25,22,.42);
+  --sc-focus-ring: #C96F52;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --sc-bg: #171715;
+  --sc-surface: #24221F;
+  --sc-surface-subtle: #2C2926;
+  --sc-surface-elevated: #322E2A;
+  --sc-primary: #E69B7F;
+  --sc-primary-hover: #F0AE95;
+  --sc-primary-soft: #423026;
+  --sc-on-primary: #241915;
+  --sc-text: #F2EFEA;
+  --sc-text-muted: #BDB6AD;
+  --sc-border: #45403A;
+  --sc-success: #89D9B6;
+  --sc-success-bg: #1D3A30;
+  --sc-warning: #F2C37E;
+  --sc-warning-bg: #423422;
+  --sc-danger: #F2A09A;
+  --sc-danger-bg: #4A2B2A;
+  --sc-neutral-bg: #393631;
+  --sc-overlay: rgba(0,0,0,.68);
+  --sc-focus-ring: #F1AD8D;
+}
+
+/* Apply semantic variables in components, not by inverting the page. */
+body { background: var(--sc-bg); color: var(--sc-text); }
+.sc-card { background: var(--sc-surface); border: 1px solid var(--sc-border); }
+.sc-primary-button { background: var(--sc-primary); color: var(--sc-on-primary); }
+.sc-primary-button:hover { background: var(--sc-primary-hover); }
+.sc-meta { color: var(--sc-text-muted); }
+:focus-visible { outline: 2px solid var(--sc-focus-ring); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; }
+}

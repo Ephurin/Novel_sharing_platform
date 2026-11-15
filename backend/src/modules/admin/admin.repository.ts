@@ -1,7 +1,12 @@
+import { AppError } from '../../core/errors/app-error.js';
 import type { PoolClient, QueryResultRow } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { slugify } from '../../core/utils/slug.js';
-import type { ListAdminNovelsInput, ListAdminUsersInput, TaxonomyNameInput } from './admin.schemas.js';
+import type {
+  ListAdminNovelsInput,
+  ListAdminUsersInput,
+  TaxonomyNameInput
+} from './admin.schemas.js';
 
 type DbClient = Pick<PoolClient, 'query'>;
 
@@ -27,6 +32,7 @@ function mapAdminNovel(row: QueryResultRow) {
     title: row.title,
     slug: row.slug,
     synopsis: row.synopsis,
+    coverImageUrl: row.cover_image_url,
     status: row.status,
     serialStatus: row.serial_status,
     ageRating: row.age_rating,
@@ -67,7 +73,7 @@ export async function listAdminUsers(input: ListAdminUsersInput) {
         and ($1::user_role is null or u.role = $1)
         and ($2::user_status is null or u.status = $2)
         and ($3::text is null or u.email ilike $3 or u.username ilike $3 or p.display_name ilike $3)
-      order by u.created_at desc
+      order by u.created_at desc, u.user_id
       limit $4 offset $5
     `,
     [input.role ?? null, input.status ?? null, search, input.limit, offset]
@@ -105,6 +111,7 @@ export async function listAdminNovels(input: ListAdminNovelsInput) {
       where ($1::boolean = true or n.deleted_at is null)
         and ($2::uuid is null or n.author_id = $2)
         and ($3::novel_status is null or n.status = $3)
+        and ($7::novel_serial_status is null or n.serial_status = $7)
         and (
           $4::text is null
           or n.title ilike $4
@@ -112,10 +119,18 @@ export async function listAdminNovels(input: ListAdminNovelsInput) {
           or u.username ilike $4
           or u.email ilike $4
         )
-      order by n.updated_at desc
+      order by n.updated_at desc, n.novel_id
       limit $5 offset $6
     `,
-    [input.includeDeleted, input.authorId ?? null, input.status ?? null, search, input.limit, offset]
+    [
+      input.includeDeleted,
+      input.authorId ?? null,
+      input.status ?? null,
+      search,
+      input.limit,
+      offset,
+      input.serialStatus ?? null
+    ]
   );
   const countResult = await getPostgresPool().query(
     `
@@ -125,6 +140,7 @@ export async function listAdminNovels(input: ListAdminNovelsInput) {
       where ($1::boolean = true or n.deleted_at is null)
         and ($2::uuid is null or n.author_id = $2)
         and ($3::novel_status is null or n.status = $3)
+        and ($5::novel_serial_status is null or n.serial_status = $5)
         and (
           $4::text is null
           or n.title ilike $4
@@ -133,7 +149,13 @@ export async function listAdminNovels(input: ListAdminNovelsInput) {
           or u.email ilike $4
         )
     `,
-    [input.includeDeleted, input.authorId ?? null, input.status ?? null, search]
+    [
+      input.includeDeleted,
+      input.authorId ?? null,
+      input.status ?? null,
+      search,
+      input.serialStatus ?? null
+    ]
   );
 
   return {
@@ -170,8 +192,17 @@ export async function findAdminNovelById(novelId: string, includeDeleted = false
     [novelId]
   );
 
+  const genres = await getPostgresPool().query(
+    `select g.genre_id, g.name from genres g where g.genre_id in (select genre_id from novel_genres where novel_id=$1) or g.genre_id=$2 order by g.name`,
+    [novelId, novelResult.rows[0].genre_id]
+  );
+
   return {
     ...mapAdminNovel(novelResult.rows[0]),
+    genres: genres.rows.map((row) => ({
+      genreId: row.genre_id,
+      name: row.name
+    })),
     chapters: chaptersResult.rows.map(mapAdminChapter)
   };
 }
@@ -201,7 +232,23 @@ export async function softRemoveNovelAggregate(client: DbClient, novelId: string
   return mapAdminNovel(novelResult.rows[0]);
 }
 
+// Restore of a removal made before sanctions existed. That removal stamped the novel and its then-live chapters
+// with the same transaction time, so only chapters carrying exactly the novel's deleted_at come back; a chapter
+// the author deleted earlier keeps its own, older deleted_at and stays deleted (D6: never resurrect).
+// removedAt is that removal's time, for the Mongo draft restore.
 export async function restoreNovelAggregate(client: DbClient, novelId: string) {
+  const removedAt: Date | null =
+    (await client.query('select deleted_at from novels where novel_id = $1 for update', [novelId])).rows[0]?.deleted_at ?? null;
+  const restoredChapters = await client.query(
+    `
+      update chapters c
+      set deleted_at = null, updated_at = now()
+      from novels n
+      where n.novel_id = c.novel_id and c.novel_id = $1 and c.deleted_at = n.deleted_at
+      returning c.chapter_id
+    `,
+    [novelId]
+  );
   const novelResult = await client.query(
     `
       update novels
@@ -214,16 +261,11 @@ export async function restoreNovelAggregate(client: DbClient, novelId: string) {
 
   if (!novelResult.rows[0]) return null;
 
-  await client.query(
-    `
-      update chapters
-      set deleted_at = null, updated_at = now()
-      where novel_id = $1
-    `,
-    [novelId]
-  );
-
-  return mapAdminNovel(novelResult.rows[0]);
+  return {
+    novel: mapAdminNovel(novelResult.rows[0]),
+    chapterIds: restoredChapters.rows.map((row) => row.chapter_id as string),
+    removedAt
+  };
 }
 
 export async function updateUserStatus(userId: string, status: 'ACTIVE' | 'LOCKED') {
@@ -242,16 +284,29 @@ export async function updateUserStatus(userId: string, status: 'ACTIVE' | 'LOCKE
   return result.rows[0] ? mapAdminUser(result.rows[0]) : null;
 }
 
+export async function findAdminUserById(userId: string) {
+  const result = await getPostgresPool().query(
+    'select u.*,p.display_name from users u left join user_profiles p using(user_id) where u.user_id=$1',
+    [userId]
+  );
+  return result.rows[0] ? mapAdminUser(result.rows[0]) : null;
+}
+
 export async function listTaxonomy() {
   const [genres, tags] = await Promise.all([
-    getPostgresPool().query('select genre_id, name, slug, description, created_at from genres order by name asc'),
-    getPostgresPool().query('select tag_id, name, slug, created_at from tags order by name asc')
+    getPostgresPool().query(
+      'select g.*, (select count(distinct n.novel_id)::int from novels n left join novel_genres ng using(novel_id) where n.genre_id=g.genre_id or ng.genre_id=g.genre_id) as usage_count from genres g order by name asc'
+    ),
+    getPostgresPool().query(
+      'select t.*, (select count(*)::int from novel_tags nt where nt.tag_id=t.tag_id) as usage_count from tags t order by name asc'
+    )
   ]);
 
   return {
     genres: genres.rows.map((row) => ({
       genreId: row.genre_id,
       name: row.name,
+      usageCount: row.usage_count,
       slug: row.slug,
       description: row.description,
       createdAt: row.created_at
@@ -259,26 +314,27 @@ export async function listTaxonomy() {
     tags: tags.rows.map((row) => ({
       tagId: row.tag_id,
       name: row.name,
+      usageCount: row.usage_count,
       slug: row.slug,
       createdAt: row.created_at
     }))
   };
 }
 
-export async function createGenre(input: TaxonomyNameInput) {
+export async function createGenre(input: TaxonomyNameInput, client?: PoolClient) {
   const slug = slugify(input.name);
-  const result = await getPostgresPool().query(
+  if (!slug) throw new AppError(422, 'TAXONOMY_INVALID', 'T?n ph?i ch?a ch? ho?c s?.');
+  const result = await (client ?? getPostgresPool()).query(
     `
       insert into genres (name, slug, description)
       values ($1, $2, $3)
-      on conflict (slug) do update
-      set name = excluded.name,
-          description = excluded.description
+      on conflict do nothing
       returning genre_id, name, slug, description, created_at
     `,
     [input.name, slug, input.description ?? null]
   );
 
+  if (!result.rows[0]) throw new AppError(409, 'TAXONOMY_EXISTS', 'Th? lo?i ?? t?n t?i.');
   return {
     genreId: result.rows[0].genre_id,
     name: result.rows[0].name,
@@ -288,19 +344,20 @@ export async function createGenre(input: TaxonomyNameInput) {
   };
 }
 
-export async function createTag(input: TaxonomyNameInput) {
+export async function createTag(input: TaxonomyNameInput, client?: PoolClient) {
   const slug = slugify(input.name);
-  const result = await getPostgresPool().query(
+  if (!slug) throw new AppError(422, 'TAXONOMY_INVALID', 'T?n ph?i ch?a ch? ho?c s?.');
+  const result = await (client ?? getPostgresPool()).query(
     `
       insert into tags (name, slug)
       values ($1, $2)
-      on conflict (slug) do update
-      set name = excluded.name
+      on conflict do nothing
       returning tag_id, name, slug, created_at
     `,
     [input.name, slug]
   );
 
+  if (!result.rows[0]) throw new AppError(409, 'TAXONOMY_EXISTS', 'Tag ?? t?n t?i.');
   return {
     tagId: result.rows[0].tag_id,
     name: result.rows[0].name,
@@ -310,17 +367,34 @@ export async function createTag(input: TaxonomyNameInput) {
 }
 
 export async function getDashboardStats() {
-  const [users, novels, pendingModeration, mockRevenue] = await Promise.all([
-    getPostgresPool().query("select count(*)::int as total from users where deleted_at is null"),
-    getPostgresPool().query("select count(*)::int as total from novels where deleted_at is null"),
-    getPostgresPool().query("select count(*)::int as total from moderation_reviews where status = 'PENDING'"),
-    getPostgresPool().query("select coalesce(sum(amount_coins), 0)::int as total from transactions where type = 'DEPOSIT' and status = 'SUCCESS'")
-  ]);
-
+  const result = await getPostgresPool().query(`
+    select
+      (select count(*)::int from users where deleted_at is null) as users,
+      (select count(*)::int from novels where deleted_at is null) as novels,
+      (select count(*)::int from moderation_reviews where status='PENDING') as moderation,
+      (select count(*)::int from moderation_reviews where status='PENDING' and source='USER_REPORT') as reports,
+      (select count(*)::int from withdraw_requests where status='PENDING') as withdraws,
+      (select coalesce(sum(amount_coins),0)::float8 from transactions where type='DEPOSIT' and status='SUCCESS') as deposited
+  `);
+  const activity = await getPostgresPool().query(`
+    select to_char(d.day,'YYYY-MM-DD') as date,
+      (select count(*)::int from users where deleted_at is null and (created_at at time zone 'Asia/Bangkok')::date=d.day::date) as users,
+      (select count(*)::int from novels where deleted_at is null and (created_at at time zone 'Asia/Bangkok')::date=d.day::date) as novels
+    from generate_series((now() at time zone 'Asia/Bangkok')::date-6, (now() at time zone 'Asia/Bangkok')::date, interval '1 day') d(day)
+    order by d.day
+  `);
+  const row = result.rows[0];
   return {
-    totalUsers: users.rows[0]?.total ?? 0,
-    totalNovels: novels.rows[0]?.total ?? 0,
-    pendingModerationItems: pendingModeration.rows[0]?.total ?? 0,
-    mockRevenueCoins: mockRevenue.rows[0]?.total ?? 0
+    totalUsers: row.users,
+    totalNovels: row.novels,
+    pendingModerationItems: row.moderation,
+    mockRevenueCoins: row.deposited,
+    totalDepositedCoins: row.deposited,
+    pendingReports: row.reports,
+    pendingWithdraws: row.withdraws,
+    activity: activity.rows,
+    newUsers7Days: activity.rows.reduce((sum, r) => sum + r.users, 0),
+    newNovels7Days: activity.rows.reduce((sum, r) => sum + r.novels, 0),
+    generatedAt: new Date().toISOString()
   };
 }

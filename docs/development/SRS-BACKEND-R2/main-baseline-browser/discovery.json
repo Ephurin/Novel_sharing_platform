@@ -1,0 +1,43 @@
+{
+  "checkpoints": {},
+  "disposable_database": "ephurin_test_discovery_5c422f073560",
+  "stack_steps": [
+    {
+      "name": "backend_db_migrate",
+      "command": "npm run db:migrate",
+      "cwd": "backend",
+      "exit_code": 0,
+      "duration_seconds": 1.7
+    },
+    {
+      "name": "backend_db_seed_demo",
+      "command": "npm run db:seed:demo",
+      "cwd": "backend",
+      "exit_code": 0,
+      "duration_seconds": 1.6
+    },
+    {
+      "name": "web_production_build",
+      "command": "npx vite build --outDir \"%TEMP%\\ephurin-e2e-tnjnvebh\\web-dist\" --emptyOutDir",
+      "cwd": "web",
+      "exit_code": 0,
+      "duration_seconds": 17.5
+    }
+  ],
+  "db_ownership": {
+    "database": "ephurin_test_discovery_5c422f073560",
+    "pg_created_by_run": true,
+    "mongo_created_by_run": true,
+    "pg_dropped": true,
+    "mongo_dropped": true,
+    "errors": [],
+    "backend_connections_to_test_db": 3
+  },
+  "teardown_ok": true,
+  "shared_fingerprint_before": "686d5ca351f2c4b138ba017095a867e2de4b1f1a53727506e68f587dcf6a9dad",
+  "shared_fingerprint_after": "686d5ca351f2c4b138ba017095a867e2de4b1f1a53727506e68f587dcf6a9dad",
+  "shared_changes": [],
+  "stack_logs": "%TEMP%\\ephurin-e2e-tnjnvebh",
+  "failure": "TimeoutError: Condition timed out after 15.0s: window.location.pathname === '/reader'\nCurrent URL: http://127.0.0.1:5312/\nBody snippet: Đến nội dung chính\nmenu_book\nStoryCraft\nVĂN HOA\nTrang chủ\nDanh sách truyện\nThư viện của tôi\nLịch sử đọc\nVí xu\nnotifications\nR\nGóc đọc truyện\nTìm truyện\nsearch\narrow_forward\nlocal_fire_department\nNổi bật\nfavorite\nĐược yêu thích\nupdate\nMới cập nhật\nDanh sách\narrow_forward\nauto_stories\nĐang ra\nThanh Van Sword Path - Sample Story\nvisibility\nauto_stories\nĐang ra\nAshenhold - Sample Story\nvisibility\ntren",
+  "verdict": "FAIL"
+}

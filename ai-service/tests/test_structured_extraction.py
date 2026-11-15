@@ -53,6 +53,27 @@ class EventExtractionTests(unittest.TestCase):
         events = extract_narrative_events("Không có sự kiện.", self.entities, FakeLLMService('{"events":[]}'))
         self.assertEqual(events, [])
 
+    def test_single_consequence_text_is_preserved_as_one_item(self) -> None:
+        consequence = "Amane discovers the truth. She leaves the city."
+        for value, expected in [(consequence, [consequence]), ("  ", []), ([consequence], [consequence])]:
+            with self.subTest(value=value):
+                response = json.dumps({"events": [{
+                    "participants": ["Minh"], "summary": "Minh reveals the truth.",
+                    "event_type": "discovery", "consequences": value,
+                }]})
+                events = extract_narrative_events("Minh reveals the truth.", self.entities, FakeLLMService(response))
+                self.assertEqual(events[0].consequences, expected)
+
+    def test_invalid_consequence_structures_are_still_rejected(self) -> None:
+        for value in [{"text": "a consequence"}, 123, [123], None]:
+            with self.subTest(value=value):
+                response = json.dumps({"events": [{
+                    "participants": ["Minh"], "summary": "Minh leaves.",
+                    "event_type": "movement", "consequences": value,
+                }]})
+                with self.assertRaisesRegex(EventExtractionError, "schema validation"):
+                    extract_narrative_events("Minh leaves.", self.entities, FakeLLMService(response))
+
     def test_malformed_event_output_is_explicit(self) -> None:
         with self.assertRaisesRegex(EventExtractionError, "not valid JSON"):
             extract_narrative_events("Minh xuất hiện.", self.entities, FakeLLMService("invalid"))

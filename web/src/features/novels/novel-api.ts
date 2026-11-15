@@ -34,6 +34,12 @@ export async function getNovelEarnings(novelId: string) {
   return response.data.data;
 }
 
+// Mirrors the backend limits from SRS novel-chapter-service §1 (D1–D3, 2026-11-09) so forms can warn before the API rejects.
+export const NOVEL_TITLE_MAX = 254;
+export const NOVEL_SYNOPSIS_MIN = 50;
+export const CHAPTER_TITLE_MAX = 99;
+export const CHAPTER_CONTENT_MIN = 500;
+
 export async function createNovel(input: {
   title: string;
   synopsis: string;
@@ -71,8 +77,8 @@ export async function listChapters(novelId: string) {
   return response.data.data;
 }
 
-export async function getChapter(chapterId: string) {
-  const response = await apiClient.get<ApiEnvelope<Chapter>>(`/chapters/${chapterId}`);
+export async function getChapter(chapterId: string, signal?: AbortSignal) {
+  const response = await apiClient.get<ApiEnvelope<Chapter>>(`/chapters/${chapterId}`, { signal });
   return response.data.data;
 }
 

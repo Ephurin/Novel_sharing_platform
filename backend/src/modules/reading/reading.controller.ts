@@ -7,12 +7,16 @@ import {
   getPreferences,
   getReaderChapter,
   getReaderNovel,
+  getReadingFilters,
   listHistory,
   listLibrary,
   removeFromLibrary,
   savePreferences,
   searchNovels,
-  syncHistory
+  syncHistory,
+  getReadingBookmark,
+  saveReadingBookmark,
+  removeReadingBookmark
 } from './reading.service.js';
 
 function requireRequestAuth(request: Parameters<RequestHandler>[0]) {
@@ -22,6 +26,24 @@ function requireRequestAuth(request: Parameters<RequestHandler>[0]) {
 
   return request.auth;
 }
+
+export const getReadingBookmarkController: RequestHandler = async (request, response, next) => {
+  try {
+    response.json(successResponse(await getReadingBookmark(requireRequestAuth(request), String(request.params.novelId))));
+  } catch (error) { next(error); }
+};
+
+export const saveReadingBookmarkController: RequestHandler = async (request, response, next) => {
+  try {
+    response.json(successResponse(await saveReadingBookmark(requireRequestAuth(request), String(request.params.novelId), request.body)));
+  } catch (error) { next(error); }
+};
+
+export const removeReadingBookmarkController: RequestHandler = async (request, response, next) => {
+  try {
+    response.json(successResponse(await removeReadingBookmark(requireRequestAuth(request), String(request.params.novelId))));
+  } catch (error) { next(error); }
+};
 
 export const getPreferencesController: RequestHandler = async (request, response, next) => {
   try {
@@ -34,6 +56,14 @@ export const getPreferencesController: RequestHandler = async (request, response
 export const savePreferencesController: RequestHandler = async (request, response, next) => {
   try {
     response.json(successResponse(await savePreferences(requireRequestAuth(request), request.body)));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getReadingFiltersController: RequestHandler = async (_request, response, next) => {
+  try {
+    response.json(successResponse(await getReadingFilters()));
   } catch (error) {
     next(error);
   }

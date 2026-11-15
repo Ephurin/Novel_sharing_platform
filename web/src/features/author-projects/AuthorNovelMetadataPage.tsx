@@ -1,8 +1,16 @@
+import { LoadedImage } from '../../shared/components/AuthorAdminMotion';
+import { useWorkspacePreference, stringArray } from '../../shared/components/WorkspacePreferences';
+import { ResponsiveFilters, SelectionToolbar, useUpdatedItems } from '../../shared/components/InteractionWidgets';
+import { useToast } from '../../shared/components/ToastProvider';
 import { ImageUpload } from '../../shared/components/ImageUpload';
 import { ChapterActions, ChapterOrder, ChapterHistoryPanel } from './ChapterActions';
 import { TagsInput } from '@mantine/core';
+import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
+import { chapterSortOptions, sortChapters, type ChapterSort } from './chapter-sorting';
 import { getNovelStatistics } from '../novels/novel-statistics-api';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
+import { authorHomeCrumb, navigationLabels } from '../../shared/components/navigation';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -14,7 +22,10 @@ import {
   listChapters,
   updateNovel,
   submitNovelPublish,
-  createChapter
+  createChapter,
+  CHAPTER_TITLE_MAX,
+  NOVEL_SYNOPSIS_MIN,
+  NOVEL_TITLE_MAX
 } from '../novels/novel-api';
 import type { Chapter, ChapterStatus } from '../novels/novel-types';
 
@@ -30,6 +41,10 @@ export function AuthorNovelMetadataPage() {
     queryFn: () => getNovel(novelId),
     enabled: Boolean(novelId)
   });
+  const [, setRecentProjects] = useWorkspacePreference<string[]>('recent-projects', [], stringArray);
+  useEffect(() => {
+    if (novelQuery.data?.novelId && user?.userId) setRecentProjects(old => [novelId, ...old.filter(id => id !== novelId)].slice(0, 8));
+  }, [novelQuery.data?.novelId, user?.userId]);
 
   const chaptersQuery = useQuery({
     queryKey: ['chapters', novelId],
@@ -70,17 +85,14 @@ export function AuthorNovelMetadataPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [accessFilter, setAccessFilter] = useState<'ALL' | 'FREE' | 'VIP'>('ALL');
+  const [chapterSort, setChapterSort] = useState<ChapterSort>('number-asc');
   const [selectedChapters, setSelectedChapters] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
 
   // Feedback Toast
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
-  };
+  const { showToast } = useToast();
 
   // Populate edit fields
   useEffect(() => {
@@ -97,8 +109,9 @@ export function AuthorNovelMetadataPage() {
   const updateMutation = useMutation({
     mutationFn: () =>
       updateNovel(novelId, {
-        title: titleInput,
-        synopsis: synopsisInput,
+        // Unchanged fields are left out so a legacy title or short synopsis does not block other edits.
+        ...(titleInput !== (novelQuery.data?.title ?? '') ? { title: titleInput } : {}),
+        ...(synopsisInput !== (novelQuery.data?.synopsis ?? '') ? { synopsis: synopsisInput } : {}),
         authorNote: authorNoteInput.trim() || null,
         genres: genresInput,
         coverImageUrl: coverInput.trim() || null
@@ -151,10 +164,11 @@ export function AuthorNovelMetadataPage() {
   });
 
   const chapters: Chapter[] = chaptersQuery.data ?? [];
+  const updated = useUpdatedItems(chaptersQuery.data?.map(chapter => ({ id: chapter.chapterId, version: [chapter.updatedAt, chapter.draftVersion, chapter.status, chapter.title, chapter.chapterNumber, chapter.isVip, chapter.priceCoins].join('|') })), novelId);
 
   // Filtered chapters
   const filteredChapters = useMemo(() => {
-    return chapters.filter((ch) => {
+    return sortChapters(chapters.filter((ch) => {
 
 
       if (searchQuery.trim()) {
@@ -170,8 +184,8 @@ export function AuthorNovelMetadataPage() {
       if (accessFilter === 'VIP' && !ch.isVip) return false;
 
       return true;
-    });
-  }, [chapters, activeTab, searchQuery, statusFilter, accessFilter]);
+    }), chapterSort);
+  }, [chapters, searchQuery, statusFilter, accessFilter, chapterSort]);
 
   // Paginated chapters
   const totalPages = Math.ceil(filteredChapters.length / pageSize) || 1;
@@ -275,10 +289,10 @@ export function AuthorNovelMetadataPage() {
           Có thể tác phẩm không tồn tại hoặc bạn không có quyền tác giả đối với dự án này.
         </p>
         <Link
-          to="/author"
+          to={authorHomeCrumb.to}
           className="mt-4 px-4 py-2 rounded-lg bg-primary-600 text-white text-meta font-semibold hover:bg-primary-700 transition-colors"
         >
-          Quay lại Bàn làm việc
+          Quay lại {navigationLabels.authorHome}
         </Link>
       </div>
     );
@@ -299,21 +313,7 @@ export function AuthorNovelMetadataPage() {
           {/* Top Breadcrumb & Quick Action Bar (Compact Scale) */}
           <div className="w-full bg-surface-container-lowest border-b border-stone-200/80 shadow-2xs">
             <div className="max-w-7xl mx-auto px-4 lg:px-8 py-1.5 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-1.5 text-meta text-stone-500 min-w-0">
-                <Link
-                  to="/author"
-                  className="inline-flex items-center gap-1 text-primary-600 hover:text-primary-700 font-medium shrink-0 transition-colors py-0.5 px-1.5 rounded hover:bg-stone-100"
-                >
-                  <span className="material-symbols-outlined text-[15px]">arrow_back</span>
-                  <span>Bàn làm việc</span>
-                </Link>
-                <span className="text-stone-300">/</span>
-                <Link to="/author" className="hover:text-stone-900 cursor-pointer truncate max-w-[120px] sm:max-w-none text-stone-500">
-                  Tác phẩm của tôi
-                </Link>
-                <span className="text-stone-300">/</span>
-                <span className="text-stone-900 font-semibold truncate max-w-[160px] sm:max-w-[280px] md:max-w-md">{novel.title}</span>
-              </div>
+              <Breadcrumbs items={[authorHomeCrumb, { label: novel.title }]} />
               <div className="flex items-center gap-1.5 shrink-0">
                 <Link to={`/author/novels/${novelId}/comments`} className="sc-button sc-button-soft" title="Bình luận độc giả"><span className="material-symbols-outlined" aria-hidden="true">forum</span><span className="hidden sm:inline">Bình luận</span></Link>
                 <Link
@@ -334,8 +334,8 @@ export function AuthorNovelMetadataPage() {
           <div className="max-w-7xl mx-auto px-4 lg:px-8 w-full mt-4 flex flex-col gap-4">
             <section className="sc-novel-overview" aria-label="Thông tin tác phẩm">
               <div className="sc-novel-identity">
-                <button type="button" className="sc-novel-cover" onClick={() => setEditModalOpen(true)} aria-label="Đổi ảnh bìa" title="Đổi ảnh bìa">
-                  {coverImage ? <img src={coverImage} alt={novel.title} /> : <span>{novel.title}</span>}
+                <button type="button" className="sc-novel-cover sc-cover-hover" onClick={() => setEditModalOpen(true)} aria-label="Đổi ảnh bìa" title="Đổi ảnh bìa">
+                  {coverImage ? <LoadedImage src={coverImage} alt={novel.title} /> : <span>{novel.title}</span>}
                 </button>
                 <div className="sc-novel-description">
                   <div className="flex flex-wrap items-center gap-2 mb-2">
@@ -436,12 +436,11 @@ export function AuthorNovelMetadataPage() {
 
               {orderOpen && <ChapterOrder novelId={novelId} chapters={chapters} onClose={() => setOrderOpen(false)} />}
               {activeTab === 'history' ? <ChapterHistoryPanel chapters={chapters} /> : <>
-              <div className="flex justify-end px-4 pt-3"><button type="button" className="sc-button sc-button-ghost" onClick={() => setOrderOpen(true)} disabled={!chapters.length}>Sắp xếp chương</button></div>
               {/* Streamlined Chapter Toolbar */}
-              <div className="p-3.5 bg-surface-container-lowest flex flex-col sm:flex-row items-center justify-between gap-2.5 border-b border-stone-200/80">
-                <div className="flex items-center gap-2 flex-1 w-full sm:w-auto flex-wrap">
+              <div className="sc-chapter-toolbar" role="group" aria-label="Bộ lọc và thao tác chương">
+                <ResponsiveFilters className="sc-chapter-filters">
                   {/* Search Box */}
-                  <div className="relative min-w-[240px] flex-1 sm:flex-initial">
+                  <div className="relative sc-chapter-search">
                     <span className="material-symbols-outlined absolute left-2.5 top-2 text-[16px] text-stone-400 pointer-events-none">
                       search
                     </span>
@@ -453,6 +452,7 @@ export function AuthorNovelMetadataPage() {
                       }}
                       className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-surface-subtle text-stone-900 placeholder:text-stone-400 font-body-md text-meta focus:outline-none focus:ring-1 focus:ring-primary-500 border border-stone-200"
                       placeholder="Tìm kiếm số chương, tên chương..."
+                      aria-label="Tìm kiếm chương"
                       type="text"
                     />
                   </div>
@@ -460,6 +460,7 @@ export function AuthorNovelMetadataPage() {
                   {/* Status Dropdown */}
                   <div className="relative">
                     <select
+                      aria-label="Trạng thái chương"
                       value={statusFilter}
                       onChange={(e) => {
                         setStatusFilter(e.target.value);
@@ -467,7 +468,7 @@ export function AuthorNovelMetadataPage() {
                       }}
                       className="appearance-none bg-surface-subtle text-stone-800 font-label-md text-meta py-1.5 pl-3 pr-7 rounded-lg focus:outline-none cursor-pointer border border-stone-200 hover:border-stone-300 transition-colors"
                     >
-                      <option value="ALL">Tất cả trạng thái ({chapters.length})</option>
+                      <option value="ALL">Trạng thái ({chapters.length})</option>
                       <option value="PUBLISHED">
                         Đã xuất bản ({chapters.filter((c) => c.status === 'PUBLISHED').length})
                       </option>
@@ -489,6 +490,7 @@ export function AuthorNovelMetadataPage() {
                   {/* Access Dropdown */}
                   <div className="relative">
                     <select
+                      aria-label="Quyền đọc chương"
                       value={accessFilter}
                       onChange={(e) => {
                         setAccessFilter(e.target.value as any);
@@ -496,7 +498,7 @@ export function AuthorNovelMetadataPage() {
                       }}
                       className="appearance-none bg-surface-subtle text-stone-800 font-label-md text-meta py-1.5 pl-3 pr-7 rounded-lg focus:outline-none cursor-pointer border border-stone-200 hover:border-stone-300 transition-colors"
                     >
-                      <option value="ALL">Tất cả quyền đọc</option>
+                      <option value="ALL">Quyền đọc</option>
                       <option value="FREE">Miễn phí</option>
                       <option value="VIP">VIP</option>
                     </select>
@@ -504,10 +506,29 @@ export function AuthorNovelMetadataPage() {
                       expand_more
                     </span>
                   </div>
-                </div>
+                </ResponsiveFilters>
 
                 {/* Right Toolbar Actions */}
-                <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                <div className="sc-chapter-toolbar-actions">
+                  <Menu position="bottom-end" withinPortal>
+                    <Menu.Target>
+                      <button type="button" className="sc-button" aria-label="Sắp xếp hiển thị chương" title={chapterSortOptions.find(option => option.value === chapterSort)?.label}>
+                        <span className="material-symbols-outlined" aria-hidden="true">sort</span>
+                        <span>Hiển thị</span>
+                      </button>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      <Menu.Label>Thứ tự hiển thị</Menu.Label>
+                      {chapterSortOptions.map(option => (
+                        <Menu.Item key={option.value}
+                          leftSection={chapterSort === option.value ? <span className="material-symbols-outlined" aria-hidden="true">check</span> : undefined}
+                          onClick={() => { setChapterSort(option.value); setCurrentPage(1); }}>
+                          {option.label}
+                        </Menu.Item>
+                      ))}
+                    </Menu.Dropdown>
+                  </Menu>
+                  <button type="button" className="sc-button" onClick={() => setOrderOpen(true)} disabled={!chapters.length}>Sắp xếp chương</button>
                   <Link
                     to={`/author/import/${novelId}`}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200/80 text-stone-700 border border-stone-200/70 font-label-md text-meta transition-colors"
@@ -527,6 +548,14 @@ export function AuthorNovelMetadataPage() {
               </div>
 
 
+              <SelectionToolbar count={chapters.filter(chapter => selectedChapters.includes(chapter.chapterId)).length} onClear={() => setSelectedChapters([])}>
+                <button type="button" className="sc-button sc-button-ghost" onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(chapters.filter(chapter => selectedChapters.includes(chapter.chapterId)).map(chapter => `${chapter.chapterNumber}. ${chapter.title}`).join('\n'));
+                    showToast('Đã sao chép danh sách chương', 'success');
+                  } catch { showToast('Không sao chép được danh sách chương', 'error'); }
+                }}>Sao chép danh sách</button>
+              </SelectionToolbar>
               {/* Decluttered 8-Column Chapter Table */}
               <div className="w-full overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[950px] sc-chapter-table">
@@ -555,7 +584,7 @@ export function AuthorNovelMetadataPage() {
                     {paginatedChapters.map((chapter) => (
                       <tr
                         key={chapter.chapterId}
-                        className={`hover:bg-surface-subtle/60 transition-colors ${
+                        className={`${updated.has(chapter.chapterId) ? 'sc-item-updated' : ''} hover:bg-surface-subtle/60 transition-colors ${
                           chapter.status === 'ARCHIVED' ? 'opacity-65 bg-stone-50/50' : 'bg-surface-container-lowest'
                         }`}
                       >
@@ -754,6 +783,7 @@ export function AuthorNovelMetadataPage() {
                 <input
                   type="text"
                   value={titleInput}
+                  maxLength={NOVEL_TITLE_MAX}
                   onChange={(e) => setTitleInput(e.target.value)}
                   placeholder="Nhập tên tiểu thuyết..."
                   className="w-full px-3 py-2 rounded-lg bg-stone-50 text-stone-900 border border-stone-200 focus:ring-1 focus:ring-primary-500 focus:outline-none text-meta"
@@ -762,7 +792,7 @@ export function AuthorNovelMetadataPage() {
 
               <div>
                 <label className="block font-semibold text-stone-800 mb-1">Ảnh bìa</label>
-                <ImageUpload onUpload={setCoverInput} label="Tải ảnh bìa" />
+                <ImageUpload cropCover onUpload={setCoverInput} label="Tải ảnh bìa" />
                 <div className="flex gap-2.5">
                   <input
                     type="text"
@@ -797,6 +827,7 @@ export function AuthorNovelMetadataPage() {
                   placeholder="Tóm tắt nội dung hấp dẫn để thu hút độc giả..."
                   className="w-full px-3 py-2 rounded-lg bg-stone-50 text-stone-900 border border-stone-200 focus:ring-1 focus:ring-primary-500 focus:outline-none text-meta leading-relaxed"
                 />
+                <p className="text-meta text-stone-500">Tối thiểu {NOVEL_SYNOPSIS_MIN} ký tự · hiện có {synopsisInput.trim().length}</p>
               </div>
             </div>
 
@@ -868,6 +899,7 @@ export function AuthorNovelMetadataPage() {
                 <input
                   type="text"
                   value={newChapterTitle}
+                  maxLength={CHAPTER_TITLE_MAX}
                   onChange={(e) => setNewChapterTitle(e.target.value)}
                   placeholder={`Ví dụ: Chương ${chapters.length + 1}: Khởi đầu mới`}
                   className="w-full px-3 py-1.5 rounded-lg bg-stone-50 text-stone-900 border border-stone-200 focus:ring-1 focus:ring-primary-500 focus:outline-none text-meta"
@@ -926,14 +958,6 @@ export function AuthorNovelMetadataPage() {
       {/* ──────────────────────────────────────────
           BEGIN: Toast Notification
          ────────────────────────────────────────── */}
-      {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 animate-in fade-in  duration-300">
-          <div className="flex items-center gap-2 bg-cover-fallback text-white px-3.5 py-2 rounded-xl shadow-sm text-meta font-medium border border-stone-800">
-            <span className="material-symbols-outlined text-emerald-400 text-[16px]">check_circle</span>
-            <span>{toastMessage}</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

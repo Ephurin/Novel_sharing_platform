@@ -1,0 +1,164 @@
+
+> ephurin-backend@0.1.0 test:isolated
+> node scripts/run-isolated-tests.mjs src/modules/admin/admin-review-regressions.postgres.test.ts
+
+{"level":30,"time":1793258538602,"pid":15728,"hostname":"TrungTo-PC","msg":"Applied migration 001_auth_user_wallet.sql"}
+{"level":30,"time":1793258538687,"pid":15728,"hostname":"TrungTo-PC","msg":"Applied migration 002_novels.sql"}
+{"level":30,"time":1793258538714,"pid":15728,"hostname":"TrungTo-PC","msg":"Applied migration 003_chapters.sql"}
+{"level":30,"time":1793258538792,"pid":15728,"hostname":"TrungTo-PC","msg":"Applied migration 004_content_control.sql"}
+{"level":30,"time":1793258538810,"pid":15728,"hostname":"TrungTo-PC","msg":"Applied migration 005_reports_description.sql"}
+{"level":30,"time":1793258538860,"pid":15728,"hostname":"TrungTo-PC","msg":"Applied migration 006_reading_interactions.sql"}
+{"level":30,"time":1793258538929,"pid":15728,"hostname":"TrungTo-PC","msg":"Applied migration 007_wallet_transactions.sql"}
+{"level":30,"time":1793258539012,"pid":15728,"hostname":"TrungTo-PC","msg":"Applied migration 008_authoring_context.sql"}
+{"level":30,"time":1793258539057,"pid":15728,"hostname":"TrungTo-PC","msg":"Applied migration 009_chapter_revisions.sql"}
+{"level":30,"time":1793258539093,"pid":15728,"hostname":"TrungTo-PC","msg":"Applied migration 010_analysis_outbox.sql"}
+{"level":30,"time":1793258539120,"pid":15728,"hostname":"TrungTo-PC","msg":"Applied migration 011_outbox_claim_token.sql"}
+{"level":30,"time":1793258539151,"pid":15728,"hostname":"TrungTo-PC","msg":"Applied migration 012_novel_engagement.sql"}
+{"level":30,"time":1793258539184,"pid":15728,"hostname":"TrungTo-PC","msg":"Applied migration 012_reports_unique_open.sql"}
+{"level":30,"time":1793258539214,"pid":15728,"hostname":"TrungTo-PC","msg":"Applied migration 013_novel_review_text.sql"}
+{"level":30,"time":1793258539243,"pid":15728,"hostname":"TrungTo-PC","msg":"Applied migration 014_novel_editorial_metadata.sql"}
+{"level":30,"time":1793258539265,"pid":15728,"hostname":"TrungTo-PC","msg":"Applied migration 015_author_workflow.sql"}
+{"level":30,"time":1793258539298,"pid":15728,"hostname":"TrungTo-PC","msg":"Applied migration 016_author_launch_checklist.sql"}
+{"level":30,"time":1793258539318,"pid":15728,"hostname":"TrungTo-PC","msg":"Applied migration 017_transactional_moderation_evidence.sql"}
+{"level":30,"time":1793258539384,"pid":15728,"hostname":"TrungTo-PC","msg":"Applied migration 018_admin_operations.sql"}
+{"level":30,"time":1793258539384,"pid":15728,"hostname":"TrungTo-PC","msg":"PostgreSQL connection closed"}
+▶ PR74: queue liveness and fail-closed Admin entitlements
+  ✖ R74-01 RED regression: a poison first job does not starve a healthy second job (29.6603ms)
+  ✖ R74-01: poison job reaches quarantine, remains inspectable and can be explicitly retried (21.7932ms)
+  ✔ R74-01: concurrent drains and restart after Mongo delivery do not duplicate notifications (35.9005ms)
+  ✖ R74-02 RED regression: missing entitlement never means SUPER_ADMIN (5.0505ms)
+  ✖ R74-02 RED regression: missing-row Admin JWT is denied at HTTP authentication (102.8493ms)
+  ✖ R74-02 RED regression: a scope-less internal context has no content-admin privilege (1.4421ms)
+  ✖ R74-02: explicit promotion and scope demotion take effect for stale tokens (101.8944ms)
+{"level":30,"time":1793258544476,"pid":25024,"hostname":"TrungTo-PC","msg":"MongoDB connection closed"}
+  ✔ R74-02: concurrent changes retain an explicitly entitled last SUPER_ADMIN (26.8674ms)
+✖ PR74: queue liveness and fail-closed Admin entitlements (651.8258ms)
+{"level":30,"time":1793258544477,"pid":25024,"hostname":"TrungTo-PC","msg":"PostgreSQL connection closed"}
+ℹ tests 8
+ℹ suites 1
+ℹ pass 2
+ℹ fail 6
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4979.7396
+
+✖ failing tests:
+
+test at src\modules\admin\admin-review-regressions.postgres.test.ts:1:2736
+✖ R74-01 RED regression: a poison first job does not starve a healthy second job (29.6603ms)
+  AssertionError [ERR_ASSERTION]: healthy job must progress despite preceding permanent failure
+
+  'PENDING' !== 'DONE'
+
+      at TestContext.<anonymous> (F:\Code\Github\Novel_sharing_platform-pr74\backend\src\modules\admin\admin-review-regressions.postgres.test.ts:52:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Promise.all (index 0)
+      at async Suite.run (node:internal/test_runner/test:1905:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'PENDING',
+    expected: 'DONE',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\modules\admin\admin-review-regressions.postgres.test.ts:1:3438
+✖ R74-01: poison job reaches quarantine, remains inspectable and can be explicitly retried (21.7932ms)
+  error: column "next_attempt_at" of relation "admin_jobs" does not exist
+      at F:\Code\Github\Novel_sharing_platform-pr74\backend\node_modules\pg-pool\index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (F:\Code\Github\Novel_sharing_platform-pr74\backend\src\modules\admin\admin-review-regressions.postgres.test.ts:61:7)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    length: 140,
+    severity: 'ERROR',
+    code: '42703',
+    detail: undefined,
+    hint: undefined,
+    position: '23',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'analyze.c',
+    line: '2527',
+    routine: 'transformUpdateTargetList'
+  }
+
+test at src\modules\admin\admin-review-regressions.postgres.test.ts:1:5547
+✖ R74-02 RED regression: missing entitlement never means SUPER_ADMIN (5.0505ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async TestContext.<anonymous> (F:\Code\Github\Novel_sharing_platform-pr74\backend\src\modules\admin\admin-review-regressions.postgres.test.ts:86:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { httpStatus: 403 },
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at src\modules\admin\admin-review-regressions.postgres.test.ts:1:5715
+✖ R74-02 RED regression: missing-row Admin JWT is denied at HTTP authentication (102.8493ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 403
+
+      at TestContext.<anonymous> (F:\Code\Github\Novel_sharing_platform-pr74\backend\src\modules\admin\admin-review-regressions.postgres.test.ts:89:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 403,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\modules\admin\admin-review-regressions.postgres.test.ts:1:5948
+✖ R74-02 RED regression: a scope-less internal context has no content-admin privilege (1.4421ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  true !== false
+
+      at TestContext.<anonymous> (F:\Code\Github\Novel_sharing_platform-pr74\backend\src\modules\admin\admin-review-regressions.postgres.test.ts:93:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1402:25)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at src\modules\admin\admin-review-regressions.postgres.test.ts:1:6112
+✖ R74-02: explicit promotion and scope demotion take effect for stale tokens (101.8944ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  200 !== 403
+
+      at TestContext.<anonymous> (F:\Code\Github\Novel_sharing_platform-pr74\backend\src\modules\admin\admin-review-regressions.postgres.test.ts:102:12)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1409:7)
+      at async Suite.processPendingSubtests (node:internal/test_runner/test:974:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 200,
+    expected: 403,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+{"isolatedDatabase":"ephurin_test_admin_backend_1793258537718","cleanedUp":true,"exitCode":1}

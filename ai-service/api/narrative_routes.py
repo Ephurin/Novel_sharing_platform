@@ -722,7 +722,7 @@ def get_job(
         pass
 
     try:
-        w_job = writing_service._repository.get_writing_job(job_id)
+        w_job = writing_service.get_generation(job_id)
         data = asdict(w_job)
         data["type"] = "writing_generation"
         data["progress"] = {
@@ -753,7 +753,7 @@ async def stream_job_events(
     async def event_generator():
         for _ in range(60):
             try:
-                w_job = writing_service._repository.get_writing_job(job_id)
+                w_job = writing_service.get_generation(job_id)
                 payload = {
                     "job_id": w_job.job_id,
                     "type": "writing_generation",
@@ -1489,7 +1489,7 @@ def get_internal_writing_generation(
         # the Platform caller checks returned actor/tenant/chapter/revision.
         service_principal(request)
     try:
-        job = service._repository.get_writing_job(generation_id)
+        job = service.get_generation(generation_id)
     except Exception as exc:
         raise HTTPException(404, detail={"code": "GENERATION_NOT_FOUND", "message": str(exc)}) from exc
 

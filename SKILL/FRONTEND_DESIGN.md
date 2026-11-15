@@ -2,6 +2,16 @@
 
 Tài liệu này định nghĩa các quy chuẩn phát triển Web Frontend cho hệ thống **Ephurin Novel Platform** sử dụng **React + Mantine**. Web app phục vụ Author AI Writing IDE và Admin Dashboard; Mobile app phục vụ Reader.
 
+## Ưu tiên skill giao diện
+
+Khi làm UI, đọc và ưu tiên ba skill riêng của project trong `.agents/skills/`:
+
+- `storycraft-design-system`: nhận diện, typography và component dùng chung.
+- `storycraft-dark-mode`: màu ngữ nghĩa và trạng thái trong chế độ tối.
+- `storycraft-content-density`: nội dung ngắn gọn và progressive disclosure.
+
+`ui-ux-pro-max` bổ sung hướng dẫn UX/accessibility; đề xuất của skill này phải phù hợp với ba skill StoryCraft. Animate UI là công cụ triển khai tương tác theo các quy chuẩn trên. Tái sử dụng theme `--sc-*` hiện có; không tạo hệ màu hoặc cỡ chữ riêng cho từng trang.
+
 ---
 
 ## 1. Stack công nghệ Frontend

@@ -1,0 +1,880 @@
+{
+  "gate": "SRS-ACCEPTANCE",
+  "tested_code_sha": "7b2ad2e0751132da474fa9ffadc55f743a07bce5",
+  "branch": "HEAD",
+  "working_tree_dirty": true,
+  "disposable_database": "ephurin_test_srs_db616581e6e7",
+  "stack_steps": [
+    {
+      "name": "backend_db_migrate",
+      "command": "npm run db:migrate",
+      "cwd": "backend",
+      "exit_code": 0,
+      "duration_seconds": 1.4
+    },
+    {
+      "name": "backend_db_seed_demo",
+      "command": "npm run db:seed:demo",
+      "cwd": "backend",
+      "exit_code": 0,
+      "duration_seconds": 1.3
+    },
+    {
+      "name": "web_production_build",
+      "command": "npx vite build --outDir \"%TEMP%\\ephurin-e2e-_0rx83je\\web-dist\" --emptyOutDir",
+      "cwd": "web",
+      "exit_code": 0,
+      "duration_seconds": 12.6
+    }
+  ],
+  "db_ownership": {
+    "database": "ephurin_test_srs_db616581e6e7",
+    "pg_created_by_run": true,
+    "mongo_created_by_run": true,
+    "pg_dropped": true,
+    "mongo_dropped": true,
+    "errors": [],
+    "backend_connections_to_test_db": 3
+  },
+  "teardown_ok": true,
+  "shared_fingerprint_before": "686d5ca351f2c4b138ba017095a867e2de4b1f1a53727506e68f587dcf6a9dad",
+  "shared_fingerprint_after": "686d5ca351f2c4b138ba017095a867e2de4b1f1a53727506e68f587dcf6a9dad",
+  "shared_changes": [],
+  "failure": null,
+  "checks_total": 71,
+  "checks_failed": 11,
+  "results": [
+    {
+      "id": "TC-AUTH-01",
+      "title": "Đăng ký hợp lệ tạo tài khoản READER, mật khẩu được băm",
+      "result": "PASS",
+      "detail": {
+        "response": "201  271.1ms",
+        "role": "READER",
+        "password_hashed": true
+      },
+      "seconds": 0.3
+    },
+    {
+      "id": "TC-AUTH-02",
+      "title": "Email sai định dạng trả AUTH_001",
+      "result": "FAIL",
+      "detail": {
+        "response": "400 VALIDATION_001 2.7ms",
+        "srs_code": "AUTH_001"
+      },
+      "seconds": 0.0
+    },
+    {
+      "id": "TC-AUTH-03",
+      "title": "Mật khẩu yếu bị từ chối",
+      "result": "PASS",
+      "detail": {
+        "response": "400 VALIDATION_001 1.3ms"
+      },
+      "seconds": 0.0
+    },
+    {
+      "id": "TC-AUTH-04",
+      "title": "Trùng username trả USER_004",
+      "result": "PASS",
+      "detail": {
+        "response": "409 USER_004 264.5ms",
+        "srs_code": "USER_004"
+      },
+      "seconds": 0.26
+    },
+    {
+      "id": "TC-AUTH-05",
+      "title": "Trùng email bị từ chối",
+      "result": "PASS",
+      "detail": {
+        "response": "409 USER_005 267.7ms"
+      },
+      "seconds": 0.27
+    },
+    {
+      "id": "TC-AUTH-06",
+      "title": "Đăng nhập trả access token 1 giờ và refresh token trong HttpOnly cookie",
+      "result": "PASS",
+      "detail": {
+        "response": "200  267.1ms",
+        "refresh_cookie_httponly": true,
+        "access_ttl_seconds": 3600
+      },
+      "seconds": 0.28
+    },
+    {
+      "id": "TC-AUTH-07",
+      "title": "Sai mật khẩu trả AUTH_003",
+      "result": "PASS",
+      "detail": {
+        "response": "401 AUTH_003 259.8ms"
+      },
+      "seconds": 0.27
+    },
+    {
+      "id": "TC-AUTH-08",
+      "title": "Tài khoản bị khoá đăng nhập trả AUTH_004",
+      "result": "PASS",
+      "detail": {
+        "lock": "200  22.0ms",
+        "login": "403 AUTH_004 21.2ms",
+        "unlock": "200  13.6ms"
+      },
+      "seconds": 0.08
+    },
+    {
+      "id": "TC-AUTH-10",
+      "title": "Refresh token 7 ngày cấp lại access token",
+      "result": "PASS",
+      "detail": {
+        "refresh": "200  3.0ms",
+        "cookie_max_age": 604800
+      },
+      "seconds": 0.84
+    },
+    {
+      "id": "TC-AUTH-11",
+      "title": "Độc giả gọi API admin bị chặn AUTH_008",
+      "result": "PASS",
+      "detail": {
+        "response": "403 AUTH_008 2.0ms"
+      },
+      "seconds": 0.0
+    },
+    {
+      "id": "TC-READ-05",
+      "title": "Tìm theo từ khoá trả đúng truyện",
+      "result": "PASS",
+      "detail": {
+        "response": "200  18.5ms",
+        "titles": [
+          "Ashenhold - Sample Story"
+        ]
+      },
+      "seconds": 0.02
+    },
+    {
+      "id": "TC-READ-06",
+      "title": "Lọc theo thể loại không cần từ khoá",
+      "result": "PASS",
+      "detail": {
+        "genre": "Fantasy",
+        "response": "200  6.1ms",
+        "result_genres": [
+          "Fantasy"
+        ]
+      },
+      "seconds": 0.01
+    },
+    {
+      "id": "TC-READ-07",
+      "title": "Không có kết quả trả danh sách rỗng, không lỗi",
+      "result": "PASS",
+      "detail": {
+        "response": "200  5.6ms",
+        "items": 0
+      },
+      "seconds": 0.01
+    },
+    {
+      "id": "TC-READ-08",
+      "title": "Tìm kiếm phản hồi dưới 2 giây (local)",
+      "result": "PASS",
+      "detail": {
+        "samples_ms": [
+          5.8,
+          5.7,
+          5.7,
+          5.5,
+          5.6
+        ],
+        "median_ms": 5.7
+      },
+      "seconds": 0.03
+    },
+    {
+      "id": "TC-READ-09",
+      "title": "Đồng bộ vị trí đọc và đọc lại đúng chương",
+      "result": "PASS",
+      "detail": {
+        "put": "200  7.1ms",
+        "get": "200  3.4ms",
+        "chapterId": "4332c8ab-b251-4cc0-ac91-329844c73501"
+      },
+      "seconds": 0.02
+    },
+    {
+      "id": "TC-READ-10",
+      "title": "Lịch sử đọc yêu cầu đăng nhập",
+      "result": "PASS",
+      "detail": {
+        "response": "401 AUTH_002 0.8ms"
+      },
+      "seconds": 0.0
+    },
+    {
+      "id": "TC-READ-13",
+      "title": "Trang đọc chương phản hồi dưới 2 giây (local)",
+      "result": "PASS",
+      "detail": {
+        "samples_ms": [
+          3.7,
+          2.9,
+          2.8,
+          2.8,
+          2.9
+        ]
+      },
+      "seconds": 0.02
+    },
+    {
+      "id": "TC-READ-14",
+      "title": "Tùy chỉnh đọc tách riêng từng người dùng",
+      "result": "PASS",
+      "detail": {
+        "other_reader": {
+          "fontFamily": null,
+          "fontSize": 18,
+          "background": "LIGHT",
+          "lineHeight": 1.6
+        }
+      },
+      "seconds": 0.01
+    },
+    {
+      "id": "TC-SOC-09",
+      "title": "Like tăng likesCount, like trùng trả 409, bỏ like giảm lại",
+      "result": "PASS",
+      "detail": {
+        "before": 0,
+        "after_like": 1,
+        "duplicate": "409 INTERACTION_001 4.2ms",
+        "after_unlike": 0
+      },
+      "seconds": 0.07
+    },
+    {
+      "id": "TC-SOC-02",
+      "title": "Bình luận dính từ khoá chờ duyệt, khách không thấy",
+      "result": "PASS",
+      "detail": {
+        "create": "201  23.9ms",
+        "status": "PENDING_MODERATION",
+        "review": "6b6efaf6-4a0c-45ef-9fc6-96bc54475fdc",
+        "hidden_from_guest": true
+      },
+      "seconds": 0.03
+    },
+    {
+      "id": "TC-SOC-03",
+      "title": "Admin duyệt bình luận thì bình luận hiển thị công khai",
+      "result": "PASS",
+      "detail": {
+        "resolve": "200  11.6ms",
+        "visible_to_guest": true
+      },
+      "seconds": 0.02
+    },
+    {
+      "id": "TC-SOC-04",
+      "title": "Admin từ chối bình luận thì bình luận bị ẩn (REJECTED)",
+      "result": "PASS",
+      "detail": {
+        "resolve": "200  10.2ms",
+        "db_status": "REJECTED",
+        "author_view_status": "REJECTED",
+        "hidden_from_guest": true
+      },
+      "seconds": 0.04
+    },
+    {
+      "id": "TC-SOC-06",
+      "title": "Không sửa/xoá được bình luận của người khác",
+      "result": "PASS",
+      "detail": {
+        "edit": "403 AUTH_008 3.4ms",
+        "delete": "403 AUTH_008 4.1ms"
+      },
+      "seconds": 0.01
+    },
+    {
+      "id": "TC-SOC-07",
+      "title": "Khách không bình luận được (401)",
+      "result": "PASS",
+      "detail": {
+        "response": "401 AUTH_002 0.8ms"
+      },
+      "seconds": 0.0
+    },
+    {
+      "id": "TC-SOC-11",
+      "title": "Theo dõi tác giả ghi quan hệ follow",
+      "result": "PASS",
+      "detail": {
+        "follow": "200  6.3ms",
+        "db_rows": 1,
+        "followers": {
+          "authorId": "dce708c8-c771-4b48-8910-a26b35e5f524",
+          "followersCount": 1
+        }
+      },
+      "seconds": 0.03
+    },
+    {
+      "id": "TC-MOD-02",
+      "title": "Báo cáo kèm lý do tạo USER_REPORT và review",
+      "result": "PASS",
+      "detail": {
+        "response": "201  8.4ms",
+        "data": {
+          "reportId": "1ceef27c-eb07-4c9c-8b72-aebffa8dc5b5",
+          "moderationReviewId": "a4ad1d5e-8fbd-40e4-a84e-227191adfcc9",
+          "status": "PENDING"
+        }
+      },
+      "seconds": 0.01
+    },
+    {
+      "id": "TC-MOD-03",
+      "title": "Báo cáo thiếu lý do bị từ chối",
+      "result": "PASS",
+      "detail": {
+        "response": "400 VALIDATION_001 1.8ms"
+      },
+      "seconds": 0.0
+    },
+    {
+      "id": "TC-MOD-04",
+      "title": "Báo cáo đối tượng không tồn tại bị từ chối",
+      "result": "PASS",
+      "detail": {
+        "response": "404 CONTENT_001 2.5ms"
+      },
+      "seconds": 0.0
+    },
+    {
+      "id": "TC-MOD-05",
+      "title": "Báo cáo thứ hai gắn vào review đang mở",
+      "result": "PASS",
+      "detail": {
+        "first_review": "a4ad1d5e-8fbd-40e4-a84e-227191adfcc9",
+        "second_review": "a4ad1d5e-8fbd-40e4-a84e-227191adfcc9"
+      },
+      "seconds": 0.01
+    },
+    {
+      "id": "TC-MOD-06",
+      "title": "Admin lọc hàng đợi theo trạng thái và nguồn",
+      "result": "PASS",
+      "detail": {
+        "response": "200  6.2ms",
+        "found": true
+      },
+      "seconds": 0.01
+    },
+    {
+      "id": "TC-MOD-07",
+      "title": "Quyết định lần hai trên review đã xử lý bị từ chối",
+      "result": "PASS",
+      "detail": {
+        "second_resolve": "409 ADMIN_002 5.9ms"
+      },
+      "seconds": 0.0
+    },
+    {
+      "id": "TC-MOD-08",
+      "title": "Độc giả không vào được hàng đợi kiểm duyệt",
+      "result": "PASS",
+      "detail": {
+        "response": "403 AUTH_008 1.6ms"
+      },
+      "seconds": 0.0
+    },
+    {
+      "id": "TC-MOD-10",
+      "title": "Luồng kiểm duyệt không gọi AI/LLM (quét import)",
+      "result": "PASS",
+      "detail": {
+        "files_scanned": "backend/src/modules/content-control/*.ts",
+        "ai_imports": []
+      },
+      "seconds": 0.0
+    },
+    {
+      "id": "TC-NOV-01",
+      "title": "Tác giả tạo truyện mới ở trạng thái DRAFT",
+      "result": "PASS",
+      "detail": {
+        "response": "201  7.9ms",
+        "status": "DRAFT"
+      },
+      "seconds": 0.01
+    },
+    {
+      "id": "TC-NOV-02",
+      "title": "Tiêu đề 255 ký tự bị từ chối",
+      "result": "FAIL",
+      "detail": {
+        "response": "500 SYS_001 6.3ms",
+        "srs": "tiêu đề phải < 255 ký tự"
+      },
+      "seconds": 0.01
+    },
+    {
+      "id": "TC-NOV-03",
+      "title": "Tóm tắt dưới 500 ký tự bị từ chối",
+      "result": "FAIL",
+      "detail": {
+        "response": "201  6.8ms",
+        "srs": "tóm tắt phải >= 500 ký tự"
+      },
+      "seconds": 0.01
+    },
+    {
+      "id": "TC-NOV-05",
+      "title": "Tiêu đề chương 100 ký tự bị từ chối",
+      "result": "FAIL",
+      "detail": {
+        "response": "201  11.5ms",
+        "srs": "tiêu đề chương phải < 100 ký tự"
+      },
+      "seconds": 0.01
+    },
+    {
+      "id": "TC-NOV-04",
+      "title": "Truyện dưới 5 chương nháp không gửi xuất bản được",
+      "result": "FAIL",
+      "detail": {
+        "submit": "200  5.4ms",
+        "novel_status": "PUBLISHED",
+        "draft_chapters": 2,
+        "srs": "cần >= 5 chương nháp trước khi xuất bản"
+      },
+      "seconds": 2.07
+    },
+    {
+      "id": "TC-NOV-14",
+      "title": "Truyện đủ 5 chương hợp lệ gửi duyệt thì được xuất bản công khai",
+      "result": "PASS",
+      "detail": {
+        "submit": "200  5.1ms",
+        "final_status": "PUBLISHED",
+        "admin_approval": null,
+        "public_detail": "200  3.9ms"
+      },
+      "seconds": 0.1
+    },
+    {
+      "id": "TC-NOV-06",
+      "title": "Chương dưới 500 ký tự không được xuất bản",
+      "result": "FAIL",
+      "detail": {
+        "submit": "200  10.0ms",
+        "final_status": "PUBLISHED",
+        "srs": "nội dung chương phải >= 500 ký tự"
+      },
+      "seconds": 0.04
+    },
+    {
+      "id": "TC-NOV-07",
+      "title": "Chương hợp lệ được xuất bản và khách đọc được",
+      "result": "PASS",
+      "detail": {
+        "submit": "200  8.9ms",
+        "final_status": "PUBLISHED",
+        "guest_read": "200  2.8ms"
+      },
+      "seconds": 0.05
+    },
+    {
+      "id": "TC-NOV-08",
+      "title": "Chương dính từ khoá chuyển sang chờ duyệt, chưa công khai",
+      "result": "PASS",
+      "detail": {
+        "submit": "200  10.2ms",
+        "final_status": "PENDING_MODERATION",
+        "guest_read": "404 CONTENT_001 1.6ms"
+      },
+      "seconds": 0.04
+    },
+    {
+      "id": "TC-NOV-09",
+      "title": "Admin duyệt chương chờ duyệt thì chương được xuất bản",
+      "result": "PASS",
+      "detail": {
+        "resolve": "200  13.0ms",
+        "final_status": "PUBLISHED"
+      },
+      "seconds": 0.08
+    },
+    {
+      "id": "TC-NOV-10",
+      "title": "Admin từ chối chương thì chương không công khai và tác giả nhận lý do",
+      "result": "PASS",
+      "detail": {
+        "resolve": "200  10.9ms",
+        "final_status": "REJECTED",
+        "author_got_reason": true
+      },
+      "seconds": 2.11
+    },
+    {
+      "id": "TC-NOV-12",
+      "title": "Khách không đọc được nội dung chương VIP",
+      "result": "PASS",
+      "detail": {
+        "response": "402 PAYMENT_002 2.1ms",
+        "content_returned": false
+      },
+      "seconds": 0.0
+    },
+    {
+      "id": "TC-NOV-13",
+      "title": "Độc giả không tạo được truyện",
+      "result": "PASS",
+      "detail": {
+        "response": "403 AUTH_008 2.4ms",
+        "srs": "ma trận quyền: Reader không tạo truyện"
+      },
+      "seconds": 0.0
+    },
+    {
+      "id": "TC-SOC-12",
+      "title": "Người theo dõi nhận thông báo khi tác giả đăng chương mới",
+      "result": "FAIL",
+      "detail": {
+        "follower_notifications": 0
+      },
+      "seconds": 20.1
+    },
+    {
+      "id": "TC-MOD-09",
+      "title": "Lưu nháp chứa từ khoá không bị chặn",
+      "result": "PASS",
+      "detail": {
+        "response": "201  32.3ms"
+      },
+      "seconds": 0.03
+    },
+    {
+      "id": "TC-PAY-01",
+      "title": "Hiển thị các gói nạp",
+      "result": "PASS",
+      "detail": {
+        "codes": [
+          "COIN_100",
+          "COIN_1000",
+          "COIN_500",
+          "COIN_5000"
+        ]
+      },
+      "seconds": 0.0
+    },
+    {
+      "id": "TC-PAY-02",
+      "title": "Nạp thành công cộng Coin và ghi giao dịch DEPOSIT SUCCESS",
+      "result": "PASS",
+      "detail": {
+        "before": 1000,
+        "after": 1500,
+        "confirm": "200  6.5ms"
+      },
+      "seconds": 0.04
+    },
+    {
+      "id": "TC-PAY-03",
+      "title": "Phiên nạp chưa xác nhận (huỷ) không cộng Coin",
+      "result": "PASS",
+      "detail": {
+        "before": 1500,
+        "after": 1500
+      },
+      "seconds": 0.01
+    },
+    {
+      "id": "TC-PAY-04",
+      "title": "Mở khoá VIP trừ Coin độc giả, cộng tác giả, mở nội dung",
+      "result": "PASS",
+      "detail": {
+        "unlock": "200  10.2ms",
+        "price": 50,
+        "reader": [
+          1500,
+          1450
+        ],
+        "author": [
+          500,
+          550
+        ],
+        "content_after_unlock": true
+      },
+      "seconds": 0.04
+    },
+    {
+      "id": "TC-PAY-05",
+      "title": "Không đủ Coin thì không mở khoá được và không trừ tiền",
+      "result": "PASS",
+      "detail": {
+        "response": "402 PAYMENT_003 6.5ms",
+        "balance": [
+          0,
+          0
+        ]
+      },
+      "seconds": 0.67
+    },
+    {
+      "id": "TC-PAY-07",
+      "title": "Ủng hộ trừ Coin độc giả và cộng tác giả",
+      "result": "PASS",
+      "detail": {
+        "donate": "200  10.3ms",
+        "reader": [
+          1450,
+          1440
+        ],
+        "author": [
+          550,
+          560
+        ]
+      },
+      "seconds": 0.02
+    },
+    {
+      "id": "TC-PAY-08",
+      "title": "Ủng hộ khi không đủ Coin bị từ chối",
+      "result": "PASS",
+      "detail": {
+        "response": "402 PAYMENT_003 6.2ms"
+      },
+      "seconds": 0.6
+    },
+    {
+      "id": "TC-PAY-09",
+      "title": "Ủng hộ số Coin không hợp lệ bị từ chối",
+      "result": "PASS",
+      "detail": {
+        "response": "400 VALIDATION_001 2.1ms"
+      },
+      "seconds": 0.0
+    },
+    {
+      "id": "TC-PAY-11",
+      "title": "Rút dưới hạn mức tối thiểu bị từ chối",
+      "result": "PASS",
+      "detail": {
+        "response": "400 VALIDATION_001 2.1ms"
+      },
+      "seconds": 0.0
+    },
+    {
+      "id": "TC-PAY-12",
+      "title": "Yêu cầu rút đóng băng Coin; Admin từ chối thì trả lại",
+      "result": "PASS",
+      "detail": {
+        "before": [
+          560,
+          0
+        ],
+        "after_request": [
+          460,
+          100
+        ],
+        "after_reject": [
+          560,
+          0
+        ],
+        "reject": "200  29.7ms"
+      },
+      "seconds": 0.05
+    },
+    {
+      "id": "TC-PAY-13",
+      "title": "Tác giả nhận thông báo từ chối rút kèm lý do",
+      "result": "PASS",
+      "detail": {
+        "author_notified_with_reason": true
+      },
+      "seconds": 0.0
+    },
+    {
+      "id": "TC-PAY-14",
+      "title": "Admin duyệt rút thì trừ hẳn Coin đóng băng, giao dịch SUCCESS",
+      "result": "PASS",
+      "detail": {
+        "before": [
+          560,
+          0
+        ],
+        "after": [
+          460,
+          0
+        ],
+        "approve": "200  9.6ms"
+      },
+      "seconds": 0.03
+    },
+    {
+      "id": "TC-PAY-15",
+      "title": "API thanh toán có giới hạn tần suất (429)",
+      "result": "FAIL",
+      "detail": {
+        "requests": 40,
+        "status_counts": {
+          "201": 40
+        }
+      },
+      "seconds": 0.17
+    },
+    {
+      "id": "TC-ADM-01",
+      "title": "Admin xem danh sách và chi tiết truyện",
+      "result": "PASS",
+      "detail": {
+        "list": "200  4.6ms",
+        "found": true,
+        "detail": "200  5.1ms"
+      },
+      "seconds": 0.01
+    },
+    {
+      "id": "TC-ADM-02",
+      "title": "Gỡ truyện thiếu xác nhận không thay đổi dữ liệu",
+      "result": "PASS",
+      "detail": {
+        "response": "400 VALIDATION_001 2.8ms",
+        "deleted_at": null
+      },
+      "seconds": 0.03
+    },
+    {
+      "id": "TC-ADM-04",
+      "title": "Người không phải Admin không gỡ được truyện (AUTH_008)",
+      "result": "PASS",
+      "detail": {
+        "response": "403 AUTH_008 1.8ms"
+      },
+      "seconds": 0.0
+    },
+    {
+      "id": "TC-ADM-03",
+      "title": "Gỡ mềm truyện đang công khai: khách và tác giả không còn đọc được truyện/chương, tác giả được báo",
+      "result": "FAIL",
+      "detail": {
+        "remove": "204  13.3ms",
+        "readback_before": {
+          "guest_novel_detail": 200,
+          "guest_chapter": 200,
+          "guest_listing_has_novel": true,
+          "author_ide_chapter": 200
+        },
+        "readback_after": {
+          "guest_novel_detail": 404,
+          "guest_chapter": 404,
+          "guest_listing_has_novel": false,
+          "author_ide_chapter": 404
+        },
+        "novel_soft_deleted": true,
+        "live_chapters": 9,
+        "gone_from_admin_list": true,
+        "author_notified": true,
+        "srs_wording_present": false,
+        "notification_title": "Quyết định quản trị đối với tài khoản/nội dung của bạn"
+      },
+      "seconds": 0.09
+    },
+    {
+      "id": "TC-ADM-08",
+      "title": "Bản nháp Mongo của truyện bị gỡ được đánh dấu xoá",
+      "result": "FAIL",
+      "detail": {
+        "autosave": "200  22.9ms",
+        "drafts_total": 9,
+        "drafts_not_deleted": 9,
+        "mongo_db": "ephurin_test_srs_db616581e6e7"
+      },
+      "seconds": 0.03
+    },
+    {
+      "id": "TC-ADM-05",
+      "title": "Gỡ truyện không tồn tại trả CONTENT_001",
+      "result": "PASS",
+      "detail": {
+        "response": "404 CONTENT_001 5.4ms"
+      },
+      "seconds": 0.01
+    },
+    {
+      "id": "TC-ADM-06",
+      "title": "Admin khôi phục truyện đã gỡ: truyện, chương và bản nháp trở lại như trước",
+      "result": "PASS",
+      "detail": {
+        "restore": "204  10.6ms",
+        "visible_again": true,
+        "readback_after_restore": {
+          "guest_novel_detail": 200,
+          "guest_chapter": 200,
+          "guest_listing_has_novel": true,
+          "author_ide_chapter": 200
+        },
+        "live_drafts_after_restore": 9,
+        "live_drafts_before_removal": 9
+      },
+      "seconds": 0.07
+    },
+    {
+      "id": "TC-AI-06",
+      "title": "AI không sẵn sàng (provider 503, treo, mất kết nối) trả AI_001 trong 5 giây, không chặn thao tác",
+      "result": "FAIL",
+      "detail": {
+        "provider": {
+          "error": {
+            "response": "503 AI_002 41.4ms",
+            "reason": null
+          },
+          "hang": {
+            "response": "504 AI_004 3010.6ms",
+            "reason": null
+          },
+          "down": {
+            "response": "502 AI_002 6.5ms",
+            "reason": null
+          }
+        },
+        "api_timeout_ms": 3000,
+        "manual_save_after_ai_failure": "200  22.9ms"
+      },
+      "seconds": 3.09
+    },
+    {
+      "id": "TC-SYS-01",
+      "title": "Ma trận quyền Guest/Reader/Author/Admin",
+      "result": "PASS",
+      "detail": {
+        "guest_reads_free_chapter": true,
+        "guest_cannot_follow": true,
+        "author_cannot_admin": true,
+        "reader_cannot_moderate": true
+      },
+      "seconds": 0.01
+    },
+    {
+      "id": "TC-SYS-03",
+      "title": "Danh sách truyện phản hồi dưới 2 giây (local)",
+      "result": "PASS",
+      "detail": {
+        "samples_ms": [
+          2.7,
+          2.5,
+          2.4,
+          2.5,
+          2.4
+        ]
+      },
+      "seconds": 0.01
+    }
+  ],
+  "verdict": "FAIL"
+}

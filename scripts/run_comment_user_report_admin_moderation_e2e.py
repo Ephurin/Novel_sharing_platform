@@ -87,6 +87,16 @@ if parsed_mongo.hostname not in ("localhost", "127.0.0.1") or (parsed_mongo.port
 BACKEND_URL = "http://localhost:4000/api/v1"
 WEB_URL = "http://127.0.0.1:5173"
 
+# Signed-in role from the shell's stable session hook; falls back to the legacy topbar text so the
+# runner works on both the StoryCraft shell and the older WebAppShell.
+SESSION_ROLE_JS = r"""(() => {
+  const marker = document.querySelector('[data-testid="shell-session"]');
+  if (marker) return marker.dataset.userRole || '';
+  const text = document.querySelector('.web-topbar')?.innerText || '';
+  const match = text.match(/\b(READER|AUTHOR|ADMIN)\b/);
+  return match ? match[1] : '';
+})()"""
+
 # Deterministic User Identities
 OWNER_EMAIL = "reader04@example.com"
 OWNER_USER_ID = "077e20a2-e26d-466a-bf3a-1811d037df50"
@@ -570,10 +580,35 @@ class CDPBrowser:
             }})()
         """)
 
+    async def mouse_click(self, selector: str):
+        """Click like a user (pointer events at the element center), for widgets that ignore el.click()."""
+        point = await self.evaluate(f"""
+            (() => {{
+                const el = document.querySelector({json.dumps(selector)});
+                if (!el) throw new Error("Element not found: " + {json.dumps(selector)});
+                el.scrollIntoView({{ block: 'center' }});
+                const rect = el.getBoundingClientRect();
+                return {{ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }};
+            }})()
+        """)
+        for event_type in ("mousePressed", "mouseReleased"):
+            await self.call("Input.dispatchMouseEvent", {
+                "type": event_type, "x": point["x"], "y": point["y"], "button": "left", "clickCount": 1
+            })
+
     async def perform_logout(self):
         print("  [Auth] Logging out via rendered shell logout button...")
         self.network_events.clear()
         self.network_requests.clear()
+        # Logout sits in an account menu (StoryCraft avatar, or the admin shell account button from
+        # PR #74); the legacy admin topbar shows it directly.
+        trigger = await self.evaluate("""(() => {
+            if (document.querySelector("[data-testid='shell-logout-btn']")) return null;
+            return ["[data-testid='shell-avatar-btn']", ".admin-account-button"].find((s) => document.querySelector(s)) || null;
+        })()""")
+        if trigger:
+            await self.mouse_click(trigger)
+            await self.wait_for_condition("document.querySelector(\"[data-testid='shell-logout-btn']\") !== null", 5.0)
         await self.click_element("[data-testid='shell-logout-btn']")
         await self.wait_for_condition("window.location.pathname === '/login'", 10.0)
         await asyncio.sleep(1.0)
@@ -598,9 +633,10 @@ class CDPBrowser:
         await self.wait_for_condition(f"window.location.pathname.startsWith('{target_path}')", 15.0)
         await asyncio.sleep(1.0)
 
-        topbar_text = await self.evaluate("document.querySelector('.web-topbar')?.innerText || ''")
-        assert expected_role in topbar_text, f"Expected {expected_role} in topbar, got: {topbar_text}"
-        print(f"  [Auth] Successfully logged in as {email}. Topbar: {topbar_text.strip().replace(chr(10), ' | ')}")
+        await self.wait_for_condition(f"{SESSION_ROLE_JS} === {json.dumps(expected_role)}", 10.0)
+        session_role = await self.evaluate(SESSION_ROLE_JS)
+        assert session_role == expected_role, f"Expected {expected_role} session role, got: {session_role}"
+        print(f"  [Auth] Successfully logged in as {email}. Session role: {session_role}")
         return login_resp
 
     async def close(self):

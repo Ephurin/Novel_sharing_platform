@@ -1,6 +1,21 @@
 # Frontend User Flows
 
+## Web Homepage and Catalog
+
+- `/` is the public StoryCraft homepage, available to guests and signed-in users. It contains featured novels (views/likes/recent updates), a most-read list, genre discovery, recent updates with direct published-chapter links, and completed novels.
+- `/reader` remains the signed-in catalog with search, sorting, genre/tag dropdowns and story-status filters. Guests use `/public` for the public catalog.
+- Homepage search and genre links pass `q` or `genre` to the appropriate catalog. Reader sign-in lands on `/`; author/admin sign-in retains its workspace destination.
+- All homepage sections use published catalog data from `/reading/search` and `/reading/filters`. There is no separate placeholder forum or curated ranking data.
+
 ## 1. Reader Reads and Comments
+
+Web novel detail pages (`/reader/novels/:novelId` and `/public/novels/:novelId`) share the author-style cover/metadata layout. Five metrics show published-content update first, chapter count, views, rating and published word count, labelled “Cập nhật”, “Tổng chương”, “Lượt đọc”, “Đánh giá” and “Số từ”. Revenue and follower counts are absent. Synopsis text collapses to five lines with “Xem thêm”/“Ẩn bớt”.
+
+Rating opens `/reader/novels/:novelId/reviews` (or the `/public` equivalent), with synchronized numeric input and slider for integer scores 1–10, the review editor and reader reviews. The detail page retains its review preview, five-chapter preview with expand/collapse, and comments. A single heart icon follows/unfollows the novel and manages its library membership; old saved/liked entries remain available. Author following is offered only on the author profile. Sharing copies the public novel URL. Guests may read and view reviews, with sign-in required for rating/following.
+
+Detail covers and metadata use the original compact author-style scale (192×288 desktop cover, 144×216 mobile cover). Tags sit below genres, and the rating value stays centered independently of its navigation arrow. Status/genre/tag labels link to the appropriate catalog using `status`, `genre` or `tag` query parameters; both guest and reader catalogs apply those presets. A separate “Nhận thông báo”/“Tắt thông báo” button persists the reader's new-chapter notification preference without changing the Follow heart.
+
+Follow/unfollow and notification-toggle results use the shared toast at the bottom right, including errors. Feedback stays outside the novel content, and the notification button reserves its label width so the sections below stay in place while toggling. Genre/tag/status hover feedback changes text color without underlining.
 
 ```mermaid
 sequenceDiagram

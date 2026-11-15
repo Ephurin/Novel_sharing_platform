@@ -1,3 +1,8 @@
+import { ImageLightbox } from '../../shared/components/InteractionWidgets';
+import { LoadedImage } from '../../shared/components/AuthorAdminMotion';
+import { useToast } from '../../shared/components/ToastProvider';
+import { AnimatedSaveButton } from '../../shared/components/SaveFeedback';
+import { Switch } from '@mantine/core';
 import { AuthorProfileHeader } from './AuthorProfileHeader';
 import { ImageUpload } from '../../shared/components/ImageUpload';
 import { becomeAuthor } from '../auth/auth-api';
@@ -13,6 +18,56 @@ import { donateToAuthor } from '../wallet/wallet-api';
 import { followAuthor, unfollowAuthor } from '../reader/reader-api';
 import { getApiErrorMessage } from '../../shared/api/api-client';
 import { LoadingState, ErrorState } from '../../shared/components/PageStates';
+import type { AuthorProfile } from './profile-api';
+
+type WorkSort = 'views' | 'likes' | 'chapters';
+const workSortOptions: Array<{ value: WorkSort; label: string }> = [
+  { value: 'views', label: 'Phổ biến nhất' },
+  { value: 'likes', label: 'Yêu thích nhất' },
+  { value: 'chapters', label: 'Nhiều chương' }
+];
+const serialStatusLabels: Record<string, { label: string; className: string }> = {
+  COMPLETED: { label: 'Hoàn thành', className: 'bg-emerald-50 text-emerald-700' },
+  HIATUS: { label: 'Tạm ngưng', className: 'bg-amber-50 text-amber-700' },
+  ONGOING: { label: 'Đang ra', className: 'bg-primary-50 text-primary-700' }
+};
+
+function AuthorWorkCard({ novel, publicMode }: { novel: AuthorProfile['novels'][number]; publicMode: boolean }) {
+  const status = serialStatusLabels[novel.serialStatus ?? ''] ?? serialStatusLabels.ONGOING;
+  const detailPath = `${publicMode ? '/public' : '/reader'}/novels/${novel.novelId}`;
+  return (
+    <article className="sc-novel-card bg-surface-container-lowest rounded-xl border border-stone-200/90 transition-all flex flex-col justify-between gap-3 group">
+      <div className="flex gap-3 items-start">
+        <Link to={detailPath} className="relative w-[76px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-cover-fallback border border-stone-200/70">
+          {novel.coverImageUrl ? (
+            <img alt={novel.title} src={novel.coverImageUrl} className="w-full h-full object-cover" />
+          ) : (
+            <span className="flex h-full items-center justify-center p-2 text-center text-meta text-white">{novel.title}</span>
+          )}
+        </Link>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-1 mb-1">
+            <span className="text-meta font-medium text-stone-500 truncate">{novel.genre || 'Chưa phân loại'}</span>
+            <span className={`shrink-0 inline-flex items-center rounded-full ${status.className}`}>{status.label}</span>
+          </div>
+          <Link to={detailPath} className="text-body font-bold text-stone-900 line-clamp-2 leading-snug group-hover:text-primary-600 transition-colors" title={novel.title}>
+            {novel.title}
+          </Link>
+          <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-meta text-stone-500">
+            <span className="inline-flex items-center gap-1"><span className="material-symbols-outlined text-[15px] text-primary-600" aria-hidden="true">menu_book</span><strong className="text-stone-800">{(novel.chaptersCount ?? 0).toLocaleString('vi-VN')}</strong> chương</span>
+            <span className="inline-flex items-center gap-1"><span className="material-symbols-outlined text-[15px]" aria-hidden="true">visibility</span><strong className="text-stone-800">{(novel.viewsCount ?? 0).toLocaleString('vi-VN')}</strong></span>
+            <span className="inline-flex items-center gap-1 text-red-700"><span className="material-symbols-outlined text-[15px]" aria-hidden="true">favorite</span><strong>{(novel.likesCount ?? 0).toLocaleString('vi-VN')}</strong></span>
+          </div>
+        </div>
+      </div>
+      <div className="pt-2.5 border-t border-stone-100 flex items-center justify-end">
+        <Link to={detailPath} className="sc-button sc-button-soft">
+          <span className="material-symbols-outlined" aria-hidden="true">auto_stories</span>Xem tác phẩm
+        </Link>
+      </div>
+    </article>
+  );
+}
 
 export function AuthorProfilePage() {
   const { authorId = '' } = useParams();
@@ -36,7 +91,8 @@ export function AuthorProfilePage() {
   const [supportModalOpen, setSupportModalOpen] = useState(false);
   const [supportAmount, setSupportAmount] = useState(20);
   const [supportMessage, setSupportMessage] = useState('');
-  const [toastMessage, setToastMessage] = useState<{ text: string; isError: boolean } | null>(null);
+  const { showToast: notify } = useToast();
+  const [workSort, setWorkSort] = useState<WorkSort>('views');
   const queryClient = useQueryClient();
   const targetAuthorId = authorId || currentUser?.userId || '';
 
@@ -60,10 +116,7 @@ export function AuthorProfilePage() {
     onError: (error) => showToast(getApiErrorMessage(error), true)
   });
 
-  const showToast = (msg: string, isError = false) => {
-    setToastMessage({ text: msg, isError });
-    setTimeout(() => setToastMessage(null), 3500);
-  };
+  const showToast = (msg: string, isError = false) => notify(msg, isError ? 'error' : 'success');
 
   const author = authorQuery.data;
   const authorName = author?.displayName || author?.username || '';
@@ -71,7 +124,15 @@ export function AuthorProfilePage() {
   const authorAvatar = author?.avatarUrl;
   const availableCoins = walletQuery.data?.coinsBalance ?? 0;
   const displayNovels = author?.novels ?? [];
+  const sortedNovels = [...displayNovels].sort((left, right) => {
+    if (workSort === 'likes') return (right.likesCount ?? 0) - (left.likesCount ?? 0);
+    if (workSort === 'chapters') return (right.chaptersCount ?? 0) - (left.chaptersCount ?? 0);
+    return (right.viewsCount ?? 0) - (left.viewsCount ?? 0);
+  });
+  const authorGenres = [...new Set(displayNovels.map((novel) => novel.genre).filter((genre): genre is string => Boolean(genre)))];
   const isOwnProfile = Boolean(currentUser?.userId && currentUser.userId === targetAuthorId);
+  // Guests reach this page from the public library, so links must not lead into login-only routes.
+  const isGuest = !currentUser;
 
   const handleShare = async () => {
     try {
@@ -90,32 +151,16 @@ export function AuthorProfilePage() {
   return (
     <div className="min-h-screen flex flex-col bg-surface text-stone-800 antialiased selection:bg-primary-100 selection:text-primary-900">
       {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 bg-cover-fallback text-white px-4 py-3 rounded-xl shadow-sm text-meta font-medium border border-stone-800 animate-in fade-in  duration-300">
-          <span className={`material-symbols-outlined text-[18px] ${toastMessage.isError ? 'text-red-400' : 'text-emerald-400'}`}>{toastMessage.isError ? 'error' : 'check_circle'}</span>
-          <span>{toastMessage.text}</span>
-        </div>
-      )}
 
       {/* 1. Global Top Navbar */}
       <AuthorNavbar />
 
       {/* Main Container */}
       <main className="max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-6 flex-1">
-        {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-meta text-stone-500">
-          <Link to={currentUser?.role === 'AUTHOR' || currentUser?.role === 'ADMIN' ? '/author/projects' : '/reader'} className="hover:text-stone-900 transition-colors">
-            Trang chủ
-          </Link>
-          <span className="text-stone-300">/</span>
-          <span className="text-stone-500">Tác giả</span>
-          <span className="text-stone-300">/</span>
-          <span className="font-semibold text-stone-800">{authorName}</span>
-        </nav>
-
         <AuthorProfileHeader
           author={author}
           isOwnProfile={isOwnProfile}
+          isGuest={isGuest}
           canInteract={currentUser?.status === 'ACTIVE'}
           followingPending={followMutation.isPending}
           onFollow={() => followMutation.mutate()}
@@ -123,48 +168,84 @@ export function AuthorProfilePage() {
           onShare={() => void handleShare()}
         />
 
-        {/* 3. Book Collection (Authentic 3D Book Covers) */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between pb-2 border-b border-stone-200/70">
-            <div>
-              <h2 className="font-serif font-bold text-base sm:text-lg text-stone-900">Tác phẩm đã xuất bản</h2>
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-5 items-start">
+          {/* Works */}
+          <section className="bg-surface-container-lowest rounded-xl border border-stone-200/80 shadow-2xs p-4 sm:p-5" aria-labelledby="author-works-heading">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 id="author-works-heading" className="text-section-title text-stone-900">Tác phẩm của {authorName}</h2>
+                <p className="text-meta text-stone-500">{displayNovels.length.toLocaleString('vi-VN')} tác phẩm đã xuất bản</p>
+              </div>
+              {displayNovels.length > 1 && (
+                <div className="sc-filter-tabs flex items-center bg-stone-100 p-0.5 rounded-lg text-meta font-medium" role="group" aria-label="Sắp xếp tác phẩm">
+                  {workSortOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setWorkSort(option.value)}
+                      aria-pressed={workSort === option.value}
+                      className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
+                        workSort === option.value ? 'bg-primary-600 text-white font-semibold' : 'text-stone-600 hover:text-stone-900'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
 
-          {/* 4-Column Authentic Book Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-            {displayNovels.length === 0 && <p className="col-span-full text-body text-stone-500">Tác giả chưa có tác phẩm đã xuất bản.</p>}
-            {displayNovels.map((novel) => (
-              <Link key={novel.novelId} to={`/reader/novels/${novel.novelId}`} className="group flex flex-col">
-                <div
-                  className="block relative aspect-[2/3] w-full rounded-r-xl rounded-l-xs overflow-hidden transition-all duration-300  bg-cover-fallback shadow-none group-hover:shadow-none"
-                >
-                  {/* Book Art Image */}
-                  {novel.coverImageUrl ? <img alt={novel.title} src={novel.coverImageUrl} className="w-full h-full object-cover " /> : <div className="w-full h-full flex items-center justify-center text-white text-center p-4 font-serif">{novel.title}</div>}
+            {displayNovels.length === 0 ? (
+              <p className="text-body text-stone-500 py-8 text-center">Tác giả chưa có tác phẩm đã xuất bản.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3">
+                {sortedNovels.map((novel) => (
+                  <AuthorWorkCard key={novel.novelId} novel={novel} publicMode={isGuest} />
+                ))}
+              </div>
+            )}
+          </section>
 
+          {/* Sidebar */}
+          <aside className="flex flex-col gap-4">
+            <section className="bg-surface-container-lowest rounded-xl border border-stone-200/80 shadow-2xs p-4 sm:p-5" aria-labelledby="author-about-heading">
+              <h2 id="author-about-heading" className="text-card-title text-stone-900 flex items-center gap-2 mb-3">
+                <span className="material-symbols-outlined text-primary-600" aria-hidden="true">badge</span>Về tác giả
+              </h2>
+              {author.bio ? (
+                <p className="text-body text-stone-600 whitespace-pre-wrap break-words">{author.bio}</p>
+              ) : (
+                <p className="text-body text-stone-500">Tác giả chưa viết lời giới thiệu.</p>
+              )}
+              {authorGenres.length > 0 && (
+                <div className="mt-4">
+                  <h3 className="text-meta font-semibold uppercase tracking-wider text-stone-500 mb-2">Thể loại sáng tác</h3>
+                  <div className="flex flex-wrap gap-1.5">
+                    {authorGenres.map((genre) => <span key={genre} className="sc-genre-tag">{genre}</span>)}
+                  </div>
                 </div>
+              )}
+            </section>
 
-                {/* Book Details Footer */}
-                <div className="mt-2.5 space-y-1">
-                  <h3
-                    className="block font-serif font-bold text-body text-stone-900 group-hover:text-primary-600 transition-colors leading-snug line-clamp-2"
-                    title={novel.title}
-                  >
-                    {novel.title}
-                  </h3>
-                  <p className="text-meta text-stone-500 font-medium">{novel.genre || 'Chưa phân loại'}</p>
-                  <p className="text-meta text-stone-400 pt-0.5">
-                    {novel.chaptersCount ?? 0} chương • {(novel.viewsCount ?? 0).toLocaleString('vi-VN')} lượt đọc
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+            <section className="bg-surface-container-lowest rounded-xl border border-stone-200/80 shadow-2xs p-4 sm:p-5" aria-labelledby="author-schedule-heading">
+              <h2 id="author-schedule-heading" className="text-card-title text-stone-900 flex items-center gap-2 mb-3">
+                <span className="material-symbols-outlined text-primary-600" aria-hidden="true">calendar_month</span>Lịch ra chương dự kiến
+              </h2>
+              {author.publishingSchedule ? (
+                <>
+                  <p className="rounded-lg bg-primary-50 px-3 py-2.5 text-body font-semibold text-stone-800 whitespace-pre-wrap break-words">{author.publishingSchedule}</p>
+                  <p className="text-meta text-stone-500 mt-2.5">Lịch có thể thay đổi tùy tiến độ của tác giả. Theo dõi để nhận thông báo khi có chương mới.</p>
+                </>
+              ) : (
+                <p className="text-body text-stone-500">Tác giả chưa công bố lịch ra chương.</p>
+              )}
+            </section>
+          </aside>
+        </div>
 
       </main>
 
-      <footer className="sc-author-profile-footer text-meta"><span>© {new Date().getFullYear()} StoryCraft Văn Hoa</span><Link to="/reader">Khám phá tác phẩm</Link></footer>
+      <footer className="sc-author-profile-footer text-meta"><span>© {new Date().getFullYear()} StoryCraft Văn Hoa</span><Link to={isGuest ? '/public' : '/reader'}>Khám phá tác phẩm</Link></footer>
 
       {/* 6. Support Author Modal */}
       {supportModalOpen && (
@@ -301,7 +382,7 @@ export function MyProfilePage() {
   const [publishingSchedule, setPublishingSchedule] = useState('');
   const [language, setLanguage] = useState('vi');
   const [notificationEnabled, setNotificationEnabled] = useState(true);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const { showToast } = useToast();
 
   React.useEffect(() => {
     if (profileQuery.data) {
@@ -332,19 +413,19 @@ export function MyProfilePage() {
     onSuccess: profile => {
       if (account) useAuthStore.getState().setUser({ ...account, displayName: profile.displayName, avatarUrl: profile.avatarUrl });
       void queryClient.invalidateQueries({ queryKey: ['author-profile'] });
-      setToastMessage('Đã lưu hồ sơ thành công!');
-      setTimeout(() => setToastMessage(null), 3000);
+      showToast('Đã lưu hồ sơ thành công!', 'success');
       void queryClient.invalidateQueries({ queryKey: ['profile', 'me'] });
-    }
+    },
+    onError: error => showToast(getApiErrorMessage(error), 'error')
   });
 
   const settingsMutation = useMutation({
     mutationFn: () => updateMySettings({ language, notificationEnabled }),
     onSuccess: () => {
-      setToastMessage('Đã cập nhật cài đặt thành công!');
-      setTimeout(() => setToastMessage(null), 3000);
+      showToast('Đã cập nhật cài đặt thành công!', 'success');
       void queryClient.invalidateQueries({ queryKey: ['settings', 'me'] });
-    }
+    },
+    onError: error => showToast(getApiErrorMessage(error), 'error')
   });
 
   if (profileQuery.isLoading || settingsQuery.isLoading) return <LoadingState label="Đang tải thông tin cá nhân..." />;
@@ -352,12 +433,6 @@ export function MyProfilePage() {
 
   return (
     <div className="sc-author-theme min-h-screen bg-surface py-8 px-4 sm:px-6 lg:px-8 text-stone-800">
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-cover-fallback text-white px-4 py-2.5 rounded-xl text-meta font-medium shadow-sm">
-          <span className="material-symbols-outlined text-emerald-400 text-[18px]">check_circle</span>
-          <span>{toastMessage}</span>
-        </div>
-      )}
 
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Top Header */}
@@ -387,7 +462,7 @@ export function MyProfilePage() {
             <div className="flex items-center gap-3.5">
               <div className="w-14 h-14 rounded-full border-2 border-primary-100 bg-primary-50 overflow-hidden flex items-center justify-center shrink-0">
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  <ImageLightbox src={avatarUrl} alt="Ảnh đại diện" className="sc-image-preview-fill">{account?.role === 'AUTHOR' || account?.role === 'ADMIN' ? <LoadedImage src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" /> : <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />}</ImageLightbox>
                 ) : (
                   <span className="font-bold text-primary-600 text-body">
                     {(displayName || profileQuery.data?.username || 'A').substring(0, 2).toUpperCase()}
@@ -423,7 +498,7 @@ export function MyProfilePage() {
 
               <ImageUpload onUpload={setAvatarUrl} label="Tải ảnh đại diện" />
               {account && ['AUTHOR','ADMIN'].includes(account.role) && <>
-                <div><label className="font-medium text-stone-700 block mb-1" htmlFor="author-banner">Ảnh bìa tác giả</label><input id="author-banner" type="url" value={bannerUrl} onChange={event => setBannerUrl(event.target.value)} className="w-full text-meta rounded-lg border border-stone-200 py-2 px-3" placeholder="https://…" />{bannerUrl && <img className="sc-author-banner mt-2" src={bannerUrl} alt="Xem trước ảnh bìa tác giả" />}</div>
+                <div><label className="font-medium text-stone-700 block mb-1" htmlFor="author-banner">Ảnh bìa tác giả</label><input id="author-banner" type="url" value={bannerUrl} onChange={event => setBannerUrl(event.target.value)} className="w-full text-meta rounded-lg border border-stone-200 py-2 px-3" placeholder="https://…" />{bannerUrl && <ImageLightbox src={bannerUrl} alt="Ảnh bìa tác giả" className="sc-image-preview-fill"><img className="sc-author-banner mt-2" src={bannerUrl} alt="Xem trước ảnh bìa tác giả" /></ImageLightbox>}</div>
                 <ImageUpload onUpload={setBannerUrl} label="Tải ảnh bìa tác giả" />
                 <div><label className="font-medium text-stone-700 block mb-1" htmlFor="author-publishing-schedule">Lịch đăng dự kiến</label><textarea id="author-publishing-schedule" rows={3} maxLength={500} value={publishingSchedule} onChange={event => setPublishingSchedule(event.target.value)} className="w-full text-meta rounded-lg border border-stone-200 py-2 px-3" placeholder="Ví dụ: Thứ Tư và thứ Bảy, lúc 20:00" /></div>
               </>}
@@ -437,14 +512,15 @@ export function MyProfilePage() {
                 />
               </div>
 
-              <button
+              <AnimatedSaveButton
                 type="button"
-                disabled={profileMutation.isPending}
+                loading={profileMutation.isPending}
+                saved={profileMutation.isSuccess}
                 onClick={() => profileMutation.mutate()}
                 className="w-full py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700 font-semibold text-meta transition-colors shadow-xs disabled:opacity-50"
               >
-                {profileMutation.isPending ? 'Đang lưu...' : 'Lưu hồ sơ'}
-              </button>
+                Lưu hồ sơ
+              </AnimatedSaveButton>
               {profileMutation.isError && <p role="alert" className="text-body">{getApiErrorMessage(profileMutation.error)}</p>}
             </div>
           </div>
@@ -474,22 +550,23 @@ export function MyProfilePage() {
                   <span className="font-semibold text-stone-800 block text-meta">Thông báo hoạt động</span>
                   <span className="text-meta text-stone-500">Nhận thông báo khi có người theo dõi hoặc ủng hộ</span>
                 </div>
-                <input
-                  type="checkbox"
+                <Switch
+                  aria-label="Nhận thông báo"
                   checked={notificationEnabled}
                   onChange={(e) => setNotificationEnabled(e.target.checked)}
-                  className="w-4 h-4 text-primary-600 rounded border-stone-300 focus:ring-primary-600"
+                  className="shrink-0"
                 />
               </div>
 
-              <button
+              <AnimatedSaveButton
                 type="button"
-                disabled={settingsMutation.isPending}
+                loading={settingsMutation.isPending}
+                saved={settingsMutation.isSuccess}
                 onClick={() => settingsMutation.mutate()}
                 className="w-full py-2 rounded-lg bg-cover-fallback hover:bg-cover-fallback text-white font-semibold text-meta transition-colors shadow-xs disabled:opacity-50"
               >
-                {settingsMutation.isPending ? 'Đang lưu...' : 'Lưu cài đặt'}
-              </button>
+                Lưu cài đặt
+              </AnimatedSaveButton>
             </div>
           </div>
         </div>

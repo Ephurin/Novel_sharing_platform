@@ -1,0 +1,23 @@
+{
+  "sourceSha": "68d2248daaef4e4efb84d6ec1cdd9425db5531f8",
+  "sourceTreeDirty": false,
+  "apiOrigin": "http://127.0.0.1:50559/api/v1",
+  "webOrigin": "http://127.0.0.1:50560",
+  "checks": [
+    "API authorization, server filters/pagination, idempotent seed and real report evidence",
+    "Abbreviated UUID display with full clipboard values, tooltip titles and unchanged detail routes",
+    "Existing API cover rendered; synopsis expands fully; technical IDs remain accessible in secondary metadata",
+    "Loading state during held real request; 503 error with working Retry; empty search",
+    "9 routes x 2 themes x 2 widths; Be Vietnam Pro 24px headings; no document overflow",
+    "Browser lock/unlock and empty search",
+    "Taxonomy persistent creation and duplicate validation",
+    "Admin chapter preview and confirmed novel removal/restore",
+    "Full reported text and available evidence remain accessible; keyword approval publishes submitted novel",
+    "Comment report accept removes comment; reject preserves comment; reasons persisted",
+    "Withdrawal permissions, pending confirmation lock, no payment claim, ledger updates and concurrent duplicate approval blocked",
+    "Mobile navigation and real theme menu with preference restored on new document"
+  ],
+  "errors": [],
+  "isolatedDatabase": "ephurin_test_admin_ui_1793261947656",
+  "cleanedUp": true
+}

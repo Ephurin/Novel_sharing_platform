@@ -7,6 +7,7 @@ export type NovelStatistics = {
   ratingAverage: number | null;
   ratingsCount: number;
   isFollowing: boolean;
+  notificationsEnabled: boolean;
   myRating: number | null;
   myReview: string | null;
 };
@@ -21,6 +22,11 @@ export async function followNovel(novelId: string, following: boolean) {
   const response = following
     ? await apiClient.put<ApiEnvelope<NovelStatistics>>(url)
     : await apiClient.delete<ApiEnvelope<NovelStatistics>>(url);
+  return response.data.data;
+}
+
+export async function setNovelNotifications(novelId: string, enabled: boolean) {
+  const response = await apiClient.put<ApiEnvelope<NovelStatistics>>(`/novels/${novelId}/notifications`, { enabled });
   return response.data.data;
 }
 

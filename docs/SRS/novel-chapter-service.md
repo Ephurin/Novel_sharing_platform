@@ -12,9 +12,9 @@
     *   `PLOT_SUMMARY`: Lưu tóm tắt tình tiết theo truyện/chương/hồi, đồng thời cung cấp ngữ cảnh cho Writing Copilot. Bản tóm tắt có thể do Author viết hoặc do AI đề xuất sau mỗi lần lưu/xuất bản chương.
     *   `CONTEXT_CHANGE_PROPOSAL`: Bản đề xuất thay đổi dữ liệu ngữ cảnh do Writing Copilot tạo ra, chờ Author chấp nhận/từ chối trước khi ghi vào `CHARACTER_PROFILE`, `STORY_TIMELINE` hoặc `PLOT_SUMMARY`.
 *   **Constraints & Security:**
-    *   **Novel Creation Constraints:** Tiêu đề truyện phải nhỏ hơn 255 ký tự; Phần mô tả tóm tắt (Synopsis) phải từ 500 ký tự trở lên.
-    *   **Initial Publish Requirement:** Tác phẩm mới tạo phải chứa ít nhất 5 chương nháp hợp lệ (đáp ứng tiêu chuẩn độ dài) trước khi có thể gửi yêu cầu xuất bản (Publish Request).
-    *   **Chapter Validation Constraints:** Tiêu đề chương phải dưới 100 ký tự; Nội dung chương phải đạt tối thiểu 500 ký tự.
+    *   **Novel Creation Constraints:** Tiêu đề truyện phải nhỏ hơn 255 ký tự; Phần mô tả tóm tắt (Synopsis) phải từ 50 ký tự trở lên (đo sau khi bỏ khoảng trắng đầu/cuối). Ràng buộc áp khi tạo truyện hoặc khi đổi tóm tắt; truyện cũ giữ nguyên tóm tắt vẫn sửa được thông tin khác. Tạo dự án không bắt buộc hoàn thành Story Bible.
+    *   **Initial Publish Requirement:** Tác phẩm mới tạo phải chứa ít nhất 2 chương hợp lệ trước khi có thể gửi yêu cầu xuất bản lần đầu (Publish Request). Chương hợp lệ: chưa xoá, không ở trạng thái `ARCHIVED`, tiêu đề dưới 100 ký tự, nội dung từ 500 ký tự. Truyện đã xuất bản không bị kiểm lại.
+    *   **Chapter Validation Constraints:** Tiêu đề chương phải dưới 100 ký tự; Nội dung chương phải đạt tối thiểu 500 ký tự khi xuất bản (gửi trực tiếp, đặt lịch hoặc xuất bản lại). Tạo nháp, autosave, chỉnh sửa và tạo chương bằng AI không bị chặn bởi độ dài.
     *   **Content Control Delegation Rule:** Novel & Chapter Service không tự sở hữu logic lọc từ ngữ/report/Admin moderation. Khi Author gửi publish, service này gọi `Content Control & Moderation Service` và cập nhật trạng thái nội dung dựa trên kết quả trả về (`PASS`, `NEED_ADMIN_REVIEW`, `APPROVED`, `REJECTED`, `REVISION_REQUIRED`).
     *   **AI-assisted Context Update Rule:** Writing Copilot có thể đề xuất thay đổi Character, Timeline hoặc Plot Summary, nhưng Novel & Chapter Service chỉ ghi nhận thay đổi khi Author xác nhận. Mỗi thay đổi được lưu kèm nguồn (`AuthorManual` hoặc `AICopilotSuggestion`) để phục vụ audit và hoàn tác.
 
@@ -35,7 +35,7 @@ flowchart TD
     FixMeta --> EnterMeta
     
     FormatCheck -->|Hợp lệ| AddChapters[Author soạn thảo và lưu các chương nháp]
-    AddChapters --> CountCheck{Hệ thống kiểm tra: <br> Số chương nháp >= 5?}
+    AddChapters --> CountCheck{Hệ thống kiểm tra: <br> Số chương hợp lệ >= 2?}
     
     CountCheck -->|Chưa đủ| AddMore[Yêu cầu tạo thêm chương nháp]
     AddMore --> AddChapters
@@ -65,7 +65,7 @@ flowchart TD
     SelectNovel --> WriteChapter[Soạn thảo tiêu đề & nội dung chương]
     WriteChapter --> SaveDraft[Nhấn lưu tạm bản nháp]
     
-    SaveDraft --> FormatCheck{Hệ thống kiểm tra độ dài chương >500 từ?}
+    SaveDraft --> FormatCheck{Khi gửi xuất bản: <br> nội dung >= 500 ký tự?}
     FormatCheck -->|Không hợp lệ| EditChapter[Yêu cầu chỉnh sửa nội dung/tiêu đề]
     EditChapter --> WriteChapter
     
@@ -97,14 +97,14 @@ flowchart TD
 flowchart TD
     Start([Bắt đầu]) --> Access[Author chọn Truyện của tôi -> Thêm truyện mới]
     Access --> Input[Điền mô tả truyện: Title, Synopsis, Genre]
-    Input --> FormatCheck{Tiêu đề < 255 ký tự <br> VÀ Mô tả >= 500 ký tự?}
+    Input --> FormatCheck{Tiêu đề < 255 ký tự <br> VÀ Mô tả >= 50 ký tự?}
     
     FormatCheck -->|Không đạt| ErrorFormat[Hệ thống báo lỗi định dạng]
     ErrorFormat --> Input
     
     FormatCheck -->|Đạt| ChapterEditor[Author soạn thảo các chương nháp đầu tiên]
     ChapterEditor --> SaveDraft[Author nhấn Lưu tạm truyện]
-    SaveDraft --> ChapterCount{Hệ thống kiểm tra: <br> Số chương nháp >= 5?}
+    SaveDraft --> ChapterCount{Hệ thống kiểm tra: <br> Số chương hợp lệ >= 2?}
     
     ChapterCount -->|Chưa đủ| ReqChapters[Khóa nút gửi duyệt, yêu cầu tạo thêm]
     ReqChapters --> ChapterEditor
@@ -137,8 +137,8 @@ flowchart TD
 | Step | Basic Flow (Content Control Pass) | Exception / Alternative Flow (Admin Review Needed) |
 | :--- | :--- | :--- |
 | 1 | Author chọn "Truyện của tôi" -> "Thêm truyện mới". | |
-| 2 | Author điền thông tin mô tả truyện (Title, Synopsis, Genre). | 2a. Lỗi định dạng (Tiêu đề ≥ 255 ký tự HOẶC Mô tả < 500 ký tự) <br> 2a1. Hệ thống báo lỗi và yêu cầu chỉnh sửa lại. |
-| 3 | Author soạn thảo và lưu nháp tối thiểu 5 chương đầu tiên. | |
+| 2 | Author điền thông tin mô tả truyện (Title, Synopsis, Genre). | 2a. Lỗi định dạng (Tiêu đề ≥ 255 ký tự HOẶC Mô tả < 50 ký tự) <br> 2a1. Hệ thống báo lỗi và yêu cầu chỉnh sửa lại. |
+| 3 | Author soạn thảo và lưu nháp tối thiểu 2 chương hợp lệ đầu tiên (chương `ARCHIVED` không tính). | 3a. Chưa đủ 2 chương hợp lệ khi gửi xuất bản: hệ thống trả `VALIDATION_002` kèm số chương hợp lệ hiện có. |
 | 4 | Author gửi yêu cầu phê duyệt xuất bản bộ truyện. | |
 | 5 | Hệ thống gửi nội dung truyện/chương sang Content Control & Moderation Service. | |
 | 6 | Content Control trả kết quả `PASS`. | **6a. Content Control trả `NEED_ADMIN_REVIEW`:** <br> 6a1. Hệ thống chuyển trạng thái truyện sang "Pending Moderation". <br> 6a2. Admin duyệt nội dung trong Content Control & Moderation Service. <br> - *Trường hợp Admin đồng ý:* Hệ thống chuyển trạng thái sang "Published". <br> - *Trường hợp Admin từ chối/yêu cầu sửa:* Hệ thống thông báo lý do. Author sửa lại truyện và gửi duyệt lại. |
@@ -157,7 +157,7 @@ flowchart TD
     SelectAdd --> Input[Author nhập tiêu đề và nội dung chương]
     Input --> SaveDraft[Author nhấn Lưu tạm]
     
-    SaveDraft --> FormatCheck{Độ dài nội dung > 500 từ <br> VÀ Tiêu đề < 100 ký tự?}
+    SaveDraft --> FormatCheck{Khi gửi xuất bản: <br> nội dung >= 500 ký tự <br> VÀ Tiêu đề < 100 ký tự?}
     FormatCheck -->|Không đạt| ErrorFormat[Hệ thống báo lỗi định dạng]
     ErrorFormat --> Input
     
@@ -192,8 +192,8 @@ flowchart TD
 | 1 | Author chọn mục "Truyện của tôi" -> Chọn truyện cụ thể. | |
 | 2 | Chọn "Thêm chương mới". Hệ thống hiển thị trình soạn thảo. | |
 | 3 | Author nhập tiêu đề chương và viết nội dung. | |
-| 4 | Author nhấn "Lưu tạm". Hệ thống kiểm tra độ dài dữ liệu (Content > 500 ký tự VÀ Title < 100 ký tự). | 4a. Lỗi định dạng độ dài <br> 4a1. Hệ thống hiển thị thông báo lỗi và yêu cầu viết thêm/sửa tiêu đề. |
-| 5 | Author gửi yêu cầu xuất bản chương truyện lên hệ thống. | |
+| 4 | Author nhấn "Lưu tạm". Bản nháp được lưu, không bị chặn theo độ dài (tiêu đề vẫn phải dưới 100 ký tự). | |
+| 5 | Author gửi yêu cầu xuất bản chương truyện lên hệ thống. Hệ thống kiểm tra nội dung từ 500 ký tự và tiêu đề dưới 100 ký tự. | 5a. Chưa đạt độ dài <br> 5a1. Hệ thống trả `CONTENT_003`, chương giữ trạng thái nháp, yêu cầu viết thêm/sửa tiêu đề. |
 | 6 | Hệ thống gửi nội dung chương sang Content Control & Moderation Service. | |
 | 7 | Content Control trả kết quả `PASS`. | **7a. Content Control trả `NEED_ADMIN_REVIEW`:** <br> 7a1. Hệ thống chuyển trạng thái chương truyện sang "Pending Moderation". <br> 7a2. Admin duyệt chương trong Content Control & Moderation Service. <br> - *Trường hợp Admin đồng ý:* Hệ thống duyệt xuất bản chương. <br> - *Trường hợp Admin từ chối/yêu cầu sửa:* Hệ thống thông báo lý do. Author sửa lại chương và gửi duyệt lại. |
 | 8 | Hệ thống tự động xuất bản chương và ghi nhận lịch sử vào CSDL. | |

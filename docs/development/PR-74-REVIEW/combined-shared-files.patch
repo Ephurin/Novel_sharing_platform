@@ -1,0 +1,42 @@
+diff --git a/web/src/app/layout/WebAppShell.tsx b/web/src/app/layout/WebAppShell.tsx
+index f5ad26d3..eed6048c 100644
+--- a/web/src/app/layout/WebAppShell.tsx
++++ b/web/src/app/layout/WebAppShell.tsx
+@@ -46,0 +47 @@ export function WebAppShell() {
++  // Authors and readers share the StoryCraft shell; admins keep the operations shell for now.
+diff --git a/web/src/app/router.tsx b/web/src/app/router.tsx
+index 70d8943e..ef7f0801 100644
+--- a/web/src/app/router.tsx
++++ b/web/src/app/router.tsx
+@@ -25 +25 @@ import { AuthorStoryContextPage } from '../features/story-context/AuthorStoryCon
+-import { AuthGate, RoleGuard, RoleHomeRedirect } from '../features/auth/AuthGate';
++import { AuthGate, OptionalSession, RoleGuard, RoleHomeRedirect } from '../features/auth/AuthGate';
+@@ -50 +50 @@ export const router = createBrowserRouter([
+-    element: <PublicReaderPage />
++    element: <AuthorTheme><PublicReaderPage /></AuthorTheme>
+@@ -54 +54 @@ export const router = createBrowserRouter([
+-    element: <PublicReaderNovelDetailPage />
++    element: <AuthorTheme><PublicReaderNovelDetailPage /></AuthorTheme>
+@@ -58 +58 @@ export const router = createBrowserRouter([
+-    element: <PublicReaderChapterPage />
++    element: <AuthorTheme><PublicReaderChapterPage /></AuthorTheme>
+@@ -176,0 +177 @@ export const router = createBrowserRouter([
++    // Read-only public profile: guests may view it; follow and support still require login.
+@@ -179,5 +180,3 @@ export const router = createBrowserRouter([
+-      <AuthGate>
+-        <AuthorTheme>
+-          <AuthorProfilePage />
+-        </AuthorTheme>
+-      </AuthGate>
++      <OptionalSession>
++        <AuthorTheme><AuthorProfilePage /></AuthorTheme>
++      </OptionalSession>
+diff --git a/web/src/shared/components/AuthorTheme.tsx b/web/src/shared/components/AuthorTheme.tsx
+index f1ce78bf..a765616e 100644
+--- a/web/src/shared/components/AuthorTheme.tsx
++++ b/web/src/shared/components/AuthorTheme.tsx
+@@ -52,0 +53,4 @@ export function AuthorDialog({ children, onClose }: PropsWithChildren<{ onClose:
++/**
++ * Stable, non-visual hook for the signed-in session. Browser tests read the role and username from
++ * here instead of parsing shell text, so they keep working across shell redesigns.
++ */

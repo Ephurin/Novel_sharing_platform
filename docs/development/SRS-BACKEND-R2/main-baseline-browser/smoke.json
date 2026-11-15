@@ -1,0 +1,1867 @@
+{
+  "gate": "UI-SMOKE-MATRIX",
+  "tested_code_sha": "7b2ad2e0751132da474fa9ffadc55f743a07bce5",
+  "branch": "HEAD",
+  "working_tree_dirty": false,
+  "disposable_database": "ephurin_test_smoke_caaf792feeed",
+  "stack_steps": [
+    {
+      "name": "backend_db_migrate",
+      "command": "npm run db:migrate",
+      "cwd": "backend",
+      "exit_code": 0,
+      "duration_seconds": 1.6
+    },
+    {
+      "name": "backend_db_seed_demo",
+      "command": "npm run db:seed:demo",
+      "cwd": "backend",
+      "exit_code": 0,
+      "duration_seconds": 1.6
+    },
+    {
+      "name": "web_production_build",
+      "command": "npx vite build --outDir \"%TEMP%\\ephurin-e2e-d88v9xca\\web-dist\" --emptyOutDir",
+      "cwd": "web",
+      "exit_code": 0,
+      "duration_seconds": 17.3
+    }
+  ],
+  "db_ownership": {
+    "database": "ephurin_test_smoke_caaf792feeed",
+    "pg_created_by_run": true,
+    "mongo_created_by_run": true,
+    "pg_dropped": true,
+    "mongo_dropped": true,
+    "errors": [],
+    "backend_connections_to_test_db": 3
+  },
+  "teardown_ok": true,
+  "shared_fingerprint_before": "686d5ca351f2c4b138ba017095a867e2de4b1f1a53727506e68f587dcf6a9dad",
+  "shared_fingerprint_after": "686d5ca351f2c4b138ba017095a867e2de4b1f1a53727506e68f587dcf6a9dad",
+  "shared_changes": [],
+  "failure": null,
+  "checks_total": 138,
+  "checks_failed": 18,
+  "results": [
+    {
+      "combo": "375-light",
+      "role": "guest",
+      "step": "public-library",
+      "path": "/public",
+      "detail": {
+        "nav": [
+          "Trang chủ",
+          "Danh sách truyện"
+        ]
+      },
+      "result": "PASS",
+      "screenshot": "375-light-guest-public-library.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "guest",
+      "step": "author-from-public-novel",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "heading": "Reader 03 Author",
+        "loginCta": "/login",
+        "followButton": false,
+        "supportButton": false,
+        "workLinks": [
+          "/public/novels/451e1280-214c-4500-980b-34b9af0989eb",
+          "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+        ],
+        "token": null
+      },
+      "result": "PASS",
+      "screenshot": "375-light-guest-author-from-public-novel.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "guest",
+      "step": "author-after-reload",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "heading": "Reader 03 Author",
+        "loginCta": "/login",
+        "followButton": false,
+        "supportButton": false,
+        "workLinks": [
+          "/public/novels/451e1280-214c-4500-980b-34b9af0989eb",
+          "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+        ],
+        "token": null
+      },
+      "result": "PASS",
+      "screenshot": "375-light-guest-author-after-reload.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "guest",
+      "step": "author-direct-url",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "heading": "Reader 03 Author",
+        "loginCta": "/login",
+        "followButton": false,
+        "supportButton": false,
+        "workLinks": [
+          "/public/novels/451e1280-214c-4500-980b-34b9af0989eb",
+          "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+        ],
+        "token": null
+      },
+      "result": "PASS",
+      "screenshot": "375-light-guest-author-direct-url.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "guest",
+      "step": "public-chapter",
+      "path": "/public/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "prose": {
+          "ratio": 14.41,
+          "color": "rgb(37, 43, 42)",
+          "background": "rgb(255, 255, 255)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "375-light-guest-public-chapter.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "guest",
+      "step": "anonymous-api-negatives",
+      "path": "/public/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "follow": 401,
+        "donate": 401,
+        "wallet": 401,
+        "profile": 200,
+        "reader_profile": 404
+      },
+      "result": "PASS",
+      "screenshot": "375-light-guest-anonymous-api-negatives.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "reader",
+      "step": "login",
+      "result": "FAIL",
+      "problems": [
+        "TimeoutError: Timed out waiting for location.pathname.startsWith(\"/reader\") at http://127.0.0.1:5321/"
+      ],
+      "screenshot": "375-light-reader-login.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "reader",
+      "step": "navigation",
+      "result": "FAIL",
+      "problems": [
+        "AssertionError: reader nav ['Trang chủ', 'Danh sách truyện', 'Thư viện của tôi', 'Lịch sử đọc', 'Ví xu']"
+      ],
+      "screenshot": "375-light-reader-navigation.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "reader",
+      "step": "novel-detail",
+      "result": "FAIL",
+      "problems": [
+        "TimeoutError: Timed out waiting for document.querySelector('[data-testid=\"reader-like-btn\"]') !== null at http://127.0.0.1:5321/reader/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+      ],
+      "screenshot": "375-light-reader-novel-detail.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "reader",
+      "step": "chapter-prose-sepia",
+      "path": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "background": "SEPIA",
+        "prose": {
+          "ratio": 12.04,
+          "color": "rgb(245, 230, 200)",
+          "background": "rgb(47, 38, 28)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "375-light-reader-chapter-prose-sepia.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "reader",
+      "step": "chapter-prose-dark",
+      "path": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "background": "DARK",
+        "prose": {
+          "ratio": 13.83,
+          "color": "rgb(242, 239, 234)",
+          "background": "rgb(36, 34, 31)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "375-light-reader-chapter-prose-dark.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "reader",
+      "step": "chapter-prose-light",
+      "path": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "background": "LIGHT",
+        "prose": {
+          "ratio": 16.96,
+          "color": "rgb(17, 24, 39)",
+          "background": "rgb(248, 250, 252)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "375-light-reader-chapter-prose-light.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "reader",
+      "step": "author-profile",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "follow_button": true
+      },
+      "result": "PASS",
+      "screenshot": "375-light-reader-author-profile.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "reader",
+      "step": "logout",
+      "path": "/login",
+      "detail": {
+        "logout_via": "account menu ([data-testid='shell-avatar-btn'])"
+      },
+      "result": "PASS",
+      "screenshot": "375-light-reader-logout.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "author",
+      "step": "login",
+      "path": "/author",
+      "detail": {
+        "session_role": "AUTHOR"
+      },
+      "result": "PASS",
+      "screenshot": "375-light-author-login.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "author",
+      "step": "navigation",
+      "path": "/author",
+      "detail": {
+        "nav": [
+          "Tác phẩm",
+          "Danh sách truyện",
+          "Ví và doanh thu",
+          "Trang tác giả"
+        ]
+      },
+      "result": "PASS",
+      "screenshot": "375-light-author-navigation.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "author",
+      "step": "novel-workspace",
+      "path": "/author/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "detail": {},
+      "result": "PASS",
+      "screenshot": "375-light-author-novel-workspace.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "author",
+      "step": "writing-ide",
+      "path": "/author/ide",
+      "detail": {},
+      "result": "PASS",
+      "screenshot": "375-light-author-writing-ide.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "author",
+      "step": "own-public-profile",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {},
+      "result": "PASS",
+      "screenshot": "375-light-author-own-public-profile.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "author",
+      "step": "logout",
+      "path": "/login",
+      "detail": {
+        "logout_via": "account menu ([data-testid='shell-avatar-btn'])"
+      },
+      "result": "PASS",
+      "screenshot": "375-light-author-logout.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "admin",
+      "step": "login",
+      "path": "/admin",
+      "detail": {
+        "session_role": "ADMIN"
+      },
+      "result": "PASS",
+      "screenshot": "375-light-admin-login.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "admin",
+      "step": "moderation",
+      "path": "/admin/moderation",
+      "detail": {
+        "session_role": "ADMIN"
+      },
+      "result": "PASS",
+      "screenshot": "375-light-admin-moderation.png"
+    },
+    {
+      "combo": "375-light",
+      "role": "admin",
+      "step": "logout",
+      "path": "/login",
+      "detail": {
+        "logout_via": "account menu (.admin-account-button)"
+      },
+      "result": "PASS",
+      "screenshot": "375-light-admin-logout.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "guest",
+      "step": "public-library",
+      "path": "/public",
+      "detail": {
+        "nav": [
+          "Trang chủ",
+          "Danh sách truyện"
+        ]
+      },
+      "result": "PASS",
+      "screenshot": "375-dark-guest-public-library.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "guest",
+      "step": "author-from-public-novel",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "heading": "Reader 03 Author",
+        "loginCta": "/login",
+        "followButton": false,
+        "supportButton": false,
+        "workLinks": [
+          "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "/public/novels/451e1280-214c-4500-980b-34b9af0989eb"
+        ],
+        "token": null
+      },
+      "result": "PASS",
+      "screenshot": "375-dark-guest-author-from-public-novel.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "guest",
+      "step": "author-after-reload",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "heading": "Reader 03 Author",
+        "loginCta": "/login",
+        "followButton": false,
+        "supportButton": false,
+        "workLinks": [
+          "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "/public/novels/451e1280-214c-4500-980b-34b9af0989eb"
+        ],
+        "token": null
+      },
+      "result": "PASS",
+      "screenshot": "375-dark-guest-author-after-reload.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "guest",
+      "step": "author-direct-url",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "heading": "Reader 03 Author",
+        "loginCta": "/login",
+        "followButton": false,
+        "supportButton": false,
+        "workLinks": [
+          "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "/public/novels/451e1280-214c-4500-980b-34b9af0989eb"
+        ],
+        "token": null
+      },
+      "result": "PASS",
+      "screenshot": "375-dark-guest-author-direct-url.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "guest",
+      "step": "public-chapter",
+      "path": "/public/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "prose": {
+          "ratio": 13.83,
+          "color": "rgb(242, 239, 234)",
+          "background": "rgb(36, 34, 31)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "375-dark-guest-public-chapter.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "guest",
+      "step": "anonymous-api-negatives",
+      "path": "/public/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "follow": 401,
+        "donate": 401,
+        "wallet": 401,
+        "profile": 200,
+        "reader_profile": 404
+      },
+      "result": "PASS",
+      "screenshot": "375-dark-guest-anonymous-api-negatives.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "reader",
+      "step": "login",
+      "result": "FAIL",
+      "problems": [
+        "TimeoutError: Timed out waiting for location.pathname.startsWith(\"/reader\") at http://127.0.0.1:5321/"
+      ],
+      "screenshot": "375-dark-reader-login.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "reader",
+      "step": "navigation",
+      "result": "FAIL",
+      "problems": [
+        "AssertionError: reader nav ['Trang chủ', 'Danh sách truyện', 'Thư viện của tôi', 'Lịch sử đọc', 'Ví xu']"
+      ],
+      "screenshot": "375-dark-reader-navigation.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "reader",
+      "step": "novel-detail",
+      "result": "FAIL",
+      "problems": [
+        "TimeoutError: Timed out waiting for document.querySelector('[data-testid=\"reader-like-btn\"]') !== null at http://127.0.0.1:5321/reader/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+      ],
+      "screenshot": "375-dark-reader-novel-detail.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "reader",
+      "step": "chapter-prose-sepia",
+      "path": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "background": "SEPIA",
+        "prose": {
+          "ratio": 12.04,
+          "color": "rgb(245, 230, 200)",
+          "background": "rgb(47, 38, 28)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "375-dark-reader-chapter-prose-sepia.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "reader",
+      "step": "chapter-prose-dark",
+      "path": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "background": "DARK",
+        "prose": {
+          "ratio": 13.83,
+          "color": "rgb(242, 239, 234)",
+          "background": "rgb(36, 34, 31)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "375-dark-reader-chapter-prose-dark.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "reader",
+      "step": "chapter-prose-light",
+      "path": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "background": "LIGHT",
+        "prose": {
+          "ratio": 16.96,
+          "color": "rgb(17, 24, 39)",
+          "background": "rgb(248, 250, 252)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "375-dark-reader-chapter-prose-light.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "reader",
+      "step": "author-profile",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "follow_button": true
+      },
+      "result": "PASS",
+      "screenshot": "375-dark-reader-author-profile.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "reader",
+      "step": "logout",
+      "path": "/login",
+      "detail": {
+        "logout_via": "account menu ([data-testid='shell-avatar-btn'])"
+      },
+      "result": "PASS",
+      "screenshot": "375-dark-reader-logout.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "author",
+      "step": "login",
+      "path": "/author",
+      "detail": {
+        "session_role": "AUTHOR"
+      },
+      "result": "PASS",
+      "screenshot": "375-dark-author-login.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "author",
+      "step": "navigation",
+      "path": "/author",
+      "detail": {
+        "nav": [
+          "Tác phẩm",
+          "Danh sách truyện",
+          "Ví và doanh thu",
+          "Trang tác giả"
+        ]
+      },
+      "result": "PASS",
+      "screenshot": "375-dark-author-navigation.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "author",
+      "step": "novel-workspace",
+      "path": "/author/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "detail": {},
+      "result": "PASS",
+      "screenshot": "375-dark-author-novel-workspace.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "author",
+      "step": "writing-ide",
+      "path": "/author/ide",
+      "detail": {},
+      "result": "PASS",
+      "screenshot": "375-dark-author-writing-ide.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "author",
+      "step": "own-public-profile",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {},
+      "result": "PASS",
+      "screenshot": "375-dark-author-own-public-profile.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "author",
+      "step": "logout",
+      "path": "/login",
+      "detail": {
+        "logout_via": "account menu ([data-testid='shell-avatar-btn'])"
+      },
+      "result": "PASS",
+      "screenshot": "375-dark-author-logout.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "admin",
+      "step": "login",
+      "path": "/admin",
+      "detail": {
+        "session_role": "ADMIN"
+      },
+      "result": "PASS",
+      "screenshot": "375-dark-admin-login.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "admin",
+      "step": "moderation",
+      "path": "/admin/moderation",
+      "detail": {
+        "session_role": "ADMIN"
+      },
+      "result": "PASS",
+      "screenshot": "375-dark-admin-moderation.png"
+    },
+    {
+      "combo": "375-dark",
+      "role": "admin",
+      "step": "logout",
+      "path": "/login",
+      "detail": {
+        "logout_via": "account menu (.admin-account-button)"
+      },
+      "result": "PASS",
+      "screenshot": "375-dark-admin-logout.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "guest",
+      "step": "public-library",
+      "path": "/public",
+      "detail": {
+        "nav": [
+          "Trang chủ",
+          "Danh sách truyện"
+        ]
+      },
+      "result": "PASS",
+      "screenshot": "390-light-guest-public-library.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "guest",
+      "step": "author-from-public-novel",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "heading": "Reader 03 Author",
+        "loginCta": "/login",
+        "followButton": false,
+        "supportButton": false,
+        "workLinks": [
+          "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "/public/novels/451e1280-214c-4500-980b-34b9af0989eb"
+        ],
+        "token": null
+      },
+      "result": "PASS",
+      "screenshot": "390-light-guest-author-from-public-novel.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "guest",
+      "step": "author-after-reload",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "heading": "Reader 03 Author",
+        "loginCta": "/login",
+        "followButton": false,
+        "supportButton": false,
+        "workLinks": [
+          "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "/public/novels/451e1280-214c-4500-980b-34b9af0989eb"
+        ],
+        "token": null
+      },
+      "result": "PASS",
+      "screenshot": "390-light-guest-author-after-reload.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "guest",
+      "step": "author-direct-url",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "heading": "Reader 03 Author",
+        "loginCta": "/login",
+        "followButton": false,
+        "supportButton": false,
+        "workLinks": [
+          "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "/public/novels/451e1280-214c-4500-980b-34b9af0989eb"
+        ],
+        "token": null
+      },
+      "result": "PASS",
+      "screenshot": "390-light-guest-author-direct-url.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "guest",
+      "step": "public-chapter",
+      "path": "/public/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "prose": {
+          "ratio": 14.41,
+          "color": "rgb(37, 43, 42)",
+          "background": "rgb(255, 255, 255)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "390-light-guest-public-chapter.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "guest",
+      "step": "anonymous-api-negatives",
+      "path": "/public/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "follow": 401,
+        "donate": 401,
+        "wallet": 401,
+        "profile": 200,
+        "reader_profile": 404
+      },
+      "result": "PASS",
+      "screenshot": "390-light-guest-anonymous-api-negatives.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "reader",
+      "step": "login",
+      "result": "FAIL",
+      "problems": [
+        "TimeoutError: Timed out waiting for location.pathname.startsWith(\"/reader\") at http://127.0.0.1:5321/"
+      ],
+      "screenshot": "390-light-reader-login.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "reader",
+      "step": "navigation",
+      "result": "FAIL",
+      "problems": [
+        "AssertionError: reader nav ['Trang chủ', 'Danh sách truyện', 'Thư viện của tôi', 'Lịch sử đọc', 'Ví xu']"
+      ],
+      "screenshot": "390-light-reader-navigation.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "reader",
+      "step": "novel-detail",
+      "result": "FAIL",
+      "problems": [
+        "TimeoutError: Timed out waiting for document.querySelector('[data-testid=\"reader-like-btn\"]') !== null at http://127.0.0.1:5321/reader/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+      ],
+      "screenshot": "390-light-reader-novel-detail.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "reader",
+      "step": "chapter-prose-sepia",
+      "path": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "background": "SEPIA",
+        "prose": {
+          "ratio": 12.04,
+          "color": "rgb(245, 230, 200)",
+          "background": "rgb(47, 38, 28)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "390-light-reader-chapter-prose-sepia.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "reader",
+      "step": "chapter-prose-dark",
+      "path": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "background": "DARK",
+        "prose": {
+          "ratio": 13.83,
+          "color": "rgb(242, 239, 234)",
+          "background": "rgb(36, 34, 31)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "390-light-reader-chapter-prose-dark.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "reader",
+      "step": "chapter-prose-light",
+      "path": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "background": "LIGHT",
+        "prose": {
+          "ratio": 16.96,
+          "color": "rgb(17, 24, 39)",
+          "background": "rgb(248, 250, 252)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "390-light-reader-chapter-prose-light.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "reader",
+      "step": "author-profile",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "follow_button": true
+      },
+      "result": "PASS",
+      "screenshot": "390-light-reader-author-profile.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "reader",
+      "step": "logout",
+      "path": "/login",
+      "detail": {
+        "logout_via": "account menu ([data-testid='shell-avatar-btn'])"
+      },
+      "result": "PASS",
+      "screenshot": "390-light-reader-logout.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "author",
+      "step": "login",
+      "path": "/author",
+      "detail": {
+        "session_role": "AUTHOR"
+      },
+      "result": "PASS",
+      "screenshot": "390-light-author-login.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "author",
+      "step": "navigation",
+      "path": "/author",
+      "detail": {
+        "nav": [
+          "Tác phẩm",
+          "Danh sách truyện",
+          "Ví và doanh thu",
+          "Trang tác giả"
+        ]
+      },
+      "result": "PASS",
+      "screenshot": "390-light-author-navigation.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "author",
+      "step": "novel-workspace",
+      "path": "/author/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "detail": {},
+      "result": "PASS",
+      "screenshot": "390-light-author-novel-workspace.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "author",
+      "step": "writing-ide",
+      "path": "/author/ide",
+      "detail": {},
+      "result": "PASS",
+      "screenshot": "390-light-author-writing-ide.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "author",
+      "step": "own-public-profile",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {},
+      "result": "PASS",
+      "screenshot": "390-light-author-own-public-profile.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "author",
+      "step": "logout",
+      "path": "/login",
+      "detail": {
+        "logout_via": "account menu ([data-testid='shell-avatar-btn'])"
+      },
+      "result": "PASS",
+      "screenshot": "390-light-author-logout.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "admin",
+      "step": "login",
+      "path": "/admin",
+      "detail": {
+        "session_role": "ADMIN"
+      },
+      "result": "PASS",
+      "screenshot": "390-light-admin-login.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "admin",
+      "step": "moderation",
+      "path": "/admin/moderation",
+      "detail": {
+        "session_role": "ADMIN"
+      },
+      "result": "PASS",
+      "screenshot": "390-light-admin-moderation.png"
+    },
+    {
+      "combo": "390-light",
+      "role": "admin",
+      "step": "logout",
+      "path": "/login",
+      "detail": {
+        "logout_via": "account menu (.admin-account-button)"
+      },
+      "result": "PASS",
+      "screenshot": "390-light-admin-logout.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "guest",
+      "step": "public-library",
+      "path": "/public",
+      "detail": {
+        "nav": [
+          "Trang chủ",
+          "Danh sách truyện"
+        ]
+      },
+      "result": "PASS",
+      "screenshot": "390-dark-guest-public-library.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "guest",
+      "step": "author-from-public-novel",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "heading": "Reader 03 Author",
+        "loginCta": "/login",
+        "followButton": false,
+        "supportButton": false,
+        "workLinks": [
+          "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "/public/novels/451e1280-214c-4500-980b-34b9af0989eb"
+        ],
+        "token": null
+      },
+      "result": "PASS",
+      "screenshot": "390-dark-guest-author-from-public-novel.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "guest",
+      "step": "author-after-reload",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "heading": "Reader 03 Author",
+        "loginCta": "/login",
+        "followButton": false,
+        "supportButton": false,
+        "workLinks": [
+          "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "/public/novels/451e1280-214c-4500-980b-34b9af0989eb"
+        ],
+        "token": null
+      },
+      "result": "PASS",
+      "screenshot": "390-dark-guest-author-after-reload.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "guest",
+      "step": "author-direct-url",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "heading": "Reader 03 Author",
+        "loginCta": "/login",
+        "followButton": false,
+        "supportButton": false,
+        "workLinks": [
+          "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "/public/novels/451e1280-214c-4500-980b-34b9af0989eb"
+        ],
+        "token": null
+      },
+      "result": "PASS",
+      "screenshot": "390-dark-guest-author-direct-url.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "guest",
+      "step": "public-chapter",
+      "path": "/public/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "prose": {
+          "ratio": 13.83,
+          "color": "rgb(242, 239, 234)",
+          "background": "rgb(36, 34, 31)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "390-dark-guest-public-chapter.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "guest",
+      "step": "anonymous-api-negatives",
+      "path": "/public/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "follow": 401,
+        "donate": 401,
+        "wallet": 401,
+        "profile": 200,
+        "reader_profile": 404
+      },
+      "result": "PASS",
+      "screenshot": "390-dark-guest-anonymous-api-negatives.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "reader",
+      "step": "login",
+      "result": "FAIL",
+      "problems": [
+        "TimeoutError: Timed out waiting for location.pathname.startsWith(\"/reader\") at http://127.0.0.1:5321/"
+      ],
+      "screenshot": "390-dark-reader-login.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "reader",
+      "step": "navigation",
+      "result": "FAIL",
+      "problems": [
+        "AssertionError: reader nav ['Trang chủ', 'Danh sách truyện', 'Thư viện của tôi', 'Lịch sử đọc', 'Ví xu']"
+      ],
+      "screenshot": "390-dark-reader-navigation.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "reader",
+      "step": "novel-detail",
+      "result": "FAIL",
+      "problems": [
+        "TimeoutError: Timed out waiting for document.querySelector('[data-testid=\"reader-like-btn\"]') !== null at http://127.0.0.1:5321/reader/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+      ],
+      "screenshot": "390-dark-reader-novel-detail.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "reader",
+      "step": "chapter-prose-sepia",
+      "path": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "background": "SEPIA",
+        "prose": {
+          "ratio": 12.04,
+          "color": "rgb(245, 230, 200)",
+          "background": "rgb(47, 38, 28)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "390-dark-reader-chapter-prose-sepia.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "reader",
+      "step": "chapter-prose-dark",
+      "path": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "background": "DARK",
+        "prose": {
+          "ratio": 13.83,
+          "color": "rgb(242, 239, 234)",
+          "background": "rgb(36, 34, 31)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "390-dark-reader-chapter-prose-dark.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "reader",
+      "step": "chapter-prose-light",
+      "path": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "background": "LIGHT",
+        "prose": {
+          "ratio": 16.96,
+          "color": "rgb(17, 24, 39)",
+          "background": "rgb(248, 250, 252)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "390-dark-reader-chapter-prose-light.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "reader",
+      "step": "author-profile",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "follow_button": true
+      },
+      "result": "PASS",
+      "screenshot": "390-dark-reader-author-profile.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "reader",
+      "step": "logout",
+      "path": "/login",
+      "detail": {
+        "logout_via": "account menu ([data-testid='shell-avatar-btn'])"
+      },
+      "result": "PASS",
+      "screenshot": "390-dark-reader-logout.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "author",
+      "step": "login",
+      "path": "/author",
+      "detail": {
+        "session_role": "AUTHOR"
+      },
+      "result": "PASS",
+      "screenshot": "390-dark-author-login.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "author",
+      "step": "navigation",
+      "path": "/author",
+      "detail": {
+        "nav": [
+          "Tác phẩm",
+          "Danh sách truyện",
+          "Ví và doanh thu",
+          "Trang tác giả"
+        ]
+      },
+      "result": "PASS",
+      "screenshot": "390-dark-author-navigation.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "author",
+      "step": "novel-workspace",
+      "path": "/author/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "detail": {},
+      "result": "PASS",
+      "screenshot": "390-dark-author-novel-workspace.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "author",
+      "step": "writing-ide",
+      "path": "/author/ide",
+      "detail": {},
+      "result": "PASS",
+      "screenshot": "390-dark-author-writing-ide.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "author",
+      "step": "own-public-profile",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {},
+      "result": "PASS",
+      "screenshot": "390-dark-author-own-public-profile.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "author",
+      "step": "logout",
+      "path": "/login",
+      "detail": {
+        "logout_via": "account menu ([data-testid='shell-avatar-btn'])"
+      },
+      "result": "PASS",
+      "screenshot": "390-dark-author-logout.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "admin",
+      "step": "login",
+      "path": "/admin",
+      "detail": {
+        "session_role": "ADMIN"
+      },
+      "result": "PASS",
+      "screenshot": "390-dark-admin-login.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "admin",
+      "step": "moderation",
+      "path": "/admin/moderation",
+      "detail": {
+        "session_role": "ADMIN"
+      },
+      "result": "PASS",
+      "screenshot": "390-dark-admin-moderation.png"
+    },
+    {
+      "combo": "390-dark",
+      "role": "admin",
+      "step": "logout",
+      "path": "/login",
+      "detail": {
+        "logout_via": "account menu (.admin-account-button)"
+      },
+      "result": "PASS",
+      "screenshot": "390-dark-admin-logout.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "guest",
+      "step": "public-library",
+      "path": "/public",
+      "detail": {
+        "nav": [
+          "Trang chủ",
+          "Danh sách truyện"
+        ]
+      },
+      "result": "PASS",
+      "screenshot": "1440-light-guest-public-library.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "guest",
+      "step": "author-from-public-novel",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "heading": "Reader 03 Author",
+        "loginCta": "/login",
+        "followButton": false,
+        "supportButton": false,
+        "workLinks": [
+          "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "/public/novels/451e1280-214c-4500-980b-34b9af0989eb"
+        ],
+        "token": null
+      },
+      "result": "PASS",
+      "screenshot": "1440-light-guest-author-from-public-novel.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "guest",
+      "step": "author-after-reload",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "heading": "Reader 03 Author",
+        "loginCta": "/login",
+        "followButton": false,
+        "supportButton": false,
+        "workLinks": [
+          "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "/public/novels/451e1280-214c-4500-980b-34b9af0989eb"
+        ],
+        "token": null
+      },
+      "result": "PASS",
+      "screenshot": "1440-light-guest-author-after-reload.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "guest",
+      "step": "author-direct-url",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "heading": "Reader 03 Author",
+        "loginCta": "/login",
+        "followButton": false,
+        "supportButton": false,
+        "workLinks": [
+          "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "/public/novels/451e1280-214c-4500-980b-34b9af0989eb"
+        ],
+        "token": null
+      },
+      "result": "PASS",
+      "screenshot": "1440-light-guest-author-direct-url.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "guest",
+      "step": "public-chapter",
+      "path": "/public/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "prose": {
+          "ratio": 14.41,
+          "color": "rgb(37, 43, 42)",
+          "background": "rgb(255, 255, 255)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "1440-light-guest-public-chapter.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "guest",
+      "step": "anonymous-api-negatives",
+      "path": "/public/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "follow": 401,
+        "donate": 401,
+        "wallet": 401,
+        "profile": 200,
+        "reader_profile": 404
+      },
+      "result": "PASS",
+      "screenshot": "1440-light-guest-anonymous-api-negatives.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "reader",
+      "step": "login",
+      "result": "FAIL",
+      "problems": [
+        "TimeoutError: Timed out waiting for location.pathname.startsWith(\"/reader\") at http://127.0.0.1:5321/"
+      ],
+      "screenshot": "1440-light-reader-login.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "reader",
+      "step": "navigation",
+      "result": "FAIL",
+      "problems": [
+        "AssertionError: reader nav ['Trang chủ', 'Danh sách truyện', 'Thư viện của tôi', 'Lịch sử đọc', 'Ví xu']"
+      ],
+      "screenshot": "1440-light-reader-navigation.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "reader",
+      "step": "novel-detail",
+      "result": "FAIL",
+      "problems": [
+        "TimeoutError: Timed out waiting for document.querySelector('[data-testid=\"reader-like-btn\"]') !== null at http://127.0.0.1:5321/reader/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+      ],
+      "screenshot": "1440-light-reader-novel-detail.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "reader",
+      "step": "chapter-prose-sepia",
+      "path": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "background": "SEPIA",
+        "prose": {
+          "ratio": 12.04,
+          "color": "rgb(245, 230, 200)",
+          "background": "rgb(47, 38, 28)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "1440-light-reader-chapter-prose-sepia.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "reader",
+      "step": "chapter-prose-dark",
+      "path": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "background": "DARK",
+        "prose": {
+          "ratio": 13.83,
+          "color": "rgb(242, 239, 234)",
+          "background": "rgb(36, 34, 31)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "1440-light-reader-chapter-prose-dark.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "reader",
+      "step": "chapter-prose-light",
+      "path": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "background": "LIGHT",
+        "prose": {
+          "ratio": 16.96,
+          "color": "rgb(17, 24, 39)",
+          "background": "rgb(248, 250, 252)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "1440-light-reader-chapter-prose-light.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "reader",
+      "step": "author-profile",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "follow_button": true
+      },
+      "result": "PASS",
+      "screenshot": "1440-light-reader-author-profile.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "reader",
+      "step": "logout",
+      "path": "/login",
+      "detail": {
+        "logout_via": "account menu ([data-testid='shell-avatar-btn'])"
+      },
+      "result": "PASS",
+      "screenshot": "1440-light-reader-logout.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "author",
+      "step": "login",
+      "path": "/author",
+      "detail": {
+        "session_role": "AUTHOR"
+      },
+      "result": "PASS",
+      "screenshot": "1440-light-author-login.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "author",
+      "step": "navigation",
+      "path": "/author",
+      "detail": {
+        "nav": [
+          "Tác phẩm",
+          "Danh sách truyện",
+          "Ví và doanh thu",
+          "Trang tác giả"
+        ]
+      },
+      "result": "PASS",
+      "screenshot": "1440-light-author-navigation.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "author",
+      "step": "novel-workspace",
+      "path": "/author/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "detail": {},
+      "result": "PASS",
+      "screenshot": "1440-light-author-novel-workspace.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "author",
+      "step": "writing-ide",
+      "path": "/author/ide",
+      "detail": {},
+      "result": "PASS",
+      "screenshot": "1440-light-author-writing-ide.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "author",
+      "step": "own-public-profile",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {},
+      "result": "PASS",
+      "screenshot": "1440-light-author-own-public-profile.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "author",
+      "step": "logout",
+      "path": "/login",
+      "detail": {
+        "logout_via": "account menu ([data-testid='shell-avatar-btn'])"
+      },
+      "result": "PASS",
+      "screenshot": "1440-light-author-logout.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "admin",
+      "step": "login",
+      "path": "/admin",
+      "detail": {
+        "session_role": "ADMIN"
+      },
+      "result": "PASS",
+      "screenshot": "1440-light-admin-login.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "admin",
+      "step": "moderation",
+      "path": "/admin/moderation",
+      "detail": {
+        "session_role": "ADMIN"
+      },
+      "result": "PASS",
+      "screenshot": "1440-light-admin-moderation.png"
+    },
+    {
+      "combo": "1440-light",
+      "role": "admin",
+      "step": "logout",
+      "path": "/login",
+      "detail": {
+        "logout_via": "account menu (.admin-account-button)"
+      },
+      "result": "PASS",
+      "screenshot": "1440-light-admin-logout.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "guest",
+      "step": "public-library",
+      "path": "/public",
+      "detail": {
+        "nav": [
+          "Trang chủ",
+          "Danh sách truyện"
+        ]
+      },
+      "result": "PASS",
+      "screenshot": "1440-dark-guest-public-library.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "guest",
+      "step": "author-from-public-novel",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "heading": "Reader 03 Author",
+        "loginCta": "/login",
+        "followButton": false,
+        "supportButton": false,
+        "workLinks": [
+          "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "/public/novels/451e1280-214c-4500-980b-34b9af0989eb"
+        ],
+        "token": null
+      },
+      "result": "PASS",
+      "screenshot": "1440-dark-guest-author-from-public-novel.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "guest",
+      "step": "author-after-reload",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "heading": "Reader 03 Author",
+        "loginCta": "/login",
+        "followButton": false,
+        "supportButton": false,
+        "workLinks": [
+          "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "/public/novels/451e1280-214c-4500-980b-34b9af0989eb"
+        ],
+        "token": null
+      },
+      "result": "PASS",
+      "screenshot": "1440-dark-guest-author-after-reload.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "guest",
+      "step": "author-direct-url",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "heading": "Reader 03 Author",
+        "loginCta": "/login",
+        "followButton": false,
+        "supportButton": false,
+        "workLinks": [
+          "/public/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+          "/public/novels/451e1280-214c-4500-980b-34b9af0989eb"
+        ],
+        "token": null
+      },
+      "result": "PASS",
+      "screenshot": "1440-dark-guest-author-direct-url.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "guest",
+      "step": "public-chapter",
+      "path": "/public/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "prose": {
+          "ratio": 13.83,
+          "color": "rgb(242, 239, 234)",
+          "background": "rgb(36, 34, 31)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "1440-dark-guest-public-chapter.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "guest",
+      "step": "anonymous-api-negatives",
+      "path": "/public/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "follow": 401,
+        "donate": 401,
+        "wallet": 401,
+        "profile": 200,
+        "reader_profile": 404
+      },
+      "result": "PASS",
+      "screenshot": "1440-dark-guest-anonymous-api-negatives.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "reader",
+      "step": "login",
+      "result": "FAIL",
+      "problems": [
+        "TimeoutError: Timed out waiting for location.pathname.startsWith(\"/reader\") at http://127.0.0.1:5321/"
+      ],
+      "screenshot": "1440-dark-reader-login.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "reader",
+      "step": "navigation",
+      "result": "FAIL",
+      "problems": [
+        "AssertionError: reader nav ['Trang chủ', 'Danh sách truyện', 'Thư viện của tôi', 'Lịch sử đọc', 'Ví xu']"
+      ],
+      "screenshot": "1440-dark-reader-navigation.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "reader",
+      "step": "novel-detail",
+      "result": "FAIL",
+      "problems": [
+        "TimeoutError: Timed out waiting for document.querySelector('[data-testid=\"reader-like-btn\"]') !== null at http://127.0.0.1:5321/reader/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4"
+      ],
+      "screenshot": "1440-dark-reader-novel-detail.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "reader",
+      "step": "chapter-prose-sepia",
+      "path": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "background": "SEPIA",
+        "prose": {
+          "ratio": 12.04,
+          "color": "rgb(245, 230, 200)",
+          "background": "rgb(47, 38, 28)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "1440-dark-reader-chapter-prose-sepia.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "reader",
+      "step": "chapter-prose-dark",
+      "path": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "background": "DARK",
+        "prose": {
+          "ratio": 13.83,
+          "color": "rgb(242, 239, 234)",
+          "background": "rgb(36, 34, 31)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "1440-dark-reader-chapter-prose-dark.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "reader",
+      "step": "chapter-prose-light",
+      "path": "/reader/chapters/c660bede-0493-4a46-97f2-6d01c8ddd3db",
+      "detail": {
+        "background": "LIGHT",
+        "prose": {
+          "ratio": 16.96,
+          "color": "rgb(17, 24, 39)",
+          "background": "rgb(248, 250, 252)",
+          "textLength": 3557
+        }
+      },
+      "result": "PASS",
+      "screenshot": "1440-dark-reader-chapter-prose-light.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "reader",
+      "step": "author-profile",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {
+        "follow_button": true
+      },
+      "result": "PASS",
+      "screenshot": "1440-dark-reader-author-profile.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "reader",
+      "step": "logout",
+      "path": "/login",
+      "detail": {
+        "logout_via": "account menu ([data-testid='shell-avatar-btn'])"
+      },
+      "result": "PASS",
+      "screenshot": "1440-dark-reader-logout.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "author",
+      "step": "login",
+      "path": "/author",
+      "detail": {
+        "session_role": "AUTHOR"
+      },
+      "result": "PASS",
+      "screenshot": "1440-dark-author-login.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "author",
+      "step": "navigation",
+      "path": "/author",
+      "detail": {
+        "nav": [
+          "Tác phẩm",
+          "Danh sách truyện",
+          "Ví và doanh thu",
+          "Trang tác giả"
+        ]
+      },
+      "result": "PASS",
+      "screenshot": "1440-dark-author-navigation.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "author",
+      "step": "novel-workspace",
+      "path": "/author/novels/81b923d7-5507-48ea-9a84-5303fd1de5f4",
+      "detail": {},
+      "result": "PASS",
+      "screenshot": "1440-dark-author-novel-workspace.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "author",
+      "step": "writing-ide",
+      "path": "/author/ide",
+      "detail": {},
+      "result": "PASS",
+      "screenshot": "1440-dark-author-writing-ide.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "author",
+      "step": "own-public-profile",
+      "path": "/authors/40b87067-a105-4160-9251-4b5021138bf8",
+      "detail": {},
+      "result": "PASS",
+      "screenshot": "1440-dark-author-own-public-profile.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "author",
+      "step": "logout",
+      "path": "/login",
+      "detail": {
+        "logout_via": "account menu ([data-testid='shell-avatar-btn'])"
+      },
+      "result": "PASS",
+      "screenshot": "1440-dark-author-logout.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "admin",
+      "step": "login",
+      "path": "/admin",
+      "detail": {
+        "session_role": "ADMIN"
+      },
+      "result": "PASS",
+      "screenshot": "1440-dark-admin-login.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "admin",
+      "step": "moderation",
+      "path": "/admin/moderation",
+      "detail": {
+        "session_role": "ADMIN"
+      },
+      "result": "PASS",
+      "screenshot": "1440-dark-admin-moderation.png"
+    },
+    {
+      "combo": "1440-dark",
+      "role": "admin",
+      "step": "logout",
+      "path": "/login",
+      "detail": {
+        "logout_via": "account menu (.admin-account-button)"
+      },
+      "result": "PASS",
+      "screenshot": "1440-dark-admin-logout.png"
+    }
+  ],
+  "verdict": "FAIL"
+}

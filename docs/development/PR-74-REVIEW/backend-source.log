@@ -1,0 +1,365 @@
+
+> ephurin-backend@0.1.0 test:isolated
+> node scripts/run-isolated-tests.mjs
+
+{"level":30,"time":1793261906548,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 001_auth_user_wallet.sql"}
+{"level":30,"time":1793261906635,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 002_novels.sql"}
+{"level":30,"time":1793261906681,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 003_chapters.sql"}
+{"level":30,"time":1793261906781,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 004_content_control.sql"}
+{"level":30,"time":1793261906800,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 005_reports_description.sql"}
+{"level":30,"time":1793261906884,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 006_reading_interactions.sql"}
+{"level":30,"time":1793261906960,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 007_wallet_transactions.sql"}
+{"level":30,"time":1793261907089,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 008_authoring_context.sql"}
+{"level":30,"time":1793261907133,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 009_chapter_revisions.sql"}
+{"level":30,"time":1793261907165,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 010_analysis_outbox.sql"}
+{"level":30,"time":1793261907186,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 011_outbox_claim_token.sql"}
+{"level":30,"time":1793261907230,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 012_novel_engagement.sql"}
+{"level":30,"time":1793261907269,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 012_reports_unique_open.sql"}
+{"level":30,"time":1793261907300,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 013_novel_review_text.sql"}
+{"level":30,"time":1793261907325,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 014_novel_editorial_metadata.sql"}
+{"level":30,"time":1793261907349,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 015_author_workflow.sql"}
+{"level":30,"time":1793261907399,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 016_author_launch_checklist.sql"}
+{"level":30,"time":1793261907421,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 017_transactional_moderation_evidence.sql"}
+{"level":30,"time":1793261907523,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 018_admin_operations.sql"}
+{"level":30,"time":1793261907547,"pid":22248,"hostname":"TrungTo-PC","msg":"Applied migration 019_admin_job_retries.sql"}
+{"level":30,"time":1793261907547,"pid":22248,"hostname":"TrungTo-PC","msg":"PostgreSQL connection closed"}
+▶ F-06 Regression: Fail-Closed Teardown Mutation Guard
+  ✔ F-06.1: Missing opt-in rejects guard and executes ZERO teardown mutations (2.0083ms)
+  ✔ F-06.2: Forbidden PostgreSQL database name rejects guard and executes ZERO teardown mutations (0.6706ms)
+  ✔ F-06.3: Forbidden MongoDB database name rejects guard and executes ZERO teardown mutations (0.5192ms)
+  ✔ F-06.4: Expected DB identity mismatch rejects guard and executes ZERO teardown mutations (0.2376ms)
+  ✔ F-06.5: Guard query/connection failure rejects guard and executes ZERO teardown mutations (0.1904ms)
+  ✔ F-06.6: Positive authorization enables valid lifecycle progression (0.1473ms)
+✔ F-06 Regression: Fail-Closed Teardown Mutation Guard (4.8434ms)
+▶ Test Database Isolation Guard Rules (Negative and Positive Contract)
+  ✔ Rule 1: Missing external opt-in (EPHURIN_ALLOW_TEST_DB_MUTATIONS != "1") fails closed (0.83ms)
+  ✔ Rule 2: Ambient CI=true does NOT authorize mutations without opt-in (0.1427ms)
+  ✔ Rule 3: Ambient NODE_ENV=test does NOT authorize mutations without opt-in (0.0894ms)
+  ✔ Rule 4: Ambient npm lifecycle script does NOT authorize mutations without opt-in (0.1108ms)
+  ✔ Rule 5: Default PostgreSQL database "ephurin" is REJECTED even with opt-in (0.1198ms)
+  ✔ Rule 6: Production/system PostgreSQL databases (postgres, template0) are REJECTED even with opt-in (0.1469ms)
+  ✔ Rule 7: Default MongoDB database "ephurin" is REJECTED even with opt-in (0.1491ms)
+  ✔ Rule 8: System MongoDB databases (admin, config, local) are REJECTED even with opt-in (0.3469ms)
+  ✔ Rule 9: Expected test DB name mismatch is REJECTED (0.186ms)
+  ✔ Rule 10: Approved isolated test database with opt-in PASSES (0.2173ms)
+  ✔ Rule 11: isAllowedTestDbName helper enforces positive pattern and rejects forbidden names (0.1181ms)
+✔ Test Database Isolation Guard Rules (Negative and Positive Contract) (3.5869ms)
+[OutboxProcessor] Event evt-1 (INCREMENTAL_ANALYSIS) failed (attempt 1): AI service returned HTTP 503: {}
+▶ P1 extraction-only outbox authorization boundary
+  ✔ successful extraction issues exactly one source-scoped request and no canon decision (13.804ms)
+  ✔ duplicate delivery preserves extraction idempotency key and never invokes accept (0.6ms)
+  ✔ interrupted extraction fails explicitly, retry remains extraction-only (0.6196ms)
+  ✔ HTTP extraction failure is retryable without accessing pending canon (0.7898ms)
+  ✔ outbox COMPLETED means extraction delivered, not canon accepted (0.5218ms)
+  ✔ failed extraction marks FAILED then successful retry completes using claim fences (3.344ms)
+✔ P1 extraction-only outbox authorization boundary (20.7199ms)
+▶ PR74: queue liveness and fail-closed Admin entitlements
+  ✔ R74-01 RED regression: a poison first job does not starve a healthy second job (28.0157ms)
+  ✔ R74-01: poison job reaches quarantine, remains inspectable and can be explicitly retried (502.8352ms)
+  ✔ R74-01: malformed notification is isolated and does not retry before its due time (18.6172ms)
+  ✔ R74-01: concurrent drains and restart after Mongo delivery do not duplicate notifications (943.2721ms)
+  ✔ R74-02 RED regression: missing entitlement never means SUPER_ADMIN (3.9349ms)
+  ✔ R74-02 RED regression: missing-row Admin JWT is denied at HTTP authentication (14.9776ms)
+  ✔ R74-02 RED regression: a scope-less internal context has no content-admin privilege (0.8106ms)
+  ✔ R74-02: explicit promotion and scope demotion take effect for stale tokens (102.5369ms)
+{"level":30,"time":1793261919498,"pid":3992,"hostname":"TrungTo-PC","msg":"MongoDB connection closed"}
+  ✔ R74-02: concurrent changes retain an explicitly entitled last SUPER_ADMIN (24.7798ms)
+✔ PR74: queue liveness and fail-closed Admin entitlements (1960.9355ms)
+{"level":30,"time":1793261919585,"pid":3992,"hostname":"TrungTo-PC","msg":"PostgreSQL connection closed"}
+▶ AI Copilot LLM Provider Health Check
+  ✔ recognizes models with models/ prefix from Google OpenAI endpoint (17.7073ms)
+  ✔ recognizes models without prefix from standard OpenAI endpoint (0.5409ms)
+  ✔ reports ready=false when configured model is absent (0.6439ms)
+✔ AI Copilot LLM Provider Health Check (19.7679ms)
+▶ Node.js AI Gateway Service (P6.5 Hardening)
+  ✔ AIGatewayService forwards headers with tenant, user, and service token (16.4228ms)
+  ✔ AIGatewayService builds query parameters correctly for context-preview (0.6718ms)
+  ✔ AIGatewayService propagates remote AI errors as AppError with correct status code (0.662ms)
+  ✔ AIGatewayService maps network connection failures to 502 AI_SERVICE_UNAVAILABLE (0.2135ms)
+  ✔ assertNovelOwnership enforces author access control with 403 FORBIDDEN (0.269ms)
+  ✔ Canonical chapter cutoff derivation from DB record overrides client cutoff (0.1211ms)
+  ✔ Cross-author proposal group resolution enforces 403 FORBIDDEN when novel belongs to another author (0.4026ms)
+  ✔ Cross-author single proposal resolution enforces 403 FORBIDDEN for reject and edit-and-accept (0.4407ms)
+  ✔ Cross-author story plan read enforces 403 FORBIDDEN when novel belongs to another author (0.4817ms)
+  ✔ Story Brain freshness check fails closed with 503 when AI service is unavailable (0.2874ms)
+✔ Node.js AI Gateway Service (P6.5 Hardening) (21.1681ms)
+▶ AI-PIPE-01B Author Writing IDE & Canonical P1 Loop Contract
+  ✔ Checkpoint B1: Manual autosave contract updates chapter draft without creating AI_DRAFT_ACCEPT revision or outbox event (0.5208ms)
+  ✔ Checkpoint B2: AI generation reject/dismiss leaves canon revision and Story Brain unchanged (0.1371ms)
+  ✔ Checkpoint B3: Canonical P1 writing generation and accept-draft contract (15.2482ms)
+  ✔ Checkpoint B4: Story Brain closed-loop feedback advances version (0.5413ms)
+  ✔ Checkpoint C: Story Bible context preview observes updated character/fact constraints (0.3499ms)
+✔ AI-PIPE-01B Author Writing IDE & Canonical P1 Loop Contract (17.8428ms)
+▶ Autonomous Controller Gateway & Contract Tests
+  ✔ Cross-author autonomous run access enforces 403 FORBIDDEN (14.9958ms)
+  ✔ Single-writer conflict returns 409 ACTIVE_RUN_CONFLICT (0.4832ms)
+  ✔ Deterministic quality gate: strict fail-closed on brain freshness and non-empty patch (0.257ms)
+  ✔ Scoped proposal acceptance: ignores unrelated pending proposals in review queue (0.1562ms)
+  ✔ Crash recovery: detects already-accepted revision and avoids duplicate acceptDraft (0.1002ms)
+  ✔ Intentional completion gate terminates on terminal objective or all objectives done (0.1399ms)
+✔ Autonomous Controller Gateway & Contract Tests (17.0653ms)
+▶ Phase D: Manuscript Import & Canonical Provenance Contract Tests
+  ✔ Checkpoint D1: Import never maps chapterId to revision_id (0.7847ms)
+  ✔ Checkpoint D2: Bootstrap never sends placeholder content_hash (0.2926ms)
+  ✔ Checkpoint D3: Canonical revision metadata is preserved per chapter (0.307ms)
+  ✔ Checkpoint D4: Malformed/failed revision provenance blocks bootstrap (0.5535ms)
+  ✔ Checkpoint D5: Partial chapter import is reported honestly (0.2441ms)
+  ✔ Checkpoint D6: Story Brain bootstrap receives revisions in correct narrative order (0.1501ms)
+  ✔ Checkpoint D7: Proposal accept uses current brain_version (0.129ms)
+  ✔ Checkpoint D8: Rejected proposal is not materialized into canon (0.555ms)
+  ✔ Checkpoint D9: Vietnamese Unicode SHA-256 fixture matches backend contract (0.1496ms)
+  ✔ Checkpoint D10: Requirement A - Ordinary author snapshot creates INCREMENTAL_ANALYSIS outbox (0.4005ms)
+  ✔ Checkpoint D11: Requirement B - Bootstrap-owned snapshot creates BOOTSTRAP revision without competing generic outbox event (0.1314ms)
+  ✔ Checkpoint D12: Requirement C - Single bootstrap analysis lineage prevents duplicate proposal groups (0.0999ms)
+  ✔ Checkpoint D13: Requirement D - Pre-baseline bootstrap proposals stay review-controlled and un-materialized by generic outbox (0.1088ms)
+  ✔ Checkpoint D14: Requirement E - Rejected bootstrap proposal stays rejected/non-canonical and target is not materialized (0.0885ms)
+  ✔ Checkpoint D15: Requirement F - After baseline activation, normal P1 AI_DRAFT_ACCEPT creates outbox and Story Brain advances (0.0937ms)
+  ✔ Checkpoint D16: Safety constraint - Active Story Brain rejects subsequent MANUSCRIPT_BOOTSTRAP snapshots (0.1271ms)
+✔ Phase D: Manuscript Import & Canonical Provenance Contract Tests (5.4191ms)
+▶ AI-PIPE-01 P1 Node Gateway & Acceptance Flow
+  ✔ P1-Gateway: Forward manuscript bootstrap with tenant & service authentication (14.9031ms)
+  ✔ P1-Gateway: Context preview derives canonical cutoff and returns Story Brain package (0.5805ms)
+  ✔ P1-Gateway: AI Writing generation creates queued job with pinned brain version (0.3457ms)
+  ✔ P1-Accept: Patch application and content hash update contract (0.1354ms)
+  ✔ P2-Gateway: Forward bootstrap from idea with tenant & service authentication (0.3656ms)
+  ✔ P2B-Gateway: Forward Story Plan creation, activation, and objective update (0.7373ms)
+  ✔ P2B-Gateway: Non-owner cannot read another novel plan by UUID (403 FORBIDDEN) (0.399ms)
+  ✔ P1-Gateway: Author operation consistency check forwards with actor/tenant and returns findings (0.3882ms)
+✔ AI-PIPE-01 P1 Node Gateway & Acceptance Flow (18.8761ms)
+﹣ live Gateway -> AI -> PostgreSQL: approved memory and revision-bound entity HITL (0.6088ms) # SKIP
+▶ Phase C: Author Publish -> Admin Moderation Lifecycle Invariants
+  ✔ Checkpoint 1: Reader/Author cannot access Admin moderation resolve route (403) (0.8552ms)
+  ✔ Checkpoint 2 & 4: Submitting novel triggers moderation, returns reviewId, and does not produce duplicate open reviews (50.841ms)
+  ✔ Checkpoint 5: An unrelated pending review cannot satisfy approval of target novel (19.6433ms)
+  ✔ Checkpoint 2: Resolving review approves novel; duplicate resolve fails closed with 409 (8.1882ms)
+{"level":30,"time":1793261922555,"pid":18040,"hostname":"TrungTo-PC","msg":"MongoDB connection closed"}
+  ✔ Checkpoint 3: Already-PUBLISHED novel cannot be resubmitted through normal author publish flow (409) (1.183ms)
+✔ Phase C: Author Publish -> Admin Moderation Lifecycle Invariants (127.0479ms)
+{"level":30,"time":1793261922556,"pid":18040,"hostname":"TrungTo-PC","msg":"PostgreSQL connection closed"}
+▶ Phase C: Comment User Report, Admin Moderation, and Notifications Invariants
+  ✔ Invariant 1: anonymous POST /reports -> 401 (0.7613ms)
+  ✔ Invariant 2: non-Admin cannot access/resolve Admin moderation review -> 403 (0.1856ms)
+  ✔ Invariant 3: COMMENT report against nonexistent target fails closed (404) (2.6414ms)
+  ✔ Invariant 4: COMMENT report against deleted target fails closed (404) (5.251ms)
+  ✔ Invariant 4b: COMMENT report against PENDING_MODERATION target fails closed (404) (3.9ms)
+  ✔ Invariant 4c: COMMENT report against REJECTED target fails closed (404) (3.5075ms)
+  ✔ Invariant 4d: COMMENT report on unpublished chapter/novel fails closed (404) (4.7757ms)
+  ✔ Invariant 5: same reporter cannot create multiple unresolved OPEN reports for same comment (409) (16.6423ms)
+  ✔ Invariant 5b: concurrent same-reporter duplicate submits resolve to exactly one OPEN report and 409 (19.1669ms)
+  ✔ Invariant 6: two distinct reporters on same comment reuse ONE open moderation review and produce reportCount=2 (10.2519ms)
+  ✔ Invariant 6b: concurrent distinct reporters on same comment atomically share review (12.8913ms)
+  ✔ Invariant 7: approving USER_REPORT: review -> APPROVED, reports -> RESOLVED, comment -> DELETED (37.3997ms)
+  ✔ Invariant 8: rejecting USER_REPORT: review -> REJECTED, reports -> REJECTED, comment remains APPROVED (27.0887ms)
+  ✔ Invariant 9: approve notification types/payloads are correct for owner and reporter (3.7289ms)
+  ✔ Invariant 10: reject notification types/payloads are correct for owner and reporter (2.46ms)
+  ✔ Invariant 11: duplicate resolve of resolved review -> 409 (4.7104ms)
+  ✔ Invariant 12: keyword-filter COMMENT moderation semantics remain unchanged (26.934ms)
+{"level":30,"time":1793261923309,"pid":3216,"hostname":"TrungTo-PC","msg":"MongoDB connection closed"}
+✔ Phase C: Comment User Report, Admin Moderation, and Notifications Invariants (305.7244ms)
+{"level":30,"time":1793261923310,"pid":3216,"hostname":"TrungTo-PC","msg":"PostgreSQL connection closed"}
+﹣ author launch checklist: scheduled publication, profile metadata, notifications and comment reports (0.4777ms) # SKIP
+﹣ author workflow: draft privacy, conflicts, revisions, idempotent imports, lifecycle and onboarding (0.6008ms) # SKIP
+﹣ novel/chapter comments: permissions, moderation, pagination and isolation (0.5022ms) # SKIP
+▶ Phase C: Reader Social, Comment, and Preferences Invariants
+  ✔ Invariant 1: anonymous like/follow/comment mutations are rejected by auth (401) (0.8275ms)
+  ✔ Invariant 2: duplicate like -> 409 INTERACTION_001 (8.3567ms)
+  ✔ Invariant 3: unlike without existing like -> 404 INTERACTION_002 (2.1586ms)
+  ✔ Invariant 4: duplicate follow -> 409 INTERACTION_001 (9.4964ms)
+  ✔ Invariant 5: unfollow without existing follow -> 404 INTERACTION_002 (1.0351ms)
+  ✔ Invariant 6: reader cannot edit/delete another user's comment -> 403 AUTH_008 (34.3122ms)
+  ✔ Invariant 7: clean comment -> APPROVED without moderation review (8.2765ms)
+  ✔ Invariant 8: filtered comment -> PENDING_MODERATION with review ID (15.7041ms)
+  ✔ Invariant 9: commenting on non-reader-visible/non-published chapter must fail closed (404) (5.666ms)
+  ✔ Invariant 10: reading preferences are user-scoped (11.2692ms)
+{"level":30,"time":1793261924714,"pid":7672,"hostname":"TrungTo-PC","msg":"MongoDB connection closed"}
+✔ Phase C: Reader Social, Comment, and Preferences Invariants (162.7151ms)
+{"level":30,"time":1793261924715,"pid":7672,"hostname":"TrungTo-PC","msg":"PostgreSQL connection closed"}
+✔ image uploads reject HTML, SVG and fake extensions by inspecting bytes (0.7874ms)
+▶ Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening)
+  ✔ calls authenticated /internal/v1/writing/generations/{id} route with service token and headers (27.4415ms)
+  ✔ rejects with 400 NOVEL_MISMATCH if generation novel does not match chapter novel (7.4659ms)
+  ✔ rejects with 400 CHAPTER_MISMATCH if generation chapter does not match target chapter (5.1731ms)
+  ✔ rejects with 403 FORBIDDEN if generation belongs to another tenant or actor (4.9483ms)
+  ✔ rejects with 409 GENERATION_NOT_COMPLETED if generation status is not completed (5.0696ms)
+[OutboxProcessor] Event bbc2bc72-bc5e-4a85-9fcd-a1934d72bf4f (INCREMENTAL_ANALYSIS) failed (attempt 1): res.text is not a function
+  ✔ rejects with 422 GENERATION_VALIDATION_FAILED if validation_status is not passed (4.6003ms)
+  ✔ rejects with 422 INVALID_PATCH if patch structure is missing or malformed (5.4281ms)
+  ✔ rejects with 409 BRAIN_VERSION_CONFLICT if current Story Brain has advanced beyond generation brain_version_used (4.2475ms)
+  ✔ rejects with 404 STORY_BRAIN_NOT_FOUND if Story Brain route returns 404 when brain is required (4.5795ms)
+  ✔ rejects with 409 OBJECTIVE_INTENT_REQUIRED if P3 controller idempotency_key is malformed (5.4274ms)
+  ✔ rejects with 409 OBJECTIVE_INTENT_SUPERSEDED if P3 controller intent changed or plan missing (5.5241ms)
+  ✔ rejects with 404 BASE_REVISION_NOT_FOUND if base revision does not belong to chapter (6.412ms)
+  ✔ rejects with 409 STALE_BASE_REVISION if base revision is no longer current latest revision (7.0261ms)
+  ✔ rejects with 409 CONTENT_HASH_MISMATCH if base revision content hash does not match generation (6.636ms)
+{"level":30,"time":1793261925813,"pid":22992,"hostname":"TrungTo-PC","msg":"PostgreSQL connection closed"}
+✔ Accept Draft Server-to-Server Trust Contract (P0/P1 Hardening) (227.4694ms)
+{"level":30,"time":1793261925816,"pid":22992,"hostname":"TrungTo-PC","msg":"MongoDB connection closed"}
+▶ Chapter Revisions & Patch Application
+  ✔ applyPatchToContent correctly applies insertion at cursor (0.5904ms)
+  ✔ applyPatchToContent correctly replaces selection range (0.1142ms)
+  ✔ applyPatchToContent handles unicode code points without splitting multi-byte characters (0.0937ms)
+  ✔ applyPatchToContent REJECTS out-of-bounds start or end with 422 (no silent clamping) (0.4146ms)
+  ✔ applyPatchToContent allows valid boundary edge cases (0 to length) (0.1098ms)
+✔ Chapter Revisions & Patch Application (2.211ms)
+✔ controller identity parses full pinned intent and rejects legacy attempts (1.4018ms)
+✔ intent checks run, plan and objective under row locks and rejects ABA epoch (0.3621ms)
+{"level":30,"time":1793261926937,"pid":27428,"hostname":"TrungTo-PC","msg":"MongoDB connection ready"}
+{"stage":"fixture_setup","identity":{"postgresDb":"ephurin_test_admin_backend_1793261902828","postgresServerAddr":"172.18.0.2","postgresServerPort":5432,"mongoDb":"ephurin_test_admin_backend_1793261902828","isIsolated":true,"optInVerified":true},"beforeSetup":{"users":[],"novels":[],"chapters":[],"revisions":[],"drafts":[]},"afterSetup":{"users":[{"user_id":"58080974-7008-4230-935f-d6b050de6a6e"}],"novels":[{"novel_id":"a51dd12d-df54-4f75-8bdc-c8c189e87217"}],"chapters":[{"chapter_id":"3d565b9b-7b3c-4b28-961e-c64a5b5103b3","latest_revision_id":"4c82194b-e839-4ba9-9930-e79136205ff3"},{"chapter_id":"938deac9-b7b0-4f7d-a7bb-f2e02b8b60a9","latest_revision_id":"e9bbe3e5-c544-4545-ab3e-10f145002d0b"},{"chapter_id":"d1ec131c-5a1c-4e89-a706-1472f4eb09b3","latest_revision_id":"fb91344d-fbc3-42bf-b481-4d7be469fbe1"}],"revisions":[{"revision_id":"4c82194b-e839-4ba9-9930-e79136205ff3","parent_revision_id":"50020ae7-7c33-4327-9fe1-f5fb69a559de","content_hash":"f182eaac0fa749273a67cf1913daa07fd2d636825873832b967b197ea6113bc2"},{"revision_id":"50020ae7-7c33-4327-9fe1-f5fb69a559de","parent_revision_id":null,"content_hash":"d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"},{"revision_id":"cb1f7b51-863b-44fc-8a42-186ba9fe1c10","parent_revision_id":null,"content_hash":"d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"},{"revision_id":"e5b9895f-d645-489a-8ccd-9e88257207eb","parent_revision_id":null,"content_hash":"d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"},{"revision_id":"e9bbe3e5-c544-4545-ab3e-10f145002d0b","parent_revision_id":"e5b9895f-d645-489a-8ccd-9e88257207eb","content_hash":"9f826323bd9d02d623ffbc551c8adb5289b986ea20f521620ea2cf02530bbca6"},{"revision_id":"fb91344d-fbc3-42bf-b481-4d7be469fbe1","parent_revision_id":"cb1f7b51-863b-44fc-8a42-186ba9fe1c10","content_hash":"d8d1fe76d9f54ef511a1267e5b8b183858cf27bac3ce4c1c311eb37c60a6ea27"}],"drafts":[]}}
+▶ Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)
+  ✔ Targeted Probe 1: Older draft is cleanly updated by accepted revision (21.7727ms)
+  ℹ {"probe":1,"latestRevision":"4c82194b-e839-4ba9-9930-e79136205ff3","parentRevision":"50020ae7-7c33-4327-9fe1-f5fb69a559de","draft":{"_id":"6ae3016685f54bdbd6e43297","chapterId":"3d565b9b-7b3c-4b28-961e-c64a5b5103b3","authorId":"58080974-7008-4230-935f-d6b050de6a6e","autosave":false,"content":"Accepted canonical body 1","createdAt":"2026-10-29T08:18:46.970Z","deletedAt":null,"deletionReason":null,"novelId":"a51dd12d-df54-4f75-8bdc-c8c189e87217","title":"Reconciliation fixture 1","updatedAt":"2026-10-29T08:18:46.982Z","version":2,"wordCount":4,"lastAcceptedAt":"2026-10-29T08:18:36.796Z","lastAcceptedRevisionId":"4c82194b-e839-4ba9-9930-e79136205ff3"}}
+  ✔ Targeted Probe 2: Newer manual draft edit is NOT overwritten by delayed revision sync (14.3529ms)
+  ℹ {"probe":2,"latestRevision":"fb91344d-fbc3-42bf-b481-4d7be469fbe1","before":{"_id":"6ae3016685f54bdbd6e432a4","chapterId":"d1ec131c-5a1c-4e89-a706-1472f4eb09b3","authorId":"58080974-7008-4230-935f-d6b050de6a6e","autosave":false,"content":"Newer manual edit must survive","createdAt":"2026-10-29T08:18:46.991Z","deletedAt":null,"deletionReason":null,"novelId":"a51dd12d-df54-4f75-8bdc-c8c189e87217","title":"Reconciliation fixture 2","updatedAt":"2026-10-29T08:18:46.991Z","version":1,"wordCount":4},"after":{"_id":"6ae3016685f54bdbd6e432a4","chapterId":"d1ec131c-5a1c-4e89-a706-1472f4eb09b3","authorId":"58080974-7008-4230-935f-d6b050de6a6e","autosave":false,"content":"Newer manual edit must survive","createdAt":"2026-10-29T08:18:46.991Z","deletedAt":null,"deletionReason":null,"novelId":"a51dd12d-df54-4f75-8bdc-c8c189e87217","title":"Reconciliation fixture 2","updatedAt":"2026-10-29T08:18:46.991Z","version":1,"wordCount":4},"supersededStatus":"skipped_newer_draft"}
+  ✔ Targeted Probe 3: No-draft recovery creates document with trusted ownership and version (7.135ms)
+  ℹ {"probe":3,"before":null,"latestRevision":"e9bbe3e5-c544-4545-ab3e-10f145002d0b","draft":{"_id":"6ae301675b0db4d8aa32e7c5","novelId":"a51dd12d-df54-4f75-8bdc-c8c189e87217","chapterId":"938deac9-b7b0-4f7d-a7bb-f2e02b8b60a9","authorId":"58080974-7008-4230-935f-d6b050de6a6e","title":"Reconciliation fixture 3","content":"Accepted canonical body 3","wordCount":4,"version":1,"autosave":false,"lastAcceptedRevisionId":"e9bbe3e5-c544-4545-ab3e-10f145002d0b","lastAcceptedAt":"2026-10-29T08:18:36.796Z","createdAt":"2026-10-29T08:18:47.007Z","updatedAt":"2026-10-29T08:18:47.007Z","deletedAt":null}}
+  ✔ Targeted Probe 4: Same applied revision is a no-op, including timestamps (6.0575ms)
+  ℹ {"probe":4,"before":{"_id":"6ae3016685f54bdbd6e43297","chapterId":"3d565b9b-7b3c-4b28-961e-c64a5b5103b3","authorId":"58080974-7008-4230-935f-d6b050de6a6e","autosave":false,"content":"Accepted canonical body 1","createdAt":"2026-10-29T08:18:46.970Z","deletedAt":null,"deletionReason":null,"novelId":"a51dd12d-df54-4f75-8bdc-c8c189e87217","title":"Reconciliation fixture 1","updatedAt":"2026-10-29T08:18:46.982Z","version":2,"wordCount":4,"lastAcceptedAt":"2026-10-29T08:18:36.796Z","lastAcceptedRevisionId":"4c82194b-e839-4ba9-9930-e79136205ff3"},"after":{"_id":"6ae3016685f54bdbd6e43297","chapterId":"3d565b9b-7b3c-4b28-961e-c64a5b5103b3","authorId":"58080974-7008-4230-935f-d6b050de6a6e","autosave":false,"content":"Accepted canonical body 1","createdAt":"2026-10-29T08:18:46.970Z","deletedAt":null,"deletionReason":null,"novelId":"a51dd12d-df54-4f75-8bdc-c8c189e87217","title":"Reconciliation fixture 1","updatedAt":"2026-10-29T08:18:46.982Z","version":2,"wordCount":4,"lastAcceptedAt":"2026-10-29T08:18:36.796Z","lastAcceptedRevisionId":"4c82194b-e839-4ba9-9930-e79136205ff3"}}
+  ✔ Targeted Probe 5: Identical prose from a different accepted revision still advances provenance (9.2939ms)
+  ℹ {"probe":5,"before":{"_id":"6ae3016685f54bdbd6e43297","chapterId":"3d565b9b-7b3c-4b28-961e-c64a5b5103b3","authorId":"58080974-7008-4230-935f-d6b050de6a6e","autosave":false,"content":"Accepted canonical body 1","createdAt":"2026-10-29T08:18:46.970Z","deletedAt":null,"deletionReason":null,"novelId":"a51dd12d-df54-4f75-8bdc-c8c189e87217","title":"Reconciliation fixture 1","updatedAt":"2026-10-29T08:18:35.796Z","version":2,"wordCount":4,"lastAcceptedAt":"2026-10-29T08:18:36.796Z","lastAcceptedRevisionId":"50020ae7-7c33-4327-9fe1-f5fb69a559de"},"after":{"_id":"6ae3016685f54bdbd6e43297","chapterId":"3d565b9b-7b3c-4b28-961e-c64a5b5103b3","authorId":"58080974-7008-4230-935f-d6b050de6a6e","autosave":false,"content":"Accepted canonical body 1","createdAt":"2026-10-29T08:18:46.970Z","deletedAt":null,"deletionReason":null,"novelId":"a51dd12d-df54-4f75-8bdc-c8c189e87217","title":"Reconciliation fixture 1","updatedAt":"2026-10-29T08:18:47.022Z","version":3,"wordCount":4,"lastAcceptedAt":"2026-10-29T08:18:36.796Z","lastAcceptedRevisionId":"4c82194b-e839-4ba9-9930-e79136205ff3"}}
+  ✔ Targeted Probe 6: Reusing an old immutable snapshot cannot acquire a new timestamp over a manual draft (10.9688ms)
+  ℹ {"probe":6,"revision":"fb91344d-fbc3-42bf-b481-4d7be469fbe1","revisionCreatedAt":"2026-10-29T08:18:36.796Z","before":{"_id":"6ae3016685f54bdbd6e432a4","chapterId":"d1ec131c-5a1c-4e89-a706-1472f4eb09b3","authorId":"58080974-7008-4230-935f-d6b050de6a6e","autosave":false,"content":"Newer manual edit must survive","createdAt":"2026-10-29T08:18:46.991Z","deletedAt":null,"deletionReason":null,"novelId":"a51dd12d-df54-4f75-8bdc-c8c189e87217","title":"Reconciliation fixture 2","updatedAt":"2026-10-29T08:18:46.991Z","version":1,"wordCount":4},"after":{"_id":"6ae3016685f54bdbd6e432a4","chapterId":"d1ec131c-5a1c-4e89-a706-1472f4eb09b3","authorId":"58080974-7008-4230-935f-d6b050de6a6e","autosave":false,"content":"Newer manual edit must survive","createdAt":"2026-10-29T08:18:46.991Z","deletedAt":null,"deletionReason":null,"novelId":"a51dd12d-df54-4f75-8bdc-c8c189e87217","title":"Reconciliation fixture 2","updatedAt":"2026-10-29T08:18:46.991Z","version":1,"wordCount":4}}
+  ✔ Targeted Probe 7: Same prose cannot bypass older timestamp and replace accepted provenance (7.1845ms)
+  ℹ {"probe":7,"incoming":{"chapterId":"d1ec131c-5a1c-4e89-a706-1472f4eb09b3","novelId":"a51dd12d-df54-4f75-8bdc-c8c189e87217","authorId":"58080974-7008-4230-935f-d6b050de6a6e","revisionId":"fb91344d-fbc3-42bf-b481-4d7be469fbe1","title":"Reconciliation fixture 2","content":"Accepted canonical body 2","wordCount":4,"acceptTimestamp":"2026-10-29T08:18:36.796Z"},"before":{"_id":"6ae3016685f54bdbd6e432a4","chapterId":"d1ec131c-5a1c-4e89-a706-1472f4eb09b3","authorId":"58080974-7008-4230-935f-d6b050de6a6e","autosave":false,"content":"Accepted canonical body 2","createdAt":"2026-10-29T08:18:46.991Z","deletedAt":null,"deletionReason":null,"novelId":"a51dd12d-df54-4f75-8bdc-c8c189e87217","title":"Reconciliation fixture 2","updatedAt":"2026-10-29T08:18:37.796Z","version":1,"wordCount":4,"lastAcceptedAt":"2026-10-29T08:18:26.796Z","lastAcceptedRevisionId":"cb1f7b51-863b-44fc-8a42-186ba9fe1c10"},"after":{"_id":"6ae3016685f54bdbd6e432a4","chapterId":"d1ec131c-5a1c-4e89-a706-1472f4eb09b3","authorId":"58080974-7008-4230-935f-d6b050de6a6e","autosave":false,"content":"Accepted canonical body 2","createdAt":"2026-10-29T08:18:46.991Z","deletedAt":null,"deletionReason":null,"novelId":"a51dd12d-df54-4f75-8bdc-c8c189e87217","title":"Reconciliation fixture 2","updatedAt":"2026-10-29T08:18:37.796Z","version":1,"wordCount":4,"lastAcceptedAt":"2026-10-29T08:18:26.796Z","lastAcceptedRevisionId":"cb1f7b51-863b-44fc-8a42-186ba9fe1c10"},"status":"skipped_newer_draft"}
+{"stage":"fixture_cleanup","beforeCleanup":{"users":[{"user_id":"58080974-7008-4230-935f-d6b050de6a6e"}],"novels":[{"novel_id":"a51dd12d-df54-4f75-8bdc-c8c189e87217"}],"chapters":[{"chapter_id":"3d565b9b-7b3c-4b28-961e-c64a5b5103b3","latest_revision_id":"4c82194b-e839-4ba9-9930-e79136205ff3"},{"chapter_id":"938deac9-b7b0-4f7d-a7bb-f2e02b8b60a9","latest_revision_id":"e9bbe3e5-c544-4545-ab3e-10f145002d0b"},{"chapter_id":"d1ec131c-5a1c-4e89-a706-1472f4eb09b3","latest_revision_id":"fb91344d-fbc3-42bf-b481-4d7be469fbe1"}],"revisions":[{"revision_id":"4c82194b-e839-4ba9-9930-e79136205ff3","parent_revision_id":"50020ae7-7c33-4327-9fe1-f5fb69a559de","content_hash":"f182eaac0fa749273a67cf1913daa07fd2d636825873832b967b197ea6113bc2"},{"revision_id":"50020ae7-7c33-4327-9fe1-f5fb69a559de","parent_revision_id":null,"content_hash":"d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"},{"revision_id":"cb1f7b51-863b-44fc-8a42-186ba9fe1c10","parent_revision_id":null,"content_hash":"d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"},{"revision_id":"e5b9895f-d645-489a-8ccd-9e88257207eb","parent_revision_id":null,"content_hash":"d070900c891daf9e8d0ddaeb04d17904dcbffcfbf5757146e81a7f98db22ab62"},{"revision_id":"e9bbe3e5-c544-4545-ab3e-10f145002d0b","parent_revision_id":"e5b9895f-d645-489a-8ccd-9e88257207eb","content_hash":"9f826323bd9d02d623ffbc551c8adb5289b986ea20f521620ea2cf02530bbca6"},{"revision_id":"fb91344d-fbc3-42bf-b481-4d7be469fbe1","parent_revision_id":"cb1f7b51-863b-44fc-8a42-186ba9fe1c10","content_hash":"d8d1fe76d9f54ef511a1267e5b8b183858cf27bac3ce4c1c311eb37c60a6ea27"}],"drafts":[{"_id":"6ae3016685f54bdbd6e43297","chapterId":"3d565b9b-7b3c-4b28-961e-c64a5b5103b3","authorId":"58080974-7008-4230-935f-d6b050de6a6e","autosave":false,"content":"Accepted canonical body 1","createdAt":"2026-10-29T08:18:46.970Z","deletedAt":null,"deletionReason":null,"novelId":"a51dd12d-df54-4f75-8bdc-c8c189e87217","title":"Reconciliation fixture 1","updatedAt":"2026-10-29T08:18:47.022Z","version":3,"wordCount":4,"lastAcceptedAt":"2026-10-29T08:18:36.796Z","lastAcceptedRevisionId":"4c82194b-e839-4ba9-9930-e79136205ff3"},{"_id":"6ae301675b0db4d8aa32e7c5","novelId":"a51dd12d-df54-4f75-8bdc-c8c189e87217","chapterId":"938deac9-b7b0-4f7d-a7bb-f2e02b8b60a9","authorId":"58080974-7008-4230-935f-d6b050de6a6e","title":"Reconciliation fixture 3","content":"Accepted canonical body 3","wordCount":4,"version":1,"autosave":false,"lastAcceptedRevisionId":"e9bbe3e5-c544-4545-ab3e-10f145002d0b","lastAcceptedAt":"2026-10-29T08:18:36.796Z","createdAt":"2026-10-29T08:18:47.007Z","updatedAt":"2026-10-29T08:18:47.007Z","deletedAt":null},{"_id":"6ae3016685f54bdbd6e432a4","chapterId":"d1ec131c-5a1c-4e89-a706-1472f4eb09b3","authorId":"58080974-7008-4230-935f-d6b050de6a6e","autosave":false,"content":"Accepted canonical body 2","createdAt":"2026-10-29T08:18:46.991Z","deletedAt":null,"deletionReason":null,"novelId":"a51dd12d-df54-4f75-8bdc-c8c189e87217","title":"Reconciliation fixture 2","updatedAt":"2026-10-29T08:18:37.796Z","version":1,"wordCount":4,"lastAcceptedAt":"2026-10-29T08:18:26.796Z","lastAcceptedRevisionId":"cb1f7b51-863b-44fc-8a42-186ba9fe1c10"}]},"afterCleanup":{"users":[],"novels":[],"chapters":[],"revisions":[],"drafts":[]},"sentinelsPreserved":true}
+{"level":30,"time":1793261927077,"pid":27428,"hostname":"TrungTo-PC","msg":"PostgreSQL connection closed"}
+✔ Live MongoDB Draft Reconciliation Probe (P6.5 Hardening) (280.649ms)
+{"level":30,"time":1793261927079,"pid":27428,"hostname":"TrungTo-PC","msg":"MongoDB connection closed"}
+{"level":30,"time":1793261927501,"pid":20692,"hostname":"TrungTo-PC","msg":"PostgreSQL connection closed"}
+✔ private read boundaries deny before Mongo; controllers require trusted actor (8.9345ms)
+{"level":30,"time":1793261927501,"pid":20692,"hostname":"TrungTo-PC","msg":"MongoDB connection closed"}
+▶ F-07 Fault Injection Matrix: Fixture Lifecycle & Teardown Resilience
+  ✔ Matrix 1: Guard fails before setup -> Zero mutations executed (3.4771ms)
+  ✔ Matrix 2: Failure after first PostgreSQL fixture INSERT -> Owned user cleaned (24.5424ms)
+  ✔ Matrix 3: Failure during PostgreSQL fixture setup -> Partial records cleaned (28.7021ms)
+  ✔ Matrix 4: Failure before Mongo fixture creation -> Safe cleanup of all PG records (63.6076ms)
+  ✔ Matrix 5: Failure immediately after Mongo insertion -> Mongo record cleaned (7.8741ms)
+  ✔ Matrix 6: Failure midway through sentinel creation -> Existing sentinels cleaned, no false corruption (8.083ms)
+  ✔ Matrix 7: Failure during ordinary test execution -> Fixture cleanup still attempted and sentinels preserved (13.9132ms)
+  ✔ Matrix 8: First cleanup operation fails -> Independent cleanup continues; suite surfaces failure (19.3326ms)
+  ✔ Matrix 9: Successful complete run -> Zero residual records across PG and MongoDB (51.5506ms)
+  ✔ Matrix 10: Repeated cleanup with sentinels -> Safe, idempotent, zero residual mutations (P2-A) (30.9441ms)
+  ✔ Matrix 11: Per-ID cleanup fault tolerance across multiple IDs in the same group (P2-B) (15.9752ms)
+  ✔ Matrix 12: Sentinel-group per-ID deletion fault tolerance (P2-B) (10.0792ms)
+  ✔ Matrix 13: Recoverable retry following CLEANUP_FAILED restores clean state (7.6891ms)
+  ✔ Matrix 14: F-09 Mongo draft cleaned when only PostgreSQL chapter registered (31.2329ms)
+  ✔ Matrix 15: F-09 Mongo draft registered independently of PostgreSQL chapter (10.179ms)
+  ✔ Matrix 16: F-10 PostgreSQL DELETE acknowledged but matching row remains -> Durable readback fails closed (9.6733ms)
+  ✔ Matrix 17: F-10 MongoDB delete acknowledged but matching document remains -> Durable readback fails closed (10.649ms)
+  ✔ Matrix 18: F-11 Malformed PostgreSQL readback must fail closed and report affected resource (9.9343ms)
+  ✔ Matrix 19: F-12 Outbox registration fails closed when novel and chapter are unowned (27.3523ms)
+  ✔ Matrix 20: F-12 Persisted outbox fixture cleaned and independently verified with fail-closed readback (83.711ms)
+  ✔ Matrix 21: G-01 Foreign outbox event registered under owned pair survives; cleanup reports ownership mismatch (75.3572ms)
+  ✔ Matrix 22: G-01 Owned novel/chapter pair that is not a real parent relationship fails closed (53.3576ms)
+  ✔ Matrix 23: G-01 Exact event DELETE is scoped by event_id + novel_id + chapter_id; failure retries to CLEANED (39.6306ms)
+{"level":30,"time":1793261928985,"pid":23672,"hostname":"TrungTo-PC","msg":"PostgreSQL connection closed"}
+  ✔ Matrix 24: G-02 Non-decimal / coercible count mutants fail closed on fixture and sentinel readbacks, then recover (334.6222ms)
+  ✔ Matrix 25: G-02 parseStrictRowCount accepts only safe non-negative integers / canonical decimal strings (0.8529ms)
+✔ F-07 Fault Injection Matrix: Fixture Lifecycle & Teardown Resilience (1010.02ms)
+{"level":30,"time":1793261928988,"pid":23672,"hostname":"TrungTo-PC","msg":"MongoDB connection closed"}
+▶ internal revision HTTP authorization fails closed before repository access
+  ✔ missing/anonymous (39.454ms)
+  ✔ missing/arbitrary_Bearer (4.9841ms)
+  ✔ missing/empty_Bearer (3.1551ms)
+  ✔ missing/wrong_service_token (2.3965ms)
+  ✔ missing/empty_service_token (2.3203ms)
+  ✔ missing/correct_Bearer (2.146ms)
+  ✔ missing/correct_service_header (1.9848ms)
+  ✔ missing/correct_legacy_header (2.1698ms)
+  ✔ empty/anonymous (3.6453ms)
+  ✔ empty/arbitrary_Bearer (3.233ms)
+  ✔ empty/empty_Bearer (1.7453ms)
+  ✔ empty/wrong_service_token (1.5533ms)
+  ✔ empty/empty_service_token (1.5406ms)
+  ✔ empty/correct_Bearer (1.5391ms)
+  ✔ empty/correct_service_header (1.8268ms)
+  ✔ empty/correct_legacy_header (1.529ms)
+  ✔ whitespace/anonymous (1.9728ms)
+  ✔ whitespace/arbitrary_Bearer (1.396ms)
+  ✔ whitespace/empty_Bearer (1.3049ms)
+  ✔ whitespace/wrong_service_token (1.5494ms)
+  ✔ whitespace/empty_service_token (1.463ms)
+  ✔ whitespace/correct_Bearer (1.8355ms)
+  ✔ whitespace/correct_service_header (1.7468ms)
+  ✔ whitespace/correct_legacy_header (1.5907ms)
+  ✔ configured/anonymous (2.0692ms)
+  ✔ configured/arbitrary_Bearer (1.9172ms)
+  ✔ configured/empty_Bearer (1.6007ms)
+  ✔ configured/wrong_service_token (1.57ms)
+  ✔ configured/empty_service_token (2.0344ms)
+  ✔ configured/correct_Bearer (2.3826ms)
+  ✔ configured/correct_service_header (1.3958ms)
+  ✔ configured/correct_legacy_header (1.5795ms)
+{"level":30,"time":1793261929876,"pid":10036,"hostname":"TrungTo-PC","msg":"PostgreSQL connection closed"}
+  ✔ valid token missing revision is 404; invalid token missing revision is 401 (2.3262ms)
+✔ internal revision HTTP authorization fails closed before repository access (120.0269ms)
+{"scenario":"missing opt-in","childExit":1,"calls":{"identity":1,"mongoConnect":0,"mongoClose":1,"pgEnd":2,"writes":[],"reads":[]}}
+{"scenario":"forbidden PostgreSQL","childExit":1,"calls":{"identity":1,"mongoConnect":0,"mongoClose":1,"pgEnd":2,"writes":[],"reads":[]}}
+{"scenario":"forbidden MongoDB","childExit":1,"calls":{"identity":1,"mongoConnect":0,"mongoClose":1,"pgEnd":2,"writes":[],"reads":[]}}
+{"scenario":"PostgreSQL identity mismatch","childExit":1,"calls":{"identity":1,"mongoConnect":0,"mongoClose":1,"pgEnd":2,"writes":[],"reads":[]}}
+{"scenario":"MongoDB identity mismatch","childExit":1,"calls":{"identity":1,"mongoConnect":0,"mongoClose":1,"pgEnd":2,"writes":[],"reads":[]}}
+✔ Denied live reconciliation teardown: missing opt-in (620.6311ms)
+✔ Denied live reconciliation teardown: forbidden PostgreSQL (462.9118ms)
+✔ Denied live reconciliation teardown: forbidden MongoDB (428.35ms)
+✔ Denied live reconciliation teardown: PostgreSQL identity mismatch (449.3178ms)
+✔ Denied live reconciliation teardown: MongoDB identity mismatch (439.5071ms)
+{"level":30,"time":1793261933000,"pid":18560,"hostname":"TrungTo-PC","msg":"MongoDB connection ready"}
+▶ Live MongoDB Draft Reconciliation Probe (P6.5 Hardening)
+  ✔ Targeted Probe 1: Older draft is cleanly updated by accepted revision (23.6638ms)
+  ✔ Targeted Probe 2: Newer manual draft edit is NOT overwritten by delayed revision sync (8.6043ms)
+  ✔ Targeted Probe 3: No-draft recovery creates document with non-empty novelId and authorId (8.7355ms)
+  ✔ Targeted Probe 4: Cleanup removes the recovery fixture and preserves an unrelated draft (8.2764ms)
+{"level":30,"time":1793261933057,"pid":18560,"hostname":"TrungTo-PC","msg":"MongoDB connection closed"}
+✔ Live MongoDB Draft Reconciliation Probe (P6.5 Hardening) (126.5954ms)
+{"level":30,"time":1793261933057,"pid":18560,"hostname":"TrungTo-PC","msg":"PostgreSQL connection closed"}
+▶ PostgreSQL Outbox Multi-Worker Lease Fencing Integration
+  ✔ Two concurrent PostgreSQL workers claim queue: exactly one worker claims active token (17.5657ms)
+  ✔ Lease expiry and reclaim: stale worker token affects 0 rows, new active worker completes (15.9226ms)
+{"level":30,"time":1793261933447,"pid":25988,"hostname":"TrungTo-PC","msg":"PostgreSQL connection closed"}
+✔ PostgreSQL Outbox Multi-Worker Lease Fencing Integration (78.4441ms)
+▶ Transactional Outbox & Dual-Write Resilience (P6.5 Hardening)
+  ✔ Exponential backoff for outbox retries is bounded by 300s (0.5988ms)
+  ✔ Conditional MongoDB draft reconciliation preserves newer manual draft edits (0.2509ms)
+  ✔ Conditional MongoDB draft reconciliation creates new draft if not found (0.142ms)
+  ✔ Accept-time brain version conflict rejects stale generation (0.0985ms)
+  ✔ Outbox lease concurrency: active PROCESSING event cannot be claimed by concurrent worker (0.1834ms)
+  ✔ Outbox expired lease recovery: crashed worker event is reclaimed after timeout (0.1553ms)
+✔ Transactional Outbox & Dual-Write Resilience (P6.5 Hardening) (2.3816ms)
+▶ Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Integration
+  ✔ Checkpoint 08: acceptDraft persists chapter_revisions with source_type=AI_DRAFT_ACCEPT in PostgreSQL (34.4131ms)
+  ✔ Checkpoint 09: chapters.latest_revision_id is updated in PostgreSQL (2.1396ms)
+  ✔ Checkpoint 10: revision_outbox_events row exists with event_type=INCREMENTAL_ANALYSIS (2.712ms)
+  ✔ Checkpoint 14: acceptDraft is idempotent and returns existing revision without duplicate insertion (15.2867ms)
+  ✔ Checkpoint 15: Author-control semantics - unaccepted draft does not alter canonical chapter revision (2.2022ms)
+{"level":30,"time":1793261934295,"pid":26172,"hostname":"TrungTo-PC","msg":"PostgreSQL connection closed"}
+✔ Gate AI-PIPE-01A: PostgreSQL Production Persistence & Idempotency Integration (204.2781ms)
+{"level":30,"time":1793261934298,"pid":26172,"hostname":"TrungTo-PC","msg":"MongoDB connection closed"}
+▶ Phase C: Reader Discovery and Reading State Invariants
+  ✔ Invariant 1: anonymous POST /reading/library/me is rejected by auth (401) (0.8064ms)
+  ✔ Invariant 2: duplicate Add library fails closed with existing conflict contract (409) (9.1112ms)
+  ✔ Invariant 3: removing a non-existent bookmark fails with existing not-found contract (404) (1.3367ms)
+  ✔ Invariant 4: history sync rejects mismatched novelId/chapterId (404) (3.1102ms)
+  ✔ Invariant 5: history is user-scoped: another reader cannot satisfy/read back the target reader's state as their own (8.9007ms)
+  ✔ Invariant 6: non-published novel/chapter cannot be used to create accepted reader state (404) (3.8485ms)
+{"level":30,"time":1793261934896,"pid":21612,"hostname":"TrungTo-PC","msg":"PostgreSQL connection closed"}
+✔ Phase C: Reader Discovery and Reading State Invariants (79.5823ms)
+{"level":30,"time":1793261936409,"pid":13324,"hostname":"TrungTo-PC","msg":"PostgreSQL connection closed"}
+✔ author ledger, public profile and project summaries (1326.5452ms)
+▶ author workspace seed data
+  ✔ has the agreed size: 7 authors, 20 readers, 58 novels (0.6591ms)
+  ✔ accounts have unique usernames and emails that fit the schema (0.1484ms)
+  ✔ generation is deterministic (23.3927ms)
+  ✔ covers the novel and chapter states the author pages show (0.2062ms)
+  ✔ novels and chapters fit the schema (2.4855ms)
+  ✔ story context references existing characters and chapters (1.1262ms)
+  ✔ seedUuid is deterministic and UUID-shaped (0.288ms)
+  ✔ slugify strips Vietnamese diacritics (0.1096ms)
+✔ author workspace seed data (29.3959ms)
+ℹ tests 242
+ℹ suites 23
+ℹ pass 238
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 4
+ℹ todo 0
+ℹ duration_ms 29078.8349
+{"isolatedDatabase":"ephurin_test_admin_backend_1793261902828","cleanedUp":true,"exitCode":0}

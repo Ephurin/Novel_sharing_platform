@@ -12,7 +12,7 @@ const sortOptions = [
   { value: 'lowest', label: 'Điểm thấp nhất' }
 ];
 
-export function NovelReviews({ novelId }: { novelId: string }) {
+export function NovelReviews({ novelId, compact = false }: { novelId: string; compact?: boolean }) {
   const user = useAuthStore(state => state.user);
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<ReviewSort>('newest');
@@ -29,7 +29,7 @@ export function NovelReviews({ novelId }: { novelId: string }) {
   const formatted = available ? average.toLocaleString('vi-VN', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : 'Chưa có';
 
   return <Stack gap="lg">
-    {reviews.data && <section className="sc-review-summary" aria-label="Tổng quan đánh giá">
+    {!compact && reviews.data && <section className="sc-review-summary" aria-label="Tổng quan đánh giá">
       <div className="sc-review-summary-score">
         <strong>{formatted}</strong>
         <div className="sc-review-scale" aria-hidden="true">
@@ -45,7 +45,7 @@ export function NovelReviews({ novelId }: { novelId: string }) {
     </section>}
     <section aria-labelledby="reader-reviews-heading" aria-busy={reviews.isFetching}>
       <Group justify="space-between" mb="md" className="sc-reviews-list-heading">
-        <h2 id="reader-reviews-heading" className="text-section">Nhận xét của độc giả</h2>
+        <h2 id="reader-reviews-heading" className="text-section">{compact ? 'Đánh giá mới' : 'Nhận xét của độc giả'}</h2>
         <Select aria-label="Sắp xếp đánh giá" data={sortOptions} value={sort} allowDeselect={false}
           onChange={value => { if (value) { setSort(value as ReviewSort); setPage(1); } }} w={170} />
       </Group>

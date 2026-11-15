@@ -1,868 +1,409 @@
-import { ManuscriptContent } from '../../shared/components/ManuscriptContent';
+import { ReaderCatalog } from './ReaderCatalog';
+import { ChapterReader } from './ChapterReader';
 import { CommentsSection } from './CommentsSection';
-import { ThemeControl } from '../../shared/components/ThemeControl';
-import { NovelEngagement } from './NovelEngagement';
-import {
-  Alert,
-  Badge,
-  Box,
-  Button,
-  Group,
-  NumberInput,
-  Paper,
-  Select,
-  SimpleGrid,
-  Stack,
-  Text,
-  TextInput,
-  Textarea,
-  Title
-} from '@mantine/core';
+import { NovelOverview } from './ReaderNovelOverview';
+import { NovelChapterCatalog } from './NovelChapterCatalog';
+import { NovelReadAction } from './NovelReadAction';
+import { NovelReportDialog } from './NovelReportDialog';
+import { useReadChapterIds } from './useReadChapterIds';
+import { NovelReviews } from './NovelReviews';
+import { useAuthStore } from '../auth/useAuthStore';
+import { followNovel } from '../novels/novel-statistics-api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useState } from 'react';
 import type { ReactNode } from 'react';
-import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
+import { getApiErrorMessage } from '../../shared/api/api-client';
+import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { Breadcrumbs, type BreadcrumbItem } from '../../shared/components/Breadcrumbs';
+import { navigationLabels, readerHomeCrumb } from '../../shared/components/navigation';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
+import { useToast } from '../../shared/components/ToastProvider';
 import {
-  addToLibrary,
-  followAuthor,
   getHistoryForNovel,
-  getReadingPreferences,
-  getReaderChapter,
   getReaderNovel,
-  likeNovel,
   listHistory,
   listLibrary,
   removeFromLibrary,
-  reportContent,
-  saveReadingPreferences,
-  searchPublishedNovels,
-  syncHistory,
-  unlikeNovel,
-  unlockVipChapter,
-  unfollowAuthor,
-  type ReadingPreferences,
-  type ReaderChapter,
   type ReaderNovel
 } from './reader-api';
 
+// Reader screens reuse the StoryCraft author vocabulary: sc-navbar/sc-shell-content for layout,
+// sc-novel-card/sc-novel-overview/sc-novel-metrics for novels and sc-button for actions.
+
+const card = 'bg-surface-container-lowest rounded-xl border border-stone-200/80 shadow-2xs';
+const serialLabels: Record<string, string> = {
+  ONGOING: 'Đang ra',
+  COMPLETED: 'Hoàn thành',
+  HIATUS: 'Tạm ngưng',
+  PUBLISHED: 'Đã xuất bản'
+};
+
+// ─── Discovery ──────────────────────────────────────────────────────────────
+
 export function ReaderPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [genreFilter, setGenreFilter] = useState('');
-  const [tagFilter, setTagFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'ONGOING' | 'COMPLETED' | 'HIATUS' | ''>('');
-  const [sortFilter, setSortFilter] = useState<'updatedAt' | 'views' | 'likes' | 'relevance'>('updatedAt');
-  const [orderFilter, setOrderFilter] = useState<'desc' | 'asc'>('desc');
-  const novelsQuery = useQuery({
-    queryKey: ['reader-search', searchQuery, genreFilter, tagFilter, statusFilter, sortFilter, orderFilter],
-    queryFn: () =>
-      searchPublishedNovels({
-        q: searchQuery,
-        genre: genreFilter,
-        tag: tagFilter,
-        status: statusFilter,
-        sort: sortFilter,
-        order: orderFilter
-      })
-  });
-
-  return (
-    <Box>
-      <ReaderHeader
-        title="Reader Home"
-        description="Browse published novels, then open detail or continue reading."
-      />
-
-      <Paper p="md" withBorder mb="md">
-        <TextInput
-          label="Search published novels"
-          placeholder="Title, synopsis, genre..."
-          value={searchQuery}
-          onChange={(event) => setSearchQuery(event.currentTarget.value)}
-          data-testid="reader-search-input"
-        />
-        <SimpleGrid cols={{ base: 1, md: 4 }} mt="md">
-          <TextInput
-            label="Genre"
-            placeholder="fantasy, romance..."
-            value={genreFilter}
-            onChange={(event) => setGenreFilter(event.currentTarget.value)}
-          />
-          <TextInput label="Tag" placeholder="slow-burn..." value={tagFilter} onChange={(event) => setTagFilter(event.currentTarget.value)} />
-          <Select
-            label="Story status"
-            data={[
-              { value: '', label: 'Any' },
-              { value: 'ONGOING', label: 'Ongoing' },
-              { value: 'COMPLETED', label: 'Completed' },
-              { value: 'HIATUS', label: 'Hiatus' }
-            ]}
-            value={statusFilter}
-            onChange={(value) => setStatusFilter((value ?? '') as typeof statusFilter)}
-          />
-          <Group grow align="flex-end">
-            <Select
-              label="Sort"
-              data={[
-                { value: 'updatedAt', label: 'Updated' },
-                { value: 'views', label: 'Views' },
-                { value: 'likes', label: 'Likes' },
-                { value: 'relevance', label: 'Relevance' }
-              ]}
-              value={sortFilter}
-              onChange={(value) => setSortFilter((value ?? 'updatedAt') as typeof sortFilter)}
-            />
-            <Select
-              label="Order"
-              data={[
-                { value: 'desc', label: 'Desc' },
-                { value: 'asc', label: 'Asc' }
-              ]}
-              value={orderFilter}
-              onChange={(value) => setOrderFilter((value ?? 'desc') as typeof orderFilter)}
-            />
-          </Group>
-        </SimpleGrid>
-      </Paper>
-
-      {novelsQuery.isLoading ? <LoadingState label="Loading published novels..." /> : null}
-      {novelsQuery.isError ? <ErrorState error={novelsQuery.error} onRetry={() => void novelsQuery.refetch()} /> : null}
-      {!novelsQuery.isLoading && !novelsQuery.isError && !novelsQuery.data?.length ? (
-        <EmptyState description="No published novels match the current search." />
-      ) : null}
-
-      <SimpleGrid cols={{ base: 1, md: 2, xl: 3 }}>
-        {(novelsQuery.data ?? []).map((novel) => (
-          <NovelCard key={novel.novelId} novel={novel} />
-        ))}
-      </SimpleGrid>
-    </Box>
-  );
+  return <ReaderCatalog />;
 }
 
 export function PublicReaderPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [genreFilter, setGenreFilter] = useState('');
-  const [tagFilter, setTagFilter] = useState('');
-  const novelsQuery = useQuery({
-    queryKey: ['public-reader-search', searchQuery, genreFilter, tagFilter],
-    queryFn: () =>
-      searchPublishedNovels({
-        q: searchQuery,
-        genre: genreFilter,
-        tag: tagFilter,
-        sort: 'updatedAt',
-        order: 'desc'
-      })
-  });
-
-  return (
-    <Box className="web-content">
-      <ReaderHeader
-        title="Ephurin Public Library"
-        description="Browse published stories as a guest. Login when you want to save, comment, unlock VIP, or report."
-        actions={
-          <Group>
-            <Button component={Link} to="/login" variant="light">
-              Login
-            </Button>
-            <Button component={Link} to="/reader" variant="subtle">
-              My Reader Home
-            </Button>
-          </Group>
-        }
-      />
-
-      <Paper p="md" withBorder mb="md">
-        <SimpleGrid cols={{ base: 1, md: 3 }}>
-          <TextInput
-            label="Search"
-            placeholder="Title, synopsis..."
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.currentTarget.value)}
-          />
-          <TextInput label="Genre" value={genreFilter} onChange={(event) => setGenreFilter(event.currentTarget.value)} />
-          <TextInput label="Tag" value={tagFilter} onChange={(event) => setTagFilter(event.currentTarget.value)} />
-        </SimpleGrid>
-      </Paper>
-
-      {novelsQuery.isLoading ? <LoadingState label="Loading public novels..." /> : null}
-      {novelsQuery.isError ? <ErrorState error={novelsQuery.error} onRetry={() => void novelsQuery.refetch()} /> : null}
-      {!novelsQuery.isLoading && !novelsQuery.isError && !novelsQuery.data?.length ? (
-        <EmptyState description="No published novels match the current public search." />
-      ) : null}
-
-      <SimpleGrid cols={{ base: 1, md: 2, xl: 3 }}>
-        {(novelsQuery.data ?? []).map((novel) => (
-          <NovelCard key={novel.novelId} novel={novel} publicMode />
-        ))}
-      </SimpleGrid>
-    </Box>
-  );
+  return <PublicLayout><ReaderCatalog publicMode /></PublicLayout>;
 }
+
+// ─── Novel detail ───────────────────────────────────────────────────────────
 
 export function ReaderNovelDetailPage() {
   const { novelId = '' } = useParams();
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const userId = useAuthStore(state => state.user?.userId);
   const novelQuery = useQuery({
     queryKey: ['reader-novel', novelId],
     queryFn: () => getReaderNovel(novelId),
     enabled: Boolean(novelId)
   });
   const continueQuery = useQuery({
-    queryKey: ['reader-history-novel', novelId],
+    queryKey: ['reader-history-novel', novelId, userId],
     queryFn: () => getHistoryForNovel(novelId),
-    enabled: Boolean(novelId),
+    enabled: Boolean(novelId && userId),
     retry: false
   });
   const [interactionNotice, setInteractionNotice] = useState<string | null>(null);
-  const addLibraryMutation = useMutation({
-    mutationFn: () => addToLibrary(novelId),
-    onSuccess: async () => {
-      setInteractionNotice('Novel added to your library.');
-      await queryClient.invalidateQueries({ queryKey: ['reader-library'] });
-    },
-    onError: (error) => setInteractionNotice(formatInteractionError(error, 'This novel is already in your library.'))
-  });
-  const likeMutation = useMutation({
-    mutationFn: () => likeNovel(novelId),
-    onSuccess: () => setInteractionNotice('Liked this novel.'),
-    onError: (error) => setInteractionNotice(formatInteractionError(error, 'You already liked this novel.'))
-  });
-  const unlikeMutation = useMutation({
-    mutationFn: () => unlikeNovel(novelId),
-    onSuccess: () => setInteractionNotice('Removed your like.'),
-    onError: (error) => setInteractionNotice(formatInteractionError(error, 'No existing like to remove.'))
-  });
-  const followMutation = useMutation({
-    mutationFn: () => followAuthor(novelQuery.data?.authorId ?? ''),
-    onSuccess: () => setInteractionNotice('Following this author.'),
-    onError: (error) => setInteractionNotice(formatInteractionError(error, 'You already follow this author.'))
-  });
-  const unfollowMutation = useMutation({
-    mutationFn: () => unfollowAuthor(novelQuery.data?.authorId ?? ''),
-    onSuccess: () => setInteractionNotice('Unfollowed this author.'),
-    onError: (error) => setInteractionNotice(formatInteractionError(error, 'No existing follow to remove.'))
-  });
-  const reportMutation = useMutation({ mutationFn: () => reportContent({ targetType: 'NOVEL', targetId: novelId, reason: 'Reader report' }) });
 
-  if (novelQuery.isLoading) return <LoadingState label="Loading novel detail..." />;
+  if (novelQuery.isLoading) return <LoadingState label="Đang tải thông tin truyện..." />;
   if (novelQuery.isError) return <ErrorState error={novelQuery.error} onRetry={() => void novelQuery.refetch()} />;
 
   const novel = novelQuery.data;
   const chapters = novel?.chapters ?? [];
-  const continueChapterId = continueQuery.data?.chapterId ?? chapters[0]?.chapterId;
+  const firstChapter = [...chapters].sort((a, b) => a.chapterNumber - b.chapterNumber)[0];
+  const readChapterIds = continueQuery.data?.readChapterIds ?? [];
+  const currentChapter = chapters.find(chapter => chapter.chapterId === continueQuery.data?.chapterId && readChapterIds.includes(chapter.chapterId));
+  const continueChapterId = currentChapter?.chapterId ?? firstChapter?.chapterId;
 
   return (
-    <Box>
-      <ReaderHeader
-        title={novel?.title ?? 'Novel Detail'}
-        description={novel?.authorName ? `By ${novel.authorName}` : 'Published novel detail'}
-        actions={
-          <Button component={Link} to="/reader" variant="light">
-            Back to Reader
-          </Button>
-        }
+    <div className="flex flex-col gap-4">
+      <Breadcrumb back={readerHomeCrumb} current={novel?.title ?? 'Chi tiết truyện'}>
+        <NovelReportDialog key={novelId} novelId={novelId} onSuccess={() => setInteractionNotice('Đã gửi báo cáo truyện tới quản trị viên.')} />
+      </Breadcrumb>
+
+      {novel ? (
+        <NovelOverview
+          novel={novel}
+          chapters={chapters}
+          authorLink={novel.authorId ? `/authors/${novel.authorId}` : undefined}
+          notice={interactionNotice}
+          actions={
+            <>
+              {continueChapterId ? (
+                <NovelReadAction to={`/reader/chapters/${continueChapterId}`} label={currentChapter ? `Đọc tiếp · Chương ${currentChapter.chapterNumber}` : 'Bắt đầu đọc'} />
+              ) : null}
+
+            </>
+          }
+        />
+      ) : null}
+
+      <section id="reader-reviews" className="sc-reader-detail-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact /></section>
+      <NovelChapterCatalog
+        chapters={chapters}
+        readChapterIds={readChapterIds}
+        onReadFirst={firstChapter ? () => navigate(`/reader/chapters/${firstChapter.chapterId}`) : undefined}
       />
-
-      <SimpleGrid cols={{ base: 1, lg: 2 }} mb="md">
-        <Paper p="md" withBorder>
-          <Stack>
-            <Group gap="xs">
-              <Badge>{novel?.genre ?? 'No genre'}</Badge>
-              <Badge variant="outline">{novel?.status ?? novel?.serialStatus ?? 'Published'}</Badge>
-              <Badge variant="outline">{novel?.chaptersCount ?? chapters.length} chapters</Badge>
-            </Group>
-            {novel && <NovelEngagement novelId={novelId} authorId={novel.authorId} />}
-            <Text c="dimmed">{novel?.synopsis ?? 'No synopsis.'}</Text>
-            {interactionNotice ? <Alert color="blue">{interactionNotice}</Alert> : null}
-            <Group>
-              <Button
-                loading={addLibraryMutation.isPending}
-                onClick={() => addLibraryMutation.mutate()}
-                data-testid="reader-add-library-btn"
-              >
-                Add library
-              </Button>
-              <Button variant="light" loading={likeMutation.isPending} onClick={() => likeMutation.mutate()} data-testid="reader-like-btn">
-                Like
-              </Button>
-              <Button variant="light" loading={unlikeMutation.isPending} onClick={() => unlikeMutation.mutate()} data-testid="reader-unlike-btn">
-                Unlike
-              </Button>
-              <Button variant="light" loading={followMutation.isPending} disabled={!novel?.authorId} onClick={() => followMutation.mutate()} data-testid="reader-follow-btn">
-                Follow
-              </Button>
-              <Button component={Link} to={`/authors/${novel?.authorId ?? ''}`} variant="light" disabled={!novel?.authorId}>
-                Author profile
-              </Button>
-              <Button variant="light" loading={unfollowMutation.isPending} disabled={!novel?.authorId} onClick={() => unfollowMutation.mutate()} data-testid="reader-unfollow-btn">
-                Unfollow
-              </Button>
-              <Button color="red" variant="light" loading={reportMutation.isPending} onClick={() => reportMutation.mutate()}>
-                Report
-              </Button>
-            </Group>
-            {continueChapterId ? (
-              <Button onClick={() => navigate(`/reader/chapters/${continueChapterId}`)}>
-                {continueQuery.data ? `Continue Ch. ${continueQuery.data.chapter.chapterNumber}` : 'Start reading'}
-              </Button>
-            ) : null}
-          </Stack>
-        </Paper>
-
-        <Paper p="md" withBorder>
-          <Title order={4}>Stats</Title>
-          <Group mt="sm">
-            <Badge variant="light">{novel?.viewsCount ?? 0} views</Badge>
-            <Badge variant="light">{novel?.likesCount ?? 0} likes</Badge>
-            {(novel?.tags ?? []).map((tag) => (
-              <Badge key={tag} variant="outline">
-                {tag}
-              </Badge>
-            ))}
-          </Group>
-        </Paper>
-      </SimpleGrid>
-
-      <Paper p="md" withBorder>
-        <Group justify="space-between" mb="sm">
-          <Title order={4}>Published Chapters</Title>
-          {chapters.length ? (
-            <Button size="xs" onClick={() => navigate(`/reader/chapters/${chapters[0].chapterId}`)}>
-              Read first
-            </Button>
-          ) : null}
-        </Group>
-        {!chapters.length ? <EmptyState description="No published chapters yet." /> : null}
-        <Stack gap="xs">
-          {chapters.map((chapter) => (
-            <ChapterRow key={chapter.chapterId} chapter={chapter} />
-          ))}
-        </Stack>
-      </Paper>
-      <CommentsSection kind="novel" id={novelId} />
-    </Box>
+      <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} /></section>
+    </div>
   );
+}
+
+function formatChapterTitle(chapterNumber: number, title: string) {
+  const cleanTitle = title.replace(/^\s*(Chương|Chapter|Ch\.)\s*\d+\s*[:.\-–—]?\s*/i, '');
+  return cleanTitle ? `Chương ${chapterNumber}: ${cleanTitle}` : `Chương ${chapterNumber}`;
 }
 
 export function PublicReaderNovelDetailPage() {
   const { novelId = '' } = useParams();
-  const navigate = useNavigate();
+  const readChapterIds = useReadChapterIds(novelId);
   const novelQuery = useQuery({
     queryKey: ['public-reader-novel', novelId],
     queryFn: () => getReaderNovel(novelId),
     enabled: Boolean(novelId)
   });
 
-  if (novelQuery.isLoading) return <LoadingState label="Loading public novel detail..." />;
-  if (novelQuery.isError) return <ErrorState error={novelQuery.error} onRetry={() => void novelQuery.refetch()} />;
-
   const novel = novelQuery.data;
   const chapters = novel?.chapters ?? [];
+  const firstChapter = [...chapters].sort((a, b) => a.chapterNumber - b.chapterNumber)[0];
 
   return (
-    <Box className="web-content">
-      <ReaderHeader
-        title={novel?.title ?? 'Novel Detail'}
-        description={novel?.authorName ? `By ${novel.authorName}` : 'Public published novel detail'}
-        actions={
-          <Group>
-            <Button component={Link} to="/public" variant="light">
-              Public library
-            </Button>
-            <Button component={Link} to="/login">
-              Login for library/comment/report
-            </Button>
-          </Group>
-        }
-      />
-
-      <SimpleGrid cols={{ base: 1, lg: 2 }} mb="md">
-        <Paper p="md" withBorder>
-          <Stack>
-            <Group gap="xs">
-              <Badge>{novel?.genre ?? 'No genre'}</Badge>
-              <Badge variant="outline">{novel?.status ?? novel?.serialStatus ?? 'Published'}</Badge>
-              <Badge variant="outline">{novel?.chaptersCount ?? chapters.length} chapters</Badge>
-            </Group>
-            <Text c="dimmed">{novel?.synopsis ?? 'No synopsis.'}</Text>
-            <LoginPromptActions />
-          </Stack>
-        </Paper>
-
-        <Paper p="md" withBorder>
-          <Title order={4}>Public Stats</Title>
-          <Group mt="sm">
-            <Badge variant="light">{novel?.viewsCount ?? 0} views</Badge>
-            <Badge variant="light">{novel?.likesCount ?? 0} likes</Badge>
-            {(novel?.tags ?? []).map((tag) => (
-              <Badge key={tag} variant="outline">
-                {tag}
-              </Badge>
-            ))}
-          </Group>
-        </Paper>
-      </SimpleGrid>
-
-      <Paper p="md" withBorder>
-        <Group justify="space-between" mb="sm">
-          <Title order={4}>Published Chapters</Title>
-          {chapters.length ? (
-            <Button size="xs" onClick={() => navigate(`/public/chapters/${chapters[0].chapterId}`)}>
-              Read first free chapter
-            </Button>
-          ) : null}
-        </Group>
-        {!chapters.length ? <EmptyState description="No published chapters yet." /> : null}
-        <Stack gap="xs">
-          {chapters.map((chapter) => (
-            <ChapterRow key={chapter.chapterId} chapter={chapter} publicMode />
-          ))}
-        </Stack>
-      </Paper>
-      <CommentsSection kind="novel" id={novelId} />
-    </Box>
+    <PublicLayout>
+      {novelQuery.isLoading ? <LoadingState label="Đang tải thông tin truyện..." /> : null}
+      {novelQuery.isError ? <ErrorState error={novelQuery.error} onRetry={() => void novelQuery.refetch()} /> : null}
+      {novel ? (
+        <>
+          <Breadcrumb back={{ to: '/public', label: 'Thư viện công khai' }} current={novel.title} />
+          <NovelOverview
+            novel={novel}
+            chapters={chapters}
+            authorLink={novel.authorId ? `/authors/${novel.authorId}` : undefined}
+            notice="Đăng nhập để theo dõi truyện, đánh giá và bình luận."
+            actions={
+              <>
+                {firstChapter ? (
+                  <NovelReadAction to={`/public/chapters/${firstChapter.chapterId}`} label="Đọc chương đầu" />
+                ) : null}
+              </>
+            }
+          />
+          <section id="reader-reviews" className="sc-reader-detail-section" aria-label="Đánh giá độc giả"><NovelReviews novelId={novelId} compact /></section>
+          <NovelChapterCatalog chapters={chapters} publicMode readChapterIds={readChapterIds} />
+          <section id="reader-comments" aria-label="Bình luận truyện"><CommentsSection kind="novel" id={novelId} /></section>
+        </>
+      ) : null}
+    </PublicLayout>
   );
 }
 
+// ─── Chapter reading ────────────────────────────────────────────────────────
+
 export function ReaderChapterPage() {
-  const { chapterId = '' } = useParams();
-  const queryClient = useQueryClient();
-  const preferencesQuery = useQuery({ queryKey: ['reading-preferences'], queryFn: getReadingPreferences });
-  const chapterQuery = useQuery({
-    queryKey: ['reader-chapter', chapterId],
-    queryFn: () => getReaderChapter(chapterId),
-    enabled: Boolean(chapterId),
-    retry: false
-  });
-  const chapterNovelQuery = useQuery({
-    queryKey: ['reader-novel', chapterQuery.data?.novelId],
-    queryFn: () => getReaderNovel(chapterQuery.data?.novelId ?? ''),
-    enabled: Boolean(chapterQuery.data?.novelId)
-  });
-  const syncHistoryMutation = useMutation({
-    mutationFn: (input: { novelId: string; chapterId: string }) => syncHistory(input),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reader-history'] })
-  });
-  const unlockMutation = useMutation({
-    mutationFn: () => unlockVipChapter(chapterId),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['reader-chapter', chapterId] });
-    }
-  });
-  const reportMutation = useMutation({
-    mutationFn: () => reportContent({ targetType: 'CHAPTER', targetId: chapterId, reason: 'Reader report' })
-  });
-  const preferencesMutation = useMutation({
-    mutationFn: saveReadingPreferences,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['reading-preferences'] });
-    }
-  });
-
-  const isLockedVip = chapterQuery.error instanceof ApiClientError && chapterQuery.error.code === 'PAYMENT_002';
-  const chapter = chapterQuery.data;
-
-  useEffect(() => {
-    if (chapter?.novelId) {
-      syncHistoryMutation.mutate({ novelId: chapter.novelId, chapterId });
-    }
-  }, [chapter?.novelId, chapterId]);
-
-  if (chapterQuery.isLoading) return <LoadingState label="Loading chapter..." />;
-
-  if (isLockedVip) {
-    return (
-      <Box>
-        <ReaderHeader title="VIP Chapter Locked" description="Unlock this chapter with mock coins to continue reading." />
-        <Alert color="yellow" mb="md">
-          {getApiErrorMessage(chapterQuery.error)}
-        </Alert>
-        <Group>
-          <Button loading={unlockMutation.isPending} onClick={() => unlockMutation.mutate()}>
-            Unlock chapter
-          </Button>
-          <Button component={Link} to="/wallet" variant="light">
-            Go to Wallet
-          </Button>
-        </Group>
-      </Box>
-    );
-  }
-
-  if (chapterQuery.isError) return <ErrorState error={chapterQuery.error} onRetry={() => void chapterQuery.refetch()} />;
-
-  const chapterList = chapterNovelQuery.data?.chapters ?? [];
-  const currentChapterIndex = chapterList.findIndex((item) => item.chapterId === chapterId);
-  const previousChapter = currentChapterIndex > 0 ? chapterList[currentChapterIndex - 1] : null;
-  const nextChapter = currentChapterIndex >= 0 ? chapterList[currentChapterIndex + 1] : null;
-  const preferences = preferencesQuery.data;
-  const readerStyle = buildReaderStyle(preferences);
-
-  return (
-    <Box>
-      <ReaderHeader
-        title={chapter ? `Ch. ${chapter.chapterNumber}: ${chapter.title}` : 'Chapter'}
-        description={chapter?.isVip ? `VIP chapter · ${chapter.priceCoins} coins` : 'Free published chapter'}
-        actions={
-          <Group gap="xs">
-            <Button component={Link} to={`/reader/novels/${chapter?.novelId ?? ''}`} variant="light" disabled={!chapter?.novelId}>
-              Novel detail
-            </Button>
-            <Button
-              component={Link}
-              to={`/reader/chapters/${previousChapter?.chapterId ?? ''}`}
-              variant="light"
-              disabled={!previousChapter}
-            >
-              Previous
-            </Button>
-            <Button component={Link} to={`/reader/chapters/${nextChapter?.chapterId ?? ''}`} variant="light" disabled={!nextChapter}>
-              Next
-            </Button>
-            <Button
-              loading={syncHistoryMutation.isPending}
-              disabled={!chapter}
-              onClick={() => chapter?.novelId && syncHistoryMutation.mutate({ novelId: chapter.novelId, chapterId })}
-            >
-              Sync history
-            </Button>
-            <Button color="red" variant="light" loading={reportMutation.isPending} onClick={() => reportMutation.mutate()}>
-              Report
-            </Button>
-          </Group>
-        }
-      />
-
-      <Paper p="xl" withBorder mb="md">
-        <Group justify="space-between" mb="md" align="flex-start">
-          <Box>
-            <Title order={4}>Reading Preferences</Title>
-            <Text size="sm" c="dimmed">
-              Saved to `reading_preferences` and applied immediately to the chapter body.
-            </Text>
-          </Box>
-          <Badge variant="light">{preferencesQuery.isLoading ? 'Loading' : 'Synced'}</Badge>
-        </Group>
-        {preferences ? <ReadingPreferencesPanel preferences={preferences} onSave={(next) => preferencesMutation.mutate(next)} saving={preferencesMutation.isPending} /> : null}
-      </Paper>
-
-      <Paper p="xl" withBorder mb="md" style={readerStyle}>
-        <ManuscriptContent content={chapter?.content ?? ''} />
-      </Paper>
-
-      <CommentsSection kind="chapter" id={chapterId} />
-    </Box>
-  );
+  return <ChapterReader />;
 }
 
 export function PublicReaderChapterPage() {
-  const { chapterId = '' } = useParams();
-  const chapterQuery = useQuery({
-    queryKey: ['public-reader-chapter', chapterId],
-    queryFn: () => getReaderChapter(chapterId),
-    enabled: Boolean(chapterId),
-    retry: false
-  });
-  const isLockedVip = chapterQuery.error instanceof ApiClientError && chapterQuery.error.code === 'PAYMENT_002';
-
-  if (chapterQuery.isLoading) return <LoadingState label="Loading public chapter..." />;
-
-  if (isLockedVip) {
-    return (
-      <Box className="web-content">
-        <ReaderHeader title="VIP Chapter Locked" description="Guest users can preview public metadata, but VIP unlock requires login." />
-        <Alert color="yellow" mb="md">
-          {getApiErrorMessage(chapterQuery.error)}
-        </Alert>
-        <Group>
-          <Button component={Link} to="/login">
-            Login to unlock
-          </Button>
-          <Button component={Link} to="/public" variant="light">
-            Public library
-          </Button>
-        </Group>
-      </Box>
-    );
-  }
-
-  if (chapterQuery.isError) return <ErrorState error={chapterQuery.error} onRetry={() => void chapterQuery.refetch()} />;
-
-  const chapter = chapterQuery.data;
-
-  return (
-    <Box className="web-content">
-      <ReaderHeader
-        title={chapter ? `Ch. ${chapter.chapterNumber}: ${chapter.title}` : 'Chapter'}
-        description="Guest free-chapter reading. Login to save progress, comment, report, or unlock VIP chapters."
-        actions={
-          <Group>
-            <Button component={Link} to={`/public/novels/${chapter?.novelId ?? ''}`} variant="light" disabled={!chapter?.novelId}>
-              Novel detail
-            </Button>
-            <Button component={Link} to="/login">
-              Login
-            </Button>
-          </Group>
-        }
-      />
-
-      <Paper p="xl" withBorder mb="md" style={buildReaderStyle()}>
-        <ManuscriptContent content={chapter?.content ?? ''} />
-      </Paper>
-
-      <CommentsSection kind="chapter" id={chapterId} />
-    </Box>
-  );
+  return <PublicLayout><ChapterReader publicMode /></PublicLayout>;
 }
 
-function ReadingPreferencesPanel({
-  preferences,
-  onSave,
-  saving
-}: {
-  preferences: ReadingPreferences;
-  onSave: (preferences: ReadingPreferences) => void;
-  saving: boolean;
-}) {
-  const [draft, setDraft] = useState(preferences);
-
-  useEffect(() => {
-    setDraft(preferences);
-  }, [preferences]);
-
-  return (
-    <SimpleGrid cols={{ base: 1, md: 5 }} mb="md">
-      <Select
-        label="Font family"
-        data={[
-          { value: 'system-ui', label: 'System' },
-          { value: 'Georgia', label: 'Serif' },
-          { value: 'Arial', label: 'Sans' }
-        ]}
-        value={draft.fontFamily ?? 'system-ui'}
-        onChange={(value) => setDraft((current) => ({ ...current, fontFamily: value }))}
-        data-testid="reader-pref-font-family"
-      />
-      <NumberInput
-        label="Font size"
-        min={10}
-        max={40}
-        value={draft.fontSize}
-        onChange={(value) => setDraft((current) => ({ ...current, fontSize: Number(value) || current.fontSize }))}
-        data-testid="reader-pref-font-size"
-      />
-      <Select
-        label="Background"
-        data={[
-          { value: 'LIGHT', label: 'Light' },
-          { value: 'DARK', label: 'Dark' },
-          { value: 'SEPIA', label: 'Sepia' }
-        ]}
-        value={draft.background}
-        onChange={(value) => setDraft((current) => ({ ...current, background: (value ?? 'DARK') as ReadingPreferences['background'] }))}
-        data-testid="reader-pref-background"
-      />
-      <NumberInput
-        label="Line height"
-        min={1}
-        max={3}
-        step={0.1}
-        value={draft.lineHeight}
-        onChange={(value) => setDraft((current) => ({ ...current, lineHeight: Number(value) || current.lineHeight }))}
-        data-testid="reader-pref-line-height"
-      />
-      <Button mt="xl" loading={saving} onClick={() => onSave(draft)} data-testid="reader-save-preferences-btn">
-        Save preferences
-      </Button>
-    </SimpleGrid>
-  );
-}
-
-function buildReaderStyle(preferences?: ReadingPreferences) {
-  const background =
-    preferences?.background === 'LIGHT'
-      ? '#f8fafc'
-      : preferences?.background === 'SEPIA'
-        ? '#2f261c'
-        : preferences?.background === 'DARK' ? 'var(--sc-reader-dark-bg)' : 'var(--sc-surface)';
-  const color = preferences?.background === 'LIGHT' ? '#111827' : preferences?.background === 'SEPIA' ? '#f5e6c8' : preferences?.background === 'DARK' ? 'var(--sc-reader-dark-text)' : 'var(--sc-text)';
-
-  return {
-    background,
-    color,
-    fontFamily: preferences?.fontFamily ?? 'system-ui',
-    fontSize: preferences?.fontSize ?? 18,
-    lineHeight: preferences?.lineHeight ?? 1.8
-  };
-}
-
-function formatInteractionError(error: unknown, conflictMessage: string) {
-  if (error instanceof ApiClientError && error.status === 409) {
-    return conflictMessage;
-  }
-
-  return getApiErrorMessage(error);
-}
+// ─── Library & history ──────────────────────────────────────────────────────
 
 export function ReaderLibraryPage() {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
+  const user = useAuthStore(state => state.user);
   const libraryQuery = useQuery({ queryKey: ['reader-library'], queryFn: listLibrary });
   const removeMutation = useMutation({
-    mutationFn: removeFromLibrary,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reader-library'] })
+    mutationFn: async (novelId: string) => {
+      if (user?.role === 'READER') await followNovel(novelId, false);
+      else await removeFromLibrary(novelId);
+    },
+    onSuccess: async () => {
+      showToast('Đã bỏ theo dõi truyện.', 'success');
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['reader-library'] }),
+        queryClient.invalidateQueries({ queryKey: ['novel-statistics'] })
+      ]);
+    },
+    onError: error => showToast(getApiErrorMessage(error), 'error')
   });
+  const novels = libraryQuery.data ?? [];
 
   return (
-    <Box>
-      <ReaderHeader title="Library" description="Your saved novels." />
-      {libraryQuery.isLoading ? <LoadingState label="Loading library..." /> : null}
-      {libraryQuery.isError ? <ErrorState error={libraryQuery.error} onRetry={() => void libraryQuery.refetch()} /> : null}
-      {!libraryQuery.isLoading && !libraryQuery.isError && !libraryQuery.data?.length ? <EmptyState description="Your library is empty." /> : null}
-      <SimpleGrid cols={{ base: 1, md: 2, xl: 3 }}>
-        {(libraryQuery.data ?? []).map((novel) => (
-          <NovelCard
-            key={novel.novelId}
-            novel={novel}
-            extraAction={
-              <Button
-                size="xs"
-                color="red"
-                variant="light"
-                loading={removeMutation.isPending}
-                onClick={() => removeMutation.mutate(novel.novelId)}
-                data-testid={`reader-remove-library-${novel.novelId}`}
-              >
-                Remove
-              </Button>
-            }
-          />
-        ))}
-      </SimpleGrid>
-    </Box>
+    <div className="flex flex-col gap-6">
+      <PageHeader crumbs={[readerHomeCrumb, { label: 'Thư viện của tôi' }]} title="Thư viện của tôi" />
+      <section className="flex flex-col gap-4">
+        <SectionHeading title="Truyện đang theo dõi" count={libraryQuery.isSuccess ? `${novels.length} truyện` : undefined} />
+        <QueryStates
+          loading={libraryQuery.isLoading}
+          error={libraryQuery.isError ? libraryQuery.error : null}
+          onRetry={() => void libraryQuery.refetch()}
+          empty={libraryQuery.isSuccess && !novels.length}
+          loadingLabel="Đang tải thư viện..."
+          emptyTitle="Thư viện đang trống"
+          emptyDescription="Bấm biểu tượng trái tim ở trang chi tiết để theo dõi truyện tại đây."
+          emptyAction={<Link to="/reader" className="sc-button sc-button-primary">Danh sách truyện</Link>}
+        />
+        <NovelGrid>
+          {novels.map((novel) => (
+            <NovelCard
+              key={novel.novelId}
+              novel={novel}
+              extraAction={
+                <button
+                  type="button"
+                  onClick={() => removeMutation.mutate(novel.novelId)}
+                  disabled={removeMutation.isPending}
+                  className="sc-button sc-button-soft sc-library-unfollow"
+                  aria-busy={removeMutation.isPending && removeMutation.variables === novel.novelId}
+                  data-testid={`reader-remove-library-${novel.novelId}`}
+                >
+                  <span className="material-symbols-outlined text-[15px]" aria-hidden="true">favorite</span>
+                  <span>{removeMutation.isPending && removeMutation.variables === novel.novelId ? 'Đang bỏ theo dõi…' : 'Bỏ theo dõi'}</span>
+                </button>
+              }
+            />
+          ))}
+        </NovelGrid>
+      </section>
+    </div>
   );
 }
 
 export function ReaderHistoryPage() {
   const historyQuery = useQuery({ queryKey: ['reader-history'], queryFn: listHistory });
+  const items = historyQuery.data ?? [];
 
   return (
-    <Box>
-      <ReaderHeader title="Reading History" description="Resume recent reading progress." />
-      {historyQuery.isLoading ? <LoadingState label="Loading history..." /> : null}
-      {historyQuery.isError ? <ErrorState error={historyQuery.error} onRetry={() => void historyQuery.refetch()} /> : null}
-      {!historyQuery.isLoading && !historyQuery.isError && !historyQuery.data?.length ? <EmptyState description="No reading history yet." /> : null}
-      <Stack>
-        {(historyQuery.data ?? []).map((item) => (
-          <Paper key={item.novelId} p="md" withBorder>
-            <Group justify="space-between">
-              <Box>
-                <Title order={4}>{item.novel.title}</Title>
-                <Text c="dimmed">
-                  Ch. {item.chapter.chapterNumber}: {item.chapter.title}
-                </Text>
-              </Box>
-              <Button
-                component={Link}
-                to={`/reader/chapters/${item.chapterId}`}
-                data-testid={`reader-history-continue-${item.chapterId}`}
-              >
-                Continue
-              </Button>
-            </Group>
-          </Paper>
-        ))}
-      </Stack>
-    </Box>
+    <div className="flex flex-col gap-6">
+      <PageHeader crumbs={[readerHomeCrumb, { label: 'Lịch sử đọc' }]} title="Lịch sử đọc" />
+      <section className="flex flex-col gap-4">
+        <SectionHeading title="Đọc gần đây" count={historyQuery.isSuccess ? `${items.length} truyện` : undefined} />
+        <QueryStates
+          loading={historyQuery.isLoading}
+          error={historyQuery.isError ? historyQuery.error : null}
+          onRetry={() => void historyQuery.refetch()}
+          empty={historyQuery.isSuccess && !items.length}
+          loadingLabel="Đang tải lịch sử đọc..."
+          emptyTitle="Chưa có lịch sử đọc"
+          emptyDescription="Các chương bạn đọc sẽ xuất hiện tại đây."
+        />
+        {items.length ? (
+          <div className={`${card} overflow-hidden divide-y divide-stone-100`}>
+            {items.map((item) => (
+              <article key={item.novelId} className="flex items-center gap-4 px-4 py-3 hover:bg-stone-50 transition-colors">
+                <Link
+                  to={`/reader/novels/${item.novelId}`}
+                  className="w-12 shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-stone-100 border border-stone-200/70"
+                >
+                  <Cover url={item.novel.coverImageUrl} title={item.novel.title} />
+                </Link>
+                <div className="flex-1 min-w-0">
+                  <Link
+                    to={`/reader/novels/${item.novelId}`}
+                    className="py-0.5 text-body font-bold text-stone-900 hover:text-primary-600 line-clamp-1 transition-colors"
+                  >
+                    {item.novel.title}
+                  </Link>
+                  <p className="text-meta text-stone-600 truncate">
+                    Đang đọc: {formatChapterTitle(item.chapter.chapterNumber, item.chapter.title)}
+                  </p>
+                  <p className="text-meta text-stone-400">Lần cuối: {new Date(item.readAt).toLocaleString('vi-VN')}</p>
+                </div>
+                <Link
+                  to={`/reader/chapters/${item.chapterId}`}
+                  className="sc-button sc-button-primary shrink-0"
+                  data-testid={`reader-history-continue-${item.chapterId}`}
+                >
+                  <span className="material-symbols-outlined" aria-hidden="true">play_arrow</span>
+                  <span>Đọc tiếp</span>
+                </Link>
+              </article>
+            ))}
+          </div>
+        ) : null}
+      </section>
+    </div>
   );
 }
 
-function ReaderHeader({ title, description, actions }: { title: string; description: string; actions?: ReactNode }) {
-  const publicPage = useLocation().pathname.startsWith('/public');
+// ─── Building blocks ────────────────────────────────────────────────────────
+
+const cardButton =
+  'inline-flex items-center justify-center gap-1 flex-1 py-1 px-2.5 rounded-lg bg-stone-50 hover:bg-stone-100 text-meta font-medium text-stone-700 border border-stone-200/80 shadow-2xs transition-colors';
+
+function PublicLayout({ children }: { children: ReactNode }) {
   return (
-    <Group justify="space-between" mb="lg">
-      <Box>
-        <Title order={2}>{title}</Title>
-        <Text c="dimmed">{description}</Text>
-      </Box>
-      <Group gap="xs">{actions}{publicPage && <ThemeControl />}</Group>
-    </Group>
+    <>
+      <AuthorNavbar />
+      <main className="sc-shell-content flex flex-col gap-4">{children}</main>
+    </>
+  );
+}
+
+function PageHeader({ crumbs = [], title, description, actions }: { crumbs?: BreadcrumbItem[]; title: string; description?: string; actions?: ReactNode }) {
+  return (
+    <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="flex flex-col gap-1">
+        <Breadcrumbs items={crumbs} />
+        <h1 className="font-headline-sm text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">{title}</h1>
+        {description ? <p className="text-body text-stone-500">{description}</p> : null}
+      </div>
+      {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
+    </header>
+  );
+}
+
+function SectionHeading({ title, count, children }: { title: string; count?: string; children?: ReactNode }) {
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      <div className="flex items-center gap-2">
+        <h2 className="text-base font-bold text-stone-900">{title}</h2>
+        {count ? <span className="px-2.5 py-0.5 rounded-full bg-stone-200/80 text-stone-700 text-meta font-semibold">{count}</span> : null}
+      </div>
+      {children ? <div className="flex flex-wrap items-center gap-2">{children}</div> : null}
+    </div>
+  );
+}
+
+function Breadcrumb({ back, current, children }: { back: { to: string; label: string }; current: string; children?: ReactNode }) {
+  return (
+    <div className={`${card} px-3 py-1.5 flex items-center justify-between gap-3`}>
+      <Breadcrumbs items={[back, { label: current }]} />
+      {children ? <div className="flex items-center gap-1.5 shrink-0">{children}</div> : null}
+    </div>
+  );
+}
+
+function QueryStates({
+  loading,
+  error,
+  onRetry,
+  empty,
+  loadingLabel,
+  emptyTitle,
+  emptyDescription,
+  emptyAction
+}: {
+  loading: boolean;
+  error: unknown;
+  onRetry: () => void;
+  empty: boolean;
+  loadingLabel: string;
+  emptyTitle: string;
+  emptyDescription: string;
+  emptyAction?: ReactNode;
+}) {
+  if (loading) return <LoadingState label={loadingLabel} />;
+  if (error) return <ErrorState error={error} onRetry={onRetry} />;
+  if (empty) return <EmptyState title={emptyTitle} description={emptyDescription} action={emptyAction} />;
+  return null;
+}
+
+function NovelGrid({ children }: { children: ReactNode }) {
+  return <div className="sc-novel-grid">{children}</div>;
+}
+
+function Cover({ url, title }: { url?: string | null; title: string }) {
+  return url ? (
+    <img src={url} alt={title} className="w-full h-full object-cover" />
+  ) : (
+    <span className="sc-cover-placeholder flex h-full items-center justify-center p-2 text-center text-meta text-stone-500">{title}</span>
   );
 }
 
 function NovelCard({ novel, extraAction, publicMode = false }: { novel: ReaderNovel; extraAction?: ReactNode; publicMode?: boolean }) {
-  return (
-    <Paper p="md" withBorder>
-      <Stack gap="sm">
-        <Group justify="space-between" align="flex-start">
-          <Box>
-            <Title order={4}>{novel.title}</Title>
-            <Text size="sm" c="dimmed">
-              {novel.authorName ? `By ${novel.authorName}` : novel.genre ?? 'Published novel'}
-            </Text>
-          </Box>
-          <Badge>{novel.status ?? novel.serialStatus ?? 'PUBLISHED'}</Badge>
-        </Group>
-        <Text size="sm" c="dimmed" lineClamp={3}>
-          {novel.synopsis ?? 'No synopsis.'}
-        </Text>
-        <Group gap="xs">
-          <Badge variant="outline">{novel.chaptersCount ?? 0} chapters</Badge>
-          <Badge variant="outline">{novel.likesCount ?? 0} likes</Badge>
-          <Badge variant="outline">{novel.viewsCount ?? 0} views</Badge>
-        </Group>
-        <Group>
-          <Button
-            component={Link}
-            to={`${publicMode ? '/public' : '/reader'}/novels/${novel.novelId}`}
-            size="xs"
-            data-testid={`novel-open-detail-${novel.novelId}`}
-          >
-            Open detail
-          </Button>
-          {extraAction}
-        </Group>
-      </Stack>
-    </Paper>
-  );
-}
+  const detailPath = `${publicMode ? '/public' : '/reader'}/novels/${novel.novelId}`;
+  const statusLabel = serialLabels[novel.serialStatus ?? novel.status ?? ''] ?? 'Đã xuất bản';
 
-function ChapterRow({ chapter, publicMode = false }: { chapter: ReaderChapter; publicMode?: boolean }) {
   return (
-    <Paper p="sm" withBorder>
-      <Group justify="space-between">
-        <Box>
-          <Text fw={700}>
-            Ch. {chapter.chapterNumber}: {chapter.title}
-          </Text>
-          <Text size="sm" c="dimmed">
-            {chapter.wordCount ?? 0} words
-          </Text>
-        </Box>
-        <Group gap="xs">
-          {chapter.isVip ? <Badge color="yellow">VIP {chapter.priceCoins}</Badge> : <Badge color="green">Free</Badge>}
-          <Button
-            component={Link}
-            to={`${publicMode ? '/public' : '/reader'}/chapters/${chapter.chapterId}`}
-            size="xs"
-            data-testid={`read-chapter-${chapter.chapterId}`}
-          >
-            Read
-          </Button>
-        </Group>
-      </Group>
-    </Paper>
-  );
-}
-
-function LoginPromptActions() {
-  return (
-    <Alert color="blue">
-      Library, like, follow, comment, report, history sync, and VIP unlock are protected actions. Login to use them.
-    </Alert>
+    <article className="sc-novel-card sc-reader-book">
+        <Link
+          to={detailPath}
+          className="sc-cover-hover sc-book-cover"
+          aria-label={`Đọc truyện: ${novel.title}`}
+          data-testid={`novel-open-detail-${novel.novelId}`}
+        >
+          <Cover url={novel.coverImageUrl} title={novel.title} />
+          <span className="sc-book-status" data-completed={(novel.serialStatus ?? novel.status) === 'COMPLETED'}>{statusLabel}</span>
+        </Link>
+        <div className="sc-book-info">
+            <Link
+              to={detailPath}
+              className="sc-book-title"
+              title={novel.title}
+            >
+              {novel.title}
+            </Link>
+          <div className="sc-book-metrics">
+            <span><span className="material-symbols-outlined" aria-hidden="true">menu_book</span>{novel.chaptersCount ?? 0} chương</span>
+            <span><span className="material-symbols-outlined" aria-hidden="true">visibility</span>{(novel.viewsCount ?? 0).toLocaleString('vi-VN')} lượt đọc</span>
+          </div>
+        </div>
+        {extraAction ? <div className="mt-auto flex gap-2">{extraAction}</div> : null}
+    </article>
   );
 }

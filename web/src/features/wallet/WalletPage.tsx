@@ -1,7 +1,9 @@
+import { AnimatedNumber } from '../../shared/components/AuthorAdminMotion';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { navigationLabels } from '../../shared/components/navigation';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   completeMockDeposit,
   createDepositSession,
@@ -40,6 +42,8 @@ export function WalletPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const user = useAuthStore((state: any) => state.user);
+  const animateAuthor = user?.role === 'AUTHOR' || user?.role === 'ADMIN';
+  const pageTitle = animateAuthor ? navigationLabels.authorWallet : navigationLabels.readerWallet;
 
   // Queries
   const walletQuery = useQuery({ queryKey: ['wallet'], queryFn: getWallet });
@@ -265,16 +269,9 @@ export function WalletPage() {
               {/* 1. Page Header Section */}
               <section className="flex flex-col md:flex-row md:items-end justify-between gap-3 pt-1">
                 <div className="flex flex-col gap-0.5">
-                  <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-outline font-label-md text-meta">
-                    <Link to="/author/projects" className="hover:text-primary transition-colors">
-                      Trang chủ
-                    </Link>
-                    <span className="text-outline-variant">/</span>
-                    <span className="text-primary font-medium">Ví &amp; doanh thu</span>
-                  </nav>
                   <div className="flex items-baseline gap-2 mt-0.5">
                     <h1 className="font-headline-lg text-2xl text-on-surface font-serif font-bold tracking-tight">
-                      Ví &amp; Doanh Thu
+                      {pageTitle}
                     </h1>
                   </div>
                 </div>
@@ -304,7 +301,7 @@ export function WalletPage() {
                     <div className="flex flex-col gap-0.5">
                       <div className="flex items-baseline gap-1.5">
                         <span className="text-2xl sm:text-3xl text-on-surface tracking-tight font-serif font-bold">
-                          {availableBalance.toLocaleString('vi-VN')}
+                          {animateAuthor ? <AnimatedNumber value={availableBalance} /> : availableBalance.toLocaleString('vi-VN')}
                         </span>
                         <span className="text-body font-semibold text-primary">Xu</span>
                       </div>
@@ -381,7 +378,7 @@ export function WalletPage() {
                     <div className="flex flex-col gap-0.5">
                       <div className="flex items-baseline gap-1.5">
                         <span className="text-2xl sm:text-3xl text-on-surface tracking-tight font-serif font-bold">
-                          {totalAccumulated.toLocaleString('vi-VN')}
+                          {animateAuthor ? <AnimatedNumber value={totalAccumulated} /> : totalAccumulated.toLocaleString('vi-VN')}
                         </span>
                         <span className="text-body font-semibold text-outline">Xu</span>
                       </div>
@@ -415,7 +412,7 @@ export function WalletPage() {
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className="text-meta text-outline">Tổng kỳ này:</span>
                           <span className="text-body text-on-surface font-bold">
-                            {currentChart.total.toLocaleString('vi-VN')} Xu
+                            {animateAuthor ? <AnimatedNumber value={currentChart.total} /> : currentChart.total.toLocaleString('vi-VN')} Xu
                           </span>
                         </div>
                       </div>
@@ -474,13 +471,13 @@ export function WalletPage() {
                         {/* Bars Cluster */}
                         <div className="relative pl-8 pr-1 h-36 flex items-end justify-between gap-2 sm:gap-3.5 z-10">
                           {currentChart.points.map((pt, idx) => (
-                            <div key={idx} tabIndex={0} aria-label={`${pt.label}: ${pt.amount.toLocaleString('vi-VN')} Xu`} className="group flex-1 flex flex-col items-center h-full justify-end relative cursor-pointer">
+                            <div key={animateAuthor ? `${chartPeriod}-${idx}` : idx} tabIndex={0} aria-label={`${pt.label}: ${pt.amount.toLocaleString('vi-VN')} Xu`} className="group flex-1 flex flex-col items-center h-full justify-end relative cursor-pointer">
                               {/* Hover Tooltip */}
                               <div className="absolute -top-7 px-2 py-0.5 bg-inverse-surface text-inverse-on-surface font-label-sm text-meta rounded opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-sm z-20">
                                 {pt.label}: {pt.amount.toLocaleString('vi-VN')} Xu
                               </div>
                               <div
-                                className={`w-full max-w-[32px] flex flex-col justify-end rounded-t-md overflow-hidden group-hover:brightness-95 transition-all ${
+                                className={`w-full max-w-[32px] flex flex-col justify-end rounded-t-md overflow-hidden group-hover:brightness-95 transition-all ${animateAuthor ? 'sc-author-chart-bar' : ''} ${
                                   pt.highlight ? 'shadow-sm' : ''
                                 }`}
                                 style={{ height: `${pt.heightPercent}%` }}

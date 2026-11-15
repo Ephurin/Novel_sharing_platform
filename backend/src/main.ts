@@ -1,4 +1,5 @@
 import { publishDueChapters } from './modules/novels/chapter-schedules.js';
+import { drainAdminJobs } from './modules/admin/admin-jobs.js';
 import { deliverDomainNotifications } from './modules/interactions/domain-notifications.js';
 import { createApp } from './app.js';
 import { env } from './core/config/env.js';
@@ -9,9 +10,12 @@ import { startOutboxProcessor, stopOutboxProcessor } from './jobs/outbox-process
 const app = createApp();
 let scheduleTimer: ReturnType<typeof setInterval> | undefined;
 let notificationTimer: ReturnType<typeof setInterval> | undefined;
+let adminTimer: ReturnType<typeof setInterval> | undefined;
 
 if (env.DB_CONNECT_ON_START) {
   await connectDatabases();
+  adminTimer = setInterval(() => void drainAdminJobs().catch((error) => logger.error(error)), 5000);
+  void drainAdminJobs().catch((error) => logger.error(error));
   startOutboxProcessor();
   scheduleTimer = setInterval(() => void publishDueChapters(), 10000);
   void publishDueChapters();
@@ -28,6 +32,7 @@ async function shutdown(signal: string) {
   stopOutboxProcessor();
   if (scheduleTimer) clearInterval(scheduleTimer);
   if (notificationTimer) clearInterval(notificationTimer);
+  if (adminTimer) clearInterval(adminTimer);
 
   server.close(async () => {
     await disconnectDatabases();

@@ -1,3 +1,4 @@
+import { withPostgresTransaction } from '../core/database/transaction.js';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -149,11 +150,12 @@ async function readStoryChapters(directoryName: string) {
 }
 
 async function ensureDemoUsers() {
+  return withPostgresTransaction(async client=>{
   const passwordHash = await bcrypt.hash('StrongPassword123!', 12);
   let authorId = '';
 
   for (const user of demoUsers) {
-    const result = await getPostgresPool().query(
+    const result = await client.query(
       `
         insert into users (email, username, password_hash, role, status)
         values ($1, $2, $3, $4::user_role, 'ACTIVE')
@@ -169,8 +171,9 @@ async function ensureDemoUsers() {
       [user.email, user.username, passwordHash, user.role]
     );
     const userId = result.rows[0].user_id as string;
+    if(user.role==='ADMIN')await client.query("insert into admin_access(user_id,scope) values($1,'SUPER_ADMIN') on conflict(user_id) do nothing",[userId]);
 
-    await getPostgresPool().query(
+    await client.query(
       `
         insert into user_profiles (user_id, display_name, bio)
         values ($1, $2, $3)
@@ -182,7 +185,7 @@ async function ensureDemoUsers() {
       [userId, user.displayName, `Demo ${user.role.toLowerCase()} account for Docker/system testing.`]
     );
 
-    await getPostgresPool().query(
+    await client.query(
       `
         insert into wallets (user_id, coins_balance)
         values ($1, $2)
@@ -199,6 +202,7 @@ async function ensureDemoUsers() {
   }
 
   return authorId;
+  });
 }
 
 async function upsertGenre(name: string) {

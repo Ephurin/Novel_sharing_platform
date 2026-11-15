@@ -75,8 +75,8 @@ export async function createChapter(
   return mapChapter(result.rows[0]);
 }
 
-export async function findChapterById(chapterId: string) {
-  const result = await getPostgresPool().query(
+export async function findChapterById(chapterId: string, client?: PoolClient) {
+  const result = await (client ?? getPostgresPool()).query(
     'select * from chapters where chapter_id=$1 and deleted_at is null limit 1',
     [chapterId]
   );

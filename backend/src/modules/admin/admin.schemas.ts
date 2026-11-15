@@ -15,7 +15,13 @@ export const listAdminNovelsSchema = z.object({
     q: z.string().optional(),
     authorId: z.string().uuid().optional(),
     status: z.enum(['DRAFT', 'PENDING_MODERATION', 'PUBLISHED', 'REJECTED']).optional(),
-    includeDeleted: z.coerce.boolean().default(false),
+    serialStatus: z.enum(['ONGOING', 'COMPLETED', 'HIATUS']).optional(),
+    includeDeleted: z
+      .preprocess(
+        (value) => (value === 'true' ? true : value === 'false' ? false : value),
+        z.boolean()
+      )
+      .default(false),
     page: z.coerce.number().int().positive().default(1),
     limit: z.coerce.number().int().positive().max(100).default(20)
   })
@@ -27,18 +33,22 @@ export const novelIdParamSchema = z.object({
   })
 });
 
+export const chapterIdParamSchema = z.object({
+  params: z.object({ chapterId: z.string().uuid() })
+});
+
 export const removeNovelSchema = z.object({
   params: novelIdParamSchema.shape.params,
   body: z.object({
     confirm: z.literal(true),
-    reason: z.string().max(1000).optional()
+    reason: z.string().trim().min(1).max(1000)
   })
 });
 
 export const restoreNovelSchema = z.object({
   params: novelIdParamSchema.shape.params,
   body: z.object({
-    reason: z.string().max(1000).optional()
+    reason: z.string().trim().min(1).max(1000)
   })
 });
 
@@ -51,13 +61,13 @@ export const userIdParamSchema = z.object({
 export const lockUserSchema = z.object({
   params: userIdParamSchema.shape.params,
   body: z.object({
-    reason: z.string().max(500).optional()
+    reason: z.string().trim().min(1).max(1000)
   })
 });
 
 export const taxonomyNameSchema = z.object({
   body: z.object({
-    name: z.string().min(1).max(100),
+    name: z.string().trim().min(1).max(100),
     description: z.string().max(1000).optional()
   })
 });
@@ -79,7 +89,7 @@ export const withdrawRequestIdParamSchema = z.object({
 export const rejectWithdrawRequestSchema = z.object({
   params: withdrawRequestIdParamSchema.shape.params,
   body: z.object({
-    reason: z.string().min(1).max(1000)
+    reason: z.string().trim().min(1).max(1000)
   })
 });
 

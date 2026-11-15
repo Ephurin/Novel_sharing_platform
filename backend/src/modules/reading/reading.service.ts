@@ -1,3 +1,4 @@
+import { isContentAdmin } from '../../core/security/auth-context.js';
 import { assertActiveAccount } from '../../core/security/active-account.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
@@ -6,7 +7,8 @@ import type {
   HistoryListInput,
   ReadingPreferencesInput,
   SearchNovelsInput,
-  SyncReadingHistoryInput
+  SyncReadingHistoryInput,
+  ReadingBookmarkInput
 } from './reading.schemas.js';
 import {
   addBookmark,
@@ -18,10 +20,15 @@ import {
   listBookmarks,
   listPublishedChaptersForNovel,
   listReadingHistories,
+  listReadingFilters,
   removeBookmark,
   searchPublishedNovels,
   updateReadingPreference,
-  upsertReadingHistory
+  upsertReadingHistory,
+  recordChapterRead,
+  findReadingBookmark,
+  upsertReadingBookmark,
+  deleteReadingBookmark
 } from './reading.repository.js';
 import { userHasChapterUnlock } from '../wallet/wallet.repository.js';
 
@@ -40,6 +47,10 @@ export async function getPreferences(auth: AuthContext) {
 
 export async function savePreferences(auth: AuthContext, input: ReadingPreferencesInput) {
   return updateReadingPreference(auth.userId, input);
+}
+
+export async function getReadingFilters() {
+  return listReadingFilters();
 }
 
 export async function searchNovels(input: SearchNovelsInput) {
@@ -73,15 +84,23 @@ export async function getReaderChapter(chapterId: string, auth?: AuthContext) {
     throw new AppError(404, 'CONTENT_001', 'Content not found');
   }
 
-  const owner = auth && (auth.userId === chapter.authorId || auth.role === 'ADMIN');
-  if (auth && chapter.isVip) await assertActiveAccount(auth);
-  if (chapter.isVip && !owner && (!auth || !(await userHasChapterUnlock(auth.userId, chapterId)))) {
-    throw new AppError(402, 'PAYMENT_002', 'Chapter unlock required');
-  }
+  const owner = await assertChapterAccess(chapter, auth);
+
+  if (auth) await recordChapterRead(auth.userId, chapter.novelId, chapterId);
 
   if (!owner) await incrementNovelViews(chapter.novelId);
   const { authorId: _authorId, ...readable } = chapter;
   return readable;
+}
+
+/** History writes must satisfy the same access policy as content reads. */
+async function assertChapterAccess(chapter: { chapterId: string; authorId: string; isVip: boolean }, auth?: AuthContext) {
+  const owner = Boolean(auth && (auth.userId === chapter.authorId || isContentAdmin(auth)));
+  if (auth) await assertActiveAccount(auth);
+  if (chapter.isVip && !owner && (!auth || !(await userHasChapterUnlock(auth.userId, chapter.chapterId)))) {
+    throw new AppError(402, 'PAYMENT_002', 'Chapter unlock required');
+  }
+  return owner;
 }
 
 export async function syncHistory(auth: AuthContext, input: SyncReadingHistoryInput) {
@@ -92,12 +111,30 @@ export async function syncHistory(auth: AuthContext, input: SyncReadingHistoryIn
     throw new AppError(404, 'CONTENT_001', 'Content not found');
   }
 
+  await assertChapterAccess(chapter, auth);
   await upsertReadingHistory(auth.userId, input);
 
   return {
     synced: true,
     cached: false
   };
+}
+
+export async function getReadingBookmark(auth: AuthContext, novelId: string) {
+  await assertActiveAccount(auth);
+  return findReadingBookmark(auth.userId, novelId);
+}
+
+export async function saveReadingBookmark(auth: AuthContext, novelId: string, input: ReadingBookmarkInput) {
+  const chapter = await findReadableChapter(input.chapterId);
+  if (!chapter || chapter.novelId !== novelId) throw new AppError(404, 'CONTENT_001', 'Content not found');
+  await assertChapterAccess(chapter, auth);
+  return upsertReadingBookmark(auth.userId, novelId, input);
+}
+
+export async function removeReadingBookmark(auth: AuthContext, novelId: string) {
+  await assertActiveAccount(auth);
+  return deleteReadingBookmark(auth.userId, novelId);
 }
 
 export async function listHistory(auth: AuthContext, input: HistoryListInput) {

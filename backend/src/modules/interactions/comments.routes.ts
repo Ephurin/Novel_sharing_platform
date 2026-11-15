@@ -1,5 +1,5 @@
-import { createCommentReply, listAuthorComments, listCommentReplies } from './comments.service.js';
-import { createReplySchema, listRepliesSchema, authorCommentsSchema } from './comments.schemas.js';
+import { createCommentReply, listAuthorComments, listCommentReplies, reactToComment } from './comments.service.js';
+import { createReplySchema, listRepliesSchema, authorCommentsSchema, commentReactionSchema } from './comments.schemas.js';
 import { successResponse } from '../../core/response/response.js';
 import { createNovelCommentSchema, listNovelCommentsSchema } from './comments.schemas.js';
 import { Router } from 'express';
@@ -24,6 +24,9 @@ commentsRoutes.post('/chapters/:chapterId/comments', requireAuth, validateReques
 commentsRoutes.get('/chapters/:chapterId/comments', optionalAuth, validateRequest(listCommentsSchema), listCommentsController);
 commentsRoutes.patch('/comments/:commentId', requireAuth, validateRequest(updateCommentSchema), updateCommentController);
 commentsRoutes.delete('/comments/:commentId', requireAuth, validateRequest(commentIdParamSchema), deleteCommentController);
+commentsRoutes.put('/comments/:commentId/reaction', requireAuth, validateRequest(commentReactionSchema), async (request, response, next) => {
+  try { response.json(successResponse(await reactToComment(request.auth!, String(request.params.commentId), request.body.reaction))); } catch (error) { next(error); }
+});
 
 commentsRoutes.post('/novels/:novelId/comments', requireAuth, validateRequest(createNovelCommentSchema), createCommentController);
 commentsRoutes.get('/novels/:novelId/comments', optionalAuth, validateRequest(listNovelCommentsSchema), listCommentsController);
