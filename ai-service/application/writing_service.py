@@ -6,7 +6,7 @@ import re
 import uuid
 from dataclasses import replace
 from typing import Any
-from core.writing_output import is_writing_envelope
+from core.writing_output import fit_spacing, is_writing_envelope
 
 import json
 from application.context_budget import ContextBudgetPacker
@@ -629,6 +629,10 @@ class WritingService:
             end=patch_info.get("end", job.selection.get("end", 0)),
             replacement=patch_info.get("replacement", draft_text),
         )
+        base_text = self._base_text(job)
+        if base_text is not None and 0 <= patch.start <= patch.end <= len(base_text):
+            patch = WritingPatch(start=patch.start, end=patch.end, replacement=fit_spacing(
+                base_text[:patch.start], patch.replacement, base_text[patch.end:]))
 
         # Stage: validating
         base_len = job.selection.get("base_content_length")
@@ -688,6 +692,22 @@ class WritingService:
         )
 
         return self._repository.save_writing_job(completed_job)
+
+    def _base_text(self, job: WritingGenerationJob) -> str | None:
+        """The full text the patch applies to, or None when it cannot be read."""
+        if job.selection.get("source_text") is not None:
+            return str(job.selection["source_text"])
+        if self._revision_provider:
+            try:
+                return self._revision_provider.get_revision(
+                    tenant_id=job.tenant_id,
+                    novel_id=job.novel_id,
+                    chapter_id=job.chapter_id,
+                    revision_id=job.revision_id,
+                ).content
+            except Exception:
+                return None
+        return None
 
     def _resolve_selected_text(self, job: WritingGenerationJob) -> str:
         if job.selection.get("source_text") is not None:
