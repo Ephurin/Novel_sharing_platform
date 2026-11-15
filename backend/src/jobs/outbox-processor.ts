@@ -4,10 +4,12 @@ import {
   claimPendingOutboxEvents,
   fetchPendingOutboxEvents,
   markOutboxEventCompleted,
+  markOutboxEventDeferred,
   markOutboxEventFailed,
   type RevisionOutboxEvent
 } from '../modules/novels/outbox.repository.js';
 import { syncDraftFromRevisionConditional } from '../modules/novels/draft-chapters.repository.js';
+import { findLatestRevisionByChapterId } from '../modules/novels/chapter-revisions.repository.js';
 
 let isProcessing = false;
 
@@ -22,11 +24,45 @@ export function outboxRetryDelaySeconds(retryCount: number, errorMessage: string
 }
 let outboxTimer: NodeJS.Timeout | null = null;
 
+// What handling an event decided. `deferSeconds` reschedules it without spending a retry.
+export type OutboxOutcome = void | { skipped: string } | { deferSeconds: number; reason: string };
+
 export interface OutboxDependencies {
   claimEvents?: (limit: number) => Promise<RevisionOutboxEvent[]>;
-  handleEvent?: (event: RevisionOutboxEvent) => Promise<void>;
+  handleEvent?: (event: RevisionOutboxEvent) => Promise<OutboxOutcome>;
   markCompleted?: (eventId: string, claimToken: string) => Promise<boolean>;
   markFailed?: (eventId: string, error: string, backoffSeconds: number, claimToken: string) => Promise<boolean>;
+  markDeferred?: (eventId: string, delaySeconds: number, reason: string, claimToken: string) => Promise<boolean>;
+  /** Analyse the chapter head now even if it is still inside the quiet period (Full auto). */
+  ignoreQuietPeriod?: boolean;
+  analysisGate?: AnalysisGateDependencies;
+}
+
+export interface AnalysisGateDependencies {
+  latestRevision?: (chapterId: string) => Promise<{ revisionId: string; createdAt: Date } | null>;
+  quietSeconds?: number;
+  now?: () => number;
+}
+
+// Incremental analysis reads the whole saved chapter, so analysing every save costs
+// (saves x chapter length) per chapter. Only the chapter head is worth analysing (older
+// checkpoints can no longer be reviewed), and only once the author has stopped changing it.
+export async function incrementalAnalysisGate(event: RevisionOutboxEvent,
+  deps: AnalysisGateDependencies = {}): Promise<OutboxOutcome | 'analyse'> {
+  const latest = deps.latestRevision ?? (async (chapterId: string) => {
+    const head = await findLatestRevisionByChapterId(undefined, chapterId);
+    return head ? { revisionId: head.revisionId, createdAt: new Date(head.createdAt) } : null;
+  });
+  const head = await latest(event.chapterId);
+  if (head && head.revisionId !== event.revisionId) return { skipped: 'superseded by a newer saved revision' };
+  const quiet = deps.quietSeconds ?? env.ANALYSIS_QUIET_SECONDS;
+  if (head && quiet > 0) {
+    const ageSeconds = ((deps.now ?? Date.now)() - head.createdAt.getTime()) / 1000;
+    if (ageSeconds < quiet) {
+      return { deferSeconds: Math.max(5, Math.ceil(quiet - ageSeconds)), reason: 'waiting for the chapter to stop changing' };
+    }
+  }
+  return 'analyse';
 }
 
 export async function processOutboxOnce(
@@ -65,9 +101,12 @@ export async function processOutboxOnce(
       }
     }
 
-    const handler = deps?.handleEvent ?? handleOutboxEvent;
+    const handler = deps?.handleEvent ??
+      ((event: RevisionOutboxEvent) => handleOutboxEvent(event,
+        { ...deps?.analysisGate, ...(deps?.ignoreQuietPeriod ? { quietSeconds: 0 } : {}) }));
     const markCompletedFn = deps?.markCompleted ?? ((id, token) => markOutboxEventCompleted(undefined, id, token));
     const markFailedFn = deps?.markFailed ?? ((id, err, backoff, token) => markOutboxEventFailed(undefined, id, err, backoff, token));
+    const markDeferredFn = deps?.markDeferred ?? ((id, delay, reason, token) => markOutboxEventDeferred(undefined, id, delay, reason, token));
 
     for (const event of events) {
       processed++;
@@ -76,7 +115,14 @@ export async function processOutboxOnce(
         continue;
       }
       try {
-        await handler(event);
+        const outcome = await handler(event);
+        if (outcome && 'deferSeconds' in outcome) {
+          await markDeferredFn(event.eventId, outcome.deferSeconds, `deferred: ${outcome.reason}`, event.claimToken);
+          continue;
+        }
+        if (outcome && 'skipped' in outcome) {
+          console.info(`[OutboxProcessor] Event ${event.eventId} (${event.eventType}) skipped: ${outcome.skipped}`);
+        }
         await markCompletedFn(event.eventId, event.claimToken);
         succeeded++;
       } catch (err: any) {
@@ -99,8 +145,11 @@ export async function processOutboxOnce(
   return { processed, succeeded, failed };
 }
 
-export async function handleOutboxEvent(event: RevisionOutboxEvent): Promise<void> {
+export async function handleOutboxEvent(event: RevisionOutboxEvent,
+  gate: AnalysisGateDependencies = {}): Promise<OutboxOutcome> {
   if (event.eventType === 'INCREMENTAL_ANALYSIS') {
+    const decision = await incrementalAnalysisGate(event, gate);
+    if (decision !== 'analyse') return decision;
     const analysisUrl = `${env.AI_SERVICE_URL}/v1/revisions/${event.revisionId}/analyses`;
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',

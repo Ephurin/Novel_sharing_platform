@@ -383,7 +383,8 @@ export class AutonomousControllerService {
     }
 
     // Process outbox to advance Story Brain
-    await processOutboxOnce(10);
+    // Full auto reviews this revision right away, so it must not wait for the quiet period.
+    await processOutboxOnce(10, { ignoreQuietPeriod: true });
 
     // Scoped auto-acceptance: strictly accept only proposals originating from this accepted revision
     try {

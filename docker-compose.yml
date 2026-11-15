@@ -92,6 +92,7 @@ services:
       RUN_MIGRATIONS: "true"
       RUN_DEMO_SEED: "true"
       AI_SERVICE_URL: ${AI_SERVICE_URL:-http://ai-service:8000}
+      ANALYSIS_QUIET_SECONDS: ${ANALYSIS_QUIET_SECONDS:-120}
       PLATFORM_SERVICE_TOKEN: ${PLATFORM_SERVICE_TOKEN:-test-token}
     ports:
       - "4000:4000"

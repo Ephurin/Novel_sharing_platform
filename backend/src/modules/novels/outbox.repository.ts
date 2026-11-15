@@ -218,6 +218,32 @@ export async function markOutboxEventFailed(
   return (result.rowCount ?? 0) > 0;
 }
 
+// A deferral is not a failure: it reschedules the claimed event without spending a retry.
+export async function markOutboxEventDeferred(
+  client: DbClient | undefined,
+  eventId: string,
+  delaySeconds: number,
+  reason: string,
+  claimToken: string
+): Promise<boolean> {
+  if (!claimToken) {
+    throw new Error(`markOutboxEventDeferred requires a valid claimToken for event ${eventId}`);
+  }
+  const executor = client ?? getPostgresPool();
+  const result = await executor.query(
+    `
+      update revision_outbox_events
+      set status = 'PENDING',
+          last_error = $2,
+          next_retry_at = now() + ($3 || ' seconds')::interval,
+          updated_at = now()
+      where event_id = $1 and claim_token = $4 and status = 'PROCESSING'
+    `,
+    [eventId, reason, delaySeconds, claimToken]
+  );
+  return (result.rowCount ?? 0) > 0;
+}
+
 export async function markOutboxEventFailedUnfenced(
   client: DbClient | undefined,
   eventId: string,
