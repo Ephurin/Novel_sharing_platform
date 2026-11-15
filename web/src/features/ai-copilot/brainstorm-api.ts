@@ -107,3 +107,10 @@ export async function requestBrainstorm(
   return response.data.data;
 }
 
+/** Prefix the author's idea to the direction, within the request's 10,000-character limit. */
+export function withStoryIdea(instruction: string, storyIdea?: string): string {
+  const idea = storyIdea?.trim();
+  if (!idea) return instruction;
+  const head = `Ý tưởng truyện của tác giả (chưa duyệt, chỉ để định hướng): ${idea}`;
+  return (instruction ? `${head}\n\nĐịnh hướng: ${instruction}` : head).slice(0, 10000);
+}

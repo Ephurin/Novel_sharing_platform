@@ -15,6 +15,7 @@ import {
   TextInput,
 } from '@mantine/core';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
+import { getApprovedMemory } from './author-memory-api';
 import {
   requestBrainstorm,
   type BrainstormTarget,
@@ -24,6 +25,7 @@ import {
   type ProposedFutureEvent,
   type BrainstormProvenance,
   type BrainstormRequest,
+  withStoryIdea,
 } from './brainstorm-api';
 
 export type BrainstormModalProps = {
@@ -44,6 +46,8 @@ export type BrainstormModalProps = {
   onAdoptWorldRule?: (rule: AdoptedWorldRule) => AdoptResult;
   onAdoptCharacter?: (char: AdoptedCharacter) => AdoptResult;
   onAdoptFutureEvent?: (ev: AdoptedFutureEvent) => AdoptResult;
+  /** Live retest N2: the author's idea text, sent as direction before the setup is saved. */
+  storyIdea?: string;
 };
 
 export type AdoptResult = string | null | void;
@@ -107,7 +111,18 @@ export function BrainstormingModal({
   onAdoptWorldRule,
   onAdoptCharacter,
   onAdoptFutureEvent,
+  storyIdea,
 }: BrainstormModalProps) {
+  // Live retest N3: participants showed raw entity IDs; read approved names when the dialog opens.
+  const [entityNames, setEntityNames] = useState<Map<string, string>>(() => new Map());
+  useEffect(() => {
+    if (!opened) return;
+    let live = true;
+    getApprovedMemory(novelId)
+      .then(m => { if (live) setEntityNames(new Map((m?.entities ?? []).map(e => [e.entity_id, e.name]))); })
+      .catch(() => {});
+    return () => { live = false; };
+  }, [opened, novelId]);
   const allowedTargets: BrainstormTarget[] = [
     ...(onAdoptWorldRule && onAdoptCharacter && onAdoptFutureEvent ? ['all' as const] : []),
     ...(onAdoptWorldRule ? ['world_rules' as const] : []),
@@ -232,7 +247,7 @@ export function BrainstormingModal({
     const payload: BrainstormRequest = {
       contract_version: 'brainstorm-v1',
       target,
-      instruction: instruction.trim(),
+      instruction: withStoryIdea(instruction.trim(), storyIdea),
     };
     if (expectedBrainVersion !== undefined) payload.expected_brain_version = expectedBrainVersion;
     if (expectedPlanVersion !== undefined) payload.expected_plan_version = expectedPlanVersion;
@@ -698,7 +713,7 @@ export function BrainstormingModal({
 
                         {ev.participants && ev.participants.length > 0 && (
                           <Text size="xs" c="dimmed">
-                            Người tham gia: {ev.participants.map(p => p.name_hint || p.entity_id || 'Chưa xác định').join(', ')}
+                            Người tham gia: {ev.participants.map(p => p.name_hint || (p.entity_id && entityNames.get(p.entity_id)) || (p.entity_id ? 'Nhân vật đã duyệt' : 'Chưa xác định')).join(', ')}
                           </Text>
                         )}
 

@@ -43,3 +43,27 @@ def fit_spacing(before: str, replacement: str, after: str) -> str:
             and not replacement[-1].isspace() and replacement[-1] not in _OPENING):
         replacement = replacement + ' '
     return replacement
+
+
+# Issue 11 (long-run test, live retest): drafts came back at about 68% of the requested length
+# ("khoảng 500 chữ" gave 189-533 words, 339 on average).
+_WORD_COUNT = re.compile(r'(\d{2,5})\s*(?:chữ|từ|words?)\b', re.IGNORECASE)
+
+
+def requested_words(instruction: str) -> int | None:
+    """The word count an instruction asks for ("khoảng 500 chữ", "400 từ"), or None."""
+    match = _WORD_COUNT.search(instruction or '')
+    if not match:
+        return None
+    words = int(match.group(1))
+    return words if 30 <= words <= 3000 else None
+
+
+def length_requirement(instruction: str) -> str:
+    """A user-prompt line that makes the requested length explicit, or ''."""
+    words = requested_words(instruction)
+    if not words:
+        return ''
+    minimum = -(-words * 9 // 10)
+    return (f"Độ dài bắt buộc: khoảng {words} chữ, không ít hơn {minimum} chữ. Viết trọn các cảnh cho đủ độ dài; "
+            "không tóm tắt, không kết thúc sớm.\n")
