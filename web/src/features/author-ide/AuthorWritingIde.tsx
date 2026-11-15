@@ -834,7 +834,9 @@ export function AuthorWritingIde() {
         else if (rightPanelRef.current !== 'ai') showToast('Bản nháp AI đã sẵn sàng. Mở bảng AI để xem.', 'success');
       } else if (status === 'failed' || status === 'dismissed' || status === 'completed') {
         setIsGeneratingAi(false);
-        showToast(`Tác vụ AI thất bại: ${updated.error?.message || 'Không rõ nguyên nhân'}`);
+        // Live retest 2 (R1): a failed validation (e.g. a far too short draft) showed "Không rõ nguyên nhân".
+        const failedCheck = (updated.validations ?? []).find(v => !v.passed)?.message;
+        showToast(`Tác vụ AI thất bại: ${updated.error?.message || failedCheck || 'Không rõ nguyên nhân'}`);
       } else if (attempt < POLL_FAST_ATTEMPTS + POLL_SLOW_ATTEMPTS) {
         // Free-tier generations can queue for minutes: poll every second, then every 3 s, up to ~5 min.
         pollTimerRef.current = window.setTimeout(() => {

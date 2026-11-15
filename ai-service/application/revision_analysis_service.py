@@ -22,6 +22,8 @@ class RevisionAnalysisResult:
     proposals: tuple[NarrativeProposal, ...]
     deduplicated: bool
     status: str = "completed"
+    # Live retest 2 (R2): events whose evidence could not be grounded, reported to the author.
+    dropped_events: int = 0
 
 
 class RevisionAnalysisService:

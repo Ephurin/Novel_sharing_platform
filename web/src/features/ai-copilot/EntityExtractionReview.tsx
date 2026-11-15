@@ -48,8 +48,10 @@ import {
   GROUPED_VIEW_THRESHOLD,
   applyToGroup,
   conflictingOccurrences,
+  aliasEvidence,
   groupBySurface,
   isResolved,
+  needsAliasEvidence,
   summarizeGroup
 } from './entity-review-groups';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
@@ -92,6 +94,7 @@ export function EntityExtractionReview({
   });
 
   const [names, setNames] = useState('');
+  const [continueNotice, setContinueNotice] = useState<string | null>(null);
   const [dirty, setDirty] = useState(false);
   const [declaredName, setDeclaredName] = useState('');
   const [declaredType, setDeclaredType] = useState<EntityType | null>('PER');
@@ -242,6 +245,7 @@ export function EntityExtractionReview({
           Đây là checkpoint xác định mỗi lần xuất hiện thuộc danh tính nào, độc lập với số đề xuất Canon chờ duyệt.
           Freeze không thay thế bước duyệt event/fact và kích hoạt Story Brain.
         </Text>
+        {continueNotice && <Alert color="orange" withCloseButton onClose={() => setContinueNotice(null)} data-testid="entity-dropped-events">{continueNotice}</Alert>}
         {reviews.data && reviews.data.length > 0 ? (
           reviews.data.map(review => (
             <EntityCheckpoint
@@ -251,6 +255,7 @@ export function EntityExtractionReview({
               guidanceVersion={guidance.data?.version}
               disabled={disabled || dirty}
               perform={perform}
+              onNotice={setContinueNotice}
               onContinued={async () => {
                 await refreshAll();
                 await onContinued();
@@ -279,7 +284,8 @@ function EntityCheckpoint({
   guidanceVersion,
   disabled,
   perform,
-  onContinued
+  onContinued,
+  onNotice
 }: {
   review: EntityReview;
   novelId: string;
@@ -287,6 +293,7 @@ function EntityCheckpoint({
   disabled: boolean;
   perform: (fn: () => Promise<unknown>) => void;
   onContinued: () => Promise<unknown>;
+  onNotice: (message: string | null) => void;
 }) {
   const candidates = review.candidates ?? [];
   const machineDecisions = review.decisions ?? [];
@@ -559,7 +566,11 @@ function EntityCheckpoint({
   const handleContinue = () => {
     perform(async () => {
       setConflictMessage(null);
-      await continueEntityReview(novelId, review.analysis_run_id);
+      const result = await continueEntityReview(novelId, review.analysis_run_id);
+      // Live retest 2 (R2): events whose evidence could not be matched used to vanish silently.
+      onNotice(result.dropped_events
+        ? `Có ${result.dropped_events} sự kiện AI tìm thấy nhưng không khớp nguyên văn với chương nên chưa được đề xuất. Bạn có thể tự thêm đề xuất ở tab Trích xuất.`
+        : null);
       await onContinued();
     });
   };
@@ -1319,6 +1330,7 @@ function SurfaceGroupCard({
   const [pending, setPending] = useState<{
     updates: Record<string, Decision>; replaced: number; label: string; addGroup?: string;
   } | null>(null);
+  const [linkError, setLinkError] = useState<string | null>(null);
   const count = group.candidates.length;
   const shared = summary.shared;
   const scope = review.provisional_identity_scope;
@@ -1393,7 +1405,21 @@ function SurfaceGroupCard({
             value={shared?.canonical_entity_id || null}
             onChange={id => {
               const target = knownEntities.find(e => e.entity_id === id);
-              if (target) act(`nối với ${target.name}`, m => knownIdentity(m, target));
+              if (!target) return;
+              setLinkError(null);
+              if (!needsAliasEvidence(group.surface, target.name)) {
+                act(`nối với ${target.name}`, m => knownIdentity(m, target));
+                return;
+              }
+              // A different name is an alias: each occurrence needs a sentence naming both.
+              const quotes = new Map(group.candidates.map(c => [c.candidate_id, aliasEvidence(c.context, group.surface, target.name)]));
+              const missing = group.candidates.filter(c => !quotes.get(c.candidate_id)).length;
+              if (missing) {
+                setLinkError(`“${group.surface}” khác tên “${target.name}”, nên cần một câu trong chương nhắc cả hai tên làm bằng chứng. `
+                  + `${missing}/${count} vị trí không có câu như vậy ở gần. Hãy tạo thực thể mới, loại nhóm, hoặc mở từng vị trí để quyết định riêng.`);
+                return;
+              }
+              act(`nối với ${target.name}`, m => ({ ...knownIdentity(m, target), identity_quote: quotes.get(m.candidate_id) ?? '' }));
             }}
             searchable
             disabled={disabled || knownEntities.length === 0}
@@ -1442,6 +1468,11 @@ function SurfaceGroupCard({
           </Button>
         </Group>
 
+        {linkError && (
+          <Alert color="orange" withCloseButton onClose={() => setLinkError(null)} data-testid="entity-group-link-error">
+            <Text size="xs">{linkError}</Text>
+          </Alert>
+        )}
         {pending && (
           <Paper p="xs" withBorder radius="xs" bg="var(--mantine-color-orange-0)">
             <Stack gap="xs">

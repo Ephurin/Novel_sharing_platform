@@ -179,6 +179,7 @@ def continue_review(service, novel_id, run_id, tenant_id):
                 raise
     group_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f'proposal-group:{run_id}'))
     proposals = []
+    dropped_events = 0
     def add(kind, payload, quote, confidence=1.0, span=None):
         start, end = span if span is not None else quote_span(revision.content, quote)
         if not 0 <= start < end <= len(revision.content) or revision.content[start:end] != quote:
@@ -237,8 +238,19 @@ def continue_review(service, novel_id, run_id, tenant_id):
                 # fail the chapter; identity errors above still fail closed.
                 if 'quote' not in str(exc).lower() and 'offsets' not in str(exc).lower():
                     raise
-                import logging
-                logging.getLogger(__name__).warning('Dropped event with an ungrounded quote: %s', str(exc)[:120])
+                # Live retest 2 (R2): chapter 4 lost every event this way. Re-ground the quote to an
+                # exact source span (quotes, spacing, one bounded repair call) before giving up.
+                from services.source_grounding import resolve_grounded_quote
+                try:
+                    start, end, verbatim = resolve_grounded_quote(
+                        revision.content, event.quote, context_hint=event.summary,
+                        llm_service=service._llm_service, max_retries=1)
+                    add('event', payload, verbatim, span=(start, end))
+                except ValueError as grounding_error:
+                    import logging
+                    dropped_events += 1
+                    logging.getLogger(__name__).warning('Dropped event with an ungrounded quote: %s',
+                                                        str(grounding_error)[:120])
     if audit['request']['options'].get('extract_world_rules', False):
         from services.prose_facts import extract_prose_facts
         for fact in extract_prose_facts(revision.content, service._llm_service, inventory.items):
@@ -282,4 +294,5 @@ def continue_review(service, novel_id, run_id, tenant_id):
     # Recheck source/scope before the atomic checkpoint+proposal transaction.
     checkpoint(service, novel_id, run_id, tenant_id)
     completion = repo.complete_entity_review(novel_id, run_id, audit, proposals)
-    return RevisionAnalysisResult(run, completion.proposals, completion.deduplicated)
+    return RevisionAnalysisResult(run, completion.proposals, completion.deduplicated,
+                                  dropped_events=dropped_events)

@@ -216,7 +216,8 @@ def review(novel_id: UUID, run_id: UUID, payload: Review, tenant=Depends(author_
 def continue_review(novel_id: UUID, run_id: UUID, tenant=Depends(author_scope), service=Depends(get_revision_analysis_service)):
     result = invoke(entity_hitl.continue_review, service, str(novel_id), str(run_id), tenant)
     return {'data': {'analysis_run_id': str(run_id), 'status': result.status,
-        'proposal_count': len(result.proposals), 'deduplicated': result.deduplicated}}
+        'proposal_count': len(result.proposals), 'deduplicated': result.deduplicated,
+        'dropped_events': result.dropped_events}}
 
 
 @router.post('/{novel_id}/entity-reviews/{run_id}/refresh')

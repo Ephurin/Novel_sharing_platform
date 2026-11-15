@@ -961,24 +961,27 @@ def author_operation(
         rule_check = "no_rules"
         try:
             from domain.projection import resolve_effective_facts
-            from services.rule_consistency import check_world_rules, world_rules_from_facts
+            from services.rule_consistency import canon_facts_from_brain, check_canon, world_rules_from_facts
             effective = resolve_effective_facts(
                 brain.facts, novel_id=str(brain_id), story_brain_id=brain.metadata.get('brain_id'),
                 verified_amendment_edges=set(tuple(e) for e in brain.metadata.get('verified_amendment_edges', ())))
             rules = world_rules_from_facts(effective)
+            canon_facts = canon_facts_from_brain(brain, effective)
             llm = getattr(analysis, '_llm_service', None)
-            if rules and llm is not None:
-                for item in check_world_rules(revision.content, rules, llm):
+            if (rules or canon_facts) and llm is not None:
+                for item in check_canon(revision.content, rules, canon_facts, llm):
+                    is_rule = item['kind'] == 'rule'
                     findings.append({
-                        "code": "WORLD_RULE_VIOLATION",
-                        "description": f"Có thể vi phạm quy tắc thế giới: {item['rule_text']}"
+                        "code": "WORLD_RULE_VIOLATION" if is_rule else "CANON_FACT_CONFLICT",
+                        "description": (f"Có thể vi phạm quy tắc thế giới: {item['rule_text']}" if is_rule
+                            else f"Có thể mâu thuẫn với dữ kiện đã duyệt: {item['rule_text']}")
                             + (f" — {item['explanation']}" if item['explanation'] else ""),
                         "evidence": item["quote"],
                         "revision_id": revision_id,
-                        "rule_fact_id": item["rule_id"],
+                        **({"rule_fact_id": item["rule_id"]} if is_rule else {"canon_ref": item["rule_id"]}),
                     })
                 rule_check = "checked"
-            elif rules:
+            elif rules or canon_facts:
                 rule_check = "unavailable"
         except Exception as exc:  # provider/quota/validation: say so instead of an empty "all clear"
             logger.warning("rule consistency check unavailable: %s", type(exc).__name__)
