@@ -1,0 +1,97 @@
+import type { Decision, EntityReview, EntityType } from './author-memory-api';
+
+type Candidate = EntityReview['candidates'][number];
+
+/** All occurrences of one surface (case-insensitive) in a checkpoint, in text order. */
+export interface SurfaceGroup {
+  key: string;
+  surface: string;
+  candidates: Candidate[];
+}
+
+/**
+ * Long-run live test (2026-11-15): every mention was its own review item, 155-234 per chapter for
+ * about 8-10 real entities. Above this many occurrences the review opens grouped by surface.
+ */
+export const GROUPED_VIEW_THRESHOLD = 30;
+
+export const surfaceKey = (surface: string) => surface.normalize('NFC').toLocaleLowerCase('vi');
+
+export function groupBySurface(candidates: Candidate[]): SurfaceGroup[] {
+  const groups = new Map<string, SurfaceGroup>();
+  for (const c of [...candidates].sort((a, b) => a.start - b.start || a.end - b.end)) {
+    const key = surfaceKey(c.surface);
+    const group = groups.get(key);
+    if (group) group.candidates.push(c);
+    else groups.set(key, { key, surface: c.surface, candidates: [c] });
+  }
+  return Array.from(groups.values());
+}
+
+export const isResolved = (d?: Decision) => d?.verdict === 'entity' || d?.verdict === 'not_entity';
+
+const identityOf = (d: Decision) =>
+  d.verdict === 'entity' ? d.canonical_entity_id || d.provisional_identity_key : '';
+
+/**
+ * Occurrences a group action would change from one identity to another (or from an entity to
+ * rejected). Two people can share a surface, so the author confirms before these are replaced.
+ */
+export function conflictingOccurrences(group: SurfaceGroup, choices: Record<string, Decision>,
+                                       next: Decision): Candidate[] {
+  return group.candidates.filter(c => {
+    const existing = choices[c.candidate_id];
+    if (!existing || existing.verdict !== 'entity') return false;
+    return next.verdict !== 'entity' || identityOf(existing) !== identityOf(next);
+  });
+}
+
+/** The group's decision for each occurrence; each keeps its own evidence quotes. */
+export function applyToGroup(group: SurfaceGroup, choices: Record<string, Decision>,
+                             machineFor: (candidateId: string) => Decision,
+                             template: (machine: Decision) => Decision): Record<string, Decision> {
+  return Object.fromEntries(group.candidates.map(c => {
+    const existing = choices[c.candidate_id];
+    const updated = template(machineFor(c.candidate_id));
+    const keepQuotes = existing && updated.verdict === 'entity';
+    return [c.candidate_id, keepQuotes ? {
+      ...updated,
+      identity_quote: existing.identity_quote,
+      status_quote: existing.status_quote
+    } : updated];
+  }));
+}
+
+export interface GroupSummary {
+  resolved: number;
+  /** The single decision shared by every occurrence, when there is one. */
+  shared?: Decision;
+  machine: Array<{ label: string; count: number }>;
+  /** Most frequent machine entity type, for a new identity made from the group. */
+  suggestedType: EntityType;
+}
+
+export function summarizeGroup(group: SurfaceGroup, choices: Record<string, Decision>,
+                               machineFor: (candidateId: string) => Decision): GroupSummary {
+  const decisions = group.candidates.map(c => choices[c.candidate_id]);
+  const resolved = decisions.filter(isResolved).length;
+  const first = decisions[0];
+  const shared = first && resolved === decisions.length && decisions.every(d =>
+    d!.verdict === first.verdict && identityOf(d!) === identityOf(first)) ? first : undefined;
+  const machineCounts = new Map<string, number>();
+  const types = new Map<EntityType, number>();
+  for (const c of group.candidates) {
+    const m = machineFor(c.candidate_id);
+    const label = m.verdict === 'entity' && m.entity_type ? `entity [${m.entity_type}]` : m.verdict;
+    machineCounts.set(label, (machineCounts.get(label) ?? 0) + 1);
+    if (m.verdict === 'entity' && m.entity_type) types.set(m.entity_type, (types.get(m.entity_type) ?? 0) + 1);
+  }
+  const suggestedType = Array.from(types.entries()).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'PER';
+  return {
+    resolved,
+    shared,
+    machine: Array.from(machineCounts.entries()).map(([label, count]) => ({ label, count }))
+      .sort((a, b) => b.count - a.count),
+    suggestedType
+  };
+}
