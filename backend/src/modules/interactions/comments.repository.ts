@@ -13,6 +13,8 @@ export type CommentDocument = {
   novelId: string;
   userId: string;
   parentCommentId?: string | null;
+  replyToCommentId?: string | null;
+  replyToUserId?: string | null;
   paragraphOffset: number | null;
   content: string;
   isSpoiler?: boolean;
@@ -61,6 +63,8 @@ export async function createComment(input: {
   novelId: string;
   userId: string;
   parentCommentId?: string | null;
+  replyToCommentId?: string | null;
+  replyToUserId?: string | null;
   paragraphOffset?: number | null;
   content: string;
   isSpoiler?: boolean;
@@ -74,6 +78,8 @@ export async function createComment(input: {
     novelId: input.novelId,
     userId: input.userId,
     parentCommentId: input.parentCommentId ?? null,
+    replyToCommentId: input.replyToCommentId ?? null,
+    replyToUserId: input.replyToUserId ?? null,
     paragraphOffset: input.paragraphOffset ?? null,
     content: input.content,
     isSpoiler: input.isSpoiler ?? false,

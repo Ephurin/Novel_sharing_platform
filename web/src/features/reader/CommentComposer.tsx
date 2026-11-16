@@ -1,5 +1,5 @@
 import { Button, Checkbox, Group, Input, Popover } from '@mantine/core';
-import { lazy, Suspense, useId, useState } from 'react';
+import { lazy, Suspense, useEffect, useId, useState } from 'react';
 import { EditorContent } from '@tiptap/react';
 import type { CommentInput } from './reader-api';
 import { useCommentEditor } from './useCommentEditor';
@@ -13,15 +13,16 @@ export function CommentIcon({ name }: { name: string }) {
   return <span className="material-symbols-outlined" aria-hidden="true">{name}</span>;
 }
 
-export function CommentComposer({ value, onChange, onSubmit, label, submitLabel, pending = false, onCancel }: {
+export function CommentComposer({ value, onChange, onSubmit, label, submitLabel, pending = false, onCancel, autoFocus = false }: {
   value: CommentInput; onChange: (value: CommentInput) => void; onSubmit: (value: CommentInput) => void;
-  label: string; submitLabel: string; pending?: boolean; onCancel?: () => void;
+  label: string; submitLabel: string; pending?: boolean; onCancel?: () => void; autoFocus?: boolean;
 }) {
   const [picker, setPicker] = useState<'emoji' | 'gif' | null>(null);
   const editorId = useId();
   const busy = pending;
   const { editor, formatting, limitReached } = useCommentEditor({ value: value.content, id: editorId,
     onChange: content => onChange({ ...value, content }), label, disabled: busy });
+  useEffect(() => { if (autoFocus) editor?.commands.focus('end'); }, [editor, autoFocus]);
   return <form className="sc-comment-composer" onSubmit={event => {
     event.preventDefault();
     if (!busy && (value.content.trim() || value.imageUrl || value.gifId)) onSubmit({ ...value, content: value.content.trim() });

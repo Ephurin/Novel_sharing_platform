@@ -74,9 +74,11 @@ test('comments keep application surfaces over reading paper and support GIF, emo
         } else if (url.pathname.endsWith('/replies')) {
           const parentId = url.pathname.split('/').at(-2), parent = comments.find(item => item.commentId === parentId);
           if (method === 'POST') {
-            const reply = { ...makeComment(`reply-${++nextId}`, '', parent.chapterId, 'reader-1'), ...route.request().postDataJSON(), parentCommentId: parentId, canReply: false };
+            const root = parent.parentCommentId ? comments.find(item => item.commentId === parent.parentCommentId) : parent;
+            const reply = { ...makeComment(`reply-${++nextId}`, '', parent.chapterId, 'reader-1'), ...route.request().postDataJSON(),
+              parentCommentId: root.commentId, replyToCommentId: parent.commentId, replyToUserId: parent.userId, replyToDisplayName: parent.displayName };
             reply.isSpoiler ||= parent.isSpoiler;
-            comments.push(reply); parent.repliesCount++;
+            comments.push(reply); root.repliesCount++;
             data = reply;
           } else { data = comments.filter(item => item.parentCommentId === parentId); meta = { totalItems: data.length, totalPages: 1 }; }
         } else if (/\/comments\/[^/]+$/.test(url.pathname)) {
@@ -219,11 +221,31 @@ test('comments keep application surfaces over reading paper and support GIF, emo
           const thread = section.locator('.sc-comment-thread[data-comment-id="spoiler"]');
           await thread.getByRole('textbox', { name: 'Trả lời bình luận', exact: true }).fill('Mình cũng nghĩ vậy.');
           await thread.getByRole('button', { name: 'Gửi trả lời', exact: true }).click();
-          const reply = thread.locator('.sc-comment-replies .sc-comment-item');
+          const reply = thread.locator('.sc-comment-replies .sc-comment-item').first();
           await expect(reply.getByRole('button', { name: 'Có spoiler · Bấm để xem', exact: true })).toBeVisible();
           await expect(reply.getByRole('link', { name: 'Chương 1', exact: true })).toBeVisible();
           await reply.getByRole('button', { name: 'Có spoiler · Bấm để xem', exact: true }).click();
           await expect(reply.getByText('Mình cũng nghĩ vậy.', { exact: true })).toBeVisible();
+          await reply.getByRole('button', { name: 'Trả lời', exact: true }).click();
+          const taggedEditor = thread.getByRole('textbox', { name: 'Trả lời @Bạn đọc', exact: true });
+          await expect(taggedEditor).toBeFocused();
+          await taggedEditor.fill('Đang viết trả lời.');
+          await thread.getByRole('button', { name: 'Hủy', exact: true }).click();
+          await expect(taggedEditor).toHaveCount(0);
+          await reply.getByRole('button', { name: 'Trả lời', exact: true }).click();
+          await expect(taggedEditor).toBeEmpty();
+          await taggedEditor.fill('Trả lời cho câu trả lời.');
+          await thread.locator('.sc-comment-composer').screenshot({ path: path.join(output, `reply-composer-${width}-${paper}.png`) });
+          await thread.getByRole('button', { name: 'Gửi trả lời', exact: true }).click();
+          await expect(thread.locator('.sc-comment-replies .sc-comment-item')).toHaveCount(2);
+          const taggedReply = thread.locator('.sc-comment-replies .sc-comment-item').nth(1);
+          await taggedReply.getByRole('button', { name: 'Có spoiler · Bấm để xem', exact: true }).click();
+          await expect(taggedReply.locator('.sc-comment-mention')).toHaveText('@Bạn đọc');
+          await expect(taggedReply.getByText('Trả lời cho câu trả lời.', { exact: true })).toBeVisible();
+          await taggedReply.screenshot({ path: path.join(output, `tagged-reply-${width}-${paper}.png`) });
+          assert.equal(comments.at(-1).parentCommentId, 'spoiler');
+          assert.equal(comments.at(-1).replyToCommentId, comments.at(-2).commentId);
+          assert.equal(comments.at(-1).replyToUserId, 'reader-1');
         } else {
           await expect(section.getByRole('button', { name: 'Thích bình luận', exact: true }).first()).toBeDisabled();
           await expect(section.getByRole('button', { name: 'Trả lời', exact: true })).toHaveCount(0);

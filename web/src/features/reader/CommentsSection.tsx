@@ -122,6 +122,7 @@ function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpo
           <CommentIcon name="visibility_off" />{revealed ? 'Ẩn spoiler' : 'Có spoiler · Bấm để xem'}
         </button>}
         {(!spoiler || revealed) && <>
+          {comment.replyToDisplayName && <Text component="div" className="sc-comment-mention">@{comment.replyToDisplayName}</Text>}
           <ManuscriptContent content={comment.content} />
           {comment.gifId && <div className="sc-comment-media">
             {(!reduceMotion || playGif) ? <><GiphyMedia id={comment.gifId} />
@@ -172,37 +173,42 @@ export function useRefreshComments() {
 export function CommentThread({ comment, onChanged, showContext = true }: { comment: ReaderComment; onChanged: () => Promise<unknown>; showContext?: boolean }) {
   const user = useAuthStore(state => state.user);
   const [open, setOpen] = useState(false);
-  const [replying, setReplying] = useState(false);
+  const [replyTarget, setReplyTarget] = useState<ReaderComment | null>(null);
   const [page, setPage] = useState(1);
   const [draft, setDraft] = useState<CommentInput>(emptyComment);
   const [notice, setNotice] = useState('');
   const replies = useQuery({ queryKey: ['comment-replies', comment.commentId, user?.userId ?? 'guest', page], queryFn: () => listCommentReplies(comment.commentId, page), enabled: open });
   useEffect(() => { if (replies.data) setPage(current => Math.min(current, Math.max(1, replies.data.totalPages))); }, [replies.data?.totalPages]);
-  useEffect(() => { setReplying(false); setDraft(emptyComment); setNotice(''); setOpen(false); setPage(1); create.reset(); }, [user?.userId]);
+  useEffect(() => { setReplyTarget(null); setDraft(emptyComment); setNotice(''); setOpen(false); setPage(1); create.reset(); }, [user?.userId]);
   const create = useMutation({
-    mutationFn: ({ draft, account }: { draft: CommentInput; account: string }) => {
+    mutationFn: ({ draft, account, targetId }: { draft: CommentInput; account: string; targetId: string }) => {
       requireSameAccount(account);
-      return replyToComment(comment.commentId, draft);
+      return replyToComment(targetId, draft);
     },
     onSuccess: async (result, variables) => {
       if (useAuthStore.getState().user?.userId === variables.account) {
-        setReplying(false); setDraft(emptyComment); setOpen(true); setPage(Math.max(1, Math.ceil((comment.repliesCount + 1) / 5)));
+        setReplyTarget(null); setDraft(emptyComment); setOpen(true); setPage(Math.max(1, Math.ceil((comment.repliesCount + 1) / 5)));
         setNotice(result.status === 'APPROVED' ? 'Đã gửi trả lời.' : 'Trả lời đang chờ kiểm duyệt.');
       }
       await onChanged();
     }
   });
   const accountKey = user?.userId ?? 'guest';
+  const startReply = (target: ReaderComment) => {
+    if (create.isPending) return;
+    setReplyTarget(target); setOpen(true); setNotice(''); create.reset();
+  };
   return <Stack gap="xs" className="sc-comment-thread" data-comment-id={comment.commentId}>
-    <CommentItem key={`${accountKey}:${comment.commentId}`} comment={comment} onChanged={onChanged} showContext={showContext} onReply={() => { setReplying(true); setOpen(true); }} />
+    <CommentItem key={`${accountKey}:${comment.commentId}`} comment={comment} onChanged={onChanged} showContext={showContext} onReply={() => startReply(comment)} />
     {(comment.repliesCount > 0 || open) && <Button variant="subtle" size="compact-xs" style={{ alignSelf: 'flex-start' }} aria-expanded={open} aria-controls={`replies-${comment.commentId}`} onClick={() => setOpen(value => !value)}>{open ? 'Ẩn trả lời' : `Xem ${comment.repliesCount} trả lời`}</Button>}
     {open && <Stack id={`replies-${comment.commentId}`} gap="sm" className="sc-comment-replies">
       {replies.isPending && <LoadingState label="Đang tải trả lời…" />}
       {replies.isError && <ErrorState title="Không tải được trả lời" error={replies.error} onRetry={() => void replies.refetch()} />}
-      {replies.data?.items.map(reply => <CommentItem key={`${accountKey}:${reply.commentId}`} comment={reply} onChanged={onChanged} showContext={showContext} forceSpoiler={comment.isSpoiler} />)}
+      {replies.data?.items.map(reply => <CommentItem key={`${accountKey}:${reply.commentId}`} comment={reply} onChanged={onChanged} showContext={showContext} forceSpoiler={comment.isSpoiler} onReply={() => startReply(reply)} />)}
       {replies.data && replies.data.totalPages > 1 && <Pagination size="sm" total={replies.data.totalPages} value={page} onChange={setPage} siblings={0} boundaries={1} />}
-      {replying && comment.canReply && <CommentComposer key={accountKey} value={draft} onChange={setDraft} label="Trả lời bình luận" submitLabel="Gửi trả lời" pending={create.isPending}
-        onSubmit={draft => { if (user) create.mutate({ draft, account: user.userId }); }} onCancel={() => setReplying(false)} />}
+      {replyTarget && comment.canReply && <CommentComposer key={`${accountKey}:${replyTarget.commentId}`} value={draft} onChange={setDraft}
+        label={replyTarget.parentCommentId ? `Trả lời @${replyTarget.displayName}` : 'Trả lời bình luận'} autoFocus submitLabel="Gửi trả lời" pending={create.isPending}
+        onSubmit={draft => { if (user) create.mutate({ draft, account: user.userId, targetId: replyTarget.commentId }); }} onCancel={() => { setReplyTarget(null); setDraft(emptyComment); create.reset(); }} />}
       {notice && <Text role="status" size="sm">{notice}</Text>}
       {create.isError && <Alert color="red">{getApiErrorMessage(create.error)}</Alert>}
     </Stack>}

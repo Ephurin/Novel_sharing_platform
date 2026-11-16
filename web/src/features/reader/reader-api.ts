@@ -76,6 +76,9 @@ export type ReaderComment = {
   dislikesCount?: number;
   myReaction?: 'LIKE' | 'DISLIKE' | null;
   parentCommentId: string | null;
+  replyToCommentId?: string | null;
+  replyToUserId?: string | null;
+  replyToDisplayName?: string | null;
   repliesCount: number;
   isAuthor: boolean;
   canDelete: boolean;

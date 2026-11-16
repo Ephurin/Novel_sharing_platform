@@ -59,6 +59,7 @@
 .sc-author-theme .sc-comment-source { width: fit-content; color: var(--sc-text-muted); font-size: 12px; text-decoration: none; }
 .sc-author-theme .sc-comment-source:hover { color: var(--sc-primary-text); text-decoration: none; }
 .sc-comment-body { margin-top: 12px; font-family: 'StoryCraft Flags', var(--sc-font); }
+.sc-comment-mention { color: var(--sc-primary-text); font-weight: 600; overflow-wrap: anywhere; }
 .sc-comment-body .chapter-prose { color: inherit; font: inherit; }
 .sc-comment-body .chapter-prose > p:last-child { margin-bottom: 0 !important; }
 .sc-comment-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
