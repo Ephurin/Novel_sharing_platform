@@ -11,6 +11,8 @@
 .sc-comments { color: var(--sc-text); background: var(--sc-surface); }
 .sc-comments h3 { font-size: 18px; line-height: 26px; }
 .sc-comment-item { color: inherit; background: transparent; }
+.sc-comments, .sc-comment-item { scroll-margin-block: 96px; }
+.sc-comment-item.is-focused { outline: 2px solid var(--sc-primary); outline-offset: 2px; }
 .sc-comment-composer { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
 .sc-comment-editor-tools { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 .sc-comment-tool, .sc-comment-reaction, .sc-comment-text-action {

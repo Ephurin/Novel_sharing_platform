@@ -279,7 +279,7 @@ test('novel/chapter comments: permissions, moderation, pagination and isolation'
     await (await import('./domain-notifications.js')).deliverDomainNotifications();
     const peerNotice = (await notifications.listNotifications(reader, { page: 1, limit: 100 })).items.find(item => item.type === 'COMMENT_REPLY');
     assert.equal(peerNotice?.title, 'Có trả lời bình luận mới');
-    assert.equal(peerNotice?.payload.href, '/public/novels/' + novel);
+    assert.equal(peerNotice?.payload.href, '/public/novels/' + novel + '?commentId=' + peerReply.body.data.commentId + '#reader-comments');
     await req('/comments/' + peerReply.body.data.commentId, 'DELETE', undefined, otherToken);
     assert.equal((await req(n)).body.meta.totalItems,1);assert.equal((await req(n)).body.data[0].repliesCount,6);
     await t.test('tagged replies stay in one thread and notify only the addressed account after approval', async () => {
@@ -333,6 +333,34 @@ test('novel/chapter comments: permissions, moderation, pagination and isolation'
       await req('/comments/' + rootId, 'DELETE', undefined, readerToken);
       assert.equal((await req(targetPath, 'POST', { content: 'Deleted thread' }, otherToken)).status, 404);
       assert.equal(await repo.findCommentById(taggedId), null);
+    });
+    await t.test('locate notifications across comment and reply pages with the same visibility rules as listing', async () => {
+      const rootId = (await req(n, 'POST', { content: 'Older linked thread' }, readerToken)).body.data.commentId;
+      const threadPath = '/comments/' + rootId + '/replies';
+      let linkedId = '';
+      for (let i = 0; i < 7; i++) linkedId = (await req(threadPath, 'POST', { content: 'Linked reply ' + i }, otherToken)).body.data.commentId;
+      const newerIds: string[] = [];
+      for (let i = 0; i < 11; i++) newerIds.push((await req(n, 'POST', { content: 'Newer discussion ' + i }, otherToken)).body.data.commentId);
+      const locationPath = (id: string, kind = 'novel', targetId = novel) => '/comments/' + id + '/location?kind=' + kind + '&targetId=' + targetId;
+      const located = await req(locationPath(linkedId));
+      assert.equal(located.status, 200);
+      assert.equal(located.body.data.rootCommentId, rootId);
+      assert.equal(located.body.data.page, 2);
+      assert.equal(located.body.data.replyPage, 2);
+      assert.ok((await req(n + '?scope=ALL&limit=10&page=2')).body.data.some((item: any) => item.commentId === rootId));
+      assert.ok((await req(threadPath + '?limit=5&page=2')).body.data.some((item: any) => item.commentId === linkedId));
+      assert.equal((await req(locationPath(rootId))).body.data.replyPage, 1);
+      assert.equal((await req(locationPath(linkedId, 'chapter', chapter))).status, 404);
+      assert.equal((await req(locationPath(linkedId) + '&limit=0')).status, 400);
+      const hiddenId = (await req(n, 'POST', { content: 'Private pending thread', gifId: 'testGifId123' }, otherToken)).body.data.commentId;
+      assert.equal((await req(locationPath(hiddenId))).status, 404);
+      assert.equal((await req(locationPath(hiddenId), 'GET', undefined, otherToken)).status, 200);
+      await repo.updateCommentModerationStatus(rootId, 'PENDING_MODERATION', null);
+      assert.equal((await req(locationPath(linkedId), 'GET', undefined, otherToken)).status, 404, 'Owning a reply does not expose its hidden parent');
+      await repo.updateCommentModerationStatus(rootId, 'APPROVED', null);
+      await req('/comments/' + rootId, 'DELETE', undefined, readerToken);
+      assert.equal((await req(locationPath(linkedId))).status, 404);
+      for (const id of [...newerIds, hiddenId]) await req('/comments/' + id, 'DELETE', undefined, otherToken);
     });
     assert.equal((await req('/comments/'+replyId,'PATCH',{content:'Hijack reply'},readerToken)).status,403);
     assert.equal((await req('/comments/'+replyId,'PATCH',{content:'Edited reply'},authorToken)).status,200);

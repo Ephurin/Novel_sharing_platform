@@ -26,7 +26,7 @@ export async function deliverDomainNotifications() {
           type: parent ? (authorReply ? 'AUTHOR_REPLY' : 'COMMENT_REPLY') : 'READER_COMMENT',
           title: parent ? (authorReply ? 'Tác giả đã trả lời bình luận' : 'Có trả lời bình luận mới') : 'Có bình luận mới',
           content: novel.title,
-          payload: { href: parent ? (comment.chapterId ? replyBase + '/chapters/' + comment.chapterId : replyBase + '/novels/' + novel.novelId) : '/author/novels/' + novel.novelId + '/comments', commentId: comment.commentId }
+          payload: { href: parent ? (comment.chapterId ? replyBase + '/chapters/' + comment.chapterId : replyBase + '/novels/' + novel.novelId) + '?commentId=' + comment.commentId + '#reader-comments' : '/author/novels/' + novel.novelId + '/comments', commentId: comment.commentId }
         });
       }
       await comments.updateOne({ _id: comment._id }, { $set: { notificationPending: false } });

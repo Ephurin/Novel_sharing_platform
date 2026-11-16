@@ -2,12 +2,12 @@ import { Alert, Avatar, Badge, Button, Group, Pagination, Paper, Stack, Text, Te
 import { useMediaQuery } from '@mantine/hooks';
 import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../auth/useAuthStore';
 import { getApiErrorMessage } from '../../shared/api/api-client';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
 import { ManuscriptContent } from '../../shared/components/ManuscriptContent';
-import { createTargetComment, listTargetComments, listCommentReplies, reactToComment, replyToComment, type CommentTarget } from './comments-api';
+import { createTargetComment, listTargetComments, listCommentReplies, locateComment, reactToComment, replyToComment, type CommentTarget } from './comments-api';
 import { deleteComment, reportContent, updateComment, type CommentInput, type ReaderComment } from './reader-api';
 import { CommentComposer, CommentIcon, emptyComment } from './CommentComposer';
 import { GiphyMedia } from './CommentGifPicker';
@@ -19,6 +19,11 @@ function requireSameAccount(account: string) {
 
 export function CommentsSection({ kind, id }: CommentTarget) {
   const user = useAuthStore(state => state.user);
+  const navigation = useLocation();
+  const selectedCommentId = new URLSearchParams(navigation.search).get('commentId');
+  const section = useRef<HTMLDivElement>(null);
+  const position = useQuery({ queryKey: ['comment-location', kind, id, selectedCommentId, user?.userId ?? 'guest'],
+    queryFn: () => locateComment({ kind, id }, selectedCommentId!), enabled: Boolean(id && selectedCommentId), retry: false });
   const refresh = useRefreshComments();
   const [page, setPage] = useState(1);
   const [draft, setDraft] = useState<CommentInput>(emptyComment);
@@ -29,6 +34,12 @@ export function CommentsSection({ kind, id }: CommentTarget) {
   const query = useQuery({ queryKey: ['comments', kind, id, user?.userId ?? 'guest', page],
     queryFn: () => listTargetComments({ kind, id }, page), enabled: Boolean(id) });
   useEffect(() => { setPage(1); setDraft(emptyComment); setNotice(''); create.reset(); }, [scope]);
+  useEffect(() => { if (selectedCommentId && position.data) setPage(position.data.page); }, [selectedCommentId, position.data, navigation.key]);
+  useEffect(() => {
+    if (navigation.hash !== '#reader-comments' || (selectedCommentId && !position.isError)) return;
+    const frame = requestAnimationFrame(() => section.current?.scrollIntoView({ block: 'start', behavior: 'instant' }));
+    return () => cancelAnimationFrame(frame);
+  }, [navigation.key, navigation.hash, selectedCommentId, position.isError, query.isPending]);
   useEffect(() => { if (query.data) setPage(current => Math.min(current, Math.max(1, query.data.totalPages))); }, [query.data?.totalPages]);
   const create = useMutation({
     mutationFn: ({ target, draft, account }: { target: CommentTarget; draft: CommentInput; account: string; scope: string }) => {
@@ -44,7 +55,7 @@ export function CommentsSection({ kind, id }: CommentTarget) {
     }
   });
   const canComment = user?.status === 'ACTIVE';
-  return <Paper withBorder p="md" mt="lg" className="sc-comments" component="section" aria-label={kind === 'novel' ? 'Bình luận tác phẩm' : 'Bình luận chương'}>
+  return <Paper ref={section} withBorder p="md" mt="lg" className="sc-comments" component="section" aria-label={kind === 'novel' ? 'Bình luận tác phẩm' : 'Bình luận chương'}>
     <Group justify="space-between" mb="md">
       <Title order={3}>{kind === 'novel' ? 'Bình luận tác phẩm' : 'Bình luận chương'}</Title>
       {query.data && <Text c="dimmed" size="sm">{query.data.totalItems.toLocaleString('vi-VN')} bình luận</Text>}
@@ -55,18 +66,33 @@ export function CommentsSection({ kind, id }: CommentTarget) {
         : <Text size="sm" c="dimmed">{!user ? <><Link to="/login">Đăng nhập</Link> để bình luận.</> : 'Tài khoản đang hoạt động mới được bình luận.'}</Text>}
       {notice && <Text role="status" size="sm">{notice}</Text>}
       {create.isError && <Alert color="red">{getApiErrorMessage(create.error)}</Alert>}
+      {selectedCommentId && position.isError && <Alert color="orange" role="status">Không mở được bình luận này. Bình luận có thể đã bị xóa hoặc không còn hiển thị.</Alert>}
       {query.isPending && <LoadingState label="Đang tải bình luận…" />}
       {query.isError && <ErrorState title="Không tải được bình luận" error={query.error} onRetry={() => void query.refetch()} />}
       {query.data?.totalItems === 0 && <EmptyState title="Chưa có bình luận" description="Các bình luận đã duyệt sẽ xuất hiện tại đây." />}
-      {query.data?.items.map(comment => <CommentThread key={`${user?.userId ?? 'guest'}:${comment.commentId}`} comment={comment} onChanged={refresh} />)}
+      {query.data?.items.map(comment => <CommentThread key={`${user?.userId ?? 'guest'}:${comment.commentId}`} comment={comment} onChanged={refresh}
+        focus={selectedCommentId && position.data?.rootCommentId === comment.commentId ? { commentId: selectedCommentId, replyPage: position.data.replyPage, key: navigation.key } : undefined} />)}
       {query.data && query.data.totalPages > 1 && <Group justify="center"><Pagination total={query.data.totalPages} value={page} onChange={setPage} siblings={0} boundaries={1} getItemProps={item => ({ 'aria-label': `Trang bình luận ${item}` })} /></Group>}
     </Stack>
   </Paper>;
 }
 
-function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpoiler = false }: {
+type CommentFocus = { commentId: string; replyPage: number; key: string };
+
+function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpoiler = false, focus }: {
   comment: ReaderComment; onChanged: () => Promise<unknown>; onReply?: () => void; showContext?: boolean; forceSpoiler?: boolean;
+  focus?: CommentFocus;
 }) {
+  const article = useRef<HTMLDivElement>(null);
+  const focused = focus?.commentId === comment.commentId;
+  useEffect(() => {
+    if (!focused) return;
+    const frame = requestAnimationFrame(() => {
+      article.current?.scrollIntoView({ block: 'center', behavior: 'instant' });
+      article.current?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [focused, focus?.key]);
   const user = useAuthStore(state => state.user);
   const own = user?.userId === comment.userId;
   const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)', false, { getInitialValueInEffect: false });
@@ -104,7 +130,8 @@ function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpo
   const spoiler = Boolean(comment.isSpoiler || forceSpoiler);
   const base = user?.role === 'READER' ? '/reader' : '/public';
   const source = comment.chapterId ? `Chương ${comment.chapterNumber ?? 'đã xóa'}` : 'Thảo luận chung';
-  return <Paper component="article" withBorder p="md" className="sc-comment-item" data-comment-id={comment.commentId}>
+  return <Paper ref={article} component="article" withBorder p="md" tabIndex={focused ? -1 : undefined}
+    className={`sc-comment-item${focused ? ' is-focused' : ''}`} data-comment-id={comment.commentId}>
     <Group wrap="nowrap" align="flex-start">
       <Avatar src={comment.avatarUrl} alt={comment.displayName} size={36} radius="xl">{comment.displayName.trim().slice(0, 1) || '?'}</Avatar>
       <Stack gap={2} style={{ minWidth: 0, flex: 1 }}>
@@ -170,7 +197,7 @@ export function useRefreshComments() {
   ]);
 }
 
-export function CommentThread({ comment, onChanged, showContext = true }: { comment: ReaderComment; onChanged: () => Promise<unknown>; showContext?: boolean }) {
+export function CommentThread({ comment, onChanged, showContext = true, focus }: { comment: ReaderComment; onChanged: () => Promise<unknown>; showContext?: boolean; focus?: CommentFocus }) {
   const user = useAuthStore(state => state.user);
   const [open, setOpen] = useState(false);
   const [replyTarget, setReplyTarget] = useState<ReaderComment | null>(null);
@@ -180,6 +207,9 @@ export function CommentThread({ comment, onChanged, showContext = true }: { comm
   const replies = useQuery({ queryKey: ['comment-replies', comment.commentId, user?.userId ?? 'guest', page], queryFn: () => listCommentReplies(comment.commentId, page), enabled: open });
   useEffect(() => { if (replies.data) setPage(current => Math.min(current, Math.max(1, replies.data.totalPages))); }, [replies.data?.totalPages]);
   useEffect(() => { setReplyTarget(null); setDraft(emptyComment); setNotice(''); setOpen(false); setPage(1); create.reset(); }, [user?.userId]);
+  useEffect(() => {
+    if (focus && focus.commentId !== comment.commentId) { setOpen(true); setPage(focus.replyPage); }
+  }, [focus?.commentId, focus?.replyPage, focus?.key, comment.commentId, user?.userId]);
   const create = useMutation({
     mutationFn: ({ draft, account, targetId }: { draft: CommentInput; account: string; targetId: string }) => {
       requireSameAccount(account);
@@ -199,12 +229,12 @@ export function CommentThread({ comment, onChanged, showContext = true }: { comm
     setReplyTarget(target); setOpen(true); setNotice(''); create.reset();
   };
   return <Stack gap="xs" className="sc-comment-thread" data-comment-id={comment.commentId}>
-    <CommentItem key={`${accountKey}:${comment.commentId}`} comment={comment} onChanged={onChanged} showContext={showContext} onReply={() => startReply(comment)} />
+    <CommentItem key={`${accountKey}:${comment.commentId}`} comment={comment} onChanged={onChanged} showContext={showContext} onReply={() => startReply(comment)} focus={focus} />
     {(comment.repliesCount > 0 || open) && <Button variant="subtle" size="compact-xs" style={{ alignSelf: 'flex-start' }} aria-expanded={open} aria-controls={`replies-${comment.commentId}`} onClick={() => setOpen(value => !value)}>{open ? 'Ẩn trả lời' : `Xem ${comment.repliesCount} trả lời`}</Button>}
     {open && <Stack id={`replies-${comment.commentId}`} gap="sm" className="sc-comment-replies">
       {replies.isPending && <LoadingState label="Đang tải trả lời…" />}
       {replies.isError && <ErrorState title="Không tải được trả lời" error={replies.error} onRetry={() => void replies.refetch()} />}
-      {replies.data?.items.map(reply => <CommentItem key={`${accountKey}:${reply.commentId}`} comment={reply} onChanged={onChanged} showContext={showContext} forceSpoiler={comment.isSpoiler} onReply={() => startReply(reply)} />)}
+      {replies.data?.items.map(reply => <CommentItem key={`${accountKey}:${reply.commentId}`} comment={reply} onChanged={onChanged} showContext={showContext} forceSpoiler={comment.isSpoiler} onReply={() => startReply(reply)} focus={focus} />)}
       {replies.data && replies.data.totalPages > 1 && <Pagination size="sm" total={replies.data.totalPages} value={page} onChange={setPage} siblings={0} boundaries={1} />}
       {replyTarget && comment.canReply && <CommentComposer key={`${accountKey}:${replyTarget.commentId}`} value={draft} onChange={setDraft}
         label={replyTarget.parentCommentId ? `Trả lời @${replyTarget.displayName}` : 'Trả lời bình luận'} autoFocus submitLabel="Gửi trả lời" pending={create.isPending}
