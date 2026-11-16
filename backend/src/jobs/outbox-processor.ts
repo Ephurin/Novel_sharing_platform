@@ -24,6 +24,39 @@ export function outboxRetryDelaySeconds(retryCount: number, errorMessage: string
 }
 let outboxTimer: NodeJS.Timeout | null = null;
 
+// Live retest 6 (T1, T2): during a 15-minute provider outage the analysis outbox spent about 36 calls
+// on attempts that could not succeed, then marked the chapter FAILED for good. A provider outage is
+// not the chapter's fault: analysis pauses for all chapters (one probe per pause), the event is
+// rescheduled without spending a retry, and it only fails after PROVIDER_OUTAGE_MAX_AGE_HOURS.
+const PROVIDER_OUTAGE_PATTERN = /PROVIDER_UNAVAILABLE|PROVIDER_TIMEOUT|HTTP 50[234]/;
+export const PROVIDER_PAUSE_MIN_SECONDS = 300;
+export const PROVIDER_PAUSE_MAX_SECONDS = 1800;
+export const PROVIDER_OUTAGE_MAX_AGE_HOURS = 24;
+export const PROVIDER_DEFER_REASON = 'provider unavailable; analysis resumes automatically';
+
+export type ProviderBreaker = { pausedUntil: number; pauseSeconds: number };
+const providerBreaker: ProviderBreaker = { pausedUntil: 0, pauseSeconds: 0 };
+export function resetProviderBreaker(breaker: ProviderBreaker = providerBreaker) {
+  breaker.pausedUntil = 0; breaker.pauseSeconds = 0;
+}
+
+export function isProviderOutage(errorMessage: string): boolean {
+  return PROVIDER_OUTAGE_PATTERN.test(errorMessage);
+}
+
+/** Opens (or lengthens) the pause after an outage; returns the seconds to wait. */
+export function tripProviderBreaker(now: number, breaker: ProviderBreaker = providerBreaker): number {
+  breaker.pauseSeconds = breaker.pauseSeconds
+    ? Math.min(PROVIDER_PAUSE_MAX_SECONDS, breaker.pauseSeconds * 2) : PROVIDER_PAUSE_MIN_SECONDS;
+  breaker.pausedUntil = now + breaker.pauseSeconds * 1000;
+  return breaker.pauseSeconds;
+}
+
+/** Seconds analysis must still wait, or 0 when it may call the AI service. */
+export function providerPauseRemaining(now: number, breaker: ProviderBreaker = providerBreaker): number {
+  return breaker.pausedUntil > now ? Math.ceil((breaker.pausedUntil - now) / 1000) : 0;
+}
+
 // What handling an event decided. `deferSeconds` reschedules it without spending a retry.
 export type OutboxOutcome = void | { skipped: string } | { deferSeconds: number; reason: string };
 
@@ -36,6 +69,8 @@ export interface OutboxDependencies {
   /** Analyse the chapter head now even if it is still inside the quiet period (Full auto). */
   ignoreQuietPeriod?: boolean;
   analysisGate?: AnalysisGateDependencies;
+  breaker?: ProviderBreaker;
+  now?: () => number;
 }
 
 export interface AnalysisGateDependencies {
@@ -108,14 +143,23 @@ export async function processOutboxOnce(
     const markFailedFn = deps?.markFailed ?? ((id, err, backoff, token) => markOutboxEventFailed(undefined, id, err, backoff, token));
     const markDeferredFn = deps?.markDeferred ?? ((id, delay, reason, token) => markOutboxEventDeferred(undefined, id, delay, reason, token));
 
+    const breaker = deps?.breaker ?? providerBreaker;
+    const now = deps?.now ?? Date.now;
     for (const event of events) {
       processed++;
       if (!event.claimToken) {
         console.error(`[OutboxProcessor] Event ${event.eventId} missing active claim token. Skipping.`);
         continue;
       }
+      const isAnalysis = event.eventType === 'INCREMENTAL_ANALYSIS';
+      const paused = isAnalysis ? providerPauseRemaining(now(), breaker) : 0;
+      if (paused > 0) {
+        await markDeferredFn(event.eventId, paused, `deferred: ${PROVIDER_DEFER_REASON}`, event.claimToken);
+        continue;
+      }
       try {
         const outcome = await handler(event);
+        if (isAnalysis && !(outcome && ('deferSeconds' in outcome || 'skipped' in outcome))) resetProviderBreaker(breaker);
         if (outcome && 'deferSeconds' in outcome) {
           await markDeferredFn(event.eventId, outcome.deferSeconds, `deferred: ${outcome.reason}`, event.claimToken);
           continue;
@@ -126,8 +170,16 @@ export async function processOutboxOnce(
         await markCompletedFn(event.eventId, event.claimToken);
         succeeded++;
       } catch (err: any) {
-        failed++;
         const errorMessage = err?.message || String(err);
+        const ageHours = (now() - new Date(event.createdAt).getTime()) / 3_600_000;
+        if (isAnalysis && isProviderOutage(errorMessage) && ageHours < PROVIDER_OUTAGE_MAX_AGE_HOURS) {
+          const wait = tripProviderBreaker(now(), breaker);
+          await markDeferredFn(event.eventId, wait, `deferred: ${PROVIDER_DEFER_REASON} (${errorMessage.slice(0, 120)})`,
+            event.claimToken);
+          console.warn(`[OutboxProcessor] AI provider unavailable; analysis paused for ${wait}s`);
+          continue;
+        }
+        failed++;
         const backoffSeconds = outboxRetryDelaySeconds(event.retryCount, errorMessage);
         await markFailedFn(event.eventId, errorMessage, backoffSeconds, event.claimToken);
         console.warn(
@@ -156,7 +208,9 @@ export async function handleOutboxEvent(event: RevisionOutboxEvent,
       'X-Tenant-Id': '00000000-0000-0000-0000-000000000001',
       'X-Actor-Id': event.createdBy || '00000000-0000-0000-0000-000000000001',
       'X-Request-Id': crypto.randomUUID(),
-      'Idempotency-Key': `analysis-${event.revisionId}`
+      'Idempotency-Key': `analysis-${event.revisionId}`,
+      // T1: this outbox retries the analysis itself, so the AI service fails fast on a provider outage.
+      'X-Retry-Owner': 'outbox'
     };
     if (env.PLATFORM_SERVICE_TOKEN) {
       headers['Authorization'] = `Bearer ${env.PLATFORM_SERVICE_TOKEN}`;

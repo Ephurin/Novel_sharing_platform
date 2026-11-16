@@ -1136,20 +1136,25 @@ def analyze_revision(
     tenant_id: str = Header(..., alias="X-Tenant-Id"),
     request_id: str = Header(..., alias="X-Request-Id"),
     idempotency_key: str = Header(..., alias="Idempotency-Key"),
+    retry_owner: str | None = Header(default=None, alias="X-Retry-Owner"),
     service: RevisionAnalysisService = Depends(get_revision_analysis_service),
 ):
+    from contextlib import nullcontext
+    from core.structured_call import no_provider_retry_scope
     try:
         from api.entity_hitl_routes import invoke
-        result = invoke(service.analyze,
-            tenant_id=tenant_id,
-            novel_id=payload.novel_id,
-            chapter_id=payload.chapter_id,
-            revision_id=revision_id,
-            content_hash=payload.content_hash,
-            operation=payload.operation,
-            idempotency_key=idempotency_key,
-            options=payload.options.model_dump(),
-        )
+        # T1: the outbox retries the whole analysis later, so a provider outage fails fast here.
+        with (no_provider_retry_scope() if retry_owner == "outbox" else nullcontext()):
+            result = invoke(service.analyze,
+                tenant_id=tenant_id,
+                novel_id=payload.novel_id,
+                chapter_id=payload.chapter_id,
+                revision_id=revision_id,
+                content_hash=payload.content_hash,
+                operation=payload.operation,
+                idempotency_key=idempotency_key,
+                options=payload.options.model_dump(),
+            )
     except RevisionNotFoundError as exc:
         raise HTTPException(status_code=404, detail={"code": "REVISION_NOT_FOUND"}) from exc
     except ContentHashMismatchError as exc:

@@ -62,3 +62,12 @@ test('Q1/Q2: statuses read in Vietnamese and setup/extraction types compare as o
   assert.equal(entityKind('character'), 'PER');
   assert.notEqual(entityKind('LOC'), entityKind('PER'));
 });
+
+test('T2: a provider outage tells the author analysis resumes by itself, or how to restart it', async () => {
+  const { chapterAnalysisMessage } = await import('../src/features/ai-copilot/author-memory-api');
+  const base = { chapter_id: 'c', chapter_number: 9, retry_count: 0 };
+  assert.match(chapterAnalysisMessage({ ...base, status: 'PENDING', waiting_reason: 'provider_unavailable' }), /tự chạy lại/);
+  assert.match(chapterAnalysisMessage({ ...base, status: 'FAILED', waiting_reason: 'provider_unavailable' }), /Phân tích lại chương đang mở/);
+  assert.match(chapterAnalysisMessage({ ...base, status: 'FAILED', retry_count: 5 }), /sau 5 lần thử/);
+  assert.match(chapterAnalysisMessage({ ...base, status: 'PENDING', retry_count: 1 }), /Đang xử lý/);
+});

@@ -290,11 +290,15 @@ export async function findOutboxEventByRevisionAndType(
 
 export async function listLatestChapterAnalysis(novelId: string) {
   const result = await getPostgresPool().query(
-    `select c.chapter_id, c.chapter_number, r.revision_id, o.status, o.retry_count
+    `select c.chapter_id, c.chapter_number, r.revision_id, o.status, o.retry_count,
+       case when o.status = 'PENDING' and o.last_error like 'deferred: provider unavailable%' then 'provider_unavailable'
+            when o.status = 'FAILED' and (o.last_error ~ 'PROVIDER_UNAVAILABLE|PROVIDER_TIMEOUT|HTTP 50[234]') then 'provider_unavailable'
+            else null end as waiting_reason
      from chapters c
      join chapter_revisions r on r.revision_id = c.latest_revision_id
      left join revision_outbox_events o on o.revision_id = r.revision_id and o.event_type = 'INCREMENTAL_ANALYSIS'
      where c.novel_id = $1 order by c.chapter_number`, [novelId]);
-  return result.rows as { chapter_id: string; chapter_number: number; revision_id: string; status: string | null; retry_count: number }[];
+  return result.rows as { chapter_id: string; chapter_number: number; revision_id: string; status: string | null; retry_count: number;
+    waiting_reason: 'provider_unavailable' | null }[];
 }
 

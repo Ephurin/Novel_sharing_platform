@@ -75,6 +75,8 @@ import {
   type MemoryEntity,
   entityPlaceLabel,
   entityStatusLabel,
+  chapterAnalysisMessage,
+  type ChapterAnalysisStatus,
   type MemoryFact,
   type Relationship,
   type Transition,
@@ -177,7 +179,7 @@ function ScopedAuthorMemoryPanel({
     enabled,
     refetchInterval: enabled ? 3000 : false,
     queryFn: () =>
-      memoryGet<{ chapter_id: string; chapter_number: number; status: string | null; retry_count: number }[]>(
+      memoryGet<ChapterAnalysisStatus[]>(
         `/ai/story-brains/${novelId}/extraction-status`
       )
   });
@@ -546,11 +548,11 @@ function ScopedAuthorMemoryPanel({
                 .map(e => (
                   <Alert
                     key={e.chapter_id}
-                    color={e.status === 'FAILED' ? 'red' : 'blue'}
+                    color={e.waiting_reason === 'provider_unavailable' && e.status !== 'FAILED' ? 'yellow' : e.status === 'FAILED' ? 'red' : 'blue'}
                     title={`Chương ${e.chapter_number}`}
+                    data-testid={`chapter-analysis-${e.chapter_number}`}
                   >
-                    {e.status === 'FAILED' ? 'Trích xuất thất bại' : 'Đang xử lý trích xuất'} · đã thử lại{' '}
-                    {e.retry_count ?? 0} lần
+                    {chapterAnalysisMessage(e)}
                   </Alert>
                 ))}
 

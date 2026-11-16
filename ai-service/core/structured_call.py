@@ -10,6 +10,20 @@ extraction_source: ContextVar[dict[str, Any] | None] = ContextVar("extraction_so
 request_priority: ContextVar[str | None] = ContextVar("request_priority", default=None)
 
 
+# Live retest 6 (T1): when a caller retries the whole job itself (the analysis outbox), retrying a
+# provider outage inside each call only multiplies the calls spent while the provider is down.
+provider_retries: ContextVar[bool] = ContextVar("provider_retries", default=True)
+
+
+@contextmanager
+def no_provider_retry_scope():
+    token = provider_retries.set(False)
+    try:
+        yield
+    finally:
+        provider_retries.reset(token)
+
+
 @contextmanager
 def priority_scope(priority: str):
     token = request_priority.set(priority)
