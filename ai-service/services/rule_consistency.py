@@ -100,12 +100,19 @@ CANON_SYSTEM_PROMPT = (
 def canon_facts_from_brain(brain: Any, effective_facts: list[dict[str, Any]]) -> list[dict[str, str]]:
     """Approved, non-rule story facts as {rule_id, text}: entity places and profiles, narrative facts,
     then the most recent events, at most MAX_CANON_FACTS."""
+    from domain.last_seen import from_brain, is_unknown
     names = {e.entity_id: e.name for e in getattr(brain, "entities", ())}
+    last_seen = from_brain(brain) if getattr(brain, "events", None) else {}
     items: list[dict[str, str]] = []
     for entity in getattr(brain, "entities", ()):
         location = str(getattr(entity, "location", "") or "").strip()
-        if location and location.casefold() not in {"unknown", "không rõ"}:
+        if not is_unknown(location):
             items.append({"rule_id": f"entity:{entity.entity_id}:location", "text": f"{entity.name} ở {location}"})
+        elif entity.entity_id in last_seen:
+            # N8: a place from the latest approved event, worded so that a later move is not a contradiction.
+            seen = last_seen[entity.entity_id]
+            items.append({"rule_id": f"entity:{entity.entity_id}:last_seen",
+                          "text": f"{entity.name} xuất hiện gần nhất ở {seen['location']} (chương {seen['chapter']})"})
         for key, value in (getattr(entity, "approved_profile", None) or {}).items():
             if isinstance(value, str) and value.strip() and key not in {"effective_from_chapter"}:
                 items.append({"rule_id": f"entity:{entity.entity_id}:{key}", "text": f"{entity.name} — {key}: {value.strip()[:200]}"})

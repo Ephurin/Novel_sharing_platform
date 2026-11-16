@@ -2682,6 +2682,13 @@ class PostgresNarrativeRepository:
             selected_profile_ids = (set(profile_entity_ids) if profile_entity_ids is not None
                                     else explicit_ids if character_name else set(recent_scope_participant_entity_ids))
 
+            from domain.last_seen import is_unknown, last_seen_locations
+            # N8: events up to the cutoff tell where an entity was last seen when nothing else does.
+            last_seen = last_seen_locations(
+                ((str(e.id), e.canonical_name, e.entity_type) for e in sorted_entities),
+                ((ev.chapter_number, ev.participants, (ev.event_metadata or {}).get("locations", ()))
+                 for ev in active_events if not (ev.event_metadata or {}).get("is_retired")))
+
             def _all_entity_outputs() -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
                 entities_all: list[dict[str, Any]] = []
                 states_all: list[dict[str, Any]] = []
@@ -2691,6 +2698,9 @@ class PostgresNarrativeRepository:
                     c_state = state_by_entity.get(e_id, {})
                     status = str(c_state.get("status", attrs.get("status", "Alive")))
                     location = str(c_state.get("location", attrs.get("location", "Unknown")))
+                    seen = last_seen.get(e_id) if is_unknown(location) else None
+                    if seen:
+                        location = f"{seen['location']} (xuất hiện gần nhất, chương {seen['chapter']})"
                     entities_all.append({
                         "entity_id": e_id,
                         "name": entity.canonical_name,

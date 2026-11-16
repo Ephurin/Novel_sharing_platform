@@ -54,13 +54,13 @@ test('Cẩm nang shows approved knowledge, preserves author enrichment and perfo
     await page.getByText('Đã cập nhật Cẩm nang từ dữ liệu đã duyệt trong Story Brain.', { exact: true }).waitFor();
     assert.equal(syncs, 1);
     await page.getByRole('button', { name: /Nhân vật/ }).first().click();
-    await page.getByRole('button', { name: 'Gộp hai tên của cùng nhân vật', exact: true }).click();
+    await page.getByRole('button', { name: 'Gộp hai tên trùng', exact: true }).click();
     const confirm = page.getByRole('button', { name: 'Xác nhận gộp', exact: true });
     assert.equal(await confirm.isDisabled(), true);
     await page.getByRole('textbox', { name: 'Tên cần gộp (sẽ thành tên gọi khác)', exact: true }).click();
-    await page.getByRole('option', { name: 'Amane · char-1', exact: true }).click();
-    await page.getByRole('textbox', { name: 'Nhân vật giữ lại (tên chính thức)', exact: true }).click();
-    await page.getByRole('option', { name: 'Fujiyama Amane · char-2', exact: true }).click();
+    await page.getByRole('option', { name: 'Amane · nhân vật · char-1', exact: true }).click();
+    await page.getByRole('textbox', { name: 'Mục giữ lại (tên chính thức)', exact: true }).click();
+    await page.getByRole('option', { name: 'Fujiyama Amane · nhân vật · char-2', exact: true }).click();
     assert.equal(mergePayload, undefined);
     await confirm.click();
     await page.getByText('Đã gộp “Amane” vào “Fujiyama Amane”. Tên cũ được giữ làm tên gọi khác.', { exact: true }).waitFor();

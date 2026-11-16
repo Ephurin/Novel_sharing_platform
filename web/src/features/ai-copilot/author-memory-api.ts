@@ -135,9 +135,18 @@ export interface MemoryEntity {
   entity_type: string;
   status: string;
   location: string;
+  /** "last_event": the place was taken from the latest approved event (live retest 3, N8). */
+  location_source?: 'last_event';
+  location_chapter?: number;
   mentions?: number;
   is_locked?: boolean;
   approved_profile?: Partial<EntityProfileFields> & { effective_from_chapter?: number };
+}
+
+export function entityPlaceLabel(e: Pick<MemoryEntity, 'location' | 'location_source' | 'location_chapter'>): string {
+  const place = (e.location ?? '').trim();
+  if (!place || ['unknown', 'không rõ', 'chưa rõ'].includes(place.toLocaleLowerCase('vi'))) return 'Chưa rõ vị trí';
+  return e.location_source === 'last_event' ? `${place} (xuất hiện gần nhất, chương ${e.location_chapter})` : place;
 }
 
 export interface MemoryEvent {
