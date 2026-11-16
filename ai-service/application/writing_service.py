@@ -60,6 +60,14 @@ def writing_failure_error(exc: Exception) -> dict[str, Any]:
             "retry_after": seconds,
             "detail": message[:200],
         }
+    if message.startswith("PROVIDER_UNAVAILABLE"):
+        return {
+            "code": "AI_PROVIDER_UNAVAILABLE",
+            "message": "Dịch vụ AI tạm thời không phản hồi (quá tải hoặc quá thời gian). Hệ thống đã thử lại; "
+                       "vui lòng thử lại sau khoảng một phút.",
+            "retry_after": 60,
+            "detail": message[:200],
+        }
     return {"message": message}
 
 
