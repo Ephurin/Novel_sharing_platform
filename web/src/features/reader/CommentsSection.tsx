@@ -7,6 +7,7 @@ import { useAuthStore } from '../auth/useAuthStore';
 import { getApiErrorMessage } from '../../shared/api/api-client';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
 import { ManuscriptContent } from '../../shared/components/ManuscriptContent';
+import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 import { createTargetComment, listTargetComments, listCommentReplies, reactToComment, replyToComment, type CommentTarget } from './comments-api';
 import { deleteComment, reportContent, updateComment, type CommentInput, type ReaderComment } from './reader-api';
 import { CommentComposer, CommentIcon, emptyComment } from './CommentComposer';
@@ -44,12 +45,13 @@ export function CommentsSection({ kind, id }: CommentTarget) {
     }
   });
   const canComment = user?.status === 'ACTIVE';
+  const commentsRef = useStoryCraftAutoAnimate<HTMLDivElement>();
   return <Paper withBorder p="md" mt="lg" className="sc-comments" component="section" aria-label={kind === 'novel' ? 'Bình luận tác phẩm' : 'Bình luận chương'}>
     <Group justify="space-between" mb="md">
       <Title order={3}>{kind === 'novel' ? 'Bình luận tác phẩm' : 'Bình luận chương'}</Title>
       {query.data && <Text c="dimmed" size="sm">{query.data.totalItems.toLocaleString('vi-VN')} bình luận</Text>}
     </Group>
-    <Stack gap="md">
+    <Stack ref={commentsRef} gap="md">
       {canComment ? <CommentComposer key={scope} value={draft} onChange={setDraft} label="Bình luận của bạn" submitLabel="Gửi bình luận" pending={create.isPending}
         onSubmit={draft => create.mutate({ target: { kind, id }, draft, account: user.userId, scope })} />
         : <Text size="sm" c="dimmed">{!user ? <><Link to="/login">Đăng nhập</Link> để bình luận.</> : 'Tài khoản đang hoạt động mới được bình luận.'}</Text>}
@@ -193,10 +195,12 @@ export function CommentThread({ comment, onChanged, showContext = true }: { comm
     }
   });
   const accountKey = user?.userId ?? 'guest';
-  return <Stack gap="xs" className="sc-comment-thread" data-comment-id={comment.commentId}>
+  const threadRef = useStoryCraftAutoAnimate<HTMLDivElement>();
+  const repliesRef = useStoryCraftAutoAnimate<HTMLDivElement>();
+  return <Stack ref={threadRef} gap="xs" className="sc-comment-thread" data-comment-id={comment.commentId}>
     <CommentItem key={`${accountKey}:${comment.commentId}`} comment={comment} onChanged={onChanged} showContext={showContext} onReply={() => { setReplying(true); setOpen(true); }} />
     {(comment.repliesCount > 0 || open) && <Button variant="subtle" size="compact-xs" style={{ alignSelf: 'flex-start' }} aria-expanded={open} aria-controls={`replies-${comment.commentId}`} onClick={() => setOpen(value => !value)}>{open ? 'Ẩn trả lời' : `Xem ${comment.repliesCount} trả lời`}</Button>}
-    {open && <Stack id={`replies-${comment.commentId}`} gap="sm" className="sc-comment-replies">
+    {open && <Stack ref={repliesRef} id={`replies-${comment.commentId}`} gap="sm" className="sc-comment-replies">
       {replies.isPending && <LoadingState label="Đang tải trả lời…" />}
       {replies.isError && <ErrorState title="Không tải được trả lời" error={replies.error} onRetry={() => void replies.refetch()} />}
       {replies.data?.items.map(reply => <CommentItem key={`${accountKey}:${reply.commentId}`} comment={reply} onChanged={onChanged} showContext={showContext} forceSpoiler={comment.isSpoiler} />)}

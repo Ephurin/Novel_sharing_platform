@@ -18,6 +18,7 @@ import { AuthorNavbar } from '../../shared/components/AuthorTheme';
 import { Breadcrumbs, type BreadcrumbItem } from '../../shared/components/Breadcrumbs';
 import { navigationLabels, readerHomeCrumb } from '../../shared/components/navigation';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
+import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 import { ReaderNotFound, isReaderNotFound } from './ReaderNotFound';
 import { useToast } from '../../shared/components/ToastProvider';
 import {
@@ -238,6 +239,7 @@ export function ReaderLibraryPage() {
 export function ReaderHistoryPage() {
   const historyQuery = useQuery({ queryKey: ['reader-history'], queryFn: listHistory });
   const items = historyQuery.data ?? [];
+  const historyListRef = useStoryCraftAutoAnimate<HTMLDivElement>();
 
   return (
     <div className="flex flex-col gap-6">
@@ -254,7 +256,7 @@ export function ReaderHistoryPage() {
           emptyDescription="Các chương bạn đọc sẽ xuất hiện tại đây."
         />
         {items.length ? (
-          <div className={`${card} overflow-hidden divide-y divide-stone-100`}>
+          <div ref={historyListRef} className={`${card} overflow-hidden divide-y divide-stone-100`}>
             {items.map((item) => (
               <article key={item.novelId} className="flex items-center gap-4 px-4 py-3 hover:bg-stone-50 transition-colors">
                 <Link
@@ -366,7 +368,8 @@ function QueryStates({
 }
 
 function NovelGrid({ children }: { children: ReactNode }) {
-  return <div className="sc-novel-grid">{children}</div>;
+  const gridRef = useStoryCraftAutoAnimate<HTMLDivElement>();
+  return <div ref={gridRef} className="sc-novel-grid">{children}</div>;
 }
 
 function Cover({ url, title }: { url?: string | null; title: string }) {
