@@ -402,9 +402,9 @@ test('Real AuthorWritingIde: editor typing, autosave, S10 consistency checking &
     const bibleBtn = page.getByTitle('Cẩm nang thế giới truyện (Story Bible)');
     await bibleBtn.click();
     await page.getByText('Cẩm Nang Thế Giới (Story Bible)').waitFor({ timeout: 10000 });
-    await page.getByRole('button', { name: /Mối quan hệ/i }).click();
-    await page.getByRole('button', { name: /Dòng thời gian/i }).click();
-    await page.getByRole('button', { name: /Tóm tắt hồi/i }).click();
+    await page.getByRole('tab', { name: /Mối quan hệ/i }).click();
+    await page.getByRole('tab', { name: /Dòng thời gian/i }).click();
+    await page.getByRole('tab', { name: /Tóm tắt hồi/i }).click();
 
     // Capture S11 continuity screenshot
     await page.screenshot({ path: fileURLToPath(new URL('s11-continuity-reload.png', evidenceDir)) });

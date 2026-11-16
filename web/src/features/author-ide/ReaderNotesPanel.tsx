@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type RefObject } from 'react';
 import { addAuthorNote, assertAuthorNoteRange, authorNoteRemovalEdits, authorNotesPublicationSignature, AUTHOR_NOTE_BODY_LIMIT, AUTHOR_NOTE_LIMIT, parseAuthorNotes, reattachAuthorNote, removeAuthorNote, updateAuthorNote } from '../../shared/lib/author-notes';
 import { locateAnchor, passageAnchor, rememberAnnotationEdits, type AnchorEdit, type TextAnchor } from './studio-annotations';
 import { plainStudioText } from './studio-tools';
+import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 
 type Composer = { mode: 'create'; anchor: TextAnchor } | { mode: 'edit'; id: string };
 
@@ -23,6 +24,7 @@ export function ReaderNotesPanel({ content, ready, request, getSelection, apply,
   const [composer, setComposer] = useState<Composer | null>(null), [body, setBody] = useState('');
   const [error, setError] = useState(''), [message, setMessage] = useState('');
   const input = useRef<HTMLTextAreaElement>(null);
+  const notesListRef = useStoryCraftAutoAnimate<HTMLDivElement>();
   const selection = () => {
     const range = getSelection(), anchor = passageAnchor(content, range.start, range.end);
     if (!anchor) throw new Error('Chọn câu hoặc đặt con trỏ ở dòng cần chú thích.');
@@ -77,7 +79,7 @@ export function ReaderNotesPanel({ content, ready, request, getSelection, apply,
       <span className="text-meta">{body.length}/{AUTHOR_NOTE_BODY_LIMIT}</span>
       <div className="sc-studio-tool-row"><button type="button" disabled={!ready || !body.trim()} onClick={save}>Lưu chú thích</button><button type="button" onClick={() => { setComposer(null); setError(''); }}>Hủy chú thích</button></div>
     </div>}
-    {all.map(note => <article className="sc-passage-note" key={note.id}>
+    <div ref={notesListRef}>{all.map(note => <article className="sc-passage-note" key={note.id}>
       <h3>{note.number ? `Chú thích ${note.number}` : 'Chú thích chưa gắn vào lời văn'}</h3>
       {note.references.length > 0 && <p className="text-meta">{isPublished && published.byId.get(note.id)?.number ? (published.byId.get(note.id)?.body === note.body ? 'Đã có trên bản công khai' : 'Nội dung chú thích đã sửa, chưa xuất bản') : 'Chưa có trên bản công khai'}</p>}
       {note.references.length > 0 && <blockquote>{plainStudioText(content.slice(Math.max(content.lastIndexOf('\n', note.references[0]) + 1, note.references[0] - 180), note.references[0]))}</blockquote>}
@@ -88,7 +90,7 @@ export function ReaderNotesPanel({ content, ready, request, getSelection, apply,
         <button type="button" disabled={!ready} onClick={() => { edit(removeAuthorNote(content, note.id), note.references[0] ?? 0, 'Đã xóa chú thích. Có thể hoàn tác trong bản thảo.', authorNoteRemovalEdits(content, note.id)); if (composer?.mode === 'edit' && composer.id === note.id) setComposer(null); }}>Xóa chú thích</button>
       </div>
       {!note.references.length && <p className="text-meta">Chú thích này chưa hiện với độc giả. Chọn lại câu để gắn vị trí.</p>}
-    </article>)}
+    </article>)}</div>
     {all.length >= AUTHOR_NOTE_LIMIT && <p className="text-meta">Tối đa {AUTHOR_NOTE_LIMIT} chú thích mỗi chương.</p>}
     {error && <p role="alert">{error}</p>}
     <span role="status" className="sc-motion-sr-only">{message}</span>
