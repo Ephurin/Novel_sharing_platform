@@ -71,3 +71,9 @@ test('T2: a provider outage tells the author analysis resumes by itself, or how 
   assert.match(chapterAnalysisMessage({ ...base, status: 'FAILED', retry_count: 5 }), /sau 5 lần thử/);
   assert.match(chapterAnalysisMessage({ ...base, status: 'PENDING', retry_count: 1 }), /Đang xử lý/);
 });
+
+test('U2: a provider outage on a synchronous request reads in Vietnamese', () => {
+  const err = new ApiClientError({ message: 'PROVIDER_UNAVAILABLE retry_after=60', status: 502, code: 'AI_SERVICE_502' });
+  assert.match(getApiErrorMessage(err), /Dịch vụ AI tạm thời không phản hồi/);
+  assert.doesNotMatch(getApiErrorMessage(err), /AI_SERVICE_502/);
+});

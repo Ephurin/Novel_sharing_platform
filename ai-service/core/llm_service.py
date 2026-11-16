@@ -27,6 +27,14 @@ TRANSIENT_PROVIDER_BACKOFF_SECONDS = (4, 10)
 PROVIDER_UNAVAILABLE_CODE = "PROVIDER_UNAVAILABLE"
 
 
+_SECRET_PATTERN = re.compile(r"(?i)(key|token|authorization|bearer)[=:\s\"']+[A-Za-z0-9._\-]{8,}")
+
+
+def provider_error_excerpt(message: str, limit: int = 400) -> str:
+    """The provider's error text for logs: whitespace collapsed, credentials masked, bounded."""
+    return _SECRET_PATTERN.sub(lambda m: m.group(1) + "=***", " ".join(str(message).split()))[:limit]
+
+
 def current_request_priority() -> str:
     explicit = request_priority.get()
     if explicit:
@@ -529,8 +537,8 @@ class LLMService:
                             and TRANSIENT_PROVIDER_PATTERN.search(message):
                         # Live round 2: a single upstream 503 failed a whole manuscript import.
                         delay = TRANSIENT_PROVIDER_BACKOFF_SECONDS[attempt]
-                        logger.warning("Transient provider failure on %s (attempt %d); retrying in %ds",
-                                       model_name, attempt + 1, delay)
+                        logger.warning("Transient provider failure on %s (attempt %d); retrying in %ds: %s",
+                                       model_name, attempt + 1, delay, provider_error_excerpt(message))
                         time.sleep(delay)
                         continue
                     rate_code = next((c for c in GUARD_RATE_LIMIT_CODES if c in message), None) if guard else None
@@ -549,6 +557,10 @@ class LLMService:
                             code in message for code in ("provider_timeout", "provider_unavailable"))):
                         # Live retest 5 (S1): after the retries above, a provider outage was reported as a
                         # plain BUDGET_GUARD_DENIED, so the author read it as a spent budget.
+                        # Live retest 7 (U1): the provider's own error text was never logged, so a request
+                        # that always failed could not be told apart from an outage.
+                        logger.warning("Provider unavailable on %s (operation %s): %s", model_name,
+                                       (structured_request.get() or {}).get("operation"), provider_error_excerpt(message))
                         raise LLMServiceError(f"{PROVIDER_UNAVAILABLE_CODE} retry_after=60") from exc
                     if guard and any(
                         code in message
