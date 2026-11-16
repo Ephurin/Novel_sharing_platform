@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 
 export function NovelEngagement({ novelId, authorId, onSaved }: { novelId: string; authorId: string; onSaved?: () => void }) {
   const user = useAuthStore(state => state.user);
+  const reduce = useReducedMotion();
   const client = useQueryClient();
   const key = ['novel-statistics', novelId, user?.userId ?? 'guest'];
   const query = useQuery({ queryKey: key, queryFn: () => getNovelStatistics(novelId) });
@@ -40,7 +41,6 @@ export function NovelEngagement({ novelId, authorId, onSaved }: { novelId: strin
   const disabled = user?.role !== 'READER' || user.status !== 'ACTIVE' || user.userId === authorId;
   if (query.isPending) return <Text c="dimmed">Đang tải đánh giá…</Text>;
   if (query.isError) return <Alert color="red">{getApiErrorMessage(query.error)} <Button variant="subtle" onClick={() => void query.refetch()}>Thử lại</Button></Alert>;
-  const reduce = useReducedMotion();
   const stats = query.data;
   const numericScore = typeof score === 'number' ? score : 5;
   const scoreMood = numericScore >= 9 ? 'Kiệt tác' : numericScore >= 7 ? 'Rất đáng đọc' : numericScore >= 5 ? 'Khá ổn' : 'Cần cải thiện';

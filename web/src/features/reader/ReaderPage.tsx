@@ -368,8 +368,7 @@ function QueryStates({
 }
 
 function NovelGrid({ children }: { children: ReactNode }) {
-  const gridRef = useStoryCraftAutoAnimate<HTMLDivElement>();
-  return <div ref={gridRef} className="sc-novel-grid">{children}</div>;
+  return <div className="sc-novel-grid">{children}</div>;
 }
 
 function Cover({ url, title }: { url?: string | null; title: string }) {
