@@ -2,10 +2,9 @@ import { useState } from 'react';
 import { Alert, Button, Modal, Select, Stack, Text } from '@mantine/core';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
-import { memoryPost, type MemoryEntity } from './author-memory-api';
+import { entityKind, memoryPost, type MemoryEntity } from './author-memory-api';
 
-const TYPE_LABEL: Record<string, string> = { PER: 'nhân vật', PERSON: 'nhân vật', CHARACTER: 'nhân vật',
-  LOC: 'địa danh', LOCATION: 'địa danh', ORG: 'tổ chức', ITEM: 'vật phẩm' };
+const TYPE_LABEL: Record<string, string> = { PER: 'nhân vật', LOC: 'địa danh', ORG: 'tổ chức', ITEM: 'vật phẩm', SKILL: 'kỹ năng' };
 
 export function EntityMergeControl({ novelId, version, entities, disabled = false }: {
   novelId: string; version: number; entities: MemoryEntity[]; disabled?: boolean;
@@ -38,9 +37,9 @@ export function EntityMergeControl({ novelId, version, entities, disabled = fals
     }
   });
   if (characters.length < 2 && !notice) return null;
-  const options = characters.map(e => ({ value: e.entity_id, type: e.entity_type.toUpperCase(),
-    label: `${e.name} · ${TYPE_LABEL[e.entity_type.toUpperCase()] ?? e.entity_type} · ${e.entity_id.slice(0, 8)}` }));
-  const sameType = (o: { type: string }, other: MemoryEntity | undefined) => !other || o.type === other.entity_type.toUpperCase();
+  const options = characters.map(e => ({ value: e.entity_id, type: entityKind(e.entity_type),
+    label: `${e.name} · ${TYPE_LABEL[entityKind(e.entity_type)] ?? e.entity_type} · ${e.entity_id.slice(0, 8)}` }));
+  const sameType = (o: { type: string }, other: MemoryEntity | undefined) => !other || o.type === entityKind(other.entity_type);
   return <Stack gap="xs">
     <Button size="xs" variant="light" disabled={disabled || characters.length < 2} onClick={() => { merge.reset(); setOpened(true); }}>
       Gộp hai tên trùng
@@ -57,7 +56,7 @@ export function EntityMergeControl({ novelId, version, entities, disabled = fals
         {merge.error && <Alert color="red">{merge.error instanceof ApiClientError && merge.error.status === 409
           ? 'Bộ nhớ đã thay đổi. Hãy tải lại danh sách trước khi gộp.' : getApiErrorMessage(merge.error)}
           <Button size="xs" variant="subtle" onClick={() => void refresh()}>Tải lại danh sách</Button></Alert>}
-        <Button loading={merge.isPending} disabled={disabled || !from || !to || source === target || from.entity_type !== to.entity_type}
+        <Button loading={merge.isPending} disabled={disabled || !from || !to || source === target || entityKind(from.entity_type) !== entityKind(to.entity_type)}
           onClick={() => merge.mutate()}>Xác nhận gộp</Button>
       </Stack>
     </Modal>

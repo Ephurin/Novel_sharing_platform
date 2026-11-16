@@ -74,6 +74,7 @@ import {
   type MemoryEvent,
   type MemoryEntity,
   entityPlaceLabel,
+  entityStatusLabel,
   type MemoryFact,
   type Relationship,
   type Transition,
@@ -724,7 +725,7 @@ function ScopedAuthorMemoryPanel({
                         {e.name}
                       </Text>
                       <Text size="xs" c="dimmed">
-                        {e.status} · {entityPlaceLabel(e)}
+                        {entityStatusLabel(e.status)} · {entityPlaceLabel(e)}
                       </Text>
                       {(memory.data?.aliases ?? []).some(a => a.entity_id === e.entity_id) && <Text size="xs" c="dimmed">
                         Tên khác: {(memory.data?.aliases ?? []).filter(a => a.entity_id === e.entity_id).map(a => a.alias).join(', ')}
@@ -863,7 +864,7 @@ function ScopedAuthorMemoryPanel({
                     {e.name}
                   </Text>
                   <Text size="xs" c="dimmed">
-                    {e.status} · {entityPlaceLabel(e)}
+                    {entityStatusLabel(e.status)} · {entityPlaceLabel(e)}
                   </Text>
                 </Card>
               ))}
@@ -886,7 +887,7 @@ function ScopedAuthorMemoryPanel({
                     {e.name}
                   </Text>
                   <Text size="xs" c="dimmed">
-                    {e.status} · {entityPlaceLabel(e)}
+                    {entityStatusLabel(e.status)} · {entityPlaceLabel(e)}
                   </Text>
                 </Card>
               ))}
