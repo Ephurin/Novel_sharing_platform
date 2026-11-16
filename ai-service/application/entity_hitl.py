@@ -172,8 +172,24 @@ HITL_EVENT_INSTRUCTIONS = (
     'that shows the event. '
     'Return JSON {"events":[{"event_type":"...","summary":"...","participants":["exact reviewed entity_id"],'
     '"locations":["exact reviewed entity_id"],"consequences":[],"quote":"exact unique source quote"}]}. '
-    'No predictions or invented identities.'
+    'No predictions or invented identities. '
+    # Live retest 5 (S2): ch. 8 opened by continuing ch. 7's last scene and re-proposed its event.
+    'already_recorded_events are approved events from earlier chapters, latest last. When this chapter only '
+    'continues, recalls or retells one of them, do not list it again; list it only if it happens anew.'
 )
+
+RECORDED_EVENTS_IN_PROMPT = 6
+
+
+def recorded_events_before(repo, novel_id, chapter):
+    """The latest approved events of earlier chapters, as {chapter, summary}, for the event prompt."""
+    try:
+        events = repo.get_story_brain(novel_id, read_only=True).events
+    except TypeError:
+        events = repo.get_story_brain(novel_id).events
+    earlier = [e for e in events if chapter is None or (e.chapter or 0) < chapter]
+    earlier = [e for e in earlier if not (e.metadata or {}).get('is_retired')]
+    return [{'chapter': e.chapter, 'summary': e.summary} for e in earlier[-RECORDED_EVENTS_IN_PROMPT:]]
 
 
 def continue_review(service, novel_id, run_id, tenant_id):
@@ -244,7 +260,8 @@ def continue_review(service, novel_id, run_id, tenant_id):
     if audit['request']['options'].get('extract_events', True) and inventory:
         raw = call_structured(service._llm_service, operation='hitl_event_extraction',
             system_prompt=VIETNAMESE_EVENT_OUTPUT + HITL_EVENT_INSTRUCTIONS,
-            user_prompt=json.dumps({'source_text': revision.content, 'known_entities': inventory.items, 'aliases': audit['aliases']}, ensure_ascii=False))
+            user_prompt=json.dumps({'source_text': revision.content, 'known_entities': inventory.items, 'aliases': audit['aliases'],
+                                    'already_recorded_events': recorded_events_before(repo, novel_id, revision.chapter_number)}, ensure_ascii=False))
         from core.structured_outputs import HitlEventBatch
         for event in HitlEventBatch.model_validate_json(raw).events:
             payload = event.model_dump(exclude={'quote'})

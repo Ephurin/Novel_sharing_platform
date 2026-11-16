@@ -24,6 +24,7 @@ GUARD_RATE_LIMIT_CODES = ("rpm_limit_exceeded", "tpm_limit_exceeded", "concurren
 # (upstream 401/403) are not transient and are never retried.
 TRANSIENT_PROVIDER_PATTERN = re.compile(r"upstream_status'?\"?:\s*5\d\d|provider_timeout")
 TRANSIENT_PROVIDER_BACKOFF_SECONDS = (4, 10)
+PROVIDER_UNAVAILABLE_CODE = "PROVIDER_UNAVAILABLE"
 
 
 def current_request_priority() -> str:
@@ -543,6 +544,11 @@ class LLMService:
                         raise LLMServiceError(
                             f"BUDGET_GUARD_DENIED {rate_code.upper()} retry_after={retry_after}"
                         ) from exc
+                    if guard and (TRANSIENT_PROVIDER_PATTERN.search(message) or any(
+                            code in message for code in ("provider_timeout", "provider_unavailable"))):
+                        # Live retest 5 (S1): after the retries above, a provider outage was reported as a
+                        # plain BUDGET_GUARD_DENIED, so the author read it as a spent budget.
+                        raise LLMServiceError(f"{PROVIDER_UNAVAILABLE_CODE} retry_after=60") from exc
                     if guard and any(
                         code in message
                         for code in (
