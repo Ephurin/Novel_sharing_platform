@@ -15,7 +15,7 @@ _writing_response: ContextVar[bool] = ContextVar('writing_response', default=Fal
 WRITING_TRUNCATED_MESSAGE = 'Bản thảo bị cắt do vượt giới hạn độ dài. Vui lòng yêu cầu đoạn ngắn hơn.'
 DIRECT_TRANSIENT_HTTP_CODES = (408, 429, 500, 502, 503, 504)
 
-from core.structured_call import extraction_source, request_priority, structured_request
+from core.structured_call import extraction_source, provider_retries, request_priority, structured_request
 
 # #149: author-facing structured operations; everything else (analysis, retries) is background work.
 INTERACTIVE_OPERATIONS = frozenset({"brainstorm_suggestions", "setup_text_extraction", "setup_blueprint", "rule_consistency"})
@@ -525,7 +525,8 @@ class LLMService:
                             "Hệ thống đã thử lại 3 lần; vui lòng thử lại sau ít phút."
                         ) from exc
                     message = str(exc).lower()
-                    if guard and attempt < len(TRANSIENT_PROVIDER_BACKOFF_SECONDS) and TRANSIENT_PROVIDER_PATTERN.search(message):
+                    if guard and provider_retries.get() and attempt < len(TRANSIENT_PROVIDER_BACKOFF_SECONDS) \
+                            and TRANSIENT_PROVIDER_PATTERN.search(message):
                         # Live round 2: a single upstream 503 failed a whole manuscript import.
                         delay = TRANSIENT_PROVIDER_BACKOFF_SECONDS[attempt]
                         logger.warning("Transient provider failure on %s (attempt %d); retrying in %ds",

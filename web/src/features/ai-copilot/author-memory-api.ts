@@ -160,6 +160,21 @@ export function entityStatusLabel(status: string | null | undefined): string {
   return STATUS_LABEL[raw.toLowerCase()] ?? (raw || 'Chưa rõ');
 }
 
+export type ChapterAnalysisStatus = { chapter_id: string; chapter_number: number; status: string | null;
+  retry_count: number; waiting_reason?: 'provider_unavailable' | null };
+
+// Live retest 6 (T2): a provider outage left analysis "FAILED" with no hint of what to do.
+export function chapterAnalysisMessage(e: ChapterAnalysisStatus): string {
+  const status = (e.status ?? '').toUpperCase();
+  if (e.waiting_reason === 'provider_unavailable') {
+    return status === 'FAILED'
+      ? 'Dịch vụ AI không phản hồi quá lâu nên phân tích đã dừng. Khi AI hoạt động lại, bấm “Phân tích lại chương đang mở”.'
+      : 'Dịch vụ AI tạm thời không phản hồi. Phân tích sẽ tự chạy lại khi AI hoạt động trở lại; bạn không cần làm gì.';
+  }
+  if (status === 'FAILED') return `Trích xuất thất bại sau ${e.retry_count ?? 0} lần thử. Bấm “Phân tích lại chương đang mở” để thử lại.`;
+  return `Đang xử lý trích xuất · đã thử lại ${e.retry_count ?? 0} lần`;
+}
+
 export function entityPlaceLabel(e: Pick<MemoryEntity, 'location' | 'location_source' | 'location_chapter'>): string {
   const place = (e.location ?? '').trim();
   if (!place || ['unknown', 'không rõ', 'chưa rõ'].includes(place.toLocaleLowerCase('vi'))) return 'Chưa rõ vị trí';
