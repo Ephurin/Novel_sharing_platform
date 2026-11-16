@@ -183,6 +183,42 @@ def _build_repair_instruction(validation_error: str) -> str:
     )
 
 
+KNOWN_NAME_REASON = 'Tên đã duyệt, khớp chính xác; hệ thống tự xác nhận, không cần AI.'
+ENTITY_TYPES = {'PER', 'LOC', 'ORG', 'ITEM', 'SKILL'}
+
+
+def known_name_decisions(items, known_entities, known_aliases):
+    """Live retest 7 (option A): 85-95% of verified occurrences were exact approved names, which the
+    model can only confirm. An occurrence is decided here when its surface is exactly (case and
+    accents included) the canonical name of one known entity, the name has at least two words, and no
+    other entity or alias shares it. Aliases and short names still go to the model."""
+    by_name, shared = {}, set()
+    for e in known_entities:
+        key = same_key(e['name'])
+        if key in by_name:
+            shared.add(key)
+        by_name[key] = e
+    shared |= {same_key(a['alias']) for a in known_aliases}
+    decided = {}
+    for c in items:
+        e = by_name.get(same_key(c.surface))
+        if (e is None or same_key(c.surface) in shared or c.surface != e['name'] or len(c.surface.split()) < 2
+                or not e.get('entity_id') or e.get('entity_type') not in ENTITY_TYPES):
+            continue
+        decided[c.candidate_id] = EntityDecision(candidate_id=c.candidate_id, verdict='entity',
+            entity_type=e['entity_type'], canonical_name=e['name'], canonical_entity_id=str(e['entity_id']),
+            confidence=1.0, reason=KNOWN_NAME_REASON)
+    return decided
+
+
+def same_key(name):
+    return unicodedata.normalize('NFC', str(name)).casefold()
+
+
+def _provider_unavailable(exc):
+    return 'PROVIDER_UNAVAILABLE' in str(exc)
+
+
 def verify_entities(text, llm, discover, *, known_entities=(), known_aliases=(), audit_sink=None,
                     batch_size=24, guidance=(), defer_materialization=False):
     if not 1 <= batch_size <= 32:
@@ -253,8 +289,15 @@ def verify_entities(text, llm, discover, *, known_entities=(), known_aliases=(),
             '   - For "unresolved": state what ambiguity prevents confirmation (unresolved is not approved truth).\n'
             'Explain each decision in reason. Schema: '
             + json.dumps(EntityDecisionBatch.model_json_schema()))
-        for start in range(0, len(inventory.items), batch_size):
-            batch = inventory.items[start:start + batch_size]
+        auto = known_name_decisions(inventory.items, known_entities, known_aliases)
+        audit['decisions'].extend(d.model_dump() for d in auto.values())
+        audit['known_name_decisions'] = len(auto)
+        pending = [c for c in inventory.items if c.candidate_id not in auto]
+        # U1: one chapter's verification batch failed with a provider 503 every time while other calls
+        # worked. A failing batch is split once; if its first half fails too, it is an outage.
+        work = [(start, pending[start:start + batch_size], False) for start in range(0, len(pending), batch_size)]
+        while work:
+            start, batch, is_split = work.pop(0)
             request = {'candidates': [c.to_dict() for c in batch], 'known_entities': list(known_entities),
                        'known_aliases': list(known_aliases), 'allowed_names': all_names,
                        'author_guidance': list(guidance),
@@ -264,8 +307,19 @@ def verify_entities(text, llm, discover, *, known_entities=(), known_aliases=(),
             last_error = ''
             parsed = None  # last schema-valid output, kept for per-candidate salvage
             for attempt in range(2):
-                raw = call_structured(llm, operation='entity_candidate_verification', system_prompt=system,
-                                      user_prompt=json.dumps(request, ensure_ascii=False))
+                try:
+                    raw = call_structured(llm, operation='entity_candidate_verification', system_prompt=system,
+                                          user_prompt=json.dumps(request, ensure_ascii=False))
+                except Exception as exc:
+                    if not _provider_unavailable(exc) or is_split or len(batch) < 2:
+                        raise
+                    half = len(batch) // 2
+                    audit.setdefault('split_batches', []).append({'batch_start': start, 'size': len(batch)})
+                    logger.warning('Entity verification batch %d (%d candidates) failed at the provider; '
+                                   'retrying as two halves', start, len(batch))
+                    work[:0] = [(start, batch[:half], True), (start + half, batch[half:], True)]
+                    raw = None
+                    break
                 try:
                     parsed = EntityDecisionBatch.model_validate_json(raw).decisions
                     _validate(parsed, batch, text, known, all_names)
@@ -292,6 +346,8 @@ def verify_entities(text, llm, discover, *, known_entities=(), known_aliases=(),
                 audit.setdefault('degraded_candidates', []).extend(degraded)
                 logger.warning('Entity verification batch %d: %d candidate(s) left unresolved after bounded repair',
                                start, len(degraded))
+            if raw is None:
+                continue  # split into halves; they are verified next
             audit['decisions'].extend(d.model_dump() for d in decisions)
             save('verifying')
         audit['decisions'] = _canonicalize(audit['decisions'], inventory.items, known)

@@ -87,6 +87,10 @@ export function getApiErrorMessage(error: unknown) {
     if (error.code === 'BRAIN_VERSION_CONFLICT') {
       return 'Bộ nhớ truyện đã thay đổi sau khi mục này được tạo nên không thể duyệt nữa. Hãy tải lại; nếu đề xuất được đánh dấu "Đã cũ", hãy từ chối nó rồi lưu lại chương để AI phân tích lại.';
     }
+    // Live retest 7 (U2): "Phân tích lại chương" showed "AI_SERVICE_502: PROVIDER_UNAVAILABLE retry_after=60".
+    if (/PROVIDER_UNAVAILABLE|PROVIDER_TIMEOUT/.test(`${error.code} ${error.message}`)) {
+      return 'Dịch vụ AI tạm thời không phản hồi. Hệ thống đã thử lại; vui lòng thử lại sau khoảng một phút.';
+    }
     // The AI service explains this one in Vietnamese (for example a repeated event).
     if (error.code === 'INVALID_PROJECTION' && /[À-ỹ]/.test(error.message)) {
       return error.message;
