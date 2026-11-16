@@ -143,6 +143,23 @@ export interface MemoryEntity {
   approved_profile?: Partial<EntityProfileFields> & { effective_from_chapter?: number };
 }
 
+// Live retest 4: setup creates "character"/"location" while extraction creates "PER"/"LOC" (Q2), and the
+// status was shown raw in English, e.g. "Alive" (Q1).
+const ENTITY_KIND: Record<string, string> = { PER: 'PER', PERSON: 'PER', CHARACTER: 'PER', LOC: 'LOC', LOCATION: 'LOC',
+  PLACE: 'LOC', ORG: 'ORG', ORGANIZATION: 'ORG', ITEM: 'ITEM', OBJECT: 'ITEM', SKILL: 'SKILL' };
+export function entityKind(type: string | null | undefined): string {
+  const key = String(type ?? '').trim().toUpperCase();
+  return ENTITY_KIND[key] ?? key;
+}
+
+const STATUS_LABEL: Record<string, string> = { alive: 'Còn sống', dead: 'Đã chết', deceased: 'Đã chết', unknown: 'Chưa rõ',
+  injured: 'Bị thương', wounded: 'Bị thương', missing: 'Mất tích', captured: 'Bị bắt', imprisoned: 'Bị giam',
+  active: 'Đang hoạt động', destroyed: 'Đã bị phá hủy', lost: 'Đã mất' };
+export function entityStatusLabel(status: string | null | undefined): string {
+  const raw = String(status ?? '').trim();
+  return STATUS_LABEL[raw.toLowerCase()] ?? (raw || 'Chưa rõ');
+}
+
 export function entityPlaceLabel(e: Pick<MemoryEntity, 'location' | 'location_source' | 'location_chapter'>): string {
   const place = (e.location ?? '').trim();
   if (!place || ['unknown', 'không rõ', 'chưa rõ'].includes(place.toLocaleLowerCase('vi'))) return 'Chưa rõ vị trí';

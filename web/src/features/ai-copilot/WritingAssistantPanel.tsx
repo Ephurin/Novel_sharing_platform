@@ -1,3 +1,4 @@
+import { entityStatusLabel } from './author-memory-api';
 import { useState, useEffect, useRef } from 'react';
 import {
   Paper,
@@ -483,7 +484,7 @@ export function WritingAssistantPanel({
                     <Group key={ent.entity_id} justify="space-between">
                       <Group gap="xs">
                         <Text size="xs" fw={600}>{ent.name}</Text>
-                        <Badge size="xs" variant="outline">{ent.status}</Badge>
+                        <Badge size="xs" variant="outline">{entityStatusLabel(ent.status)}</Badge>
                       </Group>
                       <Text size="xs" c="dimmed">{ent.location || 'Chưa rõ vị trí'}</Text>
                     </Group>

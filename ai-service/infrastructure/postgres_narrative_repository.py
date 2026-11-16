@@ -1928,7 +1928,11 @@ class PostgresNarrativeRepository:
             target = session.scalar(select(EntityRecord).where(EntityRecord.id == target_id, *self._scope(EntityRecord, novel_id)))
             if source is None or target is None:
                 raise KeyError("Entity not found")
-            if source.entity_type != target.entity_type:
+            # Live retest 4 (Q2): setup creates "character"/"location", extraction "PER"/"LOC"; the same kind
+            # of entity must still merge.
+            from application.entity_review_service import TYPE_MAP
+            kind = lambda t: TYPE_MAP.get(str(t).lower(), str(t).upper())
+            if kind(source.entity_type) != kind(target.entity_type):
                 raise ValueError("Only entities of the same type can be merged")
 
             aliases = session.scalars(select(EntityAliasRecord).where(EntityAliasRecord.entity_id == source_id)).all()

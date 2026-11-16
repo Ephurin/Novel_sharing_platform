@@ -51,3 +51,14 @@ test('N8: a place taken from the latest event says so', async () => {
   assert.equal(entityPlaceLabel({ location: 'Thạch Khê', location_source: 'last_event', location_chapter: 2 }),
     'Thạch Khê (xuất hiện gần nhất, chương 2)');
 });
+
+test('Q1/Q2: statuses read in Vietnamese and setup/extraction types compare as one kind', async () => {
+  const { entityKind, entityStatusLabel } = await import('../src/features/ai-copilot/author-memory-api');
+  assert.equal(entityStatusLabel('Alive'), 'Còn sống');
+  assert.equal(entityStatusLabel('dead'), 'Đã chết');
+  assert.equal(entityStatusLabel(''), 'Chưa rõ');
+  assert.equal(entityStatusLabel('Trọng thương'), 'Trọng thương');
+  assert.equal(entityKind('location'), entityKind('LOC'));
+  assert.equal(entityKind('character'), 'PER');
+  assert.notEqual(entityKind('LOC'), entityKind('PER'));
+});

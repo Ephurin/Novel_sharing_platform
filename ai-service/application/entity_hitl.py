@@ -156,6 +156,26 @@ def analyze(service, **request):
     return RevisionAnalysisResult(run, (), False, 'waiting_entity_review')
 
 
+# Live retest 4 (Q3): the old one-line instruction gave no granularity, and the model returned one or
+# two events for chapters of 1,500 words; most chapters also had no place for their events.
+HITL_EVENT_INSTRUCTIONS = (
+    'Extract the narrative events of this chapter, in story order, only from this source and the reviewed '
+    'inventory. An event is one distinct thing that happens and changes the story: an arrival or departure, '
+    'a meeting, a fight, a discovery, a decision, a revelation, an injury or death, a gain or loss of an '
+    'item or power. List each such change as its own event; do not merge separate scenes or steps into one '
+    'summary. A chapter of about 1,500 words usually has 3 to 8 events; return fewer only when fewer happen, '
+    'and never pad with description, mood or dialogue that changes nothing. '
+    'participants: reviewed entity_id values of the people, groups or creatures who take part. '
+    'locations: reviewed entity_id values of the places where the event happens, when the text names or '
+    'clearly implies one from the inventory; otherwise an empty list. '
+    'quote: one short exact contiguous sentence or clause copied from the source (under 200 characters) '
+    'that shows the event. '
+    'Return JSON {"events":[{"event_type":"...","summary":"...","participants":["exact reviewed entity_id"],'
+    '"locations":["exact reviewed entity_id"],"consequences":[],"quote":"exact unique source quote"}]}. '
+    'No predictions or invented identities.'
+)
+
+
 def continue_review(service, novel_id, run_id, tenant_id):
     audit, revision = checkpoint(service, novel_id, run_id, tenant_id)
     repo = service._repository
@@ -223,7 +243,7 @@ def continue_review(service, novel_id, run_id, tenant_id):
     # Do not reuse the legacy fuzzy participant matcher in the verified path.
     if audit['request']['options'].get('extract_events', True) and inventory:
         raw = call_structured(service._llm_service, operation='hitl_event_extraction',
-            system_prompt=VIETNAMESE_EVENT_OUTPUT + 'Extract narrative events only from this source and the reviewed inventory. Return JSON {"events":[{"event_type":"...","summary":"...","participants":["exact reviewed entity_id"],"locations":[],"consequences":[],"quote":"exact unique source quote"}]}. No predictions or invented identities.',
+            system_prompt=VIETNAMESE_EVENT_OUTPUT + HITL_EVENT_INSTRUCTIONS,
             user_prompt=json.dumps({'source_text': revision.content, 'known_entities': inventory.items, 'aliases': audit['aliases']}, ensure_ascii=False))
         from core.structured_outputs import HitlEventBatch
         for event in HitlEventBatch.model_validate_json(raw).events:
