@@ -6,6 +6,7 @@ import { useAuthStore } from '../auth/useAuthStore';
 import { SetupFoundationPanel } from './SetupFoundationPanel';
 import { SuggestionReveal } from '../../shared/components/AuthorAdminMotion';
 import { StateComparison } from '../../shared/components/StateComparison';
+import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 import { useEffect, useMemo, useState } from 'react';
 import { EntityProfileEditor } from './EntityProfileEditor';
 import { EntityExtractionReview } from './EntityExtractionReview';
@@ -135,6 +136,10 @@ function ScopedAuthorMemoryPanel({
   // Group rejection confirmation state (FE-07)
   const [confirmRejectGroup, setConfirmRejectGroup] = useState<{ groupId: string; count: number } | null>(null);
   const [rejectReason, setRejectReason] = useState('');
+  const reviewQueueRef = useStoryCraftAutoAnimate<HTMLDivElement>();
+  const charactersListRef = useStoryCraftAutoAnimate<HTMLDivElement>();
+  const factsListRef = useStoryCraftAutoAnimate<HTMLDivElement>();
+  const historyListRef = useStoryCraftAutoAnimate<HTMLDivElement>();
 
   const storageKey = `ephurin-bootstrap-${novelId}`;
   const [jobId, setJobId] = useState<string | null>(() => localStorage.getItem(storageKey));
@@ -556,7 +561,7 @@ function ScopedAuthorMemoryPanel({
                   </Alert>
                 ))}
 
-              {[...grouped].map(([groupId, proposals]) => {
+              <Stack ref={reviewQueueRef} gap="md">{[...grouped].map(([groupId, proposals]) => {
                 const hasEdits = proposals.some(p => edits[p.proposal_id] !== undefined);
                 const editedCount = proposals.filter(p => edits[p.proposal_id] !== undefined).length;
                 const block = proposalGroupBlock(proposals);
@@ -672,7 +677,7 @@ function ScopedAuthorMemoryPanel({
                     Không có đề xuất nào đang chờ duyệt.
                   </Text>
                 </Paper>
-              )}
+              )}</Stack>
 
               {job.data && ['failed', 'waiting_entity_review'].includes(job.data.status) && (
                 <Alert color="red" title="Trích xuất gián đoạn">
@@ -717,7 +722,7 @@ function ScopedAuthorMemoryPanel({
               Tab 2: Characters
              ────────────────────────────────────────── */}
           <Tabs.Panel value="characters" pt="md">
-            <Stack gap="xs">
+            <Stack ref={charactersListRef} gap="xs">
               <EntityMergeControl novelId={novelId} version={currentBrainVersion} entities={memory.data?.entities ?? []} disabled={pending} />
               {category(['character', 'per', 'person']).map(e => (
                 <Card withBorder key={e.entity_id} p="xs">
@@ -766,7 +771,7 @@ function ScopedAuthorMemoryPanel({
               Tab 4: Facts
              ────────────────────────────────────────── */}
           <Tabs.Panel value="facts" pt="md">
-            <Stack gap="xs">
+            <Stack ref={factsListRef} gap="xs">
               {memory.data?.facts.map((fact, index) => (
                 <Card withBorder key={String(fact.fact_id ?? index)} p="xs">
                   <Group justify="space-between">
@@ -802,7 +807,7 @@ function ScopedAuthorMemoryPanel({
               Tab 5: History & Event Correction (B4)
              ────────────────────────────────────────── */}
           <Tabs.Panel value="history" pt="md">
-            <Stack gap="md">
+            <Stack ref={historyListRef} gap="md">
               <Group justify="space-between">
                 <Text fw={600} size="sm">
                   Lịch sử sự kiện đã ghi nhận ({memory.data?.events?.length ?? 0} sự kiện)

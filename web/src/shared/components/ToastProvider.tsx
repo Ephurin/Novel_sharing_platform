@@ -17,15 +17,30 @@ export function ToastProvider({ children }: PropsWithChildren) {
   return <ToastContext.Provider value={{ showToast }}>
     <Toast.Provider label="Thông báo" duration={4500} swipeDirection="right">
       {children}
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {notices.filter(notice => notice.open).map(notice => <Toast.Root key={notice.id} asChild forceMount open={notice.open}
           onOpenChange={open => setNotices(current => current.map(item => item.id === notice.id ? { ...item, open } : item))}>
-          <motion.li className="sc-toast" data-tone={notice.tone}
-            initial={{ opacity: 0, scale: reduce ? 1 : 0.97 }} animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: reduce ? 1 : 0.97 }} transition={{ duration: 0.15 }}>
+          <motion.li
+            layout={reduce ? false : 'position'}
+            className="sc-toast"
+            data-tone={notice.tone}
+            initial={{ opacity: 0, y: reduce ? 0 : 14, scale: reduce ? 1 : 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: reduce ? 0 : 8, scale: reduce ? 1 : 0.96 }}
+            transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 32 }}
+          >
             <span className="material-symbols-outlined sc-toast-icon" aria-hidden="true">{notice.tone === 'error' ? 'error' : notice.tone === 'success' ? 'check_circle' : 'info'}</span>
             <Toast.Description className="sc-toast-message">{notice.message}</Toast.Description>
             <Toast.Close className="sc-toast-close" aria-label="Đóng thông báo">×</Toast.Close>
+            {!reduce && (
+              <motion.span
+                className="sc-toast-progress"
+                aria-hidden="true"
+                initial={{ scaleX: 1 }}
+                animate={{ scaleX: 0 }}
+                transition={{ duration: 4.5, ease: 'linear' }}
+              />
+            )}
           </motion.li>
         </Toast.Root>)}
       </AnimatePresence>

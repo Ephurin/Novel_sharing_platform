@@ -16,6 +16,7 @@ import {
 } from '@mantine/core';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
 import { getApprovedMemory } from './author-memory-api';
+import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 import {
   requestBrainstorm,
   type BrainstormTarget,
@@ -150,6 +151,9 @@ export function BrainstormingModal({
 
   // Tracking adopted items by ID
   const [adoptedIds, setAdoptedIds] = useState<Set<string>>(new Set());
+  const rulesListRef = useStoryCraftAutoAnimate<HTMLDivElement>();
+  const charactersListRef = useStoryCraftAutoAnimate<HTMLDivElement>();
+  const eventsListRef = useStoryCraftAutoAnimate<HTMLDivElement>();
 
   // Idempotency tracking
   const activeIdempotencyKeyRef = useRef<string>('');
@@ -515,6 +519,7 @@ export function BrainstormingModal({
                   <Text fw={600} size="sm">Quy tắc thế giới ({rules.length})</Text>
                   <Badge color="blue" size="xs">World Rules</Badge>
                 </Group>
+                <Stack ref={rulesListRef} gap="xs">
                 {rules.map((rule, idx) => {
                   const isAdopted = adoptedIds.has(rule.rule_id);
                   return (
@@ -570,6 +575,7 @@ export function BrainstormingModal({
                     </Card>
                   );
                 })}
+                </Stack>
               </Stack>
             )}
 
@@ -580,6 +586,7 @@ export function BrainstormingModal({
                   <Text fw={600} size="sm">Nhân vật & Hạt giống danh tính ({characters.length})</Text>
                   <Badge color="teal" size="xs">Characters</Badge>
                 </Group>
+                <Stack ref={charactersListRef} gap="xs">
                 {characters.map((char, idx) => {
                   const isAdopted = adoptedIds.has(char.character_id);
                   return (
@@ -645,6 +652,7 @@ export function BrainstormingModal({
                     </Card>
                   );
                 })}
+                </Stack>
               </Stack>
             )}
 
@@ -655,6 +663,7 @@ export function BrainstormingModal({
                   <Text fw={600} size="sm">Sự kiện tương lai ({events.length})</Text>
                   <Badge color="indigo" size="xs">Future Events</Badge>
                 </Group>
+                <Stack ref={eventsListRef} gap="xs">
                 {events.map((ev, idx) => {
                   const isAdopted = adoptedIds.has(ev.event_id);
                   return (
@@ -739,6 +748,7 @@ export function BrainstormingModal({
                     </Card>
                   );
                 })}
+                </Stack>
               </Stack>
             )}
 

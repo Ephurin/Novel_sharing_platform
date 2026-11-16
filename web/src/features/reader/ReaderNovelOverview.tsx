@@ -3,6 +3,7 @@ import { animate, motion, useReducedMotion } from 'motion/react';
 import { Link, useLocation } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
+import { ReactionIcon } from '../../shared/components/InteractionWidgets';
 import { useToast } from '../../shared/components/ToastProvider';
 import { getApiErrorMessage } from '../../shared/api/api-client';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -81,7 +82,7 @@ export function NovelOverview({ novel, chapters, authorLink, notice, actions }: 
         <div className="sc-reader-primary-actions">
           {actions}
           {canFollow ? <button type="button" className="sc-reader-follow-toggle" disabled={follow.isPending || notifications.isPending || !statistics.isSuccess} aria-label={followLabel} title={followLabel} aria-pressed={stats?.isFollowing ?? false} onClick={() => follow.mutate()} data-testid="reader-follow-novel-btn">
-            <Icon name="favorite" />
+            <ReactionIcon icon="favorite" active={stats?.isFollowing ?? false} />
           </button> : !user ? <Link to="/login" className="sc-reader-follow-toggle" aria-label="Đăng nhập để theo dõi truyện" title="Đăng nhập để theo dõi truyện"><Icon name="favorite" /></Link> : null}
           {canFollow ? <button type="button" className="sc-button sc-button-soft sc-reader-notification-toggle" aria-pressed={stats?.notificationsEnabled ?? false} disabled={notifications.isPending || follow.isPending || !statistics.isSuccess} onClick={() => notifications.mutate()} data-testid="reader-notifications-btn">
             <Icon name={stats?.notificationsEnabled ? 'notifications_active' : 'notifications_none'} /><span className="sc-reader-notification-label"><span className="sc-reader-notification-reserve" aria-hidden="true">Nhận thông báo</span><span>{stats?.notificationsEnabled ? 'Tắt thông báo' : 'Nhận thông báo'}</span></span>

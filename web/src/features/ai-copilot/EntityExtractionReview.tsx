@@ -55,6 +55,7 @@ import {
   summarizeGroup
 } from './entity-review-groups';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
+import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 
 const ENTITY_TYPES: EntityType[] = ['PER', 'LOC', 'ORG', 'ITEM', 'SKILL'];
 const STATUS_OPTIONS: Array<'Alive' | 'Dead' | 'Unknown'> = ['Alive', 'Dead', 'Unknown'];
@@ -98,6 +99,7 @@ export function EntityExtractionReview({
   const [dirty, setDirty] = useState(false);
   const [declaredName, setDeclaredName] = useState('');
   const [declaredType, setDeclaredType] = useState<EntityType | null>('PER');
+  const checkpointsListRef = useStoryCraftAutoAnimate<HTMLDivElement>();
 
   useEffect(() => {
     setDirty(false);
@@ -236,7 +238,7 @@ export function EntityExtractionReview({
       {/* ──────────────────────────────────────────
           Section 2: Checkpoint Review List
          ────────────────────────────────────────── */}
-      <Stack gap="xs">
+      <Stack ref={checkpointsListRef} gap="xs">
         <Text fw={600} size="sm">
           2. Duyệt danh tính — trước bước duyệt đề xuất Canon
         </Text>
@@ -341,6 +343,7 @@ function EntityCheckpoint({
   const [viewMode, setViewMode] = useState<'grouped' | 'occurrences'>(
     () => candidates.length > GROUPED_VIEW_THRESHOLD ? 'grouped' : 'occurrences');
   const pageSize = viewMode === 'grouped' ? 8 : 5;
+  const occurrenceCardsRef = useStoryCraftAutoAnimate<HTMLDivElement>();
 
   // Stale guidance check
   const staleGuidance = guidanceVersion !== undefined && guidanceVersion !== review.guidance_version;
@@ -846,7 +849,7 @@ function EntityCheckpoint({
         </Group>
 
         {/* Occurrence Cards */}
-        <Stack gap="xs">
+        <Stack ref={occurrenceCardsRef} gap="xs">
           {viewMode === 'grouped' ? (
             pageGroups.length === 0 ? (
               <Text size="xs" c="dimmed" ta="center" py="md">

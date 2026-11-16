@@ -52,6 +52,8 @@ export function ReaderHomePage() {
   const setGenre = (next: string) => homeFilters.update({ genre: next });
   const [featureDirection, setFeatureDirection] = useState(0);
   const [seed, setSeed] = useState(() => Date.now());
+  const [shuffleCount, setShuffleCount] = useState(0);
+  const reduce = useReducedMotion();
   const featured = useQuery({ queryKey: ['reader-home-featured', featureSort], queryFn: () => searchPublishedNovels({ sort: featureSort, order: 'desc' }) });
   const popular = useQuery({ queryKey: ['reader-home-featured', 'views'], queryFn: () => searchPublishedNovels({ sort: 'views', order: 'desc' }) });
   const latest = useQuery({ queryKey: ['reader-home-featured', 'updatedAt'], queryFn: () => searchPublishedNovels({ sort: 'updatedAt', order: 'desc' }) });
@@ -91,10 +93,14 @@ export function ReaderHomePage() {
           <div id="home-feature-results" aria-busy={featured.isFetching}>
           <HomeSectionState query={featured} empty="Chưa có truyện nổi bật" variant="featured" />
           <HomeResults identity={`${featureSort}-${currentPage}-${featureNovels.map(novel => novel.novelId).join(',')}`} direction={featureDirection} className="sc-home-feature-grid">
-            {featureNovels.slice(currentPage * 4, currentPage * 4 + 4).map(novel => <article key={novel.novelId} className="sc-home-feature-card"><Link className="sc-home-feature-cover sc-cover-hover" to={novelPath(novel)} aria-label={`Đọc truyện: ${novel.title}`}>
-              <div className="sc-home-feature-artwork"><HomeCover novel={novel} /></div>
-              <div className="sc-home-feature-caption"><span>{statusLabels[novel.serialStatus ?? novel.status ?? ''] ?? 'Đang ra'}</span><h2>{novel.title}</h2></div>
-            </Link><NovelQuickPreview novel={novel} to={novelPath(novel)} /></article>)}
+            {featureNovels.slice(currentPage * 4, currentPage * 4 + 4).map((novel, index) => <motion.article key={novel.novelId} className="sc-home-feature-card"
+              initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: reduce ? 0 : 0.22, delay: reduce ? 0 : index * 0.045, ease: [0.22, 1, 0.36, 1] }}>
+              <Link className="sc-home-feature-cover sc-cover-hover" to={novelPath(novel)} aria-label={`Đọc truyện: ${novel.title}`}>
+                <div className="sc-home-feature-artwork"><HomeCover novel={novel} /></div>
+                <div className="sc-home-feature-caption"><span>{statusLabels[novel.serialStatus ?? novel.status ?? ''] ?? 'Đang ra'}</span><h2>{novel.title}</h2></div>
+              </Link><NovelQuickPreview novel={novel} to={novelPath(novel)} />
+            </motion.article>)}
           </HomeResults>
           </div>
           {featureNovels.length > 4 && <div className="sc-home-carousel-controls">
@@ -119,7 +125,12 @@ export function ReaderHomePage() {
 
       <section className="sc-home-panel sc-home-discovery" aria-label="Khám phá truyện">
         <div className="sc-home-discovery-heading">
-          <HomeHeading title="Khám phá" icon="explore"><button className="sc-home-shuffle" type="button" disabled={discovery.isPending || discovery.isError || suggestions.length < 2} onClick={() => setSeed(value => value + 1)}><Icon name="shuffle" />Đổi gợi ý</button></HomeHeading>
+          <HomeHeading title="Khám phá" icon="explore">
+            <button className="sc-home-shuffle" type="button" disabled={discovery.isPending || discovery.isError || suggestions.length < 2} onClick={() => { setSeed(value => value + 1); setShuffleCount(c => c + 1); }}>
+              <motion.span className="material-symbols-outlined" aria-hidden="true" animate={{ rotate: reduce ? 0 : shuffleCount * 180 }} transition={{ type: 'spring', stiffness: 320, damping: 22 }}>shuffle</motion.span>
+              Đổi gợi ý
+            </button>
+          </HomeHeading>
           <HomeGenres genres={filters.data?.genres ?? []} genre={genre} onChange={setGenre} />
         </div>
         {filters.isError && <button type="button" className="sc-home-more" onClick={() => void filters.refetch()}>Tải lại thể loại</button>}

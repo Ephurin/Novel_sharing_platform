@@ -1,7 +1,11 @@
 import { AnimatedNumber } from '../../shared/components/AuthorAdminMotion';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { useToast } from '../../shared/components/ToastProvider';
+import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 import { navigationLabels } from '../../shared/components/navigation';
-import React, { useState, useMemo, useEffect } from 'react';
+import NumberFlow from '@number-flow/react';
+import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
+import React, { useState, useMemo, useEffect, useId } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -78,12 +82,12 @@ export function WalletPage() {
   const [currentPage, setCurrentPage] = useState(1);
   useEffect(() => setCurrentPage(1), [searchQuery, filterType, filterStatus, filterDateRange]);
 
-  // Toast / notification banner
-  const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-
+  const reduce = useReducedMotion();
+  const periodGroupId = useId();
+  const txBodyRef = useStoryCraftAutoAnimate<HTMLTableSectionElement>();
+  const { showToast: showGlobalToast } = useToast();
   const showToast = (text: string, type: 'success' | 'error' = 'success') => {
-    setToastMessage({ text, type });
-    setTimeout(() => setToastMessage(null), 4000);
+    showGlobalToast(text, type);
   };
 
   const availableBalance = walletQuery.data?.coinsBalance ?? 0;
@@ -240,20 +244,6 @@ export function WalletPage() {
       className="bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col w-full"
       style={{ backgroundColor: 'var(--sc-bg)', color: 'var(--sc-text)' }}
     >
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed top-20 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-xl shadow-sm border animate-in fade-in  duration-300 bg-surface-container-lowest border-outline-variant/40">
-          <span
-            className={`material-symbols-outlined text-[20px] ${
-              toastMessage.type === 'success' ? 'text-success' : 'text-error'
-            }`}
-          >
-            {toastMessage.type === 'success' ? 'check_circle' : 'error'}
-          </span>
-          <p className="text-body font-medium text-on-surface">{toastMessage.text}</p>
-        </div>
-      )}
-
       {/* Global Top Navbar */}
       <AuthorNavbar />
 
@@ -345,7 +335,7 @@ export function WalletPage() {
                     <div className="flex flex-col gap-0.5">
                       <div className="flex items-baseline gap-1.5">
                         <span className="text-2xl sm:text-3xl text-on-surface tracking-tight font-serif font-bold">
-                          {lockedBalance.toLocaleString('vi-VN')}
+                          <NumberFlow value={lockedBalance} locales="vi-VN" animated={!reduce} />
                         </span>
                         <span className="text-body font-semibold text-outline">Xu</span>
                       </div>
@@ -418,22 +408,33 @@ export function WalletPage() {
                       </div>
 
                       {/* Time filter toggle tabs */}
-                      <div className="inline-flex p-0.5 bg-surface-container rounded-lg self-start sm:self-auto text-on-surface-variant text-meta">
-                        {(['7', '30', '365'] as PeriodType[]).map((period) => (
-                          <button
-                            key={period}
-                            type="button"
-                            onClick={() => setChartPeriod(period)}
-                            className={`px-2.5 py-1 rounded transition-all text-meta font-medium ${
-                              chartPeriod === period
-                                ? 'bg-surface-container-lowest text-primary font-semibold shadow-xs'
-                                : 'hover:text-on-surface'
-                            }`}
-                          >
-                            {period === '7' ? '7 ngày' : period === '30' ? '30 ngày' : '365 ngày'}
-                          </button>
-                        ))}
-                      </div>
+                      <LayoutGroup id={periodGroupId}>
+                        <div className="inline-flex p-0.5 bg-surface-container rounded-lg self-start sm:self-auto text-on-surface-variant text-meta">
+                          {(['7', '30', '365'] as PeriodType[]).map((period) => {
+                            const active = chartPeriod === period;
+                            return (
+                              <button
+                                key={period}
+                                type="button"
+                                onClick={() => setChartPeriod(period)}
+                                className={`relative z-10 px-2.5 py-1 rounded transition-colors text-meta font-medium ${
+                                  active ? 'text-primary font-semibold' : 'hover:text-on-surface'
+                                }`}
+                              >
+                                {active && (
+                                  <motion.span
+                                    layoutId="wallet-chart-period-pill"
+                                    aria-hidden="true"
+                                    className="absolute inset-0 -z-10 rounded bg-surface-container-lowest shadow-xs"
+                                    transition={{ duration: reduce ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] }}
+                                  />
+                                )}
+                                {period === '7' ? '7 ngày' : period === '30' ? '30 ngày' : '365 ngày'}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </LayoutGroup>
                     </div>
 
                     <p className="text-meta text-outline">
@@ -697,7 +698,7 @@ export function WalletPage() {
                         <th className="py-2.5 px-3.5 font-semibold text-right">Mã giao dịch</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-surface-container text-meta text-on-surface">
+                    <tbody ref={txBodyRef} className="divide-y divide-surface-container text-meta text-on-surface">
                       {filteredTransactions.length === 0 ? (
                         <tr>
                           <td colSpan={6} className="py-6 text-center text-outline">
@@ -814,11 +815,17 @@ export function WalletPage() {
             </div>
 
             {/* Current Balance Banner */}
-            <div className="bg-surface-container-low p-3 rounded-lg flex items-center justify-between">
+            <div className="bg-surface-container-low p-3 rounded-lg flex items-center justify-between gap-4">
               <div className="flex flex-col">
                 <span className="text-meta text-outline">Số dư khả dụng hiện tại</span>
                 <span className="text-body text-on-surface font-bold">
                   {availableBalance.toLocaleString('vi-VN')} Xu
+                </span>
+              </div>
+              <div className="flex flex-col text-right">
+                <span className="text-meta text-outline">Dự kiến sau rút</span>
+                <span className="text-body text-primary font-bold" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                  <NumberFlow value={Math.max(0, availableBalance - (Number.isFinite(withdrawAmount) ? withdrawAmount : 0))} locales="vi-VN" animated={!reduce} /> Xu
                 </span>
               </div>
             </div>
@@ -953,6 +960,16 @@ export function WalletPage() {
                   <p className="font-bold text-meta text-on-surface">{pkg.amountCoins.toLocaleString('vi-VN')} Xu</p>
                 </button>
               ))}
+            </div>
+            <div className="bg-surface-container-low px-3 py-2 rounded-lg flex items-center justify-between text-meta">
+              <span className="text-outline">Số dư dự kiến sau nạp</span>
+              <span className="font-bold text-primary" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                <NumberFlow
+                  value={availableBalance + ((depositPackagesQuery.data ?? []).find((p) => p.code === selectedPackage)?.amountCoins ?? 0)}
+                  locales="vi-VN"
+                  animated={!reduce}
+                /> Xu
+              </span>
             </div>
             {depositPackagesQuery.isError && <p className="text-meta text-error">Không tải được các gói Xu.</p>}
 

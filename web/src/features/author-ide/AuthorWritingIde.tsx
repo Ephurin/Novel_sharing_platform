@@ -1,4 +1,5 @@
 import { motion, useReducedMotion } from 'motion/react';
+import NumberFlow from '@number-flow/react';
 import { useToast } from '../../shared/components/ToastProvider';
 import { SaveStatus } from '../../shared/components/SaveFeedback';
 import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
@@ -1051,7 +1052,7 @@ export function AuthorWritingIde() {
           {/* Word Count Badge */}
           <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-stone-100/80 text-stone-600 text-meta font-medium border border-stone-200/70">
             <span className="material-symbols-outlined text-body text-stone-400">description</span>
-            <span>{wordCount.toLocaleString()} từ</span>
+            <span style={{ fontVariantNumeric: 'tabular-nums' }}><NumberFlow value={wordCount} locales="vi-VN" /> từ</span>
             <span className="text-stone-300">•</span>
             <span>{readTime}</span>
           </div>
@@ -1665,10 +1666,22 @@ export function AuthorWritingIde() {
             {/* AI Suggestion Display */}
             <div ref={aiResultsRef} className="sc-ai-results flex-1 min-h-0 overflow-y-auto p-3.5 space-y-3.5 text-meta select-text">
               {isGeneratingAi && (
-                <div className="p-4 rounded-xl bg-primary-50/70 border border-primary-200 flex flex-col items-center justify-center gap-2 text-primary-700">
-                  <span className="w-5 h-5 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></span>
-                  <span className="text-meta font-semibold">AI đang suy nghĩ và tổng hợp Story Bible...</span>
-                </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.18 }}
+                  className="p-4 rounded-xl bg-primary-50/70 border border-primary-200 flex flex-col gap-3 text-primary-700"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 border-2 border-primary-600 border-t-transparent rounded-full animate-spin shrink-0"></span>
+                    <span className="text-meta font-semibold">AI đang suy nghĩ và tổng hợp Story Bible...</span>
+                  </div>
+                  <div className="flex flex-col gap-2" aria-hidden="true">
+                    <span className="sc-skeleton-block h-3 w-full rounded" />
+                    <span className="sc-skeleton-block h-3 w-4/5 rounded" />
+                    <span className="sc-skeleton-block h-3 w-3/5 rounded" />
+                  </div>
+                </motion.div>
               )}
 
               {aiRecoveryMessage && <div role="status" className="mb-3 rounded border p-3 text-sm">{aiRecoveryMessage}</div>}
