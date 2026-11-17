@@ -663,7 +663,7 @@ export function AuthorStoryContextPage() {
                         type="button"
                         className={`relative z-10 px-2 py-0.5 rounded-full font-medium transition-colors ${
                           active
-                            ? 'text-white font-semibold'
+                            ? 'text-on-primary font-semibold'
                             : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
                         }`}
                       >

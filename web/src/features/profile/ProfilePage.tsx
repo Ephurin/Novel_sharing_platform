@@ -189,7 +189,7 @@ export function AuthorProfilePage() {
                           onClick={() => setWorkSort(option.value)}
                           aria-pressed={active}
                           className={`relative z-10 px-3 py-1 rounded-md transition-colors cursor-pointer ${
-                            active ? 'text-white font-semibold' : 'text-stone-600 hover:text-stone-900'
+                            active ? 'text-on-primary font-semibold' : 'text-stone-600 hover:text-stone-900'
                           }`}
                         >
                           {active && (

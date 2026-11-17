@@ -221,8 +221,8 @@
 :is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) :is(button, a):is(.bg-primary, .bg-primary-500, .bg-primary-600) { color: var(--sc-on-primary); }
 :is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) :is(button, a):is(.bg-primary, .bg-primary-500, .bg-primary-600):hover { color: var(--sc-on-primary); }
 :is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) .mantine-Paper-root, :is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) .mantine-Menu-dropdown { background: var(--sc-surface); border-color: var(--sc-border); border-radius: var(--sc-radius-card); }
-:is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) .mantine-Button-root[data-variant="filled"]:not([style*="--button-bg"]) { background: var(--sc-primary); color: var(--sc-on-primary); }
-:is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) .mantine-Button-root[data-variant="filled"]:not([style*="--button-bg"]):hover { background: var(--sc-primary-hover); color: var(--sc-on-primary); }
+:is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) .mantine-Button-root[data-variant="filled"]:where(:not([style*="--button-bg"]), [style*="--mantine-color-terracotta-filled"]):not([data-disabled]):not([data-loading]) { background: var(--sc-primary); color: var(--sc-on-primary); }
+:is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) .mantine-Button-root[data-variant="filled"]:where(:not([style*="--button-bg"]), [style*="--mantine-color-terracotta-filled"]):not([data-disabled]):not([data-loading]):hover { background: var(--sc-primary-hover); color: var(--sc-on-primary); }
 :is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) .mantine-Button-root[data-variant="light"], :is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) .mantine-SegmentedControl-indicator { background: var(--sc-primary-soft); color: var(--sc-primary-text); }
 :is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) .mantine-Input-input { background: var(--sc-surface); }
 

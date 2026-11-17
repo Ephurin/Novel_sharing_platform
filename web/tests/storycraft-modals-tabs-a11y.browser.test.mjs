@@ -23,6 +23,27 @@ function contrastRatio(fg, bg) {
   return (l1 + 0.05) / (l2 + 0.05);
 }
 
+async function assertPillContrast(buttonLocator, label) {
+  await expect(buttonLocator).toHaveCSS('color', 'rgb(36, 25, 21)');
+  const colors = await buttonLocator.evaluate((btn) => {
+    const pill = btn.querySelector('span[aria-hidden="true"]');
+    const btnCs = getComputedStyle(btn);
+    const pillCs = pill ? getComputedStyle(pill) : btnCs;
+    return { fg: btnCs.color, bg: pillCs.backgroundColor };
+  });
+  const ratio = contrastRatio(parseRgb(colors.fg), parseRgb(colors.bg));
+  assert.ok(ratio >= 4.5, `${label} must reach WCAG AA 4.5:1, got ${ratio.toFixed(2)}:1 (${colors.fg} on ${colors.bg})`);
+}
+
+async function assertButtonContrast(buttonLocator, label) {
+  const colors = await buttonLocator.evaluate((el) => {
+    const cs = getComputedStyle(el);
+    return { fg: cs.color, bg: cs.backgroundColor };
+  });
+  const ratio = contrastRatio(parseRgb(colors.fg), parseRgb(colors.bg));
+  assert.ok(ratio >= 4.5, `${label} must reach WCAG AA 4.5:1, got ${ratio.toFixed(2)}:1 (${colors.fg} on ${colors.bg})`);
+}
+
 test('StoryCraft portaled modals, dark-mode WCAG AA contrast, WAI-ARIA tabpanels, 4 delete confirmations, and TagsInput Escape layering', { timeout: 120000 }, async () => {
   const root = fileURLToPath(new URL('../', import.meta.url));
   const server = await createServer({
@@ -38,11 +59,14 @@ test('StoryCraft portaled modals, dark-mode WCAG AA contrast, WAI-ARIA tabpanels
             res.end(await vite.transformIndexHtml('/__modals_tabs_a11y', `<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><script src="/theme-init.js"></script></head><body><div id="root"></div><script type="module">
               import React from 'react';
               import { createRoot } from 'react-dom/client';
-              import { BrowserRouter, Routes, Route } from 'react-router-dom';
+              import { createBrowserRouter, RouterProvider } from 'react-router-dom';
               import { AppProviders } from '/src/app/providers.tsx';
               import { AuthorTheme } from '/src/shared/components/AuthorTheme.tsx';
               import { AuthorStoryContextPage } from '/src/features/story-context/AuthorStoryContextPage.tsx';
               import { AuthorNovelMetadataPage } from '/src/features/author-projects/AuthorNovelMetadataPage.tsx';
+              import { AuthorProfilePage } from '/src/features/profile/ProfilePage.tsx';
+              import { AuthorProjectsPage } from '/src/features/author-projects/AuthorProjectsPage.tsx';
+              import { AuthorWritingIde } from '/src/features/author-ide/AuthorWritingIde.tsx';
               import { useAuthStore } from '/src/features/auth/useAuthStore.ts';
               import '@fontsource/be-vietnam-pro/400.css';
               import '@fontsource/be-vietnam-pro/500.css';
@@ -58,17 +82,16 @@ test('StoryCraft portaled modals, dark-mode WCAG AA contrast, WAI-ARIA tabpanels
               });
 
               const h = React.createElement;
+              const router = createBrowserRouter([
+                { path: '/author/context/:novelId', element: h(AuthorTheme, null, h(AuthorStoryContextPage)) },
+                { path: '/author/novels/:novelId', element: h(AuthorTheme, null, h(AuthorNovelMetadataPage)) },
+                { path: '/authors/:authorId', element: h(AuthorTheme, null, h(AuthorProfilePage)) },
+                { path: '/author', element: h(AuthorTheme, null, h(AuthorProjectsPage)) },
+                { path: '/author/ide', element: h(AuthorTheme, null, h(AuthorWritingIde)) }
+              ], { basename: '/__modals_tabs_a11y' });
+
               createRoot(document.getElementById('root')).render(
-                h(AppProviders, null,
-                  h(BrowserRouter, { basename: '/__modals_tabs_a11y' },
-                    h(AuthorTheme, null,
-                      h(Routes, null,
-                        h(Route, { path: '/author/context/:novelId', element: h(AuthorStoryContextPage) }),
-                        h(Route, { path: '/author/novels/:novelId', element: h(AuthorNovelMetadataPage) })
-                      )
-                    )
-                  )
-                )
+                h(AppProviders, null, h(RouterProvider, { router }))
               );
             </script></body></html>`));
           } catch (err) {
@@ -120,12 +143,21 @@ test('StoryCraft portaled modals, dark-mode WCAG AA contrast, WAI-ARIA tabpanels
           if (pathname.includes('/plot-summaries/')) plotSummaries = plotSummaries.filter((s) => !pathname.endsWith(s.summaryId));
           return route.fulfill({ json: { success: true, data: {} } });
         }
+        if (method === 'PATCH' && pathname.endsWith('/chapters/ch-1')) {
+          return route.fulfill({ status: 409, json: { success: false, error: { code: 'CONFLICT', message: 'Conflict' } } });
+        }
         let data = [];
+        const novel1 = { novelId: 'novel-1', authorId: 'author-1', title: 'Kiếm Ảnh Giang Hồ', synopsis: 'Một tác phẩm thử nghiệm đủ dài hơn năm mươi ký tự cho quy tắc kiểm định.', status: 'DRAFT', serialStatus: 'ONGOING', genre: 'Kiếm hiệp', genres: ['Kiếm hiệp'], tags: [], coverImageUrl: null, viewsCount: 420, likesCount: 15, chaptersCount: 1, createdAt: '2026-11-01T00:00:00Z', updatedAt: '2026-11-02T00:00:00Z' };
+        const novel2 = { novelId: 'novel-2', authorId: 'author-1', title: 'Vân Sơn Lục', synopsis: 'Một tác phẩm thử nghiệm thứ hai cho kiểm tra danh sách và bộ lọc.', status: 'PUBLISHED', serialStatus: 'COMPLETED', genre: 'Tiên hiệp', genres: ['Tiên hiệp'], tags: [], coverImageUrl: null, viewsCount: 800, likesCount: 40, chaptersCount: 5, createdAt: '2026-11-01T00:00:00Z', updatedAt: '2026-11-02T00:00:00Z' };
         if (pathname.endsWith('/novels/genres')) data = ['Tiên hiệp', 'Huyền huyễn', 'Kiếm hiệp'];
-        else if (pathname.endsWith('/novels/novel-1')) data = { novelId: 'novel-1', authorId: 'author-1', title: 'Kiếm Ảnh Giang Hồ', synopsis: 'Một tác phẩm thử nghiệm đủ dài hơn năm mươi ký tự cho quy tắc kiểm định.', status: 'DRAFT', serialStatus: 'ONGOING', genre: 'Kiếm hiệp', genres: ['Kiếm hiệp'], tags: [], coverImageUrl: null, viewsCount: 420, createdAt: '2026-11-01T00:00:00Z', updatedAt: '2026-11-02T00:00:00Z' };
+        else if (pathname.endsWith('/novels/me')) data = [novel1, novel2];
+        else if (pathname.endsWith('/novels/novel-1')) data = novel1;
+        else if (pathname.endsWith('/authors/author-1/profile')) data = { authorId: 'author-1', username: 'tacgia', displayName: 'Tác giả thử', bio: 'Tiểu sử.', totalViews: 1220, totalWords: 12500, followersCount: 35, isFollowing: false, novels: [novel1, novel2] };
+        else if (pathname.endsWith('/wallet/me') || pathname.endsWith('/wallet')) data = { coinsBalance: 100 };
         else if (pathname.endsWith('/statistics')) data = { ratingAverage: 4.8, followersCount: 35, totalWords: 12500 };
         else if (pathname.endsWith('/earnings')) data = { unlockCoins: 250 };
-        else if (pathname.endsWith('/chapters')) data = [{ chapterId: 'ch-1', novelId: 'novel-1', chapterNumber: 1, title: 'Chương mở đầu', status: 'DRAFT', wordCount: 1200, isVip: false, priceCoins: 0, updatedAt: '2026-11-02T00:00:00Z' }];
+        else if (pathname.endsWith('/chapters')) data = [{ chapterId: 'ch-1', novelId: 'novel-1', chapterNumber: 1, title: 'Chương mở đầu', content: 'Nội dung bản máy chủ.', status: 'DRAFT', wordCount: 4, isVip: false, priceCoins: 0, draftVersion: 1, updatedAt: '2026-11-02T00:00:00Z' }];
+        else if (pathname.endsWith('/chapters/ch-1')) data = { chapterId: 'ch-1', novelId: 'novel-1', chapterNumber: 1, title: 'Chương mở đầu', content: 'Nội dung bản máy chủ.', status: 'DRAFT', wordCount: 4, isVip: false, priceCoins: 0, draftVersion: 1, updatedAt: '2026-11-02T00:00:00Z' };
         else if (pathname.endsWith('/characters')) data = characters;
         else if (pathname.endsWith('/character-relationships')) data = relationships;
         else if (pathname.endsWith('/timeline-events')) data = timelineEvents;
@@ -138,6 +170,15 @@ test('StoryCraft portaled modals, dark-mode WCAG AA contrast, WAI-ARIA tabpanels
     await installMocks(mobilePage);
     await mobilePage.goto(`${base}/author/context/novel-1`, { waitUntil: 'domcontentloaded' });
     await expect(mobilePage.locator('html')).toHaveAttribute('data-theme', 'dark');
+
+    // Verify active role filter pill contrast in Dark Mode
+    const allRolePill = mobilePage.getByRole('button', { name: /Tất cả \(2\)/ });
+    await expect(allRolePill).toBeVisible();
+    await assertPillContrast(allRolePill, 'StoryContext dark active role pill');
+    const mainRolePill = mobilePage.getByRole('button', { name: 'Tuyến chính', exact: true });
+    await mainRolePill.click();
+    await assertPillContrast(mainRolePill, 'StoryContext dark selected role pill');
+    await allRolePill.click();
 
     const tablist = mobilePage.getByRole('tablist', { name: 'Danh mục Cẩm nang tác phẩm' });
     const firstTab = tablist.getByRole('tab', { name: /Nhân vật/ });
@@ -267,6 +308,61 @@ test('StoryCraft portaled modals, dark-mode WCAG AA contrast, WAI-ARIA tabpanels
     await expect(editBtn).toBeFocused();
     assert.deepEqual(deskErrors, []);
     await deskCtx.close();
+
+    // ─── Scenario 3 & 4: Light + Dark WCAG AA contrast on active pills and AuthorWritingIde 409 reload modal ───
+    for (const theme of ['light', 'dark']) {
+      const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+      const page = await ctx.newPage();
+      const errors = [];
+      page.on('pageerror', (err) => errors.push(err.message));
+      await page.addInitScript((t) => localStorage.setItem('storycraft-theme', t), theme);
+      await installMocks(page);
+
+      // PR195-001: AuthorProfilePage active work-sort pill contrast
+      await page.goto(`${base}/authors/author-1`, { waitUntil: 'domcontentloaded' });
+      await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+      const sortGroup = page.getByRole('group', { name: 'Sắp xếp tác phẩm' });
+      const popularSortBtn = sortGroup.getByRole('button', { name: 'Phổ biến nhất', exact: true });
+      await expect(popularSortBtn).toBeVisible();
+      await assertPillContrast(popularSortBtn, `AuthorProfilePage ${theme} active work-sort pill`);
+      const likedSortBtn = sortGroup.getByRole('button', { name: 'Yêu thích nhất', exact: true });
+      await likedSortBtn.click();
+      await assertPillContrast(likedSortBtn, `AuthorProfilePage ${theme} selected work-sort pill`);
+
+      // Sibling: AuthorProjectsPage active status pill contrast
+      await page.goto(`${base}/author`, { waitUntil: 'domcontentloaded' });
+      const allStatusBtn = page.getByRole('button', { name: /Tất cả \(2\)/ });
+      await expect(allStatusBtn).toBeVisible();
+      await assertPillContrast(allStatusBtn, `AuthorProjectsPage ${theme} active status pill`);
+      const draftStatusBtn = page.getByRole('button', { name: /Bản nháp \(1\)/ });
+      await draftStatusBtn.click();
+      await assertPillContrast(draftStatusBtn, `AuthorProjectsPage ${theme} selected status pill`);
+
+      // PR195-002: AuthorWritingIde 409 conflict reload confirmation <Button color="red"> + variant="filled"
+      await page.goto(`${base}/author/ide?novelId=novel-1&chapterId=ch-1`, { waitUntil: 'domcontentloaded' });
+      const writeModeBtn = page.getByRole('button', { name: 'Viết bản thảo', exact: true });
+      await expect(writeModeBtn).toBeVisible();
+      await assertButtonContrast(writeModeBtn, `AuthorWritingIde ${theme} filled mode-switch button`);
+
+      const titleInput = page.getByPlaceholder('Đặt tiêu đề chương tại đây...', { exact: true });
+      await expect(titleInput).toHaveValue('Chương mở đầu');
+      await titleInput.fill('Chương mở đầu (chưa lưu)');
+      await page.keyboard.press('ControlOrMeta+s');
+
+      const reloadBtn = page.getByRole('button', { name: 'Tải bản máy chủ', exact: true });
+      await expect(reloadBtn).toBeVisible();
+      await reloadBtn.click();
+
+      const reloadModal = page.getByRole('dialog', { name: 'Tải lại bản máy chủ?', exact: true });
+      await expect(reloadModal).toBeVisible();
+      const confirmReloadBtn = reloadModal.getByRole('button', { name: 'Xác nhận tải bản máy chủ', exact: true });
+      await assertButtonContrast(confirmReloadBtn, `AuthorWritingIde ${theme} reload confirmation red button`);
+
+      await reloadModal.getByRole('button', { name: 'Hủy', exact: true }).click();
+      await expect(reloadModal).toHaveCount(0);
+      assert.deepEqual(errors, []);
+      await ctx.close();
+    }
   } finally {
     await browser?.close();
     await server.close();

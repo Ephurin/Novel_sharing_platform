@@ -12,9 +12,19 @@ body { font-family: var(--sc-font); background: var(--sc-bg); color: var(--sc-te
 :root :is(.mantine-Menu-label, .mantine-Input-description, .mantine-CloseButton-root) { color: var(--sc-text-muted); }
 :root :is(.mantine-Menu-item, .mantine-Combobox-option):hover { background: var(--sc-surface-subtle); }
 :root .mantine-Combobox-option[data-combobox-selected] { background: var(--sc-primary-soft); color: var(--sc-primary-text); }
-:root .mantine-Button-root:not([data-variant]), :root .mantine-Button-root[data-variant="filled"], :root .mantine-Pagination-control[data-active] { color: var(--sc-on-primary); }
-:root .mantine-Button-root[data-variant="filled"]:not([data-disabled]):not([data-loading]) { background: var(--button-bg, var(--sc-primary)); }
-:root .mantine-Button-root[data-variant="filled"][data-loading] { color: var(--sc-on-primary); }
+:root .mantine-Button-root:not([data-variant]):not([data-disabled]):where(:not([style*="--button-bg"]), [style*="--mantine-color-terracotta-filled"]), :root .mantine-Button-root[data-variant="filled"]:not([data-disabled]):where(:not([style*="--button-bg"]), [style*="--mantine-color-terracotta-filled"]), :root .mantine-Pagination-control[data-active] { color: var(--sc-on-primary); }
+:root .mantine-Button-root[data-variant="filled"]:where(:not([style*="--button-bg"]), [style*="--mantine-color-terracotta-filled"]):not([data-disabled]):not([data-loading]) { background: var(--sc-primary); }
+:root .mantine-Button-root[data-variant="filled"]:where(:not([style*="--button-bg"]), [style*="--mantine-color-terracotta-filled"]):not([data-disabled]):not([data-loading]):hover { background: var(--sc-primary-hover); }
+:root .mantine-Button-root[data-variant="filled"]:where(:not([style*="--button-bg"]), [style*="--mantine-color-terracotta-filled"])[data-loading] { background: var(--sc-primary); color: var(--sc-on-primary); }
+/* Semantic filled Mantine buttons (e.g. <Button color="red"> in modals) use StoryCraft's WCAG AA danger/warning tokens. */
+:root .mantine-Button-root[style*="--mantine-color-red-filled"]:not([data-disabled]) { --button-color: #fff; background: var(--sc-danger); color: #fff; }
+:root .mantine-Button-root[style*="--mantine-color-red-filled"]:not([data-disabled]):not([data-loading]):hover { background: color-mix(in srgb, var(--sc-danger) 88%, #000); color: #fff; }
+:root[data-theme="dark"] .mantine-Button-root[style*="--mantine-color-red-filled"]:not([data-disabled]) { --button-color: var(--sc-on-primary); color: var(--sc-on-primary); }
+:root[data-theme="dark"] .mantine-Button-root[style*="--mantine-color-red-filled"]:not([data-disabled]):not([data-loading]):hover { background: color-mix(in srgb, var(--sc-danger) 88%, #fff); color: var(--sc-on-primary); }
+:root .mantine-Button-root[style*="--mantine-color-orange-filled"]:not([data-disabled]) { --button-color: #fff; background: var(--sc-warning); color: #fff; }
+:root .mantine-Button-root[style*="--mantine-color-orange-filled"]:not([data-disabled]):not([data-loading]):hover { background: color-mix(in srgb, var(--sc-warning) 88%, #000); color: #fff; }
+:root[data-theme="dark"] .mantine-Button-root[style*="--mantine-color-orange-filled"]:not([data-disabled]) { --button-color: var(--sc-on-primary); color: var(--sc-on-primary); }
+:root[data-theme="dark"] .mantine-Button-root[style*="--mantine-color-orange-filled"]:not([data-disabled]):not([data-loading]):hover { background: color-mix(in srgb, var(--sc-warning) 88%, #fff); color: var(--sc-on-primary); }
 :root :is(.mantine-Table-th, .mantine-Table-td, .mantine-Divider-root) { border-color: var(--sc-border); }
 :root .mantine-Table-th { color: var(--sc-text-muted); background: var(--sc-surface-subtle); }
 :root .mantine-NavLink-root[data-active] { color: var(--sc-primary-text); background: var(--sc-primary-soft); }
