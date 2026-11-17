@@ -9,7 +9,8 @@ import { checkContent } from '../content-control/content-control.service.js';
 import { validateGiphyGif } from '../media/giphy.service.js';
 import { isCommentPublic, withCommentWriteLock } from './comments.repository.js';
 import type { PoolClient } from 'pg';
-import type { CreateCommentInput, ListCommentsInput, UpdateCommentInput } from './comments.schemas.js';
+import type { CommentLocationInput, CreateCommentInput, ListCommentsInput, UpdateCommentInput } from './comments.schemas.js';
+import { commentPage } from './comments.repository.js';
 import { type CommentDocument, type CommentReaction, commentReactionCounts, setCommentReaction, countVisibleReplies, createComment as createCommentRow, findCommentById, listApprovedComments, softDeleteComment, updateCommentContent, updateCommentModerationStatus } from './comments.repository.js';
 
 type Target = { chapterId: string | null; novelId: string };
@@ -71,7 +72,7 @@ export function listComments(chapterId: string, input: ListCommentsInput, auth?:
 export function listNovelComments(novelId: string, input: ListCommentsInput & { scope?: 'NOVEL' | 'ALL' }, auth?: AuthContext) { return list(novelId, 'novel', input, auth); }
 
 async function present(result: { items: CommentDocument[]; totalItems: number }, input: { page: number; limit: number }, auth: AuthContext | undefined, novel: { authorId: string; status: string }) {
-  const ids = [...new Set(result.items.map(comment => comment.userId))];
+  const ids = [...new Set(result.items.flatMap(comment => [comment.userId, ...(comment.replyToUserId ? [comment.replyToUserId] : [])]))];
   const chapterIds = [...new Set(result.items.map(comment => comment.chapterId).filter((id): id is string => Boolean(id)))];
   const [profiles, chapters, counts, reactions] = await Promise.all([
     ids.length ? getPostgresPool().query(`select u.user_id, coalesce(p.display_name, u.username) as display_name, p.avatar_url from users u left join user_profiles p on p.user_id=u.user_id where u.user_id=any($1::uuid[]) and u.deleted_at is null`, [ids]) : { rows: [] },
@@ -89,9 +90,12 @@ async function present(result: { items: CommentDocument[]; totalItems: number },
       const chapter = comment.chapterId ? byChapter.get(comment.chapterId) : null;
       return { commentId: comment.commentId, chapterId: comment.chapterId, novelId: comment.novelId, userId: comment.userId,
         parentCommentId: comment.parentCommentId ?? null, repliesCount: replyCounts.get(comment.commentId) ?? 0,
+        replyToCommentId: comment.replyToCommentId ?? null,
+        replyToUserId: comment.replyToUserId ?? null,
+        replyToDisplayName: comment.replyToUserId ? byId.get(comment.replyToUserId)?.display_name ?? 'Tài khoản đã xóa' : null,
         isAuthor: comment.userId === novel.authorId,
         canDelete: Boolean(auth && (auth.userId === comment.userId || manager)),
-        canReply: Boolean(auth) && !comment.parentCommentId && isCommentPublic(comment) && novel.status === 'PUBLISHED' && (!comment.chapterId || (chapter?.status === 'PUBLISHED' && !chapter.deleted_at)),
+        canReply: Boolean(auth) && isCommentPublic(comment) && novel.status === 'PUBLISHED' && (!comment.chapterId || (chapter?.status === 'PUBLISHED' && !chapter.deleted_at)),
         chapterTitle: chapter?.title ?? null, chapterNumber: chapter?.chapter_number ?? null,
         paragraphOffset: comment.paragraphOffset, content: comment.content, status: comment.status === 'APPROVED' && !isCommentPublic(comment) ? 'PENDING_MODERATION' : comment.status,
         isSpoiler: comment.isSpoiler ?? false, imageUrl: comment.imageUrl ?? null, gifId: comment.gifId ?? null,
@@ -121,13 +125,16 @@ export async function listAuthorComments(auth: AuthContext, novelId: string, inp
 
 export async function createCommentReply(auth: AuthContext, parentId: string, input: UpdateCommentInput) {
   await activeAccount(auth);
-  const parent = await findCommentById(parentId);
-  if (!parent || parent.parentCommentId || !isCommentPublic(parent)) throw new AppError(404, 'CONTENT_001', 'Comment not found');
+  const target = await findCommentById(parentId);
+  if (!target || !isCommentPublic(target)) throw new AppError(404, 'CONTENT_001', 'Comment not found');
+  const parent = target.parentCommentId ? await findCommentById(target.parentCommentId) : target;
+  if (!parent || parent.parentCommentId || !isCommentPublic(parent) || parent.novelId !== target.novelId || parent.chapterId !== target.chapterId) throw new AppError(404, 'CONTENT_001', 'Comment not found');
   await publishedTarget(parent.chapterId ?? parent.novelId, parent.chapterId ? 'chapter' : 'novel');
   await validateAttachment(input, auth.userId);
-  const reply = await createCommentRow({ novelId: parent.novelId, chapterId: parent.chapterId, parentCommentId: parentId, userId: auth.userId,
-    content: input.content, imageUrl: input.imageUrl, gifId: input.gifId, isSpoiler: Boolean(parent.isSpoiler || input.isSpoiler) });
-  if (!await findCommentById(parentId)) { await softDeleteComment(reply.commentId); throw new AppError(404, 'CONTENT_001', 'Comment not found'); }
+  const reply = await createCommentRow({ novelId: parent.novelId, chapterId: parent.chapterId, parentCommentId: parent.commentId, userId: auth.userId,
+    replyToCommentId: target.commentId, replyToUserId: target.userId,
+    content: input.content, imageUrl: input.imageUrl, gifId: input.gifId, isSpoiler: Boolean(parent.isSpoiler || target.isSpoiler || input.isSpoiler) });
+  if (!await findCommentById(parent.commentId) || !await findCommentById(target.commentId)) { await softDeleteComment(reply.commentId); throw new AppError(404, 'CONTENT_001', 'Comment not found'); }
   let moderated;
   try {
     moderated = await withCommentWriteLock(reply.commentId, client => moderateComment(reply, auth.userId, client));
@@ -135,7 +142,7 @@ export async function createCommentReply(auth: AuthContext, parentId: string, in
     await softDeleteComment(reply.commentId);
     throw error;
   }
-  return { commentId: reply.commentId, parentCommentId: parentId, status: moderated?.status ?? 'PENDING_MODERATION' };
+  return { commentId: reply.commentId, parentCommentId: parent.commentId, status: moderated?.status ?? 'PENDING_MODERATION' };
 }
 
 export async function listCommentReplies(parentId: string, input: ListCommentsInput, auth?: AuthContext) {
@@ -150,6 +157,29 @@ export async function listCommentReplies(parentId: string, input: ListCommentsIn
   if (!isCommentPublic(parent) && parent.userId !== viewerAuth?.userId) throw new AppError(404, 'CONTENT_001', 'Comment not found');
   const result = await listApprovedComments({ novelId: parent.novelId, chapterId: parent.chapterId, parentCommentId: parentId, viewerId: viewerAuth?.userId, page: input.page, limit: input.limit });
   return present(result, input, viewerAuth, novel);
+}
+
+export async function locateComment(commentId: string, input: CommentLocationInput, auth?: AuthContext) {
+  const target = await publishedTarget(input.targetId, input.kind);
+  const viewer = auth ? await findAuthUserById(auth.userId) : null;
+  const viewerId = viewer?.status === 'ACTIVE' && viewer.role === auth?.role ? auth?.userId : undefined;
+  const visible = (comment: CommentDocument | null) => comment && (isCommentPublic(comment) || comment.userId === viewerId);
+  const comment = await findCommentById(commentId);
+  if (!visible(comment) || !comment || comment.novelId !== target.novelId || (input.kind === 'chapter' && comment.chapterId !== target.chapterId)) {
+    throw new AppError(404, 'CONTENT_001', 'Bình luận không còn hiển thị.');
+  }
+  await publishedTarget(comment.chapterId ?? comment.novelId, comment.chapterId ? 'chapter' : 'novel');
+  const root = comment.parentCommentId ? await findCommentById(comment.parentCommentId) : comment;
+  if (!root || !visible(root) || root.parentCommentId || root.novelId !== comment.novelId || root.chapterId !== comment.chapterId) {
+    throw new AppError(404, 'CONTENT_001', 'Bình luận không còn hiển thị.');
+  }
+  const published = input.kind === 'novel'
+    ? await getPostgresPool().query("select chapter_id from chapters where novel_id=$1 and status='PUBLISHED' and deleted_at is null", [target.novelId]) : null;
+  const [page, replyPage] = await Promise.all([
+    commentPage(root, { ...target, allChapters: input.kind === 'novel', visibleChapterIds: published?.rows.map(row => row.chapter_id as string), viewerId, page: 1, limit: input.limit }),
+    comment.parentCommentId ? commentPage(comment, { novelId: root.novelId, chapterId: root.chapterId, parentCommentId: root.commentId, viewerId, page: 1, limit: input.replyLimit }) : 1
+  ]);
+  return { rootCommentId: root.commentId, page, replyPage };
 }
 
 export async function updateComment(auth: AuthContext, commentId: string, input: UpdateCommentInput) {

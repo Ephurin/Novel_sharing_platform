@@ -14,7 +14,7 @@ import { AdminUsersPage } from '../features/admin/AdminUsersPage';
 import { AdminOverviewPage } from '../features/admin/AdminOverviewPage';
 import { AuthorNovelCommentsPage } from '../features/author-projects/AuthorNovelCommentsPage';
 import { AuthorNovelReviewsPage } from '../features/author-projects/AuthorNovelReviewsPage';
-import { AuthorTheme } from '../shared/components/AuthorTheme';
+import { AuthorNavbar, AuthorTheme } from '../shared/components/AuthorTheme';
 import { createBrowserRouter, Navigate, useParams } from 'react-router-dom';
 import { AuthorWritingIde } from '../features/author-ide/AuthorWritingIde';
 import { WebAppShell } from './layout/WebAppShell';
@@ -24,6 +24,7 @@ import { AuthorStoryContextPage } from '../features/story-context/AuthorStoryCon
 import { AuthGate, OptionalSession, RoleGuard } from '../features/auth/AuthGate';
 import { ReaderHomePage } from '../features/reader/ReaderHomePage';
 import { ReaderNovelReviewsPage } from '../features/reader/ReaderNovelReviewsPage';
+import { ReadingBookmarksPage } from '../features/reader/ReadingBookmarksPage';
 import { NotificationsPage } from '../features/notifications/NotificationsPage';
 import { AuthorProfilePage, MyProfilePage } from '../features/profile/ProfilePage';
 import {
@@ -41,6 +42,7 @@ import { WalletPage } from '../features/wallet/WalletPage';
 import { ManuscriptImportPage } from '../features/manuscript-import/ManuscriptImportPage';
 
 export const router = createBrowserRouter([
+  { path: '/public/bookmarks', element: <OptionalSession><AuthorTheme><AuthorNavbar /><main className="sc-shell-content"><ReadingBookmarksPage publicMode /></main></AuthorTheme></OptionalSession> },
   {
     path: '/',
     element: <OptionalSession><AuthorTheme><ReaderHomePage /></AuthorTheme></OptionalSession>
@@ -230,6 +232,7 @@ export const router = createBrowserRouter([
         path: '/reader/library',
         element: <ReaderLibraryPage />
       },
+      { path: '/reader/bookmarks', element: <ReadingBookmarksPage /> },
       {
         path: '/reader/history',
         element: <ReaderHistoryPage />

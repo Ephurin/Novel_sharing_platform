@@ -174,6 +174,7 @@ export function AuthorNavbar() {
                 { to: '/', label: navigationLabels.home, active: path === '/' },
                 { to: '/reader', label: navigationLabels.readerHome, active: path === '/reader' || path.startsWith('/reader/novels') || path.startsWith('/reader/chapters') || path.startsWith('/authors/') },
                 { to: '/reader/library', label: 'Thư viện của tôi', active: path.startsWith('/reader/library') },
+                { to: '/reader/bookmarks', label: 'Bookmark', active: path.startsWith('/reader/bookmarks') },
                 { to: '/reader/history', label: 'Lịch sử đọc', active: path.startsWith('/reader/history') },
                 { to: '/wallet', label: navigationLabels.readerWallet, active: path.startsWith('/wallet') },
               ].map((item) => (
@@ -187,7 +188,8 @@ export function AuthorNavbar() {
             <nav className="sc-global-nav" aria-label="Điều hướng chính">
               {[
                 { to: '/', label: navigationLabels.home, active: path === '/' },
-                { to: '/public', label: navigationLabels.readerHome, active: path.startsWith('/public') },
+                { to: '/public', label: navigationLabels.readerHome, active: path.startsWith('/public') && !path.startsWith('/public/bookmarks') },
+                { to: '/public/bookmarks', label: 'Bookmark', active: path.startsWith('/public/bookmarks') },
               ].map((item) => (
                 <Link key={item.to} to={item.to} className={readerLink(item.active)}>
                   {item.active && navPill}
@@ -221,6 +223,7 @@ export function AuthorNavbar() {
               <Menu.Label>{name}</Menu.Label>
               <Menu.Item component={Link} to="/appeals">Quyết định &amp; khiếu nại</Menu.Item>
               <Menu.Item component={Link} to="/profile/me">Hồ sơ &amp; cài đặt</Menu.Item>
+              <Menu.Item component={Link} to="/reader/bookmarks">Bookmark</Menu.Item>
               {isWriter ? <>
                 <Menu.Item component={Link} to="/author/profile">Trang tác giả</Menu.Item>
                 <Menu.Item component={Link} to="/reader/library">Thư viện của tôi</Menu.Item>

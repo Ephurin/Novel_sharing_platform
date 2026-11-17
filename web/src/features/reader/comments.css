@@ -11,6 +11,8 @@
 .sc-comments { color: var(--sc-text); background: var(--sc-surface); }
 .sc-comments h3 { font-size: 18px; line-height: 26px; }
 .sc-comment-item { color: inherit; background: transparent; }
+.sc-comments, .sc-comment-item { scroll-margin-block: 96px; }
+.sc-comment-item.is-focused { outline: 2px solid var(--sc-primary); outline-offset: 2px; }
 .sc-comment-composer { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
 .sc-comment-editor-tools { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 .sc-comment-tool, .sc-comment-reaction, .sc-comment-text-action {
@@ -59,6 +61,7 @@
 .sc-author-theme .sc-comment-source { width: fit-content; color: var(--sc-text-muted); font-size: 12px; text-decoration: none; }
 .sc-author-theme .sc-comment-source:hover { color: var(--sc-primary-text); text-decoration: none; }
 .sc-comment-body { margin-top: 12px; font-family: 'StoryCraft Flags', var(--sc-font); }
+.sc-comment-mention { color: var(--sc-primary-text); font-weight: 600; overflow-wrap: anywhere; }
 .sc-comment-body .chapter-prose { color: inherit; font: inherit; }
 .sc-comment-body .chapter-prose > p:last-child { margin-bottom: 0 !important; }
 .sc-comment-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 4px; margin-top: 8px; }

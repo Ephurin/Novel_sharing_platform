@@ -31,6 +31,8 @@ import {
   deleteReadingBookmark
 } from './reading.repository.js';
 import { userHasChapterUnlock } from '../wallet/wallet.repository.js';
+import { deletePositionBookmark, listPositionBookmarks, savePositionBookmark } from './reading.repository.js';
+import type { BookmarkEntriesInput, BookmarkEntryInput } from './reading.schemas.js';
 
 function buildMeta(totalItems: number, page: number, limit: number) {
   return {
@@ -135,6 +137,24 @@ export async function saveReadingBookmark(auth: AuthContext, novelId: string, in
 export async function removeReadingBookmark(auth: AuthContext, novelId: string) {
   await assertActiveAccount(auth);
   return deleteReadingBookmark(auth.userId, novelId);
+}
+
+export async function listReadingBookmarkEntries(auth: AuthContext, input: BookmarkEntriesInput) {
+  await assertActiveAccount(auth);
+  const result = await listPositionBookmarks(auth.userId, input, isContentAdmin(auth));
+  return { data: result.items, meta: buildMeta(result.totalItems, input.page, input.limit) };
+}
+
+export async function saveReadingBookmarkEntry(auth: AuthContext, input: BookmarkEntryInput) {
+  const chapter = await findReadableChapter(input.chapterId);
+  if (!chapter || chapter.novelId !== input.novelId) throw new AppError(404, 'CONTENT_001', 'Content not found');
+  await assertChapterAccess(chapter, auth);
+  return savePositionBookmark(auth.userId, input);
+}
+
+export async function removeReadingBookmarkEntry(auth: AuthContext, bookmarkId: string) {
+  await assertActiveAccount(auth);
+  if (!await deletePositionBookmark(auth.userId, bookmarkId)) throw new AppError(404, 'CONTENT_001', 'Không tìm thấy dấu đã lưu.');
 }
 
 export async function listHistory(auth: AuthContext, input: HistoryListInput) {

@@ -58,5 +58,15 @@ export const commentReactionSchema = z.object({
 });
 
 export const createReplySchema = updateCommentSchema;
+export const commentLocationSchema = z.object({
+  params: commentIdParamSchema.shape.params,
+  query: z.object({
+    kind: z.enum(['novel', 'chapter']),
+    targetId: z.string().uuid(),
+    limit: z.coerce.number().int().positive().max(100).default(10),
+    replyLimit: z.coerce.number().int().positive().max(100).default(5)
+  })
+});
+export type CommentLocationInput = z.infer<typeof commentLocationSchema>['query'];
 export const listRepliesSchema = listCommentsSchema.extend({ params: commentIdParamSchema.shape.params });
 export const authorCommentsSchema = listNovelCommentsSchema.extend({ query: listCommentsSchema.shape.query.extend({ scope: z.enum(['ALL', 'NOVEL', 'CHAPTER']).default('ALL'), chapterId: z.string().uuid().optional() }) });
