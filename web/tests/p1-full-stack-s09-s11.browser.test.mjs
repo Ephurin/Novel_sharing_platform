@@ -493,7 +493,7 @@ test('Full Mounted Author IDE E2E against Real Backend (S09–S11 Gate)', { time
 
     // S11.3 — Approved Memory continuity
     await page.locator('[data-testid="btn-story-brain"]').click();
-    await page.getByText(/Brain v3/i).first().waitFor({ timeout: 10000 });
+    await page.getByText(/(Brain|Bộ nhớ) v3/i).first().waitFor({ timeout: 10000 });
     await page.getByRole('tab', { name: /Nhân vật/i }).click();
     await page.getByText(/Mai Linh/i).first().waitFor({ timeout: 10000 });
 

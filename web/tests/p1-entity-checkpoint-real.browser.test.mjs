@@ -174,10 +174,10 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
         await position(c.candidate_id);
         await occurrence(c.candidate_id).getByRole('button', { name: 'Loại bỏ', exact: true }).click();
       }
-      await expect(checkpoint().getByTestId('entity-freeze-summary')).toContainText('Cồn Vân [LOC]');
+      await expect(checkpoint().getByTestId('entity-freeze-summary')).toContainText('Cồn Vân (Địa điểm)');
       await h.shot('checkpoint-final-summary');
       const frozen = response('review');
-      await checkpoint().getByRole('button', { name: /Đóng băng danh sách entity/ }).click();
+      await checkpoint().getByRole('button', { name: /Chốt danh sách tên/ }).click();
       const r = await frozen; assert.equal(r.status(), 200);
       const body = r.request().postDataJSON(); assert.equal(body.finalize, true);
       assert.equal(body.decisions.length, initial.candidates.length);
@@ -200,7 +200,7 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
     });
     await h.step('Separate HITL proposal approval and activation; final PostgreSQL Canon readback', async () => {
       const continued = response('continue');
-      await checkpoint().getByRole('button', { name: '3. Tiếp tục trích xuất event/fact', exact: true }).click();
+      await checkpoint().getByRole('button', { name: '3. Tiếp tục trích xuất sự kiện và dữ kiện', exact: true }).click();
       assert.equal((await continued).status(), 200);
       const queue = await until(async () => {
         const q = (await h.api('GET', endpoint() + '/review-queue', undefined, a.token)).data;
@@ -219,7 +219,7 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
         assert.equal(payload.entity_type, payload.canonical_name === 'Cồn Vân' ? 'LOC' : 'PER');
       }
       const accepted = page.waitForResponse(r => r.url().includes('/ai/proposal-groups/') && r.url().endsWith('/accept') && r.request().method() === 'POST');
-      await page.getByRole('button', { name: /Duyệt nguyên tử toàn bộ nhóm/ }).click();
+      await page.getByRole('button', { name: /Duyệt cả nhóm/ }).click();
       assert.equal((await accepted).status(), 200);
       const activated = page.waitForResponse(r => r.url().endsWith('/baseline/activate') && r.request().method() === 'POST');
       await page.getByRole('button', { name: 'Kích hoạt bộ nhớ sau duyệt', exact: true }).click();

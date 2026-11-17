@@ -166,8 +166,9 @@ export function AuthorProjectsPage() {
     return projects.reduce((sum, p) => sum + (p.viewsCount ?? 0), 0);
   }, [projects]);
 
-  const totalChapters = useMemo(() => {
-    return projects.reduce((sum, p) => sum + (p.chaptersCount || 0), 0);
+  // UI walkthrough (UI-7): the card is "published chapters", so count only those.
+  const publishedChapters = useMemo(() => {
+    return projects.reduce((sum, p) => sum + (p.publishedChaptersCount ?? 0), 0);
   }, [projects]);
 
   // Create Project Mutation
@@ -213,8 +214,11 @@ export function AuthorProjectsPage() {
     }
   });
 
+  // UI walkthrough (UI-3): "Viết tiếp" opens the chapter the author edited last, not the chapter
+  // remembered in this browser (which could be an old one) or the first chapter.
   const openIde = (novelId: string) => {
-    navigate(`/author/ide?novelId=${novelId}`);
+    const latest = projects.find(project => project.novelId === novelId)?.latestChapter;
+    navigate(`/author/ide?novelId=${novelId}${latest ? `&chapterId=${latest.chapterId}` : ''}`);
   };
   const selectCover = (file: File) => {
     if (coverUpload.isPending || createProjectMutation.isPending) return;
@@ -300,7 +304,7 @@ export function AuthorProjectsPage() {
                   Chương đã xuất bản
                 </span>
                 <span className="font-headline-sm text-2xl font-bold text-stone-900 leading-none">
-                  <AnimatedNumber value={totalChapters} ready={Boolean(projectsQuery.data)} />
+                  <AnimatedNumber value={publishedChapters} ready={Boolean(projectsQuery.data)} />
                 </span>
                 <span className="text-meta text-stone-500 flex items-center gap-1 mt-0.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>

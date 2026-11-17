@@ -118,7 +118,7 @@ export async function entityAcceptance(h, f, x) {
       else if (c.surface === 'lan') await select(c.candidate_id, 'witness');
       else await occurrence(c.candidate_id).getByRole('button', { name: 'Loại bỏ', exact: true }).click();
     }
-    const saved = response('review'); await card().getByRole('button', { name: 'Đóng băng danh sách entity (Freeze)', exact: true }).click();
+    const saved = response('review'); await card().getByRole('button', { name: 'Chốt danh sách tên', exact: true }).click();
     const result = await saved; assert.equal(result.status(), 200); assert.equal(result.request().postDataJSON().finalize, true);
     frozen = (await result.json()).data; assert.equal(frozen.entities.length, 3);
     const doctor = frozen.entities.find(e => e.provisional_identity_key.endsWith('/doctor'));
@@ -133,7 +133,7 @@ export async function entityAcceptance(h, f, x) {
     await h.snapshot('G3-frozen-UUIDs-not-Canon', x.owned); await h.shot('s10-homonyms-frozen');
   });
   await h.step('G3/S10: UI Continue creates exact-ID proposals; complete edited group acceptance alone commits Canon', async () => {
-    const continued = response('continue'); await card().getByRole('button', { name: '3. Tiếp tục trích xuất event/fact', exact: true }).click();
+    const continued = response('continue'); await card().getByRole('button', { name: '3. Tiếp tục trích xuất sự kiện và dữ kiện', exact: true }).click();
     assert.equal((await continued).status(), 200);
     proposals = await until(async () => {
       const queue = (await h.api('GET', base + '/review-queue', undefined, x.a.token)).data;

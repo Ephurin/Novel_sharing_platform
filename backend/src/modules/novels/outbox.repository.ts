@@ -297,8 +297,21 @@ export async function listLatestChapterAnalysis(novelId: string) {
      from chapters c
      join chapter_revisions r on r.revision_id = c.latest_revision_id
      left join revision_outbox_events o on o.revision_id = r.revision_id and o.event_type = 'INCREMENTAL_ANALYSIS'
-     where c.novel_id = $1 order by c.chapter_number`, [novelId]);
+     where c.novel_id = $1 and c.deleted_at is null order by c.chapter_number`, [novelId]);
   return result.rows as { chapter_id: string; chapter_number: number; revision_id: string; status: string | null; retry_count: number;
     waiting_reason: 'provider_unavailable' | null }[];
 }
 
+
+// UI walkthrough (UI-2): when the author re-analyses a revision whose background analysis failed or is
+// still waiting, the author's analysis replaces it. Close the background row so the IDE stops showing
+// the old failure and the outbox does not analyse the same revision a second time. A row being
+// processed right now is left alone.
+export async function supersedeBackgroundAnalysis(revisionId: string, client?: DbClient) {
+  const result = await (client ?? getPostgresPool()).query(
+    `update revision_outbox_events
+        set status = 'COMPLETED', last_error = 'superseded: author re-analysis', updated_at = now()
+      where revision_id = $1 and event_type = 'INCREMENTAL_ANALYSIS' and status in ('FAILED', 'PENDING')`,
+    [revisionId]);
+  return result.rowCount ?? 0;
+}
