@@ -12,19 +12,25 @@ body { font-family: var(--sc-font); background: var(--sc-bg); color: var(--sc-te
 :root :is(.mantine-Menu-label, .mantine-Input-description, .mantine-CloseButton-root) { color: var(--sc-text-muted); }
 :root :is(.mantine-Menu-item, .mantine-Combobox-option):hover { background: var(--sc-surface-subtle); }
 :root .mantine-Combobox-option[data-combobox-selected] { background: var(--sc-primary-soft); color: var(--sc-primary-text); }
-:root .mantine-Button-root:not([data-variant]):not([data-disabled]):where(:not([style*="--button-bg"]), [style*="--mantine-color-terracotta-filled"]), :root .mantine-Button-root[data-variant="filled"]:not([data-disabled]):where(:not([style*="--button-bg"]), [style*="--mantine-color-terracotta-filled"]), :root .mantine-Pagination-control[data-active] { color: var(--sc-on-primary); }
-:root .mantine-Button-root[data-variant="filled"]:where(:not([style*="--button-bg"]), [style*="--mantine-color-terracotta-filled"]):not([data-disabled]):not([data-loading]) { background: var(--sc-primary); }
-:root .mantine-Button-root[data-variant="filled"]:where(:not([style*="--button-bg"]), [style*="--mantine-color-terracotta-filled"]):not([data-disabled]):not([data-loading]):hover { background: var(--sc-primary-hover); }
-:root .mantine-Button-root[data-variant="filled"]:where(:not([style*="--button-bg"]), [style*="--mantine-color-terracotta-filled"])[data-loading] { background: var(--sc-primary); color: var(--sc-on-primary); }
-/* Semantic filled Mantine buttons (e.g. <Button color="red"> in modals) use StoryCraft's WCAG AA danger/warning tokens. */
+:root .mantine-Button-root:is(:not([data-variant]), [data-variant="filled"]):not([data-disabled]):where(:not([style*="--button-bg"]), [style*="--mantine-color-terracotta-filled"]), :root .mantine-Pagination-control[data-active] { --button-color: var(--sc-on-primary); color: var(--sc-on-primary); }
+:root .mantine-Button-root:is(:not([data-variant]), [data-variant="filled"]):where(:not([style*="--button-bg"]), [style*="--mantine-color-terracotta-filled"]):not([data-disabled]):not([data-loading]) { background: var(--sc-primary); }
+:root .mantine-Button-root:is(:not([data-variant]), [data-variant="filled"]):where(:not([style*="--button-bg"]), [style*="--mantine-color-terracotta-filled"]):not([data-disabled]):not([data-loading]):hover { background: var(--sc-primary-hover); }
+:root .mantine-Button-root:is(:not([data-variant]), [data-variant="filled"]):where(:not([style*="--button-bg"]), [style*="--mantine-color-terracotta-filled"])[data-loading] { --button-color: var(--sc-on-primary); background: var(--sc-primary); color: var(--sc-on-primary); }
+/* Semantic filled Mantine buttons use StoryCraft's WCAG AA danger/warning/success/neutral tokens. */
 :root .mantine-Button-root[style*="--mantine-color-red-filled"]:not([data-disabled]) { --button-color: #fff; background: var(--sc-danger); color: #fff; }
 :root .mantine-Button-root[style*="--mantine-color-red-filled"]:not([data-disabled]):not([data-loading]):hover { background: color-mix(in srgb, var(--sc-danger) 88%, #000); color: #fff; }
 :root[data-theme="dark"] .mantine-Button-root[style*="--mantine-color-red-filled"]:not([data-disabled]) { --button-color: var(--sc-on-primary); color: var(--sc-on-primary); }
 :root[data-theme="dark"] .mantine-Button-root[style*="--mantine-color-red-filled"]:not([data-disabled]):not([data-loading]):hover { background: color-mix(in srgb, var(--sc-danger) 88%, #fff); color: var(--sc-on-primary); }
-:root .mantine-Button-root[style*="--mantine-color-orange-filled"]:not([data-disabled]) { --button-color: #fff; background: var(--sc-warning); color: #fff; }
-:root .mantine-Button-root[style*="--mantine-color-orange-filled"]:not([data-disabled]):not([data-loading]):hover { background: color-mix(in srgb, var(--sc-warning) 88%, #000); color: #fff; }
-:root[data-theme="dark"] .mantine-Button-root[style*="--mantine-color-orange-filled"]:not([data-disabled]) { --button-color: var(--sc-on-primary); color: var(--sc-on-primary); }
-:root[data-theme="dark"] .mantine-Button-root[style*="--mantine-color-orange-filled"]:not([data-disabled]):not([data-loading]):hover { background: color-mix(in srgb, var(--sc-warning) 88%, #fff); color: var(--sc-on-primary); }
+:root .mantine-Button-root:is([style*="--mantine-color-orange-filled"], [style*="--mantine-color-yellow-filled"]):not([data-disabled]) { --button-color: #fff; background: var(--sc-warning); color: #fff; }
+:root .mantine-Button-root:is([style*="--mantine-color-orange-filled"], [style*="--mantine-color-yellow-filled"]):not([data-disabled]):not([data-loading]):hover { background: color-mix(in srgb, var(--sc-warning) 88%, #000); color: #fff; }
+:root[data-theme="dark"] .mantine-Button-root:is([style*="--mantine-color-orange-filled"], [style*="--mantine-color-yellow-filled"]):not([data-disabled]) { --button-color: var(--sc-on-primary); color: var(--sc-on-primary); }
+:root[data-theme="dark"] .mantine-Button-root:is([style*="--mantine-color-orange-filled"], [style*="--mantine-color-yellow-filled"]):not([data-disabled]):not([data-loading]):hover { background: color-mix(in srgb, var(--sc-warning) 88%, #fff); color: var(--sc-on-primary); }
+:root .mantine-Button-root:is([style*="--mantine-color-teal-filled"], [style*="--mantine-color-green-filled"]):not([data-disabled]) { --button-color: #fff; background: var(--sc-success); color: #fff; }
+:root .mantine-Button-root:is([style*="--mantine-color-teal-filled"], [style*="--mantine-color-green-filled"]):not([data-disabled]):not([data-loading]):hover { background: color-mix(in srgb, var(--sc-success) 88%, #000); color: #fff; }
+:root[data-theme="dark"] .mantine-Button-root:is([style*="--mantine-color-teal-filled"], [style*="--mantine-color-green-filled"]):not([data-disabled]) { --button-color: var(--sc-on-primary); color: var(--sc-on-primary); }
+:root[data-theme="dark"] .mantine-Button-root:is([style*="--mantine-color-teal-filled"], [style*="--mantine-color-green-filled"]):not([data-disabled]):not([data-loading]):hover { background: color-mix(in srgb, var(--sc-success) 88%, #fff); color: var(--sc-on-primary); }
+:root .mantine-Button-root[style*="--mantine-color-gray-filled"]:not([data-disabled]) { --button-color: var(--sc-text); background: var(--sc-neutral-bg); color: var(--sc-text); border-color: var(--sc-border); }
+:root .mantine-Button-root[style*="--mantine-color-gray-filled"]:not([data-disabled]):not([data-loading]):hover { background: var(--sc-border); color: var(--sc-text); }
 :root :is(.mantine-Table-th, .mantine-Table-td, .mantine-Divider-root) { border-color: var(--sc-border); }
 :root .mantine-Table-th { color: var(--sc-text-muted); background: var(--sc-surface-subtle); }
 :root .mantine-NavLink-root[data-active] { color: var(--sc-primary-text); background: var(--sc-primary-soft); }
@@ -47,6 +53,14 @@ body { font-family: var(--sc-font); background: var(--sc-bg); color: var(--sc-te
   *, *::before, *::after { scroll-behavior: auto !important; }
 }
 
-:root .mantine-Badge-root:not([data-variant]), :root .mantine-Badge-root[data-variant="filled"] { color: var(--sc-on-primary); }
+/* Filled Mantine badges mirror StoryCraft's WCAG AA primary, semantic status, and neutral palettes in both schemes. */
+:root .mantine-Badge-root:is(:not([data-variant]), [data-variant="filled"]):where(:not([style*="--badge-bg"]), [style*="--mantine-color-terracotta-filled"]) { background: var(--sc-primary); color: var(--sc-on-primary); }
+:root .mantine-Badge-root:is(:not([data-variant]), [data-variant="filled"])[style*="--mantine-color-red-filled"] { background: var(--sc-danger); color: #fff; }
+:root[data-theme="dark"] .mantine-Badge-root:is(:not([data-variant]), [data-variant="filled"])[style*="--mantine-color-red-filled"] { color: var(--sc-on-primary); }
+:root .mantine-Badge-root:is(:not([data-variant]), [data-variant="filled"]):is([style*="--mantine-color-orange-filled"], [style*="--mantine-color-yellow-filled"]) { background: var(--sc-warning); color: #fff; }
+:root[data-theme="dark"] .mantine-Badge-root:is(:not([data-variant]), [data-variant="filled"]):is([style*="--mantine-color-orange-filled"], [style*="--mantine-color-yellow-filled"]) { color: var(--sc-on-primary); }
+:root .mantine-Badge-root:is(:not([data-variant]), [data-variant="filled"]):is([style*="--mantine-color-teal-filled"], [style*="--mantine-color-green-filled"]) { background: var(--sc-success); color: #fff; }
+:root[data-theme="dark"] .mantine-Badge-root:is(:not([data-variant]), [data-variant="filled"]):is([style*="--mantine-color-teal-filled"], [style*="--mantine-color-green-filled"]) { color: var(--sc-on-primary); }
+:root .mantine-Badge-root:is(:not([data-variant]), [data-variant="filled"])[style*="--mantine-color-gray-filled"] { background: var(--sc-neutral-bg); color: var(--sc-text); border-color: var(--sc-border); }
 :root .sc-author-theme textarea.sc-manuscript { background: transparent; }
 :is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) input:is([type="checkbox"], [type="radio"]) { appearance: auto; accent-color: var(--sc-primary); }

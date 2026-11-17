@@ -4,10 +4,26 @@ import { fileURLToPath } from 'node:url';
 import { chromium, expect } from '@playwright/test';
 import { createServer } from 'vite';
 
-function parseRgb(cssColor) {
+function parseRgba(cssColor) {
   const nums = cssColor.match(/\d+(\.\d+)?/g)?.map(Number) ?? [];
   assert.ok(nums.length >= 3, `Unexpected CSS color: ${cssColor}`);
-  return nums.slice(0, 3);
+  if (cssColor.startsWith('color(srgb')) {
+    return [nums[0] * 255, nums[1] * 255, nums[2] * 255, nums.length >= 4 ? nums[3] : 1];
+  }
+  return [nums[0], nums[1], nums[2], nums.length >= 4 ? nums[3] : 1];
+}
+
+function parseRgb(cssColor) {
+  return parseRgba(cssColor).slice(0, 3);
+}
+
+function blendRgba(top, bottom) {
+  const a = top[3];
+  return [
+    Math.round(top[0] * a + bottom[0] * (1 - a)),
+    Math.round(top[1] * a + bottom[1] * (1 - a)),
+    Math.round(top[2] * a + bottom[2] * (1 - a))
+  ];
 }
 
 function luminance([r, g, b]) {
@@ -21,6 +37,32 @@ function luminance([r, g, b]) {
 function contrastRatio(fg, bg) {
   const [l1, l2] = [luminance(fg), luminance(bg)].sort((a, b) => b - a);
   return (l1 + 0.05) / (l2 + 0.05);
+}
+
+async function assertElementContrast(locator, label) {
+  const colors = await locator.evaluate((el) => {
+    const layers = [];
+    let cur = el;
+    while (cur) {
+      const bg = getComputedStyle(cur).backgroundColor;
+      if (bg && bg !== 'transparent' && bg !== 'rgba(0, 0, 0, 0)') {
+        layers.push(bg);
+        if (/^rgb\(/.test(bg) || (/^color\(srgb /.test(bg) && !bg.includes('/'))) break;
+      }
+      cur = cur.parentElement;
+    }
+    const cs = getComputedStyle(el);
+    const theme = document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light';
+    return { fg: cs.color, layers, theme };
+  });
+  let effectiveBg = colors.theme === 'dark' ? [23, 23, 21] : [255, 255, 255];
+  for (let i = colors.layers.length - 1; i >= 0; i -= 1) {
+    effectiveBg = blendRgba(parseRgba(colors.layers[i]), effectiveBg);
+  }
+  const fgRgba = parseRgba(colors.fg);
+  const fg = fgRgba[3] < 1 ? blendRgba(fgRgba, effectiveBg) : fgRgba.slice(0, 3);
+  const ratio = contrastRatio(fg, effectiveBg);
+  assert.ok(ratio >= 4.5, `${label} must reach WCAG AA 4.5:1, got ${ratio.toFixed(2)}:1 (fg=${colors.fg}, effBg=rgb(${effectiveBg.join(', ')}))`);
 }
 
 async function assertPillContrast(buttonLocator, label) {
@@ -60,13 +102,16 @@ test('StoryCraft portaled modals, dark-mode WCAG AA contrast, WAI-ARIA tabpanels
               import React from 'react';
               import { createRoot } from 'react-dom/client';
               import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+              import { Alert, Badge, Button, Group, Stack } from '@mantine/core';
               import { AppProviders } from '/src/app/providers.tsx';
               import { AuthorTheme } from '/src/shared/components/AuthorTheme.tsx';
+              import { AnimatedModal } from '/src/shared/components/AnimatedModal.tsx';
               import { AuthorStoryContextPage } from '/src/features/story-context/AuthorStoryContextPage.tsx';
               import { AuthorNovelMetadataPage } from '/src/features/author-projects/AuthorNovelMetadataPage.tsx';
               import { AuthorProfilePage } from '/src/features/profile/ProfilePage.tsx';
               import { AuthorProjectsPage } from '/src/features/author-projects/AuthorProjectsPage.tsx';
               import { AuthorWritingIde } from '/src/features/author-ide/AuthorWritingIde.tsx';
+              import { NotificationsPage } from '/src/features/notifications/NotificationsPage.tsx';
               import { useAuthStore } from '/src/features/auth/useAuthStore.ts';
               import '@fontsource/be-vietnam-pro/400.css';
               import '@fontsource/be-vietnam-pro/500.css';
@@ -82,12 +127,66 @@ test('StoryCraft portaled modals, dark-mode WCAG AA contrast, WAI-ARIA tabpanels
               });
 
               const h = React.createElement;
+              function PaletteMatrix() {
+                const [opened, setOpened] = React.useState(false);
+                const colors = ['default', 'terracotta', 'teal', 'green', 'orange', 'yellow', 'red', 'gray'];
+                const renderGroup = (prefix) => h(Stack, { gap: 'xs' },
+                  h(Group, { gap: 'xs' }, colors.map((c) => h(Button, {
+                    key: prefix + '-btn-filled-' + c,
+                    ...(c === 'default' ? {} : { color: c }),
+                    'data-testid': prefix + '-btn-filled-' + c
+                  }, prefix + ' btn ' + c))),
+                  h(Group, { gap: 'xs' }, ['default', 'red', 'orange', 'teal', 'gray'].map((c) => h(Button, {
+                    key: prefix + '-btn-light-' + c,
+                    variant: 'light',
+                    ...(c === 'default' ? {} : { color: c }),
+                    'data-testid': prefix + '-btn-light-' + c
+                  }, prefix + ' light ' + c))),
+                  h(Group, { gap: 'xs' }, ['default', 'red', 'gray'].map((c) => h(Button, {
+                    key: prefix + '-btn-subtle-' + c,
+                    variant: 'subtle',
+                    ...(c === 'default' ? {} : { color: c }),
+                    'data-testid': prefix + '-btn-subtle-' + c
+                  }, prefix + ' subtle ' + c))),
+                  h(Group, { gap: 'xs' }, colors.map((c) => h(Badge, {
+                    key: prefix + '-badge-filled-' + c,
+                    ...(c === 'default' ? {} : { color: c }),
+                    'data-testid': prefix + '-badge-filled-' + c
+                  }, 'filled ' + c))),
+                  h(Group, { gap: 'xs' }, colors.map((c) => h(Badge, {
+                    key: prefix + '-badge-light-' + c,
+                    variant: 'light',
+                    ...(c === 'default' ? {} : { color: c }),
+                    'data-testid': prefix + '-badge-light-' + c
+                  }, 'light ' + c))),
+                  h(Group, { gap: 'xs' }, colors.map((c) => h(Badge, {
+                    key: prefix + '-badge-outline-' + c,
+                    variant: 'outline',
+                    ...(c === 'default' ? {} : { color: c }),
+                    'data-testid': prefix + '-badge-outline-' + c
+                  }, 'outline ' + c))),
+                  h(Stack, { gap: 'xs' }, ['default', 'teal', 'green', 'orange', 'yellow', 'red', 'gray'].map((c) => h(Alert, {
+                    key: prefix + '-alert-' + c,
+                    title: 'Alert ' + c,
+                    ...(c === 'default' ? {} : { color: c }),
+                    'data-testid': prefix + '-alert-' + c
+                  }, 'Nội dung thông báo ' + c)))
+                );
+                return h(Stack, { gap: 'md', p: 'md' },
+                  h(Button, { onClick: () => setOpened(true), 'data-testid': 'open-palette-modal' }, 'Mở modal bảng màu'),
+                  renderGroup('page'),
+                  h(AnimatedModal, { opened, onClose: () => setOpened(false), title: 'Kiểm tra bảng màu', size: 'lg' }, renderGroup('modal'))
+                );
+              }
+
               const router = createBrowserRouter([
                 { path: '/author/context/:novelId', element: h(AuthorTheme, null, h(AuthorStoryContextPage)) },
                 { path: '/author/novels/:novelId', element: h(AuthorTheme, null, h(AuthorNovelMetadataPage)) },
                 { path: '/authors/:authorId', element: h(AuthorTheme, null, h(AuthorProfilePage)) },
                 { path: '/author', element: h(AuthorTheme, null, h(AuthorProjectsPage)) },
-                { path: '/author/ide', element: h(AuthorTheme, null, h(AuthorWritingIde)) }
+                { path: '/author/ide', element: h(AuthorTheme, null, h(AuthorWritingIde)) },
+                { path: '/notifications', element: h(AuthorTheme, null, h(NotificationsPage)) },
+                { path: '/palette-check', element: h(AuthorTheme, null, h(PaletteMatrix)) }
               ], { basename: '/__modals_tabs_a11y' });
 
               createRoot(document.getElementById('root')).render(
@@ -146,6 +245,26 @@ test('StoryCraft portaled modals, dark-mode WCAG AA contrast, WAI-ARIA tabpanels
         if (method === 'PATCH' && pathname.endsWith('/chapters/ch-1')) {
           return route.fulfill({ status: 409, json: { success: false, error: { code: 'CONFLICT', message: 'Conflict' } } });
         }
+        if (method === 'POST' && pathname.endsWith('/brainstorm')) {
+          return route.fulfill({
+            json: {
+              success: true,
+              data: {
+                contract_version: 'brainstorm-v1',
+                novel_id: 'novel-1',
+                story_brain_id: 'brain-1',
+                brain_version: 1,
+                world_rules: [{ rule_id: 'r-1', fact_key: 'rule_magic', text: 'Linh khí giới hạn theo vùng.', category: 'magic_system', origin: 'model_proposed', status: 'model_proposed', is_canon: false, is_historical: false }],
+                characters: [{ character_id: 'c-1', name: 'Hàn Lập', canonical_name: 'Hàn Lập', entity_type: 'character', role: 'protagonist', description: 'Đệ tử ngoại môn.', origin: 'model_proposed', status: 'model_proposed', is_canon: false, is_historical: false }],
+                future_events: [{ event_id: 'e-1', target_chapter: 2, title: 'Khảo nghiệm tông môn', text: 'Thí luyện đầu tiên.', origin: 'model_proposed', status: 'model_proposed', is_canon: false, is_historical: false }],
+                provenance: { contract_version: 'brainstorm-v1', provider: 'mock', model: 'mock', status: 'model_proposed', grounding_rules_count: 0, grounding_entities_count: 0, timestamp: '2026-11-18T00:00:00Z' }
+              }
+            }
+          });
+        }
+        if (pathname.endsWith('/ai/story-brains/novel-1/setup') || pathname.endsWith('/ai/story-brains/by-novel/novel-1')) {
+          return route.fulfill({ status: 404, json: { success: false, error: { code: 'NOT_FOUND', message: 'Not found' } } });
+        }
         let data = [];
         const novel1 = { novelId: 'novel-1', authorId: 'author-1', title: 'Kiếm Ảnh Giang Hồ', synopsis: 'Một tác phẩm thử nghiệm đủ dài hơn năm mươi ký tự cho quy tắc kiểm định.', status: 'DRAFT', serialStatus: 'ONGOING', genre: 'Kiếm hiệp', genres: ['Kiếm hiệp'], tags: [], coverImageUrl: null, viewsCount: 420, likesCount: 15, chaptersCount: 1, createdAt: '2026-11-01T00:00:00Z', updatedAt: '2026-11-02T00:00:00Z' };
         const novel2 = { novelId: 'novel-2', authorId: 'author-1', title: 'Vân Sơn Lục', synopsis: 'Một tác phẩm thử nghiệm thứ hai cho kiểm tra danh sách và bộ lọc.', status: 'PUBLISHED', serialStatus: 'COMPLETED', genre: 'Tiên hiệp', genres: ['Tiên hiệp'], tags: [], coverImageUrl: null, viewsCount: 800, likesCount: 40, chaptersCount: 5, createdAt: '2026-11-01T00:00:00Z', updatedAt: '2026-11-02T00:00:00Z' };
@@ -153,6 +272,8 @@ test('StoryCraft portaled modals, dark-mode WCAG AA contrast, WAI-ARIA tabpanels
         else if (pathname.endsWith('/novels/me')) data = [novel1, novel2];
         else if (pathname.endsWith('/novels/novel-1')) data = novel1;
         else if (pathname.endsWith('/authors/author-1/profile')) data = { authorId: 'author-1', username: 'tacgia', displayName: 'Tác giả thử', bio: 'Tiểu sử.', totalViews: 1220, totalWords: 12500, followersCount: 35, isFollowing: false, novels: [novel1, novel2] };
+        else if (pathname.endsWith('/notifications')) data = [{ notificationId: 'n-1', type: 'NOVEL_CHAPTER_PUBLISHED', status: 'UNREAD', title: 'Chương mới đã xuất bản', content: 'Chương 1 đã được duyệt.', payload: { href: '/author/novels/novel-1' }, createdAt: '2026-11-18T00:00:00Z', readAt: null }];
+        else if (pathname.endsWith('/ai/story-plans/edit-v1/novel-1')) data = { head_version: 0, active_plan_id: null, plans: [] };
         else if (pathname.endsWith('/wallet/me') || pathname.endsWith('/wallet')) data = { coinsBalance: 100 };
         else if (pathname.endsWith('/statistics')) data = { ratingAverage: 4.8, followersCount: 35, totalWords: 12500 };
         else if (pathname.endsWith('/earnings')) data = { unlockCoins: 250 };
@@ -360,6 +481,68 @@ test('StoryCraft portaled modals, dark-mode WCAG AA contrast, WAI-ARIA tabpanels
 
       await reloadModal.getByRole('button', { name: 'Hủy', exact: true }).click();
       await expect(reloadModal).toHaveCount(0);
+
+      // PR195-003 / PR195-004 / PR195-005: Semantic Mantine Button, Badge (filled/light/outline), and Alert contrast in page + portaled AnimatedModal
+      await page.goto(`${base}/palette-check`, { waitUntil: 'domcontentloaded' });
+      for (const prefix of ['page', 'modal']) {
+        if (prefix === 'modal') {
+          await page.getByTestId('open-palette-modal').click();
+          await expect(page.getByRole('dialog', { name: 'Kiểm tra bảng màu', exact: true })).toBeVisible();
+        }
+        for (const c of ['default', 'terracotta', 'teal', 'green', 'orange', 'yellow', 'red', 'gray']) {
+          const btn = page.getByTestId(`${prefix}-btn-filled-${c}`);
+          await assertElementContrast(btn, `${theme} ${prefix} filled Button color="${c}"`);
+          await btn.hover();
+          await assertElementContrast(btn, `${theme} ${prefix} filled Button hover color="${c}"`);
+          await assertElementContrast(page.getByTestId(`${prefix}-badge-filled-${c}`), `${theme} ${prefix} filled Badge color="${c}"`);
+          await assertElementContrast(page.getByTestId(`${prefix}-badge-light-${c}`), `${theme} ${prefix} light Badge color="${c}"`);
+          await assertElementContrast(page.getByTestId(`${prefix}-badge-outline-${c}`), `${theme} ${prefix} outline Badge color="${c}"`);
+        }
+        for (const c of ['default', 'red', 'orange', 'teal', 'gray']) {
+          await assertElementContrast(page.getByTestId(`${prefix}-btn-light-${c}`), `${theme} ${prefix} light Button color="${c}"`);
+        }
+        for (const c of ['default', 'red', 'gray']) {
+          await assertElementContrast(page.getByTestId(`${prefix}-btn-subtle-${c}`), `${theme} ${prefix} subtle Button color="${c}"`);
+        }
+        for (const c of ['default', 'teal', 'green', 'orange', 'yellow', 'red', 'gray']) {
+          const alert = page.getByTestId(`${prefix}-alert-${c}`);
+          await assertElementContrast(alert.locator('.mantine-Alert-title'), `${theme} ${prefix} Alert title color="${c}"`);
+          await assertElementContrast(alert.locator('.mantine-Alert-message'), `${theme} ${prefix} Alert message color="${c}"`);
+        }
+      }
+
+      // PR195-005: NotificationsPage light & outline badges
+      await page.goto(`${base}/notifications`, { waitUntil: 'domcontentloaded' });
+      const notifCard = page.getByTestId('notification-card-n-1');
+      await expect(notifCard).toBeVisible();
+      await assertElementContrast(notifCard.getByText('Mới', { exact: true }).locator('..'), `NotificationsPage ${theme} light badge`);
+      await assertElementContrast(page.getByTestId('notification-type-NOVEL_CHAPTER_PUBLISHED'), `NotificationsPage ${theme} outline badge`);
+
+      // PR195-003 / PR195-004 / PR195-005: PlanningStudio + BrainstormingModal real call sites
+      await page.goto(`${base}/author/ide?novelId=novel-1&chapterId=ch-1`, { waitUntil: 'domcontentloaded' });
+      await page.getByRole('button', { name: 'Lập kế hoạch', exact: true }).click();
+      const studio = page.getByRole('region', { name: 'Planning Studio', exact: true });
+      await expect(studio).toBeVisible();
+      await expect(studio.getByText('Chưa kích hoạt thiết lập', { exact: true })).toBeVisible();
+      await assertElementContrast(studio.getByText('Chưa kích hoạt thiết lập', { exact: true }).locator('..'), `PlanningStudio ${theme} gray filled badge`);
+      await assertElementContrast(studio.getByText('Chưa có bản thiết lập', { exact: true }).locator('..'), `PlanningStudio ${theme} light badge`);
+      await assertElementContrast(studio.getByTestId('planning-memory-from-chapters').locator('.mantine-Alert-message'), `PlanningStudio ${theme} alert message`);
+
+      await studio.getByTestId('brainstorm-open-idea-btn').click();
+      const brainstormDialog = page.getByRole('dialog', { name: 'Trợ lý AI Động não (AI Brainstorming)', exact: true });
+      await expect(brainstormDialog).toBeVisible();
+      await assertElementContrast(brainstormDialog.locator('.mantine-Alert-title').first(), `BrainstormingModal ${theme} draft-only Alert title`);
+      await brainstormDialog.getByTestId('brainstorm-submit-btn').click();
+      await expect(brainstormDialog.getByTestId('brainstorm-results-container')).toBeVisible();
+      await assertElementContrast(brainstormDialog.getByText('World Rules', { exact: true }).locator('..'), `BrainstormingModal ${theme} World Rules light badge`);
+      await assertElementContrast(brainstormDialog.getByText('magic_system', { exact: true }).locator('..'), `BrainstormingModal ${theme} teal light badge`);
+      await assertElementContrast(brainstormDialog.getByText('Characters', { exact: true }).locator('..'), `BrainstormingModal ${theme} Characters teal filled badge`);
+      await assertElementContrast(brainstormDialog.getByText('protagonist', { exact: true }).locator('..'), `BrainstormingModal ${theme} role teal filled badge`);
+      await assertElementContrast(brainstormDialog.getByText('Future Events', { exact: true }).locator('..'), `BrainstormingModal ${theme} Future Events orange light badge`);
+      await assertElementContrast(brainstormDialog.getByText('Dự kiến Chương 2', { exact: true }).locator('..'), `BrainstormingModal ${theme} outline gray badge`);
+      await assertElementContrast(brainstormDialog.getByTestId('adopt-character-btn-0'), `BrainstormingModal ${theme} teal filled Button`);
+      await assertElementContrast(brainstormDialog.getByTestId('dismiss-character-btn-0'), `BrainstormingModal ${theme} gray subtle Button`);
+
       assert.deepEqual(errors, []);
       await ctx.close();
     }
