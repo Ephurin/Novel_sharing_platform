@@ -1,6 +1,6 @@
 # Tiến độ Follow, bình luận bạn bè và góp ý riêng tác giả
 
-Cập nhật: 17/11/2026 (Asia/Bangkok). **Đã hoàn thành mốc 0 và mốc 1.** Xem phần mốc 1 để biết kết quả mới nhất; các ghi chép baseline mốc 0 được giữ làm lịch sử. Mốc 2–5 chưa triển khai.
+Cập nhật: 18/11/2026 (Asia/Bangkok). **Đã hoàn thành mốc 0–2.** Chặng 1 commit `fedb0474`; chặng 2 chưa commit. Xem phần mốc 2 để biết kết quả mới nhất; phần mốc 0/1 bên dưới là lịch sử. Mốc 3–5 chưa triển khai.
 
 ## Nơi làm việc hiện tại
 
@@ -20,12 +20,49 @@ Cập nhật: 17/11/2026 (Asia/Bangkok). **Đã hoàn thành mốc 0 và mốc 1
 | Chuẩn bị worktree/nhánh/tài liệu | Đã làm | Reader PR #186 đã merge; worktree social tại main 0e3c9b0e; plan/progress đã lưu |
 | 0. Preflight và baseline checks | Hoàn thành, có lỗi baseline | Đã xác minh DB test cô lập và cleanup; backend 52/53 test pass; web 10/10 browser test pass; build/typecheck và Android bundle pass; ghi rõ lỗi author-workflow, lệch patch Expo và giới hạn thiết bị |
 | 1. Follow, hồ sơ, API | Hoàn thành | Backend build/typecheck pass; 18/18 test pass, lượt bổ sung notification pass |
-| 2. Private comments, anchor, tag, notifications, policy | Chưa làm | Chưa sửa code tính năng |
+| 2. Private comments, anchor, tag, notifications, policy | Hoàn thành | Backend build/typecheck pass, 37/37 unit/integration tests pass trên DB cô lập; contract API đã ghi |
 | 3. Web | Chưa làm | Chưa sửa code tính năng |
 | 4. Mobile | Chưa làm | Chưa sửa code tính năng |
 | 5. Tích hợp và nghiệm thu | Chưa làm | Chưa có test evidence |
 
-## Mốc 1 — cập nhật mới nhất, thay thế trạng thái baseline bên dưới
+## Mốc 2 — hoàn thành (18/11/2026)
+
+### Hoàn thiện và Docker theo yêu cầu tiếp theo
+
+- Kiểm tra quyền reply trước lỗi feature flag để outsider không suy ra thread private khi flag tắt; edit recheck quyền trong write lock. Thêm regression assertion; **17/17 tests pass**, 0 skipped (private/comments integration và anchor unit), DB `ephurin_test_admin_backend_1794936029440`, cleanup thành công. Log `.vscode/reader-social-m2-hardening.log`.
+- Compose root truyền `PRIVATE_COMMENTS_ENABLED` với mặc định false. Override reader local `.vscode/docker-compose.reader.yml` đặt RUN_DEMO_SEED=false để giữ dữ liệu khi recreate; file này ignored, cần giữ cấu hình tương đương khi chuyển máy.
+- Đã build backend/web bằng `docker compose -p storycraft-reader -f docker-compose.yml -f .vscode/docker-compose.reader.yml build backend web` (cả hai thành công, backend compile trong image). Log `.vscode/reader-social-m2-docker-build.log`.
+- Đã `up -d --no-deps backend web`; recreate web thêm bằng `up -d --no-deps --force-recreate web` để Nginx cập nhật backend IP sau khi backend recreate (khắc phục 502 tạm thời). Stack reader 8081/4001 chạy bản mới; PostgreSQL/MongoDB volumes giữ nguyên, migration additive chạy qua entrypoint; không thao tác stack UI gốc.
+- Smoke cuối: `http://localhost:8081`, `/api/v1/health`, `/api/v1/users/search?limit=1` qua proxy đều HTTP 200; backend health trực tiếp 4001 cũng 200. Container xác nhận PRIVATE_COMMENTS_ENABLED=false; logs DB ready/API listening. Chưa bật tính năng tạo private trên runtime, UI chặng 3 chưa triển khai. Các ghi chép “chưa deploy runtime” phía dưới là trạng thái trước yêu cầu rebuild này.
+
+- Đã commit chặng 1: `fedb0474` (`feat: add reader account follow and connections APIs`). Không push.
+- Đã triển khai comment privacy, snapshot, anchor và thread/feedback APIs, public mentions, notification routing; `PRIVATE_COMMENTS_ENABLED` mặc định false trong env schema và `.env.example`. Chưa bật trên runtime/demo. Các thay đổi chặng 2 chưa commit.
+- Kết quả cuối: **37/37 pass, 0 fail, 0 skipped**, DB `ephurin_test_admin_backend_1794935756172`, runner `cleanedUp:true`, exit 0. Backend build và typecheck pass; `git diff --check` pass. Các lỗi trong lượt kiểm tra trung gian đã được giải quyết: giữ nguyên title/href public notification; giữ legacy payload replyToUserId được bỏ qua; cập nhật test review cũ từ 200 sang 409 vì mọi edit nay làm review pending lỗi thời theo yêu cầu mốc 2, vẫn kiểm tra nội dung đã sửa không bị tác động.
+- Source mới chính: `comment-privacy.ts`, `private-comments.service.ts`, `comment-threads.routes.ts`, `comment-notifications.ts`, `reading/paragraph-anchors.ts`, `private-comments.integration.test.ts`; tích hợp repository/service/schema comments, reading response và report/review policy.
+- Có unit `paragraph-anchors.test.ts`: giữ index qua divider/footnote, chèn đoạn, sửa đoạn, duplicate text và mơ hồ. HTTP matrix kiểm tra snapshot tại create/không chốt lại khi approval, SELECTED/ALL, mutual/unfollow/refollow, B/C cùng thread, own reply mất quyền, actor/author/admin không được vượt audience, media create/edit/reply bị chặn, VIP/unpublished không lộ dữ liệu, không tăng views/history chỉ do kiểm quyền, private feedback sent/received, flag-off giữ privacy, edit/retry notification dedup, public mentions và admin review view audit.
+- PostgreSQL dùng helper access không side effect; Mongo lọc audience và quyền trước pagination/count. Reply kế thừa root; immutable audience/recipients/anchor. Chỉ authorized content admin đọc private qua review và ghi audit; API người dùng không có admin bypass audience. Query mutual theo lô cho lists.
+- `getReaderChapter` trả thêm contentVersion/paragraphs từ nội dung published; anchor quote/context do server tạo. Anchor gốc bất biến; resolve trả currentParagraphId hoặc detached. Filter paragraphId dùng ID gốc; client marker cần dùng currentParagraphId khi nội dung thay đổi, theo contract.
+- Indexes Mongo additive trong `ensureCommentIndexes`; không có SQL migration mốc 2, không reset/backfill dữ liệu cũ. App cũ thiếu channel/audience vẫn chỉ public. Flag false chỉ ngăn tạo private root/reply; read/edit/delete tiếp tục policy. Không rollback sang backend cũ không hiểu audience và không chạy mixed instances khi bật private write.
+- Notification private không chứa quote/text; fan-out đủ snapshot members còn quyền, dedup key có recipient; public giữ title/type/href legacy, thêm COMMENT_MENTION và kiểm tra key cũ để không gửi lại notification trước nâng cấp.
+- Contract request/response/error, rollout và giới hạn: `docs/Implementation/reader-social-private-comments-api.md`. Chưa đổi frontend/mobile, chưa kiểm chứng UI/cache/account-switch/native runtime của các mốc sau. Không claim E2E UI từ các tests backend này.
+
+### Lệnh tái hiện mốc 2
+
+Sử dụng cấu hình runner DB cô lập reader 5433/27018 trong phần baseline, bật `RUN_COMMENT_TESTS=1`, `RUN_AUTHOR_WORKFLOW_TESTS=1`; `AI_SERVICE_URL=http://127.0.0.1:9` để không gọi live AI. Private suite bật env flag trong process test và khôi phục khi kết thúc. Từ `backend`:
+
+```powershell
+npm run build
+node scripts/run-isolated-tests.mjs src/modules/interactions/private-comments.integration.test.ts src/modules/interactions/comments.integration.test.ts src/modules/interactions/author-workflow.integration.test.ts src/modules/content-control/comment-user-report-admin-moderation.postgres.test.ts src/modules/reading/reader-workspace.postgres.test.ts src/modules/reading/reading-bookmark-entries.postgres.test.ts src/modules/reading/paragraph-anchors.test.ts
+```
+
+Log cuối local (ignored): `.vscode/reader-social-m2-final.log`. Log projection failures/AI unreachable trong fixtures là kịch bản chủ ý; kết quả assertions là 37 pass. Không chạy toàn bộ suite repo hoặc live AI.
+
+### Handoff hiện tại
+
+- Git HEAD `fedb0474` là commit chặng 1 đã yêu cầu. Worktree chứa code/tài liệu chặng 2 chưa commit; không push/deploy. Không thao tác checkout UI gốc hoặc thay dependencies qua junction.
+- Bước tiếp theo là chặng 3 Web: sử dụng contract API mới, skills StoryCraft khi làm UI; chỉ bật flag ở môi trường test có backend mới đầy đủ. Các ghi chép “chưa triển khai API”/“chỉ mốc 0” ở phần lịch sử dưới đây không còn là trạng thái hiện tại.
+
+## Mốc 1 — kết quả
 
 Hoàn thành ngày 17/11/2026 theo yêu cầu mới của người dùng. Mốc 2–5 chưa bắt đầu. Các ghi chép mốc 0 phía dưới được giữ làm lịch sử.
 

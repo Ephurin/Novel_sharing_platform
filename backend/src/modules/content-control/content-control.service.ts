@@ -1,3 +1,4 @@
+import { authorizeComment, privateComment } from '../interactions/comment-privacy.js';
 import { assertAdminPermission, audit } from '../admin/admin-access.js';
 import { resolveUserReport } from './report-resolution.js';
 import type { PoolClient } from 'pg';
@@ -180,6 +181,7 @@ export async function createUserReport(auth: AuthContext, input: CreateReportInp
     if (!comment) {
       throw new AppError(404, 'CONTENT_001', 'Comment not found');
     }
+    await authorizeComment(comment,auth,true);
     if (comment.deletedAt !== null || comment.status !== 'APPROVED') {
       throw new AppError(404, 'CONTENT_001', 'Comment not found');
     }
@@ -280,13 +282,21 @@ export async function listModerationReviews(input: ListReviewsInput) {
   };
 }
 
-export async function getModerationReview(reviewId: string) {
+export async function getModerationReview(reviewId: string, auth?: AuthContext) {
   const review = await findReviewById(reviewId);
 
   if (!review) {
     throw new AppError(404, 'ADMIN_001', 'Review item not found');
   }
 
+  if (review.target_type === 'COMMENT') {
+    const comment = await findCommentRecordById(review.target_id);
+    if (comment && privateComment(comment)) {
+      if (!auth) throw new AppError(403,'ADMIN_PERMISSION','Content review permission required');
+      await assertAdminPermission(auth,'content');
+      await withPostgresTransaction(client=>audit(client,auth,{action:'PRIVATE_COMMENT_REVIEW_VIEW',targetType:'COMMENT',targetId:review.target_id}));
+    }
+  }
   const [evidence, reportCount, reports, target] = await Promise.all([
     findModerationEvidence(review.evidence_id),
     countReportsForReview(reviewId),

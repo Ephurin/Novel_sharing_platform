@@ -2,7 +2,7 @@
 
 Ngày chốt: 17/11/2026. Repository đã khảo sát: `F:\Code\Github\Novel_sharing_platform`.
 
-Trạng thái: **Đã hoàn thành mốc 0 và mốc 1 ngày 17/11/2026. Mốc 2–5 chưa triển khai.** Kết quả chi tiết và lệnh tái hiện nằm trong progress; các ghi chép chuẩn bị/mốc 0 được giữ làm lịch sử.
+Trạng thái: **Đã hoàn thành mốc 0–2; mốc 2 hoàn thành ngày 18/11/2026. Mốc 3–5 chưa triển khai.** Chặng 1 đã commit `fedb0474`; chặng 2 chưa commit. Kết quả và lệnh tái hiện nằm trong progress; contract backend ở `reader-social-private-comments-api.md`.
 
 ## Chuẩn bị đã hoàn thành
 
@@ -174,7 +174,7 @@ Mọi path dùng `/api/v1`, envelope/pagination hiện có. Ở mốc Backend, a
 
 Kết quả mốc 0 (17/11/2026): backend/web typecheck và build pass; backend baseline 52/53 test pass, 1 lỗi author-workflow tái hiện độc lập; web 10/10 browser test pass; mobile cài theo lockfile, typecheck và Android Metro/Hermes export pass. Expo dependency check chưa đạt do lệch patch `expo`/`expo-asset`; chưa kiểm thử native trên emulator/thiết bị. Hai DB test tạm đã được dọn và kiểm tra không còn tồn tại. Xem progress để biết nguyên nhân, phạm vi bằng chứng và lệnh tái hiện.
 
-Phạm vi yêu cầu chat hiện tại chỉ là mốc 0; dừng tại checkpoint này, chưa bắt đầu mốc 1–5. Khi được giao triển khai toàn bộ, áp dụng luồng liên tục ở các phần còn lại của plan.
+Phạm vi yêu cầu chat mới nhất: commit chặng 1 và thực hiện chặng 2. Hai việc đã hoàn thành; chặng 3–5 chưa được thực hiện trong lượt này.
 
 ### Mốc 1 — Follow, hồ sơ và nền tảng API
 
@@ -186,13 +186,15 @@ Hoàn thành ngày 17/11/2026 theo yêu cầu tiếp tục mốc 1. Backend buil
 
 ### Mốc 2 — Backend bình luận, anchor và quyền riêng tư
 
-- [ ] Anchor/contentVersion từ nội dung xuất bản, helper access/VIP không side effect.
-- [ ] Audience, snapshot người nhận, policy root/reply, author feedback/thread APIs, nonpublic text validation.
-- [ ] Public tag, phân luồng notification/fan-out/idempotency và payload focus.
-- [ ] Policy trên list/detail/reply/reaction/edit/delete/report/moderation/author manage/count/notification.
-- [ ] Migration/index additive, dữ liệu cũ PUBLIC, feature flag và quy tắc tương thích app cũ.
-- [ ] Typecheck/build cùng unit/integration HTTP với PostgreSQL/MongoDB cô lập cho ma trận quyền cốt lõi.
-- [ ] Ghi contract API thực tế, ví dụ request/response/error, migration/env/flag và test evidence trước khi nối UI.
+- [x] Anchor/contentVersion từ nội dung xuất bản, helper access/VIP không side effect.
+- [x] Audience, snapshot người nhận, policy root/reply, author feedback/thread APIs, nonpublic text validation.
+- [x] Public tag, phân luồng notification/fan-out/idempotency và payload focus.
+- [x] Policy trên list/detail/reply/reaction/edit/delete/report/moderation/author manage/count/notification.
+- [x] Migration/index additive, dữ liệu cũ PUBLIC, feature flag và quy tắc tương thích app cũ.
+- [x] Typecheck/build cùng unit/integration HTTP với PostgreSQL/MongoDB cô lập cho ma trận quyền cốt lõi.
+- [x] Ghi contract API thực tế, ví dụ request/response/error, migration/env/flag và test evidence trước khi nối UI.
+
+Kiểm chứng ngày 18/11/2026: 37/37 test pass, không skipped; backend build/typecheck pass. Mongo indexes additive, `PRIVATE_COMMENTS_ENABLED=false` mặc định. Chưa bật flag/deploy runtime. UI/cache/native nghiệm thu thuộc các mốc sau. Contract anchor filter dùng ID gốc lưu trữ, output có currentParagraphId/detached để UI dựng marker sau sửa chương.
 
 ### Mốc 3 — Web
 

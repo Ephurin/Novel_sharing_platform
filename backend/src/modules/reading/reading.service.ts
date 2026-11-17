@@ -1,4 +1,5 @@
 import { isContentAdmin } from '../../core/security/auth-context.js';
+import { chapterParagraphs } from './paragraph-anchors.js';
 import { assertActiveAccount } from '../../core/security/active-account.js';
 import { AppError } from '../../core/errors/app-error.js';
 import type { AuthContext } from '../../core/security/auth-context.js';
@@ -92,11 +93,11 @@ export async function getReaderChapter(chapterId: string, auth?: AuthContext) {
 
   if (!owner) await incrementNovelViews(chapter.novelId);
   const { authorId: _authorId, ...readable } = chapter;
-  return readable;
+  return { ...readable, ...chapterParagraphs(readable.content) };
 }
 
 /** History writes must satisfy the same access policy as content reads. */
-async function assertChapterAccess(chapter: { chapterId: string; authorId: string; isVip: boolean }, auth?: AuthContext) {
+export async function assertChapterAccess(chapter: { chapterId: string; authorId: string; isVip: boolean }, auth?: AuthContext) {
   const owner = Boolean(auth && (auth.userId === chapter.authorId || isContentAdmin(auth)));
   if (auth) await assertActiveAccount(auth);
   if (chapter.isVip && !owner && (!auth || !(await userHasChapterUnlock(auth.userId, chapter.chapterId)))) {
