@@ -1073,6 +1073,10 @@ def response_schema_for(operation: str) -> dict[str, Any] | None:
             events: list[NarrativeEventOutput]
 
         return EventBatch.model_json_schema()
+    if operation == "chapter_fact_extraction":
+        from services.chapter_facts import ChapterFacts
+
+        return ChapterFacts.model_json_schema()
     if operation in {"prose_fact_extraction", "prose_fact_coverage"}:
         from services.prose_facts import ProseFacts
 
