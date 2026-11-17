@@ -18,9 +18,12 @@ These reports cover short live runs of the P2 pipeline on `main`, with `gemini-3
 | [Retest 12](P2_LIVE_RETEST12_2026-11-17.md) | ch. 12 | 10 | Y1 fixed: Lam Yên returns where she was last seen | — |
 | [R4 consistency](P2_LIVE_R4_CONSISTENCY_2026-11-17.md) | ch. 17 clean, ch. 18 with planted contradictions | 4 | Both a world-rule break and a fact contradiction caught, with no false positive. BB3: a deleted chapter kept its analysis open | #187 |
 | [Long run 5](P2_LIVE_LONGRUN5_2026-11-17.md) | ch. 13–17 back to back | 66 | Stable over 5 chapters, 11 calls per clean chapter; W1 confirmed. Name drift and idiom entities (AA1–AA3) are left for the author to review | — |
+| [UI walkthrough](P2_LIVE_UI_WALKTHROUGH_2026-11-17.md) | Author IDE demo flow in the browser, then a recheck | 9 | UI-1–UI-8: numbering after a delete, a stale failure banner, English and developer wording | #189, #190 |
 
 Analysis cost per chapter went from about 11 model calls (retests 8–9) to 6 (retests 11–12): discovery 2, verification 1, events 1, facts and world rules 1, states 1.
 
 Evidence for each run (driver events, brain growth, the chapter text) is in `evidence/retest*-2026-11-1*/`. Live was turned off at the end of every run.
 
 W1 was confirmed in the long run (ch. 15), and R4 in the consistency check. Still open: U2 in the live UI and Track B (Full auto belongs to P3).
+
+Issues the author can fix in review are listed in [P2_AUTHOR_FIXABLE_BACKLOG.md](P2_AUTHOR_FIXABLE_BACKLOG.md).
