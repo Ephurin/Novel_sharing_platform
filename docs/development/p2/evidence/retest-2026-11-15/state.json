@@ -1,0 +1,33 @@
+{
+  "novelId": "e82e5640-e77c-4c19-8e4d-b02a8375100a",
+  "g0": 1366,
+  "startedAt": "2026-11-15T12:41:01.982Z",
+  "chapters": [
+    {
+      "n": 2,
+      "chapterId": "d404ff87-1eb8-44ae-9a05-67ca8043802b",
+      "words": 1714,
+      "steps": 5,
+      "failures": 0,
+      "done": true,
+      "g0": 1366,
+      "startedAt": "2026-11-15T12:41:03.886Z",
+      "calls": 11,
+      "finishedAt": "2026-11-15T12:47:28.125Z"
+    },
+    {
+      "n": 3,
+      "chapterId": "bd43a1a7-82aa-4f33-bb78-4bbe215b91f0",
+      "words": 1676,
+      "steps": 5,
+      "failures": 0,
+      "done": true,
+      "g0": 1377,
+      "startedAt": "2026-11-15T12:47:29.758Z",
+      "calls": 16,
+      "finishedAt": "2026-11-15T12:54:24.382Z"
+    }
+  ],
+  "totalWords": 3390,
+  "skipRuns": []
+}

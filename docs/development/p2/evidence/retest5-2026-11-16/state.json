@@ -1,0 +1,21 @@
+{
+  "novelId": "e82e5640-e77c-4c19-8e4d-b02a8375100a",
+  "g0": 1488,
+  "startedAt": "2026-11-16T14:21:42.398Z",
+  "chapters": [
+    {
+      "n": 8,
+      "chapterId": "66abfdf2-59fb-4b2c-8442-a74243bd808c",
+      "words": 1447,
+      "steps": 3,
+      "failures": 0,
+      "done": true,
+      "g0": 1488,
+      "startedAt": "2026-11-16T14:21:44.832Z",
+      "calls": 24,
+      "finishedAt": "2026-11-16T14:31:04.023Z"
+    }
+  ],
+  "totalWords": 1447,
+  "skipRuns": []
+}
