@@ -71,8 +71,10 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
       const login = (await h.api('POST', '/auth/login', { identifier: email, password })).data;
       const promoted = (await h.api('POST', '/auth/become-author', {}, login.accessToken)).data;
       a = { email, password, token: promoted.accessToken || login.accessToken };
-      novel = (await h.api('POST', '/novels', { title: 'UX checkpoint tổng duyệt', synopsis: 'Offline fictional fixture' }, a.token)).data.novelId;
-      const content = 'Lâm Phong gặp Diệp Linh Nhi tại Cồn Vân. Cồn Vân có cổng đá.';
+      novel = (await h.api('POST', '/novels', { title: 'UX checkpoint tổng duyệt', synopsis: 'Offline fictional fixture for the checkpoint review, long enough for the 50-character rule.' }, a.token)).data.novelId;
+      // The extractor no longer emits noise candidates, so two minor names give the stale-409 step
+      // two unresolved occurrences to reject; they never become entities.
+      const content = 'Lâm Phong gặp Diệp Linh Nhi tại Cồn Vân. Cồn Vân có cổng đá. Trương Ba và Lý Tứ đứng xem.';
       chapter = (await h.api('POST', '/novels/' + novel + '/chapters', { title: 'Chương 1 — Cổng đá', content }, a.token)).data.chapterId;
       await f.login(a); await page.goto(f.ide(novel, chapter));
       await expect(f.editor()).toHaveValue(content);
@@ -124,7 +126,8 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
       const c = occurrence(locs[0].candidate_id);
       await c.getByRole('button', { name: /Áp dụng quyết định này/ }).click();
       await c.getByRole('button', { name: 'Xác nhận gán toàn bộ', exact: true }).click();
-      await checkpoint().getByRole('button', { name: '1', exact: true }).click();
+      // Pagination only renders above five occurrences (same rule as position()).
+      if (initial.candidates.length > 5) await checkpoint().getByRole('button', { name: '1', exact: true }).click();
       const r = await save(); assert.equal(r.status(), 200);
       const decisions = r.request().postDataJSON().decisions;
       checkQuotes(decisions); checkQuotes((await storedAudit()).reviewed_decisions);

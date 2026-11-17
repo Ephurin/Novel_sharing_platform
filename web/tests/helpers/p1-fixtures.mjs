@@ -12,7 +12,8 @@ export function fixtures(h) {
     const response = page.waitForResponse(r => r.url().endsWith('/api/v1/auth/login') && r.request().method() === 'POST');
     await page.getByRole('button', { name: 'Đăng nhập', exact: true }).click();
     assert.equal((await response).status(), 200);
-    await page.waitForURL(/\/(author|reader|admin)(?:\/|$)/);
+    // Readers now land on the public home page "/"; authors and admins on their own areas.
+    await page.waitForURL(url => /^\/(?:$|author|reader|admin)(?:\/|$)/.test(url.pathname));
   };
   const chapterState = async id => ({
     draft: await h.mongo.collection('draft_chapters').findOne({ chapterId: id }),

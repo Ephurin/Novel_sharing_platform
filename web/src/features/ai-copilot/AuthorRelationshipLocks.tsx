@@ -13,6 +13,7 @@ import {
   TextInput,
   ThemeIcon
 } from '@mantine/core';
+import { entityOptionLabel } from './event-labels';
 import { IconAlertTriangle, IconCheck, IconLock, IconLockOpen, IconRefresh } from '@tabler/icons-react';
 import {
   type MemoryEntity,
@@ -44,10 +45,11 @@ export function AuthorRelationshipLocks({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
-  // Entities mapped to select options with explicit UUIDs
+  // Same option labels as the other memory pickers: "Name (Type)", plus a short ID code only when
+  // two entities share a name. The value is still the exact entity_id.
   const entityOptions = entities.map(e => ({
     value: e.entity_id,
-    label: `${e.name} [${e.entity_type}] · ID: ${e.entity_id.slice(0, 8)}...`
+    label: entityOptionLabel(e, entities)
   }));
 
   const handleLock = () => {

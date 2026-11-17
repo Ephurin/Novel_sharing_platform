@@ -161,7 +161,9 @@ export async function entityAcceptance(h, f, x) {
     await negative('G1-409-stale-Canon', () => h.api('POST', route, { ...body, expected_brain_version: 2 }, x.a.token, [409]));
     await negative('C01-incomplete-single-edit-accept', () => h.api('POST', `/ai/proposals/${pendingEvent.proposal_id}/edit-and-accept`,
       { expected_brain_version: 1, edited_payload: pendingEvent.payload }, x.a.token, [422]));
-    await negative('atomic-rejection-incomplete-single-reject', () => h.api('POST', `/ai/proposals/${pendingEvent.proposal_id}/reject`,
+    // Live retest 10 (X3) lets an author drop one event alone (it takes only its state changes), so the
+    // atomic-rejection guard is checked on a reviewed entity that the event still references.
+    await negative('atomic-rejection-incomplete-single-reject', () => h.api('POST', `/ai/proposals/${entityProposals[0].proposal_id}/reject`,
       { reason: 'An individual member cannot decide the dependency group' }, x.a.token, [422]));
     await negative('G1-422-unknown-identity-whole-group-rollback', () => h.api('POST', route, {
       ...body, edited_payloads: { [pendingEvent.proposal_id]: { ...pendingEvent.payload, participants: [randomUUID()] } }
@@ -171,7 +173,7 @@ export async function entityAcceptance(h, f, x) {
     }, x.a.token, [422]));
     const groupCard = page.getByTestId('dependency-group-' + gid);
     const summary = 'Hai người tên Minh gặp nhau; bác sĩ mở hồ sơ.';
-    await groupCard.getByLabel('Tóm tắt sự kiện (summary)', { exact: true }).fill(summary);
+    await groupCard.getByLabel('Tóm tắt sự kiện', { exact: true }).fill(summary);
     const accepted = page.waitForResponse(r => r.url().endsWith(`/api/v1/ai/proposal-groups/${gid}/accept`) && r.request().method() === 'POST');
     await groupCard.getByTestId('btn-accept-group-' + gid).click();
     const result = await accepted; assert.equal(result.status(), 200);
