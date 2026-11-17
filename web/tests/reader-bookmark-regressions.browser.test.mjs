@@ -25,10 +25,11 @@ async function fixture(t, { role = 'READER', width = 1440, theme = 'light', cont
   const page = await context.newPage(), errors = [], requests = [], writes = [];
   page.on('pageerror', error => errors.push(error.message));
   t.after(() => assert.deepEqual(errors, []));
-  await page.addInitScript(({ role, theme }) => {
+  await page.addInitScript(({ role, theme, items }) => {
     localStorage.setItem('storycraft-theme', theme);
     if (role === 'READER') localStorage.setItem('ephurin_access_token', 'fixture-token');
-  }, { role, theme });
+    else if (items.length) localStorage.setItem('storycraft-guest-reading-bookmarks', JSON.stringify(items));
+  }, { role, theme, items });
   const chapters = contents.map((content, index) => ({ chapterId: `c-${index + 1}`, novelId: 'novel-1', chapterNumber: index + 1, title: `Chương ${index + 1}: Gió mới`, content, isVip: false, priceCoins: 0 }));
   await page.route('**/api/v1/**', async route => {
     const url = new URL(route.request().url()), method = route.request().method();
@@ -132,5 +133,39 @@ test('leading separators retain a real Tab entry, arrow navigation and stable bo
     await page.getByRole('complementary', { name: 'Công cụ đọc chương' }).getByRole('link', { name: 'Chương sau', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Chương 2: Gió mới', exact: true })).toBeVisible();
     await tabIntoProse();
+  }
+});
+
+test('a restored first bookmark retains Tab entry after blur, rerenders and reload', { timeout: 90000 }, async t => {
+  for (const [role, width, theme] of [['GUEST', 1440, 'light'], ['READER', 390, 'dark']]) {
+    for (const leadingSeparators of [false, true]) {
+      const excerpt = 'Lời mở đầu của chuyến đi.';
+      const mark = { ...savedBookmarks()[0], paragraphIndex: leadingSeparators ? 2 : 0, excerpt, endOffset: excerpt.length };
+      const content = `${leadingSeparators ? '---\n\n***\n\n> ' : ''}${excerpt}\n\nĐoạn tiếp theo.`;
+      const { page, prefix } = await fixture(t, { role, width, theme, contents: [content], items: [mark] });
+      await page.goto(`${base}${prefix}/bookmarks?novelId=novel-1`);
+      await page.locator('.sc-reading-bookmark-open').click();
+      await expect(page).toHaveURL(/bookmark=1&paragraph=/);
+      const entry = page.locator('.chapter-prose > p, .chapter-prose > blockquote').first();
+      await expect(entry).toBeFocused();
+      await expect(entry).toHaveAttribute('tabindex', '0');
+      await expect(page.locator('.sc-reading-line-flash')).toHaveCount(0);
+      await expect(page.locator('.chapter-prose > [tabindex="0"]')).toHaveCount(1);
+      const report = page.locator('.sc-reader-chapter-heading button').last();
+      await (await report.count() ? report : page.locator('.sc-reader-chapter-heading h1')).focus();
+      await page.keyboard.press('Tab');
+      await expect(entry).toBeFocused();
+      await page.keyboard.press('Enter');
+      await expect(page.getByRole('button', { name: 'Xóa bookmark', exact: true })).toBeFocused();
+      await page.keyboard.press('Escape');
+      await expect(entry).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(entry).not.toBeFocused();
+      await page.keyboard.press('Shift+Tab');
+      await expect(entry).toBeFocused();
+      await page.reload();
+      await expect(entry).toBeFocused();
+      await expect(entry).toHaveAttribute('tabindex', '0');
+    }
   }
 });

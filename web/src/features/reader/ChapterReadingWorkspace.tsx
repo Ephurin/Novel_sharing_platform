@@ -96,7 +96,6 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
     setFocusedParagraph(Math.max(0, blocks.filter(item => item.tagName !== 'HR').indexOf(block)));
     window.scrollTo({ top: Math.max(0, window.scrollY + lineTop - innerHeight * .25), behavior: 'instant' });
     block.dataset.bookmarkArrival = 'true';
-    block.setAttribute('tabindex', '-1');
     block.focus({ preventScroll: true });
     if (range) flashLine(range);
   };
