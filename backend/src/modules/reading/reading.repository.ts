@@ -1,6 +1,7 @@
 import type { QueryResultRow } from 'pg';
 import { getPostgresPool } from '../../core/database/postgres.js';
 import { readerFollowingSql } from './reader-following.sql.js';
+import type { BookmarkEntriesInput, BookmarkEntryInput } from './reading.schemas.js';
 import { withPostgresTransaction } from '../../core/database/transaction.js';
 import type {
   HistoryListInput,
@@ -142,6 +143,43 @@ export async function upsertReadingBookmark(userId: string, novelId: string, inp
 export async function deleteReadingBookmark(userId: string, novelId: string) {
   const result = await getPostgresPool().query('delete from reading_position_bookmarks where user_id = $1 and novel_id = $2', [userId, novelId]);
   return { removed: Boolean(result.rowCount) };
+}
+
+export async function listPositionBookmarks(userId: string, input: BookmarkEntriesInput, admin: boolean) {
+  const filter = `from reading_bookmark_entries b
+    join novels n on n.novel_id=b.novel_id
+    join chapters c on c.chapter_id=b.chapter_id and c.novel_id=b.novel_id
+    where b.user_id=$1 and ($2::uuid is null or b.novel_id=$2)
+      and n.status='PUBLISHED' and n.deleted_at is null and c.status='PUBLISHED' and c.deleted_at is null
+      and (not c.is_vip or n.author_id=$1 or $3 or exists (
+        select 1 from chapter_unlocks u where u.user_id=$1 and u.chapter_id=c.chapter_id))`;
+  const values = [userId, input.novelId ?? null, admin];
+  const [rows, count] = await Promise.all([
+    getPostgresPool().query(`select b.*, n.title as novel_title, n.cover_image_url, c.title as chapter_title, c.chapter_number
+      ${filter} order by b.updated_at desc, b.bookmark_id limit $4 offset $5`, [...values, input.limit, (input.page - 1) * input.limit]),
+    getPostgresPool().query(`select count(*)::int as total ${filter}`, values)
+  ]);
+  return { totalItems: count.rows[0].total as number, items: rows.rows.map(row => ({
+    bookmarkId: row.bookmark_id as string, novelId: row.novel_id as string, chapterId: row.chapter_id as string,
+    paragraphIndex: Number(row.paragraph_index), pageOffset: Number(row.page_offset), excerpt: row.excerpt as string,
+    startOffset: Number(row.start_offset), endOffset: row.end_offset == null ? null : Number(row.end_offset),
+    novelTitle: row.novel_title as string, coverImageUrl: row.cover_image_url as string | null,
+    chapterTitle: row.chapter_title as string, chapterNumber: Number(row.chapter_number), updatedAt: row.updated_at as Date
+  })) };
+}
+
+export async function savePositionBookmark(userId: string, input: BookmarkEntryInput) {
+  const result = await getPostgresPool().query(`insert into reading_bookmark_entries
+    (user_id, novel_id, chapter_id, paragraph_index, page_offset, excerpt, start_offset, end_offset) values ($1,$2,$3,$4,$5,$6,$7,$8)
+    on conflict (user_id, chapter_id, paragraph_index, start_offset) do update set
+      page_offset=excluded.page_offset, excerpt=excluded.excerpt, end_offset=excluded.end_offset, updated_at=now()
+    returning bookmark_id`, [userId, input.novelId, input.chapterId, input.paragraphIndex, input.pageOffset, input.excerpt, input.startOffset ?? 0, input.endOffset ?? null]);
+  return { bookmarkId: result.rows[0].bookmark_id as string };
+}
+
+export async function deletePositionBookmark(userId: string, bookmarkId: string) {
+  const result = await getPostgresPool().query('delete from reading_bookmark_entries where user_id=$1 and bookmark_id=$2', [userId, bookmarkId]);
+  return Boolean(result.rowCount);
 }
 
 export async function listReadingFilters() {

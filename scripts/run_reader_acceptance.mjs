@@ -21,6 +21,7 @@ const env = { ...process.env, READER_EVIDENCE_DIR: output,
   ADMIN_TEST_MONGO_URL: process.env.ADMIN_TEST_MONGO_URL || 'mongodb://127.0.0.1:27017' };
 for (const key of Object.keys(env)) if (/(?:API_KEY|PROVIDER_TOKEN)$/.test(key)) env[key] = '';
 const requiredBrowsers = [
+  'comment-notification-links.browser.test.mjs',
   'reader-chapter-workspace.browser.test.mjs',
   'reader-comments.browser.test.mjs',
   'reader-comment-moderation.browser.test.mjs',
@@ -29,7 +30,7 @@ const requiredBrowsers = [
   'reader-home-accessibility.browser.test.mjs', 'reader-home-personalization.browser.test.mjs',
   'reader-home-recovery.browser.test.mjs', 'reader-home.browser.test.mjs'
 ];
-const browserFiles = (await readdir(path.join(root, 'web/tests'))).filter(name => /^reader-.*\.browser\.test\.mjs$/.test(name)).sort();
+const browserFiles = (await readdir(path.join(root, 'web/tests'))).filter(name => /^reader-.*\.browser\.test\.mjs$/.test(name) || name === 'comment-notification-links.browser.test.mjs').sort();
 for (const name of requiredBrowsers) assert.ok(browserFiles.includes(name), `Missing Reader suite: ${name}`);
 const manifest = { testedSha: sha, sourceTree: git(['rev-parse', 'HEAD^{tree}']), cleanSource: true,
   startedAt: new Date().toISOString(), node: process.version, provider: 'fake; no live credentials', browserFiles, steps: [] };
@@ -62,6 +63,7 @@ const steps = [
   ['web-build', 'web', 'npm', ['run', 'build']],
   ['reader-postgres', 'backend', process.execPath, ['scripts/run-isolated-tests.mjs',
     'src/modules/reading/chapter-reads.postgres.test.ts', 'src/modules/reading/reader-discovery.postgres.test.ts', 'src/modules/reading/reading-lifecycle.postgres.test.ts', 'src/modules/reading/reader-workspace.postgres.test.ts',
+    'src/modules/reading/reading-bookmark-entries.postgres.test.ts',
     'src/modules/interactions/comments.integration.test.ts', 'src/modules/media/media.test.ts']],
   ['reader-browsers', 'web', process.execPath, ['--test', '--test-concurrency=1', ...browserFiles.map(name => `tests/${name}`)]],
   ['reader-contrast', 'web', process.execPath, ['--test', 'tests/contrast.test.mjs']]

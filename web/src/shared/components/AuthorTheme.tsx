@@ -130,13 +130,15 @@ export function AuthorNavbar() {
             <Link to="/" className={readerLink(path === '/')}>{navigationLabels.home}</Link>
             <Link to="/reader" className={readerLink(path === '/reader' || path.startsWith('/reader/novels') || path.startsWith('/reader/chapters') || path.startsWith('/authors/'))}>{navigationLabels.readerHome}</Link>
             <Link to="/reader/library" className={readerLink(path.startsWith('/reader/library'))}>Thư viện của tôi</Link>
+            <Link to="/reader/bookmarks" className={readerLink(path.startsWith('/reader/bookmarks'))}>Bookmark</Link>
             <Link to="/reader/history" className={readerLink(path.startsWith('/reader/history'))}>Lịch sử đọc</Link>
             <Link to="/wallet" className={readerLink(path.startsWith('/wallet'))}>{navigationLabels.readerWallet}</Link>
           </nav>
         ) : (
           <nav className="sc-global-nav" aria-label="Điều hướng chính">
             <Link to="/" className={readerLink(path === '/')}>{navigationLabels.home}</Link>
-            <Link to="/public" className={readerLink(path.startsWith('/public'))}>{navigationLabels.readerHome}</Link>
+            <Link to="/public" className={readerLink(path.startsWith('/public') && !path.startsWith('/public/bookmarks'))}>{navigationLabels.readerHome}</Link>
+            <Link to="/public/bookmarks" className={readerLink(path.startsWith('/public/bookmarks'))}>Bookmark</Link>
           </nav>
         )}
         <div className="sc-navbar-actions">
@@ -163,6 +165,7 @@ export function AuthorNavbar() {
               <Menu.Label>{name}</Menu.Label>
               <Menu.Item component={Link} to="/appeals">Quyết định &amp; khiếu nại</Menu.Item>
               <Menu.Item component={Link} to="/profile/me">Hồ sơ &amp; cài đặt</Menu.Item>
+              <Menu.Item component={Link} to="/reader/bookmarks">Bookmark</Menu.Item>
               {isWriter ? <>
                 <Menu.Item component={Link} to="/author/profile">Trang tác giả</Menu.Item>
                 <Menu.Item component={Link} to="/reader/library">Thư viện của tôi</Menu.Item>

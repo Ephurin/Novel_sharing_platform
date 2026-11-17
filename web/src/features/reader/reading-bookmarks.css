@@ -1,0 +1,21 @@
+.sc-reading-bookmarks-page { color: var(--sc-text); }
+.sc-reading-bookmark-groups { min-width: 0; width: 100%; border: 1px solid var(--sc-border); border-radius: 12px; background: var(--sc-surface); overflow: hidden; }
+.sc-reading-bookmark-groups :is(.mantine-Accordion-item, .mantine-Accordion-panel, .mantine-Accordion-content, .mantine-Stack-root) { min-width: 0; }
+.sc-reading-bookmark-groups .mantine-Accordion-control { color: var(--sc-text); min-height: 56px; }
+.sc-reading-bookmark-groups .mantine-Accordion-control:hover { background: var(--sc-surface-subtle); }
+.sc-reading-bookmark-groups .mantine-Accordion-item { border-color: var(--sc-border); }
+.sc-reading-bookmark-book { display: flex; align-items: center; gap: 12px; min-width: 0; font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+.sc-reading-bookmark-book > span { min-width: 0; }
+.sc-reading-bookmark-book img { width: 40px; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 4px; }
+.sc-reading-bookmark-book small { display: block; margin-top: 4px; color: var(--sc-text-muted); font-size: 12px; font-weight: 400; }
+.sc-reading-bookmark-entry { display: grid; grid-template-columns: minmax(0, 1fr) 36px; align-items: start; gap: 12px; min-width: 0; width: 100%; padding-block: 12px; border-top: 1px solid var(--sc-border); }
+.sc-reading-bookmark-remove { width: 36px; min-width: 36px; height: 36px; border: 1px solid var(--sc-border); border-radius: 8px; color: var(--sc-danger); background: var(--sc-danger-bg); }
+.sc-reading-bookmark-remove .material-symbols-outlined { font-size: 20px; }
+.sc-reading-bookmark-remove:hover { color: var(--sc-danger); border-color: var(--sc-danger); background: var(--sc-danger-bg); }
+.sc-reading-bookmark-remove:focus-visible { outline: 2px solid var(--sc-focus-ring); outline-offset: 2px; }
+.sc-author-theme .sc-reading-bookmark-open { flex: 1; min-width: 0; color: var(--sc-text); text-decoration: none; overflow-wrap: anywhere; }
+.sc-reading-bookmark-open > span { color: var(--sc-text-muted); font-size: 12px; }
+.sc-reading-bookmark-open p { margin: 6px 0 0; font-size: 14px; line-height: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sc-author-theme .sc-reading-bookmark-open:hover { color: var(--sc-primary-text); text-decoration: none; }
+.sc-reading-bookmark-open:focus-visible { outline: 2px solid var(--sc-focus-ring); outline-offset: 3px; border-radius: 4px; }
+@media (max-width: 767px) { .sc-reading-bookmark-entry { grid-template-columns: minmax(0, 1fr) 44px; } .sc-reading-bookmark-remove { width: 44px; min-width: 44px; height: 44px; } }
