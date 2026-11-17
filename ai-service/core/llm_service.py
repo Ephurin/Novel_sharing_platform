@@ -907,6 +907,9 @@ class LLMService:
             "Bạn là trợ lý viết tiểu thuyết chuyên nghiệp (Author AI Copilot).\n"
             "Dựa trên bối cảnh thế giới, nhân vật, phong cách và các ràng buộc của tác giả, hãy tạo nội dung viết tiếp hoặc sửa đổi phù hợp.\n"
             "Khi tác giả nêu độ dài, draft_text phải đạt đủ độ dài đó.\n"
+            "Nếu Story Brain có absent_main_characters, đó là nhân vật chính đã vắng mặt vài chương: đừng bỏ quên họ. "
+            "Khi hợp lý với cảnh, hãy cho biết họ đang ở đâu hoặc nhắc tới họ đúng với lần xuất hiện gần nhất; "
+            "không tự ý cho họ biến mất, chết hay đổi số phận.\n"
             "Chỉ trả về định dạng JSON hợp lệ:\n"
             "{\n"
             '  "draft_text": "Nội dung văn bản được sinh ra",\n'

@@ -61,11 +61,22 @@ def extract_prose_facts(text, llm, subjects=(), *, review_coverage=False, verifi
     return ground_facts(text, llm, result.facts)
 
 
+LIFE_STATUS_VALUES = frozenset({"dead", "alive"})
+
+
+def life_status_key(fact):
+    """Live retest 11 (Y2): the model wrote status="Unconscious" although status is reserved for a
+    confirmed Dead/Alive. Any other value is kept under the key condition."""
+    if fact.fact_key.strip().casefold() == "status" and str(fact.fact_value).strip().casefold() not in LIFE_STATUS_VALUES:
+        fact.fact_key = "condition"
+    return fact
+
+
 def ground_facts(text, llm, facts):
-    """Exact quotes (repaired when needed) and no repeated facts."""
+    """Exact quotes (repaired when needed), status kept for life status, and no repeated facts."""
     valid_facts = []
     seen = set()
-    for fact in facts:
+    for fact in map(life_status_key, facts):
         _, _, resolved_quote = resolve_grounded_quote(
             text,
             fact.quote,
