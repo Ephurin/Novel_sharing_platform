@@ -10,12 +10,23 @@ const labels: Record<string, string> = {
   death: 'Tử vong', ritual: 'Nghi lễ', awakening: 'Thức tỉnh', arrival: 'Đến nơi',
   confrontation: 'Đối đầu', sacrifice: 'Hy sinh', healing: 'Chữa trị', betrayal: 'Phản bội',
   alliance: 'Liên minh', decision: 'Quyết định', plan: 'Lên kế hoạch', reunion: 'Đoàn tụ',
-  power_use: 'Dùng sức mạnh', ability_use: 'Dùng năng lực', memory_loss: 'Mất ký ức'
+  power_use: 'Dùng sức mạnh', ability_use: 'Dùng năng lực', memory_loss: 'Mất ký ức',
+  // Demo walkthrough 2026-11-17: more free-form types from the live model.
+  fight: 'Giao chiến', warning: 'Cảnh báo', revival: 'Hồi sinh', threat: 'Đe dọa', chase: 'Truy đuổi',
+  entry: 'Tiến vào', 'entry forbidden zone': 'Vào vùng cấm', 'arrival or departure': 'Đến hoặc rời đi'
 };
 
-/** Vietnamese label for an event type. An unknown type is shown as words, not as a code. */
-export const eventTypeLabel = (value: string) =>
-  labels[value.toLowerCase()] ?? value.replace(/_/g, ' ').toLowerCase();
+/** Vietnamese label for an event type. A phrase such as "combat encounter" uses its first known word;
+ *  an unknown type in plain ASCII (English or Vietnamese without accents) reads "Sự kiện khác" rather
+ *  than raw model output, and an unknown Vietnamese type is shown as it is. */
+export const eventTypeLabel = (value: string) => {
+  const key = value.trim().toLowerCase();
+  if (labels[key]) return labels[key];
+  const words = key.split(/[\s_-]+/);
+  const known = words.find(w => labels[w]);
+  if (known) return labels[known];
+  return /^[\x20-\x7e]*$/.test(key) ? 'Sự kiện khác' : key.replace(/_/g, ' ');
+};
 
 const entityTypes: Record<string, string> = {
   per: 'Nhân vật', person: 'Nhân vật', character: 'Nhân vật',
@@ -55,10 +66,15 @@ export const factKeyLabel = (key: string) => {
   return factKeys[key.toLowerCase()] ?? key.replace(/_?[0-9a-f]{12,}/gi, '').replace(/_/g, ' ').trim();
 };
 
+// Demo walkthrough 2026-11-17: the Facts tab showed "Alive" while the Characters tab said "Còn sống".
+const statusValues: Record<string, string> = {
+  alive: 'Còn sống', dead: 'Đã chết', deceased: 'Đã chết', unknown: 'Chưa rõ', unconscious: 'Bất tỉnh',
+  injured: 'Bị thương', wounded: 'Bị thương', missing: 'Mất tích', captured: 'Bị bắt', imprisoned: 'Bị giam'
+};
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 /** A state value that is an entity ID (for example a location) is shown as that entity's name. */
 export const stateValueLabel = (entities: { entity_id: string; name: string }[], value: unknown) =>
-  typeof value === 'string' ? (UUID.test(value) ? entityName(entities, value) : value) : JSON.stringify(value);
+  typeof value === 'string' ? (UUID.test(value) ? entityName(entities, value) : (statusValues[value.trim().toLowerCase()] ?? value)) : JSON.stringify(value);
 
 /** Option label for picking an entity: name and type, plus a short code only when two entities share
  *  the name (for example two characters called Minh), so the author can still tell them apart. */

@@ -1558,7 +1558,7 @@ function EventItem({
         {event.participants.length > 0 && (
           <Group gap="xs">
             <Text size="xs" c="dimmed">
-              Nhân vật:
+              Liên quan:
             </Text>
             {event.participants.map((p, i) => {
               const matchedEntity = entities.find(e => e.entity_id === p);
@@ -1702,7 +1702,7 @@ function EventItem({
               {/* Editable Transitions */}
               <Stack gap="xs">
                 <Text size="xs" fw={500}>
-                  Trạng thái cập nhật đi kèm (Transitions):
+                  Cập nhật trạng thái đi kèm:
                 </Text>
                 {transitionEdits.map((tr, tIdx) => (
                   <Group key={tIdx} grow align="flex-end">
@@ -1787,7 +1787,7 @@ function EventItem({
                   }
                   loading={isSubmitting}
                 >
-                  Gửi đề xuất chỉnh sửa (Tạo proposal chờ duyệt)
+                  Gửi đề xuất chỉnh sửa để duyệt
                 </Button>
               </Group>
             </Stack>
