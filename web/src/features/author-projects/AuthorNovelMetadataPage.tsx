@@ -12,7 +12,8 @@ import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme'
 import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
 import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 import { authorHomeCrumb, navigationLabels } from '../../shared/components/navigation';
-import React, { useState, useMemo, useEffect } from 'react';
+import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
+import React, { useState, useMemo, useEffect, useId } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -95,6 +96,8 @@ export function AuthorNovelMetadataPage() {
 
   const { showToast } = useToast();
   const chaptersBodyRef = useStoryCraftAutoAnimate<HTMLTableSectionElement>();
+  const reduce = useReducedMotion();
+  const tabsGroupId = useId();
 
   // Populate edit fields
   useEffect(() => {
@@ -388,53 +391,47 @@ export function AuthorNovelMetadataPage() {
             {/* Chapter Management Workstation Section */}
             <div className="w-full bg-surface-container-lowest rounded-xl shadow-2xs border border-stone-200/80 overflow-hidden flex flex-col">
               {/* Clean Tabs Navigation */}
-              <div className="flex items-center px-6 bg-surface-container-lowest border-b border-stone-200/80">
-                <button
-                  onClick={() => {
-                    setActiveTab('all');
-                    setCurrentPage(1);
-                  }}
-                  className={`py-3 px-3.5 font-label-md text-label-md relative transition-colors flex items-center gap-2 cursor-pointer ${
-                    activeTab === 'all'
-                      ? 'text-primary-600 font-semibold border-b-2 border-primary-600'
-                      : 'text-stone-500 hover:text-stone-900 font-medium'
-                  }`}
-                  type="button"
-                >
-                  <span>Danh sách chương</span>
-                  <span className="font-label-sm text-meta bg-primary-600 text-white px-2 py-0.5 rounded-full font-bold">
-                    {chapters.length}
-                  </span>
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveTab('monetization');
-                    setCurrentPage(1);
-                  }}
-                  className={`py-3 px-3.5 font-label-md text-label-md relative transition-colors flex items-center gap-1.5 cursor-pointer ${
-                    activeTab === 'monetization'
-                      ? 'text-primary-600 font-semibold border-b-2 border-primary-600'
-                      : 'text-stone-500 hover:text-stone-900 font-medium'
-                  }`}
-                  type="button"
-                >
-                  <span>Phát hành &amp; Thu phí</span>
-                </button>
-                <button
-                  onClick={() => {
-                    setActiveTab('history');
-                    setCurrentPage(1);
-                  }}
-                  className={`py-3 px-3.5 font-label-md text-label-md relative transition-colors flex items-center gap-1.5 cursor-pointer ${
-                    activeTab === 'history'
-                      ? 'text-primary-600 font-semibold border-b-2 border-primary-600'
-                      : 'text-stone-500 hover:text-stone-900 font-medium'
-                  }`}
-                  type="button"
-                >
-                  <span>Lịch sử bản thảo</span>
-                </button>
-              </div>
+              <LayoutGroup id={tabsGroupId}>
+                <div className="flex items-center px-6 bg-surface-container-lowest border-b border-stone-200/80">
+                  {([
+                    ['all', 'Danh sách chương', chapters.length],
+                    ['monetization', 'Phát hành & Thu phí', null],
+                    ['history', 'Lịch sử bản thảo', null],
+                  ] as const).map(([key, label, badge]) => {
+                    const active = activeTab === key;
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => {
+                          setActiveTab(key);
+                          setCurrentPage(1);
+                        }}
+                        className={`py-3 px-3.5 font-label-md text-label-md relative transition-colors flex items-center gap-2 cursor-pointer ${
+                          active
+                            ? 'text-primary-600 font-semibold'
+                            : 'text-stone-500 hover:text-stone-900 font-medium'
+                        }`}
+                        type="button"
+                      >
+                        <span>{label}</span>
+                        {badge !== null && (
+                          <span className="font-label-sm text-meta bg-primary-600 text-white px-2 py-0.5 rounded-full font-bold">
+                            {badge}
+                          </span>
+                        )}
+                        {active && (
+                          <motion.span
+                            layoutId="novel-metadata-tab-indicator"
+                            aria-hidden="true"
+                            className="absolute inset-x-0 bottom-0 h-0.5 bg-primary-600"
+                            transition={reduce ? { duration: 0 } : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </LayoutGroup>
 
               {orderOpen && <ChapterOrder novelId={novelId} chapters={chapters} onClose={() => setOrderOpen(false)} />}
               {activeTab === 'history' ? <ChapterHistoryPanel chapters={chapters} /> : <>

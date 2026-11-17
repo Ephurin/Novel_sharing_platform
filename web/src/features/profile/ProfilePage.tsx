@@ -8,7 +8,9 @@ import { ImageUpload } from '../../shared/components/ImageUpload';
 import { becomeAuthor } from '../auth/auth-api';
 import { useNavigate } from 'react-router-dom';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
-import React, { useState } from 'react';
+import NumberFlow from '@number-flow/react';
+import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
+import React, { useId, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import { getAuthorProfile, getMyProfile, getMySettings, updateMyProfile, updateMySettings } from './profile-api';
@@ -38,7 +40,7 @@ function AuthorWorkCard({ novel, publicMode }: { novel: AuthorProfile['novels'][
   return (
     <article className="sc-novel-card bg-surface-container-lowest rounded-xl border border-stone-200/90 transition-all flex flex-col justify-between gap-3 group">
       <div className="flex gap-3 items-start">
-        <Link to={detailPath} className="relative w-[76px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-cover-fallback border border-stone-200/70">
+        <Link to={detailPath} className="sc-cover-hover relative w-[76px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-cover-fallback border border-stone-200/70">
           {novel.coverImageUrl ? (
             <img alt={novel.title} src={novel.coverImageUrl} className="w-full h-full object-cover" />
           ) : (
@@ -93,6 +95,9 @@ export function AuthorProfilePage() {
   const [supportMessage, setSupportMessage] = useState('');
   const { showToast: notify } = useToast();
   const [workSort, setWorkSort] = useState<WorkSort>('views');
+  const reduce = useReducedMotion();
+  const sortGroupId = useId();
+  const supportGroupId = useId();
   const queryClient = useQueryClient();
   const targetAuthorId = authorId || currentUser?.userId || '';
 
@@ -177,21 +182,34 @@ export function AuthorProfilePage() {
                 <p className="text-meta text-stone-500">{displayNovels.length.toLocaleString('vi-VN')} tác phẩm đã xuất bản</p>
               </div>
               {displayNovels.length > 1 && (
-                <div className="sc-filter-tabs flex items-center bg-stone-100 p-0.5 rounded-lg text-meta font-medium" role="group" aria-label="Sắp xếp tác phẩm">
-                  {workSortOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setWorkSort(option.value)}
-                      aria-pressed={workSort === option.value}
-                      className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
-                        workSort === option.value ? 'bg-primary-600 text-white font-semibold' : 'text-stone-600 hover:text-stone-900'
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
+                <LayoutGroup id={sortGroupId}>
+                  <div className="sc-filter-tabs flex items-center bg-stone-100 p-0.5 rounded-lg text-meta font-medium" role="group" aria-label="Sắp xếp tác phẩm">
+                    {workSortOptions.map((option) => {
+                      const active = workSort === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => setWorkSort(option.value)}
+                          aria-pressed={active}
+                          className={`relative z-10 px-3 py-1 rounded-md transition-colors cursor-pointer ${
+                            active ? 'text-white font-semibold' : 'text-stone-600 hover:text-stone-900'
+                          }`}
+                        >
+                          {active && (
+                            <motion.span
+                              layoutId="author-profile-work-sort-pill"
+                              aria-hidden="true"
+                              className="absolute inset-0 -z-10 rounded-md bg-primary-600 shadow-xs"
+                              transition={reduce ? { duration: 0 } : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                            />
+                          )}
+                          {option.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </LayoutGroup>
               )}
             </div>
 
@@ -283,22 +301,35 @@ export function AuthorProfilePage() {
             {/* Form */}
             <div className="space-y-3 text-meta">
               <label className="font-semibold text-stone-700 block">Chọn mức ủng hộ (Xu Văn Hoa):</label>
-              <div className="grid grid-cols-4 gap-2">
-                {[10, 20, 50, 100].map((amt) => (
-                  <button
-                    key={amt}
-                    type="button"
-                    onClick={() => setSupportAmount(amt)}
-                    className={`py-1.5 rounded-lg border font-semibold text-center transition-all ${
-                      supportAmount === amt
-                        ? 'border-primary-600 bg-primary-50/80 font-bold text-primary-600'
-                        : 'border-stone-200 hover:border-primary-600 hover:text-primary-600 bg-surface-container-lowest'
-                    }`}
-                  >
-                    {amt} Xu
-                  </button>
-                ))}
-              </div>
+              <LayoutGroup id={supportGroupId}>
+                <div className="grid grid-cols-4 gap-2">
+                  {[10, 20, 50, 100].map((amt) => {
+                    const active = supportAmount === amt;
+                    return (
+                      <button
+                        key={amt}
+                        type="button"
+                        onClick={() => setSupportAmount(amt)}
+                        className={`relative z-10 py-1.5 rounded-lg border font-semibold text-center transition-colors ${
+                          active
+                            ? 'border-transparent font-bold text-primary-600'
+                            : 'border-stone-200 hover:border-primary-600 hover:text-primary-600 bg-surface-container-lowest'
+                        }`}
+                      >
+                        {active && (
+                          <motion.span
+                            layoutId="author-support-amount-pill"
+                            aria-hidden="true"
+                            className="absolute inset-0 -z-10 rounded-lg border border-primary-600 bg-primary-50/80"
+                            transition={reduce ? { duration: 0 } : { duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
+                          />
+                        )}
+                        {amt} Xu
+                      </button>
+                    );
+                  })}
+                </div>
+              </LayoutGroup>
 
               <div>
                 <label className="text-meta text-stone-500 block mb-1">Hoặc số lượng tùy chỉnh:</label>
@@ -328,10 +359,25 @@ export function AuthorProfilePage() {
                 />
               </div>
 
-              <div className="flex items-center justify-between p-2 rounded-lg bg-amber-50/60 border border-amber-200/60 text-meta text-stone-600">
-                <span>
-                  Số dư khả dụng: <strong>{walletQuery.isLoading ? 'Đang tải...' : walletQuery.isError ? 'Không tải được' : `${availableCoins.toLocaleString('vi-VN')} Xu`}</strong>
-                </span>
+              <div className="flex items-center justify-between p-2.5 rounded-lg bg-amber-50/60 border border-amber-200/60 text-meta text-stone-600">
+                <div className="flex flex-col gap-0.5">
+                  <span>
+                    Số dư khả dụng: <strong>{walletQuery.isLoading ? 'Đang tải...' : walletQuery.isError ? 'Không tải được' : `${availableCoins.toLocaleString('vi-VN')} Xu`}</strong>
+                  </span>
+                  {!walletQuery.isLoading && !walletQuery.isError && (
+                    <span className="text-stone-500">
+                      Dự kiến sau ủng hộ:{' '}
+                      <strong className="text-primary-700" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                        <NumberFlow
+                          value={Math.max(0, availableCoins - (Number.isFinite(supportAmount) ? supportAmount : 0))}
+                          locales="vi-VN"
+                          animated={!reduce}
+                        />{' '}
+                        Xu
+                      </strong>
+                    </span>
+                  )}
+                </div>
                 <Link to="/wallet" className="text-primary-600 font-semibold hover:underline">
                   Nạp Xu
                 </Link>

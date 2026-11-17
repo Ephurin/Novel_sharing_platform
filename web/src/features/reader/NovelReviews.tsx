@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../auth/useAuthStore';
 import { listNovelReviews, type ReviewSort } from '../novels/novel-statistics-api';
+import { ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { EmptyState, ErrorState, LoadingState } from '../../shared/components/PageStates';
 
 const sortOptions = [
@@ -52,7 +53,7 @@ export function NovelReviews({ novelId, compact = false }: { novelId: string; co
       {reviews.isPending && <div role="status"><LoadingState label="Đang tải đánh giá…" /></div>}
       {reviews.isError && <ErrorState title="Không tải được đánh giá" error={reviews.error} onRetry={() => void reviews.refetch()} />}
       {reviews.data?.totalItems === 0 && <EmptyState title="Chưa có đánh giá" description="Nhận xét của độc giả sẽ xuất hiện tại đây." />}
-      {reviews.data && <Stack gap="md">
+      {reviews.data && <ResultsSurface identity={`${novelId}-${sort}-${page}`} busy={reviews.isFetching}><Stack gap="md">
         {reviews.data.items.map(item => <article key={item.userId} className="sc-reader-review" aria-label={`Đánh giá của ${item.displayName}`}>
           <div className="sc-reader-review-header">
             <Avatar src={item.avatarUrl} alt={`Ảnh đại diện ${item.displayName}`} radius="xl" size={40}>{item.displayName.trim().slice(0, 1).toLocaleUpperCase('vi-VN') || '?'}</Avatar>
@@ -68,7 +69,7 @@ export function NovelReviews({ novelId, compact = false }: { novelId: string; co
           <Pagination total={reviews.data.totalPages} value={page} onChange={setPage} size="sm" siblings={0} boundaries={1}
             getItemProps={item => ({ 'aria-label': `Trang ${item}` })} />
         </Group>}
-      </Stack>}
+      </Stack></ResultsSurface>}
     </section>
   </Stack>;
 }

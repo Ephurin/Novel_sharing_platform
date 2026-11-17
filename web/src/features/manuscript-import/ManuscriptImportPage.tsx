@@ -9,6 +9,8 @@ import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme'
 import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
 import { authorHomeCrumb } from '../../shared/components/navigation';
 import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
+import NumberFlow from '@number-flow/react';
+import { useReducedMotion } from 'motion/react';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -46,6 +48,7 @@ export function ManuscriptImportPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
+  const reduce = useReducedMotion();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Queries
@@ -816,15 +819,15 @@ export function ManuscriptImportPage() {
                   <div className="flex items-center gap-3 flex-wrap">
                     <div className="flex items-center gap-1.5">
                       <span className="material-symbols-outlined text-primary-600 text-[18px]">splitscreen</span>
-                      <span className="text-meta font-bold text-stone-900">
-                        {parsedChapters.length} chương được phát hiện
+                      <span className="text-meta font-bold text-stone-900" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                        <NumberFlow value={parsedChapters.length} locales="vi-VN" animated={!reduce} /> chương được phát hiện
                       </span>
                     </div>
                     <span className="text-stone-300 hidden sm:inline">•</span>
                     <div className="flex items-center gap-1 text-stone-500 text-meta">
                       <span className="material-symbols-outlined text-[16px]">notes</span>
-                      <span>
-                        {totalWords.toLocaleString()} từ
+                      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+                        <NumberFlow value={totalWords} locales="vi-VN" animated={!reduce} /> từ
                       </span>
                     </div>
                     <span className="text-stone-300 hidden sm:inline">•</span>

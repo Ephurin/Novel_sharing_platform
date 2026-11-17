@@ -26,14 +26,14 @@ type Props = {
   apply: (value: string, start: number, end: number) => void;
   undo: () => void; redo: () => void; canUndo: boolean; canRedo: boolean; save: () => Promise<void>;
   onError: (message: string) => void; exportOpen: boolean; onExportClose: () => void;
-  chapterSettings?: ReactNode; fileActions?: ReactNode;
+  chapterSettings?: ReactNode; primaryActions?: ReactNode; sidebarToggle?: ReactNode; fileActions?: ReactNode;
   formatToolbarVisible: boolean;
   onLookup?: (query: string) => void;
   onSearchNovel?: () => void;
   notesOpen: boolean; onNotesOpenChange: (open: boolean) => void;
   publishedContent?: string | null; chapterStatus?: string; onPublish?: () => void;
 };
-export function StudioWorkbench({ scope, title, content, editor, disabled, apply, undo, redo, canUndo, canRedo, save, onError, exportOpen, onExportClose, chapterSettings, fileActions, formatToolbarVisible, onLookup, onSearchNovel, notesOpen, onNotesOpenChange, publishedContent, chapterStatus, onPublish }: Props) {
+export function StudioWorkbench({ scope, title, content, editor, disabled, apply, undo, redo, canUndo, canRedo, save, onError, exportOpen, onExportClose, chapterSettings, primaryActions, sidebarToggle, fileActions, formatToolbarVisible, onLookup, onSearchNovel, notesOpen, onNotesOpenChange, publishedContent, chapterStatus, onPublish }: Props) {
   const [panel, setPanel] = useState<'search' | 'replace' | 'scenes' | null>(null);
   const [preview, setPreview] = useState(false), [statistics, setStatistics] = useState(false), [help, setHelp] = useState(false);
   const [symbolsOpen, setSymbolsOpen] = useState(false);
@@ -207,7 +207,7 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
     document.addEventListener('keydown', keydown); return () => document.removeEventListener('keydown', keydown);
   });
   return <div className="sc-studio-workbench">
-    <div className="sc-studio-command-row"><div className="sc-studio-workbench-bar" role="toolbar" aria-label="Công cụ bản thảo">
+    <div className="sc-studio-command-row"><div className="sc-studio-command-left">{sidebarToggle && <>{sidebarToggle}<span className="sc-studio-cluster-divider" aria-hidden="true" /></>}<div className="sc-studio-workbench-bar" role="toolbar" aria-label="Công cụ bản thảo">
       <Menu position="bottom-start" onCloseAutoFocus={preserveNextMenu}><Menu.Target><button type="button">Tệp</button></Menu.Target><Menu.Dropdown>
         <Menu.Item disabled={disabled || saving} onClick={() => void saveNow()}>Lưu ngay · Ctrl/Cmd + S</Menu.Item>
         {fileActions}<Menu.Divider />
@@ -255,7 +255,7 @@ export function StudioWorkbench({ scope, title, content, editor, disabled, apply
       <button type="button" aria-expanded={notesOpen} aria-controls="studio-notes-sidebar" onMouseDown={event => event.preventDefault()} onClick={() => notesOpen ? closeTools() : openNotes()}>Ghi chú</button>
       <AnimatedTooltip label="Xem trước như độc giả"><button type="button" className="sc-studio-preview-button" aria-label="Xem trước như độc giả" onClick={() => setPreview(true)}><span className="material-symbols-outlined" aria-hidden="true">visibility</span><span className="sc-studio-preview-label">Xem trước như độc giả</span></button></AnimatedTooltip>
       {!online && <span role="status" className="sc-studio-offline">Ngoại tuyến · kiểm tra trạng thái lưu trước khi rời trang</span>}
-    </div>{chapterSettings}</div>
+    </div></div>{(chapterSettings || primaryActions) && <div className="sc-studio-command-right">{chapterSettings}{chapterSettings && primaryActions && <span className="sc-studio-cluster-divider hidden md:block" aria-hidden="true" />}{primaryActions && <div className="sc-studio-command-actions">{primaryActions}</div>}</div>}</div>
     <AnimatePresence initial={false}>
       {panel && <motion.section key="studio-tool-panel" ref={panelRef} className="sc-studio-tool-panel" aria-label={panel === 'search' ? 'Tìm kiếm bản thảo' : panel === 'replace' ? 'Thay thế bản thảo' : 'Điều hướng cảnh'}
         initial={reduce ? false : { opacity: 0, height: 0, paddingTop: 0, paddingBottom: 0 }}

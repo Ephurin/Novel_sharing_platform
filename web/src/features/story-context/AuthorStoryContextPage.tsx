@@ -4,7 +4,8 @@ import { StoryBibleKnowledge } from './StoryBibleKnowledge';
 import { EntityMergeControl } from '../ai-copilot/EntityMergeControl';
 import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
 import { authorHomeCrumb } from '../../shared/components/navigation';
-import React, { useEffect, useMemo, useState } from 'react';
+import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
+import React, { useEffect, useId, useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
@@ -124,6 +125,10 @@ export function AuthorStoryContextPage() {
   const [roleFilter, setRoleFilter] = useState<RoleFilter>('ALL');
   const [characterSearch, setCharacterSearch] = useState('');
   const [notice, setNotice] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const reduce = useReducedMotion();
+  const mainTabsGroupId = useId();
+  const roleFilterGroupId = useId();
+  const characterListGroupId = useId();
 
   // Creation mode flags
   const [isCreatingCharacter, setIsCreatingCharacter] = useState(false);
@@ -573,75 +578,47 @@ export function AuthorStoryContextPage() {
         {/* ──────────────────────────────────────────
             4. Top Navigation Tabs Bar
            ────────────────────────────────────────── */}
-        <div className="flex items-center gap-2 mb-6 bg-stone-100/80 p-1 rounded-xl border border-stone-200/70 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('characters')}
-            className={`flex items-center gap-2 py-2 px-3.5 rounded-lg text-meta font-semibold transition-all whitespace-nowrap ${
-              activeTab === 'characters'
-                ? 'bg-surface-container-lowest text-primary-700 shadow-2xs border border-stone-200/60'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-surface-container-lowest/50'
-            }`}
-            type="button"
-          >
-            <span className="material-symbols-outlined text-[17px]">group</span>
-            <span>Nhân vật</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-primary-100 text-primary-800 text-meta font-bold">
-              {characters.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('relationships')}
-            className={`flex items-center gap-2 py-2 px-3.5 rounded-lg text-meta font-semibold transition-all whitespace-nowrap ${
-              activeTab === 'relationships'
-                ? 'bg-surface-container-lowest text-primary-700 shadow-2xs border border-stone-200/60'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-surface-container-lowest/50'
-            }`}
-            type="button"
-          >
-            <span className="material-symbols-outlined text-[17px]">hub</span>
-            <span>Mối quan hệ</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-stone-200 text-stone-700 text-meta font-bold">
-              {relationships.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('timeline')}
-            className={`flex items-center gap-2 py-2 px-3.5 rounded-lg text-meta font-semibold transition-all whitespace-nowrap ${
-              activeTab === 'timeline'
-                ? 'bg-surface-container-lowest text-primary-700 shadow-2xs border border-stone-200/60'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-surface-container-lowest/50'
-            }`}
-            type="button"
-          >
-            <span className="material-symbols-outlined text-[17px]">timeline</span>
-            <span>Dòng thời gian (Timeline)</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-stone-200 text-stone-700 text-meta font-bold">
-              {timelineEvents.length}
-            </span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('summaries')}
-            className={`flex items-center gap-2 py-2 px-3.5 rounded-lg text-meta font-semibold transition-all whitespace-nowrap ${
-              activeTab === 'summaries'
-                ? 'bg-surface-container-lowest text-primary-700 shadow-2xs border border-stone-200/60'
-                : 'text-stone-600 hover:text-stone-900 hover:bg-surface-container-lowest/50'
-            }`}
-            type="button"
-          >
-            <span className="material-symbols-outlined text-[17px]">menu_book</span>
-            <span>Tóm tắt hồi (Plot Summaries)</span>
-            <span className="px-1.5 py-0.2 rounded-full bg-stone-200 text-stone-700 text-meta font-bold">
-              {plotSummaries.length}
-            </span>
-          </button>
-          <button type="button" onClick={() => setActiveTab('knowledge')}
-            className={`flex items-center gap-2 py-2 px-3.5 rounded-lg text-meta font-semibold whitespace-nowrap ${activeTab === 'knowledge' ? 'bg-white text-primary-700 shadow-sm' : 'text-stone-600 hover:text-stone-900'}`}>
-            <span className="material-symbols-outlined text-[17px]" aria-hidden="true">public</span>Địa danh &amp; dữ kiện
-          </button>
-        </div>
+        <LayoutGroup id={mainTabsGroupId}>
+          <div className="flex items-center gap-2 mb-6 bg-stone-100/80 p-1 rounded-xl border border-stone-200/70 overflow-x-auto">
+            {([
+              { key: 'characters' as const, icon: 'group', label: 'Nhân vật', count: characters.length, activeBadge: 'bg-primary-100 text-primary-800' },
+              { key: 'relationships' as const, icon: 'hub', label: 'Mối quan hệ', count: relationships.length, activeBadge: 'bg-stone-200 text-stone-700' },
+              { key: 'timeline' as const, icon: 'timeline', label: 'Dòng thời gian (Timeline)', count: timelineEvents.length, activeBadge: 'bg-stone-200 text-stone-700' },
+              { key: 'summaries' as const, icon: 'menu_book', label: 'Tóm tắt hồi (Plot Summaries)', count: plotSummaries.length, activeBadge: 'bg-stone-200 text-stone-700' },
+              { key: 'knowledge' as const, icon: 'public', label: 'Địa danh & dữ kiện', count: null, activeBadge: '' },
+            ]).map((tab) => {
+              const active = activeTab === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`relative z-10 flex items-center gap-2 py-2 px-3.5 rounded-lg text-meta font-semibold transition-colors whitespace-nowrap ${
+                    active
+                      ? 'text-primary-700'
+                      : 'text-stone-600 hover:text-stone-900 hover:bg-surface-container-lowest/50'
+                  }`}
+                  type="button"
+                >
+                  {active && (
+                    <motion.span
+                      layoutId="story-context-main-tab-pill"
+                      aria-hidden="true"
+                      className="absolute inset-0 -z-10 rounded-lg bg-surface-container-lowest shadow-2xs border border-stone-200/60"
+                      transition={reduce ? { duration: 0 } : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                    />
+                  )}
+                  <span className="material-symbols-outlined text-[17px]" aria-hidden="true">{tab.icon}</span>
+                  <span>{tab.label}</span>
+                  {tab.count !== null && (
+                    <span className={`px-1.5 py-0.2 rounded-full text-meta font-bold ${tab.activeBadge}`}>
+                      {tab.count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </LayoutGroup>
 
         {/* ──────────────────────────────────────────
             TAB 1: CHARACTERS WORKSPACE (Two Columns)
@@ -686,32 +663,46 @@ export function AuthorStoryContextPage() {
               </div>
 
               {/* Role filter chips */}
-              <div className="flex flex-wrap gap-1 text-meta">
-                {(
-                  [
-                    { key: 'ALL', label: `Tất cả (${characters.length})` },
-                    { key: 'PROTAGONIST', label: 'Tuyến chính' },
-                    { key: 'SUPPORTING', label: 'Tuyến phụ' },
-                    { key: 'ANTAGONIST', label: 'Phản diện' }
-                  ] as { key: RoleFilter; label: string }[]
-                ).map((rf) => (
-                  <button
-                    key={rf.key}
-                    onClick={() => setRoleFilter(rf.key)}
-                    type="button"
-                    className={`px-2 py-0.5 rounded-full font-medium transition-colors ${
-                      roleFilter === rf.key
-                        ? 'bg-primary-600 text-white font-semibold'
-                        : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-                    }`}
-                  >
-                    {rf.label}
-                  </button>
-                ))}
-              </div>
+              <LayoutGroup id={roleFilterGroupId}>
+                <div className="flex flex-wrap gap-1 text-meta">
+                  {(
+                    [
+                      { key: 'ALL', label: `Tất cả (${characters.length})` },
+                      { key: 'PROTAGONIST', label: 'Tuyến chính' },
+                      { key: 'SUPPORTING', label: 'Tuyến phụ' },
+                      { key: 'ANTAGONIST', label: 'Phản diện' }
+                    ] as { key: RoleFilter; label: string }[]
+                  ).map((rf) => {
+                    const active = roleFilter === rf.key;
+                    return (
+                      <button
+                        key={rf.key}
+                        onClick={() => setRoleFilter(rf.key)}
+                        type="button"
+                        className={`relative z-10 px-2 py-0.5 rounded-full font-medium transition-colors ${
+                          active
+                            ? 'text-white font-semibold'
+                            : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                        }`}
+                      >
+                        {active && (
+                          <motion.span
+                            layoutId="story-context-role-pill"
+                            aria-hidden="true"
+                            className="absolute inset-0 -z-10 rounded-full bg-primary-600"
+                            transition={reduce ? { duration: 0 } : { duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
+                          />
+                        )}
+                        {rf.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </LayoutGroup>
 
               {/* Characters List Cards */}
-              <div className="flex flex-col gap-2 max-h-[750px] overflow-y-auto pr-0.5">
+              <LayoutGroup id={characterListGroupId}>
+                <div className="flex flex-col gap-2 max-h-[750px] overflow-y-auto pr-0.5">
                 {isCreatingCharacter && (
                   <div className="p-2.5 rounded-xl border border-dashed border-emerald-400 bg-emerald-50/70 shadow-2xs relative">
                     <div className="absolute left-0 top-2.5 bottom-2.5 w-1 bg-emerald-600 rounded-r-full"></div>
@@ -753,7 +744,12 @@ export function AuthorStoryContextPage() {
                       }`}
                     >
                       {isSelected && (
-                        <div className="absolute left-0 top-2.5 bottom-2.5 w-1 bg-primary-600 rounded-r-full"></div>
+                        <motion.div
+                          layoutId="story-context-selected-char-bar"
+                          aria-hidden="true"
+                          className="absolute left-0 top-2.5 bottom-2.5 w-1 bg-primary-600 rounded-r-full"
+                          transition={reduce ? { duration: 0 } : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                        />
                       )}
                       <div className="flex items-center gap-3 pl-1">
                         <div className="w-11 h-12 rounded-lg overflow-hidden shrink-0 shadow-2xs bg-stone-100 border border-stone-200/50">
@@ -798,6 +794,7 @@ export function AuthorStoryContextPage() {
                   </div>
                 )}
               </div>
+              </LayoutGroup>
             </div>
 
             {/* Right Editor: Detailed Character Inspector (lg: col-span-8) */}

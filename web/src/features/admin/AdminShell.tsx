@@ -1,5 +1,6 @@
 import { SessionMarker } from '../../shared/components/AuthorTheme';
-import { useState } from 'react';
+import { useId, useState } from 'react';
+import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { Button } from '@mantine/core';
 import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
@@ -36,6 +37,8 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
   const user = useAuthStore((state) => state.user);
   const location = useLocation();
   const [opened, setOpened] = useState(false);
+  const reduce = useReducedMotion();
+  const navGroupId = useId();
   const access = useAdminAccess();
   const can = (path: string) => {
     const permissions = access.data?.permissions || [];
@@ -81,21 +84,35 @@ export function AdminShell({ onLogout }: { onLogout: () => void }) {
           <span>Quản trị</span>
         </Link>
         <p className="admin-nav-label">Quản lý hệ thống</p>
-        <nav>
-          {navigation
-            .filter(([path]) => can(path))
-            .map(([path, icon, label]) => (
-              <NavLink
-                key={path}
-                to={path}
-                end={path === '/admin'}
-                onClick={() => setOpened(false)}
-              >
-                <AdminIcon name={icon} />
-                {label}
-              </NavLink>
-            ))}
-        </nav>
+        <LayoutGroup id={navGroupId}>
+          <nav>
+            {navigation
+              .filter(([path]) => can(path))
+              .map(([path, icon, label]) => (
+                <NavLink
+                  key={path}
+                  to={path}
+                  end={path === '/admin'}
+                  onClick={() => setOpened(false)}
+                >
+                  {({ isActive }) => (
+                    <>
+                      {isActive && (
+                        <motion.span
+                          layoutId="admin-sidebar-active-pill"
+                          className="admin-nav-pill"
+                          aria-hidden="true"
+                          transition={reduce ? { duration: 0 } : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                        />
+                      )}
+                      <AdminIcon name={icon} />
+                      <span>{label}</span>
+                    </>
+                  )}
+                </NavLink>
+              ))}
+          </nav>
+        </LayoutGroup>
         {access.data?.permissions.includes('content') && <div className="admin-sidebar-footer">
           <Link to="/author">
             <AdminIcon name="open_in_new" />

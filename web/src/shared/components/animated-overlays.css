@@ -12,6 +12,10 @@
   font: 400 14px/20px var(--sc-font);
   box-shadow: 0 4px 12px var(--sc-overlay);
 }
+.sc-animated-menu[data-state="closed"],
+[data-radix-popper-content-wrapper]:has(> .sc-animated-menu[data-state="closed"]) {
+  pointer-events: none;
+}
 .sc-animated-menu-item {
   display: flex;
   align-items: center;

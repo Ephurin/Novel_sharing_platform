@@ -155,7 +155,26 @@
 .sc-author-theme .sc-novel-card { box-shadow: none; padding: 16px; }
 .sc-author-theme .sc-novel-card a[class*="font-bold"] { font-size: 16px; font-weight: 600; line-height: 24px; }
 .sc-author-theme .sc-novel-card:hover { border-color: rgb(var(--sc-primary-rgb) / .5); }
-.sc-author-theme .sc-studio-toolbar { min-height: 56px; height: auto; gap: 12px; padding-block: 8px; flex-wrap: wrap; }
+.sc-author-theme .sc-studio-toolbar { min-height: 48px; height: auto; gap: 12px; padding-block: 6px; flex-wrap: nowrap; }
+.sc-author-theme .sc-studio-toolbar > div:first-child { flex: 0 1 auto; min-width: 0; }
+.sc-author-theme .sc-studio-toolbar-center { flex: 0 0 auto; display: flex; justify-content: center; margin-inline: auto; }
+.sc-author-theme .sc-studio-toolbar-center:empty { display: none; }
+.sc-author-theme .sc-studio-tool-cluster { display: inline-flex; align-items: center; gap: 4px; padding: 3px 6px; border: 1px solid var(--sc-border); border-radius: 10px; background: var(--sc-surface); max-width: 100%; }
+.sc-author-theme .sc-studio-word-count { align-items: center; gap: 5px; padding-inline: 6px 4px; color: var(--sc-text-muted); font-size: 12px; font-weight: 500; white-space: nowrap; }
+.sc-author-theme .sc-studio-cluster-divider { width: 1px; height: 16px; background: var(--sc-border); flex-shrink: 0; margin-inline: 2px; }
+.sc-author-theme .sc-studio-tool-cluster .mantine-ActionIcon-root { min-height: 30px; width: 30px; height: 30px; border-radius: 7px; }
+.sc-author-theme .sc-studio-tool-buttons { display: inline-flex; align-items: center; gap: 2px; }
+.sc-author-theme .sc-studio-cluster-btn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-height: 30px; height: 30px; padding: 4px 8px; border-radius: 7px; color: var(--sc-text); font-size: 12px; font-weight: 500; line-height: 18px; white-space: nowrap; transition: background-color .15s ease, color .15s ease; }
+.sc-author-theme .sc-studio-cluster-btn.is-icon { width: 30px; padding: 0; }
+.sc-author-theme .sc-studio-cluster-btn:hover { background: var(--sc-primary-soft); color: var(--sc-primary-text); }
+.sc-author-theme .sc-studio-toolbar > div:last-child button,
+.sc-author-theme .sc-studio-toolbar > div:first-child > a { min-height: 32px; }
+@media (min-width: 1560px) {
+  .sc-author-theme .sc-studio-toolbar { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; }
+  .sc-author-theme .sc-studio-toolbar > div:first-child { justify-self: start; max-width: 100%; }
+  .sc-author-theme .sc-studio-toolbar-center { justify-self: center; margin-inline: 0; }
+  .sc-author-theme .sc-studio-toolbar > div:last-child { justify-self: end; }
+}
 .sc-author-theme .sc-manuscript { font-family: var(--sc-font); transition: none; }
 .sc-author-theme textarea.sc-manuscript:focus { outline: none; box-shadow: none; }
 .sc-author-theme .sc-writing-studio input.sc-chapter-title { font-size: 24px; line-height: 32px; }
@@ -283,6 +302,8 @@
   .sc-sidebar-backdrop { display: block; position: absolute; inset: 0; background-color: rgb(0 0 0 / .3); backdrop-filter: blur(1px); z-index: 25; }
   .sc-author-theme .sc-studio-sidebar { position: absolute; inset: 0 auto 0 0; width: min(280px, 85vw); box-shadow: 8px 0 24px rgb(var(--sc-text-rgb) / .12); z-index: 30; }
   .sc-writing-studio > section { height: auto; min-height: 44px; flex-wrap: wrap; gap: 8px; padding-block: 8px; }
+  .sc-author-theme .sc-studio-toolbar { flex-wrap: wrap; }
+  .sc-author-theme .sc-studio-toolbar-center { order: 3; width: 100%; justify-content: center; }
 }
 @media (max-width: 640px) {
   .sc-navbar-inner { padding: 8px 16px; }
@@ -290,7 +311,7 @@
   .sc-nav-link { font-size: 13px; padding-inline: 10px; }
   .sc-continue { padding-inline: 8px; }
   .sc-author-theme h1 { font-size: 22px; line-height: 30px; }
-  .sc-author-theme .sc-studio-toolbar { align-items: flex-start; }
+  .sc-author-theme .sc-studio-toolbar { align-items: flex-start; flex-wrap: wrap; }
   .sc-author-theme .sc-studio-toolbar > div:last-child { max-width: 100%; flex-shrink: 1; flex-wrap: wrap; }
   .sc-shell-content { padding: 16px; }
   .sc-author-theme .sc-manuscript { padding-inline: 16px; }
