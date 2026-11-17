@@ -99,7 +99,7 @@ test('setup mounted form: real browser, mocked HTTP submit/reload/conflict/unava
     failure=503;
     await page.getByLabel('Thiết lập rõ ràng (tùy chọn)').fill('Unsupported natural prose');
     await page.getByRole('button',{name:'Lưu và xử lý thiết lập'}).click();
-    await expect(page.getByRole('alert').filter({hasText:'SETUP_EXTRACT_PROVIDER_UNAVAILABLE'})).toBeVisible();
+    await expect(page.getByRole('alert').filter({hasText:'Dịch vụ AI tạm thời không phản hồi'})).toBeVisible();
     await expect(page.getByText('Đã lưu bản thiết lập chờ duyệt.',{exact:true})).toHaveCount(0);
   } finally {await browser.close();await new Promise(resolve=>server.close(resolve));}
 });
@@ -160,7 +160,7 @@ test('setup account/novel switches clear sources, operation keys and late replie
     assert.equal(submissions[1].body.expected_setup_version,0);
     assert.notEqual(submissions[1].body.idempotency_key,submissions[0].body.idempotency_key);
     assert.ok(!JSON.stringify(submissions[1]).includes('Owner A'));
-    await expect(page.getByRole('alert').filter({hasText:'SETUP_EXTRACT_PROVIDER_UNAVAILABLE'})).toBeVisible();
+    await expect(page.getByRole('alert').filter({hasText:'Dịch vụ AI tạm thời không phản hồi'})).toBeVisible();
     const count=reads.length;releasePost();await latePostFailure;
     await page.getByRole('button',{name:'Novel B',exact:true}).click();
     await expect(page.getByLabel('Thiết lập rõ ràng (tùy chọn)')).toHaveValue('');

@@ -17,9 +17,9 @@ test('labels hide codes, hashes and IDs', () => {
 });
 
 test('a short code is shown only for entities that share a name', () => {
-  const a = { entity_id: 'aaaaaa11-0000-4000-8000-000000000000', name: 'Minh', entity_type: 'PER' };
-  const b = { entity_id: 'bbbbbb22-0000-4000-8000-000000000000', name: 'minh', entity_type: 'PER' };
+  const a = { entity_id: '00000000-0000-4000-8000-0000000aaaaa', name: 'Minh', entity_type: 'PER' };
+  const b = { entity_id: '00000000-0000-4000-8000-0000000bbbbb', name: 'minh', entity_type: 'PER' };
   const c = { entity_id: 'cccccc33-0000-4000-8000-000000000000', name: 'Lam Yên', entity_type: 'PER' };
-  assert.equal(entityOptionLabel(a, [a, b, c]), 'Minh (Nhân vật) · #aaaaaa');
+  assert.equal(entityOptionLabel(a, [a, b, c]), 'Minh (Nhân vật) · #0aaaaa');
   assert.equal(entityOptionLabel(c, [a, b, c]), 'Lam Yên (Nhân vật)');
 });

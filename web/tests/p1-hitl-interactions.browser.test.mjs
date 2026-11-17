@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
-import { chromium } from '@playwright/test';
+import { chromium, expect } from '@playwright/test';
 
 test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 180000 }, async (t) => {
   // 1. Bundle test fixture using esbuild
@@ -441,7 +441,7 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
 
       // Legacy resolution box must be displayed with FE-08 warning
       await page.waitForSelector('[data-testid="box-legacy-resolution"]');
-      await page.waitForSelector('text=Yêu cầu ánh xạ danh tính chính xác (FE-08)');
+      await page.waitForSelector('text=Cần xác định nhân vật:');
 
       // The submit button MUST BE DISABLED because legacy participant "Minh" is unresolved (FE-08 fail closed)
       const submitBtn = page.locator('[data-testid="btn-submit-correction-ev-test-1"]');
@@ -450,12 +450,12 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
       // Step 1: Explicitly resolve "Minh" by selecting "ent-minh-a" (Bác sĩ Minh) from dropdown
       const legacySelect = page.locator('[data-testid="select-resolve-legacy-Minh"]');
       await legacySelect.click();
-      await page.locator('[role="option"]:has-text("ent-minh-a"), .mantine-Select-option:has-text("ent-minh-a")').first().click({ force: true });
+      await page.locator('[role="option"]:has-text("#minh-a"), .mantine-Select-option:has-text("#minh-a")').first().click({ force: true });
       assert.equal(await submitBtn.isDisabled(), false, 'Submit button must be enabled after resolving legacy participant to Minh-A');
 
       // Step 2 (FE-12): Change mapping from Minh-A to Minh-B
       await legacySelect.click();
-      await page.locator('[role="option"]:has-text("ent-minh-b"), .mantine-Select-option:has-text("ent-minh-b")').first().click({ force: true });
+      await page.locator('[role="option"]:has-text("#minh-b"), .mantine-Select-option:has-text("#minh-b")').first().click({ force: true });
       assert.equal(await submitBtn.isDisabled(), false, 'Submit button must be enabled after changing to Minh-B');
 
       // Step 3 (FE-12): Test Clear functionality -> must immediately fail closed
@@ -465,7 +465,7 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
 
       // Step 4 (FE-12): Select Minh-B after clear
       await legacySelect.click();
-      await page.locator('[role="option"]:has-text("ent-minh-b"), .mantine-Select-option:has-text("ent-minh-b")').first().click({ force: true });
+      await page.locator('[role="option"]:has-text("#minh-b"), .mantine-Select-option:has-text("#minh-b")').first().click({ force: true });
       assert.equal(await submitBtn.isDisabled(), false, 'Selecting Minh-B re-enables submit');
 
       // Step 5: Submit correction and verify network payload contains ONLY Thai and Minh-B (no ghost Minh-A!)
@@ -556,7 +556,7 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
       // Group 2 is a single-proposal group: its "Loại đề xuất" button must be ENABLED
       const singleGroupCard = page.locator('[data-testid="dependency-group-group-single-1"]');
       const singletonRejectBtn = singleGroupCard.locator('[data-testid^="btn-reject-proposal-"]').first();
-      assert.equal(await singletonRejectBtn.isDisabled(), false, 'Singleton proposal rejection must be enabled');
+      await expect(singletonRejectBtn, 'Singleton proposal rejection must be enabled').toBeEnabled();
     });
 
     // ──────────────────────────────────────────
@@ -594,17 +594,17 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
       await page.waitForSelector('text=Nhóm phụ thuộc');
 
       // For entity proposal: initial_status select must NOT exist
-      const entitySection = page.locator('div.mantine-Paper-root:has-text("entity")');
+      const entitySection = page.locator('div.mantine-Paper-root').filter({ has: page.getByLabel(/^Tên chuẩn$/) }).last();
       const initialStatusSelect = entitySection.locator('input[placeholder*="initial_status"], select[name="initial_status"]');
       assert.equal(await initialStatusSelect.count(), 0, 'initial_status editing must not exist in entity proposal');
 
       // canonical_name input must exist
-      const canonicalNameInput = entitySection.getByLabel(/Tên chuẩn thực thể/i);
+      const canonicalNameInput = entitySection.getByLabel(/^Tên chuẩn$/);
       assert.ok(await canonicalNameInput.isVisible(), 'canonical_name input must be present');
 
       // For fact proposal: fact_value is typed as number 42
-      const factSection = page.locator('div.mantine-Paper-root:has-text("fact")');
-      const factValueInput = factSection.getByLabel(/Giá trị dữ kiện/i);
+      const factSection = page.locator('div.mantine-Paper-root').filter({ has: page.getByLabel(/^Giá trị$/) }).last();
+      const factValueInput = factSection.getByLabel(/^Giá trị$/);
       assert.equal(await factValueInput.inputValue(), '42');
     });
 
@@ -755,7 +755,7 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
       await page.waitForSelector('text=Nhóm phụ thuộc');
 
       // Edit canonical name of proposal in group 1
-      const canonicalNameInput = page.getByLabel(/Tên chuẩn thực thể/i).first();
+      const canonicalNameInput = page.getByLabel(/^Tên chuẩn$/).first();
       await canonicalNameInput.fill('Minh Thái trigger-409');
 
       // Verify "Đã chỉnh sửa bởi tác giả" badge appears
@@ -789,7 +789,7 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
       await page.waitForSelector('text=Nhóm phụ thuộc');
 
       // Edit canonical name of entity proposal in group 1
-      const canonicalNameInput = page.getByLabel(/Tên chuẩn thực thể/i).first();
+      const canonicalNameInput = page.getByLabel(/^Tên chuẩn$/).first();
       await canonicalNameInput.fill('Minh Custom Edit For Rejection');
       await page.waitForSelector('text=Đã chỉnh sửa bởi tác giả');
 

@@ -45,7 +45,9 @@ function Editor({novelId,lastWrittenChapter=0,onServerChange,onRegisterEventAdop
  async function reload(id?:string,replace=false):Promise<boolean>{
   scope.assertCurrent();const signal=scope.signal;setPending(true);
   try{
-   const data=(await apiClient.get<ApiEnvelope<Plans>>(path,{signal})).data.data;if(signal.aborted)return false;
+   // A missing plan list (no plan yet, or an empty answer) must not blank the whole memory panel.
+   const raw=(await apiClient.get<ApiEnvelope<Plans|null>>(path,{signal})).data.data;if(signal.aborted)return false;
+   const data:Plans=raw&&Array.isArray(raw.plans)?raw:{head_version:raw?.head_version??0,active_plan_id:null,plans:[]};
    scope.assertCurrent();setList(data);setLoaded(true);
    let preferred=id;
    if(preferred===undefined)try{preferred=localStorage.getItem(key+':selection')??undefined;}catch{}
