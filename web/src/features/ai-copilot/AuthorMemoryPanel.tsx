@@ -41,7 +41,7 @@ import { createChapterSnapshot, listChapterRevisions } from './ai-copilot-api';
 import { AuthorMemoryRepair } from './AuthorMemoryRepair';
 import { usePendingMemoryReviews } from './pending-memory-reviews';
 import { EntityMergeControl } from './EntityMergeControl';
-import { brainStatusLabel, entityName, entityOptionLabel, eventTypeLabel, factKeyLabel } from './event-labels';
+import { brainStatusLabel, entityName, entityOptionLabel, eventTypeLabel, factKeyLabel, stateValueLabel } from './event-labels';
 import { fullAutoBlockReason } from './full-auto-gate';
 import {
   activateBaseline,
@@ -786,11 +786,11 @@ function ScopedAuthorMemoryPanel({
                   </Group>
                   <Text size="xs" style={{ whiteSpace: 'pre-wrap' }}>
                     {typeof fact.fact_value === 'string'
-                      ? fact.fact_value
+                      ? stateValueLabel(memory.data?.entities ?? [], fact.fact_value)
                       : JSON.stringify(fact.fact_value, null, 2)}
                   </Text>
                   <Text size="xs" c="dimmed">
-                    Chương {String(fact.chapter_number ?? '—')} · {entityName(memory.data?.entities ?? [], fact.subject_entity_id)}
+                    {fact.chapter_number ? `Chương ${String(fact.chapter_number)}` : 'Thiết lập ban đầu'} · {entityName(memory.data?.entities ?? [], fact.subject_entity_id)}
                   </Text>
                 </Card>
               ))}
@@ -1586,8 +1586,8 @@ function EventItem({
                 const entity = entities.find(e => e.entity_id === t.entity_id);
                 return (
                   <Text key={idx} size="xs">
-                    • {entity ? entity.name : t.entity_id} → {t.attribute_key}:{' '}
-                    {typeof t.new_value === 'string' ? t.new_value : JSON.stringify(t.new_value)}
+                    • {entity ? entity.name : entityName(entities, t.entity_id)} → {factKeyLabel(t.attribute_key)}:{' '}
+                    {stateValueLabel(entities, t.new_value)}
                   </Text>
                 );
               })}
@@ -1600,7 +1600,7 @@ function EventItem({
           <Paper p="xs" withBorder radius="sm" mt="xs">
             <Stack gap="xs">
               <Text size="xs" fw={600}>
-                Tạo đề xuất chỉnh sửa sự kiện (Event Correction Proposal):
+                Tạo đề xuất chỉnh sửa sự kiện:
               </Text>
               <Text size="xs" c="dimmed">
                 Lưu ý: Thao tác này tạo một đề xuất chỉnh sửa đang chờ duyệt. Đề xuất này chưa vào bộ nhớ truyện
