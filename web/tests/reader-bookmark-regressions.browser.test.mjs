@@ -19,17 +19,21 @@ const savedBookmarks = () => paragraphs.slice(0, 51).map((excerpt, paragraphInde
   chapterTitle: 'Chương 1: Gió mới', chapterNumber: 1, updatedAt: '2026-11-17T00:00:00Z', coverImageUrl: null
 }));
 
-async function fixture(t, { role = 'READER', width = 1440, theme = 'light', contents = [paragraphs.join('\n\n')], items = [], pageTwo } = {}) {
+async function fixture(t, { role = 'READER', width = 1440, theme = 'light', contents = [paragraphs.join('\n\n')], items = [], pageTwo, legacyBookmark, initialSearch = '' } = {}) {
   const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: 'reduce' });
   t.after(() => context.close());
   const page = await context.newPage(), errors = [], requests = [], writes = [];
   page.on('pageerror', error => errors.push(error.message));
   t.after(() => assert.deepEqual(errors, []));
-  await page.addInitScript(({ role, theme, items }) => {
+  await page.addInitScript(({ role, theme, items, legacyBookmark }) => {
     localStorage.setItem('storycraft-theme', theme);
     if (role === 'READER') localStorage.setItem('ephurin_access_token', 'fixture-token');
     else if (items.length) localStorage.setItem('storycraft-guest-reading-bookmarks', JSON.stringify(items));
-  }, { role, theme, items });
+    if (legacyBookmark && !localStorage.getItem('fixture-legacy-bookmark-seeded')) {
+      localStorage.setItem('fixture-legacy-bookmark-seeded', '1');
+      localStorage.setItem(`storycraft-workspace:guest:reading-bookmark:${legacyBookmark.novelId}`, JSON.stringify(legacyBookmark));
+    }
+  }, { role, theme, items, legacyBookmark });
   const chapters = contents.map((content, index) => ({ chapterId: `c-${index + 1}`, novelId: 'novel-1', chapterNumber: index + 1, title: `Chương ${index + 1}: Gió mới`, content, isVip: false, priceCoins: 0 }));
   await page.route('**/api/v1/**', async route => {
     const url = new URL(route.request().url()), method = route.request().method();
@@ -55,7 +59,7 @@ async function fixture(t, { role = 'READER', width = 1440, theme = 'light', cont
     await route.fulfill({ json: { success: true, data, meta } });
   });
   const prefix = role === 'READER' ? '/reader' : '/public';
-  await page.goto(`${base}${prefix}/chapters/c-1`);
+  await page.goto(`${base}${prefix}/chapters/c-1${initialSearch}`);
   await expect(page.getByRole('article', { name: 'Nội dung chương' })).toBeVisible();
   return { page, requests, writes, items: () => items, prefix };
 }
@@ -166,6 +170,56 @@ test('a restored first bookmark retains Tab entry after blur, rerenders and relo
       await page.reload();
       await expect(entry).toBeFocused();
       await expect(entry).toHaveAttribute('tabindex', '0');
+    }
+  }
+});
+
+test('a first legacy guest link restores the migrated position without a reload', { timeout: 60000 }, async t => {
+  for (const [width, theme] of [[1440, 'light'], [390, 'dark']]) {
+    const legacyBookmark = { novelId: 'novel-1', chapterId: 'c-1', paragraphIndex: 30, pageOffset: .2, updatedAt: '2026-11-17T00:00:00Z' };
+    const { page } = await fixture(t, { role: 'GUEST', width, theme, legacyBookmark, initialSearch: '?bookmark=1' });
+    const target = page.locator('.chapter-prose > p').nth(30);
+    await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('storycraft-guest-reading-bookmarks') ?? '[]').length)).toBe(1);
+    assert.equal(await page.evaluate(() => localStorage.getItem('storycraft-workspace:guest:reading-bookmark:novel-1')), null);
+    await expect(target).toBeFocused();
+    await expect(target).toHaveAttribute('tabindex', '0');
+    await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(500);
+    const box = await target.boundingBox();
+    assert.ok(box.y >= 0 && box.y < 900, 'The migrated paragraph is in the viewport on the first visit');
+    await page.reload();
+    await expect(target).toBeFocused();
+  }
+});
+
+test('legacy separator bookmarks preserve their scroll position and focus a nearby readable block', { timeout: 60000 }, async t => {
+  for (const [role, width, theme] of [['GUEST', 1440, 'light'], ['READER', 390, 'dark']]) {
+    for (const trailing of [false, true]) {
+      const before = paragraphs.slice(0, 30);
+      const content = [...before, '---', '***', ...(trailing ? [] : ['> Đoạn ngay sau đường phân cách.', 'Đoạn kết.'])].join('\n\n');
+      const item = { ...savedBookmarks()[0], paragraphIndex: 30, pageOffset: .328125, excerpt: '', endOffset: null };
+      const position = role === 'GUEST' && trailing
+        ? { legacyBookmark: { novelId: item.novelId, chapterId: item.chapterId, paragraphIndex: item.paragraphIndex, pageOffset: item.pageOffset, updatedAt: item.updatedAt }, initialSearch: '?bookmark=1' }
+        : { items: [item], initialSearch: '?bookmark=1&paragraph=30&offset=0.328125' };
+      const { page } = await fixture(t, { role, width, theme, contents: [content], ...position });
+      const target = trailing ? page.locator('.chapter-prose > p').last() : page.locator('.chapter-prose > blockquote');
+      await expect(target).toBeFocused();
+      await expect(target).toHaveAttribute('tabindex', '0');
+      const anchor = await page.locator('.chapter-prose > hr').first().evaluate(node => {
+        const box = node.getBoundingClientRect();
+        return { top: box.top + scrollY, height: box.height, scroll: scrollY, maxScroll: document.documentElement.scrollHeight - innerHeight };
+      });
+      const expectedScroll = Math.max(0, Math.min(anchor.maxScroll, anchor.top + anchor.height * item.pageOffset - 900 * .25));
+      assert.ok(Math.abs(anchor.scroll - expectedScroll) < 2, `Scroll still targets the original separator within the page bounds: ${JSON.stringify(anchor)}`);
+      await page.keyboard.press('Tab');
+      await expect(target).not.toBeFocused();
+      await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(500);
+      await page.keyboard.press('Shift+Tab');
+      await expect(target).toBeFocused();
+      await page.keyboard.press('Enter');
+      await expect(page.locator('.sc-reading-bookmark-action')).toBeFocused();
+      await page.keyboard.press('Escape');
+      await expect(target).toBeFocused();
+      assert.equal(await page.evaluate(() => document.querySelector('.chapter-prose > p').tabIndex), -1);
     }
   }
 });

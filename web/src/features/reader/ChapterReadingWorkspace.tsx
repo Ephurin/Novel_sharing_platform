@@ -83,21 +83,27 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
     const legacy = bookmarks.items.find(item => item.chapterId === chapter.chapterId);
     const paragraphIndex = requested !== null ? Number(requested) : legacy?.paragraphIndex;
     const pageOffset = requested !== null ? Number(params.get('offset') ?? 0) : legacy?.pageOffset ?? 0;
-    if (paragraphIndex === undefined || !Number.isInteger(paragraphIndex) || paragraphIndex < 0 || paragraphIndex > 1000000 || !Number.isFinite(pageOffset) || pageOffset < 0 || pageOffset > 1) return;
+    if (paragraphIndex === undefined || !Number.isInteger(paragraphIndex) || paragraphIndex < 0 || paragraphIndex > 1000000 || !Number.isFinite(pageOffset) || pageOffset < 0 || pageOffset > 1) return false;
     const blocks = paragraphs();
     const targetIndex = Math.min(paragraphIndex, blocks.length - 1);
     const block = blocks[targetIndex];
-    if (!block) return;
+    if (!block) return false;
+    const readable = blocks.filter(item => item.tagName !== 'HR');
+    // Legacy bookmarks can target separators. Preserve the scroll anchor, but
+    // focus the following readable block, falling back to the last one at the end.
+    const focusBlock = block.tagName !== 'HR' ? block : blocks.slice(targetIndex + 1).find(item => item.tagName !== 'HR') ?? readable.at(-1);
+    if (!focusBlock) return false;
     const box = block.getBoundingClientRect();
     const start = Number(params.get('start') ?? 0), end = Number(params.get('end'));
     const range = params.has('end') && Number.isInteger(start) && Number.isInteger(end) && start >= 0 && end > start && end <= 10000000
       ? readingRange(block, start, end) : readingLineAt(block, box.top + box.height * pageOffset)?.range;
     const lineTop = range?.getBoundingClientRect().top ?? box.top + box.height * pageOffset;
-    setFocusedParagraph(Math.max(0, blocks.filter(item => item.tagName !== 'HR').indexOf(block)));
+    setFocusedParagraph(readable.indexOf(focusBlock));
     window.scrollTo({ top: Math.max(0, window.scrollY + lineTop - innerHeight * .25), behavior: 'instant' });
-    block.dataset.bookmarkArrival = 'true';
-    block.focus({ preventScroll: true });
+    focusBlock.dataset.bookmarkArrival = 'true';
+    focusBlock.focus({ preventScroll: true });
     if (range) flashLine(range);
+    return true;
   };
   useLayoutEffect(() => {
     setSelectedPassage(null);
@@ -115,12 +121,11 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
     const frame = requestAnimationFrame(() => {
       void document.fonts.ready.then(() => {
         if (cancelled) return;
-        restored.current = location.key;
-        restoreBookmark();
+        if (restoreBookmark()) restored.current = location.key;
       });
     });
     return () => { cancelled = true; cancelAnimationFrame(frame); };
-  }, [bookmarks.pending, preference.status, location.search, location.key]);
+  }, [bookmarks.pending, bookmarks.items, preference.status, location.search, location.key]);
   useEffect(() => {
     if (panel !== 'toc') return;
     const frame = requestAnimationFrame(() => toc.current?.querySelector('[aria-current="page"]')?.scrollIntoView({ block: 'nearest' }));

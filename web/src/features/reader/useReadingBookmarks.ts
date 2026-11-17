@@ -1,4 +1,4 @@
-import { useEffect, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../auth/useAuthStore';
 import { useToast } from '../../shared/components/ToastProvider';
@@ -90,8 +90,9 @@ export function useReadingBookmarks(novelId?: string, { loadAll = false } = {}) 
       success(operation);
     } catch { showToast('Không lưu được bookmark trên thiết bị. Hãy kiểm tra bộ nhớ trình duyệt.', 'error'); }
   };
-  const guest = parse(local).filter(item => !novelId || item.novelId === novelId);
-  return { items: userId ? query.data?.pages.flatMap(page => page.items) ?? [] : guest,
+  const guest = useMemo(() => parse(local).filter(item => !novelId || item.novelId === novelId), [local, novelId]);
+  const items = useMemo(() => userId ? query.data?.pages.flatMap(page => page.items) ?? [] : guest, [userId, query.data, guest]);
+  return { items,
     totalItems: userId ? query.data?.pages[0]?.totalItems ?? 0 : guest.length,
     pending: Boolean(userId && (query.isPending || (needsMore && !query.isError))), saving: mutation.isPending, error: userId ? query.error : null,
     retry: () => void query.refetch(), more: Boolean(userId && query.hasNextPage), loadingMore: query.isFetchingNextPage,
