@@ -193,3 +193,20 @@ a.sc-home-chapter:hover { color: var(--sc-primary-text); }
   .sc-home-footer { gap: 10px; }
   .sc-home-footer > a:last-child { margin-left: 0; }
 }
+@media (prefers-reduced-motion: reduce) {
+  .sc-home-feature-cover,
+  .sc-home-feature-cover img,
+  .sc-home-compact-cover img,
+  .sc-home-update-cover img,
+  .sc-home-carousel-dot::after,
+  .sc-home-ranking li {
+    transition: none;
+  }
+  .sc-home-feature-cover:hover,
+  .sc-home-feature-cover:hover img,
+  .sc-home-compact:hover .sc-home-compact-cover img,
+  .sc-home-update:hover .sc-home-update-cover img,
+  .sc-home-ranking li:hover {
+    transform: none;
+  }
+}

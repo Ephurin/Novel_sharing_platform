@@ -103,7 +103,7 @@ function CatalogCard({ novel, to, index = 0 }: { novel: ReaderNovel; to: string;
   const reduce = useReducedMotion();
   const labels: Record<string, string> = { ONGOING: 'Đang ra', COMPLETED: 'Hoàn thành', HIATUS: 'Tạm ngưng', PUBLISHED: 'Đã xuất bản' };
   return <motion.article className="sc-novel-card sc-reader-book sc-catalog-card"
-    initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+    initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }}
     transition={{ duration: reduce ? 0 : 0.2, delay: reduce ? 0 : Math.min(index, 7) * 0.03, ease: [0.22, 1, 0.36, 1] }}>
     <Link className="sc-book-cover sc-cover-hover" to={to} aria-label={`Đọc truyện: ${novel.title}`}>
       {novel.coverImageUrl && failedUrl !== novel.coverImageUrl ? <img src={novel.coverImageUrl} alt="" loading="lazy" onError={() => setFailedUrl(novel.coverImageUrl ?? undefined)} /> : <span className="sc-cover-placeholder" aria-hidden="true">{novel.title}</span>}

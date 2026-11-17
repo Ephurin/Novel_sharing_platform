@@ -119,7 +119,7 @@ export function AuthorNavbar() {
   }, [autoHide, path]);
   const reduce = useReducedMotion();
   const readerLink = (active: boolean) => (active ? 'sc-nav-link is-active' : 'sc-nav-link');
-  const navPill = <motion.span layoutId="sc-global-nav-pill" className="sc-nav-pill" aria-hidden="true" transition={{ type: 'spring', stiffness: 420, damping: 34, mass: 0.8, duration: reduce ? 0 : undefined }} />;
+  const navPill = <motion.span layoutId="sc-global-nav-pill" className="sc-nav-pill" aria-hidden="true" transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 34, mass: 0.8 }} />;
 
   async function handleLogout() {
     try {

@@ -127,7 +127,7 @@ export function ReaderHomePage() {
         <div className="sc-home-discovery-heading">
           <HomeHeading title="Khám phá" icon="explore">
             <button className="sc-home-shuffle" type="button" disabled={discovery.isPending || discovery.isError || suggestions.length < 2} onClick={() => { setSeed(value => value + 1); setShuffleCount(c => c + 1); }}>
-              <motion.span className="material-symbols-outlined" aria-hidden="true" animate={{ rotate: reduce ? 0 : shuffleCount * 180 }} transition={{ type: 'spring', stiffness: 320, damping: 22 }}>shuffle</motion.span>
+              <motion.span className="material-symbols-outlined" aria-hidden="true" animate={{ rotate: reduce ? 0 : shuffleCount * 180 }} transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 320, damping: 22 }}>shuffle</motion.span>
               Đổi gợi ý
             </button>
           </HomeHeading>

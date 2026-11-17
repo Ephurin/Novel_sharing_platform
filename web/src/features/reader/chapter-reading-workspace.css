@@ -82,4 +82,9 @@
   body:has(.sc-reader-workspace) .sc-toast-viewport { width: calc(100% - 88px); }
   .sc-reader-comments { padding-inline: 16px; }
 }
-@media (prefers-reduced-motion: reduce) { .sc-reader-tool-rail { transition: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .sc-reader-tool-rail,
+  .sc-reader-alignment-options button {
+    transition: none;
+  }
+}

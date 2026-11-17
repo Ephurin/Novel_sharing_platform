@@ -25,4 +25,12 @@
 .sc-catalog :is(button, a, input, select):focus-visible { outline: 2px solid var(--sc-focus-ring); outline-offset: 3px; }
 @media (max-width: 767px) { .sc-catalog-filter-row { grid-template-columns: minmax(0, 1fr); } }
 @media (pointer: coarse) { .sc-catalog-status button { min-height: 44px; } }
-@media (prefers-reduced-motion: reduce) { .sc-catalog-status button { transition: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .sc-catalog-status button,
+  .sc-catalog-card {
+    transition: none;
+  }
+  .sc-catalog-card:hover {
+    transform: none;
+  }
+}

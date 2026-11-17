@@ -206,7 +206,10 @@
 .sc-navbar { transition: transform .2s ease; }
 .sc-navbar-hidden { transform: translateY(-100%); pointer-events: none; }
 @media (prefers-reduced-motion: reduce) {
-  .sc-navbar { transition: none; }
+  .sc-navbar,
+  .sc-nav-link {
+    transition: none;
+  }
 }
 .sc-novel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 16px; }
 .sc-author-theme .sc-novel-card.sc-reader-book { padding: 0; border: 0; background: transparent; box-shadow: none; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
