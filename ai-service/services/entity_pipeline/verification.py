@@ -191,13 +191,15 @@ def known_name_decisions(items, known_entities, known_aliases):
     model can only confirm. An occurrence is decided here when its surface is exactly (case and
     accents included) the canonical name of one known entity, the name has at least two words, and no
     other entity or alias shares it. Aliases and short names still go to the model."""
-    by_name, shared = {}, set()
+    # Live retest 9 (W2): an approved alias of the same entity ("làng Thạch Khê" of "Thạch Khê") no
+    # longer blocks the automatic path; only a name or alias owned by another entity does.
+    by_name, owners = {}, {}
     for e in known_entities:
         key = same_key(e['name'])
-        if key in by_name:
-            shared.add(key)
+        owners.setdefault(key, set()).add(str(e.get('entity_id')))
         by_name[key] = e
-    shared |= {same_key(a['alias']) for a in known_aliases}
+    for a in known_aliases:
+        owners.setdefault(same_key(a['alias']), set()).add(str(a.get('entity_id')))
     decided = {}
     for c in items:
         e = by_name.get(same_key(c.surface))
@@ -209,8 +211,10 @@ def known_name_decisions(items, known_entities, known_aliases):
                        and base_name(c.surface, k['entity_type']) == k['name'] != c.surface]
             e = matches[0] if len(matches) == 1 else None
             name = e['name'] if e else ''
-        if (e is None or same_key(name) in shared or same_key(c.surface) in shared or name != e['name'] or len(name.split()) < 2
-                or not e.get('entity_id') or e.get('entity_type') not in ENTITY_TYPES):
+        if (e is None or name != e['name'] or len(name.split()) < 2
+                or not e.get('entity_id') or e.get('entity_type') not in ENTITY_TYPES
+                or owners.get(same_key(name), set()) - {str(e['entity_id'])}
+                or owners.get(same_key(c.surface), set()) - {str(e['entity_id'])}):
             continue
         decided[c.candidate_id] = EntityDecision(candidate_id=c.candidate_id, verdict='entity',
             entity_type=e['entity_type'], canonical_name=e['name'], canonical_entity_id=str(e['entity_id']),
@@ -230,6 +234,69 @@ def align_known_name(d, c, known):
     if names_target or surface_variant:
         return d.model_copy(update={'canonical_name': target['name']})
     return d
+
+
+def _inside_name(name, short):
+    """True when the words of `short` appear, in order and together, inside the longer `name`."""
+    words, part = same_key(name).split(), same_key(short).split()
+    return 0 < len(part) < len(words) and any(words[i:i + len(part)] == part for i in range(len(words) - len(part) + 1))
+
+
+def ground_short_name(d, c, known, text):
+    """Live retest 9 (W1): the model linked "Lôi Long" to the known "Thượng cổ Lôi Long" but quoted
+    "uy áp Lôi Long", which lacks the full name. The repair then turned three occurrences into a new
+    entity. When the short name is part of exactly one known name and that full name is written in
+    this occurrence's context, the full name there is the identity quote."""
+    target = known.get(d.canonical_entity_id) if d.verdict == 'entity' and d.canonical_entity_id else None
+    if target is None or c is None or d.canonical_name != target['name'] or same_name(c.surface, target['name']):
+        return d
+    quote = same_key(d.identity_quote)
+    if quote and same_key(target['name']) in quote and same_key(c.surface) in quote:
+        return d
+    if not _inside_name(target['name'], c.surface) or any(
+            key != d.canonical_entity_id and _inside_name(other['name'], c.surface) for key, other in known.items()):
+        return d
+    try:
+        context_quote_span(text, target['name'], c)
+    except ValueError:
+        return d
+    return d.model_copy(update={'identity_quote': target['name']})
+
+
+def one_identity_per_surface(decisions, by_candidate, known, text, allowed, audit):
+    """W1: one chapter must not give one surface two identities. When some occurrences of a surface
+    link to a known entity and others make a new entity of the same name, the new ones follow the
+    known link if their own context supports it, and are otherwise left to the author."""
+    groups = {}
+    for i, d in enumerate(decisions):
+        c = by_candidate.get(d['candidate_id'])
+        if c is not None and d['verdict'] == 'entity':
+            groups.setdefault(same_key(c.surface), []).append(i)
+    out = list(decisions)
+    for indexes in groups.values():
+        linked = {out[i]['canonical_entity_id'] for i in indexes if out[i]['canonical_entity_id']}
+        target = known.get(next(iter(linked))) if len(linked) == 1 else None
+        if target is None:
+            continue
+        for i in indexes:
+            d, c = out[i], by_candidate[out[i]['candidate_id']]
+            if d['canonical_entity_id'] or not same_name(d['canonical_name'], c.surface):
+                continue
+            moved = ground_short_name(EntityDecision.model_validate({
+                **d, 'canonical_entity_id': str(target['entity_id']), 'canonical_name': target['name'],
+                'entity_type': target['entity_type'], 'provisional_identity_key': '', 'identity_quote': ''}), c, known, text)
+            try:
+                _validate([moved], [c], text, known, allowed)
+                out[i] = moved.model_dump()
+                outcome = 'linked'
+            except ValueError:
+                out[i] = EntityDecision(candidate_id=d['candidate_id'], verdict='unresolved', confidence=0,
+                    reason=f'Chữ "{c.surface}" được nối vào "{target["name"]}" ở chỗ khác trong chương; '
+                           'tác giả quyết định đây là cùng một danh tính hay không.').model_dump()
+                outcome = 'unresolved'
+            audit.setdefault('surface_identity_fixes', []).append(
+                {'candidate_id': d['candidate_id'], 'entity_id': str(target['entity_id']), 'outcome': outcome})
+    return out
 
 
 def same_key(name):
@@ -347,7 +414,8 @@ def verify_entities(text, llm, discover, *, known_entities=(), known_aliases=(),
                     raw = None
                     break
                 try:
-                    parsed = [align_known_name(d, by_cid.get(d.candidate_id), known)
+                    parsed = [ground_short_name(align_known_name(d, by_cid.get(d.candidate_id), known),
+                                                by_cid.get(d.candidate_id), known, text)
                               for d in EntityDecisionBatch.model_validate_json(raw).decisions]
                     _validate(parsed, todo, text, known, all_names)
                     decisions = kept + parsed
@@ -390,6 +458,8 @@ def verify_entities(text, llm, discover, *, known_entities=(), known_aliases=(),
             audit['decisions'].extend(d.model_dump() for d in decisions)
             save('verifying')
         audit['decisions'] = _canonicalize(audit['decisions'], inventory.items, known)
+        audit['decisions'] = one_identity_per_surface(
+            audit['decisions'], {c.candidate_id: c for c in inventory.items}, known, text, all_names, audit)
         # Every machine decision must pass the same validation the author's save uses; otherwise a
         # single bad suggestion blocks saving the whole chapter. Invalid ones become unresolved.
         by_candidate = {c.candidate_id: c for c in inventory.items}
