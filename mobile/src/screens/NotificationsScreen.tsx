@@ -3,9 +3,10 @@ import { Text } from 'react-native';
 import { getApiErrorMessage } from '../api/api-client';
 import { listNotifications, markNotificationRead } from '../api/notification-api';
 import type { NotificationItem } from '../api/types';
-import { Badge, Card, EmptyState, ErrorState, GhostButton, LoadingState, Screen, Section, styles } from '../components/Screen';
+import { Badge, Card, EmptyState, ErrorState, GhostButton, LoadingState, Screen, Section, useScreenStyles } from '../components/Screen';
 
 export function NotificationsScreen() {
+  const themed = useScreenStyles();
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,29 +27,35 @@ export function NotificationsScreen() {
     void load();
   }, []);
 
-  if (loading) return <LoadingState label="Loading notifications..." />;
+  if (loading) return <LoadingState label="Đang tải thông báo..." />;
   if (error) return <ErrorState message={error} onRetry={load} />;
 
   return (
     <Screen>
-      <Section title="Notifications">
-        {!notifications.length ? <EmptyState label="No notifications yet." /> : null}
-        {notifications.map((notification) => (
-          <Card key={notification.notificationId}>
-            <Badge label={notification.status} tone={notification.status === 'UNREAD' ? 'warning' : 'default'} />
-            <Text style={styles.sectionTitle}>{notification.title}</Text>
-            <Text style={styles.muted}>{notification.body ?? notification.type}</Text>
-            {notification.status === 'UNREAD' ? (
-              <GhostButton
-                label="Mark read"
-                onPress={async () => {
-                  await markNotificationRead(notification.notificationId);
-                  await load();
-                }}
+      <Section title="Thông báo">
+        {!notifications.length ? <EmptyState label="Chưa có thông báo mới." /> : null}
+        {notifications.map((notification) => {
+          const unread = notification.status === 'UNREAD';
+          return (
+            <Card key={notification.notificationId}>
+              <Badge
+                label={unread ? 'Chưa đọc' : 'Đã đọc'}
+                tone={unread ? 'warning' : 'default'}
               />
-            ) : null}
-          </Card>
-        ))}
+              <Text style={themed.cardTitle}>{notification.title}</Text>
+              <Text style={themed.muted}>{notification.body ?? notification.type}</Text>
+              {unread ? (
+                <GhostButton
+                  label="Đánh dấu đã đọc"
+                  onPress={async () => {
+                    await markNotificationRead(notification.notificationId);
+                    await load();
+                  }}
+                />
+              ) : null}
+            </Card>
+          );
+        })}
       </Section>
     </Screen>
   );

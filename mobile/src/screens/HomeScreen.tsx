@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { getApiErrorMessage } from '../api/api-client';
 import { listHistory, searchPublishedNovels } from '../api/reader-api';
 import type { ReaderNovel, ReadingHistoryItem } from '../api/types';
 import { Field } from '../components/Form';
-import { Badge, Card, EmptyState, ErrorState, GhostButton, LoadingState, Screen, Section, styles } from '../components/Screen';
+import { Badge, Card, EmptyState, ErrorState, GhostButton, LoadingState, PrimaryButton, Screen, Section, useScreenStyles } from '../components/Screen';
+import { useStoryCraftTheme } from '../theme/ThemeProvider';
 
 export function HomeScreen({
   authenticated,
@@ -15,6 +16,7 @@ export function HomeScreen({
   onOpenNovel: (novelId: string) => void;
   onOpenChapter: (chapterId: string) => void;
 }) {
+  const themed = useScreenStyles();
   const [query, setQuery] = useState('');
   const [novels, setNovels] = useState<ReaderNovel[]>([]);
   const [history, setHistory] = useState<ReadingHistoryItem[]>([]);
@@ -24,7 +26,7 @@ export function HomeScreen({
   const load = useCallback(async () => {
     setError(null);
     const [novelItems, historyItems] = await Promise.all([
-      searchPublishedNovels({ q: query }),
+      searchPublishedNovels({ q: query.trim() || undefined }),
       authenticated ? listHistory().catch(() => []) : Promise.resolve([])
     ]);
     setNovels(novelItems);
@@ -44,32 +46,38 @@ export function HomeScreen({
     setLoading(false);
   };
 
-  if (loading) return <LoadingState label="Loading mobile feed..." />;
+  if (loading && !novels.length) return <LoadingState label="Đang tải kho truyện..." />;
 
   return (
     <Screen>
-      <Section title="Home" subtitle={authenticated ? 'Continue reading or discover a new story.' : 'Browse as guest. Login for library and history.'}>
-        <Field label="Search" value={query} onChangeText={setQuery} placeholder="Novel title, synopsis..." />
-        <GhostButton label="Refresh" onPress={refresh} />
+      <Section title="Kho truyện">
+        <Field
+          label="Tìm kiếm tác phẩm"
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Tên truyện, lời giới thiệu..."
+        />
+        <GhostButton label="Làm mới danh sách" onPress={refresh} />
         {error ? <ErrorState message={error} onRetry={refresh} /> : null}
       </Section>
 
       {authenticated && history[0] ? (
-        <Section title="Continue Reading">
+        <Section title="Đọc tiếp">
           <Card>
-            <Text style={styles.sectionTitle}>{history[0].novel.title}</Text>
-            <Text style={styles.muted}>
-              Ch. {history[0].chapter.chapterNumber}: {history[0].chapter.title}
+            <Text style={themed.cardTitle}>{history[0].novel.title}</Text>
+            <Text style={themed.muted}>
+              Chương {history[0].chapter.chapterNumber}: {history[0].chapter.title}
             </Text>
-            <TouchableOpacity onPress={() => onOpenChapter(history[0].chapterId)}>
-              <Text style={styles.ghostButtonText}>Continue</Text>
-            </TouchableOpacity>
+            <PrimaryButton
+              label="Tiếp tục đọc"
+              onPress={() => onOpenChapter(history[0].chapterId)}
+            />
           </Card>
         </Section>
       ) : null}
 
-      <Section title="Latest Novels">
-        {!novels.length ? <EmptyState label="No published novels found." /> : null}
+      <Section title="Tác phẩm mới cập nhật">
+        {!novels.length ? <EmptyState label="Chưa tìm thấy tác phẩm phù hợp." /> : null}
         {novels.map((novel) => (
           <NovelCard key={novel.novelId} novel={novel} onPress={() => onOpenNovel(novel.novelId)} />
         ))}
@@ -79,22 +87,39 @@ export function HomeScreen({
 }
 
 export function NovelCard({ novel, onPress }: { novel: ReaderNovel; onPress: () => void }) {
+  const { palette } = useStoryCraftTheme();
+  const themed = useScreenStyles();
+
   return (
-    <TouchableOpacity onPress={onPress}>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Mở tác phẩm ${novel.title}`}
+      onPress={onPress}
+      style={({ pressed }) => ({ opacity: pressed ? 0.88 : 1 })}
+    >
       <Card>
-        <View style={{ gap: 6 }}>
-          <Text style={styles.sectionTitle}>{novel.title}</Text>
-          <Text style={styles.muted}>{novel.authorName ? `By ${novel.authorName}` : novel.genre ?? 'Published novel'}</Text>
+        <View style={{ gap: 4 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+            <Text style={[themed.muted, { flex: 1 }]} numberOfLines={1}>
+              {novel.authorName ? novel.authorName : 'Tác giả StoryCraft'}
+            </Text>
+            {novel.genre ? <Badge label={novel.genre} tone="primary" /> : null}
+          </View>
+          <Text style={[themed.cardTitle, { color: palette.text }]} numberOfLines={2}>
+            {novel.title}
+          </Text>
         </View>
-        <Text style={styles.muted} numberOfLines={3}>
-          {novel.synopsis ?? 'No synopsis.'}
-        </Text>
+        {novel.synopsis ? (
+          <Text style={themed.muted} numberOfLines={2}>
+            {novel.synopsis}
+          </Text>
+        ) : null}
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-          <Badge label={`${novel.chaptersCount ?? 0} chapters`} />
-          <Badge label={`${novel.likesCount ?? 0} likes`} />
-          <Badge label={`${novel.viewsCount ?? 0} views`} />
+          <Badge label={`${(novel.chaptersCount ?? 0).toLocaleString('vi-VN')} chương`} />
+          <Badge label={`${(novel.viewsCount ?? 0).toLocaleString('vi-VN')} lượt đọc`} />
+          <Badge label={`${(novel.likesCount ?? 0).toLocaleString('vi-VN')} thích`} />
         </View>
       </Card>
-    </TouchableOpacity>
+    </Pressable>
   );
 }

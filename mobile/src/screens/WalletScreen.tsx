@@ -1,11 +1,27 @@
 import { useEffect, useState } from 'react';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 import { getApiErrorMessage } from '../api/api-client';
-import { completeMockDeposit, createDepositSession, getWallet, listWalletTransactions } from '../api/wallet-api';
 import type { Wallet, WalletTransaction } from '../api/types';
-import { Badge, Card, EmptyState, ErrorState, GhostButton, LoadingState, PrimaryButton, Screen, Section, styles } from '../components/Screen';
+import { completeMockDeposit, createDepositSession, getWallet, listWalletTransactions } from '../api/wallet-api';
+import { Badge, Card, EmptyState, ErrorState, GhostButton, LoadingState, PrimaryButton, Screen, Section, useScreenStyles } from '../components/Screen';
+import { useStoryCraftTheme } from '../theme/ThemeProvider';
+
+const TX_TYPE_LABELS: Record<string, string> = {
+  DEPOSIT: 'Nạp Xu mô phỏng',
+  CHAPTER_UNLOCK: 'Mở khóa chương VIP',
+  DONATION: 'Ủng hộ tác giả',
+  WITHDRAW: 'Rút Xu mô phỏng'
+};
+
+const TX_STATUS_LABELS: Record<string, string> = {
+  COMPLETED: 'Hoàn tất',
+  PENDING: 'Đang xử lý',
+  FAILED: 'Thất bại'
+};
 
 export function WalletScreen() {
+  const { palette } = useStoryCraftTheme();
+  const themed = useScreenStyles();
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [transactions, setTransactions] = useState<WalletTransaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,36 +50,54 @@ export function WalletScreen() {
     try {
       const session = await createDepositSession(1000);
       await completeMockDeposit(session.depositSessionId);
-      setNotice('Mock deposit completed: +1000 Coins.');
+      setNotice('Đã nạp mô phỏng +1.000 Xu thành công.');
       await load();
     } catch (caughtError) {
       setNotice(getApiErrorMessage(caughtError));
     }
   };
 
-  if (loading) return <LoadingState label="Loading wallet..." />;
+  if (loading) return <LoadingState label="Đang tải Ví Xu..." />;
   if (error) return <ErrorState message={error} onRetry={load} />;
 
   return (
     <Screen>
-      <Section title="Mock Wallet" subtitle="Demo-only payment flow. No real payment credentials are collected.">
+      <Section
+        title="Ví Xu StoryCraft"
+        subtitle="Ví thử nghiệm: nạp Xu mô phỏng, không thanh toán hoặc chuyển tiền thật."
+      >
         <Card>
-          <Text style={styles.sectionTitle}>{wallet?.balanceCoins ?? 0} Coins</Text>
-          {notice ? <Text style={styles.ghostButtonText}>{notice}</Text> : null}
-          <PrimaryButton label="Mock deposit +1000" onPress={deposit} />
+          <Text style={themed.muted}>Số dư khả dụng</Text>
+          <Text style={{ color: palette.text, fontSize: 28, fontWeight: '700' }}>
+            {(wallet?.balanceCoins ?? 0).toLocaleString('vi-VN')}{' '}
+            <Text style={{ color: palette.primaryMuted, fontSize: 16 }}>Xu</Text>
+          </Text>
+          {notice ? (
+            <Text accessibilityLiveRegion="polite" style={themed.notice}>
+              {notice}
+            </Text>
+          ) : null}
+          <PrimaryButton label="Nạp thử nghiệm +1.000 Xu" onPress={deposit} />
         </Card>
       </Section>
 
-      <Section title="Transactions">
-        {!transactions.length ? <EmptyState label="No transactions yet." /> : null}
+      <Section title="Lịch sử giao dịch">
+        {!transactions.length ? <EmptyState label="Chưa có giao dịch nào." /> : null}
         {transactions.map((transaction) => (
           <Card key={transaction.transactionId}>
-            <Badge label={transaction.type} />
-            <Text style={styles.sectionTitle}>{transaction.amountCoins} Coins</Text>
-            <Text style={styles.muted}>{transaction.status}</Text>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+              <Badge label={TX_TYPE_LABELS[transaction.type] ?? transaction.type} tone="primary" />
+              <Badge
+                label={TX_STATUS_LABELS[transaction.status] ?? transaction.status}
+                tone={transaction.status === 'COMPLETED' ? 'success' : 'default'}
+              />
+            </View>
+            <Text style={themed.cardTitle}>
+              {transaction.amountCoins.toLocaleString('vi-VN')} Xu
+            </Text>
           </Card>
         ))}
-        <GhostButton label="Refresh" onPress={load} />
+        <GhostButton label="Làm mới giao dịch" onPress={load} />
       </Section>
     </Screen>
   );
