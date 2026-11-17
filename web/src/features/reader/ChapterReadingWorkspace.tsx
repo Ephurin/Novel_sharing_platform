@@ -42,6 +42,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
   const [lineHighlight, setLineHighlight] = useState<{ key: number; rects: ReturnType<typeof readingLineRects> } | null>(null);
   const highlightTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const highlightKey = useRef(0);
+  // Keyboard focus skips separators; persisted paragraph positions still include them.
   const [focusedParagraph, setFocusedParagraph] = useState(0);
   const bookmarkAction = useRef<HTMLButtonElement>(null);
   const [failedCoverUrl, setFailedCoverUrl] = useState<string>();
@@ -52,7 +53,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
   const restored = useRef<string | null>(null);
   const gesture = useRef({ x: 0, y: 0, time: 0, scroll: 0, selected: false, moved: false });
   const preference = useChapterReadingPreferences();
-  const bookmarks = useReadingBookmarks(chapter.novelId);
+  const bookmarks = useReadingBookmarks(chapter.novelId, { loadAll: true });
   const { preferences } = preference;
   const base = publicMode ? '/public' : '/reader';
   const novelPath = `${base}/novels/${chapter.novelId}`;
@@ -61,6 +62,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
   const next = index >= 0 ? chapters[index + 1] : undefined;
   const toolsVisible = !mobile || toolsOpen;
   const selectedBookmark = bookmarks.items.find(item => item.chapterId === chapter.chapterId && item.paragraphIndex === selectedPassage?.index && (item.startOffset ?? 0) === selectedPassage?.line.startOffset);
+  const bookmarkLabel = bookmarks.pending ? 'Đang tải bookmark…' : bookmarks.error ? 'Không tải được bookmark' : selectedBookmark ? 'Xóa bookmark' : 'Bookmark';
 
   const paragraphs = () => Array.from(article.current?.querySelectorAll<HTMLElement>('.chapter-prose > p, .chapter-prose > blockquote, .chapter-prose > hr') ?? []);
   const flashLine = (range: Range) => {
@@ -91,7 +93,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
     const range = params.has('end') && Number.isInteger(start) && Number.isInteger(end) && start >= 0 && end > start && end <= 10000000
       ? readingRange(block, start, end) : readingLineAt(block, box.top + box.height * pageOffset)?.range;
     const lineTop = range?.getBoundingClientRect().top ?? box.top + box.height * pageOffset;
-    setFocusedParagraph(targetIndex);
+    setFocusedParagraph(Math.max(0, blocks.filter(item => item.tagName !== 'HR').indexOf(block)));
     window.scrollTo({ top: Math.max(0, window.scrollY + lineTop - innerHeight * .25), behavior: 'instant' });
     block.dataset.bookmarkArrival = 'true';
     block.setAttribute('tabindex', '-1');
@@ -100,6 +102,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
   };
   useLayoutEffect(() => {
     setSelectedPassage(null);
+    setFocusedParagraph(0);
     clearTimeout(highlightTimer.current); setLineHighlight(null);
     if (new URLSearchParams(location.search).get('bookmark') === '1') return;
     restored.current = location.key;
@@ -148,7 +151,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
     const beside = !mobile && innerWidth - box.right > 240;
     const top = beside ? lineBox.top + lineBox.height / 2 : lineBox.bottom + 8;
     block.dataset.bookmarkArrival = 'true';
-    setFocusedParagraph(index);
+    setFocusedParagraph(paragraphs().filter(item => item.tagName !== 'HR').indexOf(block));
     setSelectedPassage({ index, offset: y === undefined ? 0 : Math.max(0, Math.min(1, (y - box.top) / Math.max(1, box.height))),
       top: Math.max(beside ? 30 : 8, Math.min(innerHeight - (beside ? 30 : 120), top)), left: Math.max(8, Math.min(innerWidth - 184, beside ? box.right + 12 : x ?? box.right - 176)), scrollY: window.scrollY, keyboard: x === undefined, beside, line });
     flashLine(line.range);
@@ -211,10 +214,10 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
             event.preventDefault();
             const readable = blocks.filter(item => item.tagName !== 'HR');
             const next = readable[Math.max(0, Math.min(readable.length - 1, readable.indexOf(block) + (event.key === 'ArrowDown' ? 1 : -1)))];
-            setFocusedParagraph(blocks.indexOf(next)); next?.focus();
+            setFocusedParagraph(readable.indexOf(next)); next?.focus();
           }
         }}>
-        <ManuscriptContent content={chapter.content ?? ''} blockProps={index => ({ tabIndex: index === focusedParagraph ? 0 : -1,
+        <ManuscriptContent content={chapter.content ?? ''} blockProps={(_index, readableIndex) => ({ tabIndex: readableIndex === focusedParagraph ? 0 : -1,
           onBlur: event => { delete event.currentTarget.dataset.bookmarkArrival; },
           'aria-describedby': 'reading-bookmark-help',
         })} />
@@ -225,9 +228,9 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
       <span id="reading-bookmark-help" className="sc-reader-bookmark-help">Bấm vào dòng cần lưu, hoặc nhấn Enter để bookmark dòng đầu. Dùng phím lên, xuống để chuyển đoạn.</span>
     </div>
     {selectedPassage && <button ref={bookmarkAction} type="button" className="sc-reading-bookmark-action" data-placement={selectedPassage.beside ? 'side' : 'below'} style={{ top: selectedPassage.top, left: selectedPassage.left }}
-      disabled={bookmarks.pending || bookmarks.saving} onClick={savePassage} aria-pressed={Boolean(selectedBookmark)}
-      aria-label={selectedBookmark ? 'Xóa bookmark' : 'Bookmark'} title={selectedBookmark ? 'Xóa bookmark' : 'Bookmark'}>
-      <Icon name={selectedBookmark ? 'close' : 'bookmark_add'} />{bookmarks.saving ? 'Đang xử lý…' : !selectedBookmark && 'Bookmark'}
+      disabled={bookmarks.pending || bookmarks.saving || Boolean(bookmarks.error)} onClick={savePassage} aria-pressed={Boolean(selectedBookmark)}
+      aria-label={bookmarkLabel} title={bookmarkLabel}>
+      <Icon name={selectedBookmark ? 'close' : 'bookmark_add'} />{bookmarks.saving ? 'Đang xử lý…' : bookmarks.pending ? 'Đang tải…' : bookmarks.error ? 'Chưa tải được' : !selectedBookmark && 'Bookmark'}
     </button>}
     <button type="button" className="sc-reader-tools-toggle" aria-expanded={toolsVisible} aria-controls="chapter-reader-tools" onClick={() => setToolsOpen(value => !value)}>{toolsOpen ? 'Ẩn công cụ đọc' : 'Hiện công cụ đọc'}</button>
     <aside id="chapter-reader-tools" className="sc-reader-tool-rail" aria-label="Công cụ đọc chương" data-open={toolsOpen} aria-hidden={!toolsVisible} inert={!toolsVisible}>

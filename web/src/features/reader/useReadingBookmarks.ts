@@ -47,7 +47,7 @@ function migrateGuestBookmarks() {
 }
 
 type Operation = { type: 'save'; input: ReadingBookmarkDraft } | { type: 'remove'; bookmarkId: string };
-export function useReadingBookmarks(novelId?: string) {
+export function useReadingBookmarks(novelId?: string, { loadAll = false } = {}) {
   const userId = useAuthStore(state => state.user?.userId);
   const client = useQueryClient();
   const { showToast } = useToast();
@@ -56,6 +56,12 @@ export function useReadingBookmarks(novelId?: string) {
   const query = useInfiniteQuery({ queryKey: ['reader-bookmarks', userId, novelId], initialPageParam: 1,
     queryFn: ({ pageParam }) => listReadingBookmarkEntries(novelId, pageParam), enabled: Boolean(userId),
     getNextPageParam: (last, pages) => pages.length < last.totalPages ? pages.length + 1 : undefined, retry: false });
+  // A line action needs the complete novel collection to distinguish save from remove.
+  // The standalone library keeps its explicit pagination.
+  const needsMore = Boolean(userId && loadAll && query.hasNextPage);
+  useEffect(() => {
+    if (needsMore && !query.isFetching && !query.isError) void query.fetchNextPage();
+  }, [needsMore, query.isFetching, query.isError, query.fetchNextPage]);
   const success = (operation: Operation) => showToast(operation.type === 'save' ? 'Đã lưu bookmark.' : 'Đã xóa bookmark.', 'success');
   const mutation = useMutation({
     scope: { id: `reading-bookmarks:${userId}` },
@@ -87,7 +93,7 @@ export function useReadingBookmarks(novelId?: string) {
   const guest = parse(local).filter(item => !novelId || item.novelId === novelId);
   return { items: userId ? query.data?.pages.flatMap(page => page.items) ?? [] : guest,
     totalItems: userId ? query.data?.pages[0]?.totalItems ?? 0 : guest.length,
-    pending: Boolean(userId && query.isPending), saving: mutation.isPending, error: userId ? query.error : null,
+    pending: Boolean(userId && (query.isPending || (needsMore && !query.isError))), saving: mutation.isPending, error: userId ? query.error : null,
     retry: () => void query.refetch(), more: Boolean(userId && query.hasNextPage), loadingMore: query.isFetchingNextPage,
     loadMore: () => void query.fetchNextPage(), save: (input: ReadingBookmarkDraft) => update({ type: 'save', input }),
     remove: (bookmarkId: string) => update({ type: 'remove', bookmarkId }) };

@@ -22,6 +22,7 @@ const env = { ...process.env, READER_EVIDENCE_DIR: output,
 for (const key of Object.keys(env)) if (/(?:API_KEY|PROVIDER_TOKEN)$/.test(key)) env[key] = '';
 const requiredBrowsers = [
   'comment-notification-links.browser.test.mjs',
+  'reader-bookmark-regressions.browser.test.mjs',
   'reader-chapter-workspace.browser.test.mjs',
   'reader-comments.browser.test.mjs',
   'reader-comment-moderation.browser.test.mjs',
