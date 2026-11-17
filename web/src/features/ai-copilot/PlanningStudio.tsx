@@ -3,6 +3,7 @@ import {Alert,Badge,Button,Card,Group,Stack,Text,Title} from '@mantine/core';
 import {apiClient,ApiClientError,getApiErrorMessage,type ApiEnvelope} from '../../shared/api/api-client';
 import {SetupFoundationPanel} from './SetupFoundationPanel';
 import {StoryPlanEditor,type FutureEventAdopter} from './StoryPlanEditor';
+import {AnimatedDisclosure} from '../../shared/components/AnimatedDisclosure';
 import {getSetup,getSetupM0Readiness,type SetupM0Readiness,type SetupSnapshot} from './setup-api';
 import {usePlanningScope} from './planning-draft';
 import type {StoryBrainSummary} from '../manuscript-import/manuscript-import-api';
@@ -39,22 +40,22 @@ export function PlanningStudio({novelId,title,step,onStep,chapters,onWrite,onCre
  <Stack maw={960} mx="auto" gap="lg">
   <Group justify="space-between"><div><Text size="sm" c="dimmed">Phòng lập kế hoạch · {title}</Text><Title order={2}>Từ ý tưởng đến trang viết đầu tiên</Title></div><Button variant="default" onClick={()=>void refresh()}>Đọc trạng thái mới</Button></Group>
   <nav aria-label="Các bước lập kế hoạch" style={{position:"sticky",top:0,zIndex:5,background:"var(--sc-bg)",paddingBlock:8}}><Group gap="xs">{steps.map((s,i)=><Button key={s.id} variant={step===s.id?'filled':'light'} aria-current={step===s.id?'step':undefined} onClick={()=>{setSettled(false);if(step===s.id)void refresh();else onStep(s.id);}}>{i+1}. {s.label}</Button>)}</Group></nav>
-  <Card withBorder><Stack gap="xs"><Group><Badge color={active?'green':'gray'}>{read?(active?'Bộ nhớ truyện đang hoạt động':'Chưa kích hoạt thiết lập'):'Chưa xác minh trạng thái'}</Badge><Badge variant="light">{!read?'Thiết lập chưa được xác minh':snapshot?.review?'Đã đọc quyết định thiết lập':snapshot?'Thiết lập đang chờ duyệt':'Chưa có bản thiết lập'}</Badge></Group>
-  <Text size="sm">{active?'Chương đã lưu dùng luồng phân tích và duyệt hiện có. Sự kiện tương lai vẫn chỉ là kế hoạch.':'Bạn vẫn có thể viết bản nháp. Trước khi bộ nhớ truyện được kích hoạt, lưu bản nháp không tự tạo lịch sử hay tự phân tích.'}</Text>
-  {m0?.first_saved_revision&&<details><summary>Đã xác minh bản lưu đầu tiên · Chương {m0.first_saved_revision.chapter_number}</summary><Text size="xs">Mã bản lưu: {m0.first_saved_revision.revision_id}</Text></details>}
-  {brain&&<Text size="sm">Đề xuất chờ duyệt: {brain.counts.pending_proposals}. Sự kiện đã ghi nhận: {brain.counts.events}.</Text>}
-  <Text size="sm">{extraction===null?'Chưa đọc được trạng thái phân tích chương. Mở Bộ nhớ truyện để kiểm tra.':extraction.length?extraction.map(x=>`Chương ${x.chapter_number}: ${extractionLabel(x.status,x.waiting_reason)}`).join(' · '):'Chưa có trạng thái phân tích chương. Không tự xác nhận hoàn tất.'}</Text>
+  <Card withBorder><Stack gap="xs"><Group justify="space-between"><Group gap="xs"><Badge color={active?'green':'gray'}>{read?(active?'Bộ nhớ truyện đang hoạt động':'Chưa kích hoạt thiết lập'):'Chưa xác minh trạng thái'}</Badge><Badge variant="light">{!read?'Thiết lập chưa được xác minh':snapshot?.review?'Đã đọc quyết định thiết lập':snapshot?'Thiết lập đang chờ duyệt':'Chưa có bản thiết lập'}</Badge>{brain&&<Text size="xs" c="dimmed">Chờ duyệt: {brain.counts.pending_proposals} · Sự kiện: {brain.counts.events}</Text>}</Group><Button size="xs" variant="subtle" onClick={()=>onMemory('review')}>Mở Bộ nhớ truyện & duyệt diễn biến</Button></Group>
+  {!!extraction?.length&&<Text size="xs" c="dimmed">{extraction.map(x=>`Chương ${x.chapter_number}: ${extractionLabel(x.status,x.waiting_reason)}`).join(' · ')}</Text>}
   {read&&!active&&(lastWrittenChapter>0
-   ?<Alert data-testid="planning-memory-from-chapters"><Stack gap={6}><Text size="sm" fw={600}>Đã có chương viết? Thiết lập thế giới là tùy chọn.</Text><Text size="sm">Bạn có thể bắt đầu bộ nhớ truyện từ các chương đã lưu: AI đọc chương, bạn duyệt đề xuất rồi bấm “Kích hoạt bộ nhớ sau duyệt”. Không có gì vào Canon nếu bạn chưa duyệt. Sau khi kích hoạt, mỗi lần lưu chương sẽ được phân tích.</Text><Group><Button size="xs" onClick={()=>onMemory('setup')}>Bắt đầu bộ nhớ từ chương đã lưu</Button></Group></Stack></Alert>
-   :<Text size="sm" c="dimmed">Để kích hoạt bộ nhớ: hoàn tất thiết lập thế giới, hoặc viết và lưu ít nhất một chương rồi bắt đầu bộ nhớ từ chương đã lưu.</Text>)}
-  <Button variant="subtle" onClick={()=>onMemory('review')}>Mở Bộ nhớ truyện & duyệt diễn biến</Button></Stack></Card>
+   ?<Alert data-testid="planning-memory-from-chapters"><Stack gap={6}><Text size="sm" fw={600}>Đã có chương viết? Thiết lập thế giới là tùy chọn.</Text><Text size="xs">AI đọc các chương đã lưu để gợi ý Canon; mọi đề xuất chỉ có hiệu lực sau khi bạn duyệt.</Text><Group><Button size="xs" onClick={()=>onMemory('setup')}>Bắt đầu bộ nhớ từ chương đã lưu</Button></Group></Stack></Alert>
+   :<Text size="xs" c="dimmed">Để kích hoạt bộ nhớ: hoàn tất thiết lập thế giới, hoặc viết và lưu ít nhất một chương rồi bắt đầu bộ nhớ từ chương đã lưu.</Text>)}
+  <AnimatedDisclosure summary="Chi tiết cơ chế đồng bộ & trạng thái phân tích"><Stack gap={4} pt={4}>
+   <Text size="xs" c="dimmed">{active?'Chương đã lưu dùng luồng phân tích và duyệt hiện có. Sự kiện tương lai vẫn chỉ là kế hoạch.':'Trước khi bộ nhớ truyện được kích hoạt, lưu bản nháp không tự tạo lịch sử hay tự phân tích.'}</Text>
+   {m0?.first_saved_revision&&<Text size="xs" c="dimmed">Bản lưu đầu tiên · Chương {m0.first_saved_revision.chapter_number} ({m0.first_saved_revision.revision_id})</Text>}
+   {!extraction?.length&&<Text size="xs" c="dimmed">{extraction===null?'Chưa đọc được trạng thái phân tích chương. Mở Bộ nhớ truyện để kiểm tra.':'Chưa có trạng thái phân tích chương. Không tự xác nhận hoàn tất.'}</Text>}
+  </Stack></AnimatedDisclosure></Stack></Card>
   {error&&<Alert color="red" role="alert">Không xác minh được trạng thái: {error}</Alert>}
   {!settled&&<Text role="status">Đang đọc trạng thái tiểu thuyết trước khi mở các thẻ. Bạn vẫn có thể chuyển sang viết bản nháp.</Text>}
   <div inert={!settled} hidden={!['idea','rules','characters'].includes(step)}><SetupFoundationPanel novelId={novelId} planningStep={['idea','rules','characters'].includes(step)?step as 'idea'|'rules'|'characters':'characters'} onServerChange={()=>void refresh()} onAdoptFutureEvent={adoptFutureEvent}/></div>
   <div inert={!settled} hidden={step!=='chapters'}><StoryPlanEditor novelId={novelId} lastWrittenChapter={lastWrittenChapter} onRegisterEventAdopter={registerEventAdopter}/></div>
-  <div hidden={step!=='write'}><Stack><Title order={3}>Viết khi bạn sẵn sàng</Title><Text>Không bắt buộc có dàn ý. Mở chương có sẵn hoặc chủ động tạo một bản nháp trong trình soạn thảo hiện tại.</Text>
+  <div hidden={step!=='write'}><Stack><Title order={3}>Viết khi bạn sẵn sàng</Title><Text size="sm" c="dimmed">Mở chương có sẵn hoặc tạo bản nháp mới; mọi diễn biến Canon vẫn cần bạn duyệt.</Text>
   {chapters.map(c=><Button key={c.chapterId} variant="default" onClick={()=>onWrite(c.chapterId)} style={{height:'auto',minHeight:36,whiteSpace:'normal'}}>{c.title}</Button>)}
-  <Button onClick={onCreate} loading={creating}>Tạo bản nháp chương mới</Button><Button variant="subtle" onClick={()=>onWrite()}>Bỏ qua dàn ý, mở trang viết</Button>
-  <Text size="sm" c="dimmed">Điều hướng không tạo chương, revision hay sự kiện. Bản nháp được lưu qua Writer hiện có; mọi diễn biến Canon vẫn cần bạn duyệt.</Text></Stack></div>
+  <Button onClick={onCreate} loading={creating}>Tạo bản nháp chương mới</Button><Button variant="subtle" onClick={()=>onWrite()}>Bỏ qua dàn ý, mở trang viết</Button></Stack></div>
  </Stack></section>;
 }

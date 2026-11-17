@@ -533,34 +533,21 @@ export function AuthorStoryContextPage() {
             <div className="flex flex-col gap-1">
               <Breadcrumbs items={[authorHomeCrumb, { label: novelQuery.data?.title || 'Tác phẩm', to: `/author/novels/${novelId}` }, { label: 'Cẩm nang tác phẩm' }]} />
 
-              <div className="flex items-center gap-3 pt-0.5">
-                <h1 className="text-xl md:text-2xl font-bold text-stone-900 font-serif tracking-tight">
-                  Cẩm nang tác phẩm
-                </h1>
-                <Link
-                  to={`/author/novels/${novelId}`}
-                  className="inline-flex items-center gap-1 text-meta text-stone-500 hover:text-primary-600 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-body">arrow_back</span>
-                  <span>Quay lại Quản lý</span>
-                </Link>
-              </div>
+              <h1 className="text-page-title text-stone-900 pt-0.5">
+                Cẩm nang tác phẩm
+              </h1>
             </div>
 
             {/* Quick Utility Actions */}
             <div className="flex items-center gap-2 shrink-0 flex-wrap">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-primary-50/80 text-primary-700 text-meta font-semibold border border-primary-100">
-                <span className="material-symbols-outlined text-[15px] text-primary-600">auto_awesome</span>
-                <span>{characters.length} hồ sơ nhân vật</span>
-              </div>
               <button
                 onClick={handleExportBible}
                 className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-surface-container-lowest hover:bg-stone-50 text-stone-700 font-medium text-meta border border-stone-200 shadow-2xs transition-colors"
                 type="button"
                 title="Tải toàn bộ Story Bible dưới dạng file JSON"
               >
-                <span className="material-symbols-outlined text-[15px] text-stone-500">download</span>
-                <span>Xuất file Bible</span>
+                <span className="material-symbols-outlined text-[15px] text-stone-500" aria-hidden="true">download</span>
+                <span>Xuất JSON</span>
               </button>
               <button
                 onClick={handleSyncCopilot}
@@ -583,8 +570,8 @@ export function AuthorStoryContextPage() {
             {([
               { key: 'characters' as const, icon: 'group', label: 'Nhân vật', count: characters.length, activeBadge: 'bg-primary-100 text-primary-800' },
               { key: 'relationships' as const, icon: 'hub', label: 'Mối quan hệ', count: relationships.length, activeBadge: 'bg-stone-200 text-stone-700' },
-              { key: 'timeline' as const, icon: 'timeline', label: 'Dòng thời gian (Timeline)', count: timelineEvents.length, activeBadge: 'bg-stone-200 text-stone-700' },
-              { key: 'summaries' as const, icon: 'menu_book', label: 'Tóm tắt hồi (Plot Summaries)', count: plotSummaries.length, activeBadge: 'bg-stone-200 text-stone-700' },
+              { key: 'timeline' as const, icon: 'timeline', label: 'Dòng thời gian', count: timelineEvents.length, activeBadge: 'bg-stone-200 text-stone-700' },
+              { key: 'summaries' as const, icon: 'menu_book', label: 'Tóm tắt hồi', count: plotSummaries.length, activeBadge: 'bg-stone-200 text-stone-700' },
               { key: 'knowledge' as const, icon: 'public', label: 'Địa danh & dữ kiện', count: null, activeBadge: '' },
             ]).map((tab) => {
               const active = activeTab === tab.key;
@@ -871,44 +858,24 @@ export function AuthorStoryContextPage() {
                       disabled={deleteCharacterMutation.isPending}
                       className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition-colors"
                       title="Lưu trữ / Xóa nhân vật này"
+                      aria-label="Xóa nhân vật"
                       type="button"
                     >
-                      <span className="material-symbols-outlined text-[16px]">delete</span>
+                      <span className="material-symbols-outlined text-[16px]" aria-hidden="true">delete</span>
                     </button>
                   )}
-                  <button
-                    onClick={() => characterMutation.mutate()}
-                    disabled={characterMutation.isPending || !characterForm.name.trim()}
-                    className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-white text-meta font-bold shadow-xs transition-all  disabled:opacity-50 ${
-                      isCreatingCharacter
-                        ? 'bg-emerald-600 hover:bg-emerald-700'
-                        : 'bg-primary-600 hover:bg-primary-700'
-                    }`}
-                    type="button"
-                  >
-                    <span className="material-symbols-outlined text-[16px]">
-                      {isCreatingCharacter ? 'person_add' : 'save'}
-                    </span>
-                    <span>
-                      {characterMutation.isPending
-                        ? 'Đang lưu...'
-                        : isCreatingCharacter
-                        ? 'Tạo nhân vật'
-                        : 'Lưu hồ sơ'}
-                    </span>
-                  </button>
                 </div>
               </div>
 
               {/* Form Section 1: Tổng quan & Vai trò */}
               <div className="flex flex-col gap-2.5">
-                <div className="flex items-center gap-1.5 text-primary-700 font-semibold text-meta uppercase tracking-wider">
-                  <span className="material-symbols-outlined text-[17px]">badge</span>
-                  <span>1. Thông tin chung & Vai trò tác phẩm</span>
+                <div className="flex items-center gap-1.5 text-primary-700 font-semibold text-form-label">
+                  <span className="material-symbols-outlined text-[17px]" aria-hidden="true">badge</span>
+                  <span>1. Thông tin chung &amp; Vai trò</span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 bg-stone-50/70 p-4 rounded-xl border border-stone-200/70">
                   <div className="flex flex-col gap-1">
-                    <label className="text-meta font-semibold text-stone-600 uppercase tracking-wider">
+                    <label className="text-form-label text-stone-700">
                       Tên nhân vật *
                     </label>
                     <input
@@ -920,8 +887,8 @@ export function AuthorStoryContextPage() {
                     />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-meta font-semibold text-stone-600 uppercase tracking-wider">
-                      Định vị vĩ mô cốt truyện *
+                    <label className="text-form-label text-stone-700">
+                      Vai trò trong cốt truyện *
                     </label>
                     <select
                       value={characterForm.role}
@@ -939,10 +906,9 @@ export function AuthorStoryContextPage() {
                   {/* Thân phận / Danh xưng cụ thể trong truyện */}
                   <div className="col-span-1 md:col-span-2 flex flex-col gap-1.5 pt-1 border-t border-stone-200/60 mt-1">
                     <div className="flex items-center justify-between">
-                      <label className="text-meta font-semibold text-stone-700 uppercase tracking-wider flex items-center gap-1.5">
-                        <span className="material-symbols-outlined text-[15px] text-primary-600">verified</span>
-                        <span>Danh xưng / Thân phận cụ thể trong truyện</span>
-                        <span className="text-meta text-primary-600 font-normal lowercase">(nhập tự do hoặc click chọn gợi ý)</span>
+                      <label className="text-form-label text-stone-700 flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-[15px] text-primary-600" aria-hidden="true">verified</span>
+                        <span>Danh xưng / Thân phận cụ thể</span>
                       </label>
                       {characterCustomTitle && (
                         <button
@@ -958,7 +924,7 @@ export function AuthorStoryContextPage() {
                       type="text"
                       value={characterCustomTitle}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCharacterCustomTitle(e.target.value)}
-                      placeholder="Ví dụ: Nam chính, Nữ chính, Sư phụ, Đại Boss, Quân sư, Kẻ thù truyền kiếp, Chưởng môn..."
+                      placeholder="Ví dụ: Nam chính, Nữ chính, Sư phụ, Quân sư..."
                       className="p-2 text-meta rounded-lg bg-surface-container-lowest border border-stone-200 focus:outline-none focus:border-primary-500 font-medium text-stone-900"
                     />
 
@@ -986,19 +952,19 @@ export function AuthorStoryContextPage() {
 
               {/* Form Section 2: Ngoại hình & Nhận dạng (description) */}
               <div className="flex flex-col gap-2.5">
-                <div className="flex items-center gap-1.5 text-primary-700 font-semibold text-meta uppercase tracking-wider">
-                  <span className="material-symbols-outlined text-[17px]">face</span>
-                  <span>2. Ngoại hình, Tuổi tác & Đặc điểm nhận dạng</span>
+                <div className="flex items-center gap-1.5 text-primary-700 font-semibold text-form-label">
+                  <span className="material-symbols-outlined text-[17px]" aria-hidden="true">face</span>
+                  <span>2. Ngoại hình &amp; Đặc điểm nhận dạng</span>
                 </div>
                 <div className="bg-stone-50/70 p-4 rounded-xl border border-stone-200/70 flex flex-col gap-2">
-                  <label className="text-meta font-semibold text-stone-600 uppercase tracking-wider">
-                    Mô tả diện mạo, y phục, thói quen đặc trưng
+                  <label className="text-form-label text-stone-700">
+                    Diện mạo, y phục, thói quen đặc trưng
                   </label>
                   <textarea
                     rows={4}
                     value={characterForm.description ?? ''}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCharacterForm({ ...characterForm, description: e.target.value })}
-                    placeholder="Dáng người gầy cao, mắt sâu, bàn tay thon dài có vết mực. Thường mặc áo dạ màu xanh rêu, quàng khăn len mỡ gà..."
+                    placeholder="Dáng người gầy cao, mắt sâu, bàn tay thon dài có vết mực..."
                     className="p-3 text-meta rounded-lg bg-surface-container-lowest border border-stone-200 focus:outline-none focus:border-primary-500 text-stone-800 leading-relaxed"
                   />
                 </div>
@@ -1006,19 +972,19 @@ export function AuthorStoryContextPage() {
 
               {/* Form Section 3: Tính cách & Tâm lý (personality) */}
               <div className="flex flex-col gap-2.5">
-                <div className="flex items-center gap-1.5 text-primary-700 font-semibold text-meta uppercase tracking-wider">
-                  <span className="material-symbols-outlined text-[17px]">psychology</span>
-                  <span>3. Tính cách, Tâm lý & Mâu thuẫn nội tâm</span>
+                <div className="flex items-center gap-1.5 text-primary-700 font-semibold text-form-label">
+                  <span className="material-symbols-outlined text-[17px]" aria-hidden="true">psychology</span>
+                  <span>3. Tính cách &amp; Nội tâm</span>
                 </div>
                 <div className="bg-stone-50/70 p-4 rounded-xl border border-stone-200/70 flex flex-col gap-2">
-                  <label className="text-meta font-semibold text-stone-600 uppercase tracking-wider">
-                    Đặc tính bên ngoài & Xung đột nội tâm
+                  <label className="text-form-label text-stone-700">
+                    Đặc tính bên ngoài &amp; mâu thuẫn nội tâm
                   </label>
                   <textarea
                     rows={4}
                     value={characterForm.personality ?? ''}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCharacterForm({ ...characterForm, personality: e.target.value })}
-                    placeholder="Trầm tĩnh, kiệm lời, lịch thiệp theo lối Tràng An cũ. Mặc cảm tội lỗi về biến cố năm xưa, dằn vặt giữa níu giữ quá khứ và đô thị hóa..."
+                    placeholder="Trầm tĩnh, kiệm lời, lịch thiệp theo lối Tràng An cũ..."
                     className="p-3 text-meta rounded-lg bg-surface-container-lowest border border-stone-200 focus:outline-none focus:border-primary-500 text-stone-800 leading-relaxed"
                   />
                 </div>
@@ -1027,9 +993,9 @@ export function AuthorStoryContextPage() {
               {/* Form Section 4: Ghi chú ngữ cảnh cho AI Copilot (notes) */}
               <div className="flex flex-col gap-2.5">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 text-primary-700 font-semibold text-meta uppercase tracking-wider">
-                    <span className="material-symbols-outlined text-[17px]">smart_toy</span>
-                    <span>4. Ghi chú quy tắc hành vi cho AI Copilot (Prompt Constraint Rules)</span>
+                  <div className="flex items-center gap-1.5 text-primary-700 font-semibold text-form-label">
+                    <span className="material-symbols-outlined text-[17px]" aria-hidden="true">smart_toy</span>
+                    <span>4. Quy tắc hành vi cho AI</span>
                   </div>
                   <span className="text-meta px-2 py-0.5 rounded-full bg-primary-100 text-primary-700 font-bold">
                     Nạp vào AI Copilot
@@ -1045,7 +1011,7 @@ export function AuthorStoryContextPage() {
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCharacterForm({ ...characterForm, notes: e.target.value })}
                     placeholder={`"Khi AI viết lời thoại của ${
                       characterForm.name || 'nhân vật'
-                    }: Giữ nhịp điệu nói chậm rãi, từ ngữ gãy gọn cổ kính. Không để bộc phát cơn giận bằng la hét mà thể hiện qua cử chỉ bóp chặt mẩu phấn..."`}
+                    }: Giữ nhịp điệu nói chậm rãi, từ ngữ gãy gọn cổ kính..."`}
                     className="p-3 text-meta rounded-lg bg-surface-container-lowest border border-primary-200 focus:outline-none focus:border-primary-500 text-stone-800 leading-relaxed font-mono"
                   />
                 </div>
@@ -1077,7 +1043,7 @@ export function AuthorStoryContextPage() {
                     className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary-50 hover:bg-primary-100 text-primary-700 text-meta font-bold transition-colors"
                     type="button"
                   >
-                    <span className="material-symbols-outlined text-[16px]">person_add</span>
+                    <span className="material-symbols-outlined text-[16px]" aria-hidden="true">person_add</span>
                     <span>Tạo nhân vật mới</span>
                   </button>
                 )}
@@ -1091,15 +1057,15 @@ export function AuthorStoryContextPage() {
                   }`}
                   type="button"
                 >
-                  <span className="material-symbols-outlined text-[17px]">
+                  <span className="material-symbols-outlined text-[17px]" aria-hidden="true">
                     {isCreatingCharacter ? 'person_add' : 'check'}
                   </span>
                   <span>
                     {characterMutation.isPending
                       ? 'Đang lưu...'
                       : isCreatingCharacter
-                      ? 'Tạo nhân vật mới'
-                      : 'Lưu hồ sơ nhân vật'}
+                      ? 'Tạo nhân vật'
+                      : 'Lưu hồ sơ'}
                   </span>
                 </button>
               </div>
@@ -1115,9 +1081,9 @@ export function AuthorStoryContextPage() {
             {/* Left Rail: Relationship List (lg: col-span-5) */}
             <div className="lg:col-span-5 flex flex-col gap-3.5 bg-surface-container-lowest rounded-xl p-4 border border-stone-200/80 shadow-xs">
               <div className="flex items-center justify-between pb-2 border-b border-stone-100">
-                <div className="flex items-center gap-1.5 font-bold text-meta text-stone-800 uppercase tracking-wider">
-                  <span className="material-symbols-outlined text-[17px] text-primary-600">hub</span>
-                  <span>Mối quan hệ nhân vật ({relationships.length})</span>
+                <div className="flex items-center gap-1.5 font-semibold text-form-label text-stone-800">
+                  <span className="material-symbols-outlined text-[17px] text-primary-600" aria-hidden="true">hub</span>
+                  <span>Mối quan hệ ({relationships.length})</span>
                 </div>
                 <button
                   onClick={() => {
@@ -1197,7 +1163,7 @@ export function AuthorStoryContextPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1">
-                  <label className="text-meta font-semibold text-stone-600 uppercase">Nhân vật nguồn *</label>
+                  <label className="text-form-label text-stone-700">Nhân vật nguồn *</label>
                   <select
                     value={relationshipForm.sourceCharacterId}
                     onChange={(e) => setRelationshipForm({ ...relationshipForm, sourceCharacterId: e.target.value })}
@@ -1213,7 +1179,7 @@ export function AuthorStoryContextPage() {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-meta font-semibold text-stone-600 uppercase">Nhân vật đích *</label>
+                  <label className="text-form-label text-stone-700">Nhân vật đích *</label>
                   <select
                     value={relationshipForm.targetCharacterId}
                     onChange={(e) => setRelationshipForm({ ...relationshipForm, targetCharacterId: e.target.value })}
@@ -1230,18 +1196,18 @@ export function AuthorStoryContextPage() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-meta font-semibold text-stone-600 uppercase">Loại quan hệ *</label>
+                <label className="text-form-label text-stone-700">Loại quan hệ *</label>
                 <input
                   type="text"
                   value={relationshipForm.relationshipType}
                   onChange={(e) => setRelationshipForm({ ...relationshipForm, relationshipType: e.target.value })}
-                  placeholder="Ví dụ: Bằng hữu tri kỷ, Kẻ thù truyền kiếp, Sư đồ, Kình địch thương trường..."
+                  placeholder="Ví dụ: Bằng hữu tri kỷ, Kẻ thù truyền kiếp, Sư đồ..."
                   className="p-2 text-meta rounded-lg border border-stone-200 bg-surface-container-lowest text-stone-800 font-medium"
                 />
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-meta font-semibold text-stone-600 uppercase">Mô tả chi tiết & Mâu thuẫn</label>
+                <label className="text-form-label text-stone-700">Mô tả chi tiết &amp; mâu thuẫn</label>
                 <textarea
                   rows={4}
                   value={relationshipForm.description ?? ''}
@@ -1278,8 +1244,8 @@ export function AuthorStoryContextPage() {
             {/* Left Rail: Timeline Events Feed (lg: col-span-5) */}
             <div className="lg:col-span-5 flex flex-col gap-3.5 bg-surface-container-lowest rounded-xl p-4 border border-stone-200/80 shadow-xs">
               <div className="flex items-center justify-between pb-2 border-b border-stone-100">
-                <div className="flex items-center gap-1.5 font-bold text-meta text-stone-800 uppercase tracking-wider">
-                  <span className="material-symbols-outlined text-[17px] text-primary-600">timeline</span>
+                <div className="flex items-center gap-1.5 font-semibold text-form-label text-stone-800">
+                  <span className="material-symbols-outlined text-[17px] text-primary-600" aria-hidden="true">timeline</span>
                   <span>Các mốc sự kiện ({timelineEvents.length})</span>
                 </div>
                 <button
@@ -1360,7 +1326,7 @@ export function AuthorStoryContextPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div className="flex flex-col gap-1 md:col-span-2">
-                  <label className="text-meta font-semibold text-stone-600 uppercase">Tên sự kiện *</label>
+                  <label className="text-form-label text-stone-700">Tên sự kiện *</label>
                   <input
                     type="text"
                     value={timelineForm.title}
@@ -1370,7 +1336,7 @@ export function AuthorStoryContextPage() {
                   />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <label className="text-meta font-semibold text-stone-600 uppercase">Thứ tự diễn tiến *</label>
+                  <label className="text-form-label text-stone-700">Thứ tự diễn tiến *</label>
                   <input
                     type="number"
                     value={timelineForm.eventOrder}
@@ -1381,7 +1347,7 @@ export function AuthorStoryContextPage() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-meta font-semibold text-stone-600 uppercase">Chương truyện tương ứng (Tùy chọn)</label>
+                <label className="text-form-label text-stone-700">Chương truyện tương ứng (tùy chọn)</label>
                 <select
                   value={timelineForm.chapterId ?? ''}
                   onChange={(e) => setTimelineForm({ ...timelineForm, chapterId: e.target.value || null })}
@@ -1397,7 +1363,7 @@ export function AuthorStoryContextPage() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-meta font-semibold text-stone-600 uppercase">Tóm tắt diễn biến sự kiện *</label>
+                <label className="text-form-label text-stone-700">Tóm tắt diễn biến *</label>
                 <textarea
                   rows={5}
                   value={timelineForm.summary}
@@ -1414,7 +1380,7 @@ export function AuthorStoryContextPage() {
                   className="px-5 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-meta font-bold transition-all disabled:opacity-50"
                   type="button"
                 >
-                  {timelineMutation.isPending ? 'Đang lưu...' : 'Lưu sự kiện Timeline'}
+                  {timelineMutation.isPending ? 'Đang lưu...' : 'Lưu sự kiện'}
                 </button>
               </div>
             </div>
@@ -1429,9 +1395,9 @@ export function AuthorStoryContextPage() {
             {/* Left Rail: Summaries List (lg: col-span-5) */}
             <div className="lg:col-span-5 flex flex-col gap-3.5 bg-surface-container-lowest rounded-xl p-4 border border-stone-200/80 shadow-xs">
               <div className="flex items-center justify-between pb-2 border-b border-stone-100">
-                <div className="flex items-center gap-1.5 font-bold text-meta text-stone-800 uppercase tracking-wider">
-                  <span className="material-symbols-outlined text-[17px] text-primary-600">menu_book</span>
-                  <span>Tóm tắt hồi & Cốt truyện ({plotSummaries.length})</span>
+                <div className="flex items-center gap-1.5 font-semibold text-form-label text-stone-800">
+                  <span className="material-symbols-outlined text-[17px] text-primary-600" aria-hidden="true">menu_book</span>
+                  <span>Tóm tắt hồi ({plotSummaries.length})</span>
                 </div>
                 <button
                   onClick={() => {
@@ -1506,22 +1472,22 @@ export function AuthorStoryContextPage() {
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-meta font-semibold text-stone-600 uppercase">Phạm vi tóm tắt *</label>
+                <label className="text-form-label text-stone-700">Phạm vi tóm tắt *</label>
                 <select
                   value={summaryForm.scope}
                   onChange={(e) => setSummaryForm({ ...summaryForm, scope: e.target.value as PlotSummaryScope })}
                   className="p-2 text-meta rounded-lg border border-stone-200 bg-stone-50 text-stone-800 font-medium"
                 >
-                  <option value="NOVEL">Toàn bộ tác phẩm (Novel Scope)</option>
-                  <option value="ARC">Theo Hồi / Quyển (Arc Scope)</option>
-                  <option value="CHAPTER">Theo từng chương (Chapter Scope)</option>
+                  <option value="NOVEL">Toàn bộ tác phẩm</option>
+                  <option value="ARC">Theo Hồi / Quyển</option>
+                  <option value="CHAPTER">Theo từng chương</option>
                 </select>
               </div>
 
               {summaryForm.scope === 'ARC' && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="flex flex-col gap-1 md:col-span-3">
-                    <label className="text-meta font-semibold text-stone-600 uppercase">Tên Hồi / Quyển *</label>
+                    <label className="text-form-label text-stone-700">Tên Hồi / Quyển *</label>
                     <input
                       type="text"
                       value={summaryForm.arcName ?? ''}
@@ -1531,7 +1497,7 @@ export function AuthorStoryContextPage() {
                     />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-meta font-semibold text-stone-600 uppercase">Từ chương số</label>
+                    <label className="text-form-label text-stone-700">Từ chương số</label>
                     <input
                       type="number"
                       value={summaryForm.startChapterNumber ?? ''}
@@ -1542,7 +1508,7 @@ export function AuthorStoryContextPage() {
                     />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-meta font-semibold text-stone-600 uppercase">Đến chương số</label>
+                    <label className="text-form-label text-stone-700">Đến chương số</label>
                     <input
                       type="number"
                       value={summaryForm.endChapterNumber ?? ''}
@@ -1557,7 +1523,7 @@ export function AuthorStoryContextPage() {
 
               {summaryForm.scope === 'CHAPTER' && (
                 <div className="flex flex-col gap-1">
-                  <label className="text-meta font-semibold text-stone-600 uppercase">Chọn chương *</label>
+                  <label className="text-form-label text-stone-700">Chọn chương *</label>
                   <select
                     value={summaryForm.chapterId ?? ''}
                     onChange={(e) => setSummaryForm({ ...summaryForm, chapterId: e.target.value || null })}
@@ -1574,7 +1540,7 @@ export function AuthorStoryContextPage() {
               )}
 
               <div className="flex flex-col gap-1">
-                <label className="text-meta font-semibold text-stone-600 uppercase">Nội dung tóm tắt *</label>
+                <label className="text-form-label text-stone-700">Nội dung tóm tắt *</label>
                 <textarea
                   rows={6}
                   value={summaryForm.summary}
@@ -1598,22 +1564,6 @@ export function AuthorStoryContextPage() {
           </div>
         )}
       </main>
-
-      {/* ──────────────────────────────────────────
-          5. Minimal Modern Footer
-         ────────────────────────────────────────── */}
-      <footer className="w-full bg-surface-container-lowest border-t border-stone-200/70 py-6 mt-12 text-meta text-stone-500">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-stone-800">Ephurin StoryCraft Văn Hoa</span>
-            <span>•</span>
-            <span>Nền tảng Sáng tác Văn học Số & Trợ lý Đồng sáng tác AI</span>
-          </div>
-          <div className="flex items-center gap-4 text-stone-400">
-            <span>© 2026 Ephurin</span>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

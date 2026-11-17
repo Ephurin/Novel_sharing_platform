@@ -9,6 +9,7 @@ import { BrainstormingModal } from './BrainstormingModal';
 import type { BrainstormTarget } from './brainstorm-api';
 import type { FutureEventAdopter } from './StoryPlanEditor';
 import { characterNoteText, useCharacterNotes } from './character-notes';
+import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
 type Props={novelId:string;planningStep?:'idea'|'rules'|'characters';onServerChange?:()=>void;allowOfflineBlueprint?:boolean;
  // Routes an adopted AI future event into the Story Plan draft (Planning Studio). Without it events are not offered.
  onAdoptFutureEvent?:FutureEventAdopter};
@@ -22,10 +23,11 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
  const {text,outline,rules,declarations,mode}=local.value;
  const [snapshot,setSnapshot]=useState<SetupSnapshot|null>(null),[message,setMessage]=useState(''),[pending,setPending]=useState(false),[loaded,setLoaded]=useState(false);
  const [brainstormTarget,setBrainstormTarget]=useState<BrainstormTarget|null>(null);
- function fromServer(v:SetupSnapshot|null):Draft{return{base:v?.setup_version??0,text:v?.snapshot.text??'',outline:v?.outline??'',rules:v?.snapshot.world_rules??[],declarations:v?.snapshot.declarations??[],mode:v?.mode??'extract'};}
+ function fromServer(v:SetupSnapshot|null):Draft{return{base:v?.setup_version??0,text:v?.snapshot?.text??'',outline:v?.outline??'',rules:v?.snapshot?.world_rules??[],declarations:v?.snapshot?.declarations??[],mode:v?.mode??'extract'};}
  async function reload(replace=false):Promise<boolean>{
   const signal=scope.signal;scope.assertCurrent();setPending(true);setMessage('');
-  try{let value:SetupSnapshot|null=null;try{value=await getSetup(novelId,undefined,signal);}catch(e){if(!(e instanceof ApiClientError&&e.status===404))throw e;}
+  try{let raw:SetupSnapshot|null=null;try{raw=await getSetup(novelId,undefined,signal);}catch(e){if(!(e instanceof ApiClientError&&e.status===404))throw e;}
+   const value=raw&&typeof raw==='object'&&!Array.isArray(raw)&&Array.isArray(raw.proposals)?raw:null;
    if(signal.aborted)return false;setSnapshot(value);setLoaded(true);
    if(replace)local.accept(fromServer(value));else if(!local.dirtyRef.current)local.hydrate(fromServer(value));else setMessage('Đã đọc bản máy chủ. Bản sửa của bạn vẫn được giữ; chọn bỏ bản sửa nếu muốn dùng bản máy chủ.');
    onServerChange?.();
@@ -46,19 +48,20 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
    setMessage(value.job_status==='failed'?'Tác vụ thất bại. Nguồn đã lưu, chưa được duyệt.':value.proposals.length?'Đã lưu bản thiết lập chờ duyệt.':'Đã đọc lại ý tưởng. Chưa có thẻ thế giới để duyệt.');
   }catch(e){if(!signal.aborted)setMessage(getApiErrorMessage(e)+(e instanceof ApiClientError&&e.status===409?'. Giữ bản sửa để đối chiếu; không tự gửi lại.':''));}finally{if(!signal.aborted)setPending(false);}
  }
- const sourceLocked=!allowOfflineBlueprint&&!!snapshot?.proposals.length;
+ const sourceLocked=!allowOfflineBlueprint&&Boolean(snapshot?.proposals?.length);
  const locked=pending||sourceLocked||!!local.backup;
  const idea=!planningStep||planningStep==='idea',world=!planningStep||planningStep==='rules',people=!planningStep||planningStep==='characters';
  return <Stack gap="sm">
-  <Text fw={600}>Thiết lập thế giới trước khi viết</Text>
-  <Alert>Ý tưởng và dàn ý là dự định tương lai. Nhân vật và quy tắc chỉ trở thành thiết lập sau khi bạn duyệt. Diễn biến chương vẫn qua quy trình duyệt riêng.</Alert>
+  <Group justify="space-between" align="center">
+   <Text fw={600}>Thiết lập thế giới trước khi viết</Text>
+   <AnimatedDisclosure summary="Quy tắc duyệt Canon"><Text size="xs" c="dimmed" pt={4}>Ý tưởng và dàn ý là dự định tương lai. Nhân vật và quy tắc chỉ vào Canon sau khi bạn duyệt; diễn biến chương qua quy trình duyệt riêng.</Text></AnimatedDisclosure>
+  </Group>
   {!loaded&&<Text>Đang đọc thiết lập được cấp quyền…</Text>}
   {loaded&&local.backup&&<Alert color="orange" title="Có bản sửa thiết lập trên thiết bị"><Group><Button onClick={local.recover}>Khôi phục thiết lập</Button><Button variant="default" onClick={local.clear}>Bỏ bản dự phòng thiết lập</Button></Group></Alert>}
   {local.error&&<Alert color="red">{local.error}</Alert>}{local.notice&&<Alert color="yellow" data-testid="planning-cross-tab-notice">{local.notice}</Alert>}
   <div hidden={!idea}><Stack>
-   <Textarea label={allowOfflineBlueprint?"Dàn ý tương lai (có thể bỏ trống)":"Ý tưởng & hướng đi (tương lai)"} value={outline} disabled={!loaded||locked} onChange={e=>local.edit({outline:e.currentTarget.value})} minRows={5} description="Có thể bắt đầu bằng vài câu. Không tự trích xuất thành lịch sử. Lưu ý tưởng hoặc chuyển sang viết bất cứ lúc nào."/>
+   <Textarea label={allowOfflineBlueprint?"Dàn ý tương lai (có thể bỏ trống)":"Ý tưởng & hướng đi (tương lai)"} value={outline} disabled={!loaded||locked} onChange={e=>local.edit({outline:e.currentTarget.value})} minRows={5} description="Có thể bắt đầu bằng vài câu; chưa tự trích xuất vào Canon."/>
    <Button disabled={!loaded||locked} variant="light" onClick={()=>setBrainstormTarget('all')} data-testid="brainstorm-open-idea-btn">AI gợi ý ý tưởng & thiết lập</Button>
-   <Text size="sm">Bạn có thể tự nhập và tổ chức các thẻ ở bước Thế giới và Nhân vật.</Text>
    {allowOfflineBlueprint&&<><Select label="Cách xử lý" value={mode} onChange={v=>local.edit({mode:v as Draft['mode']})} data={['extract','blueprint']} allowDeselect={false}/><Textarea label="Thiết lập rõ ràng (tùy chọn)" value={text} onChange={e=>local.edit({text:e.currentTarget.value})} description="Chỉ môi trường thử nghiệm offline; không bật trong IDE."/></>}
    {!allowOfflineBlueprint&&text&&<Card withBorder><Text size="sm">Nguồn đã nhập (chỉ đọc)</Text><Text style={{whiteSpace:'pre-wrap'}}>{text}</Text></Card>}
   </Stack></div>
@@ -66,7 +69,6 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
    <Text fw={600}>Quy tắc thế giới</Text>
    {rules.map((r,i)=><Card withBorder key={r.declaration_id}><Textarea label={`Quy tắc ${i+1}`} value={r.text} disabled={!loaded||locked} onChange={e=>{const text=e.currentTarget.value;local.edit(d=>({...d,rules:d.rules.map(x=>x.declaration_id===r.declaration_id?{...x,text}:x)}));}}/><Button disabled={locked} variant="subtle" onClick={()=>local.edit(d=>({...d,rules:d.rules.filter(x=>x.declaration_id!==r.declaration_id)}))}>Bỏ quy tắc {i+1}</Button></Card>)}
    <Group><Button disabled={!loaded||locked} variant="light" onClick={()=>local.edit(d=>({...d,rules:[...d.rules,{declaration_id:'rule_'+crypto.randomUUID().replaceAll('-',''),text:''}]}))}>Thêm quy tắc</Button><Button disabled={!loaded||locked} variant="default" onClick={()=>setBrainstormTarget('world_rules')} data-testid="brainstorm-open-rules-btn">AI gợi ý quy tắc</Button></Group>
-   <Text size="sm">Bạn có thể để trống. Sau khi lưu và xử lý, bạn có thể duyệt quy tắc trực tiếp tại đây hoặc ở bước Nhân vật.</Text>
   </Stack></div>
   <div hidden={!people}><Stack>
    <Text fw={600}>Nhân vật & địa danh</Text>

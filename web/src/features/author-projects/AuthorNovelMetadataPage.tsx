@@ -353,7 +353,10 @@ export function AuthorNovelMetadataPage() {
                     {(novel.genres?.length ? novel.genres : novel.genre ? [novel.genre] : []).map(genre => <span key={genre} className="sc-genre-tag">{genre}</span>)}
                     {!novel.genres?.length && !novel.genre && <span className="text-stone-500">Chưa phân loại</span>}
                   </div>
-                  <p className="text-body text-stone-500 mb-2">Tác giả: <Link className="text-stone-800 font-medium hover:underline" to={`/authors/${novel.authorId}`}>{user?.displayName || user?.username || 'Tác giả'}</Link></p>
+                  <p className="text-meta text-stone-500 mb-2">
+                    Tác giả: <Link className="text-stone-800 font-medium hover:underline" to={`/authors/${novel.authorId}`}>{user?.displayName || user?.username || 'Tác giả'}</Link>
+                    {' · '}Cập nhật {new Date(novel.updatedAt).toLocaleString('vi-VN')}
+                  </p>
                   <p className="sc-novel-synopsis text-body text-stone-600">{novel.synopsis}</p>
                   <div className="flex flex-wrap items-center gap-2 mt-3">
                     <button type="button" onClick={() => setEditModalOpen(true)} className="sc-button sc-button-soft"><span className="material-symbols-outlined" aria-hidden="true">edit</span>Chỉnh sửa thông tin</button>
@@ -369,7 +372,6 @@ export function AuthorNovelMetadataPage() {
                       {submitPublishMutation.isPending ? 'Đang gửi...' : 'Gửi duyệt'}
                     </button>
                   </div>
-                  <p className="text-meta text-stone-500 mt-2">Khởi tạo: {new Date(novel.createdAt).toLocaleDateString('vi-VN')} · Cập nhật: {new Date(novel.updatedAt).toLocaleString('vi-VN')}</p>
                 </div>
               </div>
               <dl className="sc-novel-metrics">
@@ -714,42 +716,6 @@ export function AuthorNovelMetadataPage() {
       </main>
 
       {/* ──────────────────────────────────────────
-          BEGIN: Footer (Preserved HTML Structure, IDE Warm Colors)
-         ────────────────────────────────────────── */}
-      <footer className="w-full bg-surface-container-lowest border-t border-stone-200/80 shadow-none mt-auto">
-        <div className="max-w-7xl mx-auto px-4 lg:px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-3 text-meta">
-          <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-primary-600 text-[18px]">auto_stories</span>
-            <span className="font-headline-sm text-stone-900 font-semibold">StoryCraft Văn Hoa</span>
-            <span className="font-label-sm text-stone-400 ml-2">© 2025 Nền tảng Sáng tác Văn học Số.</span>
-          </div>
-          <div className="flex items-center gap-6">
-            <Link
-              to="/author"
-              className="font-label-md text-stone-500 hover:text-stone-900 transition-colors"
-              data-path="trang-tac-gia"
-            >
-              Quy chuẩn bản quyền
-            </Link>
-            <Link
-              to="/author"
-              className="font-label-md text-stone-500 hover:text-stone-900 transition-colors"
-              data-path="tong-quan"
-            >
-              Trung tâm trợ giúp
-            </Link>
-            <Link
-              to="/wallet"
-              className="font-label-md text-stone-500 hover:text-stone-900 transition-colors"
-              data-path="vi-va-doanh-thu"
-            >
-              Chính sách chia sẻ doanh thu
-            </Link>
-          </div>
-        </div>
-      </footer>
-
-      {/* ──────────────────────────────────────────
           BEGIN: Modal Chỉnh Sửa Thông Tin Tác Phẩm
          ────────────────────────────────────────── */}
       {editModalOpen && (
@@ -831,37 +797,22 @@ export function AuthorNovelMetadataPage() {
             </div>
 
             {/* Actions */}
-            <div className="sc-novel-edit-footer border-t border-stone-100 flex flex-wrap items-center justify-between gap-3">
+            <div className="sc-novel-edit-footer border-t border-stone-100 flex items-center justify-end gap-2">
               <button
-                onClick={() => submitPublishMutation.mutate()}
-                disabled={
-                  submitPublishMutation.isPending ||
-                  novel.status === 'PUBLISHED' ||
-                  novel.status === 'PENDING_MODERATION'
-                }
-                className="px-3 py-1.5 rounded-lg border border-primary-200 bg-primary-50 text-primary-700 text-meta font-semibold hover:bg-primary-100 transition-colors disabled:opacity-40 cursor-pointer"
+                onClick={() => setEditModalOpen(false)}
+                className="px-3.5 py-1.5 rounded-lg border border-stone-200 text-stone-600 text-meta font-medium hover:bg-stone-100 transition-colors cursor-pointer"
                 type="button"
-                data-testid="modal-submit-publish-btn"
               >
-                {submitPublishMutation.isPending ? 'Đang gửi...' : 'Gửi duyệt toàn truyện'}
+                Hủy
               </button>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setEditModalOpen(false)}
-                  className="px-3.5 py-1.5 rounded-lg border border-stone-200 text-stone-600 text-meta font-medium hover:bg-stone-100 transition-colors cursor-pointer"
-                  type="button"
-                >
-                  Hủy
-                </button>
-                <button
-                  onClick={() => updateMutation.mutate()}
-                  disabled={updateMutation.isPending || !titleInput.trim()}
-                  className="px-4 py-1.5 rounded-lg bg-primary-600 text-white text-meta font-semibold hover:bg-primary-700 shadow-2xs transition-all disabled:opacity-50 cursor-pointer"
-                  type="button"
-                >
-                  {updateMutation.isPending ? 'Đang lưu...' : 'Lưu thay đổi'}
-                </button>
-              </div>
+              <button
+                onClick={() => updateMutation.mutate()}
+                disabled={updateMutation.isPending || !titleInput.trim()}
+                className="px-4 py-1.5 rounded-lg bg-primary-600 text-white text-meta font-semibold hover:bg-primary-700 shadow-2xs transition-all disabled:opacity-50 cursor-pointer"
+                type="button"
+              >
+                {updateMutation.isPending ? 'Đang lưu...' : 'Lưu thay đổi'}
+              </button>
             </div>
           </div>
         </div></AuthorDialog>

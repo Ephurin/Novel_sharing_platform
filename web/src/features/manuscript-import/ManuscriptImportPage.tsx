@@ -511,37 +511,23 @@ export function ManuscriptImportPage() {
          ────────────────────────────────────────── */}
       <main className="w-full flex-1 pt-0 pb-16">
         <div className="max-w-7xl mx-auto px-4 lg:px-8 py-5 flex flex-col gap-5">
-          {/* Breadcrumb & Back Link */}
+          {/* Breadcrumb */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
             <Breadcrumbs items={[authorHomeCrumb, { label: novel?.title || 'Tác phẩm', to: `/author/novels/${novelId}` }, { label: 'Nhập bản thảo' }]} />
-            <Link
-              to={`/author/novels/${novelId}`}
-              className="inline-flex items-center gap-1.5 text-meta text-primary-600 hover:text-primary-700 transition-colors group font-medium"
-            >
-              <span className="material-symbols-outlined text-[16px] group-hover:-translate-x-0.5 transition-transform">
-                arrow_back
-              </span>
-              <span>Quay lại Quản lý tác phẩm</span>
-            </Link>
           </div>
 
           {fileReadProgress !== null || isReadingFile ? <AnimatedProgress value={fileReadProgress} label={isReadingFile ? 'Đang đọc tệp bản thảo' : 'Đã đọc tệp bản thảo'} /> : null}
 
-          {/* Target Novel Identifier & Header Section */}
+          {/* Header Section */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-stone-200">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="font-headline-sm text-2xl font-bold text-stone-900 tracking-tight">
-                  Nhập bản thảo
-                </h1>
-                <span title={novel?.title} className="sc-import-target inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container-lowest border border-stone-200 text-primary-600 text-meta font-medium shadow-2xs">
-                  <span className="material-symbols-outlined text-body">auto_stories</span>
-                  <span>
-                    Tác phẩm đích: <strong className="font-semibold text-stone-800">{novel?.title}</strong>{' '}
-                    • (Đã có {existingChapterCount} chương)
-                  </span>
-                </span>
-              </div>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="font-headline-sm text-page-title font-bold text-stone-900 tracking-tight">
+                Nhập bản thảo
+              </h1>
+              <span className="sc-import-target inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container-lowest border border-stone-200 text-stone-600 text-meta font-medium shadow-2xs">
+                <span className="material-symbols-outlined text-body text-primary-600" aria-hidden="true">auto_stories</span>
+                <span>Đã có {existingChapterCount} chương</span>
+              </span>
             </div>
             {currentStep === 3 && (
               <button
@@ -1060,9 +1046,9 @@ export function ManuscriptImportPage() {
                         {activePreviewChapter.title}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-stone-400 text-meta">
-                      <span className="material-symbols-outlined text-[15px]">text_format</span>
-                      <span className="text-meta">Phông chữ Merriweather (16px)</span>
+                    <div className="flex items-center gap-1.5 text-stone-400 text-meta">
+                      <span className="material-symbols-outlined text-[15px]" aria-hidden="true">visibility</span>
+                      <span className="text-meta">Xem trước 4 đoạn đầu</span>
                     </div>
                   </div>
 

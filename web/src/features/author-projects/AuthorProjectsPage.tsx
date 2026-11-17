@@ -259,56 +259,45 @@ export function AuthorProjectsPage() {
             {/* Card 1: Tổng tác phẩm */}
             <div className="bg-surface-container-lowest rounded-xl p-4 shadow-2xs border border-stone-200/80 flex items-center justify-between">
               <div className="flex flex-col gap-1">
-                <span className="text-meta text-stone-500 uppercase tracking-wider font-semibold">
+                <span className="text-form-label text-stone-500">
                   Tổng tác phẩm
                 </span>
                 <span className="font-headline-sm text-2xl font-bold text-stone-900 leading-none">
                   <AnimatedNumber value={counts.all} ready={Boolean(projectsQuery.data)} />
                 </span>
-                <span className="text-meta text-stone-500 flex items-center gap-1 mt-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary-600 inline-block"></span>
-                  Tất cả dự án sáng tác
-                </span>
               </div>
-              <div className="w-11 h-11 rounded-xl bg-primary-600/10 flex items-center justify-center text-primary-600 shrink-0">
-                <span className="material-symbols-outlined text-[24px]">auto_stories</span>
+              <div className="w-10 h-10 rounded-xl bg-primary-600/10 flex items-center justify-center text-primary-600 shrink-0">
+                <span className="material-symbols-outlined text-[22px]" aria-hidden="true">auto_stories</span>
               </div>
             </div>
 
             {/* Card 2: Tổng lượt đọc */}
             <div className="bg-surface-container-lowest rounded-xl p-4 shadow-2xs border border-stone-200/80 flex items-center justify-between">
               <div className="flex flex-col gap-1">
-                <span className="text-meta text-stone-500 uppercase tracking-wider font-semibold">
+                <span className="text-form-label text-stone-500">
                   Tổng lượt đọc
                 </span>
-                <div className="flex items-baseline gap-1.5">
-                  <span className="font-headline-sm text-2xl font-bold text-stone-900 leading-none">
-                    <AnimatedNumber value={totalReads} ready={Boolean(projectsQuery.data)} format={value => value >= 1000 ? `${(value / 1000).toFixed(1)}K` : String(value)} />
-                  </span>
-                </div>
-                <span className="text-meta text-stone-500 mt-0.5">Lượt đọc tích lũy từ các tác phẩm</span>
+                <span className="font-headline-sm text-2xl font-bold text-stone-900 leading-none">
+                  <AnimatedNumber value={totalReads} ready={Boolean(projectsQuery.data)} format={value => value >= 1000 ? `${(value / 1000).toFixed(1)}K` : String(value)} />
+                </span>
               </div>
-              <div className="w-11 h-11 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 shrink-0">
-                <span className="material-symbols-outlined text-[24px]">visibility</span>
+              <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 shrink-0">
+                <span className="material-symbols-outlined text-[22px]" aria-hidden="true">visibility</span>
               </div>
             </div>
 
             {/* Card 3: Chương đã xuất bản */}
             <div className="bg-surface-container-lowest rounded-xl p-4 shadow-2xs border border-stone-200/80 flex items-center justify-between">
               <div className="flex flex-col gap-1">
-                <span className="text-meta text-stone-500 uppercase tracking-wider font-semibold">
+                <span className="text-form-label text-stone-500">
                   Chương đã xuất bản
                 </span>
                 <span className="font-headline-sm text-2xl font-bold text-stone-900 leading-none">
                   <AnimatedNumber value={totalChapters} ready={Boolean(projectsQuery.data)} />
                 </span>
-                <span className="text-meta text-stone-500 flex items-center gap-1 mt-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
-                  Trên {counts.all} bộ truyện đang chạy
-                </span>
               </div>
-              <div className="w-11 h-11 rounded-xl bg-stone-100 flex items-center justify-center text-stone-700 shrink-0">
-                <span className="material-symbols-outlined text-[24px]">history_edu</span>
+              <div className="w-10 h-10 rounded-xl bg-stone-100 flex items-center justify-center text-stone-700 shrink-0">
+                <span className="material-symbols-outlined text-[22px]" aria-hidden="true">history_edu</span>
               </div>
             </div>
           </section>
@@ -542,17 +531,20 @@ export function AuthorProjectsPage() {
                               <span className="text-meta font-medium text-stone-500 truncate">
                                 {project.genre || 'Chưa phân loại'}
                               </span>
-                              <span
-                                className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-meta font-semibold whitespace-nowrap ${
-                                  project.status === 'DRAFT'
-                                    ? 'bg-stone-100 text-stone-600 border border-stone-200/60'
-                                    : project.serialStatus === 'COMPLETED'
-                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
-                                    : 'bg-primary-50 text-primary-700 border border-primary-200/60'
-                                }`}
-                              >
-                                {statusLabel}
-                              </span>
+                              <div className="flex items-center gap-1 shrink-0">
+                                <span
+                                  className={`inline-flex items-center px-2 py-0.5 rounded-full text-meta font-semibold whitespace-nowrap ${
+                                    project.status === 'DRAFT'
+                                      ? 'bg-stone-100 text-stone-600 border border-stone-200/60'
+                                      : project.serialStatus === 'COMPLETED'
+                                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
+                                      : 'bg-primary-50 text-primary-700 border border-primary-200/60'
+                                  }`}
+                                >
+                                  {statusLabel}
+                                </span>
+                                <ProjectPin title={project.title} active={pinnedIds.includes(project.novelId)} onClick={() => togglePin(project.novelId)} />
+                              </div>
                             </div>
 
                             {/* Novel Title: Prominently, up to 2 lines */}
@@ -585,23 +577,13 @@ export function AuthorProjectsPage() {
 
                       {/* Bottom Action Footer */}
                       <div className="mt-3.5 pt-2.5 border-t border-stone-100 flex items-center justify-between gap-1.5 relative">
-                        <ProjectPin title={project.title} active={pinnedIds.includes(project.novelId)} onClick={() => togglePin(project.novelId)} />
-                        <button type="button" className="sc-project-pin" aria-label={`Xem nhanh ${project.title}`} title="Xem nhanh tác phẩm" onClick={() => setPreviewId(project.novelId)}><span className="material-symbols-outlined" aria-hidden="true">visibility</span></button>
                         <div className="flex items-center gap-1.5 flex-1">
-                          <Link
-                            to={`/author/novels/${project.novelId}`}
-                            className="inline-flex items-center justify-center gap-1 flex-1 py-1 px-2.5 rounded-lg bg-stone-50 hover:bg-stone-100 text-meta font-medium text-stone-700 border border-stone-200/80 shadow-2xs transition-colors"
-                          >
-                            <span className="material-symbols-outlined text-[15px]">settings</span>
-                            <span>Quản lý</span>
-                          </Link>
-
                           {project.serialStatus === 'COMPLETED' ? (
                             <Link
                               to={`/public/novels/${project.novelId}`}
                               className="inline-flex items-center justify-center gap-1 flex-1 py-1 px-2.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 text-meta font-semibold shadow-2xs transition-colors"
                             >
-                              <span className="material-symbols-outlined text-[15px]">visibility</span>
+                              <span className="material-symbols-outlined text-[15px]" aria-hidden="true">visibility</span>
                               <span>Xem tác phẩm</span>
                             </Link>
                           ) : (
@@ -610,11 +592,21 @@ export function AuthorProjectsPage() {
                               onClick={() => openIde(project.novelId)}
                               className="inline-flex items-center justify-center gap-1 flex-1 py-1 px-2.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-meta font-semibold shadow-2xs transition-colors cursor-pointer"
                             >
-                              <span className="material-symbols-outlined text-[15px]">draw</span>
+                              <span className="material-symbols-outlined text-[15px]" aria-hidden="true">draw</span>
                               <span>Viết tiếp</span>
                             </button>
                           )}
+
+                          <Link
+                            to={`/author/novels/${project.novelId}`}
+                            className="inline-flex items-center justify-center gap-1 py-1 px-2.5 rounded-lg bg-stone-50 hover:bg-stone-100 text-meta font-medium text-stone-700 border border-stone-200/80 shadow-2xs transition-colors"
+                          >
+                            <span className="material-symbols-outlined text-[15px]" aria-hidden="true">settings</span>
+                            <span>Quản lý</span>
+                          </Link>
                         </div>
+
+                        <button type="button" className="sc-project-pin" aria-label={`Xem nhanh ${project.title}`} title="Xem nhanh tác phẩm" onClick={() => setPreviewId(project.novelId)}><span className="material-symbols-outlined" aria-hidden="true">visibility</span></button>
 
                         {/* Three-dot overflow menu */}
                         <div className="relative">

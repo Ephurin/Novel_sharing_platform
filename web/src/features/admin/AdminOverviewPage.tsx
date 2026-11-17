@@ -18,7 +18,6 @@ export function AdminOverviewPage() {
     <>
       <AdminHeader
         title="Tổng quan hệ thống"
-        description="Theo dõi hoạt động StoryCraft"
         refresh={() => void query.refetch()}
       />
       {query.isLoading && <LoadingState label="Đang tải tổng quan..." />}

@@ -298,11 +298,7 @@ export function WalletPage() {
                     </div>
                   </div>
 
-                  <div className="pt-2.5 mt-2.5 bg-surface-container-low rounded-lg p-2.5 flex flex-col gap-2">
-                    <div className="flex items-start gap-1.5 text-on-surface-variant text-meta leading-snug">
-                      <span className="material-symbols-outlined text-body text-primary-800 shrink-0 mt-0.5">verified</span>
-                      <span>Số Xu hiện có trong ví của bạn.</span>
-                    </div>
+                  <div className="pt-2.5 mt-2.5">
                     <button
                       type="button"
                       onClick={() => {
@@ -311,7 +307,7 @@ export function WalletPage() {
                       }}
                       className="w-full inline-flex items-center justify-center gap-1.5 bg-primary hover:bg-primary-container text-on-primary font-label-md text-meta py-2 px-3 rounded-lg shadow-sm hover:shadow-sm transform   transition-all font-semibold"
                     >
-                      <span className="material-symbols-outlined text-[16px]">payments</span>
+                      <span className="material-symbols-outlined text-[16px]" aria-hidden="true">payments</span>
                       <span>Yêu cầu rút Xu mô phỏng</span>
                     </button>
                   </div>
@@ -341,13 +337,6 @@ export function WalletPage() {
                       </div>
                     </div>
                   </div>
-
-                  <div className="pt-2.5 mt-2.5 bg-surface-container-low rounded-lg p-2.5">
-                    <div className="flex items-start gap-1.5 text-on-surface-variant text-meta leading-snug">
-                      <span className="material-symbols-outlined text-body text-warning shrink-0 mt-0.5">info</span>
-                      <span>Số Xu đang bị khóa theo dữ liệu ví hiện tại.</span>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Card 3: Tổng thu nhập tích lũy */}
@@ -372,13 +361,6 @@ export function WalletPage() {
                         </span>
                         <span className="text-body font-semibold text-outline">Xu</span>
                       </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-2.5 mt-2.5 bg-surface-container-low rounded-lg p-2.5">
-                    <div className="flex items-start gap-1.5 text-on-surface-variant text-meta leading-snug">
-                      <span className="material-symbols-outlined text-body text-success shrink-0 mt-0.5">trending_up</span>
-                      <span>Xu nhận từ lượt mở khóa chương và ủng hộ đã hoàn tất.</span>
                     </div>
                   </div>
                 </div>
@@ -574,12 +556,6 @@ export function WalletPage() {
 
                     {/* Bank Details */}
                     <div className="flex flex-col gap-1.5 pt-0.5 text-meta text-on-surface-variant">
-                      <div className="flex justify-between items-center py-0.5 border-b border-surface-container/60">
-                        <span className="text-outline text-meta">Ngân hàng:</span>
-                        <span className="text-on-surface font-medium text-right text-meta">
-                          {bankName || 'Chưa nhập'}
-                        </span>
-                      </div>
                       <div className="flex justify-between items-center py-0.5 border-b border-surface-container/60">
                         <span className="text-outline text-meta">Chi nhánh:</span>
                         <span className="text-on-surface font-medium text-right text-meta">{bankBranch}</span>
@@ -1076,35 +1052,6 @@ export function WalletPage() {
           </div>
         </div></AuthorDialog>
       )}
-
-      {/* Global Footer */}
-      <footer className="w-full bg-surface-container-low mt-auto border-t border-surface-container/60">
-        <div className="max-w-7xl mx-auto px-4 lg:px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-3 text-on-surface-variant">
-          <div className="flex flex-col items-center md:items-start gap-0.5">
-            <div className="flex items-center gap-1.5">
-              <span className="text-body text-primary-800 font-serif font-bold">StoryCraft</span>
-              <span className="text-meta text-tertiary">Văn Hoa Studio</span>
-            </div>
-            <p className="text-meta text-outline text-center md:text-left">
-              © 2025 Nền tảng Xuất bản Văn học Văn Hoa. Bảo lưu mọi quyền.
-            </p>
-          </div>
-          <nav className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-meta">
-            <a href="#" className="text-on-surface-variant hover:text-primary-800 transition-colors">
-              Chính sách xuất bản
-            </a>
-            <a href="#" className="text-on-surface-variant hover:text-primary-800 transition-colors">
-              Bản quyền &amp; Sở hữu trí tuệ
-            </a>
-            <a href="#" className="text-on-surface-variant hover:text-primary-800 transition-colors">
-              Tiêu chuẩn cộng đồng
-            </a>
-            <a href="#" className="text-on-surface-variant hover:text-primary-800 transition-colors">
-              Trung tâm trợ giúp tác giả
-            </a>
-          </nav>
-        </div>
-      </footer>
     </div>
   );
 }

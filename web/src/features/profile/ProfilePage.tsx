@@ -38,21 +38,21 @@ function AuthorWorkCard({ novel, publicMode }: { novel: AuthorProfile['novels'][
   const status = serialStatusLabels[novel.serialStatus ?? ''] ?? serialStatusLabels.ONGOING;
   const detailPath = `${publicMode ? '/public' : '/reader'}/novels/${novel.novelId}`;
   return (
-    <article className="sc-novel-card bg-surface-container-lowest rounded-xl border border-stone-200/90 transition-all flex flex-col justify-between gap-3 group">
+    <article className="sc-novel-card relative bg-surface-container-lowest rounded-xl border border-stone-200/90 hover:border-primary-600/40 transition-all flex flex-col justify-between gap-3 group">
       <div className="flex gap-3 items-start">
-        <Link to={detailPath} className="sc-cover-hover relative w-[76px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-cover-fallback border border-stone-200/70">
+        <div className="sc-cover-hover relative w-[76px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-cover-fallback border border-stone-200/70">
           {novel.coverImageUrl ? (
             <img alt={novel.title} src={novel.coverImageUrl} className="w-full h-full object-cover" />
           ) : (
             <span className="flex h-full items-center justify-center p-2 text-center text-meta text-white">{novel.title}</span>
           )}
-        </Link>
+        </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-1 mb-1">
             <span className="text-meta font-medium text-stone-500 truncate">{novel.genre || 'Chưa phân loại'}</span>
             <span className={`shrink-0 inline-flex items-center rounded-full ${status.className}`}>{status.label}</span>
           </div>
-          <Link to={detailPath} className="text-body font-bold text-stone-900 line-clamp-2 leading-snug group-hover:text-primary-600 transition-colors" title={novel.title}>
+          <Link to={detailPath} className="text-body font-bold text-stone-900 line-clamp-2 leading-snug group-hover:text-primary-600 transition-colors after:absolute after:inset-0 after:rounded-xl" title={novel.title}>
             {novel.title}
           </Link>
           <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-meta text-stone-500">
@@ -61,11 +61,6 @@ function AuthorWorkCard({ novel, publicMode }: { novel: AuthorProfile['novels'][
             <span className="inline-flex items-center gap-1 text-red-700"><span className="material-symbols-outlined text-[15px]" aria-hidden="true">favorite</span><strong>{(novel.likesCount ?? 0).toLocaleString('vi-VN')}</strong></span>
           </div>
         </div>
-      </div>
-      <div className="pt-2.5 border-t border-stone-100 flex items-center justify-end">
-        <Link to={detailPath} className="sc-button sc-button-soft">
-          <span className="material-symbols-outlined" aria-hidden="true">auto_stories</span>Xem tác phẩm
-        </Link>
       </div>
     </article>
   );

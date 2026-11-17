@@ -453,8 +453,7 @@ function ScopedAuthorMemoryPanel({
       <Stack gap="sm">
         <Group justify="space-between" align="center">
           <Text size="xs" c="dimmed">
-            Bộ nhớ chính thức v{currentBrainVersion} · {brain.data?.status ?? 'đang tải'}. Đề xuất chưa duyệt
-            chưa được dùng làm sự thật.
+            Trạng thái: {brain.data?.status ?? 'đang tải'} · Chỉ đề xuất đã duyệt mới vào Canon.
           </Text>
           <Badge variant="outline" size="xs">
             Brain v{currentBrainVersion}
@@ -482,11 +481,11 @@ function ScopedAuthorMemoryPanel({
         )}
 
         <Tabs value={tab} onValueChange={(value: string) => { setTab(value || 'review'); setProfileTabOpened(value === 'profiles'); }}>
-          <Tabs.List>
+          <Tabs.List style={{ flexWrap: 'nowrap', overflowX: 'auto', scrollbarWidth: 'thin' }}>
             <Tabs.Tab value="review" aria-label={`Chờ duyệt: ${pendingReviews.entityCount} chương chờ duyệt danh tính, ${queue.data?.length ?? 0} đề xuất`}>
               Chờ duyệt ({pendingReviews.entityCount + (queue.data?.length ?? 0)})
             </Tabs.Tab>
-            <Tabs.Tab value="profiles">Hồ sơ Codex</Tabs.Tab>
+            <Tabs.Tab value="profiles" style={{ marginInlineStart: 6, borderInlineStart: '1px solid var(--sc-border)' }}>Hồ sơ Codex</Tabs.Tab>
             <Tabs.Tab value="characters">Nhân vật ({category(['character', 'per', 'person']).length})</Tabs.Tab>
             <Tabs.Tab value="relations">
               Quan hệ Canon ({memory.data?.relations?.filter(r => r.locked).length ?? 0} khóa)
@@ -495,7 +494,7 @@ function ScopedAuthorMemoryPanel({
             <Tabs.Tab value="history">Sự kiện ({memory.data?.events?.length ?? 0})</Tabs.Tab>
             <Tabs.Tab value="locations">Địa danh</Tabs.Tab>
             <Tabs.Tab value="items">Vật phẩm</Tabs.Tab>
-            <Tabs.Tab value="setup">Trích xuất</Tabs.Tab>
+            <Tabs.Tab value="setup" style={{ marginInlineStart: 6, borderInlineStart: '1px solid var(--sc-border)' }}>Trích xuất</Tabs.Tab>
             <Tabs.Tab value="plan">Định hướng</Tabs.Tab>
             <Tabs.Tab value="auto">Full auto</Tabs.Tab>
           </Tabs.List>

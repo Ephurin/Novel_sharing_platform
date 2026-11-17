@@ -16,6 +16,7 @@ import {
 } from '@mantine/core';
 import { ApiClientError, getApiErrorMessage } from '../../shared/api/api-client';
 import { getApprovedMemory } from './author-memory-api';
+import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
 import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 import {
   requestBrainstorm,
@@ -376,7 +377,7 @@ export function BrainstormingModal({
     >
       <Stack gap="md">
         <Alert title="Chỉ tạo gợi ý bản nháp (Draft-Only)">
-          Gợi ý từ AI mang trạng thái <Badge size="xs" variant="light">model_proposed</Badge> và chỉ được đưa vào bản nháp của bạn khi bạn chọn dùng. <strong>Không tự ghi Canon, không tạo lịch sử, và không kích hoạt M0.</strong> Ghi chú riêng tư của bạn không bao giờ được gửi tới mô hình AI.
+          Gợi ý AI chỉ thêm vào bản nháp khi bạn chọn dùng; <strong>không tự ghi Canon hay kích hoạt M0</strong>, và ghi chú riêng tư không bao giờ gửi cho AI.
         </Alert>
 
         <Group grow align="flex-start">
@@ -527,8 +528,7 @@ export function BrainstormingModal({
                       <Stack gap="xs">
                         <Group justify="space-between">
                           <Group gap="xs">
-                            <Badge variant="light" size="sm">AI đề xuất (model_proposed)</Badge>
-                            <Badge color="gray" variant="outline" size="sm">Chưa vào Canon</Badge>
+                            <Text size="xs" c="dimmed">AI đề xuất (model_proposed) · Chưa vào Canon</Text>
                             {rule.category && <Badge color="teal" variant="light" size="xs">{rule.category}</Badge>}
                           </Group>
                           <Button
@@ -593,8 +593,7 @@ export function BrainstormingModal({
                       <Stack gap="xs">
                         <Group justify="space-between">
                           <Group gap="xs">
-                            <Badge variant="light" size="sm">AI đề xuất (model_proposed)</Badge>
-                            <Badge color="gray" variant="outline" size="sm">Chưa vào Canon</Badge>
+                            <Text size="xs" c="dimmed">AI đề xuất (model_proposed) · Chưa vào Canon</Text>
                             {char.role && <Badge color="teal" size="xs">{char.role}</Badge>}
                           </Group>
                           <Button
@@ -670,9 +669,8 @@ export function BrainstormingModal({
                       <Stack gap="xs">
                         <Group justify="space-between">
                           <Group gap="xs">
-                            <Badge variant="light" size="sm">AI đề xuất (model_proposed)</Badge>
-                            <Badge color="gray" variant="outline" size="sm">Dự kiến Chương {ev.target_chapter}</Badge>
-                            <Badge color="gray" variant="outline" size="sm">Chưa vào Canon</Badge>
+                            <Badge color="gray" variant="outline" size="xs">Dự kiến Chương {ev.target_chapter}</Badge>
+                            <Text size="xs" c="dimmed">AI đề xuất (model_proposed) · Chưa vào Canon</Text>
                           </Group>
                           <Button
                             variant="subtle"
@@ -752,14 +750,16 @@ export function BrainstormingModal({
 
             {provenance && (
               <Card withBorder bg="var(--sc-surface-subtle)" p="xs">
-                <Text size="xs" c="dimmed">
-                  Nguồn gốc gợi ý: Nhà cung cấp <strong>{provenance.provider}</strong> · Mô hình <strong>{provenance.model}</strong> · Tham chiếu: {provenance.grounding_rules_count} quy tắc, {provenance.grounding_entities_count} nhân vật đã duyệt · Thời gian: {new Date(provenance.timestamp).toLocaleString('vi-VN')}
-                </Text>
                 {(provenance.duplicates_removed ?? 0) > 0 && (
-                  <Text size="xs" c="dimmed" data-testid="brainstorm-duplicates-removed">
+                  <Text size="xs" c="dimmed" mb={4} data-testid="brainstorm-duplicates-removed">
                     Đã ẩn {provenance.duplicates_removed} gợi ý trùng với quy tắc hoặc nhân vật đã duyệt.
                   </Text>
                 )}
+                <AnimatedDisclosure summary="Nguồn gốc gợi ý & mô hình AI">
+                  <Text size="xs" c="dimmed" pt={4}>
+                    Nhà cung cấp <strong>{provenance.provider}</strong> · Mô hình <strong>{provenance.model}</strong> · Tham chiếu: {provenance.grounding_rules_count} quy tắc, {provenance.grounding_entities_count} nhân vật đã duyệt · Thời gian: {new Date(provenance.timestamp).toLocaleString('vi-VN')}
+                  </Text>
+                </AnimatedDisclosure>
               </Card>
             )}
           </Stack>
