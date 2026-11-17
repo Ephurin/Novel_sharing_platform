@@ -3301,6 +3301,40 @@ class PostgresNarrativeRepository:
                     ['waiting_entity_review', 'entities_reviewed']))).all()
             return [deepcopy(a) for a in rows]
 
+    def discard_chapter_analysis(self, story_id: str, chapter_id: str, reason: str,
+                                 actor_id: str | None = None) -> dict:
+        """Live check R4 (BB3): a deleted or archived chapter left its entity review waiting, so its
+        analysis could still be continued into Canon. Open reviews of the chapter become 'discarded'
+        and its pending proposals are rejected. Canon and its version are untouched."""
+        from copy import deepcopy
+        novel_id = self._novel_id(story_id)
+        actor = uuid.UUID(actor_id) if actor_id is not None else self._actor_id
+        with session_scope(self._session_factory) as session:
+            runs = session.scalars(select(AnalysisRunRecord).where(
+                *self._scope(AnalysisRunRecord, novel_id)).with_for_update()).all()
+            mine = [r for r in runs if str((r.entity_candidate_audit or {}).get('chapter_id')
+                    or ((r.entity_candidate_audit or {}).get('request') or {}).get('chapter_id') or '') == str(chapter_id)]
+            discarded = []
+            for record in mine:
+                audit = record.entity_candidate_audit or {}
+                if audit.get('status') in ('waiting_entity_review', 'entities_reviewed'):
+                    record.entity_candidate_audit = {**deepcopy(audit), 'status': 'discarded', 'discard_reason': reason}
+                    discarded.append(str(record.id))
+            rejected = []
+            run_ids = [r.id for r in mine]
+            if run_ids:
+                pending = session.scalars(select(ProposalRecord).where(
+                    *self._scope(ProposalRecord, novel_id), ProposalRecord.analysis_run_id.in_(run_ids),
+                    ProposalRecord.status == ProposalStatus.PENDING.value).with_for_update()).all()
+                for proposal in pending:
+                    proposal.status = ProposalStatus.REJECTED.value
+                    proposal.decision_reason = reason
+                    session.add(ProposalDecisionRecord(proposal_id=proposal.id, actor_id=actor,
+                                                       decision='reject', reason=reason))
+                    rejected.append(str(proposal.id))
+            session.flush()
+            return {'discarded_runs': discarded, 'rejected_proposals': rejected}
+
     def save_entity_guidance(self, story_id: str, guidance: dict, expected_version: int) -> dict:
         from copy import deepcopy
         with session_scope(self._session_factory) as session:

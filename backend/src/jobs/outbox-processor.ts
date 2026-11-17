@@ -75,6 +75,7 @@ export interface OutboxDependencies {
 
 export interface AnalysisGateDependencies {
   latestRevision?: (chapterId: string) => Promise<{ revisionId: string; createdAt: Date } | null>;
+  chapterActive?: (chapterId: string) => Promise<boolean>;
   quietSeconds?: number;
   now?: () => number;
 }
@@ -90,6 +91,13 @@ export async function incrementalAnalysisGate(event: RevisionOutboxEvent,
   });
   const head = await latest(event.chapterId);
   if (head && head.revisionId !== event.revisionId) return { skipped: 'superseded by a newer saved revision' };
+  // BB3: do not analyse a chapter the author has archived or deleted since saving it.
+  const active = deps.chapterActive ?? (async (chapterId: string) => {
+    const row = (await getPostgresPool().query(
+      "select 1 from chapters where chapter_id = $1 and deleted_at is null and status <> 'ARCHIVED'", [chapterId])).rowCount;
+    return Boolean(row);
+  });
+  if (!(await active(event.chapterId))) return { skipped: 'chapter archived or deleted' };
   const quiet = deps.quietSeconds ?? env.ANALYSIS_QUIET_SECONDS;
   if (head && quiet > 0) {
     const ageSeconds = ((deps.now ?? Date.now)() - head.createdAt.getTime()) / 1000;

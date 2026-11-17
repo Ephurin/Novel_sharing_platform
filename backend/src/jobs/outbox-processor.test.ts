@@ -11,7 +11,7 @@ const event: RevisionOutboxEvent = {
  payload: {}, status: 'PROCESSING', retryCount: 0, maxRetries: 5,
  nextRetryAt: new Date(), lastError: null, claimToken: 'lease-1', createdAt: new Date(), updatedAt: new Date()
 };
-const headIsThisRevision = { latestRevision: async () => ({ revisionId: event.revisionId, createdAt: new Date(0) }) };
+const headIsThisRevision = { latestRevision: async () => ({ revisionId: event.revisionId, createdAt: new Date(0) }), chapterActive: async () => true };
 async function usingFetch(fn: typeof fetch, action: () => Promise<void>) {
  const original = globalThis.fetch;
  globalThis.fetch = fn;
@@ -116,7 +116,7 @@ describe('P1 extraction-only outbox authorization boundary', () => {
  test('incremental analysis waits until the head revision has been unchanged for the quiet period', async () => {
   const saved = new Date('2026-11-15T10:00:00Z');
   const gate = (offsetSeconds: number) => ({ quietSeconds: 120, now: () => saved.getTime() + offsetSeconds * 1000,
-   latestRevision: async () => ({ revisionId: event.revisionId, createdAt: saved }) });
+   latestRevision: async () => ({ revisionId: event.revisionId, createdAt: saved }), chapterActive: async () => true });
   let calls = 0;
   await usingFetch(async () => { calls++; return new Response('{}'); }, async () => {
    assert.deepEqual(await handleOutboxEvent(event, gate(30)), { deferSeconds: 90, reason: 'waiting for the chapter to stop changing' });
@@ -143,9 +143,17 @@ describe('P1 extraction-only outbox authorization boundary', () => {
   let calls = 0; const completed: string[] = [];
   await usingFetch(async () => { calls++; return new Response('{}'); }, async () => {
    await processOutboxOnce(1, { claimEvents: async () => [event], ignoreQuietPeriod: true,
-    analysisGate: { quietSeconds: 600, latestRevision: async () => ({ revisionId: event.revisionId, createdAt: new Date() }) },
+    analysisGate: { quietSeconds: 600, latestRevision: async () => ({ revisionId: event.revisionId, createdAt: new Date() }), chapterActive: async () => true },
     markCompleted: async id => { completed.push(id); return true; }, markFailed: async () => true });
   });
   assert.equal(calls, 1); assert.deepEqual(completed, [event.eventId]);
  });
 });
+ test('BB3: a chapter archived or deleted after saving is not analysed', async () => {
+  let calls = 0;
+  await usingFetch(async () => { calls++; return new Response('{}'); }, async () => {
+   const outcome = await handleOutboxEvent(event, { ...headIsThisRevision, chapterActive: async () => false });
+   assert.deepEqual(outcome, { skipped: 'chapter archived or deleted' });
+  });
+  assert.equal(calls, 0);
+ });
