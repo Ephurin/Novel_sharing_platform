@@ -45,10 +45,20 @@ const factKeys: Record<string, string> = {
   location: 'Vị trí', last_seen: 'Xuất hiện gần nhất', status: 'Sống/chết', condition: 'Tình trạng',
   health: 'Sức khỏe', posture: 'Tư thế', occupation: 'Nghề nghiệp', title: 'Danh hiệu', weapon: 'Vũ khí',
   realm: 'Cảnh giới', cultivation_level: 'Cảnh giới', personality: 'Tính cách', goal: 'Mục tiêu',
-  ability: 'Năng lực', relationship: 'Quan hệ', origin: 'Xuất thân', affiliation: 'Thuộc phe', world_rule: 'Quy tắc thế giới'
+  ability: 'Năng lực', relationship: 'Quan hệ', origin: 'Xuất thân', affiliation: 'Thuộc phe', world_rule: 'Quy tắc thế giới',
+  bloodline: 'Huyết mạch', clothing_color: 'Màu áo', injury: 'Vết thương', memory_status: 'Ký ức', possesses: 'Sở hữu'
 };
 /** UI walkthrough (UI-5): "Màu tóc" instead of "hair_color". An unknown key is shown as words. */
-export const factKeyLabel = (key: string) => factKeys[key.toLowerCase()] ?? key.replace(/_/g, ' ');
+export const factKeyLabel = (key: string) => {
+  // Setup world rules are stored as setup_rule_rule_<hash>: never show the hash.
+  if (/^setup_rule|(^|_)rule_[0-9a-f]{12,}$/i.test(key)) return 'Quy tắc thế giới';
+  return factKeys[key.toLowerCase()] ?? key.replace(/_?[0-9a-f]{12,}/gi, '').replace(/_/g, ' ').trim();
+};
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/** A state value that is an entity ID (for example a location) is shown as that entity's name. */
+export const stateValueLabel = (entities: { entity_id: string; name: string }[], value: unknown) =>
+  typeof value === 'string' ? (UUID.test(value) ? entityName(entities, value) : value) : JSON.stringify(value);
 
 /** Option label for picking an entity: name and type, plus a short code only when two entities share
  *  the name (for example two characters called Minh), so the author can still tell them apart. */
