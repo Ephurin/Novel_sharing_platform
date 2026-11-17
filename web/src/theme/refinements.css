@@ -96,7 +96,7 @@
 .sc-author-theme:not(:has(.sc-writing-studio)) :is(a, button).sc-button-soft:hover { background: rgb(var(--sc-primary-rgb) / .16); color: rgb(var(--sc-primary-text-strong-rgb)); }
 
 /* Any filled-orange surface (count badges, avatars, tabs) uses the dark label, even if the markup says text-white. */
-.sc-author-theme :is(.bg-primary, .bg-primary-500, .bg-primary-600, .bg-primary-700) { color: var(--sc-on-primary); }
+:is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) :is(.bg-primary, .bg-primary-500, .bg-primary-600, .bg-primary-700) { color: var(--sc-on-primary); }
 
 /* Neutral: white with a hairline border. */
 .sc-author-theme:not(:has(.sc-writing-studio)) :is(a, button, span).sc-button:not(.sc-button-primary):not(.sc-button-soft) {

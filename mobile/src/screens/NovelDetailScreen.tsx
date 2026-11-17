@@ -108,12 +108,14 @@ export function NovelDetailScreen({
             <GhostButton
               flex={1}
               label="Theo dõi tác giả"
-              onPress={() =>
-                protectedAction(
-                  () => followAuthor(novel?.authorId ?? ''),
+              disabled={!novel?.authorId}
+              onPress={() => {
+                if (!novel?.authorId) return;
+                void protectedAction(
+                  () => followAuthor(novel.authorId!),
                   'Đã theo dõi tác giả.'
-                )
-              }
+                );
+              }}
             />
             <GhostButton
               flex={1}

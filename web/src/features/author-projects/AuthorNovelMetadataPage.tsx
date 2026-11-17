@@ -406,8 +406,10 @@ export function AuthorNovelMetadataPage() {
                     return (
                       <button
                         key={key}
+                        id={`${tabsGroupId}-tab-${key}`}
                         role="tab"
                         aria-selected={active}
+                        aria-controls={`${tabsGroupId}-panel-${key}`}
                         tabIndex={active ? 0 : -1}
                         onClick={() => {
                           setActiveTab(key);
@@ -451,6 +453,12 @@ export function AuthorNovelMetadataPage() {
               </LayoutGroup>
 
               {orderOpen && <ChapterOrder novelId={novelId} chapters={chapters} onClose={() => setOrderOpen(false)} />}
+              <div
+                id={`${tabsGroupId}-panel-${activeTab}`}
+                role="tabpanel"
+                aria-labelledby={`${tabsGroupId}-tab-${activeTab}`}
+                className="flex flex-col"
+              >
               {activeTab === 'history' ? <ChapterHistoryPanel chapters={chapters} /> : <>
               {/* Streamlined Chapter Toolbar */}
               <div className="sc-chapter-toolbar" role="group" aria-label="Bộ lọc và thao tác chương">
@@ -725,6 +733,7 @@ export function AuthorNovelMetadataPage() {
                 </div>
               </div>
               </>}
+              </div>
             </div>
           </div>
         </div>

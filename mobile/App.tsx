@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { CurrentUser } from './src/api/types';
 import { Card, PrimaryButton, Screen } from './src/components/Screen';
 import { AuthScreen } from './src/screens/AuthScreen';
@@ -59,10 +59,10 @@ function HeaderThemeToggle() {
       accessibilityLabel={`Chuyển sang giao diện ${label}`}
       onPress={() => setMode(next)}
       style={({ pressed }) => ({
-        minHeight: 36,
+        minHeight: 44,
         minWidth: 44,
-        paddingHorizontal: 10,
-        paddingVertical: 6,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
         borderRadius: 8,
         borderWidth: 1,
         borderColor: palette.controlBorder,
@@ -194,6 +194,8 @@ function MainTabs({
   onLogout: () => void;
 }) {
   const { palette } = useStoryCraftTheme();
+  const insets = useSafeAreaInsets();
+  const bottomPad = Math.max(insets.bottom, 6);
 
   return (
     <Tabs.Navigator
@@ -209,9 +211,9 @@ function MainTabs({
         tabBarStyle: {
           backgroundColor: palette.surface,
           borderTopColor: palette.border,
-          minHeight: 58,
+          height: 54 + bottomPad,
           paddingTop: 4,
-          paddingBottom: 6
+          paddingBottom: bottomPad
         },
         tabBarLabelStyle: {
           fontSize: 12,

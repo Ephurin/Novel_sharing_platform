@@ -176,6 +176,7 @@ export function ReaderScreen({
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
           <GhostButton
             label="A-"
+            accessibilityLabel="Giảm cỡ chữ"
             onPress={() =>
               adjustPreference({
                 ...preferences,
@@ -185,6 +186,7 @@ export function ReaderScreen({
           />
           <GhostButton
             label="A+"
+            accessibilityLabel="Tăng cỡ chữ"
             onPress={() =>
               adjustPreference({
                 ...preferences,

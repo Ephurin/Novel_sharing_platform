@@ -48,8 +48,12 @@ export function NotificationsScreen() {
                 <GhostButton
                   label="Đánh dấu đã đọc"
                   onPress={async () => {
-                    await markNotificationRead(notification.notificationId);
-                    await load();
+                    try {
+                      await markNotificationRead(notification.notificationId);
+                      await load();
+                    } catch (caughtError) {
+                      setError(getApiErrorMessage(caughtError));
+                    }
                   }}
                 />
               ) : null}

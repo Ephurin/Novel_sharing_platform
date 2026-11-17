@@ -524,7 +524,7 @@ export function AuthorStoryContextPage() {
                 title="Tải toàn bộ Story Bible dưới dạng file JSON"
               >
                 <span className="material-symbols-outlined text-[15px] text-stone-500" aria-hidden="true">download</span>
-                <span>Xuất JSON</span>
+                <span>Xuất file Bible</span>
               </button>
               <button
                 onClick={handleSyncCopilot}
@@ -555,8 +555,10 @@ export function AuthorStoryContextPage() {
               return (
                 <button
                   key={tab.key}
+                  id={`${mainTabsGroupId}-tab-${tab.key}`}
                   role="tab"
                   aria-selected={active}
+                  aria-controls={`${mainTabsGroupId}-panel-${tab.key}`}
                   tabIndex={active ? 0 : -1}
                   onClick={() => setActiveTab(tab.key)}
                   onKeyDown={(e) => {
@@ -598,6 +600,11 @@ export function AuthorStoryContextPage() {
         {/* ──────────────────────────────────────────
             TAB 1: CHARACTERS WORKSPACE (Two Columns)
            ────────────────────────────────────────── */}
+        <div
+          id={`${mainTabsGroupId}-panel-${activeTab}`}
+          role="tabpanel"
+          aria-labelledby={`${mainTabsGroupId}-tab-${activeTab}`}
+        >
         {activeTab === 'knowledge' && <StoryBibleKnowledge memory={approvedMemoryQuery.data}
           loading={approvedMemoryQuery.isLoading} failed={approvedMemoryQuery.isError}
           retry={() => void approvedMemoryQuery.refetch()} />}
@@ -1553,6 +1560,7 @@ export function AuthorStoryContextPage() {
             </div>
           </div>
         )}
+        </div>
       </main>
 
       <AnimatedModal

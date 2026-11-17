@@ -92,7 +92,7 @@ export function getApiErrorMessage(error: unknown) {
       return 'Dịch vụ AI tạm thời không phản hồi. Hệ thống đã thử lại; vui lòng thử lại sau khoảng một phút.';
     }
     // The AI service explains this one in Vietnamese (for example a repeated event).
-    if (error.code === 'INVALID_PROJECTION' && /[À-ỹ]/.test(error.message)) {
+    if (error.code === 'INVALID_PROJECTION' && /[\u00C0-\u1EF9]/.test(error.message)) {
       return error.message;
     }
     return `${error.code}: ${error.message}`;

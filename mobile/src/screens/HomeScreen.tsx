@@ -114,11 +114,9 @@ export function NovelCard({ novel, onPress }: { novel: ReaderNovel; onPress: () 
             {novel.synopsis}
           </Text>
         ) : null}
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-          <Badge label={`${(novel.chaptersCount ?? 0).toLocaleString('vi-VN')} chương`} />
-          <Badge label={`${(novel.viewsCount ?? 0).toLocaleString('vi-VN')} lượt đọc`} />
-          <Badge label={`${(novel.likesCount ?? 0).toLocaleString('vi-VN')} thích`} />
-        </View>
+        <Text style={themed.muted}>
+          {(novel.chaptersCount ?? 0).toLocaleString('vi-VN')} chương · {(novel.viewsCount ?? 0).toLocaleString('vi-VN')} lượt đọc · {(novel.likesCount ?? 0).toLocaleString('vi-VN')} thích
+        </Text>
       </Card>
     </Pressable>
   );

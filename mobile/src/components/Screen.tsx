@@ -1,5 +1,5 @@
 import { useMemo, type PropsWithChildren } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { lightColors, type StoryCraftPalette } from '../theme/colors';
 import { useStoryCraftTheme } from '../theme/ThemeProvider';
@@ -146,13 +146,19 @@ export function useScreenStyles() {
 export function Screen({ children }: PropsWithChildren) {
   const themed = useScreenStyles();
   return (
-    <SafeAreaView edges={['left', 'right']} style={themed.safeArea}>
-      <ScrollView
-        contentContainerStyle={themed.screen}
-        keyboardShouldPersistTaps="handled"
+    <SafeAreaView edges={['left', 'right', 'bottom']} style={themed.safeArea}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={themed.safeArea}
       >
-        {children}
-      </ScrollView>
+        <ScrollView
+          contentContainerStyle={themed.screen}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+        >
+          {children}
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -205,6 +211,7 @@ export function PrimaryButton({
 
 export function GhostButton({
   label,
+  accessibilityLabel,
   onPress,
   active = false,
   danger = false,
@@ -212,6 +219,7 @@ export function GhostButton({
   flex
 }: {
   label: string;
+  accessibilityLabel?: string;
   onPress: () => void;
   active?: boolean;
   danger?: boolean;
@@ -223,7 +231,7 @@ export function GhostButton({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={label}
+      accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ disabled, selected: active }}
       disabled={disabled}
       style={({ pressed }) => [

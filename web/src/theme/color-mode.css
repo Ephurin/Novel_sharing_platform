@@ -20,17 +20,17 @@ body { font-family: var(--sc-font); background: var(--sc-bg); color: var(--sc-te
 :root .mantine-NavLink-root[data-active] { color: var(--sc-primary-text); background: var(--sc-primary-soft); }
 :root .mantine-Tooltip-tooltip { background: var(--sc-surface-elevated); color: var(--sc-text); border: 1px solid var(--sc-border); }
 :root .mantine-ActionIcon-root[data-variant="subtle"] { color: var(--sc-text-muted); }
-/* Plain/native forms in author screens share the same readable boundaries. */
-.sc-author-theme :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select) { background-color: var(--sc-surface-subtle); color: var(--sc-text); border-color: var(--sc-control-border); caret-color: var(--sc-text); }
-.sc-author-theme select option { background: var(--sc-surface-elevated); color: var(--sc-text); }
+/* Plain/native forms in author screens and portaled modals share the same readable boundaries. */
+:is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select) { background-color: var(--sc-surface-subtle); color: var(--sc-text); border-color: var(--sc-control-border); caret-color: var(--sc-text); }
+:is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) select option { background: var(--sc-surface-elevated); color: var(--sc-text); }
 .sc-author-theme .sc-manuscript { background: transparent; color: var(--sc-text); }
 .sc-author-theme .sc-format-toolbar > div { background: var(--sc-surface-elevated); }
-.sc-author-theme :is(button, a):is(.bg-primary, .bg-primary-500, .bg-primary-600, .bg-primary-700, .bg-primary-container) { color: var(--sc-on-primary); }
-:root[data-theme="dark"] .sc-author-theme :is(.bg-emerald-500, .bg-emerald-600, .bg-emerald-700, .bg-green-600, .bg-teal-600, .bg-amber-500, .bg-amber-600, .bg-rose-500, .bg-rose-600, .bg-red-500, .bg-red-600).text-white { color: var(--sc-on-primary); }
-.sc-author-theme :is(button, a)[class*="bg-primary-50"], .sc-author-theme :is(button, a)[class*="bg-primary-100"] { color: var(--sc-primary-text); }
+:is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) :is(button, a):is(.bg-primary, .bg-primary-500, .bg-primary-600, .bg-primary-700, .bg-primary-container) { color: var(--sc-on-primary); }
+:root[data-theme="dark"] :is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) :is(.bg-emerald-500, .bg-emerald-600, .bg-emerald-700, .bg-green-500, .bg-green-600, .bg-green-700, .bg-teal-500, .bg-teal-600, .bg-teal-700, .bg-amber-500, .bg-amber-600, .bg-amber-700, .bg-yellow-500, .bg-yellow-600, .bg-yellow-700, .bg-rose-500, .bg-rose-600, .bg-rose-700, .bg-red-500, .bg-red-600, .bg-red-700).text-white { color: var(--sc-on-primary); }
+:is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) :is(button, a)[class*="bg-primary-50"], :is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) :is(button, a)[class*="bg-primary-100"] { color: var(--sc-primary-text); }
 .sc-dialog > div > div { background: var(--sc-surface-elevated); }
 .sc-author-theme .sc-dialog > div { background: var(--sc-overlay); }
-.sc-author-theme :focus-visible { outline-color: var(--sc-focus-ring); }
+:is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) :focus-visible { outline-color: var(--sc-focus-ring); }
 /* Disabled controls remain readable, without affecting logos, covers or avatars. */
 :root :is(.mantine-Input-input, .mantine-Button-root)[data-disabled] { background: var(--sc-neutral-bg); color: var(--sc-text-muted); border-color: var(--sc-border); }
 @media (prefers-reduced-motion: reduce) {
@@ -39,4 +39,4 @@ body { font-family: var(--sc-font); background: var(--sc-bg); color: var(--sc-te
 
 :root .mantine-Badge-root:not([data-variant]), :root .mantine-Badge-root[data-variant="filled"] { color: var(--sc-on-primary); }
 :root .sc-author-theme textarea.sc-manuscript { background: transparent; }
-.sc-author-theme input:is([type="checkbox"], [type="radio"]) { appearance: auto; accent-color: var(--sc-primary); }
+:is(.sc-author-theme, .sc-animated-modal, .sc-vaul-sheet) input:is([type="checkbox"], [type="radio"]) { appearance: auto; accent-color: var(--sc-primary); }

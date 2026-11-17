@@ -547,8 +547,8 @@ function ScopedAuthorMemoryPanel({
                 </Button>
               </Group>
 
-              {extraction.data
-                ?.filter(e => e.status && e.status !== 'COMPLETED')
+              {(Array.isArray(extraction.data) ? extraction.data : [])
+                .filter(e => e.status && e.status !== 'COMPLETED')
                 .map(e => (
                   <Alert
                     key={e.chapter_id}
@@ -772,7 +772,7 @@ function ScopedAuthorMemoryPanel({
              ────────────────────────────────────────── */}
           <Tabs.Panel value="facts" pt="md">
             <Stack ref={factsListRef} gap="xs">
-              {memory.data?.facts.map((fact, index) => (
+              {(memory.data?.facts ?? []).map((fact, index) => (
                 <Card withBorder key={String(fact.fact_id ?? index)} p="xs">
                   <Group justify="space-between">
                     <Text fw={600} size="sm">
@@ -834,11 +834,11 @@ function ScopedAuthorMemoryPanel({
                 </Alert>
               )}
 
-              {memory.data?.events
+              {(memory.data?.events ?? [])
                 .filter(
                   e =>
                     !e.metadata?.is_retired &&
-                    !memory.data?.events.some(other => other.metadata?.supersedes_id === e.event_id)
+                    !(memory.data?.events ?? []).some(other => other.metadata?.supersedes_id === e.event_id)
                 )
                 .map(event => (
                   <EventItem

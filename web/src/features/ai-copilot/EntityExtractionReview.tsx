@@ -238,7 +238,7 @@ export function EntityExtractionReview({
       {/* ──────────────────────────────────────────
           Section 2: Checkpoint Review List
          ────────────────────────────────────────── */}
-      <Stack ref={checkpointsListRef} gap="xs">
+      <Stack key={novelId} ref={checkpointsListRef} gap="xs">
         <Text fw={600} size="sm">
           2. Duyệt danh tính — trước bước duyệt đề xuất Canon
         </Text>

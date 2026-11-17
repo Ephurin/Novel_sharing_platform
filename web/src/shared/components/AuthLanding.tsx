@@ -87,18 +87,20 @@ export function AuthLanding() {
               return (
                 <button
                   key={tab.id}
+                  id={`${tabGroupId}-tab-${tab.id}`}
                   type="button"
                   role="tab"
                   aria-selected={active}
+                  aria-controls={`${tabGroupId}-panel`}
                   tabIndex={active ? 0 : -1}
                   onClick={() => switchMode(tab.id)}
                   onKeyDown={(e) => {
-                    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                    if (e.key === 'ArrowRight' || e.key === 'ArrowLeft' || e.key === 'Home' || e.key === 'End') {
                       e.preventDefault();
-                      const next = mode === 'login' ? 'register' : 'login';
+                      const next = e.key === 'Home' ? 'login' : e.key === 'End' ? 'register' : mode === 'login' ? 'register' : 'login';
                       switchMode(next);
-                      const sibling = e.currentTarget.parentElement?.querySelector<HTMLButtonElement>('[aria-selected="false"]');
-                      sibling?.focus();
+                      const buttons = e.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+                      buttons?.[next === 'login' ? 0 : 1]?.focus();
                     }
                   }}
                   className={`relative z-10 py-1.5 px-3 rounded-md text-meta font-semibold transition-colors ${
@@ -120,7 +122,12 @@ export function AuthLanding() {
           </div>
         </LayoutGroup>
 
-        <form onSubmit={handleSubmit}>
+        <form
+          id={`${tabGroupId}-panel`}
+          role="tabpanel"
+          aria-labelledby={`${tabGroupId}-tab-${mode}`}
+          onSubmit={handleSubmit}
+        >
           <Stack gap="sm" ref={fieldsRef}>
             <TextInput
               label={mode === 'login' ? 'Email hoặc tên đăng nhập' : 'Email'}

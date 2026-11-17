@@ -46,6 +46,7 @@ for (const [mode, paletteName] of [
     ['body text on surface', p.text, p.surface],
     ['muted text on background', p.textMuted, p.background],
     ['muted text on surface', p.textMuted, p.surface],
+    ['muted placeholder on surfaceMuted', p.textMuted, p.surfaceMuted],
     ['muted text on neutral chip', p.textMuted, p.neutralBg],
     ['primary button label on primary fill', p.onPrimary, p.primary],
     ['primary button label on primary hover', p.onPrimary, p.primaryHover],
@@ -54,6 +55,7 @@ for (const [mode, paletteName] of [
     ['success badge text on successBg', p.success, p.successBg],
     ['warning badge text on warningBg', p.warning, p.warningBg],
     ['danger badge text on dangerBg', p.danger, p.dangerBg],
+    ['danger error text on surface', p.danger, p.surface],
     ['reader LIGHT ink on page', p.lightText, p.lightBackground],
     ['reader SEPIA ink on page', p.sepiaText, p.sepiaBackground],
     ['reader DARK ink on page', p.darkText, p.darkBackground]
