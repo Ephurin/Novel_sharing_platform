@@ -183,10 +183,10 @@ export async function canonAcceptance(h, f, x) {
     await page.getByRole('menuitem', { name: 'Đăng xuất', exact: true }).click();
     await page.waitForURL(/\/login$/);
     const navigation = await page.evaluate(() => performance.timeOrigin);
-    await page.getByLabel('Email or username', { exact: true }).fill(x.b.email);
-    await page.getByLabel('Password', { exact: true }).fill(x.b.password);
+    await page.getByLabel('Email hoặc tên đăng nhập', { exact: true }).fill(x.b.email);
+    await page.getByLabel('Mật khẩu', { exact: true }).fill(x.b.password);
     const logged = page.waitForResponse(r => r.url().endsWith('/api/v1/auth/login') && r.request().method() === 'POST');
-    await page.getByRole('button', { name: 'Login', exact: true }).click(); assert.equal((await logged).status(), 200);
+    await page.getByRole('button', { name: 'Đăng nhập', exact: true }).click(); assert.equal((await logged).status(), 200);
     await page.waitForURL(/\/author$/);
     await page.locator('header').getByRole('link', { name: /Viết tiếp/ }).click();
     await until(async () => await f.editor().inputValue() === 'bản thảo tác giả khác.', 'SPA account switch restored another owner draft');

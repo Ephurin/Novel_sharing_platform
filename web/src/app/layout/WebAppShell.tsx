@@ -9,22 +9,22 @@ import { AuthorNavbar, AuthorTheme, SessionMarker } from '../../shared/component
 import { AdminShell } from '../../features/admin/AdminShell';
 
 const navItems: Array<{ to: string; label: string; roles: UserRole[] }> = [
-  { to: '/author', label: 'Writing Projects', roles: ['AUTHOR'] },
-  { to: '/author/ide', label: 'Author IDE', roles: ['AUTHOR'] },
-  { to: '/reader', label: 'Reader Home', roles: ['READER', 'AUTHOR'] },
-  { to: '/reader/library', label: 'Library', roles: ['READER', 'AUTHOR'] },
-  { to: '/reader/history', label: 'History', roles: ['READER', 'AUTHOR'] },
-  { to: '/wallet', label: 'Wallet', roles: ['READER', 'AUTHOR'] },
-  { to: '/notifications', label: 'Notifications', roles: ['READER', 'AUTHOR'] },
+  { to: '/author', label: 'Tác phẩm của tôi', roles: ['AUTHOR'] },
+  { to: '/author/ide', label: 'Không gian sáng tác', roles: ['AUTHOR'] },
+  { to: '/reader', label: 'Khám phá truyện', roles: ['READER', 'AUTHOR'] },
+  { to: '/reader/library', label: 'Thư viện của tôi', roles: ['READER', 'AUTHOR'] },
+  { to: '/reader/history', label: 'Lịch sử đọc', roles: ['READER', 'AUTHOR'] },
+  { to: '/wallet', label: 'Ví Xu', roles: ['READER', 'AUTHOR'] },
+  { to: '/notifications', label: 'Thông báo', roles: ['READER', 'AUTHOR'] },
   { to: '/appeals', label: 'Khiếu nại', roles: ['READER', 'AUTHOR'] },
-  { to: '/profile/me', label: 'Profile', roles: ['READER', 'AUTHOR'] },
-  { to: '/admin', label: 'Admin', roles: ['ADMIN'] },
-  { to: '/admin/novels', label: 'Novels', roles: ['ADMIN'] },
-  { to: '/admin/users', label: 'Users', roles: ['ADMIN'] },
-  { to: '/admin/taxonomy', label: 'Taxonomy', roles: ['ADMIN'] },
-  { to: '/admin/moderation', label: 'Moderation', roles: ['ADMIN'] },
-  { to: '/admin/reports', label: 'User Reports', roles: ['ADMIN'] },
-  { to: '/admin/withdraws', label: 'Withdraws', roles: ['ADMIN'] }
+  { to: '/profile/me', label: 'Hồ sơ & cài đặt', roles: ['READER', 'AUTHOR'] },
+  { to: '/admin', label: 'Tổng quan quản trị', roles: ['ADMIN'] },
+  { to: '/admin/novels', label: 'Tác phẩm', roles: ['ADMIN'] },
+  { to: '/admin/users', label: 'Người dùng', roles: ['ADMIN'] },
+  { to: '/admin/taxonomy', label: 'Thể loại & Nhãn', roles: ['ADMIN'] },
+  { to: '/admin/moderation', label: 'Kiểm duyệt', roles: ['ADMIN'] },
+  { to: '/admin/reports', label: 'Báo cáo vi phạm', roles: ['ADMIN'] },
+  { to: '/admin/withdraws', label: 'Yêu cầu rút Xu', roles: ['ADMIN'] }
 ];
 
 export function WebAppShell() {
@@ -54,20 +54,20 @@ export function WebAppShell() {
   }
 
   return (
-    <Box className="web-shell">
+    <AuthorTheme className="web-shell">
       <Group className="web-topbar" justify="space-between">
         <Group gap="sm">
-          <Text fw={800}>Ephurin</Text>
-          <Badge variant="light">Official Web MVP</Badge>
+          <Text fw={700}>StoryCraft</Text>
+          <Badge variant="light">Văn Hoa</Badge>
         </Group>
         <Group gap="xs">
           {user && <SessionMarker role={user.role} username={user.username} />}
           <ThemeControl />
           <Badge size="sm" variant="outline">
-            {user?.role ?? 'GUEST'}
+            {user?.role ?? 'KHÁCH'}
           </Badge>
           <Text size="sm" c="dimmed">
-            {user?.username ?? 'session restored'}
+            {user?.username ?? 'Đã khôi phục phiên'}
           </Text>
           <Button
             size="xs"
@@ -75,7 +75,7 @@ export function WebAppShell() {
             data-testid="shell-logout-btn"
             onClick={() => void handleLogout()}
           >
-            Logout
+            Đăng xuất
           </Button>
         </Group>
       </Group>
@@ -92,14 +92,11 @@ export function WebAppShell() {
               className="web-nav-link"
             />
           ))}
-          <Text size="xs" c="dimmed" mt="auto">
-            AI Copilot: Sẵn sàng trong Author IDE
-          </Text>
         </Stack>
         <Box className="web-content">
           <Outlet />
         </Box>
       </Box>
-    </Box>
+    </AuthorTheme>
   );
 }

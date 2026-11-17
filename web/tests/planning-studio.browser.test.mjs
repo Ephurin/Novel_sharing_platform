@@ -139,7 +139,7 @@ test('mounted /author/ide planning journey, recoverable CAS drafts, real Writer 
   await page.evaluate(async()=>{const {useAuthStore}=await import('/src/features/auth/useAuthStore.ts');useAuthStore.getState().setSession({accessToken:'token-author-B',user:{userId:'author-B',role:'AUTHOR',username:'B',email:'b@example.test',status:'ACTIVE'}});});
   await step('Ý tưởng').click();await expect(page.getByLabel('Ý tưởng & hướng đi (tương lai)',{exact:true})).toHaveValue('');await step('Dàn ý chương').click();await expect(page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true})).toHaveValue('');
   await page.evaluate(async()=>{const {useAuthStore}=await import('/src/features/auth/useAuthStore.ts');useAuthStore.getState().clearSession();});await expect(page).toHaveURL(/\/login/);
-  await page.getByLabel('Email or username',{exact:true}).fill('offline-author');await page.getByLabel('Password',{exact:true}).fill('offline-test-only');await button('Login').click();await expect(page).toHaveURL(/\/author$/);
+  await page.getByLabel('Email hoặc tên đăng nhập',{exact:true}).fill('offline-author');await page.getByLabel('Mật khẩu',{exact:true}).fill('offline-test-only');await button('Đăng nhập').click();await expect(page).toHaveURL(/\/author$/);
   await page.evaluate(async id=>{const {router}=await import('/src/app/router.tsx');await router.navigate('/author/ide?novelId='+id);},A);
   await button('Lập kế hoạch').click();await step('Dàn ý chương').click();await button('Khôi phục bản sửa dàn ý').click();await expect(page.getByLabel('Ghi chú kế hoạch riêng tư',{exact:true})).toHaveValue('DevicePrivateOnly');
   assert.equal(errors.length,0,errors.join('\n'));

@@ -33,9 +33,9 @@ export async function adminSessionTransitions({ t, browser, output, origin }) {
       };
       const login = async (username, role) => {
         await page.goto(origin + '/login');
-        await page.getByLabel('Email or username', { exact: true }).fill(username);
-        await page.getByLabel('Password', { exact: true }).fill('AdminDemo@2026');
-        await page.getByRole('button', { name: 'Login', exact: true }).click();
+        await page.getByLabel('Email hoặc tên đăng nhập', { exact: true }).fill(username);
+        await page.getByLabel('Mật khẩu', { exact: true }).fill('AdminDemo@2026');
+        await page.getByRole('button', { name: 'Đăng nhập', exact: true }).click();
         await page.waitForFunction(
           ({ username, role }) => {
             const marker = document.querySelector('[data-testid="shell-session"]');
