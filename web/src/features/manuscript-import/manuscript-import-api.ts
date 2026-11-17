@@ -30,22 +30,31 @@ export type ReviewProposal = {
   stale?: boolean;
   /** An approved event this proposal repeats. */
   duplicate_of_event?: { event_id: string; chapter: number; summary: string } | null;
+  /** Live retest 10 (X2): an approved event of the previous chapters that this one may restate. */
+  possible_repeat_of_event?: { event_id: string; chapter: number; summary: string; overlap: number } | null;
 };
 
-export type ProposalGroupBlock = { stale: boolean; duplicates: ReviewProposal[]; blocked: boolean; notice: string | null };
+export type ProposalGroupBlock = {
+  stale: boolean; duplicates: ReviewProposal[]; repeats: ReviewProposal[]; blocked: boolean; notice: string | null
+};
 
 // Live retest 3 (P2): a group made before another review, or one repeating approved events, failed
 // on accept with a raw "AI Service returned status 409" and stayed pending for ever.
 export function proposalGroupBlock(proposals: ReviewProposal[]): ProposalGroupBlock {
   const stale = proposals.some(p => p.stale);
   const duplicates = proposals.filter(p => p.duplicate_of_event);
+  const repeats = proposals.filter(p => !p.duplicate_of_event && p.possible_repeat_of_event);
   const notices: string[] = [];
   if (stale) notices.push('Nhóm này được tạo trước khi bộ nhớ truyện thay đổi nên không thể duyệt nữa. Hãy loại nhóm; nếu nội dung vẫn cần, lưu lại chương để AI phân tích lại.');
   if (duplicates.length) {
     const chapters = [...new Set(duplicates.map(p => p.duplicate_of_event!.chapter))].sort((a, b) => a - b).join(', ');
-    notices.push(`${duplicates.length}/${proposals.length} đề xuất lặp lại sự kiện đã duyệt ở chương ${chapters}. Hãy loại các đề xuất trùng.`);
+    notices.push(`${duplicates.length}/${proposals.length} đề xuất lặp lại sự kiện đã duyệt ở chương ${chapters}. Hãy loại các đề xuất trùng (bấm "Loại đề xuất" ở từng mục; các thay đổi trạng thái của sự kiện đó bị loại theo).`);
   }
-  return { stale, duplicates, blocked: stale || duplicates.length > 0, notice: notices.length ? notices.join(' ') : null };
+  if (repeats.length) {
+    const chapters = [...new Set(repeats.map(p => p.possible_repeat_of_event!.chapter))].sort((a, b) => a - b).join(', ');
+    notices.push(`${repeats.length} sự kiện có thể chỉ kể lại sự kiện đã duyệt ở chương ${chapters}. Hãy xem lại; nếu đúng là lặp, loại riêng sự kiện đó.`);
+  }
+  return { stale, duplicates, repeats, blocked: stale || duplicates.length > 0, notice: notices.length ? notices.join(' ') : null };
 }
 
 export type StoryBrainSummary = {

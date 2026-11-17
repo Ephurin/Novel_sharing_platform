@@ -167,10 +167,13 @@ def test_review_priority_and_baseline_gate():
 
     with pytest.raises(BaselineReviewRequiredError):
         service.activate_baseline(NOVEL, job.job_id)
-    proposals = repository.list_proposals(NOVEL, status="pending")
-    with pytest.raises(ProjectionError, match='complete dependency group'):
-        repository.decide_proposal(NOVEL, world_rules[0]['proposal_id'], accepted=False, reason='partial review')
-    assert repository.list_proposals(NOVEL, status='pending') == proposals
+    # Live retest 10 (X3): a fact is independent, so the author may drop it alone; the rest of its
+    # group stays pending and is still accepted as one group.
+    before = repository.list_proposals(NOVEL, status="pending")
+    repository.decide_proposal(NOVEL, world_rules[0]['proposal_id'], accepted=False, reason='partial review')
+    proposals = repository.list_proposals(NOVEL, status='pending')
+    assert [p.proposal_id for p in proposals] == [p.proposal_id for p in before
+                                                   if p.proposal_id != world_rules[0]['proposal_id']]
     version = 1
     for group_id in dict.fromkeys(p.dependency_group_id for p in proposals):
         result = repository.accept_proposal_group(NOVEL,

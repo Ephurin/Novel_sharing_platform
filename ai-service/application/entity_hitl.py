@@ -237,7 +237,9 @@ def continue_review(service, novel_id, run_id, tenant_id):
             'initial_status': 'Unknown', 'source_type': 'prose'},
             revision.content[candidate['start']:candidate['end']], entity['score'] / 10,
             span=(candidate['start'], candidate['end']))
-    seen_aliases = set()
+    # Live retest 10 (X4): "làng Thạch Khê" was proposed again every chapter although the author had
+    # already approved it as an alias of "Thạch Khê". An approved (alias, entity) pair is not proposed.
+    seen_aliases = approved_alias_keys(repo, novel_id)
     for alias in audit['aliases']:
         key = (alias['alias'].casefold(), alias['entity_id'])
         if key in seen_aliases:
@@ -339,3 +341,10 @@ def continue_review(service, novel_id, run_id, tenant_id):
     completion = repo.complete_entity_review(novel_id, run_id, audit, proposals)
     return RevisionAnalysisResult(run, completion.proposals, completion.deduplicated,
                                   dropped_events=dropped_events)
+
+
+def approved_alias_keys(repo, novel_id):
+    """(alias casefold, entity_id) pairs the author already approved (live retest 10, X4)."""
+    registry = getattr(repo, 'get_entity_registry', None)
+    aliases = registry(novel_id).get('aliases', []) if callable(registry) else []
+    return {(str(a['alias']).casefold(), str(a['entity_id'])) for a in aliases}

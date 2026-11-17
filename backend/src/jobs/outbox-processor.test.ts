@@ -29,7 +29,8 @@ describe('P1 extraction-only outbox authorization boundary', () => {
   assert.equal(calls[0].init?.method, 'POST');
   assert.deepEqual(JSON.parse(String(calls[0].init?.body)), {
    novel_id: event.novelId, chapter_id: event.chapterId, revision_id: event.revisionId,
-   content_hash: event.contentHash, operation: 'incremental_story_analysis'
+   content_hash: event.contentHash, operation: 'incremental_story_analysis',
+   options: { extract_world_rules: true, extract_state_transitions: true }
   });
   const h = calls[0].init?.headers as Record<string,string>;
   assert.equal(h['X-Actor-Id'], event.createdBy);
