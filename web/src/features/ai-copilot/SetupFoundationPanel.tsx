@@ -51,7 +51,7 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
  const idea=!planningStep||planningStep==='idea',world=!planningStep||planningStep==='rules',people=!planningStep||planningStep==='characters';
  return <Stack gap="sm">
   <Text fw={600}>Thiết lập thế giới trước khi viết</Text>
-  <Alert color="blue">Ý tưởng và dàn ý là dự định tương lai. Nhân vật và quy tắc chỉ trở thành thiết lập sau khi bạn duyệt. Diễn biến chương vẫn qua quy trình duyệt riêng.</Alert>
+  <Alert>Ý tưởng và dàn ý là dự định tương lai. Nhân vật và quy tắc chỉ trở thành thiết lập sau khi bạn duyệt. Diễn biến chương vẫn qua quy trình duyệt riêng.</Alert>
   {!loaded&&<Text>Đang đọc thiết lập được cấp quyền…</Text>}
   {loaded&&local.backup&&<Alert color="orange" title="Có bản sửa thiết lập trên thiết bị"><Group><Button onClick={local.recover}>Khôi phục thiết lập</Button><Button variant="default" onClick={local.clear}>Bỏ bản dự phòng thiết lập</Button></Group></Alert>}
   {local.error&&<Alert color="red">{local.error}</Alert>}{local.notice&&<Alert color="yellow" data-testid="planning-cross-tab-notice">{local.notice}</Alert>}
@@ -78,7 +78,7 @@ function ScopedSetupPanel({novelId,planningStep,onServerChange,allowOfflineBluep
     <Button disabled={locked} variant="subtle" onClick={()=>{local.edit(old=>({...old,declarations:old.declarations.filter(x=>x.declaration_id!==d.declaration_id)}));characterNotes.remove(d.declaration_id);}}>Bỏ thẻ {i+1}</Button></Stack></Card>)}
    <Group><Button variant="light" disabled={!loaded||locked} onClick={()=>local.edit(old=>({...old,declarations:[...old.declarations,{declaration_id:'decl_'+crypto.randomUUID().replaceAll('-',''),display_name:'',entity_type:'character'}]}))}>Thêm nhân vật hoặc địa danh</Button><Button variant="default" disabled={!loaded||locked} onClick={()=>setBrainstormTarget('characters')} data-testid="brainstorm-open-characters-btn">AI gợi ý nhân vật</Button></Group>
   </Stack></div>
-  {sourceLocked&&<Alert color="blue">Đã gửi nguồn để duyệt. Sửa nội dung trong nhóm duyệt bên dưới; dữ liệu đã chấp nhận chỉ đọc tại đây. Nhân vật đã duyệt có thể hiệu chỉnh qua Hồ sơ trong Bộ nhớ truyện. Để hiệu chỉnh quy tắc thế giới sau khi đã duyệt, sử dụng bảng Quản lý Quy tắc Thế giới bên dưới. Không gửi lại nguồn để ghi đè.</Alert>}
+  {sourceLocked&&<Alert>Đã gửi nguồn để duyệt. Sửa nội dung trong nhóm duyệt bên dưới; dữ liệu đã chấp nhận chỉ đọc tại đây. Nhân vật đã duyệt có thể hiệu chỉnh qua Hồ sơ trong Bộ nhớ truyện. Để hiệu chỉnh quy tắc thế giới sau khi đã duyệt, sử dụng bảng Quản lý Quy tắc Thế giới bên dưới. Không gửi lại nguồn để ghi đè.</Alert>}
   <Group><Button onClick={submit} loading={pending} disabled={!loaded||locked||!!local.backup||declarations.some(d=>!d.display_name.trim())||rules.some(r=>!r.text.trim())||(!outline.trim()&&!declarations.length&&!rules.length&&!(allowOfflineBlueprint&&text.trim()))}>Lưu và xử lý thiết lập</Button>
    <Button variant="default" disabled={pending} onClick={()=>void reload()}>Tải bản đã lưu</Button>
    {local.dirty&&<><Button variant="subtle" onClick={()=>void reload(true)}>Bỏ bản sửa, dùng thiết lập máy chủ</Button><Button variant="subtle" onClick={local.exportDraft}>Xuất bản sửa thiết lập</Button></>}</Group>
@@ -206,8 +206,8 @@ function SetupReviewGroup({snapshot, onReload}:{snapshot:SetupSnapshot; onReload
   return <Card withBorder><Stack>
     <Text fw={600}>Duyệt toàn bộ nhóm thiết lập</Text>{draft.backup&&<Alert title="Có quyết định chưa gửi" data-testid="setup-unsent-decisions"><Text size="sm" mb="xs">Thiết bị này còn quyết định duyệt chưa gửi. Các ô quyết định bên dưới tạm khóa cho tới khi bạn chọn khôi phục hoặc bỏ chúng.</Text><Group gap="xs"><Button onClick={draft.recover}>Khôi phục quyết định</Button><Button variant="subtle" onClick={draft.clear}>Bỏ quyết định trên máy</Button></Group></Alert>}{draft.error&&<Alert color="red">{draft.error}</Alert>}
     {isMixed ? (
-      <Alert color="blue" title="Nhóm phụ thuộc hỗn hợp (Quy tắc & Nhân vật)">
-        Nhóm thiết lập này bao gồm cả quy tắc thế giới và nhân vật/địa danh. Theo quy chuẩn nguyên khối (atomic dependency group), quyết định duyệt áp dụng đồng thời cho toàn bộ nhóm; bạn cần chọn duyệt hoặc loại cho tất cả các thẻ trước khi lưu.
+      <Alert title="Nhóm phụ thuộc hỗn hợp (Quy tắc & Nhân vật)">
+        Nhóm thiết lập này bao gồm cả quy tắc thế giới và nhân vật/địa danh. Theo quy chuẩn nguyên khối (atomic dependency group), quyết định duyệt áp dụng đồng thời cho toàn bộ nhóm; bạn cần chọn duyệt hoặc loại cho toàn bộ các thẻ trước khi lưu.
       </Alert>
     ) : hasRules ? (
       <Text size="sm">Nhóm thiết lập chỉ bao gồm quy tắc thế giới. Chọn duyệt hoặc loại cho từng thẻ; toàn bộ nhóm được lưu cùng lúc.</Text>
@@ -220,7 +220,7 @@ function SetupReviewGroup({snapshot, onReload}:{snapshot:SetupSnapshot; onReload
       return <Stack gap="xs" key={id}>
         <Group justify="space-between">
           <Text fw={500}>{i+1}. {value}</Text>
-          <Badge size="xs" variant="light" color={c.card_type==='world_rule'?'teal':'blue'}>
+          <Badge size="xs" variant="light" color={c.card_type==='world_rule'?'teal':undefined}>
             {c.card_type==='world_rule'?'Quy tắc thế giới':'Nhân vật / Địa danh'}
           </Badge>
         </Group>

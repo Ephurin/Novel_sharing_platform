@@ -375,8 +375,8 @@ export function BrainstormingModal({
       aria-label="AI Brainstorming Modal"
     >
       <Stack gap="md">
-        <Alert color="blue" title="Chỉ tạo gợi ý bản nháp (Draft-Only)">
-          Gợi ý từ AI mang trạng thái <Badge size="xs" color="violet">model_proposed</Badge> và chỉ được đưa vào bản nháp của bạn khi bạn chọn dùng. <strong>Không tự ghi Canon, không tạo lịch sử, và không kích hoạt M0.</strong> Ghi chú riêng tư của bạn không bao giờ được gửi tới mô hình AI.
+        <Alert title="Chỉ tạo gợi ý bản nháp (Draft-Only)">
+          Gợi ý từ AI mang trạng thái <Badge size="xs" variant="light">model_proposed</Badge> và chỉ được đưa vào bản nháp của bạn khi bạn chọn dùng. <strong>Không tự ghi Canon, không tạo lịch sử, và không kích hoạt M0.</strong> Ghi chú riêng tư của bạn không bao giờ được gửi tới mô hình AI.
         </Alert>
 
         <Group grow align="flex-start">
@@ -517,7 +517,7 @@ export function BrainstormingModal({
               <Stack gap="xs">
                 <Group justify="space-between">
                   <Text fw={600} size="sm">Quy tắc thế giới ({rules.length})</Text>
-                  <Badge color="blue" size="xs">World Rules</Badge>
+                  <Badge variant="light" size="xs">World Rules</Badge>
                 </Group>
                 <Stack ref={rulesListRef} gap="xs">
                 {rules.map((rule, idx) => {
@@ -527,9 +527,9 @@ export function BrainstormingModal({
                       <Stack gap="xs">
                         <Group justify="space-between">
                           <Group gap="xs">
-                            <Badge color="violet" size="sm">AI đề xuất (model_proposed)</Badge>
+                            <Badge variant="light" size="sm">AI đề xuất (model_proposed)</Badge>
                             <Badge color="gray" variant="outline" size="sm">Chưa vào Canon</Badge>
-                            {rule.category && <Badge color="cyan" size="xs">{rule.category}</Badge>}
+                            {rule.category && <Badge color="teal" variant="light" size="xs">{rule.category}</Badge>}
                           </Group>
                           <Button
                             variant="subtle"
@@ -562,7 +562,6 @@ export function BrainstormingModal({
                             <Button
                               size="xs"
                               variant="filled"
-                              color="blue"
                               onClick={() => handleAdoptRule(rule)}
                               disabled={!rule.text.trim()}
                               data-testid={`adopt-rule-btn-${idx}`}
@@ -594,7 +593,7 @@ export function BrainstormingModal({
                       <Stack gap="xs">
                         <Group justify="space-between">
                           <Group gap="xs">
-                            <Badge color="violet" size="sm">AI đề xuất (model_proposed)</Badge>
+                            <Badge variant="light" size="sm">AI đề xuất (model_proposed)</Badge>
                             <Badge color="gray" variant="outline" size="sm">Chưa vào Canon</Badge>
                             {char.role && <Badge color="teal" size="xs">{char.role}</Badge>}
                           </Group>
@@ -661,7 +660,7 @@ export function BrainstormingModal({
               <Stack gap="xs">
                 <Group justify="space-between">
                   <Text fw={600} size="sm">Sự kiện tương lai ({events.length})</Text>
-                  <Badge color="indigo" size="xs">Future Events</Badge>
+                  <Badge color="orange" variant="light" size="xs">Future Events</Badge>
                 </Group>
                 <Stack ref={eventsListRef} gap="xs">
                 {events.map((ev, idx) => {
@@ -671,7 +670,7 @@ export function BrainstormingModal({
                       <Stack gap="xs">
                         <Group justify="space-between">
                           <Group gap="xs">
-                            <Badge color="violet" size="sm">AI đề xuất (model_proposed)</Badge>
+                            <Badge variant="light" size="sm">AI đề xuất (model_proposed)</Badge>
                             <Badge color="gray" variant="outline" size="sm">Dự kiến Chương {ev.target_chapter}</Badge>
                             <Badge color="gray" variant="outline" size="sm">Chưa vào Canon</Badge>
                           </Group>
@@ -735,7 +734,6 @@ export function BrainstormingModal({
                             <Button
                               size="xs"
                               variant="filled"
-                              color="indigo"
                               onClick={() => handleAdoptEvent(ev)}
                               disabled={!(ev.title.trim() || (ev.text && ev.text.trim()))}
                               data-testid={`adopt-event-btn-${idx}`}
@@ -753,7 +751,7 @@ export function BrainstormingModal({
             )}
 
             {provenance && (
-              <Card withBorder bg="var(--mantine-color-gray-0)" p="xs">
+              <Card withBorder bg="var(--sc-surface-subtle)" p="xs">
                 <Text size="xs" c="dimmed">
                   Nguồn gốc gợi ý: Nhà cung cấp <strong>{provenance.provider}</strong> · Mô hình <strong>{provenance.model}</strong> · Tham chiếu: {provenance.grounding_rules_count} quy tắc, {provenance.grounding_entities_count} nhân vật đã duyệt · Thời gian: {new Date(provenance.timestamp).toLocaleString('vi-VN')}
                 </Text>

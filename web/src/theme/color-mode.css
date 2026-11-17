@@ -26,6 +26,7 @@ body { font-family: var(--sc-font); background: var(--sc-bg); color: var(--sc-te
 .sc-author-theme .sc-manuscript { background: transparent; color: var(--sc-text); }
 .sc-author-theme .sc-format-toolbar > div { background: var(--sc-surface-elevated); }
 .sc-author-theme :is(button, a):is(.bg-primary, .bg-primary-500, .bg-primary-600, .bg-primary-700, .bg-primary-container) { color: var(--sc-on-primary); }
+:root[data-theme="dark"] .sc-author-theme :is(.bg-emerald-500, .bg-emerald-600, .bg-emerald-700, .bg-green-600, .bg-teal-600, .bg-amber-500, .bg-amber-600, .bg-rose-500, .bg-rose-600, .bg-red-500, .bg-red-600).text-white { color: var(--sc-on-primary); }
 .sc-author-theme :is(button, a)[class*="bg-primary-50"], .sc-author-theme :is(button, a)[class*="bg-primary-100"] { color: var(--sc-primary-text); }
 .sc-dialog > div > div { background: var(--sc-surface-elevated); }
 .sc-author-theme .sc-dialog > div { background: var(--sc-overlay); }

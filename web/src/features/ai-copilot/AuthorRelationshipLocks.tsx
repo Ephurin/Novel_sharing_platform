@@ -142,7 +142,7 @@ export function AuthorRelationshipLocks({
         <Stack gap="sm">
           <Group justify="space-between" align="center">
             <Group gap="xs">
-              <ThemeIcon color="indigo" variant="light" size="sm">
+              <ThemeIcon variant="light" size="sm">
                 <IconLock size={14} />
               </ThemeIcon>
               <Text fw={600} size="sm">
@@ -222,7 +222,6 @@ export function AuthorRelationshipLocks({
 
             <Button
               size="xs"
-              color="indigo"
               leftSection={<IconLock size={14} />}
               disabled={disabled || !subjectId || !objectId || !relationType.trim()}
               onClick={handleLock}
@@ -267,7 +266,7 @@ export function AuthorRelationshipLocks({
                           Thiếu UUID
                         </Badge>
                       )}
-                      <Badge variant="light" color="indigo" size="xs">
+                      <Badge variant="light" size="xs">
                         {rel.relation}
                       </Badge>
                       <Text fw={600} size="sm">
@@ -293,7 +292,7 @@ export function AuthorRelationshipLocks({
 
                   {/* Metadata and Exact ID display */}
                   {hasExactIds ? (
-                    <Paper p="xs" bg="var(--mantine-color-gray-0)" radius="xs">
+                    <Paper p="xs" bg="var(--sc-surface-subtle)" radius="xs">
                       <Group gap="md">
                         <Text size="xs" c="dimmed">
                           Chủ thể UUID:{' '}

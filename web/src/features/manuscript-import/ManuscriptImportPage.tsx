@@ -1228,7 +1228,7 @@ export function ManuscriptImportPage() {
                     Khi xong cả hai, chương tiếp theo tự được phân tích.
                   </span>
                   {chapterReviewPending && (
-                    <div data-testid="import-entity-review" className="bg-white rounded-lg p-2 text-stone-900">
+                    <div data-testid="import-entity-review" className="bg-surface-container-lowest border border-stone-200/80 rounded-lg p-2 text-stone-900">
                       <EntityExtractionReview
                         novelId={novelId}
                         disabled={reviewAction.isPending}
@@ -1254,7 +1254,7 @@ export function ManuscriptImportPage() {
                   <strong>Chương cuối đang chờ bạn xác nhận nhân vật</strong>
                   <span>Xác nhận nhân vật bên dưới rồi bấm Tiếp tục, sau đó duyệt các đề xuất và kích hoạt Story Brain.</span>
                   {(entityReviewsQuery.data ?? []).length > 0 && (
-                    <div data-testid="import-entity-review" className="bg-white rounded-lg p-2 text-stone-900">
+                    <div data-testid="import-entity-review" className="bg-surface-container-lowest border border-stone-200/80 rounded-lg p-2 text-stone-900">
                       <EntityExtractionReview
                         novelId={novelId}
                         disabled={reviewAction.isPending}

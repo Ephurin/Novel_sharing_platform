@@ -37,7 +37,9 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--mantine-primary-color-filled-hover': 'var(--sc-primary-hover)',
     '--mantine-primary-color-light': 'var(--sc-primary-soft)',
     '--mantine-primary-color-light-hover': 'var(--sc-neutral-bg)',
-    '--mantine-primary-color-light-color': 'var(--sc-primary-text)'
+    '--mantine-primary-color-light-color': 'var(--sc-primary-text)',
+    '--mantine-primary-color-outline': 'var(--sc-primary-text)',
+    '--mantine-primary-color-outline-hover': 'var(--sc-primary-soft)'
   },
   light: {},
   dark: {}

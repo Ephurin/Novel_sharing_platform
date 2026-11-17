@@ -771,7 +771,7 @@ export function AuthorStoryContextPage() {
                                   : c.role === 'ANTAGONIST'
                                   ? 'bg-red-100 text-red-800'
                                   : c.role === 'SUPPORTING'
-                                  ? 'bg-blue-100 text-blue-800'
+                                  ? 'bg-amber-50 text-amber-800'
                                   : 'bg-stone-100 text-stone-600'
                               }`}
                               title={cardCustomTitle || c.role}

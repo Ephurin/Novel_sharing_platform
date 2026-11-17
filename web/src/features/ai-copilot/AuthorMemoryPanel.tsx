@@ -456,7 +456,7 @@ function ScopedAuthorMemoryPanel({
             Bộ nhớ chính thức v{currentBrainVersion} · {brain.data?.status ?? 'đang tải'}. Đề xuất chưa duyệt
             chưa được dùng làm sự thật.
           </Text>
-          <Badge variant="outline" color="indigo" size="xs">
+          <Badge variant="outline" size="xs">
             Brain v{currentBrainVersion}
           </Badge>
         </Group>
@@ -470,7 +470,7 @@ function ScopedAuthorMemoryPanel({
           auto.error ||
           job.error) && (
           <Alert
-            color={messageType === 'error' ? 'red' : messageType === 'success' ? 'teal' : 'blue'}
+            color={messageType === 'error' ? 'red' : messageType === 'success' ? 'teal' : undefined}
             withCloseButton
             onClose={() => setMessage('')}
           >
@@ -553,7 +553,7 @@ function ScopedAuthorMemoryPanel({
                 .map(e => (
                   <Alert
                     key={e.chapter_id}
-                    color={e.waiting_reason === 'provider_unavailable' && e.status !== 'FAILED' ? 'yellow' : e.status === 'FAILED' ? 'red' : 'blue'}
+                    color={e.waiting_reason === 'provider_unavailable' && e.status !== 'FAILED' ? 'yellow' : e.status === 'FAILED' ? 'red' : undefined}
                     title={`Chương ${e.chapter_number}`}
                     data-testid={`chapter-analysis-${e.chapter_number}`}
                   >
@@ -615,7 +615,7 @@ function ScopedAuthorMemoryPanel({
                       </Group>
 
                       {proposals.length > 1 ? (
-                        <Alert color="blue" icon={<IconAlertTriangle size={14} />} p="xs">
+                        <Alert icon={<IconAlertTriangle size={14} />} p="xs">
                           <Text size="xs">
                             Nhóm có {proposals.length} đề xuất. “Loại đề xuất” chỉ bỏ mục đó khi không có đề xuất khác sử dụng nó. “Loại toàn bộ nhóm” bỏ tất cả các mục trong nhóm. Các mục còn lại được duyệt cùng nhau.
                           </Text>
@@ -1110,7 +1110,7 @@ function ProposalReview({
       <Paper p="xs" withBorder radius="sm">
         <Stack gap="xs">
           <Group justify="space-between">
-            <Badge color="violet">Tên gọi / Alias</Badge>
+            <Badge variant="light">Tên gọi / Alias</Badge>
             <Button
               variant="subtle"
               size="compact-xs"
@@ -1128,7 +1128,7 @@ function ProposalReview({
             Chỉ liên kết danh tính sau khi bạn duyệt. Nếu đây là hai người khác nhau, hãy loại đề xuất.
           </Text>
           {typeof p.identity_quote === 'string' && (
-            <Paper p="xs" bg="var(--mantine-color-gray-0)">
+            <Paper p="xs" bg="var(--sc-surface-subtle)">
               <Text size="xs">“{p.identity_quote}”</Text>
             </Paper>
           )}
@@ -1142,7 +1142,7 @@ function ProposalReview({
       <Paper p="xs" withBorder radius="sm">
         <Stack gap="xs">
           <Group justify="space-between">
-            <Badge color="cyan">Đã có trong Canon — Giữ nguyên</Badge>
+            <Badge color="teal" variant="light">Đã có trong Canon — Giữ nguyên</Badge>
             <Button
               variant="subtle"
               size="compact-xs"
@@ -1170,7 +1170,7 @@ function ProposalReview({
       <Stack gap="xs">
         <Group justify="space-between" align="center">
           <Group gap="xs">
-            <Badge color="blue">{proposalKindLabel(proposal)}</Badge>
+            <Badge variant="light">{proposalKindLabel(proposal)}</Badge>
             {isEdited && (
               <Badge color="orange" size="xs" leftSection={<IconEdit size={10} />}>
                 Đã chỉnh sửa bởi tác giả
@@ -1204,7 +1204,7 @@ function ProposalReview({
 
         {isEdited && <StateComparison before={original} after={currentPayload} beforeLabel="Đề xuất AI" afterLabel="Bạn đã chỉnh sửa" />}
         {p.supersedes_id ? (
-          <Alert color="blue">
+          <Alert>
             {p.is_retired
               ? 'Đề xuất gỡ khỏi Canon hiện hành; vẫn giữ lịch sử.'
               : 'Đề xuất thay thế phiên bản cũ; vẫn giữ lịch sử.'}{' '}
@@ -1537,7 +1537,7 @@ function EventItem({
       <Stack gap="xs">
         <Group justify="space-between" align="center">
           <Group gap="xs">
-            <Badge variant="filled" color="indigo" size="xs">
+            <Badge variant="filled" size="xs">
               Chương {event.chapter}
             </Badge>
             <Badge variant="outline" size="xs">
@@ -1569,7 +1569,7 @@ function EventItem({
             {event.participants.map((p, i) => {
               const matchedEntity = entities.find(e => e.entity_id === p);
               return matchedEntity ? (
-                <Badge key={i} size="xs" variant="light" color="cyan">
+                <Badge key={i} size="xs" variant="light" color="teal">
                   {matchedEntity.name} ({matchedEntity.entity_id.slice(0, 6)}...)
                 </Badge>
               ) : (
@@ -1583,7 +1583,7 @@ function EventItem({
 
         {/* Display linked transitions */}
         {eventTransitions.length > 0 && (
-          <Paper p="xs" bg="var(--mantine-color-gray-0)" radius="xs">
+          <Paper p="xs" bg="var(--sc-surface-subtle)" radius="xs">
             <Stack gap={2}>
               <Text size="xs" fw={600} c="dimmed">
                 Trạng thái gắn liền với sự kiện:
@@ -1614,11 +1614,11 @@ function EventItem({
               </Text>
 
               {unresolvedLegacyParticipants.length > 0 && (
-                <Paper p="xs" withBorder bg="var(--mantine-color-orange-0)" radius="sm" data-testid="box-legacy-resolution">
+                <Paper p="xs" withBorder bg="var(--sc-warning-bg)" radius="sm" data-testid="box-legacy-resolution">
                   <Stack gap="xs">
                     <Group gap="xs">
-                      <IconAlertTriangle size={16} color="var(--mantine-color-orange-7)" />
-                      <Text size="xs" fw={600} c="orange.9">
+                      <IconAlertTriangle size={16} color="var(--sc-warning)" />
+                      <Text size="xs" fw={600} c="var(--sc-warning)">
                         Yêu cầu ánh xạ danh tính chính xác (FE-08):
                       </Text>
                     </Group>
@@ -1780,7 +1780,6 @@ function EventItem({
                 </Button>
                 <Button
                   size="xs"
-                  color="indigo"
                   data-testid={`btn-submit-correction-${event.event_id}`}
                   onClick={handleSubmitCorrection}
                   disabled={

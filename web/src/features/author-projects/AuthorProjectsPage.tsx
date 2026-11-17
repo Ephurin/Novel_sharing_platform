@@ -547,7 +547,7 @@ export function AuthorProjectsPage() {
                                   project.status === 'DRAFT'
                                     ? 'bg-stone-100 text-stone-600 border border-stone-200/60'
                                     : project.serialStatus === 'COMPLETED'
-                                    ? 'bg-blue-50 text-blue-700 border border-blue-200/60'
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
                                     : 'bg-primary-50 text-primary-700 border border-primary-200/60'
                                 }`}
                               >
@@ -707,7 +707,7 @@ export function AuthorProjectsPage() {
                                 project.status === 'DRAFT'
                                   ? 'bg-stone-100 text-stone-600 border border-stone-200/60'
                                   : project.serialStatus === 'COMPLETED'
-                                  ? 'bg-blue-50 text-blue-700 border border-blue-200/60'
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
                                   : 'bg-primary-50 text-primary-700 border border-primary-200/60'
                               }`}
                             >

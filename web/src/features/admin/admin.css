@@ -677,6 +677,33 @@
 .admin-chart-novels {
   fill: var(--sc-success);
 }
+.admin-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin: 8px 0 6px;
+  font-size: 12px;
+  color: var(--sc-text-muted);
+}
+.admin-chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.admin-chart-swatch {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+.admin-chart-swatch.is-users {
+  background: var(--sc-primary);
+  border-radius: 3px;
+}
+.admin-chart-swatch.is-novels {
+  background: var(--sc-success);
+  border-radius: 999px;
+}
 @media (min-width: 1840px) {
   .admin-main {
     margin-right: auto;

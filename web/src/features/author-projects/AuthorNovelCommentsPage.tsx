@@ -29,7 +29,7 @@ function AuthorComments({ novelId }: { novelId: string }) {
   return <><AuthorNavbar /><main className="sc-shell-content sc-reviews-main">
     <Breadcrumbs className="mb-4" items={[authorHomeCrumb, { label: novel.data?.title || 'Tác phẩm', to: `/author/novels/${novelId}` }, { label: 'Bình luận độc giả' }]} />
     <div className="sc-reviews-panel">
-      <header className="sc-reviews-header"><Link to={`/author/novels/${novelId}`} className="sc-icon-button" aria-label="Quay lại quản lý tác phẩm"><span className="material-symbols-outlined" aria-hidden="true">arrow_back</span></Link><div><h1 className="text-page">Bình luận độc giả</h1>{novel.data && <p>{novel.data.title}</p>}</div></header>
+      <header className="sc-reviews-header"><Link to={`/author/novels/${novelId}`} className="sc-icon-button" aria-label="Quay lại quản lý tác phẩm"><span className="material-symbols-outlined" aria-hidden="true">arrow_back</span></Link><div><h1 className="text-page-title">Bình luận độc giả</h1>{novel.data && <p>{novel.data.title}</p>}</div></header>
       <div className="sc-reviews-body">
         {novel.isPending && <LoadingState label="Đang tải tác phẩm…" />}
         {novel.isError && <ErrorState title="Không tải được tác phẩm" error={novel.error} onRetry={() => void novel.refetch()} />}

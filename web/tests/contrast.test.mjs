@@ -75,9 +75,15 @@ for (const theme of ['light', 'dark']) {
     ['body text on surface', color('--sc-text-rgb'), surface],
     ['body text on page background', color('--sc-text-rgb'), color('--sc-bg-rgb')],
     ['danger label on surface', color('--sc-danger'), surface],
+    ['success label on surface', color('--sc-success'), surface],
+    ['warning label on surface', color('--sc-warning'), surface],
+    ['success badge label', color('--sc-success'), color('--sc-success-bg')],
     ['library unfollow label', color('--sc-danger'), color('--sc-danger-bg')],
     ['library unfollow label (hover)', surface, color('--sc-danger')],
-    ['support button label', color('--sc-warning'), color('--sc-warning-bg')]
+    ['support button label', color('--sc-warning'), color('--sc-warning-bg')],
+    ['filled success status button label', theme === 'dark' ? color('--sc-on-primary-rgb') : [255, 255, 255], color('--sc-success')],
+    ['filled warning status button label', theme === 'dark' ? color('--sc-on-primary-rgb') : [255, 255, 255], color('--sc-warning')],
+    ['filled danger status button label', theme === 'dark' ? color('--sc-on-primary-rgb') : [255, 255, 255], color('--sc-danger')]
   ];
 
   for (const [label, foreground, background] of pairs) {

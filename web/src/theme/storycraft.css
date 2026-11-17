@@ -241,7 +241,7 @@
 @media (max-width: 767px) { .sc-author-theme .sc-reader-book .sc-button.sc-library-unfollow { min-height: 44px; } }
 .sc-book-cover { position: relative; display: block; aspect-ratio: 2 / 3; overflow: hidden; border-radius: 10px; background: var(--sc-surface); border: 1px solid var(--sc-border); box-shadow: 0 4px 12px rgb(var(--sc-text-rgb) / .08); }
 .sc-book-cover img { width: 100%; height: 100%; object-fit: cover; }
-.sc-book-cover .sc-cover-placeholder { padding: 24px 16px; border-left: 8px solid rgb(var(--sc-primary-rgb) / .25); background: linear-gradient(135deg, var(--sc-primary-soft), var(--sc-neutral-bg)); color: var(--sc-text); font-family: Literata, Georgia, serif; font-size: 17px; line-height: 1.6; box-shadow: inset 4px 0 8px rgb(var(--sc-text-rgb) / .06); }
+.sc-book-cover .sc-cover-placeholder { padding: 24px 16px; border-left: 8px solid rgb(var(--sc-primary-rgb) / .25); background: linear-gradient(135deg, var(--sc-primary-soft), var(--sc-neutral-bg)); color: var(--sc-text); font-family: var(--sc-font); font-size: 17px; line-height: 1.6; box-shadow: inset 4px 0 8px rgb(var(--sc-text-rgb) / .06); }
 .sc-book-status { position: absolute; right: 8px; bottom: 8px; max-width: calc(100% - 16px); padding: 4px 8px; border-radius: 6px; background: var(--sc-surface); color: var(--sc-primary-text); font-size: 11px; font-weight: 600; box-shadow: 0 1px 5px rgb(0 0 0 / .12); }
 .sc-book-status[data-completed="true"] { color: var(--sc-success); }
 .sc-book-info { display: flex; flex-direction: column; gap: 6px; }

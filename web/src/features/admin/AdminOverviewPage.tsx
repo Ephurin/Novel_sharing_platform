@@ -97,7 +97,16 @@ export function AdminOverviewPage() {
                   </g>
                 ))}
               </svg>
-              <p className="admin-muted">Màu cam: người dùng · Màu xanh: tác phẩm</p>
+              <div className="admin-chart-legend" aria-label="Chú giải biểu đồ">
+                <span className="admin-chart-legend-item">
+                  <span className="admin-chart-swatch is-users" aria-hidden="true" />
+                  <span>Người dùng mới</span>
+                </span>
+                <span className="admin-chart-legend-item">
+                  <span className="admin-chart-swatch is-novels" aria-hidden="true" />
+                  <span>Tác phẩm mới</span>
+                </span>
+              </div>
               <small className="admin-muted">Cập nhật lúc {dateTime(stats.generatedAt)}</small>
             </AdminPanel>
             <AdminPanel>

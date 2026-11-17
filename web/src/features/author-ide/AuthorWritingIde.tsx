@@ -75,6 +75,7 @@ import {
 } from '../ai-copilot/ai-copilot-api';
 import { getApiErrorMessage } from '../../shared/api/api-client';
 import { publishCopy, publishedToast } from './publish-copy';
+import { useReadingFonts } from '../../theme/load-reading-fonts';
 
 export type FontOption = 'merriweather' | 'lora' | 'literata' | 'playfair' | 'roboto-slab' | 'vietnam' | 'jakarta';
 export type TextAlignment = 'justify' | 'left' | 'center' | 'right';
@@ -196,6 +197,7 @@ export function AuthorWritingIde() {
   const rightPanelRef = useRef(rightPanel);
   rightPanelRef.current = rightPanel;
   const reducePanelMotion = useReducedMotion();
+  useReadingFonts();
   const chapterNavRef = useStoryCraftAutoAnimate<HTMLElement>();
   const aiResultsRef = useStoryCraftAutoAnimate<HTMLDivElement>();
   const openAiDrawer = () => {
@@ -1129,7 +1131,7 @@ export function AuthorWritingIde() {
                 <span className="hidden xl:inline">Story Brain</span>
                 {pendingMemory.total > 0 && (
                   <span data-testid="story-brain-pending" aria-hidden="true"
-                    className="ml-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-white text-[11px] leading-[18px] text-center font-semibold">
+                    className="ml-0.5 min-w-[20px] h-[20px] px-1.5 rounded-full bg-warning-bg text-warning border border-amber-300/60 text-badge leading-[18px] text-center font-semibold">
                     {pendingMemory.total}
                   </span>
                 )}
@@ -1640,34 +1642,38 @@ export function AuthorWritingIde() {
                 <button
                   onClick={() => handleGenerateAi('Viết tiếp phân cảnh này tự nhiên bám sát giọng văn', 'continue')}
                   disabled={isGeneratingAi}
-                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
+                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-surface-container-lowest hover:border-primary-400 hover:text-primary-600 text-meta font-medium text-stone-800 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
                   type="button"
                 >
-                  <span>✍️</span> <span>Viết tiếp</span>
+                  <span className="material-symbols-outlined text-[16px] text-primary-700" aria-hidden="true">edit_note</span>
+                  <span>Viết tiếp</span>
                 </button>
                 <button
                   onClick={() => handleGenerateAi('Gọt giũa và nâng tầm đoạn văn, giàu hình ảnh biểu cảm hơn', 'rewrite')}
                   disabled={isGeneratingAi}
-                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
+                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-surface-container-lowest hover:border-primary-400 hover:text-primary-600 text-meta font-medium text-stone-800 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
                   type="button"
                 >
-                  <span>✨</span> <span>Gọt giũa văn phong</span>
+                  <span className="material-symbols-outlined text-[16px] text-primary-700" aria-hidden="true">auto_fix_high</span>
+                  <span>Gọt giũa văn phong</span>
                 </button>
                 <button
                   onClick={() => handleGenerateAi('Mô tả ngoại cảnh và không gian xung quanh sâu sắc', 'describe')}
                   disabled={isGeneratingAi}
-                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
+                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-surface-container-lowest hover:border-primary-400 hover:text-primary-600 text-meta font-medium text-stone-800 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
                   type="button"
                 >
-                  <span>🎨</span> <span>Mô tả ngoại cảnh</span>
+                  <span className="material-symbols-outlined text-[16px] text-primary-700" aria-hidden="true">landscape</span>
+                  <span>Mô tả ngoại cảnh</span>
                 </button>
                 <button
                   onClick={() => handleGenerateAi('Phát triển đoạn đối thoại kịch tính giữa các nhân vật', 'dialogue')}
                   disabled={isGeneratingAi}
-                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
+                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-surface-container-lowest hover:border-primary-400 hover:text-primary-600 text-meta font-medium text-stone-800 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
                   type="button"
                 >
-                  <span>💬</span> <span>Viết hội thoại</span>
+                  <span className="material-symbols-outlined text-[16px] text-primary-700" aria-hidden="true">forum</span>
+                  <span>Viết hội thoại</span>
                 </button>
               </div>
             </div>
@@ -1708,7 +1714,7 @@ export function AuthorWritingIde() {
                     <button
                       onClick={() => handleAcceptDraft()}
                       disabled={isAcceptingAi || Boolean(currentJob?.stale_reason) || currentJob?.validation_status !== 'passed'}
-                      className="px-2 py-1.5 rounded bg-primary-600 text-white font-medium text-[11px] hover:bg-primary-700 text-center transition-all shadow-2xs active:scale-95 disabled:opacity-50"
+                      className="px-2 py-1.5 rounded bg-primary-600 text-white font-medium text-meta hover:bg-primary-700 text-center transition-all shadow-2xs active:scale-95 disabled:opacity-50"
                       type="button"
                     >
                       {isAcceptingAi ? 'Đang xác nhận...' : 'Chấp nhận bản thảo'}
@@ -1716,7 +1722,7 @@ export function AuthorWritingIde() {
                     <button
                       onClick={() => handleDiscardDraft()}
                       disabled={isAcceptingAi}
-                      className="px-2 py-1.5 rounded bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 font-medium text-[11px] text-center transition-all disabled:opacity-50"
+                      className="px-2 py-1.5 rounded bg-surface-container-lowest border border-stone-200 text-stone-800 hover:bg-stone-100 font-medium text-meta text-center transition-all disabled:opacity-50"
                       type="button"
                     >
                       Từ chối / Bỏ qua

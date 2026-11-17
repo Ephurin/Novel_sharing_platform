@@ -21,6 +21,7 @@ import { EmptyState, ErrorState, LoadingState } from '../../shared/components/Pa
 import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 import { ReaderNotFound, isReaderNotFound } from './ReaderNotFound';
 import { useToast } from '../../shared/components/ToastProvider';
+import { useReadingFonts } from '../../theme/load-reading-fonts';
 import {
   getHistoryForNovel,
   getReaderNovel,
@@ -165,10 +166,12 @@ export function PublicReaderNovelDetailPage() {
 // ─── Chapter reading ────────────────────────────────────────────────────────
 
 export function ReaderChapterPage() {
+  useReadingFonts();
   return <ChapterReader />;
 }
 
 export function PublicReaderChapterPage() {
+  useReadingFonts();
   return <PublicLayout><ChapterReader publicMode /></PublicLayout>;
 }
 
@@ -313,7 +316,7 @@ function PageHeader({ crumbs = [], title, description, actions }: { crumbs?: Bre
     <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
       <div className="flex flex-col gap-1">
         <Breadcrumbs items={crumbs} />
-        <h1 className="font-headline-sm text-2xl md:text-3xl font-bold text-stone-900 tracking-tight">{title}</h1>
+        <h1 className="text-page-title text-stone-900">{title}</h1>
         {description ? <p className="text-body text-stone-500">{description}</p> : null}
       </div>
       {actions ? <div className="flex items-center gap-2">{actions}</div> : null}

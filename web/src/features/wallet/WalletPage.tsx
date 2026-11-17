@@ -138,7 +138,7 @@ export function WalletPage() {
       let categoryLabel = 'Doanh thu chương VIP';
       let icon = 'menu_book';
       let iconBg = 'bg-primary-fixed';
-      let iconColor = 'text-primary';
+      let iconColor = 'text-primary-800';
       let isPositive = t.direction === 'IN';
 
       if (isDeposit) {
@@ -164,7 +164,7 @@ export function WalletPage() {
         categoryLabel = isPositive ? 'Doanh thu mở khóa' : 'Mở khóa chương VIP';
         icon = 'menu_book';
         iconBg = 'bg-primary-fixed';
-        iconColor = 'text-primary';
+        iconColor = 'text-primary-800';
       }
 
       const statusMap: Record<string, DisplayTransaction['status']> = {
@@ -278,12 +278,12 @@ export function WalletPage() {
                   <div className="flex flex-col gap-2.5">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
-                        <div className="w-7 h-7 rounded-lg bg-primary-fixed flex items-center justify-center text-primary">
+                        <div className="w-7 h-7 rounded-lg bg-primary-fixed flex items-center justify-center text-primary-800">
                           <span className="material-symbols-outlined text-[16px]">account_balance_wallet</span>
                         </div>
                         <span className="font-label-md text-meta font-semibold text-on-surface">Số dư khả dụng</span>
                       </div>
-                      <span className="font-label-sm text-meta text-primary font-medium bg-surface-container-low px-1.5 py-0.5 rounded">
+                      <span className="font-label-sm text-meta text-primary-800 font-medium bg-surface-container-low px-1.5 py-0.5 rounded">
                         Số dư trong ví
                       </span>
                     </div>
@@ -293,14 +293,14 @@ export function WalletPage() {
                         <span className="text-2xl sm:text-3xl text-on-surface tracking-tight font-serif font-bold">
                           {animateAuthor ? <AnimatedNumber value={availableBalance} /> : availableBalance.toLocaleString('vi-VN')}
                         </span>
-                        <span className="text-body font-semibold text-primary">Xu</span>
+                        <span className="text-body font-semibold text-primary-800">Xu</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="pt-2.5 mt-2.5 bg-surface-container-low rounded-lg p-2.5 flex flex-col gap-2">
                     <div className="flex items-start gap-1.5 text-on-surface-variant text-meta leading-snug">
-                      <span className="material-symbols-outlined text-body text-primary shrink-0 mt-0.5">verified</span>
+                      <span className="material-symbols-outlined text-body text-primary-800 shrink-0 mt-0.5">verified</span>
                       <span>Số Xu hiện có trong ví của bạn.</span>
                     </div>
                     <button
@@ -418,7 +418,7 @@ export function WalletPage() {
                                 type="button"
                                 onClick={() => setChartPeriod(period)}
                                 className={`relative z-10 px-2.5 py-1 rounded transition-colors text-meta font-medium ${
-                                  active ? 'text-primary font-semibold' : 'hover:text-on-surface'
+                                  active ? 'text-primary-800 font-semibold' : 'hover:text-on-surface'
                                 }`}
                               >
                                 {active && (
@@ -491,7 +491,7 @@ export function WalletPage() {
                               </div>
                               <span
                                 className={`font-label-sm text-meta mt-2 whitespace-nowrap ${
-                                  pt.highlight ? 'text-primary font-bold' : 'text-on-surface-variant'
+                                  pt.highlight ? 'text-primary-800 font-bold' : 'text-on-surface-variant'
                                 }`}
                               >
                                 {pt.label}
@@ -721,7 +721,7 @@ export function WalletPage() {
                             </td>
                             <td className="py-2.5 px-3.5 max-w-sm truncate text-on-surface" title={`${tx.title} - ${tx.detail}`}>
                               {tx.title}{' '}
-                              <strong className="font-medium text-primary">{tx.detail}</strong>
+                              <strong className="font-medium text-primary-800">{tx.detail}</strong>
                             </td>
                             <td
                               className={`py-2.5 px-3.5 text-right font-bold whitespace-nowrap text-body ${
@@ -824,7 +824,7 @@ export function WalletPage() {
               </div>
               <div className="flex flex-col text-right">
                 <span className="text-meta text-outline">Dự kiến sau rút</span>
-                <span className="text-body text-primary font-bold" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                <span className="text-body text-primary-800 font-bold" style={{ fontVariantNumeric: 'tabular-nums' }}>
                   <NumberFlow value={Math.max(0, availableBalance - (Number.isFinite(withdrawAmount) ? withdrawAmount : 0))} locales="vi-VN" animated={!reduce} /> Xu
                 </span>
               </div>
@@ -845,7 +845,7 @@ export function WalletPage() {
                   <button
                     type="button"
                     onClick={() => setWithdrawAmount(availableBalance)}
-                    className="text-primary hover:underline font-semibold text-meta"
+                    className="text-primary-800 hover:underline font-semibold text-meta"
                   >
                     Rút tối đa ({availableBalance.toLocaleString('vi-VN')} Xu)
                   </button>
@@ -883,7 +883,7 @@ export function WalletPage() {
               {/* Destination Bank Confirm */}
               <div className="border-t border-surface-container pt-2.5 flex flex-col gap-1">
                 <span className="text-meta text-outline">Tài khoản nhận tiền thụ hưởng:</span>
-                <button type="button" onClick={() => { setWithdrawModalOpen(false); setManageBankModalOpen(true); }} className="self-start text-meta text-primary underline">{bankAccount ? 'Sửa tài khoản nhận' : 'Nhập tài khoản nhận'}</button>
+                <button type="button" onClick={() => { setWithdrawModalOpen(false); setManageBankModalOpen(true); }} className="self-start text-meta text-primary-800 underline">{bankAccount ? 'Sửa tài khoản nhận' : 'Nhập tài khoản nhận'}</button>
                 <div className="flex items-center justify-between p-2 rounded-lg bg-surface-container-low text-meta">
                   <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-success text-[18px]">account_balance</span>
@@ -963,7 +963,7 @@ export function WalletPage() {
             </div>
             <div className="bg-surface-container-low px-3 py-2 rounded-lg flex items-center justify-between text-meta">
               <span className="text-outline">Số dư dự kiến sau nạp</span>
-              <span className="font-bold text-primary" style={{ fontVariantNumeric: 'tabular-nums' }}>
+              <span className="font-bold text-primary-800" style={{ fontVariantNumeric: 'tabular-nums' }}>
                 <NumberFlow
                   value={availableBalance + ((depositPackagesQuery.data ?? []).find((p) => p.code === selectedPackage)?.amountCoins ?? 0)}
                   locales="vi-VN"
@@ -1082,7 +1082,7 @@ export function WalletPage() {
         <div className="max-w-7xl mx-auto px-4 lg:px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-3 text-on-surface-variant">
           <div className="flex flex-col items-center md:items-start gap-0.5">
             <div className="flex items-center gap-1.5">
-              <span className="text-body text-primary font-serif font-bold">StoryCraft</span>
+              <span className="text-body text-primary-800 font-serif font-bold">StoryCraft</span>
               <span className="text-meta text-tertiary">Văn Hoa Studio</span>
             </div>
             <p className="text-meta text-outline text-center md:text-left">
@@ -1090,16 +1090,16 @@ export function WalletPage() {
             </p>
           </div>
           <nav className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-meta">
-            <a href="#" className="text-on-surface-variant hover:text-primary transition-colors">
+            <a href="#" className="text-on-surface-variant hover:text-primary-800 transition-colors">
               Chính sách xuất bản
             </a>
-            <a href="#" className="text-on-surface-variant hover:text-primary transition-colors">
+            <a href="#" className="text-on-surface-variant hover:text-primary-800 transition-colors">
               Bản quyền &amp; Sở hữu trí tuệ
             </a>
-            <a href="#" className="text-on-surface-variant hover:text-primary transition-colors">
+            <a href="#" className="text-on-surface-variant hover:text-primary-800 transition-colors">
               Tiêu chuẩn cộng đồng
             </a>
-            <a href="#" className="text-on-surface-variant hover:text-primary transition-colors">
+            <a href="#" className="text-on-surface-variant hover:text-primary-800 transition-colors">
               Trung tâm trợ giúp tác giả
             </a>
           </nav>

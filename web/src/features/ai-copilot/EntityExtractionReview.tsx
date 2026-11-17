@@ -637,7 +637,7 @@ function EntityCheckpoint({
                   review.status === 'entities_reviewed'
                     ? 'teal'
                     : review.status === 'completed'
-                    ? 'blue'
+                    ? 'green'
                     : 'yellow'
                 }
                 variant="light"
@@ -715,7 +715,7 @@ function EntityCheckpoint({
         )}
 
         {/* Provisional Group Creation Bar */}
-        <Paper p="xs" withBorder radius="sm" bg="var(--mantine-color-gray-0)">
+        <Paper p="xs" withBorder radius="sm" bg="var(--sc-surface-subtle)">
           <Stack gap="xs">
             <Text size="xs" fw={600}>
               Nhóm danh tính mới (Provisional Groups) của chương này:
@@ -728,7 +728,7 @@ function EntityCheckpoint({
                 </Text>
               ) : (
                 authorGroups.map(grp => (
-                  <Badge key={grp} variant="filled" color="indigo" size="sm">
+                  <Badge key={grp} variant="filled" size="sm">
                     {grp}
                   </Badge>
                 ))
@@ -754,14 +754,14 @@ function EntityCheckpoint({
         </Paper>
 
         {review.status === 'waiting_entity_review' && suggestible.length > 0 && (
-          <Alert color="indigo" variant="light" data-testid="entity-accept-all-panel">
+          <Alert variant="light" data-testid="entity-accept-all-panel">
             <Stack gap={6}>
               <Text size="sm">
                 AI đã có gợi ý cho {suggestible.length} vị trí: nối với nhân vật đã duyệt, tạo nhân vật mới theo tên, hoặc loại từ thường.
                 {machineUnresolved > 0 ? ` Còn ${machineUnresolved} vị trí AI chưa chắc, bạn tự quyết định.` : ''}
               </Text>
               <Group gap="xs">
-                <Button size="xs" color="indigo" disabled={disabled} onClick={acceptAllSuggestions} data-testid="entity-accept-all">
+                <Button size="xs" disabled={disabled} onClick={acceptAllSuggestions} data-testid="entity-accept-all">
                   Chấp nhận mọi gợi ý của AI ({suggestible.length})
                 </Button>
                 <Text size="xs" c="dimmed">Bạn vẫn sửa được từng vị trí trước khi đóng băng.</Text>
@@ -832,7 +832,6 @@ function EntityCheckpoint({
             <Button
               size="xs"
               variant="subtle"
-              color="blue"
               disabled={disabled}
               onClick={() => {
                 // Explicit author rejection action; preserve it as a dirty draft across refresh.
@@ -925,7 +924,6 @@ function EntityCheckpoint({
 
                 <Button
                   size="sm"
-                  color="indigo"
                   disabled={disabled || !allCandidatesResolved || inconsistentIdentity}
                   onClick={handleFreeze}
                 >
@@ -1091,7 +1089,7 @@ function OccurrenceCard({
                 Canon: {decision?.canonical_name} ({decision?.canonical_entity_id?.slice(0, 8)}...)
               </Badge>
             ) : currentMode === 'provisional' ? (
-              <Badge color="blue" size="xs" leftSection={<IconUserCheck size={10} />}>
+              <Badge variant="light" size="xs" leftSection={<IconUserCheck size={10} />}>
                 Nhóm tạm: {currentProvisionalGroup} ({decision?.canonical_name}) [{decision?.entity_type}]
               </Badge>
             ) : (
@@ -1111,7 +1109,7 @@ function OccurrenceCard({
               variant="light"
               color={
                 machine.verdict === 'entity'
-                  ? 'cyan'
+                  ? 'teal'
                   : machine.verdict === 'not_entity'
                   ? 'gray'
                   : 'yellow'
@@ -1124,7 +1122,7 @@ function OccurrenceCard({
         </Group>
 
         {/* Source Context Snippet */}
-        <Paper p="xs" bg="var(--mantine-color-gray-1)" radius="xs">
+        <Paper p="xs" bg="var(--sc-surface-subtle)" radius="xs">
           <Text size="xs" style={{ whiteSpace: 'pre-wrap' }}>
             &ldquo;{candidate.context}&rdquo;
           </Text>
@@ -1250,9 +1248,9 @@ function OccurrenceCard({
                   Áp dụng quyết định này cho các vị trí phù hợp &ldquo;{candidate.surface}&rdquo;
                 </Button>
               ) : (
-                <Paper p="xs" withBorder radius="xs" bg="var(--mantine-color-orange-0)">
+                <Paper p="xs" withBorder radius="xs" bg="var(--sc-warning-bg)">
                   <Stack gap="xs">
-                    <Text size="xs" fw={500} c="orange.9">
+                    <Text size="xs" fw={500} c="var(--sc-warning)">
                       Xác nhận áp dụng cho {bulkCandidates.length} vị trí:
                     </Text>
                     <Text size="xs">
@@ -1379,11 +1377,11 @@ function SurfaceGroupCard({
             ) : shared?.canonical_entity_id ? (
               <Badge color="teal" size="xs" leftSection={<IconCheck size={10} />}>Canon: {shared.canonical_name}</Badge>
             ) : shared ? (
-              <Badge color="blue" size="xs" leftSection={<IconUserCheck size={10} />}>
+              <Badge variant="light" size="xs" leftSection={<IconUserCheck size={10} />}>
                 Mới: {shared.canonical_name} [{shared.entity_type}] · {sharedGroup}
               </Badge>
             ) : (
-              <Badge color={summary.resolved === count ? 'grape' : 'gray'} size="xs">
+              <Badge color={summary.resolved === count ? 'orange' : 'gray'} size="xs">
                 {summary.resolved === count ? 'Quyết định khác nhau' : `${summary.resolved}/${count} đã quyết định`}
               </Badge>
             )}
@@ -1393,7 +1391,7 @@ function SurfaceGroupCard({
           </Text>
         </Group>
 
-        <Paper p="xs" bg="var(--mantine-color-gray-1)" radius="xs">
+        <Paper p="xs" bg="var(--sc-surface-subtle)" radius="xs">
           <Text size="xs" style={{ whiteSpace: 'pre-wrap' }} lineClamp={3}>
             &ldquo;{group.candidates[0].context}&rdquo;
           </Text>
@@ -1477,9 +1475,9 @@ function SurfaceGroupCard({
           </Alert>
         )}
         {pending && (
-          <Paper p="xs" withBorder radius="xs" bg="var(--mantine-color-orange-0)">
+          <Paper p="xs" withBorder radius="xs" bg="var(--sc-warning-bg)">
             <Stack gap="xs">
-              <Text size="xs" fw={500} c="orange.9">
+              <Text size="xs" fw={500} c="var(--sc-warning)">
                 {pending.replaced}/{count} vị trí &ldquo;{group.surface}&rdquo; đang gán cho danh tính khác.
               </Text>
               <Text size="xs">
