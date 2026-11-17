@@ -45,9 +45,13 @@ export function PlanningStudio({novelId,title,step,onStep,chapters,onWrite,onCre
   {read&&!active&&(lastWrittenChapter>0
    ?<Alert data-testid="planning-memory-from-chapters"><Stack gap={6}><Text size="sm" fw={600}>Đã có chương viết? Thiết lập thế giới là tùy chọn.</Text><Text size="xs">AI đọc các chương đã lưu để gợi ý Canon; mọi đề xuất chỉ có hiệu lực sau khi bạn duyệt.</Text><Group><Button size="xs" onClick={()=>onMemory('setup')}>Bắt đầu bộ nhớ từ chương đã lưu</Button></Group></Stack></Alert>
    :<Text size="xs" c="dimmed">Để kích hoạt bộ nhớ: hoàn tất thiết lập thế giới, hoặc viết và lưu ít nhất một chương rồi bắt đầu bộ nhớ từ chương đã lưu.</Text>)}
-  <AnimatedDisclosure summary="Chi tiết cơ chế đồng bộ & trạng thái phân tích"><Stack gap={4} pt={4}>
+  <AnimatedDisclosure
+   summary={m0?.first_saved_revision
+    ? `Đã xác minh bản lưu đầu tiên · Chương ${m0.first_saved_revision.chapter_number} · Chi tiết đồng bộ`
+    : 'Chi tiết cơ chế đồng bộ & trạng thái phân tích'}
+  ><Stack gap={4} pt={4}>
    <Text size="xs" c="dimmed">{active?'Chương đã lưu dùng luồng phân tích và duyệt hiện có. Sự kiện tương lai vẫn chỉ là kế hoạch.':'Trước khi bộ nhớ truyện được kích hoạt, lưu bản nháp không tự tạo lịch sử hay tự phân tích.'}</Text>
-   {m0?.first_saved_revision&&<Text size="xs" c="dimmed">Bản lưu đầu tiên · Chương {m0.first_saved_revision.chapter_number} ({m0.first_saved_revision.revision_id})</Text>}
+   {m0?.first_saved_revision&&<Text size="xs" c="dimmed">Mã bản lưu: {m0.first_saved_revision.revision_id}</Text>}
    {!extraction?.length&&<Text size="xs" c="dimmed">{extraction===null?'Chưa đọc được trạng thái phân tích chương. Mở Bộ nhớ truyện để kiểm tra.':'Chưa có trạng thái phân tích chương. Không tự xác nhận hoàn tất.'}</Text>}
   </Stack></AnimatedDisclosure></Stack></Card>
   {error&&<Alert color="red" role="alert">Không xác minh được trạng thái: {error}</Alert>}

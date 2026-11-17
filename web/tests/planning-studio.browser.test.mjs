@@ -104,7 +104,9 @@ test('mounted /author/ide planning journey, recoverable CAS drafts, real Writer 
   await page.reload();await button('Lập kế hoạch').click();await step('Dàn ý chương').click();await expect(page.getByLabel('Tiêu đề chương 1',{exact:true})).toBeDisabled();await expect(button('Lưu bản nháp dàn ý')).toBeDisabled();await expect(button('Không dùng kế hoạch')).toBeDisabled();await expect(page.getByRole('textbox',{name:'Phiên bản đã lưu',exact:true})).toBeDisabled();await button('Khôi phục bản sửa dàn ý').click();await expect(page.getByLabel('Tiêu đề chương 2',{exact:true})).toHaveValue('Gặp Minh');
   await button('Dùng bản máy chủ, bỏ bản sửa').click();planConflict=false;await expect(page.getByLabel('Tiêu đề chương 1',{exact:true})).toHaveValue('Gặp Minh');
   await step('Bắt đầu viết').click();assert.equal(writes.filter(w=>w.path.endsWith('/chapters')).length,0);
-  await button('Tạo bản nháp chương mới').click();await expect(page.getByText(/OFFLINE_CREATE_RETRY/)).toBeVisible();await button('Tạo bản nháp chương mới').click();
+  await button('Tạo bản nháp chương mới').click();await expect(page.getByText(/OFFLINE_CREATE_RETRY/).first()).toBeVisible();await button('Tạo bản nháp chương mới').click();
+  // The Writer opens in the visual editor; the plain-text source is the textarea this test types into.
+  await button('Ký hiệu định dạng').click();
   await expect(page.getByPlaceholder('Bắt đầu câu từ chương truyện của bạn tại đây...')).toBeEditable();
   const creates=writes.filter(w=>w.path.endsWith('/chapters'));assert.equal(creates.length,2);assert.equal(creates[0].body.clientRequestId,creates[1].body.clientRequestId);assert.equal(creates[1].body.content,'');
   await page.getByPlaceholder('Bắt đầu câu từ chương truyện của bạn tại đây...').fill('Minh bước vào An Thành.');
