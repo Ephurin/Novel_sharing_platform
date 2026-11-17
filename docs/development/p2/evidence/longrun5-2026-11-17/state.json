@@ -1,0 +1,69 @@
+{
+  "novelId": "e82e5640-e77c-4c19-8e4d-b02a8375100a",
+  "g0": 1643,
+  "startedAt": "2026-11-17T07:00:41.271Z",
+  "chapters": [
+    {
+      "n": 13,
+      "chapterId": "cefc2723-691d-42ac-8d42-c1f17593544e",
+      "words": 1972,
+      "steps": 5,
+      "failures": 0,
+      "done": true,
+      "g0": 1643,
+      "startedAt": "2026-11-17T07:00:43.051Z",
+      "calls": 20,
+      "finishedAt": "2026-11-17T07:08:04.474Z"
+    },
+    {
+      "n": 14,
+      "chapterId": "165869e6-d198-4de0-a516-2140415ccd9c",
+      "words": 1616,
+      "steps": 4,
+      "failures": 0,
+      "done": true,
+      "g0": 1663,
+      "startedAt": "2026-11-17T07:08:05.884Z",
+      "calls": 11,
+      "finishedAt": "2026-11-17T07:14:16.895Z"
+    },
+    {
+      "n": 15,
+      "chapterId": "f4d5c631-dba0-4f07-9f27-b9501dc70ea0",
+      "words": 1644,
+      "steps": 5,
+      "failures": 0,
+      "done": true,
+      "g0": 1674,
+      "startedAt": "2026-11-17T07:14:18.277Z",
+      "calls": 11,
+      "finishedAt": "2026-11-17T07:20:31.278Z"
+    },
+    {
+      "n": 16,
+      "chapterId": "3eb46ad1-896e-4a40-87aa-98e061c0b354",
+      "words": 1578,
+      "steps": 4,
+      "failures": 0,
+      "done": true,
+      "g0": 1685,
+      "startedAt": "2026-11-17T07:20:32.636Z",
+      "calls": 13,
+      "finishedAt": "2026-11-17T07:26:37.911Z"
+    },
+    {
+      "n": 17,
+      "chapterId": "5a9027bd-9696-4319-a5ed-ccd8ac6895e7",
+      "words": 1585,
+      "steps": 4,
+      "failures": 0,
+      "done": true,
+      "g0": 1698,
+      "startedAt": "2026-11-17T07:26:39.285Z",
+      "calls": 11,
+      "finishedAt": "2026-11-17T07:32:49.654Z"
+    }
+  ],
+  "totalWords": 8395,
+  "skipRuns": []
+}

@@ -16,9 +16,10 @@ These reports cover short live runs of the P2 pipeline on `main`, with `gemini-3
 | [Retest 10](P2_LIVE_RETEST10_2026-11-17.md) | ch. 10 | 16 | X1: background analysis skipped facts and states; X2–X4 | #181, #182 |
 | [Retest 11](P2_LIVE_RETEST11_2026-11-17.md) | ch. 11 | 11 | Analysis down to 6 calls; Y1: a main character dropped out | #183 |
 | [Retest 12](P2_LIVE_RETEST12_2026-11-17.md) | ch. 12 | 10 | Y1 fixed: Lam Yên returns where she was last seen | — |
+| [Long run 5](P2_LIVE_LONGRUN5_2026-11-17.md) | ch. 13–17 back to back | 66 | Stable over 5 chapters, 11 calls per clean chapter; W1 confirmed. Name drift and idiom entities (AA1–AA3) are left for the author to review | — |
 
 Analysis cost per chapter went from about 11 model calls (retests 8–9) to 6 (retests 11–12): discovery 2, verification 1, events 1, facts and world rules 1, states 1.
 
 Evidence for each run (driver events, brain growth, the chapter text) is in `evidence/retest*-2026-11-1*/`. Live was turned off at the end of every run.
 
-Still open: W1 has not been exercised live (no chapter has used the short name next to the full name yet). Also open: U2 in the live UI, R4 against a real contradiction, Full auto, and Track B.
+W1 was confirmed in the long run (ch. 15). Still open: U2 in the live UI, R4 against a real contradiction, Full auto, and Track B.
