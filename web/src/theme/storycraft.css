@@ -200,6 +200,11 @@
 .sc-dialog > div { background: var(--sc-overlay); backdrop-filter: none; }
 .sc-dialog > div > div { border-radius: 14px; max-height: calc(100dvh - 32px); overflow-y: auto; border: 1px solid var(--sc-border); box-shadow: 0 12px 32px rgb(var(--sc-text-rgb) / .12); }
 .sc-dialog > div > .sc-novel-edit-dialog { display: flex; flex-direction: column; width: 100%; max-width: 1040px; padding: 0; overflow: hidden; }
+.sc-animated-modal.sc-novel-edit-dialog { width: min(1040px, 100%); }
+.sc-animated-modal.sc-novel-edit-dialog .sc-novel-edit-fields { padding: 4px 0 16px; overflow: visible; }
+.sc-animated-modal.sc-novel-edit-dialog .sc-novel-edit-footer { padding: 12px 0 0; }
+.sc-animated-modal.sc-story-bible-dialog { width: min(768px, 100%); height: min(620px, 88dvh); }
+.sc-animated-modal.sc-story-bible-dialog .sc-animated-modal-body { display: flex; flex-direction: column; flex: 1 1 auto; overflow: hidden; padding: 0; }
 .sc-novel-edit-header { flex-shrink: 0; padding: 20px 24px 16px; }
 .sc-novel-edit-fields { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; padding: 20px 24px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
 .sc-novel-edit-fields > * { min-width: 0; }

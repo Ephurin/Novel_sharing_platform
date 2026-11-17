@@ -8,7 +8,9 @@ import { TagsInput } from '@mantine/core';
 import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
 import { chapterSortOptions, sortChapters, type ChapterSort } from './chapter-sorting';
 import { getNovelStatistics } from '../novels/novel-statistics-api';
-import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AnimatedModal } from '../../shared/components/AnimatedModal';
+import NumberFlow from '@number-flow/react';
 import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
 import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 import { authorHomeCrumb, navigationLabels } from '../../shared/components/navigation';
@@ -375,12 +377,12 @@ export function AuthorNovelMetadataPage() {
                 </div>
               </div>
               <dl className="sc-novel-metrics">
-                <div><dt>Tổng chương</dt><dd>{chaptersQuery.isPending ? '…' : chaptersQuery.isError ? '—' : chapters.length}</dd></div>
-                <div><dt>Lượt đọc</dt><dd>{novel.viewsCount.toLocaleString('vi-VN')}</dd></div>
-                <div><dt>Doanh thu</dt><dd>{earningsQuery.isPending ? '…' : earningsQuery.isError ? '—' : earningsQuery.data.unlockCoins.toLocaleString('vi-VN')} <span className="text-meta font-normal">Xu</span></dd></div>
+                <div><dt>Tổng chương</dt><dd>{chaptersQuery.isPending ? '…' : chaptersQuery.isError ? '—' : <NumberFlow value={chapters.length} locales="vi-VN" animated={!reduce} />}</dd></div>
+                <div><dt>Lượt đọc</dt><dd><NumberFlow value={novel.viewsCount} locales="vi-VN" animated={!reduce} /></dd></div>
+                <div><dt>Doanh thu</dt><dd>{earningsQuery.isPending ? '…' : earningsQuery.isError ? '—' : <NumberFlow value={earningsQuery.data.unlockCoins} locales="vi-VN" animated={!reduce} />} <span className="text-meta font-normal">Xu</span></dd></div>
                 <div><dt>Đánh giá</dt><dd><Link className="sc-rating-metric" to={`/author/novels/${novelId}/reviews`} title="Xem đánh giá độc giả" aria-label="Xem đánh giá độc giả">{statisticsQuery.isPending ? '…' : statisticsQuery.isError ? '—' : statisticsQuery.data.ratingAverage === null ? 'Chưa có' : statisticsQuery.data.ratingAverage.toLocaleString('vi-VN', { maximumFractionDigits: 1 })}<span className="material-symbols-outlined" aria-hidden="true">chevron_right</span></Link></dd></div>
-                <div><dt>Theo dõi</dt><dd>{statisticsQuery.isPending ? '…' : statisticsQuery.isError ? '—' : statisticsQuery.data.followersCount.toLocaleString('vi-VN')}</dd></div>
-                <div><dt>Tổng số từ</dt><dd>{statisticsQuery.isPending ? '…' : statisticsQuery.isError ? '—' : statisticsQuery.data.totalWords.toLocaleString('vi-VN')}</dd></div>
+                <div><dt>Theo dõi</dt><dd>{statisticsQuery.isPending ? '…' : statisticsQuery.isError ? '—' : <NumberFlow value={statisticsQuery.data.followersCount} locales="vi-VN" animated={!reduce} />}</dd></div>
+                <div><dt>Tổng số từ</dt><dd>{statisticsQuery.isPending ? '…' : statisticsQuery.isError ? '—' : <NumberFlow value={statisticsQuery.data.totalWords} locales="vi-VN" animated={!reduce} />}</dd></div>
               </dl>
               {statisticsQuery.isError && <button type="button" onClick={() => void statisticsQuery.refetch()} className="text-meta text-red-700">Không tải được thống kê · Thử lại</button>}
               {earningsQuery.isError && <button type="button" onClick={() => void earningsQuery.refetch()} className="text-meta text-red-700">Không tải được doanh thu · Thử lại</button>}
@@ -394,19 +396,32 @@ export function AuthorNovelMetadataPage() {
             <div className="w-full bg-surface-container-lowest rounded-xl shadow-2xs border border-stone-200/80 overflow-hidden flex flex-col">
               {/* Clean Tabs Navigation */}
               <LayoutGroup id={tabsGroupId}>
-                <div className="flex items-center px-6 bg-surface-container-lowest border-b border-stone-200/80">
+                <div role="tablist" aria-label="Quản lý chương tác phẩm" className="flex items-center px-6 bg-surface-container-lowest border-b border-stone-200/80">
                   {([
                     ['all', 'Danh sách chương', chapters.length],
                     ['monetization', 'Phát hành & Thu phí', null],
                     ['history', 'Lịch sử bản thảo', null],
-                  ] as const).map(([key, label, badge]) => {
+                  ] as const).map(([key, label, badge], index, list) => {
                     const active = activeTab === key;
                     return (
                       <button
                         key={key}
+                        role="tab"
+                        aria-selected={active}
+                        tabIndex={active ? 0 : -1}
                         onClick={() => {
                           setActiveTab(key);
                           setCurrentPage(1);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft' && e.key !== 'Home' && e.key !== 'End') return;
+                          e.preventDefault();
+                          const nextIndex = e.key === 'Home' ? 0 : e.key === 'End' ? list.length - 1 : (index + (e.key === 'ArrowRight' ? 1 : -1) + list.length) % list.length;
+                          const nextKey = list[nextIndex][0];
+                          setActiveTab(nextKey);
+                          setCurrentPage(1);
+                          const buttons = e.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+                          buttons?.[nextIndex]?.focus();
                         }}
                         className={`py-3 px-3.5 font-label-md text-label-md relative transition-colors flex items-center gap-2 cursor-pointer ${
                           active
@@ -718,29 +733,14 @@ export function AuthorNovelMetadataPage() {
       {/* ──────────────────────────────────────────
           BEGIN: Modal Chỉnh Sửa Thông Tin Tác Phẩm
          ────────────────────────────────────────── */}
-      {editModalOpen && (
-        <AuthorDialog onClose={() => setEditModalOpen(false)}><div className="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="sc-novel-edit-dialog bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200 animate-in fade-in zoom-in-95 duration-200">
-            {/* Header */}
-            <div className="sc-novel-edit-header flex items-center justify-between border-b border-stone-100">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-primary-50 border border-primary-200 text-primary-600 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[18px]">edit_square</span>
-                </div>
-                <div>
-                  <h3 className="text-body font-bold text-stone-900">Chỉnh sửa thông tin tác phẩm</h3>
-                  <p className="text-meta text-stone-400">Cập nhật thông tin, thể loại và lời tác giả</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setEditModalOpen(false)}
-                className="p-1 rounded-md text-stone-400 hover:text-stone-700 transition-colors"
-                type="button"
-              >
-                <span className="material-symbols-outlined text-[18px]">close</span>
-              </button>
-            </div>
-
+      <AnimatedModal
+        opened={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        title="Chỉnh sửa thông tin tác phẩm"
+        size="xl"
+        centered
+        className="sc-novel-edit-dialog"
+      >
             {/* Form */}
             <div className="sc-novel-edit-fields text-body">
               <div>
@@ -814,35 +814,18 @@ export function AuthorNovelMetadataPage() {
                 {updateMutation.isPending ? 'Đang lưu...' : 'Lưu thay đổi'}
               </button>
             </div>
-          </div>
-        </div></AuthorDialog>
-      )}
+      </AnimatedModal>
 
       {/* ──────────────────────────────────────────
           BEGIN: Modal Thêm Chương Mới
          ────────────────────────────────────────── */}
-      {newChapterModalOpen && (
-        <AuthorDialog onClose={() => setNewChapterModalOpen(false)}><div className="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200 w-full max-w-sm p-5 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-3 border-b border-stone-100 mb-3.5">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-primary-50 border border-primary-200 text-primary-600 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[17px]">add_circle</span>
-                </div>
-                <div>
-                  <h3 className="text-meta font-bold text-stone-900">Thêm chương mới</h3>
-                  <p className="text-meta text-stone-400">Khởi tạo và mở Studio viết truyện</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setNewChapterModalOpen(false)}
-                className="p-1 rounded-md text-stone-400 hover:text-stone-700 transition-colors"
-                type="button"
-              >
-                <span className="material-symbols-outlined text-[18px]">close</span>
-              </button>
-            </div>
-
+      <AnimatedModal
+        opened={newChapterModalOpen}
+        onClose={() => setNewChapterModalOpen(false)}
+        title="Thêm chương mới"
+        size="sm"
+        centered
+      >
             <div className="space-y-3 text-meta">
               <div>
                 <label className="block font-semibold text-stone-700 mb-1">Tiêu đề chương</label>
@@ -901,9 +884,7 @@ export function AuthorNovelMetadataPage() {
                 {createChapterMutation.isPending ? 'Đang tạo...' : 'Tạo & Viết ngay'}
               </button>
             </div>
-          </div>
-        </div></AuthorDialog>
-      )}
+      </AnimatedModal>
 
       {/* ──────────────────────────────────────────
           BEGIN: Toast Notification

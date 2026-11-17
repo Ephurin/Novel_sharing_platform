@@ -1,11 +1,12 @@
-import { AnimatedStepper } from '../../shared/components/AuthorAdminMotion';
+import { AnimatedStepper, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { NormalizationPreview, SplitPresets } from './ManuscriptTools';
 import { duplicateChapterGroups, splitPatternError } from './manuscript-tools';
 import { SelectionToolbar } from '../../shared/components/InteractionWidgets';
 import { AnimatedProgress } from '../../shared/components/AnimatedProgress';
 import { AnimatedCheckbox } from '../../shared/components/AnimatedCheckIcon';
 import { useToast } from '../../shared/components/ToastProvider';
-import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AnimatedModal } from '../../shared/components/AnimatedModal';
 import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
 import { authorHomeCrumb } from '../../shared/components/navigation';
 import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
@@ -890,6 +891,7 @@ export function ManuscriptImportPage() {
 
                 <SelectionToolbar count={selectedChapterIds.length} onClear={() => setSelectedChapterIds([])} />
                 {/* Table */}
+                <ResultsSurface identity={`${onlyInvalid}:${onlyDuplicates}:${currentPage}:${parsedChapters.length}`} busy={isReadingFile}>
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[900px] text-left border-collapse">
                     <thead>
@@ -1001,6 +1003,7 @@ export function ManuscriptImportPage() {
                     </tbody>
                   </table>
                 </div>
+                </ResultsSurface>
 
                 {/* Pagination */}
                 <div className="p-2.5 px-4 bg-stone-50/80 flex items-center justify-between text-meta text-stone-500 border-t border-stone-200">
@@ -1344,22 +1347,14 @@ export function ManuscriptImportPage() {
       {/* ──────────────────────────────────────────
           Direct Text / Manuscript Paste Modal
          ────────────────────────────────────────── */}
-      {pasteModalOpen && (
-        <AuthorDialog onClose={() => setPasteModalOpen(false)}><div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200 max-w-2xl w-full p-5 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-2 border-b border-stone-100">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary-600 text-[22px]">edit_note</span>
-                <h3 className="text-body font-bold text-stone-900">Dán hoặc chỉnh sửa văn bản bản thảo</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setPasteModalOpen(false)}
-                className="text-stone-400 hover:text-stone-600 transition-colors cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[20px]">close</span>
-              </button>
-            </div>
+      <AnimatedModal
+        opened={pasteModalOpen}
+        onClose={() => setPasteModalOpen(false)}
+        title="Dán hoặc chỉnh sửa văn bản bản thảo"
+        size="lg"
+        centered
+      >
+          <div className="flex flex-col gap-4">
             <p className="text-meta text-stone-500">
               Dán toàn bộ nội dung bản thảo hoặc các chương tại đây. Bộ phân tích sẽ tự động tách chương theo quy tắc nhận diện.
             </p>
@@ -1400,8 +1395,7 @@ export function ManuscriptImportPage() {
               </div>
             </div>
           </div>
-        </div></AuthorDialog>
-      )}
+      </AnimatedModal>
 
       {/* ──────────────────────────────────────────
           Toast Feedback Notification

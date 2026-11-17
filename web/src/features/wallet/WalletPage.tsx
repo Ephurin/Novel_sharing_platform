@@ -1,5 +1,6 @@
 import { AnimatedNumber } from '../../shared/components/AuthorAdminMotion';
-import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AnimatedModal } from '../../shared/components/AnimatedModal';
 import { useToast } from '../../shared/components/ToastProvider';
 import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 import { navigationLabels } from '../../shared/components/navigation';
@@ -768,27 +769,17 @@ export function WalletPage() {
       </main>
 
       {/* 5. Modal: Yêu cầu rút tiền */}
-      {withdrawModalOpen && (
-        <AuthorDialog onClose={() => setWithdrawModalOpen(false)}><div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-md bg-surface-container-lowest rounded-xl shadow-sm p-5 flex flex-col gap-3.5 animate-in zoom-in-95 duration-200 border border-surface-container/60">
-            {/* Header */}
-            <div className="flex items-start justify-between">
-              <div className="flex flex-col">
-                <h3 className="text-base text-on-surface font-bold">
-                  Yêu cầu rút Xu mô phỏng
-                </h3>
-                <p className="text-meta text-outline">
-                  Yêu cầu chỉ dùng để mô phỏng, không chuyển tiền qua ngân hàng.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setWithdrawModalOpen(false)}
-                className="w-7 h-7 rounded-full flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors"
-              >
-                <span className="material-symbols-outlined text-[18px]">close</span>
-              </button>
-            </div>
+      <AnimatedModal
+        opened={withdrawModalOpen}
+        onClose={() => setWithdrawModalOpen(false)}
+        title="Yêu cầu rút Xu mô phỏng"
+        size="md"
+        centered
+      >
+          <div className="flex flex-col gap-3.5">
+            <p className="text-meta text-outline">
+              Yêu cầu chỉ dùng để mô phỏng, không chuyển tiền qua ngân hàng.
+            </p>
 
             {/* Current Balance Banner */}
             <div className="bg-surface-container-low p-3 rounded-lg flex items-center justify-between gap-4">
@@ -900,26 +891,18 @@ export function WalletPage() {
               </div>
             </form>
           </div>
-        </div></AuthorDialog>
-      )}
+      </AnimatedModal>
 
       {/* 7. Modal: Nạp Xu Test (Graduation Project Mock Deposit) */}
-      {depositModalOpen && (
-        <AuthorDialog onClose={() => setDepositModalOpen(false)}><div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-sm bg-surface-container-lowest rounded-xl shadow-sm p-5 flex flex-col gap-3.5 animate-in zoom-in-95 duration-200 border border-surface-container/60">
-            <div className="flex items-start justify-between">
-              <div className="flex flex-col">
-                <h3 className="text-base text-on-surface font-bold">Nạp Xu thử nghiệm</h3>
-                <p className="text-meta text-outline">Cộng thêm số dư Xu để test chức năng</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setDepositModalOpen(false)}
-                className="w-7 h-7 rounded-full flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors"
-              >
-                <span className="material-symbols-outlined text-[18px]">close</span>
-              </button>
-            </div>
+      <AnimatedModal
+        opened={depositModalOpen}
+        onClose={() => setDepositModalOpen(false)}
+        title="Nạp Xu thử nghiệm"
+        size="sm"
+        centered
+      >
+          <div className="flex flex-col gap-3.5">
+            <p className="text-meta text-outline">Cộng thêm số dư Xu để test chức năng</p>
 
             <div className="grid grid-cols-2 gap-2">
               {(depositPackagesQuery.data ?? []).map((pkg) => (
@@ -967,26 +950,18 @@ export function WalletPage() {
               </button>
             </div>
           </div>
-        </div></AuthorDialog>
-      )}
+      </AnimatedModal>
 
       {/* 8. Modal: Quản lý tài khoản ngân hàng */}
-      {manageBankModalOpen && (
-        <AuthorDialog onClose={() => setManageBankModalOpen(false)}><div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-sm bg-surface-container-lowest rounded-xl shadow-sm p-5 flex flex-col gap-3 animate-in zoom-in-95 duration-200 border border-surface-container/60">
-            <div className="flex items-start justify-between">
-              <div className="flex flex-col">
-                <h3 className="text-base text-on-surface font-bold">Tài khoản ngân hàng thụ hưởng</h3>
-                <p className="text-meta text-outline">Nhập thông tin cho yêu cầu rút hiện tại. Hệ thống chưa lưu tài khoản ngân hàng.</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setManageBankModalOpen(false)}
-                className="w-7 h-7 rounded-full flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors"
-              >
-                <span className="material-symbols-outlined text-[18px]">close</span>
-              </button>
-            </div>
+      <AnimatedModal
+        opened={manageBankModalOpen}
+        onClose={() => setManageBankModalOpen(false)}
+        title="Tài khoản ngân hàng thụ hưởng"
+        size="sm"
+        centered
+      >
+          <div className="flex flex-col gap-3">
+            <p className="text-meta text-outline">Nhập thông tin cho yêu cầu rút hiện tại. Hệ thống chưa lưu tài khoản ngân hàng.</p>
 
             <div className="flex flex-col gap-2.5">
               <div>
@@ -1050,8 +1025,7 @@ export function WalletPage() {
               </button>
             </div>
           </div>
-        </div></AuthorDialog>
-      )}
+      </AnimatedModal>
     </div>
   );
 }

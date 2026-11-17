@@ -28,6 +28,7 @@ import {
 } from './setup-api';
 import { getApprovedMemory, type ApprovedMemory, type MemoryFact } from './author-memory-api';
 import { useMemoryChanged } from './memory-events';
+import { StateComparison } from '../../shared/components/StateComparison';
 
 export type WorldRuleFact = {
   fact_id: string;
@@ -1928,6 +1929,11 @@ function PendingProposalDecisionView({
             </Text>
           </Card>
         </Group>
+
+        <StateComparison
+          before={{ fact_key: rule.fact_key, fact_value: rule.fact_value }}
+          after={{ fact_key: rule.fact_key, fact_value: proposal.replacement_text }}
+        />
 
         <TextInput
           label="Lý do phê duyệt hoặc từ chối (Tùy chọn)"

@@ -8,7 +8,9 @@ import { CoverCropEditor } from '../../shared/components/CoverCropEditor';
 import { prepareCoverImage } from '../../shared/components/cover-image';
 import { WorkspacePreview } from '../../shared/components/WorkspacePreview';
 import { ReactionIcon } from '../../shared/components/InteractionWidgets';
-import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
+import { AnimatedModal } from '../../shared/components/AnimatedModal';
 import { navigationLabels } from '../../shared/components/navigation';
 import React, { useState, useMemo, useRef, useEffect, useId } from 'react';
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
@@ -60,7 +62,6 @@ export function AuthorProjectsPage() {
   const [pinnedIds, setPinnedIds] = useWorkspacePreference<string[]>('pinned-projects', [], stringArray);
   const [recentIds] = useWorkspacePreference<string[]>('recent-projects', [], stringArray);
   const togglePin = (id: string) => setPinnedIds(ids => ids.includes(id) ? ids.filter(item => item !== id) : [id, ...ids].slice(0, 200));
-  const [activeMenuNovelId, setActiveMenuNovelId] = useState<string | null>(null);
   const [previewId, setPreviewId] = useState<string | null>(null);
 
   // Modal State for New Project
@@ -506,8 +507,6 @@ export function AuthorProjectsPage() {
                       ? 'Hoàn thành'
                       : 'Đang sáng tác';
 
-                  const isMenuOpen = activeMenuNovelId === project.novelId;
-
                   const readsFormatted = (project.viewsCount ?? 0).toLocaleString('vi-VN');
 
                   return (
@@ -609,50 +608,47 @@ export function AuthorProjectsPage() {
                         <button type="button" className="sc-project-pin" aria-label={`Xem nhanh ${project.title}`} title="Xem nhanh tác phẩm" onClick={() => setPreviewId(project.novelId)}><span className="material-symbols-outlined" aria-hidden="true">visibility</span></button>
 
                         {/* Three-dot overflow menu */}
-                        <div className="relative">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setActiveMenuNovelId(isMenuOpen ? null : project.novelId)
-                            }
-                            className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors cursor-pointer"
-                            title="Thêm thao tác"
-                          >
-                            <span className="material-symbols-outlined text-[18px]">more_vert</span>
-                          </button>
-
-                          {isMenuOpen && (
-                            <div className="absolute right-0 bottom-full mb-1.5 w-44 bg-surface-container-lowest rounded-lg shadow-sm border border-stone-200 py-1 z-30 animate-in fade-in zoom-in-95 duration-100">
-                              <Link
-                                to={`/author/context/${project.novelId}`}
-                                className="w-full px-3 py-1.5 text-left text-meta text-stone-700 hover:bg-stone-50 hover:text-primary-600 flex items-center gap-2 transition-colors"
-                              >
-                                <span className="material-symbols-outlined text-[16px] text-primary-500">
-                                  menu_book
-                                </span>
-                                <span>Cẩm nang bối cảnh</span>
-                              </Link>
-                              <Link
-                                to={`/author/import/${project.novelId}`}
-                                className="w-full px-3 py-1.5 text-left text-meta text-stone-700 hover:bg-stone-50 hover:text-primary-600 flex items-center gap-2 transition-colors"
-                              >
-                                <span className="material-symbols-outlined text-[16px] text-emerald-600">
-                                  file_upload
-                                </span>
-                                <span>Nhập bản thảo</span>
-                              </Link>
-                              <Link
-                                to={`/public/novels/${project.novelId}`}
-                                className="w-full px-3 py-1.5 text-left text-meta text-stone-700 hover:bg-stone-50 hover:text-primary-600 flex items-center gap-2 transition-colors"
-                              >
-                                <span className="material-symbols-outlined text-[16px] text-stone-400">
-                                  visibility
-                                </span>
-                                <span>Xem trang độc giả</span>
-                              </Link>
-                            </div>
-                          )}
-                        </div>
+                        <Menu position="bottom-end">
+                          <Menu.Target>
+                            <button
+                              type="button"
+                              className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors cursor-pointer"
+                              title="Thêm thao tác"
+                              aria-label={`Thêm thao tác ${project.title}`}
+                            >
+                              <span className="material-symbols-outlined text-[18px]" aria-hidden="true">more_vert</span>
+                            </button>
+                          </Menu.Target>
+                          <Menu.Dropdown>
+                            <Menu.Item
+                              leftSection={<span className="material-symbols-outlined text-[16px] text-stone-500" aria-hidden="true">preview</span>}
+                              onClick={() => setPreviewId(project.novelId)}
+                            >
+                              Xem nhanh
+                            </Menu.Item>
+                            <Menu.Item
+                              component={Link}
+                              to={`/author/context/${project.novelId}`}
+                              leftSection={<span className="material-symbols-outlined text-[16px] text-primary-600" aria-hidden="true">menu_book</span>}
+                            >
+                              Cẩm nang bối cảnh
+                            </Menu.Item>
+                            <Menu.Item
+                              component={Link}
+                              to={`/author/import/${project.novelId}`}
+                              leftSection={<span className="material-symbols-outlined text-[16px] text-emerald-600" aria-hidden="true">file_upload</span>}
+                            >
+                              Nhập bản thảo
+                            </Menu.Item>
+                            <Menu.Item
+                              component={Link}
+                              to={`/public/novels/${project.novelId}`}
+                              leftSection={<span className="material-symbols-outlined text-[16px] text-stone-500" aria-hidden="true">visibility</span>}
+                            >
+                              Xem trang độc giả
+                            </Menu.Item>
+                          </Menu.Dropdown>
+                        </Menu>
                       </div>
                     </ProjectMotionCard>
                   );
@@ -765,31 +761,20 @@ export function AuthorProjectsPage() {
       {/* ──────────────────────────────────────────
           3. Create Novel Modal Dialog
          ────────────────────────────────────────── */}
-      {createModalOpen && (
-        <AuthorDialog onClose={() => setCreateModalOpen(false)}><div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md bg-surface-container-lowest rounded-2xl shadow-sm border border-stone-200/80 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
-            {/* Modal Header */}
-            <div className="px-5 py-4 bg-surface-subtle border-b border-primary-50/70 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary-600 text-[22px]">menu_book</span>
-                <h3 className="text-body font-bold text-stone-900">Tạo tác phẩm mới</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setCreateModalOpen(false)}
-                className="p-1 rounded-full hover:bg-stone-200/60 text-stone-400 hover:text-stone-700 transition-colors cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[19px]">close</span>
-              </button>
-            </div>
-
+      <AnimatedModal
+        opened={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        title="Tạo tác phẩm mới"
+        size="md"
+        centered
+      >
             {/* Modal Form */}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 if (!coverUpload.isPending && !coverToCrop) createProjectMutation.mutate();
               }}
-              className="p-5 flex flex-col gap-4"
+              className="flex flex-col gap-4"
             >
               {/* Field 1: Tên tác phẩm */}
               <div className="flex flex-col gap-1.5">
@@ -991,9 +976,7 @@ export function AuthorProjectsPage() {
                 </button>
               </div>
             </form>
-          </div>
-        </div></AuthorDialog>
-      )}
+      </AnimatedModal>
 
       {/* ──────────────────────────────────────────
           Toast Notification

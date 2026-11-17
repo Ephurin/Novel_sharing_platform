@@ -30,7 +30,6 @@ import { useDraftPersistence } from './useDraftPersistence';
 import { resolveAuthorContext, writeAuthorContext } from './author-context';
 import { Alert, Button, Group, Text } from '@mantine/core';
 import { ThemeControl } from '../../shared/components/ThemeControl';
-import { AuthorDialog } from '../../shared/components/AuthorTheme';
 import { AuthorMemoryPanel } from '../ai-copilot/AuthorMemoryPanel';
 import { usePendingMemoryReviews } from '../ai-copilot/pending-memory-reviews';
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
@@ -176,6 +175,7 @@ export function AuthorWritingIde() {
   const [priceCoins, setPriceCoins] = useState(15);
   const [autosaveStatus, setAutosaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [lastSavedTime, setLastSavedTime] = useState<string>('');
+  const [reloadServerConfirmOpen, setReloadServerConfirmOpen] = useState(false);
 
   // UI Interactive Panels & Modals State
   const [sidebarOpen, setSidebarOpen] = useState(() => window.matchMedia('(min-width: 901px)').matches);
@@ -1164,9 +1164,35 @@ export function AuthorWritingIde() {
          ────────────────────────────────────────── */}
       {scheduleOpen && <ChapterSchedule chapterId={activeChapterId} novelId={activeNovelId} onClose={() => setScheduleOpen(false)} />}
       {historyOpen && <RevisionHistory chapterId={activeChapterId} content={content} onClose={() => setHistoryOpen(false)} onRestore={async next => { await persistence.flush(); setContent(next); triggerAutosave(title, next, isVip, priceCoins); await persistence.flush(); showToast('Đã khôi phục và lưu phiên bản bản thảo.'); }} />}
-      {persistence.error && <Alert color="red" title="Bản nháp chưa được lưu">{persistence.error}<Group mt="xs"><Button size="xs" variant="light" onClick={() => void persistence.flush().catch(() => {})}>Thử lưu lại</Button><Button size="xs" variant="default" onClick={async () => { if (persistence.dirty && !window.confirm('Tải bản máy chủ sẽ thay thế nội dung chưa lưu đang hiển thị. Hãy xuất bản đang viết trước nếu cần giữ. Tiếp tục?')) return; const result = await chapterQuery.refetch(); if (result.data) { const value = persistence.initialize(result.data, true); if (value) { setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); } } }}>Tải bản máy chủ</Button></Group></Alert>}
+      {persistence.error && <Alert color="red" title="Bản nháp chưa được lưu">{persistence.error}<Group mt="xs"><Button size="xs" variant="light" onClick={() => void persistence.flush().catch(() => {})}>Thử lưu lại</Button><Button size="xs" variant="default" onClick={async () => { if (persistence.dirty) { setReloadServerConfirmOpen(true); return; } const result = await chapterQuery.refetch(); if (result.data) { const value = persistence.initialize(result.data, true); if (value) { setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); } } }}>Tải bản máy chủ</Button></Group></Alert>}
+      <AnimatedModal opened={reloadServerConfirmOpen} onClose={() => setReloadServerConfirmOpen(false)} title="Tải lại bản máy chủ?" size="sm" centered>
+        <p className="text-body mb-4">Tải bản máy chủ sẽ thay thế nội dung chưa lưu đang hiển thị. Hãy xuất bản đang viết trước nếu cần giữ.</p>
+        <Group justify="flex-end">
+          <Button variant="default" onClick={() => setReloadServerConfirmOpen(false)}>Hủy</Button>
+          <Button color="red" onClick={async () => {
+            setReloadServerConfirmOpen(false);
+            const result = await chapterQuery.refetch();
+            if (result.data) {
+              const value = persistence.initialize(result.data, true);
+              if (value) {
+                setTitle(value.title);
+                setContent(value.content);
+                setIsVip(value.isVip);
+                setPriceCoins(value.priceCoins);
+              }
+            }
+          }}>Tải bản máy chủ</Button>
+        </Group>
+      </AnimatedModal>
       {persistence.recovery && <Alert title="Có bản lưu trên máy chưa đồng bộ" color="orange"><Text size="sm">Bản lưu lúc {new Date(persistence.recovery.savedAt).toLocaleString('vi-VN')}. Nội dung máy chủ vẫn được giữ nguyên.</Text><Group mt="xs"><Button size="xs" onClick={() => { const value = persistence.recovery!.value; setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); persistence.dismissRecovery(); triggerAutosave(value.title, value.content, value.isVip, value.priceCoins); }}>Khôi phục vào trình soạn thảo</Button><Button size="xs" variant="default" onClick={persistence.dismissRecovery}>Bỏ bản lưu trên máy</Button></Group></Alert>}
-      {persistence.blocker.state === 'blocked' && <AuthorDialog onClose={() => persistence.blocker.reset?.()}><div className="fixed inset-0 flex items-center justify-center p-4"><div className="w-full max-w-md p-6"><h2 className="text-section">Bản nháp chưa lưu xong</h2><p className="text-body">Bạn có thể lưu trước khi rời trang hoặc giữ bản dự phòng trên máy để khôi phục sau.</p><Group mt="md"><Button onClick={async () => { try { await persistence.flush(); persistence.blocker.proceed?.(); } catch {} }}>Lưu và rời trang</Button><Button variant="default" onClick={() => persistence.blocker.reset?.()}>Ở lại</Button><Button variant="subtle" onClick={() => { persistence.abandon(); persistence.blocker.proceed?.(); }}>Rời trang</Button></Group></div></div></AuthorDialog>}
+      <AnimatedModal opened={persistence.blocker.state === 'blocked'} onClose={() => persistence.blocker.reset?.()} title="Bản nháp chưa lưu xong" size="md" centered>
+        <p className="text-body">Bạn có thể lưu trước khi rời trang hoặc giữ bản dự phòng trên máy để khôi phục sau.</p>
+        <Group mt="md" justify="flex-end">
+          <Button variant="default" onClick={() => persistence.blocker.reset?.()}>Ở lại</Button>
+          <Button variant="subtle" onClick={() => { persistence.abandon(); persistence.blocker.proceed?.(); }}>Rời trang</Button>
+          <Button onClick={async () => { try { await persistence.flush(); persistence.blocker.proceed?.(); } catch {} }}>Lưu và rời trang</Button>
+        </Group>
+      </AnimatedModal>
       <StudioNovelSearch key={searchScope} opened={novelSearchOpen} chapters={chaptersQuery.data ?? []} activeChapterId={activeChapterId} content={content} onClose={() => setNovelSearchOpen(false)} onNavigate={navigateSearchHit} />
       {planningMounted&&novelQuery.data&&<div key={JSON.stringify([user?.userId,activeNovelId])} style={{display:planning?'flex':'none',flex:1,minHeight:0}}><PlanningStudio novelId={activeNovelId} title={novelQuery.data.title} step={planningStep} onStep={setPlanningStep} chapters={chaptersQuery.data??[]} onWrite={id=>{if(id)setSearchParams({novelId:activeNovelId,chapterId:id});setPlanning(false);}} onCreate={()=>createChapterMutation.mutate()} creating={createChapterMutation.isPending} onMemory={tab=>{setMemoryTab(tab??'review');setMemoryPanelOpen(true);}} onRefreshChapters={()=>void queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] })}/></div>}
       {!planning && <StudioWorkbench onSearchNovel={() => setNovelSearchOpen(true)} notesOpen={rightPanel === 'notes'} onNotesOpenChange={changeNotesOpen} onLookup={setReferenceQuery} formatToolbarVisible={formatToolbarVisible} chapterSettings={chapterSettings} primaryActions={studioPrimaryActions} sidebarToggle={sidebarToggle} fileActions={manuscriptActions} key={activeDraftScope} scope={activeDraftScope} title={title} content={content} editor={editorRef} disabled={!studioReady || isAcceptingAi} exportOpen={exportOpen} onExportClose={() => setExportOpen(false)}
@@ -1789,47 +1815,27 @@ export function AuthorWritingIde() {
         <TextComparison before={currentJob?.patch ? aiBaseRef.current.content.slice(codePointToUtf16Offset(aiBaseRef.current.content, currentJob.patch.start), codePointToUtf16Offset(aiBaseRef.current.content, currentJob.patch.end)) : aiBaseRef.current.content} after={currentJob?.patch?.replacement ?? aiSuggestion ?? ''} />
         <div className="sc-ai-comparison-actions"><button type="button" className="sc-feedback-button" disabled={isAcceptingAi} onClick={() => setAiComparisonOpen(false)}>Quay lại gợi ý</button><button type="button" className="sc-feedback-button" disabled={isAcceptingAi || Boolean(currentJob?.stale_reason) || currentJob?.validation_status !== 'passed'} onClick={() => void handleAcceptDraft()}>{isAcceptingAi ? 'Đang xác nhận…' : 'Chấp nhận bản thảo'}</button></div>
       </AnimatedModal>
-      {storyBibleOpen && (
-        <AuthorDialog onClose={() => setStoryBibleOpen(false)}><div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div
-            style={{ height: '620px', maxHeight: '88vh' }}
-            className="bg-surface-container-lowest rounded-2xl shadow-sm border border-stone-200/90 w-full max-w-3xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200"
+      <AnimatedModal
+        opened={storyBibleOpen}
+        onClose={() => setStoryBibleOpen(false)}
+        title="Cẩm Nang Thế Giới (Story Bible)"
+        size="xl"
+        centered
+        className="sc-story-bible-dialog"
+      >
+        <div className="px-6 pb-2 border-b border-stone-200 flex items-center justify-between gap-2 shrink-0">
+          <p className="text-meta text-stone-500 font-medium">Tác phẩm: {novelQuery.data?.title || 'Đang tải...'}</p>
+          <Link
+            to={activeNovelId ? `/author/context/${activeNovelId}` : '/author'}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border border-stone-300 text-meta text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest font-medium shadow-xs transition-colors"
+            title="Mở toàn màn hình để thêm/sửa nhân vật, thiết lập chi tiết"
           >
-            {/* Header */}
-            <div className="h-16 border-b border-stone-200 px-6 flex items-center justify-between bg-stone-50/90 shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-primary-50 border border-primary-200/60 flex items-center justify-center text-primary-600 shadow-xs">
-                  <span className="material-symbols-outlined text-[20px]">menu_book</span>
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-body font-bold text-stone-900">Cẩm Nang Thế Giới (Story Bible)</h3>
-                    <span className="px-2 py-0.5 rounded-full bg-stone-200/60 text-meta font-semibold text-stone-600">Tra cứu nhanh</span>
-                  </div>
-                  <p className="text-meta text-stone-500 font-medium">Tác phẩm: {novelQuery.data?.title || 'Đang tải...'}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Link
-                  to={activeNovelId ? `/author/context/${activeNovelId}` : '/author'}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-300 text-meta text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest font-medium shadow-xs transition-colors"
-                  title="Mở toàn màn hình để thêm/sửa nhân vật, thiết lập chi tiết"
-                >
-                  <span className="material-symbols-outlined text-[15px] text-primary-600">open_in_new</span>
-                  <span>Mở Cẩm nang đầy đủ</span>
-                </Link>
-                <button
-                  onClick={() => setStoryBibleOpen(false)}
-                  className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 transition-colors"
-                  type="button"
-                  title="Đóng popup"
-                >
-                  <span className="material-symbols-outlined text-[20px]">close</span>
-                </button>
-              </div>
-            </div>
+            <span className="material-symbols-outlined text-[15px] text-primary-600" aria-hidden="true">open_in_new</span>
+            <span>Mở Cẩm nang đầy đủ</span>
+          </Link>
+        </div>
 
             {/* Tabs & Contents */}
             <AnimatedTabs
@@ -2016,60 +2022,36 @@ export function AuthorWritingIde() {
             </AnimatedTabs>
 
             {/* Footer */}
-            <div className="p-4 border-t border-stone-200 bg-stone-50 flex items-center justify-between shrink-0">
-              <div className="text-meta text-stone-500 hidden sm:flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[15px] text-amber-500">lightbulb</span>
-                <span>Dữ liệu Cẩm nang được AI Copilot tự động nạp để tạo gợi ý văn phong nhất quán.</span>
-              </div>
-              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                <Link
-                  to={activeNovelId ? `/author/context/${activeNovelId}` : '/author'}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-3.5 py-1.5 rounded-xl border border-stone-300 text-meta text-stone-700 hover:bg-stone-100 font-medium inline-flex items-center gap-1 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[15px]">edit_note</span>
-                  <span>Chỉnh sửa Cẩm nang ↗</span>
-                </Link>
-                <button
-                  onClick={() => setStoryBibleOpen(false)}
-                  className="px-4 py-1.5 rounded-xl bg-primary-600 text-white text-meta font-semibold hover:bg-primary-700 transition-colors shadow-2xs"
-                  type="button"
-                >
-                  Đóng cẩm nang
-                </button>
-              </div>
+            <div className="p-4 border-t border-stone-200 bg-stone-50 flex items-center justify-end gap-2 shrink-0">
+              <Link
+                to={activeNovelId ? `/author/context/${activeNovelId}` : '/author'}
+                target="_blank"
+                rel="noreferrer"
+                className="px-3.5 py-1.5 rounded-xl border border-stone-300 text-meta text-stone-700 hover:bg-stone-100 font-medium inline-flex items-center gap-1 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[15px]" aria-hidden="true">edit_note</span>
+                <span>Chỉnh sửa Cẩm nang ↗</span>
+              </Link>
+              <button
+                onClick={() => setStoryBibleOpen(false)}
+                className="px-4 py-1.5 rounded-xl bg-primary-600 text-white text-meta font-semibold hover:bg-primary-700 transition-colors shadow-2xs"
+                type="button"
+              >
+                Đóng cẩm nang
+              </button>
             </div>
-          </div>
-        </div></AuthorDialog>
-      )}
+      </AnimatedModal>
 
       {/* ──────────────────────────────────────────
           BEGIN: Publish Confirmation Modal
          ────────────────────────────────────────── */}
-      {publishModalOpen && (
-        <AuthorDialog onClose={() => setPublishModalOpen(false)}><div className="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200 w-full max-w-lg p-6 animate-in fade-in zoom-in-95 duration-200">
-            {/* Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-stone-100 mb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-lg bg-primary-50 border border-primary-200 text-primary-600 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[20px]">send</span>
-                </div>
-                <div>
-                  <h3 className="text-body font-bold text-stone-900">Xác nhận xuất bản chương</h3>
-                  <p className="text-meta text-stone-500">Tác phẩm: {novelQuery.data?.title || '...'}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setPublishModalOpen(false)}
-                className="p-1 text-stone-400 hover:text-stone-700 rounded-md"
-                type="button"
-              >
-                <span className="material-symbols-outlined text-[18px]">close</span>
-              </button>
-            </div>
-
+      <AnimatedModal
+        opened={publishModalOpen}
+        onClose={() => setPublishModalOpen(false)}
+        title="Xác nhận xuất bản chương"
+        size="lg"
+        centered
+      >
             {/* Summary Box */}
             <div className="bg-stone-50 border border-stone-200 rounded-lg p-3 space-y-1.5 text-meta text-stone-700 mb-4">
               <div className="flex justify-between">
@@ -2136,9 +2118,7 @@ export function AuthorWritingIde() {
                 {publishMutation.isPending ? publishCopy(novelQuery.data?.status).pending : publishCopy(novelQuery.data?.status).confirm}
               </button>
             </div>
-          </div>
-        </div></AuthorDialog>
-      )}
+      </AnimatedModal>
 
       {/* ──────────────────────────────────────────
           BEGIN: Toast Notification

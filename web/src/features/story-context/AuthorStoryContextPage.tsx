@@ -1,4 +1,7 @@
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AnimatedModal } from '../../shared/components/AnimatedModal';
+import { ResultsSurface } from '../../shared/components/AuthorAdminMotion';
+import { useToast } from '../../shared/components/ToastProvider';
 import { getApprovedMemory } from '../ai-copilot/author-memory-api';
 import { StoryBibleKnowledge } from './StoryBibleKnowledge';
 import { EntityMergeControl } from '../ai-copilot/EntityMergeControl';
@@ -124,7 +127,8 @@ export function AuthorStoryContextPage() {
   const [activeTab, setActiveTab] = useState<StoryTab>('characters');
   const [roleFilter, setRoleFilter] = useState<RoleFilter>('ALL');
   const [characterSearch, setCharacterSearch] = useState('');
-  const [notice, setNotice] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ kind: 'character' | 'relationship' | 'timeline' | 'summary'; id: string; label: string } | null>(null);
+  const { showToast } = useToast();
   const reduce = useReducedMotion();
   const mainTabsGroupId = useId();
   const roleFilterGroupId = useId();
@@ -148,13 +152,6 @@ export function AuthorStoryContextPage() {
   const [relationshipForm, setRelationshipForm] = useState<CreateRelationshipPayload>(emptyRelationshipForm);
   const [timelineForm, setTimelineForm] = useState<CreateTimelineEventPayload>(emptyTimelineForm);
   const [summaryForm, setSummaryForm] = useState<CreatePlotSummaryPayload>(emptySummaryForm);
-
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
-    setNotice({ message, type });
-    setTimeout(() => {
-      setNotice(null);
-    }, 4000);
-  };
 
   // Queries
   const approvedMemoryQuery = useQuery({
@@ -504,27 +501,7 @@ export function AuthorStoryContextPage() {
       <AuthorNavbar />
 
       {/* ──────────────────────────────────────────
-          2. Toast Notification
-         ────────────────────────────────────────── */}
-      {notice && (
-        <div className="fixed bottom-5 right-5 z-50 animate-in fade-in  duration-200">
-          <div
-            className={`px-4 py-2.5 rounded-xl shadow-sm border text-meta font-semibold flex items-center gap-2 ${
-              notice.type === 'error'
-                ? 'bg-red-50 border-red-200 text-red-800'
-                : 'bg-cover-fallback border-primary-800 text-white'
-            }`}
-          >
-            <span className="material-symbols-outlined text-[17px]">
-              {notice.type === 'error' ? 'error' : 'check_circle'}
-            </span>
-            <span>{notice.message}</span>
-          </div>
-        </div>
-      )}
-
-      {/* ──────────────────────────────────────────
-          3. Main Page Content
+          2. Main Page Content
          ────────────────────────────────────────── */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Breadcrumb & Top Action Block */}
@@ -566,19 +543,30 @@ export function AuthorStoryContextPage() {
             4. Top Navigation Tabs Bar
            ────────────────────────────────────────── */}
         <LayoutGroup id={mainTabsGroupId}>
-          <div className="flex items-center gap-2 mb-6 bg-stone-100/80 p-1 rounded-xl border border-stone-200/70 overflow-x-auto">
+          <div role="tablist" aria-label="Danh mục Cẩm nang tác phẩm" className="flex items-center gap-2 mb-6 bg-stone-100/80 p-1 rounded-xl border border-stone-200/70 overflow-x-auto">
             {([
               { key: 'characters' as const, icon: 'group', label: 'Nhân vật', count: characters.length, activeBadge: 'bg-primary-100 text-primary-800' },
               { key: 'relationships' as const, icon: 'hub', label: 'Mối quan hệ', count: relationships.length, activeBadge: 'bg-stone-200 text-stone-700' },
               { key: 'timeline' as const, icon: 'timeline', label: 'Dòng thời gian', count: timelineEvents.length, activeBadge: 'bg-stone-200 text-stone-700' },
               { key: 'summaries' as const, icon: 'menu_book', label: 'Tóm tắt hồi', count: plotSummaries.length, activeBadge: 'bg-stone-200 text-stone-700' },
               { key: 'knowledge' as const, icon: 'public', label: 'Địa danh & dữ kiện', count: null, activeBadge: '' },
-            ]).map((tab) => {
+            ]).map((tab, index, list) => {
               const active = activeTab === tab.key;
               return (
                 <button
                   key={tab.key}
+                  role="tab"
+                  aria-selected={active}
+                  tabIndex={active ? 0 : -1}
                   onClick={() => setActiveTab(tab.key)}
+                  onKeyDown={(e) => {
+                    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft' && e.key !== 'Home' && e.key !== 'End') return;
+                    e.preventDefault();
+                    const nextIndex = e.key === 'Home' ? 0 : e.key === 'End' ? list.length - 1 : (index + (e.key === 'ArrowRight' ? 1 : -1) + list.length) % list.length;
+                    setActiveTab(list[nextIndex].key);
+                    const buttons = e.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+                    buttons?.[nextIndex]?.focus();
+                  }}
                   className={`relative z-10 flex items-center gap-2 py-2 px-3.5 rounded-lg text-meta font-semibold transition-colors whitespace-nowrap ${
                     active
                       ? 'text-primary-700'
@@ -688,6 +676,7 @@ export function AuthorStoryContextPage() {
               </LayoutGroup>
 
               {/* Characters List Cards */}
+              <ResultsSurface identity={`${roleFilter}:${characterSearch.trim()}`} busy={charactersQuery.isFetching}>
               <LayoutGroup id={characterListGroupId}>
                 <div className="flex flex-col gap-2 max-h-[750px] overflow-y-auto pr-0.5">
                 {isCreatingCharacter && (
@@ -782,6 +771,7 @@ export function AuthorStoryContextPage() {
                 )}
               </div>
               </LayoutGroup>
+              </ResultsSurface>
             </div>
 
             {/* Right Editor: Detailed Character Inspector (lg: col-span-8) */}
@@ -854,7 +844,7 @@ export function AuthorStoryContextPage() {
                   )}
                   {!isCreatingCharacter && selectedCharacterId && (
                     <button
-                      onClick={() => deleteCharacterMutation.mutate(selectedCharacterId)}
+                      onClick={() => setPendingDelete({ kind: 'character', id: selectedCharacterId, label: `nhân vật "${characterForm.name || 'đang chọn'}"` })}
                       disabled={deleteCharacterMutation.isPending}
                       className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition-colors"
                       title="Lưu trữ / Xóa nhân vật này"
@@ -1151,7 +1141,7 @@ export function AuthorStoryContextPage() {
                 </h3>
                 {!isCreatingRelationship && selectedRelationshipId && (
                   <button
-                    onClick={() => deleteRelationshipMutation.mutate(selectedRelationshipId)}
+                    onClick={() => setPendingDelete({ kind: 'relationship', id: selectedRelationshipId, label: `mối quan hệ "${relationshipForm.relationshipType || 'đang chọn'}"` })}
                     disabled={deleteRelationshipMutation.isPending}
                     className="text-meta text-red-600 hover:text-red-700 font-medium"
                     type="button"
@@ -1314,7 +1304,7 @@ export function AuthorStoryContextPage() {
                 </h3>
                 {!isCreatingTimeline && selectedEventId && (
                   <button
-                    onClick={() => deleteTimelineMutation.mutate(selectedEventId)}
+                    onClick={() => setPendingDelete({ kind: 'timeline', id: selectedEventId, label: `mốc sự kiện "${timelineForm.title || 'đang chọn'}"` })}
                     disabled={deleteTimelineMutation.isPending}
                     className="text-meta text-red-600 hover:text-red-700 font-medium"
                     type="button"
@@ -1461,7 +1451,7 @@ export function AuthorStoryContextPage() {
                 </h3>
                 {!isCreatingSummary && selectedSummaryId && (
                   <button
-                    onClick={() => deleteSummaryMutation.mutate(selectedSummaryId)}
+                    onClick={() => setPendingDelete({ kind: 'summary', id: selectedSummaryId, label: 'bản tóm tắt đang chọn' })}
                     disabled={deleteSummaryMutation.isPending}
                     className="text-meta text-red-600 hover:text-red-700 font-medium"
                     type="button"
@@ -1564,6 +1554,42 @@ export function AuthorStoryContextPage() {
           </div>
         )}
       </main>
+
+      <AnimatedModal
+        opened={Boolean(pendingDelete)}
+        onClose={() => setPendingDelete(null)}
+        title="Xác nhận xóa dữ liệu Cẩm nang"
+        size="sm"
+        centered
+      >
+        <p className="text-body text-stone-700 mb-4">
+          Bạn có chắc muốn xóa {pendingDelete?.label} khỏi Cẩm nang tác phẩm?
+        </p>
+        <div className="flex items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={() => setPendingDelete(null)}
+            className="px-3.5 py-1.5 rounded-lg border border-stone-200 text-stone-700 hover:bg-stone-100 text-meta font-medium transition-colors"
+          >
+            Hủy
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (!pendingDelete) return;
+              const target = pendingDelete;
+              setPendingDelete(null);
+              if (target.kind === 'character') deleteCharacterMutation.mutate(target.id);
+              else if (target.kind === 'relationship') deleteRelationshipMutation.mutate(target.id);
+              else if (target.kind === 'timeline') deleteTimelineMutation.mutate(target.id);
+              else deleteSummaryMutation.mutate(target.id);
+            }}
+            className="px-4 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-meta font-semibold transition-colors"
+          >
+            Xóa
+          </button>
+        </div>
+      </AnimatedModal>
     </div>
   );
 }

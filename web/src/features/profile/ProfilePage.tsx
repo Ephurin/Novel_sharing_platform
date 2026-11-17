@@ -7,7 +7,8 @@ import { AuthorProfileHeader } from './AuthorProfileHeader';
 import { ImageUpload } from '../../shared/components/ImageUpload';
 import { becomeAuthor } from '../auth/auth-api';
 import { useNavigate } from 'react-router-dom';
-import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AnimatedModal } from '../../shared/components/AnimatedModal';
 import NumberFlow from '@number-flow/react';
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import React, { useId, useState } from 'react';
@@ -261,29 +262,13 @@ export function AuthorProfilePage() {
       <footer className="sc-author-profile-footer text-meta"><span>© {new Date().getFullYear()} StoryCraft Văn Hoa</span><Link to={isGuest ? '/public' : '/reader'}>Khám phá tác phẩm</Link></footer>
 
       {/* 6. Support Author Modal */}
-      {supportModalOpen && (
-        <AuthorDialog onClose={() => setSupportModalOpen(false)}><div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-surface-container-lowest rounded-2xl shadow-sm border border-stone-200 w-full max-w-md p-5 overflow-hidden animate-in zoom-in-95 duration-200">
-            {/* Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200 text-warning flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[18px]">volunteer_activism</span>
-                </div>
-                <div>
-                  <h3 className="font-serif font-bold text-body text-stone-900">Ủng hộ tác giả {authorName}</h3>
-                  <p className="text-meta text-stone-500">Gửi tặng năng lượng sáng tác</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSupportModalOpen(false)}
-                className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
-              >
-                <span className="material-symbols-outlined text-[18px]">close</span>
-              </button>
-            </div>
-
+      <AnimatedModal
+        opened={supportModalOpen}
+        onClose={() => setSupportModalOpen(false)}
+        title={`Ủng hộ tác giả ${authorName}`}
+        size="md"
+        centered
+      >
             {/* Author Target Card */}
             <div className="flex items-center gap-3 my-3 p-2.5 rounded-xl bg-stone-50 border border-stone-200/70">
               {authorAvatar ? <img alt={authorName} src={authorAvatar} className="w-9 h-9 rounded-full object-cover border border-white shadow-xs" /> : <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center font-bold">{authorName.slice(0, 1).toUpperCase()}</div>}
@@ -397,9 +382,7 @@ export function AuthorProfilePage() {
                 {supportMutation.isPending ? 'Đang gửi...' : 'Xác nhận ủng hộ'}
               </button>
             </div>
-          </div>
-        </div></AuthorDialog>
-      )}
+      </AnimatedModal>
     </div>
   );
 }
