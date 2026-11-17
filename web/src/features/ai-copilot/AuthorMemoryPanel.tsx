@@ -579,6 +579,7 @@ function ScopedAuthorMemoryPanel({
                           )}
                           {block.stale && <Badge color="gray" size="xs">Đã cũ</Badge>}
                           {block.duplicates.length > 0 && <Badge color="yellow" size="xs">Trùng sự kiện đã duyệt</Badge>}
+                          {block.repeats.length > 0 && <Badge color="yellow" variant="light" size="xs">Có thể lặp sự kiện cũ</Badge>}
                         </Group>
 
                         <Group gap="xs">

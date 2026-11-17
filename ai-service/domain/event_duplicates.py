@@ -58,6 +58,41 @@ def duplicate_event(payload: dict[str, Any], evidence: Iterable[dict[str, Any]],
     return None
 
 
+# Live retest 10 (X2): ch. 10 re-proposed ch. 9's "Lôi Long truyền ký ức vào thức hải Trần Vũ" in
+# other words, and the quote check could not see it. Summary word-pair overlap with the previous two
+# chapters is a soft warning for the author, never a block: on the live novel, repeats scored 0.39 and
+# 0.48 while the closest different events scored at most 0.29.
+REPEAT_OVERLAP = 0.35
+REPEAT_LOOKBACK = 2
+
+
+def _pairs(text: Any) -> set[str]:
+    words = re.findall(r"\w+", _norm(text))
+    return {f"{a} {b}" for a, b in zip(words, words[1:])}
+
+
+def possible_repeat(payload: dict[str, Any], evidence: Iterable[dict[str, Any]],
+                    events: Iterable[Any]) -> tuple[Any, float] | None:
+    """(event, overlap) for the closest approved event of the previous REPEAT_LOOKBACK chapters whose
+    summary shares at least REPEAT_OVERLAP of the shorter summary's word pairs."""
+    if payload.get("supersedes_id") or payload.get("supersedes"):
+        return None
+    chapter = _chapter(payload, list(evidence))
+    mine = _pairs(payload.get("summary"))
+    if chapter is None or len(mine) < 4:
+        return None
+    best = None
+    for event in events:
+        gap = chapter - int(getattr(event, "chapter", 0) or 0)
+        theirs = _pairs(getattr(event, "summary", ""))
+        if not 1 <= gap <= REPEAT_LOOKBACK or len(theirs) < 4:
+            continue
+        overlap = len(mine & theirs) / min(len(mine), len(theirs))
+        if overlap >= REPEAT_OVERLAP and (best is None or overlap > best[1]):
+            best = (event, round(overlap, 2))
+    return best
+
+
 def can_rebase(proposal_types: Iterable[str]) -> bool:
     types = set(proposal_types)
     return bool(types) and types <= REBASEABLE_TYPES

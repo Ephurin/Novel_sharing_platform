@@ -11,7 +11,7 @@ const p = (id: string, extra: Partial<ReviewProposal> = {}): ReviewProposal => (
 });
 
 test('P2: stale or repeated groups are blocked with a Vietnamese reason', () => {
-  assert.deepEqual(proposalGroupBlock([p('a'), p('b')]), { stale: false, duplicates: [], blocked: false, notice: null });
+  assert.deepEqual(proposalGroupBlock([p('a'), p('b')]), { stale: false, duplicates: [], repeats: [], blocked: false, notice: null });
   const stale = proposalGroupBlock([p('a', { stale: true }), p('b')]);
   assert.equal(stale.blocked, true);
   assert.match(stale.notice!, /không thể duyệt nữa/);
@@ -76,4 +76,11 @@ test('U2: a provider outage on a synchronous request reads in Vietnamese', () =>
   const err = new ApiClientError({ message: 'PROVIDER_UNAVAILABLE retry_after=60', status: 502, code: 'AI_SERVICE_502' });
   assert.match(getApiErrorMessage(err), /Dịch vụ AI tạm thời không phản hồi/);
   assert.doesNotMatch(getApiErrorMessage(err), /AI_SERVICE_502/);
+});
+
+test('live retest 10 (X2): a possible repeat warns without blocking the group', () => {
+  const block = proposalGroupBlock([p('a', { possible_repeat_of_event: { event_id: 'e', chapter: 9, summary: 's', overlap: 0.39 } }), p('b')]);
+  assert.equal(block.blocked, false);
+  assert.equal(block.repeats.length, 1);
+  assert.match(block.notice ?? '', /chương 9/);
 });

@@ -1229,16 +1229,19 @@ class PostgresNarrativeRepository:
             if not members:
                 raise KeyError(group_id)
             if single_proposal_id is not None and len(members) != 1:
-                from domain.proposal_dependencies import can_reject_individually
-                if not can_reject_individually(self._to_proposal(selected),
-                                              [self._to_proposal(p) for p in members]):
+                from domain.proposal_dependencies import rejection_set
+                by_id = {self._to_proposal(p).proposal_id: p for p in members}
+                chosen = rejection_set(self._to_proposal(selected), [self._to_proposal(p) for p in members])
+                if chosen is None:
                     raise ProjectionError('Reject the complete dependency group using the group rejection endpoint')
-                # Detach only the rejected, unused entity. The remaining pending
-                # group can still be approved in full without a decided member.
+                # Detach only the rejected proposals (an event takes its state changes). The remaining
+                # pending group can still be approved in full without a decided member.
                 if any(p.status != ProposalStatus.PENDING.value for p in members):
                     raise ProposalAlreadyDecidedError('Proposal group contains a decided proposal')
-                selected.dependency_group_id = self._stable_uuid('proposal-group', f'rejected:{selected.id}')
-                members = [selected]
+                detached = self._stable_uuid('proposal-group', f'rejected:{selected.id}')
+                members = [by_id[p.proposal_id] for p in chosen]
+                for record in members:
+                    record.dependency_group_id = detached
             self._guard_setup_review(session, members, novel_id)
             if any(p.status != ProposalStatus.PENDING.value for p in members):
                 raise ProposalAlreadyDecidedError('Proposal group contains a decided proposal')
