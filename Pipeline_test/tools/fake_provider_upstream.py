@@ -30,7 +30,8 @@ def integration_response(text, body=None, *, scenario=None):
             initial_status='Unknown', status_quote='', confidence=0.9,
             reason='Offline fixture suggestion; explicit human identity review required')
             for c in data['candidates']]}, ensure_ascii=False)
-    if 'Extract narrative events only from this source' in system:
+    # The HITL event prompt was reworded to 'Extract the narrative events of this chapter, in story order, ...'.
+    if 'Extract narrative events only from this source' in system or 'Extract the narrative events of this chapter' in system:
         data = payload()
         source = data['source_text']
         if not isinstance(source, str) or not source.strip():
@@ -39,10 +40,16 @@ def integration_response(text, body=None, *, scenario=None):
             participants=[e['entity_id'] for e in data['known_entities'] if e['entity_type'] == 'PER'],
             locations=[e['entity_id'] for e in data['known_entities'] if e['entity_type'] == 'LOC'],
             consequences=[])]}, ensure_ascii=False)
+    if ("You check a novel chapter against the author's approved world rules" in system
+            or 'You check a novel chapter against what the author has already approved' in system):
+        # World-rule / approved-canon consistency check (live retest 2 R4); the offline fixture finds no violation.
+        return json.dumps({'findings': []})
     if 'Extract atomic narrative facts directly from the prose' in system:
         return json.dumps({'facts': []})
     if ('Extract only state changes explicitly supported by this event' in system
-            or 'Extract only explicit state changes supported by this event' in system):
+            or 'Extract only explicit state changes supported by this event' in system
+            # One batched call per chapter since live retest 9 (hitl_state_extraction_batch).
+            or 'Extract only explicit state changes supported by each event' in system):
         return json.dumps({'transitions':[]})
     if 'narrative state extractor' in text:
         return json.dumps({'states':[]})

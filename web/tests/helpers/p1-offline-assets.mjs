@@ -18,8 +18,14 @@ export async function assertMobileControls(h) {
   const layout = await h.page.evaluate(() => {
     const width = document.documentElement.clientWidth;
     const controls = [...document.querySelectorAll('.sc-studio-toolbar button, .sc-studio-toolbar a, .sc-studio-settings button, .sc-format-toolbar button')]
-      .map(node => { const r = node.getBoundingClientRect(); return { label: node.getAttribute('aria-label') || node.title || node.textContent.trim(),
-        x: r.x, right: r.right, width: r.width, height: r.height }; }).filter(r => r.width > 0 && r.height > 0);
+      .map(node => {
+        // The format bar scrolls horizontally on phones (overflow-x: auto, nowrap). A button inside
+        // such a scroller is reachable by scrolling, so the scroller itself must fit the viewport.
+        let scroller = node.parentElement;
+        while (scroller && !(['auto', 'scroll'].includes(getComputedStyle(scroller).overflowX) && scroller.scrollWidth > scroller.clientWidth)) scroller = scroller.parentElement;
+        const r = (scroller ?? node).getBoundingClientRect();
+        return { label: node.getAttribute('aria-label') || node.title || node.textContent.trim(), scrollable: Boolean(scroller),
+          x: r.x, right: r.right, width: node.getBoundingClientRect().width, height: node.getBoundingClientRect().height }; }).filter(r => r.width > 0 && r.height > 0);
     return { width, controls };
   });
   await h.save('mobile-control-geometry.json', layout);

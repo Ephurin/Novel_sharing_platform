@@ -7,6 +7,9 @@ export async function canonAcceptance(h, f, x) {
   const queue = async () => (await h.api('GET', base + '/review-queue', undefined, x.a.token)).data;
   const identity = group => x.entities.frozen.entities.find(e => e.provisional_identity_key.endsWith('/' + group)).entity_id;
   const doctor = identity('doctor'), driver = identity('driver'), witness = identity('witness');
+  // Entity options read "Name (Type)"; only homonyms (the two Minh) add a "#" + last-6-characters code.
+  const witnessName = x.entities.frozen.entities.find(e => e.entity_id === witness).phrase;
+  const option = id => page.getByRole('option').filter({ hasText: id === witness ? witnessName : '#' + id.slice(-6) });
   const original = x.entities.approved.events[0];
   const source = await h.sql('SELECT * FROM narrative.events WHERE id=$1', [original.event_id]);
   assert.ok(source[0].event_metadata.evidence.length > 0);
@@ -23,7 +26,7 @@ export async function canonAcceptance(h, f, x) {
     while (await card.getByRole('button', { name: 'Bỏ', exact: true }).count()) await card.getByRole('button', { name: 'Bỏ', exact: true }).last().click();
     await card.getByRole('button', { name: '+ Thêm cập nhật trạng thái', exact: true }).click();
     await card.getByRole('textbox', { name: 'Thực thể', exact: true }).click();
-    await page.getByRole('option').filter({ hasText: entity.slice(0, 8) }).click();
+    await option(entity).click();
     await card.getByLabel('Thuộc tính', { exact: true }).fill('status');
     await card.getByLabel('Giá trị mới', { exact: true }).fill(status);
     const result = page.waitForResponse(r => r.url().endsWith('/api/v1' + base + `/events/${active.event_id}/corrections`) && r.request().method() === 'POST');
@@ -114,16 +117,16 @@ export async function canonAcceptance(h, f, x) {
     await h.snapshot('S10-consistency-corrected-author-approval-v4', x.owned); await h.shot('s10-correction-resolves-consistency');
   });
   await h.step('G3/S10: exact-ID author locks distinguish homonymous subjects', async () => {
-    await page.getByRole('tab', { name: /^Quan hệ Canon/ }).click();
+    await page.getByRole('tab', { name: /^Quan hệ/ }).click();
     for (const [subject, relation, version] of [[doctor, 'ally', 4], [driver, 'enemy', 5]]) {
-      await page.getByRole('textbox', { name: 'Chủ thể (Subject)', exact: true }).click(); await page.getByRole('option').filter({ hasText: subject.slice(0, 8) }).click();
+      await page.getByRole('textbox', { name: 'Chủ thể (Subject)', exact: true }).click(); await option(subject).click();
       if (subject === driver) {
         // Mantine deselects the current option when clicked again. Make the
         // author's target change explicit, then choose witness again below.
         await page.getByRole('textbox', { name: 'Đối tượng (Object)', exact: true }).click();
         await page.getByRole('option').filter({ hasText: `#${doctor.slice(-6)}` }).click();
       }
-      await page.getByRole('textbox', { name: 'Đối tượng (Object)', exact: true }).click(); await page.getByRole('option').filter({ hasText: witness.slice(0, 8) }).click();
+      await page.getByRole('textbox', { name: 'Đối tượng (Object)', exact: true }).click(); await option(witness).click();
       await page.getByLabel('Loại quan hệ (Relation Type, tối đa 80 ký tự)', { exact: true }).fill(relation);
       const pending = page.waitForResponse(r => r.url().endsWith('/api/v1' + base + '/relationship-locks') && r.request().method() === 'POST');
       await page.getByRole('button', { name: 'Khóa quan hệ vào Canon', exact: true }).click();
@@ -178,7 +181,7 @@ export async function canonAcceptance(h, f, x) {
   await h.step('S11: actual SPA logout/login clears private account context without a document reload', async () => {
     const canonical = await memory();
     await page.keyboard.press('Escape');
-    await page.getByTitle('Quay lại danh sách tác phẩm', { exact: true }).click();
+    await page.getByTitle('Quay lại quản lý tác phẩm', { exact: true }).click();
     await page.getByRole('button', { name: /^Tài khoản / }).click();
     await page.getByRole('menuitem', { name: 'Đăng xuất', exact: true }).click();
     await page.waitForURL(/\/login$/);

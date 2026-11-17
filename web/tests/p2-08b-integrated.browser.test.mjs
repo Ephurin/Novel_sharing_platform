@@ -51,7 +51,8 @@ async function accountSwitch(h, author, foreign, id, otherId, status) {
     }, { times: 1 });
     await page.getByRole('button', { name: 'Tải lại dàn ý', exact: true }).click();
     assert.equal(await ready, 200);
-    await page.getByRole('link', { name: /Tủ truyện/ }).click();
+    // The IDE's back link now opens the novel's management page (no longer the "Tủ truyện" shelf).
+    await page.getByRole('link', { name: 'Quay lại quản lý tác phẩm', exact: true }).click();
     await page.getByRole('button', { name: /^Tài khoản / }).click();
     await page.getByRole('menuitem', { name: 'Đăng xuất' }).click();
     await page.waitForURL('**/login');
@@ -365,8 +366,9 @@ async function concurrency(h, author, id, api) {
     try {
       await h.page.getByRole('button', { name: 'Tải lại dàn ý', exact: true }).click();
       await ready;
-      await h.page.getByRole('link', { name: /Tủ truyện/ }).click();
-      await h.page.getByRole('link', { name: 'Tác phẩm của tôi', exact: true }).click();
+      // IDE back link -> novel management page -> main navigation "Tác phẩm" -> project list.
+      await h.page.getByRole('link', { name: 'Quay lại quản lý tác phẩm', exact: true }).click();
+      await h.page.getByRole('navigation', { name: 'Điều hướng chính' }).getByRole('link', { name: 'Tác phẩm', exact: true }).click();
       const project = h.page.locator('article').filter({ hasText: title });
       const hydrated = h.page.waitForResponse(r => r.url().endsWith(`/ai/story-plans/edit-v1/${otherId}`)
         && r.request().method() === 'GET' && r.ok());
