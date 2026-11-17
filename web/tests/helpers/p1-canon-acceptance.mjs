@@ -119,15 +119,15 @@ export async function canonAcceptance(h, f, x) {
   await h.step('G3/S10: exact-ID author locks distinguish homonymous subjects', async () => {
     await page.getByRole('tab', { name: /^Quan hệ/ }).click();
     for (const [subject, relation, version] of [[doctor, 'ally', 4], [driver, 'enemy', 5]]) {
-      await page.getByRole('textbox', { name: 'Chủ thể (Subject)', exact: true }).click(); await option(subject).click();
+      await page.getByRole('textbox', { name: 'Thực thể thứ nhất', exact: true }).click(); await option(subject).click();
       if (subject === driver) {
         // Mantine deselects the current option when clicked again. Make the
         // author's target change explicit, then choose witness again below.
-        await page.getByRole('textbox', { name: 'Đối tượng (Object)', exact: true }).click();
+        await page.getByRole('textbox', { name: 'Thực thể thứ hai', exact: true }).click();
         await page.getByRole('option').filter({ hasText: `#${doctor.slice(-6)}` }).click();
       }
-      await page.getByRole('textbox', { name: 'Đối tượng (Object)', exact: true }).click(); await option(witness).click();
-      await page.getByLabel('Loại quan hệ (Relation Type, tối đa 80 ký tự)', { exact: true }).fill(relation);
+      await page.getByRole('textbox', { name: 'Thực thể thứ hai', exact: true }).click(); await option(witness).click();
+      await page.getByLabel('Loại quan hệ (tối đa 80 ký tự)', { exact: true }).fill(relation);
       const pending = page.waitForResponse(r => r.url().endsWith('/api/v1' + base + '/relationship-locks') && r.request().method() === 'POST');
       await page.getByRole('button', { name: 'Khóa quan hệ vào Canon', exact: true }).click();
       const result = await pending; assert.equal(result.status(), 200);

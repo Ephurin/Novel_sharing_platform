@@ -487,18 +487,18 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
     // ──────────────────────────────────────────
     await t.test('FE-02: Legacy relationship lacking UUIDs requires explicit author selection', async () => {
       await page.goto(`${baseUrl}/?scenario=relationship-locks`);
-      await page.waitForSelector('text=Khóa quan hệ Canon (Exact-ID Relationship Lock)');
+      await page.waitForSelector('text=Khóa quan hệ giữa hai thực thể');
 
       // Assert legacy relation card displays "Thiếu UUID" badge
-      const badges = page.locator('span:has-text("Thiếu UUID")');
-      assert.ok((await badges.count()) >= 1, 'Legacy relation must display "Thiếu UUID" badge');
+      const badges = page.locator('span:has-text("Chưa xác định")');
+      assert.ok((await badges.count()) >= 1, 'Legacy relation must display "Chưa xác định" badge');
 
-      // Click "Cập nhật khóa bằng UUID chính xác"
-      const remediateBtn = page.locator('button:has-text("Cập nhật khóa bằng UUID chính xác")');
+      // Click "Chọn lại thực thể để cập nhật khóa"
+      const remediateBtn = page.locator('button:has-text("Chọn lại thực thể để cập nhật khóa")');
       await remediateBtn.click();
 
       // Warning message must appear in the form
-      await page.waitForSelector('text=Quan hệ cũ thiếu UUID chính xác');
+      await page.waitForSelector('text=Quan hệ cũ chưa gắn với thực thể cụ thể');
 
       // Submit button "Khóa quan hệ vào Canon" must remain DISABLED because UUIDs are not auto-guessed
       const lockSubmitBtn = page.locator('button:has-text("Khóa quan hệ vào Canon")');

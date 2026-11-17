@@ -151,7 +151,7 @@ export function EntityExtractionReview({
 
           <Textarea
             label="Tên cần chú ý (mỗi dòng một tên)"
-            placeholder="Ví dụ: Minh\nThái\nLâm Phong"
+            placeholder={"Ví dụ:\nMinh\nThái\nLâm Phong"}
             value={names}
             onChange={e => {
               setNames(e.currentTarget.value);

@@ -46,6 +46,9 @@ export function AuthLanding() {
           <Title order={3}>Ephurin Web</Title>
         </Group>
 
+        {/* Demo walkthrough 2026-11-17: a real form so Enter in the password field signs in. Mantine
+            buttons default to type="button", so only the main button submits. */}
+        <form onSubmit={(event) => { event.preventDefault(); if (!authMutation.isPending) authMutation.mutate(); }}>
         <Stack>
           <TextInput
             label={mode === 'login' ? 'Email hoặc tên đăng nhập' : 'Email'}
@@ -57,7 +60,7 @@ export function AuthLanding() {
           ) : null}
           <PasswordInput label="Mật khẩu" value={password} onChange={(event) => setPassword(event.currentTarget.value)} />
           {error ? <Alert color="red">{error}</Alert> : null}
-          <Button loading={authMutation.isPending} onClick={() => authMutation.mutate()}>
+          <Button type="submit" loading={authMutation.isPending}>
             {mode === 'login' ? 'Đăng nhập' : 'Đăng ký'}
           </Button>
           <Button variant="subtle" onClick={() => setMode((currentMode) => (currentMode === 'login' ? 'register' : 'login'))}>
@@ -68,6 +71,7 @@ export function AuthLanding() {
           </Button>
           <Button variant="subtle" onClick={()=>navigate('/appeals')}>Quyết định & khiếu nại tài khoản</Button>
         </Stack>
+        </form>
       </Paper>
     </Box>
   );
