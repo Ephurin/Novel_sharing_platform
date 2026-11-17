@@ -18,7 +18,7 @@ export async function canonAcceptance(h, f, x) {
     await page.getByRole('tab', { name: /^Sự kiện/ }).click();
     const card = page.getByTestId('event-card-' + active.event_id);
     await card.getByTestId('btn-edit-event-' + active.event_id).click();
-    await card.getByLabel('Tóm tắt sự kiện đã sửa (summary)', { exact: true }).fill(summary);
+    await card.getByLabel('Tóm tắt sự kiện đã sửa', { exact: true }).fill(summary);
     // Clear prior form rows explicitly, then create precisely the intended update through UI.
     while (await card.getByRole('button', { name: 'Bỏ', exact: true }).count()) await card.getByRole('button', { name: 'Bỏ', exact: true }).last().click();
     await card.getByRole('button', { name: '+ Thêm cập nhật trạng thái', exact: true }).click();
@@ -121,7 +121,7 @@ export async function canonAcceptance(h, f, x) {
         // Mantine deselects the current option when clicked again. Make the
         // author's target change explicit, then choose witness again below.
         await page.getByRole('textbox', { name: 'Đối tượng (Object)', exact: true }).click();
-        await page.getByRole('option').filter({ hasText: doctor.slice(0, 8) }).click();
+        await page.getByRole('option').filter({ hasText: `#${doctor.slice(0, 6)}` }).click();
       }
       await page.getByRole('textbox', { name: 'Đối tượng (Object)', exact: true }).click(); await page.getByRole('option').filter({ hasText: witness.slice(0, 8) }).click();
       await page.getByLabel('Loại quan hệ (Relation Type, tối đa 80 ký tự)', { exact: true }).fill(relation);
@@ -158,8 +158,8 @@ export async function canonAcceptance(h, f, x) {
     }, 'No current-Brain checkpoint after explicit UI reanalysis');
     const checkpoint = page.getByTestId('entity-checkpoint-' + active.analysis_run_id);
     const candidate = active.candidates.find(c => c.surface === 'Minh'); assert.ok(candidate);
-    await checkpoint.getByTestId('entity-occurrence-' + candidate.candidate_id).getByRole('textbox', { name: 'Chọn thực thể Canon đã có', exact: true }).click();
-    await page.getByRole('option').filter({ hasText: doctor.slice(0, 8) }).click();
+    await checkpoint.getByTestId('entity-occurrence-' + candidate.candidate_id).getByRole('textbox', { name: 'Là nhân vật hoặc địa danh đã có', exact: true }).click();
+    await page.getByRole('option').filter({ hasText: `#${doctor.slice(0, 6)}` }).click();
     const reviewed = page.waitForResponse(r => r.request().method() === 'POST' && r.url().endsWith(`/entity-reviews/${active.analysis_run_id}/review`));
     await checkpoint.getByRole('button', { name: /^Lưu quyết định một phần/ }).click();
     const review = await reviewed; assert.equal(review.status(), 200);
@@ -168,7 +168,7 @@ export async function canonAcceptance(h, f, x) {
     await page.reload(); await until(async () => await f.editor().inputValue() === x.latestDraft, 'Review reload changed draft');
     await page.getByTestId('btn-story-brain').click(); await page.getByRole('tab', { name: /^Chờ duyệt/ }).click();
     const resumed = page.getByTestId('entity-checkpoint-' + active.analysis_run_id).getByTestId('entity-occurrence-' + candidate.candidate_id);
-    await until(async () => (await resumed.getByRole('textbox', { name: 'Chọn thực thể Canon đã có', exact: true }).inputValue()).includes(doctor.slice(0, 8)), 'Exact canonical selection did not resume');
+    await until(async () => (await resumed.getByRole('textbox', { name: 'Là nhân vật hoặc địa danh đã có', exact: true }).inputValue()).includes(`#${doctor.slice(0, 6)}`), 'Exact canonical selection did not resume');
     assert.deepEqual(await memory(), canonical);
     const before = await h.snapshot('S11-before-stale-continuation', x.owned);
     await h.api('POST', base + `/entity-reviews/${x.entities.run}/continue`, {}, x.a.token, [409]);
@@ -183,10 +183,10 @@ export async function canonAcceptance(h, f, x) {
     await page.getByRole('menuitem', { name: 'Đăng xuất', exact: true }).click();
     await page.waitForURL(/\/login$/);
     const navigation = await page.evaluate(() => performance.timeOrigin);
-    await page.getByLabel('Email or username', { exact: true }).fill(x.b.email);
-    await page.getByLabel('Password', { exact: true }).fill(x.b.password);
+    await page.getByLabel('Email hoặc tên đăng nhập', { exact: true }).fill(x.b.email);
+    await page.getByLabel('Mật khẩu', { exact: true }).fill(x.b.password);
     const logged = page.waitForResponse(r => r.url().endsWith('/api/v1/auth/login') && r.request().method() === 'POST');
-    await page.getByRole('button', { name: 'Login', exact: true }).click(); assert.equal((await logged).status(), 200);
+    await page.getByRole('button', { name: 'Đăng nhập', exact: true }).click(); assert.equal((await logged).status(), 200);
     await page.waitForURL(/\/author$/);
     await page.locator('header').getByRole('link', { name: /Viết tiếp/ }).click();
     await until(async () => await f.editor().inputValue() === 'bản thảo tác giả khác.', 'SPA account switch restored another owner draft');

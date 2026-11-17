@@ -394,7 +394,7 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
       assert.equal(eventCorrectionRequests[0].replacement.summary, 'Thái đã đánh bại kẻ thù tại Tây Sơn.');
 
       // Assert success message is displayed (FE-06)
-      await page.waitForSelector('text=Đã gửi đề xuất cập nhật sự kiện thành công (HTTP 201)');
+      await page.waitForSelector('text=Đã gửi đề xuất cập nhật sự kiện.');
     });
 
     // ──────────────────────────────────────────
@@ -434,7 +434,7 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
       await page.click('button[role="tab"]:has-text("Sự kiện")');
 
       // Event 1 has participants ['ent-thai', 'Minh']. It displays both Thái and unresolved Minh badge
-      await page.waitForSelector('text=Chưa xác thực UUID: Minh');
+      await page.waitForSelector('text=Chưa xác định: Minh');
 
       // Open editor for Event 1
       await page.locator('[data-testid="btn-edit-event-ev-test-1"]').click();
@@ -734,7 +734,7 @@ test('Mounted React HITL Interaction Tests (FE-01 through FE-06)', { timeout: 18
       await page.goto(`${baseUrl}/?scenario=memory-panel`);
       await page.waitForSelector('text=Nhóm phụ thuộc');
 
-      // Click "Duyệt nguyên tử toàn bộ nhóm (2 đề xuất)" and await response
+      // Click "Duyệt cả nhóm (2 đề xuất)" and await response
       const acceptBtn = page.locator('[data-testid="btn-accept-group-group-multi-1"]');
       await Promise.all([
         page.waitForResponse(r => r.url().includes('/proposal-groups/') && r.url().includes('/accept')),

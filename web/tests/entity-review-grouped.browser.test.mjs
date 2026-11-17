@@ -73,7 +73,7 @@ test('Grouped entity review decides each name once', { timeout: 180000 }, async 
   await expect(group('Linh').getByText('18 vị trí', { exact: true })).toBeVisible();
 
   // One choice links all 18 "Linh" to the known entity.
-  await group('Linh').getByLabel('Cả nhóm là thực thể Canon đã có', { exact: true }).click();
+  await group('Linh').getByLabel('Cả nhóm là nhân vật hoặc địa danh đã có', { exact: true }).click();
   await page.getByRole('option', { name: /^Linh \[PER\]/ }).click();
   await expect(group('Linh').getByText('Canon: Linh')).toBeVisible();
 

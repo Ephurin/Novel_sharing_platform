@@ -29,7 +29,7 @@ export async function assertMobileControls(h) {
 
 export async function assertOfflineAssets(h) {
   const { page } = h;
-  await page.getByLabel('Email or username', { exact: true }).waitFor();
+  await page.getByLabel('Email hoặc tên đăng nhập', { exact: true }).waitFor();
   await page.evaluate(() => document.fonts.ready);
   assert.deepEqual(h.browserErrors, [], 'The actual SPA must not throw when external CDNs are unavailable');
   const assets = await page.evaluate(async () => {

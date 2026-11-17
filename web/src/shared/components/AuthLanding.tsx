@@ -1,5 +1,5 @@
 import { ThemeControl } from './ThemeControl';
-import { Alert, Box, Button, Group, Paper, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
+import { Alert, Box, Button, Group, Paper, PasswordInput, Stack, TextInput, Title } from '@mantine/core';
 import { IconBrain } from '@tabler/icons-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -17,7 +17,7 @@ export function AuthLanding() {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('StrongPassword123!');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   const authMutation = useMutation({
@@ -48,28 +48,25 @@ export function AuthLanding() {
 
         <Stack>
           <TextInput
-            label={mode === 'login' ? 'Email or username' : 'Email'}
+            label={mode === 'login' ? 'Email hoặc tên đăng nhập' : 'Email'}
             value={email}
             onChange={(event) => setEmail(event.currentTarget.value)}
           />
           {mode === 'register' ? (
-            <TextInput label="Username" value={username} onChange={(event) => setUsername(event.currentTarget.value)} />
+            <TextInput label="Tên đăng nhập" value={username} onChange={(event) => setUsername(event.currentTarget.value)} />
           ) : null}
-          <PasswordInput label="Password" value={password} onChange={(event) => setPassword(event.currentTarget.value)} />
+          <PasswordInput label="Mật khẩu" value={password} onChange={(event) => setPassword(event.currentTarget.value)} />
           {error ? <Alert color="red">{error}</Alert> : null}
           <Button loading={authMutation.isPending} onClick={() => authMutation.mutate()}>
-            {mode === 'login' ? 'Login' : 'Register'}
+            {mode === 'login' ? 'Đăng nhập' : 'Đăng ký'}
           </Button>
           <Button variant="subtle" onClick={() => setMode((currentMode) => (currentMode === 'login' ? 'register' : 'login'))}>
-            Switch to {mode === 'login' ? 'register' : 'login'}
+            {mode === 'login' ? 'Chưa có tài khoản? Đăng ký' : 'Đã có tài khoản? Đăng nhập'}
           </Button>
           <Button variant="light" onClick={() => navigate('/public')}>
-            Browse public library as guest
+            Đọc truyện với tư cách khách
           </Button>
           <Button variant="subtle" onClick={()=>navigate('/appeals')}>Quyết định & khiếu nại tài khoản</Button>
-          <Text size="xs" c="dimmed" ta="center">
-            OAuth callback is intentionally not wired in this MVP phase.
-          </Text>
         </Stack>
       </Paper>
     </Box>

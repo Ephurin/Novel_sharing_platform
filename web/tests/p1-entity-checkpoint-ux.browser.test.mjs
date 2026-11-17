@@ -89,7 +89,7 @@ test('Identity checkpoint UX: type, bulk, CAS and isolation', { timeout: 180000 
       try {
         assert.equal(h.state.review.reviewed_decisions.length, 1);
         assert.equal(h.state.requests.length, 0);
-        await expect(h.card('loc-1')).toContainText('[LOC]');
+        await expect(h.card('loc-1')).toContainText('Địa điểm');
         await h.assign(); await h.save();
         assert.equal(h.state.requests.at(-1).body.decisions.find(d => d.candidate_id === 'loc-1').entity_type, 'LOC');
       } finally { await h.page.close(); }
@@ -132,7 +132,7 @@ test('Identity checkpoint UX: type, bulk, CAS and isolation', { timeout: 180000 
         assert.equal(ds.find(d => d.candidate_id === 'loc-other').canonical_entity_id, 'uuid-other');
         await h.page.reload();
         await expect(h.card('loc-2').getByLabel('Gán nhóm danh tính mới', { exact: true })).toHaveValue('con-van');
-        await h.page.getByRole('button', { name: /Đóng băng danh sách entity/ }).click();
+        await h.page.getByRole('button', { name: /Chốt danh sách tên/ }).click();
         await expect.poll(() => h.state.requests.filter(r => r.body.finalize).length).toBe(1);
         assert.ok(h.state.requests.at(-1).body.decisions.every(d => d.entity_type === 'LOC'));
         assert.ok(h.state.requests.every(r => r.path.includes('/novel-test-uuid-1/entity-reviews/run-ux/')));
@@ -201,7 +201,7 @@ test('Identity checkpoint UX: type, bulk, CAS and isolation', { timeout: 180000 
           if (i === 1) await h.page.getByRole('button', { name: '2', exact: true }).click();
           await h.card('extra-' + i).getByRole('button', { name: 'Loại bỏ', exact: true }).click();
         }
-        await h.page.getByRole('button', { name: /Đóng băng danh sách entity/ }).click();
+        await h.page.getByRole('button', { name: /Chốt danh sách tên/ }).click();
         await expect.poll(() => h.state.requests.filter(r => r.body.finalize).length).toBe(1);
         assertQuotes(h.state.requests.at(-1).body.decisions);
       } finally { await h.page.close(); }
@@ -216,7 +216,7 @@ test('Identity checkpoint UX: type, bulk, CAS and isolation', { timeout: 180000 
         await h.page.evaluate(() => window.__queryClient.invalidateQueries({ queryKey: ['entity-reviews'] }));
         await h.page.getByText('v2', { exact: true }).waitFor();
         for (const [id, uuid] of [['loc-1', 'uuid-first'], ['loc-2', 'uuid-other']]) {
-          await h.card(id).getByLabel('Chọn thực thể Canon đã có', { exact: true }).click();
+          await h.card(id).getByLabel('Là nhân vật hoặc địa danh đã có', { exact: true }).click();
           await h.page.getByRole('option', { name: new RegExp(uuid.slice(0, 8)) }).click();
         }
         await h.card('loc-1').getByRole('button', { name: /Áp dụng quyết định này/ }).click();
@@ -236,8 +236,8 @@ test('Identity checkpoint UX: type, bulk, CAS and isolation', { timeout: 180000 
         await h.card('loc-2').getByRole('button', { name: 'Sửa thuộc tính', exact: true }).click();
         await h.card('loc-2').getByLabel('Loại thực thể', { exact: true }).click();
         await h.page.getByRole('option', { name: 'PER', exact: true }).click();
-        await expect(h.page.getByTestId('entity-freeze-summary')).toContainText('Cồn Vân [PER]');
-        await expect(h.page.getByRole('button', { name: /Đóng băng danh sách entity/ })).toBeDisabled();
+        await expect(h.page.getByTestId('entity-freeze-summary')).toContainText('Cồn Vân (Nhân vật)');
+        await expect(h.page.getByRole('button', { name: /Chốt danh sách tên/ })).toBeDisabled();
         assert.equal(h.state.requests.length, 0);
       } finally { await h.page.close(); }
     });

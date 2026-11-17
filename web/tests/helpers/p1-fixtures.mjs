@@ -7,10 +7,10 @@ export function fixtures(h) {
   const ide = (novel, chapter) => `${h.origin}/author/ide?novelId=${novel}${chapter ? '&chapterId=' + chapter : ''}`;
   const login = async (account, { alreadyOnLogin = false } = {}) => {
     if (!alreadyOnLogin) await page.goto(h.origin + '/login');
-    await page.getByLabel('Email or username', { exact: true }).fill(account.email);
-    await page.getByLabel('Password', { exact: true }).fill(account.password);
+    await page.getByLabel('Email hoặc tên đăng nhập', { exact: true }).fill(account.email);
+    await page.getByLabel('Mật khẩu', { exact: true }).fill(account.password);
     const response = page.waitForResponse(r => r.url().endsWith('/api/v1/auth/login') && r.request().method() === 'POST');
-    await page.getByRole('button', { name: 'Login', exact: true }).click();
+    await page.getByRole('button', { name: 'Đăng nhập', exact: true }).click();
     assert.equal((await response).status(), 200);
     await page.waitForURL(/\/(author|reader|admin)(?:\/|$)/);
   };

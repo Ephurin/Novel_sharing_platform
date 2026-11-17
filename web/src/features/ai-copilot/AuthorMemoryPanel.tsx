@@ -41,7 +41,7 @@ import { createChapterSnapshot, listChapterRevisions } from './ai-copilot-api';
 import { AuthorMemoryRepair } from './AuthorMemoryRepair';
 import { usePendingMemoryReviews } from './pending-memory-reviews';
 import { EntityMergeControl } from './EntityMergeControl';
-import { eventTypeLabel } from './event-labels';
+import { brainStatusLabel, entityName, entityOptionLabel, eventTypeLabel, factKeyLabel } from './event-labels';
 import { fullAutoBlockReason } from './full-auto-gate';
 import {
   activateBaseline,
@@ -223,7 +223,9 @@ function ScopedAuthorMemoryPanel({
       }
     },
     enabled,
-    refetchInterval: enabled ? 3000 : false
+    // UI walkthrough (UI-8): polling every 3 s with no Full auto run filled the console with 404s.
+    // Poll only while a run is going; starting or stopping a run refreshes this query (see refresh).
+    refetchInterval: q => (enabled && q.state.data?.status === 'running' ? 3000 : false)
   });
 
   useEffect(() => {
@@ -324,7 +326,7 @@ function ScopedAuthorMemoryPanel({
       await correctMemoryEvent(novelId, event.event_id, correction);
       setMessageType('success');
       setMessage(
-        'Đã gửi đề xuất cập nhật sự kiện thành công (HTTP 201). Đề xuất đang ở trạng thái CHỜ DUYỆT; hãy chuyển sang tab "Chờ duyệt" để kiểm tra và chấp thuận vào Canon.'
+        'Đã gửi đề xuất cập nhật sự kiện. Hãy chuyển sang tab "Chờ duyệt" để kiểm tra và duyệt vào bộ nhớ truyện.'
       );
       await qc.invalidateQueries({ queryKey: ['memory-review', novelId] });
     } catch (err) {
@@ -384,7 +386,7 @@ function ScopedAuthorMemoryPanel({
         )
       );
       setMessageType('success');
-      setMessage(`Đã duyệt nhóm đề xuất gồm ${proposals.length} phần tử vào Canon thành công.`);
+      setMessage(`Đã duyệt ${proposals.length} đề xuất vào bộ nhớ truyện.`);
       await refresh();
     });
   };
@@ -453,11 +455,11 @@ function ScopedAuthorMemoryPanel({
       <Stack gap="sm">
         <Group justify="space-between" align="center">
           <Text size="xs" c="dimmed">
-            Bộ nhớ chính thức v{currentBrainVersion} · {brain.data?.status ?? 'đang tải'}. Đề xuất chưa duyệt
+            Bộ nhớ truyện phiên bản {currentBrainVersion} · {brainStatusLabel(brain.data?.status)}. Đề xuất chưa duyệt
             chưa được dùng làm sự thật.
           </Text>
           <Badge variant="outline" color="indigo" size="xs">
-            Brain v{currentBrainVersion}
+            Bộ nhớ v{currentBrainVersion}
           </Badge>
         </Group>
 
@@ -489,7 +491,7 @@ function ScopedAuthorMemoryPanel({
             <Tabs.Tab value="profiles">Hồ sơ Codex</Tabs.Tab>
             <Tabs.Tab value="characters">Nhân vật ({category(['character', 'per', 'person']).length})</Tabs.Tab>
             <Tabs.Tab value="relations">
-              Quan hệ Canon ({memory.data?.relations?.filter(r => r.locked).length ?? 0} khóa)
+              Quan hệ ({memory.data?.relations?.filter(r => r.locked).length ?? 0} khóa)
             </Tabs.Tab>
             <Tabs.Tab value="facts">Dữ kiện ({memory.data?.facts?.length ?? 0})</Tabs.Tab>
             <Tabs.Tab value="history">Sự kiện ({memory.data?.events?.length ?? 0})</Tabs.Tab>
@@ -522,7 +524,7 @@ function ScopedAuthorMemoryPanel({
                 />
               )}
 
-              <Divider my="xs" label="Đề xuất chờ duyệt vào Canon" labelPosition="center" />
+              <Divider my="xs" label="Đề xuất chờ duyệt" labelPosition="center" />
 
               <Group justify="space-between">
                 <Text size="sm" fw={600}>
@@ -539,7 +541,7 @@ function ScopedAuthorMemoryPanel({
                       await reanalyseSavedChapter(novelId, revisions[0].revisionId);
                       setMessageType('info');
                       setMessage(
-                        'Đã phân tích lại bản lưu theo Canon hiện tại. Kiểm tra các nhóm mới bên dưới.'
+                        'Đã phân tích lại bản lưu theo bộ nhớ hiện tại. Kiểm tra các nhóm mới bên dưới.'
                       );
                     })
                   }
@@ -664,8 +666,8 @@ function ScopedAuthorMemoryPanel({
                         onClick={() => handleAcceptGroup(groupId, proposals)}
                       >
                         {hasEdits
-                          ? `Duyệt nguyên tử nhóm với ${editedCount} đề xuất đã sửa`
-                          : `Duyệt nguyên tử toàn bộ nhóm (${proposals.length} đề xuất)`}
+                          ? `Duyệt cả nhóm (${editedCount} đề xuất đã sửa)`
+                          : `Duyệt cả nhóm (${proposals.length} đề xuất)`}
                       </Button>
                     </Stack>
                   </Card>
@@ -739,15 +741,12 @@ function ScopedAuthorMemoryPanel({
                         Tên khác: {(memory.data?.aliases ?? []).filter(a => a.entity_id === e.entity_id).map(a => a.alias).join(', ')}
                       </Text>}
                     </div>
-                    <Text size="xs" ff="monospace" c="dimmed">
-                      UUID: {e.entity_id.slice(0, 8)}...
-                    </Text>
                   </Group>
                 </Card>
               ))}
               {!category(['character', 'per', 'person']).length && (
                 <Text size="xs" c="dimmed">
-                  Chưa có nhân vật nào trong Canon.
+                  Chưa có nhân vật nào trong bộ nhớ truyện.
                 </Text>
               )}
             </Stack>
@@ -777,7 +776,7 @@ function ScopedAuthorMemoryPanel({
                 <Card withBorder key={String(fact.fact_id ?? index)} p="xs">
                   <Group justify="space-between">
                     <Text fw={600} size="sm">
-                      {String(fact.fact_key)}
+                      {factKeyLabel(String(fact.fact_key))}
                     </Text>
                     {fact.is_locked && (
                       <Badge color="green" size="xs" leftSection={<IconLock size={10} />}>
@@ -791,14 +790,13 @@ function ScopedAuthorMemoryPanel({
                       : JSON.stringify(fact.fact_value, null, 2)}
                   </Text>
                   <Text size="xs" c="dimmed">
-                    Chương {String(fact.chapter_number ?? '—')} · Thực thể{' '}
-                    {String(fact.subject_entity_id ?? 'chung')}
+                    Chương {String(fact.chapter_number ?? '—')} · {entityName(memory.data?.entities ?? [], fact.subject_entity_id)}
                   </Text>
                 </Card>
               ))}
               {!memory.data?.facts?.length && (
                 <Text size="xs" c="dimmed">
-                  Chưa có dữ kiện nào trong Canon.
+                  Chưa có dữ kiện nào trong bộ nhớ truyện.
                 </Text>
               )}
             </Stack>
@@ -1027,7 +1025,7 @@ function ScopedAuthorMemoryPanel({
             <b>{confirmRejectGroup?.count}</b> phần tử?
           </Text>
           <Text size="xs" c="dimmed">
-            Thao tác này sẽ từ chối tất cả các đề xuất phụ thuộc trong nhóm một cách nguyên tử và không thể hoàn tác. Không có thay đổi nào được ghi vào Canon.
+            Thao tác này sẽ từ chối tất cả các đề xuất phụ thuộc trong nhóm và không thể hoàn tác. Bộ nhớ truyện không thay đổi.
           </Text>
           <TextInput
             size="xs"
@@ -1102,7 +1100,7 @@ function ProposalReview({
   // Build entity options for entity selection
   const entityOptions = entities.map(e => ({
     value: e.entity_id,
-    label: `${e.name} [${e.entity_type}] · ID: ${e.entity_id}`
+    label: entityOptionLabel(e, entities)
   }));
 
   if (proposal.proposal_type === 'alias') {
@@ -1122,7 +1120,7 @@ function ProposalReview({
             </Button>
           </Group>
           <Text fw={600} size="sm">
-            {String(p.alias ?? '')} → {String(p.entity_name ?? p.entity_id ?? '')}
+            {String(p.alias ?? '')} → {String(p.entity_name ?? entityName(entities, p.entity_id))}
           </Text>
           <Text size="xs" c="dimmed">
             Chỉ liên kết danh tính sau khi bạn duyệt. Nếu đây là hai người khác nhau, hãy loại đề xuất.
@@ -1142,7 +1140,7 @@ function ProposalReview({
       <Paper p="xs" withBorder radius="sm">
         <Stack gap="xs">
           <Group justify="space-between">
-            <Badge color="cyan">Đã có trong Canon — Giữ nguyên</Badge>
+            <Badge color="cyan">Đã có trong bộ nhớ — Giữ nguyên</Badge>
             <Button
               variant="subtle"
               size="compact-xs"
@@ -1154,12 +1152,10 @@ function ProposalReview({
             </Button>
           </Group>
           <Text size="sm">
-            {String(p.summary ?? p.fact_key ?? '')}:{' '}
+            {String(p.summary ?? factKeyLabel(String(p.fact_key ?? '')))}:{' '}
             {typeof p.fact_value === 'string' ? p.fact_value : JSON.stringify(p.fact_value)}
           </Text>
-          <Text size="xs" c="dimmed">
-            Bản ghi {String(p.reuse_artifact_id)} · {String(p.reconciliation_reason ?? '')}
-          </Text>
+          {p.reconciliation_reason ? <Text size="xs" c="dimmed">{String(p.reconciliation_reason)}</Text> : null}
         </Stack>
       </Paper>
     );
@@ -1206,9 +1202,8 @@ function ProposalReview({
         {p.supersedes_id ? (
           <Alert color="blue">
             {p.is_retired
-              ? 'Đề xuất gỡ khỏi Canon hiện hành; vẫn giữ lịch sử.'
+              ? 'Đề xuất gỡ khỏi bộ nhớ truyện; vẫn giữ lịch sử.'
               : 'Đề xuất thay thế phiên bản cũ; vẫn giữ lịch sử.'}{' '}
-            Nguồn cũ: {String(p.supersedes_id)}
           </Alert>
         ) : null}
 
@@ -1236,20 +1231,19 @@ function ProposalReview({
                 Gốc từ AI: &ldquo;{String(original.summary ?? '')}&rdquo;
               </Text>
             )}
-            <TextInput
+            {/* UI walkthrough (UI-5): participants were a comma-separated list of IDs. Show names; the
+                stored values stay entity IDs, and one not in the memory yet keeps its raw value. */}
+            <MultiSelect
               size="xs"
-              label="Nhân vật tham gia (phân cách bằng dấu phẩy)"
-              value={Array.isArray(p.participants) ? p.participants.join(', ') : ''}
-              onChange={e =>
-                onEdit({
-                  ...p,
-                  participants: e.currentTarget.value
-                    .split(',')
-                    .map(x => x.trim())
-                    .filter(Boolean)
-                })
-              }
+              label="Nhân vật tham gia"
+              data={[...entityOptions, ...(Array.isArray(p.participants) ? p.participants.map(String) : [])
+                .filter(id => !entityOptions.some(o => o.value === id))
+                .map(id => ({ value: id, label: `${id} (chưa có trong bộ nhớ)` }))]}
+              value={Array.isArray(p.participants) ? p.participants.map(String) : []}
+              onChange={participants => onEdit({ ...p, participants })}
+              searchable
               disabled={disabled}
+              comboboxProps={{ withinPortal: false }}
             />
           </Stack>
         )}
@@ -1259,14 +1253,14 @@ function ProposalReview({
           <Stack gap="xs">
             <TextInput
               size="xs"
-              label="Khóa dữ kiện (fact_key)"
+              label="Thuộc tính"
               value={String(p.fact_key ?? '')}
               onChange={e => onEdit({ ...p, fact_key: e.currentTarget.value })}
               disabled={disabled}
             />
             <Select
               size="xs"
-              label="Thực thể của dữ kiện (subject_entity_id)"
+              label="Thuộc về"
               placeholder="Chọn thực thể đã duyệt..."
               data={entityOptions}
               value={String(p.subject_entity_id ?? '') || null}
@@ -1277,7 +1271,7 @@ function ProposalReview({
             />
             <Textarea
               size="xs"
-              label="Giá trị dữ kiện (fact_value)"
+              label="Giá trị"
               value={typeof p.fact_value === 'string' ? p.fact_value : JSON.stringify(p.fact_value ?? '')}
               onChange={e => {
                 const raw = e.currentTarget.value;
@@ -1309,7 +1303,7 @@ function ProposalReview({
           <Stack gap="xs">
             <Select
               size="xs"
-              label="Thực thể (entity_id)"
+              label="Nhân vật hoặc thực thể"
               placeholder="Chọn thực thể..."
               data={entityOptions}
               value={String(p.entity_id ?? '') || null}
@@ -1320,14 +1314,14 @@ function ProposalReview({
             />
             <TextInput
               size="xs"
-              label="Thuộc tính thay đổi (attribute_key)"
+              label="Thuộc tính thay đổi"
               value={String(p.attribute_key ?? '')}
               onChange={e => onEdit({ ...p, attribute_key: e.currentTarget.value })}
               disabled={disabled}
             />
             <TextInput
               size="xs"
-              label="Giá trị mới (new_value)"
+              label="Giá trị mới"
               value={typeof p.new_value === 'string' ? p.new_value : JSON.stringify(p.new_value ?? '')}
               onChange={e => {
                 const raw = e.currentTarget.value;
@@ -1357,7 +1351,7 @@ function ProposalReview({
           <Stack gap="xs">
             <TextInput
               size="xs"
-              label="Tên chuẩn thực thể (canonical_name)"
+              label="Tên chuẩn"
               value={String(p.canonical_name ?? '')}
               onChange={e => {
                 const name = e.currentTarget.value;
@@ -1449,7 +1443,7 @@ function EventItem({
 
   const entityOptions = entities.map(e => ({
     value: e.entity_id,
-    label: `${e.name} [${e.entity_type}] · ID: ${e.entity_id}`
+    label: entityOptionLabel(e, entities)
   }));
 
   // Fail closed if any legacy participant remains unresolved (FE-08, FE-12)
@@ -1479,16 +1473,16 @@ function EventItem({
     if (!summary.trim()) return;
     if (unresolvedLegacyParticipants.length > 0 && !allLegacyResolved) {
       setSubmitError(
-        'Tất cả nhân vật tham gia chưa xác thực phải được gán UUID chính xác từ Canon trước khi gửi đề xuất (FE-08).'
+        'Hãy chọn đúng nhân vật trong bộ nhớ truyện cho mọi người tham gia chưa xác định trước khi gửi đề xuất.'
       );
       return;
     }
     if (effectiveParticipants.length === 0) {
-      setSubmitError('Vui lòng chọn ít nhất một nhân vật tham gia bằng UUID chính xác từ Canon.');
+      setSubmitError('Vui lòng chọn ít nhất một nhân vật tham gia trong bộ nhớ truyện.');
       return;
     }
     if (!allParticipantsValid) {
-      setSubmitError('Một hoặc nhiều nhân vật tham gia không tồn tại trong danh sách Canon chính thức.');
+      setSubmitError('Một hoặc nhiều nhân vật tham gia không có trong bộ nhớ truyện.');
       return;
     }
 
@@ -1570,11 +1564,11 @@ function EventItem({
               const matchedEntity = entities.find(e => e.entity_id === p);
               return matchedEntity ? (
                 <Badge key={i} size="xs" variant="light" color="cyan">
-                  {matchedEntity.name} ({matchedEntity.entity_id.slice(0, 6)}...)
+                  {matchedEntity.name}
                 </Badge>
               ) : (
                 <Badge key={i} size="xs" variant="filled" color="red">
-                  Chưa xác thực UUID: {p}
+                  Chưa xác định: {p}
                 </Badge>
               );
             })}
@@ -1609,7 +1603,7 @@ function EventItem({
                 Tạo đề xuất chỉnh sửa sự kiện (Event Correction Proposal):
               </Text>
               <Text size="xs" c="dimmed">
-                Lưu ý: Thao tác này tạo một đề xuất chỉnh sửa đang chờ duyệt. Đề xuất này CHƯA trở thành Canon
+                Lưu ý: Thao tác này tạo một đề xuất chỉnh sửa đang chờ duyệt. Đề xuất này chưa vào bộ nhớ truyện
                 cho đến khi được chấp thuận trong tab &quot;Chờ duyệt&quot;.
               </Text>
 
@@ -1619,12 +1613,12 @@ function EventItem({
                     <Group gap="xs">
                       <IconAlertTriangle size={16} color="var(--mantine-color-orange-7)" />
                       <Text size="xs" fw={600} c="orange.9">
-                        Yêu cầu ánh xạ danh tính chính xác (FE-08):
+                        Cần xác định nhân vật:
                       </Text>
                     </Group>
                     <Text size="xs">
-                      Sự kiện gốc chứa {unresolvedLegacyParticipants.length} người tham gia dạng văn bản chưa có UUID ({unresolvedLegacyParticipants.join(', ')}).
-                      Để tránh nhầm lẫn giữa các nhân vật cùng tên (như Minh A và Minh B) và tránh mất người tham gia, bạn phải gán UUID chính xác từ danh sách Canon cho từng người trước khi gửi.
+                      Sự kiện gốc chứa {unresolvedLegacyParticipants.length} người tham gia chưa gắn với nhân vật trong bộ nhớ ({unresolvedLegacyParticipants.join(', ')}).
+                      Để tránh nhầm lẫn giữa các nhân vật cùng tên (như Minh A và Minh B) và tránh mất người tham gia, hãy chọn đúng nhân vật cho từng người trước khi gửi.
                     </Text>
                     {legacyOccurrences.map(occ => {
                       const occKey = getOccKey(occ);
@@ -1636,7 +1630,7 @@ function EventItem({
                           key={occKey}
                           size="xs"
                           label={label}
-                          placeholder="Chọn nhân vật có ID chính xác từ Canon..."
+                          placeholder="Chọn nhân vật trong bộ nhớ truyện..."
                           data={entityOptions}
                           value={legacyResolutions[occKey] || null}
                           onChange={val => {
@@ -1683,7 +1677,7 @@ function EventItem({
 
               <Textarea
                 size="xs"
-                label="Tóm tắt sự kiện đã sửa (summary)"
+                label="Tóm tắt sự kiện đã sửa"
                 value={summary}
                 onChange={e => setSummary(e.currentTarget.value)}
                 disabled={disabled || isSubmitting}
@@ -1693,7 +1687,7 @@ function EventItem({
 
               <MultiSelect
                 size="xs"
-                label="Nhân vật tham gia bổ sung / trực tiếp (chọn bằng UUID chính xác từ Canon)"
+                label="Nhân vật tham gia"
                 placeholder="Chọn nhân vật..."
                 data={entityOptions}
                 value={manualParticipants}
