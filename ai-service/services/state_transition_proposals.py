@@ -44,6 +44,45 @@ def generate_state_transition_proposals(event: NarrativeProposal, llm_service, *
         raise StateExtractionError(f"Invalid transition output: {exc}") from exc
     except Exception as exc:
         raise StateExtractionError(f"State proposal provider failed: {exc}") from exc
+    return _proposals(event, changes, identity_resolver)
+
+
+BATCH_PROMPT = (
+    'Extract only explicit state changes supported by each event. Return JSON with a transitions array; '
+    'each item has event_index (the index of its event in events), entity (exact reviewed entity_id that '
+    'takes part in that event), attribute_key, new_value, confidence (0..1). active_relationships uses exact '
+    'entity_id keys. Names are not unique; never infer or merge identities. Return an empty array when no '
+    'event shows a change.')
+
+
+def generate_chapter_state_transitions(events, llm_service, *, identity_inventory, identity_resolver):
+    """Live retest 9: one hitl_state_extraction call per event cost 3-5 calls a chapter. All events of
+    a chapter are now sent in one call; each change names its event and is checked as before."""
+    asked = [e for e in events if e.payload.get('participants')]
+    if not asked:
+        return {}
+    try:
+        from core.structured_call import call_structured
+        raw = call_structured(llm_service, operation='hitl_state_extraction_batch', system_prompt=BATCH_PROMPT,
+            user_prompt=json.dumps({'events': [{**e.payload, 'event_index': i} for i, e in enumerate(asked)],
+                                    'known_entities': identity_inventory}, ensure_ascii=False))
+        by_event = {}
+        for item in _parse_items(raw, 'transitions'):
+            index = item.pop('event_index', None) if isinstance(item, dict) else None
+            if not isinstance(index, int) or isinstance(index, bool) or not 0 <= index < len(asked):
+                logger.warning('Dropped state transition without a valid event_index')
+                continue
+            by_event.setdefault(index, []).append(TransitionOutput.model_validate(item))
+    except (ValidationError, ValueError) as exc:
+        raise StateExtractionError(f"Invalid transition output: {exc}") from exc
+    except Exception as exc:
+        raise StateExtractionError(f"State proposal provider failed: {exc}") from exc
+    return {asked[i].proposal_id: _proposals(asked[i], changes, identity_resolver)
+            for i, changes in by_event.items()}
+
+
+def _proposals(event, changes, identity_resolver):
+    participants = event.payload.get("participants", [])
     result = []
     names = {name.casefold(): name for name in participants}
     for change in changes:

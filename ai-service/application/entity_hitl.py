@@ -294,36 +294,37 @@ def continue_review(service, novel_id, run_id, tenant_id):
                     logging.getLogger(__name__).warning('Dropped event with an ungrounded quote: %s',
                                                         str(grounding_error)[:120])
     if audit['request']['options'].get('extract_world_rules', False):
-        from services.prose_facts import extract_prose_facts
-        for fact in extract_prose_facts(revision.content, service._llm_service, inventory.items):
+        # Live retest 9: facts and world rules (F-LIVE-17) come from one call.
+        import hashlib
+        from services.chapter_facts import extract_chapter_facts
+        from services.world_rule_extraction import known_world_rules
+        approved = known_world_rules(getattr(repo.get_story_brain(novel_id), 'facts', ()))
+        facts, rules = extract_chapter_facts(revision.content, service._llm_service, inventory.items, approved)
+        for fact in facts:
             if fact.certainty != 'confirmed':
                 continue
             if fact.subject:
                 identity(fact.subject)
             add('fact', {'fact_type': 'narrative_fact', 'fact_key': fact.fact_key,
                 'fact_value': fact.fact_value, 'subject_entity_id': identity(fact.subject) if fact.subject else None}, fact.quote, fact.confidence)
-        # F-LIVE-17: also propose general world rules the chapter states or shows, so imported
-        # manuscripts get rules for the consistency check (same proposal shape as the legacy path).
-        import hashlib
-        from services.world_rule_extraction import extract_world_rules, known_world_rules
-        approved = known_world_rules(getattr(repo.get_story_brain(novel_id), 'facts', ()))
-        for rule in extract_world_rules(revision.content, service._llm_service, approved):
+        for rule in rules:
             rule_hash = hashlib.sha256(rule['rule'].casefold().encode('utf-8')).hexdigest()[:16]
             add('fact', {'fact_type': 'world_rule', 'fact_key': f'world_rule_{rule_hash}',
                 'fact_value': rule['rule'], 'priority': 100}, rule['quote'], rule['confidence'],
                 span=(rule['start'], rule['end']))
     if audit['request']['options'].get('extract_state_transitions', False):
         from dataclasses import replace
-        from services.state_transition_proposals import generate_state_transition_proposals
+        from services.state_transition_proposals import generate_chapter_state_transitions
+        try:
+            by_event = generate_chapter_state_transitions([p for p in proposals if p.proposal_type == 'event'],
+                service._llm_service, identity_inventory=inventory.items, identity_resolver=identity)
+        except StateExtractionError as exc:
+            raise ValueError(str(exc)) from exc
         expanded = []
         for proposal in proposals:
             expanded.append(proposal)
             if proposal.proposal_type == 'event':
-                try:
-                    changes = generate_state_transition_proposals(proposal, service._llm_service,
-                        identity_inventory=inventory.items, identity_resolver=identity)
-                except StateExtractionError as exc:
-                    raise ValueError(str(exc)) from exc
+                changes = by_event.get(proposal.proposal_id, [])
                 for change in changes:
                     identity(change.payload['entity_id'])
                     if change.payload['attribute_key'] == 'active_relationships':

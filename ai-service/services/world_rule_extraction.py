@@ -37,7 +37,7 @@ class WorldRuleBatch(BaseModel):
     rules: list[WorldRuleOutput]
 
 
-SYSTEM_PROMPT = (
+RULE_INSTRUCTIONS = (
     "You read one chapter of a novel and list the general RULES OF ITS WORLD that the text states or "
     "clearly shows to hold always (laws of magic or technology, physical or supernatural constraints, "
     "customs and laws of a society, fixed facts about places that limit what can happen). "
@@ -46,8 +46,8 @@ SYSTEM_PROMPT = (
     "rule: one short sentence in Vietnamese, present tense, general (no 'hôm nay', no one-off scene). "
     "quote: the exact contiguous chapter text that states or shows the rule. "
     "confidence: how sure you are it is a lasting world rule (0..1). Return an empty list if there is none. "
-    "Return JSON matching: " + json.dumps(WorldRuleBatch.model_json_schema(), ensure_ascii=False)
 )
+SYSTEM_PROMPT = RULE_INSTRUCTIONS + "Return JSON matching: " + json.dumps(WorldRuleBatch.model_json_schema(), ensure_ascii=False)
 
 
 def _normalize(value: str) -> str:
@@ -95,9 +95,14 @@ def extract_world_rules(text: str, llm: Any, known_rules: list[str] | tuple[str,
         # Rules are an addition to the chapter's proposals; a bad answer must not fail the chapter.
         logger.warning("World rule extraction skipped: %s", type(exc).__name__)
         return []
+    return select_world_rules(text, batch.rules, known_rules)
+
+
+def select_world_rules(text: str, rules, known_rules=()) -> list[dict]:
+    """Confident, quoted, non-repeated rules, at most MAX_RULES_PER_CHAPTER."""
     seen = [n for n in (_normalize(r) for r in known_rules) if n]
     out = []
-    for item in sorted(batch.rules, key=lambda r: -r.confidence):
+    for item in sorted(rules, key=lambda r: -r.confidence):
         quote = item.quote.strip()
         start = text.find(quote) if quote else -1
         if item.confidence < MIN_CONFIDENCE or start < 0 or _duplicate(item.rule, seen):
