@@ -253,6 +253,11 @@ def continue_review(service, novel_id, run_id, tenant_id):
             # here (final live acceptance, chapter 5); the alias occurrence itself is exact evidence.
             quote = revision.content[start:end]
         span = (start, end) if has_span and revision.content[start:end] == quote else None
+        # Live retest 8 (V1): a quote repeated elsewhere in the chapter was located in this
+        # occurrence's context during verification; use that position instead of a global search.
+        qs, qe = alias.get('quote_start'), alias.get('quote_end')
+        if span is None and isinstance(qs, int) and isinstance(qe, int) and revision.content[qs:qe] == quote:
+            span = (qs, qe)
         add('alias', {'alias': alias['alias'], 'entity_name': alias['entity_name'],
             'entity_id': alias['entity_id']}, quote, alias['confidence'], span=span)
     identity = inventory.resolve
