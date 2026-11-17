@@ -19,7 +19,9 @@ export async function submitSetup(body: SetupRequest, signal?:AbortSignal) {
   return (await apiClient.post<ApiEnvelope<{job_id: string; story_brain_id: string; status: string}>>('/ai/story-brains/bootstrap/from-idea', body, {signal})).data.data;
 }
 export async function getSetup(novelId: string, snapshotId?: string, signal?:AbortSignal) {
-  return (await apiClient.get<ApiEnvelope<SetupSnapshot>>(`/ai/story-brains/${novelId}/setup`, {params: {snapshot_id:snapshotId},signal})).data.data;
+  const snapshot = (await apiClient.get<ApiEnvelope<SetupSnapshot>>(`/ai/story-brains/${novelId}/setup`, {params: {snapshot_id:snapshotId},signal})).data.data;
+  // A snapshot without a proposal list must not crash the setup panel (it read proposals.length).
+  return snapshot ? { ...snapshot, proposals: snapshot.proposals ?? [] } : snapshot;
 }
 
 export type SetupReviewDecision = {proposal_id:string; decision:'accept'|'reject'; reason?:string;

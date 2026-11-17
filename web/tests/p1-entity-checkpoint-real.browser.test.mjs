@@ -105,7 +105,7 @@ test('Real Gateway checkpoint: Vietnamese LOC, bulk confirm/cancel, partial relo
       await assign(locs[0].candidate_id, 'con-van');
       const c = occurrence(locs[0].candidate_id);
       await c.getByRole('button', { name: 'Sửa thuộc tính', exact: true }).click();
-      for (const type of ['PER', 'LOC']) {
+      for (const type of ['Nhân vật', 'Địa điểm']) {
         await c.getByLabel('Loại thực thể', { exact: true }).click();
         await page.getByRole('option', { name: type, exact: true }).click();
       }

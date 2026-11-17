@@ -65,5 +65,5 @@ export const stateValueLabel = (entities: { entity_id: string; name: string }[],
 export const entityOptionLabel = (e: { entity_id: string; name: string; entity_type?: string | null },
   all: { entity_id: string; name: string }[]) => {
   const twin = all.some(o => o.entity_id !== e.entity_id && o.name.trim().toLowerCase() === e.name.trim().toLowerCase());
-  return `${e.name} (${entityTypeLabel(e.entity_type)})${twin ? ` · #${e.entity_id.slice(0, 6)}` : ''}`;
+  return `${e.name} (${entityTypeLabel(e.entity_type)})${twin ? ` · #${e.entity_id.slice(-6)}` : ''}`;
 };

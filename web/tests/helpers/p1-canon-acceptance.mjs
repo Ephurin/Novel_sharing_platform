@@ -121,7 +121,7 @@ export async function canonAcceptance(h, f, x) {
         // Mantine deselects the current option when clicked again. Make the
         // author's target change explicit, then choose witness again below.
         await page.getByRole('textbox', { name: 'Đối tượng (Object)', exact: true }).click();
-        await page.getByRole('option').filter({ hasText: `#${doctor.slice(0, 6)}` }).click();
+        await page.getByRole('option').filter({ hasText: `#${doctor.slice(-6)}` }).click();
       }
       await page.getByRole('textbox', { name: 'Đối tượng (Object)', exact: true }).click(); await page.getByRole('option').filter({ hasText: witness.slice(0, 8) }).click();
       await page.getByLabel('Loại quan hệ (Relation Type, tối đa 80 ký tự)', { exact: true }).fill(relation);
@@ -159,7 +159,7 @@ export async function canonAcceptance(h, f, x) {
     const checkpoint = page.getByTestId('entity-checkpoint-' + active.analysis_run_id);
     const candidate = active.candidates.find(c => c.surface === 'Minh'); assert.ok(candidate);
     await checkpoint.getByTestId('entity-occurrence-' + candidate.candidate_id).getByRole('textbox', { name: 'Là nhân vật hoặc địa danh đã có', exact: true }).click();
-    await page.getByRole('option').filter({ hasText: `#${doctor.slice(0, 6)}` }).click();
+    await page.getByRole('option').filter({ hasText: `#${doctor.slice(-6)}` }).click();
     const reviewed = page.waitForResponse(r => r.request().method() === 'POST' && r.url().endsWith(`/entity-reviews/${active.analysis_run_id}/review`));
     await checkpoint.getByRole('button', { name: /^Lưu quyết định một phần/ }).click();
     const review = await reviewed; assert.equal(review.status(), 200);
@@ -168,7 +168,7 @@ export async function canonAcceptance(h, f, x) {
     await page.reload(); await until(async () => await f.editor().inputValue() === x.latestDraft, 'Review reload changed draft');
     await page.getByTestId('btn-story-brain').click(); await page.getByRole('tab', { name: /^Chờ duyệt/ }).click();
     const resumed = page.getByTestId('entity-checkpoint-' + active.analysis_run_id).getByTestId('entity-occurrence-' + candidate.candidate_id);
-    await until(async () => (await resumed.getByRole('textbox', { name: 'Là nhân vật hoặc địa danh đã có', exact: true }).inputValue()).includes(`#${doctor.slice(0, 6)}`), 'Exact canonical selection did not resume');
+    await until(async () => (await resumed.getByRole('textbox', { name: 'Là nhân vật hoặc địa danh đã có', exact: true }).inputValue()).includes(`#${doctor.slice(-6)}`), 'Exact canonical selection did not resume');
     assert.deepEqual(await memory(), canonical);
     const before = await h.snapshot('S11-before-stale-continuation', x.owned);
     await h.api('POST', base + `/entity-reviews/${x.entities.run}/continue`, {}, x.a.token, [409]);
