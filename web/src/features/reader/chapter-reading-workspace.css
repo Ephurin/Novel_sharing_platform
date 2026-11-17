@@ -48,11 +48,13 @@
 .sc-reader-background-options { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
 .sc-reader-background-options button { display: grid; position: relative; place-items: center; height: 44px; padding: 0; border: 2px solid var(--sc-border); border-radius: 6px; overflow: hidden; color: var(--reader-ink); }
 .sc-reader-swatch { position: absolute; inset: 0; background: var(--reader-page); }
+.sc-reader-bg-ring { position: absolute; inset: -2px; border: 2px solid var(--sc-primary-text); border-radius: 6px; pointer-events: none; z-index: 2; }
 .sc-reader-background-options .material-symbols-outlined { z-index: 1; font-size: 20px; }
-.sc-reader-background-options button[aria-pressed="true"] { border-color: var(--sc-primary-text); }
+.sc-reader-background-options button[aria-pressed="true"] { border-color: transparent; }
 .sc-reader-alignment-options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.sc-reader-alignment-options button { height: 44px; border: 1px solid var(--sc-border); border-radius: 6px; color: var(--sc-text); background: var(--sc-surface); }
-.sc-reader-alignment-options button[aria-pressed="true"] { color: var(--sc-primary-text); background: var(--sc-primary-soft); border-color: var(--sc-primary-text); }
+.sc-reader-alignment-options button { position: relative; z-index: 1; display: grid; place-items: center; height: 44px; border: 1px solid var(--sc-border); border-radius: 6px; color: var(--sc-text); background: var(--sc-surface); transition: color .15s ease; }
+.sc-reader-alignment-options button[aria-pressed="true"] { color: var(--sc-primary-text); background: transparent; border-color: transparent; }
+.sc-reader-align-pill { position: absolute; inset: -1px; z-index: -1; border-radius: inherit; background: var(--sc-primary-soft); border: 1px solid var(--sc-primary-text); pointer-events: none; }
 .sc-reader-preference-status { color: var(--sc-text-muted); font-size: 12px; }
 .sc-reader-preference-status button { color: var(--sc-primary-text); font-weight: 600; }
 .sc-reader-toc-book { display: flex; align-items: flex-start; gap: 12px; }
@@ -80,4 +82,9 @@
   body:has(.sc-reader-workspace) .sc-toast-viewport { width: calc(100% - 88px); }
   .sc-reader-comments { padding-inline: 16px; }
 }
-@media (prefers-reduced-motion: reduce) { .sc-reader-tool-rail { transition: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .sc-reader-tool-rail,
+  .sc-reader-alignment-options button {
+    transition: none;
+  }
+}

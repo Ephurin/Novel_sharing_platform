@@ -1,4 +1,6 @@
 import { Alert, Button, Group, NumberInput, Slider, Stack, Text, Textarea } from '@mantine/core';
+import NumberFlow from '@number-flow/react';
+import { useReducedMotion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -8,6 +10,7 @@ import { Link } from 'react-router-dom';
 
 export function NovelEngagement({ novelId, authorId, onSaved }: { novelId: string; authorId: string; onSaved?: () => void }) {
   const user = useAuthStore(state => state.user);
+  const reduce = useReducedMotion();
   const client = useQueryClient();
   const key = ['novel-statistics', novelId, user?.userId ?? 'guest'];
   const query = useQuery({ queryKey: key, queryFn: () => getNovelStatistics(novelId) });
@@ -39,6 +42,8 @@ export function NovelEngagement({ novelId, authorId, onSaved }: { novelId: strin
   if (query.isPending) return <Text c="dimmed">Đang tải đánh giá…</Text>;
   if (query.isError) return <Alert color="red">{getApiErrorMessage(query.error)} <Button variant="subtle" onClick={() => void query.refetch()}>Thử lại</Button></Alert>;
   const stats = query.data;
+  const numericScore = typeof score === 'number' ? score : 5;
+  const scoreMood = numericScore >= 9 ? 'Kiệt tác' : numericScore >= 7 ? 'Rất đáng đọc' : numericScore >= 5 ? 'Khá ổn' : 'Cần cải thiện';
   const validScore = typeof score === 'number' && Number.isInteger(score) && score >= 1 && score <= 10;
   const dirty = score !== (stats.myRating ?? '') || review.trim() !== (stats.myReview ?? '');
   return <Stack gap="sm" mt="md">
@@ -48,8 +53,14 @@ export function NovelEngagement({ novelId, authorId, onSaved }: { novelId: strin
           <NumberInput label="Điểm của bạn /10" placeholder="Nhập điểm" required disabled={rating.isPending} value={score}
             min={1} max={10} step={1} allowDecimal={false} allowNegative={false} clampBehavior="strict" hideControls
             onChange={value => { setScore(value); setNotice(''); }} />
-          <div className="sc-reader-score-slider"><Text size="sm" c="dimmed" mb="md">Nhập điểm hoặc kéo thanh để chọn từ 1 đến 10.</Text>
-            <Slider thumbLabel="Kéo để chọn điểm" value={typeof score === 'number' ? score : 5} min={1} max={10} step={1} disabled={rating.isPending}
+          <div className="sc-reader-score-slider">
+            <Group justify="space-between" align="baseline" mb="xs">
+              <Text size="sm" c="dimmed">Nhập điểm hoặc kéo thanh để chọn từ 1 đến 10.</Text>
+              <Text size="sm" fw={600} c="var(--sc-primary-text)" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                <NumberFlow value={numericScore} animated={!reduce} />/10 · {scoreMood}
+              </Text>
+            </Group>
+            <Slider thumbLabel="Kéo để chọn điểm" value={numericScore} min={1} max={10} step={1} disabled={rating.isPending}
               marks={[{ value: 1, label: '1' }, { value: 5, label: '5' }, { value: 10, label: '10' }]}
               label={value => `${value}/10`} onChange={value => { setScore(value); setNotice(''); }} />
           </div>

@@ -1,8 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { NumberInput, Select } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
+import { ReactionIcon } from '../../shared/components/InteractionWidgets';
 import { ManuscriptContent } from '../../shared/components/ManuscriptContent';
 import { ReadingProgress } from '../../shared/components/ReadingProgress';
 import { readerBackgrounds, useChapterReadingPreferences } from './useChapterReadingPreferences';
@@ -29,6 +31,9 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
   children?: ReactNode;
 }) {
   const location = useLocation();
+  const reduce = useReducedMotion();
+  const bgGroupId = useId();
+  const alignGroupId = useId();
   const mobile = useMediaQuery('(max-width: 767px)', undefined, { getInitialValueInEffect: false });
   const [toolsOpen, setToolsOpen] = useState(false);
   const [panel, setPanel] = useState<'settings' | 'toc' | null>(null);
@@ -132,9 +137,10 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
           {onReport && <button type="button" onClick={onReport} disabled={reporting} aria-label="Báo cáo chương" title="Báo cáo chương"><Icon name="flag" /></button>}
         </div>
       </header>
-      <ReadingProgress><article ref={article} className="sc-reader-manuscript" style={readingStyle} aria-label="Nội dung chương">
+      <ReadingProgress><motion.article key={chapter.chapterId} ref={article} className="sc-reader-manuscript" style={readingStyle} aria-label="Nội dung chương"
+        initial={reduce ? false : { opacity: 0.6 }} animate={{ opacity: 1 }} transition={{ duration: reduce ? 0 : 0.18 }}>
         <ManuscriptContent content={chapter.content ?? ''} />
-      </article></ReadingProgress>
+      </motion.article></ReadingProgress>
     </div>
     <button type="button" className="sc-reader-tools-toggle" aria-expanded={toolsVisible} aria-controls="chapter-reader-tools" onClick={() => setToolsOpen(value => !value)}>{toolsOpen ? 'Ẩn công cụ đọc' : 'Hiện công cụ đọc'}</button>
     <aside id="chapter-reader-tools" className="sc-reader-tool-rail" aria-label="Công cụ đọc chương" data-open={toolsOpen} aria-hidden={!toolsVisible} inert={!toolsVisible}>
@@ -142,7 +148,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
       <Link to={novelPath} className="sc-reader-tool" aria-label="Về trang truyện" title="Về trang truyện"><Icon name="home" /></Link>
       <button type="button" className="sc-reader-tool" aria-label="Tùy chỉnh đọc" title="Tùy chỉnh đọc" aria-haspopup="dialog" onClick={() => setPanel('settings')}><Icon name="text_fields" /></button>
       <button type="button" className="sc-reader-tool" aria-label="Mục lục" title="Mục lục" aria-haspopup="dialog" onClick={() => setPanel('toc')}><Icon name="format_list_bulleted" /></button>
-      <button type="button" className="sc-reader-tool" aria-label={bookmarkLabel} title={bookmarkLabel} aria-pressed={saved} disabled={bookmark.pending} onClick={toggleBookmark}><Icon name={saved ? 'bookmark' : 'bookmark_border'} /></button>
+      <button type="button" className="sc-reader-tool" aria-label={bookmarkLabel} title={bookmarkLabel} aria-pressed={saved} disabled={bookmark.pending} onClick={toggleBookmark}><ReactionIcon icon={saved ? 'bookmark' : 'bookmark_border'} active={saved} /></button>
       {navigationLink(next, 'Chương sau', 'skip_next')}
     </aside>
     <footer className="sc-reader-end-navigation" aria-label="Điều hướng cuối chương">
@@ -156,16 +162,29 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
         event.preventDefault(); jumpAfterClose.current = false; restoreBookmark();
       }}>
       {panel === 'settings' && <>
-        <fieldset className="sc-reader-setting-field"><legend>Màu nền</legend><div className="sc-reader-background-options" role="group" aria-label="Màu nền trang đọc">
-          {readerBackgrounds.map(background => <button key={background.value} type="button" data-reader-background={background.value} aria-label={background.label} title={background.label} aria-pressed={preferences.background === background.value} onClick={() => preference.update({ background: background.value })}><span className="sc-reader-swatch" />{preferences.background === background.value && <Icon name="check" />}</button>)}
-        </div></fieldset>
+        <fieldset className="sc-reader-setting-field"><legend>Màu nền</legend><LayoutGroup id={bgGroupId}><div className="sc-reader-background-options" role="group" aria-label="Màu nền trang đọc">
+          {readerBackgrounds.map(background => {
+            const active = preferences.background === background.value;
+            return <button key={background.value} type="button" data-reader-background={background.value} aria-label={background.label} title={background.label} aria-pressed={active} onClick={() => preference.update({ background: background.value })}>
+              <span className="sc-reader-swatch" />
+              {active && <motion.span layoutId="reader-bg-active-ring" className="sc-reader-bg-ring" aria-hidden="true" transition={{ duration: reduce ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] }} />}
+              {active && <Icon name="check" />}
+            </button>;
+          })}
+        </div></LayoutGroup></fieldset>
         <Select label="Phông chữ" value={preferences.fontFamily} allowDeselect={false} data={[...new Set([...fonts, preferences.fontFamily || 'Be Vietnam Pro'])]} onChange={value => preference.update({ fontFamily: value ?? 'Be Vietnam Pro' })} comboboxProps={{ withinPortal: false }} />
         <ReadingNumber label="Cỡ chữ" value={preferences.fontSize} min={10} max={40} step={1} onChange={value => preference.update({ fontSize: value })} />
         <ReadingNumber label="Lề hai bên" value={preferences.margin ?? 24} min={0} max={80} step={4} onChange={value => preference.update({ margin: value })} />
         <ReadingNumber label="Giãn dòng" value={preferences.lineHeight} min={1} max={3} step={.1} onChange={value => preference.update({ lineHeight: value })} />
-        <fieldset className="sc-reader-setting-field"><legend>Kiểu căn chỉnh</legend><div className="sc-reader-alignment-options" role="group" aria-label="Kiểu căn chỉnh">
-          {alignments.map(alignment => <button key={alignment.value} type="button" title={alignment.label} aria-label={alignment.label} aria-pressed={preferences.textAlign === alignment.value} onClick={() => preference.update({ textAlign: alignment.value as ReadingPreferences['textAlign'] })}><Icon name={alignment.icon} /></button>)}
-        </div></fieldset>
+        <fieldset className="sc-reader-setting-field"><legend>Kiểu căn chỉnh</legend><LayoutGroup id={alignGroupId}><div className="sc-reader-alignment-options" role="group" aria-label="Kiểu căn chỉnh">
+          {alignments.map(alignment => {
+            const active = preferences.textAlign === alignment.value;
+            return <button key={alignment.value} type="button" title={alignment.label} aria-label={alignment.label} aria-pressed={active} onClick={() => preference.update({ textAlign: alignment.value as ReadingPreferences['textAlign'] })}>
+              {active && <motion.span layoutId="reader-align-pill" className="sc-reader-align-pill" aria-hidden="true" transition={{ duration: reduce ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] }} />}
+              <Icon name={alignment.icon} />
+            </button>;
+          })}
+        </div></LayoutGroup></fieldset>
         <div className="sc-reader-preference-status" role="status">{preference.status === 'saving' ? 'Đang lưu tùy chỉnh…' : preference.status === 'error' ? <>Chưa đồng bộ tùy chỉnh. <button type="button" onClick={preference.retry}>Thử lại</button></> : preference.status === 'local' ? 'Đã lưu trên thiết bị.' : 'Đã lưu tùy chỉnh.'}</div>
       </>}
       {panel === 'toc' && <>

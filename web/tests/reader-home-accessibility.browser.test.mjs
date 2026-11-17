@@ -66,3 +66,61 @@ test('home maintains contrast, focus, reduced motion and reflow at narrow widths
     }
   } finally { await browser.close(); await new Promise(resolve => server.httpServer.close(resolve)); }
 });
+
+test('home and catalog cards disable hover transforms under reduced motion while retaining them otherwise', { timeout: 90000 }, async () => {
+  const server = await preview({ root: fileURLToPath(new URL('../', import.meta.url)), preview: { host: '127.0.0.1', port: 0 } });
+  const browser = await chromium.launch({ headless: true, channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome' });
+  const base = `http://127.0.0.1:${server.httpServer.address().port}`;
+  const cover = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="300"><rect width="200" height="300" fill="#775f55"/></svg>');
+  const novels = Array.from({ length: 6 }, (_, i) => ({
+    novelId: `n-${i}`, authorId: 'writer', title: `Truyện thử nghiệm ${i + 1}`,
+    coverImageUrl: cover, chaptersCount: 4, viewsCount: 100 - i, serialStatus: 'ONGOING'
+  }));
+  try {
+    for (const reducedMotion of ['reduce', 'no-preference']) {
+      const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion });
+      const page = await context.newPage();
+      await page.addInitScript(() => localStorage.setItem('storycraft-theme', 'light'));
+      await page.route('**/api/v1/**', async route => {
+        const url = new URL(route.request().url());
+        const data = url.pathname.endsWith('/reading/filters')
+          ? { genres: ['Fantasy'], tags: [] }
+          : url.pathname.endsWith('/reading/search')
+            ? novels
+            : [];
+        await route.fulfill({ json: { success: true, data, meta: { totalPages: 1, totalItems: Array.isArray(data) ? data.length : 1 } } });
+      });
+      try {
+        await page.goto(base);
+        const featuredCover = page.locator('.sc-home-feature-cover').first();
+        const featuredImg = featuredCover.locator('img');
+        const rankingRow = page.locator('.sc-home-ranking li').first();
+        await expect(featuredCover).toBeVisible();
+        await expect(featuredImg).toBeVisible();
+        await expect(rankingRow).toBeVisible();
+        const accentColor = await page.locator('.sc-home-more').first().evaluate(el => getComputedStyle(el).color);
+
+        await featuredCover.hover();
+        await expect(featuredCover.locator('h2')).toHaveCSS('color', accentColor);
+        if (reducedMotion === 'reduce') {
+          await expect(featuredCover).toHaveCSS('transform', 'none');
+          await expect(featuredImg).toHaveCSS('transform', 'none');
+        } else {
+          await expect(featuredCover).not.toHaveCSS('transform', 'none');
+          await expect(featuredImg).not.toHaveCSS('transform', 'none');
+        }
+
+        await rankingRow.hover();
+        if (reducedMotion === 'reduce') await expect(rankingRow).toHaveCSS('transform', 'none');
+        else await expect(rankingRow).not.toHaveCSS('transform', 'none');
+
+        await page.goto(`${base}/public`);
+        const catalogCard = page.locator('.sc-catalog-card').first();
+        await expect(catalogCard).toBeVisible();
+        await catalogCard.hover();
+        if (reducedMotion === 'reduce') await expect(catalogCard).toHaveCSS('transform', 'none');
+        else await expect(catalogCard).not.toHaveCSS('transform', 'none');
+      } finally { await context.close(); }
+    }
+  } finally { await browser.close(); await new Promise(resolve => server.httpServer.close(resolve)); }
+});

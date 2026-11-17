@@ -1,8 +1,9 @@
-import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { animate, motion, useReducedMotion } from 'motion/react';
 import { Link, useLocation } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
+import { ReactionIcon } from '../../shared/components/InteractionWidgets';
 import { useToast } from '../../shared/components/ToastProvider';
 import { getApiErrorMessage } from '../../shared/api/api-client';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -11,7 +12,6 @@ import type { ReaderChapter, ReaderNovel } from './reader-api';
 import './reader-detail.css';
 
 const labels: Record<string, string> = { ONGOING: 'Đang ra', COMPLETED: 'Hoàn thành', HIATUS: 'Tạm ngưng' };
-const number = (value = 0) => value.toLocaleString('vi-VN');
 
 function lastUpdate(value?: string | null) {
   if (!value || !Number.isFinite(Date.parse(value))) return 'Chưa có';
@@ -82,7 +82,7 @@ export function NovelOverview({ novel, chapters, authorLink, notice, actions }: 
         <div className="sc-reader-primary-actions">
           {actions}
           {canFollow ? <button type="button" className="sc-reader-follow-toggle" disabled={follow.isPending || notifications.isPending || !statistics.isSuccess} aria-label={followLabel} title={followLabel} aria-pressed={stats?.isFollowing ?? false} onClick={() => follow.mutate()} data-testid="reader-follow-novel-btn">
-            <Icon name="favorite" />
+            <ReactionIcon icon="favorite" active={stats?.isFollowing ?? false} />
           </button> : !user ? <Link to="/login" className="sc-reader-follow-toggle" aria-label="Đăng nhập để theo dõi truyện" title="Đăng nhập để theo dõi truyện"><Icon name="favorite" /></Link> : null}
           {canFollow ? <button type="button" className="sc-button sc-button-soft sc-reader-notification-toggle" aria-pressed={stats?.notificationsEnabled ?? false} disabled={notifications.isPending || follow.isPending || !statistics.isSuccess} onClick={() => notifications.mutate()} data-testid="reader-notifications-btn">
             <Icon name={stats?.notificationsEnabled ? 'notifications_active' : 'notifications_none'} /><span className="sc-reader-notification-label"><span className="sc-reader-notification-reserve" aria-hidden="true">Nhận thông báo</span><span>{stats?.notificationsEnabled ? 'Tắt thông báo' : 'Nhận thông báo'}</span></span>
@@ -99,10 +99,10 @@ export function NovelOverview({ novel, chapters, authorLink, notice, actions }: 
     </div>
     <dl className="sc-novel-metrics sc-reader-detail-metrics" aria-label="Thống kê truyện">
       <div><dt>Cập nhật</dt><dd className="sc-reader-updated"><time dateTime={updated ?? undefined} title={updated ? new Date(updated).toLocaleString('vi-VN') : undefined}>{lastUpdate(updated)}</time></dd></div>
-      <div><dt>Tổng chương</dt><dd>{number(chapters.length)}</dd></div>
-      <div><dt>Lượt đọc</dt><dd>{number(novel.viewsCount)}</dd></div>
+      <div><dt>Tổng chương</dt><dd><MetricNumber value={chapters.length} /></dd></div>
+      <div><dt>Lượt đọc</dt><dd><MetricNumber value={novel.viewsCount ?? 0} /></dd></div>
       <div><dt>Đánh giá</dt><dd><Link className="sc-rating-metric" to={reviewsPath}>{statistics.isPending ? '…' : statistics.isError ? '—' : score}<Icon name="chevron_right" /></Link></dd></div>
-      <div><dt>Số từ</dt><dd>{number(chapters.reduce((sum, chapter) => sum + (chapter.wordCount ?? 0), 0))}</dd></div>
+      <div><dt>Số từ</dt><dd><MetricNumber value={chapters.reduce((sum, chapter) => sum + (chapter.wordCount ?? 0), 0)} /></dd></div>
     </dl>
     {statistics.isError && <button type="button" className="sc-review-link" onClick={() => void statistics.refetch()}>Không tải được thống kê · Thử lại</button>}
     <div className="sc-reader-description-section"><h2>Giới thiệu</h2><ExpandableSynopsis text={novel.synopsis || 'Chưa có lời giới thiệu.'} id={`reader-synopsis-${novel.novelId}`} /></div>
@@ -114,6 +114,20 @@ export function NovelOverview({ novel, chapters, authorLink, notice, actions }: 
       }}>Sao chép đường dẫn</button>{copied && <p role="status">Đã sao chép đường dẫn.</p>}{copyError && <p role="status">Hãy chọn đường dẫn phía trên và sao chép.</p>}</div>
     </AnimatedModal>
   </section>;
+}
+
+function MetricNumber({ value }: { value: number }) {
+  const reduce = useReducedMotion();
+  const [display, setDisplay] = useState(value);
+  const previous = useRef(value);
+  useEffect(() => {
+    const start = previous.current;
+    previous.current = value;
+    if (reduce || start === value) { setDisplay(value); return; }
+    const controls = animate(start, value, { duration: 0.28, ease: 'easeOut', onUpdate: latest => setDisplay(Math.round(latest)) });
+    return () => controls.stop();
+  }, [value, reduce]);
+  return <motion.span style={{ fontVariantNumeric: 'tabular-nums' }} initial={reduce ? false : { opacity: 0.7 }} animate={{ opacity: 1 }} transition={{ duration: reduce ? 0 : 0.2 }}>{display.toLocaleString('vi-VN')}</motion.span>;
 }
 
 function Icon({ name }: { name: string }) {
