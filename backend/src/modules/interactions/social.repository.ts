@@ -108,7 +108,8 @@ export async function followAuthor(followerId: string, authorId: string) {
     [followerId, authorId]
   );
 
-  if (result.rowCount === 1) await enqueueNotification(client, { eventKey: 'author-follow:' + randomUUID(), userId: authorId, type: 'AUTHOR_FOLLOW', title: 'Bạn có người theo dõi mới', content: 'Một độc giả vừa theo dõi trang tác giả của bạn.', payload: { href: '/author/profile' } });
+  const target = await client.query('select role from users where user_id=$1', [authorId]);
+  if (result.rowCount === 1 && ['AUTHOR', 'ADMIN'].includes(target.rows[0]?.role)) await enqueueNotification(client, { eventKey: 'author-follow:' + randomUUID(), userId: authorId, type: 'AUTHOR_FOLLOW', title: 'Bạn có người theo dõi mới', content: 'Một độc giả vừa theo dõi trang tác giả của bạn.', payload: { href: '/author/profile' } });
   return result.rowCount === 1;
   });
 }

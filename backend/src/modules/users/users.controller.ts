@@ -20,7 +20,7 @@ function requireRequestAuth(request: Parameters<RequestHandler>[0]) {
 
 export const getPublicProfileController: RequestHandler = async (request, response, next) => {
   try {
-    const result = await getPublicProfile(String(request.params.userId));
+    const result = await getPublicProfile(String(request.params.userId), request.auth?.userId);
     response.json(successResponse(result));
   } catch (error) {
     next(error);

@@ -68,6 +68,8 @@ export async function followPublishedAuthor(auth: AuthContext, authorId: string)
 }
 
 export async function unfollowPublishedAuthor(auth: AuthContext, authorId: string) {
+  await assertActiveAccount(auth);
+  if (!await findActiveAuthor(authorId)) throw new AppError(404, 'NOT_FOUND_001', 'Resource not found');
   const deleted = await unfollowAuthor(auth.userId, authorId);
 
   if (!deleted) {
