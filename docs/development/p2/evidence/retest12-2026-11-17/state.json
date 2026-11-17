@@ -1,0 +1,20 @@
+{
+  "novelId": "e82e5640-e77c-4c19-8e4d-b02a8375100a",
+  "g0": 1633,
+  "startedAt": "2026-11-17T06:43:42.358Z",
+  "chapters": [
+    {
+      "n": 12,
+      "chapterId": "01b6883b-b686-4ba8-9bef-d97153c91c4d",
+      "words": 1596,
+      "steps": 4,
+      "failures": 0,
+      "done": true,
+      "g0": 1633,
+      "startedAt": "2026-11-17T06:43:44.146Z",
+      "calls": 7,
+      "finishedAt": "2026-11-17T06:49:38.742Z"
+    }
+  ],
+  "totalWords": 1596
+}

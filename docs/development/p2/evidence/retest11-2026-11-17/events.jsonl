@@ -1,0 +1,8 @@
+{"t":"2026-11-17T03:07:37.445Z","kind":"start","novel":"e82e5640-e77c-4c19-8e4d-b02a8375100a","existing_chapters":10,"next":11,"words_so_far":0,"used":0,"cap":40}
+{"t":"2026-11-17T03:07:38.471Z","kind":"chapter_start","chapter":11,"chapterId":"3f09391b-c231-47f0-aa94-b33f08028086"}
+{"t":"2026-11-17T03:07:52.905Z","kind":"gen","chapter":11,"attempt":1,"secs":13,"status":"completed","validation":"passed","stale":null,"draft_words":294,"calls":2,"failed_validators":[],"ok":true,"revision":"7fab0864-fea7-4c08-b0fd-2aff898082e6","chapter_words":296}
+{"t":"2026-11-17T03:07:59.485Z","kind":"gen","chapter":11,"attempt":1,"secs":5,"status":"completed","validation":"passed","stale":null,"draft_words":343,"calls":1,"failed_validators":[],"ok":true,"revision":"7ec260e0-5c6a-4699-ae25-63f70d6d1a62","chapter_words":641}
+{"t":"2026-11-17T03:08:06.116Z","kind":"gen","chapter":11,"attempt":1,"secs":5,"status":"completed","validation":"passed","stale":null,"draft_words":425,"calls":1,"failed_validators":[],"ok":true,"revision":"5fb38d30-5c50-4471-ab58-698896f764d4","chapter_words":1068}
+{"t":"2026-11-17T03:08:15.145Z","kind":"gen","chapter":11,"attempt":1,"secs":8,"status":"completed","validation":"passed","stale":null,"draft_words":571,"calls":1,"failed_validators":[],"ok":true,"revision":"4af9f68a-f405-47f3-940f-7992d113f130","chapter_words":1643}
+{"t":"2026-11-17T03:13:41.080Z","kind":"chapter_done","chapter":11,"words":1635,"steps":4,"failures":0,"calls":8,"analysis_wait_s":325,"review":null,"brain_version":14,"counts":{"entities":12,"events":21,"pending_proposals":0,"open_findings":0},"total_words":1635,"used":8}
+{"t":"2026-11-17T03:13:41.541Z","kind":"end","total_words":1635,"chapters_done":1,"used":8}
