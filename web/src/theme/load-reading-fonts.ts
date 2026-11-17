@@ -24,6 +24,7 @@ export function ensureReadingFontsLoaded(): Promise<unknown> {
 
 export function useReadingFonts(): void {
   useEffect(() => {
-    void ensureReadingFontsLoaded();
+    // Fallback system fonts remain active on transient chunk failure; ensureReadingFontsLoaded() clears the cache for later mounts.
+    void ensureReadingFontsLoaded().catch(() => {});
   }, []);
 }
