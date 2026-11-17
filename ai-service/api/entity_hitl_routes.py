@@ -234,6 +234,18 @@ def refresh(novel_id: UUID, run_id: UUID, payload: Refresh, tenant=Depends(autho
     return {'data': review_dto(service, novel_id, value)}
 
 
+class CloseChapterAnalysis(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    reason: str = Field(default='Chương đã được lưu trữ hoặc xóa.', max_length=200)
+
+
+@router.post('/{novel_id}/chapters/{chapter_id}/close-analysis')
+def close_chapter_analysis(novel_id: UUID, chapter_id: UUID, payload: CloseChapterAnalysis,
+                           service=Depends(get_revision_analysis_service)):
+    """Live check R4 (BB3): called by the platform when a chapter is archived or deleted."""
+    return {'data': service._repository.discard_chapter_analysis(str(novel_id), str(chapter_id), payload.reason)}
+
+
 @router.post('/{novel_id}/author-proposals', status_code=201)
 def author_proposal(novel_id: UUID, payload: AuthorProposal, tenant=Depends(author_scope), service=Depends(get_revision_analysis_service)):
     return {'data': asdict(invoke(service.create_author_proposal, tenant_id=tenant,
