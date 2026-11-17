@@ -1,4 +1,5 @@
 import { motion, useReducedMotion } from 'motion/react';
+import NumberFlow from '@number-flow/react';
 import { useToast } from '../../shared/components/ToastProvider';
 import { SaveStatus } from '../../shared/components/SaveFeedback';
 import { AnimatedMenu as Menu } from '../../shared/components/AnimatedMenu';
@@ -18,7 +19,9 @@ import { authorNoteDefinitions } from '../../shared/lib/author-notes';
 import { useStudioPosition } from './useStudioPosition';
 import { PublishChecklist, StoryReferenceLookup, TextComparison } from './StudioReviewTools';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
+import { AnimatedTabs } from '../../shared/components/AnimatedTabs';
 import { CopyTextButton, FeedbackReveal } from '../../shared/components/ActionFeedback';
+import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 import {PlanningStudio,type MemoryTab,type PlanningStep} from '../ai-copilot/PlanningStudio';
 import { ChapterSchedule } from '../author-projects/ChapterSchedule';
 import { RevisionHistory, snapshotDraft } from './RevisionHistory';
@@ -193,6 +196,8 @@ export function AuthorWritingIde() {
   const rightPanelRef = useRef(rightPanel);
   rightPanelRef.current = rightPanel;
   const reducePanelMotion = useReducedMotion();
+  const chapterNavRef = useStoryCraftAutoAnimate<HTMLElement>();
+  const aiResultsRef = useStoryCraftAutoAnimate<HTMLDivElement>();
   const openAiDrawer = () => {
     if (window.matchMedia('(max-width: 900px)').matches) setSidebarOpen(false);
     setRightPanel('ai');
@@ -1047,7 +1052,7 @@ export function AuthorWritingIde() {
           {/* Word Count Badge */}
           <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-stone-100/80 text-stone-600 text-meta font-medium border border-stone-200/70">
             <span className="material-symbols-outlined text-body text-stone-400">description</span>
-            <span>{wordCount.toLocaleString()} từ</span>
+            <span style={{ fontVariantNumeric: 'tabular-nums' }}><NumberFlow value={wordCount} locales="vi-VN" /> từ</span>
             <span className="text-stone-300">•</span>
             <span>{readTime}</span>
           </div>
@@ -1224,7 +1229,7 @@ export function AuthorWritingIde() {
             </div>
 
             {/* Chapter List Navigation */}
-            <nav className="flex-1 overflow-y-auto px-2 pb-6 space-y-1.5 text-meta">
+            <nav ref={chapterNavRef} className="flex-1 overflow-y-auto px-2 pb-6 space-y-1.5 text-meta">
               {filteredChapters.length === 0 && (
                 <div className="p-4 text-center text-meta text-stone-400">
                   {chaptersQuery.data && chaptersQuery.data.length === 0 ? 'Chưa có chương nào' : 'Không tìm thấy chương'}
@@ -1659,12 +1664,24 @@ export function AuthorWritingIde() {
             </div>
 
             {/* AI Suggestion Display */}
-            <div className="sc-ai-results flex-1 min-h-0 overflow-y-auto p-3.5 space-y-3.5 text-meta select-text">
+            <div ref={aiResultsRef} className="sc-ai-results flex-1 min-h-0 overflow-y-auto p-3.5 space-y-3.5 text-meta select-text">
               {isGeneratingAi && (
-                <div className="p-4 rounded-xl bg-primary-50/70 border border-primary-200 flex flex-col items-center justify-center gap-2 text-primary-700">
-                  <span className="w-5 h-5 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></span>
-                  <span className="text-meta font-semibold">AI đang suy nghĩ và tổng hợp Story Bible...</span>
-                </div>
+                <motion.div
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.18 }}
+                  className="p-4 rounded-xl bg-primary-50/70 border border-primary-200 flex flex-col gap-3 text-primary-700"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="w-4 h-4 border-2 border-primary-600 border-t-transparent rounded-full animate-spin shrink-0"></span>
+                    <span className="text-meta font-semibold">AI đang suy nghĩ và tổng hợp Story Bible...</span>
+                  </div>
+                  <div className="flex flex-col gap-2" aria-hidden="true">
+                    <span className="sc-skeleton-block h-3 w-full rounded" />
+                    <span className="sc-skeleton-block h-3 w-4/5 rounded" />
+                    <span className="sc-skeleton-block h-3 w-3/5 rounded" />
+                  </div>
+                </motion.div>
               )}
 
               {aiRecoveryMessage && <div role="status" className="mb-3 rounded border p-3 text-sm">{aiRecoveryMessage}</div>}
@@ -1799,62 +1816,37 @@ export function AuthorWritingIde() {
               </div>
             </div>
 
-            {/* Tabs */}
-            <div className="px-6 border-b border-stone-200 flex items-center gap-6 text-meta font-semibold bg-surface-container-lowest text-stone-500 shrink-0">
-              <button
-                onClick={() => setStoryBibleTab('characters')}
-                className={`py-3.5 flex items-center gap-1.5 transition-colors ${
-                  storyBibleTab === 'characters'
-                    ? 'text-primary-600 border-b-2 border-primary-600 font-bold'
-                    : 'hover:text-stone-900'
-                }`}
-                type="button"
+            {/* Tabs & Contents */}
+            <AnimatedTabs
+              value={storyBibleTab}
+              onValueChange={value => setStoryBibleTab(value as StoryBibleTab)}
+              className="flex flex-col flex-1 min-h-0"
+            >
+              <AnimatedTabs.List
+                aria-label="Danh mục Cẩm nang thế giới"
+                className="px-6 border-b border-stone-200 flex items-center gap-4 text-meta font-semibold bg-surface-container-lowest text-stone-500 shrink-0"
               >
-                <span className="material-symbols-outlined text-[16px]">groups</span>
-                <span>Nhân vật ({charactersQuery.data?.length ?? 0})</span>
-              </button>
-              <button
-                onClick={() => setStoryBibleTab('relationships')}
-                className={`py-3.5 flex items-center gap-1.5 transition-colors ${
-                  storyBibleTab === 'relationships'
-                    ? 'text-primary-600 border-b-2 border-primary-600 font-bold'
-                    : 'hover:text-stone-900'
-                }`}
-                type="button"
-              >
-                <span className="material-symbols-outlined text-[16px]">hub</span>
-                <span>Mối quan hệ ({relationshipsQuery.data?.length ?? 0})</span>
-              </button>
-              <button
-                onClick={() => setStoryBibleTab('timeline')}
-                className={`py-3.5 flex items-center gap-1.5 transition-colors ${
-                  storyBibleTab === 'timeline'
-                    ? 'text-primary-600 border-b-2 border-primary-600 font-bold'
-                    : 'hover:text-stone-900'
-                }`}
-                type="button"
-              >
-                <span className="material-symbols-outlined text-[16px]">history_edu</span>
-                <span>Dòng thời gian ({timelineQuery.data?.length ?? 0})</span>
-              </button>
-              <button
-                onClick={() => setStoryBibleTab('summaries')}
-                className={`py-3.5 flex items-center gap-1.5 transition-colors ${
-                  storyBibleTab === 'summaries'
-                    ? 'text-primary-600 border-b-2 border-primary-600 font-bold'
-                    : 'hover:text-stone-900'
-                }`}
-                type="button"
-              >
-                <span className="material-symbols-outlined text-[16px]">auto_stories</span>
-                <span>Tóm tắt hồi ({plotSummariesQuery.data?.length ?? 0})</span>
-              </button>
-            </div>
+                <AnimatedTabs.Tab value="characters" className="py-3.5 flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[16px]">groups</span>
+                  <span>Nhân vật ({charactersQuery.data?.length ?? 0})</span>
+                </AnimatedTabs.Tab>
+                <AnimatedTabs.Tab value="relationships" className="py-3.5 flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[16px]">hub</span>
+                  <span>Mối quan hệ ({relationshipsQuery.data?.length ?? 0})</span>
+                </AnimatedTabs.Tab>
+                <AnimatedTabs.Tab value="timeline" className="py-3.5 flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[16px]">history_edu</span>
+                  <span>Dòng thời gian ({timelineQuery.data?.length ?? 0})</span>
+                </AnimatedTabs.Tab>
+                <AnimatedTabs.Tab value="summaries" className="py-3.5 flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[16px]">auto_stories</span>
+                  <span>Tóm tắt hồi ({plotSummariesQuery.data?.length ?? 0})</span>
+                </AnimatedTabs.Tab>
+              </AnimatedTabs.List>
 
-            {/* Tab Contents: Uniform scrollable container */}
-            <div className="p-6 overflow-y-auto space-y-3 flex-1 min-h-0 text-meta text-stone-700 bg-stone-50/40">
-              {storyBibleTab === 'characters' && (
-                <>
+              {/* Tab Contents: Uniform scrollable container */}
+              <div className="p-6 overflow-y-auto space-y-3 flex-1 min-h-0 text-meta text-stone-700 bg-stone-50/40">
+                <AnimatedTabs.Panel value="characters">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {charactersQuery.data?.map((c: CharacterProfile) => {
                       const { customTitle, cleanDescription } = parseIdeCharacterDesc(c.description);
@@ -1933,11 +1925,9 @@ export function AuthorWritingIde() {
                       </Link>
                     </div>
                   )}
-                </>
-              )}
+                </AnimatedTabs.Panel>
 
-              {storyBibleTab === 'relationships' && (
-                <>
+                <AnimatedTabs.Panel value="relationships">
                   <div className="space-y-2.5">
                     {relationshipsQuery.data?.map((r: CharacterRelationship) => (
                       <div key={r.relationshipId} className="p-3.5 rounded-xl border border-stone-200 bg-surface-container-lowest hover:border-stone-300 transition-colors">
@@ -1962,11 +1952,9 @@ export function AuthorWritingIde() {
                       <p className="text-meta italic">Chưa có dữ liệu mối quan hệ nhân vật nào.</p>
                     </div>
                   )}
-                </>
-              )}
+                </AnimatedTabs.Panel>
 
-              {storyBibleTab === 'timeline' && (
-                <>
+                <AnimatedTabs.Panel value="timeline">
                   <div className="space-y-2.5">
                     {timelineQuery.data?.map((ev: StoryTimelineEvent) => (
                       <div key={ev.eventId} className="p-3.5 rounded-xl border border-stone-200 bg-surface-container-lowest hover:border-stone-300 transition-colors">
@@ -1987,11 +1975,9 @@ export function AuthorWritingIde() {
                       <p className="text-meta italic">Chưa có sự kiện mốc thời gian nào được ghi nhận.</p>
                     </div>
                   )}
-                </>
-              )}
+                </AnimatedTabs.Panel>
 
-              {storyBibleTab === 'summaries' && (
-                <>
+                <AnimatedTabs.Panel value="summaries">
                   <div className="space-y-2.5">
                     {plotSummariesQuery.data?.map((s: PlotSummary) => (
                       <div key={s.summaryId} className="p-3.5 rounded-xl border border-stone-200 bg-surface-container-lowest hover:border-stone-300 transition-colors">
@@ -2010,9 +1996,9 @@ export function AuthorWritingIde() {
                       <p className="text-meta italic">Chưa có tóm tắt hồi hay chương nào.</p>
                     </div>
                   )}
-                </>
-              )}
-            </div>
+                </AnimatedTabs.Panel>
+              </div>
+            </AnimatedTabs>
 
             {/* Footer */}
             <div className="p-4 border-t border-stone-200 bg-stone-50 flex items-center justify-between shrink-0">

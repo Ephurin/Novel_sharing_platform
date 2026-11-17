@@ -68,6 +68,21 @@ class FakeDeterministicLLMService:
                 transitions.append({'entity':participants[0], 'attribute_key':'active_relationships',
                     'new_value':{participants[1]:'knows'}, 'confidence':1})
             return json.dumps({'transitions':transitions})
+        if operation == 'hitl_state_extraction_batch':
+            data = json.loads(user_prompt)
+            out = []
+            for event in data['events']:
+                one = json.loads(self._call_structured(operation='hitl_state_extraction', system_prompt='',
+                                                       user_prompt=json.dumps(event, ensure_ascii=False)))
+                out += [{**t, 'event_index': event['event_index']} for t in one['transitions']]
+            return json.dumps({'transitions': out}, ensure_ascii=False)
+        if operation == 'chapter_fact_extraction':
+            data = json.loads(user_prompt)
+            facts = json.loads(self._call_structured(operation='prose_fact_extraction', system_prompt='',
+                                                     user_prompt=user_prompt))['facts']
+            rules = json.loads(self._call_structured(operation='world_rule_extraction', system_prompt='',
+                user_prompt=json.dumps({'chapter_text': data['source_text']}, ensure_ascii=False)))['rules']
+            return json.dumps({'facts': facts, 'world_rules': rules}, ensure_ascii=False)
         if operation == 'prose_fact_extraction':
             data = json.loads(user_prompt)
             return json.dumps({'facts': [{'fact_key': 'source_observation',

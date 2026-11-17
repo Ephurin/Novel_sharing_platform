@@ -395,15 +395,22 @@ class InMemoryNarrativeRepository:
             if proposal.proposal_id != proposal_id:
                 continue
             if not accepted:
-                from domain.proposal_dependencies import can_reject_individually
+                from domain.proposal_dependencies import rejection_set
                 members = [p for p in proposals if p.dependency_group_id == proposal.dependency_group_id]
-                if not can_reject_individually(proposal, members):
+                chosen = rejection_set(proposal, members)
+                if chosen is None:
                     raise ProjectionError('Reject the complete dependency group using the group rejection endpoint')
                 if any(p.status != ProposalStatus.PENDING for p in members):
                     raise ProposalAlreadyDecidedError('Proposal group contains a decided proposal')
                 if len(members) > 1:
-                    proposal = replace(proposal, dependency_group_id=str(uuid.uuid5(
-                        uuid.NAMESPACE_URL, f'rejected:{proposal.proposal_id}')))
+                    detached = str(uuid.uuid5(uuid.NAMESPACE_URL, f'rejected:{proposal.proposal_id}'))
+                    proposal = replace(proposal, dependency_group_id=detached)
+                    # An event's state changes go with it (live retest 10, X3).
+                    dependents = {p.proposal_id for p in chosen} - {proposal.proposal_id}
+                    for i, other in enumerate(proposals):
+                        if other.proposal_id in dependents:
+                            proposals[i] = replace(other, dependency_group_id=detached,
+                                                   status=ProposalStatus.REJECTED, decision_reason=reason)
             updated = replace(
                 proposal,
                 status=ProposalStatus.ACCEPTED if accepted else ProposalStatus.REJECTED,

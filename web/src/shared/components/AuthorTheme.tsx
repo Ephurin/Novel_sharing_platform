@@ -2,6 +2,7 @@ import { NotificationBell } from '../../features/notifications/NotificationBell'
 import { ThemeControl } from './ThemeControl';
 import { WorkspaceCommands } from './WorkspaceCommands';
 import { FocusTrap, useComputedColorScheme } from '@mantine/core';
+import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { AnimatedMenu as Menu } from './AnimatedMenu';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState, type PropsWithChildren } from 'react';
@@ -21,6 +22,7 @@ export function AuthorDialog({ children, onClose }: PropsWithChildren<{ onClose:
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef(onClose);
   const previousFocus = useRef(document.activeElement);
+  const reduce = useReducedMotion();
   closeRef.current = onClose;
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -50,7 +52,23 @@ export function AuthorDialog({ children, onClose }: PropsWithChildren<{ onClose:
       if (previousFocus.current instanceof HTMLElement) previousFocus.current.focus({ preventScroll: true });
     };
   }, []);
-  return <FocusTrap active innerRef={dialogRef}><div role="dialog" aria-modal="true" aria-label="Hộp thoại StoryCraft" className="sc-dialog" tabIndex={-1}><FocusTrap.InitialFocus />{children}</div></FocusTrap>;
+  return (
+    <FocusTrap active innerRef={dialogRef}>
+      <motion.div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Hộp thoại StoryCraft"
+        className="sc-dialog"
+        tabIndex={-1}
+        initial={{ opacity: 0, scale: reduce ? 1 : 0.97 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: reduce ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <FocusTrap.InitialFocus />
+        {children}
+      </motion.div>
+    </FocusTrap>
+  );
 }
 
 /**
@@ -99,7 +117,9 @@ export function AuthorNavbar() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, [autoHide, path]);
+  const reduce = useReducedMotion();
   const readerLink = (active: boolean) => (active ? 'sc-nav-link is-active' : 'sc-nav-link');
+  const navPill = <motion.span layoutId="sc-global-nav-pill" className="sc-nav-pill" aria-hidden="true" transition={reduce ? { duration: 0 } : { type: 'spring', stiffness: 420, damping: 34, mass: 0.8 }} />;
 
   async function handleLogout() {
     try {
@@ -118,29 +138,67 @@ export function AuthorNavbar() {
           <span className="material-symbols-outlined">menu_book</span>
           <span>StoryCraft</span><span className="sc-brand-edition">Văn Hoa</span>
         </Link>
-        {isWriter ? (
-          <nav className="sc-global-nav" aria-label="Điều hướng chính">
-            <NavLink to="/author/projects" className={(path === '/author' || path.startsWith('/author/')) && path !== '/author/profile' ? 'sc-nav-link is-active' : 'sc-nav-link'}>{navigationLabels.authorHome}</NavLink>
-            <NavLink to="/reader" end className="sc-nav-link">{navigationLabels.readerHome}</NavLink>
-            <NavLink to="/wallet" className="sc-nav-link">{navigationLabels.authorWallet}</NavLink>
-            <NavLink to="/author/profile" className="sc-nav-link">{navigationLabels.authorProfile}</NavLink>
-          </nav>
-        ) : user ? (
-          <nav className="sc-global-nav" aria-label="Điều hướng chính">
-            <Link to="/" className={readerLink(path === '/')}>{navigationLabels.home}</Link>
-            <Link to="/reader" className={readerLink(path === '/reader' || path.startsWith('/reader/novels') || path.startsWith('/reader/chapters') || path.startsWith('/authors/'))}>{navigationLabels.readerHome}</Link>
-            <Link to="/reader/library" className={readerLink(path.startsWith('/reader/library'))}>Thư viện của tôi</Link>
-            <Link to="/reader/bookmarks" className={readerLink(path.startsWith('/reader/bookmarks'))}>Bookmark</Link>
-            <Link to="/reader/history" className={readerLink(path.startsWith('/reader/history'))}>Lịch sử đọc</Link>
-            <Link to="/wallet" className={readerLink(path.startsWith('/wallet'))}>{navigationLabels.readerWallet}</Link>
-          </nav>
-        ) : (
-          <nav className="sc-global-nav" aria-label="Điều hướng chính">
-            <Link to="/" className={readerLink(path === '/')}>{navigationLabels.home}</Link>
-            <Link to="/public" className={readerLink(path.startsWith('/public') && !path.startsWith('/public/bookmarks'))}>{navigationLabels.readerHome}</Link>
-            <Link to="/public/bookmarks" className={readerLink(path.startsWith('/public/bookmarks'))}>Bookmark</Link>
-          </nav>
-        )}
+        <LayoutGroup id="sc-global-nav">
+          {isWriter ? (
+            <nav className="sc-global-nav" aria-label="Điều hướng chính">
+              {(() => {
+                const authorActive = (path === '/author' || path.startsWith('/author/')) && path !== '/author/profile';
+                const readerActive = path === '/reader';
+                const walletActive = path.startsWith('/wallet');
+                const profileActive = path === '/author/profile';
+                return (
+                  <>
+                    <NavLink to="/author/projects" className={authorActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
+                      {authorActive && navPill}
+                      <span>{navigationLabels.authorHome}</span>
+                    </NavLink>
+                    <NavLink to="/reader" end className={readerActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
+                      {readerActive && navPill}
+                      <span>{navigationLabels.readerHome}</span>
+                    </NavLink>
+                    <NavLink to="/wallet" className={walletActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
+                      {walletActive && navPill}
+                      <span>{navigationLabels.authorWallet}</span>
+                    </NavLink>
+                    <NavLink to="/author/profile" className={profileActive ? 'sc-nav-link is-active' : 'sc-nav-link'}>
+                      {profileActive && navPill}
+                      <span>{navigationLabels.authorProfile}</span>
+                    </NavLink>
+                  </>
+                );
+              })()}
+            </nav>
+          ) : user ? (
+            <nav className="sc-global-nav" aria-label="Điều hướng chính">
+              {[
+                { to: '/', label: navigationLabels.home, active: path === '/' },
+                { to: '/reader', label: navigationLabels.readerHome, active: path === '/reader' || path.startsWith('/reader/novels') || path.startsWith('/reader/chapters') || path.startsWith('/authors/') },
+                { to: '/reader/library', label: 'Thư viện của tôi', active: path.startsWith('/reader/library') },
+                { to: '/reader/bookmarks', label: 'Bookmark', active: path.startsWith('/reader/bookmarks') },
+                { to: '/reader/history', label: 'Lịch sử đọc', active: path.startsWith('/reader/history') },
+                { to: '/wallet', label: navigationLabels.readerWallet, active: path.startsWith('/wallet') },
+              ].map((item) => (
+                <Link key={item.to} to={item.to} className={readerLink(item.active)}>
+                  {item.active && navPill}
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+            </nav>
+          ) : (
+            <nav className="sc-global-nav" aria-label="Điều hướng chính">
+              {[
+                { to: '/', label: navigationLabels.home, active: path === '/' },
+                { to: '/public', label: navigationLabels.readerHome, active: path.startsWith('/public') && !path.startsWith('/public/bookmarks') },
+                { to: '/public/bookmarks', label: 'Bookmark', active: path.startsWith('/public/bookmarks') },
+              ].map((item) => (
+                <Link key={item.to} to={item.to} className={readerLink(item.active)}>
+                  {item.active && navPill}
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+            </nav>
+          )}
+        </LayoutGroup>
         <div className="sc-navbar-actions">
           {isWriter && <WorkspaceCommands author commands={[
             { label: navigationLabels.authorHome, to: '/author/projects', icon: 'menu_book' },

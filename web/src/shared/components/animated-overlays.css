@@ -70,8 +70,44 @@
 .sc-animated-modal-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px; flex-shrink: 0; }
 .sc-animated-modal-title { margin: 0; font: 600 16px/24px var(--sc-font); overflow-wrap: anywhere; }
 .sc-animated-modal-body { padding: 0 16px 16px; overflow-y: auto; overscroll-behavior: contain; min-height: 0; }
+.sc-vaul-sheet {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 201;
+  display: flex;
+  flex-direction: column;
+  max-height: 85dvh;
+  min-height: 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  border: 1px solid var(--sc-border);
+  border-bottom: 0;
+  border-radius: 14px 14px 0 0;
+  background: var(--sc-surface-elevated);
+  color: var(--sc-text);
+  font: 400 14px/22px var(--sc-font);
+  box-shadow: 0 -8px 24px var(--sc-overlay);
+  outline: none;
+}
+.sc-vaul-handle[data-vaul-handle] {
+  margin: 10px auto 2px;
+  width: 36px;
+  height: 4px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--sc-border);
+  opacity: 1;
+}
+.sc-vaul-sheet .sc-animated-modal-header { padding-top: 10px; }
 
 /* The root already reserves the scrollbar lane; do not compensate for it twice. */
 @supports (scrollbar-gutter: stable) {
-  body[data-scroll-locked]:has(.sc-animated-modal) { margin-right: 0 !important; }
+  body[data-scroll-locked]:has(.sc-animated-modal, .sc-vaul-sheet) { margin-right: 0 !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sc-vaul-sheet[data-vaul-drawer],
+  .sc-vaul-overlay[data-vaul-overlay] {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

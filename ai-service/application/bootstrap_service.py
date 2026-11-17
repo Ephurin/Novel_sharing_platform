@@ -501,7 +501,7 @@ class ManuscriptBootstrapService:
         }
         queue = []
         from domain.proposal_dependencies import can_reject_individually
-        from domain.event_duplicates import can_rebase, duplicate_event
+        from domain.event_duplicates import can_rebase, duplicate_event, possible_repeat
         groups = {}
         for proposal in proposals:
             groups.setdefault(proposal.dependency_group_id or proposal.proposal_id, []).append(proposal)
@@ -512,6 +512,7 @@ class ManuscriptBootstrapService:
             group = groups[proposal.dependency_group_id or proposal.proposal_id]
             priority, reason = self._priority(proposal, proposal.proposal_id in duplicate_ids)
             repeated = duplicate_event(proposal.payload, proposal.evidence, events)                 if proposal.proposal_type == "event" else None
+            similar = possible_repeat(proposal.payload, proposal.evidence, events)                 if proposal.proposal_type == "event" and repeated is None else None
             # A group made against an older brain can be accepted only when it is rebaseable;
             # otherwise the author can only reject it (live retest 3, P2).
             stale = bool(brain_version) and any(p.expected_brain_version != brain_version for p in group)                 and not can_rebase(p.proposal_type for p in group)
@@ -519,7 +520,10 @@ class ManuscriptBootstrapService:
                           "can_reject_individually": can_reject_individually(proposal, group),
                           "stale": stale,
                           "duplicate_of_event": ({"event_id": repeated.event_id, "chapter": repeated.chapter,
-                                                  "summary": repeated.summary} if repeated is not None else None)})
+                                                  "summary": repeated.summary} if repeated is not None else None),
+                          "possible_repeat_of_event": ({"event_id": similar[0].event_id, "chapter": similar[0].chapter,
+                                                        "summary": similar[0].summary, "overlap": similar[1]}
+                                                       if similar is not None else None)})
         return sorted(queue, key=lambda item: (-item["review_priority"], item["materialization_order"]))
 
     def activate_baseline(self, novel_id: str, job_id: str) -> dict[str, Any]:

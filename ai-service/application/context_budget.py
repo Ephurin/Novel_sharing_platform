@@ -37,6 +37,10 @@ class ContextBudgetPacker:
             "recent_events": list(package.recent_events),
             "semantic_memories": list(package.semantic_memories),
         }
+        from application.cast_reminder import absent_main_characters
+        absent = absent_main_characters(package.entities, package.recent_events)
+        if absent:
+            payload["absent_main_characters"] = absent
         if package.planning_context is not None:
             payload["planning_context"] = package.planning_context
         if package.current_objective is not None:

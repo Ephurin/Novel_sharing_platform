@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type RefObject } from 'react';
 import { followStudioAnchor, locateAnchor, passageAnchor, validBookmarks, type StudioBookmark, type TextAnchor } from './studio-annotations';
 import { plainStudioText } from './studio-tools';
 import { FeedbackReveal } from '../../shared/components/ActionFeedback';
+import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 
 export function StudioBookmarks({ scope, content, ready, editor, request, onJump }: {
   scope: string; content: string; ready: boolean; editor: RefObject<HTMLTextAreaElement | null>; request: number; onJump: (start: number, end: number) => void;
@@ -11,6 +12,7 @@ export function StudioBookmarks({ scope, content, ready, editor, request, onJump
   const latest = useRef(items); latest.current = items;
   const previous = useRef<string | null>(null), input = useRef<HTMLInputElement>(null);
   const [anchor, setAnchor] = useState<TextAnchor | null>(null), [name, setName] = useState(''), [query, setQuery] = useState(''), [message, setMessage] = useState(''), [error, setError] = useState('');
+  const bookmarksListRef = useStoryCraftAutoAnimate<HTMLDivElement>();
   const save = (next: StudioBookmark[]) => { latest.current = next; setItems(next); try { localStorage.setItem(key, JSON.stringify(next)); setError(''); } catch { setError('Không lưu được đánh dấu trên trình duyệt. Hãy giữ lại nội dung cần nhớ trước khi rời trang.'); } };
   useEffect(() => {
     if (!ready) return;
@@ -36,12 +38,12 @@ export function StudioBookmarks({ scope, content, ready, editor, request, onJump
       <div className="sc-studio-tool-row"><button type="submit" disabled={!name.trim() || items.length >= 100}>Lưu đánh dấu</button><button type="button" onClick={() => setAnchor(null)}>Hủy đánh dấu</button></div>
     </form>}
     {!visible.length && !anchor && <p className="sc-note-empty">{items.length ? 'Không có đánh dấu phù hợp.' : 'Chưa có đánh dấu trong chương này.'}</p>}
-    {visible.map(item => <FeedbackReveal key={item.id} className="sc-studio-bookmark">
+    <div ref={bookmarksListRef}>{visible.map(item => <FeedbackReveal key={item.id} className="sc-studio-bookmark">
       <input aria-label="Đổi tên đánh dấu" defaultValue={item.name} maxLength={80} onKeyDown={event => { if (event.key === 'Enter') event.currentTarget.blur(); }} onBlur={event => { const name = event.currentTarget.value.trim() || item.name; event.currentTarget.value = name; if (name !== item.name) save(latest.current.map(value => value.id === item.id ? { ...value, name } : value)); }} />
       <blockquote>{plainStudioText(item.quote)}</blockquote>
       {item.detached && <p className="text-meta">Đoạn gốc đã thay đổi hoặc bị xóa. Chọn lại đoạn để gắn lại đánh dấu.</p>}
       <div className="sc-studio-tool-row"><button type="button" disabled={item.detached || !ready} onClick={() => onJump(item.start, item.end)}>Tới đánh dấu</button><button type="button" disabled={!ready} onClick={() => { const el = editor.current; if (!el) return; const chosen = passageAnchor(content, el.selectionStart, el.selectionEnd); if (chosen) save(latest.current.map(value => value.id === item.id ? { ...value, ...chosen, detached: false } : value)); else setError('Chọn lại một dòng hoặc đoạn có nội dung.'); }}>Gắn lại đánh dấu</button><button type="button" onClick={() => { save(latest.current.filter(value => value.id !== item.id)); setMessage('Đã xóa đánh dấu.'); }}>Xóa đánh dấu</button></div>
-    </FeedbackReveal>)}
+    </FeedbackReveal>)}</div>
     {items.length >= 100 && <p className="text-meta">Tối đa 100 đánh dấu mỗi chương.</p>}
     <span role="status" className="sc-motion-sr-only">{message}</span>{error && <p role="alert">{error}</p>}
   </section>;

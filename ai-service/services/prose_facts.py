@@ -23,8 +23,7 @@ class ProseFacts(BaseModel):
     facts: list[ProseFact]
 
 
-def extract_prose_facts(text, llm, subjects=(), *, review_coverage=False, verified_aliases=None):
-    raw = call_structured(llm, operation="prose_fact_extraction", system_prompt=(
+FACT_INSTRUCTIONS = (
         "Extract atomic narrative facts directly from the prose, not just changes or named entities. "
         "Cover explicit historical deaths, disabilities, possession/storage, counts, limitations, "
         "world rules and recurring signal patterns. Also extract physical identity attributes of named objects "
@@ -37,7 +36,12 @@ def extract_prose_facts(text, llm, subjects=(), *, review_coverage=False, verifi
         "subject must use that exact ID; names/aliases may be ambiguous. Never convert an unresolved entity fact "
         "to a general fact to bypass identity review. fact_key is a short attribute name; "
         "use status with value Dead/Alive only for explicit confirmed life status. "
-        "fact_value is an atomic string, number or boolean. Return JSON matching: "
+        "fact_value is an atomic string, number or boolean. ")
+
+
+def extract_prose_facts(text, llm, subjects=(), *, review_coverage=False, verified_aliases=None):
+    raw = call_structured(llm, operation="prose_fact_extraction", system_prompt=(
+        FACT_INSTRUCTIONS + "Return JSON matching: "
         + json.dumps(ProseFacts.model_json_schema(), ensure_ascii=False)),
         user_prompt=json.dumps({"source_text": text, "known_entities": list(subjects),
                                 'verified_aliases': verified_aliases or {}}, ensure_ascii=False))
@@ -54,9 +58,25 @@ def extract_prose_facts(text, llm, subjects=(), *, review_coverage=False, verifi
                                     'verified_aliases': verified_aliases or {},
                                     'extracted': [f.model_dump() for f in result.facts]}, ensure_ascii=False))
         result.facts.extend(ProseFacts.model_validate_json(review).facts)
+    return ground_facts(text, llm, result.facts)
+
+
+LIFE_STATUS_VALUES = frozenset({"dead", "alive"})
+
+
+def life_status_key(fact):
+    """Live retest 11 (Y2): the model wrote status="Unconscious" although status is reserved for a
+    confirmed Dead/Alive. Any other value is kept under the key condition."""
+    if fact.fact_key.strip().casefold() == "status" and str(fact.fact_value).strip().casefold() not in LIFE_STATUS_VALUES:
+        fact.fact_key = "condition"
+    return fact
+
+
+def ground_facts(text, llm, facts):
+    """Exact quotes (repaired when needed), status kept for life status, and no repeated facts."""
     valid_facts = []
     seen = set()
-    for fact in result.facts:
+    for fact in map(life_status_key, facts):
         _, _, resolved_quote = resolve_grounded_quote(
             text,
             fact.quote,

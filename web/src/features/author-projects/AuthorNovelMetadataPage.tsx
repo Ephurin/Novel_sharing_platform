@@ -10,6 +10,7 @@ import { chapterSortOptions, sortChapters, type ChapterSort } from './chapter-so
 import { getNovelStatistics } from '../novels/novel-statistics-api';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
 import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
+import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 import { authorHomeCrumb, navigationLabels } from '../../shared/components/navigation';
 import React, { useState, useMemo, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -93,6 +94,7 @@ export function AuthorNovelMetadataPage() {
   // Feedback Toast
 
   const { showToast } = useToast();
+  const chaptersBodyRef = useStoryCraftAutoAnimate<HTMLTableSectionElement>();
 
   // Populate edit fields
   useEffect(() => {
@@ -580,7 +582,7 @@ export function AuthorNovelMetadataPage() {
                       <th className="py-2.5 px-3.5 font-semibold text-right">Thao tác</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-stone-100 font-body-md text-meta">
+                  <tbody ref={chaptersBodyRef} className="divide-y divide-stone-100 font-body-md text-meta">
                     {paginatedChapters.map((chapter) => (
                       <tr
                         key={chapter.chapterId}

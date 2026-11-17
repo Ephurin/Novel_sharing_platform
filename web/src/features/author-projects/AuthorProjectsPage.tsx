@@ -10,7 +10,8 @@ import { WorkspacePreview } from '../../shared/components/WorkspacePreview';
 import { ReactionIcon } from '../../shared/components/InteractionWidgets';
 import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
 import { navigationLabels } from '../../shared/components/navigation';
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useId } from 'react';
+import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -44,6 +45,9 @@ export function AuthorProjectsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const user = useAuthStore((state: any) => state.user);
+  const reduce = useReducedMotion();
+  const statusGroupId = useId();
+  const viewGroupId = useId();
 
   // Search & Filter State
   const filters = useUrlFilters({ q: '', status: 'ALL' as 'ALL' | 'ONGOING' | 'COMPLETED' | 'DRAFT', sort: 'updated' as ProjectSort, genre: 'ALL', pinned: false as boolean }, { status: ['ALL','ONGOING','COMPLETED','DRAFT'], sort: ['updated','created-desc','created-asc','title-asc','title-desc','views','chapters'] });
@@ -352,52 +356,40 @@ export function AuthorProjectsPage() {
               {/* Filters & View Mode */}
               <div className="flex flex-wrap items-center gap-2.5 min-w-0 max-w-full">
                 {/* Status Segmented Buttons */}
-                <div className="sc-filter-tabs flex items-center bg-stone-100 p-0.5 rounded-lg text-meta font-medium">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedStatusTab('ALL')}
-                    className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
-                      selectedStatusTab === 'ALL'
-                        ? 'bg-primary-600 text-white shadow-xs font-semibold'
-                        : 'text-stone-600 hover:text-stone-900'
-                    }`}
-                  >
-                    Tất cả ({counts.all})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedStatusTab('ONGOING')}
-                    className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
-                      selectedStatusTab === 'ONGOING'
-                        ? 'bg-primary-600 text-white shadow-xs font-semibold'
-                        : 'text-stone-600 hover:text-stone-900'
-                    }`}
-                  >
-                    Đang sáng tác ({counts.writing})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedStatusTab('COMPLETED')}
-                    className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
-                      selectedStatusTab === 'COMPLETED'
-                        ? 'bg-primary-600 text-white shadow-xs font-semibold'
-                        : 'text-stone-600 hover:text-stone-900'
-                    }`}
-                  >
-                    Hoàn thành ({counts.completed})
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedStatusTab('DRAFT')}
-                    className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
-                      selectedStatusTab === 'DRAFT'
-                        ? 'bg-primary-600 text-white shadow-xs font-semibold'
-                        : 'text-stone-600 hover:text-stone-900'
-                    }`}
-                  >
-                    Bản nháp ({counts.draft})
-                  </button>
-                </div>
+                <LayoutGroup id={statusGroupId}>
+                  <div className="sc-filter-tabs flex items-center bg-stone-100 p-0.5 rounded-lg text-meta font-medium">
+                    {(
+                      [
+                        ['ALL', `Tất cả (${counts.all})`],
+                        ['ONGOING', `Đang sáng tác (${counts.writing})`],
+                        ['COMPLETED', `Hoàn thành (${counts.completed})`],
+                        ['DRAFT', `Bản nháp (${counts.draft})`],
+                      ] as const
+                    ).map(([value, label]) => {
+                      const active = selectedStatusTab === value;
+                      return (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => setSelectedStatusTab(value)}
+                          className={`relative z-10 px-3 py-1 rounded-md transition-colors cursor-pointer ${
+                            active ? 'text-white font-semibold' : 'text-stone-600 hover:text-stone-900'
+                          }`}
+                        >
+                          {active && (
+                            <motion.span
+                              layoutId="author-projects-status-pill"
+                              aria-hidden="true"
+                              className="absolute inset-0 -z-10 rounded-md bg-primary-600 shadow-xs"
+                              transition={{ duration: reduce ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] }}
+                            />
+                          )}
+                          {label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </LayoutGroup>
 
                 {/* Genre Dropdown */}
                 <div className="relative">
@@ -419,32 +411,39 @@ export function AuthorProjectsPage() {
                 </div>
 
                 {/* View Mode Toggle */}
-                <div className="flex items-center bg-stone-100 p-0.5 rounded-lg">
-                  <button
-                    type="button"
-                    onClick={() => setViewMode('grid')}
-                    className={`p-1 rounded-md cursor-pointer transition-colors ${
-                      viewMode === 'grid'
-                        ? 'bg-surface-container-lowest text-primary-600 shadow-xs'
-                        : 'text-stone-400 hover:text-stone-700'
-                    }`}
-                    title="Lưới"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">grid_view</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setViewMode('list')}
-                    className={`p-1 rounded-md cursor-pointer transition-colors ${
-                      viewMode === 'list'
-                        ? 'bg-surface-container-lowest text-primary-600 shadow-xs'
-                        : 'text-stone-400 hover:text-stone-700'
-                    }`}
-                    title="Danh sách"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">view_list</span>
-                  </button>
-                </div>
+                <LayoutGroup id={viewGroupId}>
+                  <div className="flex items-center bg-stone-100 p-0.5 rounded-lg">
+                    {(
+                      [
+                        ['grid', 'grid_view', 'Lưới'],
+                        ['list', 'view_list', 'Danh sách'],
+                      ] as const
+                    ).map(([mode, icon, title]) => {
+                      const active = viewMode === mode;
+                      return (
+                        <button
+                          key={mode}
+                          type="button"
+                          onClick={() => setViewMode(mode)}
+                          className={`relative z-10 p-1 rounded-md cursor-pointer transition-colors ${
+                            active ? 'text-primary-600' : 'text-stone-400 hover:text-stone-700'
+                          }`}
+                          title={title}
+                        >
+                          {active && (
+                            <motion.span
+                              layoutId="author-projects-view-pill"
+                              aria-hidden="true"
+                              className="absolute inset-0 -z-10 rounded-md bg-surface-container-lowest shadow-xs"
+                              transition={{ duration: reduce ? 0 : 0.16, ease: [0.22, 1, 0.36, 1] }}
+                            />
+                          )}
+                          <span className="material-symbols-outlined text-[18px]">{icon}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </LayoutGroup>
               </div>
             </div>
 

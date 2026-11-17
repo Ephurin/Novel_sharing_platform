@@ -165,7 +165,9 @@ HITL_EVENT_INSTRUCTIONS = (
     'item or power. List each such change as its own event; do not merge separate scenes or steps into one '
     'summary. A chapter of about 1,500 words usually has 3 to 8 events; return fewer only when fewer happen, '
     'and never pad with description, mood or dialogue that changes nothing. '
-    'participants: reviewed entity_id values of the people, groups or creatures who take part. '
+    'participants: reviewed entity_id values of the people, groups or creatures who take part in the event '
+    'or are present in that scene, including a companion who only watches or is carried along; this is how '
+    'the story remembers where each character is. '
     'locations: reviewed entity_id values of the places where the event happens, when the text names or '
     'clearly implies one from the inventory; otherwise an empty list. '
     'quote: one short exact contiguous sentence or clause copied from the source (under 200 characters) '
@@ -237,7 +239,9 @@ def continue_review(service, novel_id, run_id, tenant_id):
             'initial_status': 'Unknown', 'source_type': 'prose'},
             revision.content[candidate['start']:candidate['end']], entity['score'] / 10,
             span=(candidate['start'], candidate['end']))
-    seen_aliases = set()
+    # Live retest 10 (X4): "làng Thạch Khê" was proposed again every chapter although the author had
+    # already approved it as an alias of "Thạch Khê". An approved (alias, entity) pair is not proposed.
+    seen_aliases = approved_alias_keys(repo, novel_id)
     for alias in audit['aliases']:
         key = (alias['alias'].casefold(), alias['entity_id'])
         if key in seen_aliases:
@@ -253,6 +257,11 @@ def continue_review(service, novel_id, run_id, tenant_id):
             # here (final live acceptance, chapter 5); the alias occurrence itself is exact evidence.
             quote = revision.content[start:end]
         span = (start, end) if has_span and revision.content[start:end] == quote else None
+        # Live retest 8 (V1): a quote repeated elsewhere in the chapter was located in this
+        # occurrence's context during verification; use that position instead of a global search.
+        qs, qe = alias.get('quote_start'), alias.get('quote_end')
+        if span is None and isinstance(qs, int) and isinstance(qe, int) and revision.content[qs:qe] == quote:
+            span = (qs, qe)
         add('alias', {'alias': alias['alias'], 'entity_name': alias['entity_name'],
             'entity_id': alias['entity_id']}, quote, alias['confidence'], span=span)
     identity = inventory.resolve
@@ -289,36 +298,37 @@ def continue_review(service, novel_id, run_id, tenant_id):
                     logging.getLogger(__name__).warning('Dropped event with an ungrounded quote: %s',
                                                         str(grounding_error)[:120])
     if audit['request']['options'].get('extract_world_rules', False):
-        from services.prose_facts import extract_prose_facts
-        for fact in extract_prose_facts(revision.content, service._llm_service, inventory.items):
+        # Live retest 9: facts and world rules (F-LIVE-17) come from one call.
+        import hashlib
+        from services.chapter_facts import extract_chapter_facts
+        from services.world_rule_extraction import known_world_rules
+        approved = known_world_rules(getattr(repo.get_story_brain(novel_id), 'facts', ()))
+        facts, rules = extract_chapter_facts(revision.content, service._llm_service, inventory.items, approved)
+        for fact in facts:
             if fact.certainty != 'confirmed':
                 continue
             if fact.subject:
                 identity(fact.subject)
             add('fact', {'fact_type': 'narrative_fact', 'fact_key': fact.fact_key,
                 'fact_value': fact.fact_value, 'subject_entity_id': identity(fact.subject) if fact.subject else None}, fact.quote, fact.confidence)
-        # F-LIVE-17: also propose general world rules the chapter states or shows, so imported
-        # manuscripts get rules for the consistency check (same proposal shape as the legacy path).
-        import hashlib
-        from services.world_rule_extraction import extract_world_rules, known_world_rules
-        approved = known_world_rules(getattr(repo.get_story_brain(novel_id), 'facts', ()))
-        for rule in extract_world_rules(revision.content, service._llm_service, approved):
+        for rule in rules:
             rule_hash = hashlib.sha256(rule['rule'].casefold().encode('utf-8')).hexdigest()[:16]
             add('fact', {'fact_type': 'world_rule', 'fact_key': f'world_rule_{rule_hash}',
                 'fact_value': rule['rule'], 'priority': 100}, rule['quote'], rule['confidence'],
                 span=(rule['start'], rule['end']))
     if audit['request']['options'].get('extract_state_transitions', False):
         from dataclasses import replace
-        from services.state_transition_proposals import generate_state_transition_proposals
+        from services.state_transition_proposals import generate_chapter_state_transitions
+        try:
+            by_event = generate_chapter_state_transitions([p for p in proposals if p.proposal_type == 'event'],
+                service._llm_service, identity_inventory=inventory.items, identity_resolver=identity)
+        except StateExtractionError as exc:
+            raise ValueError(str(exc)) from exc
         expanded = []
         for proposal in proposals:
             expanded.append(proposal)
             if proposal.proposal_type == 'event':
-                try:
-                    changes = generate_state_transition_proposals(proposal, service._llm_service,
-                        identity_inventory=inventory.items, identity_resolver=identity)
-                except StateExtractionError as exc:
-                    raise ValueError(str(exc)) from exc
+                changes = by_event.get(proposal.proposal_id, [])
                 for change in changes:
                     identity(change.payload['entity_id'])
                     if change.payload['attribute_key'] == 'active_relationships':
@@ -333,3 +343,10 @@ def continue_review(service, novel_id, run_id, tenant_id):
     completion = repo.complete_entity_review(novel_id, run_id, audit, proposals)
     return RevisionAnalysisResult(run, completion.proposals, completion.deduplicated,
                                   dropped_events=dropped_events)
+
+
+def approved_alias_keys(repo, novel_id):
+    """(alias casefold, entity_id) pairs the author already approved (live retest 10, X4)."""
+    registry = getattr(repo, 'get_entity_registry', None)
+    aliases = registry(novel_id).get('aliases', []) if callable(registry) else []
+    return {(str(a['alias']).casefold(), str(a['entity_id'])) for a in aliases}

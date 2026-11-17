@@ -222,7 +222,10 @@ export async function handleOutboxEvent(event: RevisionOutboxEvent,
       chapter_id: event.chapterId,
       revision_id: event.revisionId,
       content_hash: event.contentHash,
-      operation: 'incremental_story_analysis'
+      operation: 'incremental_story_analysis',
+      // Live retest 10 (X1): chapters saved in the Author IDE only got events; narrative facts, world
+      // rules and state changes came only from a manual re-analysis. Since #181 they cost 2 calls.
+      options: { extract_world_rules: true, extract_state_transitions: true }
     };
 
     const res = await fetch(analysisUrl, {

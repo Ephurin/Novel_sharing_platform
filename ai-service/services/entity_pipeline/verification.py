@@ -14,7 +14,6 @@ from core.structured_outputs import EntityType
 from core.exceptions import EntityExtractionError
 from domain.errors import AnalysisOutputError
 from services.entity_pipeline.candidates import CandidateInventory, POLICY, chunks, occurrences, same_name
-from services.source_grounding import quote_span
 
 logger = logging.getLogger(__name__)
 MAX_LOGGED_ERROR = 300
@@ -183,6 +182,131 @@ def _build_repair_instruction(validation_error: str) -> str:
     )
 
 
+KNOWN_NAME_REASON = 'Tên đã duyệt, khớp chính xác; hệ thống tự xác nhận, không cần AI.'
+ENTITY_TYPES = {'PER', 'LOC', 'ORG', 'ITEM', 'SKILL'}
+
+
+def known_name_decisions(items, known_entities, known_aliases):
+    """Live retest 7 (option A): 85-95% of verified occurrences were exact approved names, which the
+    model can only confirm. An occurrence is decided here when its surface is exactly (case and
+    accents included) the canonical name of one known entity, the name has at least two words, and no
+    other entity or alias shares it. Aliases and short names still go to the model."""
+    # Live retest 9 (W2): an approved alias of the same entity ("làng Thạch Khê" of "Thạch Khê") no
+    # longer blocks the automatic path; only a name or alias owned by another entity does.
+    by_name, owners = {}, {}
+    for e in known_entities:
+        key = same_key(e['name'])
+        owners.setdefault(key, set()).add(str(e.get('entity_id')))
+        by_name[key] = e
+    for a in known_aliases:
+        owners.setdefault(same_key(a['alias']), set()).add(str(a.get('entity_id')))
+    decided = {}
+    for c in items:
+        e = by_name.get(same_key(c.surface))
+        name = c.surface
+        if e is None:
+            # Live retest 8 (V2): "làng Thạch Khê" for the approved place "Thạch Khê". A location head,
+            # label or honorific in front of an exact approved name is the same identity (see base_name).
+            matches = [k for k in known_entities if k.get('entity_type') in ENTITY_TYPES
+                       and base_name(c.surface, k['entity_type']) == k['name'] != c.surface]
+            e = matches[0] if len(matches) == 1 else None
+            name = e['name'] if e else ''
+        if (e is None or name != e['name'] or len(name.split()) < 2
+                or not e.get('entity_id') or e.get('entity_type') not in ENTITY_TYPES
+                or owners.get(same_key(name), set()) - {str(e['entity_id'])}
+                or owners.get(same_key(c.surface), set()) - {str(e['entity_id'])}):
+            continue
+        decided[c.candidate_id] = EntityDecision(candidate_id=c.candidate_id, verdict='entity',
+            entity_type=e['entity_type'], canonical_name=e['name'], canonical_entity_id=str(e['entity_id']),
+            confidence=1.0, reason=KNOWN_NAME_REASON)
+    return decided
+
+
+def align_known_name(d, c, known):
+    """V2: the model linked "làng Thạch Khê" to the known "Thạch Khê" by ID but kept the surface as
+    canonical_name, so the identity check rejected it. When the ID is known and the names differ only
+    by a head word, label or honorific, the known canonical name is used."""
+    target = known.get(d.canonical_entity_id) if d.verdict == 'entity' and d.canonical_entity_id else None
+    if target is None or c is None or d.canonical_name == target['name'] or d.entity_type != target['entity_type']:
+        return d
+    names_target = same_name(base_name(d.canonical_name, d.entity_type), target['name'])
+    surface_variant = same_name(d.canonical_name, c.surface) and same_name(base_name(c.surface, d.entity_type), target['name'])
+    if names_target or surface_variant:
+        return d.model_copy(update={'canonical_name': target['name']})
+    return d
+
+
+def _inside_name(name, short):
+    """True when the words of `short` appear, in order and together, inside the longer `name`."""
+    words, part = same_key(name).split(), same_key(short).split()
+    return 0 < len(part) < len(words) and any(words[i:i + len(part)] == part for i in range(len(words) - len(part) + 1))
+
+
+def ground_short_name(d, c, known, text):
+    """Live retest 9 (W1): the model linked "Lôi Long" to the known "Thượng cổ Lôi Long" but quoted
+    "uy áp Lôi Long", which lacks the full name. The repair then turned three occurrences into a new
+    entity. When the short name is part of exactly one known name and that full name is written in
+    this occurrence's context, the full name there is the identity quote."""
+    target = known.get(d.canonical_entity_id) if d.verdict == 'entity' and d.canonical_entity_id else None
+    if target is None or c is None or d.canonical_name != target['name'] or same_name(c.surface, target['name']):
+        return d
+    quote = same_key(d.identity_quote)
+    if quote and same_key(target['name']) in quote and same_key(c.surface) in quote:
+        return d
+    if not _inside_name(target['name'], c.surface) or any(
+            key != d.canonical_entity_id and _inside_name(other['name'], c.surface) for key, other in known.items()):
+        return d
+    try:
+        context_quote_span(text, target['name'], c)
+    except ValueError:
+        return d
+    return d.model_copy(update={'identity_quote': target['name']})
+
+
+def one_identity_per_surface(decisions, by_candidate, known, text, allowed, audit):
+    """W1: one chapter must not give one surface two identities. When some occurrences of a surface
+    link to a known entity and others make a new entity of the same name, the new ones follow the
+    known link if their own context supports it, and are otherwise left to the author."""
+    groups = {}
+    for i, d in enumerate(decisions):
+        c = by_candidate.get(d['candidate_id'])
+        if c is not None and d['verdict'] == 'entity':
+            groups.setdefault(same_key(c.surface), []).append(i)
+    out = list(decisions)
+    for indexes in groups.values():
+        linked = {out[i]['canonical_entity_id'] for i in indexes if out[i]['canonical_entity_id']}
+        target = known.get(next(iter(linked))) if len(linked) == 1 else None
+        if target is None:
+            continue
+        for i in indexes:
+            d, c = out[i], by_candidate[out[i]['candidate_id']]
+            if d['canonical_entity_id'] or not same_name(d['canonical_name'], c.surface):
+                continue
+            moved = ground_short_name(EntityDecision.model_validate({
+                **d, 'canonical_entity_id': str(target['entity_id']), 'canonical_name': target['name'],
+                'entity_type': target['entity_type'], 'provisional_identity_key': '', 'identity_quote': ''}), c, known, text)
+            try:
+                _validate([moved], [c], text, known, allowed)
+                out[i] = moved.model_dump()
+                outcome = 'linked'
+            except ValueError:
+                out[i] = EntityDecision(candidate_id=d['candidate_id'], verdict='unresolved', confidence=0,
+                    reason=f'Chữ "{c.surface}" được nối vào "{target["name"]}" ở chỗ khác trong chương; '
+                           'tác giả quyết định đây là cùng một danh tính hay không.').model_dump()
+                outcome = 'unresolved'
+            audit.setdefault('surface_identity_fixes', []).append(
+                {'candidate_id': d['candidate_id'], 'entity_id': str(target['entity_id']), 'outcome': outcome})
+    return out
+
+
+def same_key(name):
+    return unicodedata.normalize('NFC', str(name)).casefold()
+
+
+def _provider_unavailable(exc):
+    return 'PROVIDER_UNAVAILABLE' in str(exc)
+
+
 def verify_entities(text, llm, discover, *, known_entities=(), known_aliases=(), audit_sink=None,
                     batch_size=24, guidance=(), defer_materialization=False):
     if not 1 <= batch_size <= 32:
@@ -253,8 +377,15 @@ def verify_entities(text, llm, discover, *, known_entities=(), known_aliases=(),
             '   - For "unresolved": state what ambiguity prevents confirmation (unresolved is not approved truth).\n'
             'Explain each decision in reason. Schema: '
             + json.dumps(EntityDecisionBatch.model_json_schema()))
-        for start in range(0, len(inventory.items), batch_size):
-            batch = inventory.items[start:start + batch_size]
+        auto = known_name_decisions(inventory.items, known_entities, known_aliases)
+        audit['decisions'].extend(d.model_dump() for d in auto.values())
+        audit['known_name_decisions'] = len(auto)
+        pending = [c for c in inventory.items if c.candidate_id not in auto]
+        # U1: one chapter's verification batch failed with a provider 503 every time while other calls
+        # worked. A failing batch is split once; if its first half fails too, it is an outage.
+        work = [(start, pending[start:start + batch_size], False) for start in range(0, len(pending), batch_size)]
+        while work:
+            start, batch, is_split = work.pop(0)
             request = {'candidates': [c.to_dict() for c in batch], 'known_entities': list(known_entities),
                        'known_aliases': list(known_aliases), 'allowed_names': all_names,
                        'author_guidance': list(guidance),
@@ -263,13 +394,31 @@ def verify_entities(text, llm, discover, *, known_entities=(), known_aliases=(),
                            'Do not merge identities or invent source facts from these entries.'}
             last_error = ''
             parsed = None  # last schema-valid output, kept for per-candidate salvage
+            by_cid = {c.candidate_id: c for c in batch}
+            # Live retest 8 (V3): one invalid item made the whole batch go back to the model. Valid
+            # decisions from the first attempt are kept and only the invalid ones are repaired.
+            kept, todo = [], batch
             for attempt in range(2):
-                raw = call_structured(llm, operation='entity_candidate_verification', system_prompt=system,
-                                      user_prompt=json.dumps(request, ensure_ascii=False))
                 try:
-                    parsed = EntityDecisionBatch.model_validate_json(raw).decisions
-                    _validate(parsed, batch, text, known, all_names)
-                    decisions = parsed
+                    raw = call_structured(llm, operation='entity_candidate_verification', system_prompt=system,
+                                          user_prompt=json.dumps(request, ensure_ascii=False))
+                except Exception as exc:
+                    if not _provider_unavailable(exc) or is_split or len(todo) < 2:
+                        raise
+                    half = len(todo) // 2
+                    audit.setdefault('split_batches', []).append({'batch_start': start, 'size': len(todo)})
+                    logger.warning('Entity verification batch %d (%d candidates) failed at the provider; '
+                                   'retrying as two halves', start, len(todo))
+                    audit['decisions'].extend(d.model_dump() for d in kept)
+                    work[:0] = [(start, todo[:half], True), (start + half, todo[half:], True)]
+                    raw = None
+                    break
+                try:
+                    parsed = [ground_short_name(align_known_name(d, by_cid.get(d.candidate_id), known),
+                                                by_cid.get(d.candidate_id), known, text)
+                              for d in EntityDecisionBatch.model_validate_json(raw).decisions]
+                    _validate(parsed, todo, text, known, all_names)
+                    decisions = kept + parsed
                     break
                 except ValueError as exc:
                     last_error = str(exc)
@@ -278,6 +427,17 @@ def verify_entities(text, llm, discover, *, known_entities=(), known_aliases=(),
                         {'batch_start': start, 'attempt': attempt + 1, 'error': last_error[:MAX_LOGGED_ERROR]})
                     logger.warning('Entity verification batch %d attempt %d invalid: %s',
                                    start, attempt + 1, _redact(last_error))
+                    if attempt == 0 and parsed is not None:
+                        good, bad, errors = _split_valid(parsed, todo, text, known, all_names)
+                        if good and bad:
+                            bad_ids = {c.candidate_id for c in bad}
+                            kept, todo = good, bad
+                            audit.setdefault('partial_repairs', []).append(
+                                {'batch_start': start, 'kept': len(good), 'repaired': len(bad)})
+                            last_error = '; '.join(errors)
+                            request['candidates'] = [c.to_dict() for c in todo]
+                            raw = json.dumps({'decisions': [d.model_dump() for d in parsed if d.candidate_id in bad_ids]},
+                                             ensure_ascii=False)
                     repair_instruction = _build_repair_instruction(last_error)
                     request.update(previous_result=raw, validation_error=last_error,
                                    repair_instruction=repair_instruction)
@@ -288,13 +448,18 @@ def verify_entities(text, llm, discover, *, known_entities=(), known_aliases=(),
                         + last_error[:MAX_LOGGED_ERROR], attempts=2)
                 # #148: one bad decision no longer fails the chapter. Valid decisions are kept; invalid or
                 # missing ones become 'unresolved' (never materialized, left to the author's review).
-                decisions, degraded = _salvage(parsed, batch, text, known, all_names)
+                decisions, degraded = _salvage(parsed, todo, text, known, all_names)
+                decisions = kept + decisions
                 audit.setdefault('degraded_candidates', []).extend(degraded)
                 logger.warning('Entity verification batch %d: %d candidate(s) left unresolved after bounded repair',
                                start, len(degraded))
+            if raw is None:
+                continue  # split into halves; they are verified next
             audit['decisions'].extend(d.model_dump() for d in decisions)
             save('verifying')
         audit['decisions'] = _canonicalize(audit['decisions'], inventory.items, known)
+        audit['decisions'] = one_identity_per_surface(
+            audit['decisions'], {c.candidate_id: c for c in inventory.items}, known, text, all_names, audit)
         # Every machine decision must pass the same validation the author's save uses; otherwise a
         # single bad suggestion blocks saving the whole chapter. Invalid ones become unresolved.
         by_candidate = {c.candidate_id: c for c in inventory.items}
@@ -379,26 +544,69 @@ def _hold_weak_new_identities(decisions, known, declared, audit):
     return out
 
 
-def _salvage(decisions, batch, text, known, allowed):
-    """Per-candidate fallback after bounded repair: keep each valid decision, mark the rest unresolved."""
+def _split_valid(decisions, batch, text, known, allowed):
+    """Per-candidate check: (valid decisions, candidates without a valid decision, their errors)."""
     first = {}
     for d in decisions:
         first.setdefault(d.candidate_id, d)
-    kept, degraded = [], []
+    good, bad, errors = [], [], []
     for c in batch:
         d = first.get(c.candidate_id)
         error = 'missing decision'
         if d is not None:
             try:
                 _validate([d], [c], text, known, allowed)
-                kept.append(d)
+                good.append(d)
                 continue
             except ValueError as exc:
                 error = str(exc)
-        kept.append(EntityDecision(candidate_id=c.candidate_id, verdict='unresolved', confidence=0,
-                                   reason='Model decision invalid after bounded repair; needs author review.'))
-        degraded.append({'candidate_id': c.candidate_id, 'error': error[:MAX_LOGGED_ERROR]})
-    return kept, degraded
+        bad.append(c)
+        errors.append(f'{c.candidate_id}: {error}'[:MAX_LOGGED_ERROR])
+    return good, bad, errors
+
+
+def _salvage(decisions, batch, text, known, allowed):
+    """Per-candidate fallback after bounded repair: keep each valid decision, mark the rest unresolved."""
+    good, bad, errors = _split_valid(decisions, batch, text, known, allowed)
+    kept = {d.candidate_id: d for d in good}
+    for c, error in zip(bad, errors):
+        kept[c.candidate_id] = EntityDecision(candidate_id=c.candidate_id, verdict='unresolved', confidence=0,
+                                              reason='Model decision invalid after bounded repair; needs author review.')
+    degraded = [{'candidate_id': c.candidate_id, 'error': e.split(': ', 1)[1][:MAX_LOGGED_ERROR]}
+                for c, e in zip(bad, errors)]
+    return [kept[c.candidate_id] for c in batch], degraded
+
+def _starts(text, quote):
+    if not quote or not quote.strip():
+        raise ValueError('An exact source quote is required')
+    found, at = [], text.find(quote)
+    while at >= 0:
+        found.append(at)
+        at = text.find(quote, at + 1)
+    if not found:
+        raise ValueError('Evidence quote is not present in the source revision')
+    return found
+
+
+def context_quote_span(text, quote, c):
+    """Live retest 8 (V1): the model quoted "Thượng cổ Lôi Long", which occurs many times in the
+    chapter, so a whole-chapter search called it ambiguous and the new main character stayed
+    unresolved. Identity evidence only has to sit in this occurrence's own verification context, so
+    the quote is looked up there; the occurrence nearest the candidate wins."""
+    inside = [a for a in _starts(text, quote) if c.context_start <= a and a + len(quote) <= c.context_end]
+    if not inside:
+        raise ValueError('Identity evidence is outside this occurrence verification context')
+    start = min(inside, key=lambda a: 0 if a <= c.start and c.end <= a + len(quote) else min(abs(a - c.start), abs(a + len(quote) - c.end)))
+    return start, start + len(quote)
+
+
+def status_quote_span(text, quote, c):
+    """The status quote must contain this occurrence; a sentence repeated elsewhere is not ambiguous."""
+    for a in _starts(text, quote):
+        if a <= c.start and c.end <= a + len(quote):
+            return a, a + len(quote)
+    raise ValueError('Status evidence must anchor this occurrence')
+
 
 def _validate(decisions, batch, text, known, allowed, *, human=False):
     by_id = {c.candidate_id: c for c in batch}
@@ -441,9 +649,7 @@ def _validate(decisions, batch, text, known, allowed, *, human=False):
         if not same_name(d.canonical_name, c.surface) and not honorific_variant(d.canonical_name, c.surface, d.entity_type):
             if not d.identity_quote:
                 raise ValueError('Alias identity requires an exact source quote')
-            identity_start, identity_end = quote_span(text, d.identity_quote)
-            if identity_start < c.context_start or identity_end > c.context_end:
-                raise ValueError('Identity evidence is outside this occurrence verification context')
+            context_quote_span(text, d.identity_quote, c)
             if c.surface.casefold() not in d.identity_quote.casefold():
                 raise ValueError('Alias identity quote must include the candidate surface')
             if d.canonical_name.casefold() not in d.identity_quote.casefold():
@@ -451,9 +657,7 @@ def _validate(decisions, batch, text, known, allowed, *, human=False):
         if d.initial_status != 'Unknown':
             if d.entity_type != 'PER' or not d.status_quote:
                 raise ValueError('Only evidenced person life status may be asserted')
-            a, b = quote_span(text, d.status_quote)
-            if not (a <= c.start and c.end <= b):
-                raise ValueError('Status evidence must anchor this occurrence')
+            status_quote_span(text, d.status_quote, c)
 
 
 def _materializable(candidates, decisions, known, text, *, human=False):
@@ -509,11 +713,17 @@ def _materializable(candidates, decisions, known, text, *, human=False):
                     or (mention.surface.casefold(), mention.start, mention.end) in seen):
                 continue
             seen.add((mention.surface.casefold(), mention.start, mention.end))
+            quote_at = {}
+            if d['identity_quote'] and hasattr(mention, 'context_start'):
+                try:
+                    quote_at = dict(zip(('quote_start', 'quote_end'), context_quote_span(text, d['identity_quote'], mention)))
+                except ValueError:
+                    quote_at = {}
             # No direct identity mutation: these mappings still require the normal proposal review.
             aliases.append({'alias': mention.surface, 'entity_name': d['canonical_name'],
                             'entity_id': d['canonical_entity_id'], 'provisional_identity_key': d.get('provisional_identity_key', ''), 'start': mention.start, 'end': mention.end,
                             'confidence': d['confidence'],
                             # Honorific variants may carry no quote; the alias occurrence itself is the evidence.
-                            'identity_quote': d['identity_quote'] or mention.surface})
+                            'identity_quote': d['identity_quote'] or mention.surface, **quote_at})
     # Shared aliases retain occurrence-level IDs; downstream rejects ambiguous labels.
     return entities, aliases
