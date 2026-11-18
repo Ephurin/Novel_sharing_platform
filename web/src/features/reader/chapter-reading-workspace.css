@@ -32,16 +32,19 @@
 .sc-reader-manuscript .chapter-prose > p { margin-block: 0 1.35em !important; }
 .sc-reader-manuscript .chapter-prose a { color: var(--reader-accent); }
 .sc-reader-manuscript .chapter-prose > :is(p, blockquote) { cursor: text; }
-.sc-reader-manuscript .chapter-prose > :focus-visible { outline: 2px solid var(--reader-accent); outline-offset: 4px; }
-.sc-reader-manuscript .chapter-prose > [data-bookmark-arrival="true"]:focus { outline: none; }
+.sc-reader-manuscript .chapter-prose > :is(:focus, :focus-visible) { outline: none; }
+.sc-reader-manuscript .chapter-prose > :focus-visible:not([data-bookmark-arrival="true"]) { box-shadow: -2px 0 0 color-mix(in srgb, var(--reader-accent) 60%, transparent); }
 .sc-reading-line-flash { pointer-events: none; animation: sc-reading-line-fade 3s ease-out both; }
 .sc-reading-line-highlight { position: absolute; pointer-events: none; border-radius: 2px; background: color-mix(in srgb, var(--reader-accent) 7%, transparent); }
 @keyframes sc-reading-line-fade { 0%, 65% { opacity: 1; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .sc-reading-line-flash { animation: none; } }
-.sc-reading-bookmark-action { position: fixed; z-index: 200; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 12px; border: 1px solid var(--sc-border); border-radius: 8px; background: var(--sc-surface-elevated); color: var(--sc-primary-text); font: 600 14px/22px var(--sc-font); box-shadow: 0 2px 12px rgb(var(--sc-text-rgb) / .12); cursor: pointer; }
+.sc-reading-bookmark-action { position: fixed; z-index: 200; display: inline-flex; align-items: center; justify-content: center; width: 44px; min-width: 44px; height: 44px; min-height: 44px; padding: 0; border: 1px solid var(--sc-border); border-radius: 10px; background: var(--sc-surface-elevated); color: var(--sc-primary-text); box-shadow: 0 2px 12px rgb(var(--sc-text-rgb) / .12); cursor: pointer; }
+.sc-reading-bookmark-action .material-symbols-outlined { font-size: 20px; }
+.sc-reading-bookmark-action:hover:not(:disabled) { background: var(--sc-primary-soft); border-color: var(--sc-primary); }
 .sc-reading-bookmark-action:disabled { cursor: wait; opacity: .7; }
 .sc-reading-bookmark-action[data-placement="side"] { transform: translateY(-50%); }
-.sc-reading-bookmark-action[aria-pressed="true"] { min-width: 44px; justify-content: center; color: var(--sc-danger); background: var(--sc-danger-bg); }
+.sc-reading-bookmark-action[aria-pressed="true"] { color: var(--sc-danger); background: var(--sc-danger-bg); }
+.sc-reading-bookmark-action[aria-pressed="true"]:hover:not(:disabled) { border-color: var(--sc-danger); }
 .sc-reader-bookmark-help { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .sc-reader-manuscript [tabindex="-1"]:focus { outline: none; }
 .sc-reader-tool-rail { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; padding: 4px; border: 1px solid var(--sc-border); border-radius: 12px; background: var(--sc-surface-elevated); color: var(--sc-text); z-index: 180; box-shadow: 0 2px 12px rgb(var(--sc-text-rgb) / .08); }

@@ -134,16 +134,48 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
 
   useEffect(() => {
     if (!selectedPassage) return;
-    const dismiss = () => setSelectedPassage(null);
+    const dismiss = () => {
+      setSelectedPassage(null);
+      clearTimeout(highlightTimer.current);
+      setLineHighlight(null);
+    };
+    const onPointerDown = (event: globalThis.PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) {
+        dismiss();
+        return;
+      }
+      if (target.closest('.sc-reading-bookmark-action')) return;
+      if (!target.closest('.chapter-prose > p, .chapter-prose > blockquote')) {
+        dismiss();
+      }
+    };
     const followScroll = () => setSelectedPassage(current => {
       if (!current || current.scrollY === window.scrollY) return current;
       const top = current.top + current.scrollY - window.scrollY;
       return top < 8 || top > innerHeight - 88 ? null : { ...current, top, scrollY: window.scrollY };
     });
-    const escape = (event: KeyboardEvent) => { if (event.key === 'Escape') { dismiss(); paragraphs()[selectedPassage.index]?.focus({ preventScroll: true }); } };
-    window.addEventListener('scroll', followScroll, { passive: true }); window.addEventListener('resize', dismiss); window.addEventListener('keydown', escape);
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        dismiss();
+        const block = paragraphs()[selectedPassage.index];
+        if (block) {
+          block.dataset.bookmarkArrival = 'true';
+          block.focus({ preventScroll: true });
+        }
+      }
+    };
+    document.addEventListener('pointerdown', onPointerDown, true);
+    window.addEventListener('scroll', followScroll, { passive: true });
+    window.addEventListener('resize', dismiss);
+    window.addEventListener('keydown', escape);
     if (selectedPassage.keyboard) bookmarkAction.current?.focus({ preventScroll: true });
-    return () => { window.removeEventListener('scroll', followScroll); window.removeEventListener('resize', dismiss); window.removeEventListener('keydown', escape); };
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true);
+      window.removeEventListener('scroll', followScroll);
+      window.removeEventListener('resize', dismiss);
+      window.removeEventListener('keydown', escape);
+    };
   }, [selectedPassage]);
   const choosePassage = (block: HTMLElement, x?: number, y?: number) => {
     const index = paragraphs().indexOf(block);
@@ -152,12 +184,12 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
     const line = readingLineAt(block, y ?? box.top);
     if (!line) return;
     const lineBox = line.range.getBoundingClientRect();
-    const beside = !mobile && innerWidth - box.right > 240;
+    const beside = !mobile && innerWidth - box.right > 64;
     const top = beside ? lineBox.top + lineBox.height / 2 : lineBox.bottom + 8;
     block.dataset.bookmarkArrival = 'true';
     setFocusedParagraph(paragraphs().filter(item => item.tagName !== 'HR').indexOf(block));
     setSelectedPassage({ index, offset: y === undefined ? 0 : Math.max(0, Math.min(1, (y - box.top) / Math.max(1, box.height))),
-      top: Math.max(beside ? 30 : 8, Math.min(innerHeight - (beside ? 30 : 120), top)), left: Math.max(8, Math.min(innerWidth - 184, beside ? box.right + 12 : x ?? box.right - 176)), scrollY: window.scrollY, keyboard: x === undefined, beside, line });
+      top: Math.max(beside ? 30 : 8, Math.min(innerHeight - (beside ? 30 : 60), top)), left: Math.max(8, Math.min(innerWidth - 52, beside ? box.right + 12 : (x !== undefined ? x - 22 : box.right - 44))), scrollY: window.scrollY, keyboard: x === undefined, beside, line });
     flashLine(line.range);
     if (mobile) setToolsOpen(true);
   };
@@ -205,7 +237,8 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
         initial={reduce ? false : { opacity: 0.6 }} animate={{ opacity: 1 }} transition={{ duration: reduce ? 0 : 0.18 }}
         onClick={event => {
           const target = (event.target as Element).closest<HTMLElement>('.chapter-prose > p, .chapter-prose > blockquote');
-          if (!target || (event.target as Element).closest('a, button') || gesture.current.moved || gesture.current.selected || performance.now() - gesture.current.time > 500 || Math.abs(window.scrollY - gesture.current.scroll) > 8 || !window.getSelection()?.isCollapsed) return;
+          if (!window.getSelection()?.isCollapsed) { setSelectedPassage(null); return; }
+          if (!target || (event.target as Element).closest('a, button') || gesture.current.moved || gesture.current.selected || performance.now() - gesture.current.time > 500 || Math.abs(window.scrollY - gesture.current.scroll) > 8) return;
           event.stopPropagation(); choosePassage(target, event.clientX, event.clientY);
         }}
         onKeyDown={event => {
@@ -213,11 +246,14 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
           const blocks = paragraphs();
           const index = blocks.indexOf(block);
           if (index < 0) return;
+          if (event.key === 'Escape' && !selectedPassage) { block.dataset.bookmarkArrival = 'true'; return; }
           if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); event.stopPropagation(); choosePassage(block); }
           if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             event.preventDefault();
+            delete block.dataset.bookmarkArrival;
             const readable = blocks.filter(item => item.tagName !== 'HR');
             const next = readable[Math.max(0, Math.min(readable.length - 1, readable.indexOf(block) + (event.key === 'ArrowDown' ? 1 : -1)))];
+            if (next) delete next.dataset.bookmarkArrival;
             setFocusedParagraph(readable.indexOf(next)); next?.focus();
           }
         }}>
@@ -234,7 +270,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
     {selectedPassage && <button ref={bookmarkAction} type="button" className="sc-reading-bookmark-action" data-placement={selectedPassage.beside ? 'side' : 'below'} style={{ top: selectedPassage.top, left: selectedPassage.left }}
       disabled={bookmarks.pending || bookmarks.saving || Boolean(bookmarks.error)} onClick={savePassage} aria-pressed={Boolean(selectedBookmark)}
       aria-label={bookmarkLabel} title={bookmarkLabel}>
-      <Icon name={selectedBookmark ? 'close' : 'bookmark_add'} />{bookmarks.saving ? 'Đang xử lý…' : bookmarks.pending ? 'Đang tải…' : bookmarks.error ? 'Chưa tải được' : !selectedBookmark && 'Bookmark'}
+      <Icon name={selectedBookmark ? 'close' : 'bookmark_add'} />
     </button>}
     <button type="button" className="sc-reader-tools-toggle" aria-expanded={toolsVisible} aria-controls="chapter-reader-tools" onClick={() => setToolsOpen(value => !value)}>{toolsOpen ? 'Ẩn công cụ đọc' : 'Hiện công cụ đọc'}</button>
     <aside id="chapter-reader-tools" className="sc-reader-tool-rail" aria-label="Công cụ đọc chương" data-open={toolsOpen} aria-hidden={!toolsVisible} inert={!toolsVisible}>

@@ -223,3 +223,32 @@ test('legacy separator bookmarks preserve their scroll position and focus a near
     }
   }
 });
+
+test('bookmark action is icon-only, dismisses on outside click, and leaves no outline box on Escape', async t => {
+  for (const [width, theme] of [[1440, 'light'], [390, 'dark']]) {
+    const { page } = await fixture(t, { width, theme });
+    const first = page.locator('.chapter-prose > p').first();
+    await first.click({ position: { x: 10, y: 10 } });
+    const action = page.locator('.sc-reading-bookmark-action');
+    await expect(action).toBeVisible();
+    await expect(action).toHaveAccessibleName('Bookmark');
+    await expect(action).toHaveText('bookmark_add');
+    const box = await action.boundingBox();
+    assert.equal(Math.round(box.width), 44);
+    assert.equal(Math.round(box.height), 44);
+
+    // Clicking outside the story paragraphs dismisses the floating bookmark icon and line highlight
+    await page.locator('.sc-reader-chapter-heading').click({ position: { x: 8, y: 8 } });
+    await expect(action).toHaveCount(0);
+    await expect(page.locator('.sc-reading-line-highlight')).toHaveCount(0);
+
+    // Reopen and press Escape: dismisses without drawing a rectangular outline or box around the paragraph
+    await first.click({ position: { x: 10, y: 10 } });
+    await expect(action).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(action).toHaveCount(0);
+    await expect(first).toBeFocused();
+    await expect(first).toHaveCSS('outline-style', 'none');
+    await expect(first).toHaveCSS('box-shadow', 'none');
+  }
+});
