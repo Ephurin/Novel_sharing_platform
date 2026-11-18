@@ -3,10 +3,11 @@ import { Text } from 'react-native';
 import { getApiErrorMessage } from '../api/api-client';
 import { getMyProfile, updateMyProfile } from '../api/profile-api';
 import { clearSession } from '../state/session';
+import type { CurrentUser } from '../api/types';
 import { Field } from '../components/Form';
 import { Card, ErrorState, GhostButton, LoadingState, PrimaryButton, Screen, Section, styles } from '../components/Screen';
 
-export function ProfileScreen({ onLogout }: { onLogout: () => void }) {
+export function ProfileScreen({ user, onLogout, onConnections, onFeedback }: { user: CurrentUser; onLogout: () => void; onConnections: () => void; onFeedback: (box: 'sent' | 'received') => void }) {
   const [displayName, setDisplayName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [bio, setBio] = useState('');
@@ -48,6 +49,9 @@ export function ProfileScreen({ onLogout }: { onLogout: () => void }) {
   return (
     <Screen>
       <Section title="Profile">
+        <GhostButton label="Bạn bè" onPress={onConnections} />
+        <GhostButton label="Góp ý đã gửi" onPress={() => onFeedback('sent')} />
+        {(user.role === 'AUTHOR' || user.role === 'ADMIN') && <GhostButton label="Góp ý gửi tôi" onPress={() => onFeedback('received')} />}
         <Card>
           <Field label="Display name" value={displayName} onChangeText={setDisplayName} />
           <Field label="Avatar URL" value={avatarUrl} onChangeText={setAvatarUrl} />

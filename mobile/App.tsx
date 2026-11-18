@@ -1,3 +1,5 @@
+import { ConnectionsScreen, ReaderProfileScreen, ThreadScreen, FeedbackScreen } from './src/screens/SocialScreens';
+import type { CommentTarget, AnchorInput } from './src/api/social-api';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -22,7 +24,11 @@ type RootStackParamList = {
   Auth: undefined;
   NovelDetail: { novelId: string };
   Reader: { chapterId: string };
-  Comments: { chapterId: string };
+  Comments: { target: CommentTarget; anchor?: AnchorInput };
+  Connections: undefined;
+  ReaderProfile: { userId: string };
+  Thread: { commentId: string };
+  Feedback: { box: 'sent' | 'received' };
 };
 
 type MainTabParamList = {
@@ -68,9 +74,9 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer theme={navigationTheme}>
+    <NavigationContainer key={user?.userId ?? 'guest'} theme={navigationTheme}>
       <StatusBar style="light" />
-      <Stack.Navigator
+      <Stack.Navigator key={user?.userId ?? 'guest'}
         screenOptions={{
           headerStyle: { backgroundColor: colors.surface },
           headerTintColor: colors.text,
@@ -79,7 +85,7 @@ export default function App() {
         }}
       >
         <Stack.Screen name="MainTabs" options={{ headerShown: false }}>
-          {(props) => <MainTabs {...props} authenticated={Boolean(user)} onLogout={() => setUser(null)} />}
+          {(props) => <MainTabs {...props} user={user} authenticated={Boolean(user)} onLogout={() => setUser(null)} />}
         </Stack.Screen>
         <Stack.Screen name="Auth" options={{ title: 'Login / Register' }}>
           {() => <AuthScreen onAuthenticated={(nextUser) => setUser(nextUser)} />}
@@ -91,6 +97,7 @@ export default function App() {
               authenticated={Boolean(user)}
               onLoginRequired={() => navigation.navigate('Auth')}
               onOpenChapter={(chapterId) => navigation.navigate('Reader', { chapterId })}
+              onOpenComments={() => navigation.navigate('Comments', { target: { kind: 'novel', id: route.params.novelId } })}
             />
           )}
         </Stack.Screen>
@@ -100,26 +107,32 @@ export default function App() {
               chapterId={route.params.chapterId}
               authenticated={Boolean(user)}
               onLoginRequired={() => navigation.navigate('Auth')}
-              onOpenComments={(chapterId) => navigation.navigate('Comments', { chapterId })}
+              onOpenComments={(chapterId, anchor) => navigation.navigate('Comments', { target: { kind: 'chapter', id: chapterId }, anchor })}
               onOpenWallet={() => navigation.navigate('MainTabs', { screen: 'Wallet' } as never)}
             />
           )}
         </Stack.Screen>
         <Stack.Screen name="Comments" options={{ title: 'Comments' }}>
           {({ route, navigation }) => (
-            <CommentsScreen chapterId={route.params.chapterId} authenticated={Boolean(user)} onLoginRequired={() => navigation.navigate('Auth')} />
+            <CommentsScreen key={route.key} target={route.params.target} anchor={route.params.anchor} user={user} onLoginRequired={() => navigation.navigate('Auth')} onThread={commentId => navigation.navigate('Thread', { commentId })} onProfile={userId => navigation.navigate('ReaderProfile', { userId })} />
           )}
         </Stack.Screen>
+        <Stack.Screen name="Connections" options={{ title: 'Bạn bè' }}>{({ navigation }) => user ? <ConnectionsScreen user={user} onProfile={userId => navigation.navigate('ReaderProfile', { userId })} /> : <AuthRequired onLogin={() => navigation.navigate('Auth')} />}</Stack.Screen>
+        <Stack.Screen name="ReaderProfile" options={{ title: 'Hồ sơ độc giả' }}>{({ route, navigation }) => <ReaderProfileScreen key={route.params.userId} userId={route.params.userId} user={user} onProfile={userId => navigation.navigate('ReaderProfile', { userId })} />}</Stack.Screen>
+        <Stack.Screen name="Thread" options={{ title: 'Trao đổi' }}>{({ route, navigation }) => <ThreadScreen key={route.params.commentId} commentId={route.params.commentId} user={user} onProfile={userId => navigation.navigate('ReaderProfile', { userId })} onLoginRequired={() => navigation.navigate('Auth')} />}</Stack.Screen>
+        <Stack.Screen name="Feedback" options={{ title: 'Góp ý' }}>{({ route, navigation }) => user ? <FeedbackScreen key={route.params.box} user={user} box={route.params.box} onThread={commentId => navigation.navigate('Thread', { commentId })} onProfile={userId => navigation.navigate('ReaderProfile', { userId })} /> : <AuthRequired onLogin={() => navigation.navigate('Auth')} />}</Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
   );
 }
 
 function MainTabs({
+  user,
   authenticated,
   onLogout
 }: {
   authenticated: boolean;
+  user: CurrentUser | null;
   onLogout: () => void;
 }) {
   return (
@@ -154,11 +167,11 @@ function MainTabs({
         {({ navigation }) => (authenticated ? <WalletScreen /> : <AuthRequired onLogin={() => navigation.navigate('Auth' as never)} />)}
       </Tabs.Screen>
       <Tabs.Screen name="Notifications" options={{ title: 'Notifications' }}>
-        {({ navigation }) => (authenticated ? <NotificationsScreen /> : <AuthRequired onLogin={() => navigation.navigate('Auth' as never)} />)}
+        {({ navigation }) => (authenticated ? <NotificationsScreen onOpenThread={commentId => navigation.navigate('Thread' as never, { commentId } as never)} onOpenNovel={novelId => navigation.navigate('NovelDetail' as never, { novelId } as never)} onOpenChapter={chapterId => navigation.navigate('Reader' as never, { chapterId } as never)} /> : <AuthRequired onLogin={() => navigation.navigate('Auth' as never)} />)}
       </Tabs.Screen>
       <Tabs.Screen name="Profile" options={{ title: authenticated ? 'Profile' : 'Login' }}>
         {({ navigation }) =>
-          authenticated ? <ProfileScreen onLogout={onLogout} /> : <AuthRequired onLogin={() => navigation.navigate('Auth' as never)} />
+          authenticated ? <ProfileScreen user={user!} onConnections={() => navigation.navigate('Connections' as never)} onFeedback={box => navigation.navigate('Feedback' as never, { box } as never)} onLogout={onLogout} /> : <AuthRequired onLogin={() => navigation.navigate('Auth' as never)} />
         }
       </Tabs.Screen>
     </Tabs.Navigator>

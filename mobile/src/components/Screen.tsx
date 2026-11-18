@@ -1,9 +1,11 @@
-import type { PropsWithChildren } from 'react';
+import { useEffect, useRef, type PropsWithChildren } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../theme/colors';
 
-export function Screen({ children }: PropsWithChildren) {
-  return <ScrollView contentContainerStyle={styles.screen}>{children}</ScrollView>;
+export function Screen({ children, focusY }: PropsWithChildren<{ focusY?: number }>) {
+  const scroll = useRef<ScrollView>(null);
+  useEffect(() => { if (focusY === undefined) return; const frame = requestAnimationFrame(() => scroll.current?.scrollTo({ y: Math.max(0, focusY - 20), animated: false })); return () => cancelAnimationFrame(frame); }, [focusY]);
+  return <ScrollView ref={scroll} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.screen}>{children}</ScrollView>;
 }
 
 export function Section({ title, subtitle, children }: PropsWithChildren<{ title: string; subtitle?: string }>) {
@@ -30,7 +32,7 @@ export function PrimaryButton({
   disabled?: boolean;
 }) {
   return (
-    <TouchableOpacity style={[styles.button, disabled ? styles.buttonDisabled : null]} onPress={onPress} disabled={disabled}>
+    <TouchableOpacity accessibilityRole="button" accessibilityLabel={label} style={[styles.button, disabled ? styles.buttonDisabled : null]} onPress={onPress} disabled={disabled}>
       <Text style={styles.buttonText}>{label}</Text>
     </TouchableOpacity>
   );
@@ -38,7 +40,7 @@ export function PrimaryButton({
 
 export function GhostButton({ label, onPress }: { label: string; onPress: () => void }) {
   return (
-    <TouchableOpacity style={styles.ghostButton} onPress={onPress}>
+    <TouchableOpacity accessibilityRole="button" accessibilityLabel={label} style={styles.ghostButton} onPress={onPress}>
       <Text style={styles.ghostButtonText}>{label}</Text>
     </TouchableOpacity>
   );

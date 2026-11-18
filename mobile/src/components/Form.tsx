@@ -20,6 +20,7 @@ export function Field({
     <View style={styles.wrapper}>
       <Text style={styles.label}>{label}</Text>
       <TextInput
+        accessibilityLabel={label}
         style={[styles.input, multiline ? styles.multiline : null]}
         placeholder={placeholder}
         placeholderTextColor={colors.textMuted}

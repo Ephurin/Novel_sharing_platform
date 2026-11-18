@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { readFile, readdir } from 'node:fs/promises';
 import { Pool } from 'pg';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 
 const schema = 'draft_browser_' + randomUUID().replaceAll('-', '');
 const admin = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -28,9 +29,10 @@ for (const name of (await readdir(migrations)).filter(name => name.endsWith('.sq
 process.env.PRIVATE_COMMENTS_ENABLED = 'true';
 const { env } = await import('../src/core/config/env.js'); env.PRIVATE_COMMENTS_ENABLED = true;
 const accounts = [];
+const passwordHash = await bcrypt.hash('SocialTest123!', 4);
 for (const [index, role] of ['AUTHOR', 'READER', 'READER', 'READER'].entries()) {
   const userId = randomUUID();
-  await pool.query("insert into users(user_id,email,username,password_hash,role) values($1,$2,$3,'unused',$4)", [userId, userId+'@test.invalid', 'social'+index, role]);
+  await pool.query("insert into users(user_id,email,username,password_hash,role) values($1,$2,$3,$4,$5)", [userId, userId+'@test.invalid', 'social'+index, passwordHash, role]);
   await pool.query('insert into user_profiles(user_id,display_name) values($1,$2)', [userId, 'Social '+index]);
   accounts.push({ userId, role, token: jwt.sign({ sub: userId, role }, process.env.JWT_ACCESS_SECRET!) });
 }

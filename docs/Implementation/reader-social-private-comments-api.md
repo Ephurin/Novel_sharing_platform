@@ -89,3 +89,14 @@ Private list/reply/feedback trả array trong data, meta `{page,limit,totalItems
 4. `node --test web/tests/reader-chapter-workspace.browser.test.mjs web/tests/reader-bookmark-regressions.browser.test.mjs web/tests/reader-comment-moderation.browser.test.mjs web/tests/reader-comments.browser.test.mjs` — hồi quy UI công khai/bookmark.
 
 Marker hiện gom các trang list được phân quyền thay vì endpoint aggregate riêng. Khi quy mô thread lớn, nên đo tải/polling và bổ sung aggregate backend trong đợt tối ưu; không tính count từ dữ liệu công khai hoặc snapshot chưa kiểm quyền.
+
+## Mobile (mốc 4)
+
+- Profile mở Bạn bè, Góp ý đã gửi; CurrentUser AUTHOR/ADMIN có Góp ý gửi tôi, API luôn lọc đúng các truyện người dùng sở hữu. Reader profile có quan hệ/count; connections có search, following/followers/mutual và phân trang.
+- Trang truyện mở Bình luận và góp ý; Reader mở bình luận chương hoặc nhấn giữ đoạn để dùng anchor contentVersion/paragraphId của bản published. Marker gom cả ba kênh riêng đã kiểm quyền. Không gửi quote client; anchor stale trả lỗi và cần mở lại chương.
+- Comments có PUBLIC/FRIENDS_ALL/FRIENDS_SELECTED/AUTHOR_PRIVATE, mutual picker cho public mention và chọn người nhận private. Replies không gửi lại audience/anchor/recipient. Emoji qua bàn phím hệ điều hành; không có upload/GIF private.
+- Notifications phân trang và mở payload.commentId bằng `/thread`, lấy đúng trang chứa reply, scroll tới item được chọn. Không mở URL tùy ý từ notification payload.
+- Navigator remount theo userId. Resource không persist, không fallback offline; blur/background xóa data, foreground/focus tải lại, NetInfo offline ẩn dữ liệu; response cũ sau blur/unmount không được ghi state. Đọc thread vẫn phải qua quyền backend ở mỗi request.
+- Cài Expo web dependencies và NetInfo bằng Expo SDK 54. Lệnh: `npm run typecheck --prefix mobile`; trong mobile chạy `npx expo export --platform web --platform android --platform ios --output-dir dist-social --max-workers 2`.
+- Test tích hợp: sau export, đặt ADMIN_TEST_POSTGRES_URL/ADMIN_TEST_MONGO_URL như phần web rồi chạy `node --test web/tests/mobile-social-real.browser.test.mjs`. Fixture cô lập, cleanup, không seed DB ứng dụng; ảnh qua READER_EVIDENCE_DIR. Đây là Expo web, không phải test thiết bị native.
+- Chưa nghiệm thu Android/iOS runtime; cần chạy lại thao tác long-press, keyboard, accessibility, background/foreground, offline và logout/login trên emulator/thiết bị trước khi đóng toàn bộ mốc 4. Bundle Hermes đã export được cho cả Android/iOS.

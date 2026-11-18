@@ -26,6 +26,8 @@ export type ReaderNovel = {
 };
 
 export type ReaderChapter = {
+  contentVersion?: string;
+  paragraphs?: { paragraphId: string; paragraphIndex: number; text: string }[];
   chapterId: string;
   novelId: string;
   title: string;
@@ -62,6 +64,16 @@ export type ReadingPreferences = {
 };
 
 export type ReaderComment = {
+  audience: 'PUBLIC' | 'FRIENDS_ALL' | 'FRIENDS_SELECTED' | 'AUTHOR_PRIVATE';
+  novelId: string;
+  displayName: string;
+  parentCommentId: string | null;
+  repliesCount: number;
+  canReply: boolean;
+  canDelete: boolean;
+  isSpoiler?: boolean;
+  imageUrl?: string | null;
+  anchor?: { quote: string; detached: boolean; currentParagraphId: string | null; paragraphId: string } | null;
   commentId: string;
   chapterId: string;
   userId: string;
@@ -85,6 +97,8 @@ export type WalletTransaction = {
 };
 
 export type NotificationItem = {
+  content?: string;
+  payload?: Record<string, unknown>;
   notificationId: string;
   type: string;
   title: string;

@@ -1,11 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Text, View } from 'react-native';
+import { AppState, Pressable, Text, View } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import { ApiClientError, getApiErrorMessage } from '../api/api-client';
 import { getReaderChapter, getReadingPreferences, reportContent, saveReadingPreferences, syncHistory } from '../api/reader-api';
 import { unlockVipChapter } from '../api/wallet-api';
 import type { ReaderChapter, ReadingPreferences } from '../api/types';
 import { Badge, Card, ErrorState, GhostButton, LoadingState, PrimaryButton, Screen, Section, styles } from '../components/Screen';
 import { colors } from '../theme/colors';
+import type { AnchorInput } from '../api/social-api';
+import { paragraphCounts } from '../api/social-api';
+import { useFocusedResource } from '../state/useFocusedResource';
 
 const defaultPreferences: ReadingPreferences = {
   fontFamily: 'Georgia',
@@ -24,7 +28,7 @@ export function ReaderScreen({
   chapterId: string;
   authenticated: boolean;
   onLoginRequired: () => void;
-  onOpenComments: (chapterId: string) => void;
+  onOpenComments: (chapterId: string, anchor?: AnchorInput) => void;
   onOpenWallet: () => void;
 }) {
   const [chapter, setChapter] = useState<ReaderChapter | null>(null);
@@ -33,6 +37,8 @@ export function ReaderScreen({
   const [locked, setLocked] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const focused = useIsFocused();
+  const markers = useFocusedResource(`markers:${chapterId}:${authenticated}`, () => authenticated ? paragraphCounts(chapterId) : Promise.resolve({} as Record<string, number>));
 
   const load = async () => {
     setLoading(true);
@@ -62,8 +68,10 @@ export function ReaderScreen({
   };
 
   useEffect(() => {
-    void load();
-  }, [chapterId, authenticated]);
+    if (focused) void load();
+    const listener = AppState.addEventListener('change', state => { if (focused && state === 'active') void load(); });
+    return () => listener.remove();
+  }, [chapterId, authenticated, focused]);
 
   const readerStyle = useMemo(() => {
     const backgroundColor =
@@ -148,9 +156,13 @@ export function ReaderScreen({
 
       <Card>
         <View style={{ padding: 10, borderRadius: 12, backgroundColor: readerStyle.backgroundColor }}>
-          <Text style={{ color: readerStyle.color, fontSize: readerStyle.fontSize, lineHeight: readerStyle.lineHeight }}>
-            {chapter?.content ?? 'No content.'}
-          </Text>
+          {(chapter?.content ?? '').replace(/\r\n?/g, '\n').split(/\n\s*\n/).map(block => block.trim()).filter(Boolean).map((block, index) => {
+            const paragraph = chapter?.paragraphs?.find(p => p.paragraphIndex === index && p.text === block.trim());
+            const discuss = paragraph && chapter?.contentVersion ? () => { if (!authenticated) onLoginRequired(); else onOpenComments(chapterId, { contentVersion: chapter.contentVersion!, paragraphId: paragraph.paragraphId }); } : undefined;
+            return <Pressable key={paragraph?.paragraphId ?? index} accessibilityRole={discuss ? 'button' : undefined} accessibilityHint={discuss ? 'Nhấn giữ để trao đổi về đoạn này' : undefined} onLongPress={discuss} onAccessibilityTap={discuss} delayLongPress={500}>
+              <Text style={{ color: readerStyle.color, fontSize: readerStyle.fontSize, lineHeight: readerStyle.lineHeight, marginBottom: 16 }}>{block}{paragraph && markers.data?.[paragraph.paragraphId] ? `  · ${markers.data[paragraph.paragraphId]} trao đổi riêng` : ''}</Text>
+            </Pressable>;
+          })}
         </View>
       </Card>
 

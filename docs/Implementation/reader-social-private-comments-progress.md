@@ -1,6 +1,6 @@
 # Tiến độ Follow, bình luận bạn bè và góp ý riêng tác giả
 
-Cập nhật: 18/11/2026 (Asia/Bangkok). **Đã hoàn thành mốc 0–3.** Chặng 1 commit `fedb0474`, chặng 2 commit `f4cbaa7e`; chặng 3 chưa commit. Mốc 4–5 chưa triển khai. Phần mốc 3 là trạng thái mới nhất; các phần trước đó giữ lịch sử thực hiện.
+Cập nhật: 18/11/2026 (Asia/Bangkok). **Đã hoàn thành mốc 0–3; mốc 4 đã triển khai, kiểm chứng Expo web, còn nghiệm thu native.** Chặng 1 commit `fedb0474`, chặng 2 `f4cbaa7e`, chặng 3 `d16f6a69`. Mốc 4 chưa commit; mốc 5 chưa triển khai. Các phần trước đó giữ lịch sử thực hiện.
 
 ## Nơi làm việc hiện tại
 
@@ -22,8 +22,30 @@ Cập nhật: 18/11/2026 (Asia/Bangkok). **Đã hoàn thành mốc 0–3.** Ch�
 | 1. Follow, hồ sơ, API | Hoàn thành | Backend build/typecheck pass; 18/18 test pass, lượt bổ sung notification pass |
 | 2. Private comments, anchor, tag, notifications, policy | Hoàn thành | Backend build/typecheck pass, 37/37 unit/integration tests pass trên DB cô lập; contract API đã ghi |
 | 3. Web | Hoàn thành | Web build pass; browser tích hợp API thật pass; 9/9 hồi quy bình luận/bookmark pass; đã rà ảnh desktop light/mobile dark |
-| 4. Mobile | Chưa làm | Chưa sửa code tính năng |
+| 4. Mobile | Đã triển khai; còn nghiệm thu native | Typecheck pass; export web/Android/iOS pass; Expo web API thật 1/1 pass, 0 skipped; chưa có thiết bị native |
 | 5. Tích hợp và nghiệm thu | Chưa làm | Chưa có test evidence |
+
+## Mốc 4 — đã triển khai, còn nghiệm thu native (18/11/2026)
+
+### Kết quả cuối và giới hạn
+
+- `npm run typecheck --prefix mobile`: pass. `npx expo export --platform web --platform android --platform ios --output-dir dist-social --max-workers 2` trong mobile: pass cả ba nền tảng; log `.vscode/reader-social-m4-build-final.log`. `dist-social` ignored, không commit bundle.
+- `node --test web/tests/mobile-social-real.browser.test.mjs`: **1/1 pass, 0 fail, 0 skipped**. Log `.vscode/reader-social-m4-real.log`, DB tạm `ephurin_test_pr86_browser_c575e8474b3d47418eec41fed55cb7c0`, `cleanedUp:true`. API thật, không mock response; dùng bản Expo export, Chrome viewport 390×844.
+- Test đi qua follow/mutual, long-press đoạn, gửi friends root, public mention được kiểm tra metadata từ backend, notification thật tới reply thứ 7/trang 2, gửi reply trực tiếp từ UI, logout/login thật với tài khoản khác, người nhận unfollow/refollow, background/foreground, offline/online, detached, mất quyền VIP, gửi góp ý truyện từ UI, danh sách đã gửi và tác giả nhận góp ý. Không có pageerror.
+- Đã xem ảnh `.vscode/reader-social-m4/screenshots/mobile-social-real-/expo-mobile-thread.png`: nội dung reply cuối đã lưu, focus item được chọn, phân trang và màu dark ấm. Ảnh chụp từ Expo web, không phải thiết bị native.
+- Lỗi tích hợp đã sửa: Text không hỗ trợ long-press ở react-native-web → dùng Pressable; remount Stack đơn lẻ không rời Auth sau login → remount NavigationContainer theo userId; quote anchor không lặp lại trên từng reply; test chờ input reset/composer đóng để không nhận nhầm draft là response đã lưu.
+- **Chưa kiểm chứng Android/iOS runtime**: không có SDK/adb/emulator/AVD hoặc thiết bị được kết nối; export Hermes không thay thế kiểm thử native. Còn kiểm tra touch/long-press, bàn phím, screen reader, AppState/NetInfo và đổi tài khoản trên Android/iOS. Chưa đánh dấu toàn bộ mốc 4 hoàn tất.
+- npm báo 58 dependency audit findings (10 moderate, 47 high, 1 critical) sau Expo install; không chạy audit fix/upgrade hàng loạt trong đợt này. Lệch patch Expo baseline ghi ở mốc 0 vẫn là việc riêng.
+- Bước tiếp: chạy checklist native trên emulator/thiết bị khi có; sau đó nghiệm thu mốc 5. Docker runtime chưa rebuild mốc 3/4, private flag vẫn false; không push hoặc deploy.
+
+- Đã commit mốc 3 `d16f6a69`, không push. Thay đổi mobile chưa commit.
+- Mobile thêm typed API social, connections/profile, comments PUBLIC/ALL/SELECTED/AUTHOR_PRIVATE, mutual mentions, thread/reply phân trang, feedback sent/received theo CurrentUser; notifications đi tới commentId qua `/thread`.
+- Reader render block theo published content, ghép paragraph ID/version từ API; nhấn giữ để chọn đoạn. Marker gom root được phép xem trên ba kênh; detached không gắn marker.
+- Navigator remount theo userId khi login/logout để bỏ state tài khoản cũ. `useFocusedResource` bỏ response khi màn hình blur/app background, revalidate khi foreground, chặn response async đã lỗi thời; thêm NetInfo để ẩn khi offline. Không persist private response.
+- Giữ cấu trúc mobile hiện có, đổi palette dark sang warm charcoal/terracotta. Thêm accessibility labels và button roles cho form/actions. Không có IDE tác giả trên app.
+- Thêm các dependencies Expo SDK 54 chọn tương thích: react-dom/react-native-web/@expo/metro-runtime để chạy chính Expo app trong browser, @react-native-community/netinfo để nhận biết offline. Chỉ cài ở mobile/node_modules thật, không chạm junction dependencies web/backend.
+- Typecheck pass lượt đầu; Expo web export pass, Android Hermes bundle pass lượt đầu. Sau bổ sung NetInfo/focus đang build/test lại. Chưa có Android SDK/adb/emulator trong PATH hoặc các vị trí SDK tiêu chuẩn; `.android` chỉ có adb keys, không có AVD. Chưa kiểm chứng native Android/iOS.
+- Test đang xây: `web/tests/mobile-social-real.browser.test.mjs`, dùng Expo export + Chrome viewport 390, proxy tới backend fixture thật/PostgreSQL/MongoDB tạm, không mock API responses. Fixture bổ sung password hash test để kiểm chứng login/account switch thật.
 
 ## Mốc 3 — hoàn thành (18/11/2026)
 

@@ -9,12 +9,14 @@ export function NovelDetailScreen({
   novelId,
   authenticated,
   onLoginRequired,
-  onOpenChapter
+  onOpenChapter,
+  onOpenComments
 }: {
   novelId: string;
   authenticated: boolean;
   onLoginRequired: () => void;
   onOpenChapter: (chapterId: string) => void;
+  onOpenComments: () => void;
 }) {
   const [novel, setNovel] = useState<(ReaderNovel & { chapters?: ReaderChapter[] }) | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,6 +61,7 @@ export function NovelDetailScreen({
   return (
     <Screen>
       <Section title={novel?.title ?? 'Novel'} subtitle={novel?.authorName ? `By ${novel.authorName}` : 'Published novel'}>
+        <GhostButton label="Bình luận và góp ý" onPress={onOpenComments} />
         <Card>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
             <Badge label={novel?.genre ?? 'No genre'} />

@@ -2,7 +2,7 @@
 
 Ngày chốt: 17/11/2026. Repository đã khảo sát: `F:\Code\Github\Novel_sharing_platform`.
 
-Trạng thái: **Đã hoàn thành mốc 0–3 ngày 18/11/2026. Mốc 4–5 chưa triển khai.** Chặng 1 đã commit `fedb0474`, chặng 2 `f4cbaa7e`; chặng 3 chưa commit. Kết quả và lệnh tái hiện nằm trong progress; contract và hướng dẫn kiểm thử web ở `reader-social-private-comments-api.md`.
+Trạng thái: **Đã hoàn thành mốc 0–3; mốc 4 đã triển khai và kiểm chứng Expo web, còn nghiệm thu native.** Chặng 1 commit `fedb0474`, chặng 2 `f4cbaa7e`, chặng 3 `d16f6a69`. Mốc 4 chưa commit; mốc 5 chưa triển khai. Kết quả và lệnh tái hiện nằm trong progress/API.
 
 ## Chuẩn bị đã hoàn thành
 
@@ -209,11 +209,13 @@ Kiểm chứng: web build pass; browser API thật 1/1 pass, DB cô lập cleanu
 
 ### Mốc 4 — Mobile
 
-- [ ] Dùng cùng contract/anchor; render chương theo đoạn, nhấn giữ để bình luận.
-- [ ] Hồ sơ, tìm bạn, follow, connections; public comment truyện/chương có replies và tag.
-- [ ] Thread bạn bè và private tác giả; Góp ý gửi tôi/đã gửi, navigation theo CurrentUser/quyền chủ truyện; không xây IDE tác giả.
-- [ ] Notification đi tới đúng nội dung; cache/account/foreground/offline tuân quyền riêng tư.
+- [x] Dùng cùng contract/anchor; render chương theo đoạn, nhấn giữ để bình luận.
+- [x] Hồ sơ, tìm bạn, follow, connections; public comment truyện/chương có replies và tag.
+- [x] Thread bạn bè và private tác giả; Góp ý gửi tôi/đã gửi, navigation theo CurrentUser/quyền chủ truyện; không xây IDE tác giả.
+- [x] Notification đi tới đúng nội dung; cache/account/foreground/offline tuân quyền riêng tư (đã kiểm chứng Expo web; native còn bên dưới).
 - [ ] Typecheck và kiểm thử Expo/mobile thật theo công cụ/thiết bị sẵn có; ghi rõ nền tảng nào chưa kiểm chứng.
+
+Typecheck + export web/Android/iOS pass. Expo web chạy API thật 1/1 pass; chưa chạy native Android/iOS do không có SDK/emulator/thiết bị. Giữ mốc 4 ở trạng thái còn nghiệm thu native; không dùng export bundle làm bằng chứng native runtime.
 
 ### Mốc 5 — Tích hợp, nghiệm thu và bàn giao
 
