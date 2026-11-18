@@ -93,6 +93,11 @@ export function NovelDetailScreen({
   };
 
   useEffect(() => {
+    setReportModalOpen(false);
+    setReportError(null);
+  }, [novelId]);
+
+  useEffect(() => {
     void load(false);
   }, [novelId, authenticated]);
 
@@ -412,6 +417,7 @@ export function NovelDetailScreen({
       <ReportReasonModal
         visible={reportModalOpen}
         title="Báo cáo tác phẩm"
+        targetKey={novelId}
         submitting={pendingAction === 'report'}
         error={reportError}
         onClose={() => setReportModalOpen(false)}

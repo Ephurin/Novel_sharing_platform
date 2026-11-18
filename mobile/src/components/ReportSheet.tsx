@@ -13,9 +13,13 @@ export const REPORT_REASONS = [
 
 export type ReportReason = (typeof REPORT_REASONS)[number];
 
+export const DEFAULT_REPORT_REASON: ReportReason = 'Nội dung vi phạm';
+export const REPORT_DESCRIPTION_MAX_LENGTH = 2000;
+
 export function ReportReasonModal({
   visible,
   title,
+  targetKey,
   submitting = false,
   error = null,
   onClose,
@@ -23,6 +27,7 @@ export function ReportReasonModal({
 }: {
   visible: boolean;
   title: string;
+  targetKey?: string;
   submitting?: boolean;
   error?: string | null;
   onClose: () => void;
@@ -30,8 +35,16 @@ export function ReportReasonModal({
 }) {
   const { palette } = useStoryCraftTheme();
   const themed = useScreenStyles();
-  const [selectedReason, setSelectedReason] = useState<ReportReason>('Nội dung vi phạm');
+  const [selectedReason, setSelectedReason] = useState<ReportReason>(DEFAULT_REPORT_REASON);
   const [description, setDescription] = useState('');
+
+  const resetKey = `${visible ? '1' : '0'}:${targetKey ?? ''}`;
+  const [prevResetKey, setPrevResetKey] = useState(resetKey);
+  if (prevResetKey !== resetKey) {
+    setPrevResetKey(resetKey);
+    setSelectedReason(DEFAULT_REPORT_REASON);
+    setDescription('');
+  }
 
   if (!visible) return null;
 
@@ -116,8 +129,9 @@ export function ReportReasonModal({
           <Field
             label="Ghi chú thêm (tùy chọn)"
             value={description}
-            onChangeText={setDescription}
+            onChangeText={(next) => setDescription(next.slice(0, REPORT_DESCRIPTION_MAX_LENGTH))}
             placeholder="Mô tả ngắn gọn vị trí hoặc chi tiết vi phạm..."
+            maxLength={REPORT_DESCRIPTION_MAX_LENGTH}
             editable={!submitting}
           />
 

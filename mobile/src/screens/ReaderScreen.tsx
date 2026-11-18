@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, Text, View } from 'react-native';
 import { ApiClientError, getApiErrorMessage } from '../api/api-client';
 import {
@@ -68,8 +68,19 @@ function isInsufficientCoinsError(error: unknown): boolean {
   return false;
 }
 
+function extractNovelIdFromError(error: unknown): string | null {
+  if (error instanceof ApiClientError && error.details && typeof error.details === 'object') {
+    const candidate = (error.details as { novelId?: unknown }).novelId;
+    if (typeof candidate === 'string' && candidate.trim().length > 0) {
+      return candidate.trim();
+    }
+  }
+  return null;
+}
+
 export function ReaderScreen({
   chapterId,
+  novelId,
   authenticated,
   onLoginRequired,
   onOpenComments,
@@ -77,6 +88,7 @@ export function ReaderScreen({
   onOpenChapter
 }: {
   chapterId: string;
+  novelId?: string;
   authenticated: boolean;
   onLoginRequired: () => void;
   onOpenComments: (chapterId: string) => void;
@@ -86,10 +98,12 @@ export function ReaderScreen({
   const { palette, scheme, fontsLoaded } = useStoryCraftTheme();
   const themed = useScreenStyles();
 
+  const [prevPropChapterId, setPrevPropChapterId] = useState(chapterId);
   const [activeChapterId, setActiveChapterId] = useState(chapterId);
-  useEffect(() => {
+  if (prevPropChapterId !== chapterId) {
+    setPrevPropChapterId(chapterId);
     setActiveChapterId(chapterId);
-  }, [chapterId]);
+  }
 
   const fallbackPreferences = useMemo<ReadingPreferences>(
     () => ({
@@ -117,7 +131,89 @@ export function ReaderScreen({
   const [reporting, setReporting] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
 
+  const mountedRef = useRef(true);
+  const activeChapterIdRef = useRef(activeChapterId);
+  activeChapterIdRef.current = activeChapterId;
+
+  const requestSeqRef = useRef(0);
+  const activeControllerRef = useRef<AbortController | null>(null);
+  const novelFetchSeqRef = useRef(0);
+  const inFlightNovelIdRef = useRef<string | null>(null);
+  const knownNovelIdRef = useRef<string | null>(novelId ?? null);
+  const novelChaptersNovelIdRef = useRef<string | null>(null);
+  const novelChaptersRef = useRef<ReaderChapter[]>([]);
+  novelChaptersRef.current = novelChapters;
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      requestSeqRef.current += 1;
+      novelFetchSeqRef.current += 1;
+      inFlightNovelIdRef.current = null;
+      activeControllerRef.current?.abort();
+    };
+  }, []);
+
+  useEffect(() => {
+    setReportModalOpen(false);
+    setReportError(null);
+  }, [activeChapterId]);
+
+  const loadNovelChapters = (
+    targetNovelId: string,
+    expectedReqId: number,
+    signal?: AbortSignal
+  ) => {
+    if (
+      novelChaptersNovelIdRef.current === targetNovelId ||
+      inFlightNovelIdRef.current === targetNovelId
+    ) {
+      return;
+    }
+    inFlightNovelIdRef.current = targetNovelId;
+    const novelReqId = ++novelFetchSeqRef.current;
+
+    void getReaderNovel(targetNovelId, signal)
+      .then((novelData) => {
+        if (novelReqId === novelFetchSeqRef.current) {
+          inFlightNovelIdRef.current = null;
+        }
+        if (
+          !mountedRef.current ||
+          signal?.aborted ||
+          expectedReqId !== requestSeqRef.current ||
+          novelReqId !== novelFetchSeqRef.current
+        ) {
+          return;
+        }
+        const ordered = [...(novelData.chapters ?? [])].sort(
+          (a, b) => a.chapterNumber - b.chapterNumber
+        );
+        novelChaptersNovelIdRef.current = targetNovelId;
+        knownNovelIdRef.current = targetNovelId;
+        setNovelChapters(ordered);
+      })
+      .catch(() => {
+        if (novelReqId === novelFetchSeqRef.current) {
+          inFlightNovelIdRef.current = null;
+        }
+      });
+  };
+
   const load = async (targetChapterId = activeChapterId) => {
+    activeControllerRef.current?.abort();
+    inFlightNovelIdRef.current = null;
+    novelFetchSeqRef.current += 1;
+
+    const reqId = ++requestSeqRef.current;
+    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    activeControllerRef.current = controller;
+    const signal = controller?.signal;
+
+    const isCurrent = () =>
+      mountedRef.current && !signal?.aborted && reqId === requestSeqRef.current;
+
     setLoading(true);
     setError(null);
     setUnlockError(null);
@@ -126,39 +222,87 @@ export function ReaderScreen({
 
     try {
       const [chapterData, preferenceData] = await Promise.all([
-        getReaderChapter(targetChapterId),
+        getReaderChapter(targetChapterId, signal),
         authenticated
-          ? getReadingPreferences().catch(() => fallbackPreferences)
+          ? getReadingPreferences(signal).catch(() => fallbackPreferences)
           : Promise.resolve(fallbackPreferences)
       ]);
+      if (!isCurrent()) return;
+
       setChapter(chapterData);
       setPreferences(preferenceData);
+      knownNovelIdRef.current = chapterData.novelId;
 
-      void getReaderNovel(chapterData.novelId)
-        .then((novelData) => {
-          const ordered = [...(novelData.chapters ?? [])].sort(
-            (a, b) => a.chapterNumber - b.chapterNumber
-          );
-          setNovelChapters(ordered);
-        })
-        .catch(() => {});
+      if (novelChaptersNovelIdRef.current !== chapterData.novelId) {
+        if (novelChaptersNovelIdRef.current !== null) {
+          novelChaptersNovelIdRef.current = null;
+          setNovelChapters([]);
+        }
+        loadNovelChapters(chapterData.novelId, reqId, signal);
+      }
 
       if (authenticated) {
-        await syncHistory({ novelId: chapterData.novelId, chapterId: targetChapterId });
+        await syncHistory({ novelId: chapterData.novelId, chapterId: targetChapterId }, signal);
       }
     } catch (caughtError) {
+      if (!isCurrent()) return;
+
+      setChapter(null);
       if (caughtError instanceof ApiClientError && caughtError.code === 'PAYMENT_002') {
         setLocked(true);
+        const chapterInCurrentList = novelChaptersRef.current.some(
+          (item) => item.chapterId === targetChapterId
+        );
+        const resolvedNovelId =
+          extractNovelIdFromError(caughtError) ??
+          novelId ??
+          (chapterInCurrentList || novelChaptersNovelIdRef.current === null
+            ? knownNovelIdRef.current
+            : null);
+
+        if (resolvedNovelId) {
+          knownNovelIdRef.current = resolvedNovelId;
+          if (novelChaptersNovelIdRef.current !== resolvedNovelId) {
+            if (novelChaptersNovelIdRef.current !== null) {
+              novelChaptersNovelIdRef.current = null;
+              setNovelChapters([]);
+            }
+            loadNovelChapters(resolvedNovelId, reqId, signal);
+          }
+        } else if (!chapterInCurrentList && novelChaptersNovelIdRef.current !== null) {
+          novelChaptersNovelIdRef.current = null;
+          setNovelChapters([]);
+        }
       } else {
         setError(getApiErrorMessage(caughtError));
       }
     } finally {
-      setLoading(false);
+      if (isCurrent()) {
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
+    if (!novelId) return;
+    if (knownNovelIdRef.current && knownNovelIdRef.current !== novelId) {
+      novelChaptersNovelIdRef.current = null;
+      setNovelChapters([]);
+    }
+    knownNovelIdRef.current = novelId;
+    if (locked && novelChaptersNovelIdRef.current !== novelId) {
+      loadNovelChapters(novelId, requestSeqRef.current, activeControllerRef.current?.signal);
+    }
+  }, [novelId, locked]);
+
+  useEffect(() => {
     void load(activeChapterId);
+    return () => {
+      requestSeqRef.current += 1;
+      novelFetchSeqRef.current += 1;
+      inFlightNovelIdRef.current = null;
+      activeControllerRef.current?.abort();
+    };
   }, [activeChapterId, authenticated]);
 
   const { prevChapter, nextChapter } = useMemo(() => {
@@ -210,40 +354,50 @@ export function ReaderScreen({
     }
     if (unlocking) return;
 
+    const targetChapterId = activeChapterId;
     setUnlocking(true);
     setUnlockError(null);
     setNotice(null);
     try {
-      await unlockVipChapter(activeChapterId);
+      await unlockVipChapter(targetChapterId);
+      if (!mountedRef.current || activeChapterIdRef.current !== targetChapterId) return;
       setNotice('Đã mở khóa chương thành công.');
-      await load(activeChapterId);
+      await load(targetChapterId);
     } catch (caughtError) {
+      if (!mountedRef.current || activeChapterIdRef.current !== targetChapterId) return;
       const message = getApiErrorMessage(caughtError);
       setUnlockError(message);
       if (isInsufficientCoinsError(caughtError)) {
         onOpenWallet();
       }
     } finally {
-      setUnlocking(false);
+      if (mountedRef.current) {
+        setUnlocking(false);
+      }
     }
   };
 
   const handleSubmitReport = async (payload: { reason: string; description?: string }) => {
+    const targetChapterId = activeChapterId;
     setReporting(true);
     setReportError(null);
     try {
       await reportContent({
         targetType: 'CHAPTER',
-        targetId: activeChapterId,
+        targetId: targetChapterId,
         reason: payload.reason,
         ...(payload.description ? { description: payload.description } : {})
       });
+      if (!mountedRef.current || activeChapterIdRef.current !== targetChapterId) return;
       setReportModalOpen(false);
       setNotice('Đã gửi báo cáo chương.');
     } catch (caughtError) {
+      if (!mountedRef.current || activeChapterIdRef.current !== targetChapterId) return;
       setReportError(getApiErrorMessage(caughtError));
     } finally {
-      setReporting(false);
+      if (mountedRef.current) {
+        setReporting(false);
+      }
     }
   };
 
@@ -275,6 +429,31 @@ export function ReaderScreen({
             />
           </Card>
         </Section>
+
+        {prevChapter || nextChapter ? (
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <GhostButton
+              flex={1}
+              label="Chương trước"
+              accessibilityLabel="Chương trước"
+              disabled={!prevChapter || unlocking}
+              icon={<AppIcon name="chevron-left" size={16} color={palette.primaryMuted} />}
+              onPress={() => {
+                if (prevChapter) navigateToSibling(prevChapter.chapterId);
+              }}
+            />
+            <GhostButton
+              flex={1}
+              label="Chương tiếp"
+              accessibilityLabel="Chương tiếp"
+              disabled={!nextChapter || unlocking}
+              icon={<AppIcon name="chevron-right" size={16} color={palette.primaryMuted} />}
+              onPress={() => {
+                if (nextChapter) navigateToSibling(nextChapter.chapterId);
+              }}
+            />
+          </View>
+        ) : null}
       </Screen>
     );
   }
@@ -465,6 +644,7 @@ export function ReaderScreen({
       <ReportReasonModal
         visible={reportModalOpen}
         title="Báo cáo chương"
+        targetKey={activeChapterId}
         submitting={reporting}
         error={reportError}
         onClose={() => setReportModalOpen(false)}

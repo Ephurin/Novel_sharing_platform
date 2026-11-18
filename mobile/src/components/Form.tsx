@@ -23,6 +23,7 @@ export function Field({
   textContentType,
   returnKeyType,
   onSubmitEditing,
+  maxLength,
   editable = true,
   error,
   rightAccessory
@@ -39,6 +40,7 @@ export function Field({
   textContentType?: TextInputProps['textContentType'];
   returnKeyType?: ReturnKeyTypeOptions;
   onSubmitEditing?: () => void;
+  maxLength?: number;
   editable?: boolean;
   error?: string | null;
   rightAccessory?: ReactNode;
@@ -96,6 +98,7 @@ export function Field({
           textContentType={textContentType}
           returnKeyType={returnKeyType}
           onSubmitEditing={onSubmitEditing}
+          maxLength={maxLength}
           editable={editable}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}

@@ -28,18 +28,27 @@ export async function searchPublishedNovels(
   return response.data.data;
 }
 
-export async function getReaderNovel(novelId: string) {
-  const response = await apiClient.get<ApiEnvelope<ReaderNovel & { chapters?: ReaderChapter[] }>>(`/reading/novels/${novelId}`);
+export async function getReaderNovel(novelId: string, signal?: AbortSignal) {
+  const response = await apiClient.get<ApiEnvelope<ReaderNovel & { chapters?: ReaderChapter[] }>>(
+    `/reading/novels/${novelId}`,
+    signal ? { signal } : undefined
+  );
   return response.data.data;
 }
 
-export async function getReaderChapter(chapterId: string) {
-  const response = await apiClient.get<ApiEnvelope<ReaderChapter>>(`/reading/chapters/${chapterId}`);
+export async function getReaderChapter(chapterId: string, signal?: AbortSignal) {
+  const response = await apiClient.get<ApiEnvelope<ReaderChapter>>(
+    `/reading/chapters/${chapterId}`,
+    signal ? { signal } : undefined
+  );
   return response.data.data;
 }
 
-export async function getReadingPreferences() {
-  const response = await apiClient.get<ApiEnvelope<ReadingPreferences>>('/reading/preferences/me');
+export async function getReadingPreferences(signal?: AbortSignal) {
+  const response = await apiClient.get<ApiEnvelope<ReadingPreferences>>(
+    '/reading/preferences/me',
+    signal ? { signal } : undefined
+  );
   return response.data.data;
 }
 
@@ -65,13 +74,20 @@ export async function listHistory(signal?: AbortSignal) {
   return response.data.data;
 }
 
-export async function syncHistory(input: { novelId: string; chapterId: string; paragraphIndex?: number; pageOffset?: number }) {
-  const response = await apiClient.put<ApiEnvelope<{ synced: boolean }>>('/reading/history/me', {
-    novelId: input.novelId,
-    chapterId: input.chapterId,
-    paragraphIndex: input.paragraphIndex ?? 0,
-    pageOffset: input.pageOffset ?? 0
-  });
+export async function syncHistory(
+  input: { novelId: string; chapterId: string; paragraphIndex?: number; pageOffset?: number },
+  signal?: AbortSignal
+) {
+  const response = await apiClient.put<ApiEnvelope<{ synced: boolean }>>(
+    '/reading/history/me',
+    {
+      novelId: input.novelId,
+      chapterId: input.chapterId,
+      paragraphIndex: input.paragraphIndex ?? 0,
+      pageOffset: input.pageOffset ?? 0
+    },
+    signal ? { signal } : undefined
+  );
   return response.data.data;
 }
 
@@ -114,7 +130,12 @@ export async function createComment(chapterId: string, content: string) {
   return response.data.data;
 }
 
-export async function reportContent(input: { targetType: 'NOVEL' | 'CHAPTER' | 'COMMENT' | 'USER'; targetId: string; reason: string }) {
+export async function reportContent(input: {
+  targetType: 'NOVEL' | 'CHAPTER' | 'COMMENT' | 'USER';
+  targetId: string;
+  reason: string;
+  description?: string;
+}) {
   const response = await apiClient.post<ApiEnvelope<{ reportId: string; status: string }>>('/reports', input);
   return response.data.data;
 }

@@ -37,7 +37,7 @@ type RootStackParamList = {
   MainTabs: undefined;
   Auth: undefined;
   NovelDetail: { novelId: string };
-  Reader: { chapterId: string };
+  Reader: { chapterId: string; novelId?: string };
   Comments: { chapterId: string };
 };
 
@@ -206,7 +206,9 @@ function StoryCraftAppShell({ fontsReady }: { fontsReady: boolean }) {
               novelId={route.params.novelId}
               authenticated={Boolean(user)}
               onLoginRequired={() => navigation.navigate('Auth')}
-              onOpenChapter={(chapterId) => navigation.navigate('Reader', { chapterId })}
+              onOpenChapter={(chapterId) =>
+                navigation.navigate('Reader', { chapterId, novelId: route.params.novelId })
+              }
             />
           )}
         </Stack.Screen>
@@ -214,11 +216,17 @@ function StoryCraftAppShell({ fontsReady }: { fontsReady: boolean }) {
           {({ route, navigation }) => (
             <ReaderScreen
               chapterId={route.params.chapterId}
+              novelId={route.params.novelId}
               authenticated={Boolean(user)}
               onLoginRequired={() => navigation.navigate('Auth')}
               onOpenComments={(chapterId) => navigation.navigate('Comments', { chapterId })}
               onOpenWallet={() => navigation.navigate('MainTabs', { screen: 'Wallet' } as never)}
-              onOpenChapter={(nextChapterId) => navigation.setParams({ chapterId: nextChapterId })}
+              onOpenChapter={(nextChapterId) =>
+                navigation.setParams({
+                  chapterId: nextChapterId,
+                  ...(route.params.novelId ? { novelId: route.params.novelId } : {})
+                })
+              }
             />
           )}
         </Stack.Screen>
@@ -318,7 +326,12 @@ function MainTabs({
           <HomeScreen
             authenticated={authenticated}
             onOpenNovel={(novelId) => navigation.navigate('NovelDetail' as never, { novelId } as never)}
-            onOpenChapter={(chapterId) => navigation.navigate('Reader' as never, { chapterId } as never)}
+            onOpenChapter={(chapterId, novelId) =>
+              navigation.navigate(
+                'Reader' as never,
+                { chapterId, ...(novelId ? { novelId } : {}) } as never
+              )
+            }
           />
         )}
       </Tabs.Screen>

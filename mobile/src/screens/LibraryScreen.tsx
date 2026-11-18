@@ -129,45 +129,48 @@ export function LibraryScreen({
         renderItem={({ item: novel }) => {
           const isRemoving = removingId === novel.novelId;
           return (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`Mở tác phẩm ${novel.title}`}
-              onPress={() => onOpenNovel(novel.novelId)}
-              style={({ pressed }) => ({ opacity: pressed ? 0.88 : 1 })}
-            >
-              <Card>
-                <View style={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start' }}>
-                  <BookCover size="md" uri={novel.coverImageUrl} title={novel.title} />
-                  <View style={{ flex: 1, gap: 6, minHeight: 102, justifyContent: 'space-between' }}>
-                    <View style={{ gap: 4 }}>
-                      <Text style={themed.cardTitle} numberOfLines={2}>
-                        {novel.title}
+            <Card>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Mở tác phẩm ${novel.title}`}
+                onPress={() => onOpenNovel(novel.novelId)}
+                style={({ pressed }) => ({
+                  flexDirection: 'row',
+                  gap: 12,
+                  alignItems: 'flex-start',
+                  opacity: pressed ? 0.88 : 1
+                })}
+              >
+                <BookCover size="md" uri={novel.coverImageUrl} title={novel.title} />
+                <View style={{ flex: 1, gap: 6, minHeight: 102, justifyContent: 'space-between' }}>
+                  <View style={{ gap: 4 }}>
+                    <Text style={themed.cardTitle} numberOfLines={2}>
+                      {novel.title}
+                    </Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                      {novel.genre ? <Badge label={novel.genre} tone="primary" /> : null}
+                      <Text style={themed.muted} numberOfLines={1}>
+                        {novel.authorName ? novel.authorName : 'Tác giả StoryCraft'}
                       </Text>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
-                        {novel.genre ? <Badge label={novel.genre} tone="primary" /> : null}
-                        <Text style={themed.muted} numberOfLines={1}>
-                          {novel.authorName ? novel.authorName : 'Tác giả StoryCraft'}
-                        </Text>
-                      </View>
-                      <Text style={themed.muted}>
-                        {(novel.chaptersCount ?? 0).toLocaleString('vi-VN')} chương ·{' '}
-                        {(novel.viewsCount ?? 0).toLocaleString('vi-VN')} lượt đọc
-                      </Text>
-                    </View>
-                    <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
-                      <GhostButton
-                        label="Bỏ lưu"
-                        accessibilityLabel={`Bỏ lưu ${novel.title}`}
-                        danger
-                        loading={isRemoving}
-                        disabled={Boolean(removingId)}
-                        onPress={() => confirmRemove(novel)}
-                      />
                     </View>
                   </View>
+                  <Text style={themed.muted}>
+                    {(novel.chaptersCount ?? 0).toLocaleString('vi-VN')} chương ·{' '}
+                    {(novel.viewsCount ?? 0).toLocaleString('vi-VN')} lượt đọc
+                  </Text>
                 </View>
-              </Card>
-            </Pressable>
+              </Pressable>
+              <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+                <GhostButton
+                  label="Bỏ lưu"
+                  accessibilityLabel={`Bỏ lưu ${novel.title}`}
+                  danger
+                  loading={isRemoving}
+                  disabled={Boolean(removingId)}
+                  onPress={() => confirmRemove(novel)}
+                />
+              </View>
+            </Card>
           );
         }}
         contentContainerStyle={{

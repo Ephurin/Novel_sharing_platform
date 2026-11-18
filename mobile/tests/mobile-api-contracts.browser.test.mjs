@@ -190,17 +190,21 @@ function createHarnessPlugin() {
               onClick: () => { if (!disabled) onPress?.(); }
             }, typeof children === 'function' ? children({ pressed: false }) : children);
           }
-          export const TextInput = React.forwardRef(function TextInput({ value, onChangeText, placeholder, accessibilityLabel, onFocus, onBlur, editable = true, secureTextEntry }, ref) {
+          export const TextInput = React.forwardRef(function TextInput({ value, onChangeText, placeholder, accessibilityLabel, onFocus, onBlur, editable = true, secureTextEntry, maxLength }, ref) {
             return React.createElement('input', {
               ref,
               type: secureTextEntry ? 'password' : 'text',
               disabled: editable === false,
+              maxLength,
               value: value ?? '',
               placeholder,
               'aria-label': accessibilityLabel,
               onFocus: () => onFocus?.(),
               onBlur: () => onBlur?.(),
-              onChange: (event) => onChangeText?.(event.target.value)
+              onChange: (event) => {
+                const raw = event.target.value;
+                onChangeText?.(typeof maxLength === 'number' ? raw.slice(0, maxLength) : raw);
+              }
             });
           });
         `,
@@ -240,6 +244,7 @@ async function buildBundle() {
     import { StoryCraftThemeProvider } from './src/theme/ThemeProvider';
     import { ReaderScreen, resolveMobileReaderFontFamily, resolveReaderPaperTone } from './src/screens/ReaderScreen';
     import { NovelDetailScreen } from './src/screens/NovelDetailScreen';
+    import { LibraryScreen } from './src/screens/LibraryScreen';
     import { AuthScreen } from './src/screens/AuthScreen';
     import { CommentsScreen } from './src/screens/CommentsScreen';
     import { WalletScreen } from './src/screens/WalletScreen';
@@ -251,17 +256,31 @@ async function buildBundle() {
     window.__capturedRequests = [];
     window.__mockHandlers = {};
     window.__walletOpenedCount = 0;
+    window.__openedNovels = [];
+    window.__openedChapters = [];
 
     apiClient.defaults.adapter = async (config) => {
       const method = (config.method || 'get').toUpperCase();
       const key = method + ' ' + config.url;
       const parsedBody = typeof config.data === 'string' ? JSON.parse(config.data) : config.data;
-      window.__capturedRequests.push({ method, url: config.url, body: parsedBody, params: config.params });
+      const record = {
+        method,
+        url: config.url,
+        body: parsedBody,
+        params: config.params,
+        aborted: Boolean(config.signal?.aborted)
+      };
+      if (config.signal) {
+        config.signal.addEventListener('abort', () => {
+          record.aborted = true;
+        }, { once: true });
+      }
+      window.__capturedRequests.push(record);
       const handler = window.__mockHandlers[key];
       if (!handler) {
         throw new Error('Unhandled mock request: ' + key);
       }
-      const data = await handler(parsedBody, config);
+      const data = await handler(parsedBody, config, record);
       return {
         data: { success: true, data, error: null, meta: {} },
         status: 200,
@@ -278,16 +297,55 @@ async function buildBundle() {
       window.__root.render(React.createElement(StoryCraftThemeProvider, null, element));
     }
 
-    window.__mountReader = (chapterId) =>
+    function rerenderElement(element) {
+      const rootEl = document.getElementById('root');
+      if (!window.__root) {
+        window.__root = createRoot(rootEl);
+      }
+      window.__root.render(React.createElement(StoryCraftThemeProvider, null, element));
+    }
+
+    window.__mountReader = (chapterId, novelId, authenticated = true) =>
       mountElement(
         React.createElement(ReaderScreen, {
           chapterId,
-          authenticated: true,
+          novelId,
+          authenticated,
           onLoginRequired: () => {},
           onOpenComments: () => {},
+          onOpenChapter: (nextChapterId) => {
+            window.__openedChapters.push(nextChapterId);
+          },
           onOpenWallet: () => {
             window.__walletOpenedCount += 1;
           }
+        })
+      );
+
+    window.__rerenderReader = (chapterId, novelId, authenticated = true) =>
+      rerenderElement(
+        React.createElement(ReaderScreen, {
+          chapterId,
+          novelId,
+          authenticated,
+          onLoginRequired: () => {},
+          onOpenComments: () => {},
+          onOpenChapter: (nextChapterId) => {
+            window.__openedChapters.push(nextChapterId);
+          },
+          onOpenWallet: () => {
+            window.__walletOpenedCount += 1;
+          }
+        })
+      );
+
+    window.__mountLibrary = () =>
+      mountElement(
+        React.createElement(LibraryScreen, {
+          onOpenNovel: (novelId) => {
+            window.__openedNovels.push(novelId);
+          },
+          onBrowse: () => {}
         })
       );
 
@@ -688,6 +746,332 @@ test('Mobile Reader, Wallet, Profile, and Notifications screens satisfy backend 
     await expect(page.getByText('Minh Nguyệt')).toBeVisible();
     await expect(page.getByText('MN', { exact: true })).toBeVisible();
     await expect(page.getByText('Chương này nhịp truyện rất cuốn!')).toBeVisible();
+
+    // 8. PR197-001: LibraryScreen renders sibling pressables (no nested buttons) and disabled "Bỏ lưu" never opens NovelDetail
+    await page.evaluate(() => {
+      window.__simulatedOS = 'web';
+      window.__openedNovels = [];
+      window.__capturedRequests = [];
+      window.confirm = () => true;
+      window.__deferredDelete = null;
+      window.__mockHandlers = {
+        'GET /reading/library/me': () => [
+          {
+            novelId: 'lib-1',
+            authorId: 'a1',
+            authorName: 'Tác giả Một',
+            title: 'Trăng Trên Đỉnh Núi',
+            genre: 'Tiên hiệp',
+            chaptersCount: 24,
+            viewsCount: 1200
+          },
+          {
+            novelId: 'lib-2',
+            authorId: 'a2',
+            authorName: 'Tác giả Hai',
+            title: 'Gió Mùa Thu Cũ',
+            genre: 'Ngôn tình',
+            chaptersCount: 15,
+            viewsCount: 840
+          }
+        ],
+        'DELETE /reading/library/me/lib-1': () =>
+          new Promise((resolve) => {
+            window.__deferredDelete = resolve;
+          })
+      };
+      window.__mountLibrary();
+    });
+
+    await expect(page.getByRole('button', { name: 'Mở tác phẩm Trăng Trên Đỉnh Núi' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Bỏ lưu Trăng Trên Đỉnh Núi' })).toBeVisible();
+    assert.equal(
+      await page.evaluate(() => document.querySelectorAll('button button').length),
+      0,
+      'LibraryScreen must not render nested interactive buttons'
+    );
+
+    await page.getByRole('button', { name: 'Bỏ lưu Trăng Trên Đỉnh Núi' }).click();
+    await expect(page.getByRole('button', { name: 'Bỏ lưu Trăng Trên Đỉnh Núi' })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Bỏ lưu Gió Mùa Thu Cũ' })).toBeDisabled();
+
+    // Tapping/clicking disabled "Bỏ lưu" (or its inner text node) must remain inert and never bubble to open NovelDetail
+    await page.evaluate(() => {
+      for (const label of ['Bỏ lưu Trăng Trên Đỉnh Núi', 'Bỏ lưu Gió Mùa Thu Cũ']) {
+        const btn = document.querySelector(`button[aria-label="${label}"]`);
+        btn?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        btn?.firstElementChild?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      }
+    });
+    assert.deepEqual(
+      await page.evaluate(() => window.__openedNovels),
+      [],
+      'Disabled "Bỏ lưu" must never fall through to onOpenNovel'
+    );
+
+    await page.evaluate(() => window.__deferredDelete?.({}));
+    await expect(page.getByRole('button', { name: 'Mở tác phẩm Trăng Trên Đỉnh Núi' })).toHaveCount(0);
+    await page.getByRole('button', { name: 'Mở tác phẩm Gió Mùa Thu Cũ' }).click();
+    assert.deepEqual(await page.evaluate(() => window.__openedNovels), ['lib-2']);
+
+    // 9. PR197-002 & PR197-003: ReportReasonModal state reset + 2000-char maxLength, and locked VIP sibling chapter navigation
+    await page.evaluate((novelId) => {
+      window.__simulatedOS = 'ios';
+      window.__capturedRequests = [];
+      window.__openedChapters = [];
+      const chapters = [
+        { chapterId: 'seq-ch-1', novelId, chapterNumber: 1, title: 'Khởi hành', content: 'Nội dung chương 1 miễn phí.', isVip: false, priceCoins: 0, wordCount: 500 },
+        { chapterId: 'seq-ch-2', novelId, chapterNumber: 2, title: 'Mật thất khóa VIP', content: null, isVip: true, priceCoins: 30, wordCount: 650 },
+        { chapterId: 'seq-ch-3', novelId, chapterNumber: 3, title: 'Chân trời mới', content: 'Nội dung chương 3 miễn phí.', isVip: false, priceCoins: 0, wordCount: 700 }
+      ];
+      window.__mockHandlers = {
+        [`GET /reading/novels/${novelId}`]: () => ({
+          novelId,
+          authorId: 'a1',
+          title: 'Hành Trình Vạn Dặm',
+          chapters
+        }),
+        'GET /reading/chapters/seq-ch-1': () => chapters[0],
+        'GET /reading/chapters/seq-ch-2': () => {
+          throw new window.__helpers.ApiClientError({ status: 402, code: 'PAYMENT_002', message: 'Chapter unlock required' });
+        },
+        'GET /reading/chapters/seq-ch-3': () => chapters[2],
+        'GET /reading/preferences/me': () => ({ fontFamily: null, fontSize: 18, background: 'LIGHT', lineHeight: 1.8 }),
+        'PUT /reading/history/me': () => ({ synced: true }),
+        'POST /reports': (body) => ({ reportId: 'rep-seq', status: 'PENDING', ...body })
+      };
+      window.__mountReader('seq-ch-1', novelId);
+    }, NOVEL_UUID);
+
+    await expect(page.getByText('Nội dung chương 1 miễn phí.')).toBeVisible();
+
+    // Open report modal on ch-1: verify default state & maxLength=2000, cap >2000 chars, submit, and verify reset on reopen
+    await page.getByRole('button', { name: 'Báo cáo chương' }).click();
+    const reportDialog = page.getByRole('dialog');
+    await expect(reportDialog).toBeVisible();
+    await expect(page.getByRole('radio', { name: 'Nội dung vi phạm' })).toHaveAttribute('aria-checked', 'true');
+    const reportNoteInput = page.getByRole('textbox', { name: 'Ghi chú thêm (tùy chọn)' });
+    await expect(reportNoteInput).toHaveValue('');
+    await expect(reportNoteInput).toHaveAttribute('maxlength', '2000');
+
+    const overlongText = 'A'.repeat(2050);
+    await reportNoteInput.fill(overlongText);
+    const cappedVal = await reportNoteInput.inputValue();
+    assert.equal(cappedVal.length, 2000, 'Report description input must enforce 2000-character limit');
+
+    await page.getByRole('radio', { name: 'Khác' }).click();
+    await page.getByRole('button', { name: 'Gửi báo cáo' }).click();
+    await expect(page.getByText('Đã gửi báo cáo chương.')).toBeVisible();
+
+    const cappedReportReq = await page.evaluate(() =>
+      window.__capturedRequests.filter((r) => r.method === 'POST' && r.url === '/reports').pop()
+    );
+    const parsedCappedReport = schemas.createReportSchema.parse({ body: cappedReportReq.body });
+    assert.equal(parsedCappedReport.body.description?.length, 2000);
+
+    // Reopen report modal -> must reset back to default reason + empty description; also test cancel -> reopen
+    await page.getByRole('button', { name: 'Báo cáo chương' }).click();
+    await expect(page.getByRole('radio', { name: 'Nội dung vi phạm' })).toHaveAttribute('aria-checked', 'true');
+    await expect(page.getByRole('textbox', { name: 'Ghi chú thêm (tùy chọn)' })).toHaveValue('');
+    await page.getByRole('radio', { name: 'Spam / Quảng cáo' }).click();
+    await page.getByRole('textbox', { name: 'Ghi chú thêm (tùy chọn)' }).fill('Ghi chú tạm rồi hủy');
+    await page.getByRole('button', { name: 'Hủy' }).click();
+    await page.getByRole('button', { name: 'Báo cáo chương' }).click();
+    await expect(page.getByRole('radio', { name: 'Nội dung vi phạm' })).toHaveAttribute('aria-checked', 'true');
+    await expect(page.getByRole('textbox', { name: 'Ghi chú thêm (tùy chọn)' })).toHaveValue('');
+
+    // Dirty the modal again, close, then navigate sequentially into locked VIP chapter 2 -> sibling nav must remain available!
+    await page.getByRole('radio', { name: 'Bản quyền' }).click();
+    await page.getByRole('textbox', { name: 'Ghi chú thêm (tùy chọn)' }).fill('Ghi chú chương 1 không được rò sang chương 3');
+    await page.getByRole('button', { name: 'Hủy' }).click();
+
+    await page.getByRole('button', { name: 'Chương tiếp' }).click();
+    await expect(page.getByText('Chương VIP đang khóa')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Chương trước' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Chương tiếp' })).toBeEnabled();
+
+    // Reader can skip forward from locked VIP ch-2 to free ch-3
+    await page.getByRole('button', { name: 'Chương tiếp' }).click();
+    await expect(page.getByText('Nội dung chương 3 miễn phí.')).toBeVisible();
+
+    // Report modal on ch-3 also starts clean
+    await page.getByRole('button', { name: 'Báo cáo chương' }).click();
+    await expect(page.getByRole('radio', { name: 'Nội dung vi phạm' })).toHaveAttribute('aria-checked', 'true');
+    await expect(page.getByRole('textbox', { name: 'Ghi chú thêm (tùy chọn)' })).toHaveValue('');
+    await page.getByRole('button', { name: 'Hủy' }).click();
+
+    // Direct open onto locked VIP ch-2 with novelId also fetches novelChapters and renders sibling navigation
+    await page.evaluate((novelId) => {
+      window.__mountReader('seq-ch-2', novelId);
+    }, NOVEL_UUID);
+    await expect(page.getByText('Chương VIP đang khóa')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Chương trước' })).toBeEnabled();
+    await expect(page.getByRole('button', { name: 'Chương tiếp' })).toBeEnabled();
+    await page.getByRole('button', { name: 'Chương trước' }).click();
+    await expect(page.getByText('Nội dung chương 1 miễn phí.')).toBeVisible();
+
+    // 10. PR197-004: ReaderScreen aborts/ignores superseded getReaderChapter & getReaderNovel requests and preserves loading state
+    await page.evaluate(() => {
+      window.__capturedRequests = [];
+      window.__deferredMap = {};
+      const defer = (key) =>
+        new Promise((resolve, reject) => {
+          window.__deferredMap[key] = { resolve, reject };
+        });
+
+      window.__mockHandlers = {
+        'GET /reading/chapters/race-ch-1': () => defer('chapter1'),
+        'GET /reading/chapters/race-ch-2': () => defer('chapter2'),
+        'GET /reading/novels/nov-stale': () => defer('novelStale'),
+        'GET /reading/novels/nov-fresh': () => defer('novelFresh'),
+        'GET /reading/preferences/me': () => ({ fontFamily: null, fontSize: 18, background: 'LIGHT', lineHeight: 1.8 }),
+        'PUT /reading/history/me': () => ({ synced: true })
+      };
+      window.__mountReader('race-ch-1', 'nov-stale');
+    });
+
+    await expect(page.getByText('Đang tải chương truyện...')).toBeVisible();
+    await page.waitForFunction(() =>
+      window.__capturedRequests.some((r) => r.url === '/reading/chapters/race-ch-1')
+    );
+
+    // Switch to race-ch-2 while race-ch-1 is still in flight
+    await page.evaluate(() => {
+      window.__rerenderReader('race-ch-2', 'nov-fresh');
+    });
+    await page.waitForFunction(() =>
+      window.__capturedRequests.some((r) => r.url === '/reading/chapters/race-ch-2')
+    );
+
+    assert.equal(
+      await page.evaluate(
+        () => window.__capturedRequests.find((r) => r.url === '/reading/chapters/race-ch-1')?.aborted
+      ),
+      true,
+      'Superseded getReaderChapter request should have its AbortSignal aborted'
+    );
+
+    // Resolve stale race-ch-1 FIRST while race-ch-2 is still pending -> loading spinner must stay visible and stale content ignored
+    await page.evaluate(() => {
+      window.__deferredMap.chapter1.resolve({
+        chapterId: 'race-ch-1',
+        novelId: 'nov-stale',
+        chapterNumber: 1,
+        title: 'Chương cũ đã bị hủy',
+        content: 'Nội dung chương cũ không được hiển thị.',
+        isVip: false,
+        priceCoins: 0,
+        wordCount: 300
+      });
+    });
+    await page.waitForTimeout(40);
+    await expect(page.getByText('Đang tải chương truyện...')).toBeVisible();
+    await expect(page.getByText('Nội dung chương cũ không được hiển thị.')).toHaveCount(0);
+
+    // Now resolve race-ch-2 + nov-fresh, then resolve nov-stale late -> fresh chapter & sibling chapters must win
+    await page.evaluate(() => {
+      window.__deferredMap.chapter2.resolve({
+        chapterId: 'race-ch-2',
+        novelId: 'nov-fresh',
+        chapterNumber: 1,
+        title: 'Chương mới hợp lệ',
+        content: 'Nội dung chương mới chính xác.',
+        isVip: false,
+        priceCoins: 0,
+        wordCount: 450
+      });
+    });
+    await expect(page.getByText('Nội dung chương mới chính xác.')).toBeVisible();
+
+    await page.evaluate(() => {
+      window.__deferredMap.novelFresh.resolve({
+        novelId: 'nov-fresh',
+        authorId: 'a1',
+        title: 'Truyện Mới',
+        chapters: [
+          { chapterId: 'race-ch-2', novelId: 'nov-fresh', chapterNumber: 1, title: 'Chương mới hợp lệ', content: null, isVip: false, priceCoins: 0 },
+          { chapterId: 'race-ch-3', novelId: 'nov-fresh', chapterNumber: 2, title: 'Chương tiếp hợp lệ', content: null, isVip: false, priceCoins: 0 }
+        ]
+      });
+    });
+    await expect(page.getByRole('button', { name: 'Chương tiếp' })).toBeEnabled();
+
+    // Even if a stale getReaderNovel started before switching novels and resolves late, it cannot clobber nov-fresh's chapters
+    await page.evaluate(() => {
+      window.__capturedRequests = [];
+      window.__deferredMap = {};
+      const defer = (key) =>
+        new Promise((resolve, reject) => {
+          window.__deferredMap[key] = { resolve, reject };
+        });
+
+      window.__mockHandlers = {
+        'GET /reading/chapters/race-ch-a': () => ({
+          chapterId: 'race-ch-a',
+          novelId: 'nov-stale-2',
+          chapterNumber: 1,
+          title: 'Chương A',
+          content: 'Nội dung chương A.',
+          isVip: false,
+          priceCoins: 0,
+          wordCount: 300
+        }),
+        'GET /reading/chapters/race-ch-b': () => ({
+          chapterId: 'race-ch-b',
+          novelId: 'nov-fresh-2',
+          chapterNumber: 1,
+          title: 'Chương B',
+          content: 'Nội dung chương B mới nhất.',
+          isVip: false,
+          priceCoins: 0,
+          wordCount: 400
+        }),
+        'GET /reading/novels/nov-stale-2': () => defer('novelStale2'),
+        'GET /reading/novels/nov-fresh-2': () => ({
+          novelId: 'nov-fresh-2',
+          authorId: 'a2',
+          title: 'Truyện Mới 2',
+          chapters: [
+            { chapterId: 'race-ch-b', novelId: 'nov-fresh-2', chapterNumber: 1, title: 'Chương B', content: null, isVip: false, priceCoins: 0 },
+            { chapterId: 'race-ch-b2', novelId: 'nov-fresh-2', chapterNumber: 2, title: 'Chương B2', content: null, isVip: false, priceCoins: 0 }
+          ]
+        }),
+        'GET /reading/preferences/me': () => ({ fontFamily: null, fontSize: 18, background: 'LIGHT', lineHeight: 1.8 }),
+        'PUT /reading/history/me': () => ({ synced: true })
+      };
+      window.__mountReader('race-ch-a', 'nov-stale-2');
+    });
+
+    await expect(page.getByText('Nội dung chương A.')).toBeVisible();
+    await page.waitForFunction(() =>
+      window.__capturedRequests.some((r) => r.url === '/reading/novels/nov-stale-2')
+    );
+
+    await page.evaluate(() => {
+      window.__rerenderReader('race-ch-b', 'nov-fresh-2');
+    });
+    await expect(page.getByText('Nội dung chương B mới nhất.')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Chương tiếp' })).toBeEnabled();
+
+    assert.equal(
+      await page.evaluate(
+        () => window.__capturedRequests.find((r) => r.url === '/reading/novels/nov-stale-2')?.aborted
+      ),
+      true,
+      'Superseded getReaderNovel request should have its AbortSignal aborted'
+    );
+
+    await page.evaluate(() => {
+      window.__deferredMap.novelStale2.resolve({
+        novelId: 'nov-stale-2',
+        authorId: 'a0',
+        title: 'Truyện Cũ 2',
+        chapters: [{ chapterId: 'race-ch-a', novelId: 'nov-stale-2', chapterNumber: 1, title: 'Đơn độc', content: null, isVip: false, priceCoins: 0 }]
+      });
+    });
+    await page.waitForTimeout(40);
+    await expect(page.getByText('Nội dung chương B mới nhất.')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Chương tiếp' })).toBeEnabled();
   } finally {
     await browser.close();
   }

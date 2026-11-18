@@ -39,7 +39,7 @@ export function HomeScreen({
 }: {
   authenticated: boolean;
   onOpenNovel: (novelId: string) => void;
-  onOpenChapter: (chapterId: string) => void;
+  onOpenChapter: (chapterId: string, novelId?: string) => void;
 }) {
   const { palette } = useStoryCraftTheme();
   const themed = useScreenStyles();
@@ -194,7 +194,7 @@ export function HomeScreen({
             </View>
             <PrimaryButton
               label="Tiếp tục đọc"
-              onPress={() => onOpenChapter(latestHistory.chapterId)}
+              onPress={() => onOpenChapter(latestHistory.chapterId, latestHistory.novelId)}
             />
           </Card>
         </Section>
