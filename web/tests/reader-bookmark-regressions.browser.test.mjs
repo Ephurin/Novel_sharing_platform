@@ -233,6 +233,9 @@ test('bookmark action is icon-only, dismisses on outside click, and leaves no ou
     await expect(action).toBeVisible();
     await expect(action).toHaveAccessibleName('Bookmark');
     await expect(action).toHaveText('bookmark_add');
+    await expect(action).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    await expect(action).toHaveCSS('border-top-style', 'none');
+    await expect(action).toHaveCSS('box-shadow', 'none');
     const box = await action.boundingBox();
     assert.equal(Math.round(box.width), 44);
     assert.equal(Math.round(box.height), 44);

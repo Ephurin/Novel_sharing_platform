@@ -270,7 +270,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
     {selectedPassage && <button ref={bookmarkAction} type="button" className="sc-reading-bookmark-action" data-placement={selectedPassage.beside ? 'side' : 'below'} style={{ top: selectedPassage.top, left: selectedPassage.left }}
       disabled={bookmarks.pending || bookmarks.saving || Boolean(bookmarks.error)} onClick={savePassage} aria-pressed={Boolean(selectedBookmark)}
       aria-label={bookmarkLabel} title={bookmarkLabel}>
-      <Icon name={selectedBookmark ? 'close' : 'bookmark_add'} />
+      <Icon name={selectedBookmark ? 'bookmark_remove' : 'bookmark_add'} />
     </button>}
     <button type="button" className="sc-reader-tools-toggle" aria-expanded={toolsVisible} aria-controls="chapter-reader-tools" onClick={() => setToolsOpen(value => !value)}>{toolsOpen ? 'Ẩn công cụ đọc' : 'Hiện công cụ đọc'}</button>
     <aside id="chapter-reader-tools" className="sc-reader-tool-rail" aria-label="Công cụ đọc chương" data-open={toolsOpen} aria-hidden={!toolsVisible} inert={!toolsVisible}>

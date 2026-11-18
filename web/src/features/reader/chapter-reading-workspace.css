@@ -38,13 +38,15 @@
 .sc-reading-line-highlight { position: absolute; pointer-events: none; border-radius: 2px; background: color-mix(in srgb, var(--reader-accent) 7%, transparent); }
 @keyframes sc-reading-line-fade { 0%, 65% { opacity: 1; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .sc-reading-line-flash { animation: none; } }
-.sc-reading-bookmark-action { position: fixed; z-index: 200; display: inline-flex; align-items: center; justify-content: center; width: 44px; min-width: 44px; height: 44px; min-height: 44px; padding: 0; border: 1px solid var(--sc-border); border-radius: 10px; background: var(--sc-surface-elevated); color: var(--sc-primary-text); box-shadow: 0 2px 12px rgb(var(--sc-text-rgb) / .12); cursor: pointer; }
-.sc-reading-bookmark-action .material-symbols-outlined { font-size: 20px; }
-.sc-reading-bookmark-action:hover:not(:disabled) { background: var(--sc-primary-soft); border-color: var(--sc-primary); }
-.sc-reading-bookmark-action:disabled { cursor: wait; opacity: .7; }
+.sc-author-theme .sc-reading-bookmark-action,
+.sc-reading-bookmark-action { position: fixed; z-index: 200; display: inline-flex; align-items: center; justify-content: center; width: 44px; min-width: 44px; height: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--reader-accent); box-shadow: none; cursor: pointer; transition: transform .14s ease, opacity .14s ease, color .14s ease; }
+.sc-reading-bookmark-action .material-symbols-outlined { font-size: 26px; font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24; filter: drop-shadow(0 1px 2px rgb(0 0 0 / .16)); }
+.sc-reading-bookmark-action:hover:not(:disabled) { background: transparent; border: 0; transform: scale(1.1); }
+.sc-reading-bookmark-action:disabled { cursor: wait; opacity: .55; }
 .sc-reading-bookmark-action[data-placement="side"] { transform: translateY(-50%); }
-.sc-reading-bookmark-action[aria-pressed="true"] { color: var(--sc-danger); background: var(--sc-danger-bg); }
-.sc-reading-bookmark-action[aria-pressed="true"]:hover:not(:disabled) { border-color: var(--sc-danger); }
+.sc-reading-bookmark-action[data-placement="side"]:hover:not(:disabled) { transform: translateY(-50%) scale(1.1); }
+.sc-author-theme .sc-reading-bookmark-action[aria-pressed="true"],
+.sc-reading-bookmark-action[aria-pressed="true"] { background: transparent; border: 0; box-shadow: none; color: var(--sc-danger); }
 .sc-reader-bookmark-help { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .sc-reader-manuscript [tabindex="-1"]:focus { outline: none; }
 .sc-reader-tool-rail { position: fixed; right: 24px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; padding: 4px; border: 1px solid var(--sc-border); border-radius: 12px; background: var(--sc-surface-elevated); color: var(--sc-text); z-index: 180; box-shadow: 0 2px 12px rgb(var(--sc-text-rgb) / .08); }
@@ -99,7 +101,10 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .sc-reader-tool-rail,
-  .sc-reader-alignment-options button {
+  .sc-reader-alignment-options button,
+  .sc-reading-bookmark-action {
     transition: none;
   }
+  .sc-reading-bookmark-action:hover:not(:disabled) { transform: none; }
+  .sc-reading-bookmark-action[data-placement="side"]:hover:not(:disabled) { transform: translateY(-50%); }
 }
