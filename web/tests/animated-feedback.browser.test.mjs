@@ -201,7 +201,7 @@ test('animated feedback: tabs, toasts, saves, controls, skeletons and real progr
           await expect(page.locator('input[data-chapter-title]')).toHaveCount(6);
           await page.getByRole('checkbox', { name: /Chỉ chương trùng/ }).uncheck();
           await page.getByRole('button', { name: 'Cấu hình nâng cao', exact: true }).click();
-          await page.locator('.sc-filter-presets summary').filter({ hasText: 'Mẫu tách chương đã lưu' }).click();
+          await page.locator('.sc-filter-presets .sc-disclosure-trigger').filter({ hasText: 'Mẫu tách chương đã lưu' }).click();
           await page.getByRole('textbox', { name: 'Tên mẫu tách chương', exact: true }).fill('Mẫu của tác giả');
           const savedPattern = await page.getByRole('textbox', { name: 'Quy tắc nhận diện Regex', exact: true }).inputValue();
           await page.getByRole('button', { name: 'Lưu mẫu tách chương', exact: true }).click();
@@ -213,7 +213,7 @@ test('animated feedback: tabs, toasts, saves, controls, skeletons and real progr
           await page.getByRole('button', { name: 'Cấu hình nâng cao', exact: true }).click();
           await page.reload();
           await page.getByRole('button', { name: 'Cấu hình nâng cao', exact: true }).click();
-          await page.locator('.sc-filter-presets summary').filter({ hasText: 'Mẫu tách chương đã lưu' }).click();
+          await page.locator('.sc-filter-presets .sc-disclosure-trigger').filter({ hasText: 'Mẫu tách chương đã lưu' }).click();
           await expect(page.getByRole('button', { name: 'Mẫu của tác giả', exact: true })).toBeVisible();
           await page.getByRole('button', { name: 'Mẫu của tác giả', exact: true }).click();
           await expect(page.getByRole('textbox', { name: 'Quy tắc nhận diện Regex', exact: true })).toHaveValue(savedPattern);
@@ -223,7 +223,7 @@ test('animated feedback: tabs, toasts, saves, controls, skeletons and real progr
         await expect(page.getByRole('progressbar', { name: 'Đã đọc tệp bản thảo' })).toHaveAttribute('aria-valuenow', '100');
         await expect(page.getByRole('navigation', { name: 'Các bước nhập bản thảo' }).locator('[aria-current="step"]')).toContainText('2. Phân tích');
         await page.getByRole('button', { name: 'Cấu hình nâng cao' }).click();
-        await page.locator('.sc-normalization-preview summary').click();
+        await page.locator('.sc-normalization-preview .sc-disclosure-trigger').click();
         await expect(page.locator('pre[aria-label="Trước chuẩn hóa"]')).toContainText('"Nội dung mở đầu"...');
         await expect(page.locator('pre[aria-label="Sau chuẩn hóa"]')).toContainText('“Nội dung mở đầu”…');
         await page.screenshot({ path: path.join(output, `normalization-${failSecond ? 'failure' : 'success'}.png`), fullPage: true });

@@ -144,15 +144,17 @@ export function AdminNovelsPage() {
                     <td>{number(novel.chaptersCount)}</td>
                     <td>{novel.deletedAt ? <Status value="DELETED" label="Đã gỡ" /> : 'Bình thường'}</td>
                     <td>
-                      <Button variant="subtle" size="xs" onClick={() => setPreviewId(novel.novelId)}>Xem nhanh</Button>
-                      <Button
-                        component={Link}
-                        to={`/admin/novels/${novel.novelId}`}
-                        size="xs"
-                        variant="light"
-                      >
-                        Chi tiết →
-                      </Button>
+                      <div className="admin-actions">
+                        <Button variant="subtle" size="xs" onClick={() => setPreviewId(novel.novelId)}>Xem nhanh</Button>
+                        <Button
+                          component={Link}
+                          to={`/admin/novels/${novel.novelId}`}
+                          size="xs"
+                          variant="light"
+                        >
+                          Chi tiết →
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}

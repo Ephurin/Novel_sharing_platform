@@ -48,7 +48,7 @@ export function AdminTaxonomyActions({ kind, items }: { kind: 'genres' | 'tags';
   };
   return (
     <>
-      <div>
+      <div className="admin-taxonomy-list">
         {items.map((item) => (
           <div className="admin-taxonomy-row" key={item.id}>
             <div>

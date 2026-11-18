@@ -70,7 +70,7 @@ export function AdminTaxonomyPage() {
             >
               <TextInput
                 className="admin-search"
-                aria-label="Tên thể loại mới"
+                label="Tên thể loại mới"
                 placeholder="Nhập thể loại mới..."
                 value={genre}
                 maxLength={100}
@@ -108,7 +108,7 @@ export function AdminTaxonomyPage() {
             >
               <TextInput
                 className="admin-search"
-                aria-label="Tên tag mới"
+                label="Tên tag mới"
                 placeholder="Nhập tag mới..."
                 value={tag}
                 maxLength={100}

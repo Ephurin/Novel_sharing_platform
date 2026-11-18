@@ -17,7 +17,6 @@ type AuthorProfileHeaderProps = {
 // Reader-facing author identity: banner, overlapping avatar, actions and one stats strip.
 export function AuthorProfileHeader({ author, isOwnProfile, isGuest, canInteract, followingPending, onFollow, onSupport, onShare }: AuthorProfileHeaderProps) {
   const name = author.displayName || author.username;
-  const publishedChapters = author.novels.reduce((total, novel) => total + (novel.chaptersCount ?? 0), 0);
   const stats = [
     { label: 'Người theo dõi', value: author.followersCount },
     { label: 'Tổng lượt đọc', value: author.totalViews },
@@ -49,7 +48,20 @@ export function AuthorProfileHeader({ author, isOwnProfile, isGuest, canInteract
           )}
           <div className="min-w-0 flex-1">
             <h1 className="text-page-title text-stone-900 break-words">{name}</h1>
-            <p className="text-meta text-stone-500">@{author.username}</p>
+            <p className="text-meta text-stone-500 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+              <span>@{author.username}</span>
+              {author.joinedAt && (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <span>
+                    Tham gia{' '}
+                    <time dateTime={author.joinedAt} title={new Date(author.joinedAt).toLocaleDateString('vi-VN')}>
+                      {new Date(author.joinedAt).toLocaleDateString('vi-VN', { month: '2-digit', year: 'numeric' })}
+                    </time>
+                  </span>
+                </>
+              )}
+            </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {isOwnProfile ? (
@@ -83,22 +95,6 @@ export function AuthorProfileHeader({ author, isOwnProfile, isGuest, canInteract
             </button>
           </div>
         </div>
-
-        <ul className="flex flex-wrap items-center gap-x-5 gap-y-1 mt-4 text-meta text-stone-500" aria-label="Thông tin tác giả">
-          {author.joinedAt && (
-            <li className="inline-flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px]" aria-hidden="true">calendar_today</span>
-              Tham gia{' '}
-              <time dateTime={author.joinedAt} title={new Date(author.joinedAt).toLocaleDateString('vi-VN')}>
-                {new Date(author.joinedAt).toLocaleDateString('vi-VN', { month: '2-digit', year: 'numeric' })}
-              </time>
-            </li>
-          )}
-          <li className="inline-flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[16px]" aria-hidden="true">library_books</span>
-            {publishedChapters.toLocaleString('vi-VN')} chương đã xuất bản
-          </li>
-        </ul>
 
         <dl className="sc-profile-stats" aria-label="Thống kê tác giả">
           {stats.map((stat) => (
