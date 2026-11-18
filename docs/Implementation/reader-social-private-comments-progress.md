@@ -1,6 +1,6 @@
 # Tiến độ Follow, bình luận bạn bè và góp ý riêng tác giả
 
-Cập nhật: 18/11/2026 (Asia/Bangkok). **Đã hoàn thành mốc 0–3; mốc 4 đã triển khai, kiểm chứng Expo web, còn nghiệm thu native.** Chặng 1 commit `fedb0474`, chặng 2 `f4cbaa7e`, chặng 3 `d16f6a69`. Mốc 4 chưa commit; mốc 5 chưa triển khai. Các phần trước đó giữ lịch sử thực hiện.
+Cập nhật ngày 18/11/2026. Chặng 1 commit `fedb0474`, chặng 2 `f4cbaa7e`, chặng 3 `d16f6a69`, chặng 4 `fca0593a`. Chặng 5 đã triển khai nghiệm thu tích hợp. Android/iOS còn cần chạy app trên thiết bị.
 
 ## Nơi làm việc hiện tại
 
@@ -23,7 +23,21 @@ Cập nhật: 18/11/2026 (Asia/Bangkok). **Đã hoàn thành mốc 0–3; mốc 
 | 2. Private comments, anchor, tag, notifications, policy | Hoàn thành | Backend build/typecheck pass, 37/37 unit/integration tests pass trên DB cô lập; contract API đã ghi |
 | 3. Web | Hoàn thành | Web build pass; browser tích hợp API thật pass; 9/9 hồi quy bình luận/bookmark pass; đã rà ảnh desktop light/mobile dark |
 | 4. Mobile | Đã triển khai; còn nghiệm thu native | Typecheck pass; export web/Android/iOS pass; Expo web API thật 1/1 pass, 0 skipped; chưa có thiết bị native |
-| 5. Tích hợp và nghiệm thu | Chưa làm | Chưa có test evidence |
+| 5. Tích hợp và nghiệm thu | Đã rà backend và các client trên môi trường hiện có | Kết quả và giới hạn ghi bên dưới |
+
+## Chặng 5 — kiểm tra tích hợp và bàn giao
+
+| Nhóm nghiệm thu | Bằng chứng |
+| --- | --- |
+| Follow, danh sách kết nối, cạnh legacy, trạng thái tài khoản | `connections.integration`, `reader-social-comment-preferences` |
+| Bình luận legacy/public, nhắc tên, edit, approval, gửi lại thông báo | `comments.integration`, `private-comments.integration`, `author-workflow.integration` |
+| Snapshot, thu hồi quyền, VIP, tác giả, report/audit, xóa root | Ma trận HTTP trong `private-comments.integration` và `comment-user-report-admin-moderation` |
+| Gắn lại đoạn, detached, marker, public count và bookmark | Unit paragraph anchors, hai suite PostgreSQL reading và browser reader workspace/bookmark |
+| Notification trang sau, đổi tài khoản, cache và offline | Browser reader-social thật và Expo web thật trên DB cô lập |
+
+Bộ browser đạt 11/11, gồm hai ca web/Expo web dùng API thật và chín ca hồi quy. Đợt chạy tổng hợp backend đạt 48/48, không skip. Khi rà contract, phát hiện JavaScript slice chấp nhận end ngoài chuỗi nếu mention nằm ở cuối bình luận. API nay trả 400. Hai suite comments chạy lại sau sửa đạt 16/16, DB tạm đã dọn. Typecheck backend, web và mobile đều đạt. Log tại `.vscode/m5-backend.log`, `.vscode/m5-final.log` và `.vscode/m5-ui.log`.
+
+Đã rà điều kiện audience của public list/location, bộ lọc quyền trước count/phân trang private, kiểm tra lại quyền trước fan-out và đường đọc moderation có audit. Hướng dẫn demo các vai trò nằm trong [contract API](reader-social-private-comments-api.md). Đặc tả social và tài liệu MongoDB đã cập nhật. Giới hạn còn lại gồm kiểm thử native Android/iOS và tải thực tế khi chương có nhiều trang marker. Chỉ bật private writes khi các instance backend đều hỗ trợ policy mới.
 
 ## Mốc 4 — đã triển khai, còn nghiệm thu native (18/11/2026)
 

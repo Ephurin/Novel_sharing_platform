@@ -23,12 +23,13 @@ export async function mutualIds(userId: string) {
   return result.rows.map(row => row.author_id as string);
 }
 export async function validateMentions(userId: string, content: string, mentions: Mention[] = []) {
+  if (mentions.length === 0) return mentions;
   const mutual = new Set(await mutualIds(userId));
   const profiles = mentions.length ? (await getPostgresPool().query('select user_id,username from users where user_id=any($1::uuid[])', [mentions.map(m=>m.userId)])).rows : [];
   const names = new Map(profiles.map(p=>[p.user_id,p.username]));
   let end = 0;
   for (const mention of [...mentions].sort((a,b)=>a.start-b.start)) {
-    if (!mutual.has(mention.userId) || mention.start < end || content.slice(mention.start,mention.end) !== '@'+names.get(mention.userId))
+    if (!mutual.has(mention.userId) || mention.start < end || mention.end > content.length || content.slice(mention.start,mention.end) !== '@'+names.get(mention.userId))
       throw new AppError(400, 'COMMENT_MENTION_INVALID', 'Select a mutual account from suggestions');
     end = mention.end;
   }

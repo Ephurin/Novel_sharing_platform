@@ -92,6 +92,19 @@ Marker hiện gom các trang list được phân quyền thay vì endpoint aggre
 
 ## Mobile (mốc 4)
 
+### Kịch bản demo liên tầng
+
+Trên môi trường demo dùng backend mới với `PRIVATE_COMMENTS_ENABLED=true`, chuẩn bị một truyện đã xuất bản của tác giả T và ba độc giả A, B, C. Cho A và B theo dõi lẫn nhau. Dùng ba phiên đăng nhập riêng để quan sát cùng một chương. Nếu nội dung chờ kiểm duyệt, duyệt trước khi kiểm tra từ phiên người nhận.
+
+1. A viết bình luận công khai và chọn tag B. Khách đọc được bình luận. B mở thông báo tới đúng bình luận.
+2. A chọn một đoạn trên web hoặc nhấn giữ trên mobile. Gửi lần lượt tới tất cả bạn bè và tới riêng B. B xem được marker và trả lời. C và T chỉ thấy nội dung thuộc phạm vi của mình.
+3. B bỏ theo dõi A rồi mở lại thông báo. Luồng riêng và marker tương ứng biến mất. Thử thêm bạn mới sau lúc A gửi để kiểm tra danh sách người nhận đã được cố định.
+4. A gửi góp ý riêng tác giả. A mở hộp đã gửi, T mở hộp nhận và trả lời. B và C không thấy góp ý trong danh sách công khai.
+5. Dùng chương VIP chưa mở khóa để kiểm tra quyền đọc. Sửa đoạn đã gắn để kiểm tra trạng thái detached. Trên mobile, đưa app ra nền, đổi quyền rồi mở lại. Nội dung chỉ xuất hiện sau khi kiểm tra quyền thành công.
+6. Với quản trị viên có quyền kiểm duyệt, mở hồ sơ report của một bình luận riêng. Kiểm tra sự kiện `PRIVATE_COMMENT_REVIEW_VIEW` và xác nhận endpoint độc giả vẫn giới hạn theo audience.
+
+Hai bài tích hợp tự tạo dữ liệu demo và dọn DB sau khi chạy. Từ gốc repo dùng `node --test --test-concurrency=1 web/tests/reader-social-real.browser.test.mjs web/tests/mobile-social-real.browser.test.mjs` sau khi chuẩn bị bản build và biến môi trường DB như hướng dẫn trong tài liệu này.
+
 - Profile mở Bạn bè, Góp ý đã gửi; CurrentUser AUTHOR/ADMIN có Góp ý gửi tôi, API luôn lọc đúng các truyện người dùng sở hữu. Reader profile có quan hệ/count; connections có search, following/followers/mutual và phân trang.
 - Trang truyện mở Bình luận và góp ý; Reader mở bình luận chương hoặc nhấn giữ đoạn để dùng anchor contentVersion/paragraphId của bản published. Marker gom cả ba kênh riêng đã kiểm quyền. Không gửi quote client; anchor stale trả lỗi và cần mở lại chương.
 - Comments có PUBLIC/FRIENDS_ALL/FRIENDS_SELECTED/AUTHOR_PRIVATE, mutual picker cho public mention và chọn người nhận private. Replies không gửi lại audience/anchor/recipient. Emoji qua bàn phím hệ điều hành; không có upload/GIF private.

@@ -114,6 +114,9 @@ test('private comment HTTP access matrix, snapshots, VIP, anchors, moderation an
     await t.test('public mentions validate structured ranges and share reply dedup key',async()=>{
       const name='user_'+b.replaceAll('-','');const text='@'+name+' hello';
       const mentions=[{userId:b,start:0,end:name.length+1}];
+      assert.equal((await req(`/novels/${novel}/comments`,'POST',{
+        content:'@'+name,mentions:[{userId:b,start:0,end:name.length+2}]
+      },a)).status,400);
       const result=await req(`/novels/${novel}/comments`,'POST',{content:text,mentions},a);assert.equal(result.status,201);
       assert.equal((await req(`/novels/${novel}/comments`,'POST',{content:'fake',mentions},a)).status,400);
       await deliverDomainNotifications();await deliverDomainNotifications();

@@ -2,7 +2,7 @@
 
 Ngày chốt: 17/11/2026. Repository đã khảo sát: `F:\Code\Github\Novel_sharing_platform`.
 
-Trạng thái: **Đã hoàn thành mốc 0–3; mốc 4 đã triển khai và kiểm chứng Expo web, còn nghiệm thu native.** Chặng 1 commit `fedb0474`, chặng 2 `f4cbaa7e`, chặng 3 `d16f6a69`. Mốc 4 chưa commit; mốc 5 chưa triển khai. Kết quả và lệnh tái hiện nằm trong progress/API.
+Mốc 0–3 đã hoàn thành. Mốc 4 đã commit `fca0593a` và còn nghiệm thu native. Mốc 5 đã triển khai kiểm tra tích hợp và tài liệu bàn giao. Kết quả từng môi trường nằm trong progress.
 
 ## Chuẩn bị đã hoàn thành
 
@@ -219,11 +219,13 @@ Typecheck + export web/Android/iOS pass. Expo web chạy API thật 1/1 pass; ch
 
 ### Mốc 5 — Tích hợp, nghiệm thu và bàn giao
 
-- [ ] Rà toàn bộ ma trận ở mục 5; sửa các lỗi tích hợp, thêm regression test cho lỗi có ý nghĩa.
-- [ ] Chạy checks phù hợp backend/web/mobile sau thay đổi cuối; không dùng mock hoặc chỉ typecheck làm bằng chứng hoàn thành quyền truy cập.
-- [ ] Rà diff về lộ nội dung, counts, notification, cache, public compatibility và hồi quy reader/bookmark đã merge.
-- [ ] Cập nhật tài liệu API/SRS/Database liên quan, hướng dẫn chạy và demo đủ các vai trò/kênh.
-- [ ] Báo kết quả thực tế, checks chưa chạy/chưa đạt và rủi ro còn lại; chỉ đánh dấu hoàn thành khi luồng chính và acceptance checks tương ứng đã đạt.
+- [x] Rà toàn bộ ma trận ở mục 5; sửa các lỗi tích hợp, thêm regression test cho lỗi có ý nghĩa.
+- [x] Chạy checks phù hợp backend/web/mobile sau thay đổi cuối; không dùng mock hoặc chỉ typecheck làm bằng chứng hoàn thành quyền truy cập.
+- [x] Rà diff về lộ nội dung, counts, notification, cache, public compatibility và hồi quy reader/bookmark đã merge.
+- [x] Cập nhật tài liệu API/SRS/Database liên quan, hướng dẫn chạy và demo đủ các vai trò/kênh.
+- [x] Báo kết quả thực tế, checks chưa chạy/chưa đạt và rủi ro còn lại; chỉ đánh dấu hoàn thành khi luồng chính và acceptance checks tương ứng đã đạt.
+
+Kiểm tra trên môi trường hiện có đạt 48/48 backend và 11/11 browser, gồm Expo web. Nghiệm thu runtime native thuộc phần còn mở ở mốc 4.
 
 ### Quy tắc thực thi và tiếp tục bằng tài khoản khác
 
