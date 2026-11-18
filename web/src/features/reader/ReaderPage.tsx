@@ -198,9 +198,7 @@ export function ReaderLibraryPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3"><PageHeader crumbs={[readerHomeCrumb, { label: 'Thư viện của tôi' }]} title="Thư viện của tôi" />
-        <Link to="/reader/bookmarks" className="sc-button sc-button-soft"><span className="material-symbols-outlined" aria-hidden="true">bookmarks</span>Bookmark</Link>
-      </div>
+      <PageHeader crumbs={[readerHomeCrumb, { label: 'Thư viện của tôi' }]} title="Thư viện của tôi" />
       <section className="flex flex-col gap-4">
         <SectionHeading title="Truyện đang theo dõi" count={libraryQuery.isSuccess ? `${novels.length} truyện` : undefined} />
         <QueryStates

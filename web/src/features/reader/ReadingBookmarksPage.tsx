@@ -41,7 +41,7 @@ export function ReadingBookmarksPage({ publicMode = false }: { publicMode?: bool
   const novelId = params.get('novelId') || undefined;
   return <section className="sc-reading-bookmarks-page">
     <Group justify="space-between" mb="lg" gap="sm"><Title order={1}>Bookmark</Title>
-      <Button component={Link} to={publicMode ? '/public' : '/reader/library'} variant="subtle">{publicMode ? 'Danh sách truyện' : 'Kệ sách'}</Button>
+      {publicMode && <Button component={Link} to="/public" variant="subtle">Danh sách truyện</Button>}
     </Group>
     {novelId && <Text mb="md"><Link to={publicMode ? '/public/bookmarks' : '/reader/bookmarks'}>Xem tất cả truyện</Link></Text>}
     <ReadingBookmarksList novelId={novelId} base={publicMode ? '/public' : '/reader'} />

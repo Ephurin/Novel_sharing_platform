@@ -27,6 +27,7 @@ import { AuthGate, OptionalSession, RoleGuard } from '../features/auth/AuthGate'
 import { ReaderHomePage } from '../features/reader/ReaderHomePage';
 import { ReaderNovelReviewsPage } from '../features/reader/ReaderNovelReviewsPage';
 import { ReadingBookmarksPage } from '../features/reader/ReadingBookmarksPage';
+import { ReaderCollectionsLayout } from '../features/reader/ReaderCollectionsLayout';
 import { NotificationsPage } from '../features/notifications/NotificationsPage';
 import { AuthorProfilePage, MyProfilePage } from '../features/profile/ProfilePage';
 import {
@@ -235,13 +236,12 @@ export const router = createBrowserRouter([
         element: <ReaderChapterPage />
       },
       {
-        path: '/reader/library',
-        element: <ReaderLibraryPage />
-      },
-      { path: '/reader/bookmarks', element: <ReadingBookmarksPage /> },
-      {
-        path: '/reader/history',
-        element: <ReaderHistoryPage />
+        element: <ReaderCollectionsLayout />,
+        children: [
+          { path: '/reader/library', element: <ReaderLibraryPage /> },
+          { path: '/reader/bookmarks', element: <ReadingBookmarksPage /> },
+          { path: '/reader/history', element: <ReaderHistoryPage /> }
+        ]
       },
       {
         path: '/notifications',

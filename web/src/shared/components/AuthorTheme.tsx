@@ -1,4 +1,5 @@
 import { NotificationBell } from '../../features/notifications/NotificationBell';
+import { readerCollections } from '../../features/reader/ReaderCollectionsLayout';
 import { ThemeControl } from './ThemeControl';
 import { WorkspaceCommands } from './WorkspaceCommands';
 import { FocusTrap, useComputedColorScheme } from '@mantine/core';
@@ -173,9 +174,6 @@ export function AuthorNavbar() {
               {[
                 { to: '/', label: navigationLabels.home, active: path === '/' },
                 { to: '/reader', label: navigationLabels.readerHome, active: path === '/reader' || path.startsWith('/reader/novels') || path.startsWith('/reader/chapters') || path.startsWith('/authors/') },
-                { to: '/reader/library', label: 'Thư viện của tôi', active: path.startsWith('/reader/library') },
-                { to: '/reader/bookmarks', label: 'Bookmark', active: path.startsWith('/reader/bookmarks') },
-                { to: '/reader/history', label: 'Lịch sử đọc', active: path.startsWith('/reader/history') },
                 { to: '/wallet', label: navigationLabels.readerWallet, active: path.startsWith('/wallet') },
               ].map((item) => (
                 <Link key={item.to} to={item.to} className={readerLink(item.active)}>
@@ -189,7 +187,6 @@ export function AuthorNavbar() {
               {[
                 { to: '/', label: navigationLabels.home, active: path === '/' },
                 { to: '/public', label: navigationLabels.readerHome, active: path.startsWith('/public') && !path.startsWith('/public/bookmarks') },
-                { to: '/public/bookmarks', label: 'Bookmark', active: path.startsWith('/public/bookmarks') },
               ].map((item) => (
                 <Link key={item.to} to={item.to} className={readerLink(item.active)}>
                   {item.active && navPill}
@@ -208,6 +205,12 @@ export function AuthorNavbar() {
             { label: navigationLabels.authorProfile, to: '/author/profile', icon: 'person' },
             { label: 'Hồ sơ và cài đặt', to: '/profile/me' }
           ]} />}
+          <nav className="sc-navbar-reading-tools" aria-label="Công cụ đọc">
+            {(user ? readerCollections : [{ to: '/public/bookmarks', label: 'Bookmark', icon: 'bookmarks' }]).map(item =>
+              <NavLink key={item.to} to={item.to} end className="sc-icon-button" aria-label={item.label} title={item.label}>
+                <span className="material-symbols-outlined" aria-hidden="true">{item.icon}</span>
+              </NavLink>)}
+          </nav>
           <ThemeControl />
           {isWriter && location.pathname !== '/author/ide' && <Link to={writingUrl} className="sc-button sc-button-primary sc-continue"><span className="material-symbols-outlined">edit_note</span><span>Viết tiếp</span></Link>}
           {!user && <Link to="/login" className="sc-button sc-button-primary"><span className="material-symbols-outlined">login</span><span>Đăng nhập</span></Link>}
@@ -223,13 +226,10 @@ export function AuthorNavbar() {
               <Menu.Label>{name}</Menu.Label>
               <Menu.Item component={Link} to="/appeals">Quyết định &amp; khiếu nại</Menu.Item>
               <Menu.Item component={Link} to="/profile/me">Hồ sơ &amp; cài đặt</Menu.Item>
-              <Menu.Item component={Link} to="/reader/bookmarks">Bookmark</Menu.Item>
               <Menu.Item component={Link} to="/reader/connections">Bạn bè</Menu.Item>
               <Menu.Item component={Link} to="/reader/feedback">Góp ý đã gửi</Menu.Item>
               {isWriter ? <>
                 <Menu.Item component={Link} to="/author/profile">Trang tác giả</Menu.Item>
-                <Menu.Item component={Link} to="/reader/library">Thư viện của tôi</Menu.Item>
-                <Menu.Item component={Link} to="/reader/history">Lịch sử đọc</Menu.Item>
               </> : <Menu.Item component={Link} to="/notifications">Thông báo</Menu.Item>}
               <Menu.Divider />
               <Menu.Item onClick={() => void handleLogout()} data-testid="shell-logout-btn">Đăng xuất</Menu.Item>

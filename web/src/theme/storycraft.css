@@ -249,6 +249,21 @@
 .sc-button-primary:hover { background: var(--sc-primary-hover); border-color: var(--sc-primary-hover); color: var(--sc-on-primary); }
 .sc-icon-button { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; color: var(--sc-text-muted); border-radius: var(--sc-radius-control); }
 .sc-icon-button:hover { background: var(--sc-neutral-bg); color: var(--sc-text); }
+.sc-navbar-reading-tools { display: flex; gap: 2px; align-items: center; flex-shrink: 0; }
+.sc-navbar-reading-tools .material-symbols-outlined { font-size: 20px; }
+.sc-navbar-reading-tools [aria-current="page"], .sc-reader-collections-nav [aria-current="page"] { color: var(--sc-primary-text); background: var(--sc-primary-soft); }
+.sc-navbar-reading-tools a:focus-visible, .sc-reader-collections-nav a:focus-visible { outline: 2px solid var(--sc-focus-ring); outline-offset: -2px; }
+.sc-reader-collections { display: grid; grid-template-columns: minmax(0, 1fr) 218px; align-items: start; gap: 24px; }
+.sc-reader-collections-content { grid-column: 1; grid-row: 1; min-width: 0; }
+.sc-reader-collections-nav { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; padding: 4px; gap: 2px; border: 1px solid var(--sc-border); border-radius: var(--sc-radius-control); background: var(--sc-surface); }
+.sc-reader-collections-nav a { display: flex; align-items: center; min-height: 44px; gap: 8px; padding: 6px 10px; border-radius: var(--sc-radius-control); color: var(--sc-text); font-size: 14px; line-height: 20px; }
+.sc-reader-collections-nav .material-symbols-outlined { font-size: 19px; }
+.sc-reader-collections-nav a:not([aria-current]):hover { background: var(--sc-neutral-bg); }
+@media (max-width: 760px) {
+  .sc-reader-collections { display: flex; flex-direction: column; align-items: stretch; gap: 16px; }
+  .sc-reader-collections-nav { flex-direction: row; flex-wrap: wrap; }
+  .sc-reader-collections-nav a { flex: 1 0 auto; justify-content: center; }
+}
 .sc-author-theme .sc-avatar { width: 36px; height: 36px; min-height: 36px; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 50%; border: 1px solid var(--sc-border); background: var(--sc-primary-soft); color: var(--sc-primary-text); font-size: 13px; }
 .sc-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .sc-shell-content { max-width: var(--sc-content-width); padding: 24px; margin: auto; }
