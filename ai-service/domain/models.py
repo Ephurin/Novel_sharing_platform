@@ -21,6 +21,8 @@ class NarrativeEntity:
     mentions: int = 1
     is_locked: bool = False
     approved_profile: dict[str, Any] = field(default_factory=dict)
+    # Removed from memory by the author: kept for history and for events that still name it.
+    is_retired: bool = False
 
 
 @dataclass(frozen=True, slots=True)

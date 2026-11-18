@@ -95,6 +95,19 @@ class NarrativeApplicationService:
             story_id, source_entity_id, target_entity_id, expected_brain_version
         )
 
+    def retire_entity(self, story_id: str, entity_id: str, expected_brain_version: int,
+                      reason: str | None = None) -> dict[str, Any]:
+        if not hasattr(self._repository, "retire_entity"):
+            raise ValueError("Removing an entity needs the database repository")
+        return self._repository.retire_entity(story_id, entity_id, expected_brain_version, reason)
+
+    def correct_fact(self, story_id: str, fact_id: str, expected_brain_version: int, *,
+                     fact_value: Any = None, retire: bool = False, reason: str | None = None) -> dict[str, Any]:
+        if not hasattr(self._repository, "correct_fact"):
+            raise ValueError("Changing a fact needs the database repository")
+        return self._repository.correct_fact(story_id, fact_id, expected_brain_version,
+                                              fact_value=fact_value, retire=retire, reason=reason)
+
     def sync_entities(
         self, story_id: str, entities: list[dict[str, Any]]
     ) -> list[dict[str, Any]]:

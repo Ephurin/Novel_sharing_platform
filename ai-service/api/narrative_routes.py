@@ -34,6 +34,8 @@ from api.schemas import (
     EventCorrectionRequest,
     BaselineActivationRequest,
     EntityMergeRequest,
+    EntityRetireRequest,
+    FactCorrectionRequest,
     IdeaBootstrapRequest,
     ManuscriptBootstrapRequest,
     ProposalDecisionRequest,
@@ -867,6 +869,47 @@ def merge_entities(
         raise HTTPException(409, detail={"code": "BRAIN_VERSION_CONFLICT"}) from exc
     except ValueError as exc:
         raise HTTPException(400, detail={"code": "INVALID_ENTITY_MERGE", "message": str(exc)}) from exc
+    return {"data": result, "meta": {"request_id": request_id, "schema_version": 1}}
+
+
+@router.post("/story-brains/{brain_id}/entities/{entity_id}/retire")
+def retire_entity(
+    brain_id: str,
+    entity_id: str,
+    payload: EntityRetireRequest,
+    request_id: str = Header(..., alias="X-Request-Id"),
+    service: NarrativeApplicationService = Depends(get_narrative_service),
+):
+    """Demo walkthrough 2026-11-18: an approved wrong entity (an idiom read as a place) can be removed."""
+    try:
+        result = service.retire_entity(brain_id, entity_id, payload.expected_brain_version, payload.reason)
+    except KeyError as exc:
+        raise HTTPException(404, detail={"code": "ENTITY_NOT_FOUND"}) from exc
+    except OptimisticLockError as exc:
+        raise HTTPException(409, detail={"code": "BRAIN_VERSION_CONFLICT"}) from exc
+    except ValueError as exc:
+        raise HTTPException(400, detail={"code": "INVALID_ENTITY_RETIRE", "message": str(exc)}) from exc
+    return {"data": result, "meta": {"request_id": request_id, "schema_version": 1}}
+
+
+@router.post("/story-brains/{brain_id}/facts/{fact_id}/corrections")
+def correct_fact(
+    brain_id: str,
+    fact_id: str,
+    payload: FactCorrectionRequest,
+    request_id: str = Header(..., alias="X-Request-Id"),
+    service: NarrativeApplicationService = Depends(get_narrative_service),
+):
+    """Demo walkthrough 2026-11-18: an approved fact can be corrected or removed; history is kept."""
+    try:
+        result = service.correct_fact(brain_id, fact_id, payload.expected_brain_version,
+                                      fact_value=payload.fact_value, retire=payload.retire, reason=payload.reason)
+    except KeyError as exc:
+        raise HTTPException(404, detail={"code": "FACT_NOT_FOUND"}) from exc
+    except OptimisticLockError as exc:
+        raise HTTPException(409, detail={"code": "BRAIN_VERSION_CONFLICT"}) from exc
+    except ValueError as exc:
+        raise HTTPException(400, detail={"code": "INVALID_FACT_CORRECTION", "message": str(exc)}) from exc
     return {"data": result, "meta": {"request_id": request_id, "schema_version": 1}}
 
 

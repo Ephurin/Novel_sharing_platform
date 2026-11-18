@@ -180,6 +180,18 @@ class EntityMergeRequest(ProposalDecisionRequest):
     target_entity_id: str = Field(min_length=1)
 
 
+class EntityRetireRequest(ProposalDecisionRequest):
+    """Author removes an entity from memory; events that name it are kept and flagged."""
+    reason: str | None = Field(default=None, max_length=500)
+
+
+class FactCorrectionRequest(ProposalDecisionRequest):
+    """Author replaces a fact's value, or removes the fact (``retire``)."""
+    fact_value: str | None = Field(default=None, max_length=2000)
+    retire: bool = False
+    reason: str | None = Field(default=None, max_length=500)
+
+
 # ──────────────────────────────────────────────
 #  /extract-entities
 # ──────────────────────────────────────────────

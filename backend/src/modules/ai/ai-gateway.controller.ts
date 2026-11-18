@@ -55,6 +55,31 @@ export async function mergeEntitiesController(req: Request, res: Response, next:
   } catch (error) { next(error); }
 }
 
+// Demo walkthrough 2026-11-18: the author removes a wrong entity or corrects/removes a fact.
+export async function retireEntityController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+    const data = await aiGatewayService.forwardRequest({ method: 'POST',
+      path: `/v1/story-brains/${novelId}/entities/${encodeURIComponent(String(req.params.entityId))}/retire`,
+      body: req.body, userId: req.auth!.userId, requestId: req.header('x-request-id') });
+    await refreshStoryBibleSafely(novelId, req.auth!.userId);
+    res.json(successResponse(data));
+  } catch (error) { next(error); }
+}
+
+export async function correctFactController(req: Request, res: Response, next: NextFunction) {
+  try {
+    const novelId = String(req.params.novelId);
+    await assertNovelOwnership(req.auth!.userId, req.auth!.role, novelId);
+    const data = await aiGatewayService.forwardRequest({ method: 'POST',
+      path: `/v1/story-brains/${novelId}/facts/${encodeURIComponent(String(req.params.factId))}/corrections`,
+      body: req.body, userId: req.auth!.userId, requestId: req.header('x-request-id') });
+    await refreshStoryBibleSafely(novelId, req.auth!.userId);
+    res.json(successResponse(data));
+  } catch (error) { next(error); }
+}
+
 export async function authorEntityController(req: Request, res: Response, next: NextFunction) {
   try {
     const novelId = String(req.params.novelId);

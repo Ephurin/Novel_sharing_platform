@@ -15,3 +15,25 @@ These live-test findings are real, but the author can catch and fix each one qui
 | — | Earlier retests | Typos in names, state-key spelling variants, near-name warnings (parked before) | Edit the name or key in review | Validators listed in the retest reports |
 
 AA1–AA3 are already in the test novel's canon, because the long run used an auto-review that accepts everything. They can be cleaned up in the Story Brain if the test novel is used in the demo.
+
+## Update 2026-11-18: fixing approved memory, and the demo novel cleaned
+
+When the demo novel was cleaned, an author could not remove an approved entity or change an approved fact. They could only merge names and correct events, so AA2, AA3 and DD1 were not actually author-fixable after approval. The same change that cleaned the novel adds two author actions:
+
+- **Gỡ khỏi bộ nhớ** on a character, place or item.
+  - The entity is flagged `is_retired` and leaves the lists, the pickers, entity review, the writing context and the Story Bible.
+  - Events that still name it are kept, but shown in red with a warning so the author corrects them.
+- **Sửa / Gỡ** on a fact. The new value or the removal supersedes the old fact (`supersedes_id`), so history is kept.
+
+The demo novel "Kiếm Ấn Lôi Sơn" was then cleaned with live off. Memory went from v22 to v29:
+
+| Item | Fix |
+|---|---|
+| AA1 | "Hắc Nha Ma Công" merged into "Huyết Nha Ma Công"; the old name stays as an alias |
+| AA2, AA3 | "Quỷ Môn Quan" and "Thiên nhãn" removed from memory; no event named them |
+| DD1 | `silver` → "bạc"; `in the chest of Trần Vũ` → "trong lồng ngực Trần Vũ"; `lost_memories` → "mất một phần ký ức" |
+| DD2 | Mạc Độc's location → "thung lũng lơ lửng bên trong không gian phong ấn", through an event correction (ch. 16) and its approval |
+| DD3 | Ch. 18 renamed to "Chương 18". Ch. 1 is renamed in the draft only: the published title changes when the chapter is published again, which starts an analysis and so needs live |
+
+Still open: BB1 and UI-10 (left for later), the published title of ch. 1, and the 16 other test novels on the test account.
+

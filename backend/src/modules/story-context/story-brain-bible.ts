@@ -9,7 +9,8 @@ import { aiGatewayService } from '../ai/ai-gateway.service.js';
 const approvedMemorySchema = z.object({
   story_id: z.string().uuid(),
   brain_version: z.number().int().nonnegative(),
-  entities: z.array(z.object({ entity_id: z.string().uuid(), name: z.string().min(1).max(255), entity_type: z.string() })),
+  entities: z.array(z.object({ entity_id: z.string().uuid(), name: z.string().min(1).max(255), entity_type: z.string(),
+    is_retired: z.boolean().optional() })),
   events: z.array(z.object({ event_id: z.string().uuid(), summary: z.string(), chapter: z.number().int(),
     event_type: z.string(), metadata: z.record(z.unknown()).optional() })),
   aliases: z.array(z.object({ entity_id: z.string().uuid(), alias: z.string() })).default([]),
@@ -40,7 +41,8 @@ export async function applyApprovedMemoryToBible(novelId: string, userId: string
         set is_active=true,source_snapshot=excluded.source_snapshot`, [novelId, kind, id, bibleId, snapshot, owns]);
     };
     const entityProfiles = new Map<string, string>();
-    for (const entity of memory.entities.filter(e => ['PER', 'CHARACTER', 'PERSON'].includes(e.entity_type.toUpperCase()))) {
+    // An entity the author removed from memory is handled like a removed identity: its bible row is hidden.
+    for (const entity of memory.entities.filter(e => !e.is_retired && ['PER', 'CHARACTER', 'PERSON'].includes(e.entity_type.toUpperCase()))) {
       const link = linked('entity', entity.entity_id);
       let id = link?.bible_id as string | undefined;
       let owns = Boolean(link?.owns_bible_row);
