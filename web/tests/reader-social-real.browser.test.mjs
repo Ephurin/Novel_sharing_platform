@@ -83,8 +83,18 @@ test('reader social uses real APIs: follow, mention, private replies, anchors an
     await expect(page.getByRole('option', { name: /@social2/ })).toBeVisible();
     await publicEditor.press('Enter');
     await expect(publicEditor.locator('[data-comment-mention]')).toHaveText('@social2');
-    await publicEditor.press('Control+Home');
-    await publicEditor.pressSequentially('Hi ');
+    await expect.poll(async () => {
+      await publicEditor.press('Home');
+      return publicEditor.evaluate(element => {
+        const selection = window.getSelection();
+        if (!selection?.anchorNode || !element.contains(selection.anchorNode)) return false;
+        const prefix = document.createRange();
+        prefix.selectNodeContents(element);
+        prefix.setEnd(selection.anchorNode, selection.anchorOffset);
+        return prefix.toString() === '';
+      });
+    }).toBe(true);
+    await page.keyboard.insertText('Hi ');
     await expect(publicEditor).toHaveText('Hi 🌿 Chào @social2 nhé');
     await publicSection.getByRole('button', { name: 'Gửi bình luận', exact: true }).click();
     await expect(publicSection.locator('article').getByText('Hi 🌿 Chào @social2 nhé', { exact: true })).toBeVisible();
