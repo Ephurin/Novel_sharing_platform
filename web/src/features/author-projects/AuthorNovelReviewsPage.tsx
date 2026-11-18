@@ -22,7 +22,7 @@ export function AuthorNovelReviewsPage() {
           <Link to={`/author/novels/${novelId}`} className="sc-icon-button" aria-label="Quay lại quản lý tác phẩm" title="Quay lại quản lý tác phẩm">
             <span className="material-symbols-outlined" aria-hidden="true">arrow_back</span>
           </Link>
-          <div><h1 className="text-page">Đánh giá độc giả</h1>{novel.data && <p>{novel.data.title}</p>}</div>
+          <div><h1 className="text-page-title">Đánh giá độc giả</h1>{novel.data && <p>{novel.data.title}</p>}</div>
         </header>
         <div className="sc-reviews-body">
           {novel.isPending && <LoadingState label="Đang tải tác phẩm…" />}

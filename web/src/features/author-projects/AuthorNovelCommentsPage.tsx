@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
 import { authorHomeCrumb } from '../../shared/components/navigation';
 import { EmptyState, ErrorState, LoadingState, PermissionState } from '../../shared/components/PageStates';
@@ -29,7 +30,7 @@ function AuthorComments({ novelId }: { novelId: string }) {
   return <><AuthorNavbar /><main className="sc-shell-content sc-reviews-main">
     <Breadcrumbs className="mb-4" items={[authorHomeCrumb, { label: novel.data?.title || 'Tác phẩm', to: `/author/novels/${novelId}` }, { label: 'Bình luận độc giả' }]} />
     <div className="sc-reviews-panel">
-      <header className="sc-reviews-header"><Link to={`/author/novels/${novelId}`} className="sc-icon-button" aria-label="Quay lại quản lý tác phẩm"><span className="material-symbols-outlined" aria-hidden="true">arrow_back</span></Link><div><h1 className="text-page">Bình luận độc giả</h1>{novel.data && <p>{novel.data.title}</p>}</div></header>
+      <header className="sc-reviews-header"><Link to={`/author/novels/${novelId}`} className="sc-icon-button" aria-label="Quay lại quản lý tác phẩm"><span className="material-symbols-outlined" aria-hidden="true">arrow_back</span></Link><div><h1 className="text-page-title">Bình luận độc giả</h1>{novel.data && <p>{novel.data.title}</p>}</div></header>
       <div className="sc-reviews-body">
         {novel.isPending && <LoadingState label="Đang tải tác phẩm…" />}
         {novel.isError && <ErrorState title="Không tải được tác phẩm" error={novel.error} onRetry={() => void novel.refetch()} />}
@@ -37,10 +38,14 @@ function AuthorComments({ novelId }: { novelId: string }) {
         {canManage && <Stack gap="md">
           <Group justify="space-between" align="flex-end"><Select label="Phạm vi bình luận" aria-label="Phạm vi bình luận" value={filter} data={options} searchable allowDeselect={false} onChange={value => { if (value) { setFilter(value); setPage(1); } }} style={{ flex: '1 1 260px', maxWidth: '100%' }} />{comments.data && <Text size="sm" c="dimmed">{comments.data.totalItems.toLocaleString('vi-VN')} bình luận</Text>}</Group>
           {chapters.isError && <ErrorState title="Không tải được danh sách chương" error={chapters.error} onRetry={() => void chapters.refetch()} />}
-          {comments.isPending && <LoadingState label="Đang tải bình luận…" />}
-          {comments.isError && <ErrorState title="Không tải được bình luận" error={comments.error} onRetry={() => void comments.refetch()} />}
-          {comments.data?.totalItems === 0 && <EmptyState title="Chưa có bình luận" description="Bình luận đã được duyệt trong mục đã chọn sẽ xuất hiện tại đây." />}
-          {comments.data?.items.map(comment => <CommentThread key={comment.commentId} comment={comment} onChanged={refresh} showContext />)}
+          <ResultsSurface identity={`${filter}:${page}`} busy={comments.isFetching}>
+            {comments.isPending && <LoadingState label="Đang tải bình luận…" />}
+            {comments.isError && <ErrorState title="Không tải được bình luận" error={comments.error} onRetry={() => void comments.refetch()} />}
+            {comments.data?.totalItems === 0 && <EmptyState title="Chưa có bình luận" description="Bình luận đã được duyệt trong mục đã chọn sẽ xuất hiện tại đây." />}
+            <Stack gap="sm">
+              {comments.data?.items.map(comment => <CommentThread key={comment.commentId} comment={comment} onChanged={refresh} showContext />)}
+            </Stack>
+          </ResultsSurface>
           {comments.data && comments.data.totalPages > 1 && <Group justify="center"><Pagination total={comments.data.totalPages} value={page} onChange={setPage} siblings={0} boundaries={1} /></Group>}
         </Stack>}
       </div>

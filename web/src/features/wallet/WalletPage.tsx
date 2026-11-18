@@ -1,5 +1,6 @@
 import { AnimatedNumber } from '../../shared/components/AuthorAdminMotion';
-import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AnimatedModal } from '../../shared/components/AnimatedModal';
 import { useToast } from '../../shared/components/ToastProvider';
 import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 import { navigationLabels } from '../../shared/components/navigation';
@@ -138,7 +139,7 @@ export function WalletPage() {
       let categoryLabel = 'Doanh thu chương VIP';
       let icon = 'menu_book';
       let iconBg = 'bg-primary-fixed';
-      let iconColor = 'text-primary';
+      let iconColor = 'text-primary-800';
       let isPositive = t.direction === 'IN';
 
       if (isDeposit) {
@@ -164,7 +165,7 @@ export function WalletPage() {
         categoryLabel = isPositive ? 'Doanh thu mở khóa' : 'Mở khóa chương VIP';
         icon = 'menu_book';
         iconBg = 'bg-primary-fixed';
-        iconColor = 'text-primary';
+        iconColor = 'text-primary-800';
       }
 
       const statusMap: Record<string, DisplayTransaction['status']> = {
@@ -278,12 +279,12 @@ export function WalletPage() {
                   <div className="flex flex-col gap-2.5">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
-                        <div className="w-7 h-7 rounded-lg bg-primary-fixed flex items-center justify-center text-primary">
+                        <div className="w-7 h-7 rounded-lg bg-primary-fixed flex items-center justify-center text-primary-800">
                           <span className="material-symbols-outlined text-[16px]">account_balance_wallet</span>
                         </div>
                         <span className="font-label-md text-meta font-semibold text-on-surface">Số dư khả dụng</span>
                       </div>
-                      <span className="font-label-sm text-meta text-primary font-medium bg-surface-container-low px-1.5 py-0.5 rounded">
+                      <span className="font-label-sm text-meta text-primary-800 font-medium bg-surface-container-low px-1.5 py-0.5 rounded">
                         Số dư trong ví
                       </span>
                     </div>
@@ -293,16 +294,12 @@ export function WalletPage() {
                         <span className="text-2xl sm:text-3xl text-on-surface tracking-tight font-serif font-bold">
                           {animateAuthor ? <AnimatedNumber value={availableBalance} /> : availableBalance.toLocaleString('vi-VN')}
                         </span>
-                        <span className="text-body font-semibold text-primary">Xu</span>
+                        <span className="text-body font-semibold text-primary-800">Xu</span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="pt-2.5 mt-2.5 bg-surface-container-low rounded-lg p-2.5 flex flex-col gap-2">
-                    <div className="flex items-start gap-1.5 text-on-surface-variant text-meta leading-snug">
-                      <span className="material-symbols-outlined text-body text-primary shrink-0 mt-0.5">verified</span>
-                      <span>Số Xu hiện có trong ví của bạn.</span>
-                    </div>
+                  <div className="pt-2.5 mt-2.5">
                     <button
                       type="button"
                       onClick={() => {
@@ -311,7 +308,7 @@ export function WalletPage() {
                       }}
                       className="w-full inline-flex items-center justify-center gap-1.5 bg-primary hover:bg-primary-container text-on-primary font-label-md text-meta py-2 px-3 rounded-lg shadow-sm hover:shadow-sm transform   transition-all font-semibold"
                     >
-                      <span className="material-symbols-outlined text-[16px]">payments</span>
+                      <span className="material-symbols-outlined text-[16px]" aria-hidden="true">payments</span>
                       <span>Yêu cầu rút Xu mô phỏng</span>
                     </button>
                   </div>
@@ -341,13 +338,6 @@ export function WalletPage() {
                       </div>
                     </div>
                   </div>
-
-                  <div className="pt-2.5 mt-2.5 bg-surface-container-low rounded-lg p-2.5">
-                    <div className="flex items-start gap-1.5 text-on-surface-variant text-meta leading-snug">
-                      <span className="material-symbols-outlined text-body text-warning shrink-0 mt-0.5">info</span>
-                      <span>Số Xu đang bị khóa theo dữ liệu ví hiện tại.</span>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Card 3: Tổng thu nhập tích lũy */}
@@ -372,13 +362,6 @@ export function WalletPage() {
                         </span>
                         <span className="text-body font-semibold text-outline">Xu</span>
                       </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-2.5 mt-2.5 bg-surface-container-low rounded-lg p-2.5">
-                    <div className="flex items-start gap-1.5 text-on-surface-variant text-meta leading-snug">
-                      <span className="material-symbols-outlined text-body text-success shrink-0 mt-0.5">trending_up</span>
-                      <span>Xu nhận từ lượt mở khóa chương và ủng hộ đã hoàn tất.</span>
                     </div>
                   </div>
                 </div>
@@ -418,7 +401,7 @@ export function WalletPage() {
                                 type="button"
                                 onClick={() => setChartPeriod(period)}
                                 className={`relative z-10 px-2.5 py-1 rounded transition-colors text-meta font-medium ${
-                                  active ? 'text-primary font-semibold' : 'hover:text-on-surface'
+                                  active ? 'text-primary-800 font-semibold' : 'hover:text-on-surface'
                                 }`}
                               >
                                 {active && (
@@ -491,7 +474,7 @@ export function WalletPage() {
                               </div>
                               <span
                                 className={`font-label-sm text-meta mt-2 whitespace-nowrap ${
-                                  pt.highlight ? 'text-primary font-bold' : 'text-on-surface-variant'
+                                  pt.highlight ? 'text-primary-800 font-bold' : 'text-on-surface-variant'
                                 }`}
                               >
                                 {pt.label}
@@ -574,12 +557,6 @@ export function WalletPage() {
 
                     {/* Bank Details */}
                     <div className="flex flex-col gap-1.5 pt-0.5 text-meta text-on-surface-variant">
-                      <div className="flex justify-between items-center py-0.5 border-b border-surface-container/60">
-                        <span className="text-outline text-meta">Ngân hàng:</span>
-                        <span className="text-on-surface font-medium text-right text-meta">
-                          {bankName || 'Chưa nhập'}
-                        </span>
-                      </div>
                       <div className="flex justify-between items-center py-0.5 border-b border-surface-container/60">
                         <span className="text-outline text-meta">Chi nhánh:</span>
                         <span className="text-on-surface font-medium text-right text-meta">{bankBranch}</span>
@@ -721,7 +698,7 @@ export function WalletPage() {
                             </td>
                             <td className="py-2.5 px-3.5 max-w-sm truncate text-on-surface" title={`${tx.title} - ${tx.detail}`}>
                               {tx.title}{' '}
-                              <strong className="font-medium text-primary">{tx.detail}</strong>
+                              <strong className="font-medium text-primary-800">{tx.detail}</strong>
                             </td>
                             <td
                               className={`py-2.5 px-3.5 text-right font-bold whitespace-nowrap text-body ${
@@ -792,27 +769,17 @@ export function WalletPage() {
       </main>
 
       {/* 5. Modal: Yêu cầu rút tiền */}
-      {withdrawModalOpen && (
-        <AuthorDialog onClose={() => setWithdrawModalOpen(false)}><div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-md bg-surface-container-lowest rounded-xl shadow-sm p-5 flex flex-col gap-3.5 animate-in zoom-in-95 duration-200 border border-surface-container/60">
-            {/* Header */}
-            <div className="flex items-start justify-between">
-              <div className="flex flex-col">
-                <h3 className="text-base text-on-surface font-bold">
-                  Yêu cầu rút Xu mô phỏng
-                </h3>
-                <p className="text-meta text-outline">
-                  Yêu cầu chỉ dùng để mô phỏng, không chuyển tiền qua ngân hàng.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setWithdrawModalOpen(false)}
-                className="w-7 h-7 rounded-full flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors"
-              >
-                <span className="material-symbols-outlined text-[18px]">close</span>
-              </button>
-            </div>
+      <AnimatedModal
+        opened={withdrawModalOpen}
+        onClose={() => setWithdrawModalOpen(false)}
+        title="Yêu cầu rút Xu mô phỏng"
+        size="md"
+        centered
+      >
+          <div className="flex flex-col gap-3.5">
+            <p className="text-meta text-outline">
+              Yêu cầu chỉ dùng để mô phỏng, không chuyển tiền qua ngân hàng.
+            </p>
 
             {/* Current Balance Banner */}
             <div className="bg-surface-container-low p-3 rounded-lg flex items-center justify-between gap-4">
@@ -824,7 +791,7 @@ export function WalletPage() {
               </div>
               <div className="flex flex-col text-right">
                 <span className="text-meta text-outline">Dự kiến sau rút</span>
-                <span className="text-body text-primary font-bold" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                <span className="text-body text-primary-800 font-bold" style={{ fontVariantNumeric: 'tabular-nums' }}>
                   <NumberFlow value={Math.max(0, availableBalance - (Number.isFinite(withdrawAmount) ? withdrawAmount : 0))} locales="vi-VN" animated={!reduce} /> Xu
                 </span>
               </div>
@@ -845,7 +812,7 @@ export function WalletPage() {
                   <button
                     type="button"
                     onClick={() => setWithdrawAmount(availableBalance)}
-                    className="text-primary hover:underline font-semibold text-meta"
+                    className="text-primary-800 hover:underline font-semibold text-meta"
                   >
                     Rút tối đa ({availableBalance.toLocaleString('vi-VN')} Xu)
                   </button>
@@ -883,7 +850,7 @@ export function WalletPage() {
               {/* Destination Bank Confirm */}
               <div className="border-t border-surface-container pt-2.5 flex flex-col gap-1">
                 <span className="text-meta text-outline">Tài khoản nhận tiền thụ hưởng:</span>
-                <button type="button" onClick={() => { setWithdrawModalOpen(false); setManageBankModalOpen(true); }} className="self-start text-meta text-primary underline">{bankAccount ? 'Sửa tài khoản nhận' : 'Nhập tài khoản nhận'}</button>
+                <button type="button" onClick={() => { setWithdrawModalOpen(false); setManageBankModalOpen(true); }} className="self-start text-meta text-primary-800 underline">{bankAccount ? 'Sửa tài khoản nhận' : 'Nhập tài khoản nhận'}</button>
                 <div className="flex items-center justify-between p-2 rounded-lg bg-surface-container-low text-meta">
                   <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-success text-[18px]">account_balance</span>
@@ -924,26 +891,18 @@ export function WalletPage() {
               </div>
             </form>
           </div>
-        </div></AuthorDialog>
-      )}
+      </AnimatedModal>
 
       {/* 7. Modal: Nạp Xu Test (Graduation Project Mock Deposit) */}
-      {depositModalOpen && (
-        <AuthorDialog onClose={() => setDepositModalOpen(false)}><div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-sm bg-surface-container-lowest rounded-xl shadow-sm p-5 flex flex-col gap-3.5 animate-in zoom-in-95 duration-200 border border-surface-container/60">
-            <div className="flex items-start justify-between">
-              <div className="flex flex-col">
-                <h3 className="text-base text-on-surface font-bold">Nạp Xu thử nghiệm</h3>
-                <p className="text-meta text-outline">Cộng thêm số dư Xu để test chức năng</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setDepositModalOpen(false)}
-                className="w-7 h-7 rounded-full flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors"
-              >
-                <span className="material-symbols-outlined text-[18px]">close</span>
-              </button>
-            </div>
+      <AnimatedModal
+        opened={depositModalOpen}
+        onClose={() => setDepositModalOpen(false)}
+        title="Nạp Xu thử nghiệm"
+        size="sm"
+        centered
+      >
+          <div className="flex flex-col gap-3.5">
+            <p className="text-meta text-outline">Cộng thêm số dư Xu để test chức năng</p>
 
             <div className="grid grid-cols-2 gap-2">
               {(depositPackagesQuery.data ?? []).map((pkg) => (
@@ -963,7 +922,7 @@ export function WalletPage() {
             </div>
             <div className="bg-surface-container-low px-3 py-2 rounded-lg flex items-center justify-between text-meta">
               <span className="text-outline">Số dư dự kiến sau nạp</span>
-              <span className="font-bold text-primary" style={{ fontVariantNumeric: 'tabular-nums' }}>
+              <span className="font-bold text-primary-800" style={{ fontVariantNumeric: 'tabular-nums' }}>
                 <NumberFlow
                   value={availableBalance + ((depositPackagesQuery.data ?? []).find((p) => p.code === selectedPackage)?.amountCoins ?? 0)}
                   locales="vi-VN"
@@ -991,26 +950,18 @@ export function WalletPage() {
               </button>
             </div>
           </div>
-        </div></AuthorDialog>
-      )}
+      </AnimatedModal>
 
       {/* 8. Modal: Quản lý tài khoản ngân hàng */}
-      {manageBankModalOpen && (
-        <AuthorDialog onClose={() => setManageBankModalOpen(false)}><div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-inverse-surface/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-sm bg-surface-container-lowest rounded-xl shadow-sm p-5 flex flex-col gap-3 animate-in zoom-in-95 duration-200 border border-surface-container/60">
-            <div className="flex items-start justify-between">
-              <div className="flex flex-col">
-                <h3 className="text-base text-on-surface font-bold">Tài khoản ngân hàng thụ hưởng</h3>
-                <p className="text-meta text-outline">Nhập thông tin cho yêu cầu rút hiện tại. Hệ thống chưa lưu tài khoản ngân hàng.</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setManageBankModalOpen(false)}
-                className="w-7 h-7 rounded-full flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors"
-              >
-                <span className="material-symbols-outlined text-[18px]">close</span>
-              </button>
-            </div>
+      <AnimatedModal
+        opened={manageBankModalOpen}
+        onClose={() => setManageBankModalOpen(false)}
+        title="Tài khoản ngân hàng thụ hưởng"
+        size="sm"
+        centered
+      >
+          <div className="flex flex-col gap-3">
+            <p className="text-meta text-outline">Nhập thông tin cho yêu cầu rút hiện tại. Hệ thống chưa lưu tài khoản ngân hàng.</p>
 
             <div className="flex flex-col gap-2.5">
               <div>
@@ -1074,37 +1025,7 @@ export function WalletPage() {
               </button>
             </div>
           </div>
-        </div></AuthorDialog>
-      )}
-
-      {/* Global Footer */}
-      <footer className="w-full bg-surface-container-low mt-auto border-t border-surface-container/60">
-        <div className="max-w-7xl mx-auto px-4 lg:px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-3 text-on-surface-variant">
-          <div className="flex flex-col items-center md:items-start gap-0.5">
-            <div className="flex items-center gap-1.5">
-              <span className="text-body text-primary font-serif font-bold">StoryCraft</span>
-              <span className="text-meta text-tertiary">Văn Hoa Studio</span>
-            </div>
-            <p className="text-meta text-outline text-center md:text-left">
-              © 2025 Nền tảng Xuất bản Văn học Văn Hoa. Bảo lưu mọi quyền.
-            </p>
-          </div>
-          <nav className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-meta">
-            <a href="#" className="text-on-surface-variant hover:text-primary transition-colors">
-              Chính sách xuất bản
-            </a>
-            <a href="#" className="text-on-surface-variant hover:text-primary transition-colors">
-              Bản quyền &amp; Sở hữu trí tuệ
-            </a>
-            <a href="#" className="text-on-surface-variant hover:text-primary transition-colors">
-              Tiêu chuẩn cộng đồng
-            </a>
-            <a href="#" className="text-on-surface-variant hover:text-primary transition-colors">
-              Trung tâm trợ giúp tác giả
-            </a>
-          </nav>
-        </div>
-      </footer>
+      </AnimatedModal>
     </div>
   );
 }

@@ -9,6 +9,8 @@
     "preview": "vite preview",
     "typecheck": "tsc -b --noEmit",
     "test:contrast": "node --test tests/contrast.test.mjs",
+    "test:auth-landing": "node --test tests/auth-landing.browser.test.mjs",
+    "test:modals-tabs-a11y": "node --test tests/storycraft-modals-tabs-a11y.browser.test.mjs",
     "test:main-ui": "npm run build && node --test tests/main-ui-integration.browser.test.mjs",
     "test:author-notes": "tsx --test tests/author-notes.test.mjs && npm run build && node --test tests/author-notes.browser.test.mjs",
     "test:wallet": "node --experimental-strip-types --test tests/wallet-earnings.test.mjs",

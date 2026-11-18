@@ -455,10 +455,9 @@ function ScopedAuthorMemoryPanel({
       <Stack gap="sm">
         <Group justify="space-between" align="center">
           <Text size="xs" c="dimmed">
-            Bộ nhớ truyện phiên bản {currentBrainVersion} · {brainStatusLabel(brain.data?.status)}. Đề xuất chưa duyệt
-            chưa được dùng làm sự thật.
+            Trạng thái: {brainStatusLabel(brain.data?.status)} · Đề xuất chưa duyệt chưa vào bộ nhớ truyện.
           </Text>
-          <Badge variant="outline" color="indigo" size="xs">
+          <Badge variant="outline" size="xs">
             Bộ nhớ v{currentBrainVersion}
           </Badge>
         </Group>
@@ -472,7 +471,7 @@ function ScopedAuthorMemoryPanel({
           auto.error ||
           job.error) && (
           <Alert
-            color={messageType === 'error' ? 'red' : messageType === 'success' ? 'teal' : 'blue'}
+            color={messageType === 'error' ? 'red' : messageType === 'success' ? 'teal' : undefined}
             withCloseButton
             onClose={() => setMessage('')}
           >
@@ -484,11 +483,11 @@ function ScopedAuthorMemoryPanel({
         )}
 
         <Tabs value={tab} onValueChange={(value: string) => { setTab(value || 'review'); setProfileTabOpened(value === 'profiles'); }}>
-          <Tabs.List>
+          <Tabs.List style={{ flexWrap: 'nowrap', overflowX: 'auto', scrollbarWidth: 'thin' }}>
             <Tabs.Tab value="review" aria-label={`Chờ duyệt: ${pendingReviews.entityCount} chương chờ duyệt danh tính, ${queue.data?.length ?? 0} đề xuất`}>
               Chờ duyệt ({pendingReviews.entityCount + (queue.data?.length ?? 0)})
             </Tabs.Tab>
-            <Tabs.Tab value="profiles">Hồ sơ Codex</Tabs.Tab>
+            <Tabs.Tab value="profiles" style={{ marginInlineStart: 6, borderInlineStart: '1px solid var(--sc-border)' }}>Hồ sơ Codex</Tabs.Tab>
             <Tabs.Tab value="characters">Nhân vật ({category(['character', 'per', 'person']).length})</Tabs.Tab>
             <Tabs.Tab value="relations">
               Quan hệ ({memory.data?.relations?.filter(r => r.locked).length ?? 0} khóa)
@@ -497,7 +496,7 @@ function ScopedAuthorMemoryPanel({
             <Tabs.Tab value="history">Sự kiện ({memory.data?.events?.length ?? 0})</Tabs.Tab>
             <Tabs.Tab value="locations">Địa danh</Tabs.Tab>
             <Tabs.Tab value="items">Vật phẩm</Tabs.Tab>
-            <Tabs.Tab value="setup">Trích xuất</Tabs.Tab>
+            <Tabs.Tab value="setup" style={{ marginInlineStart: 6, borderInlineStart: '1px solid var(--sc-border)' }}>Trích xuất</Tabs.Tab>
             <Tabs.Tab value="plan">Định hướng</Tabs.Tab>
             <Tabs.Tab value="auto">Full auto</Tabs.Tab>
           </Tabs.List>
@@ -550,12 +549,12 @@ function ScopedAuthorMemoryPanel({
                 </Button>
               </Group>
 
-              {extraction.data
-                ?.filter(e => e.status && e.status !== 'COMPLETED')
+              {(Array.isArray(extraction.data) ? extraction.data : [])
+                .filter(e => e.status && e.status !== 'COMPLETED')
                 .map(e => (
                   <Alert
                     key={e.chapter_id}
-                    color={e.waiting_reason === 'provider_unavailable' && e.status !== 'FAILED' ? 'yellow' : e.status === 'FAILED' ? 'red' : 'blue'}
+                    color={e.waiting_reason === 'provider_unavailable' && e.status !== 'FAILED' ? 'yellow' : e.status === 'FAILED' ? 'red' : undefined}
                     title={`Chương ${e.chapter_number}`}
                     data-testid={`chapter-analysis-${e.chapter_number}`}
                   >
@@ -617,7 +616,7 @@ function ScopedAuthorMemoryPanel({
                       </Group>
 
                       {proposals.length > 1 ? (
-                        <Alert color="blue" icon={<IconAlertTriangle size={14} />} p="xs">
+                        <Alert icon={<IconAlertTriangle size={14} />} p="xs">
                           <Text size="xs">
                             Nhóm có {proposals.length} đề xuất. “Loại đề xuất” chỉ bỏ mục đó khi không có đề xuất khác sử dụng nó. “Loại toàn bộ nhóm” bỏ tất cả các mục trong nhóm. Các mục còn lại được duyệt cùng nhau.
                           </Text>
@@ -772,7 +771,7 @@ function ScopedAuthorMemoryPanel({
              ────────────────────────────────────────── */}
           <Tabs.Panel value="facts" pt="md">
             <Stack ref={factsListRef} gap="xs">
-              {memory.data?.facts.map((fact, index) => (
+              {(memory.data?.facts ?? []).map((fact, index) => (
                 <Card withBorder key={String(fact.fact_id ?? index)} p="xs">
                   <Group justify="space-between">
                     <Text fw={600} size="sm">
@@ -833,11 +832,11 @@ function ScopedAuthorMemoryPanel({
                 </Alert>
               )}
 
-              {memory.data?.events
+              {(memory.data?.events ?? [])
                 .filter(
                   e =>
                     !e.metadata?.is_retired &&
-                    !memory.data?.events.some(other => other.metadata?.supersedes_id === e.event_id)
+                    !(memory.data?.events ?? []).some(other => other.metadata?.supersedes_id === e.event_id)
                 )
                 .map(event => (
                   <EventItem
@@ -1108,7 +1107,7 @@ function ProposalReview({
       <Paper p="xs" withBorder radius="sm">
         <Stack gap="xs">
           <Group justify="space-between">
-            <Badge color="violet">Tên gọi / Alias</Badge>
+            <Badge variant="light">Tên gọi / Alias</Badge>
             <Button
               variant="subtle"
               size="compact-xs"
@@ -1126,7 +1125,7 @@ function ProposalReview({
             Chỉ liên kết danh tính sau khi bạn duyệt. Nếu đây là hai người khác nhau, hãy loại đề xuất.
           </Text>
           {typeof p.identity_quote === 'string' && (
-            <Paper p="xs" bg="var(--mantine-color-gray-0)">
+            <Paper p="xs" bg="var(--sc-surface-subtle)">
               <Text size="xs">“{p.identity_quote}”</Text>
             </Paper>
           )}
@@ -1140,7 +1139,7 @@ function ProposalReview({
       <Paper p="xs" withBorder radius="sm">
         <Stack gap="xs">
           <Group justify="space-between">
-            <Badge color="cyan">Đã có trong bộ nhớ — Giữ nguyên</Badge>
+            <Badge color="teal" variant="light">Đã có trong bộ nhớ — Giữ nguyên</Badge>
             <Button
               variant="subtle"
               size="compact-xs"
@@ -1166,7 +1165,7 @@ function ProposalReview({
       <Stack gap="xs">
         <Group justify="space-between" align="center">
           <Group gap="xs">
-            <Badge color="blue">{proposalKindLabel(proposal)}</Badge>
+            <Badge variant="light">{proposalKindLabel(proposal)}</Badge>
             {isEdited && (
               <Badge color="orange" size="xs" leftSection={<IconEdit size={10} />}>
                 Đã chỉnh sửa bởi tác giả
@@ -1200,7 +1199,7 @@ function ProposalReview({
 
         {isEdited && <StateComparison before={original} after={currentPayload} beforeLabel="Đề xuất AI" afterLabel="Bạn đã chỉnh sửa" />}
         {p.supersedes_id ? (
-          <Alert color="blue">
+          <Alert>
             {p.is_retired
               ? 'Đề xuất gỡ khỏi bộ nhớ truyện; vẫn giữ lịch sử.'
               : 'Đề xuất thay thế phiên bản cũ; vẫn giữ lịch sử.'}{' '}
@@ -1531,7 +1530,7 @@ function EventItem({
       <Stack gap="xs">
         <Group justify="space-between" align="center">
           <Group gap="xs">
-            <Badge variant="filled" color="indigo" size="xs">
+            <Badge variant="filled" size="xs">
               Chương {event.chapter}
             </Badge>
             <Badge variant="outline" size="xs">
@@ -1563,7 +1562,7 @@ function EventItem({
             {event.participants.map((p, i) => {
               const matchedEntity = entities.find(e => e.entity_id === p);
               return matchedEntity ? (
-                <Badge key={i} size="xs" variant="light" color="cyan">
+                <Badge key={i} size="xs" variant="light" color="teal">
                   {matchedEntity.name}
                 </Badge>
               ) : (
@@ -1577,7 +1576,7 @@ function EventItem({
 
         {/* Display linked transitions */}
         {eventTransitions.length > 0 && (
-          <Paper p="xs" bg="var(--mantine-color-gray-0)" radius="xs">
+          <Paper p="xs" bg="var(--sc-surface-subtle)" radius="xs">
             <Stack gap={2}>
               <Text size="xs" fw={600} c="dimmed">
                 Trạng thái gắn liền với sự kiện:
@@ -1608,11 +1607,11 @@ function EventItem({
               </Text>
 
               {unresolvedLegacyParticipants.length > 0 && (
-                <Paper p="xs" withBorder bg="var(--mantine-color-orange-0)" radius="sm" data-testid="box-legacy-resolution">
+                <Paper p="xs" withBorder bg="var(--sc-warning-bg)" radius="sm" data-testid="box-legacy-resolution">
                   <Stack gap="xs">
                     <Group gap="xs">
-                      <IconAlertTriangle size={16} color="var(--mantine-color-orange-7)" />
-                      <Text size="xs" fw={600} c="orange.9">
+                      <IconAlertTriangle size={16} color="var(--sc-warning)" />
+                      <Text size="xs" fw={600} c="var(--sc-warning)">
                         Cần xác định nhân vật:
                       </Text>
                     </Group>
@@ -1774,7 +1773,6 @@ function EventItem({
                 </Button>
                 <Button
                   size="xs"
-                  color="indigo"
                   data-testid={`btn-submit-correction-${event.event_id}`}
                   onClick={handleSubmitCorrection}
                   disabled={

@@ -1,9 +1,12 @@
-import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
+import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+import type { CurrentUser } from './src/api/types';
+import { Card, PrimaryButton, Screen } from './src/components/Screen';
 import { AuthScreen } from './src/screens/AuthScreen';
 import { CommentsScreen } from './src/screens/CommentsScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
@@ -14,8 +17,7 @@ import { ProfileScreen } from './src/screens/ProfileScreen';
 import { ReaderScreen } from './src/screens/ReaderScreen';
 import { WalletScreen } from './src/screens/WalletScreen';
 import { restoreSession } from './src/state/session';
-import { colors } from './src/theme/colors';
-import type { CurrentUser } from './src/api/types';
+import { StoryCraftThemeProvider, useStoryCraftTheme } from './src/theme/ThemeProvider';
 
 type RootStackParamList = {
   MainTabs: undefined;
@@ -36,19 +38,47 @@ type MainTabParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tabs = createBottomTabNavigator<MainTabParamList>();
 
-const navigationTheme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    background: colors.background,
-    card: colors.surface,
-    text: colors.text,
-    border: colors.border,
-    primary: colors.primaryMuted
-  }
-};
-
 export default function App() {
+  return (
+    <SafeAreaProvider>
+      <StoryCraftThemeProvider>
+        <StoryCraftAppShell />
+      </StoryCraftThemeProvider>
+    </SafeAreaProvider>
+  );
+}
+
+function HeaderThemeToggle() {
+  const { scheme, palette, setMode } = useStoryCraftTheme();
+  const next = scheme === 'dark' ? 'light' : 'dark';
+  const label = scheme === 'dark' ? 'Sáng' : 'Tối';
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`Chuyển sang giao diện ${label}`}
+      onPress={() => setMode(next)}
+      style={({ pressed }) => ({
+        minHeight: 44,
+        minWidth: 44,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: palette.controlBorder,
+        backgroundColor: palette.surfaceMuted,
+        alignItems: 'center',
+        justifyContent: 'center',
+        opacity: pressed ? 0.8 : 1
+      })}
+    >
+      <Text style={{ color: palette.primaryMuted, fontSize: 12, fontWeight: '700' }}>{label}</Text>
+    </Pressable>
+  );
+}
+
+function StoryCraftAppShell() {
+  const { palette, scheme } = useStoryCraftTheme();
   const [bootstrapping, setBootstrapping] = useState(true);
   const [user, setUser] = useState<CurrentUser | null>(null);
 
@@ -58,33 +88,70 @@ export default function App() {
       .finally(() => setBootstrapping(false));
   }, []);
 
+  const navigationTheme = useMemo(() => {
+    const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
+    return {
+      ...base,
+      colors: {
+        ...base.colors,
+        background: palette.background,
+        card: palette.surface,
+        text: palette.text,
+        border: palette.border,
+        primary: palette.primaryMuted,
+        notification: palette.primary
+      }
+    };
+  }, [palette, scheme]);
+
   if (bootstrapping) {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}>
-        <Text style={{ color: colors.text }}>Starting Ephurin Reader...</Text>
-        <StatusBar style="light" />
+      <View
+        style={{
+          flex: 1,
+          gap: 10,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: palette.background
+        }}
+      >
+        <ActivityIndicator color={palette.primaryMuted} />
+        <Text style={{ color: palette.text, fontSize: 15, fontWeight: '600' }}>
+          Đang khởi tạo StoryCraft Văn Hoa...
+        </Text>
+        <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       </View>
     );
   }
 
   return (
     <NavigationContainer theme={navigationTheme}>
-      <StatusBar style="light" />
+      <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
       <Stack.Navigator
         screenOptions={{
-          headerStyle: { backgroundColor: colors.surface },
-          headerTintColor: colors.text,
-          headerTitleStyle: { fontWeight: '800' },
-          contentStyle: { backgroundColor: colors.background }
+          headerStyle: { backgroundColor: palette.surface },
+          headerTintColor: palette.text,
+          headerTitleStyle: { fontWeight: '700', fontSize: 16 },
+          headerShadowVisible: false,
+          headerRight: () => <HeaderThemeToggle />,
+          contentStyle: { backgroundColor: palette.background }
         }}
       >
         <Stack.Screen name="MainTabs" options={{ headerShown: false }}>
           {(props) => <MainTabs {...props} authenticated={Boolean(user)} onLogout={() => setUser(null)} />}
         </Stack.Screen>
-        <Stack.Screen name="Auth" options={{ title: 'Login / Register' }}>
-          {() => <AuthScreen onAuthenticated={(nextUser) => setUser(nextUser)} />}
+        <Stack.Screen name="Auth" options={{ title: 'Tài khoản StoryCraft' }}>
+          {({ navigation }) => (
+            <AuthScreen
+              onAuthenticated={(nextUser) => {
+                setUser(nextUser);
+                if (navigation.canGoBack()) navigation.goBack();
+                else navigation.navigate('MainTabs');
+              }}
+            />
+          )}
         </Stack.Screen>
-        <Stack.Screen name="NovelDetail" options={{ title: 'Novel Detail' }}>
+        <Stack.Screen name="NovelDetail" options={{ title: 'Chi tiết tác phẩm' }}>
           {({ route, navigation }) => (
             <NovelDetailScreen
               novelId={route.params.novelId}
@@ -94,7 +161,7 @@ export default function App() {
             />
           )}
         </Stack.Screen>
-        <Stack.Screen name="Reader" options={{ title: 'Reader' }}>
+        <Stack.Screen name="Reader" options={{ title: 'Đọc chương' }}>
           {({ route, navigation }) => (
             <ReaderScreen
               chapterId={route.params.chapterId}
@@ -105,9 +172,13 @@ export default function App() {
             />
           )}
         </Stack.Screen>
-        <Stack.Screen name="Comments" options={{ title: 'Comments' }}>
+        <Stack.Screen name="Comments" options={{ title: 'Bình luận chương' }}>
           {({ route, navigation }) => (
-            <CommentsScreen chapterId={route.params.chapterId} authenticated={Boolean(user)} onLoginRequired={() => navigation.navigate('Auth')} />
+            <CommentsScreen
+              chapterId={route.params.chapterId}
+              authenticated={Boolean(user)}
+              onLoginRequired={() => navigation.navigate('Auth')}
+            />
           )}
         </Stack.Screen>
       </Stack.Navigator>
@@ -122,17 +193,37 @@ function MainTabs({
   authenticated: boolean;
   onLogout: () => void;
 }) {
+  const { palette } = useStoryCraftTheme();
+  const insets = useSafeAreaInsets();
+  const bottomPad = Math.max(insets.bottom, 6);
+
   return (
     <Tabs.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: colors.surface },
-        headerTintColor: colors.text,
-        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
-        tabBarActiveTintColor: colors.primaryMuted,
-        tabBarInactiveTintColor: colors.textMuted
+        headerStyle: { backgroundColor: palette.surface },
+        headerTintColor: palette.text,
+        headerTitleStyle: { fontWeight: '700', fontSize: 17 },
+        headerRight: () => (
+          <View style={{ marginRight: 12 }}>
+            <HeaderThemeToggle />
+          </View>
+        ),
+        tabBarStyle: {
+          backgroundColor: palette.surface,
+          borderTopColor: palette.border,
+          height: 54 + bottomPad,
+          paddingTop: 4,
+          paddingBottom: bottomPad
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600'
+        },
+        tabBarActiveTintColor: palette.primaryMuted,
+        tabBarInactiveTintColor: palette.textMuted
       }}
     >
-      <Tabs.Screen name="Home" options={{ title: 'Home' }}>
+      <Tabs.Screen name="Home" options={{ title: 'Khám phá' }}>
         {({ navigation }) => (
           <HomeScreen
             authenticated={authenticated}
@@ -141,7 +232,7 @@ function MainTabs({
           />
         )}
       </Tabs.Screen>
-      <Tabs.Screen name="Library" options={{ title: 'Library' }}>
+      <Tabs.Screen name="Library" options={{ title: 'Tủ sách' }}>
         {({ navigation }) =>
           authenticated ? (
             <LibraryScreen onOpenNovel={(novelId) => navigation.navigate('NovelDetail' as never, { novelId } as never)} />
@@ -150,15 +241,23 @@ function MainTabs({
           )
         }
       </Tabs.Screen>
-      <Tabs.Screen name="Wallet" options={{ title: 'Wallet' }}>
-        {({ navigation }) => (authenticated ? <WalletScreen /> : <AuthRequired onLogin={() => navigation.navigate('Auth' as never)} />)}
-      </Tabs.Screen>
-      <Tabs.Screen name="Notifications" options={{ title: 'Notifications' }}>
-        {({ navigation }) => (authenticated ? <NotificationsScreen /> : <AuthRequired onLogin={() => navigation.navigate('Auth' as never)} />)}
-      </Tabs.Screen>
-      <Tabs.Screen name="Profile" options={{ title: authenticated ? 'Profile' : 'Login' }}>
+      <Tabs.Screen name="Wallet" options={{ title: 'Ví Xu' }}>
         {({ navigation }) =>
-          authenticated ? <ProfileScreen onLogout={onLogout} /> : <AuthRequired onLogin={() => navigation.navigate('Auth' as never)} />
+          authenticated ? <WalletScreen /> : <AuthRequired onLogin={() => navigation.navigate('Auth' as never)} />
+        }
+      </Tabs.Screen>
+      <Tabs.Screen name="Notifications" options={{ title: 'Thông báo' }}>
+        {({ navigation }) =>
+          authenticated ? <NotificationsScreen /> : <AuthRequired onLogin={() => navigation.navigate('Auth' as never)} />
+        }
+      </Tabs.Screen>
+      <Tabs.Screen name="Profile" options={{ title: authenticated ? 'Hồ sơ' : 'Đăng nhập' }}>
+        {({ navigation }) =>
+          authenticated ? (
+            <ProfileScreen onLogout={onLogout} />
+          ) : (
+            <AuthRequired onLogin={() => navigation.navigate('Auth' as never)} />
+          )
         }
       </Tabs.Screen>
     </Tabs.Navigator>
@@ -166,13 +265,17 @@ function MainTabs({
 }
 
 function AuthRequired({ onLogin }: { onLogin: () => void }) {
+  const { palette } = useStoryCraftTheme();
+
   return (
-    <View style={{ flex: 1, gap: 14, padding: 18, backgroundColor: colors.background, justifyContent: 'center' }}>
-      <Text style={{ color: colors.text, fontSize: 22, fontWeight: '800' }}>Login required</Text>
-      <Text style={{ color: colors.textMuted }}>This action needs an Ephurin account.</Text>
-      <Text style={{ color: colors.primaryMuted, fontWeight: '800' }} onPress={onLogin}>
-        Go to login
-      </Text>
-    </View>
+    <Screen>
+      <Card>
+        <Text style={{ color: palette.text, fontSize: 18, fontWeight: '700' }}>Cần đăng nhập</Text>
+        <Text style={{ color: palette.textMuted, fontSize: 14, lineHeight: 20 }}>
+          Đăng nhập để đồng bộ tủ sách, lịch sử đọc, ví Xu và thông báo trên StoryCraft Văn Hoa.
+        </Text>
+        <PrimaryButton label="Đăng nhập / Tạo tài khoản" onPress={onLogin} />
+      </Card>
+    </Screen>
   );
 }

@@ -52,7 +52,7 @@ export function EntityMergeControl({ novelId, version, entities, disabled = fals
           value={source} onChange={setSource} disabled={merge.isPending} />
         <Select searchable label="Mục giữ lại (tên chính thức)" data={options.filter(o => o.value !== source && sameType(o, from))}
           value={target} onChange={setTarget} disabled={merge.isPending} />
-        {from && to && <Alert color="blue">Gộp “{from.name}” vào “{to.name}”. Sự kiện, dữ kiện và quan hệ sẽ được chuyển về mục giữ lại. Thông tin bổ sung của hai hồ sơ Cẩm nang được giữ; nội dung khác nhau được lưu trong ghi chú.</Alert>}
+        {from && to && <Alert>Gộp “{from.name}” vào “{to.name}”. Sự kiện, dữ kiện và quan hệ sẽ được chuyển về mục giữ lại. Thông tin bổ sung của hai hồ sơ Cẩm nang được giữ; nội dung khác nhau được lưu trong ghi chú.</Alert>}
         {merge.error && <Alert color="red">{merge.error instanceof ApiClientError && merge.error.status === 409
           ? 'Bộ nhớ đã thay đổi. Hãy tải lại danh sách trước khi gộp.' : getApiErrorMessage(merge.error)}
           <Button size="xs" variant="subtle" onClick={() => void refresh()}>Tải lại danh sách</Button></Alert>}

@@ -18,6 +18,14 @@ function valid(value:unknown):value is Draft{
  const d=value as Draft;
  return !!d&&typeof d.outline==='string'&&typeof d.notes==='string'&&Number.isInteger(d.head)&&Array.isArray(d.chapters)&&d.chapters.every(o=>typeof o.objective_id==='string'&&typeof o.title==='string'&&typeof o.description==='string'&&Array.isArray(o.dependencies)&&Array.isArray(o.events)&&o.events.every(e=>typeof e.event_id==='string'&&typeof e.text==='string'&&Array.isArray(e.participants)&&e.participants.every(p=>!!p&&(typeof p.entity_id==='string'||typeof p.name_hint==='string'))));
 }
+function normalizePlans(raw:Partial<Plans>|null|undefined):Plans{
+ return{
+  head_version:typeof raw?.head_version==='number'?raw.head_version:0,
+  active_plan_id:raw?.active_plan_id??null,
+  active_plan_unavailable:raw?.active_plan_unavailable,
+  plans:Array.isArray(raw?.plans)?raw.plans:[]
+ };
+}
 type EditorProps={novelId:string;lastWrittenChapter?:number;onServerChange?:()=>void;onRegisterEventAdopter?:(adopter:FutureEventAdopter|null)=>void};
 export function StoryPlanEditor(props:EditorProps){
  const account=useAuthStore(s=>s.user?.userId??'guest');
@@ -38,7 +46,7 @@ function Editor({novelId,lastWrittenChapter=0,onServerChange,onRegisterEventAdop
  const entityName=(id:string)=>entities.find(e=>e.entity_id===id)?.name;
  // Live retest N4: names read before activation stayed empty; read again whenever an ID has no name yet.
  const missingNames=chapters.flatMap(o=>o.events.flatMap(e=>e.participants.map(p=>p.entity_id).filter((id):id is string=>!!id&&!entityName(id)))).sort().join(',');
- useEffect(()=>{let live=true;getApprovedMemory(novelId).then(m=>{if(live)setEntities(m?.entities??[]);}).catch(()=>{});return()=>{live=false;};},[novelId,missingNames]);
+ useEffect(()=>{let live=true;getApprovedMemory(novelId).then(m=>{if(live)setEntities(Array.isArray(m?.entities)?m.entities:[]);}).catch(()=>{});return()=>{live=false;};},[novelId,missingNames]);
  const participantLabel=(p:Participant)=>p.entity_id?(entityName(p.entity_id)??'Nhân vật đã duyệt (chưa tải được tên)'):`Chưa xác định: ${p.name_hint??''}`;
  function draft(p:Plan|undefined,data=list):Draft{return{selected:p?.plan_id??null,head:data.head_version,outline:p?.source_outline??'',notes:p?.private_notes??'',chapters:p?.objectives??[]};}
  function remember(id:string|null){try{localStorage.setItem(key+':selection',id??'');}catch{}}
@@ -46,8 +54,7 @@ function Editor({novelId,lastWrittenChapter=0,onServerChange,onRegisterEventAdop
   scope.assertCurrent();const signal=scope.signal;setPending(true);
   try{
    // A missing plan list (no plan yet, or an empty answer) must not blank the whole memory panel.
-   const raw=(await apiClient.get<ApiEnvelope<Plans|null>>(path,{signal})).data.data;if(signal.aborted)return false;
-   const data:Plans=raw&&Array.isArray(raw.plans)?raw:{head_version:raw?.head_version??0,active_plan_id:null,plans:[]};
+   const data=normalizePlans((await apiClient.get<ApiEnvelope<Plans|null>>(path,{signal})).data.data);if(signal.aborted)return false;
    scope.assertCurrent();setList(data);setLoaded(true);
    let preferred=id;
    if(preferred===undefined)try{preferred=localStorage.getItem(key+':selection')??undefined;}catch{}
@@ -103,7 +110,7 @@ function Editor({novelId,lastWrittenChapter=0,onServerChange,onRegisterEventAdop
   try{
    const data=(await apiClient.post<ApiEnvelope<Plan>>(path,{...body,idempotency_key:local.operationKey(body)},{signal})).data.data;
    if(signal.aborted)return;scope.assertCurrent();
-   const server=(await apiClient.get<ApiEnvelope<Plans>>(path,{signal})).data.data;if(signal.aborted)return;
+   const server=normalizePlans((await apiClient.get<ApiEnvelope<Plans|null>>(path,{signal})).data.data);if(signal.aborted)return;
    setList(server);local.accept(draft(server.plans.find(p=>p.plan_id===data.plan_id),server));remember(data.plan_id);onServerChange?.();
    setMessage(action==='delete'?'Đã lưu trữ bản đã chọn. Nội dung lịch sử vẫn được giữ.':action==='skip'?'Máy chủ xác nhận không dùng kế hoạch.':'Đã lưu phiên bản dàn ý. Không thay đổi lịch sử truyện.');
   }catch(e){if(!signal.aborted)setMessage(e instanceof ApiClientError&&e.status===409?`${getApiErrorMessage(e)}. Bản sửa được giữ. Đọc máy chủ để đối chiếu; không tự ghi đè.`:getApiErrorMessage(e));}

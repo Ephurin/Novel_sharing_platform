@@ -7,7 +7,9 @@
     "start": "expo start",
     "android": "expo start --android",
     "web": "expo start --web",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:contrast": "node --test tests/contrast.test.mjs",
+    "test": "node --test tests/contrast.test.mjs tests/home-screen.browser.test.mjs tests/mobile-api-contracts.browser.test.mjs"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",

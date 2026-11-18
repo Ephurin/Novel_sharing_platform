@@ -1,15 +1,19 @@
 import { apiClient, type ApiEnvelope } from './api-client';
 import type { ReaderChapter, ReaderComment, ReaderNovel, ReadingHistoryItem, ReadingPreferences } from './types';
 
-export async function searchPublishedNovels(input: {
-  q?: string;
-  genre?: string;
-  tag?: string;
-  status?: string;
-  sort?: 'updatedAt' | 'views' | 'likes' | 'relevance';
-  order?: 'asc' | 'desc';
-}) {
+export async function searchPublishedNovels(
+  input: {
+    q?: string;
+    genre?: string;
+    tag?: string;
+    status?: string;
+    sort?: 'updatedAt' | 'views' | 'likes' | 'relevance';
+    order?: 'asc' | 'desc';
+  },
+  signal?: AbortSignal
+) {
   const response = await apiClient.get<ApiEnvelope<ReaderNovel[]>>('/reading/search', {
+    signal,
     params: {
       q: input.q || undefined,
       genre: input.genre || undefined,
@@ -40,12 +44,24 @@ export async function getReadingPreferences() {
 }
 
 export async function saveReadingPreferences(input: ReadingPreferences) {
-  const response = await apiClient.put<ApiEnvelope<ReadingPreferences>>('/reading/preferences/me', input);
+  const normalizedFont = input.fontFamily?.trim() ? input.fontFamily.trim() : null;
+  const payload: ReadingPreferences = {
+    fontFamily: normalizedFont,
+    fontSize: input.fontSize,
+    background: input.background,
+    lineHeight: input.lineHeight,
+    ...(input.margin !== undefined ? { margin: input.margin } : {}),
+    ...(input.textAlign !== undefined ? { textAlign: input.textAlign } : {})
+  };
+  const response = await apiClient.put<ApiEnvelope<ReadingPreferences>>('/reading/preferences/me', payload);
   return response.data.data;
 }
 
-export async function listHistory() {
-  const response = await apiClient.get<ApiEnvelope<ReadingHistoryItem[]>>('/reading/history/me', { params: { page: 1, limit: 20 } });
+export async function listHistory(signal?: AbortSignal) {
+  const response = await apiClient.get<ApiEnvelope<ReadingHistoryItem[]>>('/reading/history/me', {
+    signal,
+    params: { page: 1, limit: 20 }
+  });
   return response.data.data;
 }
 

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Alert, Button, PasswordInput, TextInput, Textarea } from '@mantine/core';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { AuthorTheme } from '../../shared/components/AuthorTheme';
+import { FeedbackReveal } from '../../shared/components/ActionFeedback';
 import { ThemeControl } from '../../shared/components/ThemeControl';
 import { apiClient } from '../../shared/api/api-client';
 import {
@@ -148,7 +149,8 @@ export function AccountAppealsPage() {
               <EmptyState description="Bạn chưa có quyết định quản trị." />
             )}
             {query.data?.map((item) => (
-              <AdminPanel key={item.audit_id}>
+              <FeedbackReveal key={item.audit_id}>
+              <AdminPanel>
                 <div className="admin-page-header">
                   <h2>
                     {labels[item.action] || item.action} ·{' '}
@@ -183,6 +185,7 @@ export function AccountAppealsPage() {
                   )
                 )}
               </AdminPanel>
+              </FeedbackReveal>
             ))}
           </>
         )}

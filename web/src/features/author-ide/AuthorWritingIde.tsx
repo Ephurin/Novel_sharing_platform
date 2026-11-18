@@ -30,7 +30,6 @@ import { useDraftPersistence } from './useDraftPersistence';
 import { resolveAuthorContext, writeAuthorContext } from './author-context';
 import { Alert, Button, Group, Text } from '@mantine/core';
 import { ThemeControl } from '../../shared/components/ThemeControl';
-import { AuthorDialog } from '../../shared/components/AuthorTheme';
 import { AuthorMemoryPanel } from '../ai-copilot/AuthorMemoryPanel';
 import { usePendingMemoryReviews } from '../ai-copilot/pending-memory-reviews';
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
@@ -75,6 +74,7 @@ import {
 } from '../ai-copilot/ai-copilot-api';
 import { getApiErrorMessage } from '../../shared/api/api-client';
 import { publishCopy, publishedToast } from './publish-copy';
+import { useReadingFonts } from '../../theme/load-reading-fonts';
 
 export type FontOption = 'merriweather' | 'lora' | 'literata' | 'playfair' | 'roboto-slab' | 'vietnam' | 'jakarta';
 export type TextAlignment = 'justify' | 'left' | 'center' | 'right';
@@ -175,6 +175,7 @@ export function AuthorWritingIde() {
   const [priceCoins, setPriceCoins] = useState(15);
   const [autosaveStatus, setAutosaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [lastSavedTime, setLastSavedTime] = useState<string>('');
+  const [reloadServerConfirmOpen, setReloadServerConfirmOpen] = useState(false);
 
   // UI Interactive Panels & Modals State
   const [sidebarOpen, setSidebarOpen] = useState(() => window.matchMedia('(min-width: 901px)').matches);
@@ -196,6 +197,7 @@ export function AuthorWritingIde() {
   const rightPanelRef = useRef(rightPanel);
   rightPanelRef.current = rightPanel;
   const reducePanelMotion = useReducedMotion();
+  useReadingFonts();
   const chapterNavRef = useStoryCraftAutoAnimate<HTMLElement>();
   const aiResultsRef = useStoryCraftAutoAnimate<HTMLDivElement>();
   const openAiDrawer = () => {
@@ -650,8 +652,10 @@ export function AuthorWritingIde() {
   const handleAccessChange = (mode: AccessMode) => {
     if (isAcceptingAi) return;
     const nextIsVip = mode === 'vip';
+    const nextPrice = nextIsVip ? Math.max(1, priceCoins) : priceCoins;
     setIsVip(nextIsVip);
-    triggerAutosave(title, content, nextIsVip, priceCoins);
+    if (nextIsVip && priceCoins < 1) setPriceCoins(nextPrice);
+    triggerAutosave(title, content, nextIsVip, nextPrice);
   };
 
   const handlePriceChange = (val: number) => {
@@ -949,86 +953,113 @@ export function AuthorWritingIde() {
   const openSchedule = async () => { try { await persistence.flush(); setScheduleOpen(true); } catch { showToast('Lưu bản nháp thành công trước khi đặt lịch.'); } };
   const manuscriptActions = <>{focusMode && <>{canSchedule && <Menu.Item onClick={openSchedule}>Lên lịch</Menu.Item>}<Menu.Item onClick={() => setHistoryOpen(true)} disabled={!chapterQuery.data}>Lịch sử bản thảo</Menu.Item></>}<Menu.Item onClick={() => setExportOpen(true)}>Xuất bản thảo</Menu.Item></>;
 
-  const chapterSettings = !focusMode && !planning && (
-        <section className="sc-studio-settings border-b border-stone-200/80 bg-surface-container-lowest/90 backdrop-blur-sm px-4 flex items-center justify-between shrink-0 z-20 text-meta">
-          {/* Left: Sidebar toggle & Publication Status */}
-          <div className="sc-studio-settings-context flex items-center gap-3">
-            <button
-              onClick={() => setSidebarOpen((prev: boolean) => !prev)}
-              className="p-1 rounded text-stone-500 hover:text-stone-800 hover:bg-stone-100 transition-colors flex items-center"
-              title="Đóng/Mở thanh danh sách chương"
-              type="button"
-            >
-              <span className="material-symbols-outlined text-[18px]">view_sidebar</span>
-            </button>
-            <div className="h-3.5 w-px bg-stone-200"></div>
-            <div className="flex items-center gap-2">
-              <span className="text-stone-500 font-medium hidden sm:inline">Trạng thái:</span>
-              <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded border border-amber-200 bg-amber-50 text-amber-800 text-meta font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                <span>{chapterQuery.data?.status || 'Bản nháp'}</span>
-              </div>
+  const sidebarToggle = !focusMode && !planning && (
+    <button
+      onClick={() => setSidebarOpen((prev: boolean) => !prev)}
+      className="sc-studio-sidebar-toggle"
+      title="Đóng/Mở thanh danh sách chương"
+      aria-label="Đóng/Mở thanh danh sách chương"
+      aria-pressed={sidebarOpen}
+      type="button"
+    >
+      <span className="material-symbols-outlined text-[18px]" aria-hidden="true">view_sidebar</span>
+    </button>
+  );
 
+  const chapterStatusLabel = chapterQuery.data?.status || 'Bản nháp';
+  const chapterPublished = chapterQuery.data?.status === 'PUBLISHED';
+
+  const chapterSettings = !focusMode && !planning && (
+        <section className="sc-studio-settings border-b border-stone-200/80 bg-surface-container-lowest/90 backdrop-blur-sm px-2 flex items-center justify-between shrink-0 z-20 text-meta">
+          {/* Publication Status */}
+          <div className="sc-studio-settings-context flex items-center">
+            <div
+              aria-label={`Trạng thái: ${chapterStatusLabel}`}
+              title={`Trạng thái: ${chapterStatusLabel}`}
+              data-status={chapterPublished ? 'published' : 'draft'}
+              className="sc-studio-status-badge"
+            >
+              <span className="sc-studio-status-dot" aria-hidden="true"></span>
+              <span>{chapterStatusLabel}</span>
             </div>
           </div>
 
           {/* Manuscript actions and chapter access share one toolbar. */}
           <div className="sc-studio-settings-controls">
             {canSchedule && <button type="button" className="sc-button sc-button-ghost" onClick={openSchedule}>Lên lịch</button>}
-            <button type="button" className="sc-button sc-button-ghost" aria-label="Lịch sử bản thảo" title="Lịch sử bản thảo" onClick={() => setHistoryOpen(true)} disabled={!chapterQuery.data}><span className="material-symbols-outlined" aria-hidden="true">history</span></button>
-            <div className="flex items-center bg-stone-100 p-0.5 rounded-lg border border-stone-200">
+            <button type="button" className="sc-button sc-button-ghost sc-studio-history-btn" aria-label="Lịch sử bản thảo" title="Lịch sử bản thảo" onClick={() => setHistoryOpen(true)} disabled={!chapterQuery.data}><span className="material-symbols-outlined" aria-hidden="true">history</span></button>
+            <div className="sc-studio-vip-pill" role="group" aria-label="Quyền truy cập chương">
               <button
                 onClick={() => handleAccessChange('free')}
-                className={`px-2.5 py-1 rounded-md text-meta transition-colors ${
-                  !isVip
-                    ? 'font-semibold bg-surface-container-lowest text-stone-900 shadow-2xs border border-stone-200/60'
-                    : 'font-medium text-stone-600 hover:text-stone-900'
-                }`}
+                aria-pressed={!isVip}
+                className={`sc-studio-access-btn ${!isVip ? 'is-active' : ''}`}
                 type="button"
               >
                 Miễn phí
               </button>
               <button
                 onClick={() => handleAccessChange('vip')}
-                className={`px-2.5 py-1 rounded-md text-meta flex items-center gap-1 transition-all ${
-                  isVip
-                    ? 'font-semibold bg-surface-container-lowest text-primary-700 shadow-2xs border border-stone-200/60'
-                    : 'font-medium text-stone-600 hover:text-stone-900'
-                }`}
+                aria-pressed={isVip}
+                className={`sc-studio-access-btn ${isVip ? 'is-active is-vip' : ''}`}
                 type="button"
               >
-                <span className="material-symbols-outlined text-table text-amber-500 fill-icon">stars</span>
-                <span>Chương VIP ✦</span>
+                <span className="material-symbols-outlined sc-studio-vip-star fill-icon" aria-hidden="true">stars</span>
+                <span>Chương VIP</span>
               </button>
-            </div>
 
-            {/* Dynamic Unlock Coin Price */}
-            {isVip && (
-              <div className="flex items-center gap-1.5 text-stone-600 text-meta bg-amber-50/70 border border-amber-200/80 px-2 py-0.5 rounded-md">
-                <span className="text-meta font-medium text-amber-900">Giá mở khóa:</span>
-                <div className="flex items-center gap-1">
+              {isVip && (
+                <div className="sc-studio-vip-price" title="Giá mở khóa chương VIP (Xu)">
+                  <label htmlFor="studio-vip-price" className="sc-motion-sr-only">Giá mở khóa (Xu)</label>
                   <input
+                    id="studio-vip-price"
                     type="number"
                     min={1}
                     max={999}
                     value={priceCoins}
                     onChange={(e) => handlePriceChange(parseInt(e.target.value, 10))}
-                    className="w-12 h-6 text-center text-meta font-semibold rounded border-stone-300 bg-surface-container-lowest py-0 px-1 focus:ring-primary-500 focus:border-primary-500 text-stone-800"
+                    aria-label="Giá mở khóa (Xu)"
+                    className="sc-studio-vip-input"
                   />
-                  <span className="text-meta font-semibold text-amber-700">Xu</span>
+                  <span>Xu</span>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </section>
       );
 
+  const studioPrimaryActions = !planning && (
+    <>
+      <button
+        onClick={toggleAiDrawer}
+        aria-expanded={aiDrawerOpen}
+        aria-controls="studio-ai-panel"
+        className="inline-flex items-center gap-1.5 px-2.5 py-1 text-meta font-semibold rounded-lg bg-primary-50 text-primary-600 hover:bg-primary-100 border border-primary-200/90 transition-all shadow-2xs"
+        title="Mở trợ lý sáng tác AI"
+        aria-label="AI Hỗ trợ viết"
+        type="button"
+      >
+        <span className="material-symbols-outlined text-primary-600 text-[16px] fill-icon">auto_awesome</span>
+        <span className="hidden sm:inline sc-studio-ai-label">AI Hỗ trợ viết</span>
+      </button>
+
+      <button
+        onClick={() => setPublishModalOpen(true)}
+        className="inline-flex items-center gap-1.5 px-3 py-1 text-meta font-semibold rounded-lg text-white bg-primary-600 hover:bg-primary-700 shadow-sm shadow-primary-200 transition-all"
+        type="button"
+      >
+        <span>Xuất bản chương</span>
+        <span className="material-symbols-outlined text-[15px]">send</span>
+      </button>
+    </>
+  );
+
   return (
     <div className="sc-writing-studio h-screen flex flex-col text-stone-800 antialiased overflow-hidden select-none bg-surface">
       {/* ──────────────────────────────────────────
-          BEGIN: TopHeader
+          BEGIN: TopHeader (Row 1: Context, Stats & Tools, Mode Switch)
          ────────────────────────────────────────── */}
-      <section className="sc-studio-toolbar h-14 border-b border-stone-200/90 bg-surface-subtle/95 backdrop-blur-md px-3 md:px-4 flex items-center justify-between shrink-0 z-30">
+      <section className="sc-studio-toolbar border-b border-stone-200/90 bg-surface-subtle/95 backdrop-blur-md px-3 md:px-4 flex items-center justify-between shrink-0 z-30">
         {/* Left: Return link, Breadcrumb & Autosave indicator */}
         <div className="flex items-center gap-2.5 min-w-0">
           <Link
@@ -1047,118 +1078,124 @@ export function AuthorWritingIde() {
           {!planning && <SaveStatus className="hidden md:inline-flex shrink-0" status={activeChapterId && chapterQuery.data && loadedChapter.current === activeDraftScope ? autosaveStatus : 'idle'} dirty={persistence.dirty} savedAt={lastSavedTime} />}
         </div>
 
-        {/* Center/Right Primary Actions */}
-        <div className="flex items-center gap-2 shrink-0" style={planning?{display:"none"}:undefined}>
-          {/* Word Count Badge */}
-          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-stone-100/80 text-stone-600 text-meta font-medium border border-stone-200/70">
-            <span className="material-symbols-outlined text-body text-stone-400">description</span>
-            <span style={{ fontVariantNumeric: 'tabular-nums' }}><NumberFlow value={wordCount} locales="vi-VN" /> từ</span>
-            <span className="text-stone-300">•</span>
-            <span>{readTime}</span>
-          </div>
+        {/* Center: Stats, Theme & Studio Tools (one cohesive group) */}
+        <div className="sc-studio-toolbar-center">
+        {!planning && (
+          <div className="sc-studio-tool-cluster">
+            {/* Word Count */}
+            <div className="sc-studio-word-count hidden lg:flex" title={`${wordCount.toLocaleString('vi-VN')} từ • ${readTime}`}>
+              <span className="material-symbols-outlined text-body text-stone-400" aria-hidden="true">description</span>
+              <span style={{ fontVariantNumeric: 'tabular-nums' }}><NumberFlow value={wordCount} locales="vi-VN" /> từ</span>
+              <span className="text-stone-300 hidden 2xl:inline">•</span>
+              <span className="hidden 2xl:inline">{readTime}</span>
+            </div>
+            <span className="sc-studio-cluster-divider hidden lg:block" aria-hidden="true" />
 
-          {/* Secondary Tools Group */}
-          <ThemeControl />
-          <div className="flex items-center bg-stone-100/70 p-0.5 rounded-lg border border-stone-200/80">
-            <button
-              onClick={() => setFormatToolbarVisible((visible) => !visible)}
-              aria-label={formatToolbarVisible ? 'Ẩn thanh công cụ' : 'Hiện thanh công cụ'}
-              aria-expanded={formatToolbarVisible}
-              aria-controls="studio-format-toolbar"
-              title={formatToolbarVisible ? 'Ẩn thanh công cụ' : 'Hiện thanh công cụ'}
-              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest transition-all"
-              type="button"
-            >
-              <span className="material-symbols-outlined text-stone-500 text-[15px]">text_format</span>
-            </button>
-            <button
-              onClick={() => setStoryBibleOpen(true)}
-              className="inline-flex items-center gap-1 px-2 py-1 text-meta font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest transition-all"
-              title="Cẩm nang thế giới truyện (Story Bible)"
-              type="button"
-            >
-              <span className="material-symbols-outlined text-stone-500 text-[15px]">menu_book</span>
-              <span className="hidden xl:inline text-meta">Cẩm nang</span>
-            </button>
-            <button
-              onClick={() => setMemoryPanelOpen(true)}
-              data-testid="btn-story-brain"
-              aria-label={pendingMemory.total > 0
-                ? `Story Brain & Kiểm tra nhất quán: ${pendingMemory.total} mục chờ bạn duyệt`
-                : 'Story Brain & Kiểm tra nhất quán'}
-              className="inline-flex items-center gap-1 px-2 py-1 text-meta font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest transition-all"
-              title={pendingMemory.total > 0
-                ? `Bộ nhớ chỉ cập nhật sau khi bạn duyệt: ${pendingMemory.entityCount} chương chờ duyệt danh tính, ${pendingMemory.proposalCount} đề xuất`
-                : 'Bộ nhớ cốt truyện & Kiểm tra nhất quán (Story Brain)'}
-              type="button"
-            >
-              <span className="material-symbols-outlined text-stone-500 text-[15px]">psychology</span>
-              <span className="hidden xl:inline text-meta">Story Brain</span>
-              {pendingMemory.total > 0 && (
-                <span data-testid="story-brain-pending" aria-hidden="true"
-                  className="ml-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-white text-[11px] leading-[18px] text-center font-semibold">
-                  {pendingMemory.total}
+            {/* Secondary Tools Group */}
+            <ThemeControl />
+            <span className="sc-studio-cluster-divider" aria-hidden="true" />
+            <div className="sc-studio-tool-buttons">
+              <button
+                onClick={() => setFormatToolbarVisible((visible) => !visible)}
+                aria-label={formatToolbarVisible ? 'Ẩn thanh công cụ' : 'Hiện thanh công cụ'}
+                aria-expanded={formatToolbarVisible}
+                aria-controls="studio-format-toolbar"
+                title={formatToolbarVisible ? 'Ẩn thanh công cụ' : 'Hiện thanh công cụ'}
+                className="sc-studio-cluster-btn is-icon"
+                type="button"
+              >
+                <span className="material-symbols-outlined text-stone-500 text-[15px]">text_format</span>
+              </button>
+              <button
+                onClick={() => setStoryBibleOpen(true)}
+                className="sc-studio-cluster-btn"
+                title="Cẩm nang thế giới truyện (Story Bible)"
+                type="button"
+              >
+                <span className="material-symbols-outlined text-stone-500 text-[15px]">menu_book</span>
+                <span className="hidden xl:inline">Cẩm nang</span>
+              </button>
+              <button
+                onClick={() => setMemoryPanelOpen(true)}
+                data-testid="btn-story-brain"
+                aria-label={pendingMemory.total > 0
+                  ? `Story Brain & Kiểm tra nhất quán: ${pendingMemory.total} mục chờ bạn duyệt`
+                  : 'Story Brain & Kiểm tra nhất quán'}
+                className="sc-studio-cluster-btn"
+                title={pendingMemory.total > 0
+                  ? `Bộ nhớ chỉ cập nhật sau khi bạn duyệt: ${pendingMemory.entityCount} chương chờ duyệt danh tính, ${pendingMemory.proposalCount} đề xuất`
+                  : 'Bộ nhớ cốt truyện & Kiểm tra nhất quán (Story Brain)'}
+                type="button"
+              >
+                <span className="material-symbols-outlined text-stone-500 text-[15px]">psychology</span>
+                <span className="hidden xl:inline">Story Brain</span>
+                {pendingMemory.total > 0 && (
+                  <span data-testid="story-brain-pending" aria-hidden="true"
+                    className="ml-0.5 min-w-[20px] h-[20px] px-1.5 rounded-full bg-warning-bg text-warning border border-amber-300/60 text-badge leading-[18px] text-center font-semibold">
+                    {pendingMemory.total}
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={() => setFocusMode((prev: boolean) => !prev)}
+                className="sc-studio-cluster-btn"
+                title="Chế độ tập trung (Zen Mode)"
+                type="button"
+              >
+                <span className="material-symbols-outlined text-stone-500 text-[15px]">
+                  {focusMode ? 'fullscreen_exit' : 'fullscreen'}
                 </span>
-              )}
-            </button>
-            <button
-              onClick={() => setFocusMode((prev: boolean) => !prev)}
-              className="inline-flex items-center gap-1 px-2 py-1 text-meta font-medium rounded-md text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest transition-all"
-              title="Chế độ tập trung (Zen Mode)"
-              type="button"
-            >
-              <span className="material-symbols-outlined text-stone-500 text-[15px]">
-                {focusMode ? 'fullscreen_exit' : 'fullscreen'}
-              </span>
-              <span className="hidden md:inline text-meta">{focusMode ? 'Thoát Focus' : 'Tập trung'}</span>
-            </button>
+                <span className="hidden md:inline">{focusMode ? 'Thoát Focus' : 'Tập trung'}</span>
+              </button>
+            </div>
           </div>
-
-          <div className="h-4 w-px bg-stone-200 shrink-0 mx-0.5"></div>
-
-          {/* AI Assistant Toggle Button */}
-          <button
-            onClick={toggleAiDrawer}
-            aria-expanded={aiDrawerOpen}
-            aria-controls="studio-ai-panel"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-meta font-semibold rounded-lg bg-primary-50 text-primary-600 hover:bg-primary-100 border border-primary-200/90 transition-all shadow-2xs "
-            title="Mở trợ lý sáng tác AI"
-            aria-label="AI Hỗ trợ viết"
-            type="button"
-          >
-            <span className="material-symbols-outlined text-primary-600 text-[16px] fill-icon">auto_awesome</span>
-            <span className="hidden sm:inline">AI Hỗ trợ viết</span>
-          </button>
-
-          {/* Primary Publish Button */}
-          <button
-            onClick={() => setPublishModalOpen(true)}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-meta font-semibold rounded-lg text-white bg-primary-600 hover:bg-primary-700 shadow-sm shadow-primary-200 transition-all "
-            type="button"
-          >
-            <span>Xuất bản chương</span>
-            <span className="material-symbols-outlined text-[15px]">send</span>
-          </button>
+        )}
         </div>
+
+        {/* Right: Studio Mode Switch */}
+        <Group gap="xs" wrap="nowrap" aria-label="Chế độ Author IDE" className="shrink-0">
+          <Button size="xs" aria-pressed={planning} variant={planning ? 'filled' : 'light'} onClick={() => void openPlanning()}>Lập kế hoạch</Button>
+          <Button size="xs" aria-pressed={!planning} variant={!planning ? 'filled' : 'light'} onClick={() => setPlanning(false)}>Viết bản thảo</Button>
+        </Group>
       </section>
-
-      {/* ──────────────────────────────────────────
-          BEGIN: Chapter Settings Subheader Bar
-         ────────────────────────────────────────── */}
-
 
       {/* ──────────────────────────────────────────
           BEGIN: MainWorkspace
          ────────────────────────────────────────── */}
       {scheduleOpen && <ChapterSchedule chapterId={activeChapterId} novelId={activeNovelId} onClose={() => setScheduleOpen(false)} />}
       {historyOpen && <RevisionHistory chapterId={activeChapterId} content={content} onClose={() => setHistoryOpen(false)} onRestore={async next => { await persistence.flush(); setContent(next); triggerAutosave(title, next, isVip, priceCoins); await persistence.flush(); showToast('Đã khôi phục và lưu phiên bản bản thảo.'); }} />}
-      {persistence.error && <Alert color="red" title="Bản nháp chưa được lưu">{persistence.error}<Group mt="xs"><Button size="xs" variant="light" onClick={() => void persistence.flush().catch(() => {})}>Thử lưu lại</Button><Button size="xs" variant="default" onClick={async () => { if (persistence.dirty && !window.confirm('Tải bản máy chủ sẽ thay thế nội dung chưa lưu đang hiển thị. Hãy xuất bản đang viết trước nếu cần giữ. Tiếp tục?')) return; const result = await chapterQuery.refetch(); if (result.data) { const value = persistence.initialize(result.data, true); if (value) { setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); } } }}>Tải bản máy chủ</Button></Group></Alert>}
+      {persistence.error && <Alert color="red" title="Bản nháp chưa được lưu">{persistence.error}<Group mt="xs"><Button size="xs" variant="light" onClick={() => void persistence.flush().catch(() => {})}>Thử lưu lại</Button><Button size="xs" variant="default" onClick={async () => { if (persistence.dirty) { setReloadServerConfirmOpen(true); return; } const result = await chapterQuery.refetch(); if (result.data) { const value = persistence.initialize(result.data, true); if (value) { setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); } } }}>Tải bản máy chủ</Button></Group></Alert>}
+      <AnimatedModal opened={reloadServerConfirmOpen} onClose={() => setReloadServerConfirmOpen(false)} title="Tải lại bản máy chủ?" size="sm" centered>
+        <p className="text-body mb-4">Tải bản máy chủ sẽ thay thế nội dung chưa lưu đang hiển thị. Hãy xuất bản đang viết trước nếu cần giữ.</p>
+        <Group justify="flex-end">
+          <Button variant="default" onClick={() => setReloadServerConfirmOpen(false)}>Hủy</Button>
+          <Button color="red" onClick={async () => {
+            setReloadServerConfirmOpen(false);
+            const result = await chapterQuery.refetch();
+            if (result.data) {
+              const value = persistence.initialize(result.data, true);
+              if (value) {
+                setTitle(value.title);
+                setContent(value.content);
+                setIsVip(value.isVip);
+                setPriceCoins(value.priceCoins);
+              }
+            }
+          }}>Xác nhận tải bản máy chủ</Button>
+        </Group>
+      </AnimatedModal>
       {persistence.recovery && <Alert title="Có bản lưu trên máy chưa đồng bộ" color="orange"><Text size="sm">Bản lưu lúc {new Date(persistence.recovery.savedAt).toLocaleString('vi-VN')}. Nội dung máy chủ vẫn được giữ nguyên.</Text><Group mt="xs"><Button size="xs" onClick={() => { const value = persistence.recovery!.value; setTitle(value.title); setContent(value.content); setIsVip(value.isVip); setPriceCoins(value.priceCoins); persistence.dismissRecovery(); triggerAutosave(value.title, value.content, value.isVip, value.priceCoins); }}>Khôi phục vào trình soạn thảo</Button><Button size="xs" variant="default" onClick={persistence.dismissRecovery}>Bỏ bản lưu trên máy</Button></Group></Alert>}
-      {persistence.blocker.state === 'blocked' && <AuthorDialog onClose={() => persistence.blocker.reset?.()}><div className="fixed inset-0 flex items-center justify-center p-4"><div className="w-full max-w-md p-6"><h2 className="text-section">Bản nháp chưa lưu xong</h2><p className="text-body">Bạn có thể lưu trước khi rời trang hoặc giữ bản dự phòng trên máy để khôi phục sau.</p><Group mt="md"><Button onClick={async () => { try { await persistence.flush(); persistence.blocker.proceed?.(); } catch {} }}>Lưu và rời trang</Button><Button variant="default" onClick={() => persistence.blocker.reset?.()}>Ở lại</Button><Button variant="subtle" onClick={() => { persistence.abandon(); persistence.blocker.proceed?.(); }}>Rời trang</Button></Group></div></div></AuthorDialog>}
+      <AnimatedModal opened={persistence.blocker.state === 'blocked'} onClose={() => persistence.blocker.reset?.()} title="Bản nháp chưa lưu xong" size="md" centered>
+        <p className="text-body">Bạn có thể lưu trước khi rời trang hoặc giữ bản dự phòng trên máy để khôi phục sau.</p>
+        <Group mt="md" justify="flex-end">
+          <Button variant="default" onClick={() => persistence.blocker.reset?.()}>Ở lại</Button>
+          <Button variant="subtle" onClick={() => { persistence.abandon(); persistence.blocker.proceed?.(); }}>Rời trang</Button>
+          <Button onClick={async () => { try { await persistence.flush(); persistence.blocker.proceed?.(); } catch {} }}>Lưu và rời trang</Button>
+        </Group>
+      </AnimatedModal>
       <StudioNovelSearch key={searchScope} opened={novelSearchOpen} chapters={chaptersQuery.data ?? []} activeChapterId={activeChapterId} content={content} onClose={() => setNovelSearchOpen(false)} onNavigate={navigateSearchHit} />
-      <Group px="md" py="xs" gap="xs" aria-label="Chế độ Author IDE" className="relative z-20 shrink-0 bg-surface border-b border-stone-200/60"><Button size="xs" aria-pressed={planning} variant={planning?'filled':'light'} onClick={()=>void openPlanning()}>Lập kế hoạch</Button><Button size="xs" aria-pressed={!planning} variant={!planning?'filled':'light'} onClick={()=>setPlanning(false)}>Viết bản thảo</Button></Group>
       {planningMounted&&novelQuery.data&&<div key={JSON.stringify([user?.userId,activeNovelId])} style={{display:planning?'flex':'none',flex:1,minHeight:0}}><PlanningStudio novelId={activeNovelId} title={novelQuery.data.title} step={planningStep} onStep={setPlanningStep} chapters={chaptersQuery.data??[]} onWrite={id=>{if(id)setSearchParams({novelId:activeNovelId,chapterId:id});setPlanning(false);}} onCreate={()=>createChapterMutation.mutate()} creating={createChapterMutation.isPending} onMemory={tab=>{setMemoryTab(tab??'review');setMemoryPanelOpen(true);}} onRefreshChapters={()=>void queryClient.invalidateQueries({ queryKey: ['author', 'chapters', activeNovelId] })}/></div>}
-      {!planning && <StudioWorkbench onSearchNovel={() => setNovelSearchOpen(true)} notesOpen={rightPanel === 'notes'} onNotesOpenChange={changeNotesOpen} onLookup={setReferenceQuery} formatToolbarVisible={formatToolbarVisible} chapterSettings={chapterSettings} fileActions={manuscriptActions} key={activeDraftScope} scope={activeDraftScope} title={title} content={content} editor={editorRef} disabled={!studioReady || isAcceptingAi} exportOpen={exportOpen} onExportClose={() => setExportOpen(false)}
+      {!planning && <StudioWorkbench onSearchNovel={() => setNovelSearchOpen(true)} notesOpen={rightPanel === 'notes'} onNotesOpenChange={changeNotesOpen} onLookup={setReferenceQuery} formatToolbarVisible={formatToolbarVisible} chapterSettings={chapterSettings} primaryActions={studioPrimaryActions} sidebarToggle={sidebarToggle} fileActions={manuscriptActions} key={activeDraftScope} scope={activeDraftScope} title={title} content={content} editor={editorRef} disabled={!studioReady || isAcceptingAi} exportOpen={exportOpen} onExportClose={() => setExportOpen(false)}
         publishedContent={chapterQuery.data?.status === 'PUBLISHED' ? chapterQuery.data.content : undefined} chapterStatus={chapterQuery.data?.status} onPublish={() => setPublishModalOpen(true)}
         apply={applyStudioEdit} undo={() => moveStudioHistory()} redo={() => moveStudioHistory(true)} canUndo={studioHistory.canUndo} canRedo={studioHistory.canRedo}
         save={async () => { await persistence.flush(); }} onError={message => showToast(message, 'error')} />}
@@ -1631,34 +1668,38 @@ export function AuthorWritingIde() {
                 <button
                   onClick={() => handleGenerateAi('Viết tiếp phân cảnh này tự nhiên bám sát giọng văn', 'continue')}
                   disabled={isGeneratingAi}
-                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
+                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-surface-container-lowest hover:border-primary-400 hover:text-primary-600 text-meta font-medium text-stone-800 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
                   type="button"
                 >
-                  <span>✍️</span> <span>Viết tiếp</span>
+                  <span className="material-symbols-outlined text-[16px] text-primary-700" aria-hidden="true">edit_note</span>
+                  <span>Viết tiếp</span>
                 </button>
                 <button
                   onClick={() => handleGenerateAi('Gọt giũa và nâng tầm đoạn văn, giàu hình ảnh biểu cảm hơn', 'rewrite')}
                   disabled={isGeneratingAi}
-                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
+                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-surface-container-lowest hover:border-primary-400 hover:text-primary-600 text-meta font-medium text-stone-800 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
                   type="button"
                 >
-                  <span>✨</span> <span>Gọt giũa văn phong</span>
+                  <span className="material-symbols-outlined text-[16px] text-primary-700" aria-hidden="true">auto_fix_high</span>
+                  <span>Gọt giũa văn phong</span>
                 </button>
                 <button
                   onClick={() => handleGenerateAi('Mô tả ngoại cảnh và không gian xung quanh sâu sắc', 'describe')}
                   disabled={isGeneratingAi}
-                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
+                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-surface-container-lowest hover:border-primary-400 hover:text-primary-600 text-meta font-medium text-stone-800 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
                   type="button"
                 >
-                  <span>🎨</span> <span>Mô tả ngoại cảnh</span>
+                  <span className="material-symbols-outlined text-[16px] text-primary-700" aria-hidden="true">landscape</span>
+                  <span>Mô tả ngoại cảnh</span>
                 </button>
                 <button
                   onClick={() => handleGenerateAi('Phát triển đoạn đối thoại kịch tính giữa các nhân vật', 'dialogue')}
                   disabled={isGeneratingAi}
-                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-white hover:border-primary-400 hover:text-primary-600 text-[11px] font-medium text-stone-700 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
+                  className="text-left px-2.5 py-1.5 rounded-md border border-stone-200 bg-surface-container-lowest hover:border-primary-400 hover:text-primary-600 text-meta font-medium text-stone-800 shadow-2xs transition-all flex items-center gap-1.5 disabled:opacity-50"
                   type="button"
                 >
-                  <span>💬</span> <span>Viết hội thoại</span>
+                  <span className="material-symbols-outlined text-[16px] text-primary-700" aria-hidden="true">forum</span>
+                  <span>Viết hội thoại</span>
                 </button>
               </div>
             </div>
@@ -1700,7 +1741,7 @@ export function AuthorWritingIde() {
                     <button
                       onClick={() => handleAcceptDraft()}
                       disabled={isAcceptingAi || Boolean(currentJob?.stale_reason) || currentJob?.validation_status !== 'passed'}
-                      className="px-2 py-1.5 rounded bg-primary-600 text-white font-medium text-[11px] hover:bg-primary-700 text-center transition-all shadow-2xs active:scale-95 disabled:opacity-50"
+                      className="px-2 py-1.5 rounded bg-primary-600 text-white font-medium text-meta hover:bg-primary-700 text-center transition-all shadow-2xs active:scale-95 disabled:opacity-50"
                       type="button"
                     >
                       {isAcceptingAi ? 'Đang xác nhận...' : 'Chấp nhận bản thảo'}
@@ -1708,7 +1749,7 @@ export function AuthorWritingIde() {
                     <button
                       onClick={() => handleDiscardDraft()}
                       disabled={isAcceptingAi}
-                      className="px-2 py-1.5 rounded bg-white border border-stone-200 text-stone-700 hover:bg-stone-50 font-medium text-[11px] text-center transition-all disabled:opacity-50"
+                      className="px-2 py-1.5 rounded bg-surface-container-lowest border border-stone-200 text-stone-800 hover:bg-stone-100 font-medium text-meta text-center transition-all disabled:opacity-50"
                       type="button"
                     >
                       Từ chối / Bỏ qua
@@ -1775,47 +1816,27 @@ export function AuthorWritingIde() {
         <TextComparison before={currentJob?.patch ? aiBaseRef.current.content.slice(codePointToUtf16Offset(aiBaseRef.current.content, currentJob.patch.start), codePointToUtf16Offset(aiBaseRef.current.content, currentJob.patch.end)) : aiBaseRef.current.content} after={currentJob?.patch?.replacement ?? aiSuggestion ?? ''} />
         <div className="sc-ai-comparison-actions"><button type="button" className="sc-feedback-button" disabled={isAcceptingAi} onClick={() => setAiComparisonOpen(false)}>Quay lại gợi ý</button><button type="button" className="sc-feedback-button" disabled={isAcceptingAi || Boolean(currentJob?.stale_reason) || currentJob?.validation_status !== 'passed'} onClick={() => void handleAcceptDraft()}>{isAcceptingAi ? 'Đang xác nhận…' : 'Chấp nhận bản thảo'}</button></div>
       </AnimatedModal>
-      {storyBibleOpen && (
-        <AuthorDialog onClose={() => setStoryBibleOpen(false)}><div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div
-            style={{ height: '620px', maxHeight: '88vh' }}
-            className="bg-surface-container-lowest rounded-2xl shadow-sm border border-stone-200/90 w-full max-w-3xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200"
+      <AnimatedModal
+        opened={storyBibleOpen}
+        onClose={() => setStoryBibleOpen(false)}
+        title="Cẩm Nang Thế Giới (Story Bible)"
+        size="xl"
+        centered
+        className="sc-story-bible-dialog"
+      >
+        <div className="px-6 pb-2 border-b border-stone-200 flex items-center justify-between gap-2 shrink-0">
+          <p className="text-meta text-stone-500 font-medium">Tác phẩm: {novelQuery.data?.title || 'Đang tải...'}</p>
+          <Link
+            to={activeNovelId ? `/author/context/${activeNovelId}` : '/author'}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border border-stone-300 text-meta text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest font-medium shadow-xs transition-colors"
+            title="Mở toàn màn hình để thêm/sửa nhân vật, thiết lập chi tiết"
           >
-            {/* Header */}
-            <div className="h-16 border-b border-stone-200 px-6 flex items-center justify-between bg-stone-50/90 shrink-0">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-primary-50 border border-primary-200/60 flex items-center justify-center text-primary-600 shadow-xs">
-                  <span className="material-symbols-outlined text-[20px]">menu_book</span>
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-body font-bold text-stone-900">Cẩm Nang Thế Giới (Story Bible)</h3>
-                    <span className="px-2 py-0.5 rounded-full bg-stone-200/60 text-meta font-semibold text-stone-600">Tra cứu nhanh</span>
-                  </div>
-                  <p className="text-meta text-stone-500 font-medium">Tác phẩm: {novelQuery.data?.title || 'Đang tải...'}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Link
-                  to={activeNovelId ? `/author/context/${activeNovelId}` : '/author'}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-300 text-meta text-stone-700 hover:text-stone-900 hover:bg-surface-container-lowest font-medium shadow-xs transition-colors"
-                  title="Mở toàn màn hình để thêm/sửa nhân vật, thiết lập chi tiết"
-                >
-                  <span className="material-symbols-outlined text-[15px] text-primary-600">open_in_new</span>
-                  <span>Mở Cẩm nang đầy đủ</span>
-                </Link>
-                <button
-                  onClick={() => setStoryBibleOpen(false)}
-                  className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 transition-colors"
-                  type="button"
-                  title="Đóng popup"
-                >
-                  <span className="material-symbols-outlined text-[20px]">close</span>
-                </button>
-              </div>
-            </div>
+            <span className="material-symbols-outlined text-[15px] text-primary-600" aria-hidden="true">open_in_new</span>
+            <span>Mở Cẩm nang đầy đủ</span>
+          </Link>
+        </div>
 
             {/* Tabs & Contents */}
             <AnimatedTabs
@@ -2002,60 +2023,36 @@ export function AuthorWritingIde() {
             </AnimatedTabs>
 
             {/* Footer */}
-            <div className="p-4 border-t border-stone-200 bg-stone-50 flex items-center justify-between shrink-0">
-              <div className="text-meta text-stone-500 hidden sm:flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-[15px] text-amber-500">lightbulb</span>
-                <span>Dữ liệu Cẩm nang được AI Copilot tự động nạp để tạo gợi ý văn phong nhất quán.</span>
-              </div>
-              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                <Link
-                  to={activeNovelId ? `/author/context/${activeNovelId}` : '/author'}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-3.5 py-1.5 rounded-xl border border-stone-300 text-meta text-stone-700 hover:bg-stone-100 font-medium inline-flex items-center gap-1 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[15px]">edit_note</span>
-                  <span>Chỉnh sửa Cẩm nang ↗</span>
-                </Link>
-                <button
-                  onClick={() => setStoryBibleOpen(false)}
-                  className="px-4 py-1.5 rounded-xl bg-primary-600 text-white text-meta font-semibold hover:bg-primary-700 transition-colors shadow-2xs"
-                  type="button"
-                >
-                  Đóng cẩm nang
-                </button>
-              </div>
+            <div className="p-4 border-t border-stone-200 bg-stone-50 flex items-center justify-end gap-2 shrink-0">
+              <Link
+                to={activeNovelId ? `/author/context/${activeNovelId}` : '/author'}
+                target="_blank"
+                rel="noreferrer"
+                className="px-3.5 py-1.5 rounded-xl border border-stone-300 text-meta text-stone-700 hover:bg-stone-100 font-medium inline-flex items-center gap-1 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[15px]" aria-hidden="true">edit_note</span>
+                <span>Chỉnh sửa Cẩm nang ↗</span>
+              </Link>
+              <button
+                onClick={() => setStoryBibleOpen(false)}
+                className="px-4 py-1.5 rounded-xl bg-primary-600 text-white text-meta font-semibold hover:bg-primary-700 transition-colors shadow-2xs"
+                type="button"
+              >
+                Đóng cẩm nang
+              </button>
             </div>
-          </div>
-        </div></AuthorDialog>
-      )}
+      </AnimatedModal>
 
       {/* ──────────────────────────────────────────
           BEGIN: Publish Confirmation Modal
          ────────────────────────────────────────── */}
-      {publishModalOpen && (
-        <AuthorDialog onClose={() => setPublishModalOpen(false)}><div className="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200 w-full max-w-lg p-6 animate-in fade-in zoom-in-95 duration-200">
-            {/* Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-stone-100 mb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-lg bg-primary-50 border border-primary-200 text-primary-600 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[20px]">send</span>
-                </div>
-                <div>
-                  <h3 className="text-body font-bold text-stone-900">Xác nhận xuất bản chương</h3>
-                  <p className="text-meta text-stone-500">Tác phẩm: {novelQuery.data?.title || '...'}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setPublishModalOpen(false)}
-                className="p-1 text-stone-400 hover:text-stone-700 rounded-md"
-                type="button"
-              >
-                <span className="material-symbols-outlined text-[18px]">close</span>
-              </button>
-            </div>
-
+      <AnimatedModal
+        opened={publishModalOpen}
+        onClose={() => setPublishModalOpen(false)}
+        title="Xác nhận xuất bản chương"
+        size="lg"
+        centered
+      >
             {/* Summary Box */}
             <div className="bg-stone-50 border border-stone-200 rounded-lg p-3 space-y-1.5 text-meta text-stone-700 mb-4">
               <div className="flex justify-between">
@@ -2122,9 +2119,7 @@ export function AuthorWritingIde() {
                 {publishMutation.isPending ? publishCopy(novelQuery.data?.status).pending : publishCopy(novelQuery.data?.status).confirm}
               </button>
             </div>
-          </div>
-        </div></AuthorDialog>
-      )}
+      </AnimatedModal>
 
       {/* ──────────────────────────────────────────
           BEGIN: Toast Notification

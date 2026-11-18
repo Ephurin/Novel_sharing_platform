@@ -1,14 +1,17 @@
-import { AnimatedStepper } from '../../shared/components/AuthorAdminMotion';
+import { AnimatedStepper, ResultsSurface } from '../../shared/components/AuthorAdminMotion';
 import { NormalizationPreview, SplitPresets } from './ManuscriptTools';
 import { duplicateChapterGroups, splitPatternError } from './manuscript-tools';
 import { SelectionToolbar } from '../../shared/components/InteractionWidgets';
 import { AnimatedProgress } from '../../shared/components/AnimatedProgress';
 import { AnimatedCheckbox } from '../../shared/components/AnimatedCheckIcon';
 import { useToast } from '../../shared/components/ToastProvider';
-import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AnimatedModal } from '../../shared/components/AnimatedModal';
 import { Breadcrumbs } from '../../shared/components/Breadcrumbs';
 import { authorHomeCrumb } from '../../shared/components/navigation';
 import { AnimatedDisclosure } from '../../shared/components/AnimatedDisclosure';
+import NumberFlow from '@number-flow/react';
+import { useReducedMotion } from 'motion/react';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -46,6 +49,7 @@ export function ManuscriptImportPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const user = useAuthStore((state) => state.user);
+  const reduce = useReducedMotion();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Queries
@@ -508,37 +512,23 @@ export function ManuscriptImportPage() {
          ────────────────────────────────────────── */}
       <main className="w-full flex-1 pt-0 pb-16">
         <div className="max-w-7xl mx-auto px-4 lg:px-8 py-5 flex flex-col gap-5">
-          {/* Breadcrumb & Back Link */}
+          {/* Breadcrumb */}
           <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
             <Breadcrumbs items={[authorHomeCrumb, { label: novel?.title || 'Tác phẩm', to: `/author/novels/${novelId}` }, { label: 'Nhập bản thảo' }]} />
-            <Link
-              to={`/author/novels/${novelId}`}
-              className="inline-flex items-center gap-1.5 text-meta text-primary-600 hover:text-primary-700 transition-colors group font-medium"
-            >
-              <span className="material-symbols-outlined text-[16px] group-hover:-translate-x-0.5 transition-transform">
-                arrow_back
-              </span>
-              <span>Quay lại Quản lý tác phẩm</span>
-            </Link>
           </div>
 
           {fileReadProgress !== null || isReadingFile ? <AnimatedProgress value={fileReadProgress} label={isReadingFile ? 'Đang đọc tệp bản thảo' : 'Đã đọc tệp bản thảo'} /> : null}
 
-          {/* Target Novel Identifier & Header Section */}
+          {/* Header Section */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-stone-200">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h1 className="font-headline-sm text-2xl font-bold text-stone-900 tracking-tight">
-                  Nhập bản thảo
-                </h1>
-                <span title={novel?.title} className="sc-import-target inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container-lowest border border-stone-200 text-primary-600 text-meta font-medium shadow-2xs">
-                  <span className="material-symbols-outlined text-body">auto_stories</span>
-                  <span>
-                    Tác phẩm đích: <strong className="font-semibold text-stone-800">{novel?.title}</strong>{' '}
-                    • (Đã có {existingChapterCount} chương)
-                  </span>
-                </span>
-              </div>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h1 className="font-headline-sm text-page-title font-bold text-stone-900 tracking-tight">
+                Nhập bản thảo
+              </h1>
+              <span className="sc-import-target inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-surface-container-lowest border border-stone-200 text-stone-600 text-meta font-medium shadow-2xs">
+                <span className="material-symbols-outlined text-body text-primary-600" aria-hidden="true">auto_stories</span>
+                <span>Đã có {existingChapterCount} chương</span>
+              </span>
             </div>
             {currentStep === 3 && (
               <button
@@ -816,15 +806,15 @@ export function ManuscriptImportPage() {
                   <div className="flex items-center gap-3 flex-wrap">
                     <div className="flex items-center gap-1.5">
                       <span className="material-symbols-outlined text-primary-600 text-[18px]">splitscreen</span>
-                      <span className="text-meta font-bold text-stone-900">
-                        {parsedChapters.length} chương được phát hiện
+                      <span className="text-meta font-bold text-stone-900" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                        <NumberFlow value={parsedChapters.length} locales="vi-VN" animated={!reduce} /> chương được phát hiện
                       </span>
                     </div>
                     <span className="text-stone-300 hidden sm:inline">•</span>
                     <div className="flex items-center gap-1 text-stone-500 text-meta">
                       <span className="material-symbols-outlined text-[16px]">notes</span>
-                      <span>
-                        {totalWords.toLocaleString()} từ
+                      <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+                        <NumberFlow value={totalWords} locales="vi-VN" animated={!reduce} /> từ
                       </span>
                     </div>
                     <span className="text-stone-300 hidden sm:inline">•</span>
@@ -901,6 +891,7 @@ export function ManuscriptImportPage() {
 
                 <SelectionToolbar count={selectedChapterIds.length} onClear={() => setSelectedChapterIds([])} />
                 {/* Table */}
+                <ResultsSurface identity={`${onlyInvalid}:${onlyDuplicates}:${currentPage}:${parsedChapters.length}`} busy={isReadingFile}>
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[900px] text-left border-collapse">
                     <thead>
@@ -1012,6 +1003,7 @@ export function ManuscriptImportPage() {
                     </tbody>
                   </table>
                 </div>
+                </ResultsSurface>
 
                 {/* Pagination */}
                 <div className="p-2.5 px-4 bg-stone-50/80 flex items-center justify-between text-meta text-stone-500 border-t border-stone-200">
@@ -1057,9 +1049,9 @@ export function ManuscriptImportPage() {
                         {activePreviewChapter.title}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-stone-400 text-meta">
-                      <span className="material-symbols-outlined text-[15px]">text_format</span>
-                      <span className="text-meta">Phông chữ Merriweather (16px)</span>
+                    <div className="flex items-center gap-1.5 text-stone-400 text-meta">
+                      <span className="material-symbols-outlined text-[15px]" aria-hidden="true">visibility</span>
+                      <span className="text-meta">Xem trước 4 đoạn đầu</span>
                     </div>
                   </div>
 
@@ -1225,7 +1217,7 @@ export function ManuscriptImportPage() {
                     Khi xong cả hai, chương tiếp theo tự được phân tích.
                   </span>
                   {chapterReviewPending && (
-                    <div data-testid="import-entity-review" className="bg-white rounded-lg p-2 text-stone-900">
+                    <div data-testid="import-entity-review" className="bg-surface-container-lowest border border-stone-200/80 rounded-lg p-2 text-stone-900">
                       <EntityExtractionReview
                         novelId={novelId}
                         disabled={reviewAction.isPending}
@@ -1251,7 +1243,7 @@ export function ManuscriptImportPage() {
                   <strong>Chương cuối đang chờ bạn xác nhận nhân vật</strong>
                   <span>Xác nhận nhân vật bên dưới rồi bấm Tiếp tục, sau đó duyệt các đề xuất và kích hoạt Story Brain.</span>
                   {(entityReviewsQuery.data ?? []).length > 0 && (
-                    <div data-testid="import-entity-review" className="bg-white rounded-lg p-2 text-stone-900">
+                    <div data-testid="import-entity-review" className="bg-surface-container-lowest border border-stone-200/80 rounded-lg p-2 text-stone-900">
                       <EntityExtractionReview
                         novelId={novelId}
                         disabled={reviewAction.isPending}
@@ -1355,22 +1347,14 @@ export function ManuscriptImportPage() {
       {/* ──────────────────────────────────────────
           Direct Text / Manuscript Paste Modal
          ────────────────────────────────────────── */}
-      {pasteModalOpen && (
-        <AuthorDialog onClose={() => setPasteModalOpen(false)}><div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-stone-200 max-w-2xl w-full p-5 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-2 border-b border-stone-100">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary-600 text-[22px]">edit_note</span>
-                <h3 className="text-body font-bold text-stone-900">Dán hoặc chỉnh sửa văn bản bản thảo</h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setPasteModalOpen(false)}
-                className="text-stone-400 hover:text-stone-600 transition-colors cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[20px]">close</span>
-              </button>
-            </div>
+      <AnimatedModal
+        opened={pasteModalOpen}
+        onClose={() => setPasteModalOpen(false)}
+        title="Dán hoặc chỉnh sửa văn bản bản thảo"
+        size="lg"
+        centered
+      >
+          <div className="flex flex-col gap-4">
             <p className="text-meta text-stone-500">
               Dán toàn bộ nội dung bản thảo hoặc các chương tại đây. Bộ phân tích sẽ tự động tách chương theo quy tắc nhận diện.
             </p>
@@ -1411,8 +1395,7 @@ export function ManuscriptImportPage() {
               </div>
             </div>
           </div>
-        </div></AuthorDialog>
-      )}
+      </AnimatedModal>
 
       {/* ──────────────────────────────────────────
           Toast Feedback Notification

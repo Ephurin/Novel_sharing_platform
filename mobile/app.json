@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "Ephurin Reader",
+    "name": "StoryCraft Văn Hoa",
     "slug": "ephurin-reader",
     "version": "0.1.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "automatic",
     "assetBundlePatterns": ["**/*"],
     "android": {
       "package": "com.ephurin.reader"

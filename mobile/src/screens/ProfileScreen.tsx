@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Text } from 'react-native';
+import { Alert, Platform, Text } from 'react-native';
 import { getApiErrorMessage } from '../api/api-client';
 import { getMyProfile, updateMyProfile } from '../api/profile-api';
-import { clearSession } from '../state/session';
 import { Field } from '../components/Form';
-import { Card, ErrorState, GhostButton, LoadingState, PrimaryButton, Screen, Section, styles } from '../components/Screen';
+import { Card, ErrorState, GhostButton, LoadingState, PrimaryButton, Screen, Section, useScreenStyles } from '../components/Screen';
+import { clearSession } from '../state/session';
+import { ThemeSegmentedPicker } from '../theme/ThemeProvider';
 
 export function ProfileScreen({ onLogout }: { onLogout: () => void }) {
+  const themed = useScreenStyles();
   const [displayName, setDisplayName] = useState('');
   const [avatarUrl, setAvatarUrl] = useState('');
   const [bio, setBio] = useState('');
@@ -34,33 +36,86 @@ export function ProfileScreen({ onLogout }: { onLogout: () => void }) {
   }, []);
 
   const save = async () => {
+    const trimmedName = displayName.trim();
+    const trimmedAvatar = avatarUrl.trim();
+    const trimmedBio = bio.trim();
+
+    if (trimmedAvatar && !/^https?:\/\//i.test(trimmedAvatar)) {
+      setNotice('Ảnh đại diện (URL) phải bắt đầu bằng http:// hoặc https://.');
+      return;
+    }
+
     try {
-      await updateMyProfile({ displayName, avatarUrl, bio });
-      setNotice('Profile saved.');
+      await updateMyProfile({
+        ...(trimmedName ? { displayName: trimmedName } : {}),
+        avatarUrl: trimmedAvatar ? trimmedAvatar : null,
+        bio: trimmedBio ? trimmedBio : null
+      });
+      setNotice('Đã lưu thông tin hồ sơ.');
     } catch (caughtError) {
       setNotice(getApiErrorMessage(caughtError));
     }
   };
 
-  if (loading) return <LoadingState label="Loading profile..." />;
+  const confirmLogout = () => {
+    const message = 'Bạn có chắc muốn đăng xuất khỏi tài khoản trên thiết bị này?';
+    const performLogout = () => {
+      void clearSession().finally(onLogout);
+    };
+
+    if (Platform.OS === 'web' && typeof globalThis.confirm === 'function') {
+      if (globalThis.confirm(message)) {
+        performLogout();
+      }
+      return;
+    }
+
+    Alert.alert('Đăng xuất', message, [
+      { text: 'Hủy', style: 'cancel' },
+      {
+        text: 'Đăng xuất',
+        style: 'destructive',
+        onPress: performLogout
+      }
+    ]);
+  };
+
+  if (loading) return <LoadingState label="Đang tải hồ sơ cá nhân..." />;
   if (error) return <ErrorState message={error} onRetry={load} />;
 
   return (
     <Screen>
-      <Section title="Profile">
+      <Section title="Giao diện đọc truyện">
         <Card>
-          <Field label="Display name" value={displayName} onChangeText={setDisplayName} />
-          <Field label="Avatar URL" value={avatarUrl} onChangeText={setAvatarUrl} />
-          <Field label="Bio" value={bio} onChangeText={setBio} multiline />
-          {notice ? <Text style={styles.ghostButtonText}>{notice}</Text> : null}
-          <PrimaryButton label="Save profile" onPress={save} />
-          <GhostButton
-            label="Logout"
-            onPress={async () => {
-              await clearSession();
-              onLogout();
-            }}
+          <Text style={themed.muted}>Chọn chế độ màu hiển thị trên thiết bị này.</Text>
+          <ThemeSegmentedPicker />
+        </Card>
+      </Section>
+
+      <Section title="Hồ sơ cá nhân">
+        <Card>
+          <Field label="Tên hiển thị" value={displayName} onChangeText={setDisplayName} placeholder="Tên bút danh hoặc độc giả" />
+          <Field
+            label="Ảnh đại diện (URL)"
+            value={avatarUrl}
+            onChangeText={setAvatarUrl}
+            placeholder="https://..."
+            autoCapitalize="none"
           />
+          <Field
+            label="Giới thiệu bản thân"
+            value={bio}
+            onChangeText={setBio}
+            placeholder="Vài dòng giới thiệu..."
+            multiline
+          />
+          {notice ? (
+            <Text accessibilityLiveRegion="polite" style={themed.notice}>
+              {notice}
+            </Text>
+          ) : null}
+          <PrimaryButton label="Lưu hồ sơ" onPress={save} />
+          <GhostButton label="Đăng xuất" danger onPress={confirmLogout} />
         </Card>
       </Section>
     </Screen>

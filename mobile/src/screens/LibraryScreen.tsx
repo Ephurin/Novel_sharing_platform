@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Text } from 'react-native';
+import { Alert, Platform, Text, View } from 'react-native';
 import { getApiErrorMessage } from '../api/api-client';
 import { listLibrary, removeFromLibrary } from '../api/reader-api';
 import type { ReaderNovel } from '../api/types';
-import { Card, EmptyState, ErrorState, GhostButton, LoadingState, Screen, Section, styles } from '../components/Screen';
+import { Card, EmptyState, ErrorState, GhostButton, LoadingState, PrimaryButton, Screen, Section, useScreenStyles } from '../components/Screen';
 
 export function LibraryScreen({ onOpenNovel }: { onOpenNovel: (novelId: string) => void }) {
+  const themed = useScreenStyles();
   const [novels, setNovels] = useState<ReaderNovel[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -26,25 +27,56 @@ export function LibraryScreen({ onOpenNovel }: { onOpenNovel: (novelId: string) 
     void load();
   }, []);
 
-  if (loading) return <LoadingState label="Loading library..." />;
+  const confirmRemove = (novel: ReaderNovel) => {
+    const message = `Bạn muốn bỏ "${novel.title}" khỏi tủ sách cá nhân?`;
+    const performRemove = () => {
+      void removeFromLibrary(novel.novelId)
+        .then(() => load())
+        .catch((caughtError) => setError(getApiErrorMessage(caughtError)));
+    };
+
+    if (Platform.OS === 'web' && typeof globalThis.confirm === 'function') {
+      if (globalThis.confirm(message)) {
+        performRemove();
+      }
+      return;
+    }
+
+    Alert.alert(
+      'Bỏ khỏi tủ sách',
+      message,
+      [
+        { text: 'Hủy', style: 'cancel' },
+        {
+          text: 'Bỏ lưu',
+          style: 'destructive',
+          onPress: performRemove
+        }
+      ]
+    );
+  };
+
+  if (loading) return <LoadingState label="Đang tải tủ sách..." />;
   if (error) return <ErrorState message={error} onRetry={load} />;
 
   return (
     <Screen>
-      <Section title="Library" subtitle="Saved novels for quick access.">
-        {!novels.length ? <EmptyState label="Your library is empty." /> : null}
+      <Section title="Tủ sách đã lưu">
+        {!novels.length ? <EmptyState label="Tủ sách của bạn hiện đang trống." /> : null}
         {novels.map((novel) => (
           <Card key={novel.novelId}>
-            <Text style={styles.sectionTitle}>{novel.title}</Text>
-            <Text style={styles.muted}>{novel.synopsis ?? 'No synopsis.'}</Text>
-            <GhostButton label="Open novel" onPress={() => onOpenNovel(novel.novelId)} />
-            <GhostButton
-              label="Remove"
-              onPress={async () => {
-                await removeFromLibrary(novel.novelId);
-                await load();
-              }}
-            />
+            <Text style={themed.cardTitle}>{novel.title}</Text>
+            {novel.synopsis ? (
+              <Text style={themed.muted} numberOfLines={2}>
+                {novel.synopsis}
+              </Text>
+            ) : null}
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <View style={{ flex: 1 }}>
+                <PrimaryButton label="Xem tác phẩm" onPress={() => onOpenNovel(novel.novelId)} />
+              </View>
+              <GhostButton label="Bỏ lưu" danger onPress={() => confirmRemove(novel)} />
+            </View>
           </Card>
         ))}
       </Section>

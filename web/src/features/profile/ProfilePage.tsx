@@ -7,8 +7,11 @@ import { AuthorProfileHeader } from './AuthorProfileHeader';
 import { ImageUpload } from '../../shared/components/ImageUpload';
 import { becomeAuthor } from '../auth/auth-api';
 import { useNavigate } from 'react-router-dom';
-import { AuthorDialog, AuthorNavbar } from '../../shared/components/AuthorTheme';
-import React, { useState } from 'react';
+import { AuthorNavbar } from '../../shared/components/AuthorTheme';
+import { AnimatedModal } from '../../shared/components/AnimatedModal';
+import NumberFlow from '@number-flow/react';
+import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
+import React, { useId, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import { getAuthorProfile, getMyProfile, getMySettings, updateMyProfile, updateMySettings } from './profile-api';
@@ -36,21 +39,21 @@ function AuthorWorkCard({ novel, publicMode }: { novel: AuthorProfile['novels'][
   const status = serialStatusLabels[novel.serialStatus ?? ''] ?? serialStatusLabels.ONGOING;
   const detailPath = `${publicMode ? '/public' : '/reader'}/novels/${novel.novelId}`;
   return (
-    <article className="sc-novel-card bg-surface-container-lowest rounded-xl border border-stone-200/90 transition-all flex flex-col justify-between gap-3 group">
+    <article className="sc-novel-card relative bg-surface-container-lowest rounded-xl border border-stone-200/90 hover:border-primary-600/40 transition-all flex flex-col justify-between gap-3 group">
       <div className="flex gap-3 items-start">
-        <Link to={detailPath} className="relative w-[76px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-cover-fallback border border-stone-200/70">
+        <div className="sc-cover-hover relative w-[76px] shrink-0 aspect-[2/3] rounded-lg overflow-hidden bg-cover-fallback border border-stone-200/70">
           {novel.coverImageUrl ? (
             <img alt={novel.title} src={novel.coverImageUrl} className="w-full h-full object-cover" />
           ) : (
             <span className="flex h-full items-center justify-center p-2 text-center text-meta text-white">{novel.title}</span>
           )}
-        </Link>
+        </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-1 mb-1">
             <span className="text-meta font-medium text-stone-500 truncate">{novel.genre || 'Chưa phân loại'}</span>
             <span className={`shrink-0 inline-flex items-center rounded-full ${status.className}`}>{status.label}</span>
           </div>
-          <Link to={detailPath} className="text-body font-bold text-stone-900 line-clamp-2 leading-snug group-hover:text-primary-600 transition-colors" title={novel.title}>
+          <Link to={detailPath} className="text-body font-bold text-stone-900 line-clamp-2 leading-snug group-hover:text-primary-600 transition-colors after:absolute after:inset-0 after:rounded-xl" title={novel.title}>
             {novel.title}
           </Link>
           <div className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-meta text-stone-500">
@@ -59,11 +62,6 @@ function AuthorWorkCard({ novel, publicMode }: { novel: AuthorProfile['novels'][
             <span className="inline-flex items-center gap-1 text-red-700"><span className="material-symbols-outlined text-[15px]" aria-hidden="true">favorite</span><strong>{(novel.likesCount ?? 0).toLocaleString('vi-VN')}</strong></span>
           </div>
         </div>
-      </div>
-      <div className="pt-2.5 border-t border-stone-100 flex items-center justify-end">
-        <Link to={detailPath} className="sc-button sc-button-soft">
-          <span className="material-symbols-outlined" aria-hidden="true">auto_stories</span>Xem tác phẩm
-        </Link>
       </div>
     </article>
   );
@@ -93,6 +91,9 @@ export function AuthorProfilePage() {
   const [supportMessage, setSupportMessage] = useState('');
   const { showToast: notify } = useToast();
   const [workSort, setWorkSort] = useState<WorkSort>('views');
+  const reduce = useReducedMotion();
+  const sortGroupId = useId();
+  const supportGroupId = useId();
   const queryClient = useQueryClient();
   const targetAuthorId = authorId || currentUser?.userId || '';
 
@@ -177,21 +178,34 @@ export function AuthorProfilePage() {
                 <p className="text-meta text-stone-500">{displayNovels.length.toLocaleString('vi-VN')} tác phẩm đã xuất bản</p>
               </div>
               {displayNovels.length > 1 && (
-                <div className="sc-filter-tabs flex items-center bg-stone-100 p-0.5 rounded-lg text-meta font-medium" role="group" aria-label="Sắp xếp tác phẩm">
-                  {workSortOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setWorkSort(option.value)}
-                      aria-pressed={workSort === option.value}
-                      className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
-                        workSort === option.value ? 'bg-primary-600 text-white font-semibold' : 'text-stone-600 hover:text-stone-900'
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
+                <LayoutGroup id={sortGroupId}>
+                  <div className="sc-filter-tabs flex items-center bg-stone-100 p-0.5 rounded-lg text-meta font-medium" role="group" aria-label="Sắp xếp tác phẩm">
+                    {workSortOptions.map((option) => {
+                      const active = workSort === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          onClick={() => setWorkSort(option.value)}
+                          aria-pressed={active}
+                          className={`relative z-10 px-3 py-1 rounded-md transition-colors cursor-pointer ${
+                            active ? 'text-on-primary font-semibold' : 'text-stone-600 hover:text-stone-900'
+                          }`}
+                        >
+                          {active && (
+                            <motion.span
+                              layoutId="author-profile-work-sort-pill"
+                              aria-hidden="true"
+                              className="absolute inset-0 -z-10 rounded-md bg-primary-600 shadow-xs"
+                              transition={reduce ? { duration: 0 } : { duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                            />
+                          )}
+                          {option.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </LayoutGroup>
               )}
             </div>
 
@@ -248,29 +262,13 @@ export function AuthorProfilePage() {
       <footer className="sc-author-profile-footer text-meta"><span>© {new Date().getFullYear()} StoryCraft Văn Hoa</span><Link to={isGuest ? '/public' : '/reader'}>Khám phá tác phẩm</Link></footer>
 
       {/* 6. Support Author Modal */}
-      {supportModalOpen && (
-        <AuthorDialog onClose={() => setSupportModalOpen(false)}><div className="fixed inset-0 bg-stone-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-surface-container-lowest rounded-2xl shadow-sm border border-stone-200 w-full max-w-md p-5 overflow-hidden animate-in zoom-in-95 duration-200">
-            {/* Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200 text-warning flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[18px]">volunteer_activism</span>
-                </div>
-                <div>
-                  <h3 className="font-serif font-bold text-body text-stone-900">Ủng hộ tác giả {authorName}</h3>
-                  <p className="text-meta text-stone-500">Gửi tặng năng lượng sáng tác</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSupportModalOpen(false)}
-                className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
-              >
-                <span className="material-symbols-outlined text-[18px]">close</span>
-              </button>
-            </div>
-
+      <AnimatedModal
+        opened={supportModalOpen}
+        onClose={() => setSupportModalOpen(false)}
+        title={`Ủng hộ tác giả ${authorName}`}
+        size="md"
+        centered
+      >
             {/* Author Target Card */}
             <div className="flex items-center gap-3 my-3 p-2.5 rounded-xl bg-stone-50 border border-stone-200/70">
               {authorAvatar ? <img alt={authorName} src={authorAvatar} className="w-9 h-9 rounded-full object-cover border border-white shadow-xs" /> : <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center font-bold">{authorName.slice(0, 1).toUpperCase()}</div>}
@@ -283,22 +281,35 @@ export function AuthorProfilePage() {
             {/* Form */}
             <div className="space-y-3 text-meta">
               <label className="font-semibold text-stone-700 block">Chọn mức ủng hộ (Xu Văn Hoa):</label>
-              <div className="grid grid-cols-4 gap-2">
-                {[10, 20, 50, 100].map((amt) => (
-                  <button
-                    key={amt}
-                    type="button"
-                    onClick={() => setSupportAmount(amt)}
-                    className={`py-1.5 rounded-lg border font-semibold text-center transition-all ${
-                      supportAmount === amt
-                        ? 'border-primary-600 bg-primary-50/80 font-bold text-primary-600'
-                        : 'border-stone-200 hover:border-primary-600 hover:text-primary-600 bg-surface-container-lowest'
-                    }`}
-                  >
-                    {amt} Xu
-                  </button>
-                ))}
-              </div>
+              <LayoutGroup id={supportGroupId}>
+                <div className="grid grid-cols-4 gap-2">
+                  {[10, 20, 50, 100].map((amt) => {
+                    const active = supportAmount === amt;
+                    return (
+                      <button
+                        key={amt}
+                        type="button"
+                        onClick={() => setSupportAmount(amt)}
+                        className={`relative z-10 py-1.5 rounded-lg border font-semibold text-center transition-colors ${
+                          active
+                            ? 'border-transparent font-bold text-primary-600'
+                            : 'border-stone-200 hover:border-primary-600 hover:text-primary-600 bg-surface-container-lowest'
+                        }`}
+                      >
+                        {active && (
+                          <motion.span
+                            layoutId="author-support-amount-pill"
+                            aria-hidden="true"
+                            className="absolute inset-0 -z-10 rounded-lg border border-primary-600 bg-primary-50/80"
+                            transition={reduce ? { duration: 0 } : { duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
+                          />
+                        )}
+                        {amt} Xu
+                      </button>
+                    );
+                  })}
+                </div>
+              </LayoutGroup>
 
               <div>
                 <label className="text-meta text-stone-500 block mb-1">Hoặc số lượng tùy chỉnh:</label>
@@ -328,10 +339,25 @@ export function AuthorProfilePage() {
                 />
               </div>
 
-              <div className="flex items-center justify-between p-2 rounded-lg bg-amber-50/60 border border-amber-200/60 text-meta text-stone-600">
-                <span>
-                  Số dư khả dụng: <strong>{walletQuery.isLoading ? 'Đang tải...' : walletQuery.isError ? 'Không tải được' : `${availableCoins.toLocaleString('vi-VN')} Xu`}</strong>
-                </span>
+              <div className="flex items-center justify-between p-2.5 rounded-lg bg-amber-50/60 border border-amber-200/60 text-meta text-stone-600">
+                <div className="flex flex-col gap-0.5">
+                  <span>
+                    Số dư khả dụng: <strong>{walletQuery.isLoading ? 'Đang tải...' : walletQuery.isError ? 'Không tải được' : `${availableCoins.toLocaleString('vi-VN')} Xu`}</strong>
+                  </span>
+                  {!walletQuery.isLoading && !walletQuery.isError && (
+                    <span className="text-stone-500">
+                      Dự kiến sau ủng hộ:{' '}
+                      <strong className="text-primary-700" style={{ fontVariantNumeric: 'tabular-nums' }}>
+                        <NumberFlow
+                          value={Math.max(0, availableCoins - (Number.isFinite(supportAmount) ? supportAmount : 0))}
+                          locales="vi-VN"
+                          animated={!reduce}
+                        />{' '}
+                        Xu
+                      </strong>
+                    </span>
+                  )}
+                </div>
                 <Link to="/wallet" className="text-primary-600 font-semibold hover:underline">
                   Nạp Xu
                 </Link>
@@ -356,9 +382,7 @@ export function AuthorProfilePage() {
                 {supportMutation.isPending ? 'Đang gửi...' : 'Xác nhận ủng hộ'}
               </button>
             </div>
-          </div>
-        </div></AuthorDialog>
-      )}
+      </AnimatedModal>
     </div>
   );
 }
