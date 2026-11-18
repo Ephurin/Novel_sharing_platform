@@ -107,7 +107,7 @@ flowchart LR
         U6(["Mở khóa chương VIP"])
         U7(["Ủng hộ tác giả bằng Coin"])
         U8(["Yêu cầu rút Coin"])
-        U9(["Kiểm tra số dư và điều kiện ví"])
+        U9(["Kiểm tra điều kiện sử dụng Coin"])
         U10(["Xem thông tin thu nhập"])
     end
     U --- U1
@@ -124,5 +124,5 @@ flowchart LR
 
 *Hình 3.5. Use Case ví Coin mô phỏng với các biến thể sử dụng số dư.*
 
-**Phân cấp:** Mở khóa, ủng hộ và gửi yêu cầu rút là các nghiệp vụ sử dụng số dư theo những cách khác nhau; cùng có bước kiểm tra điều kiện ví/số dư để xử lý an toàn. Hình dùng lớp trừu tượng Sử dụng số dư Coin để diễn tả điểm chung, không khẳng định tồn tại một endpoint có tên như vậy. **Không gán «include»:** Tạo phiên nạp và xem lịch sử giao dịch không phải bước bắt buộc của việc mở khóa; thiếu Coin là trường hợp ngoại lệ hoặc một lần giao dịch khác. Giao dịch nạp thực tế không được mô tả vì đây là Coin mô phỏng. Căn cứ: `wallet.service.ts`, `wallet.repository.ts`.
+**Phân cấp:** Mở khóa, ủng hộ và gửi yêu cầu rút là các nghiệp vụ sử dụng số dư theo những cách khác nhau; đều có bước kiểm tra điều kiện xử lý tương ứng (quyền đã mở khóa, ví và số dư); riêng trường hợp chương đã mở khóa từ trước có thể trả kết quả mà không phát sinh giao dịch trừ Coin mới. Hình dùng lớp trừu tượng Sử dụng số dư Coin để diễn tả điểm chung, không khẳng định tồn tại một endpoint có tên như vậy. **Không gán «include»:** Tạo phiên nạp và xem lịch sử giao dịch không phải bước bắt buộc của việc mở khóa; thiếu Coin là trường hợp ngoại lệ hoặc một lần giao dịch khác. Giao dịch nạp thực tế không được mô tả vì đây là Coin mô phỏng. Căn cứ: `wallet.service.ts`, `wallet.repository.ts`.
 
