@@ -1,4 +1,4 @@
-import { ParagraphDiscussion, useChapterDiscussions, usePrivateCommentFocus } from './PrivateComments';
+import { ParagraphDiscussion, useAuthorFeedbackMarkers, useChapterDiscussions, usePrivateCommentFocus } from './PrivateComments';
 import { parseAuthorNotes } from '../../shared/lib/author-notes';
 import { useAuthStore } from '../auth/useAuthStore';
 import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
@@ -59,6 +59,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
   const [failedCoverUrl, setFailedCoverUrl] = useState<string>();
   const article = useRef<HTMLElement>(null);
   const discussions = useChapterDiscussions(chapter);
+  const authorMarkers = useAuthorFeedbackMarkers(chapter);
   const privateFocus = usePrivateCommentFocus({ kind: 'chapter', id: chapter.chapterId });
   const [openedDiscussion, setOpenedDiscussion] = useState<{ account: string; paragraphId: string; navigationKey: string }>();
   const [dismissedLink, setDismissedLink] = useState<string>();
@@ -81,7 +82,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
   });
   const dismiss = useDismiss(floatingContext, {
     escapeKey: false,
-    outsidePress: event => !(event.target instanceof Element && event.target.closest('[data-private-recipient-menu]'))
+    outsidePress: event => !(event.target instanceof Element && event.target.closest('[data-private-recipient-menu], [data-private-chat-overlay]'))
   });
   const { getFloatingProps } = useInteractions([dismiss]);
   const discussionHeading = useId();
@@ -116,13 +117,16 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
   }, [manualParagraph, isPositioned, mobile, refs.floating]);
   useEffect(() => {
     const blocks = Array.from(article.current?.querySelectorAll<HTMLElement>('[data-paragraph-id]') ?? []);
-    if (!socialAccount || discussions.isError) return;
+    if (!socialAccount) return;
+    const friends = discussions.isError ? undefined : discussions.data?.groups;
+    const feedback = authorMarkers.isError ? undefined : authorMarkers.data;
     for (const block of blocks) {
-      const count = discussions.data?.groups.get(block.dataset.paragraphId!)?.length;
+      const paragraphId = block.dataset.paragraphId!;
+      const count = (friends?.get(paragraphId)?.length ?? 0) + (feedback?.get(paragraphId) ?? 0);
       if (count) block.dataset.privateCount = String(count);
     }
     return () => { for (const block of blocks) delete block.dataset.privateCount; };
-  }, [chapter, socialAccount, discussions.data, discussions.isError]);
+  }, [chapter, socialAccount, discussions.data, discussions.isError, authorMarkers.data, authorMarkers.isError]);
 
   const paragraphs = () => Array.from(article.current?.querySelectorAll<HTMLElement>('.chapter-prose > p, .chapter-prose > blockquote, .chapter-prose > hr') ?? []);
   const flashLine = (range: Range) => {
@@ -346,7 +350,7 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
       className="sc-paragraph-discussion" data-docked={mobile || !discussionId}
       style={!mobile && discussionId ? { ...floatingStyles, visibility: isPositioned ? undefined : 'hidden' } : undefined}
       {...getFloatingProps({ onKeyDown: event => {
-        if (event.key === 'Escape' && !event.defaultPrevented && !(event.target as HTMLElement).closest('[aria-expanded="true"]')) {
+        if (event.key === 'Escape' && !event.defaultPrevented && !(event.target as HTMLElement).closest('[aria-expanded="true"], [data-private-chat-overlay]')) {
           event.stopPropagation();
           closeDiscussion(true);
         }

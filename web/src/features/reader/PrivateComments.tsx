@@ -1,4 +1,4 @@
-import { Alert, Avatar, Button, Group, Pagination, Select, Stack, Text, Title } from '@mantine/core';
+import { Alert, Avatar, Button, Group, Menu, Pagination, Select, Stack, Text, Title } from '@mantine/core';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { ErrorState, LoadingState } from '../../shared/components/PageStates';
 import { useAuthStore } from '../auth/useAuthStore';
 import { ManuscriptContent } from '../../shared/components/ManuscriptContent';
 import { CommentIcon } from './CommentComposer';
+import { useCommentManagement } from './CommentManagement';
 import { CommentMentionInput } from './CommentMentionInput';
 import { useCommentEditor } from './useCommentEditor';
 import { CommentThread } from './CommentsSection';
@@ -45,6 +46,17 @@ export function usePrivateCommentFocus(target: CommentTarget) {
 type PrivateFocus = ReturnType<typeof usePrivateCommentFocus>;
 const friendChannels = ['FRIENDS_ALL', 'FRIENDS_SELECTED'] as const;
 
+async function listChapterPrivateRoots(chapterId: string, channel: typeof friendChannels[number] | 'AUTHOR_PRIVATE') {
+  const roots: PrivateComment[] = [];
+  let pages = 1;
+  for (let page = 1; page <= pages; page++) {
+    const result = await list(`/chapters/${chapterId}/comments`, { channel, page, limit: 100 });
+    pages = result.pages;
+    roots.push(...result.items);
+  }
+  return roots;
+}
+
 export function useChapterDiscussions(chapter: ReaderChapter) {
   const account = useAuthStore(s => s.user?.userId);
   return useQuery({
@@ -54,24 +66,34 @@ export function useChapterDiscussions(chapter: ReaderChapter) {
     queryFn: async () => {
       const groups = new Map<string, PrivateComment[]>();
       const detached: PrivateComment[] = [];
-      await Promise.all(friendChannels.map(async channel => {
-        let page = 1;
-        let pages = 1;
-        do {
-          const result = await list(`/chapters/${chapter.chapterId}/comments`, { channel, page, limit: 100 });
-          pages = result.pages;
-          for (const item of result.items) {
-            const id = !item.anchor?.detached && item.anchor?.currentParagraphId;
-            if (!id) { if (item.anchor?.detached) detached.push(item); continue; }
-            const group = groups.get(id) ?? [];
-            group.push(item);
-            groups.set(id, group);
-          }
-        } while (++page <= pages);
-      }));
+      const roots = await Promise.all(friendChannels.map(channel => listChapterPrivateRoots(chapter.chapterId, channel)));
+      for (const item of roots.flat()) {
+        const id = !item.anchor?.detached && item.anchor?.currentParagraphId;
+        if (!id) { if (item.anchor?.detached) detached.push(item); continue; }
+        const group = groups.get(id) ?? [];
+        group.push(item);
+        groups.set(id, group);
+      }
       for (const group of groups.values()) group.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       detached.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
       return { groups, detached };
+    }
+  });
+}
+
+export function useAuthorFeedbackMarkers(chapter: ReaderChapter) {
+  const account = useAuthStore(s => s.user?.userId);
+  return useQuery({
+    queryKey: ['private-comments', account, 'author-feedback-markers', chapter.chapterId, chapter.contentVersion],
+    enabled: Boolean(account && chapter.contentVersion),
+    ...policy,
+    queryFn: async () => {
+      const counts = new Map<string, number>();
+      for (const { anchor } of await listChapterPrivateRoots(chapter.chapterId, 'AUTHOR_PRIVATE')) {
+        const id = !anchor?.detached && anchor?.currentParagraphId;
+        if (id) counts.set(id, (counts.get(id) ?? 0) + 1);
+      }
+      return counts;
     }
   });
 }
@@ -104,16 +126,23 @@ function ChatIdentity({ name, avatar }: { name: string; avatar?: string | null }
   </Group>;
 }
 
-function PrivateComposer({ target, anchor, author = false, replyTo, onSent, onCancel }: {
+type PrivateDraft = { content: string; mentions: NonNullable<CommentInput['mentions']>; hasSelectedRecipients: boolean };
+const emptyPrivateDraft: PrivateDraft = { content: '', mentions: [], hasSelectedRecipients: false };
+
+function PrivateComposer({ target, anchor, author = false, replyTo, savedDraft, onSendingChange, onSent, onCancel }: {
   target: CommentTarget; anchor?: { contentVersion: string; paragraphId: string }; author?: boolean;
   replyTo?: { message: ReaderComment; audience: string }; onSent?: () => void; onCancel?: () => void;
+  savedDraft?: { value: PrivateDraft; save: (value: PrivateDraft) => void };
+  onSendingChange?: (sending: boolean) => void;
 }) {
   const user = useAuthStore(s => s.user);
   const account = user?.userId;
-  const [draft, setDraft] = useState<CommentInput>({ content: '', mentions: [] });
-  const [hasSelectedRecipients, setHasSelectedRecipients] = useState(false);
+  const [localDraft, setLocalDraft] = useState(emptyPrivateDraft);
+  const draft = savedDraft?.value ?? localDraft;
+  const setDraft = savedDraft?.save ?? setLocalDraft;
+  const sending = useRef(false);
   const chooseAudience = !author && !replyTo;
-  const mentions = draft.mentions ?? [];
+  const { mentions, hasSelectedRecipients } = draft;
   const recipients = chooseAudience ? [...new Set(mentions.map(mention => mention.userId))] : [];
   const missingSelection = chooseAudience && Array.from(draft.content.matchAll(/(?:^|[\s(\[{“‘"'])(@[a-zA-Z0-9_]*)/g)).some(match => {
     const start = match.index + match[0].length - match[1].length;
@@ -135,11 +164,11 @@ function PrivateComposer({ target, anchor, author = false, replyTo, onSent, onCa
       });
     },
     onSuccess: async () => {
-      setDraft({ content: '', mentions: [] });
-      setHasSelectedRecipients(false);
+      setDraft(emptyPrivateDraft);
       onSent?.();
       await refresh();
-    }
+    },
+    onSettled: () => { sending.current = false; onSendingChange?.(false); }
   });
   const editorId = useId();
   const { editor, formatting, limitReached } = useCommentEditor({
@@ -147,16 +176,16 @@ function PrivateComposer({ target, anchor, author = false, replyTo, onSent, onCa
     label: replyTo ? 'Trả lời bình luận' : 'Nội dung riêng',
     placeholder: replyTo ? 'Viết trả lời…' : 'Viết tin nhắn…',
     disabled: create.isPending,
-    onChange: value => {
-      setDraft(value);
-      if (chooseAudience && value.mentions.length) setHasSelectedRecipients(true);
-    }
+    onChange: value => setDraft({ ...value, hasSelectedRecipients: hasSelectedRecipients || (chooseAudience && value.mentions.length > 0) })
   });
   if (user?.status !== 'ACTIVE') return null;
   const disabled = create.isPending || !draft.content.trim() || missingSelection || removedAll;
   return <Stack component="form" gap={8} className="sc-private-chat-compose" onSubmit={event => {
     event.preventDefault();
-    if (!disabled) create.mutate({ content: draft.content.trim(), recipients });
+    if (disabled || sending.current) return;
+    sending.current = true;
+    onSendingChange?.(true);
+    create.mutate({ content: draft.content.trim(), recipients });
   }}>
     {replyTo && <Text size="xs" c="dimmed">
       Trả lời {replyTo.message.displayName} · {replyTo.audience === 'FRIENDS_SELECTED' ? 'Chỉ bạn bè được chọn' : 'Nhóm bạn bè của tin nhắn gốc'}
@@ -166,7 +195,7 @@ function PrivateComposer({ target, anchor, author = false, replyTo, onSent, onCa
     {limitReached && <Text size="xs" role="alert">Tối đa 2.000 ký tự.</Text>}
     <Group gap={8} justify="space-between" wrap="nowrap">
       {chooseAudience && (!missingSelection && removedAll
-        ? <Button type="button" size="compact-xs" variant="subtle" onClick={() => setHasSelectedRecipients(false)}>Chuyển sang tất cả bạn bè</Button>
+        ? <Button type="button" size="compact-xs" variant="subtle" onClick={() => setDraft({ ...draft, hasSelectedRecipients: false })}>Chuyển sang tất cả bạn bè</Button>
         : <Text size="xs" c="dimmed" aria-live="polite">
           {missingSelection ? 'Chọn người nhận trong gợi ý.' : recipients.length ? `Chỉ ${recipients.length} bạn được chọn` : null}
         </Text>)}
@@ -180,11 +209,14 @@ function PrivateComposer({ target, anchor, author = false, replyTo, onSent, onCa
   </Stack>;
 }
 
-function ChatMessage({ message, focused = false, spoiler = false, onReply }: {
-  message: ReaderComment; focused?: boolean; spoiler?: boolean; onReply?: () => void;
+function ChatMessage({ message, focused = false, spoiler = false, sending, onReply, onChanged }: {
+  message: ReaderComment; focused?: boolean; spoiler?: boolean; sending: boolean; onReply?: () => void; onChanged: () => Promise<unknown>;
 }) {
   const [revealed, setRevealed] = useState(false);
+  const management = useCommentManagement(message, onChanged);
+  const hasActions = management.canEdit || management.canDelete || management.canReport;
   const item = useRef<HTMLElement>(null);
+  useEffect(() => setRevealed(false), [message.content, message.isSpoiler, spoiler]);
   useEffect(() => {
     if (!focused) return;
     const frame = requestAnimationFrame(() => {
@@ -196,17 +228,34 @@ function ChatMessage({ message, focused = false, spoiler = false, onReply }: {
   return <article ref={item} className={`sc-private-chat-message${focused ? ' is-focused' : ''}`} tabIndex={focused ? -1 : undefined}>
     <Group justify="space-between" gap={8} wrap="nowrap">
       <ChatIdentity name={message.displayName} avatar={message.avatarUrl} />
-      {onReply && <Button type="button" variant="subtle" size="compact-xs" className="sc-private-chat-reply"
-        aria-label={`Trả lời ${message.displayName}`} title={`Trả lời ${message.displayName}`} onClick={onReply}>
-        <CommentIcon name="reply" />
-      </Button>}
+      {!management.action && <Group gap={4} wrap="nowrap">
+        {onReply && <Button type="button" variant="subtle" size="compact-xs" className="sc-private-chat-action" disabled={sending}
+          aria-label={`Trả lời ${message.displayName}`} title={`Trả lời ${message.displayName}`} onClick={onReply}>
+          <CommentIcon name="reply" />
+        </Button>}
+        {hasActions && <Menu position="bottom-end" withinPortal>
+          <Menu.Target>
+            <Button type="button" variant="subtle" size="compact-xs" className="sc-private-chat-action" disabled={sending || management.busy}
+              aria-label={`Thao tác với tin nhắn của ${message.displayName}`} title="Thao tác với tin nhắn">
+              <CommentIcon name="more_horiz" />
+            </Button>
+          </Menu.Target>
+          <Menu.Dropdown data-private-chat-overlay>
+            {management.canEdit && <Menu.Item onClick={() => management.open('edit')}>Sửa</Menu.Item>}
+            {management.canDelete && <Menu.Item color="red" onClick={() => management.open('delete')}>Xóa</Menu.Item>}
+            {management.canReport && <Menu.Item disabled={management.reported} onClick={() => management.open('report')}>Báo cáo</Menu.Item>}
+          </Menu.Dropdown>
+        </Menu>}
+      </Group>}
     </Group>
     {message.status !== 'APPROVED' && <Text size="xs" c="dimmed">
       {message.status === 'REJECTED' ? 'Không được duyệt' : 'Đang chờ duyệt'}
     </Text>}
-    {(message.isSpoiler || spoiler) && !revealed ? <Button size="compact-xs" variant="subtle" onClick={() => setRevealed(true)}>
+    {management.action !== 'edit' && ((message.isSpoiler || spoiler) && !revealed ? <Button size="compact-xs" variant="subtle" onClick={() => setRevealed(true)}>
       Hiện nội dung có spoiler
-    </Button> : <ManuscriptContent content={message.content} />}
+    </Button> : <ManuscriptContent content={message.content} />)}
+    {management.form}
+    {management.feedback}
   </article>;
 }
 
@@ -228,6 +277,9 @@ export function ParagraphDiscussion({ chapter, paragraphId, focus, discussions, 
   const account = useAuthStore(s => s.user?.userId);
   const active = useAuthStore(s => s.user?.status === 'ACTIVE');
   const [replyId, setReplyId] = useState<string>();
+  const [drafts, setDrafts] = useState<Record<string, PrivateDraft>>({});
+  const [sending, setSending] = useState(false);
+  const refresh = usePrivateRefresh();
   const [showDetached, setShowDetached] = useState(false);
   const history = useRef<HTMLDivElement>(null);
   const stickToBottom = useRef(true);
@@ -260,6 +312,7 @@ export function ParagraphDiscussion({ chapter, paragraphId, focus, discussions, 
   const replyTo = selected ? { message: selected.message, audience: selected.root.audience }
     : !replyId && focusedRoot?.canReply ? { message: focusedRoot, audience: focusedRoot.audience } : undefined;
   const canStart = !replyId && !focus && paragraphId && chapter.contentVersion;
+  const draftKey = replyTo?.message.commentId ?? 'new';
   useEffect(() => {
     if (!focusId && stickToBottom.current && history.current) history.current.scrollTop = history.current.scrollHeight;
   }, [latest, messages.length, focusId]);
@@ -278,10 +331,10 @@ export function ParagraphDiscussion({ chapter, paragraphId, focus, discussions, 
           <Text size="xs" c="dimmed" role="status">Đang tải tin nhắn…</Text>}
         {messages.map(({ message, root, spoiler, detachedQuote }) => <Stack key={message.commentId} gap={4}>
           {detachedQuote && <Text size="sm" c="dimmed">Đoạn gốc đã thay đổi: {detachedQuote}</Text>}
-          <ChatMessage message={message} spoiler={spoiler} focused={focusId === message.commentId}
+          <ChatMessage message={message} spoiler={spoiler} focused={focusId === message.commentId} sending={sending} onChanged={refresh}
             onReply={active && !showDetached && !focus?.isError && root.canReply && message.canReply ? () => setReplyId(message.commentId) : undefined} />
         </Stack>)}
-        {paragraphId && Boolean(data?.detached.length) && <Button variant="subtle" size="compact-sm" aria-pressed={showDetached}
+        {paragraphId && Boolean(data?.detached.length) && <Button variant="subtle" size="compact-sm" aria-pressed={showDetached} disabled={sending}
           onClick={() => { stickToBottom.current = true; setReplyId(undefined); setShowDetached(value => !value); }}>
           {showDetached ? 'Về đoạn đang chọn' : 'Xem trao đổi ở đoạn đã thay đổi'}
         </Button>}
@@ -291,8 +344,10 @@ export function ParagraphDiscussion({ chapter, paragraphId, focus, discussions, 
       <div className="sc-paragraph-chat-footer">
         {replyId && !replyTo ? <Group justify="space-between" gap={8}>
           <Text size="xs" role="status">Tin nhắn này không còn khả dụng.</Text>
-          <Button type="button" size="compact-sm" variant="subtle" onClick={() => setReplyId(undefined)}>Hủy</Button>
-        </Group> : <PrivateComposer key={replyTo?.message.commentId ?? 'new'} target={target} replyTo={replyTo}
+          <Button type="button" size="compact-sm" variant="subtle" disabled={sending} onClick={() => setReplyId(undefined)}>Hủy</Button>
+        </Group> : <PrivateComposer key={draftKey} target={target} replyTo={replyTo}
+          savedDraft={{ value: drafts[draftKey] ?? emptyPrivateDraft, save: value => setDrafts(current => ({ ...current, [draftKey]: value })) }}
+          onSendingChange={setSending}
           onCancel={replyId ? () => setReplyId(undefined) : onCancel}
           anchor={paragraphId && chapter.contentVersion ? { contentVersion: chapter.contentVersion, paragraphId } : undefined}
           onSent={() => {

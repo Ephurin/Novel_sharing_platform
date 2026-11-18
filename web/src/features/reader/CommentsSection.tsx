@@ -1,4 +1,4 @@
-import { Alert, Avatar, Badge, Button, Group, Pagination, Paper, Stack, Text, Textarea, Title } from '@mantine/core';
+import { Alert, Avatar, Badge, Button, Group, Pagination, Paper, Stack, Text, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -9,8 +9,9 @@ import { EmptyState, ErrorState, LoadingState } from '../../shared/components/Pa
 import { ManuscriptContent } from '../../shared/components/ManuscriptContent';
 import { useStoryCraftAutoAnimate } from '../../shared/hooks/useStoryCraftAutoAnimate';
 import { createTargetComment, listTargetComments, listCommentReplies, locateComment, reactToComment, replyToComment, type CommentTarget } from './comments-api';
-import { deleteComment, reportContent, updateComment, type CommentInput, type ReaderComment } from './reader-api';
+import type { CommentInput, ReaderComment } from './reader-api';
 import { CommentComposer, CommentIcon, emptyComment } from './CommentComposer';
+import { useCommentManagement } from './CommentManagement';
 import { GiphyMedia } from './CommentGifPicker';
 import './comments.css';
 
@@ -99,25 +100,12 @@ function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpo
   const user = useAuthStore(state => state.user);
   const own = user?.userId === comment.userId;
   const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)', false, { getInitialValueInEffect: false });
-  const [mode, setMode] = useState<'read' | 'edit' | 'delete' | 'report'>('read');
-  const [draft, setDraft] = useState<CommentInput>({ content: comment.content, mentions: comment.mentions, isSpoiler: comment.isSpoiler ?? false, imageUrl: comment.imageUrl ?? null, gifId: comment.gifId ?? null });
-  const [reason, setReason] = useState('');
-  const [notice, setNotice] = useState('');
+  const management = useCommentManagement(comment, onChanged);
   const [revealed, setRevealed] = useState(false);
   const [playGif, setPlayGif] = useState(false);
   const [reaction, setReaction] = useState<Pick<ReaderComment, 'likesCount' | 'dislikesCount' | 'myReaction'> | null>(null);
   useEffect(() => { setRevealed(false); setPlayGif(false); }, [comment.content, comment.isSpoiler, comment.imageUrl, comment.gifId, forceSpoiler]);
   useEffect(() => setReaction(null), [comment.likesCount, comment.dislikesCount, comment.myReaction]);
-  const update = useMutation({
-    mutationFn: ({ account, ...draft }: CommentInput & { account: string }) => {
-      requireSameAccount(account);
-      return updateComment({ commentId: comment.commentId, ...draft });
-    },
-    onSuccess: async result => { setMode('read'); setNotice(result.status === 'APPROVED' ? 'Đã lưu bình luận.' : 'Bình luận đang chờ kiểm duyệt.'); await onChanged(); }
-  });
-  const remove = useMutation({ mutationFn: () => deleteComment(comment.commentId), onSuccess: onChanged });
-  const report = useMutation({ mutationFn: () => reportContent({ targetType: 'COMMENT', targetId: comment.commentId, reason: reason.trim() }),
-    onSuccess: () => { setMode('read'); setReason(''); setNotice('Đã gửi báo cáo cho quản trị viên.'); } });
   const vote = useMutation({
     scope: { id: `comment-reaction:${user?.userId}:${comment.commentId}` },
     mutationFn: ({ account, value }: { account: string; value: 'LIKE' | 'DISLIKE' | null }) => {
@@ -126,8 +114,6 @@ function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpo
     },
     onSuccess: async result => { setReaction(result); await onChanged(); }
   });
-  const error = update.error ?? remove.error ?? report.error ?? vote.error;
-  const busy = update.isPending || remove.isPending || report.isPending;
   const active = user?.status === 'ACTIVE';
   const counts = reaction ?? comment;
   const spoiler = Boolean(comment.isSpoiler || forceSpoiler);
@@ -145,9 +131,7 @@ function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpo
       </Stack>
       {comment.status !== 'APPROVED' && <Badge variant="light" color={comment.status === 'REJECTED' ? 'red' : 'yellow'}>{comment.status === 'REJECTED' ? 'Không được duyệt' : 'Chờ duyệt'}</Badge>}
     </Group>
-    {mode === 'edit' ? <CommentComposer privateMode={Boolean(comment.audience && comment.audience !== 'PUBLIC')} value={draft} onChange={setDraft} label="Sửa bình luận" submitLabel="Lưu bình luận" pending={update.isPending}
-      onSubmit={draft => { if (user) update.mutate({ ...draft, account: user.userId }); }} onCancel={() => setMode('read')} />
-      : <div className="sc-comment-body">
+    {management.action !== 'edit' && <div className="sc-comment-body">
         {spoiler && <button type="button" className="sc-comment-spoiler" aria-expanded={revealed} onClick={() => setRevealed(value => !value)}>
           <CommentIcon name="visibility_off" />{revealed ? 'Ẩn spoiler' : 'Có spoiler · Bấm để xem'}
         </button>}
@@ -162,7 +146,7 @@ function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpo
           {comment.imageUrl && <Text size="sm" c="dimmed">GIF cá nhân đang tạm ngưng hiển thị.</Text>}
         </>}
       </div>}
-    {mode === 'read' && <div className="sc-comment-actions">
+    {!management.action && <div className="sc-comment-actions">
       {comment.status === 'APPROVED' && <>
         {(['LIKE', 'DISLIKE'] as const).map(value => <button key={value} type="button" className="sc-comment-reaction" aria-label={value === 'LIKE' ? 'Thích bình luận' : 'Không thích bình luận'}
           aria-pressed={counts.myReaction === value} aria-description={`${(value === 'LIKE' ? counts.likesCount : counts.dislikesCount) ?? 0} lượt`}
@@ -174,20 +158,14 @@ function CommentItem({ comment, onChanged, onReply, showContext = true, forceSpo
       </>}
       {active && <>
         {comment.canReply && onReply && <button type="button" className="sc-comment-text-action" onClick={onReply}><CommentIcon name="reply" />Trả lời</button>}
-        {own && <button type="button" className="sc-comment-text-action" onClick={() => {
-          setDraft({ content: comment.content, mentions: comment.mentions, isSpoiler: comment.isSpoiler ?? false, imageUrl: comment.imageUrl ?? null, gifId: comment.gifId ?? null }); setMode('edit');
-        }}>Sửa</button>}
-        {comment.canDelete && <button type="button" className="sc-comment-text-action is-danger" onClick={() => setMode('delete')}>Xóa</button>}
-        {!own && comment.status === 'APPROVED' && <button type="button" className="sc-comment-text-action" disabled={report.isSuccess} onClick={() => setMode('report')}>Báo cáo</button>}
+        {management.canEdit && <button type="button" className="sc-comment-text-action" onClick={() => management.open('edit')}>Sửa</button>}
+        {management.canDelete && <button type="button" className="sc-comment-text-action is-danger" onClick={() => management.open('delete')}>Xóa</button>}
+        {management.canReport && <button type="button" className="sc-comment-text-action" disabled={management.reported} onClick={() => management.open('report')}>Báo cáo</button>}
       </>}
     </div>}
-    {mode === 'delete' && <Stack gap="xs" mt="sm"><Text size="sm">{comment.repliesCount > 0 ? 'Xóa bình luận này và các trả lời bên dưới?' : 'Xóa bình luận này?'}</Text><Group><Button color="red" size="xs" loading={remove.isPending} onClick={() => remove.mutate()}>Xác nhận xóa</Button><Button variant="subtle" size="xs" disabled={busy} onClick={() => setMode('read')}>Hủy</Button></Group></Stack>}
-    {mode === 'report' && <form onSubmit={event => { event.preventDefault(); if (reason.trim()) report.mutate(); }}>
-      <Textarea mt="sm" label="Lý do báo cáo" maxLength={100} value={reason} onChange={event => setReason(event.currentTarget.value)} disabled={busy} />
-      <Group mt="sm"><Button type="submit" size="xs" disabled={!reason.trim()} loading={report.isPending}>Gửi báo cáo</Button><Button size="xs" variant="subtle" disabled={busy} onClick={() => setMode('read')}>Hủy</Button></Group>
-    </form>}
-    {notice && <Text role="status" mt="sm" size="sm">{notice}</Text>}
-    {error && <Alert mt="sm" color="red">{getApiErrorMessage(error)}</Alert>}
+    {management.form}
+    {management.feedback}
+    {vote.error && <Alert mt="sm" color="red">{getApiErrorMessage(vote.error)}</Alert>}
   </Paper>;
 }
 

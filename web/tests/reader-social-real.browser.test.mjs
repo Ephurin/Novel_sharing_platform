@@ -10,8 +10,10 @@ import { readerEvidence } from './reader-browser-evidence.mjs';
 test('reader social uses real APIs: follow, mention, private replies, anchors and revocation', { timeout: 240000 }, async () => {
   const fixture = await isolatedIdeServer({ serverFile: 'reader-social-browser-server.ts' });
   const { accounts: [author, a, b, outsider], novelId, chapterId, base: api } = fixture.config;
-  const request = async (account, path, method = 'GET', body) => {
-    const response = await fetch(api + path, { method, headers: { Authorization: `Bearer ${account.token}`, 'Content-Type': 'application/json' }, ...(body ? { body: JSON.stringify(body) } : {}) });
+  const send = (account, path, method = 'GET', body) =>
+    fetch(api + path, { method, headers: { Authorization: `Bearer ${account.token}`, 'Content-Type': 'application/json' }, ...(body ? { body: JSON.stringify(body) } : {}) });
+  const request = async (...args) => {
+    const response = await send(...args);
     const value = response.status === 204 ? null : await response.json();
     assert.ok(response.ok, JSON.stringify(value)); return value;
   };
@@ -132,6 +134,22 @@ test('reader social uses real APIs: follow, mention, private replies, anchors an
     const selected = await request(a, `/chapters/${chapterId}/comments?channel=FRIENDS_SELECTED`);
     assert.equal(selected.data[0].content, 'Selected friend only. @social2');
     await expect(page.locator('[data-private-count="2"]')).toHaveCount(1);
+    const chapter = (await request(a, `/reading/chapters/${chapterId}`)).data;
+    await request(a, `/chapters/${chapterId}/comments`, 'POST', {
+      content: 'Anchored feedback for the author.', audience: 'AUTHOR_PRIVATE',
+      anchor: { contentVersion: chapter.contentVersion, paragraphId: chapter.paragraphs[0].paragraphId }
+    });
+    await fixture.command('approve');
+    await page.reload();
+    await expect(otherParagraph).toHaveAttribute('data-private-count', '1');
+    await otherParagraph.press('Enter');
+    await page.getByRole('button', { name: 'Trao đổi riêng', exact: true }).click();
+    await expect(privatePanel.getByRole('textbox')).toBeVisible();
+    await expect(privatePanel.locator('article')).toHaveCount(0);
+    await privatePanel.getByRole('button', { name: 'Đóng hộp trao đổi' }).click();
+    await chapterComments.getByRole('button', { name: 'Nhắn riêng cho tác giả' }).click();
+    await expect(chapterComments.getByText('Anchored feedback for the author.', { exact: true })).toBeVisible();
+    await chapterComments.getByRole('button', { name: 'Nhắn riêng cho tác giả' }).click();
     let reply;
     for (let index = 0; index < 7; index++) { reply = await request(b, `/comments/${root}/replies`, 'POST', { content: `Private reply ${index}` }); await fixture.command('approve'); }
     const recipient = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
@@ -140,22 +158,71 @@ test('reader social uses real APIs: follow, mention, private replies, anchors an
     const mobile = await recipient.newPage(); mobile.on('pageerror', e => errors.push(e.message));
     await mobile.goto(base + `/reader/chapters/${chapterId}`);
     const marker = mobile.locator('[data-private-count="2"]').filter({ hasText: 'Middle paragraph.' });
+    await expect(marker).toBeVisible();
+    await expect(mobile.locator('.sc-reader-manuscript .chapter-prose > p').filter({ hasText: 'Opening paragraph.' })).not.toHaveAttribute('data-private-count', /.+/);
     await marker.press('Enter');
     await mobile.getByRole('button', { name: 'Trao đổi riêng', exact: true }).click();
     const recipientPanel = mobile.getByRole('dialog', { name: 'Trao đổi với bạn bè' });
-    await recipientPanel.locator('article').filter({ hasText: 'Selected friend only. @social2' })
-      .getByRole('button', { name: 'Trả lời Social 1', exact: true }).click();
+    const selectedMessage = recipientPanel.locator('article').filter({ hasText: 'Selected friend only. @social2' });
+    const allMessage = recipientPanel.locator('article').filter({ hasText: 'Only mutual friends see this.' });
+    const replySelected = selectedMessage.getByRole('button', { name: 'Trả lời Social 1', exact: true });
+    const replyAll = allMessage.getByRole('button', { name: 'Trả lời Social 1', exact: true });
+    const replyBox = recipientPanel.getByRole('textbox', { name: 'Trả lời bình luận', exact: true });
+    const rootBox = recipientPanel.getByRole('textbox', { name: 'Nội dung riêng', exact: true });
+    await rootBox.fill('Unsent new discussion.');
+    await replySelected.click();
     await expect(recipientPanel.getByText('Trả lời Social 1 · Chỉ bạn bè được chọn')).toBeVisible();
-    await recipientPanel.getByRole('textbox', { name: 'Trả lời bình luận', exact: true }).fill('Selected reply from paragraph.');
-    const submitted = mobile.waitForResponse(response => response.request().method() === 'POST' &&
-      new URL(response.url()).pathname === `/api/v1/comments/${selected.data[0].commentId}/replies`);
+    await expect(replyBox).toHaveText('');
+    await replyBox.fill('Selected reply from paragraph.');
+    await replyAll.click();
+    await expect(replyBox).toHaveText('');
+    await replyBox.fill('Draft for all friends.');
+    await replySelected.click();
+    await expect(replyBox).toHaveText('Selected reply from paragraph.');
+    const { promise: releaseReply, resolve: allowReply } = Promise.withResolvers();
+    await mobile.route(`**/comments/${selected.data[0].commentId}/replies`, async route => {
+      if (route.request().method() === 'POST') await releaseReply;
+      await route.fallback();
+    });
     await recipientPanel.getByRole('button', { name: 'Gửi trả lời', exact: true }).click();
-    assert.equal((await submitted).status(), 201);
+    try {
+      await expect(replyAll).toBeDisabled();
+      await expect(replyBox).toHaveAttribute('contenteditable', 'false');
+    } finally {
+      const submitted = mobile.waitForResponse(response => response.request().method() === 'POST' &&
+        new URL(response.url()).pathname === `/api/v1/comments/${selected.data[0].commentId}/replies`);
+      allowReply();
+      assert.equal((await submitted).status(), 201);
+    }
     await expect(recipientPanel.locator('article').getByText('Selected reply from paragraph.', { exact: true })).toBeVisible();
     await fixture.command('approve');
     const selectedReplies = await request(a, `/comments/${selected.data[0].commentId}/replies`);
     assert.deepEqual(selectedReplies.data.map(reply => [reply.content, reply.audience]), [['Selected reply from paragraph.', 'FRIENDS_SELECTED']]);
     assert.equal((await request(b, `/chapters/${chapterId}/comments?channel=FRIENDS_ALL`)).data.length, 1);
+    await replyAll.click();
+    await expect(replyBox).toHaveText('Draft for all friends.');
+    await recipientPanel.getByRole('button', { name: 'Hủy', exact: true }).click();
+    await expect(rootBox).toHaveText('Unsent new discussion.');
+    await replySelected.click();
+    await expect(replyBox).toHaveText('');
+    const ownReplyId = selectedReplies.data[0].commentId;
+    assert.equal((await send(outsider, '/reports', 'POST', { targetType: 'COMMENT', targetId: root, reason: 'SPAM' })).status, 404);
+    assert.equal((await send(outsider, `/comments/${ownReplyId}`, 'DELETE')).status, 404);
+    assert.equal((await send(outsider, `/comments/${ownReplyId}`, 'PATCH', { content: 'Forbidden edit.' })).status, 404);
+    const ownActions = recipientPanel.locator('article').filter({ hasText: 'Selected reply from paragraph.' })
+      .getByRole('button', { name: 'Thao tác với tin nhắn của Social 2', exact: true });
+    await ownActions.click();
+    await expect(mobile.getByRole('menuitem', { name: 'Báo cáo' })).toHaveCount(0);
+    await mobile.getByRole('menuitem', { name: 'Sửa' }).click();
+    await recipientPanel.getByRole('textbox', { name: 'Sửa bình luận' }).fill('Edited selected reply.');
+    await recipientPanel.getByRole('button', { name: 'Lưu bình luận' }).click();
+    const editedReply = recipientPanel.locator('article').filter({ hasText: 'Edited selected reply.' });
+    await expect(editedReply.getByText('Edited selected reply.', { exact: true })).toBeVisible();
+    await editedReply.getByRole('button', { name: 'Thao tác với tin nhắn của Social 2', exact: true }).click();
+    await mobile.getByRole('menuitem', { name: 'Xóa' }).click();
+    await editedReply.getByRole('button', { name: 'Xác nhận xóa' }).click();
+    await expect(editedReply).toHaveCount(0);
+    assert.equal((await send(b, `/comments/${ownReplyId}/thread`)).status, 404);
     await fixture.command('notify');
     const notifications = await request(a, '/notifications?limit=20');
     const deepLink = notifications.data.find(item => item.payload.commentId === reply.data.commentId)?.payload.href;
@@ -174,6 +241,13 @@ test('reader social uses real APIs: follow, mention, private replies, anchors an
     await expect(mobile.getByRole('textbox', { name: 'Trả lời bình luận', exact: true })).toBeInViewport({ ratio: 0.9 });
     assert.equal(await mobile.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
     await mobile.screenshot({ path: path.join(output, 'mobile-dark-thread.png'), fullPage: true });
+    await allMessage.getByRole('button', { name: 'Thao tác với tin nhắn của Social 1', exact: true }).click();
+    await expect(mobile.getByRole('menuitem', { name: 'Xóa' })).toHaveCount(0);
+    await expect(mobile.getByRole('menuitem', { name: 'Sửa' })).toHaveCount(0);
+    await mobile.getByRole('menuitem', { name: 'Báo cáo' }).click();
+    await allMessage.getByRole('textbox', { name: 'Lý do báo cáo' }).fill('Tin nhắn gây quấy rối.');
+    await allMessage.getByRole('button', { name: 'Gửi báo cáo' }).click();
+    await expect(allMessage.getByRole('status')).toHaveText('Đã gửi báo cáo cho quản trị viên.');
     await page.screenshot({ path: path.join(output, 'desktop-light-comments.png'), fullPage: true });
     await page.goto(base + `/reader/novels/${novelId}`);
     const novelComments = page.getByRole('region', { name: 'Bình luận tác phẩm', exact: true });

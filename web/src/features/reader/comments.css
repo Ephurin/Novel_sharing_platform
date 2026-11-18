@@ -17,8 +17,8 @@
 .sc-private-chat-message { display: grid; gap: 5px; padding: 6px 0; overflow-wrap: anywhere; font-size: 14px; line-height: 1.5; }
 .sc-private-chat-message.is-focused { outline: 2px solid var(--sc-focus-ring); outline-offset: 1px; border-radius: 6px; padding-inline: 6px; }
 .sc-private-chat-message .chapter-prose p:last-child { margin-bottom: 0 !important; }
-.sc-private-chat-reply { min-width: 28px; min-height: 28px; padding-inline: 4px; }
-.sc-private-chat-reply .material-symbols-outlined { font-size: 16px; }
+.sc-private-chat-action { min-width: 28px; min-height: 28px; padding-inline: 4px; }
+.sc-private-chat-action .material-symbols-outlined { font-size: 16px; }
 .sc-private-chat-back { align-self: flex-start; }
 .sc-private-chat-compose .sc-comment-rich-input { min-height: 62px; max-height: 136px; border-radius: 10px; }
 .sc-private-chat-actions { margin-inline-start: auto; }
