@@ -93,7 +93,7 @@ Mã nguồn backend chia thành các nhóm module: `auth`, `users`, `novels`, `r
 
 ## 3.2. Xây dựng biểu đồ Use Case và các kịch bản
 
-### 3.2.1. Xác định tác nhân, mức trừu tượng và các quan hệ
+### 3.2.1. Xác định tác nhân và các quan hệ Use Case
 
 | Tác nhân | Mô tả | Phạm vi nghiệp vụ |
 |---|---|---|
@@ -103,16 +103,16 @@ Mã nguồn backend chia thành các nhóm module: `auth`, `users`, `novels`, `r
 | Admin | Người vận hành | Tài khoản, danh mục, kiểm duyệt và xử lý nghiệp vụ |
 | LLM Provider | Dịch vụ ngoài | Được AI Service gọi, không trực tiếp sửa tác phẩm |
 
-Các hình được tổ chức theo ba lớp: **(1) nhóm chức năng tổng quát**, **(2) mục tiêu nghiệp vụ/Use Case trừu tượng**, **(3) các Use Case cụ thể hoặc hành vi dùng chung**. Mô hình này loại bỏ cách đặt mọi thao tác ngang hàng và tránh nối cả hệ thống về Đăng nhập.
+Các Use Case được đặt trong những **nhóm chức năng** để phân biệt phạm vi xử lý. Nhóm này chỉ là cách tổ chức bố cục, không phải một Use Case trừu tượng và không biểu diễn quan hệ phụ thuộc.
 
-**Quy ước quan hệ trong sơ đồ:**
+Các sơ đồ Use Case của Chương 3 sử dụng duy nhất **hai loại mũi tên quan hệ**:
 
-- **«include»**: Use Case gốc luôn thực hiện hành vi chung được bao gồm (mũi tên từ UC gốc đến UC được bao gồm).
-- **«extend»**: UC bổ sung một hành vi tùy chọn có điều kiện vào một UC có thể hoàn thành độc lập (mũi tên từ UC mở rộng đến UC cơ sở).
-- **«generalization»**: UC con là cách thực hiện chuyên biệt của một UC cha **trừu tượng** hoặc hành vi chung (mũi tên từ UC con về UC cha). UC cha ở đây dùng để phân cấp phân tích, không nhất thiết tồn tại như một API riêng.
-- **Điều kiện tiên quyết / phụ thuộc dữ liệu**: Chỉ ghi trong kịch bản hoặc bảng phụ thuộc; ví dụ phải có truyện trước khi tạo chương. **Không** dùng «include» để thay thế quan hệ tồn tại dữ liệu, các bước điều hướng UI hay yêu cầu phải đăng nhập.
+- **«include»:** Use Case chính bắt buộc thực hiện hành vi được bao gồm, mũi tên từ Use Case chính đến hành vi được bao gồm.
+- **«extend»:** Hành vi tùy chọn có thể mở rộng Use Case cơ sở khi điều kiện phù hợp, mũi tên từ Use Case mở rộng về Use Case cơ sở.
 
-**Giới hạn hiển thị:** Mermaid flowchart có thể thể hiện elip và mũi tên có nhãn nhưng không tạo được đầy đủ ký pháp UML Use Case (đặc biệt đầu mũi tên tam giác rỗng của generalization). Quan hệ được ghi nhãn đúng *ngữ nghĩa*; khi cần bản chuẩn UML để nộp, có thể chuyển sang PlantUML hoặc Visual Paradigm.
+Liên kết tác nhân và Use Case được thể hiện bằng **đường liền không có hướng**. Yêu cầu đăng nhập, quyền sở hữu, tài nguyên đã tồn tại, trạng thái hợp lệ... được ghi thành điều kiện tiên quyết trong kịch bản, không tạo thêm quan hệ mũi tên.
+
+**Lưu ý về ký pháp:** Mermaid flowchart chỉ mô phỏng UML Use Case; các hình dùng nút bo tròn và quan hệ được ghi nhãn. Có thể chuyển sang PlantUML khi cần ký pháp UML chính thức mà vẫn giữ hai loại quan hệ này.
 
 ### 3.2.2. Biểu đồ Use Case tổng quát
 
@@ -163,14 +163,16 @@ flowchart LR
         U5(["Đọc chương"])
         U6(["Kiểm tra quyền đọc"])
         U7(["Tùy chỉnh giao diện đọc"])
-        U8(["Quản lý thư viện (trừu tượng)"])
-        U9(["Thêm truyện vào thư viện"])
-        U10(["Xóa truyện khỏi thư viện"])
         U11(["Lưu hoặc xem tiến độ đọc"])
-        U12(["Quản lý dấu trang (trừu tượng)"])
-        U13(["Tạo dấu trang"])
-        U14(["Xem dấu trang"])
-        U15(["Xóa dấu trang"])
+        subgraph G3_1["Quản lý thư viện"]
+            U9(["Thêm truyện vào thư viện"])
+            U10(["Xóa truyện khỏi thư viện"])
+        end
+        subgraph G3_2["Quản lý dấu trang"]
+            U13(["Tạo dấu trang"])
+            U14(["Xem dấu trang"])
+            U15(["Xóa dấu trang"])
+        end
     end
     G --- U1
     R --- U1
@@ -181,21 +183,19 @@ flowchart LR
     G --- U5
     R --- U5
     R --- U7
-    R --- U8
+    R --- U9
+    R --- U10
     R --- U11
-    R --- U12
+    R --- U13
+    R --- U14
+    R --- U15
     U2 -.->|"«extend»: khi áp dụng bộ lọc"| U1
     U5 -.->|"«include»"| U6
-    U9 -.->|"«generalization»"| U8
-    U10 -.->|"«generalization»"| U8
-    U13 -.->|"«generalization»"| U12
-    U14 -.->|"«generalization»"| U12
-    U15 -.->|"«generalization»"| U12
 ```
 
 *Hình 3.3. Use Case tìm kiếm, đọc và quản lý thư viện/dấu trang.*
 
-**Phân cấp:** Quản lý thư viện và Quản lý dấu trang là các ca sử dụng trừu tượng gom những biến thể trên cùng một tài nguyên; các thao tác thêm/xóa hoặc tạo/xem/xóa là chuyên biệt hóa. **Quan hệ bắt buộc:** Đọc chương luôn kiểm tra quyền truy cập theo trạng thái chương và quyền của người đọc. **Mở rộng:** Lọc chỉ phát sinh khi người dùng chọn bộ lọc trong quá trình tìm kiếm. Việc xem chi tiết truyện trước khi đọc chỉ là luồng điều hướng thông thường, không mặc nhiên là «include». Mã nguồn: `reading.routes.ts`, `reading.service.ts`.
+**«include»:** Khi đọc chương, backend phải kiểm tra quyền truy cập. **«extend»:** Việc lọc kết quả chỉ phát sinh khi người dùng áp dụng bộ lọc lúc tìm kiếm. Quản lý thư viện và dấu trang được chia thành các nhóm thao tác nhưng không có mũi tên giữa tạo/xem/xóa vì chúng không phải bước bắt buộc của nhau. Nguồn: `reading.routes.ts`, `reading.service.ts`.
 
 #### b) Bình luận và tương tác cộng đồng
 
@@ -207,38 +207,38 @@ flowchart LR
         U1(["Xem bình luận"])
         U2(["Gửi bình luận"])
         U3(["Trả lời bình luận"])
-        U4(["Quản lý bình luận của mình (trừu tượng)"])
-        U5(["Sửa bình luận"])
-        U6(["Xóa bình luận"])
         U7(["Bày tỏ cảm xúc với bình luận"])
-        U8(["Quản lý lượt thích truyện (trừu tượng)"])
-        U9(["Thích truyện"])
-        U10(["Bỏ thích truyện"])
         U11(["Theo dõi hoặc bỏ theo dõi tác giả"])
         U12(["Theo dõi hoặc bỏ theo dõi truyện"])
         U13(["Thiết lập thông báo truyện"])
         U14(["Đánh giá tác phẩm"])
+        subgraph G4_1["Bình luận của mình"]
+            U5(["Sửa bình luận"])
+            U6(["Xóa bình luận"])
+        end
+        subgraph G4_2["Thích / bỏ thích truyện"]
+            U9(["Thích truyện"])
+            U10(["Bỏ thích truyện"])
+        end
     end
     G --- U1
     R --- U1
     R --- U2
-    R --- U4
+    R --- U5
+    R --- U6
     R --- U7
-    R --- U8
+    R --- U9
+    R --- U10
     R --- U11
     R --- U12
     R --- U13
     R --- U14
-    U3 -.->|"«generalization»"| U2
-    U5 -.->|"«generalization»"| U4
-    U6 -.->|"«generalization»"| U4
-    U9 -.->|"«generalization»"| U8
-    U10 -.->|"«generalization»"| U8
+    U3 -.->|"«extend»: khi trả lời"| U2
 ```
 
 *Hình 3.4. Use Case bình luận, cảm xúc, theo dõi và đánh giá.*
 
-**Phân cấp:** Trả lời là biến thể của gửi bình luận; sửa và xóa là những biến thể của mục tiêu trừu tượng quản lý bình luận của mình. Thích và bỏ thích là những biến thể cập nhật cùng một quan hệ. **Không gán sai phụ thuộc:** Theo dõi truyện và bật thông báo là hai API riêng; mã nguồn không bắt buộc người dùng phải tạo bản ghi follow trước khi thiết lập thông báo, vì vậy không dùng «include» giữa chúng. Xem bình luận cũng không bắt buộc phải phát sinh trước mọi thao tác gửi bình luận ở cấp service. Căn cứ: `comments.routes.ts`, `social.routes.ts`, `novel-engagement.service.ts`.
+**«extend»:** Trả lời bình luận là tình huống tùy chọn khi người dùng muốn phản hồi một bình luận có sẵn. Các thao tác sửa/xóa bình luận, thích/bỏ thích, theo dõi tác giả/truyện, đánh giá và cài đặt thông báo là các chức năng riêng; không giả định quan hệ «include» khi backend không yêu cầu thao tác này phải thực hiện thao tác kia. Nguồn: `comments.routes.ts`, `social.routes.ts`, `novel-engagement.service.ts`.
 
 #### c) Ví Coin và quyền truy cập VIP
 
@@ -250,28 +250,30 @@ flowchart LR
         U2(["Xem lịch sử giao dịch"])
         U3(["Xem gói nạp Coin"])
         U4(["Tạo phiên nạp mô phỏng"])
-        U5(["Sử dụng số dư Coin (trừu tượng)"])
-        U6(["Mở khóa chương VIP"])
-        U7(["Ủng hộ tác giả bằng Coin"])
-        U8(["Yêu cầu rút Coin"])
         U9(["Kiểm tra điều kiện sử dụng Coin"])
         U10(["Xem thông tin thu nhập"])
+        subgraph G5_1["Các nghiệp vụ dùng Coin"]
+            U6(["Mở khóa chương VIP"])
+            U7(["Ủng hộ tác giả bằng Coin"])
+            U8(["Yêu cầu rút Coin"])
+        end
     end
     U --- U1
     U --- U2
     U --- U3
     U --- U4
-    U --- U5
+    U --- U6
+    U --- U7
+    U --- U8
     U --- U10
-    U6 -.->|"«generalization»"| U5
-    U7 -.->|"«generalization»"| U5
-    U8 -.->|"«generalization»"| U5
-    U5 -.->|"«include»"| U9
+    U6 -.->|"«include»"| U9
+    U7 -.->|"«include»"| U9
+    U8 -.->|"«include»"| U9
 ```
 
 *Hình 3.5. Use Case ví Coin mô phỏng với các biến thể sử dụng số dư.*
 
-**Phân cấp:** Mở khóa, ủng hộ và gửi yêu cầu rút là các nghiệp vụ sử dụng số dư theo những cách khác nhau; đều có bước kiểm tra điều kiện xử lý tương ứng (quyền đã mở khóa, ví và số dư); riêng trường hợp chương đã mở khóa từ trước có thể trả kết quả mà không phát sinh giao dịch trừ Coin mới. Hình dùng lớp trừu tượng Sử dụng số dư Coin để diễn tả điểm chung, không khẳng định tồn tại một endpoint có tên như vậy. **Không gán «include»:** Tạo phiên nạp và xem lịch sử giao dịch không phải bước bắt buộc của việc mở khóa; thiếu Coin là trường hợp ngoại lệ hoặc một lần giao dịch khác. Giao dịch nạp thực tế không được mô tả vì đây là Coin mô phỏng. Căn cứ: `wallet.service.ts`, `wallet.repository.ts`.
+**«include»:** Mở khóa, ủng hộ và gửi yêu cầu rút Coin đều phải kiểm tra điều kiện xử lý tương ứng. Với chương đã mở khóa, dịch vụ có thể trả quyền hiện có mà không tạo thêm giao dịch. Xem lịch sử giao dịch hoặc tạo phiên nạp không phải hành vi bắt buộc của mở khóa. Coin ở đây là mô phỏng. Nguồn: `wallet.service.ts`, `wallet.repository.ts`.
 
 ### 3.2.4. Use Case của tác giả
 
@@ -281,16 +283,12 @@ flowchart LR
 flowchart LR
     A["Author"]
     subgraph SYS["Tác phẩm, chương và bản thảo"]
-        U1(["Quản lý tác phẩm (trừu tượng)"])
-        U2(["Tạo tác phẩm"])
-        U3(["Cập nhật tác phẩm"])
-        U4(["Xóa tác phẩm"])
         U5(["Xem danh sách tác phẩm"])
         U6(["Gửi công bố tác phẩm"])
         U7(["Kiểm tra số chương hợp lệ"])
         U8(["Kiểm tra nội dung theo quy tắc"])
         U9(["Tạo chương truyện"])
-        U10(["Lưu nội dung bản thảo"])
+        U10(["Lưu thay đổi nội dung bản thảo"])
         U11(["Lưu revision"])
         U12(["Xem lịch sử revision"])
         U13(["Gửi công bố chương"])
@@ -298,8 +296,15 @@ flowchart LR
         U15(["Lên lịch hoặc hủy lịch công bố"])
         U16(["Lưu trữ hoặc khôi phục chương"])
         U17(["Xem thu nhập theo truyện"])
+        subgraph G6_1["Tạo và quản lý tác phẩm"]
+            U2(["Tạo tác phẩm"])
+            U3(["Cập nhật tác phẩm"])
+            U4(["Xóa tác phẩm"])
+        end
     end
-    A --- U1
+    A --- U2
+    A --- U3
+    A --- U4
     A --- U5
     A --- U6
     A --- U9
@@ -310,18 +315,15 @@ flowchart LR
     A --- U15
     A --- U16
     A --- U17
-    U2 -.->|"«generalization»"| U1
-    U3 -.->|"«generalization»"| U1
-    U4 -.->|"«generalization»"| U1
     U6 -.->|"«include»"| U7
     U6 -.->|"«include»"| U8
     U13 -.->|"«include»"| U8
-    U10 -.->|"«include»: khi lưu thay đổi nội dung"| U11
+    U10 -.->|"«include»"| U11
 ```
 
-*Hình 3.6. Use Case tác giả với phân cấp tác phẩm và các bước công bố bắt buộc.*
+*Hình 3.6. Use Case quản lý tác phẩm và kiểm tra công bố.*
 
-**Phân cấp:** Tạo, sửa và xóa tác phẩm là các biến thể của nhóm quản lý tác phẩm. **«include» được kiểm chứng:** Gửi công bố *tác phẩm* bắt buộc kiểm tra số chương hợp lệ và kiểm tra nội dung; gửi công bố *chương* bắt buộc kiểm tra nội dung theo quy tắc. Trong `chapters.service.ts`, lưu thay đổi nội dung gọi chức năng snapshot revision; quan hệ từ Lưu nội dung bản thảo tới Lưu revision áp dụng cho **lưu thay đổi nội dung** (không áp dụng cho chỉ thay đổi giá/metadata). **Điều kiện tiên quyết, không phải «include»:** Tạo chương cần truyện đã tồn tại; gửi công bố truyện cần tối thiểu hai chương hợp lệ. Lên lịch chương là thao tác riêng, không phải bước luôn xảy ra khi xuất bản.
+**«include»:** Gửi công bố tác phẩm phải kiểm tra số chương hợp lệ và nội dung; gửi công bố chương phải kiểm tra nội dung. Lưu thay đổi **nội dung** bản thảo gọi bước lưu revision, không đồng nhất với sửa riêng thông tin giá. **Điều kiện trước:** Tạo chương cần có tác phẩm đã tồn tại, không dùng «include» đến Tạo tác phẩm. Nguồn: `novels.service.ts`, `chapters.service.ts`.
 
 #### b) Quản lý ngữ cảnh tác phẩm thủ công
 
@@ -329,40 +331,40 @@ flowchart LR
 flowchart LR
     A["Author"]
     subgraph SYS["Dữ kiện do tác giả quản lý"]
-        U1(["Quản lý hồ sơ nhân vật (trừu tượng)"])
-        U2(["Xem hồ sơ nhân vật"])
-        U3(["Tạo nhân vật"])
-        U4(["Sửa hoặc xóa nhân vật"])
-        U5(["Quản lý quan hệ nhân vật (trừu tượng)"])
-        U6(["Xem quan hệ nhân vật"])
-        U7(["Tạo, sửa hoặc xóa quan hệ"])
-        U8(["Quản lý sự kiện timeline (trừu tượng)"])
-        U9(["Xem dòng thời gian"])
-        U10(["Tạo, sửa hoặc xóa sự kiện"])
-        U11(["Quản lý tóm tắt (trừu tượng)"])
-        U12(["Xem tóm tắt"])
-        U13(["Tạo, sửa hoặc xóa tóm tắt"])
         U14(["Đồng bộ Story Bible"])
+        subgraph G7_1["Hồ sơ nhân vật"]
+            U2(["Xem hồ sơ nhân vật"])
+            U3(["Tạo nhân vật"])
+            U4(["Sửa hoặc xóa nhân vật"])
+        end
+        subgraph G7_2["Quan hệ nhân vật"]
+            U6(["Xem quan hệ nhân vật"])
+            U7(["Tạo, sửa hoặc xóa quan hệ"])
+        end
+        subgraph G7_3["Dòng thời gian"]
+            U9(["Xem dòng thời gian"])
+            U10(["Tạo, sửa hoặc xóa sự kiện"])
+        end
+        subgraph G7_4["Tóm tắt"]
+            U12(["Xem tóm tắt"])
+            U13(["Tạo, sửa hoặc xóa tóm tắt"])
+        end
     end
-    A --- U1
-    A --- U5
-    A --- U8
-    A --- U11
+    A --- U2
+    A --- U3
+    A --- U4
+    A --- U6
+    A --- U7
+    A --- U9
+    A --- U10
+    A --- U12
+    A --- U13
     A --- U14
-    U2 -.->|"«generalization»"| U1
-    U3 -.->|"«generalization»"| U1
-    U4 -.->|"«generalization»"| U1
-    U6 -.->|"«generalization»"| U5
-    U7 -.->|"«generalization»"| U5
-    U9 -.->|"«generalization»"| U8
-    U10 -.->|"«generalization»"| U8
-    U12 -.->|"«generalization»"| U11
-    U13 -.->|"«generalization»"| U11
 ```
 
-*Hình 3.7. Use Case quản lý ngữ cảnh thủ công với các ca sử dụng trừu tượng.*
+*Hình 3.7. Use Case quản lý dữ kiện và ngữ cảnh truyện.*
 
-**Phân cấp rõ ràng:** Bốn nhánh độc lập quản lý nhân vật, quan hệ, timeline và tóm tắt; mỗi nhánh có các thao tác chuyên biệt. Các nhánh cùng liên quan đến một truyện nhưng **không** phải bước bắt buộc của nhau. Chẳng hạn, tạo hồ sơ nhân vật không tự động bao gồm tạo sự kiện timeline. Đồng bộ Story Bible là thao tác riêng, không giả định mọi thay đổi hồ sơ tự động gọi đồng bộ. Nguồn: `story-context.routes.ts`.
+Quản lý nhân vật, quan hệ, timeline và tóm tắt được chia thành những nhóm thao tác để người đọc nhận diện phạm vi. **Không thêm «include» hoặc «extend» thiếu căn cứ:** tạo nhân vật không bắt buộc tạo sự kiện, đồng bộ Story Bible là hành động riêng. Các thao tác liên quan đến cùng một truyện không vì thế mà tạo thành quan hệ Use Case. Nguồn: `story-context.routes.ts`.
 
 ### 3.2.5. Use Case hỗ trợ sáng tác bằng AI
 
@@ -372,42 +374,44 @@ flowchart LR
 flowchart LR
     A["Author"]
     subgraph SYS["Story Brain và phê duyệt đề xuất"]
-        U1(["Khởi tạo Story Brain (trừu tượng)"])
-        U2(["Khởi tạo từ ý tưởng"])
-        U3(["Khởi tạo từ bản thảo"])
         U4(["Theo dõi trạng thái job"])
-        U5(["Rà soát dữ kiện Story Brain (trừu tượng)"])
-        U6(["Xem hàng đợi review"])
-        U7(["Rà soát thực thể"])
         U8(["Hợp nhất thực thể trùng"])
-        U9(["Ra quyết định về đề xuất (trừu tượng)"])
-        U10(["Chấp nhận đề xuất"])
-        U11(["Sửa và chấp nhận"])
-        U12(["Từ chối đề xuất"])
         U13(["Kiểm tra quyền và trạng thái đề xuất"])
         U14(["Kích hoạt baseline"])
         U15(["Xem bộ nhớ đã phê duyệt"])
+        subgraph G8_1["Phương thức khởi tạo"]
+            U2(["Khởi tạo từ ý tưởng"])
+            U3(["Khởi tạo từ bản thảo"])
+        end
+        subgraph G8_2["Rà soát dữ kiện"]
+            U6(["Xem hàng đợi review"])
+            U7(["Rà soát thực thể"])
+        end
+        subgraph G8_3["Quyết định đối với đề xuất"]
+            U10(["Chấp nhận đề xuất"])
+            U11(["Sửa và chấp nhận"])
+            U12(["Từ chối đề xuất"])
+        end
     end
-    A --- U1
+    A --- U2
+    A --- U3
     A --- U4
-    A --- U5
-    A --- U9
+    A --- U6
+    A --- U7
+    A --- U10
+    A --- U11
+    A --- U12
     A --- U14
     A --- U15
-    U2 -.->|"«generalization»"| U1
-    U3 -.->|"«generalization»"| U1
-    U6 -.->|"«generalization»"| U5
-    U7 -.->|"«generalization»"| U5
     U8 -.->|"«extend»: khi phát hiện thực thể trùng"| U7
-    U10 -.->|"«generalization»"| U9
-    U11 -.->|"«generalization»"| U9
-    U12 -.->|"«generalization»"| U9
-    U9 -.->|"«include»"| U13
+    U10 -.->|"«include»"| U13
+    U11 -.->|"«include»"| U13
+    U12 -.->|"«include»"| U13
 ```
 
-*Hình 3.8. Use Case Story Brain với các biến thể khởi tạo, rà soát và quyết định.*
+*Hình 3.8. Use Case khởi tạo Story Brain và quyết định đề xuất.*
 
-**Phân cấp:** Khởi tạo từ ý tưởng và từ bản thảo là hai biến thể của cùng mục tiêu tạo Story Brain. Chấp nhận, chỉnh sửa–chấp nhận và từ chối là các biến thể quyết định về đề xuất, không phải ba thao tác bắt buộc trong một lần review. Cả ba nhánh đều được kiểm tra quyền và trạng thái đề xuất; kiểm tra **brain version** là yêu cầu riêng trên nhánh chấp nhận (và một số quyết định nhóm), không áp dụng như bước bắt buộc của mọi lần từ chối. **«extend»:** Hợp nhất thực thể chỉ xuất hiện trong quá trình rà soát thực thể khi phát hiện trùng danh tính. **Điều kiện tiên quyết:** Kích hoạt baseline cần kết quả chuẩn bị/rà soát phù hợp; không «include» thao tác khởi tạo mỗi lần kích hoạt. Căn cứ: `ai-gateway.routes.ts`, `narrative_service.py`.
+**«extend»:** Hợp nhất thực thể có thể phát sinh khi tác giả rà soát và phát hiện thực thể trùng. **«include»:** Các thao tác chấp nhận, sửa–chấp nhận hoặc từ chối đều kiểm tra quyền và trạng thái đề xuất. Việc kiểm tra `brain_version` đặc thù cho nhánh chấp nhận và một số quyết định nhóm, không phải mọi lần từ chối. Khởi tạo Story Brain từ ý tưởng/bản thảo là hai thao tác khởi động độc lập. Nguồn: `ai-gateway.routes.ts`, `narrative_service.py`.
 
 #### b) AI hỗ trợ viết và quản lý kế hoạch
 
@@ -426,11 +430,12 @@ flowchart LR
         U9(["Gửi đề xuất dữ kiện thủ công"])
         U10(["Đề nghị chỉnh sửa sự kiện"])
         U11(["Quản lý quy tắc thế giới"])
-        U12(["Quản lý kế hoạch truyện (trừu tượng)"])
-        U13(["Tạo kế hoạch"])
-        U14(["Sửa mục tiêu kế hoạch"])
-        U15(["Kích hoạt kế hoạch"])
         U16(["Yêu cầu brainstorm"])
+        subgraph G9_1["Kế hoạch truyện"]
+            U13(["Tạo kế hoạch"])
+            U14(["Sửa mục tiêu kế hoạch"])
+            U15(["Kích hoạt kế hoạch"])
+        end
     end
     A --- U1
     A --- U3
@@ -440,19 +445,18 @@ flowchart LR
     A --- U9
     A --- U10
     A --- U11
-    A --- U12
+    A --- U13
+    A --- U14
+    A --- U15
     A --- U16
     U1 -.->|"«include»"| U2
     U4 -.->|"«extend»: khi tác giả chấp nhận"| U3
     U5 -.->|"«extend»: khi tác giả bỏ qua"| U3
-    U13 -.->|"«generalization»"| U12
-    U14 -.->|"«generalization»"| U12
-    U15 -.->|"«generalization»"| U12
 ```
 
-*Hình 3.9. Use Case AI Copilot với ngữ cảnh bắt buộc và các lựa chọn hậu sinh.*
+*Hình 3.9. Use Case AI Copilot và kế hoạch viết.*
 
-**«include»:** Yêu cầu AI viết cần bước chuẩn bị ngữ cảnh đầu vào từ tác phẩm/văn bản hiện hành, ngay cả khi bộ nhớ semantic tùy cấu hình chưa được bật. **«extend»:** Sau khi xem bản thảo sinh, tác giả có thể áp dụng hoặc bỏ qua; hai hành động này chỉ phát sinh theo quyết định của tác giả. **«generalization»:** Tạo, sửa và kích hoạt là các thao tác chuyên biệt đối với kế hoạch truyện. **Không «include»:** Xem trước ngữ cảnh là tùy chọn của tác giả, không phải thao tác giao diện bắt buộc trước mỗi yêu cầu sinh. Kích hoạt kế hoạch cần một kế hoạch hợp lệ đã tồn tại. Nguồn: `ai-gateway.routes.ts`, `writing_service.py`.
+**«include»:** Yêu cầu AI sinh nội dung phải chuẩn bị ngữ cảnh đầu vào. **«extend»:** Sau khi xem bản thảo AI, tác giả có thể áp dụng hoặc bỏ qua theo lựa chọn. Xem trước ngữ cảnh bằng giao diện là tính năng tùy chọn chứ không phải thao tác bắt buộc mỗi lần sinh. Các thao tác tạo/sửa/kích hoạt kế hoạch được nhóm để dễ đọc nhưng không gán quan hệ không được mã nguồn hỗ trợ. Nguồn: `ai-gateway.routes.ts`, `writing_service.py`.
 
 ### 3.2.6. Use Case của quản trị viên
 
@@ -465,37 +469,38 @@ flowchart LR
         U1(["Xem danh sách review"])
         U2(["Xem chi tiết yêu cầu review"])
         U3(["Xem bằng chứng kiểm duyệt"])
-        U4(["Ra quyết định kiểm duyệt (trừu tượng)"])
-        U5(["Phê duyệt nội dung"])
-        U6(["Từ chối nội dung"])
         U7(["Kiểm tra trạng thái và quyền xử lý"])
-        U8(["Quản lý báo cáo (trừu tượng)"])
-        U9(["Xem báo cáo vi phạm"])
-        U10(["Giải quyết báo cáo vi phạm"])
-        U11(["Quản lý trạng thái truyện (trừu tượng)"])
-        U12(["Gỡ truyện"])
-        U13(["Khôi phục truyện"])
         U14(["Xem chi tiết truyện hoặc chương"])
+        subgraph G10_1["Quyết định kiểm duyệt"]
+            U5(["Phê duyệt nội dung"])
+            U6(["Từ chối nội dung"])
+        end
+        subgraph G10_2["Báo cáo vi phạm"]
+            U9(["Xem báo cáo vi phạm"])
+            U10(["Giải quyết báo cáo vi phạm"])
+        end
+        subgraph G10_3["Trạng thái truyện"]
+            U12(["Gỡ truyện"])
+            U13(["Khôi phục truyện"])
+        end
     end
     AD --- U1
     AD --- U2
     AD --- U3
-    AD --- U4
-    AD --- U8
-    AD --- U11
+    AD --- U5
+    AD --- U6
+    AD --- U9
+    AD --- U10
+    AD --- U12
+    AD --- U13
     AD --- U14
-    U5 -.->|"«generalization»"| U4
-    U6 -.->|"«generalization»"| U4
-    U4 -.->|"«include»"| U7
-    U9 -.->|"«generalization»"| U8
-    U10 -.->|"«generalization»"| U8
-    U12 -.->|"«generalization»"| U11
-    U13 -.->|"«generalization»"| U11
+    U5 -.->|"«include»"| U7
+    U6 -.->|"«include»"| U7
 ```
 
-*Hình 3.10. Use Case kiểm duyệt với quyết định chấp nhận hoặc từ chối.*
+*Hình 3.10. Use Case kiểm duyệt và xử lý báo cáo.*
 
-**Phân cấp quyết định:** Phê duyệt và từ chối là hai biến thể loại trừ của mục tiêu giải quyết review; **không** dùng «include» bởi một lần xử lý không thực hiện cả hai. Backend luôn kiểm tra quyền, trạng thái review và điều kiện hợp lệ trước khi ghi quyết định, nên mô hình hóa phần kiểm tra chung bằng «include». Xem hàng đợi/chi tiết hỗ trợ thao tác UI, nhưng không được áp thành «include» bắt buộc khi một API xử lý có thể nhận trực tiếp ID review. Nguồn: `content-control.service.ts`, `admin.service.ts`.
+**«include»:** Khi phê duyệt hoặc từ chối nội dung, backend luôn kiểm tra quyền và trạng thái yêu cầu kiểm duyệt. **Không nối hai quyết định với nhau:** một lần xử lý chỉ chọn nhánh phù hợp. Xem danh sách hay chi tiết hỗ trợ điều hướng trên UI, nhưng không phải bước API bắt buộc khi đã có review ID. Nguồn: `content-control.service.ts`, `admin.service.ts`.
 
 #### b) Quản trị tài khoản, phân loại và Coin
 
@@ -504,37 +509,37 @@ flowchart LR
     AD["Admin có quyền tương ứng"]
     subgraph SYS["Quản trị và vận hành"]
         U1(["Xem danh sách người dùng"])
-        U2(["Quản lý trạng thái tài khoản (trừu tượng)"])
-        U3(["Khóa tài khoản"])
-        U4(["Mở khóa tài khoản"])
         U5(["Xem danh sách truyện"])
-        U6(["Quản lý phân loại (trừu tượng)"])
-        U7(["Thêm thể loại"])
-        U8(["Thêm tag"])
         U9(["Xem yêu cầu rút Coin"])
-        U10(["Giải quyết yêu cầu rút Coin (trừu tượng)"])
-        U11(["Phê duyệt rút Coin"])
-        U12(["Từ chối rút Coin"])
         U13(["Xem thống kê vận hành"])
+        subgraph G11_1["Trạng thái tài khoản"]
+            U3(["Khóa tài khoản"])
+            U4(["Mở khóa tài khoản"])
+        end
+        subgraph G11_2["Danh mục"]
+            U7(["Thêm thể loại"])
+            U8(["Thêm tag"])
+        end
+        subgraph G11_3["Yêu cầu rút Coin"]
+            U11(["Phê duyệt rút Coin"])
+            U12(["Từ chối rút Coin"])
+        end
     end
     AD --- U1
-    AD --- U2
+    AD --- U3
+    AD --- U4
     AD --- U5
-    AD --- U6
+    AD --- U7
+    AD --- U8
     AD --- U9
-    AD --- U10
+    AD --- U11
+    AD --- U12
     AD --- U13
-    U3 -.->|"«generalization»"| U2
-    U4 -.->|"«generalization»"| U2
-    U7 -.->|"«generalization»"| U6
-    U8 -.->|"«generalization»"| U6
-    U11 -.->|"«generalization»"| U10
-    U12 -.->|"«generalization»"| U10
 ```
 
-*Hình 3.11. Use Case quản trị với các biến thể khóa, mở khóa và duyệt yêu cầu rút Coin.*
+*Hình 3.11. Use Case quản trị tài khoản, phân loại và Coin.*
 
-**Phân cấp:** Khóa/mở khóa tài khoản là các biến thể thay đổi trạng thái; thêm thể loại/tag là hai hình thức cập nhật danh mục; chấp thuận/từ chối rút Coin là hai kết quả lựa chọn của nghiệp vụ duyệt rút. **Điều kiện tiên quyết:** Mở khóa chỉ có nghĩa với tài khoản đang bị khóa; xử lý yêu cầu rút cần yêu cầu đang chờ và quyền finance. Xem danh sách không phải là một bước «include» của thao tác thay đổi trạng thái, vì API có thể được gọi khi đã biết ID. Nguồn: `admin.routes.ts`, `admin.service.ts`.
+Khóa và mở khóa tài khoản, thêm thể loại/tag, phê duyệt hoặc từ chối rút Coin được chia thành những nhóm nghiệp vụ. **Không tự thêm «include»/«extend»** giữa những lựa chọn thay thế. Trạng thái tài khoản, quyền admin, yêu cầu rút đang chờ là các điều kiện tiên quyết được backend kiểm tra. Nguồn: `admin.routes.ts`, `admin.service.ts`.
 
 ### 3.2.7. Mô tả kịch bản các ca sử dụng chính
 
@@ -669,22 +674,22 @@ flowchart LR
 
 Sơ đồ phản ánh các khả năng nghiệp vụ có mã nguồn/route trên nhánh chính. Việc một API tồn tại **không đồng nghĩa** tất cả luồng end-to-end đã được kiểm thử thành công.
 
-### 3.2.9. Đánh giá quan hệ phụ thuộc giữa các Use Case
+### 3.2.9. Đánh giá các quan hệ «include» và «extend»
 
-| Quan hệ thực tế | Ví dụ của Ephurin | Cách biểu diễn và lý do |
+| Quan hệ thực tế | Trường hợp trong Ephurin | Cách thể hiện |
 |---|---|---|
-| Hành vi bắt buộc được dùng chung | Công bố truyện và công bố chương đều quét nội dung | **«include» → Kiểm tra nội dung theo quy tắc**; mã nguồn thực sự gọi bước này trong luồng công bố |
-| Hành vi bắt buộc theo dữ liệu | Công bố truyện cần kiểm tra tối thiểu số chương hợp lệ | **«include» → Kiểm tra số chương hợp lệ** |
-| Hành vi xuất hiện theo lựa chọn | Lọc kết quả khi đang tìm kiếm truyện | **«extend» → Tìm kiếm truyện**; tìm kiếm có thể hoàn tất khi không lọc |
-| Hành vi xuất hiện theo lựa chọn | Áp dụng hoặc bỏ qua kết quả AI sau khi xem bản sinh | **«extend» → Xem bản thảo AI đã tạo**; không phải hai bước bắt buộc |
-| Biến thể của cùng một mục tiêu | Khởi tạo Story Brain từ ý tưởng / từ bản thảo | **«generalization» → Khởi tạo Story Brain (trừu tượng)** |
-| Biến thể của cùng một quyết định | Chấp nhận hoặc từ chối đề xuất; duyệt hoặc từ chối kiểm duyệt | **«generalization» → UC quyết định (trừu tượng)**; một lần xử lý chỉ có một quyết định hợp lệ |
-| Phụ thuộc đối tượng đã tồn tại | Tạo chương phải có tác phẩm, sửa bình luận phải có bình luận | **Precondition**; không dùng «include» đến tạo tác phẩm/tạo bình luận |
-| Phụ thuộc trạng thái dữ liệu | Mở khóa tài khoản cần đang khóa, kích hoạt plan cần có plan hợp lệ | **Precondition**, không phải lúc nào cũng chạy UC tạo đối tượng |
-| Bước điều hướng không bắt buộc | Xem chi tiết truyện rồi mới đọc, xem danh sách rồi chọn mục để sửa | Không vẽ «include» vì có thể truy cập trực tiếp bằng ID |
-| Hai tính năng liên quan nhưng không bắt buộc nhau | Theo dõi truyện và bật thông báo cho truyện | **Hai UC độc lập**; không áp đặt quan hệ phụ thuộc mà backend không yêu cầu |
+| Bước bắt buộc | Công bố truyện và chương phải kiểm tra nội dung | «include» → Kiểm tra nội dung theo quy tắc |
+| Bước bắt buộc | Công bố truyện cần kiểm tra số chương hợp lệ | «include» → Kiểm tra số chương |
+| Bước bắt buộc | Đọc chương cần kiểm tra quyền truy cập | «include» → Kiểm tra quyền đọc |
+| Bước bắt buộc | Viết bằng AI phải chuẩn bị ngữ cảnh | «include» → Chuẩn bị ngữ cảnh đầu vào |
+| Mở rộng có điều kiện | Lọc truyện khi người dùng bật bộ lọc | «extend» → Tìm kiếm truyện |
+| Mở rộng có điều kiện | Trả lời một bình luận có sẵn | «extend» → Gửi bình luận |
+| Mở rộng có điều kiện | Hợp nhất thực thể khi phát hiện trùng | «extend» → Rà soát thực thể |
+| Mở rộng do lựa chọn | Áp dụng hoặc bỏ qua bản thảo AI sau khi xem | «extend» → Xem bản thảo AI |
+| Thao tác cùng một nghiệp vụ | Tạo/sửa/xóa nhân vật, theo dõi/bỏ theo dõi, duyệt/từ chối | Chỉ **nhóm bố cục**; không thêm mũi tên khi không có bước bắt buộc hoặc mở rộng |
+| Phụ thuộc dữ liệu | Tạo chương cần truyện tồn tại; mở khóa tài khoản cần tài khoản bị khóa | Ghi trong **điều kiện tiên quyết**, không dùng «include»/«extend» để thay thế |
 
-**Kết luận đánh giá:** Use Case là **mục tiêu đạt được từ góc nhìn tác nhân**, không phải một danh sách endpoint đồng cấp. Một số bước kiểm tra nội bộ được dùng làm UC được bao gồm chỉ khi là hành vi bắt buộc và có ý nghĩa tái sử dụng; những thao tác CRUD được nhóm bằng UC cha trừu tượng để thể hiện mức độ chuyên biệt. Tình huống cần dữ liệu đầu vào tồn tại hoặc trạng thái hợp lệ được mô tả trong bảng kịch bản, tránh dùng sai quan hệ UML.
+**Nguyên tắc:** Không tạo mũi tên quan hệ chỉ để làm sơ đồ phức tạp hơn. Mỗi quan hệ «include» hoặc «extend» phải có thể giải thích bằng logic nghiệp vụ và, khi mô tả hiện trạng, đối chiếu với mã nguồn nhánh `main`.
 
 ## 3.3. Biểu đồ lớp thực thể
 
