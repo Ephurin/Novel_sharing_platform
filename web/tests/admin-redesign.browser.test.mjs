@@ -325,7 +325,7 @@ test(
         await goto('/admin/novels');
         await page.getByText(/Lỗi kiểm thử có thể thử lại/).waitFor();
         fail = false;
-        await page.getByRole('button', { name: 'Retry', exact: true }).click();
+        await page.getByRole('button', { name: 'Thử lại', exact: true }).click();
         await page.locator('tbody tr').first().waitFor();
         await page.unroute(pattern);
         await page.getByLabel('Tìm kiếm', { exact: true }).fill('no-such-novel-0000');
