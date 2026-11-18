@@ -1,6 +1,6 @@
 import { Alert, Avatar, Badge, Button, Group, Pagination, Paper, Stack, Text, Textarea, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../auth/useAuthStore';
@@ -18,7 +18,7 @@ function requireSameAccount(account: string) {
   if (useAuthStore.getState().user?.userId !== account) throw new Error('Phiên đăng nhập đã thay đổi.');
 }
 
-export function CommentsSection({ kind, id }: CommentTarget) {
+export function CommentsSection({ kind, id, authorFeedback }: CommentTarget & { authorFeedback?: ReactNode }) {
   const user = useAuthStore(state => state.user);
   const navigation = useLocation();
   const selectedCommentId = new URLSearchParams(navigation.search).has('threadId') ? null : new URLSearchParams(navigation.search).get('commentId');
@@ -68,6 +68,7 @@ export function CommentsSection({ kind, id }: CommentTarget) {
         : <Text size="sm" c="dimmed">{!user ? <><Link to="/login">Đăng nhập</Link> để bình luận.</> : 'Tài khoản đang hoạt động mới được bình luận.'}</Text>}
       {notice && <Text role="status" size="sm">{notice}</Text>}
       {create.isError && <Alert color="red">{getApiErrorMessage(create.error)}</Alert>}
+      {authorFeedback}
       {selectedCommentId && position.isError && <Alert color="orange" role="status">Không mở được bình luận này. Bình luận có thể đã bị xóa hoặc không còn hiển thị.</Alert>}
       {query.isPending && <LoadingState label="Đang tải bình luận…" />}
       {query.isError && <ErrorState title="Không tải được bình luận" error={query.error} onRetry={() => void query.refetch()} />}

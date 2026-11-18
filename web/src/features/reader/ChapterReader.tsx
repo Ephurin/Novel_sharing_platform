@@ -6,6 +6,7 @@ import { ErrorState, LoadingState } from '../../shared/components/PageStates';
 import { useToast } from '../../shared/components/ToastProvider';
 import { useAuthStore } from '../auth/useAuthStore';
 import { CommentsSection } from './CommentsSection';
+import { AuthorPrivateFeedback } from './PrivateComments';
 import { ChapterReadingWorkspace } from './ChapterReadingWorkspace';
 import { getReaderChapter, getReaderNovel, reportContent, syncHistory, unlockVipChapter } from './reader-api';
 import { useReadChapterIds } from './useReadChapterIds';
@@ -69,7 +70,7 @@ export function ChapterReader({ publicMode = false }: { publicMode?: boolean }) 
     <ChapterReadingWorkspace key={chapterId} chapter={chapter} novel={novelQuery.data} chapters={chapters} publicMode={publicMode}
       tocPending={novelQuery.isPending} tocFailed={novelQuery.isError} onRetryToc={() => void novelQuery.refetch()}
       onReport={userId ? () => report.mutate() : undefined} reporting={report.isPending}>
-      <section className="sc-reader-comments" aria-label="Bình luận chương"><CommentsSection kind="chapter" id={chapterId} /></section>
+      <section className="sc-reader-comments" aria-label="Bình luận chương"><CommentsSection kind="chapter" id={chapterId} authorFeedback={<AuthorPrivateFeedback target={{ kind: 'chapter', id: chapterId }} chapter={chapter} />} /></section>
     </ChapterReadingWorkspace>
   </>;
 }

@@ -1,4 +1,4 @@
-import { PrivateComments, ParagraphMarkers } from './PrivateComments';
+import { ParagraphDiscussion, useChapterDiscussions, usePrivateCommentFocus } from './PrivateComments';
 import { parseAuthorNotes } from '../../shared/lib/author-notes';
 import { useAuthStore } from '../auth/useAuthStore';
 import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
@@ -6,6 +6,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 import { NumberInput, Select } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
+import { autoUpdate, flip, offset, shift, useDismiss, useFloating, useInteractions } from '@floating-ui/react';
 import { AnimatedModal } from '../../shared/components/AnimatedModal';
 import { ManuscriptContent } from '../../shared/components/ManuscriptContent';
 import { ReadingProgress } from '../../shared/components/ReadingProgress';
@@ -57,6 +58,33 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
   const bookmarkAction = useRef<HTMLButtonElement>(null);
   const [failedCoverUrl, setFailedCoverUrl] = useState<string>();
   const article = useRef<HTMLElement>(null);
+  const discussions = useChapterDiscussions(chapter);
+  const privateFocus = usePrivateCommentFocus({ kind: 'chapter', id: chapter.chapterId });
+  const [openedDiscussion, setOpenedDiscussion] = useState<{ account: string; paragraphId: string; navigationKey: string }>();
+  const [dismissedLink, setDismissedLink] = useState<string>();
+  const manualParagraph = openedDiscussion?.account === socialAccount && openedDiscussion?.navigationKey === location.key
+    ? openedDiscussion?.paragraphId : undefined;
+  const opensFromLink = privateFocus.requested && dismissedLink !== location.key &&
+    privateFocus.data?.root.audience !== 'AUTHOR_PRIVATE' && !manualParagraph;
+  const discussionId = manualParagraph || (opensFromLink && !privateFocus.isError ? privateFocus.data?.root.anchor?.currentParagraphId : undefined) || undefined;
+  const discussionOpen = Boolean(manualParagraph || opensFromLink);
+  const paragraphElement = (id?: string) => id ? article.current?.querySelector<HTMLElement>(`[data-paragraph-id="${CSS.escape(id)}"]`) : undefined;
+  const closeDiscussion = (restoreFocus: boolean) => {
+    setOpenedDiscussion(undefined);
+    setDismissedLink(location.key);
+    if (restoreFocus) (paragraphElement(discussionId) ?? heading.current)?.focus({ preventScroll: true });
+  };
+  const { refs, context: floatingContext, floatingStyles, isPositioned } = useFloating({
+    open: discussionOpen, onOpenChange: open => { if (!open) closeDiscussion(false); },
+    placement: 'right-start', strategy: 'fixed', whileElementsMounted: autoUpdate,
+    middleware: [offset(12), flip({ padding: 12, fallbackPlacements: ['left-start', 'bottom-start', 'top-start'] }), shift({ padding: 12 })]
+  });
+  const dismiss = useDismiss(floatingContext, {
+    escapeKey: false,
+    outsidePress: event => !(event.target instanceof Element && event.target.closest('[data-private-recipient-menu]'))
+  });
+  const { getFloatingProps } = useInteractions([dismiss]);
+  const discussionHeading = useId();
   const toc = useRef<HTMLElement>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const jumpAfterClose = useRef(false);
@@ -73,6 +101,28 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
   const toolsVisible = !mobile || toolsOpen;
   const selectedBookmark = bookmarks.items.find(item => item.chapterId === chapter.chapterId && item.paragraphIndex === selectedPassage?.index && (item.startOffset ?? 0) === selectedPassage?.line.startOffset);
   const bookmarkLabel = bookmarks.pending ? 'Đang tải bookmark…' : bookmarks.error ? 'Không tải được bookmark' : selectedBookmark ? 'Xóa bookmark' : 'Bookmark';
+  const selectedDiscussionId = selectedPassage ? anchorParagraphs[selectedPassage.index]?.paragraphId : undefined;
+
+  useLayoutEffect(() => {
+    const anchor = paragraphElement(discussionId);
+    refs.setReference(anchor ?? null);
+    if (!anchor) return;
+    anchor.dataset.discussionOpen = 'true';
+    if (opensFromLink) anchor.scrollIntoView({ block: 'center', behavior: 'instant' });
+    return () => { delete anchor.dataset.discussionOpen; };
+  }, [discussionId, opensFromLink, refs.setReference]);
+  useEffect(() => {
+    if (manualParagraph && (isPositioned || mobile)) refs.floating.current?.focus({ preventScroll: true });
+  }, [manualParagraph, isPositioned, mobile, refs.floating]);
+  useEffect(() => {
+    const blocks = Array.from(article.current?.querySelectorAll<HTMLElement>('[data-paragraph-id]') ?? []);
+    if (!socialAccount || discussions.isError) return;
+    for (const block of blocks) {
+      const count = discussions.data?.groups.get(block.dataset.paragraphId!)?.length;
+      if (count) block.dataset.privateCount = String(count);
+    }
+    return () => { for (const block of blocks) delete block.dataset.privateCount; };
+  }, [chapter, socialAccount, discussions.data, discussions.isError]);
 
   const paragraphs = () => Array.from(article.current?.querySelectorAll<HTMLElement>('.chapter-prose > p, .chapter-prose > blockquote, .chapter-prose > hr') ?? []);
   const flashLine = (range: Range) => {
@@ -242,14 +292,39 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
       </motion.article></ReadingProgress>
       <span id="reading-bookmark-help" className="sc-reader-bookmark-help">Bấm vào dòng cần lưu, hoặc nhấn Enter để bookmark dòng đầu. Dùng phím lên, xuống để chuyển đoạn.</span>
     </div>
-    {selectedPassage && <button ref={bookmarkAction} type="button" className="sc-reading-bookmark-action" data-placement={selectedPassage.beside ? 'side' : 'below'} style={{ top: selectedPassage.top, left: selectedPassage.left }}
+    {selectedPassage && <div className="sc-reading-passage-actions" role="group" aria-label="Công cụ cho đoạn đã chọn"
+      data-placement={selectedPassage.beside ? 'side' : 'below'} style={{ top: selectedPassage.top, left: selectedPassage.left }}>
+    <button ref={bookmarkAction} type="button" className="sc-reading-bookmark-action" data-placement={selectedPassage.beside ? 'side' : 'below'}
       disabled={bookmarks.pending || bookmarks.saving || Boolean(bookmarks.error)} onClick={savePassage} aria-pressed={Boolean(selectedBookmark)}
       aria-label={bookmarkLabel} title={bookmarkLabel}>
       <Icon name={selectedBookmark ? 'close' : 'bookmark_add'} />{bookmarks.saving ? 'Đang xử lý…' : bookmarks.pending ? 'Đang tải…' : bookmarks.error ? 'Chưa tải được' : !selectedBookmark && 'Bookmark'}
-    </button>}
-    {selectedPassage && socialAccount && <button type="button" className="sc-reading-private-action" style={{ top: Math.min(selectedPassage.top + 48, innerHeight - 48), left: selectedPassage.left }} onClick={() => {
-      const panel = document.getElementById('reader-private-comments'); panel?.scrollIntoView({ block: 'start' }); panel?.focus({ preventScroll: true });
-    }}>Trao đổi riêng</button>}
+    </button>
+    {selectedDiscussionId && socialAccount && <button type="button" className="sc-reading-private-action"
+      aria-label="Trao đổi riêng" title="Trao đổi riêng" aria-haspopup="dialog"
+      onClick={() => {
+        setOpenedDiscussion({ account: socialAccount, paragraphId: selectedDiscussionId, navigationKey: location.key });
+        setSelectedPassage(null);
+      }}><Icon name="forum" /></button>}
+    </div>}
+    {discussionOpen && <section ref={refs.setFloating} id="reader-private-comments" tabIndex={-1} role="dialog" aria-labelledby={discussionHeading}
+      className="sc-paragraph-discussion" data-docked={mobile || !discussionId}
+      style={!mobile && discussionId ? { ...floatingStyles, visibility: isPositioned ? undefined : 'hidden' } : undefined}
+      {...getFloatingProps({ onKeyDown: event => {
+        if (event.key === 'Escape' && !event.defaultPrevented && !(event.target as HTMLElement).closest('[aria-expanded="true"]')) {
+          event.stopPropagation();
+          closeDiscussion(true);
+        }
+      } })}>
+      <header className="sc-paragraph-discussion-header">
+        <h2 id={discussionHeading}>Trao đổi với bạn bè</h2>
+        <button type="button" className="sc-comment-tool" title="Đóng hộp trao đổi" aria-label="Đóng hộp trao đổi" onClick={() => closeDiscussion(true)}><Icon name="close" /></button>
+      </header>
+      <div className="sc-paragraph-discussion-body">
+        <ParagraphDiscussion key={`${socialAccount}:${discussionId ?? 'detached'}:${opensFromLink ? privateFocus.focusId : 'manual'}`}
+          chapter={chapter} paragraphId={discussionId} focus={opensFromLink ? privateFocus : undefined} discussions={discussions}
+          onCancel={() => closeDiscussion(true)} />
+      </div>
+    </section>}
     <button type="button" className="sc-reader-tools-toggle" aria-expanded={toolsVisible} aria-controls="chapter-reader-tools" onClick={() => setToolsOpen(value => !value)}>{toolsOpen ? 'Ẩn công cụ đọc' : 'Hiện công cụ đọc'}</button>
     <aside id="chapter-reader-tools" className="sc-reader-tool-rail" aria-label="Công cụ đọc chương" data-open={toolsOpen} aria-hidden={!toolsVisible} inert={!toolsVisible}>
       {navigationLink(previous, 'Chương trước', 'skip_previous')}
@@ -263,8 +338,6 @@ export function ChapterReadingWorkspace({ chapter, novel, chapters, publicMode, 
       {previous && <Link to={`${base}/chapters/${previous.chapterId}`} className="sc-button"><Icon name="chevron_left" />Chương trước</Link>}
       {next && <Link to={`${base}/chapters/${next.chapterId}`} className="sc-button sc-button-primary">Chương sau<Icon name="chevron_right" /></Link>}
     </footer>
-    <ParagraphMarkers chapter={chapter} article={article} />
-    <div className="sc-reader-comments"><PrivateComments target={{ kind: 'chapter', id: chapter.chapterId }} chapter={chapter} paragraphIndex={selectedPassage ? anchorParagraphs[selectedPassage.index]?.paragraphIndex : undefined} /></div>
     {children}
     <AnimatedModal opened={panel !== null} onClose={() => setPanel(null)} side="right" title={panel === 'toc' ? 'Mục lục chương' : panel === 'bookmarks' ? 'Bookmark' : 'Tùy chỉnh đọc'} className="sc-reader-tool-panel"
       onCloseAutoFocus={event => {

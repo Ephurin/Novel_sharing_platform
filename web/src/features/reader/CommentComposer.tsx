@@ -1,9 +1,6 @@
-import { Button, Checkbox, Group, Input, Popover, Select } from '@mantine/core';
-import { useQuery } from '@tanstack/react-query';
-import { connections } from './social-api';
-import { useAuthStore } from '../auth/useAuthStore';
+import { Button, Checkbox, Group, Input, Popover } from '@mantine/core';
 import { lazy, Suspense, useEffect, useId, useState } from 'react';
-import { EditorContent } from '@tiptap/react';
+import { CommentMentionInput } from './CommentMentionInput';
 import type { CommentInput } from './reader-api';
 import { useCommentEditor } from './useCommentEditor';
 import { GiphyMedia } from './CommentGifPicker';
@@ -21,28 +18,19 @@ export function CommentComposer({ value, onChange, onSubmit, label, submitLabel,
   label: string; submitLabel: string; pending?: boolean; onCancel?: () => void; autoFocus?: boolean; privateMode?: boolean;
 }) {
   const [picker, setPicker] = useState<'emoji' | 'gif' | null>(null);
-  const account = useAuthStore(state => state.user?.userId);
-  const [mentionSearch, setMentionSearch] = useState('');
-  const mutual = useQuery({ queryKey: ['connections', account, 'mention', mentionSearch], queryFn: () => connections('MUTUAL', mentionSearch), enabled: Boolean(account && !privateMode) });
   const editorId = useId();
   const busy = pending;
-  const { editor, formatting, limitReached } = useCommentEditor({ value: value.content, id: editorId,
-    onChange: content => onChange({ ...value, content, mentions: value.mentions?.filter(mention => content.slice(0, mention.end) === value.content.slice(0, mention.end)) }), label, disabled: busy });
+  const { editor, formatting, limitReached } = useCommentEditor({ value: value.content, mentions: value.mentions, id: editorId,
+    onChange: change => onChange({ ...value, ...change }), label, disabled: busy });
   useEffect(() => { if (autoFocus) editor?.commands.focus('end'); }, [editor, autoFocus]);
   return <form className="sc-comment-composer" onSubmit={event => {
     event.preventDefault();
     const leading = value.content.length - value.content.trimStart().length;
     if (!busy && (value.content.trim() || value.imageUrl || value.gifId)) onSubmit({ ...value, content: value.content.trim(), mentions: privateMode ? undefined : value.mentions?.map(mention => ({ ...mention, start: mention.start - leading, end: mention.end - leading })) });
   }}>
-    <Input.Wrapper label={label} id={editorId}><EditorContent editor={editor} /></Input.Wrapper>
-    {!privateMode && account && <Select aria-label="Nhắc đến bạn bè" placeholder="@ Nhắc đến bạn bè" searchable clearable value={null} searchValue={mentionSearch} onSearchChange={setMentionSearch} disabled={busy}
-      data={(mutual.data?.items ?? []).map(person => ({ value: person.userId, label: `@${person.username} · ${person.displayName}` }))}
-      nothingFoundMessage={mutual.isError ? 'Không tải được bạn bè' : 'Không có bạn bè phù hợp'} onChange={id => {
-        const person = mutual.data?.items.find(person => person.userId === id); if (!person) return;
-        const prefix = value.content ? `${value.content.trimEnd()} ` : ''; const token = `@${person.username}`;
-        if (prefix.length + token.length + 1 > 2000) return;
-        onChange({ ...value, content: `${prefix}${token} `, mentions: [...(value.mentions ?? []), { userId: person.userId, start: prefix.length, end: prefix.length + token.length }] }); setMentionSearch('');
-      }} />}
+    <Input.Wrapper label={label} id={editorId}>
+      <CommentMentionInput editor={editor} trigger={formatting?.mention} enabled={!privateMode && !busy} mentionCount={value.mentions?.length ?? 0} />
+    </Input.Wrapper>
     {limitReached && <p className="sc-comment-error" role="alert">Tối đa 2.000 ký tự, bao gồm định dạng.</p>}
     <div className="sc-comment-editor-tools" role="group" aria-label="Công cụ bình luận">
       <Popover opened={picker === 'emoji'} onChange={open => setPicker(open ? 'emoji' : null)} position="bottom-start" width="min(360px, calc(100vw - 32px))" withinPortal={false} withRoles={false} trapFocus>
