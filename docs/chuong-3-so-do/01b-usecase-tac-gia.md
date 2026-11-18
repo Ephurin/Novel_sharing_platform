@@ -1,6 +1,8 @@
-# Chương 3 – Use Case Tác giả
+# Chương 3 – Use Case tác giả
 
-> Tách từ [bản báo cáo Chương 3](../BAO_CAO_CHUONG_3.md). Các quan hệ được xác định theo mã nguồn nhánh `main`; sơ đồ Mermaid là biểu diễn gần đúng ký pháp UML.
+> Trích từ [Chương 3](../BAO_CAO_CHUONG_3.md); nguồn đối chiếu: `main`. Chỉ dùng mũi tên «include» và «extend». Đường liền là liên kết tác nhân; khung là nhóm chức năng.
+
+### 3.2.4. Use Case của tác giả
 
 #### a) Quản lý tác phẩm, chương và vòng đời công bố
 
@@ -8,16 +10,12 @@
 flowchart LR
     A["Author"]
     subgraph SYS["Tác phẩm, chương và bản thảo"]
-        U1(["Quản lý tác phẩm (trừu tượng)"])
-        U2(["Tạo tác phẩm"])
-        U3(["Cập nhật tác phẩm"])
-        U4(["Xóa tác phẩm"])
         U5(["Xem danh sách tác phẩm"])
         U6(["Gửi công bố tác phẩm"])
         U7(["Kiểm tra số chương hợp lệ"])
         U8(["Kiểm tra nội dung theo quy tắc"])
         U9(["Tạo chương truyện"])
-        U10(["Lưu nội dung bản thảo"])
+        U10(["Lưu thay đổi nội dung bản thảo"])
         U11(["Lưu revision"])
         U12(["Xem lịch sử revision"])
         U13(["Gửi công bố chương"])
@@ -25,8 +23,15 @@ flowchart LR
         U15(["Lên lịch hoặc hủy lịch công bố"])
         U16(["Lưu trữ hoặc khôi phục chương"])
         U17(["Xem thu nhập theo truyện"])
+        subgraph G6_1["Tạo và quản lý tác phẩm"]
+            U2(["Tạo tác phẩm"])
+            U3(["Cập nhật tác phẩm"])
+            U4(["Xóa tác phẩm"])
+        end
     end
-    A --- U1
+    A --- U2
+    A --- U3
+    A --- U4
     A --- U5
     A --- U6
     A --- U9
@@ -37,18 +42,15 @@ flowchart LR
     A --- U15
     A --- U16
     A --- U17
-    U2 -.->|"«generalization»"| U1
-    U3 -.->|"«generalization»"| U1
-    U4 -.->|"«generalization»"| U1
     U6 -.->|"«include»"| U7
     U6 -.->|"«include»"| U8
     U13 -.->|"«include»"| U8
-    U10 -.->|"«include»: khi lưu thay đổi nội dung"| U11
+    U10 -.->|"«include»"| U11
 ```
 
-*Hình 3.6. Use Case tác giả với phân cấp tác phẩm và các bước công bố bắt buộc.*
+*Hình 3.6. Use Case quản lý tác phẩm và kiểm tra công bố.*
 
-**Phân cấp:** Tạo, sửa và xóa tác phẩm là các biến thể của nhóm quản lý tác phẩm. **«include» được kiểm chứng:** Gửi công bố *tác phẩm* bắt buộc kiểm tra số chương hợp lệ và kiểm tra nội dung; gửi công bố *chương* bắt buộc kiểm tra nội dung theo quy tắc. Trong `chapters.service.ts`, lưu thay đổi nội dung gọi chức năng snapshot revision; quan hệ từ Lưu nội dung bản thảo tới Lưu revision áp dụng cho **lưu thay đổi nội dung** (không áp dụng cho chỉ thay đổi giá/metadata). **Điều kiện tiên quyết, không phải «include»:** Tạo chương cần truyện đã tồn tại; gửi công bố truyện cần tối thiểu hai chương hợp lệ. Lên lịch chương là thao tác riêng, không phải bước luôn xảy ra khi xuất bản.
+**«include»:** Gửi công bố tác phẩm phải kiểm tra số chương hợp lệ và nội dung; gửi công bố chương phải kiểm tra nội dung. Lưu thay đổi **nội dung** bản thảo gọi bước lưu revision, không đồng nhất với sửa riêng thông tin giá. **Điều kiện trước:** Tạo chương cần có tác phẩm đã tồn tại, không dùng «include» đến Tạo tác phẩm. Nguồn: `novels.service.ts`, `chapters.service.ts`.
 
 #### b) Quản lý ngữ cảnh tác phẩm thủ công
 
@@ -56,38 +58,38 @@ flowchart LR
 flowchart LR
     A["Author"]
     subgraph SYS["Dữ kiện do tác giả quản lý"]
-        U1(["Quản lý hồ sơ nhân vật (trừu tượng)"])
-        U2(["Xem hồ sơ nhân vật"])
-        U3(["Tạo nhân vật"])
-        U4(["Sửa hoặc xóa nhân vật"])
-        U5(["Quản lý quan hệ nhân vật (trừu tượng)"])
-        U6(["Xem quan hệ nhân vật"])
-        U7(["Tạo, sửa hoặc xóa quan hệ"])
-        U8(["Quản lý sự kiện timeline (trừu tượng)"])
-        U9(["Xem dòng thời gian"])
-        U10(["Tạo, sửa hoặc xóa sự kiện"])
-        U11(["Quản lý tóm tắt (trừu tượng)"])
-        U12(["Xem tóm tắt"])
-        U13(["Tạo, sửa hoặc xóa tóm tắt"])
         U14(["Đồng bộ Story Bible"])
+        subgraph G7_1["Hồ sơ nhân vật"]
+            U2(["Xem hồ sơ nhân vật"])
+            U3(["Tạo nhân vật"])
+            U4(["Sửa hoặc xóa nhân vật"])
+        end
+        subgraph G7_2["Quan hệ nhân vật"]
+            U6(["Xem quan hệ nhân vật"])
+            U7(["Tạo, sửa hoặc xóa quan hệ"])
+        end
+        subgraph G7_3["Dòng thời gian"]
+            U9(["Xem dòng thời gian"])
+            U10(["Tạo, sửa hoặc xóa sự kiện"])
+        end
+        subgraph G7_4["Tóm tắt"]
+            U12(["Xem tóm tắt"])
+            U13(["Tạo, sửa hoặc xóa tóm tắt"])
+        end
     end
-    A --- U1
-    A --- U5
-    A --- U8
-    A --- U11
+    A --- U2
+    A --- U3
+    A --- U4
+    A --- U6
+    A --- U7
+    A --- U9
+    A --- U10
+    A --- U12
+    A --- U13
     A --- U14
-    U2 -.->|"«generalization»"| U1
-    U3 -.->|"«generalization»"| U1
-    U4 -.->|"«generalization»"| U1
-    U6 -.->|"«generalization»"| U5
-    U7 -.->|"«generalization»"| U5
-    U9 -.->|"«generalization»"| U8
-    U10 -.->|"«generalization»"| U8
-    U12 -.->|"«generalization»"| U11
-    U13 -.->|"«generalization»"| U11
 ```
 
-*Hình 3.7. Use Case quản lý ngữ cảnh thủ công với các ca sử dụng trừu tượng.*
+*Hình 3.7. Use Case quản lý dữ kiện và ngữ cảnh truyện.*
 
-**Phân cấp rõ ràng:** Bốn nhánh độc lập quản lý nhân vật, quan hệ, timeline và tóm tắt; mỗi nhánh có các thao tác chuyên biệt. Các nhánh cùng liên quan đến một truyện nhưng **không** phải bước bắt buộc của nhau. Chẳng hạn, tạo hồ sơ nhân vật không tự động bao gồm tạo sự kiện timeline. Đồng bộ Story Bible là thao tác riêng, không giả định mọi thay đổi hồ sơ tự động gọi đồng bộ. Nguồn: `story-context.routes.ts`.
+Quản lý nhân vật, quan hệ, timeline và tóm tắt được chia thành những nhóm thao tác để người đọc nhận diện phạm vi. **Không thêm «include» hoặc «extend» thiếu căn cứ:** tạo nhân vật không bắt buộc tạo sự kiện, đồng bộ Story Bible là hành động riêng. Các thao tác liên quan đến cùng một truyện không vì thế mà tạo thành quan hệ Use Case. Nguồn: `story-context.routes.ts`.
 
