@@ -28,7 +28,7 @@ sequenceDiagram
     end
 ```
 
-*Hình 3.13. Sơ đồ tuần tự đăng nhập.*
+*Hình 3.18. Sơ đồ tuần tự đăng nhập.*
 
 ## 3.5.2. Tạo, lưu và gửi công bố chương
 
@@ -66,7 +66,7 @@ sequenceDiagram
     UI-->>A: Hiển thị kết quả
 ```
 
-*Hình 3.14. Sơ đồ tuần tự lưu bản thảo và gửi công bố chương.*
+*Hình 3.19. Sơ đồ tuần tự lưu bản thảo và gửi công bố chương.*
 
 ## 3.5.3. AI sinh gợi ý và tác giả phê duyệt
 
@@ -102,7 +102,7 @@ sequenceDiagram
     end
 ```
 
-*Hình 3.15. Sơ đồ tuần tự AI hỗ trợ sáng tác.*
+*Hình 3.20. Sơ đồ tuần tự AI hỗ trợ sáng tác.*
 
 ## 3.5.4. Mở khóa chương VIP
 
@@ -129,7 +129,7 @@ sequenceDiagram
     UI-->>R: Kết quả mở khóa
 ```
 
-*Hình 3.16. Sơ đồ tuần tự mở khóa chương bằng Coin mô phỏng.*
+*Hình 3.21. Sơ đồ tuần tự mở khóa chương bằng Coin mô phỏng.*
 
 ## 3.5.5. Quản trị viên xử lý kiểm duyệt
 
@@ -159,5 +159,5 @@ sequenceDiagram
     UI-->>AD: Trạng thái mới
 ```
 
-*Hình 3.17. Sơ đồ tuần tự xử lý kiểm duyệt nội dung.*
+*Hình 3.22. Sơ đồ tuần tự xử lý kiểm duyệt nội dung.*
 
